@@ -93,6 +93,7 @@ public:
                   SkTArray<Placeholder, true> placeholders,
                   sk_sp<FontCollection> fonts,
                   std::shared_ptr<SkUnicode> unicode);
+
     ~ParagraphImpl() override;
 
     void layout(SkScalar width) override;

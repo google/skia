@@ -52,6 +52,14 @@ bool SkUnicode::isHardLineBreak(SkUnicode::CodeUnitFlags flags) {
     return (flags & SkUnicode::kHardLineBreakBefore) == SkUnicode::kHardLineBreakBefore;
 }
 
+bool SkUnicode::isSoftLineBreak(SkUnicode::CodeUnitFlags flags) {
+    return (flags & SkUnicode::kSoftLineBreakBefore) == SkUnicode::kSoftLineBreakBefore;
+}
+
+bool SkUnicode::isGraphemeStart(SkUnicode::CodeUnitFlags flags) {
+    return (flags & SkUnicode::kGraphemeStart) == SkUnicode::kGraphemeStart;
+}
+
 bool SkUnicode::isControl(SkUnicode::CodeUnitFlags flags) {
     return (flags & SkUnicode::kControl) == SkUnicode::kControl;
 }

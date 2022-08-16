@@ -3691,27 +3691,26 @@ protected:
     void onDrawContent(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
+
+        sk_sp<FontCollection> fontCollection = sk_make_sp<FontCollection>();
+        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
+        fontCollection->setDefaultFontManager(fontMgr);
+
         ParagraphStyle paragraph_style;
-        paragraph_style.setReplaceTabCharacters(substituteTab);
-        auto fontCollection = sk_make_sp<FontCollection>();
-        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
-        fontCollection->enableFontFallback();
+        paragraph_style.setMaxLines(1);
+        std::u16string ellipsis = u"\u2026";
+        paragraph_style.setEllipsis(ellipsis);
+
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        TextStyle text_style;
-        text_style.setColor(SK_ColorBLACK);
-        // "Noto Sans Thai"
-        text_style.setFontFamilies({SkString("Roboto")});
-        text_style.setFontSize(100);
-        builder.pushStyle(text_style);
-        builder.addText(u"\u0eb9\u0952\u0301\u0e51A");
-        auto paragraph = builder.Build();
-        paragraph->layout(this->width());
+        builder.addText("hello");
+
+        auto paragraph = builder.BuildWithClientInfo({}, {}, {}, {});
+        paragraph->layout(800);
         paragraph->paint(canvas, 0, 0);
     }
 
 private:
     using INHERITED = Sample;
-    bool substituteTab = false;
 };
 
 

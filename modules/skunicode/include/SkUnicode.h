@@ -130,6 +130,8 @@ class SKUNICODE_API SkUnicode {
         // Methods used in SkParagraph
         static bool isTabulation(SkUnicode::CodeUnitFlags flags);
         static bool isHardLineBreak(SkUnicode::CodeUnitFlags flags);
+        static bool isSoftLineBreak(SkUnicode::CodeUnitFlags flags);
+        static bool isGraphemeStart(SkUnicode::CodeUnitFlags flags);
         static bool isControl(SkUnicode::CodeUnitFlags flags);
         static bool isPartOfWhiteSpaceBreak(SkUnicode::CodeUnitFlags flags);
         virtual bool getBidiRegions(const char utf8[],
@@ -259,8 +261,9 @@ class SKUNICODE_API SkUnicode {
 
         static std::unique_ptr<SkUnicode> Make();
 
-        static std::unique_ptr<SkUnicode> Make(SkSpan<const char> text,
+        static std::unique_ptr<SkUnicode> Make(SkSpan<char> text,
                                                std::vector<SkUnicode::BidiRegion> bidiRegions,
+                                               std::vector<SkUnicode::Position> words,
                                                std::vector<SkUnicode::Position> graphemeBreaks,
                                                std::vector<SkUnicode::LineBreakBefore> lineBreaks);
 };

@@ -8,10 +8,21 @@ filegroup(
     name = "srcs",
     srcs = [
         "SkUnicode.cpp",
+        "SkUnicode_client.cpp",
         "SkUnicode_icu.cpp",
         "SkUnicode_icu.h",
         "SkUnicode_icu_builtin.cpp",
         # TODO(kjlubick, bungeman): add support for SkUnicdoe_icu_runtime.cpp
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)
+
+
+filegroup(
+    name = "no_icu",
+    srcs = [
+        "SkUnicode.cpp",
+        "SkUnicode_client.cpp",
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
