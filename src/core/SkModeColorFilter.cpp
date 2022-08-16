@@ -19,10 +19,11 @@
 #include "src/core/SkValidationUtils.h"
 #include "src/core/SkWriteBuffer.h"
 
-static SkColor4f map_color(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
-    SkColor4f color = c;
+template <SkAlphaType kDstAT = kPremul_SkAlphaType>
+static SkRGBA4f<kDstAT> map_color(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
+    SkRGBA4f<kDstAT> color = {c.fR, c.fG, c.fB, c.fA};
     SkColorSpaceXformSteps(src, kUnpremul_SkAlphaType,
-                           dst, kUnpremul_SkAlphaType).apply(color.vec());
+                           dst, kDstAT).apply(color.vec());
     return color;
 }
 
@@ -109,8 +110,8 @@ sk_sp<SkFlattenable> SkModeColorFilter::CreateProc(SkReadBuffer& buffer) {
 
 bool SkModeColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
     rec.fPipeline->append(SkRasterPipeline::move_src_dst);
-    SkColor4f color = map_color(fColor, sk_srgb_singleton(), rec.fDstCS);
-    rec.fPipeline->append_constant_color(rec.fAlloc, color.premul().vec());
+    SkPMColor4f color = map_color(fColor, sk_srgb_singleton(), rec.fDstCS);
+    rec.fPipeline->append_constant_color(rec.fAlloc, color.vec());
     SkBlendMode_AppendStages(fMode, rec.fPipeline);
     return true;
 }
@@ -118,9 +119,10 @@ bool SkModeColorFilter::onAppendStages(const SkStageRec& rec, bool shaderIsOpaqu
 skvm::Color SkModeColorFilter::onProgram(skvm::Builder* p, skvm::Color c,
                                          const SkColorInfo& dstInfo,
                                          skvm::Uniforms* uniforms, SkArenaAlloc*) const {
-    SkColor4f color = map_color(fColor, sk_srgb_singleton(), dstInfo.colorSpace());
+    SkPMColor4f color = map_color(fColor, sk_srgb_singleton(), dstInfo.colorSpace());
+    // The blend program operates on this as if it were premul but the API takes an SkColor4f
     skvm::Color dst = c,
-                src = p->uniformColor(color, uniforms);
+                src = p->uniformColor({color.fR, color.fG, color.fB, color.fA}, uniforms);
     return p->blend(fMode, src,dst);
 }
 
@@ -144,9 +146,9 @@ GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProc
 
     SkDEBUGCODE(const bool fpHasConstIO = !inputFP || inputFP->hasConstantOutputForConstantInput();)
 
-    SkColor4f color = map_color(fColor, sk_srgb_singleton(), dstColorInfo.colorSpace());
+    SkPMColor4f color = map_color(fColor, sk_srgb_singleton(), dstColorInfo.colorSpace());
 
-    auto colorFP = GrFragmentProcessor::MakeColor(color.premul());
+    auto colorFP = GrFragmentProcessor::MakeColor(color);
     auto xferFP = GrBlendFragmentProcessor::Make(std::move(colorFP), std::move(inputFP), fMode);
 
     if (xferFP == nullptr) {
@@ -177,8 +179,8 @@ void SkModeColorFilter::addToKey(const SkKeyContext& keyContext,
                                  SkPaintParamsKeyBuilder* builder,
                                  SkPipelineDataGatherer* gatherer) const {
     // TODO: Take into account the render target color space once graphite has color management.
-    SkColor4f color = map_color(fColor, sk_srgb_singleton(), nullptr);
-    BlendColorFilterBlock::BlendColorFilterData data(fMode, color.premul());
+    SkPMColor4f color = map_color(fColor, sk_srgb_singleton(), nullptr);
+    BlendColorFilterBlock::BlendColorFilterData data(fMode, color);
 
     BlendColorFilterBlock::BeginBlock(keyContext, builder, gatherer, data);
     builder->endBlock();
@@ -195,8 +197,10 @@ sk_sp<SkColorFilter> SkColorFilters::Blend(const SkColor4f& color,
         return nullptr;
     }
 
-    // First map to sRGB to simplify storage in the actual SkColorFilter instance
-    SkColor4f srgb = map_color(color, colorSpace.get(), sk_srgb_singleton());
+    // First map to sRGB to simplify storage in the actual SkColorFilter instance, staying unpremul
+    // until the final dst color space is known when actually filtering.
+    SkColor4f srgb = map_color<kUnpremul_SkAlphaType>(
+            color, colorSpace.get(), sk_srgb_singleton());
 
     // Next collapse some modes if possible
     float alpha = srgb.fA;
