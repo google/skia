@@ -1466,11 +1466,7 @@ BLEND_MODE(softlight) {
     //    3. light src, light dst?
     F darkSrc = d*(sa + (s2 - sa)*(1.0f - m)),     // Used in case 1.
       darkDst = (m4*m4 + m4)*(m - 1.0f) + 7.0f*m,  // Used in case 2.
-    #if defined(SK_RASTER_PIPELINE_LEGACY_RCP_RSQRT)
-      liteDst = rcp_fast(rsqrt(m)) - m,                 // Used in case 3.
-    #else
       liteDst = sqrt_(m) - m,
-    #endif
       liteSrc = d*sa + da*(s2 - sa) * if_then_else(two(two(d)) <= da, darkDst, liteDst); // 2 or 3?
     return s*inv(da) + d*inv(sa) + if_then_else(s2 <= sa, darkSrc, liteSrc);      // 1 or (2 or 3)?
 }
