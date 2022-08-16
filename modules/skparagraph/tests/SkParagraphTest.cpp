@@ -7014,3 +7014,25 @@ UNIX_ONLY_TEST(SkParagraph_TabSubstitution, reporter) {
     // Notice, that the cache didn't work for the second paragraph - as it should not
     REPORTER_ASSERT(reporter, 2 == fontCollection->getParagraphCache()->count());
 }
+
+DEF_TEST(SkParagraph_lineMetricsWithEllipsis, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    fontCollection->enableFontFallback();
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setMaxLines(1);
+    std::u16string ellipsis = u"\u2026";
+    paragraph_style.setEllipsis(ellipsis);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.addText("hello");
+
+    auto paragraph = builder.Build();
+    paragraph->layout(1.);
+
+    std::vector<LineMetrics> lm;
+    paragraph->getLineMetrics(lm);
+    REPORTER_ASSERT(reporter, lm.size() == 1);
+}
