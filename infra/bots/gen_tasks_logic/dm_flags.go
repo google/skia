@@ -1064,7 +1064,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
-		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_GPU")               // skia:11919
 		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_GPU")               // skia:11919
 	}
 
@@ -1081,7 +1080,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.extraConfig("ANGLE") && b.matchOs("Win") && b.matchGpu("IntelIris(540|655)") {
 		skip(ALL, "tests", ALL, "SkSLSwitchDefaultOnly_GPU") // skia:12465
-		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_GPU")  // skia:11919
 	}
 
 	if b.gpu("Tegra3") {
@@ -1138,10 +1136,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.gpu("QuadroP400") && b.matchOs("Win10") && b.matchModel("Golo") {
 		// Times out with driver 30.0.15.1179
 		skip("vkmsaa4", "gm", ALL, "shadow_utils")
-	}
-
-	if b.gpu("PowerVRGE8320") || b.gpu("Tegra3") || b.gpu("Adreno308") {
-		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_GPU") // skia:11919
 	}
 
 	if b.gpu("PowerVRGE8320") {
