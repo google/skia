@@ -195,7 +195,8 @@ const uint32_t sweep_varsweep[] = {
         0xf0236, 0xf0237, 0xf0238, 0xf0239, 0xf023a, 0xf023b, 0xf023c, 0xf023d, 0xf023e,
         0xf023f, 0xf0240, 0xf0241, 0xf0242, 0xf0243, 0xf0244, 0xf0245, 0xf0246, 0xf0247};
 const uint32_t paint_scale[] = {0xf0300, 0xf0301, 0xf0302, 0xf0303, 0xf0304, 0xf0305};
-const uint32_t extend_mode[] = {0xf0500, 0xf0501, 0xf0502, 0xf0503, 0xf0504, 0xf0505};
+const uint32_t extend_mode[] = {
+        0xf0500, 0xf0501, 0xf0502, 0xf0503, 0xf0504, 0xf0505, 0xf0506, 0xf0507, 0xf0508};
 const uint32_t paint_rotate[] = {0xf0600, 0xf0601, 0xf0602, 0xf0603};
 const uint32_t paint_skew[] = {0xf0700, 0xf0701, 0xf0702, 0xf0703, 0xf0704, 0xf0705};
 const uint32_t paint_transform[] = {0xf0800, 0xf0801, 0xf0802, 0xf0803};
@@ -235,6 +236,7 @@ DEF_GM(return F(C(composite_mode),        -0.5f,  0.0f, {}))
 DEF_GM(return F(C(composite_mode),        -0.5f, 20.0f, {}))
 DEF_GM(return F(C(composite_mode),         0.0f, 20.0f, {}))
 DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {}))
+DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"COL1"_t, -0.25f}, {"COL3"_t, +0.25f}}))
 DEF_GM(return F(C(extend_mode),           -0.5f,  0.0f, {}))
 DEF_GM(return F(C(extend_mode),           -0.5f, 20.0f, {}))
 DEF_GM(return F(C(extend_mode),            0.0f, 20.0f, {}))

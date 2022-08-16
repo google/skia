@@ -698,6 +698,41 @@ bool colrv1_configure_skpaint(FT_Face face,
                 return true;
             }
 
+            SkScalar colorStopRange = stops.back() - stops.front();
+            if (colorStopRange != 1 || stops.front() != 0.f) {
+                // For the Skia two-point caonical shader to understand the
+                // COLRv1 color stops we need to scale stops to 0 to 1 range and
+                // interpolate new centers and radii. Otherwise the shader
+                // clamps stops outside the range to 0 and 1 (larger interval)
+                // or repeats the outer stops at 0 and 1 if the (smaller
+                // interval).
+                SkVector startToEnd = end - start;
+                SkScalar radiusDiff = endRadius - startRadius;
+                SkScalar scaleFactor = 1 / colorStopRange;
+                SkScalar stopsStartOffset = stops.front();
+
+                SkVector startOffset = startToEnd;
+                startOffset.scale(stops.front());
+                SkVector endOffset = startToEnd;
+                endOffset.scale(stops.back());
+                start = start + startOffset;
+                end = end + endOffset;
+                startRadius = startRadius + radiusDiff * stops.front();
+                endRadius = endRadius + radiusDiff * stops.back();
+
+                for (auto& stop : stops) {
+                    stop = (stop - stopsStartOffset) * scaleFactor;
+                }
+            }
+
+            // TODO(https://crbug.com/skia/13653): Interpolate a zero radius
+            // circle with manual color interpolation or upgrade the
+            // MakeTwoPointConical shader to understand negative radii.
+            if (startRadius < 0 || endRadius < 0) {
+                paint->setColor(SK_ColorTRANSPARENT);
+                return true;
+            }
+
             // An opaque color is needed to ensure the gradient is not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
 
