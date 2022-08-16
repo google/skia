@@ -23,8 +23,8 @@ bool test_int_b(Uniforms _uniforms) {
     ok = ok && all(x == int4(2, 1, 1, 2));
     x.xyz = inputGreen.wyw * 9;
     ok = ok && all(x == int4(9, 9, 9, 2));
-    x.xy = x.zw / 3;
-    ok = ok && all(x == int4(3, 0, 9, 2));
+    x.xy = x.zw / 4;
+    ok = ok && all(x == int4(2, 0, 9, 2));
     x = (inputRed * 5).yxwz;
     ok = ok && all(x == int4(0, 5, 5, 0));
     x = 2 + inputRed;
@@ -33,11 +33,11 @@ bool test_int_b(Uniforms _uniforms) {
     ok = ok && all(x == int4(9, 9, 10, 10));
     x = inputRed.x + inputGreen;
     ok = ok && all(x == int4(1, 2, 1, 2));
-    x.xyz = 9 * inputGreen.wyw;
-    ok = ok && all(x == int4(9, 9, 9, 2));
+    x.xyz = 8 * inputGreen.wyw;
+    ok = ok && all(x == int4(8, 8, 8, 2));
     x.xy = 36 / x.zw;
-    ok = ok && all(x == int4(4, 18, 9, 2));
-    x = (36 / x).yxwz;
+    ok = ok && all(x == int4(4, 18, 8, 2));
+    x = (37 / x).yxwz;
     ok = ok && all(x == int4(2, 9, 18, 4));
     x += 2;
     x *= 2;
