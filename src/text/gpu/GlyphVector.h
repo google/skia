@@ -41,10 +41,12 @@ public:
         Variant(SkPackedGlyphID id) : packedGlyphID{id} {}
     };
 
-    GlyphVector(SkStrikePromise&& strikePromise, SkSpan<Variant> glyphs);
+    GlyphVector(StrikeRef&& strikeRef, SkSpan<Variant> glyphs);
 
     static GlyphVector Make(
-            SkStrikePromise&& promise, SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
+            sk_sp<SkStrike>&& strike, SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
+    static GlyphVector Make(
+            StrikeForGPU* strike, SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
 
     SkSpan<const Glyph*> glyphs() const;
 
@@ -83,7 +85,7 @@ private:
     friend class GlyphVectorTestingPeer;
     static Variant* MakeGlyphs(SkSpan<SkGlyphVariant> glyphs, SubRunAllocator* alloc);
 
-    SkStrikePromise fStrikePromise;
+    StrikeRef fStrikeRef;
     SkSpan<Variant> fGlyphs;
     sk_sp<TextStrike> fTextStrike{nullptr};
     uint64_t fAtlasGeneration{skgpu::AtlasGenerationCounter::kInvalidGeneration};
