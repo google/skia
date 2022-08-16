@@ -1,0 +1,37 @@
+# This file will be copied into //third_party/externals/libavif via the new_local_repository
+# rule in WORKSPACE.bazel, so all files should be relative to that path.
+
+cc_library(
+    name = "libavif",
+    srcs = [
+        "include/avif/internal.h",
+        "src/alpha.c",
+        "src/avif.c",
+        "src/codec_libgav1.c",
+        "src/colr.c",
+        "src/diag.c",
+        "src/io.c",
+        "src/mem.c",
+        "src/obu.c",
+        "src/rawdata.c",
+        "src/read.c",
+        "src/reformat.c",
+        "src/reformat_libyuv.c",
+        "src/scale.c",
+        "src/stream.c",
+        "src/utils.c",
+    ],
+    hdrs = [
+        "include/avif/avif.h",
+    ],
+    includes = ["include"],
+    local_defines = [
+        "AVIF_CODEC_LIBGAV1=1",
+        "AVIF_LIBYUV_ENABLED=1",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@libgav1",
+        "@libyuv",
+    ],
+)

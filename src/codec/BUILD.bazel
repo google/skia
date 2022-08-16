@@ -133,10 +133,20 @@ split_srcs_and_hdrs(
     files = DECODE_WEBP_FILES,
 )
 
+split_srcs_and_hdrs(
+    name = "decode_avif",
+    files = [
+        "SkAvifCodec.cpp",
+        "SkAvifCodec.h",
+        "SkScalingCodec.h",
+    ],
+)
+
 string_flag_with_values(
     flag_name = "include_decoder",
     multiple = True,
     values = [
+        "avif_decode_codec",
         "gif_decode_codec",
         "jpeg_decode_codec",
         "png_decode_codec",
@@ -177,6 +187,7 @@ filegroup(
         ":core_srcs",
     ] + select_multi(
         {
+            ":avif_decode_codec": [":decode_avif_srcs"],
             ":gif_decode_codec": [":decode_gif_srcs"],
             ":needs_jpeg": [":decode_jpeg_srcs"],
             ":png_decode_codec": [":decode_png_srcs"],
@@ -201,6 +212,7 @@ filegroup(
         "//conditions:default": [],
     }) + select_multi(
         {
+            ":avif_decode_codec": [":decode_avif_hdrs"],
             ":gif_decode_codec": [":decode_gif_hdrs"],
             ":needs_jpeg": [":decode_jpeg_hdrs"],
             ":png_decode_codec": [":decode_png_hdrs"],
@@ -216,6 +228,7 @@ skia_cc_deps(
     visibility = ["//src:__pkg__"],
     deps = select_multi(
         {
+            ":avif_decode_codec": ["@libavif"],
             ":gif_decode_codec": ["@wuffs"],
             ":needs_jpeg": ["@libjpeg_turbo"],
             ":png_decode_codec": ["@libpng"],

@@ -265,6 +265,20 @@ local_repository(
 )
 
 new_local_repository(
+    name = "libavif",
+    build_file = "bazel/external/libavif/BUILD.bazel",
+    path = "third_party/externals/libavif",
+    workspace_file_content = "",
+)
+
+new_local_repository(
+    name = "libgav1",
+    build_file = "bazel/external/libgav1/BUILD.bazel",
+    path = "third_party/externals/libgav1",
+    workspace_file_content = "",
+)
+
+new_local_repository(
     name = "libjpeg_turbo",
     build_file = "bazel/external/libjpeg_turbo/BUILD.bazel",
     path = "third_party/externals/libjpeg-turbo",
@@ -282,6 +296,13 @@ new_local_repository(
     name = "libwebp",
     build_file = "bazel/external/libwebp/BUILD.bazel",
     path = "third_party/externals/libwebp",
+    workspace_file_content = "",
+)
+
+new_local_repository(
+    name = "libyuv",
+    build_file = "bazel/external/libyuv/BUILD.bazel",
+    path = "third_party/externals/libyuv",
     workspace_file_content = "",
 )
 
