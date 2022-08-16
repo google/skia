@@ -107,6 +107,7 @@ void GlyphVector::packedGlyphIDToGlyph(StrikeCache* cache) {
         // This must be pinned for the Atlas filling to work.
         strike->verifyPinnedStrike();
 
+        // Drop the ref to the strike so that it can be purged if needed.
         fStrikePromise.resetStrike();
     }
 }
