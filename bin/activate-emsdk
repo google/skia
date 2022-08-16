@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Copyright 2022 Google LLC
 #
@@ -8,6 +8,7 @@
 import os
 import subprocess
 import sys
+import sysconfig
 
 EMSDK_ROOT = os.path.join('third_party', 'externals', 'emsdk')
 
@@ -16,6 +17,11 @@ EMSDK_PATH = os.path.join(EMSDK_ROOT, 'emsdk.py')
 EMSDK_VERSION = '3.1.15'
 
 def main():
+    if sysconfig.get_platform() in ['linux-aarch64', 'linux-arm64']:
+        # This platform cannot install emsdk at the provided version. See
+        # https://github.com/emscripten-core/emsdk/blob/main/emscripten-releases-tags.json#L5
+        # for the latest version
+        return
     try:
         subprocess.check_call([sys.executable, EMSDK_PATH, 'install', EMSDK_VERSION])
     except subprocess.CalledProcessError:
