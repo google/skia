@@ -32,6 +32,7 @@
 #include "src/sksl/ir/SkSLFunctionReference.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLMethodReference.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
@@ -44,6 +45,7 @@
 #include <cstdint>
 #include <optional>
 #include <string_view>
+#include <vector>
 
 namespace SkSL {
 
@@ -836,8 +838,9 @@ std::string FunctionCall::description() const {
  * particular meaning other than "lower costs are preferred". Returns CoercionCost::Impossible() if
  * the call is not valid.
  */
-CoercionCost FunctionCall::CallCost(const Context& context, const FunctionDeclaration& function,
-        const ExpressionArray& arguments){
+static CoercionCost call_cost(const Context& context,
+                              const FunctionDeclaration& function,
+                              const ExpressionArray& arguments) {
     if (context.fConfig->strictES2Mode() &&
         (function.modifiers().fFlags & Modifiers::kES3_Flag)) {
         return CoercionCost::Impossible();
@@ -859,21 +862,21 @@ CoercionCost FunctionCall::CallCost(const Context& context, const FunctionDeclar
 
 const FunctionDeclaration* FunctionCall::FindBestFunctionForCall(
         const Context& context,
-        const std::vector<const FunctionDeclaration*>& functions,
+        const FunctionDeclaration* overloadChain,
         const ExpressionArray& arguments) {
-    if (functions.size() == 1) {
-        return functions.front();
+    if (!overloadChain->nextOverload()) {
+        return overloadChain;
     }
     CoercionCost bestCost = CoercionCost::Impossible();
     const FunctionDeclaration* best = nullptr;
-    for (const auto& f : functions) {
-        CoercionCost cost = CallCost(context, *f, arguments);
-        if (cost < bestCost) {
+    for (const FunctionDeclaration* f = overloadChain; f != nullptr; f = f->nextOverload()) {
+        CoercionCost cost = call_cost(context, *f, arguments);
+        if (cost <= bestCost) {
             bestCost = cost;
             best = f;
         }
     }
-    return best;
+    return bestCost.fImpossible ? nullptr : best;
 }
 
 static std::string build_argument_type_list(SkSpan<const std::unique_ptr<Expression>> arguments) {
@@ -920,13 +923,12 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         }
         case Expression::Kind::kFunctionReference: {
             const FunctionReference& ref = functionValue->as<FunctionReference>();
-            const std::vector<const FunctionDeclaration*>& functions = ref.functions();
-            const FunctionDeclaration* best = FindBestFunctionForCall(context, functions,
+            const FunctionDeclaration* best = FindBestFunctionForCall(context, ref.overloadChain(),
                                                                       arguments);
             if (best) {
                 return FunctionCall::Convert(context, pos, *best, std::move(arguments));
             }
-            std::string msg = "no match for " + std::string(functions.front()->name()) +
+            std::string msg = "no match for " + std::string(ref.overloadChain()->name()) +
                               build_argument_type_list(arguments);
             context.fErrors->error(pos, msg);
             return nullptr;
@@ -935,15 +937,14 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
             MethodReference& ref = functionValue->as<MethodReference>();
             arguments.push_back(std::move(ref.self()));
 
-            const std::vector<const FunctionDeclaration*>& functions = ref.functions();
-            const FunctionDeclaration* best = FindBestFunctionForCall(context, functions,
+            const FunctionDeclaration* best = FindBestFunctionForCall(context, ref.overloadChain(),
                                                                       arguments);
             if (best) {
                 return FunctionCall::Convert(context, pos, *best, std::move(arguments));
             }
             std::string msg =
                     "no match for " + arguments.back()->type().displayName() +
-                    "::" + std::string(functions.front()->name().substr(1)) +
+                    "::" + std::string(ref.overloadChain()->name().substr(1)) +
                     build_argument_type_list(SkSpan(arguments).first(arguments.size() - 1));
             context.fErrors->error(pos, msg);
             return nullptr;

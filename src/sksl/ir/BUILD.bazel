@@ -90,7 +90,6 @@ IR_FILES = [
     "SkSLType.h",
     "SkSLTypeReference.cpp",
     "SkSLTypeReference.h",
-    "SkSLUnresolvedFunction.h",
     "SkSLVarDeclarations.cpp",
     "SkSLVarDeclarations.h",
     "SkSLVariable.cpp",

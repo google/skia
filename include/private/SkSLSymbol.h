@@ -23,7 +23,6 @@ public:
         kField,
         kFunctionDeclaration,
         kType,
-        kUnresolvedFunction,
         kVariable,
 
         kFirst = kExternal,

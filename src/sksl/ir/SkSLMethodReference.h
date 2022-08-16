@@ -34,21 +34,21 @@ public:
     MethodReference(const Context& context,
                     Position pos,
                     std::unique_ptr<Expression> self,
-                    std::vector<const FunctionDeclaration*> functions)
+                    const FunctionDeclaration* overloadChain)
             : INHERITED(pos, kExpressionKind, context.fTypes.fInvalid.get())
             , fSelf(std::move(self))
-            , fFunctions(std::move(functions)) {}
+            , fOverloadChain(overloadChain) {}
 
     std::unique_ptr<Expression>& self() { return fSelf; }
     const std::unique_ptr<Expression>& self() const { return fSelf; }
 
-    const std::vector<const FunctionDeclaration*>& functions() const { return fFunctions; }
+    const FunctionDeclaration* overloadChain() const { return fOverloadChain; }
 
     bool hasProperty(Property property) const override { return false; }
 
     std::unique_ptr<Expression> clone(Position pos) const override {
-        return std::unique_ptr<Expression>(new MethodReference(pos, this->self()->clone(),
-                                                               this->functions(), &this->type()));
+        return std::unique_ptr<Expression>(new MethodReference(
+                pos, this->self()->clone(), this->overloadChain(), &this->type()));
     }
 
     std::string description() const override {
@@ -58,14 +58,14 @@ public:
 private:
     MethodReference(Position pos,
                     std::unique_ptr<Expression> self,
-                    std::vector<const FunctionDeclaration*> functions,
+                    const FunctionDeclaration* overloadChain,
                     const Type* type)
             : INHERITED(pos, kExpressionKind, type)
             , fSelf(std::move(self))
-            , fFunctions(std::move(functions)) {}
+            , fOverloadChain(overloadChain) {}
 
     std::unique_ptr<Expression> fSelf;
-    std::vector<const FunctionDeclaration*> fFunctions;
+    const FunctionDeclaration* fOverloadChain;
 
     using INHERITED = Expression;
 };

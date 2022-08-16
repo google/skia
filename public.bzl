@@ -1562,7 +1562,6 @@ BASE_SRCS_ALL = [
     "src/sksl/ir/SkSLType.h",
     "src/sksl/ir/SkSLTypeReference.cpp",
     "src/sksl/ir/SkSLTypeReference.h",
-    "src/sksl/ir/SkSLUnresolvedFunction.h",
     "src/sksl/ir/SkSLVarDeclarations.cpp",
     "src/sksl/ir/SkSLVarDeclarations.h",
     "src/sksl/ir/SkSLVariable.cpp",

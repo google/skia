@@ -8,6 +8,7 @@
 #ifndef SKSL_FUNCTIONDECLARATION
 #define SKSL_FUNCTIONDECLARATION
 
+#include "include/core/SkTypes.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/private/SkTArray.h"
 #include "src/sksl/SkSLIntrinsicList.h"
@@ -75,6 +76,11 @@ public:
         fIntrinsicKind = kNotIntrinsic;
     }
 
+    void setNextOverload(const FunctionDeclaration* overload) {
+        SkASSERT(!overload || overload->name() == this->name());
+        fNextOverload = overload;
+    }
+
     const std::vector<const Variable*>& parameters() const {
         return fParameters;
     }
@@ -97,6 +103,10 @@ public:
 
     bool isIntrinsic() const {
         return this->intrinsicKind() != kNotIntrinsic;
+    }
+
+    const FunctionDeclaration* nextOverload() const {
+        return fNextOverload;
     }
 
     std::string mangledName() const;
@@ -127,6 +137,7 @@ public:
 
 private:
     mutable const FunctionDefinition* fDefinition;
+    const FunctionDeclaration* fNextOverload = nullptr;
     const Modifiers* fModifiers;
     std::vector<const Variable*> fParameters;
     const Type* fReturnType;

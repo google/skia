@@ -20,7 +20,6 @@
 #include "src/sksl/ir/SkSLMethodReference.h"
 #include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
-#include "src/sksl/ir/SkSLUnresolvedFunction.h"
 
 #include <cstddef>
 
@@ -36,25 +35,12 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
         // Turn the field name into a free function name, prefixed with '$':
         std::string methodName = "$" + std::string(field);
         const Symbol* result = symbolTable[methodName];
-        if (result) {
-            switch (result->kind()) {
-                case Symbol::Kind::kFunctionDeclaration: {
-                    std::vector<const FunctionDeclaration*> f = {
-                            &result->as<FunctionDeclaration>()};
-                    return std::make_unique<MethodReference>(
-                            context, pos, std::move(base), f);
-                }
-                case Symbol::Kind::kUnresolvedFunction: {
-                    const UnresolvedFunction& f = result->as<UnresolvedFunction>();
-                    return std::make_unique<MethodReference>(
-                            context, pos, std::move(base), f.functions());
-                }
-                default:
-                    break;
-            }
+        if (result && result->is<FunctionDeclaration>()) {
+            return std::make_unique<MethodReference>(context, pos, std::move(base),
+                                                     &result->as<FunctionDeclaration>());
         }
         context.fErrors->error(pos, "type '" + baseType.displayName() + "' has no method named '" +
-                std::string(field) + "'");
+                                    std::string(field) + "'");
         return nullptr;
     }
     if (baseType.isStruct()) {
@@ -70,7 +56,7 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
     }
 
     context.fErrors->error(pos, "type '" + baseType.displayName() +
-            "' does not have a field named '" + std::string(field) + "'");
+                                "' does not have a field named '" + std::string(field) + "'");
     return nullptr;
 }
 

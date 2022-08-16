@@ -53,6 +53,11 @@ struct CoercionCost {
                std::tie(rhs.fImpossible, rhs.fNarrowingCost, rhs.fNormalCost);
     }
 
+    bool operator<=(CoercionCost rhs) const {
+        return std::tie(    fImpossible,     fNarrowingCost,     fNormalCost) <=
+               std::tie(rhs.fImpossible, rhs.fNarrowingCost, rhs.fNormalCost);
+    }
+
     int  fNormalCost;
     int  fNarrowingCost;
     bool fImpossible;

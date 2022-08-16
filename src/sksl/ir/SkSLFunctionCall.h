@@ -11,17 +11,16 @@
 #include "include/private/SkSLDefines.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLType.h"
 
 #include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 
 namespace SkSL {
 
 class Context;
 class FunctionDeclaration;
+class Type;
 
 /**
  * A function invocation.
@@ -55,10 +54,9 @@ public:
                                             const FunctionDeclaration& function,
                                             ExpressionArray arguments);
 
-    static const FunctionDeclaration* FindBestFunctionForCall(
-            const Context& context,
-            const std::vector<const FunctionDeclaration*>& functions,
-            const ExpressionArray& arguments);
+    static const FunctionDeclaration* FindBestFunctionForCall(const Context& context,
+                                                              const FunctionDeclaration* overloads,
+                                                              const ExpressionArray& arguments);
 
     const FunctionDeclaration& function() const {
         return fFunction;
@@ -79,10 +77,6 @@ public:
     std::string description() const override;
 
 private:
-    static CoercionCost CallCost(const Context& context,
-                                 const FunctionDeclaration& function,
-                                 const ExpressionArray& arguments);
-
     const FunctionDeclaration& fFunction;
     ExpressionArray fArguments;
 
