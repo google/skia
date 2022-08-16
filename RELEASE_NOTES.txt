@@ -12,6 +12,7 @@ Milestone 106
   * Added SkColorFilters::Blend(const SkColor4f&, sk_sp<SkColorSpace>, SkBlendMode) to
     complement the existing SkColorFilters::Blend(SkColor, SkBlendMode) factory.
   * The experimental C API was removed.
+  * Added support for AVIF decoding using libavif.
 
 * * *
 
@@ -141,7 +142,6 @@ Milestone 98
   * Removed SkCanvas::markCTM and SkCanvas::findMarkedCTM. These were created to be used with other
     features that have since been deleted, so they served no purpose.
   * Added limited JPEGXL support.
-  * Added support for AVIF decoding using libavif.
 
 * * *
 
