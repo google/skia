@@ -700,11 +700,6 @@ protected:
             return DrawResult::kSkip;
         }
 
-        // TODO: Remove this once we implement support for APIs without transfer buffers.
-        if (dc && !dc->priv().caps()->transferFromBufferToBufferSupport()) {
-            return DrawResult::kSkip;
-        }
-
         SkPaint paint;
         paint.setShader(fShader);
 

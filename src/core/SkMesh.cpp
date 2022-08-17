@@ -650,8 +650,11 @@ bool SkMeshPriv::UpdateGpuBuffer(GrDirectContext* dc,
     SkASSERT(!dc->abandoned()); // If dc is abandoned then buffer->getContext() should be null.
 
     if (!dc->priv().caps()->transferFromBufferToBufferSupport()) {
-        // TODO: Add task that takes a copy of data and pushes it to buffer.
-        return false;
+        auto ownedData = SkData::MakeWithCopy(data, size);
+        dc->priv().drawingManager()->newBufferUpdateTask(std::move(ownedData),
+                                                         std::move(buffer),
+                                                         offset);
+        return true;
     }
 
     // TODO: Use staging buffer manager if available to be more efficient with buffer space.

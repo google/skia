@@ -114,6 +114,12 @@ public:
                                size_t dstOffset,
                                size_t size);
 
+    // Adds a render task that copies the src SkData to [dstOffset, dstOffset + src->size()] in dst.
+    // The dst must not have type kXferCpuToGpu and must not be mapped. Because this is used to
+    // insert updata to vertex/index buffers between draws and we don't track dependencies with
+    // buffers, this task is a hard boundary for task reordering.
+    void newBufferUpdateTask(sk_sp<SkData> src, sk_sp<GrGpuBuffer> dst, size_t dstOffset);
+
     // Adds a task that writes the data from the passed GrMipLevels to dst. The lifetime of the
     // pixel data in the levels should be tied to the passed SkData or the caller must flush the
     // context before the data may become invalid. srcColorType is the color type of the

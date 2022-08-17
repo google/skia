@@ -781,6 +781,8 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/GrBufferAllocPool.h",
     "src/gpu/ganesh/GrBufferTransferRenderTask.cpp",
     "src/gpu/ganesh/GrBufferTransferRenderTask.h",
+    "src/gpu/ganesh/GrBufferUpdateRenderTask.cpp",
+    "src/gpu/ganesh/GrBufferUpdateRenderTask.h",
     "src/gpu/ganesh/GrCaps.cpp",
     "src/gpu/ganesh/GrCaps.h",
     "src/gpu/ganesh/GrClientMappedBufferManager.cpp",

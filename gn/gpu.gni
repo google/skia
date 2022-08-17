@@ -61,6 +61,8 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/GrBufferAllocPool.h",
   "$_src/gpu/ganesh/GrBufferTransferRenderTask.cpp",
   "$_src/gpu/ganesh/GrBufferTransferRenderTask.h",
+  "$_src/gpu/ganesh/GrBufferUpdateRenderTask.cpp",
+  "$_src/gpu/ganesh/GrBufferUpdateRenderTask.h",
   "$_src/gpu/ganesh/GrCaps.cpp",
   "$_src/gpu/ganesh/GrCaps.h",
   "$_src/gpu/ganesh/GrClientMappedBufferManager.cpp",

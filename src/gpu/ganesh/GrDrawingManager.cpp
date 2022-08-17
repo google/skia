@@ -17,6 +17,7 @@
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/ganesh/GrBufferTransferRenderTask.h"
+#include "src/gpu/ganesh/GrBufferUpdateRenderTask.h"
 #include "src/gpu/ganesh/GrClientMappedBufferManager.h"
 #include "src/gpu/ganesh/GrCopyRenderTask.h"
 #include "src/gpu/ganesh/GrDDLTask.h"
@@ -899,6 +900,34 @@ void GrDrawingManager::newBufferTransferTask(sk_sp<GrGpuBuffer> src,
                                                                 std::move(dst),
                                                                 dstOffset,
                                                                 size);
+    SkASSERT(task);
+
+    this->appendTask(task);
+    task->makeClosed(fContext);
+
+    // We have closed the previous active oplist but since a new oplist isn't being added there
+    // shouldn't be an active one.
+    SkASSERT(!fActiveOpsTask);
+    SkDEBUGCODE(this->validate());
+}
+
+void GrDrawingManager::newBufferUpdateTask(sk_sp<SkData> src,
+                                           sk_sp<GrGpuBuffer> dst,
+                                           size_t dstOffset) {
+    SkASSERT(src);
+    SkASSERT(dst);
+    SkASSERT(dstOffset + src->size() <= dst->size());
+    SkASSERT(dst->intendedType() != GrGpuBufferType::kXferCpuToGpu);
+    SkASSERT(!dst->isMapped());
+
+    SkDEBUGCODE(this->validate());
+    SkASSERT(fContext);
+
+    this->closeActiveOpsTask();
+
+    sk_sp<GrRenderTask> task = GrBufferUpdateRenderTask::Make(std::move(src),
+                                                              std::move(dst),
+                                                              dstOffset);
     SkASSERT(task);
 
     this->appendTask(task);
