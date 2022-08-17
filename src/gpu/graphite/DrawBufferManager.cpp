@@ -20,6 +20,7 @@ namespace {
 static constexpr size_t kVertexBufferSize = 16 << 10; // 16 KB
 static constexpr size_t kIndexBufferSize =   2 << 10; //  2 KB
 static constexpr size_t kUniformBufferSize = 2 << 10; //  2 KB
+static constexpr size_t kStorageBufferSize = 2 << 10; //  2 KB
 
 void* map_offset(BindBufferInfo binding) {
     // DrawBufferManager owns the Buffer, and this is only ever called when we know
@@ -43,9 +44,11 @@ size_t sufficient_block_size(size_t requiredBytes) {
 } // anonymous namespace
 
 DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider,
-                                     size_t uniformStartAlignment)
+                                     size_t uniformStartAlignment,
+                                     size_t ssboStartAlignment)
         : fResourceProvider(resourceProvider)
-        , fUniformStartAlignment(uniformStartAlignment) {}
+        , fUniformStartAlignment(uniformStartAlignment)
+        , fSsboStartAlignment(ssboStartAlignment) {}
 
 DrawBufferManager::~DrawBufferManager() {}
 
@@ -145,6 +148,32 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(
     return {UniformWriter(map_offset(bindInfo), requiredBytes), bindInfo};
 }
 
+std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_t requiredBytes) {
+    if (!requiredBytes) {
+        return {UniformWriter(), BindBufferInfo()};
+    }
+    if (fCurrentStorageBuffer &&
+        !can_fit(requiredBytes, fCurrentStorageBuffer.get(), fSsboOffset, fSsboStartAlignment)) {
+        fUsedBuffers.push_back(std::move(fCurrentStorageBuffer));
+    }
+
+    if (!fCurrentStorageBuffer) {
+        size_t bufferSize = sufficient_block_size<kStorageBufferSize>(requiredBytes);
+        fCurrentStorageBuffer = fResourceProvider->findOrCreateBuffer(
+                bufferSize, BufferType::kStorage, PrioritizeGpuReads::kNo);
+        fSsboOffset = 0;
+        if (!fCurrentStorageBuffer) {
+            return {UniformWriter(), BindBufferInfo()};
+        }
+    }
+    fSsboOffset = SkAlignTo(fSsboOffset, fSsboStartAlignment);
+    BindBufferInfo bindInfo;
+    bindInfo.fBuffer = fCurrentStorageBuffer.get();
+    bindInfo.fOffset = fSsboOffset;
+    fSsboOffset += requiredBytes;
+    return {UniformWriter(map_offset(bindInfo), requiredBytes), bindInfo};
+}
+
 BindBufferInfo DrawBufferManager::getStaticBuffer(BufferType type,
                                                   InitializeBufferFn initFn,
                                                   BufferSizeFn sizeFn) {
@@ -192,6 +221,10 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
     if (fCurrentUniformBuffer) {
         fCurrentUniformBuffer->unmap();
         recording->priv().addResourceRef(std::move(fCurrentUniformBuffer));
+    }
+    if (fCurrentStorageBuffer) {
+        fCurrentStorageBuffer->unmap();
+        recording->priv().addResourceRef(std::move(fCurrentStorageBuffer));
     }
     // Assume all static buffers were used, but don't lose our ref
     // TODO(skbug:13059) - If static buffers are stored in the ResourceProvider and queried on each

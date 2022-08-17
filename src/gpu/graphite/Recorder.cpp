@@ -88,8 +88,10 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
 
     fResourceProvider = fSharedContext->makeResourceProvider(std::move(globalCache),
                                                              this->singleOwner());
-    fDrawBufferManager.reset(new DrawBufferManager(
-            fResourceProvider.get(), fSharedContext->caps()->requiredUniformBufferAlignment()));
+    fDrawBufferManager.reset(
+            new DrawBufferManager(fResourceProvider.get(),
+                                  fSharedContext->caps()->requiredUniformBufferAlignment(),
+                                  fSharedContext->caps()->requiredStorageBufferAlignment()));
     fUploadBufferManager.reset(new UploadBufferManager(fResourceProvider.get()));
     SkASSERT(fResourceProvider);
 }
@@ -116,8 +118,10 @@ std::unique_ptr<Recording> Recorder::snap() {
     if (!fGraph->prepareResources(fResourceProvider.get())) {
         // Leaving 'fTrackedDevices' alone since they were flushed earlier and could still be
         // attached to extant SkSurfaces.
-        size_t requiredAlignment = fSharedContext->caps()->requiredUniformBufferAlignment();
-        fDrawBufferManager.reset(new DrawBufferManager(fResourceProvider.get(), requiredAlignment));
+        fDrawBufferManager.reset(
+                new DrawBufferManager(fResourceProvider.get(),
+                                      fSharedContext->caps()->requiredUniformBufferAlignment(),
+                                      fSharedContext->caps()->requiredStorageBufferAlignment()));
         fTextureDataCache = std::make_unique<TextureDataCache>();
         // We leave the UniformDataCache alone
         fGraph->reset();

@@ -70,6 +70,10 @@ public:
     // to a draw.
     size_t requiredUniformBufferAlignment() const { return fRequiredUniformBufferAlignment; }
 
+    // Returns the required alignment in bytes for the offset into a storage buffer when binding it
+    // to a draw.
+    size_t requiredStorageBufferAlignment() const { return fRequiredStorageBufferAlignment; }
+
     // Returns the alignment in bytes for the offset into a Buffer when using it
     // to transfer to or from a Texture with the given bytes per pixel.
     virtual size_t getTransferBufferAlignment(size_t bytesPerPixel) const = 0;
@@ -122,6 +126,7 @@ protected:
 
     int fMaxTextureSize = 0;
     size_t fRequiredUniformBufferAlignment = 0;
+    size_t fRequiredStorageBufferAlignment = 0;
 
     std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
 

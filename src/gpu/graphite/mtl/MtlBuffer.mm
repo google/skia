@@ -18,6 +18,7 @@ NSString* kBufferTypeNames[kBufferTypeCount] = {
     @"Xfer CPU to GPU",
     @"Xfer GPU to CPU",
     @"Uniform",
+    @"Storage",
 };
 #endif
 

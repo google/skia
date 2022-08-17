@@ -38,8 +38,9 @@ enum class BufferType {
     kXferCpuToGpu,
     kXferGpuToCpu,
     kUniform,
+    kStorage,
 };
-static const int kBufferTypeCount = static_cast<int>(BufferType::kUniform) + 1;
+static const int kBufferTypeCount = static_cast<int>(BufferType::kStorage) + 1;
 
 /**
  * When creating the memory for a resource should we use a memory type that prioritizes the
