@@ -2339,7 +2339,7 @@ namespace baseline {
     #define N 1
     template <typename T> using V = T;
     using Color = float;
-#elif defined(__AVX512F__)
+#elif defined(__AVX512F__) && defined(__AVX512DQ__)
     #define N 16
     template <typename T> using V = Vec<N,T>;
     using Color = float;
@@ -2399,7 +2399,7 @@ namespace baseline {
         #define TEST_FOR_HSW
     #endif
 
-    #if !defined(__AVX512F__)
+    #if !defined(__AVX512F__) || !defined(__AVX512DQ__)
         #if defined(__clang__)
             #pragma clang attribute push(__attribute__((target("avx512f,avx512dq,avx512cd,avx512bw,avx512vl"))), apply_to=function)
         #elif defined(__GNUC__)

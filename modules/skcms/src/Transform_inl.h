@@ -43,7 +43,7 @@ using U8  = V<uint8_t>;
 #if !defined(USING_AVX2)     && defined(USING_AVX) && defined(__AVX2__)
     #define  USING_AVX2
 #endif
-#if !defined(USING_AVX512F)  && N == 16 && defined(__AVX512F__)
+#if !defined(USING_AVX512F)  && N == 16 && defined(__AVX512F__) && defined(__AVX512DQ__)
     #define  USING_AVX512F
 #endif
 
