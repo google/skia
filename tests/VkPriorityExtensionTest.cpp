@@ -49,7 +49,10 @@ static void destroy_instance(GrVkGetProc getProc, VkInstance inst) {
 // If the extension VK_EXT_GLOBAL_PRIORITY is supported, this test just tries to create a VkDevice
 // using the various global priorities. The test passes if no errors are reported or the test
 // doesn't crash.
-DEF_GPUTEST(VulkanPriorityExtension, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GPUTEST_FOR_VULKAN_CONTEXT(VulkanPriorityExtension,
+                               reporter,
+                               context_info,
+                               CtsEnforcement::kApiLevel_T) {
     PFN_vkGetInstanceProcAddr instProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
         return;
@@ -133,7 +136,8 @@ DEF_GPUTEST(VulkanPriorityExtension, reporter, options, CtsEnforcement::kApiLeve
         return;
     }
     if (!gpuCount) {
-        ERRORF(reporter, "vkEnumeratePhysicalDevices returned no supported devices.");
+        // Don't throw and error here, because this behavior is allowed by Android CTS. A device
+        // count of 0 effectively means Vulkan is not supported.
         destroy_instance(getProc, inst);
         return;
     }
