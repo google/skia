@@ -1,0 +1,25 @@
+uniform half4 colorGreen;
+
+int exact_division(int x, int y) {
+    int result = 0;
+    while (x >= y) {
+        ++result;
+        x -= y;
+    }
+    return result;
+}
+
+half4 main(float2 coords) {
+    int zero = int(colorGreen.r);
+    int one  = int(colorGreen.g);
+
+    for (int x = zero; x < 100; ++x) {
+        for (int y = one; y < 100; ++y) {
+            if ((x/y) != exact_division(x, y)) {
+                return half4(1, float(x) / 255, float(y) / 255, 1);
+            }
+        }
+    }
+
+    return colorGreen;
+}

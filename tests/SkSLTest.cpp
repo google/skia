@@ -498,7 +498,7 @@ SKSL_TEST(GPU_ES3,   kNever,      DeadLoopVariable,                "shared/DeadL
 SKSL_TEST(CPU + GPU, kApiLevel_T, DeadIfStatement,                 "shared/DeadIfStatement.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, DeadReturn,                      "shared/DeadReturn.sksl")
 // TODO(skia:12012): some Radeons crash when compiling this code; disable them.
-// SKSL_TEST(GPU_ES3,   kNever,      SkSLDeadReturnES3,               "shared/DeadReturnES3.sksl")
+// SKSL_TEST(GPU_ES3,kNever,      SkSLDeadReturnES3,               "shared/DeadReturnES3.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, DeadStripFunctions,              "shared/DeadStripFunctions.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, DependentInitializers,           "shared/DependentInitializers.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, DoubleNegation,                  "shared/DoubleNegation.sksl")
@@ -517,12 +517,13 @@ SKSL_TEST(CPU + GPU, kApiLevel_T, Hex,                             "shared/Hex.s
 SKSL_TEST(GPU_ES3,   kNever,      HexUnsigned,                     "shared/HexUnsigned.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, InoutParameters,                 "shared/InoutParameters.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, InoutParamsAreDistinct,          "shared/InoutParamsAreDistinct.sksl")
+SKSL_TEST(GPU_ES3,   kApiLevel_T, IntegerDivisionES3,              "shared/IntegerDivisionES3.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, Matrices,                        "shared/Matrices.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      MatricesNonsquare,               "shared/MatricesNonsquare.sksl")
 // TODO(skia:12443) These tests actually don't work on MANY devices. The GLSL SkQP suite
 // does a terrible job of enforcing this rule. We still test the ES2 variant on CPU.
-SKSL_TEST(CPU,   kNever,      MatrixConstructorsES2,           "shared/MatrixConstructorsES2.sksl")
-// SKSL_TEST(GPU_ES3,   kNever,      MatrixConstructorsES3,           "shared/MatrixConstructorsES3.sksl")
+SKSL_TEST(CPU,       kNever,      MatrixConstructorsES2,           "shared/MatrixConstructorsES2.sksl")
+// SKSL_TEST(GPU_ES3, kNever,     MatrixConstructorsES3,           "shared/MatrixConstructorsES3.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, MatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, MatrixScalarMath,                "shared/MatrixScalarMath.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, MatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
