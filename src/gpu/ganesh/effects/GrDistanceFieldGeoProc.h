@@ -18,16 +18,17 @@ class GrGLDistanceFieldLCDTextGeoProc;
 class GrInvariantOutput;
 
 enum GrDistanceFieldEffectFlags {
-    kSimilarity_DistanceFieldEffectFlag   = 0x01, // ctm is similarity matrix
-    kScaleOnly_DistanceFieldEffectFlag    = 0x02, // ctm has only scale and translate
-    kPerspective_DistanceFieldEffectFlag  = 0x04, // ctm has perspective (and positions are x,y,w)
-    kUseLCD_DistanceFieldEffectFlag       = 0x08, // use lcd text
-    kBGR_DistanceFieldEffectFlag          = 0x10, // lcd display has bgr order
-    kPortrait_DistanceFieldEffectFlag     = 0x20, // lcd display is in portrait mode (not used yet)
-    kGammaCorrect_DistanceFieldEffectFlag = 0x40, // assume gamma-correct output (linear blending)
-    kAliased_DistanceFieldEffectFlag      = 0x80, // monochrome output
+    kSimilarity_DistanceFieldEffectFlag   = 0x001, // ctm is similarity matrix
+    kScaleOnly_DistanceFieldEffectFlag    = 0x002, // ctm has only scale and translate
+    kPerspective_DistanceFieldEffectFlag  = 0x004, // ctm has perspective (and positions are x,y,w)
+    kUseLCD_DistanceFieldEffectFlag       = 0x008, // use lcd text
+    kBGR_DistanceFieldEffectFlag          = 0x010, // lcd display has bgr order
+    kPortrait_DistanceFieldEffectFlag     = 0x020, // lcd display is in portrait mode (not used yet)
+    kGammaCorrect_DistanceFieldEffectFlag = 0x040, // assume gamma-correct output (linear blending)
+    kAliased_DistanceFieldEffectFlag      = 0x080, // monochrome output
+    kWideColor_DistanceFieldEffectFlag    = 0x100, // use wide color (only for path)
 
-    kInvalid_DistanceFieldEffectFlag      = 0x100,   // invalid state (for initialization)
+    kInvalid_DistanceFieldEffectFlag      = 0x200,   // invalid state (for initialization)
 
     kUniformScale_DistanceFieldEffectMask = kSimilarity_DistanceFieldEffectFlag |
                                             kScaleOnly_DistanceFieldEffectFlag,
@@ -37,6 +38,13 @@ enum GrDistanceFieldEffectFlags {
                                             kPerspective_DistanceFieldEffectFlag |
                                             kGammaCorrect_DistanceFieldEffectFlag |
                                             kAliased_DistanceFieldEffectFlag,
+    // The subset of the flags relevant to GrDistanceFieldPathGeoProc
+    kPath_DistanceFieldEffectMask         = kSimilarity_DistanceFieldEffectFlag |
+                                            kScaleOnly_DistanceFieldEffectFlag |
+                                            kPerspective_DistanceFieldEffectFlag |
+                                            kGammaCorrect_DistanceFieldEffectFlag |
+                                            kAliased_DistanceFieldEffectFlag |
+                                            kWideColor_DistanceFieldEffectFlag,
     // The subset of the flags relevant to GrDistanceFieldLCDTextGeoProc
     kLCD_DistanceFieldEffectMask          = kSimilarity_DistanceFieldEffectFlag |
                                             kScaleOnly_DistanceFieldEffectFlag |
@@ -139,12 +147,12 @@ public:
 
     /** The local matrix should be identity if local coords are not required by the GrPipeline. */
     static GrGeometryProcessor* Make(SkArenaAlloc* arena, const GrShaderCaps& caps,
-                                     const SkMatrix& matrix, bool wideColor,
                                      const GrSurfaceProxyView* views, int numActiveViews,
-                                     GrSamplerState params, uint32_t flags) {
+                                     GrSamplerState params, const SkMatrix& localMatrix,
+                                     uint32_t flags) {
         return arena->make([&](void* ptr) {
-            return new (ptr) GrDistanceFieldPathGeoProc(caps, matrix, wideColor, views,
-                                                        numActiveViews, params, flags);
+            return new (ptr) GrDistanceFieldPathGeoProc(caps, views, numActiveViews,
+                                                        params, localMatrix, flags);
         });
     }
 
@@ -162,16 +170,15 @@ private:
     class Impl;
 
     GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
-                               const SkMatrix& matrix,
-                               bool wideColor,
                                const GrSurfaceProxyView* views,
                                int numActiveViews,
                                GrSamplerState,
+                               const SkMatrix& localMatrix,
                                uint32_t flags);
 
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
-    SkMatrix         fMatrix;     // view matrix if perspective, local matrix otherwise
+    SkMatrix         fLocalMatrix;
     TextureSampler   fTextureSamplers[kMaxTextures];
     SkISize          fAtlasDimensions;  // dimensions for all textures used with fTextureSamplers[].
     Attribute        fInPosition;
