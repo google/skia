@@ -1061,6 +1061,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && b.extraConfig("ANGLE") {
 		skip(ALL, "tests", ALL, "SkSLVectorToMatrixCast_GPU")             // skia:12179, vec4(mat2) crash
 		skip(ALL, "tests", ALL, "SkSLTrivialArgumentsInlineDirectly_GPU") // skia:12179 again
+		skip(ALL, "tests", ALL, "SkSLVectorScalarMath_GPU")
 	}
 
 	if b.gpu("IntelIris6100", "IntelHD4400") && b.matchOs("Win") && !b.extraConfig("Vulkan") {
