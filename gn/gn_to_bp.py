@@ -267,6 +267,14 @@ cc_defaults {
         "libpiex",
         "libexpat",
         "libft2",
+        // Required by Skottie
+        "libicu",
+        "libharfbuzz_ng",
+    ],
+    // Required by Skottie
+    cflags: [
+        "-DSK_SHAPER_HARFBUZZ_AVAILABLE",
+        "-DSK_UNICODE_AVAILABLE",
     ],
     static_libs: [
         "libwebp-decode",
@@ -492,6 +500,8 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     'skia_enable_fontmgr_win_gdi':          'false',
     'skia_use_fonthost_mac':                'false',
 
+    'skia_use_system_harfbuzz':             'false',
+
     # enable features used in skia_nanobench
     'skia_tools_require_resources':         'true',
 
@@ -566,6 +576,17 @@ cflags          = strip_slashes(js['targets']['//:skia']['cflags'])
 cflags_cc       = strip_slashes(js['targets']['//:skia']['cflags_cc'])
 local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
 export_includes = strip_slashes(js['targets']['//:public']['include_dirs'])
+
+if (gn_args['skia_enable_skottie']):
+  # Skottie sits on top of skia, so we need to specify these sources to be built
+  # Python sets handle duplicate flags, source files, and includes for us
+  android_srcs.update(strip_slashes(js['targets']['//modules/skottie:skottie']['sources']))
+  gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'sources',
+                                     android_srcs, '//:skia')
+
+  local_includes.update(strip_slashes(js['targets']['//modules/skottie:skottie']['include_dirs']))
+  gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'include_dirs',
+                                     local_includes, '//:skia')
 
 gm_srcs         = strip_slashes(js['targets']['//:gm']['sources'])
 gm_includes     = strip_slashes(js['targets']['//:gm']['include_dirs'])
