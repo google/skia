@@ -67,4 +67,4 @@ private:
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_geom_Shape_DEFINED
+#endif // skgpu_graphite_geom_SubRunData_DEFINED
