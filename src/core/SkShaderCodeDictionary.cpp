@@ -128,12 +128,10 @@ static void emit_preamble_for_entry(const SkShaderInfo& shaderInfo,
 //   - The result of the final code snippet is then copied into "sk_FragColor".
 //   Note: each entry's 'fStaticFunctionName' field is expected to match the name of a function
 //   in the Graphite pre-compiled module.
-std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step) const {
+std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
+                                 const bool defineLocalCoordsVarying) const {
     std::string preamble = "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
-
-    if (step->numVaryings() > 0) {
-        preamble += skgpu::graphite::EmitVaryings(step, "in");
-    }
+    preamble += skgpu::graphite::EmitVaryings(step, "in", defineLocalCoordsVarying);
 
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     // TODO: replace hard-coded bufferIDs with the backend's step and paint uniform-buffer indices.
@@ -151,6 +149,8 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step) const 
         preamble += step->texturesAndSamplersSkSL(binding);
     }
 
+    // TODO: Remove all the use of dev2LocalUni and the preLocal matrices once all render steps
+    // that require local coordinates emit them directly.
     std::string mainBody = SkSL::String::printf("void main() {\n"
                                                 "    float4 coords = %s sk_FragCoord;\n",
                                                 this->needsLocalCoords() ? "dev2LocalUni *" : "");
@@ -158,9 +158,15 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step) const 
     // TODO: what is the correct initial color to feed in?
     std::string lastOutputVar = "initialColor";
     SkSL::String::appendf(&mainBody, "    half4 %s = half4(0);", lastOutputVar.c_str());
+    if (this->needsLocalCoords()) {
+        // Get the local coordinates varying into half4 format as expected by emit_glue_code.
+        mainBody += "float4 outLocalCoords = float4(localCoordsVar, 0.0, 0.0);\n";
+    }
 
     for (int entryIndex = 0; entryIndex < (int)fBlockReaders.size();) {
         // Emit shader main body code. This never alters the preamble or increases the entry index.
+        // TODO - Once RenderSteps that require local coordinates emit them directly to the
+        // localCoordsVar varying, "outLocalCoords" can be passed in here instead of "coords".
         lastOutputVar = emit_glue_code_for_entry(*this, entryIndex, lastOutputVar, "coords",
                                                  "float4x4(1.0)", &mainBody);
 

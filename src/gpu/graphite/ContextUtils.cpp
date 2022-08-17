@@ -206,10 +206,17 @@ std::string emit_attributes(SkSpan<const Attribute> vertexAttrs,
 }
 }  // anonymous namespace
 
-std::string EmitVaryings(const RenderStep* step, const char* direction) {
+std::string EmitVaryings(const RenderStep* step, const char* direction,
+                         bool emitLocalCoordsVarying) {
     std::string result;
-
     int location = 0;
+
+    if (emitLocalCoordsVarying) {
+        SkSL::String::appendf(&result, "    layout(location=%d) %s ", location++, direction);
+        result.append(SkSLTypeString(SkSLType::kFloat2));
+        SkSL::String::appendf(&result, " localCoordsVar;\n");
+    }
+
     for (auto v : step->varyings()) {
         SkSL::String::appendf(&result, "    layout(location=%d) %s ", location++, direction);
         result.append(SkSLTypeString(v.fType));
@@ -219,7 +226,7 @@ std::string EmitVaryings(const RenderStep* step, const char* direction) {
     return result;
 }
 
-std::string GetSkSLVS(const GraphicsPipelineDesc& desc) {
+std::string GetSkSLVS(const GraphicsPipelineDesc& desc, bool defineLocalCoordsVarying) {
     const RenderStep* step = desc.renderStep();
     // TODO: To more completely support end-to-end rendering, this will need to be updated so that
     // the RenderStep shader snippet can produce a device coord, a local coord, and depth.
@@ -248,16 +255,21 @@ std::string GetSkSLVS(const GraphicsPipelineDesc& desc) {
     }
 
     // Varyings needed by RenderStep
-    if (step->numVaryings() > 0) {
-        sksl += EmitVaryings(step, "out");
-    }
+    sksl += EmitVaryings(step, "out", defineLocalCoordsVarying);
 
     // Vertex shader function declaration
     sksl += "void main() {\n";
+    // Create stepLocalCoords which render steps can write to.
+    sksl += "float2 stepLocalCoords = float2(0);\n";
     // Vertex shader body
     sksl += step->vertexSkSL();
-    sksl += "sk_Position = float4(devPosition.xy * rtAdjust.xy + rtAdjust.zw, devPosition.zw);\n"
-            "}\n";
+    sksl += "sk_Position = float4(devPosition.xy * rtAdjust.xy + rtAdjust.zw, devPosition.zw);\n";
+
+    if (defineLocalCoordsVarying) {
+        // Assign Render Step's stepLocalCoords to the localCoordsVar varying.
+        sksl += "localCoordsVar = stepLocalCoords;\n";
+    }
+    sksl += "}\n";
 
     return sksl;
 }
@@ -265,7 +277,8 @@ std::string GetSkSLVS(const GraphicsPipelineDesc& desc) {
 std::string GetSkSLFS(SkShaderCodeDictionary* dict,
                       SkRuntimeEffectDictionary* rteDict,
                       const GraphicsPipelineDesc& desc,
-                      BlendInfo* blendInfo) {
+                      BlendInfo* blendInfo,
+                      bool* requiresLocalCoordsVarying) {
     if (!desc.paintParamsID().isValid()) {
         // TODO: we should return the error shader code here
         return {};
@@ -275,9 +288,10 @@ std::string GetSkSLFS(SkShaderCodeDictionary* dict,
 
     dict->getShaderInfo(desc.paintParamsID(), &shaderInfo);
     *blendInfo = shaderInfo.blendInfo();
+    *requiresLocalCoordsVarying = shaderInfo.needsLocalCoords();
 
     std::string sksl;
-    sksl += shaderInfo.toSkSL(desc.renderStep());
+    sksl += shaderInfo.toSkSL(desc.renderStep(), *requiresLocalCoordsVarying);
 
     return sksl;
 }

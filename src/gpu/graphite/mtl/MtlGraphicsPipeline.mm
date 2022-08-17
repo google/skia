@@ -286,25 +286,27 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
 
     auto skslCompiler = resourceProvider->skslCompiler();
     ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
-    if (!SkSLToMSL(skslCompiler,
-                   GetSkSLVS(pipelineDesc),
-                   SkSL::ProgramKind::kGraphiteVertex,
-                   settings,
-                   &msl[kVertex_ShaderType],
-                   &inputs[kVertex_ShaderType],
-                   errorHandler)) {
-        return nullptr;
-    }
 
     BlendInfo blendInfo;
+    bool localCoordsNeeded = false;
     auto dict = resourceProvider->shaderCodeDictionary();
     if (!SkSLToMSL(skslCompiler,
                    GetSkSLFS(dict, resourceProvider->runtimeEffectDictionary(),
-                             pipelineDesc, &blendInfo),
+                             pipelineDesc, &blendInfo, &localCoordsNeeded),
                    SkSL::ProgramKind::kGraphiteFragment,
                    settings,
                    &msl[kFragment_ShaderType],
                    &inputs[kFragment_ShaderType],
+                   errorHandler)) {
+        return nullptr;
+    }
+
+    if (!SkSLToMSL(skslCompiler,
+                   GetSkSLVS(pipelineDesc, localCoordsNeeded),
+                   SkSL::ProgramKind::kGraphiteVertex,
+                   settings,
+                   &msl[kVertex_ShaderType],
+                   &inputs[kVertex_ShaderType],
                    errorHandler)) {
         return nullptr;
     }
