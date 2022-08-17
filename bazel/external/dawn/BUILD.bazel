@@ -1001,6 +1001,8 @@ TINT_SRCS = [
     "src/tint/utils/defer.h",
     "src/tint/utils/enum_set.h",
     "src/tint/utils/hash.h",
+    "src/tint/utils/hashmap.h",
+    "src/tint/utils/hashset.h",
     "src/tint/utils/map.h",
     "src/tint/utils/math.h",
     "src/tint/utils/reverse.h",
