@@ -792,7 +792,6 @@ protected:
         SkMatrix positionMatrix = this->localToDevice();
         positionMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
-#ifdef SK_SUPPORT_LEGACY_SLUG_CONVERT
         // TODO these two passes can be converted into one when the SkRemoteGlyphCache's strike
         //  cache is fortified with enough information for supporting slug creation.
 
@@ -818,15 +817,6 @@ protected:
                                    drawingPaint,
                                    this->strikeDeviceInfo(),
                                    SkStrikeCache::GlobalStrikeCache());
-#else
-        // Use the SkStrikeServer's strike cache to generate the Slug.
-        return skgpu::v1::MakeSlug(this->localToDevice(),
-                                   glyphRunList,
-                                   initialPaint,
-                                   drawingPaint,
-                                   this->strikeDeviceInfo(),
-                                   fStrikeServerImpl);
-#endif
     }
 
 private:
