@@ -194,6 +194,9 @@ def compile_fn(api, checkout_root, out_dir):
     # build IDs are required for Bloaty if we want to use strip to ignore debug symbols.
     # https://github.com/google/bloaty/blob/master/doc/using.md#debugging-stripped-binaries
     extra_ldflags.append('-Wl,--build-id=sha1')
+    args.update({
+      'skia_use_runtime_icu': 'true',
+    })
 
   if 'Exceptions' in extra_tokens:
     extra_cflags.append('/EHsc')
