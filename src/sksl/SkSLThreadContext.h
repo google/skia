@@ -12,7 +12,6 @@
 #include "include/private/SkSLProgramKind.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
@@ -127,14 +126,6 @@ public:
      */
     static RTAdjustData& RTAdjustState();
 
-    static const char* Filename() {
-        return Instance().fFilename;
-    }
-
-    static void SetFilename(const char* filename) {
-        Instance().fFilename = filename;
-    }
-
     /**
      * Returns the ErrorReporter associated with the current thread. This object will be notified
      * when any DSL errors occur.
@@ -173,11 +164,8 @@ private:
     DefaultErrorReporter fDefaultErrorReporter;
     ErrorReporter& fOldErrorReporter;
     ProgramSettings fSettings;
-    Mangler fMangler;
     RTAdjustData fRTAdjust;
     Program::Inputs fInputs;
-    // for DSL error reporting purposes
-    const char* fFilename = "";
 
     friend class dsl::DSLCore;
     friend class dsl::DSLWriter;
