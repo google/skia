@@ -270,8 +270,6 @@ skia_core_sources = [
   "$_src/core/SkMath.cpp",
   "$_src/core/SkMathPriv.h",
   "$_src/core/SkMatrix.cpp",
-  "$_src/core/SkMatrixImageFilter.cpp",
-  "$_src/core/SkMatrixImageFilter.h",
   "$_src/core/SkMatrixInvert.cpp",
   "$_src/core/SkMatrixInvert.h",
   "$_src/core/SkMatrixUtils.h",

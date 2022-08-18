@@ -42,7 +42,6 @@
 
     #include "include/effects/SkImageFilters.h"
     #include "src/core/SkLocalMatrixImageFilter.h"
-    #include "src/core/SkMatrixImageFilter.h"
 
 #ifdef SK_ENABLE_SKSL
     #include "include/effects/SkRuntimeEffect.h"
@@ -132,6 +131,7 @@
         SkRegisterLightingImageFilterFlattenables();
         SkRegisterMagnifierImageFilterFlattenable();
         SkRegisterMatrixConvolutionImageFilterFlattenable();
+        SkRegisterMatrixTransformImageFilterFlattenable();
         SkRegisterMergeImageFilterFlattenable();
         SkRegisterMorphologyImageFilterFlattenables();
         SkRegisterOffsetImageFilterFlattenable();
@@ -142,7 +142,6 @@
         SkRegisterShaderImageFilterFlattenable();
         SkRegisterTileImageFilterFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixImageFilter);
-        SK_REGISTER_FLATTENABLE(SkMatrixImageFilter);
     }
 
 #endif

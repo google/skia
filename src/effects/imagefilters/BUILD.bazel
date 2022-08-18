@@ -19,6 +19,7 @@ IMAGEFILTERS_FILES = [
     "SkLightingImageFilter.cpp",
     "SkMagnifierImageFilter.cpp",
     "SkMatrixConvolutionImageFilter.cpp",
+    "SkMatrixTransformImageFilter.cpp",
     "SkMergeImageFilter.cpp",
     "SkMorphologyImageFilter.cpp",
     "SkOffsetImageFilter.cpp",

@@ -192,8 +192,6 @@ CORE_FILES = [
     "SkMath.cpp",
     "SkMathPriv.h",
     "SkMatrix.cpp",
-    "SkMatrixImageFilter.cpp",
-    "SkMatrixImageFilter.h",
     "SkMatrixInvert.cpp",
     "SkMatrixInvert.h",
     "SkMatrixPriv.h",
