@@ -25,6 +25,7 @@
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructor.h"
@@ -2979,140 +2980,65 @@ void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
     }
 }
 
-MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expression* e) {
-    if (!e) {
-        return kNo_Requirements;
-    }
-    switch (e->kind()) {
-        case Expression::Kind::kFunctionCall: {
-            const FunctionCall& f = e->as<FunctionCall>();
-            Requirements result = this->requirements(f.function());
-            for (const auto& arg : f.arguments()) {
-                result |= this->requirements(arg.get());
-            }
-            return result;
-        }
-        case Expression::Kind::kConstructorCompound:
-        case Expression::Kind::kConstructorCompoundCast:
-        case Expression::Kind::kConstructorArray:
-        case Expression::Kind::kConstructorArrayCast:
-        case Expression::Kind::kConstructorDiagonalMatrix:
-        case Expression::Kind::kConstructorMatrixResize:
-        case Expression::Kind::kConstructorScalarCast:
-        case Expression::Kind::kConstructorSplat:
-        case Expression::Kind::kConstructorStruct: {
-            const AnyConstructor& c = e->asAnyConstructor();
-            Requirements result = kNo_Requirements;
-            for (const auto& arg : c.argumentSpan()) {
-                result |= this->requirements(arg.get());
-            }
-            return result;
-        }
-        case Expression::Kind::kFieldAccess: {
-            const FieldAccess& f = e->as<FieldAccess>();
-            if (FieldAccess::OwnerKind::kAnonymousInterfaceBlock == f.ownerKind()) {
-                return kGlobals_Requirement;
-            }
-            return this->requirements(f.base().get());
-        }
-        case Expression::Kind::kSwizzle:
-            return this->requirements(e->as<Swizzle>().base().get());
-        case Expression::Kind::kBinary: {
-            const BinaryExpression& bin = e->as<BinaryExpression>();
-            return this->requirements(bin.left().get()) |
-                   this->requirements(bin.right().get());
-        }
-        case Expression::Kind::kIndex: {
-            const IndexExpression& idx = e->as<IndexExpression>();
-            return this->requirements(idx.base().get()) | this->requirements(idx.index().get());
-        }
-        case Expression::Kind::kPrefix:
-            return this->requirements(e->as<PrefixExpression>().operand().get());
-        case Expression::Kind::kPostfix:
-            return this->requirements(e->as<PostfixExpression>().operand().get());
-        case Expression::Kind::kTernary: {
-            const TernaryExpression& t = e->as<TernaryExpression>();
-            return this->requirements(t.test().get()) | this->requirements(t.ifTrue().get()) |
-                   this->requirements(t.ifFalse().get());
-        }
-        case Expression::Kind::kVariableReference: {
-            const VariableReference& v = e->as<VariableReference>();
-            const Modifiers& modifiers = v.variable()->modifiers();
-            Requirements result = kNo_Requirements;
-            if (modifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
-                result = kGlobals_Requirement | kFragCoord_Requirement;
-            } else if (Variable::Storage::kGlobal == v.variable()->storage()) {
-                if (modifiers.fFlags & Modifiers::kIn_Flag) {
-                    result = kInputs_Requirement;
-                } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
-                    result = kOutputs_Requirement;
-                } else if (modifiers.fFlags & Modifiers::kUniform_Flag &&
-                           v.variable()->type().typeKind() != Type::TypeKind::kSampler) {
-                    result = kUniforms_Requirement;
-                } else if (modifiers.fFlags & Modifiers::kThreadgroup_Flag) {
-                    result = kThreadgroups_Requirement;
-                } else {
-                    result = kGlobals_Requirement;
-                }
-            }
-            return result;
-        }
-        default:
-            return kNo_Requirements;
-    }
-}
-
 MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statement* s) {
-    if (!s) {
-        return kNo_Requirements;
-    }
-    switch (s->kind()) {
-        case Statement::Kind::kBlock: {
-            Requirements result = kNo_Requirements;
-            for (const std::unique_ptr<Statement>& child : s->as<Block>().children()) {
-                result |= this->requirements(child.get());
+    class RequirementsVisitor : public ProgramVisitor {
+    public:
+        using ProgramVisitor::visitStatement;
+
+        bool visitExpression(const Expression& e) override {
+            switch (e.kind()) {
+                case Expression::Kind::kFunctionCall: {
+                    const FunctionCall& f = e.as<FunctionCall>();
+                    fRequirements |= fCodeGen->requirements(f.function());
+                    break;
+                }
+                case Expression::Kind::kFieldAccess: {
+                    const FieldAccess& f = e.as<FieldAccess>();
+                    if (f.ownerKind() == FieldAccess::OwnerKind::kAnonymousInterfaceBlock) {
+                        fRequirements |= kGlobals_Requirement;
+                        return false;  // don't recurse into the base variable
+                    }
+                    break;
+                }
+                case Expression::Kind::kVariableReference: {
+                    const VariableReference& v = e.as<VariableReference>();
+                    const Modifiers& modifiers = v.variable()->modifiers();
+
+                    if (modifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
+                        fRequirements |= kGlobals_Requirement | kFragCoord_Requirement;
+                    } else if (Variable::Storage::kGlobal == v.variable()->storage()) {
+                        if (modifiers.fFlags & Modifiers::kIn_Flag) {
+                            fRequirements |= kInputs_Requirement;
+                        } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
+                            fRequirements |= kOutputs_Requirement;
+                        } else if (modifiers.fFlags & Modifiers::kUniform_Flag &&
+                                   v.variable()->type().typeKind() != Type::TypeKind::kSampler) {
+                            fRequirements |= kUniforms_Requirement;
+                        } else if (modifiers.fFlags & Modifiers::kThreadgroup_Flag) {
+                            fRequirements |= kThreadgroups_Requirement;
+                        } else {
+                            fRequirements |= kGlobals_Requirement;
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
-            return result;
+            return INHERITED::visitExpression(e);
         }
-        case Statement::Kind::kVarDeclaration: {
-            const VarDeclaration& var = s->as<VarDeclaration>();
-            return this->requirements(var.value().get());
-        }
-        case Statement::Kind::kExpression:
-            return this->requirements(s->as<ExpressionStatement>().expression().get());
-        case Statement::Kind::kReturn: {
-            const ReturnStatement& r = s->as<ReturnStatement>();
-            return this->requirements(r.expression().get());
-        }
-        case Statement::Kind::kIf: {
-            const IfStatement& i = s->as<IfStatement>();
-            return this->requirements(i.test().get()) |
-                   this->requirements(i.ifTrue().get()) |
-                   this->requirements(i.ifFalse().get());
-        }
-        case Statement::Kind::kFor: {
-            const ForStatement& f = s->as<ForStatement>();
-            return this->requirements(f.initializer().get()) |
-                   this->requirements(f.test().get()) |
-                   this->requirements(f.next().get()) |
-                   this->requirements(f.statement().get());
-        }
-        case Statement::Kind::kDo: {
-            const DoStatement& d = s->as<DoStatement>();
-            return this->requirements(d.test().get()) |
-                   this->requirements(d.statement().get());
-        }
-        case Statement::Kind::kSwitch: {
-            const SwitchStatement& sw = s->as<SwitchStatement>();
-            Requirements result = this->requirements(sw.value().get());
-            for (const std::unique_ptr<Statement>& sc : sw.cases()) {
-                result |= this->requirements(sc->as<SwitchCase>().statement().get());
-            }
-            return result;
-        }
-        default:
-            return kNo_Requirements;
+
+        MetalCodeGenerator* fCodeGen;
+        Requirements fRequirements = kNo_Requirements;
+        using INHERITED = ProgramVisitor;
+    };
+
+    RequirementsVisitor visitor;
+    if (s) {
+        visitor.fCodeGen = this;
+        visitor.visitStatement(*s);
     }
+    return visitor.fRequirements;
 }
 
 MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const FunctionDeclaration& f) {

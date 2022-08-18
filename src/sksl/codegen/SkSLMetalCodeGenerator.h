@@ -285,8 +285,6 @@ protected:
 
     Requirements requirements(const FunctionDeclaration& f);
 
-    Requirements requirements(const Expression* e);
-
     Requirements requirements(const Statement* s);
 
     // Returns true if it wrote anything
