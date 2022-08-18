@@ -25,7 +25,7 @@
 
 #include <algorithm>
 
-#if defined(SK_BUILD_FOR_UNIX)
+#if defined(__GLIBC__)
 #include <execinfo.h>
 #endif
 #include "include/gpu/vk/GrVkBackendContext.h"
@@ -103,7 +103,7 @@ static int should_include_debug_layer(const char* layerName,
 }
 
 static void print_backtrace() {
-#if defined(SK_BUILD_FOR_UNIX)
+#if defined(__GLIBC__)
     void* stack[64];
     int count = backtrace(stack, std::size(stack));
     backtrace_symbols_fd(stack, count, 2);
