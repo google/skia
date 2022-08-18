@@ -44,7 +44,7 @@ ExtractPaintData(Recorder* recorder,
     auto entry = dict->findOrCreate(builder);
     UniformDataCache::Index uniformIndex;
     if (gatherer->hasUniforms()) {
-        uniformIndex = uniformDataCache->insert(gatherer->peekUniformData());
+        uniformIndex = uniformDataCache->insert(gatherer->finishUniformDataBlock());
     }
     TextureDataCache::Index textureIndex;
     if (gatherer->hasTextures()) {
@@ -66,7 +66,8 @@ ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
 
     step->writeUniformsAndTextures(params, gatherer);
 
-    UniformDataCache::Index uIndex = geometryUniformDataCache->insert(gatherer->peekUniformData());
+    UniformDataCache::Index uIndex =
+            geometryUniformDataCache->insert(gatherer->finishUniformDataBlock());
 
     TextureDataCache::Index textureIndex;
     if (step->hasTextures()) {

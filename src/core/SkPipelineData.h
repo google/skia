@@ -153,7 +153,9 @@ public:
 
     bool hasUniforms() const { return fUniformManager.size(); }
 
-    SkUniformDataBlock peekUniformData() const { return fUniformManager.peekData(); }
+    // Returns the uniform data written so far. Will automatically pad the end of the data as needed
+    // to the overall required alignment, and so should only be called when all writing is done.
+    SkUniformDataBlock finishUniformDataBlock() { return fUniformManager.finishUniformDataBlock(); }
 
 private:
 #ifdef SK_DEBUG

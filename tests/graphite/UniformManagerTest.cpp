@@ -92,7 +92,7 @@ DEF_TEST(UniformManagerCheckFloatEncoding, r) {
             mgr.doneWithExpectedUniforms();
 
             // Read back the uniform data.
-            SkUniformDataBlock uniformData = mgr.peekData();
+            SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
             size_t elementSize = element_size(layout, type);
             const void* validData = (elementSize == 4) ? (const void*)kFloats : (const void*)kHalfs;
             REPORTER_ASSERT(r, uniformData.size() >= vecLength * elementSize);
@@ -120,7 +120,7 @@ DEF_TEST(UniformManagerCheckIntEncoding, r) {
             mgr.doneWithExpectedUniforms();
 
             // Read back the uniform data.
-            SkUniformDataBlock uniformData = mgr.peekData();
+            SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
             int vecLength = SkSLTypeVecLength(type);
             size_t elementSize = element_size(layout, type);
             const void* validData = (elementSize == 4) ? (const void*)kInts : (const void*)kShorts;
@@ -152,7 +152,7 @@ DEF_TEST(UniformManagerCheckScalarVectorPacking, r) {
             mgr.doneWithExpectedUniforms();
 
             // Verify that the uniform data was packed as tight as it should be.
-            SkUniformDataBlock uniformData = mgr.peekData();
+            SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
             size_t elementSize = element_size(layout, type);
             // Vec3s should be packed as if they were vec4s.
             size_t effectiveVecLength = (vecLength == 3) ? 4 : vecLength;
@@ -183,7 +183,7 @@ DEF_TEST(UniformManagerCheckMatrixPacking, r) {
             mgr.doneWithExpectedUniforms();
 
             // Verify that the uniform data was packed as tight as it should be.
-            SkUniformDataBlock uniformData = mgr.peekData();
+            SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
             size_t elementSize = element_size(layout, type);
             // In all layouts, mat3s should burn 12 elements, not 9.
             size_t numElements = (matrixSize == 3) ? 12 : (matrixSize * matrixSize);
@@ -228,15 +228,15 @@ DEF_TEST(UniformManagerCheckPaddingScalarVector, r) {
                     // a/b: padding as part of the uniform type (vec3 takes 4 slots)
                     // _  : padding between uniforms for alignment
                     static constexpr const char* kExpectedLayout[5][5] = {
-                        { "", "",      "",       "",         ""         },
-                        { "", "AB",    "A_BB",   "A___BBBb", "A___BBBB" },
-                        { "", "AAB",   "AABB",   "AA__BBBb", "AA__BBBB" },
-                        { "", "AAAaB", "AAAaBB", "AAAaBBBb", "AAAaBBBB" },
-                        { "", "AAAAB", "AAAABB", "AAAABBBb", "AAAABBBB" },
+                        { "", "",         "",         "",         ""         },
+                        { "", "AB",       "A_BB",     "A___BBBb", "A___BBBB" },
+                        { "", "AAB_",     "AABB",     "AA__BBBb", "AA__BBBB" },
+                        { "", "AAAaB___", "AAAaBB__", "AAAaBBBb", "AAAaBBBB" },
+                        { "", "AAAAB___", "AAAABB__", "AAAABBBb", "AAAABBBB" },
                     };
                     const size_t size = strlen(kExpectedLayout[vecLength1][vecLength2]) *
                                         elementSize1;
-                    SkUniformDataBlock uniformData = mgr.peekData();
+                    SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout:%d Types:%d %d padding test failed",
                                     (int)layout, (int)type1, (int)type2);
@@ -247,14 +247,14 @@ DEF_TEST(UniformManagerCheckPaddingScalarVector, r) {
                     // a/b: padding as part of the uniform type (vec3 takes 4 slots)
                     // _  : padding between uniforms for alignment
                     static constexpr const char* kExpectedLayout[5][5] = {
-                        { "", "",      "",       "",         ""         },
-                        { "", "A_BB",   "A___BBBB", "A_______BBBBBBbb", "A_______BBBBBBBB" },
-                        { "", "AABB",   "AA__BBBB", "AA______BBBBBBbb", "AA______BBBBBBBB" },
-                        { "", "AAAaBB", "AAAaBBBB", "AAAa____BBBBBBbb", "AAAa____BBBBBBBB" },
-                        { "", "AAAABB", "AAAABBBB", "AAAA____BBBBBBbb", "AAAA____BBBBBBBB" },
+                        { "", "",         "",         "",                 ""         },
+                        { "", "A_BB",     "A___BBBB", "A_______BBBBBBbb", "A_______BBBBBBBB" },
+                        { "", "AABB",     "AA__BBBB", "AA______BBBBBBbb", "AA______BBBBBBBB" },
+                        { "", "AAAaBB__", "AAAaBBBB", "AAAa____BBBBBBbb", "AAAa____BBBBBBBB" },
+                        { "", "AAAABB__", "AAAABBBB", "AAAA____BBBBBBbb", "AAAA____BBBBBBBB" },
                     };
                     const size_t size = strlen(kExpectedLayout[vecLength1][vecLength2]) * 2;
-                    SkUniformDataBlock uniformData = mgr.peekData();
+                    SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout:%d Types:%d %d padding test failed",
                                     (int)layout, (int)type1, (int)type2);
@@ -265,14 +265,22 @@ DEF_TEST(UniformManagerCheckPaddingScalarVector, r) {
                     // a/b: padding as part of the uniform type (vec3 takes 4 slots)
                     // _  : padding between uniforms for alignment
                     static constexpr const char* kExpectedLayout[5][5] = {
-                        { "", "",          "",           "",             ""         },
-                        { "", "AAB",       "AABB",       "AA__BBBb",     "AA__BBBB" },
-                        { "", "AAAAB",     "AAAABB",     "AAAABBBb",     "AAAABBBB" },
-                        { "", "AAAAAAaaB", "AAAAAAaaBB", "AAAAAAaaBBBb", "AAAAAAaaBBBB" },
-                        { "", "AAAAAAAAB", "AAAAAAAABB", "AAAAAAAABBBb", "AAAAAAAABBBB" },
+                        { "", "", "", "", "" },
+                        { "", "AAB_",     "AABB",     "AA__BBBb", "AA__BBBB" },
+                        { "", "AAAAB___", "AAAABB__", "AAAABBBb", "AAAABBBB" },
+                        { "",
+                          "AAAAAAaaB_______",
+                          "AAAAAAaaBB______",
+                          "AAAAAAaaBBBb____",
+                          "AAAAAAaaBBBB____" },
+                        { "",
+                          "AAAAAAAAB_______",
+                          "AAAAAAAABB______",
+                          "AAAAAAAABBBb____",
+                          "AAAAAAAABBBB____" },
                     };
                     const size_t size = strlen(kExpectedLayout[vecLength1][vecLength2]) * 2;
-                    SkUniformDataBlock uniformData = mgr.peekData();
+                    SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Layout:%d Types:%d %d padding test failed",
                                     (int)layout, (int)type1, (int)type2);
@@ -327,7 +335,7 @@ DEF_TEST(UniformManagerCheckPaddingVectorMatrix, r) {
                     };
                     const size_t size = strlen(kExpectedLayout[vecLength1][matSize2]) *
                                         elementSize1;
-                    SkUniformDataBlock uniformData = mgr.peekData();
+                    SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Types:%d %d vector-matrix padding test failed",
                                     (int)type1, (int)type2);
@@ -357,7 +365,7 @@ DEF_TEST(UniformManagerCheckPaddingVectorMatrix, r) {
                              "AAAA____BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"},
                     };
                     const size_t size = strlen(kExpectedLayout[vecLength1][matSize2]) * 2;
-                    SkUniformDataBlock uniformData = mgr.peekData();
+                    SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Types:%d %d vector-matrix padding test failed",
                                     (int)type1, (int)type2);
@@ -372,16 +380,16 @@ DEF_TEST(UniformManagerCheckPaddingVectorMatrix, r) {
                             {"", "", "AABBBB",   "AA__BBBbBBBbBBBb", "AA__BBBBBBBBBBBBBBBB"},
                             {"", "", "AAAABBBB", "AAAABBBbBBBbBBBb", "AAAABBBBBBBBBBBBBBBB"},
                             {"", "",
-                             "AAAAAAaaBBBB",
-                             "AAAAAAaaBBBbBBBbBBBb",
+                             "AAAAAAaaBBBB____",
+                             "AAAAAAaaBBBbBBBbBBBb____",
                              "AAAAAAaaBBBBBBBBBBBBBBBB"},
                             {"", "",
-                             "AAAAAAAABBBB",
-                             "AAAAAAAABBBbBBBbBBBb",
+                             "AAAAAAAABBBB____",
+                             "AAAAAAAABBBbBBBbBBBb____",
                              "AAAAAAAABBBBBBBBBBBBBBBB"},
                     };
                     const size_t size = strlen(kExpectedLayout[vecLength1][matSize2]) * 2;
-                    SkUniformDataBlock uniformData = mgr.peekData();
+                    SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Types:%d %d vector-matrix padding test failed",
                                     (int)type1, (int)type2);
@@ -428,21 +436,21 @@ DEF_TEST(UniformManagerCheckPaddingMatrixVector, r) {
                     static constexpr const char* kExpectedLayout[5][5] = {
                         { "", "", "", "", "" },
                         { "", "", "", "", "" },
-                        { "", "AAAAB", "AAAABB", "AAAABBBb", "AAAABBBB" },
+                        { "", "AAAAB_", "AAAABB", "AAAABBBb", "AAAABBBB" },
                         { "",
-                          "AAAaAAAaAAAaB",
-                          "AAAaAAAaAAAaBB",
+                          "AAAaAAAaAAAaB___",
+                          "AAAaAAAaAAAaBB__",
                           "AAAaAAAaAAAaBBBb",
                           "AAAaAAAaAAAaBBBB" },
                         { "",
-                          "AAAAAAAAAAAAAAAAB",
-                          "AAAAAAAAAAAAAAAABB",
+                          "AAAAAAAAAAAAAAAAB___",
+                          "AAAAAAAAAAAAAAAABB__",
                           "AAAAAAAAAAAAAAAABBBb",
                           "AAAAAAAAAAAAAAAABBBB" },
                     };
                     const size_t size = strlen(kExpectedLayout[matSize1][vecLength2]) *
                                         elementSize1;
-                    SkUniformDataBlock uniformData = mgr.peekData();
+                    SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Types:%d %d matrix-vector padding test failed",
                                     (int)type1, (int)type2);
@@ -457,18 +465,18 @@ DEF_TEST(UniformManagerCheckPaddingMatrixVector, r) {
                         { "", "", "", "", "" },
                         { "", "AAAABB", "AAAABBBB", "AAAA____BBBBBBbb", "AAAA____BBBBBBBB" },
                         { "",
-                          "AAAaAAAaAAAaBB",
+                          "AAAaAAAaAAAaBB__",
                           "AAAaAAAaAAAaBBBB",
                           "AAAaAAAaAAAa____BBBBBBbb",
                           "AAAaAAAaAAAa____BBBBBBBB" },
                         { "",
-                          "AAAAAAAAAAAAAAAABB",
+                          "AAAAAAAAAAAAAAAABB__",
                           "AAAAAAAAAAAAAAAABBBB",
                           "AAAAAAAAAAAAAAAABBBBBBbb",
                           "AAAAAAAAAAAAAAAABBBBBBBB" },
                     };
                     const size_t size = strlen(kExpectedLayout[matSize1][vecLength2]) * 2;
-                    SkUniformDataBlock uniformData = mgr.peekData();
+                    SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Types:%d %d matrix-vector padding test failed",
                                     (int)type1, (int)type2);
@@ -481,20 +489,20 @@ DEF_TEST(UniformManagerCheckPaddingMatrixVector, r) {
                     static constexpr const char* kExpectedLayout[5][5] = {
                         { "", "", "", "", "" },
                         { "", "", "", "", "" },
-                        { "", "AAAAAAAAB", "AAAAAAAABB", "AAAAAAAABBBb", "AAAAAAAABBBB" },
+                        { "", "AAAAAAAAB___", "AAAAAAAABB__", "AAAAAAAABBBb", "AAAAAAAABBBB" },
                         { "",
-                          "AAAAAAaaAAAAAAaaAAAAAAaaB",
-                          "AAAAAAaaAAAAAAaaAAAAAAaaBB",
-                          "AAAAAAaaAAAAAAaaAAAAAAaaBBBb",
-                          "AAAAAAaaAAAAAAaaAAAAAAaaBBBB" },
+                          "AAAAAAaaAAAAAAaaAAAAAAaaB_______",
+                          "AAAAAAaaAAAAAAaaAAAAAAaaBB______",
+                          "AAAAAAaaAAAAAAaaAAAAAAaaBBBb____",
+                          "AAAAAAaaAAAAAAaaAAAAAAaaBBBB____" },
                         { "",
-                          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB",
-                          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABB",
-                          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBb",
-                          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBB" },
+                          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB_______",
+                          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABB______",
+                          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBb____",
+                          "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBB____" },
                     };
                     const size_t size = strlen(kExpectedLayout[matSize1][vecLength2]) * 2;
-                    SkUniformDataBlock uniformData = mgr.peekData();
+                    SkUniformDataBlock uniformData = mgr.finishUniformDataBlock();
                     REPORTER_ASSERT(r, uniformData.size() == size,
                                     "Types:%d %d matrix-vector padding test failed",
                                     (int)type1, (int)type2);
