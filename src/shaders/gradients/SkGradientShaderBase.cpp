@@ -645,6 +645,16 @@ SkColor4fXformer::SkColor4fXformer(const SkColor4f* colors, int colorCount,
     }
 }
 
+SkColorConverter::SkColorConverter(const SkColor* colors, int count) {
+    const float ONE_OVER_255 = 1.f / 255;
+    for (int i = 0; i < count; ++i) {
+        fColors4f.push_back({ SkColorGetR(colors[i]) * ONE_OVER_255,
+                              SkColorGetG(colors[i]) * ONE_OVER_255,
+                              SkColorGetB(colors[i]) * ONE_OVER_255,
+                              SkColorGetA(colors[i]) * ONE_OVER_255 });
+    }
+}
+
 void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
     if (info) {
         if (info->fColorCount >= fColorCount) {

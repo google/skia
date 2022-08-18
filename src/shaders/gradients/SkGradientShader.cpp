@@ -14,29 +14,13 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// TODO: move the ColorConverter into SkGradientShaderBase
-struct ColorConverter {
-    ColorConverter(const SkColor* colors, int count) {
-        const float ONE_OVER_255 = 1.f / 255;
-        for (int i = 0; i < count; ++i) {
-            fColors4f.push_back({
-                SkColorGetR(colors[i]) * ONE_OVER_255,
-                SkColorGetG(colors[i]) * ONE_OVER_255,
-                SkColorGetB(colors[i]) * ONE_OVER_255,
-                SkColorGetA(colors[i]) * ONE_OVER_255 });
-        }
-    }
-
-    SkSTArray<2, SkColor4f, true> fColors4f;
-};
-
 sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
                                              const SkColor colors[],
                                              const SkScalar pos[], int colorCount,
                                              SkTileMode mode,
                                              uint32_t flags,
                                              const SkMatrix* localMatrix) {
-    ColorConverter converter(colors, colorCount);
+    SkColorConverter converter(colors, colorCount);
     return MakeLinear(pts, converter.fColors4f.begin(), nullptr, pos, colorCount, mode, flags,
                       localMatrix);
 }
@@ -91,7 +75,7 @@ sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar rad
                                              SkTileMode mode,
                                              uint32_t flags,
                                              const SkMatrix* localMatrix) {
-    ColorConverter converter(colors, colorCount);
+    SkColorConverter converter(colors, colorCount);
     return MakeRadial(center, radius, converter.fColors4f.begin(), nullptr, pos, colorCount, mode,
                       flags, localMatrix);
 }
@@ -113,7 +97,7 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
                                                       SkTileMode mode,
                                                       uint32_t flags,
                                                       const SkMatrix* localMatrix) {
-    ColorConverter converter(colors, colorCount);
+    SkColorConverter converter(colors, colorCount);
     return MakeTwoPointConical(start, startRadius, end, endRadius, converter.fColors4f.begin(),
                                nullptr, pos, colorCount, mode, flags, localMatrix);
 }
@@ -139,7 +123,7 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
                                             SkScalar endAngle,
                                             uint32_t flags,
                                             const SkMatrix* localMatrix) {
-    ColorConverter converter(colors, colorCount);
+    SkColorConverter converter(colors, colorCount);
     return MakeSweep(cx, cy, converter.fColors4f.begin(), nullptr, pos, colorCount,
                      mode, startAngle, endAngle, flags, localMatrix);
 }
