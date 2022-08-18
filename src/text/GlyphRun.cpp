@@ -39,70 +39,6 @@ GlyphRun::GlyphRun(const GlyphRun& that, const SkFont& font)
     , fClusters{that.fClusters}
     , fFont{font} {}
 
-SkRect GlyphRun::sourceBounds(const SkPaint& paint) const {
-    SkASSERT(this->runSize() > 0);
-    const SkRect fontBounds = SkFontPriv::GetFontBounds(fFont);
-
-    if (fontBounds.isEmpty()) {
-        // Empty font bounds are likely a font bug.  TightBounds has a better chance of
-        // producing useful results in this case.
-        auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeCanonicalized(fFont, &paint);
-        SkBulkGlyphMetrics metrics{strikeSpec};
-        SkSpan<const SkGlyph*> glyphs = metrics.glyphs(this->glyphsIDs());
-        if (fScaledRotations.empty()) {
-            // No RSXForm data - glyphs x/y aligned.
-            auto scaleAndTranslateRect =
-                [scale = strikeToSourceScale](const SkRect& in, const SkPoint& pos) {
-                    return SkRect::MakeLTRB(in.left()   * scale + pos.x(),
-                                            in.top()    * scale + pos.y(),
-                                            in.right()  * scale + pos.x(),
-                                            in.bottom() * scale + pos.y());
-                };
-
-            SkRect bounds = SkRect::MakeEmpty();
-            for (auto [pos, glyph] : SkMakeZip(this->positions(), glyphs)) {
-                if (SkRect r = glyph->rect(); !r.isEmpty()) {
-                    bounds.join(scaleAndTranslateRect(r, pos));
-                }
-            }
-            return bounds;
-        } else {
-            // RSXForm - glyphs can be any scale or rotation.
-            SkRect bounds = SkRect::MakeEmpty();
-            for (auto [pos, scaleRotate, glyph] :
-                    SkMakeZip(this->positions(), fScaledRotations, glyphs)) {
-                if (!glyph->rect().isEmpty()) {
-                    SkMatrix xform = SkMatrix().setRSXform(
-                            SkRSXform{pos.x(), pos.y(), scaleRotate.x(), scaleRotate.y()});
-                    xform.preScale(strikeToSourceScale, strikeToSourceScale);
-                    bounds.join(xform.mapRect(glyph->rect()));
-                }
-            }
-            return bounds;
-        }
-    }
-
-    // Use conservative bounds. All glyph have a box of fontBounds size.
-    if (fScaledRotations.empty()) {
-        SkRect bounds;
-        bounds.setBounds(this->positions().data(), SkCount(this->positions()));
-        bounds.fLeft   += fontBounds.left();
-        bounds.fTop    += fontBounds.top();
-        bounds.fRight  += fontBounds.right();
-        bounds.fBottom += fontBounds.bottom();
-        return bounds;
-    } else {
-        // RSXForm case glyphs can be any scale or rotation.
-        SkRect bounds;
-        bounds.setEmpty();
-        for (auto [pos, scaleRotate] : SkMakeZip(this->positions(), fScaledRotations)) {
-            const SkRSXform xform{pos.x(), pos.y(), scaleRotate.x(), scaleRotate.y()};
-            bounds.join(SkMatrix().setRSXform(xform).mapRect(fontBounds));
-        }
-        return bounds;
-    }
-}
-
 // -- GlyphRunList ---------------------------------------------------------------------------------
 GlyphRunList::GlyphRunList(const SkTextBlob* blob,
                            SkRect bounds,
@@ -175,8 +111,81 @@ sk_sp<SkTextBlob> GlyphRunList::makeBlob() const {
 }
 
 // -- GlyphRunBuilder ------------------------------------------------------------------------------
+static SkRect glyphrun_source_bounds(
+        const SkFont& font,
+        const SkPaint& paint,
+        SkZip<const SkGlyphID, const SkPoint> source,
+        SkSpan<const SkVector> scaledRotations) {
+    SkASSERT(source.size() > 0);
+    const SkRect fontBounds = SkFontPriv::GetFontBounds(font);
+
+    SkSpan<const SkGlyphID> glyphIDs = source.get<0>();
+    SkSpan<const SkPoint> positions = source.get<1>();
+
+    if (fontBounds.isEmpty()) {
+        // Empty font bounds are likely a font bug.  TightBounds has a better chance of
+        // producing useful results in this case.
+        auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeCanonicalized(font, &paint);
+        SkBulkGlyphMetrics metrics{strikeSpec};
+        SkSpan<const SkGlyph*> glyphs = metrics.glyphs(glyphIDs);
+        if (scaledRotations.empty()) {
+            // No RSXForm data - glyphs x/y aligned.
+            auto scaleAndTranslateRect =
+                    [scale = strikeToSourceScale](const SkRect& in, const SkPoint& pos) {
+                        return SkRect::MakeLTRB(in.left()   * scale + pos.x(),
+                                                in.top()    * scale + pos.y(),
+                                                in.right()  * scale + pos.x(),
+                                                in.bottom() * scale + pos.y());
+                    };
+
+            SkRect bounds = SkRect::MakeEmpty();
+            for (auto [pos, glyph] : SkMakeZip(positions, glyphs)) {
+                if (SkRect r = glyph->rect(); !r.isEmpty()) {
+                    bounds.join(scaleAndTranslateRect(r, pos));
+                }
+            }
+            return bounds;
+        } else {
+            // RSXForm - glyphs can be any scale or rotation.
+            SkRect bounds = SkRect::MakeEmpty();
+            for (auto [pos, scaleRotate, glyph] : SkMakeZip(positions, scaledRotations, glyphs)) {
+                if (!glyph->rect().isEmpty()) {
+                    SkMatrix xform = SkMatrix().setRSXform(
+                            SkRSXform{pos.x(), pos.y(), scaleRotate.x(), scaleRotate.y()});
+                    xform.preScale(strikeToSourceScale, strikeToSourceScale);
+                    bounds.join(xform.mapRect(glyph->rect()));
+                }
+            }
+            return bounds;
+        }
+    }
+
+    // Use conservative bounds. All glyph have a box of fontBounds size.
+    if (scaledRotations.empty()) {
+        SkRect bounds;
+        bounds.setBounds(positions.data(), SkCount(positions));
+        bounds.fLeft   += fontBounds.left();
+        bounds.fTop    += fontBounds.top();
+        bounds.fRight  += fontBounds.right();
+        bounds.fBottom += fontBounds.bottom();
+        return bounds;
+    } else {
+        // RSXForm case glyphs can be any scale or rotation.
+        SkRect bounds;
+        bounds.setEmpty();
+        for (auto [pos, scaleRotate] : SkMakeZip(positions, scaledRotations)) {
+            const SkRSXform xform{pos.x(), pos.y(), scaleRotate.x(), scaleRotate.y()};
+            bounds.join(SkMatrix().setRSXform(xform).mapRect(fontBounds));
+        }
+        return bounds;
+    }
+}
+
 GlyphRunList GlyphRunBuilder::makeGlyphRunList(
-        const GlyphRun& run, SkRect bounds, SkPoint origin) {
+        const GlyphRun& run, const SkPaint& paint, SkPoint origin) {
+    const SkRect bounds =
+            glyphrun_source_bounds(run.font(), paint, run.source(), run.scaledRotations())
+                    .makeOffset(origin);
     return GlyphRunList{run, bounds, origin, this};
 }
 
@@ -210,10 +219,12 @@ const GlyphRunList& GlyphRunBuilder::textToGlyphRunList(
                            SkSpan<const char>{},
                            SkSpan<const uint32_t>{},
                            SkSpan<const SkVector>{});
-        bounds = fGlyphRunListStorage.front().sourceBounds(paint);
+        auto run = fGlyphRunListStorage.front();
+        bounds = glyphrun_source_bounds(run.font(), paint, run.source(), run.scaledRotations())
+                         .makeOffset(origin);
     }
 
-    return this->setGlyphRunList(nullptr, bounds.makeOffset(origin), origin);
+    return this->setGlyphRunList(nullptr, bounds, origin);
 }
 
 const GlyphRunList& sktext::GlyphRunBuilder::blobToGlyphRunList(

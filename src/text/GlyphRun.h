@@ -71,7 +71,6 @@ public:
     SkSpan<const uint32_t> clusters() const { return fClusters; }
     SkSpan<const char> text() const { return fText; }
     SkSpan<const SkVector> scaledRotations() const { return fScaledRotations; }
-    SkRect sourceBounds(const SkPaint& paint) const;
 
 private:
     // GlyphIDs and positions.
@@ -149,8 +148,7 @@ private:
 
 class GlyphRunBuilder {
 public:
-    GlyphRunList makeGlyphRunList(
-            const GlyphRun& run, SkRect bounds, SkPoint origin);
+    GlyphRunList makeGlyphRunList(const GlyphRun& run, const SkPaint& paint, SkPoint origin);
     const GlyphRunList& textToGlyphRunList(const SkFont& font,
                                            const SkPaint& paint,
                                            const void* bytes,
