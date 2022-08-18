@@ -25,6 +25,7 @@
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -46,15 +47,17 @@ public:
 
     bool visitProgramElement(const ProgramElement& pe) override {
         switch (pe.kind()) {
-            case ProgramElement::Kind::kGlobalVar: {
+            case ProgramElement::Kind::kGlobalVar:
                 this->checkGlobalVariableSizeLimit(pe.as<GlobalVarDeclaration>());
-                this->checkBindUniqueness(pe.as<GlobalVarDeclaration>());
                 break;
-            }
-            case ProgramElement::Kind::kFunction: {
+            case ProgramElement::Kind::kInterfaceBlock:
+                // TODO(skia:13664): Enforce duplicate checks universally. This is currently not
+                // possible without changes to the binding index assignment logic in graphite.
+                this->checkBindUniqueness(pe.as<InterfaceBlock>());
+                break;
+            case ProgramElement::Kind::kFunction:
                 this->checkOutParamsAreAssigned(pe.as<FunctionDefinition>());
                 break;
-            }
             default:
                 break;
         }
@@ -78,23 +81,27 @@ public:
         }
     }
 
-    void checkBindUniqueness(const GlobalVarDeclaration& globalDecl) {
-        const Variable& var = globalDecl.declaration()->as<VarDeclaration>().var();
+    void checkBindUniqueness(const InterfaceBlock& block) {
+        const Variable& var = block.variable();
         int32_t set = var.modifiers().fLayout.fSet;
         int32_t binding = var.modifiers().fLayout.fBinding;
         if (binding != -1) {
+            // TODO(skia:13664): This should map a `set` value of -1 to the default settings value
+            // used by codegen backends to prevent duplicates that may arise from the effective
+            // default set value.
             uint64_t key = ((uint64_t)set << 32) + binding;
             if (!fBindings.contains(key)) {
                 fBindings.add(key);
             } else {
                 if (set != -1) {
-                    fContext.fErrors->error(globalDecl.fPosition,
-                            "layout(set=" + std::to_string(set) + ", binding=" +
-                            std::to_string(binding) + ") has already been defined");
+                    fContext.fErrors->error(block.fPosition,
+                                            "layout(set=" + std::to_string(set) +
+                                                    ", binding=" + std::to_string(binding) +
+                                                    ") has already been defined");
                 } else {
-                    fContext.fErrors->error(globalDecl.fPosition,
-                            "layout(binding=" + std::to_string(binding) +
-                            ") has already been defined");
+                    fContext.fErrors->error(block.fPosition,
+                                            "layout(binding=" + std::to_string(binding) +
+                                                    ") has already been defined");
                 }
             }
         }

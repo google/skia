@@ -1,0 +1,22 @@
+layout(set=0, binding=0) uniform bufferOne { int[4] x; };
+layout(set=0, binding=0) uniform bufferTwo { int[4] y; };
+
+// Not a duplicate, as "set = -1".
+layout(binding=0) uniform bufferThree { float z; };
+
+// Duplicates:
+layout(binding=1) uniform bufferFour { float w; };
+layout(binding=1) uniform bufferFive { float q; };
+
+// Should not generate any errors despite overlap with above.
+// TODO(skia:13664): Graphite currently generates programs with overlapping indices across interface
+// blocks and texture/sampler types. WGSL requires this to become an error.
+layout(set=0, binding=0) uniform texture2D t;
+
+void main() {
+}
+
+/*%%*
+layout(set=0, binding=0) has already been defined
+layout(binding=1) has already been defined
+*%%*/
