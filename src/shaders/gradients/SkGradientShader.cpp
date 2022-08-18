@@ -158,12 +158,3 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
                                             const SkScalar pos[], int count) {
     return MakeSweep(cx, cy, colors, std::move(colorSpace), pos, count, 0, nullptr);
 }
-
-
-// TODO: flatten this into SkFlattenable::PrivateInitializer::InitEffects
-void SkGradientShader::RegisterFlattenables() {
-    SK_REGISTER_FLATTENABLE(SkLinearGradient);
-    SkRegisterRadialGradientShaderFlattenable();
-    SkRegisterSweepGradientShaderFlattenable();
-    SkRegisterTwoPointConicalGradientShaderFlattenable();
-}

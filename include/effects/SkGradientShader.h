@@ -264,8 +264,6 @@ public:
     static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
                                      const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
                                      const SkScalar pos[], int count);
-
-    static void RegisterFlattenables();
 };
 
 #endif

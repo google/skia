@@ -21,7 +21,6 @@
     #include "include/effects/Sk2DPathEffect.h"
     #include "include/effects/SkCornerPathEffect.h"
     #include "include/effects/SkDiscretePathEffect.h"
-    #include "include/effects/SkGradientShader.h"
     #include "include/effects/SkOverdrawColorFilter.h"
     #include "include/effects/SkPerlinNoiseShader.h"
     #include "include/effects/SkShaderMaskFilter.h"
@@ -39,6 +38,7 @@
     #include "src/shaders/SkLocalMatrixShader.h"
     #include "src/shaders/SkPictureShader.h"
     #include "src/shaders/SkShaderBase.h"
+    #include "src/shaders/gradients/SkGradientShaderBase.h"
 
     #include "include/effects/SkImageFilters.h"
     #include "src/core/SkLocalMatrixImageFilter.h"
@@ -67,7 +67,10 @@
         SkRegisterEmptyShaderFlattenable();
         SK_REGISTER_FLATTENABLE(SkLocalMatrixShader);
         SK_REGISTER_FLATTENABLE(SkPictureShader);
-        SkGradientShader::RegisterFlattenables();
+        SkRegisterLinearGradientShaderFlattenable();
+        SkRegisterRadialGradientShaderFlattenable();
+        SkRegisterSweepGradientShaderFlattenable();
+        SkRegisterTwoPointConicalGradientShaderFlattenable();
         SkPerlinNoiseShader::RegisterFlattenables();
         SkShaderBase::RegisterFlattenables();
 

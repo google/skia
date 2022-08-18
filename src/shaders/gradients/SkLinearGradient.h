@@ -40,6 +40,7 @@ protected:
                          skvm::Coord coord, skvm::I32* mask) const final;
 
 private:
+    friend void ::SkRegisterLinearGradientShaderFlattenable();
     SK_FLATTENABLE_HOOKS(SkLinearGradient)
 
     class LinearGradient4fContext;

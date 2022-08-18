@@ -127,3 +127,7 @@ void SkLinearGradient::addToKey(const SkKeyContext& keyContext,
     builder->endBlock();
 }
 #endif
+
+void SkRegisterLinearGradientShaderFlattenable() {
+    SK_REGISTER_FLATTENABLE(SkLinearGradient);
+}
