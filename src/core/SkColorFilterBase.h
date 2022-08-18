@@ -60,8 +60,6 @@ public:
         return this->filterColor(SK_ColorTRANSPARENT) != SK_ColorTRANSPARENT;
     }
 
-    static void RegisterFlattenables();
-
     virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
 
     static SkFlattenable::Type GetFlattenableType() {
@@ -128,7 +126,12 @@ static inline sk_sp<SkColorFilterBase> as_CFB_sp(sk_sp<SkColorFilter> filter) {
     return sk_sp<SkColorFilterBase>(static_cast<SkColorFilterBase*>(filter.release()));
 }
 
+
+void SkRegisterComposeColorFilterFlattenable();
 void SkRegisterMatrixColorFilterFlattenable();
 void SkRegisterModeColorFilterFlattenable();
+void SkRegisterSRGBGammaColorFilterFlattenable();
+void SkRegisterTableColorFilterFlattenable();
+void SkRegisterWorkingFormatColorFilterFlattenable();
 
 #endif

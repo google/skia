@@ -76,8 +76,11 @@
 
         // Color filters.
         SkRegisterMatrixColorFilterFlattenable();
-        SkColorFilterBase::RegisterFlattenables();
-        SkTableColorFilter::RegisterFlattenables();
+        SkRegisterComposeColorFilterFlattenable();
+        SkRegisterModeColorFilterFlattenable();
+        SkRegisterSRGBGammaColorFilterFlattenable();
+        SkRegisterWorkingFormatColorFilterFlattenable();
+        SkRegisterTableColorFilterFlattenable();
 
         // Blenders.
         SK_REGISTER_FLATTENABLE(SkBlendModeBlender);

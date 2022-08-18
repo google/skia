@@ -39,7 +39,7 @@ class SkPipelineDataGatherer;
  * Remaps the input color's alpha to a Gaussian ramp and then outputs premul white using the
  * remapped alpha.
  */
-class SkGaussianColorFilter : public SkColorFilterBase {
+class SkGaussianColorFilter final : public SkColorFilterBase {
 public:
     SkGaussianColorFilter() : SkColorFilterBase() {}
 

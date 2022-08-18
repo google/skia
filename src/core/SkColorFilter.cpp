@@ -159,7 +159,7 @@ void SkColorFilterBase::addToKey(const SkKeyContext& keyContext,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkComposeColorFilter : public SkColorFilterBase {
+class SkComposeColorFilter final : public SkColorFilterBase {
 public:
     bool onIsAlphaUnchanged() const override {
         // Can only claim alphaunchanged support if both our proxys do.
@@ -220,8 +220,6 @@ public:
     }
 #endif // SK_ENABLE_SKSL
 
-    SK_FLATTENABLE_HOOKS(SkComposeColorFilter)
-
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeFlattenable(fOuter.get());
@@ -229,6 +227,9 @@ protected:
     }
 
 private:
+    friend void ::SkRegisterComposeColorFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkComposeColorFilter)
+
     SkComposeColorFilter(sk_sp<SkColorFilter> outer, sk_sp<SkColorFilter> inner)
         : fOuter(as_CFB_sp(std::move(outer)))
         , fInner(as_CFB_sp(std::move(inner)))
@@ -258,7 +259,7 @@ sk_sp<SkColorFilter> SkColorFilter::makeComposed(sk_sp<SkColorFilter> inner) con
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class SkSRGBGammaColorFilter : public SkColorFilterBase {
+class SkSRGBGammaColorFilter final : public SkColorFilterBase {
 public:
     enum class Direction {
         kLinearToSRGB,
@@ -316,14 +317,15 @@ public:
         return premul(fSteps.program(p, uniforms, unpremul(c)));
     }
 
-    SK_FLATTENABLE_HOOKS(SkSRGBGammaColorFilter)
-
 protected:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.write32(static_cast<uint32_t>(fDir));
     }
 
 private:
+    friend void ::SkRegisterSRGBGammaColorFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkSRGBGammaColorFilter)
+
     const Direction fDir;
     SkColorSpaceXformSteps fSteps;
 
@@ -353,12 +355,8 @@ sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
     return MakeSRGBGammaCF<SkSRGBGammaColorFilter::Direction::kSRGBToLinear>();
 }
 
-struct SkWorkingFormatColorFilter : public SkColorFilterBase {
-    sk_sp<SkColorFilter>   fChild;
-    skcms_TransferFunction fTF;     bool fUseDstTF    = true;
-    skcms_Matrix3x3        fGamut;  bool fUseDstGamut = true;
-    SkAlphaType            fAT;     bool fUseDstAT    = true;
-
+class SkWorkingFormatColorFilter final : public SkColorFilterBase {
+public:
     SkWorkingFormatColorFilter(sk_sp<SkColorFilter>          child,
                                const skcms_TransferFunction* tf,
                                const skcms_Matrix3x3*        gamut,
@@ -368,7 +366,6 @@ struct SkWorkingFormatColorFilter : public SkColorFilterBase {
         if (gamut) { fGamut = *gamut; fUseDstGamut = false; }
         if (at)    { fAT    = *at;    fUseDstAT    = false; }
     }
-
 
     sk_sp<SkColorSpace> workingFormat(const sk_sp<SkColorSpace>& dstCS, SkAlphaType* at) const {
         skcms_TransferFunction tf    = fTF;
@@ -443,7 +440,10 @@ struct SkWorkingFormatColorFilter : public SkColorFilterBase {
 
     bool onIsAlphaUnchanged() const override { return fChild->isAlphaUnchanged(); }
 
+private:
+    friend void ::SkRegisterWorkingFormatColorFilterFlattenable();
     SK_FLATTENABLE_HOOKS(SkWorkingFormatColorFilter)
+
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeFlattenable(fChild.get());
         buffer.writeBool(fUseDstTF);
@@ -453,6 +453,11 @@ struct SkWorkingFormatColorFilter : public SkColorFilterBase {
         if (!fUseDstGamut) { buffer.writeScalarArray(&fGamut.vals[0][0], 9); }
         if (!fUseDstAT)    { buffer.writeInt(fAT); }
     }
+
+    sk_sp<SkColorFilter>   fChild;
+    skcms_TransferFunction fTF;     bool fUseDstTF    = true;
+    skcms_Matrix3x3        fGamut;  bool fUseDstGamut = true;
+    SkAlphaType            fAT;     bool fUseDstAT    = true;
 };
 
 sk_sp<SkFlattenable> SkWorkingFormatColorFilter::CreateProc(SkReadBuffer& buffer) {
@@ -527,11 +532,14 @@ sk_sp<SkColorFilter> SkColorFilters::Lerp(float weight, sk_sp<SkColorFilter> cf0
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// TODO: once all these are converted to the new style of registration, move them all to
-// SkFlattenable::PrivateInitializer::InitEffects
-void SkColorFilterBase::RegisterFlattenables() {
+void SkRegisterComposeColorFilterFlattenable() {
     SK_REGISTER_FLATTENABLE(SkComposeColorFilter);
-    SkRegisterModeColorFilterFlattenable();
+}
+
+void SkRegisterSRGBGammaColorFilterFlattenable() {
     SK_REGISTER_FLATTENABLE(SkSRGBGammaColorFilter);
+}
+
+void SkRegisterWorkingFormatColorFilterFlattenable() {
     SK_REGISTER_FLATTENABLE(SkWorkingFormatColorFilter);
 }

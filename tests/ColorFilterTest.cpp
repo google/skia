@@ -132,7 +132,7 @@ DEF_TEST(WorkingFormatFilterFlags, r) {
     }
 }
 
-struct FailureColorFilter : public SkColorFilterBase {
+struct FailureColorFilter final : public SkColorFilterBase {
     skvm::Color onProgram(skvm::Builder*,
                           skvm::Color c,
                           const SkColorInfo&,

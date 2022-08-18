@@ -33,7 +33,7 @@ static bool is_alpha_unchanged(const float matrix[20]) {
         && SkScalarNearlyZero (srcA[4]);
 }
 
-class SkColorFilter_Matrix : public SkColorFilterBase {
+class SkColorFilter_Matrix final : public SkColorFilterBase {
 public:
     enum class Domain : uint8_t { kRGBA, kHSLA };
 

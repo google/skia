@@ -22,7 +22,7 @@
 #include "src/gpu/graphite/Image_Graphite.h"
 #endif
 
-class SkTable_ColorFilter : public SkColorFilterBase {
+class SkTable_ColorFilter final : public SkColorFilterBase {
 public:
     SkTable_ColorFilter(const uint8_t tableA[], const uint8_t tableR[],
                         const uint8_t tableG[], const uint8_t tableB[]) {
@@ -94,9 +94,11 @@ public:
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeByteArray(fBitmap.getAddr8(0,0), 4*256);
     }
-    SK_FLATTENABLE_HOOKS(SkTable_ColorFilter)
 
 private:
+    friend void ::SkRegisterTableColorFilterFlattenable();
+    SK_FLATTENABLE_HOOKS(SkTable_ColorFilter)
+
     SkBitmap fBitmap;
 };
 
@@ -303,4 +305,6 @@ sk_sp<SkColorFilter> SkTableColorFilter::MakeARGB(const uint8_t tableA[256],
     return sk_make_sp<SkTable_ColorFilter>(tableA, tableR, tableG, tableB);
 }
 
-void SkTableColorFilter::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkTable_ColorFilter); }
+void SkRegisterTableColorFilterFlattenable() {
+    SK_REGISTER_FLATTENABLE(SkTable_ColorFilter);
+}
