@@ -15,9 +15,7 @@
 
 class SkColorSpace;
 class SkDrawableGlyphBuffer;
-namespace sktext {
-class GlyphRunList;
-}
+namespace sktext { class GlyphRunList; }
 
 // -- SkGlyphRunListPainterCPU ---------------------------------------------------------------------
 class SkGlyphRunListPainterCPU {
