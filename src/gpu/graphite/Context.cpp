@@ -146,6 +146,8 @@ void Context::precompile(SkCombinationBuilder* combinationBuilder) {
     // shading, and just use ShaderType::kNone.
 }
 
+#endif // SK_ENABLE_PRECOMPILE
+
 void Context::deleteBackendTexture(BackendTexture& texture) {
     ASSERT_SINGLE_OWNER
 
@@ -154,7 +156,5 @@ void Context::deleteBackendTexture(BackendTexture& texture) {
     }
     fResourceProvider->deleteBackendTexture(texture);
 }
-
-#endif // SK_ENABLE_PRECOMPILE
 
 } // namespace skgpu::graphite
