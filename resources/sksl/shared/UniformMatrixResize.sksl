@@ -1,0 +1,10 @@
+uniform float3x3 testMatrix3x3;
+uniform half4 colorGreen, colorRed;
+
+noinline float2x2 resizeMatrix() {
+    return float2x2(testMatrix3x3);
+}
+
+half4 main(float2 coords) {
+    return resizeMatrix() == float2x2(1, 2, 4, 5) ? colorGreen : colorRed;
+}
