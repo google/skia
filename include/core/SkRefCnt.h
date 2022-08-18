@@ -9,6 +9,7 @@
 #define SkRefCnt_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 
 #include <atomic>       // std::atomic, std::memory_order_*
 #include <cstddef>      // std::nullptr_t
@@ -387,5 +388,8 @@ template <typename T> sk_sp<T> sk_ref_sp(T* obj) {
 template <typename T> sk_sp<T> sk_ref_sp(const T* obj) {
     return sk_sp<T>(const_cast<T*>(SkSafeRef(obj)));
 }
+
+template <typename T>
+struct sk_is_trivially_relocatable<sk_sp<T>> : std::true_type {};
 
 #endif
