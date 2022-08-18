@@ -7,10 +7,10 @@
 
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkTableColorFilter.h"
 #include "include/gpu/GrDirectContext.h"
 
 #include "tests/Test.h"
@@ -66,7 +66,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerColorFilterTest,
     }
 
     SkPaint p;
-    p.setColorFilter(SkTableColorFilter::Make(identity));
+    p.setColorFilter(SkColorFilters::Table(identity));
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
     auto surface(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info));

@@ -6,7 +6,6 @@
  */
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
-#include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkDiscretePathEffect.h"
 #include "include/effects/SkGradientShader.h"
 #include "samplecode/Sample.h"

@@ -18,7 +18,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkGradientShader.h"
 #include "tools/Resources.h"
 
@@ -45,7 +44,7 @@ static void install_nothing(SkPaint* paint, uint32_t, uint32_t) {
 }
 
 static void install_lighting(SkPaint* paint, uint32_t mul, uint32_t add) {
-    paint->setColorFilter(SkColorMatrixFilter::MakeLightingFilter(mul, add));
+    paint->setColorFilter(SkColorFilters::Lighting(mul, add));
 }
 
 class ColorFiltersGM : public skiagm::GM {

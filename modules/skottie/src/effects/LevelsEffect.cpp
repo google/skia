@@ -7,7 +7,6 @@
 
 #include "modules/skottie/src/effects/Effects.h"
 
-#include "include/effects/SkTableColorFilter.h"
 #include "include/private/SkTPin.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieValue.h"
@@ -156,7 +155,7 @@ private:
             return;
         }
 
-        this->node()->setColorFilter(SkTableColorFilter::MakeARGB(
+        this->node()->setColorFilter(SkColorFilters::TableARGB(
             channel == kA_Channel                            ? lut.data() : nullptr,
             channel == kR_Channel || channel == kRGB_Channel ? lut.data() : nullptr,
             channel == kG_Channel || channel == kRGB_Channel ? lut.data() : nullptr,
@@ -263,17 +262,17 @@ private:
                                  g_lut_storage,
                                  b_lut_storage;
 
-        auto cf = SkTableColorFilter::MakeARGB(fAMapper.build_lut(a_lut_storage, fClip),
-                                               fRMapper.build_lut(r_lut_storage, fClip),
-                                               fGMapper.build_lut(g_lut_storage, fClip),
-                                               fBMapper.build_lut(b_lut_storage, fClip));
+        auto cf = SkColorFilters::TableARGB(fAMapper.build_lut(a_lut_storage, fClip),
+                                            fRMapper.build_lut(r_lut_storage, fClip),
+                                            fGMapper.build_lut(g_lut_storage, fClip),
+                                            fBMapper.build_lut(b_lut_storage, fClip));
 
         // The RGB mapper composes outside individual channel mappers.
         if (const auto* rgb_lut = fRGBMapper.build_lut(a_lut_storage, fClip)) {
-            cf = SkColorFilters::Compose(SkTableColorFilter::MakeARGB(nullptr,
-                                                                      rgb_lut,
-                                                                      rgb_lut,
-                                                                      rgb_lut),
+            cf = SkColorFilters::Compose(SkColorFilters::TableARGB(nullptr,
+                                                                   rgb_lut,
+                                                                   rgb_lut,
+                                                                   rgb_lut),
                                          std::move(cf));
         }
 

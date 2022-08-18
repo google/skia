@@ -25,7 +25,6 @@
 #include "include/docs/SkPDFDocument.h"
 #include "include/effects/Sk1DPathEffect.h"
 #include "include/effects/Sk2DPathEffect.h"
-#include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
@@ -34,7 +33,6 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkLumaColorFilter.h"
 #include "include/effects/SkPerlinNoiseShader.h"
-#include "include/effects/SkTableColorFilter.h"
 #include "include/private/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkNullCanvas.h"
@@ -116,7 +114,7 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
         case 4: {
             SkColor mul, add;
             fuzz->next(&mul, &add);
-            return SkColorMatrixFilter::MakeLightingFilter(mul, add);
+            return SkColorFilters::Lighting(mul, add);
         }
         case 5: {
             bool grayscale;
@@ -133,7 +131,7 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
         case 7: {
             uint8_t table[256];
             fuzz->nextN(table, std::size(table));
-            return SkTableColorFilter::Make(table);
+            return SkColorFilters::Table(table);
         }
         case 8: {
             uint8_t tableA[256];
@@ -144,7 +142,7 @@ static sk_sp<SkColorFilter> make_fuzz_colorfilter(Fuzz* fuzz, int depth) {
             fuzz->nextN(tableR, std::size(tableR));
             fuzz->nextN(tableG, std::size(tableG));
             fuzz->nextN(tableB, std::size(tableB));
-            return SkTableColorFilter::MakeARGB(tableA, tableR, tableG, tableB);
+            return SkColorFilters::TableARGB(tableA, tableR, tableG, tableB);
         }
         default:
             SkASSERT(false);

@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkTypeface.h"
+#include "include/effects/SkColorMatrix.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"
@@ -159,8 +161,6 @@ DEF_TEST(Paint_MoreFlattening, r) {
     ASSERT(other.getColor()    == paint.getColor());
     ASSERT(other.asBlendMode() == paint.asBlendMode());
 }
-
-#include "include/effects/SkColorMatrixFilter.h"
 
 DEF_TEST(Paint_nothingToDraw, r) {
     SkPaint paint;

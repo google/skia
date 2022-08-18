@@ -8,7 +8,6 @@
 #include "modules/sksg/include/SkSGColorFilter.h"
 
 #include "include/core/SkColorFilter.h"
-#include "include/effects/SkTableColorFilter.h"
 #include "include/private/SkColorData.h"
 #include "modules/sksg/include/SkSGPaint.h"
 
@@ -198,7 +197,7 @@ sk_sp<SkColorFilter> MakeNColorGradient(const std::vector<sk_sp<Color>>& colors)
                      0,              0,              0,  1,  0,  // a' = a
     };
 
-    return SkTableColorFilter::MakeARGB(nullptr, rTable, gTable, bTable)
+    return SkColorFilters::TableARGB(nullptr, rTable, gTable, bTable)
             ->makeComposed(SkColorFilters::Matrix(luminance_matrix));
 }
 

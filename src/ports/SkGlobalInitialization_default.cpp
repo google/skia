@@ -24,7 +24,6 @@
     #include "include/effects/SkOverdrawColorFilter.h"
     #include "include/effects/SkPerlinNoiseShader.h"
     #include "include/effects/SkShaderMaskFilter.h"
-    #include "include/effects/SkTableColorFilter.h"
     #include "src/core/SkBlendModeBlender.h"
     #include "src/core/SkImageFilter_Base.h"
     #include "src/core/SkRecordedDrawable.h"

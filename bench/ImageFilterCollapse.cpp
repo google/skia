@@ -10,10 +10,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/effects/SkTableColorFilter.h"
 
 // Chains several matrix color filters image filter or several
 // table filter image filters and draws a bitmap.
@@ -85,9 +83,9 @@ protected:
         }
 
         sk_sp<SkColorFilter> colorFilters[] = {
-            SkTableColorFilter::Make(table1),
-            SkTableColorFilter::Make(table2),
-            SkTableColorFilter::Make(table3),
+            SkColorFilters::Table(table1),
+            SkColorFilters::Table(table2),
+            SkColorFilters::Table(table3),
         };
 
         this->doPreDraw(colorFilters, std::size(colorFilters));

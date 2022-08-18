@@ -24,7 +24,6 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/effects/SkTableColorFilter.h"
 
 #include <math.h>
 #include <utility>
@@ -97,21 +96,21 @@ static sk_sp<SkColorFilter> make_null_cf() {
 
 static sk_sp<SkColorFilter> make_cf0() {
     uint8_t table[256]; make_table0(table);
-    return SkTableColorFilter::Make(table);
+    return SkColorFilters::Table(table);
 }
 static sk_sp<SkColorFilter> make_cf1() {
     uint8_t table[256]; make_table1(table);
-    return SkTableColorFilter::Make(table);
+    return SkColorFilters::Table(table);
 }
 static sk_sp<SkColorFilter> make_cf2() {
     uint8_t table[256]; make_table2(table);
-    return SkTableColorFilter::Make(table);
+    return SkColorFilters::Table(table);
 }
 static sk_sp<SkColorFilter> make_cf3() {
     uint8_t table0[256]; make_table0(table0);
     uint8_t table1[256]; make_table1(table1);
     uint8_t table2[256]; make_table2(table2);
-    return SkTableColorFilter::MakeARGB(nullptr, table0, table1, table2);
+    return SkColorFilters::TableARGB(nullptr, table0, table1, table2);
 }
 
 class TableColorFilterGM : public skiagm::GM {

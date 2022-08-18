@@ -24,7 +24,6 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "tools/ToolUtils.h"
@@ -60,8 +59,8 @@ static sk_sp<SkImageFilter> make_blur(float amount, sk_sp<SkImageFilter> input) 
 }
 
 static sk_sp<SkColorFilter> make_color_filter() {
-    return SkColorMatrixFilter::MakeLightingFilter(SkColorSetRGB(0x00, 0x80, 0xFF),
-                                                   SkColorSetRGB(0xFF, 0x20, 0x00));
+    return SkColorFilters::Lighting(SkColorSetRGB(0x00, 0x80, 0xFF),
+                                    SkColorSetRGB(0xFF, 0x20, 0x00));
 }
 
 namespace skiagm {

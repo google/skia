@@ -7,7 +7,6 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkString.h"
-#include "include/effects/SkTableColorFilter.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
@@ -105,10 +104,7 @@ private:
 sk_sp<SkFlattenable> SkTable_ColorFilter::CreateProc(SkReadBuffer& buffer) {
     uint8_t argb[4*256];
     if (buffer.readByteArray(argb, sizeof(argb))) {
-        return SkTableColorFilter::MakeARGB(argb+0*256,
-                                            argb+1*256,
-                                            argb+2*256,
-                                            argb+3*256);
+        return SkColorFilters::TableARGB(argb+0*256, argb+1*256, argb+2*256, argb+3*256);
     }
     return nullptr;
 }
@@ -229,7 +225,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
             }
         }
     }
-    auto filter(SkTableColorFilter::MakeARGB(
+    auto filter(SkColorFilters::TableARGB(
         (flags & (1 << 0)) ? luts[0] : nullptr,
         (flags & (1 << 1)) ? luts[1] : nullptr,
         (flags & (1 << 2)) ? luts[2] : nullptr,
@@ -290,14 +286,14 @@ void SkTable_ColorFilter::addToKey(const SkKeyContext& keyContext,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkColorFilter> SkTableColorFilter::Make(const uint8_t table[256]) {
+sk_sp<SkColorFilter> SkColorFilters::Table(const uint8_t table[256]) {
     return sk_make_sp<SkTable_ColorFilter>(table, table, table, table);
 }
 
-sk_sp<SkColorFilter> SkTableColorFilter::MakeARGB(const uint8_t tableA[256],
-                                                  const uint8_t tableR[256],
-                                                  const uint8_t tableG[256],
-                                                  const uint8_t tableB[256]) {
+sk_sp<SkColorFilter> SkColorFilters::TableARGB(const uint8_t tableA[256],
+                                               const uint8_t tableR[256],
+                                               const uint8_t tableG[256],
+                                               const uint8_t tableB[256]) {
     if (!tableA && !tableR && !tableG && !tableB) {
         return nullptr;
     }

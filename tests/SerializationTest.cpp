@@ -15,7 +15,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/effects/SkTableColorFilter.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkAnnotationKeys.h"
@@ -303,7 +302,7 @@ static void TestColorFilterSerialization(skiatest::Reporter* reporter) {
     for (int i = 0; i < 256; ++i) {
         table[i] = (i * 41) % 256;
     }
-    auto filter = SkTableColorFilter::Make(table);
+    auto filter = SkColorFilters::Table(table);
     sk_sp<SkColorFilter> copy(
         TestFlattenableSerialization(as_CFB(filter.get()), true, reporter));
 }

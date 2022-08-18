@@ -13,11 +13,9 @@
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
-#include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
-#include "include/effects/SkTableColorFilter.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -1613,14 +1611,14 @@ DEF_TEST(ImageFilterCanComputeFastBounds, reporter) {
         allOne[i] = 255;
     }
 
-    sk_sp<SkColorFilter> identityCF(SkTableColorFilter::MakeARGB(identity, identity,
-                                                                 identity, allOne));
+    sk_sp<SkColorFilter> identityCF(SkColorFilters::TableARGB(identity, identity,
+                                                              identity, allOne));
     sk_sp<SkImageFilter> identityFilter(SkImageFilters::ColorFilter(identityCF, nullptr));
     REPORTER_ASSERT(reporter, !as_CFB(identityCF)->affectsTransparentBlack());
     REPORTER_ASSERT(reporter, identityFilter->canComputeFastBounds());
 
-    sk_sp<SkColorFilter> forceOpaqueCF(SkTableColorFilter::MakeARGB(allOne, identity,
-                                                                    identity, identity));
+    sk_sp<SkColorFilter> forceOpaqueCF(SkColorFilters::TableARGB(allOne, identity,
+                                                                 identity, identity));
     sk_sp<SkImageFilter> forceOpaque(SkImageFilters::ColorFilter(forceOpaqueCF, nullptr));
     REPORTER_ASSERT(reporter, as_CFB(forceOpaqueCF)->affectsTransparentBlack());
     REPORTER_ASSERT(reporter, !forceOpaque->canComputeFastBounds());

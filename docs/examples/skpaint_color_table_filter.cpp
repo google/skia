@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
         ct[i] = x < 0 ? 0 : x > 255 ? 255 : x;
     }
     SkPaint paint;
-    paint.setColorFilter(SkTableColorFilter::MakeARGB(nullptr, ct, ct, ct));
+    paint.setColorFilter(SkColorFilters::TableARGB(nullptr, ct, ct, ct));
     canvas->drawImage(image, 0, 0, SkSamplingOptions(), &paint);
 }
 }  // END FIDDLE

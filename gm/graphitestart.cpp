@@ -13,9 +13,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
-#include "include/effects/SkColorMatrixFilter.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/effects/SkTableColorFilter.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "tools/Resources.h"
@@ -161,12 +159,12 @@ void draw_colorfilter_swatches(SkCanvas* canvas, SkRect clipRect) {
             { SK_ColorBLACK, SK_ColorGREY, SK_ColorWHITE },
     };
 
-    colorFilters[0] = SkColorMatrixFilter::MakeLightingFilter(SK_ColorLTGRAY, 0xFF440000);
-    colorFilters[1] = SkTableColorFilter::Make(table1);
-    colorFilters[2] = SkColorFilters::Compose(SkTableColorFilter::MakeARGB(nullptr, table3,
-                                                                           table3, table3),
-                                              SkTableColorFilter::MakeARGB(nullptr, table2,
-                                                                           table2, table2));
+    colorFilters[0] = SkColorFilters::Lighting(SK_ColorLTGRAY, 0xFF440000);
+    colorFilters[1] = SkColorFilters::Table(table1);
+    colorFilters[2] = SkColorFilters::Compose(SkColorFilters::TableARGB(nullptr, table3,
+                                                                        table3, table3),
+                                              SkColorFilters::TableARGB(nullptr, table2,
+                                                                        table2, table2));
     colorFilters[3] = SkColorFilters::Blend(SK_ColorGREEN, SkBlendMode::kMultiply);
     colorFilters[4] = SkColorFilterPriv::MakeGaussian();
 
