@@ -2997,6 +2997,7 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
         case Expression::Kind::kConstructorArray:
         case Expression::Kind::kConstructorArrayCast:
         case Expression::Kind::kConstructorDiagonalMatrix:
+        case Expression::Kind::kConstructorMatrixResize:
         case Expression::Kind::kConstructorScalarCast:
         case Expression::Kind::kConstructorSplat:
         case Expression::Kind::kConstructorStruct: {

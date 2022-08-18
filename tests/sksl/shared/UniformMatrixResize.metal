@@ -24,12 +24,12 @@ thread bool operator==(const float2x2 left, const float2x2 right) {
 thread bool operator!=(const float2x2 left, const float2x2 right) {
     return !(left == right);
 }
-float2x2 resizeMatrix_f22() {
+float2x2 resizeMatrix_f22(Uniforms _uniforms) {
     return float2x2_from_float3x3(_uniforms.testMatrix3x3);
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = resizeMatrix_f22() == float2x2(float2(1.0, 2.0), float2(4.0, 5.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = resizeMatrix_f22(_uniforms) == float2x2(float2(1.0, 2.0), float2(4.0, 5.0)) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

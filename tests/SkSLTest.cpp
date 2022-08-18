@@ -567,6 +567,7 @@ SKSL_TEST(CPU + GPU, kApiLevel_T, TernaryAsLValueFoldableTest,     "shared/Terna
 SKSL_TEST(CPU + GPU, kApiLevel_T, TernaryExpression,               "shared/TernaryExpression.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, UnaryPositiveNegative,           "shared/UnaryPositiveNegative.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, UniformArray,                    "shared/UniformArray.sksl")
+SKSL_TEST(CPU + GPU, kApiLevel_T, UniformMatrixResize,             "shared/UniformMatrixResize.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, UnusedVariables,                 "shared/UnusedVariables.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, VectorConstructors,              "shared/VectorConstructors.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, VectorToMatrixCast,              "shared/VectorToMatrixCast.sksl")
