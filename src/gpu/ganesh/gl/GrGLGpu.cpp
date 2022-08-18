@@ -1168,6 +1168,8 @@ bool GrGLGpu::uploadCompressedTexData(SkImage::CompressionType compressionType,
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
     }
 
+    this->unbindXferBuffer(GrGpuBufferType::kXferCpuToGpu);
+
     // TODO: Make sure that the width and height that we pass to OpenGL
     // is a multiple of the block size.
 
@@ -1828,6 +1830,9 @@ GrGLuint GrGLGpu::createTexture(SkISize dimensions,
             this->glCaps().getTexImageExternalFormatAndType(format, &externalFormat, &externalType);
             GrGLenum error = GR_GL_NO_ERROR;
             if (externalFormat && externalType) {
+                // If we don't unbind here then nullptr is treated as a zero offset into the bound
+                // transfer buffer rather than an indication that there is no data to copy.
+                this->unbindXferBuffer(GrGpuBufferType::kXferCpuToGpu);
                 for (int level = 0; level < mipLevelCount && error == GR_GL_NO_ERROR; level++) {
                     const int twoToTheMipLevel = 1 << level;
                     const int currentWidth = std::max(1, dimensions.width() / twoToTheMipLevel);
