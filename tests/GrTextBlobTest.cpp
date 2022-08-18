@@ -347,5 +347,5 @@ DEF_TEST(KeyEqualityOnPerspective, r) {
     auto key3 = std::get<1>(
             TextBlob::Key::Make(glyphRunList, paint, matrix2, strikeDevice));
     REPORTER_ASSERT(r, key1 == key2);
-    REPORTER_ASSERT(r, !(key1 == key3));
+    REPORTER_ASSERT(r, key1 == key3);
 }

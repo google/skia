@@ -13,6 +13,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurfaceProps.h"
+#include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkReadBuffer.h"
 
@@ -46,45 +47,35 @@ SDFTControl::SDFTControl(
     SkASSERT_RELEASE(0 < min && min <= max);
 }
 
-bool SDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
+bool SDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
+                           const SkMatrix& matrix) const {
     return !fForcePaths &&
-           !isSDFT(approximateDeviceTextSize, paint) &&
+           !isSDFT(approximateDeviceTextSize, paint, matrix) &&
+           !matrix.hasPerspective() &&
+            0 < approximateDeviceTextSize &&
             approximateDeviceTextSize < SkGlyphDigest::kSkSideTooBigForAtlas;
 }
 
-bool SDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint) const {
+bool SDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint,
+                         const SkMatrix& matrix) const {
     return !fForcePaths &&
            fAbleToUseSDFT &&
            paint.getMaskFilter() == nullptr &&
            paint.getStyle() == SkPaint::kFill_Style &&
-           fMinDistanceFieldFontSize <= approximateDeviceTextSize &&
+           0 < approximateDeviceTextSize &&
+           (fMinDistanceFieldFontSize <= approximateDeviceTextSize ||
+            matrix.hasPerspective()) &&
            approximateDeviceTextSize <= fMaxDistanceFieldFontSize;
 }
 
-SkScalar scaled_text_size(const SkScalar textSize, const SkMatrix& viewMatrix) {
-    SkScalar scaledTextSize = textSize;
-
-    if (viewMatrix.hasPerspective()) {
-        // for perspective, we simply force to the medium size
-        // TODO: compute a size based on approximate screen area
-        scaledTextSize = kMediumDFFontLimit;
-    } else {
-        SkScalar maxScale = viewMatrix.getMaxScale();
-        // if we have non-unity scale, we need to choose our base text size
-        // based on the SkPaint's text size multiplied by the max scale factor
-        // TODO: do we need to do this if we're scaling down (i.e. maxScale < 1)?
-        if (maxScale > 0 && !SkScalarNearlyEqual(maxScale, SK_Scalar1)) {
-            scaledTextSize *= maxScale;
-        }
-    }
-
-    return scaledTextSize;
-}
-
 std::tuple<SkFont, SkScalar, SDFTMatrixRange>
-SDFTControl::getSDFFont(const SkFont& font, const SkMatrix& viewMatrix) const {
+SDFTControl::getSDFFont(const SkFont& font, const SkMatrix& viewMatrix,
+                        const SkPoint& textLoc) const {
     SkScalar textSize = font.getSize();
-    SkScalar scaledTextSize = scaled_text_size(textSize, viewMatrix);
+    SkScalar scaledTextSize = SkFontPriv::ApproximateTransformedTextSize(font, viewMatrix, textLoc);
+    if (scaledTextSize <= 0 || SkScalarNearlyEqual(textSize, scaledTextSize)) {
+        scaledTextSize = textSize;
+    }
 
     SkFont dfFont{font};
 

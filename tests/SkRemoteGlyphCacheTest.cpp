@@ -888,8 +888,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT,
     SkMatrix matrix = SkMatrix::Scale(16, 16);
     sktext::gpu::SDFTControl control =
             direct->priv().asRecordingContext()->priv().getSDFTControl(true);
-    SkScalar approximateDeviceTextSize = SkFontPriv::ApproximateTransformedTextSize(font, matrix);
-    REPORTER_ASSERT(reporter, control.isSDFT(approximateDeviceTextSize, paint));
+    SkScalar approximateDeviceTextSize = SkFontPriv::ApproximateTransformedTextSize(font, matrix,
+                                                                                    {0, 0});
+    REPORTER_ASSERT(reporter, control.isSDFT(approximateDeviceTextSize, paint, matrix));
 
     // Server.
     auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
