@@ -7,8 +7,7 @@
 
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
-#include "include/sksl/SkSLErrorReporter.h"
-#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -73,8 +72,8 @@ void SymbolTable::addWithoutOwnership(const Symbol* symbol, const SymbolKey& key
         return;
     }
 
-    fContext.fErrors->error(symbol->fPosition, "symbol '" + std::string(symbol->name()) +
-                                               "' was already defined");
+    ThreadContext::ReportError("symbol '" + std::string(symbol->name()) + "' was already defined",
+                               symbol->fPosition);
 }
 
 const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {

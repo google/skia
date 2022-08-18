@@ -108,7 +108,7 @@ public:
             , fCapabilities(0)
             , fIdCount(1)
             , fCurrentBlock(0)
-            , fSynthetics(fContext, /*builtin=*/true) {}
+            , fSynthetics(/*builtin=*/true) {}
 
     bool generateCode() override;
 

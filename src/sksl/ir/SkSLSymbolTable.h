@@ -25,7 +25,6 @@
 
 namespace SkSL {
 
-class Context;
 class Type;
 
 /**
@@ -33,14 +32,12 @@ class Type;
  */
 class SymbolTable {
 public:
-    SymbolTable(const Context& context, bool builtin)
-    : fBuiltin(builtin)
-    , fContext(context) {}
+    SymbolTable(bool builtin)
+            : fBuiltin(builtin) {}
 
     SymbolTable(std::shared_ptr<SymbolTable> parent, bool builtin)
-    : fParent(parent)
-    , fBuiltin(builtin)
-    , fContext(parent->fContext) {}
+            : fParent(parent)
+            , fBuiltin(builtin) {}
 
     /** Replaces the passed-in SymbolTable with a newly-created child symbol table. */
     static void Push(std::shared_ptr<SymbolTable>* table) {
@@ -182,7 +179,6 @@ private:
     bool fAtModuleBoundary = false;
     std::forward_list<std::string> fOwnedStrings;
     SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
-    const Context& fContext;
 
     friend class Dehydrator;
 };
