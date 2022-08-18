@@ -44,6 +44,9 @@ private:
                                  SkTileMode xTileMode,
                                  SkTileMode yTileMode) override;
 
+    BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
+    void onDeleteBackendTexture(BackendTexture&) override;
+
     SkTHashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>> fDepthStencilStates;
 };
 

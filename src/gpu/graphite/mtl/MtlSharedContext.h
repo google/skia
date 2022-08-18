@@ -35,9 +35,6 @@ public:
 private:
     MtlSharedContext(sk_cfp<id<MTLDevice>>, sk_sp<const MtlCaps>);
 
-    BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
-    void onDeleteBackendTexture(BackendTexture&) override;
-
     sk_cfp<id<MTLDevice>> fDevice;
 };
 

@@ -12,13 +12,13 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/GpuWorkSubmission.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 
 namespace skgpu::graphite {
 
-SharedContext::SharedContext(sk_sp<const Caps> caps)
-    : fCaps(std::move(caps)) {
+SharedContext::SharedContext(sk_sp<const Caps> caps, BackendApi backend)
+    : fCaps(std::move(caps))
+    , fBackend(backend) {
 }
 
 SharedContext::~SharedContext() {
@@ -30,21 +30,5 @@ SharedContext::~SharedContext() {
 sk_sp<const Caps> SharedContext::refCaps() const {
     return fCaps;
 }
-
-BackendTexture SharedContext::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
-    if (dimensions.isEmpty() || dimensions.width()  > this->caps()->maxTextureSize() ||
-                                dimensions.height() > this->caps()->maxTextureSize()) {
-        return {};
-    }
-
-    return this->onCreateBackendTexture(dimensions, info);
-}
-
-void SharedContext::deleteBackendTexture(BackendTexture& texture) {
-    this->onDeleteBackendTexture(texture);
-    // Invalidate the texture;
-    texture = BackendTexture();
-}
-
 
 } // namespace skgpu::graphite

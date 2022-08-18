@@ -8,6 +8,7 @@
 #include "include/gpu/graphite/Recorder.h"
 
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recording.h"
@@ -106,6 +107,8 @@ Recorder::~Recorder() {
     fStrikeCache->freeAll();
 }
 
+BackendApi Recorder::backend() const { return fSharedContext->backend(); }
+
 std::unique_ptr<Recording> Recorder::snap() {
     ASSERT_SINGLE_OWNER
     for (auto& device : fTrackedDevices) {
@@ -165,5 +168,23 @@ bool Recorder::deviceIsRegistered(Device* device) {
     return false;
 }
 #endif
+
+BackendTexture Recorder::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
+    ASSERT_SINGLE_OWNER
+
+    if (!info.isValid() || info.backend() != this->backend()) {
+        return {};
+    }
+    return fResourceProvider->createBackendTexture(dimensions, info);
+}
+
+void Recorder::deleteBackendTexture(BackendTexture& texture) {
+    ASSERT_SINGLE_OWNER
+
+    if (!texture.isValid() || texture.backend() != this->backend()) {
+        return;
+    }
+    fResourceProvider->deleteBackendTexture(texture);
+}
 
 } // namespace skgpu::graphite

@@ -76,6 +76,9 @@ public:
 
     void resetAfterSnap();
 
+    BackendTexture createBackendTexture(SkISize dimensions, const TextureInfo&);
+    void deleteBackendTexture(BackendTexture&);
+
 #if GRAPHITE_TEST_UTILS
     ResourceCache* resourceCache() { return fResourceCache.get(); }
     const SharedContext* sharedContext() { return fSharedContext; }
@@ -103,6 +106,9 @@ private:
                                               const TextureInfo& info,
                                               const GraphiteResourceKey& key,
                                               SkBudgeted);
+
+    virtual BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) = 0;
+    virtual void onDeleteBackendTexture(BackendTexture&) = 0;
 
     sk_sp<ResourceCache> fResourceCache;
     sk_sp<GlobalCache>   fGlobalCache;

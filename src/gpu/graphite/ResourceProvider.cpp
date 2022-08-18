@@ -9,7 +9,7 @@
 
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTileMode.h"
-
+#include "include/gpu/graphite/BackendTexture.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/SharedContext.h"
@@ -236,5 +237,26 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
 void ResourceProvider::resetAfterSnap() {
     fRuntimeEffectDictionary.reset();
 }
+
+BackendTexture ResourceProvider::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
+    const auto maxTextureSize = fSharedContext->caps()->maxTextureSize();
+    if (dimensions.isEmpty() ||
+        dimensions.width()  > maxTextureSize ||
+        dimensions.height() > maxTextureSize) {
+        SKGPU_LOG_W("call to createBackendTexture has requested dimensions (%d, %d) larger than the"
+                    " supported gpu max texture size: %d. Or the dimensions are empty.",
+                    dimensions.fWidth, dimensions.fHeight, maxTextureSize);
+        return {};
+    }
+
+    return this->onCreateBackendTexture(dimensions, info);
+}
+
+void ResourceProvider::deleteBackendTexture(BackendTexture& texture) {
+    this->onDeleteBackendTexture(texture);
+    // Invalidate the texture;
+    texture = BackendTexture();
+}
+
 
 }  // namespace skgpu::graphite

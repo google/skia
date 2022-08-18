@@ -36,20 +36,17 @@ public:
     const Caps* caps() const { return fCaps.get(); }
     sk_sp<const Caps> refCaps() const;
 
+    BackendApi backend() const { return fBackend; }
+
     virtual std::unique_ptr<ResourceProvider> makeResourceProvider(sk_sp<GlobalCache>,
                                                                    SingleOwner*) const = 0;
 
-    BackendTexture createBackendTexture(SkISize dimensions, const TextureInfo&);
-    void deleteBackendTexture(BackendTexture&);
-
 protected:
-    SharedContext(sk_sp<const Caps>);
+    SharedContext(sk_sp<const Caps>, BackendApi);
 
 private:
-    virtual BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) = 0;
-    virtual void onDeleteBackendTexture(BackendTexture&) = 0;
-
     sk_sp<const Caps> fCaps;
+    BackendApi fBackend;
 };
 
 } // namespace skgpu::graphite

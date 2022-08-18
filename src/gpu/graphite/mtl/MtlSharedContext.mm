@@ -43,7 +43,7 @@ sk_sp<skgpu::graphite::SharedContext> MtlSharedContext::Make(const MtlBackendCon
 
 MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
                                    sk_sp<const MtlCaps> caps)
-    : skgpu::graphite::SharedContext(std::move(caps))
+    : skgpu::graphite::SharedContext(std::move(caps), BackendApi::kMetal)
     , fDevice(std::move(device)) {
 }
 
@@ -55,21 +55,6 @@ std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(
     return std::unique_ptr<ResourceProvider>(new MtlResourceProvider(this,
                                                                      std::move(globalCache),
                                                                      singleOwner));
-}
-
-BackendTexture MtlSharedContext::onCreateBackendTexture(SkISize dimensions,
-                                                        const TextureInfo& info) {
-    sk_cfp<id<MTLTexture>> texture = MtlTexture::MakeMtlTexture(this, dimensions, info);
-    if (!texture) {
-        return {};
-    }
-    return BackendTexture(dimensions, (Handle)texture.release());
-}
-
-void MtlSharedContext::onDeleteBackendTexture(BackendTexture& texture) {
-    SkASSERT(texture.backend() == BackendApi::kMetal);
-    MtlHandle texHandle = texture.getMtlTexture();
-    SkCFSafeRelease(texHandle);
 }
 
 } // namespace skgpu::graphite

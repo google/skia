@@ -36,15 +36,14 @@ namespace skgpu::graphite {
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
 
 //--------------------------------------------------------------------------------------------------
-Context::Context(sk_sp<SharedContext> sharedContext,
-                 std::unique_ptr<QueueManager> queueManager,
-                 BackendApi backend)
+Context::Context(sk_sp<SharedContext> sharedContext, std::unique_ptr<QueueManager> queueManager)
         : fSharedContext(std::move(sharedContext))
         , fQueueManager(std::move(queueManager))
-        , fGlobalCache(sk_make_sp<GlobalCache>())
-        , fBackend(backend) {
+        , fGlobalCache(sk_make_sp<GlobalCache>()) {
 }
 Context::~Context() {}
+
+BackendApi Context::backend() const { return fSharedContext->backend(); }
 
 #ifdef SK_METAL
 std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendContext,
@@ -60,8 +59,7 @@ std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendCont
     }
 
     auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
-                                                        std::move(queueManager),
-                                                        BackendApi::kMetal));
+                                                        std::move(queueManager)));
     SkASSERT(context);
 
     // We have to create this after the Context because we need to pass in the Context's
@@ -148,24 +146,15 @@ void Context::precompile(SkCombinationBuilder* combinationBuilder) {
     // shading, and just use ShaderType::kNone.
 }
 
-#endif // SK_ENABLE_PRECOMPILE
-
-BackendTexture Context::createBackendTexture(SkISize dimensions, const TextureInfo& info) {
-    ASSERT_SINGLE_OWNER
-
-    if (!info.isValid() || info.backend() != this->backend()) {
-        return {};
-    }
-    return fSharedContext->createBackendTexture(dimensions, info);
-}
-
 void Context::deleteBackendTexture(BackendTexture& texture) {
     ASSERT_SINGLE_OWNER
 
     if (!texture.isValid() || texture.backend() != this->backend()) {
         return;
     }
-    fSharedContext->deleteBackendTexture(texture);
+    fResourceProvider->deleteBackendTexture(texture);
 }
+
+#endif // SK_ENABLE_PRECOMPILE
 
 } // namespace skgpu::graphite

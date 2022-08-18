@@ -32,7 +32,6 @@ class QueueManager;
 class Recording;
 class ResourceProvider;
 class SharedContext;
-class TextureInfo;
 
 class SK_API Context final {
 public:
@@ -47,7 +46,7 @@ public:
     static std::unique_ptr<Context> MakeMetal(const MtlBackendContext&, const ContextOptions&);
 #endif
 
-    BackendApi backend() const { return fBackend; }
+    BackendApi backend() const;
 
     std::unique_ptr<Recorder> makeRecorder(const RecorderOptions& = {});
 
@@ -68,20 +67,10 @@ public:
 #endif
 
     /**
-     * Creates a new backend gpu texture matching the dimensinos and TextureInfo. If an invalid
-     * TextureInfo or a TextureInfo Skia can't support is passed in, this will return an invalid
-     * BackendTexture. Thus the client should check isValid on the returned BackendTexture to know
-     * if it succeeded or not.
-     *
-     * If this does return a valid BackendTexture, the caller is required to use
-     * Context::deleteBackendTexture to delete that texture.
-     */
-    BackendTexture createBackendTexture(SkISize dimensions, const TextureInfo&);
-
-    /**
      * Called to delete the passed in BackendTexture. This should only be called if the
-     * BackendTexture was created by calling Context::createBackendTexture. If the BackendTexture is
-     * not valid or does not match the BackendApi of the Context then nothing happens.
+     * BackendTexture was created by calling Recorder::createBackendTexture on a Recorder created
+     * from this Context. If the BackendTexture is not valid or does not match the BackendApi of the
+     * Context then nothing happens.
      *
      * Otherwise this will delete/release the backend object that is wrapped in the BackendTexture.
      * The BackendTexture will be reset to an invalid state and should not be used again.
@@ -93,7 +82,7 @@ public:
     const ContextPriv priv() const;  // NOLINT(readability-const-return-type)
 
 protected:
-    Context(sk_sp<SharedContext>, std::unique_ptr<QueueManager>, BackendApi);
+    Context(sk_sp<SharedContext>, std::unique_ptr<QueueManager>);
 
 private:
     friend class ContextPriv;
@@ -104,7 +93,6 @@ private:
     std::unique_ptr<ResourceProvider> fResourceProvider;
     std::unique_ptr<QueueManager> fQueueManager;
     sk_sp<GlobalCache> fGlobalCache;
-    BackendApi fBackend;
 
     // In debug builds we guard against improper thread handling. This guard is passed to the
     // ResourceCache for the Context.

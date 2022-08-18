@@ -156,4 +156,21 @@ sk_cfp<id<MTLDepthStencilState>> MtlResourceProvider::findOrCreateCompatibleDept
     return *depthStencilState;
 }
 
+BackendTexture MtlResourceProvider::onCreateBackendTexture(SkISize dimensions,
+                                                           const TextureInfo& info) {
+    sk_cfp<id<MTLTexture>> texture = MtlTexture::MakeMtlTexture(this->mtlSharedContext(),
+                                                                dimensions,
+                                                                info);
+    if (!texture) {
+        return {};
+    }
+    return BackendTexture(dimensions, (Handle)texture.release());
+}
+
+void MtlResourceProvider::onDeleteBackendTexture(BackendTexture& texture) {
+    SkASSERT(texture.backend() == BackendApi::kMetal);
+    MtlHandle texHandle = texture.getMtlTexture();
+    SkCFSafeRelease(texHandle);
+}
+
 } // namespace skgpu::graphite
