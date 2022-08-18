@@ -41,8 +41,6 @@ class Inliner {
 public:
     Inliner(const Context* context) : fContext(context) {}
 
-    void reset();
-
     /** Inlines any eligible functions that are found. Returns true if any changes are made. */
     bool analyze(const std::vector<std::unique_ptr<ProgramElement>>& elements,
                  std::shared_ptr<SymbolTable> symbols,

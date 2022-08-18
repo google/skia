@@ -270,11 +270,6 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
     }
 }
 
-void Inliner::reset() {
-    fContext->fMangler->reset();
-    fInlinedStatementCounter = 0;
-}
-
 std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
                                                       VariableRewriteMap* varMap,
                                                       SymbolTable* symbolTableForExpression,

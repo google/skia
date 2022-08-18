@@ -50,7 +50,7 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
     if (fCompiler->fContext->fBuiltins) {
         fCompiler->fContext->fBuiltins->resetAlreadyIncluded();
     }
-
+    fCompiler->fContext->fMangler->reset();
     fCompiler->fSymbolTable = module.fSymbols;
     this->setupSymbolTable();
 }

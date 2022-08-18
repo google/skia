@@ -15,7 +15,7 @@
 #include "include/private/SkSLProgramKind.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
-#include "src/sksl/SkSLInliner.h"
+#include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLParsedModule.h"
@@ -52,9 +52,9 @@ namespace dsl {
     class DSLCore;
 }
 
-class Context;
 class Expression;
 class IRNode;
+class Inliner;
 class OutputStream;
 struct Program;
 struct ProgramSettings;
@@ -249,7 +249,8 @@ private:
     bool optimizeRehydratedModule(LoadedModule& module, const ParsedModule& base);
 
     /** Flattens out function calls when it is safe to do so. */
-    bool runInliner(const std::vector<std::unique_ptr<ProgramElement>>& elements,
+    bool runInliner(Inliner* inliner,
+                    const std::vector<std::unique_ptr<ProgramElement>>& elements,
                     std::shared_ptr<SymbolTable> symbols,
                     ProgramUsage* usage);
 
@@ -284,7 +285,7 @@ private:
     ModifiersPool fCoreModifiers;
 
     Mangler fMangler;
-    Inliner fInliner;
+
     // This is the current symbol table of the code we are processing, and therefore changes during
     // compilation
     std::shared_ptr<SymbolTable> fSymbolTable;

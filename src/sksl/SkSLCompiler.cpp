@@ -19,6 +19,7 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLDSLParser.h"
+#include "src/sksl/SkSLInliner.h"
 #include "src/sksl/SkSLOutputStream.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLRehydrator.h"
@@ -154,8 +155,7 @@ public:
 
 Compiler::Compiler(const ShaderCaps* caps)
         : fErrorReporter(this)
-        , fContext(std::make_shared<Context>(fErrorReporter, *caps, fMangler))
-        , fInliner(fContext.get()) {
+        , fContext(std::make_shared<Context>(fErrorReporter, *caps, fMangler)) {
     SkASSERT(caps);
     fRootModule.fSymbols = this->makeRootSymbolTable();
 }
@@ -530,7 +530,6 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
     }
 
     this->resetErrors();
-    fInliner.reset();
 
     return DSLParser(this, settings, kind, std::move(text)).program();
 }
@@ -586,9 +585,9 @@ bool Compiler::optimizeRehydratedModule(LoadedModule& module, const ParsedModule
     std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module, base);
 
     // Perform inline-candidate analysis and inline any functions deemed suitable.
-    fInliner.reset();
+    Inliner inliner(fContext.get());
     while (this->errorCount() == 0) {
-        if (!this->runInliner(module.fElements, module.fSymbols, usage.get())) {
+        if (!this->runInliner(&inliner, module.fElements, module.fSymbols, usage.get())) {
             break;
         }
     }
@@ -620,7 +619,6 @@ bool Compiler::optimizeModuleForDehydration(LoadedModule& module, const ParsedMo
     // functions here, since those can be referenced by the finished program even if they're
     // unreferenced now. We also don't run the inliner to avoid growing the program; that is done in
     // `optimizeRehydratedModule` above.
-
     return this->errorCount() == 0;
 }
 
@@ -636,8 +634,8 @@ bool Compiler::optimize(Program& program) {
     if (this->errorCount() == 0) {
         // Run the inliner only once; it is expensive! Multiple passes can occasionally shake out
         // more wins, but it's diminishing returns.
-        fInliner.reset();
-        this->runInliner(program.fOwnedElements, program.fSymbols, usage);
+        Inliner inliner(fContext.get());
+        this->runInliner(&inliner, program.fOwnedElements, program.fSymbols, usage);
 
         // Unreachable code can confuse some drivers, so it's worth removing. (skia:12012)
         Transform::EliminateUnreachableCode(program);
@@ -655,7 +653,8 @@ bool Compiler::optimize(Program& program) {
     return this->errorCount() == 0;
 }
 
-bool Compiler::runInliner(const std::vector<std::unique_ptr<ProgramElement>>& elements,
+bool Compiler::runInliner(Inliner* inliner,
+                          const std::vector<std::unique_ptr<ProgramElement>>& elements,
                           std::shared_ptr<SymbolTable> symbols,
                           ProgramUsage* usage) {
     // The program's SymbolTable was taken out of fSymbolTable when the program was bundled, but
@@ -669,7 +668,7 @@ bool Compiler::runInliner(const std::vector<std::unique_ptr<ProgramElement>>& el
     SkASSERT(!fSymbolTable);
     fSymbolTable = symbols;
 
-    bool result = fInliner.analyze(elements, symbols, usage);
+    bool result = inliner->analyze(elements, symbols, usage);
 
     fSymbolTable = nullptr;
     return result;
