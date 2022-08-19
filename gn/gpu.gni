@@ -833,3 +833,5 @@ skia_shared_gpu_sources = [
   "$_src/text/gpu/TextBlobRedrawCoordinator.cpp",
   "$_src/text/gpu/TextBlobRedrawCoordinator.h",
 ]
+
+skia_shared_vk_sources = []
