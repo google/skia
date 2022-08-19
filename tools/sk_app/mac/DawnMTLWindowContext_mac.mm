@@ -124,7 +124,8 @@ wgpu::Device DawnMTLWindowContext::onInitializeContext() {
         return nullptr;
     }
 
-    fMTLDevice = dawn::native::metal::GetMetalDevice(device.Get());
+    // We assume that Dawn is using the default device. This could be wrong on multi-GPU systems.
+    fMTLDevice = MTLCreateSystemDefaultDevice();
 
     CGSize size;
     size.width = width();
