@@ -41,6 +41,8 @@ build --flag_alias=disable_gpu_test_utils=no//src/gpu:enable_gpu_test_utils
 build --flag_alias=enable_gpu_test_utils=//src/gpu:enable_gpu_test_utils
 build --flag_alias=disable_legacy_shader_context=no//src/shaders:legacy_shader_context
 build --flag_alias=enable_legacy_shader_context=//src/shaders:legacy_shader_context
+build --flag_alias=disable_native_interface=no//src/gpu/ganesh/gl:enable_native_interface
+build --flag_alias=enable_native_interface=//src/gpu/ganesh/gl:enable_native_interface
 build --flag_alias=disable_pdf_backend=no//src/pdf:enable_pdf_backend
 build --flag_alias=enable_pdf_backend=//src/pdf:enable_pdf_backend
 build --flag_alias=disable_sksl=no//src/sksl:enable_sksl

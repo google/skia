@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "skia_cc_deps", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -55,19 +55,32 @@ split_srcs_and_hdrs(
     files = CORE_FILES,
 )
 
+bool_flag(
+    name = "enable_native_interface",
+    default = True,
+)
+
 filegroup(
-    name = "srcs",
-    srcs = [
-        ":core_srcs",
-        "//src/gpu/ganesh/gl/builders:srcs",
-    ] + select({
+    name = "native_interface",
+    srcs = select({
         "//bazel/common_config_settings:linux_x64": ["//src/gpu/ganesh/gl/glx:srcs"],
         "//bazel/common_config_settings:cpu_wasm": ["//src/gpu/ganesh/gl/webgl:srcs"],
         "@platforms//os:android": ["//src/gpu/ganesh/gl/egl:srcs"],
         "@platforms//os:ios": ["//src/gpu/ganesh/gl/iOS:srcs"],
         "@platforms//os:macos": ["//src/gpu/ganesh/gl/mac:srcs"],
         "@platforms//os:windows": ["//src/gpu/ganesh/gl/win:srcs"],
-        "//conditions:default": [":GrGLMakeNativeInterface_none.cpp"],
+        "//conditions:default": ["GrGLMakeNativeInterface_none.cpp"],
+    }),
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        ":core_srcs",
+        "//src/gpu/ganesh/gl/builders:srcs",
+    ] + select({
+        ":enable_native_interface_true": [":native_interface"],
+        ":enable_native_interface_false": ["GrGLMakeNativeInterface_none.cpp"],
     }),
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )
