@@ -11,6 +11,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/SkSLPool.h"
