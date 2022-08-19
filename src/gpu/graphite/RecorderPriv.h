@@ -24,6 +24,7 @@ public:
     void add(sk_sp<Task>);
 
     ResourceProvider* resourceProvider() const;
+    SkRuntimeEffectDictionary* runtimeEffectDictionary() const;
     UniformDataCache* uniformDataCache() const;
     TextureDataCache* textureDataCache() const;
     DrawBufferManager* drawBufferManager() const;

@@ -41,8 +41,8 @@ ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
 
 std::string GetSkSLVS(const GraphicsPipelineDesc& desc, bool defineLocalCoordsVarying);
 
-std::string GetSkSLFS(SkShaderCodeDictionary* dict,
-                      SkRuntimeEffectDictionary* rteDict,
+std::string GetSkSLFS(const SkShaderCodeDictionary* dict,
+                      const SkRuntimeEffectDictionary* rteDict,
                       const GraphicsPipelineDesc& desc,
                       BlendInfo* blendInfo,
                       bool* requiresLocalCoordsVarying);

@@ -38,7 +38,8 @@ RenderPassTask::RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes,
 
 RenderPassTask::~RenderPassTask() = default;
 
-bool RenderPassTask::prepareResources(ResourceProvider* resourceProvider) {
+bool RenderPassTask::prepareResources(ResourceProvider* resourceProvider,
+                                      const SkRuntimeEffectDictionary* runtimeDict) {
     SkASSERT(fTarget);
     if (!fTarget->instantiate(resourceProvider)) {
         SKGPU_LOG_W("Failed to instantiate RenderPassTask target. Will not create renderpass!");
@@ -50,7 +51,7 @@ bool RenderPassTask::prepareResources(ResourceProvider* resourceProvider) {
     // Assuming one draw pass per renderpasstask for now
     SkASSERT(fDrawPasses.size() == 1);
     for (const auto& drawPass: fDrawPasses) {
-        if (!drawPass->prepareResources(resourceProvider, fRenderPassDesc)) {
+        if (!drawPass->prepareResources(resourceProvider, runtimeDict, fRenderPassDesc)) {
             return false;
         }
     }

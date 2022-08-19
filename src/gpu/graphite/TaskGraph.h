@@ -23,7 +23,7 @@ public:
     void add(sk_sp<Task>);
 
     // Returns true on success; false on failure
-    bool prepareResources(ResourceProvider*);
+    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*);
     bool addCommands(ResourceProvider*, CommandBuffer*);
 
     void reset();

@@ -13,6 +13,7 @@
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkPaintParamsKey.h"
 #include "src/core/SkPipelineData.h"
+#include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkShaderCodeDictionary.h"
 #include "src/core/SkUniform.h"
@@ -756,8 +757,7 @@ bool RuntimeShaderBlock::ShaderData::operator==(const ShaderData& rhs) const {
 static void add_effect_to_recorder(skgpu::graphite::Recorder* recorder,
                                    int codeSnippetID,
                                    sk_sp<const SkRuntimeEffect> effect) {
-    recorder->priv().resourceProvider()->runtimeEffectDictionary()->set(codeSnippetID,
-                                                                        std::move(effect));
+    recorder->priv().runtimeEffectDictionary()->set(codeSnippetID, std::move(effect));
 }
 
 static void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform> rtsUniforms,

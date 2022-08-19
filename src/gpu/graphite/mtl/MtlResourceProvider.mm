@@ -33,10 +33,12 @@ const MtlSharedContext* MtlResourceProvider::mtlSharedContext() {
 }
 
 sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
+        const SkRuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
     return MtlGraphicsPipeline::Make(this,
                                      this->mtlSharedContext(),
+                                     runtimeDict,
                                      pipelineDesc,
                                      renderPassDesc);
 }

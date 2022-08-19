@@ -35,7 +35,7 @@ public:
 
     ~RenderPassTask() override;
 
-    bool prepareResources(ResourceProvider*) override;
+    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override;
 
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 

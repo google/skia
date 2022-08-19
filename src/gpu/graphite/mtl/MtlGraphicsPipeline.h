@@ -15,6 +15,7 @@
 
 #import <Metal/Metal.h>
 
+class SkRuntimeEffectDictionary;
 class SkShaderCodeDictionary;
 
 namespace skgpu::graphite {
@@ -34,6 +35,7 @@ public:
 
     static sk_sp<MtlGraphicsPipeline> Make(MtlResourceProvider*,
                                            const MtlSharedContext*,
+                                           const SkRuntimeEffectDictionary*,
                                            const GraphicsPipelineDesc&,
                                            const RenderPassDesc&);
     ~MtlGraphicsPipeline() override {}

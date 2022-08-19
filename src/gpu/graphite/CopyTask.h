@@ -28,7 +28,9 @@ public:
 
     ~CopyTextureToBufferTask() override;
 
-    bool prepareResources(ResourceProvider*) override { return true; }
+    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override {
+        return true;
+    }
 
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 

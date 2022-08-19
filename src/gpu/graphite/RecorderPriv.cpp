@@ -22,6 +22,10 @@ ResourceProvider* RecorderPriv::resourceProvider() const {
     return fRecorder->fResourceProvider.get();
 }
 
+SkRuntimeEffectDictionary* RecorderPriv::runtimeEffectDictionary() const {
+    return fRecorder->fRuntimeEffectDict.get();
+}
+
 UniformDataCache* RecorderPriv::uniformDataCache() const {
     return fRecorder->fUniformDataCache.get();
 }

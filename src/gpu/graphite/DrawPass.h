@@ -22,6 +22,7 @@
 #include <memory>
 #include <vector>
 
+class SkRuntimeEffectDictionary;
 class SkTextureDataBlock;
 
 namespace skgpu::graphite {
@@ -80,7 +81,9 @@ public:
     // Instantiate and prepare any resources used by the DrawPass that require the Recorder's
     // ResourceProvider. This includes things likes GraphicsPipelines, sampled Textures, Samplers,
     // etc.
-    bool prepareResources(ResourceProvider*, const RenderPassDesc&);
+    bool prepareResources(ResourceProvider*,
+                          const SkRuntimeEffectDictionary*,
+                          const RenderPassDesc&);
 
     DrawPassCommands::List::Iter commands() const {
         return fCommandList.commands();

@@ -275,8 +275,8 @@ std::string GetSkSLVS(const GraphicsPipelineDesc& desc, bool defineLocalCoordsVa
     return sksl;
 }
 
-std::string GetSkSLFS(SkShaderCodeDictionary* dict,
-                      SkRuntimeEffectDictionary* rteDict,
+std::string GetSkSLFS(const SkShaderCodeDictionary* dict,
+                      const SkRuntimeEffectDictionary* rteDict,
                       const GraphicsPipelineDesc& desc,
                       BlendInfo* blendInfo,
                       bool* requiresLocalCoordsVarying) {

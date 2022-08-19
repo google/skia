@@ -11,12 +11,12 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTileMode.h"
 #include "src/core/SkLRUCache.h"
-#include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
 struct SkSamplingOptions;
+class SkRuntimeEffectDictionary;
 class SkShaderCodeDictionary;
 
 namespace skgpu {
@@ -48,7 +48,10 @@ class ResourceProvider {
 public:
     virtual ~ResourceProvider();
 
-    sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(const GraphicsPipelineDesc&,
+    // The runtime effect dictionary provides a link between SkCodeSnippetIds referenced in the
+    // paint key and the current SkRuntimeEffect that provides the SkSL for that id.
+    sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(const SkRuntimeEffectDictionary*,
+                                                         const GraphicsPipelineDesc&,
                                                          const RenderPassDesc&);
 
     sk_sp<ComputePipeline> findOrCreateComputePipeline(const ComputePipelineDesc&);
@@ -70,11 +73,7 @@ public:
 
     SkShaderCodeDictionary* shaderCodeDictionary() const;
 
-    SkRuntimeEffectDictionary* runtimeEffectDictionary() { return &fRuntimeEffectDictionary; }
-
     SkSL::Compiler* skslCompiler() { return fCompiler.get(); }
-
-    void resetAfterSnap();
 
     BackendTexture createBackendTexture(SkISize dimensions, const TextureInfo&);
     void deleteBackendTexture(BackendTexture&);
@@ -92,7 +91,8 @@ protected:
     const SharedContext* fSharedContext;
 
 private:
-    virtual sk_sp<GraphicsPipeline> createGraphicsPipeline(const GraphicsPipelineDesc&,
+    virtual sk_sp<GraphicsPipeline> createGraphicsPipeline(const SkRuntimeEffectDictionary*,
+                                                           const GraphicsPipelineDesc&,
                                                            const RenderPassDesc&) = 0;
     virtual sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&, SkBudgeted) = 0;
@@ -113,8 +113,6 @@ private:
     sk_sp<ResourceCache> fResourceCache;
     sk_sp<GlobalCache>   fGlobalCache;
 
-    // TODO: To be moved to Recorder
-    SkRuntimeEffectDictionary fRuntimeEffectDictionary;
     // Compiler used for compiling SkSL into backend shader code. We only want to create the
     // compiler once, as there is significant overhead to the first compile.
     std::unique_ptr<SkSL::Compiler> fCompiler;
