@@ -2662,28 +2662,40 @@ SI F bicubic_wts(F t, float A, float B, float C, float D) {
 template <int kScale>
 SI void bicubic_x(SkRasterPipeline_SamplerCtx* ctx, F* x) {
     *x = sk_unaligned_load<F>(ctx->x) + (kScale * 0.5f);
-    F fx = sk_unaligned_load<F>(ctx->fx);
 
     F scalex;
-    const float* w = ctx->weights;
-    if (kScale == -3) { scalex = bicubic_wts(fx, w[0], w[4], w[ 8], w[12]); }
-    if (kScale == -1) { scalex = bicubic_wts(fx, w[1], w[5], w[ 9], w[13]); }
-    if (kScale == +1) { scalex = bicubic_wts(fx, w[2], w[6], w[10], w[14]); }
-    if (kScale == +3) { scalex = bicubic_wts(fx, w[3], w[7], w[11], w[15]); }
+    if (kScale == -3) { scalex = sk_unaligned_load<F>(ctx->wx[0]); }
+    if (kScale == -1) { scalex = sk_unaligned_load<F>(ctx->wx[1]); }
+    if (kScale == +1) { scalex = sk_unaligned_load<F>(ctx->wx[2]); }
+    if (kScale == +3) { scalex = sk_unaligned_load<F>(ctx->wx[3]); }
     sk_unaligned_store(ctx->scalex, scalex);
 }
 template <int kScale>
 SI void bicubic_y(SkRasterPipeline_SamplerCtx* ctx, F* y) {
     *y = sk_unaligned_load<F>(ctx->y) + (kScale * 0.5f);
-    F fy = sk_unaligned_load<F>(ctx->fy);
 
     F scaley;
-    const float* w = ctx->weights;
-    if (kScale == -3) { scaley = bicubic_wts(fy, w[0], w[4], w[ 8], w[12]); }
-    if (kScale == -1) { scaley = bicubic_wts(fy, w[1], w[5], w[ 9], w[13]); }
-    if (kScale == +1) { scaley = bicubic_wts(fy, w[2], w[6], w[10], w[14]); }
-    if (kScale == +3) { scaley = bicubic_wts(fy, w[3], w[7], w[11], w[15]); }
+    if (kScale == -3) { scaley = sk_unaligned_load<F>(ctx->wy[0]); }
+    if (kScale == -1) { scaley = sk_unaligned_load<F>(ctx->wy[1]); }
+    if (kScale == +1) { scaley = sk_unaligned_load<F>(ctx->wy[2]); }
+    if (kScale == +3) { scaley = sk_unaligned_load<F>(ctx->wy[3]); }
     sk_unaligned_store(ctx->scaley, scaley);
+}
+
+STAGE(bicubic_setup, SkRasterPipeline_SamplerCtx* ctx) {
+    const float* w = ctx->weights;
+
+    F fx = sk_unaligned_load<F>(ctx->fx);
+    sk_unaligned_store(ctx->wx[0], bicubic_wts(fx, w[0], w[4], w[ 8], w[12]));
+    sk_unaligned_store(ctx->wx[1], bicubic_wts(fx, w[1], w[5], w[ 9], w[13]));
+    sk_unaligned_store(ctx->wx[2], bicubic_wts(fx, w[2], w[6], w[10], w[14]));
+    sk_unaligned_store(ctx->wx[3], bicubic_wts(fx, w[3], w[7], w[11], w[15]));
+
+    F fy = sk_unaligned_load<F>(ctx->fy);
+    sk_unaligned_store(ctx->wy[0], bicubic_wts(fy, w[0], w[4], w[ 8], w[12]));
+    sk_unaligned_store(ctx->wy[1], bicubic_wts(fy, w[1], w[5], w[ 9], w[13]));
+    sk_unaligned_store(ctx->wy[2], bicubic_wts(fy, w[2], w[6], w[10], w[14]));
+    sk_unaligned_store(ctx->wy[3], bicubic_wts(fy, w[3], w[7], w[11], w[15]));
 }
 
 STAGE(bicubic_n3x, SkRasterPipeline_SamplerCtx* ctx) { bicubic_x<-3>(ctx, &r); }
@@ -4349,6 +4361,7 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(bilinear_ny)
     NOT_IMPLEMENTED(bilinear_px)
     NOT_IMPLEMENTED(bilinear_py)
+    NOT_IMPLEMENTED(bicubic_setup)
     NOT_IMPLEMENTED(bicubic_n3x)
     NOT_IMPLEMENTED(bicubic_n1x)
     NOT_IMPLEMENTED(bicubic_p1x)

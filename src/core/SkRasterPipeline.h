@@ -88,6 +88,7 @@ struct skcms_TransferFunction;
     M(negate_x)                                                    \
     M(bilinear) M(bicubic)                                         \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)    \
+    M(bicubic_setup)                                               \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)    \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)    \
     M(save_xy) M(accumulate)                                       \
@@ -140,7 +141,10 @@ struct SkRasterPipeline_SamplerCtx {
     float scalex[SkRasterPipeline_kMaxStride];
     float scaley[SkRasterPipeline_kMaxStride];
 
-    float weights[16];  // for bicubic_[np][13][xy]
+    // for bicubic_[np][13][xy]
+    float weights[16];
+    float wx[4][SkRasterPipeline_kMaxStride];
+    float wy[4][SkRasterPipeline_kMaxStride];
 };
 
 struct SkRasterPipeline_TileCtx {
