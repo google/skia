@@ -69,9 +69,8 @@ public:
 
     std::unique_ptr<Recording> snap();
 
-    ImageProvider* clientImageProvider() const {
-        return fClientImageProvider.get();
-    }
+    ImageProvider* clientImageProvider() { return fClientImageProvider.get(); }
+    const ImageProvider* clientImageProvider() const { return fClientImageProvider.get(); }
 
     /**
      * Creates a new backend gpu texture matching the dimensions and TextureInfo. If an invalid

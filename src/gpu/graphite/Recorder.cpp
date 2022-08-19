@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/DrawBufferManager.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/PipelineDataCache.h"
+#include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/TaskGraph.h"
@@ -34,6 +35,7 @@
 namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
+#define ASSERT_SINGLE_OWNER_PRIV SKGPU_ASSERT_SINGLE_OWNER(fRecorder->singleOwner())
 
 /*
  * The default image provider doesn't perform any conversion so, by default, Graphite won't
@@ -187,6 +189,18 @@ void Recorder::deleteBackendTexture(BackendTexture& texture) {
         return;
     }
     fResourceProvider->deleteBackendTexture(texture);
+}
+
+void RecorderPriv::add(sk_sp<Task> task) {
+    ASSERT_SINGLE_OWNER_PRIV
+    fRecorder->fGraph->add(std::move(task));
+}
+
+void RecorderPriv::flushTrackedDevices() {
+    ASSERT_SINGLE_OWNER_PRIV
+    for (Device* device : fRecorder->fTrackedDevices) {
+        device->flushPendingWorkToRecorder();
+    }
 }
 
 } // namespace skgpu::graphite

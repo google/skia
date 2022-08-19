@@ -79,4 +79,13 @@ skgpu::Swizzle Caps::getWriteSwizzle(SkColorType ct, const TextureInfo& info) co
     return colorTypeInfo->fWriteSwizzle;
 }
 
+sktext::gpu::SDFTControl Caps::getSDFTControl(bool useSDFTForSmallText) const {
+    return sktext::gpu::SDFTControl{
+            this->shaderCaps()->supportsDistanceFieldText(),
+            useSDFTForSmallText,
+            this->minDistanceFieldFontSize(),
+            this->glyphsAsPathsFontSize(),
+            false /*forcePaths*/};
+}
+
 } // namespace skgpu::graphite
