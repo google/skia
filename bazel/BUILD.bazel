@@ -6,7 +6,6 @@ licenses(["notice"])
 exports_files_legacy()
 
 GENERAL_DEFINES = [
-    "SK_HAS_ANDROID_CODEC",
     "SKIA_IMPLEMENTATION=1",
     "SK_GAMMA_APPLY_TO_A8",
 ] + select({
@@ -93,8 +92,11 @@ GPU_DEFINES = select_multi({
     "//conditions:default": [],
 })
 
-CODEC_DEFINES = select_multi(
+CODEC_DEFINES = [
+    "SK_HAS_ANDROID_CODEC",
+] + select_multi(
     {
+        "//src/codec:avif_decode_codec": ["SK_CODEC_DECODES_AVIF"],
         "//src/codec:gif_decode_codec": ["SK_HAS_WUFFS_LIBRARY"],
         "//src/codec:jpeg_decode_codec": ["SK_CODEC_DECODES_JPEG"],
         "//src/images:jpeg_encode_codec": ["SK_ENCODE_JPEG"],

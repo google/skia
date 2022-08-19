@@ -10,11 +10,19 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedOrigin.h"
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkStream.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkEncodedInfo.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkScalingCodec.h"
 
+#include <cstddef>
+#include <memory>
+#include <vector>
+
+class SkStream;
+struct SkImageInfo;
 struct avifDecoder;
 struct AvifDecoderDeleter {
     void operator()(avifDecoder* decoder) const;

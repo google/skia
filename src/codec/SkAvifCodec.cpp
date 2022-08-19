@@ -8,11 +8,18 @@
 #include "src/codec/SkAvifCodec.h"
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkCodecAnimation.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkColorData.h"
-#include "src/codec/SkCodecPriv.h"
-#include "src/core/SkEndian.h"
+#include "include/core/SkTypes.h"
+#include "modules/skcms/skcms.h"
 #include "src/core/SkStreamPriv.h"
+
+#include <cstdint>
+#include <cstring>
+#include <utility>
 
 #include "avif/avif.h"
 #include "avif/internal.h"

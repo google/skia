@@ -90,6 +90,7 @@ build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
                    --include_fontmgr=custom_empty_fontmgr --fontmgr_factory=custom_directory_fontmgr_factory \
                    --include_decoder=gif_decode_codec --include_decoder=jpeg_decode_codec \
                    --include_decoder=png_decode_codec --include_decoder=raw_decode_codec \
+                   --include_decoder=avif_decode_codec \
                    --include_decoder=webp_decode_codec --include_encoder=jpeg_encode_codec \
                    --include_encoder=png_encode_codec --include_encoder=webp_encode_codec \
                    --with_harfbuzz --with_icu \
