@@ -39,13 +39,16 @@ ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
                       const RenderStep* step,
                       const DrawParams& params);
 
-std::string GetSkSLVS(const GraphicsPipelineDesc& desc, bool defineLocalCoordsVarying);
+std::string GetSkSLVS(const GraphicsPipelineDesc& desc,
+                      bool defineLocalCoordsVarying,
+                      bool defineShadingSsboIndexVarying);
 
 std::string GetSkSLFS(const SkShaderCodeDictionary* dict,
                       const SkRuntimeEffectDictionary* rteDict,
                       const GraphicsPipelineDesc& desc,
                       BlendInfo* blendInfo,
-                      bool* requiresLocalCoordsVarying);
+                      bool* requiresLocalCoordsVarying,
+                      bool* requiresShadingSsboIndexVarying);
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
@@ -53,9 +56,20 @@ std::string EmitPaintParamsUniforms(int bufferID,
                                     bool needsDev2Local);
 std::string EmitRenderStepUniforms(int bufferID, const char* name,
                                    SkSpan<const SkUniform> uniforms);
+std::string EmitPaintParamsStorageBuffer(int bufferID,
+                                         const char* bufferTypePrefix,
+                                         const char* bufferNamePrefix,
+                                         const std::vector<SkPaintParamsKey::BlockReader>& readers,
+                                         bool needsLocalCoords);
+std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
+                                    const char* ssboIndex,
+                                    const char* uniformName);
 std::string EmitTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockReader>&,
                                     int* binding);
-std::string EmitVaryings(const RenderStep*, const char* direction, bool emitLocalCoordsVarying);
+std::string EmitVaryings(const RenderStep* step,
+                         const char* direction,
+                         bool emitLocalCoordsVarying,
+                         bool emitShadingSsboIndexVarying);
 
 } // namespace skgpu::graphite
 
