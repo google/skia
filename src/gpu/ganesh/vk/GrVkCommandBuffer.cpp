@@ -789,6 +789,25 @@ void GrVkPrimaryCommandBuffer::copyBufferToImage(const GrVkGpu* gpu,
     this->addResource(dstImage->resource());
 }
 
+void GrVkPrimaryCommandBuffer::fillBuffer(GrVkGpu* gpu,
+                                          sk_sp<GrGpuBuffer> buffer,
+                                          VkDeviceSize offset,
+                                          VkDeviceSize size,
+                                          uint32_t data) {
+    SkASSERT(fIsActive);
+    SkASSERT(!fActiveRenderPass);
+    this->addingWork(gpu);
+
+    const GrVkBuffer* bufferVk = static_cast<GrVkBuffer*>(buffer.get());
+
+    GR_VK_CALL(gpu->vkInterface(), CmdFillBuffer(fCmdBuffer,
+                                                 bufferVk->vkBuffer(),
+                                                 offset,
+                                                 size,
+                                                 data));
+    this->addGrBuffer(std::move(buffer));
+}
+
 void GrVkPrimaryCommandBuffer::copyBuffer(GrVkGpu* gpu,
                                           sk_sp<GrGpuBuffer> srcBuffer,
                                           sk_sp<GrGpuBuffer> dstBuffer,

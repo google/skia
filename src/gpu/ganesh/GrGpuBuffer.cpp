@@ -39,6 +39,20 @@ void GrGpuBuffer::unmap() {
 
 bool GrGpuBuffer::isMapped() const { return SkToBool(fMapPtr); }
 
+bool GrGpuBuffer::clearToZero() {
+    SkASSERT(!this->isMapped());
+
+    if (this->wasDestroyed()) {
+        return false;
+    }
+
+    if (this->intendedType()  == GrGpuBufferType::kXferGpuToCpu) {
+        return false;
+    }
+
+    return this->onClearToZero();
+}
+
 bool GrGpuBuffer::updateData(const void* src, size_t offset, size_t size, bool preserve) {
     SkASSERT(!this->isMapped());
     SkASSERT(size > 0 && offset + size <= fSizeInBytes);

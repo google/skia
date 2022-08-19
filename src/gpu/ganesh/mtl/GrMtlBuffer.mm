@@ -183,6 +183,22 @@ void GrMtlBuffer::onUnmap(MapType type) {
     this->internalUnmap(0, type == MapType::kWriteDiscard ? this-> size() : 0);
 }
 
+bool GrMtlBuffer::onClearToZero() {
+    SkASSERT(fMtlBuffer);
+    GrMtlCommandBuffer* cmdBuffer = this->mtlGpu()->commandBuffer();
+    id<MTLBlitCommandEncoder> GR_NORETAIN blitCmdEncoder = cmdBuffer->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
+
+    NSRange range{0, this->size()};
+    [blitCmdEncoder fillBuffer: fMtlBuffer range: range value: 0];
+
+    cmdBuffer->addGrBuffer(sk_ref_sp(this));
+
+    return true;
+}
+
 #ifdef SK_DEBUG
 void GrMtlBuffer::validate() const {
     SkASSERT(fMtlBuffer == nil ||

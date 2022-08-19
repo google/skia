@@ -69,7 +69,10 @@ GrRingBuffer::Slice GrRingBuffer::suballocate(size_t size) {
     }
 
     GrResourceProvider* resourceProvider = fGpu->getContext()->priv().resourceProvider();
-    fCurrentBuffer = resourceProvider->createBuffer(fTotalSize, fType, kDynamic_GrAccessPattern);
+    fCurrentBuffer = resourceProvider->createBuffer(fTotalSize,
+                                                    fType,
+                                                    kDynamic_GrAccessPattern,
+                                                    GrResourceProvider::ZeroInit::kNo);
 
     SkASSERT(fCurrentBuffer);
     fHead = 0;

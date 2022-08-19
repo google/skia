@@ -158,6 +158,19 @@ void GrDawnBuffer::onRelease() {
     this->GrGpuBuffer::onRelease();
 }
 
+bool GrDawnBuffer::onClearToZero() {
+    void* ptr = this->internalMap(MapType::kWriteDiscard, 0, this->size());
+    if (!ptr) {
+        return false;
+    }
+
+    std::memset(ptr, 0, this->size());
+
+    this->internalUnmap(MapType::kWriteDiscard, 0, this->size());
+
+    return true;
+}
+
 void GrDawnBuffer::onMap(MapType type) {
     fMapPtr = this->internalMap(type, 0, this->size());
 }

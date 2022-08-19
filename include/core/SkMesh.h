@@ -159,6 +159,12 @@ public:
     /** Returns pointer to the named uniform variable's description, or nullptr if not found. */
     const Uniform* findUniform(std::string_view name) const;
 
+    /** Returns pointer to the named attribute, or nullptr if not found. */
+    const Attribute* findAttribute(std::string_view name) const;
+
+    /** Returns pointer to the named varying, or nullptr if not found. */
+    const Varying* findVarying(std::string_view name) const;
+
     size_t stride() const { return fStride; }
 
 private:
@@ -282,8 +288,8 @@ public:
      *                           uploaded to the GPU and a GPU-backed buffer is returned. It may
      *                           only be used to draw into SkSurfaces that are backed by the passed
      *                           GrDirectContext.
-     * @param  data              The data used to populate the buffer, or nullptr to create an
-     *                           uninitialized buffer.
+     * @param  data              The data used to populate the buffer, or nullptr to create a zero-
+     *                           initialized buffer.
      * @param  size              Both the size of the data in 'data' and the size of the resulting
      *                           buffer.
      */
@@ -300,8 +306,8 @@ public:
      *                           uploaded to the GPU and a GPU-backed buffer is returned. It may
      *                           only be used to draw into SkSurfaces that are backed by the passed
      *                           GrDirectContext.
-     * @param  data              The data used to populate the buffer, or nullptr to create an
-     *                           uninitialized buffer.
+     * @param  data              The data used to populate the buffer, or nullptr to create a zero-
+     *                           initialized buffer.
      * @param  size              Both the size of the data in 'data' and the size of the resulting
      *                           buffer.
      */

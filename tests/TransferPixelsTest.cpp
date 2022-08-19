@@ -172,8 +172,10 @@ void basic_transfer_to_test(skiatest::Reporter* reporter,
 
     // create and fill transfer buffer
     size_t size = srcRowBytes * kBufferHeight;
-    sk_sp<GrGpuBuffer> buffer(resourceProvider->createBuffer(size, GrGpuBufferType::kXferCpuToGpu,
-                                                             kDynamic_GrAccessPattern));
+    sk_sp<GrGpuBuffer> buffer = resourceProvider->createBuffer(size,
+                                                               GrGpuBufferType::kXferCpuToGpu,
+                                                               kDynamic_GrAccessPattern,
+                                                               GrResourceProvider::ZeroInit::kNo);
     if (!buffer) {
         return;
     }
@@ -370,8 +372,10 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
     bufferSize = std::max(bufferSize,
                           partialReadOffset + partialBufferRowBytes * kPartialHeight);
 
-    sk_sp<GrGpuBuffer> buffer(resourceProvider->createBuffer(
-            bufferSize, GrGpuBufferType::kXferGpuToCpu, kDynamic_GrAccessPattern));
+    sk_sp<GrGpuBuffer> buffer = resourceProvider->createBuffer(bufferSize,
+                                                               GrGpuBufferType::kXferGpuToCpu,
+                                                               kDynamic_GrAccessPattern,
+                                                               GrResourceProvider::ZeroInit::kNo);
     REPORTER_ASSERT(reporter, buffer);
     if (!buffer) {
         return;

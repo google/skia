@@ -175,7 +175,7 @@ template <typename Base> sk_sp<Base> SkMeshPriv::CpuBuffer<Base>::Make(const voi
     if (data) {
         storage = SkData::MakeWithCopy(data, size);
     } else {
-        storage = SkData::MakeUninitialized(size);
+        storage = SkData::MakeZeroInitialized(size);
     }
     return sk_sp<Base>(new CpuBuffer<Base>(std::move(storage)));
 }
@@ -206,7 +206,8 @@ sk_sp<Base> SkMeshPriv::GpuBuffer<Base, Type>::Make(GrDirectContext* dc,
     sk_sp<GrGpuBuffer> buffer = dc->priv().resourceProvider()->createBuffer(
             size,
             Type,
-            kStatic_GrAccessPattern);
+            kStatic_GrAccessPattern,
+            data ? GrResourceProvider::ZeroInit::kNo : GrResourceProvider::ZeroInit::kYes);
     if (!buffer) {
         return nullptr;
     }
