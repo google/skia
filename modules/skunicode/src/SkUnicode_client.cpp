@@ -261,14 +261,16 @@ public:
     }
     bool isDone() override { return fStart + fLastResult == fEnd; }
     bool setText(const char utftext8[], int utf8Units) override {
-        SkASSERT(utftext8 >= fUnicode->fText8.data() && utf8Units <= fUnicode->fText8.size());
+        SkASSERT(utftext8 >= fUnicode->fText8.data() &&
+                 utf8Units <= SkToS16(fUnicode->fText8.size()));
         fStart = utftext8 - fUnicode->fText8.data();
         fEnd = fStart + utf8Units;
         fLastResult = 0;
         return true;
     }
     bool setText(const char16_t utftext16[], int utf16Units) override {
-        SkASSERT(utftext16 >= fUnicode->fText16.data() && utf16Units <= fUnicode->fText16.size());
+        SkASSERT(utftext16 >= fUnicode->fText16.data() &&
+                 utf16Units <= SkToS16(fUnicode->fText16.size()));
         fStart = utftext16 - fUnicode->fText16.data();
         fEnd = fStart + utf16Units;
         fLastResult = 0;
