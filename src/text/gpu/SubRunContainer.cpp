@@ -238,8 +238,10 @@ std::optional<TransformedMaskVertexFiller> TransformedMaskVertexFiller::MakeFrom
         return std::nullopt;
     }
     MaskFormat maskType = (MaskFormat)checkingMaskType;
+
     SkScalar strikeToSourceScale = buffer.readScalar();
     if (!buffer.validate(0 < strikeToSourceScale)) { return std::nullopt; }
+
     SkRect sourceBounds = buffer.readRect();
 
     SkSpan<SkPoint> leftTop = make_points_from_buffer(buffer, alloc);
@@ -578,7 +580,9 @@ std::optional<PathOpSubmitter> PathOpSubmitter::MakeFromBuffer(SkReadBuffer& buf
     }
 
     bool isAntiAlias = buffer.readInt();
+
     SkScalar strikeToSourceScale = buffer.readScalar();
+    if (!buffer.validate(0 < strikeToSourceScale)) { return std::nullopt; }
 
     SkSpan<SkPoint> positions = make_points_from_buffer(buffer, alloc);
     if (positions.empty()) { return std::nullopt; }
@@ -857,6 +861,7 @@ std::optional<DrawableOpSubmitter> DrawableOpSubmitter::MakeFromBuffer(
     }
 
     SkScalar strikeToSourceScale = buffer.readScalar();
+    if (!buffer.validate(0 < strikeToSourceScale)) { return std::nullopt; }
 
     SkSpan<SkPoint> positions = make_points_from_buffer(buffer, alloc);
     if (positions.empty()) { return std::nullopt; }
