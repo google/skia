@@ -250,6 +250,38 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
     return sk_make_sp<SkSweepGradient>(SkPoint::Make(cx, cy), t0, t1, desc);
 }
 
+sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
+                                            const SkColor colors[],
+                                            const SkScalar pos[],
+                                            int colorCount,
+                                            SkTileMode mode,
+                                            SkScalar startAngle,
+                                            SkScalar endAngle,
+                                            uint32_t flags,
+                                            const SkMatrix* localMatrix) {
+    SkColorConverter converter(colors, colorCount);
+    return MakeSweep(cx, cy, converter.fColors4f.begin(), nullptr, pos, colorCount,
+                     mode, startAngle, endAngle, flags, localMatrix);
+}
+
+sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
+                                            const SkColor4f colors[],
+                                            sk_sp<SkColorSpace> colorSpace,
+                                            const SkScalar pos[], int count,
+                                            uint32_t flags,
+                                            const SkMatrix* localMatrix) {
+    return MakeSweep(cx, cy, colors, std::move(colorSpace), pos, count,
+                     SkTileMode::kClamp, 0, 360, flags, localMatrix);
+}
+
+sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
+                                            const SkColor4f colors[],
+                                            sk_sp<SkColorSpace> colorSpace,
+                                            const SkScalar pos[],
+                                            int count) {
+    return MakeSweep(cx, cy, colors, std::move(colorSpace), pos, count, 0, nullptr);
+}
+
 void SkRegisterSweepGradientShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkSweepGradient);
 }

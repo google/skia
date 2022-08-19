@@ -608,6 +608,33 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
 
 #undef EXPAND_1_COLOR
 
+sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
+                                                      SkScalar startRadius,
+                                                      const SkPoint& end,
+                                                      SkScalar endRadius,
+                                                      const SkColor colors[],
+                                                      const SkScalar pos[],
+                                                      int colorCount,
+                                                      SkTileMode mode,
+                                                      uint32_t flags,
+                                                      const SkMatrix* localMatrix) {
+    SkColorConverter converter(colors, colorCount);
+    return MakeTwoPointConical(start, startRadius, end, endRadius, converter.fColors4f.begin(),
+                               nullptr, pos, colorCount, mode, flags, localMatrix);
+}
+
+sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
+                                                      SkScalar startRadius,
+                                                      const SkPoint& end,
+                                                      SkScalar endRadius,
+                                                      const SkColor4f colors[],
+                                                      sk_sp<SkColorSpace> colorSpace,
+                                                      const SkScalar pos[],
+                                                      int count, SkTileMode mode) {
+    return MakeTwoPointConical(start, startRadius, end, endRadius, colors,
+                               std::move(colorSpace), pos, count, mode, 0, nullptr);
+}
+
 void SkRegisterTwoPointConicalGradientShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkTwoPointConicalGradient);
 }

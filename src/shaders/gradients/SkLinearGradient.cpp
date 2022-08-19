@@ -128,6 +128,65 @@ void SkLinearGradient::addToKey(const SkKeyContext& keyContext,
 }
 #endif
 
+sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
+                                             const SkColor4f colors[],
+                                             sk_sp<SkColorSpace> colorSpace,
+                                             const SkScalar pos[],
+                                             int colorCount,
+                                             SkTileMode mode,
+                                             uint32_t flags,
+                                             const SkMatrix* localMatrix) {
+    if (!pts || !SkScalarIsFinite((pts[1] - pts[0]).length())) {
+        return nullptr;
+    }
+    if (!SkGradientShaderBase::ValidGradient(colors, pos, colorCount, mode)) {
+        return nullptr;
+    }
+    if (1 == colorCount) {
+        return SkShaders::Color(colors[0], std::move(colorSpace));
+    }
+    if (localMatrix && !localMatrix->invert(nullptr)) {
+        return nullptr;
+    }
+
+    if (SkScalarNearlyZero((pts[1] - pts[0]).length(),
+                           SkGradientShaderBase::kDegenerateThreshold)) {
+        // Degenerate gradient, the only tricky complication is when in clamp mode, the limit of
+        // the gradient approaches two half planes of solid color (first and last). However, they
+        // are divided by the line perpendicular to the start and end point, which becomes undefined
+        // once start and end are exactly the same, so just use the end color for a stable solution.
+        return SkGradientShaderBase::MakeDegenerateGradient(colors, pos, colorCount,
+                                                            std::move(colorSpace), mode);
+    }
+
+    SkGradientShaderBase::ColorStopOptimizer opt(colors, pos, colorCount, mode);
+
+    SkGradientShaderBase::Descriptor desc(opt.fColors, std::move(colorSpace), opt.fPos,
+                                          opt.fCount, mode, flags, localMatrix);
+    return sk_make_sp<SkLinearGradient>(pts, desc);
+}
+
+sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
+                                             const SkColor colors[],
+                                             const SkScalar pos[],
+                                             int colorCount,
+                                             SkTileMode mode,
+                                             uint32_t flags,
+                                             const SkMatrix* localMatrix) {
+    SkColorConverter converter(colors, colorCount);
+    return MakeLinear(pts, converter.fColors4f.begin(), nullptr, pos, colorCount, mode, flags,
+                      localMatrix);
+}
+
+sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
+                                             const SkColor4f colors[],
+                                             sk_sp<SkColorSpace> colorSpace,
+                                             const SkScalar pos[],
+                                             int count,
+                                             SkTileMode mode) {
+    return MakeLinear(pts, colors, std::move(colorSpace), pos, count, mode, 0, nullptr);
+}
+
 void SkRegisterLinearGradientShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkLinearGradient);
 }
