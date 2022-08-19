@@ -12,7 +12,6 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
@@ -86,7 +85,6 @@ struct skcms_TransferFunction;
     M(decal_x)    M(decal_y)   M(decal_x_and_y)                    \
     M(check_decal_mask)                                            \
     M(negate_x)                                                    \
-    M(bilinear) M(bicubic)                                         \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)    \
     M(bicubic_setup)                                               \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)    \
@@ -156,12 +154,6 @@ struct SkRasterPipeline_DecalTileCtx {
     uint32_t mask[SkRasterPipeline_kMaxStride];
     float    limit_x;
     float    limit_y;
-};
-
-struct SkRasterPipeline_SamplerCtx2 : public SkRasterPipeline_GatherCtx {
-    SkColorType ct;
-    SkTileMode tileX, tileY;
-    float invWidth, invHeight;
 };
 
 struct SkRasterPipeline_CallbackCtx {

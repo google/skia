@@ -2730,87 +2730,6 @@ STAGE(gauss_a_to_rgba, Ctx::None) {
     b = a;
 }
 
-SI F tile(F v, SkTileMode mode, float limit, float invLimit) {
-    // The ix_and_ptr() calls in sample() will clamp tile()'s output, so no need to clamp here.
-    switch (mode) {
-        case SkTileMode::kDecal:
-        case SkTileMode::kClamp:  return v;
-        case SkTileMode::kRepeat: return v - floor_(v*invLimit)*limit;
-        case SkTileMode::kMirror:
-            return abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
-    }
-    SkUNREACHABLE;
-}
-
-SI void sample(const SkRasterPipeline_SamplerCtx2* ctx, F x, F y,
-               F* r, F* g, F* b, F* a) {
-    x = tile(x, ctx->tileX, ctx->width , ctx->invWidth );
-    y = tile(y, ctx->tileY, ctx->height, ctx->invHeight);
-
-    switch (ctx->ct) {
-        default: *r = *g = *b = *a = 0;
-                 break;
-
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType: {
-            const uint32_t* ptr;
-            U32 ix = ix_and_ptr(&ptr, ctx, x,y);
-            from_8888(gather(ptr, ix), r,g,b,a);
-            if (ctx->ct == kBGRA_8888_SkColorType) {
-                std::swap(*r,*b);
-            }
-        } break;
-    }
-}
-
-template <int D>
-SI void sampler(const SkRasterPipeline_SamplerCtx2* ctx,
-                F cx, F cy, const F (&wx)[D], const F (&wy)[D],
-                F* r, F* g, F* b, F* a) {
-
-    float start = -0.5f*(D-1);
-
-    *r = *g = *b = *a = 0;
-    F y = cy + start;
-    for (int j = 0; j < D; j++, y += 1.0f) {
-        F x = cx + start;
-        for (int i = 0; i < D; i++, x += 1.0f) {
-            F R,G,B,A;
-            sample(ctx, x,y, &R,&G,&B,&A);
-
-            F w = wx[i] * wy[j];
-            *r = mad(w,R,*r);
-            *g = mad(w,G,*g);
-            *b = mad(w,B,*b);
-            *a = mad(w,A,*a);
-        }
-    }
-}
-
-STAGE(bilinear, const SkRasterPipeline_SamplerCtx2* ctx) {
-    F x = r, fx = fract(x + 0.5f),
-      y = g, fy = fract(y + 0.5f);
-    const F wx[] = {1.0f - fx, fx};
-    const F wy[] = {1.0f - fy, fy};
-
-    sampler(ctx, x,y, wx,wy, &r,&g,&b,&a);
-}
-STAGE(bicubic, SkRasterPipeline_SamplerCtx2* ctx) {
-    F x = r, fx = fract(x + 0.5f),
-      y = g, fy = fract(y + 0.5f);
-    const float* w = ctx->weights;
-    const F wx[] = {bicubic_wts(fx, w[0], w[4], w[ 8], w[12]),
-                    bicubic_wts(fx, w[1], w[5], w[ 9], w[13]),
-                    bicubic_wts(fx, w[2], w[6], w[10], w[14]),
-                    bicubic_wts(fx, w[3], w[7], w[11], w[15])};
-    const F wy[] = {bicubic_wts(fy, w[0], w[4], w[ 8], w[12]),
-                    bicubic_wts(fy, w[1], w[5], w[ 9], w[13]),
-                    bicubic_wts(fy, w[2], w[6], w[10], w[14]),
-                    bicubic_wts(fy, w[3], w[7], w[11], w[15])};
-
-    sampler(ctx, x,y, wx,wy, &r,&g,&b,&a);
-}
-
 // A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
 STAGE(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     // (cx,cy) are the center of our sample.
@@ -4354,8 +4273,6 @@ STAGE_PP(swizzle, void* ctx) {
     NOT_IMPLEMENTED(mirror_y)
     NOT_IMPLEMENTED(repeat_y)
     NOT_IMPLEMENTED(negate_x)
-    NOT_IMPLEMENTED(bilinear)
-    NOT_IMPLEMENTED(bicubic)
     NOT_IMPLEMENTED(bicubic_clamp_8888)
     NOT_IMPLEMENTED(bilinear_nx)
     NOT_IMPLEMENTED(bilinear_ny)
