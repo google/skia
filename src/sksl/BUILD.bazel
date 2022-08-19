@@ -96,18 +96,18 @@ selects.config_setting_group(
 )
 
 bool_flag(
+    name = "enable_sksl",
     default = False,
-    flag_name = "enable_sksl",
 )
 
 bool_flag(
+    name = "enable_skslc",
     default = False,
-    flag_name = "enable_skslc",
 )
 
 bool_flag(
+    name = "enable_sksl_tracing",
     default = False,
-    flag_name = "enable_sksl_tracing",
 )
 
 filegroup(

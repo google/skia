@@ -77,13 +77,13 @@ filegroup(
 )
 
 bool_flag(
+    name = "enable_pdf_backend",
     default = False,
-    flag_name = "enable_pdf_backend",
 )
 
 bool_flag(
+    name = "enable_pdf_subset_harfbuzz",
     default = True,  # This defaults it to be on if icu and harfbuzz are on
-    flag_name = "enable_pdf_subset_harfbuzz",
 )
 
 selects.config_setting_group(

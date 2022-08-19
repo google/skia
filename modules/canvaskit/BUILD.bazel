@@ -1,5 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "wasm_cc_binary")
-load("//bazel/common_config_settings:defs.bzl", "bool_flag")
+load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "wasm_cc_binary")
 load("//bazel:karma_test.bzl", "karma_test")
 load("//bazel:copts.bzl", "DEFAULT_COPTS")
 
@@ -299,43 +298,43 @@ wasm_cc_binary(
 )
 
 bool_flag(
+    name = "enable_canvas_polyfill",
     default = False,
-    flag_name = "enable_canvas_polyfill",
 )
 
 bool_flag(
+    name = "enable_fonts",
     default = False,
-    flag_name = "enable_fonts",
 )
 
 bool_flag(
+    name = "include_embedded_font",
     default = False,
-    flag_name = "include_embedded_font",
 )
 
 bool_flag(
+    name = "include_matrix_js",
     default = False,
-    flag_name = "include_matrix_js",
 )
 
 bool_flag(
+    name = "enable_skottie",
     default = False,
-    flag_name = "enable_skottie",
 )
 
 bool_flag(
+    name = "enable_skp_serialization",
     default = False,
-    flag_name = "enable_skp_serialization",
 )
 
 bool_flag(
+    name = "enable_particles",
     default = False,
-    flag_name = "enable_particles",
 )
 
 bool_flag(
+    name = "enable_runtime_effect",
     default = False,
-    flag_name = "enable_runtime_effect",
 )
 
 karma_test(

@@ -1,4 +1,6 @@
 """
+THIS IS THE EXTERNAL-ONLY VERSION OF THIS FILE. G3 HAS ITS OWN.
+
 This file contains helpers for defining build flags and options that are used to
 configure the Skia build.
 """
@@ -22,7 +24,8 @@ def _multi_string_impl(ctx):
 
 multi_string_flag = rule(
     implementation = _multi_string_impl,
-    build_setting = config.string(flag = True, allow_multiple = True),
+    # https://bazel.build/rules/lib/config#string_list
+    build_setting = config.string_list(flag = True, repeatable = True),
     attrs = {
         "values": attr.string_list(
             doc = "The list of allowed values for this setting. An error is raised if any other values are given.",
@@ -31,8 +34,7 @@ multi_string_flag = rule(
     doc = "A string-typed build setting that can be set multiple times on the command line",
 )
 
-# buildifier: disable=unnamed-macro
-def string_flag_with_values(flag_name, values, default = "", multiple = False):
+def string_flag_with_values(name, values, default = "", multiple = False):
     """Create a string flag and corresponding config_settings.
 
     string_flag_with_values is a Bazel Macro that defines a flag with the given name and a set
@@ -43,7 +45,7 @@ def string_flag_with_values(flag_name, values, default = "", multiple = False):
     https://docs.bazel.build/versions/main/skylark/macros.html
 
     Args:
-        flag_name: string, the name of the flag to create and use for the config_settings
+        name: string, the name of the flag to create and use for the config_settings
         values: list of strings, the valid values for this flag to be set to.
         default: string, whatever the default value should be if the flag is not set. Can be
             empty string for both a string_flag and a multi_string flag.
@@ -51,29 +53,21 @@ def string_flag_with_values(flag_name, values, default = "", multiple = False):
     """
     if multiple:
         multi_string_flag(
-            name = flag_name,
+            name = name,
             # We have to specify a default value, even if that value is empty string.
             # https://docs.bazel.build/versions/main/skylark/config.html#instantiating-build-settings
-            build_setting_default = default,
-            # If empty string is the default, we need to make sure it is in the list
-            # of acceptable values. If the default is not empty string, we don't want
-            # to make empty string a valid value. Having duplicate values in the list
-            # does not cause any issues, so we can just add the default to achieve
-            # this affect.
-            values = values + [default],
+            build_setting_default = [default],
+            # We need to make sure empty string (the default) is in the list of acceptable values.
+            values = values + [""],
         )
     else:
         string_flag(
-            name = flag_name,
+            name = name,
             # We have to specify a default value, even if that value is empty string.
             # https://docs.bazel.build/versions/main/skylark/config.html#instantiating-build-settings
             build_setting_default = default,
-            # If empty string is the default, we need to make sure it is in the list
-            # of acceptable values. If the default is not empty string, we don't want
-            # to make empty string a valid value. Having duplicate values in the list
-            # does not cause any issues, so we can just add the default to achieve
-            # this affect.
-            values = values + [default],
+            # We need to make sure empty string (the default) is in the list of acceptable values.
+            values = values + [""],
         )
 
     # For each of the values given, we define a config_setting. This allows us to use
@@ -83,13 +77,12 @@ def string_flag_with_values(flag_name, values, default = "", multiple = False):
         native.config_setting(
             name = v,
             flag_values = {
-                ":" + flag_name: v,
+                ":" + name: v,
             },
             visibility = ["//:__subpackages__"],
         )
 
-# buildifier: disable=unnamed-macro
-def bool_flag(flag_name, default = True, public = True):
+def bool_flag(name, default, public = True):
     """Create a boolean flag and corresponding config_settings.
 
     bool_flag is a Bazel Macro that defines a boolean flag with the given name two config_settings,
@@ -99,30 +92,31 @@ def bool_flag(flag_name, default = True, public = True):
     Thus it is best to define both an "enabled" alias and a "disabled" alias.
 
     Args:
-        flag_name: string, the name of the flag to create and use for the config_settings
+        name: string, the name of the flag to create and use for the config_settings
         default: boolean, if the flag should default to on or off.
         public: boolean, if the flag should be usable from other packages or if it is meant to be
             combined with some other constraint.
     """
-    skylib_bool_flag(name = flag_name, build_setting_default = default)
+
+    skylib_bool_flag(name = name, build_setting_default = default)
     vis = ["//:__subpackages__"]
     if not public:
         vis = ["//visibility:private"]
 
     native.config_setting(
-        name = flag_name + "_true",
+        name = name + "_true",
         flag_values = {
             # The value must be a string, but it will be parsed to a boolean
             # https://docs.bazel.build/versions/main/skylark/config.html#build-settings-and-select
-            ":" + flag_name: "True",
+            ":" + name: "True",
         },
         visibility = vis,
     )
 
     native.config_setting(
-        name = flag_name + "_false",
+        name = name + "_false",
         flag_values = {
-            ":" + flag_name: "False",
+            ":" + name: "False",
         },
         visibility = vis,
     )

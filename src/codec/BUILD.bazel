@@ -143,7 +143,7 @@ split_srcs_and_hdrs(
 )
 
 string_flag_with_values(
-    flag_name = "include_decoder",
+    name = "include_decoder",
     multiple = True,
     values = [
         "avif_decode_codec",

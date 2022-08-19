@@ -14,8 +14,7 @@ config_setting(
 )
 
 # Apple devices with intel processors released before the shift to the M1 chip
-# will use this config setting. Because M1 chips use the arm cpu instruction set,
-# this flag will not be used.
+# will use this config setting.
 config_setting(
     name = "mac_x64",
     constraint_values = [
@@ -24,6 +23,7 @@ config_setting(
     ],
 )
 
+# M1 Macs (and later) will use this setting.
 config_setting(
     name = "mac_arm64",
     constraint_values = [
@@ -106,8 +106,8 @@ config_setting(
 # //src/pdf:enable_pdf_backend.
 
 string_flag_with_values(
+    name = "fontmgr_factory",
     default = "empty_fontmgr_factory",
-    flag_name = "fontmgr_factory",
     values = [
         # Makes the default SkFontMgr load fonts from a hard-coded directory on disk.
         "custom_directory_fontmgr_factory",
@@ -129,7 +129,7 @@ string_flag_with_values(
 # require setting include_fontmgr to custom_embedded_fontmgr, because those sources and settings
 # will already be compiled in due to the _factory flag.
 string_flag_with_values(
-    flag_name = "include_fontmgr",
+    name = "include_fontmgr",
     multiple = True,
     values = [
         # Allows the construction of an SkFontMgr that loads files from a programmatically
@@ -145,22 +145,22 @@ string_flag_with_values(
 )
 
 bool_flag(
+    name = "enable_effect_serialization",
     default = True,
-    flag_name = "enable_effect_serialization",
 )
 
 bool_flag(
+    name = "enable_tracing",
     # See SkTraceEventCommon.h for more on this type of tracing.
     default = True,
-    flag_name = "enable_tracing",
 )
 
 bool_flag(
+    name = "use_harfbuzz",
     default = False,
-    flag_name = "use_harfbuzz",
 )
 
 bool_flag(
+    name = "use_icu",
     default = False,
-    flag_name = "use_icu",
 )
