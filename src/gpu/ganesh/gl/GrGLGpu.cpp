@@ -2689,6 +2689,8 @@ void GrGLGpu::flushBlendAndColorWrite(const skgpu::BlendInfo& blendInfo,
 
         if (skgpu::BlendEquationIsAdvanced(equation)) {
             SkASSERT(this->caps()->advancedBlendEquationSupport());
+
+            this->flushColorWrite(blendInfo.fWritesColor);
             // Advanced equations have no other blend state.
             return;
         }
