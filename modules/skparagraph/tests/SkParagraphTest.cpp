@@ -4031,8 +4031,8 @@ UNIX_ONLY_TEST(SkParagraph_NewlineParagraph, reporter) {
     REPORTER_ASSERT(reporter, impl->lines()[2].offset().fY == 140);
     REPORTER_ASSERT(reporter, impl->lines()[3].offset().fY == 210);
     REPORTER_ASSERT(reporter, impl->lines()[4].offset().fY == 280);  // Empty line
-    REPORTER_ASSERT(reporter, impl->lines()[5].offset().fY == 296);
-    REPORTER_ASSERT(reporter, impl->lines()[6].offset().fY == 366);
+    REPORTER_ASSERT(reporter, impl->lines()[5].offset().fY == 350);
+    REPORTER_ASSERT(reporter, impl->lines()[6].offset().fY == 420);
 }
 
 // TODO: Fix underline
