@@ -120,7 +120,8 @@ float4 unchecked_mix(float4 a, float4 b, float4 T) {
 
 // Compute a vertex position for the curve described by p01 and p23 packed control points,
 // tessellated to the given resolve level, and assuming it will be drawn as a filled curve.
-float2 tessellate_filled_curve(float resolveLevel, float idxInResolveLevel,
+float2 tessellate_filled_curve(float2x2 vectorXform,
+                               float resolveLevel, float idxInResolveLevel,
                                float4 p01, float4 p23) {
     float2 localcoord;
     if (isinf(p23.z)) {
@@ -135,12 +136,14 @@ float2 tessellate_filled_curve(float resolveLevel, float idxInResolveLevel,
         if (isinf(p23.w)) {
             // Conics are 3 points, with the weight in p3.
             w = p3.x;
-            maxResolveLevel = wangs_formula_conic_log2(p0, p1, p2, w);
+            maxResolveLevel = wangs_formula_conic_log2(vectorXform*p0,
+                                                       vectorXform*p1,
+                                                       vectorXform*p2, w);
             p1 *= w;  // Unproject p1.
             p3 = p2;  // Duplicate the endpoint for shared code that also runs on cubics.
         } else {
             // The patch is an integral cubic.
-            maxResolveLevel = wangs_formula_cubic_log2(p0, p1, p2, p3, float2x2(1.0));
+            maxResolveLevel = wangs_formula_cubic_log2(p0, p1, p2, p3, vectorXform);
         }
         if (resolveLevel > maxResolveLevel) {
             // This vertex is at a higher resolve level than we need. Demote to a lower
@@ -177,19 +180,6 @@ float2 tessellate_filled_curve(float resolveLevel, float idxInResolveLevel,
     }
     return localcoord;
 }
-
-// Like tessellate_filled_curve but assumes the output vertex will be used for filled wedges, where
-// a negative resolve level maps to the interior wedge point stored in 'fanPointAttrib'.
-float2 tessellate_filled_wedge(float resolveLevel, float idxInResolveLevel, float4 p01, float4 p23,
-                               float2 fanPointAttrib) {
-    if (resolveLevel < 0) {
-        // A negative resolve level means this is the fan point.
-        return fanPointAttrib;
-    } else {
-        return tessellate_filled_curve(resolveLevel, idxInResolveLevel, p01, p23);
-    }
-}
-
 
 float2 tessellate_stroked_curve(float edgeID, float maxEdges,
                                 float2x2 affineMatrix,
