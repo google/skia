@@ -877,7 +877,7 @@ CanvasKit.onRuntimeInitialized = function() {
     var dstPtr = copyRectToWasm(dstRect, _scratchFourFloatsBPtr);
 
     if ('B' in sampling && 'C' in sampling) {
-        return CanvasKit.ImageFilter._MakeImageCubic(img, sampling.B, sampling.C, srcPtr, dstPtr);
+        return CanvasKit.ImageFilter._MakeImageCubic(img, sampling['B'], sampling['C'], srcPtr, dstPtr);
     } else {
         const filter = sampling['filter'];  // 'filter' is a required field
         let mipmap = CanvasKit.MipmapMode.None;
@@ -893,7 +893,7 @@ CanvasKit.onRuntimeInitialized = function() {
 
     if ('B' in sampling && 'C' in sampling) {
         return CanvasKit.ImageFilter._MakeMatrixTransformCubic(matrPtr,
-                                                               sampling.B, sampling.C,
+                                                               sampling['B'], sampling['C'],
                                                                input);
     } else {
         const filter = sampling['filter'];  // 'filter' is a required field
