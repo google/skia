@@ -18,19 +18,29 @@ namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fRecorder->singleOwner())
 
-ResourceProvider* RecorderPriv::resourceProvider() const {
+ResourceProvider* RecorderPriv::resourceProvider() {
     return fRecorder->fResourceProvider.get();
 }
 
-SkRuntimeEffectDictionary* RecorderPriv::runtimeEffectDictionary() const {
+const SkRuntimeEffectDictionary* RecorderPriv::runtimeEffectDictionary() const {
+    return fRecorder->fRuntimeEffectDict.get();
+}
+SkRuntimeEffectDictionary* RecorderPriv::runtimeEffectDictionary() {
     return fRecorder->fRuntimeEffectDict.get();
 }
 
-UniformDataCache* RecorderPriv::uniformDataCache() const {
+const SkShaderCodeDictionary* RecorderPriv::shaderCodeDictionary() const {
+    return fRecorder->fSharedContext->shaderCodeDictionary();
+}
+SkShaderCodeDictionary* RecorderPriv::shaderCodeDictionary() {
+    return fRecorder->fSharedContext->shaderCodeDictionary();
+}
+
+UniformDataCache* RecorderPriv::uniformDataCache() {
     return fRecorder->fUniformDataCache.get();
 }
 
-TextureDataCache* RecorderPriv::textureDataCache() const {
+TextureDataCache* RecorderPriv::textureDataCache() {
     return fRecorder->fTextureDataCache.get();
 }
 
@@ -42,11 +52,11 @@ sk_sp<const Caps> RecorderPriv::refCaps() const {
     return fRecorder->fSharedContext->refCaps();
 }
 
-DrawBufferManager* RecorderPriv::drawBufferManager() const {
+DrawBufferManager* RecorderPriv::drawBufferManager() {
     return fRecorder->fDrawBufferManager.get();
 }
 
-UploadBufferManager* RecorderPriv::uploadBufferManager() const {
+UploadBufferManager* RecorderPriv::uploadBufferManager() {
     return fRecorder->fUploadBufferManager.get();
 }
 

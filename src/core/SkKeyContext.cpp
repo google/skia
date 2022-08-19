@@ -14,7 +14,7 @@
 SkKeyContext::SkKeyContext(skgpu::graphite::Recorder* recorder, const SkM44& dev2Local)
         : fRecorder(recorder)
         , fDev2Local(dev2Local) {
-    fDictionary = fRecorder->priv().resourceProvider()->shaderCodeDictionary();
+    fDictionary = fRecorder->priv().shaderCodeDictionary();
 }
 #endif
 

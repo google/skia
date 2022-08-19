@@ -11,6 +11,8 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "src/text/gpu/SDFTControl.h"
 
+class SkShaderCodeDictionary;
+
 namespace skgpu {
 enum class MaskFormat : int;
 }
@@ -23,22 +25,26 @@ class RecorderPriv {
 public:
     void add(sk_sp<Task>);
 
-    ResourceProvider* resourceProvider() const;
-    SkRuntimeEffectDictionary* runtimeEffectDictionary() const;
-    UniformDataCache* uniformDataCache() const;
-    TextureDataCache* textureDataCache() const;
-    DrawBufferManager* drawBufferManager() const;
-    UploadBufferManager* uploadBufferManager() const;
+    ResourceProvider* resourceProvider();
+
+    const SkRuntimeEffectDictionary* runtimeEffectDictionary() const;
+    SkRuntimeEffectDictionary* runtimeEffectDictionary();
+    const SkShaderCodeDictionary* shaderCodeDictionary() const;
+    SkShaderCodeDictionary* shaderCodeDictionary();
+
+    UniformDataCache* uniformDataCache();
+    TextureDataCache* textureDataCache();
+    DrawBufferManager* drawBufferManager();
+    UploadBufferManager* uploadBufferManager();
+
     AtlasManager* atlasManager();
     TokenTracker* tokenTracker();
     sktext::gpu::StrikeCache* strikeCache();
     sktext::gpu::TextBlobRedrawCoordinator* textBlobCache();
     sktext::gpu::SDFTControl getSDFTControl(bool useSDFTForSmallText) const;
+
     const Caps* caps() const;
     sk_sp<const Caps> refCaps() const;
-
-    const sk_sp<skgpu::graphite::TextureProxy>* getAtlasProxies(skgpu::MaskFormat maskformat,
-                                                                unsigned int* numActiveProxies);
 
     void flushTrackedDevices();
 

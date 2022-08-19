@@ -292,7 +292,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
 
     BlendInfo blendInfo;
     bool localCoordsNeeded = false;
-    auto dict = resourceProvider->shaderCodeDictionary();
+    auto dict = sharedContext->shaderCodeDictionary();
     if (!SkSLToMSL(skslCompiler,
                    GetSkSLFS(dict,runtimeDict, pipelineDesc, &blendInfo, &localCoordsNeeded),
                    SkSL::ProgramKind::kGraphiteFragment,

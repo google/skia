@@ -37,7 +37,7 @@ ExtractPaintData(Recorder* recorder,
 
     p.toKey(keyContext, builder, gatherer);
 
-    auto dict = recorder->priv().resourceProvider()->shaderCodeDictionary();
+    auto dict = recorder->priv().shaderCodeDictionary();
     UniformDataCache* uniformDataCache = recorder->priv().uniformDataCache();
     TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
 

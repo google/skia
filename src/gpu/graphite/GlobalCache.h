@@ -49,8 +49,6 @@ public:
     sk_sp<ComputePipeline> addComputePipeline(const UniqueKey&,
                                               sk_sp<ComputePipeline>) SK_EXCLUDES(fSpinLock);
 
-    SkShaderCodeDictionary* shaderCodeDictionary() const { return fShaderCodeDictionary.get(); }
-
 private:
     struct KeyHash {
         uint32_t operator()(const UniqueKey& key) const { return key.hash(); }
@@ -58,9 +56,6 @@ private:
 
     using GraphicsPipelineCache = SkLRUCache<UniqueKey, sk_sp<GraphicsPipeline>, KeyHash>;
     using ComputePipelineCache  = SkLRUCache<UniqueKey, sk_sp<ComputePipeline>,  KeyHash>;
-
-    // TODO: Have this owned through Context separately from GlobalCache
-    std::unique_ptr<SkShaderCodeDictionary> fShaderCodeDictionary;
 
     // TODO: can we do something better given this should have write-seldom/read-often behavior?
     mutable SkSpinlock fSpinLock;

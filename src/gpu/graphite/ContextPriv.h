@@ -25,9 +25,9 @@ class ContextPriv {
 public:
 #if GRAPHITE_TEST_UTILS
     const Caps* caps() const;
-#endif
 
     SkShaderCodeDictionary* shaderCodeDictionary();
+#endif
 
 private:
     friend class Context; // to construct/copy this type.

@@ -16,10 +16,11 @@ namespace skgpu::graphite {
 const Caps* ContextPriv::caps() const {
     return fContext->fSharedContext->caps();
 }
-#endif
 
 SkShaderCodeDictionary* ContextPriv::shaderCodeDictionary() {
-    return fContext->fGlobalCache->shaderCodeDictionary();
+    return fContext->fSharedContext->shaderCodeDictionary();
 }
+
+#endif
 
 } // namespace skgpu::graphite

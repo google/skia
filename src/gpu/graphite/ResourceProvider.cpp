@@ -77,10 +77,6 @@ sk_sp<ComputePipeline> ResourceProvider::findOrCreateComputePipeline(
     return pipeline;
 }
 
-SkShaderCodeDictionary* ResourceProvider::shaderCodeDictionary() const {
-    return fGlobalCache->shaderCodeDictionary();
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,

@@ -71,8 +71,6 @@ public:
                                                  SkTileMode xTileMode,
                                                  SkTileMode yTileMode);
 
-    SkShaderCodeDictionary* shaderCodeDictionary() const;
-
     SkSL::Compiler* skslCompiler() { return fCompiler.get(); }
 
     BackendTexture createBackendTexture(SkISize dimensions, const TextureInfo&);

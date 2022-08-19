@@ -7,7 +7,6 @@
 
 #include "src/gpu/graphite/GlobalCache.h"
 
-#include "src/core/SkShaderCodeDictionary.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
@@ -15,8 +14,7 @@
 namespace skgpu::graphite {
 
 GlobalCache::GlobalCache()
-        : fShaderCodeDictionary(std::make_unique<SkShaderCodeDictionary>())
-        , fGraphicsPipelineCache(16) // TODO: find a good value for these limits
+        : fGraphicsPipelineCache(16) // TODO: find a good value for these limits
         , fComputePipelineCache(16) {}
 
 GlobalCache::~GlobalCache() = default;
