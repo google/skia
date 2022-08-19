@@ -1,30 +1,37 @@
 in int[] a;
+int[][] b;
 
 uniform blockOne {
-    int[] b;
+    int[] c;
 };
 
 buffer blockTwo {
-    int[] c;
-    int d;
+    int[] d;
+    int e;
 };
 
 buffer blockThree {
-    int[] e;
-    int f[];  // valid
+    int[] f;
+    int g[];  // valid
+};
+
+buffer blockFour {
+    int[][] h;
 };
 
 void main() {
-    int[] g;
+    int[] i;
 }
 
 /*%%*
 unsized arrays are not permitted here
 pipeline inputs not permitted in compute shaders
 'in' variables may not have unsized array type
+multi-dimensional arrays are not supported
 unsized array must be the last member of a storage block
 unsized array must be the last member of a storage block
 unsized array must be the last member of a storage block
+multi-dimensional arrays are not supported
 unsized arrays are not permitted here
 unsized arrays are not permitted here
 *%%*/

@@ -9,19 +9,25 @@ in int[] a;
 error: 1: 'in' variables may not have unsized array type
 in int[] a;
 ^^^^^^^^^^
-error: 4: unsized array must be the last member of a storage block
-    int[] b;
-    ^^^^^^^^
-error: 8: unsized array must be the last member of a storage block
+error: 2: multi-dimensional arrays are not supported
+int[][] b;
+^^^^^^^
+error: 5: unsized array must be the last member of a storage block
     int[] c;
     ^^^^^^^^
-error: 13: unsized array must be the last member of a storage block
-    int[] e;
+error: 9: unsized array must be the last member of a storage block
+    int[] d;
     ^^^^^^^^
-error: 18: unsized arrays are not permitted here
-    int[] g;
+error: 14: unsized array must be the last member of a storage block
+    int[] f;
+    ^^^^^^^^
+error: 19: multi-dimensional arrays are not supported
+    int[][] h;
     ^^^^^^^
-error: 18: unsized arrays are not permitted here
-    int[] g;
+error: 23: unsized arrays are not permitted here
+    int[] i;
+    ^^^^^^^
+error: 23: unsized arrays are not permitted here
+    int[] i;
     ^^^^^^^^
-8 errors
+10 errors

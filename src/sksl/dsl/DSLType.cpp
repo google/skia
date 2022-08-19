@@ -275,6 +275,9 @@ DSLType Array(const DSLType& base, int count, Position pos) {
 }
 
 DSLType UnsizedArray(const DSLType& base, Position pos) {
+    if (!base.skslType().checkIfUsableInArray(ThreadContext::Context(), pos)) {
+        return DSLType(kPoison_Type);
+    }
     return ThreadContext::SymbolTable()->addArrayDimension(&base.skslType(),
             SkSL::Type::kUnsizedArray);
 }
