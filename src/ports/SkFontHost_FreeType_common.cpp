@@ -802,26 +802,23 @@ bool colrv1_configure_skpaint(FT_Face face,
                     stop = (stop - startOffset) * scaleFactor;
                 }
 
-                // 3) If start angle is larger then end angle, the scaler won't accept it and will
-                // return nullptr. In order to draw this and make the shader accept it, need to swap
-                // start and end angle and reverse the list of colors.
-                if (startAngleScaled > endAngleScaled) {
-                    std::swap(startAngleScaled, endAngleScaled);
-                    std::reverse(colors.begin(), colors.end());
-                }
                 /* https://docs.microsoft.com/en-us/typography/opentype/spec/colr#sweep-gradients
-                 * "The angles are expressed in counter-clockwise degrees from the
-                 * direction of the positive x-axis on the design grid. [...]  The
-                 * color line progresses from the start angle to the end angle in
-                 * the counter-clockwise direction;" - convert angles and stops from
-                 * counter-clockwise to clockwise for the shader. */
-                std::swap(startAngleScaled, endAngleScaled);
+                 * "The angles are expressed in counter-clockwise degrees from
+                 * the direction of the positive x-axis on the design
+                 * grid. [...]  The color line progresses from the start angle
+                 * to the end angle in the counter-clockwise direction;" -
+                 * convert angles and stops from counter-clockwise to clockwise
+                 * for the shader if the gradient is not already reversed due to
+                 * start angle being larger than end angle. */
                 startAngleScaled = 360.f - startAngleScaled;
                 endAngleScaled = 360.f - endAngleScaled;
-                std::reverse(stops.begin(), stops.end());
-                std::reverse(colors.begin(), colors.end());
-                for (auto& stop : stops) {
-                    stop = 1.0f - stop;
+                if (startAngleScaled > endAngleScaled) {
+                    std::swap(startAngleScaled, endAngleScaled);
+                    std::reverse(stops.begin(), stops.end());
+                    std::reverse(colors.begin(), colors.end());
+                    for (auto& stop : stops) {
+                        stop = 1.0f - stop;
+                    }
                 }
 
                 paint->setShader(SkGradientShader::MakeSweep(center.x(), center.y(),
