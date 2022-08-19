@@ -62,6 +62,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMustResetBlendFuncBetweenDualSourceAndDisable = false;
     fBindTexture0WhenChangingTextureFBOMultisampleCount = false;
     fRebindColorAttachmentAfterCheckFramebufferStatus = false;
+    fFlushBeforeWritePixels = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -4470,6 +4471,19 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.driver()        == GrGLDriver::kARM     &&
         ctxInfo.driverVersion()  < GR_GL_DRIVER_VER(1, 19, 0)) {
         fAnisoSupport = false;
+    }
+
+    // b/229626353
+    // On certain classes of Adreno running WebGL, glTexSubImage2D() occasionally fails to upload
+    // texels on time for sampling. The solution is to call glFlush() before glTexSubImage2D().
+    // Seen on:
+    // * Nexus 5x (Adreno 418)
+    // * Nexus 6 (Adreno 420)
+    // * Pixel 3 (Adreno 630)
+    if (ctxInfo.renderer()      == GrGLRenderer::kWebGL &&
+        (ctxInfo.webglRenderer() == GrGLRenderer::kAdreno4xx_other ||
+         ctxInfo.webglRenderer() == GrGLRenderer::kAdreno630)) {
+        fFlushBeforeWritePixels = true;
     }
 }
 

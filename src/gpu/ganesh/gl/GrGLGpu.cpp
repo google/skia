@@ -891,6 +891,10 @@ bool GrGLGpu::onWritePixels(GrSurface* surface,
         params->set(nullptr, nonsamplerState, fResetTimestampForTextureParameters);
     }
 
+    if (this->glCaps().flushBeforeWritePixels()) {
+        GL_CALL(Flush());
+    }
+
     SkASSERT(!GrGLFormatIsCompressed(glTex->format()));
     return this->uploadColorTypeTexData(glTex->format(),
                                         surfaceColorType,

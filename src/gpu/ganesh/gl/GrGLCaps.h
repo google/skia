@@ -425,6 +425,11 @@ public:
         return fRebindColorAttachmentAfterCheckFramebufferStatus;
     }
 
+    // During writePixels, call glFlush() before issuing glTexSubImage2D().
+    bool flushBeforeWritePixels() const {
+        return fFlushBeforeWritePixels;
+    }
+
     // Returns the observed maximum number of instances the driver can handle in a single draw call
     // without crashing, or 'pendingInstanceCount' if this workaround is not necessary.
     // NOTE: the return value may be larger than pendingInstanceCount.
@@ -607,6 +612,7 @@ private:
     bool fMustResetBlendFuncBetweenDualSourceAndDisable : 1;
     bool fBindTexture0WhenChangingTextureFBOMultisampleCount : 1;
     bool fRebindColorAttachmentAfterCheckFramebufferStatus : 1;
+    bool fFlushBeforeWritePixels : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;

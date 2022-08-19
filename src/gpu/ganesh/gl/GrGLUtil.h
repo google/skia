@@ -208,6 +208,8 @@ enum class GrGLRenderer {
     kAMDRadeonPro5xxx,    // AMD Radeon Pro 5000 Series
     kAMDRadeonProVegaxx,  // AMD Radeon Pro Vega
 
+    kWebGL,
+
     kOther
 };
 
@@ -308,6 +310,9 @@ struct GrGLDriverInfo {
     GrGLRenderer      fANGLERenderer      = GrGLRenderer::kOther;
     GrGLDriver        fANGLEDriver        = GrGLDriver::kUnknown;
     GrGLDriverVersion fANGLEDriverVersion = GR_GL_DRIVER_UNKNOWN_VER;
+
+    GrGLVendor        fWebGLVendor        = GrGLVendor::kOther;
+    GrGLRenderer      fWebGLRenderer      = GrGLRenderer::kOther;
 
     // Are we running over the Chrome interprocess command buffer?
     bool fIsOverCommandBuffer = false;

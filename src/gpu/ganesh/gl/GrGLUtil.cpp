@@ -376,6 +376,11 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
         mali400Num < 500) {
         return GrGLRenderer::kMali4xx;
     }
+
+    if (strstr(rendererString, "WebGL")) {
+        return GrGLRenderer::kWebGL;
+    }
+
     return GrGLRenderer::kOther;
 }
 
@@ -680,6 +685,31 @@ get_angle_d3d_vendor_and_renderer(const char* innerString) {
     return {vendor, renderer, GrGLDriver::kUnknown, GR_GL_DRIVER_UNKNOWN_VER};
 }
 
+static std::tuple<GrGLVendor, GrGLRenderer>
+get_webgl_vendor_and_renderer(
+        const GrGLInterface* interface) {
+    if (!interface->fExtensions.has("WEBGL_debug_renderer_info")) {
+        return {GrGLVendor::kOther,
+                GrGLRenderer::kOther};
+    }
+
+    auto getString = [&](GrGLenum s) {
+        const GrGLubyte* bytes = interface->fFunctions.fGetString(s);
+        if (!bytes) {
+            return "";
+        }
+        return reinterpret_cast<const char*>(bytes);
+    };
+
+    const char* webglVendorString = getString(GR_UNMASKED_VENDOR_WEBGL);
+    const char* webglRendererString = getString(GR_UNMASKED_RENDERER_WEBGL);
+
+    GrGLVendor webglVendor = get_vendor(webglVendorString);
+    GrGLRenderer webglRenderer = get_renderer(webglRendererString, interface->fExtensions);
+
+    return {webglVendor, webglRenderer};
+}
+
 GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
     if (!interface) {
         return {};
@@ -729,6 +759,13 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
                  info.fANGLEDriverVersion) =
                 get_angle_gl_vendor_and_renderer(innerAngleRendererString.c_str(),
                                                  interface->fExtensions);
+    }
+
+    if (info.fRenderer == GrGLRenderer::kWebGL) {
+        std::tie(info.fWebGLVendor,
+                 info.fWebGLRenderer) =
+                get_webgl_vendor_and_renderer(interface);
+
     }
 
     info.fIsOverCommandBuffer = is_commamd_buffer(renderer, version);
