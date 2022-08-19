@@ -4220,6 +4220,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fDisableTessellationPathRenderer = true;
     }
 
+    // The Wembley device draws the mesh_update GM incorrectly when using transfer buffers. Buffer
+    // to buffer transfers affect draws earlier in the GL command sequence.
+    // Android API: 31
+    // GL_VERSION : OpenGL ES 3.2 build 1.13@5720833
+    // GL_RENDERER: PowerVR Rogue GE8300
+    // GL_VENDOR  : Imagination Technologies
+    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
+        fTransferFromBufferToBufferSupport = false;
+    }
+
 #ifdef SK_BUILD_FOR_WIN
     // glDrawElementsIndirect fails GrMeshTest on every Win10 Intel bot.
     if (ctxInfo.driver() == GrGLDriver::kIntel ||
