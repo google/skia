@@ -2,6 +2,7 @@
 out vec4 sk_FragColor;
 uniform vec4 src;
 uniform vec4 dst;
+float soft_light_component_Qhh2h2(vec2 s, vec2 d);
 float soft_light_component_Qhh2h2(vec2 s, vec2 d) {
     if (2.0 * s.x <= s.y) {
         return (((d.x * d.x) * (s.y - 2.0 * s.x)) / d.y + (1.0 - d.y) * s.x) + d.x * ((-s.y + 2.0 * s.x) + 1.0);

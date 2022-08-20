@@ -10,6 +10,7 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
+half color_dodge_component_Qhh2h2(half2 s, half2 d);
 half color_dodge_component_Qhh2h2(half2 s, half2 d) {
     if (d.x == 0.0h) {
         return s.x * (1.0h - d.y);

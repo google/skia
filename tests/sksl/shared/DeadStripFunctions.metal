@@ -10,6 +10,7 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
+half4 unpremul_h4h4(half4 color);
 half4 unpremul_h4h4(half4 color) {
     return half4(color.xyz / max(color.w, 9.9999997473787516e-05h), color.w);
 }

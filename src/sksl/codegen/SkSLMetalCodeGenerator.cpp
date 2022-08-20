@@ -3072,6 +3072,15 @@ bool MetalCodeGenerator::generateCode() {
     StringStream body;
     {
         AutoOutputStream outputToBody(this, &body, &fIndentation);
+
+        // Emit prototypes for every built-in function; these aren't always added in perfect order.
+        for (const ProgramElement* e : fProgram.fSharedElements) {
+            if (e->is<FunctionDefinition>()) {
+                this->writeFunctionDeclaration(e->as<FunctionDefinition>().declaration());
+                this->writeLine(";");
+            }
+        }
+
         for (const ProgramElement* e : fProgram.elements()) {
             this->writeProgramElement(*e);
         }

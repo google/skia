@@ -2,6 +2,7 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
+vec4 unpremul_h4h4(vec4 color);
 vec4 unpremul_h4h4(vec4 color) {
     return vec4(color.xyz / max(color.w, 9.9999997473787516e-05), color.w);
 }

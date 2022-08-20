@@ -2,6 +2,8 @@
 out vec4 sk_FragColor;
 uniform vec4 src;
 uniform vec4 dst;
+float blend_color_saturation_Qhh3(vec3 color);
+vec4 blend_hslc_h4h4h4h2(vec4 src, vec4 dst, vec2 flipSat);
 float blend_color_saturation_Qhh3(vec3 color) {
     return max(max(color.x, color.y), color.z) - min(min(color.x, color.y), color.z);
 }

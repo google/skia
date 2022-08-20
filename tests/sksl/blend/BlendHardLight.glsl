@@ -2,6 +2,8 @@
 out vec4 sk_FragColor;
 uniform vec4 src;
 uniform vec4 dst;
+float blend_overlay_component_Qhh2h2(vec2 s, vec2 d);
+vec4 blend_overlay_h4h4h4(vec4 src, vec4 dst);
 float blend_overlay_component_Qhh2h2(vec2 s, vec2 d) {
     return 2.0 * d.x <= d.y ? (2.0 * s.x) * d.x : s.y * d.y - (2.0 * (d.y - d.x)) * (s.y - s.x);
 }

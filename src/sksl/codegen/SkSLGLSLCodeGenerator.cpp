@@ -1650,6 +1650,13 @@ bool GLSLCodeGenerator::generateCode() {
             this->writeProgramElement(*e);
         }
     }
+    // Emit prototypes for every built-in function; these aren't always added in perfect order.
+    for (const ProgramElement* e : fProgram.fSharedElements) {
+        if (e->is<FunctionDefinition>()) {
+            this->writeFunctionDeclaration(e->as<FunctionDefinition>().declaration());
+            this->writeLine(";");
+        }
+    }
     // Write the functions last.
     // Why don't we write things in their original order? Because the Inliner likes to move function
     // bodies around. After inlining, code can inadvertently move upwards, above ProgramElements

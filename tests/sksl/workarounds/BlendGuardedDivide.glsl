@@ -2,6 +2,9 @@
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;
+float color_burn_component_Qhh2h2(vec2 s, vec2 d);
+float color_dodge_component_Qhh2h2(vec2 s, vec2 d);
+float soft_light_component_Qhh2h2(vec2 s, vec2 d);
 float color_burn_component_Qhh2h2(vec2 s, vec2 d) {
     if (d.y == d.x) {
         return (s.y * d.y + s.x * (1.0 - d.y)) + d.x * (1.0 - s.y);

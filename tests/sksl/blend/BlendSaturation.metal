@@ -10,6 +10,8 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
+half blend_color_saturation_Qhh3(half3 color);
+half4 blend_hslc_h4h4h4h2(half4 src, half4 dst, half2 flipSat);
 half blend_color_saturation_Qhh3(half3 color) {
     return max(max(color.x, color.y), color.z) - min(min(color.x, color.y), color.z);
 }
