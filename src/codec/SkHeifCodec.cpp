@@ -19,6 +19,17 @@
 #define FOURCC(c1, c2, c3, c4) \
     ((c1) << 24 | (c2) << 16 | (c3) << 8 | (c4))
 
+static_assert((int)SkCodec::CodecPreference::kNoPreference ==
+    kHeifCodecPreference_none, "CodecPreference mismatch!");
+static_assert((int)SkCodec::CodecPreference::kPreferSoftwareCodecs ==
+    kHeifCodecPreference_preferSoftwareCodecs, "CodecPreference mismatch!");
+static_assert((int)SkCodec::CodecPreference::kOnlyHardwareCodecs ==
+    kHeifCodecPreference_onlyHardwareCodecs, "CodecPreference mismatch!");
+static_assert((int)SkCodec::CodecPreference::kPreferHardwareCodecs ==
+    kHeifCodecPreference_preferHardwareCodecs, "CodecPreference mismatch!");
+static_assert((int)SkCodec::CodecPreference::kOnlySoftwareCodecs ==
+    kHeifCodecPreference_onlySoftwareCodecs, "CodecPreference mismatch!");
+
 bool SkHeifCodec::IsSupported(const void* buffer, size_t bytesRead,
                               SkEncodedImageFormat* format) {
     // Parse the ftyp box up to bytesRead to determine if this is HEIF or AVIF.
@@ -389,6 +400,8 @@ SkCodec::Result SkHeifCodec::onGetPixels(const SkImageInfo& dstInfo,
         // need to retrieve tile config from metadata retriever first.
         return kUnimplemented;
     }
+
+    fHeifDecoder->setCodecPreference((int)options.fCodecPreference);
 
     bool success;
     if (fUseAnimation) {

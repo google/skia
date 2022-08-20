@@ -284,6 +284,40 @@ public:
     };
 
     /**
+     * Codec selection order for H/W first, H/W only, S/W first, or S/W only.
+     *
+     * Currently this is only used for HEIF decoding.
+     *
+     * The default is kNoPreference, representing no order preference and the decision order
+     * will be device specific.
+     */
+    enum class CodecPreference {
+        /**
+         * No order preference specified, and decoder/encoder will be selected according to the
+         * default order, which is decided by devices.
+         */
+        kNoPreference = 0,
+        /**
+         * Prefer software codec first. Software codec will be checked first, if no software
+         * codec can decode the given content format, hardware codec will then be checked.
+         */
+        kPreferSoftwareCodecs = 1,
+        /**
+         * Only use hardware codec.
+         */
+        kOnlyHardwareCodecs = 2,
+        /**
+         * Prefer hardware codec first. Hardware codec will be checked first, if no hardware
+         * codec can decode the given content format, software codec will then be checked.
+         */
+        kPreferHardwareCodecs = 4,
+        /**
+         * Only use software codec.
+         */
+        kOnlySoftwareCodecs = 8,
+    };
+
+    /**
      *  Additional options to pass to getPixels.
      */
     struct Options {
@@ -292,6 +326,7 @@ public:
             , fSubset(nullptr)
             , fFrameIndex(0)
             , fPriorFrame(kNoFrame)
+            , fCodecPreference(CodecPreference::kNoPreference)
         {}
 
         ZeroInitialized            fZeroInitialized;
@@ -335,6 +370,16 @@ public:
          *  If set to kNoFrame, the codec will decode any necessary required frame(s) first.
          */
         int                        fPriorFrame;
+
+        /**
+         * Codec selection order for H/W first, H/W only, S/W first, or S/W only.
+         *
+         * Currently this is only used for HEIF decoding.
+         *
+         * The default is kNoPreference, representing no order preference and the decision order
+         * will be device specific.
+         */
+        CodecPreference            fCodecPreference;
     };
 
     /**
