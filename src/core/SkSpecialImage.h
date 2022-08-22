@@ -19,6 +19,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #endif
 
+class GrColorInfo;
 class GrRecordingContext;
 class GrTextureProxy;
 class SkBitmap;
@@ -88,10 +89,8 @@ public:
                                                      const SkIRect& subset,
                                                      uint32_t uniqueID,
                                                      GrSurfaceProxyView,
-                                                     GrColorType,
-                                                     sk_sp<SkColorSpace>,
-                                                     const SkSurfaceProps&,
-                                                     SkAlphaType at = kPremul_SkAlphaType);
+                                                     const GrColorInfo&,
+                                                     const SkSurfaceProps&);
 #endif
 
     /**

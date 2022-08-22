@@ -443,8 +443,6 @@ static sk_sp<SkSpecialImage> apply_morphology(
     GrSurfaceProxyView srcView = input->view(rContext);
     SkAlphaType srcAlphaType = input->alphaType();
     SkASSERT(srcView.asTextureProxy());
-    sk_sp<SkColorSpace> colorSpace = ctx.refColorSpace();
-    GrColorType colorType = ctx.grColorType();
 
     GrSurfaceProxy* proxy = srcView.proxy();
 
@@ -454,8 +452,9 @@ static sk_sp<SkSpecialImage> apply_morphology(
     srcRect.offset(input->subset().x(), input->subset().y());
     SkASSERT(radius.width() > 0 || radius.height() > 0);
 
+    GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), rect.size());
+
     if (radius.fWidth > 0) {
-        GrImageInfo info(colorType, kPremul_SkAlphaType, colorSpace, rect.size());
         auto dstFillContext = rContext->priv().makeSFC(info,
                                                        SkBackingFit::kApprox,
                                                        1,
@@ -479,7 +478,6 @@ static sk_sp<SkSpecialImage> apply_morphology(
         srcRect = dstRect;
     }
     if (radius.fHeight > 0) {
-        GrImageInfo info(colorType, kPremul_SkAlphaType, colorSpace, rect.size());
         auto dstFillContext = rContext->priv().makeSFC(info,
                                                        SkBackingFit::kApprox,
                                                        1,
@@ -499,8 +497,9 @@ static sk_sp<SkSpecialImage> apply_morphology(
     return SkSpecialImage::MakeDeferredFromGpu(rContext,
                                                SkIRect::MakeWH(rect.width(), rect.height()),
                                                kNeedNewImageUniqueID_SpecialImage,
-                                               std::move(srcView), colorType,
-                                               std::move(colorSpace), input->props());
+                                               std::move(srcView),
+                                               info.colorInfo(),
+                                               input->props());
 }
 #endif
 

@@ -188,8 +188,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* rContext
                                    subset,
                                    image->uniqueID(),
                                    std::move(view),
-                                   ct,
-                                   image->refColorSpace(),
+                                   { ct, kPremul_SkAlphaType, image->refColorSpace() },
                                    props);
     }
 #endif
@@ -356,31 +355,34 @@ sk_sp<SkSpecialImage> SkSpecialImage::CopyFromRaster(const SkIRect& subset,
 
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
-static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context, GrSurfaceProxyView view,
-                                          SkColorType colorType, SkAlphaType alphaType,
-                                          sk_sp<SkColorSpace> colorSpace) {
+static sk_sp<SkImage> wrap_proxy_in_image(GrRecordingContext* context,
+                                          GrSurfaceProxyView view,
+                                          const GrColorInfo& colorInfo) {
+    SkColorType ct = GrColorTypeToSkColorType(colorInfo.colorType());
+
     return sk_make_sp<SkImage_Gpu>(sk_ref_sp(context),
                                    kNeedNewImageUniqueID,
                                    std::move(view),
-                                   SkColorInfo(colorType, alphaType, std::move(colorSpace)));
+                                   SkColorInfo(ct, colorInfo.alphaType(),
+                                               colorInfo.refColorSpace()));
 }
 
 class SkSpecialImage_Gpu : public SkSpecialImage_Base {
 public:
     SkSpecialImage_Gpu(GrRecordingContext* context, const SkIRect& subset,
-                       uint32_t uniqueID, GrSurfaceProxyView view, GrColorType ct,
-                       SkAlphaType at, sk_sp<SkColorSpace> colorSpace, const SkSurfaceProps& props)
+                       uint32_t uniqueID, GrSurfaceProxyView view, const GrColorInfo& colorInfo,
+                       const SkSurfaceProps& props)
         : INHERITED(subset, uniqueID, props)
         , fContext(context)
         , fView(std::move(view))
-        , fColorType(ct)
-        , fAlphaType(at)
-        , fColorSpace(std::move(colorSpace)) {
+        , fColorInfo(colorInfo) {
     }
 
-    SkAlphaType alphaType() const override { return fAlphaType; }
+    SkAlphaType alphaType() const override { return fColorInfo.alphaType(); }
 
-    SkColorType colorType() const override { return GrColorTypeToSkColorType(fColorType); }
+    SkColorType colorType() const override {
+        return GrColorTypeToSkColorType(fColorInfo.colorType());
+    }
 
     size_t getSize() const override {
         return fView.proxy()->gpuMemorySize();
@@ -401,7 +403,9 @@ public:
                 new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
                                 this->uniqueID(),
                                 fView,
-                                SkColorInfo(this->colorType(), fAlphaType, fColorSpace)));
+                                SkColorInfo(this->colorType(),
+                                            fColorInfo.alphaType(),
+                                            fColorInfo.refColorSpace())));
 
         canvas->drawImageRect(img, SkRect::Make(this->subset()), dst,
                               sampling, paint, SkCanvas::kStrict_SrcRectConstraint);
@@ -419,7 +423,7 @@ public:
     }
 
     SkColorSpace* onGetColorSpace() const override {
-        return fColorSpace.get();
+        return fColorInfo.colorSpace();
     }
 
     sk_sp<SkSpecialSurface> onMakeSurface(SkColorType colorType, const SkColorSpace* colorSpace,
@@ -439,10 +443,8 @@ public:
                                                    subset,
                                                    this->uniqueID(),
                                                    fView,
-                                                   fColorType,
-                                                   fColorSpace,
-                                                   this->props(),
-                                                   fAlphaType);
+                                                   fColorInfo,
+                                                   this->props());
     }
 
     sk_sp<SkImage> onAsImage(const SkIRect* subset) const override {
@@ -451,8 +453,7 @@ public:
             if (proxy->isFunctionallyExact() && *subset == SkIRect::MakeSize(proxy->dimensions())) {
                 proxy->priv().exactify(false);
                 // The existing GrTexture is already tight so reuse it in the SkImage
-                return wrap_proxy_in_image(fContext, fView, this->colorType(), fAlphaType,
-                                           fColorSpace);
+                return wrap_proxy_in_image(fContext, fView, fColorInfo);
             }
 
             auto subsetView = GrSurfaceProxyView::Copy(fContext,
@@ -470,13 +471,12 @@ public:
 
             // MDB: this is acceptable (wrapping subsetProxy in an SkImage) bc Copy will
             // return a kExact-backed proxy
-            return wrap_proxy_in_image(fContext, std::move(subsetView), this->colorType(),
-                                       fAlphaType, fColorSpace);
+            return wrap_proxy_in_image(fContext, std::move(subsetView), fColorInfo);
         }
 
         proxy->priv().exactify(true);
 
-        return wrap_proxy_in_image(fContext, fView, this->colorType(), fAlphaType, fColorSpace);
+        return wrap_proxy_in_image(fContext, fView, fColorInfo);
     }
 
     sk_sp<SkShader> onAsShader(SkTileMode tileMode,
@@ -511,9 +511,7 @@ public:
 private:
     GrRecordingContext*       fContext;
     GrSurfaceProxyView        fView;
-    const GrColorType         fColorType;
-    const SkAlphaType         fAlphaType;
-    sk_sp<SkColorSpace>       fColorSpace;
+    GrColorInfo               fColorInfo;
 
     using INHERITED = SkSpecialImage_Base;
 };
@@ -522,15 +520,13 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeDeferredFromGpu(GrRecordingContext* co
                                                           const SkIRect& subset,
                                                           uint32_t uniqueID,
                                                           GrSurfaceProxyView view,
-                                                          GrColorType colorType,
-                                                          sk_sp<SkColorSpace> colorSpace,
-                                                          const SkSurfaceProps& props,
-                                                          SkAlphaType at) {
+                                                          const GrColorInfo& colorInfo,
+                                                          const SkSurfaceProps& props) {
     if (!context || context->abandoned() || !view.asTextureProxy()) {
         return nullptr;
     }
     SkASSERT_RELEASE(rect_fits(subset, view.proxy()->width(), view.proxy()->height()));
-    return sk_make_sp<SkSpecialImage_Gpu>(context, subset, uniqueID, std::move(view), colorType,
-                                          at, std::move(colorSpace), props);
+    return sk_make_sp<SkSpecialImage_Gpu>(context, subset, uniqueID, std::move(view),
+                                          colorInfo, props);
 }
 #endif

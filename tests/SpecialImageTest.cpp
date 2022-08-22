@@ -16,6 +16,7 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
@@ -202,8 +203,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu,
                                                 SkIRect::MakeWH(kFullSize, kFullSize),
                                                 kNeedNewImageUniqueID_SpecialImage,
                                                 view,
-                                                ct,
-                                                nullptr,
+                                                { ct, kPremul_SkAlphaType, nullptr },
                                                 SkSurfaceProps());
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
@@ -214,8 +214,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SpecialImage_Gpu,
                 subset,
                 kNeedNewImageUniqueID_SpecialImage,
                 std::move(view),
-                ct,
-                nullptr,
+                { ct, kPremul_SkAlphaType, nullptr },
                 SkSurfaceProps());
         test_image(subSImg1, reporter, context, true);
     }

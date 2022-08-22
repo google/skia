@@ -15,6 +15,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkSpecialImage.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
 
 static const int kSmallerSize = 10;
 static const int kPad = 3;
@@ -271,7 +272,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked,
                                                               dContext, full,
                                                               kNeedNewImageUniqueID_SpecialImage,
                                                               srcView,
-                                                              GrColorType::kRGBA_8888, nullptr,
+                                                              { GrColorType::kRGBA_8888,
+                                                                kPremul_SkAlphaType,
+                                                                nullptr },
                                                               SkSurfaceProps()));
 
     const SkIRect& subset = SkIRect::MakeXYWH(kPad, kPad, kSmallerSize, kSmallerSize);
@@ -280,7 +283,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageFilterCache_GPUBacked,
                                                                 dContext, subset,
                                                                 kNeedNewImageUniqueID_SpecialImage,
                                                                 std::move(srcView),
-                                                                GrColorType::kRGBA_8888, nullptr,
+                                                                { GrColorType::kRGBA_8888,
+                                                                  kPremul_SkAlphaType,
+                                                                  nullptr },
                                                                 SkSurfaceProps()));
 
     test_find_existing(reporter, fullImg, subsetImg);

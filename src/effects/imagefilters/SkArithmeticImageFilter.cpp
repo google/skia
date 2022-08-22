@@ -415,8 +415,7 @@ sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
                                                SkIRect::MakeWH(bounds.width(), bounds.height()),
                                                kNeedNewImageUniqueID_SpecialImage,
                                                sfc->readSurfaceView(),
-                                               sfc->colorInfo().colorType(),
-                                               sfc->colorInfo().refColorSpace(),
+                                               sfc->colorInfo(),
                                                ctx.surfaceProps());
 }
 #endif

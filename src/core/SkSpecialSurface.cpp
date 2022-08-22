@@ -120,6 +120,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 #if SK_SUPPORT_GPU
 ///////////////////////////////////////////////////////////////////////////////
 #include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
 class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
@@ -146,8 +147,9 @@ public:
         return SkSpecialImage::MakeDeferredFromGpu(fCanvas->recordingContext(),
                                                    this->subset(),
                                                    kNeedNewImageUniqueID_SpecialImage,
-                                                   std::move(fReadView), ct,
-                                                   fCanvas->imageInfo().refColorSpace(),
+                                                   std::move(fReadView),
+                                                   { ct, kPremul_SkAlphaType,
+                                                     fCanvas->imageInfo().refColorSpace() },
                                                    this->props());
     }
 
