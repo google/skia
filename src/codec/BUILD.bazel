@@ -142,6 +142,15 @@ split_srcs_and_hdrs(
     ],
 )
 
+split_srcs_and_hdrs(
+    name = "decode_jxl",
+    files = [
+        "SkJpegxlCodec.cpp",
+        "SkJpegxlCodec.h",
+        "SkScalingCodec.h",
+    ],
+)
+
 string_flag_with_values(
     name = "include_decoder",
     multiple = True,
@@ -149,6 +158,7 @@ string_flag_with_values(
         "avif_decode_codec",
         "gif_decode_codec",
         "jpeg_decode_codec",
+        "jxl_decode_codec",
         "png_decode_codec",
         "raw_decode_codec",
         "webp_decode_codec",
@@ -190,6 +200,7 @@ filegroup(
             ":avif_decode_codec": [":decode_avif_srcs"],
             ":gif_decode_codec": [":decode_gif_srcs"],
             ":needs_jpeg": [":decode_jpeg_srcs"],
+            ":jxl_decode_codec": [":decode_jxl_srcs"],
             ":png_decode_codec": [":decode_png_srcs"],
             ":raw_decode_codec": [":decode_raw_srcs"],
             ":webp_decode_codec": [":decode_webp_srcs"],
@@ -215,6 +226,7 @@ filegroup(
             ":avif_decode_codec": [":decode_avif_hdrs"],
             ":gif_decode_codec": [":decode_gif_hdrs"],
             ":needs_jpeg": [":decode_jpeg_hdrs"],
+            ":jxl_decode_codec": [":decode_jxl_hdrs"],
             ":png_decode_codec": [":decode_png_hdrs"],
             ":raw_decode_codec": [":decode_raw_hdrs"],
             ":webp_decode_codec": [":decode_webp_hdrs"],
@@ -231,6 +243,7 @@ skia_cc_deps(
             ":avif_decode_codec": ["@libavif"],
             ":gif_decode_codec": ["@wuffs"],
             ":needs_jpeg": ["@libjpeg_turbo"],
+            "jxl_decode_codec": ["@libjxl"],
             ":png_decode_codec": ["@libpng"],
             ":raw_decode_codec": [
                 "@dng_sdk",

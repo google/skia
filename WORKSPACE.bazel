@@ -183,6 +183,16 @@ local_repository(
 )
 
 local_repository(
+    name = "brotli",
+    path = "third_party/externals/brotli",
+)
+
+local_repository(
+    name = "highway",
+    path = "third_party/externals/highway",
+)
+
+local_repository(
     name = "spirv_tools",
     path = "third_party/externals/spirv-tools",
 )
@@ -282,6 +292,13 @@ new_local_repository(
     name = "libjpeg_turbo",
     build_file = "bazel/external/libjpeg_turbo/BUILD.bazel",
     path = "third_party/externals/libjpeg-turbo",
+    workspace_file_content = "",
+)
+
+new_local_repository(
+    name = "libjxl",
+    build_file = "bazel/external/libjxl/BUILD.bazel",
+    path = "third_party/externals/libjxl",
     workspace_file_content = "",
 )
 

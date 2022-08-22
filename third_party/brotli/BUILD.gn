@@ -8,7 +8,7 @@ import("../third_party.gni")
 third_party("brotli") {
   public_include_dirs = [ "../externals/brotli/c/include" ]
 
-  # The only consumer of brotli is freetype and it only needs to decode brotli.
+  # Brotli is used by freetype and libjxl; they only need to decode brotli.
   sources = [
     "../externals/brotli/c/common/constants.c",
     "../externals/brotli/c/common/context.c",
