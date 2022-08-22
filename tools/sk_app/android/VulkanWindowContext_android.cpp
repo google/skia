@@ -6,8 +6,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/vk/GrVkVulkan.h"
-
 #include "tools/sk_app/android/WindowContextFactory_android.h"
 
 #include "tools/sk_app/VulkanWindowContext.h"

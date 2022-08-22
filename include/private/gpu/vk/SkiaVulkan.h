@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrVkVulkan_DEFINED
-#define GrVkVulkan_DEFINED
+#ifndef SkiaVulkan_DEFINED
+#define SkiaVulkan_DEFINED
 
 #include "include/core/SkTypes.h"
 

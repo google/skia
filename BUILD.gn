@@ -885,6 +885,10 @@ optional("gpu_shared") {
   }
 
   sources = skia_shared_gpu_sources + skia_sksl_gpu_sources
+
+  if (skia_use_vulkan) {
+    sources += skia_shared_vk_sources
+  }
 }
 
 optional("gpu") {

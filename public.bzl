@@ -179,7 +179,6 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/vk/GrVkExtensions.h",
     "include/gpu/vk/GrVkMemoryAllocator.h",
     "include/gpu/vk/GrVkTypes.h",
-    "include/gpu/vk/GrVkVulkan.h",
     "include/pathops/SkPathOps.h",
     "include/ports/SkCFObject.h",
     "include/ports/SkFontConfigInterface.h",

@@ -11,8 +11,6 @@
 
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
-#include "include/gpu/vk/GrVkVulkan.h"
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkSurface.h"

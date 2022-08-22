@@ -1,0 +1,13 @@
+load("//bazel:macros.bzl", "exports_files_legacy")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "SkiaVulkan.h",
+    ],
+    visibility = ["//include/private/gpu:__pkg__"],
+)

@@ -10,7 +10,7 @@
 #define GrVkTypes_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/gpu/vk/GrVkVulkan.h"
+#include "include/private/gpu/vk/SkiaVulkan.h"
 
 #ifndef VK_VERSION_1_1
 #error Skia requires the use of Vulkan 1.1 headers

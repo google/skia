@@ -6,8 +6,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/vk/GrVkVulkan.h"
-
 #include "tools/sk_app/win/WindowContextFactory_win.h"
 
 #include "tools/sk_app/VulkanWindowContext.h"
