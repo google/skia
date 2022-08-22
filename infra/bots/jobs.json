@@ -8,6 +8,9 @@
   {"name": "BazelBuild-skia_public-enforce_iwyu-linux_x64",
     "cq_config": {}
   },
+  {"name": "BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64",
+    "cq_config": {}
+  },
   {"name": "BazelBuild-skia_public-release-linux_x64"},
   {"name": "BazelTest-canvaskit_gold-ck_full_cpu_release_chrome-linux_x64",
     "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}

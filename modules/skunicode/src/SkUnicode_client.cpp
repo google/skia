@@ -4,20 +4,23 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
+
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkOnce.h"
-#include "include/private/SkTFitsIn.h"
-#include "include/private/SkTHash.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/SkBitmaskEnum.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
 #include "src/utils/SkUTF.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <utility>
 #include <vector>
-#include <functional>
-class SkBidiIterator_client;
-class SkBreakIterator_client;
-class SkScriptIterator_client;
+
 class SkUnicode_client : public SkUnicode {
 public:
     SkUnicode_client() = delete;

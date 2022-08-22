@@ -9,13 +9,15 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkBitmaskEnum.h"
+#include "include/private/SkBitmaskEnum.h" // IWYU pragma: keep
+#include "include/private/SkTArray.h"
 #include "src/utils/SkUTF.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #if !defined(SKUNICODE_IMPLEMENTATION)
