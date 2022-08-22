@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.36.1] - 2022-08-22
+
+### Changed
+ - Perspective text is enabled.
+
+### Fixed
+ - Text is no longer distorted on certain Adreno GPUs (http://review.skia.org/571418)
+
 ## [0.36.0] - 2022-08-16
 
 ### Added
