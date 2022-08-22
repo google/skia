@@ -28,6 +28,11 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#if SK_SUPPORT_GPU
+#include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrStagingBufferManager.h"
+#endif  // SK_SUPPORT_GPU
+
 #include <locale>
 #include <string>
 #include <tuple>
@@ -677,21 +682,33 @@ bool SkMeshPriv::UpdateGpuBuffer(GrDirectContext* dc,
         return true;
     }
 
-    // TODO: Use staging buffer manager if available to be more efficient with buffer space.
-    auto tempBuffer = dc->priv().resourceProvider()->createBuffer(
-            size,
-            GrGpuBufferType::kXferCpuToGpu,
-            kDynamic_GrAccessPattern,
-            GrResourceProvider::ZeroInit::kNo);
-    if (!tempBuffer) {
-        return false;
+    sk_sp<GrGpuBuffer> tempBuffer;
+    size_t tempOffset = 0;
+    if (auto* sbm = dc->priv().getGpu()->stagingBufferManager()) {
+        auto alignment = dc->priv().caps()->transferFromBufferToBufferAlignment();
+        auto [sliceBuffer, sliceOffset, ptr] = sbm->allocateStagingBufferSlice(size, alignment);
+        if (sliceBuffer) {
+            std::memcpy(ptr, data, size);
+            tempBuffer.reset(SkRef(sliceBuffer));
+            tempOffset = sliceOffset;
+        }
     }
-    if (!tempBuffer->updateData(data, 0, size, /*preserve=*/false)) {
-        return false;
+
+    if (!tempBuffer) {
+        tempBuffer = dc->priv().resourceProvider()->createBuffer(size,
+                                                                 GrGpuBufferType::kXferCpuToGpu,
+                                                                 kDynamic_GrAccessPattern,
+                                                                 GrResourceProvider::ZeroInit::kNo);
+        if (!tempBuffer) {
+            return false;
+        }
+        if (!tempBuffer->updateData(data, 0, size, /*preserve=*/false)) {
+            return false;
+        }
     }
 
     dc->priv().drawingManager()->newBufferTransferTask(std::move(tempBuffer),
-                                                       /*srcOffset=*/0,
+                                                       tempOffset,
                                                        std::move(buffer),
                                                        offset,
                                                        size);

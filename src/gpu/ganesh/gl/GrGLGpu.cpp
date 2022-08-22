@@ -911,6 +911,9 @@ bool GrGLGpu::onTransferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
                                            sk_sp<GrGpuBuffer> dst,
                                            size_t dstOffset,
                                            size_t size) {
+    SkASSERT(!src->isMapped());
+    SkASSERT(!dst->isMapped());
+
     auto glSrc = static_cast<const GrGLBuffer*>(src.get());
     auto glDst = static_cast<const GrGLBuffer*>(dst.get());
 

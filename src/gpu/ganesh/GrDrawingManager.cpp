@@ -887,8 +887,6 @@ void GrDrawingManager::newBufferTransferTask(sk_sp<GrGpuBuffer> src,
     SkASSERT(dstOffset + size <= dst->size());
     SkASSERT(src->intendedType() == GrGpuBufferType::kXferCpuToGpu);
     SkASSERT(dst->intendedType() != GrGpuBufferType::kXferCpuToGpu);
-    SkASSERT(!src->isMapped());
-    SkASSERT(!dst->isMapped());
 
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);

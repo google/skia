@@ -518,8 +518,6 @@ bool GrGpu::transferFromBufferToBuffer(sk_sp<GrGpuBuffer> src,
     SkASSERT(dstOffset + size <= dst->size());
     SkASSERT(src->intendedType() == GrGpuBufferType::kXferCpuToGpu);
     SkASSERT(dst->intendedType() != GrGpuBufferType::kXferCpuToGpu);
-    SkASSERT(!src->isMapped());
-    SkASSERT(!dst->isMapped());
 
     this->handleDirtyContext();
     if (!this->onTransferFromBufferToBuffer(std::move(src),
