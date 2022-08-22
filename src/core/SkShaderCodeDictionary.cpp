@@ -183,7 +183,7 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
     std::string lastOutputVar = "initialColor";
     SkSL::String::appendf(&mainBody, "    half4 %s = half4(0);", lastOutputVar.c_str());
     if (this->needsLocalCoords()) {
-        // Get the local coordinates varying into half4 format as expected by emit_glue_code.
+        // Get the local coordinates varying into float4 format as expected by emit_glue_code.
         mainBody += "float4 outLocalCoords = float4(localCoordsVar, 0.0, 0.0);\n";
     }
 
@@ -200,7 +200,7 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
     }
 
     if (step->emitsPrimitiveColor()) {
-        mainBody += "half4 primitiveColor;";
+        mainBody += "    half4 primitiveColor;";
         mainBody += step->fragmentColorSkSL();
         // TODO: Apply primitive blender
         // For now, just overwrite the prior color stored in lastOutputVar

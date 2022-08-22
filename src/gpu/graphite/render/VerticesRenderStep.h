@@ -22,11 +22,15 @@ public:
     const char* vertexSkSL() const override;
     void writeVertices(DrawWriter* writer, const DrawParams& params, int ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, SkPipelineDataGatherer*) const override;
+    const char* fragmentColorSkSL() const override;
 
 private:
     bool fHasColor;
     bool fHasTexture;
 
+    void writeVerticesColorAndTexture(DrawWriter* writer, const DrawParams& params,
+                                      int ssboIndex) const;
+    void writeVerticesColor(DrawWriter* writer, const DrawParams& params, int ssboIndex) const;
     void writeVerticesTexture(DrawWriter* writer, const DrawParams& params, int ssboIndex) const;
 };
 
