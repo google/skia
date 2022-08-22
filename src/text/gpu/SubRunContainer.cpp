@@ -2739,7 +2739,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
                 SkStrikeSpec strikeSpec = SkStrikeSpec::MakeTransformMask(
-                        reducedFont, runPaint, deviceProps, scalerContextFlags, *gaugingMatrix);
+                        reducedFont, runPaint, deviceProps, scalerContextFlags, SkMatrix::I());
                 if constexpr (kTrace) {
                     msg.appendf("Transformed case:\n%s", strikeSpec.dump().c_str());
                 }
