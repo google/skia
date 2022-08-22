@@ -116,6 +116,8 @@ protected:
 
     void writeStructDefinitions();
 
+    void writeConstantVariables();
+
     void writeFields(const std::vector<Type::Field>& fields, Position pos,
                      const InterfaceBlock* parentIntf = nullptr);
 

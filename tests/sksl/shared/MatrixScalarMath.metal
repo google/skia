@@ -1,6 +1,9 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
+constant const int minus = 2;
+constant const int star = 3;
+constant const int slash = 4;
 struct Uniforms {
     half4 colorGreen;
     half4 colorRed;
@@ -9,11 +12,6 @@ struct Inputs {
 };
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
-};
-struct Globals {
-    const int minus;
-    const int star;
-    const int slash;
 };
 thread float2x2 operator/(const float2x2 left, const float2x2 right) {
     return float2x2(left[0] / right[0], left[1] / right[1]);
@@ -42,8 +40,6 @@ bool test_bifffff22(Uniforms _uniforms, int op, float m11, float m12, float m21,
     return ((m2[0].x == expected[0].x && m2[0].y == expected[0].y) && m2[1].x == expected[1].x) && m2[1].y == expected[1].y;
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals _globals{2, 3, 4};
-    (void)_globals;
     Outputs _out;
     (void)_out;
     float f1 = float(_uniforms.colorGreen.y);
@@ -56,6 +52,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     {
         _2_m2 += (float2x2(1.0, 1.0, 1.0, 1.0) * 1.0);
     }
-    _out.sk_FragColor = (((((_2_m2[0].x == _0_expected[0].x && _2_m2[0].y == _0_expected[0].y) && _2_m2[1].x == _0_expected[1].x) && _2_m2[1].y == _0_expected[1].y) && test_bifffff22(_uniforms, _globals.minus, f1, f2, f3, f4, float2x2(float2(f1 - 1.0, f2 - 1.0), float2(f3 - 1.0, f4 - 1.0)))) && test_bifffff22(_uniforms, _globals.star, f1, f2, f3, f4, float2x2(float2(f1 * 2.0, f2 * 2.0), float2(f3 * 2.0, f4 * 2.0)))) && test_bifffff22(_uniforms, _globals.slash, f1, f2, f3, f4, float2x2(float2(f1 / 2.0, f2 / 2.0), float2(f3 / 2.0, f4 / 2.0))) ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = (((((_2_m2[0].x == _0_expected[0].x && _2_m2[0].y == _0_expected[0].y) && _2_m2[1].x == _0_expected[1].x) && _2_m2[1].y == _0_expected[1].y) && test_bifffff22(_uniforms, minus, f1, f2, f3, f4, float2x2(float2(f1 - 1.0, f2 - 1.0), float2(f3 - 1.0, f4 - 1.0)))) && test_bifffff22(_uniforms, star, f1, f2, f3, f4, float2x2(float2(f1 * 2.0, f2 * 2.0), float2(f3 * 2.0, f4 * 2.0)))) && test_bifffff22(_uniforms, slash, f1, f2, f3, f4, float2x2(float2(f1 / 2.0, f2 / 2.0), float2(f3 / 2.0, f4 / 2.0))) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
