@@ -4357,13 +4357,6 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fProgramBinarySupport = false;
     }
 
-    // Two Adreno 530 devices (LG G6 and OnePlus 3T) appear to have driver bugs that are corrupting
-    // SkSL::Program memory. To get better/different crash reports, disable node-pooling, so that
-    // program allocations aren't reused.  (crbug.com/1147008, crbug.com/1164271)
-    if (ctxInfo.renderer() == GrGLRenderer::kAdreno530) {
-        shaderCaps->fUseNodePools = false;
-    }
-
     // skbug.com/11204. Avoid recursion issue in SurfaceContext::writePixels.
     if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
         fReuseScratchTextures = false;

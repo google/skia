@@ -15,7 +15,6 @@
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/SkSLPool.h"
-#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
@@ -33,7 +32,7 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
     fOldConfig = fCompiler->fContext->fConfig;
 
     if (!isModule) {
-        if (compiler->context().fCaps.fUseNodePools && settings.fDSLUseMemoryPool) {
+        if (settings.fUseMemoryPool) {
             fPool = Pool::Create();
             fPool->attachToThread();
         }

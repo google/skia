@@ -76,8 +76,12 @@ struct ProgramSettings {
     // every temporary value, even ones that would otherwise be optimized away entirely. The other
     // debug opcodes are much less invasive on the generated code.
     bool fAllowTraceVarInSkVMDebugTrace = true;
-    // If true, the DSL should install a memory pool when possible.
-    bool fDSLUseMemoryPool = true;
+    // If true, SkSL will use a memory pool for all IR nodes when compiling a program. This is
+    // usually a significant speed increase, but uses more memory, so it is a good idea for programs
+    // that will be freed shortly after compilation. It can also be useful to disable this flag when
+    // investigating memory corruption. (This controls behavior of the SkSL compiler, not the code
+    // we generate.)
+    bool fUseMemoryPool = true;
     // If true, VarDeclaration can be cloned for testing purposes. See VarDeclaration::clone for
     // more information.
     bool fAllowVarDeclarationCloneForTesting = false;

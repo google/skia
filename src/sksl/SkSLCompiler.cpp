@@ -740,7 +740,7 @@ bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toSPIRV");
     AutoSource as(this, *program.fSource);
     ProgramSettings settings;
-    settings.fDSLUseMemoryPool = false;
+    settings.fUseMemoryPool = false;
     dsl::Start(this, program.fConfig->fKind, settings);
     dsl::SetErrorReporter(&fErrorReporter);
     fSymbolTable = program.fSymbols;

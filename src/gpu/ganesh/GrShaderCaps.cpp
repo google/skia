@@ -75,7 +75,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Color space math needs float", fColorSpaceMathNeedsFloat);
     writer->appendBool("Builtin fma() support", fBuiltinFMASupport);
     writer->appendBool("Builtin determinant() support", fBuiltinDeterminantSupport);
-    writer->appendBool("Use node pools", fUseNodePools);
 
     writer->appendS32("Max FS Samplers", fMaxFragmentSamplers);
     writer->appendCString("Advanced blend equation interaction",
