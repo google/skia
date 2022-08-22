@@ -267,7 +267,8 @@ void OneLineShaper::addFullyResolved() {
 }
 
 void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
-    RunBlock unresolved(fCurrentRun, clusteredText(glyphRange), glyphRange, 0);
+    auto extendedText = this->clusteredText(glyphRange); // It also modifies glyphRange if needed
+    RunBlock unresolved(fCurrentRun, extendedText, glyphRange, 0);
     if (unresolved.fGlyphs.width() == fCurrentRun->size()) {
         SkASSERT(unresolved.fText.width() == fCurrentRun->fTextRange.width());
     } else if (fUnresolvedBlocks.size() > 0) {
@@ -290,7 +291,7 @@ void OneLineShaper::addUnresolvedWithRun(GlyphRange glyphRange) {
                 // Few pieces of the same unresolved text block can ignore the second one
                 lastUnresolved.fGlyphs.start = std::min(lastUnresolved.fGlyphs.start, glyphRange.start);
                 lastUnresolved.fGlyphs.end = std::max(lastUnresolved.fGlyphs.end, glyphRange.end);
-                lastUnresolved.fText = clusteredText(lastUnresolved.fGlyphs);
+                lastUnresolved.fText = this->clusteredText(lastUnresolved.fGlyphs);
                 return;
             }
         }
