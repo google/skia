@@ -2481,6 +2481,7 @@ if (skia_enable_tools) {
       "fuzz/FuzzTriangulation.cpp",
       "fuzz/oss_fuzz/FuzzAndroidCodec.cpp",
       "fuzz/oss_fuzz/FuzzAnimatedImage.cpp",
+      "fuzz/oss_fuzz/FuzzCOLRv1.cpp",
       "fuzz/oss_fuzz/FuzzImage.cpp",
       "fuzz/oss_fuzz/FuzzImageFilterDeserialize.cpp",
       "fuzz/oss_fuzz/FuzzIncrementalImage.cpp",
@@ -3376,6 +3377,11 @@ if (skia_enable_tools) {
 
     libfuzzer_app("skp") {
       sources = [ "fuzz/oss_fuzz/FuzzSKP.cpp" ]
+      deps = []
+    }
+
+    libfuzzer_app("colrv1") {
+      sources = [ "fuzz/oss_fuzz/FuzzCOLRv1.cpp" ]
       deps = []
     }
   }

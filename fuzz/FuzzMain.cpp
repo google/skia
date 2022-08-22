@@ -46,6 +46,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "animated_image_decode\n"
                                          "api\n"
                                          "color_deserialize\n"
+                                         "colrv1\n"
                                          "filter_fuzz (equivalent to Chrome's filter_fuzz_stub)\n"
                                          "image_decode\n"
                                          "image_decode_incremental\n"
@@ -78,6 +79,7 @@ static void fuzz_android_codec(sk_sp<SkData>);
 static void fuzz_animated_img(sk_sp<SkData>);
 static void fuzz_api(sk_sp<SkData> bytes, SkString name);
 static void fuzz_color_deserialize(sk_sp<SkData>);
+static void fuzz_colrv1(sk_sp<SkData>);
 static void fuzz_filter_fuzz(sk_sp<SkData>);
 static void fuzz_image_decode(sk_sp<SkData>);
 static void fuzz_image_decode_incremental(sk_sp<SkData>);
@@ -175,6 +177,10 @@ static int fuzz_file(SkString path, SkString type) {
     if (type.equals("color_deserialize")) {
         fuzz_color_deserialize(bytes);
         return 0;
+    }
+    if (type.equals("colrv1")) {
+      fuzz_colrv1(bytes);
+      return 0;
     }
     if (type.equals("filter_fuzz")) {
         fuzz_filter_fuzz(bytes);
@@ -370,6 +376,13 @@ static void fuzz_svg_dom(sk_sp<SkData> bytes){
     SkDebugf("[terminated] Done DOM!\n");
 }
 #endif
+
+void FuzzCOLRv1(sk_sp<SkData> bytes);
+
+static void fuzz_colrv1(sk_sp<SkData> bytes) {
+    FuzzCOLRv1(bytes);
+    SkDebugf("[terminated] Done COLRv1!\n");
+}
 
 // This adds up the first 1024 bytes and returns it as an 8 bit integer.  This allows afl-fuzz to
 // deterministically excercise different paths, or *options* (such as different scaling sizes or
