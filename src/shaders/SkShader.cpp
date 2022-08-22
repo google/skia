@@ -195,7 +195,7 @@ bool SkShaderBase::onAppendStages(const SkStageRec& rec) const {
         auto c = (CallbackCtx*)self;
         int x = (int)c->rgba[0],
             y = (int)c->rgba[1];
-        SkPMColor tmp[SkRasterPipeline_kMaxStride];
+        SkPMColor tmp[SkRasterPipeline_kMaxStride_highp];
         c->ctx->shadeSpan(x,y, tmp, active_pixels);
 
         for (int i = 0; i < active_pixels; i++) {

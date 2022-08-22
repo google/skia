@@ -18,7 +18,6 @@
 
 #include <functional>
 
-class SkData;
 struct skcms_TransferFunction;
 
 /**
@@ -111,8 +110,12 @@ struct skcms_TransferFunction;
     M(emboss)                                                      \
     M(swizzle)
 
-// The largest number of pixels we handle at a time.
-static const int SkRasterPipeline_kMaxStride = 16;
+// The largest number of pixels we handle at a time. We have a separate value for the largest number
+// of pixels we handle in the highp pipeline. Many of the context structs in this file are only used
+// by stages that have no lowp implementation. They can therefore use the (smaller) highp value to
+// save memory in the arena.
+inline static constexpr int SkRasterPipeline_kMaxStride = 16;
+inline static constexpr int SkRasterPipeline_kMaxStride_highp = 8;
 
 // Structs representing the arguments to some common stages.
 
@@ -132,17 +135,17 @@ struct SkRasterPipeline_GatherCtx {
 
 // State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
 struct SkRasterPipeline_SamplerCtx {
-    float      x[SkRasterPipeline_kMaxStride];
-    float      y[SkRasterPipeline_kMaxStride];
-    float     fx[SkRasterPipeline_kMaxStride];
-    float     fy[SkRasterPipeline_kMaxStride];
-    float scalex[SkRasterPipeline_kMaxStride];
-    float scaley[SkRasterPipeline_kMaxStride];
+    float      x[SkRasterPipeline_kMaxStride_highp];
+    float      y[SkRasterPipeline_kMaxStride_highp];
+    float     fx[SkRasterPipeline_kMaxStride_highp];
+    float     fy[SkRasterPipeline_kMaxStride_highp];
+    float scalex[SkRasterPipeline_kMaxStride_highp];
+    float scaley[SkRasterPipeline_kMaxStride_highp];
 
     // for bicubic_[np][13][xy]
     float weights[16];
-    float wx[4][SkRasterPipeline_kMaxStride];
-    float wy[4][SkRasterPipeline_kMaxStride];
+    float wx[4][SkRasterPipeline_kMaxStride_highp];
+    float wy[4][SkRasterPipeline_kMaxStride_highp];
 };
 
 struct SkRasterPipeline_TileCtx {
@@ -157,11 +160,12 @@ struct SkRasterPipeline_DecalTileCtx {
 };
 
 struct SkRasterPipeline_CallbackCtx {
-    void (*fn)(SkRasterPipeline_CallbackCtx* self, int active_pixels/*<= SkRasterPipeline_kMaxStride*/);
+    void (*fn)(SkRasterPipeline_CallbackCtx* self,
+               int active_pixels /*<= SkRasterPipeline_kMaxStride_highp*/);
 
     // When called, fn() will have our active pixels available in rgba.
     // When fn() returns, the pipeline will read back those active pixels from read_from.
-    float rgba[4*SkRasterPipeline_kMaxStride];
+    float rgba[4*SkRasterPipeline_kMaxStride_highp];
     float* read_from = rgba;
 };
 
@@ -180,7 +184,7 @@ struct SkRasterPipeline_EvenlySpaced2StopGradientCtx {
 };
 
 struct SkRasterPipeline_2PtConicalCtx {
-    uint32_t fMask[SkRasterPipeline_kMaxStride];
+    uint32_t fMask[SkRasterPipeline_kMaxStride_highp];
     float    fP0,
              fP1;
 };
