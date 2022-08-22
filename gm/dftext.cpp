@@ -228,7 +228,6 @@ protected:
             emoiFont.setSubpixel(true);
             emoiFont.setTypeface(fEmojiTypeface);
             emoiFont.setSize(SkIntToScalar(19));
-            paint.setColor(SK_ColorWHITE);
             canvas->drawSimpleText(fEmojiText, strlen(fEmojiText), SkTextEncoding::kUTF8, 670, 90,
                                    emoiFont, paint);
         }

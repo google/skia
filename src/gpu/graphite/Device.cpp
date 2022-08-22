@@ -585,8 +585,6 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                              SkPoint drawOrigin,
                              const SkPaint& paint,
                              sk_sp<SkRefCnt> subRunStorage) {
-    // TODO: This exercises the glyph uploads but still needs work for rendering.
-
     const int subRunEnd = subRun->glyphCount();
     for (int subRunCursor = 0; subRunCursor < subRunEnd;) {
         // For the remainder of the run, add any atlas uploads to the Recorder's AtlasManager
@@ -598,11 +596,17 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
         if (glyphsRegenerated) {
             auto [bounds, localToDevice] = subRun->boundsAndDeviceMatrix(
                                                    this->localToDeviceTransform(), drawOrigin);
+            SkPaint subRunPaint = paint;
+            // For color emoji, only the paint alpha affects the final color
+            if (subRun->maskFormat() == skgpu::MaskFormat::kARGB) {
+                subRunPaint.setColor(SK_ColorWHITE);
+                subRunPaint.setAlphaf(paint.getAlphaf());
+            }
             this->drawGeometry(localToDevice,
                                Geometry(SubRunData(subRun, std::move(subRunStorage),
                                                    bounds, subRunCursor, glyphsRegenerated,
                                                    fRecorder)),
-                               paint,
+                               subRunPaint,
                                kFillStyle,
                                DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
         }
