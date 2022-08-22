@@ -84,6 +84,7 @@ void GrOpFlushState::preExecuteDraws() {
     // Setup execution iterators.
     fCurrDraw = fDraws.begin();
     fCurrUpload = fInlineUploads.begin();
+    fGpu->willExecute();
 }
 
 void GrOpFlushState::reset() {

@@ -52,6 +52,8 @@ public:
     SkSL::GLSLGeneration glslGeneration() const { return fGLContext->glslGeneration(); }
     const GrGLCaps& glCaps() const { return *fGLContext->caps(); }
 
+    GrStagingBufferManager* stagingBufferManager() override { return fStagingBufferManager.get(); }
+
     // Used by GrGLProgram to configure OpenGL state.
     void bindTexture(int unitIdx, GrSamplerState samplerState, const skgpu::Swizzle&, GrGLTexture*);
 
@@ -179,6 +181,8 @@ public:
 
     void resetShaderCacheForTesting() const override { fProgramCache->reset(); }
 #endif
+
+    void willExecute() override;
 
     void submit(GrOpsRenderPass* renderPass) override;
 
@@ -793,6 +797,9 @@ private:
     std::unique_ptr<SamplerObjectCache> fSamplerObjectCache;
 
     std::unique_ptr<GrGLOpsRenderPass> fCachedOpsRenderPass;
+
+    std::unique_ptr<GrStagingBufferManager> fStagingBufferManager;
+
     GrFinishCallbacks fFinishCallbacks;
 
     // If we've called a command that requires us to call glFlush than this will be set to true

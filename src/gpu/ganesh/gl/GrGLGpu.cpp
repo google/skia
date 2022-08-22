@@ -32,6 +32,7 @@
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
+#include "src/gpu/ganesh/GrStagingBufferManager.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrUtil.h"
@@ -4089,6 +4090,14 @@ bool GrGLGpu::onSubmitToGpu(bool syncCpu) {
         this->clearErrorsAndCheckForOOM();
     }
     return true;
+}
+
+void GrGLGpu::willExecute() {
+    // Because our transfers will be submitted to GL to perfom immediately (no command buffer to
+    // submit), we must unmap any staging buffers.
+    if (fStagingBufferManager) {
+        fStagingBufferManager->detachBuffers();
+    }
 }
 
 void GrGLGpu::submit(GrOpsRenderPass* renderPass) {

@@ -396,6 +396,9 @@ public:
                           const GrFlushInfo&,
                           const GrBackendSurfaceMutableState* newState);
 
+    // Called before render tasks are executed during a flush.
+    virtual void willExecute() {}
+
     bool submitToGpu(bool syncCpu);
 
     virtual void submit(GrOpsRenderPass*) = 0;
