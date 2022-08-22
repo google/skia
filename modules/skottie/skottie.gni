@@ -93,6 +93,8 @@ skia_skottie_sources = [
   "$_src/layers/shapelayer/ShapeLayer.cpp",
   "$_src/layers/shapelayer/ShapeLayer.h",
   "$_src/layers/shapelayer/TrimPaths.cpp",
+  "$_src/text/Font.cpp",
+  "$_src/text/Font.h",
   "$_src/text/RangeSelector.cpp",
   "$_src/text/RangeSelector.h",
   "$_src/text/SkottieShaper.cpp",

@@ -7,6 +7,8 @@ exports_files_legacy()
 filegroup(
     name = "srcs",
     srcs = [
+        "Font.cpp",
+        "Font.h",
         "RangeSelector.cpp",
         "RangeSelector.h",
         "SkottieShaper.cpp",

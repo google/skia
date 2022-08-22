@@ -14,9 +14,9 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/SkTHash.h"
-#include "include/utils/SkCustomTypeface.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/animator/Animator.h"
+#include "modules/skottie/src/text/Font.h"
 #include "modules/sksg/include/SkSGScene.h"
 #include "src/utils/SkUTF.h"
 
@@ -65,12 +65,12 @@ public:
     AnimationInfo parse(const skjson::ObjectValue&);
 
     struct FontInfo {
-        SkString                fFamily,
-                                fStyle,
-                                fPath;
-        SkScalar                fAscentPct;
-        sk_sp<SkTypeface>       fTypeface;
-        SkCustomTypefaceBuilder fCustomBuilder;
+        SkString          fFamily,
+                          fStyle,
+                          fPath;
+        SkScalar          fAscentPct;
+        sk_sp<SkTypeface> fTypeface;
+        Font::Builder     fCustomFontBuilder;
 
         bool matches(const char family[], const char style[]) const;
     };
