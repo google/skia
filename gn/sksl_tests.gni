@@ -468,6 +468,7 @@ sksl_shared_tests = [
   "/sksl/shared/ComplexDelete.sksl",
   "/sksl/shared/ConstantIf.sksl",
   "/sksl/shared/ConstArray.sksl",
+  "/sksl/shared/ConstGlobal.sksl",
   "/sksl/shared/ConstVariableComparison.sksl",
   "/sksl/shared/Control.sksl",
   "/sksl/shared/DeadDoWhileLoop.sksl",

@@ -1,0 +1,11 @@
+uniform half4 colorGreen, colorRed;
+
+const int SEVEN = 7, TEN = 10;
+
+noinline bool verify_const_globals(int seven, int ten) {
+    return seven == 7 && ten == 10;
+}
+
+half4 main(float2 xy) {
+    return verify_const_globals(SEVEN, TEN) ? colorGreen : colorRed;
+}
