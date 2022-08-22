@@ -145,16 +145,16 @@ half4 blend_darken(half4 src, half4 dst) {
    return blend_darken(src, dst, 1);
 }
 
-half $guarded_divide(half n, half d) {
-    return sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck
-            ? n/(d + 0.00000001)
-            : n/d;
+const half $GuardedDivideEpsilon = sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck
+                                       ? 0.00000001
+                                       : 0.0;
+
+inline half $guarded_divide(half n, half d) {
+    return n / (d + $GuardedDivideEpsilon);
 }
 
-half3 $guarded_divide(half3 n, half d) {
-    return sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck
-            ? n/(d + 0.00000001)
-            : n/d;
+inline half3 $guarded_divide(half3 n, half d) {
+    return n / (d + $GuardedDivideEpsilon);
 }
 
 half $color_dodge_component(half2 s, half2 d) {
