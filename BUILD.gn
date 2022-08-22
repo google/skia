@@ -71,6 +71,11 @@ config("skia_public") {
     defines += [ "SK_USE_PERFETTO" ]
   }
 
+  # Temporary define for flutter to control in their GN build
+  if (skia_use_legacy_layer_bounds) {
+    defines += [ "SK_LEGACY_LAYER_BOUNDS_EXPANSION" ]
+  }
+
   # Some older versions of the Clang toolchain change the visibility of
   # symbols decorated with API_AVAILABLE macro to be visible. Users of such
   # toolchains suppress the use of this macro till toolchain updates are made.
