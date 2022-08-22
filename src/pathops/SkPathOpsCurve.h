@@ -71,7 +71,6 @@ struct SkDCurve {
     void dumpID(int ) const;
     SkDPoint lineTop(const SkPoint[2], SkScalar , double , double , double* topT);
     double nearPoint(SkPath::Verb verb, const SkDPoint& xy, const SkDPoint& opp) const;
-    void offset(SkPath::Verb verb, const SkDVector& );
     SkDPoint quadTop(const SkPoint curve[3], SkScalar , double s, double e, double* topT);
 
     void setConicBounds(const SkPoint curve[3], SkScalar curveWeight,

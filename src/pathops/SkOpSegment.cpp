@@ -636,7 +636,7 @@ SkOpSegment* SkOpSegment::findNextOp(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBa
     *nextEnd = foundAngle->end();
     nextSegment = foundAngle->segment();
 #if DEBUG_WINDING
-    SkDebugf("%s from:[%d] to:[%d] start=%d end=%d\n",
+    SkDebugf("%s from:[%d] to:[%d] start=%p end=%p\n",
             __FUNCTION__, debugID(), nextSegment->debugID(), *nextStart, *nextEnd);
  #endif
     return nextSegment;
@@ -732,7 +732,7 @@ SkOpSegment* SkOpSegment::findNextWinding(SkTDArray<SkOpSpanBase*>* chase,
     *nextEnd = foundAngle->end();
     nextSegment = foundAngle->segment();
 #if DEBUG_WINDING
-    SkDebugf("%s from:[%d] to:[%d] start=%d end=%d\n",
+    SkDebugf("%s from:[%d] to:[%d] start=%p end=%p\n",
             __FUNCTION__, debugID(), nextSegment->debugID(), *nextStart, *nextEnd);
  #endif
     return nextSegment;
@@ -803,7 +803,7 @@ SkOpSegment* SkOpSegment::findNextXor(SkOpSpanBase** nextStart, SkOpSpanBase** n
     *nextEnd = foundAngle->end();
     nextSegment = foundAngle->segment();
 #if DEBUG_WINDING
-    SkDebugf("%s from:[%d] to:[%d] start=%d end=%d\n",
+    SkDebugf("%s from:[%d] to:[%d] start=%p end=%p\n",
             __FUNCTION__, debugID(), nextSegment->debugID(), *nextStart, *nextEnd);
  #endif
     return nextSegment;

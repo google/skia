@@ -52,13 +52,6 @@ double SkDCurve::nearPoint(SkPath::Verb verb, const SkDPoint& xy, const SkDPoint
     return SkPinT(i[0][minIndex]);
 }
 
-void SkDCurve::offset(SkPath::Verb verb, const SkDVector& off) {
-    int count = SkPathOpsVerbToPoints(verb);
-    for (int index = 0; index <= count; ++index) {
-        fCubic.fPts[index] += off;
-    }
-}
-
 void SkDCurve::setConicBounds(const SkPoint curve[3], SkScalar curveWeight,
         double tStart, double tEnd, SkPathOpsBounds* bounds) {
     SkDConic dCurve;

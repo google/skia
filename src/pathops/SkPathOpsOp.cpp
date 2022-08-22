@@ -243,7 +243,7 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     const char* testName = "release";
 #endif
     if (SkPathOpsDebug::gDumpOp) {
-        SkPathOpsDebug::DumpOp(one, two, op, testName);
+        DumpOp(one, two, op, testName);
     }
 #endif
     op = gOpInverse[op][one.isInverseFillType()][two.isInverseFillType()];
@@ -371,10 +371,10 @@ bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
 #if DEBUG_DUMP_VERIFY
     if (SkPathOpsDebug::gVerifyOp) {
         if (!OpDebug(one, two, op, result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
-            SkPathOpsDebug::ReportOpFail(one, two, op);
+            ReportOpFail(one, two, op);
             return false;
         }
-        SkPathOpsDebug::VerifyOp(one, two, op, *result);
+        VerifyOp(one, two, op, *result);
         return true;
     }
 #endif

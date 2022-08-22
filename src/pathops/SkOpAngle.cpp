@@ -63,10 +63,12 @@ bool SkOpAngle::after(SkOpAngle* test) {
     SkOpAngle* rh = lh->fNext;
     SkASSERT(lh != rh);
     fPart.fCurve = fOriginalCurvePart;
+    // Adjust lh and rh to share the same origin (floating point error in intersections can mean
+    // they aren't exactly the same).
     lh->fPart.fCurve = lh->fOriginalCurvePart;
-    lh->fPart.fCurve.offset(lh->segment()->verb(), fPart.fCurve[0] - lh->fPart.fCurve[0]);
+    lh->fPart.fCurve[0] = fPart.fCurve[0];
     rh->fPart.fCurve = rh->fOriginalCurvePart;
-    rh->fPart.fCurve.offset(rh->segment()->verb(), fPart.fCurve[0] - rh->fPart.fCurve[0]);
+    rh->fPart.fCurve[0] = fPart.fCurve[0];
 
 #if DEBUG_ANGLE
     SkString bugOut;

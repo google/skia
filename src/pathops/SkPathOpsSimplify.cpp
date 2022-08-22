@@ -161,7 +161,7 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
     const char* testName = "release";
 #endif
     if (SkPathOpsDebug::gDumpOp) {
-        SkPathOpsDebug::DumpSimplify(path, testName);
+        DumpSimplify(path, testName);
     }
 #endif
 #if DEBUG_SORT
@@ -215,10 +215,10 @@ bool Simplify(const SkPath& path, SkPath* result) {
 #if DEBUG_DUMP_VERIFY
     if (SkPathOpsDebug::gVerifyOp) {
         if (!SimplifyDebug(path, result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
-            SkPathOpsDebug::ReportSimplifyFail(path);
+            ReportSimplifyFail(path);
             return false;
         }
-        SkPathOpsDebug::VerifySimplify(path, *result);
+        VerifySimplify(path, *result);
         return true;
     }
 #endif
