@@ -20,6 +20,7 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkVM.h"
 #include "src/shaders/SkShaderBase.h"
+#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 
 void SkParticleBinding::visitFields(SkFieldVisitor* v) {
