@@ -10,6 +10,8 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
 
@@ -383,6 +385,7 @@ public:
     LayerSpace() = default;
     explicit LayerSpace(const SkRect& geometry) : fData(geometry) {}
     explicit LayerSpace(SkRect&& geometry) : fData(std::move(geometry)) {}
+    explicit LayerSpace(const LayerSpace<SkIRect>& rect) : fData(SkRect::Make(SkIRect(rect))) {}
     explicit operator const SkRect&() const { return fData; }
 
     static LayerSpace<SkRect> Empty() { return LayerSpace<SkRect>(SkRect::MakeEmpty()); }
@@ -416,6 +419,50 @@ public:
 
 private:
     SkRect fData;
+};
+
+// A transformation that manipulates geometry in the layer-space coordinate system. Mathematically
+// there's little difference from these matrices compared to what's stored in a skif::Mapping, but
+// the intent differs. skif::Mapping's matrices map geometry from one coordinate space to another
+// while these transforms move geometry w/o changing the coordinate space semantics.
+// TODO(michaelludwig): Will be replaced with an SkM44 version when skif::Mapping works with SkM44.
+template<>
+class LayerSpace<SkMatrix> {
+public:
+    LayerSpace() = default;
+    explicit LayerSpace(const SkMatrix& m) : fData(m) {}
+    explicit LayerSpace(SkMatrix&& m) : fData(std::move(m)) {}
+    explicit operator const SkMatrix&() const { return fData; }
+
+    // Parrot a limited selection of the SkMatrix API while preserving coordinate space.
+    LayerSpace<SkRect> mapRect(const LayerSpace<SkRect>& r) {
+        return LayerSpace<SkRect>(fData.mapRect(SkRect(r)));
+    }
+
+    LayerSpace<SkPoint> mapPoint(const LayerSpace<SkPoint>& p) {
+        return LayerSpace<SkPoint>(fData.mapPoint(SkPoint(p)));
+    }
+
+    LayerSpace<Vector> mapVector(const LayerSpace<Vector>& v) {
+        return LayerSpace<Vector>(Vector(fData.mapVector(v.x(), v.y())));
+    }
+
+    LayerSpace<SkMatrix>& preConcat(const LayerSpace<SkMatrix>& m) {
+        fData = SkMatrix::Concat(fData, m.fData);
+        return *this;
+    }
+
+    LayerSpace<SkMatrix>& postConcat(const LayerSpace<SkMatrix>& m) {
+        fData = SkMatrix::Concat(m.fData, fData);
+        return *this;
+    }
+
+    bool invert(LayerSpace<SkMatrix>* inverse) {
+        return fData.invert(&inverse->fData);
+    }
+
+private:
+    SkMatrix fData;
 };
 
 // Mapping is the primary definition of the shared layer space used when evaluating an image filter
@@ -532,6 +579,8 @@ public:
     explicit FilterResult(sk_sp<SkSpecialImage> image)
             : fImage(std::move(image))
             , fOrigin{{0, 0}} {}
+
+    explicit operator bool() const { return SkToBool(fImage); }
 
     const SkSpecialImage* image() const { return fImage.get(); }
     sk_sp<SkSpecialImage> refImage() const { return fImage; }

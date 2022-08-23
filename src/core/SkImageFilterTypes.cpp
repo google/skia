@@ -148,6 +148,19 @@ SkSize Mapping::map<SkSize>(const SkSize& geom, const SkMatrix& matrix) {
     return SkSize::Make(v.fX, v.fY);
 }
 
+template<>
+SkMatrix Mapping::map<SkMatrix>(const SkMatrix& m, const SkMatrix& matrix) {
+    // If 'matrix' maps from the C1 coord space to the C2 coord space, and 'm' is a transform that
+    // operates on, and outputs to, the C1 coord space, we want to return a new matrix that is
+    // equivalent to 'm' that operates on and outputs to C2. This is the same as mapping the input
+    // from C2 to C1 (matrix^-1), then transforming by 'm', and then mapping from C1 to C2 (matrix).
+    SkMatrix inv;
+    SkAssertResult(matrix.invert(&inv));
+    inv.postConcat(m);
+    inv.postConcat(matrix);
+    return inv;
+}
+
 FilterResult FilterResult::resolveToBounds(const LayerSpace<SkIRect>& newBounds) const {
     // NOTE(michaelludwig) - This implementation is based on the assumption that an image resolved
     // to 'newBounds' will be decal tiled and that the current image is decal tiled. Because of this
