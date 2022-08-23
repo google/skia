@@ -14,7 +14,6 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
-#include "include/gpu/graphite/SkStuff.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -206,7 +205,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, context)
     REPORTER_ASSERT(reporter, imageResourcePtr->budgeted() == SkBudgeted::kYes);
 
     // Now try an SkSurface. This is simpler since we can directly create Graphite SkSurface's.
-    sk_sp<SkSurface> surface = MakeGraphite(recorder.get(), info);
+    sk_sp<SkSurface> surface = SkSurface::MakeGraphite(recorder.get(), info);
     if (!surface) {
         ERRORF(reporter, "Failed to make surface");
         return;

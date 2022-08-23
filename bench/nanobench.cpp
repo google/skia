@@ -66,7 +66,6 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
-#include "include/gpu/graphite/SkStuff.h"
 #include "tools/graphite/ContextFactory.h"
 #include "tools/graphite/GraphiteTestContext.h"
 #endif
@@ -361,7 +360,7 @@ struct GraphiteTarget : public Target {
             return false;
         }
 
-        this->surface = MakeGraphite(this->recorder.get(), info);
+        this->surface = SkSurface::MakeGraphite(this->recorder.get(), info);
         if (!this->surface) {
             return false;
         }

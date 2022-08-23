@@ -87,7 +87,6 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
-#include "include/gpu/graphite/SkStuff.h"
 // TODO: Remove this src include once we figure out public readPixels call for Graphite.
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "tools/graphite/ContextFactory.h"
@@ -2160,7 +2159,7 @@ Result GraphiteSink::draw(const Src& src,
     dst->allocPixels(ii);
 
     {
-        sk_sp<SkSurface> surface = MakeGraphite(recorder.get(), ii);
+        sk_sp<SkSurface> surface = SkSurface::MakeGraphite(recorder.get(), ii);
         if (!surface) {
             return Result::Fatal("Could not create a surface.");
         }

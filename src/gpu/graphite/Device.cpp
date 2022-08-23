@@ -8,7 +8,6 @@
 #include "src/gpu/graphite/Device.h"
 
 #include "include/gpu/graphite/Recorder.h"
-#include "include/gpu/graphite/SkStuff.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
@@ -248,7 +247,7 @@ SkBaseDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
 }
 
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& /* props */) {
-    return MakeGraphite(fRecorder, ii);
+    return SkSurface::MakeGraphite(fRecorder, ii);
 }
 
 bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
