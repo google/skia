@@ -46,12 +46,14 @@ class Device final : public SkBaseDevice  {
 public:
     ~Device() override;
 
-    static sk_sp<Device> Make(Recorder*, const SkImageInfo&, SkBudgeted);
+    static sk_sp<Device> Make(Recorder*,
+                              const SkImageInfo&,
+                              SkBudgeted,
+                              const SkSurfaceProps&);
     static sk_sp<Device> Make(Recorder*,
                               sk_sp<TextureProxy>,
-                              sk_sp<SkColorSpace>,
-                              SkColorType,
-                              SkAlphaType);
+                              const SkColorInfo&,
+                              const SkSurfaceProps&);
 
     Device* asGraphiteDevice() override { return this; }
 

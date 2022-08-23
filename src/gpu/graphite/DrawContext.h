@@ -10,6 +10,7 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
 
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/DrawList.h"
@@ -45,15 +46,16 @@ class TextureProxy;
 class DrawContext final : public SkRefCnt {
 public:
     static sk_sp<DrawContext> Make(sk_sp<TextureProxy> target,
-                                   sk_sp<SkColorSpace> colorSpace,
-                                   SkColorType colorType,
-                                   SkAlphaType alphaType);
+                                   const SkColorInfo&,
+                                   const SkSurfaceProps&);
 
     ~DrawContext() override;
 
     const SkImageInfo&  imageInfo() const { return fImageInfo;    }
     TextureProxy* target()                { return fTarget.get(); }
     const TextureProxy* target()    const { return fTarget.get(); }
+
+    const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
 
     int pendingDrawCount() const { return fPendingDraws->drawCount(); }
 
@@ -114,10 +116,11 @@ public:
 #endif
 
 private:
-    DrawContext(sk_sp<TextureProxy>, const SkImageInfo&);
+    DrawContext(sk_sp<TextureProxy>, const SkImageInfo&, const SkSurfaceProps&);
 
     sk_sp<TextureProxy> fTarget;
     SkImageInfo fImageInfo;
+    const SkSurfaceProps fSurfaceProps;
 
     // Stores the most immediately recorded draws into the SDC's surface. This list is mutable and
     // can be appended to, or have its commands rewritten if they are inlined into a parent SDC.

@@ -104,7 +104,8 @@ sk_sp<SkSurface> SkSurface::MakeGraphite(Recorder* recorder,
                                          const SkImageInfo& info,
                                          const SkSurfaceProps* props) {
 
-    sk_sp<Device> device = Device::Make(recorder, info, SkBudgeted::kNo);
+    sk_sp<Device> device = Device::Make(recorder, info, SkBudgeted::kNo,
+                                        SkSurfacePropsCopyOrDefault(props));
     if (!device) {
         return nullptr;
     }
@@ -135,9 +136,8 @@ sk_sp<SkSurface> SkSurface::MakeGraphiteFromBackendTexture(Recorder* recorder,
 
     sk_sp<Device> device = Device::Make(recorder,
                                         std::move(proxy),
-                                        std::move(colorSpace),
-                                        colorType,
-                                        kPremul_SkAlphaType);
+                                        { colorType, kPremul_SkAlphaType, std::move(colorSpace) },
+                                        SkSurfacePropsCopyOrDefault(props));
     if (!device) {
         return nullptr;
     }
