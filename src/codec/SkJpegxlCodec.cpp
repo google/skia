@@ -7,24 +7,31 @@
 
 #include "src/codec/SkJpegxlCodec.h"
 
-#include <limits>
-#include <vector>
-
-#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkTFitsIn.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "jxl/decode.h"
-#include "jxl/decode_cxx.h"
+#include "modules/skcms/skcms.h"
 #include "src/codec/SkFrameHolder.h"
-#include "src/codec/SkSampler.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkStreamPriv.h"
+
+#include "jxl/codestream_header.h"
+#include "jxl/decode.h"
+#include "jxl/decode_cxx.h"
+#include "jxl/types.h"
+
+#include <cstdint>
+#include <cstring>
+#include <limits>
+#include <utility>
+#include <vector>
 
 namespace {
 

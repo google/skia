@@ -8,18 +8,20 @@
 #ifndef SkJpegxlCodec_DEFINED
 #define SkJpegxlCodec_DEFINED
 
-#include <memory>
-
+#include "include/codec/SkCodec.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkRefCnt.h"
 #include "src/codec/SkScalingCodec.h"
 
-enum class SkEncodedImageFormat;
-struct SkEncodedInfo;
-enum SkEncodedOrigin;
+#include <cstddef>
+#include <memory>
+
 class SkFrameHolder;
-struct SkImageInfo;
 class SkJpegxlCodecPriv;
-class SkSampler;
 class SkStream;
+struct SkEncodedInfo;
+struct SkImageInfo;
 
 /*
  *
