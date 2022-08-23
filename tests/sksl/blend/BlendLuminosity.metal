@@ -12,11 +12,11 @@ struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
 half blend_color_saturation_Qhh3(half3 color);
-half4 blend_hslc_h4h4h4h2(thread Globals& _globals, half4 src, half4 dst, half2 flipSat);
+half4 blend_hslc_h4h4h4h2(half4 src, half4 dst, half2 flipSat);
 half blend_color_saturation_Qhh3(half3 color) {
     return max(max(color.x, color.y), color.z) - min(min(color.x, color.y), color.z);
 }
-half4 blend_hslc_h4h4h4h2(thread Globals& _globals, half4 src, half4 dst, half2 flipSat) {
+half4 blend_hslc_h4h4h4h2(half4 src, half4 dst, half2 flipSat) {
     half alpha = dst.w * src.w;
     half3 sda = src.xyz * dst.w;
     half3 dsa = dst.xyz * src.w;
@@ -43,6 +43,6 @@ half4 blend_hslc_h4h4h4h2(thread Globals& _globals, half4 src, half4 dst, half2 
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = blend_hslc_h4h4h4h2(_globals, _uniforms.src, _uniforms.dst, half2(1.0h, 0.0h));
+    _out.sk_FragColor = blend_hslc_h4h4h4h2(_uniforms.src, _uniforms.dst, half2(1.0h, 0.0h));
     return _out;
 }

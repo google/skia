@@ -1431,6 +1431,7 @@ void MetalCodeGenerator::writeFragCoord() {
 
 // true if the var is part of the Inputs struct
 static bool is_input(const Variable& var) {
+    SkASSERT(var.storage() == VariableStorage::kGlobal);
     return var.modifiers().fFlags & Modifiers::kIn_Flag &&
             (var.modifiers().fLayout.fBuiltin == -1 ||
              var.modifiers().fLayout.fBuiltin == SK_THREADPOSITION) &&
@@ -1439,6 +1440,7 @@ static bool is_input(const Variable& var) {
 
 // true if the var is part of the Outputs struct
 static bool is_output(const Variable& var) {
+    SkASSERT(var.storage() == VariableStorage::kGlobal);
     // inout vars get written into the Inputs struct, so we exclude them from Outputs
     return (var.modifiers().fFlags & Modifiers::kOut_Flag) &&
             !(var.modifiers().fFlags & Modifiers::kIn_Flag) &&
@@ -1446,9 +1448,23 @@ static bool is_output(const Variable& var) {
             var.type().typeKind() != Type::TypeKind::kTexture;
 }
 
+// true if the var is part of the Uniforms struct
+static bool is_uniforms(const Variable& var) {
+    SkASSERT(var.storage() == VariableStorage::kGlobal);
+    return var.modifiers().fFlags & Modifiers::kUniform_Flag &&
+           var.type().typeKind() != Type::TypeKind::kSampler;
+}
+
 // true if the var is part of the Threadgroups struct
 static bool is_threadgroup(const Variable& var) {
+    SkASSERT(var.storage() == VariableStorage::kGlobal);
     return var.modifiers().fFlags & Modifiers::kThreadgroup_Flag;
+}
+
+// true if the var is part of the Globals struct
+static bool is_in_globals(const Variable& var) {
+    SkASSERT(var.storage() == VariableStorage::kGlobal);
+    return !(var.modifiers().fFlags & Modifiers::kConst_Flag);
 }
 
 void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
@@ -1489,12 +1505,11 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
                     this->write("_in.");
                 } else if (is_output(var)) {
                     this->write("_out.");
-                } else if (var.modifiers().fFlags & Modifiers::kUniform_Flag &&
-                           var.type().typeKind() != Type::TypeKind::kSampler) {
+                } else if (is_uniforms(var)) {
                     this->write("_uniforms.");
                 } else if (is_threadgroup(var)) {
                     this->write("_threadgroups.");
-                } else if (!(var.modifiers().fFlags & Modifiers::kConst_Flag)) {
+                } else if (is_in_globals(var)) {
                     this->write("_globals.");
                 }
             }
@@ -2746,12 +2761,13 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         }
         if (!(var.modifiers().fFlags & ~Modifiers::kConst_Flag) &&
             var.modifiers().fLayout.fBuiltin == -1) {
-            if (var.modifiers().fFlags & Modifiers::kConst_Flag) {
-                // Visit a constant-expression variable.
-                visitor->visitConstantVariable(decl);
-            } else {
+            if (is_in_globals(var)) {
                 // Visit a regular global variable.
                 visitor->visitNonconstantVariable(var, decl.value().get());
+            } else {
+                // Visit a constant-expression variable.
+                SkASSERT(var.modifiers().fFlags & Modifiers::kConst_Flag);
+                visitor->visitConstantVariable(decl);
             }
         }
     }
@@ -3008,22 +3024,20 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Statemen
                     break;
                 }
                 case Expression::Kind::kVariableReference: {
-                    const VariableReference& v = e.as<VariableReference>();
-                    const Modifiers& modifiers = v.variable()->modifiers();
+                    const Variable& var = *e.as<VariableReference>().variable();
 
-                    if (modifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
+                    if (var.modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                         fRequirements |= kGlobals_Requirement | kFragCoord_Requirement;
-                    } else if (Variable::Storage::kGlobal == v.variable()->storage()) {
-                        if (modifiers.fFlags & Modifiers::kIn_Flag) {
+                    } else if (var.storage() == Variable::Storage::kGlobal) {
+                        if (is_input(var)) {
                             fRequirements |= kInputs_Requirement;
-                        } else if (modifiers.fFlags & Modifiers::kOut_Flag) {
+                        } else if (is_output(var)) {
                             fRequirements |= kOutputs_Requirement;
-                        } else if (modifiers.fFlags & Modifiers::kUniform_Flag &&
-                                   v.variable()->type().typeKind() != Type::TypeKind::kSampler) {
+                        } else if (is_uniforms(var)) {
                             fRequirements |= kUniforms_Requirement;
-                        } else if (modifiers.fFlags & Modifiers::kThreadgroup_Flag) {
+                        } else if (is_threadgroup(var)) {
                             fRequirements |= kThreadgroups_Requirement;
-                        } else {
+                        } else if (is_in_globals(var)) {
                             fRequirements |= kGlobals_Requirement;
                         }
                     }
