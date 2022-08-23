@@ -321,6 +321,7 @@ sksl_metal_tests = [
   "/sksl/metal/OutVarsRequireLocation.sksl",
   "/sksl/metal/SamplerGlobals.sksl",
   "/sksl/metal/StorageBuffer.sksl",
+  "/sksl/metal/StorageBufferVertex.vert",
   "/sksl/metal/SwizzleHelper.sksl",
 ]
 
