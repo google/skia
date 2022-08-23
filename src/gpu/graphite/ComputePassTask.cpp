@@ -34,8 +34,7 @@ bool ComputePassTask::prepareResources(ResourceProvider* provider,
 
 bool ComputePassTask::addCommands(ResourceProvider* provider, CommandBuffer* commandBuffer) {
     SkASSERT(fPipeline);
-    commandBuffer->addComputePass(fComputePassDesc, fPipeline, fBindings);
-    return true;
+    return commandBuffer->addComputePass(fComputePassDesc, fPipeline, fBindings);
 }
 
 }  // namespace skgpu::graphite
