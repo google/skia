@@ -29,6 +29,7 @@ P1 = -1/4 Q0 + 3/4 Q1 + 3/4 Q2 - 1/4 Q3
 */
 
 #include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsQuad.h"
 
 // used for testing only

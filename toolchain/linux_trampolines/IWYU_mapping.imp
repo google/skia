@@ -16,6 +16,8 @@
   { symbol: ["INT32_MAX", "public", "<climits>", "public"]},
 
   { symbol: ["abs", "public", "<cmath>", "public"]},
+  { symbol: ["fabs", "public", "<cmath>", "public"]},
+  { symbol: ["sqrt", "public", "<cmath>", "public"]},
 
   # The first of these is the preferred include, but the others are acceptable.
   { symbol: ["size_t", "public", "<cstddef>", "public"]},

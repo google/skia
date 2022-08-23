@@ -7,14 +7,20 @@
 #ifndef SkPathOpsTSect_DEFINED
 #define SkPathOpsTSect_DEFINED
 
-#include "include/private/SkMacros.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/pathops/SkIntersections.h"
-#include "src/pathops/SkPathOpsBounds.h"
+#include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsRect.h"
 #include "src/pathops/SkPathOpsTCurve.h"
+#include "src/pathops/SkPathOpsTypes.h"
 
-#include <utility>
+#include <cstdint>
+
+class SkIntersections;
+class SkTSect;
+class SkTSpan;
+struct SkDLine;
 
 #ifdef SK_DEBUG
 typedef uint8_t SkOpDebugBool;
@@ -76,9 +82,6 @@ private:
     double fPerpT;  // perpendicular intersection on opposite curve
     SkOpDebugBool fMatch;
 };
-
-class SkTSect;
-class SkTSpan;
 
 struct SkTSpanBounded {
     SkTSpan* fBounded;

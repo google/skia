@@ -4,9 +4,14 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkTypes.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsTypes.h"
 
+#include <cmath>
+#include <cstdint>
 #include <utility>
 
 void SkIntersections::cleanUpParallelLines(bool parallel) {

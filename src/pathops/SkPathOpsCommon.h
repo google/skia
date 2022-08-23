@@ -7,12 +7,18 @@
 #ifndef SkPathOpsCommon_DEFINED
 #define SkPathOpsCommon_DEFINED
 
-#include "include/private/SkTDArray.h"
-#include "src/pathops/SkOpAngle.h"
+#include "include/pathops/SkPathOps.h"
+#include "src/pathops/SkPathOpsTypes.h"
 
+class SkOpAngle;
 class SkOpCoincidence;
-class SkOpContour;
-class SkPathWriter;
+class SkOpContourHead;
+class SkOpSegment;
+class SkOpSpan;
+class SkOpSpanBase;
+class SkPath;
+
+template <typename T> class SkTDArray;
 
 const SkOpAngle* AngleWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* windingPtr,
                               bool* sortable);

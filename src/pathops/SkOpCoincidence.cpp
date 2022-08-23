@@ -5,9 +5,18 @@
  * found in the LICENSE file.
  */
 #include "src/pathops/SkOpCoincidence.h"
-#include "src/pathops/SkOpSegment.h"
-#include "src/pathops/SkPathOpsTSect.h"
 
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkPathOpsCurve.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
+
+#include <algorithm>
 #include <utility>
 
 // returns true if coincident span's start and end are the same

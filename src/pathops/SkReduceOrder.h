@@ -7,11 +7,13 @@
 #ifndef SkReduceOrder_DEFINED
 #define SkReduceOrder_DEFINED
 
+#include "include/core/SkPath.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsLine.h"
 #include "src/pathops/SkPathOpsQuad.h"
 
 struct SkConic;
+struct SkPoint;
 
 union SkReduceOrder {
     enum Quadratics {

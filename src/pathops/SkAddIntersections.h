@@ -7,10 +7,8 @@
 #ifndef SkAddIntersections_DEFINED
 #define SkAddIntersections_DEFINED
 
-#include "src/pathops/SkIntersectionHelper.h"
-#include "src/pathops/SkIntersections.h"
-
 class SkOpCoincidence;
+class SkOpContour;
 
 bool AddIntersectTs(SkOpContour* test, SkOpContour* next, SkOpCoincidence* coincidence);
 

@@ -5,6 +5,11 @@
  * found in the LICENSE file.
  */
 #include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsTypes.h"
+
+#include <algorithm>
+#include <cstddef>
 
 static bool rotate(const SkDCubic& cubic, int zero, int index, SkDCubic& rotPath) {
     double dy = cubic[index].fY - cubic[zero].fY;

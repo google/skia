@@ -5,13 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkMacros.h"
-#include "src/core/SkTSort.h"
-#include "src/pathops/SkAddIntersections.h"
-#include "src/pathops/SkOpCoincidence.h"
-#include "src/pathops/SkOpEdgeBuilder.h"
 #include "src/pathops/SkPathOpsCommon.h"
-#include "src/pathops/SkPathWriter.h"
+
+#include "include/core/SkTypes.h"
+#include "include/private/SkMacros.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkTSort.h"
+#include "src/pathops/SkOpAngle.h"
+#include "src/pathops/SkOpCoincidence.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkOpSpan.h"
 
 const SkOpAngle* AngleWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* windingPtr,
         bool* sortablePtr) {

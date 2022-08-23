@@ -4,11 +4,20 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/pathops/SkOpEdgeBuilder.h"
+
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkTSort.h"
-#include "src/pathops/SkOpEdgeBuilder.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkReduceOrder.h"
+
+#include <algorithm>
+#include <array>
 
 void SkOpEdgeBuilder::init() {
     fOperand = false;

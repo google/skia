@@ -4,10 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/private/SkFloatBits.h"
-#include "src/core/SkArenaAlloc.h"
-#include "src/pathops/SkOpCoincidence.h"
 #include "src/pathops/SkPathOpsTypes.h"
+
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkFloatingPoint.h"
+
+#include <algorithm>
+#include <cstdint>
 
 static bool arguments_denormalized(float a, float b, int epsilon) {
     float denormalizedCheck = FLT_EPSILON * epsilon / 2;

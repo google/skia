@@ -4,8 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/core/SkGeometry.h"
 #include "src/pathops/SkReduceOrder.h"
+
+#include "include/core/SkPoint.h"
+#include "src/core/SkGeometry.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsTypes.h"
+
+#include <algorithm>
+#include <cmath>
 
 int SkReduceOrder::reduce(const SkDLine& line) {
     fLine[0] = line[0];

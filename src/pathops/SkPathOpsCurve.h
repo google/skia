@@ -7,11 +7,17 @@
 #ifndef SkPathOpsCurve_DEFINE
 #define SkPathOpsCurve_DEFINE
 
-#include "src/pathops/SkIntersections.h"
-
-#ifndef SK_RELEASE
 #include "include/core/SkPath.h"
-#endif
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsTypes.h"
 
 struct SkPathOpsBounds;
 

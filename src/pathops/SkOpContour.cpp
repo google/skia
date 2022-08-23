@@ -5,8 +5,10 @@
 * found in the LICENSE file.
 */
 #include "src/pathops/SkOpContour.h"
+
 #include "src/pathops/SkPathWriter.h"
-#include "src/pathops/SkReduceOrder.h"
+
+#include <cstring>
 
 void SkOpContour::toPath(SkPathWriter* path) const {
     if (!this->count()) {

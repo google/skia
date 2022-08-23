@@ -21,11 +21,24 @@
 
 // bestXY is initialized by caller with basePt
 
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTSort.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkOpSpan.h"
+#include "src/pathops/SkPathOpsBounds.h"
 #include "src/pathops/SkPathOpsCurve.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsTypes.h"
 
+#include <cmath>
 #include <utility>
 
 enum class SkOpRayDir {

@@ -8,10 +8,21 @@
 #ifndef SkPathOpsQuad_DEFINED
 #define SkPathOpsQuad_DEFINED
 
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsDebug.h"
+#include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsTCurve.h"
 
-struct SkOpCurve;
+class SkIntersections;
+class SkOpGlobalState;
+struct SkDConic;
+struct SkDLine;
+struct SkDQuad;
+struct SkDRect;
 
 struct SkDQuadPair {
     const SkDQuad& first() const { return (const SkDQuad&) pts[0]; }

@@ -8,17 +8,15 @@
 #define SkOpSpan_DEFINED
 
 #include "include/core/SkPoint.h"
-#include "src/pathops/SkPathOpsDebug.h"
+#include "include/core/SkTypes.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
-class SkArenaAlloc;
 class SkOpAngle;
+class SkOpCoincidence;
 class SkOpContour;
-class SkOpGlobalState;
 class SkOpSegment;
-class SkOpSpanBase;
 class SkOpSpan;
-struct SkPathOpsBounds;
+class SkOpSpanBase;
 
 // subset of op span used by terminal span (when t is equal to one)
 class SkOpPtT {

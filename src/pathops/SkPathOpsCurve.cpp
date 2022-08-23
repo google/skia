@@ -4,9 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/pathops/SkPathOpsBounds.h"
 #include "src/pathops/SkPathOpsCurve.h"
+
+#include "src/pathops/SkPathOpsBounds.h"
 #include "src/pathops/SkPathOpsRect.h"
+
+#include <algorithm>
+#include <cfloat>
 
  // this cheats and assumes that the perpendicular to the point is the closest ray to the curve
  // this case (where the line and the curve are nearly coincident) may be the only case that counts

@@ -4,10 +4,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkTDArray.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/pathops/SkAddIntersections.h"
+#include "src/pathops/SkOpAngle.h"
 #include "src/pathops/SkOpCoincidence.h"
+#include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpEdgeBuilder.h"
+#include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkOpSpan.h"
 #include "src/pathops/SkPathOpsCommon.h"
+#include "src/pathops/SkPathOpsTypes.h"
 #include "src/pathops/SkPathWriter.h"
 
 #include <utility>

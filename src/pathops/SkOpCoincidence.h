@@ -7,13 +7,16 @@
 #ifndef SkOpCoincidence_DEFINED
 #define SkOpCoincidence_DEFINED
 
-#include "include/private/SkTDArray.h"
-#include "src/core/SkArenaAlloc.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
 #include "src/pathops/SkOpSpan.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
-class SkOpPtT;
-class SkOpSpanBase;
+class SkOpAngle;
+class SkOpContour;
+class SkOpSegment;
+
+template <typename T> class SkTDArray;
 
 class SkCoincidentSpans {
 public:

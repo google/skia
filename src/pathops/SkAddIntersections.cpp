@@ -4,10 +4,25 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/pathops/SkAddIntersections.h"
-#include "src/pathops/SkOpCoincidence.h"
-#include "src/pathops/SkPathOpsBounds.h"
 
+#include "src/pathops/SkAddIntersections.h"
+
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
+#include "src/pathops/SkIntersectionHelper.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkOpCoincidence.h"
+#include "src/pathops/SkOpContour.h"
+#include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkOpSpan.h"
+#include "src/pathops/SkPathOpsBounds.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsTypes.h"
+
+#include <cmath>
 #include <utility>
 
 #if DEBUG_ADD_INTERSECTING_TS

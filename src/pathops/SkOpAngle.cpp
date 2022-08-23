@@ -4,10 +4,22 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "src/core/SkTSort.h"
 #include "src/pathops/SkOpAngle.h"
+
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/private/SkFloatingPoint.h"
+#include "src/core/SkTSort.h"
+#include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkOpSpan.h"
+#include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsCurve.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
+
+#include <algorithm>
+#include <cmath>
 
 /* Angles are sorted counterclockwise. The smallest angle has a positive x and the smallest
    positive y. The largest angle has a positive x and a zero y. */

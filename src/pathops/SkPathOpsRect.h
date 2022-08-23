@@ -7,9 +7,16 @@
 #ifndef SkPathOpsRect_DEFINED
 #define SkPathOpsRect_DEFINED
 
+#include "include/core/SkTypes.h"
 #include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsTypes.h"
+
+#include <algorithm>
 
 class SkTCurve;
+struct SkDConic;
+struct SkDCubic;
+struct SkDQuad;
 
 struct SkDRect {
     double fLeft, fTop, fRight, fBottom;

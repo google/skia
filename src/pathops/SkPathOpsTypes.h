@@ -7,14 +7,13 @@
 #ifndef SkPathOpsTypes_DEFINED
 #define SkPathOpsTypes_DEFINED
 
-#include <float.h>  // for FLT_EPSILON
-
 #include "include/core/SkPath.h"
 #include "include/core/SkScalar.h"
-#include "include/pathops/SkPathOps.h"
-#include "include/private/SkFloatingPoint.h"
-#include "include/private/SkSafe_math.h"
+#include "include/core/SkTypes.h"
 #include "src/pathops/SkPathOpsDebug.h"
+
+#include <cfloat>
+#include <cmath>
 
 enum SkPathOpsMask {
     kWinding_PathOpsMask = -1,
@@ -26,8 +25,6 @@ class SkArenaAlloc;
 class SkOpCoincidence;
 class SkOpContour;
 class SkOpContourHead;
-class SkIntersections;
-class SkIntersectionHelper;
 
 enum class SkOpPhase : char {
     kNoChange,
@@ -556,14 +553,6 @@ inline bool roughly_between(double a, double b, double c) {
 inline bool more_roughly_equal(double x, double y) {
     return fabs(x - y) < MORE_ROUGH_EPSILON;
 }
-
-struct SkDPoint;
-struct SkDVector;
-struct SkDLine;
-struct SkDQuad;
-struct SkDConic;
-struct SkDCubic;
-struct SkDRect;
 
 inline SkPath::Verb SkPathOpsPointsToVerb(int points) {
     int verb = (1 << points) >> 1;

@@ -4,12 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/pathops/SkOpSegment.h"
+
+#include "include/private/SkTDArray.h"
 #include "src/core/SkPointPriv.h"
+#include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpCoincidence.h"
 #include "src/pathops/SkOpContour.h"
-#include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkPathOpsLine.h"
 #include "src/pathops/SkPathWriter.h"
 
+#include <cfloat>
+#include <algorithm>
 #include <utility>
 
 /*
