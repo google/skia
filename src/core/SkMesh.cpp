@@ -455,20 +455,6 @@ const Uniform* SkMeshSpecification::findUniform(std::string_view name) const {
     return iter == fUniforms.end() ? nullptr : &(*iter);
 }
 
-const Attribute* SkMeshSpecification::findAttribute(std::string_view name) const {
-    auto iter = std::find_if(fAttributes.begin(), fAttributes.end(), [name](const Attribute& a) {
-        return name.compare(a.name.c_str()) == 0;
-    });
-    return iter == fAttributes.end() ? nullptr : &(*iter);
-}
-
-const Varying* SkMeshSpecification::findVarying(std::string_view name) const {
-    auto iter = std::find_if(fVaryings.begin(), fVaryings.end(), [name](const Varying& v) {
-        return name.compare(v.name.c_str()) == 0;
-    });
-    return iter == fVaryings.end() ? nullptr : &(*iter);
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 SkMesh::SkMesh()  = default;
@@ -672,11 +658,9 @@ bool SkMeshPriv::UpdateGpuBuffer(GrDirectContext* dc,
     }
 
     // TODO: Use staging buffer manager if available to be more efficient with buffer space.
-    auto tempBuffer = dc->priv().resourceProvider()->createBuffer(
-            size,
-            GrGpuBufferType::kXferCpuToGpu,
-            kDynamic_GrAccessPattern,
-            GrResourceProvider::ZeroInit::kNo);
+    auto tempBuffer = dc->priv().resourceProvider()->createBuffer(size,
+                                                                  GrGpuBufferType::kXferCpuToGpu,
+                                                                  kDynamic_GrAccessPattern);
     if (!tempBuffer) {
         return false;
     }

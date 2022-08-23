@@ -347,9 +347,6 @@ void GrMtlCaps::initGrCaps(id<MTLDevice> device) {
         fBufferUpdateDataPreserveAlignment = 4;
     }
 
-    // Metal buffers are initialized to zero (if not created with initial data)
-    fBuffersAreInitiallyZero = true;
-
     // Init sample counts. All devices support 1 (i.e. 0 in skia).
     fSampleCounts.push_back(1);
     if (@available(iOS 9.0, *)) {

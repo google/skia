@@ -416,10 +416,7 @@ sk_sp<GrBuffer> GrBufferAllocPool::getBuffer(size_t size) {
         return fCpuBufferCache ? fCpuBufferCache->makeBuffer(size, mustInitialize)
                                : GrCpuBuffer::Make(size);
     }
-    return resourceProvider->createBuffer(size,
-                                          fBufferType,
-                                          kDynamic_GrAccessPattern,
-                                          GrResourceProvider::ZeroInit::kNo);
+    return resourceProvider->createBuffer(size, fBufferType, kDynamic_GrAccessPattern);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

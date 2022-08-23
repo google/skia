@@ -1276,10 +1276,7 @@ SurfaceContext::PixelTransferResult SurfaceContext::transferPixels(GrColorType d
     // multiple reads. Switching to kDynamic_GrAccessPattern would allow for this, however doing
     // so causes a crash in a chromium test. See skbug.com/11297
     auto buffer = direct->priv().resourceProvider()->createBuffer(
-            size,
-            GrGpuBufferType::kXferGpuToCpu,
-            GrAccessPattern::kStream_GrAccessPattern,
-            GrResourceProvider::ZeroInit::kNo);
+            size, GrGpuBufferType::kXferGpuToCpu, GrAccessPattern::kStream_GrAccessPattern);
     if (!buffer) {
         return {};
     }

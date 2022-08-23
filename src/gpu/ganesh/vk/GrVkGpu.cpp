@@ -1199,21 +1199,6 @@ bool GrVkGpu::updateBuffer(sk_sp<GrVkBuffer> buffer, const void* src,
     return true;
 }
 
-bool GrVkGpu::zeroBuffer(sk_sp<GrGpuBuffer> buffer) {
-    if (!this->currentCommandBuffer()) {
-        return false;
-    }
-
-    this->currentCommandBuffer()->fillBuffer(this, buffer, /*offset=*/0, VK_WHOLE_SIZE, /*data=*/0);
-
-    add_dst_buffer_mem_barrier(this,
-                               static_cast<GrVkBuffer*>(buffer.get()),
-                               /*offset=*/0,
-                               VK_WHOLE_SIZE);
-
-    return true;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 static bool check_image_info(const GrVkCaps& caps,
@@ -2495,10 +2480,8 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
     size_t imageRows = region.imageExtent.height;
     GrResourceProvider* resourceProvider = this->getContext()->priv().resourceProvider();
     sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
-            transBufferRowBytes * imageRows,
-            GrGpuBufferType::kXferGpuToCpu,
-            kDynamic_GrAccessPattern,
-            GrResourceProvider::ZeroInit::kNo);
+            transBufferRowBytes * imageRows, GrGpuBufferType::kXferGpuToCpu,
+            kDynamic_GrAccessPattern);
 
     if (!transferBuffer) {
         return false;

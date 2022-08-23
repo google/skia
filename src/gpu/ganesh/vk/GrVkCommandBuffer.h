@@ -286,12 +286,6 @@ public:
                            uint32_t copyRegionCount,
                            const VkBufferImageCopy* copyRegions);
 
-    void fillBuffer(GrVkGpu* gpu,
-                    sk_sp<GrGpuBuffer>,
-                    VkDeviceSize offset,
-                    VkDeviceSize size,
-                    uint32_t data);
-
     void copyBuffer(GrVkGpu* gpu,
                     sk_sp<GrGpuBuffer> srcBuffer,
                     sk_sp<GrGpuBuffer> dstBuffer,

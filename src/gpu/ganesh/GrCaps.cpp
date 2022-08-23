@@ -39,7 +39,6 @@ GrCaps::GrCaps(const GrContextOptions& options) {
     fTwoSidedStencilRefsAndMasksMustMatch = false;
     fMustClearUploadedBufferData = false;
     fShouldInitializeTextures = false;
-    fBuffersAreInitiallyZero = false;
     fSupportsAHardwareBufferImages = false;
     fFenceSyncSupport = false;
     fSemaphoreSupport = false;
@@ -217,7 +216,6 @@ void GrCaps::dumpJSON(SkJSONWriter* writer) const {
                        fTwoSidedStencilRefsAndMasksMustMatch);
     writer->appendBool("Must clear buffer memory", fMustClearUploadedBufferData);
     writer->appendBool("Should initialize textures", fShouldInitializeTextures);
-    writer->appendBool("Buffers are initially zero", fBuffersAreInitiallyZero);
     writer->appendBool("Supports importing AHardwareBuffers", fSupportsAHardwareBufferImages);
     writer->appendBool("Fence sync support", fFenceSyncSupport);
     writer->appendBool("Semaphore support", fSemaphoreSupport);

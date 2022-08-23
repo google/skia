@@ -41,7 +41,6 @@ private:
     GrMtlGpu* mtlGpu() const;
 
     void onMap(MapType) override;
-    bool onClearToZero() override;
     void onUnmap(MapType) override;
     bool onUpdateData(const void* src, size_t offset, size_t size, bool preserve) override;
 
