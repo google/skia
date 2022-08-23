@@ -32,7 +32,8 @@ GrStagingBufferManager::Slice GrStagingBufferManager::allocateStagingBufferSlice
         sk_sp<GrGpuBuffer> newBuffer = resourceProvider->createBuffer(
                 bufferSize,
                 GrGpuBufferType::kXferCpuToGpu,
-                kDynamic_GrAccessPattern);
+                kDynamic_GrAccessPattern,
+                GrResourceProvider::ZeroInit::kNo);
         if (!newBuffer) {
             return {}; // invalid slice
         }

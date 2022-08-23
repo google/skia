@@ -25,6 +25,9 @@ GrDawnCaps::GrDawnCaps(const GrContextOptions& contextOptions) : INHERITED(conte
     fDynamicStateArrayGeometryProcessorTextureSupport = true;
     fTwoSidedStencilRefsAndMasksMustMatch = true;
 
+    // WebGPU zero-initializes resources. https://www.w3.org/TR/webgpu/#security-uninitialized
+    fBuffersAreInitiallyZero = true;
+
     fShaderCaps->fFlatInterpolationSupport = true;
     fShaderCaps->fIntegerSupport = true;
     // FIXME: each fragment sampler takes two binding slots in Dawn (sampler + texture). Limit to

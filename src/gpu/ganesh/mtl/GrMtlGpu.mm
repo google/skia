@@ -1358,8 +1358,10 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface,
 
     GrResourceProvider* resourceProvider = this->getContext()->priv().resourceProvider();
     sk_sp<GrGpuBuffer> transferBuffer = resourceProvider->createBuffer(
-            transBufferImageBytes, GrGpuBufferType::kXferGpuToCpu,
-            kDynamic_GrAccessPattern);
+            transBufferImageBytes,
+            GrGpuBufferType::kXferGpuToCpu,
+            kDynamic_GrAccessPattern,
+            GrResourceProvider::ZeroInit::kNo);
 
     if (!transferBuffer) {
         return false;

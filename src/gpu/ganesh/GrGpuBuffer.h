@@ -63,6 +63,12 @@ public:
     bool isCpuBuffer() const final { return false; }
 
     /**
+     * Overwrites the buffer with zero bytes. Always fails for GrGpuBufferType::kXferGpuToCpu
+     * buffers. The buffer must not currently be mapped.
+     */
+    bool clearToZero();
+
+    /**
      * Updates the buffer data.
      *
      * The size of the buffer will be preserved. The src data will be
@@ -113,6 +119,7 @@ private:
 
     virtual void onMap(MapType) = 0;
     virtual void onUnmap(MapType) = 0;
+    virtual bool onClearToZero() = 0;
     virtual bool onUpdateData(const void* src, size_t offset, size_t size, bool preserve) = 0;
 
     size_t onGpuMemorySize() const override { return fSizeInBytes; }

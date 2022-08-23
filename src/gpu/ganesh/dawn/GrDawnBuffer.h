@@ -73,6 +73,7 @@ public:
 
     void onMap(MapType) override;
     void onUnmap(MapType) override;
+    bool onClearToZero() override;
     void onRelease() override;
     bool onUpdateData(const void* src, size_t offset, size_t size, bool preserve) override;
 

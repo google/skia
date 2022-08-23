@@ -283,16 +283,19 @@ public:
     static int NumVertsPerAAQuad();
     static int NumIndicesPerAAQuad();
 
+    enum class ZeroInit : bool { kNo = false, kYes = true };
+
     /**
      * Returns a buffer.
      *
      * @param size            minimum size of buffer to return.
      * @param GrGpuBufferType hint to the graphics subsystem about what the buffer will be used for.
      * @param GrAccessPattern hint to the graphics subsystem about how the data will be accessed.
+     * @param ZeroInit        if kYes zero-initialize the buffer. Otherwise, contents are undefined.
      *
      * @return the buffer if successful, otherwise nullptr.
      */
-    sk_sp<GrGpuBuffer> createBuffer(size_t size, GrGpuBufferType, GrAccessPattern);
+    sk_sp<GrGpuBuffer> createBuffer(size_t size, GrGpuBufferType, GrAccessPattern, ZeroInit);
 
     /** Same as above but also fills the buffer from data. */
     sk_sp<GrGpuBuffer> createBuffer(const void* data,
