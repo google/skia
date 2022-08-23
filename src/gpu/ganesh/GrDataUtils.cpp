@@ -656,47 +656,49 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
 
     hasConversion = hasConversion || srcIsSRGB || dstIsSRGB;
 
-    for (int i = 0; i < cnt; ++i) {
-        SkRasterPipeline_<256> pipeline;
-        pipeline.append(load, &srcCtx);
-        if (hasConversion) {
-            loadSwizzle.apply(&pipeline);
-            if (srcIsSRGB) {
-                pipeline.append_transfer_function(*skcms_sRGB_TransferFunction());
-            }
-            if (alphaOrCSConversion) {
-                steps->apply(&pipeline);
-            }
-            if (clampGamut) {
-                append_clamp_gamut(&pipeline);
-            }
-            switch (lumMode) {
-                case LumMode::kNone:
-                    break;
-                case LumMode::kToRGB:
-                    pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_rgb);
-                    break;
-                case LumMode::kToAlpha:
-                    pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
-                    // If we ever need to store srgb-encoded gray (e.g. GL_SLUMINANCE8) then we
-                    // should use ToRGB and then a swizzle stage rather than ToAlpha. The subsequent
-                    // transfer function stage ignores the alpha channel (where we just stashed the
-                    // gray).
-                    SkASSERT(!dstIsSRGB);
-                    break;
-            }
-            if (dstIsSRGB) {
-                pipeline.append_transfer_function(*skcms_sRGB_Inverse_TransferFunction());
-            }
-            storeSwizzle.apply(&pipeline);
-        } else {
-            loadStoreSwizzle.apply(&pipeline);
+    SkRasterPipeline_<256> pipeline;
+    pipeline.append(load, &srcCtx);
+    if (hasConversion) {
+        loadSwizzle.apply(&pipeline);
+        if (srcIsSRGB) {
+            pipeline.append_transfer_function(*skcms_sRGB_TransferFunction());
         }
-        pipeline.append(store, &dstCtx);
-        pipeline.run(0, 0, src.width(), height);
+        if (alphaOrCSConversion) {
+            steps->apply(&pipeline);
+        }
+        if (clampGamut) {
+            append_clamp_gamut(&pipeline);
+        }
+        switch (lumMode) {
+            case LumMode::kNone:
+                break;
+            case LumMode::kToRGB:
+                pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_rgb);
+                break;
+            case LumMode::kToAlpha:
+                pipeline.append(SkRasterPipeline::StockStage::bt709_luminance_or_luma_to_alpha);
+                // If we ever need to store srgb-encoded gray (e.g. GL_SLUMINANCE8) then we
+                // should use ToRGB and then a swizzle stage rather than ToAlpha. The subsequent
+                // transfer function stage ignores the alpha channel (where we just stashed the
+                // gray).
+                SkASSERT(!dstIsSRGB);
+                break;
+        }
+        if (dstIsSRGB) {
+            pipeline.append_transfer_function(*skcms_sRGB_Inverse_TransferFunction());
+        }
+        storeSwizzle.apply(&pipeline);
+    } else {
+        loadStoreSwizzle.apply(&pipeline);
+    }
+    pipeline.append(store, &dstCtx);
+    auto pipelineFn = pipeline.compile();
+    for (int i = 0; i < cnt; ++i) {
+        pipelineFn(0, 0, src.width(), height);
         srcCtx.pixels = static_cast<char*>(srcCtx.pixels) - src.rowBytes();
         dstCtx.pixels = static_cast<char*>(dstCtx.pixels) + dst.rowBytes();
     }
+
     return true;
 }
 
