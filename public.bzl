@@ -2242,6 +2242,8 @@ SKOTTIE_LIB_SRCS = [
     "modules/skottie/src/SkottiePriv.h",
     "modules/skottie/src/SkottieProperty.cpp",
     "modules/skottie/src/SkottieValue.h",
+    "modules/skottie/src/text/Font.cpp",
+    "modules/skottie/src/text/Font.h",
     "modules/skottie/src/text/RangeSelector.cpp",
     "modules/skottie/src/text/RangeSelector.h",
     "modules/skottie/src/text/SkottieShaper.cpp",
