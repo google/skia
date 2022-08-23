@@ -16,7 +16,7 @@
 
 namespace skgpu::graphite {
 
-SharedContext::SharedContext(sk_sp<const Caps> caps, BackendApi backend)
+SharedContext::SharedContext(std::unique_ptr<const Caps> caps, BackendApi backend)
     : fCaps(std::move(caps))
     , fBackend(backend)
     , fGlobalCache()
@@ -26,10 +26,6 @@ SharedContext::~SharedContext() {
     // TODO: add disconnect?
 
     // TODO: destroyResources instead?
-}
-
-sk_sp<const Caps> SharedContext::refCaps() const {
-    return fCaps;
 }
 
 } // namespace skgpu::graphite

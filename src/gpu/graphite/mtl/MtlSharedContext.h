@@ -32,7 +32,7 @@ public:
     std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*) override;
 
 private:
-    MtlSharedContext(sk_cfp<id<MTLDevice>>, sk_sp<const MtlCaps>);
+    MtlSharedContext(sk_cfp<id<MTLDevice>>, std::unique_ptr<const MtlCaps>);
 
     sk_cfp<id<MTLDevice>> fDevice;
 };

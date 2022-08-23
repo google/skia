@@ -31,9 +31,9 @@ class GraphiteResourceKey;
 struct RenderPassDesc;
 class TextureInfo;
 
-class Caps : public SkRefCnt {
+class Caps {
 public:
-    ~Caps() override;
+    virtual ~Caps();
 
     const SkSL::ShaderCaps* shaderCaps() const { return fShaderCaps.get(); }
 

@@ -35,14 +35,14 @@ sk_sp<skgpu::graphite::SharedContext> MtlSharedContext::Make(const MtlBackendCon
 
     sk_cfp<id<MTLDevice>> device = sk_ret_cfp((id<MTLDevice>)(context.fDevice.get()));
 
-    sk_sp<const MtlCaps> caps(new MtlCaps(device.get(), options));
+    std::unique_ptr<const MtlCaps> caps(new MtlCaps(device.get(), options));
 
     return sk_sp<skgpu::graphite::SharedContext>(new MtlSharedContext(std::move(device),
                                                                       std::move(caps)));
 }
 
 MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
-                                   sk_sp<const MtlCaps> caps)
+                                   std::unique_ptr<const MtlCaps> caps)
         : skgpu::graphite::SharedContext(std::move(caps), BackendApi::kMetal)
         , fDevice(std::move(device)) {}
 
