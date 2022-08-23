@@ -1107,7 +1107,7 @@ static void start_pipeline(size_t dx, size_t dy, size_t xlimit, size_t ylimit, v
     }
 }
 
-#if __has_cpp_attribute(clang::musttail) && !defined(__EMSCRIPTEN__)
+#if __has_cpp_attribute(clang::musttail) && !defined(__EMSCRIPTEN__) && !defined(SK_CPU_ARM32)
     #define JUMPER_MUSTTAIL [[clang::musttail]]
 #else
     #define JUMPER_MUSTTAIL
