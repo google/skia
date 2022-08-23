@@ -48,6 +48,7 @@
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSetting.h"
 #include "src/sksl/ir/SkSLSwitchCase.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -397,8 +398,10 @@ std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
             const PostfixExpression& p = expression.as<PostfixExpression>();
             return PostfixExpression::Make(*fContext, pos, expr(p.operand()), p.getOperator());
         }
-        case Expression::Kind::kSetting:
-            return expression.clone();
+        case Expression::Kind::kSetting: {
+            const Setting& s = expression.as<Setting>();
+            return Setting::Convert(*fContext, pos, s.name());
+        }
         case Expression::Kind::kSwizzle: {
             const Swizzle& s = expression.as<Swizzle>();
             return Swizzle::Make(*fContext, pos, expr(s.base()), s.components());

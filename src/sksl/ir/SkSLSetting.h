@@ -41,6 +41,9 @@ public:
     static std::unique_ptr<Expression> Convert(const Context& context, Position pos,
                                                const std::string_view& name);
 
+    // Converts a Setting expression to its actual ShaderCaps value (boolean true/false).
+    std::unique_ptr<Expression> toLiteral(const Context& context) const;
+
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<Setting>(pos, this->name(), &this->type());
     }

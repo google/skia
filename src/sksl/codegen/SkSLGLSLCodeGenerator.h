@@ -41,7 +41,6 @@ class PostfixExpression;
 class PrefixExpression;
 class ProgramElement;
 class ReturnStatement;
-class Setting;
 class Statement;
 class StructDefinition;
 class SwitchStatement;
@@ -159,8 +158,6 @@ protected:
     void writePostfixExpression(const PostfixExpression& p, Precedence parentPrecedence);
 
     virtual void writeLiteral(const Literal& l);
-
-    virtual void writeSetting(const Setting& s);
 
     void writeStatement(const Statement& s);
 

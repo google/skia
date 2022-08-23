@@ -582,7 +582,7 @@ std::unique_ptr<Expression> Rehydrator::expression() {
             return PrefixExpression::Make(this->context(), pos, op, std::move(operand));
         }
         case Rehydrator::kSetting_Command: {
-            std::string name(this->readString());
+            std::string_view name(this->readString());
             return Setting::Convert(this->context(), pos, name);
         }
         case Rehydrator::kSwizzle_Command: {

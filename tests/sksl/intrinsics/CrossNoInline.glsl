@@ -1,5 +1,5 @@
 
-out vec4 sk_FragColor;
+float _determinant2(mat2 m) {    return m[0][0] * m[1][1] - m[0][1] * m[1][0];}out vec4 sk_FragColor;
 uniform vec2 ah;
 uniform vec2 bh;
 uniform vec2 af;
@@ -7,10 +7,10 @@ uniform vec2 bf;
 float cross_length_2d_ff2f2(vec2 a, vec2 b);
 float cross_length_2d_hh2h2(vec2 a, vec2 b);
 float cross_length_2d_ff2f2(vec2 a, vec2 b) {
-    return a.x * b.y - a.y * b.x;
+    return false ? _determinant2(mat2(a, b)) : a.x * b.y - a.y * b.x;
 }
 float cross_length_2d_hh2h2(vec2 a, vec2 b) {
-    return a.x * b.y - a.y * b.x;
+    return false ? _determinant2(mat2(a, b)) : a.x * b.y - a.y * b.x;
 }
 void main() {
     sk_FragColor.x = cross_length_2d_hh2h2(ah, bh);

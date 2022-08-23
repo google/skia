@@ -236,7 +236,7 @@ void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence paren
             this->writePostfixExpression(expr.as<PostfixExpression>(), parentPrecedence);
             break;
         case Expression::Kind::kSetting:
-            this->writeSetting(expr.as<Setting>());
+            this->writeExpression(*expr.as<Setting>().toLiteral(fContext), parentPrecedence);
             break;
         case Expression::Kind::kSwizzle:
             this->writeSwizzle(expr.as<Swizzle>());
@@ -1075,10 +1075,6 @@ void GLSLCodeGenerator::writeLiteral(const Literal& l) {
     }
     SkASSERT(type.isBoolean());
     this->write(l.boolValue() ? "true" : "false");
-}
-
-void GLSLCodeGenerator::writeSetting(const Setting& s) {
-    SK_ABORT("internal error; setting was not folded to a constant during compilation\n");
 }
 
 void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {

@@ -15,10 +15,10 @@ struct Outputs {
 float cross_length_2d_ff2f2(float2 a, float2 b);
 half cross_length_2d_hh2h2(half2 a, half2 b);
 float cross_length_2d_ff2f2(float2 a, float2 b) {
-    return a.x * b.y - a.y * b.x;
+    return false ? determinant(float2x2(a, b)) : a.x * b.y - a.y * b.x;
 }
 half cross_length_2d_hh2h2(half2 a, half2 b) {
-    return a.x * b.y - a.y * b.x;
+    return false ? determinant(half2x2(a, b)) : a.x * b.y - a.y * b.x;
 }
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;

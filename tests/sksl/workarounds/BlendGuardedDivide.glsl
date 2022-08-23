@@ -1,5 +1,5 @@
 
-const float sk_PrivGuardedDivideEpsilon = 9.9999999392252903e-09;
+const float sk_PrivGuardedDivideEpsilon = true ? 9.9999999392252903e-09 : 0.0;
 out vec4 sk_FragColor;
 in vec4 src;
 in vec4 dst;

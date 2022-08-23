@@ -67,4 +67,11 @@ std::unique_ptr<Expression> Setting::Convert(const Context& context, Position po
     return std::make_unique<Setting>(pos, name, context.fTypes.fBool.get());
 }
 
+std::unique_ptr<Expression> Setting::toLiteral(const Context& context) const {
+    const CapsPtr* capsPtr = caps_lookup_table().find(fName);
+    SkASSERT(capsPtr);
+
+    return Literal::MakeBool(fPosition, context.fCaps.*(*capsPtr), &this->type());
+}
+
 }  // namespace SkSL
