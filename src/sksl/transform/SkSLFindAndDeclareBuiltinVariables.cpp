@@ -129,7 +129,7 @@ void FindAndDeclareBuiltinVariables(Program& program) {
             // Set the FlipRT program input if we find sk_FragCoord or sk_Clockwise.
             switch (var->modifiers().fLayout.fBuiltin) {
                 case SK_FRAGCOORD_BUILTIN:
-                    if (context.fCaps.fCanUseFragCoord) {
+                    if (context.fCaps->fCanUseFragCoord) {
                         program.fInputs.fUseFlipRTUniform =
                                 !context.fConfig->fSettings.fForceNoRTFlip;
                     }

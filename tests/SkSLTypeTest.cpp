@@ -21,7 +21,7 @@ DEF_TEST(SkSLTypeLimits, r) {
     GrShaderCaps caps;
     SkSL::TestingOnly_AbortErrorReporter errors;
     SkSL::Mangler mangler;
-    SkSL::Context context(errors, caps, mangler);
+    SkSL::Context context(errors, &caps, mangler);
 
     using int_limits = std::numeric_limits<int32_t>;
     REPORTER_ASSERT(r, context.fTypes.fInt->minimumValue() == int_limits::min());

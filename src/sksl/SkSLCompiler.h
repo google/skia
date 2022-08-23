@@ -267,6 +267,7 @@ private:
 
     CompilerErrorReporter fErrorReporter;
     std::shared_ptr<Context> fContext;
+    const ShaderCaps* fCaps;
 
     ParsedModule fRootModule;                // Core public and private types
 

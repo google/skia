@@ -138,6 +138,22 @@ public:
     ProgramConfig* fOldConfig;
 };
 
+class AutoShaderCaps {
+public:
+    AutoShaderCaps(std::shared_ptr<Context>& context, const ShaderCaps* caps)
+            : fContext(context.get())
+            , fOldCaps(fContext->fCaps) {
+        fContext->fCaps = caps;
+    }
+
+    ~AutoShaderCaps() {
+        fContext->fCaps = fOldCaps;
+    }
+
+    Context* fContext;
+    const ShaderCaps* fOldCaps;
+};
+
 class AutoModifiersPool {
 public:
     AutoModifiersPool(std::shared_ptr<Context>& context, ModifiersPool* modifiersPool)
@@ -155,7 +171,8 @@ public:
 
 Compiler::Compiler(const ShaderCaps* caps)
         : fErrorReporter(this)
-        , fContext(std::make_shared<Context>(fErrorReporter, *caps, fMangler)) {
+        , fContext(std::make_shared<Context>(fErrorReporter, /*caps=*/nullptr, fMangler))
+        , fCaps(caps) {
     SkASSERT(caps);
     fRootModule.fSymbols = this->makeRootSymbolTable();
 }
@@ -397,15 +414,13 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     // Put the core-module modifier pool into the context.
     AutoModifiersPool autoPool(fContext, &fCoreModifiers);
 
-    // Built-in modules always use default program settings.
-    ProgramSettings settings;
-    settings.fReplaceSettings = false;
+    // Modules are shared and cannot rely on shader caps.
+    AutoShaderCaps autoCaps(fContext, nullptr);
 
 #if REHYDRATE
     ProgramConfig config;
     config.fIsBuiltinCode = true;
     config.fKind = kind;
-    config.fSettings = settings;
     AutoProgramConfig autoConfig(fContext, &config);
     SkASSERT(data.fData && (data.fSize != 0));
     Rehydrator rehydrator(*this, data.fData, data.fSize, std::move(base));
@@ -420,6 +435,8 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
         abort();
     }
     ParsedModule baseModule = {std::move(base), /*fElements=*/nullptr};
+    // Built-in modules always use default program settings.
+    ProgramSettings settings;
     LoadedModule module = DSLParser(this, settings, kind, std::move(text))
                                   .moduleInheritingFrom(baseModule);
     if (this->errorCount()) {
@@ -529,6 +546,9 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
         settings.fAllowNarrowingConversions = true;
     }
 
+    // Put the ShaderCaps into the context while compiling a program.
+    AutoShaderCaps autoCaps(fContext, fCaps);
+
     this->resetErrors();
 
     return DSLParser(this, settings, kind, std::move(text)).program();
@@ -579,7 +599,6 @@ bool Compiler::optimizeRehydratedModule(LoadedModule& module, const ParsedModule
     ProgramConfig config;
     config.fIsBuiltinCode = true;
     config.fKind = module.fKind;
-    config.fSettings.fReplaceSettings = false;
     AutoProgramConfig autoConfig(fContext, &config);
     AutoModifiersPool autoPool(fContext, &fCoreModifiers);
 
@@ -629,6 +648,8 @@ bool Compiler::optimize(Program& program) {
         return true;
     }
 
+    AutoShaderCaps autoCaps(fContext, fCaps);
+
     SkASSERT(!this->errorCount());
     ProgramUsage* usage = program.fUsage.get();
 
@@ -676,6 +697,8 @@ bool Compiler::runInliner(Inliner* inliner,
 }
 
 bool Compiler::finalize(Program& program) {
+    AutoShaderCaps autoCaps(fContext, fCaps);
+
     // Copy all referenced built-in functions into the Program.
     Transform::FindAndDeclareBuiltinFunctions(program);
 
@@ -740,6 +763,7 @@ static bool validate_spirv(ErrorReporter& reporter, std::string_view program) {
 bool Compiler::toSPIRV(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toSPIRV");
     AutoSource as(this, *program.fSource);
+    AutoShaderCaps autoCaps(fContext, fCaps);
     ProgramSettings settings;
     settings.fUseMemoryPool = false;
     dsl::Start(this, program.fConfig->fKind, settings);
@@ -775,6 +799,7 @@ bool Compiler::toSPIRV(Program& program, std::string* out) {
 bool Compiler::toGLSL(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toGLSL");
     AutoSource as(this, *program.fSource);
+    AutoShaderCaps autoCaps(fContext, fCaps);
     GLSLCodeGenerator cg(fContext.get(), &program, &out);
     bool result = cg.generateCode();
     return result;
@@ -816,6 +841,7 @@ bool Compiler::toHLSL(Program& program, std::string* out) {
 bool Compiler::toMetal(Program& program, OutputStream& out) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::toMetal");
     AutoSource as(this, *program.fSource);
+    AutoShaderCaps autoCaps(fContext, fCaps);
     MetalCodeGenerator cg(fContext.get(), &program, &out);
     bool result = cg.generateCode();
     return result;

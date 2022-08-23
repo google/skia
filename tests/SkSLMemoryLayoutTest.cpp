@@ -25,7 +25,7 @@ DEF_TEST(SkSLMemoryLayout140Test, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
     SkSL::ShaderCaps caps;
     SkSL::Mangler mangler;
-    SkSL::Context context(errors, caps, mangler);
+    SkSL::Context context(errors, &caps, mangler);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::k140);
 
     // basic types
@@ -121,7 +121,7 @@ DEF_TEST(SkSLMemoryLayout430Test, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
     SkSL::ShaderCaps caps;
     SkSL::Mangler mangler;
-    SkSL::Context context(errors, caps, mangler);
+    SkSL::Context context(errors, &caps, mangler);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::k430);
 
     // basic types
@@ -217,7 +217,7 @@ DEF_TEST(SkSLMemoryLayoutWGSLUniformTest, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
     SkSL::ShaderCaps caps;
     SkSL::Mangler mangler;
-    SkSL::Context context(errors, caps, mangler);
+    SkSL::Context context(errors, &caps, mangler);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::kWGSLUniform);
 
     // The values here are taken from https://www.w3.org/TR/WGSL/#alignment-and-size, table titled
@@ -467,7 +467,7 @@ DEF_TEST(SkSLMemoryLayoutWGSLStorageTest, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
     SkSL::ShaderCaps caps;
     SkSL::Mangler mangler;
-    SkSL::Context context(errors, caps, mangler);
+    SkSL::Context context(errors, &caps, mangler);
     SkSL::MemoryLayout layout(SkSL::MemoryLayout::Standard::kWGSLStorage);
 
     // The values here are taken from https://www.w3.org/TR/WGSL/#alignment-and-size, table titled
@@ -716,7 +716,7 @@ DEF_TEST(SkSLMemoryLayoutWGSLUnsupportedTypesTest, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
     SkSL::ShaderCaps caps;
     SkSL::Mangler mangler;
-    SkSL::Context context(errors, caps, mangler);
+    SkSL::Context context(errors, &caps, mangler);
 
     auto testArray = SkSL::Type::MakeArrayType("bool[3]", *context.fTypes.fBool, 3);
 
@@ -743,7 +743,7 @@ DEF_TEST(SkSLMemoryLayoutWGSLSupportedTypesTest, r) {
     SkSL::TestingOnly_AbortErrorReporter errors;
     SkSL::ShaderCaps caps;
     SkSL::Mangler mangler;
-    SkSL::Context context(errors, caps, mangler);
+    SkSL::Context context(errors, &caps, mangler);
 
     auto testArray = SkSL::Type::MakeArrayType("float[3]", *context.fTypes.fFloat, 3);
 

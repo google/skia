@@ -190,8 +190,8 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
             auto caps = Setting::Convert(context, pos, "rewriteMatrixVectorMultiply");
 
             // There are three possible outcomes from Setting::Convert:
-            // - If `fReplaceSettings` is false in our ProgramSettings, we will get back a Setting
-            //   IRNode. In practice, `fReplaceSettings` is only enabled when compiling modules.
+            // - If the ShaderCaps aren't known (fCaps in the Context is null), we will get back a
+            //   Setting IRNode. In practice, this should happen when compiling a module.
             //   In this case, we generate a ternary expression which will be optimized away when
             //   the module code is actually incorporated into a program.
             // - If `rewriteMatrixVectorMultiply` is true in our shader caps, we will get back a
