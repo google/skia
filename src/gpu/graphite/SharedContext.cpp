@@ -18,8 +18,9 @@ namespace skgpu::graphite {
 
 SharedContext::SharedContext(sk_sp<const Caps> caps, BackendApi backend)
     : fCaps(std::move(caps))
-    , fBackend(backend) {
-}
+    , fBackend(backend)
+    , fGlobalCache()
+    , fShaderDictionary() {}
 
 SharedContext::~SharedContext() {
     // TODO: add disconnect?

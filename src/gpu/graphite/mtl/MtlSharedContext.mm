@@ -43,18 +43,14 @@ sk_sp<skgpu::graphite::SharedContext> MtlSharedContext::Make(const MtlBackendCon
 
 MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
                                    sk_sp<const MtlCaps> caps)
-    : skgpu::graphite::SharedContext(std::move(caps), BackendApi::kMetal)
-    , fDevice(std::move(device)) {
-}
+        : skgpu::graphite::SharedContext(std::move(caps), BackendApi::kMetal)
+        , fDevice(std::move(device)) {}
 
 MtlSharedContext::~MtlSharedContext() {
 }
 
-std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(
-        sk_sp<GlobalCache> globalCache, SingleOwner* singleOwner) const {
-    return std::unique_ptr<ResourceProvider>(new MtlResourceProvider(this,
-                                                                     std::move(globalCache),
-                                                                     singleOwner));
+std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(SingleOwner* singleOwner) {
+    return std::unique_ptr<ResourceProvider>(new MtlResourceProvider(this, singleOwner));
 }
 
 } // namespace skgpu::graphite

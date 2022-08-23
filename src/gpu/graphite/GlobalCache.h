@@ -31,10 +31,10 @@ class GraphicsPipeline;
  * GlobalCache. After the resource is created, it is added to the GlobalCache, atomically returning
  * the winning Resource in the event of a race between Recorders for the same UniqueKey.
  */
-class GlobalCache : public SkRefCnt {
+class GlobalCache {
 public:
     GlobalCache();
-    ~GlobalCache() override;
+    ~GlobalCache();
 
     // Find a cached GraphicsPipeline that matches the associated key.
     sk_sp<GraphicsPipeline> findGraphicsPipeline(const UniqueKey&) SK_EXCLUDES(fSpinLock);

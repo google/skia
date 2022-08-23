@@ -22,11 +22,9 @@
 
 namespace skgpu::graphite {
 
-MtlResourceProvider::MtlResourceProvider(const SharedContext* sharedContext,
-                                         sk_sp<GlobalCache> globalCache,
+MtlResourceProvider::MtlResourceProvider(SharedContext* sharedContext,
                                          SingleOwner* singleOwner)
-    : ResourceProvider(sharedContext, std::move(globalCache), singleOwner) {
-}
+        : ResourceProvider(sharedContext, singleOwner) {}
 
 const MtlSharedContext* MtlResourceProvider::mtlSharedContext() {
     return static_cast<const MtlSharedContext*>(fSharedContext);

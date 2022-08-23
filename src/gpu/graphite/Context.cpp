@@ -39,8 +39,10 @@ namespace skgpu::graphite {
 //--------------------------------------------------------------------------------------------------
 Context::Context(sk_sp<SharedContext> sharedContext, std::unique_ptr<QueueManager> queueManager)
         : fSharedContext(std::move(sharedContext))
-        , fQueueManager(std::move(queueManager))
-        , fGlobalCache(sk_make_sp<GlobalCache>()) {
+        , fQueueManager(std::move(queueManager)) {
+    // We have to create this outside the initializer list because we need to pass in the Context's
+    // SingleOwner object and it is declared last
+    fResourceProvider = fSharedContext->makeResourceProvider(&fSingleOwner);
 }
 Context::~Context() {}
 
@@ -62,16 +64,6 @@ std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendCont
     auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
                                                         std::move(queueManager)));
     SkASSERT(context);
-
-    // We have to create this after the Context because we need to pass in the Context's
-    // SingleOwner object.
-    auto resourceProvider = MtlTrampoline::MakeResourceProvider(context->fSharedContext.get(),
-                                                                context->fGlobalCache,
-                                                                context->singleOwner());
-    if (!resourceProvider) {
-        return nullptr;
-    }
-    context->fResourceProvider = std::move(resourceProvider);
     return context;
 }
 #endif
@@ -79,7 +71,7 @@ std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendCont
 std::unique_ptr<Recorder> Context::makeRecorder(const RecorderOptions& options) {
     ASSERT_SINGLE_OWNER
 
-    return std::unique_ptr<Recorder>(new Recorder(fSharedContext, fGlobalCache, options));
+    return std::unique_ptr<Recorder>(new Recorder(fSharedContext, options));
 }
 
 void Context::insertRecording(const InsertRecordingInfo& info) {

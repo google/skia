@@ -73,7 +73,6 @@ static int32_t next_id() {
 }
 
 Recorder::Recorder(sk_sp<SharedContext> sharedContext,
-                   sk_sp<GlobalCache> globalCache,
                    const RecorderOptions& options)
         : fSharedContext(std::move(sharedContext))
         , fRuntimeEffectDict(std::make_unique<SkRuntimeEffectDictionary>())
@@ -91,8 +90,7 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
         fClientImageProvider = DefaultImageProvider::Make();
     }
 
-    fResourceProvider = fSharedContext->makeResourceProvider(std::move(globalCache),
-                                                             this->singleOwner());
+    fResourceProvider = fSharedContext->makeResourceProvider(this->singleOwner());
     fDrawBufferManager.reset(
             new DrawBufferManager(fResourceProvider.get(),
                                   fSharedContext->caps()->requiredUniformBufferAlignment(),

@@ -29,8 +29,7 @@ public:
 
     const MtlCaps& mtlCaps() const { return static_cast<const MtlCaps&>(*this->caps()); }
 
-    std::unique_ptr<ResourceProvider> makeResourceProvider(
-            sk_sp<GlobalCache>, SingleOwner*) const override;
+    std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*) override;
 
 private:
     MtlSharedContext(sk_cfp<id<MTLDevice>>, sk_sp<const MtlCaps>);
