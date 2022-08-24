@@ -69,9 +69,13 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, tex1.get() == tex1->asTexture());
     REPORTER_ASSERT(reporter, static_cast<GrSurface*>(tex1.get()) == tex1->asTexture());
 
-    GrBackendTexture backendTex = context->createBackendTexture(
-        256, 256, kRGBA_8888_SkColorType,
-        SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+    GrBackendTexture backendTex = context->createBackendTexture(256,
+                                                                256,
+                                                                kRGBA_8888_SkColorType,
+                                                                SkColors::kTransparent,
+                                                                GrMipmapped::kNo,
+                                                                GrRenderable::kNo,
+                                                                GrProtected::kNo);
 
     sk_sp<GrSurface> texRT2 = resourceProvider->wrapRenderableBackendTexture(
             backendTex, 1, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo);
@@ -399,8 +403,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
     // that they'd succeed if the texture wasn't kRead. We want to be sure we're failing with
     // kRead for the right reason.
     for (auto ioType : {kRead_GrIOType, kRW_GrIOType}) {
-        auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithData(
-                dContext, srcPixmap, kTopLeft_GrSurfaceOrigin, GrRenderable::kNo, GrProtected::kNo);
+        auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithData(dContext,
+                                                                     srcPixmap,
+                                                                     kTopLeft_GrSurfaceOrigin,
+                                                                     GrRenderable::kNo,
+                                                                     GrProtected::kNo);
         if (!mbet) {
             ERRORF(reporter, "Could not make texture.");
             return;

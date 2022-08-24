@@ -193,9 +193,14 @@ void DDLTileHelper::TileData::CreateBackendTexture(GrDirectContext* direct, Tile
     SkASSERT(tile->fCallbackContext && !tile->fCallbackContext->promiseImageTexture());
 
     const SkSurfaceCharacterization& c = tile->fPlaybackChar;
-    GrBackendTexture beTex = direct->createBackendTexture(c.width(), c.height(), c.colorType(),
-                                                          GrMipmapped(c.isMipMapped()),
-                                                          GrRenderable::kYes);
+    GrBackendTexture beTex =
+            direct->createBackendTexture(c.width(),
+                                         c.height(),
+                                         c.colorType(),
+                                         GrMipmapped(c.isMipMapped()),
+                                         GrRenderable::kYes,
+                                         GrProtected::kNo,
+                                         /*label=*/"DDLTile_TileData_CreateBackendTexture");
     tile->fCallbackContext->setBackendTexture(beTex);
 }
 

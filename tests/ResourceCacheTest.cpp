@@ -1655,9 +1655,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceMessagesAfterAbandon,
     auto dContext = ctxInfo.directContext();
     GrGpu* gpu = dContext->priv().getGpu();
 
-    GrBackendTexture backend = dContext->createBackendTexture(16, 16,
-                                                              SkColorType::kRGBA_8888_SkColorType,
-                                                              GrMipmapped::kNo, GrRenderable::kNo);
+    GrBackendTexture backend = dContext->createBackendTexture(
+            16, 16, SkColorType::kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo);
     sk_sp<GrTexture> tex = gpu->wrapBackendTexture(backend,
                                                    GrWrapOwnership::kBorrow_GrWrapOwnership,
                                                    GrWrapCacheable::kYes,

@@ -32,9 +32,17 @@ private:
 
         static const int kSize = 16;
         for (int i = 0; i < loops; ++i) {
-            fBackendTextures.push_back(context->createBackendTexture(
-                    kSize, kSize, kRGBA_8888_SkColorType, SkColors::kRed, fMipmapped,
-                    GrRenderable::kNo, GrProtected::kNo));
+            fBackendTextures.push_back(
+                    context->createBackendTexture(kSize,
+                                                  kSize,
+                                                  kRGBA_8888_SkColorType,
+                                                  SkColors::kRed,
+                                                  fMipmapped,
+                                                  GrRenderable::kNo,
+                                                  GrProtected::kNo,
+                                                  nullptr,
+                                                  nullptr,
+                                                  /*label=*/"DrawBackendTextureBench"));
         }
     }
 

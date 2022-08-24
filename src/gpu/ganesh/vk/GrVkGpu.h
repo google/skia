@@ -215,7 +215,8 @@ private:
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             GrMipmapped,
-                                            GrProtected) override;
+                                            GrProtected,
+                                            std::string_view label) override;
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
                                                       GrMipmapped,

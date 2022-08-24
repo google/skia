@@ -557,7 +557,8 @@ public:
                                           const GrBackendFormat&,
                                           GrRenderable,
                                           GrMipmapped,
-                                          GrProtected);
+                                          GrProtected,
+                                          std::string_view label);
 
     bool clearBackendTexture(const GrBackendTexture&,
                              sk_sp<skgpu::RefCntedCallback> finishedCallback,
@@ -692,7 +693,8 @@ private:
                                                     const GrBackendFormat&,
                                                     GrRenderable,
                                                     GrMipmapped,
-                                                    GrProtected) = 0;
+                                                    GrProtected,
+                                                    std::string_view label) = 0;
 
     virtual GrBackendTexture onCreateCompressedBackendTexture(
             SkISize dimensions, const GrBackendFormat&, GrMipmapped, GrProtected) = 0;

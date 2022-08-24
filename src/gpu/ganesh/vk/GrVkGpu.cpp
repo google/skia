@@ -1762,7 +1762,8 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
                                                  const GrBackendFormat& format,
                                                  GrRenderable renderable,
                                                  GrMipmapped mipmapped,
-                                                 GrProtected isProtected) {
+                                                 GrProtected isProtected,
+                                                 std::string_view label) {
     const GrVkCaps& caps = this->vkCaps();
 
     if (fProtectedContext != isProtected) {
@@ -1795,8 +1796,12 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
 GrBackendTexture GrVkGpu::onCreateCompressedBackendTexture(
         SkISize dimensions, const GrBackendFormat& format, GrMipmapped mipmapped,
         GrProtected isProtected) {
-    return this->onCreateBackendTexture(dimensions, format, GrRenderable::kNo, mipmapped,
-                                        isProtected);
+    return this->onCreateBackendTexture(dimensions,
+                                        format,
+                                        GrRenderable::kNo,
+                                        mipmapped,
+                                        isProtected,
+                                        /*label=*/"VkGpu_CreateCompressedBackendTexture");
 }
 
 bool GrVkGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTexture,

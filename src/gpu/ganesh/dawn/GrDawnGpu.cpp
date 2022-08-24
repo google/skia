@@ -334,7 +334,8 @@ GrBackendTexture GrDawnGpu::onCreateBackendTexture(SkISize dimensions,
                                                    const GrBackendFormat& backendFormat,
                                                    GrRenderable renderable,
                                                    GrMipmapped mipmapped,
-                                                   GrProtected isProtected) {
+                                                   GrProtected isProtected,
+                                                   std::string_view label) {
     wgpu::TextureFormat format;
     if (!backendFormat.asDawnFormat(&format)) {
         return GrBackendTexture();

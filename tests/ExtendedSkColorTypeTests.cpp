@@ -207,10 +207,15 @@ static void gpu_tests(GrDirectContext* dContext,
                                                         GrRenderable::kNo, GrProtected::kNo,
                                                         markFinished, &finishedBECreate);
         } else {
-            backendTex = dContext->createBackendTexture(kSize, kSize, test.fColorType,
-                                                        SkColors::kWhite, GrMipmapped::kNo,
-                                                        GrRenderable::kNo, GrProtected::kNo,
-                                                        markFinished, &finishedBECreate);
+            backendTex = dContext->createBackendTexture(kSize,
+                                                        kSize,
+                                                        test.fColorType,
+                                                        SkColors::kWhite,
+                                                        GrMipmapped::kNo,
+                                                        GrRenderable::kNo,
+                                                        GrProtected::kNo,
+                                                        markFinished,
+                                                        &finishedBECreate);
         }
         REPORTER_ASSERT(reporter, backendTex.isValid());
         dContext->submit();

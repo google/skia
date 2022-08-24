@@ -114,9 +114,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
     dContext->resetContext();
 
     if (supportExternal) {
-        GrBackendTexture texture2D = dContext->createBackendTexture(
-                10, 10, kRGBA_8888_SkColorType,
-                SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+        GrBackendTexture texture2D = dContext->createBackendTexture(10,
+                                                                    10,
+                                                                    kRGBA_8888_SkColorType,
+                                                                    SkColors::kTransparent,
+                                                                    GrMipmapped::kNo,
+                                                                    GrRenderable::kNo,
+                                                                    GrProtected::kNo);
         GrGLTextureInfo info2D;
         REPORTER_ASSERT(reporter, texture2D.getGLTextureInfo(&info2D));
         GrEGLImage eglImage = ctxInfo.glContext()->texture2DToEGLImage(info2D.fID);
@@ -147,8 +151,8 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
 
     if (supportRectangle) {
         format = GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_RECTANGLE);
-        GrBackendTexture rectangleTexture =
-                dContext->createBackendTexture(10, 10, format, GrMipmapped::kNo, GrRenderable::kNo);
+        GrBackendTexture rectangleTexture = dContext->createBackendTexture(
+                10, 10, format, GrMipmapped::kNo, GrRenderable::kNo);
         if (rectangleTexture.isValid()) {
             img = SkImage::MakeFromTexture(dContext, rectangleTexture, kTopLeft_GrSurfaceOrigin,
                                            kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);

@@ -130,9 +130,12 @@ DEF_GPUTEST(VkProtectedContext_CreateProtectedTextureInNonprotectedContext,
     const int kW = 8;
     const int kH = 8;
     GrBackendTexture backendTex =
-        protectedTestHelper->directContext()->createBackendTexture(
-            kW, kH, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo,
-            GrProtected::kYes);
+            protectedTestHelper->directContext()->createBackendTexture(kW,
+                                                                       kH,
+                                                                       kRGBA_8888_SkColorType,
+                                                                       GrMipmapped::kNo,
+                                                                       GrRenderable::kNo,
+                                                                       GrProtected::kYes);
     REPORTER_ASSERT(reporter, !backendTex.isValid());
 }
 

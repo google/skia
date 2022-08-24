@@ -160,15 +160,17 @@ sk_sp<SkPromiseImageTexture> DDLFuzzer::fulfillPromiseImage(PromiseImageInfo& pr
         *(bool*)context = true;
     };
 
-    GrBackendTexture backendTex = fContext->createBackendTexture(kPromiseImageSize.width(),
-                                                                 kPromiseImageSize.height(),
-                                                                 kRGBA_8888_SkColorType,
-                                                                 SkColors::kRed,
-                                                                 GrMipmapped::kNo,
-                                                                 GrRenderable::kYes,
-                                                                 GrProtected::kNo,
-                                                                 markFinished,
-                                                                 &finishedBECreate);
+    GrBackendTexture backendTex =
+            fContext->createBackendTexture(kPromiseImageSize.width(),
+                                           kPromiseImageSize.height(),
+                                           kRGBA_8888_SkColorType,
+                                           SkColors::kRed,
+                                           GrMipmapped::kNo,
+                                           GrRenderable::kYes,
+                                           GrProtected::kNo,
+                                           markFinished,
+                                           &finishedBECreate,
+                                           /*label=*/"DDLFuzzer_FulFillPromiseImage");
     SkASSERT_RELEASE(backendTex.isValid());
     while (!finishedBECreate) {
         fContext->checkAsyncWorkCompletion();

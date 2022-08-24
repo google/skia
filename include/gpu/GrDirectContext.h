@@ -445,11 +445,13 @@ public:
       * For the Vulkan backend the layout of the created VkImage will be:
       *      VK_IMAGE_LAYOUT_UNDEFINED.
       */
-     GrBackendTexture createBackendTexture(int width, int height,
-                                           const GrBackendFormat&,
-                                           GrMipmapped,
-                                           GrRenderable,
-                                           GrProtected = GrProtected::kNo);
+    GrBackendTexture createBackendTexture(int width,
+                                          int height,
+                                          const GrBackendFormat&,
+                                          GrMipmapped,
+                                          GrRenderable,
+                                          GrProtected = GrProtected::kNo,
+                                          std::string_view label = {});
 
      /**
       * If possible, create an uninitialized backend texture. The client should ensure that the
@@ -463,7 +465,8 @@ public:
                                            SkColorType,
                                            GrMipmapped,
                                            GrRenderable,
-                                           GrProtected = GrProtected::kNo);
+                                           GrProtected = GrProtected::kNo,
+                                           std::string_view label = {});
 
      /**
       * If possible, create a backend texture initialized to a particular color. The client should
@@ -481,7 +484,8 @@ public:
                                            GrRenderable,
                                            GrProtected = GrProtected::kNo,
                                            GrGpuFinishedProc finishedProc = nullptr,
-                                           GrGpuFinishedContext finishedContext = nullptr);
+                                           GrGpuFinishedContext finishedContext = nullptr,
+                                           std::string_view label = {});
 
      /**
       * If possible, create a backend texture initialized to a particular color. The client should
@@ -501,7 +505,8 @@ public:
                                            GrRenderable,
                                            GrProtected = GrProtected::kNo,
                                            GrGpuFinishedProc finishedProc = nullptr,
-                                           GrGpuFinishedContext finishedContext = nullptr);
+                                           GrGpuFinishedContext finishedContext = nullptr,
+                                           std::string_view label = {});
 
      /**
       * If possible, create a backend texture initialized with the provided pixmap data. The client
@@ -528,7 +533,8 @@ public:
                                            GrRenderable,
                                            GrProtected,
                                            GrGpuFinishedProc finishedProc = nullptr,
-                                           GrGpuFinishedContext finishedContext = nullptr);
+                                           GrGpuFinishedContext finishedContext = nullptr,
+                                           std::string_view label = {});
 
     /**
      * Convenience version createBackendTexture() that takes just a base level pixmap.
@@ -538,9 +544,10 @@ public:
                                            GrRenderable renderable,
                                            GrProtected isProtected,
                                            GrGpuFinishedProc finishedProc = nullptr,
-                                           GrGpuFinishedContext finishedContext = nullptr) {
+                                           GrGpuFinishedContext finishedContext = nullptr,
+                                           std::string_view label = {}) {
          return this->createBackendTexture(&srcData, 1, textureOrigin, renderable, isProtected,
-                                           finishedProc, finishedContext);
+                                           finishedProc, finishedContext, label);
      }
 
     // Deprecated versions that do not take origin and assume top-left.
@@ -549,26 +556,30 @@ public:
                                           GrRenderable renderable,
                                           GrProtected isProtected,
                                           GrGpuFinishedProc finishedProc = nullptr,
-                                          GrGpuFinishedContext finishedContext = nullptr) {
+                                          GrGpuFinishedContext finishedContext = nullptr,
+                                          std::string_view label = {}) {
         return this->createBackendTexture(srcData,
                                           numLevels,
                                           kTopLeft_GrSurfaceOrigin,
                                           renderable,
                                           isProtected,
                                           finishedProc,
-                                          finishedContext);
+                                          finishedContext,
+                                          label);
     }
     GrBackendTexture createBackendTexture(const SkPixmap& srcData,
                                           GrRenderable renderable,
                                           GrProtected isProtected,
                                           GrGpuFinishedProc finishedProc = nullptr,
-                                          GrGpuFinishedContext finishedContext = nullptr) {
+                                          GrGpuFinishedContext finishedContext = nullptr,
+                                          std::string_view label = {}) {
         return this->createBackendTexture(&srcData,
                                           1,
                                           renderable,
                                           isProtected,
                                           finishedProc,
-                                          finishedContext);
+                                          finishedContext,
+                                          label);
     }
 
     /**

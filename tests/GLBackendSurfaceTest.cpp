@@ -59,8 +59,12 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
     auto dContext = ctxInfo.directContext();
     auto caps = static_cast<const GrGLCaps*>(dContext->priv().caps());
 
-    GrBackendTexture backendTex = dContext->createBackendTexture(
-            1, 1, kRGBA_8888_SkColorType, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+    GrBackendTexture backendTex = dContext->createBackendTexture(1,
+                                                                 1,
+                                                                 kRGBA_8888_SkColorType,
+                                                                 GrMipmapped::kNo,
+                                                                 GrRenderable::kNo,
+                                                                 GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrGLTextureInfo info;

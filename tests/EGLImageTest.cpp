@@ -87,9 +87,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest,
     context1->flushAndSubmit();
     static const int kSize = 100;
 
-    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(
-            context1.get(), kSize, kSize, kRGBA_8888_SkColorType, GrMipmapped::kNo,
-            GrRenderable::kNo, GrProtected::kNo);
+    auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(context1.get(),
+                                                                    kSize,
+                                                                    kSize,
+                                                                    kRGBA_8888_SkColorType,
+                                                                    GrMipmapped::kNo,
+                                                                    GrRenderable::kNo,
+                                                                    GrProtected::kNo);
 
     if (!mbet) {
         ERRORF(reporter, "Error creating texture for EGL Image");

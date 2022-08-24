@@ -221,7 +221,8 @@ private:
                                             const GrBackendFormat&,
                                             GrRenderable,
                                             GrMipmapped,
-                                            GrProtected) override;
+                                            GrProtected,
+                                            std::string_view label) override;
 
     GrBackendTexture onCreateCompressedBackendTexture(SkISize dimensions,
                                                       const GrBackendFormat&,
@@ -299,7 +300,8 @@ private:
                            GrRenderable,
                            GrGLTextureParameters::SamplerOverriddenState*,
                            int mipLevelCount,
-                           GrProtected isProtected);
+                           GrProtected isProtected,
+                           std::string_view label);
 
     GrGLuint createCompressedTexture2D(SkISize dimensions,
                                        SkImage::CompressionType compression,

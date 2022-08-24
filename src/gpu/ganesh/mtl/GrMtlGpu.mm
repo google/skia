@@ -913,7 +913,8 @@ GrBackendTexture GrMtlGpu::onCreateBackendTexture(SkISize dimensions,
                                                   const GrBackendFormat& format,
                                                   GrRenderable renderable,
                                                   GrMipmapped mipmapped,
-                                                  GrProtected isProtected) {
+                                                  GrProtected isProtected,
+                                                  std::string_view label) {
     const MTLPixelFormat mtlFormat = GrBackendFormatAsMTLPixelFormat(format);
 
     GrMtlTextureInfo info;

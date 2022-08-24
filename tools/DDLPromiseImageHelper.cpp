@@ -132,7 +132,8 @@ static GrBackendTexture create_yuva_texture(GrDirectContext* direct,
                                               GrRenderable::kNo,
                                               GrProtected::kNo,
                                               markFinished,
-                                              &finishedBECreate);
+                                              &finishedBECreate,
+                                              /*label=*/"CreateYuvaTexture");
     if (beTex.isValid()) {
         direct->submit();
         while (!finishedBECreate) {
@@ -180,7 +181,8 @@ void DDLPromiseImageHelper::CreateBETexturesForPromiseImage(GrDirectContext* dir
                                                        GrRenderable::kNo,
                                                        GrProtected::kNo,
                                                        markFinished,
-                                                       &finishedBECreate);
+                                                       &finishedBECreate,
+                                                       /*label=*/"CreateBETexturesForPromiseImage");
         SkASSERT(backendTex.isValid());
         direct->submit();
         while (!finishedBECreate) {

@@ -121,9 +121,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo, CtsEnfor
 
     auto ctx = ctxInfo.directContext();
 
-    GrBackendTexture backendTex = ctx->createBackendTexture(
-            kWidth, kHeight, kRGBA_8888_SkColorType,
-            SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kYes, GrProtected::kNo);
+    GrBackendTexture backendTex = ctx->createBackendTexture(kWidth,
+                                                            kHeight,
+                                                            kRGBA_8888_SkColorType,
+                                                            SkColors::kTransparent,
+                                                            GrMipmapped::kNo,
+                                                            GrRenderable::kYes,
+                                                            GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     GrBackendFormat backendFormat = backendTex.getBackendFormat();
@@ -274,9 +278,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTextureFullCache,
 
     auto dContext = ctxInfo.directContext();
 
-    GrBackendTexture backendTex = dContext->createBackendTexture(
-            kWidth, kHeight, kAlpha_8_SkColorType,
-            SkColors::kTransparent, GrMipmapped::kNo, GrRenderable::kNo, GrProtected::kNo);
+    GrBackendTexture backendTex = dContext->createBackendTexture(kWidth,
+                                                                 kHeight,
+                                                                 kAlpha_8_SkColorType,
+                                                                 SkColors::kTransparent,
+                                                                 GrMipmapped::kNo,
+                                                                 GrRenderable::kNo,
+                                                                 GrProtected::kNo);
     REPORTER_ASSERT(reporter, backendTex.isValid());
 
     SkImageInfo info =
