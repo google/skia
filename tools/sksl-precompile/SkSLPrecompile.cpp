@@ -16,6 +16,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLDehydrator.h"
 #include "src/sksl/SkSLFileOutputStream.h"
+#include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
@@ -89,7 +90,8 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
     // Each module inherits the symbols from its parent module.
     SkSL::Compiler compiler(caps);
     std::list<SkSL::LoadedModule> modules;
-    std::shared_ptr<SkSL::SymbolTable> inheritedSymbols = nullptr;
+    std::shared_ptr<SkSL::SymbolTable> inheritedSymbols =
+            SkSL::ModuleLoader::Get().rootModule().fSymbols;
     for (int inputIdx = paths.size() - 1; inputIdx >= 1; --inputIdx) {
         const std::string& modulePath = paths[inputIdx];
         std::ifstream in(modulePath);
@@ -101,8 +103,8 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
 
         modules.push_front(compiler.loadModule(SkSL::ProgramKind::kFragment,
                                                SkSL::Compiler::MakeModulePath(modulePath.c_str()),
-                                               /*base=*/inheritedSymbols,
-                                               /*dehydrate=*/inheritedSymbols == nullptr));
+                                               SkSL::ModuleLoader::Get().coreModifiers(),
+                                               /*base=*/inheritedSymbols));
         inheritedSymbols = modules.front().fSymbols;
     }
 

@@ -53,6 +53,7 @@ namespace dsl {
 class Expression;
 class IRNode;
 class Inliner;
+class ModifiersPool;
 class OutputStream;
 struct Program;
 struct ProgramSettings;
@@ -210,9 +211,10 @@ public:
         return ModuleData{/*fPath=*/nullptr, data, size};
     }
 
-    LoadedModule loadModule(ProgramKind kind, ModuleData data, std::shared_ptr<SymbolTable> base,
-                            bool dehydrate);
-    ParsedModule parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base);
+    LoadedModule loadModule(ProgramKind kind, ModuleData data, ModifiersPool& modifiersPool,
+                            std::shared_ptr<SymbolTable> base);
+    ParsedModule parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base,
+                             ModifiersPool& modifiersPool);
 
     const ParsedModule& moduleForProgramKind(ProgramKind kind);
 
@@ -240,7 +242,8 @@ private:
     bool optimizeModuleForDehydration(LoadedModule& module, const ParsedModule& base);
 
     /** Optimize a module after rehydrating it. */
-    bool optimizeRehydratedModule(LoadedModule& module, const ParsedModule& base);
+    bool optimizeRehydratedModule(LoadedModule& module, const ParsedModule& base,
+                                  ModifiersPool& modifiersPool);
 
     /** Flattens out function calls when it is safe to do so. */
     bool runInliner(Inliner* inliner,
@@ -248,33 +251,9 @@ private:
                     std::shared_ptr<SymbolTable> symbols,
                     ProgramUsage* usage);
 
-    const ParsedModule& loadSharedModule();
-    const ParsedModule& loadGPUModule();
-    const ParsedModule& loadVertexModule();
-    const ParsedModule& loadFragmentModule();
-    const ParsedModule& loadComputeModule();
-    const ParsedModule& loadGraphiteVertexModule();
-    const ParsedModule& loadGraphiteFragmentModule();
-
-    const ParsedModule& loadPublicModule();
-    const ParsedModule& loadPrivateRTShaderModule();
-
     CompilerErrorReporter fErrorReporter;
     std::shared_ptr<Context> fContext;
     const ShaderCaps* fCaps;
-
-    const ParsedModule* fRootModule;         // Core public and private types
-
-    ParsedModule fSharedModule;              // [Root] + Public intrinsics
-    ParsedModule fGPUModule;                 // [Shared] + Non-public intrinsics/helper functions
-    ParsedModule fVertexModule;              // [GPU] + Vertex stage decls
-    ParsedModule fFragmentModule;            // [GPU] + Fragment stage decls
-    ParsedModule fComputeModule;             // [GPU] + Compute stage decls
-    ParsedModule fGraphiteVertexModule;      // [Vert] + Graphite vertex helpers
-    ParsedModule fGraphiteFragmentModule;    // [Frag] + Graphite fragment helpers
-
-    ParsedModule fPublicModule;              // [Shared] + Runtime effect intrinsics - Private types
-    ParsedModule fRuntimeShaderModule;       // [Public] + Runtime shader decls
 
     // This is the current symbol table of the code we are processing, and therefore changes during
     // compilation
