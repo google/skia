@@ -15,13 +15,6 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "tests/Test.h"
 
-class TestingSpecialSurfaceAccess {
-public:
-    static const SkIRect& Subset(const SkSpecialSurface* surf) {
-        return surf->subset();
-    }
-};
-
 // Both 'kSmallerSize' and 'kFullSize' need to be a non-power-of-2 to exercise
 // the gpu's loose fit behavior
 static const int kSmallerSize = 10;
@@ -33,7 +26,7 @@ static void test_surface(const sk_sp<SkSpecialSurface>& surf,
                          skiatest::Reporter* reporter,
                          int offset) {
 
-    const SkIRect surfSubset = TestingSpecialSurfaceAccess::Subset(surf.get());
+    const SkIRect surfSubset = surf->subset();
     REPORTER_ASSERT(reporter, offset == surfSubset.fLeft);
     REPORTER_ASSERT(reporter, offset == surfSubset.fTop);
     REPORTER_ASSERT(reporter, kSmallerSize == surfSubset.width());

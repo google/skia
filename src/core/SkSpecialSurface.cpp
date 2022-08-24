@@ -14,62 +14,30 @@
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSurfacePriv.h"
 
- ///////////////////////////////////////////////////////////////////////////////
-class SkSpecialSurface_Base : public SkSpecialSurface {
-public:
-    SkSpecialSurface_Base(const SkIRect& subset, const SkSurfaceProps& props)
-        : INHERITED(subset, props)
-        , fCanvas(nullptr) {
-    }
-
-    // reset is called after an SkSpecialImage has been snapped
-    void reset() { fCanvas.reset(); }
-
-    // This can return nullptr if reset has already been called or something when wrong in the ctor
-    SkCanvas* onGetCanvas() { return fCanvas.get(); }
-
-    virtual sk_sp<SkSpecialImage> onMakeImageSnapshot() = 0;
-
-protected:
-    std::unique_ptr<SkCanvas> fCanvas;   // initialized by derived classes in ctors
-
-private:
-    using INHERITED = SkSpecialSurface;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-static SkSpecialSurface_Base* as_SB(SkSpecialSurface* surface) {
-    return static_cast<SkSpecialSurface_Base*>(surface);
-}
-
 SkSpecialSurface::SkSpecialSurface(const SkIRect& subset,
                                    const SkSurfaceProps& props)
-    : fProps(props.flags(), kUnknown_SkPixelGeometry)
-    , fSubset(subset) {
+        : fProps(props.flags(), kUnknown_SkPixelGeometry)
+        , fSubset(subset) {
     SkASSERT(fSubset.width() > 0);
     SkASSERT(fSubset.height() > 0);
 }
 
-SkCanvas* SkSpecialSurface::getCanvas() {
-    return as_SB(this)->onGetCanvas();
-}
-
 sk_sp<SkSpecialImage> SkSpecialSurface::makeImageSnapshot() {
-    sk_sp<SkSpecialImage> image(as_SB(this)->onMakeImageSnapshot());
-    as_SB(this)->reset();
-    return image;   // the caller gets the creation ref
+    sk_sp<SkSpecialImage> image(this->onMakeImageSnapshot());
+    fCanvas.reset();
+    return image;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 #include "include/core/SkMallocPixelRef.h"
 
-class SkSpecialSurface_Raster : public SkSpecialSurface_Base {
+class SkSpecialSurface_Raster : public SkSpecialSurface {
 public:
     SkSpecialSurface_Raster(const SkImageInfo& info,
                             sk_sp<SkPixelRef> pr,
                             const SkIRect& subset,
                             const SkSurfaceProps& props)
-        : INHERITED(subset, props) {
+            : SkSpecialSurface(subset, props) {
         SkASSERT(info.width() == pr->width() && info.height() == pr->height());
         fBitmap.setInfo(info, info.minRowBytes());
         fBitmap.setPixelRef(std::move(pr), 0, 0);
@@ -83,14 +51,13 @@ public:
 
     ~SkSpecialSurface_Raster() override { }
 
+protected:
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
         return SkSpecialImage::MakeFromRaster(this->subset(), fBitmap, this->props());
     }
 
 private:
     SkBitmap fBitmap;
-
-    using INHERITED = SkSpecialSurface_Base;
 };
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeFromBitmap(const SkIRect& subset, SkBitmap& bm,
@@ -123,10 +90,10 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
-class SkSpecialSurface_Gpu : public SkSpecialSurface_Base {
+class SkSpecialSurface_Gpu : public SkSpecialSurface {
 public:
     SkSpecialSurface_Gpu(sk_sp<skgpu::v1::Device> device, SkIRect subset)
-            : INHERITED(subset, device->surfaceProps())
+            : SkSpecialSurface(subset, device->surfaceProps())
             , fReadView(device->readSurfaceView()) {
 
         fCanvas = std::make_unique<SkCanvas>(std::move(device));
@@ -136,6 +103,7 @@ public:
 #endif
     }
 
+protected:
     sk_sp<SkSpecialImage> onMakeImageSnapshot() override {
         if (!fReadView.asTextureProxy()) {
             return nullptr;
@@ -155,7 +123,6 @@ public:
 
 private:
     GrSurfaceProxyView fReadView;
-    using INHERITED = SkSpecialSurface_Base;
 };
 
 sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* rContext,
