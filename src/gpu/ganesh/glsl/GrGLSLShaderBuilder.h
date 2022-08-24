@@ -20,10 +20,6 @@
 
 class GrGLSLColorSpaceXformHelper;
 
-namespace SkSL {
-    class ThreadContext;
-}
-
 /**
   base class for all shaders builders
 */
@@ -287,6 +283,5 @@ protected:
     friend class GrGLPathProgramBuilder; // to access fInputs.
     friend class GrVkPipelineStateBuilder;
     friend class GrMtlPipelineStateBuilder;
-    friend class SkSL::ThreadContext;
 };
 #endif
