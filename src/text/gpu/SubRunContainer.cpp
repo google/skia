@@ -1539,6 +1539,7 @@ public:
     int unflattenSize() const override;
 
     int glyphCount() const override;
+    MaskFormat maskFormat() const override { return fMaskFormat; }
 
     void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const override;
 
@@ -1582,8 +1583,6 @@ public:
                           int offset, int count,
                           int ssboIndex,
                           SkScalar depth) const override;
-
-    MaskFormat maskFormat() const override { return fMaskFormat; }
 #endif
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override;
@@ -2150,6 +2149,7 @@ public:
     }
 
     int glyphCount() const override { return SkCount(fGlyphs.glyphs()); }
+    MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 
 #if SK_SUPPORT_GPU
     void draw(SkCanvas*,
@@ -2261,7 +2261,6 @@ public:
                                      transform);
     }
 
-    MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
     void fillInstanceData(DrawWriter* dw,
                           int offset, int count,
                           int ssboIndex,
@@ -2378,11 +2377,10 @@ public:
                           int offset, int count,
                           int ssboIndex,
                           SkScalar depth) const override;
-
-    MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 #endif
 
     int glyphCount() const override;
+    MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
 
 protected:
     SubRunType subRunType() const override { return kSDFT; }

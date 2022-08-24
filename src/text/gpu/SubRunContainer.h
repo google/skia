@@ -11,6 +11,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkDevice.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/text/gpu/SubRunAllocator.h"
 
 class SkMatrix;
@@ -76,6 +77,7 @@ public:
     virtual ~AtlasSubRun() = default;
 
     virtual int glyphCount() const = 0;
+    virtual skgpu::MaskFormat maskFormat() const = 0;
 
 #if SK_SUPPORT_GPU
     virtual size_t vertexStride(const SkMatrix& drawMatrix) const = 0;
@@ -123,8 +125,6 @@ public:
             int offset, int count,
             int ssboIndex,
             SkScalar depth) const = 0;
-
-    virtual skgpu::MaskFormat maskFormat() const = 0;
 #endif
 
     virtual void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const = 0;
