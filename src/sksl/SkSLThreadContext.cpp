@@ -9,7 +9,6 @@
 
 #include "include/private/SkSLProgramElement.h"
 #include "include/sksl/SkSLPosition.h"
-#include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLModifiersPool.h"
@@ -22,15 +21,16 @@
 
 namespace SkSL {
 
-ThreadContext::ThreadContext(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
-        const SkSL::ProgramSettings& settings, SkSL::ParsedModule module, bool isModule)
-    : fCompiler(compiler)
-    , fOldErrorReporter(*fCompiler->fContext->fErrors)
-    , fSettings(settings) {
-    fOldModifiersPool = fCompiler->fContext->fModifiersPool;
-
-    fOldConfig = fCompiler->fContext->fConfig;
-
+ThreadContext::ThreadContext(SkSL::Compiler* compiler,
+                             SkSL::ProgramKind kind,
+                             const SkSL::ProgramSettings& settings,
+                             SkSL::ParsedModule module,
+                             bool isModule)
+        : fCompiler(compiler)
+        , fOldConfig(fCompiler->fContext->fConfig)
+        , fOldModifiersPool(fCompiler->fContext->fModifiersPool)
+        , fOldErrorReporter(*fCompiler->fContext->fErrors)
+        , fSettings(settings) {
     if (!isModule) {
         if (settings.fUseMemoryPool) {
             fPool = Pool::Create();
@@ -47,9 +47,6 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
     fCompiler->fContext->fConfig = fConfig.get();
     fCompiler->fContext->fErrors = &fDefaultErrorReporter;
     fCompiler->fContext->fBuiltins = module.fElements.get();
-    if (fCompiler->fContext->fBuiltins) {
-        fCompiler->fContext->fBuiltins->resetAlreadyIncluded();
-    }
     fCompiler->fContext->fMangler->reset();
     fCompiler->fSymbolTable = module.fSymbols;
     this->setupSymbolTable();

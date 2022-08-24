@@ -48,7 +48,7 @@ public:
     Mangler* fMangler = nullptr;
 
     // Symbols which have definitions in the include files.
-    BuiltinMap* fBuiltins = nullptr;
+    const BuiltinMap* fBuiltins = nullptr;
 };
 
 }  // namespace SkSL

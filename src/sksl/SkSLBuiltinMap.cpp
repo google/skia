@@ -16,43 +16,20 @@ namespace SkSL {
 
 void BuiltinMap::insertOrDie(std::string key, std::unique_ptr<ProgramElement> element) {
     SkASSERT(!fElements.find(key));
-    fElements.set(std::move(key), BuiltinElement{std::move(element), /*fAlreadyIncluded=*/false});
+    fElements.set(std::move(key), std::move(element));
 }
 
-const ProgramElement* BuiltinMap::find(const std::string& key) {
-    BuiltinElement* elem = fElements.find(key);
-    if (!elem) {
-        return fParent ? fParent->find(key) : nullptr;
+const ProgramElement* BuiltinMap::find(const std::string& key) const {
+    if (std::unique_ptr<ProgramElement>* elem = fElements.find(key)) {
+        return elem->get();
     }
-    return elem->fElement.get();
+    return fParent ? fParent->find(key) : nullptr;
 }
 
-// Only returns a builtin element that isn't already marked as included, and then marks it.
-const ProgramElement* BuiltinMap::findAndInclude(const std::string& key) {
-    BuiltinElement* elem = fElements.find(key);
-    if (!elem) {
-        return fParent ? fParent->findAndInclude(key) : nullptr;
-    }
-    if (elem->fAlreadyIncluded) {
-        return nullptr;
-    }
-    elem->fAlreadyIncluded = true;
-    return elem->fElement.get();
-}
-
-void BuiltinMap::resetAlreadyIncluded() {
-    fElements.foreach([](const std::string&, BuiltinElement* elem) {
-        elem->fAlreadyIncluded = false;
-    });
-    if (fParent) {
-        fParent->resetAlreadyIncluded();
-    }
-}
-
-void BuiltinMap::foreach(
+void BuiltinMap::foreach (
         const std::function<void(const std::string&, const ProgramElement&)>& fn) const {
-    fElements.foreach([&](const std::string& name, const BuiltinElement& elem) {
-        fn(name, *elem.fElement);
+    fElements.foreach([&](const std::string& name, const std::unique_ptr<ProgramElement>& elem) {
+        fn(name, *elem);
     });
     if (fParent) {
         fParent->foreach(fn);

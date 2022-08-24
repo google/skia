@@ -5,6 +5,7 @@
   { include: ["<__algorithm/copy_n.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/count.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/equal_range.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/find.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/lower_bound.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/max.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/min.h>", "private", "<algorithm>", "public"] },

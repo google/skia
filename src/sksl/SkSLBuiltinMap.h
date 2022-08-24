@@ -22,26 +22,17 @@ namespace SkSL {
  */
 class BuiltinMap {
 public:
-    BuiltinMap(BuiltinMap* parent) : fParent(parent) {}
+    BuiltinMap(const BuiltinMap* parent) : fParent(parent) {}
 
     void insertOrDie(std::string key, std::unique_ptr<ProgramElement> element);
 
-    const ProgramElement* find(const std::string& key);
-
-    const ProgramElement* findAndInclude(const std::string& key);
-
-    void resetAlreadyIncluded();
+    const ProgramElement* find(const std::string& key) const;
 
     void foreach(const std::function<void(const std::string&, const ProgramElement&)>& fn) const;
 
 private:
-    struct BuiltinElement {
-        std::unique_ptr<ProgramElement> fElement;
-        bool fAlreadyIncluded = false;
-    };
-
-    SkTHashMap<std::string, BuiltinElement> fElements;
-    BuiltinMap* fParent = nullptr;
+    SkTHashMap<std::string, std::unique_ptr<ProgramElement>> fElements;
+    const BuiltinMap* fParent = nullptr;
 };
 
 } // namespace SkSL

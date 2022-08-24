@@ -16,8 +16,8 @@ class BuiltinMap;
 class SymbolTable;
 
 struct ParsedModule {
-    std::shared_ptr<SymbolTable> fSymbols;
-    std::shared_ptr<BuiltinMap>  fElements;
+    std::shared_ptr<SymbolTable>      fSymbols;
+    std::shared_ptr<const BuiltinMap> fElements;
 };
 
 } //namespace SkSL
