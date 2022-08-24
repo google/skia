@@ -710,7 +710,7 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     SI U32 round(F v, F scale) { return _mm_cvtps_epi32(v*scale); }
 
     SI U16 pack(U32 v) {
-    #if defined(JUMPER_IS_SSE41)
+    #if defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
         auto p = _mm_packus_epi32(v,v);
     #else
         // Sign extend so that _mm_packs_epi32() does the pack we want.
@@ -730,7 +730,7 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     }
 
     SI F floor_(F v) {
-    #if defined(JUMPER_IS_SSE41)
+    #if defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
         return _mm_floor_ps(v);
     #else
         F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
