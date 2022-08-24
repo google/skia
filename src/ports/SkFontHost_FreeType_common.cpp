@@ -646,31 +646,47 @@ bool colrv1_configure_skpaint(FT_Face face,
             perpendicularToP2P0 = SkPoint::Make( perpendicularToP2P0.y(),
                                                 -perpendicularToP2P0.x());
             SkVector p3 = p0 + SkVectorProjection((p1 - p0), perpendicularToP2P0);
+            linePositions[1] = p3;
 
             // Project/scale points according to stop extrema along p0p3 line,
             // p3 being the result of the projection above, then scale stops to
             // to [0, 1] range so that repeat modes work.  The Skia linear
             // gradient shader performs the repeat modes over the 0 to 1 range,
             // that's why we need to scale the stops to within that range.
-            SkVector p0p3 = p3 - p0;
-            SkVector p0Offset = p0p3;
-            p0Offset.scale(stops.front());
-            SkVector p1Offset = p0p3;
-            p1Offset.scale(stops.back());
+            SkTileMode tileMode = ToSkTileMode(linearGradient.colorline.extend);
+            SkScalar colorStopRange = stops.back() - stops.front();
+            // If the color stops are all at the same offset position, repeat and reflect modes
+            // become meaningless.
+            if (colorStopRange == 0.f && tileMode != SkTileMode::kClamp) {
+                paint->setColor(SK_ColorTRANSPARENT);
+                return true;
+            }
 
-            linePositions[0] = p0 + p0Offset;
-            linePositions[1] = p0 + p1Offset;
+            // If the colorStopRange is 0 at this point, the default behavior of the shader is to
+            // clamp to 1 color stops that are above 1, clamp to 0 for color stops that are below 0,
+            // and repeat the outer color stops at 0 and 1 if the color stops are inside the
+            // range. That will result in the correct rendering.
+            if ((colorStopRange != 1 || stops.front() != 0.f) && colorStopRange != 0.f) {
+                SkVector p0p3 = p3 - p0;
+                SkVector p0Offset = p0p3;
+                p0Offset.scale(stops.front());
+                SkVector p1Offset = p0p3;
+                p1Offset.scale(stops.back());
 
-            SkScalar scaleFactor = 1 / (stops.back() - stops.front());
-            SkScalar startOffset = stops.front();
-            for (SkScalar& stop : stops) {
-                stop = (stop - startOffset) * scaleFactor;
+                linePositions[0] = p0 + p0Offset;
+                linePositions[1] = p0 + p1Offset;
+
+                SkScalar scaleFactor = 1 / colorStopRange;
+                SkScalar startOffset = stops.front();
+                for (SkScalar& stop : stops) {
+                    stop = (stop - startOffset) * scaleFactor;
+                }
             }
 
             sk_sp<SkShader> shader(SkGradientShader::MakeLinear(
                                    linePositions,
                                    colors.data(), stops.data(), stops.size(),
-                                   ToSkTileMode(linearGradient.colorline.extend)));
+                                   tileMode));
             SkASSERT(shader);
             // An opaque color is needed to ensure the gradient is not modulated by alpha.
             paint->setColor(SK_ColorBLACK);
@@ -699,7 +715,18 @@ bool colrv1_configure_skpaint(FT_Face face,
             }
 
             SkScalar colorStopRange = stops.back() - stops.front();
-            if (colorStopRange != 1 || stops.front() != 0.f) {
+            SkTileMode tileMode = ToSkTileMode(radialGradient.colorline.extend);
+
+            if (colorStopRange == 0.f && tileMode != SkTileMode::kClamp) {
+                paint->setColor(SK_ColorTRANSPARENT);
+                return true;
+            }
+
+            // If the colorStopRange is 0 at this point, the default behavior of the shader is to
+            // clamp to 1 color stops that are above 1, clamp to 0 for color stops that are below 0,
+            // and repeat the outer color stops at 0 and 1 if the color stops are inside the
+            // range. That will result in the correct rendering.
+            if ((colorStopRange != 1 || stops.front() != 0.f) && colorStopRange != 0.f) {
                 // For the Skia two-point caonical shader to understand the
                 // COLRv1 color stops we need to scale stops to 0 to 1 range and
                 // interpolate new centers and radii. Otherwise the shader
@@ -738,7 +765,7 @@ bool colrv1_configure_skpaint(FT_Face face,
 
             paint->setShader(SkGradientShader::MakeTwoPointConical(
                     start, startRadius, end, endRadius, colors.data(), stops.data(), stops.size(),
-                    ToSkTileMode(radialGradient.colorline.extend)));
+                    tileMode));
             return true;
         }
         case FT_COLR_PAINTFORMAT_SWEEP_GRADIENT: {
