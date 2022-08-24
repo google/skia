@@ -40,7 +40,6 @@
 #include <GLES/glext.h>
 
 #ifdef SK_VULKAN
-#include "include/gpu/vk/GrVkExtensions.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #endif
 

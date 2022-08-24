@@ -12,7 +12,7 @@
 #include "include/gpu/vk/GrVkMemoryAllocator.h"
 #include "include/gpu/vk/GrVkTypes.h"
 
-class GrVkExtensions;
+namespace skgpu { class VulkanExtensions; }
 
 enum GrVkExtensionFlags {
     kEXT_debug_report_GrVkExtensionFlag    = 0x0001,
@@ -54,7 +54,7 @@ struct SK_API GrVkBackendContext {
     // then VkInstance was created.
     uint32_t                         fMaxAPIVersion = 0;
     uint32_t                         fExtensions = 0; // Deprecated. Use fVkExtensions instead.
-    const GrVkExtensions*            fVkExtensions = nullptr;
+    const skgpu::VulkanExtensions*   fVkExtensions = nullptr;
     uint32_t                         fFeatures; // Deprecated. Use fDeviceFeatures[2] instead.
     // The client can create their VkDevice with either a VkPhysicalDeviceFeatures or
     // VkPhysicalDeviceFeatures2 struct, thus we have to support taking both. The
@@ -64,7 +64,7 @@ struct SK_API GrVkBackendContext {
     const VkPhysicalDeviceFeatures*  fDeviceFeatures = nullptr;
     const VkPhysicalDeviceFeatures2* fDeviceFeatures2 = nullptr;
     sk_sp<GrVkMemoryAllocator>       fMemoryAllocator;
-    GrVkGetProc                      fGetProc = nullptr;
+    skgpu::VulkanGetProc             fGetProc = nullptr;
     // This is deprecated and should be set to false. The client is responsible for managing the
     // lifetime of the VkInstance and VkDevice objects.
     bool                             fOwnsInstanceAndDevice = false;

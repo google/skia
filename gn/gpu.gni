@@ -566,7 +566,6 @@ skia_vk_sources = [
   "$_src/gpu/ganesh/vk/GrVkDescriptorSet.h",
   "$_src/gpu/ganesh/vk/GrVkDescriptorSetManager.cpp",
   "$_src/gpu/ganesh/vk/GrVkDescriptorSetManager.h",
-  "$_src/gpu/ganesh/vk/GrVkExtensions.cpp",
   "$_src/gpu/ganesh/vk/GrVkFramebuffer.cpp",
   "$_src/gpu/ganesh/vk/GrVkFramebuffer.h",
   "$_src/gpu/ganesh/vk/GrVkGpu.cpp",
@@ -833,7 +832,12 @@ skia_shared_gpu_sources = [
   "$_src/text/gpu/TextBlobRedrawCoordinator.h",
 ]
 
-skia_shared_vk_sources = [ "$_include/private/gpu/vk/SkiaVulkan.h" ]
+skia_shared_vk_sources = [
+  "$_include/gpu/vk/VulkanExtensions.h",
+  "$_include/gpu/vk/VulkanTypes.h",
+  "$_include/private/gpu/vk/SkiaVulkan.h",
+  "$_src/gpu/vk/VulkanExtensions.cpp",
+]
 
 skia_piet_gpu_sources = [
   "$_src/gpu/piet/PietTypes.h",

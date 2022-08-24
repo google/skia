@@ -13,7 +13,7 @@
 #include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/GrVkTypes.h"
 
-class GrVkExtensions;
+namespace skgpu { class VulkanExtensions; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,17 +38,17 @@ private:
     using INHERITED = SkRefCnt;
 
 public:
-    GrVkInterface(GrVkGetProc getProc,
+    GrVkInterface(skgpu::VulkanGetProc getProc,
                   VkInstance instance,
                   VkDevice device,
                   uint32_t instanceVersion,
                   uint32_t physicalDeviceVersion,
-                  const GrVkExtensions*);
+                  const skgpu::VulkanExtensions*);
 
     // Validates that the GrVkInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for Vulkan version.
     bool validate(uint32_t instanceVersion, uint32_t physicalDeviceVersion,
-                  const GrVkExtensions*) const;
+                  const skgpu::VulkanExtensions*) const;
 
     /**
      * The function pointers are in a struct so that we can have a compiler generated assignment

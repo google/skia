@@ -11,8 +11,9 @@
 #include "include/gpu/vk/GrVkMemoryAllocator.h"
 
 class GrVkCaps;
-class GrVkExtensions;
 struct GrVkInterface;
+
+namespace skgpu { class VulkanExtensions; }
 
 #ifndef SK_USE_VMA
 class GrVkAMDMemoryAllocator {
@@ -21,7 +22,7 @@ public:
                                            VkPhysicalDevice physicalDevice,
                                            VkDevice device,
                                            uint32_t physicalDeviceVersion,
-                                           const GrVkExtensions* extensions,
+                                           const skgpu::VulkanExtensions* extensions,
                                            sk_sp<const GrVkInterface> interface,
                                            const GrVkCaps* caps);
 };
@@ -36,7 +37,7 @@ public:
                                            VkPhysicalDevice physicalDevice,
                                            VkDevice device,
                                            uint32_t physicalDeviceVersion,
-                                           const GrVkExtensions* extensions,
+                                           const skgpu::VulkanExtensions* extensions,
                                            sk_sp<const GrVkInterface> interface,
                                            const GrVkCaps* caps);
 

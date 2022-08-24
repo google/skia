@@ -17,8 +17,9 @@
 #include "tools/gpu/vk/GrVulkanDefines.h"
 #include <functional>
 
-class GrVkExtensions;
 struct GrVkBackendContext;
+
+namespace skgpu { class VulkanExtensions; }
 
 namespace sk_gpu_test {
     bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr*);
@@ -28,7 +29,7 @@ namespace sk_gpu_test {
 
     bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
                                 GrVkBackendContext* ctx,
-                                GrVkExtensions*,
+                                skgpu::VulkanExtensions*,
                                 VkPhysicalDeviceFeatures2*,
                                 VkDebugReportCallbackEXT* debugCallback,
                                 uint32_t* presentQueueIndexPtr = nullptr,

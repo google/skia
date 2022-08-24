@@ -19,7 +19,7 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
-#include "include/gpu/vk/GrVkExtensions.h"
+#include "include/gpu/vk/VulkanExtensions.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -504,7 +504,7 @@ private:
     VkImage fImage = VK_NULL_HANDLE;
     VkDeviceMemory fMemory = VK_NULL_HANDLE;
 
-    GrVkExtensions*                     fExtensions = nullptr;
+    skgpu::VulkanExtensions*            fExtensions = nullptr;
     VkPhysicalDeviceFeatures2*          fFeatures = nullptr;
     VkDebugReportCallbackEXT            fDebugCallback = VK_NULL_HANDLE;
     PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugCallback = nullptr;
@@ -524,7 +524,7 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
         return false;
     }
 
-    fExtensions = new GrVkExtensions();
+    fExtensions = new skgpu::VulkanExtensions();
     fFeatures = new VkPhysicalDeviceFeatures2;
     memset(fFeatures, 0, sizeof(VkPhysicalDeviceFeatures2));
     fFeatures->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;

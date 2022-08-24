@@ -6,7 +6,7 @@
  */
 
 #include "include/gpu/vk/GrVkBackendContext.h"
-#include "include/gpu/vk/GrVkExtensions.h"
+#include "include/gpu/vk/VulkanExtensions.h"
 #include "src/gpu/ganesh/vk/GrVkInterface.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 
@@ -17,12 +17,12 @@
     fFunctions.f##name =                                    \
             reinterpret_cast<PFN_vk##name##suffix>(getProc("vk" #name #suffix, instance, device))
 
-GrVkInterface::GrVkInterface(GrVkGetProc getProc,
+GrVkInterface::GrVkInterface(skgpu::VulkanGetProc getProc,
                              VkInstance instance,
                              VkDevice device,
                              uint32_t instanceVersion,
                              uint32_t physicalDeviceVersion,
-                             const GrVkExtensions* extensions) {
+                             const skgpu::VulkanExtensions* extensions) {
     if (getProc == nullptr) {
         return;
     }
@@ -261,7 +261,7 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
     return false;
 
 bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVersion,
-                             const GrVkExtensions* extensions) const {
+                             const skgpu::VulkanExtensions* extensions) const {
     // functions that are always required
     if (nullptr == fFunctions.fCreateInstance ||
         nullptr == fFunctions.fDestroyInstance ||

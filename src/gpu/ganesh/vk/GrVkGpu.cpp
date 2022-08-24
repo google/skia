@@ -47,8 +47,8 @@
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Gpu.h"
 
-#include "include/gpu/vk/GrVkExtensions.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanExtensions.h"
 
 #include <utility>
 
@@ -114,7 +114,7 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
             return nullptr;
         }
     } else {
-        GrVkExtensions extensions;
+        skgpu::VulkanExtensions extensions;
         // The only extension flag that may effect the vulkan backend is the swapchain extension. We
         // need to know if this is enabled to know if we can transition to a present layout when
         // flushing a surface.
@@ -159,7 +159,7 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         if (backendContext.fFeatures & kSampleRateShading_GrVkFeatureFlag) {
             features.features.sampleRateShading = true;
         }
-        GrVkExtensions extensions;
+        skgpu::VulkanExtensions extensions;
         // The only extension flag that may effect the vulkan backend is the swapchain extension. We
         // need to know if this is enabled to know if we can transition to a present layout when
         // flushing a surface.

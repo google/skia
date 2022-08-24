@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/vk/GrVkAMDMemoryAllocator.h"
 
-#include "include/gpu/vk/GrVkExtensions.h"
+#include "include/gpu/vk/VulkanExtensions.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/vk/GrVkInterface.h"
 #include "src/gpu/ganesh/vk/GrVkMemory.h"
@@ -18,7 +18,7 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
                                                         VkPhysicalDevice physicalDevice,
                                                         VkDevice device,
                                                         uint32_t physicalDeviceVersion,
-                                                        const GrVkExtensions* extensions,
+                                                        const skgpu::VulkanExtensions* extensions,
                                                         sk_sp<const GrVkInterface> interface,
                                                         const GrVkCaps* caps) {
     return nullptr;
@@ -29,7 +29,7 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
                                                         VkPhysicalDevice physicalDevice,
                                                         VkDevice device,
                                                         uint32_t physicalDeviceVersion,
-                                                        const GrVkExtensions* extensions,
+                                                        const skgpu::VulkanExtensions* extensions,
                                                         sk_sp<const GrVkInterface> interface,
                                                         const GrVkCaps* caps) {
 #define GR_COPY_FUNCTION(NAME) functions.vk##NAME = interface->fFunctions.f##NAME

@@ -14,7 +14,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
-#include "include/gpu/vk/GrVkExtensions.h"
+#include "include/gpu/vk/VulkanExtensions.h"
 
 class GrDirectContext;
 class SkSurface;
@@ -58,7 +58,7 @@ private:
     bool fIsProtected = false;
     VkDevice fDevice = VK_NULL_HANDLE;
 
-    GrVkExtensions fExtensions;
+    skgpu::VulkanExtensions fExtensions;
     VkPhysicalDeviceFeatures2 fFeatures = {};
     VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
     PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugCallback = nullptr;

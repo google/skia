@@ -86,7 +86,10 @@ filegroup(
         ":core_srcs",
         "//src/gpu/ganesh:srcs",
         "//src/gpu/tessellate:srcs",
-    ],
+    ] + select({
+        "//src/gpu:vulkan_backend": ["//src/gpu/vk:srcs"],
+        "//conditions:default": [],
+    }),
     visibility = ["//src:__pkg__"],
 )
 

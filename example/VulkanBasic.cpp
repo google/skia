@@ -15,7 +15,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/vk/GrVkBackendContext.h"
-#include "include/gpu/vk/GrVkExtensions.h"
+#include "include/gpu/vk/VulkanExtensions.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 #include <string.h>
@@ -36,7 +36,7 @@
 int main(int argc, char** argv) {
     GrVkBackendContext backendContext;
     VkDebugReportCallbackEXT debugCallback;
-    std::unique_ptr<GrVkExtensions> extensions(new GrVkExtensions());
+    std::unique_ptr<skgpu::VulkanExtensions> extensions(new skgpu::VulkanExtensions());
     std::unique_ptr<VkPhysicalDeviceFeatures2> features(new VkPhysicalDeviceFeatures2);
 
     // First we need to create a GrVkBackendContext so that we can make a Vulkan GrDirectContext.

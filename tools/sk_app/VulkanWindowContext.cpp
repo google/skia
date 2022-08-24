@@ -14,8 +14,8 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkAutoMalloc.h"
 
-#include "include/gpu/vk/GrVkExtensions.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanExtensions.h"
 #include "src/gpu/ganesh/vk/GrVkImage.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 
@@ -54,7 +54,7 @@ void VulkanWindowContext::initializeContext() {
 
     PFN_vkGetInstanceProcAddr getInstanceProc = fGetInstanceProcAddr;
     GrVkBackendContext backendContext;
-    GrVkExtensions extensions;
+    skgpu::VulkanExtensions extensions;
     VkPhysicalDeviceFeatures2 features;
     if (!sk_gpu_test::CreateVkBackendContext(getInstanceProc, &backendContext, &extensions,
                                              &features, &fDebugCallback, &fPresentQueueIndex,

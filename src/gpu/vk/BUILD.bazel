@@ -1,11 +1,28 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+
+VK_FILES = [
+    "GrVkSecondaryCBDrawContext.h",
+    "VulkanExtensions.cpp",
+]
+
+split_srcs_and_hdrs(
+    name = "vk",
+    files = VK_FILES,
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [":vk_srcs"],
+    visibility = ["//src/gpu:__pkg__"],
+)
+
 filegroup(
     name = "private_hdrs",
-    srcs = ["GrVkSecondaryCBDrawContext.h"],
+    srcs = [":vk_hdrs"],
     visibility = ["//src/gpu:__pkg__"],
 )

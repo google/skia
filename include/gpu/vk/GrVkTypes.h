@@ -9,15 +9,8 @@
 #ifndef GrVkTypes_DEFINED
 #define GrVkTypes_DEFINED
 
-#include "include/core/SkTypes.h"
-#include "include/private/gpu/vk/SkiaVulkan.h"
-
-#ifndef VK_VERSION_1_1
-#error Skia requires the use of Vulkan 1.1 headers
-#endif
-
-#include <functional>
 #include "include/gpu/GrTypes.h"
+#include "include/gpu/vk/VulkanTypes.h"
 
 typedef intptr_t GrVkBackendMemory;
 
@@ -134,11 +127,7 @@ struct GrVkImageInfo {
 #endif
 };
 
-using GrVkGetProc = std::function<PFN_vkVoidFunction(
-        const char*, // function name
-        VkInstance,  // instance or VK_NULL_HANDLE
-        VkDevice     // device or VK_NULL_HANDLE
-        )>;
+using GrVkGetProc = skgpu::VulkanGetProc;
 
 /**
  * This object is wrapped in a GrBackendDrawableInfo and passed in as an argument to
