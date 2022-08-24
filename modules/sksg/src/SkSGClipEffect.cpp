@@ -13,10 +13,11 @@
 
 namespace sksg {
 
-ClipEffect::ClipEffect(sk_sp<RenderNode> child, sk_sp<GeometryNode> clip, bool aa)
+ClipEffect::ClipEffect(sk_sp<RenderNode> child, sk_sp<GeometryNode> clip, bool aa, bool force_clip)
     : INHERITED(std::move(child))
     , fClipNode(std::move(clip))
-    , fAntiAlias(aa) {
+    , fAntiAlias(aa)
+    , fForceClip(force_clip) {
     this->observeInval(fClipNode);
 }
 
@@ -43,7 +44,10 @@ SkRect ClipEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm)
     const auto clipBounds = fClipNode->revalidate(ic, ctm);
     auto childBounds = this->INHERITED::onRevalidate(ic, ctm);
 
-    fNoop = fClipNode->asPath().conservativelyContainsRect(childBounds);
+    // When the child node is fully contained within the clip, it is usually safe to elide.
+    // An exception is clip-dependent sizing for saveLayer buffers, where the clip is always
+    // significant.  For those cases, we provide a mechanism to disable elision.
+    fNoop = !fForceClip && fClipNode->asPath().conservativelyContainsRect(childBounds);
 
     return childBounds.intersect(clipBounds) ? childBounds : SkRect::MakeEmpty();
 }

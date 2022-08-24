@@ -469,7 +469,11 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
     if (Parse<float>(fJlayer["w"], &w) && Parse<float>(fJlayer["h"], &h)) {
         layer = sksg::ClipEffect::Make(std::move(layer),
                                        sksg::Rect::Make(SkRect::MakeWH(w, h)),
-                                       true);
+#ifdef SK_LEGACY_SKOTTIE_CLIPPING
+                                       /*aa=*/true, /*force_clip=*/false);
+#else
+                                       /*aa=*/true, /*force_clip=*/true);
+#endif
     }
 
     // Optional layer mask.
