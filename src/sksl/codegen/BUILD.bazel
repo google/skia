@@ -37,7 +37,7 @@ split_srcs_and_hdrs(
 filegroup(
     name = "srcs",
     srcs = [
-        "SkSLVMCodeGenerator.cpp",
+        ":core_srcs",
     ] + select({
         "//src/sksl:use_sksl_gpu_srcs": [":gpu_srcs"],
         "//conditions:default": [],
