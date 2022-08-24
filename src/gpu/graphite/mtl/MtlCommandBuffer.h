@@ -124,6 +124,7 @@ private:
                                const Texture*,
                                const BufferTextureCopyData* copyData,
                                int count) override;
+    bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
 
 #ifdef SK_ENABLE_PIET_GPU
     void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) override;

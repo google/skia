@@ -77,6 +77,7 @@ public:
                              sk_sp<Texture>,
                              const BufferTextureCopyData*,
                              int count);
+    bool synchronizeBufferToCpu(sk_sp<Buffer>);
 
 #ifdef SK_ENABLE_PIET_GPU
     void renderPietScene(const skgpu::piet::Scene& scene, sk_sp<Texture> target);
@@ -105,6 +106,7 @@ private:
                                        const Texture*,
                                        const BufferTextureCopyData*,
                                        int count) = 0;
+    virtual bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) = 0;
 
 #ifdef SK_ENABLE_PIET_GPU
     virtual void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) = 0;

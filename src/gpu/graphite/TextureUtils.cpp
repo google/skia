@@ -20,6 +20,7 @@
 #include "src/gpu/graphite/CopyTask.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/SynchronizeToCpuTask.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/UploadTask.h"
 
@@ -140,18 +141,23 @@ bool ReadPixelsHelper(FlushPendingWorkCallback&& flushPendingWork,
     }
 
     SkIRect srcRect = SkIRect::MakeXYWH(srcX, srcY, dstInfo.width(), dstInfo.height());
-    sk_sp<CopyTextureToBufferTask> task =
-            CopyTextureToBufferTask::Make(std::move(srcTexture),
-                                          srcRect,
-                                          dstBuffer,
-                                          /*bufferOffset=*/0,
-                                          dstRowBytes);
-    if (!task) {
+    sk_sp<CopyTextureToBufferTask> copyTask = CopyTextureToBufferTask::Make(std::move(srcTexture),
+                                                                            srcRect,
+                                                                            dstBuffer,
+                                                                            /*bufferOffset=*/0,
+                                                                            dstRowBytes);
+    if (!copyTask) {
+        return false;
+    }
+
+    sk_sp<SynchronizeToCpuTask> syncTask = SynchronizeToCpuTask::Make(dstBuffer);
+    if (!syncTask) {
         return false;
     }
 
     flushPendingWork();
-    recorder->priv().add(std::move(task));
+    recorder->priv().add(std::move(copyTask));
+    recorder->priv().add(std::move(syncTask));
 
     std::unique_ptr<Recording> recording = recorder->snap();
     if (!recording) {

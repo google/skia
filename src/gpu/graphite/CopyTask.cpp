@@ -40,12 +40,8 @@ CopyTextureToBufferTask::CopyTextureToBufferTask(sk_sp<Texture> texture,
 CopyTextureToBufferTask::~CopyTextureToBufferTask() {}
 
 bool CopyTextureToBufferTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
-    commandBuffer->copyTextureToBuffer(std::move(fTexture),
-                                       fSrcRect,
-                                       std::move(fBuffer),
-                                       fBufferOffset,
-                                       fBufferRowBytes);
-    return true;
+    return commandBuffer->copyTextureToBuffer(
+            std::move(fTexture), fSrcRect, std::move(fBuffer), fBufferOffset, fBufferRowBytes);
 }
 
 } // namespace skgpu::graphite

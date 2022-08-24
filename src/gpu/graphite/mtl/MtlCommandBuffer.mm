@@ -587,13 +587,6 @@ bool MtlCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
     blitCmdEncoder->pushDebugGroup(@"readOrTransferPixels");
 #endif
     blitCmdEncoder->copyFromTexture(mtlTexture, srcRect, mtlBuffer, bufferOffset, bufferRowBytes);
-
-    if (fSharedContext->mtlCaps().isMac()) {
-#ifdef SK_BUILD_FOR_MAC
-        // Sync GPU data back to the CPU
-        blitCmdEncoder->synchronizeResource(mtlBuffer);
-#endif
-    }
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
     blitCmdEncoder->popDebugGroup();
 #endif
@@ -635,6 +628,40 @@ bool MtlCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     blitCmdEncoder->popDebugGroup();
 #endif
     return true;
+}
+
+bool MtlCommandBuffer::onSynchronizeBufferToCpu(const Buffer* buffer, bool* outDidResultInWork) {
+#ifdef SK_BUILD_FOR_MAC
+    SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
+
+    id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(buffer)->mtlBuffer();
+    if ([mtlBuffer storageMode] != MTLStorageModeManaged) {
+        *outDidResultInWork = false;
+        return true;
+    }
+
+    MtlBlitCommandEncoder* blitCmdEncoder = this->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
+
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    blitCmdEncoder->pushDebugGroup(@"synchronizeToCpu");
+#endif
+    blitCmdEncoder->synchronizeResource(mtlBuffer);
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    blitCmdEncoder->popDebugGroup();
+#endif
+
+    *outDidResultInWork = true;
+    return true;
+#else   // SK_BUILD_FOR_MAC
+    // Explicit synchronization is never necessary on builds that are not macOS since we never use
+    // discrete GPUs with managed mode buffers outside of macOS.
+    *outDidResultInWork = false;
+    return true;
+#endif  // SK_BUILD_FOR_MAC
 }
 
 #ifdef SK_ENABLE_PIET_GPU
