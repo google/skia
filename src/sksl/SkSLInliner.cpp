@@ -18,7 +18,6 @@
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLMangler.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
@@ -566,7 +565,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
             const std::string* name = symbolTableForStatement->takeOwnershipOfString(
-                    fContext->fMangler->uniqueName(variable.name(), symbolTableForStatement));
+                    fMangler.uniqueName(variable.name(), symbolTableForStatement));
             auto clonedVar = std::make_unique<Variable>(
                     pos,
                     variable.modifiersPosition(),
@@ -629,6 +628,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
         // for void-return functions, or in cases that are simple enough that we can just replace
         // the function-call node with the result expression.
         ScratchVariable var = Variable::MakeScratchVariable(*fContext,
+                                                            fMangler,
                                                             function.declaration().name(),
                                                             &function.declaration().returnType(),
                                                             Modifiers{},
@@ -657,6 +657,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
             }
         }
         ScratchVariable var = Variable::MakeScratchVariable(*fContext,
+                                                            fMangler,
                                                             param->name(),
                                                             &arg->type(),
                                                             param->modifiers(),

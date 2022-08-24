@@ -10,6 +10,7 @@
 
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -113,6 +114,7 @@ private:
     bool isSafeToInline(const FunctionDefinition* functionDef, const ProgramUsage& usage);
 
     const Context* fContext = nullptr;
+    Mangler fMangler;
     int fInlinedStatementCounter = 0;
 };
 

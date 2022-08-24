@@ -10,7 +10,6 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/SkSLPool.h"
@@ -47,7 +46,6 @@ ThreadContext::ThreadContext(SkSL::Compiler* compiler,
     fCompiler->fContext->fConfig = fConfig.get();
     fCompiler->fContext->fErrors = &fDefaultErrorReporter;
     fCompiler->fContext->fBuiltins = module.fElements.get();
-    fCompiler->fContext->fMangler->reset();
     fCompiler->fSymbolTable = module.fSymbols;
     this->setupSymbolTable();
 }

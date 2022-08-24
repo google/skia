@@ -24,6 +24,7 @@ namespace SkSL {
 
 class Context;
 class Expression;
+class Mangler;
 class SymbolTable;
 class VarDeclaration;
 
@@ -80,6 +81,7 @@ public:
         std::unique_ptr<Statement> fVarDecl;
     };
     static ScratchVariable MakeScratchVariable(const Context& context,
+                                               Mangler& mangler,
                                                std::string_view baseName,
                                                const Type* type,
                                                const Modifiers& modifiers,

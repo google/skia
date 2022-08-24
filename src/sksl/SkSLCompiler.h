@@ -16,7 +16,6 @@
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
-#include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLParsedModule.h"
 
 #include <array>
@@ -276,8 +275,6 @@ private:
 
     ParsedModule fPublicModule;              // [Shared] + Runtime effect intrinsics - Private types
     ParsedModule fRuntimeShaderModule;       // [Public] + Runtime shader decls
-
-    Mangler fMangler;
 
     // This is the current symbol table of the code we are processing, and therefore changes during
     // compilation

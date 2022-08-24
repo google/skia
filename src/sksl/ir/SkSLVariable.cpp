@@ -98,6 +98,7 @@ std::unique_ptr<Variable> Variable::Make(const Context& context, Position pos,
 }
 
 Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
+                                                        Mangler& mangler,
                                                         std::string_view baseName,
                                                         const Type* type,
                                                         const Modifiers& modifiers,
@@ -116,7 +117,7 @@ Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,
 
     // Provide our new variable with a unique name, and add it to our symbol table.
     const std::string* name =
-            symbolTable->takeOwnershipOfString(context.fMangler->uniqueName(baseName, symbolTable));
+            symbolTable->takeOwnershipOfString(mangler.uniqueName(baseName, symbolTable));
 
     // Create our new variable and add it to the symbol table.
     ScratchVariable result;
