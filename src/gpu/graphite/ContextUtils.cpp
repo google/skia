@@ -330,7 +330,8 @@ std::string GetSkSLVS(const GraphicsPipelineDesc& desc,
     sksl += "float2 stepLocalCoords = float2(0);\n";
     // Vertex shader body
     sksl += step->vertexSkSL();
-    sksl += "sk_Position = float4(devPosition.xy * rtAdjust.xy + rtAdjust.zw, devPosition.zw);\n";
+    sksl += "sk_Position = float4(devPosition.xy * rtAdjust.xy + devPosition.ww * rtAdjust.zw,"
+            "                     devPosition.zw);\n";
 
     if (defineLocalCoordsVarying) {
         // Assign Render Step's stepLocalCoords to the localCoordsVar varying.
