@@ -231,8 +231,6 @@ private:
         Compiler& fCompiler;
     };
 
-    std::shared_ptr<SymbolTable> makeRootSymbolTableWithPublicTypes() const;
-
     /** Optimize every function in the program. */
     bool optimize(Program& program);
 

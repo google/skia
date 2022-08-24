@@ -81,7 +81,9 @@ struct ModuleLoader::Impl {
     SkMutex fMutex;
     const BuiltinTypes fBuiltinTypes;
     ModifiersPool fCoreModifiers;
+
     ParsedModule fRootModule;
+    std::shared_ptr<SymbolTable> fRootSymbolTableWithPublicTypes;
 };
 
 ModuleLoader ModuleLoader::Get() {
@@ -101,6 +103,43 @@ ModuleLoader::Impl::Impl() {
     this->makeRootSymbolTable();
 }
 
+void ModuleLoader::AddPublicTypeAliases(SkSL::SymbolTable* symbols,
+                                        const SkSL::BuiltinTypes& types) {
+    // Add some aliases to the runtime effect modules so that it's friendlier, and more like GLSL.
+    symbols->addWithoutOwnership(types.fVec2.get());
+    symbols->addWithoutOwnership(types.fVec3.get());
+    symbols->addWithoutOwnership(types.fVec4.get());
+
+    symbols->addWithoutOwnership(types.fIVec2.get());
+    symbols->addWithoutOwnership(types.fIVec3.get());
+    symbols->addWithoutOwnership(types.fIVec4.get());
+
+    symbols->addWithoutOwnership(types.fBVec2.get());
+    symbols->addWithoutOwnership(types.fBVec3.get());
+    symbols->addWithoutOwnership(types.fBVec4.get());
+
+    symbols->addWithoutOwnership(types.fMat2.get());
+    symbols->addWithoutOwnership(types.fMat3.get());
+    symbols->addWithoutOwnership(types.fMat4.get());
+
+    symbols->addWithoutOwnership(types.fMat2x2.get());
+    symbols->addWithoutOwnership(types.fMat2x3.get());
+    symbols->addWithoutOwnership(types.fMat2x4.get());
+    symbols->addWithoutOwnership(types.fMat3x2.get());
+    symbols->addWithoutOwnership(types.fMat3x3.get());
+    symbols->addWithoutOwnership(types.fMat3x4.get());
+    symbols->addWithoutOwnership(types.fMat4x2.get());
+    symbols->addWithoutOwnership(types.fMat4x3.get());
+    symbols->addWithoutOwnership(types.fMat4x4.get());
+
+    // Hide all the private symbols by aliasing them all to "invalid". This will prevent code from
+    // using built-in names like `sampler2D` as variable names.
+    for (BuiltinTypePtr privateType : ModuleLoader::PrivateTypeList()) {
+        symbols->add(Type::MakeAliasType((types.*privateType)->name(), *types.fInvalid));
+    }
+    symbols->add(Type::MakeAliasType("sk_Caps", *types.fInvalid));
+}
+
 const BuiltinTypes& ModuleLoader::builtinTypes() {
     return fModuleLoader.fBuiltinTypes;
 }
@@ -111,6 +150,16 @@ ModifiersPool& ModuleLoader::coreModifiers() {
 
 const ParsedModule& ModuleLoader::rootModule() {
     return fModuleLoader.fRootModule;
+}
+
+std::shared_ptr<SymbolTable>& ModuleLoader::rootSymbolTableWithPublicTypes() {
+    if (!fModuleLoader.fRootSymbolTableWithPublicTypes) {
+        fModuleLoader.fRootSymbolTableWithPublicTypes =
+                std::make_shared<SymbolTable>(this->rootModule().fSymbols, /*builtin=*/true);
+        AddPublicTypeAliases(fModuleLoader.fRootSymbolTableWithPublicTypes.get(),
+                             this->builtinTypes());
+    }
+    return fModuleLoader.fRootSymbolTableWithPublicTypes;
 }
 
 SkSpan<const BuiltinTypePtr> ModuleLoader::RootTypeList() {

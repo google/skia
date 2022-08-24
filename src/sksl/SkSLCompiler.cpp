@@ -7,7 +7,6 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
-#include "include/core/SkSpan.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/sksl/DSLCore.h"
@@ -16,7 +15,6 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinMap.h"
-#include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/SkSLInliner.h"
@@ -36,7 +34,6 @@
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
-#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -248,53 +245,11 @@ const ParsedModule& Compiler::loadGraphiteVertexModule() {
 #endif
 }
 
-static void add_public_type_aliases(SkSL::SymbolTable* symbols, const SkSL::BuiltinTypes& types) {
-    // Add some aliases to the runtime effect modules so that it's friendlier, and more like GLSL.
-    symbols->addWithoutOwnership(types.fVec2.get());
-    symbols->addWithoutOwnership(types.fVec3.get());
-    symbols->addWithoutOwnership(types.fVec4.get());
-
-    symbols->addWithoutOwnership(types.fIVec2.get());
-    symbols->addWithoutOwnership(types.fIVec3.get());
-    symbols->addWithoutOwnership(types.fIVec4.get());
-
-    symbols->addWithoutOwnership(types.fBVec2.get());
-    symbols->addWithoutOwnership(types.fBVec3.get());
-    symbols->addWithoutOwnership(types.fBVec4.get());
-
-    symbols->addWithoutOwnership(types.fMat2.get());
-    symbols->addWithoutOwnership(types.fMat3.get());
-    symbols->addWithoutOwnership(types.fMat4.get());
-
-    symbols->addWithoutOwnership(types.fMat2x2.get());
-    symbols->addWithoutOwnership(types.fMat2x3.get());
-    symbols->addWithoutOwnership(types.fMat2x4.get());
-    symbols->addWithoutOwnership(types.fMat3x2.get());
-    symbols->addWithoutOwnership(types.fMat3x3.get());
-    symbols->addWithoutOwnership(types.fMat3x4.get());
-    symbols->addWithoutOwnership(types.fMat4x2.get());
-    symbols->addWithoutOwnership(types.fMat4x3.get());
-    symbols->addWithoutOwnership(types.fMat4x4.get());
-
-    // Hide all the private symbols by aliasing them all to "invalid". This will prevent code from
-    // using built-in names like `sampler2D` as variable names.
-    for (BuiltinTypePtr privateType : ModuleLoader::PrivateTypeList()) {
-        symbols->add(Type::MakeAliasType((types.*privateType)->name(), *types.fInvalid));
-    }
-    symbols->add(Type::MakeAliasType("sk_Caps", *types.fInvalid));
-}
-
-std::shared_ptr<SymbolTable> Compiler::makeRootSymbolTableWithPublicTypes() const {
-    auto result = std::make_shared<SymbolTable>(fRootModule->fSymbols, /*builtin=*/true);
-    add_public_type_aliases(result.get(), fContext->fTypes);
-    return result;
-}
-
 const ParsedModule& Compiler::loadPublicModule() {
     if (!fPublicModule.fSymbols) {
         fPublicModule = this->parseModule(ProgramKind::kGeneric, MODULE_DATA(public),
                                           this->loadSharedModule());
-        add_public_type_aliases(fPublicModule.fSymbols.get(), fContext->fTypes);
+        ModuleLoader::AddPublicTypeAliases(fPublicModule.fSymbols.get(), fContext->fTypes);
     }
     return fPublicModule;
 }
