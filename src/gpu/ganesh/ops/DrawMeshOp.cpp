@@ -661,7 +661,7 @@ MeshOp::MeshOp(GrProcessorSet*          processorSet,
     this->setTransformedBounds(mesh.bounds(), fViewMatrix, HasAABloat::kNo, IsHairline::kNo);
 }
 
-static sk_sp<SkMeshSpecification> make_vertices_spec(bool hasColors, bool hasTex) {
+static SkMeshSpecification* make_vertices_spec(bool hasColors, bool hasTex) {
     using Attribute = SkMeshSpecification::Attribute;
     using Varying   = SkMeshSpecification::Varying;
     std::vector<Attribute> attributes;
@@ -703,7 +703,7 @@ static sk_sp<SkMeshSpecification> make_vertices_spec(bool hasColors, bool hasTex
             vs,
             fs);
     SkASSERT(spec);
-    return spec;
+    return spec.release();
 }
 
 MeshOp::MeshOp(GrProcessorSet*          processorSet,
@@ -722,23 +722,23 @@ MeshOp::MeshOp(GrProcessorSet*          processorSet,
                 (vertices->priv().hasTexCoords() ? 0b10 : 0b00);
     switch (attrs) {
         case 0b00: {
-            static const auto kSpec = make_vertices_spec(false, false);
-            fSpecification = kSpec;
+            static const SkMeshSpecification* kSpec = make_vertices_spec(false, false);
+            fSpecification = sk_ref_sp(kSpec);
             break;
         }
         case 0b01: {
-            static const auto kSpec = make_vertices_spec(true, false);
-            fSpecification = kSpec;
+            static const SkMeshSpecification* kSpec = make_vertices_spec(true, false);
+            fSpecification = sk_ref_sp(kSpec);
             break;
         }
         case 0b10: {
-            static const auto kSpec = make_vertices_spec(false, true);
-            fSpecification = kSpec;
+            static const SkMeshSpecification* kSpec = make_vertices_spec(false, true);
+            fSpecification = sk_ref_sp(kSpec);
             break;
         }
         case 0b11: {
-            static const auto kSpec = make_vertices_spec(true, true);
-            fSpecification = kSpec;
+            static const SkMeshSpecification* kSpec = make_vertices_spec(true, true);
+            fSpecification = sk_ref_sp(kSpec);
             break;
         }
     }
