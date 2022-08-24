@@ -59,7 +59,7 @@ public:
     int width() const { return fSubset.width(); }
     int height() const { return fSubset.height(); }
     const SkIRect& subset() const { return fSubset; }
-    SkColorSpace* getColorSpace() const;
+    SkColorSpace* getColorSpace() const { return this->onGetColorSpace(); }
 
     uint32_t uniqueID() const { return fUniqueID; }
     virtual SkAlphaType alphaType() const = 0;
@@ -69,7 +69,12 @@ public:
     /**
      *  Draw this SpecialImage into the canvas, automatically taking into account the image's subset
      */
-    void draw(SkCanvas*, SkScalar x, SkScalar y, const SkSamplingOptions&, const SkPaint*) const;
+    void draw(SkCanvas* canvas,
+              SkScalar x, SkScalar y,
+              const SkSamplingOptions& sampling,
+              const SkPaint* paint) const {
+        return this->onDraw(canvas, x, y, sampling, paint);
+    }
     void draw(SkCanvas* canvas, SkScalar x, SkScalar y) const {
         this->draw(canvas, x, y, SkSamplingOptions(), nullptr);
     }
@@ -96,8 +101,8 @@ public:
     /**
      *  Create a new special surface with a backend that is compatible with this special image.
      */
-    sk_sp<SkSpecialSurface> makeSurface(SkColorType colorType,
-                                        const SkColorSpace* colorSpace,
+    sk_sp<SkSpecialSurface> makeSurface(SkColorType,
+                                        const SkColorSpace*,
                                         const SkISize& size,
                                         SkAlphaType,
                                         const SkSurfaceProps&) const;
@@ -108,17 +113,20 @@ public:
      * TODO (michaelludwig) - This is only used by SkTileImageFilter, which appears should be
      * updated to work correctly with subsets and then makeTightSurface() can go away entirely.
      */
-    sk_sp<SkSurface> makeTightSurface(SkColorType colorType,
-                                      const SkColorSpace* colorSpace,
+    sk_sp<SkSurface> makeTightSurface(SkColorType,
+                                      const SkColorSpace*,
                                       const SkISize& size,
-                                      SkAlphaType at = kPremul_SkAlphaType) const;
+                                      SkAlphaType = kPremul_SkAlphaType) const;
 
     /**
      * Extract a subset of this special image and return it as a special image.
      * It may or may not point to the same backing memory. The input 'subset' is relative to the
      * special image's content rect.
      */
-    sk_sp<SkSpecialImage> makeSubset(const SkIRect& subset) const;
+    sk_sp<SkSpecialImage> makeSubset(const SkIRect& subset) const {
+        SkIRect absolute = subset.makeOffset(this->subset().topLeft());
+        return this->onMakeSubset(absolute);
+    }
 
     /**
      * Create an SkImage from the contents of this special image optionally extracting a subset.
@@ -138,19 +146,19 @@ public:
      * Create an SkShader that samples the contents of this special image, applying tile mode for
      * any sample that falls outside its internal subset.
      */
-    sk_sp<SkShader> asShader(SkTileMode, const SkSamplingOptions&, const SkMatrix&) const;
+    sk_sp<SkShader> asShader(SkTileMode, const SkSamplingOptions&, const SkMatrix& lm) const;
     sk_sp<SkShader> asShader(const SkSamplingOptions& sampling) const;
     sk_sp<SkShader> asShader(const SkSamplingOptions& sampling, const SkMatrix& lm) const;
 
     /**
      *  If the SpecialImage is backed by a gpu texture, return true.
      */
-    bool isTextureBacked() const;
+    bool isTextureBacked() const { return SkToBool(this->onGetContext()); }
 
     /**
      * Return the GrRecordingContext if the SkSpecialImage is GrTexture-backed
      */
-    GrRecordingContext* getContext() const;
+    GrRecordingContext* getContext() const { return this->onGetContext(); }
 
 #if SK_SUPPORT_GPU
     /**
@@ -159,7 +167,7 @@ public:
      * coordinates must be mapped from the content rect (e.g. relative to 'subset()') to the proxy's
      * space (offset by subset().topLeft()).
      */
-    GrSurfaceProxyView view(GrRecordingContext*) const;
+    GrSurfaceProxyView view(GrRecordingContext* context) const { return this->onView(context); }
 #endif
 
     /**
@@ -167,17 +175,59 @@ public:
      *  The returned bitmap represents the subset accessed by this image, thus (0,0) refers to the
      *  top-left corner of 'subset'.
      */
-    bool getROPixels(SkBitmap*) const;
+    bool getROPixels(SkBitmap* bm) const {
+        return this->onGetROPixels(bm);
+    }
 
 protected:
     SkSpecialImage(const SkIRect& subset, uint32_t uniqueID, const SkSurfaceProps&);
+
+    virtual void onDraw(SkCanvas*,
+                        SkScalar x, SkScalar y,
+                        const SkSamplingOptions&,
+                        const SkPaint*) const = 0;
+
+    virtual bool onGetROPixels(SkBitmap*) const = 0;
+
+    virtual GrRecordingContext* onGetContext() const { return nullptr; }
+
+    virtual SkColorSpace* onGetColorSpace() const = 0;
+
+#if SK_SUPPORT_GPU
+    virtual GrSurfaceProxyView onView(GrRecordingContext*) const = 0;
+#endif
+
+    // This subset is relative to the backing store's coordinate frame, it has already been mapped
+    // from the content rect by the non-virtual makeSubset().
+    virtual sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const = 0;
+
+    virtual sk_sp<SkSpecialSurface> onMakeSurface(SkColorType colorType,
+                                                  const SkColorSpace* colorSpace,
+                                                  const SkISize& size,
+                                                  SkAlphaType at,
+                                                  const SkSurfaceProps&) const = 0;
+
+    // This subset (when not null) is relative to the backing store's coordinate frame, it has
+    // already been mapped from the content rect by the non-virtual asImage().
+    virtual sk_sp<SkImage> onAsImage(const SkIRect* subset) const = 0;
+
+    virtual sk_sp<SkShader> onAsShader(SkTileMode,
+                                       const SkSamplingOptions&,
+                                       const SkMatrix&) const = 0;
+
+    virtual sk_sp<SkSurface> onMakeTightSurface(SkColorType colorType,
+                                                const SkColorSpace* colorSpace,
+                                                const SkISize& size,
+                                                SkAlphaType at) const = 0;
+
+#ifdef SK_DEBUG
+    static bool RectFits(const SkIRect& rect, int width, int height);
+#endif
 
 private:
     const SkSurfaceProps fProps;
     const SkIRect        fSubset;
     const uint32_t       fUniqueID;
-
-    using INHERITED = SkRefCnt;
 };
 
 #endif
