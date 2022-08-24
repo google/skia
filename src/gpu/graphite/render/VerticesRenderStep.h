@@ -15,7 +15,7 @@ namespace skgpu::graphite {
 
 class VerticesRenderStep final : public RenderStep {
 public:
-    explicit VerticesRenderStep(PrimitiveType, std::string_view, bool hasColor, bool hasTexture);
+    explicit VerticesRenderStep(PrimitiveType, bool hasColor, bool hasTexCoords);
 
     ~VerticesRenderStep() override;
 
@@ -25,8 +25,8 @@ public:
     const char* fragmentColorSkSL() const override;
 
 private:
-    bool fHasColor;
-    bool fHasTexture;
+    const bool fHasColor;
+    const bool fHasTexCoords;
 
     void writeVerticesColorAndTexture(DrawWriter* writer, const DrawParams& params,
                                       int ssboIndex) const;

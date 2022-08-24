@@ -110,35 +110,27 @@ const Renderer& Renderer::ConvexTessellatedWedges() {
 
 const Renderer& Renderer::Vertices(SkVertices::VertexMode mode, bool hasColors, bool hasTexCoords) {
     static const VerticesRenderStep kTrianglesStep{PrimitiveType::kTriangles,
-                                                   "triangles",
                                                    /*hasColor=*/false,
                                                    /*hasTexture=*/false};
     static const VerticesRenderStep kTrianglesColorStep{PrimitiveType::kTriangles,
-                                                        "triangles-color",
                                                         /*hasColor=*/true,
                                                         /*hasTexture=*/false};
     static const VerticesRenderStep kTrianglesTexStep{PrimitiveType::kTriangles,
-                                                      "triangles-tex",
                                                       /*hasColor=*/false,
                                                       /*hasTexture=*/true};
     static const VerticesRenderStep kTrianglesColorTexStep{PrimitiveType::kTriangles,
-                                                           "triangles-color-tex",
                                                            /*hasColor=*/true,
                                                            /*hasTexture=*/true};
     static const VerticesRenderStep kTriangleStripStep{PrimitiveType::kTriangleStrip,
-                                                       "triangle-strip",
                                                        /*hasColor=*/false,
                                                        /*hasTexture=*/false};
     static const VerticesRenderStep kTriangleStripColorStep{PrimitiveType::kTriangleStrip,
-                                                            "triangle-strip-color",
                                                             /*hasColor=*/true,
                                                             /*hasTexture=*/false};
     static const VerticesRenderStep kTriangleStripTexStep{PrimitiveType::kTriangleStrip,
-                                                          "triangle-strip-tex",
                                                           /*hasColor=*/false,
                                                           /*hasTexture=*/true};
     static const VerticesRenderStep kTriangleStripColorTexStep{PrimitiveType::kTriangleStrip,
-                                                               "triangle-strip-color-tex",
                                                                /*hasColor=*/true,
                                                                /*hasTexture=*/true};
 
