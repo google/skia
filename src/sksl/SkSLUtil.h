@@ -171,6 +171,20 @@ public:
         return result;
     }
 
+    static std::unique_ptr<ShaderCaps> BuiltinDeterminantSupport() {
+        std::unique_ptr<ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fBuiltinDeterminantSupport = true;
+        return result;
+    }
+
+    static std::unique_ptr<ShaderCaps> BuiltinFMASupport() {
+        std::unique_ptr<ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fBuiltinFMASupport = true;
+        return result;
+    }
+
     static std::unique_ptr<ShaderCaps> CannotUseFractForNegativeValues() {
         std::unique_ptr<ShaderCaps> result = MakeShaderCaps();
         result->fVersionDeclString = "#version 400";

@@ -1,3 +1,5 @@
+/*#pragma settings BuiltinFMASupport*/
+
 uniform half4 colorGreen, colorRed;
 uniform float testArray[5];
 

@@ -705,6 +705,8 @@ sksl_settings_tests = [
   "/sksl/shared/SwitchWithLoops.sksl",
   "/sksl/shared/SwitchWithLoopsES3.sksl",
   "/sksl/workarounds/AbsInt.sksl",
+  "/sksl/workarounds/BuiltinDeterminantSupport.sksl",
+  "/sksl/workarounds/BuiltinFMASupport.sksl",
   "/sksl/workarounds/BlendGuardedDivide.sksl",
   "/sksl/workarounds/FractNegative.sksl",
   "/sksl/workarounds/FragCoords.sksl",

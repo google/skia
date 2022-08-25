@@ -109,89 +109,116 @@ static bool detect_shader_settings(const std::string& text,
                 const size_t startingLength = settingsText.length();
 
                 if (consume_suffix(&settingsText, " AddAndTrueToLoopCondition")) {
-                    static auto s_addAndTrueCaps = Factory::AddAndTrueToLoopCondition();
-                    *caps = s_addAndTrueCaps.get();
+                    static SkSL::ShaderCaps* s_addAndTrueCaps =
+                            Factory::AddAndTrueToLoopCondition().release();
+                    *caps = s_addAndTrueCaps;
+                }
+                if (consume_suffix(&settingsText, " BuiltinDeterminantSupport")) {
+                    static SkSL::ShaderCaps* s_detCaps =
+                            Factory::BuiltinDeterminantSupport().release();
+                    *caps = s_detCaps;
+                }
+                if (consume_suffix(&settingsText, " BuiltinFMASupport")) {
+                    static SkSL::ShaderCaps* s_fmaCaps = Factory::BuiltinFMASupport().release();
+                    *caps = s_fmaCaps;
                 }
                 if (consume_suffix(&settingsText, " CannotUseFractForNegativeValues")) {
-                    static auto s_negativeFractCaps = Factory::CannotUseFractForNegativeValues();
-                    *caps = s_negativeFractCaps.get();
+                    static SkSL::ShaderCaps* s_negativeFractCaps =
+                            Factory::CannotUseFractForNegativeValues().release();
+                    *caps = s_negativeFractCaps;
                 }
                 if (consume_suffix(&settingsText, " CannotUseFragCoord")) {
-                    static auto s_noFragCoordCaps = Factory::CannotUseFragCoord();
-                    *caps = s_noFragCoordCaps.get();
+                    static SkSL::ShaderCaps* s_noFragCoordCaps =
+                            Factory::CannotUseFragCoord().release();
+                    *caps = s_noFragCoordCaps;
                 }
                 if (consume_suffix(&settingsText, " CannotUseMinAndAbsTogether")) {
-                    static auto s_minAbsCaps = Factory::CannotUseMinAndAbsTogether();
-                    *caps = s_minAbsCaps.get();
+                    static SkSL::ShaderCaps* s_minAbsCaps =
+                            Factory::CannotUseMinAndAbsTogether().release();
+                    *caps = s_minAbsCaps;
                 }
                 if (consume_suffix(&settingsText, " Default")) {
-                    static auto s_defaultCaps = Factory::Default();
-                    *caps = s_defaultCaps.get();
+                    static SkSL::ShaderCaps* s_defaultCaps = Factory::Default().release();
+                    *caps = s_defaultCaps;
                 }
                 if (consume_suffix(&settingsText, " EmulateAbsIntFunction")) {
-                    static auto s_emulateAbsIntCaps = Factory::EmulateAbsIntFunction();
-                    *caps = s_emulateAbsIntCaps.get();
+                    static SkSL::ShaderCaps* s_emulateAbsIntCaps =
+                            Factory::EmulateAbsIntFunction().release();
+                    *caps = s_emulateAbsIntCaps;
                 }
                 if (consume_suffix(&settingsText, " FramebufferFetchSupport")) {
-                    static auto s_fbFetchSupport = Factory::FramebufferFetchSupport();
-                    *caps = s_fbFetchSupport.get();
+                    static SkSL::ShaderCaps* s_fbFetchSupport =
+                            Factory::FramebufferFetchSupport().release();
+                    *caps = s_fbFetchSupport;
                 }
                 if (consume_suffix(&settingsText, " IncompleteShortIntPrecision")) {
-                    static auto s_incompleteShortIntCaps = Factory::IncompleteShortIntPrecision();
-                    *caps = s_incompleteShortIntCaps.get();
+                    static SkSL::ShaderCaps* s_incompleteShortIntCaps =
+                            Factory::IncompleteShortIntPrecision().release();
+                    *caps = s_incompleteShortIntCaps;
                 }
                 if (consume_suffix(&settingsText, " MustGuardDivisionEvenAfterExplicitZeroCheck")) {
-                    static auto s_div0Caps = Factory::MustGuardDivisionEvenAfterExplicitZeroCheck();
-                    *caps = s_div0Caps.get();
+                    static SkSL::ShaderCaps* s_div0Caps =
+                            Factory::MustGuardDivisionEvenAfterExplicitZeroCheck().release();
+                    *caps = s_div0Caps;
                 }
                 if (consume_suffix(&settingsText, " MustForceNegatedAtanParamToFloat")) {
-                    static auto s_negativeAtanCaps = Factory::MustForceNegatedAtanParamToFloat();
-                    *caps = s_negativeAtanCaps.get();
+                    static SkSL::ShaderCaps* s_negativeAtanCaps =
+                            Factory::MustForceNegatedAtanParamToFloat().release();
+                    *caps = s_negativeAtanCaps;
                 }
                 if (consume_suffix(&settingsText, " MustForceNegatedLdexpParamToMultiply")) {
-                    static auto s_negativeLdexpCaps =
-                            Factory::MustForceNegatedLdexpParamToMultiply();
-                    *caps = s_negativeLdexpCaps.get();
+                    static SkSL::ShaderCaps* s_negativeLdexpCaps =
+                            Factory::MustForceNegatedLdexpParamToMultiply().release();
+                    *caps = s_negativeLdexpCaps;
                 }
                 if (consume_suffix(&settingsText, " RemovePowWithConstantExponent")) {
-                    static auto s_powCaps = Factory::RemovePowWithConstantExponent();
-                    *caps = s_powCaps.get();
+                    static SkSL::ShaderCaps* s_powCaps =
+                            Factory::RemovePowWithConstantExponent().release();
+                    *caps = s_powCaps;
                 }
                 if (consume_suffix(&settingsText, " RewriteDoWhileLoops")) {
-                    static auto s_rewriteLoopCaps = Factory::RewriteDoWhileLoops();
-                    *caps = s_rewriteLoopCaps.get();
+                    static SkSL::ShaderCaps* s_rewriteLoopCaps =
+                            Factory::RewriteDoWhileLoops().release();
+                    *caps = s_rewriteLoopCaps;
                 }
                 if (consume_suffix(&settingsText, " RewriteSwitchStatements")) {
-                    static auto s_rewriteSwitchCaps = Factory::RewriteSwitchStatements();
-                    *caps = s_rewriteSwitchCaps.get();
+                    static SkSL::ShaderCaps* s_rewriteSwitchCaps =
+                            Factory::RewriteSwitchStatements().release();
+                    *caps = s_rewriteSwitchCaps;
                 }
                 if (consume_suffix(&settingsText, " RewriteMatrixVectorMultiply")) {
-                    static auto s_rewriteMatVecMulCaps = Factory::RewriteMatrixVectorMultiply();
-                    *caps = s_rewriteMatVecMulCaps.get();
+                    static SkSL::ShaderCaps* s_rewriteMatVecMulCaps =
+                            Factory::RewriteMatrixVectorMultiply().release();
+                    *caps = s_rewriteMatVecMulCaps;
                 }
                 if (consume_suffix(&settingsText, " RewriteMatrixComparisons")) {
-                    static auto s_rewriteMatrixComparisons = Factory::RewriteMatrixComparisons();
-                    *caps = s_rewriteMatrixComparisons.get();
+                    static SkSL::ShaderCaps* s_rewriteMatrixComparisons =
+                            Factory::RewriteMatrixComparisons().release();
+                    *caps = s_rewriteMatrixComparisons;
                 }
                 if (consume_suffix(&settingsText, " ShaderDerivativeExtensionString")) {
-                    static auto s_derivativeCaps = Factory::ShaderDerivativeExtensionString();
-                    *caps = s_derivativeCaps.get();
+                    static SkSL::ShaderCaps* s_derivativeCaps =
+                            Factory::ShaderDerivativeExtensionString().release();
+                    *caps = s_derivativeCaps;
                 }
                 if (consume_suffix(&settingsText, " UnfoldShortCircuitAsTernary")) {
-                    static auto s_ternaryCaps = Factory::UnfoldShortCircuitAsTernary();
-                    *caps = s_ternaryCaps.get();
+                    static SkSL::ShaderCaps* s_ternaryCaps =
+                            Factory::UnfoldShortCircuitAsTernary().release();
+                    *caps = s_ternaryCaps;
                 }
                 if (consume_suffix(&settingsText, " UsesPrecisionModifiers")) {
-                    static auto s_precisionCaps = Factory::UsesPrecisionModifiers();
-                    *caps = s_precisionCaps.get();
+                    static SkSL::ShaderCaps* s_precisionCaps =
+                            Factory::UsesPrecisionModifiers().release();
+                    *caps = s_precisionCaps;
                 }
                 if (consume_suffix(&settingsText, " Version110")) {
-                    static auto s_version110Caps = Factory::Version110();
-                    *caps = s_version110Caps.get();
+                    static SkSL::ShaderCaps* s_version110Caps = Factory::Version110().release();
+                    *caps = s_version110Caps;
                 }
                 if (consume_suffix(&settingsText, " Version450Core")) {
-                    static auto s_version450CoreCaps = Factory::Version450Core();
-                    *caps = s_version450CoreCaps.get();
+                    static SkSL::ShaderCaps* s_version450CoreCaps =
+                            Factory::Version450Core().release();
+                    *caps = s_version450CoreCaps;
                 }
                 if (consume_suffix(&settingsText, " AllowNarrowingConversions")) {
                     settings->fAllowNarrowingConversions = true;

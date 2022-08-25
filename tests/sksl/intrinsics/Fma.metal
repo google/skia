@@ -2,9 +2,9 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    half a;
-    half b;
-    half c;
+    half4 colorGreen;
+    half4 colorRed;
+    array<float, 5> testArray;
 };
 struct Inputs {
 };
@@ -14,6 +14,11 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor.x = fma(_uniforms.a, _uniforms.b, _uniforms.c);
+    float one = _uniforms.testArray[0];
+    float two = _uniforms.testArray[1];
+    float three = _uniforms.testArray[2];
+    half four = half(_uniforms.testArray[3]);
+    half five = half(_uniforms.testArray[4]);
+    _out.sk_FragColor = (fma(one, two, three) == 5.0 && fma(half(three), four, five) == 17.0h) && fma(6.0, 7.0, 8.0) == 50.0 ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
