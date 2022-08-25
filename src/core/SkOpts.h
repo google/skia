@@ -69,16 +69,14 @@ namespace SkOpts {
     extern void (*S32_alpha_D32_filter_DXDY)(const SkBitmapProcState&,
                                              const uint32_t* xy, int count, SkPMColor*);
 
-#define M(st) +1
     // We can't necessarily express the type of SkJumper stage functions here,
     // so we just use this void(*)(void) as a stand-in.
     using StageFn = void(*)(void);
-    extern StageFn stages_highp[SK_RASTER_PIPELINE_STAGES(M)], just_return_highp;
-    extern StageFn stages_lowp [SK_RASTER_PIPELINE_STAGES(M)], just_return_lowp;
+    extern StageFn stages_highp[SkRasterPipeline::kNumHighpStages], just_return_highp;
+    extern StageFn stages_lowp [SkRasterPipeline::kNumLowpStages ], just_return_lowp;
 
     extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, void**);
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
-#undef M
 
     extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
                                   int nregs, int loop, const int strides[],

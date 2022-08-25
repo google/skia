@@ -35,13 +35,13 @@ namespace SkOpts {
         inverted_CMYK_to_BGR1 = SK_OPTS_NS::inverted_CMYK_to_BGR1;
 
     #define M(st) stages_highp[SkRasterPipeline::st] = (StageFn)SK_OPTS_NS::st;
-        SK_RASTER_PIPELINE_STAGES(M)
+        SK_RASTER_PIPELINE_STAGES_ALL(M)
         just_return_highp = (StageFn)SK_OPTS_NS::just_return;
         start_pipeline_highp = SK_OPTS_NS::start_pipeline;
     #undef M
 
     #define M(st) stages_lowp[SkRasterPipeline::st] = (StageFn)SK_OPTS_NS::lowp::st;
-        SK_RASTER_PIPELINE_STAGES(M)
+        SK_RASTER_PIPELINE_STAGES_LOWP(M)
         just_return_lowp = (StageFn)SK_OPTS_NS::lowp::just_return;
         start_pipeline_lowp = SK_OPTS_NS::lowp::start_pipeline;
     #undef M
