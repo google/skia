@@ -989,7 +989,6 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(
     }
     SkASSERT(inputView.asTextureProxy());
 
-    // TODO (michaelludwig) - The color space choice is odd, should it just be ctx.refColorSpace()?
     dstBounds.offset(input->subset().topLeft());
     inputBounds.offset(input->subset().topLeft());
     auto sdc = SkGpuBlurUtils::GaussianBlur(
@@ -997,7 +996,7 @@ sk_sp<SkSpecialImage> SkBlurImageFilter::gpuFilter(
             std::move(inputView),
             SkColorTypeToGrColorType(input->colorType()),
             input->alphaType(),
-            ctx.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
+            ctx.refColorSpace(),
             dstBounds,
             inputBounds,
             sigma.x(),
