@@ -183,26 +183,6 @@ private:
     friend class Dehydrator;
 };
 
-/**
- * While in scope, the passed-in symbol table is replaced with a child symbol table.
- */
-class AutoSymbolTable {
-public:
-    AutoSymbolTable(std::shared_ptr<SymbolTable>* s)
-        : fSymbolTable(s) {
-        SkDEBUGCODE(fPrevious = fSymbolTable->get();)
-        SymbolTable::Push(fSymbolTable);
-    }
-
-    ~AutoSymbolTable() {
-        SymbolTable::Pop(fSymbolTable);
-        SkASSERT(fPrevious == fSymbolTable->get());
-    }
-
-    std::shared_ptr<SymbolTable>* fSymbolTable;
-    SkDEBUGCODE(SymbolTable* fPrevious;)
-};
-
 }  // namespace SkSL
 
 #endif
