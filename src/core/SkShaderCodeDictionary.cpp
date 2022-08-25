@@ -200,7 +200,7 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
     }
 
     if (step->emitsPrimitiveColor()) {
-        mainBody += "    half4 primitiveColor;";
+        mainBody += "half4 primitiveColor;";
         mainBody += step->fragmentColorSkSL();
         // TODO: Apply primitive blender
         // For now, just overwrite the prior color stored in lastOutputVar

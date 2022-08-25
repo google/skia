@@ -731,6 +731,30 @@ void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
     }
 }
 
+void PrimitiveBlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
+                                         SkPaintParamsKeyBuilder *builder,
+                                         SkPipelineDataGatherer* gatherer,
+                                         SkBlendMode pbm) {
+
+#ifdef SK_GRAPHITE_ENABLED
+    if (builder->backend() == SkBackend::kGraphite) {
+        auto dict = keyContext.dict();
+        // Unlike in the usual blendmode case, the primitive blend mode will always be implemented
+        // via shader-based blending.
+        if (gatherer) {
+            add_shaderbasedblender_uniform_data(dict, pbm, gatherer);
+        }
+        builder->beginBlock(SkBuiltInCodeSnippetID::kShaderBasedBlender);
+        return;
+    }
+#endif// SK_GRAPHITE_ENABLED
+
+    if (builder->backend() == SkBackend::kSkVM || builder->backend() == SkBackend::kGanesh) {
+        // TODO: add implementation for other backends
+        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kErrorColor);
+    }
+}
+
 RuntimeShaderBlock::ShaderData::ShaderData(sk_sp<const SkRuntimeEffect> effect)
         : fEffect(std::move(effect)) {}
 

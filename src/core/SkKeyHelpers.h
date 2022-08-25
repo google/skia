@@ -243,6 +243,13 @@ struct BlendModeBlock {
                            SkBlendMode);
 };
 
+struct PrimitiveBlendModeBlock {
+    static void BeginBlock(const SkKeyContext&,
+                           SkPaintParamsKeyBuilder*,
+                           SkPipelineDataGatherer*,
+                           SkBlendMode);
+};
+
 struct RuntimeShaderBlock {
     struct ShaderData {
         // This ctor is used during pre-compilation when we don't have enough information to

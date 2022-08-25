@@ -57,9 +57,16 @@ sk_sp<SkShader> PaintParams::refShader() const { return fShader; }
 
 sk_sp<SkColorFilter> PaintParams::refColorFilter() const { return fColorFilter; }
 
+sk_sp<SkBlender> PaintParams::refPrimitiveBlender() const { return fPrimitiveBlender; }
+
 void PaintParams::toKey(const SkKeyContext& keyContext,
                         SkPaintParamsKeyBuilder* builder,
                         SkPipelineDataGatherer* gatherer) const {
+
+    if (fPrimitiveBlender) {
+        as_BB(fPrimitiveBlender)->addToKey(keyContext, builder, gatherer,
+                                           /*primitiveColorBlender=*/true);
+    }
 
     if (fShader) {
         as_SB(fShader)->addToKey(keyContext, builder, gatherer);
@@ -73,7 +80,8 @@ void PaintParams::toKey(const SkKeyContext& keyContext,
     }
 
     if (fFinalBlender) {
-        as_BB(fFinalBlender)->addToKey(keyContext, builder, gatherer);
+        as_BB(fFinalBlender)->addToKey(keyContext, builder, gatherer,
+                                       /*primitiveColorBlender=*/false);
     } else {
         BlendModeBlock::BeginBlock(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
         builder->endBlock();

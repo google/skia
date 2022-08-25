@@ -934,7 +934,8 @@ static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children
         } else if (type == ChildType::kColorFilter) {
             as_CFB(child.colorFilter())->addToKey(keyContext, builder, gatherer);
         } else if (type == ChildType::kBlender) {
-            as_BB(child.blender())->addToKey(keyContext, builder, gatherer);
+            as_BB(child.blender())->addToKey(keyContext, builder, gatherer,
+                                             /*primitiveColorBlender=*/false);
         } else {
             // Patch in a "passthrough" child effect that returns the input color as-is.
             // TODO(skia:13508): if the child is a blender, we should blend the two inputs using
