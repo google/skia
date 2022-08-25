@@ -517,6 +517,10 @@ public:
         return fAvoidDithering;
     }
 
+    bool disablePerspectiveSDFText() const {
+        return fDisablePerspectiveSDFText;
+    }
+
     /**
      * Checks whether the passed color type is renderable. If so, the same color type is passed
      * back along with the default format used for the color type. If not, provides an alternative
@@ -591,6 +595,7 @@ protected:
     bool fNativeDrawIndexedIndirectIsBroken          : 1;
     bool fAvoidReorderingRenderTasks                 : 1;
     bool fAvoidDithering                             : 1;
+    bool fDisablePerspectiveSDFText                  : 1;
 
     // ANGLE performance workaround
     bool fPreferVRAMUseOverFlushes                   : 1;

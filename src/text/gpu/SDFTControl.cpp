@@ -39,18 +39,18 @@ SkScalar SDFTControl::MinSDFTRange(bool useSDFTForSmallText, SkScalar min) {
 }
 
 SDFTControl::SDFTControl(
-        bool ableToUseSDFT, bool useSDFTForSmallText, SkScalar min, SkScalar max, bool forcePaths)
+        bool ableToUseSDFT, bool useSDFTForSmallText, bool useSDFTForPerspectiveText,
+        SkScalar min, SkScalar max)
         : fMinDistanceFieldFontSize{MinSDFTRange(useSDFTForSmallText, min)}
         , fMaxDistanceFieldFontSize{max}
         , fAbleToUseSDFT{ableToUseSDFT}
-        , fForcePaths{forcePaths} {
+        , fAbleToUsePerspectiveSDFT{useSDFTForPerspectiveText} {
     SkASSERT_RELEASE(0 < min && min <= max);
 }
 
 bool SDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                            const SkMatrix& matrix) const {
-    return !fForcePaths &&
-           !isSDFT(approximateDeviceTextSize, paint, matrix) &&
+    return !isSDFT(approximateDeviceTextSize, paint, matrix) &&
            !matrix.hasPerspective() &&
             0 < approximateDeviceTextSize &&
             approximateDeviceTextSize < SkGlyphDigest::kSkSideTooBigForAtlas;
@@ -58,13 +58,12 @@ bool SDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& pa
 
 bool SDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                          const SkMatrix& matrix) const {
-    return !fForcePaths &&
-           fAbleToUseSDFT &&
+    return fAbleToUseSDFT &&
            paint.getMaskFilter() == nullptr &&
            paint.getStyle() == SkPaint::kFill_Style &&
            0 < approximateDeviceTextSize &&
            (fMinDistanceFieldFontSize <= approximateDeviceTextSize ||
-            matrix.hasPerspective()) &&
+            (fAbleToUsePerspectiveSDFT && matrix.hasPerspective())) &&
            approximateDeviceTextSize <= fMaxDistanceFieldFontSize;
 }
 

@@ -3876,6 +3876,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fAvoidLargeIndexBufferDraws = true;
     }
 
+    if (ctxInfo.renderer() == GrGLRenderer::kMali4xx ||
+        (ctxInfo.renderer() == GrGLRenderer::kWebGL &&
+         ctxInfo.webglRenderer() == GrGLRenderer::kMali4xx)) {
+        // Perspective SDF text runs significantly slower on Mali-4xx hardware
+        fDisablePerspectiveSDFText = true;
+    }
+
     // This was reproduced on the following configurations:
     // - A Galaxy J5 (Adreno 306) running Android 6 with driver 140.0
     // - A Nexus 7 2013 (Adreno 320) running Android 5 with driver 104.0

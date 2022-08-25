@@ -59,7 +59,8 @@ public:
     SK_API std::unique_ptr<SkCanvas> makeAnalysisCanvas(int width, int height,
                                                         const SkSurfaceProps& props,
                                                         sk_sp<SkColorSpace> colorSpace,
-                                                        bool DFTSupport);
+                                                        bool DFTSupport,
+                                                        bool DFTPerspSupport = true);
 
     // Serializes the typeface to be transmitted using this server.
     SK_SPI sk_sp<SkData> serializeTypeface(SkTypeface*);

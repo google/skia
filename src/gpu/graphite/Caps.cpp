@@ -83,9 +83,9 @@ sktext::gpu::SDFTControl Caps::getSDFTControl(bool useSDFTForSmallText) const {
     return sktext::gpu::SDFTControl{
             this->shaderCaps()->supportsDistanceFieldText(),
             useSDFTForSmallText,
+            true, /*ableToUsePerspectiveSDFT*/
             this->minDistanceFieldFontSize(),
-            this->glyphsAsPathsFontSize(),
-            false /*forcePaths*/};
+            this->glyphsAsPathsFontSize()};
 }
 
 } // namespace skgpu::graphite

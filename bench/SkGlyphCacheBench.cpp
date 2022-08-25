@@ -225,7 +225,7 @@ class DiffCanvasBench : public Benchmark {
         SkSurfaceProps props;
         if (modelCanvas) { modelCanvas->getProps(&props); }
         std::unique_ptr<SkCanvas> canvas = fServer->makeAnalysisCanvas(1024, 1024, props,
-                                                                       nullptr, true);
+                                                                       nullptr, true, true);
         loops *= 100;
         while (loops --> 0) {
             for (const auto& record : fTrace) {

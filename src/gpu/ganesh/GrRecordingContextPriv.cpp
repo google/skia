@@ -63,6 +63,7 @@ sktext::gpu::SDFTControl GrRecordingContextPriv::getSDFTControl(bool useSDFTForS
     return sktext::gpu::SDFTControl{
             this->caps()->shaderCaps()->supportsDistanceFieldText(),
             useSDFTForSmallText,
+            !this->caps()->disablePerspectiveSDFText(),
             this->options().fMinDistanceFieldFontSize,
             this->options().fGlyphsAsPathsFontSize};
 }

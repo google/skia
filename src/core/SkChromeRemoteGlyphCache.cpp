@@ -839,11 +839,13 @@ SkStrikeServer::~SkStrikeServer() = default;
 std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int height,
                                                              const SkSurfaceProps& props,
                                                              sk_sp<SkColorSpace> colorSpace,
-                                                             bool DFTSupport) {
+                                                             bool DFTSupport,
+                                                             bool DFTPerspSupport) {
 #if SK_SUPPORT_GPU
     GrContextOptions ctxOptions;
     auto control = sktext::gpu::SDFTControl{DFTSupport,
                                             props.isUseDeviceIndependentFonts(),
+                                            DFTPerspSupport,
                                             ctxOptions.fMinDistanceFieldFontSize,
                                             ctxOptions.fGlyphsAsPathsFontSize};
 

@@ -260,7 +260,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization,
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
     auto props = FindSurfaceProps(dContext);
     std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
-            10, 10, props, nullptr, dContext->supportsDistanceFieldText());
+            10, 10, props, nullptr, dContext->supportsDistanceFieldText(),
+            !dContext->priv().caps()->disablePerspectiveSDFText());
     cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
 
     std::vector<uint8_t> serverStrikeData;
@@ -305,7 +306,8 @@ DEF_GPUTEST_FOR_CONTEXTS(SkRemoteGlyphCache_StrikeSerializationSlug,
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
     auto props = FindSurfaceProps(dContext);
     std::unique_ptr<SkCanvas> analysisCanvas = server.makeAnalysisCanvas(
-            10, 10, props, nullptr, dContext->supportsDistanceFieldText());
+            10, 10, props, nullptr, dContext->supportsDistanceFieldText(),
+            !dContext->priv().caps()->disablePerspectiveSDFText());
 
     // Generate strike updates.
     (void)Slug::ConvertBlob(analysisCanvas.get(), *serverBlob, {0, 0}, paint);
@@ -348,7 +350,8 @@ DEF_GPUTEST_FOR_CONTEXTS(SkRemoteGlyphCache_StrikeSerializationSlugForcePath,
     auto serverBlob = buildTextBlob(serverTf, glyphCount, 360);
     auto props = FindSurfaceProps(dContext);
     std::unique_ptr<SkCanvas> analysisCanvas = server.makeAnalysisCanvas(
-            10, 10, props, nullptr, dContext->supportsDistanceFieldText());
+            10, 10, props, nullptr, dContext->supportsDistanceFieldText(),
+            !dContext->priv().caps()->disablePerspectiveSDFText());
 
     // Generate strike updates.
     (void)Slug::ConvertBlob(analysisCanvas.get(), *serverBlob, {0, 0}, paint);
@@ -391,7 +394,8 @@ DEF_GPUTEST_FOR_CONTEXTS(SkRemoteGlyphCache_SlugSerialization,
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
     auto props = FindSurfaceProps(dContext);
     std::unique_ptr<SkCanvas> analysisCanvas = server.makeAnalysisCanvas(
-            10, 10, props, nullptr, dContext->supportsDistanceFieldText());
+            10, 10, props, nullptr, dContext->supportsDistanceFieldText(),
+            !dContext->priv().caps()->disablePerspectiveSDFText());
 
     // Generate strike updates.
     auto srcSlug = Slug::ConvertBlob(analysisCanvas.get(), *serverBlob, {0.3f, 0}, paint);
@@ -434,7 +438,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_ReleaseTypeFace,
         auto serverBlob = buildTextBlob(serverTf, glyphCount);
         const SkSurfaceProps props;
         std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
-            10, 10, props, nullptr, ctxInfo.directContext()->supportsDistanceFieldText());
+                10, 10, props, nullptr, ctxInfo.directContext()->supportsDistanceFieldText(),
+                !ctxInfo.directContext()->priv().caps()->disablePerspectiveSDFText());
         cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
         REPORTER_ASSERT(reporter, !serverTf->unique());
 
@@ -459,7 +464,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikeLockingServer, reporter) {
 
     const SkSurfaceProps props;
     std::unique_ptr<SkCanvas> cache_diff_canvas =
-            server.makeAnalysisCanvas(10, 10, props, nullptr, true);
+            server.makeAnalysisCanvas(10, 10, props, nullptr, true, true);
     SkPaint paint;
     cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
 
@@ -494,7 +499,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
 
     const SkSurfaceProps props;
     std::unique_ptr<SkCanvas> cache_diff_canvas =
-            server.makeAnalysisCanvas(10, 10, props, nullptr, true);
+            server.makeAnalysisCanvas(10, 10, props, nullptr, true, true);
     SkPaint paint;
     cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
     REPORTER_ASSERT(reporter, discardableManager->handleCount() == 1u);
@@ -532,7 +537,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
 
     const SkSurfaceProps props;
     std::unique_ptr<SkCanvas> cache_diff_canvas =
-            server.makeAnalysisCanvas(10, 10, props, nullptr, true);
+            server.makeAnalysisCanvas(10, 10, props, nullptr, true, true);
     SkPaint paint;
     cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
 
@@ -572,7 +577,7 @@ DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
 
     const SkSurfaceProps props;
     std::unique_ptr<SkCanvas> cache_diff_canvas =
-            server.makeAnalysisCanvas(10, 10, props, nullptr, true);
+            server.makeAnalysisCanvas(10, 10, props, nullptr, true, true);
     SkPaint paint;
     cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
 
@@ -600,7 +605,7 @@ DEF_TEST(SkRemoteGlyphCache_PurgesServerEntries, reporter) {
 
         const SkSurfaceProps props;
         std::unique_ptr<SkCanvas> cache_diff_canvas =
-            server.makeAnalysisCanvas(10, 10, props, nullptr, true);
+            server.makeAnalysisCanvas(10, 10, props, nullptr, true, true);
         SkPaint paint;
         REPORTER_ASSERT(reporter, server.remoteStrikeMapSizeForTesting() == 0u);
         cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
@@ -622,7 +627,7 @@ DEF_TEST(SkRemoteGlyphCache_PurgesServerEntries, reporter) {
 
         const SkSurfaceProps props;
         std::unique_ptr<SkCanvas> cache_diff_canvas =
-            server.makeAnalysisCanvas(10, 10, props, nullptr, true);
+            server.makeAnalysisCanvas(10, 10, props, nullptr, true, true);
         SkPaint paint;
         REPORTER_ASSERT(reporter, server.remoteStrikeMapSizeForTesting() == 1u);
         cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
@@ -655,7 +660,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath,
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
     auto props = FindSurfaceProps(direct);
     std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
-            10, 10, props, nullptr, direct->supportsDistanceFieldText());
+            10, 10, props, nullptr, direct->supportsDistanceFieldText(),
+            !direct->priv().caps()->disablePerspectiveSDFText());
     cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
 
     std::vector<uint8_t> serverStrikeData;
@@ -733,7 +739,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsMaskWithPathFall
 
     auto props = FindSurfaceProps(direct);
     std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
-            10, 10, props, nullptr, direct->supportsDistanceFieldText());
+            10, 10, props, nullptr, direct->supportsDistanceFieldText(),
+            !direct->priv().caps()->disablePerspectiveSDFText());
     cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
 
     std::vector<uint8_t> serverStrikeData;
@@ -849,7 +856,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextXY,
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
     auto props = FindSurfaceProps(direct);
     std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
-            10, 10, props, nullptr, direct->supportsDistanceFieldText());
+            10, 10, props, nullptr, direct->supportsDistanceFieldText(),
+            !direct->priv().caps()->disablePerspectiveSDFText());
     cache_diff_canvas->drawTextBlob(serverBlob.get(), 0.5, 0, paint);
 
     std::vector<uint8_t> serverStrikeData;
@@ -900,7 +908,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT,
     auto serverBlob = buildTextBlob(serverTf, glyphCount);
     const SkSurfaceProps props;
     std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
-            10, 10, props, nullptr, direct->supportsDistanceFieldText());
+            10, 10, props, nullptr, direct->supportsDistanceFieldText(),
+            !direct->priv().caps()->disablePerspectiveSDFText());
     cache_diff_canvas->concat(matrix);
     cache_diff_canvas->drawTextBlob(serverBlob.get(), 0, 0, paint);
 
@@ -994,7 +1003,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithNoPaths,
 
     auto props = FindSurfaceProps(direct);
     std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
-            500, 500, props, nullptr, direct->supportsDistanceFieldText());
+            500, 500, props, nullptr, direct->supportsDistanceFieldText(),
+            !direct->priv().caps()->disablePerspectiveSDFText());
     for (SkScalar textSize : { 70, 180, 270, 340}) {
         auto serverBlob = MakeEmojiBlob(serverTf, textSize);
 
@@ -1068,7 +1078,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithPaths_MaskThen
 
     auto props = FindSurfaceProps(direct);
     std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
-            500, 500, props, nullptr, direct->supportsDistanceFieldText());
+            500, 500, props, nullptr, direct->supportsDistanceFieldText(),
+            !direct->priv().caps()->disablePerspectiveSDFText());
     SkPaint paint;
     using Rgct = SkRemoteGlyphCacheTest;
 
@@ -1124,7 +1135,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_TypefaceWithPaths_PathThen
 
     auto props = FindSurfaceProps(direct);
     std::unique_ptr<SkCanvas> cache_diff_canvas = server.makeAnalysisCanvas(
-            500, 500, props, nullptr, direct->supportsDistanceFieldText());
+            500, 500, props, nullptr, direct->supportsDistanceFieldText(),
+            !direct->priv().caps()->disablePerspectiveSDFText());
     SkPaint paint;
     using Rgct = SkRemoteGlyphCacheTest;
 
