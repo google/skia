@@ -1179,9 +1179,7 @@ public:
     static std::optional<DrawableOpSubmitter> MakeFromBuffer(SkReadBuffer& buffer,
                                                              SubRunAllocator* alloc,
                                                              const SkStrikeClient* client);
-#if SK_SUPPORT_GPU
     void submitDraws(SkCanvas* canvas, SkPoint drawOrigin, const SkPaint& paint) const;
-#endif  // SK_SUPPORT_GPU
 
 private:
     const SkScalar fStrikeToSourceScale;
@@ -1266,7 +1264,6 @@ DrawableOpSubmitter DrawableOpSubmitter::Make(const SkZip<SkPackedGlyphID, SkPoi
                                std::move(strikePromise)};
 }
 
-#if SK_SUPPORT_GPU
 void
 DrawableOpSubmitter::submitDraws(SkCanvas* canvas, SkPoint drawOrigin,const SkPaint& paint) const {
     // Convert glyph IDs to Drawables if it hasn't been done yet.
@@ -1296,7 +1293,6 @@ DrawableOpSubmitter::submitDraws(SkCanvas* canvas, SkPoint drawOrigin,const SkPa
         drawable->draw(canvas, &pathMatrix);
     }
 }
-#endif  // SK_SUPPORT_GPU
 
 template <typename SubRunT>
 SubRunOwner make_drawable_sub_run(const SkZip<SkPackedGlyphID, SkPoint>& drawables,
@@ -1334,9 +1330,9 @@ public:
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
               Device* device) const override {
-        // TODO
+        fDrawingDrawing.submitDraws(canvas, drawOrigin, paint);
     }
-#endif  // SK_SUPPORT_GPU
+#endif  // SK_GRAPHITE_ENABLED
 
     int unflattenSize() const override;
 
