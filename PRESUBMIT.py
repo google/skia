@@ -242,15 +242,6 @@ def _RegenerateAllExamplesCPP(input_api, output_api):
     )]
   return results
 
-
-def _CheckOutOfDateGeneratedGo(input_api, output_api):
-  """Make sure that all generated Go source are current."""
-  for affected_file in input_api.AffectedFiles(include_deletes=True):
-    affected_file_path = affected_file.LocalPath()
-    if affected_file_path.endswith('.go'):
-      return _RunCommandAndCheckGitDiff(output_api, ['go', 'generate', './...'])
-  return []  # No modified Go source files.
-
 def _CheckBazelBUILDFiles(input_api, output_api):
   """Makes sure our BUILD.bazel files are compatible with G3."""
   results = []
@@ -397,7 +388,6 @@ def _CommonChecks(input_api, output_api):
   results.extend(_CheckGitConflictMarkers(input_api, output_api))
   results.extend(_RegenerateAllExamplesCPP(input_api, output_api))
   results.extend(_CheckBazelBUILDFiles(input_api, output_api))
-  results.extend(_CheckOutOfDateGeneratedGo(input_api, output_api))
   return results
 
 
