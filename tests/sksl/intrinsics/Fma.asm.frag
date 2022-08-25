@@ -32,9 +32,9 @@ OpDecorate %10 DescriptorSet 0
 OpDecorate %four RelaxedPrecision
 OpDecorate %five RelaxedPrecision
 OpDecorate %63 RelaxedPrecision
-OpDecorate %83 RelaxedPrecision
-OpDecorate %85 RelaxedPrecision
-OpDecorate %86 RelaxedPrecision
+OpDecorate %74 RelaxedPrecision
+OpDecorate %76 RelaxedPrecision
+OpDecorate %77 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -66,10 +66,6 @@ OpDecorate %86 RelaxedPrecision
 %false = OpConstantFalse %bool
 %float_5 = OpConstant %float 5
 %float_17 = OpConstant %float 17
-%float_6 = OpConstant %float 6
-%float_7 = OpConstant %float 7
-%float_8 = OpConstant %float 8
-%float_50 = OpConstant %float 50
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %_entrypoint_v = OpFunction %void None %18
@@ -88,7 +84,7 @@ OpFunctionEnd
 %three = OpVariable %_ptr_Function_float Function
 %four = OpVariable %_ptr_Function_float Function
 %five = OpVariable %_ptr_Function_float Function
-%76 = OpVariable %_ptr_Function_v4float Function
+%67 = OpVariable %_ptr_Function_v4float Function
 %31 = OpAccessChain %_ptr_Uniform__arr_float_int_5 %10 %int_2
 %35 = OpAccessChain %_ptr_Uniform_float %31 %int_0
 %37 = OpLoad %float %35
@@ -119,27 +115,19 @@ OpBranchConditional %60 %61 %62
 OpBranch %62
 %62 = OpLabel
 %66 = OpPhi %bool %false %28 %65 %61
-OpSelectionMerge %68 None
-OpBranchConditional %66 %67 %68
-%67 = OpLabel
-%69 = OpExtInst %float %1 Fma %float_6 %float_7 %float_8
-%74 = OpFOrdEqual %bool %69 %float_50
-OpBranch %68
-%68 = OpLabel
-%75 = OpPhi %bool %false %62 %74 %67
-OpSelectionMerge %80 None
-OpBranchConditional %75 %78 %79
-%78 = OpLabel
-%81 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%83 = OpLoad %v4float %81
-OpStore %76 %83
-OpBranch %80
-%79 = OpLabel
-%84 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
-%85 = OpLoad %v4float %84
-OpStore %76 %85
-OpBranch %80
-%80 = OpLabel
-%86 = OpLoad %v4float %76
-OpReturnValue %86
+OpSelectionMerge %71 None
+OpBranchConditional %66 %69 %70
+%69 = OpLabel
+%72 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%74 = OpLoad %v4float %72
+OpStore %67 %74
+OpBranch %71
+%70 = OpLabel
+%75 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
+%76 = OpLoad %v4float %75
+OpStore %67 %76
+OpBranch %71
+%71 = OpLabel
+%77 = OpLoad %v4float %67
+OpReturnValue %77
 OpFunctionEnd

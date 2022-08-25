@@ -416,6 +416,7 @@ double evaluate_fract(double a, double, double)        { return a - std::floor(a
 double evaluate_min(double a, double b, double)        { return (a < b) ? a : b; }
 double evaluate_max(double a, double b, double)        { return (a > b) ? a : b; }
 double evaluate_clamp(double x, double l, double h)    { return (x < l) ? l : (x > h) ? h : x; }
+double evaluate_fma(double a, double b, double c)      { return a * b + c; }
 double evaluate_saturate(double a, double, double)     { return (a < 0) ? 0 : (a > 1) ? 1 : a; }
 double evaluate_mix(double x, double y, double a)      { return x * (1 - a) + y * a; }
 double evaluate_step(double e, double x, double)       { return (x < e) ? 0 : 1; }
@@ -572,6 +573,9 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
         case k_clamp_IntrinsicKind:
             return evaluate_3_way_intrinsic(context, arguments, returnType,
                                             Intrinsics::evaluate_clamp);
+        case k_fma_IntrinsicKind:
+            return evaluate_3_way_intrinsic(context, arguments, returnType,
+                                            Intrinsics::evaluate_fma);
         case k_saturate_IntrinsicKind:
             return evaluate_intrinsic<float>(context, arguments, returnType,
                                              Intrinsics::evaluate_saturate);

@@ -19,6 +19,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float three = _uniforms.testArray[2];
     half four = half(_uniforms.testArray[3]);
     half five = half(_uniforms.testArray[4]);
-    _out.sk_FragColor = (fma(one, two, three) == 5.0 && fma(half(three), four, five) == 17.0h) && fma(6.0, 7.0, 8.0) == 50.0 ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = fma(one, two, three) == 5.0 && fma(half(three), four, five) == 17.0h ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

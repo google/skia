@@ -9,5 +9,5 @@ vec4 main() {
     float three = testArray[2];
     float four = testArray[3];
     float five = testArray[4];
-    return (fma(one, two, three) == 5.0 && fma(three, four, five) == 17.0) && fma(6.0, 7.0, 8.0) == 50.0 ? colorGreen : colorRed;
+    return fma(one, two, three) == 5.0 && fma(three, four, five) == 17.0 ? colorGreen : colorRed;
 }
