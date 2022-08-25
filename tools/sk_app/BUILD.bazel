@@ -90,11 +90,15 @@ skia_objc_library(
         "RasterWindowContext.h",
     ] + select_multi(
         {
+            # TODO(kjlubick, jmbetancourt) Graphite and Metal backend
+            "//src/gpu:dawn_backend": [
+                "DawnWindowContext.h",
+                "DawnWindowContext.cpp",
+            ],
             "//src/gpu:gl_backend": [
                 "GLWindowContext.cpp",
                 "GLWindowContext.h",
             ],
-            #TODO dawn and metal backend
         },
     ) + select({
         "@platforms//os:macos": ["//tools/sk_app/mac:srcs"],
@@ -110,11 +114,6 @@ skia_objc_library(
     copts = DEFAULT_OBJC_COPTS + [
         "-Wno-deprecated-declarations",
         "-DGL_SILENCE_DEPRECATION",
-    ],
-    sdk_frameworks = [
-        "QuartzCore",
-        "Cocoa",
-        "Foundation",
     ],
     visibility = ["//:__subpackages__"],
     deps = [

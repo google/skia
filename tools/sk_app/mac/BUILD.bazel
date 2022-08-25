@@ -14,8 +14,9 @@ filegroup(
         "Window_mac.h",
         "main_mac.mm",
     ] + select({
-        #TODO Metal and Dawn
+        # TODO(kjlubick, jmbetancourt) Graphite and Metal backend
         "//src/gpu:gl_backend": ["GLWindowContext_mac.mm"],
+        "//src/gpu:dawn_backend": ["DawnMTLWindowContext_mac.mm"],
         "//conditions:default": [],
     }),
     visibility = ["//tools/sk_app:__pkg__"],
@@ -24,7 +25,18 @@ filegroup(
 skia_cc_deps(
     name = "deps",
     testonly = True,
-    linkopts = [],
+    linkopts = [
+        "-framework",
+        "OpenGL",
+        "-framework",
+        "QuartzCore",
+        "-framework",
+        "Cocoa",
+        "-framework",
+        "Foundation",
+    ],
     visibility = ["//tools/sk_app:__pkg__"],
-    deps = ["//tools:tool_utils"],
+    deps = [
+        "//tools:tool_utils",
+    ],
 )

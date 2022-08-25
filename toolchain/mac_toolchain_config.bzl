@@ -308,7 +308,7 @@ def _make_default_flags():
         ],
     )
 
-    # copts and --copts appear to not automatically be set
+    # copts and defines appear to not automatically be set
     # https://bazel.build/docs/cc-toolchain-config-reference#cctoolchainconfiginfo-build-variables
     # https://github.com/bazelbuild/bazel/blob/5ad4a6126be2bdc53ee7e2457e076c90efe86d56/tools/cpp/cc_toolchain_config_lib.bzl#L200-L209
     objc_compile_flags = flag_set(
@@ -320,6 +320,10 @@ def _make_default_flags():
             flag_group(
                 iterate_over = "user_compile_flags",
                 flags = ["%{user_compile_flags}"],
+            ),
+            flag_group(
+                iterate_over = "preprocessor_defines",
+                flags = ["-D%{preprocessor_defines}"],
             ),
         ],
     )
