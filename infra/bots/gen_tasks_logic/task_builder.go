@@ -210,14 +210,6 @@ func (b *taskBuilder) asset(assets ...string) {
 	b.cipd(pkgs...)
 }
 
-// usesBazelisk adds the bazelisk dependency from CIPD and puts it on PATH.
-func (b *taskBuilder) usesBazelisk() {
-	// TODO(kjlubick) I believe this bazelisk package is just the Linux one. To support
-	//   more hosts, we need to have platform-specific bazelisk binaries.
-	b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
-	b.addToPATH("bazelisk")
-}
-
 // usesCCache adds attributes to tasks which use ccache.
 func (b *taskBuilder) usesCCache() {
 	b.cache(CACHES_CCACHE...)
