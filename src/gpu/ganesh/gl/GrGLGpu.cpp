@@ -238,6 +238,9 @@ public:
     }
 
     void bindSampler(int unitIdx, GrSamplerState state) {
+        if (unitIdx >= fNumTextureUnits) {
+            return;
+        }
         // In GL the max aniso value is specified in addition to min/mag filters and the driver
         // is encouraged to consider the other filter settings when doing aniso.
         uint32_t key = state.asKey(/*anisoIsOrthogonal=*/true);
