@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_DrawList_DEFINED
-#define skgpu_DrawList_DEFINED
+#ifndef skgpu_graphite_DrawList_DEFINED
+#define skgpu_graphite_DrawList_DEFINED
 
 #include "include/core/SkPaint.h"
 #include "src/core/SkTBlockList.h"
@@ -105,6 +105,6 @@ private:
     int fRenderStepCount;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_DrawList_DEFINED
+#endif // skgpu_graphite_DrawList_DEFINED

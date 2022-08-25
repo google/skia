@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_GraphicsPipelineDesc_DEFINED
-#define skgpu_GraphicsPipelineDesc_DEFINED
+#ifndef skgpu_graphite_GraphicsPipelineDesc_DEFINED
+#define skgpu_graphite_GraphicsPipelineDesc_DEFINED
 
 #include "include/core/SkTypes.h"
 
@@ -83,6 +83,6 @@ private:
     SkUniquePaintParamsID fUniqueID;
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
-#endif // skgpu_GraphicsPipelineDesc_DEFINED
+#endif // skgpu_graphite_GraphicsPipelineDesc_DEFINED

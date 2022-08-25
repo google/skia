@@ -598,9 +598,8 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
                 subRunPaint.setAlphaf(paint.getAlphaf());
             }
             this->drawGeometry(localToDevice,
-                               Geometry(SubRunData(subRun, std::move(subRunStorage),
-                                                   bounds, subRunCursor, glyphsRegenerated,
-                                                   fRecorder)),
+                               Geometry(SubRunData(subRun, subRunStorage, bounds, subRunCursor,
+                                                   glyphsRegenerated, fRecorder)),
                                subRunPaint,
                                kFillStyle,
                                DrawFlags::kIgnorePathEffect | DrawFlags::kIgnoreMaskFilter);
@@ -946,4 +945,4 @@ TextureProxy* Device::proxy() {
 
 #endif
 
-} // namespace skgpu
+} // namespace skgpu::graphite

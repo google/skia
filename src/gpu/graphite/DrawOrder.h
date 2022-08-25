@@ -101,20 +101,6 @@ using PaintersDepth = MonotonicValue<PaintersDepthSequence>;
  * However, the actual execution order is defined by first the CompressedPaintersOrder and then
  * the DisjointStencilIndex. This means that draws with much higher depths can be executed earlier
  * if painter's order compression allows for it.
- *
- *
- *FIXME Integrate this?
- * This reduces to a vertex
- * coloring problem on the intersection graph formed by the commands and how their bounds
- * overlap, followed by ordering by pipeline description and uniform data. General vertex
- * coloring is NP-complete so DrawPass uses a greedy algorithm where the order it "colors" the
- * vertices is based on the ordering constraints for the color+depth buffer and optionally the
- * stencil buffer (stored in fColorDepthIndex and fStencilIndex respectively). skgpu::Device
- * determines the ordering on-the-fly by using BoundsManager to approximate intersections as
- * draw commands are recorded. It is possible to issue draws to Skia that produce pathologic
- * orderings using this method, but it strikes a reasonable balance between finding a near
- * optimal ordering that respects painter's order and is very efficient to compute.
- *
  */
 class DrawOrder {
 public:

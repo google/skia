@@ -99,11 +99,11 @@ public:
     // and variant is a unique term describing instance's specific configuration.
     const char* name() const { return fName.c_str(); }
 
-    bool requiresMSAA()          const { return fFlags & Flags::kRequiresMSAA;          }
-    bool performsShading()       const { return fFlags & Flags::kPerformsShading;       }
-    bool hasTextures()           const { return fFlags & Flags::kHasTextures;           }
-    bool emitsCoverage()         const { return fFlags & Flags::kEmitsCoverage;         }
-    bool emitsPrimitiveColor()   const { return fFlags & Flags::kEmitsPrimitiveColor;   }
+    bool requiresMSAA()        const { return fFlags & Flags::kRequiresMSAA;        }
+    bool performsShading()     const { return fFlags & Flags::kPerformsShading;     }
+    bool hasTextures()         const { return fFlags & Flags::kHasTextures;         }
+    bool emitsCoverage()       const { return fFlags & Flags::kEmitsCoverage;       }
+    bool emitsPrimitiveColor() const { return fFlags & Flags::kEmitsPrimitiveColor; }
 
     PrimitiveType primitiveType()  const { return fPrimitiveType;  }
     size_t        vertexStride()   const { return fVertexStride;   }
@@ -185,6 +185,8 @@ protected:
     }
 
 private:
+    friend class Renderer; // for Flags
+
     // Cannot copy or move
     RenderStep(const RenderStep&) = delete;
     RenderStep(RenderStep&&)      = delete;
@@ -230,6 +232,7 @@ SK_MAKE_BITMASK_OPS(RenderStep::Flags);
  * Renderers even if the preceeding steps were different.
  */
 class Renderer {
+    using StepFlags = RenderStep::Flags;
 public:
     // Graphite defines a limited set of renderers in order to increase likelihood of batching
     // across draw calls, and reduce the number of shader permutations required. These Renderers
@@ -260,44 +263,43 @@ public:
         return {&fSteps.front(), static_cast<size_t>(fStepCount) };
     }
 
-    const char* name()                const { return fName.c_str();        }
-    int         numRenderSteps()      const { return fStepCount;           }
-    bool        requiresMSAA()        const { return fRequiresMSAA;        }
-    bool        emitsCoverage()       const { return fEmitsCoverage;       }
-    bool        emitsPrimitiveColor() const { return fEmitsPrimitiveColor; }
+    const char* name()           const { return fName.c_str(); }
+    int         numRenderSteps() const { return fStepCount;    }
+
+    bool requiresMSAA()        const { return fStepFlags & StepFlags::kRequiresMSAA;        }
+    bool emitsCoverage()       const { return fStepFlags & StepFlags::kEmitsCoverage;       }
+    bool emitsPrimitiveColor() const { return fStepFlags & StepFlags::kEmitsPrimitiveColor; }
 
     SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
 
 private:
     // max render steps is 4, so just spell the options out for now...
-    Renderer(const char* name, const RenderStep* s1)
+    Renderer(std::string_view name, const RenderStep* s1)
             : Renderer(name, std::array<const RenderStep*, 1>{s1}) {}
 
-    Renderer(const char* name, const RenderStep* s1, const RenderStep* s2)
+    Renderer(std::string_view name, const RenderStep* s1, const RenderStep* s2)
             : Renderer(name, std::array<const RenderStep*, 2>{s1, s2}) {}
 
-    Renderer(const char* name, const RenderStep* s1, const RenderStep* s2, const RenderStep* s3)
+    Renderer(std::string_view name, const RenderStep* s1, const RenderStep* s2,
+             const RenderStep* s3)
             : Renderer(name, std::array<const RenderStep*, 3>{s1, s2, s3}) {}
 
-    Renderer(const char* name, const RenderStep* s1, const RenderStep* s2,
+    Renderer(std::string_view name, const RenderStep* s1, const RenderStep* s2,
              const RenderStep* s3, const RenderStep* s4)
             : Renderer(name, std::array<const RenderStep*, 4>{s1, s2, s3, s4}) {}
 
     template<size_t N>
-    Renderer(const char* name, std::array<const RenderStep*, N> steps)
+    Renderer(std::string_view name, std::array<const RenderStep*, N> steps)
             : fName(name)
             , fStepCount(SkTo<int>(N)) {
         static_assert(N <= kMaxRenderSteps);
-        SkDEBUGCODE(bool performsShading = false;)
         for (int i = 0 ; i < fStepCount; ++i) {
             fSteps[i] = steps[i];
-            fRequiresMSAA |= fSteps[i]->requiresMSAA();
-            fEmitsCoverage |= fSteps[i]->emitsCoverage();
+            fStepFlags |= fSteps[i]->fFlags;
             fDepthStencilFlags |= fSteps[i]->depthStencilFlags();
-            fEmitsPrimitiveColor |= fSteps[i]->emitsPrimitiveColor();
-            SkDEBUGCODE(performsShading |= fSteps[i]->performsShading());
         }
-        SkASSERT(performsShading); // at least one step needs to actually shade
+        // At least one step needs to actually shade.
+        SkASSERT(fStepFlags & RenderStep::Flags::kPerformsShading);
     }
 
     // Cannot move or copy
@@ -305,16 +307,13 @@ private:
     Renderer(Renderer&&)      = delete;
 
     std::array<const RenderStep*, kMaxRenderSteps> fSteps;
+    std::string fName;
+    int fStepCount;
 
-    SkString fName;
-    int      fStepCount;
-    bool     fRequiresMSAA = false;
-    bool     fEmitsCoverage = false;
-    bool     fEmitsPrimitiveColor = false;
-
+    SkEnumBitMask<StepFlags> fStepFlags = StepFlags::kNone;
     SkEnumBitMask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
 };
 
-} // skgpu namespace::graphite
+} // namespace skgpu::graphite
 
 #endif // skgpu_graphite_Renderer_DEFINED

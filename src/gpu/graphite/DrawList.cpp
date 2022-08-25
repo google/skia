@@ -41,4 +41,4 @@ void DrawList::recordDraw(const Renderer& renderer,
     fRenderStepCount += renderer.numRenderSteps();
 }
 
-} // namespace skgpu
+} // namespace skgpu::graphite
