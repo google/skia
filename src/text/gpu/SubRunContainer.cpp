@@ -1011,10 +1011,8 @@ PathOpSubmitter PathOpSubmitter::Make(const SkZip<SkPackedGlyphID, SkPoint>& acc
                            std::move(strikePromise)};
 }
 
-void PathOpSubmitter::submitDraws(SkCanvas* canvas,
-                                  SkPoint drawOrigin,
-                                  const SkPaint& paint) const {
-
+void
+PathOpSubmitter::submitDraws(SkCanvas* canvas, SkPoint drawOrigin, const SkPaint& paint) const {
     // Convert the glyph IDs to paths if it hasn't been done yet. This is thread safe.
     fConvertIDsToPaths([&]() {
         if (SkStrike* strike = fStrikePromise.strike()) {
@@ -1182,12 +1180,7 @@ public:
                                                              SubRunAllocator* alloc,
                                                              const SkStrikeClient* client);
 #if SK_SUPPORT_GPU
-    void submitOps(SkCanvas*,
-                   const GrClip* clip,
-                   const SkMatrixProvider& viewMatrix,
-                   SkPoint drawOrigin,
-                   const SkPaint& paint,
-                   skgpu::v1::SurfaceDrawContext* sdc) const;
+    void submitDraws(SkCanvas* canvas, SkPoint drawOrigin, const SkPaint& paint) const;
 #endif  // SK_SUPPORT_GPU
 
 private:
@@ -1274,12 +1267,8 @@ DrawableOpSubmitter DrawableOpSubmitter::Make(const SkZip<SkPackedGlyphID, SkPoi
 }
 
 #if SK_SUPPORT_GPU
-void DrawableOpSubmitter::submitOps(SkCanvas* canvas,
-                                    const GrClip* clip,
-                                    const SkMatrixProvider& viewMatrix,
-                                    SkPoint drawOrigin,
-                                    const SkPaint& paint,
-                                    skgpu::v1::SurfaceDrawContext* sdc) const {
+void
+DrawableOpSubmitter::submitDraws(SkCanvas* canvas, SkPoint drawOrigin,const SkPaint& paint) const {
     // Convert glyph IDs to Drawables if it hasn't been done yet.
     fConvertIDsToDrawables([&]() {
         fStrikePromise.strike()->glyphIDsToDrawables(fIDsOrDrawables);
@@ -1336,7 +1325,7 @@ public:
               const SkPaint& paint,
               sk_sp<SkRefCnt> subRunStorage,
               skgpu::v1::SurfaceDrawContext* sdc) const override {
-        fDrawingDrawing.submitOps(canvas, clip, viewMatrix, drawOrigin, paint, sdc);
+        fDrawingDrawing.submitDraws(canvas, drawOrigin, paint);
     }
 #endif  // SK_SUPPORT_GPU
 #if defined(SK_GRAPHITE_ENABLED)
