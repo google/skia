@@ -321,5 +321,27 @@
       offset = offset || 0;
       this._addPlaceholder(width, height, alignment, baseline, offset);
     };
+
+    CanvasKit.ParagraphBuilder.prototype.buildWithClientInfo =
+          function(bidiRegions, words, graphemeBreaks, softLineBreaks, hardLineBreaks) {
+
+      var bPtr = copy1dArray(bidiRegions, 'HEAPU32');
+      var wPtr = copy1dArray(words, 'HEAPU32');
+      var gPtr = copy1dArray(graphemeBreaks, 'HEAPU32');
+      var sPtr = copy1dArray(softLineBreaks, 'HEAPU32');
+      var hPtr = copy1dArray(hardLineBreaks, 'HEAPU32');
+      var para = this._buildWithClientInfo(
+                          bPtr, bidiRegions && bidiRegions.length || 0,
+                          wPtr, words && words.length || 0,
+                          gPtr, graphemeBreaks && graphemeBreaks.length || 0,
+                          sPtr, softLineBreaks && softLineBreaks.length || 0,
+                          hPtr, hardLineBreaks && hardLineBreaks.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr,     bidiRegions);
+      freeArraysThatAreNotMallocedByUsers(wPtr,     words);
+      freeArraysThatAreNotMallocedByUsers(gPtr,     graphemeBreaks);
+      freeArraysThatAreNotMallocedByUsers(sPtr,     softLineBreaks);
+      freeArraysThatAreNotMallocedByUsers(hPtr,     hardLineBreaks);
+      return para;
+    };
 });
 }(Module)); // When this file is loaded in, the high level object is "Module";

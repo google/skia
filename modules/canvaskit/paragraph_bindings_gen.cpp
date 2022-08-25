@@ -9,6 +9,7 @@
 
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skunicode/include/SkUnicode.h"
 
 #include <emscripten/bind.h>
 
@@ -98,4 +99,8 @@ EMSCRIPTEN_BINDINGS(ParagraphGen) {
             .value("DisableFirstAscent", para::TextHeightBehavior::kDisableFirstAscent)
             .value("DisableLastDescent", para::TextHeightBehavior::kDisableLastDescent)
             .value("DisableAll", para::TextHeightBehavior::kDisableAll);
+
+    enum_<SkUnicode::LineBreakType>("LineBreakType")
+            .value("SoftLineBreak", SkUnicode::LineBreakType::kSoftLineBreak)
+            .value("HardLineBreak", SkUnicode::LineBreakType::kHardLineBreak);
 }

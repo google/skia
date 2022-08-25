@@ -438,6 +438,14 @@ JSArray GetShapedLines(para::Paragraph& self) {
     return jlines;
 }
 
+std::vector<SkUnicode::Position> convertArrayU32(WASMPointerU32 array, size_t count) {
+    std::vector<size_t> vec;
+    vec.resize(count);
+    SkUnicode::Position* data = reinterpret_cast<SkUnicode::Position*>(array);
+    std::memcpy(vec.data(), data, count * sizeof(size_t));
+    return vec;
+}
+
 EMSCRIPTEN_BINDINGS(Paragraph) {
 
     class_<para::Paragraph>("Paragraph")
@@ -577,7 +585,54 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                                                               SkScalar offset) {
                           para::PlaceholderStyle ps(width, height, alignment, baseline, offset);
                           self.addPlaceholder(ps);
-                      }));
+                      }))
+            .function("getText",
+                      optional_override([](para::ParagraphBuilderImpl& self) -> JSString {
+                          auto text = self.getText();
+                          return emscripten::val(std::string(text.data(), text.size()).c_str());
+                      }))
+            .function("_buildWithClientInfo",
+                      optional_override([](para::ParagraphBuilderImpl& self,
+                                           WASMPointerU32 bidis, size_t bidisNum,
+                                           WASMPointerU32 words, size_t wordsNum,
+                                           WASMPointerU32 graphemes, size_t graphemesNum,
+                                           WASMPointerU32 softBreaks, size_t softBreaksNum,
+                                           WASMPointerU32 hardBreaks, size_t hardBreaksNum) {
+                      SkUnicode::Position* data = reinterpret_cast<SkUnicode::Position*>(bidis);
+                      std::vector<SkUnicode::BidiRegion> bidiRegions;
+                      for (size_t i = 0; i < bidisNum; i += 3) {
+                          auto start = data[i];
+                          auto end = data[i+1];
+                          auto level = SkToU8(data[i+2]);
+                          bidiRegions.emplace_back(start, end, level);
+                      }
+                      auto soft =
+                          convertArrayU32(softBreaks, softBreaksNum);
+                      auto hard =
+                          convertArrayU32(hardBreaks, hardBreaksNum);
+                      std::vector<SkUnicode::LineBreakBefore> lineBreaks;
+                      for (size_t s = 0, h = 0; s < softBreaksNum || h < hardBreaksNum; ) {
+                          auto sPos = soft[s];
+                          auto hPos = hard[h];
+                          if (hPos <= sPos) {
+                              lineBreaks.emplace_back(hPos,
+                                                      SkUnicode::LineBreakType::kHardLineBreak);
+                              if (hPos == sPos) {
+                                  ++s;
+                              }
+                              ++h;
+                          } else if (hPos > sPos) {
+                              lineBreaks.emplace_back(sPos,
+                                                      SkUnicode::LineBreakType::kSoftLineBreak);
+                              s++;
+                          }
+                      }
+                      return self.BuildWithClientInfo(
+                                        std::move(bidiRegions),
+                                        convertArrayU32(words, wordsNum),
+                                        convertArrayU32(graphemes, graphemesNum),
+                                        std::move(lineBreaks));
+                  }));
 
     class_<para::TypefaceFontProvider, base<SkFontMgr>>("TypefaceFontProvider")
       .smart_ptr<sk_sp<para::TypefaceFontProvider>>("sk_sp<TypefaceFontProvider>")

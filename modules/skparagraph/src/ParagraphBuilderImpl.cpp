@@ -171,18 +171,13 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::BuildWithClientInfo(
                 std::vector<SkUnicode::Position> graphemeBreaks,
                 std::vector<SkUnicode::LineBreakBefore> lineBreaks) {
     // This is the place where SkUnicode is paired with SkParagraph
-    auto unicode =
+    fUnicode =
             SkUnicode::Make(SkSpan<char>(fUtf8.isEmpty() ? nullptr : &fUtf8[0], fUtf8.size()),
                             std::move(bidiRegions),
                             std::move(words),
                             std::move(graphemeBreaks),
                             std::move(lineBreaks));
-    return std::make_unique<ParagraphImpl>(std::move(fUtf8),
-                                           fParagraphStyle,
-                                           fStyledBlocks,
-                                           fPlaceholders,
-                                           fFontCollection,
-                                           std::move(unicode));
+    return this->Build();
 }
 
 void ParagraphBuilderImpl::Reset() {

@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - Added API, tests and sample for SkParagraph Client provided ICU API:
+   - buildWithClientInfo
+   - getText
+
 ## [0.36.1] - 2022-08-22
 
 ### Changed

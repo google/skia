@@ -162,6 +162,8 @@ var CanvasKit = {
     ShapeText: function() {},
     addText: function() {},
     build: function() {},
+    buildWithClientInfo: function() {},
+    getText: function() {},
     pop: function() {},
     reset: function() {},
 
@@ -178,6 +180,7 @@ var CanvasKit = {
     _pushStyle: function() {},
     _pushPaintStyle: function() {},
     _addPlaceholder: function() {},
+    _buildWithClientInfo: function() {},
   },
 
   RuntimeEffect: {
@@ -1001,6 +1004,11 @@ var CanvasKit = {
   TextDirection: {
     LTR: {},
     RTL: {},
+  },
+
+  LineBreakType : {
+    SoftLineBreak: {},
+    HardLineBreak: {},
   },
 
   TextHeightBehavior: {

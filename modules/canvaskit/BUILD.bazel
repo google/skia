@@ -274,6 +274,7 @@ cc_binary(
     ] + select({
         ":enable_fonts_true": [
             "//modules/skparagraph",
+            "//modules/skunicode",
         ],
         ":enable_fonts_false": [],
     }) + select({

@@ -9,7 +9,7 @@ import CanvasKitInit, {
     FontMgr,
     Image,
     ImageFilter,
-    ImageInfo,
+    ImageInfo, InputBidiRegions,
     MaskFilter,
     Paint,
     Paragraph,
@@ -610,6 +610,20 @@ function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) 
     builder2.addPlaceholder();
     builder2.addPlaceholder(10, 20, CK.PlaceholderAlignment.Top, CK.TextBaseline.Ideographic, 3);
     builder2.reset();
+
+    const text = builder.getText(); // $ExpectType string
+    const mallocedBidis = CK.Malloc(Uint32Array, 3);
+    const mallocedWords = new Uint32Array(10);
+    const mallocedGraphemes =  new Uint32Array(10);
+    const mallocedSoftBreaks =  new Uint32Array(10);
+    const mallocedHardBreaks =  new Uint32Array(10);
+    const paragraph3 = builder.buildWithClientInfo(
+        mallocedBidis,
+        mallocedWords,
+        mallocedGraphemes,
+        mallocedSoftBreaks,
+        mallocedHardBreaks
+    ); // $ExpectType Paragraph
 }
 
 function particlesTests(CK: CanvasKit, canvas?: Canvas) {

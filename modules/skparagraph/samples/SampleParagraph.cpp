@@ -3689,23 +3689,84 @@ protected:
     SkString name() override { return SkString("ParagraphView65"); }
 
     void onDrawContent(SkCanvas* canvas) override {
-
         canvas->drawColor(SK_ColorWHITE);
 
-        sk_sp<FontCollection> fontCollection = sk_make_sp<FontCollection>();
-        sk_sp<SkFontMgr> fontMgr = SkFontMgr::RefDefault();
-        fontCollection->setDefaultFontManager(fontMgr);
+        auto fontCollection =
+                sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
 
         ParagraphStyle paragraph_style;
-        paragraph_style.setMaxLines(1);
-        std::u16string ellipsis = u"\u2026";
-        paragraph_style.setEllipsis(ellipsis);
-
+        TextStyle textStyle;
+        textStyle.setFontFamilies({SkString("Roboto")});
+        textStyle.setFontSize(50.0);
+        textStyle.setColor(SK_ColorBLACK);
         ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        builder.addText("hello");
+        builder.pushStyle(textStyle);
+        builder.addText("The quick brown fox ate a hamburgerfons and got sick.");
 
-        auto paragraph = builder.BuildWithClientInfo({}, {}, {}, {});
-        paragraph->layout(800);
+        auto text0 = builder.getText();
+        SkString text(text0.data(), text0.size());
+        std::vector<SkUnicode::BidiRegion> bidis = {{0, text.size(), 0}};
+        std::vector<size_t> words = {0, text.size()};
+        std::vector<size_t> graphemes;
+        for (auto i = 0ul; i <= text.size(); ++i) {
+            graphemes.emplace_back(i);
+        }
+        std::vector<SkUnicode::LineBreakBefore> breaks;
+        for (auto i = 0ul; i <= text.size(); ++i) {
+            breaks.emplace_back(text.size(), SkUnicode::LineBreakType::kSoftLineBreak);
+        }
+        breaks[0] = {0ul, SkUnicode::LineBreakType::kSoftLineBreak};
+        for (int i = 0; i < SkToS16(text.size()); ++i) {
+            i = text.find(" ");
+            if (i == -1) break;
+            breaks[i + 1] = {SkToU32(i + 1), SkUnicode::LineBreakType::kSoftLineBreak};
+            text[i] = '?';
+        }
+        for (int i = 0; i < SkToS16(text.size()); ++i) {
+            i = text.find("\n");
+            if (i == -1) break;
+            breaks[i + 1] = {SkToU32(i + 1), SkUnicode::LineBreakType::kHardLineBreak};
+            text[i] = '?';
+        }
+
+        for (auto i = text.size(); i > 0; --i) {
+            if (breaks[i - 1].pos == text.size()) {
+                breaks.erase(breaks.begin() + i - 1);
+            }
+        }
+
+        auto fIcu = SkUnicode::Make();
+        std::vector<SkUnicode::BidiRegion> bidiRegions;
+        fIcu->getBidiRegions(
+                text.c_str(), text.size(), SkUnicode::TextDirection::kLTR, &bidiRegions);
+
+        std::vector<SkUnicode::Position> words1;
+        fIcu->getWords(text.c_str(), text.size(), &words1);
+
+        SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags;
+        fIcu->computeCodeUnitFlags(text.writable_str(), text.size(), false, &codeUnitFlags);
+
+        std::vector<SkUnicode::Position> graphemeBreaks;
+        std::vector<SkUnicode::LineBreakBefore> lineBreaks;
+        SkUnicode::Position pos = 0;
+        for (auto& flag : codeUnitFlags) {
+            if (SkUnicode::isGraphemeStart(flag)) {
+                graphemeBreaks.emplace_back(pos);
+            }
+            if (SkUnicode::isHardLineBreak(flag)) {
+                lineBreaks.emplace_back(pos, SkUnicode::LineBreakType::kHardLineBreak);
+            }
+            if (SkUnicode::isSoftLineBreak(flag)) {
+                lineBreaks.emplace_back(pos, SkUnicode::LineBreakType::kSoftLineBreak);
+            }
+            ++pos;
+        }
+
+        auto paragraph = builder.BuildWithClientInfo(std::move(bidis),
+                                                     std::move(words),
+                                                     std::move(graphemes),
+                                                     std::move(breaks));
+        paragraph->layout(600);
         paragraph->paint(canvas, 0, 0);
     }
 

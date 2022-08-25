@@ -96,7 +96,10 @@ action("create_notomono_cpp") {
 skia_wasm_lib("canvaskit") {
   deps = [ "../..:skia" ]
   if (skia_canvaskit_enable_paragraph) {
-    deps += [ "../../modules/skparagraph:skparagraph" ]
+    deps += [
+      "../../modules/skparagraph:skparagraph",
+      "../../modules/skunicode:skunicode",
+    ]
   }
   if (skia_canvaskit_enable_skottie) {
     deps += [

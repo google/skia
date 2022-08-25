@@ -1072,4 +1072,120 @@ describe('Paragraph Behavior', function() {
         fontMgr.delete();
         builder.delete();
     });
+
+    // The purpose of this text is to make sure that we can use Client ICU
+    // API for English text and get the results reasonably similar to the
+    // normal paragraph API.
+gm('paragraph_client_icu', (canvas) => {
+        const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
+        expect(fontMgr.countFamilies()).toEqual(1);
+        expect(fontMgr.getFamilyName(0)).toEqual('Roboto');
+
+        const wrapTo = 200;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                color: CanvasKit.BLACK,
+                fontFamilies: ['Roboto'],
+                fontSize: 50,
+                maxLines: 3,
+            },
+            textAlign: CanvasKit.TextAlign.Left,
+            maxLines: 3,
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText('The quick brown fox\n' +
+                        'ate a hamburgerfons and got sick.');
+
+        const text = builder.getText();
+        // In this case the text is constant but it will not always be:
+        expect(text).toEqual('The quick brown fox\n' +
+                             'ate a hamburgerfons and got sick.');
+
+        // Pass 1 bidi region as a triple of integers, [start:end), direction
+        const mallocedBidis = CanvasKit.Malloc(Uint32Array, 3);
+        mallocedBidis.toTypedArray().set([0, text.length, 0]);
+
+        // Pass the entire text as one word. It's only used for the method
+        // getWords
+        const mallocedWords = CanvasKit.Malloc(Uint32Array, 2);
+        mallocedWords.toTypedArray().set([0, text.length]);
+
+        // Pass each character as a separate grapheme
+        const mallocedGraphemes = CanvasKit.Malloc(Uint32Array, text.length + 1);
+        let graphemesArr = mallocedGraphemes.toTypedArray();
+        for (let i = 0; i <= text.length; i++) {
+            graphemesArr[i] = i;
+        }
+
+        // Pass each space as a "soft" line break
+        const spaces = [0];
+        for (let i = 0; i < text.length; ++i) {
+          if (text[i] === ' ') {
+              spaces.push(i + 1);
+          }
+        }
+        spaces[spaces.length] = text.length;
+        const mallocedSoftBreaks = CanvasKit.Malloc(Uint32Array, spaces.length);
+        mallocedSoftBreaks.toTypedArray().set(spaces);
+
+        // Pass each new line as a "hard" line break
+        const newLines = [];
+        for (let i = 0; i < text.length; ++i) {
+          if (text[i] === '\n') {
+              newLines.push(i + 1);
+          }
+        }
+        const mallocedHardBreaks = CanvasKit.Malloc(Uint32Array, newLines.length);
+        mallocedHardBreaks.toTypedArray().set(newLines);
+
+        const paragraph = builder.buildWithClientInfo(
+            mallocedBidis,
+            mallocedWords,
+            graphemesArr,
+            mallocedSoftBreaks,
+            mallocedHardBreaks
+        );
+
+        paragraph.layout(600);
+
+        expect(paragraph.didExceedMaxLines()).toBeFalsy();
+        expect(paragraph.getAlphabeticBaseline()).toBeCloseTo(46.399, 2);
+        expect(paragraph.getHeight()).toEqual(177);
+        expect(paragraph.getIdeographicBaseline()).toBeCloseTo(58.599, 2);
+        expect(paragraph.getLongestLine()).toBeCloseTo(558.349, 2);
+        expect(paragraph.getMaxIntrinsicWidth()).toBeCloseTo(758.349, 2);
+        expect(paragraph.getMaxWidth()).toEqual(600);
+        expect(paragraph.getMinIntrinsicWidth()).toBeCloseTo(341.399, 2);
+
+        const lineMetrics = paragraph.getLineMetrics();
+        expect(lineMetrics.length).toEqual(3); // 3 lines worth of metrics
+        const flm = lineMetrics[0]; // First Line Metric
+        expect(flm.startIndex).toEqual(0);
+        expect(flm.endExcludingWhitespaces).toEqual(19)
+        expect(flm.endIndex).toEqual(19); // Including whitespaces but
+                                          // excluding newlines
+        expect(flm.endIncludingNewline).toEqual(20);
+        expect(flm.lineNumber).toEqual(0);
+        expect(flm.isHardBreak).toEqual(true);
+        expect(flm.ascent).toBeCloseTo(46.399, 2);
+        expect(flm.descent).toBeCloseTo(12.199, 2);
+        expect(flm.height).toBeCloseTo(59.000, 2);
+        expect(flm.width).toBeCloseTo(448.450, 2);
+        expect(flm.left).toBeCloseTo(0, 3);
+        expect(flm.baseline).toBeCloseTo(46.799, 2);
+
+        canvas.drawParagraph(paragraph, 10, 10);
+
+        fontMgr.delete();
+        paragraph.delete();
+        builder.delete();
+
+        CanvasKit.Free(mallocedBidis);
+        CanvasKit.Free(mallocedWords);
+        CanvasKit.Free(mallocedGraphemes);
+        CanvasKit.Free(mallocedSoftBreaks);
+        CanvasKit.Free(mallocedHardBreaks);
+    });
 });
