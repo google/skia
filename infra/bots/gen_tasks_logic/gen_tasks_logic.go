@@ -1074,8 +1074,7 @@ func (b *jobBuilder) buildTaskDrivers(goos, goarch string) string {
 			specs.PLACEHOLDER_ISOLATED_OUTDIR,
 			goos+"_"+goarch)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
-		b.addToPATH("bazelisk")
+		b.usesBazelisk()
 		b.idempotent()
 		b.cas(CAS_TASK_DRIVERS)
 	})
@@ -1146,9 +1145,9 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 		)
 		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(b.createDockerImage(false))
-		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "bazelisk")
+		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
 		b.cas(CAS_EMPTY)
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
+		b.usesBazelisk()
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
@@ -1174,9 +1173,9 @@ func (b *jobBuilder) createPushBazelAppsFromWASMDockerImage() {
 		)
 		b.dep(b.buildTaskDrivers("linux", "amd64"))
 		b.dep(b.createDockerImage(true))
-		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin", "bazelisk")
+		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
 		b.cas(CAS_EMPTY)
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
+		b.usesBazelisk()
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
@@ -1995,7 +1994,9 @@ func (b *jobBuilder) presubmit() {
 		// Use MACHINE_TYPE_LARGE because it seems to save time versus
 		// MEDIUM and we want presubmit to be fast.
 		b.linuxGceDimensions(MACHINE_TYPE_LARGE)
+		b.usesBazelisk()
 		b.usesGit()
+		b.usesGo()
 		b.cipd(&specs.CipdPackage{
 			Name:    "infra/recipe_bundles/chromium.googlesource.com/chromium/tools/build",
 			Path:    "recipe_bundle",
@@ -2139,11 +2140,7 @@ func (b *jobBuilder) bazelBuild() {
 			panic("unsupported Bazel host " + host)
 		}
 		b.cmd(cmd...)
-
-		// TODO(kjlubick) I believe this bazelisk package is just the Linux one. To support
-		//   more hosts, we need to have platform-specific bazelisk binaries.
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
-		b.addToPATH("bazelisk")
+		b.usesBazelisk()
 		b.idempotent()
 		b.cas(CAS_COMPILE)
 		b.attempts(1)
@@ -2203,10 +2200,7 @@ func (b *jobBuilder) bazelTest() {
 		}
 		b.cmd(cmd...)
 
-		// TODO(kjlubick) I believe this bazelisk package is just the Linux one. To support
-		//   more hosts, we need to have platform-specific bazelisk binaries.
-		b.cipd(b.MustGetCipdPackageFromAsset("bazelisk"))
-		b.addToPATH("bazelisk")
+		b.usesBazelisk()
 		b.idempotent()
 		b.cas(CAS_COMPILE)
 		b.attempts(1)
