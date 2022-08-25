@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/render/DynamicInstancesPatchAllocator.h"
 
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
@@ -25,18 +26,6 @@ namespace skgpu::graphite {
 namespace {
 
 using namespace skgpu::tess;
-
-// TODO: De-duplicate with the same settings that's currently used for convex path rendering
-// in StencilAndFillPathRenderer.cpp
-static constexpr DepthStencilSettings kDirectShadingPass = {
-        /*frontStencil=*/{},
-        /*backStencil=*/ {},
-        /*refValue=*/    0,
-        /*stencilTest=*/ false,
-        /*depthCompare=*/CompareOp::kGreater,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  true
-};
 
 // Always use dynamic stroke params and join control points, track the join control point in
 // PatchWriter and replicate line end points (match Ganesh's shader behavior).
@@ -66,7 +55,7 @@ TessellateStrokesRenderStep::TessellateStrokesRenderStep()
                                    {"translate", SkSLType::kFloat2},
                                    {"maxScale", SkSLType::kFloat}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectShadingPass,
+                     kDirectDepthGreaterPass,
                      /*vertexAttrs=*/  {},
                      /*instanceAttrs=*/{{"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
                                         {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},

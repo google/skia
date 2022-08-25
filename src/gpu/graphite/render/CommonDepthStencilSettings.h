@@ -5,15 +5,40 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_render_StencilAndCoverDSS_DEFINED
-#define skgpu_graphite_render_StencilAndCoverDSS_DEFINED
+#ifndef skgpu_graphite_render_CommonDepthStencilSettings_DEFINED
+#define skgpu_graphite_render_CommonDepthStencilSettings_DEFINED
 
 #include "src/gpu/graphite/DrawTypes.h"
 
 namespace skgpu::graphite {
 
 /**
- * "stencil" pass DepthAndStencilSettings reusable for RenderSteps following some form of
+ * DepthStencilSettings reusable by RenderSteps that can shade directly in a single pass, using
+ * GREATER or GEQUAL depth tests depending on if they allow self-intersections.
+ */
+
+static constexpr DepthStencilSettings kDirectDepthGreaterPass = {
+        /*frontStencil=*/{},
+        /*backStencil=*/ {},
+        /*refValue=*/    0,
+        /*stencilTest=*/ false,
+        /*depthCompare=*/CompareOp::kGreater,
+        /*depthTest=*/   true,
+        /*depthWrite=*/  true
+};
+
+static constexpr DepthStencilSettings kDirectDepthGEqualPass = {
+        /*frontStencil=*/{},
+        /*backStencil=*/ {},
+        /*refValue=*/    0,
+        /*stencilTest=*/ false,
+        /*depthCompare=*/CompareOp::kGEqual,
+        /*depthTest=*/   true,
+        /*depthWrite=*/  true
+};
+
+/**
+ * "stencil" pass DepthStencilSettings reusable for RenderSteps following some form of
  * stencil-then-cover multi-pass algorithm.
  */
 
@@ -72,7 +97,7 @@ constexpr DepthStencilSettings kEvenOddStencilPass = {
 };
 
 /**
- * "cover" pass DepthAndStencilSettings reusable for RenderSteps following some form of
+ * "cover" pass DepthStencilSettings reusable for RenderSteps following some form of
  * stencil-then-cover multi-pass algorithm.
  */
 
@@ -125,4 +150,4 @@ constexpr DepthStencilSettings kInverseCoverPass = {
 
 }  // namespace skgpu::graphite
 
-#endif // skgpu_graphite_render_RedbookDepthAndStencilSettings
+#endif // skgpu_graphite_render_CommonDepthStencilSettings_DEFINED

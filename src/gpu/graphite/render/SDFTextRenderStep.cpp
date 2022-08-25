@@ -14,24 +14,17 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/text/AtlasManager.h"
 #include "src/text/gpu/SubRunContainer.h"
 
 namespace skgpu::graphite {
 
 namespace {
-static constexpr DepthStencilSettings kDirectShadingPass = {
-        /*frontStencil=*/{},
-        /*backStencil=*/ {},
-        /*refValue=*/    0,
-        /*stencilTest=*/ false,
-        /*depthCompare=*/CompareOp::kGEqual,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  true
-};
 
 // We are expecting to sample from up to 4 textures
 constexpr int kNumSDFAtlasTextures = 4;
+
 }  // namespace
 
 SDFTextRenderStep::SDFTextRenderStep(bool isA8)
@@ -42,7 +35,7 @@ SDFTextRenderStep::SDFTextRenderStep(bool isA8)
                                    {"atlasSizeInv", SkSLType::kFloat2},
                                    {"distanceAdjust", SkSLType::kFloat}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectShadingPass,
+                     kDirectDepthGEqualPass,
                      /*vertexAttrs=*/ {},
                      /*instanceAttrs=*/
                      {{"size", VertexAttribType::kUShort2, SkSLType::kUShort2},

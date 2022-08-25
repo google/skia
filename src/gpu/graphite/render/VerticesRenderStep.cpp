@@ -14,20 +14,11 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
-#include "src/gpu/graphite/render/StencilAndCoverDSS.h"
+#include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
 namespace skgpu::graphite {
 
 namespace {
-static constexpr DepthStencilSettings kDirectShadingPass = {
-        /*frontStencil=*/{},
-        /*backStencil=*/ {},
-        /*refValue=*/    0,
-        /*stencilTest=*/ false,
-        /*depthCompare=*/CompareOp::kGreater,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  true
-};
 
 static constexpr Attribute kPositionAttr =
         {"position", VertexAttribType::kFloat2, SkSLType::kFloat2};
@@ -71,7 +62,7 @@ VerticesRenderStep::VerticesRenderStep(PrimitiveType type, bool hasColor, bool h
                               : Flags::kPerformsShading,
                      /*uniforms=*/{{"depth", SkSLType::kFloat}},
                      type,
-                     kDirectShadingPass,
+                     kDirectDepthGEqualPass,
                      /*vertexAttrs=*/  kAttributes[2*hasTexCoords + hasColor],
                      /*instanceAttrs=*/{},
                      /*varyings=*/     kVaryings[hasColor])

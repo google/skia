@@ -9,9 +9,9 @@
 
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkVertices.h"
+#include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/render/CoverBoundsRenderStep.h"
 #include "src/gpu/graphite/render/MiddleOutFanRenderStep.h"
-#include "src/gpu/graphite/render/StencilAndCoverDSS.h"
 #include "src/gpu/graphite/render/TessellateCurvesRenderStep.h"
 #include "src/gpu/graphite/render/TessellateWedgesRenderStep.h"
 #include "src/gpu/graphite/render/VerticesRenderStep.h"
@@ -29,16 +29,6 @@ const RenderStep* inverse_cover_step() {
     static const CoverBoundsRenderStep kInverseFill{true};
     return &kInverseFill;
 }
-
-static constexpr DepthStencilSettings kDirectShadingPass = {
-        /*frontStencil=*/{},
-        /*backStencil=*/ {},
-        /*refValue=*/    0,
-        /*stencilTest=*/ false,
-        /*depthCompare=*/CompareOp::kGreater,
-        /*depthTest=*/   true,
-        /*depthWrite=*/  true
-};
 
 }  // namespace
 
@@ -103,7 +93,7 @@ const Renderer& Renderer::StencilTessellatedWedges(SkPathFillType fillType) {
 }
 
 const Renderer& Renderer::ConvexTessellatedWedges() {
-    static const TessellateWedgesRenderStep kConvexWedges{"convex", kDirectShadingPass};
+    static const TessellateWedgesRenderStep kConvexWedges{"convex", kDirectDepthGreaterPass};
     static const Renderer kConvexWedgeRenderer{"ConvexTessellatedWedges", &kConvexWedges};
     return kConvexWedgeRenderer;
 }
