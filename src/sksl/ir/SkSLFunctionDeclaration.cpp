@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLLayout.h"
@@ -321,7 +322,7 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
 static int find_generic_index(const Type& concreteType,
                               const Type& genericType,
                               bool allowNarrowing) {
-    const std::vector<const Type*>& genericTypes = genericType.coercibleTypes();
+    SkSpan<const Type* const> genericTypes = genericType.coercibleTypes();
     for (size_t index = 0; index < genericTypes.size(); ++index) {
         if (concreteType.canCoerceTo(*genericTypes[index], allowNarrowing)) {
             return index;
