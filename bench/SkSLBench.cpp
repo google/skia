@@ -64,19 +64,19 @@ public:
     }
 
     SkSLCompileBench(std::string name, const char* src, bool optimize, Output output)
-        : fName(std::string("sksl_") + (optimize ? "" : "unoptimized_") + output_string(output) +
-                name)
-        , fSrc(src)
-        , fCaps(GrContextOptions(), GrMockOptions())
-        , fCompiler(fCaps.shaderCaps())
-        , fOutput(output) {
-            fSettings.fOptimize = optimize;
-            // The test programs we compile don't follow Vulkan rules and thus produce invalid
-            // SPIR-V. This is harmless, so long as we don't try to validate them.
-            fSettings.fValidateSPIRV = false;
+            : fName(std::string("sksl_") + (optimize ? "" : "unoptimized_") +
+                    output_string(output) + name)
+            , fSrc(src)
+            , fCaps(GrContextOptions(), GrMockOptions())
+            , fCompiler(fCaps.shaderCaps())
+            , fOutput(output) {
+        fSettings.fOptimize = optimize;
+        // The test programs we compile don't follow Vulkan rules and thus produce invalid SPIR-V.
+        // This is harmless, so long as we don't try to validate them.
+        fSettings.fValidateSPIRV = false;
 
-            this->fixUpSource();
-        }
+        this->fixUpSource();
+    }
 
 protected:
     const char* onGetName() override {
@@ -459,65 +459,72 @@ COMPILER_BENCH(tiny, "void main() { sk_FragColor = half4(1); }");
 #if defined(SK_BUILD_FOR_UNIX)
 
 #include <malloc.h>
+static int64_t heap_bytes_used() {
+    return (int64_t)mallinfo().uordblks;
+}
 
-// These benchmarks aren't timed, they produce memory usage statistics. They run standalone, and
-// directly add their results to the nanobench log.
-void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
-    auto heap_bytes_used = []() { return mallinfo().uordblks; };
-    auto bench = [log](const char* name, int bytes) {
-        log->beginObject(name);          // test
-        log->beginObject("meta");        //   config
-        log->appendS32("bytes", bytes);  //     sub_result
-        log->endObject();                //   config
-        log->endObject();                // test
-    };
+#elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
 
-    // Heap used by a default compiler (with no modules loaded)
-    {
-        int before = heap_bytes_used();
-        GrShaderCaps caps;
-        SkSL::Compiler compiler(&caps);
-        int after = heap_bytes_used();
-        bench("sksl_compiler_baseline", after - before);
-    }
-
-    // Heap used by a compiler with the two main GPU modules (fragment + vertex) loaded
-    {
-        int before = heap_bytes_used();
-        GrShaderCaps caps;
-        SkSL::Compiler compiler(&caps);
-        compiler.moduleForProgramKind(SkSL::ProgramKind::kVertex);
-        compiler.moduleForProgramKind(SkSL::ProgramKind::kFragment);
-        int after = heap_bytes_used();
-        bench("sksl_compiler_gpu", after - before);
-    }
-
-    // Heap used by a compiler with the two main Graphite modules (fragment + vertex) loaded
-    {
-        int before = heap_bytes_used();
-        GrShaderCaps caps;
-        SkSL::Compiler compiler(&caps);
-        compiler.moduleForProgramKind(SkSL::ProgramKind::kGraphiteVertex);
-        compiler.moduleForProgramKind(SkSL::ProgramKind::kGraphiteFragment);
-        int after = heap_bytes_used();
-        bench("sksl_compiler_graphite", after - before);
-    }
-
-    // Heap used by a compiler with the runtime shader, color filter and blending modules loaded
-    {
-        int before = heap_bytes_used();
-        GrShaderCaps caps;
-        SkSL::Compiler compiler(&caps);
-        compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeColorFilter);
-        compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeShader);
-        compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeBlender);
-        int after = heap_bytes_used();
-        bench("sksl_compiler_runtimeeffect", after - before);
-    }
+#include <malloc/malloc.h>
+static int64_t heap_bytes_used() {
+    malloc_statistics_t stats;
+    malloc_zone_pressure_relief(malloc_default_zone(), 0);
+    malloc_zone_statistics(malloc_default_zone(), &stats);
+    return (int64_t)stats.size_in_use;
 }
 
 #else
 
-void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter*) {}
+static int64_t heap_bytes_used() {
+    return -1;
+}
 
 #endif
+
+static void bench(NanoJSONResultsWriter* log, const char* name, int bytes) {
+    SkDEBUGCODE(SkDebugf("%s: %d bytes\n", name, bytes);)
+    log->beginObject(name);          // test
+    log->beginObject("meta");        //   config
+    log->appendS32("bytes", bytes);  //     sub_result
+    log->endObject();                //   config
+    log->endObject();                // test
+}
+
+// These benchmarks aren't timed, they produce memory usage statistics. They run standalone, and
+// directly add their results to the nanobench log.
+void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
+    // Heap used by a default compiler (with no modules loaded)
+    int64_t before = heap_bytes_used();
+    GrShaderCaps caps;
+    SkSL::Compiler compiler(&caps);
+    int baselineBytes = heap_bytes_used();
+    if (baselineBytes >= 0) {
+        baselineBytes = (baselineBytes - before);
+        bench(log, "sksl_compiler_baseline", baselineBytes);
+    }
+
+    // Heap used by a compiler with the two main GPU modules (fragment + vertex) and runtime effects
+    // (shader + color filter + blender) loaded. Ganesh will load all of these in regular usage.
+    before = heap_bytes_used();
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kVertex);
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kFragment);
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeColorFilter);
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeShader);
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeBlender);
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kPrivateRuntimeShader);
+    int64_t gpuBytes = heap_bytes_used();
+    if (gpuBytes >= 0) {
+        gpuBytes = (gpuBytes - before) + baselineBytes;
+        bench(log, "sksl_compiler_gpu", gpuBytes);
+    }
+
+    // Heap used by a compiler with the Graphite modules loaded.
+    before = heap_bytes_used();
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kGraphiteVertex);
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kGraphiteFragment);
+    int64_t graphiteBytes = heap_bytes_used();
+    if (graphiteBytes >= 0) {
+        graphiteBytes = (graphiteBytes - before) + gpuBytes;
+        bench(log, "sksl_compiler_graphite", graphiteBytes);
+    }
+}

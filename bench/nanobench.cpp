@@ -1428,6 +1428,12 @@ int main(int argc, char** argv) {
     gSkVMAllowJIT = FLAGS_jit;
     gSkVMJITViaDylib = FLAGS_dylib;
 
+    // The SkSL memory benchmark must run before any GPU painting occurs. SkSL allocates memory for
+    // its modules the first time they are accessed, and this test is trying to measure the size of
+    // those allocations. If a paint has already occurred, some modules will have already been
+    // loaded, so we won't be able to capture a delta for them.
+    RunSkSLMemoryBenchmarks(&log);
+
     int runs = 0;
     BenchmarkStream benchStream;
     log.beginObject("results");
@@ -1656,8 +1662,6 @@ int main(int argc, char** argv) {
     log.appendS32("max_rss_mb", sk_tools::getMaxResidentSetSizeMB());
     log.endObject(); // config
     log.endBench();
-
-    RunSkSLMemoryBenchmarks(&log);
 
     log.endObject(); // results
     log.endObject(); // root
