@@ -34,8 +34,6 @@
 #include <initializer_list>
 #include <memory>
 #include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -710,7 +708,7 @@ DSLType DSLParser::structDeclaration() {
         return DSLType(nullptr);
     }
     SkTArray<DSLField> fields;
-    std::unordered_set<std::string> field_names;
+    SkTHashSet<std::string_view> fieldNames;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Token fieldStart = this->peek();
         DSLModifiers modifiers = this->modifiers();
@@ -738,18 +736,17 @@ DSLType DSLParser::structDeclaration() {
                         this->rangeFrom(this->position(fieldStart)));
             }
 
-            std::string key(this->text(memberName));
-            auto found = field_names.find(key);
-            if (found == field_names.end()) {
+            std::string_view nameText = this->text(memberName);
+            if (!fieldNames.contains(nameText)) {
                 fields.push_back(DSLField(modifiers,
-                                    std::move(actualType),
-                                    this->text(memberName),
-                                    this->rangeFrom(fieldStart)));
-                field_names.emplace(key);
+                                          std::move(actualType),
+                                          nameText,
+                                          this->rangeFrom(fieldStart)));
+                fieldNames.add(nameText);
             } else {
-                this->error(memberName, "field '" + key +
-                    "' was already defined in the same struct ('" + std::string(this->text(name)) +
-                    "')");
+                this->error(memberName, "field '" + std::string(nameText) +
+                                        "' was already defined in the same struct ('" +
+                                        std::string(this->text(name)) + "')");
             }
         } while (this->checkNext(Token::Kind::TK_COMMA));
         if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
@@ -1050,12 +1047,12 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
         return false;
     }
     this->nextToken();
-    SkTArray<dsl::Field> fields;
-    std::unordered_set<std::string> field_names;
+    SkTArray<DSLField> fields;
+    SkTHashSet<std::string_view> fieldNames;
     while (!this->checkNext(Token::Kind::TK_RBRACE)) {
         Position fieldPos = this->position(this->peek());
         DSLModifiers fieldModifiers = this->modifiers();
-        dsl::DSLType type = this->type(&fieldModifiers);
+        DSLType type = this->type(&fieldModifiers);
         if (!type.hasValue()) {
             return false;
         }
@@ -1084,21 +1081,19 @@ bool DSLParser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
                 return false;
             }
 
-            std::string key(this->text(fieldName));
-            if (field_names.find(key) == field_names.end()) {
-                fields.push_back(dsl::Field(fieldModifiers,
-                                            std::move(actualType),
-                                            this->text(fieldName),
-                                            this->rangeFrom(fieldPos)));
-                field_names.emplace(key);
+            std::string_view nameText = this->text(fieldName);
+            if (!fieldNames.contains(nameText)) {
+                fields.push_back(DSLField(fieldModifiers,
+                                          std::move(actualType),
+                                          nameText,
+                                          this->rangeFrom(fieldPos)));
+                fieldNames.add(nameText);
             } else {
-                this->error(fieldName,
-                            "field '" + key +
-                            "' was already defined in the same interface block ('" +
-                            std::string(this->text(typeName)) +  "')");
+                this->error(fieldName, "field '" + std::string(nameText) +
+                                       "' was already defined in the same interface block ('" +
+                                       std::string(this->text(typeName)) +  "')");
             }
-        }
-        while (this->checkNext(Token::Kind::TK_COMMA));
+        } while (this->checkNext(Token::Kind::TK_COMMA));
     }
     if (fields.empty()) {
         this->error(this->rangeFrom(typeName), "interface block '" +
