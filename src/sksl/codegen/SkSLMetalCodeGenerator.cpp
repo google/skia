@@ -479,20 +479,21 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 static constexpr char kInverse2x2[] = R"(
 template <typename T>
 matrix<T, 2, 2> mat2_inverse(matrix<T, 2, 2> m) {
-return matrix<T, 2, 2>(m[1][1], -m[0][1], -m[1][0], m[0][0]) * (1/determinant(m));
+return matrix<T, 2, 2>(m[1].y, -m[0].y, -m[1].x, m[0].x) * (1/determinant(m));
 }
 )";
 
 static constexpr char kInverse3x3[] = R"(
 template <typename T>
 matrix<T, 3, 3> mat3_inverse(matrix<T, 3, 3> m) {
-T a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
-T a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];
-T a20 = m[2][0], a21 = m[2][1], a22 = m[2][2];
-T b01 =  a22*a11 - a12*a21;
-T b11 = -a22*a10 + a12*a20;
-T b21 =  a21*a10 - a11*a20;
-T det = a00*b01 + a01*b11 + a02*b21;
+T
+ a00 = m[0].x, a01 = m[0].y, a02 = m[0].z,
+ a10 = m[1].x, a11 = m[1].y, a12 = m[1].z,
+ a20 = m[2].x, a21 = m[2].y, a22 = m[2].z,
+ b01 =  a22*a11 - a12*a21,
+ b11 = -a22*a10 + a12*a20,
+ b21 =  a21*a10 - a11*a20,
+ det = a00*b01 + a01*b11 + a02*b21;
 return matrix<T, 3, 3>(
  b01, (-a22*a01 + a02*a21), ( a12*a01 - a02*a11),
  b11, ( a22*a00 - a02*a20), (-a12*a00 + a02*a10),
@@ -503,23 +504,24 @@ return matrix<T, 3, 3>(
 static constexpr char kInverse4x4[] = R"(
 template <typename T>
 matrix<T, 4, 4> mat4_inverse(matrix<T, 4, 4> m) {
-T a00 = m[0][0], a01 = m[0][1], a02 = m[0][2], a03 = m[0][3];
-T a10 = m[1][0], a11 = m[1][1], a12 = m[1][2], a13 = m[1][3];
-T a20 = m[2][0], a21 = m[2][1], a22 = m[2][2], a23 = m[2][3];
-T a30 = m[3][0], a31 = m[3][1], a32 = m[3][2], a33 = m[3][3];
-T b00 = a00*a11 - a01*a10;
-T b01 = a00*a12 - a02*a10;
-T b02 = a00*a13 - a03*a10;
-T b03 = a01*a12 - a02*a11;
-T b04 = a01*a13 - a03*a11;
-T b05 = a02*a13 - a03*a12;
-T b06 = a20*a31 - a21*a30;
-T b07 = a20*a32 - a22*a30;
-T b08 = a20*a33 - a23*a30;
-T b09 = a21*a32 - a22*a31;
-T b10 = a21*a33 - a23*a31;
-T b11 = a22*a33 - a23*a32;
-T det = b00*b11 - b01*b10 + b02*b09 + b03*b08 - b04*b07 + b05*b06;
+T
+ a00 = m[0].x, a01 = m[0].y, a02 = m[0].z, a03 = m[0].w,
+ a10 = m[1].x, a11 = m[1].y, a12 = m[1].z, a13 = m[1].w,
+ a20 = m[2].x, a21 = m[2].y, a22 = m[2].z, a23 = m[2].w,
+ a30 = m[3].x, a31 = m[3].y, a32 = m[3].z, a33 = m[3].w,
+ b00 = a00*a11 - a01*a10,
+ b01 = a00*a12 - a02*a10,
+ b02 = a00*a13 - a03*a10,
+ b03 = a01*a12 - a02*a11,
+ b04 = a01*a13 - a03*a11,
+ b05 = a02*a13 - a03*a12,
+ b06 = a20*a31 - a21*a30,
+ b07 = a20*a32 - a22*a30,
+ b08 = a20*a33 - a23*a30,
+ b09 = a21*a32 - a22*a31,
+ b10 = a21*a33 - a23*a31,
+ b11 = a22*a33 - a23*a32,
+ det = b00*b11 - b01*b10 + b02*b09 + b03*b08 - b04*b07 + b05*b06;
 return matrix<T, 4, 4>(
  a11*b11 - a12*b10 + a13*b09,
  a02*b10 - a01*b11 - a03*b09,
