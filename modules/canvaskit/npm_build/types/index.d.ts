@@ -1015,6 +1015,7 @@ export interface ParagraphStyle {
     ellipsis?: string;
     heightMultiplier?: number;
     maxLines?: number;
+    replaceTabCharacters?: boolean;
     strutStyle?: StrutStyle;
     textAlign?: TextAlign;
     textDirection?: TextDirection;

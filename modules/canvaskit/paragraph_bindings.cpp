@@ -239,6 +239,7 @@ struct SimpleParagraphStyle {
     size_t ellipsisLen;
     SkScalar heightMultiplier;
     size_t maxLines;
+    bool replaceTabCharacters;
     para::TextAlign textAlign;
     para::TextDirection textDirection;
     para::TextHeightBehavior textHeightBehavior;
@@ -270,6 +271,7 @@ para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
         ps.setMaxLines(s.maxLines);
     }
     ps.setTextHeightBehavior(s.textHeightBehavior);
+    ps.setReplaceTabCharacters(s.replaceTabCharacters);
     return ps;
 }
 
@@ -602,16 +604,17 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
         .field("width",     &SimpleFontStyle::width);
 
     value_object<SimpleParagraphStyle>("ParagraphStyle")
-        .field("disableHinting",     &SimpleParagraphStyle::disableHinting)
-        .field("_ellipsisPtr",       &SimpleParagraphStyle::ellipsisPtr)
-        .field("_ellipsisLen",       &SimpleParagraphStyle::ellipsisLen)
-        .field("heightMultiplier",   &SimpleParagraphStyle::heightMultiplier)
-        .field("maxLines",           &SimpleParagraphStyle::maxLines)
-        .field("textAlign",          &SimpleParagraphStyle::textAlign)
-        .field("textDirection",      &SimpleParagraphStyle::textDirection)
-        .field("textHeightBehavior", &SimpleParagraphStyle::textHeightBehavior)
-        .field("textStyle",          &SimpleParagraphStyle::textStyle)
-        .field("strutStyle",         &SimpleParagraphStyle::strutStyle);
+        .field("disableHinting",       &SimpleParagraphStyle::disableHinting)
+        .field("_ellipsisPtr",         &SimpleParagraphStyle::ellipsisPtr)
+        .field("_ellipsisLen",         &SimpleParagraphStyle::ellipsisLen)
+        .field("heightMultiplier",     &SimpleParagraphStyle::heightMultiplier)
+        .field("maxLines",             &SimpleParagraphStyle::maxLines)
+        .field("replaceTabCharacters", &SimpleParagraphStyle::replaceTabCharacters)
+        .field("textAlign",            &SimpleParagraphStyle::textAlign)
+        .field("textDirection",        &SimpleParagraphStyle::textDirection)
+        .field("textHeightBehavior",   &SimpleParagraphStyle::textHeightBehavior)
+        .field("textStyle",            &SimpleParagraphStyle::textStyle)
+        .field("strutStyle",           &SimpleParagraphStyle::strutStyle);
 
     value_object<SimpleStrutStyle>("StrutStyle")
         .field("_fontFamiliesPtr", &SimpleStrutStyle::fontFamiliesPtr)

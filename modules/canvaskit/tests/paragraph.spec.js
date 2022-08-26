@@ -1077,4 +1077,38 @@ describe('Paragraph Behavior', function() {
         fontMgr.delete();
         builder.delete();
     });
+
+    it('should replace tab characters', () => {
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+        const wrapTo = 250;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                color: CanvasKit.BLACK,
+                fontFamilies: ['Noto Serif'],
+                fontSize: 20,
+            },
+            textAlign: CanvasKit.TextAlign.Left,
+            replaceTabCharacters: true,
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText('1\t2');
+
+        const paragraph = builder.build();
+        paragraph.layout(wrapTo);
+
+        const lines = paragraph.getShapedLines();
+
+        expect(lines.length).toEqual(1);
+        expect(lines[0].runs.length).toEqual(1);
+        expect(lines[0].runs[0].glyphs.length).toEqual(3);
+
+        // The tab should not be a missing glyph.
+        expect(lines[0].runs[0].glyphs[1]).not.toEqual(0);
+
+        paragraph.delete();
+        fontMgr.delete();
+        builder.delete();
+    });
 });
