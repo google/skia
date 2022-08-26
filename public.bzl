@@ -1430,8 +1430,6 @@ BASE_SRCS_ALL = [
     "src/sksl/SkSLRehydrator.cpp",
     "src/sksl/SkSLRehydrator.h",
     "src/sksl/SkSLSampleUsage.cpp",
-    "src/sksl/SkSLSharedCompiler.cpp",
-    "src/sksl/SkSLSharedCompiler.h",
     "src/sksl/SkSLString.cpp",
     "src/sksl/SkSLStringStream.h",
     "src/sksl/SkSLThreadContext.cpp",
