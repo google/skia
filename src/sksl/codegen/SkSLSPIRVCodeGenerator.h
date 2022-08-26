@@ -28,7 +28,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <stack>
 #include <string_view>
 #include <vector>
 
@@ -167,7 +166,7 @@ private:
     SpvId getPointerType(const Type& type, const MemoryLayout& layout,
                          SpvStorageClass_ storageClass);
 
-    std::vector<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
+    SkTArray<SpvId> getAccessChain(const Expression& expr, OutputStream& out);
 
     void writeLayout(const Layout& layout, SpvId target, Position pos);
 
@@ -211,7 +210,7 @@ private:
 
     void writeGLSLExtendedInstruction(const Type& type, SpvId id, SpvId floatInst,
                                       SpvId signedInst, SpvId unsignedInst,
-                                      const std::vector<SpvId>& args, OutputStream& out);
+                                      const SkTArray<SpvId>& args, OutputStream& out);
 
     /**
      * Promotes an expression to a vector. If the expression is already a vector with vectorSize
@@ -227,7 +226,7 @@ private:
      * returns (vec2(float), vec2). It is an error to use mismatched vector sizes, e.g. (float,
      * vec2, vec3).
      */
-    std::vector<SpvId> vectorize(const ExpressionArray& args, OutputStream& out);
+    SkTArray<SpvId> vectorize(const ExpressionArray& args, OutputStream& out);
 
     SpvId writeSpecialIntrinsic(const FunctionCall& c, SpecialIntrinsic kind, OutputStream& out);
 
@@ -283,8 +282,6 @@ private:
     SpvId writeConstructorSplat(const ConstructorSplat& c, OutputStream& out);
 
     SpvId writeConstructorCompoundCast(const ConstructorCompoundCast& c, OutputStream& out);
-
-    SpvId writeComposite(const std::vector<SpvId>& arguments, const Type& type, OutputStream& out);
 
     SpvId writeFieldAccess(const FieldAccess& f, OutputStream& out);
 
@@ -543,18 +540,18 @@ private:
     // depending on the if condition, we may or may not have actually done that computation). The
     // same logic applies to other control-flow blocks as well. Once an instruction becomes
     // unreachable, we remove it from both op-caches.
-    std::vector<SpvId> fReachableOps;
+    SkTArray<SpvId> fReachableOps;
 
     // The "store-ops" list contains a running list of all the pointers in the store cache. If a
     // store occurs inside of a conditional block, once that block exits, we no longer know what is
     // stored in that particular SpvId. At that point, we must remove any associated entry from the
     // store cache.
-    std::vector<SpvId> fStoreOps;
+    SkTArray<SpvId> fStoreOps;
 
     // label of the current block, or 0 if we are not in a block
     SpvId fCurrentBlock;
-    std::stack<SpvId> fBreakTarget;
-    std::stack<SpvId> fContinueTarget;
+    SkTArray<SpvId> fBreakTarget;
+    SkTArray<SpvId> fContinueTarget;
     bool fWroteRTFlip = false;
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;
