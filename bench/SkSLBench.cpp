@@ -518,6 +518,7 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         bench(log, "sksl_compiler_gpu", gpuBytes);
     }
 
+#ifdef SK_GRAPHITE_ENABLED
     // Heap used by a compiler with the Graphite modules loaded.
     before = heap_bytes_used();
     compiler.moduleForProgramKind(SkSL::ProgramKind::kGraphiteVertex);
@@ -527,4 +528,5 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         graphiteBytes = (graphiteBytes - before) + gpuBytes;
         bench(log, "sksl_compiler_graphite", graphiteBytes);
     }
+#endif
 }
