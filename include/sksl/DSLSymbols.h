@@ -24,7 +24,7 @@ class DSLVarBase;
 
 // This header provides methods for manually managing symbol tables in DSL code. They should not be
 // used by normal hand-written DSL code, where we rely on C++ to manage symbols, but are instead
-// needed when DSL objects are being constructed programmatically (as in DSLParser).
+// needed when DSL objects are being constructed programmatically (as in Parser).
 
 /**
  * Pushes a new symbol table onto the symbol table stack.

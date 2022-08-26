@@ -16,10 +16,10 @@
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLDSLParser.h"
 #include "src/sksl/SkSLInliner.h"
 #include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLOutputStream.h"
+#include "src/sksl/SkSLParser.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLRehydrator.h"
 #include "src/sksl/SkSLStringStream.h"
@@ -200,7 +200,7 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
     ParsedModule baseModule = {std::move(base), /*fElements=*/nullptr};
     // Built-in modules always use default program settings.
     ProgramSettings settings;
-    LoadedModule module = DSLParser(this, settings, kind, std::move(text))
+    LoadedModule module = Parser(this, settings, kind, std::move(text))
                                   .moduleInheritingFrom(baseModule);
     if (this->errorCount()) {
         printf("Unexpected errors: %s\n", this->fErrorText.c_str());
@@ -317,7 +317,7 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
 
     this->resetErrors();
 
-    return DSLParser(this, settings, kind, std::move(text)).program();
+    return Parser(this, settings, kind, std::move(text)).program();
 }
 
 std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::string_view name) {

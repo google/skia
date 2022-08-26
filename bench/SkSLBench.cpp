@@ -12,7 +12,7 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/mock/GrMockCaps.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLDSLParser.h"
+#include "src/sksl/SkSLParser.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
 

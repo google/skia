@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SKSL_DSLPARSER
-#define SKSL_DSLPARSER
+#ifndef SKSL_PARSER
+#define SKSL_PARSER
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
@@ -44,15 +44,14 @@ class DSLParameter;
 
 }
 
-class AutoDSLDepth;
+class AutoDepth;
 
 /**
  * Consumes .sksl text and invokes DSL functions to instantiate the program.
  */
-class DSLParser {
+class Parser {
 public:
-    DSLParser(Compiler* compiler, const ProgramSettings& settings, ProgramKind kind,
-              std::string text);
+    Parser(Compiler* compiler, const ProgramSettings& settings, ProgramKind kind, std::string text);
 
     std::unique_ptr<Program> program();
 
@@ -225,8 +224,8 @@ private:
 
     dsl::DSLStatement expressionStatement();
 
-    using BinaryParseFn = dsl::DSLExpression (DSLParser::*)();
-    bool SK_WARN_UNUSED_RESULT operatorRight(AutoDSLDepth& depth, Operator::Kind op,
+    using BinaryParseFn = dsl::DSLExpression (Parser::*)();
+    bool SK_WARN_UNUSED_RESULT operatorRight(AutoDepth& depth, Operator::Kind op,
             BinaryParseFn rightFn, dsl::DSLExpression& result);
 
     dsl::DSLExpression expression();
@@ -280,7 +279,7 @@ private:
 
     class Checkpoint {
     public:
-        Checkpoint(DSLParser* p) : fParser(p) {
+        Checkpoint(Parser* p) : fParser(p) {
             fPushbackCheckpoint = fParser->fPushback;
             fLexerCheckpoint = fParser->fLexer.getCheckpoint();
             fOldErrorReporter = &dsl::GetErrorReporter();
@@ -337,7 +336,7 @@ private:
             fOldErrorReporter = nullptr;
         }
 
-        DSLParser* fParser;
+        Parser* fParser;
         Token fPushbackCheckpoint;
         SkSL::Lexer::Checkpoint fLexerCheckpoint;
         ForwardingErrorReporter fErrorReporter;
@@ -357,7 +356,7 @@ private:
     int fDepth = 0;
     Token fPushback;
 
-    friend class AutoDSLDepth;
+    friend class AutoDepth;
     friend class HCodeGenerator;
 };
 

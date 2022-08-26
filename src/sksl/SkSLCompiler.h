@@ -266,7 +266,7 @@ private:
 
     friend class AutoSource;
     friend class ::SkSLCompileBench;
-    friend class DSLParser;
+    friend class Parser;
     friend class Rehydrator;
     friend class ThreadContext;
     friend class dsl::DSLCore;
