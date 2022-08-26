@@ -63,6 +63,8 @@ CORE_SRCS = [
     "SkSLRehydrator.cpp",
     "SkSLRehydrator.h",
     "SkSLSampleUsage.cpp",
+    "SkSLSharedCompiler.cpp",
+    "SkSLSharedCompiler.h",
     "SkSLString.cpp",
     "SkSLStringStream.h",
     "SkSLThreadContext.cpp",
