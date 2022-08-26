@@ -216,7 +216,8 @@ struct SK_API SkIRect {
         @return   true if members are equal
     */
     friend bool operator==(const SkIRect& a, const SkIRect& b) {
-        return a.fLeft == b.fLeft && a.fTop == b.fTop && a.fRight == b.fRight && a.fBottom == b.fBottom;
+        return a.fLeft == b.fLeft && a.fTop == b.fTop &&
+               a.fRight == b.fRight && a.fBottom == b.fBottom;
     }
 
     /** Returns true if any member in a: fLeft, fTop, fRight, and fBottom; is not
@@ -227,7 +228,8 @@ struct SK_API SkIRect {
         @return   true if members are not equal
     */
     friend bool operator!=(const SkIRect& a, const SkIRect& b) {
-        return a.fLeft != b.fLeft || a.fTop != b.fTop || a.fRight != b.fRight || a.fBottom != b.fBottom;
+        return a.fLeft != b.fLeft || a.fTop != b.fTop ||
+               a.fRight != b.fRight || a.fBottom != b.fBottom;
     }
 
     /** Sets SkIRect to (0, 0, 0, 0).
@@ -804,7 +806,8 @@ struct SK_API SkRect {
         @return   true if members are equal
     */
     friend bool operator==(const SkRect& a, const SkRect& b) {
-        return a.fLeft == b.fLeft && a.fTop == b.fTop && a.fRight == b.fRight && a.fBottom == b.fBottom;
+        return a.fLeft == b.fLeft && a.fTop == b.fTop &&
+               a.fRight == b.fRight && a.fBottom == b.fBottom;
     }
 
     /** Returns true if any in a: fLeft, fTop, fRight, and fBottom; does not
@@ -818,7 +821,8 @@ struct SK_API SkRect {
         @return   true if members are not equal
     */
     friend bool operator!=(const SkRect& a, const SkRect& b) {
-        return a.fLeft != b.fLeft || a.fTop != b.fTop || a.fRight != b.fRight || a.fBottom != b.fBottom;
+        return a.fLeft != b.fLeft || a.fTop != b.fTop ||
+               a.fRight != b.fRight || a.fBottom != b.fBottom;
     }
 
     /** Returns four points in quad that enclose SkRect ordered as: top-left, top-right,
