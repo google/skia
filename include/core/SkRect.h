@@ -9,12 +9,13 @@
 #define SkRect_DEFINED
 
 #include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTFitsIn.h"
 
-#include <algorithm>
-#include <utility>
+#include <cstdint>
 
 struct SkRect;
 
@@ -215,7 +216,7 @@ struct SK_API SkIRect {
         @return   true if members are equal
     */
     friend bool operator==(const SkIRect& a, const SkIRect& b) {
-        return !memcmp(&a, &b, sizeof(a));
+        return a.fLeft == b.fLeft && a.fTop == b.fTop && a.fRight == b.fRight && a.fBottom == b.fBottom;
     }
 
     /** Returns true if any member in a: fLeft, fTop, fRight, and fBottom; is not
@@ -226,7 +227,7 @@ struct SK_API SkIRect {
         @return   true if members are not equal
     */
     friend bool operator!=(const SkIRect& a, const SkIRect& b) {
-        return !(a == b);
+        return a.fLeft != b.fLeft || a.fTop != b.fTop || a.fRight != b.fRight || a.fBottom != b.fBottom;
     }
 
     /** Sets SkIRect to (0, 0, 0, 0).
@@ -235,7 +236,7 @@ struct SK_API SkIRect {
         or if top is equal to or greater than bottom. Setting all members to zero
         is a convenience, but does not designate a special empty rectangle.
     */
-    void setEmpty() { memset(this, 0, sizeof(*this)); }
+    void setEmpty();
 
     /** Sets SkIRect to (left, top, right, bottom).
         left and right are not sorted; left is not necessarily less than right.
@@ -482,7 +483,7 @@ struct SK_API SkIRect {
         @param r  SkRect contained
         @return   true if all sides of SkIRect are outside r
     */
-    inline bool contains(const SkRect& r) const;
+    bool contains(const SkRect& r) const;
 
     /** Returns true if SkIRect contains construction.
         Asserts if SkIRect is empty or construction is empty, and if SK_DEBUG is defined.
@@ -546,15 +547,7 @@ struct SK_API SkIRect {
         fTop and fBottom if fTop is greater than fBottom. Result may be empty,
         and width() and height() will be zero or positive.
     */
-    void sort() {
-        using std::swap;
-        if (fLeft > fRight) {
-            swap(fLeft, fRight);
-        }
-        if (fTop > fBottom) {
-            swap(fTop, fBottom);
-        }
-    }
+    void sort();
 
     /** Returns SkIRect with fLeft and fRight swapped if fLeft is greater than fRight; and
         with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
@@ -562,10 +555,7 @@ struct SK_API SkIRect {
 
         @return  sorted SkIRect
     */
-    SkIRect makeSorted() const {
-        return MakeLTRB(std::min(fLeft, fRight), std::min(fTop, fBottom),
-                        std::max(fLeft, fRight), std::max(fTop, fBottom));
-    }
+    SkIRect makeSorted() const;
 };
 
 /** \struct SkRect
@@ -814,7 +804,7 @@ struct SK_API SkRect {
         @return   true if members are equal
     */
     friend bool operator==(const SkRect& a, const SkRect& b) {
-        return SkScalarsEqual((const SkScalar*)&a, (const SkScalar*)&b, 4);
+        return a.fLeft == b.fLeft && a.fTop == b.fTop && a.fRight == b.fRight && a.fBottom == b.fBottom;
     }
 
     /** Returns true if any in a: fLeft, fTop, fRight, and fBottom; does not
@@ -828,7 +818,7 @@ struct SK_API SkRect {
         @return   true if members are not equal
     */
     friend bool operator!=(const SkRect& a, const SkRect& b) {
-        return !SkScalarsEqual((const SkScalar*)&a, (const SkScalar*)&b, 4);
+        return a.fLeft != b.fLeft || a.fTop != b.fTop || a.fRight != b.fRight || a.fBottom != b.fBottom;
     }
 
     /** Returns four points in quad that enclose SkRect ordered as: top-left, top-right,
@@ -922,12 +912,7 @@ struct SK_API SkRect {
         @param p0  corner to include
         @param p1  corner to include
     */
-    void set(const SkPoint& p0, const SkPoint& p1) {
-        fLeft =   std::min(p0.fX, p1.fX);
-        fRight =  std::max(p0.fX, p1.fX);
-        fTop =    std::min(p0.fY, p1.fY);
-        fBottom = std::max(p0.fY, p1.fY);
-    }
+    void set(const SkPoint& p0, const SkPoint& p1);
 
     /** Sets SkRect to (x, y, x + width, y + height).
         Does not validate input; width or height may be negative.
@@ -1111,13 +1096,7 @@ struct SK_API SkRect {
 
 private:
     static bool Intersects(SkScalar al, SkScalar at, SkScalar ar, SkScalar ab,
-                           SkScalar bl, SkScalar bt, SkScalar br, SkScalar bb) {
-        SkScalar L = std::max(al, bl);
-        SkScalar R = std::min(ar, br);
-        SkScalar T = std::max(at, bt);
-        SkScalar B = std::min(ab, bb);
-        return L < R && T < B;
-    }
+                           SkScalar bl, SkScalar bt, SkScalar br, SkScalar bb);
 
 public:
 
@@ -1180,12 +1159,7 @@ public:
 
         @param r  expansion SkRect
     */
-    void joinPossiblyEmptyRect(const SkRect& r) {
-        fLeft   = std::min(fLeft, r.left());
-        fTop    = std::min(fTop, r.top());
-        fRight  = std::max(fRight, r.right());
-        fBottom = std::max(fBottom, r.bottom());
-    }
+    void joinPossiblyEmptyRect(const SkRect& r);
 
     /** Returns true if: fLeft <= x < fRight && fTop <= y < fBottom.
         Returns false if SkRect is empty.
@@ -1319,16 +1293,7 @@ public:
         fTop and fBottom if fTop is greater than fBottom. Result may be empty;
         and width() and height() will be zero or positive.
     */
-    void sort() {
-        using std::swap;
-        if (fLeft > fRight) {
-            swap(fLeft, fRight);
-        }
-
-        if (fTop > fBottom) {
-            swap(fTop, fBottom);
-        }
-    }
+    void sort();
 
     /** Returns SkRect with fLeft and fRight swapped if fLeft is greater than fRight; and
         with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
@@ -1336,10 +1301,7 @@ public:
 
         @return  sorted SkRect
     */
-    SkRect makeSorted() const {
-        return MakeLTRB(std::min(fLeft, fRight), std::min(fTop, fBottom),
-                        std::max(fLeft, fRight), std::max(fTop, fBottom));
-    }
+    SkRect makeSorted() const;
 
     /** Returns pointer to first scalar in SkRect, to treat it as an array with four
         entries.
@@ -1373,11 +1335,5 @@ public:
     */
     void dumpHex() const { this->dump(true); }
 };
-
-inline bool SkIRect::contains(const SkRect& r) const {
-    return  !r.isEmpty() && !this->isEmpty() &&     // check for empties
-            (SkScalar)fLeft <= r.fLeft && (SkScalar)fTop <= r.fTop &&
-            (SkScalar)fRight >= r.fRight && (SkScalar)fBottom >= r.fBottom;
-}
 
 #endif

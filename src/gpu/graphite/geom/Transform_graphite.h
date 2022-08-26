@@ -10,6 +10,8 @@
 
 #include "include/core/SkM44.h"
 
+#include <algorithm>
+
 namespace skgpu::graphite {
 
 class Rect;

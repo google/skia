@@ -9,6 +9,8 @@
 
 #include "include/core/SkM44.h"
 
+#include <algorithm>
+
 namespace {
 
 static jlong Matrix_Create(JNIEnv* env, jobject, jfloat m0, jfloat m4, jfloat m8,  jfloat m12,
