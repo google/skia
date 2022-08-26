@@ -1,0 +1,17 @@
+const const float a = 0;
+uniform flat uniform int b;
+uniform flat noperspective flat noperspective uniform half4 c;
+in inout float d;
+inout out half e;
+inout inout int f;
+
+/*%%*
+'const' appears more than once
+'uniform' appears more than once
+'flat' appears more than once
+'noperspective' appears more than once
+'uniform' appears more than once
+'in' appears more than once
+'out' appears more than once
+'inout' appears more than once
+*%%*/

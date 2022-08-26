@@ -118,6 +118,7 @@ sksl_error_tests = [
   "/sksl/errors/MismatchedNumbers.rts",
   "/sksl/errors/MismatchedNumbersES3.sksl",
   "/sksl/errors/ModifiersInStruct.rts",
+  "/sksl/errors/ModifiersRepeated.sksl",
   "/sksl/errors/MultipleFields.rts",
   "/sksl/errors/MultipleFieldsInInterfaceBlocks.sksl",
   "/sksl/errors/NoES3ModifierInUserCode.sksl",
