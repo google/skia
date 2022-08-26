@@ -114,16 +114,13 @@ static SkScalar conic_weight(const SkPath::Iter& iter, SkPath::Verb verb) {
     return SkPath::kConic_Verb == verb ? iter.conicWeight() : 1;
 }
 
-static SkPoint left_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight,
-        Contour::Direction* direction) {
+static SkPoint left_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight) {
     SkASSERT(SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb);
     SkPoint result;
-    double dy;
     double t SK_INIT_TO_AVOID_WARNING;
     int roots = 0;
     if (SkPath::kLine_Verb == verb) {
         result = pts[0].fX < pts[1].fX ? pts[0] : pts[1];
-        dy = pts[1].fY - pts[0].fY;
     } else if (SkPath::kQuad_Verb == verb) {
         SkDQuad quad;
         quad.set(pts);
@@ -134,9 +131,7 @@ static SkPoint left_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight,
             result = quad.ptAtT(t).asSkPoint();
         } else {
             result = pts[0].fX < pts[2].fX ? pts[0] : pts[2];
-            t = pts[0].fX < pts[2].fX ? 0 : 1;
         }
-        dy = quad.dxdyAtT(t).fY;
     } else if (SkPath::kConic_Verb == verb) {
         SkDConic conic;
         conic.set(pts, weight);
@@ -147,9 +142,7 @@ static SkPoint left_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight,
             result = conic.ptAtT(t).asSkPoint();
         } else {
             result = pts[0].fX < pts[2].fX ? pts[0] : pts[2];
-            t = pts[0].fX < pts[2].fX ? 0 : 1;
         }
-        dy = conic.dxdyAtT(t).fY;
     } else {
         SkASSERT(SkPath::kCubic_Verb == verb);
         SkDCubic cubic;
@@ -162,7 +155,6 @@ static SkPoint left_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight,
                 SkPoint temp = cubic.ptAtT(tValues[index]).asSkPoint();
                 if (0 == index || result.fX > temp.fX) {
                     result = temp;
-                    t = tValues[index];
                 }
             }
         }
@@ -170,11 +162,8 @@ static SkPoint left_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight,
             result = cubic.ptAtT(t).asSkPoint();
         } else {
             result = pts[0].fX < pts[3].fX ? pts[0] : pts[3];
-            t = pts[0].fX < pts[3].fX ? 0 : 1;
         }
-        dy = cubic.dxdyAtT(t).fY;
     }
-    *direction = to_direction(dy);
     return result;
 }
 
@@ -214,6 +203,45 @@ public:
         }
     }
 
+    Contour::Direction getDirection(Contour& contour) {
+        SkPath::Iter iter(fPath, true);
+        int verbCount = -1;
+        SkPath::Verb verb;
+        SkPoint pts[4];
+
+        SkScalar total_signed_area = 0;
+        do {
+            verb = iter.next(pts);
+            if (++verbCount < contour.fVerbStart) {
+                continue;
+            }
+            if (verbCount >= contour.fVerbEnd) {
+                continue;
+            }
+            if (SkPath::kLine_Verb > verb || verb > SkPath::kCubic_Verb) {
+                continue;
+            }
+
+            switch (verb)
+            {
+                case SkPath::kLine_Verb:
+                    total_signed_area += (pts[0].fY - pts[1].fY) * (pts[0].fX + pts[1].fX);
+                    break;
+                case SkPath::kQuad_Verb:
+                case SkPath::kConic_Verb:
+                    total_signed_area += (pts[0].fY - pts[2].fY) * (pts[0].fX + pts[2].fX);
+                    break;
+                case SkPath::kCubic_Verb:
+                    total_signed_area += (pts[0].fY - pts[3].fY) * (pts[0].fX + pts[3].fX);
+                    break;
+                default:
+                    break;
+            }
+        } while (SkPath::kDone_Verb != verb);
+
+        return total_signed_area < 0 ? Contour::Direction::kCCW: Contour::Direction::kCW;
+    }
+
     int nextEdge(Contour& contour, Edge edge) {
         SkPath::Iter iter(fPath, true);
         SkPoint pts[4];
@@ -246,8 +274,7 @@ public:
                 continue;
             }
             SkASSERT(edge == Edge::kInitial);
-            Contour::Direction direction;
-            SkPoint minXY = left_edge(pts, verb, conic_weight(iter, verb), &direction);
+            SkPoint minXY = left_edge(pts, verb, conic_weight(iter, verb));
             if (minXY.fX > contour.fMinXY.fX) {
                 continue;
             }
@@ -255,17 +282,8 @@ public:
                 if (minXY.fY != contour.fMinXY.fY) {
                     continue;
                 }
-                if (direction == contour.fDirection) {
-                    continue;
-                }
-                // incomplete: must sort edges to find the one most to left
-                // File a bug if this code path is triggered and AsWinding was
-                // expected to succeed.
-                SkDEBUGF("incomplete\n");
-                // TODO: add edges as opangle and sort
             }
             contour.fMinXY = minXY;
-            contour.fDirection = direction;
         } while (SkPath::kDone_Verb != verb);
         return winding;
     }
@@ -274,7 +292,7 @@ public:
         // find outside point on lesser contour
         // arbitrarily, choose non-horizontal edge where point <= bounds left
         // note that if leftmost point is control point, may need tight bounds
-            // to find edge with minimum-x
+        // to find edge with minimum-x
         if (SK_ScalarMax == test.fMinXY.fX) {
             this->nextEdge(test, Edge::kInitial);
         }
@@ -326,6 +344,8 @@ public:
         for (auto grandChild : child->fChildren) {
             reversed |= markReverse(grandChild->fContained ? child : parent, grandChild);
         }
+
+        child->fDirection = getDirection(*child);
         if (parent && parent->fDirection == child->fDirection) {
             child->fReverse = true;
             child->fDirection = (Contour::Direction) -(int) child->fDirection;
@@ -419,6 +439,7 @@ bool AsWinding(const SkPath& path, SkPath* result) {
     // starting with outermost and moving inward, see if one path contains another
     for (auto contour : sorted.fChildren) {
         winder.nextEdge(*contour, OpAsWinding::Edge::kInitial);
+        contour->fDirection = winder.getDirection(*contour);
         if (!winder.checkContainerChildren(nullptr, contour)) {
             return false;
         }
