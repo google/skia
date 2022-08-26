@@ -300,6 +300,12 @@ public:
         return {fUVs[0] & 0x1FFF, fUVs[1]};
     }
 
+    SkPoint widthHeight() const {
+        auto width =  fUVs[2] - fUVs[0],
+             height = fUVs[3] - fUVs[1];
+        return SkPoint::Make(width, height);
+    }
+
     uint16_t width() const {
         return fUVs[2] - fUVs[0];
     }
