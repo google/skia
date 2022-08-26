@@ -1432,11 +1432,11 @@ int main(int argc, char** argv) {
     // its modules the first time they are accessed, and this test is trying to measure the size of
     // those allocations. If a paint has already occurred, some modules will have already been
     // loaded, so we won't be able to capture a delta for them.
+    log.beginObject("results");
     RunSkSLMemoryBenchmarks(&log);
 
     int runs = 0;
     BenchmarkStream benchStream;
-    log.beginObject("results");
     AutoreleasePool pool;
     while (Benchmark* b = benchStream.next()) {
         std::unique_ptr<Benchmark> bench(b);
