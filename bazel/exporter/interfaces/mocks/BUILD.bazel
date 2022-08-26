@@ -8,10 +8,14 @@ exports_files_legacy()
 go_library(
     name = "mocks",
     srcs = [
+        "FileSystem.go",
         "QueryCommand.go",
         "generate.go",
     ],
     importpath = "go.skia.org/skia/bazel/exporter/interfaces/mocks",
     visibility = ["//visibility:public"],
-    deps = ["@com_github_stretchr_testify//mock"],
+    deps = [
+        "//bazel/exporter/interfaces",
+        "@com_github_stretchr_testify//mock",
+    ],
 )

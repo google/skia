@@ -19,16 +19,25 @@ import (
 )
 
 type CMakeExporter struct {
+	projName     string
 	workspace    cmakeWorkspace
-	workspaceDir string
+	workspaceDir string // Absolute path to Bazel workspace directory.
+	cmakeFile    string // Absolute path to CMake output file.
+	fs           interfaces.FileSystem
 }
 
-// NewCMakeExporter creates an exporter that will export to the
-// CMake project file format.
-func NewCMakeExporter(workspaceDir string) *CMakeExporter {
+// NewCMakeExporter creates an exporter that will export a Bazel project
+// query from a project in the workspaceDir to a CMake project file identified
+// by cmakeFile.
+//
+// Note: cmakeFile must be an absolute path.
+func NewCMakeExporter(projName, workspaceDir, cmakeFile string, fs interfaces.FileSystem) *CMakeExporter {
 	return &CMakeExporter{
 		workspace:    *newCMakeWorkspace(),
+		projName:     projName,
 		workspaceDir: workspaceDir,
+		cmakeFile:    cmakeFile,
+		fs:           fs,
 	}
 }
 
@@ -401,8 +410,9 @@ func (e *CMakeExporter) convertCCLibraryRule(r *build.Rule, qr *analysis_v2.Cque
 
 // Export will convert the input Bazel cquery output, provided by the
 // supplied QueryCommand parameter, to CMake. The equivalent
-// CMake project definition will be written using the supplied writer.
-func (e *CMakeExporter) Export(qcmd interfaces.QueryCommand, writer interfaces.Writer, projName string) error {
+// CMake project definition will be written using the writer provided
+// to the constructor method.
+func (e *CMakeExporter) Export(qcmd interfaces.QueryCommand) error {
 
 	in, err := qcmd.Read()
 	if err != nil {
@@ -413,10 +423,14 @@ func (e *CMakeExporter) Export(qcmd interfaces.QueryCommand, writer interfaces.W
 		return skerr.Wrapf(err, "failed to unmarshal Bazel cquery result")
 	}
 
+	writer, err := e.fs.OpenFile(e.cmakeFile)
+	if err != nil {
+		return skerr.Wrap(err)
+	}
 	fmt.Fprintln(writer, "# DO NOT EDIT: This file is auto-generated.")
 	fmt.Fprintln(writer, "cmake_minimum_required(VERSION 3.13)")
 	writer.WriteString("\n")
-	fmt.Fprintf(writer, "project(%s LANGUAGES C CXX)\n", projName)
+	fmt.Fprintf(writer, "project(%s LANGUAGES C CXX)\n", e.projName)
 	writer.WriteString("\n")
 
 	writePlatformCompileFlags(writer)
@@ -448,6 +462,10 @@ func (e *CMakeExporter) Export(qcmd interfaces.QueryCommand, writer interfaces.W
 	}
 
 	return nil
+}
+
+func (e *CMakeExporter) CheckCurrent(qcmd interfaces.QueryCommand, errWriter interfaces.Writer) (int, error) {
+	return 0, skerr.Fmt("CheckCurrent not supported for CMake")
 }
 
 // Make sure CMakeExporter fulfills the Exporter interface.

@@ -11,8 +11,7 @@ This is not meant for any purpose beyond development.
 At the root level of the Skia workspace:
 
 ```sh
-bazel build //bazel/exporter_tool
-bazel-bin/bazel/exporter_tool/exporter_tool_/exporter_tool -proj_name=Skia -rule='//:skia_public'
+make -C bazel generate_cmake
 ```
 
 This will write to a single `CMakeLists.txt` file a valid CMake project with
@@ -23,3 +22,23 @@ and all dependent targets.
 
 * External dependencies are not supported.
 * Only the `//:skia_public` rule is supported. Other rules *may* work.
+
+# Bazel to *.gni
+
+At the root level of the Skia workspace:
+
+```sh
+make -C bazel generate_gni
+```
+
+This will update some `*.gni` files that reside in //gn that contain file lists.
+
+# Out of Date Check
+The exporter tool has a flag to identify all output files which are out of date.
+This can be run as so:
+
+```sh
+exporter_tool -check_current ...
+```
+
+The will return a zero return code if all files are up to date.

@@ -156,3 +156,30 @@ func TestFindRule_InvalidRule_ReturnsNil(t *testing.T) {
 
 	assert.Nil(t, findRule(&qr, ""))
 }
+
+func TestGetFilePathFromFileTarget_ValidPaths_ReturnsPath(t *testing.T) {
+	test := func(name, target, expected string) {
+		t.Run(name, func(t *testing.T) {
+			path, err := getFilePathFromFileTarget(target)
+			require.NoError(t, err)
+			assert.Equal(t, expected, path)
+		})
+	}
+
+	test("FileInDir", "//src/core:source.cpp", "src/core/source.cpp")
+	test("RootFile", "//:source.cpp", "source.cpp")
+}
+
+func TestGetFilePathFromFileTarget_InvalidTarget_ReturnsError(t *testing.T) {
+	test := func(name, target string) {
+		t.Run(name, func(t *testing.T) {
+			_, err := getFilePathFromFileTarget(target)
+			require.Error(t, err)
+		})
+	}
+
+	test("EmptyString", "")
+	test("InvalidTarget", "//")
+	test("NoFile", "//src/core:srcs")
+	test("DefaultTarget", "//src/core")
+}

@@ -49,6 +49,12 @@ func findRule(qr *analysis_v2.CqueryResult, name string) *build.Rule {
 
 // Parse a rule into its constituent parts.
 // https://docs.bazel.build/versions/main/guide.html#specifying-targets-to-build
+//
+// For example, the input rule `//foo/bar:baz` will return:
+//
+//	repo: ""
+//	path: "/foo/bar"
+//	target: "baz"
 func parseRule(rule string) (repo string, path string, target string, err error) {
 	match := ruleOnlyRepoRegex.FindStringSubmatch(rule)
 	if match != nil {
@@ -166,4 +172,18 @@ func getRuleStringArrayAttribute(r *build.Rule, name string) ([]string, error) {
 		return attrib.GetStringListValue(), nil
 	}
 	return nil, nil
+}
+
+// Given an input rule target return the workspace relative file path.
+// For example, an input of `//src/core:source.cpp` will return
+// `src/core/source.cpp`.
+func getFilePathFromFileTarget(target string) (string, error) {
+	_, path, t, err := parseRule(target)
+	if err != nil {
+		return "", skerr.Wrap(err)
+	}
+	if !isFileTarget(target) {
+		return "", skerr.Fmt("Target %q is not a file target.", target)
+	}
+	return filepath.Join(strings.TrimPrefix(path, "/"), t), nil
 }

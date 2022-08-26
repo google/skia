@@ -13,6 +13,7 @@ go_library(
         "cmake_exporter.go",
         "cmake_rule.go",
         "cmake_workspace.go",
+        "gni_exporter.go",
     ],
     importpath = "go.skia.org/skia/bazel/exporter",
     visibility = ["//visibility:public"],
@@ -33,6 +34,8 @@ go_test(
         "cmake_exporter_test.go",
         "cmake_rule_test.go",
         "cmake_workspace_test.go",
+        "gni_exporter_test.go",
+        "util_test.go",
     ],
     embed = [":exporter"],
     deps = [

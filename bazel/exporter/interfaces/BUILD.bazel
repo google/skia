@@ -9,6 +9,7 @@ go_library(
     name = "interfaces",
     srcs = [
         "exporter.go",
+        "file_system.go",
         "query_command.go",
     ],
     importpath = "go.skia.org/skia/bazel/exporter/interfaces",

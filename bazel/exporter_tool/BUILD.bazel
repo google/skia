@@ -12,6 +12,7 @@ go_library(
     visibility = ["//visibility:private"],
     deps = [
         "//bazel/exporter",
+        "//bazel/exporter/interfaces",
         "@org_skia_go_infra//go/common",
         "@org_skia_go_infra//go/skerr",
     ],
