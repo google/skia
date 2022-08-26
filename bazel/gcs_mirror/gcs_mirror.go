@@ -38,6 +38,7 @@ func main() {
 		url           = flag.String("url", "", "The single url to mirror. --sha256 must be set.")
 		sha256Hash    = flag.String("sha256", "", "The sha256sum of the url to mirror. --url must also be set.")
 		jsonFromStdin = flag.Bool("json", false, "If set, read JSON from stdin that consists of a list of objects.")
+		noSuffix      = flag.Bool("no_suffix", false, "If true, this is presumed to be a binary which needs no suffix (e.g. executable)")
 	)
 	flag.Parse()
 
@@ -63,7 +64,7 @@ func main() {
 			fatalf("Could not process data from stdin: %s", err)
 		}
 	} else {
-		if err := processOne(workDir, *url, *sha256Hash); err != nil {
+		if err := processOne(workDir, *url, *sha256Hash, *noSuffix); err != nil {
 			fatalf("Error while processing entry: %s", err)
 		}
 		fmt.Printf("https://storage.googleapis.com/skia-world-readable/bazel/%s%s\n", *sha256Hash, getSuffix(*url))
@@ -86,7 +87,7 @@ func processJSON(workDir string, b []byte) error {
 		return skerr.Wrapf(err, "unmarshalling JSON")
 	}
 	for _, entry := range entries {
-		if err := processOne(workDir, entry.URL, entry.SHA256); err != nil {
+		if err := processOne(workDir, entry.URL, entry.SHA256, false); err != nil {
 			return skerr.Wrapf(err, "while processing entry: %+v", entry)
 		}
 	}
@@ -98,9 +99,9 @@ func fixStarlarkComments(b []byte) string {
 	return strings.ReplaceAll(string(b), "#", "//")
 }
 
-func processOne(workDir, url, hash string) error {
+func processOne(workDir, url, hash string, noSuffix bool) error {
 	suf := getSuffix(url)
-	if suf == "" {
+	if !noSuffix && suf == "" {
 		return skerr.Fmt("%s is not a supported file type", url)
 	}
 	fmt.Printf("Downloading and verifying %s...\n", url)
