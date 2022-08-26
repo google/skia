@@ -62,8 +62,8 @@ bool SDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& pain
            paint.getMaskFilter() == nullptr &&
            paint.getStyle() == SkPaint::kFill_Style &&
            0 < approximateDeviceTextSize &&
-           (fMinDistanceFieldFontSize <= approximateDeviceTextSize ||
-            (fAbleToUsePerspectiveSDFT && matrix.hasPerspective())) &&
+           (fAbleToUsePerspectiveSDFT || !matrix.hasPerspective()) &&
+           (fMinDistanceFieldFontSize <= approximateDeviceTextSize || matrix.hasPerspective()) &&
            approximateDeviceTextSize <= fMaxDistanceFieldFontSize;
 }
 
