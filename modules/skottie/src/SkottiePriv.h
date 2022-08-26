@@ -65,12 +65,12 @@ public:
     AnimationInfo parse(const skjson::ObjectValue&);
 
     struct FontInfo {
-        SkString          fFamily,
-                          fStyle,
-                          fPath;
-        SkScalar          fAscentPct;
-        sk_sp<SkTypeface> fTypeface;
-        Font::Builder     fCustomFontBuilder;
+        SkString            fFamily,
+                            fStyle,
+                            fPath;
+        SkScalar            fAscentPct;
+        sk_sp<SkTypeface>   fTypeface;
+        CustomFont::Builder fCustomFontBuilder;
 
         bool matches(const char family[], const char style[]) const;
     };
@@ -180,6 +180,7 @@ public:
 
 private:
     friend class CompositionBuilder;
+    friend class CustomFont;
     friend class LayerBuilder;
 
     struct AttachLayerContext;
@@ -286,6 +287,7 @@ private:
 
     SkTHashMap<SkString, AssetInfo>                fAssets;
     SkTHashMap<SkString, FontInfo>                 fFonts;
+    sk_sp<CustomFont::GlyphCompMapper>             fCustomGlyphMapper;
     mutable SkTHashMap<SkString, FootageAssetInfo> fImageAssetCache;
 
     using INHERITED = SkNoncopyable;

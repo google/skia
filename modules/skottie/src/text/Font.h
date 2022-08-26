@@ -10,7 +10,12 @@
 
 #include "include/core/SkTypeface.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/SkTHash.h"
 #include "include/utils/SkCustomTypeface.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
+
+#include <memory>
+#include <vector>
 
 class SkPath;
 
@@ -20,25 +25,51 @@ namespace skottie::internal {
 
 class AnimationBuilder;
 
-class Font final : SkNoncopyable {
+// Font backed by Lottie character data (glyph paths and glyph compositions).
+class CustomFont final : SkNoncopyable {
 public:
+    ~CustomFont();
+
+    using GlyphCompMap = SkTHashMap<SkGlyphID, sk_sp<sksg::RenderNode>>;
+
     class Builder final : SkNoncopyable {
     public:
         bool parseGlyph(const AnimationBuilder*, const skjson::ObjectValue&);
-        std::unique_ptr<Font> detach();
+        std::unique_ptr<CustomFont> detach();
 
     private:
         static bool ParseGlyphPath(const AnimationBuilder*, const skjson::ObjectValue&, SkPath*);
+        static sk_sp<sksg::RenderNode> ParseGlyphComp(const AnimationBuilder*,
+                                                      const skjson::ObjectValue&);
 
+        GlyphCompMap            fGlyphComps;
         SkCustomTypefaceBuilder fCustomBuilder;
+    };
+
+    // Helper for resolving (SkTypeface, SkGlyphID) tuples to a composition root.
+    // Used post-shaping, to substitute composition glyphs in the rendering tree.
+    class GlyphCompMapper final : public SkRefCnt {
+    public:
+        explicit GlyphCompMapper(std::vector<std::unique_ptr<CustomFont>>&& fonts)
+            : fFonts(std::move(fonts)) {}
+
+        ~GlyphCompMapper() override = default;
+
+        sk_sp<sksg::RenderNode> getGlyphComp(const SkTypeface*, SkGlyphID) const;
+
+    private:
+        const std::vector<std::unique_ptr<CustomFont>> fFonts;
     };
 
     const sk_sp<SkTypeface>& typeface() const { return fTypeface; }
 
-private:
-    explicit Font(sk_sp<SkTypeface> tf) : fTypeface(std::move(tf)) {}
+    int glyphCompCount() const { return fGlyphComps.count(); }
 
-    sk_sp<SkTypeface> fTypeface;
+private:
+    CustomFont(GlyphCompMap&&, sk_sp<SkTypeface> tf);
+
+    const GlyphCompMap      fGlyphComps;
+    const sk_sp<SkTypeface> fTypeface;
 };
 
 }  // namespace skottie::internal

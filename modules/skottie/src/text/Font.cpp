@@ -11,21 +11,20 @@
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGPath.h"
+#include "modules/sksg/include/SkSGTransform.h"
 
 namespace skottie::internal {
 
-bool Font::Builder::parseGlyph(const AnimationBuilder* abuilder,
-                               const skjson::ObjectValue& jchar) {
+bool CustomFont::Builder::parseGlyph(const AnimationBuilder* abuilder,
+                                     const skjson::ObjectValue& jchar) {
     // Glyph encoding:
     //     {
     //         "ch": "t",
-    //         "data": {
-    //             "shapes": [...]        // shape-layer-like geometry (for path glyphs)
-    //             "refId: ..."           // precomp ID (for animated glyphs)
-    //         },
-    //         "size": 50,                // apparently ignored
-    //         "w": 32.67                 // width/advance (1/100 units)
-    //    }
+    //         "data": <glyph data>,  // Glyph path or composition data
+    //         "size": 50,            // apparently ignored
+    //         "w": 32.67,            // width/advance (1/100 units)
+    //         "t": 1                 // Marker for composition glyphs only.
+    //     }
     const skjson::StringValue* jch   = jchar["ch"];
     const skjson::ObjectValue* jdata = jchar["data"];
     if (!jch || !jdata) {
@@ -47,15 +46,28 @@ bool Font::Builder::parseGlyph(const AnimationBuilder* abuilder,
     }
     const auto glyph_id = SkTo<SkGlyphID>(uni);
 
+    // Normalize the path and advance for 1pt.
     static constexpr float kPtScale = 0.01f;
     const auto advance = ParseDefault(jchar["w"], 0.0f) * kPtScale;
 
+    // Custom glyphs are either compositions...
+    if (auto comp_node = ParseGlyphComp(abuilder, *jdata)) {
+        // With glyph comps, we use the SkCustomTypeface only for shaping -- not for rendering.
+        fCustomBuilder.setGlyph(glyph_id, advance, SkPath());
+
+        // Rendering is handled explicitly, post shaping,
+        // based on info tracked in this GlyphCompMap.
+        fGlyphComps.set(glyph_id, std::move(comp_node));
+
+        return true;
+    }
+
+    // ... or paths.
     SkPath path;
     if (!ParseGlyphPath(abuilder, *jdata, &path)) {
         return false;
     }
 
-    // Normalize the path and advance for 1pt.
     path.transform(SkMatrix::Scale(kPtScale, kPtScale));
 
     fCustomBuilder.setGlyph(glyph_id, advance, path);
@@ -63,9 +75,9 @@ bool Font::Builder::parseGlyph(const AnimationBuilder* abuilder,
     return true;
 }
 
-bool Font::Builder::ParseGlyphPath(const skottie::internal::AnimationBuilder* abuilder,
-                                   const skjson::ObjectValue& jdata,
-                                   SkPath* path) {
+bool CustomFont::Builder::ParseGlyphPath(const skottie::internal::AnimationBuilder* abuilder,
+                                         const skjson::ObjectValue& jdata,
+                                         SkPath* path) {
     // Glyph path encoding:
     //
     //   "data": {
@@ -122,8 +134,71 @@ bool Font::Builder::ParseGlyphPath(const skottie::internal::AnimationBuilder* ab
     return true;
 }
 
-std::unique_ptr<Font> Font::Builder::detach() {
-    return std::unique_ptr<Font>(new Font(fCustomBuilder.detach()));
+sk_sp<sksg::RenderNode>
+CustomFont::Builder::ParseGlyphComp(const AnimationBuilder* abuilder,
+                                    const skjson::ObjectValue& jdata) {
+    // Glyph comp encoding:
+    //
+    //   "data": {                     // Follows the precomp layer format.
+    //       "ip": <in point>,
+    //       "op": <out point>,
+    //       "refId": <comp ID>,
+    //       "sr": <time remap info>,
+    //       "st": <time remap info>,
+    //       "ks": <transform info>
+    //   }
+
+    AnimationBuilder::LayerInfo linfo{
+        {0,0},
+        ParseDefault<float>(jdata["ip"], 0.0f),
+        ParseDefault<float>(jdata["op"], 0.0f)
+    };
+
+    if (!linfo.fInPoint && !linfo.fOutPoint) {
+        // Not a comp glyph.
+        return nullptr;
+    }
+
+    // Since the glyph composition encoding matches the precomp layer encoding, we can pretend
+    // we're attaching a precomp here.
+    auto comp_node = abuilder->attachPrecompLayer(jdata, &linfo);
+
+    // Normalize for 1pt.
+    static constexpr float kPtScale = 0.01f;
+    sk_sp<sksg::Transform> glyph_transform =
+            sksg::Matrix<SkMatrix>::Make(SkMatrix::Scale(kPtScale, kPtScale));
+
+    // Additional/explicit glyph transform (not handled in attachPrecompLayer).
+    if (const skjson::ObjectValue* jtransform = jdata["ks"]) {
+        glyph_transform = abuilder->attachMatrix2D(*jtransform, std::move(glyph_transform));
+    }
+
+    return sksg::TransformEffect::Make(abuilder->attachPrecompLayer(jdata, &linfo),
+                                       std::move(glyph_transform));
+}
+
+std::unique_ptr<CustomFont> CustomFont::Builder::detach() {
+    return std::unique_ptr<CustomFont>(new CustomFont(std::move(fGlyphComps),
+                                                      fCustomBuilder.detach()));
+}
+
+CustomFont::CustomFont(GlyphCompMap&& glyph_comps, sk_sp<SkTypeface> tf)
+    : fGlyphComps(std::move(glyph_comps))
+    , fTypeface(std::move(tf))
+{}
+
+CustomFont::~CustomFont() = default;
+
+sk_sp<sksg::RenderNode> CustomFont::GlyphCompMapper::getGlyphComp(const SkTypeface* tf,
+                                                                  SkGlyphID gid) const {
+    for (const auto& font : fFonts) {
+        if (font->typeface().get() == tf) {
+            auto* comp_node = font->fGlyphComps.find(gid);
+            return comp_node ? *comp_node : nullptr;
+        }
+    }
+
+    return nullptr;
 }
 
 }  // namespace skottie::internal

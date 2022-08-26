@@ -192,7 +192,9 @@ private:
 
 sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
                                      const AnimationBuilder* abuilder,
-                                     sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger) {
+                                     sk_sp<SkFontMgr> fontmgr,
+                                     sk_sp<CustomFont::GlyphCompMapper> custom_glyph_mapper,
+                                     sk_sp<Logger> logger) {
     // General text node format:
     // "t": {
     //    "a": [], // animators (see TextAnimator)
@@ -253,6 +255,7 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
             : 1;
 
     auto adapter = sk_sp<TextAdapter>(new TextAdapter(std::move(fontmgr),
+                                                      std::move(custom_glyph_mapper),
                                                       std::move(logger),
                                                       gGroupingMap[SkToSizeT(apg - 1)]));
 
@@ -322,9 +325,13 @@ sk_sp<TextAdapter> TextAdapter::Make(const skjson::ObjectValue& jlayer,
     return adapter;
 }
 
-TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger, AnchorPointGrouping apg)
+TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr,
+                         sk_sp<CustomFont::GlyphCompMapper> custom_glyph_mapper,
+                         sk_sp<Logger> logger,
+                         AnchorPointGrouping apg)
     : fRoot(sksg::Group::Make())
     , fFontMgr(std::move(fontmgr))
+    , fCustomGlyphMapper(std::move(custom_glyph_mapper))
     , fLogger(std::move(logger))
     , fAnchorPointGrouping(apg)
     , fHasBlurAnimator(false)
@@ -333,17 +340,41 @@ TextAdapter::TextAdapter(sk_sp<SkFontMgr> fontmgr, sk_sp<Logger> logger, AnchorP
 
 TextAdapter::~TextAdapter() = default;
 
+std::vector<sk_sp<sksg::RenderNode>>
+TextAdapter::buildGlyphCompNodes(Shaper::Fragment& frag) const {
+    std::vector<sk_sp<sksg::RenderNode>> draws;
+
+    if (fCustomGlyphMapper) {
+        size_t offset = 0;
+        for (const auto& run : frag.fGlyphs.fRuns) {
+            for (size_t i = 0; i < run.fSize; ++i) {
+                const SkGlyphID gid = frag.fGlyphs.fGlyphIDs[offset + i];
+
+                if (auto gcomp = fCustomGlyphMapper->getGlyphComp(run.fFont.getTypeface(), gid)) {
+                    // Position and scale the "glyph".
+                    const auto m = SkMatrix::Translate(frag.fGlyphs.fGlyphPos[offset + i])
+                                 * SkMatrix::Scale(fText->fTextSize, fText->fTextSize);
+
+                    draws.push_back(sksg::TransformEffect::Make(std::move(gcomp), m));
+                }
+            }
+            offset += run.fSize;
+        }
+    }
+
+    return draws;
+}
+
 void TextAdapter::addFragment(Shaper::Fragment& frag) {
     // For a given shaped fragment, build a corresponding SG fragment:
     //
     //   [TransformEffect] -> [Transform]
     //     [Group]
-    //       [Draw] -> [TextBlob*] [FillPaint]
-    //       [Draw] -> [TextBlob*] [StrokePaint]
+    //       [Draw] -> [GlyphTextNode*] [FillPaint]    // SkTypeface-based glyph.
+    //       [Draw] -> [GlyphTextNode*] [StrokePaint]  // SkTypeface-based glyph.
+    //       [CompRenderTree]                          // Comp glyph.
+    //       ...
     //
-    // * where the blob node is shared
-
-    auto text_node = sk_make_sp<GlyphTextNode>(std::move(frag.fGlyphs));
 
     FragmentRec rec;
     rec.fOrigin     = frag.fOrigin;
@@ -352,8 +383,16 @@ void TextAdapter::addFragment(Shaper::Fragment& frag) {
     rec.fMatrixNode = sksg::Matrix<SkM44>::Make(SkM44::Translate(frag.fOrigin.x(),
                                                                  frag.fOrigin.y()));
 
-    std::vector<sk_sp<sksg::RenderNode>> draws;
-    draws.reserve(static_cast<size_t>(fText->fHasFill) + static_cast<size_t>(fText->fHasStroke));
+    // Start off substituting existing comp nodes for all composition-based glyphs.
+    std::vector<sk_sp<sksg::RenderNode>> draws = this->buildGlyphCompNodes(frag);
+
+    // Use a regular GlyphTextNode for the remaining glyphs (backed by a real SkTypeface).
+    // Note: comp glyph IDs are still present in the list, but they don't draw anything
+    //       (using empty path in SkCustomTypeface).
+    auto text_node = sk_make_sp<GlyphTextNode>(std::move(frag.fGlyphs));
+
+    draws.reserve(draws.size() +
+                  static_cast<size_t>(fText->fHasFill) + static_cast<size_t>(fText->fHasStroke));
 
     SkASSERT(fText->fHasFill || fText->fHasStroke);
 
@@ -394,6 +433,8 @@ void TextAdapter::addFragment(Shaper::Fragment& frag) {
         auto box = SkRect::MakeLTRB(0, rec.fAscent, rec.fAdvance, 0);
         draws.push_back(sksg::Draw::Make(sksg::Rect::Make(box), std::move(box_color)));
     }
+
+    draws.shrink_to_fit();
 
     auto draws_node = (draws.size() > 1)
             ? sksg::Group::Make(std::move(draws))

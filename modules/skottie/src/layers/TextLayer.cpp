@@ -156,13 +156,39 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                       jpath ? SkString(  jpath->begin(),   jpath->size()) : SkString(),
                       ParseDefault((*jfont)["ascent"] , 0.0f),
                       nullptr, // placeholder
-                      Font::Builder()
+                      CustomFont::Builder()
                   });
     }
 
+    const auto has_comp_glyphs = [](const skjson::ArrayValue* jchars) {
+        if (!jchars) {
+            return false;
+        }
+
+        for (const skjson::ObjectValue* jchar : *jchars) {
+            if (!jchar) {
+                continue;
+            }
+            if (ParseDefault<int>((*jchar)["t"], 0) == 1) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    // Historically, Skottie has been loading native fonts before embedded glyphs, unless
+    // the opposite is explicitly requested via kPreferEmbeddedFonts.  That's mostly because
+    // embedded glyphs used to be just a path representation of system fonts at export time,
+    // (and thus lower quality).
+    //
+    // OTOH embedded glyph *compositions* must be prioritized, as they are presumably more
+    // expressive than the system font equivalent.
+    const auto prioritize_embedded_fonts =
+            (fFlags & Animation::Builder::kPreferEmbeddedFonts) || has_comp_glyphs(jchars);
+
     // Optional pass.
-    if (jchars && (fFlags & Animation::Builder::kPreferEmbeddedFonts) &&
-        this->resolveEmbeddedTypefaces(*jchars)) {
+    if (jchars && prioritize_embedded_fonts && this->resolveEmbeddedTypefaces(*jchars)) {
         return;
     }
 
@@ -172,8 +198,8 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
     }
 
     // Embedded typeface fallback.
-    if (jchars && !(fFlags & Animation::Builder::kPreferEmbeddedFonts) &&
-        this->resolveEmbeddedTypefaces(*jchars)) {
+    if (jchars && !prioritize_embedded_fonts) {
+        this->resolveEmbeddedTypefaces(*jchars);
     }
 }
 
@@ -275,15 +301,28 @@ bool AnimationBuilder::resolveEmbeddedTypefaces(const skjson::ArrayValue& jchars
 
     // Final pass to commit custom typefaces.
     auto has_unresolved = false;
-    fFonts.foreach([&has_unresolved](const SkString&, FontInfo* finfo) {
+    std::vector<std::unique_ptr<CustomFont>> custom_fonts;
+    fFonts.foreach([&has_unresolved, &custom_fonts](const SkString&, FontInfo* finfo) {
         if (finfo->fTypeface) {
             return; // already resolved
         }
 
-        finfo->fTypeface = finfo->fCustomFontBuilder.detach()->typeface();
+        auto font = finfo->fCustomFontBuilder.detach();
+
+        finfo->fTypeface = font->typeface();
+
+        if (font->glyphCompCount() > 0) {
+            custom_fonts.push_back(std::move(font));
+        }
 
         has_unresolved |= !finfo->fTypeface;
     });
+
+    // Stash custom font data for later use.
+    if (!custom_fonts.empty()) {
+        custom_fonts.shrink_to_fit();
+        fCustomGlyphMapper = sk_make_sp<CustomFont::GlyphCompMapper>(std::move(custom_fonts));
+    }
 
     return !has_unresolved;
 }
@@ -293,6 +332,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
     return this->attachDiscardableAdapter<TextAdapter>(jlayer,
                                                        this,
                                                        fLazyFontMgr.getMaybeNull(),
+                                                       fCustomGlyphMapper,
                                                        fLogger);
 }
 
