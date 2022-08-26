@@ -24,10 +24,8 @@ thread bool operator!=(const half3x3 left, const half3x3 right);
 
 template <typename T, int C, int R>
 matrix<T, C, R> matrixCompMult(matrix<T, C, R> a, const matrix<T, C, R> b) {
-    for (int c = 0; c < C; ++c) {
-        a[c] *= b[c];
-    }
-    return a;
+ for (int c = 0; c < C; ++c) { a[c] *= b[c]; }
+ return a;
 }
 thread bool operator==(const half2x2 left, const half2x2 right) {
     return all(left[0] == right[0]) &&

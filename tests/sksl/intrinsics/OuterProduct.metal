@@ -41,11 +41,9 @@ thread bool operator!=(const float2x2 left, const float2x2 right) {
 
 template <typename T, int C, int R>
 matrix<T, C, R> outerProduct(const vec<T, R> a, const vec<T, C> b) {
-    matrix<T, C, R> result;
-    for (int c = 0; c < C; ++c) {
-        result[c] = a * b[c];
-    }
-    return result;
+ matrix<T, C, R> m;
+ for (int c = 0; c < C; ++c) { m[c] = a * b[c]; }
+ return m;
 }
 thread bool operator==(const float3x3 left, const float3x3 right) {
     return all(left[0] == right[0]) &&

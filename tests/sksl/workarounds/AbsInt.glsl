@@ -1,7 +1,5 @@
 #version 400
-int _absemulation(int x) {
-    return x * sign(x);
-}
+int _absemulation(int x) { return x * sign(x); }
 out vec4 sk_FragColor;
 uniform int ui;
 uniform float uf;
