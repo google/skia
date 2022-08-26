@@ -12,7 +12,6 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLString.h"
 #include "include/private/SkTHash.h"
-#include "include/sksl/DSL.h"
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLCase.h"
 #include "include/sksl/DSLFunction.h"
@@ -988,7 +987,7 @@ DSLStatement DSLParser::statement() {
         }
         case Token::Kind::TK_SEMICOLON:
             this->nextToken();
-            return dsl::Block();
+            return DSLBlock();
         case Token::Kind::TK_HIGHP:
         case Token::Kind::TK_MEDIUMP:
         case Token::Kind::TK_LOWP:

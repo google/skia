@@ -9,7 +9,6 @@
 
 #include <memory>
 
-#include "include/sksl/DSL.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
