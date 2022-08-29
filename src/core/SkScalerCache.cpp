@@ -224,6 +224,7 @@ size_t SkScalerCache::glyphIDsToDrawables(SkSpan<sktext::IDOrDrawable> idsOrDraw
         auto [glyph, size] = this->glyph(SkPackedGlyphID{idOrDrawable.fGlyphID});
         increase += size;
         increase += this->prepareDrawable(glyph);
+        SkASSERT(glyph->drawable() != nullptr);
         idOrDrawable.fDrawable = glyph->drawable();
     }
     return increase;
