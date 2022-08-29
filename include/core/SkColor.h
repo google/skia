@@ -425,6 +425,8 @@ using SkColor4f = SkRGBA4f<kUnpremul_SkAlphaType>;
 
 template <> SK_API SkColor4f SkColor4f::FromColor(SkColor);
 template <> SK_API SkColor   SkColor4f::toSkColor() const;
+template <> SK_API uint32_t  SkColor4f::toBytes_RGBA() const;
+template <> SK_API SkColor4f SkColor4f::FromBytes_RGBA(uint32_t color);
 
 namespace SkColors {
 constexpr SkColor4f kTransparent = {0, 0, 0, 0};

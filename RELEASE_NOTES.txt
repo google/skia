@@ -2,6 +2,12 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 107
+-------------
+  * Exported SkColor4f::toBytes_RGBA() and SkColor4f::FromBytes_RGBA.
+
+* * *
+
 Milestone 106
 -------------
   * sk_sp is marked with the [[clang::trivial_abi]] attribute where supported.
