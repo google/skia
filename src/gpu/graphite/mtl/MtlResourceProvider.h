@@ -11,6 +11,7 @@
 #include "include/private/SkTHash.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"
 
 #import <Metal/Metal.h>
 
@@ -25,6 +26,8 @@ public:
     ~MtlResourceProvider() override {}
 
     sk_sp<Texture> createWrappedTexture(const BackendTexture&) override;
+
+    sk_sp<MtlGraphicsPipeline> findOrCreateLoadMSAAPipeline(const RenderPassDesc&);
 
 private:
     const MtlSharedContext* mtlSharedContext();
@@ -48,6 +51,7 @@ private:
             const DepthStencilSettings&);
 
     SkTHashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>> fDepthStencilStates;
+    SkTHashMap<uint64_t, sk_sp<MtlGraphicsPipeline>> fLoadMSAAPipelines;
 };
 
 } // namespace skgpu::graphite

@@ -545,7 +545,19 @@ TextureInfo MtlCaps::getDefaultSampledTextureInfo(SkColorType colorType,
     return info;
 }
 
-TextureInfo MtlCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo) const {
+MTLStorageMode MtlCaps::getDefaultMSAAStorageMode(Discardable discardable) const {
+    // Try to use memoryless if it's available (only on new Apple silicon)
+    if (discardable == Discardable::kYes && this->isApple()) {
+        if (@available(macOS 11.0, iOS 10.0, *)) {
+            return MTLStorageModeMemoryless;
+        }
+    }
+    // If it's not discardable or not available, private is the best option
+    return MTLStorageModePrivate;
+}
+
+TextureInfo MtlCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
+                                               Discardable discardable) const {
     const MtlTextureSpec& singleSpec = singleSampledInfo.mtlTextureSpec();
 
     MTLTextureUsage usage = MTLTextureUsageRenderTarget;
@@ -555,7 +567,7 @@ TextureInfo MtlCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledI
     info.fLevelCount = 1;
     info.fFormat = singleSpec.fFormat;
     info.fUsage = usage;
-    info.fStorageMode = MTLStorageModePrivate;
+    info.fStorageMode = this->getDefaultMSAAStorageMode(discardable);
     info.fFramebufferOnly = false;
 
     return info;
@@ -570,7 +582,7 @@ TextureInfo MtlCaps::getDefaultDepthStencilTextureInfo(
     info.fLevelCount = 1;
     info.fFormat = MtlDepthStencilFlagsToFormat(depthStencilType);
     info.fUsage = MTLTextureUsageRenderTarget;
-    info.fStorageMode = MTLStorageModePrivate;
+    info.fStorageMode = this->getDefaultMSAAStorageMode(Discardable::kYes);
     info.fFramebufferOnly = false;
 
     return info;
@@ -607,18 +619,23 @@ UniqueKey MtlCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineD
             builder[i] = pipelineDescKey[i];
         }
         // add renderpassdesc key
-        MtlTextureInfo colorInfo, depthStencilInfo;
-        renderPassDesc.fColorAttachment.fTextureInfo.getMtlTextureInfo(&colorInfo);
-        renderPassDesc.fDepthStencilAttachment.fTextureInfo.getMtlTextureInfo(&depthStencilInfo);
-        SkASSERT(colorInfo.fFormat < 65535 && depthStencilInfo.fFormat < 65535);
-        uint32_t colorAttachmentKey = colorInfo.fFormat << 16 | colorInfo.fSampleCount;
-        uint32_t dsAttachmentKey = depthStencilInfo.fFormat << 16 | depthStencilInfo.fSampleCount;
-        builder[pipelineDescKey.size()] = colorAttachmentKey;
-        builder[pipelineDescKey.size()+1] = dsAttachmentKey;
+        uint64_t renderPassKey = this->getRenderPassDescKey(renderPassDesc);
+        builder[pipelineDescKey.size()] = renderPassKey & 0xFFFFFFFF;
+        builder[pipelineDescKey.size()+1] = (renderPassKey >> 32) & 0xFFFFFFFF;
         builder.finish();
     }
 
     return pipelineKey;
+}
+
+uint64_t MtlCaps::getRenderPassDescKey(const RenderPassDesc& renderPassDesc) const {
+    MtlTextureInfo colorInfo, depthStencilInfo;
+    renderPassDesc.fColorAttachment.fTextureInfo.getMtlTextureInfo(&colorInfo);
+    renderPassDesc.fDepthStencilAttachment.fTextureInfo.getMtlTextureInfo(&depthStencilInfo);
+    SkASSERT(colorInfo.fFormat < 65535 && depthStencilInfo.fFormat < 65535);
+    uint32_t colorAttachmentKey = colorInfo.fFormat << 16 | colorInfo.fSampleCount;
+    uint32_t dsAttachmentKey = depthStencilInfo.fFormat << 16 | depthStencilInfo.fSampleCount;
+    return (((uint64_t) colorAttachmentKey) << 32) | dsAttachmentKey;
 }
 
 UniqueKey MtlCaps::makeComputePipelineKey(const ComputePipelineDesc& pipelineDesc) const {

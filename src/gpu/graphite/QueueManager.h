@@ -44,7 +44,7 @@ protected:
     sk_sp<CommandBuffer> fCurrentCommandBuffer;
 
 private:
-    virtual sk_sp<CommandBuffer> getNewCommandBuffer() = 0;
+    virtual sk_sp<CommandBuffer> getNewCommandBuffer(ResourceProvider*) = 0;
     virtual OutstandingSubmission onSubmitToGpu() = 0;
 
     SkDeque fOutstandingSubmissions;

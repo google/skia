@@ -48,7 +48,7 @@ void QueueManager::addRecording(const InsertRecordingInfo& info,
     }
 
     if (!fCurrentCommandBuffer) {
-        fCurrentCommandBuffer = this->getNewCommandBuffer();
+        fCurrentCommandBuffer = this->getNewCommandBuffer(resourceProvider);
     }
     if (!fCurrentCommandBuffer) {
         if (callback) {

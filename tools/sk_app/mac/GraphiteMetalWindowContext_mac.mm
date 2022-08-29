@@ -64,6 +64,7 @@ bool GraphiteMetalWindowContext_mac::onInitializeContext() {
     fMetalLayer.autoresizingMask = kCALayerHeightSizable | kCALayerWidthSizable;
     fMetalLayer.contentsGravity = kCAGravityTopLeft;
     fMetalLayer.magnificationFilter = kCAFilterNearest;
+    fMetalLayer.framebufferOnly = false;
     NSColorSpace* cs = fMainView.window.colorSpace;
     fMetalLayer.colorspace = cs.CGColorSpace;
 

@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/mtl/MtlQueueManager.h"
 
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
+#include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 
 namespace skgpu::graphite {
@@ -26,8 +27,11 @@ const MtlSharedContext* MtlQueueManager::mtlSharedContext() const {
     return static_cast<const MtlSharedContext*>(fSharedContext);
 }
 
-sk_sp<CommandBuffer> MtlQueueManager::getNewCommandBuffer() {
-    auto cmdBuffer = MtlCommandBuffer::Make(fQueue.get(), this->mtlSharedContext());
+sk_sp<CommandBuffer> MtlQueueManager::getNewCommandBuffer(ResourceProvider* resourceProvider) {
+    MtlResourceProvider* mtlResourceProvider = static_cast<MtlResourceProvider*>(resourceProvider);
+    auto cmdBuffer = MtlCommandBuffer::Make(fQueue.get(),
+                                            this->mtlSharedContext(),
+                                            mtlResourceProvider);
 
 #ifdef SK_ENABLE_PIET_GPU
     cmdBuffer->setPietRenderer(&fPietRenderer);
@@ -97,4 +101,3 @@ void MtlQueueManager::testingOnly_endCapture() {
 #endif
 
 } // namespace skgpu::graphite
-

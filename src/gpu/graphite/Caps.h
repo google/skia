@@ -44,7 +44,8 @@ public:
                                                      Protected,
                                                      Renderable) const = 0;
 
-    virtual TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo) const = 0;
+    virtual TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
+                                                  Discardable discardable) const = 0;
 
     virtual TextureInfo getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags>,
                                                           uint32_t sampleCount,

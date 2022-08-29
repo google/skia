@@ -52,6 +52,15 @@ enum class PrioritizeGpuReads : bool {
     kYes = true,
 };
 
+/**
+ * Must the contents of the Resource be preserved af a render pass or can a more efficient
+ * representation be chosen when supported by hardware.
+ */
+enum class Discardable : bool {
+    kNo = false,
+    kYes = true
+};
+
 enum class Ownership {
     kOwned,
     kWrapped,
