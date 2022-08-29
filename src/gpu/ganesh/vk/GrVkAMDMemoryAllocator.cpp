@@ -9,29 +9,31 @@
 
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/core/SkTraceEvent.h"
-#include "src/gpu/ganesh/vk/GrVkInterface.h"
 #include "src/gpu/ganesh/vk/GrVkMemory.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanInterface.h"
 
 #ifndef SK_USE_VMA
-sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
-                                                        VkPhysicalDevice physicalDevice,
-                                                        VkDevice device,
-                                                        uint32_t physicalDeviceVersion,
-                                                        const skgpu::VulkanExtensions* extensions,
-                                                        sk_sp<const GrVkInterface> interface,
-                                                        const GrVkCaps* caps) {
+sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(
+        VkInstance instance,
+        VkPhysicalDevice physicalDevice,
+        VkDevice device,
+        uint32_t physicalDeviceVersion,
+        const skgpu::VulkanExtensions* extensions,
+        sk_sp<const skgpu::VulkanInterface> interface,
+        const GrVkCaps* caps) {
     return nullptr;
 }
 #else
 
-sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
-                                                        VkPhysicalDevice physicalDevice,
-                                                        VkDevice device,
-                                                        uint32_t physicalDeviceVersion,
-                                                        const skgpu::VulkanExtensions* extensions,
-                                                        sk_sp<const GrVkInterface> interface,
-                                                        const GrVkCaps* caps) {
+sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(
+        VkInstance instance,
+        VkPhysicalDevice physicalDevice,
+        VkDevice device,
+        uint32_t physicalDeviceVersion,
+        const skgpu::VulkanExtensions* extensions,
+        sk_sp<const skgpu::VulkanInterface> interface,
+        const GrVkCaps* caps) {
 #define GR_COPY_FUNCTION(NAME) functions.vk##NAME = interface->fFunctions.f##NAME
 #define GR_COPY_FUNCTION_KHR(NAME) functions.vk##NAME##KHR = interface->fFunctions.f##NAME
 
@@ -100,7 +102,7 @@ sk_sp<GrVkMemoryAllocator> GrVkAMDMemoryAllocator::Make(VkInstance instance,
 }
 
 GrVkAMDMemoryAllocator::GrVkAMDMemoryAllocator(VmaAllocator allocator,
-                                               sk_sp<const GrVkInterface> interface,
+                                               sk_sp<const skgpu::VulkanInterface> interface,
                                                bool mustUseCoherentHostVisibleMemory)
         : fAllocator(allocator)
         , fInterface(std::move(interface))

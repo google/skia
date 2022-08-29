@@ -5,25 +5,26 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrVkInterface_DEFINED
-#define GrVkInterface_DEFINED
+#ifndef skgpu_VulkanInterface_DEFINED
+#define skgpu_VulkanInterface_DEFINED
 
 #include "include/core/SkRefCnt.h"
 
-#include "include/gpu/vk/GrVkBackendContext.h"
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanTypes.h"
 
-namespace skgpu { class VulkanExtensions; }
+namespace skgpu {
+
+class VulkanExtensions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * GrContext uses the following interface to make all calls into Vulkan. When a
- * GrContext is created it is given a GrVkInterface. All functions that should be
- * available based on the Vulkan's version must be non-NULL or GrContext creation
- * will fail. This can be tested with the validate() method.
+ * Skia Vulkan uses the following interface to make all calls into Vulkan. When a Ganesh or Graphite
+ * Context is created it is given a VulkanInterface. All functions that should be available based on
+ * the Vulkan's version must be non-NULL or Context creation will fail. This can be tested with the
+ * validate() method.
  */
-struct GrVkInterface : public SkRefCnt {
+struct VulkanInterface : public SkRefCnt {
 private:
     // simple wrapper class that exists only to initialize a pointer to NULL
     template <typename FNPTR_TYPE> class VkPtr {
@@ -38,17 +39,17 @@ private:
     using INHERITED = SkRefCnt;
 
 public:
-    GrVkInterface(skgpu::VulkanGetProc getProc,
-                  VkInstance instance,
-                  VkDevice device,
-                  uint32_t instanceVersion,
-                  uint32_t physicalDeviceVersion,
-                  const skgpu::VulkanExtensions*);
+    VulkanInterface(VulkanGetProc getProc,
+                    VkInstance instance,
+                    VkDevice device,
+                    uint32_t instanceVersion,
+                    uint32_t physicalDeviceVersion,
+                    const VulkanExtensions*);
 
-    // Validates that the GrVkInterface supports its advertised standard. This means the necessary
+    // Validates that the VulkanInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for Vulkan version.
     bool validate(uint32_t instanceVersion, uint32_t physicalDeviceVersion,
-                  const skgpu::VulkanExtensions*) const;
+                  const VulkanExtensions*) const;
 
     /**
      * The function pointers are in a struct so that we can have a compiler generated assignment
@@ -232,4 +233,6 @@ public:
     } fFunctions;
 };
 
-#endif
+} // namespace skgpu
+
+#endif // skgpu_VulkanInterface_DEFINED

@@ -8,9 +8,9 @@
 #ifndef GrVkCommandPool_DEFINED
 #define GrVkCommandPool_DEFINED
 
-#include "src/gpu/ganesh/vk/GrVkInterface.h"
 #include "src/gpu/ganesh/vk/GrVkManagedResource.h"
 #include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
+#include "src/gpu/vk/VulkanInterface.h"
 
 #include <cinttypes>
 

@@ -13,11 +13,12 @@
 #ifdef SK_VULKAN
 
 #include "include/gpu/vk/GrVkBackendContext.h"
-#include "src/gpu/ganesh/vk/GrVkInterface.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 #include "tools/sk_app/WindowContext.h"
 
 class GrRenderTarget;
+
+namespace skgpu { struct VulkanInterface; }
 
 namespace sk_app {
 
@@ -93,7 +94,7 @@ private:
     PFN_vkDestroyDevice fDestroyDevice = nullptr;
     PFN_vkGetDeviceQueue fGetDeviceQueue = nullptr;
 
-    sk_sp<const GrVkInterface> fInterface;
+    sk_sp<const skgpu::VulkanInterface> fInterface;
 
     VkSurfaceKHR      fSurface;
     VkSwapchainKHR    fSwapchain;

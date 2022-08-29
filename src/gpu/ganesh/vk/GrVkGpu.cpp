@@ -34,7 +34,6 @@
 #include "src/gpu/ganesh/vk/GrVkCommandPool.h"
 #include "src/gpu/ganesh/vk/GrVkFramebuffer.h"
 #include "src/gpu/ganesh/vk/GrVkImage.h"
-#include "src/gpu/ganesh/vk/GrVkInterface.h"
 #include "src/gpu/ganesh/vk/GrVkMemory.h"
 #include "src/gpu/ganesh/vk/GrVkOpsRenderPass.h"
 #include "src/gpu/ganesh/vk/GrVkPipeline.h"
@@ -44,6 +43,7 @@
 #include "src/gpu/ganesh/vk/GrVkSemaphore.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 #include "src/gpu/ganesh/vk/GrVkTextureRenderTarget.h"
+#include "src/gpu/vk/VulkanInterface.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Gpu.h"
 
@@ -101,15 +101,15 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
     instanceVersion = std::min(instanceVersion, apiVersion);
     physDevVersion = std::min(physDevVersion, apiVersion);
 
-    sk_sp<const GrVkInterface> interface;
+    sk_sp<const skgpu::VulkanInterface> interface;
 
     if (backendContext.fVkExtensions) {
-        interface.reset(new GrVkInterface(backendContext.fGetProc,
-                                          backendContext.fInstance,
-                                          backendContext.fDevice,
-                                          instanceVersion,
-                                          physDevVersion,
-                                          backendContext.fVkExtensions));
+        interface.reset(new skgpu::VulkanInterface(backendContext.fGetProc,
+                                                   backendContext.fInstance,
+                                                   backendContext.fDevice,
+                                                   instanceVersion,
+                                                   physDevVersion,
+                                                   backendContext.fVkExtensions));
         if (!interface->validate(instanceVersion, physDevVersion, backendContext.fVkExtensions)) {
             return nullptr;
         }
@@ -123,12 +123,12 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
             extensions.init(backendContext.fGetProc, backendContext.fInstance,
                             backendContext.fPhysicalDevice, 0, nullptr, 1, &swapChainExtName);
         }
-        interface.reset(new GrVkInterface(backendContext.fGetProc,
-                                          backendContext.fInstance,
-                                          backendContext.fDevice,
-                                          instanceVersion,
-                                          physDevVersion,
-                                          &extensions));
+        interface.reset(new skgpu::VulkanInterface(backendContext.fGetProc,
+                                                   backendContext.fInstance,
+                                                   backendContext.fDevice,
+                                                   instanceVersion,
+                                                   physDevVersion,
+                                                   &extensions));
         if (!interface->validate(instanceVersion, physDevVersion, &extensions)) {
             return nullptr;
         }
@@ -203,9 +203,12 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GrVkGpu::GrVkGpu(GrDirectContext* direct, const GrVkBackendContext& backendContext,
-                 sk_sp<GrVkCaps> caps, sk_sp<const GrVkInterface> interface,
-                 uint32_t instanceVersion, uint32_t physicalDeviceVersion,
+GrVkGpu::GrVkGpu(GrDirectContext* direct,
+                 const GrVkBackendContext& backendContext,
+                 sk_sp<GrVkCaps> caps,
+                 sk_sp<const skgpu::VulkanInterface> interface,
+                 uint32_t instanceVersion,
+                 uint32_t physicalDeviceVersion,
                  sk_sp<GrVkMemoryAllocator> memoryAllocator)
         : INHERITED(direct)
         , fInterface(std::move(interface))
@@ -835,7 +838,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkImage* texImage,
     };
     VkSubresourceLayout layout;
 
-    const GrVkInterface* interface = this->vkInterface();
+    const skgpu::VulkanInterface* interface = this->vkInterface();
 
     GR_VK_CALL(interface, GetImageSubresourceLayout(fDevice,
                                                     texImage->image(),

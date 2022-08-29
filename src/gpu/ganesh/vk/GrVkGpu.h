@@ -33,7 +33,8 @@ class GrVkOpsRenderPass;
 class GrVkRenderPass;
 class GrVkSecondaryCommandBuffer;
 class GrVkTexture;
-struct GrVkInterface;
+
+namespace skgpu { struct VulkanInterface; }
 
 class GrVkGpu : public GrGpu {
 public:
@@ -51,7 +52,7 @@ public:
     GrThreadSafePipelineBuilder* pipelineBuilder() override;
     sk_sp<GrThreadSafePipelineBuilder> refPipelineBuilder() override;
 
-    const GrVkInterface* vkInterface() const { return fInterface.get(); }
+    const skgpu::VulkanInterface* vkInterface() const { return fInterface.get(); }
     const GrVkCaps& vkCaps() const { return *fVkCaps; }
 
     GrStagingBufferManager* stagingBufferManager() override { return &fStagingBufferManager; }
@@ -205,8 +206,12 @@ private:
         kSkip_SyncQueue
     };
 
-    GrVkGpu(GrDirectContext*, const GrVkBackendContext&, const sk_sp<GrVkCaps> caps,
-            sk_sp<const GrVkInterface>, uint32_t instanceVersion, uint32_t physicalDeviceVersion,
+    GrVkGpu(GrDirectContext*,
+            const GrVkBackendContext&,
+            const sk_sp<GrVkCaps> caps,
+            sk_sp<const skgpu::VulkanInterface>,
+            uint32_t instanceVersion,
+            uint32_t physicalDeviceVersion,
             sk_sp<GrVkMemoryAllocator>);
 
     void destroyResources();
@@ -386,7 +391,7 @@ private:
                                         GrVkImageInfo*,
                                         GrProtected);
 
-    sk_sp<const GrVkInterface>                            fInterface;
+    sk_sp<const skgpu::VulkanInterface>                   fInterface;
     sk_sp<GrVkMemoryAllocator>                            fMemoryAllocator;
     sk_sp<GrVkCaps>                                       fVkCaps;
     bool                                                  fDeviceIsLost = false;

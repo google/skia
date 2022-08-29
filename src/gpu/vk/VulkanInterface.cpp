@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/vk/GrVkBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
-#include "src/gpu/ganesh/vk/GrVkInterface.h"
-#include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanInterface.h"
+
+namespace skgpu {
 
 #define ACQUIRE_PROC(name, instance, device) \
     fFunctions.f##name = reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device))
@@ -17,12 +17,12 @@
     fFunctions.f##name =                                    \
             reinterpret_cast<PFN_vk##name##suffix>(getProc("vk" #name #suffix, instance, device))
 
-GrVkInterface::GrVkInterface(skgpu::VulkanGetProc getProc,
-                             VkInstance instance,
-                             VkDevice device,
-                             uint32_t instanceVersion,
-                             uint32_t physicalDeviceVersion,
-                             const skgpu::VulkanExtensions* extensions) {
+VulkanInterface::VulkanInterface(VulkanGetProc getProc,
+                                 VkInstance instance,
+                                 VkDevice device,
+                                 uint32_t instanceVersion,
+                                 uint32_t physicalDeviceVersion,
+                                 const VulkanExtensions* extensions) {
     if (getProc == nullptr) {
         return;
     }
@@ -256,12 +256,13 @@ GrVkInterface::GrVkInterface(skgpu::VulkanGetProc getProc,
     static int kIsDebug = 0;
 #endif
 
-#define RETURN_FALSE_INTERFACE                                                                   \
-    if (kIsDebug) { SkDebugf("%s:%d GrVkInterface::validate() failed.\n", __FILE__, __LINE__); } \
+#define RETURN_FALSE_INTERFACE                                                             \
+    if (kIsDebug) { ("%s:%d VulkanInterface::validate() failed.\n", __FILE__, __LINE__); } \
     return false;
 
-bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVersion,
-                             const skgpu::VulkanExtensions* extensions) const {
+bool VulkanInterface::validate(uint32_t instanceVersion,
+                               uint32_t physicalDeviceVersion,
+                               const VulkanExtensions* extensions) const {
     // functions that are always required
     if (nullptr == fFunctions.fCreateInstance ||
         nullptr == fFunctions.fDestroyInstance ||
@@ -480,4 +481,6 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
 
     return true;
 }
+
+} // namespace skgpu
 

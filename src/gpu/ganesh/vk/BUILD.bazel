@@ -30,8 +30,6 @@ VK_FILES = [
     "GrVkImageLayout.h",
     "GrVkImageView.cpp",
     "GrVkImageView.h",
-    "GrVkInterface.cpp",
-    "GrVkInterface.h",
     "GrVkMSAALoadManager.cpp",
     "GrVkMSAALoadManager.h",
     "GrVkManagedResource.h",

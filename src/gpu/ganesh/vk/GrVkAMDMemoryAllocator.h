@@ -11,9 +11,11 @@
 #include "include/gpu/vk/GrVkMemoryAllocator.h"
 
 class GrVkCaps;
-struct GrVkInterface;
 
-namespace skgpu { class VulkanExtensions; }
+namespace skgpu {
+class VulkanExtensions;
+struct VulkanInterface;
+}
 
 #ifndef SK_USE_VMA
 class GrVkAMDMemoryAllocator {
@@ -23,7 +25,7 @@ public:
                                            VkDevice device,
                                            uint32_t physicalDeviceVersion,
                                            const skgpu::VulkanExtensions* extensions,
-                                           sk_sp<const GrVkInterface> interface,
+                                           sk_sp<const skgpu::VulkanInterface> interface,
                                            const GrVkCaps* caps);
 };
 
@@ -38,7 +40,7 @@ public:
                                            VkDevice device,
                                            uint32_t physicalDeviceVersion,
                                            const skgpu::VulkanExtensions* extensions,
-                                           sk_sp<const GrVkInterface> interface,
+                                           sk_sp<const skgpu::VulkanInterface> interface,
                                            const GrVkCaps* caps);
 
     ~GrVkAMDMemoryAllocator() override;
@@ -67,15 +69,15 @@ public:
     uint64_t totalAllocatedMemory() const override;
 
 private:
-    GrVkAMDMemoryAllocator(VmaAllocator allocator, sk_sp<const GrVkInterface> interface,
+    GrVkAMDMemoryAllocator(VmaAllocator allocator, sk_sp<const skgpu::VulkanInterface> interface,
                            bool mustUseCoherentHostVisibleMemory);
 
     VmaAllocator fAllocator;
 
     // If a future version of the AMD allocator has helper functions for flushing and invalidating
-    // memory, then we won't need to save the GrVkInterface here since we won't need to make direct
-    // vulkan calls.
-    sk_sp<const GrVkInterface> fInterface;
+    // memory, then we won't need to save the skgpu::VulkanInterface here since we won't need to
+    // make direct vulkan calls.
+    sk_sp<const skgpu::VulkanInterface> fInterface;
 
     // For host visible allocations do we require they are coherent or not. All devices are required
     // to support a host visible and coherent memory type. This is used to work around bugs for

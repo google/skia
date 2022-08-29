@@ -11,7 +11,6 @@
 #include "tools/sk_app/VulkanWindowContext.h"
 #include "tools/sk_app/win/Window_win.h"
 
-#include "src/gpu/ganesh/vk/GrVkInterface.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 
 #include "tools/gpu/vk/VkTestUtils.h"

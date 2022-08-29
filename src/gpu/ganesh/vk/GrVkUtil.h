@@ -13,7 +13,7 @@
 #include "include/private/SkMacros.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
-#include "src/gpu/ganesh/vk/GrVkInterface.h"
+#include "src/gpu/vk/VulkanInterface.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 class GrVkGpu;

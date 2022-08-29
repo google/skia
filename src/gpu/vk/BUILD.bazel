@@ -8,6 +8,8 @@ exports_files_legacy()
 VK_FILES = [
     "GrVkSecondaryCBDrawContext.h",
     "VulkanExtensions.cpp",
+    "VulkanInterface.cpp",
+    "VulkanInterface.h",
 ]
 
 split_srcs_and_hdrs(

@@ -12,10 +12,12 @@
 #include "include/private/SkTDArray.h"
 #include "src/gpu/ganesh/GrCaps.h"
 
-struct GrVkInterface;
 class GrVkRenderTarget;
 
-namespace skgpu { class VulkanExtensions; }
+namespace skgpu {
+class VulkanExtensions;
+struct VulkanInterface;
+}
 
 /**
  * Stores some capabilities of a Vk backend.
@@ -27,7 +29,7 @@ public:
      * be called to fill out the caps.
      */
     GrVkCaps(const GrContextOptions& contextOptions,
-             const GrVkInterface* vkInterface,
+             const skgpu::VulkanInterface* vkInterface,
              VkPhysicalDevice device,
              const VkPhysicalDeviceFeatures2& features,
              uint32_t instanceVersion,
@@ -314,13 +316,13 @@ private:
     }
 
     void init(const GrContextOptions& contextOptions,
-              const GrVkInterface* vkInterface,
+              const skgpu::VulkanInterface* vkInterface,
               VkPhysicalDevice device,
               const VkPhysicalDeviceFeatures2&,
               uint32_t physicalDeviceVersion,
               const skgpu::VulkanExtensions&,
               GrProtected isProtected);
-    void initGrCaps(const GrVkInterface* vkInterface,
+    void initGrCaps(const skgpu::VulkanInterface* vkInterface,
                     VkPhysicalDevice physDev,
                     const VkPhysicalDeviceProperties&,
                     const VkPhysicalDeviceMemoryProperties&,
@@ -328,8 +330,10 @@ private:
                     const skgpu::VulkanExtensions&);
     void initShaderCaps(const VkPhysicalDeviceProperties&, const VkPhysicalDeviceFeatures2&);
 
-    void initFormatTable(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&);
-    void initStencilFormat(const GrVkInterface* iface, VkPhysicalDevice physDev);
+    void initFormatTable(const skgpu::VulkanInterface*,
+                         VkPhysicalDevice,
+                         const VkPhysicalDeviceProperties&);
+    void initStencilFormat(const skgpu::VulkanInterface* iface, VkPhysicalDevice physDev);
 
     void applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties&);
 
@@ -378,11 +382,15 @@ private:
             return 0;
         }
 
-        void init(const GrVkInterface*, VkPhysicalDevice, const VkPhysicalDeviceProperties&,
+        void init(const skgpu::VulkanInterface*,
+                  VkPhysicalDevice,
+                  const VkPhysicalDeviceProperties&,
                   VkFormat);
         static void InitFormatFlags(VkFormatFeatureFlags, uint16_t* flags);
-        void initSampleCounts(const GrVkInterface*, VkPhysicalDevice,
-                              const VkPhysicalDeviceProperties&, VkFormat);
+        void initSampleCounts(const skgpu::VulkanInterface*,
+                              VkPhysicalDevice,
+                              const VkPhysicalDeviceProperties&,
+                              VkFormat);
 
         enum {
             kTexturable_Flag = 0x1,

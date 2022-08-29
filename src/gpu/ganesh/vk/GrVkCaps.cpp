@@ -25,20 +25,24 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkImage.h"
-#include "src/gpu/ganesh/vk/GrVkInterface.h"
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 #include "src/gpu/ganesh/vk/GrVkUniformHandler.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanInterface.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>
 #endif
 
-GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                   VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
-                   uint32_t instanceVersion, uint32_t physicalDeviceVersion,
-                   const skgpu::VulkanExtensions& extensions, GrProtected isProtected)
+GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions,
+                   const skgpu::VulkanInterface* vkInterface,
+                   VkPhysicalDevice physDev,
+                   const VkPhysicalDeviceFeatures2& features,
+                   uint32_t instanceVersion,
+                   uint32_t physicalDeviceVersion,
+                   const skgpu::VulkanExtensions& extensions,
+                   GrProtected isProtected)
         : INHERITED(contextOptions) {
     /**************************************************************************
      * GrCaps fields
@@ -292,9 +296,12 @@ template<typename T> T* get_extension_feature_struct(const VkPhysicalDeviceFeatu
     return nullptr;
 }
 
-void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
-                    uint32_t physicalDeviceVersion, const skgpu::VulkanExtensions& extensions,
+void GrVkCaps::init(const GrContextOptions& contextOptions,
+                    const skgpu::VulkanInterface* vkInterface,
+                    VkPhysicalDevice physDev,
+                    const VkPhysicalDeviceFeatures2& features,
+                    uint32_t physicalDeviceVersion,
+                    const skgpu::VulkanExtensions& extensions,
                     GrProtected isProtected) {
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
@@ -614,7 +621,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     }
 }
 
-void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
+void GrVkCaps::initGrCaps(const skgpu::VulkanInterface* vkInterface,
                           VkPhysicalDevice physDev,
                           const VkPhysicalDeviceProperties& properties,
                           const VkPhysicalDeviceMemoryProperties& memoryProperties,
@@ -729,7 +736,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
                                               (uint32_t)INT_MAX);
 }
 
-bool stencil_format_supported(const GrVkInterface* interface,
+bool stencil_format_supported(const skgpu::VulkanInterface* interface,
                               VkPhysicalDevice physDev,
                               VkFormat format) {
     VkFormatProperties props;
@@ -738,7 +745,8 @@ bool stencil_format_supported(const GrVkInterface* interface,
     return SkToBool(VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT & props.optimalTilingFeatures);
 }
 
-void GrVkCaps::initStencilFormat(const GrVkInterface* interface, VkPhysicalDevice physDev) {
+void GrVkCaps::initStencilFormat(const skgpu::VulkanInterface* interface,
+                                 VkPhysicalDevice physDev) {
     if (stencil_format_supported(interface, physDev, VK_FORMAT_S8_UINT)) {
         fPreferredStencilFormat = VK_FORMAT_S8_UINT;
     } else if (stencil_format_supported(interface, physDev, VK_FORMAT_D24_UNORM_S8_UINT)) {
@@ -835,7 +843,8 @@ GrVkCaps::FormatInfo& GrVkCaps::getFormatInfo(VkFormat format) {
     return kInvalidFormat;
 }
 
-void GrVkCaps::initFormatTable(const GrVkInterface* interface, VkPhysicalDevice physDev,
+void GrVkCaps::initFormatTable(const skgpu::VulkanInterface* interface,
+                               VkPhysicalDevice physDev,
                                const VkPhysicalDeviceProperties& properties) {
     static_assert(std::size(kVkFormats) == GrVkCaps::kNumVkFormats,
                   "Size of VkFormats array must match static value in header");
@@ -1330,7 +1339,7 @@ void GrVkCaps::FormatInfo::InitFormatFlags(VkFormatFeatureFlags vkFlags, uint16_
     }
 }
 
-void GrVkCaps::FormatInfo::initSampleCounts(const GrVkInterface* interface,
+void GrVkCaps::FormatInfo::initSampleCounts(const skgpu::VulkanInterface* interface,
                                             VkPhysicalDevice physDev,
                                             const VkPhysicalDeviceProperties& physProps,
                                             VkFormat format) {
@@ -1374,7 +1383,7 @@ void GrVkCaps::FormatInfo::initSampleCounts(const GrVkInterface* interface,
     // than 16. Omit 32 and 64.
 }
 
-void GrVkCaps::FormatInfo::init(const GrVkInterface* interface,
+void GrVkCaps::FormatInfo::init(const skgpu::VulkanInterface* interface,
                                 VkPhysicalDevice physDev,
                                 const VkPhysicalDeviceProperties& properties,
                                 VkFormat format) {
