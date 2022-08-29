@@ -12,8 +12,7 @@
 #include "fuzz/Fuzz.h"
 
 bool FuzzSKSL2SPIRV(sk_sp<SkData> bytes) {
-    std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
-    SkSL::Compiler compiler(caps.get());
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
     SkSL::ProgramSettings settings;
 
     // This tells the compiler where the rt-flip uniform will live should it be required. For

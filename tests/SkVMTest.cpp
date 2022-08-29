@@ -2851,8 +2851,7 @@ DEF_TEST(SkVM_Visualizer, r) {
             "   a = 102;\n"
             "   return a;\n"
             "}";
-    GrShaderCaps caps;
-    SkSL::Compiler compiler(&caps);
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
     SkSL::ProgramSettings settings;
     auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
                                            std::string(src), settings);

@@ -96,8 +96,7 @@ static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::
     std::vector<std::string> expectedErrors = get_expected_errors(shaderString.c_str());
 
     // Compile the code.
-    std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
-    SkSL::Compiler compiler(caps.get());
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
     SkSL::ProgramSettings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, std::move(shaderString),
                                                                      settings);

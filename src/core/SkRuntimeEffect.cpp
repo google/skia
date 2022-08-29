@@ -329,8 +329,7 @@ SkSL::ProgramSettings SkRuntimeEffect::MakeSettings(const Options& options) {
 SkRuntimeEffect::Result SkRuntimeEffect::MakeFromSource(SkString sksl,
                                                         const Options& options,
                                                         SkSL::ProgramKind kind) {
-    std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
-    SkSL::Compiler compiler(caps.get());
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
     SkSL::ProgramSettings settings = MakeSettings(options);
     std::unique_ptr<SkSL::Program> program =
             compiler.convertProgram(kind, std::string(sksl.c_str(), sksl.size()), settings);
@@ -345,8 +344,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeFromSource(SkString sksl,
 SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Program> program,
                                                       const Options& options,
                                                       SkSL::ProgramKind kind) {
-    std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
-    SkSL::Compiler compiler(caps.get());
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
 
     // TODO(skia:11209): Figure out a way to run ES3+ color filters on the CPU. This doesn't need
     // to be fast - it could just be direct IR evaluation. But without it, there's no way for us
@@ -480,8 +478,7 @@ sk_sp<SkRuntimeEffect> SkRuntimeEffect::makeUnoptimizedClone() {
     // Attempt to recompile the program's source with optimizations off. This ensures that the
     // Debugger shows results on every line, even for things that could be optimized away (static
     // branches, unused variables, etc). If recompilation fails, we fall back to the original code.
-    std::unique_ptr<SkSL::ShaderCaps> caps = SkSL::ShaderCapsFactory::Standalone();
-    SkSL::Compiler compiler(caps.get());
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
     SkSL::ProgramSettings settings = MakeSettings(options);
     std::unique_ptr<SkSL::Program> program =
             compiler.convertProgram(kind, *fBaseProgram->fSource, settings);

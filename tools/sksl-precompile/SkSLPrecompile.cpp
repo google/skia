@@ -76,8 +76,6 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
     }
 
     SkSL::ProgramSettings settings;
-    auto standaloneCaps = SkSL::ShaderCapsFactory::Standalone();
-    const SkSL::ShaderCaps* caps = standaloneCaps.get();
 
     // This tells the compiler where the rt-flip uniform will live should it be required. For
     // testing purposes we don't care where that is, but the compiler will report an error if we
@@ -88,7 +86,7 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
 
     // Load in each input as a module, from right to left.
     // Each module inherits the symbols from its parent module.
-    SkSL::Compiler compiler(caps);
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
     std::list<SkSL::LoadedModule> modules;
     std::shared_ptr<SkSL::SymbolTable> inheritedSymbols =
             SkSL::ModuleLoader::Get().rootModule().fSymbols;

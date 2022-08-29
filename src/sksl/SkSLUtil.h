@@ -152,16 +152,20 @@ struct ShaderCaps {
 // Various sets of caps for use in tests
 class ShaderCapsFactory {
 public:
-    static std::unique_ptr<ShaderCaps> Default() {
-        std::unique_ptr<ShaderCaps> result = MakeShaderCaps();
-        result->fVersionDeclString = "#version 400";
-        result->fShaderDerivativeSupport = true;
-        result->fBuiltinDeterminantSupport = true;
-        return result;
+    static const ShaderCaps* Default() {
+        static const SkSL::ShaderCaps* sCaps = [] {
+            std::unique_ptr<ShaderCaps> caps = MakeShaderCaps();
+            caps->fVersionDeclString = "#version 400";
+            caps->fShaderDerivativeSupport = true;
+            caps->fBuiltinDeterminantSupport = true;
+            return caps.release();
+        }();
+        return sCaps;
     }
 
-    static std::unique_ptr<ShaderCaps> Standalone() {
-        return MakeShaderCaps();
+    static const ShaderCaps* Standalone() {
+        static const SkSL::ShaderCaps* sCaps = MakeShaderCaps().release();
+        return sCaps;
     }
 
 protected:

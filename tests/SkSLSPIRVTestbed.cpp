@@ -16,10 +16,9 @@
 #include <string>
 
 static void test(skiatest::Reporter* r,
-                 const SkSL::ShaderCaps& caps,
                  const char* src,
                  SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment) {
-    SkSL::Compiler compiler(&caps);
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
     SkSL::ProgramSettings settings;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, std::string(src),
                                                                      settings);
@@ -35,7 +34,6 @@ static void test(skiatest::Reporter* r,
 DEF_TEST(SkSLSPIRVTestbed, r) {
     // Add in your SkSL here.
     test(r,
-         *SkSL::ShaderCapsFactory::Default(),
          R"__SkSL__(
              void main() {
                  sk_FragColor = half4(0);
