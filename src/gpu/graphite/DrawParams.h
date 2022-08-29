@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_DrawParams_DEFINED
-#define skgpu_DrawParams_DEFINED
+#ifndef skgpu_graphite_DrawParams_DEFINED
+#define skgpu_graphite_DrawParams_DEFINED
 
 
 #include "include/core/SkPaint.h"
@@ -119,6 +119,6 @@ private:
     std::optional<StrokeStyle> fStroke; // Not present implies fill
 };
 
-}  // namespace skgpu
+}  // namespace skgpu::graphite
 
-#endif // skgpu_DrawParams_DEFINED
+#endif // skgpu_graphite_DrawParams_DEFINED

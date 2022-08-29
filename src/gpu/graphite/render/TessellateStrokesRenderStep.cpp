@@ -224,10 +224,4 @@ void TessellateStrokesRenderStep::writeUniformsAndTextures(const DrawParams& par
     gatherer->write(params.transform().maxScaleFactor());
 }
 
-const Renderer& Renderer::TessellatedStrokes() {
-    static const TessellateStrokesRenderStep kStrokeStep{};
-    static const Renderer kTessellatedStrokeRenderer{"TessellatedStrokes", &kStrokeStep};
-    return kTessellatedStrokeRenderer;
-}
-
 }  // namespace skgpu::graphite

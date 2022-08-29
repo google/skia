@@ -89,7 +89,7 @@ void DrawContext::clear(const SkColor4f& clearColor) {
     fDrawPasses.clear();
 }
 
-void DrawContext::recordDraw(const Renderer& renderer,
+void DrawContext::recordDraw(const Renderer* renderer,
                              const Transform& localToDevice,
                              const Geometry& geometry,
                              const Clip& clip,

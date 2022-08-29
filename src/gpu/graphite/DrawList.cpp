@@ -22,7 +22,7 @@ const Transform& DrawList::deduplicateTransform(const Transform& localToDevice) 
     return fTransforms.back();
 }
 
-void DrawList::recordDraw(const Renderer& renderer,
+void DrawList::recordDraw(const Renderer* renderer,
                           const Transform& localToDevice,
                           const Geometry& geometry,
                           const Clip& clip,
@@ -31,14 +31,14 @@ void DrawList::recordDraw(const Renderer& renderer,
                           const StrokeStyle* stroke) {
     SkASSERT(localToDevice.valid());
     SkASSERT(!geometry.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
-    SkASSERT(!(renderer.depthStencilFlags() & DepthStencilFlags::kStencil) ||
+    SkASSERT(!(renderer->depthStencilFlags() & DepthStencilFlags::kStencil) ||
              ordering.stencilIndex() != DrawOrder::kUnassigned);
 
     // TODO: Add validation that the renderer's expected shape type and stroke params match provided
 
     fDraws.push_back({renderer, this->deduplicateTransform(localToDevice),
                       geometry, clip, ordering, paint, stroke});
-    fRenderStepCount += renderer.numRenderSteps();
+    fRenderStepCount += renderer->numRenderSteps();
 }
 
 } // namespace skgpu::graphite

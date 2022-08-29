@@ -68,7 +68,7 @@ public:
     // 'shape' and 'stroke' parameters. If the renderer uses coverage AA, 'ordering' must have a
     // compressed painters order that reflects that. If the renderer uses stencil, the 'ordering'
     // must have a valid stencil index as well.
-    void recordDraw(const Renderer& renderer,
+    void recordDraw(const Renderer* renderer,
                     const Transform& localToDevice,
                     const Geometry& geometry,
                     const Clip& clip,
@@ -83,11 +83,11 @@ private:
     friend class DrawPass;
 
     struct Draw {
-        const Renderer& fRenderer; // Statically defined by function that recorded the Draw
+        const Renderer* fRenderer; // Owned by SharedContext of Recorder that recorded the draw
         DrawParams fDrawParams; // The DrawParam's transform is owned by fTransforms of the DrawList
         std::optional<PaintParams> fPaintParams; // Not present implies depth-only draw
 
-        Draw(const Renderer& renderer, const Transform& transform, const Geometry& geometry,
+        Draw(const Renderer* renderer, const Transform& transform, const Geometry& geometry,
              const Clip& clip, DrawOrder order, const PaintParams* paint,
              const StrokeStyle* stroke)
                 : fRenderer(renderer)

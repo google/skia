@@ -54,6 +54,7 @@ namespace skgpu::graphite {
 class DrawWriter;
 class Recorder;
 class Renderer;
+class RendererProvider;
 }
 #endif
 
@@ -112,7 +113,8 @@ public:
     virtual std::tuple<skgpu::graphite::Rect, skgpu::graphite::Transform> boundsAndDeviceMatrix(
             const skgpu::graphite::Transform& localToDevice, SkPoint drawOrigin) const = 0;
 
-    virtual const skgpu::graphite::Renderer* renderer() const = 0;
+    virtual const skgpu::graphite::Renderer* renderer(
+            const skgpu::graphite::RendererProvider*) const = 0;
 
     virtual void fillVertexData(
             skgpu::graphite::DrawWriter*,

@@ -39,6 +39,10 @@ public:
         return fRecorder->fSharedContext->shaderCodeDictionary();
     }
 
+    const RendererProvider* rendererProvider() const {
+        return fRecorder->fSharedContext->rendererProvider();
+    }
+
     UniformDataCache* uniformDataCache() { return fRecorder->fUniformDataCache.get(); }
     TextureDataCache* textureDataCache() { return fRecorder->fTextureDataCache.get(); }
     DrawBufferManager* drawBufferManager() { return fRecorder->fDrawBufferManager.get(); }

@@ -118,7 +118,7 @@ public:
                       ShadingUniformField::set(shadingUniformIndex.asUInt()) |
                       TextureBindingsField::set(textureBindingIndex.asUInt()))
         , fDraw(draw) {
-        SkASSERT(renderStep <= draw->fRenderer.numRenderSteps());
+        SkASSERT(renderStep <= draw->fRenderer->numRenderSteps());
     }
 
     bool operator<(const SortKey& k) const {
@@ -127,12 +127,12 @@ public:
     }
 
     const RenderStep& renderStep() const {
-        return *fDraw->fRenderer.steps()[RenderStepField::get(fPipelineKey)];
+        return fDraw->fRenderer->step(RenderStepField::get(fPipelineKey));
     }
 
     const DrawList::Draw* draw() const { return fDraw; }
 
-    uint32_t pipeline() const { return PipelineField::get(fPipelineKey);       }
+    uint32_t pipeline() const { return PipelineField::get(fPipelineKey); }
     UniformDataCache::Index geometryUniforms() const {
         return UniformDataCache::Index(GeometryUniformField::get(fUniformKey));
     }
@@ -467,8 +467,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                      draw.fPaintParams.value());
         } // else depth-only
 
-        for (int stepIndex = 0; stepIndex < draw.fRenderer.numRenderSteps(); ++stepIndex) {
-            const RenderStep* const step = draw.fRenderer.steps()[stepIndex];
+        for (int stepIndex = 0; stepIndex < draw.fRenderer->numRenderSteps(); ++stepIndex) {
+            const RenderStep* const step = draw.fRenderer->steps()[stepIndex];
             const bool performsShading = draw.fPaintParams.has_value() && step->performsShading();
 
             UniformDataCache::Index geometryUniformIndex;
@@ -530,8 +530,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         }
 
         passBounds.join(draw.fDrawParams.clip().drawBounds());
-        drawPass->fDepthStencilFlags |= draw.fRenderer.depthStencilFlags();
-        drawPass->fRequiresMSAA |= draw.fRenderer.requiresMSAA();
+        drawPass->fDepthStencilFlags |= draw.fRenderer->depthStencilFlags();
+        drawPass->fRequiresMSAA |= draw.fRenderer->requiresMSAA();
     }
 
     geometryUniformWriter.writeUniforms(bufferMgr, &geometryUniformDataCache);

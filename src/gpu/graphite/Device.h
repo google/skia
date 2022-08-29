@@ -205,7 +205,7 @@ private:
     // return a retry error code? or does drawGeometry() handle all the fallbacks, knowing that
     // a particular shape type needs to be pre-chopped?
     // TODO: Move this into a RendererSelector object provided by the Context.
-    static const Renderer* ChooseRenderer(const Geometry&, const Clip&, const SkStrokeRec&);
+    const Renderer* chooseRenderer(const Geometry&, const Clip&, const SkStrokeRec&) const;
 
     bool needsFlushBeforeDraw(int numNewDraws) const;
 

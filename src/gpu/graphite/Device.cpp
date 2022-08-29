@@ -706,7 +706,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // Some Renderer decisions are based on estimated fill rate, which requires the clipped bounds.
     // Since the fallbacks shouldn't change the bounds of the draw, it's okay to have evaluated the
     // clip stack before calling ChooseRenderer.
-    const Renderer* renderer = ChooseRenderer(geometry, clip, style);
+    const Renderer* renderer = this->chooseRenderer(geometry, clip, style);
     if (!renderer) {
         SKGPU_LOG_W("Skipping draw with no supported renderer.");
         return;
@@ -757,13 +757,14 @@ void Device::drawGeometry(const Transform& localToDevice,
         // For stroke-and-fill, 'renderer' is used for the fill and we always use the
         // TessellatedStrokes renderer; for stroke and hairline, 'renderer' is used.
         StrokeStyle stroke(style.getWidth(), style.getMiter(), style.getJoin(), style.getCap());
-        fDC->recordDraw(styleType == SkStrokeRec::kStrokeAndFill_Style ?
-                                Renderer::TessellatedStrokes() : *renderer,
+        fDC->recordDraw(styleType == SkStrokeRec::kStrokeAndFill_Style
+                               ? fRecorder->priv().rendererProvider()->tessellatedStrokes()
+                               : renderer,
                         localToDevice, geometry, clip, order, &shading, &stroke);
     }
     if (styleType == SkStrokeRec::kFill_Style ||
         styleType == SkStrokeRec::kStrokeAndFill_Style) {
-        fDC->recordDraw(*renderer, localToDevice, geometry, clip, order, &shading, nullptr);
+        fDC->recordDraw(renderer, localToDevice, geometry, clip, order, &shading, nullptr);
     }
 
     // TODO: If 'fullyOpaque' is true, it might be useful to store the draw bounds and Z in a
@@ -790,7 +791,7 @@ void Device::drawClipShape(const Transform& localToDevice,
     // A clip draw's state is almost fully defined by the ClipStack. The only thing we need
     // to account for is selecting a Renderer and tracking the stencil buffer usage.
     Geometry geometry{shape};
-    const Renderer* renderer = ChooseRenderer(geometry, clip, kFillStyle);
+    const Renderer* renderer = this->chooseRenderer(geometry, clip, kFillStyle);
     if (!renderer) {
         SKGPU_LOG_W("Skipping clip with no supported path renderer.");
         return;
@@ -805,10 +806,10 @@ void Device::drawClipShape(const Transform& localToDevice,
     if (localToDevice.type() == Transform::Type::kProjection) {
         SkPath devicePath = geometry.shape().asPath();
         devicePath.transform(localToDevice.matrix().asM33());
-        fDC->recordDraw(*renderer, Transform::Identity(), Geometry(Shape(devicePath)), clip, order,
+        fDC->recordDraw(renderer, Transform::Identity(), Geometry(Shape(devicePath)), clip, order,
                         nullptr, nullptr);
     } else {
-        fDC->recordDraw(*renderer, localToDevice, geometry, clip, order, nullptr, nullptr);
+        fDC->recordDraw(renderer, localToDevice, geometry, clip, order, nullptr, nullptr);
     }
     // This ensures that draws recorded after this clip shape has been popped off the stack will
     // be unaffected by the Z value the clip shape wrote to the depth attachment.
@@ -817,16 +818,19 @@ void Device::drawClipShape(const Transform& localToDevice,
     }
 }
 
-const Renderer* Device::ChooseRenderer(const Geometry& geometry,
+// TODO: Currently all Renderers are always defined, but with config options and caps that may not
+// be the case, in which case chooseRenderer() will have to go through compatible choices.
+const Renderer* Device::chooseRenderer(const Geometry& geometry,
                                        const Clip& clip,
-                                       const SkStrokeRec& style) {
+                                       const SkStrokeRec& style) const {
+    const RendererProvider* renderers = fRecorder->priv().rendererProvider();
     SkStrokeRec::Style type = style.getStyle();
 
     if (geometry.isSubRun()) {
-        return geometry.subRunData().subRun()->renderer();
+        return geometry.subRunData().subRun()->renderer(renderers);
     } else if (geometry.isVertices()) {
         SkVerticesPriv info(geometry.vertices()->priv());
-        return &Renderer::Vertices(info.mode(), info.hasColors(), info.hasTexCoords());
+        return renderers->vertices(info.mode(), info.hasColors(), info.hasTexCoords());
     }
 
     if (!geometry.isShape()) {
@@ -850,7 +854,7 @@ const Renderer* Device::ChooseRenderer(const Geometry& geometry,
         // able to remove it.
         // TODO: For non-stroke-and-fill strokes, we may add coverage-AA renderers for primitives
         // that we want to avoid triggering MSAA on.
-        return &Renderer::TessellatedStrokes();
+        return renderers->tessellatedStrokes();
     }
 
     // TODO: stroke-and-fill returns the fill renderer, but if there is ever a case where a shape
@@ -865,7 +869,7 @@ const Renderer* Device::ChooseRenderer(const Geometry& geometry,
     if (shape.convex() && !shape.inverted()) {
         // TODO: Ganesh doesn't have a curve+middle-out triangles option for convex paths, but it
         // would be pretty trivial to spin up.
-        return &Renderer::ConvexTessellatedWedges();
+        return renderers->convexTessellatedWedges();
     } else {
         // TODO: Combine this heuristic with what is used in PathStencilCoverOp to choose between
         // wedges curves consistently in Graphite and Ganesh.
@@ -873,9 +877,9 @@ const Renderer* Device::ChooseRenderer(const Geometry& geometry,
                                    clip.drawBounds().area() <= (256 * 256);
 
         if (preferWedges) {
-            return &Renderer::StencilTessellatedWedges(shape.fillType());
+            return renderers->stencilTessellatedWedges(shape.fillType());
         } else {
-            return &Renderer::StencilTessellatedCurvesAndTris(shape.fillType());
+            return renderers->stencilTessellatedCurvesAndTris(shape.fillType());
         }
     }
 }

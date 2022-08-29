@@ -65,7 +65,7 @@ public:
 
     void clear(const SkColor4f& clearColor);
 
-    void recordDraw(const Renderer& renderer,
+    void recordDraw(const Renderer* renderer,
                     const Transform& localToDevice,
                     const Geometry& geometry,
                     const Clip& clip,
