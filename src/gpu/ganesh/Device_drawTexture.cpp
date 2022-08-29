@@ -717,11 +717,15 @@ void Device::drawSpecial(SkSpecialImage* special,
     GrAA aa = fSurfaceDrawContext->chooseAA(paint);
     GrQuadAAFlags aaFlags = (aa == GrAA::kYes) ? GrQuadAAFlags::kAll : GrQuadAAFlags::kNone;
 
+    SkColorInfo colorInfo(special->colorType(),
+                          special->alphaType(),
+                          sk_ref_sp(special->getColorSpace()));
+
     GrSurfaceProxyView view = special->view(this->recordingContext());
     SkImage_Gpu image(sk_ref_sp(special->getContext()),
                       special->uniqueID(),
                       std::move(view),
-                      special->colorInfo());
+                      std::move(colorInfo));
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
     SkOverrideDeviceMatrixProvider matrixProvider(localToDevice);
