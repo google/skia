@@ -112,7 +112,7 @@ GrVkAMDMemoryAllocator::~GrVkAMDMemoryAllocator() {
 }
 
 VkResult GrVkAMDMemoryAllocator::allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
-                                                     GrVkBackendMemory* backendMemory) {
+                                                     skgpu::VulkanBackendMemory* backendMemory) {
     TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
     VmaAllocationCreateInfo info;
     info.flags = 0;
@@ -138,14 +138,14 @@ VkResult GrVkAMDMemoryAllocator::allocateImageMemory(VkImage image, AllocationPr
     VmaAllocation allocation;
     VkResult result = vmaAllocateMemoryForImage(fAllocator, image, &info, &allocation, nullptr);
     if (VK_SUCCESS == result) {
-        *backendMemory = (GrVkBackendMemory)allocation;
+        *backendMemory = (skgpu::VulkanBackendMemory)allocation;
     }
     return result;
 }
 
 VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer, BufferUsage usage,
                                                       AllocationPropertyFlags flags,
-                                                      GrVkBackendMemory* backendMemory) {
+                                                      skgpu::VulkanBackendMemory* backendMemory) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     VmaAllocationCreateInfo info;
     info.flags = 0;
@@ -208,20 +208,20 @@ VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer, BufferUsa
     VmaAllocation allocation;
     VkResult result = vmaAllocateMemoryForBuffer(fAllocator, buffer, &info, &allocation, nullptr);
     if (VK_SUCCESS == result) {
-        *backendMemory = (GrVkBackendMemory)allocation;
+        *backendMemory = (skgpu::VulkanBackendMemory)allocation;
     }
 
     return result;
 }
 
-void GrVkAMDMemoryAllocator::freeMemory(const GrVkBackendMemory& memoryHandle) {
+void GrVkAMDMemoryAllocator::freeMemory(const skgpu::VulkanBackendMemory& memoryHandle) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
     vmaFreeMemory(fAllocator, allocation);
 }
 
-void GrVkAMDMemoryAllocator::getAllocInfo(const GrVkBackendMemory& memoryHandle,
-                                          GrVkAlloc* alloc) const {
+void GrVkAMDMemoryAllocator::getAllocInfo(const skgpu::VulkanBackendMemory& memoryHandle,
+                                          skgpu::VulkanAlloc* alloc) const {
     const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
     VmaAllocationInfo vmaInfo;
     vmaGetAllocationInfo(fAllocator, allocation, &vmaInfo);
@@ -231,13 +231,13 @@ void GrVkAMDMemoryAllocator::getAllocInfo(const GrVkBackendMemory& memoryHandle,
 
     uint32_t flags = 0;
     if (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT & memFlags) {
-        flags |= GrVkAlloc::kMappable_Flag;
+        flags |= skgpu::VulkanAlloc::kMappable_Flag;
     }
     if (!SkToBool(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT & memFlags)) {
-        flags |= GrVkAlloc::kNoncoherent_Flag;
+        flags |= skgpu::VulkanAlloc::kNoncoherent_Flag;
     }
     if (VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT & memFlags) {
-        flags |= GrVkAlloc::kLazilyAllocated_Flag;
+        flags |= skgpu::VulkanAlloc::kLazilyAllocated_Flag;
     }
 
     alloc->fMemory        = vmaInfo.deviceMemory;
@@ -247,26 +247,27 @@ void GrVkAMDMemoryAllocator::getAllocInfo(const GrVkBackendMemory& memoryHandle,
     alloc->fBackendMemory = memoryHandle;
 }
 
-VkResult GrVkAMDMemoryAllocator::mapMemory(const GrVkBackendMemory& memoryHandle, void** data) {
+VkResult GrVkAMDMemoryAllocator::mapMemory(const skgpu::VulkanBackendMemory& memoryHandle,
+                                           void** data) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
     return vmaMapMemory(fAllocator, allocation, data);
 }
 
-void GrVkAMDMemoryAllocator::unmapMemory(const GrVkBackendMemory& memoryHandle) {
+void GrVkAMDMemoryAllocator::unmapMemory(const skgpu::VulkanBackendMemory& memoryHandle) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
     vmaUnmapMemory(fAllocator, allocation);
 }
 
-VkResult GrVkAMDMemoryAllocator::flushMemory(const GrVkBackendMemory& memoryHandle,
+VkResult GrVkAMDMemoryAllocator::flushMemory(const skgpu::VulkanBackendMemory& memoryHandle,
                                              VkDeviceSize offset, VkDeviceSize size) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     const VmaAllocation allocation = (const VmaAllocation)memoryHandle;
     return vmaFlushAllocation(fAllocator, allocation, offset, size);
 }
 
-VkResult GrVkAMDMemoryAllocator::invalidateMemory(const GrVkBackendMemory& memoryHandle,
+VkResult GrVkAMDMemoryAllocator::invalidateMemory(const skgpu::VulkanBackendMemory& memoryHandle,
                                                   VkDeviceSize offset, VkDeviceSize size) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     const VmaAllocation allocation = (const VmaAllocation)memoryHandle;

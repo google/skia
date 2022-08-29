@@ -842,7 +842,7 @@ bool GrVkGpu::uploadTexDataLinear(GrVkImage* texImage,
                                                     &subres,
                                                     &layout));
 
-    const GrVkAlloc& alloc = texImage->alloc();
+    const skgpu::VulkanAlloc& alloc = texImage->alloc();
     if (VK_NULL_HANDLE == alloc.fMemory) {
         return false;
     }

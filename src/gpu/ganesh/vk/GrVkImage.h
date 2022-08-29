@@ -69,7 +69,7 @@ public:
         SkASSERT(fResource);
         return fInfo.fImage;
     }
-    const GrVkAlloc& alloc() const {
+    const skgpu::VulkanAlloc& alloc() const {
         // Should only be called when we have a real fResource object, i.e. never when being used as
         // a RT in an external secondary command buffer.
         SkASSERT(fResource);
@@ -277,7 +277,10 @@ private:
             fAlloc.fOffset = 0;
         }
 
-        Resource(const GrVkGpu* gpu, VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling)
+        Resource(const GrVkGpu* gpu,
+                 VkImage image,
+                 const skgpu::VulkanAlloc& alloc,
+                 VkImageTiling tiling)
             : fGpu(gpu)
             , fImage(image)
             , fAlloc(alloc) {}
@@ -297,9 +300,9 @@ private:
     private:
         void freeGPUData() const override;
 
-        const GrVkGpu* fGpu;
-        VkImage        fImage;
-        GrVkAlloc      fAlloc;
+        const GrVkGpu*     fGpu;
+        VkImage            fImage;
+        skgpu::VulkanAlloc fAlloc;
 
         using INHERITED = GrTextureResource;
     };
@@ -307,7 +310,7 @@ private:
     // for wrapped textures
     class BorrowedResource : public Resource {
     public:
-        BorrowedResource(const GrVkGpu* gpu, VkImage image, const GrVkAlloc& alloc,
+        BorrowedResource(const GrVkGpu* gpu, VkImage image, const skgpu::VulkanAlloc& alloc,
                          VkImageTiling tiling)
             : Resource(gpu, image, alloc, tiling) {
         }

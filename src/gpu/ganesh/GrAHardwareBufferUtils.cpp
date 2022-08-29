@@ -499,7 +499,7 @@ static GrBackendTexture make_vk_backend_texture(
         return GrBackendTexture();
     }
 
-    GrVkAlloc alloc;
+    skgpu::VulkanAlloc alloc;
     alloc.fMemory = memory;
     alloc.fOffset = 0;
     alloc.fSize = hwbProps.allocationSize;

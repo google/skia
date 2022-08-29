@@ -53,14 +53,15 @@ public:
     };
 
     // DEPRECATED: Use and implement allocateImageMemory instead
-    virtual bool allocateMemoryForImage(VkImage, AllocationPropertyFlags, GrVkBackendMemory*) {
+    virtual bool allocateMemoryForImage(VkImage, AllocationPropertyFlags,
+                                        skgpu::VulkanBackendMemory*) {
         // The default implementation here is so clients can delete this virtual as the switch to
         // the new one which returns a VkResult.
         return false;
     }
 
     virtual VkResult allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
-                                         GrVkBackendMemory* memory) {
+                                         skgpu::VulkanBackendMemory* memory) {
         bool result = this->allocateMemoryForImage(image, flags, memory);
         // VK_ERROR_INITIALIZATION_FAILED is a bogus result to return from this function, but it is
         // just something to return that is not VK_SUCCESS and can't be interpreted by a caller to
@@ -71,7 +72,7 @@ public:
 
     // DEPRECATED: Use and implement allocateBufferMemory instead
     virtual bool allocateMemoryForBuffer(VkBuffer, BufferUsage,  AllocationPropertyFlags,
-                                         GrVkBackendMemory*) {
+                                         skgpu::VulkanBackendMemory*) {
         // The default implementation here is so clients can delete this virtual as the switch to
         // the new one which returns a VkResult.
         return false;
@@ -80,7 +81,7 @@ public:
     virtual VkResult allocateBufferMemory(VkBuffer buffer,
                                           BufferUsage usage,
                                           AllocationPropertyFlags flags,
-                                          GrVkBackendMemory* memory) {
+                                          skgpu::VulkanBackendMemory* memory) {
         bool result = this->allocateMemoryForBuffer(buffer, usage, flags, memory);
         // VK_ERROR_INITIALIZATION_FAILED is a bogus result to return from this function, but it is
         // just something to return that is not VK_SUCCESS and can't be interpreted by a caller to
@@ -90,14 +91,15 @@ public:
     }
 
 
-    // Fills out the passed in GrVkAlloc struct for the passed in GrVkBackendMemory.
-    virtual void getAllocInfo(const GrVkBackendMemory&, GrVkAlloc*) const = 0;
+    // Fills out the passed in skgpu::VulkanAlloc struct for the passed in
+    // skgpu::VulkanBackendMemory.
+    virtual void getAllocInfo(const skgpu::VulkanBackendMemory&, skgpu::VulkanAlloc*) const = 0;
 
     // Maps the entire allocation and returns a pointer to the start of the allocation. The
     // implementation may map more memory than just the allocation, but the returned pointer must
     // point at the start of the memory for the requested allocation.
-    virtual void* mapMemory(const GrVkBackendMemory&) { return nullptr; }
-    virtual VkResult mapMemory(const GrVkBackendMemory& memory, void** data) {
+    virtual void* mapMemory(const skgpu::VulkanBackendMemory&) { return nullptr; }
+    virtual VkResult mapMemory(const skgpu::VulkanBackendMemory& memory, void** data) {
         *data = this->mapMemory(memory);
         // VK_ERROR_INITIALIZATION_FAILED is a bogus result to return from this function, but it is
         // just something to return that is not VK_SUCCESS and can't be interpreted by a caller to
@@ -105,27 +107,28 @@ public:
         // update clients to implement this virtual.
         return *data ? VK_SUCCESS : VK_ERROR_INITIALIZATION_FAILED;
     }
-    virtual void unmapMemory(const GrVkBackendMemory&) = 0;
+    virtual void unmapMemory(const skgpu::VulkanBackendMemory&) = 0;
 
     // The following two calls are used for managing non-coherent memory. The offset is relative to
     // the start of the allocation and not the underlying VkDeviceMemory. Additionaly the client
     // must make sure that the offset + size passed in is less that or equal to the allocation size.
     // It is the responsibility of the implementation to make sure all alignment requirements are
     // followed. The client should not have to deal with any sort of alignment issues.
-    virtual void flushMappedMemory(const GrVkBackendMemory&, VkDeviceSize, VkDeviceSize) {}
-    virtual VkResult flushMemory(const GrVkBackendMemory& memory,  VkDeviceSize offset,
+    virtual void flushMappedMemory(const skgpu::VulkanBackendMemory&, VkDeviceSize, VkDeviceSize) {}
+    virtual VkResult flushMemory(const skgpu::VulkanBackendMemory& memory,  VkDeviceSize offset,
                                  VkDeviceSize size) {
         this->flushMappedMemory(memory, offset, size);
         return VK_SUCCESS;
     }
-    virtual void invalidateMappedMemory(const GrVkBackendMemory&, VkDeviceSize, VkDeviceSize) {}
-    virtual VkResult invalidateMemory(const GrVkBackendMemory& memory,  VkDeviceSize offset,
+    virtual void invalidateMappedMemory(const skgpu::VulkanBackendMemory&, VkDeviceSize,
+                                        VkDeviceSize) {}
+    virtual VkResult invalidateMemory(const skgpu::VulkanBackendMemory& memory,  VkDeviceSize offset,
                                  VkDeviceSize size) {
         this->invalidateMappedMemory(memory, offset, size);
         return VK_SUCCESS;
     }
 
-    virtual void freeMemory(const GrVkBackendMemory&) = 0;
+    virtual void freeMemory(const skgpu::VulkanBackendMemory&) = 0;
 
     // Returns the total amount of memory that is allocated and in use by an allocation for this
     // allocator.

@@ -223,8 +223,9 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
                        info.fLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
                        info.fProtected,
                        label,
-                       info.fAlloc.fFlags & GrVkAlloc::kLazilyAllocated_Flag ? GrMemoryless::kYes
-                                                                             : GrMemoryless::kNo)
+                       info.fAlloc.fFlags &
+                               skgpu::VulkanAlloc::kLazilyAllocated_Flag ? GrMemoryless::kYes
+                                                                         : GrMemoryless::kNo)
         , fInfo(info)
         , fInitialQueueFamily(info.fCurrentQueueFamily)
         , fMutableState(std::move(mutableState))
@@ -270,7 +271,7 @@ void GrVkImage::init(GrVkGpu* gpu, bool forSecondaryCB) {
     if (fInfo.fImageUsageFlags & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
         SkASSERT(SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT));
     } else {
-        if (fInfo.fAlloc.fFlags & GrVkAlloc::kLazilyAllocated_Flag) {
+        if (fInfo.fAlloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag) {
             SkASSERT(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT);
             SkASSERT(!SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_DST_BIT) &&
                      !SkToBool(fInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
@@ -380,7 +381,7 @@ void GrVkImage::setImageLayoutAndQueueIndex(const GrVkGpu* gpu,
                                             uint32_t newQueueFamilyIndex) {
 // Enable the following block to test new devices to confirm their lazy images stay at 0 memory use.
 #if 0
-    if (fInfo.fAlloc.fFlags & GrVkAlloc::kLazilyAllocated_Flag) {
+    if (fInfo.fAlloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag) {
         VkDeviceSize size;
         VK_CALL(gpu, GetDeviceMemoryCommitment(gpu->device(), fInfo.fAlloc.fMemory, &size));
 
@@ -517,10 +518,10 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
     GrMemoryless memoryless = imageDesc.fUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT
                                       ? GrMemoryless::kYes
                                       : GrMemoryless::kNo;
-    GrVkAlloc alloc;
+    skgpu::VulkanAlloc alloc;
     if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, memoryless, &alloc) ||
         (memoryless == GrMemoryless::kYes &&
-         !SkToBool(alloc.fFlags & GrVkAlloc::kLazilyAllocated_Flag))) {
+         !SkToBool(alloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag))) {
         VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));
         return false;
     }

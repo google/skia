@@ -206,7 +206,7 @@ bool VkYcbcrSamplerHelper::createBackendTexture(uint32_t width, uint32_t height)
                                          VK_FILTER_LINEAR,
                                          false,
                                          formatProperties.linearTilingFeatures};
-    GrVkAlloc alloc;
+    skgpu::VulkanAlloc alloc;
     alloc.fMemory = fImageMemory;
     alloc.fOffset = 0;
     alloc.fSize = requirements.size;

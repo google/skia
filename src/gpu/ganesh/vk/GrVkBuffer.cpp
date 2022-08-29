@@ -22,7 +22,7 @@ GrVkBuffer::GrVkBuffer(GrVkGpu* gpu,
                        GrGpuBufferType bufferType,
                        GrAccessPattern accessPattern,
                        VkBuffer buffer,
-                       const GrVkAlloc& alloc,
+                       const skgpu::VulkanAlloc& alloc,
                        const GrVkDescriptorSet* uniformDescriptorSet,
                        std::string_view label)
         : GrGpuBuffer(gpu, sizeInBytes, bufferType, accessPattern, label)
@@ -70,7 +70,7 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
                                    GrGpuBufferType bufferType,
                                    GrAccessPattern accessPattern) {
     VkBuffer buffer;
-    GrVkAlloc alloc;
+    skgpu::VulkanAlloc alloc;
 
     // The only time we don't require mappable buffers is when we have a static access pattern and
     // we're on a device where gpu only memory has faster reads on the gpu than memory that is also

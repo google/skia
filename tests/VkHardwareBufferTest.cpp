@@ -789,7 +789,7 @@ bool VulkanTestHelper::importHardwareBuffer(skiatest::Reporter* reporter,
         return false;
     }
 
-    GrVkAlloc alloc;
+    skgpu::VulkanAlloc alloc;
     alloc.fMemory = fMemory;
     alloc.fOffset = 0;
     alloc.fSize = hwbProps.allocationSize;

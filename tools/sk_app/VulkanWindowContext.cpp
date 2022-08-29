@@ -345,7 +345,7 @@ bool VulkanWindowContext::createBuffers(VkFormat format, VkImageUsageFlags usage
 
         GrVkImageInfo info;
         info.fImage = fImages[i];
-        info.fAlloc = GrVkAlloc();
+        info.fAlloc = skgpu::VulkanAlloc();
         info.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
         info.fFormat = format;

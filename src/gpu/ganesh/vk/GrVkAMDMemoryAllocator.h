@@ -44,20 +44,23 @@ public:
     ~GrVkAMDMemoryAllocator() override;
 
     VkResult allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
-                                 GrVkBackendMemory*) override;
+                                 skgpu::VulkanBackendMemory*) override;
 
-    VkResult allocateBufferMemory(VkBuffer buffer, BufferUsage usage,
-                                  AllocationPropertyFlags flags, GrVkBackendMemory*) override;
+    VkResult allocateBufferMemory(VkBuffer buffer,
+                                  BufferUsage usage,
+                                  AllocationPropertyFlags flags,
+                                  skgpu::VulkanBackendMemory*) override;
 
-    void freeMemory(const GrVkBackendMemory&) override;
+    void freeMemory(const skgpu::VulkanBackendMemory&) override;
 
-    void getAllocInfo(const GrVkBackendMemory&, GrVkAlloc*) const override;
+    void getAllocInfo(const skgpu::VulkanBackendMemory&, skgpu::VulkanAlloc*) const override;
 
-    VkResult mapMemory(const GrVkBackendMemory&, void** data) override;
-    void unmapMemory(const GrVkBackendMemory&) override;
+    VkResult mapMemory(const skgpu::VulkanBackendMemory&, void** data) override;
+    void unmapMemory(const skgpu::VulkanBackendMemory&) override;
 
-    VkResult flushMemory(const GrVkBackendMemory&, VkDeviceSize offset, VkDeviceSize size) override;
-    VkResult invalidateMemory(const GrVkBackendMemory&, VkDeviceSize offset,
+    VkResult flushMemory(const skgpu::VulkanBackendMemory&, VkDeviceSize offset,
+                         VkDeviceSize size) override;
+    VkResult invalidateMemory(const skgpu::VulkanBackendMemory&, VkDeviceSize offset,
                               VkDeviceSize size) override;
 
     uint64_t totalUsedMemory() const override;
