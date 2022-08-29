@@ -8,7 +8,7 @@ menu:
 
 Skia is an open source 2D graphics library which provides common APIs that work
 across a variety of hardware and software platforms. It serves as the graphics
-engine for Google Chrome and Chrome OS, Android, Flutter, Mozilla Firefox and
+engine for Google Chrome and ChromeOS, Android, Flutter, Mozilla Firefox and
 Firefox OS, and many other products.
 
 Skia is sponsored and managed by Google, but is available for use by anyone
