@@ -1015,8 +1015,11 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		}
 	} else {
 		if d["os"] == DEBIAN_11_OS {
-			// The Debain11 compile machines in the skolo have
+			// The Debian11 compile machines in the skolo have
 			// GPUs, but we still use them for compiles also.
+
+			// Dodge Raspberry Pis.
+			d["cpu"] = "x86-64"
 		} else {
 			d["gpu"] = "none"
 		}
