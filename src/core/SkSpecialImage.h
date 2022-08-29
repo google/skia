@@ -59,12 +59,15 @@ public:
     int width() const { return fSubset.width(); }
     int height() const { return fSubset.height(); }
     const SkIRect& subset() const { return fSubset; }
-    SkColorSpace* getColorSpace() const { return this->onGetColorSpace(); }
 
     uint32_t uniqueID() const { return fUniqueID; }
-    virtual SkAlphaType alphaType() const = 0;
-    virtual SkColorType colorType() const = 0;
+
     virtual size_t getSize() const = 0;
+
+    const SkColorInfo& colorInfo() const { return fColorInfo; }
+    SkAlphaType alphaType() const { return fColorInfo.alphaType(); }
+    SkColorType colorType() const { return fColorInfo.colorType(); }
+    SkColorSpace* getColorSpace() const { return fColorInfo.colorSpace(); }
 
     /**
      *  Draw this SpecialImage into the canvas, automatically taking into account the image's subset
@@ -180,7 +183,10 @@ public:
     }
 
 protected:
-    SkSpecialImage(const SkIRect& subset, uint32_t uniqueID, const SkSurfaceProps&);
+    SkSpecialImage(const SkIRect& subset,
+                   uint32_t uniqueID,
+                   const SkColorInfo&,
+                   const SkSurfaceProps&);
 
     virtual void onDraw(SkCanvas*,
                         SkScalar x, SkScalar y,
@@ -190,8 +196,6 @@ protected:
     virtual bool onGetROPixels(SkBitmap*) const = 0;
 
     virtual GrRecordingContext* onGetContext() const { return nullptr; }
-
-    virtual SkColorSpace* onGetColorSpace() const = 0;
 
 #if SK_SUPPORT_GPU
     virtual GrSurfaceProxyView onView(GrRecordingContext*) const = 0;
@@ -225,9 +229,10 @@ protected:
 #endif
 
 private:
-    const SkSurfaceProps fProps;
     const SkIRect        fSubset;
     const uint32_t       fUniqueID;
+    const SkColorInfo    fColorInfo;
+    const SkSurfaceProps fProps;
 };
 
-#endif
+#endif // SkSpecialImage_DEFINED
