@@ -1294,6 +1294,14 @@ DrawableOpSubmitter::submitDraws(SkCanvas* canvas, SkPoint drawOrigin,const SkPa
     // draw effect, filter or shader paths.
     for (auto [i, position] : SkMakeEnumerate(fPositions)) {
         SkDrawable* drawable = fIDsOrDrawables[i].fDrawable;
+
+        if (drawable == nullptr) {
+            // This better be pinned to keep the drawable data alive.
+            fStrikePromise.strike()->verifyPinnedStrike();
+            SkDEBUGFAIL("Drawable should not be nullptr.");
+            continue;
+        }
+
         // Transform the glyph to source space.
         SkMatrix pathMatrix = strikeToSource;
         pathMatrix.postTranslate(position.x(), position.y());
