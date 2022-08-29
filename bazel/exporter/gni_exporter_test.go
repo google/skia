@@ -488,6 +488,32 @@ func TestGetRuleGNIVariableName_ValidRuleName_Success(t *testing.T) {
 	assert.Equal(t, "skia_core_sources", name)
 }
 
+func TestIsHeaderFile_HeaderFiles_ReturnTrue(t *testing.T) {
+	test := func(name, path string) {
+		t.Run(name, func(t *testing.T) {
+			assert.True(t, isHeaderFile(path))
+		})
+	}
+
+	test("LowerH", "path/to/file.h")
+	test("UpperH", "path/to/file.H")
+	test("MixedHpp", "path/to/file.Hpp")
+}
+
+func TestIsHeaderFile_NonHeaderFiles_ReturnTrue(t *testing.T) {
+	test := func(name, path string) {
+		t.Run(name, func(t *testing.T) {
+			assert.False(t, isHeaderFile(path))
+		})
+	}
+
+	test("EmptyString", "")
+	test("DirPath", "/path/to/dir")
+	test("C++Source", "/path/to/file.cpp")
+	test("DotHInDir", "/path/to/dir.h/file.cpp")
+	test("Go", "main.go")
+}
+
 func TestIsTargetCppHeaderFile_ValidHeaderFileNames_ReturnTrue(t *testing.T) {
 	test := func(name, target string) {
 		t.Run(name, func(t *testing.T) {
@@ -509,6 +535,29 @@ func TestIsTargetCppHeaderFile_InvalidHeaderFileNames_ReturnFalse(t *testing.T) 
 
 	test("SourceFile", "//src/core:file.cpp")
 	test("InvalidSfx", "//src/core:file.HH")
+}
+
+func TestFileListContainsOnlyCppHeaderFiles_AllHeaders_ReturnsTrue(t *testing.T) {
+	test := func(name string, paths []string) {
+		t.Run(name, func(t *testing.T) {
+			assert.True(t, fileListContainsOnlyCppHeaderFiles(paths))
+		})
+	}
+
+	test("OneFile", []string{"file.h"})
+	test("Multiple", []string{"file.h", "foo.hpp"})
+}
+
+func TestFileListContainsOnlyCppHeaderFiles_NotAllHeaders_ReturnsFalse(t *testing.T) {
+	test := func(name string, paths []string) {
+		t.Run(name, func(t *testing.T) {
+			assert.False(t, fileListContainsOnlyCppHeaderFiles(paths))
+		})
+	}
+
+	test("Nil", nil)
+	test("HeaderFiles", []string{"file.h", "file2.cpp"})
+	test("GoFile", []string{"file.go"})
 }
 
 func TestShouldSkipRule_ShouldNotSkip_ReturnFalse(t *testing.T) {

@@ -290,14 +290,29 @@ func getRuleGNIVariableName(r *build.Rule) (string, error) {
 	return n, nil
 }
 
+// Is the file path a C++ header?
+func isHeaderFile(path string) bool {
+	ext := strings.ToLower(filepath.Ext(path))
+	return ext == ".h" || ext == ".hpp"
+}
+
 // Is the file path portion of the given |target| a C/C++ header file?
 func isTargetCppHeaderFile(target string) bool {
 	_, _, t, err := parseRule(target)
 	if err != nil {
 		return false
 	}
-	ext := strings.ToLower(filepath.Ext(t))
-	return ext == ".h" || ext == ".hpp"
+	return isHeaderFile(t)
+}
+
+// Does the list of file paths contain only header files?
+func fileListContainsOnlyCppHeaderFiles(files []string) bool {
+	for _, f := range files {
+		if !isHeaderFile(f) {
+			return false
+		}
+	}
+	return len(files) > 0 // Empty list is false, else all are headers.
 }
 
 // Should the given rule be skipped during the export process?
@@ -624,9 +639,9 @@ func (e *GNIExporter) convertRule(r *build.Rule, qr *analysis_v2.CqueryResult) e
 	fmt.Fprintf(&contents, "%s = [\n", ruleVariableName)
 
 	printedIncludeComment := false
-	hasSrcs := strings.HasPrefix(files[0], "$_src")
+	onlyHeaders := fileListContainsOnlyCppHeaderFiles(files)
 	for _, target := range files {
-		if hasSrcs && !printedIncludeComment && strings.HasPrefix(target, "$_include") {
+		if !onlyHeaders && !printedIncludeComment && strings.HasPrefix(target, "$_include") {
 			fmt.Fprintf(&contents, "\n  # Includes\n")
 			printedIncludeComment = true
 		}
