@@ -1069,3 +1069,54 @@ func TestFilterDeprecatedFiles_NoDeprecatedFiles_SliceUnchanged(t *testing.T) {
 			"not/deprecated/file.h",
 			"also/not/deprecated/file.h"})
 }
+
+func TestFindDuplicate_ContainsDuplicate_ReturnsTrue(t *testing.T) {
+	test := func(name string, files []string, expected string) {
+		t.Run(name, func(t *testing.T) {
+			path, hasDup := findDuplicate(files)
+			assert.True(t, hasDup)
+			assert.Equal(t, expected, path)
+		})
+	}
+	test("AllDups",
+		[]string{
+			"path/to/file.h",
+			"path/to/file.h"},
+		"path/to/file.h")
+	test("FirstFileDup",
+		[]string{
+			"path/to/file.h",
+			"path/to/file.h",
+			"path/to/non_dup.h"},
+		"path/to/file.h")
+	test("LastFileDup",
+		[]string{
+			"path/to/a_non_dup.h",
+			"path/to/file.h",
+			"path/to/file.h"},
+		"path/to/file.h")
+	test("CaseInsensitive",
+		[]string{
+			"path/to/file.h",
+			"path/to/File.h"},
+		"path/to/file.h")
+}
+
+func TestFindDuplicate_NoDuplicates_ReturnsFalse(t *testing.T) {
+	test := func(name string, files []string) {
+		t.Run(name, func(t *testing.T) {
+			_, hasDup := findDuplicate(files)
+			assert.False(t, hasDup)
+		})
+	}
+	test("EmptySlice", []string{})
+	test("nilSlice", nil)
+	test("SingleFile",
+		[]string{
+			"path/to/file.h"})
+	test("MultipleFiles",
+		[]string{
+			"path/to/file_a.h",
+			"path/to/file_b.h",
+			"path/to/file_c.h"})
+}
