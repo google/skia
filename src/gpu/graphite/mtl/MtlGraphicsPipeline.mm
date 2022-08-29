@@ -7,22 +7,12 @@
 
 #include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"
 
-#include "include/core/SkSpan.h"
-#include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/TextureInfo.h"
-#include "src/core/SkPipelineData.h"
-#include "src/core/SkRuntimeEffectDictionary.h"
-#include "src/core/SkSLTypeShared.h"
-#include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/Renderer.h"
-#include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlUtils.h"
-
-#include "src/gpu/tessellate/WangsFormula.h"
 
 namespace skgpu::graphite {
 
@@ -106,13 +96,13 @@ inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type) {
     SK_ABORT("Unknown vertex attribute type");
 }
 
-MTLVertexDescriptor* create_vertex_descriptor(const RenderStep* step) {
+MTLVertexDescriptor* create_vertex_descriptor(SkSpan<const Attribute> vertexAttrs,
+                                              SkSpan<const Attribute> instanceAttrs) {
     auto vertexDescriptor = [[MTLVertexDescriptor alloc] init];
     int attributeIndex = 0;
 
-    int vertexAttributeCount = step->numVertexAttributes();
     size_t vertexAttributeOffset = 0;
-    for (const auto& attribute : step->vertexAttributes()) {
+    for (const auto& attribute : vertexAttrs) {
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
         MTLVertexFormat format = attribute_type_to_mtlformat(attribute.cpuType());
         SkASSERT(MTLVertexFormatInvalid != format);
@@ -123,9 +113,8 @@ MTLVertexDescriptor* create_vertex_descriptor(const RenderStep* step) {
         vertexAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
     }
-    SkASSERT(vertexAttributeOffset == step->vertexStride());
 
-    if (vertexAttributeCount) {
+    if (vertexAttributeOffset) {
         MTLVertexBufferLayoutDescriptor* vertexBufferLayout =
                 vertexDescriptor.layouts[MtlGraphicsPipeline::kVertexBufferIndex];
         vertexBufferLayout.stepFunction = MTLVertexStepFunctionPerVertex;
@@ -133,9 +122,8 @@ MTLVertexDescriptor* create_vertex_descriptor(const RenderStep* step) {
         vertexBufferLayout.stride = vertexAttributeOffset;
     }
 
-    int instanceAttributeCount = step->numInstanceAttributes();
     size_t instanceAttributeOffset = 0;
-    for (const auto& attribute : step->instanceAttributes()) {
+    for (const auto& attribute : instanceAttrs) {
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
         MTLVertexFormat format = attribute_type_to_mtlformat(attribute.cpuType());
         SkASSERT(MTLVertexFormatInvalid != format);
@@ -146,9 +134,8 @@ MTLVertexDescriptor* create_vertex_descriptor(const RenderStep* step) {
         instanceAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
     }
-    SkASSERT(instanceAttributeOffset == step->instanceStride());
 
-    if (instanceAttributeCount) {
+    if (instanceAttributeOffset) {
         MTLVertexBufferLayoutDescriptor* instanceBufferLayout =
                 vertexDescriptor.layouts[MtlGraphicsPipeline::kInstanceBufferIndex];
         instanceBufferLayout.stepFunction = MTLVertexStepFunctionPerInstance;
@@ -265,81 +252,34 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
 
 } // anonymous namespace
 
-enum ShaderType {
-    kVertex_ShaderType = 0,
-    kFragment_ShaderType = 1,
+sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sharedContext,
+                                                     std::string label,
+                                                     MSLFunction vertexMain,
+                                                     SkSpan<const Attribute> vertexAttrs,
+                                                     SkSpan<const Attribute> instanceAttrs,
+                                                     MSLFunction fragmentMain,
+                                                     sk_cfp<id<MTLDepthStencilState>> dss,
+                                                     uint32_t stencilRefValue,
+                                                     const BlendInfo& blendInfo,
+                                                     const RenderPassDesc& renderPassDesc) {
+    id<MTLLibrary> vsLibrary = std::get<0>(vertexMain);
+    id<MTLLibrary> fsLibrary = std::get<0>(fragmentMain);
+    if (!vsLibrary || !fsLibrary) {
+        return nullptr;
+    }
 
-    kLast_ShaderType = kFragment_ShaderType
-};
-static const int kShaderTypeCount = kLast_ShaderType + 1;
-
-sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
-        MtlResourceProvider* resourceProvider,
-        const MtlSharedContext* sharedContext,
-        const SkRuntimeEffectDictionary* runtimeDict,
-        const GraphicsPipelineDesc& pipelineDesc,
-        const RenderPassDesc& renderPassDesc) {
     sk_cfp<MTLRenderPipelineDescriptor*> psoDescriptor([[MTLRenderPipelineDescriptor alloc] init]);
 
-    std::string msl[kShaderTypeCount];
-    SkSL::Program::Inputs inputs[kShaderTypeCount];
-    SkSL::ProgramSettings settings;
+    NSString* labelName =  [NSString stringWithUTF8String: label.c_str()];
+    NSString* vsFuncName = [NSString stringWithUTF8String: std::get<1>(vertexMain).c_str()];
+    NSString* fsFuncName = [NSString stringWithUTF8String: std::get<1>(fragmentMain).c_str()];
 
-    settings.fForceNoRTFlip = true;
-
-    auto skslCompiler = resourceProvider->skslCompiler();
-    ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
-
-    BlendInfo blendInfo;
-    bool localCoordsNeeded = false;
-    bool shadingSsboIndexNeeded = false;
-    auto dict = sharedContext->shaderCodeDictionary();
-    if (!SkSLToMSL(skslCompiler,
-                   GetSkSLFS(dict,
-                             runtimeDict,
-                             pipelineDesc,
-                             &blendInfo,
-                             &localCoordsNeeded,
-                             &shadingSsboIndexNeeded),
-                   SkSL::ProgramKind::kGraphiteFragment,
-                   settings,
-                   &msl[kFragment_ShaderType],
-                   &inputs[kFragment_ShaderType],
-                   errorHandler)) {
-        return nullptr;
-    }
-
-    if (!SkSLToMSL(skslCompiler,
-                   GetSkSLVS(pipelineDesc, localCoordsNeeded, shadingSsboIndexNeeded),
-                   SkSL::ProgramKind::kGraphiteVertex,
-                   settings,
-                   &msl[kVertex_ShaderType],
-                   &inputs[kVertex_ShaderType],
-                   errorHandler)) {
-        return nullptr;
-    }
-
-    sk_cfp<id<MTLLibrary>> shaderLibraries[kShaderTypeCount];
-
-    shaderLibraries[kVertex_ShaderType] = MtlCompileShaderLibrary(sharedContext,
-                                                                  msl[kVertex_ShaderType],
-                                                                  errorHandler);
-    shaderLibraries[kFragment_ShaderType] = MtlCompileShaderLibrary(sharedContext,
-                                                                    msl[kFragment_ShaderType],
-                                                                    errorHandler);
-    if (!shaderLibraries[kVertex_ShaderType] || !shaderLibraries[kFragment_ShaderType]) {
-        return nullptr;
-    }
-
-    (*psoDescriptor).label = @(pipelineDesc.renderStep()->name());
-
-    (*psoDescriptor).vertexFunction =
-            [shaderLibraries[kVertex_ShaderType].get() newFunctionWithName: @"vertexMain"];
-    (*psoDescriptor).fragmentFunction =
-            [shaderLibraries[kFragment_ShaderType].get() newFunctionWithName: @"fragmentMain"];
+    (*psoDescriptor).label = labelName;
+    (*psoDescriptor).vertexFunction = [vsLibrary newFunctionWithName: vsFuncName];
+    (*psoDescriptor).fragmentFunction = [fsLibrary newFunctionWithName: fsFuncName];
 
     // TODO: I *think* this gets cleaned up by the pipelineDescriptor?
-    (*psoDescriptor).vertexDescriptor = create_vertex_descriptor(pipelineDesc.renderStep());
+    (*psoDescriptor).vertexDescriptor = create_vertex_descriptor(vertexAttrs, instanceAttrs);
 
     const MtlTextureSpec& mtlColorSpec =
             renderPassDesc.fColorAttachment.fTextureInfo.mtlTextureSpec();
@@ -372,18 +312,10 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
         return nullptr;
     }
 
-    const DepthStencilSettings& depthStencilSettings =
-            pipelineDesc.renderStep()->depthStencilSettings();
-    sk_cfp<id<MTLDepthStencilState>> dss =
-            resourceProvider->findOrCreateCompatibleDepthStencilState(depthStencilSettings);
-
-    return sk_sp<MtlGraphicsPipeline>(
-            new MtlGraphicsPipeline(sharedContext,
-                                    std::move(pso),
-                                    std::move(dss),
-                                    depthStencilSettings.fStencilReferenceValue,
-                                    pipelineDesc.renderStep()->vertexStride(),
-                                    pipelineDesc.renderStep()->instanceStride()));
+    return sk_sp<MtlGraphicsPipeline>(new MtlGraphicsPipeline(sharedContext,
+                                                              std::move(pso),
+                                                              std::move(dss),
+                                                              stencilRefValue));
 }
 
 void MtlGraphicsPipeline::freeGpuData() {

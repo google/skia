@@ -9,16 +9,20 @@
 #define skgpu_graphite_MtlGraphicsPipeline_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/ports/SkCFObject.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include <memory>
 
 #import <Metal/Metal.h>
 
-class SkRuntimeEffectDictionary;
-class SkShaderCodeDictionary;
+namespace skgpu {
+struct BlendInfo;
+}
 
 namespace skgpu::graphite {
+
+class Attribute;
 class Context;
 class GraphicsPipelineDesc;
 class MtlResourceProvider;
@@ -33,40 +37,39 @@ public:
     inline static constexpr unsigned int kVertexBufferIndex = 3;
     inline static constexpr unsigned int kInstanceBufferIndex = 4;
 
-    static sk_sp<MtlGraphicsPipeline> Make(MtlResourceProvider*,
-                                           const MtlSharedContext*,
-                                           const SkRuntimeEffectDictionary*,
-                                           const GraphicsPipelineDesc&,
+    using MSLFunction = std::pair<id<MTLLibrary>, std::string>;
+    static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,
+                                           std::string label,
+                                           MSLFunction vertexMain,
+                                           SkSpan<const Attribute> vertexAttrs,
+                                           SkSpan<const Attribute> instanceAttrs,
+                                           MSLFunction fragmentMain,
+                                           sk_cfp<id<MTLDepthStencilState>>,
+                                           uint32_t stencilRefValue,
+                                           const BlendInfo& blendInfo,
                                            const RenderPassDesc&);
+
     ~MtlGraphicsPipeline() override {}
 
     id<MTLRenderPipelineState> mtlPipelineState() const { return fPipelineState.get(); }
     id<MTLDepthStencilState> mtlDepthStencilState() const { return fDepthStencilState.get(); }
     uint32_t stencilReferenceValue() const { return fStencilReferenceValue; }
-    size_t vertexStride() const { return fVertexStride; }
-    size_t instanceStride() const { return fInstanceStride; }
 
 private:
     MtlGraphicsPipeline(const skgpu::graphite::SharedContext* sharedContext,
                         sk_cfp<id<MTLRenderPipelineState>> pso,
                         sk_cfp<id<MTLDepthStencilState>> dss,
-                        uint32_t refValue,
-                        size_t vertexStride,
-                        size_t instanceStride)
+                        uint32_t refValue)
         : GraphicsPipeline(sharedContext)
         , fPipelineState(std::move(pso))
         , fDepthStencilState(dss)
-        , fStencilReferenceValue(refValue)
-        , fVertexStride(vertexStride)
-        , fInstanceStride(instanceStride) {}
+        , fStencilReferenceValue(refValue) {}
 
     void freeGpuData() override;
 
     sk_cfp<id<MTLRenderPipelineState>> fPipelineState;
     sk_cfp<id<MTLDepthStencilState>> fDepthStencilState;
     uint32_t fStencilReferenceValue;
-    size_t fVertexStride = 0;
-    size_t fInstanceStride = 0;
 };
 
 } // namespace skgpu::graphite

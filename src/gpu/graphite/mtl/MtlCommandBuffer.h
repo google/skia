@@ -138,8 +138,6 @@ private:
     sk_sp<MtlComputeCommandEncoder> fActiveComputeCommandEncoder;
     sk_sp<MtlBlitCommandEncoder> fActiveBlitCommandEncoder;
 
-    size_t fCurrentVertexStride = 0;
-    size_t fCurrentInstanceStride = 0;
     id<MTLBuffer> fCurrentIndexBuffer;
     size_t fCurrentIndexBufferOffset = 0;
 
