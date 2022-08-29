@@ -82,6 +82,170 @@ static bool consume_suffix(std::string* str, const char suffix[]) {
     return true;
 }
 
+class ShaderCapsTestFactory : public SkSL::ShaderCapsFactory {
+public:
+    static std::unique_ptr<SkSL::ShaderCaps> AddAndTrueToLoopCondition() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fAddAndTrueToLoopCondition = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> BuiltinDeterminantSupport() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fBuiltinDeterminantSupport = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> BuiltinFMASupport() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fBuiltinFMASupport = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> CannotUseFractForNegativeValues() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fCanUseFractForNegativeValues = false;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> CannotUseFragCoord() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fCanUseFragCoord = false;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> CannotUseMinAndAbsTogether() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fCanUseMinAndAbsTogether = false;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> EmulateAbsIntFunction() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fEmulateAbsIntFunction = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> FramebufferFetchSupport() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fFBFetchSupport = true;
+        result->fFBFetchColorName = "gl_LastFragData[0]";
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> IncompleteShortIntPrecision() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 310es";
+        result->fUsesPrecisionModifiers = true;
+        result->fIncompleteShortIntPrecision = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> MustForceNegatedAtanParamToFloat() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fMustForceNegatedAtanParamToFloat = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> MustForceNegatedLdexpParamToMultiply() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fMustForceNegatedLdexpParamToMultiply = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> MustGuardDivisionEvenAfterExplicitZeroCheck() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fMustGuardDivisionEvenAfterExplicitZeroCheck = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> RemovePowWithConstantExponent() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fRemovePowWithConstantExponent = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> RewriteDoWhileLoops() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fRewriteDoWhileLoops = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> RewriteMatrixComparisons() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fRewriteMatrixComparisons = true;
+        result->fUsesPrecisionModifiers = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> RewriteMatrixVectorMultiply() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fRewriteMatrixVectorMultiply = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> RewriteSwitchStatements() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fRewriteSwitchStatements = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> SampleMaskSupport() {
+        std::unique_ptr<SkSL::ShaderCaps> result = Default();
+        result->fSampleMaskSupport = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> ShaderDerivativeExtensionString() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fShaderDerivativeSupport = true;
+        result->fShaderDerivativeExtensionString = "GL_OES_standard_derivatives";
+        result->fUsesPrecisionModifiers = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> UnfoldShortCircuitAsTernary() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fUnfoldShortCircuitAsTernary = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> UsesPrecisionModifiers() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 400";
+        result->fUsesPrecisionModifiers = true;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> Version110() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 110";
+        result->fGLSLGeneration = SkSL::GLSLGeneration::k110;
+        return result;
+    }
+
+    static std::unique_ptr<SkSL::ShaderCaps> Version450Core() {
+        std::unique_ptr<SkSL::ShaderCaps> result = MakeShaderCaps();
+        result->fVersionDeclString = "#version 450 core";
+        return result;
+    }
+};
+
 // Given a string containing an SkSL program, searches for a #pragma settings comment, like so:
 //    /*#pragma settings Default Sharpen*/
 // The passed-in Settings object will be updated accordingly. Any number of options can be provided.
@@ -89,7 +253,7 @@ static bool detect_shader_settings(const std::string& text,
                                    SkSL::ProgramSettings* settings,
                                    const SkSL::ShaderCaps** caps,
                                    std::unique_ptr<SkSL::SkVMDebugTrace>* debugTrace) {
-    using Factory = SkSL::ShaderCapsFactory;
+    using Factory = ShaderCapsTestFactory;
 
     // Find a matching comment and isolate the name portion.
     static constexpr char kPragmaSettings[] = "/*#pragma settings ";
