@@ -2441,7 +2441,8 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (!is_ios && target_cpu != "wasm" && !(is_win && target_cpu == "arm64")) {
+  if (!is_ios && target_cpu != "wasm" &&
+      !((is_win || is_mac) && target_cpu == "arm64")) {
     test_app("skiaserve") {
       sources = [
         "tools/skiaserve/Request.cpp",
