@@ -35,6 +35,7 @@ class Renderer;
 class Shape;
 class StrokeStyle;
 class TextureProxy;
+class TextureProxyView;
 
 class Device final : public SkBaseDevice  {
 public:
@@ -69,6 +70,7 @@ public:
 #if GRAPHITE_TEST_UTILS
     TextureProxy* proxy();
 #endif
+    TextureProxyView readSurfaceView();
 
 private:
     class IntersectionTreeSet;

@@ -942,7 +942,10 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
 TextureProxy* Device::proxy() {
     return fDC->target();
 }
-
 #endif
+
+TextureProxyView Device::readSurfaceView() {
+    return fDC->readSurfaceView(fRecorder->priv().caps());
+}
 
 } // namespace skgpu::graphite

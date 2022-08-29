@@ -35,9 +35,11 @@ class Geometry;
 class Recorder;
 class Transform;
 
+class Caps;
 class DrawPass;
 class Task;
 class TextureProxy;
+class TextureProxyView;
 
 /**
  * DrawContext records draw commands into a specific Surface, via a general task graph
@@ -54,6 +56,8 @@ public:
     const SkImageInfo&  imageInfo() const { return fImageInfo;    }
     TextureProxy* target()                { return fTarget.get(); }
     const TextureProxy* target()    const { return fTarget.get(); }
+
+    TextureProxyView readSurfaceView(const Caps*);
 
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
 
