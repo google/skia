@@ -1374,7 +1374,16 @@ SI U32 to_unorm(F v, F scale, F bias = 1.0f) {
     return round(min(max(0, v), bias), scale);
 }
 
-SI I32 cond_to_mask(I32 cond) { return if_then_else(cond, I32(~0), I32(0)); }
+SI I32 cond_to_mask(I32 cond) {
+#if defined(JUMPER_IS_SCALAR)
+    // In scalar mode, conditions are bools (0 or 1), but we want to store and operate on masks
+    // (eg, using bitwise operations to select values).
+    return if_then_else(cond, I32(~0), I32(0));
+#else
+    // In SIMD mode, our various instruction sets already represent conditions as masks.
+    return cond;
+#endif
+}
 
 // Now finally, normal Stages!
 
