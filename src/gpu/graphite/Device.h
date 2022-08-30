@@ -44,11 +44,13 @@ public:
     static sk_sp<Device> Make(Recorder*,
                               const SkImageInfo&,
                               SkBudgeted,
-                              const SkSurfaceProps&);
+                              const SkSurfaceProps&,
+                              bool addInitialClear);
     static sk_sp<Device> Make(Recorder*,
                               sk_sp<TextureProxy>,
                               const SkColorInfo&,
-                              const SkSurfaceProps&);
+                              const SkSurfaceProps&,
+                              bool addInitialClear);
 
     Device* asGraphiteDevice() override { return this; }
 
@@ -173,7 +175,7 @@ private:
     };
     SK_DECL_BITMASK_OPS_FRIENDS(DrawFlags);
 
-    Device(Recorder*, sk_sp<DrawContext>);
+    Device(Recorder*, sk_sp<DrawContext>, bool addInitialClear);
 
     // Handles applying path effects, mask filters, stroke-and-fill styles, and hairlines.
     // Ignores geometric style on the paint in favor of explicitly provided SkStrokeRec and flags.

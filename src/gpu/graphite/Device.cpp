@@ -156,7 +156,8 @@ private:
 sk_sp<Device> Device::Make(Recorder* recorder,
                            const SkImageInfo& ii,
                            SkBudgeted budgeted,
-                           const SkSurfaceProps& props) {
+                           const SkSurfaceProps& props,
+                           bool addInitialClear) {
     if (!recorder) {
         return nullptr;
     }
@@ -170,13 +171,14 @@ sk_sp<Device> Device::Make(Recorder* recorder,
     }
 
     sk_sp<TextureProxy> target(new TextureProxy(ii.dimensions(), textureInfo, budgeted));
-    return Make(recorder, std::move(target), ii.colorInfo(), props);
+    return Make(recorder, std::move(target), ii.colorInfo(), props, addInitialClear);
 }
 
 sk_sp<Device> Device::Make(Recorder* recorder,
                            sk_sp<TextureProxy> target,
                            const SkColorInfo& colorInfo,
-                           const SkSurfaceProps& props) {
+                           const SkSurfaceProps& props,
+                           bool addInitialClear) {
     if (!recorder) {
         return nullptr;
     }
@@ -186,7 +188,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
         return nullptr;
     }
 
-    return sk_sp<Device>(new Device(recorder, std::move(dc)));
+    return sk_sp<Device>(new Device(recorder, std::move(dc), addInitialClear));
 }
 
 // These default tuning numbers for the HybridBoundsManager were chosen from looking at performance
@@ -199,7 +201,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
 static constexpr int kGridCellSize = 16;
 static constexpr int kMaxBruteForceN = 64;
 
-Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
+Device::Device(Recorder* recorder, sk_sp<DrawContext> dc, bool addInitialClear)
         : SkBaseDevice(dc->imageInfo(), dc->surfaceProps())
         , fRecorder(recorder)
         , fDC(std::move(dc))
@@ -215,6 +217,10 @@ Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
         , fDrawsOverlap(false) {
     SkASSERT(SkToBool(fDC) && SkToBool(fRecorder));
     fRecorder->registerDevice(this);
+
+    if (addInitialClear) {
+        fDC->clear(SkColors::kTransparent);
+    }
 }
 
 Device::~Device() {
@@ -244,7 +250,11 @@ SkBaseDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
     // modified to support inline subpasses.
     // TODO: onCreateDevice really should return sk_sp<SkBaseDevice>...
     SkSurfaceProps props(this->surfaceProps().flags(), info.fPixelGeometry);
-    return Make(fRecorder, info.fInfo, SkBudgeted::kYes, props).release();
+
+    // Skia's convention is to only clear a device if it is non-opaque.
+    bool addInitialClear = !info.fInfo.isOpaque();
+
+    return Make(fRecorder, info.fInfo, SkBudgeted::kYes, props, addInitialClear).release();
 }
 
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& /* props */) {
