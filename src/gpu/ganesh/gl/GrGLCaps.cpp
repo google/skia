@@ -1039,6 +1039,8 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
     } else if (GR_IS_GR_GL_ES(standard)) {
         shaderCaps->fBuiltinFMASupport =
                  ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k320es;
+    } else if (GR_IS_GR_WEBGL(standard)) {
+        shaderCaps->fBuiltinFMASupport = false;
     }
 
     shaderCaps->fBuiltinDeterminantSupport = ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k150;

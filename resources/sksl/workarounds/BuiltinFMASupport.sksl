@@ -1,4 +1,4 @@
-/*#pragma settings BuiltinFMASupport*/
+/*#pragma settings NoBuiltinFMASupport*/
 
 uniform half4 colorGreen, colorRed;
 uniform float testArray[5];

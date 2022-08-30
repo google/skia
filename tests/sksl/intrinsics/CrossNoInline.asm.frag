@@ -57,7 +57,7 @@ OpDecorate %78 RelaxedPrecision
 %12 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %_ptr_Function_v2float = OpTypePointer Function %v2float
 %17 = OpTypeFunction %float %_ptr_Function_v2float %_ptr_Function_v2float
-%false = OpConstantFalse %bool
+%true = OpConstantTrue %bool
 %_ptr_Function_float = OpTypePointer Function %float
 %mat2v2float = OpTypeMatrix %v2float 2
 %void = OpTypeVoid
@@ -75,7 +75,7 @@ OpDecorate %78 RelaxedPrecision
 %20 = OpLabel
 %22 = OpVariable %_ptr_Function_float Function
 OpSelectionMerge %26 None
-OpBranchConditional %false %24 %25
+OpBranchConditional %true %24 %25
 %24 = OpLabel
 %28 = OpLoad %v2float %18
 %29 = OpLoad %v2float %19
@@ -107,7 +107,7 @@ OpFunctionEnd
 %46 = OpLabel
 %47 = OpVariable %_ptr_Function_float Function
 OpSelectionMerge %50 None
-OpBranchConditional %false %48 %49
+OpBranchConditional %true %48 %49
 %48 = OpLabel
 %52 = OpLoad %v2float %44
 %53 = OpLoad %v2float %45

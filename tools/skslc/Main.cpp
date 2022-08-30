@@ -94,26 +94,6 @@ public:
         return sCaps;
     }
 
-    static const SkSL::ShaderCaps* BuiltinDeterminantSupport() {
-        static const SkSL::ShaderCaps* sCaps = [] {
-            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
-            caps->fVersionDeclString = "#version 400";
-            caps->fBuiltinDeterminantSupport = true;
-            return caps.release();
-        }();
-        return sCaps;
-    }
-
-    static const SkSL::ShaderCaps* BuiltinFMASupport() {
-        static const SkSL::ShaderCaps* sCaps = [] {
-            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
-            caps->fVersionDeclString = "#version 400";
-            caps->fBuiltinFMASupport = true;
-            return caps.release();
-        }();
-        return sCaps;
-    }
-
     static const SkSL::ShaderCaps* CannotUseFractForNegativeValues() {
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
@@ -204,6 +184,26 @@ public:
         return sCaps;
     }
 
+    static const SkSL::ShaderCaps* NoBuiltinDeterminantSupport() {
+        static const SkSL::ShaderCaps* sCaps = [] {
+            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
+            caps->fVersionDeclString = "#version 400";
+            caps->fBuiltinDeterminantSupport = false;
+            return caps.release();
+        }();
+        return sCaps;
+    }
+
+    static const SkSL::ShaderCaps* NoBuiltinFMASupport() {
+        static const SkSL::ShaderCaps* sCaps = [] {
+            std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
+            caps->fVersionDeclString = "#version 400";
+            caps->fBuiltinFMASupport = false;
+            return caps.release();
+        }();
+        return sCaps;
+    }
+
     static const SkSL::ShaderCaps* RemovePowWithConstantExponent() {
         static const SkSL::ShaderCaps* sCaps = [] {
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
@@ -259,7 +259,6 @@ public:
             std::unique_ptr<SkSL::ShaderCaps> caps = MakeShaderCaps();
             caps->fVersionDeclString = "#version 400";
             caps->fShaderDerivativeSupport = true;
-            caps->fBuiltinDeterminantSupport = true;
             caps->fSampleMaskSupport = true;
             return caps.release();
         }();
@@ -347,12 +346,6 @@ static bool detect_shader_settings(const std::string& text,
                 if (consume_suffix(&settingsText, " AddAndTrueToLoopCondition")) {
                     *caps = Factory::AddAndTrueToLoopCondition();
                 }
-                if (consume_suffix(&settingsText, " BuiltinDeterminantSupport")) {
-                    *caps = Factory::BuiltinDeterminantSupport();
-                }
-                if (consume_suffix(&settingsText, " BuiltinFMASupport")) {
-                    *caps = Factory::BuiltinFMASupport();
-                }
                 if (consume_suffix(&settingsText, " CannotUseFractForNegativeValues")) {
                     *caps = Factory::CannotUseFractForNegativeValues();
                 }
@@ -382,6 +375,12 @@ static bool detect_shader_settings(const std::string& text,
                 }
                 if (consume_suffix(&settingsText, " MustForceNegatedLdexpParamToMultiply")) {
                     *caps = Factory::MustForceNegatedLdexpParamToMultiply();
+                }
+                if (consume_suffix(&settingsText, " NoBuiltinDeterminantSupport")) {
+                    *caps = Factory::NoBuiltinDeterminantSupport();
+                }
+                if (consume_suffix(&settingsText, " NoBuiltinFMASupport")) {
+                    *caps = Factory::NoBuiltinFMASupport();
                 }
                 if (consume_suffix(&settingsText, " RemovePowWithConstantExponent")) {
                     *caps = Factory::RemovePowWithConstantExponent();

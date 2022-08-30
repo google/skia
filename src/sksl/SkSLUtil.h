@@ -99,8 +99,8 @@ struct ShaderCaps {
     bool fFloatIs32Bits = true;
 
     // Used by SkSL to know when to generate polyfills.
-    bool fBuiltinFMASupport = false;
-    bool fBuiltinDeterminantSupport = false;
+    bool fBuiltinFMASupport = true;
+    bool fBuiltinDeterminantSupport = true;
 
     // Used for specific driver bug work arounds
     bool fCanUseMinAndAbsTogether = true;
@@ -157,7 +157,6 @@ public:
             std::unique_ptr<ShaderCaps> caps = MakeShaderCaps();
             caps->fVersionDeclString = "#version 400";
             caps->fShaderDerivativeSupport = true;
-            caps->fBuiltinDeterminantSupport = true;
             return caps.release();
         }();
         return sCaps;
