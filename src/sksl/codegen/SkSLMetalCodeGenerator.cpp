@@ -1559,10 +1559,6 @@ void MetalCodeGenerator::writeMatrixTimesEqualHelper(const Type& left, const Typ
     SkASSERT(left.isMatrix());
     SkASSERT(right.isMatrix());
     SkASSERT(result.isMatrix());
-    SkASSERT(left.rows() == right.rows());
-    SkASSERT(left.columns() == right.columns());
-    SkASSERT(left.rows() == result.rows());
-    SkASSERT(left.columns() == result.columns());
 
     std::string key = "Matrix *= " + this->typeName(left) + ":" + this->typeName(right);
 

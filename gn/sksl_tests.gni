@@ -508,6 +508,7 @@ sksl_shared_tests = [
   "/sksl/shared/MatrixConstructorsES2.sksl",
   "/sksl/shared/MatrixConstructorsES3.sksl",
   "/sksl/shared/MatrixEquality.sksl",
+  "/sksl/shared/MatrixOpEqualsES3.sksl",
   "/sksl/shared/MatrixScalarMath.sksl",
   "/sksl/shared/MatrixToVectorCast.sksl",
   "/sksl/shared/MultipleAssignments.sksl",
