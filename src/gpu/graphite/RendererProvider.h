@@ -60,6 +60,8 @@ public:
         return {fRenderers.data(), fRenderers.size()};
     }
 
+    const RenderStep* lookup(uint32_t uniqueID) const;
+
 private:
     static constexpr int kPathTypeCount = 4;
     static constexpr int kVerticesCount = 8; // 2 modes * 2 color configs * 2 tex coord configs

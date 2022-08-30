@@ -106,4 +106,13 @@ RendererProvider::RendererProvider() {
     }
 }
 
+const RenderStep* RendererProvider::lookup(uint32_t uniqueID) const {
+    for (auto&& rs : fRenderSteps) {
+        if (rs->uniqueID() == uniqueID) {
+            return rs.get();
+        }
+    }
+    return nullptr;
+}
+
 } // namespace skgpu::graphite

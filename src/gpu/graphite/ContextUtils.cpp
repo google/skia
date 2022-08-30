@@ -291,10 +291,9 @@ std::string EmitVaryings(const RenderStep* step,
     return result;
 }
 
-std::string GetSkSLVS(const GraphicsPipelineDesc& desc,
+std::string GetSkSLVS(const RenderStep* step,
                       bool defineLocalCoordsVarying,
                       bool defineShadingSsboIndexVarying) {
-    const RenderStep* step = desc.renderStep();
     // TODO: To more completely support end-to-end rendering, this will need to be updated so that
     // the RenderStep shader snippet can produce a device coord, a local coord, and depth.
     // If the paint combination doesn't need the local coord it can be ignored, otherwise we need
@@ -349,28 +348,28 @@ std::string GetSkSLVS(const GraphicsPipelineDesc& desc,
 
 std::string GetSkSLFS(const SkShaderCodeDictionary* dict,
                       const SkRuntimeEffectDictionary* rteDict,
-                      const GraphicsPipelineDesc& desc,
+                      const RenderStep* step,
+                      SkUniquePaintParamsID paintID,
                       BlendInfo* blendInfo,
                       bool* requiresLocalCoordsVarying,
                       bool* requiresShadingSsboIndexVarying) {
-    if (!desc.paintParamsID().isValid()) {
+    if (!paintID.isValid()) {
         // TODO: we should return the error shader code here
         return {};
     }
 
-    *requiresShadingSsboIndexVarying =
-            desc.renderStep()->ssboIndex() && desc.renderStep()->performsShading();
+    *requiresShadingSsboIndexVarying = step->ssboIndex() && step->performsShading();
     const char* shadingSsboIndexVar =
             *requiresShadingSsboIndexVarying ? "shadingSsboIndexVar" : nullptr;
     SkShaderInfo shaderInfo(rteDict, shadingSsboIndexVar);
 
-    dict->getShaderInfo(desc.paintParamsID(), &shaderInfo);
+    dict->getShaderInfo(paintID, &shaderInfo);
     *blendInfo = shaderInfo.blendInfo();
     *requiresLocalCoordsVarying = shaderInfo.needsLocalCoords();
 
     std::string sksl;
     sksl += shaderInfo.toSkSL(
-            desc.renderStep(), *requiresLocalCoordsVarying, *requiresShadingSsboIndexVarying);
+            step, *requiresLocalCoordsVarying, *requiresShadingSsboIndexVarying);
 
     return sksl;
 }

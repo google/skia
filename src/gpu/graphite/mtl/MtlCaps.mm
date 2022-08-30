@@ -611,17 +611,16 @@ UniqueKey MtlCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineD
     UniqueKey pipelineKey;
     {
         static const skgpu::UniqueKey::Domain kGraphicsPipelineDomain = UniqueKey::GenerateDomain();
-        SkSpan<const uint32_t> pipelineDescKey = pipelineDesc.asKey();
-        UniqueKey::Builder builder(&pipelineKey, kGraphicsPipelineDomain,
-                                   pipelineDescKey.size() + 2, "GraphicsPipeline");
+        // 4 uint32_t's (render step id, paint id, uint64 renderpass desc)
+        UniqueKey::Builder builder(&pipelineKey, kGraphicsPipelineDomain, 4, "GraphicsPipeline");
         // add graphicspipelinedesc key
-        for (unsigned int i = 0; i < pipelineDescKey.size(); ++i) {
-            builder[i] = pipelineDescKey[i];
-        }
+        builder[0] = pipelineDesc.renderStepID();
+        builder[1] = pipelineDesc.paintParamsID().asUInt();
+
         // add renderpassdesc key
         uint64_t renderPassKey = this->getRenderPassDescKey(renderPassDesc);
-        builder[pipelineDescKey.size()] = renderPassKey & 0xFFFFFFFF;
-        builder[pipelineDescKey.size()+1] = (renderPassKey >> 32) & 0xFFFFFFFF;
+        builder[2] = renderPassKey & 0xFFFFFFFF;
+        builder[3] = (renderPassKey >> 32) & 0xFFFFFFFF;
         builder.finish();
     }
 

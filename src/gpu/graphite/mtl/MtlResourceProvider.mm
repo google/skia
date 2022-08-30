@@ -105,13 +105,17 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     auto skslCompiler = this->skslCompiler();
     ShaderErrorHandler* errorHandler = fSharedContext->caps()->shaderErrorHandler();
 
+    const RenderStep* step =
+            fSharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
+
     BlendInfo blendInfo;
     bool localCoordsNeeded = false;
     bool shadingSsboIndexNeeded = false;
     if (!SkSLToMSL(skslCompiler,
                    GetSkSLFS(fSharedContext->shaderCodeDictionary(),
                              runtimeDict,
-                             pipelineDesc,
+                             step,
+                             pipelineDesc.paintParamsID(),
                              &blendInfo,
                              &localCoordsNeeded,
                              &shadingSsboIndexNeeded),
@@ -124,7 +128,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     }
 
     if (!SkSLToMSL(skslCompiler,
-                   GetSkSLVS(pipelineDesc, localCoordsNeeded, shadingSsboIndexNeeded),
+                   GetSkSLVS(step, localCoordsNeeded, shadingSsboIndexNeeded),
                    SkSL::ProgramKind::kGraphiteVertex,
                    settings,
                    &vsMSL,
@@ -136,19 +140,17 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     auto vsLibrary = MtlCompileShaderLibrary(this->mtlSharedContext(), vsMSL, errorHandler);
     auto fsLibrary = MtlCompileShaderLibrary(this->mtlSharedContext(), fsMSL, errorHandler);
 
-    const DepthStencilSettings& depthStencilSettings =
-            pipelineDesc.renderStep()->depthStencilSettings();
     sk_cfp<id<MTLDepthStencilState>> dss =
-            this->findOrCreateCompatibleDepthStencilState(depthStencilSettings);
+            this->findOrCreateCompatibleDepthStencilState(step->depthStencilSettings());
 
     return MtlGraphicsPipeline::Make(this->mtlSharedContext(),
-                                     pipelineDesc.renderStep()->name(),
+                                     step->name(),
                                      {vsLibrary.get(), "vertexMain"},
-                                     pipelineDesc.renderStep()->vertexAttributes(),
-                                     pipelineDesc.renderStep()->instanceAttributes(),
+                                     step->vertexAttributes(),
+                                     step->instanceAttributes(),
                                      {fsLibrary.get(), "fragmentMain"},
                                      std::move(dss),
-                                     depthStencilSettings.fStencilReferenceValue,
+                                     step->depthStencilSettings().fStencilReferenceValue,
                                      blendInfo,
                                      renderPassDesc);
 }

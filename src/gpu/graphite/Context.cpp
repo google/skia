@@ -105,17 +105,16 @@ void Context::precompile(SkCombinationBuilder* combinationBuilder) {
     combinationBuilder->buildCombinations(
             fSharedContext->shaderCodeDictionary(),
             [&](SkUniquePaintParamsID uniqueID) {
-                GraphicsPipelineDesc desc;
-
                 for (const Renderer* r : fSharedContext->rendererProvider()->renderers()) {
                     for (auto&& s : r->steps()) {
                         if (s->performsShading()) {
-                            desc.setProgram(s, uniqueID);
+                            GraphicsPipelineDesc desc(s, uniqueID);
+                            (void) desc;
+                            // TODO: Combine with renderpass description set to generate full
+                            // GraphicsPipeline and MSL program. Cache that compiled pipeline on
+                            // the resource provider in a map from desc -> pipeline so that any
+                            // later desc created from equivalent RenderStep + Combination get it.
                         }
-                        // TODO: Combine with renderpass description set to generate full
-                        // GraphicsPipeline and MSL program. Cache that compiled pipeline on
-                        // the resource provider in a map from desc -> pipeline so that any
-                        // later desc created from equivalent RenderStep + Combination get it.
                     }
                 }
             });

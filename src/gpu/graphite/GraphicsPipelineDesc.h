@@ -8,19 +8,10 @@
 #ifndef skgpu_graphite_GraphicsPipelineDesc_DEFINED
 #define skgpu_graphite_GraphicsPipelineDesc_DEFINED
 
-#include "include/core/SkTypes.h"
-
-#include "include/core/SkSpan.h"
-#include "include/private/SkOpts_spi.h"
-#include "include/private/SkTArray.h"
 #include "include/private/SkUniquePaintParamsID.h"
-#include "src/gpu/graphite/Attribute.h"
-#include "src/gpu/graphite/DrawTypes.h"
+#include "src/gpu/graphite/Renderer.h"
 
-#include <array>
 namespace skgpu::graphite {
-
-class RenderStep;
 
 /**
  * GraphicsPipelineDesc represents the state needed to create a backend specific GraphicsPipeline,
@@ -28,12 +19,12 @@ class RenderStep;
  */
 class GraphicsPipelineDesc {
 public:
-    GraphicsPipelineDesc();
-
-    SkSpan<const uint32_t> asKey() const { return SkSpan(fKey.data(), fKey.size()); }
+    GraphicsPipelineDesc(const RenderStep* renderStep, SkUniquePaintParamsID paintID)
+        : fRenderStepID(renderStep->uniqueID())
+        , fPaintID(paintID) {}
 
     bool operator==(const GraphicsPipelineDesc& that) const {
-        return this->fKey == that.fKey;
+        return fRenderStepID == that.fRenderStepID && fPaintID == that.fPaintID;
     }
 
     bool operator!=(const GraphicsPipelineDesc& other) const {
@@ -42,45 +33,18 @@ public:
 
     // Describes the geometric portion of the pipeline's program and the pipeline's fixed state
     // (except for renderpass-level state that will never change between draws).
-    const RenderStep* renderStep() const { return fRenderStep; }
+    uint32_t renderStepID() const { return fRenderStepID; }
     // UniqueID of the required PaintParams
-    SkUniquePaintParamsID paintParamsID() const { return fUniqueID; }
-
-    void setProgram(const RenderStep* step, SkUniquePaintParamsID uniqueID) {
-        SkASSERT(step);
-        fRenderStep = step;
-        fUniqueID = uniqueID;
-
-        uintptr_t addr = reinterpret_cast<uintptr_t>(fRenderStep);
-        memcpy(fKey.data(), &addr, sizeof(uintptr_t));
-        fKey[kWords - 1] = fUniqueID.asUInt();
-    }
-
-    struct Hash {
-        uint32_t operator()(const GraphicsPipelineDesc& desc) const {
-            return SkOpts::hash_fn(desc.fKey.data(), desc.fKey.size() * sizeof(uint32_t), 0);
-        }
-    };
+    SkUniquePaintParamsID paintParamsID() const { return fPaintID; }
 
 private:
-    // The key is the RenderStep address and the uint32_t key from Combination
-    static constexpr int kWords = sizeof(uintptr_t) / sizeof(uint32_t) + 1;
-    static_assert(sizeof(uintptr_t) % sizeof(uint32_t) == 0);
-
-    // TODO: I wonder if we could expose the "key" as just a char[] union over the renderstep and
-    // paint combination? That would avoid extra size, but definitely locks GraphicsPipelineDesc
-    // keys to the current process, which is probably okay since we can have something a with a more
-    // stable hash used for the pre-compilation combos.
-    std::array<uint32_t, kWords> fKey;
-
     // Each RenderStep defines a fixed set of attributes and rasterization state, as well as the
     // shader fragments that control the geometry and coverage calculations. The RenderStep's shader
     // is combined with the rest of the shader generated from the PaintParams. Because each
     // RenderStep is fixed, its pointer can be used as a proxy for everything that it specifies in
     // the GraphicsPipeline.
-    const RenderStep* fRenderStep = nullptr;
-
-    SkUniquePaintParamsID fUniqueID;
+    uint32_t fRenderStepID;
+    SkUniquePaintParamsID fPaintID;
 };
 
 } // namespace skgpu::graphite

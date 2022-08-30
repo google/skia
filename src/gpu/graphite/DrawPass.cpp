@@ -321,20 +321,6 @@ private:
     int fSsboIndex = 0;
 };
 
-// std::unordered_map implementation for GraphicsPipelineDesc* that de-reference the pointers.
-struct Hash {
-    size_t operator()(const GraphicsPipelineDesc* desc) const noexcept {
-        return GraphicsPipelineDesc::Hash()(*desc);
-    }
-};
-
-struct Eq {
-    bool operator()(const GraphicsPipelineDesc* a,
-                    const GraphicsPipelineDesc* b) const noexcept {
-        return *a == *b;
-    }
-};
-
 } // anonymous namespace
 
 DrawPass::DrawPass(sk_sp<TextureProxy> target,
@@ -442,7 +428,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     DrawPassUniformWriter geometryUniformWriter(/*useStorageBuffers=*/false);
     DrawPassUniformWriter shadingUniformWriter(/*useStorageBuffers=*/false);
 
-    std::unordered_map<const GraphicsPipelineDesc*, uint32_t, Hash, Eq> pipelineDescToIndex;
+    SkTHashMap<GraphicsPipelineDesc, uint32_t> pipelineDescToIndex;
 
     std::vector<SortKey> keys;
     keys.reserve(draws->renderStepCount()); // will not exceed but may use less with occluded draws
@@ -504,26 +490,19 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 }
             } // else depth-only draw or stencil-only step of renderer so no shading is needed
 
-            GraphicsPipelineDesc desc;
-            desc.setProgram(step, stepShaderID);
-            uint32_t pipelineIndex = 0;
-            auto pipelineLookup = pipelineDescToIndex.find(&desc);
-            if (pipelineLookup == pipelineDescToIndex.end()) {
-                // Assign new index to first appearance of this pipeline description
-                pipelineIndex = SkTo<uint32_t>(drawPass->fPipelineDescs.count());
-                const GraphicsPipelineDesc& finalDesc = drawPass->fPipelineDescs.push_back(desc);
-                pipelineDescToIndex.insert({&finalDesc, pipelineIndex});
-            } else {
-                // Reuse the existing pipeline description for better batching after sorting
-                pipelineIndex = pipelineLookup->second;
+            GraphicsPipelineDesc desc{step, stepShaderID};
+            uint32_t* pipelineIndex = pipelineDescToIndex.find(desc);
+            if (!pipelineIndex) {
+                pipelineIndex = pipelineDescToIndex.set(desc, pipelineDescToIndex.count());
+                drawPass->fPipelineDescs.push_back(desc);
             }
 
             geometryUniformWriter.trackUniforms(
-                    pipelineIndex, reinterpret_cast<uintptr_t>(step), geometryUniformIndex);
+                    *pipelineIndex, reinterpret_cast<uintptr_t>(step), geometryUniformIndex);
             shadingUniformWriter.trackUniforms(
-                    pipelineIndex, desc.paintParamsID().asUInt(), stepShadingUniformIndex);
+                    *pipelineIndex, desc.paintParamsID().asUInt(), stepShadingUniformIndex);
 
-            keys.push_back({&draw, stepIndex, pipelineIndex,
+            keys.push_back({&draw, stepIndex, *pipelineIndex,
                             geometryUniformIndex,
                             stepShadingUniformIndex,
                             stepTextureBindingIndex});

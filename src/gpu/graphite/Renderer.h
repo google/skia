@@ -112,6 +112,8 @@ public:
     // 'half4 primitiveColor' variable (defined in the calling code).
     virtual const char* fragmentColorSkSL() const { return R"()"; }
 
+    uint32_t uniqueID() const { return fUniqueID; }
+
     // Returns a name formatted as "Subclass[variant]", where "Subclass" matches the C++ class name
     // and variant is a unique term describing instance's specific configuration.
     const char* name() const { return fName.c_str(); }
@@ -177,29 +179,7 @@ protected:
                DepthStencilSettings depthStencilSettings,
                std::initializer_list<Attribute> vertexAttrs,
                std::initializer_list<Attribute> instanceAttrs,
-               std::initializer_list<Varying> varyings = {})
-            : fFlags(flags)
-            , fPrimitiveType(primitiveType)
-            , fDepthStencilSettings(depthStencilSettings)
-            , fUniforms(uniforms)
-            , fVertexAttrs(vertexAttrs)
-            , fInstanceAttrs(instanceAttrs)
-            , fVaryings(varyings)
-            , fVertexStride(0)
-            , fInstanceStride(0)
-            , fName(className) {
-        for (auto v : this->vertexAttributes()) {
-            fVertexStride += v.sizeAlign4();
-        }
-        for (auto i : this->instanceAttributes()) {
-            fInstanceStride += i.sizeAlign4();
-        }
-        if (variantName.size() > 0) {
-            fName += "[";
-            fName += variantName;
-            fName += "]";
-        }
-    }
+               std::initializer_list<Varying> varyings = {});
 
 private:
     friend class Renderer; // for Flags
@@ -208,6 +188,7 @@ private:
     RenderStep(const RenderStep&) = delete;
     RenderStep(RenderStep&&)      = delete;
 
+    uint32_t fUniqueID;
     SkEnumBitMask<Flags> fFlags;
     PrimitiveType        fPrimitiveType;
 
