@@ -2,21 +2,24 @@
 out vec4 sk_FragColor;
 uniform vec4 colorRed;
 uniform vec4 colorGreen;
+bool test_b() {
+    bool ok = true;
+    int x = 14;
+    ok = ok && x == 14;
+    x = 6;
+    ok = ok && x == 6;
+    x = 5;
+    ok = ok && x == 5;
+    x = 16;
+    ok = ok && x == 16;
+    x = -8;
+    ok = ok && x == -8;
+    x = 32;
+    ok = ok && x == 32;
+    x = 33;
+    ok = ok && x == 33;
+    return ok;
+}
 vec4 main() {
-    bool _0_ok = true;
-    int _1_x = 14;
-    _0_ok = _0_ok && _1_x == 14;
-    _1_x = 6;
-    _0_ok = _0_ok && _1_x == 6;
-    _1_x = 5;
-    _0_ok = _0_ok && _1_x == 5;
-    _1_x = 16;
-    _0_ok = _0_ok && _1_x == 16;
-    _1_x = -8;
-    _0_ok = _0_ok && _1_x == -8;
-    _1_x = 32;
-    _0_ok = _0_ok && _1_x == 32;
-    _1_x = 33;
-    _0_ok = _0_ok && _1_x == 33;
-    return _0_ok ? colorGreen : colorRed;
+    return test_b() ? colorGreen : colorRed;
 }

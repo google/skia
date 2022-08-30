@@ -9,10 +9,10 @@ bool testB_bh4(vec4 v) {
 }
 vec4 main() {
     vec4 result = vec4(0.0);
-    if (bool(colorWhite.x) && testB_bh4(colorWhite)) {
+    if (testA_bh4(colorWhite) && testB_bh4(colorWhite)) {
         result.y = 1.0;
     }
-    if (bool(colorWhite.y) || testA_bh4(colorWhite)) {
+    if (testB_bh4(colorWhite) || testA_bh4(colorWhite)) {
         result.w = 1.0;
     }
     return result;

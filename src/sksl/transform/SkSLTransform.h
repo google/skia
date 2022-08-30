@@ -28,16 +28,6 @@ enum class ProgramKind : int8_t;
 namespace Transform {
 
 /**
- * Checks to see if it would be safe to add `const` to the modifiers of a variable. If so, returns
- * the modifiers with `const` applied; if not, returns the existing modifiers as-is. Adding `const`
- * allows the inliner to fold away more values and generate tighter code.
- */
-const Modifiers* AddConstToVarModifiers(const Context& context,
-                                        const Variable& var,
-                                        const Expression* initialValue,
-                                        const ProgramUsage* usage);
-
-/**
  * Copies built-in functions from modules into the program. Relies on ProgramUsage to determine
  * which functions are necessary.
  */

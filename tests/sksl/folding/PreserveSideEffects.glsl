@@ -2,6 +2,20 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
+bool test_vector_b() {
+    bool ok = true;
+    float num = 0.0;
+    ok = ok && vec2(++num, 0.0).y == 0.0;
+    ok = ok && vec2(0.0, ++num).x == 0.0;
+    ok = ok && vec3(++num, 1.0, 0.0).yz == vec2(1.0, 0.0);
+    ok = ok && vec3(1.0, 0.0, ++num).xy == vec2(1.0, 0.0);
+    ok = ok && vec3(++num, 1.0, 0.0).yz == vec2(1.0, 0.0);
+    ok = ok && vec4(++num, 1.0, 0.0, 0.0).yzw == vec3(1.0, 0.0, 0.0);
+    ok = ok && vec4(1.0, ++num, 1.0, 0.0).x == 1.0;
+    ok = ok && vec4(1.0, 0.0, ++num, 1.0).w == 1.0;
+    ok = ok && vec4(1.0, 0.0, 1.0, ++num).xyz == vec3(1.0, 0.0, 1.0);
+    return ok && num == 9.0;
+}
 bool test_matrix_b() {
     bool ok = true;
     float num = 0.0;
@@ -19,16 +33,5 @@ bool test_matrix_b() {
     return ok && num == 11.0;
 }
 vec4 main() {
-    bool _0_ok = true;
-    float _1_num = 0.0;
-    _0_ok = _0_ok && vec2(++_1_num, 0.0).y == 0.0;
-    _0_ok = _0_ok && vec2(0.0, ++_1_num).x == 0.0;
-    _0_ok = _0_ok && vec3(++_1_num, 1.0, 0.0).yz == vec2(1.0, 0.0);
-    _0_ok = _0_ok && vec3(1.0, 0.0, ++_1_num).xy == vec2(1.0, 0.0);
-    _0_ok = _0_ok && vec3(++_1_num, 1.0, 0.0).yz == vec2(1.0, 0.0);
-    _0_ok = _0_ok && vec4(++_1_num, 1.0, 0.0, 0.0).yzw == vec3(1.0, 0.0, 0.0);
-    _0_ok = _0_ok && vec4(1.0, ++_1_num, 1.0, 0.0).x == 1.0;
-    _0_ok = _0_ok && vec4(1.0, 0.0, ++_1_num, 1.0).w == 1.0;
-    _0_ok = _0_ok && vec4(1.0, 0.0, 1.0, ++_1_num).xyz == vec3(1.0, 0.0, 1.0);
-    return (_0_ok && _1_num == 9.0) && test_matrix_b() ? colorGreen : colorRed;
+    return test_vector_b() && test_matrix_b() ? colorGreen : colorRed;
 }

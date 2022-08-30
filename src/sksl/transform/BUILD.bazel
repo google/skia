@@ -5,7 +5,6 @@ licenses(["notice"])
 exports_files_legacy()
 
 TRANSFORM_FILES = [
-    "SkSLAddConstToVarModifiers.cpp",
     "SkSLEliminateDeadFunctions.cpp",
     "SkSLEliminateDeadGlobalVariables.cpp",
     "SkSLEliminateDeadLocalVariables.cpp",

@@ -6,6 +6,10 @@ int glob;
 struct S {
     int i;
 };
+bool block_variable_hides_local_variable_b() {
+    bool var = true;
+    return var;
+}
 bool block_variable_hides_global_variable_b() {
     return glob == 2;
 }
@@ -23,6 +27,5 @@ bool local_variable_hides_global_variable_b() {
 }
 vec4 main() {
     glob = 2;
-    const bool _0_var = true;
-    return (((_0_var && block_variable_hides_global_variable_b()) && local_variable_hides_struct_b()) && local_struct_variable_hides_struct_type_b()) && local_variable_hides_global_variable_b() ? colorGreen : colorRed;
+    return (((block_variable_hides_local_variable_b() && block_variable_hides_global_variable_b()) && local_variable_hides_struct_b()) && local_struct_variable_hides_struct_type_b()) && local_variable_hides_global_variable_b() ? colorGreen : colorRed;
 }

@@ -1,10 +1,13 @@
 
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
-vec4 main() {
-    vec4 _0_result = colorGreen;
-    for (int _1_x = 0;_1_x < 4; ++_1_x) {
-        _0_result *= colorGreen;
+vec4 loopy_h4() {
+    vec4 result = colorGreen;
+    for (int x = 0;x < 4; ++x) {
+        result *= colorGreen;
     }
-    return _0_result;
+    return result;
+}
+vec4 main() {
+    return loopy_h4();
 }

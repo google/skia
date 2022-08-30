@@ -1,15 +1,18 @@
 
 out vec4 sk_FragColor;
 uniform vec4 color;
-void main() {
-    vec4 _0_result;
-    switch (int(color.x)) {
+vec4 switchy_h4h4(vec4 c) {
+    vec4 result;
+    switch (int(c.x)) {
         case 1:
-            _0_result = color.yyyy;
+            result = c.yyyy;
             break;
         default:
-            _0_result = color.zzzz;
+            result = c.zzzz;
             break;
     }
-    sk_FragColor = _0_result;
+    return result;
+}
+void main() {
+    sk_FragColor = switchy_h4h4(color);
 }

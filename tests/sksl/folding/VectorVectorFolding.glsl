@@ -3,6 +3,23 @@ out vec4 sk_FragColor;
 uniform float unknownInput;
 uniform vec4 colorRed;
 uniform vec4 colorGreen;
+bool test_half_b() {
+    float unknown = unknownInput;
+    bool ok = true;
+    ok = ok && vec4(0.0) / vec4(unknown) == vec4(0.0);
+    vec4 val = vec4(unknown);
+    val += vec4(1.0);
+    val -= vec4(1.0);
+    val = val + vec4(1.0);
+    val = val - vec4(1.0);
+    ok = ok && val == vec4(unknown);
+    val *= vec4(2.0);
+    val /= vec4(2.0);
+    val = val * vec4(2.0);
+    val = val / vec4(2.0);
+    ok = ok && val == vec4(unknown);
+    return ok;
+}
 bool test_int_b() {
     int unknown = int(unknownInput);
     bool ok = true;
@@ -21,19 +38,5 @@ bool test_int_b() {
     return ok;
 }
 vec4 main() {
-    float _0_unknown = unknownInput;
-    bool _1_ok = true;
-    _1_ok = _1_ok && vec4(0.0) / vec4(_0_unknown) == vec4(0.0);
-    vec4 _2_val = vec4(_0_unknown);
-    _2_val += vec4(1.0);
-    _2_val -= vec4(1.0);
-    _2_val = _2_val + vec4(1.0);
-    _2_val = _2_val - vec4(1.0);
-    _1_ok = _1_ok && _2_val == vec4(_0_unknown);
-    _2_val *= vec4(2.0);
-    _2_val /= vec4(2.0);
-    _2_val = _2_val * vec4(2.0);
-    _2_val = _2_val / vec4(2.0);
-    _1_ok = _1_ok && _2_val == vec4(_0_unknown);
-    return _1_ok && test_int_b() ? colorGreen : colorRed;
+    return test_half_b() && test_int_b() ? colorGreen : colorRed;
 }

@@ -1,6 +1,8 @@
 
+float foo_ff(float v[2]) {
+    return v[0] = v[1];
+}
 void main() {
     float y[2];
-    float _0_v[2] = y;
-    _0_v[0] = _0_v[1];
+    foo_ff(y);
 }

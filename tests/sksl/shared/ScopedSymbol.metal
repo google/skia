@@ -16,6 +16,10 @@ struct Outputs {
 struct Globals {
     int glob;
 };
+bool block_variable_hides_local_variable_b() {
+    bool var = true;
+    return var;
+}
 bool block_variable_hides_global_variable_b(thread Globals& _globals) {
     return _globals.glob == 2;
 }
@@ -37,7 +41,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     _globals.glob = 2;
-    const bool _0_var = true;
-    _out.sk_FragColor = (((_0_var && block_variable_hides_global_variable_b(_globals)) && local_variable_hides_struct_b()) && local_struct_variable_hides_struct_type_b()) && local_variable_hides_global_variable_b() ? _uniforms.colorGreen : _uniforms.colorRed;
+    _out.sk_FragColor = (((block_variable_hides_local_variable_b() && block_variable_hides_global_variable_b(_globals)) && local_variable_hides_struct_b()) && local_struct_variable_hides_struct_type_b()) && local_variable_hides_global_variable_b() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

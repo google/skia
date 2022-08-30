@@ -1,6 +1,19 @@
 uniform half4 colorGreen;
 uniform half4 colorRed;
+bool switch_fallthrough_0(int value);
 bool switch_fallthrough_twice_0(int value);
+bool switch_fallthrough_0(int value)
+{
+	bool ok = false;
+	switch (value) 
+	{
+		case 2:break;
+		case 1:case 0:ok = true;
+		break;
+		default:break;
+	}
+	return ok;
+}
 bool switch_fallthrough_twice_0(int value)
 {
 	bool ok = false;
@@ -16,13 +29,5 @@ bool switch_fallthrough_twice_0(int value)
 half4 main(float2 coords)
 {
 	int x = int(colorGreen.y);
-	bool _0_ok = false;
-	switch (x) 
-	{
-		case 2:break;
-		case 1:case 0:_0_ok = true;
-		break;
-		default:break;
-	}
-	return half4(_0_ok && switch_fallthrough_twice_0(x) ? colorGreen : colorRed);
+	return half4(switch_fallthrough_0(x) && switch_fallthrough_twice_0(x) ? colorGreen : colorRed);
 }

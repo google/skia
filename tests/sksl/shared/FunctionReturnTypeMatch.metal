@@ -76,6 +76,9 @@ thread bool operator==(const half4x4 left, const half4x4 right) {
 thread bool operator!=(const half4x4 left, const half4x4 right) {
     return !(left == right);
 }
+float returns_float_f() {
+    return 1.0;
+}
 float2 returns_float2_f2() {
     return float2(2.0);
 }
@@ -142,28 +145,28 @@ int4 returns_int4_i4() {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float x1 = 1.0;
-    float2 x2 = float2(2.0);
-    float3 x3 = float3(3.0);
-    float4 x4 = float4(4.0);
-    float2x2 x5 = float2x2(2.0);
-    float3x3 x6 = float3x3(3.0);
-    float4x4 x7 = float4x4(4.0);
-    half x8 = 1.0h;
-    half2 x9 = half2(2.0h);
-    half3 x10 = half3(3.0h);
-    half4 x11 = half4(4.0h);
-    half2x2 x12 = half2x2(2.0h);
-    half3x3 x13 = half3x3(3.0h);
-    half4x4 x14 = half4x4(4.0h);
-    bool x15 = true;
-    bool2 x16 = bool2(true);
-    bool3 x17 = bool3(true);
-    bool4 x18 = bool4(true);
-    int x19 = 1;
-    int2 x20 = int2(2);
-    int3 x21 = int3(3);
-    int4 x22 = int4(4);
-    _out.sk_FragColor = ((((((((((((((((((((x1 == 1.0 && all(x2 == returns_float2_f2())) && all(x3 == returns_float3_f3())) && all(x4 == returns_float4_f4())) && x5 == returns_float2x2_f22()) && x6 == returns_float3x3_f33()) && x7 == returns_float4x4_f44()) && x8 == returns_half_h()) && all(x9 == returns_half2_h2())) && all(x10 == returns_half3_h3())) && all(x11 == returns_half4_h4())) && x12 == returns_half2x2_h22()) && x13 == returns_half3x3_h33()) && x14 == returns_half4x4_h44()) && x15 == returns_bool_b()) && all(x16 == returns_bool2_b2())) && all(x17 == returns_bool3_b3())) && all(x18 == returns_bool4_b4())) && x19 == returns_int_i()) && all(x20 == returns_int2_i2())) && all(x21 == returns_int3_i3())) && all(x22 == returns_int4_i4()) ? _uniforms.colorGreen : _uniforms.colorRed;
+    float x1 = returns_float_f();
+    float2 x2 = returns_float2_f2();
+    float3 x3 = returns_float3_f3();
+    float4 x4 = returns_float4_f4();
+    float2x2 x5 = returns_float2x2_f22();
+    float3x3 x6 = returns_float3x3_f33();
+    float4x4 x7 = returns_float4x4_f44();
+    half x8 = returns_half_h();
+    half2 x9 = returns_half2_h2();
+    half3 x10 = returns_half3_h3();
+    half4 x11 = returns_half4_h4();
+    half2x2 x12 = returns_half2x2_h22();
+    half3x3 x13 = returns_half3x3_h33();
+    half4x4 x14 = returns_half4x4_h44();
+    bool x15 = returns_bool_b();
+    bool2 x16 = returns_bool2_b2();
+    bool3 x17 = returns_bool3_b3();
+    bool4 x18 = returns_bool4_b4();
+    int x19 = returns_int_i();
+    int2 x20 = returns_int2_i2();
+    int3 x21 = returns_int3_i3();
+    int4 x22 = returns_int4_i4();
+    _out.sk_FragColor = ((((((((((((((((((((x1 == returns_float_f() && all(x2 == returns_float2_f2())) && all(x3 == returns_float3_f3())) && all(x4 == returns_float4_f4())) && x5 == returns_float2x2_f22()) && x6 == returns_float3x3_f33()) && x7 == returns_float4x4_f44()) && x8 == returns_half_h()) && all(x9 == returns_half2_h2())) && all(x10 == returns_half3_h3())) && all(x11 == returns_half4_h4())) && x12 == returns_half2x2_h22()) && x13 == returns_half3x3_h33()) && x14 == returns_half4x4_h44()) && x15 == returns_bool_b()) && all(x16 == returns_bool2_b2())) && all(x17 == returns_bool3_b3())) && all(x18 == returns_bool4_b4())) && x19 == returns_int_i()) && all(x20 == returns_int2_i2())) && all(x21 == returns_int3_i3())) && all(x22 == returns_int4_i4()) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

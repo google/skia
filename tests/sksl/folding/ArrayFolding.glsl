@@ -7,13 +7,16 @@ int side_effecting_ii(int value) {
     globalValue++;
     return value;
 }
+bool test_b() {
+    int two = 2;
+    int flatten0 = 1;
+    int flatten1 = two;
+    int flatten2 = 3;
+    int noFlatten0 = int[3](--two, side_effecting_ii(2), 3)[0];
+    int noFlatten1 = int[3](side_effecting_ii(1), 2, 3)[1];
+    int noFlatten2 = int[3](1, ++two, 3)[2];
+    return (flatten0 == noFlatten0 && flatten1 == noFlatten1) && flatten2 == noFlatten2;
+}
 vec4 main() {
-    int _7_two = 2;
-    const int _8_flatten0 = 1;
-    int _9_flatten1 = _7_two;
-    const int _10_flatten2 = 3;
-    int _11_noFlatten0 = int[3](--_7_two, side_effecting_ii(2), 3)[0];
-    int _12_noFlatten1 = int[3](side_effecting_ii(1), 2, 3)[1];
-    int _13_noFlatten2 = int[3](1, ++_7_two, 3)[2];
-    return (_8_flatten0 == _11_noFlatten0 && _9_flatten1 == _12_noFlatten1) && _10_flatten2 == _13_noFlatten2 ? colorGreen : colorRed;
+    return test_b() ? colorGreen : colorRed;
 }

@@ -6,6 +6,17 @@ uniform vec4 testInputs;
 uniform vec4 colorRed;
 uniform vec4 colorGreen;
 uniform float unknownInput;
+bool test_mat2_mat2_b() {
+    mat2 m;
+    mat2 mm;
+    const mat2 z = mat2(0.0);
+    m = testMatrix2x2;
+    m = testMatrix2x2;
+    m = -m;
+    mm = mat2(0.0);
+    mm = mat2(0.0);
+    return m == -testMatrix2x2 && mm == z;
+}
 bool test_mat3_mat3_b() {
     mat3 m;
     mat3 mm;
@@ -30,13 +41,5 @@ bool test_mat4_mat4_b() {
     return m == -testMatrix4x4 && mm == z;
 }
 vec4 main() {
-    mat2 _0_m;
-    mat2 _1_mm;
-    const mat2 _3_z = mat2(0.0);
-    _0_m = testMatrix2x2;
-    _0_m = testMatrix2x2;
-    _0_m = -_0_m;
-    _1_mm = mat2(0.0);
-    _1_mm = mat2(0.0);
-    return ((_0_m == -testMatrix2x2 && _1_mm == _3_z) && test_mat3_mat3_b()) && test_mat4_mat4_b() ? colorGreen : colorRed;
+    return (test_mat2_mat2_b() && test_mat3_mat3_b()) && test_mat4_mat4_b() ? colorGreen : colorRed;
 }

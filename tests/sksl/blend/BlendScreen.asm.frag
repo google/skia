@@ -8,6 +8,7 @@ OpName %sk_FragColor "sk_FragColor"
 OpName %_UniformBuffer "_UniformBuffer"
 OpMemberName %_UniformBuffer 0 "src"
 OpMemberName %_UniformBuffer 1 "dst"
+OpName %blend_screen_h4h4h4 "blend_screen_h4h4h4"
 OpName %main "main"
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %sk_FragColor RelaxedPrecision
@@ -18,14 +19,16 @@ OpMemberDecorate %_UniformBuffer 0 RelaxedPrecision
 OpMemberDecorate %_UniformBuffer 1 Offset 16
 OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
-OpDecorate %10 Binding 0
-OpDecorate %10 DescriptorSet 0
-OpDecorate %20 RelaxedPrecision
+OpDecorate %11 Binding 0
+OpDecorate %11 DescriptorSet 0
+OpDecorate %19 RelaxedPrecision
+OpDecorate %21 RelaxedPrecision
 OpDecorate %23 RelaxedPrecision
+OpDecorate %24 RelaxedPrecision
 OpDecorate %25 RelaxedPrecision
-OpDecorate %28 RelaxedPrecision
-OpDecorate %29 RelaxedPrecision
-OpDecorate %30 RelaxedPrecision
+OpDecorate %26 RelaxedPrecision
+OpDecorate %34 RelaxedPrecision
+OpDecorate %38 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -35,26 +38,40 @@ OpDecorate %30 RelaxedPrecision
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output
 %_UniformBuffer = OpTypeStruct %v4float %v4float
 %_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
-%10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
+%11 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+%15 = OpTypeFunction %v4float %_ptr_Function_v4float %_ptr_Function_v4float
+%float_1 = OpConstant %float 1
+%22 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %void = OpTypeVoid
-%14 = OpTypeFunction %void
+%28 = OpTypeFunction %void
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %int = OpTypeInt 32 1
 %int_0 = OpConstant %int 0
-%float_1 = OpConstant %float 1
-%24 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %int_1 = OpConstant %int 1
-%main = OpFunction %void None %14
-%15 = OpLabel
-%16 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%20 = OpLoad %v4float %16
-%22 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%23 = OpLoad %v4float %22
-%25 = OpFSub %v4float %24 %23
-%26 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
-%28 = OpLoad %v4float %26
-%29 = OpFMul %v4float %25 %28
-%30 = OpFAdd %v4float %20 %29
-OpStore %sk_FragColor %30
+%blend_screen_h4h4h4 = OpFunction %v4float None %15
+%16 = OpFunctionParameter %_ptr_Function_v4float
+%17 = OpFunctionParameter %_ptr_Function_v4float
+%18 = OpLabel
+%19 = OpLoad %v4float %16
+%21 = OpLoad %v4float %16
+%23 = OpFSub %v4float %22 %21
+%24 = OpLoad %v4float %17
+%25 = OpFMul %v4float %23 %24
+%26 = OpFAdd %v4float %19 %25
+OpReturnValue %26
+OpFunctionEnd
+%main = OpFunction %void None %28
+%29 = OpLabel
+%35 = OpVariable %_ptr_Function_v4float Function
+%39 = OpVariable %_ptr_Function_v4float Function
+%30 = OpAccessChain %_ptr_Uniform_v4float %11 %int_0
+%34 = OpLoad %v4float %30
+OpStore %35 %34
+%36 = OpAccessChain %_ptr_Uniform_v4float %11 %int_1
+%38 = OpLoad %v4float %36
+OpStore %39 %38
+%40 = OpFunctionCall %v4float %blend_screen_h4h4h4 %35 %39
+OpStore %sk_FragColor %40
 OpReturn
 OpFunctionEnd
