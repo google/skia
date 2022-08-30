@@ -591,14 +591,14 @@ public:
     */
     int save();
 
-    /** Saves SkMatrix and clip, and allocates a SkBitmap for subsequent drawing.
-        Calling restore() discards changes to SkMatrix and clip, and draws the SkBitmap.
+    /** Saves SkMatrix and clip, and allocates a SkSurface for subsequent drawing.
+        Calling restore() discards changes to SkMatrix and clip, and draws the SkSurface.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
         clipPath(), clipRegion().
 
-        SkRect bounds suggests but does not define the SkBitmap size. To clip drawing to
+        SkRect bounds suggests but does not define the SkSurface size. To clip drawing to
         a specific rectangle, use clipRect().
 
         Optional SkPaint paint applies alpha, SkColorFilter, SkImageFilter, and
@@ -615,8 +615,8 @@ public:
     */
     int saveLayer(const SkRect* bounds, const SkPaint* paint);
 
-    /** Saves SkMatrix and clip, and allocates a SkBitmap for subsequent drawing.
-        Calling restore() discards changes to SkMatrix and clip, and draws the SkBitmap.
+    /** Saves SkMatrix and clip, and allocates a SkSurface for subsequent drawing.
+        Calling restore() discards changes to SkMatrix and clip, and draws the SkSurface.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
@@ -638,7 +638,7 @@ public:
         return this->saveLayer(&bounds, paint);
     }
 
-    /** Saves SkMatrix and clip, and allocates SkBitmap for subsequent drawing.
+    /** Saves SkMatrix and clip, and allocates SkSurface for subsequent drawing.
 
         Calling restore() discards changes to SkMatrix and clip,
         and blends layer with alpha opacity onto prior layer.
@@ -746,10 +746,10 @@ public:
         SkScalar             fExperimentalBackdropScale = 1.f;
     };
 
-    /** Saves SkMatrix and clip, and allocates SkBitmap for subsequent drawing.
+    /** Saves SkMatrix and clip, and allocates SkSurface for subsequent drawing.
 
         Calling restore() discards changes to SkMatrix and clip,
-        and blends SkBitmap with alpha opacity onto the prior layer.
+        and blends SkSurface with alpha opacity onto the prior layer.
 
         SkMatrix may be changed by translate(), scale(), rotate(), skew(), concat(),
         setMatrix(), and resetMatrix(). Clip may be changed by clipRect(), clipRRect(),
