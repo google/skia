@@ -164,6 +164,11 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                                                                              /*levelCount=*/1,
                                                                              Protected::kNo,
                                                                              Renderable::kYes);
+
+    if (ii.dimensions().width() < 1 || ii.dimensions().height() < 1) {
+        return nullptr;
+    }
+
     sk_sp<TextureProxy> target(new TextureProxy(ii.dimensions(), textureInfo, budgeted));
     return Make(recorder, std::move(target), ii.colorInfo(), props);
 }

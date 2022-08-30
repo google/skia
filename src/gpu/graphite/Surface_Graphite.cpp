@@ -40,11 +40,14 @@ sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
     SkImageInfo ii = subset ? this->imageInfo().makeDimensions(subset->size())
                             : this->imageInfo();
 
-    // TODO: create a real proxy view
-    sk_sp<TextureProxy> proxy(new TextureProxy(ii.dimensions(), {}, SkBudgeted::kNo));
-    TextureProxyView tpv(std::move(proxy));
+    // TODO: we need to resolve Graphite's Surface/Image story then expand the handling
+    // in here.
+    TextureProxyView srcView = fDevice->readSurfaceView();
+    if (!srcView) {
+        return nullptr;
+    }
 
-    return sk_sp<Image>(new Image(tpv, ii.colorInfo()));
+    return sk_sp<Image>(new Image(std::move(srcView), ii.colorInfo()));
 }
 
 void Surface::onWritePixels(const SkPixmap& pixmap, int x, int y) {
