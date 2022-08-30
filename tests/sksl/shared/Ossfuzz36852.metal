@@ -15,6 +15,6 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     (void)_out;
     half2x2 x = half2x2(half2(0.0h, 1.0h), half2(2.0h, 3.0h));
     float2 y = float2(half4_from_half2x2(x).xy);
-    _out.sk_FragColor = half4(y.xyxy);
+    _out.sk_FragColor = half4(float4(y, 0.0, 1.0));
     return _out;
 }

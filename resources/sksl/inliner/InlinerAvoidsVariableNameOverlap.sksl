@@ -12,5 +12,5 @@ inline half2 InlineA()
 
 half4 main(float2 coords)
 {
-    return InlineA().xyxy;
+    return InlineA().xy01;
 }

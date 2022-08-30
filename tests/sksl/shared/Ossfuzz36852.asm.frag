@@ -54,6 +54,8 @@ OpFunctionEnd
 OpStore %x %31
 %34 = OpVectorShuffle %v2float %33 %33 0 1
 OpStore %y %34
-%35 = OpVectorShuffle %v4float %34 %34 0 1 0 1
-OpReturnValue %35
+%35 = OpCompositeExtract %float %34 0
+%36 = OpCompositeExtract %float %34 1
+%37 = OpCompositeConstruct %v4float %35 %36 %float_0 %float_1
+OpReturnValue %37
 OpFunctionEnd

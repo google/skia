@@ -9,5 +9,5 @@ vec2 InlineA_h2() {
     return InlineB_h2h2(reusedName);
 }
 vec4 main() {
-    return InlineA_h2().xyxy;
+    return vec4(InlineA_h2(), 0.0, 1.0);
 }
