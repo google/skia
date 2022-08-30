@@ -65,7 +65,7 @@ public:
     }
 
     void checkGlobalVariableSizeLimit(const GlobalVarDeclaration& globalDecl) {
-        if (ProgramConfig::IsCompute(fContext.fConfig->fKind)) {
+        if (!ProgramConfig::IsRuntimeEffect(fContext.fConfig->fKind)) {
             return;
         }
         const VarDeclaration& decl = globalDecl.declaration()->as<VarDeclaration>();
