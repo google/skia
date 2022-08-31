@@ -460,7 +460,8 @@ void OneLineShaper::matchResolvedFonts(const TextStyle& textStyle,
                             unicode, textStyle.getFontStyle(), textStyle.getLocale());
 
                     if (typeface == nullptr) {
-                        return;
+                        // There is no fallback font for this character, so move on to the next character.
+                        continue;
                     }
                     fFallbackFonts.set(fontKey, typeface);
                 }
