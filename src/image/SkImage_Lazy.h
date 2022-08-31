@@ -84,6 +84,12 @@ private:
                                   SkYUVAPixmaps* pixmaps) const;
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
+    std::tuple<skgpu::graphite::TextureProxyView, SkColorType> onAsView(
+            skgpu::graphite::Recorder*,
+            skgpu::graphite::Mipmapped) const override;
+#endif
+
     class ScopedGenerator;
 
     // Note that this->imageInfo() is not necessarily the info from the generator. It may be

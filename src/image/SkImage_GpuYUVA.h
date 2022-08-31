@@ -60,6 +60,12 @@ private:
                                                                const SkRect*,
                                                                const SkRect*) const override;
 
+#ifdef SK_GRAPHITE_ENABLED
+    std::tuple<skgpu::graphite::TextureProxyView, SkColorType> onAsView(
+            skgpu::graphite::Recorder*,
+            skgpu::graphite::Mipmapped) const override;
+#endif
+
     mutable GrYUVATextureProxies     fYUVAProxies;
 
     // If this is non-null then the planar data should be converted from fFromColorSpace to

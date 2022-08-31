@@ -231,9 +231,7 @@ private:
 #ifdef SK_GRAPHITE_ENABLED
     virtual std::tuple<skgpu::graphite::TextureProxyView, SkColorType> onAsView(
             skgpu::graphite::Recorder*,
-            skgpu::graphite::Mipmapped mipmapped) const {
-        return {}; // TODO: once incompatible derived classes are removed make this pure virtual
-    }
+            skgpu::graphite::Mipmapped) const = 0;
 #endif
     // Set true by caches when they cache content that's derived from the current pixels.
     mutable std::atomic<bool> fAddedToRasterCache;

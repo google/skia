@@ -36,6 +36,10 @@
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/Log.h"
+#endif
+
 // Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing one generator among N images
 class SharedGenerator final : public SkNVRefCnt<SharedGenerator> {
 public:
@@ -575,5 +579,14 @@ GrColorType SkImage_Lazy::colorTypeOfLockTextureProxy(const GrCaps* caps) const 
 
 void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const {
     fUniqueIDListeners.add(std::move(listener));
+}
+#endif // SK_SUPPORT_GPU
+
+#ifdef SK_GRAPHITE_ENABLED
+std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Lazy::onAsView(
+        skgpu::graphite::Recorder*,
+        skgpu::graphite::Mipmapped) const {
+    SKGPU_LOG_E("Conversion of Lazy images to Graphite-backed not yet implemented");
+    return {};
 }
 #endif

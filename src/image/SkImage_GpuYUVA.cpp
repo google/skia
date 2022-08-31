@@ -28,6 +28,10 @@
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
 #include "src/image/SkImage_Gpu.h"
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/Log.h"
+#endif
+
 static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 
 SkImage_GpuYUVA::SkImage_GpuYUVA(sk_sp<GrImageContext> context,
@@ -225,6 +229,16 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
     }
     return fp;
 }
+
+
+#ifdef SK_GRAPHITE_ENABLED
+std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_GpuYUVA::onAsView(
+        skgpu::graphite::Recorder*,
+        skgpu::graphite::Mipmapped) const {
+    SKGPU_LOG_W("Cannot convert Ganesh-backed YUVA image to Graphite");
+    return {};
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

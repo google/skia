@@ -85,6 +85,12 @@ private:
                                                          GrMipmapped,
                                                          GrImageTexGenPolicy) const override;
 
+#ifdef SK_GRAPHITE_ENABLED
+    std::tuple<skgpu::graphite::TextureProxyView, SkColorType> onAsView(
+            skgpu::graphite::Recorder*,
+            skgpu::graphite::Mipmapped) const override;
+#endif
+
     std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(GrRecordingContext*,
                                                                SkSamplingOptions,
                                                                const SkTileMode[2],
