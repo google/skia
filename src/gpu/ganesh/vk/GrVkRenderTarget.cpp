@@ -77,7 +77,7 @@ GrVkRenderTarget::GrVkRenderTarget(GrVkGpu* gpu,
         fResolveAttachment = fColorAttachment;
     }
 
-    SkASSERT(!resolveAttachment ||
+    SkASSERT(!fResolveAttachment ||
              (fResolveAttachment->isProtected() == fColorAttachment->isProtected()));
     SkASSERT(SkToBool(fColorAttachment->vkUsageFlags() & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
     this->setFlags();
