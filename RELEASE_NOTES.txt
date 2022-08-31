@@ -5,6 +5,7 @@ This file includes a list of high level updates for each milestone release.
 Milestone 107
 -------------
   * Exported SkColor4f::toBytes_RGBA() and SkColor4f::FromBytes_RGBA.
+  * SkWebpEncoder: Added support for animated WebP image encoding.
 
 * * *
 

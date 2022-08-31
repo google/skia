@@ -8,6 +8,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
+#include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorPriv.h"
@@ -432,6 +433,79 @@ DEF_TEST(Encode_WebpOptions, r) {
     REPORTER_ASSERT(r, almost_equals(bm0, bm1, 0));
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 90));
     REPORTER_ASSERT(r, almost_equals(bm2, bm3, 50));
+}
+
+DEF_TEST(Encode_WebpAnimated, r) {
+    const int frameCount = 3;
+    const int width = 16;
+    const int height = 16;
+    auto info = SkImageInfo::MakeN32Premul(width, height);
+    std::vector<SkBitmap> bitmaps(frameCount);
+    std::vector<SkEncoder::Frame> frames(frameCount);
+    std::vector<int> durations = {50, 100, 150};
+    std::vector<SkColor> colors = {SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN};
+
+    for (int i = 0; i < frameCount; i++) {
+        bitmaps[i].allocPixels(info);
+        bitmaps[i].eraseColor(colors[i]);
+        REPORTER_ASSERT(r, bitmaps[i].peekPixels(&frames[i].pixmap));
+        frames[i].duration = durations[i];
+    }
+
+    SkDynamicMemoryWStream stream;
+    SkWebpEncoder::Options options;
+    options.fCompression = SkWebpEncoder::Compression::kLossless;
+    options.fQuality = 100;
+
+    REPORTER_ASSERT(r, SkWebpEncoder::EncodeAnimated(&stream, frames, options));
+
+    auto codec = SkCodec::MakeFromData(stream.detachAsData());
+    REPORTER_ASSERT(r, !!codec);
+
+    std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
+    REPORTER_ASSERT(r, frameInfos.size() == frameCount);
+
+    for (size_t i = 0; i < frameInfos.size(); ++i) {
+        SkBitmap bitmap;
+        bitmap.allocPixels(info);
+        bitmap.eraseColor(0);
+
+        SkCodec::Options codecOptions;
+        codecOptions.fFrameIndex = (int)i;
+
+        auto result = codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes(), &codecOptions);
+        if (result != SkCodec::kSuccess) {
+            ERRORF(r, "error in frame %zu: %s", i, SkCodec::ResultToString(result));
+        }
+
+        REPORTER_ASSERT(r, almost_equals(bitmap, bitmaps[i], 0));
+        REPORTER_ASSERT(r, frameInfos[i].fDuration == durations[i]);
+    }
+}
+
+DEF_TEST(Encode_WebpAnimated_FrameUnmatched, r) {
+    // Create two frames with unmatched sizes and verify the encode should fail.
+    SkEncoder::Frame frame1;
+    SkBitmap bm1;
+    bm1.allocPixels(SkImageInfo::MakeN32Premul(8, 8));
+    bm1.eraseColor(SK_ColorYELLOW);
+    REPORTER_ASSERT(r, bm1.peekPixels(&frame1.pixmap));
+    frame1.duration = 200;
+
+    SkEncoder::Frame frame2;
+    SkBitmap bm2;
+    bm2.allocPixels(SkImageInfo::MakeN32Premul(16, 16));
+    bm2.eraseColor(SK_ColorYELLOW);
+    REPORTER_ASSERT(r, bm2.peekPixels(&frame2.pixmap));
+    frame2.duration = 200;
+
+    SkDynamicMemoryWStream stream;
+    SkWebpEncoder::Options options;
+    options.fCompression = SkWebpEncoder::Compression::kLossy;
+    options.fQuality = 100;
+    std::vector<SkEncoder::Frame> frames = {frame1, frame2};
+    bool output = SkWebpEncoder::EncodeAnimated(&stream, frames, options);
+    REPORTER_ASSERT(r, !output);
 }
 
 DEF_TEST(Encode_Alpha, r) {
