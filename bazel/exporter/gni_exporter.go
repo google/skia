@@ -16,7 +16,6 @@ import (
 
 	"go.skia.org/infra/go/skerr"
 	"go.skia.org/infra/go/util"
-	"go.skia.org/skia/bazel/exporter/build_proto/analysis_v2"
 	"go.skia.org/skia/bazel/exporter/build_proto/build"
 	"go.skia.org/skia/bazel/exporter/interfaces"
 	"google.golang.org/protobuf/proto"
@@ -102,6 +101,18 @@ func NewGNIExporter(params GNIExporterParams, filesystem interfaces.FileSystem) 
 		exportGNIDescs: params.ExportDescs,
 	}
 	return e
+}
+
+// Given a Bazel rule name find that rule from within the
+// query results. Returns nil if the given rule is not present.
+func findQueryResultRule(qr *build.QueryResult, name string) *build.Rule {
+	for _, target := range qr.GetTarget() {
+		r := target.GetRule()
+		if r.GetName() == name {
+			return r
+		}
+	}
+	return nil
 }
 
 // Retrieve all rule attributes which are internal file targets.
@@ -306,10 +317,10 @@ func (c *gniFileContents) merge(other gniFileContents) {
 }
 
 // Convert all rules that go into a GNI file list.
-func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *analysis_v2.CqueryResult) (gniFileContents, error) {
+func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *build.QueryResult) (gniFileContents, error) {
 	var targets []string
 	for _, ruleName := range desc.Rules {
-		r := findRule(qr, ruleName)
+		r := findQueryResultRule(qr, ruleName)
 		if r == nil {
 			return gniFileContents{}, skerr.Fmt("Cannot find rule %s", ruleName)
 		}
@@ -379,7 +390,7 @@ func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *analysi
 }
 
 // Export all Bazel rules to a single *.gni file.
-func (e *GNIExporter) exportGNIFile(gniExportDesc GNIExportDesc, qr *analysis_v2.CqueryResult) error {
+func (e *GNIExporter) exportGNIFile(gniExportDesc GNIExportDesc, qr *build.QueryResult) error {
 	// Keep the contents of each file list in memory before writing to disk.
 	// This is done so that we know what variables to define for each of the
 	// file lists. i.e. $_src, $_include, etc.
@@ -425,7 +436,7 @@ func (e *GNIExporter) Export(qcmd interfaces.QueryCommand) error {
 	if err != nil {
 		return skerr.Wrapf(err, "error reading bazel cquery data")
 	}
-	qr := &analysis_v2.CqueryResult{}
+	qr := &build.QueryResult{}
 	if err := proto.Unmarshal(in, qr); err != nil {
 		return skerr.Wrapf(err, "failed to unmarshal cquery result")
 	}

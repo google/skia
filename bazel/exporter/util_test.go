@@ -24,13 +24,13 @@ func textProtoToProtobuf(textProto string) ([]byte, error) {
 	return proto.Marshal(&qr)
 }
 
-// A test helper function to unmarshal a Bazel cquery textproto output
-// response and return the requested rule.
-func unmarshalAndGetRule(textProto, ruleName string) (*build.Rule, error) {
-	qr := analysis_v2.CqueryResult{}
-	err := prototext.Unmarshal([]byte(textProto), &qr)
-	if err != nil {
-		return nil, skerr.Wrap(err)
-	}
-	return findRule(&qr, ruleName), nil
+// A test helper function to create a build.Rule with given properties (and srcs).
+func createTestBuildRule(name, ruleClass, loc string, srcs []string) *build.Rule {
+	srcsAttrName := "srcs"
+	ad := build.Attribute_STRING_LIST
+	attr := build.Attribute{Name: &srcsAttrName, Type: &ad, StringListValue: srcs}
+
+	r := build.Rule{Name: &name, RuleClass: &ruleClass, Location: &loc}
+	r.Attribute = append(r.Attribute, &attr)
+	return &r
 }

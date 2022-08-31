@@ -5,9 +5,9 @@
 package interfaces
 
 // QueryCommand defines an interface for returning the response of a
-// Bazel cquery call.
+// Bazel query or cquery call.
 type QueryCommand interface {
-	// Read will return the response data for a `bazel cquery ...`
+	// Read will return the response data for a `bazel [cquery|query] ...`
 	// invocation.
 	Read() ([]byte, error)
 }

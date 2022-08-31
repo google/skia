@@ -14,20 +14,26 @@ string_flag_with_values(
     ],
 )
 
+# In separate filegroup from "srcs" to prevent these files from being
+# exported to GNI.
+filegroup(
+    name = "optional_srcs",
+    srcs = select_multi({
+        ":jpeg_encode_codec": [
+            "SkJPEGWriteUtility.cpp",
+            "SkJpegEncoder.cpp",
+        ],
+        ":png_encode_codec": ["SkPngEncoder.cpp"],
+        ":webp_encode_codec": ["SkWebpEncoder.cpp"],
+    }),
+)
+
 filegroup(
     name = "srcs",
     srcs = [
         "SkImageEncoder.cpp",
-    ] + select_multi(
-        {
-            ":jpeg_encode_codec": [
-                "SkJPEGWriteUtility.cpp",
-                "SkJpegEncoder.cpp",
-            ],
-            ":png_encode_codec": ["SkPngEncoder.cpp"],
-            ":webp_encode_codec": ["SkWebpEncoder.cpp"],
-        },
-    ),
+        ":optional_srcs",
+    ],
     visibility = ["//src:__pkg__"],
 )
 

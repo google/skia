@@ -213,13 +213,19 @@ func main() {
 		}
 		defer pprof.StopCPUProfile()
 	}
-	qr := exporter.NewBazelQueryCommand(*queryRules, workspaceDir)
+	var qcmd *exporter.BazelQueryCommand
+	switch *outFormat {
+	case "gni":
+		qcmd = exporter.NewBazelGNIQueryCommand(*queryRules, workspaceDir)
+	case "cmake":
+		qcmd = exporter.NewBazelCMakeQueryCommand(*queryRules, workspaceDir)
+	}
 	fs := fileSystem{workspaceDir: workspaceDir, outFormat: *outFormat}
 	defer fs.Shutdown()
 	var exp interfaces.Exporter = createExporter(*projName, *cmakeFileName, &fs)
 	if *checkCurrent {
-		doCheckCurrent(qr, exp, *outFormat)
+		doCheckCurrent(qcmd, exp, *outFormat)
 	} else {
-		doExport(qr, exp, *outFormat)
+		doExport(qcmd, exp, *outFormat)
 	}
 }

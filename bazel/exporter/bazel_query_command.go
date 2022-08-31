@@ -20,6 +20,7 @@ import (
 type BazelQueryCommand struct {
 	ruleNames []string
 	workspace string
+	queryType string // "query" or "cquery"
 }
 
 // A list of all Skia Bazel build flags which enable the building and/or
@@ -52,8 +53,15 @@ var allSkiaFlags = []string{
 // NewBazelQueryCommand will create a new BazelQueryCommand instance which will,
 // when Read() is called, invoke the bazel executable to execute a cquery
 // command in the provided workspace for the supplied rules.
-func NewBazelQueryCommand(ruleNames []string, workspace string) *BazelQueryCommand {
-	return &BazelQueryCommand{ruleNames: ruleNames, workspace: workspace}
+func NewBazelCMakeQueryCommand(ruleNames []string, workspace string) *BazelQueryCommand {
+	return &BazelQueryCommand{ruleNames: ruleNames, workspace: workspace, queryType: "cquery"}
+}
+
+// NewBazelQueryCommand will create a new BazelQueryCommand instance which will,
+// when Read() is called, invoke the bazel executable to execute a query
+// command in the provided workspace for the supplied rules.
+func NewBazelGNIQueryCommand(ruleNames []string, workspace string) *BazelQueryCommand {
+	return &BazelQueryCommand{ruleNames: ruleNames, workspace: workspace, queryType: "query"}
 }
 
 // Stop the Bazel server if running.
@@ -63,8 +71,8 @@ func shutdownBazelServer() error {
 	return err
 }
 
-// Read will execute the Bazel cquery command, supplied to NewBazelQueryCommand(),
-// and return the results.
+// Read will execute the Bazel query/cquery command, supplied to NewBazel*QueryCommand(),
+// and return the binary protobuf results.
 func (c *BazelQueryCommand) Read() ([]byte, error) {
 	if len(c.ruleNames) == 0 {
 		return nil, skerr.Fmt("no query rules")
@@ -78,11 +86,13 @@ func (c *BazelQueryCommand) Read() ([]byte, error) {
 	if err != nil {
 		return nil, skerr.Wrapf(err, `can't set working directory to %q`, c.workspace)
 	}
-	// Shutdown the Bazel server to workaround a known issue with cquery:
-	// See "Non-deterministic output" in https://bazel.build/docs/cquery#known-issues
-	err = shutdownBazelServer()
-	if err != nil {
-		return nil, skerr.Wrap(err)
+	if c.queryType == "cquery" {
+		// Shutdown the Bazel server to workaround a known issue with cquery:
+		// See "Non-deterministic output" in https://bazel.build/docs/cquery#known-issues
+		err = shutdownBazelServer()
+		if err != nil {
+			return nil, skerr.Wrap(err)
+		}
 	}
 	ruleArg := `kind("rule", `
 	for i, r := range c.ruleNames {
@@ -92,8 +102,10 @@ func (c *BazelQueryCommand) Read() ([]byte, error) {
 		ruleArg = ruleArg + fmt.Sprintf("deps(%s)", r)
 	}
 	ruleArg = ruleArg + ")"
-	args := []string{"cquery", "--noimplicit_deps", ruleArg, "--output", "proto"}
-	args = append(args, allSkiaFlags...)
+	args := []string{c.queryType, "--noimplicit_deps", ruleArg, "--output", "proto"}
+	if c.queryType == "cquery" {
+		args = append(args, allSkiaFlags...)
+	}
 	cmd := exec.Command("bazel", args...)
 	_ = os.Chdir(pwd)
 	data, err := cmd.Output()

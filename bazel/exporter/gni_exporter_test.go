@@ -14,372 +14,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.skia.org/skia/bazel/exporter/build_proto/build"
 	"go.skia.org/skia/bazel/exporter/interfaces/mocks"
+	"google.golang.org/protobuf/proto"
 )
 
-// These test query results are generated with the following command:
-//
-//	bazel cquery --noimplicit_deps \
-//	   'kind("rule", deps(//src/core:core_srcs) + deps(//src/opts:private_hdrs))' \
-//	   --output textproto
-//
-// Then the output data is manually pruned to include only the first three files.
-const publicSrcsTextProto = `results {
-	target {
-	  type: RULE
-	  rule {
-		name: "//src/core:core_srcs"
-		rule_class: "filegroup"
-		location: "/path/to/skia/src/src/core/BUILD.bazel:397:20"
-		attribute {
-		  name: "$config_dependencies"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: ":action_listener"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "applicable_licenses"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "aspect_hints"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "compatible_with"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "data"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "deprecation"
-		  type: STRING
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "distribs"
-		  type: DISTRIBUTION_SET
-		  string_list_value: "INTERNAL"
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "features"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_function"
-		  type: STRING
-		  string_value: "split_srcs_and_hdrs"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_location"
-		  type: STRING
-		  string_value: "src/core/BUILD.bazel:397:20"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_name"
-		  type: STRING
-		  string_value: "core"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "licenses"
-		  type: LICENSE
-		  license {
-			license_type: "NOTICE"
-		  }
-		  explicitly_specified: false
-		}
-		attribute {
-		  name: "name"
-		  type: STRING
-		  string_value: "core_srcs"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "output_group"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "output_licenses"
-		  type: LICENSE
-		  license {
-			license_type: "NONE"
-		  }
-		  explicitly_specified: false
-		}
-		attribute {
-		  name: "path"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "restricted_to"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "srcs"
-		  type: LABEL_LIST
-		  string_list_value: "//src/core:SkAAClip.cpp"
-		  string_list_value: "//src/core:SkATrace.cpp"
-		  string_list_value: "//src/core:SkAlphaRuns.cpp"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "tags"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "target_compatible_with"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "testonly"
-		  type: BOOLEAN
-		  int_value: 0
-		  string_value: "false"
-		  explicitly_specified: false
-		  boolean_value: false
-		}
-		attribute {
-		  name: "transitive_configs"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: true
-		}
-		attribute {
-		  name: "visibility"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: true
-		}
-		rule_input: "//src/core:SkAAClip.cpp"
-		rule_input: "//src/core:SkATrace.cpp"
-		rule_input: "//src/core:SkAlphaRuns.cpp"
-	  }
-	}
-	configuration {
-	  checksum: "d16aa11033851c6aac7f80d42f69ce16f44935bba14f1c71f7cfc07b0d4d60b2"
-	}
-  }
-  results {
-	target {
-	  type: RULE
-	  rule {
-		name: "//src/opts:private_hdrs"
-		rule_class: "filegroup"
-		location: "/path/to/skia/src/src/opts/BUILD.bazel:26:10"
-		attribute {
-		  name: "$config_dependencies"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: ":action_listener"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "applicable_licenses"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "aspect_hints"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "compatible_with"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "data"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "deprecation"
-		  type: STRING
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "distribs"
-		  type: DISTRIBUTION_SET
-		  string_list_value: "INTERNAL"
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "features"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_function"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_location"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "generator_name"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "licenses"
-		  type: LICENSE
-		  license {
-			license_type: "NOTICE"
-		  }
-		  explicitly_specified: false
-		}
-		attribute {
-		  name: "name"
-		  type: STRING
-		  string_value: "private_hdrs"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "output_group"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "output_licenses"
-		  type: LICENSE
-		  license {
-			license_type: "NONE"
-		  }
-		  explicitly_specified: false
-		}
-		attribute {
-		  name: "path"
-		  type: STRING
-		  string_value: ""
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "restricted_to"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "srcs"
-		  type: LABEL_LIST
-		  string_list_value: "//src/opts:SkBitmapProcState_opts.h"
-		  string_list_value: "//src/opts:SkBlitMask_opts.h"
-		  string_list_value: "//src/opts:SkBlitRow_opts.h"
-		  explicitly_specified: true
-		  nodep: false
-		}
-		attribute {
-		  name: "tags"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "target_compatible_with"
-		  type: LABEL_LIST
-		  explicitly_specified: false
-		  nodep: false
-		}
-		attribute {
-		  name: "testonly"
-		  type: BOOLEAN
-		  int_value: 0
-		  string_value: "false"
-		  explicitly_specified: false
-		  boolean_value: false
-		}
-		attribute {
-		  name: "transitive_configs"
-		  type: STRING_LIST
-		  explicitly_specified: false
-		  nodep: true
-		}
-		attribute {
-		  name: "visibility"
-		  type: STRING_LIST
-		  string_list_value: "//src:__pkg__"
-		  explicitly_specified: true
-		  nodep: true
-		}
-		rule_input: "//src/opts:SkBitmapProcState_opts.h"
-		rule_input: "//src/opts:SkBlitMask_opts.h"
-		rule_input: "//src/opts:SkBlitRow_opts.h"
-	  }
-	}
-	configuration {
-	  checksum: "d16aa11033851c6aac7f80d42f69ce16f44935bba14f1c71f7cfc07b0d4d60b2"
-	}
-  }
-`
-
-// The expected gn/core.gni file contents for publicSrcsTextProto.
+// The expected gn/core.gni file contents for createCoreSourcesQueryResult().
 // This expected result is handmade.
 const publicSrcsExpectedGNI = `# DO NOT EDIT: This is a generated file.
 
@@ -416,8 +56,37 @@ var testExporterParams = GNIExporterParams{
 	ExportDescs:  exportDescs,
 }
 
+func createCoreSourcesQueryResult() *build.QueryResult {
+	qr := build.QueryResult{}
+	ruleDesc := build.Target_RULE
+
+	// Rule #1
+	srcs := []string{
+		"//src/core:SkAAClip.cpp",
+		"//src/core:SkATrace.cpp",
+		"//src/core:SkAlphaRuns.cpp",
+	}
+	r1 := createTestBuildRule("//src/core:core_srcs", "filegroup",
+		"/path/to/workspace/src/core/BUILD.bazel:376:20", srcs)
+	t1 := build.Target{Rule: r1, Type: &ruleDesc}
+	qr.Target = append(qr.Target, &t1)
+
+	// Rule #2
+	srcs = []string{
+		"//src/opts:SkBitmapProcState_opts.h",
+		"//src/opts:SkBlitMask_opts.h",
+		"//src/opts:SkBlitRow_opts.h",
+	}
+	r2 := createTestBuildRule("//src/opts:private_hdrs", "filegroup",
+		"/path/to/workspace/src/opts/BUILD.bazel:26:10", srcs)
+	t2 := build.Target{Rule: r2, Type: &ruleDesc}
+	qr.Target = append(qr.Target, &t2)
+	return &qr
+}
+
 func TestGNIExporterExport_ValidInput_Success(t *testing.T) {
-	protoData, err := textProtoToProtobuf(publicSrcsTextProto)
+	qr := createCoreSourcesQueryResult()
+	protoData, err := proto.Marshal(qr)
 	require.NoError(t, err)
 
 	fs := mocks.NewFileSystem(t)
