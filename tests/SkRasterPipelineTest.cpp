@@ -586,19 +586,14 @@ public:
     };
 
     static Behavior GrowthBehavior() {
-#if SK_HAS_MUSTTAIL
-        // Wih the musttail attribute, we expect ALL addresses to match the baseline
-        return Behavior::kBaseline;
-#else
     #ifdef SK_DEBUG
-        // In debug builds without musttail, we expect actual stack growth
+        // In debug builds (assuming no musttail attribute), we expect actual stack growth
         return Behavior::kGrowth;
     #else
-        // In release builds without musttail, it's possible that the compiler will (or won't)
+        // In release builds (without musttail), it's possible that the compiler will (or won't)
         // apply tail call optimization, so we can't make any prediction about stack growth
         return Behavior::kUnknown;
     #endif
-#endif
     }
 
     // Call one of these two each time the checker callback is added:

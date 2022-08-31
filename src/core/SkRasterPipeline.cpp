@@ -366,13 +366,10 @@ void SkRasterPipeline::append_gamut_clamp_if_normalized(const SkImageInfo& info)
 }
 
 void SkRasterPipeline::append_stack_rewind() {
-    // If we have a (working) musttail attribute, we never need to rewind the stack
-#if !SK_HAS_MUSTTAIL
     if (!fRewindCtx) {
         fRewindCtx = fAlloc->make<SkRasterPipeline_RewindCtx>();
     }
     this->unchecked_append(SkRasterPipeline::stack_rewind, fRewindCtx);
-#endif
 }
 
 SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) const {

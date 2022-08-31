@@ -227,12 +227,6 @@ struct SkRasterPipeline_EmbossCtx {
                                add;
 };
 
-#if __has_cpp_attribute(clang::musttail) && !defined(__EMSCRIPTEN__) && !defined(SK_CPU_ARM32)
-    #define SK_HAS_MUSTTAIL 1
-#else
-    #define SK_HAS_MUSTTAIL 0
-#endif
-
 class SkRasterPipeline {
 public:
     explicit SkRasterPipeline(SkArenaAlloc*);
