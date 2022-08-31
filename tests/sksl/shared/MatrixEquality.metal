@@ -33,17 +33,14 @@ thread bool operator==(const half3x3 left, const half3x3 right) {
 thread bool operator!=(const half3x3 left, const half3x3 right) {
     return !(left == right);
 }
-bool test_equality_b(Uniforms _uniforms) {
-    bool ok = true;
-    ok = ok && _uniforms.testMatrix2x2 == half2x2(half2(1.0h, 2.0h), half2(3.0h, 4.0h));
-    ok = ok && _uniforms.testMatrix3x3 == half3x3(half3(1.0h, 2.0h, 3.0h), half3(4.0h, 5.0h, 6.0h), half3(7.0h, 8.0h, 9.0h));
-    ok = ok && _uniforms.testMatrix2x2 != half2x2(100.0h);
-    ok = ok && _uniforms.testMatrix3x3 != half3x3(half3(9.0h, 8.0h, 7.0h), half3(6.0h, 5.0h, 4.0h), half3(3.0h, 2.0h, 1.0h));
-    return ok;
-}
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = test_equality_b(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
+    bool _0_ok = true;
+    _0_ok = _0_ok && _uniforms.testMatrix2x2 == half2x2(half2(1.0h, 2.0h), half2(3.0h, 4.0h));
+    _0_ok = _0_ok && _uniforms.testMatrix3x3 == half3x3(half3(1.0h, 2.0h, 3.0h), half3(4.0h, 5.0h, 6.0h), half3(7.0h, 8.0h, 9.0h));
+    _0_ok = _0_ok && _uniforms.testMatrix2x2 != half2x2(100.0h);
+    _0_ok = _0_ok && _uniforms.testMatrix3x3 != half3x3(half3(9.0h, 8.0h, 7.0h), half3(6.0h, 5.0h, 4.0h), half3(3.0h, 2.0h, 1.0h));
+    _out.sk_FragColor = _0_ok ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

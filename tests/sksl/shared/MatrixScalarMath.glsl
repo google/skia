@@ -2,7 +2,6 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
-const int plus = 1;
 const int minus = 2;
 const int star = 3;
 const int slash = 4;
@@ -30,5 +29,11 @@ vec4 main() {
     float f2 = 2.0 * colorGreen.y;
     float f3 = 3.0 * colorGreen.y;
     float f4 = 4.0 * colorGreen.y;
-    return ((test_bifffff22(plus, f1, f2, f3, f4, mat2(f1 + 1.0, f2 + 1.0, f3 + 1.0, f4 + 1.0)) && test_bifffff22(minus, f1, f2, f3, f4, mat2(f1 - 1.0, f2 - 1.0, f3 - 1.0, f4 - 1.0))) && test_bifffff22(star, f1, f2, f3, f4, mat2(f1 * 2.0, f2 * 2.0, f3 * 2.0, f4 * 2.0))) && test_bifffff22(slash, f1, f2, f3, f4, mat2(f1 / 2.0, f2 / 2.0, f3 / 2.0, f4 / 2.0)) ? colorGreen : colorRed;
+    mat2 _0_expected = mat2(f1 + 1.0, f2 + 1.0, f3 + 1.0, f4 + 1.0);
+    float _1_one = colorRed.x;
+    mat2 _2_m2 = mat2(f1 * _1_one, f2 * _1_one, f3 * _1_one, f4 * _1_one);
+    {
+        _2_m2 += 1.0;
+    }
+    return (((((_2_m2[0].x == _0_expected[0].x && _2_m2[0].y == _0_expected[0].y) && _2_m2[1].x == _0_expected[1].x) && _2_m2[1].y == _0_expected[1].y) && test_bifffff22(minus, f1, f2, f3, f4, mat2(f1 - 1.0, f2 - 1.0, f3 - 1.0, f4 - 1.0))) && test_bifffff22(star, f1, f2, f3, f4, mat2(f1 * 2.0, f2 * 2.0, f3 * 2.0, f4 * 2.0))) && test_bifffff22(slash, f1, f2, f3, f4, mat2(f1 / 2.0, f2 / 2.0, f3 / 2.0, f4 / 2.0)) ? colorGreen : colorRed;
 }

@@ -2,11 +2,6 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
-bool flatten_compound_constructor_b() {
-    ivec4 x = ivec4(1, 2, 3, 4);
-    ivec4 y = ivec4(1, 2, 3, 4);
-    return x == y;
-}
 bool flatten_known_if_b() {
     int value;
     {
@@ -44,5 +39,5 @@ bool flatten_switch_b() {
     }
 }
 vec4 main() {
-    return ((((((flatten_compound_constructor_b() && flatten_known_if_b()) && eliminate_empty_if_else_b()) && eliminate_empty_else_b()) && flatten_matching_ternary_b()) && flatten_expr_without_side_effects_b()) && eliminate_no_op_arithmetic_b()) && flatten_switch_b() ? colorGreen : colorRed;
+    return ((((((true && flatten_known_if_b()) && eliminate_empty_if_else_b()) && eliminate_empty_else_b()) && flatten_matching_ternary_b()) && flatten_expr_without_side_effects_b()) && eliminate_no_op_arithmetic_b()) && flatten_switch_b() ? colorGreen : colorRed;
 }

@@ -52,6 +52,7 @@ namespace dsl {
 
 class Expression;
 class IRNode;
+class Inliner;
 class ModifiersPool;
 class OutputStream;
 struct Program;
@@ -140,6 +141,7 @@ public:
         kOn,
     };
     static void EnableOptimizer(OverrideFlag flag) { sOptimizer = flag; }
+    static void EnableInliner(OverrideFlag flag) { sInliner = flag; }
 
     /**
      * If fExternalFunctions is supplied in the settings, those values are registered in the symbol
@@ -243,6 +245,12 @@ private:
     bool optimizeRehydratedModule(LoadedModule& module, const ParsedModule& base,
                                   ModifiersPool& modifiersPool);
 
+    /** Flattens out function calls when it is safe to do so. */
+    bool runInliner(Inliner* inliner,
+                    const std::vector<std::unique_ptr<ProgramElement>>& elements,
+                    std::shared_ptr<SymbolTable> symbols,
+                    ProgramUsage* usage);
+
     CompilerErrorReporter fErrorReporter;
     std::shared_ptr<Context> fContext;
     const ShaderCaps* fCaps;
@@ -254,6 +262,7 @@ private:
     std::string fErrorText;
 
     static OverrideFlag sOptimizer;
+    static OverrideFlag sInliner;
 
     friend class AutoSource;
     friend class ::SkSLCompileBench;

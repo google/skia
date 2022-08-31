@@ -47,11 +47,6 @@ thread bool operator==(const float4x4 left, const float4x4 right) {
 thread bool operator!=(const float4x4 left, const float4x4 right) {
     return !(left == right);
 }
-bool test_fscalar_b(Uniforms _uniforms) {
-    float x = float(_uniforms.colorWhite.x);
-    x = -x;
-    return x == -1.0;
-}
 bool test_iscalar_b(Uniforms _uniforms) {
     int x = int(_uniforms.colorWhite.x);
     x = -x;
@@ -88,6 +83,8 @@ bool test_mat4_b(Uniforms _uniforms) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = (((((test_fscalar_b(_uniforms) && test_iscalar_b(_uniforms)) && test_fvec_b(_uniforms)) && test_ivec_b(_uniforms)) && test_mat2_b(_uniforms)) && test_mat3_b(_uniforms)) && test_mat4_b(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
+    float _0_x = float(_uniforms.colorWhite.x);
+    _0_x = -_0_x;
+    _out.sk_FragColor = (((((_0_x == -1.0 && test_iscalar_b(_uniforms)) && test_fvec_b(_uniforms)) && test_ivec_b(_uniforms)) && test_mat2_b(_uniforms)) && test_mat3_b(_uniforms)) && test_mat4_b(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

@@ -1,7 +1,6 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
-constant const int plus = 1;
 constant const int minus = 2;
 constant const int star = 3;
 constant const int slash = 4;
@@ -47,6 +46,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float f2 = float(2.0h * _uniforms.colorGreen.y);
     float f3 = float(3.0h * _uniforms.colorGreen.y);
     float f4 = float(4.0h * _uniforms.colorGreen.y);
-    _out.sk_FragColor = ((test_bifffff22(_uniforms, plus, f1, f2, f3, f4, float2x2(float2(f1 + 1.0, f2 + 1.0), float2(f3 + 1.0, f4 + 1.0))) && test_bifffff22(_uniforms, minus, f1, f2, f3, f4, float2x2(float2(f1 - 1.0, f2 - 1.0), float2(f3 - 1.0, f4 - 1.0)))) && test_bifffff22(_uniforms, star, f1, f2, f3, f4, float2x2(float2(f1 * 2.0, f2 * 2.0), float2(f3 * 2.0, f4 * 2.0)))) && test_bifffff22(_uniforms, slash, f1, f2, f3, f4, float2x2(float2(f1 / 2.0, f2 / 2.0), float2(f3 / 2.0, f4 / 2.0))) ? _uniforms.colorGreen : _uniforms.colorRed;
+    float2x2 _0_expected = float2x2(float2(f1 + 1.0, f2 + 1.0), float2(f3 + 1.0, f4 + 1.0));
+    float _1_one = float(_uniforms.colorRed.x);
+    float2x2 _2_m2 = float2x2(float2(f1 * _1_one, f2 * _1_one), float2(f3 * _1_one, f4 * _1_one));
+    {
+        _2_m2 += (float2x2(1.0, 1.0, 1.0, 1.0) * 1.0);
+    }
+    _out.sk_FragColor = (((((_2_m2[0].x == _0_expected[0].x && _2_m2[0].y == _0_expected[0].y) && _2_m2[1].x == _0_expected[1].x) && _2_m2[1].y == _0_expected[1].y) && test_bifffff22(_uniforms, minus, f1, f2, f3, f4, float2x2(float2(f1 - 1.0, f2 - 1.0), float2(f3 - 1.0, f4 - 1.0)))) && test_bifffff22(_uniforms, star, f1, f2, f3, f4, float2x2(float2(f1 * 2.0, f2 * 2.0), float2(f3 * 2.0, f4 * 2.0)))) && test_bifffff22(_uniforms, slash, f1, f2, f3, f4, float2x2(float2(f1 / 2.0, f2 / 2.0), float2(f3 / 2.0, f4 / 2.0))) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }

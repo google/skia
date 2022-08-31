@@ -28,5 +28,8 @@ float4 main(float2 coords)
 	float F45 = float(colorGreen.y * 45.0);
 	bool EQ = true;
 	bool NE = false;
-	return half4(float4(((((((test_same_vectors_0(EQ, F42, ZM, ZP, F43) && !test_same_vectors_0(NE, F42, ZM, ZP, F43)) && test_same_vectors_0(NE, F42, NAN1, NAN2, F43)) && !test_same_vectors_0(EQ, F42, NAN1, NAN2, F43)) && test_diff_vectors_0(NE, F42, F43, F44, F45)) && !test_diff_vectors_0(EQ, F42, F43, F44, F45)) && test_diff_vectors_0(NE, NAN1, ZM, ZP, F42)) && !test_diff_vectors_0(EQ, NAN1, ZM, ZP, F42) ? colorGreen : colorRed));
+	float _0_one = float(colorGreen.x + 1.0);
+	float4 _1_a = float4(F42, ZM, ZP, F43);
+	float4 _2_b = float4(F42 * _0_one, ZM * _0_one, ZP * _0_one, F43 * _0_one);
+	return half4(float4((((((((EQ ? _1_a == _2_b : _1_a != _2_b) && !test_same_vectors_0(NE, F42, ZM, ZP, F43)) && test_same_vectors_0(NE, F42, NAN1, NAN2, F43)) && !test_same_vectors_0(EQ, F42, NAN1, NAN2, F43)) && test_diff_vectors_0(NE, F42, F43, F44, F45)) && !test_diff_vectors_0(EQ, F42, F43, F44, F45)) && test_diff_vectors_0(NE, NAN1, ZM, ZP, F42)) && !test_diff_vectors_0(EQ, NAN1, ZM, ZP, F42) ? colorGreen : colorRed));
 }

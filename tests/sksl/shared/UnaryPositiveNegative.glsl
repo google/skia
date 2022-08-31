@@ -6,11 +6,6 @@ uniform vec4 colorRed;
 uniform mat2 testMatrix2x2;
 uniform mat3 testMatrix3x3;
 uniform mat4 testMatrix4x4;
-bool test_fscalar_b() {
-    float x = colorWhite.x;
-    x = -x;
-    return x == -1.0;
-}
 bool test_iscalar_b() {
     int x = int(colorWhite.x);
     x = -x;
@@ -45,5 +40,7 @@ bool test_mat4_b() {
     return x == negated;
 }
 vec4 main() {
-    return (((((test_fscalar_b() && test_iscalar_b()) && test_fvec_b()) && test_ivec_b()) && test_mat2_b()) && test_mat3_b()) && test_mat4_b() ? colorGreen : colorRed;
+    float _0_x = colorWhite.x;
+    _0_x = -_0_x;
+    return (((((_0_x == -1.0 && test_iscalar_b()) && test_fvec_b()) && test_ivec_b()) && test_mat2_b()) && test_mat3_b()) && test_mat4_b() ? colorGreen : colorRed;
 }

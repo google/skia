@@ -12,14 +12,11 @@ int side_effecting_ii(int value) {
     numSideEffects++;
     return value;
 }
-bool test_b() {
-    int val1 = 2;
-    int val2 = 1;
-    int noFlatten0 = S(--val1, side_effecting_ii(2), 3).a;
-    int noFlatten1 = S(side_effecting_ii(1), 2, 3).b;
-    int noFlatten2 = S(1, val2 += 1, 3).c;
-    return ((((noFlatten0 == 1 && noFlatten1 == 2) && noFlatten2 == 3) && val1 == 1) && val2 == 2) && numSideEffects == 2;
-}
 vec4 main() {
-    return test_b() ? colorGreen : colorRed;
+    int _0_val1 = 2;
+    int _1_val2 = 1;
+    int _2_noFlatten0 = S(--_0_val1, side_effecting_ii(2), 3).a;
+    int _3_noFlatten1 = S(side_effecting_ii(1), 2, 3).b;
+    int _4_noFlatten2 = S(1, _1_val2 += 1, 3).c;
+    return ((((_2_noFlatten0 == 1 && _3_noFlatten1 == 2) && _4_noFlatten2 == 3) && _0_val1 == 1) && _1_val2 == 2) && numSideEffects == 2 ? colorGreen : colorRed;
 }

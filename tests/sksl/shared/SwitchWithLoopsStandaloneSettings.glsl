@@ -2,19 +2,6 @@
 out vec4 sk_FragColor;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
-bool switch_with_break_in_loop_bi(int x) {
-    int val = 0;
-    switch (x) {
-        case 1:
-            for (int i = 0;i < 10; ++i) {
-                ++val;
-                break;
-            }
-        default:
-            ++val;
-    }
-    return val == 2;
-}
 bool switch_with_continue_in_loop_bi(int x) {
     int val = 0;
     switch (x) {
@@ -44,5 +31,15 @@ bool loop_with_break_in_switch_bi(int x) {
 }
 vec4 main() {
     int x = int(colorGreen.y);
-    return (switch_with_break_in_loop_bi(x) && switch_with_continue_in_loop_bi(x)) && loop_with_break_in_switch_bi(x) ? colorGreen : colorRed;
+    int _0_val = 0;
+    switch (x) {
+        case 1:
+            for (int _1_i = 0;_1_i < 10; ++_1_i) {
+                ++_0_val;
+                break;
+            }
+        default:
+            ++_0_val;
+    }
+    return (_0_val == 2 && switch_with_continue_in_loop_bi(x)) && loop_with_break_in_switch_bi(x) ? colorGreen : colorRed;
 }

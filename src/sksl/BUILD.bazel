@@ -38,6 +38,8 @@ CORE_SRCS = [
     "SkSLErrorReporter.cpp",
     "SkSLFileOutputStream.h",
     "SkSLGLSL.h",
+    "SkSLInliner.cpp",
+    "SkSLInliner.h",
     "SkSLIntrinsicList.h",
     "SkSLLexer.cpp",
     "SkSLLexer.h",

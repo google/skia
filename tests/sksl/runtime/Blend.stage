@@ -1,9 +1,4 @@
-half4 blend_src_over_0(half4 src, half4 dst);
-half4 blend_src_over_0(half4 src, half4 dst)
-{
-	return src + (1.0 - src.w) * dst;
-}
 half4 main(half4 src, half4 dst)
 {
-	return half4(blend_src_over_0(_inColor, half4(1.0) - _canvasColor));
+	return half4(_inColor + (1.0 - _inColor.w) * (half4(1.0) - _canvasColor));
 }

@@ -22,30 +22,6 @@ struct S5 {
     float d;
     float e;
 };
-vec4 funcb_h4b(bool b) {
-    return vec4(float(b), float(b), float(b), float(!b));
-}
-vec4 func1_h4h(float h) {
-    return vec4(h) * vec4(h);
-}
-vec4 func2_h4h2(vec2 h2) {
-    return h2.xyxy * h2.yxyx;
-}
-vec4 func3_h4h3(vec3 h3) {
-    return h3.xyzx * h3.xyzx;
-}
-vec4 func4_h4h4(vec4 h4) {
-    return h4 * h4;
-}
-mat2 func2x2_h22h22(mat2 m) {
-    return m * m[0].x;
-}
-vec4 funcS4_h4S(S4 s) {
-    return vec4(s.a, s.b, s.c, 1.0) * s.d;
-}
-vec4 funcS5_h4S(S5 s) {
-    return vec4(s.a, s.b, s.c, s.d) * s.e;
-}
 vec4 main() {
     S s;
     s.ah4[0] = vec4(unknownInput);
@@ -59,29 +35,38 @@ vec4 main() {
     ivec4 i4 = ivec4(i);
     vec4 var;
     mat2 mat;
-    var = func1_h4h(s.h);
-    var = funcb_h4b(b);
-    var = func2_h4h2(s.ah4[0].yw);
-    var = func2_h4h2(as[0].ah4[0].xy);
-    var = func3_h4h3(s.h4.zzz);
-    var = func3_h4h3(colorGreen.xyz);
-    var = func3_h4h3(vec3(s.h));
-    var = func4_h4h4(vec4(s.h));
-    var = func4_h4h4(s.ah4[0].xxxy);
-    var = func4_h4h4(colorGreen);
-    var = func4_h4h4(vec4(1.0, 2.0, 3.0, 4.0));
-    var = func1_h4h(float(i));
-    var = func4_h4h4(vec4(i4));
-    var = funcS4_h4S(S4(1.0, 2.0, 3.0, 4.0));
-    mat = func2x2_h22h22(mat2(unknownInput));
-    var = func4_h4h4(vec4(testMatrix2x2));
-    mat = func2x2_h22h22(mat2(colorGreen.xy, colorGreen.zw));
-    mat = func2x2_h22h22(mat2(mat3(unknownInput)));
-    var = func4_h4h4(vec4(1.0, 2.0, 3.0, unknownInput));
-    var = funcS5_h4S(S5(1.0, 2.0, 3.0, 4.0, 5.0));
-    var = func1_h4h(-s.h);
-    var = funcb_h4b(!b);
-    var = func3_h4h3(s.h4.yyy + s.h4.zzz);
-    var = func4_h4h4(vec4(s.h4.y, 0.0, 0.0, 1.0));
+    var = vec4(s.h) * vec4(s.h);
+    var = vec4(float(b), float(b), float(b), float(!b));
+    var = s.ah4[0].ywyw * s.ah4[0].wywy;
+    var = as[0].ah4[0].xyxy * as[0].ah4[0].yxyx;
+    var = s.h4.zzzz * s.h4.zzzz;
+    var = colorGreen.xyzx * colorGreen.xyzx;
+    var = vec4(s.h) * vec4(s.h);
+    var = vec4(s.h) * vec4(s.h);
+    var = s.ah4[0].xxxy * s.ah4[0].xxxy;
+    var = colorGreen * colorGreen;
+    var = vec4(1.0, 4.0, 9.0, 16.0);
+    var = vec4(float(i)) * vec4(float(i));
+    var = vec4(i4) * vec4(i4);
+    var = vec4(4.0, 8.0, 12.0, 4.0);
+    mat = mat2(unknownInput) * mat2(unknownInput)[0].x;
+    vec4 _0_h4 = vec4(testMatrix2x2);
+    var = _0_h4 * _0_h4;
+    mat2 _1_m = mat2(colorGreen.xy, colorGreen.zw);
+    mat = _1_m * _1_m[0].x;
+    mat2 _2_m = mat2(mat3(unknownInput));
+    mat = _2_m * _2_m[0].x;
+    vec4 _3_h4 = vec4(1.0, 2.0, 3.0, unknownInput);
+    var = _3_h4 * _3_h4;
+    S5 _4_s = S5(1.0, 2.0, 3.0, 4.0, 5.0);
+    var = vec4(_4_s.a, _4_s.b, _4_s.c, _4_s.d) * _4_s.e;
+    float _5_h = -s.h;
+    var = vec4(_5_h) * vec4(_5_h);
+    bool _6_b = !b;
+    var = vec4(float(_6_b), float(_6_b), float(_6_b), float(!_6_b));
+    vec3 _7_h3 = s.h4.yyy + s.h4.zzz;
+    var = _7_h3.xyzx * _7_h3.xyzx;
+    vec4 _8_h4 = vec4(s.h4.y, 0.0, 0.0, 1.0);
+    var = _8_h4 * _8_h4;
     return colorGreen;
 }

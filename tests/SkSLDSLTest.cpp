@@ -2039,6 +2039,29 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
     }
 }
 
+DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
+    AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+    DSLParameter x(kFloat_Type, "x");
+    DSLFunction sqr(kFloat_Type, "sqr", x);
+    sqr.define(
+        Return(x * x)
+    );
+    DSLFunction(kVoid_Type, "main").define(
+        sk_FragColor().assign((sqr(2), Half4(sqr(3))))
+    );
+    const char* source = "source test";
+    std::unique_ptr<SkSL::Program> program = ReleaseProgram(std::make_unique<std::string>(source));
+    EXPECT_EQUAL(*program,
+                 "layout(builtin = 17) in bool sk_Clockwise;"
+                 "layout(location = 0, index = 0, builtin = 10001) out half4 sk_FragColor;"
+                 "void main() {"
+                 ";"
+                 ";"
+                 "(sk_FragColor = (4.0, half4(half(9.0))));"
+                 "}");
+    REPORTER_ASSERT(r, *program->fSource == source);
+}
+
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     {
@@ -2077,10 +2100,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
             "layout (builtin = 17) in bool sk_Clockwise;"
             "float sqr(float x);"
             "void main() {"
-            "  sqr(5.0);"
-            "}"
-            "float sqr(float x) {"
-            "  return (x * x);"
+            ";"
+            "25.0;"
             "}");
     }
 }

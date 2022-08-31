@@ -2591,15 +2591,19 @@ void Viewer::drawImGui() {
                     switch (fOptLevel) {
                         case kShaderOptLevel_Source:
                             Compiler::EnableOptimizer(OverrideFlag::kOff);
+                            Compiler::EnableInliner(OverrideFlag::kOff);
                             break;
                         case kShaderOptLevel_Compile:
                             Compiler::EnableOptimizer(OverrideFlag::kOff);
+                            Compiler::EnableInliner(OverrideFlag::kOff);
                             break;
                         case kShaderOptLevel_Optimize:
                             Compiler::EnableOptimizer(OverrideFlag::kOn);
+                            Compiler::EnableInliner(OverrideFlag::kOff);
                             break;
                         case kShaderOptLevel_Inline:
                             Compiler::EnableOptimizer(OverrideFlag::kOn);
+                            Compiler::EnableInliner(OverrideFlag::kOn);
                             break;
                     }
 
