@@ -3,7 +3,6 @@
 _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
-# //include/effects:public_hdrs
 skia_effects_public = [
   "$_include/effects/Sk1DPathEffect.h",
   "$_include/effects/Sk2DPathEffect.h",
@@ -29,7 +28,6 @@ skia_effects_public = [
   "$_include/effects/SkTrimPathEffect.h",
 ]
 
-# //src/effects:effects_srcs
 skia_effects_sources = [
   "$_src/effects/Sk1DPathEffect.cpp",
   "$_src/effects/Sk2DPathEffect.cpp",

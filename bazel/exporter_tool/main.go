@@ -17,58 +17,66 @@ import (
 	"go.skia.org/skia/bazel/exporter/interfaces"
 )
 
-// fileListWriteOrder specifies the order of file lists to be written to a GNI file.
-// In a *.gni file a file list is like:
-//
-//	file_list = [
-//	  ...
-//	]
-//
-// Skia clients reference some file lists when building Skia using GN. It is important
-// that these lists continue to exist so as to not break customer builds and maintain
-// backward compatibility.
-var fileListWriteOrder = map[string][]string{
-	"gn/core.gni": {
-		"skia_core_public",
-		"skia_core_sources",
-		"skia_pathops_public",
-		"skia_pathops_sources",
-		"skia_precompile_public",
-		"skia_precompile_sources",
-		"skia_skpicture_public",
-		"skia_skpicture_sources"},
-	"gn/effects.gni": {
-		"skia_effects_public",
-		"skia_effects_sources"},
-	/*
-		TODO(skbug.com/12345): Add support for all *.gni files containing file lists.
-
-		"gn/effects_imagefilters.gni": {
-			"skia_effects_imagefilter_public",
-			"skia_effects_imagefilter_sources"},
-		"gn/gpu.gni": {
-			"skia_gpu_sources",
-			"skia_gl_gpu_sources",
-			"skia_null_gpu_sources",
-			"skia_gpu_sources",
-			"skia_vk_sources",
-			"skia_direct3d_sources",
-			"skia_dawn_sources",
-			"skia_metal_sources",
-			"skia_native_gpu_sources",
-			"skia_shared_gpu_sources"},
-		"gn/pdf.gni": {
-			"skia_pdf_public",
-			"skia_pdf_sources"},
-		"gn/sksl.gni": {
-			"skia_sksl_sources",
-			"skia_sksl_tracing_sources",
-			"skia_sksl_gpu_sources",
-			"skslc_deps"},
-		"gn/utils.gni": {
-			"skia_utils_public",
-			"skia_utils_sources"},
-	*/
+var gniExportDescs = []exporter.GNIExportDesc{
+	{GNI: "gn/core.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_core_public",
+			Rules: []string{"//include/core:public_hdrs"}},
+		{Var: "skia_core_sources",
+			Rules: []string{
+				"//include/private:private_hdrs",
+				"//include/private/chromium:private_hdrs",
+				"//src/core:core_hdrs",
+				"//src/core:core_srcs",
+				"//src/core:sksl_hdrs",
+				"//src/core:sksl_srcs",
+				"//src/image:core_hdrs",
+				"//src/image:core_srcs",
+				"//src/lazy:lazy_hdrs",
+				"//src/lazy:lazy_srcs",
+				"//src/opts:private_hdrs",
+				"//src/shaders:shader_hdrs",
+				"//src/shaders:shader_srcs",
+				"//src/text:text_hdrs",
+				"//src/text:text_srcs",
+			}},
+		{Var: "skia_pathops_public",
+			Rules: []string{"//include/pathops:public_hdrs"}},
+		{Var: "skia_pathops_sources",
+			Rules: []string{
+				"//src/pathops:pathops_hdrs",
+				"//src/pathops:pathops_srcs",
+			}},
+		{Var: "skia_precompile_public",
+			Rules: []string{"//include/core:precompile_public_hdrs"}},
+		{Var: "skia_precompile_sources",
+			Rules: []string{
+				"//src/core:precompile_hdrs",
+				"//src/core:precompile_srcs",
+			}},
+		{Var: "skia_skpicture_public",
+			Rules: []string{"//include/core:skpicture_public_hdrs"}},
+		{Var: "skia_skpicture_sources",
+			Rules: []string{
+				"//src/core:skpicture_hdrs",
+				"//src/core:skpicture_srcs",
+				"//src/shaders:skpicture_srcs",
+			}},
+		{Var: "src_images_srcs",
+			Rules: []string{"//src/images:srcs"}}},
+	},
+	{GNI: "gn/effects.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_effects_public",
+			Rules: []string{
+				"//include/effects:public_hdrs",
+			}},
+		{Var: "skia_effects_sources",
+			Rules: []string{
+				"//src/effects:effects_hdrs",
+				"//src/effects:effects_srcs",
+				"//src/shaders/gradients:gradient_hdrs",
+				"//src/shaders/gradients:gradient_srcs",
+			}}},
+	},
 }
 
 const (
@@ -113,7 +121,7 @@ func createExporter(projName, cmakeFileName string, fs *fileSystem) interfaces.E
 	}
 	params := exporter.GNIExporterParams{
 		WorkspaceDir: fs.workspaceDir,
-		GNIFileVars:  fileListWriteOrder,
+		ExportDescs:  gniExportDescs,
 	}
 	return exporter.NewGNIExporter(params, fs)
 }

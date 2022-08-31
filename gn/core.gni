@@ -3,7 +3,6 @@
 _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
-# //include/core:public_hdrs
 skia_core_public = [
   "$_include/core/SkAlphaType.h",
   "$_include/core/SkAnnotation.h",
@@ -99,7 +98,6 @@ skia_core_public = [
   "$_include/core/SkYUVAPixmaps.h",
 ]
 
-# //src/core:core_srcs
 skia_core_sources = [
   "$_src/core/Sk4px.h",
   "$_src/core/SkAAClip.cpp",
@@ -567,10 +565,8 @@ skia_core_sources = [
   "$_include/private/chromium/Slug.h",
 ]
 
-# //include/pathops:public_hdrs
 skia_pathops_public = [ "$_include/pathops/SkPathOps.h" ]
 
-# //src/pathops:pathops_srcs
 skia_pathops_sources = [
   "$_src/pathops/SkAddIntersections.cpp",
   "$_src/pathops/SkAddIntersections.h",
@@ -631,10 +627,8 @@ skia_pathops_sources = [
   "$_src/pathops/SkReduceOrder.h",
 ]
 
-# //include/core:precompile_public_hdrs
 skia_precompile_public = [ "$_include/core/SkCombinationBuilder.h" ]
 
-# //src/core:precompile_srcs
 skia_precompile_sources = [
   "$_src/core/SkCombinationBuilder.cpp",
   "$_src/core/SkFactoryFunctions.cpp",
@@ -642,13 +636,11 @@ skia_precompile_sources = [
   "$_src/core/SkPrecompile.h",
 ]
 
-# //include/core:skpicture_public_hdrs
 skia_skpicture_public = [
   "$_include/core/SkPicture.h",
   "$_include/core/SkPictureRecorder.h",
 ]
 
-# //src/core:skpicture_srcs
 skia_skpicture_sources = [
   "$_src/core/SkBigPicture.cpp",
   "$_src/core/SkBigPicture.h",
@@ -670,7 +662,6 @@ skia_skpicture_sources = [
   "$_src/shaders/SkPictureShader.cpp",
 ]
 
-# //src/images:srcs
 src_images_srcs = [ "$_src/images/SkImageEncoder.cpp" ]
 
 skia_core_sources += skia_pathops_sources
