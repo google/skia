@@ -87,6 +87,15 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/effects/imagefilters:imagefilters_srcs",
 			}}},
 	},
+	{GNI: "gn/pdf.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_pdf_public",
+			Rules: []string{"//include/docs:public_hdrs"}},
+		{Var: "skia_pdf_sources",
+			Rules: []string{
+				"//src/pdf:pdf_hdrs",
+				"//src/pdf:pdf_srcs",
+			}}},
+	},
 }
 
 const (

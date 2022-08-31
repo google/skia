@@ -1,16 +1,11 @@
-# Copyright 2016 Google Inc.
-#
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
+# DO NOT EDIT: This is a generated file.
 
-# Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
 skia_pdf_public = [ "$_include/docs/SkPDFDocument.h" ]
 
 skia_pdf_sources = [
-  "$_include/docs/SkPDFDocument.h",
   "$_src/pdf/SkBitmapKey.h",
   "$_src/pdf/SkClusterator.cpp",
   "$_src/pdf/SkClusterator.h",
@@ -30,6 +25,7 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFFont.h",
   "$_src/pdf/SkPDFFormXObject.cpp",
   "$_src/pdf/SkPDFFormXObject.h",
+  "$_src/pdf/SkPDFGlyphUse.h",
   "$_src/pdf/SkPDFGradientShader.cpp",
   "$_src/pdf/SkPDFGradientShader.h",
   "$_src/pdf/SkPDFGraphicStackState.cpp",
@@ -54,6 +50,8 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFType1Font.h",
   "$_src/pdf/SkPDFTypes.cpp",
   "$_src/pdf/SkPDFTypes.h",
+  "$_src/pdf/SkPDFUnion.h",
   "$_src/pdf/SkPDFUtils.cpp",
   "$_src/pdf/SkPDFUtils.h",
+  "$_src/pdf/SkUUID.h",
 ]
