@@ -16,6 +16,12 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #endif
 
+#if SK_GRAPHITE_ENABLED
+namespace skgpu::graphite {
+    class Recorder;
+}
+#endif
+
 class GrBackendFormat;
 class GrRecordingContext;
 class SkBitmap;
@@ -63,6 +69,12 @@ public:
                                                     const SkImageInfo&,
                                                     const SkSurfaceProps&,
                                                     GrSurfaceOrigin);
+#endif
+
+#if SK_GRAPHITE_ENABLED
+    static sk_sp<SkSpecialSurface> MakeGraphite(skgpu::graphite::Recorder*,
+                                                const SkImageInfo&,
+                                                const SkSurfaceProps&);
 #endif
 
     /**

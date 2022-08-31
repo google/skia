@@ -19,6 +19,7 @@ class Recorder;
 
 class Image final : public SkImage_Base {
 public:
+    Image(uint32_t uniqueID, TextureProxyView, const SkColorInfo&);
     Image(TextureProxyView, const SkColorInfo&);
     ~Image() override;
 

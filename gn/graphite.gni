@@ -101,6 +101,8 @@ skia_graphite_sources = [
   "$_src/Sampler.h",
   "$_src/SharedContext.cpp",
   "$_src/SharedContext.h",
+  "$_src/SpecialImage_Graphite.cpp",
+  "$_src/SpecialSurface_Graphite.cpp",
   "$_src/Surface_Graphite.cpp",
   "$_src/Surface_Graphite.h",
   "$_src/SynchronizeToCpuTask.cpp",

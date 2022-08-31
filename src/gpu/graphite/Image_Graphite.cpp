@@ -16,10 +16,16 @@
 
 namespace skgpu::graphite {
 
+Image::Image(uint32_t uniqueID,
+             TextureProxyView view,
+             const SkColorInfo& info)
+    : SkImage_Base(SkImageInfo::Make(view.proxy()->dimensions(), info), uniqueID)
+    , fTextureProxyView(std::move(view)) {
+}
+
 Image::Image(TextureProxyView view,
              const SkColorInfo& info)
-    : SkImage_Base(SkImageInfo::Make(view.proxy()->dimensions(), info),
-                   kNeedNewImageUniqueID)
+    : SkImage_Base(SkImageInfo::Make(view.proxy()->dimensions(), info), kNeedNewImageUniqueID)
     , fTextureProxyView(std::move(view)) {
 }
 
