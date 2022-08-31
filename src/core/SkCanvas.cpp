@@ -2377,7 +2377,7 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 }
 
 void SkCanvas::onDrawGlyphRunList(const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
-    SkRect bounds = glyphRunList.sourceBounds();
+    SkRect bounds = glyphRunList.sourceBoundsWithOrigin();
     if (this->internalQuickReject(bounds, paint)) {
         return;
     }
@@ -2398,7 +2398,7 @@ sk_sp<Slug> SkCanvas::convertBlobToSlug(
 sk_sp<Slug>
 SkCanvas::onConvertGlyphRunListToSlug(
         const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
-    SkRect bounds = glyphRunList.sourceBounds();
+    SkRect bounds = glyphRunList.sourceBoundsWithOrigin();
     if (bounds.isEmpty() || !bounds.isFinite() || paint.nothingToDraw()) {
         return nullptr;
     }
@@ -2417,7 +2417,7 @@ void SkCanvas::drawSlug(const Slug* slug) {
 }
 
 void SkCanvas::onDrawSlug(const Slug* slug) {
-    SkRect bounds = slug->sourceBounds();
+    SkRect bounds = slug->sourceBoundsWithOrigin();
     if (this->internalQuickReject(bounds, slug->initialPaint())) {
         return;
     }
@@ -2940,7 +2940,7 @@ SkTestCanvas<SkSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
 
 void SkTestCanvas<SkSlugTestKey>::onDrawGlyphRunList(
         const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
-    SkRect bounds = glyphRunList.sourceBounds();
+    SkRect bounds = glyphRunList.sourceBoundsWithOrigin();
     if (this->internalQuickReject(bounds, paint)) {
         return;
     }

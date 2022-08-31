@@ -121,6 +121,7 @@ public:
 #endif
 
     SkRect sourceBounds() const override { return fSourceBounds; }
+    SkRect sourceBoundsWithOrigin() const override { return fSourceBounds.makeOffset(fOrigin); }
     const SkPaint& initialPaint() const override { return fInitialPaint; }
 
     const SkMatrix& initialPositionMatrix() const { return fSubRuns->initialPosition(); }
@@ -269,7 +270,7 @@ auto TextBlob::Key::Make(const GlyphRunList& glyphRunList,
 
         // Do any runs use direct drawing types?.
         key.fHasSomeDirectSubRuns = false;
-        SkPoint glyphRunListLocation = glyphRunList.sourceBounds().center();
+        SkPoint glyphRunListLocation = glyphRunList.sourceBoundsWithOrigin().center();
         for (auto& run : glyphRunList) {
             SkScalar approximateDeviceTextSize =
                     SkFontPriv::ApproximateTransformedTextSize(run.font(), drawMatrix,

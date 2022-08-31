@@ -55,6 +55,7 @@ public:
     void draw(SkCanvas* canvas) const;
 
     virtual SkRect sourceBounds() const = 0;
+    virtual SkRect sourceBoundsWithOrigin () const = 0;
 
     // The paint passed into ConvertBlob; this paint is used instead of the paint resulting from
     // the call to aboutToDraw because when we call draw(), the initial paint is needed to call

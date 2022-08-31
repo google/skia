@@ -2860,6 +2860,8 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
         // Only consider using direct or SDFT drawing if not drawing hairlines.
         if ((runPaint.getStyle() != SkPaint::kStroke_Style || runPaint.getStrokeWidth() != 0)) {
             SkScalar approximateDeviceTextSize =
+                    // Since the positionMatrix has the origin prepended, use the plain
+                    // sourceBounds from above.
                     SkFontPriv::ApproximateTransformedTextSize(runFont, positionMatrix,
                                                                glyphRunListLocation);
 

@@ -125,6 +125,7 @@ public:
 
     SkPoint origin() const { return fOrigin; }
     SkRect sourceBounds() const { return fSourceBounds; }
+    SkRect sourceBoundsWithOrigin() const { return fSourceBounds.makeOffset(fOrigin); }
     const SkTextBlob* blob() const { return fOriginalTextBlob; }
     GlyphRunBuilder* builder() const { return fBuilder; }
     SkSubRunBuffers* buffers() const;

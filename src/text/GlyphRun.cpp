@@ -184,8 +184,7 @@ static SkRect glyphrun_source_bounds(
 GlyphRunList GlyphRunBuilder::makeGlyphRunList(
         const GlyphRun& run, const SkPaint& paint, SkPoint origin) {
     const SkRect bounds =
-            glyphrun_source_bounds(run.font(), paint, run.source(), run.scaledRotations())
-                    .makeOffset(origin);
+            glyphrun_source_bounds(run.font(), paint, run.source(), run.scaledRotations());
     return GlyphRunList{run, bounds, origin, this};
 }
 
@@ -220,8 +219,7 @@ const GlyphRunList& GlyphRunBuilder::textToGlyphRunList(
                            SkSpan<const uint32_t>{},
                            SkSpan<const SkVector>{});
         auto run = fGlyphRunListStorage.front();
-        bounds = glyphrun_source_bounds(run.font(), paint, run.source(), run.scaledRotations())
-                         .makeOffset(origin);
+        bounds = glyphrun_source_bounds(run.font(), paint, run.source(), run.scaledRotations());
     }
 
     return this->setGlyphRunList(nullptr, bounds, origin);
@@ -284,7 +282,7 @@ const GlyphRunList& sktext::GlyphRunBuilder::blobToGlyphRunList(
                 scaledRotations);
     }
 
-    return this->setGlyphRunList(&blob, blob.bounds().makeOffset(origin), origin);
+    return this->setGlyphRunList(&blob, blob.bounds(), origin);
 }
 
 std::tuple<SkSpan<const SkPoint>, SkSpan<const SkVector>>
