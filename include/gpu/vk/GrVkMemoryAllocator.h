@@ -83,7 +83,7 @@ public:
     }
 
     virtual VkResult allocateImageMemory(VkImage image,
-                                        AllocationPropertyFlags,
+                                        AllocationPropertyFlags flags,
                                         skgpu::VulkanBackendMemory* memory) {
         bool result = this->allocateMemoryForImage(image, flags, memory);
         // VK_ERROR_INITIALIZATION_FAILED is a bogus result to return from this function, but it is
