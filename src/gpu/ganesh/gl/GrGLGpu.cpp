@@ -23,6 +23,7 @@
 #include "src/core/SkMipmap.h"
 #include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/SkRenderEngineAbortf.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCpuBuffer.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
@@ -1301,6 +1302,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
 
     GL_CALL(GenFramebuffers(1, &rtIDs->fSingleSampleFBOID));
     if (!rtIDs->fSingleSampleFBOID) {
+        RENDERENGINE_ABORTF("%s failed to GenFramebuffers!", __func__);
         return false;
     }
 

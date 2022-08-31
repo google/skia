@@ -749,6 +749,7 @@ BASE_SRCS_ALL = [
     "src/gpu/ResourceKey.cpp",
     "src/gpu/ResourceKey.h",
     "src/gpu/ShaderErrorHandler.cpp",
+    "src/gpu/SkRenderEngineAbortf.h",
     "src/gpu/Swizzle.cpp",
     "src/gpu/Swizzle.h",
     # We include the ganesh files, but leave out any specific backend (e.g. GL, Vulkan)

@@ -22,6 +22,7 @@ CORE_FILES = [
     "ResourceKey.cpp",
     "ResourceKey.h",
     "ShaderErrorHandler.cpp",
+    "SkRenderEngineAbortf.h",
     "Swizzle.cpp",
     "Swizzle.h",
 ]

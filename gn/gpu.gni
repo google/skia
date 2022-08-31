@@ -30,6 +30,7 @@ skia_gpu_sources = [
   "$_include/private/gpu/ganesh/GrTypesPriv.h",
   "$_src/gpu/GrAHardwareBufferUtils.h",
   "$_src/gpu/GrRectanizer.h",
+  "$_src/gpu/SkRenderEngineAbortf.h",
   "$_src/gpu/ganesh/ClipStack.cpp",
   "$_src/gpu/ganesh/ClipStack.h",
   "$_src/gpu/ganesh/Device.cpp",

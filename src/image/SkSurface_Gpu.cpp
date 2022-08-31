@@ -16,6 +16,7 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSurfacePriv.h"
+#include "src/gpu/SkRenderEngineAbortf.h"
 #include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
@@ -445,18 +446,29 @@ static bool validate_backend_texture(const GrCaps* caps, const GrBackendTexture&
 
     GrBackendFormat backendFormat = tex.getBackendFormat();
     if (!backendFormat.isValid()) {
+        RENDERENGINE_ABORTF("%s failed due to an invalid format", __func__);
         return false;
     }
 
     if (!caps->areColorTypeAndFormatCompatible(grCT, backendFormat)) {
+        RENDERENGINE_ABORTF("%s failed due to an invalid format and colorType combination",
+                                __func__);
         return false;
     }
 
     if (!caps->isFormatAsColorTypeRenderable(grCT, backendFormat, sampleCnt)) {
+        RENDERENGINE_ABORTF(
+                "%s failed due to no supported rendering path for the selected "
+                "format and colorType",
+                __func__);
         return false;
     }
 
     if (texturable && !caps->isFormatTexturable(backendFormat, tex.textureType())) {
+        RENDERENGINE_ABORTF(
+                "%s failed due to no texturing support for the selected format and "
+                "colorType",
+                __func__);
         return false;
     }
 
@@ -499,12 +511,15 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* rContext,
     auto releaseHelper = skgpu::RefCntedCallback::Make(textureReleaseProc, releaseContext);
 
     if (!rContext) {
+        RENDERENGINE_ABORTF("%s failed due to a null context ", __func__);
         return nullptr;
     }
     sampleCnt = std::max(1, sampleCnt);
 
     GrColorType grColorType = SkColorTypeToGrColorType(colorType);
     if (grColorType == GrColorType::kUnknown) {
+        RENDERENGINE_ABORTF(
+                "%s failed due to an unsupported colorType %d", __func__, colorType);
         return nullptr;
     }
 
@@ -516,6 +531,18 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* rContext,
             tex, sampleCnt, kBorrow_GrWrapOwnership, GrWrapCacheable::kNo,
             std::move(releaseHelper)));
     if (!proxy) {
+#ifdef SK_IN_RENDERENGINE
+        GrGLTextureInfo textureInfo;
+        bool retrievedTextureInfo = tex.getGLTextureInfo(&textureInfo);
+        RENDERENGINE_ABORTF("%s failed to wrap the texture into a renderable target "
+             "\n\tGrBackendTexture: (%i x %i) hasMipmaps: %i isProtected: %i texType: %i"
+             "\n\t\tGrGLTextureInfo: success: %i fTarget: %u fFormat: %u"
+             "\n\tmaxRenderTargetSize: %d",
+             __func__, tex.width(), tex.height(), tex.hasMipmaps(),
+             tex.isProtected(), static_cast<int>(tex.textureType()),
+             retrievedTextureInfo, textureInfo.fTarget, textureInfo.fFormat,
+             rContext->priv().caps()->maxRenderTargetSize());
+#endif
         return nullptr;
     }
 
@@ -524,6 +551,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTexture(GrRecordingContext* rContext,
                                                 SkSurfacePropsCopyOrDefault(props),
                                                 skgpu::v1::Device::InitContents::kUninit);
     if (!device) {
+        RENDERENGINE_ABORTF("%s failed to wrap the renderTarget into a surface", __func__);
         return nullptr;
     }
 
