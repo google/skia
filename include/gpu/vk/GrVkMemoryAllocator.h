@@ -14,6 +14,7 @@
 
 class GrVkMemoryAllocator : public SkRefCnt {
 public:
+#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
     enum class AllocationPropertyFlags {
         kNone                = 0,
         // Allocation will be placed in its own VkDeviceMemory and not suballocated from some larger
@@ -33,6 +34,25 @@ public:
     };
 
     GR_DECL_BITFIELD_CLASS_OPS_FRIENDS(AllocationPropertyFlags);
+#else
+    enum AllocationPropertyFlags {
+        kNone_AllocationPropertyFlag                = 0b0000,
+        // Allocation will be placed in its own VkDeviceMemory and not suballocated from some larger
+        // block.
+        kDedicatedAllocation_AllocationPropertyFlag = 0b0001,
+        // Says that the backing memory can only be accessed by the device. Additionally the device
+        // may lazily allocate the memory. This cannot be used with buffers that will be host
+        // visible. Setting this flag does not guarantee that we will allocate memory that respects
+        // it, but we will try to prefer memory that can respect it.
+        kLazyAllocation_AllocationPropertyFlag      = 0b0010,
+        // The allocation will be mapped immediately and stay mapped until it is destroyed. This
+        // flag is only valid for buffers which are host visible (i.e. must have a usage other than
+        // BufferUsage::kGpuOnly).
+        kPersistentlyMapped_AllocationPropertyFlag  = 0b0100,
+        // Allocation can only be accessed by the device using a protected context.
+        kProtected_AllocationPropertyFlag           = 0b1000,
+    };
+#endif
 
     enum class BufferUsage {
         // Buffers that will only be accessed from the device (large const buffers). Will always be
@@ -52,16 +72,19 @@ public:
         kTransfersFromGpuToCpu,
     };
 
+#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
     // DEPRECATED: Use and implement allocateImageMemory instead
-    virtual bool allocateMemoryForImage(VkImage, AllocationPropertyFlags,
+    virtual bool allocateMemoryForImage(VkImage,
+                                        AllocationPropertyFlags,
                                         skgpu::VulkanBackendMemory*) {
         // The default implementation here is so clients can delete this virtual as the switch to
         // the new one which returns a VkResult.
         return false;
     }
 
-    virtual VkResult allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
-                                         skgpu::VulkanBackendMemory* memory) {
+    virtual VkResult allocateImageMemory(VkImage image,
+                                        AllocationPropertyFlags,
+                                        skgpu::VulkanBackendMemory* memory) {
         bool result = this->allocateMemoryForImage(image, flags, memory);
         // VK_ERROR_INITIALIZATION_FAILED is a bogus result to return from this function, but it is
         // just something to return that is not VK_SUCCESS and can't be interpreted by a caller to
@@ -69,9 +92,15 @@ public:
         // update clients to implement this virtual.
         return result ? VK_SUCCESS : VK_ERROR_INITIALIZATION_FAILED;
     }
+#else
+    virtual VkResult allocateImageMemory(VkImage image,
+                                         uint32_t allocationPropertyFlags,
+                                         skgpu::VulkanBackendMemory* memory) = 0;
+#endif
 
+#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
     // DEPRECATED: Use and implement allocateBufferMemory instead
-    virtual bool allocateMemoryForBuffer(VkBuffer, BufferUsage,  AllocationPropertyFlags,
+    virtual bool allocateMemoryForBuffer(VkBuffer, BufferUsage, AllocationPropertyFlags,
                                          skgpu::VulkanBackendMemory*) {
         // The default implementation here is so clients can delete this virtual as the switch to
         // the new one which returns a VkResult.
@@ -89,7 +118,12 @@ public:
         // update clients to implement this virtual.
         return result ? VK_SUCCESS : VK_ERROR_INITIALIZATION_FAILED;
     }
-
+#else
+    virtual VkResult allocateBufferMemory(VkBuffer buffer,
+                                          BufferUsage usage,
+                                          uint32_t allocationPropertyFlags,
+                                          skgpu::VulkanBackendMemory* memory) = 0;
+#endif
 
     // Fills out the passed in skgpu::VulkanAlloc struct for the passed in
     // skgpu::VulkanBackendMemory.
@@ -138,6 +172,8 @@ public:
     virtual uint64_t totalAllocatedMemory() const = 0;
 };
 
+#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
 GR_MAKE_BITFIELD_CLASS_OPS(GrVkMemoryAllocator::AllocationPropertyFlags)
+#endif
 
 #endif

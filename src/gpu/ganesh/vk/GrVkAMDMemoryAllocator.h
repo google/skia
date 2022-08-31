@@ -45,13 +45,25 @@ public:
 
     ~GrVkAMDMemoryAllocator() override;
 
+#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
     VkResult allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
                                  skgpu::VulkanBackendMemory*) override;
+#else
+    VkResult allocateImageMemory(VkImage image, uint32_t allocationPropertyFlags,
+                                 skgpu::VulkanBackendMemory*) override;
+#endif
 
+#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
     VkResult allocateBufferMemory(VkBuffer buffer,
                                   BufferUsage usage,
                                   AllocationPropertyFlags flags,
                                   skgpu::VulkanBackendMemory*) override;
+#else
+    VkResult allocateBufferMemory(VkBuffer buffer,
+                                  BufferUsage usage,
+                                  uint32_t allocationPropertyFlags,
+                                  skgpu::VulkanBackendMemory*) override;
+#endif
 
     void freeMemory(const skgpu::VulkanBackendMemory&) override;
 
