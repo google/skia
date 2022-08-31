@@ -39,7 +39,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cfloat>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -114,6 +113,8 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
     // every component.
 
     Position pos = arg0->fPosition;
+    double minimumValue = returnType.componentType().minimumValue();
+    double maximumValue = returnType.componentType().maximumValue();
 
     const Type& vecType =          arg0->type().isVector()  ? arg0->type() :
                           (arg1 && arg1->type().isVector()) ? arg1->type() :
@@ -138,8 +139,8 @@ static std::unique_ptr<Expression> coalesce_n_way_vector(const Expression* arg0,
 
         value = coalesce(value, *arg0Value, *arg1Value);
 
-        if (value >= -FLT_MAX && value <= FLT_MAX) {
-            // This result will fit inside a float Literal.
+        if (value >= minimumValue && value <= maximumValue) {
+            // This result will fit inside the return type.
         } else {
             // The value is outside the float range or is NaN (all if-checks fail); do not optimize.
             return nullptr;
@@ -232,6 +233,8 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& conte
     // of scalars and compounds, scalars are interpreted as a compound containing the same value for
     // every component.
 
+    double minimumValue = returnType.componentType().minimumValue();
+    double maximumValue = returnType.componentType().maximumValue();
     int slots = returnType.slotCount();
     double array[16];
 
@@ -259,8 +262,8 @@ static std::unique_ptr<Expression> evaluate_n_way_intrinsic(const Context& conte
 
         array[index] = eval(*arg0Value, *arg1Value, *arg2Value);
 
-        if (array[index] >= -FLT_MAX && array[index] <= FLT_MAX) {
-            // This result will fit inside a float Literal.
+        if (array[index] >= minimumValue && array[index] <= maximumValue) {
+            // This result will fit inside the return type.
         } else {
             // The value is outside the float range or is NaN (all if-checks fail); do not optimize.
             return nullptr;

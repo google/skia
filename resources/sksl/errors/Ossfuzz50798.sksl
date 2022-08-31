@@ -1,0 +1,5 @@
+int[abs(floatBitsToInt(-abs(0)))] x;
+
+/*%%*
+array size must be an integer
+*%%*/
