@@ -586,14 +586,10 @@ public:
     };
 
     static Behavior GrowthBehavior() {
-    #ifdef SK_DEBUG
-        // In debug builds (assuming no musttail attribute), we expect actual stack growth
-        return Behavior::kGrowth;
-    #else
-        // In release builds (without musttail), it's possible that the compiler will (or won't)
-        // apply tail call optimization, so we can't make any prediction about stack growth
+        // Without the musttail attribute, we have no way of knowing what's going to happen.
+        // In release builds, it's likely that the compiler will apply tail call optimization.
+        // Even in some debug builds (on Windows), we don't see stack growth.
         return Behavior::kUnknown;
-    #endif
     }
 
     // Call one of these two each time the checker callback is added:
