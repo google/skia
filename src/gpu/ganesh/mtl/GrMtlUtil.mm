@@ -116,14 +116,14 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
     options.fastMathEnabled = YES;
 
     NSError* error = nil;
-#if defined(SK_BUILD_FOR_MAC)
-    id<MTLLibrary> compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), nsSource,
-                                                               options, &error);
-#else
-    id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource:nsSource
-                                                                 options:options
-                                                                   error:&error];
-#endif
+    id<MTLLibrary> compiledLibrary;
+    if (@available(macOS 10.15, *)) {
+        compiledLibrary = [gpu->device() newLibraryWithSource:nsSource
+                                                      options:options
+                                                        error:&error];
+    } else {
+        compiledLibrary = GrMtlNewLibraryWithSource(gpu->device(), nsSource, options, &error);
+    }
     if (!compiledLibrary) {
         errorHandler->compileError(msl.c_str(), error.debugDescription.UTF8String);
         return nil;
