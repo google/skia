@@ -16,6 +16,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/spirv.h"
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -390,19 +391,15 @@ public:
         return -1;
     }
 
-    /** For integer types, returns the minimum value that can fit in the type. */
-    int64_t minimumValue() const {
-        SkASSERT(this->isInteger());
-        constexpr int64_t k1 = 1;  // ensures that `1 << n` is evaluated as 64-bit
-        return this->isUnsigned() ? 0 : -(k1 << (this->bitWidth() - 1));
+    /** Returns the minimum value that can fit in the type. */
+    virtual double minimumValue() const {
+        SkDEBUGFAIL("type does not have a minimum value");
+        return -INFINITY;
     }
 
-    /** For integer types, returns the maximum value that can fit in the type. */
-    int64_t maximumValue() const {
-        SkASSERT(this->isInteger());
-        constexpr int64_t k1 = 1;  // ensures that `1 << n` is evaluated as 64-bit
-        return (this->isUnsigned() ? (k1 << this->bitWidth())
-                                   : (k1 << (this->bitWidth() - 1))) - 1;
+    virtual double maximumValue() const {
+        SkDEBUGFAIL("type does not have a maximum value");
+        return +INFINITY;
     }
 
     /**

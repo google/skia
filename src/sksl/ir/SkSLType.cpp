@@ -22,8 +22,8 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <algorithm>
-#include <cmath>
 #include <cstdint>
+#include <limits>
 #include <optional>
 #include <string_view>
 
@@ -236,6 +236,14 @@ public:
         return fScalarType.bitWidth();
     }
 
+    double minimumValue() const override {
+        return fScalarType.minimumValue();
+    }
+
+    double maximumValue() const override {
+        return fScalarType.maximumValue();
+    }
+
     bool isScalar() const override {
         return true;
     }
@@ -301,6 +309,45 @@ public:
 
     size_t slotCount() const override {
         return 1;
+    }
+
+    using int_limits = std::numeric_limits<int32_t>;
+    using short_limits = std::numeric_limits<int16_t>;
+    using uint_limits = std::numeric_limits<uint32_t>;
+    using ushort_limits = std::numeric_limits<uint16_t>;
+    using float_limits = std::numeric_limits<float>;
+
+    /** Returns the maximum value that can fit in the type. */
+    double minimumValue() const override {
+        switch (this->numberKind()) {
+            case NumberKind::kSigned:
+                return this->highPrecision() ? int_limits::lowest()
+                                             : short_limits::lowest();
+
+            case NumberKind::kUnsigned:
+                return 0;
+
+            case NumberKind::kFloat:
+            default:
+                return float_limits::lowest();
+        }
+    }
+
+    /** Returns the maximum value that can fit in the type. */
+    double maximumValue() const override {
+        switch (this->numberKind()) {
+            case NumberKind::kSigned:
+                return this->highPrecision() ? int_limits::max()
+                                             : short_limits::max();
+
+            case NumberKind::kUnsigned:
+                return this->highPrecision() ? uint_limits::max()
+                                             : ushort_limits::max();
+
+            case NumberKind::kFloat:
+            default:
+                return float_limits::max();
+        }
     }
 
 private:
@@ -948,7 +995,7 @@ bool Type::isAllowedInES2(const Context& context) const {
 bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& expr) const {
     bool foundError = false;
     const Type& baseType = this->componentType();
-    if (baseType.isInteger()) {
+    if (baseType.isNumber()) {
         // Replace constant expressions with their corresponding values.
         const Expression* valueExpr = ConstantFolder::GetConstantValueForVariable(expr);
         if (valueExpr->supportsConstantValues()) {
@@ -971,16 +1018,16 @@ bool Type::checkForOutOfRangeLiteral(const Context& context, const Expression& e
 
 bool Type::checkForOutOfRangeLiteral(const Context& context, double value, Position pos) const {
     SkASSERT(this->isScalar());
-    if (!this->isInteger()) {
-        return false;
+    if (!this->isNumber()) {
+       return false;
     }
     if (value >= this->minimumValue() && value <= this->maximumValue()) {
         return false;
     }
-    // We found a value that can't fit in our integral type. Flag it as an error.
-    context.fErrors->error(pos, SkSL::String::printf("integer is out of range for type '%s': %.0f",
+    // We found a value that can't fit in our type. Flag it as an error.
+    context.fErrors->error(pos, SkSL::String::printf("value is out of range for type '%s': %.0f",
                                                      this->displayName().c_str(),
-                                                     std::floor(value)));
+                                                     value));
     return true;
 }
 

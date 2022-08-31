@@ -12,10 +12,10 @@ uint   cast_int   = uint(4294967296.);                 // error
 ushort cast_short = ushort(65536.);                    // error
 
 /*%%*
-integer is out of range for type 'uint': -1
+value is out of range for type 'uint': -1
 integer is too large: 4294967296
-integer is out of range for type 'ushort': -1
-integer is out of range for type 'ushort': 65536
-integer is out of range for type 'uint': 4294967296
-integer is out of range for type 'ushort': 65536
+value is out of range for type 'ushort': -1
+value is out of range for type 'ushort': 65536
+value is out of range for type 'uint': 4294967296
+value is out of range for type 'ushort': 65536
 *%%*/

@@ -27,10 +27,10 @@ void main() {
 
 
 /*%%*
-integer is out of range for type 'short': 99999
-integer is out of range for type 'short': 67890
-integer is out of range for type 'int': 5000000000
-integer is out of range for type 'int': 3000000000
-integer is out of range for type 'short': 32768
-integer is out of range for type 'int': 2147483648
+value is out of range for type 'short': 99999
+value is out of range for type 'short': 67890
+value is out of range for type 'int': 5000000000
+value is out of range for type 'int': 3000000000
+value is out of range for type 'short': 32768
+value is out of range for type 'int': 2147483648
 *%%*/

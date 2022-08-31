@@ -5,7 +5,7 @@ const int intMaxPlusOne  = 2147483648;                  // error
 int   cast_int   = int(2147483648.);                    // error
 
 /*%%*
-integer is out of range for type 'int': -2147483649
-integer is out of range for type 'int': 2147483648
-integer is out of range for type 'int': 2147483648
+value is out of range for type 'int': -2147483649
+value is out of range for type 'int': 2147483648
+value is out of range for type 'int': 2147483648
 *%%*/

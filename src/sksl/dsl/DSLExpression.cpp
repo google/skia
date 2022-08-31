@@ -26,7 +26,6 @@
 #include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#include <math.h>
 #include <utility>
 
 namespace SkSL {
@@ -51,15 +50,7 @@ DSLExpression::DSLExpression(std::unique_ptr<SkSL::Expression> expression, Posit
 DSLExpression::DSLExpression(float value, Position pos)
     : fExpression(SkSL::Literal::MakeFloat(ThreadContext::Context(),
                                            pos,
-                                           value)) {
-    if (!isfinite(value)) {
-        if (isinf(value)) {
-            ThreadContext::ReportError("floating point value is infinite");
-        } else if (isnan(value)) {
-            ThreadContext::ReportError("floating point value is NaN");
-        }
-    }
-}
+                                           value)) {}
 
 DSLExpression::DSLExpression(int value, Position pos)
     : fExpression(SkSL::Literal::MakeInt(ThreadContext::Context(),
