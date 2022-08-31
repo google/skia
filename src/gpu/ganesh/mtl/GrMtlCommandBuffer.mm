@@ -211,6 +211,12 @@ bool GrMtlCommandBuffer::commit(bool waitUntilCompleted) {
     [fCmdBuffer commit];
     if (waitUntilCompleted) {
         this->waitUntilCompleted();
+#if defined(SK_BUILD_FOR_IOS) && defined(SK_METAL_WAIT_UNTIL_SCHEDULED)
+    // If iOS goes into the background we need to make sure all command buffers are scheduled first.
+    // We don't have a way of detecting background transition so this guarantees it.
+    } else {
+        [fCmdBuffer waitUntilScheduled];
+#endif
     }
 
     if ([fCmdBuffer status] == MTLCommandBufferStatusError) {
