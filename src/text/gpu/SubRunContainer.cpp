@@ -148,6 +148,7 @@ public:
                         const skgpu::graphite::Transform& toDevice) const;
     void fillInstanceData(DrawWriter* dw,
                           int offset, int count,
+                          unsigned short flags,
                           int ssboIndex,
                           SkSpan<const Glyph*> glyphs,
                           SkScalar depth) const;
@@ -421,6 +422,7 @@ void TransformedMaskVertexFiller::fillVertexData(DrawWriter* dw,
 
 void TransformedMaskVertexFiller::fillInstanceData(DrawWriter* dw,
                                                    int offset, int count,
+                                                   unsigned short flags,
                                                    int ssboIndex,
                                                    SkSpan<const Glyph*> glyphs,
                                                    SkScalar depth) const {
@@ -431,6 +433,7 @@ void TransformedMaskVertexFiller::fillInstanceData(DrawWriter* dw,
 
     DrawWriter::Instances instances{*dw, {}, {}, 4};
     instances.reserve(count);
+
     // Need to send width, height, uvPos, xyPos, and strikeToSourceScale
     // pre-transform coords = (s*w*b_x + t_x, s*h*b_y + t_y)
     // where (b_x, b_y) are the vertexID coords
@@ -438,7 +441,7 @@ void TransformedMaskVertexFiller::fillInstanceData(DrawWriter* dw,
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         instances.append(1) << AtlasPt{uint16_t(ar-al), uint16_t(ab-at)}
                             << AtlasPt{uint16_t(al & 0x1fff), at}
-                            << leftTop << /*index=*/uint16_t(al >> 13) << /*flags=*/uint16_t(0)
+                            << leftTop << /*index=*/uint16_t(al >> 13) << flags
                             << fStrikeToSourceScale
                             << depth << ssboIndex;
     }
@@ -497,6 +500,7 @@ public:
                         const skgpu::graphite::Transform& toDevice) const;
     void fillInstanceData(DrawWriter* dw,
                           int offset, int count,
+                          unsigned short flags,
                           int ssboIndex,
                           SkSpan<const Glyph*> glyphs,
                           SkScalar depth) const;
@@ -762,6 +766,7 @@ void TransformedMaskVertexFiller2::fillVertexData(DrawWriter* dw,
 
 void TransformedMaskVertexFiller2::fillInstanceData(DrawWriter* dw,
                                                     int offset, int count,
+                                                    unsigned short flags,
                                                     int ssboIndex,
                                                     SkSpan<const Glyph*> glyphs,
                                                     SkScalar depth) const {
@@ -779,7 +784,7 @@ void TransformedMaskVertexFiller2::fillInstanceData(DrawWriter* dw,
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         instances.append(1) << AtlasPt{uint16_t(ar-al), uint16_t(ab-at)}
                             << AtlasPt{uint16_t(al & 0x1fff), at}
-                            << leftTop << /*index=*/uint16_t(al >> 13) << /*flags=*/uint16_t(0)
+                            << leftTop << /*index=*/uint16_t(al >> 13) << flags
                             << fStrikeToSourceScale
                             << depth << ssboIndex;
     }
@@ -1578,7 +1583,7 @@ public:
                                                       SkPoint drawOrigin) const override;
 
     const Renderer* renderer(const RendererProvider* renderers) const override {
-        return renderers->bitmapText(fMaskFormat == skgpu::MaskFormat::kA8);
+        return renderers->bitmapText();
     }
 
     void fillVertexData(DrawWriter*,
@@ -2055,11 +2060,12 @@ void DirectMaskSubRun::fillInstanceData(DrawWriter* dw,
 
     DrawWriter::Instances instances{*dw, {}, {}, 4};
     instances.reserve(count);
+    unsigned short flags = (fMaskFormat == skgpu::MaskFormat::kA8);
     for (auto [glyph, leftTop]: quadData()) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         instances.append(1) << AtlasPt{uint16_t(ar-al), uint16_t(ab-at)}
                             << AtlasPt{uint16_t(al & 0x1fff), at}
-                            << leftTop << /*index=*/uint16_t(al >> 13) << /*flags=*/uint16_t(0)
+                            << leftTop << /*index=*/uint16_t(al >> 13) << flags
                             << 1.0f
                             << depth << ssboIndex;
     }
@@ -2250,7 +2256,7 @@ public:
     }
 
     const Renderer* renderer(const RendererProvider* renderers) const override {
-        return renderers->bitmapText(fVertexFiller.grMaskType() == skgpu::MaskFormat::kA8);
+        return renderers->bitmapText();
     }
 
     void fillVertexData(DrawWriter* dw,
@@ -2270,8 +2276,10 @@ public:
                           int offset, int count,
                           int ssboIndex,
                           SkScalar depth) const override {
+        unsigned short flags = (fVertexFiller.grMaskType() == skgpu::MaskFormat::kA8);
         fVertexFiller.fillInstanceData(dw,
                                        offset, count,
+                                       flags,
                                        ssboIndex,
                                        fGlyphs.glyphs(),
                                        depth);
@@ -2648,7 +2656,7 @@ void SDFTSubRun::fillInstanceData(DrawWriter* dw,
                                   int ssboIndex,
                                   SkScalar depth) const {
     fVertexFiller.fillInstanceData(dw,
-                                   offset, count,
+                                   offset, count, /*flags=*/0,
                                    ssboIndex,
                                    fGlyphs.glyphs(),
                                    depth);

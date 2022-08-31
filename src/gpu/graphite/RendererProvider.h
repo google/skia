@@ -41,7 +41,7 @@ public:
     const Renderer* tessellatedStrokes() const { return &fTessellatedStrokes; }
 
     // Atlas'ed text rendering
-    const Renderer* bitmapText(bool isA8) const { return &fBitmapText[isA8]; }
+    const Renderer* bitmapText() const { return &fBitmapText; }
     const Renderer* sdfText(bool useLCDText) const { return &fSDFText[useLCDText]; }
 
     // Mesh rendering
@@ -85,7 +85,7 @@ private:
     Renderer fConvexTessellatedWedges;
     Renderer fTessellatedStrokes;
 
-    Renderer fBitmapText[2]; // bool isA8
+    Renderer fBitmapText;
     Renderer fSDFText[2];    // bool isLCD
 
     Renderer fVertices[kVerticesCount];

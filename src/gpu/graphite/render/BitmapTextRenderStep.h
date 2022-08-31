@@ -14,7 +14,7 @@ namespace skgpu::graphite {
 
 class BitmapTextRenderStep final : public RenderStep {
 public:
-    BitmapTextRenderStep(bool isA8);
+    BitmapTextRenderStep();
 
     ~BitmapTextRenderStep() override;
 
@@ -26,7 +26,6 @@ public:
     void writeUniformsAndTextures(const DrawParams&, SkPipelineDataGatherer*) const override;
 
 private:
-    bool fIsA8;
 };
 
 }  // namespace skgpu::graphite

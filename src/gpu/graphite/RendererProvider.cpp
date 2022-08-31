@@ -42,9 +42,7 @@ RendererProvider::RendererProvider() {
     fConvexTessellatedWedges = makeFromStep(
             std::make_unique<TessellateWedgesRenderStep>("convex", kDirectDepthGreaterPass));
     fTessellatedStrokes = makeFromStep(std::make_unique<TessellateStrokesRenderStep>());
-    for (bool a8 : {false, true}) {
-        fBitmapText[a8] = makeFromStep(std::make_unique<BitmapTextRenderStep>(a8));
-    }
+    fBitmapText = makeFromStep(std::make_unique<BitmapTextRenderStep>());
     for (bool lcd : {false, true}) {
         fSDFText[lcd] = makeFromStep(std::make_unique<SDFTextRenderStep>(lcd));
     }
