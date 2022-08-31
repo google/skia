@@ -711,6 +711,8 @@ void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
             builder->setBlendInfo(get_blend_info(bm));
 
             builder->beginBlock(SkBuiltInCodeSnippetID::kFixedFunctionBlender);
+            static_assert(SkTFitsIn<uint8_t>(SkBlendMode::kLastMode));
+            builder->addByte(static_cast<uint8_t>(bm));
         } else {
             // TODO: set up the correct blend info
             builder->setBlendInfo({});
