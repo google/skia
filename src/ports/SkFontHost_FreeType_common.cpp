@@ -742,10 +742,13 @@ bool colrv1_configure_skpaint(FT_Face face,
                 startOffset.scale(stops.front());
                 SkVector endOffset = startToEnd;
                 endOffset.scale(stops.back());
+
+                // The order of the following computations is important in order to avoid
+                // overwriting start or startRadius before the second reassignment.
+                end = start + endOffset;
                 start = start + startOffset;
-                end = end + endOffset;
-                startRadius = startRadius + radiusDiff * stops.front();
                 endRadius = startRadius + radiusDiff * stops.back();
+                startRadius = startRadius + radiusDiff * stops.front();
 
                 for (auto& stop : stops) {
                     stop = (stop - stopsStartOffset) * scaleFactor;
