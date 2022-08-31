@@ -4,6 +4,15 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# In a separate file group so that these file(s) can be mapped
+# into the gn/effects_imagefilters.gni file when exporting.
+filegroup(
+    name = "public_imagefilters_hdrs",
+    srcs = [
+        "SkImageFilters.h",
+    ],
+)
+
 filegroup(
     name = "public_hdrs",
     srcs = [
@@ -19,7 +28,6 @@ filegroup(
         "SkDiscretePathEffect.h",
         "SkGradientShader.h",
         "SkHighContrastFilter.h",
-        "SkImageFilters.h",
         "SkLayerDrawLooper.h",
         "SkLumaColorFilter.h",
         "SkOpPathEffect.h",
@@ -31,6 +39,7 @@ filegroup(
         "SkTableColorFilter.h",
         "SkTableMaskFilter.h",
         "SkTrimPathEffect.h",
+        ":public_imagefilters_hdrs",
     ],
     visibility = ["//include:__pkg__"],
 )

@@ -77,6 +77,16 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/shaders/gradients:gradient_srcs",
 			}}},
 	},
+	{GNI: "gn/effects_imagefilters.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_effects_imagefilter_public",
+			Rules: []string{
+				"//include/effects:public_imagefilters_hdrs",
+			}},
+		{Var: "skia_effects_imagefilter_sources",
+			Rules: []string{
+				"//src/effects/imagefilters:imagefilters_srcs",
+			}}},
+	},
 }
 
 const (
