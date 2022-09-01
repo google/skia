@@ -73,8 +73,7 @@ DEF_TEST(SkScalerCacheMultiThread, Reporter) {
 
                 accepted.startDevicePositioning(
                         rejected.source(), SkMatrix::I(), scalerCache.roundingSpec());
-                scalerCache.prepareForMaskDrawing(
-                        /* strikeToSourceScale= */ 1, &accepted, &rejected);
+                scalerCache.prepareForMaskDrawing(&accepted, &rejected);
                 rejected.flipRejectsToSource();
                 accepted.reset();
             }

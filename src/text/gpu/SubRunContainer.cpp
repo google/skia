@@ -2925,10 +2925,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 if constexpr (kTrace) {
                     msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
-                // The strikeToSourceScale is 1 because the entire CTM is used to generate the
-                // glyphs. No prescaling is needed.
-                SkRect bounds = strike->prepareForMaskDrawing(
-                        1 /* strikeToSourceScale */, accepted, rejected);
+                SkRect bounds = strike->prepareForMaskDrawing(accepted, rejected);
                 rejected->flipRejectsToSource();
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
@@ -3090,7 +3087,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             if constexpr (kTrace) {
                 msg.appendf("glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
             }
-            SkRect creationBounds = strike->prepareForMaskDrawing(1, accepted, rejected);
+            SkRect creationBounds = strike->prepareForMaskDrawing(accepted, rejected);
             rejected->flipRejectsToSource();
             SkASSERT(rejected->source().empty());
 

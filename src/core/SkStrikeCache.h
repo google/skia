@@ -139,11 +139,9 @@ public:
             sktext::gpu::StrikeCache* gpuStrikeCache) const;
 #endif
 
-    SkRect prepareForMaskDrawing(SkScalar strikeToSourceScale,
-                                 SkDrawableGlyphBuffer* accepted,
+    SkRect prepareForMaskDrawing(SkDrawableGlyphBuffer* accepted,
                                  SkSourceGlyphBuffer* rejected) override {
-        auto [rect, increase] = fScalerCache.prepareForMaskDrawing(
-                strikeToSourceScale, accepted, rejected);
+        auto [rect, increase] = fScalerCache.prepareForMaskDrawing(accepted, rejected);
         this->updateDelta(increase);
         return rect;
     }

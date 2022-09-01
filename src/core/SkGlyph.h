@@ -242,6 +242,9 @@ public:
     SkGlyphRect offset(SkScalar x, SkScalar y) const {
         return SkGlyphRect{fRect + Storage{-x, -y, x, y}};
     }
+    SkGlyphRect offset(SkPoint pt) const {
+        return this->offset(pt.x(), pt.y());
+    }
     SkGlyphRect scaleAndOffset(SkScalar scale, SkPoint offset) const {
         auto [x, y] = offset;
         return fRect * scale + Storage{-x, -y, x, y};
