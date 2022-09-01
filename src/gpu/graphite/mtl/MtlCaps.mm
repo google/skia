@@ -234,6 +234,8 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
 
     // Metal does not distinguish between uniform and storage buffers.
     fRequiredStorageBufferAlignment = fRequiredUniformBufferAlignment;
+    fStorageBufferSupport = true;
+    fStorageBufferPreferred = true;
 
     if (@available(macOS 10.12, ios 14.0, *)) {
         fClampToBorderSupport = (this->isMac() || fFamilyGroup >= 7);

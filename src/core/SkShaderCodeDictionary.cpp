@@ -136,11 +136,11 @@ static void emit_preamble_for_entry(const SkShaderInfo& shaderInfo,
 //   Note: each entry's 'fStaticFunctionName' field is expected to match the name of a function
 //   in the Graphite pre-compiled module.
 std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
-                                 const bool defineLocalCoordsVarying,
-                                 const bool defineShadingSsboIndexVarying) const {
+                                 const bool defineShadingSsboIndexVarying,
+                                 const bool defineLocalCoordsVarying) const {
     std::string preamble = "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
     preamble += skgpu::graphite::EmitVaryings(
-            step, "in", defineLocalCoordsVarying, defineShadingSsboIndexVarying);
+            step, "in", defineShadingSsboIndexVarying, defineLocalCoordsVarying);
 
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     // TODO: replace hard-coded bufferIDs with the backend's step and paint uniform-buffer indices.

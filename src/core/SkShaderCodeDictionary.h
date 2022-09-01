@@ -156,8 +156,8 @@ public:
 
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
     std::string toSkSL(const skgpu::graphite::RenderStep* step,
-                       const bool defineLocalCoordsVarying,
-                       const bool defineShadingSsboIndexVarying) const;
+                       const bool defineShadingSsboIndexVarying,
+                       const bool defineLocalCoordsVarying) const;
 #endif
 
 private:

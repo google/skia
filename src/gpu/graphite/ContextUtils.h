@@ -40,16 +40,16 @@ ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
                       const DrawParams& params);
 
 std::string GetSkSLVS(const RenderStep* step,
-                      bool defineLocalCoordsVarying,
-                      bool defineShadingSsboIndexVarying);
+                      bool defineShadingSsboIndexVarying,
+                      bool defineLocalCoordsVarying);
 
 std::string GetSkSLFS(const SkShaderCodeDictionary*,
                       const SkRuntimeEffectDictionary*,
                       const RenderStep* renderStep,
                       SkUniquePaintParamsID paintID,
+                      bool useStorageBuffers,
                       BlendInfo* blendInfo,
-                      bool* requiresLocalCoordsVarying,
-                      bool* requiresShadingSsboIndexVarying);
+                      bool* requiresLocalCoordsVarying);
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
@@ -69,8 +69,8 @@ std::string EmitTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockRea
                                     int* binding);
 std::string EmitVaryings(const RenderStep* step,
                          const char* direction,
-                         bool emitLocalCoordsVarying,
-                         bool emitShadingSsboIndexVarying);
+                         bool emitShadingSsboIndexVarying,
+                         bool emitLocalCoordsVarying);
 
 } // namespace skgpu::graphite
 

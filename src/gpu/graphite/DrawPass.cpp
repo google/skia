@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DrawBufferManager.h"
@@ -417,9 +418,9 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     UniformDataCache geometryUniformDataCache;
     TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
     TextureBindingCache textureBindingIndices;
-    // TODO(b/242076321) Use storage buffers for shading uniforms, if supported by GPU.
     DrawPassUniformWriter geometryUniformWriter(/*useStorageBuffers=*/false);
-    DrawPassUniformWriter shadingUniformWriter(/*useStorageBuffers=*/false);
+    DrawPassUniformWriter shadingUniformWriter(
+            /*useStorageBuffers=*/recorder->priv().caps()->storageBufferPreferred());
 
     SkTHashMap<GraphicsPipelineDesc, uint32_t> pipelineDescToIndex;
 

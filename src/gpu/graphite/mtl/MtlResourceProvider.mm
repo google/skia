@@ -108,17 +108,19 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     const RenderStep* step =
             fSharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
 
+    bool useShadingSsboIndex =
+            fSharedContext->caps()->storageBufferPreferred() && step->performsShading();
+
     BlendInfo blendInfo;
     bool localCoordsNeeded = false;
-    bool shadingSsboIndexNeeded = false;
     if (!SkSLToMSL(skslCompiler,
                    GetSkSLFS(fSharedContext->shaderCodeDictionary(),
                              runtimeDict,
                              step,
                              pipelineDesc.paintParamsID(),
+                             useShadingSsboIndex,
                              &blendInfo,
-                             &localCoordsNeeded,
-                             &shadingSsboIndexNeeded),
+                             &localCoordsNeeded),
                    SkSL::ProgramKind::kGraphiteFragment,
                    settings,
                    &fsMSL,
@@ -128,7 +130,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     }
 
     if (!SkSLToMSL(skslCompiler,
-                   GetSkSLVS(step, localCoordsNeeded, shadingSsboIndexNeeded),
+                   GetSkSLVS(step, useShadingSsboIndex, localCoordsNeeded),
                    SkSL::ProgramKind::kGraphiteVertex,
                    settings,
                    &vsMSL,
