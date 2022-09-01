@@ -25,15 +25,15 @@ class PaintParams;
 class Recorder;
 class RenderStep;
 
-std::tuple<SkUniquePaintParamsID, UniformDataCache::Index, TextureDataCache::Index>
+std::tuple<SkUniquePaintParamsID, const SkUniformDataBlock*, const SkTextureDataBlock*>
 ExtractPaintData(Recorder*,
                  SkPipelineDataGatherer* gatherer,
                  SkPaintParamsKeyBuilder* builder,
                  const SkM44& dev2local,
                  const PaintParams&);
 
-std::tuple<UniformDataCache::Index, TextureDataCache::Index>
-ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
+std::tuple<const SkUniformDataBlock*, const SkTextureDataBlock*>
+ExtractRenderStepData(UniformDataCache* uniformDataCache,
                       TextureDataCache* textureDataCache,
                       SkPipelineDataGatherer* gatherer,
                       const RenderStep* step,

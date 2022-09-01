@@ -51,21 +51,6 @@ private:
     SkSpan<const char> fData;
 };
 
-// We would like to store just a "const SkUniformDataBlock*" in the UniformDataCache but, until
-// the TextureDataCache is switched over to storing its data in an arena, whatever is held in
-// the cache must interoperate w/ std::unique_ptr (i.e., have a get() function).
-// TODO: remove this class
-class SkUniformDataBlockPassThrough {
-public:
-    SkUniformDataBlockPassThrough() = default;
-    SkUniformDataBlockPassThrough(SkUniformDataBlock* udb) : fUDB(udb) {}
-
-    SkUniformDataBlock* get() const { return fUDB; }
-
-private:
-    SkUniformDataBlock* fUDB = nullptr;
-};
-
 #ifdef SK_GRAPHITE_ENABLED
 class SkTextureDataBlock {
 public:
@@ -80,7 +65,7 @@ public:
         SkTileMode                           fTileModes[2];
     };
 
-    static std::unique_ptr<SkTextureDataBlock> Make(const SkTextureDataBlock&, SkArenaAlloc*);
+    static SkTextureDataBlock* Make(const SkTextureDataBlock&, SkArenaAlloc*);
     SkTextureDataBlock() = default;
 
     bool empty() const { return fTextureData.empty(); }
@@ -102,6 +87,7 @@ public:
     }
 
 private:
+    // TODO: Move this into a SkSpan that's managed by the gatherer or copied into the arena.
     std::vector<TextureInfo> fTextureData;
 };
 #endif // SK_GRAPHITE_ENABLED

@@ -164,7 +164,6 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     auto recorder = context->makeRecorder();
     SkKeyContext keyContext(recorder.get(), {});
     auto dict = keyContext.dict();
-    auto tCache = recorder->priv().textureDataCache();
 
     SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
     SkPipelineDataGatherer gatherer(Layout::kMetal);
@@ -192,16 +191,15 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
             for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
                 auto [ p, expectedNumTextures ] = create_paint(recorder.get(), s, tm, bm);
 
-                auto [ uniqueID1, uIndex, tIndex] = ExtractPaintData(recorder.get(), &gatherer,
-                                                                     &builder, {}, PaintParams(p));
+                auto [ uniqueID1, uData, tData] = ExtractPaintData(recorder.get(), &gatherer,
+                                                                   &builder, {}, PaintParams(p));
 
                 SkUniquePaintParamsID uniqueID2 = create_key(context, &builder, s, tm, bm);
                 // ExtractPaintData and CreateKey agree
                 REPORTER_ASSERT(reporter, uniqueID1 == uniqueID2);
 
                 {
-                    const SkTextureDataBlock* textureData = tCache->lookup(tIndex);
-                    int actualNumTextures = textureData ? textureData->numTextures() : 0;
+                    int actualNumTextures = tData ? tData->numTextures() : 0;
 
                     REPORTER_ASSERT(reporter, expectedNumTextures == actualNumTextures);
                 }

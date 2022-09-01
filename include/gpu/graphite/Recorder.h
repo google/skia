@@ -19,7 +19,6 @@
 class SkRuntimeEffectDictionary;
 class SkTextureDataBlock;
 class SkUniformDataBlock;
-class SkUniformDataBlockPassThrough;  // TODO: remove
 
 namespace skgpu { class TokenTracker; }
 
@@ -46,9 +45,9 @@ class TaskGraph;
 class TextureInfo;
 class UploadBufferManager;
 
-template<typename StorageT, typename BaseT> class PipelineDataCache;
-using UniformDataCache = PipelineDataCache<SkUniformDataBlockPassThrough, SkUniformDataBlock>;
-using TextureDataCache = PipelineDataCache<std::unique_ptr<SkTextureDataBlock>, SkTextureDataBlock>;
+template<typename T> class PipelineDataCache;
+using UniformDataCache = PipelineDataCache<SkUniformDataBlock>;
+using TextureDataCache = PipelineDataCache<SkTextureDataBlock>;
 
 struct SK_API RecorderOptions final {
     RecorderOptions() = default;

@@ -23,15 +23,6 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
 
     REPORTER_ASSERT(reporter, cache->count() == 0);
 
-    // Nullptr should already be in the cache
-    {
-        UniformDataCache::Index invalid;
-        REPORTER_ASSERT(reporter, !invalid.isValid());
-
-        const SkUniformDataBlock* lookup = cache->lookup(invalid);
-        REPORTER_ASSERT(reporter, !lookup);
-    }
-
     static const int kSize = 16;
 
     // Add a new unique UDB
@@ -39,12 +30,12 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
             7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
     };
     SkUniformDataBlock udb1(SkSpan(kMemory1, kSize));
-    UniformDataCache::Index id1;
+    const SkUniformDataBlock* id1;
     {
         id1 = cache->insert(udb1);
-        REPORTER_ASSERT(reporter, id1.isValid());
-        const SkUniformDataBlock* lookup = cache->lookup(id1);
-        REPORTER_ASSERT(reporter, *lookup == udb1);
+        REPORTER_ASSERT(reporter, SkToBool(id1));
+        REPORTER_ASSERT(reporter, id1 != &udb1);  // must be a separate address
+        REPORTER_ASSERT(reporter, *id1 == udb1);  // but equal contents
 
         REPORTER_ASSERT(reporter, cache->count() == 1);
     }
@@ -55,12 +46,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
                 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22
         };
         SkUniformDataBlock udb2(SkSpan(kMemory2, kSize));
-        UniformDataCache::Index id2 = cache->insert(udb2);
-        REPORTER_ASSERT(reporter, id2.isValid());
+        const SkUniformDataBlock* id2 = cache->insert(udb2);
         REPORTER_ASSERT(reporter, id2 == id1);
-        const SkUniformDataBlock* lookup = cache->lookup(id2);
-        REPORTER_ASSERT(reporter, *lookup == udb1);
-        REPORTER_ASSERT(reporter, *lookup == udb2);
 
         REPORTER_ASSERT(reporter, cache->count() == 1);
     }
@@ -71,12 +58,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PipelineDataCacheTest, reporter, context) {
                 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21
         };
         SkUniformDataBlock udb3(SkSpan(kMemory3, kSize));
-        UniformDataCache::Index id3 = cache->insert(udb3);
-        REPORTER_ASSERT(reporter, id3.isValid());
+        const SkUniformDataBlock* id3 = cache->insert(udb3);
+        REPORTER_ASSERT(reporter, SkToBool(id3));
         REPORTER_ASSERT(reporter, id3 != id1);
-        const SkUniformDataBlock* lookup = cache->lookup(id3);
-        REPORTER_ASSERT(reporter, *lookup == udb3);
-        REPORTER_ASSERT(reporter, *lookup != udb1);
+        REPORTER_ASSERT(reporter, *id3 == udb3);
 
         REPORTER_ASSERT(reporter, cache->count() == 2);
     }

@@ -62,9 +62,11 @@ uint32_t SkUniformDataBlock::hash() const {
 #ifdef SK_GRAPHITE_ENABLED
 static constexpr int kSkFilterModeCount = static_cast<int>(SkFilterMode::kLast) + 1;
 
-std::unique_ptr<SkTextureDataBlock> SkTextureDataBlock::Make(const SkTextureDataBlock& other,
-                                                             SkArenaAlloc* /* arena */) {
-    return std::make_unique<SkTextureDataBlock>(other);
+SkTextureDataBlock* SkTextureDataBlock::Make(const SkTextureDataBlock& other,
+                                             SkArenaAlloc* arena) {
+    return arena->make([&](void *ptr) {
+        return new (ptr) SkTextureDataBlock(other);
+    });
 }
 
 bool SkTextureDataBlock::TextureInfo::operator==(const TextureInfo& other) const {

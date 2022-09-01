@@ -23,7 +23,7 @@
 
 namespace skgpu::graphite {
 
-std::tuple<SkUniquePaintParamsID, UniformDataCache::Index, TextureDataCache::Index>
+std::tuple<SkUniquePaintParamsID, const SkUniformDataBlock*, const SkTextureDataBlock*>
 ExtractPaintData(Recorder* recorder,
                  SkPipelineDataGatherer* gatherer,
                  SkPaintParamsKeyBuilder* builder,
@@ -42,22 +42,21 @@ ExtractPaintData(Recorder* recorder,
     TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
 
     auto entry = dict->findOrCreate(builder);
-    UniformDataCache::Index uniformIndex;
-    if (gatherer->hasUniforms()) {
-        uniformIndex = uniformDataCache->insert(gatherer->finishUniformDataBlock());
-    }
-    TextureDataCache::Index textureIndex;
-    if (gatherer->hasTextures()) {
-        textureIndex = textureDataCache->insert(gatherer->textureDataBlock());
-    }
+
+    const SkUniformDataBlock* uniforms =
+            gatherer->hasUniforms() ? uniformDataCache->insert(gatherer->finishUniformDataBlock())
+                                    : nullptr;
+    const SkTextureDataBlock* textures =
+            gatherer->hasTextures() ? textureDataCache->insert(gatherer->textureDataBlock())
+                                    : nullptr;
 
     gatherer->reset();
 
-    return { entry->uniqueID(), uniformIndex, textureIndex };
+    return { entry->uniqueID(), uniforms, textures };
 }
 
-std::tuple<UniformDataCache::Index, TextureDataCache::Index>
-ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
+std::tuple<const SkUniformDataBlock*, const SkTextureDataBlock*>
+ExtractRenderStepData(UniformDataCache* uniformDataCache,
                       TextureDataCache* textureDataCache,
                       SkPipelineDataGatherer* gatherer,
                       const RenderStep* step,
@@ -66,17 +65,16 @@ ExtractRenderStepData(UniformDataCache* geometryUniformDataCache,
 
     step->writeUniformsAndTextures(params, gatherer);
 
-    UniformDataCache::Index uIndex =
-            geometryUniformDataCache->insert(gatherer->finishUniformDataBlock());
-
-    TextureDataCache::Index textureIndex;
-    if (step->hasTextures()) {
-        textureIndex = textureDataCache->insert(gatherer->textureDataBlock());
-    }
+    const SkUniformDataBlock* uniforms =
+            gatherer->hasUniforms() ? uniformDataCache->insert(gatherer->finishUniformDataBlock())
+                                    : nullptr;
+    const SkTextureDataBlock* textures =
+            gatherer->hasTextures() ? textureDataCache->insert(gatherer->textureDataBlock())
+                                    : nullptr;
 
     gatherer->reset();
 
-    return { uIndex, textureIndex };
+    return { uniforms, textures };
 }
 
 namespace {
