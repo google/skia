@@ -982,6 +982,8 @@ TINT_SRCS = [
     "src/tint/transform/utils/get_insertion_point.h",
     "src/tint/transform/var_for_dynamic_index.cc",
     "src/tint/transform/var_for_dynamic_index.h",
+    "src/tint/transform/vectorize_matrix_conversions.cc",
+    "src/tint/transform/vectorize_matrix_conversions.h",
     "src/tint/transform/vectorize_scalar_matrix_constructors.cc",
     "src/tint/transform/vectorize_scalar_matrix_constructors.h",
     "src/tint/transform/vertex_pulling.cc",
