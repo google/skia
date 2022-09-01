@@ -8,6 +8,7 @@
 #ifndef SkSpecialSurface_DEFINED
 #define SkSpecialSurface_DEFINED
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
@@ -24,6 +25,7 @@ namespace skgpu::graphite {
 
 class GrBackendFormat;
 class GrRecordingContext;
+class SkBaseDevice;
 class SkBitmap;
 class SkCanvas;
 class SkSpecialImage;
@@ -38,7 +40,11 @@ class SkSpecialImage;
  */
 class SkSpecialSurface : public SkRefCnt {
 public:
-    const SkSurfaceProps& props() const { return fProps; }
+    SkSpecialSurface(sk_sp<SkBaseDevice>, const SkIRect& subset);
+
+#ifdef SK_DEBUG
+    SkSurfaceProps props() const { return fCanvas->getBaseProps(); }
+#endif
 
     const SkIRect& subset() const { return fSubset; }
     int width() const { return fSubset.width(); }
@@ -78,13 +84,6 @@ public:
 #endif
 
     /**
-     * Use and existing SkBitmap as the backing store.
-     */
-    static sk_sp<SkSpecialSurface> MakeFromBitmap(const SkIRect& subset,
-                                                  SkBitmap& bm,
-                                                  const SkSurfaceProps&);
-
-    /**
      *  Return a new CPU-backed surface, with the memory for the pixels automatically
      *  allocated.
      *
@@ -94,16 +93,9 @@ public:
     static sk_sp<SkSpecialSurface> MakeRaster(const SkImageInfo&,
                                               const SkSurfaceProps&);
 
-protected:
-    SkSpecialSurface(const SkIRect& subset, const SkSurfaceProps&);
-
-    virtual sk_sp<SkSpecialImage> onMakeImageSnapshot() = 0;
-
-    std::unique_ptr<SkCanvas> fCanvas;   // initialized by derived classes in ctors
-
 private:
-    const SkSurfaceProps fProps;
-    const SkIRect        fSubset;
+    std::unique_ptr<SkCanvas> fCanvas;
+    const SkIRect             fSubset;
 };
 
 #endif

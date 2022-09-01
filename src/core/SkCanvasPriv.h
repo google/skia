@@ -69,6 +69,10 @@ public:
         canvas->internal_private_resetClip();
     }
 
+    static SkBaseDevice* TopDevice(SkCanvas* canvas) {
+        return canvas->topDevice();
+    }
+
 #if GR_TEST_UTILS
 #if SK_GPU_V1
     static skgpu::v1::SurfaceDrawContext* TopDeviceSurfaceDrawContext(SkCanvas*);
