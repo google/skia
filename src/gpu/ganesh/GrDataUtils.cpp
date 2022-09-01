@@ -660,7 +660,7 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
             steps->apply(&pipeline);
         }
         if (clampGamut) {
-            pipeline.append(SkRasterPipeline::clamp_gamut);
+            pipeline.append(SkRasterPipeline::clamp_gamut);  // TODO(skia:13715): Remove this?
         }
         switch (lumMode) {
             case LumMode::kNone:
