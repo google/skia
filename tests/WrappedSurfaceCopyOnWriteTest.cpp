@@ -138,7 +138,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipOpsTaskTest, reporter, ctxInfo, CtsEnforc
 
     GrImageInfo ii(GrColorType::kRGBA_8888, kPremul_SkAlphaType, /*color space*/ nullptr, 10, 10);
 
-    auto dst = dContext->priv().makeSFC(ii, SkBackingFit::kExact);
+    auto dst = dContext->priv().makeSFC(ii, /*label=*/{}, SkBackingFit::kExact);
     dst->clear(SkPMColor4f{1, 0, 0, 1});
     dContext->flush();
 
@@ -147,7 +147,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkipOpsTaskTest, reporter, ctxInfo, CtsEnforc
 
     // GrDrawingManager maintains an "active ops task" and doesn't like having it closed behind
     // its back. temp exists just to replace dst's ops task as the active one.
-    auto temp = dContext->priv().makeSFC(ii, SkBackingFit::kExact);
+    auto temp = dContext->priv().makeSFC(ii, /*label=*/{}, SkBackingFit::kExact);
     temp->clear(SkPMColor4f{0, 0, 0, 0});
 
     GrSurfaceProxyView readView = dst->readSurfaceView();

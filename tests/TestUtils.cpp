@@ -274,6 +274,7 @@ std::unique_ptr<skgpu::v1::SurfaceContext> CreateSurfaceContext(GrRecordingConte
                                                                               renderable);
     return rContext->priv().makeSC(info,
                                    format,
+                                   /*label=*/{},
                                    fit,
                                    origin,
                                    renderable,

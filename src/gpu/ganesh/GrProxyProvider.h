@@ -181,7 +181,8 @@ public:
                                           SkBackingFit,
                                           SkBudgeted,
                                           GrProtected,
-                                          UseAllocator);
+                                          UseAllocator,
+                                          std::string_view label);
 
     /** A null TextureInfo indicates a non-textureable render target. */
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,

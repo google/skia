@@ -400,6 +400,7 @@ sk_sp<SkSpecialImage> SkArithmeticImageFilter::filterImageGPU(
 
     GrImageInfo info(ctx.grColorType(), kPremul_SkAlphaType, ctx.refColorSpace(), bounds.size());
     auto sfc = rContext->priv().makeSFC(info,
+                                        "ArithmeticImageFilter_FilterImageGPU",
                                         SkBackingFit::kApprox,
                                         1,
                                         GrMipmapped::kNo,

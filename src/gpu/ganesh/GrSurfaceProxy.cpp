@@ -297,6 +297,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
         GrImageInfo info(GrColorType::kUnknown, kUnknown_SkAlphaType, nullptr, {width, height});
         auto dstContext = rContext->priv().makeSC(info,
                                                   format,
+                                                  label,
                                                   fit,
                                                   origin,
                                                   GrRenderable::kNo,
@@ -324,7 +325,8 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
                                                    skgpu::Swizzle::RGBA(),
                                                    skgpu::Swizzle::RGBA(),
                                                    origin,
-                                                   budgeted);
+                                                   budgeted,
+                                                   label);
         GrSurfaceProxyView view(std::move(src), origin, skgpu::Swizzle::RGBA());
         if (dstContext && dstContext->blitTexture(std::move(view), srcRect, dstPoint)) {
             if (outTask) {

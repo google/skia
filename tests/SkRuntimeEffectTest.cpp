@@ -1371,7 +1371,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrSkSLFP_UniformArray, r, ctxInfo, CtsEnforce
     GrDirectContext* directContext = ctxInfo.directContext();
     SkImageInfo info = SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     std::unique_ptr<skgpu::v1::SurfaceFillContext> testCtx =
-            directContext->priv().makeSFC(info, SkBackingFit::kExact);
+            directContext->priv().makeSFC(info, /*label=*/{}, SkBackingFit::kExact);
 
     // Make an effect that takes a uniform array as input.
     static constexpr std::array<float, 4> kRed  {1.0f, 0.0f, 0.0f, 1.0f};

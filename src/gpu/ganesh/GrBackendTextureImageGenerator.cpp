@@ -207,7 +207,9 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
             },
             backendFormat, fBackendTexture.dimensions(), textureIsMipMapped, mipmapStatus,
             GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
-            GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+            GrProtected::kNo,
+            GrSurfaceProxy::UseAllocator::kYes,
+            "BackendTextureImageGenerator");
     if (!proxy) {
         return {};
     }

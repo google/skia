@@ -1485,6 +1485,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
             mipmapped = false;
         }
         auto fillContext = rContext->priv().makeSFC(resultInfo,
+                                                    "RuntimeEffect_MakeImage",
                                                     SkBackingFit::kExact,
                                                     /*sample count*/ 1,
                                                     GrMipmapped(mipmapped));

@@ -340,6 +340,7 @@ DEF_GPUTEST(InitialTextureClear, reporter, baseOptions, CtsEnforcement::kApiLeve
 
                         auto sc = dContext->priv().makeSC(info,
                                                           combo.fFormat,
+                                                          /*label=*/{},
                                                           fit,
                                                           kTopLeft_GrSurfaceOrigin,
                                                           renderable);

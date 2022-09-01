@@ -251,8 +251,10 @@ static bool test_for_preserving_PM_conversions(GrDirectContext* dContext) {
             SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     const SkImageInfo upmII = pmII.makeAlphaType(kUnpremul_SkAlphaType);
 
-    auto readSFC = dContext->priv().makeSFC(upmII, SkBackingFit::kExact);
-    auto tempSFC = dContext->priv().makeSFC(pmII,  SkBackingFit::kExact);
+    auto readSFC =
+            dContext->priv().makeSFC(upmII, "ReadSfcForPMUPMConversion", SkBackingFit::kExact);
+    auto tempSFC =
+            dContext->priv().makeSFC(pmII, "TempSfcForPMUPMConversion", SkBackingFit::kExact);
     if (!readSFC || !tempSFC) {
         return false;
     }

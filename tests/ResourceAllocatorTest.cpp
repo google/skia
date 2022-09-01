@@ -126,7 +126,7 @@ static sk_sp<GrSurfaceProxy> make_lazy(GrProxyProvider* proxyProvider, const GrC
                                           GrMipmapped::kNo, GrMipmapStatus::kNotAllocated,
                                           GrInternalSurfaceFlags::kNone,
                                           p.fFit, p.fBudgeted, GrProtected::kNo,
-                                          GrSurfaceProxy::UseAllocator::kYes);
+                                          GrSurfaceProxy::UseAllocator::kYes, /*label=*/{});
 }
 
 static sk_sp<GrSurfaceProxy> make_proxy(GrDirectContext* dContext, const ProxyParams& p) {

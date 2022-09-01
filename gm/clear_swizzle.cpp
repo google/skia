@@ -49,7 +49,8 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(clear_swizzle, rContext, canvas, errorMsg, 6*kSize, 2
                                         readSwizzle,
                                         writeSwizzle,
                                         kTopLeft_GrSurfaceOrigin,
-                                        SkBudgeted::kYes);
+                                        SkBudgeted::kYes,
+                                        /*label=*/{});
     };
 
     struct {

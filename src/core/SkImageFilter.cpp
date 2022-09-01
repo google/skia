@@ -596,6 +596,7 @@ sk_sp<SkSpecialImage> SkImageFilter_Base::DrawWithFP(GrRecordingContext* rContex
                      bounds.size());
 
     auto sfc = rContext->priv().makeSFC(info,
+                                        "ImageFilterBase_DrawWithFP",
                                         SkBackingFit::kApprox,
                                         1,
                                         GrMipmapped::kNo,

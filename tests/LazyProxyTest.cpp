@@ -305,7 +305,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */, CtsEnforcement::kApiL
                     TestCallback(&testCount, releaseCallback, tex), format, {kSize, kSize},
                     GrMipmapped::kNo, GrMipmapStatus::kNotAllocated, GrInternalSurfaceFlags::kNone,
                     SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
-                    GrSurfaceProxy::UseAllocator::kYes);
+                    GrSurfaceProxy::UseAllocator::kYes, /*label=*/{});
 
             REPORTER_ASSERT(reporter, proxy.get());
             REPORTER_ASSERT(reporter, 0 == testCount);
@@ -380,7 +380,7 @@ private:
                 },
                 format, dims, GrMipmapped::kNo, GrMipmapStatus::kNotAllocated,
                 GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo,
-                GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes);
+                GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes, /*label=*/{});
 
         SkASSERT(fLazyProxy.get());
 

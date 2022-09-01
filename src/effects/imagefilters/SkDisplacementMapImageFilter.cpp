@@ -313,6 +313,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapImageFilter::onFilterImage(const Context&
                          ctx.refColorSpace(),
                          bounds.size());
         auto sfc = rContext->priv().makeSFC(info,
+                                            "DisplacementMapImageFilter_FilterImage",
                                             SkBackingFit::kApprox,
                                             1,
                                             GrMipmapped::kNo,

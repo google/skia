@@ -161,6 +161,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
         return {};
     }
     auto sfc = rContext->priv().makeSFC(this->imageInfo(),
+                                        "Image_GpuYUVA_ReinterpretColorSpace",
                                         SkBackingFit::kExact,
                                         /*sample count*/ 1,
                                         mipmapped,

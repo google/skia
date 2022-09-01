@@ -366,7 +366,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createNonMippedProxyFromBitmap(const SkBi
                                                                           desc.fLabel));
             },
             format, dims, GrMipmapped::kNo, GrMipmapStatus::kNotAllocated,
-            GrInternalSurfaceFlags::kNone, fit, budgeted, GrProtected::kNo, UseAllocator::kYes);
+            GrInternalSurfaceFlags::kNone, fit, budgeted, GrProtected::kNo, UseAllocator::kYes,
+            "ProxyProvider_CreateNonMippedProxyFromBitmap");
 
     if (!proxy) {
         return nullptr;
@@ -425,7 +426,11 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMippedProxyFromBitmap(const SkBitma
                                                                           desc.fLabel));
             },
             format, dims, GrMipmapped::kYes, GrMipmapStatus::kValid, GrInternalSurfaceFlags::kNone,
-            SkBackingFit::kExact, budgeted, GrProtected::kNo, UseAllocator::kYes);
+            SkBackingFit::kExact,
+            budgeted,
+            GrProtected::kNo,
+            UseAllocator::kYes,
+            "ProxyProvider_CreateMippedProxyFromBitmap");
 
     if (!proxy) {
         return nullptr;
@@ -541,7 +546,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createCompressedTextureProxy(
                                                                   desc.fLabel));
             },
             format, dimensions, mipmapped, mipmapStatus,GrInternalSurfaceFlags::kReadOnly,
-            SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo, UseAllocator::kYes);
+            SkBackingFit::kExact, SkBudgeted::kYes, GrProtected::kNo, UseAllocator::kYes,
+            "ProxyProvider_CreateCompressedTextureProxy");
 
     if (!proxy) {
         return nullptr;
@@ -801,7 +807,8 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
                                                        SkBackingFit fit,
                                                        SkBudgeted budgeted,
                                                        GrProtected isProtected,
-                                                       GrSurfaceProxy::UseAllocator useAllocator) {
+                                                       GrSurfaceProxy::UseAllocator useAllocator,
+                                                       std::string_view label) {
     ASSERT_SINGLE_OWNER
     if (this->isAbandoned()) {
         return nullptr;
@@ -829,7 +836,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createLazyProxy(LazyInstantiateCallback&&
                                                     surfaceFlags,
                                                     useAllocator,
                                                     this->isDDLProvider(),
-                                                    /*label=*/"LazyProxy"));
+                                                    label));
 }
 
 sk_sp<GrRenderTargetProxy> GrProxyProvider::createLazyRenderTargetProxy(

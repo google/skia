@@ -60,7 +60,7 @@ static GrSurfaceProxyView slow_blur(GrRecordingContext* rContext,
                                SkIPoint offset,
                                SkTileMode mode) {
         GrImageInfo info(GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr, resultSize);
-        auto sfc = rContext->priv().makeSFC(info);
+        auto sfc = rContext->priv().makeSFC(info, /*label=*/{});
         if (!sfc) {
             return GrSurfaceProxyView{};
         }

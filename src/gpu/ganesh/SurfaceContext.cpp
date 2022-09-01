@@ -151,7 +151,8 @@ bool SurfaceContext::readPixels(GrDirectContext* dContext, GrPixmap dst, SkIPoin
                                  alphaType,
                                  this->colorInfo().refColorSpace(),
                                  dst.dimensions());
-            auto sfc = dContext->priv().makeSFC(tempInfo, SkBackingFit::kApprox);
+            auto sfc = dContext->priv().makeSFC(
+                    tempInfo, "SurfaceContext_ReadPixels", SkBackingFit::kApprox);
             if (!sfc) {
                 return false;
             }

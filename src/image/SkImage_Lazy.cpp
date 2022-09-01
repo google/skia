@@ -377,6 +377,7 @@ GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* 
                      this->dimensions());
 
     auto sfc = ctx->priv().makeSFC(info,
+                                   "ImageLazy_TextureProxyViewFromPlanes",
                                    SkBackingFit::kExact,
                                    1,
                                    GrMipmapped::kNo,

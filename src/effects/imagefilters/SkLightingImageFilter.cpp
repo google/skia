@@ -486,6 +486,7 @@ sk_sp<SkSpecialImage> SkLightingImageFilterInternal::filterImageGPU(
                      ctx.refColorSpace(),
                      offsetBounds.size());
     auto sfc = rContext->priv().makeSFC(info,
+                                        "LightingImageFilterInternal_FilterImageGPU",
                                         SkBackingFit::kApprox,
                                         1,
                                         GrMipmapped::kNo,
