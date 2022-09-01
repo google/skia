@@ -302,7 +302,6 @@ skia_cc_deps(
         {
             "//src/gpu:dawn_backend": ["//src/gpu/ganesh/dawn:deps"],
             "//src/gpu:gl_backend": ["//src/gpu/ganesh/gl:deps"],
-            "//src/gpu:vulkan_backend": ["//src/gpu/ganesh/vk:deps"],
             # TODO(kjlubick) mtl and d3d backend
         },
     ),

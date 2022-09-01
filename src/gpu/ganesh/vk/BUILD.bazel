@@ -1,12 +1,10 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 VK_FILES = [
-    "GrVkAMDMemoryAllocator.cpp",
-    "GrVkAMDMemoryAllocator.h",
     "GrVkBuffer.cpp",
     "GrVkBuffer.h",
     "GrVkCaps.cpp",
@@ -88,13 +86,4 @@ filegroup(
     name = "private_hdrs",
     srcs = [":vk_hdrs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],
-)
-
-skia_cc_deps(
-    name = "deps",
-    visibility = ["//src/gpu/ganesh:__pkg__"],
-    deps = select({
-        "//src/gpu:vulkan_with_vma": ["//third_party/vulkanmemoryallocator"],
-        "//conditions:default": [],
-    }),
 )

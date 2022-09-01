@@ -28,7 +28,6 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrThreadSafePipelineBuilder.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/vk/GrVkAMDMemoryAllocator.h"
 #include "src/gpu/ganesh/vk/GrVkBuffer.h"
 #include "src/gpu/ganesh/vk/GrVkCommandBuffer.h"
 #include "src/gpu/ganesh/vk/GrVkCommandPool.h"
@@ -43,6 +42,7 @@
 #include "src/gpu/ganesh/vk/GrVkSemaphore.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 #include "src/gpu/ganesh/vk/GrVkTextureRenderTarget.h"
+#include "src/gpu/vk/VulkanAMDMemoryAllocator.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Gpu.h"
@@ -177,14 +177,17 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         return nullptr;
     }
 
-    sk_sp<GrVkMemoryAllocator> memoryAllocator = backendContext.fMemoryAllocator;
+    sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator = backendContext.fMemoryAllocator;
     if (!memoryAllocator) {
         // We were not given a memory allocator at creation
-        memoryAllocator = GrVkAMDMemoryAllocator::Make(backendContext.fInstance,
-                                                       backendContext.fPhysicalDevice,
-                                                       backendContext.fDevice, physDevVersion,
-                                                       backendContext.fVkExtensions, interface,
-                                                       caps.get());
+        bool mustUseCoherentHostVisibleMemory = caps->mustUseCoherentHostVisibleMemory();
+        memoryAllocator = skgpu::VulkanAMDMemoryAllocator::Make(backendContext.fInstance,
+                                                                backendContext.fPhysicalDevice,
+                                                                backendContext.fDevice,
+                                                                physDevVersion,
+                                                                backendContext.fVkExtensions,
+                                                                interface,
+                                                                mustUseCoherentHostVisibleMemory);
     }
     if (!memoryAllocator) {
         SkDEBUGFAIL("No supplied vulkan memory allocator and unable to create one internally.");
@@ -209,7 +212,7 @@ GrVkGpu::GrVkGpu(GrDirectContext* direct,
                  sk_sp<const skgpu::VulkanInterface> interface,
                  uint32_t instanceVersion,
                  uint32_t physicalDeviceVersion,
-                 sk_sp<GrVkMemoryAllocator> memoryAllocator)
+                 sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator)
         : INHERITED(direct)
         , fInterface(std::move(interface))
         , fMemoryAllocator(std::move(memoryAllocator))

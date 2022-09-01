@@ -10,23 +10,24 @@
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 
-using BufferUsage = GrVkMemoryAllocator::BufferUsage;
+using VulkanMemoryAllocator = skgpu::VulkanMemoryAllocator;
+using BufferUsage = skgpu::VulkanMemoryAllocator::BufferUsage;
 
 bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
                                           VkBuffer buffer,
                                           BufferUsage usage,
                                           skgpu::VulkanAlloc* alloc) {
-    GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+    skgpu::VulkanMemoryAllocator* allocator = gpu->memoryAllocator();
     skgpu::VulkanBackendMemory memory = 0;
-    GrVkMemoryAllocator::AllocationPropertyFlags propFlags;
+    uint32_t propFlags;
     bool shouldPersistentlyMapCpuToGpu = gpu->vkCaps().shouldPersistentlyMapCpuToGpuBuffers();
     if (usage == BufferUsage::kTransfersFromCpuToGpu ||
         (usage == BufferUsage::kCpuWritesGpuReads && shouldPersistentlyMapCpuToGpu)) {
         // In general it is always fine (and often better) to keep buffers always mapped that we are
         // writing to on the cpu.
-        propFlags = GrVkMemoryAllocator::kPersistentlyMapped_AllocationPropertyFlag;
+        propFlags = VulkanMemoryAllocator::kPersistentlyMapped_AllocationPropertyFlag;
     } else {
-        propFlags = GrVkMemoryAllocator::kNone_AllocationPropertyFlag;
+        propFlags = VulkanMemoryAllocator::kNone_AllocationPropertyFlag;
     }
 
     VkResult result = allocator->allocateBufferMemory(buffer, usage, propFlags, &memory);
@@ -49,7 +50,7 @@ bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
 
 void GrVkMemory::FreeBufferMemory(const GrVkGpu* gpu, const skgpu::VulkanAlloc& alloc) {
     SkASSERT(alloc.fBackendMemory);
-    GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+    skgpu::VulkanMemoryAllocator* allocator = gpu->memoryAllocator();
     allocator->freeMemory(alloc.fBackendMemory);
 }
 
@@ -57,7 +58,7 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
                                          VkImage image,
                                          GrMemoryless memoryless,
                                          skgpu::VulkanAlloc* alloc) {
-    GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+    skgpu::VulkanMemoryAllocator* allocator = gpu->memoryAllocator();
     skgpu::VulkanBackendMemory memory = 0;
 
     VkMemoryRequirements memReqs;
@@ -70,17 +71,17 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
     // we let the allocators decide. The allocator can query the GPU for each image to see if the
     // GPU recommends or requires the use of dedicated memory.
     if (gpu->vkCaps().shouldAlwaysUseDedicatedImageMemory()) {
-        propFlags = GrVkMemoryAllocator::kDedicatedAllocation_AllocationPropertyFlag;
+        propFlags = VulkanMemoryAllocator::kDedicatedAllocation_AllocationPropertyFlag;
     } else {
-        propFlags = GrVkMemoryAllocator::kNone_AllocationPropertyFlag;
+        propFlags = VulkanMemoryAllocator::kNone_AllocationPropertyFlag;
     }
 
     if (gpu->protectedContext()) {
-        propFlags = propFlags | GrVkMemoryAllocator::kProtected_AllocationPropertyFlag;
+        propFlags = propFlags | VulkanMemoryAllocator::kProtected_AllocationPropertyFlag;
     }
 
     if (memoryless == GrMemoryless::kYes) {
-        propFlags = propFlags | GrVkMemoryAllocator::kLazyAllocation_AllocationPropertyFlag;
+        propFlags = propFlags | VulkanMemoryAllocator::kLazyAllocation_AllocationPropertyFlag;
     }
 
     VkResult result = allocator->allocateImageMemory(image, propFlags, &memory);
@@ -104,14 +105,14 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
 
 void GrVkMemory::FreeImageMemory(const GrVkGpu* gpu, const skgpu::VulkanAlloc& alloc) {
     SkASSERT(alloc.fBackendMemory);
-    GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+    skgpu::VulkanMemoryAllocator* allocator = gpu->memoryAllocator();
     allocator->freeMemory(alloc.fBackendMemory);
 }
 
 void* GrVkMemory::MapAlloc(GrVkGpu* gpu, const skgpu::VulkanAlloc& alloc) {
     SkASSERT(skgpu::VulkanAlloc::kMappable_Flag & alloc.fFlags);
     SkASSERT(alloc.fBackendMemory);
-    GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+    skgpu::VulkanMemoryAllocator* allocator = gpu->memoryAllocator();
     void* mapPtr;
     VkResult result = allocator->mapMemory(alloc.fBackendMemory, &mapPtr);
     if (!gpu->checkVkResult(result)) {
@@ -122,7 +123,7 @@ void* GrVkMemory::MapAlloc(GrVkGpu* gpu, const skgpu::VulkanAlloc& alloc) {
 
 void GrVkMemory::UnmapAlloc(const GrVkGpu* gpu, const skgpu::VulkanAlloc& alloc) {
     SkASSERT(alloc.fBackendMemory);
-    GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+    skgpu::VulkanMemoryAllocator* allocator = gpu->memoryAllocator();
     allocator->unmapMemory(alloc.fBackendMemory);
 }
 
@@ -159,7 +160,7 @@ void GrVkMemory::FlushMappedAlloc(GrVkGpu* gpu,
         SkASSERT(offset == 0);
         SkASSERT(size <= alloc.fSize);
         SkASSERT(alloc.fBackendMemory);
-        GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+        skgpu::VulkanMemoryAllocator* allocator = gpu->memoryAllocator();
         VkResult result = allocator->flushMemory(alloc.fBackendMemory, offset, size);
         gpu->checkVkResult(result);
     }
@@ -173,7 +174,7 @@ void GrVkMemory::InvalidateMappedAlloc(GrVkGpu* gpu,
         SkASSERT(offset == 0);
         SkASSERT(size <= alloc.fSize);
         SkASSERT(alloc.fBackendMemory);
-        GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
+        skgpu::VulkanMemoryAllocator* allocator = gpu->memoryAllocator();
         VkResult result = allocator->invalidateMemory(alloc.fBackendMemory, offset, size);
         gpu->checkVkResult(result);
     }

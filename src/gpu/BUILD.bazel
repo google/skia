@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "selects", "skia_cc_deps", "split_srcs_and_hdrs", "string_flag_with_values")
+load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "selects", "select_multi", "skia_cc_deps", "split_srcs_and_hdrs", "string_flag_with_values")
 
 licenses(["notice"])
 
@@ -112,5 +112,9 @@ skia_cc_deps(
     visibility = ["//src:__pkg__"],
     deps = [
         "//src/gpu/ganesh:deps",
-    ],
+    ] + select_multi(
+        {
+            "//src/gpu:vulkan_backend": ["//src/gpu/vk:deps"],
+        },
+    ),
 )

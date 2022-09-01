@@ -179,6 +179,7 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/vk/GrVkMemoryAllocator.h",
     "include/gpu/vk/GrVkTypes.h",
     "include/gpu/vk/VulkanExtensions.h",
+    "include/gpu/vk/VulkanMemoryAllocator.h",
     "include/gpu/vk/VulkanTypes.h",
     "include/pathops/SkPathOps.h",
     "include/ports/SkCFObject.h",
@@ -1892,8 +1893,6 @@ MTL_SRCS = [
 ]
 
 VULKAN_SRCS = [
-    "src/gpu/ganesh/vk/GrVkAMDMemoryAllocator.cpp",
-    "src/gpu/ganesh/vk/GrVkAMDMemoryAllocator.h",
     "src/gpu/ganesh/vk/GrVkBuffer.cpp",
     "src/gpu/ganesh/vk/GrVkBuffer.h",
     "src/gpu/ganesh/vk/GrVkCaps.cpp",

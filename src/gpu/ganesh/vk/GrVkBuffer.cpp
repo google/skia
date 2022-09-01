@@ -80,7 +80,7 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
                             accessPattern == kStream_GrAccessPattern ||
                             !gpu->vkCaps().gpuOnlyBuffersMorePerformant();
 
-    using BufferUsage = GrVkMemoryAllocator::BufferUsage;
+    using BufferUsage = skgpu::VulkanMemoryAllocator::BufferUsage;
     BufferUsage allocUsage;
 
     // create the buffer object

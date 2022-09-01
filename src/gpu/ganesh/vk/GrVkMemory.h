@@ -8,8 +8,8 @@
 #ifndef GrVkMemory_DEFINED
 #define GrVkMemory_DEFINED
 
-#include "include/gpu/vk/GrVkMemoryAllocator.h"
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "include/private/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 
@@ -22,7 +22,7 @@ namespace GrVkMemory {
     */
     bool AllocAndBindBufferMemory(GrVkGpu* gpu,
                                   VkBuffer buffer,
-                                  GrVkMemoryAllocator::BufferUsage,
+                                  skgpu::VulkanMemoryAllocator::BufferUsage,
                                   skgpu::VulkanAlloc* alloc);
     void FreeBufferMemory(const GrVkGpu* gpu, const skgpu::VulkanAlloc& alloc);
 
