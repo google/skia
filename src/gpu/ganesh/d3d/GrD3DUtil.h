@@ -160,4 +160,6 @@ static constexpr const char* GrDxgiFormatToStr(DXGI_FORMAT dxgiFormat) {
 }
 #endif
 
+std::wstring GrD3DMultiByteToWide(const std::string& str);
+
 #endif
