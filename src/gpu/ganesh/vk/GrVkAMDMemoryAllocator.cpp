@@ -113,14 +113,9 @@ GrVkAMDMemoryAllocator::~GrVkAMDMemoryAllocator() {
     fAllocator = VK_NULL_HANDLE;
 }
 
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-VkResult GrVkAMDMemoryAllocator::allocateImageMemory(VkImage image, AllocationPropertyFlags flags,
-                                                     skgpu::VulkanBackendMemory* backendMemory) {
-#else
 VkResult GrVkAMDMemoryAllocator::allocateImageMemory(VkImage image,
                                                      uint32_t allocationPropertyFlags,
                                                      skgpu::VulkanBackendMemory* backendMemory) {
-#endif
     TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
     VmaAllocationCreateInfo info;
     info.flags = 0;
@@ -131,25 +126,13 @@ VkResult GrVkAMDMemoryAllocator::allocateImageMemory(VkImage image,
     info.pool = VK_NULL_HANDLE;
     info.pUserData = nullptr;
 
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-    if (AllocationPropertyFlags::kDedicatedAllocation & flags) {
-#else
     if (kDedicatedAllocation_AllocationPropertyFlag & allocationPropertyFlags) {
-#endif
         info.flags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
     }
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-    if (AllocationPropertyFlags::kLazyAllocation & flags) {
-#else
     if (kLazyAllocation_AllocationPropertyFlag & allocationPropertyFlags) {
-#endif
         info.requiredFlags |= VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
     }
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-    if (AllocationPropertyFlags::kProtected & flags) {
-#else
     if (kProtected_AllocationPropertyFlag & allocationPropertyFlags) {
-#endif
         info.requiredFlags |= VK_MEMORY_PROPERTY_PROTECTED_BIT;
     }
 
@@ -161,16 +144,10 @@ VkResult GrVkAMDMemoryAllocator::allocateImageMemory(VkImage image,
     return result;
 }
 
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer, BufferUsage usage,
-                                                      AllocationPropertyFlags flags,
-                                                      skgpu::VulkanBackendMemory* backendMemory) {
-#else
 VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer,
                                                       BufferUsage usage,
                                                       uint32_t allocationPropertyFlags,
                                                       skgpu::VulkanBackendMemory* backendMemory) {
-#endif
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     VmaAllocationCreateInfo info;
     info.flags = 0;
@@ -216,27 +193,15 @@ VkResult GrVkAMDMemoryAllocator::allocateBufferMemory(VkBuffer buffer,
         (info.requiredFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)) {
         info.requiredFlags |= VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     }
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-    if (AllocationPropertyFlags::kDedicatedAllocation & flags) {
-#else
     if (kDedicatedAllocation_AllocationPropertyFlag & allocationPropertyFlags) {
-#endif
         info.flags |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
     }
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-    if ((AllocationPropertyFlags::kLazyAllocation & flags)&&
-#else
     if ((kLazyAllocation_AllocationPropertyFlag & allocationPropertyFlags) &&
-#endif
         BufferUsage::kGpuOnly == usage) {
         info.preferredFlags |= VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
     }
 
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-    if (AllocationPropertyFlags::kPersistentlyMapped & flags) {
-#else
     if (kPersistentlyMapped_AllocationPropertyFlag & allocationPropertyFlags) {
-#endif
         SkASSERT(BufferUsage::kGpuOnly != usage);
         info.flags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
     }

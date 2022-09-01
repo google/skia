@@ -10,9 +10,6 @@
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-using AllocationPropertyFlags = GrVkMemoryAllocator::AllocationPropertyFlags;
-#endif
 using BufferUsage = GrVkMemoryAllocator::BufferUsage;
 
 bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
@@ -21,27 +18,15 @@ bool GrVkMemory::AllocAndBindBufferMemory(GrVkGpu* gpu,
                                           skgpu::VulkanAlloc* alloc) {
     GrVkMemoryAllocator* allocator = gpu->memoryAllocator();
     skgpu::VulkanBackendMemory memory = 0;
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-    AllocationPropertyFlags propFlags;
-#else
     GrVkMemoryAllocator::AllocationPropertyFlags propFlags;
-#endif
     bool shouldPersistentlyMapCpuToGpu = gpu->vkCaps().shouldPersistentlyMapCpuToGpuBuffers();
     if (usage == BufferUsage::kTransfersFromCpuToGpu ||
         (usage == BufferUsage::kCpuWritesGpuReads && shouldPersistentlyMapCpuToGpu)) {
         // In general it is always fine (and often better) to keep buffers always mapped that we are
         // writing to on the cpu.
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-        propFlags = AllocationPropertyFlags::kPersistentlyMapped;
-#else
         propFlags = GrVkMemoryAllocator::kPersistentlyMapped_AllocationPropertyFlag;
-#endif
     } else {
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-        propFlags = AllocationPropertyFlags::kNone;
-#else
         propFlags = GrVkMemoryAllocator::kNone_AllocationPropertyFlag;
-#endif
     }
 
     VkResult result = allocator->allocateBufferMemory(buffer, usage, propFlags, &memory);
@@ -78,42 +63,24 @@ bool GrVkMemory::AllocAndBindImageMemory(GrVkGpu* gpu,
     VkMemoryRequirements memReqs;
     GR_VK_CALL(gpu->vkInterface(), GetImageMemoryRequirements(gpu->device(), image, &memReqs));
 
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-    AllocationPropertyFlags propFlags;
-#else
     uint32_t propFlags;
-#endif    // If we ever find that our allocator is not aggressive enough in using dedicated image
+
+    // If we ever find that our allocator is not aggressive enough in using dedicated image
     // memory we can add a size check here to force the use of dedicate memory. However for now,
     // we let the allocators decide. The allocator can query the GPU for each image to see if the
     // GPU recommends or requires the use of dedicated memory.
     if (gpu->vkCaps().shouldAlwaysUseDedicatedImageMemory()) {
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-        propFlags = AllocationPropertyFlags::kDedicatedAllocation;
-#else
         propFlags = GrVkMemoryAllocator::kDedicatedAllocation_AllocationPropertyFlag;
-#endif
     } else {
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-        propFlags = AllocationPropertyFlags::kNone;
-#else
         propFlags = GrVkMemoryAllocator::kNone_AllocationPropertyFlag;
-#endif
     }
 
     if (gpu->protectedContext()) {
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-        propFlags |= AllocationPropertyFlags::kProtected;
-#else
         propFlags = propFlags | GrVkMemoryAllocator::kProtected_AllocationPropertyFlag;
-#endif
     }
 
     if (memoryless == GrMemoryless::kYes) {
-#ifdef SK_LEGACY_VMA_PROPERTY_FLAGS
-        propFlags |= AllocationPropertyFlags::kLazyAllocation;
-#else
         propFlags = propFlags | GrVkMemoryAllocator::kLazyAllocation_AllocationPropertyFlag;
-#endif
     }
 
     VkResult result = allocator->allocateImageMemory(image, propFlags, &memory);
