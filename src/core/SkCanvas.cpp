@@ -1214,7 +1214,7 @@ void SkCanvas::internalSaveBehind(const SkRect* localBounds) {
     // a client, and the drawClippedToSaveBehind below). Since this is not saving a layer, with its
     // own device, we need to explicitly copy the back image contents so that its original content
     // is available when we splat it back later during restore.
-    auto backImage = device->snapSpecial(devBounds, /* copy */ true);
+    auto backImage = device->snapSpecial(devBounds, /* forceCopy= */ true);
     if (!backImage) {
         return;
     }

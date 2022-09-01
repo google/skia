@@ -70,7 +70,9 @@ public:
     bool onGetROPixels(SkBitmap* dst) const override {
         // This should never be called: All GPU image filters are implemented entirely on the GPU,
         // so we never perform read-back.
-        SkASSERT(false);
+        // TODO: re-enabled this assert once Graphite has image filter support. Right now image
+        // filters will fallback to the raster backend in Graphite.
+        //SkASSERT(false);
         return false;
     }
 

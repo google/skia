@@ -188,6 +188,8 @@ public:
 #endif
 
 #if SK_GRAPHITE_ENABLED
+    bool isGraphiteBacked() const;
+
     skgpu::graphite::TextureProxyView textureProxyView() const;
 #endif
 
