@@ -403,9 +403,9 @@
             color: CanvasKit.BLACK,
             fontFamilies: ['Roboto'],
             fontSize: 50,
-            maxLines: 3,
         },
         textAlign: CanvasKit.TextAlign.Left,
+        maxLines: 5,
     });
 
     const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
@@ -457,7 +457,7 @@
 
         const paragraph = builder.buildWithClientInfo(
             mallocedBidis,
-            mallocedWords,
+            null, //mallocedWords,
             graphemesArr,
             mallocedSoftBreaks,
             mallocedHardBreaks
