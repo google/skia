@@ -62,6 +62,7 @@
 #endif
 
 extern bool gSkForceRasterPipelineBlitter;
+extern bool gForceHighPrecisionRasterPipeline;
 extern bool gUseSkVMBlitter;
 extern bool gSkVMAllowJIT;
 extern bool gSkVMJITViaDylib;
@@ -99,6 +100,7 @@ static DEFINE_int(shard,  0, "Which shard do I run?");
 
 static DEFINE_string(mskps, "", "Directory to read mskps from, or a single mskp file.");
 static DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
+static DEFINE_bool(forceRasterPipelineHP, false, "sets gSkForceRasterPipelineBlitter and gForceHighPrecisionRasterPipeline");
 static DEFINE_bool(skvm, false, "sets gUseSkVMBlitter");
 static DEFINE_bool(jit,  true,  "sets gSkVMAllowJIT");
 static DEFINE_bool(dylib, false, "JIT via dylib (much slower compile but easier to debug/profile)");
@@ -1534,11 +1536,12 @@ int main(int argc, char** argv) {
     CommonFlags::SetDefaultFontMgr();
     CommonFlags::SetAnalyticAA();
 
-    gSkForceRasterPipelineBlitter = FLAGS_forceRasterPipeline;
-    gUseSkVMBlitter               = FLAGS_skvm;
-    gSkVMAllowJIT                 = FLAGS_jit;
-    gSkVMJITViaDylib              = FLAGS_dylib;
-    gSkBlobAsSlugTesting          = FLAGS_blobAsSlugTesting;
+    gSkForceRasterPipelineBlitter     = FLAGS_forceRasterPipelineHP || FLAGS_forceRasterPipeline;
+    gForceHighPrecisionRasterPipeline = FLAGS_forceRasterPipelineHP;
+    gUseSkVMBlitter                   = FLAGS_skvm;
+    gSkVMAllowJIT                     = FLAGS_jit;
+    gSkVMJITViaDylib                  = FLAGS_dylib;
+    gSkBlobAsSlugTesting              = FLAGS_blobAsSlugTesting;
 
     // The bots like having a verbose.log to upload, so always touch the file even if --verbose.
     if (!FLAGS_writePath.isEmpty()) {
