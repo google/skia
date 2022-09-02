@@ -32,7 +32,6 @@ public class SkottieView extends FrameLayout {
     private int mBackgroundColor;
     // Repeat follows Animator API, infinite is represented by -1 (see Animator.DURATION_INFINITE)
     private int mRepeatCount;
-
     private static final int BACKING_VIEW_TEXTURE = 0;
     private static final int BACKING_VIEW_SURFACE = 1;
     private final String LOG_TAG = "SkottieView";
@@ -216,5 +215,9 @@ public class SkottieView extends FrameLayout {
 
     public void setBackgroundColor(int colorRGB) {
         mBackgroundColor = colorRGB;
+    }
+
+    static public void setMaxCacheSize(int maxCacheSize) {
+        SkottieRunner.getInstance().setMaxCacheSize(maxCacheSize);
     }
 }
