@@ -79,8 +79,6 @@ skia_utils_sources = [
   "$_src/utils/SkShadowUtils.cpp",
   "$_src/utils/SkTestCanvas.h",
   "$_src/utils/SkTextUtils.cpp",
-  "$_src/utils/SkThreadUtils_pthread.cpp",
-  "$_src/utils/SkThreadUtils_win.cpp",
   "$_src/utils/SkUTF.cpp",
   "$_src/utils/SkUTF.h",
   "$_src/utils/SkVMVisualizer.cpp",
