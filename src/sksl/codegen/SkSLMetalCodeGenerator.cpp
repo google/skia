@@ -127,7 +127,6 @@ void MetalCodeGenerator::writeExtension(const Extension& ext) {
 
 std::string MetalCodeGenerator::typeName(const Type& type) {
     // we need to know the modifiers for textures
-    SkASSERT(type.typeKind() != Type::TypeKind::kTexture);
     switch (type.typeKind()) {
         case Type::TypeKind::kArray:
             SkASSERT(!type.isUnsizedArray());
@@ -148,29 +147,17 @@ std::string MetalCodeGenerator::typeName(const Type& type) {
             }
             return "sampler2D";
 
+        case Type::TypeKind::kTexture:
+            switch (type.textureAccess()) {
+                case Type::TextureAccess::kSample:    return "texture2d<half>";
+                case Type::TextureAccess::kRead:      return "texture2d<half, access::read>";
+                case Type::TextureAccess::kWrite:     return "texture2d<half, access::write>";
+                case Type::TextureAccess::kReadWrite: return "texture2d<half, access::read_write>";
+                default:                              SkUNREACHABLE;
+            }
+            break;
         default:
             return std::string(type.name());
-    }
-}
-
-std::string MetalCodeGenerator::textureTypeName(const Type& type, const Modifiers* modifiers) {
-    if (type.typeKind() == Type::TypeKind::kTexture && modifiers) {
-        std::string result = "texture2d<half, access::";
-        switch (modifiers->fFlags & (Modifiers::kReadOnly_Flag | Modifiers::kWriteOnly_Flag)) {
-            case 0:
-                result += "read_write>";
-                break;
-            case Modifiers::kWriteOnly_Flag:
-                result += "write>";
-                break;
-            case Modifiers::kReadOnly_Flag:
-            default:
-                result += "read>";
-                break;
-        }
-        return result;
-    } else {
-        return "texture2d<half>";
     }
 }
 
@@ -185,18 +172,6 @@ void MetalCodeGenerator::writeStructDefinition(const StructDefinition& s) {
 
 void MetalCodeGenerator::writeType(const Type& type) {
     this->write(this->typeName(type));
-}
-
-void MetalCodeGenerator::writeTextureType(const Type& type, const Modifiers& modifiers) {
-    this->write(this->textureTypeName(type, &modifiers));
-}
-
-void MetalCodeGenerator::writeParameterType(const Type& type, const Modifiers& modifiers) {
-    if (type.typeKind() == Type::TypeKind::kTexture) {
-        this->writeTextureType(type, modifiers);
-    } else {
-        this->writeType(type);
-    }
 }
 
 void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence parentPrecedence) {
@@ -324,7 +299,7 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
         this->writeModifiers(param->modifiers());
 
         const Type* type = outVars[index] ? &outVars[index]->type() : &arguments[index]->type();
-        this->writeParameterType(*type, param->modifiers());
+        this->writeType(*type);
 
         if (pass_by_reference(param->type(), param->modifiers())) {
             this->write("&");
@@ -2041,18 +2016,26 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                     int binding = getUniformBinding(var.modifiers());
                     this->write(separator);
                     separator = ", ";
-                    this->writeTextureType(var.type(), var.modifiers());
-                    this->write(" ");
-                    this->writeName(var.mangledName());
-                    this->write(varKind == Type::TypeKind::kSampler ? kTextureSuffix : "");
-                    this->write(" [[texture(");
-                    this->write(std::to_string(binding));
-                    this->write(")]]");
+
                     if (varKind == Type::TypeKind::kSampler) {
-                        this->write(", sampler ");
+                        this->writeType(var.type().textureType());
+                        this->write(" ");
+                        this->writeName(var.mangledName());
+                        this->write(kTextureSuffix);
+                        this->write(" [[texture(");
+                        this->write(std::to_string(binding));
+                        this->write(")]], sampler ");
                         this->writeName(var.mangledName());
                         this->write(kSamplerSuffix);
                         this->write(" [[sampler(");
+                        this->write(std::to_string(binding));
+                        this->write(")]]");
+                    } else {
+                        SkASSERT(varKind == Type::TypeKind::kTexture);
+                        this->writeType(var.type());
+                        this->write(" ");
+                        this->writeName(var.mangledName());
+                        this->write(" [[texture(");
                         this->write(std::to_string(binding));
                         this->write(")]]");
                     }
@@ -2110,7 +2093,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         this->write(separator);
         separator = ", ";
         this->writeModifiers(param->modifiers());
-        this->writeParameterType(param->type(), param->modifiers());
+        this->writeType(param->type());
         if (pass_by_reference(param->type(), param->modifiers())) {
             this->write("&");
         }
@@ -2787,7 +2770,7 @@ void MetalCodeGenerator::writeGlobalStruct() {
                           std::string_view name) override {
             this->addElement();
             fCodeGen->write("    ");
-            fCodeGen->writeTextureType(type, modifiers);
+            fCodeGen->writeType(type);
             fCodeGen->write(" ");
             fCodeGen->writeName(name);
             fCodeGen->write(";\n");

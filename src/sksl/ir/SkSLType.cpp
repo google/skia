@@ -77,6 +77,10 @@ public:
         return fTargetType.slotCount();
     }
 
+    SpvDim_ dimensions() const override {
+        return fTargetType.dimensions();
+    }
+
     bool isDepth() const override {
         return fTargetType.isDepth();
     }

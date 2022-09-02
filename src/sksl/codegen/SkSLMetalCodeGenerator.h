@@ -135,15 +135,9 @@ protected:
 
     std::string typeName(const Type& type);
 
-    std::string textureTypeName(const Type& type, const Modifiers* modifiers);
-
     void writeStructDefinition(const StructDefinition& s);
 
     void writeType(const Type& type);
-
-    void writeTextureType(const Type& type, const Modifiers& modifiers);
-
-    void writeParameterType(const Type& type, const Modifiers& modifiers);
 
     void writeExtension(const Extension& ext);
 

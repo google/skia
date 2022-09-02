@@ -7,5 +7,5 @@ struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
 struct Globals {
-    texture2d<half, access::read_write> s;
+    texture2d<half> s;
 };

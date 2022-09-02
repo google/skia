@@ -122,6 +122,8 @@ public:
     enum class TextureAccess : int8_t {
         kSample,  // `kSample` access level allows both sampling and reading
         kRead,
+        kWrite,
+        kReadWrite,
     };
 
     Type(const Type& other) = delete;
@@ -369,11 +371,11 @@ public:
     }
 
     /**
-     * For texturesamplers, returns the type of texture it samples (e.g., sampler2D has
+     * For texture samplers, returns the type of texture it samples (e.g., sampler2D has
      * a texture type of texture2D).
      */
     virtual const Type& textureType() const {
-        SkDEBUGFAIL("not a texture type");
+        SkDEBUGFAIL("not a sampler type");
         return *this;
     }
 
@@ -422,7 +424,7 @@ public:
      * For generic types, returns the types that this generic type can substitute for.
      */
     virtual SkSpan<const Type* const> coercibleTypes() const {
-        SkDEBUGFAILF("Internal error: not a generic type");
+        SkDEBUGFAIL("Internal error: not a generic type");
         return {};
     }
 

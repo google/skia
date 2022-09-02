@@ -112,6 +112,10 @@ public:
     const std::unique_ptr<Type> fTextureExternalOES;
     const std::unique_ptr<Type> fTexture2DRect;
 
+    const std::unique_ptr<Type> fReadWriteTexture2D;
+    const std::unique_ptr<Type> fReadOnlyTexture2D;
+    const std::unique_ptr<Type> fWriteOnlyTexture2D;
+
     const std::unique_ptr<Type> fSampler2D;
     const std::unique_ptr<Type> fSamplerExternalOES;
     const std::unique_ptr<Type> fSampler2DRect;

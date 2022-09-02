@@ -95,6 +95,7 @@ static constexpr BuiltinTypePtr kPrivateTypes[] = {
 
     TYPE(Sampler),
     TYPE(Texture2D),
+    TYPE(ReadWriteTexture2D), TYPE(ReadOnlyTexture2D), TYPE(WriteOnlyTexture2D),
 };
 
 #undef TYPE
@@ -176,6 +177,12 @@ static void add_public_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Buil
         symbols->add(Type::MakeAliasType((types.*privateType)->name(), *types.fInvalid));
     }
     symbols->add(Type::MakeAliasType("sk_Caps", *types.fInvalid));
+}
+
+static void add_compute_type_aliases(SkSL::SymbolTable* symbols, const SkSL::BuiltinTypes& types) {
+    // A `texture2D` in a compute shader should generally mean "read-write" texture access, not
+    // "sample" texture access. Remap the name `texture2D` to point to `readWriteTexture2D`.
+    symbols->add(Type::MakeAliasType("texture2D", *types.fReadWriteTexture2D));
 }
 
 const BuiltinTypes& ModuleLoader::builtinTypes() {
@@ -274,6 +281,7 @@ const ParsedModule& ModuleLoader::loadComputeModule(SkSL::Compiler* compiler) {
                                                              MODULE_DATA(compute),
                                                              gpuModule,
                                                              this->coreModifiers());
+        add_compute_type_aliases(fModuleLoader.fComputeModule.fSymbols.get(), this->builtinTypes());
     }
     return fModuleLoader.fComputeModule;
 }

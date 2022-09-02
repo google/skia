@@ -113,6 +113,24 @@ BuiltinTypes::BuiltinTypes()
                                                /*isArrayedTexture=*/false,
                                                /*isMultisampled=*/false,
                                                Type::TextureAccess::kSample))
+        , fReadWriteTexture2D(Type::MakeTextureType("readWriteTexture2D",
+                                                    SpvDim2D,
+                                                    /*isDepth=*/false,
+                                                    /*isArrayedTexture=*/false,
+                                                    /*isMultisampled=*/false,
+                                                    Type::TextureAccess::kReadWrite))
+        , fReadOnlyTexture2D(Type::MakeTextureType("readonlyTexture2D",
+                                                   SpvDim2D,
+                                                   /*isDepth=*/false,
+                                                   /*isArrayedTexture=*/false,
+                                                   /*isMultisampled=*/false,
+                                                   Type::TextureAccess::kRead))
+        , fWriteOnlyTexture2D(Type::MakeTextureType("writeonlyTexture2D",
+                                                    SpvDim2D,
+                                                    /*isDepth=*/false,
+                                                    /*isArrayedTexture=*/false,
+                                                    /*isMultisampled=*/false,
+                                                    Type::TextureAccess::kWrite))
         , fSampler2D(Type::MakeSamplerType("sampler2D", *fTexture2D))
         , fSamplerExternalOES(Type::MakeSamplerType("samplerExternalOES", *fTextureExternalOES))
         , fSampler2DRect(Type::MakeSamplerType("sampler2DRect", *fTexture2DRect))
@@ -131,7 +149,6 @@ BuiltinTypes::BuiltinTypes()
                                                 /*isArrayedTexture=*/false,
                                                 /*isMultisampled=*/true,
                                                 Type::TextureAccess::kRead))
-
         , fGenType(Type::MakeGenericType("$genType", {fFloat.get(), fFloat2.get(), fFloat3.get(),
                                                       fFloat4.get()}))
         , fGenHType(Type::MakeGenericType("$genHType", {fHalf.get(), fHalf2.get(), fHalf3.get(),
