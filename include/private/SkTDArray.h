@@ -13,6 +13,7 @@
 #include "include/private/SkTo.h"
 
 #include <algorithm>
+#include <climits>
 #include <initializer_list>
 #include <utility>
 
@@ -320,10 +321,6 @@ public:
     }
 
 private:
-    T*  fArray;
-    int fReserve;  // size of the allocation in fArray (#elements)
-    int fCount;    // logical number of elements (fCount <= fReserve)
-
     // Adjusts the number of elements in the array.
     // This is the same as calling setCount(count() + delta).
     void adjustCount(int delta) {
@@ -342,19 +339,33 @@ private:
     // It never shrinks the allocation, and it may increase the allocation by
     //  more than is strictly required, based on a private growth heuristic.
     //
-    //  note: does NOT modify fCount
+    //  note: this does NOT modify fCount
     void resizeStorageToAtLeast(int count) {
         SkASSERT(count > fReserve);
 
-        // We take care to avoid overflow here.
-        // The maximum value we can get for reserve here is 2684354563, which fits in uint32_t.
-        uint32_t reserve = (uint32_t)count + 4;
-        reserve += reserve / 4;
-        SkASSERT_RELEASE(SkTFitsIn<int>(reserve));
+        // Establish the maximum number of elements that includes a valid count for end. In the
+        // largest case end() = &fArray[INT_MAX] which is 1 after the last indexable element.
+        static constexpr int kMaxCount = INT_MAX;
 
-        fReserve = SkTo<int>(reserve);
-        fArray = (T*)sk_realloc_throw(fArray, (size_t)fReserve * sizeof(T));
+        // Assume that the array will max out.
+        fReserve = kMaxCount;
+        if (kMaxCount - count > 4) {
+            // Add 1/4 more than we need. Add 4 to ensure this grows by at least 1. Pin to
+            // kMaxCount if no room for 1/4 growth.
+            int growth = (count + 4) >> 2;
+            // Read this line as: if (count + growth < kMaxCount) { ... }
+            // It's rewritten to avoid signed integer overflow.
+            if (kMaxCount - count > growth) {
+                fReserve = count + growth;
+            }
+        }
+
+        fArray = static_cast<T*>(sk_realloc_throw(fArray, SkToSizeT(fReserve) * sizeof(T)));
     }
+
+    T*  fArray;
+    int fReserve;  // size of the allocation in fArray (#elements)
+    int fCount;    // logical number of elements (fCount <= fReserve)
 };
 
 template <typename T> static inline void swap(SkTDArray<T>& a, SkTDArray<T>& b) { a.swap(b); }
