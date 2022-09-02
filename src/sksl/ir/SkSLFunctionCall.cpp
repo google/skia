@@ -639,10 +639,27 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
                         ((Pack(1) << 16) & 0xFFFF0000)).release();
         }
+        case k_packSnorm2x16_IntrinsicKind: {
+            auto Pack = [&](int n) -> unsigned int {
+                float x = Get(0, n);
+                return (int)std::round(Intrinsics::evaluate_clamp(x, -1.0, 1.0) * 32767.0);
+            };
+            return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
+                        ((Pack(1) << 16) & 0xFFFF0000)).release();
+        }
         case k_unpackUnorm2x16_IntrinsicKind: {
             SKSL_INT x = *arguments[0]->getConstantValue(0);
-            return Float2(double((x >> 0)  & 0x0000FFFF) / 65535.0,
-                          double((x >> 16) & 0x0000FFFF) / 65535.0).release();
+            uint16_t a = ((x >> 0)  & 0x0000FFFF);
+            uint16_t b = ((x >> 16) & 0x0000FFFF);
+            return Float2(double(a) / 65535.0,
+                          double(b) / 65535.0).release();
+        }
+        case k_unpackSnorm2x16_IntrinsicKind: {
+            SKSL_INT x = *arguments[0]->getConstantValue(0);
+            int16_t a = ((x >> 0)  & 0x0000FFFF);
+            int16_t b = ((x >> 16) & 0x0000FFFF);
+            return Float2(Intrinsics::evaluate_clamp(double(a) / 32767.0, -1.0, 1.0),
+                          Intrinsics::evaluate_clamp(double(b) / 32767.0, -1.0, 1.0)).release();
         }
         // 8.5 : Geometric Functions
         case k_length_IntrinsicKind:
