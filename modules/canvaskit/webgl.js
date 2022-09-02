@@ -353,7 +353,8 @@
       };
 
       CanvasKit.getCurrentGrDirectContext = function() {
-        if (GL.currentContext) {
+        if (GL.currentContext && GL.currentContext.grDirectContext &&
+            !GL.currentContext.grDirectContext['isDeleted']()) {
           return GL.currentContext.grDirectContext;
         }
         return null;

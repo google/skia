@@ -6,10 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
- - Added API, tests and sample for SkParagraph Client provided ICU API:
+### Added
+ - Paragraph has new setting: `replaceTabCharacters`.
+ - New API, tests and sample for SkParagraph Client provided ICU API:
    - buildWithClientInfo
    - getText
+
+### Fixed
+ - readPixels calls could sometimes fail due to a stale internal reference to GrDirectContext.
 
 ## [0.36.1] - 2022-08-22
 
