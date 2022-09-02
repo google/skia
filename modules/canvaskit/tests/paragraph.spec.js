@@ -1115,12 +1115,10 @@ describe('Paragraph Behavior', function() {
     // The purpose of this text is to make sure that we can use Client ICU
     // API for English text and get the results reasonably similar to the
     // normal paragraph API.
-gm('paragraph_client_icu', (canvas) => {
+    gm('paragraph_client_icu', (canvas) => {
         const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Roboto');
-
-        const wrapTo = 200;
 
         const paraStyle = new CanvasKit.ParagraphStyle({
             textStyle: {
@@ -1189,14 +1187,15 @@ gm('paragraph_client_icu', (canvas) => {
 
         paragraph.layout(600);
 
+        // TODO(kjlubick, jlavrovra) re-enable these assertions after flaky failure seen in Gold.
         expect(paragraph.didExceedMaxLines()).toBeFalsy();
         expect(paragraph.getAlphabeticBaseline()).toBeCloseTo(46.399, 2);
         expect(paragraph.getHeight()).toEqual(177);
         expect(paragraph.getIdeographicBaseline()).toBeCloseTo(58.599, 2);
-        expect(paragraph.getLongestLine()).toBeCloseTo(558.349, 2);
-        expect(paragraph.getMaxIntrinsicWidth()).toBeCloseTo(758.349, 2);
+        // expect(paragraph.getLongestLine()).toBeCloseTo(558.349, 2);
+        // expect(paragraph.getMaxIntrinsicWidth()).toBeCloseTo(758.349, 2);
         expect(paragraph.getMaxWidth()).toEqual(600);
-        expect(paragraph.getMinIntrinsicWidth()).toBeCloseTo(341.399, 2);
+        // expect(paragraph.getMinIntrinsicWidth()).toBeCloseTo(341.399, 2);
 
         const lineMetrics = paragraph.getLineMetrics();
         expect(lineMetrics.length).toEqual(3); // 3 lines worth of metrics
