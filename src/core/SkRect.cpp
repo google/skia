@@ -7,20 +7,8 @@
 
 #include "include/core/SkRect.h"
 
-#include "include/core/SkString.h"
-#include "include/private/SkVx.h"
+#include "include/private/SkMalloc.h"
 #include "src/core/SkRectPriv.h"
-#include "src/core/SkStringUtils.h"
-
-#include <algorithm>
-#include <cstring>
-#include <utility>
-
-bool SkIRect::contains(const SkRect& r) const {
-    return  !r.isEmpty() && !this->isEmpty() &&     // check for empties
-            (SkScalar)fLeft <= r.fLeft && (SkScalar)fTop <= r.fTop &&
-            (SkScalar)fRight >= r.fRight && (SkScalar)fBottom >= r.fBottom;
-}
 
 bool SkIRect::intersect(const SkIRect& a, const SkIRect& b) {
     SkIRect tmp = {
@@ -53,36 +41,7 @@ void SkIRect::join(const SkIRect& r) {
     }
 }
 
-void SkIRect::setEmpty() { memset(this, 0, sizeof(*this)); }
-
-void SkIRect::sort() {
-    if (fLeft > fRight) {
-        std::swap(fLeft, fRight);
-    }
-    if (fTop > fBottom) {
-        std::swap(fTop, fBottom);
-    }
-}
-
-/** Returns SkIRect with fLeft and fRight swapped if fLeft is greater than fRight; and
-    with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
-    and width() and height() will be zero or positive.
-
-    @return  sorted SkIRect
-*/
-SkIRect SkIRect::makeSorted() const {
-    return MakeLTRB(std::min(fLeft, fRight), std::min(fTop, fBottom),
-                    std::max(fLeft, fRight), std::max(fTop, fBottom));
-}
-
 /////////////////////////////////////////////////////////////////////////////
-
-void SkRect::set(const SkPoint& p0, const SkPoint& p1) {
-    fLeft =   std::min(p0.fX, p1.fX);
-    fRight =  std::max(p0.fX, p1.fX);
-    fTop =    std::min(p0.fY, p1.fY);
-    fBottom = std::max(p0.fY, p1.fY);
-}
 
 void SkRect::toQuad(SkPoint quad[4]) const {
     SkASSERT(quad);
@@ -92,6 +51,8 @@ void SkRect::toQuad(SkPoint quad[4]) const {
     quad[2].set(fRight, fBottom);
     quad[3].set(fLeft, fBottom);
 }
+
+#include "include/private/SkVx.h"
 
 bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     SkASSERT((pts && count > 0) || count == 0);
@@ -138,15 +99,6 @@ void SkRect::setBoundsNoCheck(const SkPoint pts[], int count) {
     }
 }
 
-bool SkRect::Intersects(SkScalar al, SkScalar at, SkScalar ar, SkScalar ab,
-                        SkScalar bl, SkScalar bt, SkScalar br, SkScalar bb) {
-    SkScalar L = std::max(al, bl);
-    SkScalar R = std::min(ar, br);
-    SkScalar T = std::max(at, bt);
-    SkScalar B = std::min(ab, bb);
-    return L < R && T < B;
-}
-
 #define CHECK_INTERSECT(al, at, ar, ab, bl, bt, br, bb) \
     SkScalar L = std::max(al, bl);                   \
     SkScalar R = std::min(ar, br);                   \
@@ -182,35 +134,10 @@ void SkRect::join(const SkRect& r) {
     }
 }
 
-void SkRect::joinPossiblyEmptyRect(const SkRect& r) {
-    fLeft   = std::min(fLeft, r.left());
-    fTop    = std::min(fTop, r.top());
-    fRight  = std::max(fRight, r.right());
-    fBottom = std::max(fBottom, r.bottom());
-}
-
-void SkRect::sort() {
-    if (fLeft > fRight) {
-        std::swap(fLeft, fRight);
-    }
-
-    if (fTop > fBottom) {
-        std::swap(fTop, fBottom);
-    }
-}
-
-/** Returns SkRect with fLeft and fRight swapped if fLeft is greater than fRight; and
-    with fTop and fBottom swapped if fTop is greater than fBottom. Result may be empty;
-    and width() and height() will be zero or positive.
-
-    @return  sorted SkRect
-*/
-SkRect SkRect::makeSorted() const {
-    return MakeLTRB(std::min(fLeft, fRight), std::min(fTop, fBottom),
-                    std::max(fLeft, fRight), std::max(fTop, fBottom));
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////
+
+#include "include/core/SkString.h"
+#include "src/core/SkStringUtils.h"
 
 static const char* set_scalar(SkString* storage, SkScalar value, SkScalarAsStringType asType) {
     storage->reset();
