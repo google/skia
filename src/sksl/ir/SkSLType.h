@@ -494,13 +494,13 @@ public:
     }
 
     virtual bool isMultisampled() const {
-        SkASSERT(false);
+        SkDEBUGFAIL("not a texture type");
         return false;
     }
 
-    virtual bool isSampled() const {
-        SkASSERT(false);
-        return false;
+    virtual TextureAccess textureAccess() const {
+        SkDEBUGFAIL("not a texture type");
+        return TextureAccess::kSample;
     }
 
     bool hasPrecision() const {

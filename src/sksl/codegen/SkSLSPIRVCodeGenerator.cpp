@@ -1112,6 +1112,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
         }
         case Type::TypeKind::kTexture: {
             SpvId floatTypeId = this->getType(*fContext.fTypes.fFloat, layout);
+            int sampled = (type->textureAccess() == Type::TextureAccess::kSample) ? 1 : 2;
             return this->writeInstruction(SpvOpTypeImage,
                                           Words{Word::Result(),
                                                 floatTypeId,
@@ -1119,7 +1120,7 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType, const MemoryLayout& layou
                                                 Word::Number(type->isDepth()),
                                                 Word::Number(type->isArrayedTexture()),
                                                 Word::Number(type->isMultisampled()),
-                                                Word::Number(type->isSampled() ? 1 : 2),
+                                                Word::Number(sampled),
                                                 SpvImageFormatUnknown},
                                           fConstantBuffer);
         }
