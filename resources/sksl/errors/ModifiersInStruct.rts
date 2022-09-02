@@ -10,12 +10,12 @@ struct S {
 };
 
 /*%%*
+type 'bool' does not support qualifier 'readonly'
+type 'bool' does not support qualifier 'writeonly'
 modifier 'const' is not permitted on a struct field
 modifier 'uniform' is not permitted on a struct field
 modifier 'flat' is not permitted on a struct field
 modifier 'noperspective' is not permitted on a struct field
 modifier 'inout' is not permitted on a struct field
-modifier 'readonly' is not permitted on a struct field
-modifier 'writeonly' is not permitted on a struct field
 modifier 'buffer' is not permitted on a struct field
 *%%*/

@@ -27,10 +27,10 @@ inline              float _inline;
 error: 9: 'noinline' is not permitted here
 noinline            float _noinline;
 ^^^^^^^^
-error: 10: 'readonly' is not permitted here
+error: 10: type 'float' does not support qualifier 'readonly'
 readonly            float _readonly;
 ^^^^^^^^
-error: 11: 'writeonly' is not permitted here
+error: 11: type 'float' does not support qualifier 'writeonly'
 writeonly           float _writeonly;
 ^^^^^^^^^
 error: 13: 'flat' is not permitted here
@@ -54,10 +54,10 @@ $es3                void es3_fn() {}
 error: 19: 'sk_has_side_effects' is not permitted here
 sk_has_side_effects void sk_has_side_effect_fn() {}
 ^^^^^^^^^^^^^^^^^^^
-error: 20: 'readonly' is not permitted here
+error: 20: type 'void' does not support qualifier 'readonly'
 readonly            void readonly_fn() {}
 ^^^^^^^^
-error: 21: 'writeonly' is not permitted here
+error: 21: type 'void' does not support qualifier 'writeonly'
 writeonly           void writeonly_fn() {}
 ^^^^^^^^^
 error: 22: 'buffer' is not permitted here

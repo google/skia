@@ -1,5 +1,11 @@
 ### Compilation failed:
 
+error: 7: type 'bool' does not support qualifier 'readonly'
+    readonly bool f;
+    ^^^^^^^^
+error: 8: type 'bool' does not support qualifier 'writeonly'
+    writeonly bool g;
+    ^^^^^^^^^
 error: 2: modifier 'const' is not permitted on a struct field
     const float a;
     ^^^^^
@@ -15,12 +21,6 @@ error: 5: modifier 'noperspective' is not permitted on a struct field
 error: 6: modifier 'inout' is not permitted on a struct field
     inout bool e;
     ^^^^^
-error: 7: modifier 'readonly' is not permitted on a struct field
-    readonly bool f;
-    ^^^^^^^^
-error: 8: modifier 'writeonly' is not permitted on a struct field
-    writeonly bool g;
-    ^^^^^^^^^
 error: 9: modifier 'buffer' is not permitted on a struct field
     buffer int h;
     ^^^^^^

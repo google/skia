@@ -174,7 +174,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
     }
     if ((modifiers.fFlags & Modifiers::kReadOnly_Flag) &&
         (modifiers.fFlags & Modifiers::kWriteOnly_Flag)) {
-        context.fErrors->error(pos, "'readonly writeonly' variables not permitted");
+        context.fErrors->error(pos, "'readonly' and 'writeonly' qualifiers cannot be combined");
     }
     if ((modifiers.fFlags & Modifiers::kUniform_Flag) &&
         (modifiers.fFlags & Modifiers::kBuffer_Flag)) {
@@ -237,9 +237,10 @@ void VarDeclaration::ErrorCheck(const Context& context,
         }
         // No other modifiers are allowed in runtime effects
         if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
-            if (baseType->typeKind() == Type::TypeKind::kTexture ||
-                (baseType->isInterfaceBlock() && (modifiers.fFlags & Modifiers::kBuffer_Flag))) {
-                // Only texture types and storage blocks allow `readonly` and `writeonly`.
+            if (baseType->isInterfaceBlock() && (modifiers.fFlags & Modifiers::kBuffer_Flag)) {
+                // Only storage blocks allow `readonly` and `writeonly`.
+                // (`readonly` and `writeonly` textures are converted to separate types via
+                // applyAccessQualifiers.)
                 permitted |= Modifiers::kReadOnly_Flag | Modifiers::kWriteOnly_Flag;
             }
             if (!baseType->isOpaque()) {

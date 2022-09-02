@@ -35,8 +35,8 @@ float4 main(float2 xy) {
 'sk_has_side_effects' is not permitted here
 'inline' is not permitted here
 'noinline' is not permitted here
-'readonly' is not permitted here
-'writeonly' is not permitted here
+type 'float' does not support qualifier 'readonly'
+type 'float' does not support qualifier 'writeonly'
 'flat' is not permitted here
 'noperspective' is not permitted here
 'in' is not permitted here
@@ -44,7 +44,7 @@ float4 main(float2 xy) {
 'threadgroup' is not permitted here
 '$es3' is not permitted here
 'sk_has_side_effects' is not permitted here
-'readonly' is not permitted here
-'writeonly' is not permitted here
+type 'void' does not support qualifier 'readonly'
+type 'void' does not support qualifier 'writeonly'
 'buffer' is not permitted here
 *%%*/

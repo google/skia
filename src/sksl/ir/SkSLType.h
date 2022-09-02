@@ -531,14 +531,15 @@ public:
     const Type& toCompound(const Context& context, int columns, int rows) const;
 
     /**
-     * Returns a type which honors the precision qualifiers set in Modifiers. e.g., kMediump_Flag
-     * when applied to `float2` will return `half2`. Generates an error if the precision qualifiers
-     * don't make sense, e.g. `highp bool` or `mediump MyStruct`.
+     * Returns a type which honors the precision and access-level qualifiers set in Modifiers. e.g.:
+     *  - Modifier `mediump` + Type `float2`:     Type `half2`
+     *  - Modifier `readonly` + Type `texture2D`: Type `readonlyTexture2D`
+     * Generates an error if the qualifiers don't make sense (`highp bool`, `writeonly MyStruct`)
      */
-    const Type* applyPrecisionQualifiers(const Context& context,
-                                         Modifiers* modifiers,
-                                         SymbolTable* symbols,
-                                         Position pos) const;
+    const Type* applyQualifiers(const Context& context,
+                                Modifiers* modifiers,
+                                SymbolTable* symbols,
+                                Position pos) const;
 
     /**
      * Coerces the passed-in expression to this type. If the types are incompatible, reports an
@@ -573,6 +574,16 @@ protected:
         SkASSERT(strlen(abbrev) <= kMaxAbbrevLength);
         strcpy(fAbbreviatedName, abbrev);
     }
+
+    const Type* applyPrecisionQualifiers(const Context& context,
+                                         Modifiers* modifiers,
+                                         SymbolTable* symbols,
+                                         Position pos) const;
+
+    const Type* applyAccessQualifiers(const Context& context,
+                                      Modifiers* modifiers,
+                                      SymbolTable* symbols,
+                                      Position pos) const;
 
 private:
     bool isTooDeeplyNested(int limit) const;
