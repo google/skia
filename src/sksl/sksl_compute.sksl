@@ -2,18 +2,10 @@
 
 layout(builtin=28) in uint3 sk_ThreadPosition;
 
-sk_has_side_effects half4 read(readonlyTexture2D t, uint2 pos);
-sk_has_side_effects half4 read(readWriteTexture2D t, uint2 pos);
+sk_has_side_effects half4 read($readableTexture2D t, uint2 pos);
+sk_has_side_effects void write($writableTexture2D t, uint2 pos, half4 color);
 
-sk_has_side_effects void write(writeonlyTexture2D t, uint2 pos, half4 color);
-sk_has_side_effects void write(readWriteTexture2D t, uint2 pos, half4 color);
-
-uint width(readonlyTexture2D t);
-uint width(writeonlyTexture2D t);
-uint width(readWriteTexture2D t);
-
-uint height(readonlyTexture2D t);
-uint height(writeonlyTexture2D t);
-uint height(readWriteTexture2D t);
+uint width($genTexture2D t);
+uint height($genTexture2D t);
 
 sk_has_side_effects void threadgroupBarrier();

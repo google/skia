@@ -96,6 +96,7 @@ static constexpr BuiltinTypePtr kPrivateTypes[] = {
     TYPE(Sampler),
     TYPE(Texture2D),
     TYPE(ReadWriteTexture2D), TYPE(ReadOnlyTexture2D), TYPE(WriteOnlyTexture2D),
+    TYPE(GenTexture2D), TYPE(ReadableTexture2D), TYPE(WritableTexture2D),
 };
 
 #undef TYPE

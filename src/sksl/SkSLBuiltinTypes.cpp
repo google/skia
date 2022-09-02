@@ -131,6 +131,18 @@ BuiltinTypes::BuiltinTypes()
                                                     /*isArrayedTexture=*/false,
                                                     /*isMultisampled=*/false,
                                                     Type::TextureAccess::kWrite))
+        , fGenTexture2D(Type::MakeGenericType("$genTexture2D",
+                                              {fReadOnlyTexture2D.get(),
+                                               fWriteOnlyTexture2D.get(),
+                                               fReadWriteTexture2D.get()}))
+        , fReadableTexture2D(Type::MakeGenericType("$readableTexture2D",
+                                                   {fReadOnlyTexture2D.get(),
+                                                    fInvalid.get(),
+                                                    fReadWriteTexture2D.get()}))
+        , fWritableTexture2D(Type::MakeGenericType("$writableTexture2D",
+                                                   {fInvalid.get(),
+                                                    fWriteOnlyTexture2D.get(),
+                                                    fReadWriteTexture2D.get()}))
         , fSampler2D(Type::MakeSamplerType("sampler2D", *fTexture2D))
         , fSamplerExternalOES(Type::MakeSamplerType("samplerExternalOES", *fTextureExternalOES))
         , fSampler2DRect(Type::MakeSamplerType("sampler2DRect", *fTexture2DRect))
