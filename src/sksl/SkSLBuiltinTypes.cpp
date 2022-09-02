@@ -100,19 +100,19 @@ BuiltinTypes::BuiltinTypes()
                                            /*isDepth=*/false,
                                            /*isArrayedTexture=*/false,
                                            /*isMultisampled=*/false,
-                                           /*isSampled=*/true))
+                                           Type::TextureAccess::kSample))
         , fTextureExternalOES(Type::MakeTextureType("textureExternalOES",
                                                     SpvDim2D,
                                                     /*isDepth=*/false,
                                                     /*isArrayedTexture=*/false,
                                                     /*isMultisampled=*/false,
-                                                    /*isSampled=*/true))
+                                                    Type::TextureAccess::kSample))
         , fTexture2DRect(Type::MakeTextureType("texture2DRect",
                                                SpvDimRect,
                                                /*isDepth=*/false,
                                                /*isArrayedTexture=*/false,
                                                /*isMultisampled=*/false,
-                                               /*isSampled=*/true))
+                                               Type::TextureAccess::kSample))
         , fSampler2D(Type::MakeSamplerType("sampler2D", *fTexture2D))
         , fSamplerExternalOES(Type::MakeSamplerType("samplerExternalOES", *fTextureExternalOES))
         , fSampler2DRect(Type::MakeSamplerType("sampler2DRect", *fTexture2DRect))
@@ -124,13 +124,13 @@ BuiltinTypes::BuiltinTypes()
                                               /*isDepth=*/false,
                                               /*isArrayedTexture=*/false,
                                               /*isMultisampled=*/false,
-                                              /*isSampled=*/false))
+                                              Type::TextureAccess::kRead))
         , fSubpassInputMS(Type::MakeTextureType("subpassInputMS",
                                                 SpvDimSubpassData,
                                                 /*isDepth=*/false,
                                                 /*isArrayedTexture=*/false,
                                                 /*isMultisampled=*/true,
-                                                /*isSampled=*/false))
+                                                Type::TextureAccess::kRead))
 
         , fGenType(Type::MakeGenericType("$genType", {fFloat.get(), fFloat2.get(), fFloat3.get(),
                                                       fFloat4.get()}))

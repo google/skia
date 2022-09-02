@@ -119,6 +119,11 @@ public:
         kNonnumeric
     };
 
+    enum class TextureAccess : int8_t {
+        kSample,  // `kSample` access level allows both sampling and reading
+        kRead,
+    };
+
     Type(const Type& other) = delete;
 
     /** Creates an array type. `columns` may be kUnsizedArray. */
@@ -169,9 +174,9 @@ public:
                                                 bool interfaceBlock = false);
 
     /** Create a texture type. */
-    static std::unique_ptr<Type> MakeTextureType(const char* name, SpvDim_ dimensions,
-                                                 bool isDepth, bool isArrayedTexture,
-                                                 bool isMultisampled, bool isSampled);
+    static std::unique_ptr<Type> MakeTextureType(const char* name, SpvDim_ dimensions, bool isDepth,
+                                                 bool isArrayedTexture, bool isMultisampled,
+                                                 TextureAccess textureAccess);
 
     /** Create a vector type. */
     static std::unique_ptr<Type> MakeVectorType(std::string_view name, const char* abbrev,

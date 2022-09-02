@@ -413,13 +413,13 @@ public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kTexture;
 
     TextureType(const char* name, SpvDim_ dimensions, bool isDepth, bool isArrayed,
-                bool isMultisampled, bool isSampled)
+                bool isMultisampled, TextureAccess textureAccess)
         : INHERITED(name, "T", kTypeKind)
         , fDimensions(dimensions)
         , fIsDepth(isDepth)
         , fIsArrayed(isArrayed)
         , fIsMultisampled(isMultisampled)
-        , fIsSampled(isSampled) {}
+        , fTextureAccess(textureAccess) {}
 
     SpvDim_ dimensions() const override {
         return fDimensions;
@@ -438,7 +438,7 @@ public:
     }
 
     bool isSampled() const override {
-        return fIsSampled;
+        return fTextureAccess == TextureAccess::kSample;
     }
 
 private:
@@ -448,7 +448,7 @@ private:
     bool fIsDepth;
     bool fIsArrayed;
     bool fIsMultisampled;
-    bool fIsSampled;
+    TextureAccess fTextureAccess;
 };
 
 class SamplerType final : public Type {
@@ -639,9 +639,9 @@ std::unique_ptr<Type> Type::MakeStructType(Position pos, std::string_view name,
 
 std::unique_ptr<Type> Type::MakeTextureType(const char* name, SpvDim_ dimensions, bool isDepth,
                                             bool isArrayedTexture, bool isMultisampled,
-                                            bool isSampled) {
+                                            TextureAccess textureAccess) {
     return std::make_unique<TextureType>(name, dimensions, isDepth, isArrayedTexture,
-                                         isMultisampled, isSampled);
+                                         isMultisampled, textureAccess);
 }
 
 std::unique_ptr<Type> Type::MakeVectorType(std::string_view name, const char* abbrev,
