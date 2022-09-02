@@ -143,6 +143,7 @@ tests_sources = [
   "$_tests/MathTest.cpp",
   "$_tests/MatrixClipCollapseTest.cpp",
   "$_tests/MatrixColorFilterTest.cpp",
+  "$_tests/MatrixProcsTest.cpp",
   "$_tests/MatrixTest.cpp",
   "$_tests/MemoryTest.cpp",
   "$_tests/MemsetTest.cpp",

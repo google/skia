@@ -198,4 +198,12 @@ private:
     SkFractionalInt fX, fY;
 };
 
+namespace sktests {
+    // f is the value to pack, max is the largest the value can be.
+    uint32_t pack_clamp(SkFixed f, unsigned max);
+    // As above, but width is the width of the pretend bitmap.
+    uint32_t pack_repeat(SkFixed f, unsigned max, size_t width);
+    uint32_t pack_mirror(SkFixed f, unsigned max, size_t width);
+}
+
 #endif

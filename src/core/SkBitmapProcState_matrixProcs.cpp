@@ -154,6 +154,20 @@ static unsigned extract_low_bits_general(SkFixed fx, int max) {
     return extract_low_bits_clamp_clamp((fx & 0xffff) * (max+1), max);
 }
 
+// Takes a SkFixed number and packs it into a 32bit integer in the following schema:
+// 14 bits to represent the low integer value (n)
+// 4 bits to represent a linear distance between low and high (floored to nearest 1/16)
+// 14 bits to represent the high integer value (n+1)
+// If f is less than 0, then both integers will be 0. If f is greater than or equal to max, both
+// integers will be that max value. In all cases, the middle 4 bits will represent the fractional
+// part (to a resolution of 1/16). If the two integers are equal, doing any linear interpolation
+// will result in the same integer, so the fractional part does not matter.
+//
+// The "one" parameter corresponds to the maximum distance between the high and low coordinate.
+// For the clamp operation, this is just SkFixed1, but for others it is 1 / pixmap width because the
+// distances are already normalized to between 0 and 1.0.
+//
+// See also SK_OPTS_NS::decode_packed_coordinates_and_weight for unpacking this value.
 template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int)>
 static uint32_t pack(SkFixed f, unsigned max, SkFixed one) {
     uint32_t packed = tile(f, max);                      // low coordinate in high bits
@@ -503,10 +517,24 @@ SkBitmapProcState::MatrixProc SkBitmapProcState::chooseMatrixProc(bool translate
         if (fTileModeX == SkTileMode::kRepeat) {
             return RepeatX_RepeatY_Procs[index];
         }
-
         return MirrorX_MirrorY_Procs[index];
     }
 
     SkASSERT(fTileModeX == fTileModeY);
     return nullptr;
+}
+
+uint32_t sktests::pack_clamp(SkFixed f, unsigned max) {
+    // Based on ClampX_ClampY_Procs[1] (filter_scale)
+    return ::pack<clamp, extract_low_bits_clamp_clamp>(f, max, SK_Fixed1);
+}
+
+uint32_t sktests::pack_repeat(SkFixed f, unsigned max, size_t width) {
+    // Based on RepeatX_RepeatY_Procs[1] (filter_scale)
+    return ::pack<repeat, extract_low_bits_general>(f, max, SK_Fixed1 / width);
+}
+
+uint32_t sktests::pack_mirror(SkFixed f, unsigned max, size_t width) {
+    // Based on MirrorX_MirrorY_Procs[1] (filter_scale)
+    return ::pack<mirror, extract_low_bits_general>(f, max, SK_Fixed1 / width);
 }
