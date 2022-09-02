@@ -319,7 +319,7 @@ protected:
             circlePaint.setBlendMode(SkBlendMode::kSrc);
 
             canvas->clipRect(kTile);
-            canvas->drawCircle(kTile.center(), kTileWidth/2.0f, circlePaint);
+            canvas->drawRect(kTile.makeInset(10, 20), circlePaint);
 
             SkPaint restorePaint;
             restorePaint.setBlendMode(SkBlendMode::kPlus);
@@ -328,7 +328,7 @@ protected:
                 circlePaint.setColor(SK_ColorRED);
                 circlePaint.setBlendMode(SkBlendMode::kSrc);
 
-                canvas->drawCircle(kTile.center(), kTileWidth/2.0f, circlePaint);
+                canvas->drawRect(kTile.makeInset(15, 25), circlePaint);
             canvas->restore();
         }
     }

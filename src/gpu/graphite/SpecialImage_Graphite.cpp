@@ -14,15 +14,6 @@
 
 namespace skgpu::graphite {
 
-namespace {
-
-sk_sp<SkImage> wrap_proxy_in_image(TextureProxyView view, const SkColorInfo& colorInfo) {
-    return sk_make_sp<Image>(kNeedNewImageUniqueID, std::move(view), colorInfo);
-}
-
-} // anonymous namespace
-
-
 class SkSpecialImage_Graphite final : public SkSpecialImage {
 public:
     SkSpecialImage_Graphite(Recorder* recorder,
@@ -103,7 +94,7 @@ public:
             return nullptr;
         }
 
-        return wrap_proxy_in_image(fTextureProxyView, this->colorInfo());
+        return sk_make_sp<Image>(this->uniqueID(), fTextureProxyView, this->colorInfo());
     }
 
     sk_sp<SkShader> onAsShader(SkTileMode tileMode,
