@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <climits>
 #include <initializer_list>
+#include <tuple>
 #include <utility>
 
 // SkTDArray<T> implements a std::vector-like array for raw data-only objects that do not require
@@ -334,6 +335,28 @@ private:
         this->setCount(SkTo<int>(count));
     }
 
+    static std::tuple<void*, int> ResizeStorageToAtLeast(void* array, int count, size_t TSize) {
+        // Establish the maximum number of elements that includes a valid count for end. In the
+        // largest case end() = &fArray[INT_MAX] which is 1 after the last indexable element.
+        static constexpr int kMaxCount = INT_MAX;
+
+        // Assume that the array will max out.
+        int newReserve = kMaxCount;
+        if (kMaxCount - count > 4) {
+            // Add 1/4 more than we need. Add 4 to ensure this grows by at least 1. Pin to
+            // kMaxCount if no room for 1/4 growth.
+            int growth = (count + 4) >> 2;
+            // Read this line as: if (count + growth < kMaxCount) { ... }
+            // It's rewritten to avoid signed integer overflow.
+            if (kMaxCount - count > growth) {
+                newReserve = count + growth;
+            }
+        }
+
+        void* newArray = sk_realloc_throw(array, SkToSizeT(newReserve) * TSize);
+        return {newArray, newReserve};
+    }
+
     // Increase the storage allocation such that it can hold (fCount + extra)
     // elements.
     // It never shrinks the allocation, and it may increase the allocation by
@@ -343,24 +366,9 @@ private:
     void resizeStorageToAtLeast(int count) {
         SkASSERT(count > fReserve);
 
-        // Establish the maximum number of elements that includes a valid count for end. In the
-        // largest case end() = &fArray[INT_MAX] which is 1 after the last indexable element.
-        static constexpr int kMaxCount = INT_MAX;
-
-        // Assume that the array will max out.
-        fReserve = kMaxCount;
-        if (kMaxCount - count > 4) {
-            // Add 1/4 more than we need. Add 4 to ensure this grows by at least 1. Pin to
-            // kMaxCount if no room for 1/4 growth.
-            int growth = (count + 4) >> 2;
-            // Read this line as: if (count + growth < kMaxCount) { ... }
-            // It's rewritten to avoid signed integer overflow.
-            if (kMaxCount - count > growth) {
-                fReserve = count + growth;
-            }
-        }
-
-        fArray = static_cast<T*>(sk_realloc_throw(fArray, SkToSizeT(fReserve) * sizeof(T)));
+        auto [array, reserve] = ResizeStorageToAtLeast(fArray, count, sizeof(T));
+        fArray = static_cast<T*>(array);
+        fReserve = reserve;
     }
 
     T*  fArray;
