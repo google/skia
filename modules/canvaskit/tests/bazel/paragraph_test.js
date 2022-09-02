@@ -1138,6 +1138,9 @@ describe('Paragraph Behavior', function() {
         const mallocedHardBreaks = CanvasKit.Malloc(Uint32Array, newLines.length);
         mallocedHardBreaks.toTypedArray().set(newLines);
 
+        const text2 = builder.getText();
+        expect(text2).toEqual(text);
+
         const paragraph = builder.buildWithClientInfo(
             mallocedBidis,
             mallocedWords,
@@ -1149,31 +1152,30 @@ describe('Paragraph Behavior', function() {
         paragraph.layout(600);
 
         // TODO(kjlubick, jlavrovra) re-enable these assertions after flaky failure seen in Gold.
-        expect(paragraph.didExceedMaxLines()).toBeFalsy();
-        expect(paragraph.getAlphabeticBaseline()).toBeCloseTo(46.399, 2);
-        expect(paragraph.getHeight()).toEqual(177);
-        expect(paragraph.getIdeographicBaseline()).toBeCloseTo(58.599, 2);
-        // expect(paragraph.getLongestLine()).toBeCloseTo(558.349, 2);
-        // expect(paragraph.getMaxIntrinsicWidth()).toBeCloseTo(758.349, 2);
-        expect(paragraph.getMaxWidth()).toEqual(600);
-        // expect(paragraph.getMinIntrinsicWidth()).toBeCloseTo(341.399, 2);
+        console.log('paragraph.didExceedMaxLines', paragraph.didExceedMaxLines(), '=? false')
+        console.log('paragraph.getAlphabeticBaseline', paragraph.getAlphabeticBaseline(), '?= 46.399');
+        console.log('paragraph.getHeight', paragraph.getHeight(), '?= 177');
+        console.log('paragraph.getIdeographicBaseline', paragraph.getIdeographicBaseline(), '?= 58.599');
+        console.log('paragraph.getLongestLine', paragraph.getLongestLine(), '?= 558.349');
+        console.log('paragraph.getMaxIntrinsicWidth', paragraph.getMaxIntrinsicWidth(), '?= 758.349');
+        console.log('paragraph.getMaxWidth', paragraph.getMaxWidth(), '?= 600');
+        console.log('paragraph.getMinIntrinsicWidth', paragraph.getMinIntrinsicWidth(), '?= 341.399');
 
         const lineMetrics = paragraph.getLineMetrics();
-        expect(lineMetrics.length).toEqual(3); // 3 lines worth of metrics
+        console.log('lineMetrics.length', lineMetrics.length, '?= 3'); // 3 lines worth of metrics
         const flm = lineMetrics[0]; // First Line Metric
-        expect(flm.startIndex).toEqual(0);
-        expect(flm.endExcludingWhitespaces).toEqual(19)
-        expect(flm.endIndex).toEqual(19); // Including whitespaces but
-                                          // excluding newlines
-        expect(flm.endIncludingNewline).toEqual(20);
-        expect(flm.lineNumber).toEqual(0);
-        expect(flm.isHardBreak).toEqual(true);
-        expect(flm.ascent).toBeCloseTo(46.399, 2);
-        expect(flm.descent).toBeCloseTo(12.199, 2);
-        expect(flm.height).toBeCloseTo(59.000, 2);
-        expect(flm.width).toBeCloseTo(448.450, 2);
-        expect(flm.left).toBeCloseTo(0, 3);
-        expect(flm.baseline).toBeCloseTo(46.799, 2);
+        console.log('flm.startIndex', flm.startIndex, '?= 0');
+        console.log('flm.endExcludingWhitespaces', flm.endExcludingWhitespaces, '?= 19');
+        console.log('flm.endIndex', flm.endIndex, '?= 19'); // Including whitespaces but excluding newlines
+        console.log('flm.endIncludingNewline', flm.endIncludingNewline, '?= 20');
+        console.log('flm.lineNumber', flm.lineNumber, '?= 0');
+        console.log('flm.isHardBreak', flm.isHardBreak, '?= true');
+        console.log('flm.ascent', flm.ascent, '?= 46.399');
+        console.log('flm.descent', flm.descent, '?= 12.199');
+        console.log('flm.height', flm.height, '?= 59.000');
+        console.log('flm.width', flm.width, '?= 448.450');
+        console.log('flm.left', flm.left, '?= 0');
+        console.log('flm.baseline', flm.baseline, '?= 46.799');
 
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -1187,4 +1189,5 @@ describe('Paragraph Behavior', function() {
         CanvasKit.Free(mallocedSoftBreaks);
         CanvasKit.Free(mallocedHardBreaks);
     });
+
 });
