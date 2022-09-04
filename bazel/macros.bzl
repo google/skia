@@ -201,10 +201,12 @@ def split_srcs_and_hdrs(name, files):
     for f in files:
         if f.endswith(".cpp"):
             srcs.append(f)
+        elif f.endswith(".mm"):
+            srcs.append(f)
         elif f.endswith(".h"):
             hdrs.append(f)
         else:
-            fail("Neither .cpp nor .h file " + f)
+            fail("Neither .cpp, .mm, nor .h file " + f)
 
     if len(srcs) == 0 or len(hdrs) == 0:
         fail("The list consist of either only source or header files. No need to use this macro.")
