@@ -4,14 +4,30 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# In own group for exporting to sksl.gni:skia_sksl_tracing_sources.
+filegroup(
+    name = "enabled_srcs",
+    srcs = select({
+        "//src/sksl:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.cpp"],
+        "//src/sksl:enable_sksl_tracing_false": [],
+    }),
+)
+
+# In own group for exporting to sksl.gni:skia_sksl_tracing_sources.
+filegroup(
+    name = "enabled_hdrs",
+    srcs = select({
+        "//src/sksl:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.h"],
+        "//src/sksl:enable_sksl_tracing_false": [],
+    }),
+)
+
 filegroup(
     name = "srcs",
     srcs = [
         "SkVMDebugTrace.cpp",
-    ] + select({
-        "//src/sksl:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.cpp"],
-        "//src/sksl:enable_sksl_tracing_false": [],
-    }),
+        ":enabled_srcs",
+    ],
     visibility = ["//src/sksl:__pkg__"],
 )
 
@@ -19,9 +35,7 @@ filegroup(
     name = "private_hdrs",
     srcs = [
         "SkVMDebugTrace.h",
-    ] + select({
-        "//src/sksl:enable_sksl_tracing_true": ["SkVMDebugTracePlayer.h"],
-        "//src/sksl:enable_sksl_tracing_false": [],
-    }),
+        ":enabled_hdrs",
+    ],
     visibility = ["//src/sksl:__pkg__"],
 )

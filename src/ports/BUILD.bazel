@@ -136,13 +136,22 @@ filegroup(
     srcs = ["SkImageGenerator_skia.cpp"],  # TODO(kjlubick) add select() if necessary
 )
 
+# In own group to prevent exporting to *.gni files.
 filegroup(
-    name = "osfile",
-    srcs = ["SkOSFile_stdio.cpp"] + select({
+    name = "osfile_platform",
+    srcs = select({
         "@platforms//os:windows": ["SkOSFile_win.cpp"],
         "@platforms//os:ios": ["SkOSFile_posix.cpp"],
         "//conditions:default": ["SkOSFile_posix.cpp"],
     }),
+)
+
+filegroup(
+    name = "osfile",
+    srcs = [
+        "SkOSFile_stdio.cpp",
+        ":osfile_platform",
+    ],
     visibility = ["//tools/skslc:__pkg__"],
 )
 

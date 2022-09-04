@@ -4,6 +4,17 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# In separate groups for exporting to sksl.gni:skslc_deps.
+SKSLC_FILES = [
+    "GrMemoryPool.cpp",
+    "GrMemoryPool.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core_skslc",
+    files = SKSLC_FILES,
+)
+
 CORE_FILES = [
     "GrAHardwareBufferImageGenerator.cpp",
     "GrAHardwareBufferImageGenerator.h",
@@ -100,8 +111,6 @@ CORE_FILES = [
     "GrImageInfo.h",
     "GrManagedResource.cpp",
     "GrManagedResource.h",
-    "GrMemoryPool.cpp",
-    "GrMemoryPool.h",
     "GrMeshDrawTarget.cpp",
     "GrMeshDrawTarget.h",
     "GrNativeRect.h",
@@ -253,6 +262,7 @@ filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
+        ":core_skslc_srcs",
         "//src/gpu/ganesh/effects:srcs",
         "//src/gpu/ganesh/glsl:srcs",
         "//src/gpu/ganesh/gradients:srcs",
@@ -276,6 +286,7 @@ filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",
+        ":core_skslc_hdrs",
         "//src/gpu/ganesh/effects:private_hdrs",
         "//src/gpu/ganesh/glsl:private_hdrs",
         "//src/gpu/ganesh/gradients:private_hdrs",

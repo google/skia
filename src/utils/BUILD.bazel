@@ -4,6 +4,20 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# In own group for exporting to sksl.gni:skslc_deps.
+CORE_SKSLC_FILES = [
+    "SkParse.cpp",
+    "SkUTF.cpp",
+    "SkUTF.h",
+    "SkVMVisualizer.cpp",
+    "SkVMVisualizer.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core_skslc",
+    files = CORE_SKSLC_FILES,
+)
+
 CORE_FILES = [
     "SkAnimCodecPlayer.cpp",
     "SkBase64.cpp",
@@ -39,7 +53,6 @@ CORE_FILES = [
     "SkOSPath.h",
     "SkOrderedFontMgr.cpp",
     "SkPaintFilterCanvas.cpp",
-    "SkParse.cpp",
     "SkParseColor.cpp",
     "SkParsePath.cpp",
     "SkPatchUtils.cpp",
@@ -51,10 +64,6 @@ CORE_FILES = [
     "SkShadowUtils.cpp",
     "SkTestCanvas.h",
     "SkTextUtils.cpp",
-    "SkUTF.cpp",
-    "SkUTF.h",
-    "SkVMVisualizer.cpp",
-    "SkVMVisualizer.h",
 ]
 
 split_srcs_and_hdrs(
@@ -91,12 +100,24 @@ selects.config_setting_group(
     ],
 )
 
+# In separate group to avoid exporting to a *.gni file.
+SKSL_FILES = [
+    "SkShaderUtils.cpp",
+    "SkShaderUtils.h",
+]
+
+split_srcs_and_hdrs(
+    name = "sksl",
+    files = SKSL_FILES,
+)
+
 filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
+        ":core_skslc_srcs",
     ] + select({
-        "//src/sksl:needs_sksl": ["SkShaderUtils.cpp"],
+        "//src/sksl:needs_sksl": [":sksl_srcs"],
         "//conditions:default": [],
     }) + select({
         ":needs_json": [":json_srcs"],
@@ -109,8 +130,9 @@ filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",
+        ":core_skslc_hdrs",
     ] + select({
-        "//src/sksl:needs_sksl": ["SkShaderUtils.h"],
+        "//src/sksl:needs_sksl": [":sksl_hdrs"],
         "//conditions:default": [],
     }) + select({
         ":needs_json": [":json_hdrs"],
