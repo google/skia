@@ -27,8 +27,8 @@ _src = get_path_info("../src", "abspath")
 
 skia_core_sources = [
   "$_src/core/SkAAClip.cpp",
-  "$_src/core/SkATrace.cpp",
   "$_src/core/SkAlphaRuns.cpp",
+  "$_src/core/SkATrace.cpp",
   "$_src/opts/SkBitmapProcState_opts.h",
   "$_src/opts/SkBlitMask_opts.h",
   "$_src/opts/SkBlitRow_opts.h",
