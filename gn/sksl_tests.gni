@@ -435,6 +435,7 @@ sksl_shared_tests = [
   "/sksl/intrinsics/NotEqual.sksl",
   "/sksl/intrinsics/OuterProduct.sksl",
   "/sksl/intrinsics/Pack.sksl",
+  "/sksl/intrinsics/PackHalf2x16.sksl",
   "/sksl/intrinsics/PackSnorm2x16.sksl",
   "/sksl/intrinsics/PackUnorm2x16.sksl",
   "/sksl/intrinsics/Pow.sksl",

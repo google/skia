@@ -10,6 +10,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkHalf.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLCore.h"
@@ -647,6 +648,13 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
                         ((Pack(1) << 16) & 0xFFFF0000)).release();
         }
+        case k_packHalf2x16_IntrinsicKind: {
+            auto Pack = [&](int n) -> unsigned int {
+                return SkFloatToHalf(Get(0, n));
+            };
+            return UInt(((Pack(0) << 0)  & 0x0000FFFF) |
+                        ((Pack(1) << 16) & 0xFFFF0000)).release();
+        }
         case k_unpackUnorm2x16_IntrinsicKind: {
             SKSL_INT x = *arguments[0]->getConstantValue(0);
             uint16_t a = ((x >> 0)  & 0x0000FFFF);
@@ -660,6 +668,13 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
             int16_t b = ((x >> 16) & 0x0000FFFF);
             return Float2(Intrinsics::evaluate_clamp(double(a) / 32767.0, -1.0, 1.0),
                           Intrinsics::evaluate_clamp(double(b) / 32767.0, -1.0, 1.0)).release();
+        }
+        case k_unpackHalf2x16_IntrinsicKind: {
+            SKSL_INT x = *arguments[0]->getConstantValue(0);
+            uint16_t a = ((x >> 0)  & 0x0000FFFF);
+            uint16_t b = ((x >> 16) & 0x0000FFFF);
+            return Float2(SkHalfToFloat(a),
+                          SkHalfToFloat(b)).release();
         }
         // 8.5 : Geometric Functions
         case k_length_IntrinsicKind:
