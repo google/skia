@@ -181,6 +181,7 @@ func fileListContainsOnlyCppHeaderFiles(files []string) bool {
 // Write the *.gni file header.
 func writeGNFileHeader(writer interfaces.Writer, gniFile *gniFileContents) {
 	fmt.Fprintln(writer, "# DO NOT EDIT: This is a generated file.")
+	fmt.Fprintln(writer, "# See //bazel/exporter_tool/README.md for more information.")
 	writer.WriteString("\n")
 	if gniFile.hasSrcs {
 		fmt.Fprintln(writer, `_src = get_path_info("../src", "abspath")`)

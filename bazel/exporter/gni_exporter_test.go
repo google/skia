@@ -22,6 +22,7 @@ import (
 // The expected gn/core.gni file contents for createCoreSourcesQueryResult().
 // This expected result is handmade.
 const publicSrcsExpectedGNI = `# DO NOT EDIT: This is a generated file.
+# See //bazel/exporter_tool/README.md for more information.
 
 _src = get_path_info("../src", "abspath")
 
