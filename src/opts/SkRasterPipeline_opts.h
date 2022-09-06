@@ -3663,6 +3663,11 @@ SI void load_8888_(const uint32_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16
 #endif
 }
 SI void store_8888_(uint32_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+    r = min(r, 255);
+    g = min(g, 255);
+    b = min(b, 255);
+    a = min(a, 255);
+
 #if 1 && defined(JUMPER_IS_NEON)
     uint8x8x4_t rgba = {{
         cast<U8>(r),
@@ -3718,6 +3723,10 @@ SI void load_565_(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b) {
     from_565(load<U16>(ptr, tail), r,g,b);
 }
 SI void store_565_(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b) {
+    r = min(r, 255);
+    g = min(g, 255);
+    b = min(b, 255);
+
     // Round from [0,255] to [0,31] or [0,63], as if x * (31/255.0f) + 0.5f.
     // (Don't feel like you need to find some fundamental truth in these...
     // they were brute-force searched.)
@@ -3765,6 +3774,11 @@ SI void load_4444_(const uint16_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16
     from_4444(load<U16>(ptr, tail), r,g,b,a);
 }
 SI void store_4444_(uint16_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
+    r = min(r, 255);
+    g = min(g, 255);
+    b = min(b, 255);
+    a = min(a, 255);
+
     // Round from [0,255] to [0,15], producing the same value as (x*(15/255.0f) + 0.5f).
     U16 R = (r + 8) / 17,
         G = (g + 8) / 17,
@@ -3818,6 +3832,9 @@ SI void load_88_(const uint16_t* ptr, size_t tail, U16* r, U16* g) {
 }
 
 SI void store_88_(uint16_t* ptr, size_t tail, U16 r, U16 g) {
+    r = min(r, 255);
+    g = min(g, 255);
+
 #if 1 && defined(JUMPER_IS_NEON)
     uint8x8x2_t rg = {{
         cast<U8>(r),
@@ -3865,6 +3882,7 @@ SI U16 load_8(const uint8_t* ptr, size_t tail) {
     return cast<U16>(load<U8>(ptr, tail));
 }
 SI void store_8(uint8_t* ptr, size_t tail, U16 v) {
+    v = min(v, 255);
     store(ptr, tail, cast<U8>(v));
 }
 
