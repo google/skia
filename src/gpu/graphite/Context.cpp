@@ -32,6 +32,10 @@
 #include "src/gpu/graphite/mtl/MtlTrampoline.h"
 #endif
 
+#ifdef SK_VULKAN
+#include "include/gpu/vk/VulkanBackendContext.h"
+#endif
+
 namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
@@ -57,6 +61,28 @@ std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendCont
     }
 
     auto queueManager = MtlTrampoline::MakeQueueManager(backendContext, sharedContext.get());
+    if (!queueManager) {
+        return nullptr;
+    }
+
+    auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
+                                                        std::move(queueManager)));
+    SkASSERT(context);
+    return context;
+}
+#endif
+
+#ifdef SK_VULKAN
+std::unique_ptr<Context> Context::MakeVulkan(const VulkanBackendContext& backendContext,
+                                             const ContextOptions& options) {
+    // TODO: Make a SharedContext
+    sk_sp<SharedContext> sharedContext;
+    if (!sharedContext) {
+        return nullptr;
+    }
+
+    // TODO: Make a QueueManager
+    std::unique_ptr<QueueManager> queueManager;
     if (!queueManager) {
         return nullptr;
     }

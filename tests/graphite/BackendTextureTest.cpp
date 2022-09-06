@@ -17,6 +17,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkSurface.h"
 
+using namespace skgpu;
 using namespace skgpu::graphite;
 
 namespace {

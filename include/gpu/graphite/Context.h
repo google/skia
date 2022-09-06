@@ -32,6 +32,7 @@ class QueueManager;
 class Recording;
 class ResourceProvider;
 class SharedContext;
+struct VulkanBackendContext;
 
 class SK_API Context final {
 public:
@@ -44,6 +45,10 @@ public:
 
 #ifdef SK_METAL
     static std::unique_ptr<Context> MakeMetal(const MtlBackendContext&, const ContextOptions&);
+#endif
+
+#ifdef SK_VULKAN
+    static std::unique_ptr<Context> MakeVulkan(const VulkanBackendContext&, const ContextOptions&);
 #endif
 
     BackendApi backend() const;

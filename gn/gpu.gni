@@ -849,6 +849,7 @@ skia_shared_vk_sources = [
   "$_src/gpu/vk/VulkanInterface.h",
 
   # Includes
+  "$_include/gpu/vk/VulkanBackendContext.h",
   "$_include/gpu/vk/VulkanExtensions.h",
   "$_include/gpu/vk/VulkanMemoryAllocator.h",
   "$_include/gpu/vk/VulkanTypes.h",

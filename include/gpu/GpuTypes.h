@@ -27,6 +27,14 @@ enum class CallbackResult : bool {
 };
 
 
+/**
+ * Is the data protected on the GPU or not.
+ */
+enum class Protected : bool {
+    kNo = false,
+    kYes = true,
+};
+
 } // namespace skgpu
 
 #endif // skgpu_GpuTypes_DEFINED

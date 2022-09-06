@@ -86,7 +86,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(SpecialSurface_Graphite, reporter, context) {
     for (auto colorType : { kRGBA_8888_SkColorType, kRGBA_1010102_SkColorType }) {
         TextureInfo info = caps->getDefaultSampledTextureInfo(colorType,
                                                               /*levelCount=*/ 1,
-                                                              Protected::kNo,
+                                                              skgpu::Protected::kNo,
                                                               Renderable::kYes);
         if (!info.isValid()) {
             continue;

@@ -1174,6 +1174,9 @@ optional("graphite") {
       frameworks += [ "UIKit.framework" ]
     }
   }
+  if (skia_use_vulkan) {
+    public_defines += [ "SK_VULKAN" ]
+  }
 }
 
 optional("pdf") {

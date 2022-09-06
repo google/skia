@@ -58,14 +58,6 @@ enum class Mipmapped : bool {
     kYes = true,
 };
 
-/**
- * Is the data protected on the GPU or not.
- */
-enum class Protected : bool {
-    kNo = false,
-    kYes = true,
-};
-
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_GraphiteTypes_DEFINED

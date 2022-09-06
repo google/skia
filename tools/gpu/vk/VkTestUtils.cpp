@@ -29,6 +29,7 @@
 #include <execinfo.h>
 #endif
 #include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/ports/SkOSLibrary.h"
@@ -459,6 +460,41 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
                             uint32_t* presentQueueIndexPtr,
                             CanPresentFn canPresent,
                             bool isProtected) {
+    skgpu::VulkanBackendContext skgpuCtx;
+    if (!CreateVkBackendContext(getInstProc,
+                                &skgpuCtx,
+                                extensions,
+                                features,
+                                debugCallback,
+                                presentQueueIndexPtr,
+                                canPresent,
+                                isProtected)) {
+        return false;
+    }
+    ctx->fInstance = skgpuCtx.fInstance;
+    ctx->fPhysicalDevice = skgpuCtx.fPhysicalDevice;
+    ctx->fDevice = skgpuCtx.fDevice;
+    ctx->fQueue = skgpuCtx.fQueue;
+    ctx->fGraphicsQueueIndex = skgpuCtx.fGraphicsQueueIndex;
+    ctx->fMaxAPIVersion = skgpuCtx.fMaxAPIVersion;
+    ctx->fVkExtensions = skgpuCtx.fVkExtensions;
+    ctx->fDeviceFeatures2 = skgpuCtx.fDeviceFeatures2;
+    ctx->fGetProc = skgpuCtx.fGetProc;
+    ctx->fOwnsInstanceAndDevice = false;
+    ctx->fProtectedContext =
+            skgpuCtx.fProtectedContext == skgpu::Protected::kYes ? GrProtected::kYes
+                                                                 : GrProtected::kNo;
+    return true;
+}
+
+bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
+                            skgpu::VulkanBackendContext* ctx,
+                            skgpu::VulkanExtensions* extensions,
+                            VkPhysicalDeviceFeatures2* features,
+                            VkDebugReportCallbackEXT* debugCallback,
+                            uint32_t* presentQueueIndexPtr,
+                            CanPresentFn canPresent,
+                            bool isProtected) {
     VkResult err;
 
     ACQUIRE_VK_INST_PROC_NOCHECK(EnumerateInstanceVersion, VK_NULL_HANDLE);
@@ -827,8 +863,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     ctx->fVkExtensions = extensions;
     ctx->fDeviceFeatures2 = features;
     ctx->fGetProc = getProc;
-    ctx->fOwnsInstanceAndDevice = false;
-    ctx->fProtectedContext = isProtected ? GrProtected::kYes : GrProtected::kNo;
+    ctx->fProtectedContext = isProtected ? skgpu::Protected::kYes : skgpu::Protected::kNo;
 
     return true;
 }
