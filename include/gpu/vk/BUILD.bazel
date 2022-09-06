@@ -8,6 +8,7 @@ exports_files_legacy()
 filegroup(
     name = "shared_public_hdrs",
     srcs = [
+        "VulkanBackendContext.h",
         "VulkanExtensions.h",
         "VulkanMemoryAllocator.h",
         "VulkanTypes.h",
