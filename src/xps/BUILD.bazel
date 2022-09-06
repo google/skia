@@ -1,5 +1,18 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+# Not yet used in Bazel build.
+# Files exported to xps.gni:skia_xps_sources.
+CORE_FILES = [
+    "SkXPSDevice.cpp",
+    "SkXPSDevice.h",
+    "SkXPSDocument.cpp",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_FILES,
+)

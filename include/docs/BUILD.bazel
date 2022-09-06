@@ -4,6 +4,13 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# Not yet referenced by Bazel build.
+# In separate group for exporting to xps.gni:skia_xps_public.
+filegroup(
+    name = "xps_hdrs",
+    srcs = ["SkXPSDocument.h"],
+)
+
 filegroup(
     name = "public_hdrs",
     srcs = select({

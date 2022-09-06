@@ -161,6 +161,15 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/utils/win:core_srcs",
 			}}},
 	},
+	{GNI: "gn/xps.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_xps_public",
+			Rules: []string{"//include/docs:xps_hdrs"}},
+		{Var: "skia_xps_sources",
+			Rules: []string{
+				"//src/xps:core_hdrs",
+				"//src/xps:core_srcs",
+			}}},
+	},
 }
 
 const (
