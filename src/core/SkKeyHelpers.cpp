@@ -38,7 +38,6 @@ void PassthroughShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                         SkPaintParamsKeyBuilder* builder,
                                         SkPipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     builder->beginBlock(SkBuiltInCodeSnippetID::kPassthroughShader);
 #endif // SK_GRAPHITE_ENABLED
 }
@@ -67,7 +66,6 @@ void SolidColorShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                        SkPipelineDataGatherer* gatherer,
                                        const SkPMColor4f& premulColor) {
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     if (gatherer) {
         auto dict = keyContext.dict();
 
@@ -239,7 +237,6 @@ void GradientShaderBlocks::BeginBlock(const SkKeyContext& keyContext,
                                       SkPipelineDataGatherer* gatherer,
                                       const GradientData& gradData) {
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     auto dict = keyContext.dict();
     SkBuiltInCodeSnippetID codeSnippetID = SkBuiltInCodeSnippetID::kSolidColorShader;
     switch (gradData.fType) {
@@ -319,7 +316,6 @@ void LocalMatrixShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                         const LMShaderData& lmShaderData) {
 
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     auto dict = keyContext.dict();
     // When extracted into SkShaderInfo::SnippetEntries the children will appear after their
     // parent. Thus, the parent's uniform data must appear in the uniform block before the
@@ -380,7 +376,6 @@ void ImageShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                   const ImageData& imgData) {
 
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     // TODO: allow through lazy proxies
     if (gatherer && !imgData.fTextureProxy) {
         // TODO: At some point the pre-compile path should also be creating a texture
@@ -427,7 +422,6 @@ void BlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                   const BlendShaderData& blendData) {
 
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     auto dict = keyContext.dict();
     // When extracted into SkShaderInfo::SnippetEntries the children will appear after their
     // parent. Thus, the parent's uniform data must appear in the uniform block before the
@@ -467,7 +461,6 @@ void MatrixColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                         SkPipelineDataGatherer* gatherer,
                                         const MatrixColorFilterData& matrixCFData) {
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     auto dict = keyContext.dict();
 
     if (gatherer) {
@@ -503,7 +496,6 @@ void BlendColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                        SkPipelineDataGatherer* gatherer,
                                        const BlendColorFilterData& data) {
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     auto dict = keyContext.dict();
 
     if (gatherer) {
@@ -519,7 +511,6 @@ void ComposeColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                          SkPaintParamsKeyBuilder* builder,
                                          SkPipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     builder->beginBlock(SkBuiltInCodeSnippetID::kComposeColorFilter);
 #endif // SK_GRAPHITE_ENABLED
 }
@@ -529,7 +520,6 @@ void GaussianColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                           SkPaintParamsKeyBuilder* builder,
                                           SkPipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     builder->beginBlock(SkBuiltInCodeSnippetID::kGaussianColorFilter);
 #endif // SK_GRAPHITE_ENABLED
 }
@@ -558,7 +548,6 @@ void TableColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                        SkPipelineDataGatherer* gatherer,
                                        const TableColorFilterData& data) {
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     auto dict = keyContext.dict();
 
     if (gatherer) {
@@ -639,7 +628,6 @@ void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
                                 SkBlendMode bm) {
 
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     auto dict = keyContext.dict();
 
     if (bm <= SkBlendMode::kLastCoeffMode) {
@@ -667,7 +655,6 @@ void PrimitiveBlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
                                          SkBlendMode pbm) {
 
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     auto dict = keyContext.dict();
     // Unlike in the usual blendmode case, the primitive blend mode will always be implemented
     // via shader-based blending.
@@ -732,7 +719,6 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                     SkPipelineDataGatherer* gatherer,
                                     const ShaderData& shaderData) {
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     SkShaderCodeDictionary* dict = keyContext.dict();
     int codeSnippetID = dict->findOrCreateRuntimeEffectSnippet(shaderData.fEffect.get());
 
@@ -781,7 +767,6 @@ void RuntimeColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                          SkPipelineDataGatherer* gatherer,
                                          const ColorFilterData& filterData) {
 #ifdef SK_GRAPHITE_ENABLED
-    SkASSERT(builder->backend() == SkBackend::kGraphite);
     SkShaderCodeDictionary* dict = keyContext.dict();
     int codeSnippetID = dict->findOrCreateRuntimeEffectSnippet(filterData.fEffect.get());
 

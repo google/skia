@@ -14,7 +14,6 @@
 
 #include <optional>
 
-enum class SkBackend : uint8_t;
 struct GrFPArgs;
 class GrFragmentProcessor;
 class SkColorInfo;

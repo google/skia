@@ -25,7 +25,6 @@
 
 class GrFragmentProcessor;
 class SkArenaAlloc;
-enum class SkBackend : uint8_t;
 class SkColorSpace;
 class SkImage;
 struct SkImageInfo;

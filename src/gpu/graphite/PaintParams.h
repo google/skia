@@ -11,7 +11,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 
-enum class SkBackend : uint8_t;
 class SkPaintParamsKeyBuilder;
 class SkPipelineDataGatherer;
 class SkShader;

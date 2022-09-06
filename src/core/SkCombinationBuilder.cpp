@@ -723,7 +723,7 @@ void SkCombinationBuilder::buildCombinations(
         SkShaderCodeDictionary* dict,
         const std::function<void(SkUniquePaintParamsID)>& func) {
     SkKeyContext keyContext(dict);
-    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builder(dict);
 
     // Supply a default kSrcOver if no other blend mode option is provided
     if (fBlendModes == 0 && fBlenders.empty()) {

@@ -38,7 +38,7 @@ SkPaintParamsKey create_key(SkPaintParamsKeyBuilder* builder, int snippetID, int
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, context) {
 
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
-    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builder(dict);
 
     // Invalid code snippet ID, key creation fails.
     SkPaintParamsKey key = create_key(&builder, kBuiltInCodeSnippetIDCount, /*size=*/32);
@@ -48,7 +48,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, contex
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyValidBlockSizeTest, reporter, context) {
 
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
-    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builder(dict);
 
     // _Just_ on the edge of being too big
     static const int kMaxBlockDataSize = SkPaintParamsKey::kMaxBlockSize -
@@ -67,7 +67,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyValidBlockSizeTest, reporter, context) {
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyTooLargeBlockSizeTest, reporter, context) {
 
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
-    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builder(dict);
 
     // Too big by one byte
     static const int kBlockDataSize = SkPaintParamsKey::kMaxBlockSize -
@@ -94,9 +94,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context) {
     int userSnippetID1 = dict->addUserDefinedSnippet("key1", kDataFields);
     int userSnippetID2 = dict->addUserDefinedSnippet("key2", kDataFields);
 
-    SkPaintParamsKeyBuilder builderA(dict, SkBackend::kGraphite);
-    SkPaintParamsKeyBuilder builderB(dict, SkBackend::kGraphite);
-    SkPaintParamsKeyBuilder builderC(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builderA(dict);
+    SkPaintParamsKeyBuilder builderB(dict);
+    SkPaintParamsKeyBuilder builderC(dict);
     SkPaintParamsKey keyA = create_key(&builderA, userSnippetID1, kBlockDataSize);
     SkPaintParamsKey keyB = create_key(&builderB, userSnippetID1, kBlockDataSize);
     SkPaintParamsKey keyC = create_key(&builderC, userSnippetID2, kBlockDataSize);
@@ -121,9 +121,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksData, reporter, context) {
     static constexpr uint8_t kData [kBlockDataSize] = {1, 2, 3, 4};
     static constexpr uint8_t kData2[kBlockDataSize] = {1, 2, 3, 99};
 
-    SkPaintParamsKeyBuilder builderA(dict, SkBackend::kGraphite);
-    SkPaintParamsKeyBuilder builderB(dict, SkBackend::kGraphite);
-    SkPaintParamsKeyBuilder builderC(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builderA(dict);
+    SkPaintParamsKeyBuilder builderB(dict);
+    SkPaintParamsKeyBuilder builderC(dict);
     SkPaintParamsKey keyA = create_key_with_data(&builderA, userSnippetID, kData);
     SkPaintParamsKey keyB = create_key_with_data(&builderB, userSnippetID, kData);
     SkPaintParamsKey keyC = create_key_with_data(&builderC, userSnippetID, kData2);
@@ -153,7 +153,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyBlockReaderWorks, reporter, context) {
     static constexpr SkColor4f kDataY[kCountY] = {{4, 5, 6, 7}, {8, 9, 10, 11}};
     static constexpr int32_t   kDataZ[kCountZ] = {-1234567, 13, 14, 15, 16, 17, 7654321};
 
-    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builder(dict);
     builder.beginBlock(userSnippetID);
     builder.addBytes(kCountX, kDataX);
     builder.add     (kCountY, kDataY);

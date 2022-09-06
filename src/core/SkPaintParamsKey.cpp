@@ -27,10 +27,8 @@ static SkPaintParamsKey::Header read_header(SkSpan<const uint8_t> parentSpan, in
 }
 
 //--------------------------------------------------------------------------------------------------
-SkPaintParamsKeyBuilder::SkPaintParamsKeyBuilder(const SkShaderCodeDictionary* dict,
-                                                 SkBackend backend)
-        : fDict(dict)
-        , fBackend(backend) {}
+SkPaintParamsKeyBuilder::SkPaintParamsKeyBuilder(const SkShaderCodeDictionary* dict)
+        : fDict(dict) {}
 
 #ifdef SK_DEBUG
 void SkPaintParamsKeyBuilder::checkReset() {

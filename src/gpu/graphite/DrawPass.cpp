@@ -439,7 +439,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     keys.reserve(draws->renderStepCount()); // will not exceed but may use less with occluded draws
 
     SkShaderCodeDictionary* dict = recorder->priv().shaderCodeDictionary();
-    SkPaintParamsKeyBuilder builder(dict, SkBackend::kGraphite);
+    SkPaintParamsKeyBuilder builder(dict);
     SkPipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
 
     for (const DrawList::Draw& draw : draws->fDraws.items()) {

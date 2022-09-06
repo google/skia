@@ -20,7 +20,6 @@
 #include "include/core/SkTileMode.h"
 #include "include/private/SkColorData.h"
 
-enum class SkBackend : uint8_t;
 enum class SkShaderType : uint32_t;
 class SkData;
 class SkPaintParamsKeyBuilder;
