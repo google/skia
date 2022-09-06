@@ -60,7 +60,7 @@ struct SK_API SkSamplingOptions {
     const SkFilterMode     filter   = SkFilterMode::kNearest;
     const SkMipmapMode     mipmap   = SkMipmapMode::kNone;
 
-    constexpr SkSamplingOptions() = default;
+    SkSamplingOptions() = default;
     SkSamplingOptions(const SkSamplingOptions&) = default;
     SkSamplingOptions& operator=(const SkSamplingOptions& that) {
         this->~SkSamplingOptions();   // A pedantic no-op.
@@ -68,19 +68,19 @@ struct SK_API SkSamplingOptions {
         return *this;
     }
 
-    constexpr SkSamplingOptions(SkFilterMode fm, SkMipmapMode mm)
+    SkSamplingOptions(SkFilterMode fm, SkMipmapMode mm)
         : filter(fm)
         , mipmap(mm) {}
 
-    explicit constexpr SkSamplingOptions(SkFilterMode fm)
+    explicit SkSamplingOptions(SkFilterMode fm)
         : filter(fm)
         , mipmap(SkMipmapMode::kNone) {}
 
-    explicit constexpr SkSamplingOptions(const SkCubicResampler& c)
+    explicit SkSamplingOptions(const SkCubicResampler& c)
         : useCubic(true)
         , cubic(c) {}
 
-    static constexpr SkSamplingOptions Aniso(int maxAniso) {
+    static SkSamplingOptions Aniso(int maxAniso) {
         return SkSamplingOptions{std::max(maxAniso, 1)};
     }
 
@@ -97,7 +97,7 @@ struct SK_API SkSamplingOptions {
     bool isAniso() const { return maxAniso != 0; }
 
 private:
-    constexpr SkSamplingOptions(int maxAniso) : maxAniso(maxAniso) {}
+    SkSamplingOptions(int maxAniso) : maxAniso(maxAniso) {}
 };
 
 #endif

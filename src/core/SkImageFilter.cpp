@@ -223,13 +223,10 @@ skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context)
     // (originally passed separately) has an origin of (0, 0). SkComposeImageFilter makes an effort
     // to ensure that remains the case. Once everyone uses the new type systems for bounds, non
     // (0, 0) source origins will be easy to support.
-    SkASSERT(context.source().layerBounds().left() == 0 &&
-             context.source().layerBounds().top() == 0 &&
-             context.source().layerBounds().right() == context.source().image()->width() &&
-             context.source().layerBounds().bottom() == context.source().image()->height());
+    SkASSERT(context.source().layerOrigin().x() == 0 && context.source().layerOrigin().y() == 0);
 
     skif::FilterResult result;
-    if (context.desiredOutput().isEmpty() || !context.isValid()) {
+    if (!context.isValid()) {
         return result;
     }
 

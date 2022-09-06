@@ -99,8 +99,45 @@ void SkMatrixTransformImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 skif::FilterResult SkMatrixTransformImageFilter::onFilterImage(const skif::Context& context) const {
     skif::FilterResult childOutput = this->filterInput(0, context);
-    skif::LayerSpace<SkMatrix> transform = context.mapping().paramToLayer(fTransform);
-    return childOutput.applyTransform(context, transform, fSampling);
+    if (!childOutput) {
+        return {};
+    }
+
+    skif::LayerSpace<SkRect> srcBoundsF{childOutput.layerBounds()};
+    skif::LayerSpace<SkMatrix> matrix = context.mapping().paramToLayer(fTransform);
+    skif::LayerSpace<SkIRect> dstBounds = matrix.mapRect(srcBoundsF).roundOut();
+
+    // TODO(michaelludwig): Generalize this logic for image filters that fall into the pattern of
+    // draw into canvas, or fill canvas with X. Ideally it would let us avoid building a full
+    // canvas and device for the very constrained operations that they actually perform.
+
+    // Unless a child filter optimized its result, srcBounds should be large enough that dstBounds
+    // will cover the desired output. However, we only need to produce the intersection between
+    // what's desired and what's defined.
+    if (!dstBounds.intersect(context.desiredOutput())) {
+        return {};
+    }
+
+    sk_sp<SkSpecialSurface> surf(context.makeSurface(SkISize(dstBounds.size())));
+    if (!surf) {
+        return {};
+    }
+
+    SkCanvas* canvas = surf->getCanvas();
+    SkASSERT(canvas);
+
+    canvas->clear(0x0);
+
+    canvas->translate(-dstBounds.left(), -dstBounds.top());
+    canvas->concat(SkMatrix(matrix));
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setBlendMode(SkBlendMode::kSrc);
+
+    childOutput.image()->draw(canvas, srcBoundsF.left(), srcBoundsF.top(), fSampling, &paint);
+
+    return {surf->makeImageSnapshot(), dstBounds.topLeft()};
 }
 
 SkRect SkMatrixTransformImageFilter::computeFastBounds(const SkRect& src) const {
