@@ -345,7 +345,7 @@ private:
         if (kMaxCount - count > 4) {
             // Add 1/4 more than we need. Add 4 to ensure this grows by at least 1. Pin to
             // kMaxCount if no room for 1/4 growth.
-            int growth = (count + 4) >> 2;
+            int growth = 4 + ((count + 4) >> 2);
             // Read this line as: if (count + growth < kMaxCount) { ... }
             // It's rewritten to avoid signed integer overflow.
             if (kMaxCount - count > growth) {
