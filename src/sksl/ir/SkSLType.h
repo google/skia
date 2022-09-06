@@ -518,6 +518,7 @@ public:
     }
 
     bool isOrContainsArray() const;
+    bool isOrContainsUnsizedArray() const;
 
     /**
      * Returns true if this type is a struct that is too deeply nested.
