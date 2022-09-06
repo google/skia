@@ -29,16 +29,28 @@ static constexpr Attribute kColorAttr =
 static constexpr Attribute kSsboIndexAttr =
         {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt};
 
-static constexpr std::initializer_list<Attribute> kAttributes[4] = {
-        /*positionOnly*/   {kPositionAttr, kSsboIndexAttr},
-        /*color*/          {kPositionAttr, kColorAttr, kSsboIndexAttr},
-        /*texCoords*/      {kPositionAttr, kTexCoordAttr, kSsboIndexAttr},
-        /*color+texCoords*/{kPositionAttr, kColorAttr, kTexCoordAttr, kSsboIndexAttr}
+static constexpr Attribute kAttributePositionOnly[] =
+        {kPositionAttr, kSsboIndexAttr};
+static constexpr Attribute kAttributeColor[] =
+        {kPositionAttr, kColorAttr, kSsboIndexAttr};
+static constexpr Attribute kAttributeTexCoords[] =
+        {kPositionAttr, kTexCoordAttr, kSsboIndexAttr};
+static constexpr Attribute kAttributeColorAndTexCoords[] =
+        {kPositionAttr, kColorAttr, kTexCoordAttr, kSsboIndexAttr};
+
+static constexpr SkSpan<const Attribute> kAttributes[4] = {
+        kAttributePositionOnly,
+        kAttributeColor,
+        kAttributeTexCoords,
+        kAttributeColorAndTexCoords,
     };
 
-static constexpr std::initializer_list<Varying> kVaryings[2] = {
+static constexpr Varying kVaryingColor[] =
+        {{"color", SkSLType::kHalf4}};
+
+static constexpr SkSpan<const Varying> kVaryings[2] = {
         /*none*/  {},
-        /*color*/ {{"color", SkSLType::kHalf4}}
+        /*color*/ kVaryingColor
     };
 
 std::string variant_name(PrimitiveType type, bool hasColor, bool hasTexCoords) {
@@ -177,7 +189,6 @@ void VerticesRenderStep::writeVerticesColorAndTexture(DrawWriter* writer, const 
                         << texCoords[state.f1] << ssboIndex
                         << devPoints[2].x << devPoints[2].y << colors[state.f2]
                         << texCoords[state.f2] << ssboIndex;
-
     }
 }
 

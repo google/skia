@@ -177,9 +177,9 @@ protected:
                std::initializer_list<SkUniform> uniforms,
                PrimitiveType primitiveType,
                DepthStencilSettings depthStencilSettings,
-               std::initializer_list<Attribute> vertexAttrs,
-               std::initializer_list<Attribute> instanceAttrs,
-               std::initializer_list<Varying> varyings = {});
+               SkSpan<const Attribute> vertexAttrs,
+               SkSpan<const Attribute> instanceAttrs,
+               SkSpan<const Varying> varyings = {});
 
 private:
     friend class Renderer; // for Flags
