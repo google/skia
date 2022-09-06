@@ -85,9 +85,8 @@ private:
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-    std::tuple<skgpu::graphite::TextureProxyView, SkColorType> onAsView(
-            skgpu::graphite::Recorder*,
-            skgpu::graphite::Mipmapped) const override;
+    sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
+                                      RequiredImageProperties) const override;
 #endif
 
     class ScopedGenerator;

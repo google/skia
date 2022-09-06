@@ -64,6 +64,8 @@ public:
         return nullptr;
     }
 
+    TextureProxyView textureProxyView() const { return fTextureProxyView; }
+
 private:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(
@@ -83,8 +85,7 @@ private:
     }
 #endif
 
-    std::tuple<TextureProxyView, SkColorType> onAsView(Recorder*,
-                                                       Mipmapped) const override;
+    sk_sp<SkImage> onMakeTextureImage(Recorder*, RequiredImageProperties) const override;
 
     TextureProxyView fTextureProxyView;
 };

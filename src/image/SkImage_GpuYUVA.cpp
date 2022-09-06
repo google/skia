@@ -233,11 +233,10 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
 
 
 #ifdef SK_GRAPHITE_ENABLED
-std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_GpuYUVA::onAsView(
-        skgpu::graphite::Recorder*,
-        skgpu::graphite::Mipmapped) const {
+sk_sp<SkImage> SkImage_GpuYUVA::onMakeTextureImage(skgpu::graphite::Recorder*,
+                                                   RequiredImageProperties) const {
     SKGPU_LOG_W("Cannot convert Ganesh-backed YUVA image to Graphite");
-    return {};
+    return nullptr;
 }
 #endif
 

@@ -133,7 +133,7 @@ public:
     // the data in a texture.
     std::tuple<skgpu::graphite::TextureProxyView, SkColorType> asView(
             skgpu::graphite::Recorder*,
-            skgpu::graphite::Mipmapped mipmapped) const;
+            skgpu::graphite::Mipmapped) const;
 #endif
 
     virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }
@@ -180,6 +180,11 @@ public:
     virtual sk_sp<SkImage> onMakeWithMipmaps(sk_sp<SkMipmap>) const {
         return nullptr;
     }
+
+#ifdef SK_GRAPHITE_ENABLED
+    virtual sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
+                                              RequiredImageProperties) const = 0;
+#endif
 
 protected:
     SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);
@@ -228,11 +233,7 @@ private:
             const SkRect* subset,
             const SkRect* domain) const = 0;
 #endif
-#ifdef SK_GRAPHITE_ENABLED
-    virtual std::tuple<skgpu::graphite::TextureProxyView, SkColorType> onAsView(
-            skgpu::graphite::Recorder*,
-            skgpu::graphite::Mipmapped) const = 0;
-#endif
+
     // Set true by caches when they cache content that's derived from the current pixels.
     mutable std::atomic<bool> fAddedToRasterCache;
 

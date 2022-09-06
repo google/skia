@@ -584,10 +584,9 @@ void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const
 #endif // SK_SUPPORT_GPU
 
 #ifdef SK_GRAPHITE_ENABLED
-std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Lazy::onAsView(
-        skgpu::graphite::Recorder*,
-        skgpu::graphite::Mipmapped) const {
+sk_sp<SkImage> SkImage_Lazy::onMakeTextureImage(skgpu::graphite::Recorder*,
+                                                RequiredImageProperties) const {
     SKGPU_LOG_W("Conversion of Lazy images to Graphite-backed not yet implemented");
-    return {};
+    return nullptr;
 }
 #endif

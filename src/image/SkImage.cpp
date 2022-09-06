@@ -43,6 +43,11 @@
 #include "src/image/SkImage_Gpu.h"
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/Image_Graphite.h"
+#include "src/gpu/graphite/Log.h"
+#endif
+
 SkImage::SkImage(const SkImageInfo& info, uint32_t uniqueID)
         : fInfo(info)
         , fUniqueID(kNeedNewImageUniqueID == uniqueID ? SkNextID::ImageID() : uniqueID) {
@@ -468,14 +473,30 @@ GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,
 
 #ifdef SK_GRAPHITE_ENABLED
 std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Base::asView(
-        skgpu::graphite::Recorder* recorder, skgpu::graphite::Mipmapped mipmapped) const {
+        skgpu::graphite::Recorder* recorder,
+        skgpu::graphite::Mipmapped mipmapped) const {
     if (!recorder) {
         return {};
     }
+
+    if (!as_IB(this)->isGraphiteBacked()) {
+        return {};
+    }
+
+    auto image = reinterpret_cast<const skgpu::graphite::Image*>(this);
+
     if (this->dimensions().area() <= 1) {
         mipmapped = skgpu::graphite::Mipmapped::kNo;
     }
-    return this->onAsView(recorder, mipmapped);
+
+    if (mipmapped == skgpu::graphite::Mipmapped::kYes &&
+        image->textureProxyView().proxy()->mipmapped() != skgpu::graphite::Mipmapped::kYes) {
+        SKGPU_LOG_W("Graphite does not auto-generate mipmap levels");
+        return {};
+    }
+
+    SkColorType ct = this->colorType();
+    return { image->textureProxyView(), ct };
 }
 #endif // SK_GRAPHITE_ENABLED
 
