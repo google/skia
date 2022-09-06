@@ -232,6 +232,7 @@ SKIA_PUBLIC_HDRS = [
     "include/utils/SkShadowUtils.h",
     "include/utils/SkTextUtils.h",
     "include/utils/SkTraceEventPhase.h",
+    "include/utils/mac/SkCGUtils.h",
 ]
 
 ################################################################################
