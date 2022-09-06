@@ -1,13 +1,10 @@
-# Copyright 2016 Google Inc.
-#
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
+# DO NOT EDIT: This is a generated file.
 
-# Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("../src", "abspath")
 _include = get_path_info("../include", "abspath")
 
 skia_utils_public = [
+  "$_include/utils/mac/SkCGUtils.h",
   "$_include/utils/SkAnimCodecPlayer.h",
   "$_include/utils/SkBase64.h",
   "$_include/utils/SkCamera.h",
@@ -23,9 +20,8 @@ skia_utils_public = [
   "$_include/utils/SkParsePath.h",
   "$_include/utils/SkRandom.h",
   "$_include/utils/SkShadowUtils.h",
-
-  #mac
-  "$_include/utils/mac/SkCGUtils.h",
+  "$_include/utils/SkTextUtils.h",
+  "$_include/utils/SkTraceEventPhase.h",
 ]
 
 skia_utils_sources = [
@@ -59,6 +55,8 @@ skia_utils_sources = [
   "$_src/utils/SkMatrix22.cpp",
   "$_src/utils/SkMatrix22.h",
   "$_src/utils/SkMultiPictureDocument.cpp",
+  "$_src/utils/SkMultiPictureDocument.h",
+  "$_src/utils/SkMultiPictureDocumentPriv.h",
   "$_src/utils/SkNWayCanvas.cpp",
   "$_src/utils/SkNullCanvas.cpp",
   "$_src/utils/SkOSPath.cpp",
@@ -83,16 +81,12 @@ skia_utils_sources = [
   "$_src/utils/SkUTF.h",
   "$_src/utils/SkVMVisualizer.cpp",
   "$_src/utils/SkVMVisualizer.h",
-
-  #mac
   "$_src/utils/mac/SkCGBase.h",
   "$_src/utils/mac/SkCGGeometry.h",
   "$_src/utils/mac/SkCTFont.cpp",
   "$_src/utils/mac/SkCTFont.h",
   "$_src/utils/mac/SkCreateCGImageRef.cpp",
   "$_src/utils/mac/SkUniqueCFRef.h",
-
-  #windows
   "$_src/utils/win/SkAutoCoInitialize.cpp",
   "$_src/utils/win/SkAutoCoInitialize.h",
   "$_src/utils/win/SkDWrite.cpp",

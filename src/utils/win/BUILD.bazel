@@ -1,0 +1,32 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+# Not yet included in a Bazel build.
+# File group is here for exporting to utils.gni:skia_utils_sources.
+WIN_FILES = [
+    "SkAutoCoInitialize.cpp",
+    "SkAutoCoInitialize.h",
+    "SkDWrite.cpp",
+    "SkDWrite.h",
+    "SkDWriteFontFileStream.cpp",
+    "SkDWriteFontFileStream.h",
+    "SkDWriteGeometrySink.cpp",
+    "SkDWriteGeometrySink.h",
+    "SkDWriteNTDDI_VERSION.h",
+    "SkHRESULT.cpp",
+    "SkHRESULT.h",
+    "SkIStream.cpp",
+    "SkIStream.h",
+    "SkObjBase.h",
+    "SkTScopedComPtr.h",
+    "SkWGL.h",
+    "SkWGL_win.cpp",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = WIN_FILES,
+)

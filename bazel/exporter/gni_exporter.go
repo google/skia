@@ -351,7 +351,7 @@ func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *build.Q
 		isfx := extractTopLevelFolder(files[i])
 		jsfx := extractTopLevelFolder(files[j])
 		if isfx == jsfx {
-			return files[i] < files[j]
+			return strings.ToLower(files[i]) < strings.ToLower(files[j])
 		}
 		return isfx >= jsfx // Make $_include come after $_src.
 	})
