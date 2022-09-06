@@ -921,9 +921,6 @@ optional("gpu") {
   public_deps = []
 
   sources = skia_gpu_sources
-  if (!skia_enable_skgpu_v1) {
-    sources -= skia_skgpu_v1_sources
-  }
 
   libs = []
   frameworks = []
