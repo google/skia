@@ -60,6 +60,12 @@ bool_flag(
     default = True,
 )
 
+# In own group for mapping to //gn/gpu.gni:skia_null_gpu_sources.
+filegroup(
+    name = "native_interface_none",
+    srcs = ["GrGLMakeNativeInterface_none.cpp"],
+)
+
 filegroup(
     name = "native_interface",
     srcs = select({
@@ -69,7 +75,7 @@ filegroup(
         "@platforms//os:ios": ["//src/gpu/ganesh/gl/iOS:srcs"],
         "@platforms//os:macos": ["//src/gpu/ganesh/gl/mac:srcs"],
         "@platforms//os:windows": ["//src/gpu/ganesh/gl/win:srcs"],
-        "//conditions:default": ["GrGLMakeNativeInterface_none.cpp"],
+        "//conditions:default": [":native_interface_none"],
     }),
 )
 
@@ -80,7 +86,7 @@ filegroup(
         "//src/gpu/ganesh/gl/builders:srcs",
     ] + select({
         ":enable_native_interface_true": [":native_interface"],
-        ":enable_native_interface_false": ["GrGLMakeNativeInterface_none.cpp"],
+        ":enable_native_interface_false": [":native_interface_none"],
     }),
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )

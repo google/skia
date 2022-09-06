@@ -1,5 +1,61 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+# Not currently in a Bazel target.
+# This list is exported to to gpu.gni:skia_metal_sources.
+MTL_FILES = [
+    "GrMtlAttachment.h",
+    "GrMtlAttachment.mm",
+    "GrMtlBuffer.h",
+    "GrMtlBuffer.mm",
+    "GrMtlCaps.h",
+    "GrMtlCaps.mm",
+    "GrMtlCommandBuffer.h",
+    "GrMtlCommandBuffer.mm",
+    "GrMtlCppUtil.h",
+    "GrMtlDepthStencil.h",
+    "GrMtlDepthStencil.mm",
+    "GrMtlFramebuffer.h",
+    "GrMtlFramebuffer.mm",
+    "GrMtlGpu.h",
+    "GrMtlGpu.mm",
+    "GrMtlOpsRenderPass.h",
+    "GrMtlOpsRenderPass.mm",
+    "GrMtlPipeline.h",
+    "GrMtlPipelineState.h",
+    "GrMtlPipelineState.mm",
+    "GrMtlPipelineStateBuilder.h",
+    "GrMtlPipelineStateBuilder.mm",
+    "GrMtlPipelineStateDataManager.h",
+    "GrMtlPipelineStateDataManager.mm",
+    "GrMtlRenderCommandEncoder.h",
+    "GrMtlRenderTarget.h",
+    "GrMtlRenderTarget.mm",
+    "GrMtlResourceProvider.h",
+    "GrMtlResourceProvider.mm",
+    "GrMtlSampler.h",
+    "GrMtlSampler.mm",
+    "GrMtlSemaphore.h",
+    "GrMtlSemaphore.mm",
+    "GrMtlTexture.h",
+    "GrMtlTexture.mm",
+    "GrMtlTextureRenderTarget.h",
+    "GrMtlTextureRenderTarget.mm",
+    "GrMtlTrampoline.h",
+    "GrMtlTrampoline.mm",
+    "GrMtlTypesPriv.mm",
+    "GrMtlUniformHandler.h",
+    "GrMtlUniformHandler.mm",
+    "GrMtlUtil.h",
+    "GrMtlUtil.mm",
+    "GrMtlVaryingHandler.h",
+    "GrMtlVaryingHandler.mm",
+]
+
+split_srcs_and_hdrs(
+    name = "mtl",
+    files = MTL_FILES,
+)

@@ -4,9 +4,13 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# In separate group for exporting to //gn/gpu.gni:skia_vk_sources.
+filegroup(
+    name = "impl_vk_hdrs",
+    srcs = ["GrVkSecondaryCBDrawContext.h"],
+)
 
 VK_FILES = [
-    "GrVkSecondaryCBDrawContext.h",
     "VulkanAMDMemoryAllocator.cpp",
     "VulkanAMDMemoryAllocator.h",
     "VulkanExtensions.cpp",
@@ -27,10 +31,12 @@ filegroup(
 
 filegroup(
     name = "private_hdrs",
-    srcs = [":vk_hdrs"],
+    srcs = [
+        ":impl_vk_hdrs",
+        ":vk_hdrs",
+    ],
     visibility = ["//src/gpu:__pkg__"],
 )
-
 
 skia_cc_deps(
     name = "deps",

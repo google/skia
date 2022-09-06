@@ -4,6 +4,17 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# Group is exported to //gn/gpu.gni:skia_shared_vk_sources.
+filegroup(
+    name = "shared_public_hdrs",
+    srcs = [
+        "VulkanExtensions.h",
+        "VulkanMemoryAllocator.h",
+        "VulkanTypes.h",
+    ],
+)
+
+# Group is exported to //gn/gpu.gni:skia_vk_sources.
 filegroup(
     name = "public_hdrs",
     srcs = [
@@ -11,9 +22,7 @@ filegroup(
         "GrVkExtensions.h",
         "GrVkMemoryAllocator.h",
         "GrVkTypes.h",
-        "VulkanMemoryAllocator.h",
-        "VulkanExtensions.h",
-        "VulkanTypes.h",
+        ":shared_public_hdrs",
     ],
     visibility = ["//include/gpu:__pkg__"],
 )

@@ -4,18 +4,37 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# In own group for mapping to //gpu.gni:skia_dawn_sources.
+filegroup(
+    name = "dawn_private_hdrs",
+    srcs = ["GrDawnTypesPriv.h"],
+)
+
+# In own group for mapping to //gpu.gni:skia_vk_sources.
+filegroup(
+    name = "vk_private_hdrs",
+    srcs = ["GrVkTypesPriv.h"],
+)
+
+# In own group for mapping to //gn/gpu.gni:skia_direct3d_sources.
+filegroup(
+    name = "d3d_private_hdrs",
+    srcs = ["GrD3DTypesMinimal.h"],
+)
+
 filegroup(
     name = "private_hdrs",
     srcs = [
         "GrContext_Base.h",
         "GrImageContext.h",
         "GrMockTypesPriv.h",
+        "GrMtlTypesPriv.h",
         "GrTypesPriv.h",
     ] + select_multi(
         {
-            "//src/gpu:dawn_backend": ["GrDawnTypesPriv.h"],
+            "//src/gpu:dawn_backend": [":dawn_private_hdrs"],
             "//src/gpu:gl_backend": ["GrGLTypesPriv.h"],
-            "//src/gpu:vulkan_backend": ["GrVkTypesPriv.h"],
+            "//src/gpu:vulkan_backend": [":vk_private_hdrs"],
             # TODO(kjlubick) Direct3D and Metal Backends
         },
     ),

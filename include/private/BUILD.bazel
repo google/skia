@@ -24,10 +24,15 @@ filegroup(
     ],
 )
 
+# In own filegroup for mapping to //gn/gpu.gni:skia_shared_gpu_sources.
+filegroup(
+    name = "shared_gpu_private_hdrs",
+    srcs = ["SingleOwner.h"],
+)
+
 filegroup(
     name = "private_hdrs",
     srcs = [
-        "SingleOwner.h",
         "SkBitmaskEnum.h",
         "SkChecksum.h",
         "SkColorData.h",
@@ -65,6 +70,7 @@ filegroup(
         "SkUniquePaintParamsID.h",
         "SkVx.h",
         "SkWeakRefCnt.h",
+        ":shared_gpu_private_hdrs",
         ":sksl_private_hdrs",
         "//include/private/chromium:private_hdrs",
     ] + select({

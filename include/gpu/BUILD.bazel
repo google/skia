@@ -4,10 +4,18 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# In separate group for mapping to //gn/gpu.gni:skia_shared_gpu_sources.
+filegroup(
+    name = "shared_public_hdrs",
+    srcs = [
+        "GpuTypes.h",
+        "ShaderErrorHandler.h",
+    ],
+)
+
 filegroup(
     name = "public_hdrs",
     srcs = [
-        "GpuTypes.h",
         "GrBackendDrawableInfo.h",
         "GrBackendSemaphore.h",
         "GrBackendSurface.h",
@@ -22,10 +30,10 @@ filegroup(
         "GrSurfaceInfo.h",
         "GrTypes.h",
         "GrYUVABackendTextures.h",
-        "ShaderErrorHandler.h",
         "//include/gpu/mock:public_hdrs",
         # TODO(egdaniel, kjlubick) GrGLTypes.h is used unconditionally by GrBackendSemaphore.h
         "//include/gpu/gl:public_hdrs",
+        ":shared_public_hdrs",
     ] + select_multi(
         {
             "//src/gpu:dawn_backend": ["//include/gpu/dawn:public_hdrs"],

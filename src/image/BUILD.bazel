@@ -39,6 +39,13 @@ split_srcs_and_hdrs(
     files = GPU_FILES,
 )
 
+# Not referenced by Bazel target.
+# File group use to export to //gn/gpu.gni:skia_metal_sources.
+filegroup(
+    name = "mtl_srcs",
+    srcs = ["SkSurface_GpuMtl.mm"],
+)
+
 filegroup(
     name = "srcs",
     srcs = [":core_srcs"] + select({

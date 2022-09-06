@@ -1,17 +1,16 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "selects", "select_multi", "skia_cc_deps", "split_srcs_and_hdrs", "string_flag_with_values")
+load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "select_multi", "selects", "skia_cc_deps", "split_srcs_and_hdrs", "string_flag_with_values")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-CORE_FILES = [
+# In own group for exporting to //gn/gpu.gni:skia_shared_gpu_sources.
+SHARED_FILES = [
     "AtlasTypes.cpp",
     "AtlasTypes.h",
     "Blend.cpp",
     "Blend.h",
     "BufferWriter.h",
-    "GrAHardwareBufferUtils.h",
-    "GrRectanizer.h",
     "KeyBuilder.h",
     "Rectanizer.h",
     "RectanizerPow2.cpp",
@@ -21,10 +20,20 @@ CORE_FILES = [
     "RefCntedCallback.h",
     "ResourceKey.cpp",
     "ResourceKey.h",
-    "ShaderErrorHandler.cpp",
-    "SkRenderEngineAbortf.h",
     "Swizzle.cpp",
     "Swizzle.h",
+]
+
+split_srcs_and_hdrs(
+    name = "shared",
+    files = SHARED_FILES,
+)
+
+CORE_FILES = [
+    "GrAHardwareBufferUtils.h",
+    "GrRectanizer.h",
+    "ShaderErrorHandler.cpp",
+    "SkRenderEngineAbortf.h",
 ]
 
 split_srcs_and_hdrs(
@@ -85,6 +94,7 @@ filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
+        ":shared_srcs",
         "//src/gpu/ganesh:srcs",
         "//src/gpu/tessellate:srcs",
     ] + select({
@@ -98,6 +108,7 @@ filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",
+        ":shared_hdrs",
         "//src/gpu/ganesh:private_hdrs",
         "//src/gpu/tessellate:private_hdrs",
     ] + select({

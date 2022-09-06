@@ -3,3 +3,13 @@ load("//bazel:macros.bzl", "exports_files_legacy")
 licenses(["notice"])
 
 exports_files_legacy()
+
+# Not yet referenced by Bazel target.
+# Exported to //gn/gpu.gni:skia_direct3d_sources.
+filegroup(
+    name = "public_hdrs",
+    srcs = [
+        "GrD3DBackendContext.h",
+        "GrD3DTypes.h",
+    ],
+)

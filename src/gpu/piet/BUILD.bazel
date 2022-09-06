@@ -1,0 +1,20 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+# Not currently in a Bazel target.
+# In file list for exporting to //gn/gpu.gni:skia_piet_gpu_sources.
+PIET_FILES = [
+    "PietTypes.h",
+    "Render.cpp",
+    "Render.h",
+    "Scene.cpp",
+    "Scene.h",
+]
+
+split_srcs_and_hdrs(
+    name = "piet",
+    files = PIET_FILES,
+)

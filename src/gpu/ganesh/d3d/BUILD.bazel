@@ -1,5 +1,64 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+# Not currently in a Bazel target.
+# In file list for exporting to //gn/gpu.gni:skia_direct3d_sources.
+D3D_FILES = [
+    "GrD3DAMDMemoryAllocator.cpp",
+    "GrD3DAMDMemoryAllocator.h",
+    "GrD3DAttachment.cpp",
+    "GrD3DAttachment.h",
+    "GrD3DBuffer.cpp",
+    "GrD3DBuffer.h",
+    "GrD3DCaps.cpp",
+    "GrD3DCaps.h",
+    "GrD3DCommandList.cpp",
+    "GrD3DCommandList.h",
+    "GrD3DCommandSignature.cpp",
+    "GrD3DCommandSignature.h",
+    "GrD3DCpuDescriptorManager.cpp",
+    "GrD3DCpuDescriptorManager.h",
+    "GrD3DDescriptorHeap.cpp",
+    "GrD3DDescriptorHeap.h",
+    "GrD3DDescriptorTableManager.cpp",
+    "GrD3DDescriptorTableManager.h",
+    "GrD3DGpu.cpp",
+    "GrD3DGpu.h",
+    "GrD3DOpsRenderPass.cpp",
+    "GrD3DOpsRenderPass.h",
+    "GrD3DPipeline.h",
+    "GrD3DPipelineState.cpp",
+    "GrD3DPipelineState.h",
+    "GrD3DPipelineStateBuilder.cpp",
+    "GrD3DPipelineStateBuilder.h",
+    "GrD3DPipelineStateDataManager.cpp",
+    "GrD3DPipelineStateDataManager.h",
+    "GrD3DRenderTarget.cpp",
+    "GrD3DRenderTarget.h",
+    "GrD3DResourceProvider.cpp",
+    "GrD3DResourceProvider.h",
+    "GrD3DResourceState.h",
+    "GrD3DRootSignature.cpp",
+    "GrD3DRootSignature.h",
+    "GrD3DSemaphore.cpp",
+    "GrD3DSemaphore.h",
+    "GrD3DTexture.cpp",
+    "GrD3DTexture.h",
+    "GrD3DTextureRenderTarget.cpp",
+    "GrD3DTextureRenderTarget.h",
+    "GrD3DTextureResource.cpp",
+    "GrD3DTextureResource.h",
+    "GrD3DTypesMinimal.cpp",
+    "GrD3DTypesPriv.cpp",
+    "GrD3DTypesPriv.h",
+    "GrD3DUtil.cpp",
+    "GrD3DUtil.h",
+]
+
+split_srcs_and_hdrs(
+    name = "d3d",
+    files = D3D_FILES,
+)
