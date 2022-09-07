@@ -76,4 +76,10 @@
     friend X operator &(X a, X b); \
     friend X& operator &=(X& a, X b);
 
+#if defined(__clang__) || defined(__GNUC__)
+#define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#define unlikely(x) (x)
+#endif
+
 #endif  // SkMacros_DEFINED

@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkShader.h"
+#include "include/private/SkMacros.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkBitmapProcState.h"
@@ -170,6 +171,18 @@ static unsigned extract_low_bits_general(SkFixed fx, int max) {
 // See also SK_OPTS_NS::decode_packed_coordinates_and_weight for unpacking this value.
 template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int)>
 static uint32_t pack(SkFixed f, unsigned max, SkFixed one) {
+    // We pack the SkFixed value into 14 bits of space
+    static constexpr SkFixed MAX_PACKED_VALUE = SkIntToFixed((1 << 14) - 1);
+    SkASSERT(max <= MAX_PACKED_VALUE);
+
+    // If the input is within 1 of the max packed value (and could thus overflow), we just pack
+    // the low and high value to the same tiled (probably clamped) value and ignore the low bits.
+    if (unlikely(f > (MAX_PACKED_VALUE - SK_Fixed1))) {
+        f = MAX_PACKED_VALUE;
+        uint32_t packed = tile(f, max);
+        return (packed << 18) | packed;
+    }
+
     uint32_t packed = tile(f, max);                      // low coordinate in high bits
     packed = (packed <<  4) | extract_low_bits(f, max);  // (lerp weight _is_ coord fractional part)
     packed = (packed << 14) | tile((f + one), max);      // high coordinate in low bits
