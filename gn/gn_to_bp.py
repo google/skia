@@ -610,8 +610,8 @@ gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
                                    nanobench_srcs, ['//:skia', '//:gm'])
 
 # skcms is a little special, kind of a second-party library.
-local_includes.add("include/third_party/skcms")
-gm_includes   .add("include/third_party/skcms")
+local_includes.add("modules/skcms")
+gm_includes   .add("modules/skcms")
 
 # Android's build will choke if we list headers.
 def strip_headers(sources):
