@@ -140,12 +140,13 @@ public:
         this->add<BindUniformBuffer>(info, slot);
     }
 
-    void bindTexturesAndSamplers(int numTexSamplers,
-                                 int* textureIndices,
-                                 int* samplerIndices) {
-        this->add<BindTexturesAndSamplers>(numTexSamplers,
-                                           this->copy(textureIndices, numTexSamplers),
-                                           this->copy(samplerIndices, numTexSamplers));
+    // Caller must write 'numTexSamplers' texture and sampler indices into the two returned arrays.
+    std::pair<int*, int*>
+    bindDeferredTexturesAndSamplers(int numTexSamplers) {
+        int* textureIndices = fAlloc.makeArrayDefault<int>(numTexSamplers);
+        int* samplerIndices = fAlloc.makeArrayDefault<int>(numTexSamplers);
+        this->add<BindTexturesAndSamplers>(numTexSamplers, textureIndices, samplerIndices);
+        return {textureIndices, samplerIndices};
     }
 
     void setViewport(const SkRect& viewport,
@@ -224,4 +225,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DrawPassCommands_DEFINED
-

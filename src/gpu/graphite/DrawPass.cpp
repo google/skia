@@ -68,6 +68,48 @@ struct TextureBindingBlock {
                fStepTextures == other.fStepTextures;
     }
     bool operator!=(const TextureBindingBlock& other) const { return !(*this == other);  }
+
+    int numTextures() const {
+        return (fPaintTextures ? fPaintTextures->numTextures() : 0) +
+               (fStepTextures ? fStepTextures->numTextures() : 0);
+    }
+    // TODO: Switch to reusable dense T->index map for tracking proxies and samplers
+    void writeIndices(int* textureIndices,
+                      int* samplerIndices,
+                      std::vector<sk_sp<TextureProxy>>& proxies,
+                      std::vector<SamplerDesc>& samplers) const {
+        // TODO: These helpers will go away
+        auto getTextureIndex = [&](sk_sp<TextureProxy> texture) {
+            for (size_t i = 0; i < proxies.size(); ++i) {
+                if (proxies[i].get() == texture.get()) {
+                    return (int) i;
+                }
+            }
+            proxies.push_back(std::move(texture));
+            return (int) proxies.size() - 1;
+        };
+        auto getSamplerIndex = [&](const SamplerDesc& desc) {
+            for (size_t i = 0; i < samplers.size(); ++i) {
+                if (samplers[i] == desc) {
+                    return (int) i;
+                }
+            }
+            samplers.push_back(desc);
+            return (int) samplers.size() - 1;
+        };
+        if (fPaintTextures) {
+            for (int i = 0; i < fPaintTextures->numTextures(); ++i) {
+                *textureIndices++ = getTextureIndex(std::get<0>(fPaintTextures->texture(i)));
+                *samplerIndices++ = getSamplerIndex(std::get<1>(fPaintTextures->texture(i)));
+            }
+        }
+        if (fStepTextures) {
+            for (int i = 0; i < fStepTextures->numTextures(); ++i) {
+                *textureIndices++ = getTextureIndex(std::get<0>(fStepTextures->texture(i)));
+                *samplerIndices++ = getSamplerIndex(std::get<1>(fStepTextures->texture(i)));
+            }
+        }
+    }
 };
 
 class TextureBindingCache {
@@ -83,17 +125,9 @@ public:
             SkASSERT(fIndexToBinding.size() < kInvalidIndex - 1);
             existing = fBindingToIndex.set(block, fIndexToBinding.count());
             fIndexToBinding.push_back(block);
-
-            int numTextures = (paintTextures ? paintTextures->numTextures() : 0) +
-                              (stepTextures ? stepTextures->numTextures() : 0);
-            if (numTextures > fMaxNumTextures) {
-                fMaxNumTextures = numTextures;
-            }
         }
         return *existing;
     }
-
-    int maxNumTextures() const { return fMaxNumTextures; }
 
     const TextureBindingBlock& lookup(uint32_t index) const {
         SkASSERT(index < kInvalidIndex);
@@ -105,8 +139,6 @@ private:
     // pipeline index tracking, sampler tracking, texture tracking, and texture binding tracking.
     SkTHashMap<TextureBindingBlock, uint32_t> fBindingToIndex;
     SkTArray<TextureBindingBlock> fIndexToBinding;
-
-    int fMaxNumTextures = 0;
 };
 
 } // namespace
@@ -347,53 +379,6 @@ DrawPass::DrawPass(sk_sp<TextureProxy> target,
 
 DrawPass::~DrawPass() = default;
 
-struct SamplerDesc {
-    SkSamplingOptions fSamplingOptions;
-    SkTileMode fTileModes[2];
-
-    bool isEqual(const SkTextureDataBlock::TextureInfo& info) {
-        return fSamplingOptions == info.fSamplingOptions &&
-               fTileModes[0] == info.fTileModes[0] &&
-               fTileModes[1] == info.fTileModes[1];
-    }
-};
-
-namespace {
-
-std::pair<int, int> get_unique_texture_sampler_indices(
-        std::vector<sk_sp<TextureProxy>>& sampledTextures,
-        std::vector<SamplerDesc>& samplerDescs,
-        const SkTextureDataBlock::TextureInfo& info) {
-    int texIndex = -1;
-    for (size_t i = 0; i < sampledTextures.size(); ++i) {
-        if (sampledTextures[i].get() == info.fProxy.get()) {
-            texIndex = i;
-            break;
-        }
-    }
-    if (texIndex == -1) {
-        sampledTextures.push_back(info.fProxy);
-        texIndex = sampledTextures.size() - 1;
-    }
-
-    int samplerIndex = -1;
-    for (size_t i = 0; i < samplerDescs.size(); ++i) {
-        if (samplerDescs[i].isEqual(info)) {
-            samplerIndex = i;
-            break;
-        }
-    }
-    if (samplerIndex == -1) {
-        samplerDescs.push_back({info.fSamplingOptions,
-                                {info.fTileModes[0], info.fTileModes[1]}});
-        samplerIndex = samplerDescs.size() - 1;
-    }
-    SkASSERT(texIndex >=0 && samplerIndex >=0);
-    return std::make_pair(texIndex, samplerIndex);
-}
-
-} // anonymous namespace
-
 std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                          std::unique_ptr<DrawList> draws,
                                          sk_sp<TextureProxy> target,
@@ -428,20 +413,21 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // recorder's lifetime so we only de-dupe them w/in a given DrawPass.
     UniformDataCache geometryUniformDataCache;
     TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
-    TextureBindingCache textureBindingIndices;
+
+    // TODO(b/242076321) Use storage buffers for shading uniforms, if supported by GPU.
     DrawPassUniformWriter geometryUniformWriter(/*useStorageBuffers=*/false);
     DrawPassUniformWriter shadingUniformWriter(
             /*useStorageBuffers=*/recorder->priv().caps()->storageBufferPreferred());
+    TextureBindingCache textureBindingIndices;
 
     SkTHashMap<GraphicsPipelineDesc, uint32_t> pipelineDescToIndex;
-
-    std::vector<SortKey> keys;
-    keys.reserve(draws->renderStepCount()); // will not exceed but may use less with occluded draws
 
     SkShaderCodeDictionary* dict = recorder->priv().shaderCodeDictionary();
     SkPaintParamsKeyBuilder builder(dict);
     SkPipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
 
+    std::vector<SortKey> keys;
+    keys.reserve(draws->renderStepCount());
     for (const DrawList::Draw& draw : draws->fDraws.items()) {
         // If we have two different descriptors, such that the uniforms from the PaintParams can be
         // bound independently of those used by the rest of the RenderStep, then we can upload now
@@ -510,10 +496,6 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     uint32_t lastPipeline = draws->renderStepCount();
     uint32_t lastTextureBindings = kInvalidIndex;
     SkIRect lastScissor = SkIRect::MakeSize(drawPass->fTarget->dimensions());
-    // We will reuse these vectors for all the draws as they are just meant for temporary storage
-    // as we are creating commands on the fCommandList.
-    std::vector<int> textureIndices(textureBindingIndices.maxNumTextures());
-    std::vector<int> samplerIndices(textureBindingIndices.maxNumTextures());
 
     // Set viewport to the entire texture for now (eventually, we may have logically smaller bounds
     // within an approx-sized texture). It is assumed that this also configures the sk_rtAdjust
@@ -563,35 +545,13 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 shadingUniformWriter.bindBuffer(UniformSlot::kPaint, drawPass->fCommandList);
             }
             if (textureBindingsChange) {
-                auto textures = textureBindingIndices.lookup(key.textureBindingIndex());
+                auto binding = textureBindingIndices.lookup(key.textureBindingIndex());
 
-                auto collect_textures = [](const SkTextureDataBlock* textureDataBlock,
-                                           DrawPass* drawPass,
-                                           int* numTextures,
-                                           std::vector<int>* textureIndices,
-                                           std::vector<int>* samplerIndices) {
-                    if (textureDataBlock) {
-                        for (int i = 0; i < textureDataBlock->numTextures(); ++i) {
-                            auto& info = textureDataBlock->texture(i);
-                            std::tie((*textureIndices)[i + *numTextures],
-                                     (*samplerIndices)[i + *numTextures]) =
-                                    get_unique_texture_sampler_indices(drawPass->fSampledTextures,
-                                                                       drawPass->fSamplerDescs,
-                                                                       info);
-                        }
-                        *numTextures += textureDataBlock->numTextures();
-                    }
-                };
+                auto [texIndices, samplerIndices] =
+                    drawPass->fCommandList.bindDeferredTexturesAndSamplers(binding.numTextures());
+                binding.writeIndices(texIndices, samplerIndices,
+                                     drawPass->fSampledTextures, drawPass->fSamplerDescs);
 
-                int numTextures = 0;
-                collect_textures(textures.fPaintTextures,
-                                 drawPass.get(), &numTextures, &textureIndices, &samplerIndices);
-                collect_textures(textures.fStepTextures,
-                                 drawPass.get(), &numTextures, &textureIndices, &samplerIndices);
-                SkASSERT(numTextures <= textureBindingIndices.maxNumTextures());
-                drawPass->fCommandList.bindTexturesAndSamplers(numTextures,
-                                                               textureIndices.data(),
-                                                               samplerIndices.data());
                 lastTextureBindings = key.textureBindingIndex();
             }
             if (draw.fDrawParams.clip().scissor() != lastScissor) {

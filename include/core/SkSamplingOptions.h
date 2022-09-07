@@ -19,6 +19,7 @@ enum class SkFilterMode {
 
     kLast = kLinear,
 };
+static constexpr int kSkFilterModeCount = static_cast<int>(SkFilterMode::kLast) + 1;
 
 enum class SkMipmapMode {
     kNone,      // ignore mipmap levels, sample from the "base"
@@ -27,6 +28,7 @@ enum class SkMipmapMode {
 
     kLast = kLinear,
 };
+static constexpr int kSkMipmapModeCount = static_cast<int>(SkMipmapMode::kLast) + 1;
 
 /*
  *  Specify B and C (each between 0...1) to create a shader that applies the corresponding

@@ -60,28 +60,12 @@ uint32_t SkUniformDataBlock::hash() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef SK_GRAPHITE_ENABLED
-static constexpr int kSkFilterModeCount = static_cast<int>(SkFilterMode::kLast) + 1;
 
 SkTextureDataBlock* SkTextureDataBlock::Make(const SkTextureDataBlock& other,
                                              SkArenaAlloc* arena) {
     return arena->make([&](void *ptr) {
         return new (ptr) SkTextureDataBlock(other);
     });
-}
-
-bool SkTextureDataBlock::TextureInfo::operator==(const TextureInfo& other) const {
-    return fProxy == other.fProxy &&
-           fSamplingOptions == other.fSamplingOptions &&
-           fTileModes[0] == other.fTileModes[0] &&
-           fTileModes[1] == other.fTileModes[1];
-}
-
-uint32_t SkTextureDataBlock::TextureInfo::samplerKey() const {
-    static_assert(kSkTileModeCount <= 4 && kSkFilterModeCount <= 2);
-    return (static_cast<int>(fTileModes[0])           << 0) |
-           (static_cast<int>(fTileModes[1])           << 2) |
-           (static_cast<int>(fSamplingOptions.filter) << 4) |
-           (static_cast<int>(fSamplingOptions.mipmap) << 5);
 }
 
 bool SkTextureDataBlock::operator==(const SkTextureDataBlock& other) const {
@@ -102,15 +86,14 @@ uint32_t SkTextureDataBlock::hash() const {
     uint32_t hash = 0;
 
     for (auto& d : fTextureData) {
-        uint32_t samplerKey = d.samplerKey();
+        uint32_t samplerKey = std::get<1>(d).asKey();
         hash = SkOpts::hash_fn(&samplerKey, sizeof(samplerKey), hash);
 
         // Because the lifetime of the TextureDataCache is for just one Recording and the
         // TextureDataBlocks hold refs on their proxies, we can just use the proxy's pointer
-        // for the hash here. This is a bit sloppy though in that it would be nice if proxies backed
-        // by the same scratch texture hashed the same (it is tough to see how we could do that
-        // at DrawPass creation time though).
-        hash = SkOpts::hash_fn(d.fProxy.get(), sizeof(skgpu::graphite::TextureProxy*), hash);
+        // for the hash here.
+        uintptr_t proxy = reinterpret_cast<uintptr_t>(std::get<0>(d).get());
+        hash = SkOpts::hash_fn(&proxy, sizeof(proxy), hash);
     }
 
     return hash;

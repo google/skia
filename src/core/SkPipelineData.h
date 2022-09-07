@@ -20,6 +20,7 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "include/private/SkVx.h"
+#include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
 #endif
@@ -54,23 +55,15 @@ private:
 #ifdef SK_GRAPHITE_ENABLED
 class SkTextureDataBlock {
 public:
-    struct TextureInfo {
-        bool operator==(const TextureInfo&) const;
-        bool operator!=(const TextureInfo& other) const { return !(*this == other);  }
-
-        uint32_t samplerKey() const;
-
-        sk_sp<skgpu::graphite::TextureProxy> fProxy;
-        SkSamplingOptions                    fSamplingOptions;
-        SkTileMode                           fTileModes[2];
-    };
+    using SampledTexture = std::pair<sk_sp<skgpu::graphite::TextureProxy>,
+                                     skgpu::graphite::SamplerDesc>;
 
     static SkTextureDataBlock* Make(const SkTextureDataBlock&, SkArenaAlloc*);
     SkTextureDataBlock() = default;
 
     bool empty() const { return fTextureData.empty(); }
     int numTextures() const { return SkTo<int>(fTextureData.size()); }
-    const TextureInfo& texture(int index) const { return fTextureData[index]; }
+    const SampledTexture& texture(int index) const { return fTextureData[index]; }
 
     bool operator==(const SkTextureDataBlock&) const;
     bool operator!=(const SkTextureDataBlock& other) const { return !(*this == other);  }
@@ -79,7 +72,7 @@ public:
     void add(const SkSamplingOptions& sampling,
              const SkTileMode tileModes[2],
              sk_sp<skgpu::graphite::TextureProxy> proxy) {
-        fTextureData.push_back({std::move(proxy), sampling, {tileModes[0], tileModes[1]}});
+        fTextureData.push_back({std::move(proxy), {sampling, {tileModes[0], tileModes[1]}}});
     }
 
     void reset() {
@@ -88,7 +81,7 @@ public:
 
 private:
     // TODO: Move this into a SkSpan that's managed by the gatherer or copied into the arena.
-    std::vector<TextureInfo> fTextureData;
+    std::vector<SampledTexture> fTextureData;
 };
 #endif // SK_GRAPHITE_ENABLED
 
