@@ -757,7 +757,7 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc) {
 
         SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
 
-        if (fRec.fFrameWidth > 0) {
+        if (fRec.fFrameWidth >= 0) {
             rec.setStrokeStyle(fRec.fFrameWidth,
                                SkToBool(fRec.fFlags & kFrameAndFill_Flag));
             // glyphs are always closed contours, so cap type is ignored,
