@@ -3383,17 +3383,25 @@ STAGE_PP(set_rgb, const float rgb[3]) {
 }
 
 STAGE_PP(clamp_0, Ctx::None) { /*definitely a noop*/ }
-STAGE_PP(clamp_1, Ctx::None) { /*_should_ be a noop*/ }
+STAGE_PP(clamp_1, Ctx::None) {
+    r = min(r, 255);
+    g = min(g, 255);
+    b = min(b, 255);
+    a = min(a, 255);
+}
 
 STAGE_PP(clamp_a, Ctx::None) {
+    a = min(a, 255);
     r = min(r, a);
     g = min(g, a);
     b = min(b, a);
 }
 
 STAGE_PP(clamp_gamut, Ctx::None) {
-    // It shouldn't be possible to get out-of-gamut
-    // colors when working in lowp.
+    a = min(a, 255);
+    r = min(r, a);
+    g = min(g, a);
+    b = min(b, a);
 }
 
 STAGE_PP(premul, Ctx::None) {
