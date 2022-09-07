@@ -36,21 +36,25 @@
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkImageInfoPriv.h"
-#include "src/core/SkVerticesPriv.h"
 
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPaintPriv.h"
+#include "src/core/SkRRectPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkImageShader.h"
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
 #include <unordered_map>
 #include <vector>
+
+// TODO: This will be removed once the AnalyticRRectRenderStep is finished being developed.
+#define ENABLE_ANALYTIC_RRECT_RENDERER 0
 
 namespace skgpu::graphite {
 
@@ -733,7 +737,11 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     // TODO: The tessellating path renderers haven't implemented perspective yet, so transform to
     // device space so we draw something approximately correct (barring local coord issues).
-    if (geometry.isShape() && localToDevice.type() == Transform::Type::kProjection) {
+    if (geometry.isShape() && localToDevice.type() == Transform::Type::kProjection
+#if ENABLE_ANALYTIC_RRECT_RENDERER
+        && (geometry.shape().isPath() || !style.isFillStyle())
+#endif
+    ) {
         SkPath devicePath = geometry.shape().asPath();
         devicePath.transform(localToDevice.matrix().asM33());
         this->drawGeometry(Transform::Identity(), Geometry(Shape(devicePath)), paint, style, flags,
@@ -767,7 +775,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // Some Renderer decisions are based on estimated fill rate, which requires the clipped bounds.
     // Since the fallbacks shouldn't change the bounds of the draw, it's okay to have evaluated the
     // clip stack before calling ChooseRenderer.
-    const Renderer* renderer = this->chooseRenderer(geometry, clip, style);
+    const Renderer* renderer = this->chooseRenderer(geometry, clip, style, /*requireMSAA=*/false);
     if (!renderer) {
         SKGPU_LOG_W("Skipping draw with no supported renderer.");
         return;
@@ -852,7 +860,8 @@ void Device::drawClipShape(const Transform& localToDevice,
     // A clip draw's state is almost fully defined by the ClipStack. The only thing we need
     // to account for is selecting a Renderer and tracking the stencil buffer usage.
     Geometry geometry{shape};
-    const Renderer* renderer = this->chooseRenderer(geometry, clip, kFillStyle);
+    const Renderer* renderer = this->chooseRenderer(geometry, clip, kFillStyle,
+                                                    /*requireMSAA=*/true);
     if (!renderer) {
         SKGPU_LOG_W("Skipping clip with no supported path renderer.");
         return;
@@ -861,6 +870,9 @@ void Device::drawClipShape(const Transform& localToDevice,
                                                                  clip.drawBounds());
         order.dependsOnStencil(setIndex);
     }
+    // Anti-aliased clipping requires the renderer to use MSAA to modify the depth per sample, so
+    // analytic coverage renderers cannot be used.
+    SkASSERT(!renderer->emitsCoverage() && renderer->requiresMSAA());
 
     // Clips draws are depth-only (null PaintParams), and filled (null StrokeStyle).
     // TODO: Remove this CPU-transform once perspective is supported for all path renderers
@@ -883,21 +895,39 @@ void Device::drawClipShape(const Transform& localToDevice,
 // be the case, in which case chooseRenderer() will have to go through compatible choices.
 const Renderer* Device::chooseRenderer(const Geometry& geometry,
                                        const Clip& clip,
-                                       const SkStrokeRec& style) const {
+                                       const SkStrokeRec& style,
+                                       bool requireMSAA) const {
     const RendererProvider* renderers = fRecorder->priv().rendererProvider();
     SkStrokeRec::Style type = style.getStyle();
 
     if (geometry.isSubRun()) {
+        SkASSERT(!requireMSAA);
         return geometry.subRunData().subRun()->renderer(renderers);
     } else if (geometry.isVertices()) {
         SkVerticesPriv info(geometry.vertices()->priv());
         return renderers->vertices(info.mode(), info.hasColors(), info.hasTexCoords());
-    }
-
-    if (!geometry.isShape()) {
-        // TODO: Other Geometry types will have pretty specific Renderers
+    } else if (!geometry.isShape()) {
+        // We must account for new Geometry types with specific Renderers
         return nullptr;
     }
+
+    const Shape& shape = geometry.shape();
+#if ENABLE_ANALYTIC_RRECT_RENDERER
+    // We send regular filled [round] rectangles and quadrilaterals, and stroked [r]rects with
+    // circular corners to a single Renderer that does not trigger MSAA. We can't use this renderer
+    // if we require MSAA for an effect (i.e. clipping or stroke-and-fill).
+    const bool simpleShape =
+            !requireMSAA && !shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style &&
+            (shape.isRect() || shape.isRRect() /* || shape.isQuadrilateral()*/) &&
+            (!shape.isRRect() || type == SkStrokeRec::kFill_Style ||
+                    SkRRectPriv::AllCornersCircular(shape.rrect()));
+    if (simpleShape) {
+        return renderers->analyticRRect();
+    }
+#endif
+
+    // If we got here, it requires tessellated path rendering or an MSAA technique applied to a
+    // simple shape (so we interpret them as paths to reduce the number of pipelines we need).
 
     // TODO: All shapes that select a tessellating path renderer need to be "pre-chopped" if they
     // are large enough to exceed the fixed count tessellation limits. Fills are pre-chopped to the
@@ -913,20 +943,11 @@ const Renderer* Device::chooseRenderer(const Geometry& geometry,
         // stenciling first with the HW stroke tessellator and then covering their bounds, but
         // inverse-filled strokes are not well-specified in our public canvas behavior so we may be
         // able to remove it.
-        // TODO: For non-stroke-and-fill strokes, we may add coverage-AA renderers for primitives
-        // that we want to avoid triggering MSAA on.
         return renderers->tessellatedStrokes();
     }
 
-    // TODO: stroke-and-fill returns the fill renderer, but if there is ever a case where a shape
-    // can't be stroked with the TessellatedStrokes renderer, we should return null even if we there
-    // is a valid renderer for the fill. Additionally, if we have coverage-AA renderers for filled
-    // primitives to avoid triggering MSAA, we do NOT want to select them for stroke-and-fill or
-    // we'll add AA seams where the separate fill and stroke draws overlap.
-    //
-    // For now, neither of these cases apply so stroke-and-fill and fill are handled the same.
-
-    const Shape& shape = geometry.shape();
+    // 'type' could be kStrokeAndFill, but in that case chooseRenderer() is meant to return the
+    // fill renderer since tessellatedStrokes() will always be used for the stroke pass.
     if (shape.convex() && !shape.inverted()) {
         // TODO: Ganesh doesn't have a curve+middle-out triangles option for convex paths, but it
         // would be pretty trivial to spin up.

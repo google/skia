@@ -9,6 +9,7 @@
 
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkVertices.h"
+#include "src/gpu/graphite/render/AnalyticRRectRenderStep.h"
 #include "src/gpu/graphite/render/BitmapTextRenderStep.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/render/CoverBoundsRenderStep.h"
@@ -46,6 +47,7 @@ RendererProvider::RendererProvider() {
     for (bool lcd : {false, true}) {
         fSDFText[lcd] = makeFromStep(std::make_unique<SDFTextRenderStep>(lcd));
     }
+    fAnalyticRRect = makeFromStep(std::make_unique<AnalyticRRectRenderStep>());
     for (PrimitiveType primType : {PrimitiveType::kTriangles, PrimitiveType::kTriangleStrip}) {
         for (bool color : {false, true}) {
             for (bool texCoords : {false, true}) {
