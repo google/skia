@@ -8,18 +8,18 @@ generate_go:
 
 .PHONY: generate_cmake
 generate_cmake:
-	cd .. && bazel build //bazel/exporter_tool && ${EXPORTER_TOOL} \
+	cd .. && bazelisk build //bazel/exporter_tool && ${EXPORTER_TOOL} \
 		-output_format=cmake -proj_name=Skia -rule='//:skia_public'
 
 .PHONY: generate_gni
 generate_gni:
-	cd .. && bazel build //bazel/exporter_tool && ${EXPORTER_TOOL} \
+	cd .. && bazelisk build //bazel/exporter_tool && ${EXPORTER_TOOL} \
 		-output_format=gni -proj_name=Skia -rule='//src/...' -rule='//include/...' \
 		&& bin/gn format gn/*.gni
 
 .PHONY: check_gni
 check_gni:
-	cd .. && bazel build //bazel/exporter_tool && ${EXPORTER_TOOL} \
+	cd .. && bazelisk build //bazel/exporter_tool && ${EXPORTER_TOOL} \
 		-output_format=gni -proj_name=Skia -rule='//src/...' -rule='//include/...' -check_current
 
 .PHONY: mocks
