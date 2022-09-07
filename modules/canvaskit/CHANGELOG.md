@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.37.0] - 2022-09-07
+
 ### Added
  - Paragraph has new setting: `replaceTabCharacters`.
  - New API, tests and sample for SkParagraph Client provided ICU API:
