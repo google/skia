@@ -563,8 +563,7 @@ DEF_TEST(SkRasterPipeline_lowp_clamp01, r) {
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_8888,  &ptr);
     p.append(SkRasterPipeline::swap_rb);
-    p.append(SkRasterPipeline::clamp_0);
-    p.append(SkRasterPipeline::clamp_1);
+    p.append(SkRasterPipeline::clamp_01);
     p.append(SkRasterPipeline::store_8888, &ptr);
     p.run(0,0,1,1);
 }

@@ -1704,25 +1704,13 @@ STAGE(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
     store(ptr, dst, tail);
 }
 
-STAGE(clamp_0, Ctx::None) {
-    r = max(r, 0);
-    g = max(g, 0);
-    b = max(b, 0);
-    a = max(a, 0);
-}
+SI F clamp_01_(F v) { return min(max(0, v), 1); }
 
-STAGE(clamp_1, Ctx::None) {
-    r = min(r, 1.0f);
-    g = min(g, 1.0f);
-    b = min(b, 1.0f);
-    a = min(a, 1.0f);
-}
-
-STAGE(clamp_a, Ctx::None) {
-    a = min(a, 1.0f);
-    r = min(r, a);
-    g = min(g, a);
-    b = min(b, a);
+STAGE(clamp_01, Ctx::None) {
+    r = clamp_01_(r);
+    g = clamp_01_(g);
+    b = clamp_01_(b);
+    a = clamp_01_(a);
 }
 
 STAGE(clamp_gamut, Ctx::None) {
@@ -1794,10 +1782,6 @@ STAGE(unpremul, Ctx::None) {
 STAGE(force_opaque    , Ctx::None) {  a = 1; }
 STAGE(force_opaque_dst, Ctx::None) { da = 1; }
 
-// Clamp x to [0,1], both sides inclusive (think, gradients).
-// Even repeat and mirror funnel through a clamp to handle bad inputs like +Inf, NaN.
-SI F clamp_01(F v) { return min(max(0, v), 1); }
-
 STAGE(rgb_to_hsl, Ctx::None) {
     F mx = max(r, max(g,b)),
       mn = min(r, min(g,b)),
@@ -1827,7 +1811,7 @@ STAGE(hsl_to_rgb, Ctx::None) {
       c = (1.0f - abs_(2.0f * l - 1)) * s;
 
     auto hue_to_rgb = [&](F hue) {
-        F q = clamp_01(abs_(fract(hue) * 6.0f - 3.0f) - 1.0f);
+        F q = clamp_01_(abs_(fract(hue) * 6.0f - 3.0f) - 1.0f);
         return (q - 0.5f) * c + l;
     };
 
@@ -2423,9 +2407,9 @@ STAGE(repeat_y, const SkRasterPipeline_TileCtx* ctx) { g = exclusive_repeat(g, c
 STAGE(mirror_x, const SkRasterPipeline_TileCtx* ctx) { r = exclusive_mirror(r, ctx); }
 STAGE(mirror_y, const SkRasterPipeline_TileCtx* ctx) { g = exclusive_mirror(g, ctx); }
 
-STAGE( clamp_x_1, Ctx::None) { r = clamp_01(r); }
-STAGE(repeat_x_1, Ctx::None) { r = clamp_01(r - floor_(r)); }
-STAGE(mirror_x_1, Ctx::None) { r = clamp_01(abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f )); }
+STAGE( clamp_x_1, Ctx::None) { r = clamp_01_(r); }
+STAGE(repeat_x_1, Ctx::None) { r = clamp_01_(r - floor_(r)); }
+STAGE(mirror_x_1, Ctx::None) { r = clamp_01_(abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f )); }
 
 // Decal stores a 32bit mask after checking the coordinate (x and/or y) against its domain:
 //      mask == 0x00000000 if the coordinate(s) are out of bounds
@@ -3382,19 +3366,12 @@ STAGE_PP(set_rgb, const float rgb[3]) {
     b = from_float(rgb[2]);
 }
 
-STAGE_PP(clamp_0, Ctx::None) { /*definitely a noop*/ }
-STAGE_PP(clamp_1, Ctx::None) {
+// No need to clamp against 0 here (values are unsigned)
+STAGE_PP(clamp_01, Ctx::None) {
     r = min(r, 255);
     g = min(g, 255);
     b = min(b, 255);
     a = min(a, 255);
-}
-
-STAGE_PP(clamp_a, Ctx::None) {
-    a = min(a, 255);
-    r = min(r, a);
-    g = min(g, a);
-    b = min(b, a);
 }
 
 STAGE_PP(clamp_gamut, Ctx::None) {
@@ -4057,13 +4034,13 @@ STAGE_PP(emboss, const SkRasterPipeline_EmbossCtx* ctx) {
 
 // Clamp x to [0,1], both sides inclusive (think, gradients).
 // Even repeat and mirror funnel through a clamp to handle bad inputs like +Inf, NaN.
-SI F clamp_01(F v) { return min(max(0, v), 1); }
+SI F clamp_01_(F v) { return min(max(0, v), 1); }
 
-STAGE_GG(clamp_x_1 , Ctx::None) { x = clamp_01(x); }
-STAGE_GG(repeat_x_1, Ctx::None) { x = clamp_01(x - floor_(x)); }
+STAGE_GG(clamp_x_1 , Ctx::None) { x = clamp_01_(x); }
+STAGE_GG(repeat_x_1, Ctx::None) { x = clamp_01_(x - floor_(x)); }
 STAGE_GG(mirror_x_1, Ctx::None) {
     auto two = [](F x){ return x+x; };
-    x = clamp_01(abs_( (x-1.0f) - two(floor_((x-1.0f)*0.5f)) - 1.0f ));
+    x = clamp_01_(abs_( (x-1.0f) - two(floor_((x-1.0f)*0.5f)) - 1.0f ));
 }
 
 SI I16 cond_to_mask_16(I32 cond) { return cast<I16>(cond); }

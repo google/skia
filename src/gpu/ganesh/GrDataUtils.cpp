@@ -515,13 +515,6 @@ static skgpu::Swizzle get_dst_swizzle_and_store(GrColorType ct, SkRasterPipeline
     return swizzle;
 }
 
-static inline void append_clamp_gamut(SkRasterPipeline* pipeline) {
-    // SkRasterPipeline may not know our color type and also doesn't like caller to directly
-    // append clamp_gamut. Fake it out.
-    static SkImageInfo fakeII = SkImageInfo::MakeN32Premul(1, 1);
-    pipeline->append_gamut_clamp_if_normalized(fakeII);
-}
-
 bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (src.dimensions().isEmpty() || dst.dimensions().isEmpty()) {
@@ -667,7 +660,7 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
             steps->apply(&pipeline);
         }
         if (clampGamut) {
-            append_clamp_gamut(&pipeline);
+            pipeline.append(SkRasterPipeline::clamp_gamut);
         }
         switch (lumMode) {
             case LumMode::kNone:

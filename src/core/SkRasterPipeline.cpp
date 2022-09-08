@@ -31,7 +31,6 @@ void SkRasterPipeline::append(StockStage stage, void* ctx) {
     SkASSERT(stage != unbounded_uniform_color);  // Please use append_constant_color().
     SkASSERT(stage !=                 set_rgb);  // Please use append_set_rgb().
     SkASSERT(stage !=       unbounded_set_rgb);  // Please use append_set_rgb().
-    SkASSERT(stage !=             clamp_gamut);  // Please use append_gamut_clamp_if_normalized().
     SkASSERT(stage !=              parametric);  // Please use append_transfer_function().
     SkASSERT(stage !=                  gamma_);  // Please use append_transfer_function().
     SkASSERT(stage !=                   PQish);  // Please use append_transfer_function().
