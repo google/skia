@@ -91,6 +91,7 @@ void GrBicubicEffect::Impl::emitCode(EmitArgs& args) {
             fragBuilder->codeAppend("bicubicColor = saturate(bicubicColor);");
             break;
         case Clamp::kPremul:
+            fragBuilder->codeAppend("bicubicColor.a = saturate(bicubicColor.a);");
             fragBuilder->codeAppend(
                     "bicubicColor.rgb = max(half3(0.0), min(bicubicColor.rgb, bicubicColor.aaa));");
             break;
