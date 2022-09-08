@@ -58,7 +58,7 @@ typedef int32_t             SkFixed;
     a 32 bit signed integer
 */
 #ifdef SK_DEBUG
-    constexpr inline SkFixed SkIntToFixed(int n)
+    inline SkFixed SkIntToFixed(int n)
     {
         SkASSERT(n >= -32768 && n <= 32767);
         // Left shifting a negative value has undefined behavior in C, so we cast to unsigned before
