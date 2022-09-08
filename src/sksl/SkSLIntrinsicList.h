@@ -8,6 +8,12 @@
 #ifndef SKSL_INTRINSIC_LIST_DEFINED
 #define SKSL_INTRINSIC_LIST_DEFINED
 
+#include "include/private/SkTHash.h"
+
+#include <cstdint>
+#include <initializer_list>
+#include <string_view>
+
 // A list of every intrinsic supported by SkSL.
 // Using an X-Macro (https://en.wikipedia.org/wiki/X_Macro) to manage the list.
 #define SKSL_INTRINSIC_LIST            \
@@ -110,4 +116,21 @@
     SKSL_INTRINSIC(unpackUnorm4x8)     \
     SKSL_INTRINSIC(width)              \
     SKSL_INTRINSIC(write)
+
+namespace SkSL {
+
+// The `IntrinsicKind` enum holds every intrinsic supported by SkSL.
+#define SKSL_INTRINSIC(name) k_##name##_IntrinsicKind,
+enum IntrinsicKind : int8_t {
+    kNotIntrinsic = -1,
+    SKSL_INTRINSIC_LIST
+};
+#undef SKSL_INTRINSIC
+
+// Returns a map which allows IntrinsicKind values to be looked up by name.
+using IntrinsicMap = SkTHashMap<std::string_view, IntrinsicKind>;
+const IntrinsicMap& GetIntrinsicMap();
+
+}
+
 #endif

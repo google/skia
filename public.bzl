@@ -1404,6 +1404,7 @@ BASE_SRCS_ALL = [
     "src/sksl/SkSLGLSL.h",
     "src/sksl/SkSLInliner.cpp",
     "src/sksl/SkSLInliner.h",
+    "src/sksl/SkSLIntrinsicList.cpp",
     "src/sksl/SkSLIntrinsicList.h",
     "src/sksl/SkSLLexer.cpp",
     "src/sksl/SkSLLexer.h",

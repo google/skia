@@ -10,6 +10,7 @@
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
