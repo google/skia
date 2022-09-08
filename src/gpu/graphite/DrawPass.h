@@ -11,8 +11,8 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkTArray.h"
 #include "src/core/SkEnumBitMask.h"
-#include "src/core/SkTBlockList.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/DrawCommands.h"
 #include "src/gpu/graphite/DrawTypes.h"
@@ -20,7 +20,6 @@
 #include "src/gpu/graphite/ResourceTypes.h"
 
 #include <memory>
-#include <vector>
 
 class SkRuntimeEffectDictionary;
 class SkTextureDataBlock;
@@ -35,7 +34,6 @@ class Recorder;
 struct RenderPassDesc;
 class ResourceProvider;
 class Sampler;
-struct SamplerDesc;
 class TextureProxy;
 class Texture;
 enum class UniformSlot;
@@ -99,21 +97,12 @@ public:
 
 private:
     class SortKey;
-    class Drawer;
 
     DrawPass(sk_sp<TextureProxy> target,
              std::pair<LoadOp, StoreOp> ops,
-             std::array<float, 4> clearColor,
-             int renderStepCount);
+             std::array<float, 4> clearColor);
 
     DrawPassCommands::List fCommandList;
-
-    // The pipelines are referenced by index in BindGraphicsPipeline, but that will index into a
-    // an array of actual GraphicsPipelines. fPipelineDescs only needs to accumulate encountered
-    // GraphicsPipelineDescs and provide stable pointers, hence SkTBlockList.
-    SkTBlockList<GraphicsPipelineDesc, 32> fPipelineDescs;
-
-    std::vector<SamplerDesc> fSamplerDescs;
 
     sk_sp<TextureProxy> fTarget;
     SkIRect fBounds;
@@ -124,11 +113,15 @@ private:
     SkEnumBitMask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
     bool fRequiresMSAA = false;
 
+    // The pipelines are referenced by index in BindGraphicsPipeline, but that will index into a
+    // an array of actual GraphicsPipelines.
+    SkTArray<GraphicsPipelineDesc> fPipelineDescs;
+    SkTArray<SamplerDesc> fSamplerDescs;
+
     // These resources all get instantiated during prepareResources.
-    // Use a vector instead of SkTBlockList for the full pipelines so that random access is fast.
-    std::vector<sk_sp<GraphicsPipeline>> fFullPipelines;
-    std::vector<sk_sp<TextureProxy>> fSampledTextures;
-    std::vector<sk_sp<Sampler>> fSamplers;
+    SkTArray<sk_sp<GraphicsPipeline>> fFullPipelines;
+    SkTArray<sk_sp<TextureProxy>> fSampledTextures;
+    SkTArray<sk_sp<Sampler>> fSamplers;
 };
 
 } // namespace skgpu::graphite
