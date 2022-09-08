@@ -17,8 +17,7 @@ class GrRenderTask;
 // Take a topologically-sorted DAG and cluster the tasks together while maintaining the
 // dependencies.
 //
-// If no clustering is possible the llist is populated with the nodes in the original order and
-// false is returned.
+// If no clustering is possible, returns false.
 // Otherwise, returns true and populates the provided llist as such:
 //   - Contains the same set of tasks as `input`.
 //   - Obeys the dependency rules in `input`.

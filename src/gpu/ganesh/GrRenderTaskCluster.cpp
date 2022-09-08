@@ -159,9 +159,6 @@ bool GrClusterRenderTasks(SkSpan<const sk_sp<GrRenderTask>> input,
     SkASSERT(llist->isEmpty());
 
     if (input.size() < 3) {
-        for (const auto& t : input) {
-            llist->addToTail(t.get());
-        }
         return false;
     }
 

@@ -65,9 +65,6 @@ public:
 
     bool isSkippable() const { return this->isSetFlag(kSkippable_Flag); }
 
-    /** If true no other task should be reordered relative to this task. */
-    bool blocksReordering() const { return this->isSetFlag(kBlocksReordering_Flag); }
-
     /*
      * Notify this GrRenderTask that it relies on the contents of 'dependedOn'
      */
@@ -177,14 +174,13 @@ protected:
     SkTArray<GrTextureProxy*, true> fDeferredProxies;
 
     enum Flags {
-        kClosed_Flag           = 0x01,   //!< This task can't accept any more dependencies.
-        kDisowned_Flag         = 0x02,   //!< This task is disowned by its GrDrawingManager.
-        kSkippable_Flag        = 0x04,   //!< This task is skippable.
-        kAtlas_Flag            = 0x08,   //!< This task is atlas.
-        kBlocksReordering_Flag = 0x10,   //!< No task can be reordered with respect to this task.
+        kClosed_Flag    = 0x01,   //!< This task can't accept any more dependencies.
+        kDisowned_Flag  = 0x02,   //!< This task is disowned by its creating GrDrawingManager.
+        kSkippable_Flag = 0x04,   //!< This task is skippable.
+        kAtlas_Flag     = 0x08,   //!< This task is atlas.
 
-        kWasOutput_Flag        = 0x20,   //!< Flag for topological sorting
-        kTempMark_Flag         = 0x40,   //!< Flag for topological sorting
+        kWasOutput_Flag = 0x10,   //!< Flag for topological sorting
+        kTempMark_Flag  = 0x20,   //!< Flag for topological sorting
     };
 
     void setFlag(uint32_t flag) {
@@ -201,13 +197,13 @@ protected:
 
     void setIndex(uint32_t index) {
         SkASSERT(!this->isSetFlag(kWasOutput_Flag));
-        SkASSERT(index < (1 << 25));
-        fFlags |= index << 7;
+        SkASSERT(index < (1 << 26));
+        fFlags |= index << 6;
     }
 
     uint32_t getIndex() const {
         SkASSERT(this->isSetFlag(kWasOutput_Flag));
-        return fFlags >> 7;
+        return fFlags >> 6;
     }
 
 private:
