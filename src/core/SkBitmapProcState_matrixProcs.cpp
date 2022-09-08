@@ -169,6 +169,7 @@ static unsigned extract_low_bits_general(SkFixed fx, int max) {
 //
 // See also SK_OPTS_NS::decode_packed_coordinates_and_weight for unpacking this value.
 template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int)>
+SK_ATTRIBUTE(no_sanitize("signed-integer-overflow"))
 static uint32_t pack(SkFixed f, unsigned max, SkFixed one) {
     uint32_t packed = tile(f, max);                      // low coordinate in high bits
     packed = (packed <<  4) | extract_low_bits(f, max);  // (lerp weight _is_ coord fractional part)

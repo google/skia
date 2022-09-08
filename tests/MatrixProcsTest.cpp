@@ -76,6 +76,48 @@ DEF_TEST(MatrixProcs_pack_clamp, r) {
     }
 }
 
+DEF_TEST(MatrixProcs_pack_clamp_out_of_range, r) {
+    // See https://crbug.com/1357122
+    struct TestCase {
+        std::string name;
+        SkFixed input;
+        unsigned max;
+        uint32_t expectedOutput;
+    };
+
+    // None of these should crash or cause UBSAN errors, although if they were used in drawing,
+    // they might be incorrect due to packing 16 bits of SkFixed into 14 bits of space.
+    static constexpr unsigned MAX_PACKED_VALUE = (1 << 14) - 1;
+    TestCase tests[] = {
+        {"16000.42=>{0xff, 6, 0xff}", SkFloatToFixed(16000.42f), 255, 0x3fd80ff},
+        {"17000.42=>{0xff, 6, 0xff}", SkFloatToFixed(17000.42f), 255, 0x3fd80ff},
+        {"18000.42=>{0xff, 6, 0xff}", SkFloatToFixed(18000.42f), 255, 0x3fd80ff},
+
+        {"16000.42=>{0x3e80, 6, 0x3e81}", SkFloatToFixed(16000.42f), MAX_PACKED_VALUE, 0xfa01be81},
+        {"16382.00=>{0x3ffe, 0, 0x3fff}", SkFloatToFixed(16382.00f), MAX_PACKED_VALUE, 0xfff83fff},
+        {"16382.51=>{0x3ffe, 8, 0x3fff}}", SkFloatToFixed(16382.51f), MAX_PACKED_VALUE, 0xfffa3fff},
+        {"17000.42=>{0x3fff, 6, 0x3fff}", SkFloatToFixed(17000.42f), MAX_PACKED_VALUE, 0xfffdbfff},
+        {"18000.42=>{0x3fff, 6, 0x3fff}", SkFloatToFixed(18000.42f), MAX_PACKED_VALUE, 0xfffdbfff},
+        // Adding 1 to this would overflow and cause an UBSAN issue, if it were not suppressed.
+        // We suppress the warning and it wraps around.
+        {"32767.90=>{0x3fff, e, 0x0}", SkFloatToFixed(32767.90f), MAX_PACKED_VALUE, 0xffff8000},
+    };
+
+    constexpr size_t NUM_TESTS = sizeof(tests) / sizeof(TestCase);
+
+    for (size_t i = 0; i < NUM_TESTS; i++) {
+        TestCase tc = tests[i];
+        uint32_t rv = sktests::pack_clamp(tc.input, tc.max);
+        uint32_t exp = tc.expectedOutput;
+
+        REPORTER_ASSERT(r, rv == tc.expectedOutput,
+                        "%s | %x != %x | {%x, %x, %x} != {%x, %x, %x}\n",
+                        tc.name.c_str(), rv, exp,
+                        highBits(rv), middleBits(rv), lowBits(rv),
+                        highBits(exp), middleBits(exp), lowBits(exp));
+    }
+}
+
 DEF_TEST(MatrixProcs_pack_repeat, r) {
     struct TestCase {
         std::string name;
