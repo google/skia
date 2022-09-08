@@ -375,6 +375,12 @@ void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
             };
             features.emplace_back(feature);
         }
+        // Disable ligatures if letter spacing is enabled.
+        if (block.fStyle.getLetterSpacing() > 0) {
+            features.emplace_back(SkShaper::Feature{
+                SkSetFourByteTag('l', 'i', 'g', 'a'), 0, block.fRange.start, block.fRange.end
+            });
+        }
     };
 
     for (auto& block : styleSpan) {
