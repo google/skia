@@ -148,21 +148,21 @@ std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
     // using atan instead.
     int useAtanWorkaround =
             args.fContext->priv().caps()->shaderCaps()->fAtan2ImplementedAsAtanYOverX;
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform half bias;
-        uniform half scale;
-        uniform int useAtanWorkaround;  // specialized
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform half bias;"
+        "uniform half scale;"
+        "uniform int useAtanWorkaround;"  // specialized
 
-        half4 main(float2 coord) {
-            half angle = bool(useAtanWorkaround)
-                    ? half(2 * atan(-coord.y, length(coord) - coord.x))
-                    : half(atan(-coord.y, -coord.x));
+        "half4 main(float2 coord) {"
+            "half angle = bool(useAtanWorkaround)"
+                    "? half(2 * atan(-coord.y, length(coord) - coord.x))"
+                    ": half(atan(-coord.y, -coord.x));"
 
             // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
-            half t = (angle * 0.1591549430918 + 0.5 + bias) * scale;
-            return half4(t, 1, 0, 0); // y = 1 for always valid
-        }
-    )");
+            "half t = (angle * 0.1591549430918 + 0.5 + bias) * scale;"
+            "return half4(t, 1, 0, 0);" // y = 1 for always valid
+        "}"
+    );
 
     // The sweep gradient never rejects a pixel so it doesn't change opacity
     auto fp = GrSkSLFP::Make(effect, "SweepLayout", /*inputFP=*/nullptr,

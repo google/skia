@@ -136,7 +136,7 @@ GrDawnGpu::GrDawnGpu(GrDirectContext* direct,
     this->initCapsAndCompiler(sk_make_sp<GrDawnCaps>(options));
     device.SetUncapturedErrorCallback(
             [](WGPUErrorType type, char const* message, void*) {
-                SkDebugf("GrDawnGpu: ERROR type %u, msg: %s\n", type, message);
+                SkDebugf("GrDawnGpu: ERROR type %u, msg: %s", type, message);
             },
             nullptr);
 }
@@ -613,7 +613,7 @@ void GrDawnGpu::mapPendingStagingBuffers() {
                             if (!success) {
                                 SkDebugf(
                                         "Failed to map staging buffer before making it available "
-                                        "again\n");
+                                        "again");
                             }
                             // When this callback returns, the captured `buffer` will be dropped and
                             // returned back to its backing resource pool.
@@ -686,7 +686,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface,
                                                         kStatic_GrAccessPattern,
                                                         "onReadPixels");
     if (!dawnBuffer) {
-        SkDebugf("onReadPixels: failed to create GPU buffer\n");
+        SkDebugf("onReadPixels: failed to create GPU buffer");
         return false;
     }
 
@@ -706,7 +706,7 @@ bool GrDawnGpu::onReadPixels(GrSurface* surface,
 
     const void* readPixelsPtr = dawnBuffer->map();
     if (!readPixelsPtr) {
-        SkDebugf("onReadPixels: failed to map GPU buffer\n");
+        SkDebugf("onReadPixels: failed to map GPU buffer");
         return false;
     }
 
@@ -749,31 +749,31 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     wgpu::Texture dstTexture = fDevice.CreateTexture(&texDesc);
 
     const char* vs =
-        "layout(location = 0) out float2 texCoord;\n"
-        "float2 positions[4] = float2[4](float2(-1.0, 1.0),\n"
-                                        "float2(1.0, 1.0),\n"
-                                        "float2(-1.0, -1.0),\n"
-                                        "float2(1.0, -1.0));\n"
-        "float2 texCoords[4] = float2[4](float2(0.0, 0.0),\n"
-                                        "float2(1.0, 0.0),\n"
-                                        "float2(0.0, 1.0),\n"
-                                        "float2(1.0, 1.0));\n"
-        "void main() {\n"
-        "    sk_Position = float4(positions[sk_VertexID], 0.0, 1.0);\n"
-        "    texCoord = texCoords[sk_VertexID];\n"
-        "}\n";
+        "layout(location = 0) out float2 texCoord;"
+        "float2 positions[4] = float2[4](float2(-1.0, 1.0),"
+                                        "float2(1.0, 1.0),"
+                                        "float2(-1.0, -1.0),"
+                                        "float2(1.0, -1.0));"
+        "float2 texCoords[4] = float2[4](float2(0.0, 0.0),"
+                                        "float2(1.0, 0.0),"
+                                        "float2(0.0, 1.0),"
+                                        "float2(1.0, 1.0));"
+        "void main() {"
+            "sk_Position = float4(positions[sk_VertexID], 0.0, 1.0);"
+            "texCoord = texCoords[sk_VertexID];"
+        "}";
     std::string vsSPIRV = this->SkSLToSPIRV(vs,
                                             SkSL::ProgramKind::kVertex,
                                             /*rtFlipOffset*/ 0,
                                             nullptr);
 
     const char* fs =
-        "layout(set = 0, binding = 0) uniform sampler samp;\n"
-        "layout(set = 0, binding = 1) uniform texture2D tex;\n"
-        "layout(location = 0) in float2 texCoord;\n"
-        "void main() {\n"
-        "    sk_FragColor = sample(makeSampler2D(tex, samp), texCoord);\n"
-        "}\n";
+        "layout(set = 0, binding = 0) uniform sampler samp;"
+        "layout(set = 0, binding = 1) uniform texture2D tex;"
+        "layout(location = 0) in float2 texCoord;"
+        "void main() {"
+            "sk_FragColor = sample(makeSampler2D(tex, samp), texCoord);"
+        "}";
     std::string fsSPIRV = this->SkSLToSPIRV(fs,
                                             SkSL::ProgramKind::kFragment,
                                             /*rtFlipOffset=*/ 0,

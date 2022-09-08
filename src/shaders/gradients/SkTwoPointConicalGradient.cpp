@@ -368,19 +368,19 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
     switch (this->getType()) {
         case SkTwoPointConicalGradient::Type::kStrip: {
             static const SkRuntimeEffect* kEffect =
-                SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-                        uniform half r0_2;
-                        half4 main(float2 p) {
-                            half v = 1; // validation flag,set to negative to discard fragment later
-                            float t = r0_2 - p.y * p.y;
-                            if (t >= 0) {
-                                t = p.x + sqrt(t);
-                            } else {
-                                v = -1;
-                            }
-                            return half4(half(t), v, 0, 0);
-                        }
-                    )");
+                SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                        "uniform half r0_2;"
+                        "half4 main(float2 p) {"
+                            "half v = 1;" // validation flag,set to negative to discard fragment later
+                            "float t = r0_2 - p.y * p.y;"
+                            "if (t >= 0) {"
+                                "t = p.x + sqrt(t);"
+                            "} else {"
+                                "v = -1;"
+                            "}"
+                            "return half4(half(t), v, 0, 0);"
+                        "}"
+                    );
             float r0 = this->getStartRadius() / this->getCenterX1();
             fp = GrSkSLFP::Make(kEffect, "TwoPointConicalStripLayout", /*inputFP=*/nullptr,
                                 GrSkSLFP::OptFlags::kNone,
@@ -389,15 +389,15 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
 
         case SkTwoPointConicalGradient::Type::kRadial: {
             static const SkRuntimeEffect* kEffect =
-                SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-                        uniform half r0;
-                        uniform half lengthScale;
-                        half4 main(float2 p) {
-                            half v = 1; // validation flag,set to negative to discard fragment later
-                            float t = length(p) * lengthScale - r0;
-                            return half4(half(t), v, 0, 0);
-                        }
-                    )");
+                SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                        "uniform half r0;"
+                        "uniform half lengthScale;"
+                        "half4 main(float2 p) {"
+                            "half v = 1;" // validation flag,set to negative to discard fragment later
+                            "float t = length(p) * lengthScale - r0;"
+                            "return half4(half(t), v, 0, 0);"
+                        "}"
+                    );
             float dr = this->getDiffRadius();
             float r0 = this->getStartRadius() / dr;
             bool isRadiusIncreasing = dr >= 0;
@@ -418,28 +418,28 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
 
         case SkTwoPointConicalGradient::Type::kFocal: {
             static const SkRuntimeEffect* kEffect =
-                SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
+                SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
                         // Optimization flags, all specialized:
-                        uniform int isRadiusIncreasing;
-                        uniform int isFocalOnCircle;
-                        uniform int isWellBehaved;
-                        uniform int isSwapped;
-                        uniform int isNativelyFocal;
+                        "uniform int isRadiusIncreasing;"
+                        "uniform int isFocalOnCircle;"
+                        "uniform int isWellBehaved;"
+                        "uniform int isSwapped;"
+                        "uniform int isNativelyFocal;"
 
-                        uniform half invR1;  // 1/r1
-                        uniform half fx;     // focalX = r0/(r0-r1)
+                        "uniform half invR1;"  // 1/r1
+                        "uniform half fx;"     // focalX = r0/(r0-r1)
 
-                        half4 main(float2 p) {
-                            float t = -1;
-                            half v = 1; // validation flag,set to negative to discard fragment later
+                        "half4 main(float2 p) {"
+                            "float t = -1;"
+                            "half v = 1;" // validation flag,set to negative to discard fragment later
 
-                            float x_t = -1;
-                            if (bool(isFocalOnCircle)) {
-                                x_t = dot(p, p) / p.x;
-                            } else if (bool(isWellBehaved)) {
-                                x_t = length(p) - p.x * invR1;
-                            } else {
-                                float temp = p.x * p.x - p.y * p.y;
+                            "float x_t = -1;"
+                            "if (bool(isFocalOnCircle)) {"
+                                "x_t = dot(p, p) / p.x;"
+                            "} else if (bool(isWellBehaved)) {"
+                                "x_t = length(p) - p.x * invR1;"
+                            "} else {"
+                                "float temp = p.x * p.x - p.y * p.y;"
 
                                 // Only do sqrt if temp >= 0; this is significantly slower than
                                 // checking temp >= 0 in the if statement that checks r(t) >= 0.
@@ -449,46 +449,46 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
                                 // the performance is really critical, maybe we should just
                                 // compute the area where temp and x_t are always valid and drop
                                 // all these ifs.
-                                if (temp >= 0) {
-                                    if (bool(isSwapped) || !bool(isRadiusIncreasing)) {
-                                        x_t = -sqrt(temp) - p.x * invR1;
-                                    } else {
-                                        x_t = sqrt(temp) - p.x * invR1;
-                                    }
-                                }
-                            }
+                                "if (temp >= 0) {"
+                                    "if (bool(isSwapped) || !bool(isRadiusIncreasing)) {"
+                                        "x_t = -sqrt(temp) - p.x * invR1;"
+                                    "} else {"
+                                        "x_t = sqrt(temp) - p.x * invR1;"
+                                    "}"
+                                "}"
+                            "}"
 
                             // The final calculation of t from x_t has lots of static
                             // optimizations but only do them when x_t is positive (which
                             // can be assumed true if isWellBehaved is true)
-                            if (!bool(isWellBehaved)) {
+                            "if (!bool(isWellBehaved)) {"
                                 // This will still calculate t even though it will be ignored
                                 // later in the pipeline to avoid a branch
-                                if (x_t <= 0.0) {
-                                    v = -1;
-                                }
-                            }
-                            if (bool(isRadiusIncreasing)) {
-                                if (bool(isNativelyFocal)) {
-                                    t = x_t;
-                                } else {
-                                    t = x_t + fx;
-                                }
-                            } else {
-                                if (bool(isNativelyFocal)) {
-                                    t = -x_t;
-                                } else {
-                                    t = -x_t + fx;
-                                }
-                            }
+                                "if (x_t <= 0.0) {"
+                                    "v = -1;"
+                                "}"
+                            "}"
+                            "if (bool(isRadiusIncreasing)) {"
+                                "if (bool(isNativelyFocal)) {"
+                                    "t = x_t;"
+                                "} else {"
+                                    "t = x_t + fx;"
+                                "}"
+                            "} else {"
+                                "if (bool(isNativelyFocal)) {"
+                                    "t = -x_t;"
+                                "} else {"
+                                    "t = -x_t + fx;"
+                                "}"
+                            "}"
 
-                            if (bool(isSwapped)) {
-                                t = 1 - t;
-                            }
+                            "if (bool(isSwapped)) {"
+                                "t = 1 - t;"
+                            "}"
 
-                            return half4(half(t), v, 0, 0);
-                        }
-                    )");
+                            "return half4(half(t), v, 0, 0);"
+                        "}"
+                    );
 
             const SkTwoPointConicalGradient::FocalData& focalData = this->getFocalData();
             bool isRadiusIncreasing = (1 - focalData.fFocalX) > 0,

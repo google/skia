@@ -59,62 +59,61 @@ struct SkParticleProgram {
 };
 
 static const char* kCommonHeader =
-R"(
-struct Effect {
-  float  age;
-  float  lifetime;
-  int    loop;
-  float  rate;
-  int    burst;
+"struct Effect {"
+  "float  age;"
+  "float  lifetime;"
+  "int    loop;"
+  "float  rate;"
+  "int    burst;"
 
-  float2 pos;
-  float2 dir;
-  float  scale;
-  float2 vel;
-  float  spin;
-  float4 color;
-  float  frame;
-  float  seed;
-};
+  "float2 pos;"
+  "float2 dir;"
+  "float  scale;"
+  "float2 vel;"
+  "float  spin;"
+  "float4 color;"
+  "float  frame;"
+  "float  seed;"
+"};"
 
-struct Particle {
-  float  age;
-  float  lifetime;
-  float2 pos;
-  float2 dir;
-  float  scale;
-  float2 vel;
-  float  spin;
-  float4 color;
-  float  frame;
-  float  seed;
-};
+"struct Particle {"
+  "float  age;"
+  "float  lifetime;"
+  "float2 pos;"
+  "float2 dir;"
+  "float  scale;"
+  "float2 vel;"
+  "float  spin;"
+  "float4 color;"
+  "float  frame;"
+  "float  seed;"
+"};"
 
-uniform float dt;
-uniform Effect effect;
+"uniform float dt;"
+"uniform Effect effect;"
 
 // We use a not-very-random pure-float PRNG. It does have nice properties for our situation:
 // It's fast-ish. Importantly, it only uses types and operations that exist in public SkSL's
 // minimum spec (no bitwise operations on integers).
-float rand(inout float seed) {
-  seed = sin(31*seed) + sin(19*seed + 1);
-  return fract(abs(10*seed));
-}
-)";
+"float rand(inout float seed) {"
+  "seed = sin(31*seed) + sin(19*seed + 1);"
+  "return fract(abs(10*seed));"
+"}"
+;
 
 static const char* kDefaultCode =
-R"(void effectSpawn(inout Effect effect) {
-}
-
-void effectUpdate(inout Effect effect) {
-}
-
-void spawn(inout Particle p) {
-}
-
-void update(inout Particle p) {
-}
-)";
+"void effectSpawn(inout Effect effect) {"
+"}"
+""
+"void effectUpdate(inout Effect effect) {"
+"}"
+""
+"void spawn(inout Particle p) {"
+"}"
+""
+"void update(inout Particle p) {"
+"}"
+;
 
 SkParticleEffectParams::SkParticleEffectParams()
         : fMaxCount(128)

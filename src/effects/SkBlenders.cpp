@@ -40,17 +40,17 @@ sk_sp<SkBlender> SkBlenders::Arithmetic(float k1, float k2, float k3, float k4,
     // If we get here, we need the actual blender effect.
 
     static SkRuntimeEffect* gArithmeticEffect = []{
-        const char prog[] = R"(
-            uniform half4   k;
-            uniform half    pmClamp;
+        const char prog[] =
+            "uniform half4 k;"
+            "uniform half pmClamp;"
 
-            half4 main(half4 src, half4 dst) {
-                half4 c = k.x * src * dst + k.y * src + k.z * dst + k.w;
-                c.rgb = min(c.rgb, max(c.a, pmClamp));
+            "half4 main(half4 src, half4 dst) {"
+                "half4 c = k.x * src * dst + k.y * src + k.z * dst + k.w;"
+                "c.rgb = min(c.rgb, max(c.a, pmClamp));"
                 // rely on skia to saturate our alpha
-                return c;
-            }
-        )";
+                "return c;"
+            "}"
+        ;
         auto result = SkRuntimeEffect::MakeForBlender(SkString(prog));
         SkASSERTF(result.effect, "SkBlenders::Arithmetic: %s", result.errorText.c_str());
         return result.effect.release();

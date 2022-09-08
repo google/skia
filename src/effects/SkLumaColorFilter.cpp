@@ -15,7 +15,7 @@ sk_sp<SkColorFilter> SkLumaColorFilter::Make() {
     static const SkRuntimeEffect* effect = SkMakeCachedRuntimeEffect(
         SkRuntimeEffect::MakeForColorFilter,
         "half4 main(half4 inColor) {"
-        "    return saturate(dot(half3(0.2126, 0.7152, 0.0722), inColor.rgb)).000r;"
+            "return saturate(dot(half3(0.2126, 0.7152, 0.0722), inColor.rgb)).000r;"
         "}"
     ).release();
     SkASSERT(effect);

@@ -35,32 +35,32 @@ namespace  {
 // (inspired by https://github.com/RoyiAvital/StackExchangeCodes/blob/master/SignalProcessing/Q688/ApplyBlackWhiteFilter.m)
 
 static sk_sp<SkRuntimeEffect> make_effect() {
-    static constexpr char BLACK_AND_WHITE_EFFECT[] = R"(
-        uniform half kR, kY, kG, kC, kB, kM;
+    static constexpr char BLACK_AND_WHITE_EFFECT[] =
+        "uniform half kR, kY, kG, kC, kB, kM;"
 
-        half4 main(half4 c) {
-            half m = min(min(c.r, c.g), c.b),
+        "half4 main(half4 c) {"
+            "half m = min(min(c.r, c.g), c.b),"
 
-                dr = c.r - m,
-                dg = c.g - m,
-                db = c.b - m,
+                "dr = c.r - m,"
+                "dg = c.g - m,"
+                "db = c.b - m,"
 
                 // secondaries weights
-                wy = min(dr,dg),
-                wc = min(dg,db),
-                wm = min(db,dr),
+                "wy = min(dr,dg),"
+                "wc = min(dg,db),"
+                "wm = min(db,dr),"
 
                 // primaries weights
-                wr = dr - wy - wm,
-                wg = dg - wy - wc,
-                wb = db - wc - wm,
+                "wr = dr - wy - wm,"
+                "wg = dg - wy - wc,"
+                "wb = db - wc - wm,"
 
                 // final luminance
-                l = m + kR*wr + kY*wy + kG*wg + kC*wc + kB*wb + kM*wm;
+                "l = m + kR*wr + kY*wy + kG*wg + kC*wc + kB*wb + kM*wm;"
 
-            return half4(l, l, l, c.a);
-        }
-    )";
+            "return half4(l, l, l, c.a);"
+        "}"
+    ;
 
     static const SkRuntimeEffect* effect =
             SkRuntimeEffect::MakeForColorFilter(SkString(BLACK_AND_WHITE_EFFECT)).effect.release();

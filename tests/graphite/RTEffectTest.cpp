@@ -26,14 +26,14 @@ namespace {
 //    2 children ("a", "b")
 // TODO: add a helper function
 sk_sp<SkRuntimeEffect> get_combo_effect() {
-    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForBlender(SkString(R"(
-            uniform float blendFrac;
-            uniform blender a;
-            uniform blender b;
-            half4 main(half4 src, half4 dst) {
-                return (blendFrac * a.eval(src, dst)) + ((1 - blendFrac) * b.eval(src, dst));
-            }
-        )"));
+    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForBlender(SkString(
+            "uniform float blendFrac;"
+            "uniform blender a;"
+            "uniform blender b;"
+            "half4 main(half4 src, half4 dst) {"
+                "return (blendFrac * a.eval(src, dst)) + ((1 - blendFrac) * b.eval(src, dst));"
+            "}"
+        ));
 
     return result.effect;
 }
@@ -41,12 +41,12 @@ sk_sp<SkRuntimeEffect> get_combo_effect() {
 // returns opaque red w/ the red value determined by 'redColor'
 //    1 uniform ("redColor)
 sk_sp<SkRuntimeEffect> get_red_effect() {
-    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForBlender(SkString(R"(
-            uniform float redColor;
-            half4 main(half4 src, half4 dst) {
-                return half4(redColor, 0, 0, 1);
-            }
-        )"));
+    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForBlender(SkString(
+            "uniform float redColor;"
+            "half4 main(half4 src, half4 dst) {"
+                "return half4(redColor, 0, 0, 1);"
+            "}"
+        ));
 
     return result.effect;
 }
@@ -54,12 +54,12 @@ sk_sp<SkRuntimeEffect> get_red_effect() {
 // returns opaque blue w/ the blue value determined by 'blueColor'
 //    1 uniform ("blueColor)
 sk_sp<SkRuntimeEffect> get_blue_effect() {
-    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForBlender(SkString(R"(
-            uniform float blueColor;
-            half4 main(half4 src, half4 dst) {
-                return half4(0, 0, blueColor, 1);
-            }
-        )"));
+    SkRuntimeEffect::Result result = SkRuntimeEffect::MakeForBlender(SkString(
+            "uniform float blueColor;"
+            "half4 main(half4 src, half4 dst) {"
+                "return half4(0, 0, blueColor, 1);"
+            "}"
+        ));
 
     return result.effect;
 }
@@ -136,11 +136,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(Shader_FindOrCreateSnippetForRuntimeEffect, repor
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-    R"(
-        half4 main(float2 coords) {
-            return half4(coords.xy01);
-        }
-    )"));
+        "half4 main(float2 coords) {"
+            "return half4(coords.xy01);"
+        "}"
+    ));
 
     // Create a new runtime-effect snippet.
     int snippetID = dict->findOrCreateRuntimeEffectSnippet(testEffect.get());
@@ -162,11 +161,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ColorFilter_FindOrCreateSnippetForRuntimeEffect, 
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(
             SkRuntimeEffect::MakeForColorFilter,
-            R"(
-                half4 main(half4 color) {
-                    return color.gbra;
-                }
-            )"));
+                "half4 main(half4 color) {"
+                    "return color.gbra;"
+                "}"
+            ));
 
     // Create a new runtime-effect snippet.
     int snippetID = dict->findOrCreateRuntimeEffectSnippet(testEffect.get());
@@ -188,14 +186,13 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ShaderUniforms_FindOrCreateSnippetForRuntimeEffec
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-    R"(
-        uniform float3x3 MyFloat3x3Uniform;
-        uniform int4 MyInt4ArrayUniform[1];
-        uniform half2 MyHalf2ArrayUniform[99];
-        half4 main(float2 coords) {
-            return half4(coords.xy01);
-        }
-    )"));
+        "uniform float3x3 MyFloat3x3Uniform;"
+        "uniform int4 MyInt4ArrayUniform[1];"
+        "uniform half2 MyHalf2ArrayUniform[99];"
+        "half4 main(float2 coords) {"
+            "return half4(coords.xy01);"
+        "}"
+    ));
 
     // Create a new runtime-effect snippet.
     int snippetID = dict->findOrCreateRuntimeEffectSnippet(testEffect.get());
@@ -237,14 +234,13 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ColorFilterUniforms_FindOrCreateSnippetForRuntime
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(
             SkRuntimeEffect::MakeForColorFilter,
-            R"(
-                uniform float3x3 MyFloat3x3Uniform;
-                uniform int4 MyInt4ArrayUniform[1];
-                uniform half2 MyHalf2ArrayUniform[99];
-                half4 main(half4 color) {
-                    return color.gbra;
-                }
-            )"));
+                "uniform float3x3 MyFloat3x3Uniform;"
+                "uniform int4 MyInt4ArrayUniform[1];"
+                "uniform half2 MyHalf2ArrayUniform[99];"
+                "half4 main(half4 color) {"
+                    "return color.gbra;"
+                "}"
+            ));
 
     // Create a new runtime-effect snippet.
     int snippetID = dict->findOrCreateRuntimeEffectSnippet(testEffect.get());

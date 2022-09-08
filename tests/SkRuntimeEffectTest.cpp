@@ -1354,10 +1354,9 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo, CtsEnforcement::k
     // SkSL as a literal, or left as a uniform
     auto make_color_fp = [&](SkPMColor4f color, bool specialize) {
         static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-        R"(
-            uniform half4 color;
-            half4 main(float2 xy) { return color; }
-        )");
+            "uniform half4 color;"
+            "half4 main(float2 xy) { return color; }"
+        );
         FpAndKey result;
         result.fp = GrSkSLFP::Make(effect, "color_fp", /*inputFP=*/nullptr,
                                    GrSkSLFP::OptFlags::kNone,
@@ -1397,10 +1396,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrSkSLFP_UniformArray, r, ctxInfo, CtsEnforce
     for (const auto& colorArray : {kRed, kGreen, kBlue, kGray}) {
         // Compile our runtime effect.
         static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-        R"(
-            uniform half color[4];
-            half4 main(float2 xy) { return half4(color[0], color[1], color[2], color[3]); }
-        )");
+            "uniform half color[4];"
+            "half4 main(float2 xy) { return half4(color[0], color[1], color[2], color[3]); }"
+        );
         // Render our shader into the fill-context with our various input colors.
         testCtx->fillWithFP(GrSkSLFP::Make(effect, "test_fp", /*inputFP=*/nullptr,
                                            GrSkSLFP::OptFlags::kNone,

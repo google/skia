@@ -68,15 +68,15 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMCo
 
 static std::unique_ptr<GrFragmentProcessor> make_single_interval_colorizer(const SkPMColor4f& start,
                                                                            const SkPMColor4f& end) {
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform half4 start;
-        uniform half4 end;
-        half4 main(float2 coord) {
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform half4 start;"
+        "uniform half4 end;"
+        "half4 main(float2 coord) {"
             // Clamping and/or wrapping was already handled by the parent shader so the output
             // color is a simple lerp.
-            return mix(start, end, half(coord.x));
-        }
-    )");
+            "return mix(start, end, half(coord.x));"
+        "}"
+    );
     return GrSkSLFP::Make(effect, "SingleIntervalColorizer", /*inputFP=*/nullptr,
                           GrSkSLFP::OptFlags::kNone,
                           "start", start,
@@ -88,26 +88,26 @@ static std::unique_ptr<GrFragmentProcessor> make_dual_interval_colorizer(const S
                                                                          const SkPMColor4f& c2,
                                                                          const SkPMColor4f& c3,
                                                                          float threshold) {
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform float4 scale[2];
-        uniform float4 bias[2];
-        uniform half threshold;
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform float4 scale[2];"
+        "uniform float4 bias[2];"
+        "uniform half threshold;"
 
-        half4 main(float2 coord) {
-            half t = half(coord.x);
+        "half4 main(float2 coord) {"
+            "half t = half(coord.x);"
 
-            float4 s, b;
-            if (t < threshold) {
-                s = scale[0];
-                b = bias[0];
-            } else {
-                s = scale[1];
-                b = bias[1];
-            }
+            "float4 s, b;"
+            "if (t < threshold) {"
+                "s = scale[0];"
+                "b = bias[0];"
+            "} else {"
+                "s = scale[1];"
+                "b = bias[1];"
+            "}"
 
-            return half4(t * s + b);
-        }
-    )");
+            "return half4(t * s + b);"
+        "}"
+    );
 
     // Derive scale and biases from the 4 colors and threshold
     Vec4 vc0 = Vec4::Load(c0.vec());
@@ -169,63 +169,63 @@ static std::unique_ptr<GrFragmentProcessor> make_unrolled_colorizer(int interval
         // Explicit binary search for the proper interval that t falls within. The interval
         // count checks are constant expressions, which are then optimized to the minimal number
         // of branches for the specific interval count.
-        sksl.appendf(R"(
-        half4 main(float2 coord) {
-            half t = half(coord.x);
-            float4 s, b;
+        sksl.appendf(
+        "half4 main(float2 coord) {"
+            "half t = half(coord.x);"
+            "float4 s, b;"
             // thresholds1_7.w is mid point for intervals (0,7) and (8,15)
-            if (%d <= 4 || t < thresholds1_7.w) {
+            "if (%d <= 4 || t < thresholds1_7.w) {"
                 // thresholds1_7.y is mid point for intervals (0,3) and (4,7)
-                if (%d <= 2 || t < thresholds1_7.y) {
+                "if (%d <= 2 || t < thresholds1_7.y) {"
                     // thresholds1_7.x is mid point for intervals (0,1) and (2,3)
-                    if (%d <= 1 || t < thresholds1_7.x) {
-                        %s s = scale[0]; b = bias[0];
-                    } else {
-                        %s s = scale[1]; b = bias[1];
-                    }
-                } else {
+                    "if (%d <= 1 || t < thresholds1_7.x) {"
+                        "%s" // s = scale[0]; b = bias[0];
+                    "} else {"
+                        "%s" // s = scale[1]; b = bias[1];
+                    "}"
+                "} else {"
                     // thresholds1_7.z is mid point for intervals (4,5) and (6,7)
-                    if (%d <= 3 || t < thresholds1_7.z) {
-                        %s s = scale[2]; b = bias[2];
-                    } else {
-                        %s s = scale[3]; b = bias[3];
-                    }
-                }
-            } else {
+                    "if (%d <= 3 || t < thresholds1_7.z) {"
+                        "%s" // s = scale[2]; b = bias[2];
+                    "} else {"
+                        "%s" // s = scale[3]; b = bias[3];
+                    "}"
+                "}"
+            "} else {"
                 // thresholds9_13.y is mid point for intervals (8,11) and (12,15)
-                if (%d <= 6 || t < thresholds9_13.y) {
+                "if (%d <= 6 || t < thresholds9_13.y) {"
                     // thresholds9_13.x is mid point for intervals (8,9) and (10,11)
-                    if (%d <= 5 || t < thresholds9_13.x) {
-                        %s s = scale[4]; b = bias[4];
-                    } else {
-                        %s s = scale[5]; b = bias[5];
-                    }
-                } else {
+                    "if (%d <= 5 || t < thresholds9_13.x) {"
+                        "%s"
+                    "} else {"
+                        "%s" // s = scale[5]; b = bias[5];
+                    "}"
+                "} else {"
                     // thresholds9_13.z is mid point for intervals (12,13) and (14,15)
-                    if (%d <= 7 || t < thresholds9_13.z) {
-                        %s s = scale[6]; b = bias[6];
-                    } else {
-                        %s s = scale[7]; b = bias[7];
-                    }
-                }
-            }
-            return t * s + b;
-        }
-        )", intervalCount,
+                    "if (%d <= 7 || t < thresholds9_13.z) {"
+                        "%s" // s = scale[6]; b = bias[6];
+                    "} else {"
+                        "%s" // s = scale[7]; b = bias[7];
+                    "}"
+                "}"
+            "}"
+            "return t * s + b;"
+        "}"
+        , intervalCount,
               intervalCount,
                 intervalCount,
-                  (intervalCount <= 0) ? "//" : "",
-                  (intervalCount <= 1) ? "//" : "",
+                  (intervalCount <= 0) ? "" : "s = scale[0]; b = bias[0];",
+                  (intervalCount <= 1) ? "" : "s = scale[1]; b = bias[1];",
                 intervalCount,
-                  (intervalCount <= 2) ? "//" : "",
-                  (intervalCount <= 3) ? "//" : "",
+                  (intervalCount <= 2) ? "" : "s = scale[2]; b = bias[2];",
+                  (intervalCount <= 3) ? "" : "s = scale[3]; b = bias[3];",
               intervalCount,
                 intervalCount,
-                  (intervalCount <= 4) ? "//" : "",
-                  (intervalCount <= 5) ? "//" : "",
+                  (intervalCount <= 4) ? "" : "s = scale[4]; b = bias[4];",
+                  (intervalCount <= 5) ? "" : "s = scale[5]; b = bias[5];",
                 intervalCount,
-                  (intervalCount <= 6) ? "//" : "",
-                  (intervalCount <= 7) ? "//" : "");
+                  (intervalCount <= 6) ? "" : "s = scale[6]; b = bias[6];",
+                  (intervalCount <= 7) ? "" : "s = scale[7]; b = bias[7];");
 
         auto result = SkRuntimeEffect::MakeForShader(std::move(sksl));
         SkASSERTF(result.effect, "%s", result.errorText.c_str());
@@ -277,41 +277,41 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_colorizer(int intervalC
         // it can be proven to execute zero times. We also optimize away the calculation of `4 *
         // chunk` near the end via an @if statement, as the result will always be in chunk 0.
         int loopCount = SkNextLog2(intervalChunks);
-        sksl.appendf(R"(
-        #version 300
-        uniform half4 thresholds[%d];
-        uniform float4 scale[%d];
-        uniform float4 bias[%d];
+        sksl.appendf(
+        "#version 300\n" // important space to separate token.
+        "uniform half4 thresholds[%d];"
+        "uniform float4 scale[%d];"
+        "uniform float4 bias[%d];"
 
-        half4 main(float2 coord) {
-            half t = half(coord.x);
+        "half4 main(float2 coord) {"
+            "half t = half(coord.x);"
 
             // Choose a chunk from thresholds via binary search in a loop.
-            int low = 0;
-            int high = %d;
-            int chunk = %d;
-            for (int loop = 0; loop < %d; ++loop) {
-                if (t < thresholds[chunk].w) {
-                    high = chunk;
-                } else {
-                    low = chunk + 1;
-                }
-                chunk = (low + high) / 2;
-            }
+            "int low = 0;"
+            "int high = %d;"
+            "int chunk = %d;"
+            "for (int loop = 0; loop < %d; ++loop) {"
+                "if (t < thresholds[chunk].w) {"
+                    "high = chunk;"
+                "} else {"
+                    "low = chunk + 1;"
+                "}"
+                "chunk = (low + high) / 2;"
+            "}"
 
             // Choose the final position via explicit 4-way binary search.
-            int pos;
-            if (t < thresholds[chunk].y) {
-                pos = (t < thresholds[chunk].x) ? 0 : 1;
-            } else {
-                pos = (t < thresholds[chunk].z) ? 2 : 3;
-            }
-            @if (%d > 0) {
-                pos += 4 * chunk;
-            }
-            return t * scale[pos] + bias[pos];
-        }
-        )", /* thresholds: */ intervalChunks,
+            "int pos;"
+            "if (t < thresholds[chunk].y) {"
+                "pos = (t < thresholds[chunk].x) ? 0 : 1;"
+            "} else {"
+                "pos = (t < thresholds[chunk].z) ? 2 : 3;"
+            "}"
+            "@if (%d > 0) {"
+                "pos += 4 * chunk;"
+            "}"
+            "return t * scale[pos] + bias[pos];"
+        "}"
+        , /* thresholds: */ intervalChunks,
             /* scale: */ intervalCount,
             /* bias: */ intervalCount,
             /* high: */ intervalChunks - 1,
@@ -540,42 +540,42 @@ static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
         SkPMColor4f rightBorderColor,
         bool makePremul,
         bool colorsAreOpaque) {
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform shader colorizer;
-        uniform shader gradLayout;
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform shader colorizer;"
+        "uniform shader gradLayout;"
 
-        uniform half4 leftBorderColor;  // t < 0.0
-        uniform half4 rightBorderColor; // t > 1.0
+        "uniform half4 leftBorderColor;"  // t < 0.0
+        "uniform half4 rightBorderColor;" // t > 1.0
 
-        uniform int makePremul;              // specialized
-        uniform int layoutPreservesOpacity;  // specialized
+        "uniform int makePremul;"              // specialized
+        "uniform int layoutPreservesOpacity;"  // specialized
 
-        half4 main(float2 coord) {
-            half4 t = gradLayout.eval(coord);
-            half4 outColor;
+        "half4 main(float2 coord) {"
+            "half4 t = gradLayout.eval(coord);"
+            "half4 outColor;"
 
             // If t.x is below 0, use the left border color without invoking the child processor.
             // If any t.x is above 1, use the right border color. Otherwise, t is in the [0, 1]
             // range assumed by the colorizer FP, so delegate to the child processor.
-            if (!bool(layoutPreservesOpacity) && t.y < 0) {
+            "if (!bool(layoutPreservesOpacity) && t.y < 0) {"
                 // layout has rejected this fragment (rely on sksl to remove this branch if the
                 // layout FP preserves opacity is false)
-                outColor = half4(0);
-            } else if (t.x < 0) {
-                outColor = leftBorderColor;
-            } else if (t.x > 1.0) {
-                outColor = rightBorderColor;
-            } else {
+                "outColor = half4(0);"
+            "} else if (t.x < 0) {"
+                "outColor = leftBorderColor;"
+            "} else if (t.x > 1.0) {"
+                "outColor = rightBorderColor;"
+            "} else {"
                 // Always sample from (x, 0), discarding y, since the layout FP can use y as a
                 // side-channel.
-                outColor = colorizer.eval(t.x0);
-            }
-            if (bool(makePremul)) {
-                outColor.rgb *= outColor.a;
-            }
-            return outColor;
-        }
-    )");
+                "outColor = colorizer.eval(t.x0);"
+            "}"
+            "if (bool(makePremul)) {"
+                "outColor.rgb *= outColor.a;"
+            "}"
+            "return outColor;"
+        "}"
+    );
 
     // If the layout does not preserve opacity, remove the opaque optimization,
     // but otherwise respect the provided color opacity state (which should take
@@ -603,48 +603,48 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
         bool mirror,
         bool makePremul,
         bool colorsAreOpaque) {
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform shader colorizer;
-        uniform shader gradLayout;
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform shader colorizer;"
+        "uniform shader gradLayout;"
 
-        uniform int mirror;                  // specialized
-        uniform int makePremul;              // specialized
-        uniform int layoutPreservesOpacity;  // specialized
-        uniform int useFloorAbsWorkaround;   // specialized
+        "uniform int mirror;"                  // specialized
+        "uniform int makePremul;"              // specialized
+        "uniform int layoutPreservesOpacity;"  // specialized
+        "uniform int useFloorAbsWorkaround;"   // specialized
 
-        half4 main(float2 coord) {
-            half4 t = gradLayout.eval(coord);
+        "half4 main(float2 coord) {"
+            "half4 t = gradLayout.eval(coord);"
 
-            if (!bool(layoutPreservesOpacity) && t.y < 0) {
+            "if (!bool(layoutPreservesOpacity) && t.y < 0) {"
                 // layout has rejected this fragment (rely on sksl to remove this branch if the
                 // layout FP preserves opacity is false)
-                return half4(0);
-            } else {
-                if (bool(mirror)) {
-                    half t_1 = t.x - 1;
-                    half tiled_t = t_1 - 2 * floor(t_1 * 0.5) - 1;
-                    if (bool(useFloorAbsWorkaround)) {
+                "return half4(0);"
+            "} else {"
+                "if (bool(mirror)) {"
+                    "half t_1 = t.x - 1;"
+                    "half tiled_t = t_1 - 2 * floor(t_1 * 0.5) - 1;"
+                    "if (bool(useFloorAbsWorkaround)) {"
                         // At this point the expected value of tiled_t should between -1 and 1, so
                         // this clamp has no effect other than to break up the floor and abs calls
                         // and make sure the compiler doesn't merge them back together.
-                        tiled_t = clamp(tiled_t, -1, 1);
-                    }
-                    t.x = abs(tiled_t);
-                } else {
+                        "tiled_t = clamp(tiled_t, -1, 1);"
+                    "}"
+                    "t.x = abs(tiled_t);"
+                "} else {"
                     // Simple repeat mode
-                    t.x = fract(t.x);
-                }
+                    "t.x = fract(t.x);"
+                "}"
 
                 // Always sample from (x, 0), discarding y, since the layout FP can use y as a
                 // side-channel.
-                half4 outColor = colorizer.eval(t.x0);
-                if (bool(makePremul)) {
-                    outColor.rgb *= outColor.a;
-                }
-                return outColor;
-            }
-        }
-    )");
+                "half4 outColor = colorizer.eval(t.x0);"
+                "if (bool(makePremul)) {"
+                    "outColor.rgb *= outColor.a;"
+                "}"
+                "return outColor;"
+            "}"
+        "}"
+    );
 
     // If the layout does not preserve opacity, remove the opaque optimization,
     // but otherwise respect the provided color opacity state (which should take
@@ -779,11 +779,11 @@ std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
     // falls at X.5 - delta then we still could get inconsistent results, but that is much less
     // likely. crbug.com/938592
     // If/when we add filtering of the gradient this can be removed.
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        half4 main(float2 coord) {
-            return half4(half(coord.x) + 0.00001, 1, 0, 0); // y = 1 for always valid
-        }
-    )");
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "half4 main(float2 coord) {"
+            "return half4(half(coord.x) + 0.00001, 1, 0, 0);" // y = 1 for always valid
+        "}"
+    );
     // The linear gradient never rejects a pixel so it doesn't change opacity
     auto fp = GrSkSLFP::Make(effect, "LinearLayout", /*inputFP=*/nullptr,
                              GrSkSLFP::OptFlags::kPreservesOpaqueInput);

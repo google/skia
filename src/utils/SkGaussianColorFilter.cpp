@@ -96,13 +96,12 @@ GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragment
                                                       const GrColorInfo&,
                                                       const SkSurfaceProps&) const {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-        R"(
-            half4 main(half4 inColor) {
-                half factor = 1 - inColor.a;
-                factor = exp(-factor * factor * 4) - 0.018;
-                return half4(factor);
-            }
-        )");
+            "half4 main(half4 inColor) {"
+                "half factor = 1 - inColor.a;"
+                "factor = exp(-factor * factor * 4) - 0.018;"
+                "return half4(factor);"
+            "}"
+        );
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrFPSuccess(GrSkSLFP::Make(effect, "gaussian_fp", std::move(inputFP),
                                       GrSkSLFP::OptFlags::kNone));

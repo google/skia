@@ -26,38 +26,38 @@ sk_sp<SkColorFilter> SkHighContrastFilter::Make(const SkHighContrastConfig& conf
 
             // TODO(skia:13540): Investigate using $rgb_to_hsl from sksl_shared instead.
             "half3 rgb_to_hsl(half3 c) {"
-            "    half mx = max(max(c.r,c.g),c.b),"
-            "         mn = min(min(c.r,c.g),c.b),"
-            "          d = mx-mn,                "
-            "       invd = 1.0 / d,              "
-            "     g_lt_b = c.g < c.b ? 6.0 : 0.0;"
+                "half mx = max(max(c.r,c.g),c.b),"
+                     "mn = min(min(c.r,c.g),c.b),"
+                      "d = mx-mn,"
+                   "invd = 1.0 / d,"
+                 "g_lt_b = c.g < c.b ? 6.0 : 0.0;"
 
             // We'd prefer to write these tests like `mx == c.r`, but on some GPUs max(x,y) is
             // not always equal to either x or y.  So we use long form, c.r >= c.g && c.r >= c.b.
-            "    half h = (1/6.0) * (mx == mn                 ? 0.0 :"
-            "         /*mx==c.r*/    c.r >= c.g && c.r >= c.b ? invd * (c.g - c.b) + g_lt_b :"
-            "         /*mx==c.g*/    c.g >= c.b               ? invd * (c.b - c.r) + 2.0  "
-            "         /*mx==c.b*/                             : invd * (c.r - c.g) + 4.0);"
-            "    half sum = mx+mn,"
-            "           l = sum * 0.5,"
-            "           s = mx == mn ? 0.0"
-            "                        : d / (l > 0.5 ? 2.0 - sum : sum);"
-            "    return half3(h,s,l);"
+                "half h = (1/6.0) * (mx == mn                 ? 0.0 :"
+                     /*mx==c.r*/    "c.r >= c.g && c.r >= c.b ? invd * (c.g - c.b) + g_lt_b :"
+                     /*mx==c.g*/    "c.g >= c.b               ? invd * (c.b - c.r) + 2.0"
+                     /*mx==c.b*/                             ": invd * (c.r - c.g) + 4.0);"
+                "half sum = mx+mn,"
+                       "l = sum * 0.5,"
+                       "s = mx == mn ? 0.0"
+                                    ": d / (l > 0.5 ? 2.0 - sum : sum);"
+                "return half3(h,s,l);"
             "}"
             "half4 main(half4 inColor) {"
-            "    half4 c = inColor;"  // linear unpremul RGBA in dst gamut
-            "    if (grayscale == 1) {"
-            "        c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;"
-            "    }"
-            "    if (invertStyle == 1) {"  // brightness
-            "        c.rgb = 1 - c.rgb;"
-            "    } else if (invertStyle == 2) {"  // lightness
-            "        c.rgb = rgb_to_hsl(c.rgb);"
-            "        c.b = 1 - c.b;"
-            "        c.rgb = $hsl_to_rgb(c.rgb);"
-            "    }"
-            "    c.rgb = mix(half3(0.5), c.rgb, contrast);"
-            "    return half4(saturate(c.rgb), c.a);"
+                "half4 c = inColor;"  // linear unpremul RGBA in dst gamut
+                "if (grayscale == 1) {"
+                    "c.rgb = dot(half3(0.2126, 0.7152, 0.0722), c.rgb).rrr;"
+                "}"
+                "if (invertStyle == 1) {"  // brightness
+                    "c.rgb = 1 - c.rgb;"
+                "} else if (invertStyle == 2) {"  // lightness
+                    "c.rgb = rgb_to_hsl(c.rgb);"
+                    "c.b = 1 - c.b;"
+                    "c.rgb = $hsl_to_rgb(c.rgb);"
+                "}"
+                "c.rgb = mix(half3(0.5), c.rgb, contrast);"
+                "return half4(saturate(c.rgb), c.a);"
             "}";
 
     static const SkRuntimeEffect* effect = SkMakeCachedRuntimeEffect(

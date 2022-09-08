@@ -20,18 +20,18 @@ namespace skottie::internal {
 namespace  {
 
 // Convert to black & white, based on input luminance and a threshold uniform.
-static constexpr char gThresholdSkSL[] = R"(
-    uniform half   t;
+static constexpr char gThresholdSkSL[] =
+    "uniform half t;"
 
-    half4 main(half4 color) {
-        half4 c = unpremul(color);
+    "half4 main(half4 color) {"
+        "half4 c = unpremul(color);"
 
-        half lum = dot(c.rgb, half3(0.2126, 0.7152, 0.0722)),
-              bw = step(t, lum);
+        "half lum = dot(c.rgb, half3(0.2126, 0.7152, 0.0722)),"
+              "bw = step(t, lum);"
 
-        return bw.xxx1 * c.a;
-    }
-)";
+        "return bw.xxx1 * c.a;"
+    "}"
+;
 
 static sk_sp<SkRuntimeEffect> threshold_effect() {
     static const SkRuntimeEffect* effect =

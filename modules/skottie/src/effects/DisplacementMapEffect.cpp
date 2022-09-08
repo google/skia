@@ -41,21 +41,21 @@ namespace  {
 
 // |selector_matrix| and |selector_offset| are set up to select and scale the x/y displacement
 // in R/G, and the x/y coverage modulation in B/A.
-static constexpr char gDisplacementSkSL[] = R"(
-    uniform shader child;
-    uniform shader displ;
+static constexpr char gDisplacementSkSL[] =
+    "uniform shader child;"
+    "uniform shader displ;"
 
-    uniform half4x4 selector_matrix;
-    uniform half4   selector_offset;
+    "uniform half4x4 selector_matrix;"
+    "uniform half4   selector_offset;"
 
-    half4 main(float2 xy) {
-        half4 d = displ.eval(xy);
+    "half4 main(float2 xy) {"
+        "half4 d = displ.eval(xy);"
 
-        d = selector_matrix*unpremul(d) + selector_offset;
+        "d = selector_matrix*unpremul(d) + selector_offset;"
 
-        return child.eval(xy + d.xy*d.zw);
-    }
-)";
+        "return child.eval(xy + d.xy*d.zw);"
+   "}"
+;
 
 static sk_sp<SkRuntimeEffect> displacement_effect_singleton() {
     static const SkRuntimeEffect* effect =

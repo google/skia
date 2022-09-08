@@ -49,9 +49,9 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> SimpleTriangleShader::makeProg
                             GrGLSLVertexBuilder* v,
                             GrGLSLVaryingHandler*,
                             GrGPArgs* gpArgs) override {
-            v->codeAppend(R"(
-            float2 localcoord = inputPoint;
-            float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
+            v->codeAppend(
+            "float2 localcoord = inputPoint;"
+            "float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;");
             gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localcoord");
             gpArgs->fPositionVar.set(SkSLType::kFloat2, "vertexpos");
         }
@@ -140,100 +140,100 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> MiddleOutShader::makeProgramIm
                               (float)(skgpu::tess::kMaxParametricSegments));
             v->insertFunction(GrTessellationShader::WangsFormulaSkSL());
             if (middleOutShader.fAttribs & PatchAttribs::kExplicitCurveType) {
-                v->insertFunction(SkStringPrintf(R"(
-                bool is_conic_curve() {
-                    return curveType != %g;
-                })", skgpu::tess::kCubicCurveType).c_str());
-                v->insertFunction(SkStringPrintf(R"(
-                bool is_triangular_conic_curve() {
-                    return curveType == %g;
-                })", skgpu::tess::kTriangularConicCurveType).c_str());
+                v->insertFunction(SkStringPrintf(
+                "bool is_conic_curve() {"
+                    "return curveType != %g;"
+                "}", skgpu::tess::kCubicCurveType).c_str());
+                v->insertFunction(SkStringPrintf(
+                "bool is_triangular_conic_curve() {"
+                    "return curveType == %g;"
+                "}", skgpu::tess::kTriangularConicCurveType).c_str());
             } else {
                 SkASSERT(shaderCaps.fInfinitySupport);
-                v->insertFunction(R"(
-                bool is_conic_curve() { return isinf(p23.w); }
-                bool is_triangular_conic_curve() { return isinf(p23.z); })");
+                v->insertFunction(
+                "bool is_conic_curve() { return isinf(p23.w); }"
+                "bool is_triangular_conic_curve() { return isinf(p23.z); }");
             }
             if (shaderCaps.fBitManipulationSupport) {
-                v->insertFunction(R"(
-                float ldexp_portable(float x, float p) {
-                    return ldexp(x, int(p));
-                })");
+                v->insertFunction(
+                "float ldexp_portable(float x, float p) {"
+                    "return ldexp(x, int(p));"
+                "}");
             } else {
-                v->insertFunction(R"(
-                float ldexp_portable(float x, float p) {
-                    return x * exp2(p);
-                })");
+                v->insertFunction(
+                "float ldexp_portable(float x, float p) {"
+                    "return x * exp2(p);"
+                "}");
             }
-            v->codeAppend(R"(
-            float resolveLevel = resolveLevel_and_idx.x;
-            float idxInResolveLevel = resolveLevel_and_idx.y;
-            float2 localcoord;)");
+            v->codeAppend(
+            "float resolveLevel = resolveLevel_and_idx.x;"
+            "float idxInResolveLevel = resolveLevel_and_idx.y;"
+            "float2 localcoord;");
             if (middleOutShader.fAttribs & PatchAttribs::kFanPoint) {
-                v->codeAppend(R"(
+                v->codeAppend(
                 // A negative resolve level means this is the fan point.
-                if (resolveLevel < 0) {
-                    localcoord = fanPointAttrib;
-                } else)");  // Fall through to next if ().
+                "if (resolveLevel < 0) {"
+                    "localcoord = fanPointAttrib;"
+                "} else ");  // Fall through to next if (). Trailing space is important.
             }
-            v->codeAppend(R"(
-            if (is_triangular_conic_curve()) {
+            v->codeAppend(
+            "if (is_triangular_conic_curve()) {"
                 // This patch is an exact triangle.
-                localcoord = (resolveLevel != 0)      ? p01.zw
-                           : (idxInResolveLevel != 0) ? p23.xy
-                                                      : p01.xy;
-            } else {
-                float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;
-                float w = -1;  // w < 0 tells us to treat the instance as an integral cubic.
-                float maxResolveLevel;
-                if (is_conic_curve()) {
+                "localcoord = (resolveLevel != 0) ? p01.zw"
+                           ": (idxInResolveLevel != 0) ? p23.xy"
+                                                      ": p01.xy;"
+            "} else {"
+                "float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;"
+                "float w = -1;"  // w < 0 tells us to treat the instance as an integral cubic.
+                "float maxResolveLevel;"
+                "if (is_conic_curve()) {"
                     // Conics are 3 points, with the weight in p3.
-                    w = p3.x;
-                    maxResolveLevel = wangs_formula_conic_log2(PRECISION, AFFINE_MATRIX * p0,
-                                                                          AFFINE_MATRIX * p1,
-                                                                          AFFINE_MATRIX * p2, w);
-                    p1 *= w;  // Unproject p1.
-                    p3 = p2;  // Duplicate the endpoint for shared code that also runs on cubics.
-                } else {
+                    "w = p3.x;"
+                    "maxResolveLevel = wangs_formula_conic_log2(PRECISION, AFFINE_MATRIX * p0,"
+                                                                          "AFFINE_MATRIX * p1,"
+                                                                          "AFFINE_MATRIX * p2, w);"
+                    "p1 *= w;"  // Unproject p1.
+                    "p3 = p2;"  // Duplicate the endpoint for shared code that also runs on cubics.
+                "} else {"
                     // The patch is an integral cubic.
-                    maxResolveLevel = wangs_formula_cubic_log2(PRECISION, p0, p1, p2, p3,
-                                                               AFFINE_MATRIX);
-                }
-                if (resolveLevel > maxResolveLevel) {
+                    "maxResolveLevel = wangs_formula_cubic_log2(PRECISION, p0, p1, p2, p3,"
+                                                               "AFFINE_MATRIX);"
+                "}"
+                "if (resolveLevel > maxResolveLevel) {"
                     // This vertex is at a higher resolve level than we need. Demote to a lower
                     // resolveLevel, which will produce a degenerate triangle.
-                    idxInResolveLevel = floor(ldexp_portable(idxInResolveLevel,
-                                                             maxResolveLevel - resolveLevel));
-                    resolveLevel = maxResolveLevel;
-                }
+                    "idxInResolveLevel = floor(ldexp_portable(idxInResolveLevel,"
+                                                             "maxResolveLevel - resolveLevel));"
+                    "resolveLevel = maxResolveLevel;"
+                "}"
                 // Promote our location to a discrete position in the maximum fixed resolve level.
                 // This is extra paranoia to ensure we get the exact same fp32 coordinates for
                 // colocated points from different resolve levels (e.g., the vertices T=3/4 and
                 // T=6/8 should be exactly colocated).
-                float fixedVertexID = floor(.5 + ldexp_portable(
-                        idxInResolveLevel, MAX_FIXED_RESOLVE_LEVEL - resolveLevel));
-                if (0 < fixedVertexID && fixedVertexID < MAX_FIXED_SEGMENTS) {
-                    float T = fixedVertexID * (1 / MAX_FIXED_SEGMENTS);
+                "float fixedVertexID = floor(.5 + ldexp_portable("
+                        "idxInResolveLevel, MAX_FIXED_RESOLVE_LEVEL - resolveLevel));"
+                "if (0 < fixedVertexID && fixedVertexID < MAX_FIXED_SEGMENTS) {"
+                    "float T = fixedVertexID * (1 / MAX_FIXED_SEGMENTS);"
 
                     // Evaluate at T. Use De Casteljau's for its accuracy and stability.
-                    float2 ab = mix(p0, p1, T);
-                    float2 bc = mix(p1, p2, T);
-                    float2 cd = mix(p2, p3, T);
-                    float2 abc = mix(ab, bc, T);
-                    float2 bcd = mix(bc, cd, T);
-                    float2 abcd = mix(abc, bcd, T);
+                    "float2 ab = mix(p0, p1, T);"
+                    "float2 bc = mix(p1, p2, T);"
+                    "float2 cd = mix(p2, p3, T);"
+                    "float2 abc = mix(ab, bc, T);"
+                    "float2 bcd = mix(bc, cd, T);"
+                    "float2 abcd = mix(abc, bcd, T);"
 
                     // Evaluate the conic weight at T.
-                    float u = mix(1.0, w, T);
-                    float v = w + 1 - u;  // == mix(w, 1, T)
-                    float uv = mix(u, v, T);
+                    "float u = mix(1.0, w, T);"
+                    "float v = w + 1 - u;"  // == mix(w, 1, T)
+                    "float uv = mix(u, v, T);"
 
-                    localcoord = (w < 0) ? /*cubic*/ abcd : /*conic*/ abc/uv;
-                } else {
-                    localcoord = (fixedVertexID == 0) ? p0.xy : p3.xy;
-                }
-            }
-            float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
+                    "localcoord = (w < 0) ?" /*cubic*/ "abcd:" /*conic*/ "abc/uv;"
+                "} else {"
+                    "localcoord = (fixedVertexID == 0) ? p0.xy : p3.xy;"
+                "}"
+            "}"
+            "float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;");
             gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localcoord");
             gpArgs->fPositionVar.set(SkSLType::kFloat2, "vertexpos");
             if (middleOutShader.fAttribs & PatchAttribs::kColor) {
@@ -283,20 +283,20 @@ const GrPipeline* GrPathTessellationShader::MakeStencilOnlyPipeline(
 // Evaluate our point of interest using numerically stable linear interpolations. We add our own
 // "safe_mix" method to guarantee we get exactly "b" when T=1. The builtin mix() function seems
 // spec'd to behave this way, but empirical results results have shown it does not always.
-const char* GrPathTessellationShader::Impl::kEvalRationalCubicFn = R"(
-float3 safe_mix(float3 a, float3 b, float T, float one_minus_T) {
-    return a*one_minus_T + b*T;
-}
-float2 eval_rational_cubic(float4x3 P, float T) {
-    float one_minus_T = 1.0 - T;
-    float3 ab = safe_mix(P[0], P[1], T, one_minus_T);
-    float3 bc = safe_mix(P[1], P[2], T, one_minus_T);
-    float3 cd = safe_mix(P[2], P[3], T, one_minus_T);
-    float3 abc = safe_mix(ab, bc, T, one_minus_T);
-    float3 bcd = safe_mix(bc, cd, T, one_minus_T);
-    float3 abcd = safe_mix(abc, bcd, T, one_minus_T);
-    return abcd.xy / abcd.z;
-})";
+const char* GrPathTessellationShader::Impl::kEvalRationalCubicFn =
+"float3 safe_mix(float3 a, float3 b, float T, float one_minus_T) {"
+    "return a*one_minus_T + b*T;"
+"}"
+"float2 eval_rational_cubic(float4x3 P, float T) {"
+    "float one_minus_T = 1.0 - T;"
+    "float3 ab = safe_mix(P[0], P[1], T, one_minus_T);"
+    "float3 bc = safe_mix(P[1], P[2], T, one_minus_T);"
+    "float3 cd = safe_mix(P[2], P[3], T, one_minus_T);"
+    "float3 abc = safe_mix(ab, bc, T, one_minus_T);"
+    "float3 bcd = safe_mix(bc, cd, T, one_minus_T);"
+    "float3 abcd = safe_mix(abc, bcd, T, one_minus_T);"
+    "return abcd.xy / abcd.z;"
+"}";
 
 void GrPathTessellationShader::Impl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     const auto& shader = args.fGeomProc.cast<GrPathTessellationShader>();

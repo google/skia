@@ -27,12 +27,12 @@ static constexpr char gBulgeDisplacementSkSL[] =
 
     "uniform float2 u_center;"
     "uniform float2 u_radius;"
-    "uniform float  u_h;"
-    "uniform float  u_r;"
-    "uniform float  u_asinInverseR;"
-    "uniform float  u_rcpR;"
-    "uniform float  u_rcpAsinInvR;"
-    "uniform float  u_selector;"
+    "uniform float u_h;"
+    "uniform float u_r;"
+    "uniform float u_asinInverseR;"
+    "uniform float u_rcpR;"
+    "uniform float u_rcpAsinInvR;"
+    "uniform float u_selector;"
 
     // AE's bulge effect appears to be a combination of spherical displacement and
     // exponential displacement along the radius.

@@ -139,27 +139,27 @@ static std::unique_ptr<GrFragmentProcessor> make_alpha_threshold_fp(
         std::unique_ptr<GrFragmentProcessor> maskFP,
         float innerThreshold,
         float outerThreshold) {
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform shader maskFP;
-        uniform half innerThreshold;
-        uniform half outerThreshold;
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform shader maskFP;"
+        "uniform half innerThreshold;"
+        "uniform half outerThreshold;"
 
-        half4 main(float2 xy, half4 color) {
-            half4 mask_color = maskFP.eval(xy);
-            if (mask_color.a < 0.5) {
-                if (color.a > outerThreshold) {
-                    half scale = outerThreshold / color.a;
-                    color.rgb *= scale;
-                    color.a = outerThreshold;
-                }
-            } else if (color.a < innerThreshold) {
-                half scale = innerThreshold / max(0.001, color.a);
-                color.rgb *= scale;
-                color.a = innerThreshold;
-            }
-            return color;
-        }
-    )");
+        "half4 main(float2 xy, half4 color) {"
+            "half4 mask_color = maskFP.eval(xy);"
+            "if (mask_color.a < 0.5) {"
+                "if (color.a > outerThreshold) {"
+                    "half scale = outerThreshold / color.a;"
+                    "color.rgb *= scale;"
+                    "color.a = outerThreshold;"
+                "}"
+            "} else if (color.a < innerThreshold) {"
+                "half scale = innerThreshold / max(0.001, color.a);"
+                "color.rgb *= scale;"
+                "color.a = innerThreshold;"
+            "}"
+            "return color;"
+        "}"
+    );
 
     return GrSkSLFP::Make(effect, "AlphaThreshold", std::move(inputFP),
                           (outerThreshold >= 1.0f) ? GrSkSLFP::OptFlags::kPreservesOpaqueInput

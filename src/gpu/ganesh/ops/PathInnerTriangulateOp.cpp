@@ -67,98 +67,101 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> HullShader::makeProgramImpl(
                             GrGLSLVaryingHandler*,
                             GrGPArgs* gpArgs) override {
             if (shaderCaps.fInfinitySupport) {
-                v->insertFunction(R"(
-                bool is_conic_curve() { return isinf(p23.w); }
-                bool is_non_triangular_conic_curve() {
+                v->insertFunction(
+                "bool is_conic_curve() { return isinf(p23.w); }"
+                "bool is_non_triangular_conic_curve() {"
                     // We consider a conic non-triangular as long as its weight isn't infinity.
                     // NOTE: "isinf == false" works on Mac Radeon GLSL; "!isinf" can get the wrong
                     // answer.
-                    return isinf(p23.z) == false;
-                })");
+                    "return isinf(p23.z) == false;"
+                "}"
+                );
             } else {
-                v->insertFunction(SkStringPrintf(R"(
-                bool is_conic_curve() { return curveType != %g; })",
+                v->insertFunction(SkStringPrintf(
+                "bool is_conic_curve() { return curveType != %g; }",
                         tess::kCubicCurveType).c_str());
-                v->insertFunction(SkStringPrintf(R"(
-                bool is_non_triangular_conic_curve() {
-                    return curveType == %g;
-                })", tess::kConicCurveType).c_str());
+                v->insertFunction(SkStringPrintf(
+                "bool is_non_triangular_conic_curve() {"
+                    "return curveType == %g;"
+                "}", tess::kConicCurveType).c_str());
             }
-            v->codeAppend(R"(
-            float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;
-            if (is_conic_curve()) {
+            v->codeAppend(
+            "float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;"
+            "if (is_conic_curve()) {"
                 // Conics are 3 points, with the weight in p3.
-                float w = p3.x;
-                p3 = p2;  // Duplicate the endpoint for shared code that also runs on cubics.
-                if (is_non_triangular_conic_curve()) {
+                "float w = p3.x;"
+                "p3 = p2;"  // Duplicate the endpoint for shared code that also runs on cubics.
+                "if (is_non_triangular_conic_curve()) {"
                     // Convert the points to a trapeziodal hull that circumcscribes the conic.
-                    float2 p1w = p1 * w;
-                    float T = .51;  // Bias outward a bit to ensure we cover the outermost samples.
-                    float2 c1 = mix(p0, p1w, T);
-                    float2 c2 = mix(p2, p1w, T);
-                    float iw = 1 / mix(1, w, T);
-                    p2 = c2 * iw;
-                    p1 = c1 * iw;
-                }
-            }
+                    "float2 p1w = p1 * w;"
+                    "float T = .51;"  // Bias outward a bit to ensure we cover the outermost samples.
+                    "float2 c1 = mix(p0, p1w, T);"
+                    "float2 c2 = mix(p2, p1w, T);"
+                    "float iw = 1 / mix(1, w, T);"
+                    "p2 = c2 * iw;"
+                    "p1 = c1 * iw;"
+                "}"
+            "}"
 
             // Translate the points to v0..3 where v0=0.
-            float2 v1 = p1 - p0;
-            float2 v2 = p2 - p0;
-            float2 v3 = p3 - p0;
+            "float2 v1 = p1 - p0;"
+            "float2 v2 = p2 - p0;"
+            "float2 v3 = p3 - p0;"
 
             // Reorder the points so v2 bisects v1 and v3.
-            if (sign(cross_length_2d(v2, v1)) == sign(cross_length_2d(v2, v3))) {
-                float2 tmp = p2;
-                if (sign(cross_length_2d(v1, v2)) != sign(cross_length_2d(v1, v3))) {
-                    p2 = p1;  // swap(p2, p1)
-                    p1 = tmp;
-                } else {
-                    p2 = p3;  // swap(p2, p3)
-                    p3 = tmp;
-                }
-            })");
+            "if (sign(cross_length_2d(v2, v1)) == sign(cross_length_2d(v2, v3))) {"
+                "float2 tmp = p2;"
+                "if (sign(cross_length_2d(v1, v2)) != sign(cross_length_2d(v1, v3))) {"
+                    "p2 = p1;"  // swap(p2, p1)
+                    "p1 = tmp;"
+                "} else {"
+                    "p2 = p3;"  // swap(p2, p3)
+                    "p3 = tmp;"
+                "}"
+            "}"
+            );
 
             if (shaderCaps.fVertexIDSupport) {
                 // If we don't have sk_VertexID support then "vertexidx" already came in as a
                 // vertex attrib.
-                v->codeAppend(R"(
+                v->codeAppend(
                 // sk_VertexID comes in fan order. Convert to strip order.
-                int vertexidx = sk_VertexID;
-                vertexidx ^= vertexidx >> 1;)");
+                "int vertexidx = sk_VertexID;"
+                "vertexidx ^= vertexidx >> 1;");
             }
 
-            v->codeAppend(R"(
+            v->codeAppend(
             // Find the "turn direction" of each corner and net turn direction.
-            float vertexdir = 0;
-            float netdir = 0;
-            float2 prev, next;
-            float dir;
-            float2 localcoord;
-            float2 nextcoord;)");
+            "float vertexdir = 0;"
+            "float netdir = 0;"
+            "float2 prev, next;"
+            "float dir;"
+            "float2 localcoord;"
+            "float2 nextcoord;"
+            );
 
             for (int i = 0; i < 4; ++i) {
-                v->codeAppendf(R"(
-                prev = p%i - p%i;)", i, (i + 3) % 4);
-                v->codeAppendf(R"(
-                next = p%i - p%i;)", (i + 1) % 4, i);
-                v->codeAppendf(R"(
-                dir = sign(cross_length_2d(prev, next));
-                if (vertexidx == %i) {
-                    vertexdir = dir;
-                    localcoord = p%i;
-                    nextcoord = p%i;
-                }
-                netdir += dir;)", i, i, (i + 1) % 4);
+                v->codeAppendf(
+                "prev = p%i - p%i;", i, (i + 3) % 4);
+                v->codeAppendf(
+                "next = p%i - p%i;", (i + 1) % 4, i);
+                v->codeAppendf(
+                "dir = sign(cross_length_2d(prev, next));"
+                "if (vertexidx == %i) {"
+                    "vertexdir = dir;"
+                    "localcoord = p%i;"
+                    "nextcoord = p%i;"
+                "}"
+                "netdir += dir;", i, i, (i + 1) % 4);
             }
 
-            v->codeAppend(R"(
+            v->codeAppend(
             // Remove the non-convex vertex, if any.
-            if (vertexdir != sign(netdir)) {
-                localcoord = nextcoord;
-            }
+            "if (vertexdir != sign(netdir)) {"
+                "localcoord = nextcoord;"
+            "}"
 
-            float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;)");
+            "float2 vertexpos = AFFINE_MATRIX * localcoord + TRANSLATE;");
             gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localcoord");
             gpArgs->fPositionVar.set(SkSLType::kFloat2, "vertexpos");
         }

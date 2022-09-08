@@ -164,11 +164,10 @@ skvm::Color SkColorFilter_Matrix::onProgram(skvm::Builder* p, skvm::Color c,
 
 static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmentProcessor> child) {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-    R"(
-        half4 main(half4 color) {
-            return $rgb_to_hsl(color.rgb, color.a);
-        }
-    )");
+        "half4 main(half4 color) {"
+            "return $rgb_to_hsl(color.rgb, color.a);"
+        "}"
+    );
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrSkSLFP::Make(effect, "RgbToHsl", std::move(child),
                           GrSkSLFP::OptFlags::kPreservesOpaqueInput);
@@ -176,11 +175,10 @@ static std::unique_ptr<GrFragmentProcessor> rgb_to_hsl(std::unique_ptr<GrFragmen
 
 static std::unique_ptr<GrFragmentProcessor> hsl_to_rgb(std::unique_ptr<GrFragmentProcessor> child) {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-    R"(
-        half4 main(half4 color) {
-            return $hsl_to_rgb(color.rgb, color.a);
-        }
-    )");
+        "half4 main(half4 color) {"
+            "return $hsl_to_rgb(color.rgb, color.a);"
+        "}"
+    );
     SkASSERT(SkRuntimeEffectPriv::SupportsConstantOutputForConstantInput(effect));
     return GrSkSLFP::Make(effect, "HslToRgb", std::move(child),
                           GrSkSLFP::OptFlags::kPreservesOpaqueInput);

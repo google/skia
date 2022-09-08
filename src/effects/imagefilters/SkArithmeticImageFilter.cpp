@@ -305,22 +305,22 @@ std::unique_ptr<GrFragmentProcessor> make_arithmetic_fp(
         std::unique_ptr<GrFragmentProcessor> dstFP,
         const SkV4& k,
         bool enforcePMColor) {
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform shader srcFP;
-        uniform shader dstFP;
-        uniform half4 k;
-        uniform half pmClamp;
-        half4 main(float2 xy) {
-            half4 src = srcFP.eval(xy);
-            half4 dst = dstFP.eval(xy);
-            half4 color = saturate(k.x * src * dst +
-                                   k.y * src +
-                                   k.z * dst +
-                                   k.w);
-            color.rgb = min(color.rgb, max(color.a, pmClamp));
-            return color;
-        }
-    )");
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform shader srcFP;"
+        "uniform shader dstFP;"
+        "uniform half4 k;"
+        "uniform half pmClamp;"
+        "half4 main(float2 xy) {"
+            "half4 src = srcFP.eval(xy);"
+            "half4 dst = dstFP.eval(xy);"
+            "half4 color = saturate(k.x * src * dst +"
+                                   "k.y * src +"
+                                   "k.z * dst +"
+                                   "k.w);"
+            "color.rgb = min(color.rgb, max(color.a, pmClamp));"
+            "return color;"
+        "}"
+    );
     return GrSkSLFP::Make(effect, "arithmetic_fp", /*inputFP=*/nullptr, GrSkSLFP::OptFlags::kNone,
                           "srcFP", std::move(srcFP),
                           "dstFP", std::move(dstFP),

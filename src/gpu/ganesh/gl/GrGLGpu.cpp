@@ -2653,7 +2653,7 @@ void GrGLGpu::flushBlendAndColorWrite(const skgpu::BlendInfo& blendInfo,
     skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
 
     // Any optimization to disable blending should have already been applied and
-    // tweaked the equation to "add" or "subtract", and the coeffs to (1, 0).
+    // tweaked the equation to "add "or "subtract", and the coeffs to (1, 0).
     bool blendOff = skgpu::BlendShouldDisable(equation, srcCoeff, dstCoeff) ||
                     !blendInfo.fWritesColor;
 
@@ -3222,11 +3222,11 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     vshaderTxt.append(";");
 
     vshaderTxt.append(
-        "// Copy Program VS\n"
+        // Copy Program VS
         "void main() {"
-        "  v_texCoord = half2(a_vertex.xy * u_texCoordXform.xy + u_texCoordXform.zw);"
-        "  sk_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
-        "  sk_Position.zw = half2(0, 1);"
+          "v_texCoord = half2(a_vertex.xy * u_texCoordXform.xy + u_texCoordXform.zw);"
+          "sk_Position.xy = a_vertex * u_posXform.xy + u_posXform.zw;"
+          "sk_Position.zw = half2(0, 1);"
         "}"
     );
 
@@ -3242,9 +3242,9 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     uTexture.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";");
     fshaderTxt.appendf(
-        "// Copy Program FS\n"
+        // Copy Program FS
         "void main() {"
-        "  sk_FragColor = sample(u_texture, v_texCoord);"
+          "sk_FragColor = sample(u_texture, v_texCoord);"
         "}"
     );
 
@@ -3332,33 +3332,33 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     }
 
     vshaderTxt.append(
-        "// Mipmap Program VS\n"
+        // Mipmap Program VS
         "void main() {"
-        "  sk_Position.xy = a_vertex * half2(2) - half2(1);"
-        "  sk_Position.zw = half2(0, 1);"
+          "sk_Position.xy = a_vertex * half2(2) - half2(1);"
+          "sk_Position.zw = half2(0, 1);"
     );
 
     // Insert texture coordinate computation:
     if (oddWidth && oddHeight) {
         vshaderTxt.append(
-            "  v_texCoord0 = a_vertex.xy * u_texCoordXform.yw;"
-            "  v_texCoord1 = a_vertex.xy * u_texCoordXform.yw + half2(u_texCoordXform.x, 0);"
-            "  v_texCoord2 = a_vertex.xy * u_texCoordXform.yw + half2(0, u_texCoordXform.z);"
-            "  v_texCoord3 = a_vertex.xy * u_texCoordXform.yw + u_texCoordXform.xz;"
+              "v_texCoord0 = a_vertex.xy * u_texCoordXform.yw;"
+              "v_texCoord1 = a_vertex.xy * u_texCoordXform.yw + half2(u_texCoordXform.x, 0);"
+              "v_texCoord2 = a_vertex.xy * u_texCoordXform.yw + half2(0, u_texCoordXform.z);"
+              "v_texCoord3 = a_vertex.xy * u_texCoordXform.yw + u_texCoordXform.xz;"
         );
     } else if (oddWidth) {
         vshaderTxt.append(
-            "  v_texCoord0 = a_vertex.xy * half2(u_texCoordXform.y, 1);"
-            "  v_texCoord1 = a_vertex.xy * half2(u_texCoordXform.y, 1) + half2(u_texCoordXform.x, 0);"
+              "v_texCoord0 = a_vertex.xy * half2(u_texCoordXform.y, 1);"
+              "v_texCoord1 = a_vertex.xy * half2(u_texCoordXform.y, 1) + half2(u_texCoordXform.x, 0);"
         );
     } else if (oddHeight) {
         vshaderTxt.append(
-            "  v_texCoord0 = a_vertex.xy * half2(1, u_texCoordXform.w);"
-            "  v_texCoord1 = a_vertex.xy * half2(1, u_texCoordXform.w) + half2(0, u_texCoordXform.z);"
+              "v_texCoord0 = a_vertex.xy * half2(1, u_texCoordXform.w);"
+              "v_texCoord1 = a_vertex.xy * half2(1, u_texCoordXform.w) + half2(0, u_texCoordXform.z);"
         );
     } else {
         vshaderTxt.append(
-            "  v_texCoord0 = a_vertex.xy;"
+              "v_texCoord0 = a_vertex.xy;"
         );
     }
 
@@ -3378,25 +3378,25 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     uTexture.appendDecl(shaderCaps, &fshaderTxt);
     fshaderTxt.append(";");
     fshaderTxt.append(
-        "// Mipmap Program FS\n"
+        // Mipmap Program FS
         "void main() {"
     );
 
     if (oddWidth && oddHeight) {
         fshaderTxt.append(
-            "  sk_FragColor = (sample(u_texture, v_texCoord0) + "
-            "                  sample(u_texture, v_texCoord1) + "
-            "                  sample(u_texture, v_texCoord2) + "
-            "                  sample(u_texture, v_texCoord3)) * 0.25;"
+              "sk_FragColor = (sample(u_texture, v_texCoord0) + "
+                              "sample(u_texture, v_texCoord1) + "
+                              "sample(u_texture, v_texCoord2) + "
+                              "sample(u_texture, v_texCoord3)) * 0.25;"
         );
     } else if (oddWidth || oddHeight) {
         fshaderTxt.append(
-            "  sk_FragColor = (sample(u_texture, v_texCoord0) + "
-            "                  sample(u_texture, v_texCoord1)) * 0.5;"
+              "sk_FragColor = (sample(u_texture, v_texCoord0) + "
+                              "sample(u_texture, v_texCoord1)) * 0.5;"
         );
     } else {
         fshaderTxt.append(
-            "  sk_FragColor = sample(u_texture, v_texCoord0);"
+              "sk_FragColor = sample(u_texture, v_texCoord0);"
         );
     }
 

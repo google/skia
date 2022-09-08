@@ -91,6 +91,14 @@ inline SkRuntimeEffect* SkMakeRuntimeEffect(
         SkRuntimeEffect::Result (*make)(SkString, const SkRuntimeEffect::Options&),
         const char* sksl,
         SkRuntimeEffect::Options options = SkRuntimeEffect::Options{}) {
+#if defined(SK_DEBUG)
+    // Our SKSL snippets we embed in Skia should not have comments or excess indentation.
+    // Removing them helps trim down code size and speeds up parsing
+    if (SkStrContains(sksl, "//") || SkStrContains(sksl, "    ")) {
+        SkDebugf("Found SkSL snippet that can be minified: \n %s\n", sksl);
+        SkASSERT(false);
+    }
+#endif
     SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
     auto result = make(SkString{sksl}, options);
     SkASSERTF(result.effect, "%s", result.errorText.c_str());

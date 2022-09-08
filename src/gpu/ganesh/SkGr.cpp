@@ -401,16 +401,16 @@ static std::unique_ptr<GrFragmentProcessor> make_dither_effect(
     GrSamplerState sampler(GrSamplerState::WrapMode::kRepeat, SkFilterMode::kNearest);
     auto te = GrTextureEffect::Make(
             std::move(tex), kPremul_SkAlphaType, SkMatrix::I(), sampler, *caps);
-    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader, R"(
-        uniform half range;
-        uniform shader table;
-        half4 main(float2 xy, half4 color) {
-            half value = table.eval(sk_FragCoord.xy).a - 0.5; // undo the bias in the table
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+        "uniform half range;"
+        "uniform shader table;"
+        "half4 main(float2 xy, half4 color) {"
+            "half value = table.eval(sk_FragCoord.xy).a - 0.5;" // undo the bias in the table
             // For each color channel, add the random offset to the channel value and then clamp
             // between 0 and alpha to keep the color premultiplied.
-            return half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
-        }
-    )");
+            "return half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);"
+        "}"
+    );
     return GrSkSLFP::Make(effect, "Dither", std::move(inputFP),
                           GrSkSLFP::OptFlags::kPreservesOpaqueInput,
                           "range", range,
