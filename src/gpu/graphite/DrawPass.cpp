@@ -189,6 +189,100 @@ private:
     TextureBindingCache::Index fLastIndex = TextureBindingCache::kInvalidIndex;
 };
 
+// Collects and writes uniform data either to uniform buffers or to shared storage buffers, and
+// tracks when bindings need to change between draws.
+class UniformSsboTracker {
+public:
+    UniformSsboTracker(bool useStorageBuffers) : fUseStorageBuffers(useStorageBuffers) {}
+
+    // Maps a given {pipeline index, uniform data cache index} pair to an SSBO index within the
+    // pipeline's accumulated array of uniforms.
+    UniformSsboCache::Index trackUniforms(GraphicsPipelineCache::Index pipelineIndex,
+                                          const SkUniformDataBlock* cpuData) {
+        if (!cpuData) {
+            return UniformSsboCache::kInvalidIndex;
+        }
+
+        if (pipelineIndex >= fPerPipelineCaches.size()) {
+            fPerPipelineCaches.resize(pipelineIndex + 1);
+        }
+
+        return fPerPipelineCaches[pipelineIndex].insert(cpuData);
+    }
+
+    // Writes all tracked uniform data into buffers, tracking the bindings for the written buffers
+    // by GraphicsPipelineCache::Index and possibly the UniformSsboCache::Index (when not using
+    // SSBOs). When using SSBos, the buffer is the same for all UniformSsboCache::Indices that share
+    // the same pipeline (and is stored in index 0).
+    void writeUniforms(DrawBufferManager* bufferMgr) {
+        for (UniformSsboCache& cache : fPerPipelineCaches) {
+            if (cache.empty()) {
+                continue;
+            }
+            // All data blocks for the same pipeline have the same size, so peek the first
+            // to determine the total buffer size
+            size_t udbSize = cache.lookup(0).fCpuData->size();
+            auto [writer, bufferInfo] =
+                    fUseStorageBuffers ? bufferMgr->getSsboWriter(udbSize * cache.size())
+                                       : bufferMgr->getUniformWriter(udbSize * cache.size());
+
+            for (CpuOrGpuData& dataBlock : cache.data()) {
+                SkASSERT(dataBlock.fCpuData->size() == udbSize);
+                writer.write(dataBlock.fCpuData->data(), udbSize);
+                // Swap from tracking the CPU data to the location of the GPU data
+                dataBlock.fGpuData = bufferInfo;
+                if (!fUseStorageBuffers) {
+                    bufferInfo.fOffset += udbSize;
+                } // else keep bufferInfo pointing to the start of the array
+            }
+        }
+    }
+
+    // Updates the current tracked pipeline and ssbo index and returns whether or not bindBuffers()
+    // needs to be called, depending on if 'fUseStorageBuffers' is true or not.
+    bool setCurrentUniforms(GraphicsPipelineCache::Index pipelineIndex,
+                            UniformSsboCache::Index ssboIndex) {
+        if (ssboIndex >= UniformSsboCache::kInvalidIndex) {
+            return false;
+        }
+        SkASSERT(pipelineIndex < fPerPipelineCaches.size() &&
+                 ssboIndex < fPerPipelineCaches[pipelineIndex].size());
+
+        if (fUseStorageBuffers) {
+            ssboIndex = 0; // The specific index has no effect on binding
+        }
+        if (fLastPipeline != pipelineIndex || fLastIndex != ssboIndex) {
+            fLastPipeline = pipelineIndex;
+            fLastIndex = ssboIndex;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Binds a new uniform or storage buffer, based on most recently provided batch key and uniform
+    // data cache index.
+    void bindUniforms(UniformSlot slot, DrawPassCommands::List* commandList) {
+        SkASSERT(fLastPipeline < GraphicsPipelineCache::kInvalidIndex &&
+                 fLastIndex < UniformSsboCache::kInvalidIndex);
+        SkASSERT(!fUseStorageBuffers || fLastIndex == 0);
+        const BindBufferInfo& binding =
+                fPerPipelineCaches[fLastPipeline].lookup(fLastIndex).fGpuData;
+        commandList->bindUniformBuffer(binding, slot);
+    }
+
+private:
+    // Access first by pipeline index. The final UniformSsboCache::Index is either used to select
+    // the BindBufferInfo for a draw using UBOs, or it's the real index into a packed array of
+    // uniforms in a storage buffer object (whose binding is stored in index 0).
+    SkTArray<UniformSsboCache> fPerPipelineCaches;
+
+    const bool fUseStorageBuffers;
+
+    GraphicsPipelineCache::Index fLastPipeline = GraphicsPipelineCache::kInvalidIndex;
+    UniformSsboCache::Index fLastIndex = UniformSsboCache::kInvalidIndex;
+};
+
 } // namespace
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -295,104 +389,6 @@ private:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-namespace {
-
-// TODO: Move this to the initial anonymous namespace next to TextureBindingTracker
-// Collects and writes uniform data either to uniform buffers or to shared storage buffers, and
-// tracks when bindings need to change between draws.
-class UniformSsboTracker {
-public:
-    UniformSsboTracker(bool useStorageBuffers) : fUseStorageBuffers(useStorageBuffers) {}
-
-    // Maps a given {pipeline index, uniform data cache index} pair to an SSBO index within the
-    // pipeline's accumulated array of uniforms.
-    UniformSsboCache::Index trackUniforms(GraphicsPipelineCache::Index pipelineIndex,
-                                          const SkUniformDataBlock* cpuData) {
-        if (!cpuData) {
-            return UniformSsboCache::kInvalidIndex;
-        }
-
-        if (pipelineIndex >= fPerPipelineCaches.size()) {
-            fPerPipelineCaches.resize(pipelineIndex + 1);
-        }
-
-        return fPerPipelineCaches[pipelineIndex].insert(cpuData);
-    }
-
-    // Writes all tracked uniform data into buffers, tracking the bindings for the written buffers
-    // by GraphicsPipelineCache::Index and possibly the UniformSsboCache::Index (when not using
-    // SSBOs). When using SSBos, the buffer is the same for all UniformSsboCache::Indices that share
-    // the same pipeline (and is stored in index 0).
-    void writeUniforms(DrawBufferManager* bufferMgr) {
-        for (UniformSsboCache& cache : fPerPipelineCaches) {
-            if (cache.empty()) {
-                continue;
-            }
-            // All data blocks for the same pipeline have the same size, so peek the first
-            // to determine the total buffer size
-            size_t udbSize = cache.lookup(0).fCpuData->size();
-            auto [writer, bufferInfo] =
-                    fUseStorageBuffers ? bufferMgr->getSsboWriter(udbSize * cache.size())
-                                       : bufferMgr->getUniformWriter(udbSize * cache.size());
-
-            for (CpuOrGpuData& dataBlock : cache.data()) {
-                SkASSERT(dataBlock.fCpuData->size() == udbSize);
-                writer.write(dataBlock.fCpuData->data(), udbSize);
-                // Swap from tracking the CPU data to the location of the GPU data
-                dataBlock.fGpuData = bufferInfo;
-                if (!fUseStorageBuffers) {
-                    bufferInfo.fOffset += udbSize;
-                } // else keep bufferInfo pointing to the start of the array
-            }
-        }
-    }
-
-    // Updates the current tracked pipeline and ssbo index and returns whether or not bindBuffers()
-    // needs to be called, depending on if 'fUseStorageBuffers' is true or not.
-    bool setCurrentUniforms(GraphicsPipelineCache::Index pipelineIndex,
-                            UniformSsboCache::Index ssboIndex) {
-        if (ssboIndex >= UniformSsboCache::kInvalidIndex) {
-            return false;
-        }
-        SkASSERT(pipelineIndex < fPerPipelineCaches.size() &&
-                 ssboIndex < fPerPipelineCaches[pipelineIndex].size());
-
-        if (fUseStorageBuffers) {
-            ssboIndex = 0; // The specific index has no effect on binding
-        }
-        if (fLastPipeline != pipelineIndex || fLastIndex != ssboIndex) {
-            fLastPipeline = pipelineIndex;
-            fLastIndex = ssboIndex;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // Binds a new uniform or storage buffer, based on most recently provided batch key and uniform
-    // data cache index.
-    void bindUniforms(UniformSlot slot, DrawPassCommands::List* commandList) {
-        SkASSERT(fLastPipeline < GraphicsPipelineCache::kInvalidIndex &&
-                 fLastIndex < UniformSsboCache::kInvalidIndex);
-        SkASSERT(!fUseStorageBuffers || fLastIndex == 0);
-        const BindBufferInfo& binding =
-                fPerPipelineCaches[fLastPipeline].lookup(fLastIndex).fGpuData;
-        commandList->bindUniformBuffer(binding, slot);
-    }
-private:
-    // Access first by pipeline index. The final UniformSsboCache::Index is either used to select
-    // the BindBufferInfo for a draw using UBOs, or it's the real index into a packed array of
-    // uniforms in a storage buffer object (whose binding is stored in index 0).
-    SkTArray<UniformSsboCache> fPerPipelineCaches;
-
-    const bool fUseStorageBuffers;
-
-    GraphicsPipelineCache::Index fLastPipeline = GraphicsPipelineCache::kInvalidIndex;
-    UniformSsboCache::Index fLastIndex = UniformSsboCache::kInvalidIndex;
-};
-
-} // anonymous namespace
 
 DrawPass::DrawPass(sk_sp<TextureProxy> target,
                    std::pair<LoadOp, StoreOp> ops,
