@@ -443,7 +443,7 @@ bool Parser::declaration() {
 
 /* (RPAREN | VOID RPAREN | parameter (COMMA parameter)* RPAREN) (block | SEMICOLON) */
 bool Parser::functionDeclarationEnd(Position start,
-                                    const DSLModifiers& modifiers,
+                                    DSLModifiers& modifiers,
                                     DSLType type,
                                     const Token& name) {
     SkSTArray<8, DSLParameter> parameters;
@@ -474,9 +474,15 @@ bool Parser::functionDeclarationEnd(Position start,
     for (DSLParameter& param : parameters) {
         parameterPointers.push_back(&param);
     }
-    DSLFunction result(modifiers, type, this->text(name), parameterPointers,
-                       this->rangeFrom(start));
-    if (!this->checkNext(Token::Kind::TK_SEMICOLON)) {
+    Position pos = this->rangeFrom(start);
+
+    // Conservatively assume that any function with a body has side effects.
+    bool hasFunctionBody = !this->checkNext(Token::Kind::TK_SEMICOLON);
+    if (hasFunctionBody) {
+        modifiers.flags() |= Modifiers::kHasSideEffects_Flag;
+    }
+    DSLFunction result(this->text(name), modifiers, type, parameterPointers, pos);
+    if (hasFunctionBody) {
         AutoSymbolTable symbols;
         for (DSLParameter* var : parameterPointers) {
             AddToSymbolTable(*var);

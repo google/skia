@@ -46,12 +46,7 @@ public:
         this->init(modifiers, returnType, name, std::move(parameterArray), Position());
     }
 
-    DSLFunction(const DSLType& returnType, std::string_view name,
-                SkTArray<DSLParameter*> parameters, Position pos = {}) {
-        this->init(DSLModifiers(), returnType, name, std::move(parameters), pos);
-    }
-
-    DSLFunction(const DSLModifiers& modifiers, const DSLType& returnType, std::string_view name,
+    DSLFunction(std::string_view name, const DSLModifiers& modifiers, const DSLType& returnType,
                 SkTArray<DSLParameter*> parameters, Position pos = {}) {
         this->init(modifiers, returnType, name, std::move(parameters), pos);
     }

@@ -147,7 +147,7 @@ private:
     bool declaration();
 
     bool functionDeclarationEnd(Position start,
-                                const dsl::DSLModifiers& modifiers,
+                                dsl::DSLModifiers& modifiers,
                                 dsl::DSLType type,
                                 const Token& name);
 
@@ -226,7 +226,7 @@ private:
 
     using BinaryParseFn = dsl::DSLExpression (Parser::*)();
     bool SK_WARN_UNUSED_RESULT operatorRight(AutoDepth& depth, Operator::Kind op,
-            BinaryParseFn rightFn, dsl::DSLExpression& result);
+                                             BinaryParseFn rightFn, dsl::DSLExpression& result);
 
     dsl::DSLExpression expression();
 
