@@ -2067,20 +2067,23 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
     {
         DSLParameter x(kFloat_Type, "x");
         DSLFunction sqr(kFloat_Type, "sqr", x);
+        sqr.prototype();
         REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "float sqr(float x);");
+        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
+                     "float sqr(float x);");
         sqr.define(
             Return(x * x)
         );
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                "float sqr(float x) { return (x * x); }");
+        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
+        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1],
+                     "float sqr(float x) { return (x * x); }");
     }
 
     {
         DSLWriter::Reset();
-            DSLParameter x(kFloat_Type, "x");
+        DSLParameter x(kFloat_Type, "x");
         DSLFunction sqr(kFloat_Type, "sqr", x);
+        sqr.prototype();
         REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
         EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "float sqr(float x);");
         DSLFunction(kVoid_Type, "main").define(sqr(5));

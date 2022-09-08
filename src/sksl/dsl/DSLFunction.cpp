@@ -74,32 +74,24 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
             params[i]->fVar = fDecl->parameters()[i];
             params[i]->fInitialized = true;
         }
-        // We don't know when this function is going to be defined; go ahead and add a prototype in
-        // case the definition is delayed. If we end up defining the function immediately, we'll
-        // remove the prototype in define().
-        ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::FunctionPrototype>(
-                pos, fDecl, ThreadContext::IsModule()));
     }
+}
+
+void DSLFunction::prototype() {
+    if (!fDecl) {
+        // We failed to create the declaration; error should already have been reported.
+        return;
+    }
+    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::FunctionPrototype>(
+            fDecl->fPosition, fDecl, ThreadContext::IsModule()));
 }
 
 void DSLFunction::define(DSLBlock block, Position pos) {
     std::unique_ptr<SkSL::Block> body = block.release();
     body->fPosition = pos;
     if (!fDecl) {
-        // Evidently we failed to create the declaration; error should already have been reported.
-        // Release the block so we don't fail its destructor assert.
+        // We failed to create the declaration; error should already have been reported.
         return;
-    }
-    if (!ThreadContext::ProgramElements().empty()) {
-        // If the last ProgramElement was the prototype for this function, it was unnecessary and we
-        // can remove it.
-        const SkSL::ProgramElement& last = *ThreadContext::ProgramElements().back();
-        if (last.is<SkSL::FunctionPrototype>()) {
-            const SkSL::FunctionPrototype& prototype = last.as<SkSL::FunctionPrototype>();
-            if (&prototype.declaration() == fDecl) {
-                ThreadContext::ProgramElements().pop_back();
-            }
-        }
     }
     if (fDecl->definition()) {
         ThreadContext::ReportError(SkSL::String::printf("function '%s' was already defined",

@@ -487,6 +487,8 @@ bool Parser::functionDeclarationEnd(Position start,
             return false;
         }
         result.define(std::move(*body), this->rangeFrom(bodyStart));
+    } else {
+        result.prototype();
     }
     return true;
 }

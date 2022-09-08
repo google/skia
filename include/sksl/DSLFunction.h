@@ -69,6 +69,8 @@ public:
 
     void define(DSLBlock block, Position pos = {});
 
+    void prototype();
+
     /**
      * Invokes the function with the given arguments.
      */
