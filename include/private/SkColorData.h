@@ -330,27 +330,6 @@ static inline U16CPU SkPack888ToRGB16(U8CPU r, U8CPU g, U8CPU b) {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/*  SrcOver the 32bit src color with the 16bit dst, returning a 16bit value
-    (with dirt in the high 16bits, so caller beware).
-*/
-static inline U16CPU SkSrcOver32To16(SkPMColor src, uint16_t dst) {
-    unsigned sr = SkGetPackedR32(src);
-    unsigned sg = SkGetPackedG32(src);
-    unsigned sb = SkGetPackedB32(src);
-
-    unsigned dr = SkGetPackedR16(dst);
-    unsigned dg = SkGetPackedG16(dst);
-    unsigned db = SkGetPackedB16(dst);
-
-    unsigned isa = 255 - SkGetPackedA32(src);
-
-    dr = (sr + SkMul16ShiftRound(dr, isa, SK_R16_BITS)) >> (8 - SK_R16_BITS);
-    dg = (sg + SkMul16ShiftRound(dg, isa, SK_G16_BITS)) >> (8 - SK_G16_BITS);
-    db = (sb + SkMul16ShiftRound(db, isa, SK_B16_BITS)) >> (8 - SK_B16_BITS);
-
-    return SkPackRGB16(dr, dg, db);
-}
-
 static inline SkColor SkPixel16ToColor(U16CPU src) {
     SkASSERT(src == SkToU16(src));
 

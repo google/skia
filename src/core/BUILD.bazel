@@ -76,7 +76,6 @@ CORE_FILES = [
     "SkBlitter.h",
     "SkBlitter_A8.cpp",
     "SkBlitter_ARGB32.cpp",
-    "SkBlitter_RGB565.cpp",
     "SkBlitter_Sprite.cpp",
     "SkBlurMF.cpp",
     "SkBlurMask.cpp",

@@ -687,9 +687,8 @@ bool SkBlitter::UseLegacyBlitter(const SkPixmap& device,
         }
     }
 
-    // Only kN32 and 565 are handled by legacy blitters now, 565 mostly just for Android.
-    return device.colorType() == kN32_SkColorType
-        || device.colorType() == kRGB_565_SkColorType;
+    // Only kN32 is handled by legacy blitters now
+    return device.colorType() == kN32_SkColorType;
 #endif
 }
 
@@ -782,9 +781,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
         return create_SkRP_or_SkVMBlitter();
     }
 
-    // Everything but legacy kN32_SkColorType and kRGB_565_SkColorType should already be handled.
-    SkASSERT(device.colorType() == kN32_SkColorType ||
-             device.colorType() == kRGB_565_SkColorType);
+    // Everything but legacy kN32_SkColorType should already be handled.
+    SkASSERT(device.colorType() == kN32_SkColorType);
 
     // And we should either have a shader, be blending with SrcOver, or both.
     SkASSERT(paint->getShader() || paint->asBlendMode() == SkBlendMode::kSrcOver);
@@ -812,13 +810,6 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
                 return alloc->make<SkARGB32_Opaque_Blitter>(device, *paint);
             } else {
                 return alloc->make<SkARGB32_Blitter>(device, *paint);
-            }
-
-        case kRGB_565_SkColorType:
-            if (shaderContext && SkRGB565_Shader_Blitter::Supports(device, *paint)) {
-                return alloc->make<SkRGB565_Shader_Blitter>(device, *paint, shaderContext);
-            } else {
-                return create_SkRP_or_SkVMBlitter();
             }
 
         default:

@@ -331,7 +331,6 @@ BASE_SRCS_ALL = [
     "src/core/SkBlitter.h",
     "src/core/SkBlitter_A8.cpp",
     "src/core/SkBlitter_ARGB32.cpp",
-    "src/core/SkBlitter_RGB565.cpp",
     "src/core/SkBlitter_Sprite.cpp",
     "src/core/SkBlockAllocator.cpp",
     "src/core/SkBlockAllocator.h",
