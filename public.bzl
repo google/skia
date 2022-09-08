@@ -610,7 +610,6 @@ BASE_SRCS_ALL = [
     "src/core/SkSpinlock.cpp",
     "src/core/SkSpriteBlitter.h",
     "src/core/SkSpriteBlitter_ARGB32.cpp",
-    "src/core/SkSpriteBlitter_RGB565.cpp",
     "src/core/SkStream.cpp",
     "src/core/SkStreamPriv.h",
     "src/core/SkStrikeCache.cpp",

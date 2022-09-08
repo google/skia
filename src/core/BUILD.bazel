@@ -316,7 +316,6 @@ CORE_FILES = [
     "SkSpinlock.cpp",
     "SkSpriteBlitter.h",
     "SkSpriteBlitter_ARGB32.cpp",
-    "SkSpriteBlitter_RGB565.cpp",
     "SkStreamPriv.h",
     "SkStrikeCache.cpp",
     "SkStrikeCache.h",

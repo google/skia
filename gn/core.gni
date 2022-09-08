@@ -405,7 +405,6 @@ skia_core_sources = [
   "$_src/core/SkSpinlock.cpp",
   "$_src/core/SkSpriteBlitter.h",
   "$_src/core/SkSpriteBlitter_ARGB32.cpp",
-  "$_src/core/SkSpriteBlitter_RGB565.cpp",
   "$_src/core/SkStream.cpp",
   "$_src/core/SkStreamPriv.h",
   "$_src/core/SkStrikeCache.cpp",

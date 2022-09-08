@@ -33,7 +33,6 @@ public:
     void blitRect(int x, int y, int width, int height) override = 0;
 
     static SkSpriteBlitter* ChooseL32(const SkPixmap& source, const SkPaint&, SkArenaAlloc*);
-    static SkSpriteBlitter* ChooseLA8(const SkPixmap& source, const SkPaint&, SkArenaAlloc*);
 
 protected:
     SkPixmap        fDst;
