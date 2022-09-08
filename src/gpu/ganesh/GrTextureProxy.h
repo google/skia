@@ -52,6 +52,14 @@ public:
     // been instantiated or not.
     GrMipmapped proxyMipmapped() const { return fMipmapped; }
 
+#ifdef SK_DEBUG
+    // TODO: Added to verify that task order for mipmaps and rendering is correct
+    // Could be removed once verified.
+    bool slatedForMipmapRegen() { return fSlatedForMipmapRegen; }
+    void needsMipmapRegen() { fSlatedForMipmapRegen = true; }
+    void mipmapsRegenerated() { fSlatedForMipmapRegen = false; }
+#endif
+
     GrTextureType textureType() const { return this->backendFormat().textureType(); }
 
     /** If true then the texture does not support MIP maps and only supports clamp wrap mode. */
@@ -180,6 +188,9 @@ private:
     // NOTE: fMipmapStatus may no longer be equal to fInitialMipmapStatus by the time the texture
     // is instantiated, since it tracks mipmaps in the time frame in which the DAG is being built.
     SkDEBUGCODE(const GrMipmapStatus fInitialMipmapStatus;)
+    // TODO: Tracking to see if mipmap regen occurs in the correct task order
+    // Could be removed once verified.
+    SkDEBUGCODE(bool fSlatedForMipmapRegen = false;)
 
     bool             fSyncTargetKey = true;  // Should target's unique key be sync'ed with ours.
 
