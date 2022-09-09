@@ -17,8 +17,11 @@
 #endif
 #endif
 
-#define SK_DEBUGFAILF(fmt, ...) \
-    SkASSERT((SkDebugf(fmt"\n", __VA_ARGS__), false))
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    #define SK_DEBUGFAILF(fmt, ...) SK_ABORT(fmt"\n", __VA_ARGS__)
+#else
+    #define SK_DEBUGFAILF(fmt, ...) SkASSERT((SkDebugf(fmt"\n", __VA_ARGS__), false))
+#endif
 
 static inline void sk_out_of_memory(size_t size) {
     SK_DEBUGFAILF("sk_out_of_memory (asked for %zu bytes)",
