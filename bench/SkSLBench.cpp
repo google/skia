@@ -529,4 +529,13 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         bench(log, "sksl_compiler_graphite", graphiteBytes);
     }
 #endif
+
+    // Heap used by a compiler with compute-shader support loaded.
+    before = heap_bytes_used();
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kCompute);
+    int64_t computeBytes = heap_bytes_used();
+    if (computeBytes >= 0) {
+        computeBytes = (computeBytes - before) + baselineBytes;
+        bench(log, "sksl_compiler_compute", computeBytes);
+    }
 }
