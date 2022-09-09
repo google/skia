@@ -475,10 +475,10 @@ static std::unique_ptr<Expression> simplify_no_op_arithmetic(const Context& cont
                     return expr;
                 }
             }
-            if (is_constant_value(right, 0.0) && !left.hasSideEffects()) {  // x * 0
+            if (is_constant_value(right, 0.0) && !Analysis::HasSideEffects(left)) {  // x * 0
                 return zero_expression(context, pos, resultType);
             }
-            if (is_constant_value(left, 0.0) && !right.hasSideEffects()) {  // 0 * x
+            if (is_constant_value(left, 0.0) && !Analysis::HasSideEffects(right)) {  // 0 * x
                 return zero_expression(context, pos, resultType);
             }
             if (is_constant_value(right, -1.0)) {  // x * -1 (to `-x`)
@@ -613,7 +613,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     // If the right side is a Boolean literal...
     if (right->isBoolLiteral()) {
         // ... and the left side has no side effects...
-        if (!left->hasSideEffects()) {
+        if (!Analysis::HasSideEffects(*left)) {
             // We can reverse the expressions and short-circuit optimizations are still valid.
             return short_circuit_boolean(pos, *right, op, *left);
         }

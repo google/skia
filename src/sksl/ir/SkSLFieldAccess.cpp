@@ -12,6 +12,7 @@
 #include "include/private/SkSLSymbol.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -70,7 +71,7 @@ static std::unique_ptr<Expression> extract_field(Position pos,
         if (fieldIndex == index) {
             continue;
         }
-        if (args[index]->hasSideEffects()) {
+        if (Analysis::HasSideEffects(*args[index])) {
             return nullptr;
         }
     }

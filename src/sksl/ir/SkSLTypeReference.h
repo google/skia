@@ -43,10 +43,6 @@ public:
         return fValue;
     }
 
-    bool hasProperty(Property property) const override {
-        return false;
-    }
-
     std::string description() const override {
         return std::string(this->value().name());
     }

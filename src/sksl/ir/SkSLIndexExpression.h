@@ -67,10 +67,6 @@ struct IndexExpression final : public Expression {
         return fIndex;
     }
 
-    bool hasProperty(Property property) const override {
-        return this->base()->hasProperty(property) || this->index()->hasProperty(property);
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::unique_ptr<Expression>(new IndexExpression(pos, this->base()->clone(),
                                                                this->index()->clone(),

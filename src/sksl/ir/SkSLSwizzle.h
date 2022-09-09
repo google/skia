@@ -73,10 +73,6 @@ struct Swizzle final : public Expression {
         return fComponents;
     }
 
-    bool hasProperty(Property property) const override {
-        return this->base()->hasProperty(property);
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::unique_ptr<Expression>(new Swizzle(pos, &this->type(), this->base()->clone(),
                                                        this->components()));

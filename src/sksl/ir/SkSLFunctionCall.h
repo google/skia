@@ -70,8 +70,6 @@ public:
         return fArguments;
     }
 
-    bool hasProperty(Property property) const override;
-
     std::unique_ptr<Expression> clone(Position pos) const override;
 
     std::string description() const override;

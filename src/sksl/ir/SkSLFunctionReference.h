@@ -31,10 +31,6 @@ public:
         return fOverloadChain;
     }
 
-    bool hasProperty(Property property) const override {
-        return false;
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::unique_ptr<Expression>(new FunctionReference(pos, this->overloadChain(),
                                                                  &this->type()));

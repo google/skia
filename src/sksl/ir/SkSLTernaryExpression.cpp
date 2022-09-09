@@ -90,7 +90,7 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
 
         if (Analysis::IsSameExpressionTree(*ifTrueExpr, *ifFalseExpr)) {
             // If `test` has no side-effects, we can eliminate it too, and just return `ifTrue`.
-            if (!test->hasSideEffects()) {
+            if (!Analysis::HasSideEffects(*test)) {
                 ifTrue->fPosition = pos;
                 return ifTrue;
             }

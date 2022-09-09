@@ -25,6 +25,7 @@
 #include "include/private/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
@@ -713,7 +714,7 @@ void WGSLCodeGenerator::writeBlock(const Block& b) {
 }
 
 void WGSLCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) {
-    if (s.expression()->hasSideEffects()) {
+    if (Analysis::HasSideEffects(*s.expression())) {
         this->writeExpression(*s.expression(), Precedence::kTopLevel);
         this->write(";");
     }

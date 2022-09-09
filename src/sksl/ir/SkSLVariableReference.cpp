@@ -8,7 +8,6 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #include "src/sksl/ir/SkSLVariable.h"
-#include <string_view>
 
 namespace SkSL {
 
@@ -17,16 +16,6 @@ VariableReference::VariableReference(Position pos, const Variable* variable, Ref
     , fVariable(variable)
     , fRefKind(refKind) {
     SkASSERT(this->variable());
-}
-
-bool VariableReference::hasProperty(Property property) const {
-    switch (property) {
-        case Property::kSideEffects:      return false;
-        case Property::kContainsRTAdjust: return this->variable()->name() == "sk_RTAdjust";
-        default:
-            SkASSERT(false);
-            return false;
-    }
 }
 
 std::string VariableReference::description() const {

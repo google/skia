@@ -84,13 +84,6 @@ public:
         return fOperator;
     }
 
-    bool hasProperty(Property property) const override {
-        if (property == Property::kSideEffects && this->getOperator().isAssignment()) {
-            return true;
-        }
-        return this->left()->hasProperty(property) || this->right()->hasProperty(property);
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override;
 
     std::string description() const override;

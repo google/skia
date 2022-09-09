@@ -843,19 +843,6 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
     }
 }
 
-bool FunctionCall::hasProperty(Property property) const {
-    if (property == Property::kSideEffects &&
-        (this->function().modifiers().fFlags & Modifiers::kHasSideEffects_Flag)) {
-        return true;
-    }
-    for (const auto& arg : this->arguments()) {
-        if (arg->hasProperty(property)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 std::unique_ptr<Expression> FunctionCall::clone(Position pos) const {
     return std::make_unique<FunctionCall>(pos, &this->type(), &this->function(),
                                           this->arguments().clone());

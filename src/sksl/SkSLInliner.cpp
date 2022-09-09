@@ -650,7 +650,7 @@ Inliner::InlinedCall Inliner::inlineCall(FunctionCall* call,
             // ... and can be inlined trivially (e.g. a swizzle, or a constant array index),
             // or any expression without side effects that is only accessed at most once...
             if ((paramUsage.fRead > 1) ? Analysis::IsTrivialExpression(*arg)
-                                       : !arg->hasSideEffects()) {
+                                       : !Analysis::HasSideEffects(*arg)) {
                 // ... we don't need to copy it at all! We can just use the existing expression.
                 varMap.set(param, arg->clone());
                 continue;

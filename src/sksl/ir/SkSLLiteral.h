@@ -110,10 +110,6 @@ public:
         return fValue ? "true" : "false";
     }
 
-    bool hasProperty(Property property) const override {
-        return false;
-    }
-
     bool isCompileTimeConstant() const override {
         return true;
     }

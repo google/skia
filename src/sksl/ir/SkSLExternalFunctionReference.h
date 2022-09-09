@@ -30,10 +30,6 @@ public:
         return fFunction;
     }
 
-    bool hasProperty(Property property) const override {
-        return property == Property::kSideEffects;
-    }
-
     std::string description() const override {
         return std::string(this->function().name());
     }

@@ -56,11 +56,6 @@ public:
         return fOperand;
     }
 
-    bool hasProperty(Property property) const override {
-        return (property == Property::kSideEffects) ||
-               this->operand()->hasProperty(property);
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<PostfixExpression>(pos, this->operand()->clone(),
                                                    this->getOperator());

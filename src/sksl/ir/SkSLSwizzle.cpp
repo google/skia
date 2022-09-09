@@ -178,7 +178,7 @@ static std::unique_ptr<Expression> optimize_constructor_swizzle(const Context& c
             return nullptr;
         }
         // Check that side-effect-bearing expressions are swizzled in exactly once.
-        if (exprUsed[constructorArgIndex] != 1 && baseArg.hasSideEffects()) {
+        if (exprUsed[constructorArgIndex] != 1 && Analysis::HasSideEffects(baseArg)) {
             return nullptr;
         }
     }

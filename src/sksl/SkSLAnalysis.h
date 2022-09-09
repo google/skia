@@ -76,6 +76,12 @@ bool ReturnsOpaqueColor(const FunctionDefinition& function);
  */
 bool CheckProgramStructure(const Program& program, bool enforceSizeLimit);
 
+/** Determines if `expr` contains a reference to the variable sk_RTAdjust. */
+bool ContainsRTAdjust(const Expression& expr);
+
+/** Determines if `expr` has any side effects. (Is the expression state-altering or pure?) */
+bool HasSideEffects(const Expression& expr);
+
 /**
  * Detect an orphaned variable declaration outside of a scope, e.g. if (true) int a;. Returns
  * true if an error was reported.

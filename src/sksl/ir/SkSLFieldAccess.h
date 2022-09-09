@@ -77,10 +77,6 @@ public:
         return fOwnerKind;
     }
 
-    bool hasProperty(Property property) const override {
-        return this->base()->hasProperty(property);
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<FieldAccess>(pos,
                                              this->base()->clone(),

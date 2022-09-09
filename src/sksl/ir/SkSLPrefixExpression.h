@@ -53,15 +53,6 @@ public:
         return fOperand;
     }
 
-    bool hasProperty(Property property) const override {
-        if (property == Property::kSideEffects &&
-            (this->getOperator().kind() == Operator::Kind::PLUSPLUS ||
-             this->getOperator().kind() == Operator::Kind::MINUSMINUS)) {
-            return true;
-        }
-        return this->operand()->hasProperty(property);
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<PrefixExpression>(pos, this->getOperator(),
                                                   this->operand()->clone());

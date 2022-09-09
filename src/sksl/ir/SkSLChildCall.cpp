@@ -18,15 +18,6 @@
 
 namespace SkSL {
 
-bool ChildCall::hasProperty(Property property) const {
-    for (const auto& arg : this->arguments()) {
-        if (arg->hasProperty(property)) {
-            return true;
-        }
-    }
-    return false;
-}
-
 std::unique_ptr<Expression> ChildCall::clone(Position pos) const {
     return std::make_unique<ChildCall>(pos, &this->type(), &this->child(),
                                        this->arguments().clone());

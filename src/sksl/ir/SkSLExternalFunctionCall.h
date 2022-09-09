@@ -39,18 +39,6 @@ public:
         return fFunction;
     }
 
-    bool hasProperty(Property property) const override {
-        if (property == Property::kSideEffects) {
-            return true;
-        }
-        for (const auto& arg : this->arguments()) {
-            if (arg->hasProperty(property)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<ExternalFunctionCall>(pos, &this->function(),
                                                       this->arguments().clone());
