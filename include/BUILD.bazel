@@ -27,10 +27,7 @@ filegroup(
         "//src/svg:enable_svg_canvas_true": ["//include/svg:public_hdrs"],
         "//conditions:default": [],
     }),
-    visibility = [
-        "//:__pkg__",
-        "//src/opts:__pkg__",
-    ],
+    visibility = ["//:__pkg__"],
 )
 
 filegroup(
@@ -38,8 +35,5 @@ filegroup(
     srcs = [
         "//include/private:private_hdrs",
     ],
-    visibility = [
-        "//:__pkg__",
-        "//src/opts:__pkg__",
-    ],
+    visibility = ["//:__pkg__"],
 )
