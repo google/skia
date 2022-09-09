@@ -1,20 +1,20 @@
-# Copyright 2019 Google Inc.
-#
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
+# DO NOT EDIT: This is a generated file.
+# See //bazel/exporter_tool/README.md for more information.
 
-# Things are easiest for everyone if these source paths are absolute.
-_src = get_path_info("src", "abspath")
-_include = get_path_info("include", "abspath")
+_modules = get_path_info("../../modules", "abspath")
 
-skia_shaper_public = [ "$_include/SkShaper.h" ]
+skia_shaper_public = [ "$_modules/skshaper/include/SkShaper.h" ]
 
 skia_shaper_primitive_sources = [
-  "$_src/SkShaper.cpp",
-  "$_src/SkShaper_primitive.cpp",
+  "$_modules/skshaper/src/SkShaper.cpp",
+  "$_modules/skshaper/src/SkShaper_primitive.cpp",
 ]
-skia_shaper_harfbuzz_sources = [ "$_src/SkShaper_harfbuzz.cpp" ]
-skia_shaper_coretext_sources = [ "$_src/SkShaper_coretext.cpp" ]
+
+skia_shaper_harfbuzz_sources =
+    [ "$_modules/skshaper/src/SkShaper_harfbuzz.cpp" ]
+
+skia_shaper_coretext_sources =
+    [ "$_modules/skshaper/src/SkShaper_coretext.cpp" ]
 
 declare_args() {
   skia_enable_skshaper = true

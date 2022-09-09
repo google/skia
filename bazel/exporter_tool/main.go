@@ -325,6 +325,16 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_skresources_sources",
 			Rules: []string{"//modules/skresources/src:srcs"}},
 	}},
+	{GNI: "modules/skshaper/skshaper.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_shaper_public",
+			Rules: []string{"//modules/skshaper/include:hdrs"}},
+		{Var: "skia_shaper_primitive_sources",
+			Rules: []string{"//modules/skshaper/src:srcs"}},
+		{Var: "skia_shaper_harfbuzz_sources",
+			Rules: []string{"//modules/skshaper/src:harfbuzz_srcs"}},
+		{Var: "skia_shaper_coretext_sources",
+			Rules: []string{"//modules/skshaper/src:coretext_srcs"}},
+	}},
 }
 
 const (

@@ -81,9 +81,16 @@ skia_core_sources += skia_skpicture_sources
 skia_core_public += skia_pathops_public
 skia_core_public += skia_skpicture_public`
 
+// The footer written to modules/skshaper/skshaper.gni.
+const skshaperFooter = `
+declare_args() {
+  skia_enable_skshaper = true
+}`
+
 // Map of GNI file names to footer text to be appended to the end of the file.
 var footerMap = map[string]string{
-	"gn/core.gni": coreGNIFooter,
+	"gn/core.gni":                   coreGNIFooter,
+	"modules/skshaper/skshaper.gni": skshaperFooter,
 }
 
 // Match variable definition of a list in a *.gni file. For example:

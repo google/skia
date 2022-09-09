@@ -4,13 +4,25 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# In own group for export to //modules/skshaper/skshaper.gni:skia_shaper_harfbuzz_sources.
+filegroup(
+    name = "harfbuzz_srcs",
+    srcs = ["SkShaper_harfbuzz.cpp"],
+)
+
+# In own group for export to //modules/skshaper/skshaper.gni:skia_shaper_coretext_sources.
+filegroup(
+    name = "coretext_srcs",
+    srcs = ["SkShaper_coretext.cpp"],
+)
+
 filegroup(
     name = "srcs",
     srcs = [
         "SkShaper.cpp",
         "SkShaper_primitive.cpp",
     ] + select({
-        "//modules/skshaper:use_harfbuzz_shaper": ["SkShaper_harfbuzz.cpp"],
+        "//modules/skshaper:use_harfbuzz_shaper": [":harfbuzz_srcs"],
         # TODO(kjlubick, bungeman) Add support for SkShaper_coretext
         "//conditions:default": [],
     }),
