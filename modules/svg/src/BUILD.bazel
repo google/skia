@@ -3,3 +3,58 @@ load("//bazel:macros.bzl", "exports_files_legacy")
 licenses(["notice"])
 
 exports_files_legacy()
+
+# This group is exported as //modules/svg/svg.gni:skia_svg_sources.
+filegroup(
+    name = "private_hdrs",
+    srcs = ["SkSVGTextPriv.h"],
+)
+
+# This group is exported as //modules/svg/svg.gni:skia_svg_sources.
+filegroup(
+    name = "srcs",
+    srcs = [
+        "SkSVGAttribute.cpp",
+        "SkSVGAttributeParser.cpp",
+        "SkSVGCircle.cpp",
+        "SkSVGClipPath.cpp",
+        "SkSVGContainer.cpp",
+        "SkSVGDOM.cpp",
+        "SkSVGEllipse.cpp",
+        "SkSVGFe.cpp",
+        "SkSVGFeBlend.cpp",
+        "SkSVGFeColorMatrix.cpp",
+        "SkSVGFeComposite.cpp",
+        "SkSVGFeDisplacementMap.cpp",
+        "SkSVGFeFlood.cpp",
+        "SkSVGFeGaussianBlur.cpp",
+        "SkSVGFeImage.cpp",
+        "SkSVGFeLightSource.cpp",
+        "SkSVGFeLighting.cpp",
+        "SkSVGFeMorphology.cpp",
+        "SkSVGFeOffset.cpp",
+        "SkSVGFeTurbulence.cpp",
+        "SkSVGFilter.cpp",
+        "SkSVGFilterContext.cpp",
+        "SkSVGGradient.cpp",
+        "SkSVGImage.cpp",
+        "SkSVGLine.cpp",
+        "SkSVGLinearGradient.cpp",
+        "SkSVGMask.cpp",
+        "SkSVGNode.cpp",
+        "SkSVGOpenTypeSVGDecoder.cpp",
+        "SkSVGPath.cpp",
+        "SkSVGPattern.cpp",
+        "SkSVGPoly.cpp",
+        "SkSVGRadialGradient.cpp",
+        "SkSVGRect.cpp",
+        "SkSVGRenderContext.cpp",
+        "SkSVGSVG.cpp",
+        "SkSVGShape.cpp",
+        "SkSVGStop.cpp",
+        "SkSVGText.cpp",
+        "SkSVGTransformableNode.cpp",
+        "SkSVGUse.cpp",
+        "SkSVGValue.cpp",
+    ],
+)

@@ -426,3 +426,19 @@ func TestFindDuplicate_NoDuplicates_ReturnsFalse(t *testing.T) {
 			"path/to/file_b.h",
 			"path/to/file_c.h"})
 }
+
+func TestGetPathToTopDir_ValidRelativePaths_ReturnsExpected(t *testing.T) {
+	test := func(name, expected, input string) {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, expected, getPathToTopDir(input))
+		})
+	}
+	test("TopDir", ".", "core.gni")
+	test("OneDown", "..", "gn/core.gni")
+	test("TwoDown", "../..", "modules/skcms/skcms.gni")
+}
+
+func TestGetPathToTopDir_AbsolutePath_ReturnsEmptyString(t *testing.T) {
+	// Exporter shouldn't use absolute paths, but just to be safe.
+	assert.Equal(t, "", getPathToTopDir("/"))
+}

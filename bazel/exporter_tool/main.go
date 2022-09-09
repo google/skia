@@ -289,8 +289,16 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/piet:piet_hdrs",
 				"//src/gpu/piet:piet_srcs",
 			}},
-	},
-	},
+	}},
+	{GNI: "modules/svg/svg.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_svg_public",
+			Rules: []string{"//modules/svg/include:public_hdrs"}},
+		{Var: "skia_svg_sources",
+			Rules: []string{
+				"//modules/svg/src:private_hdrs",
+				"//modules/svg/src:srcs",
+			}},
+	}},
 }
 
 const (
