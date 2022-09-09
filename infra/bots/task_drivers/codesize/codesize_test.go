@@ -214,7 +214,7 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
     "build/dm_stripped",
     "--debug-file=build/dm",
     "-d",
-    "compileunits,symbols",
+    "symbols",
     "-n",
     "0",
     "-s",
@@ -330,7 +330,7 @@ func TestRunSteps_Tryjob_Success(t *testing.T) {
 	// We perform a diff between the two binaries (the -- is how bloaty does that).
 	assertCommandEqual(t, commands[7], "/path/to/bloaty",
 		"build/dm_stripped", "--debug-file=build/dm",
-		"-d", "compileunits,symbols", "-n", "0", "-s", "file",
+		"-d", "symbols", "-n", "0", "-s", "file",
 		"--", "build_nopatch/dm_stripped", "--debug-file=build_nopatch/dm")
 
 	// Assert that the .json, .tsv and .diff.txt files were uploaded to GCS.
