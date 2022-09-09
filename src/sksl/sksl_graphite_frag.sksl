@@ -41,16 +41,18 @@ float $tile(int tm, float f, float min, float max, float normalizer) {
     }
 }
 
-float2 sk_compute_coords(float4 coords,
-                         float4x4 preLocal,
-                         float4 subset,
-                         int tmX,
-                         int tmY,
-                         int imgWidth,
-                         int imgHeight) {
+half4 sk_image_shader(float4 coords,
+                      float4x4 preLocal,
+                      float4 subset,
+                      int tmX,
+                      int tmY,
+                      int imgWidth,
+                      int imgHeight,
+                      sampler2D s) {
     float2 pos = (preLocal * coords).xy;
-    return float2($tile(tmX, pos.x, subset.x, subset.z, float(imgWidth)),
-                  $tile(tmY, pos.y, subset.y, subset.w, float(imgHeight)));
+    pos.x = $tile(tmX, pos.x, subset.x, subset.z, float(imgWidth));
+    pos.y = $tile(tmY, pos.y, subset.y, subset.w, float(imgHeight));
+    return sample(s, pos);
 }
 
 float2 $tile_grad(int tileMode, float2 t) {
@@ -522,6 +524,15 @@ half4 sk_blend_shader(int blendMode, half4 child0, half4 child1) {
 
 half4 sk_blend_colorfilter(half4 dstColor, int blendMode, float4 srcColor) {
     return sk_blend(blendMode, half4(srcColor), dstColor);
+}
+
+half4 sk_table_colorfilter(half4 inColor, sampler2D s) {
+    half4 coords = unpremul(inColor) * 255.0/256.0 + 0.5/256.0; 
+    half4 color = half4(sample(s, half2(coords.r, 3.0/8.0)).r,
+                        sample(s, half2(coords.g, 5.0/8.0)).r,
+                        sample(s, half2(coords.b, 7.0/8.0)).r,
+                        1);
+    return color * sample(s, half2(coords.a, 1.0/8.0)).r;
 }
 
 half4 sk_gaussian_colorfilter(half4 inColor) {

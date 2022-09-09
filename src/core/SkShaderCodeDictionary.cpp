@@ -612,42 +612,7 @@ static_assert(1 == static_cast<int>(SkTileMode::kRepeat), "ImageShader code depe
 static_assert(2 == static_cast<int>(SkTileMode::kMirror), "ImageShader code depends on SkTileMode");
 static_assert(3 == static_cast<int>(SkTileMode::kDecal),  "ImageShader code depends on SkTileMode");
 
-static constexpr char kImageShaderName[] = "sk_compute_coords";
-
-// This is _not_ what we want to do.
-// Ideally the "sk_compute_coords" code snippet could just take texture and
-// sampler references and do everything. That is going to take more time to figure out though so,
-// for the sake of expediency, we're generating custom code to do the sampling.
-std::string GenerateImageShaderExpression(const SkShaderInfo& shaderInfo,
-                                          int entryIndex,
-                                          const SkPaintParamsKey::BlockReader& reader,
-                                          const std::string& priorStageOutputName,
-                                          const std::string& fragCoord,
-                                          const std::string& currentPreLocalExpr) {
-#if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
-    std::string samplerVarName = reader.entry()->getMangledSamplerName(0, entryIndex);
-
-    // Uniform slot 0 is used to make the preLocalMatrix; it's handled in emit_glue_code_for_entry.
-    std::string subsetName = reader.entry()->getMangledUniformName(shaderInfo, 1, entryIndex);
-    std::string tmXName = reader.entry()->getMangledUniformName(shaderInfo, 2, entryIndex);
-    std::string tmYName = reader.entry()->getMangledUniformName(shaderInfo, 3, entryIndex);
-    std::string imgWidthName = reader.entry()->getMangledUniformName(shaderInfo, 4, entryIndex);
-    std::string imgHeightName = reader.entry()->getMangledUniformName(shaderInfo, 5, entryIndex);
-
-    return SkSL::String::printf("sample(%s, %s(%s, %s, %s, %s, %s, %s, %s))",
-                                samplerVarName.c_str(),
-                                reader.entry()->fStaticFunctionName,
-                                fragCoord.c_str(),
-                                currentPreLocalExpr.c_str(),
-                                subsetName.c_str(),
-                                tmXName.c_str(),
-                                tmYName.c_str(),
-                                imgWidthName.c_str(),
-                                imgHeightName.c_str());
-#else
-    return priorStageOutputName;
-#endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
-}
+static constexpr char kImageShaderName[] = "sk_image_shader";
 
 //--------------------------------------------------------------------------------------------------
 static constexpr SkUniform kBlendShaderUniforms[] = {
@@ -867,58 +832,6 @@ static constexpr SkTextureAndSampler kTableColorFilterTexturesAndSamplers[] = {
 };
 
 static constexpr char kTableColorFilterName[] = "sk_table_colorfilter";
-
-std::string GenerateTableColorFilterExpression(const SkShaderInfo& shaderInfo,
-                                               int entryIndex,
-                                               const SkPaintParamsKey::BlockReader& reader,
-                                               const std::string& priorStageOutputName,
-                                               const std::string& fragCoord,
-                                               const std::string& currentPreLocalExpr) {
-#if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
-    const SkShaderSnippet* entry = reader.entry();
-
-    // Return an expression which invokes the helper function from the preamble.
-    std::string helperFnName = get_mangled_name(entry->fStaticFunctionName, entryIndex);
-    return SkSL::String::printf("%s(%s)",
-                                helperFnName.c_str(),
-                                priorStageOutputName.c_str());
-#else
-    return priorStageOutputName;
-#endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
-}
-
-void GenerateTableColorFilterPreamble(const SkShaderInfo& shaderInfo,
-                                      int* entryIndex,
-                                      const SkPaintParamsKey::BlockReader& reader,
-                                      std::string* preamble) {
-#if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
-    const SkShaderSnippet* entry = reader.entry();
-    SkASSERT(entry->fNumChildren == 0);
-
-    int curEntryIndex = *entryIndex;
-    *entryIndex += 1;
-
-    std::string samplerName = reader.entry()->getMangledSamplerName(0, curEntryIndex);
-
-    // Create a helper function that directly uses the mangled sampler
-    std::string helperFnName = get_mangled_name(entry->fStaticFunctionName, curEntryIndex);
-    SkSL::String::appendf(
-            preamble,
-            "half4 %s(half4 colorIn) {\n"
-            "    half4 coords = unpremul(colorIn) * 255.0/256.0 + 0.5/256.0;\n"
-            "    half4 color = half4(sample(%s, half2(coords.r, 3.0/8.0)).r,\n"
-            "                        sample(%s, half2(coords.g, 5.0/8.0)).r,\n"
-            "                        sample(%s, half2(coords.b, 7.0/8.0)).r,\n"
-            "                        1);\n"
-            "    return color * sample(%s, half2(coords.a, 1.0/8.0)).r;\n"
-            "}\n",
-            helperFnName.c_str(),
-            samplerName.c_str(),
-            samplerName.c_str(),
-            samplerName.c_str(),
-            samplerName.c_str());
-#endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
-}
 
 //--------------------------------------------------------------------------------------------------
 static constexpr char kGaussianColorFilterName[] = "sk_gaussian_colorfilter";
@@ -1323,7 +1236,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             SnippetRequirementFlags::kLocalCoords,
             SkSpan(kISTexturesAndSamplers),
             kImageShaderName,
-            GenerateImageShaderExpression,
+            GenerateDefaultExpression,
             GenerateDefaultPreamble,
             kNoChildren,
             { }      // no data payload
@@ -1380,8 +1293,8 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             SnippetRequirementFlags::kPriorStageOutput,
             SkSpan(kTableColorFilterTexturesAndSamplers),
             kTableColorFilterName,
-            GenerateTableColorFilterExpression,
-            GenerateTableColorFilterPreamble,
+            GenerateDefaultExpression,
+            GenerateDefaultPreamble,
             kNoChildren,
             { }      // no data payload
     };
