@@ -131,6 +131,9 @@ enum IntrinsicKind : int8_t {
 using IntrinsicMap = SkTHashMap<std::string_view, IntrinsicKind>;
 const IntrinsicMap& GetIntrinsicMap();
 
+// Looks up intrinsic functions by name.
+IntrinsicKind FindIntrinsicKind(std::string_view functionName);
+
 }
 
 #endif

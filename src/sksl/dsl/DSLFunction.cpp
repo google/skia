@@ -14,6 +14,9 @@
 #include "include/private/SkSLString.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
+#include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLIntrinsicList.h"
+#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
@@ -34,15 +37,22 @@ namespace SkSL {
 
 namespace dsl {
 
+static bool is_intrinsic_in_module(const Context& context, std::string_view name) {
+    return context.fConfig->fIsBuiltinCode && SkSL::FindIntrinsicKind(name) != kNotIntrinsic;
+}
+
 void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::string_view name,
                        SkTArray<DSLParameter*> params, Position pos) {
     fPosition = pos;
-    // Conservatively assume all user-defined functions have side effects.
-    if (!ThreadContext::IsModule()) {
+
+    // Conservatively assume that all functions will have side effects, except functions in modules
+    // with intrinsic names.
+    const Context& context = ThreadContext::Context();
+    if (!is_intrinsic_in_module(context, name)) {
         modifiers.fModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
     }
 
-    if (ThreadContext::Settings().fForceNoInline) {
+    if (context.fConfig->fSettings.fForceNoInline) {
         // Apply the `noinline` modifier to every function. This allows us to test Runtime
         // Effects without any inlining, even when the code is later added to a paint.
         modifiers.fModifiers.fFlags &= ~Modifiers::kInline_Flag;
@@ -61,13 +71,14 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
         paramVars.push_back(std::move(paramVar));
     }
     SkASSERT(paramVars.size() == params.size());
-    fDecl = SkSL::FunctionDeclaration::Convert(ThreadContext::Context(),
+    fDecl = SkSL::FunctionDeclaration::Convert(context,
                                                *ThreadContext::SymbolTable(),
                                                pos,
                                                modifiers.fPosition,
-                                               ThreadContext::Modifiers(modifiers.fModifiers),
+                                               context.fModifiersPool->add(modifiers.fModifiers),
                                                name,
-                                               std::move(paramVars), pos,
+                                               std::move(paramVars),
+                                               pos,
                                                &returnType.skslType());
     if (fDecl) {
         for (size_t i = 0; i < params.size(); ++i) {
@@ -93,10 +104,22 @@ void DSLFunction::define(DSLBlock block, Position pos) {
         // We failed to create the declaration; error should already have been reported.
         return;
     }
+    // We don't allow modules to define actual functions with intrinsic names. (Those should be
+    // reserved for actual intrinsics.)
+    const Context& context = ThreadContext::Context();
+    if (is_intrinsic_in_module(context, fDecl->name())) {
+        ThreadContext::ReportError(
+                SkSL::String::printf("Intrinsic function '%.*s' should not have a definition",
+                                     (int)fDecl->name().size(),
+                                     fDecl->name().data()),
+                fDecl->fPosition);
+        return;
+    }
+
     if (fDecl->definition()) {
         ThreadContext::ReportError(SkSL::String::printf("function '%s' was already defined",
-                fDecl->description().c_str()), pos);
-        block.release();
+                                                        fDecl->description().c_str()),
+                                   fDecl->fPosition);
         return;
     }
     std::unique_ptr<FunctionDefinition> function = FunctionDefinition::Convert(

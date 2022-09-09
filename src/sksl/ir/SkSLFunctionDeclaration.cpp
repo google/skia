@@ -32,16 +32,6 @@
 
 namespace SkSL {
 
-static IntrinsicKind identify_intrinsic(std::string_view functionName) {
-    if (skstd::starts_with(functionName, '$')) {
-        functionName.remove_prefix(1);
-    }
-
-    const IntrinsicMap& intrinsicMap = GetIntrinsicMap();
-    IntrinsicKind* kind = intrinsicMap.find(functionName);
-    return kind ? *kind : kNotIntrinsic;
-}
-
 static bool check_modifiers(const Context& context,
                             Position pos,
                             const Modifiers& modifiers) {
@@ -458,7 +448,7 @@ FunctionDeclaration::FunctionDeclaration(Position pos,
         , fReturnType(returnType)
         , fBuiltin(builtin)
         , fIsMain(name == "main")
-        , fIntrinsicKind(builtin ? identify_intrinsic(name) : kNotIntrinsic) {
+        , fIntrinsicKind(builtin ? FindIntrinsicKind(name) : kNotIntrinsic) {
     // None of the parameters are allowed to be be null.
     SkASSERT(std::count(fParameters.begin(), fParameters.end(), nullptr) == 0);
 }

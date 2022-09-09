@@ -35,6 +35,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <forward_list>
+#include <string_view>
 
 namespace SkSL {
 
@@ -232,8 +233,8 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                                                 "' can exit without returning a value");
     }
 
-    SkASSERTF(!function.isIntrinsic(), "Intrinsic %s should not have a definition",
-              std::string(function.name()).c_str());
+    SkASSERTF(!function.isIntrinsic(), "Intrinsic function '%.*s' should not have a definition",
+              (int)function.name().size(), function.name().data());
     return std::make_unique<FunctionDefinition>(pos, &function, builtin, std::move(body));
 }
 
