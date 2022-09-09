@@ -321,9 +321,9 @@ public:
                  const GrGeometryProcessor& geomProc) override {
         const GrDistanceFieldPathGeoProc& dfpgp = geomProc.cast<GrDistanceFieldPathGeoProc>();
 
-        // We always set the matrix uniform. It's used to transform from from device to local
-        // for the local coord variable.
-        SetTransform(pdman, shaderCaps, fLocalMatrixUniform, dfpgp.fLocalMatrix, &fLocalMatrix);
+        // We always set the matrix uniform; it's either used to transform from local to device
+        // for the output position, or from device to local for the local coord variable.
+        SetTransform(pdman, shaderCaps, fMatrixUniform, dfpgp.fMatrix, &fMatrix);
 
         const SkISize& atlasDimensions = dfpgp.fAtlasDimensions;
         SkASSERT(SkIsPow2(atlasDimensions.fWidth) && SkIsPow2(atlasDimensions.fHeight));
@@ -370,15 +370,27 @@ private:
         varyingHandler->addPassThroughAttribute(dfPathEffect.fInColor.asShaderVar(),
                                                 args.fOutputColor);
 
-        // Setup position (output position is pass through, local coords are transformed)
-        gpArgs->fPositionVar = dfPathEffect.fInPosition.asShaderVar();
-        WriteLocalCoord(vertBuilder,
-                        uniformHandler,
-                        *args.fShaderCaps,
-                        gpArgs,
-                        gpArgs->fPositionVar,
-                        dfPathEffect.fLocalMatrix,
-                        &fLocalMatrixUniform);
+        if (dfPathEffect.fMatrix.hasPerspective()) {
+            // Setup position (output position is transformed, local coords are pass through)
+            WriteOutputPosition(vertBuilder,
+                                uniformHandler,
+                                *args.fShaderCaps,
+                                gpArgs,
+                                dfPathEffect.fInPosition.name(),
+                                dfPathEffect.fMatrix,
+                                &fMatrixUniform);
+            gpArgs->fLocalCoordVar = dfPathEffect.fInPosition.asShaderVar();
+        } else {
+            // Setup position (output position is pass through, local coords are transformed)
+            WriteOutputPosition(vertBuilder, gpArgs, dfPathEffect.fInPosition.name());
+            WriteLocalCoord(vertBuilder,
+                            uniformHandler,
+                            *args.fShaderCaps,
+                            gpArgs,
+                            dfPathEffect.fInPosition.asShaderVar(),
+                            dfPathEffect.fMatrix,
+                            &fMatrixUniform);
+        }
 
         // Use highp to work around aliasing issues
         fragBuilder->codeAppendf("float2 uv = %s;", uv.fsIn());
@@ -455,8 +467,8 @@ private:
         fragBuilder->codeAppendf("half4 %s = half4(val);", args.fOutputCoverage);
     }
 
-    SkMatrix      fLocalMatrix;
-    UniformHandle fLocalMatrixUniform;
+    SkMatrix      fMatrix;        // view matrix if perspective, local matrix otherwise
+    UniformHandle fMatrixUniform;
 
     SkISize       fAtlasDimensions;
     UniformHandle fAtlasDimensionsInvUniform;
@@ -467,19 +479,20 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const GrShaderCaps& caps,
+                                                       const SkMatrix& matrix,
+                                                       bool wideColor,
                                                        const GrSurfaceProxyView* views,
                                                        int numViews,
                                                        GrSamplerState params,
-                                                       const SkMatrix& localMatrix,
                                                        uint32_t flags)
         : INHERITED(kGrDistanceFieldPathGeoProc_ClassID)
-        , fLocalMatrix(localMatrix)
-        , fFlags(flags & kPath_DistanceFieldEffectMask) {
+        , fMatrix(matrix)
+        , fFlags(flags & kNonLCD_DistanceFieldEffectMask) {
     SkASSERT(numViews <= kMaxTextures);
-    SkASSERT(!(flags & ~kPath_DistanceFieldEffectMask));
+    SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
 
-    fInPosition = {"inPosition", kFloat3_GrVertexAttribType, SkSLType::kFloat3};
-    fInColor = MakeColorAttribute("inColor", SkToBool(flags & kWideColor_DistanceFieldEffectFlag));
+    fInPosition = {"inPosition", kFloat2_GrVertexAttribType, SkSLType::kFloat2};
+    fInColor = MakeColorAttribute("inColor", wideColor);
     fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType,
                         caps.fIntegerSupport ? SkSLType::kUShort2 : SkSLType::kFloat2};
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
@@ -522,8 +535,8 @@ void GrDistanceFieldPathGeoProc::addNewViews(const GrSurfaceProxyView* views,
 void GrDistanceFieldPathGeoProc::addToKey(const GrShaderCaps& caps,
                                           skgpu::KeyBuilder* b) const {
     uint32_t key = fFlags;
-    key |= ProgramImpl::ComputeMatrixKey(caps, fLocalMatrix) << 16;
-    key |= fLocalMatrix.hasPerspective() << (16 + ProgramImpl::kMatrixKeyBits);
+    key |= ProgramImpl::ComputeMatrixKey(caps, fMatrix) << 16;
+    key |= fMatrix.hasPerspective() << (16 + ProgramImpl::kMatrixKeyBits);
     b->add32(key);
     b->add32(this->numTextureSamplers());
 }
@@ -552,12 +565,13 @@ GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData*
     if (flags & kSimilarity_DistanceFieldEffectFlag) {
         flags |= d->fRandom->nextBool() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     }
-    flags |= d->fRandom->nextBool() ? kWideColor_DistanceFieldEffectFlag : 0;
     SkMatrix localMatrix = GrTest::TestMatrix(d->fRandom);
+    bool wideColor = d->fRandom->nextBool();
     return GrDistanceFieldPathGeoProc::Make(d->allocator(), *d->caps()->shaderCaps(),
+                                            localMatrix,
+                                            wideColor,
                                             &view, 1,
                                             samplerState,
-                                            localMatrix,
                                             flags);
 }
 #endif

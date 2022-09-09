@@ -228,14 +228,14 @@ private:
     int fNumGlyphs; // Sum of glyphs in each geometry's subrun
 
     // All combinable atlas ops have equal bit field values
-    uint32_t fDFGPFlags                    : 10; // Distance field properties
-    uint32_t fMaskType                     : 3;  // MaskType
-    uint32_t fUsesLocalCoords              : 1;  // Filled in post processor analysis
+    uint32_t fDFGPFlags                    : 9; // Distance field properties
+    uint32_t fMaskType                     : 3; // MaskType
+    uint32_t fUsesLocalCoords              : 1; // Filled in post processor analysis
     uint32_t fNeedsGlyphTransform          : 1;
-    uint32_t fHasPerspective               : 1;  // True if perspective affects draw
+    uint32_t fHasPerspective               : 1; // True if perspective affects draw
     uint32_t fUseGammaCorrectDistanceTable : 1;
     static_assert(kMaskTypeCount <= 8, "MaskType does not fit in 3 bits");
-    static_assert(kInvalid_DistanceFieldEffectFlag <= (1 << 9), "DFGP Flags do not fit in 10 bits");
+    static_assert(kInvalid_DistanceFieldEffectFlag <= (1 << 8),  "DFGP Flags do not fit in 9 bits");
 
     // Only used for distance fields; per-channel luminance for LCD, or gamma-corrected luminance
     // for single-channel distance fields.

@@ -168,27 +168,37 @@ private:
 
         // Setup GrGeometryProcessor
         const SkMatrix& ctm = fShapes[0].fViewMatrix;
-        SkMatrix invert;
-        if (fHelper.usesLocalCoords()) {
-            if (!ctm.invert(&invert)) {
-                return;
-            }
-        }
         if (fUsesDistanceField) {
             uint32_t flags = 0;
             // Still need to key off of ctm to pick the right shader for the transformed quad
             flags |= ctm.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
             flags |= ctm.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
             flags |= fGammaCorrect ? kGammaCorrect_DistanceFieldEffectFlag : 0;
-            flags |= fWideColor ? kWideColor_DistanceFieldEffectFlag : 0;
-            // We always use Point3 for position
-            flags |= kPerspective_DistanceFieldEffectFlag;
 
+            const SkMatrix* matrix;
+            SkMatrix invert;
+            if (ctm.hasPerspective()) {
+                matrix = &ctm;
+            } else if (fHelper.usesLocalCoords()) {
+                if (!ctm.invert(&invert)) {
+                    return;
+                }
+                matrix = &invert;
+            } else {
+                matrix = &SkMatrix::I();
+            }
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
-                    target->allocator(), *target->caps().shaderCaps(),
+                    target->allocator(), *target->caps().shaderCaps(), *matrix, fWideColor,
                     views, numActiveProxies, GrSamplerState::Filter::kLinear,
-                    invert, flags);
+                    flags);
         } else {
+            SkMatrix invert;
+            if (fHelper.usesLocalCoords()) {
+                if (!ctm.invert(&invert)) {
+                    return;
+                }
+            }
+
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
                     target->allocator(), *target->caps().shaderCaps(), this->color(), fWideColor,
                     views, numActiveProxies, GrSamplerState::Filter::kNearest,
@@ -517,16 +527,10 @@ private:
         // set up texture coordinates
         auto texCoords = VertexWriter::TriStripFromUVs(shapeData->fAtlasLocator.getUVs());
 
-        if (fUsesDistanceField) {
-            SkPoint pts[4];
-            SkPoint3 out[4];
-            translatedBounds.toQuad(pts);
-            ctm.mapHomogeneousPoints(out, pts, 4);
-
-            vertices << out[0] << color << texCoords.l << texCoords.t;
-            vertices << out[3] << color << texCoords.l << texCoords.b;
-            vertices << out[1] << color << texCoords.r << texCoords.t;
-            vertices << out[2] << color << texCoords.r << texCoords.b;
+        if (fUsesDistanceField && !ctm.hasPerspective()) {
+            vertices.writeQuad(GrQuad::MakeFromRect(translatedBounds, ctm),
+                               color,
+                               texCoords);
         } else {
             vertices.writeQuad(VertexWriter::TriStripFromRect(translatedBounds),
                                color,
@@ -602,26 +606,21 @@ private:
         const SkMatrix& thisCtm = this->fShapes[0].fViewMatrix;
         const SkMatrix& thatCtm = that->fShapes[0].fViewMatrix;
 
-        if (this->usesDistanceField()) {
-            // Need to make sure local matrices are identical
-            if (fHelper.usesLocalCoords() && !SkMatrixPriv::CheapEqual(thisCtm, thatCtm)) {
-                return CombineResult::kCannotCombine;
-            }
+        if (thisCtm.hasPerspective() != thatCtm.hasPerspective()) {
+            return CombineResult::kCannotCombine;
+        }
 
-            // Depending on the ctm we may have a different shader for SDF paths
+        // We can position on the cpu unless we're in perspective,
+        // but also need to make sure local matrices are identical
+        if ((thisCtm.hasPerspective() || fHelper.usesLocalCoords()) &&
+            !SkMatrixPriv::CheapEqual(thisCtm, thatCtm)) {
+            return CombineResult::kCannotCombine;
+        }
+
+        // Depending on the ctm we may have a different shader for SDF paths
+        if (this->usesDistanceField()) {
             if (thisCtm.isScaleTranslate() != thatCtm.isScaleTranslate() ||
                 thisCtm.isSimilarity() != thatCtm.isSimilarity()) {
-                return CombineResult::kCannotCombine;
-            }
-        } else {
-            if (thisCtm.hasPerspective() != thatCtm.hasPerspective()) {
-                return CombineResult::kCannotCombine;
-            }
-
-            // We can position on the cpu unless we're in perspective,
-            // but also need to make sure local matrices are identical
-            if ((thisCtm.hasPerspective() || fHelper.usesLocalCoords()) &&
-                !SkMatrixPriv::CheapEqual(thisCtm, thatCtm)) {
                 return CombineResult::kCannotCombine;
             }
         }
