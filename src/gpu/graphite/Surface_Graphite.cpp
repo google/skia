@@ -33,7 +33,7 @@ Recorder* Surface::onGetRecorder() {
 SkCanvas* Surface::onNewCanvas() { return new SkCanvas(fDevice); }
 
 sk_sp<SkSurface> Surface::onNewSurface(const SkImageInfo& ii) {
-    return MakeGraphite(fDevice->recorder(), ii, Mipmapped::kNo, &this->props());
+    return SkSurface::MakeGraphite(fDevice->recorder(), ii, Mipmapped::kNo, &this->props());
 }
 
 sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
@@ -77,6 +77,22 @@ GrSemaphoresSubmitted Surface::onFlush(BackendSurfaceAccess,
 }
 #endif
 
+sk_sp<SkSurface> Surface::MakeGraphite(Recorder* recorder,
+                                       const SkImageInfo& info,
+                                       SkBudgeted budgeted,
+                                       Mipmapped mipmapped,
+                                       const SkSurfaceProps* props) {
+
+    sk_sp<Device> device = Device::Make(recorder, info, budgeted, mipmapped,
+                                        SkSurfacePropsCopyOrDefault(props),
+                                        /* addInitialClear= */ true);
+    if (!device) {
+        return nullptr;
+    }
+
+    return sk_make_sp<Surface>(std::move(device));
+}
+
 } // namespace skgpu::graphite
 
 using namespace skgpu::graphite;
@@ -107,16 +123,12 @@ sk_sp<SkSurface> SkSurface::MakeGraphite(Recorder* recorder,
                                          const SkImageInfo& info,
                                          Mipmapped mipmapped,
                                          const SkSurfaceProps* props) {
-
-    sk_sp<Device> device = Device::Make(recorder, info, SkBudgeted::kNo,
-                                        mipmapped,
-                                        SkSurfacePropsCopyOrDefault(props),
-                                        /* addInitialClear= */ true);
-    if (!device) {
-        return nullptr;
-    }
-
-    return sk_make_sp<Surface>(std::move(device));
+    // The client is getting the ref on this surface so it must be unbudgeted.
+    return skgpu::graphite::Surface::MakeGraphite(recorder,
+                                                  info,
+                                                  SkBudgeted::kNo,
+                                                  mipmapped,
+                                                  props);
 }
 
 sk_sp<SkSurface> SkSurface::MakeGraphiteFromBackendTexture(Recorder* recorder,

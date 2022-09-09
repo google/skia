@@ -274,8 +274,8 @@ SkBaseDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
                 props, addInitialClear).release();
 }
 
-sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& /* props */) {
-    return SkSurface::MakeGraphite(fRecorder, ii);
+sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& props) {
+    return SkSurface::MakeGraphite(fRecorder, ii, Mipmapped::kNo, &props);
 }
 
 bool Device::onReadPixels(const SkPixmap& pm, int x, int y) {
