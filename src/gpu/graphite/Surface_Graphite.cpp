@@ -33,7 +33,7 @@ Recorder* Surface::onGetRecorder() {
 SkCanvas* Surface::onNewCanvas() { return new SkCanvas(fDevice); }
 
 sk_sp<SkSurface> Surface::onNewSurface(const SkImageInfo& ii) {
-    return MakeGraphite(fDevice->recorder(), ii, &this->props());
+    return MakeGraphite(fDevice->recorder(), ii, Mipmapped::kNo, &this->props());
 }
 
 sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
@@ -105,9 +105,11 @@ bool validate_backend_texture(const Caps* caps,
 
 sk_sp<SkSurface> SkSurface::MakeGraphite(Recorder* recorder,
                                          const SkImageInfo& info,
+                                         Mipmapped mipmapped,
                                          const SkSurfaceProps* props) {
 
     sk_sp<Device> device = Device::Make(recorder, info, SkBudgeted::kNo,
+                                        mipmapped,
                                         SkSurfacePropsCopyOrDefault(props),
                                         /* addInitialClear= */ true);
     if (!device) {

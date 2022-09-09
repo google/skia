@@ -124,7 +124,7 @@ public:
         colorType = colorSpace && colorSpace->gammaIsLinear() ? kRGBA_F16_SkColorType
                                                               : kRGBA_8888_SkColorType;
         SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
-        return SkSurface::MakeGraphite(fRecorder, info, nullptr);
+        return SkSurface::MakeGraphite(fRecorder, info);
     }
 
 private:

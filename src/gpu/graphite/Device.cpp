@@ -163,17 +163,26 @@ private:
 sk_sp<Device> Device::Make(Recorder* recorder,
                            const SkImageInfo& ii,
                            SkBudgeted budgeted,
+                           Mipmapped mipmapped,
                            const SkSurfaceProps& props,
                            bool addInitialClear) {
     if (!recorder) {
         return nullptr;
     }
-    auto textureInfo = recorder->priv().caps()->getDefaultSampledTextureInfo(ii.colorType(),
-                                                                             /*levelCount=*/1,
-                                                                             Protected::kNo,
-                                                                             Renderable::kYes);
 
     if (ii.dimensions().width() < 1 || ii.dimensions().height() < 1) {
+        return nullptr;
+    }
+
+    int mipLevelCount = (mipmapped == Mipmapped::kYes)
+                            ? SkMipmap::ComputeLevelCount(ii.width(), ii.height()) + 1
+                            : 1;
+
+    auto textureInfo = recorder->priv().caps()->getDefaultSampledTextureInfo(ii.colorType(),
+                                                                             mipLevelCount,
+                                                                             Protected::kNo,
+                                                                             Renderable::kYes);
+    if (!textureInfo.isValid()) {
         return nullptr;
     }
 
@@ -261,7 +270,8 @@ SkBaseDevice* Device::onCreateDevice(const CreateInfo& info, const SkPaint*) {
     // Skia's convention is to only clear a device if it is non-opaque.
     bool addInitialClear = !info.fInfo.isOpaque();
 
-    return Make(fRecorder, info.fInfo, SkBudgeted::kYes, props, addInitialClear).release();
+    return Make(fRecorder, info.fInfo, SkBudgeted::kYes, Mipmapped::kNo,
+                props, addInitialClear).release();
 }
 
 sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps& /* props */) {

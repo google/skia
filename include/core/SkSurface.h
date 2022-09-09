@@ -398,11 +398,13 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     // In Graphite, while clients hold a ref on an SkSurface, the backing gpu object does _not_
     // count against the budget. Once an SkSurface is freed, the backing gpu object may or may
-    // not become a scratch (i.e., reusable) resouce but, if it does, it will be counted against
+    // not become a scratch (i.e., reusable) resource but, if it does, it will be counted against
     // the budget.
-    static sk_sp<SkSurface> MakeGraphite(skgpu::graphite::Recorder*,
-                                         const SkImageInfo& imageInfo,
-                                         const SkSurfaceProps* surfaceProps = nullptr);
+    static sk_sp<SkSurface> MakeGraphite(
+            skgpu::graphite::Recorder*,
+            const SkImageInfo& imageInfo,
+            skgpu::graphite::Mipmapped = skgpu::graphite::Mipmapped::kNo,
+            const SkSurfaceProps* surfaceProps = nullptr);
 
 
     /**
