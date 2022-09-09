@@ -146,7 +146,21 @@ static SK_ALWAYS_INLINE uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
 }
 
 static inline SkPMColor SkPMSrcOver(SkPMColor src, SkPMColor dst) {
-    return src + SkAlphaMulQ(dst, SkAlpha255To256(255 - SkGetPackedA32(src)));
+    uint32_t scale = SkAlpha255To256(255 - SkGetPackedA32(src));
+
+    uint32_t mask = 0xFF00FF;
+    uint32_t rb = (((dst & mask) * scale) >> 8) & mask;
+    uint32_t ag = (((dst >> 8) & mask) * scale) & ~mask;
+
+    rb += (src &  mask);
+    ag += (src & ~mask);
+
+    // Color channels (but not alpha) can overflow, so we have to saturate to 0xFF in each lane.
+    auto saturate = [](uint32_t v, uint32_t limit) { return v > limit ? limit : v; };
+    return saturate(rb & 0x000001FF, 0x000000FF) |
+           saturate(ag & 0x0001FF00, 0x0000FF00) |
+           saturate(rb & 0x01FF0000, 0x00FF0000) |
+                   (ag & 0xFF000000);
 }
 
 #endif
