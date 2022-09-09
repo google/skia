@@ -319,6 +319,12 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//modules/skparagraph/tests:tests_srcs",
 			}},
 	}},
+	{GNI: "modules/skresources/skresources.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_skresources_public",
+			Rules: []string{"//modules/skresources/include:hdrs"}},
+		{Var: "skia_skresources_sources",
+			Rules: []string{"//modules/skresources/src:srcs"}},
+	}},
 }
 
 const (

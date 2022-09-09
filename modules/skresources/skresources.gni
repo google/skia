@@ -1,12 +1,8 @@
-# Copyright 2019 Google LLC
-#
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
+# DO NOT EDIT: This is a generated file.
+# See //bazel/exporter_tool/README.md for more information.
 
-# Things are easiest for everyone if these source paths are absolute.
-_src = get_path_info("src", "abspath")
-_include = get_path_info("include", "abspath")
+_modules = get_path_info("../../modules", "abspath")
 
-skia_skresources_public = [ "$_include/SkResources.h" ]
+skia_skresources_public = [ "$_modules/skresources/include/SkResources.h" ]
 
-skia_skresources_sources = [ "$_src/SkResources.cpp" ]
+skia_skresources_sources = [ "$_modules/skresources/src/SkResources.cpp" ]
