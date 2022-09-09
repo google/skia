@@ -57,7 +57,12 @@ public:
             SkGlyphVariant glyph; SkPoint pos;
             std::tie(glyph, pos) = t;
             SkMask mask = glyph.glyph()->mask(pos);
+            // We need to ignore any matrix on the overdraw canvas (it's already been baked into
+            // our glyph positions). Otherwise the CTM is double-applied. (skbug.com/13732)
+            fOverdrawCanvas->save();
+            fOverdrawCanvas->resetMatrix();
             fOverdrawCanvas->drawRect(SkRect::Make(mask.fBounds), SkPaint());
+            fOverdrawCanvas->restore();
         }
     }
 
