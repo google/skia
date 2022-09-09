@@ -251,7 +251,7 @@ public:
 
     /** Retrieves alpha from the color used when stroking and filling.
 
-        @return  alpha ranging from zero, fully transparent, to 255, fully opaque
+        @return  alpha ranging from zero, fully transparent, to one, fully opaque
     */
     float getAlphaf() const { return fColor4f.fA; }
 
