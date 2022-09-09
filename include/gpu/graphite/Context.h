@@ -21,6 +21,8 @@ class SkBlenderID;
 class SkCombinationBuilder;
 class SkRuntimeEffect;
 
+namespace skgpu { struct VulkanBackendContext; }
+
 namespace skgpu::graphite {
 
 class BackendTexture;
@@ -32,7 +34,6 @@ class QueueManager;
 class Recording;
 class ResourceProvider;
 class SharedContext;
-struct VulkanBackendContext;
 
 class SK_API Context final {
 public:

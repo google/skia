@@ -17,7 +17,7 @@
 namespace skgpu::graphite {
 struct ContextOptions;
 
-class MtlCaps final : public skgpu::graphite::Caps {
+class MtlCaps final : public Caps {
 public:
     MtlCaps(const id<MTLDevice>, const ContextOptions&);
     ~MtlCaps() override {}

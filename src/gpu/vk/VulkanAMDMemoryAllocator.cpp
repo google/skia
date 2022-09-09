@@ -21,7 +21,8 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
          uint32_t physicalDeviceVersion,
          const VulkanExtensions* extensions,
          sk_sp<const VulkanInterface> interface,
-         bool mustUseCoherentHostVisibleMemory) {
+         bool mustUseCoherentHostVisibleMemory,
+         bool threadSafe) {
     return nullptr;
 }
 #else
@@ -33,7 +34,8 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
         uint32_t physicalDeviceVersion,
         const VulkanExtensions* extensions,
         sk_sp<const VulkanInterface> interface,
-        bool mustUseCoherentHostVisibleMemory) {
+        bool mustUseCoherentHostVisibleMemory,
+        bool threadSafe) {
 #define SKGPU_COPY_FUNCTION(NAME) functions.vk##NAME = interface->fFunctions.f##NAME
 #define SKGPU_COPY_FUNCTION_KHR(NAME) functions.vk##NAME##KHR = interface->fFunctions.f##NAME
 
@@ -70,7 +72,10 @@ sk_sp<VulkanMemoryAllocator> VulkanAMDMemoryAllocator::Make(
     SKGPU_COPY_FUNCTION_KHR(GetPhysicalDeviceMemoryProperties2);
 
     VmaAllocatorCreateInfo info;
-    info.flags = VMA_ALLOCATOR_CREATE_EXTERNALLY_SYNCHRONIZED_BIT;
+    info.flags = 0;
+    if (!threadSafe) {
+        info.flags |= VMA_ALLOCATOR_CREATE_EXTERNALLY_SYNCHRONIZED_BIT;
+    }
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         (extensions->hasExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, 1) &&
          extensions->hasExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, 1))) {

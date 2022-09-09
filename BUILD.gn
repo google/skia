@@ -894,7 +894,11 @@ optional("gpu_shared") {
   sources = skia_shared_gpu_sources + skia_sksl_gpu_sources
 
   if (skia_use_vulkan) {
+    public_defines += [ "SK_VULKAN" ]
     sources += skia_shared_vk_sources
+    if (skia_enable_vulkan_debug_layers) {
+      public_defines += [ "SK_ENABLE_VK_LAYERS" ]
+    }
     if (skia_use_vma) {
       public_deps += [ "third_party/vulkanmemoryallocator" ]
     }
@@ -967,11 +971,7 @@ optional("gpu") {
   }
 
   if (skia_use_vulkan) {
-    public_defines += [ "SK_VULKAN" ]
     sources += skia_vk_sources
-    if (skia_enable_vulkan_debug_layers) {
-      public_defines += [ "SK_ENABLE_VK_LAYERS" ]
-    }
     if (is_fuchsia) {
       if (using_fuchsia_sdk) {
         public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
@@ -1175,7 +1175,7 @@ optional("graphite") {
     }
   }
   if (skia_use_vulkan) {
-    public_defines += [ "SK_VULKAN" ]
+    sources += skia_graphite_vk_sources
   }
 }
 

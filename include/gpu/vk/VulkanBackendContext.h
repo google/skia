@@ -43,5 +43,4 @@ struct SK_API VulkanBackendContext {
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_VkBackendContext_DEFINED
-
+#endif // skgpu_VulkanBackendContext_DEFINED

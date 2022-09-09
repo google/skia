@@ -34,6 +34,7 @@
 
 #ifdef SK_VULKAN
 #include "include/gpu/vk/VulkanBackendContext.h"
+#include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #endif
 
 namespace skgpu::graphite {
@@ -75,8 +76,7 @@ std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendCont
 #ifdef SK_VULKAN
 std::unique_ptr<Context> Context::MakeVulkan(const VulkanBackendContext& backendContext,
                                              const ContextOptions& options) {
-    // TODO: Make a SharedContext
-    sk_sp<SharedContext> sharedContext;
+    sk_sp<SharedContext> sharedContext = VulkanSharedContext::Make(backendContext, options);
     if (!sharedContext) {
         return nullptr;
     }

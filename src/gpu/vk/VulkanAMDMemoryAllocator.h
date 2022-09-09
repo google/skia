@@ -24,7 +24,8 @@ public:
                                              uint32_t physicalDeviceVersion,
                                              const VulkanExtensions* extensions,
                                              sk_sp<const VulkanInterface> interface,
-                                             bool mustUseCoherentHostVisibleMemory);
+                                             bool mustUseCoherentHostVisibleMemory,
+                                             bool threadSafe);
 };
 
 #else
@@ -39,7 +40,8 @@ public:
                                              uint32_t physicalDeviceVersion,
                                              const VulkanExtensions* extensions,
                                              sk_sp<const VulkanInterface> interface,
-                                             bool mustUseCoherentHostVisibleMemory);
+                                             bool mustUseCoherentHostVisibleMemory,
+                                             bool threadSafe);
 
     ~VulkanAMDMemoryAllocator() override;
 

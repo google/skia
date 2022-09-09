@@ -47,6 +47,7 @@ enum class SyncToCpu : bool {
  */
 enum class BackendApi : unsigned {
     kMetal,
+    kVulkan,
     kMock,
 };
 

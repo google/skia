@@ -22,6 +22,13 @@ struct SK_API ContextOptions {
     skgpu::ShaderErrorHandler* fShaderErrorHandler = nullptr;
 
     /**
+     * Will the client make sure to only ever be executing one thread that uses the Context and all
+     * derived classes (e.g. Recorders, Recordings, etc.) at a time. If so we can possibly make some
+     * objects (e.g. VulkanMemoryAllocator) not thread safe to improve single thread performance.
+     */
+    bool fClientWillExternallySynchronizeAllThreads = false;
+
+    /**
      * The maximum size of cache textures used for Skia's Glyph cache.
      */
     size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;

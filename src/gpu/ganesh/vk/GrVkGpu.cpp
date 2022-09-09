@@ -187,7 +187,8 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
                                                                 physDevVersion,
                                                                 backendContext.fVkExtensions,
                                                                 interface,
-                                                                mustUseCoherentHostVisibleMemory);
+                                                                mustUseCoherentHostVisibleMemory,
+                                                                /*=threadSafe=*/false);
     }
     if (!memoryAllocator) {
         SkDEBUGFAIL("No supplied vulkan memory allocator and unable to create one internally.");
