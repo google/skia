@@ -28,6 +28,13 @@ class SkPicture;
 
 enum class GrImageTexGenPolicy : int;
 
+#if SK_GRAPHITE_ENABLED
+namespace skgpu::graphite {
+enum class Mipmapped : bool;
+class Recorder;
+}
+#endif
+
 class SK_API SkImageGenerator {
 public:
     /**
@@ -151,6 +158,13 @@ public:
 
 #endif
 
+#if SK_GRAPHITE_ENABLED
+    sk_sp<SkImage> makeTextureImage(skgpu::graphite::Recorder*,
+                                    const SkImageInfo&,
+                                    const SkIPoint& origin,
+                                    skgpu::graphite::Mipmapped);
+#endif
+
     /**
      *  If the default image decoder system can interpret the specified (encoded) data, then
      *  this returns a new ImageGenerator for it. Otherwise this returns NULL. Either way
@@ -195,6 +209,13 @@ protected:
     // GrAHardwareBufferImageGenerator) it should override this function to return the correct
     // origin.
     virtual GrSurfaceOrigin origin() const { return kTopLeft_GrSurfaceOrigin; }
+#endif
+
+#if SK_GRAPHITE_ENABLED
+    virtual sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
+                                              const SkImageInfo&,
+                                              const SkIPoint& origin,
+                                              skgpu::graphite::Mipmapped);
 #endif
 
 private:

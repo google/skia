@@ -56,13 +56,9 @@ public:
 
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
                                                 sk_sp<SkColorSpace>,
-                                                GrDirectContext*) const override {
-        return nullptr;
-    }
+                                                GrDirectContext*) const override;
 
-    sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override {
-        return nullptr;
-    }
+    sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const override;
 
     TextureProxyView textureProxyView() const { return fTextureProxyView; }
 

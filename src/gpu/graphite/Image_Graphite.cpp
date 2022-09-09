@@ -52,6 +52,16 @@ bool Image::testingOnly_ReadPixels(Context* context,
                             srcY);
 }
 
+sk_sp<SkImage> Image::onMakeColorTypeAndColorSpace(SkColorType,
+                                                   sk_sp<SkColorSpace>,
+                                                   GrDirectContext*) const {
+    return nullptr;
+}
+
+sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace>) const {
+    return nullptr;
+}
+
 sk_sp<SkImage> Image::onMakeTextureImage(Recorder*, RequiredImageProperties requiredProps) const {
     SkASSERT(requiredProps.fMipmapped == Mipmapped::kYes && !this->hasMipmaps());
     // TODO: copy the base layer into a new image that has mip levels
