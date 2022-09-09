@@ -22,10 +22,6 @@
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
-#ifdef SK_VULKAN
-#include "src/gpu/ganesh/vk/GrVkCaps.h"
-#endif
-
 // name of the uniform used to handle features that are sensitive to whether Y is flipped.
 #define SKSL_RTFLIP_NAME "u_skRTFlip"
 

@@ -21,7 +21,7 @@
 #include <android/hardware_buffer.h>
 #endif
 
-#ifdef SK_METAL
+#if SK_SUPPORT_GPU && defined(SK_METAL)
 #include "include/gpu/mtl/GrMtlTypes.h"
 #endif
 
@@ -429,7 +429,7 @@ public:
 
 #endif // SK_GRAPHITE_ENABLED
 
-#ifdef SK_METAL
+#if SK_SUPPORT_GPU && defined(SK_METAL)
     /** Creates SkSurface from CAMetalLayer.
         Returned SkSurface takes a reference on the CAMetalLayer. The ref on the layer will be
         released when the SkSurface is destroyed.
