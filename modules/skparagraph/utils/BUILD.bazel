@@ -1,5 +1,15 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+UTILS_FILES = [
+    "TestFontCollection.cpp",
+    "TestFontCollection.h",
+]
+
+split_srcs_and_hdrs(
+    name = "utils",
+    files = UTILS_FILES,
+)

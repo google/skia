@@ -1,5 +1,17 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+TESTS_FILES = [
+    "SkParagraphTest.cpp",
+    "SkShaperJSONWriter.cpp",
+    "SkShaperJSONWriter.h",
+    "SkShaperJSONWriterTest.cpp",
+]
+
+split_srcs_and_hdrs(
+    name = "tests",
+    files = TESTS_FILES,
+)

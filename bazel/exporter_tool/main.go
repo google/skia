@@ -299,6 +299,26 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//modules/svg/src:srcs",
 			}},
 	}},
+	{GNI: "modules/skparagraph/skparagraph.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skparagraph_public",
+			Rules: []string{
+				"//modules/skparagraph/include:hdrs",
+				"//modules/skparagraph/utils:utils_hdrs"}},
+		{Var: "skparagraph_sources",
+			Rules: []string{
+				"//modules/skparagraph/src:srcs",
+				"//modules/skparagraph/utils:utils_srcs"}},
+		{Var: "skparagraph_utils",
+			Rules: []string{
+				"//modules/skparagraph/utils:utils_hdrs",
+				"//modules/skparagraph/utils:utils_srcs",
+			}},
+		{Var: "skparagraph_tests",
+			Rules: []string{
+				"//modules/skparagraph/tests:tests_hdrs",
+				"//modules/skparagraph/tests:tests_srcs",
+			}},
+	}},
 }
 
 const (

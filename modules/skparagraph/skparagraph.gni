@@ -1,59 +1,57 @@
-# Copyright 2019 Google LLC.
+# DO NOT EDIT: This is a generated file.
+# See //bazel/exporter_tool/README.md for more information.
 
-# Things are easiest for everyone if these source paths are absolute.
-_src = get_path_info("src", "abspath")
-_include = get_path_info("include", "abspath")
-_tests = get_path_info("tests", "abspath")
-_utils = get_path_info("utils", "abspath")
+_modules = get_path_info("../../modules", "abspath")
 
 skparagraph_public = [
-  "$_include/ParagraphStyle.h",
-  "$_include/TextStyle.h",
-  "$_include/TextShadow.h",
-  "$_include/FontArguments.h",
-  "$_include/FontCollection.h",
-  "$_include/Paragraph.h",
-  "$_include/ParagraphBuilder.h",
-  "$_include/ParagraphCache.h",
-  "$_include/DartTypes.h",
-  "$_include/TypefaceFontProvider.h",
-  "$_utils/TestFontCollection.h",
+  "$_modules/skparagraph/include/DartTypes.h",
+  "$_modules/skparagraph/include/FontArguments.h",
+  "$_modules/skparagraph/include/FontCollection.h",
+  "$_modules/skparagraph/include/Metrics.h",
+  "$_modules/skparagraph/include/Paragraph.h",
+  "$_modules/skparagraph/include/ParagraphBuilder.h",
+  "$_modules/skparagraph/include/ParagraphCache.h",
+  "$_modules/skparagraph/include/ParagraphStyle.h",
+  "$_modules/skparagraph/include/TextShadow.h",
+  "$_modules/skparagraph/include/TextStyle.h",
+  "$_modules/skparagraph/include/TypefaceFontProvider.h",
+  "$_modules/skparagraph/utils/TestFontCollection.h",
 ]
 
 skparagraph_sources = [
-  "$_src/Decorations.cpp",
-  "$_src/Decorations.h",
-  "$_src/FontArguments.cpp",
-  "$_src/FontCollection.cpp",
-  "$_src/Iterators.h",
-  "$_src/OneLineShaper.cpp",
-  "$_src/OneLineShaper.h",
-  "$_src/ParagraphBuilderImpl.cpp",
-  "$_src/ParagraphBuilderImpl.h",
-  "$_src/ParagraphCache.cpp",
-  "$_src/ParagraphImpl.cpp",
-  "$_src/ParagraphImpl.h",
-  "$_src/ParagraphStyle.cpp",
-  "$_src/Run.cpp",
-  "$_src/Run.h",
-  "$_src/TextLine.cpp",
-  "$_src/TextLine.h",
-  "$_src/TextShadow.cpp",
-  "$_src/TextStyle.cpp",
-  "$_src/TextWrapper.cpp",
-  "$_src/TextWrapper.h",
-  "$_src/TypefaceFontProvider.cpp",
-  "$_utils/TestFontCollection.cpp",
+  "$_modules/skparagraph/src/Decorations.cpp",
+  "$_modules/skparagraph/src/Decorations.h",
+  "$_modules/skparagraph/src/FontArguments.cpp",
+  "$_modules/skparagraph/src/FontCollection.cpp",
+  "$_modules/skparagraph/src/Iterators.h",
+  "$_modules/skparagraph/src/OneLineShaper.cpp",
+  "$_modules/skparagraph/src/OneLineShaper.h",
+  "$_modules/skparagraph/src/ParagraphBuilderImpl.cpp",
+  "$_modules/skparagraph/src/ParagraphBuilderImpl.h",
+  "$_modules/skparagraph/src/ParagraphCache.cpp",
+  "$_modules/skparagraph/src/ParagraphImpl.cpp",
+  "$_modules/skparagraph/src/ParagraphImpl.h",
+  "$_modules/skparagraph/src/ParagraphStyle.cpp",
+  "$_modules/skparagraph/src/Run.cpp",
+  "$_modules/skparagraph/src/Run.h",
+  "$_modules/skparagraph/src/TextLine.cpp",
+  "$_modules/skparagraph/src/TextLine.h",
+  "$_modules/skparagraph/src/TextShadow.cpp",
+  "$_modules/skparagraph/src/TextStyle.cpp",
+  "$_modules/skparagraph/src/TextWrapper.cpp",
+  "$_modules/skparagraph/src/TextWrapper.h",
+  "$_modules/skparagraph/src/TypefaceFontProvider.cpp",
+  "$_modules/skparagraph/utils/TestFontCollection.cpp",
 ]
 
 skparagraph_utils = [
-  "$_utils/TestFontCollection.h",
-  "$_utils/TestFontCollection.cpp",
+  "$_modules/skparagraph/utils/TestFontCollection.cpp",
+  "$_modules/skparagraph/utils/TestFontCollection.h",
 ]
 
 skparagraph_tests = [
-  "$_tests/SkParagraphTest.cpp",
-  "$_tests/SkShaperJSONWriter.cpp",
-  "$_tests/SkShaperJSONWriter.h",
-  "$_tests/SkShaperJSONWriterTest.cpp",
+  "$_modules/skparagraph/tests/SkParagraphTest.cpp",
+  "$_modules/skparagraph/tests/SkShaperJSONWriter.cpp",
+  "$_modules/skparagraph/tests/SkShaperJSONWriter.h",
+  "$_modules/skparagraph/tests/SkShaperJSONWriterTest.cpp",
 ]
