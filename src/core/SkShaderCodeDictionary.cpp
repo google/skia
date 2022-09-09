@@ -68,6 +68,7 @@ std::string SkShaderSnippet::getMangledSamplerName(int samplerIdx, int mangleId)
 static std::string emit_expression_for_entry(const SkShaderInfo& shaderInfo,
                                              int entryIndex,
                                              const std::string& priorStageOutputName,
+                                             const std::string& destColorName,
                                              const std::string& fragCoord,
                                              std::string preLocalMatrix) {
     const SkPaintParamsKey::BlockReader& reader = shaderInfo.blockReader(entryIndex);
@@ -84,7 +85,7 @@ static std::string emit_expression_for_entry(const SkShaderInfo& shaderInfo,
     }
 
     return entry->fExpressionGenerator(shaderInfo, entryIndex, reader, priorStageOutputName,
-                                       fragCoord, preLocalMatrix);
+                                       destColorName, fragCoord, preLocalMatrix);
 }
 
 // Emit the glue code needed to invoke a single static helper isolated within its own scope.
@@ -93,6 +94,7 @@ static std::string emit_expression_for_entry(const SkShaderInfo& shaderInfo,
 static std::string emit_glue_code_for_entry(const SkShaderInfo& shaderInfo,
                                             int entryIndex,
                                             const std::string& priorStageOutputName,
+                                            const std::string& destColorName,
                                             const std::string& fragCoord,
                                             const std::string& parentPreLocalName,
                                             std::string* funcBody) {
@@ -101,6 +103,7 @@ static std::string emit_glue_code_for_entry(const SkShaderInfo& shaderInfo,
     std::string expr = emit_expression_for_entry(shaderInfo,
                                                  entryIndex,
                                                  priorStageOutputName,
+                                                 destColorName,
                                                  fragCoord,
                                                  parentPreLocalName);
     std::string outputVar = get_mangled_name("outColor", entryIndex);
@@ -181,7 +184,7 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
 
     // TODO: what is the correct initial color to feed in?
     std::string lastOutputVar = "initialColor";
-    SkSL::String::appendf(&mainBody, "    half4 %s = half4(0);", lastOutputVar.c_str());
+    mainBody += "    half4 initialColor = half4(0);";
     if (this->needsLocalCoords()) {
         // Get the local coordinates varying into float4 format as expected by emit_glue_code.
         mainBody += "float4 outLocalCoords = float4(localCoordsVar, 0.0, 0.0);\n";
@@ -191,8 +194,9 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
         // Emit shader main body code. This never alters the preamble or increases the entry index.
         // TODO - Once RenderSteps that require local coordinates emit them directly to the
         // localCoordsVar varying, "outLocalCoords" can be passed in here instead of "coords".
-        lastOutputVar = emit_glue_code_for_entry(*this, entryIndex, lastOutputVar, "coords",
-                                                 "float4x4(1.0)", &mainBody);
+        static constexpr char kUnusedDestColor[] = "half4(1)";
+        lastOutputVar = emit_glue_code_for_entry(*this, entryIndex, lastOutputVar, kUnusedDestColor,
+                                                 "coords", "float4x4(1.0)", &mainBody);
 
         // Emit preamble code. This iterates over all the children as well, and increases the entry
         // index as we go.
@@ -209,7 +213,7 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
     if (step->emitsCoverage()) {
         mainBody += "half4 outputCoverage;";
         mainBody += step->fragmentCoverageSkSL();
-        SkSL::String::appendf(&mainBody, "    sk_FragColor = %s*outputCoverage;\n",
+        SkSL::String::appendf(&mainBody, "    sk_FragColor = %s * outputCoverage;\n",
                               lastOutputVar.c_str());
     } else {
         SkSL::String::appendf(&mainBody, "    sk_FragColor = %s;\n", lastOutputVar.c_str());
@@ -329,6 +333,7 @@ static std::string append_default_snippet_arguments(const SkShaderInfo& shaderIn
                                                     const SkShaderSnippet* entry,
                                                     int entryIndex,
                                                     const std::string& priorStageOutputName,
+                                                    const std::string& destColor,
                                                     const std::string& fragCoord,
                                                     const std::string& currentPreLocalExpr,
                                                     SkSpan<const std::string> childOutputs) {
@@ -339,6 +344,13 @@ static std::string append_default_snippet_arguments(const SkShaderInfo& shaderIn
     // Append prior-stage output color.
     if (entry->needsPriorStageOutput()) {
         code += priorStageOutputName;
+        separator = ", ";
+    }
+
+    // Append destination color.
+    if (entry->needsDestColor()) {
+        code += separator;
+        code += destColor;
         separator = ", ";
     }
 
@@ -396,13 +408,14 @@ static void emit_helper_function(const SkShaderInfo& shaderInfo,
     // and passes all the child outputs along as arguments.
     std::string helperFnName = get_mangled_name(entry->fStaticFunctionName, curEntryIndex);
     std::string helperFn = SkSL::String::printf(
-            "half4 %s(half4 inColor, float4 pos, float4x4 preLocal) {",
+            "half4 %s(half4 inColor, half4 destColor, float4 pos, float4x4 preLocal) {",
             helperFnName.c_str());
     std::vector<std::string> childOutputVarNames;
     for (int j = 0; j < numChildren; ++j) {
         // Emit glue code into our helper function body.
         std::string childOutputVar = emit_glue_code_for_entry(shaderInfo, *entryIndex, "inColor",
-                                                              "pos", "preLocal", &helperFn);
+                                                              "destColor", "pos", "preLocal",
+                                                              &helperFn);
         childOutputVarNames.push_back(std::move(childOutputVar));
 
         // If this entry itself requires a preamble, handle that here. This will advance the
@@ -412,8 +425,9 @@ static void emit_helper_function(const SkShaderInfo& shaderInfo,
 
     // Finally, invoke the snippet from the helper function, passing uniforms and child outputs.
     SkSL::String::appendf(&helperFn, "    return %s", entry->fStaticFunctionName);
-    helperFn += append_default_snippet_arguments(
-            shaderInfo, entry, curEntryIndex, "inColor", "pos", "preLocal", childOutputVarNames);
+    helperFn += append_default_snippet_arguments(shaderInfo, entry, curEntryIndex,
+                                                 "inColor", "destColor", "pos", "preLocal",
+                                                 childOutputVarNames);
     helperFn += ";\n"
                 "}\n";
 
@@ -423,16 +437,17 @@ static void emit_helper_function(const SkShaderInfo& shaderInfo,
 #endif
 
 // If we have no children, the default expression just calls a built-in snippet with the signature:
-//     half4 BuiltinFunctionName(/* all uniforms as parameters */);
+//     half4 BuiltinFunctionName(/* default snippet arguments */);
 //
-// If we do have children, we have created a function in the preamble and we call that instead. Its
-// signature looks like this:
-//     half4 BuiltinFunctionName_N(half4 inColor, float4x4 preLocal);
+// If we do have children, we will have created a glue function in the preamble and that is called
+// instead. Its signature looks like this:
+//     half4 BuiltinFunctionName_N(half4 inColor, half4 destColor, float4 pos, float4x4 preLocal);
 
 std::string GenerateDefaultExpression(const SkShaderInfo& shaderInfo,
                                       int entryIndex,
                                       const SkPaintParamsKey::BlockReader& reader,
                                       const std::string& priorStageOutputName,
+                                      const std::string& destColorName,
                                       const std::string& fragCoord,
                                       const std::string& currentPreLocalExpr) {
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
@@ -443,15 +458,17 @@ std::string GenerateDefaultExpression(const SkShaderInfo& shaderInfo,
                                                                              entry,
                                                                              entryIndex,
                                                                              priorStageOutputName,
+                                                                             destColorName,
                                                                              fragCoord,
                                                                              currentPreLocalExpr,
                                                                              /*childOutputs=*/{});
     } else {
         // Return an expression which invokes the helper function from the preamble.
         std::string helperFnName = get_mangled_name(entry->fStaticFunctionName, entryIndex);
-        return SkSL::String::printf("%s(%s, %s, %s)",
+        return SkSL::String::printf("%s(%s, %s, %s, %s)",
                                     helperFnName.c_str(),
                                     priorStageOutputName.c_str(),
+                                    destColorName.c_str(),
                                     fragCoord.c_str(),
                                     currentPreLocalExpr.c_str());
     }
@@ -650,14 +667,15 @@ public:
 
     void defineFunction(const char* decl, const char* body, bool isMain) override {
         if (isMain) {
-            SkSL::String::appendf(fPreamble,
-                                  "half4 %s_%d(half4 inColor, float4 coords, float4x4 preLocal) {\n"
-                                  "    float2 pos = (preLocal * coords).xy;\n"
-                                  "%s"
-                                  "}\n",
-                                  kRuntimeShaderName,
-                                  fEntryIndex,
-                                  body);
+            SkSL::String::appendf(
+                 fPreamble,
+                 "half4 %s_%d(half4 inColor, half4 destColor, float4 coords, float4x4 preLocal) {\n"
+                 "    float2 pos = (preLocal * coords).xy;\n"
+                 "%s"
+                 "}\n",
+                 kRuntimeShaderName,
+                 fEntryIndex,
+                 body);
         } else {
             SkSL::String::appendf(fPreamble, "%s {\n%s}\n", decl, body);
         }
@@ -678,13 +696,14 @@ public:
     std::string sampleShader(int index, std::string coords) override {
         SkASSERT(index >= 0 && index < (int)fChildEntryIndices.size());
         return emit_expression_for_entry(fShaderInfo, fChildEntryIndices[index],
-                                         "inColor", "float4(" + coords + ",0,1)", "float4x4(1.0)");
+                                         "inColor", "destColor", "float4(" + coords + ", 0, 1)",
+                                         "float4x4(1.0)");
     }
 
     std::string sampleColorFilter(int index, std::string color) override {
         SkASSERT(index >= 0 && index < (int)fChildEntryIndices.size());
         return emit_expression_for_entry(fShaderInfo, fChildEntryIndices[index],
-                                         color, "coords", "float4x4(1.0)");
+                                         color, "destColor", "coords", "float4x4(1.0)");
     }
 
     std::string sampleBlender(int index, std::string src, std::string dst) override {
@@ -742,7 +761,7 @@ void GenerateRuntimeShaderPreamble(const SkShaderInfo& shaderInfo,
 
     GraphitePipelineCallbacks callbacks{shaderInfo, curEntryIndex, childEntryIndices, preamble};
     SkASSERT(std::string_view(entry->fName) == kRuntimeShaderName);  // the callbacks assume this
-    SkSL::PipelineStage::ConvertProgram(program, "pos", "inColor", "half4(1)", &callbacks);
+    SkSL::PipelineStage::ConvertProgram(program, "pos", "inColor", "destColor", &callbacks);
 #endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
 }
 
@@ -750,13 +769,15 @@ std::string GenerateRuntimeShaderExpression(const SkShaderInfo& shaderInfo,
                                             int entryIndex,
                                             const SkPaintParamsKey::BlockReader& reader,
                                             const std::string& priorStageOutputName,
+                                            const std::string& destColorName,
                                             const std::string& fragCoord,
                                             const std::string& currentPreLocalExpr) {
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
     const SkShaderSnippet* entry = reader.entry();
-    return SkSL::String::printf("%s_%d(%s, %s, %s)",
+    return SkSL::String::printf("%s_%d(%s, %s, %s, %s)",
                                 entry->fName, entryIndex,
                                 priorStageOutputName.c_str(),
+                                destColorName.c_str(),
                                 fragCoord.c_str(),
                                 currentPreLocalExpr.c_str());
 #else
@@ -801,15 +822,16 @@ void GenerateComposeColorFilterPreamble(const SkShaderInfo& shaderInfo,
     *entryIndex += 1;
 
     // Evaluate inner child.
-    std::string innerColor = emit_expression_for_entry(shaderInfo, *entryIndex, "inColor", "coords",
-                                                      "preLocal");
+    static constexpr char kUnusedDestColor[] = "half4(1)";
+    std::string innerColor = emit_expression_for_entry(shaderInfo, *entryIndex, "inColor",
+                                                       kUnusedDestColor, "coords", "preLocal");
 
     // Emit preamble code for inner child.
     emit_preamble_for_entry(shaderInfo, entryIndex, preamble);
 
     // Evaluate outer child.
     std::string outerColor = emit_expression_for_entry(shaderInfo, *entryIndex, innerColor,
-                                                       "coords", "preLocal");
+                                                       kUnusedDestColor, "coords", "preLocal");
 
     // Emit preamble code for outer child.
     emit_preamble_for_entry(shaderInfo, entryIndex, preamble);
@@ -853,8 +875,9 @@ std::string GenerateFixedFunctionBlenderExpression(const SkShaderInfo&,
                                                    int entryIndex,
                                                    const SkPaintParamsKey::BlockReader& reader,
                                                    const std::string& priorStageOutputName,
-                                                   const std::string& fragCoord,
-                                                   const std::string& currentPreLocalExpr) {
+                                                   const std::string& /*destColorName*/,
+                                                   const std::string& /*fragCoord*/,
+                                                   const std::string& /*currentPreLocalExpr*/) {
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
     SkASSERT(reader.entry()->fUniforms.empty());
     SkASSERT(reader.numDataPayloadFields() == 1);
@@ -881,15 +904,18 @@ std::string GenerateShaderBasedBlenderExpression(const SkShaderInfo& shaderInfo,
                                                  int entryIndex,
                                                  const SkPaintParamsKey::BlockReader& reader,
                                                  const std::string& priorStageOutputName,
-                                                 const std::string& fragCoord,
-                                                 const std::string& currentPreLocalExpr) {
+                                                 const std::string& /*destColorName*/,
+                                                 const std::string& /*fragCoord*/,
+                                                 const std::string& /*currentPreLocalExpr*/) {
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
     SkASSERT(reader.entry()->fUniforms.size() == 1);
     SkASSERT(reader.numDataPayloadFields() == 0);
 
     std::string uniformName = reader.entry()->getMangledUniformName(shaderInfo, 0, entryIndex);
 
-    // TODO: emit function to perform dest read into preamble, and replace half(1) with that call
+    // TODO: emit function to perform dest read into preamble, and replace half(1) with that call.
+    // (The `destColorName` variable probably seems tempting here, but this is used for programmatic
+    // src+dest blends within the shader, not for blends against the destination surface.)
 
     return SkSL::String::printf("%s(%s, %s, half4(1))",
                                 reader.entry()->fStaticFunctionName,
@@ -1078,12 +1104,16 @@ int SkShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffe
         return *existingCodeSnippetID;
     }
 
-    const SnippetRequirementFlags snippetFlags = effect->allowShader()
-                                                         ? SnippetRequirementFlags::kLocalCoords
-                                                         : SnippetRequirementFlags::kNone;
+    int snippetFlags = (int)SnippetRequirementFlags::kNone;
+    if (effect->allowShader()) {
+        snippetFlags |= (int)SnippetRequirementFlags::kLocalCoords;
+    }
+    if (effect->allowBlender()) {
+        snippetFlags |= (int)SnippetRequirementFlags::kDestColor;
+    }
     int newCodeSnippetID = this->addUserDefinedSnippet("RuntimeEffect",
                                                        this->convertUniforms(effect),
-                                                       snippetFlags,
+                                                       (SnippetRequirementFlags)snippetFlags,
                                                        /*texturesAndSamplers=*/{},
                                                        kRuntimeShaderName,
                                                        GenerateRuntimeShaderExpression,
