@@ -4,6 +4,18 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_builtin_icu_sources.
+filegroup(
+    name = "builtin_srcs",
+    srcs = ["SkUnicode_icu_builtin.cpp"],
+)
+
+# In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_runtime_icu_sources.
+filegroup(
+    name = "runtime_srcs",
+    srcs = ["SkUnicode_icu_runtime.cpp"],
+)
+
 filegroup(
     name = "srcs",
     srcs = [
@@ -11,12 +23,11 @@ filegroup(
         "SkUnicode_client.cpp",
         "SkUnicode_icu.cpp",
         "SkUnicode_icu.h",
-        "SkUnicode_icu_builtin.cpp",
+        ":builtin_srcs",
         # TODO(kjlubick, bungeman): add support for SkUnicdoe_icu_runtime.cpp
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
-
 
 filegroup(
     name = "no_icu",
