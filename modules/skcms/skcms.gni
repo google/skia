@@ -1,14 +1,12 @@
-# Copyright 2018 Google Inc.
-#
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-#
-# This file is deprecated - clients should use //modules/skcms/skcms.gni
+# DO NOT EDIT: This is a generated file.
+# See //bazel/exporter_tool/README.md for more information.
 
-skcms_public_headers = [ "skcms.h" ]
+_modules = get_path_info("../../modules", "abspath")
+
+skcms_public_headers = [ "$_modules/skcms/skcms.h" ]
 
 skcms_sources = [
-  "skcms.cc",
-  "skcms_internal.h",
-  "src/Transform_inl.h",
+  "$_modules/skcms/skcms.cc",
+  "$_modules/skcms/skcms_internal.h",
+  "$_modules/skcms/src/Transform_inl.h",
 ]

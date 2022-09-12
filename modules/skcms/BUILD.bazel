@@ -4,6 +4,32 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# A separate group duplicating :skcms.hdrs for
+# export to //modules/skcms/skcms.gni:skcms_public_headers.
+filegroup(
+    name = "public_hdrs",
+    srcs = ["skcms.h"],
+)
+
+# A separate group duplicating :skcms.srcs for
+# export to //modules/skcms/skcms.gni:skcms_sources.
+filegroup(
+    name = "srcs",
+    srcs = [
+        "skcms.cc",
+        "skcms_internal.h",
+    ],
+)
+
+# A separate group duplicating :skcms.textual_hdrs for
+# export to //modules/skcms/skcms.gni:skcms_sources.
+filegroup(
+    name = "textual_hdrs",
+    srcs = [
+        "src/Transform_inl.h",
+    ],
+)
+
 skia_cc_library(
     name = "skcms",
     srcs = [

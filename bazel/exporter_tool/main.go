@@ -364,6 +364,15 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//modules/skottie/src/text:srcs",
 			}},
 	}},
+	{GNI: "modules/skcms/skcms.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skcms_public_headers",
+			Rules: []string{"//modules/skcms:public_hdrs"}},
+		{Var: "skcms_sources",
+			Rules: []string{
+				"//modules/skcms:srcs",
+				"//modules/skcms:textual_hdrs",
+			}},
+	}},
 }
 
 const (
