@@ -166,17 +166,53 @@ const ParagraphStyle& ParagraphBuilderImpl::getParagraphStyle() const {
 }
 
 std::unique_ptr<Paragraph> ParagraphBuilderImpl::BuildWithClientInfo(
-                std::vector<SkUnicode::BidiRegion> bidiRegions,
-                std::vector<SkUnicode::Position> words,
-                std::vector<SkUnicode::Position> graphemeBreaks,
-                std::vector<SkUnicode::LineBreakBefore> lineBreaks) {
+                std::vector<SkUnicode::BidiRegion> bidiRegionsUtf16,
+                std::vector<SkUnicode::Position> wordsUtf16,
+                std::vector<SkUnicode::Position> graphemeBreaksUtf16,
+                std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf16) {
+
+    SkSpan text = SkSpan<char>(fUtf8.isEmpty() ? nullptr : &fUtf8[0], fUtf8.size());
+
+    // TODO: This mapping is created twice. Here and in ParagraphImpl.cpp.
+    SkTArray<TextIndex, true> utf8IndexForUtf16Index;
+    SkUnicode::extractUtfConversionMapping(
+                text,
+                [&](size_t index) { utf8IndexForUtf16Index.emplace_back(index); },
+                [&](size_t index) {});
+
+    std::vector<SkUnicode::BidiRegion> bidiRegionsUtf8;
+    for (SkUnicode::BidiRegion bidiRegionUtf16: bidiRegionsUtf16) {
+        bidiRegionsUtf8.emplace_back(
+                SkUnicode::BidiRegion(utf8IndexForUtf16Index[bidiRegionUtf16.start],
+                                      utf8IndexForUtf16Index[bidiRegionUtf16.end],
+                                      bidiRegionUtf16.level));
+    }
+
+    std::vector<SkUnicode::Position> wordsUtf8;
+    for (SkUnicode::Position indexUtf16: wordsUtf16) {
+        wordsUtf8.emplace_back(utf8IndexForUtf16Index[indexUtf16]);
+    }
+
+    std::vector<SkUnicode::Position> graphemeBreaksUtf8;
+    for (SkUnicode::Position indexUtf16: graphemeBreaksUtf16) {
+        graphemeBreaksUtf8.emplace_back(utf8IndexForUtf16Index[indexUtf16]);
+    }
+
+    std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf8;
+    for (SkUnicode::LineBreakBefore lineBreakUtf16: lineBreaksUtf16) {
+        lineBreaksUtf8.emplace_back(SkUnicode::LineBreakBefore(
+                utf8IndexForUtf16Index[lineBreakUtf16.pos], lineBreakUtf16.breakType));
+    }
+
+    utf8IndexForUtf16Index.reset();
+
     // This is the place where SkUnicode is paired with SkParagraph
     fUnicode =
-            SkUnicode::Make(SkSpan<char>(fUtf8.isEmpty() ? nullptr : &fUtf8[0], fUtf8.size()),
-                            std::move(bidiRegions),
-                            std::move(words),
-                            std::move(graphemeBreaks),
-                            std::move(lineBreaks));
+            SkUnicode::Make(text,
+                            std::move(bidiRegionsUtf8),
+                            std::move(wordsUtf8),
+                            std::move(graphemeBreaksUtf8),
+                            std::move(lineBreaksUtf8));
     return this->Build();
 }
 

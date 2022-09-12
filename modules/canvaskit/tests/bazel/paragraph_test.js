@@ -1103,7 +1103,7 @@ describe('Paragraph Behavior', function() {
 
         // Pass 1 bidi region as a triple of integers, [start:end), direction
         const mallocedBidis = CanvasKit.Malloc(Uint32Array, 3);
-        mallocedBidis.toTypedArray().set([0, text.length, 0]);
+        mallocedBidis.toTypedArray().set([0, text.length, CanvasKit.TextDirection.LTR.value]);
 
         // Pass the entire text as one word. It's only used for the method
         // getWords
@@ -1112,41 +1112,32 @@ describe('Paragraph Behavior', function() {
 
         // Pass each character as a separate grapheme
         const mallocedGraphemes = CanvasKit.Malloc(Uint32Array, text.length + 1);
-        let graphemesArr = mallocedGraphemes.toTypedArray();
+        const graphemesArr = mallocedGraphemes.toTypedArray();
         for (let i = 0; i <= text.length; i++) {
             graphemesArr[i] = i;
         }
 
-        // Pass each space as a "soft" line break
-        const spaces = [0];
+        // Pass each space as a "soft" break and each new line as a "hard" break.
+        const SOFT = 0;
+        const HARD = 1;
+        const lineBreaks = [0, SOFT];
         for (let i = 0; i < text.length; ++i) {
           if (text[i] === ' ') {
-              spaces.push(i + 1);
+              lineBreaks.push(i + 1, SOFT);
           }
-        }
-        spaces[spaces.length] = text.length;
-        const mallocedSoftBreaks = CanvasKit.Malloc(Uint32Array, spaces.length);
-        mallocedSoftBreaks.toTypedArray().set(spaces);
-
-        // Pass each new line as a "hard" line break
-        const newLines = [];
-        for (let i = 0; i < text.length; ++i) {
           if (text[i] === '\n') {
-              newLines.push(i + 1);
+              lineBreaks.push(i + 1, HARD);
           }
         }
-        const mallocedHardBreaks = CanvasKit.Malloc(Uint32Array, newLines.length);
-        mallocedHardBreaks.toTypedArray().set(newLines);
-
-        const text2 = builder.getText();
-        expect(text2).toEqual(text);
+        lineBreaks.push(text.length, SOFT);
+        const mallocedLineBreaks = CanvasKit.Malloc(Uint32Array, lineBreaks.length);
+        mallocedLineBreaks.toTypedArray().set(lineBreaks);
 
         const paragraph = builder.buildWithClientInfo(
             mallocedBidis,
             mallocedWords,
             graphemesArr,
-            mallocedSoftBreaks,
-            mallocedHardBreaks
+            mallocedLineBreaks
         );
 
         paragraph.layout(600);
@@ -1186,8 +1177,7 @@ describe('Paragraph Behavior', function() {
         CanvasKit.Free(mallocedBidis);
         CanvasKit.Free(mallocedWords);
         CanvasKit.Free(mallocedGraphemes);
-        CanvasKit.Free(mallocedSoftBreaks);
-        CanvasKit.Free(mallocedHardBreaks);
+        CanvasKit.Free(mallocedLineBreaks);
     });
 
 });

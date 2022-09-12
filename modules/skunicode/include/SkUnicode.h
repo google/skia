@@ -152,7 +152,7 @@ class SKUNICODE_API SkUnicode {
         static std::u16string convertUtf8ToUtf16(const SkString& utf8);
 
         template <typename Appender8, typename Appender16>
-        bool extractUtfConversionMapping(SkSpan<const char> utf8, Appender8&& appender8, Appender16&& appender16) {
+        static bool extractUtfConversionMapping(SkSpan<const char> utf8, Appender8&& appender8, Appender16&& appender16) {
             size_t size8 = 0;
             size_t size16 = 0;
             auto ptr = utf8.begin();

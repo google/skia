@@ -593,44 +593,37 @@ EMSCRIPTEN_BINDINGS(Paragraph) {
                       }))
             .function("_buildWithClientInfo",
                       optional_override([](para::ParagraphBuilderImpl& self,
-                                           WASMPointerU32 bidis, size_t bidisNum,
-                                           WASMPointerU32 words, size_t wordsNum,
-                                           WASMPointerU32 graphemes, size_t graphemesNum,
-                                           WASMPointerU32 softBreaks, size_t softBreaksNum,
-                                           WASMPointerU32 hardBreaks, size_t hardBreaksNum) {
-                      SkUnicode::Position* data = reinterpret_cast<SkUnicode::Position*>(bidis);
+                                           WASMPointerU32 clientBidis, size_t bidisNum,
+                                           WASMPointerU32 clientWords, size_t wordsNum,
+                                           WASMPointerU32 clientGraphemes, size_t graphemesNum,
+                                           WASMPointerU32 clientLineBreaks, size_t lineBreaksNum) {
+                      SkUnicode::Position* bidiData = reinterpret_cast<SkUnicode::Position*>(clientBidis);
                       std::vector<SkUnicode::BidiRegion> bidiRegions;
                       for (size_t i = 0; i < bidisNum; i += 3) {
-                          auto start = data[i];
-                          auto end = data[i+1];
-                          auto level = SkToU8(data[i+2]);
+                          auto start = bidiData[i];
+                          auto end = bidiData[i+1];
+                          auto direction = SkToU8(bidiData[i+2]);
+
+                          SkUnicode::BidiLevel level = direction == static_cast<int>(para::TextDirection::kLtr)
+                                                   ? static_cast<SkUnicode::BidiLevel>(SkUnicode::TextDirection::kLTR)
+                                                   : static_cast<SkUnicode::BidiLevel>(SkUnicode::TextDirection::kRTL);
                           bidiRegions.emplace_back(start, end, level);
                       }
-                      auto soft =
-                          convertArrayU32(softBreaks, softBreaksNum);
-                      auto hard =
-                          convertArrayU32(hardBreaks, hardBreaksNum);
+                      SkUnicode::Position* lineBreakData = reinterpret_cast<SkUnicode::Position*>(clientLineBreaks);
                       std::vector<SkUnicode::LineBreakBefore> lineBreaks;
-                      for (size_t s = 0, h = 0; s < softBreaksNum || h < hardBreaksNum; ) {
-                          auto sPos = soft[s];
-                          auto hPos = hard[h];
-                          if (hPos <= sPos) {
-                              lineBreaks.emplace_back(hPos,
-                                                      SkUnicode::LineBreakType::kHardLineBreak);
-                              if (hPos == sPos) {
-                                  ++s;
-                              }
-                              ++h;
-                          } else if (hPos > sPos) {
-                              lineBreaks.emplace_back(sPos,
-                                                      SkUnicode::LineBreakType::kSoftLineBreak);
-                              s++;
+                      for (size_t i = 0; i < lineBreaksNum; i += 2) {
+                          auto pos = lineBreakData[i];
+                          auto breakType = lineBreakData[i+1];
+                          if (breakType == 0) {
+                              lineBreaks.emplace_back(pos, SkUnicode::LineBreakType::kSoftLineBreak);
+                          } else {
+                              lineBreaks.emplace_back(pos, SkUnicode::LineBreakType::kHardLineBreak);
                           }
                       }
                       return self.BuildWithClientInfo(
                                         std::move(bidiRegions),
-                                        convertArrayU32(words, wordsNum),
-                                        convertArrayU32(graphemes, graphemesNum),
+                                        convertArrayU32(clientWords, wordsNum),
+                                        convertArrayU32(clientGraphemes, graphemesNum),
                                         std::move(lineBreaks));
                   }));
 

@@ -615,14 +615,12 @@ function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) 
     const mallocedBidis = CK.Malloc(Uint32Array, 3);
     const mallocedWords = new Uint32Array(10);
     const mallocedGraphemes =  new Uint32Array(10);
-    const mallocedSoftBreaks =  new Uint32Array(10);
-    const mallocedHardBreaks =  new Uint32Array(10);
+    const mallocedLineBreaks =  new Uint32Array(10);
     const paragraph3 = builder.buildWithClientInfo(
         mallocedBidis,
         mallocedWords,
         mallocedGraphemes,
-        mallocedSoftBreaks,
-        mallocedHardBreaks
+        mallocedLineBreaks
     ); // $ExpectType Paragraph
 }
 
