@@ -65,12 +65,15 @@ struct SkShaderSnippet {
                                                   int* entryIndex,
                                                   const SkPaintParamsKey::BlockReader&,
                                                   std::string* preamble);
+    struct Args {
+        std::string_view fPriorStageOutput;
+        std::string_view fFragCoord;
+        std::string_view fPreLocalMatrix;
+    };
     using GenerateExpressionForSnippetFn = std::string (*)(const SkShaderInfo& shaderInfo,
                                                            int entryIndex,
                                                            const SkPaintParamsKey::BlockReader&,
-                                                           const std::string& priorStageOutputName,
-                                                           const std::string& fragCoord,
-                                                           const std::string& currentPreLocalName);
+                                                           const Args& args);
 
     SkShaderSnippet() = default;
 
