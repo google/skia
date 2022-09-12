@@ -937,3 +937,110 @@ DEF_SIMPLE_GM(local_matrix_shader_rt, canvas, 256, 256) {
     canvas->drawRect(r, paint);
     canvas->restore();
 }
+
+DEF_SIMPLE_GM(null_child_rt, canvas, 150, 100) {
+    using ChildPtr = SkRuntimeEffect::ChildPtr;
+
+    // Every swatch should evaluate to the same shade of purple.
+    // Paint with a shader evaluating a null shader.
+    {
+        const SkString kEvalShader{R"(
+            uniform shader s;
+            half4 main(float2 p, half4 c) { return s.eval(p); }
+        )"};
+        auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalShader, {});
+        SkASSERT(rtShader);
+
+        SkPaint paint;
+        ChildPtr children[1] = {ChildPtr{sk_sp<SkShader>{nullptr}}};
+        paint.setShader(rtShader->makeShader(/*uniforms=*/nullptr, children));
+        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));
+        canvas->drawRect({0, 0, 48, 48}, paint);
+        canvas->translate(50, 0);
+    }
+    // Paint with a shader evaluating a null color filter.
+    {
+        const SkString kEvalColorFilter{R"(
+            uniform colorFilter cf;
+            half4 main(float2 p, half4 c) { return cf.eval(c); }
+        )"};
+        auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalColorFilter, {});
+        SkASSERT(rtShader);
+
+        SkPaint paint;
+        ChildPtr children[1] = {ChildPtr{sk_sp<SkColorFilter>{nullptr}}};
+        paint.setShader(rtShader->makeShader(/*uniforms=*/nullptr, children));
+        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));
+        canvas->drawRect({0, 0, 48, 48}, paint);
+        canvas->translate(50, 0);
+    }
+    // Paint with a shader evaluating a null blender.
+    {
+        const SkString kEvalBlender{R"(
+            uniform blender b;
+            half4 main(float2 p, half4 c) { return b.eval(half4(0.5, 0, 0, 0.5), c); }
+        )"};
+        auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalBlender, {});
+        SkASSERT(rtShader);
+
+        SkPaint paint;
+        ChildPtr children[1] = {ChildPtr{sk_sp<SkBlender>{nullptr}}};
+        paint.setShader(rtShader->makeShader(/*uniforms=*/nullptr, children));
+        paint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));
+        canvas->drawRect({0, 0, 48, 48}, paint);
+        canvas->translate(50, 0);
+    }
+
+    canvas->translate(-150, 50);
+
+    // Paint with a color filter evaluating a null shader.
+    {
+        const SkString kEvalShader{R"(
+            uniform shader s;
+            half4 main(half4 c) { return s.eval(float2(0)); }
+        )"};
+        auto [rtFilter, error] = SkRuntimeEffect::MakeForColorFilter(kEvalShader, {});
+        SkASSERT(rtFilter);
+
+        SkPaint paint;
+        ChildPtr children[1] = {ChildPtr{sk_sp<SkShader>{nullptr}}};
+        paint.setColorFilter(rtFilter->makeColorFilter(/*uniforms=*/nullptr, children));
+        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));
+        canvas->drawRect({0, 0, 48, 48}, paint);
+        canvas->translate(50, 0);
+    }
+    // Paint with a color filter evaluating a null color filter.
+    {
+        const SkString kEvalColorFilter{R"(
+            uniform colorFilter cf;
+            half4 main(half4 c) { return cf.eval(c); }
+        )"};
+        auto [rtFilter, error] = SkRuntimeEffect::MakeForColorFilter(kEvalColorFilter, {});
+        SkASSERT(rtFilter);
+
+        SkPaint paint;
+        ChildPtr children[1] = {ChildPtr{sk_sp<SkColorFilter>{nullptr}}};
+        paint.setColorFilter(rtFilter->makeColorFilter(/*uniforms=*/nullptr, children));
+        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));
+        canvas->drawRect({0, 0, 48, 48}, paint);
+        canvas->translate(50, 0);
+    }
+    // Paint with a color filter evaluating a null blender.
+    {
+        const SkString kEvalBlender{R"(
+            uniform blender b;
+            half4 main(half4 c) { return b.eval(half4(0.5, 0, 0, 0.5), c); }
+        )"};
+        auto [rtFilter, error] = SkRuntimeEffect::MakeForColorFilter(kEvalBlender, {});
+        SkASSERT(rtFilter);
+
+        SkPaint paint;
+        ChildPtr children[1] = {ChildPtr{sk_sp<SkBlender>{nullptr}}};
+        paint.setColorFilter(rtFilter->makeColorFilter(/*uniforms=*/nullptr, children));
+        paint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));
+        canvas->drawRect({0, 0, 48, 48}, paint);
+        canvas->translate(50, 0);
+    }
+
+    canvas->translate(-150, 50);
+}
