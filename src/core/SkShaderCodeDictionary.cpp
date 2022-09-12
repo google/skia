@@ -79,7 +79,7 @@ static std::string emit_expression_for_entry(const SkShaderInfo& shaderInfo,
 
         // Multiply in this entry's pre-local coordinate matrix.
         updatedMatrix = std::string(args.fPreLocalMatrix);
-        updatedMatrix += " * ";
+        updatedMatrix += "*";
         updatedMatrix += entry->getMangledUniformName(shaderInfo, 0, entryIndex);
         args.fPreLocalMatrix = updatedMatrix;
     }
@@ -99,8 +99,8 @@ static std::string emit_glue_code_for_entry(const SkShaderInfo& shaderInfo,
     std::string expr = emit_expression_for_entry(shaderInfo, entryIndex, args);
     std::string outputVar = get_mangled_name("outColor", entryIndex);
     SkSL::String::appendf(funcBody,
-                          "    // %s\n"
-                          "    half4 %s = %s;\n",
+                          "// %s\n"
+                          "half4 %s = %s;",
                           entry->fName,
                           outputVar.c_str(),
                           expr.c_str());
@@ -132,7 +132,7 @@ static void emit_preamble_for_entry(const SkShaderInfo& shaderInfo,
 std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
                                  const bool defineShadingSsboIndexVarying,
                                  const bool defineLocalCoordsVarying) const {
-    std::string preamble = "layout(location = 0, index = 0) out half4 sk_FragColor;\n";
+    std::string preamble = "layout(location=0, index=0) out half4 sk_FragColor;\n";
     preamble += skgpu::graphite::EmitVaryings(
             step, "in", defineShadingSsboIndexVarying, defineLocalCoordsVarying);
 
@@ -157,28 +157,28 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
         preamble += step->texturesAndSamplersSkSL(binding);
     }
 
-    std::string mainBody = "void main() {\n";
+    std::string mainBody = "void main() {";
 
     // TODO: Remove all the use of dev2LocalUni and the preLocal matrices once all render steps
     // that require local coordinates emit them directly.
     if (!this->needsLocalCoords()) {
-        mainBody += "    float4 coords = sk_FragCoord;\n";
+        mainBody += "float4 coords = sk_FragCoord;";
     } else if (this->ssboIndex()) {
         SkSL::String::appendf(
                 &mainBody,
-                "    float4 coords = %s * sk_FragCoord;\n",
+                "float4 coords = %s * sk_FragCoord;",
                 skgpu::graphite::EmitStorageBufferAccess("fs", this->ssboIndex(), "dev2LocalUni")
                         .c_str());
     } else {
-        mainBody += "    float4 coords = dev2LocalUni * sk_FragCoord;\n";
+        mainBody += "float4 coords = dev2LocalUni * sk_FragCoord;";
     }
 
     // TODO: what is the correct initial color to feed in?
     std::string lastOutputVar = "initialColor";
-    mainBody += "    half4 initialColor = half4(0);";
+    mainBody += "half4 initialColor = half4(0);";
     if (this->needsLocalCoords()) {
         // Get the local coordinates varying into float4 format as expected by emit_glue_code.
-        mainBody += "float4 outLocalCoords = float4(localCoordsVar, 0.0, 0.0);\n";
+        mainBody += "float4 outLocalCoords = localCoordsVar.xy00;";
     }
 
     for (int entryIndex = 0; entryIndex < (int)fBlockReaders.size();) {
@@ -200,15 +200,15 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
         mainBody += step->fragmentColorSkSL();
         // TODO: Apply primitive blender
         // For now, just overwrite the prior color stored in lastOutputVar
-        SkSL::String::appendf(&mainBody, "    %s = primitiveColor;\n", lastOutputVar.c_str());
+        SkSL::String::appendf(&mainBody, "%s = primitiveColor;", lastOutputVar.c_str());
     }
     if (step->emitsCoverage()) {
         mainBody += "half4 outputCoverage;";
         mainBody += step->fragmentCoverageSkSL();
-        SkSL::String::appendf(&mainBody, "    sk_FragColor = %s * outputCoverage;\n",
+        SkSL::String::appendf(&mainBody, "sk_FragColor = %s * outputCoverage;",
                               lastOutputVar.c_str());
     } else {
-        SkSL::String::appendf(&mainBody, "    sk_FragColor = %s;\n", lastOutputVar.c_str());
+        SkSL::String::appendf(&mainBody, "sk_FragColor = %s;", lastOutputVar.c_str());
     }
     mainBody += "}\n";
 
@@ -416,8 +416,8 @@ static void emit_helper_function(const SkShaderInfo& shaderInfo,
     std::string snippetArgList = append_default_snippet_arguments(shaderInfo, entry, curEntryIndex,
                                                                   args, childOutputVarNames);
     SkSL::String::appendf(&helperFn,
-                          "    return %s%s;\n"
-                          "}\n",
+                              "return %s%s;"
+                          "}",
                           entry->fStaticFunctionName, snippetArgList.c_str());
 
     // Add our new helper function to the bottom of the preamble.
@@ -652,28 +652,28 @@ public:
         if (isMain) {
             SkSL::String::appendf(
                  fPreamble,
-                 "half4 %s_%d(half4 inColor, half4 destColor, float4 coords, float4x4 preLocal) {\n"
-                 "    float2 pos = (preLocal * coords).xy;\n"
-                 "%s"
-                 "}\n",
+                 "half4 %s_%d(half4 inColor, half4 destColor, float4 coords, float4x4 preLocal) {"
+                     "float2 pos = (preLocal * coords).xy;"
+                     "%s"
+                 "}",
                  kRuntimeShaderName,
                  fEntryIndex,
                  body);
         } else {
-            SkSL::String::appendf(fPreamble, "%s {\n%s}\n", decl, body);
+            SkSL::String::appendf(fPreamble, "%s {%s}\n", decl, body);
         }
     }
 
     void declareFunction(const char* decl) override {
-        *fPreamble += std::string(decl) + ";\n";
+        *fPreamble += std::string(decl) + ";";
     }
 
     void defineStruct(const char* definition) override {
-        *fPreamble += std::string(definition) + ";\n";
+        *fPreamble += std::string(definition) + ";";
     }
 
     void declareGlobal(const char* declaration) override {
-        *fPreamble += std::string(declaration) + ";\n";
+        *fPreamble += std::string(declaration) + ";";
     }
 
     std::string sampleShader(int index, std::string coords) override {
@@ -822,9 +822,9 @@ void GenerateComposeColorFilterPreamble(const SkShaderInfo& shaderInfo,
     std::string helperFnName = get_mangled_name(entry->fStaticFunctionName, curEntryIndex);
     SkSL::String::appendf(
             preamble,
-            "half4 %s(half4 inColor, half4 destColor, float4 coords, float4x4 preLocal) {\n"
-            "    return %s;\n"
-            "}\n",
+            "half4 %s(half4 inColor, half4 destColor, float4 coords, float4x4 preLocal) {"
+                "return %s;"
+            "}",
             helperFnName.c_str(),
             outerColor.c_str());
 #endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
