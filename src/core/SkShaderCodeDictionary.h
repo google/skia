@@ -56,7 +56,8 @@ private:
 enum class SnippetRequirementFlags : uint32_t {
     kNone = 0x0,
     kLocalCoords = 0x1,
-    kPriorStageOutput = 0x2
+    kPriorStageOutput = 0x2,  // AKA the "input" color, or the "source" color for a blender
+    kDestColor = 0x4,
 };
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags);
 
@@ -67,6 +68,7 @@ struct SkShaderSnippet {
                                                   std::string* preamble);
     struct Args {
         std::string_view fPriorStageOutput;
+        std::string_view fDestColor;
         std::string_view fFragCoord;
         std::string_view fPreLocalMatrix;
     };
@@ -106,6 +108,9 @@ struct SkShaderSnippet {
     }
     bool needsPriorStageOutput() const {
         return fSnippetRequirementFlags & SnippetRequirementFlags::kPriorStageOutput;
+    }
+    bool needsDestColor() const {
+        return fSnippetRequirementFlags & SnippetRequirementFlags::kDestColor;
     }
 
     const char* fName = nullptr;
