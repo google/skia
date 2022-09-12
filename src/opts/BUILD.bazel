@@ -10,7 +10,6 @@ filegroup(
         ("@platforms//cpu:x86_64", "@platforms//cpu:x86_32"): [
             "SkOpts_avx.cpp",
             "SkOpts_hsw.cpp",
-            "SkOpts_sse41.cpp",
             "SkOpts_sse42.cpp",
             "SkOpts_ssse3.cpp",
             "SkOpts_skx.cpp",
