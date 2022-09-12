@@ -77,14 +77,10 @@ cc_defaults {
     name: "skia_arch_defaults",
     arch: {
         arm: {
-            srcs: [
-                $arm_srcs
-            ],
+            srcs: [],
 
             neon: {
-                srcs: [
-                    $arm_neon_srcs
-                ],
+                srcs: [],
             },
         },
 
@@ -794,13 +790,8 @@ with open('Android.bp', 'w') as Android_bp:
     'cflags':          bpfmt(8, cflags, False),
     'cflags_cc':       bpfmt(8, cflags_cc),
 
-    'arm_srcs':      bpfmt(16, strip_headers(defs['armv7'])),
-    'arm_neon_srcs': bpfmt(20, strip_headers(defs['neon'])),
-    'arm64_srcs':    bpfmt(16, strip_headers(defs['arm64'] +
-                                             defs['crc32'])),
-    'x86_srcs':      bpfmt(16, strip_headers(defs['sse2'] +
-                                             defs['ssse3'] +
-                                             defs['sse41'] +
+    'arm64_srcs':    bpfmt(16, strip_headers(defs['crc32'])),
+    'x86_srcs':      bpfmt(16, strip_headers(defs['ssse3'] +
                                              defs['sse42'] +
                                              defs['avx'  ] +
                                              defs['hsw'  ] +
