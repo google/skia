@@ -112,7 +112,7 @@ public:
     bool hasTextures() const { return !fTextureDataBlock.empty(); }
 #endif // SK_GRAPHITE_ENABLED
 
-    void addFlags(SnippetRequirementFlags flags);
+    void addFlags(SkEnumBitMask<SnippetRequirementFlags> flags);
     bool needsLocalCoords() const;
 
 #ifdef SK_GRAPHITE_ENABLED

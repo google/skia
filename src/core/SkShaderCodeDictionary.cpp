@@ -907,7 +907,7 @@ static constexpr int kNoChildren = 0;
 int SkShaderCodeDictionary::addUserDefinedSnippet(
         const char* name,
         SkSpan<const SkUniform> uniforms,
-        SnippetRequirementFlags snippetRequirementFlags,
+        SkEnumBitMask<SnippetRequirementFlags> snippetRequirementFlags,
         SkSpan<const SkTextureAndSampler> texturesAndSamplers,
         const char* functionName,
         SkShaderSnippet::GenerateExpressionForSnippetFn expressionGenerator,
@@ -1063,9 +1063,9 @@ int SkShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffe
         return *existingCodeSnippetID;
     }
 
-    const SnippetRequirementFlags snippetFlags = effect->allowShader()
-                                                         ? SnippetRequirementFlags::kLocalCoords
-                                                         : SnippetRequirementFlags::kNone;
+    SkEnumBitMask<SnippetRequirementFlags> snippetFlags =
+            effect->allowShader() ? SnippetRequirementFlags::kLocalCoords
+                                  : SnippetRequirementFlags::kNone;
     int newCodeSnippetID = this->addUserDefinedSnippet("RuntimeEffect",
                                                        this->convertUniforms(effect),
                                                        snippetFlags,
