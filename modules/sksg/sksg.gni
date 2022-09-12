@@ -1,35 +1,32 @@
-# Copyright 2018 Google Inc.
-#
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
+# DO NOT EDIT: This is a generated file.
+# See //bazel/exporter_tool/README.md for more information.
 
-# Things are easiest for everyone if these source paths are absolute.
-_src = get_path_info("src", "abspath")
+_modules = get_path_info("../../modules", "abspath")
 
 skia_sksg_sources = [
-  "$_src/SkSGClipEffect.cpp",
-  "$_src/SkSGColorFilter.cpp",
-  "$_src/SkSGDraw.cpp",
-  "$_src/SkSGEffectNode.cpp",
-  "$_src/SkSGGeometryEffect.cpp",
-  "$_src/SkSGGeometryNode.cpp",
-  "$_src/SkSGGradient.cpp",
-  "$_src/SkSGGroup.cpp",
-  "$_src/SkSGImage.cpp",
-  "$_src/SkSGInvalidationController.cpp",
-  "$_src/SkSGMaskEffect.cpp",
-  "$_src/SkSGMerge.cpp",
-  "$_src/SkSGNode.cpp",
-  "$_src/SkSGNodePriv.h",
-  "$_src/SkSGOpacityEffect.cpp",
-  "$_src/SkSGPaint.cpp",
-  "$_src/SkSGPath.cpp",
-  "$_src/SkSGPlane.cpp",
-  "$_src/SkSGRect.cpp",
-  "$_src/SkSGRenderEffect.cpp",
-  "$_src/SkSGRenderNode.cpp",
-  "$_src/SkSGScene.cpp",
-  "$_src/SkSGText.cpp",
-  "$_src/SkSGTransform.cpp",
-  "$_src/SkSGTransformPriv.h",
+  "$_modules/sksg/src/SkSGClipEffect.cpp",
+  "$_modules/sksg/src/SkSGColorFilter.cpp",
+  "$_modules/sksg/src/SkSGDraw.cpp",
+  "$_modules/sksg/src/SkSGEffectNode.cpp",
+  "$_modules/sksg/src/SkSGGeometryEffect.cpp",
+  "$_modules/sksg/src/SkSGGeometryNode.cpp",
+  "$_modules/sksg/src/SkSGGradient.cpp",
+  "$_modules/sksg/src/SkSGGroup.cpp",
+  "$_modules/sksg/src/SkSGImage.cpp",
+  "$_modules/sksg/src/SkSGInvalidationController.cpp",
+  "$_modules/sksg/src/SkSGMaskEffect.cpp",
+  "$_modules/sksg/src/SkSGMerge.cpp",
+  "$_modules/sksg/src/SkSGNode.cpp",
+  "$_modules/sksg/src/SkSGNodePriv.h",
+  "$_modules/sksg/src/SkSGOpacityEffect.cpp",
+  "$_modules/sksg/src/SkSGPaint.cpp",
+  "$_modules/sksg/src/SkSGPath.cpp",
+  "$_modules/sksg/src/SkSGPlane.cpp",
+  "$_modules/sksg/src/SkSGRect.cpp",
+  "$_modules/sksg/src/SkSGRenderEffect.cpp",
+  "$_modules/sksg/src/SkSGRenderNode.cpp",
+  "$_modules/sksg/src/SkSGScene.cpp",
+  "$_modules/sksg/src/SkSGText.cpp",
+  "$_modules/sksg/src/SkSGTransform.cpp",
+  "$_modules/sksg/src/SkSGTransformPriv.h",
 ]

@@ -347,6 +347,23 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_unicode_runtime_icu_sources",
 			Rules: []string{"//modules/skunicode/src:runtime_srcs"}},
 	}},
+	{GNI: "modules/sksg/sksg.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_sksg_sources",
+			Rules: []string{"//modules/sksg/src:srcs"}},
+	}},
+	{GNI: "modules/skottie/skottie.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_skottie_public",
+			Rules: []string{"//modules/skottie/include:hdrs"}},
+		{Var: "skia_skottie_sources",
+			Rules: []string{
+				"//modules/skottie/src:srcs",
+				"//modules/skottie/src/animator:srcs",
+				"//modules/skottie/src/effects:srcs",
+				"//modules/skottie/src/layers:srcs",
+				"//modules/skottie/src/layers/shapelayer:srcs",
+				"//modules/skottie/src/text:srcs",
+			}},
+	}},
 }
 
 const (
