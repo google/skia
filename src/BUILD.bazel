@@ -13,7 +13,6 @@ filegroup(
         "//src/effects:srcs",
         "//src/image:srcs",
         "//src/images:srcs",
-        "//src/opts:srcs",
         "//src/pathops:srcs",
         "//src/ports:srcs",
         "//src/sfnt:srcs",
@@ -80,7 +79,10 @@ filegroup(
         ],
         "//conditions:default": [],
     }),
-    visibility = ["//:__pkg__"],
+    visibility = [
+        "//:__pkg__",
+        "//src/opts:__pkg__",
+    ],
 )
 
 skia_cc_deps(
@@ -90,6 +92,7 @@ skia_cc_deps(
         "//src/codec:deps",
         "//src/images:deps",
         "//src/ports:deps",
+        "//src/opts:deps",
         "//modules/skcms:skcms",
     ] + select({
         "//src/gpu:has_gpu_backend": ["//src/gpu:deps"],

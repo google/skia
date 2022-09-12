@@ -1,26 +1,22 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "selects")
+"""
+SkOpts is built differently than the rest of our source files. See //src/core/SkOpts.h for
+a bit more background about what SkOpts is for and how it works.
+
+Instead of bubbling all the headers and sources up to the top level where they are compiled in
+one large library, we only bubble up the headers, so the default implementations in those files
+can be built against the minimum version of Skia (which the whole library is compiled with).
+
+We create several libraries that contain a single source file and may need to access any of
+Skia's headers. These libraries are each compiled with a different set of compiler flags
+(e.g. architecture options) and linked into the final library or binary.
+"""
+
+load("//bazel:macros.bzl", "exports_files_legacy", "selects", "skia_cc_deps", "skia_cc_library")
+load("//bazel:copts.bzl", "DEFAULT_COPTS")
 
 licenses(["notice"])
 
 exports_files_legacy()
-
-filegroup(
-    name = "srcs",
-    srcs = selects.with_or({
-        ("@platforms//cpu:x86_64", "@platforms//cpu:x86_32"): [
-            "SkOpts_avx.cpp",
-            "SkOpts_hsw.cpp",
-            "SkOpts_sse42.cpp",
-            "SkOpts_ssse3.cpp",
-            "SkOpts_skx.cpp",
-        ],
-        "@platforms//cpu:arm64": [
-            "SkOpts_crc32.cpp",
-        ],
-        "//conditions:default": [],
-    }),
-    visibility = ["//src:__pkg__"],
-)
 
 filegroup(
     name = "private_hdrs",
@@ -38,4 +34,77 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-# TODO(kjlubick) add copts, like "-msse2" and "-mssse3" as necessary
+OPTS_HDRS = [
+    "//src:private_hdrs",
+    "//include:private_hdrs",
+    "//include:public_hdrs",
+]
+
+skia_cc_library(
+    name = "avx",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
+    srcs = ["SkOpts_avx.cpp"],
+    copts = DEFAULT_COPTS + ["-mavx"],
+    textual_hdrs = OPTS_HDRS,
+    deps = ["//bazel:defines_from_flags"],
+)
+
+skia_cc_library(
+    name = "crc32",  # https://developer.arm.com/documentation/dui0801/g/A32-and-T32-Instructions/CRC32
+    srcs = ["SkOpts_ssse3.cpp"],
+    copts = DEFAULT_COPTS + ["-march=armv8-a+crc"],
+    textual_hdrs = OPTS_HDRS,
+    deps = ["//bazel:defines_from_flags"],
+)
+
+skia_cc_library(
+    name = "hsw",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#Advanced_Vector_Extensions_2
+    srcs = ["SkOpts_hsw.cpp"],
+    copts = DEFAULT_COPTS + ["-march=haswell"],
+    textual_hdrs = OPTS_HDRS,
+    deps = [
+        "//bazel:defines_from_flags",
+        "//modules/skcms",  # Needed to implement SkRasterPipeline_opts.h
+    ],
+)
+
+skia_cc_library(
+    name = "skx",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#AVX-512
+    srcs = ["SkOpts_skx.cpp"],
+    copts = DEFAULT_COPTS + ["-march=skylake-avx512"],
+    textual_hdrs = OPTS_HDRS,
+    deps = ["//bazel:defines_from_flags"],
+)
+
+skia_cc_library(
+    name = "ssse3",  # https://en.wikipedia.org/wiki/SSSE3
+    srcs = ["SkOpts_ssse3.cpp"],
+    copts = DEFAULT_COPTS + ["-mssse3"],
+    textual_hdrs = OPTS_HDRS,
+    deps = ["//bazel:defines_from_flags"],
+)
+
+skia_cc_library(
+    name = "sse42",  # https://en.wikipedia.org/wiki/SSE4#SSE4.2
+    srcs = ["SkOpts_sse42.cpp"],
+    copts = DEFAULT_COPTS + ["-msse4.2"],
+    textual_hdrs = OPTS_HDRS,
+    deps = ["//bazel:defines_from_flags"],
+)
+
+skia_cc_deps(
+    name = "deps",
+    visibility = ["//src:__pkg__"],
+    deps = selects.with_or({
+        ("@platforms//cpu:x86_64", "@platforms//cpu:x86_32"): [
+            ":avx",
+            ":hsw",
+            ":skx",
+            ":sse42",
+            ":ssse3",
+        ],
+        "@platforms//cpu:arm64": [
+            ":crc32",
+        ],
+        "//conditions:default": [],
+    }),
+)
