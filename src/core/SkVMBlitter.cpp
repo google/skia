@@ -237,6 +237,7 @@ SkVMBlitter::Params SkVMBlitter::EffectiveParams(const SkPixmap& device,
         shader = sk_make_sp<SkColorFilterShader>(std::move(shader),
                                                  paint.getAlphaf(),
                                                  sk_make_sp<NoopColorFilter>());
+        paint.setAlphaf(1.0f);
     }
 
     // Add dither to the end of the shader pipeline if requested and needed.
