@@ -59,7 +59,6 @@ protected:
     const SkMatrix& getMatrix() const { return fMatrix; }
 
     void flatten(SkWriteBuffer& buffer) const override {
-        this->INHERITED::flatten(buffer);
         buffer.writeMatrix(fMatrix);
     }
 
@@ -105,7 +104,6 @@ private:
     bool computeFastBounds(SkRect*) const override { return false; }
 
     friend class Sk2DPathEffectBlitter;
-    using INHERITED = SkPathEffect;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

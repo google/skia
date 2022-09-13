@@ -55,8 +55,6 @@ protected:
 private:
     // For simplicity, assume fast bounds cannot be computed
     bool computeFastBounds(SkRect*) const override { return false; }
-
-    using INHERITED = SkPathEffect;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
