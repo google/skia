@@ -943,50 +943,53 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 100) {
 
     // Every swatch should evaluate to the same shade of purple.
     // Paint with a shader evaluating a null shader.
+    // Point passed to eval() is ignored; paint color is returned.
     {
         const SkString kEvalShader{R"(
             uniform shader s;
-            half4 main(float2 p, half4 c) { return s.eval(p); }
+            half4 main(float2 p) { return s.eval(p); }
         )"};
-        auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalShader, {});
+        auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalShader);
         SkASSERT(rtShader);
 
         SkPaint paint;
         ChildPtr children[1] = {ChildPtr{sk_sp<SkShader>{nullptr}}};
         paint.setShader(rtShader->makeShader(/*uniforms=*/nullptr, children));
-        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));
+        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));  // purple (contributes)
         canvas->drawRect({0, 0, 48, 48}, paint);
         canvas->translate(50, 0);
     }
     // Paint with a shader evaluating a null color filter.
+    // Color passed to eval() is returned; paint color is ignored.
     {
         const SkString kEvalColorFilter{R"(
             uniform colorFilter cf;
-            half4 main(float2 p, half4 c) { return cf.eval(c); }
+            half4 main(float2 p) { return cf.eval(half4(0.5, 0, 0.5, 1)); }
         )"};
-        auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalColorFilter, {});
+        auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalColorFilter);
         SkASSERT(rtShader);
 
         SkPaint paint;
         ChildPtr children[1] = {ChildPtr{sk_sp<SkColorFilter>{nullptr}}};
         paint.setShader(rtShader->makeShader(/*uniforms=*/nullptr, children));
-        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));
+        paint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));  // green (does not contribute)
         canvas->drawRect({0, 0, 48, 48}, paint);
         canvas->translate(50, 0);
     }
     // Paint with a shader evaluating a null blender.
+    // Colors passed to eval() are blended via src-over; paint color is ignored.
     {
         const SkString kEvalBlender{R"(
             uniform blender b;
-            half4 main(float2 p, half4 c) { return b.eval(half4(0.5, 0, 0, 0.5), c); }
+            half4 main(float2 p) { return b.eval(half4(0.5, 0, 0, 0.5), half4(0, 0, 1, 1)); }
         )"};
-        auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalBlender, {});
+        auto [rtShader, error] = SkRuntimeEffect::MakeForShader(kEvalBlender);
         SkASSERT(rtShader);
 
         SkPaint paint;
         ChildPtr children[1] = {ChildPtr{sk_sp<SkBlender>{nullptr}}};
         paint.setShader(rtShader->makeShader(/*uniforms=*/nullptr, children));
-        paint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));
+        paint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));  // green (does not contribute)
         canvas->drawRect({0, 0, 48, 48}, paint);
         canvas->translate(50, 0);
     }
@@ -994,50 +997,53 @@ DEF_SIMPLE_GM(null_child_rt, canvas, 150, 100) {
     canvas->translate(-150, 50);
 
     // Paint with a color filter evaluating a null shader.
+    // Point passed to eval() is ignored; previous-stage color (the paint color) is returned.
     {
         const SkString kEvalShader{R"(
             uniform shader s;
             half4 main(half4 c) { return s.eval(float2(0)); }
         )"};
-        auto [rtFilter, error] = SkRuntimeEffect::MakeForColorFilter(kEvalShader, {});
+        auto [rtFilter, error] = SkRuntimeEffect::MakeForColorFilter(kEvalShader);
         SkASSERT(rtFilter);
 
         SkPaint paint;
         ChildPtr children[1] = {ChildPtr{sk_sp<SkShader>{nullptr}}};
         paint.setColorFilter(rtFilter->makeColorFilter(/*uniforms=*/nullptr, children));
-        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));
+        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));  // purple (contributes)
         canvas->drawRect({0, 0, 48, 48}, paint);
         canvas->translate(50, 0);
     }
     // Paint with a color filter evaluating a null color filter.
+    // Color passed to eval() is returned; paint color is ignored.
     {
         const SkString kEvalColorFilter{R"(
             uniform colorFilter cf;
-            half4 main(half4 c) { return cf.eval(c); }
+            half4 main(half4 c) { return cf.eval(half4(0.5, 0, 0.5, 1)); }
         )"};
-        auto [rtFilter, error] = SkRuntimeEffect::MakeForColorFilter(kEvalColorFilter, {});
+        auto [rtFilter, error] = SkRuntimeEffect::MakeForColorFilter(kEvalColorFilter);
         SkASSERT(rtFilter);
 
         SkPaint paint;
         ChildPtr children[1] = {ChildPtr{sk_sp<SkColorFilter>{nullptr}}};
         paint.setColorFilter(rtFilter->makeColorFilter(/*uniforms=*/nullptr, children));
-        paint.setColor(SkColorSetARGB(0xFF, 0x80, 0x00, 0x80));
+        paint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));  // green (does not contribute)
         canvas->drawRect({0, 0, 48, 48}, paint);
         canvas->translate(50, 0);
     }
     // Paint with a color filter evaluating a null blender.
+    // Colors passed to eval() are blended via src-over; paint color is ignored.
     {
         const SkString kEvalBlender{R"(
             uniform blender b;
-            half4 main(half4 c) { return b.eval(half4(0.5, 0, 0, 0.5), c); }
+            half4 main(half4 c) { return b.eval(half4(0.5, 0, 0, 0.5), half4(0, 0, 1, 1)); }
         )"};
-        auto [rtFilter, error] = SkRuntimeEffect::MakeForColorFilter(kEvalBlender, {});
+        auto [rtFilter, error] = SkRuntimeEffect::MakeForColorFilter(kEvalBlender);
         SkASSERT(rtFilter);
 
         SkPaint paint;
         ChildPtr children[1] = {ChildPtr{sk_sp<SkBlender>{nullptr}}};
         paint.setColorFilter(rtFilter->makeColorFilter(/*uniforms=*/nullptr, children));
-        paint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));
+        paint.setColor(SkColorSetARGB(0xFF, 0x00, 0x00, 0xFF));  // green (does not contribute)
         canvas->drawRect({0, 0, 48, 48}, paint);
         canvas->translate(50, 0);
     }
