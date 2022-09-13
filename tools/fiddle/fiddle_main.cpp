@@ -178,7 +178,7 @@ static bool setup_backend_objects(GrDirectContext* dContext,
         // We use this fact to initialize it with data but don't allow mipmaps
         GrMipLevel level0 = {data.get(), offscreenDims.width()*sizeof(uint32_t), nullptr};
 
-        constexpr int kSampleCnt = 0;
+        constexpr int kSampleCnt = 1;
         sk_sp<GrTexture> tmp =
                 resourceProvider->createTexture(offscreenDims,
                                                 renderableFormat,
