@@ -193,8 +193,11 @@ skia_graphite_mtl_sources = [
 ]
 
 skia_graphite_vk_sources = [
+  "$_include/vk/VulkanGraphiteTypes.h",
+  "$_include_private/VulkanGraphiteTypesPriv.h",
   "$_src/vk/VulkanCaps.cpp",
   "$_src/vk/VulkanCaps.h",
+  "$_src/vk/VulkanGraphiteTypes.cpp",
   "$_src/vk/VulkanResourceProvider.cpp",
   "$_src/vk/VulkanResourceProvider.h",
   "$_src/vk/VulkanSharedContext.cpp",
