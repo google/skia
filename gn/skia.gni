@@ -21,6 +21,7 @@ declare_args() {
   skia_enable_fontmgr_fuchsia = is_fuchsia
   skia_enable_fontmgr_win = is_win
   skia_enable_gpu = true
+  skia_enable_optimize_size = false
   skia_enable_pdf = !is_wasm
   skia_enable_skottie = !(is_win && is_component_build) ||
                         (is_wasm && skia_canvaskit_enable_skottie)

@@ -196,6 +196,7 @@ def compile_fn(api, checkout_root, out_dir):
     extra_ldflags.append('-Wl,--build-id=sha1')
     args.update({
       'skia_use_runtime_icu': 'true',
+      'skia_enable_optimize_size': 'true',
     })
 
   if 'Exceptions' in extra_tokens:
