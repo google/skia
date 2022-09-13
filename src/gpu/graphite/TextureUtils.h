@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_TextureUtils_DEFINED
 #define skgpu_graphite_TextureUtils_DEFINED
 
+#include "include/core/SkImage.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 
 #include <functional>
@@ -26,6 +27,12 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
                                                               const SkBitmap& bitmap,
                                                               Mipmapped mipmapped,
                                                               SkBudgeted budgeted);
+
+sk_sp<SkImage> MakeFromBitmap(Recorder*,
+                              const SkColorInfo&,
+                              const SkBitmap&,
+                              SkBudgeted,
+                              SkImage::RequiredImageProperties);
 
 using FlushPendingWorkCallback = std::function<void()>;
 

@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/CopyTask.h"
+#include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SynchronizeToCpuTask.h"
@@ -109,6 +110,23 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
 
     Swizzle swizzle = caps->getReadSwizzle(ct, textureInfo);
     return {{std::move(proxy), swizzle}, ct};
+}
+
+sk_sp<SkImage> MakeFromBitmap(Recorder* recorder,
+                              const SkColorInfo& colorInfo,
+                              const SkBitmap& bitmap,
+                              SkBudgeted budgeted,
+                              SkImage::RequiredImageProperties requiredProps) {
+    auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, requiredProps.fMipmapped,
+                                            budgeted);
+    if (!view) {
+        return nullptr;
+    }
+
+    SkASSERT(requiredProps.fMipmapped == skgpu::graphite::Mipmapped::kNo ||
+             view.proxy()->mipmapped() == skgpu::graphite::Mipmapped::kYes);
+    return sk_make_sp<skgpu::graphite::Image>(std::move(view),
+                                              colorInfo.makeColorType(ct));
 }
 
 bool ReadPixelsHelper(FlushPendingWorkCallback&& flushPendingWork,

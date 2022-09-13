@@ -37,7 +37,7 @@
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/TextureUtils.h"
 #endif
 
 // Ref-counted tuple(SkImageGenerator, SkMutex) which allows sharing one generator among N images
@@ -584,9 +584,39 @@ void SkImage_Lazy::addUniqueIDListener(sk_sp<SkIDChangeListener> listener) const
 #endif // SK_SUPPORT_GPU
 
 #ifdef SK_GRAPHITE_ENABLED
-sk_sp<SkImage> SkImage_Lazy::onMakeTextureImage(skgpu::graphite::Recorder*,
-                                                RequiredImageProperties) const {
-    SKGPU_LOG_W("Conversion of Lazy images to Graphite-backed not yet implemented");
+
+/*
+ *  We only have 2 ways to create a Graphite-backed image.
+ *
+ *  1. Ask the generator to natively create one
+ *  2. Ask the generator to return RGB(A) data, which the GPU can convert
+ */
+sk_sp<SkImage> SkImage_Lazy::onMakeTextureImage(skgpu::graphite::Recorder* recorder,
+                                                RequiredImageProperties requiredProps) const {
+    using namespace skgpu::graphite;
+
+    // 1. Ask the generator to natively create one.
+    {
+        ScopedGenerator generator(fSharedGenerator);
+        sk_sp<SkImage> newImage = generator->makeTextureImage(recorder,
+                                                              this->imageInfo(),
+                                                              {0,0},
+                                                              requiredProps.fMipmapped);
+        if (newImage) {
+            SkASSERT(as_IB(newImage)->isGraphiteBacked());
+            return newImage;
+        }
+    }
+
+    // 2. Ask the generator to return a bitmap, which the GPU can convert.
+    if (SkBitmap bitmap; this->getROPixels(nullptr, &bitmap, CachingHint::kDisallow_CachingHint)) {
+        return skgpu::graphite::MakeFromBitmap(recorder,
+                                               this->imageInfo().colorInfo(),
+                                               bitmap,
+                                               SkBudgeted::kNo,
+                                               requiredProps);
+    }
+
     return nullptr;
 }
 #endif

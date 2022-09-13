@@ -33,7 +33,6 @@
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
-#include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureUtils.h"
 #include "src/gpu/graphite/UploadTask.h"
@@ -507,16 +506,10 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Raster::onAsFragmentProcessor(
 #ifdef SK_GRAPHITE_ENABLED
 sk_sp<SkImage> SkImage_Raster::onMakeTextureImage(skgpu::graphite::Recorder* recorder,
                                                   RequiredImageProperties requiredProps) const {
-    auto [ view, ct ] = MakeBitmapProxyView(recorder, fBitmap, requiredProps.fMipmapped,
-                                            SkBudgeted::kNo);
-    if (!view) {
-        return nullptr;
-    }
-
-    SkASSERT(requiredProps.fMipmapped == skgpu::graphite::Mipmapped::kNo ||
-             view.proxy()->mipmapped() == skgpu::graphite::Mipmapped::kYes);
-    SkColorInfo colorInfo(ct, this->alphaType(), this->refColorSpace());
-    return sk_make_sp<skgpu::graphite::Image>(std::move(view),
-                                              std::move(colorInfo));
+    return skgpu::graphite::MakeFromBitmap(recorder,
+                                           this->imageInfo().colorInfo(),
+                                           fBitmap,
+                                           SkBudgeted::kNo,
+                                           requiredProps);
 }
 #endif
