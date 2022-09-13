@@ -6,6 +6,10 @@ Milestone 107
 -------------
   * Exported SkColor4f::toBytes_RGBA() and SkColor4f::FromBytes_RGBA.
   * SkWebpEncoder: Added support for animated WebP image encoding.
+  * SkRuntimeEffect shader effects were inadvertently allowing functions with the signature
+    `half4 main(float2 coords, half4 color)`. This was disallowed at Milestone 87, but the
+    restriction was inadvertently relaxed in later milestones. Going forward, we will only
+    accept a shader signature of `half4 main(float2 coords)`.
 
 * * *
 

@@ -218,14 +218,22 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
                 errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");
                 return false;
             }
-            bool validParams =
-                    (parameters.size() == 1 && paramIsCoords(0)) ||
-                    (parameters.size() == 2 && paramIsCoords(0) && paramIsInputColor(1));
-            if (!validParams) {
-                errors.error(pos, "'main' parameters must be (float2, (vec4|float4|half4)?)");
+            // Public runtime shaders only allow parameters to be (float2).
+            bool validParams = (parameters.size() == 1 && paramIsCoords(0));
+            if (validParams) {
+                break;
+            }
+            if (kind != ProgramKind::kPrivateRuntimeShader) {
+                errors.error(pos, "'main' parameter must be 'float2' or 'vec2'");
                 return false;
             }
-            break;
+            // Private runtime shaders also allow (float2, half4|float4).
+            validParams = (parameters.size() == 2 && paramIsCoords(0) && paramIsInputColor(1));
+            if (validParams) {
+                break;
+            }
+            errors.error(pos, "'main' parameters must be (float2, (vec4|float4|half4)?)");
+            return false;
         }
         case ProgramKind::kRuntimeBlender: {
             // (half4|float4) main(half4|float4, half4|float4)
@@ -255,8 +263,8 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
             break;
         }
         case ProgramKind::kMeshFragment: {
-            // float2 main(Varyings) -or- float2 main(Varyings, out half4|float4]) -or-
-            // void main(Varyings) -or- void main(Varyings, out half4|float4])
+            // float2 main(Varyings) -or- float2 main(Varyings, out half4|float4) -or-
+            // void main(Varyings) -or- void main(Varyings, out half4|float4)
             if (!returnType.matches(*context.fTypes.fFloat2) &&
                 !returnType.matches(*context.fTypes.fVoid)) {
                 errors.error(pos, "'main' must return: 'vec2', 'float2', 'or' 'void'");

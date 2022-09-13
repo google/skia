@@ -273,19 +273,31 @@ DEF_TEST(SkRuntimeEffectForShader, r) {
                         errorText.c_str());
     };
 
-    // Shaders must use either the 'half4 main(float2)' or 'half4 main(float2, half4)' signature
+    // Shaders must use the 'half4 main(float2)' signature
     // Either color can be half4/float4/vec4, but the coords must be float2/vec2
     test_valid("half4  main(float2 p) { return p.xyxy; }");
     test_valid("float4 main(float2 p) { return p.xyxy; }");
     test_valid("vec4   main(float2 p) { return p.xyxy; }");
     test_valid("half4  main(vec2   p) { return p.xyxy; }");
     test_valid("vec4   main(vec2   p) { return p.xyxy; }");
-    test_valid("half4  main(float2 p, half4  c) { return c; }");
-    test_valid("half4  main(float2 p, float4 c) { return c; }");
-    test_valid("half4  main(float2 p, vec4   c) { return c; }");
-    test_valid("float4 main(float2 p, half4  c) { return c; }");
-    test_valid("vec4   main(float2 p, half4  c) { return c; }");
-    test_valid("vec4   main(vec2   p, vec4   c) { return c; }");
+
+    // The 'half4 main(float2, half4|float4)' signature is not supported in public runtime effects.
+    test_invalid("half4  main(float2 p, half4  c) { return c; }", "'main' parameter");
+    test_invalid("half4  main(float2 p, float4 c) { return c; }", "'main' parameter");
+    test_invalid("half4  main(float2 p, vec4   c) { return c; }", "'main' parameter");
+    test_invalid("float4 main(float2 p, half4  c) { return c; }", "'main' parameter");
+    test_invalid("vec4   main(float2 p, half4  c) { return c; }", "'main' parameter");
+    test_invalid("vec4   main(vec2   p, vec4   c) { return c; }", "'main' parameter");
+
+    // ... but we do support it (for now) in private effects.
+    SkRuntimeEffect::Options options;
+    SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
+    test_valid("half4  main(float2 p, half4  c) { return c; }", options);
+    test_valid("half4  main(float2 p, float4 c) { return c; }", options);
+    test_valid("half4  main(float2 p, vec4   c) { return c; }", options);
+    test_valid("float4 main(float2 p, half4  c) { return c; }", options);
+    test_valid("vec4   main(float2 p, half4  c) { return c; }", options);
+    test_valid("vec4   main(vec2   p, vec4   c) { return c; }", options);
 
     // Invalid return types
     test_invalid("void  main(float2 p) {}",                "'main' must return");
@@ -299,9 +311,7 @@ DEF_TEST(SkRuntimeEffectForShader, r) {
     test_invalid("half4 main(float2 p) { return sk_FragCoord.xy01; }",
                  "unknown identifier 'sk_FragCoord'");
 
-    SkRuntimeEffect::Options optionsWithFragCoord;
-    SkRuntimeEffectPriv::UsePrivateRTShaderModule(&optionsWithFragCoord);
-    test_valid("half4 main(float2 p) { return sk_FragCoord.xy01; }", optionsWithFragCoord);
+    test_valid("half4 main(float2 p) { return sk_FragCoord.xy01; }", options);
 
     // Sampling a child shader requires that we pass explicit coords
     test_valid("uniform shader child;"
@@ -309,11 +319,11 @@ DEF_TEST(SkRuntimeEffectForShader, r) {
 
     // Sampling a colorFilter requires a color
     test_valid("uniform colorFilter child;"
-               "half4 main(float2 p, half4 c) { return child.eval(c); }");
+               "half4 main(float2 p) { return child.eval(half4(1)); }");
 
     // Sampling a blender requires two colors
     test_valid("uniform blender child;"
-               "half4 main(float2 p, half4 c) { return child.eval(c, c); }");
+               "half4 main(float2 p) { return child.eval(half4(0.5), half4(0.6)); }");
 }
 
 using PreTestFn = std::function<void(SkCanvas*, SkPaint*)>;
