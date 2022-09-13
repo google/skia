@@ -422,6 +422,7 @@ skia_core_sources = [
   "$_src/core/SkSurfacePriv.h",
   "$_src/core/SkSwizzle.cpp",
   "$_src/core/SkTBlockList.h",
+  "$_src/core/SkTDArray.cpp",
   "$_src/core/SkTDPQueue.h",
   "$_src/core/SkTDynamicHash.h",
   "$_src/core/SkTInternalLList.h",
