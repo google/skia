@@ -120,7 +120,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 				configs = append(configs, "vkdmsaa")
 			}
 		}
-		if b.extraConfig("Metal") {
+		if b.extraConfig("Metal") && !b.extraConfig("Graphite") {
 			configs = []string{"mtl"}
 			if b.os("iOS") {
 				configs = append(configs, "mtlmsaa4")
@@ -151,7 +151,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		}
 
 		if b.extraConfig("Graphite") {
-			configs = []string{"grmtl"}
+                        if (b.extraConfig("Metal")) {
+			        configs = []string{"grmtl"}
+                        }
 		}
 
 		if b.os("ChromeOS") {
@@ -208,7 +210,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		match = append(match, "~path_hairline")
 		match = append(match, "~GLInstancedArraysBench") // skia:4714
 	}
-	if b.os("iOS") && b.extraConfig("Metal") {
+	if b.os("iOS") && b.extraConfig("Metal") && !b.extraConfig("Graphite") {
 		// skia:9799
 		match = append(match, "~compositing_images_tile_size")
 	}

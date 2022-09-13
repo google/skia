@@ -372,7 +372,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				skip(ALL, "gm", ALL, "encode")
 				skip(ALL, "gm", ALL, "jpg-color-cube")
 			}
-			configs = []string{"grmtl"}
+                        if (b.extraConfig("Metal")) {
+			        configs = []string{"grmtl"}
+                        }
 		}
 
 		// ANGLE bot *only* runs the angle configs
@@ -451,7 +453,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				configs = append(configs, "vkdmsaa")
 			}
 		}
-		if b.extraConfig("Metal") {
+		if b.extraConfig("Metal") && !b.extraConfig("Graphite") {
 			configs = []string{"mtl"}
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
 			if !b.matchGpu("Intel") {
@@ -543,7 +545,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip("mtltestprecompile", "svg", ALL, "tiger-8.svg")
 		}
 		// Test reduced shader mode on iPhone 11 as representative iOS device
-		if b.model("iPhone11") && b.extraConfig("Metal") {
+		if b.model("iPhone11") && b.extraConfig("Metal") && !b.extraConfig("Graphite") {
 			configs = append(configs, "mtlreducedshaders")
 		}
 
@@ -1239,14 +1241,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~FloatingPointTextureTest$")
 	}
 
-	if b.extraConfig("Metal") && b.gpu("RadeonHD8870M") && b.matchOs("Mac") {
+	if b.extraConfig("Metal") && !b.extraConfig("Graphite") && b.gpu("RadeonHD8870M") && b.matchOs("Mac") {
 		// skia:9255
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")
 		// skbug.com/11366
 		match = append(match, "~SurfacePartialDraw_Gpu")
 	}
 
-	if b.extraConfig("Metal") && b.gpu("PowerVRGX6450") && b.matchOs("iOS") {
+	if b.extraConfig("Metal") && !b.extraConfig("Graphite") && b.gpu("PowerVRGX6450") && b.matchOs("iOS") {
 		// skbug.com/11885
 		match = append(match, "~flight_animated_image")
 	}
