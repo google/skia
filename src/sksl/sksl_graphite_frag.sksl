@@ -19,25 +19,25 @@ half4 sk_local_matrix_shader(float4, float4x4, half4 childResult) {
     return childResult;
 }
 
-float $tile(int tm, float f, float min, float max, float normalizer) {
+float $tile(int tm, float f, float low, float high) {
     const int kClamp         = 0;
     const int kRepeat        = 1;
     const int kMirrorRepeat  = 2;
     const int kClampToBorder = 3;
 
     if (tm == kClamp) {
-        return clamp(f, min, max) / normalizer;
+        return clamp(f, low, high);
     } else if (tm == kRepeat) {
-        float length = max - min;
-        return (mod(f - min, length) + min) / normalizer;
+        float length = high - low;
+        return (mod(f - low, length) + low);
     } else if (tm == kMirrorRepeat) {
-        float length = max - min;
+        float length = high - low;
         float length2 = 2 * length;
-        float tmp = mod(f - min, length2);
-        return (mix(tmp, length2 - tmp, step(length, tmp)) + min) / normalizer;
+        float tmp = mod(f - low, length2);
+        return (mix(tmp, length2 - tmp, step(length, tmp)) + low);
     } else { // kClampToBorder
         // For now, just clamp.
-        return clamp(f, min, max) / normalizer;
+        return clamp(f, low, high);
     }
 }
 
@@ -50,9 +50,14 @@ half4 sk_image_shader(float4 coords,
                       int imgHeight,
                       sampler2D s) {
     float2 pos = (preLocal * coords).xy;
-    pos.x = $tile(tmX, pos.x, subset.x, subset.z, float(imgWidth));
-    pos.y = $tile(tmY, pos.y, subset.y, subset.w, float(imgHeight));
-    return sample(s, pos);
+    pos.x = $tile(tmX, pos.x, subset.x, subset.z);
+    pos.y = $tile(tmY, pos.y, subset.y, subset.w);
+
+    // Clamp to an inset subset to prevent sampling neighboring texels when coords fall exactly at
+    // texel boundaries.
+    float4 insetClamp = float4(floor(subset.xy) + 0.5, ceil(subset.zw) - 0.5);
+    float2 clampedPos = clamp(pos, insetClamp.xy, insetClamp.zw);
+    return sample(s, clampedPos / float2(imgWidth, imgHeight));
 }
 
 float2 $tile_grad(int tileMode, float2 t) {
