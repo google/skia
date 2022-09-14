@@ -7,6 +7,8 @@
 
 #include "src/gpu/graphite/render/MiddleOutFanRenderStep.h"
 
+#include "src/core/SkPipelineData.h"
+
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
@@ -20,21 +22,22 @@ MiddleOutFanRenderStep::MiddleOutFanRenderStep(bool evenOdd)
         : RenderStep("MiddleOutFanRenderStep",
                      evenOdd ? "even-odd" : "winding",
                      Flags::kRequiresMSAA,
-                     /*uniforms=*/{},
+                     /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4}},
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
-                     /*vertexAttrs=*/{{"position",
-                                       VertexAttribType::kFloat4,
-                                       SkSLType::kFloat4},
-                                      {"ssboIndex",
-                                       VertexAttribType::kInt,
-                                       SkSLType::kInt}},
+                     /*vertexAttrs=*/
+                            {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
+                             {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
+                             {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}},
                      /*instanceAttrs=*/{}) {}
 
 MiddleOutFanRenderStep::~MiddleOutFanRenderStep() {}
 
 const char* MiddleOutFanRenderStep::vertexSkSL() const {
-    return "     float4 devPosition = position;\n";
+    return R"(
+        float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
+        devPosition.z = depth;
+    )";
 }
 
 void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer,
@@ -52,24 +55,18 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer,
     verts.reserve(maxTrianglesInFans * 3);
     for (tess::PathMiddleOutFanIter it(path); !it.done();) {
         for (auto [p0, p1, p2] : it.nextStack()) {
-            // TODO: PathMiddleOutFanIter should use SkV2 instead of SkPoint?
-            SkV2 p[3] = {{p0.fX, p0.fY}, {p1.fX, p1.fY}, {p2.fX, p2.fY}};
-            SkV4 devPoints[3];
-            params.transform().mapPoints(p, devPoints, 3);
-
-            verts.append(3) << devPoints[0].x << devPoints[0].y << depth << devPoints[0].w  // p0
-                            << ssboIndex
-                            << devPoints[1].x << devPoints[1].y << depth << devPoints[1].w  // p1
-                            << ssboIndex
-                            << devPoints[2].x << devPoints[2].y << depth << devPoints[2].w  // p2
-                            << ssboIndex;
+            verts.append(3) << p0 << depth << ssboIndex
+                            << p1 << depth << ssboIndex
+                            << p2 << depth << ssboIndex;
         }
     }
 }
 
-void MiddleOutFanRenderStep::writeUniformsAndTextures(const DrawParams&,
-                                                      SkPipelineDataGatherer*) const {
-    // Control points are pre-transformed to device space on the CPU, so no uniforms needed.
+void MiddleOutFanRenderStep::writeUniformsAndTextures(const DrawParams& params,
+                                                      SkPipelineDataGatherer* gatherer) const {
+    SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
+
+    gatherer->write(params.transform().matrix());
 }
 
 }  // namespace skgpu::graphite
