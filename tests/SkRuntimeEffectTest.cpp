@@ -281,23 +281,27 @@ DEF_TEST(SkRuntimeEffectForShader, r) {
     test_valid("half4  main(vec2   p) { return p.xyxy; }");
     test_valid("vec4   main(vec2   p) { return p.xyxy; }");
 
-    // The 'half4 main(float2, half4|float4)' signature is not supported in public runtime effects.
-    test_invalid("half4  main(float2 p, half4  c) { return c; }", "'main' parameter");
-    test_invalid("half4  main(float2 p, float4 c) { return c; }", "'main' parameter");
-    test_invalid("half4  main(float2 p, vec4   c) { return c; }", "'main' parameter");
-    test_invalid("float4 main(float2 p, half4  c) { return c; }", "'main' parameter");
-    test_invalid("vec4   main(float2 p, half4  c) { return c; }", "'main' parameter");
-    test_invalid("vec4   main(vec2   p, vec4   c) { return c; }", "'main' parameter");
-
-    // ... but we do support it (for now) in private effects.
+    // The 'half4 main(float2, half4|float4)' signature is disallowed on both public and private
+    // runtime effects.
     SkRuntimeEffect::Options options;
     SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
-    test_valid("half4  main(float2 p, half4  c) { return c; }", options);
-    test_valid("half4  main(float2 p, float4 c) { return c; }", options);
-    test_valid("half4  main(float2 p, vec4   c) { return c; }", options);
-    test_valid("float4 main(float2 p, half4  c) { return c; }", options);
-    test_valid("vec4   main(float2 p, half4  c) { return c; }", options);
-    test_valid("vec4   main(vec2   p, vec4   c) { return c; }", options);
+    test_invalid("half4  main(float2 p, half4  c) { return c; }", "'main' parameter");
+    test_invalid("half4  main(float2 p, half4  c) { return c; }", "'main' parameter", options);
+
+    test_invalid("half4  main(float2 p, float4 c) { return c; }", "'main' parameter");
+    test_invalid("half4  main(float2 p, float4 c) { return c; }", "'main' parameter", options);
+
+    test_invalid("half4  main(float2 p, vec4   c) { return c; }", "'main' parameter");
+    test_invalid("half4  main(float2 p, vec4   c) { return c; }", "'main' parameter", options);
+
+    test_invalid("float4 main(float2 p, half4  c) { return c; }", "'main' parameter");
+    test_invalid("float4 main(float2 p, half4  c) { return c; }", "'main' parameter", options);
+
+    test_invalid("vec4   main(float2 p, half4  c) { return c; }", "'main' parameter");
+    test_invalid("vec4   main(float2 p, half4  c) { return c; }", "'main' parameter", options);
+
+    test_invalid("vec4   main(vec2   p, vec4   c) { return c; }", "'main' parameter");
+    test_invalid("vec4   main(vec2   p, vec4   c) { return c; }", "'main' parameter", options);
 
     // Invalid return types
     test_invalid("void  main(float2 p) {}",                "'main' must return");

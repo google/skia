@@ -162,11 +162,6 @@ public:
 
     // Shader SkSL requires an entry point that looks like:
     //     vec4 main(vec2 inCoords) { ... }
-    //
-    // Private runtime effects also allow a signature that takes the input color:
-    //     vec4 main(vec2 inCoords, vec4 inColor) { ... }
-    //
-    // However, this signature is deprecated and is slated for removal.
     static Result MakeForShader(SkString sksl, const Options&);
     static Result MakeForShader(SkString sksl) {
         return MakeForShader(std::move(sksl), Options{});

@@ -213,27 +213,16 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
         }
         case ProgramKind::kRuntimeShader:
         case ProgramKind::kPrivateRuntimeShader: {
-            // (half4|float4) main(float2)  -or-  (half4|float4) main(float2, half4|float4)
+            // (half4|float4) main(float2)
             if (!typeIsValidForColor(returnType)) {
                 errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");
                 return false;
             }
-            // Public runtime shaders only allow parameters to be (float2).
-            bool validParams = (parameters.size() == 1 && paramIsCoords(0));
-            if (validParams) {
-                break;
-            }
-            if (kind != ProgramKind::kPrivateRuntimeShader) {
+            if (!(parameters.size() == 1 && paramIsCoords(0))) {
                 errors.error(pos, "'main' parameter must be 'float2' or 'vec2'");
                 return false;
             }
-            // Private runtime shaders also allow (float2, half4|float4).
-            validParams = (parameters.size() == 2 && paramIsCoords(0) && paramIsInputColor(1));
-            if (validParams) {
-                break;
-            }
-            errors.error(pos, "'main' parameters must be (float2, (vec4|float4|half4)?)");
-            return false;
+            break;
         }
         case ProgramKind::kRuntimeBlender: {
             // (half4|float4) main(half4|float4, half4|float4)
