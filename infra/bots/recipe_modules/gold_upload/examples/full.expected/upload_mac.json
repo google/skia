@@ -1,0 +1,45 @@
+[
+  {
+    "cmd": [
+      "vpython3",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[START_DIR]/[SWARM_OUT_DIR]",
+      "*.png"
+    ],
+    "infra_step": true,
+    "name": "find .png images",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/[SWARM_OUT_DIR]/someimage.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "-o",
+      "GSUtil:parallel_process_count=1",
+      "-m",
+      "cp",
+      "[START_DIR]/[SWARM_OUT_DIR]/*.png",
+      "gs://skia-infra-gm/dm-images-v1"
+    ],
+    "name": "upload .png images"
+  },
+  {
+    "cmd": [
+      "gsutil",
+      "cp",
+      "-Z",
+      "[START_DIR]/[SWARM_OUT_DIR]/dm.json",
+      "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/1234_7/Test-Mac12-Clang-MacBookPro16.2-GPU-IntelIrisPlus-x86_64-Debug-All-Graphite/1337000001/dm.json"
+    ],
+    "name": "upload dm.json"
+  },
+  {
+    "name": "$result"
+  }
+]

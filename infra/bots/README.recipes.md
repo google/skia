@@ -185,7 +185,7 @@ Requires the infra/git and infra/tools/git CIPD packages to be installed
 in the 'git' relative path.
 ### *recipe_modules* / [gold\_upload](/infra/bots/recipe_modules/gold_upload)
 
-[DEPS](/infra/bots/recipe_modules/gold_upload/__init__.py#7): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [flavor](#recipe_modules-flavor), [gsutil](#recipe_modules-gsutil), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/gold_upload/__init__.py#7): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [recipe\_engine/time][recipe_engine/recipe_modules/time], [flavor](#recipe_modules-flavor), [gsutil](#recipe_modules-gsutil), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 PYTHON_VERSION_COMPATIBILITY: PY3
 
@@ -211,7 +211,7 @@ This assumes there exists an executable called gsutil on the PATH.
 This probably only works for Linux/Mac, but those are the only
 hosts that we try to upload to GCS from anyway.
 
-&mdash; **def [cp](/infra/bots/recipe_modules/gsutil/api.py#20)(self, name, src, dst, extra_args=None, multithread=False):**
+&mdash; **def [cp](/infra/bots/recipe_modules/gsutil/api.py#20)(self, name, src, dst, extra_gsutil_args=None, extra_args=None, multithread=False):**
 
 Attempt to upload or download files to/from Google Cloud Storage (GCS).
 
@@ -219,8 +219,10 @@ Args:
   name: string. Will be used to fill out the step name.
   src: string. Absolute path for a local file or gcs file (e.g. gs://...)
   dst: string. Same as src.
-  extra_args: optional list of args to be passed to gsutil. e.g. [-Z] asks
-    all files be compressed with gzip after upload and before download.
+  extra_gsutil_args: optional list of args to be passed to gsutil before the
+    cp command.
+  extra_args: optional list of args to be passed to gsutil cp. e.g. [-Z]
+    asks all files be compressed with gzip after upload and before download.
   multi_thread: if the -m argument should be used to copy multiple items
     at once (e.g. gsutil -m cp foo* gs://bar/dir)
 
@@ -399,11 +401,11 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 &mdash; **def [RunSteps](/infra/bots/recipe_modules/git/examples/full.py#14)(api):**
 ### *recipes* / [gold\_upload:examples/full](/infra/bots/recipe_modules/gold_upload/examples/full.py)
 
-[DEPS](/infra/bots/recipe_modules/gold_upload/examples/full.py#10): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [flavor](#recipe_modules-flavor), [gold\_upload](#recipe_modules-gold_upload), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipe_modules/gold_upload/examples/full.py#10): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [flavor](#recipe_modules-flavor), [gold\_upload](#recipe_modules-gold_upload), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 PYTHON_VERSION_COMPATIBILITY: PY3
 
-&mdash; **def [RunSteps](/infra/bots/recipe_modules/gold_upload/examples/full.py#22)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipe_modules/gold_upload/examples/full.py#23)(api):**
 ### *recipes* / [gsutil:examples/full](/infra/bots/recipe_modules/gsutil/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/gsutil/examples/full.py#10): [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [gsutil](#recipe_modules-gsutil), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
