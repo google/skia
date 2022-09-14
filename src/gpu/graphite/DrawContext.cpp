@@ -124,7 +124,7 @@ bool DrawContext::recordPietSceneRender(Recorder*,
 #endif
 
 void DrawContext::snapDrawPass(Recorder* recorder) {
-    if (fPendingDraws->drawCount() == 0) {
+    if (fPendingDraws->drawCount() == 0 && fPendingLoadOp != LoadOp::kClear) {
         return;
     }
 
