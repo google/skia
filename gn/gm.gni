@@ -388,7 +388,6 @@ gm_sources = [
   "$_gm/tilemodes.cpp",
   "$_gm/tilemodes_alpha.cpp",
   "$_gm/tilemodes_scaled.cpp",
-  "$_gm/tilemodes_subset.cpp",
   "$_gm/tinybitmap.cpp",
   "$_gm/transparency.cpp",
   "$_gm/trickycubicstrokes.cpp",
