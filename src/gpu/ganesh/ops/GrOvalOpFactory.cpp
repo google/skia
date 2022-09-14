@@ -31,6 +31,8 @@
 
 #include <utility>
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
+
 using skgpu::VertexWriter;
 using skgpu::VertexColor;
 
@@ -3524,3 +3526,5 @@ GR_DRAW_OP_TEST_DEFINE(RRectOp) {
 }
 
 #endif
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

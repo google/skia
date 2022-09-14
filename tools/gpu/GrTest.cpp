@@ -76,18 +76,24 @@ void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPain
             DRAW_OP_TEST_ENTRY(AAHairlineOp),
             DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
             DRAW_OP_TEST_ENTRY(AtlasTextOp),
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
             DRAW_OP_TEST_ENTRY(ButtCapDashedCircleOp),
             DRAW_OP_TEST_ENTRY(CircleOp),
+#endif
             DRAW_OP_TEST_ENTRY(DashOpImpl),
             DRAW_OP_TEST_ENTRY(DefaultPathOp),
             DRAW_OP_TEST_ENTRY(DrawAtlasOp),
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
             DRAW_OP_TEST_ENTRY(DIEllipseOp),
             DRAW_OP_TEST_ENTRY(EllipseOp),
+#endif
             DRAW_OP_TEST_ENTRY(FillRectOp),
             DRAW_OP_TEST_ENTRY(NonAALatticeOp),
             DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
             DRAW_OP_TEST_ENTRY(RegionOp),
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
             DRAW_OP_TEST_ENTRY(RRectOp),
+#endif
             DRAW_OP_TEST_ENTRY(ShadowRRectOp),
             DRAW_OP_TEST_ENTRY(SmallPathOp),
             DRAW_OP_TEST_ENTRY(TextureOpImpl),

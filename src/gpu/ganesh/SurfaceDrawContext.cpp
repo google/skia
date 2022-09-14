@@ -52,7 +52,6 @@
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrDisableColorXP.h"
-#include "src/gpu/ganesh/effects/GrRRectEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 #include "src/gpu/ganesh/geometry/GrQuadUtils.h"
@@ -1036,6 +1035,7 @@ void SurfaceDrawContext::drawRRect(const GrClip* origClip,
     GrAAType aaType = this->chooseAAType(aa);
 
     GrOp::Owner op;
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
     if (aaType == GrAAType::kCoverage                          &&
         !fCanUseDynamicMSAA                                    &&
         !this->caps()->reducedShaderMode()                     &&
@@ -1047,16 +1047,19 @@ void SurfaceDrawContext::drawRRect(const GrClip* origClip,
         op = GrOvalOpFactory::MakeCircularRRectOp(fContext, std::move(paint), viewMatrix, rrect,
                                                   stroke, this->caps()->shaderCaps());
     }
+#endif
     if (!op && style.isSimpleFill()) {
         assert_alive(paint);
         op = FillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint), viewMatrix, rrect,
                                rrect.rect(), GrAA(aaType != GrAAType::kNone));
     }
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
     if (!op && (aaType == GrAAType::kCoverage || fCanUseDynamicMSAA)) {
         assert_alive(paint);
         op = GrOvalOpFactory::MakeRRectOp(
                 fContext, std::move(paint), viewMatrix, rrect, stroke, this->caps()->shaderCaps());
     }
+#endif
     if (op) {
         this->addDrawOp(clip, std::move(op));
         return;
@@ -1342,6 +1345,7 @@ void SurfaceDrawContext::drawOval(const GrClip* clip,
     GrAAType aaType = this->chooseAAType(aa);
 
     GrOp::Owner op;
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
     if (aaType == GrAAType::kCoverage      &&
         !fCanUseDynamicMSAA                &&
         !this->caps()->reducedShaderMode() &&
@@ -1353,6 +1357,7 @@ void SurfaceDrawContext::drawOval(const GrClip* clip,
         op = GrOvalOpFactory::MakeCircleOp(fContext, std::move(paint), viewMatrix, oval, style,
                                            this->caps()->shaderCaps());
     }
+#endif
     if (!op && style.isSimpleFill()) {
         // FillRRectOp has special geometry and a fragment-shader branch to conditionally evaluate
         // the arc equation. This same special geometry and fragment branch also turn out to be a
@@ -1363,11 +1368,13 @@ void SurfaceDrawContext::drawOval(const GrClip* clip,
         op = FillRRectOp::Make(fContext, this->arenaAlloc(), std::move(paint), viewMatrix,
                                SkRRect::MakeOval(oval), oval, GrAA(aaType != GrAAType::kNone));
     }
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
     if (!op && (aaType == GrAAType::kCoverage || fCanUseDynamicMSAA)) {
         assert_alive(paint);
         op = GrOvalOpFactory::MakeOvalOp(fContext, std::move(paint), viewMatrix, oval, style,
                                          this->caps()->shaderCaps());
     }
+#endif
     if (op) {
         this->addDrawOp(clip, std::move(op));
         return;
@@ -1395,6 +1402,7 @@ void SurfaceDrawContext::drawArc(const GrClip* clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
     GrAAType aaType = this->chooseAAType(aa);
     if (aaType == GrAAType::kCoverage) {
         const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
@@ -1413,6 +1421,7 @@ void SurfaceDrawContext::drawArc(const GrClip* clip,
         }
         assert_alive(paint);
     }
+#endif
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
                                      GrStyledShape::MakeArc(oval, startAngle, sweepAngle, useCenter,
                                                             style, DoSimplify::kNo));
