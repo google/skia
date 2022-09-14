@@ -18,7 +18,6 @@
   {"name": "BazelTest-canvaskit_gold-ck_full_webgl2_release_chrome-linux_x64",
     "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
   },
-  {"name": "Build-Debian9-Clang-arm-Release-Flutter_Android_Docker"},
   {"name": "Build-Debian10-GCC-x86-Debug-Docker"},
   {"name": "Build-Debian10-GCC-x86-Release-Docker"},
   {"name": "Build-Debian10-GCC-x86_64-Debug-Docker"},
@@ -221,9 +220,6 @@
   {"name": "Build-Win-MSVC-x86_64-Release-Shared"},
   {"name": "Build-Win-MSVC-x86_64-Release-Vulkan",
    "cq_config": {}
-   },
-  {"name": "BuildStats-Debian9-Clang-arm-Release-Flutter_Android_Docker",
-   "cq_config": {"experimental": true}
    },
   {"name": "BuildStats-Debian10-Clang-x86_64-Release"},
   {"name": "BuildStats-Debian10-Clang-x86_64-Release-Vulkan"},

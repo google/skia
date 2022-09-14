@@ -29,18 +29,11 @@ def RunSteps(api):
   # Check out code.
   bot_update = True
   checkout_root = api.checkout.default_checkout_root
-  checkout_flutter = False
-  flutter_android = False
   ignore_trybot = False
 
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
     checkout_root = api.path['start_dir']
-  if 'Flutter' in api.vars.builder_name:
-    checkout_root = checkout_root.join('flutter')
-    checkout_flutter = True
-    if 'Android' in api.vars.builder_name:
-      flutter_android = True
   if 'NoPatch' in api.vars.builder_name:
     ignore_trybot = True
     checkout_root = api.path['start_dir']
@@ -48,8 +41,6 @@ def RunSteps(api):
   if bot_update:
     api.checkout.bot_update(
         checkout_root=checkout_root,
-        checkout_flutter=checkout_flutter,
-        flutter_android=flutter_android,
         ignore_trybot=ignore_trybot)
 
     if 'NoPatch' in api.vars.builder_name:
@@ -89,8 +80,6 @@ shutil.copytree(sys.argv[1], sys.argv[2], dirs_exist_ok=True)
 
   out_dir = checkout_root.join(
       'skia', 'out', api.vars.builder_name, api.vars.configuration)
-  if 'Flutter' in api.vars.builder_name:
-    out_dir = checkout_root.join('src', 'out', 'android_release')
   if 'NoPatch' in api.vars.builder_name:
     # Similarly as with the checkout root, we use the same output directory in
     # Build-<CONFIG>-NoPatch tasks as we do on Build-<CONFIG> tasks to prevent spurious deltas.
@@ -130,7 +119,6 @@ for p in psutil.process_iter():
 
 
 TEST_BUILDERS = [
-  'Build-Debian10-Clang-arm-Release-Flutter_Android',
   'Build-Debian10-Clang-arm-Release-NoPatch',
   'Build-Win10-Clang-x86_64-Release-NoDEPS',
 ]

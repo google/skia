@@ -59,13 +59,13 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 
 Build Skia for various platforms.
 
-#### **class [BuildApi](/infra/bots/recipe_modules/build/api.py#21)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [BuildApi](/infra/bots/recipe_modules/build/api.py#20)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&mdash; **def [\_\_call\_\_](/infra/bots/recipe_modules/build/api.py#51)(self, checkout_root, out_dir):**
+&mdash; **def [\_\_call\_\_](/infra/bots/recipe_modules/build/api.py#47)(self, checkout_root, out_dir):**
 
 Compile the code.
 
-&mdash; **def [copy\_build\_products](/infra/bots/recipe_modules/build/api.py#55)(self, out_dir, dst):**
+&mdash; **def [copy\_build\_products](/infra/bots/recipe_modules/build/api.py#51)(self, out_dir, dst):**
 
 Copy selected build products to dst.
 ### *recipe_modules* / [builder\_name\_schema](/infra/bots/recipe_modules/builder_name_schema)
@@ -89,16 +89,13 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 
 Fail if git is not obtained from CIPD.
 
-&mdash; **def [bot\_update](/infra/bots/recipe_modules/checkout/api.py#48)(self, checkout_root, gclient_cache=None, checkout_flutter=False, flutter_android=False, ignore_trybot=False):**
+&mdash; **def [bot\_update](/infra/bots/recipe_modules/checkout/api.py#48)(self, checkout_root, gclient_cache=None, ignore_trybot=False):**
 
 Run the steps to obtain a checkout using bot_update.
 
 Args:
   checkout_root: Root directory where the code will be synced.
   gclient_cache: Optional, directory of the gclient cache.
-  checkout_flutter: If True, will checkout flutter in addition to the
-      primary repo.
-  flutter_android: Indicates that we're checking out flutter for Android.
   ignore_trybot: Ignore changelist/patchset when syncing the Skia repo.
 
 &emsp; **@property**<br>&mdash; **def [default\_checkout\_root](/infra/bots/recipe_modules/checkout/api.py#15)(self):**

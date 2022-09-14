@@ -27,7 +27,6 @@ def RunSteps(api):
 
 
 TEST_BUILDERS = [
-  'Build-Debian9-Clang-arm-Release-Flutter_Android_Docker',
   'Build-Debian10-GCC-x86-Debug-Docker',
   'Build-Debian10-GCC-x86_64-Debug-Docker',
   'Build-Debian10-GCC-x86_64-Release-NoGPU_Docker',
@@ -35,7 +34,6 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-arm-Release-Android_API26',
   'Build-Debian10-Clang-arm-Release-Android_ASAN',
   'Build-Debian10-Clang-arm-Release-Chromebook_GLES',
-  'Build-Debian10-Clang-arm-Release-Flutter_Android',
   'Build-Debian10-Clang-arm64-Debug-Android_FrameworkWorkarounds',
   'Build-Debian10-Clang-arm64-Debug-Android_HWASAN',
   'Build-Debian10-Clang-arm64-Release-Android_Wuffs',

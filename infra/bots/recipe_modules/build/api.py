@@ -14,7 +14,6 @@ from . import chromebook
 from . import cmake
 from . import default
 from . import docker
-from . import flutter
 from . import pathkit
 
 
@@ -27,9 +26,6 @@ class BuildApi(recipe_api.RecipeApi):
     elif 'Chromebook' in b:
       self.compile_fn = chromebook.compile_fn
       self.copy_fn = chromebook.copy_build_products
-    elif 'Flutter' in b:
-      self.compile_fn = flutter.compile_fn
-      self.copy_fn = flutter.copy_build_products
     elif 'EMCC' in b:
       if 'PathKit' in b:
         self.compile_fn = pathkit.compile_fn
