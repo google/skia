@@ -607,17 +607,17 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Rect(
         "uniform int edgeType;"  // GrClipEdgeType, specialized
         "uniform float4 rectUniform;"
 
-        "half4 main(float2 xy, half4 inColor) {"
+        "half4 main(float2 xy) {"
             "half coverage;"
             "if (edgeType == kFillBW || edgeType == kInverseFillBW) {"
                 // non-AA
-                "coverage = all(greaterThan(float4(sk_FragCoord.xy, rectUniform.zw),"
-                                           "float4(rectUniform.xy, sk_FragCoord.xy))) ? 1 : 0;"
+                "coverage = half(all(greaterThan(float4(sk_FragCoord.xy, rectUniform.zw),"
+                                                "float4(rectUniform.xy, sk_FragCoord.xy))));"
             "} else {"
                 // compute coverage relative to left and right edges, add, then subtract 1 to
                 // account for double counting. And similar for top/bottom.
-                "half4 dists4 = clamp(half4(1, 1, -1, -1) *"
-                                     "half4(sk_FragCoord.xyxy - rectUniform), 0, 1);"
+                "half4 dists4 = saturate(half4(1, 1, -1, -1) *"
+                                        "half4(sk_FragCoord.xyxy - rectUniform));"
                 "half2 dists2 = dists4.xy + dists4.zw - 1;"
                 "coverage = dists2.x * dists2.y;"
             "}"
@@ -626,7 +626,7 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Rect(
                 "coverage = 1.0 - coverage;"
             "}"
 
-            "return inColor * coverage;"
+            "return half4(coverage);"
         "}"
     );
 
@@ -635,10 +635,12 @@ std::unique_ptr<GrFragmentProcessor> GrFragmentProcessor::Rect(
     // to interpolate from 0 at a half pixel inset and 1 at a half pixel outset of rect.
     SkRect rectUniform = GrClipEdgeTypeIsAA(edgeType) ? rect.makeOutset(.5f, .5f) : rect;
 
-    return GrSkSLFP::Make(effect, "Rect", std::move(inputFP),
-                          GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
-                          "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
-                          "rectUniform", rectUniform);
+    auto rectFP = GrSkSLFP::Make(effect, "Rect", /*inputFP=*/nullptr,
+                                 GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
+                                "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
+                                "rectUniform", rectUniform);
+    return GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(rectFP),
+                                                                  std::move(inputFP));
 }
 
 GrFPResult GrFragmentProcessor::Circle(std::unique_ptr<GrFragmentProcessor> inputFP,
