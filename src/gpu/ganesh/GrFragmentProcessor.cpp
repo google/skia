@@ -720,7 +720,7 @@ GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inp
         "uniform float4 ellipse;"
         "uniform float2 scale;"    // only for medPrecision
 
-        "half4 main(float2 xy, half4 inColor) {"
+        "half4 main(float2 xy) {"
             // d is the offset to the ellipse center
             "float2 d = sk_FragCoord.xy - ellipse.xy;"
             // If we're on a device with a "real" mediump then we'll do the distance computation in
@@ -756,7 +756,7 @@ GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inp
             "} else {"  // edgeType == kInverseFillAA
                 "alpha = saturate(0.5 + half(approx_dist));"
             "}"
-            "return inColor * alpha;"
+            "return half4(alpha);"
         "}"
     );
 
@@ -781,12 +781,14 @@ GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inp
     }
     SkV4 ellipse = {center.fX, center.fY, invRXSqd, invRYSqd};
 
-    return GrFPSuccess(GrSkSLFP::Make(effect, "Ellipse", std::move(inputFP),
-                                      GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
-                                      "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
-                                      "medPrecision",  GrSkSLFP::Specialize<int>(medPrecision),
-                                      "ellipse", ellipse,
-                                      "scale", scale));
+    auto ellipseFP = GrSkSLFP::Make(effect, "Ellipse", /*inputFP=*/nullptr,
+                                    GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
+                                    "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
+                                    "medPrecision",  GrSkSLFP::Specialize<int>(medPrecision),
+                                    "ellipse", ellipse,
+                                    "scale", scale);
+    return GrFPSuccess(GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(ellipseFP),
+                                                                              std::move(inputFP)));
 }
 
 //////////////////////////////////////////////////////////////////////////////
