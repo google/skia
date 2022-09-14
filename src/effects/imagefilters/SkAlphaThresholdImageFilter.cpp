@@ -168,10 +168,12 @@ static std::unique_ptr<GrFragmentProcessor> make_alpha_threshold_fp(
         float outerThreshold) {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
         "uniform shader maskFP;"
+        "uniform shader inputFP;"
         "uniform half innerThreshold;"
         "uniform half outerThreshold;"
 
-        "half4 main(float2 xy, half4 color) {"
+        "half4 main(float2 xy) {"
+            "half4 color = inputFP.eval(xy);"
             "half4 mask_color = maskFP.eval(xy);"
             "if (mask_color.a < 0.5) {"
                 "if (color.a > outerThreshold) {"
@@ -188,10 +190,11 @@ static std::unique_ptr<GrFragmentProcessor> make_alpha_threshold_fp(
         "}"
     );
 
-    return GrSkSLFP::Make(effect, "AlphaThreshold", std::move(inputFP),
+    return GrSkSLFP::Make(effect, "AlphaThreshold", /*inputFP=*/nullptr,
                           (outerThreshold >= 1.0f) ? GrSkSLFP::OptFlags::kPreservesOpaqueInput
                                                    : GrSkSLFP::OptFlags::kNone,
                           "maskFP", GrSkSLFP::IgnoreOptFlags(std::move(maskFP)),
+                          "inputFP", std::move(inputFP),
                           "innerThreshold", innerThreshold,
                           "outerThreshold", outerThreshold);
 }
