@@ -20,6 +20,7 @@ supported_files_or_dirs=(
   "experimental/bazel_test/"
   "modules/skunicode/"
   "src/codec/"
+  "src/effects/"
   "src/images/"
   "src/pathops/"
   "src/sksl/"

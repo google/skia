@@ -9,6 +9,7 @@
 #define SkCropImageFilter_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 
 class SkImageFilter;
 struct SkRect;

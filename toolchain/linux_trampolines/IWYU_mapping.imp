@@ -63,6 +63,8 @@
   { include: ["<__memory/shared_ptr.h>", "private", "<memory>", "public"] },
   { include: ["<__memory/unique_ptr.h>", "private", "<memory>", "public"] },
 
+  { include: ["<__tuple>", "private", "<tuple>", "public"] },
+
   { include: ["<__tree>", "private", "<set>", "public"] },
 
   { symbol: ["std::istringstream", "public", "<sstream>", "public"] },

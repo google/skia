@@ -67,8 +67,13 @@ rbe_known_good_builds:
 		--config=ck_full_webgl2_debug --remote_download_minimal
 
 iwyu_rbe:
-	bazelisk build //:skia_public --config=for_linux_x64_with_rbe --config=enforce_iwyu \
-	 	--remote_download_minimal --nobuild_runfile_manifests
+	bazelisk build //:skia_public --config=for_linux_x64_with_rbe \
+		--config=enforce_iwyu --remote_download_minimal --nobuild_runfile_manifests
+	bazelisk build //modules/skottie:skottie_tool_gpu --config=for_linux_x64_with_rbe \
+		--config=enforce_iwyu --remote_download_minimal --nobuild_runfile_manifests
 
 iwyu:
-	bazelisk build //:skia_public --config=enforce_iwyu --nobuild_runfile_manifests
+	bazelisk build //:skia_public --config=enforce_iwyu \
+		--nobuild_runfile_manifests
+	bazelisk build //modules/skottie:skottie_tool_gpu --config=enforce_iwyu \
+		--nobuild_runfile_manifests

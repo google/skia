@@ -12,6 +12,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathEffect.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTime.h"

@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 
 DEF_SIMPLE_GM(crbug_1113794, canvas, 600, 200) {

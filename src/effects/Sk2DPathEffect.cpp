@@ -5,10 +5,19 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkPath.h"
-#include "include/core/SkRegion.h"
-#include "include/core/SkStrokeRec.h"
 #include "include/effects/Sk2DPathEffect.h"
+
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"

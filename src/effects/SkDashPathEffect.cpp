@@ -7,13 +7,26 @@
 
 #include "include/effects/SkDashPathEffect.h"
 
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkStrokeRec.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkDashImpl.h"
 #include "src/utils/SkDashPathPriv.h"
 
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
 #include <utility>
 
 SkDashImpl::SkDashImpl(const SkScalar intervals[], int count, SkScalar phase)

@@ -5,15 +5,22 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorPriv.h"
-#include "include/core/SkString.h"
-#include "include/effects/SkBlurMaskFilter.h"
-#include "include/private/SkTPin.h"
+#include "src/effects/SkEmbossMaskFilter.h"
+
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkEmbossMask.h"
-#include "src/effects/SkEmbossMaskFilter.h"
+
+#if defined(SK_SUPPORT_LEGACY_EMBOSSMASKFILTER)
+#include "include/effects/SkBlurMaskFilter.h"
+#endif
+
+#include <cstring>
 
 static void normalize3(SkScalar dst[3], const SkScalar src[3]) {
     SkScalar mag = SkScalarSquare(src[0]) + SkScalarSquare(src[1]) + SkScalarSquare(src[2]);

@@ -5,12 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkPathMeasure.h"
 #include "include/effects/SkTrimPathEffect.h"
+
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPathMeasure.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkTPin.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkTrimPE.h"
+
+#include <cstddef>
+#include <cstdint>
+
+class SkMatrix;
+class SkStrokeRec;
+struct SkRect;
 
 namespace {
 

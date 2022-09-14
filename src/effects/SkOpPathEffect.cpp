@@ -5,12 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkStrokeRec.h"
 #include "include/effects/SkOpPathEffect.h"
+
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkTypes.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkPathRef.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkRectPriv.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkOpPE.h"
+
+#include <utility>
 
 sk_sp<SkPathEffect> SkMergePathEffect::Make(sk_sp<SkPathEffect> one, sk_sp<SkPathEffect> two,
                                             SkPathOp op) {

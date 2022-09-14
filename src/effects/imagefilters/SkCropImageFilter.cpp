@@ -7,9 +7,16 @@
 
 #include "src/effects/imagefilters/SkCropImageFilter.h"
 
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkRect.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkValidationUtils.h"
+#include "src/core/SkWriteBuffer.h"
+
+#include <utility>
 
 namespace {
 

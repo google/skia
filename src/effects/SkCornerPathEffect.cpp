@@ -5,13 +5,22 @@
  * found in the LICENSE file.
  */
 
-
-#include "include/core/SkPath.h"
-#include "include/core/SkPoint.h"
 #include "include/effects/SkCornerPathEffect.h"
+
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathEffect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+
+class SkMatrix;
+class SkStrokeRec;
+struct SkRect;
 
 static bool ComputeStep(const SkPoint& a, const SkPoint& b, SkScalar radius,
                         SkPoint* step) {
