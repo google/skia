@@ -1393,7 +1393,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rrect_blur(GrRecordingContext* 
         "uniform float4 proxyRect;"
         "uniform half blurRadius;"
 
-        "half4 main(float2 xy, half4 inColor) {"
+        "half4 main(float2 xy) {"
             // Warp the fragment position to the appropriate part of the 9-patch blur texture by
             // snipping out the middle section of the proxy rect.
             "float2 translatedFragPosFloat = sk_FragCoord.xy - proxyRect.LT;"
@@ -1430,7 +1430,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rrect_blur(GrRecordingContext* 
             "half2 proxyDims = half2(2.0 * edgeSize);"
             "half2 texCoord = translatedFragPosHalf / proxyDims;"
 
-            "return inColor * ninePatchFP.eval(texCoord).a;"
+            "return ninePatchFP.eval(texCoord).aaaa;"
         "}"
     );
 
@@ -1438,12 +1438,15 @@ static std::unique_ptr<GrFragmentProcessor> make_rrect_blur(GrRecordingContext* 
     float blurRadius = 3.f * SkScalarCeilToScalar(xformedSigma - 1 / 6.0f);
     SkRect proxyRect = devRRect.getBounds().makeOutset(blurRadius, blurRadius);
 
-    return GrSkSLFP::Make(effect, "RRectBlur", /*inputFP=*/nullptr,
-                          GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
-                          "ninePatchFP", GrSkSLFP::IgnoreOptFlags(std::move(maskFP)),
-                          "cornerRadius", cornerRadius,
-                          "proxyRect", proxyRect,
-                          "blurRadius", blurRadius);
+    auto rrectBlurFP = GrSkSLFP::Make(effect, "RRectBlur", /*inputFP=*/nullptr,
+                                      GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
+                                      "ninePatchFP", GrSkSLFP::IgnoreOptFlags(std::move(maskFP)),
+                                      "cornerRadius", cornerRadius,
+                                      "proxyRect", proxyRect,
+                                      "blurRadius", blurRadius);
+    // Modulate blur with the input color.
+    return GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(rrectBlurFP),
+                                                                  /*dst=*/nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
