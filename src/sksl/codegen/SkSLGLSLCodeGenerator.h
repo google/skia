@@ -78,6 +78,8 @@ protected:
 
     bool usesPrecisionModifiers() const;
 
+    void writeIdentifier(std::string_view identifier);
+
     virtual std::string getTypeName(const Type& type);
 
     void writeStructDefinition(const StructDefinition& s);

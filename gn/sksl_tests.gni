@@ -294,6 +294,7 @@ sksl_glsl_tests = [
   "/sksl/glsl/ShortIntPrecision.sksl",
   "/sksl/glsl/TextureSharpenVersion110.sksl",
   "/sksl/glsl/TextureVersion110.sksl",
+  "/sksl/glsl/Underscores.sksl",
   "/sksl/glsl/UsesPrecisionModifiers.sksl",
   "/sksl/glsl/Version110.sksl",
   "/sksl/glsl/Version450Core.sksl",

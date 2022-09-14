@@ -1,0 +1,38 @@
+int _u_n_d_e_r_s_c_o_r_e_s_;
+int a_r_e_;
+int _c_o_o_l;
+
+int __two_underscores_at_the_front;
+int two_underscores__in_the_middle;
+int two_underscores_at_the_end__;
+int __; // two underscores in isolation
+
+int three___underscores;
+
+int contains_mangle_marker_X_;
+
+struct two_underscores__in_a_structname {
+    int two_underscores__in_a_struct_field;
+} two_underscores__in_struct_var;
+
+two_underscores__in_an_interface_block {
+    int two_underscores__in_a_interface_block_field;
+} two_underscores__in_a_interface_block_var;
+
+// Code is not meaningful, but uses mangled identifiers and prevents elimination via optimizer.
+
+noinline two_underscores__in_a_structname two_underscores__in_a_funcname(
+        two_underscores__in_a_structname two_underscores__in_a_parameter) {
+    if (__two_underscores_at_the_front == two_underscores_at_the_end__) {
+        if (two_underscores__in_the_middle == contains_mangle_marker_X_) {
+            ++contains_mangle_marker_X_;
+        }
+    }
+    two_underscores__in_a_parameter.two_underscores__in_a_struct_field = __;
+    return two_underscores__in_a_structname(three___underscores);
+}
+
+void main() {
+    _u_n_d_e_r_s_c_o_r_e_s_ = a_r_e_ = _c_o_o_l;
+    two_underscores__in_a_funcname(two_underscores__in_struct_var);
+}

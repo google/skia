@@ -512,10 +512,8 @@ std::string FunctionDeclaration::mangledName() const {
         name.remove_prefix(1);
         builtinMarker = "Q";  // a unique, otherwise-unused mangle character
     }
-    // GLSL forbids two underscores in a row; add an extra character if necessary to avoid this.
-    const char* splitter = skstd::ends_with(name, '_') ? "x_" : "_";
     // Rename function to `funcname_returntypeparamtypes`.
-    std::string result = std::string(name) + splitter + builtinMarker +
+    std::string result = std::string(name) + "_" + builtinMarker +
                          this->returnType().abbreviatedName();
     for (const Variable* p : this->parameters()) {
         result += p->type().abbreviatedName();

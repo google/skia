@@ -6,7 +6,7 @@ uniform vec4 testInputs;
 uniform vec4 colorRed;
 uniform vec4 colorGreen;
 uniform float unknownInput;
-bool test_no_op_mat2_X_vec2_b() {
+bool test_Xno_Xop_Xmat2_XX_Xvec2_Xb() {
     vec2 v;
     vec2 vv;
     v = testInputs.xy;
@@ -20,7 +20,7 @@ bool test_no_op_mat2_X_vec2_b() {
     vv = vec2(0.0);
     return vv == vec2(0.0, 0.0);
 }
-bool test_no_op_mat3_X_vec3_b() {
+bool test_Xno_Xop_Xmat3_XX_Xvec3_Xb() {
     vec3 v;
     vec3 vv;
     v = testInputs.xyz;
@@ -34,7 +34,7 @@ bool test_no_op_mat3_X_vec3_b() {
     vv = vec3(0.0);
     return vv == vec3(0.0, 0.0, 0.0);
 }
-bool test_no_op_mat4_X_vec4_b() {
+bool test_Xno_Xop_Xmat4_XX_Xvec4_Xb() {
     vec4 v;
     vec4 vv;
     v = testInputs;
@@ -48,7 +48,7 @@ bool test_no_op_mat4_X_vec4_b() {
     vv = vec4(0.0);
     return vv == vec4(0.0, 0.0, 0.0, 0.0);
 }
-bool test_no_op_vec2_X_mat2_b() {
+bool test_Xno_Xop_Xvec2_XX_Xmat2_Xb() {
     const vec2 n = vec2(-1.0);
     const vec2 i = vec2(1.0);
     const vec2 z = vec2(0.0);
@@ -66,7 +66,7 @@ bool test_no_op_vec2_X_mat2_b() {
     v = testMatrix2x2 * n;
     return v == vec2(-4.0, -6.0);
 }
-bool test_no_op_vec3_X_mat3_b() {
+bool test_Xno_Xop_Xvec3_XX_Xmat3_Xb() {
     const vec3 n = vec3(-1.0);
     const vec3 i = vec3(1.0);
     const vec3 z = vec3(0.0);
@@ -84,7 +84,7 @@ bool test_no_op_vec3_X_mat3_b() {
     v = testMatrix3x3 * n;
     return v == vec3(-12.0, -15.0, -18.0);
 }
-bool test_no_op_vec4_X_mat4_b() {
+bool test_Xno_Xop_Xvec4_XX_Xmat4_Xb() {
     const vec4 n = vec4(-1.0);
     const vec4 i = vec4(1.0);
     const vec4 z = vec4(0.0);
@@ -104,5 +104,5 @@ bool test_no_op_vec4_X_mat4_b() {
     return v == vec4(-4.0, -8.0, -12.0, -16.0);
 }
 vec4 main() {
-    return ((((test_no_op_mat2_X_vec2_b() && test_no_op_mat3_X_vec3_b()) && test_no_op_mat4_X_vec4_b()) && test_no_op_vec2_X_mat2_b()) && test_no_op_vec3_X_mat3_b()) && test_no_op_vec4_X_mat4_b() ? colorGreen : colorRed;
+    return ((((test_Xno_Xop_Xmat2_XX_Xvec2_Xb() && test_Xno_Xop_Xmat3_XX_Xvec3_Xb()) && test_Xno_Xop_Xmat4_XX_Xvec4_Xb()) && test_Xno_Xop_Xvec2_XX_Xmat2_Xb()) && test_Xno_Xop_Xvec3_XX_Xmat3_Xb()) && test_Xno_Xop_Xvec4_XX_Xmat4_Xb() ? colorGreen : colorRed;
 }

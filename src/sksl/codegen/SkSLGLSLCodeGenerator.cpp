@@ -15,6 +15,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLString.h"
+#include "include/private/SkStringView.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
@@ -103,6 +104,22 @@ bool GLSLCodeGenerator::usesPrecisionModifiers() const {
     return this->caps().fUsesPrecisionModifiers;
 }
 
+void GLSLCodeGenerator::writeIdentifier(std::string_view identifier) {
+    // GLSL forbids two underscores in a row.
+    // If an identifier contains "__" or "_X", replace each "_" in the identifier with "_X".
+    if (skstd::contains(identifier, "__") || skstd::contains(identifier, "_X")) {
+        for (const char c : identifier) {
+            if (c == '_') {
+                this->write("_X");
+            } else {
+                this->write(std::string_view(&c, 1));
+            }
+        }
+    } else {
+        this->write(identifier);
+    }
+}
+
 // Returns the name of the type with array dimensions, e.g. `float[2]`.
 std::string GLSLCodeGenerator::getTypeName(const Type& raw) {
     const Type& type = raw.resolve();
@@ -173,7 +190,7 @@ std::string GLSLCodeGenerator::getTypeName(const Type& raw) {
 void GLSLCodeGenerator::writeStructDefinition(const StructDefinition& s) {
     const Type& type = s.type();
     this->write("struct ");
-    this->write(type.name());
+    this->writeIdentifier(type.name());
     this->writeLine(" {");
     fIndentation++;
     for (const auto& f : type.fields()) {
@@ -182,7 +199,7 @@ void GLSLCodeGenerator::writeStructDefinition(const StructDefinition& s) {
         const Type& baseType = f.fType->isArray() ? f.fType->componentType() : *f.fType;
         this->writeType(baseType);
         this->write(" ");
-        this->write(f.fName);
+        this->writeIdentifier(f.fName);
         if (f.fType->isArray()) {
             this->write("[" + std::to_string(f.fType->columns()) + "]");
         }
@@ -193,7 +210,7 @@ void GLSLCodeGenerator::writeStructDefinition(const StructDefinition& s) {
 }
 
 void GLSLCodeGenerator::writeType(const Type& type) {
-    this->write(this->getTypeName(type));
+    this->writeIdentifier(this->getTypeName(type));
 }
 
 void GLSLCodeGenerator::writeExpression(const Expression& expr, Precedence parentPrecedence) {
@@ -715,7 +732,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
 
     if (!nameWritten) {
-        this->write(function.mangledName());
+        this->writeIdentifier(function.mangledName());
     }
     this->write("(");
     const char* separator = "";
@@ -829,7 +846,7 @@ void GLSLCodeGenerator::writeFragCoord() {
                                "vec2(.5);\n";
             fSetupFragCoordWorkaround = true;
         }
-        this->write("sk_FragCoord_Resolved");
+        this->writeIdentifier("sk_FragCoord_Resolved");
         return;
     }
 
@@ -847,20 +864,20 @@ void GLSLCodeGenerator::writeFragCoord() {
                 "gl_FragCoord.w);\n";
         fSetupFragPosition = true;
     }
-    this->write("sk_FragCoord");
+    this->writeIdentifier("sk_FragCoord");
 }
 
 void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
     switch (ref.variable()->modifiers().fLayout.fBuiltin) {
         case SK_FRAGCOLOR_BUILTIN:
             if (this->caps().mustDeclareFragmentShaderOutput()) {
-                this->write("sk_FragColor");
+                this->writeIdentifier("sk_FragColor");
             } else {
-                this->write("gl_FragColor");
+                this->writeIdentifier("gl_FragColor");
             }
             break;
         case SK_SECONDARYFRAGCOLOR_BUILTIN:
-            this->write("gl_SecondaryFragColorEXT");
+            this->writeIdentifier("gl_SecondaryFragColorEXT");
             break;
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
@@ -875,13 +892,13 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
                 }
                 fSetupClockwise = true;
             }
-            this->write("sk_Clockwise");
+            this->writeIdentifier("sk_Clockwise");
             break;
         case SK_VERTEXID_BUILTIN:
-            this->write("gl_VertexID");
+            this->writeIdentifier("gl_VertexID");
             break;
         case SK_INSTANCEID_BUILTIN:
-            this->write("gl_InstanceID");
+            this->writeIdentifier("gl_InstanceID");
             break;
         case SK_LASTFRAGCOLOR_BUILTIN:
             if (this->caps().fFBFetchSupport) {
@@ -892,7 +909,7 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             }
             break;
         default:
-            this->write(ref.variable()->mangledName());
+            this->writeIdentifier(ref.variable()->mangledName());
             break;
     }
 }
@@ -917,11 +934,11 @@ void GLSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
     const Type& baseType = f.base()->type();
     int builtin = baseType.fields()[f.fieldIndex()].fModifiers.fLayout.fBuiltin;
     if (builtin == SK_POSITION_BUILTIN) {
-        this->write("gl_Position");
+        this->writeIdentifier("gl_Position");
     } else if (builtin == SK_POINTSIZE_BUILTIN) {
-        this->write("gl_PointSize");
+        this->writeIdentifier("gl_PointSize");
     } else {
-        this->write(baseType.fields()[f.fieldIndex()].fName);
+        this->writeIdentifier(baseType.fields()[f.fieldIndex()].fName);
     }
 }
 
@@ -1092,7 +1109,9 @@ void GLSLCodeGenerator::writeLiteral(const Literal& l) {
 void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     this->writeTypePrecision(f.returnType());
     this->writeType(f.returnType());
-    this->write(" " + f.mangledName() + "(");
+    this->write(" ");
+    this->writeIdentifier(f.mangledName());
+    this->write("(");
     const char* separator = "";
     for (const auto& param : f.parameters()) {
         // This is a workaround for our test files. They use the runtime effect signature, so main
@@ -1112,7 +1131,8 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         }
         this->writeTypePrecision(*type);
         this->writeType(*type);
-        this->write(" " + std::string(param->mangledName()));
+        this->write(" ");
+        this->writeIdentifier(param->mangledName());
         for (int s : sizes) {
             this->write("[" + std::to_string(s) + "]");
         }
@@ -1208,7 +1228,8 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         return;
     }
     this->writeModifiers(intf.variable().modifiers(), true);
-    this->writeLine(std::string(intf.typeName()) + " {");
+    this->writeIdentifier(intf.typeName());
+    this->writeLine(" {");
     fIndentation++;
     const Type* structType = &intf.variable().type();
     if (structType->isArray()) {
@@ -1218,13 +1239,15 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         this->writeModifiers(f.fModifiers, false);
         this->writeTypePrecision(*f.fType);
         this->writeType(*f.fType);
-        this->writeLine(" " + std::string(f.fName) + ";");
+        this->write(" ");
+        this->writeIdentifier(f.fName);
+        this->writeLine(";");
     }
     fIndentation--;
     this->write("}");
     if (intf.instanceName().size()) {
         this->write(" ");
-        this->write(intf.instanceName());
+        this->writeIdentifier(intf.instanceName());
         if (intf.arraySize() > 0) {
             this->write("[");
             this->write(std::to_string(intf.arraySize()));
@@ -1278,7 +1301,7 @@ void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glob
     this->writeTypePrecision(var.baseType());
     this->writeType(var.baseType());
     this->write(" ");
-    this->write(var.var().mangledName());
+    this->writeIdentifier(var.var().mangledName());
     if (var.arraySize() > 0) {
         this->write("[");
         this->write(std::to_string(var.arraySize()));
