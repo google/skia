@@ -658,7 +658,7 @@ GrFPResult GrFragmentProcessor::Circle(std::unique_ptr<GrFragmentProcessor> inpu
         // fills and (..., radius - 0.5, 1 / (radius - 0.5)) for inverse fills.
         "uniform float4 circle;"
 
-        "half4 main(float2 xy, half4 inColor) {"
+        "half4 main(float2 xy) {"
             // TODO: Right now the distance to circle calculation is performed in a space normalized
             // to the radius and then denormalized. This is to mitigate overflow on devices that
             // don't have full float.
@@ -666,13 +666,11 @@ GrFPResult GrFragmentProcessor::Circle(std::unique_ptr<GrFragmentProcessor> inpu
             "if (edgeType == kInverseFillBW || edgeType == kInverseFillAA) {"
                 "d = half((length((circle.xy - sk_FragCoord.xy) * circle.w) - 1.0) * circle.z);"
             "} else {"
-                "d = half((1.0 - length((circle.xy - sk_FragCoord.xy) *  circle.w)) * circle.z);"
+                "d = half((1.0 - length((circle.xy - sk_FragCoord.xy) * circle.w)) * circle.z);"
             "}"
-            "if (edgeType == kFillAA || edgeType == kInverseFillAA) {"
-                "return inColor * saturate(d);"
-            "} else {"
-                "return d > 0.5 ? inColor : half4(0);"
-            "}"
+            "return half4((edgeType == kFillAA || edgeType == kInverseFillAA)"
+                              "? saturate(d)"
+                              ": (d > 0.5 ? 1 : 0));"
         "}"
     );
 
@@ -686,10 +684,12 @@ GrFPResult GrFragmentProcessor::Circle(std::unique_ptr<GrFragmentProcessor> inpu
     }
     SkV4 circle = {center.fX, center.fY, effectiveRadius, SkScalarInvert(effectiveRadius)};
 
-    return GrFPSuccess(GrSkSLFP::Make(effect, "Circle", std::move(inputFP),
-                                      GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
-                                      "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
-                                      "circle", circle));
+    auto circleFP = GrSkSLFP::Make(effect, "Circle", /*inputFP=*/nullptr,
+                                   GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
+                                   "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
+                                   "circle", circle);
+    return GrFPSuccess(GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(circleFP),
+                                                                              std::move(inputFP)));
 }
 
 GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inputFP,
