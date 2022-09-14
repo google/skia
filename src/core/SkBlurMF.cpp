@@ -989,7 +989,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* c
         "uniform float4 rect;"
         "uniform int isFast;"  // specialized
 
-        "half4 main(float2 pos, half4 inColor) {"
+        "half4 main(float2 pos) {"
             "half xCoverage, yCoverage;"
             "if (bool(isFast)) {"
                 // Get the smaller of the signed distance from the frag coord to the left and right
@@ -1022,7 +1022,7 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* c
                 "yCoverage = 1 - integral.eval(half2(rect.T, 0.5)).a"
                               "- integral.eval(half2(rect.B, 0.5)).a;"
             "}"
-            "return inColor * xCoverage * yCoverage;"
+            "return half4(xCoverage * yCoverage);"
         "}"
     );
 
@@ -1032,6 +1032,9 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* c
                            "integral", GrSkSLFP::IgnoreOptFlags(std::move(integral)),
                            "rect", insetRect,
                            "isFast", GrSkSLFP::Specialize<int>(isFast));
+    // Modulate blur with the input color.
+    fp = GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(fp),
+                                                                /*dst=*/nullptr);
     if (!invM.isIdentity()) {
         fp = GrMatrixEffect::Make(invM, std::move(fp));
     }
