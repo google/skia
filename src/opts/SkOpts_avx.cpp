@@ -7,6 +7,8 @@
 
 #include "src/core/SkOpts.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #define SK_OPTS_NS avx
 #include "src/opts/SkUtils_opts.h"
 
@@ -21,3 +23,5 @@ namespace SkOpts {
         rect_memset64 = SK_OPTS_NS::rect_memset64;
     }
 }  // namespace SkOpts
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

@@ -7,6 +7,8 @@
 
 #include "src/core/SkOpts.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #define SK_OPTS_NS hsw
 #include "src/core/SkCubicSolver.h"
 #include "src/opts/SkBitmapProcState_opts.h"
@@ -49,3 +51,5 @@ namespace SkOpts {
         interpret_skvm = SK_OPTS_NS::interpret_skvm;
     }
 }  // namespace SkOpts
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE
