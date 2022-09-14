@@ -27,11 +27,6 @@ public:
 private:
     const bool fHasColor;
     const bool fHasTexCoords;
-
-    void writeVerticesColorAndTexture(DrawWriter* writer, const DrawParams& params,
-                                      int ssboIndex) const;
-    void writeVerticesColor(DrawWriter* writer, const DrawParams& params, int ssboIndex) const;
-    void writeVerticesTexture(DrawWriter* writer, const DrawParams& params, int ssboIndex) const;
 };
 
 }  // namespace skgpu::graphite

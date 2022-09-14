@@ -72,7 +72,8 @@ VerticesRenderStep::VerticesRenderStep(PrimitiveType type, bool hasColor, bool h
                      variant_name(type, hasColor, hasTexCoords),
                      hasColor ? Flags::kEmitsPrimitiveColor | Flags::kPerformsShading
                               : Flags::kPerformsShading,
-                     /*uniforms=*/{{"depth", SkSLType::kFloat}},
+                     /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4},
+                                   {"depth", SkSLType::kFloat}},
                      type,
                      kDirectDepthGEqualPass,
                      /*vertexAttrs=*/  kAttributes[2*hasTexCoords + hasColor],
@@ -87,69 +88,30 @@ const char* VerticesRenderStep::vertexSkSL() const {
     if (fHasColor && fHasTexCoords) {
         return R"(
             color = half4(vertColor.bgr * vertColor.a, vertColor.a);
-            float4 devPosition = float4(position, 1.0, 1.0);
+            float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
+            devPosition.z = depth;
             stepLocalCoords = texCoords;
         )";
     } else if (fHasTexCoords) {
         return R"(
-            float4 devPosition = float4(position, 1.0, 1.0);
+            float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
+            devPosition.z = depth;
             stepLocalCoords = texCoords;
         )";
     } else if (fHasColor) {
         return R"(
             color = half4(vertColor.bgr * vertColor.a, vertColor.a);
-            float4 devPosition = float4(position, 1.0, 1.0);
+            float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
+            devPosition.z = depth;
             stepLocalCoords = position;
         )";
     } else {
         return R"(
-            float4 devPosition = float4(position, 1.0, 1.0);
+            float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
+            devPosition.z = depth;
             stepLocalCoords = position;
         )";
     }
-}
-
-void VerticesRenderStep::writeVertices(DrawWriter* writer,
-                                       const DrawParams& params,
-                                       int ssboIndex) const {
-    // TODO: Instead of fHasColor and fHasTexture, use info() and assert.
-    if (fHasColor && fHasTexCoords) {
-        writeVerticesColorAndTexture(writer, params, ssboIndex);
-    } else if (fHasColor) {
-        writeVerticesColor(writer, params, ssboIndex);
-    } else if (fHasTexCoords) {
-        writeVerticesTexture(writer, params, ssboIndex);
-    } else {
-        SkVerticesPriv info(params.geometry().vertices()->priv());
-        const int vertexCount = info.vertexCount();
-        const int indexCount = info.indexCount();
-        const SkPoint* positions = info.positions();
-        const uint16_t* indices = info.indices();
-
-        DrawWriter::Vertices verts{*writer};
-        verts.reserve(indexCount);
-
-        VertState state(vertexCount, indices, indexCount);
-        VertState::Proc vertProc = state.chooseProc(info.mode());
-        while (vertProc(&state)) {
-            SkV2 p[3] = {{positions[state.f0].x(), positions[state.f0].y()},
-                         {positions[state.f1].x(), positions[state.f1].y()},
-                         {positions[state.f2].x(), positions[state.f2].y()}};
-            SkV4 devPoints[3];
-            params.transform().mapPoints(p, devPoints, 3);
-            verts.append(3) << devPoints[0].x << devPoints[0].y << ssboIndex
-                            << devPoints[1].x << devPoints[1].y << ssboIndex
-                            << devPoints[2].x << devPoints[2].y << ssboIndex;
-        }
-    }
-}
-
-void VerticesRenderStep::writeUniformsAndTextures(const DrawParams& params,
-                                                  SkPipelineDataGatherer* gatherer) const {
-    // Vertices are currently pre-transformed to device space on the CPU so no transformation matrix
-    // is needed. Store PaintDepth as a uniform to avoid copying the same depth for each vertex.
-    SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
-    gatherer->write(params.order().depthAsFloat());
 }
 
 const char* VerticesRenderStep::fragmentColorSkSL() const {
@@ -160,8 +122,9 @@ const char* VerticesRenderStep::fragmentColorSkSL() const {
     }
 }
 
-void VerticesRenderStep::writeVerticesColorAndTexture(DrawWriter* writer, const DrawParams& params,
-                                                      int ssboIndex) const {
+void VerticesRenderStep::writeVertices(DrawWriter* writer,
+                                       const DrawParams& params,
+                                       int ssboIndex) const {
     SkVerticesPriv info(params.geometry().vertices()->priv());
     const int vertexCount = info.vertexCount();
     const int indexCount = info.indexCount();
@@ -170,80 +133,52 @@ void VerticesRenderStep::writeVerticesColorAndTexture(DrawWriter* writer, const 
     const SkColor* colors = info.colors();
     const SkPoint* texCoords = info.texCoords();
 
+    // This should always be the case if the Renderer was chosen appropriately, but the vertex
+    // writing loop is set up in such a way that if the shader expects color or tex coords and they
+    // are missing, it will just read 0s, so release builds are safe.
+    SkASSERT(fHasColor == SkToBool(colors));
+    SkASSERT(fHasTexCoords == SkToBool(texCoords));
+
+    // TODO: We could access the writer's DrawBufferManager and upload the SkVertices index buffer
+    // but that would require we manually manage the VertexWriter for interleaving the position,
+    // color, and tex coord arrays together. This wouldn't be so bad if we let ::Vertices() take
+    // a CPU index buffer that indexes into the accumulated vertex data (and handles offsetting for
+    // merged drawIndexed calls), or if we could bind multiple attribute sources and copy the
+    // position/color/texCoord data separately in bulk w/o using an Appender.
     DrawWriter::Vertices verts{*writer};
+    verts.reserve(indices ? indexCount : vertexCount);
 
     VertState state(vertexCount, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(info.mode());
-
     while (vertProc(&state)) {
-        SkV2 p[3] = {{positions[state.f0].x(), positions[state.f0].y()},
-                     {positions[state.f1].x(), positions[state.f1].y()},
-                     {positions[state.f2].x(), positions[state.f2].y()}};
-
-        SkV4 devPoints[3];
-        params.transform().mapPoints(p, devPoints, 3);
-
-        verts.append(3) << devPoints[0].x << devPoints[0].y << colors[state.f0]
-                        << texCoords[state.f0] << ssboIndex
-                        << devPoints[1].x << devPoints[1].y << colors[state.f1]
-                        << texCoords[state.f1] << ssboIndex
-                        << devPoints[2].x << devPoints[2].y << colors[state.f2]
-                        << texCoords[state.f2] << ssboIndex;
+        verts.append(3) << positions[state.f0]
+                        << VertexWriter::If(fHasColor, colors ? colors[state.f0]
+                                                              : SK_ColorTRANSPARENT)
+                        << VertexWriter::If(fHasTexCoords, texCoords ? texCoords[state.f0]
+                                                                     : SkPoint{0.f, 0.f})
+                        << ssboIndex
+                        << positions[state.f1]
+                        << VertexWriter::If(fHasColor, colors ? colors[state.f1]
+                                                              : SK_ColorTRANSPARENT)
+                        << VertexWriter::If(fHasTexCoords, texCoords ? texCoords[state.f1]
+                                                                     : SkPoint{0.f, 0.f})
+                        << ssboIndex
+                        << positions[state.f2]
+                        << VertexWriter::If(fHasColor, colors ? colors[state.f2]
+                                                              : SK_ColorTRANSPARENT)
+                        << VertexWriter::If(fHasTexCoords, texCoords ? texCoords[state.f2]
+                                                                     : SkPoint{0.f, 0.f})
+                        << ssboIndex;
     }
 }
 
-void VerticesRenderStep::writeVerticesColor(DrawWriter* writer, const DrawParams& params,
-                                            int ssboIndex) const {
-    SkVerticesPriv info(params.geometry().vertices()->priv());
-    const int vertexCount = info.vertexCount();
-    const int indexCount = info.indexCount();
-    const SkPoint* positions = info.positions();
-    const uint16_t* indices = info.indices();
-    const SkColor* colors = info.colors();
-
-    DrawWriter::Vertices verts{*writer};
-    VertState state(vertexCount, indices, indexCount);
-    VertState::Proc vertProc = state.chooseProc(info.mode());
-
-    while (vertProc(&state)) {
-        SkV2 p[3] = {{positions[state.f0].x(), positions[state.f0].y()},
-                     {positions[state.f1].x(), positions[state.f1].y()},
-                     {positions[state.f2].x(), positions[state.f2].y()}};
-
-        SkV4 devPoints[3];
-        params.transform().mapPoints(p, devPoints, 3);
-
-        verts.append(3) << devPoints[0].x << devPoints[0].y << colors[state.f0] << ssboIndex
-                        << devPoints[1].x << devPoints[1].y << colors[state.f1] << ssboIndex
-                        << devPoints[2].x << devPoints[2].y << colors[state.f2] << ssboIndex;
-    }
-}
-
-void VerticesRenderStep::writeVerticesTexture(DrawWriter* writer, const DrawParams& params,
-                                              int ssboIndex) const {
-    SkVerticesPriv info(params.geometry().vertices()->priv());
-    const int vertexCount = info.vertexCount();
-    const int indexCount = info.indexCount();
-    const SkPoint* positions = info.positions();
-    const uint16_t* indices = info.indices();
-    const SkPoint* texCoords = info.texCoords();
-
-    DrawWriter::Vertices verts{*writer};
-
-    VertState state(vertexCount, indices, indexCount);
-    VertState::Proc vertProc = state.chooseProc(info.mode());
-    while (vertProc(&state)) {
-        SkV2 p[3] = {{positions[state.f0].x(), positions[state.f0].y()},
-                     {positions[state.f1].x(), positions[state.f1].y()},
-                     {positions[state.f2].x(), positions[state.f2].y()}};
-
-        SkV4 devPoints[3];
-        params.transform().mapPoints(p, devPoints, 3);
-
-        verts.append(3) << devPoints[0].x << devPoints[0].y << texCoords[state.f0] << ssboIndex
-                        << devPoints[1].x << devPoints[1].y << texCoords[state.f1] << ssboIndex
-                        << devPoints[2].x << devPoints[2].y << texCoords[state.f2] << ssboIndex;
-    }
+void VerticesRenderStep::writeUniformsAndTextures(const DrawParams& params,
+                                                  SkPipelineDataGatherer* gatherer) const {
+    // Vertices are transformed on the GPU. Store PaintDepth as a uniform to avoid copying the
+    // same depth for each vertex.
+    SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
+    gatherer->write(params.transform());
+    gatherer->write(params.order().depthAsFloat());
 }
 
 }  // namespace skgpu::graphite
