@@ -690,8 +690,8 @@ GrFPResult GrFragmentProcessor::Circle(std::unique_ptr<GrFragmentProcessor> inpu
                                    GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
                                    "edgeType", GrSkSLFP::Specialize(static_cast<int>(edgeType)),
                                    "circle", circle);
-    return GrFPSuccess(GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(circleFP),
-                                                                              std::move(inputFP)));
+    return GrFPSuccess(GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(inputFP),
+                                                                              std::move(circleFP)));
 }
 
 GrFPResult GrFragmentProcessor::Ellipse(std::unique_ptr<GrFragmentProcessor> inputFP,
