@@ -32,6 +32,7 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
@@ -845,20 +846,23 @@ static std::unique_ptr<GrFragmentProcessor> make_circle_blur(GrRecordingContext*
         "uniform shader blurProfile;"
         "uniform half4 circleData;"
 
-        "half4 main(float2 xy, half4 inColor) {"
+        "half4 main(float2 xy) {"
             // We just want to compute "(length(vec) - circleData.z + 0.5) * circleData.w" but need
             // to rearrange to avoid passing large values to length() that would overflow.
             "half2 vec = half2((sk_FragCoord.xy - circleData.xy) * circleData.w);"
             "half dist = length(vec) + (0.5 - circleData.z) * circleData.w;"
-            "return inColor * blurProfile.eval(half2(dist, 0.5)).a;"
+            "return blurProfile.eval(half2(dist, 0.5)).aaaa;"
         "}"
     );
 
     SkV4 circleData = {circle.centerX(), circle.centerY(), solidRadius, 1.f / textureRadius};
-    return GrSkSLFP::Make(effect, "CircleBlur", /*inputFP=*/nullptr,
-                          GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
-                          "blurProfile", GrSkSLFP::IgnoreOptFlags(std::move(profile)),
-                          "circleData", circleData);
+    auto circleBlurFP = GrSkSLFP::Make(effect, "CircleBlur", /*inputFP=*/nullptr,
+                                       GrSkSLFP::OptFlags::kCompatibleWithCoverageAsAlpha,
+                                       "blurProfile", GrSkSLFP::IgnoreOptFlags(std::move(profile)),
+                                       "circleData", circleData);
+    // Modulate blur with the input color.
+    return GrBlendFragmentProcessor::Make<SkBlendMode::kModulate>(std::move(circleBlurFP),
+                                                                  /*dst=*/nullptr);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
