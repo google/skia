@@ -415,7 +415,7 @@ const Expression* ConstantFolder::GetConstantValueForVariable(const Expression& 
             // Function parameters can be const but won't have an initial value.
             break;
         }
-        if (expr->isCompileTimeConstant()) {
+        if (Analysis::IsCompileTimeConstant(*expr)) {
             return expr;
         }
     }
@@ -649,7 +649,7 @@ std::unique_ptr<Expression> ConstantFolder::Simplify(const Context& context,
     }
 
     // Other than the cases above, constant folding requires both sides to be constant.
-    if (!left->isCompileTimeConstant() || !right->isCompileTimeConstant()) {
+    if (!Analysis::IsCompileTimeConstant(*left) || !Analysis::IsCompileTimeConstant(*right)) {
         return nullptr;
     }
 

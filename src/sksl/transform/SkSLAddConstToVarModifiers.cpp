@@ -6,14 +6,16 @@
  */
 
 #include "include/private/SkSLModifiers.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
-#include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
 namespace SkSL {
+
+class Expression;
 
 const Modifiers* Transform::AddConstToVarModifiers(const Context& context,
                                                    const Variable& var,
@@ -25,7 +27,7 @@ const Modifiers* Transform::AddConstToVarModifiers(const Context& context,
         return modifiers;
     }
     // If the variable doesn't have a compile-time-constant initial value, we can't `const` it.
-    if (!initialValue || !initialValue->isCompileTimeConstant()) {
+    if (!initialValue || !Analysis::IsCompileTimeConstant(*initialValue)) {
         return modifiers;
     }
     // This only works for variables that are written-to a single time.

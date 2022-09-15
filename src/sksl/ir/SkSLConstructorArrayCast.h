@@ -40,11 +40,6 @@ public:
                                             const Type& type,
                                             std::unique_ptr<Expression> arg);
 
-    bool isCompileTimeConstant() const override {
-        // If this were a compile-time constant, we would have made a ConstructorArray instead.
-        return false;
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<ConstructorArrayCast>(pos, this->type(), argument()->clone());
     }

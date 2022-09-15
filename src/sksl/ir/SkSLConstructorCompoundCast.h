@@ -38,11 +38,6 @@ public:
                                             const Type& type,
                                             std::unique_ptr<Expression> arg);
 
-    bool isCompileTimeConstant() const override {
-        // If this were a compile-time constant, we would have made a ConstructorCompound instead.
-        return false;
-    }
-
     std::unique_ptr<Expression> clone(Position pos) const override {
         return std::make_unique<ConstructorCompoundCast>(pos, this->type(), argument()->clone());
     }

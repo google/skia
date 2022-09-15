@@ -50,15 +50,6 @@ public:
         return this->type().componentType();
     }
 
-    bool isCompileTimeConstant() const override {
-        for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
-            if (!arg->isCompileTimeConstant()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     bool supportsConstantValues() const override { return true; }
     std::optional<double> getConstantValue(int n) const override;
 

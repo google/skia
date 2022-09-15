@@ -110,10 +110,6 @@ public:
         return fValue ? "true" : "false";
     }
 
-    bool isCompileTimeConstant() const override {
-        return true;
-    }
-
     ComparisonResult compareConstant(const Expression& other) const override {
         if (!other.is<Literal>() || this->type().numberKind() != other.type().numberKind()) {
             return ComparisonResult::kUnknown;

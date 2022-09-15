@@ -51,11 +51,6 @@ public:
         return std::make_unique<ConstructorScalarCast>(pos, this->type(), argument()->clone());
     }
 
-    bool isCompileTimeConstant() const override {
-        // If this were a compile-time constant, we would have created a literal instead.
-        return false;
-    }
-
 private:
     using INHERITED = SingleArgumentConstructor;
 };

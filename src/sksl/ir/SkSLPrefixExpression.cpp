@@ -53,7 +53,7 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
         }
         case Expression::Kind::kConstructorArray:
             // Convert `-array[N](literal, ...)` into `array[N](-literal, ...)`.
-            if (value->isCompileTimeConstant()) {
+            if (Analysis::IsCompileTimeConstant(*value)) {
                 const ConstructorArray& ctor = value->as<ConstructorArray>();
                 return ConstructorArray::Make(context, pos, ctor.type(),
                                               negate_operands(context, pos, ctor.arguments()));
@@ -62,7 +62,7 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
 
         case Expression::Kind::kConstructorDiagonalMatrix:
             // Convert `-matrix(literal)` into `matrix(-literal)`.
-            if (value->isCompileTimeConstant()) {
+            if (Analysis::IsCompileTimeConstant(*value)) {
                 const ConstructorDiagonalMatrix& ctor = value->as<ConstructorDiagonalMatrix>();
                 if (std::unique_ptr<Expression> simplified = simplify_negation(context,
                                                                                pos,
@@ -75,7 +75,7 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
 
         case Expression::Kind::kConstructorSplat:
             // Convert `-vector(literal)` into `vector(-literal)`.
-            if (value->isCompileTimeConstant()) {
+            if (Analysis::IsCompileTimeConstant(*value)) {
                 const ConstructorSplat& ctor = value->as<ConstructorSplat>();
                 if (std::unique_ptr<Expression> simplified = simplify_negation(context,
                                                                                pos,
@@ -87,7 +87,7 @@ static std::unique_ptr<Expression> simplify_negation(const Context& context,
 
         case Expression::Kind::kConstructorCompound:
             // Convert `-vecN(literal, ...)` into `vecN(-literal, ...)`.
-            if (value->isCompileTimeConstant()) {
+            if (Analysis::IsCompileTimeConstant(*value)) {
                 const ConstructorCompound& ctor = value->as<ConstructorCompound>();
                 return ConstructorCompound::Make(context, pos, ctor.type(),
                         negate_operands(context, pos, ctor.arguments()));

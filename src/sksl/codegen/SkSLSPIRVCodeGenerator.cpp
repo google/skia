@@ -22,6 +22,7 @@
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/GLSL.std.450.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
@@ -3086,8 +3087,8 @@ SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, Out
     const Type& type = t.type();
     SpvId test = this->writeExpression(*t.test(), out);
     if (t.ifTrue()->type().columns() == 1 &&
-        t.ifTrue()->isCompileTimeConstant() &&
-        t.ifFalse()->isCompileTimeConstant()) {
+        Analysis::IsCompileTimeConstant(*t.ifTrue()) &&
+        Analysis::IsCompileTimeConstant(*t.ifFalse())) {
         // both true and false are constants, can just use OpSelect
         SpvId result = this->nextId(nullptr);
         SpvId trueId = this->writeExpression(*t.ifTrue(), out);

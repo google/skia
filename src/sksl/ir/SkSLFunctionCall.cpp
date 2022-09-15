@@ -55,7 +55,7 @@ using IntrinsicArguments = std::array<const Expression*, 3>;
 static bool has_compile_time_constant_arguments(const ExpressionArray& arguments) {
     for (const std::unique_ptr<Expression>& arg : arguments) {
         const Expression* expr = ConstantFolder::GetConstantValueForVariable(*arg);
-        if (!expr->isCompileTimeConstant()) {
+        if (!Analysis::IsCompileTimeConstant(*expr)) {
             return false;
         }
     }
