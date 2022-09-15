@@ -311,4 +311,9 @@ struct RuntimeColorFilterBlock {
                            const ColorFilterData&);
 };
 
+struct RuntimeBlenderBlock : public RuntimeColorFilterBlock {
+    // Runtime Blenders use the same key builder as runtime color filters.
+    using BlenderData = ColorFilterData;
+};
+
 #endif // SkKeyHelpers_DEFINED

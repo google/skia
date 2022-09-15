@@ -1412,6 +1412,17 @@ public:
     }
 #endif
 
+    void addToKey(const SkKeyContext& keyContext,
+                  SkPaintParamsKeyBuilder* builder,
+                  SkPipelineDataGatherer* gatherer,
+                  bool primitiveColorBlender) const override {
+        RuntimeBlenderBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
+
+        add_children_to_key(fChildren, fEffect->children(), keyContext, builder, gatherer);
+
+        builder->endBlock();
+    }
+
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeString(fEffect->source().c_str());
         buffer.writeDataAsByteArray(fUniforms.get());
