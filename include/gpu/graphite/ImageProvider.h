@@ -21,8 +21,15 @@ class Recorder;
  * they desire. Whenever Graphite encounters an SkImage which is not Graphite-backed
  * it will call ImageProvider::findOrCreate. The client's derived version of this class should
  * return a Graphite-backed version of the provided SkImage that meets the specified
- * requirements. If the requirements are not met by the returned image, Graphite
- * will draw opaque red.
+ * requirements.
+ *
+ * Skia requires that 'findOrCreate' return a Graphite-backed image that preserves the dimensions,
+ * number of channels and alpha type of the original image. The bit depth of the
+ * individual channels can change (e.g., 4444 -> 8888 is allowed).
+ * Wrt mipmapping, the returned image can have different mipmap settings than requested. If
+ * mipmapping was requested but not returned, the sampling level will be reduced to linear.
+ * If the requirements are not met by the returned image (modulo the flexibility wrt mipmapping)
+ * Graphite will drop the draw.
  *
  * Note: by default, Graphite will not perform any caching of images
  *
@@ -31,7 +38,7 @@ class Recorder;
  *   client to handle any required thread synchronization. This is not limited to just
  *   restricting access to whatever map a derived class may have but extends to ensuring
  *   that an image created on one Recorder has had its creation work submitted before it
- *   is used by any work submitted by another Recorder. Please note, this requirement
+ *   is used by any work submitted by another Recording. Please note, this requirement
  *   (re the submission of creation work and image usage on different threads) is common to all
  *   graphite SkImages and isn't unique to SkImages returned by the ImageProvider.
  *
