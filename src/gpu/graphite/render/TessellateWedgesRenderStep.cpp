@@ -76,6 +76,7 @@ const char* TessellateWedgesRenderStep::vertexSkSL() const {
         }
         float4 devPosition = localToDevice * float4(localCoord, 0.0, 1.0);
         devPosition.z = depth;
+        stepLocalCoords = localCoord;
     )";
 }
 

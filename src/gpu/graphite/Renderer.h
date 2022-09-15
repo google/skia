@@ -73,25 +73,14 @@ public:
     // values will be de-duplicated across all draws using the RenderStep before uploading to the
     // GPU, but it can be assumed the uniforms will be bound before the draws recorded in
     // 'writeVertices' are executed.
-    // TODO: We definitely want this to return CPU memory since it's better for the caller to handle
-    // the de-duplication and GPU upload/binding (DrawPass tracks all this). However, a RenderStep's
-    // uniforms aren't going to change, and the Layout won't change during a process, so it would be
-    // nice if we could remember the offsets for the layout/gpu and reuse them across draws.
-    // Similarly, it would be nice if this could write into reusable storage and then DrawPass or
-    // UniformCache handles making an sk_sp if we need to assign a new unique ID to the uniform data
     virtual void writeUniformsAndTextures(const DrawParams&, SkPipelineDataGatherer*) const = 0;
 
-    // TODO: This is only temporary. Eventually the RenderStep will define its logic in SkSL and
-    // be able to have code operate in both the vertex and fragment shaders. Ideally the RenderStep
-    // will provide two functions that fit some ABI for integrating with the common and paint SkSL,
-    // although we could go as far as allowing RenderStep to handle composing the final SkSL if
-    // given the paint combination's SkSL.
-
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
-    // can optionally define a float2 stepLocalCoords variable. It has access to the variables
-    // declared by vertexAttributes(), instanceAttributes(), and uniforms(). The 'devPosition'
-    // variable's z must store the PaintDepth normalized to a float from [0, 1], for each processed
-    // draw although the RenderStep can choose to upload it as attributes or uniforms.
+    // must write to an already-defined float2 stepLocalCoords variable. This will be automatically
+    // set to a varying for the fragment shader if the paint requires local coords. This SkSL has
+    // access to the variables declared by vertexAttributes(), instanceAttributes(), and uniforms().
+    // The 'devPosition' variable's z must store the PaintDepth normalized to a float from [0, 1],
+    // for each processed draw although the RenderStep can choose to upload it in any manner.
     //
     // NOTE: The above contract is mainly so that the entire SkSL program can be created by just str
     // concatenating struct definitions generated from the RenderStep and paint Combination

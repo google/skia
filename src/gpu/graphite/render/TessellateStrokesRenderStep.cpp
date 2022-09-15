@@ -75,10 +75,11 @@ const char* TessellateStrokesRenderStep::vertexSkSL() const {
             edgeID = -edgeID;
         }
         float2x2 affine = float2x2(affineMatrix.xy, affineMatrix.zw);
-        float4 devPosition = float4(
-                tessellate_stroked_curve(edgeID, 16383, affine, translate,
-                                         maxScale, p01, p23, prevPoint, stroke),
-                depth, 1.0);)";
+        float4 devAndLocalCoords = tessellate_stroked_curve(edgeID, 16383, affine, translate,
+                                                            maxScale, p01, p23, prevPoint, stroke);
+        float4 devPosition = float4(devAndLocalCoords.xy, depth, 1.0);
+        stepLocalCoords = devAndLocalCoords.zw;
+    )";
 }
 
 void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,

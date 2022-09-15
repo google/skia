@@ -37,6 +37,7 @@ const char* MiddleOutFanRenderStep::vertexSkSL() const {
     return R"(
         float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
         devPosition.z = depth;
+        stepLocalCoords = position;
     )";
 }
 

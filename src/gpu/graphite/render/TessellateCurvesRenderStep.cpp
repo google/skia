@@ -64,6 +64,7 @@ const char* TessellateCurvesRenderStep::vertexSkSL() const {
                 vectorXform, resolveLevel_and_idx.x, resolveLevel_and_idx.y, p01, p23);
         float4 devPosition = localToDevice * float4(localCoord, 0.0, 1.0);
         devPosition.z = depth;
+        stepLocalCoords = localCoord;
     )";
 }
 

@@ -181,7 +181,8 @@ float2 tessellate_filled_curve(float2x2 vectorXform,
     return localcoord;
 }
 
-float2 tessellate_stroked_curve(float edgeID, float maxEdges,
+// Device coords are in xy, local coords are in zw, since for now perspective isn't supported.
+float4 tessellate_stroked_curve(float edgeID, float maxEdges,
                                 float2x2 affineMatrix,
                                 float2 translate,
                                 float maxScale /* derived from affineMatrix */,
@@ -493,9 +494,12 @@ float2 tessellate_stroked_curve(float edgeID, float maxEdges,
 
     if (isHairline) {
         // Hairline case. The scale and skew already happened before tessellation.
-        return strokeCoord + translate;
+        // TODO: There's probably a more efficient way to tessellate the hairline that lets us
+        // avoid inverting the affine matrix to get back to local coords, but it's just a 2x2 so
+        // this works for now.
+        return float4(strokeCoord + translate, inverse(affineMatrix) * strokeCoord);
     } else {
         // Normal case. Do the transform after tessellation.
-        return affineMatrix * strokeCoord + translate;
+        return float4(affineMatrix * strokeCoord + translate, strokeCoord);
     }
 }
