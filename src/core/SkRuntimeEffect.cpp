@@ -921,10 +921,14 @@ static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
 #endif
 
 static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children,
+                                SkSpan<const SkRuntimeEffect::Child> childInfo,
                                 const SkKeyContext& keyContext,
                                 SkPaintParamsKeyBuilder* builder,
                                 SkPipelineDataGatherer* gatherer) {
-    for (const SkRuntimeEffect::ChildPtr& child : children) {
+    SkASSERT(children.size() == childInfo.size());
+
+    for (size_t index = 0; index < children.size(); ++index) {
+        const SkRuntimeEffect::ChildPtr& child = children[index];
         std::optional<ChildType> type = child.type();
         if (type == ChildType::kShader) {
             as_SB(child.shader())->addToKey(keyContext, builder, gatherer);
@@ -934,11 +938,21 @@ static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children
             as_BB(child.blender())->addToKey(keyContext, builder, gatherer,
                                              /*primitiveColorBlender=*/false);
         } else {
-            // Patch in a "passthrough" child effect that returns the input color as-is.
-            // TODO(skia:13508): if the child is a blender, we should blend the two inputs using
-            // SrcOver, not pass through the source color.
-            PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
-            builder->endBlock();
+            // We don't have a child effect. Substitute in a no-op effect.
+            switch (childInfo[index].type) {
+                case ChildType::kShader:
+                case ChildType::kColorFilter:
+                    // A "passthrough" shader returns the input color as-is.
+                    PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
+                    builder->endBlock();
+                    break;
+
+                case ChildType::kBlender:
+                    // A "passthrough" blender performs `blend_src_over(src, dest)`.
+                    PassthroughBlenderBlock::BeginBlock(keyContext, builder, gatherer);
+                    builder->endBlock();
+                    break;
+            }
         }
     }
 }
@@ -1046,7 +1060,7 @@ public:
                   SkPipelineDataGatherer* gatherer) const override {
         RuntimeColorFilterBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 
-        add_children_to_key(fChildren, keyContext, builder, gatherer);
+        add_children_to_key(fChildren, fEffect->children(), keyContext, builder, gatherer);
 
         builder->endBlock();
     }
@@ -1225,7 +1239,7 @@ public:
         RuntimeShaderBlock::BeginBlock(keyContext, builder, gatherer,
                                        {fEffect, this->getLocalMatrix(), fUniforms});
 
-        add_children_to_key(fChildren, keyContext, builder, gatherer);
+        add_children_to_key(fChildren, fEffect->children(), keyContext, builder, gatherer);
 
         builder->endBlock();
     }

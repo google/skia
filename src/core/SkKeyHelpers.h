@@ -38,6 +38,14 @@ struct PassthroughShaderBlock {
 
 };
 
+struct PassthroughBlenderBlock {
+
+    static void BeginBlock(const SkKeyContext&,
+                           SkPaintParamsKeyBuilder*,
+                           SkPipelineDataGatherer*);
+
+};
+
 struct SolidColorShaderBlock {
 
     static void BeginBlock(const SkKeyContext&,

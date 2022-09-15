@@ -44,6 +44,16 @@ void PassthroughShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
+void PassthroughBlenderBlock::BeginBlock(const SkKeyContext& keyContext,
+                                         SkPaintParamsKeyBuilder* builder,
+                                         SkPipelineDataGatherer* gatherer) {
+#ifdef SK_GRAPHITE_ENABLED
+    builder->beginBlock(SkBuiltInCodeSnippetID::kPassthroughBlender);
+#endif // SK_GRAPHITE_ENABLED
+}
+
+//--------------------------------------------------------------------------------------------------
+
 #ifdef SK_GRAPHITE_ENABLED
 
 namespace {
