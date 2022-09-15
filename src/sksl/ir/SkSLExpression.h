@@ -148,7 +148,7 @@ public:
         return ComparisonResult::kUnknown;
     }
 
-    virtual CoercionCost coercionCost(const Type& target) const {
+    CoercionCost coercionCost(const Type& target) const {
         return this->type().coercionCost(target);
     }
 
