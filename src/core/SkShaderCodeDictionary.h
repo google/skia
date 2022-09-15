@@ -33,14 +33,14 @@
 #ifdef SK_GRAPHITE_ENABLED
 namespace skgpu::graphite {
 class RenderStep;
+#ifdef SK_ENABLE_PRECOMPILE
+class BlenderID;
+#endif
 }
 #endif
 
 class SkRuntimeEffect;
 class SkRuntimeEffectDictionary;
-#ifdef SK_ENABLE_PRECOMPILE
-class SkBlenderID;
-#endif
 
 // TODO: How to represent the type (e.g., 2D) of texture being sampled?
 class SkTextureAndSampler {
@@ -253,9 +253,9 @@ public:
     int addUserDefinedSnippet(const char* name,
                               SkSpan<const SkPaintParamsKey::DataPayloadField> expectations);
 
-#ifdef SK_ENABLE_PRECOMPILE
-    SkBlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
-    const SkShaderSnippet* getEntry(SkBlenderID) const;
+#if defined(SK_ENABLE_PRECOMPILE) && defined(SK_GRAPHITE_ENABLED)
+    skgpu::graphite::BlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
+    const SkShaderSnippet* getEntry(skgpu::graphite::BlenderID) const;
 #endif
 
 private:

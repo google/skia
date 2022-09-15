@@ -411,10 +411,10 @@ split_srcs_and_hdrs(
 
 # Mapped to skia_precompile_sources variable in //gn/core.gni.
 PRECOMPILE_FILES = [
-    "SkCombinationBuilder.cpp",
-    "SkFactoryFunctions.cpp",
-    "SkFactoryFunctions.h",
-    "SkPrecompile.h",
+    "CombinationBuilder.cpp",
+    "FactoryFunctions.cpp",
+    "FactoryFunctions.h",
+    "Precompile.h",
 ]
 
 split_srcs_and_hdrs(

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCombinationBuilder.h"
+#include "include/gpu/graphite/CombinationBuilder.h"
 
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
@@ -15,6 +15,8 @@
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/ContextPriv.h"
 #endif
+
+using namespace skgpu::graphite;
 
 #define SHADER_TYPES(M)             \
     M(SolidColor)                   \
@@ -35,23 +37,23 @@ enum class UnusedShaderType { SHADER_TYPES(MAKE_ENUM) };
 #undef MAKE_ENUM
 static constexpr int kUnusedShaderTypeCount = static_cast<int>(UnusedShaderType::kBlendShader) + 1;
 
-#define STATIC_ASSERT(T) static_assert((int) SkShaderType::k##T == (int) UnusedShaderType::k##T);
+#define STATIC_ASSERT(T) static_assert((int) ShaderType::k##T == (int) UnusedShaderType::k##T);
    SHADER_TYPES(STATIC_ASSERT)
 #undef STATIC_ASSERT
 
-static_assert(kSkShaderTypeCount == kUnusedShaderTypeCount);
+static_assert(kShaderTypeCount == kUnusedShaderTypeCount);
 
 //--------------------------------------------------------------------------------------------------
 namespace {
 
-int tm_pair_to_index(SkTileModePair tileModes) {
+int tm_pair_to_index(TileModePair tileModes) {
     static_assert(kSkTileModeCount <= 4);
 
     return (int) tileModes.fX << 2 | (int) tileModes.fY;
 }
 
 #ifdef SK_DEBUG
-SkTileModePair index_to_tm_pair(int index) {
+TileModePair index_to_tm_pair(int index) {
     static_assert(kSkTileModeCount <= 4);
     SkASSERT(index < 16);
 
@@ -65,9 +67,9 @@ void add_indent(int indent) {
     SkDebugf("%*c", indent, ' ');
 }
 
-const char* type_to_str(SkShaderType type) {
+const char* type_to_str(ShaderType type) {
     switch (type) {
-#define CASE(T) case SkShaderType::k##T: return #T;
+#define CASE(T) case ShaderType::k##T: return #T;
         SHADER_TYPES(CASE)
 #undef CASE
     }
@@ -81,17 +83,19 @@ const char* type_to_str(SkShaderType type) {
 
 //--------------------------------------------------------------------------------------------------
 
+namespace skgpu::graphite {
+
 // The base class for all the objects stored in the arena
 // The base option object consists of some number of child slots each of which is an array of
 // options. The slots and their associated linked list of options are allocated separately in
 // the arena.
-class SkOption {
+class Option {
 public:
-    // The SkSlot holds the combinatorial options for a single child slot of an
+    // The Slot holds the combinatorial options for a single child slot of an
     // option (in a linked list).
-    class SkSlot {
+    class Slot {
     public:
-        void addOption(SkOption* newOption);
+        void addOption(Option* newOption);
 
         int numCombinations() const;
 
@@ -102,15 +106,15 @@ public:
 #endif
 
     private:
-        SkOption* fHead = nullptr;
-        SkOption* fTail = nullptr;
+        Option* fHead = nullptr;
+        Option* fTail = nullptr;
     };
 
-    SkOption(SkShaderType type, int numSlots)
+    Option(ShaderType type, int numSlots)
             : fType(type)
             , fNumSlots(numSlots) {}
 
-    SkShaderType type() const { return fType; }
+    ShaderType type() const { return fType; }
     int numSlots() const { return fNumSlots; }
 
 #ifdef SK_DEBUG
@@ -121,12 +125,12 @@ public:
     }
 #endif
 
-    void setSlotsArray(SkSlot* slots) {
+    void setSlotsArray(Slot* slots) {
         SkASSERT(!fSlots);
         fSlots = slots;
     }
 
-    SkSlot* getSlot(int slotIndex) {
+    Slot* getSlot(int slotIndex) {
         if (slotIndex >= fNumSlots) {
             return nullptr;
         }
@@ -134,12 +138,12 @@ public:
         return &fSlots[slotIndex];
     }
 
-    void addOption(int slotIndex, SkOption* newOption) {
+    void addOption(int slotIndex, Option* newOption) {
         if (slotIndex >= fNumSlots) {
             return;
         }
 
-        SkSlot* slot = this->getSlot(slotIndex);
+        Slot* slot = this->getSlot(slotIndex);
         slot->addOption(newOption);
     }
 
@@ -168,7 +172,7 @@ public:
         if (fNumSlots) {
             int numCombinationsSeen = 0;
             for (int slotIndex = 0; slotIndex < fNumSlots; ++slotIndex) {
-                SkSlot* slot = this->getSlot(slotIndex);
+                Slot* slot = this->getSlot(slotIndex);
 
                 numCombinationsSeen += slot->numCombinations();
                 int numCombosLeft = this->numChildCombinations() / numCombinationsSeen;
@@ -214,14 +218,14 @@ private:
 
     SkDEBUGCODE(static constexpr int kInvalidEpoch = -1;)
 
-    const SkShaderType fType;
-    const int          fNumSlots;
-    SkDEBUGCODE(int    fEpoch = kInvalidEpoch;)
-    SkOption*          fNext = nullptr;
-    SkSlot*            fSlots = nullptr;  // an array of 'fNumSlots' SkSlots
+    const ShaderType fType;
+    const int        fNumSlots;
+    SkDEBUGCODE(int  fEpoch = kInvalidEpoch;)
+    Option*          fNext = nullptr;
+    Slot*            fSlots = nullptr;  // an array of 'fNumSlots' Slots
 };
 
-void SkOption::SkSlot::addOption(SkOption* newOption) {
+void Option::Slot::addOption(Option* newOption) {
     SkASSERT(newOption->fNext == nullptr);
 
     if (fHead == nullptr) {
@@ -234,22 +238,22 @@ void SkOption::SkSlot::addOption(SkOption* newOption) {
     }
 }
 
-int SkOption::SkSlot::numCombinations() const {
+int Option::Slot::numCombinations() const {
     int numCombinations = 0;
 
-    for (SkOption* option = fHead; option; option = option->fNext) {
+    for (Option* option = fHead; option; option = option->fNext) {
         numCombinations += option->numCombinations();
     }
 
     return numCombinations;
 }
 
-void SkOption::SkSlot::addToKey(const SkKeyContext& keyContext,
-                                int desiredCombination,
-                                SkPaintParamsKeyBuilder* keyBuilder) {
+void Option::Slot::addToKey(const SkKeyContext& keyContext,
+                            int desiredCombination,
+                            SkPaintParamsKeyBuilder* keyBuilder) {
     SkASSERT(desiredCombination < this->numCombinations());
 
-    for (SkOption* option = fHead; option; option = option->fNext) {
+    for (Option* option = fHead; option; option = option->fNext) {
         if (desiredCombination < option->numCombinations()) {
             option->addToKey(keyContext, desiredCombination, keyBuilder);
             return;
@@ -260,10 +264,10 @@ void SkOption::SkSlot::addToKey(const SkKeyContext& keyContext,
 }
 
 #ifdef SK_DEBUG
-void SkOption::SkSlot::dump(int indent) const {
+void Option::Slot::dump(int indent) const {
     SkDebugf("{ %d } ", this->numCombinations());
 
-    for (const SkOption* option = fHead; option; option = option->fNext) {
+    for (const Option* option = fHead; option; option = option->fNext) {
         option->dump(indent);
         SkDebugf(" | ");
     }
@@ -272,8 +276,8 @@ void SkOption::SkSlot::dump(int indent) const {
 #endif
 
 #define CREATE_ARENA_OBJECT(T, numChildSlots, ...)                                                 \
-struct ArenaData_##T : public SkOption {                                                           \
-    static const SkShaderType kType = SkShaderType::k##T;                                          \
+struct ArenaData_##T : public Option {                                                             \
+    static const ShaderType kType = ShaderType::k##T;                                              \
     static const int kNumChildSlots = numChildSlots;                                               \
     int numIntrinsicCombinationsDerived() const;                                                   \
     void beginBlock(const SkKeyContext&, int intrinsicCombination, SkPaintParamsKeyBuilder*) const;\
@@ -367,19 +371,19 @@ void ArenaData_LocalMatrix::beginBlock(const SkKeyContext& keyContext,
 }
 
 // Split out due to constructor work
-struct ArenaData_Image : public SkOption {
-    static const SkShaderType kType = SkShaderType::kImage;
+struct ArenaData_Image : public Option {
+    static const ShaderType kType = ShaderType::kImage;
     static const int kNumChildSlots = 0;
 
-    ArenaData_Image(const SkOption& init, SkSpan<SkTileModePair> tileModePairs)
-            : SkOption(init)
+    ArenaData_Image(const Option& init, SkSpan<TileModePair> tileModePairs)
+            : Option(init)
             , fTileModeCombos(0) {
         for (auto tmPair : tileModePairs) {
             int index = tm_pair_to_index(tmPair);
 
 #ifdef SK_DEBUG
             SkASSERT(index < 32);
-            SkTileModePair tmp = index_to_tm_pair(index);
+            TileModePair tmp = index_to_tm_pair(index);
             SkASSERT(tmp == tmPair);
 #endif
 
@@ -419,11 +423,11 @@ void ArenaData_BlendShader::beginBlock(const SkKeyContext& keyContext,
 }
 
 // Here to access the derived ArenaData objects
-int SkOption::numIntrinsicCombinations() const {
+int Option::numIntrinsicCombinations() const {
     int numIntrinsicCombinations;
 
 #define CASE(T)                                                                             \
-    case SkShaderType::k##T:                                                                \
+    case ShaderType::k##T:                                                                  \
         numIntrinsicCombinations =                                                          \
                 static_cast<const ArenaData_##T*>(this)->numIntrinsicCombinationsDerived(); \
         break;
@@ -439,11 +443,11 @@ int SkOption::numIntrinsicCombinations() const {
 }
 
 // Here to access the derived ArenaData objects
-void SkOption::beginBlock(const SkKeyContext& keyContext,
-                          int intrinsicCombination,
-                          SkPaintParamsKeyBuilder* builder) const {
+void Option::beginBlock(const SkKeyContext& keyContext,
+                        int intrinsicCombination,
+                        SkPaintParamsKeyBuilder* builder) const {
 #define CASE(T)                                                                   \
-    case SkShaderType::k##T:                                                      \
+    case ShaderType::k##T:                                                        \
         static_cast<const ArenaData_##T*>(this)->beginBlock(keyContext,           \
                                                             intrinsicCombination, \
                                                             builder);             \
@@ -457,72 +461,73 @@ void SkOption::beginBlock(const SkKeyContext& keyContext,
 }
 
 //--------------------------------------------------------------------------------------------------
-SkCombinationOption SkCombinationOption::addChildOption(int childIndex, SkShaderType type) {
+CombinationOption CombinationOption::addChildOption(int childIndex, ShaderType type) {
     if (!this->isValid() || childIndex >= this->numChildSlots()) {
-        return SkCombinationOption(fBuilder, /*dataInArena=*/nullptr);
+        return CombinationOption(fBuilder, /*dataInArena=*/nullptr);
     }
 
     SkASSERT(fDataInArena->epoch() == fBuilder->fEpoch);
 
-    SkOption* child = fBuilder->addOptionInternal(type);
+    Option* child = fBuilder->addOptionInternal(type);
     if (child) {
         fDataInArena->addOption(childIndex, child);
     }
 
-    return SkCombinationOption(fBuilder, child);
+    return CombinationOption(fBuilder, child);
 }
 
-SkCombinationOption SkCombinationOption::addChildOption(int childIndex, SkShaderType type,
-                                                        int minNumStops, int maxNumStops) {
+CombinationOption CombinationOption::addChildOption(int childIndex, ShaderType type,
+                                                    int minNumStops, int maxNumStops) {
     if (!this->isValid() || childIndex >= this->numChildSlots()) {
-        return SkCombinationOption(fBuilder, /*dataInArena=*/nullptr);
+        return CombinationOption(fBuilder, /*dataInArena=*/nullptr);
     }
 
     SkASSERT(fDataInArena->epoch() == fBuilder->fEpoch);
 
-    SkOption* child = fBuilder->addOptionInternal(type, minNumStops, maxNumStops);
+    Option* child = fBuilder->addOptionInternal(type, minNumStops, maxNumStops);
     if (child) {
         fDataInArena->addOption(childIndex, child);
     }
 
-    return SkCombinationOption(fBuilder, child);
+    return CombinationOption(fBuilder, child);
 }
 
-SkCombinationOption SkCombinationOption::addChildOption(
-        int childIndex, SkShaderType type,
-        SkSpan<SkTileModePair> tileModes) {
+CombinationOption CombinationOption::addChildOption(
+        int childIndex,
+        ShaderType type,
+        SkSpan<TileModePair> tileModes) {
     if (!this->isValid() || childIndex >= this->numChildSlots()) {
-        return SkCombinationOption(fBuilder, /*dataInArena=*/nullptr);
+        return CombinationOption(fBuilder, /*dataInArena=*/nullptr);
     }
 
     SkASSERT(fDataInArena->epoch() == fBuilder->fEpoch);
 
-    SkOption* child = fBuilder->addOptionInternal(type, tileModes);
+    Option* child = fBuilder->addOptionInternal(type, tileModes);
     if (child) {
         fDataInArena->addOption(childIndex, child);
     }
 
-    return SkCombinationOption(fBuilder, child);
+    return CombinationOption(fBuilder, child);
 }
 
-SkShaderType SkCombinationOption::type() const { return fDataInArena->type(); }
-int SkCombinationOption::numChildSlots() const { return fDataInArena->numSlots(); }
-SkDEBUGCODE(int SkCombinationOption::epoch() const { return fDataInArena->epoch(); })
+ShaderType CombinationOption::type() const { return fDataInArena->type(); }
+int CombinationOption::numChildSlots() const { return fDataInArena->numSlots(); }
+SkDEBUGCODE(int CombinationOption::epoch() const { return fDataInArena->epoch(); })
 
 //--------------------------------------------------------------------------------------------------
-SkCombinationBuilder::SkCombinationBuilder(SkShaderCodeDictionary* dict)
+CombinationBuilder::CombinationBuilder(SkShaderCodeDictionary* dict)
         : fDictionary(dict) {
     fArena = std::make_unique<SkArenaAllocWithReset>(64);
     this->reset();
 }
 
-SkCombinationBuilder::~SkCombinationBuilder() = default;
+CombinationBuilder::~CombinationBuilder() = default;
 
 
 template<typename T, typename... Args>
-SkOption* SkCombinationBuilder::allocInArena(Args&&... args) {
-    SkOption* arenaObject = fArena->make<T>(T{{ T::kType, T::kNumChildSlots },
-                                              std::forward<Args>(args)... });
+Option* CombinationBuilder::allocInArena(Args&&... args) {
+    Option* arenaObject = fArena->make<T>(T{{ T::kType, T::kNumChildSlots },
+                                            std::forward<Args>(args)... });
     if (!arenaObject) {
         return nullptr;
     }
@@ -533,25 +538,25 @@ SkOption* SkCombinationBuilder::allocInArena(Args&&... args) {
     SkDEBUGCODE(arenaObject->setEpoch(fEpoch));
 
     if (T::kNumChildSlots) {
-        arenaObject->setSlotsArray(fArena->makeArrayDefault<SkOption::SkSlot>(T::kNumChildSlots));
+        arenaObject->setSlotsArray(fArena->makeArrayDefault<Option::Slot>(T::kNumChildSlots));
     }
 
     return arenaObject;
 }
 
-void SkCombinationBuilder::addOption(SkBlendMode bm) {
+void CombinationBuilder::addOption(SkBlendMode bm) {
     SkASSERT(fDictionary->isValidID((int) bm));
 
     fBlendModes |= (0x1 << (int) bm);
 }
 
-void SkCombinationBuilder::addOption(SkBlendMode rangeStart, SkBlendMode rangeEnd) {
+void CombinationBuilder::addOption(SkBlendMode rangeStart, SkBlendMode rangeEnd) {
     for (int i = (int)rangeStart; i <= (int) rangeEnd; ++i) {
         this->addOption((SkBlendMode) i);
     }
 }
 
-void SkCombinationBuilder::addOption(BlendModeGroup group) {
+void CombinationBuilder::addOption(BlendModeGroup group) {
     switch (group) {
         case BlendModeGroup::kPorterDuff:
             this->addOption(SkBlendMode::kClear, SkBlendMode::kScreen);
@@ -568,60 +573,60 @@ void SkCombinationBuilder::addOption(BlendModeGroup group) {
     }
 }
 
-void SkCombinationBuilder::addOption(SkBlenderID id) {
+void CombinationBuilder::addOption(BlenderID id) {
     SkASSERT(fDictionary->isValidID(id.asUInt()));
 
     fBlenders.add(id);
 }
 
-SkOption* SkCombinationBuilder::addOptionInternal(SkShaderType shaderType) {
+Option* CombinationBuilder::addOptionInternal(ShaderType shaderType) {
 
     // TODO: Can we use the X macro trick here to collapse this
     switch (shaderType) {
-        case SkShaderType::kSolidColor:
+        case ShaderType::kSolidColor:
             return this->allocInArena<ArenaData_SolidColor>();
-        case SkShaderType::kLocalMatrix:
+        case ShaderType::kLocalMatrix:
             return this->allocInArena<ArenaData_LocalMatrix>();
-        case SkShaderType::kBlendShader:
+        case ShaderType::kBlendShader:
             return this->allocInArena<ArenaData_BlendShader>();
         default:
             return nullptr;
     }
 }
 
-SkOption* SkCombinationBuilder::addOptionInternal(SkShaderType shaderType,
-                                                  int minNumStops, int maxNumStops) {
+Option* CombinationBuilder::addOptionInternal(ShaderType shaderType,
+                                              int minNumStops, int maxNumStops) {
 
     // TODO: Can we use the X macro trick here to collapse this
     switch (shaderType) {
-        case SkShaderType::kLinearGradient:
+        case ShaderType::kLinearGradient:
             return this->allocInArena<ArenaData_LinearGradient>(minNumStops, maxNumStops);
-        case SkShaderType::kRadialGradient:
+        case ShaderType::kRadialGradient:
             return this->allocInArena<ArenaData_RadialGradient>(minNumStops, maxNumStops);
-        case SkShaderType::kSweepGradient:
+        case ShaderType::kSweepGradient:
             return this->allocInArena<ArenaData_SweepGradient>(minNumStops, maxNumStops);
-        case SkShaderType::kConicalGradient:
+        case ShaderType::kConicalGradient:
             return this->allocInArena<ArenaData_ConicalGradient>(minNumStops, maxNumStops);
         default:
             return nullptr;
     }
 }
 
-SkOption* SkCombinationBuilder::addOptionInternal(SkShaderType shaderType,
-                                                  SkSpan<SkTileModePair> tileModes) {
+Option* CombinationBuilder::addOptionInternal(ShaderType shaderType,
+                                              SkSpan<TileModePair> tileModes) {
 
     // TODO: Can we use the X macro trick here to collapse this
     switch (shaderType) {
-        case SkShaderType::kImage:
+        case ShaderType::kImage:
             return this->allocInArena<ArenaData_Image>(tileModes);
         default:
             return nullptr;
     }
 }
 
-SkCombinationOption SkCombinationBuilder::addOption(SkShaderType shaderType) {
+CombinationOption CombinationBuilder::addOption(ShaderType shaderType) {
 
-    SkOption* newOption = this->addOptionInternal(shaderType);
+    Option* newOption = this->addOptionInternal(shaderType);
     if (newOption) {
         fShaderOptions.push_back(newOption);
     }
@@ -629,10 +634,10 @@ SkCombinationOption SkCombinationBuilder::addOption(SkShaderType shaderType) {
     return { this, newOption };
 }
 
-SkCombinationOption SkCombinationBuilder::addOption(SkShaderType shaderType,
-                                                    int minNumStops, int maxNumStops) {
+CombinationOption CombinationBuilder::addOption(ShaderType shaderType,
+                                                int minNumStops, int maxNumStops) {
 
-    SkOption* newOption = this->addOptionInternal(shaderType, minNumStops, maxNumStops);
+    Option* newOption = this->addOptionInternal(shaderType, minNumStops, maxNumStops);
     if (newOption) {
         fShaderOptions.push_back(newOption);
     }
@@ -640,10 +645,10 @@ SkCombinationOption SkCombinationBuilder::addOption(SkShaderType shaderType,
     return { this, newOption };
 }
 
-SkCombinationOption SkCombinationBuilder::addOption(SkShaderType shaderType,
-                                                    SkSpan<SkTileModePair> tileModes) {
+CombinationOption CombinationBuilder::addOption(ShaderType shaderType,
+                                                SkSpan<TileModePair> tileModes) {
 
-    SkOption* newOption = this->addOptionInternal(shaderType, tileModes);
+    Option* newOption = this->addOptionInternal(shaderType, tileModes);
     if (newOption) {
         fShaderOptions.push_back(newOption);
     }
@@ -651,7 +656,7 @@ SkCombinationOption SkCombinationBuilder::addOption(SkShaderType shaderType,
     return { this, newOption };
 }
 
-void SkCombinationBuilder::reset() {
+void CombinationBuilder::reset() {
     fShaderOptions.reset();
     fBlendModes = 0;
     fBlenders.reset();
@@ -659,9 +664,9 @@ void SkCombinationBuilder::reset() {
     SkDEBUGCODE(++fEpoch;)
 }
 
-int SkCombinationBuilder::numShaderCombinations() const {
+int CombinationBuilder::numShaderCombinations() const {
     int numShaderCombinations = 0;
-    for (SkOption* s : fShaderOptions) {
+    for (Option* s : fShaderOptions) {
         numShaderCombinations += s->numCombinations();
     }
 
@@ -669,7 +674,7 @@ int SkCombinationBuilder::numShaderCombinations() const {
     return numShaderCombinations ? numShaderCombinations : 1;
 }
 
-int SkCombinationBuilder::numBlendModeCombinations() const {
+int CombinationBuilder::numBlendModeCombinations() const {
     int numBlendModeCombinations = SkPopCount(fBlendModes) + fBlenders.count();
 
     // If no blend mode options are specified the builder will add kSrcOver as an option
@@ -677,17 +682,17 @@ int SkCombinationBuilder::numBlendModeCombinations() const {
 }
 
 #ifdef SK_DEBUG
-void SkCombinationBuilder::dump() const {
-    for (SkOption* s : fShaderOptions) {
+void CombinationBuilder::dump() const {
+    for (Option* s : fShaderOptions) {
         s->dump();
         SkDebugf("\n");
     }
 }
 #endif
 
-void SkCombinationBuilder::createKey(const SkKeyContext& keyContext,
-                                     int desiredCombination,
-                                     SkPaintParamsKeyBuilder* keyBuilder) {
+void CombinationBuilder::createKey(const SkKeyContext& keyContext,
+                                   int desiredCombination,
+                                   SkPaintParamsKeyBuilder* keyBuilder) {
     SkDEBUGCODE(keyBuilder->checkReset();)
     SkASSERT(desiredCombination < this->numCombinations());
 
@@ -696,7 +701,7 @@ void SkCombinationBuilder::createKey(const SkKeyContext& keyContext,
     int desiredShaderCombination = desiredCombination / numBlendModeCombos;
     int desiredBlendCombination = desiredCombination % numBlendModeCombos;
 
-    for (SkOption* shaderOption : fShaderOptions) {
+    for (Option* shaderOption : fShaderOptions) {
         if (desiredShaderCombination < shaderOption->numCombinations()) {
             shaderOption->addToKey(keyContext, desiredShaderCombination, keyBuilder);
             break;
@@ -719,7 +724,7 @@ void SkCombinationBuilder::createKey(const SkKeyContext& keyContext,
 
 }
 
-void SkCombinationBuilder::buildCombinations(
+void CombinationBuilder::buildCombinations(
         SkShaderCodeDictionary* dict,
         const std::function<void(SkUniquePaintParamsID)>& func) {
     SkKeyContext keyContext(dict);
@@ -732,7 +737,7 @@ void SkCombinationBuilder::buildCombinations(
 
     // Supply a default solid color shader if no other shader option is provided
     if (fShaderOptions.empty()) {
-        this->addOption(SkShaderType::kSolidColor);
+        this->addOption(ShaderType::kSolidColor);
     }
 
     int numCombos = this->numCombinations();
@@ -744,3 +749,5 @@ void SkCombinationBuilder::buildCombinations(
         func(entry->uniqueID());
     }
 }
+
+} // namespace skgpu::graphite

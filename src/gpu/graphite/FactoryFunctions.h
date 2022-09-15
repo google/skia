@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkFactoryFunctions_DEFINED
-#define SkFactoryFunctions_DEFINED
+#ifndef skgpu_graphite_FactoryFunctions_DEFINED
+#define skgpu_graphite_FactoryFunctions_DEFINED
 
 #include "include/core/SkTypes.h"
 
@@ -17,77 +17,79 @@
 #include "include/core/SkSpan.h"
 #include "include/effects/SkRuntimeEffect.h"
 
-class SkPrecompileBase;
-class SkPrecompileBlender;
-class SkPrecompileColorFilter;
-class SkPrecompileImageFilter;
-class SkPrecompileMaskFilter;
-class SkPrecompileShader;
+namespace skgpu::graphite {
+
+class PrecompileBase;
+class PrecompileBlender;
+class PrecompileColorFilter;
+class PrecompileImageFilter;
+class PrecompileMaskFilter;
+class PrecompileShader;
 
 // All of these factory functions will be moved elsewhere once the pre-compile API becomes public
 
 //--------------------------------------------------------------------------------------------------
 // This will move to be beside SkShaders in include/core/SkShader.h
-class SkPrecompileShaders {
+class PrecompileShaders {
 public:
     //TODO: Add Empty? - see skbug.com/12165
-    static sk_sp<SkPrecompileShader> Color();
-    static sk_sp<SkPrecompileShader> Blend(SkSpan<const sk_sp<SkPrecompileBlender>> blenders,
-                                           SkSpan<const sk_sp<SkPrecompileShader>> dsts,
-                                           SkSpan<const sk_sp<SkPrecompileShader>> srcs);
-    static sk_sp<SkPrecompileShader> Blend(SkSpan<SkBlendMode> blendModes,
-                                           SkSpan<const sk_sp<SkPrecompileShader>> dsts,
-                                           SkSpan<const sk_sp<SkPrecompileShader>> srcs);
+    static sk_sp<PrecompileShader> Color();
+    static sk_sp<PrecompileShader> Blend(SkSpan<const sk_sp<PrecompileBlender>> blenders,
+                                         SkSpan<const sk_sp<PrecompileShader>> dsts,
+                                         SkSpan<const sk_sp<PrecompileShader>> srcs);
+    static sk_sp<PrecompileShader> Blend(SkSpan<SkBlendMode> blendModes,
+                                         SkSpan<const sk_sp<PrecompileShader>> dsts,
+                                         SkSpan<const sk_sp<PrecompileShader>> srcs);
     // TODO: add an SkShaders::Image to match this and SkImageFilters (skbug.com/13440)
-    static sk_sp<SkPrecompileShader> Image();
+    static sk_sp<PrecompileShader> Image();
 
     // TODO: make SkGradientShader match this convention (skbug.com/13438)
-    static sk_sp<SkPrecompileShader> LinearGradient();
-    static sk_sp<SkPrecompileShader> RadialGradient();
-    static sk_sp<SkPrecompileShader> TwoPointConicalGradient();
-    static sk_sp<SkPrecompileShader> SweepGradient();
+    static sk_sp<PrecompileShader> LinearGradient();
+    static sk_sp<PrecompileShader> RadialGradient();
+    static sk_sp<PrecompileShader> TwoPointConicalGradient();
+    static sk_sp<PrecompileShader> SweepGradient();
 
 private:
-    SkPrecompileShaders() = delete;
+    PrecompileShaders() = delete;
 };
 
 //--------------------------------------------------------------------------------------------------
 // Initially this will go next to SkMaskFilter in include/core/SkMaskFilter.h but the
 // SkMaskFilter::MakeBlur factory should be split out or removed. This namespace will follow
 // where ever that factory goes.
-class SkPrecompileMaskFilters {
+class PrecompileMaskFilters {
 public:
     // TODO: change SkMaskFilter::MakeBlur to match this and SkImageFilters::Blur (skbug.com/13441)
-    static sk_sp<SkPrecompileMaskFilter> Blur();
+    static sk_sp<PrecompileMaskFilter> Blur();
 
 private:
-    SkPrecompileMaskFilters() = delete;
+    PrecompileMaskFilters() = delete;
 };
 
 //--------------------------------------------------------------------------------------------------
 // This will move to be beside SkColorFilters in include/core/SkColorFilter.h
-class SkPrecompileColorFilters {
+class PrecompileColorFilters {
 public:
-    static sk_sp<SkPrecompileColorFilter> Matrix();
+    static sk_sp<PrecompileColorFilter> Matrix();
     // TODO: Compose, Blend, HSLAMatrix, LinearToSRGBGamma, SRGBToLinearGamma, Lerp
 
 private:
-    SkPrecompileColorFilters() = delete;
+    PrecompileColorFilters() = delete;
 };
 
 //--------------------------------------------------------------------------------------------------
 // This will move to be beside SkImageFilters in include/effects/SkImageFilters.h
-class SkPrecompileImageFilters {
+class PrecompileImageFilters {
 public:
-    static sk_sp<SkPrecompileImageFilter> Blur();
-    static sk_sp<SkPrecompileImageFilter> Image();
+    static sk_sp<PrecompileImageFilter> Blur();
+    static sk_sp<PrecompileImageFilter> Image();
     // TODO: AlphaThreshold, Arithmetic, Blend (2 kinds), ColorFilter, Compose, DisplacementMap,
     // DropShadow, DropShadowOnly, Magnifier, MatrixConvolution, MatrixTransform, Merge, Offset,
     // Picture, Runtime, Shader, Tile, Dilate, Erode, DistantLitDiffuse, PointLitDiffuse,
     // SpotLitDiffuse, DistantLitSpecular, PointLitSpecular, SpotLitSpecular
 
 private:
-    SkPrecompileImageFilters() = delete;
+    PrecompileImageFilters() = delete;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -95,43 +97,45 @@ private:
 // SkPrecompileBlender as a child
 //
 // This will moved to be on SkRuntimeEffect
-class SkPrecompileChildPtr {
+class PrecompileChildPtr {
 public:
-    SkPrecompileChildPtr() = default;
-    SkPrecompileChildPtr(sk_sp<SkPrecompileShader>);
-    SkPrecompileChildPtr(sk_sp<SkPrecompileColorFilter>);
-    SkPrecompileChildPtr(sk_sp<SkPrecompileBlender>);
+    PrecompileChildPtr() = default;
+    PrecompileChildPtr(sk_sp<PrecompileShader>);
+    PrecompileChildPtr(sk_sp<PrecompileColorFilter>);
+    PrecompileChildPtr(sk_sp<PrecompileBlender>);
 
     // Asserts that the SkPrecompileBase is either null, or one of the legal derived types
-    SkPrecompileChildPtr(sk_sp<SkPrecompileBase>);
+    PrecompileChildPtr(sk_sp<PrecompileBase>);
 
     std::optional<SkRuntimeEffect::ChildType> type() const;
 
-    SkPrecompileShader* shader() const;
-    SkPrecompileColorFilter* colorFilter() const;
-    SkPrecompileBlender* blender() const;
-    SkPrecompileBase* base() const { return fChild.get(); }
+    PrecompileShader* shader() const;
+    PrecompileColorFilter* colorFilter() const;
+    PrecompileBlender* blender() const;
+    PrecompileBase* base() const { return fChild.get(); }
 
 private:
-    sk_sp<SkPrecompileBase> fChild;
+    sk_sp<PrecompileBase> fChild;
 };
 
-using SkPrecompileChildOptions = SkSpan<const SkPrecompileChildPtr>;
+using PrecompileChildOptions = SkSpan<const PrecompileChildPtr>;
 
 // These will move to be on SkRuntimeEffect to parallel makeShader, makeColorFilter and
 // makeBlender
-sk_sp<SkPrecompileShader> MakePrecompileShader(
+sk_sp<PrecompileShader> MakePrecompileShader(
         sk_sp<SkRuntimeEffect> effect,
-        SkSpan<const SkPrecompileChildOptions> childOptions = {});
+        SkSpan<const PrecompileChildOptions> childOptions = {});
 
-sk_sp<SkPrecompileColorFilter> MakePrecompileColorFilter(
+sk_sp<PrecompileColorFilter> MakePrecompileColorFilter(
         sk_sp<SkRuntimeEffect> effect,
-        SkSpan<const SkPrecompileChildOptions> childOptions = {});
+        SkSpan<const PrecompileChildOptions> childOptions = {});
 
-sk_sp<SkPrecompileBlender> MakePrecompileBlender(
+sk_sp<PrecompileBlender> MakePrecompileBlender(
         sk_sp<SkRuntimeEffect> effect,
-        SkSpan<const SkPrecompileChildOptions> childOptions = {});
+        SkSpan<const PrecompileChildOptions> childOptions = {});
+
+} // namespace skgpu::graphite
 
 #endif // SK_ENABLE_PRECOMPILE
 
-#endif // SkFactoryFunctions_DEFINED
+#endif // skgpu_graphite_FactoryFunctions_DEFINED

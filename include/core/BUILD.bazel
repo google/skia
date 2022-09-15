@@ -8,7 +8,7 @@ exports_files_legacy()
 filegroup(
     name = "precompile_public_hdrs",
     srcs = [
-        "SkCombinationBuilder.h",
+        "CombinationBuilder.h",
     ],
     visibility = ["//include:__pkg__"],
 )

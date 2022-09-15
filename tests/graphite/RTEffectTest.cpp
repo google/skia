@@ -7,8 +7,8 @@
 
 #include "tests/Test.h"
 
-#include "include/core/SkCombinationBuilder.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/graphite/CombinationBuilder.h"
 #include "include/gpu/graphite/Context.h"
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -102,13 +102,13 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(RTEffectTest, reporter, context) {
     sk_sp<SkRuntimeEffect> redEffect = get_red_effect();
     sk_sp<SkRuntimeEffect> blueEffect = get_blue_effect();
 
-    SkBlenderID comboId = context->addUserDefinedBlender(comboEffect);
+    BlenderID comboId = context->addUserDefinedBlender(comboEffect);
     SkASSERT(comboId.isValid());
 
-    SkBlenderID redId = context->addUserDefinedBlender(redEffect);
+    BlenderID redId = context->addUserDefinedBlender(redEffect);
     SkASSERT(redId.isValid());
 
-    SkBlenderID blueId = context->addUserDefinedBlender(blueEffect);
+    BlenderID blueId = context->addUserDefinedBlender(blueEffect);
     SkASSERT(blueId.isValid());
 
     auto comboEntry = dict->getEntry(comboId);
