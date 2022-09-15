@@ -68,58 +68,6 @@
 #include <utility>
 
 namespace SkSL {
-
-#ifdef SK_ENABLE_OPTIMIZE_SIZE
-
-bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                      std::shared_ptr<SymbolTable> symbols,
-                      ProgramUsage* usage) {
-    return false;
-}
-
-void Inliner::buildCandidateList(const std::vector<std::unique_ptr<ProgramElement>>& elements,
-                                 std::shared_ptr<SymbolTable> symbols,
-                                 ProgramUsage* usage,
-                                 InlineCandidateList* candidateList) {}
-
-std::unique_ptr<Expression> Inliner::inlineExpression(Position pos,
-                                                      VariableRewriteMap* varMap,
-                                                      SymbolTable* symbolTableForExpression,
-                                                      const Expression& expression) {
-    return nullptr;
-}
-
-std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
-                                                    VariableRewriteMap* varMap,
-                                                    SymbolTable* symbolTableForStatement,
-                                                    std::unique_ptr<Expression>* resultExpr,
-                                                    ReturnComplexity returnComplexity,
-                                                    const Statement& statement,
-                                                    const ProgramUsage& usage,
-                                                    bool isBuiltinCode) {
-    return nullptr;
-}
-
-const Variable* Inliner::RemapVariable(const Variable* variable, const VariableRewriteMap* varMap) {
-    return nullptr;
-}
-
-Inliner::ReturnComplexity Inliner::GetReturnComplexity(const FunctionDefinition& funcDef) {
-    return ReturnComplexity::kEarlyReturns;
-}
-
-bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate,
-                                    const ProgramUsage& usage,
-                                    InlinabilityCache* cache) {
-    return false;
-}
-
-int Inliner::getFunctionSize(const FunctionDeclaration& fnDecl, FunctionSizeCache* cache) {
-    return 0;
-}
-
-#else
-
 namespace {
 
 static constexpr int kInlinedStatementLimit = 2500;
@@ -1252,7 +1200,5 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
 
     return madeChanges;
 }
-
-#endif
 
 }  // namespace SkSL
