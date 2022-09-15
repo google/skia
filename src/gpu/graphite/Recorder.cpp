@@ -60,6 +60,8 @@ private:
 };
 
 /**************************************************************************************************/
+RecorderOptions::RecorderOptions() = default;
+RecorderOptions::RecorderOptions(const RecorderOptions&) = default;
 RecorderOptions::~RecorderOptions() = default;
 
 /**************************************************************************************************/

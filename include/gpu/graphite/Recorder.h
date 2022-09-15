@@ -50,8 +50,8 @@ using UniformDataCache = PipelineDataCache<SkUniformDataBlock>;
 using TextureDataCache = PipelineDataCache<SkTextureDataBlock>;
 
 struct SK_API RecorderOptions final {
-    RecorderOptions() = default;
-    RecorderOptions(const RecorderOptions&) = default;
+    RecorderOptions();
+    RecorderOptions(const RecorderOptions&);
     ~RecorderOptions();
 
     sk_sp<ImageProvider> fImageProvider;

@@ -17,30 +17,20 @@ public:
     VulkanResourceProvider(SharedContext* sharedContext, SingleOwner*);
     ~VulkanResourceProvider() override;
 
-    sk_sp<Texture> createWrappedTexture(const BackendTexture&) override { return nullptr; }
+    sk_sp<Texture> createWrappedTexture(const BackendTexture&) override;
 
 private:
     sk_sp<GraphicsPipeline> createGraphicsPipeline(const SkRuntimeEffectDictionary*,
                                                    const GraphicsPipelineDesc&,
-                                                   const RenderPassDesc&) override {
-        return nullptr;
-    }
-    sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override {
-        return nullptr;
-    }
+                                                   const RenderPassDesc&) override;
+    sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;
 
-    sk_sp<Texture> createTexture(SkISize, const TextureInfo&, SkBudgeted) override {
-        return nullptr;
-    }
-    sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override {
-        return nullptr;
-    }
+    sk_sp<Texture> createTexture(SkISize, const TextureInfo&, SkBudgeted) override;
+    sk_sp<Buffer> createBuffer(size_t size, BufferType type, PrioritizeGpuReads) override;
 
     sk_sp<Sampler> createSampler(const SkSamplingOptions&,
                                  SkTileMode xTileMode,
-                                 SkTileMode yTileMode) override {
-        return nullptr;
-    }
+                                 SkTileMode yTileMode) override;
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
     void onDeleteBackendTexture(BackendTexture&) override {}

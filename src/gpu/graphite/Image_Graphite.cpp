@@ -15,6 +15,10 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureUtils.h"
 
+#if SK_SUPPORT_GPU
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#endif
+
 namespace skgpu::graphite {
 
 Image::Image(uint32_t uniqueID,
@@ -61,6 +65,18 @@ sk_sp<SkImage> Image::onMakeColorTypeAndColorSpace(SkColorType,
 sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace>) const {
     return nullptr;
 }
+
+#if SK_SUPPORT_GPU
+std::unique_ptr<GrFragmentProcessor> Image::onAsFragmentProcessor(
+        GrRecordingContext*,
+        SkSamplingOptions,
+        const SkTileMode[2],
+        const SkMatrix&,
+        const SkRect* subset,
+        const SkRect* domain) const {
+    return nullptr;
+}
+#endif
 
 sk_sp<SkImage> Image::onMakeTextureImage(Recorder*, RequiredImageProperties requiredProps) const {
     SkASSERT(requiredProps.fMipmapped == Mipmapped::kYes && !this->hasMipmaps());
