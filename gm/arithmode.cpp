@@ -172,13 +172,15 @@ DEF_GM( return new ArithmodeGM; )
 
 #include "include/effects/SkBlenders.h"
 
-class Arithmode2GM : public skiagm::GM {
-    float           fK1, fK2, fK3, fK4;
-    sk_sp<SkImage>  fSrc, fDst, fChecker;
+class ArithmodeBlenderGM : public skiagm::GM {
+    float                  fK1, fK2, fK3, fK4;
+    sk_sp<SkImage>         fSrc, fDst, fChecker;
+    sk_sp<SkShader>        fSrcShader, fDstShader;
+    sk_sp<SkRuntimeEffect> fRuntimeEffect;
 
     SkString onShortName() override { return SkString("arithmode_blender"); }
 
-    SkISize onISize() override { return {430, 430}; }
+    SkISize onISize() override { return {430, 690}; }
 
     enum {
         W = 200,
@@ -186,7 +188,20 @@ class Arithmode2GM : public skiagm::GM {
     };
 
     void onOnceBeforeDraw() override {
-        // need something interesting, in case we're drawn w/o calling animate()
+        // Prepare a runtime effect for this blend.
+        static constexpr char kShader[] = R"(
+            uniform shader srcImage;
+            uniform shader dstImage;
+            uniform blender arithBlend;
+            half4 main(float2 xy) {
+                return arithBlend.eval(srcImage.eval(xy), dstImage.eval(xy));
+            }
+        )";
+        auto [effect, error] = SkRuntimeEffect::MakeForShader(SkString(kShader));
+        SkASSERT(effect);
+        fRuntimeEffect = effect;
+
+        // Start with interesting K-values, in case we're drawn without calling onAnimate().
         fK1 = -0.25f;
         fK2 =  0.25f;
         fK3 =  0.25f;
@@ -194,6 +209,8 @@ class Arithmode2GM : public skiagm::GM {
 
         fSrc = make_src(W, H);
         fDst = make_dst(W, H);
+        fSrcShader = fSrc->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, SkSamplingOptions());
+        fDstShader = fDst->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, SkSamplingOptions());
 
         fChecker = ToolUtils::create_checkerboard_image(W, H, 0xFFBBBBBB, 0xFFEEEEEE, 8);
     }
@@ -213,15 +230,16 @@ class Arithmode2GM : public skiagm::GM {
         canvas->drawImage(fSrc, 10, 10);
         canvas->drawImage(fDst, 10, 10 + fSrc->height() + 10);
 
-        auto sampling = SkSamplingOptions();
-        auto blender = SkBlenders::Arithmetic(fK1, fK2, fK3, fK4, true);
-
+        SkSamplingOptions sampling;
+        sk_sp<SkBlender> blender = SkBlenders::Arithmetic(fK1, fK2, fK3, fK4,
+                                                          /*enforcePremul=*/true);
         SkPaint paint;
 
         canvas->translate(10 + fSrc->width() + 10, 10);
-        canvas->drawImage(fChecker, 0, 0);
 
+        // All three images drawn below should appear identical.
         // Draw via blend step
+        canvas->drawImage(fChecker, 0, 0);
         canvas->saveLayer(&rect, nullptr);
         canvas->drawImage(fDst, 0, 0);
         paint.setBlender(blender);
@@ -229,17 +247,27 @@ class Arithmode2GM : public skiagm::GM {
         canvas->restore();
 
         canvas->translate(0, 10 + fSrc->height());
-        canvas->drawImage(fChecker, 0, 0);
 
         // Draw via imagefilter (should appear the same as above)
+        canvas->drawImage(fChecker, 0, 0);
         paint.setBlender(nullptr);
-        paint.setImageFilter(SkImageFilters::Blend(blender,
-                                                   /* dst imagefilter */nullptr,
-                                                   SkImageFilters::Image(fSrc, sampling)));
+        paint.setImageFilter(
+                SkImageFilters::Blend(blender,
+                                      /*background=*/nullptr,
+                                      /*foreground=*/SkImageFilters::Image(fSrc, sampling)));
         canvas->drawImage(fDst, 0, 0, sampling, &paint);
+
+        canvas->translate(0, 10 + fSrc->height());
+
+        // Draw via runtime effect (should still appear the same as above)
+        SkPaint runtimePaint;
+        canvas->drawImage(fChecker, 0, 0);
+        SkRuntimeEffect::ChildPtr children[] = {fSrcShader, fDstShader, blender};
+        runtimePaint.setShader(fRuntimeEffect->makeShader(/*uniforms=*/{}, children));
+        canvas->drawRect(rect, runtimePaint);
     }
 
 private:
     using INHERITED = GM;
 };
-DEF_GM( return new Arithmode2GM; )
+DEF_GM( return new ArithmodeBlenderGM; )
