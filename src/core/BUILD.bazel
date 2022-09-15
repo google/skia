@@ -409,19 +409,6 @@ split_srcs_and_hdrs(
     files = SKSL_FILES,
 )
 
-# Mapped to skia_precompile_sources variable in //gn/core.gni.
-PRECOMPILE_FILES = [
-    "CombinationBuilder.cpp",
-    "FactoryFunctions.cpp",
-    "FactoryFunctions.h",
-    "Precompile.h",
-]
-
-split_srcs_and_hdrs(
-    name = "precompile",
-    files = PRECOMPILE_FILES,
-)
-
 # SkPicture files are maintained as a separate filegroups for backward compatability
 # with GNI files. This allows the generation of skia_skpicture_sources GNI file list.
 SKPICTURE_FILES = [

@@ -4,15 +4,6 @@ licenses(["notice"])
 
 exports_files_legacy()
 
-# Mapped to skia_precompile_public variable in //gn/core.gni.
-filegroup(
-    name = "precompile_public_hdrs",
-    srcs = [
-        "CombinationBuilder.h",
-    ],
-    visibility = ["//include:__pkg__"],
-)
-
 # Maintain SkPicture files in separate filegroup so that the legacy
 # skia_skpicture_public GNI file list can be created.
 filegroup(
