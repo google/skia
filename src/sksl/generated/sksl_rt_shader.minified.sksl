@@ -1,2 +1,16 @@
 static constexpr char SKSL_MINIFIED_sksl_rt_shader[] =
-"layout(builtin=15)float4 sk_FragCoord;";
+"layout(builtin=15)float4 sk_FragCoord;$pure half3 $a(half3 a){half3 d;d.y=("
+"a.x+16.)/116.;d.x=a.y/500.+d.y;d.z=d.y-a.z/200.;half3 g=pow(d,half3(3.));half3"
+" h=half3(g.x>.008856452?g.x:(116.*d.x-16.)/903.2963,a.x>8.000001?g.y:a.x/903.2963"
+",g.z>.008856452?g.z:(116.*d.z-16.)/903.2963);return h*half3(.9642956,1.,.825104535"
+");}$pure half3 $b(half3 a){return half3(a.x,a.y*cos(radians(a.z)),a.y*sin(radians"
+"(a.z)));}$pure half3 $c(half3 a){return $a($b(a));}$pure half3 $d(half3 a){"
+"half3 d=half3(float3x3(1.,.396337777,.215803757,1.,-.105561346,-.06385417,1."
+",-.089484185,-1.29148555)*float3(a));return half3x3(1.22687984,-.557815,.281391054"
+",-.04057576,1.11228681,-.07171106,-.07637295,-.421493322,1.58692408)*pow(d,"
+"half3(3.));}$pure half3 $e(half3 a){return $d($b(a));}$pure half3 $f(half3 b"
+"){b.x=mod(b.x,360.);if(b.x<0.){b.x+=360.;}b.yz/=100.;half3 c=mod(half3(0.,8."
+",4.)+b.x/30.,12.);half d=b.y*min(b.z,1.-b.z);return b.z-d*clamp(min(c-3.,9."
+"-c),-1.,1.);}$pure half3 $g(half3 a){a.yz/=100.;if(a.y+a.z>=1.){half b=a.y/"
+"(a.y+a.z);return half3(b);}half3 b=$f(half3(a.x,100.,50.));b*=(1.-a.y)-a.z;"
+"b+=a.y;return b;}";
