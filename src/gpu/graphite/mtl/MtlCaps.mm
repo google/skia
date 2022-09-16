@@ -223,9 +223,9 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
     }
 
     // We use constant address space for our uniform buffers which has various alignment
-    // requirements for the offset when binding the buffer. On MacOS the offset must align to 256.
-    // On iOS we must align to the max of the data type consumed by the vertex function or 4 bytes.
-    // We can ignore the data type and just always use 16 bytes on iOS.
+    // requirements for the offset when binding the buffer. On MacOS Intel the offset must align
+    // to 256. On iOS or Apple Silicon we must align to the max of the data type consumed by the
+    // vertex function or 4 bytes, or we can ignore the data type and just use 16 bytes.
     if (this->isMac()) {
         fRequiredUniformBufferAlignment = 256;
     } else {

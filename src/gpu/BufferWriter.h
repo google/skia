@@ -429,6 +429,10 @@ struct UniformWriter : public BufferWriter {
         memcpy(fPtr, src, bytes);
         fPtr = SkTAddOffset<void>(fPtr, bytes);
     }
+    void skipBytes(size_t bytes) {
+        this->validate(bytes);
+        fPtr = SkTAddOffset<void>(fPtr, bytes);
+    }
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
