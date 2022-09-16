@@ -180,12 +180,10 @@ class ArithmodeBlenderGM : public skiagm::GM {
 
     SkString onShortName() override { return SkString("arithmode_blender"); }
 
-    SkISize onISize() override { return {430, 690}; }
+    static constexpr int W = 200;
+    static constexpr int H = 200;
 
-    enum {
-        W = 200,
-        H = 200,
-    };
+    SkISize onISize() override { return {(W + 30) * 2, (H + 30) * 4}; }
 
     void onOnceBeforeDraw() override {
         // Prepare a runtime effect for this blend.
@@ -228,36 +226,43 @@ class ArithmodeBlenderGM : public skiagm::GM {
         const SkRect rect = SkRect::MakeWH(W, H);
 
         canvas->drawImage(fSrc, 10, 10);
-        canvas->drawImage(fDst, 10, 10 + fSrc->height() + 10);
+        canvas->drawImage(fDst, 10, 10 + H + 10);
 
         SkSamplingOptions sampling;
         sk_sp<SkBlender> blender = SkBlenders::Arithmetic(fK1, fK2, fK3, fK4,
                                                           /*enforcePremul=*/true);
-        SkPaint paint;
-
-        canvas->translate(10 + fSrc->width() + 10, 10);
+        canvas->translate(10 + W + 10, 10);
 
         // All three images drawn below should appear identical.
         // Draw via blend step
+        SkPaint blenderPaint;
         canvas->drawImage(fChecker, 0, 0);
         canvas->saveLayer(&rect, nullptr);
         canvas->drawImage(fDst, 0, 0);
-        paint.setBlender(blender);
-        canvas->drawImage(fSrc, 0, 0, sampling, &paint);
+        blenderPaint.setBlender(blender);
+        canvas->drawImage(fSrc, 0, 0, sampling, &blenderPaint);
         canvas->restore();
 
-        canvas->translate(0, 10 + fSrc->height());
+        canvas->translate(0, 10 + H);
 
-        // Draw via imagefilter (should appear the same as above)
+        // Draw via SkImageFilters::Blend (should appear the same as above)
+        SkPaint imageFilterPaint;
         canvas->drawImage(fChecker, 0, 0);
-        paint.setBlender(nullptr);
-        paint.setImageFilter(
+        imageFilterPaint.setImageFilter(
                 SkImageFilters::Blend(blender,
                                       /*background=*/nullptr,
                                       /*foreground=*/SkImageFilters::Image(fSrc, sampling)));
-        canvas->drawImage(fDst, 0, 0, sampling, &paint);
+        canvas->drawImage(fDst, 0, 0, sampling, &imageFilterPaint);
 
-        canvas->translate(0, 10 + fSrc->height());
+        canvas->translate(0, 10 + H);
+
+        // Draw via SkShaders::Blend (should still appear the same as above)
+        SkPaint shaderBlendPaint;
+        canvas->drawImage(fChecker, 0, 0);
+        shaderBlendPaint.setShader(SkShaders::Blend(blender, fDstShader, fSrcShader));
+        canvas->drawRect(rect, shaderBlendPaint);
+
+        canvas->translate(0, 10 + H);
 
         // Draw via runtime effect (should still appear the same as above)
         SkPaint runtimePaint;

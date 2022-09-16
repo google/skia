@@ -170,7 +170,6 @@ struct ImageShaderBlock {
 
 struct BlendShaderBlock {
     struct BlendShaderData {
-        // TODO: add support for blenders
         SkBlendMode fBM;
     };
 
