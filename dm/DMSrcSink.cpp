@@ -1121,11 +1121,6 @@ Result SKPSrc::draw(GrDirectContext* dContext, SkCanvas* canvas) const {
             if (context->fDirectContext) {
                 image = image->makeTextureImage(context->fDirectContext);
             }
-#ifdef SK_GRAPHITE_ENABLED
-            else if (context->fRecorder) {
-                image = image->makeTextureImage(context->fRecorder);
-            }
-#endif
         }
 
         return image;
