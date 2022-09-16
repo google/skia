@@ -89,14 +89,14 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 
 Fail if git is not obtained from CIPD.
 
-&mdash; **def [bot\_update](/infra/bots/recipe_modules/checkout/api.py#48)(self, checkout_root, gclient_cache=None, ignore_trybot=False):**
+&mdash; **def [bot\_update](/infra/bots/recipe_modules/checkout/api.py#48)(self, checkout_root, gclient_cache=None, skip_patch=False, override_revision=None):**
 
 Run the steps to obtain a checkout using bot_update.
 
 Args:
   checkout_root: Root directory where the code will be synced.
   gclient_cache: Optional, directory of the gclient cache.
-  ignore_trybot: Ignore changelist/patchset when syncing the Skia repo.
+  skip_patch: Ignore changelist/patchset when syncing the Skia repo.
 
 &emsp; **@property**<br>&mdash; **def [default\_checkout\_root](/infra/bots/recipe_modules/checkout/api.py#15)(self):**
 
@@ -523,11 +523,11 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 benchmark Skia using skpbench.
 ### *recipes* / [sync\_and\_compile](/infra/bots/recipes/sync_and_compile.py)
 
-[DEPS](/infra/bots/recipes/sync_and_compile.py#10): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [build](#recipe_modules-build), [checkout](#recipe_modules-checkout), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
+[DEPS](/infra/bots/recipes/sync_and_compile.py#10): [depot\_tools/gitiles][depot_tools/recipe_modules/gitiles], [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/step][recipe_engine/recipe_modules/step], [build](#recipe_modules-build), [checkout](#recipe_modules-checkout), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
 
 PYTHON_VERSION_COMPATIBILITY: PY3
 
-&mdash; **def [RunSteps](/infra/bots/recipes/sync_and_compile.py#26)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/sync_and_compile.py#27)(api):**
 ### *recipes* / [test](/infra/bots/recipes/test.py)
 
 [DEPS](/infra/bots/recipes/test.py#13): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env), [flavor](#recipe_modules-flavor), [gold\_upload](#recipe_modules-gold_upload), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
@@ -592,6 +592,7 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 [depot_tools/recipe_modules/bot_update]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/f05fcf7051e12e5b561b8811e299096f332157f7/recipes/README.recipes.md#recipe_modules-bot_update
 [depot_tools/recipe_modules/gclient]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/f05fcf7051e12e5b561b8811e299096f332157f7/recipes/README.recipes.md#recipe_modules-gclient
 [depot_tools/recipe_modules/git]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/f05fcf7051e12e5b561b8811e299096f332157f7/recipes/README.recipes.md#recipe_modules-git
+[depot_tools/recipe_modules/gitiles]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/f05fcf7051e12e5b561b8811e299096f332157f7/recipes/README.recipes.md#recipe_modules-gitiles
 [depot_tools/recipe_modules/tryserver]: https://chromium.googlesource.com/chromium/tools/depot_tools.git/+/f05fcf7051e12e5b561b8811e299096f332157f7/recipes/README.recipes.md#recipe_modules-tryserver
 [recipe_engine/recipe_modules/context]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/428eeaebf2e1de58ed1c7cae50daba3384d730cd/README.recipes.md#recipe_modules-context
 [recipe_engine/recipe_modules/file]: https://chromium.googlesource.com/infra/luci/recipes-py.git/+/428eeaebf2e1de58ed1c7cae50daba3384d730cd/README.recipes.md#recipe_modules-file

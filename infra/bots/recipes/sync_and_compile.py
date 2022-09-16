@@ -18,6 +18,7 @@ DEPS = [
   'recipe_engine/properties',
   'recipe_engine/python',
   'recipe_engine/step',
+  'depot_tools/gitiles',
   'run',
   'vars',
 ]
@@ -29,19 +30,41 @@ def RunSteps(api):
   # Check out code.
   bot_update = True
   checkout_root = api.checkout.default_checkout_root
-  ignore_trybot = False
+  skip_patch = False
+  revision = api.properties['revision']
 
   if 'NoDEPS' in api.properties['buildername']:
     bot_update = False
     checkout_root = api.path['start_dir']
   if 'NoPatch' in api.vars.builder_name:
-    ignore_trybot = True
+    skip_patch = True
     checkout_root = api.path['start_dir']
+
+    # If we are running on the CI (post submit), we want to do a diff with the
+    # previous commit. To do this, we use gitiles to look up the current
+    # git revision, and find its parent. In the unlikely event of there being
+    # multiple, parents, we pick the first one arbitrarily.
+    if not api.vars.is_trybot:
+      # Fetches something like
+      # https://skia.googlesource.com/skia.git/+log/b44572fbfeb669998053b023f473b9c274f2f2cf?format=JSON
+      #
+      # https://chromium.googlesource.com/chromium/tools/depot_tools/+/dca14bc463857bd2a0fee59c86ffa289b535d5d3/recipes/recipe_modules/gitiles/api.py#75
+      response, _ = api.gitiles.log(
+        url = api.properties['repository'],
+        ref = api.properties['revision'],
+        limit = 1)
+      # Response looks like:
+      #     [{
+      #        'parents': ['<githash>'],
+      #        ...
+      #     }]
+      revision  = response[0]['parents'][0]
 
   if bot_update:
     api.checkout.bot_update(
         checkout_root=checkout_root,
-        ignore_trybot=ignore_trybot)
+        skip_patch=skip_patch,
+        override_revision=revision)
 
     if 'NoPatch' in api.vars.builder_name:
       # The CodeSize-* family of tasks compute size diffs between the binaries produced by
@@ -118,22 +141,47 @@ for p in psutil.process_iter():
   api.run.check_failure()
 
 
-TEST_BUILDERS = [
-  'Build-Debian10-Clang-arm-Release-NoPatch',
-  'Build-Win10-Clang-x86_64-Release-NoDEPS',
-]
-
-
 def GenTests(api):
-  for builder in TEST_BUILDERS:
-    test = (
-      api.test(builder) +
-      api.properties(buildername=builder,
+  yield (
+      api.test('Build-Win10-Clang-x86_64-Release-NoDEPS') +
+      api.properties(buildername='Build-Win10-Clang-x86_64-Release-NoDEPS',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]')
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      api.platform('win', 64)
+  )
+
+  yield (
+      # git revisions based off of real data
+      api.test('Build-Debian10-Clang-arm-Release-NoPatch') +
+      api.properties(buildername='Build-Debian10-Clang-arm-Release-NoPatch',
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='b44572fbfeb669998053b023f473b9c274f2f2cf',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]') +
+      # This tells recipes to use this fake data for a step with the given
+      # name. Inspired by
+      # https://chromium.googlesource.com/chromium/tools/depot_tools/+/dca14bc463857bd2a0fee59c86ffa289b535d5d3/recipes/recipe_modules/gitiles/examples/full.py#62
+      # Even though we use the commit 6e0e0... as the "seed string", the actual
+      # commit (and parent commit) returned from make_log_test_data is
+      # different. Mocked commit is 188e23c7abc4b205f0f80fb345ff63ec5b716be8
+      # and parent commit is d2231a340fd47b47d61d0f99a188e46e6aabba0a
+      api.step_data(
+          'gitiles log: b44572fbfeb669998053b023f473b9c274f2f2cf',
+          api.gitiles.make_log_test_data('6e0e0a9f6cbf09078aa4730d1a0dc0aa722ddc11'),
+      )
     )
-    if 'Win' in builder:
-      test += api.platform('win', 64)
-    yield test
+
+  yield (
+      api.test('Build-Debian10-Clang-arm-Release-NoPatch (tryjob)') +
+      api.properties(buildername='Build-Debian10-Clang-arm-Release-NoPatch',
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]',
+                     patch_issue=123,
+                     patch_set=123,
+                     patch_ref=123)
+    )
+

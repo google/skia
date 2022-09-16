@@ -252,14 +252,12 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	}
 
 	var bloatyDiffOutput string
-	if args.repoState.IsTryJob() {
-		// Diff the binary built at the current changelist/patchset vs. at tip-of-tree.
-		bloatyDiffOutput, metadata.BloatyDiffArgs, err = runBloatyDiff(ctx, args.stripPath, args.bloatyPath, args.binaryName)
-		if err != nil {
-			return skerr.Wrap(err)
-		}
-		metadata.CompileTaskNameNoPatch = args.compileTaskNameNoPatch
+	// Diff the binary built at the current changelist/patchset vs. at tip-of-tree.
+	bloatyDiffOutput, metadata.BloatyDiffArgs, err = runBloatyDiff(ctx, args.stripPath, args.bloatyPath, args.binaryName)
+	if err != nil {
+		return skerr.Wrap(err)
 	}
+	metadata.CompileTaskNameNoPatch = args.compileTaskNameNoPatch
 
 	gcsDir := computeTargetGCSDirectory(ctx, args.repoState, args.taskID, args.compileTaskName)
 
@@ -272,12 +270,9 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 		return skerr.Wrap(err)
 	}
 
-	// Upload the .diff.txt file with binary size diff statistics, if applicable.
-	if args.repoState.IsTryJob() {
-		// Upload Bloaty diff output plain-text file to GCS.
-		if err = uploadFileToGCS(ctx, args.codesizeGCS, fmt.Sprintf("%s/%s.diff.txt", gcsDir, args.binaryName), []byte(bloatyDiffOutput)); err != nil {
-			return skerr.Wrap(err)
-		}
+	// Upload Bloaty diff output plain-text file to GCS.
+	if err = uploadFileToGCS(ctx, args.codesizeGCS, fmt.Sprintf("%s/%s.diff.txt", gcsDir, args.binaryName), []byte(bloatyDiffOutput)); err != nil {
+		return skerr.Wrap(err)
 	}
 
 	// Upload Bloaty output .tsv file to GCS.
@@ -482,11 +477,20 @@ func uploadPerfData(ctx context.Context, perfGCS gcs.GCSClient, gcsPathPrefix, b
 		if err != nil {
 			return err
 		}
-
 		totalBytes := s.Size()
+
+		s, err = os_steps.Stat(ctx, filepath.Join("build_nopatch", binaryName+"_stripped"))
+		if err != nil {
+			return err
+		}
+		beforeBytes := s.Size()
+
 		perfData.Results = []format.Result{{
 			Key:         map[string]string{"measurement": "stripped_binary_bytes"},
 			Measurement: float32(totalBytes),
+		}, {
+			Key:         map[string]string{"measurement": "stripped_diff_bytes"},
+			Measurement: float32(totalBytes - beforeBytes),
 		}}
 
 		perfJSON, err := json.MarshalIndent(perfData, "", "  ")
