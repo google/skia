@@ -40,7 +40,9 @@ public:
                                 int srcX,
                                 int srcY);
 
-    bool onHasMipmaps() const override { return false; }
+    bool onHasMipmaps() const override {
+        return fTextureProxyView.proxy()->mipmapped() == Mipmapped::kYes;
+    }
 
     bool isGraphiteBacked() const override { return true; }
 

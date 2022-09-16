@@ -509,6 +509,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeTextureImage(skgpu::graphite::Recorder* rec
     return skgpu::graphite::MakeFromBitmap(recorder,
                                            this->imageInfo().colorInfo(),
                                            fBitmap,
+                                           this->refMips(),
                                            SkBudgeted::kNo,
                                            requiredProps);
 }

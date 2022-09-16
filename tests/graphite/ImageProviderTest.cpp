@@ -260,7 +260,7 @@ void run_test(skiatest::Reporter* reporter,
 //
 //    3) Graphite-backed w/ mipmaps
 //                    drawn w/o mipmapping    --> drawn (yellow)
-//                    drawn w/ mipmapping     --> drawn (red)    !! not working right now !!
+//                    drawn w/ mipmapping     --> drawn (red)
 //
 //    4) picture-backed image
 //                    drawn w/o mipmapping    --> dropped draw (blue)
@@ -275,9 +275,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ImageProviderTest_Graphite_Default, reporter, con
         { "0", create_raster_backed_image_no_mipmaps,   { kBackgroundColor, kBackgroundColor } },
         { "1", create_raster_backed_image_with_mipmaps, { kBackgroundColor, kBackgroundColor } },
         { "2", create_gpu_backed_image_no_mipmaps,      { kBaseImageColor,  kBaseImageColor } },
-        // mipmaps don't appear to be working in Graphite quite yet. The mipmap option in test
-        // 3 should be 'kFirstMipLevelColor'
-        { "3", create_gpu_backed_image_with_mipmaps,    { kBaseImageColor,  kBaseImageColor } },
+        { "3", create_gpu_backed_image_with_mipmaps,    { kBaseImageColor,  kFirstMipLevelColor } },
         { "4", create_picture_backed_image,             { kBackgroundColor, kBackgroundColor } },
         { "5", create_bitmap_generator_backed_image,    { kBackgroundColor, kBackgroundColor }  },
     };
@@ -295,7 +293,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ImageProviderTest_Graphite_Default, reporter, con
 //
 //    1) raster-backed image w/ mipmaps
 //                    drawn w/o mipmapping    --> drawn (yellow) - auto-converted
-//                    drawn w/ mipmapping     --> drawn (red) - auto-converted    !! not working !!
+//                    drawn w/ mipmapping     --> drawn (red) - auto-converted
 //
 //    2) Graphite-backed w/o mipmaps
 //                    drawn w/o mipmapping    --> drawn (yellow)
@@ -303,7 +301,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ImageProviderTest_Graphite_Default, reporter, con
 //
 //    3) Graphite-backed w/ mipmaps
 //                    drawn w/o mipmapping    --> drawn (yellow)
-//                    drawn w/ mipmapping     --> drawn (red)    !! not working right now !!
+//                    drawn w/ mipmapping     --> drawn (red)
 //
 //    4) picture-backed image
 //                    drawn w/o mipmapping    --> drawn (yellow) - auto-converted
@@ -316,13 +314,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ImageProviderTest_Graphite_Default, reporter, con
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(ImageProviderTest_Graphite_Testing, reporter, context) {
     TestCase testcases[] = {
         { "0", create_raster_backed_image_no_mipmaps,   { kBaseImageColor, kBaseImageColor } },
-        // mipmaps don't appear to be working in Graphite quite yet. The mipmap option in test
-        // 1 should be 'kFirstMipLevelColor'
-        { "1", create_raster_backed_image_with_mipmaps, { kBaseImageColor, kBaseImageColor } },
+        { "1", create_raster_backed_image_with_mipmaps, { kBaseImageColor, kFirstMipLevelColor } },
         { "2", create_gpu_backed_image_no_mipmaps,      { kBaseImageColor, kBaseImageColor } },
-        // mipmaps don't appear to be working in Graphite quite yet. The mipmap option in test
-        // 3 should be 'kFirstMipLevelColor'
-        { "3", create_gpu_backed_image_with_mipmaps,    { kBaseImageColor, kBaseImageColor } },
+        { "3", create_gpu_backed_image_with_mipmaps,    { kBaseImageColor, kFirstMipLevelColor } },
         { "4", create_picture_backed_image,             { kBaseImageColor, kBaseImageColor } },
         { "5", create_bitmap_generator_backed_image,    { kBaseImageColor, kBaseImageColor } },
     };

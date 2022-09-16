@@ -23,23 +23,30 @@ class Context;
 
 // Create TextureProxyView and SkColorType pair using pixel data in SkBitmap,
 // adding any necessary copy commands to Recorder
-std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder,
-                                                              const SkBitmap& bitmap,
-                                                              Mipmapped mipmapped,
-                                                              SkBudgeted budgeted);
+std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder*,
+                                                              const SkBitmap&,
+                                                              sk_sp<SkMipmap>,
+                                                              Mipmapped,
+                                                              SkBudgeted);
 
 sk_sp<SkImage> MakeFromBitmap(Recorder*,
                               const SkColorInfo&,
                               const SkBitmap&,
+                              sk_sp<SkMipmap>,
                               SkBudgeted,
                               SkImage::RequiredImageProperties);
 
 using FlushPendingWorkCallback = std::function<void()>;
 
 bool ReadPixelsHelper(FlushPendingWorkCallback&&,
-                      Context* context, Recorder* recorder, TextureProxy* srcProxy,
-                      const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                      int srcX, int srcY);
+                      Context*,
+                      Recorder*,
+                      TextureProxy* srcProxy,
+                      const SkImageInfo& dstInfo,
+                      void* dstPixels,
+                      size_t dstRowBytes,
+                      int srcX,
+                      int srcY);
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_TextureUtils_DEFINED
