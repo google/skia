@@ -161,7 +161,6 @@ public:
 #if SK_GRAPHITE_ENABLED
     sk_sp<SkImage> makeTextureImage(skgpu::graphite::Recorder*,
                                     const SkImageInfo&,
-                                    const SkIPoint& origin,
                                     skgpu::graphite::Mipmapped);
 #endif
 
@@ -214,7 +213,6 @@ protected:
 #if SK_GRAPHITE_ENABLED
     virtual sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                               const SkImageInfo&,
-                                              const SkIPoint& origin,
                                               skgpu::graphite::Mipmapped);
 #endif
 

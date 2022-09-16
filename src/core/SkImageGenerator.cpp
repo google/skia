@@ -71,18 +71,17 @@ GrSurfaceProxyView SkImageGenerator::onGenerateTexture(GrRecordingContext*,
 
 sk_sp<SkImage> SkImageGenerator::makeTextureImage(skgpu::graphite::Recorder* recorder,
                                                   const SkImageInfo& info,
-                                                  const SkIPoint& origin,
                                                   skgpu::graphite::Mipmapped mipmapped) {
-    SkIRect srcRect = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height());
-    if (!SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(srcRect)) {
+    // This still allows for a difference in colorType and colorSpace. Just no subsetting.
+    if (fInfo.dimensions() != info.dimensions()) {
         return nullptr;
     }
-    return this->onMakeTextureImage(recorder, info, origin, mipmapped);
+
+    return this->onMakeTextureImage(recorder, info, mipmapped);
 }
 
 sk_sp<SkImage> SkImageGenerator::onMakeTextureImage(skgpu::graphite::Recorder*,
                                                     const SkImageInfo&,
-                                                    const SkIPoint& /* origin */,
                                                     skgpu::graphite::Mipmapped) {
     return nullptr;
 }

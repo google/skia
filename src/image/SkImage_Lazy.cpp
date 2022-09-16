@@ -605,7 +605,6 @@ sk_sp<SkImage> SkImage_Lazy::onMakeTextureImage(skgpu::graphite::Recorder* recor
         ScopedGenerator generator(fSharedGenerator);
         sk_sp<SkImage> newImage = generator->makeTextureImage(recorder,
                                                               this->imageInfo(),
-                                                              {0,0},
                                                               requiredProps.fMipmapped);
         if (newImage) {
             SkASSERT(as_IB(newImage)->isGraphiteBacked());

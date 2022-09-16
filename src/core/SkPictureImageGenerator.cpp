@@ -31,7 +31,6 @@ protected:
 #if SK_GRAPHITE_ENABLED
     sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                       const SkImageInfo&,
-                                      const SkIPoint& origin,
                                       skgpu::graphite::Mipmapped) override;
 #endif
 
@@ -144,7 +143,6 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext
 
 sk_sp<SkImage> SkPictureImageGenerator::onMakeTextureImage(skgpu::graphite::Recorder* recorder,
                                                            const SkImageInfo& info,
-                                                           const SkIPoint& origin,
                                                            skgpu::graphite::Mipmapped mipmapped) {
     using namespace skgpu::graphite;
 
@@ -154,10 +152,8 @@ sk_sp<SkImage> SkPictureImageGenerator::onMakeTextureImage(skgpu::graphite::Reco
         return nullptr;
     }
 
-    SkMatrix matrix = fMatrix;
-    matrix.postTranslate(-origin.x(), -origin.y());
     surface->getCanvas()->clear(SkColors::kTransparent);
-    surface->getCanvas()->drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
+    surface->getCanvas()->drawPicture(fPicture.get(), &fMatrix, fPaint.getMaybeNull());
     return surface->makeImageSnapshot();
 }
 
