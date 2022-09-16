@@ -1664,7 +1664,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     strokeRecs[kStrokeAndFill].setStrokeParams(SkPaint::kButt_Cap, SkPaint::kBevel_Join, 1.f);
     sk_sp<SkPathEffect> dashEffect = make_dash();
 
-    static constexpr Style kStyleCnt = static_cast<Style>(std::size(strokeRecs));
+    static constexpr size_t kStyleCnt = std::size(strokeRecs);
 
     auto index = [](bool inverted,
                     SkPathDirection dir,
