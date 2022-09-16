@@ -14,11 +14,11 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkSLTypeShared.h"
+#include "src/core/SkUniform.h"
 
 class SkM44;
 struct SkPoint;
 struct SkRect;
-class SkUniform;
 class SkUniformDataBlock;
 
 namespace skgpu::graphite {

@@ -52,7 +52,10 @@ private:
     template<SplitType kSplitType> class TreeNode;
     class LeafNode;
 
-    constexpr static int kTreeNodeSize = 16 + sizeof(Node*) * 2;
+    // The TreeNode size is made of a vtable (i.e. sizeof(void*)), float, and two Node* pointers.
+    // We also align between the Node* and the float which may add some extra padding.
+    constexpr static int kTreeNodeSize = SkAlignTo(sizeof(void*) + sizeof(float), alignof(void*)) +
+                                         2 * sizeof(Node*);
     constexpr static int kLeafNodeSize = 16 + (2 + 64) * sizeof(Rect);
     constexpr static int kPadSize = 256;  // For footers and alignment.
     SkArenaAlloc fArena{kLeafNodeSize + kTreeNodeSize + kPadSize*2};

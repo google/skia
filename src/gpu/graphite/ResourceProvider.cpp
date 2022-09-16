@@ -212,7 +212,12 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
         size_t szKey = size;
         for (int i = 0; i < kSizeKeyNum32DataCnt; ++i) {
             builder[i + 1] = (uint32_t) szKey;
-            szKey = szKey >> 32;
+
+            // If size_t is 4 bytes, we cannot do a shift of 32 or else we get a warning/error that
+            // shift amount is >= width of the type.
+            if constexpr(kSizeKeyNum32DataCnt > 1) {
+                szKey = szKey >> 32;
+            }
         }
     }
 

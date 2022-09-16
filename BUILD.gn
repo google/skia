@@ -1116,13 +1116,13 @@ optional("ndk_images") {
 optional("graphite") {
   libs = []
   frameworks = []
+  public_defines = []
 
   enabled = skia_enable_graphite
   deps = [
     ":gpu_shared",
     ":piet",
   ]
-  public_defines = [ "SK_GRAPHITE_ENABLED" ]
   public = skia_graphite_public
   sources = skia_graphite_sources
 

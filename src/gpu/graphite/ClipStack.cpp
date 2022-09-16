@@ -274,6 +274,7 @@ ClipStack::SimplifyResult ClipStack::Simplify(const TransformedShape& a,
                 return SimplifyResult::kBoth;
             }
     }
+    SkUNREACHABLE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -342,7 +343,7 @@ ClipStack::RawElement::RawElement(const Rect& deviceBounds,
     this->validate();
 }
 
-ClipStack::RawElement::operator TransformedShape() const {
+ClipStack::RawElement::operator ClipStack::TransformedShape() const {
     return {fLocalToDevice, fShape, fOuterBounds, fInnerBounds, fOp};
 }
 

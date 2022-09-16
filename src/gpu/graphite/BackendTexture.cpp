@@ -32,6 +32,11 @@ BackendTexture& BackendTexture::operator=(const BackendTexture& that) {
             fMtlTexture = that.fMtlTexture;
             break;
 #endif
+#ifdef SK_VULKAN
+        case BackendApi::kVulkan:
+            // TODO: Actually fill this out
+            break;
+#endif
         default:
             SK_ABORT("Unsupport Backend");
     }
@@ -54,6 +59,11 @@ bool BackendTexture::operator==(const BackendTexture& that) const {
                 return false;
             }
             break;
+#endif
+#ifdef SK_VULKAN
+        case BackendApi::kVulkan:
+            // TODO: Actually fill this out
+            return false;
 #endif
         default:
             SK_ABORT("Unsupport Backend");

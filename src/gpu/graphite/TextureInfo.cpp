@@ -25,6 +25,11 @@ TextureInfo& TextureInfo::operator=(const TextureInfo& that) {
             fMtlSpec = that.fMtlSpec;
             break;
 #endif
+#ifdef SK_VULKAN
+        case BackendApi::kVulkan:
+            // TODO: Actually fill this out
+            break;
+#endif
         default:
             SK_ABORT("Unsupport Backend");
     }
@@ -55,6 +60,11 @@ bool TextureInfo::operator==(const TextureInfo& that) const {
 #ifdef SK_METAL
         case BackendApi::kMetal:
             return fMtlSpec == that.fMtlSpec;
+#endif
+#ifdef SK_VULKAN
+        case BackendApi::kVulkan:
+            // TODO: Actually fill this out
+            return false;
 #endif
         default:
             return false;

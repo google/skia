@@ -11,7 +11,6 @@
 #include "include/private/SkHalf.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkPipelineData.h"
-#include "src/core/SkUniform.h"
 #include "src/gpu/graphite/DrawTypes.h"
 
 // ensure that these types are the sizes the uniform data is expecting
