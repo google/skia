@@ -10,8 +10,6 @@
 
 #include "tools/graphite/GraphiteTestContext.h"
 
-#ifdef SK_METAL
-
 #include "include/gpu/graphite/mtl/MtlBackendContext.h"
 
 namespace skiatest::graphite {
@@ -37,7 +35,5 @@ protected:
 };
 
 }  // namespace skiatest::graphite
-
-#endif // SK_METAL
 
 #endif // skiatest_graphite_MtlTestContext_DEFINED

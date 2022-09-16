@@ -1899,6 +1899,10 @@ if (skia_enable_tools) {
         sources += [ "tools/graphite/mtl/GraphiteMtlTestContext.h" ]
         sources += [ "tools/graphite/mtl/MtlTestContext.mm" ]
       }
+      if (skia_use_vulkan) {
+        sources += [ "tools/graphite/vk/VulkanTestContext.cpp" ]
+        sources += [ "tools/graphite/vk/VulkanTestContext.h" ]
+      }
     }
 
     if (is_fuchsia && using_fuchsia_sdk) {

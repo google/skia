@@ -26,7 +26,9 @@ public:
         kMetal,
         kVulkan,
         kMock,
+        kLastContextType = kMock
     };
+    static const int kContextTypeCnt = (int)ContextType::kLastContextType + 1;
 
     class ContextInfo {
     public:

@@ -91,13 +91,15 @@ namespace graphite {
 
 void RunWithGraphiteTestContexts(GraphiteTestFn* test, Reporter* reporter) {
     ContextFactory factory;
+    for (int typeInt = 0; typeInt < ContextFactory::kContextTypeCnt; ++typeInt) {
+        ContextFactory::ContextType contextType = (ContextFactory::ContextType) typeInt;
+        auto [_, context] = factory.getContextInfo(contextType);
+        if (!context) {
+            continue;
+        }
 
-    auto [_, context] = factory.getContextInfo(ContextFactory::ContextType::kMetal);
-    if (!context) {
-        return;
+        (*test)(reporter, context);
     }
-
-    (*test)(reporter, context);
 }
 
 } // namespace graphite

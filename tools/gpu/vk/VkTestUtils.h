@@ -12,8 +12,6 @@
 
 #ifdef SK_VULKAN
 
-#include "include/gpu/vk/GrVkBackendContext.h"
-#include "include/gpu/vk/GrVkTypes.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "tools/gpu/vk/GrVulkanDefines.h"
 #include <functional>

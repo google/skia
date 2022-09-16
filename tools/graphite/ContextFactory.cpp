@@ -12,6 +12,9 @@
 #ifdef SK_METAL
 #include "tools/graphite/mtl/GraphiteMtlTestContext.h"
 #endif
+#ifdef SK_VULKAN
+#include "tools/graphite/vk/VulkanTestContext.h"
+#endif
 
 namespace skiatest::graphite {
 
@@ -47,7 +50,11 @@ std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> ContextFactory::getC
             testCtx = graphite::MtlTestContext::Make();
 #endif
         } break;
-
+        case ContextType::kVulkan: {
+#ifdef SK_VULKAN
+            testCtx = graphite::VulkanTestContext::Make();
+#endif
+        } break;
         default:
             break;
     }
