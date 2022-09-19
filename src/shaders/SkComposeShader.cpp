@@ -224,6 +224,7 @@ sk_sp<SkShader> SkShaders::Blend(sk_sp<SkBlender> blender,
         return sk_make_sp<SkShader_Blend>(mode.value(), std::move(dst), std::move(src));
     }
 
+#ifdef SK_ENABLE_SKSL
     // This isn't a built-in blend mode; we might as well use a runtime effect to evaluate it.
     static SkRuntimeEffect* sBlendEffect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
         "uniform blender b;"
@@ -234,6 +235,10 @@ sk_sp<SkShader> SkShaders::Blend(sk_sp<SkBlender> blender,
     );
     SkRuntimeEffect::ChildPtr children[] = {std::move(blender), std::move(dst), std::move(src)};
     return sBlendEffect->makeShader(/*uniforms=*/{}, children);
+#else
+    // We need SkSL to render this blend.
+    return nullptr;
+#endif
 }
 
 void SkRegisterComposeShaderFlattenable() {
