@@ -105,6 +105,8 @@ skia_cc_deps(
         "@platforms//cpu:arm64": [
             ":crc32",
         ],
+        # None of these opts work on WASM, so do not even bother compiling them.
+        "//bazel/common_config_settings:cpu_wasm": [],
         "//conditions:default": [],
     }),
 )

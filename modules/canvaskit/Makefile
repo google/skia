@@ -139,15 +139,15 @@ bazel_canvaskit_debug:
 	bazelisk build :canvaskit --config=ck_full_webgl2_debug
 	- rm -rf build/
 	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.js build/canvaskit.js
-	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.wasm build/canvaskit.wasm
+	cp ../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.js build/canvaskit.js
+	cp ../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.wasm build/canvaskit.wasm
 
 bazel_canvaskit_release:
 	bazelisk build :canvaskit --config=ck_full_webgl2_release
 	- rm -rf build/
 	mkdir build
-	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.js build/canvaskit.js
-	cp ../../bazel-bin/modules/canvaskit/canvaskit_webgl/canvaskit.wasm build/canvaskit.wasm
+	cp ../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.js build/canvaskit.js
+	cp ../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.wasm build/canvaskit.wasm
 	ls -l build
 
 bazel_test_canvaskit:
