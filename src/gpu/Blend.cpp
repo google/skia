@@ -50,7 +50,10 @@ const char* BlendFuncName(SkBlendMode mode) {
     SkUNREACHABLE;
 }
 
-ReducedBlendModeInfo GetReducedBlendModeInfo(SkBlendMode mode) {
+SkSpan<const float> GetPorterDuffBlendConstants(SkBlendMode mode) {
+    static constexpr float kClear[]      = {0, 0,  0,  0};
+    static constexpr float kSrc[]        = {1, 0,  0,  0};
+    static constexpr float kDst[]        = {0, 1,  0,  0};
     static constexpr float kSrcOver[]    = {1, 0,  0, -1};
     static constexpr float kDstOver[]    = {0, 1, -1,  0};
     static constexpr float kSrcIn[]      = {0, 0,  1,  0};
@@ -62,6 +65,25 @@ ReducedBlendModeInfo GetReducedBlendModeInfo(SkBlendMode mode) {
     static constexpr float kXor[]        = {0, 0, -1, -1};
     static constexpr float kPlus[]       = {1, 1,  0,  0};
 
+    switch (mode) {
+        case SkBlendMode::kClear:      return SkSpan(kClear);
+        case SkBlendMode::kSrc:        return SkSpan(kSrc);
+        case SkBlendMode::kDst:        return SkSpan(kDst);
+        case SkBlendMode::kSrcOver:    return SkSpan(kSrcOver);
+        case SkBlendMode::kDstOver:    return SkSpan(kDstOver);
+        case SkBlendMode::kSrcIn:      return SkSpan(kSrcIn);
+        case SkBlendMode::kDstIn:      return SkSpan(kDstIn);
+        case SkBlendMode::kSrcOut:     return SkSpan(kSrcOut);
+        case SkBlendMode::kDstOut:     return SkSpan(kDstOut);
+        case SkBlendMode::kSrcATop:    return SkSpan(kSrcATop);
+        case SkBlendMode::kDstATop:    return SkSpan(kDstATop);
+        case SkBlendMode::kXor:        return SkSpan(kXor);
+        case SkBlendMode::kPlus:       return SkSpan(kPlus);
+        default:                       return {};
+    }
+}
+
+ReducedBlendModeInfo GetReducedBlendModeInfo(SkBlendMode mode) {
     static constexpr float kHue[]        = {0, 1};
     static constexpr float kSaturation[] = {1, 1};
     static constexpr float kColor[]      = {0, 0};
@@ -74,16 +96,19 @@ ReducedBlendModeInfo GetReducedBlendModeInfo(SkBlendMode mode) {
     static constexpr float kLighten[]    = {-1};
 
     switch (mode) {
-        case SkBlendMode::kSrcOver:    return {"blend_porter_duff", SkSpan(kSrcOver)};
-        case SkBlendMode::kDstOver:    return {"blend_porter_duff", SkSpan(kDstOver)};
-        case SkBlendMode::kSrcIn:      return {"blend_porter_duff", SkSpan(kSrcIn)};
-        case SkBlendMode::kDstIn:      return {"blend_porter_duff", SkSpan(kDstIn)};
-        case SkBlendMode::kSrcOut:     return {"blend_porter_duff", SkSpan(kSrcOut)};
-        case SkBlendMode::kDstOut:     return {"blend_porter_duff", SkSpan(kDstOut)};
-        case SkBlendMode::kSrcATop:    return {"blend_porter_duff", SkSpan(kSrcATop)};
-        case SkBlendMode::kDstATop:    return {"blend_porter_duff", SkSpan(kDstATop)};
-        case SkBlendMode::kXor:        return {"blend_porter_duff", SkSpan(kXor)};
-        case SkBlendMode::kPlus:       return {"blend_porter_duff", SkSpan(kPlus)};
+        // Clear/src/dst are intentionally omitted; using the built-in blend_xxxxx functions is
+        // preferable, since that gives us an opportunity to eliminate the src/dst entirely.
+
+        case SkBlendMode::kSrcOver:
+        case SkBlendMode::kDstOver:
+        case SkBlendMode::kSrcIn:
+        case SkBlendMode::kDstIn:
+        case SkBlendMode::kSrcOut:
+        case SkBlendMode::kDstOut:
+        case SkBlendMode::kSrcATop:
+        case SkBlendMode::kDstATop:
+        case SkBlendMode::kXor:
+        case SkBlendMode::kPlus:    return {"blend_porter_duff", GetPorterDuffBlendConstants(mode)};
 
         case SkBlendMode::kHue:        return {"blend_hslc", SkSpan(kHue)};
         case SkBlendMode::kSaturation: return {"blend_hslc", SkSpan(kSaturation)};

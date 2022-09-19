@@ -28,6 +28,7 @@ using namespace skgpu::graphite;
                                     \
     M(LocalMatrix)                  \
     M(Image)                        \
+    M(PorterDuffBlendShader)        \
     M(BlendShader)
 
 // To keep the SHADER_TYPES list and SkShaderType aligned, we create a hidden enum class
@@ -411,7 +412,18 @@ void ArenaData_Image::beginBlock(const SkKeyContext& keyContext,
                                    SkRect::MakeEmpty(), SkMatrix::I() });
 }
 
-CREATE_ARENA_OBJECT(BlendShader,     /* numChildSlots */ 2)
+CREATE_ARENA_OBJECT(PorterDuffBlendShader, /* numChildSlots */ 2)
+int ArenaData_PorterDuffBlendShader::numIntrinsicCombinationsDerived() const { return 1; }
+void ArenaData_PorterDuffBlendShader::beginBlock(const SkKeyContext& keyContext,
+                                                 int intrinsicCombination,
+                                                 SkPaintParamsKeyBuilder* builder) const {
+    SkASSERT(intrinsicCombination == 0);
+
+    PorterDuffBlendShaderBlock::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
+                                           {});  // the porter-duff constant is unused
+}
+
+CREATE_ARENA_OBJECT(BlendShader, /* numChildSlots */ 2)
 int ArenaData_BlendShader::numIntrinsicCombinationsDerived() const { return 1; }
 void ArenaData_BlendShader::beginBlock(const SkKeyContext& keyContext,
                                        int intrinsicCombination,
@@ -419,7 +431,7 @@ void ArenaData_BlendShader::beginBlock(const SkKeyContext& keyContext,
     SkASSERT(intrinsicCombination == 0);
 
     BlendShaderBlock::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
-                                 { SkBlendMode::kSrc });  // the blendmode is unused
+                                 {SkBlendMode::kSrc});  // the blend mode is unused
 }
 
 // Here to access the derived ArenaData objects
@@ -587,6 +599,8 @@ Option* CombinationBuilder::addOptionInternal(ShaderType shaderType) {
             return this->allocInArena<ArenaData_SolidColor>();
         case ShaderType::kLocalMatrix:
             return this->allocInArena<ArenaData_LocalMatrix>();
+        case ShaderType::kPorterDuffBlendShader:
+            return this->allocInArena<ArenaData_PorterDuffBlendShader>();
         case ShaderType::kBlendShader:
             return this->allocInArena<ArenaData_BlendShader>();
         default:

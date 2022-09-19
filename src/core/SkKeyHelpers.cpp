@@ -409,35 +409,42 @@ void ImageShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
-#ifdef SK_GRAPHITE_ENABLED
-
-namespace {
-
-void add_blendshader_uniform_data(const SkShaderCodeDictionary* dict,
-                                  SkBlendMode bm,
-                                  SkPipelineDataGatherer* gatherer) {
-    VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kBlendShader)
-    gatherer->write(SkTo<int>(bm));
-
-    gatherer->addFlags(dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kBlendShader));
-}
-
-} // anonymous namespace
-
-#endif // SK_GRAPHITE_ENABLED
-
-void BlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
-                                  SkPaintParamsKeyBuilder *builder,
-                                  SkPipelineDataGatherer* gatherer,
-                                  const BlendShaderData& blendData) {
-
+void PorterDuffBlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+                                            SkPaintParamsKeyBuilder* builder,
+                                            SkPipelineDataGatherer* gatherer,
+                                            const PorterDuffBlendShaderData& blendData) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
     // When extracted into SkShaderInfo::SnippetEntries the children will appear after their
     // parent. Thus, the parent's uniform data must appear in the uniform block before the
     // uniform data of the children.
     if (gatherer) {
-        add_blendshader_uniform_data(dict, blendData.fBM, gatherer);
+        VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kPorterDuffBlendShader)
+        gatherer->write(SkSLType::kHalf4, 1, blendData.fPorterDuffConstants.data());
+        gatherer->addFlags(
+                dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kPorterDuffBlendShader));
+    }
+
+    builder->beginBlock(SkBuiltInCodeSnippetID::kPorterDuffBlendShader);
+#endif // SK_GRAPHITE_ENABLED
+}
+
+//--------------------------------------------------------------------------------------------------
+
+void BlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+                                  SkPaintParamsKeyBuilder* builder,
+                                  SkPipelineDataGatherer* gatherer,
+                                  const BlendShaderData& blendData) {
+#ifdef SK_GRAPHITE_ENABLED
+    auto dict = keyContext.dict();
+    // When extracted into SkShaderInfo::SnippetEntries the children will appear after their
+    // parent. Thus, the parent's uniform data must appear in the uniform block before the
+    // uniform data of the children.
+    if (gatherer) {
+        VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kBlendShader)
+        gatherer->write(SkTo<int>(blendData.fBM));
+
+        gatherer->addFlags(dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kBlendShader));
     }
 
     builder->beginBlock(SkBuiltInCodeSnippetID::kBlendShader);

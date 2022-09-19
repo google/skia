@@ -615,13 +615,20 @@ static_assert(3 == static_cast<int>(SkTileMode::kDecal),  "ImageShader code depe
 static constexpr char kImageShaderName[] = "sk_image_shader";
 
 //--------------------------------------------------------------------------------------------------
+static constexpr SkUniform kPorterDuffBlendShaderUniforms[] = {
+        { "blendConstants", SkSLType::kHalf4 },
+};
+
+static constexpr char kPorterDuffBlendShaderName[] = "blend_porter_duff";
+
+//--------------------------------------------------------------------------------------------------
 static constexpr SkUniform kBlendShaderUniforms[] = {
         { "blendMode", SkSLType::kInt },
 };
 
-static constexpr int kNumBlendShaderChildren = 2;
-
 static constexpr char kBlendShaderName[] = "sk_blend_shader";
+
+static constexpr int kNumBlendShaderChildren = 2;
 
 //--------------------------------------------------------------------------------------------------
 static constexpr char kRuntimeShaderName[] = "RuntimeEffect";
@@ -1261,6 +1268,18 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
+    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kPorterDuffBlendShader] = {
+            "PorterDuffBlendShader",
+            SkSpan(kPorterDuffBlendShaderUniforms),
+            SnippetRequirementFlags::kNone,
+            { },     // no samplers
+            kPorterDuffBlendShaderName,
+            GenerateDefaultExpression,
+            GenerateDefaultPreamble,
+            kNumBlendShaderChildren,
+            { }      // no data payload
+    };
+
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kBlendShader] = {
             "BlendShader",
             SkSpan(kBlendShaderUniforms),

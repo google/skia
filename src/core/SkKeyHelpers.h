@@ -17,6 +17,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/SkColorData.h"
 
@@ -168,6 +169,17 @@ struct ImageShaderBlock {
 
 };
 
+struct PorterDuffBlendShaderBlock {
+    struct PorterDuffBlendShaderData {
+        SkSpan<const float> fPorterDuffConstants;
+    };
+
+    static void BeginBlock(const SkKeyContext&,
+                           SkPaintParamsKeyBuilder*,
+                           SkPipelineDataGatherer*,
+                           const PorterDuffBlendShaderData&);
+};
+
 struct BlendShaderBlock {
     struct BlendShaderData {
         SkBlendMode fBM;
@@ -177,7 +189,6 @@ struct BlendShaderBlock {
                            SkPaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const BlendShaderData&);
-
 };
 
 struct MatrixColorFilterBlock {

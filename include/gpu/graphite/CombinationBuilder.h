@@ -44,6 +44,7 @@ enum class ShaderType : uint32_t {
 
     kLocalMatrix,
     kImage,
+    kPorterDuffBlendShader,
     kBlendShader,
 
     kLast          = kBlendShader

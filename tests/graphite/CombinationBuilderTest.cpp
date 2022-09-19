@@ -253,7 +253,7 @@ void big_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
                                                           kMinNumStops, kMaxNumStops);
 
     // Second top-level option (blendShader_0)
-    auto blendShader_0 = builder.addOption(ShaderType::kBlendShader);
+    auto blendShader_0 = builder.addOption(ShaderType::kPorterDuffBlendShader);
 
     // first child slot of blendShader_0
     {

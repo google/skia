@@ -89,6 +89,12 @@ std::tuple<SkPaint, int> create_paint(Recorder* recorder,
                                     SkSamplingOptions(), nullptr);
             break;
         }
+        case ShaderType::kPorterDuffBlendShader: {
+            sk_sp<SkShader> src = SkShaders::Color(SK_ColorGREEN);
+            sk_sp<SkShader> dst = SkShaders::Color(SK_ColorLTGRAY);
+            s = SkShaders::Blend(SkBlendMode::kSrcOver, std::move(dst), std::move(src));
+            break;
+        }
         case ShaderType::kBlendShader: {
             sk_sp<SkShader> src = SkShaders::Color(SK_ColorGREEN);
             sk_sp<SkShader> dst = SkShaders::Color(SK_ColorLTGRAY);
@@ -130,6 +136,11 @@ SkUniquePaintParamsID create_key(Context* context,
             TileModePair tilingOptions[] = { { tileMode,  tileMode } };
 
             combinationBuilder.addOption(shaderType, tilingOptions);
+        } break;
+        case ShaderType::kPorterDuffBlendShader: {
+            CombinationOption option = combinationBuilder.addOption(shaderType);
+            option.addChildOption(0, ShaderType::kSolidColor);
+            option.addChildOption(1, ShaderType::kSolidColor);
         } break;
         case ShaderType::kBlendShader: {
             CombinationOption option = combinationBuilder.addOption(shaderType);
@@ -175,13 +186,14 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                     ShaderType::kConicalGradient,
                     ShaderType::kLocalMatrix,
                     ShaderType::kImage,
+                    ShaderType::kPorterDuffBlendShader,
                     ShaderType::kBlendShader }) {
         for (auto tm: { SkTileMode::kClamp,
                         SkTileMode::kRepeat,
                         SkTileMode::kMirror,
                         SkTileMode::kDecal }) {
             if (s == ShaderType::kSolidColor || s == ShaderType::kLocalMatrix ||
-                s == ShaderType::kBlendShader) {
+                s == ShaderType::kPorterDuffBlendShader || s == ShaderType::kBlendShader) {
                 if (tm != SkTileMode::kClamp) {
                     continue;  // the TileMode doesn't matter for these cases
                 }
