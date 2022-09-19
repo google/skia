@@ -54,9 +54,9 @@ SkMipmapAccessor::SkMipmapAccessor(const SkImage_Base* image, const SkMatrix& in
         }
     }
 
-    auto post_scale = [image, inv](const SkPixmap& pm) {
+    auto scale = [image](const SkPixmap& pm) {
         return SkMatrix::Scale(SkIntToScalar(pm.width())  / image->width(),
-                               SkIntToScalar(pm.height()) / image->height()) * inv;
+                               SkIntToScalar(pm.height()) / image->height());
     };
 
     // Nearest mode uses this level, so we round to pick the nearest. In linear mode we use this
@@ -92,14 +92,14 @@ SkMipmapAccessor::SkMipmapAccessor(const SkImage_Base* image, const SkMatrix& in
                 if (fCurrMip->getLevel(levelNum, &levelRec)) {
                     fLower = levelRec.fPixmap;
                     fLowerWeight = lowerWeight;
-                    fLowerInv = post_scale(fLower);
+                    fLowerInv = scale(fLower);
                 } else {
                     resolvedMode = SkMipmapMode::kNearest;
                 }
             }
         }
     }
-    fUpperInv = post_scale(fUpper);
+    fUpperInv = scale(fUpper);
 }
 
 SkMipmapAccessor* SkMipmapAccessor::Make(SkArenaAlloc* alloc, const SkImage* image,

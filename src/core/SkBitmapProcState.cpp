@@ -189,7 +189,6 @@ bool SkBitmapProcState::init(const SkMatrix& inv, SkAlpha paintAlpha,
     SkASSERT(sampling.mipmap != SkMipmapMode::kLinear);
 
     fPixmap.reset();
-    fInvMatrix = inv;
     fBilerp = false;
 
     auto* access = SkMipmapAccessor::Make(&fAlloc, (const SkImage*)fImage, inv, sampling.mipmap);
@@ -197,6 +196,7 @@ bool SkBitmapProcState::init(const SkMatrix& inv, SkAlpha paintAlpha,
         return false;
     }
     std::tie(fPixmap, fInvMatrix) = access->level();
+    fInvMatrix.preConcat(inv);
 
     fPaintAlpha = paintAlpha;
     fBilerp = sampling.filter == SkFilterMode::kLinear;

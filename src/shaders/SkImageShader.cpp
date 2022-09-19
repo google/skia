@@ -495,19 +495,23 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
 
-    SkMatrix matrix;
-    if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM, &matrix)) {
+    SkMatrix totalInverse;
+    if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(),
+                                   rec.fLocalM,
+                                   &totalInverse)) {
         return false;
     }
-    matrix.normalizePerspective();
+    totalInverse.normalizePerspective();
 
     SkASSERT(!sampling.useCubic || sampling.mipmap == SkMipmapMode::kNone);
-    auto* access = SkMipmapAccessor::Make(alloc, fImage.get(), matrix, sampling.mipmap);
+    auto* access = SkMipmapAccessor::Make(alloc, fImage.get(), totalInverse, sampling.mipmap);
     if (!access) {
         return false;
     }
     SkPixmap pm;
-    std::tie(pm, matrix) = access->level();
+    SkMatrix sampleM;
+    std::tie(pm, sampleM) = access->level();
+    sampleM.preConcat(totalInverse);
 
     p->append(SkRasterPipeline::seed_shader);
 
@@ -517,11 +521,11 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
         if (!sampling.useCubic) {
             // TODO: can tweak_sampling sometimes for cubic too when B=0
             if (rec.fMatrixProvider.localToDeviceHitsPixelCenters()) {
-                sampling = tweak_sampling(sampling, matrix);
+                sampling = tweak_sampling(sampling, sampleM);
             }
-            matrix = tweak_inv_matrix(sampling.filter, matrix);
+            sampleM = tweak_inv_matrix(sampling.filter, sampleM);
         }
-        p->append_matrix(alloc, matrix);
+        p->append_matrix(alloc, sampleM);
     }
 
     auto gather = alloc->make<SkRasterPipeline_GatherCtx>();
@@ -767,6 +771,7 @@ skvm::Color SkImageShader::makeProgram(
     }
 
     auto [upper, upperInv] = access->level();
+    upperInv.preConcat(baseInv);
     // If we are using a coordShader, then we can't make guesses about the state of the matrix.
     if (!sampling.useCubic && !coordShader) {
         // TODO: can tweak_sampling sometimes for cubic too when B=0
@@ -782,6 +787,7 @@ skvm::Color SkImageShader::makeProgram(
     float lowerWeight = access->lowerWeight();
     if (lowerWeight > 0) {
         std::tie(lowerPixmap, lowerInv) = access->lowerLevel();
+        lowerInv.preConcat(baseInv);
         lower = &lowerPixmap;
     }
 
