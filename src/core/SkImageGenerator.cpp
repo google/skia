@@ -51,12 +51,11 @@ GrSurfaceProxyView SkImageGenerator::generateTexture(GrRecordingContext* ctx,
                                                      GrImageTexGenPolicy texGenPolicy) {
     SkASSERT_RELEASE(fInfo.dimensions() == info.dimensions());
 
-    return this->onGenerateTexture(ctx, info, {0,0}, mipmapped, texGenPolicy);
+    return this->onGenerateTexture(ctx, info, mipmapped, texGenPolicy);
 }
 
 GrSurfaceProxyView SkImageGenerator::onGenerateTexture(GrRecordingContext*,
                                                        const SkImageInfo&,
-                                                       const SkIPoint&,
                                                        GrMipmapped,
                                                        GrImageTexGenPolicy) {
     return {};

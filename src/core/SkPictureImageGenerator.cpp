@@ -24,7 +24,7 @@ protected:
     bool onGetPixels(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&) override;
 
 #if SK_SUPPORT_GPU
-    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&, const SkIPoint&,
+    GrSurfaceProxyView onGenerateTexture(GrRecordingContext*, const SkImageInfo&,
                                          GrMipmapped, GrImageTexGenPolicy) override;
 #endif
 
@@ -105,7 +105,6 @@ bool SkPictureImageGenerator::onGetPixels(const SkImageInfo& info, void* pixels,
 
 GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext* ctx,
                                                               const SkImageInfo& info,
-                                                              const SkIPoint& origin,
                                                               GrMipmapped mipmapped,
                                                               GrImageTexGenPolicy texGenPolicy) {
     SkASSERT(ctx);
@@ -119,10 +118,8 @@ GrSurfaceProxyView SkPictureImageGenerator::onGenerateTexture(GrRecordingContext
         return {};
     }
 
-    SkMatrix matrix = fMatrix;
-    matrix.postTranslate(-origin.x(), -origin.y());
     surface->getCanvas()->clear(SkColors::kTransparent);
-    surface->getCanvas()->drawPicture(fPicture.get(), &matrix, fPaint.getMaybeNull());
+    surface->getCanvas()->drawPicture(fPicture.get(), &fMatrix, fPaint.getMaybeNull());
     sk_sp<SkImage> image(surface->makeImageSnapshot());
     if (!image) {
         return {};

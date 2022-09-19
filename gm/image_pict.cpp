@@ -180,18 +180,17 @@ public:
 protected:
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext* rContext,
                                          const SkImageInfo& info,
-                                         const SkIPoint& origin,
                                          GrMipmapped mipmapped,
                                          GrImageTexGenPolicy policy) override {
         SkASSERT(rContext);
         SkASSERT(rContext->priv().matches(fRContext.get()));
+        SkASSERT_RELEASE(info.dimensions() == fView.proxy()->dimensions());
 
         if (!fView) {
             return {};
         }
 
-        if (origin.fX == 0 && origin.fY == 0 && info.dimensions() == fView.proxy()->dimensions() &&
-            policy == GrImageTexGenPolicy::kDraw) {
+        if (policy == GrImageTexGenPolicy::kDraw) {
             return fView;
         }
         auto budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted ? SkBudgeted::kNo
@@ -200,7 +199,7 @@ protected:
                 fRContext.get(),
                 fView,
                 mipmapped,
-                SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height()),
+                SkIRect::MakeWH(info.width(), info.height()),
                 SkBackingFit::kExact,
                 budgeted,
                 /*label=*/"SurfaceProxyView_GenerateTexture");

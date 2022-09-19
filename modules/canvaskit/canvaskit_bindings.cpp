@@ -849,7 +849,6 @@ public:
 protected:
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext* ctx,
                                          const SkImageInfo& info,
-                                         const SkIPoint& origin,
                                          GrMipmapped mipmapped,
                                          GrImageTexGenPolicy texGenPolicy) override {
         if (ctx->backend() != GrBackendApi::kOpenGL) {
