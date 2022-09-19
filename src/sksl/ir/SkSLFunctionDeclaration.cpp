@@ -511,7 +511,13 @@ std::string FunctionDeclaration::mangledName() const {
 }
 
 std::string FunctionDeclaration::description() const {
-    std::string result = this->returnType().displayName() + " " + std::string(this->name()) + "(";
+    // We don't want to add `sk_has_side_effects` to every function description, even if it's true.
+    int modifierFlags = this->modifiers().fFlags;
+    modifierFlags &= ~Modifiers::kHasSideEffects_Flag;
+
+    std::string result =
+            (modifierFlags ? Modifiers::DescribeFlags(modifierFlags) + " " : std::string()) +
+            this->returnType().displayName() + " " + std::string(this->name()) + "(";
     std::string separator;
     for (const Variable* p : this->parameters()) {
         result += separator;

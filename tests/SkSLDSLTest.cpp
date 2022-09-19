@@ -1483,15 +1483,16 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
         DSLWriter::Reset();
         DSLParameter x(kFloat2_Type, "x");
         DSLParameter y(kFloat2_Type, "y");
-        DSLFunction dot(kFloat2_Type, "Dot", x, y);
-        dot.define(
+        DSLFunction squareSum(
+                DSLModifiers(SkSL::Modifiers::kInline_Flag), kFloat2_Type, "SquareSum", x, y);
+        squareSum.define(
             Return(x * x + y * y)
         );
-        EXPECT_EQUAL(dot(Float2(1.0f, 2.0f), Float2(3.0f, 4.0f)),
-                     "Dot(float2(1.0, 2.0), float2(3.0, 4.0))");
         REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
         EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                "float2 Dot(float2 x, float2 y) { return ((x * x) + (y * y)); }");
+                "inline float2 SquareSum(float2 x, float2 y) { return ((x * x) + (y * y)); }");
+        EXPECT_EQUAL(squareSum(Float2(1.0f, 2.0f), Float2(3.0f, 4.0f)),
+                     "SquareSum(float2(1.0, 2.0), float2(3.0, 4.0))");
     }
 
     {

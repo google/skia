@@ -79,6 +79,9 @@ struct Modifiers {
         if (flags & kHasSideEffects_Flag) {
             result += "sk_has_side_effects ";
         }
+        if (flags & kInline_Flag) {
+            result += "inline ";
+        }
         if (flags & kNoInline_Flag) {
             result += "noinline ";
         }
