@@ -523,7 +523,6 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
         ScopedGenerator generator(fSharedGenerator);
         if (auto view = generator->generateTexture(rContext,
                                                    this->imageInfo(),
-                                                   {0,0},
                                                    mipmapped,
                                                    texGenPolicy)) {
             installKey(view);

@@ -154,7 +154,7 @@ public:
      *  retained by the generator (kDraw).
      */
     GrSurfaceProxyView generateTexture(GrRecordingContext*, const SkImageInfo& info,
-                                       const SkIPoint& origin, GrMipmapped, GrImageTexGenPolicy);
+                                       GrMipmapped, GrImageTexGenPolicy);
 
 #endif
 

@@ -47,14 +47,11 @@ bool SkImageGenerator::getYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
 
 GrSurfaceProxyView SkImageGenerator::generateTexture(GrRecordingContext* ctx,
                                                      const SkImageInfo& info,
-                                                     const SkIPoint& origin,
                                                      GrMipmapped mipmapped,
                                                      GrImageTexGenPolicy texGenPolicy) {
-    SkIRect srcRect = SkIRect::MakeXYWH(origin.x(), origin.y(), info.width(), info.height());
-    if (!SkIRect::MakeWH(fInfo.width(), fInfo.height()).contains(srcRect)) {
-        return {};
-    }
-    return this->onGenerateTexture(ctx, info, origin, mipmapped, texGenPolicy);
+    SkASSERT_RELEASE(fInfo.dimensions() == info.dimensions());
+
+    return this->onGenerateTexture(ctx, info, {0,0}, mipmapped, texGenPolicy);
 }
 
 GrSurfaceProxyView SkImageGenerator::onGenerateTexture(GrRecordingContext*,
