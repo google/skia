@@ -421,21 +421,134 @@
   },
   {
     "cmd": [
+      "python",
+      "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
+      "/opt/infra-android/tools/adb",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /sdcard/revenge_of_the_skiabot/lotties_with_assets",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Remove the path.@@@",
+      "@@@STEP_LOG_LINE@python.inline@adb = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@path = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Removing %s' % path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'rm', '-rf', path]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(cmd)@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Verify that the path was deleted.@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Checking for existence of %s' % path)@@@",
+      "@@@STEP_LOG_LINE@python.inline@cmd = [adb, 'shell', 'ls', path]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(' '.join(cmd))@@@",
+      "@@@STEP_LOG_LINE@python.inline@try:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = subprocess.check_output(@@@",
+      "@@@STEP_LOG_LINE@python.inline@      cmd, stderr=subprocess.STDOUT).decode('utf-8')@@@",
+      "@@@STEP_LOG_LINE@python.inline@except subprocess.CalledProcessError as e:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  output = e.output.decode('utf-8')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('Output was:')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@print(output)@@@",
+      "@@@STEP_LOG_LINE@python.inline@print('======')@@@",
+      "@@@STEP_LOG_LINE@python.inline@if 'No such file or directory' not in output:@@@",
+      "@@@STEP_LOG_LINE@python.inline@  raise Exception('%s exists despite being deleted' % path)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_TRACE": "all",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /sdcard/revenge_of_the_skiabot/lotties_with_assets"
+  },
+  {
+    "cmd": [
+      "vpython3",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copytree",
+      "[START_DIR]/lotties_with_assets",
+      "[CLEANUP]/lwa_tmp_1/nosymlinks"
+    ],
+    "infra_step": true,
+    "name": "Copying files on host to remove symlinks"
+  },
+  {
+    "cmd": [
+      "vpython3",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "glob",
+      "[CLEANUP]/lwa_tmp_1/nosymlinks",
+      "*"
+    ],
+    "infra_step": true,
+    "name": "ls [CLEANUP]/lwa_tmp_1/nosymlinks/*",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@glob@[CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg@@@",
+      "@@@STEP_LOG_LINE@glob@[CLEANUP]/lwa_tmp_1/nosymlinks/foo.png@@@",
+      "@@@STEP_LOG_END@glob@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
+      "--sync",
+      "[CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg",
+      "[CLEANUP]/lwa_tmp_1/nosymlinks/foo.png",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_TRACE": "all",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "push --sync [CLEANUP]/lwa_tmp_1/nosymlinks/* /sdcard/revenge_of_the_skiabot/lotties_with_assets"
+  },
+  {
+    "cmd": [
       "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
       "listdir",
-      "[START_DIR]/lottie-samples"
+      "[CLEANUP]/lwa_tmp_1/nosymlinks"
     ],
     "infra_step": true,
     "name": "list lottie files",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/LICENSE@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie 3!.json@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie(test)'!2.json@@@",
-      "@@@STEP_LOG_LINE@listdir@[START_DIR]/lottie-samples/lottie1.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[CLEANUP]/lwa_tmp_1/nosymlinks/skottie_asset_000@@@",
+      "@@@STEP_LOG_LINE@listdir@[CLEANUP]/lwa_tmp_1/nosymlinks/skottie_asset_001@@@",
+      "@@@STEP_LOG_LINE@listdir@[CLEANUP]/lwa_tmp_1/nosymlinks/skottie_asset_002@@@",
       "@@@STEP_LOG_END@listdir@@@"
     ]
   },
@@ -447,7 +560,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
-      "set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\" --config gles --nocpu; echo $? >/data/local/tmp/rc",
+      "set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties_with_assets/skottie_asset_000 --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/1.json --match \\^data\\.json\\$ --config gles --nocpu; echo $? >/data/local/tmp/rc",
       "[START_DIR]/tmp/dm.sh"
     ],
     "env": {
@@ -457,7 +570,7 @@
     "infra_step": true,
     "name": "write dm.sh",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@dm.sh@set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/2.json --match \"^lottie 3!.json$\" --config gles --nocpu; echo $? >/data/local/tmp/rc@@@",
+      "@@@STEP_LOG_LINE@dm.sh@set -x; LD_LIBRARY_PATH=/data/local/tmp/ /data/local/tmp/dm --resourcePath /sdcard/revenge_of_the_skiabot/resources --lotties /sdcard/revenge_of_the_skiabot/lotties_with_assets/skottie_asset_000 --src lottie --nonativeFonts --verbose --traceMatch skottie --trace /sdcard/revenge_of_the_skiabot/dm_out/1.json --match \\^data\\.json\\$ --config gles --nocpu; echo $? >/data/local/tmp/rc@@@",
       "@@@STEP_LOG_END@dm.sh@@@"
     ]
   },
@@ -527,7 +640,7 @@
       "/opt/infra-android/tools/adb",
       "shell",
       "cat",
-      "/sdcard/revenge_of_the_skiabot/dm_out/2.json"
+      "/sdcard/revenge_of_the_skiabot/dm_out/1.json"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -537,21 +650,21 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/2.json"
+    "name": "read /sdcard/revenge_of_the_skiabot/dm_out/1.json"
   },
   {
     "cmd": [
       "python",
       "\nimport json\nimport sys\n\ntrace_output = sys.argv[1]\ntrace_json = json.loads(trace_output)\nlottie_filename = sys.argv[2]\noutput_json_file = sys.argv[3]\n\nperf_results = {}\nframe_max = 0\nframe_min = 0\nframe_cumulative = 0\ncurrent_frame_duration = 0\ntotal_frames = 0\nframe_start = False\nfor trace in trace_json:\n  if 'skottie::Animation::seek' in trace['name']:\n    if frame_start:\n      raise Exception('We got consecutive Animation::seek without a ' +\n                      'render. Something is wrong.')\n    frame_start = True\n    current_frame_duration = trace['dur']\n  elif 'skottie::Animation::render' in trace['name']:\n    if not frame_start:\n      raise Exception('We got an Animation::render without a seek first. ' +\n                      'Something is wrong.')\n\n    current_frame_duration += trace['dur']\n    frame_start = False\n    total_frames += 1\n    frame_max = max(frame_max, current_frame_duration)\n    frame_min = (min(frame_min, current_frame_duration)\n                 if frame_min else current_frame_duration)\n    frame_cumulative += current_frame_duration\n\nexpected_dm_frames = 25\nif total_frames != expected_dm_frames:\n  raise Exception(\n      'Got ' + str(total_frames) + ' frames instead of ' +\n      str(expected_dm_frames))\nperf_results['frame_max_us'] = frame_max\nperf_results['frame_min_us'] = frame_min\nperf_results['frame_avg_us'] = frame_cumulative/total_frames\n\n# Write perf_results to the output json.\nwith open(output_json_file, 'w') as f:\n  f.write(json.dumps(perf_results))\n",
       "\n[{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":452,\"dur\":2.57,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPaint(const SkPaint &)\",\"ts\":473,\"dur\":2.67e+03,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.15e+03,\"dur\":2.25,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.15e+03,\"dur\":216,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void SkCanvas::drawPath(const SkPath &, const SkPaint &)\",\"ts\":3.35e+03,\"dur\":15.1,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::seek(SkScalar)\",\"ts\":3.37e+03,\"dur\":1.17,\"tid\":1,\"pid\":0},{\"ph\":\"X\",\"name\":\"void skottie::Animation::render(SkCanvas *, const SkRect *, RenderFlags) const\",\"ts\":3.37e+03,\"dur\":140,\"tid\":1,\"pid\":0}]\n",
-      "lottie 3!.json",
+      "skottie_asset_000",
       "/path/to/tmp/json"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "parse lottie 3!.json trace",
+    "name": "parse skottie_asset_000 trace",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@json.output@{@@@",
       "@@@STEP_LOG_LINE@json.output@  \"frame_avg_us\": 179.71, @@@",
@@ -666,7 +779,7 @@
   {
     "failure": {
       "failure": {},
-      "humanReason": "Step('parse lottie 3!.json trace') (retcode: 1)"
+      "humanReason": "Step('parse skottie_asset_000 trace') (retcode: 1)"
     },
     "name": "$result"
   }

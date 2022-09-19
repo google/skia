@@ -1808,17 +1808,7 @@ func (b *jobBuilder) puppeteer() {
 				"--cpu_or_gpu_value_trace", b.parts["cpu_or_gpu_value"],
 				"--webgl_version", webglversion, // ignore when running with cpu backend
 			)
-			// This CIPD package was made by hand with the following invocation:
-			//   cipd create -name skia/internal/lotties_with_assets -in ./lotties/ -tag version:0
-			//   cipd acl-edit skia/internal/lotties_with_assets -reader group:project-skia-external-task-accounts
-			//   cipd acl-edit skia/internal/lotties_with_assets -reader user:pool-skia@chromium-swarm.iam.gserviceaccount.com
-			// Where lotties is a hand-selected set of lottie animations and (optionally) assets used in
-			// them (e.g. fonts, images).
-			b.cipd(&specs.CipdPackage{
-				Name:    "skia/internal/lotties_with_assets",
-				Path:    "lotties_with_assets",
-				Version: "version:1",
-			})
+			b.needsLottiesWithAssets()
 		} else if b.extraConfig("RenderSKP") {
 			b.cmd(
 				"./perf_puppeteer_render_skps",
@@ -1942,6 +1932,8 @@ func (b *jobBuilder) perf() {
 			b.timeout(6 * time.Hour)
 		} else if b.extraConfig("LottieWeb", "SkottieWASM") {
 			b.asset("node", "lottie-samples")
+		} else if b.matchExtraConfig("SkottieTracing") {
+			b.needsLottiesWithAssets()
 		} else if b.matchExtraConfig("Skottie") {
 			b.asset("lottie-samples")
 		}

@@ -460,13 +460,13 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 
 PYTHON_VERSION_COMPATIBILITY: PY3
 
-&mdash; **def [RunSteps](/infra/bots/recipes/perf_skottietrace.py#219)(api):**
+&mdash; **def [RunSteps](/infra/bots/recipes/perf_skottietrace.py#238)(api):**
 
-&mdash; **def [get\_trace\_match](/infra/bots/recipes/perf_skottietrace.py#128)(lottie_filename, is_android):**
+&mdash; **def [get\_trace\_match](/infra/bots/recipes/perf_skottietrace.py#147)(lottie_filename, is_android):**
 
 Returns the DM regex to match the specified lottie file name.
 
-&mdash; **def [parse\_trace](/infra/bots/recipes/perf_skottietrace.py#143)(trace_json, lottie_filename, api):**
+&mdash; **def [parse\_trace](/infra/bots/recipes/perf_skottietrace.py#162)(trace_json, lottie_filename, api):**
 
 parse_trace parses the specified trace JSON.
 
