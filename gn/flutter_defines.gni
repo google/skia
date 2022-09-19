@@ -9,11 +9,7 @@ flutter_defines = [
   # Remove software rasterizers to save some code size.
   "SK_DISABLE_AAA",
 
-  # Things we do for Flutter but don't want in general text layout
-  "SK_PARAGRAPH_LIBTXT_SPACES_RESOLUTION",
-
   # Staging
-  "SK_LEGACY_INNER_JOINS",
   "SK_LEGACY_IGNORE_DRAW_VERTICES_BLEND_WITH_NO_SHADER",
 
   # Fast low-precision software rendering isn't a priority for Flutter.
