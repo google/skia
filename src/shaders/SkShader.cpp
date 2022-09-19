@@ -48,11 +48,11 @@ void SkShaderBase::flatten(SkWriteBuffer& buffer) const {
 }
 
 SkTCopyOnFirstWrite<SkMatrix>
-SkShaderBase::totalLocalMatrix(const SkMatrix* preLocalMatrix) const {
+SkShaderBase::totalLocalMatrix(const SkMatrix* outerLocalMatrix) const {
     SkTCopyOnFirstWrite<SkMatrix> m(fLocalMatrix);
 
-    if (preLocalMatrix) {
-        m.writable()->preConcat(*preLocalMatrix);
+    if (outerLocalMatrix) {
+        *m.writable() = ConcatLocalMatrices(*outerLocalMatrix, *m);
     }
 
     return m;

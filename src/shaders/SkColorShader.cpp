@@ -196,6 +196,7 @@ skvm::Color SkColor4Shader::onProgram(skvm::Builder* p,
 
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
+#include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/SkGr.h"
 

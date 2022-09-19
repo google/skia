@@ -19,11 +19,8 @@
 #include "src/core/SkTLazy.h"
 #include "src/core/SkVM_fwd.h"
 
-#if SK_SUPPORT_GPU
-#include "src/gpu/ganesh/GrFPArgs.h"
-#endif
-
 class GrFragmentProcessor;
+struct GrFPArgs;
 class SkArenaAlloc;
 class SkColorSpace;
 class SkImage;
@@ -177,9 +174,9 @@ public:
 
     // Returns the total local matrix for this shader:
     //
-    //   M = postLocalMatrix x shaderLocalMatrix x preLocalMatrix
+    //   M = shaderLocalMatrix x outerLocalMatrix
     //
-    SkTCopyOnFirstWrite<SkMatrix> totalLocalMatrix(const SkMatrix* preLocalMatrix) const;
+    SkTCopyOnFirstWrite<SkMatrix> totalLocalMatrix(const SkMatrix* outerLocalMatrix) const;
 
     virtual SkImage* onIsAImage(SkMatrix*, SkTileMode[2]) const {
         return nullptr;
@@ -229,6 +226,10 @@ public:
                           SkPaintParamsKeyBuilder* builder,
                           SkPipelineDataGatherer* gatherer) const;
 #endif
+
+    static SkMatrix ConcatLocalMatrices(const SkMatrix& parentLM, const SkMatrix& childLM) {
+        return SkMatrix::Concat(childLM, parentLM);
+    }
 
 protected:
     SkShaderBase(const SkMatrix* localMatrix = nullptr);

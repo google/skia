@@ -1205,7 +1205,7 @@ public:
         }
 
         SkMatrix matrix;
-        if (!this->totalLocalMatrix(args.fPreLocalMatrix)->invert(&matrix)) {
+        if (!this->totalLocalMatrix(args.fLocalMatrix)->invert(&matrix)) {
             return nullptr;
         }
 
@@ -1215,9 +1215,9 @@ public:
                 args.fDstColorInfo->colorSpace());
         SkASSERT(uniforms);
 
-        // We handle the pre-local matrix at this level so strip it out.
+        // We handle the local matrix at this level so strip it out.
         GrFPArgs fpArgs = args;
-        fpArgs.fPreLocalMatrix = nullptr;
+        fpArgs.fLocalMatrix = nullptr;
         auto [success, fp] = make_effect_fp(fEffect,
                                             "runtime_shader",
                                             std::move(uniforms),
