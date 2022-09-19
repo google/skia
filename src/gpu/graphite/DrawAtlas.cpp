@@ -446,6 +446,17 @@ inline void DrawAtlas::deactivateLastPage() {
     --fNumActivePages;
 }
 
+void DrawAtlas::evictAllPlots() {
+    PlotList::Iter plotIter;
+    for (uint32_t pageIndex = 0; pageIndex < fNumActivePages; ++pageIndex) {
+        plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+        while (Plot* plot = plotIter.get()) {
+            this->processEvictionAndResetRects(plot);
+            plotIter.next();
+        }
+    }
+}
+
 DrawAtlasConfig::DrawAtlasConfig(int maxTextureSize, size_t maxBytes) {
     static const SkISize kARGBDimensions[] = {
         {256, 256},   // maxBytes < 2^19

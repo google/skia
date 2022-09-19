@@ -143,6 +143,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     fGraph = std::make_unique<TaskGraph>();
     fRuntimeEffectDict->reset();
     fTextureDataCache = std::make_unique<TextureDataCache>();
+    fAtlasManager->evictAtlases();
     return recording;
 }
 

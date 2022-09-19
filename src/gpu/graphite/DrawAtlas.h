@@ -152,6 +152,8 @@ public:
 
     void compact(DrawToken startTokenForNextFlush);
 
+    void evictAllPlots();
+
     uint32_t maxPages() const {
         return fMaxPages;
     }

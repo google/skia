@@ -115,7 +115,6 @@ std::pair<const void*, SkIRect> Plot::prepareForUpload() {
 
 void Plot::resetRects() {
     fRectanizer.reset();
-
     fGenID = fGenerationCounter->next();
     fPlotLocator = PlotLocator(fPageIndex, fPlotIndex, fGenID);
     fLastUpload = DrawToken::AlreadyFlushedToken();
