@@ -26,18 +26,18 @@ debs_to_install = [
     # system headers (e.g. malloc.h, math.h).
     {
         # From https://packages.debian.org/bullseye/amd64/libc6/download
-        "sha256": "3d9421c3fc0ef0d8ce57c0a149e1f8dbad78aba067f120be9e652af28902e346",
-        "url": "https://ftp.debian.org/debian/pool/main/g/glibc/libc6_2.31-13+deb11u2_amd64.deb",
+        "sha256": "a6263062b476cee1052972621d473b159debec6e424f661eda88248b00331d79",
+        "url": "https://ftp.debian.org/debian/pool/main/g/glibc/libc6_2.31-13+deb11u4_amd64.deb",
     },
     {
         # From https://packages.debian.org/bullseye/amd64/linux-libc-dev/download
-        "sha256": "1bb053863873916cb8d5fa877cc4972a6279931783c1fd9e4339d0369a617af4",
-        "url": "https://ftp.debian.org/debian/pool/main/l/linux/linux-libc-dev_5.10.84-1_amd64.deb",
+        "sha256": "e89023a5fc58c30ebb8cbb82de77f872baeafe7a5449f574b03cea478f7e9e6d",
+        "url": "https://ftp.debian.org/debian/pool/main/l/linux/linux-libc-dev_5.10.140-1_amd64.deb",
     },
     {
         # From https://packages.debian.org/bullseye/amd64/libc6-dev/download
-        "sha256": "1911bac1137f8f51359047d2fc94053f831abcfb50f1d7584e3ae95ea0831569",
-        "url": "https://ftp.debian.org/debian/pool/main/g/glibc/libc6-dev_2.31-13+deb11u2_amd64.deb",
+        "sha256": "5f368eb89d102ccd23529a02fb17aaa1c15e7612506e22ef0c559b71f5049a91",
+        "url": "https://ftp.debian.org/debian/pool/main/g/glibc/libc6-dev_2.31-13+deb11u4_amd64.deb",
     },
     # These two put the X11 include files in ${PWD}/usr/include/X11
     # libx11-dev puts libX11.a in ${PWD}/usr/lib/x86_64-linux-gnu
