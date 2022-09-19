@@ -2040,6 +2040,8 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
     }
 }
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
+// The inliner doesn't exist in a size-optimized build.
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     DSLParameter x(kFloat_Type, "x");
@@ -2062,6 +2064,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
                  "}");
     REPORTER_ASSERT(r, *program->fSource == source);
 }
+#endif
 
 DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
@@ -2083,29 +2086,32 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
     {
         DSLWriter::Reset();
         DSLParameter x(kFloat_Type, "x");
-        DSLFunction sqr(kFloat_Type, "sqr", x);
+        DSLFunction sqr(DSLModifiers(SkSL::Modifiers::kNoInline_Flag), kFloat_Type, "sqr", x);
         sqr.prototype();
         REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "float sqr(float x);");
+        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "noinline float sqr(float x);");
         DSLFunction(kVoid_Type, "main").define(sqr(5));
         REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "float sqr(float x);");
+        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "noinline float sqr(float x);");
         EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1], "void main() { sqr(5.0); }");
         sqr.define(
             Return(x * x)
         );
         REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 3);
         EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[2],
-                "float sqr(float x) { return (x * x); }");
+                "noinline float sqr(float x) { return (x * x); }");
 
         const char* source = "source test";
         std::unique_ptr<SkSL::Program> p = ReleaseProgram(std::make_unique<std::string>(source));
+
         EXPECT_EQUAL(*p,
             "layout (builtin = 17) in bool sk_Clockwise;"
-            "float sqr(float x);"
+            "noinline float sqr(float x);"
             "void main() {"
-            ";"
-            "25.0;"
+            "  sqr(5.0);"
+            "}"
+            "noinline float sqr(float x) {"
+            "  return (x * x);"
             "}");
     }
 }

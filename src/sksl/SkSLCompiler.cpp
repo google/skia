@@ -361,6 +361,10 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
 bool Compiler::optimizeRehydratedModule(LoadedModule& module,
                                         const ParsedModule& base,
                                         ModifiersPool& modifiersPool) {
+#ifdef SK_ENABLE_OPTIMIZE_SIZE
+    // We don't have an inliner, so there's nothing to do.
+    return true;
+#else
     SkASSERT(!this->errorCount());
 
     // Create a temporary program configuration with default settings.
@@ -380,6 +384,7 @@ bool Compiler::optimizeRehydratedModule(LoadedModule& module,
         }
     }
     return this->errorCount() == 0;
+#endif
 }
 
 bool Compiler::optimizeModuleForDehydration(LoadedModule& module, const ParsedModule& base) {
@@ -419,13 +424,14 @@ bool Compiler::optimize(Program& program) {
     AutoShaderCaps autoCaps(fContext, fCaps);
 
     SkASSERT(!this->errorCount());
-    ProgramUsage* usage = program.fUsage.get();
-
     if (this->errorCount() == 0) {
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
         // Run the inliner only once; it is expensive! Multiple passes can occasionally shake out
         // more wins, but it's diminishing returns.
+        ProgramUsage* usage = program.fUsage.get();
         Inliner inliner(fContext.get());
         this->runInliner(&inliner, program.fOwnedElements, program.fSymbols, usage);
+#endif
 
         // Unreachable code can confuse some drivers, so it's worth removing. (skia:12012)
         Transform::EliminateUnreachableCode(program);
@@ -447,6 +453,9 @@ bool Compiler::runInliner(Inliner* inliner,
                           const std::vector<std::unique_ptr<ProgramElement>>& elements,
                           std::shared_ptr<SymbolTable> symbols,
                           ProgramUsage* usage) {
+#ifdef SK_ENABLE_OPTIMIZE_SIZE
+    return true;
+#else
     // The program's SymbolTable was taken out of fSymbolTable when the program was bundled, but
     // the inliner relies (indirectly) on having a valid SymbolTable.
     // In particular, inlining can turn a non-optimizable expression like `normalize(myVec)` into
@@ -462,6 +471,7 @@ bool Compiler::runInliner(Inliner* inliner,
 
     fSymbolTable = nullptr;
     return result;
+#endif
 }
 
 bool Compiler::finalize(Program& program) {

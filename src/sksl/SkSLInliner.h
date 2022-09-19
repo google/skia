@@ -8,6 +8,8 @@
 #ifndef SKSL_INLINER
 #define SKSL_INLINER
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
+
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLMangler.h"
@@ -119,5 +121,7 @@ private:
 };
 
 }  // namespace SkSL
+
+#endif  // SK_ENABLE_OPTIMIZE_SIZE
 
 #endif  // SKSL_INLINER

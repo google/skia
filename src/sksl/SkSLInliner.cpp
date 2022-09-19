@@ -7,6 +7,8 @@
 
 #include "src/sksl/SkSLInliner.h"
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE
+
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
@@ -1202,3 +1204,5 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
 }
 
 }  // namespace SkSL
+
+#endif  // SK_ENABLE_OPTIMIZE_SIZE

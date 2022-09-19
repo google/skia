@@ -9,6 +9,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/private/SkSLProgramKind.h"
+#include "include/private/SkTHash.h"
 #include "src/core/SkOSFile.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLUtil.h"
@@ -84,6 +85,21 @@ static void check_expected_errors(skiatest::Reporter* r,
 }
 
 static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::ProgramKind kind) {
+#ifdef SK_ENABLE_OPTIMIZE_SIZE
+    // In a size-optimized build, there are a handful of errors which report differently, or not at
+    // all. Skip over those tests.
+    static const auto* kTestsToSkip = new SkTHashSet<std::string_view>{
+        "sksl/errors/ArrayInlinedIndexOutOfRange.sksl",
+        "sksl/errors/MatrixInlinedIndexOutOfRange.sksl",
+        "sksl/errors/OverflowInlinedLiteral.sksl",
+        "sksl/errors/VectorInlinedIndexOutOfRange.sksl",
+    };
+    if (kTestsToSkip->contains(testFile)) {
+        INFOF(r, "%s: skipped in SK_ENABLE_OPTIMIZE_SIZE mode", testFile);
+        return;
+    }
+#endif
+
     sk_sp<SkData> shaderData = GetResourceAsData(testFile);
     if (!shaderData) {
         ERRORF(r, "%s: Unable to load file", SkOSPath::Basename(testFile).c_str());
