@@ -3,14 +3,14 @@ const float sk_PrivGuardedDivideEpsilon = false ? 9.9999999392252903e-09 : 0.0;
 out vec4 sk_FragColor;
 uniform vec4 color;
 float blend_color_saturation_Qhh3(vec3 color);
-vec4 blend_hslc_h4h4h4h2(vec4 src, vec4 dst, vec2 flipSat);
+vec4 blend_hslc_h4h2h4h4(vec2 flipSat, vec4 src, vec4 dst);
 vec4 blend_dst_in_h4h4h4(vec4 src, vec4 dst);
 vec4 blend_hue_h4h4h4(vec4 src, vec4 dst);
 vec4 blend_src_in_h4h4h4(vec4 src, vec4 dst);
 float blend_color_saturation_Qhh3(vec3 color) {
     return max(max(color.x, color.y), color.z) - min(min(color.x, color.y), color.z);
 }
-vec4 blend_hslc_h4h4h4h2(vec4 src, vec4 dst, vec2 flipSat) {
+vec4 blend_hslc_h4h2h4h4(vec2 flipSat, vec4 src, vec4 dst) {
     float alpha = dst.w * src.w;
     vec3 sda = src.xyz * dst.w;
     vec3 dsa = dst.xyz * src.w;
@@ -38,7 +38,7 @@ vec4 blend_dst_in_h4h4h4(vec4 src, vec4 dst) {
     return dst * src.w;
 }
 vec4 blend_hue_h4h4h4(vec4 src, vec4 dst) {
-    return blend_hslc_h4h4h4h2(src, dst, vec2(0.0, 1.0));
+    return blend_hslc_h4h2h4h4(vec2(0.0, 1.0), src, dst);
 }
 vec4 blend_src_in_h4h4h4(vec4 src, vec4 dst) {
     return src * dst.w;

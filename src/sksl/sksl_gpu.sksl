@@ -91,6 +91,9 @@ half4 blend_plus(half4 src, half4 dst) { return min(src + dst, 1); }
 
 // This multi-purpose Porter-Duff blend function can perform any of the thirteen blends above,
 // when passed one of the following values for BlendOp:
+// - Clear:   half4(0, 0,  0,  0)
+// - Src:     half4(1, 0,  0,  0)
+// - Dst:     half4(0, 1,  0,  0)
 // - SrcOver: half4(1, 0,  0, -1)
 // - DstOver: half4(0, 1, -1,  0)
 // - SrcIn:   half4(0, 0,  1,  0)
@@ -101,7 +104,7 @@ half4 blend_plus(half4 src, half4 dst) { return min(src + dst, 1); }
 // - DstATop: half4(0, 0, -1,  1)
 // - Xor:     half4(0, 0, -1, -1)
 // - Plus:    half4(1, 1,  0,  0)
-half4 blend_porter_duff(half4 src, half4 dst, half4 blendOp) {
+half4 blend_porter_duff(half4 blendOp, half4 src, half4 dst) {
     half2 coeff = blendOp.xy + (blendOp.zw * (half2(dst.a, src.a) + min(blendOp.zw, 0)));
     return min(half4(1), src * coeff.x + dst * coeff.y);
 }
@@ -124,7 +127,7 @@ half4 blend_overlay(half4 src, half4 dst) {
     return result;
 }
 
-half4 blend_overlay(half4 a, half4 b, half flip) {
+half4 blend_overlay(half flip, half4 a, half4 b) {
     return blend_overlay(bool(flip) ? b : a, bool(flip) ? a : b);
 }
 
@@ -134,7 +137,7 @@ half4 blend_lighten(half4 src, half4 dst) {
     return result;
 }
 
-half4 blend_darken(half4 src, half4 dst, half mode /* darken: 1, lighten: -1 */) {
+half4 blend_darken(half mode /* darken: 1, lighten: -1 */, half4 src, half4 dst) {
     half4 a = blend_src_over(src, dst);
     half3 b = (1 - dst.a) * src.rgb + dst.rgb;  // DstOver.rgb
     a.rgb = mode * min(a.rgb * mode, b.rgb * mode);
@@ -142,7 +145,7 @@ half4 blend_darken(half4 src, half4 dst, half mode /* darken: 1, lighten: -1 */)
 }
 
 half4 blend_darken(half4 src, half4 dst) {
-   return blend_darken(src, dst, 1);
+   return blend_darken(1, src, dst);
 }
 
 const half $GuardedDivideEpsilon = sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck
@@ -264,7 +267,7 @@ half3 $blend_set_color_saturation(half3 color, half3 satColor) {
                      : half3(0);
 }
 
-half4 blend_hslc(half4 src, half4 dst, half2 flipSat) {
+half4 blend_hslc(half2 flipSat, half4 src, half4 dst) {
     half alpha = dst.a * src.a;
     half3 sda = src.rgb * dst.a;
     half3 dsa = dst.rgb * src.a;
@@ -279,19 +282,19 @@ half4 blend_hslc(half4 src, half4 dst, half2 flipSat) {
 }
 
 half4 blend_hue(half4 src, half4 dst) {
-    return blend_hslc(src, dst, half2(0, 1));
+    return blend_hslc(half2(0, 1), src, dst);
 }
 
 half4 blend_saturation(half4 src, half4 dst) {
-    return blend_hslc(src, dst, half2(1));
+    return blend_hslc(half2(1), src, dst);
 }
 
 half4 blend_color(half4 src, half4 dst)  {
-    return blend_hslc(src, dst, half2(0));
+    return blend_hslc(half2(0), src, dst);
 }
 
 half4 blend_luminosity(half4 src, half4 dst) {
-    return blend_hslc(src, dst, half2(1, 0));
+    return blend_hslc(half2(1, 0), src, dst);
 }
 
 float2 proj(float3 p) { return p.xy / p.z; }
