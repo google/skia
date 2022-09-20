@@ -254,7 +254,7 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
     max->drawPath(path, paint);
 }
 
-void FatBits::drawLine(SkCanvas* canvas, SkPoint pts[]) {
+void FatBits::drawLine(SkCanvas* canvas, SkPoint pts[2]) {
     SkPaint paint;
 
     fInverse.mapPoints(pts, 2);

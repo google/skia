@@ -1894,7 +1894,7 @@ void DrawShadowCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMana
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DrawEdgeAAQuadCommand::DrawEdgeAAQuadCommand(const SkRect&         rect,
-                                             const SkPoint         clip[],
+                                             const SkPoint         clip[4],
                                              SkCanvas::QuadAAFlags aa,
                                              const SkColor4f&      color,
                                              SkBlendMode           mode)
