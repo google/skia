@@ -184,11 +184,12 @@ protected:
                                          GrImageTexGenPolicy policy) override {
         SkASSERT(rContext);
         SkASSERT(rContext->priv().matches(fRContext.get()));
-        SkASSERT_RELEASE(info.dimensions() == fView.proxy()->dimensions());
 
         if (!fView) {
             return {};
         }
+
+        SkASSERT_RELEASE(info.dimensions() == fView.proxy()->dimensions());
 
         if (policy == GrImageTexGenPolicy::kDraw) {
             return fView;
