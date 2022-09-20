@@ -47,6 +47,11 @@ debs_to_install = [
         "url": "https://ftp.debian.org/debian/pool/main/libx/libx11/libx11-dev_1.7.2-1_amd64.deb",
     },
     {
+        # From https://packages.debian.org/bullseye/amd64/libx11-6/download
+        "sha256": "086bd667fc07369472a923da015d182bb0c15a72228a5c0e6ddbcbeaab70acd2",
+        "url": "https://ftp.debian.org/debian/pool/main/libx/libx11/libx11-6_1.7.2-1_amd64.deb",
+    },
+    {
         # From https://packages.debian.org/bullseye/all/x11proto-dev/download
         "sha256": "d5568d587d9ad2664c34c14b0ac538ccb3c567e126ee5291085a8de704a565f5",
         "url": "https://ftp.debian.org/debian/pool/main/x/xorgproto/x11proto-dev_2020.1-1_all.deb",
@@ -57,12 +62,23 @@ debs_to_install = [
         "sha256": "b75544f334c8963b8b7b0e8a88f8a7cde95a714dddbcda076d4beb669a961b58",
         "url": "https://ftp.debian.org/debian/pool/main/libx/libxcb/libxcb1-dev_1.14-3_amd64.deb",
     },
+    {
+        # From https://packages.debian.org/bullseye/amd64/libxcb1/download
+        "sha256": "d5e0f047ed766f45eb7473947b70f9e8fddbe45ef22ecfd92ab712c0671a93ac",
+        "url": "https://ftp.debian.org/debian/pool/main/libx/libxcb/libxcb1_1.14-3_amd64.deb",
+    },
     # Xau is a dep of xcb
     {
         # From https://packages.debian.org/bullseye/amd64/libxau-dev/download
         "sha256": "d1a7f5d484e0879b3b2e8d512894744505e53d078712ce65903fef2ecfd824bb",
         "url": "https://ftp.debian.org/debian/pool/main/libx/libxau/libxau-dev_1.0.9-1_amd64.deb",
     },
+    {
+        # From https://packages.debian.org/bullseye/amd64/libxau6/download
+        "sha256": "679db1c4579ec7c61079adeaae8528adeb2e4bf5465baa6c56233b995d714750",
+        "url": "https://ftp.debian.org/debian/pool/main/libx/libxau/libxau6_1.0.9-1_amd64.deb",
+    },
+
     # Xdmcp is a dep of xcb. libxdmcp-dev provides the the libXdmcp.so symlink (and the
     # .a if we want to statically include it). libxdmcp6 actually provides the .so file
     {
@@ -86,6 +102,11 @@ debs_to_install = [
         "sha256": "5a50549948bc4363eab32b1083dad2165402c3628f2ee85e9a32563228cc61c1",
         "url": "https://ftp.debian.org/debian/pool/main/libg/libglvnd/libglx-dev_1.3.2-1_amd64.deb",
     },
+    {
+        # From https://packages.debian.org/bullseye/amd64/libglx0/download
+        "sha256": "cb642200f7e28e6dbb4075110a0b441880eeec35c8a00a2198c59c53309e5e17",
+        "url": "https://ftp.debian.org/debian/pool/main/libg/libglvnd/libglx0_1.3.2-1_amd64.deb",
+    },
     # This provides libGL.so for us to link against.
     {
         # From https://packages.debian.org/bullseye/amd64/libgl1/download
@@ -97,6 +118,11 @@ debs_to_install = [
         # From https://packages.debian.org/bullseye/amd64/libx11-xcb-dev/download
         "sha256": "80a2413ace2a0a073f2472059b9e589737cbf8a336fb6862684a5811bf640aa3",
         "url": "https://ftp.debian.org/debian/pool/main/libx/libx11/libx11-xcb-dev_1.7.2-1_amd64.deb",
+    },
+    {
+        # From https://packages.debian.org/bullseye/amd64/libx11-xcb1/download
+        "sha256": "1f9f2dbe7744a2bb7f855d819f43167df095fe7d5291546bec12865aed045e0c",
+        "url": "https://ftp.debian.org/debian/pool/main/libx/libx11/libx11-xcb1_1.7.2-1_amd64.deb",
     },
     # This is used to make sure we include only the headers we need. This corresponds to
     # IWYU version 0.17, which uses Clang 13, like we compile with.
@@ -141,9 +167,19 @@ debs_to_install = [
         "url": "https://ftp.debian.org/debian/pool/main/f/fontconfig/libfontconfig-dev_2.13.1-4.2_amd64.deb",
     },
     {
+        # https://packages.debian.org/bullseye/amd64/libfontconfig1/download
+        "sha256": "b92861827627a76e74d6f447a5577d039ef2f95da18af1f29aa98fb96baea4c1",
+        "url": "https://ftp.debian.org/debian/pool/main/f/fontconfig/libfontconfig1_2.13.1-4.2_amd64.deb",
+    },
+    {
         # https://packages.debian.org/bullseye/libglu1-mesa-dev/download
         "sha256": "5df6abeedb1f6986cec4b17810ef1a2773a5cd3291544abacc2bf602a9520893",
         "url": "https://ftp.debian.org/debian/pool/main/libg/libglu/libglu1-mesa-dev_9.0.1-1_amd64.deb",
+    },
+    {
+        # https://packages.debian.org/bullseye/amd64/libglu1-mesa/download
+        "sha256": "479736c235af0537c1af8df4befc32e638a4e979961fdb02f366501298c50526",
+        "url": "https://ftp.debian.org/debian/pool/main/libg/libglu/libglu1-mesa_9.0.1-1_amd64.deb",
     },
 ]
 

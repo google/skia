@@ -238,6 +238,7 @@ def _make_default_flags():
             flag_group(
                 flags = [
                     "-std=c++17",
+                    "-stdlib=libc++",
                 ],
             ),
         ],
@@ -253,6 +254,7 @@ def _make_default_flags():
                     # included in the clang binary
                     "--rtlib=compiler-rt",
                     "-std=c++17",
+                    "-stdlib=libc++",
                     # We statically include these libc++ libraries so they do not need to be
                     # on a developer's machine (they can be tricky to get).
                     EXTERNAL_TOOLCHAIN + "/lib/libc++.a",
@@ -323,6 +325,13 @@ def _make_diagnostic_flags():
             enabled = False,
             flag_sets = [
                 cxx_diagnostic,
+                link_diagnostic,
+            ],
+        ),
+        feature(
+            "diagnostic_link",
+            enabled = False,
+            flag_sets = [
                 link_diagnostic,
             ],
         ),
