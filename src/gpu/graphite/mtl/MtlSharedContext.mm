@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
 #include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlTexture.h"
+#include "src/gpu/mtl/MtlMemoryAllocatorImpl.h"
 
 namespace skgpu::graphite {
 
@@ -37,13 +38,23 @@ sk_sp<skgpu::graphite::SharedContext> MtlSharedContext::Make(const MtlBackendCon
 
     std::unique_ptr<const MtlCaps> caps(new MtlCaps(device.get(), options));
 
+    // TODO: Add memory allocator to context once we figure out synchronization
+    sk_sp<MtlMemoryAllocator> memoryAllocator = skgpu::MtlMemoryAllocatorImpl::Make(device.get());
+    if (!memoryAllocator) {
+        SkDEBUGFAIL("No supplied Metal memory allocator and unable to create one internally.");
+        return nullptr;
+    }
+
     return sk_sp<skgpu::graphite::SharedContext>(new MtlSharedContext(std::move(device),
+                                                                      std::move(memoryAllocator),
                                                                       std::move(caps)));
 }
 
 MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
+                                   sk_sp<skgpu::MtlMemoryAllocator> memoryAllocator,
                                    std::unique_ptr<const MtlCaps> caps)
         : skgpu::graphite::SharedContext(std::move(caps), BackendApi::kMetal)
+        , fMemoryAllocator(std::move(memoryAllocator))
         , fDevice(std::move(device)) {}
 
 MtlSharedContext::~MtlSharedContext() {

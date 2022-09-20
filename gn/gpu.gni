@@ -923,6 +923,14 @@ skia_shared_vk_sources = [
   "$_include/private/gpu/vk/SkiaVulkan.h",
 ]
 
+skia_shared_mtl_sources = [
+  "$_src/gpu/mtl/MtlMemoryAllocatorImpl.h",
+  "$_src/gpu/mtl/MtlMemoryAllocatorImpl.mm",
+
+  # Includes
+  "$_include/gpu/mtl/MtlMemoryAllocator.h",
+]
+
 skia_piet_gpu_sources = [
   "$_src/gpu/piet/PietTypes.h",
   "$_src/gpu/piet/Render.cpp",

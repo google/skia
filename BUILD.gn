@@ -871,6 +871,10 @@ optional("gpu_shared") {
       public_deps += [ "third_party/vulkanmemoryallocator" ]
     }
   }
+
+  if (skia_use_metal) {
+    sources += skia_shared_mtl_sources
+  }
 }
 
 optional("gpu") {

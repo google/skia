@@ -174,6 +174,7 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/mtl/GrMtlBackendContext.h",
     "include/gpu/mtl/GrMtlTypes.h",
     "include/gpu/ShaderErrorHandler.h",
+    "include/gpu/mtl/MtlMemoryAllocator.h",
     "include/gpu/vk/GrVkBackendContext.h",
     "include/gpu/vk/GrVkExtensions.h",
     "include/gpu/vk/GrVkMemoryAllocator.h",
@@ -1930,6 +1931,7 @@ MTL_HDRS = [
     "src/gpu/ganesh/mtl/GrMtlUniformHandler.h",
     "src/gpu/ganesh/mtl/GrMtlUtil.h",
     "src/gpu/ganesh/mtl/GrMtlVaryingHandler.h",
+    "src/gpu/mtl/MtlMemoryAllocatorImpl.h",
 ]
 
 MTL_SRCS = [
@@ -1955,6 +1957,7 @@ MTL_SRCS = [
     "src/gpu/ganesh/mtl/GrMtlUniformHandler.mm",
     "src/gpu/ganesh/mtl/GrMtlUtil.mm",
     "src/gpu/ganesh/mtl/GrMtlVaryingHandler.mm",
+    "src/gpu/mtl/MtlMemoryAllocatorImpl.mm",
     "src/image/SkSurface_GpuMtl.mm",
 ]
 
