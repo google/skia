@@ -2490,6 +2490,7 @@ if (skia_enable_tools) {
       ":skia",
       "modules/skottie:fuzz",
       "modules/skparagraph",
+      "modules/svg",
     ]
   }
 
