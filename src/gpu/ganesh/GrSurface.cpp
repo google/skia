@@ -7,6 +7,7 @@
 
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrSurface.h"
@@ -53,6 +54,27 @@ size_t GrSurface::ComputeSize(const GrBackendFormat& format,
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+void GrSurface::setRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) {
+    SkASSERT(this->getContext());
+    fReleaseHelper.reset(new RefCntedReleaseProc(std::move(releaseHelper),
+                                                 sk_ref_sp(this->getContext())));
+    this->onSetRelease(fReleaseHelper);
+}
+
+
+GrSurface::RefCntedReleaseProc::RefCntedReleaseProc(sk_sp<skgpu::RefCntedCallback> callback,
+                                                    sk_sp<GrDirectContext> directContext)
+            : fCallback(std::move(callback))
+            , fDirectContext(std::move(directContext)) {
+        SkASSERT(fCallback && fDirectContext);
+    }
+
+GrSurface::RefCntedReleaseProc::~RefCntedReleaseProc() {
+    fDirectContext->priv().setInsideReleaseProc(true);
+    fCallback.reset();
+    fDirectContext->priv().setInsideReleaseProc(false);
+}
 
 void GrSurface::onRelease() {
     this->invokeReleaseProc();

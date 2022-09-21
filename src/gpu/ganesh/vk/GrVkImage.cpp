@@ -592,7 +592,7 @@ void GrVkImage::onAbandon() {
     GrAttachment::onAbandon();
 }
 
-void GrVkImage::setResourceRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) {
+void GrVkImage::setResourceRelease(sk_sp<RefCntedReleaseProc> releaseHelper) {
     SkASSERT(fResource);
     // Forward the release proc on to GrVkImage::Resource
     fResource->setRelease(std::move(releaseHelper));

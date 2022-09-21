@@ -200,7 +200,7 @@ public:
     typedef void* ReleaseCtx;
     typedef void (*ReleaseProc)(ReleaseCtx);
 
-    void setResourceRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper);
+    void setResourceRelease(sk_sp<RefCntedReleaseProc> releaseHelper);
 
     // Helpers to use for setting the layout of the VkImage
     static VkPipelineStageFlags LayoutToPipelineSrcStageFlags(const VkImageLayout layout);

@@ -110,7 +110,7 @@ private:
 
     // In Direct3D we call the release proc after we are finished with the underlying
     // GrD3DImage::Resource object (which occurs after the GPU has finished all work on it).
-    void onSetRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) override {
+    void onSetRelease(sk_sp<RefCntedReleaseProc> releaseHelper) override {
         // Forward the release proc on to GrD3DImage
         this->setResourceRelease(std::move(releaseHelper));
     }

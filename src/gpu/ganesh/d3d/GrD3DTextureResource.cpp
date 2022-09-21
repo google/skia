@@ -117,7 +117,7 @@ void GrD3DTextureResource::releaseResource(GrD3DGpu* gpu) {
     fInfo.fAlloc.reset();
 }
 
-void GrD3DTextureResource::setResourceRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) {
+void GrD3DTextureResource::setResourceRelease(sk_sp<GrSurface::RefCntedReleaseProc> releaseHelper) {
     SkASSERT(fResource);
     // Forward the release proc on to GrD3DTextureResource::Resource
     fResource->setRelease(std::move(releaseHelper));

@@ -42,10 +42,7 @@ public:
 
     virtual GrBackendFormat backendFormat() const = 0;
 
-    void setRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) {
-        this->onSetRelease(releaseHelper);
-        fReleaseHelper = std::move(releaseHelper);
-    }
+    void setRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper);
 
     // These match the definitions in SkImage, from whence they came.
     // TODO: Remove Chrome's need to call this on a GrTexture
@@ -89,6 +86,18 @@ public:
         SkASSERT(this->asRenderTarget());
         fSurfaceFlags |= GrInternalSurfaceFlags::kFramebufferOnly;
     }
+
+    class RefCntedReleaseProc : public SkNVRefCnt<RefCntedReleaseProc> {
+    public:
+        RefCntedReleaseProc(sk_sp<skgpu::RefCntedCallback> callback,
+                            sk_sp<GrDirectContext> directContext);
+
+        ~RefCntedReleaseProc();
+
+    private:
+        sk_sp<skgpu::RefCntedCallback> fCallback;
+        sk_sp<GrDirectContext> fDirectContext;
+    };
 
 protected:
     void setGLRTFBOIDIs0() {
@@ -142,7 +151,7 @@ private:
 
     // Unmanaged backends (e.g. Vulkan) may want to specially handle the release proc in order to
     // ensure it isn't called until GPU work related to the resource is completed.
-    virtual void onSetRelease(sk_sp<skgpu::RefCntedCallback>) {}
+    virtual void onSetRelease(sk_sp<RefCntedReleaseProc>) {}
 
     void invokeReleaseProc() {
         // Depending on the ref count of fReleaseHelper this may or may not actually trigger the
@@ -153,7 +162,7 @@ private:
     SkISize                    fDimensions;
     GrInternalSurfaceFlags     fSurfaceFlags;
     GrProtected                fIsProtected;
-    sk_sp<skgpu::RefCntedCallback>  fReleaseHelper;
+    sk_sp<RefCntedReleaseProc> fReleaseHelper;
 
     using INHERITED = GrGpuResource;
 };

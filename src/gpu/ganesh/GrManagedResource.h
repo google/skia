@@ -11,7 +11,7 @@
 #include "include/private/SkMutex.h"
 #include "include/private/SkTHash.h"
 #include "include/utils/SkRandom.h"
-#include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/ganesh/GrSurface.h"
 #include <atomic>
 
 class GrTexture;
@@ -221,12 +221,12 @@ public:
         SkASSERT(!fReleaseHelper);
     }
 
-    void setRelease(sk_sp<skgpu::RefCntedCallback> releaseHelper) {
+    void setRelease(sk_sp<GrSurface::RefCntedReleaseProc> releaseHelper) {
         fReleaseHelper = std::move(releaseHelper);
     }
 
 protected:
-    mutable sk_sp<skgpu::RefCntedCallback> fReleaseHelper;
+    mutable sk_sp<GrSurface::RefCntedReleaseProc> fReleaseHelper;
 
     void invokeReleaseProc() const {
         if (fReleaseHelper) {
