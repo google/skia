@@ -1018,6 +1018,20 @@ DEF_SIMPLE_GM(sweep_tiling, canvas, 690, 512) {
     }
 }
 
+DEF_SIMPLE_GM(rgbw_sweep_gradient, canvas, 100, 100) {
+    static constexpr SkScalar size = 100;
+    static constexpr SkColor colors[] = {SK_ColorWHITE, SK_ColorWHITE,
+                                         SK_ColorBLUE, SK_ColorBLUE,
+                                         SK_ColorRED, SK_ColorRED,
+                                         SK_ColorGREEN, SK_ColorGREEN};
+    static constexpr SkScalar   pos[] = { 0, .25f, .25f, .50f, .50f, .75, .75, 1 };
+    static_assert(std::size(colors) == std::size(pos), "size mismatch");
+
+    SkPaint p;
+    p.setShader(SkGradientShader::MakeSweep(size / 2, size / 2, colors, pos, std::size(colors)));
+    canvas->drawRect(SkRect::MakeWH(size, size), p);
+}
+
 // Exercises the special-case Ganesh gradient effects.
 DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
     static const SkColor colors2[] = { SK_ColorRED, SK_ColorBLUE };
