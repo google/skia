@@ -639,7 +639,6 @@ BASE_SRCS_ALL = [
     "src/core/SkSurfacePriv.h",
     "src/core/SkSwizzle.cpp",
     "src/core/SkTBlockList.h",
-    "src/core/SkTDArray.cpp",
     "src/core/SkTDPQueue.h",
     "src/core/SkTDynamicHash.h",
     "src/core/SkTInternalLList.h",
