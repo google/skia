@@ -364,18 +364,31 @@ static void verify_2x2_surface_results(skiatest::Reporter* r,
     }
 }
 
+static sk_sp<SkSurface> make_surface(GrRecordingContext* grContext, SkISize size) {
+    const SkImageInfo info = SkImageInfo::Make(size, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface;
+    if (grContext) {
+        surface = SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info);
+    } else {
+        surface = SkSurface::MakeRaster(info);
+    }
+    SkASSERT(surface);
+    return surface;
+}
+
 class TestEffect {
 public:
-    TestEffect(skiatest::Reporter* r, sk_sp<SkSurface> surface)
-            : fReporter(r), fSurface(std::move(surface)) {}
+    TestEffect(skiatest::Reporter* r, GrRecordingContext* grContext, SkISize size = {2, 2})
+            : fReporter(r), fGrContext(grContext) {
+        fSurface = make_surface(fGrContext, size);
+    }
 
     void build(const char* src) {
         SkRuntimeEffect::Options options;
         SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
         auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(src), options);
         if (!effect) {
-            REPORT_FAILURE(fReporter, "effect",
-                           SkStringPrintf("Effect didn't compile: %s", errorText.c_str()));
+            ERRORF(fReporter, "Effect didn't compile: %s", errorText.c_str());
             return;
         }
         fBuilder.init(std::move(effect));
@@ -392,7 +405,7 @@ public:
     void test(std::array<GrColor, 4> expected, PreTestFn preTestCallback = nullptr) {
         auto shader = fBuilder->makeShader();
         if (!shader) {
-            REPORT_FAILURE(fReporter, "shader", SkString("Effect didn't produce a shader"));
+            ERRORF(fReporter, "Effect didn't produce a shader");
             return;
         }
 
@@ -409,7 +422,7 @@ public:
     std::string trace(const SkIPoint& traceCoord) {
         sk_sp<SkShader> shader = fBuilder->makeShader();
         if (!shader) {
-            REPORT_FAILURE(fReporter, "shader", SkString("Effect didn't produce a shader"));
+            ERRORF(fReporter, "Effect didn't produce a shader");
             return {};
         }
 
@@ -435,22 +448,28 @@ public:
 private:
     skiatest::Reporter*             fReporter;
     sk_sp<SkSurface>                fSurface;
+    GrRecordingContext*             fGrContext;
     SkTLazy<SkRuntimeShaderBuilder> fBuilder;
 };
 
 class TestBlend {
 public:
-    TestBlend(skiatest::Reporter* r, sk_sp<SkSurface> surface)
-            : fReporter(r), fSurface(std::move(surface)) {}
+    TestBlend(skiatest::Reporter* r, GrRecordingContext* grContext)
+            : fReporter(r), fGrContext(grContext) {
+        fSurface = make_surface(fGrContext, /*size=*/{2, 2});
+    }
 
     void build(const char* src) {
         auto [effect, errorText] = SkRuntimeEffect::MakeForBlender(SkString(src));
         if (!effect) {
-            REPORT_FAILURE(fReporter, "effect",
-                           SkStringPrintf("Effect didn't compile: %s", errorText.c_str()));
+            ERRORF(fReporter, "Effect didn't compile: %s", errorText.c_str());
             return;
         }
         fBuilder.init(std::move(effect));
+    }
+
+    SkSurface* surface() {
+        return fSurface.get();
     }
 
     SkRuntimeBlendBuilder::BuilderUniform uniform(const char* name) {
@@ -464,7 +483,7 @@ public:
     void test(std::array<GrColor, 4> expected, PreTestFn preTestCallback = nullptr) {
         auto blender = fBuilder->makeBlender();
         if (!blender) {
-            REPORT_FAILURE(fReporter, "blender", SkString("Effect didn't produce a blender"));
+            ERRORF(fReporter, "Effect didn't produce a blender");
             return;
         }
 
@@ -485,6 +504,7 @@ public:
 private:
     skiatest::Reporter*            fReporter;
     sk_sp<SkSurface>               fSurface;
+    GrRecordingContext*            fGrContext;
     SkTLazy<SkRuntimeBlendBuilder> fBuilder;
 };
 
@@ -501,14 +521,8 @@ static sk_sp<SkShader> make_RGBW_shader() {
     return SkGradientShader::MakeSweep(1, 1, colors, pos, std::size(colors));
 }
 
-static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext* rContext) {
-    SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = rContext
-                                    ? SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info)
-                                    : SkSurface::MakeRaster(info);
-    REPORTER_ASSERT(r, surface);
-    TestEffect effect(r, surface);
-
+static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext* grContext) {
+    TestEffect effect(r, grContext);
     using float4 = std::array<float, 4>;
     using int4 = std::array<int, 4>;
 
@@ -613,7 +627,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r, GrRecordingContext
 }
 
 DEF_TEST(SkRuntimeEffectSimple, r) {
-    test_RuntimeEffect_Shaders(r, nullptr);
+    test_RuntimeEffect_Shaders(r, /*grContext=*/nullptr);
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectSimple_GPU,
@@ -770,12 +784,7 @@ DEF_TEST(SkRuntimeColorFilterLimitedToES2, r) {
 
 DEF_TEST(SkRuntimeEffectTraceShader, r) {
     for (int imageSize : {2, 80}) {
-        SkImageInfo info = SkImageInfo::Make(imageSize, imageSize, kRGBA_8888_SkColorType,
-                                             kPremul_SkAlphaType);
-        sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
-        REPORTER_ASSERT(r, surface);
-        TestEffect effect(r, surface);
-
+        TestEffect effect(r, /*grContext=*/nullptr, SkISize{imageSize, imageSize});
         effect.build(R"(
             half4 main(float2 p) {
                 float2 val = p - 0.5;
@@ -816,10 +825,7 @@ exit half4 main(float2 p)
 }
 
 DEF_TEST(SkRuntimeEffectTracesAreUnoptimized, r) {
-    SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
-    REPORTER_ASSERT(r, surface);
-    TestEffect effect(r, surface);
+    TestEffect effect(r, /*grContext=*/nullptr);
 
     effect.build(R"(
         int globalUnreferencedVar = 7;
@@ -876,10 +882,7 @@ exit half4 main(float2 p)
 }
 
 DEF_TEST(SkRuntimeEffectTraceCodeThatCannotBeUnoptimized, r) {
-    SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRaster(info);
-    REPORTER_ASSERT(r, surface);
-    TestEffect effect(r, surface);
+    TestEffect effect(r, /*grContext=*/nullptr);
 
     effect.build(R"(
         half4 main(float2 p) {
@@ -919,13 +922,8 @@ exit half4 main(float2 p)
                     (int)dump.size(), dump.data());
 }
 
-static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContext* rContext) {
-    SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = rContext
-                                    ? SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info)
-                                    : SkSurface::MakeRaster(info);
-    REPORTER_ASSERT(r, surface);
-    TestBlend effect(r, surface);
+static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContext* grContext) {
+    TestBlend effect(r, grContext);
 
     using float2 = std::array<float, 2>;
     using float4 = std::array<float, 4>;
@@ -959,7 +957,7 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
     SkPaint rgbwPaint;
     rgbwPaint.setShader(make_RGBW_shader());
     rgbwPaint.setBlendMode(SkBlendMode::kSrc);
-    surface->getCanvas()->drawPaint(rgbwPaint);
+    effect.surface()->getCanvas()->drawPaint(rgbwPaint);
 
     // Verify that we can read back the dest color exactly as-is (ignoring the source color)
     // This is equivalent to the kDst blend mode.
@@ -995,7 +993,7 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
                 [](SkCanvas*, SkPaint* paint) { paint->setColor4f({1.0f, 1.0f, 0.0f, 1.0f}); });
 
     // Sampling a null blender should do a src-over blend. Draw 50% black over RGBW to verify this.
-    surface->getCanvas()->drawPaint(rgbwPaint);
+    effect.surface()->getCanvas()->drawPaint(rgbwPaint);
     effect.build("uniform blender child;"
                  "half4 main(half4 s, half4 d) { return child.eval(s, d); }");
     effect.child("child") = nullptr;
@@ -1026,7 +1024,7 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
     effect.test(0xFF452301);
 
     // Sampling a built-in blender
-    surface->getCanvas()->drawPaint(rgbwPaint);
+    effect.surface()->getCanvas()->drawPaint(rgbwPaint);
     effect.build("uniform blender child;"
                  "half4 main(half4 s, half4 d) { return child.eval(s, d); }");
     effect.child("child") = SkBlender::Mode(SkBlendMode::kPlus);
@@ -1034,7 +1032,7 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
                 [](SkCanvas*, SkPaint* paint) { paint->setColor(0xFF012345); });
 
     // Sampling a runtime-effect blender
-    surface->getCanvas()->drawPaint(rgbwPaint);
+    effect.surface()->getCanvas()->drawPaint(rgbwPaint);
     effect.build("uniform blender child;"
                  "half4 main(half4 s, half4 d) { return child.eval(s, d); }");
     effect.child("child") = SkBlenders::Arithmetic(0, 1, 1, 0, /*enforcePremul=*/false);
@@ -1043,7 +1041,7 @@ static void test_RuntimeEffect_Blenders(skiatest::Reporter* r, GrRecordingContex
 }
 
 DEF_TEST(SkRuntimeEffect_Blender_CPU, r) {
-    test_RuntimeEffect_Blenders(r, /*rContext=*/nullptr);
+    test_RuntimeEffect_Blenders(r, /*grContext=*/nullptr);
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffect_Blender_GPU,
@@ -1170,13 +1168,7 @@ static void test_RuntimeEffectStructNameReuse(skiatest::Reporter* r, GrRecording
                                                     &nullChild,
                                                     /*childCount=*/1);
 
-    SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = rContext
-                                    ? SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info)
-                                    : SkSurface::MakeRaster(info);
-    REPORTER_ASSERT(r, surface);
-
-    TestEffect effect(r, surface);
+    TestEffect effect(r, /*grContext=*/nullptr);
     effect.build(
             "uniform shader child;"
             "struct S { float2 coord; };"
