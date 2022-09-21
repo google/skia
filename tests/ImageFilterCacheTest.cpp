@@ -54,7 +54,9 @@ static void test_find_existing(skiatest::Reporter* reporter,
 
     skif::FilterResult foundImage;
     REPORTER_ASSERT(reporter, cache->get(key1, &foundImage));
-    REPORTER_ASSERT(reporter, offset == SkIPoint(foundImage.layerOrigin()));
+    REPORTER_ASSERT(reporter,
+            SkIRect::MakeXYWH(offset.fX, offset.fY, image->width(), image->height()) ==
+            SkIRect(foundImage.layerBounds()));
 
     REPORTER_ASSERT(reporter, !cache->get(key2, &foundImage));
 }
