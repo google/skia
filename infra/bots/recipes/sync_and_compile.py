@@ -43,7 +43,7 @@ def RunSteps(api):
     # If we are running on the CI (post submit), we want to do a diff with the
     # previous commit. To do this, we use gitiles to look up the current
     # git revision, and find its parent. In the unlikely event of there being
-    # multiple, parents, we pick the first one arbitrarily.
+    # multiple parents, we pick the first one arbitrarily.
     if not api.vars.is_trybot:
       # Fetches something like
       # https://skia.googlesource.com/skia.git/+log/b44572fbfeb669998053b023f473b9c274f2f2cf?format=JSON
