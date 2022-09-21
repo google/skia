@@ -207,6 +207,9 @@ protected:
     }
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
+        SkSamplingOptions sampling(SkFilterMode::kNearest, SkMipmapMode::kNone);
+        SkPaint p;
+
         auto sdc = SkCanvasPriv::TopDeviceSurfaceDrawContext(canvas);
         if (!sdc) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;

@@ -94,11 +94,21 @@ void SkCropImageFilter::flatten(SkWriteBuffer& buffer) const {
 
 skif::FilterResult SkCropImageFilter::onFilterImage(const skif::Context& context) const {
     skif::LayerSpace<SkIRect> cropBounds = this->cropRect(context.mapping());
+    // Limit our crop to just what is necessary for the next stage in the filter pipeline.
+    if (!cropBounds.intersect(context.desiredOutput())) {
+        // The output is fully transparent so skip evaluating the child, although in most cases this
+        // is detected earlier based on getInputLayerBounds() and the entire DAG can be skipped.
+        // That's not always possible when a parent filter combines a dynamic layer with image
+        // filters that produce fixed outputs (i.e. source filters).
+        return {};
+    }
     skif::FilterResult childOutput = this->filterInput(0, context);
     // While filterInput() adjusts the context passed to our child filter to account for the
-    // crop rect and desired output, 'childOutput' does not necessarily fit that exactly. Calling
-    // applyCrop() ensures this is true, optimally avoiding rendering a new image if possible.
-    return childOutput.applyCrop(context, cropBounds);
+    // crop rect and desired output, 'childOutput' does not necessarily fit that exactly. An
+    // explicit resolve to these bounds ensures the crop is applied and the result is as small as
+    // possible, and in most cases does not require rendering a new image.
+    // NOTE - for now, with decal-only tiling, it actually NEVER requires rendering a new image.
+    return childOutput.resolveToBounds(cropBounds);
 }
 
 // TODO(michaelludwig) - onGetInputLayerBounds() and onGetOutputLayerBounds() are tightly coupled
