@@ -278,6 +278,10 @@ std::unique_ptr<Program> Rehydrator::program() {
     config->fRequiredSkSLVersion = (SkSL::Version)this->readU8();
     config->fSettings.fMaxVersionAllowed = SkSL::Version::k300;
 
+    // We want to rehydrate the code in the same form that it was dehydrated. In general, we will
+    // already have optimized the code as we prepared it for dehydration.
+    config->fSettings.fOptimize = false;
+
     Context& context = this->context();
     ProgramConfig* oldConfig = context.fConfig;
     ModifiersPool* oldModifiersPool = context.fModifiersPool;
