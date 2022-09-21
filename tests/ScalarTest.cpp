@@ -15,14 +15,23 @@
 static void test_roundtoint(skiatest::Reporter* reporter) {
     SkScalar x = 0.49999997f;
     int ix = SkScalarRoundToInt(x);
-    // We "should" get 0, since x < 0.5, but we don't due to float addition rounding up the low
+    int badIx = (int) floorf(x + 0.5f);
+    // We should get 0, since x < 0.5, but we wouldn't if SkScalarRoundToInt uses the commonly
+    // recommended approach shown in 'badIx' due to float addition rounding up the low
     // bit after adding 0.5.
-    REPORTER_ASSERT(reporter, 1 == ix);
-
-    // This version explicitly performs the +0.5 step using double, which should avoid losing the
-    // low bits.
-    ix = SkDScalarRoundToInt(x);
     REPORTER_ASSERT(reporter, 0 == ix);
+    REPORTER_ASSERT(reporter, 1 == badIx);
+
+    // Additionally, when the float value is between (2^23,2^24], it's precision is equal to
+    // 1 integral value. Adding 0.5f rounds up automatically *before* the floor, so naive
+    // rounding is also incorrect. Float values <= 2^23 and > 2^24 don't have this problem
+    // because either the sum can be represented sufficiently for floor() to do the right thing,
+    // or the sum will always round down to the integer multiple.
+    x = 8388609.f;
+    ix = SkScalarRoundToInt(x);
+    badIx = (int) floorf(x + 0.5f);
+    REPORTER_ASSERT(reporter, 8388609 == ix);
+    REPORTER_ASSERT(reporter, 8388610 == badIx);
 }
 
 struct PointSet {
