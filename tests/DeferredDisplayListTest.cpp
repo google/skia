@@ -331,7 +331,10 @@ private:
 };
 
 // Test out operator== && operator!=
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLOperatorEqTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     auto context = ctxInfo.directContext();
 
     for (int i = -1; i < SurfaceParameters::kNumParams; ++i) {
@@ -620,10 +623,10 @@ void DDLSurfaceCharacterizationTestImpl(GrDirectContext* dContext, skiatest::Rep
 //    FBO0 w/ MSAA, FBO0 w/o MSAA, not-FBO0 w/ MSAA, not-FBO0 w/o MSAA
 // and then tries all sixteen combinations to check the expected compatibility.
 // Note: this is a GL-only test
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(CharacterizationFBO0nessTest,
-                                      reporter,
-                                      ctxInfo,
-                                      CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(CharacterizationFBO0nessTest,
+                                          reporter,
+                                          ctxInfo,
+                                          CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     const GrCaps* caps = context->priv().caps();
     sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
@@ -690,10 +693,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(CharacterizationFBO0nessTest,
 #endif
 
 #ifdef SK_VULKAN
-DEF_GPUTEST_FOR_VULKAN_CONTEXT(CharacterizationVkSCBnessTest,
-                               reporter,
-                               ctxInfo,
-                               CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(CharacterizationVkSCBnessTest,
+                                   reporter,
+                                   ctxInfo,
+                                   CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     SurfaceParameters params(dContext);
@@ -711,10 +714,10 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(CharacterizationVkSCBnessTest,
 }
 #endif
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     auto context = ctxInfo.directContext();
 
     DDLSurfaceCharacterizationTestImpl(context, reporter);
@@ -724,10 +727,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest,
 // non-textureable destination. Note that DDLSurfaceCharacterizationTest tests that a
 // textureable DDL cannot be played into a non-textureable destination but can be replayed
 // into a textureable destination.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLNonTextureabilityTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     auto context = ctxInfo.directContext();
 
     // Create a bitmap that we can readback into
@@ -833,10 +836,10 @@ void DDLMakeRenderTargetTestImpl(GrDirectContext* dContext, skiatest::Reporter* 
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMakeRenderTargetTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLMakeRenderTargetTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     auto context = ctxInfo.directContext();
 
     DDLMakeRenderTargetTestImpl(context, reporter);
@@ -856,7 +859,10 @@ struct TextureReleaseChecker {
 enum class DDLStage { kMakeImage, kDrawImage, kDetach, kDrawDDL };
 
 // This tests the ability to create and use wrapped textures in a DDL world
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     auto dContext = ctxInfo.directContext();
 
     auto mbet = sk_gpu_test::ManagedBackendTexture::MakeWithoutData(dContext,
@@ -906,7 +912,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLWrapBackendTest, reporter, ctxInfo, CtsEnf
 
 ////////////////////////////////////////////////////////////////////////////////
 // Test out the behavior of an invalid DDLRecorder
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     auto dContext = ctxInfo.directContext();
 
     {
@@ -932,10 +941,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo, CtsEnf
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLCreateCharacterizationFailures,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     auto dContext = ctxInfo.directContext();
     size_t maxResourceBytes = dContext->getResourceCacheLimit();
     auto proxy = dContext->threadSafeProxy().get();
@@ -1058,7 +1067,10 @@ static void tracking_release_proc(void* context) {
     info->fReleased = true;
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
     auto context = ctxInfo.directContext();
 
     SkImageInfo ii = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
@@ -1127,7 +1139,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush, reporter, ctxInfo, CtsEnfo
 
 ////////////////////////////////////////////////////////////////////////////////
 // Ensure that reusing a single DDLRecorder to create multiple DDLs works cleanly
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo, CtsEnforcement::kNever) {
     auto context = ctxInfo.directContext();
 
     SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
@@ -1190,10 +1202,10 @@ static sk_sp<SkPromiseImageTexture> noop_fulfill_proc(void*) {
 ////////////////////////////////////////////////////////////////////////////////
 // Check that the texture-specific flags (i.e., for external & rectangle textures) work
 // for promise images. As such, this is a GL-only test.
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest,
-                                      reporter,
-                                      ctxInfo,
-                                      CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest,
+                                          reporter,
+                                          ctxInfo,
+                                          CtsEnforcement::kNever) {
     auto context = ctxInfo.directContext();
 
     SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
@@ -1245,10 +1257,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest,
 
 ////////////////////////////////////////////////////////////////////////////////
 // Test colorType and pixelConfig compatibility.
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest,
-                                      reporter,
-                                      ctxInfo,
-                                      CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest,
+                                          reporter,
+                                          ctxInfo,
+                                          CtsEnforcement::kNever) {
     auto context = ctxInfo.directContext();
 
     for (int ct = 0; ct <= kLastEnum_SkColorType; ++ct) {

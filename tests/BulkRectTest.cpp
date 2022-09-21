@@ -313,16 +313,16 @@ static void run_test(GrDirectContext* dContext, skiatest::Reporter* reporter, Bu
 
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BulkFillRectTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BulkFillRectTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     run_test(ctxInfo.directContext(), reporter, fillrectop_creation_test);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BulkTextureRectTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BulkTextureRectTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     run_test(ctxInfo.directContext(), reporter, textureop_creation_test);
 }

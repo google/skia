@@ -36,10 +36,10 @@ static void busy_wait_for_callback(int* count, int expectedValue, GrDirectContex
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(FlushFinishedProcTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     SkImageInfo info =

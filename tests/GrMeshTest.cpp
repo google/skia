@@ -107,9 +107,9 @@ static void run_test(GrDirectContext*, const char* testName, skiatest::Reporter*
 static bool IsContextTypeForOutputPNGs(skiatest::GrContextFactoryContextType type) {
     return type == skiatest::GrContextFactoryContextType::WRITE_PNG_CONTEXT_TYPE;
 }
-DEF_GPUTEST_FOR_CONTEXTS(GrMeshTest, IsContextTypeForOutputPNGs, reporter, ctxInfo, nullptr) {
+DEF_GANESH_TEST_FOR_CONTEXTS(GrMeshTest, IsContextTypeForOutputPNGs, reporter, ctxInfo, nullptr) {
 #else
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
 #endif
     auto dContext = ctxInfo.directContext();
 

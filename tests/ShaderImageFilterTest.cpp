@@ -186,10 +186,10 @@ DEF_TEST(SkRuntimeShaderImageFilter_CPU, r) {
     test_runtime_shader(r, surface.get());
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRuntimeShaderImageFilter_GPU,
-                                   r,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShaderImageFilter_GPU,
+                                       r,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(/*width=*/1, /*height=*/1);
     sk_sp<SkSurface> surface(
             SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info));

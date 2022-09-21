@@ -203,7 +203,7 @@ void wrap_trt_test(skiatest::Reporter* reporter, GrDirectContext* dContext) {
     }
 }
 
-DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkWrapTests, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkWrapTests, reporter, ctxInfo, CtsEnforcement::kNever) {
     auto dContext = ctxInfo.directContext();
 
     wrap_tex_test(reporter, dContext);

@@ -18,10 +18,10 @@
 
 // The gradient shader will use the texture strip atlas if it has too many colors. Make sure
 // abandoning the context works.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerGradientTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerGradientTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
 
     static const SkColor gColors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE,
@@ -51,10 +51,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerGradientTest,
 }
 
 // The table color filter uses the texture strip atlas. Make sure abandoning the context works.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerColorFilterTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureStripAtlasManagerColorFilterTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
 
     sk_sp<SkImage> img = GetResourceAsImage("images/mandrill_128.png");

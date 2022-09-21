@@ -185,10 +185,10 @@ DEF_TEST(ImageEncode, reporter) {
     test_encode(reporter, nullptr, create_image().get());
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageEncode_Gpu,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     test_encode(reporter, dContext, create_gpu_image(dContext).get());
 }
@@ -344,10 +344,10 @@ DEF_TEST(image_newfrombitmap, reporter) {
  *  but we don't have that facility (at the moment) so we use a little internal knowledge
  *  of *how* the raster version is cached, and look for that.
  */
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.directContext()));
     const auto desc = SkBitmapCacheDesc::Make(image.get());
@@ -381,10 +381,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_Gpu2Cpu,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage,
-                                   reporter,
-                                   contextInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage,
+                                       reporter,
+                                       contextInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = contextInfo.directContext();
     sk_gpu_test::TestContext* testContext = contextInfo.testContext();
     GrContextFactory otherFactory;
@@ -470,10 +470,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage,
     dContext->flushAndSubmit();
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage,
-                                   reporter,
-                                   contextInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage,
+                                       reporter,
+                                       contextInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = contextInfo.directContext();
 
     std::function<sk_sp<SkImage>()> imageFactories[] = {
@@ -500,10 +500,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkImage_makeNonTextureImage,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     static constexpr int kSize = 10;
@@ -525,10 +525,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsImage,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     SkBitmap bmp;
     bmp.allocPixels(
             SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, nullptr));
@@ -596,7 +596,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(UnpremulTextureImage,
     }
 }
 
-DEF_GPUTEST(AbandonedContextImage, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(AbandonedContextImage, reporter, options, CtsEnforcement::kApiLevel_T) {
     using Factory = sk_gpu_test::GrContextFactory;
     for (int ct = 0; ct < Factory::kContextTypeCnt; ++ct) {
         auto type = static_cast<Factory::ContextType>(ct);
@@ -738,10 +738,10 @@ DEF_TEST(ImageReadPixels, reporter) {
     image = create_codec_image();
     image_test_read_pixels(nullptr, reporter, image.get());
 }
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageReadPixels_Gpu,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     image_test_read_pixels(dContext, reporter, create_gpu_image(dContext).get());
 }
@@ -800,10 +800,10 @@ DEF_TEST(ImageLegacyBitmap, reporter) {
     image = create_codec_image();
     test_legacy_bitmap(reporter, nullptr, image.get());
 }
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageLegacyBitmap_Gpu,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     sk_sp<SkImage> image(create_gpu_image(dContext));
     test_legacy_bitmap(reporter, dContext, image.get());
@@ -844,7 +844,10 @@ DEF_TEST(ImagePeek, reporter) {
     image = create_codec_image();
     test_peek(reporter, image.get(), false);
 }
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImagePeek_Gpu, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImagePeek_Gpu,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.directContext()));
     test_peek(reporter, image.get(), false);
 }
@@ -857,10 +860,10 @@ struct TextureReleaseChecker {
     }
 };
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease,
-                                      reporter,
-                                      ctxInfo,
-                                      CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkImage_NewFromTextureRelease,
+                                          reporter,
+                                          ctxInfo,
+                                          CtsEnforcement::kApiLevel_T) {
     const int kWidth = 10;
     const int kHeight = 10;
 
@@ -1064,10 +1067,10 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
     }
 }
 
-DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease,
-            reporter,
-            options,
-            CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(SkImage_MakeCrossContextFromPixmapRelease,
+                reporter,
+                options,
+                CtsEnforcement::kApiLevel_T) {
     SkBitmap bitmap;
     SkPixmap pixmap;
     if (!GetResourceAsBitmap("images/mandrill_128.png", &bitmap) || !bitmap.peekPixels(&pixmap)) {
@@ -1080,7 +1083,10 @@ DEF_GPUTEST(SkImage_MakeCrossContextFromPixmapRelease,
     });
 }
 
-DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(SkImage_CrossContextGrayAlphaConfigs,
+                reporter,
+                options,
+                CtsEnforcement::kApiLevel_T) {
     for (SkColorType ct : { kGray_8_SkColorType, kAlpha_8_SkColorType }) {
         SkAutoPixmapStorage pixmap;
         pixmap.alloc(SkImageInfo::Make(4, 4, ct, kPremul_SkAlphaType));
@@ -1108,10 +1114,10 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options, CtsEnforcem
     }
 }
 
-DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture,
-                                      reporter,
-                                      ctxInfo,
-                                      CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture,
+                                          reporter,
+                                          ctxInfo,
+                                          CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     sk_gpu_test::TestContext* testContext = ctxInfo.testContext();
     sk_sp<GrContextThreadSafeProxy> proxy = context->threadSafeProxy();
@@ -1183,10 +1189,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(makeBackendTexture,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageBackendAccessAbandoned_Gpu,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageBackendAccessAbandoned_Gpu,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     sk_sp<SkImage> image(create_gpu_image(ctxInfo.directContext()));
     if (!image) {
@@ -1407,10 +1413,10 @@ DEF_TEST(ImageScalePixels, reporter) {
     test_scale_pixels(reporter, codecImage.get(), pmRed);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     const SkPMColor pmRed = SkPackARGB32(0xFF, 0xFF, 0, 0);
     const SkColor red = SK_ColorRED;
 
@@ -1462,7 +1468,7 @@ static sk_sp<SkImage> make_yuva_image(GrDirectContext* dContext) {
     return SkImage::MakeFromYUVAPixmaps(dContext, yuvaPixmaps);
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     auto s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kYes, ii, 1, nullptr);

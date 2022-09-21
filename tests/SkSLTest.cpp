@@ -350,7 +350,7 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flag
 
 #define SKSL_TEST(flags, ctsEnforcement, name, path)                                       \
     DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_cpu(flags)) { test_cpu(r, path, flags); } \
-    DEF_CONDITIONAL_GPUTEST_FOR_RENDERING_CONTEXTS(                                        \
+    DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS(                                    \
             SkSL##name##_GPU, r, ctxInfo, is_gpu(flags), ctsEnforcement) {                 \
         test_gpu(r, ctxInfo.directContext(), path, flags);                                 \
     }                                                                                      \
@@ -360,7 +360,7 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flag
 /**
  * Test flags:
  * - CPU:     this test should pass on the CPU backend
- * - GPU:     this test should pass on the GPU backends
+ * - GPU:     this test should pass on the Ganesh GPU backends
  * - GPU_ES3: this test should pass on an ES3-compatible GPU when "enforce ES2 restrictions" is off
  *
  * CtsEnforcement:

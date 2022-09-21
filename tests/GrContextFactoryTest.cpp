@@ -16,7 +16,7 @@
 
 using namespace sk_gpu_test;
 
-DEF_GPUTEST(GrContextFactory_abandon, reporter, options, CtsEnforcement::kNever) {
+DEF_GANESH_TEST(GrContextFactory_abandon, reporter, options, CtsEnforcement::kNever) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory testFactory(options);
         GrContextFactory::ContextType ctxType = (GrContextFactory::ContextType) i;
@@ -41,7 +41,7 @@ DEF_GPUTEST(GrContextFactory_abandon, reporter, options, CtsEnforcement::kNever)
     }
 }
 
-DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(GrContextFactory_sharedContexts, reporter, options, CtsEnforcement::kApiLevel_T) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         GrContextFactory testFactory(options);
         GrContextFactory::ContextType ctxType = static_cast<GrContextFactory::ContextType>(i);
@@ -79,7 +79,7 @@ DEF_GPUTEST(GrContextFactory_sharedContexts, reporter, options, CtsEnforcement::
     }
 }
 
-DEF_GPUTEST(GrContextFactory_executorAndTaskGroup, reporter, options, CtsEnforcement::kNever) {
+DEF_GANESH_TEST(GrContextFactory_executorAndTaskGroup, reporter, options, CtsEnforcement::kNever) {
     for (int i = 0; i < GrContextFactory::kContextTypeCnt; ++i) {
         // Verify that contexts have a task group iff we supply an executor with context options
         GrContextOptions contextOptions = options;
@@ -104,7 +104,7 @@ DEF_GPUTEST(GrContextFactory_executorAndTaskGroup, reporter, options, CtsEnforce
 }
 
 #ifdef SK_ENABLE_DUMP_GPU
-DEF_GPUTEST_FOR_ALL_CONTEXTS(GrContextDump, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrContextDump, reporter, ctxInfo, CtsEnforcement::kNever) {
     // Ensure that GrDirectContext::dump doesn't assert (which is possible, if the JSON code
     // is wrong)
     SkString result = ctxInfo.directContext()->dump();

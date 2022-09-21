@@ -2059,12 +2059,12 @@ static void disable_tessellation_atlas(GrContextOptions* options) {
     options->fAvoidStencilBuffers = true;
 }
 
-DEF_GPUTEST_FOR_CONTEXTS(ClipStack_SWMask,
-                         sk_gpu_test::GrContextFactory::IsRenderingContext,
-                         r,
-                         ctxInfo,
-                         disable_tessellation_atlas,
-                         CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_CONTEXTS(ClipStack_SWMask,
+                             sk_gpu_test::GrContextFactory::IsRenderingContext,
+                             r,
+                             ctxInfo,
+                             disable_tessellation_atlas,
+                             CtsEnforcement::kNever) {
     using ClipStack = skgpu::v1::ClipStack;
     using SurfaceDrawContext = skgpu::v1::SurfaceDrawContext;
 

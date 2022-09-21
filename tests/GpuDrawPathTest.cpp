@@ -73,7 +73,7 @@ static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
     fill_and_stroke(canvas, oval1, oval2, SkDashPathEffect::Make(intervals, 2, 0));
 }
 
-DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo, CtsEnforcement::kNever) {
     for (auto& test_func : { &test_drawPathEmpty, &test_drawSameRectOvals }) {
         for (auto& sampleCount : {1, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
@@ -88,7 +88,10 @@ DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo, CtsEnforcement::
     }
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(GrDrawCollapsedPath, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrDrawCollapsedPath,
+                                 reporter,
+                                 ctxInfo,
+                                 CtsEnforcement::kApiLevel_T) {
     // From https://bugs.fuchsia.dev/p/fuchsia/issues/detail?id=37330, it's possible for a convex
     // path to be accepted by AAConvexPathRenderer, then be transformed to something without a
     // computable first direction by a perspective matrix.
@@ -113,10 +116,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(GrDrawCollapsedPath, reporter, ctxInfo, CtsEnforcem
     surface->flushAndSubmit();
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(PathTest_CrBug1232834,
-                             reporter,
-                             ctxInfo,
-                             CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(PathTest_CrBug1232834,
+                                 reporter,
+                                 ctxInfo,
+                                 CtsEnforcement::kApiLevel_T) {
     // AAHairlinePathRenderer chops this path to quads that include infinities (and then NaNs).
     // It used to trigger asserts, now the degenerate quad segments should cause it to be rejected.
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);

@@ -171,19 +171,19 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrDirectContext*
     draw(canvas, 1, blobs);
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(TextBlobCache, reporter, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(TextBlobCache, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.directContext(), 1024, 256, 30, true, false);
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(TextBlobStressCache, reporter, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(TextBlobStressCache, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.directContext(), 256, 256, 10, true, true);
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.directContext(), 256, 256, 10, false, false);
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(TextBlobStressAbnormal, reporter, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(TextBlobStressAbnormal, reporter, ctxInfo) {
     text_blob_cache_inner(reporter, ctxInfo.directContext(), 256, 256, 10, false, true);
 }
 
@@ -275,7 +275,7 @@ static sk_sp<SkTextBlob> make_large_blob() {
     return builder.make();
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobIntegerOverflowTest, reporter, ctxInfo,
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlobIntegerOverflowTest, reporter, ctxInfo,
                                    CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     const SkImageInfo info =
@@ -299,10 +299,10 @@ void write_png(const std::string& filename, const SkBitmap& bitmap) {
     w.fsync();
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);
@@ -358,10 +358,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobJaggedGlyph,
 #endif
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextBlobSmoothScroll,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextBlobSmoothScroll,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     const SkImageInfo info =
             SkImageInfo::Make(kScreenDim, kScreenDim, kN32_SkColorType, kPremul_SkAlphaType);

@@ -11,7 +11,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(skbug12214, r, contextInfo, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(skbug12214, r, contextInfo, CtsEnforcement::kApiLevel_T) {
     auto imageInfo = SkImageInfo::Make(/*width=*/32, /*height=*/32, kRGBA_8888_SkColorType,
                                        kPremul_SkAlphaType);
     sk_sp<SkSurface> surface1 = SkSurface::MakeRenderTarget(contextInfo.directContext(),

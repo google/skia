@@ -23,7 +23,7 @@ DEF_TEST(skbug5221, r) {
     test(surface->getCanvas());
 }
 
-DEF_GPUTEST_FOR_ALL_CONTEXTS(skbug5221_GPU, r, contextInfo, CtsEnforcement::kNever) {
+DEF_GANESH_TEST_FOR_ALL_CONTEXTS(skbug5221_GPU, r, contextInfo, CtsEnforcement::kNever) {
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
             contextInfo.directContext(), SkBudgeted::kYes,
             SkImageInfo::Make(256, 256, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));

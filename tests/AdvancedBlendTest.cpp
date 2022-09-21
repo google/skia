@@ -23,10 +23,10 @@
 
 #include <utility>
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     static constexpr auto opaque = GrProcessorAnalysisColor::Opaque::kYes;
     static constexpr auto coverage = GrProcessorAnalysisCoverage::kSingleChannel;
     const GrCaps& caps = *ctxInfo.directContext()->priv().caps();

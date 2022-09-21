@@ -474,10 +474,10 @@ void basic_transfer_from_test(skiatest::Reporter* reporter, const sk_gpu_test::C
 #endif
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     if (!ctxInfo.directContext()->priv().caps()->transferFromBufferToTextureSupport()) {
         return;
     }
@@ -509,10 +509,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsToTextureTest,
 }
 
 // TODO(bsalomon): Metal
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTextureTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TransferPixelsFromTextureTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     if (!ctxInfo.directContext()->priv().caps()->transferFromSurfaceToBufferSupport()) {
         return;
     }

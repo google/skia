@@ -134,7 +134,10 @@ static void test_path(skiatest::Reporter* reporter,
 }
 
 // Test that deleting the original path invalidates the VBs cached by the tessellating path renderer
-DEF_GPUTEST(TriangulatingPathRendererCacheTest, reporter, /* options */, CtsEnforcement::kNever) {
+DEF_GANESH_TEST(TriangulatingPathRendererCacheTest,
+                reporter,
+                /* options */,
+                CtsEnforcement::kNever) {
     auto createPR = [](GrRecordingContext*) {
         return new skgpu::v1::TriangulatingPathRenderer();
     };
@@ -156,7 +159,10 @@ DEF_GPUTEST(TriangulatingPathRendererCacheTest, reporter, /* options */, CtsEnfo
 }
 
 // Test that deleting the original path invalidates the textures cached by the SW path renderer
-DEF_GPUTEST(SoftwarePathRendererCacheTest, reporter, /* options */, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(SoftwarePathRendererCacheTest,
+                reporter,
+                /* options */,
+                CtsEnforcement::kApiLevel_T) {
     auto createPR = [](GrRecordingContext* rContext) {
         return new skgpu::v1::SoftwarePathRenderer(rContext->priv().proxyProvider(), true);
     };

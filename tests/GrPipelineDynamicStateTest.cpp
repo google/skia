@@ -187,10 +187,10 @@ private:
 };
 }  // anonymous namespace
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     GrResourceProvider* rp = dContext->priv().resourceProvider();
 

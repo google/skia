@@ -32,10 +32,10 @@ DEF_TEST(ImageIsOpaqueTest, reporter) {
     check_isopaque(reporter, surfaceOpaque, true);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     SkImageInfo infoTransparent = SkImageInfo::MakeN32Premul(5, 5);
     auto surfaceTransparent(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, infoTransparent));

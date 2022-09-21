@@ -314,10 +314,10 @@ static void invalidation_and_instantiation_test(GrDirectContext* dContext,
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(TextureProxyTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(TextureProxyTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
     GrResourceCache* cache = direct->priv().getResourceCache();

@@ -23,10 +23,10 @@
 // In CastOS' case (and, presumably, Linux desktop) they were only using Ganesh for
 // 2D canvas and compositor image filtering. In this case Chrome doesn't regularly purge
 // the cache. This would result in Ganesh quickly running up to its max cache limit.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(RepeatedClippedBlurTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     GrResourceCache* cache = dContext->priv().getResourceCache();
 

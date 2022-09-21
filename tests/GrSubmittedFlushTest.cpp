@@ -26,10 +26,10 @@ static void testing_submitted_proc(void* ctx, bool success) {
     *info->fSuccess = success;
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(FlushSubmittedProcTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(FlushSubmittedProcTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto ctx = ctxInfo.directContext();
 
     SkImageInfo info = SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);

@@ -124,7 +124,7 @@ void StartDSL(const sk_gpu_test::ContextInfo ctxInfo) {
     Start(ctxInfo.directContext()->priv().getGpu()->shaderCompiler());
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Expression e1 = 1;
     REPORTER_ASSERT(r, e1.release()->description() == "1");
@@ -169,7 +169,7 @@ static void expect_equal(skiatest::Reporter* r, int lineNumber, T&& dsl, const c
 
 #define EXPECT_EQUAL(a, b)  expect_equal(r, __LINE__, (a), (b))
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
     {
         AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
         EXPECT_EQUAL(All(GreaterThan(Float4(1), Float4(0))), "true");
@@ -189,7 +189,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFloat, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFloat, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Expression e1 = Float(std::numeric_limits<float>::max());
     REPORTER_ASSERT(r, atof(e1.release()->description().c_str()) ==
@@ -249,7 +249,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFloat, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLHalf, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLHalf, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Expression e1 = Half(std::numeric_limits<float>::max());
     REPORTER_ASSERT(r,
@@ -301,7 +301,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLHalf, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInt, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInt, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     EXPECT_EQUAL(Int(std::numeric_limits<int32_t>::max()),
@@ -338,7 +338,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInt, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLUInt, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLUInt, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     EXPECT_EQUAL(UInt(std::numeric_limits<uint32_t>::max()),
@@ -378,7 +378,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLUInt, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShort, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLShort, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     EXPECT_EQUAL(Short(std::numeric_limits<int16_t>::max()),
@@ -415,7 +415,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShort, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLUShort, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLUShort, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     EXPECT_EQUAL(UShort(std::numeric_limits<uint16_t>::max()),
@@ -455,7 +455,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLUShort, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBool, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBool, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     EXPECT_EQUAL(Bool2(false),
@@ -490,7 +490,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBool, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     REPORTER_ASSERT(r,  DSLType(kBool_Type).isBoolean());
     REPORTER_ASSERT(r, !DSLType(kBool_Type).isNumber());
@@ -592,7 +592,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLType, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var f22(kFloat2x2_Type, "f22");
     EXPECT_EQUAL(f22.assign(Float2x2(1)), "(f22 = float2x2(1.0))");
@@ -686,7 +686,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMatrices, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat_Type, "a"), b(kFloat_Type, "b");
 
@@ -725,7 +725,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPlus, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
 
@@ -764,7 +764,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMinus, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat_Type, "a"), b(kFloat_Type, "b");
 
@@ -793,7 +793,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMultiply, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat_Type, "a"), b(kFloat_Type, "b");
 
@@ -835,7 +835,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a % b;
@@ -877,7 +877,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLMod, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShl, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLShl, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a << b;
@@ -908,7 +908,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShl, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShr, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLShr, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a >> b;
@@ -939,7 +939,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLShr, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseAnd, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBitwiseAnd, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a & b;
@@ -970,7 +970,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseAnd, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseOr, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBitwiseOr, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a | b;
@@ -1001,7 +1001,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseOr, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseXor, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBitwiseXor, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a ^ b;
@@ -1032,7 +1032,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseXor, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalAnd, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLogicalAnd, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kBool_Type, "a"), b(kBool_Type, "b");
     Expression e1 = a && b;
@@ -1050,7 +1050,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalAnd, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalOr, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLogicalOr, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kBool_Type, "a"), b(kBool_Type, "b");
     Expression e1 = a || b;
@@ -1068,7 +1068,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalOr, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalXor, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLogicalXor, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kBool_Type, "a"), b(kBool_Type, "b");
     Expression e1 = LogicalXor(a, b);
@@ -1080,7 +1080,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalXor, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLComma, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLComma, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = (a += b, b);
@@ -1090,7 +1090,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLComma, r, ctxInfo) {
     EXPECT_EQUAL(e2, "(((a += b) , (b += b)) , int2(a))");
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLEqual, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLEqual, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a == b;
@@ -1105,7 +1105,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLEqual, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLNotEqual, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLNotEqual, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a != b;
@@ -1120,7 +1120,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLNotEqual, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLGreaterThan, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLGreaterThan, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a > b;
@@ -1135,7 +1135,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLGreaterThan, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLGreaterThanOrEqual, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLGreaterThanOrEqual, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a >= b;
@@ -1150,7 +1150,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLGreaterThanOrEqual, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLessThan, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLessThan, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a < b;
@@ -1165,7 +1165,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLessThan, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLessThanOrEqual, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLessThanOrEqual, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = a <= b;
@@ -1180,7 +1180,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLessThanOrEqual, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalNot, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLogicalNot, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kInt_Type, "b");
     Expression e1 = !(a <= b);
@@ -1192,7 +1192,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLogicalNot, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseNot, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBitwiseNot, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kBool_Type, "b");
     Expression e1 = ~a;
@@ -1204,7 +1204,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBitwiseNot, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIncrement, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIncrement, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kBool_Type, "b");
     Expression e1 = ++a;
@@ -1234,7 +1234,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIncrement, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDecrement, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDecrement, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a"), b(kBool_Type, "b");
     Expression e1 = --a;
@@ -1264,7 +1264,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDecrement, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     {
         DSLExpression sqrt(SkSL::ThreadContext::Compiler().convertIdentifier(SkSL::Position(),
@@ -1286,7 +1286,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLCall, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     EXPECT_EQUAL(Block(), "{ }");
     Var a(kInt_Type, "a", 1), b(kInt_Type, "b", 2);
@@ -1300,7 +1300,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBlock, r, ctxInfo) {
     EXPECT_EQUAL(Block(std::move(statements)), "{ (a = 0); ++a; }");
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var i(kInt_Type, "i", 0);
     DSLFunction(kVoid_Type, "success").define(
@@ -1320,7 +1320,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBreak, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var i(kInt_Type, "i", 0);
     DSLFunction(kVoid_Type, "success").define(
@@ -1340,7 +1340,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLContinue, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     {
         Var a(kHalf4_Type, "a"), b(kHalf4_Type, "b", Half4(1));
@@ -1394,7 +1394,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclare, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclareGlobal, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDeclareGlobal, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     DSLGlobalVar x(kInt_Type, "x", 0);
     Declare(x);
@@ -1405,13 +1405,13 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDeclareGlobal, r, ctxInfo) {
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1], "uniform float2 y;");
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDiscard, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDiscard, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var x(kFloat_Type, "x", 1);
     EXPECT_EQUAL(If(Sqrt(x) > 0, Discard()), "if ((sqrt(x) > 0.0)) discard;");
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDo, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDo, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Statement x = Do(Block(), true);
     EXPECT_EQUAL(x, "do {} while (true);");
@@ -1426,7 +1426,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLDo, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     EXPECT_EQUAL(For(Statement(), Expression(), Expression(), Block()),
                 "for (;;) {}");
@@ -1456,7 +1456,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Parameter coords(kFloat2_Type, "coords");
     DSLFunction(kVoid_Type, "main", coords).define(
@@ -1550,7 +1550,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat_Type, "a"), b(kFloat_Type, "b");
     Statement x = If(a > b, a -= b);
@@ -1568,7 +1568,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     DSLGlobalVar intf = InterfaceBlock(kUniform_Modifier, "InterfaceBlock1",
                                        { Field(kFloat_Type, "a"), Field(kInt_Type, "b") });
@@ -1593,7 +1593,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
     EXPECT_EQUAL(intf3[1].field("z"), "arrayVar[1].z");
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLReturn, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLReturn, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     Statement x = Return();
@@ -1603,7 +1603,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLReturn, r, ctxInfo) {
     EXPECT_EQUAL(y, "return true;");
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kInt_Type, "a");
     Expression x = Select(a > 0, 1, -1);
@@ -1620,7 +1620,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSelect, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     Var a(kFloat_Type, "a"), b(kInt_Type, "b");
@@ -1681,7 +1681,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(kFloat4_Type, "a");
 
@@ -1713,8 +1713,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSwizzle, r, ctxInfo) {
                 "a.z");
 }
 
-
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLVarSwap, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLVarSwap, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     // We should be able to convert `a` into a proper var by swapping it, even from within a scope.
@@ -1728,7 +1727,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLVarSwap, r, ctxInfo) {
                 "{ int a; (a = 123); }");
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Statement x = While(true, Block());
     EXPECT_EQUAL(x, "for (; true;) {}");
@@ -1743,7 +1742,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLWhile, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var a(Array(kInt_Type, 5), "a"), b(kInt_Type, "b");
 
@@ -1766,7 +1765,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLIndex, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     // There is a Fract type on Mac which can conflict with our Fract builtin
     using SkSL::dsl::Fract;
@@ -1827,7 +1826,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLBuiltins, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     Var v1(kConst_Modifier, kInt_Type, "v1", 0);
@@ -1861,7 +1860,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiers, r, ctxInfo) {
     REPORTER_ASSERT(r, v8.modifiers().flags() == SkSL::Modifiers::kUniform_Flag);
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Var v1(DSLModifiers(DSLLayout().location(1).offset(4).index(5).builtin(6)
                                    .inputAttachmentIndex(7),
@@ -1941,7 +1940,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLLayout, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
                            SkSL::ProgramKind::kRuntimeShader);
     DSLGlobalVar shader(kUniform_Modifier, kShader_Type, "child");
@@ -1959,7 +1958,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
 
     DSLType simpleStruct = Struct("SimpleStruct",
@@ -1991,7 +1990,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLStruct, r, ctxInfo) {
                  "struct NestedStruct { int x; SimpleStruct simple; };");
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
     {
         AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
                                SkSL::ProgramKind::kVertex);
@@ -2042,7 +2041,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
 
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
 // The inliner doesn't exist in a size-optimized build.
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     DSLParameter x(kFloat_Type, "x");
     DSLFunction sqr(kFloat_Type, "sqr", x);
@@ -2066,7 +2065,7 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
 }
 #endif
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     {
         DSLParameter x(kFloat_Type, "x");
@@ -2116,14 +2115,14 @@ DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
     }
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLExtension, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLExtension, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     AddExtension("test_extension");
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0], "#extension test_extension : enable");
 }
 
-DEF_GPUTEST_FOR_MOCK_CONTEXT(DSLModifiersDeclaration, r, ctxInfo) {
+DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLModifiersDeclaration, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Declare(Modifiers(Layout().blendSupportAllEquations(), kOut_Modifier));
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);

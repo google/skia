@@ -109,10 +109,10 @@ static void check_texture(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, tex->backendFormat() == texProxy->backendFormat());
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
@@ -226,10 +226,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
     GrResourceProvider* resourceProvider = direct->priv().resourceProvider();
@@ -343,10 +343,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest,
     }
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto direct = ctxInfo.directContext();
     GrProxyProvider* provider = direct->priv().proxyProvider();
 

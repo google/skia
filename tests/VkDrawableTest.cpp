@@ -267,11 +267,11 @@ void draw_drawable_test(skiatest::Reporter* reporter,
     }
 }
 
-DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkDrawableTest, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkDrawableTest, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     draw_drawable_test(reporter, ctxInfo.directContext(), nullptr);
 }
 
-DEF_GPUTEST(VkDrawableImportTest, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(VkDrawableImportTest, reporter, options, CtsEnforcement::kApiLevel_T) {
     for (int typeInt = 0; typeInt < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++typeInt) {
         sk_gpu_test::GrContextFactory::ContextType contextType =
                 (sk_gpu_test::GrContextFactory::ContextType) typeInt;

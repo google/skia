@@ -58,7 +58,7 @@ static void test_pow2(skiatest::Reporter* reporter, const SkTDArray<SkISize>& re
     test_rectanizer_inserts(reporter, &pow2Rectanizer, rects);
 }
 
-DEF_GPUTEST(GpuRectanizer, reporter, factory, CtsEnforcement::kNever) {
+DEF_GANESH_TEST(GpuRectanizer, reporter, factory, CtsEnforcement::kNever) {
     SkTDArray<SkISize> rects;
     SkRandom rand;
 

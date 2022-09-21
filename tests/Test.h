@@ -239,13 +239,13 @@ private:
                                                              test_graphite_contexts_##name)); \
     void test_##name(skiatest::Reporter* reporter, skgpu::graphite::Context* graphite_context)
 
-#define DEF_GPUTEST(name, reporter, options, ctsEnforcement)                                 \
-    static void test_##name(skiatest::Reporter*, const GrContextOptions&);                   \
-    skiatest::TestRegistry name##TestRegistry(skiatest::Test(                                \
-            #name, skiatest::TestType::kGanesh, ctsEnforcement, test_##name, nullptr));      \
+#define DEF_GANESH_TEST(name, reporter, options, ctsEnforcement)                        \
+    static void test_##name(skiatest::Reporter*, const GrContextOptions&);              \
+    skiatest::TestRegistry name##TestRegistry(skiatest::Test(                           \
+            #name, skiatest::TestType::kGanesh, ctsEnforcement, test_##name, nullptr)); \
     void test_##name(skiatest::Reporter* reporter, const GrContextOptions& options)
 
-#define DEF_CONDITIONAL_GPUTEST_FOR_CONTEXTS(                                                    \
+#define DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(                                                \
         name, context_filter, reporter, context_info, options_filter, condition, ctsEnforcement) \
     static void test_##name(skiatest::Reporter*, const sk_gpu_test::ContextInfo&);               \
     static void test_gpu_contexts_##name(skiatest::Reporter* reporter,                           \
@@ -260,77 +260,77 @@ private:
                                               condition);                                        \
     void test_##name(skiatest::Reporter* reporter, const sk_gpu_test::ContextInfo& context_info)
 
-#define DEF_CONDITIONAL_GPUTEST_FOR_ALL_CONTEXTS(                \
+#define DEF_CONDITIONAL_GANESH_TEST_FOR_ALL_CONTEXTS(            \
         name, reporter, context_info, condition, ctsEnforcement) \
-    DEF_CONDITIONAL_GPUTEST_FOR_CONTEXTS(                        \
+    DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(                    \
             name, nullptr, reporter, context_info, nullptr, condition, ctsEnforcement)
 
-#define DEF_CONDITIONAL_GPUTEST_FOR_RENDERING_CONTEXTS(                                     \
-        name, reporter, context_info, condition, ctsEnforcement)                            \
-    DEF_CONDITIONAL_GPUTEST_FOR_CONTEXTS(name,                                              \
-                                         sk_gpu_test::GrContextFactory::IsRenderingContext, \
-                                         reporter,                                          \
-                                         context_info,                                      \
-                                         nullptr,                                           \
-                                         condition,                                         \
-                                         ctsEnforcement)
+#define DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS(                                     \
+        name, reporter, context_info, condition, ctsEnforcement)                                \
+    DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(name,                                              \
+                                             sk_gpu_test::GrContextFactory::IsRenderingContext, \
+                                             reporter,                                          \
+                                             context_info,                                      \
+                                             nullptr,                                           \
+                                             condition,                                         \
+                                             ctsEnforcement)
 
-#define DEF_GPUTEST_FOR_CONTEXTS(                                                     \
+#define DEF_GANESH_TEST_FOR_CONTEXTS(                                                 \
         name, context_filter, reporter, context_info, options_filter, ctsEnforcement) \
-    DEF_CONDITIONAL_GPUTEST_FOR_CONTEXTS(                                             \
+    DEF_CONDITIONAL_GANESH_TEST_FOR_CONTEXTS(                                         \
             name, context_filter, reporter, context_info, options_filter, true, ctsEnforcement)
 
-#define DEF_GPUTEST_FOR_ALL_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
-    DEF_GPUTEST_FOR_CONTEXTS(name, nullptr, reporter, context_info, nullptr, ctsEnforcement)
+#define DEF_GANESH_TEST_FOR_ALL_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
+    DEF_GANESH_TEST_FOR_CONTEXTS(name, nullptr, reporter, context_info, nullptr, ctsEnforcement)
 
-#define DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
-    DEF_GPUTEST_FOR_CONTEXTS(name,                                                       \
-                             sk_gpu_test::GrContextFactory::IsRenderingContext,          \
-                             reporter,                                                   \
-                             context_info,                                               \
-                             nullptr,                                                    \
-                             ctsEnforcement)
-#define DEF_GPUTEST_FOR_ALL_GL_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
-    DEF_GPUTEST_FOR_CONTEXTS(                                                         \
+#define DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
+    DEF_GANESH_TEST_FOR_CONTEXTS(name,                                                       \
+                                 sk_gpu_test::GrContextFactory::IsRenderingContext,          \
+                                 reporter,                                                   \
+                                 context_info,                                               \
+                                 nullptr,                                                    \
+                                 ctsEnforcement)
+#define DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
+    DEF_GANESH_TEST_FOR_CONTEXTS(                                                         \
             name, &skiatest::IsGLContextType, reporter, context_info, nullptr, ctsEnforcement)
-#define DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
-    DEF_GPUTEST_FOR_CONTEXTS(name,                                                          \
-                             &skiatest::IsRenderingGLContextType,                           \
-                             reporter,                                                      \
-                             context_info,                                                  \
-                             nullptr,                                                       \
-                             ctsEnforcement)
-#define DEF_GPUTEST_FOR_MOCK_CONTEXT(name, reporter, context_info) \
-    DEF_GPUTEST_FOR_CONTEXTS(name,                                 \
-                             &skiatest::IsMockContextType,         \
-                             reporter,                             \
-                             context_info,                         \
-                             nullptr,                              \
-                             CtsEnforcement::kNever)
-#define DEF_GPUTEST_FOR_VULKAN_CONTEXT(name, reporter, context_info, ctsEnforcement) \
-    DEF_GPUTEST_FOR_CONTEXTS(                                                        \
+#define DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(name, reporter, context_info, ctsEnforcement) \
+    DEF_GANESH_TEST_FOR_CONTEXTS(name,                                                          \
+                                 &skiatest::IsRenderingGLContextType,                           \
+                                 reporter,                                                      \
+                                 context_info,                                                  \
+                                 nullptr,                                                       \
+                                 ctsEnforcement)
+#define DEF_GANESH_TEST_FOR_MOCK_CONTEXT(name, reporter, context_info) \
+    DEF_GANESH_TEST_FOR_CONTEXTS(name,                                 \
+                                 &skiatest::IsMockContextType,         \
+                                 reporter,                             \
+                                 context_info,                         \
+                                 nullptr,                              \
+                                 CtsEnforcement::kNever)
+#define DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(name, reporter, context_info, ctsEnforcement) \
+    DEF_GANESH_TEST_FOR_CONTEXTS(                                                        \
             name, &skiatest::IsVulkanContextType, reporter, context_info, nullptr, ctsEnforcement)
-#define DEF_GPUTEST_FOR_METAL_CONTEXT(name, reporter, context_info) \
-    DEF_GPUTEST_FOR_CONTEXTS(name,                                  \
-                             &skiatest::IsMetalContextType,         \
-                             reporter,                              \
-                             context_info,                          \
-                             nullptr,                               \
-                             CtsEnforcement::kNever)
-#define DEF_GPUTEST_FOR_D3D_CONTEXT(name, reporter, context_info) \
-    DEF_GPUTEST_FOR_CONTEXTS(name,                                \
-                             &skiatest::IsDirect3DContextType,    \
-                             reporter,                            \
-                             context_info,                        \
-                             nullptr,                             \
-                             CtsEnforcement::kNever)
-#define DEF_GPUTEST_FOR_DAWN_CONTEXT(name, reporter, context_info) \
-    DEF_GPUTEST_FOR_CONTEXTS(name,                                 \
-                             &skiatest::IsDawnContextType,         \
-                             reporter,                             \
-                             context_info,                         \
-                             nullptr,                              \
-                             CtsEnforcement::kNever)
+#define DEF_GANESH_TEST_FOR_METAL_CONTEXT(name, reporter, context_info) \
+    DEF_GANESH_TEST_FOR_CONTEXTS(name,                                  \
+                                 &skiatest::IsMetalContextType,         \
+                                 reporter,                              \
+                                 context_info,                          \
+                                 nullptr,                               \
+                                 CtsEnforcement::kNever)
+#define DEF_GANESH_TEST_FOR_D3D_CONTEXT(name, reporter, context_info) \
+    DEF_GANESH_TEST_FOR_CONTEXTS(name,                                \
+                                 &skiatest::IsDirect3DContextType,    \
+                                 reporter,                            \
+                                 context_info,                        \
+                                 nullptr,                             \
+                                 CtsEnforcement::kNever)
+#define DEF_GANESH_TEST_FOR_DAWN_CONTEXT(name, reporter, context_info) \
+    DEF_GANESH_TEST_FOR_CONTEXTS(name,                                 \
+                                 &skiatest::IsDawnContextType,         \
+                                 reporter,                             \
+                                 context_info,                         \
+                                 nullptr,                              \
+                                 CtsEnforcement::kNever)
 
 #define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                          \
     do {                                                                   \

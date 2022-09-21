@@ -11,7 +11,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "tests/Test.h"
 
-DEF_GPUTEST(GrDDLImage_MakeSubset, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(GrDDLImage_MakeSubset, reporter, options, CtsEnforcement::kApiLevel_T) {
     sk_gpu_test::GrContextFactory factory(options);
     for (int ct = 0; ct < sk_gpu_test::GrContextFactory::kContextTypeCnt; ++ct) {
         auto contextType = static_cast<sk_gpu_test::GrContextFactory::ContextType>(ct);

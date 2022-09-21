@@ -57,10 +57,10 @@ bool check_pixels(skiatest::Reporter* reporter,
     return ComparePixels(expected.pixmap(), actual.pixmap(), tols, error);
 }
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SurfaceResolveTest,
-                                   reporter,
-                                   ctxInfo,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceResolveTest,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
 
     SkImageInfo info = SkImageInfo::Make(8, 8, kRGBA_8888_SkColorType, kPremul_SkAlphaType);

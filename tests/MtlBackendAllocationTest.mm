@@ -36,7 +36,7 @@ void test_color_init(GrDirectContext*,
                      GrMipmapped,
                      GrRenderable);
 
-DEF_GPUTEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
+DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
     auto dContext = ctxInfo.directContext();
     const GrMtlCaps* mtlCaps = static_cast<const GrMtlCaps*>(dContext->priv().caps());
 

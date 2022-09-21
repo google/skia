@@ -404,7 +404,7 @@ static void test_programs(skiatest::Reporter* reporter, const sk_gpu_test::Conte
                                                                 maxLevels));
 }
 
-DEF_GPUTEST(Programs, reporter, options, CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST(Programs, reporter, options, CtsEnforcement::kApiLevel_T) {
     // Set a locale that would cause shader compilation to fail because of , as decimal separator.
     // skbug 3330
 #ifdef SK_BUILD_FOR_WIN

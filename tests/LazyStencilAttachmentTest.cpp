@@ -16,10 +16,10 @@
 #include "src/core/SkAutoPixmapStorage.h"
 #include "tests/Test.h"
 
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(crbug_1271431,
-                                   reporter,
-                                   context_info,
-                                   CtsEnforcement::kApiLevel_T) {
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(crbug_1271431,
+                                       reporter,
+                                       context_info,
+                                       CtsEnforcement::kApiLevel_T) {
     GrDirectContext* dc = context_info.directContext();
 
     // Make sure we don't get recycled render targets that already have stencil attachments.
