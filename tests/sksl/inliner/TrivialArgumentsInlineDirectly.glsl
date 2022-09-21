@@ -68,5 +68,6 @@ vec4 main() {
     var = _7_h3.xyzx * _7_h3.xyzx;
     vec4 _8_h4 = vec4(s.h4.y, 0.0, 0.0, 1.0);
     var = _8_h4 * _8_h4;
+    var.x += mat[0].x;
     return colorGreen;
 }

@@ -28,6 +28,7 @@ half4 main(float2 coords) {
     // when inlining occurs.
     var = func1(colorGreen[i]);           // non-constant indexing
     var = funcA5(half[5](1, 2, 3, 4, 5)); // array with slotCount > 4
+    i *= int(var.x);
 
     return colorGreen;
 }

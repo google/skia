@@ -10,9 +10,11 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTHash.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
@@ -20,6 +22,7 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/transform/SkSLProgramWriter.h"
 #include "src/sksl/transform/SkSLTransform.h"
 
@@ -42,8 +45,25 @@ static bool eliminate_dead_local_variables(const Context& context,
         using ProgramWriter::visitProgramElement;
 
         bool visitExpressionPtr(std::unique_ptr<Expression>& expr) override {
-            // We don't need to look inside expressions at all.
-            return false;
+            if (expr->is<BinaryExpression>()) {
+                // Search for expressions of the form `deadVar = anyExpression`.
+                BinaryExpression& binary = expr->as<BinaryExpression>();
+                if (VariableReference* assignedVar = binary.isAssignmentIntoVariable()) {
+                    if (fDeadVariables.contains(assignedVar->variable())) {
+                        // Replace `deadVar = anyExpression` with `anyExpression`.
+                        fUsage->remove(binary.left().get());
+                        expr = std::move(binary.right());
+
+                        // If `anyExpression` is now a lone ExpressionStatement, it's highly likely
+                        // that we can eliminate it entirely. This flag will let us know to check.
+                        fAssignmentWasEliminated = true;
+                    }
+                }
+            }
+            if (expr->is<VariableReference>()) {
+                SkASSERT(!fDeadVariables.contains(expr->as<VariableReference>().variable()));
+            }
+            return INHERITED::visitExpressionPtr(expr);
         }
 
         bool visitStatementPtr(std::unique_ptr<Statement>& stmt) override {
@@ -54,6 +74,7 @@ static bool eliminate_dead_local_variables(const Context& context,
                 SkASSERT(counts);
                 SkASSERT(counts->fDeclared);
                 if (CanEliminate(var, *counts)) {
+                    fDeadVariables.add(var);
                     if (var->initialValue()) {
                         // The variable has an initial-value expression, which might have side
                         // effects. ExpressionStatement::Make will preserve side effects, but
@@ -72,24 +93,35 @@ static bool eliminate_dead_local_variables(const Context& context,
                 }
                 return false;
             }
-            return INHERITED::visitStatementPtr(stmt);
+
+            bool result = INHERITED::visitStatementPtr(stmt);
+
+            // If we eliminated an assignment above, we may have left behind an inert
+            // ExpressionStatement.
+            if (fAssignmentWasEliminated) {
+                fAssignmentWasEliminated = false;
+                if (stmt->is<ExpressionStatement>()) {
+                    ExpressionStatement& exprStmt = stmt->as<ExpressionStatement>();
+                    if (!Analysis::HasSideEffects(*exprStmt.expression())) {
+                        // The expression-statement was inert; eliminate it entirely.
+                        fUsage->remove(&exprStmt);
+                        stmt = Nop::Make();
+                    }
+                }
+            }
+
+            return result;
         }
 
         static bool CanEliminate(const Variable* var, const ProgramUsage::VariableCounts& counts) {
-            if (!counts.fDeclared || counts.fRead || var->storage() != VariableStorage::kLocal) {
-                return false;
-            }
-            if (var->initialValue()) {
-                SkASSERT(counts.fWrite >= 1);
-                return counts.fWrite == 1;
-            } else {
-                return counts.fWrite == 0;
-            }
+            return counts.fDeclared && !counts.fRead && var->storage() == VariableStorage::kLocal;
         }
 
         bool fMadeChanges = false;
         const Context& fContext;
         ProgramUsage* fUsage;
+        SkTHashSet<const Variable*> fDeadVariables;
+        bool fAssignmentWasEliminated = false;
 
         using INHERITED = ProgramWriter;
     };

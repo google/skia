@@ -37,8 +37,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ai[0] = 0;
     array<int4, 1> ai4;
     ai4[0] = int4(1, 2, 3, 4);
-    array<half3x3, 1> ah2x4;
-    ah2x4[0] = half3x3(half3(1.0h, 2.0h, 3.0h), half3(4.0h, 5.0h, 6.0h), half3(7.0h, 8.0h, 9.0h));
+    array<half3x3, 1> ah3x3;
+    ah3x3[0] = half3x3(half3(1.0h, 2.0h, 3.0h), half3(4.0h, 5.0h, 6.0h), half3(7.0h, 8.0h, 9.0h));
     array<float4, 1> af4;
     af4[0].x = 0.0;
     af4[0].ywxz = float4(1.0);
@@ -56,10 +56,11 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     s.af[0] = 2.0;
     s.h4 = half4(1.0h);
     s.ah4[0] = half4(2.0h);
-    af4[0] *= float(ah2x4[0][0].x);
+    af4[0] *= float(ah3x3[0][0].x);
     i4.y = i4.y * i;
     x.y = x.y * l;
     s.f *= float(l);
+    f3x3[0].x = f3x3[0].x * s.f;
     _out.sk_FragColor = _uniforms.colorGreen;
     return _out;
 }

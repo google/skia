@@ -266,4 +266,14 @@ std::string BinaryExpression::description() const {
                  this->right()->description() + ")";
 }
 
+VariableReference* BinaryExpression::isAssignmentIntoVariable() {
+    if (this->getOperator().isAssignment()) {
+        Analysis::AssignmentInfo assignmentInfo;
+        if (Analysis::IsAssignable(*this->left(), &assignmentInfo, /*errors=*/nullptr)) {
+            return assignmentInfo.fAssignedVar;
+        }
+    }
+    return nullptr;
+}
+
 }  // namespace SkSL

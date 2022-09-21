@@ -12,14 +12,11 @@ float userfunc_ff(float v) {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    float a = 1.0;
     float b = 2.0;
     float c = 3.0;
-    a = c + 77.0;
     b = c + 77.0;
-    a = sin(c + 77.0);
     b = sin(c + 77.0);
-    a = userfunc_ff(c + 77.0);
+    userfunc_ff(c + 77.0);
     b = userfunc_ff(c + 77.0);
     for (int x = 0;x < 1; ++x) {
         continue;

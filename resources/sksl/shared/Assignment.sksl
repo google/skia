@@ -17,7 +17,7 @@ half4 main(float2 coords) {
     /* assign to swizzle */              half4 x; x.w = 0; x.yx = half2(0);
     /* assign to array of scalar */      int ai[1]; ai[0] = 0;
     /* assign to array of vector */      int4 ai4[1]; ai4[0] = int4(1,2,3,4);
-    /* assign to array of matrix */      half3x3 ah2x4[1]; ah2x4[0] = half3x3(1,2,3,4,5,6,7,8,9);
+    /* assign to array of matrix */      half3x3 ah3x3[1]; ah3x3[0] = half3x3(1,2,3,4,5,6,7,8,9);
     /* assign to array swizzle */        float4 af4[1]; af4[0].x = 0; af4[0].ywxz = float4(1);
 
     /* assign to struct variable */      S s; s.f = 0;
@@ -38,10 +38,11 @@ half4 main(float2 coords) {
                                          +s.h4 = half4(1); +s.ah4[0] = half4(2);
 
     // Keep these variables alive
-    af4[0] *= float(ah2x4[0][0][0]);
+    af4[0] *= float(ah3x3[0][0][0]);
     i4.y *= i;
     x.y *= l;
     s.f *= l;
+    f3x3[0][0] *= s.f;
 
     return colorGreen;
 }
