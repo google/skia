@@ -219,7 +219,7 @@ static skiatest::Test getTestWithName(std::string name, bool* ok) {
         }
     }
     *ok = false;
-    return skiatest::Test(nullptr, /*gpu*/ false, /*graphite*/ false,
+    return skiatest::Test(nullptr, skiatest::TestType::kCPU,
                           CtsEnforcement::kNever, nullptr);
 }
 
