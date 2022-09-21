@@ -10,6 +10,8 @@ if (is_wasm) {
   import("../toolchain/wasm.gni")
 }
 
+import("../skia.gni")
+
 declare_args() {
   extra_asmflags = []
   extra_cflags = []
@@ -607,12 +609,19 @@ config("optimize") {
       "/O2",
       "/Zc:inline",
     ]
+    if (skia_enable_optimize_size) {
+      cflags += [ "/Os" ]
+    }
     ldflags = [
       "/OPT:ICF",
       "/OPT:REF",
     ]
   } else {
-    cflags = [ "-O3" ]
+    if (skia_enable_optimize_size) {
+      cflags = [ "-Oz" ]
+    } else {
+      cflags = [ "-O3" ]
+    }
     if (is_mac || is_ios) {
       ldflags = [ "-dead_strip" ]
     } else if (!is_wasm) {
