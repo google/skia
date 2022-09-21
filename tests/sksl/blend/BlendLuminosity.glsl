@@ -1,5 +1,5 @@
 #version 400
-const float sk_PrivGuardedDivideEpsilon = false ? 9.9999999392252903e-09 : 0.0;
+const float sk_PrivkGuardedDivideEpsilon = false ? 9.9999999392252903e-09 : 0.0;
 out vec4 sk_FragColor;
 uniform vec4 src;
 uniform vec4 dst;
@@ -25,10 +25,10 @@ vec4 blend_hslc_h4h2h4h4(vec2 flipSat, vec4 src, vec4 dst) {
     float _6_minComp = min(min(_5_result.x, _5_result.y), _5_result.z);
     float _7_maxComp = max(max(_5_result.x, _5_result.y), _5_result.z);
     if (_6_minComp < 0.0 && _4_lum != _6_minComp) {
-        _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / ((_4_lum - _6_minComp) + sk_PrivGuardedDivideEpsilon));
+        _5_result = _4_lum + (_5_result - _4_lum) * (_4_lum / ((_4_lum - _6_minComp) + sk_PrivkGuardedDivideEpsilon));
     }
     if (_7_maxComp > alpha && _7_maxComp != _4_lum) {
-        _5_result = _4_lum + ((_5_result - _4_lum) * (alpha - _4_lum)) / ((_7_maxComp - _4_lum) + sk_PrivGuardedDivideEpsilon);
+        _5_result = _4_lum + ((_5_result - _4_lum) * (alpha - _4_lum)) / ((_7_maxComp - _4_lum) + sk_PrivkGuardedDivideEpsilon);
     }
     return vec4((((_5_result + dst.xyz) - dsa) + src.xyz) - sda, (src.w + dst.w) - alpha);
 }

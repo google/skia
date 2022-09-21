@@ -3,7 +3,7 @@ OpCapability Shader
 OpMemoryModel Logical GLSL450
 OpEntryPoint Fragment %main "main" %sk_Clockwise %sk_FragColor
 OpExecutionMode %main OriginUpperLeft
-OpName %_GuardedDivideEpsilon "$GuardedDivideEpsilon"
+OpName %_kGuardedDivideEpsilon "$kGuardedDivideEpsilon"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %sk_FragColor "sk_FragColor"
 OpName %_UniformBuffer "_UniformBuffer"
@@ -23,7 +23,7 @@ OpName %_5_result "_5_result"
 OpName %_6_minComp "_6_minComp"
 OpName %_7_maxComp "_7_maxComp"
 OpName %main "main"
-OpDecorate %_GuardedDivideEpsilon RelaxedPrecision
+OpDecorate %_kGuardedDivideEpsilon RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -145,7 +145,7 @@ OpDecorate %202 RelaxedPrecision
 OpDecorate %206 RelaxedPrecision
 %float = OpTypeFloat 32
 %_ptr_Private_float = OpTypePointer Private %float
-%_GuardedDivideEpsilon = OpVariable %_ptr_Private_float Private
+%_kGuardedDivideEpsilon = OpVariable %_ptr_Private_float Private
 %bool = OpTypeBool
 %false = OpConstantFalse %bool
 %float_9_99999994en09 = OpConstant %float 9.99999994e-09
@@ -338,7 +338,7 @@ OpBranchConditional %145 %146 %147
 %148 = OpCompositeConstruct %v3float %119 %119 %119
 %149 = OpFSub %v3float %131 %148
 %150 = OpFSub %float %119 %133
-%151 = OpLoad %float %_GuardedDivideEpsilon
+%151 = OpLoad %float %_kGuardedDivideEpsilon
 %152 = OpFAdd %float %150 %151
 %153 = OpFDiv %float %119 %152
 %154 = OpVectorTimesScalar %v3float %149 %153
@@ -363,7 +363,7 @@ OpBranchConditional %160 %161 %162
 %166 = OpFSub %float %57 %119
 %167 = OpVectorTimesScalar %v3float %165 %166
 %168 = OpFSub %float %139 %119
-%169 = OpLoad %float %_GuardedDivideEpsilon
+%169 = OpLoad %float %_kGuardedDivideEpsilon
 %170 = OpFAdd %float %168 %169
 %171 = OpFDiv %float %float_1 %170
 %172 = OpVectorTimesScalar %v3float %167 %171
@@ -398,7 +398,7 @@ OpFunctionEnd
 %203 = OpVariable %_ptr_Function_v4float Function
 %207 = OpVariable %_ptr_Function_v4float Function
 %10 = OpSelect %float %false %float_9_99999994en09 %float_0
-OpStore %_GuardedDivideEpsilon %10
+OpStore %_kGuardedDivideEpsilon %10
 OpStore %197 %196
 %198 = OpAccessChain %_ptr_Uniform_v4float %18 %int_0
 %202 = OpLoad %v4float %198

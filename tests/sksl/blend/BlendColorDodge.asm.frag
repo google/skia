@@ -3,7 +3,7 @@ OpCapability Shader
 OpMemoryModel Logical GLSL450
 OpEntryPoint Fragment %main "main" %sk_Clockwise %sk_FragColor
 OpExecutionMode %main OriginUpperLeft
-OpName %_GuardedDivideEpsilon "$GuardedDivideEpsilon"
+OpName %_kGuardedDivideEpsilon "$kGuardedDivideEpsilon"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %sk_FragColor "sk_FragColor"
 OpName %_UniformBuffer "_UniformBuffer"
@@ -12,7 +12,7 @@ OpMemberName %_UniformBuffer 1 "dst"
 OpName %color_dodge_component_Qhh2h2 "color_dodge_component_Qhh2h2"
 OpName %delta "delta"
 OpName %main "main"
-OpDecorate %_GuardedDivideEpsilon RelaxedPrecision
+OpDecorate %_kGuardedDivideEpsilon RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -108,7 +108,7 @@ OpDecorate %142 RelaxedPrecision
 OpDecorate %143 RelaxedPrecision
 %float = OpTypeFloat 32
 %_ptr_Private_float = OpTypePointer Private %float
-%_GuardedDivideEpsilon = OpVariable %_ptr_Private_float Private
+%_kGuardedDivideEpsilon = OpVariable %_ptr_Private_float Private
 %bool = OpTypeBool
 %false = OpConstantFalse %bool
 %float_9_99999994en09 = OpConstant %float 9.99999994e-09
@@ -189,7 +189,7 @@ OpReturnValue %68
 %74 = OpLoad %v2float %23
 %75 = OpCompositeExtract %float %74 1
 %76 = OpFMul %float %73 %75
-%77 = OpLoad %float %_GuardedDivideEpsilon
+%77 = OpLoad %float %_kGuardedDivideEpsilon
 %78 = OpFAdd %float %45 %77
 %79 = OpFDiv %float %76 %78
 %69 = OpExtInst %float %1 FMin %71 %79
@@ -226,7 +226,7 @@ OpFunctionEnd
 %125 = OpVariable %_ptr_Function_v2float Function
 %129 = OpVariable %_ptr_Function_v2float Function
 %9 = OpSelect %float %false %float_9_99999994en09 %float_0
-OpStore %_GuardedDivideEpsilon %9
+OpStore %_kGuardedDivideEpsilon %9
 %100 = OpAccessChain %_ptr_Uniform_v4float %17 %int_0
 %104 = OpLoad %v4float %100
 %105 = OpVectorShuffle %v2float %104 %104 0 3

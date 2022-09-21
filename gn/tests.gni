@@ -339,6 +339,7 @@ graphite_tests_sources = [
   "$_tests/graphite/ComputeTaskTest.cpp",
   "$_tests/graphite/GraphiteResourceCacheTest.cpp",
   "$_tests/graphite/ImageProviderTest.cpp",
+  "$_tests/graphite/ImageShaderTest.cpp",
   "$_tests/graphite/IntersectionTreeTest.cpp",
   "$_tests/graphite/KeyTest.cpp",
   "$_tests/graphite/PipelineDataCacheTest.cpp",

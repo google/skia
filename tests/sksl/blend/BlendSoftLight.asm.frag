@@ -3,7 +3,7 @@ OpCapability Shader
 OpMemoryModel Logical GLSL450
 OpEntryPoint Fragment %main "main" %sk_Clockwise %sk_FragColor
 OpExecutionMode %main OriginUpperLeft
-OpName %_GuardedDivideEpsilon "$GuardedDivideEpsilon"
+OpName %_kGuardedDivideEpsilon "$kGuardedDivideEpsilon"
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %sk_FragColor "sk_FragColor"
 OpName %_UniformBuffer "_UniformBuffer"
@@ -15,7 +15,7 @@ OpName %DCub "DCub"
 OpName %DaSqd "DaSqd"
 OpName %DaCub "DaCub"
 OpName %main "main"
-OpDecorate %_GuardedDivideEpsilon RelaxedPrecision
+OpDecorate %_kGuardedDivideEpsilon RelaxedPrecision
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -197,7 +197,7 @@ OpDecorate %241 RelaxedPrecision
 OpDecorate %242 RelaxedPrecision
 %float = OpTypeFloat 32
 %_ptr_Private_float = OpTypePointer Private %float
-%_GuardedDivideEpsilon = OpVariable %_ptr_Private_float Private
+%_kGuardedDivideEpsilon = OpVariable %_ptr_Private_float Private
 %bool = OpTypeBool
 %false = OpConstantFalse %bool
 %float_9_99999994en09 = OpConstant %float 9.99999994e-09
@@ -259,7 +259,7 @@ OpBranchConditional %32 %33 %34
 %47 = OpFMul %float %40 %46
 %48 = OpLoad %v2float %24
 %49 = OpCompositeExtract %float %48 1
-%50 = OpLoad %float %_GuardedDivideEpsilon
+%50 = OpLoad %float %_kGuardedDivideEpsilon
 %51 = OpFAdd %float %49 %50
 %52 = OpFDiv %float %47 %51
 %54 = OpLoad %v2float %24
@@ -352,7 +352,7 @@ OpStore %DaCub %103
 %145 = OpCompositeExtract %float %144 0
 %146 = OpFMul %float %103 %145
 %147 = OpFSub %float %143 %146
-%148 = OpLoad %float %_GuardedDivideEpsilon
+%148 = OpLoad %float %_kGuardedDivideEpsilon
 %149 = OpFAdd %float %99 %148
 %150 = OpFDiv %float %147 %149
 OpReturnValue %150
@@ -406,7 +406,7 @@ OpFunctionEnd
 %223 = OpVariable %_ptr_Function_v2float Function
 %227 = OpVariable %_ptr_Function_v2float Function
 %9 = OpSelect %float %false %float_9_99999994en09 %float_0
-OpStore %_GuardedDivideEpsilon %9
+OpStore %_kGuardedDivideEpsilon %9
 %187 = OpAccessChain %_ptr_Uniform_v4float %17 %int_1
 %191 = OpLoad %v4float %187
 %192 = OpCompositeExtract %float %191 3

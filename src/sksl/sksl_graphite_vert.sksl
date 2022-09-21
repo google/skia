@@ -13,11 +13,11 @@ const float $PI = 3.141592653589793238;
 // (Goldman, Ron. (2003). 5.6.3 Wang's Formula. "Pyramid Algorithms: A Dynamic Programming Approach
 // to Curves and Surfaces for Geometric Modeling". Morgan Kaufmann Publishers.)
 
-const float $Degree = 3;
-const float $Precision = 4; // Must match skgpu::tess::kPrecision
-const float $LengthTerm     = ($Degree * ($Degree - 1) / 8.0) * $Precision;
-const float $LengthTermPow2 = (($Degree * $Degree) * (($Degree - 1) * ($Degree - 1)) / 64.0) *
-                              ($Precision * $Precision);
+const float $kDegree = 3;
+const float $kPrecision = 4; // Must match skgpu::tess::kPrecision
+const float $kLengthTerm     = ($kDegree * ($kDegree - 1) / 8.0) * $kPrecision;
+const float $kLengthTermPow2 = (($kDegree * $kDegree) * (($kDegree - 1) * ($kDegree - 1)) / 64.0) *
+                               ($kPrecision * $kPrecision);
 
 // Returns the length squared of the largest forward difference from Wang's cubic formula.
 float wangs_formula_max_fdiff_p2(float2 p0, float2 p1, float2 p2, float2 p3,
@@ -30,13 +30,13 @@ float wangs_formula_max_fdiff_p2(float2 p0, float2 p1, float2 p2, float2 p3,
 float wangs_formula_cubic(float2 p0, float2 p1, float2 p2, float2 p3,
                           float2x2 matrix) {
     float m = wangs_formula_max_fdiff_p2(p0, p1, p2, p3, matrix);
-    return max(ceil(sqrt($LengthTerm * sqrt(m))), 1.0);
+    return max(ceil(sqrt($kLengthTerm * sqrt(m))), 1.0);
 }
 
 float wangs_formula_cubic_log2(float2 p0, float2 p1, float2 p2, float2 p3,
                                float2x2 matrix) {
     float m = wangs_formula_max_fdiff_p2(p0, p1, p2, p3, matrix);
-    return ceil(log2(max($LengthTermPow2 * m, 1.0)) * .25);
+    return ceil(log2(max($kLengthTermPow2 * m, 1.0)) * .25);
 }
 
 float wangs_formula_conic_p2(float2 p0, float2 p1, float2 p2, float w) {
@@ -55,8 +55,8 @@ float wangs_formula_conic_p2(float2 p0, float2 p1, float2 p2, float w) {
 
     // Compute numerator and denominator for parametric step size of linearization. Here, the
     // epsilon referenced from the cited paper is 1/precision.
-    float rp_minus_1 = max(0.0, fma(m, $Precision, -1.0));
-    float numer = length(dp) * $Precision + rp_minus_1 * dw;
+    float rp_minus_1 = max(0.0, fma(m, $kPrecision, -1.0));
+    float numer = length(dp) * $kPrecision + rp_minus_1 * dw;
     float denom = 4 * min(w, 1.0);
 
     return numer/denom;
@@ -102,7 +102,7 @@ float miter_extent(float cosTheta, float miterLimit) {
 // Returns the number of radial segments required for each radian of rotation, in order for the
 // curve to appear "smooth" as defined by the approximate device-space stroke radius.
 float num_radial_segments_per_radian(float approxDevStrokeRadius) {
-    return .5 / acos(max(1.0 - (1.0 / $Precision) / approxDevStrokeRadius, -1.0));
+    return .5 / acos(max(1.0 - (1.0 / $kPrecision) / approxDevStrokeRadius, -1.0));
 }
 
 // Unlike mix(), this does not return b when t==1. But it otherwise seems to get better

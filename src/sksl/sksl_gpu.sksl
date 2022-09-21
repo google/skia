@@ -148,16 +148,16 @@ half4 blend_darken(half4 src, half4 dst) {
    return blend_darken(1, src, dst);
 }
 
-const half $GuardedDivideEpsilon = sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck
-                                       ? 0.00000001
-                                       : 0.0;
+const half $kGuardedDivideEpsilon = sk_Caps.mustGuardDivisionEvenAfterExplicitZeroCheck
+                                        ? 0.00000001
+                                        : 0.0;
 
 inline half $guarded_divide(half n, half d) {
-    return n / (d + $GuardedDivideEpsilon);
+    return n / (d + $kGuardedDivideEpsilon);
 }
 
 inline half3 $guarded_divide(half3 n, half d) {
-    return n / (d + $GuardedDivideEpsilon);
+    return n / (d + $kGuardedDivideEpsilon);
 }
 
 half $color_dodge_component(half2 s, half2 d) {

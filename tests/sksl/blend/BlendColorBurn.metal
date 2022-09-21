@@ -1,7 +1,7 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
-constant const half sk_PrivGuardedDivideEpsilon = half(false ? 9.9999999392252903e-09 : 0.0);
+constant const half sk_PrivkGuardedDivideEpsilon = half(false ? 9.9999999392252903e-09 : 0.0);
 struct Uniforms {
     half4 src;
     half4 dst;
@@ -18,7 +18,7 @@ half color_burn_component_Qhh2h2(half2 s, half2 d) {
     } else if (s.x == 0.0h) {
         return d.x * (1.0h - s.y);
     } else {
-        half delta = max(0.0h, d.y - ((d.y - d.x) * s.y) / (s.x + sk_PrivGuardedDivideEpsilon));
+        half delta = max(0.0h, d.y - ((d.y - d.x) * s.y) / (s.x + sk_PrivkGuardedDivideEpsilon));
         return (delta * s.y + s.x * (1.0h - d.y)) + d.x * (1.0h - s.y);
     }
 }

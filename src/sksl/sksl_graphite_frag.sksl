@@ -1,5 +1,13 @@
 // Graphite-specific fragment shader code
 
+const int $kTileModeClamp  = 0;
+const int $kTileModeRepeat = 1;
+const int $kTileModeMirror = 2;
+const int $kTileModeDecal  = 3;
+
+const int $kFilterModeNearest = 0;
+const int $kFilterModeLinear  = 1;
+
 half4 sk_error() {
     return half4(1.0, 0.0, 1.0, 1.0);
 }
@@ -19,63 +27,95 @@ half4 sk_local_matrix_shader(float4, float4x4, half4 childResult) {
     return childResult;
 }
 
-float $tile(int tm, float f, float low, float high) {
-    const int kClamp         = 0;
-    const int kRepeat        = 1;
-    const int kMirrorRepeat  = 2;
-    const int kClampToBorder = 3;
+float $tile(int tileMode, float f, float low, float high) {
+    switch (tileMode) {
+        case $kTileModeClamp:
+            return clamp(f, low, high);
 
-    if (tm == kClamp) {
-        return clamp(f, low, high);
-    } else if (tm == kRepeat) {
-        float length = high - low;
-        return (mod(f - low, length) + low);
-    } else if (tm == kMirrorRepeat) {
-        float length = high - low;
-        float length2 = 2 * length;
-        float tmp = mod(f - low, length2);
-        return (mix(tmp, length2 - tmp, step(length, tmp)) + low);
-    } else { // kClampToBorder
-        // For now, just clamp.
-        return clamp(f, low, high);
+        case $kTileModeRepeat: {
+            float length = high - low;
+            return (mod(f - low, length) + low);
+        }
+        case $kTileModeMirror: {
+            float length = high - low;
+            float length2 = 2 * length;
+            float tmp = mod(f - low, length2);
+            return (mix(tmp, length2 - tmp, step(length, tmp)) + low);
+        }
+        default:  // $kTileModeDecal
+            // Decal is handled later.
+            return f;
     }
 }
 
 half4 sk_image_shader(float4 coords,
                       float4x4 preLocal,
                       float4 subset,
-                      int tmX,
-                      int tmY,
+                      int tileModeX,
+                      int tileModeY,
+                      int filterMode,
                       int imgWidth,
                       int imgHeight,
                       sampler2D s) {
     float2 pos = (preLocal * coords).xy;
-    pos.x = $tile(tmX, pos.x, subset.x, subset.z);
-    pos.y = $tile(tmY, pos.y, subset.y, subset.w);
+
+    // Do hard-edge shader transitions to the border color for nearest-neighbor decal tiling at the
+    // subset boundaries. Snap the input coordinates to nearest neighbor before comparing to the
+    // subset rect, to avoid GPU interpolation errors. See https://crbug.com/skia/10403.
+    if (tileModeX == $kTileModeDecal && filterMode == $kFilterModeNearest) {
+        float snappedX = floor(pos.x) + 0.5;
+        if (snappedX < subset.x || snappedX > subset.z) {
+            return half4(0);
+        }
+    }
+    if (tileModeY == $kTileModeDecal && filterMode == $kFilterModeNearest) {
+        float snappedY = floor(pos.y) + 0.5;
+        if (snappedY < subset.y || snappedY > subset.w) {
+            return half4(0);
+        }
+    }
+
+    pos.x = $tile(tileModeX, pos.x, subset.x, subset.z);
+    pos.y = $tile(tileModeY, pos.y, subset.y, subset.w);
 
     // Clamp to an inset subset to prevent sampling neighboring texels when coords fall exactly at
     // texel boundaries.
-    float4 insetClamp = float4(floor(subset.xy) + 0.5, ceil(subset.zw) - 0.5);
+    float4 insetClamp;
+    if (filterMode == $kFilterModeNearest) {
+        insetClamp = float4(floor(subset.xy) + 0.5, ceil(subset.zw) - 0.5);
+    } else {
+        insetClamp = float4(subset.xy + 0.5, subset.zw - 0.5);
+    }
     float2 clampedPos = clamp(pos, insetClamp.xy, insetClamp.zw);
-    return sample(s, clampedPos / float2(imgWidth, imgHeight));
+    half4 color = sample(s, clampedPos / float2(imgWidth, imgHeight));
+
+    // Remember the amount the coord moved for clamping. This will be used to implement shader-based
+    // filtering for repeat and decal tiling.
+    half2 error = half2(pos - clampedPos);
+
+    // Do soft edge shader filtering for decal tiling and linear filtering using the error values
+    // calculated above.
+    if (tileModeX == $kTileModeDecal && filterMode == $kFilterModeLinear) {
+        color *= max(1 - abs(error.x), 0);
+    }
+    if (tileModeY == $kTileModeDecal && filterMode == $kFilterModeLinear) {
+        color *= max(1 - abs(error.y), 0);
+    }
+
+    return color;
 }
 
 float2 $tile_grad(int tileMode, float2 t) {
-    const int kGradientClamp  = 0;
-    const int kGradientRepeat = 1;
-    const int kGradientMirror = 2;
-    const int kGradientDecal  = 3;
-
     switch (tileMode) {
-        case kGradientClamp:
+        case $kTileModeClamp:
             t.x = clamp(t.x, 0, 1);
             break;
 
-        case kGradientRepeat:
+        case $kTileModeRepeat:
             t.x = fract(t.x);
             break;
 
-        case kGradientMirror: {
+        case $kTileModeMirror: {
             float t_1 = t.x - 1;
             t.x = t_1 - 2 * floor(t_1 * 0.5) - 1;
             if (sk_Caps.mustDoOpBetweenFloorAndAbs) {
@@ -88,7 +128,7 @@ float2 $tile_grad(int tileMode, float2 t) {
             break;
         }
 
-        case kGradientDecal:
+        case $kTileModeDecal:
             if (t.x < 0 || t.x > 1) {
                 return float2(0, -1);
             }
