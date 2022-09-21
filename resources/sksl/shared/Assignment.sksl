@@ -10,6 +10,10 @@ struct S {
 half4 globalVar;
 S globalStruct;
 
+noinline void keepAlive(inout half h) {}
+noinline void keepAlive(inout float f) {}
+noinline void keepAlive(inout int i) {}
+
 half4 main(float2 coords) {
     /* assign to scalar */               int i; i = 0;
     /* assign to vector */               int4 i4; i4 = int4(1,2,3,4);
@@ -37,12 +41,16 @@ half4 main(float2 coords) {
     /* assign to struct unary plus */    +s.f = 1; +s.af[0] = 2;
                                          +s.h4 = half4(1); +s.ah4[0] = half4(2);
 
-    // Keep these variables alive
-    af4[0] *= float(ah3x3[0][0][0]);
-    i4.y *= i;
-    x.y *= l;
-    s.f *= l;
-    f3x3[0][0] *= s.f;
+    keepAlive(af4[0][0]);
+    keepAlive(ah3x3[0][0][0]);
+    keepAlive(i);
+    keepAlive(i4.y);
+    keepAlive(ai[0]);
+    keepAlive(ai4[0][0]);
+    keepAlive(x.y);
+    keepAlive(s.f);
+    keepAlive(l);
+    keepAlive(f3x3[0][0]);
 
     return colorGreen;
 }

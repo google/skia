@@ -314,7 +314,7 @@ static void test_clone(skiatest::Reporter* r, const char* testFile, int flags) {
 }
 
 static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flags) {
-    SkString shaderString = load_source(r, testFile, "");
+    SkString shaderString = load_source(r, testFile, /*permutationSuffix=*/"");
     if (shaderString.isEmpty()) {
         return;
     }
@@ -343,9 +343,12 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flag
                                 stream.str().length());
     std::unique_ptr<SkSL::Program> rehydrated = rehydrator.program();
     REPORTER_ASSERT(r, rehydrated->description() == program->description(),
-            "Mismatch between original and dehydrated/rehydrated:\n-- Original:\n%s\n"
-            "-- Rehydrated:\n%s", program->description().c_str(),
-            rehydrated->description().c_str());
+                    "%s: Mismatch between original and dehydrated/rehydrated:\n"
+                    "-- Original:\n%s\n"
+                    "-- Rehydrated:\n%s",
+                    testFile,
+                    program->description().c_str(),
+                    rehydrated->description().c_str());
 }
 
 #define SKSL_TEST(flags, ctsEnforcement, name, path)                                       \

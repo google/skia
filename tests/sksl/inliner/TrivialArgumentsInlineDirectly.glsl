@@ -22,6 +22,8 @@ struct S5 {
     float d;
     float e;
 };
+void keepAlive_vh(inout float f) {
+}
 vec4 main() {
     S s;
     s.ah4[0] = vec4(unknownInput);
@@ -68,6 +70,7 @@ vec4 main() {
     var = _7_h3.xyzx * _7_h3.xyzx;
     vec4 _8_h4 = vec4(s.h4.y, 0.0, 0.0, 1.0);
     var = _8_h4 * _8_h4;
-    var.x += mat[0].x;
+    keepAlive_vh(var.x);
+    keepAlive_vh(mat[0].x);
     return colorGreen;
 }

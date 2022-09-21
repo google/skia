@@ -51,6 +51,8 @@ half4 funcS5(S5 s) {
     return half4(s.a, s.b, s.c, s.d) * s.e;
 }
 
+noinline void keepAlive(inout half f) {}
+
 half4 main(float2 coords) {
     S s;
     s.ah4[0] = half4(unknownInput);
@@ -98,7 +100,8 @@ half4 main(float2 coords) {
     var = func3(s.h4.yyy + s.h4.zzz);              // binary expression
     var = func4(s.h4.y001);                        // compound ctor, not compile-time constant
 
-    var[0] += mat[0][0];
+    keepAlive(var[0]);
+    keepAlive(mat[0][0]);
 
     return colorGreen;
 }
