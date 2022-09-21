@@ -64,7 +64,7 @@ SkShaderBase::Context* SkLocalMatrixShader::onMakeContext(
 {
     SkTCopyOnFirstWrite<SkMatrix> lm(this->getLocalMatrix());
     if (rec.fLocalMatrix) {
-        lm.writable()->preConcat(*rec.fLocalMatrix);
+        *lm.writable() = ConcatLocalMatrices(*rec.fLocalMatrix, *lm);
     }
 
     ContextRec newRec(rec);
