@@ -190,12 +190,18 @@ def compile_fn(api, checkout_root, out_dir):
   if compiler != 'MSVC' and configuration == 'Debug':
     extra_cflags.append('-O1')
   if compiler != 'MSVC' and configuration == 'OptimizeForSize':
+    # Thin LTO shrinks our binaries significantly (~8%). Most of our clients that are sensitive to
+    # code size use LTO (typically in thin mode). Some clients (eg, Flutter) actually use full LTO,
+    # and that shrinks the binaries by an additional 10%, but we can't generally assume that.
+    extra_cflags.append('-flto=thin')
+    extra_ldflags.append('-flto=thin')
     # build IDs are required for Bloaty if we want to use strip to ignore debug symbols.
     # https://github.com/google/bloaty/blob/master/doc/using.md#debugging-stripped-binaries
     extra_ldflags.append('-Wl,--build-id=sha1')
     args.update({
       'skia_use_runtime_icu': 'true',
       'skia_enable_optimize_size': 'true',
+      'link_pool_depth': '2',
     })
 
   if 'Exceptions' in extra_tokens:
