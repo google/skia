@@ -231,7 +231,7 @@ static void init(Source* source, sk_sp<skottie::Animation> animation) {
 }
 #endif
 
-static void init(Source* source, const skiatest::Test& test) {
+static void init_cpu_test(Source* source, const skiatest::Test& test) {
     source->size  = {1,1};
     source->draw  = [test](SkCanvas* canvas) {
         struct Reporter : public skiatest::Reporter {
@@ -243,7 +243,7 @@ static void init(Source* source, const skiatest::Test& test) {
             }
         } reporter;
 
-        test.run(&reporter, GrContextOptions{});
+        test.cpu(&reporter);
 
         if (reporter.msg.isEmpty()) {
             canvas->clear(SK_ColorGREEN);
@@ -455,7 +455,7 @@ int main(int argc, char** argv) {
         }
 
         if (const skiatest::Test** test = tests.find(name)) {
-            init(source, **test);
+            init_cpu_test(source, **test);
             continue;
         }
 

@@ -1460,8 +1460,9 @@ struct Task {
 
 // Unit tests don't fit so well into the Src/Sink model, so we give them special treatment.
 
-static SkTDArray<skiatest::Test>* gParallelTests = new SkTDArray<skiatest::Test>;
-static SkTDArray<skiatest::Test>* gSerialTests   = new SkTDArray<skiatest::Test>;
+static SkTDArray<skiatest::Test>* gCPUTests = new SkTDArray<skiatest::Test>;
+static SkTDArray<skiatest::Test>* gGaneshTests = new SkTDArray<skiatest::Test>;
+static SkTDArray<skiatest::Test>* gGraphiteTests = new SkTDArray<skiatest::Test>;
 
 static void gather_tests() {
     if (!FLAGS_src.contains("tests")) {
@@ -1475,26 +1476,37 @@ static void gather_tests() {
             continue;
         }
         if (test.fTestType == TestType::kGanesh && FLAGS_gpu) {
-            gSerialTests->push_back(test);
+            gGaneshTests->push_back(test);
         } else if (test.fTestType == TestType::kGraphite && FLAGS_graphite) {
-            gSerialTests->push_back(test);
+            gGraphiteTests->push_back(test);
         } else if (test.fTestType == TestType::kCPU && FLAGS_cpu) {
-            gParallelTests->push_back(test);
+            gCPUTests->push_back(test);
         }
     }
 }
 
-static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) {
-    struct : public skiatest::Reporter {
-        void reportFailed(const skiatest::Failure& failure) override {
-            fail(failure.toString());
-        }
-        bool allowExtendedTest() const override {
-            return FLAGS_pathOpsExtended;
-        }
-        bool verbose() const override { return FLAGS_veryVerbose; }
-    } reporter;
+struct DMReporter : public skiatest::Reporter {
+    void reportFailed(const skiatest::Failure& failure) override {
+        fail(failure.toString());
+    }
+    bool allowExtendedTest() const override {
+        return FLAGS_pathOpsExtended;
+    }
+    bool verbose() const override { return FLAGS_veryVerbose; }
+};
 
+static void run_cpu_test(skiatest::Test test) {
+    DMReporter reporter;
+    if (!FLAGS_dryRun && !should_skip("_", "tests", "_", test.fName)) {
+        skiatest::ReporterContext ctx(&reporter, SkString(test.fName));
+        start("unit", "test", "", test.fName);
+        test.cpu(&reporter);
+    }
+    done("unit", "test", "", test.fName);
+}
+
+static void run_ganesh_test(skiatest::Test test, const GrContextOptions& grCtxOptions) {
+    DMReporter reporter;
     if (!FLAGS_dryRun && !should_skip("_", "tests", "_", test.fName)) {
         AutoreleasePool pool;
         GrContextOptions options = grCtxOptions;
@@ -1502,7 +1514,18 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
 
         skiatest::ReporterContext ctx(&reporter, SkString(test.fName));
         start("unit", "test", "", test.fName);
-        test.run(&reporter, options);
+        test.ganesh(&reporter, options);
+    }
+    done("unit", "test", "", test.fName);
+}
+
+static void run_graphite_test(skiatest::Test test) {
+    DMReporter reporter;
+    if (!FLAGS_dryRun && !should_skip("_", "tests", "_", test.fName)) {
+        AutoreleasePool pool;
+        skiatest::ReporterContext ctx(&reporter, SkString(test.fName));
+        start("unit", "test", "", test.fName);
+        test.graphite(&reporter);
     }
     done("unit", "test", "", test.fName);
 }
@@ -1586,9 +1609,10 @@ int main(int argc, char** argv) {
         return 1;
     }
     gather_tests();
-    gPending = gSrcs->count() * gSinks->count() + gParallelTests->count() + gSerialTests->count();
+    int testCount = gCPUTests->count() + gGaneshTests->count() + gGraphiteTests->count();
+    gPending = gSrcs->count() * gSinks->count() + testCount;
     info("%d srcs * %d sinks + %d tests == %d tasks\n",
-         gSrcs->count(), gSinks->count(), gParallelTests->count() + gSerialTests->count(),
+         gSrcs->count(), gSinks->count(), testCount,
          gPending);
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
@@ -1613,13 +1637,14 @@ int main(int argc, char** argv) {
             }
         }
     }
-    for (skiatest::Test& test : *gParallelTests) {
-        parallel.add([test, grCtxOptions] { run_test(test, grCtxOptions); });
+    for (skiatest::Test& test : *gCPUTests) {
+        parallel.add([test] { run_cpu_test(test); });
     }
 
     // With the parallel work running, run serial tasks and tests here on main thread.
     for (Task& task : serial) { Task::Run(task); }
-    for (skiatest::Test& test : *gSerialTests) { run_test(test, grCtxOptions); }
+    for (skiatest::Test& test : *gGaneshTests) { run_ganesh_test(test, grCtxOptions); }
+    for (skiatest::Test& test : *gGraphiteTests) { run_graphite_test(test); }
 
     // Wait for any remaining parallel work to complete (including any spun off of serial tasks).
     parallel.wait();

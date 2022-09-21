@@ -173,7 +173,7 @@ std::vector<std::string> SkQP::executeTest(SkQP::UnitTest test) {
     if (test->fContextOptionsProc) {
         test->fContextOptionsProc(&options);
     }
-    test->fProc(&r, options);
+    test->ganesh(&r, options);
     fTestResults.push_back(TestResult{test->fName, r.fErrors});
     return r.fErrors;
 }
