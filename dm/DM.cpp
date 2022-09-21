@@ -186,6 +186,7 @@ int RuntimeCheckErrorFunc(int errorType, const char* filename, int linenumber,
 using namespace DM;
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::ContextInfo;
+using skiatest::TestType;
 #ifdef SK_GL
 using sk_gpu_test::GLTestContext;
 #endif
@@ -1473,11 +1474,11 @@ static void gather_tests() {
         if (CommandLineFlags::ShouldSkip(FLAGS_match, test.fName)) {
             continue;
         }
-        if (test.fNeedsGpu && FLAGS_gpu) {
+        if (test.fTestType == TestType::kGanesh && FLAGS_gpu) {
             gSerialTests->push_back(test);
-        } else if (test.fNeedsGraphite && FLAGS_graphite) {
+        } else if (test.fTestType == TestType::kGraphite && FLAGS_graphite) {
             gSerialTests->push_back(test);
-        } else if (!test.fNeedsGpu && !test.fNeedsGraphite && FLAGS_cpu) {
+        } else if (test.fTestType == TestType::kCPU && FLAGS_cpu) {
             gParallelTests->push_back(test);
         }
     }

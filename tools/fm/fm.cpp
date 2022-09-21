@@ -422,7 +422,7 @@ int main(int argc, char** argv) {
 
     SkTHashMap<SkString, const skiatest::Test*> tests;
     for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
-        if (test.fNeedsGpu || test.fNeedsGraphite) {
+        if (test.fTestType != skiatest::TestType::kCPU) {
             continue;  // TODO
         }
         if (FLAGS_listTests) {

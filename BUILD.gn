@@ -2624,24 +2624,6 @@ if (skia_enable_tools) {
     }
   }
 
-  test_app("list_gms") {
-    sources = [ "tools/list_gms.cpp" ]
-    deps = [
-      ":gm",
-      ":skia",
-    ]
-  }
-  test_app("list_gpu_unit_tests") {
-    sources = [
-      "dm/DMGpuTestProcs.cpp",
-      "tools/list_gpu_unit_tests.cpp",
-    ]
-    deps = [
-      ":skia",
-      ":tests",
-    ]
-  }
-
   test_lib("sk_app") {
     public_deps = [
       ":gpu_tool_utils",

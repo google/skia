@@ -251,11 +251,14 @@ static JSObject RunTest(std::string name) {
         return result;
     }
     GrContextOptions grOpts;
-    if (test.fNeedsGpu) {
+    if (test.fTestType == skiatest::TestType::kGanesh) {
         result.set("result", "passed"); // default to passing - the reporter will mark failed.
         WasmReporter reporter(name, result);
         test.modifyGrContextOptions(&grOpts);
         test.run(&reporter, grOpts);
+        return result;
+    } else if (test.fTestType == skiatest::TestType::kGraphite) {
+        SkDebugf("Graphite test %s not yet supported\n", name.c_str());
         return result;
     }
 
