@@ -109,12 +109,12 @@ using GrContextFactoryContextType = sk_gpu_test::GrContextFactory::ContextType;
 typedef void GrContextTestFn(Reporter*, const sk_gpu_test::ContextInfo&);
 typedef bool GrContextTypeFilterFn(GrContextFactoryContextType);
 
-// We want to run the same test against potentially multiple GPU backends. Test runners should
-// implement this function by calling the testFn with a fresh GPU context if that GPU backend
-// matches the provided filter. If filter is nullptr, then all compiled-in GPU backends should
-// be used. The reporter and opts arguments are piped in from Test::run.
-void RunWithGPUTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
-                            Reporter* reporter, const GrContextOptions& opts);
+// We want to run the same test against potentially multiple Ganesh backends. Test runners should
+// implement this function by calling the testFn with a fresh ContextInfo if that backend matches
+// the provided filter. If filter is nullptr, then all compiled-in Ganesh backends should be used.
+// The reporter and opts arguments are piped in from Test::run.
+void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
+                               Reporter* reporter, const GrContextOptions& options);
 
 // These context filters should be implemented by test runners and return true if the backend was
 // compiled in (i.e. is supported) and matches the criteria indicated by the name of the filter.
@@ -250,7 +250,7 @@ private:
     static void test_##name(skiatest::Reporter*, const sk_gpu_test::ContextInfo&);               \
     static void test_gpu_contexts_##name(skiatest::Reporter* reporter,                           \
                                          const GrContextOptions& options) {                      \
-        skiatest::RunWithGPUTestContexts(test_##name, context_filter, reporter, options);        \
+        skiatest::RunWithGaneshTestContexts(test_##name, context_filter, reporter, options);     \
     }                                                                                            \
     skiatest::TestRegistry name##TestRegistry(skiatest::Test(#name,                              \
                                                              skiatest::TestType::kGanesh,        \

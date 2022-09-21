@@ -272,7 +272,7 @@ namespace skiatest {
 
 using ContextType = sk_gpu_test::GrContextFactory::ContextType;
 
-// These are the supported GrContextTypeFilterFn
+// These are the supported GrContextTypeFilterFn. They are defined in Test.h and implemented here.
 bool IsGLContextType(ContextType ct) {
     return GrBackendApi::kOpenGL == sk_gpu_test::GrContextFactory::ContextTypeBackend(ct);
 }
@@ -288,10 +288,10 @@ bool IsMetalContextType(ContextType) {return false;}
 bool IsDirect3DContextType(ContextType) {return false;}
 bool IsDawnContextType(ContextType) {return false;}
 
-void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contextTypeFilter,
-                            Reporter* reporter, const GrContextOptions& options) {
+void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* filter,
+                               Reporter* reporter, const GrContextOptions& options) {
     for (auto contextType : {ContextType::kGLES_ContextType, ContextType::kMock_ContextType}) {
-        if (contextTypeFilter && !(*contextTypeFilter)(contextType)) {
+        if (filter && !(*filter)(contextType)) {
             continue;
         }
 
@@ -304,7 +304,7 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
         }
         ctxInfo.testContext()->makeCurrent();
         // From DMGpuTestProcs.cpp
-        (*test)(reporter, ctxInfo);
+        (*testFn)(reporter, ctxInfo);
         // Sync so any release/finished procs get called.
         ctxInfo.directContext()->flushAndSubmit(/*sync*/true);
     }
