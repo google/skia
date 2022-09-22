@@ -25,7 +25,7 @@ class Variable;
 class ProgramUsage {
 public:
     struct VariableCounts {
-        int fDeclared = 0;
+        int fVarExists = 0;  // if this is zero, the Variable might have already been deleted
         int fRead = 0;
         int fWrite = 0;
     };

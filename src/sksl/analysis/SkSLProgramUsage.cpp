@@ -61,8 +61,8 @@ public:
             // Add all declared variables to the usage map (even if never otherwise accessed).
             const VarDeclaration& vd = s.as<VarDeclaration>();
             ProgramUsage::VariableCounts& counts = fUsage->fVariableCounts[&vd.var()];
-            counts.fDeclared += fDelta;
-            SkASSERT(counts.fDeclared >= 0);
+            counts.fVarExists += fDelta;
+            SkASSERT(counts.fVarExists >= 0 && counts.fVarExists <= 1);
             if (vd.value()) {
                 // The initial-value expression, when present, counts as a write.
                 counts.fWrite += fDelta;
