@@ -28,10 +28,26 @@ enum GradientSerializationFlags {
     kTileModeShift_GSF  = 8,
     kTileModeMask_GSF   = 0xF,
 
-    // Bits 0:7 for fGradFlags (note that kForce4fContext_PrivateFlag is 0x80)
+    // Bits 0:7 for fGradFlags
     kGradFlagsShift_GSF = 0,
     kGradFlagsMask_GSF  = 0xFF,
 };
+
+static uint32_t interpolation_to_grad_flags(const SkGradientShader::Interpolation& interpolation) {
+    uint32_t flags = 0;
+    if (interpolation.fInPremul == SkGradientShader::Interpolation::InPremul::kYes) {
+        flags |= SkGradientShader::kInterpolateColorsInPremul_Flag;
+    }
+    return flags;
+}
+
+static SkGradientShader::Interpolation grad_flags_to_interpolation(uint32_t flags) {
+    SkGradientShader::Interpolation interpolation;
+    if (flags & SkGradientShader::kInterpolateColorsInPremul_Flag) {
+        interpolation.fInPremul = SkGradientShader::Interpolation::InPremul::kYes;
+    }
+    return interpolation;
+}
 
 SkGradientShaderBase::Descriptor::Descriptor() {
     sk_bzero(this, sizeof(*this));
@@ -53,8 +69,9 @@ void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
     }
     SkASSERT(static_cast<uint32_t>(fTileMode) <= kTileModeMask_GSF);
     flags |= ((unsigned)fTileMode << kTileModeShift_GSF);
-    SkASSERT(fGradFlags <= kGradFlagsMask_GSF);
-    flags |= (fGradFlags << kGradFlagsShift_GSF);
+    const uint32_t gradFlags = interpolation_to_grad_flags(fInterpolation);
+    SkASSERT(gradFlags <= kGradFlagsMask_GSF);
+    flags |= (gradFlags << kGradFlagsShift_GSF);
 
     buffer.writeUInt(flags);
 
@@ -85,7 +102,8 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
     uint32_t flags = buffer.readUInt();
 
     fTileMode = (SkTileMode)((flags >> kTileModeShift_GSF) & kTileModeMask_GSF);
-    fGradFlags = (flags >> kGradFlagsShift_GSF) & kGradFlagsMask_GSF;
+    uint32_t gradFlags = (flags >> kGradFlagsShift_GSF) & kGradFlagsMask_GSF;
+    fInterpolation = grad_flags_to_interpolation(gradFlags);
 
     fCount = buffer.getArrayCount();
 
@@ -130,7 +148,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     fPtsToUnit.getType();  // Precache so reads are threadsafe.
     SkASSERT(desc.fCount > 1);
 
-    fGradFlags = static_cast<uint8_t>(desc.fGradFlags);
+    fInterpolation = desc.fInterpolation;
 
     SkASSERT((unsigned)desc.fTileMode < kSkTileModeCount);
     fTileMode = desc.fTileMode;
@@ -209,7 +227,7 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     desc.fPos = fOrigPos;
     desc.fCount = fColorCount;
     desc.fTileMode = fTileMode;
-    desc.fGradFlags = fGradFlags;
+    desc.fInterpolation = fInterpolation;
 
     const SkMatrix& m = this->getLocalMatrix();
     desc.fLocalMatrix = m.isIdentity() ? nullptr : &m;
@@ -312,7 +330,7 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
             break;
     }
 
-    const bool premulGrad = fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag;
+    const bool premulGrad = this->interpolateInPremul();
 
     // Transform all of the colors to destination color space
     SkColor4fXformer xformedColors(fOrigColors4f, fColorCount, fColorSpace.get(), rec.fDstCS);
@@ -467,7 +485,7 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
                                                         , kUnpremul_SkAlphaType),
                 src    = common.makeColorSpace(fColorSpace),
                 dst    = common.makeColorSpace(dstInfo.refColorSpace());
-    if (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag) {
+    if (this->interpolateInPremul()) {
         dst = dst.makeAlphaType(kPremul_SkAlphaType);
     }
 
@@ -586,8 +604,7 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
     }
 
     // If we interpolated unpremul, premul now to match our output convention.
-    if (0 == (fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag)
-            && !fColorsAreOpaque) {
+    if (!this->interpolateInPremul() && !fColorsAreOpaque) {
         color = premul(color);
     }
 
@@ -671,7 +688,9 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
         }
         info->fColorCount = fColorCount;
         info->fTileMode = fTileMode;
-        info->fGradientFlags = fGradFlags;
+
+        info->fGradientFlags =
+                this->interpolateInPremul() ? SkGradientShader::kInterpolateColorsInPremul_Flag : 0;
     }
 }
 
@@ -687,7 +706,7 @@ SkGradientShaderBase::Descriptor::Descriptor(const SkColor4f colors[],
                                              const SkScalar pos[],
                                              int colorCount,
                                              SkTileMode mode,
-                                             uint32_t flags,
+                                             const Interpolation& interpolation,
                                              const SkMatrix* localMatrix)
         : fLocalMatrix(localMatrix)
         , fColors(colors)
@@ -695,7 +714,7 @@ SkGradientShaderBase::Descriptor::Descriptor(const SkColor4f colors[],
         , fPos(pos)
         , fCount(colorCount)
         , fTileMode(mode)
-        , fGradFlags(flags) {
+        , fInterpolation(interpolation) {
     SkASSERT(fCount > 1);
 }
 

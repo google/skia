@@ -24,13 +24,16 @@ class SkWriteBuffer;
 
 class SkGradientShaderBase : public SkShaderBase {
 public:
+    using Interpolation = SkGradientShader::Interpolation;
+
     struct Descriptor {
         Descriptor();
         ~Descriptor();
 
         Descriptor(const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
                    const SkScalar pos[], int colorCount,
-                   SkTileMode mode, uint32_t flags, const SkMatrix* localMatrix);
+                   SkTileMode mode, const Interpolation& interpolation,
+                   const SkMatrix* localMatrix);
 
         const SkMatrix*     fLocalMatrix;
         const SkColor4f*    fColors;
@@ -38,7 +41,7 @@ public:
         const SkScalar*     fPos;
         int                 fCount;
         SkTileMode          fTileMode;
-        uint32_t            fGradFlags;
+        Interpolation       fInterpolation;
 
         void flatten(SkWriteBuffer&) const;
     };
@@ -65,7 +68,9 @@ public:
 
     bool isOpaque() const override;
 
-    uint32_t getGradFlags() const { return fGradFlags; }
+    bool interpolateInPremul() const {
+        return fInterpolation.fInPremul == SkGradientShader::Interpolation::InPremul::kYes;
+    }
 
     const SkMatrix& getGradientMatrix() const { return fPtsToUnit; }
 
@@ -122,8 +127,8 @@ protected:
     }
 
     const SkMatrix fPtsToUnit;
-    SkTileMode      fTileMode;
-    uint8_t        fGradFlags;
+    SkTileMode     fTileMode;
+    Interpolation  fInterpolation;
 
 public:
     SkScalar getPos(int i) const {

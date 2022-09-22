@@ -300,9 +300,7 @@ GradientShaderBase4fContext::GradientShaderBase4fContext(const SkGradientShaderB
         fFlags |= kOpaqueAlpha_Flag;
     }
 
-    fColorsArePremul =
-        (shader.fGradFlags & SkGradientShader::kInterpolateColorsInPremul_Flag)
-        || shader.fColorsAreOpaque;
+    fColorsArePremul = shader.interpolateInPremul() || shader.fColorsAreOpaque;
 }
 
 bool SkGradientShaderBase::

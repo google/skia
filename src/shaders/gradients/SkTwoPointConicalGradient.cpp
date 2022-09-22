@@ -234,7 +234,7 @@ sk_sp<SkFlattenable> SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer)
     }
     return SkGradientShader::MakeTwoPointConical(c1, r1, c2, r2, desc.fColors,
                                                  std::move(desc.fColorSpace), desc.fPos,
-                                                 desc.fCount, desc.fTileMode, desc.fGradFlags,
+                                                 desc.fCount, desc.fTileMode, desc.fInterpolation,
                                                  desc.fLocalMatrix);
 }
 
@@ -557,7 +557,7 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
                                                       const SkScalar pos[],
                                                       int colorCount,
                                                       SkTileMode mode,
-                                                      uint32_t flags,
+                                                      const Interpolation& interpolation,
                                                       const SkMatrix* localMatrix) {
     if (startRadius < 0 || endRadius < 0) {
         return nullptr;
@@ -582,7 +582,7 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
                 static constexpr SkScalar circlePos[3] = {0, 1, 1};
                 SkColor4f reColors[3] = {colors[0], colors[0], colors[colorCount - 1]};
                 return MakeRadial(start, endRadius, reColors, std::move(colorSpace),
-                                  circlePos, 3, mode, flags, localMatrix);
+                                  circlePos, 3, mode, interpolation, localMatrix);
             } else {
                 // Otherwise use the default degenerate case
                 return SkGradientShaderBase::MakeDegenerateGradient(colors, pos, colorCount,
@@ -592,7 +592,7 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
             // We can treat this gradient as radial, which is faster. If we got here, we know
             // that endRadius is not equal to 0, so this produces a meaningful gradient
             return MakeRadial(start, endRadius, colors, std::move(colorSpace), pos, colorCount,
-                              mode, flags, localMatrix);
+                              mode, interpolation, localMatrix);
         }
         // Else it's the 2pt conical radial variant with no degenerate radii, so fall through to the
         // regular 2pt constructor.
@@ -606,7 +606,7 @@ sk_sp<SkShader> SkGradientShader::MakeTwoPointConical(const SkPoint& start,
     SkGradientShaderBase::ColorStopOptimizer opt(colors, pos, colorCount, mode);
 
     SkGradientShaderBase::Descriptor desc(opt.fColors, std::move(colorSpace), opt.fPos,
-                                          opt.fCount, mode, flags, localMatrix);
+                                          opt.fCount, mode, interpolation, localMatrix);
     return SkTwoPointConicalGradient::Create(start, startRadius, end, endRadius, desc);
 }
 
