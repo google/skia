@@ -350,7 +350,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     // insetting close to zero just returns the original poly
     if (inset <= SK_ScalarNearlyZero) {
         for (int i = 0; i < inputPolygonSize; ++i) {
-            *insetPolygon->push() = inputPolygonVerts[i];
+            *insetPolygon->append() = inputPolygonVerts[i];
         }
         return true;
     }
@@ -458,13 +458,13 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
         insetPolygon->reserve(insetVertexCount);
     }
     int currIndex = 0;
-    *insetPolygon->push() = head->fIntersection;
+    *insetPolygon->append() = head->fIntersection;
     currEdge = head->fNext;
     while (currEdge != head) {
         if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
                                                 (*insetPolygon)[currIndex],
                                                 kCleanupTolerance)) {
-            *insetPolygon->push() = currEdge->fIntersection;
+            *insetPolygon->append() = currEdge->fIntersection;
             currIndex++;
         }
         currEdge = currEdge->fNext;
@@ -1212,9 +1212,9 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     // offsetting close to zero just returns the original poly
     if (SkScalarNearlyZero(offset)) {
         for (int i = 0; i < inputPolygonSize; ++i) {
-            *offsetPolygon->push() = inputPolygonVerts[i];
+            *offsetPolygon->append() = inputPolygonVerts[i];
             if (polygonIndices) {
-                *polygonIndices->push() = i;
+                *polygonIndices->append() = i;
             }
         }
         return true;
@@ -1428,18 +1428,18 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     static constexpr SkScalar kCleanupTolerance = 0.01f;
     offsetPolygon->reserve(offsetVertexCount);
     int currIndex = 0;
-    *offsetPolygon->push() = head->fIntersection;
+    *offsetPolygon->append() = head->fIntersection;
     if (polygonIndices) {
-        *polygonIndices->push() = head->fIndex;
+        *polygonIndices->append() = head->fIndex;
     }
     currEdge = head->fNext;
     while (currEdge != head) {
         if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
                                                 (*offsetPolygon)[currIndex],
                                                 kCleanupTolerance)) {
-            *offsetPolygon->push() = currEdge->fIntersection;
+            *offsetPolygon->append() = currEdge->fIntersection;
             if (polygonIndices) {
-                *polygonIndices->push() = currEdge->fIndex;
+                *polygonIndices->append() = currEdge->fIndex;
             }
             currIndex++;
         }
@@ -1759,7 +1759,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
     for (SkTInternalLList<TriangulationVertex>::Iter vertexIter = convexList.begin();
          vertexIter != convexList.end(); ++vertexIter) {
         TriangulationVertex* vertex = *vertexIter;
-        *triangleIndices->push() = indexMap[vertex->fIndex];
+        *triangleIndices->append() = indexMap[vertex->fIndex];
     }
 
     return true;

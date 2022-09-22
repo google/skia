@@ -578,7 +578,7 @@ static void XMLCALL start_element_handler(void *data, const char *tag, const cha
     FamilyData* self = static_cast<FamilyData*>(data);
 
     if (!self->fSkip) {
-        const TagHandler* parent = self->fHandler.top();
+        const TagHandler* parent = self->fHandler.back();
         const TagHandler* child = parent->tag ? parent->tag(self, tag, attributes) : nullptr;
         if (child) {
             if (child->start) {
@@ -601,18 +601,18 @@ static void XMLCALL end_element_handler(void* data, const char* tag) {
     --self->fDepth;
 
     if (!self->fSkip) {
-        const TagHandler* child = self->fHandler.top();
+        const TagHandler* child = self->fHandler.back();
         if (child->end) {
             child->end(self, tag);
         }
         self->fHandler.pop();
-        const TagHandler* parent = self->fHandler.top();
+        const TagHandler* parent = self->fHandler.back();
         XML_SetCharacterDataHandler(self->fParser, parent->chars);
     }
 
     if (self->fSkip == self->fDepth) {
         self->fSkip = 0;
-        const TagHandler* parent = self->fHandler.top();
+        const TagHandler* parent = self->fHandler.back();
         XML_SetCharacterDataHandler(self->fParser, parent->chars);
     }
 }

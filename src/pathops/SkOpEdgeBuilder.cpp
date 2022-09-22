@@ -113,9 +113,9 @@ int SkOpEdgeBuilder::preFetch() {
             case SkPath::kLine_Verb:
                 curve[1] = force_small_to_zero(pts[1]);
                 if (SkDPoint::ApproximatelyEqual(curve[0], curve[1])) {
-                    uint8_t lastVerb = fPathVerbs.top();
+                    uint8_t lastVerb = fPathVerbs.back();
                     if (lastVerb != SkPath::kLine_Verb && lastVerb != SkPath::kMove_Verb) {
-                        fPathPts.top() = curve[0] = curve[1];
+                        fPathPts.back() = curve[0] = curve[1];
                     }
                     continue;  // skip degenerate points
                 }

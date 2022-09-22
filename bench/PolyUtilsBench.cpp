@@ -123,9 +123,9 @@ public:
         SkScalar rad = 0;
         const SkScalar drad = SK_ScalarPI / n;
         for (int i = 0; i < n; i++) {
-            *poly->push() = SkPoint::Make(c + SkScalarCos(rad) * r1, c + SkScalarSin(rad) * r1);
+            *poly->append() = SkPoint::Make(c + SkScalarCos(rad) * r1, c + SkScalarSin(rad) * r1);
             rad += drad;
-            *poly->push() = SkPoint::Make(c + SkScalarCos(rad) * r2, c + SkScalarSin(rad) * r2);
+            *poly->append() = SkPoint::Make(c + SkScalarCos(rad) * r2, c + SkScalarSin(rad) * r2);
             rad += drad;
         }
     }
@@ -148,7 +148,7 @@ public:
         SkScalar rad = 0;
         const SkScalar drad = 2 * SK_ScalarPI / n;
         for (int i = 0; i < n; i++) {
-            *poly->push() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
+            *poly->append() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
             rad += drad;
         }
     }
@@ -171,10 +171,10 @@ public:
 
         SkScalar rad = -SK_ScalarPI / 2;
         const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
-        *poly->push() = SkPoint::Make(c, c - r);
+        *poly->append() = SkPoint::Make(c, c - r);
         for (int i = 1; i < n; i++) {
             rad += drad;
-            *poly->push() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
+            *poly->append() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
         }
     }
 private:
@@ -197,11 +197,11 @@ public:
         SkScalar rad = 0;
         const SkScalar drad = 3 * SK_ScalarPI / (2*n);
         for (int i = 0; i < n; i++) {
-            *poly->push() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
+            *poly->append() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
             rad += drad;
         }
         // and the mouth
-        *poly->push() = SkPoint::Make(45, 45);
+        *poly->append() = SkPoint::Make(45, 45);
     }
 private:
     using INHERITED = PolyUtilsBench;
@@ -222,11 +222,11 @@ public:
         SkScalar rad = 0;
         const SkScalar drad = 3 * SK_ScalarPI / (2*n);
         for (int i = 0; i < n; i++) {
-            *poly->push() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
+            *poly->append() = SkPoint::Make(c + SkScalarCos(rad) * r, c + SkScalarSin(rad) * r);
             rad += drad;
         }
         // and the tip of the cone
-        *poly->push() = SkPoint::Make(90, 0);
+        *poly->append() = SkPoint::Make(90, 0);
     }
 private:
     using INHERITED = PolyUtilsBench;

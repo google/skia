@@ -126,7 +126,7 @@ void SkBasicEdgeBuilder::addLine(const SkPoint pts[]) {
     SkEdge* edge = fAlloc.make<SkEdge>();
     if (edge->setLine(pts[0], pts[1], fClipShift)) {
         Combine combine = is_vertical(edge) && !fList.empty()
-            ? this->combineVertical(edge, (SkEdge*)fList.top())
+            ? this->combineVertical(edge, (SkEdge*)fList.back())
             : kNo_Combine;
 
         switch (combine) {
@@ -141,7 +141,7 @@ void SkAnalyticEdgeBuilder::addLine(const SkPoint pts[]) {
     if (edge->setLine(pts[0], pts[1])) {
 
         Combine combine = is_vertical(edge) && !fList.empty()
-            ? this->combineVertical(edge, (SkAnalyticEdge*)fList.top())
+            ? this->combineVertical(edge, (SkAnalyticEdge*)fList.back())
             : kNo_Combine;
 
         switch (combine) {

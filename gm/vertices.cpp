@@ -224,9 +224,9 @@ static void draw_batching(SkCanvas* canvas) {
     fill_mesh(pts, texs, colors, 1);
 
     SkTDArray<SkMatrix> matrices;
-    matrices.push()->reset();
-    matrices.push()->setTranslate(0, 40);
-    matrices.push()
+    matrices.append()->reset();
+    matrices.append()->setTranslate(0, 40);
+    matrices.append()
             ->setRotate(45, kMeshSize / 2, kMeshSize / 2)
             .postScale(1.2f, .8f, kMeshSize / 2, kMeshSize / 2)
             .postTranslate(0, 80);

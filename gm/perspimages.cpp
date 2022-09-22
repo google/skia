@@ -45,10 +45,10 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         SkTDArray<SkMatrix> matrices;
-        matrices.push()->setAll(1.f, 0.f,    0.f,
+        matrices.append()->setAll(1.f, 0.f,    0.f,
                                 0.f, 1.f,    0.f,
                                 0.f, 0.005f, 1.f);
-        matrices.push()->setAll(1.f,     0.f,    0.f,
+        matrices.append()->setAll(1.f,     0.f,    0.f,
                                 0.f,     1.f,    0.f,
                                 0.007f, -0.005f, 1.f);
         matrices[1].preSkew(0.2f, -0.1f);

@@ -63,15 +63,15 @@ public:
     }
     SkTDArray(const std::initializer_list<T>& list) : SkTDArray(list.begin(), list.size()) {}
     SkTDArray(const SkTDArray<T>& src) {
-        fReserve = fStorage.assign(src.array(), src.fCount, sizeof(T));
+        fReserve = fStorage.assign(src.data(), src.fCount, sizeof(T));
         fCount = src.fCount;
     }
     SkTDArray<T>& operator=(const SkTDArray<T>& src) {
         if (this != &src) {
             if (src.fCount > fReserve) {
-                fReserve = fStorage.assign(src.array(), src.fCount, sizeof(T));
+                fReserve = fStorage.assign(src.data(), src.fCount, sizeof(T));
             } else {
-                sk_careful_memcpy(this->array(), src.array(), sizeof(T) * SkToSizeT(src.fCount));
+                sk_careful_memcpy(this->data(), src.data(), sizeof(T) * SkToSizeT(src.fCount));
             }
             fCount = src.fCount;
         }
@@ -94,7 +94,7 @@ public:
 
     friend bool operator==(const SkTDArray<T>& a, const SkTDArray<T>& b) {
         return a.fCount == b.fCount &&
-               (a.fCount == 0 || !memcmp(a.array(), b.array(), SkToSizeT(a.fCount) * sizeof(T)));
+               (a.fCount == 0 || !memcmp(a.data(), b.data(), SkToSizeT(a.fCount) * sizeof(T)));
     }
     friend bool operator!=(const SkTDArray<T>& a, const SkTDArray<T>& b) { return !(a == b); }
 
@@ -120,31 +120,31 @@ public:
     // return the number of bytes in the array: count * sizeof(T)
     size_t bytes() const { return fCount * sizeof(T); }
 
-    T*       data() { return this->array(); }
-    const T* data() const { return this->array(); }
-    T*       begin() { return this->array(); }
-    const T* begin() const { return this->array(); }
-    T*       end() { return this->array() ? this->array() + fCount : nullptr; }
-    const T* end() const { return this->array() ? this->array() + fCount : nullptr; }
+    T*       data() { return fStorage.data<T>(); }
+    const T* data() const { return fStorage.data<T>(); }
+    T*       begin() { return this->data(); }
+    const T* begin() const { return this->data(); }
+    T*       end() { return this->data() ? this->data() + fCount : nullptr; }
+    const T* end() const { return this->data() ? this->data() + fCount : nullptr; }
 
     T& operator[](int index) {
         SkASSERT(index < fCount);
-        return this->array()[index];
+        return this->data()[index];
     }
     const T& operator[](int index) const {
         SkASSERT(index < fCount);
-        return this->array()[index];
+        return this->data()[index];
     }
 
     T& getAt(int index) { return (*this)[index]; }
 
     const T& back() const {
         SkASSERT(fCount > 0);
-        return this->array()[fCount - 1];
+        return this->data()[fCount - 1];
     }
     T& back() {
         SkASSERT(fCount > 0);
-        return this->array()[fCount - 1];
+        return this->data()[fCount - 1];
     }
 
     void reset() {
@@ -178,8 +178,8 @@ public:
 
     T* prepend() {
         this->adjustCount(1);
-        memmove(this->array() + 1, this->array(), (fCount - 1) * sizeof(T));
-        return this->array();
+        memmove(this->data() + 1, this->data(), (fCount - 1) * sizeof(T));
+        return this->data();
     }
 
     T* append() { return this->append(1, nullptr); }
@@ -188,7 +188,7 @@ public:
         auto [newCount, newReserve] = fStorage.append(src, count, sizeof(T), fReserve, fCount);
         fCount = newCount;
         fReserve = newReserve;
-        return this->array() + oldCount;
+        return this->data() + oldCount;
     }
 
     T* insert(int index) { return this->insert(index, 1, nullptr); }
@@ -197,7 +197,7 @@ public:
         SkASSERT(index <= fCount);
         size_t oldCount = fCount;
         this->adjustCount(count);
-        T* dst = this->array() + index;
+        T* dst = this->data() + index;
         memmove(dst + count, dst, sizeof(T) * (oldCount - index));
         if (src) {
             memcpy(dst, src, sizeof(T) * count);
@@ -208,7 +208,7 @@ public:
     void remove(int index, int count = 1) {
         SkASSERT(index + count <= fCount);
         fCount = fCount - count;
-        memmove(this->array() + index, this->array() + index + count, sizeof(T) * (fCount - index));
+        memmove(this->data() + index, this->data() + index + count, sizeof(T) * (fCount - index));
     }
 
     void removeShuffle(int index) {
@@ -216,25 +216,25 @@ public:
         int newCount = fCount - 1;
         fCount = newCount;
         if (index != newCount) {
-            memcpy(this->array() + index, this->array() + newCount, sizeof(T));
+            memcpy(this->data() + index, this->data() + newCount, sizeof(T));
         }
     }
 
     int find(const T& elem) const {
-        const T* iter = this->array();
-        const T* stop = this->array() + fCount;
+        const T* iter = this->data();
+        const T* stop = this->data() + fCount;
 
         for (; iter < stop; iter++) {
             if (*iter == elem) {
-                return SkToInt(iter - this->array());
+                return SkToInt(iter - this->data());
             }
         }
         return -1;
     }
 
     int rfind(const T& elem) const {
-        const T* iter = this->array() + fCount;
-        const T* stop = this->array();
+        const T* iter = this->data() + fCount;
+        const T* stop = this->data();
 
         while (iter > stop) {
             if (*--iter == elem) {
@@ -256,7 +256,7 @@ public:
             return 0;
         }
         int count = std::min(max, fCount - index);
-        memcpy(dst, this->array() + index, sizeof(T) * count);
+        memcpy(dst, this->data() + index, sizeof(T) * count);
         return count;
     }
 
@@ -264,9 +264,7 @@ public:
 
     // routines to treat the array like a stack
     void     push_back(const T& v) { *this->append() = v; }
-    T*       push() { return this->append(); }
-    const T& top() const { return (*this)[fCount - 1]; }
-    T&       top() { return (*this)[fCount - 1]; }
+
     void     pop(T* elem) {
         SkASSERT(fCount > 0);
         if (elem) *elem = (*this)[fCount - 1];
@@ -278,8 +276,8 @@ public:
     }
 
     void deleteAll() {
-        T* iter = this->array();
-        T* stop = this->array() + fCount;
+        T* iter = this->data();
+        T* stop = this->data() + fCount;
         while (iter < stop) {
             delete *iter;
             iter += 1;
@@ -288,8 +286,8 @@ public:
     }
 
     void freeAll() {
-        T* iter = this->array();
-        T* stop = this->array() + fCount;
+        T* iter = this->data();
+        T* stop = this->data() + fCount;
         while (iter < stop) {
             sk_free(*iter);
             iter += 1;
@@ -298,8 +296,8 @@ public:
     }
 
     void unrefAll() {
-        T* iter = this->array();
-        T* stop = this->array() + fCount;
+        T* iter = this->data();
+        T* stop = this->data() + fCount;
         while (iter < stop) {
             (*iter)->unref();
             iter += 1;
@@ -308,8 +306,8 @@ public:
     }
 
     void safeUnrefAll() {
-        T* iter = this->array();
-        T* stop = this->array() + fCount;
+        T* iter = this->data();
+        T* stop = this->data() + fCount;
         while (iter < stop) {
             SkSafeUnref(*iter);
             iter += 1;
@@ -319,8 +317,8 @@ public:
 
 #ifdef SK_DEBUG
     void validate() const {
-        SkASSERT((fReserve == 0 && this->array() == nullptr) ||
-                 (fReserve > 0 && this->array() != nullptr));
+        SkASSERT((fReserve == 0 && this->data() == nullptr) ||
+                 (fReserve > 0 && this->data() != nullptr));
         SkASSERT(fCount <= fReserve);
     }
 #endif
@@ -332,9 +330,6 @@ public:
     }
 
 private:
-    T* array() { return fStorage.data<T>(); }
-    const T* array() const { return fStorage.data<T>(); }
-
     // Adjusts the number of elements in the array.
     // This is the same as calling setCount(count() + delta).
     void adjustCount(int delta) {

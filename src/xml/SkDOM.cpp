@@ -217,16 +217,15 @@ protected:
             node->fNextSibling = nullptr;
             fRoot = node;
         } else { // this adds siblings in reverse order. gets corrected in onEndElement()
-            SkDOM::Node* parent = fParentStack.top();
+            SkDOM::Node* parent = fParentStack.back();
             SkASSERT(fRoot && parent);
             node->fNextSibling = parent->fFirstChild;
             parent->fFirstChild = node;
         }
-        *fParentStack.push() = node;
+        *fParentStack.append() = node;
 
         sk_careful_memcpy(node->attrs(), fAttrs.begin(), attrCount * sizeof(SkDOM::Attr));
         fAttrs.reset();
-
     }
 
     bool onStartElement(const char elem[]) override {

@@ -95,10 +95,10 @@ int GrAAConvexTessellator::addPt(const SkPoint& pt,
     this->validate();
 
     int index = fPts.count();
-    *fPts.push() = pt;
-    *fCoverages.push() = coverage;
-    *fMovable.push() = movable;
-    *fCurveState.push() = curve;
+    *fPts.append() = pt;
+    *fCoverages.append() = coverage;
+    *fMovable.append() = movable;
+    *fCurveState.append() = curve;
 
     this->validate();
     return index;
@@ -142,9 +142,9 @@ void GrAAConvexTessellator::addTri(int i0, int i1, int i2) {
         return;
     }
 
-    *fIndices.push() = i0;
-    *fIndices.push() = i1;
-    *fIndices.push() = i2;
+    *fIndices.append() = i0;
+    *fIndices.append() = i1;
+    *fIndices.append() = i2;
 }
 
 void GrAAConvexTessellator::rewind() {
@@ -175,14 +175,14 @@ void GrAAConvexTessellator::computeNormals() {
     // Check the cross product of the final trio
     fNorms.append(fPts.count());
     fNorms[0] = fPts[1] - fPts[0];
-    fNorms.top() = fPts[0] - fPts.top();
-    SkScalar cross = SkPoint::CrossProduct(fNorms[0], fNorms.top());
+    fNorms.back() = fPts[0] - fPts.back();
+    SkScalar cross = SkPoint::CrossProduct(fNorms[0], fNorms.back());
     fSide = (cross > 0.0f) ? SkPointPriv::kRight_Side : SkPointPriv::kLeft_Side;
     fNorms[0] = normalToVector(fNorms[0]);
     for (int cur = 1; cur < fNorms.count() - 1; ++cur) {
         fNorms[cur] = normalToVector(fPts[cur + 1] - fPts[cur]);
     }
-    fNorms.top() = normalToVector(fNorms.top());
+    fNorms.back() = normalToVector(fNorms.back());
 }
 
 void GrAAConvexTessellator::computeBisectors() {
@@ -452,10 +452,10 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     fAccumLinearError = 0.f;
     bool noRemovalsToDo = false;
     while (!noRemovalsToDo && this->numPts() >= 3) {
-        if (points_are_colinear_and_b_is_middle(fPts[fPts.count() - 2], fPts.top(), fPts[0],
+        if (points_are_colinear_and_b_is_middle(fPts[fPts.count() - 2], fPts.back(), fPts[0],
                                                 &fAccumLinearError)) {
             this->popLastPt();
-        } else if (points_are_colinear_and_b_is_middle(fPts.top(), fPts[0], fPts[1],
+        } else if (points_are_colinear_and_b_is_middle(fPts.back(), fPts[0], fPts[1],
                                                        &fAccumLinearError)) {
             this->popFirstPtShuffle();
         } else {
@@ -904,7 +904,7 @@ bool GrAAConvexTessellator::Ring::isConvex(const GrAAConvexTessellator& tess) co
         return true;
     }
 
-    SkPoint prev = tess.point(fPts[0].fIndex) - tess.point(fPts.top().fIndex);
+    SkPoint prev = tess.point(fPts[0].fIndex) - tess.point(fPts.back().fIndex);
     SkPoint cur  = tess.point(fPts[1].fIndex) - tess.point(fPts[0].fIndex);
     SkScalar minDot = prev.fX * cur.fY - prev.fY * cur.fX;
     SkScalar maxDot = minDot;
@@ -939,7 +939,7 @@ void GrAAConvexTessellator::lineTo(const SkPoint& p, CurveState curve) {
     }
 
     if (this->numPts() >= 2 &&
-        points_are_colinear_and_b_is_middle(fPts[fPts.count() - 2], fPts.top(), p,
+        points_are_colinear_and_b_is_middle(fPts[fPts.count() - 2], fPts.back(), p,
                                             &fAccumLinearError)) {
         // The old last point is on the line from the second to last to the new point
         this->popLastPt();

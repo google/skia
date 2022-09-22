@@ -276,7 +276,7 @@ private:
     void trackBounds(const SaveLayer& op)  { this->pushSaveBlock(op.paint); }
     void trackBounds(const SaveBehind&)    { this->pushSaveBlock(nullptr); }
     void trackBounds(const Restore&) {
-        const bool isSaveLayer = fSaveStack.top().paint != nullptr;
+        const bool isSaveLayer = fSaveStack.back().paint != nullptr;
         fBounds[fCurrentOp] = this->popSaveBlock();
         fMeta  [fCurrentOp].isDraw = isSaveLayer;
     }
@@ -376,20 +376,20 @@ private:
     void pushControl() {
         fControlIndices.push_back(fCurrentOp);
         if (!fSaveStack.isEmpty()) {
-            fSaveStack.top().controlOps++;
+            fSaveStack.back().controlOps++;
         }
     }
 
     void popControl(const Bounds& bounds) {
-        fBounds[fControlIndices.top()] = bounds;
-        fMeta  [fControlIndices.top()].isDraw = false;
+        fBounds[fControlIndices.back()] = bounds;
+        fMeta  [fControlIndices.back()].isDraw = false;
         fControlIndices.pop();
     }
 
     void updateSaveBounds(const Bounds& bounds) {
         // If we're in a Save block, expand its bounds to cover these bounds too.
         if (!fSaveStack.isEmpty()) {
-            fSaveStack.top().bounds.join(bounds);
+            fSaveStack.back().bounds.join(bounds);
         }
     }
 

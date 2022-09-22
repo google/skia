@@ -255,7 +255,7 @@ void SkPictureRecord::recordConcat(const SkMatrix& matrix) {
 }
 
 void SkPictureRecord::fillRestoreOffsetPlaceholdersForCurrentStackLevel(uint32_t restoreOffset) {
-    int32_t offset = fRestoreOffsetStack.top();
+    int32_t offset = fRestoreOffsetStack.back();
     while (offset > 0) {
         uint32_t peek = fWriter.readTAt<uint32_t>(offset);
         fWriter.overwriteTAt(offset, restoreOffset);
@@ -295,11 +295,11 @@ size_t SkPictureRecord::recordRestoreOffsetPlaceholder() {
     // in the current stack level, thus forming a linked list so that
     // the restore offsets can be filled in when the corresponding
     // restore command is recorded.
-    int32_t prevOffset = fRestoreOffsetStack.top();
+    int32_t prevOffset = fRestoreOffsetStack.back();
 
     size_t offset = fWriter.bytesWritten();
     this->addInt(prevOffset);
-    fRestoreOffsetStack.top() = SkToU32(offset);
+    fRestoreOffsetStack.back() = SkToU32(offset);
     return offset;
 }
 
