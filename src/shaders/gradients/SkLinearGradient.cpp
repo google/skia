@@ -69,7 +69,8 @@ SkShaderBase::Context* SkLinearGradient::onMakeContext(
 {
 #if defined(SK_SUPPORT_LEGACY_RASTER_GRADIENTS)
     // make sure our colorspaces are compatible with legacy blits
-    if (!rec.isLegacyCompatible(fColorSpace.get())) {
+    if (fInterpolation.fColorSpace != SkGradientShader::Interpolation::ColorSpace::kDestination ||
+        !rec.isLegacyCompatible(fColorSpace.get())) {
         return nullptr;
     }
     // Can't use legacy blit if we can't represent our colors as SkColors
@@ -152,7 +153,7 @@ sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
     if (!pts || !SkScalarIsFinite((pts[1] - pts[0]).length())) {
         return nullptr;
     }
-    if (!SkGradientShaderBase::ValidGradient(colors, pos, colorCount, mode)) {
+    if (!SkGradientShaderBase::ValidGradient(colors, colorCount, mode, interpolation)) {
         return nullptr;
     }
     if (1 == colorCount) {

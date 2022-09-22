@@ -62,10 +62,51 @@ public:
     struct Interpolation {
         enum class InPremul : bool { kNo = false, kYes = true };
 
+        enum class ColorSpace : uint8_t {
+            // Default Skia behavior: interpolate in the color space of the destination surface
+            kDestination,
+
+            // https://www.w3.org/TR/css-color-4/#interpolation-space
+            kXYZD65,
+            kXYZD50,
+            kSRGBLinear,
+            kLab,
+            kOKLab,
+            kLCH,
+            kOKLCH,
+            kSRGB,
+            kHSL,
+            kHWB,
+
+            kLastColorSpace = kHWB,
+        };
+        static constexpr int kColorSpaceCount = static_cast<int>(ColorSpace::kLastColorSpace) + 1;
+
+        enum class HueMethod : uint8_t {
+            // https://www.w3.org/TR/css-color-4/#hue-interpolation
+            kShorter,
+            kLonger,
+            kIncreasing,
+            kDecreasing,
+
+            kLastHueMethod = kDecreasing,
+        };
+        static constexpr int kHueMethodCount = static_cast<int>(HueMethod::kLastHueMethod) + 1;
+
         InPremul fInPremul = InPremul::kNo;
 
+        /*
+         * NOTE: Do not use fColorSpace or fHueMethod (yet). These features are in development and
+         * incomplete. This comment (and RELEASE_NOTES.txt) will be updated once the features are
+         * ready to be used.
+         */
+        ColorSpace fColorSpace = ColorSpace::kDestination;
+        HueMethod  fHueMethod  = HueMethod::kShorter;  // Only relevant for LCH, OKLCH, HSL, or HWB
+
         static Interpolation FromFlags(uint32_t flags) {
-            return {flags & kInterpolateColorsInPremul_Flag ? InPremul::kYes : InPremul::kNo};
+            return {flags & kInterpolateColorsInPremul_Flag ? InPremul::kYes : InPremul::kNo,
+                    ColorSpace::kDestination,
+                    HueMethod::kShorter};
         }
     };
 

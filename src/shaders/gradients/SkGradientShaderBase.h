@@ -74,8 +74,8 @@ public:
 
     const SkMatrix& getGradientMatrix() const { return fPtsToUnit; }
 
-    static bool ValidGradient(const SkColor4f colors[], const SkScalar pos[], int count,
-                              SkTileMode tileMode);
+    static bool ValidGradient(const SkColor4f colors[], int count, SkTileMode tileMode,
+                              const Interpolation& interpolation);
 
     static sk_sp<SkShader> MakeDegenerateGradient(const SkColor4f colors[], const SkScalar pos[],
                                                   int colorCount, sk_sp<SkColorSpace> colorSpace,

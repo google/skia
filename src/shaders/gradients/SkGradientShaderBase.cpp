@@ -28,26 +28,17 @@ enum GradientSerializationFlags {
     kTileModeShift_GSF  = 8,
     kTileModeMask_GSF   = 0xF,
 
-    // Bits 0:7 for fGradFlags
-    kGradFlagsShift_GSF = 0,
-    kGradFlagsMask_GSF  = 0xFF,
+    // Bits 4:7 for fInterpolation.fColorSpace
+    kInterpolationColorSpaceShift_GSF = 4,
+    kInterpolationColorSpaceMask_GSF  = 0xF,
+
+    // Bits 1:3 for fInterpolation.fHueMethod
+    kInterpolationHueMethodShift_GSF = 1,
+    kInterpolationHueMethodMask_GSF  = 0x7,
+
+    // Bit 0 for fInterpolation.fInPremul
+    kInterpolationInPremul_GSF = 0x1,
 };
-
-static uint32_t interpolation_to_grad_flags(const SkGradientShader::Interpolation& interpolation) {
-    uint32_t flags = 0;
-    if (interpolation.fInPremul == SkGradientShader::Interpolation::InPremul::kYes) {
-        flags |= SkGradientShader::kInterpolateColorsInPremul_Flag;
-    }
-    return flags;
-}
-
-static SkGradientShader::Interpolation grad_flags_to_interpolation(uint32_t flags) {
-    SkGradientShader::Interpolation interpolation;
-    if (flags & SkGradientShader::kInterpolateColorsInPremul_Flag) {
-        interpolation.fInPremul = SkGradientShader::Interpolation::InPremul::kYes;
-    }
-    return interpolation;
-}
 
 SkGradientShaderBase::Descriptor::Descriptor() {
     sk_bzero(this, sizeof(*this));
@@ -64,11 +55,15 @@ void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
     if (colorSpaceData) {
         flags |= kHasColorSpace_GSF;
     }
+    if (fInterpolation.fInPremul == Interpolation::InPremul::kYes) {
+        flags |= kInterpolationInPremul_GSF;
+    }
     SkASSERT(static_cast<uint32_t>(fTileMode) <= kTileModeMask_GSF);
-    flags |= ((unsigned)fTileMode << kTileModeShift_GSF);
-    const uint32_t gradFlags = interpolation_to_grad_flags(fInterpolation);
-    SkASSERT(gradFlags <= kGradFlagsMask_GSF);
-    flags |= (gradFlags << kGradFlagsShift_GSF);
+    flags |= ((uint32_t)fTileMode << kTileModeShift_GSF);
+    SkASSERT(static_cast<uint32_t>(fInterpolation.fColorSpace) <= kInterpolationColorSpaceMask_GSF);
+    flags |= ((uint32_t)fInterpolation.fColorSpace << kInterpolationColorSpaceShift_GSF);
+    SkASSERT(static_cast<uint32_t>(fInterpolation.fHueMethod) <= kInterpolationHueMethodMask_GSF);
+    flags |= ((uint32_t)fInterpolation.fHueMethod << kInterpolationHueMethodShift_GSF);
 
     buffer.writeUInt(flags);
 
@@ -97,8 +92,13 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer,
     uint32_t flags = buffer.readUInt();
 
     fTileMode = (SkTileMode)((flags >> kTileModeShift_GSF) & kTileModeMask_GSF);
-    uint32_t gradFlags = (flags >> kGradFlagsShift_GSF) & kGradFlagsMask_GSF;
-    fInterpolation = grad_flags_to_interpolation(gradFlags);
+
+    fInterpolation.fColorSpace = (Interpolation::ColorSpace)(
+            (flags >> kInterpolationColorSpaceShift_GSF) & kInterpolationColorSpaceMask_GSF);
+    fInterpolation.fHueMethod = (Interpolation::HueMethod)(
+            (flags >> kInterpolationHueMethodShift_GSF) & kInterpolationHueMethodMask_GSF);
+    fInterpolation.fInPremul = (flags & kInterpolationInPremul_GSF) ? Interpolation::InPremul::kYes
+                                                                    : Interpolation::InPremul::kNo;
 
     fCount = buffer.getArrayCount();
 
@@ -673,9 +673,11 @@ void SkGradientShaderBase::commonAsAGradient(GradientInfo* info) const {
 
 // Return true if these parameters are valid/legal/safe to construct a gradient
 //
-bool SkGradientShaderBase::ValidGradient(const SkColor4f colors[], const SkScalar pos[], int count,
-                                         SkTileMode tileMode) {
-    return nullptr != colors && count >= 1 && (unsigned)tileMode < kSkTileModeCount;
+bool SkGradientShaderBase::ValidGradient(const SkColor4f colors[], int count, SkTileMode tileMode,
+                                         const Interpolation& interpolation) {
+    return nullptr != colors && count >= 1 && (unsigned)tileMode < kSkTileModeCount &&
+           (unsigned)interpolation.fColorSpace < Interpolation::kColorSpaceCount &&
+           (unsigned)interpolation.fHueMethod < Interpolation::kHueMethodCount;
 }
 
 SkGradientShaderBase::Descriptor::Descriptor(const SkColor4f colors[],
