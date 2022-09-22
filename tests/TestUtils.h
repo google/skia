@@ -10,6 +10,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
+#include "src/gpu/ganesh/GrPixmap.h"
 #include "tests/Test.h"
 
 namespace skgpu::v1 { class SurfaceContext; }
@@ -43,8 +44,7 @@ bool BipmapToBase64DataURI(const SkBitmap& bitmap, SkString* dst);
 using ComparePixmapsErrorReporter = void(int x, int y, const float diffs[4]);
 
 /**
- * Compares pixels pointed to by 'a' with 'infoA' and rowBytesA to pixels pointed to by 'b' with
- * 'infoB' and 'rowBytesB'.
+ * Compares pixels pointed to by 'a' to pixels pointed to by 'b'.
  *
  * If the pixmaps have different dimensions error is called with negative coordinate values and
  * zero diffs and no comparisons are made.
