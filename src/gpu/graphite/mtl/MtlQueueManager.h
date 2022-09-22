@@ -34,8 +34,8 @@ private:
     OutstandingSubmission onSubmitToGpu() override;
 
 #if GRAPHITE_TEST_UTILS
-    void testingOnly_startCapture() override;
-    void testingOnly_endCapture() override;
+    void startCapture() override;
+    void endCapture() override;
 #endif
 
     sk_cfp<id<MTLCommandQueue>> fQueue;

@@ -68,7 +68,7 @@ QueueManager::OutstandingSubmission MtlQueueManager::onSubmitToGpu() {
 }
 
 #if GRAPHITE_TEST_UTILS
-void MtlQueueManager::testingOnly_startCapture() {
+void MtlQueueManager::startCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         // TODO: add newer Metal interface as well
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
@@ -90,7 +90,7 @@ void MtlQueueManager::testingOnly_startCapture() {
      }
 }
 
-void MtlQueueManager::testingOnly_endCapture() {
+void MtlQueueManager::endCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
         if (captureManager.isCapturing) {

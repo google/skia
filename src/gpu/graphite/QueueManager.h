@@ -31,8 +31,8 @@ public:
     void checkForFinishedWork(SyncToCpu);
 
 #if GRAPHITE_TEST_UTILS
-    virtual void testingOnly_startCapture() {}
-    virtual void testingOnly_endCapture() {}
+    virtual void startCapture() {}
+    virtual void endCapture() {}
 #endif
 
 protected:
