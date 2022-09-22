@@ -32,7 +32,7 @@ public:
 
 #if GRAPHITE_TEST_UTILS
     virtual void startCapture() {}
-    virtual void endCapture() {}
+    virtual void stopCapture() {}
 #endif
 
 protected:

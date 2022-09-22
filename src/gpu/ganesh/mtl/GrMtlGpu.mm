@@ -229,7 +229,7 @@ bool GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     this->checkForFinishedCommandBuffers();
 
 #if GR_METAL_CAPTURE_COMMANDBUFFER
-    this->testingOnly_endCapture();
+    this->testingOnly_stopCapture();
 #endif
     return didCommit;
 }
@@ -1770,7 +1770,7 @@ void GrMtlGpu::testingOnly_startCapture() {
      }
 }
 
-void GrMtlGpu::testingOnly_endCapture() {
+void GrMtlGpu::testingOnly_stopCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
         if (captureManager.isCapturing) {

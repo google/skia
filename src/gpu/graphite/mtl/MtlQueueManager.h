@@ -35,7 +35,7 @@ private:
 
 #if GRAPHITE_TEST_UTILS
     void startCapture() override;
-    void endCapture() override;
+    void stopCapture() override;
 #endif
 
     sk_cfp<id<MTLCommandQueue>> fQueue;

@@ -69,7 +69,7 @@ public:
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     void testingOnly_startCapture() override;
-    void testingOnly_endCapture() override;
+    void testingOnly_stopCapture() override;
 
     void resetShaderCacheForTesting() const override {
         fResourceProvider.resetShaderCacheForTesting();

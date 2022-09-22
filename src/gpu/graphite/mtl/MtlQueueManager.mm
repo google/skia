@@ -90,7 +90,7 @@ void MtlQueueManager::startCapture() {
      }
 }
 
-void MtlQueueManager::endCapture() {
+void MtlQueueManager::stopCapture() {
     if (@available(macOS 10.13, iOS 11.0, *)) {
         MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
         if (captureManager.isCapturing) {

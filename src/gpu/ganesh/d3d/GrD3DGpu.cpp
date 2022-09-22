@@ -1675,7 +1675,7 @@ void GrD3DGpu::testingOnly_startCapture() {
     }
 }
 
-void GrD3DGpu::testingOnly_endCapture() {
+void GrD3DGpu::testingOnly_stopCapture() {
     if (fGraphicsAnalysis) {
         fGraphicsAnalysis->EndCapture();
     }

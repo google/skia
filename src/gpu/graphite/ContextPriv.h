@@ -38,8 +38,8 @@ public:
     void startCapture() {
         fContext->fQueueManager->startCapture();
     }
-    void endCapture() {
-        fContext->fQueueManager->endCapture();
+    void stopCapture() {
+        fContext->fQueueManager->stopCapture();
     }
 #endif
 

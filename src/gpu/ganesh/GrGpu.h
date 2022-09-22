@@ -643,7 +643,7 @@ public:
      * Currently only works with the Metal backend.
      */
     virtual void testingOnly_startCapture() {}
-    virtual void testingOnly_endCapture() {}
+    virtual void testingOnly_stopCapture() {}
 #endif
 
     // width and height may be larger than rt (if underlying API allows it).

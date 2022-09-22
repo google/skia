@@ -296,7 +296,7 @@ private:
 
 #if GR_TEST_UTILS
     void testingOnly_startCapture() override;
-    void testingOnly_endCapture() override;
+    void testingOnly_stopCapture() override;
 #endif
 
 #ifdef SK_ENABLE_DUMP_GPU
