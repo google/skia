@@ -108,7 +108,7 @@ int SkCharToGlyphCache::findGlyphIndex(SkUnichar unichar) const {
 
 void SkCharToGlyphCache::insertCharAndGlyph(int index, SkUnichar unichar, SkGlyphID glyph) {
     SkASSERT(fK32.size() == fV16.size());
-    SkASSERT((unsigned)index < fK32.size());
+    SkASSERT(index < fK32.size());
     SkASSERT(unichar < fK32[index]);
 
     *fK32.insert(index) = unichar;
