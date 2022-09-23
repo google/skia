@@ -23,6 +23,7 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
@@ -45,7 +46,6 @@ class SkJSONWriter;
 class SkWStream;
 class UrlDataManager;
 struct SkPoint3;
-struct SkRSXform;
 
 class DrawCommand {
 public:
