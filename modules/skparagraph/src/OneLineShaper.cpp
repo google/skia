@@ -519,11 +519,13 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
                 // Set up the iterators (the style iterator points to a bigger region that it could
                 TextRange textRange(start, end);
                 auto blockRange = fParagraph->findAllBlocks(textRange);
-                SkSpan<Block> styleSpan(fParagraph->blocks(blockRange));
+                if (!blockRange.empty()) {
+                    SkSpan<Block> styleSpan(fParagraph->blocks(blockRange));
 
-                // Shape the text between placeholders
-                if (!shape(textRange, styleSpan, advanceX, start, bidiRegion.level)) {
-                    return false;
+                    // Shape the text between placeholders
+                    if (!shape(textRange, styleSpan, advanceX, start, bidiRegion.level)) {
+                        return false;
+                    }
                 }
 
                 if (end == bidiRegion.end) {
@@ -547,9 +549,12 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
         SkFont font(typeface, placeholder.fTextStyle.getFontSize());
 
         // "Shape" the placeholder
+        uint8_t bidiLevel = (bidiIndex < fParagraph->fBidiRegions.size())
+            ? fParagraph->fBidiRegions[bidiIndex].level
+            : 2;
         const SkShaper::RunHandler::RunInfo runInfo = {
             font,
-            (uint8_t)2,
+            bidiLevel,
             SkPoint::Make(placeholder.fStyle.fWidth, placeholder.fStyle.fHeight),
             1,
             SkShaper::RunHandler::Range(0, placeholder.fRange.width())
