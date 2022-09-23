@@ -178,15 +178,6 @@ sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
                       localMatrix);
 }
 
-sk_sp<SkShader> SkGradientShader::MakeLinear(const SkPoint pts[2],
-                                             const SkColor4f colors[],
-                                             sk_sp<SkColorSpace> colorSpace,
-                                             const SkScalar pos[],
-                                             int count,
-                                             SkTileMode mode) {
-    return MakeLinear(pts, colors, std::move(colorSpace), pos, count, mode, 0, nullptr);
-}
-
 void SkRegisterLinearGradientShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkLinearGradient);
 }

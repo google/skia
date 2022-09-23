@@ -77,12 +77,7 @@ public:
     static sk_sp<SkShader> MakeLinear(const SkPoint pts[2],
                                       const SkColor colors[], const SkScalar pos[], int count,
                                       SkTileMode mode,
-                                      uint32_t flags, const SkMatrix* localMatrix);
-    static sk_sp<SkShader> MakeLinear(const SkPoint pts[2],
-                                      const SkColor colors[], const SkScalar pos[], int count,
-                                      SkTileMode mode) {
-        return MakeLinear(pts, colors, pos, count, mode, 0, nullptr);
-    }
+                                      uint32_t flags = 0, const SkMatrix* localMatrix = nullptr);
 
     /** Returns a shader that generates a linear gradient between the two specified points.
         <p />
@@ -101,10 +96,7 @@ public:
     static sk_sp<SkShader> MakeLinear(const SkPoint pts[2],
                                       const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
                                       const SkScalar pos[], int count, SkTileMode mode,
-                                      uint32_t flags, const SkMatrix* localMatrix);
-    static sk_sp<SkShader> MakeLinear(const SkPoint pts[2],
-                                      const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
-                                      const SkScalar pos[], int count, SkTileMode mode);
+                                      uint32_t flags = 0, const SkMatrix* localMatrix = nullptr);
 
     /** Returns a shader that generates a radial gradient given the center and radius.
         <p />
@@ -122,12 +114,7 @@ public:
     static sk_sp<SkShader> MakeRadial(const SkPoint& center, SkScalar radius,
                                       const SkColor colors[], const SkScalar pos[], int count,
                                       SkTileMode mode,
-                                      uint32_t flags, const SkMatrix* localMatrix);
-    static sk_sp<SkShader> MakeRadial(const SkPoint& center, SkScalar radius,
-                                      const SkColor colors[], const SkScalar pos[], int count,
-                                      SkTileMode mode) {
-        return MakeRadial(center, radius, colors, pos, count, mode, 0, nullptr);
-    }
+                                      uint32_t flags = 0, const SkMatrix* localMatrix = nullptr);
 
     /** Returns a shader that generates a radial gradient given the center and radius.
         <p />
@@ -145,10 +132,7 @@ public:
     static sk_sp<SkShader> MakeRadial(const SkPoint& center, SkScalar radius,
                                       const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
                                       const SkScalar pos[], int count, SkTileMode mode,
-                                      uint32_t flags, const SkMatrix* localMatrix);
-    static sk_sp<SkShader> MakeRadial(const SkPoint& center, SkScalar radius,
-                                      const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
-                                      const SkScalar pos[], int count, SkTileMode mode);
+                                      uint32_t flags = 0, const SkMatrix* localMatrix = nullptr);
 
     /**
      *  Returns a shader that generates a conical gradient given two circles, or
@@ -160,14 +144,8 @@ public:
                                                const SkPoint& end, SkScalar endRadius,
                                                const SkColor colors[], const SkScalar pos[],
                                                int count, SkTileMode mode,
-                                               uint32_t flags, const SkMatrix* localMatrix);
-    static sk_sp<SkShader> MakeTwoPointConical(const SkPoint& start, SkScalar startRadius,
-                                               const SkPoint& end, SkScalar endRadius,
-                                               const SkColor colors[], const SkScalar pos[],
-                                               int count, SkTileMode mode) {
-        return MakeTwoPointConical(start, startRadius, end, endRadius, colors, pos, count, mode,
-                                   0, nullptr);
-    }
+                                               uint32_t flags = 0,
+                                               const SkMatrix* localMatrix = nullptr);
 
     /**
      *  Returns a shader that generates a conical gradient given two circles, or
@@ -180,12 +158,8 @@ public:
                                                const SkColor4f colors[],
                                                sk_sp<SkColorSpace> colorSpace, const SkScalar pos[],
                                                int count, SkTileMode mode,
-                                               uint32_t flags, const SkMatrix* localMatrix);
-    static sk_sp<SkShader> MakeTwoPointConical(const SkPoint& start, SkScalar startRadius,
-                                               const SkPoint& end, SkScalar endRadius,
-                                               const SkColor4f colors[],
-                                               sk_sp<SkColorSpace> colorSpace, const SkScalar pos[],
-                                               int count, SkTileMode mode);
+                                               uint32_t flags = 0,
+                                               const SkMatrix* localMatrix = nullptr);
 
     /** Returns a shader that generates a sweep gradient given a center.
 
@@ -218,14 +192,10 @@ public:
                                      uint32_t flags, const SkMatrix* localMatrix);
     static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
                                      const SkColor colors[], const SkScalar pos[], int count,
-                                     uint32_t flags, const SkMatrix* localMatrix) {
+                                     uint32_t flags = 0, const SkMatrix* localMatrix = nullptr) {
         return MakeSweep(cx, cy, colors, pos, count, SkTileMode::kClamp, 0, 360, flags,
                          localMatrix);
     }
-    static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
-                                     const SkColor colors[], const SkScalar pos[], int count) {
-        return MakeSweep(cx, cy, colors, pos, count, 0, nullptr);
-    }
 
     /** Returns a shader that generates a sweep gradient given a center.
 
@@ -260,10 +230,7 @@ public:
     static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
                                      const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
                                      const SkScalar pos[], int count,
-                                     uint32_t flags, const SkMatrix* localMatrix);
-    static sk_sp<SkShader> MakeSweep(SkScalar cx, SkScalar cy,
-                                     const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
-                                     const SkScalar pos[], int count);
+                                     uint32_t flags = 0, const SkMatrix* localMatrix = nullptr);
 };
 
 #endif

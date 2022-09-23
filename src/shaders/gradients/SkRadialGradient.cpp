@@ -195,15 +195,6 @@ sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar rad
                       flags, localMatrix);
 }
 
-sk_sp<SkShader> SkGradientShader::MakeRadial(const SkPoint& center, SkScalar radius,
-                                             const SkColor4f colors[],
-                                             sk_sp<SkColorSpace> colorSpace,
-                                             const SkScalar pos[],
-                                             int count,
-                                             SkTileMode mode) {
-    return MakeRadial(center, radius, colors, std::move(colorSpace), pos, count, mode, 0, nullptr);
-}
-
 void SkRegisterRadialGradientShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkRadialGradient);
 }

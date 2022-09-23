@@ -274,14 +274,6 @@ sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
                      SkTileMode::kClamp, 0, 360, flags, localMatrix);
 }
 
-sk_sp<SkShader> SkGradientShader::MakeSweep(SkScalar cx, SkScalar cy,
-                                            const SkColor4f colors[],
-                                            sk_sp<SkColorSpace> colorSpace,
-                                            const SkScalar pos[],
-                                            int count) {
-    return MakeSweep(cx, cy, colors, std::move(colorSpace), pos, count, 0, nullptr);
-}
-
 void SkRegisterSweepGradientShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkSweepGradient);
 }
