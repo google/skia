@@ -57,7 +57,7 @@ public:
                                   const SkPoint& end, SkScalar endRadius,
                                   const Descriptor&);
 
-    SkShader::GradientType asAGradient(GradientInfo* info) const  override;
+    GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
@@ -204,7 +204,8 @@ bool SkTwoPointConicalGradient::isOpaque() const {
 }
 
 // Returns the original non-sorted version of the gradient
-SkShader::GradientType SkTwoPointConicalGradient::asAGradient(GradientInfo* info) const {
+SkShaderBase::GradientType SkTwoPointConicalGradient::asGradient(GradientInfo* info,
+                                                                 SkMatrix* localMatrix) const {
     if (info) {
         commonAsAGradient(info);
         info->fPoint[0] = fCenter1;
@@ -212,7 +213,10 @@ SkShader::GradientType SkTwoPointConicalGradient::asAGradient(GradientInfo* info
         info->fRadius[0] = fRadius1;
         info->fRadius[1] = fRadius2;
     }
-    return kConical_GradientType;
+    if (localMatrix) {
+        *localMatrix = this->getLocalMatrix();
+    }
+    return GradientType::kConical;
 }
 
 sk_sp<SkFlattenable> SkTwoPointConicalGradient::CreateProc(SkReadBuffer& buffer) {
@@ -517,7 +521,7 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
 void SkTwoPointConicalGradient::addToKey(const SkKeyContext& keyContext,
                                          SkPaintParamsKeyBuilder* builder,
                                          SkPipelineDataGatherer* gatherer) const {
-    GradientShaderBlocks::GradientData data(kConical_GradientType,
+    GradientShaderBlocks::GradientData data(GradientType::kConical,
                                             SkM44(this->getLocalMatrix()),
                                             fCenter1, fCenter2,
                                             fRadius1, fRadius2,

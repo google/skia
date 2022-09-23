@@ -335,15 +335,13 @@ SkPDFIndirectReference SkPDFMakeShader(SkPDFDocument* doc,
                                        SkColor4f paintColor) {
     SkASSERT(shader);
     SkASSERT(doc);
-    if (SkShader::kNone_GradientType != shader->asAGradient(nullptr)) {
+    if (as_SB(shader)->asGradient() != SkShaderBase::GradientType::kNone) {
         return SkPDFGradientShader::Make(doc, shader, canvasTransform, surfaceBBox);
     }
     if (surfaceBBox.isEmpty()) {
         return SkPDFIndirectReference();
     }
     SkBitmap image;
-
-    SkASSERT(shader->asAGradient(nullptr) == SkShader::kNone_GradientType) ;
 
     paintColor = adjust_color(shader, paintColor);
     SkMatrix shaderTransform;

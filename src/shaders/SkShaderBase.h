@@ -50,6 +50,21 @@ public:
 
     const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
 
+    using GradientInfo = SkShader::GradientInfo;
+    enum class GradientType {
+        kNone    = kNone_GradientType,
+        kColor   = kColor_GradientType,
+        kLinear  = kLinear_GradientType,
+        kRadial  = kRadial_GradientType,
+        kSweep   = kSweep_GradientType,
+        kConical = kConical_GradientType,
+    };
+
+    virtual GradientType asGradient(GradientInfo* info    = nullptr,
+                                    SkMatrix* localMatrix = nullptr) const {
+        return GradientType::kNone;
+    }
+
     enum Flags {
         //!< set if all of the colors will be opaque
         kOpaqueAlpha_Flag = 1 << 0,

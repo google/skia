@@ -22,9 +22,7 @@ public:
         , fProxyShader(std::move(proxy)) {
     }
 
-    GradientType asAGradient(GradientInfo* info) const override {
-        return fProxyShader->asAGradient(info);
-    }
+    GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;

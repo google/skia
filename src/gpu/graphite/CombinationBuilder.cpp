@@ -11,6 +11,7 @@
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkShaderCodeDictionary.h"
+#include "src/shaders/SkShaderBase.h"
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/ContextPriv.h"
@@ -308,7 +309,7 @@ void ArenaData_LinearGradient::beginBlock(const SkKeyContext& keyContext,
     SkASSERT(intrinsicCombination < this->numIntrinsicCombinationsDerived());
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
-                                     { SkShader::kLinear_GradientType,
+                                     { SkShaderBase::GradientType::kLinear,
                                        fMinNumStops + intrinsicCombination });
 }
 
@@ -324,7 +325,7 @@ void ArenaData_RadialGradient::beginBlock(const SkKeyContext& keyContext,
     SkASSERT(intrinsicCombination < this->numIntrinsicCombinationsDerived());
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
-                                     { SkShader::kRadial_GradientType,
+                                     { SkShaderBase::GradientType::kRadial,
                                        fMinNumStops + intrinsicCombination });
 }
 
@@ -340,7 +341,7 @@ void ArenaData_SweepGradient::beginBlock(const SkKeyContext& keyContext,
     SkASSERT(intrinsicCombination < this->numIntrinsicCombinationsDerived());
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
-                                     { SkShader::kSweep_GradientType,
+                                     { SkShaderBase::GradientType::kSweep,
                                        fMinNumStops + intrinsicCombination });
 }
 
@@ -356,7 +357,7 @@ void ArenaData_ConicalGradient::beginBlock(const SkKeyContext& keyContext,
     SkASSERT(intrinsicCombination < this->numIntrinsicCombinationsDerived());
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
-                                     { SkShader::kConical_GradientType,
+                                     { SkShaderBase::GradientType::kConical,
                                        fMinNumStops + intrinsicCombination });
 }
 

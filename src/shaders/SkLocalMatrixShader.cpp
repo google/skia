@@ -21,6 +21,15 @@
 #include "src/core/SkPaintParamsKey.h"
 #endif
 
+SkShaderBase::GradientType SkLocalMatrixShader::asGradient(GradientInfo* info,
+                                                           SkMatrix* localMatrix) const {
+    GradientType type = as_SB(fProxyShader)->asGradient(info, localMatrix);
+    if (type != SkShaderBase::GradientType::kNone && localMatrix) {
+        *localMatrix = ConcatLocalMatrices(this->getLocalMatrix(), *localMatrix);
+    }
+    return type;
+}
+
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
         const GrFPArgs& args) const {
@@ -145,8 +154,8 @@ public:
     , fCTM(ctm)
     {}
 
-    GradientType asAGradient(GradientInfo* info) const override {
-        return fProxyShader->asAGradient(info);
+    GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override {
+        return as_SB(fProxyShader)->asGradient(info, localMatrix);
     }
 
 #if SK_SUPPORT_GPU

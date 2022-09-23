@@ -173,14 +173,14 @@ private:
         IXpsOMTileBrush** xpsBrush);
 
     HRESULT createXpsLinearGradient(
-        SkShader::GradientInfo info,
+        SkShaderBase::GradientInfo info,
         const SkAlpha alpha,
         const SkMatrix& localMatrix,
         IXpsOMMatrixTransform* xpsMatrixToUse,
         IXpsOMBrush** xpsBrush);
 
     HRESULT createXpsRadialGradient(
-        SkShader::GradientInfo info,
+        SkShaderBase::GradientInfo info,
         const SkAlpha alpha,
         const SkMatrix& localMatrix,
         IXpsOMMatrixTransform* xpsMatrixToUse,

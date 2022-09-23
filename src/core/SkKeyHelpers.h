@@ -20,6 +20,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/SkColorData.h"
+#include "src/shaders/SkShaderBase.h"
 
 class SkData;
 class SkPaintParamsKeyBuilder;
@@ -70,11 +71,11 @@ struct GradientShaderBlocks {
         // This ctor is used during pre-compilation when we don't have enough information to
         // extract uniform data. However, we must be able to provide enough data to make all the
         // relevant decisions about which code snippets to use.
-        GradientData(SkShader::GradientType, int numStops);
+        GradientData(SkShaderBase::GradientType, int numStops);
 
         // This ctor is used when extracting information from PaintParams. It must provide
         // enough data to generate the uniform data the selected code snippet will require.
-        GradientData(SkShader::GradientType,
+        GradientData(SkShaderBase::GradientType,
                      const SkM44& localMatrix,
                      SkPoint point0, SkPoint point1,
                      float radius0, float radius1,
@@ -101,10 +102,10 @@ struct GradientShaderBlocks {
         bool operator!=(const GradientData& rhs) const { return !(*this == rhs); }
 
         // Layout options.
-        SkShader::GradientType fType;
-        SkM44                  fLocalMatrix;
-        SkPoint                fPoints[2];
-        float                  fRadii[2];
+        SkShaderBase::GradientType fType;
+        SkM44                      fLocalMatrix;
+        SkPoint                    fPoints[2];
+        float                      fRadii[2];
 
         // Layout options for sweep gradient.
         float                  fBias;

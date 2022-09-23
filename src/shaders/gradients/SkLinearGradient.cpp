@@ -87,13 +87,17 @@ skvm::F32 SkLinearGradient::transformT(skvm::Builder* p, skvm::Uniforms*,
     return coord.x;
 }
 
-SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
+SkShaderBase::GradientType SkLinearGradient::asGradient(GradientInfo* info,
+                                                        SkMatrix* localMatrix) const {
     if (info) {
         commonAsAGradient(info);
         info->fPoint[0] = fStart;
         info->fPoint[1] = fEnd;
     }
-    return kLinear_GradientType;
+    if (localMatrix) {
+        *localMatrix = this->getLocalMatrix();
+    }
+    return GradientType::kLinear;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -113,7 +117,7 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
 void SkLinearGradient::addToKey(const SkKeyContext& keyContext,
                                 SkPaintParamsKeyBuilder* builder,
                                 SkPipelineDataGatherer* gatherer) const {
-    GradientShaderBlocks::GradientData data(kLinear_GradientType,
+    GradientShaderBlocks::GradientData data(GradientType::kLinear,
                                             SkM44(this->getLocalMatrix()),
                                             fStart, fEnd,
                                             0.0f, 0.0f,

@@ -23,8 +23,8 @@ SkPDFIndirectReference Make(SkPDFDocument* doc,
                             const SkIRect& surfaceBBox);
 
 struct Key {
-    SkShader::GradientType fType;
-    SkShader::GradientInfo fInfo;
+    SkShaderBase::GradientType fType;
+    SkShaderBase::GradientInfo fInfo;
     std::unique_ptr<SkColor[]> fColors;
     std::unique_ptr<SkScalar[]> fStops;
     SkMatrix fCanvasTransform;
@@ -37,7 +37,7 @@ struct KeyHash {
     uint32_t operator()(const Key& k) const { return k.fHash; }
 };
 
-inline bool operator==(const SkShader::GradientInfo& u, const SkShader::GradientInfo& v) {
+inline bool operator==(const SkShaderBase::GradientInfo& u, const SkShaderBase::GradientInfo& v) {
     return u.fColorCount    == v.fColorCount
         && u.fPoint[0]      == v.fPoint[0]
         && u.fPoint[1]      == v.fPoint[1]

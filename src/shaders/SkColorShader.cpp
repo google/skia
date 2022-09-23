@@ -40,7 +40,7 @@ public:
     bool isOpaque() const override;
     bool isConstant() const override { return true; }
 
-    GradientType asAGradient(GradientInfo* info) const override;
+    GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
@@ -117,7 +117,8 @@ void SkColorShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColor(fColor);
 }
 
-SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
+SkShaderBase::GradientType SkColorShader::asGradient(GradientInfo* info,
+                                                     SkMatrix* localMatrix) const {
     if (info) {
         if (info->fColors && info->fColorCount >= 1) {
             info->fColors[0] = fColor;
@@ -125,7 +126,10 @@ SkShader::GradientType SkColorShader::asAGradient(GradientInfo* info) const {
         info->fColorCount = 1;
         info->fTileMode = SkTileMode::kRepeat;
     }
-    return kColor_GradientType;
+    if (localMatrix) {
+        *localMatrix = this->getLocalMatrix();
+    }
+    return GradientType::kColor;
 }
 
 SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space)

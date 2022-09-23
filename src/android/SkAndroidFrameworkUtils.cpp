@@ -10,6 +10,7 @@
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkDevice.h"
 #include "src/image/SkSurface_Base.h"
+#include "src/shaders/SkShaderBase.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
@@ -47,4 +48,27 @@ SkCanvas* SkAndroidFrameworkUtils::getBaseWrappedCanvas(SkCanvas* canvas) {
     }
     return result;
 }
+
+bool SkAndroidFrameworkUtils::ShaderAsALinearGradient(SkShader* shader,
+                                                      LinearGradientInfo* info) {
+    SkASSERT(shader);
+    SkTLazy<SkShaderBase::GradientInfo> baseInfo;
+    if (info) {
+        baseInfo.init();
+        baseInfo->fColorCount   = info->fColorCount;
+        baseInfo->fColors       = info->fColors;
+        baseInfo->fColorOffsets = info->fColorOffsets;
+    }
+    if (as_SB(shader)->asGradient(baseInfo.getMaybeNull()) != SkShaderBase::GradientType::kLinear) {
+        return false;
+    }
+    if (info) {
+        info->fPoints[0]     = baseInfo->fPoint[0];
+        info->fPoints[1]     = baseInfo->fPoint[1];
+        info->fTileMode      = baseInfo->fTileMode;
+        info->fGradientFlags = baseInfo->fGradientFlags;
+    }
+    return true;
+}
+
 #endif // SK_BUILD_FOR_ANDROID_FRAMEWORK

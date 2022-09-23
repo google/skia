@@ -123,7 +123,7 @@ SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
 }
 
 SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
-    return kNone_GradientType;
+    return static_cast<GradientType>(as_SB(this)->asGradient(info));
 }
 
 #if SK_SUPPORT_GPU

@@ -191,8 +191,7 @@ void add_conical_gradient_uniform_data(const SkShaderCodeDictionary* dict,
 
 #endif // SK_GRAPHITE_ENABLED
 
-GradientShaderBlocks::GradientData::GradientData(SkShader::GradientType type,
-                                                 int numStops)
+GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type, int numStops)
         : fType(type)
         , fPoints{{0.0f, 0.0f}, {0.0f, 0.0f}}
         , fRadii{0.0f, 0.0f}
@@ -204,7 +203,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShader::GradientType type,
     sk_bzero(fOffsets, sizeof(fOffsets));
 }
 
-GradientShaderBlocks::GradientData::GradientData(SkShader::GradientType type,
+GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type,
                                                  const SkM44& localMatrix,
                                                  SkPoint point0, SkPoint point1,
                                                  float radius0, float radius1,
@@ -250,7 +249,7 @@ void GradientShaderBlocks::BeginBlock(const SkKeyContext& keyContext,
     auto dict = keyContext.dict();
     SkBuiltInCodeSnippetID codeSnippetID = SkBuiltInCodeSnippetID::kSolidColorShader;
     switch (gradData.fType) {
-        case SkShader::kLinear_GradientType:
+        case SkShaderBase::GradientType::kLinear:
             codeSnippetID = gradData.fNumStops <= 4
                                     ? SkBuiltInCodeSnippetID::kLinearGradientShader4
                                     : SkBuiltInCodeSnippetID::kLinearGradientShader8;
@@ -258,7 +257,7 @@ void GradientShaderBlocks::BeginBlock(const SkKeyContext& keyContext,
                 add_linear_gradient_uniform_data(dict, codeSnippetID, gradData, gatherer);
             }
             break;
-        case SkShader::kRadial_GradientType:
+        case SkShaderBase::GradientType::kRadial:
             codeSnippetID = gradData.fNumStops <= 4
                                     ? SkBuiltInCodeSnippetID::kRadialGradientShader4
                                     : SkBuiltInCodeSnippetID::kRadialGradientShader8;
@@ -266,7 +265,7 @@ void GradientShaderBlocks::BeginBlock(const SkKeyContext& keyContext,
                 add_radial_gradient_uniform_data(dict, codeSnippetID, gradData, gatherer);
             }
             break;
-        case SkShader::kSweep_GradientType:
+        case SkShaderBase::GradientType::kSweep:
             codeSnippetID = gradData.fNumStops <= 4
                                     ? SkBuiltInCodeSnippetID::kSweepGradientShader4
                                     : SkBuiltInCodeSnippetID::kSweepGradientShader8;
@@ -274,7 +273,7 @@ void GradientShaderBlocks::BeginBlock(const SkKeyContext& keyContext,
                 add_sweep_gradient_uniform_data(dict, codeSnippetID, gradData, gatherer);
             }
             break;
-        case SkShader::GradientType::kConical_GradientType:
+        case SkShaderBase::GradientType::kConical:
             codeSnippetID = gradData.fNumStops <= 4
                                     ? SkBuiltInCodeSnippetID::kConicalGradientShader4
                                     : SkBuiltInCodeSnippetID::kConicalGradientShader8;
@@ -282,8 +281,8 @@ void GradientShaderBlocks::BeginBlock(const SkKeyContext& keyContext,
                 add_conical_gradient_uniform_data(dict, codeSnippetID, gradData, gatherer);
             }
             break;
-        case SkShader::GradientType::kColor_GradientType:
-        case SkShader::GradientType::kNone_GradientType:
+        case SkShaderBase::GradientType::kColor:
+        case SkShaderBase::GradientType::kNone:
         default:
             SkASSERT(0);
             break;

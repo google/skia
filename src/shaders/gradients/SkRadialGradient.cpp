@@ -36,7 +36,7 @@ class SkRadialGradient final : public SkGradientShaderBase {
 public:
     SkRadialGradient(const SkPoint& center, SkScalar radius, const Descriptor&);
 
-    GradientType asAGradient(GradientInfo* info) const override;
+    GradientType asGradient(GradientInfo* info, SkMatrix* matrix) const override;
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
@@ -69,13 +69,17 @@ SkRadialGradient::SkRadialGradient(const SkPoint& center, SkScalar radius, const
     , fRadius(radius) {
 }
 
-SkShader::GradientType SkRadialGradient::asAGradient(GradientInfo* info) const {
+SkShaderBase::GradientType SkRadialGradient::asGradient(GradientInfo* info,
+                                                        SkMatrix* localMatrix) const {
     if (info) {
         commonAsAGradient(info);
         info->fPoint[0] = fCenter;
         info->fRadius[0] = fRadius;
     }
-    return kRadial_GradientType;
+    if (localMatrix) {
+        *localMatrix = this->getLocalMatrix();
+    }
+    return GradientType::kRadial;
 }
 
 sk_sp<SkFlattenable> SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
@@ -134,7 +138,7 @@ std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
 void SkRadialGradient::addToKey(const SkKeyContext& keyContext,
                                 SkPaintParamsKeyBuilder* builder,
                                 SkPipelineDataGatherer* gatherer) const {
-    GradientShaderBlocks::GradientData data(kRadial_GradientType,
+    GradientShaderBlocks::GradientData data(GradientType::kRadial,
                                             SkM44(this->getLocalMatrix()),
                                             fCenter, { 0.0f, 0.0f },
                                             fRadius, 0.0f,

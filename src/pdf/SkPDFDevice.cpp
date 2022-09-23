@@ -1166,14 +1166,15 @@ static void populate_graphic_state_entry_from_paint(
     if (shader) {
         // note: we always present the alpha as 1 for the shader, knowing that it will be
         //       accounted for when we create our newGraphicsState (below)
-        if (SkShader::kColor_GradientType == shader->asAGradient(nullptr)) {
+        if (as_SB(shader)->asGradient() == SkShaderBase::GradientType::kColor) {
             // We don't have to set a shader just for a color.
-            SkShader::GradientInfo gradientInfo;
+            SkShaderBase::GradientInfo gradientInfo;
             SkColor gradientColor = SK_ColorBLACK;
             gradientInfo.fColors = &gradientColor;
             gradientInfo.fColorOffsets = nullptr;
             gradientInfo.fColorCount = 1;
-            SkAssertResult(shader->asAGradient(&gradientInfo) == SkShader::kColor_GradientType);
+            SkAssertResult(as_SB(shader)->asGradient(&gradientInfo) ==
+                           SkShaderBase::GradientType::kColor);
             color = SkColor4f::FromColor(gradientColor);
             entry->fColor ={color.fR, color.fG, color.fB, 1};
 

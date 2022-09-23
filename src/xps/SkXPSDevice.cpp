@@ -824,7 +824,7 @@ HRESULT SkXPSDevice::createXpsGradientStop(const SkColor skColor,
     return S_OK;
 }
 
-HRESULT SkXPSDevice::createXpsLinearGradient(SkShader::GradientInfo info,
+HRESULT SkXPSDevice::createXpsLinearGradient(SkShaderBase::GradientInfo info,
                                              const SkAlpha alpha,
                                              const SkMatrix& localMatrix,
                                              IXpsOMMatrixTransform* xpsMatrix,
@@ -886,7 +886,7 @@ HRESULT SkXPSDevice::createXpsLinearGradient(SkShader::GradientInfo info,
     return S_OK;
 }
 
-HRESULT SkXPSDevice::createXpsRadialGradient(SkShader::GradientInfo info,
+HRESULT SkXPSDevice::createXpsRadialGradient(SkShaderBase::GradientInfo info,
                                              const SkAlpha alpha,
                                              const SkMatrix& localMatrix,
                                              IXpsOMMatrixTransform* xpsMatrix,
@@ -973,20 +973,17 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     }
 
     //Gradient shaders.
-    SkShader::GradientInfo info;
-    info.fColorCount = 0;
-    info.fColors = nullptr;
-    info.fColorOffsets = nullptr;
-    SkShader::GradientType gradientType = shader->asAGradient(&info);
+    SkShaderBase::GradientInfo info;
+    SkShaderBase::GradientType gradientType = as_SB(shader)->asGradient(&info);
 
-    if (SkShader::kNone_GradientType == gradientType) {
+    if (gradientType == SkShaderBase::GradientType::kNone) {
         //Nothing to see, move along.
 
-    } else if (SkShader::kColor_GradientType == gradientType) {
+    } else if (gradientType == SkShaderBase::GradientType::kColor) {
         SkASSERT(1 == info.fColorCount);
         SkColor color;
         info.fColors = &color;
-        shader->asAGradient(&info);
+        as_SB(shader)->asGradient(&info);
         SkAlpha alpha = skPaint.getAlpha();
         HR(this->createXpsSolidColorBrush(color, alpha, brush));
         return S_OK;
@@ -998,11 +995,12 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
+        SkMatrix localMatrix;
         SkAutoTArray<SkColor> colors(info.fColorCount);
         SkAutoTArray<SkScalar> colorOffsets(info.fColorCount);
         info.fColors = colors.get();
         info.fColorOffsets = colorOffsets.get();
-        shader->asAGradient(&info);
+        as_SB(shader)->asGradient(&info, &localMatrix);
 
         if (1 == info.fColorCount) {
             SkColor color = info.fColors[0];
@@ -1011,14 +1009,13 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        SkMatrix localMatrix = as_SB(shader)->getLocalMatrix();
         if (parentTransform) {
             localMatrix.preConcat(*parentTransform);
         }
         SkTScopedComPtr<IXpsOMMatrixTransform> xpsMatrixToUse;
         HR(this->createXpsTransform(localMatrix, &xpsMatrixToUse));
 
-        if (SkShader::kLinear_GradientType == gradientType) {
+        if (gradientType == SkShaderBase::GradientType::kLinear) {
             HR(this->createXpsLinearGradient(info,
                                              skPaint.getAlpha(),
                                              localMatrix,
@@ -1027,7 +1024,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        if (SkShader::kRadial_GradientType == gradientType) {
+        if (gradientType == SkShaderBase::GradientType::kRadial) {
             HR(this->createXpsRadialGradient(info,
                                              skPaint.getAlpha(),
                                              localMatrix,
@@ -1036,11 +1033,11 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
             return S_OK;
         }
 
-        if (SkShader::kConical_GradientType == gradientType) {
+        if (gradientType == SkShaderBase::GradientType::kConical) {
             //simple if affine and one is 0, otherwise will have to fake
         }
 
-        if (SkShader::kSweep_GradientType == gradientType) {
+        if (gradientType == SkShaderBase::GradientType::kSweep) {
             //have to fake
         }
     }

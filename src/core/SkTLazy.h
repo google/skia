@@ -104,6 +104,7 @@ public:
      * nullptr is returned).
      */
     const T* getMaybeNull() const { return fValue.has_value() ? this->get() : nullptr; }
+          T* getMaybeNull()       { return fValue.has_value() ? this->get() : nullptr; }
 
 private:
     std::optional<T> fValue;

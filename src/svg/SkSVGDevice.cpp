@@ -346,8 +346,9 @@ private:
 
     void addPaint(const SkPaint& paint, const Resources& resources);
 
-
-    SkString addLinearGradientDef(const SkShader::GradientInfo& info, const SkShader* shader);
+    SkString addLinearGradientDef(const SkShaderBase::GradientInfo& info,
+                                  const SkShader* shader,
+                                  const SkMatrix& localMatrix);
 
     SkXMLWriter*               fWriter;
     ResourceBucket*            fResourceBucket;
@@ -435,12 +436,11 @@ Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& 
 void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader,
                                                           const SkPaint& paint,
                                                           Resources* resources) {
-    SkShader::GradientInfo grInfo;
-    memset(&grInfo, 0, sizeof(grInfo));
-    const auto gradient_type = shader->asAGradient(&grInfo);
+    SkShaderBase::GradientInfo grInfo;
+    const auto gradient_type = as_SB(shader)->asGradient(&grInfo);
 
-    if (gradient_type != SkShader::kColor_GradientType &&
-        gradient_type != SkShader::kLinear_GradientType) {
+    if (gradient_type != SkShaderBase::GradientType::kColor &&
+        gradient_type != SkShaderBase::GradientType::kLinear) {
         // TODO: other gradient support
         return;
     }
@@ -450,15 +450,16 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
     grInfo.fColors = grColors.get();
     grInfo.fColorOffsets = grOffsets.get();
 
-    // One more call to get the actual colors/offsets.
-    shader->asAGradient(&grInfo);
+    // One more call to get the actual colors/offsets and local matrix.
+    SkMatrix localMatrix;
+    as_SB(shader)->asGradient(&grInfo, &localMatrix);
     SkASSERT(grInfo.fColorCount <= grColors.count());
     SkASSERT(grInfo.fColorCount <= grOffsets.count());
 
     SkASSERT(grColors.size() > 0);
-    resources->fPaintServer = gradient_type == SkShader::kColor_GradientType
+    resources->fPaintServer = gradient_type == SkShaderBase::GradientType::kColor
             ? svg_color(grColors[0])
-            : SkStringPrintf("url(#%s)", addLinearGradientDef(grInfo, shader).c_str());
+            : SkStringPrintf("url(#%s)", addLinearGradientDef(grInfo, shader, localMatrix).c_str());
 }
 
 void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
@@ -601,7 +602,7 @@ void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resource
     const SkShader* shader = paint.getShader();
     SkASSERT(shader);
 
-    if (shader->asAGradient(nullptr) != SkShader::kNone_GradientType) {
+    if (as_SB(shader)->asGradient() != SkShaderBase::GradientType::kNone) {
         this->addGradientShaderResources(shader, paint, resources);
     } else if (shader->isAImage()) {
         this->addImageShaderResources(shader, paint, resources);
@@ -609,8 +610,9 @@ void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resource
     // TODO: other shader types?
 }
 
-SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShader::GradientInfo& info,
-                                                        const SkShader* shader) {
+SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShaderBase::GradientInfo& info,
+                                                        const SkShader* shader,
+                                                        const SkMatrix& localMatrix) {
     SkASSERT(fResourceBucket);
     SkString id = fResourceBucket->addLinearGradient();
 
@@ -625,7 +627,7 @@ SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShader::Gradient
         gradient.addAttribute("y2", info.fPoint[1].y());
 
         if (!as_SB(shader)->getLocalMatrix().isIdentity()) {
-            this->addAttribute("gradientTransform", svg_transform(as_SB(shader)->getLocalMatrix()));
+            this->addAttribute("gradientTransform", svg_transform(localMatrix));
         }
 
         SkASSERT(info.fColorCount >= 2);
