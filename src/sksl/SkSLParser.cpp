@@ -51,7 +51,7 @@ static int parse_modifier_token(Token::Kind token) {
         case Token::Kind::TK_INOUT:          return Modifiers::kIn_Flag | Modifiers::kOut_Flag;
         case Token::Kind::TK_FLAT:           return Modifiers::kFlat_Flag;
         case Token::Kind::TK_NOPERSPECTIVE:  return Modifiers::kNoPerspective_Flag;
-        case Token::Kind::TK_HASSIDEEFFECTS: return Modifiers::kHasSideEffects_Flag;
+        case Token::Kind::TK_PURE:           return Modifiers::kPure_Flag;
         case Token::Kind::TK_INLINE:         return Modifiers::kInline_Flag;
         case Token::Kind::TK_NOINLINE:       return Modifiers::kNoInline_Flag;
         case Token::Kind::TK_HIGHP:          return Modifiers::kHighp_Flag;
@@ -951,11 +951,6 @@ DSLModifiers Parser::modifiers() {
             break;
         }
         Token modifier = this->nextToken();
-        // We have to check for this (internal) modifier here. It's automatically added to user
-        // functions before the IR is built, so testing for it in Convert gives false positives.
-        if (tokenFlag == Modifiers::kHasSideEffects_Flag && !ThreadContext::IsModule()) {
-            this->error(modifier, "'sk_has_side_effects' is not permitted here");
-        }
         if (int duplicateFlags = (tokenFlag & flags)) {
             this->error(modifier, "'" + Modifiers::DescribeFlags(duplicateFlags) +
                                   "' appears more than once");

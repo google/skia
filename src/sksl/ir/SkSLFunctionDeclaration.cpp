@@ -35,10 +35,10 @@ namespace SkSL {
 static bool check_modifiers(const Context& context,
                             Position pos,
                             const Modifiers& modifiers) {
-    const int permitted = Modifiers::kHasSideEffects_Flag |
-                          Modifiers::kInline_Flag |
+    const int permitted = Modifiers::kInline_Flag |
                           Modifiers::kNoInline_Flag |
-                          (context.fConfig->fIsBuiltinCode ? Modifiers::kES3_Flag : 0);
+                          (context.fConfig->fIsBuiltinCode ? (Modifiers::kES3_Flag |
+                                                              Modifiers::kPure_Flag) : 0);
     modifiers.checkPermitted(context, pos, permitted, /*permittedLayoutFlags=*/0);
     if ((modifiers.fFlags & Modifiers::kInline_Flag) &&
         (modifiers.fFlags & Modifiers::kNoInline_Flag)) {
@@ -511,9 +511,9 @@ std::string FunctionDeclaration::mangledName() const {
 }
 
 std::string FunctionDeclaration::description() const {
-    // We don't want to add `sk_has_side_effects` to every function description, even if it's true.
+    // We don't want to show `$pure` and `$es3` on function descriptions, even if it's true.
     int modifierFlags = this->modifiers().fFlags;
-    modifierFlags &= ~Modifiers::kHasSideEffects_Flag;
+    modifierFlags &= ~(Modifiers::kPure_Flag | Modifiers::kES3_Flag);
 
     std::string result =
             (modifierFlags ? Modifiers::DescribeFlags(modifierFlags) + " " : std::string()) +

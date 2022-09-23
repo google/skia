@@ -3786,7 +3786,7 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     // Declare an entrypoint function.
     EntrypointAdapter adapter;
     adapter.fLayout = {};
-    adapter.fModifiers = Modifiers{adapter.fLayout, Modifiers::kHasSideEffects_Flag};
+    adapter.fModifiers = Modifiers{adapter.fLayout, Modifiers::kNo_Flag};
     adapter.entrypointDecl =
             std::make_unique<FunctionDeclaration>(Position(),
                                                   &adapter.fModifiers,

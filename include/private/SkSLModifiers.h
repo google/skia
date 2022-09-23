@@ -53,7 +53,7 @@ struct Modifiers {
         kThreadgroup_Flag    = 1 << 12,
         // SkSL extensions, not present in GLSL
         kES3_Flag            = 1 << 13,
-        kHasSideEffects_Flag = 1 << 14,
+        kPure_Flag           = 1 << 14,
         kInline_Flag         = 1 << 15,
         kNoInline_Flag       = 1 << 16,
     };
@@ -76,8 +76,8 @@ struct Modifiers {
         if (flags & kES3_Flag) {
             result += "$es3 ";
         }
-        if (flags & kHasSideEffects_Flag) {
-            result += "sk_has_side_effects ";
+        if (flags & kPure_Flag) {
+            result += "$pure ";
         }
         if (flags & kInline_Flag) {
             result += "inline ";

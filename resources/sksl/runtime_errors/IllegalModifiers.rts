@@ -4,7 +4,7 @@ in                  float _in;
 out                 float _out;
 threadgroup         float _threadgroup;
 $es3                float _es3;
-sk_has_side_effects float _sk_has_side_effects;
+$pure               float _pure;
 inline              float _inline;
 noinline            float _noinline;
 readonly            float _readonly;
@@ -16,7 +16,7 @@ in                  void in_fn() {}
 out                 void out_fn() {}
 threadgroup         void threadgroup_fn() {}
 $es3                void es3_fn() {}
-sk_has_side_effects void sk_has_side_effect_fn() {}
+$pure               void sk_pure_fn() {}
 readonly            void readonly_fn() {}
 writeonly           void writeonly_fn() {}
 buffer              void buffer_fn() {}
@@ -32,7 +32,7 @@ float4 main(float2 xy) {
 'out' is not permitted here
 'threadgroup' is not permitted here
 '$es3' is not permitted here
-'sk_has_side_effects' is not permitted here
+'$pure' is not permitted here
 'inline' is not permitted here
 'noinline' is not permitted here
 type 'float' does not support qualifier 'readonly'
@@ -43,7 +43,7 @@ type 'float' does not support qualifier 'writeonly'
 'out' is not permitted here
 'threadgroup' is not permitted here
 '$es3' is not permitted here
-'sk_has_side_effects' is not permitted here
+'$pure' is not permitted here
 type 'void' does not support qualifier 'readonly'
 type 'void' does not support qualifier 'writeonly'
 'buffer' is not permitted here

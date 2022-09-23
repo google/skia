@@ -18,9 +18,9 @@ threadgroup         float _threadgroup;
 error: 6: '$es3' is not permitted here
 $es3                float _es3;
 ^^^^
-error: 7: 'sk_has_side_effects' is not permitted here
-sk_has_side_effects float _sk_has_side_effects;
-^^^^^^^^^^^^^^^^^^^
+error: 7: '$pure' is not permitted here
+$pure               float _pure;
+^^^^^
 error: 8: 'inline' is not permitted here
 inline              float _inline;
 ^^^^^^
@@ -51,9 +51,9 @@ threadgroup         void threadgroup_fn() {}
 error: 18: '$es3' is not permitted here
 $es3                void es3_fn() {}
 ^^^^
-error: 19: 'sk_has_side_effects' is not permitted here
-sk_has_side_effects void sk_has_side_effect_fn() {}
-^^^^^^^^^^^^^^^^^^^
+error: 19: '$pure' is not permitted here
+$pure               void sk_pure_fn() {}
+^^^^^
 error: 20: type 'void' does not support qualifier 'readonly'
 readonly            void readonly_fn() {}
 ^^^^^^^^

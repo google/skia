@@ -258,10 +258,6 @@ void VarDeclaration::ErrorCheck(const Context& context,
             }
         }
     }
-    // This modifier isn't actually allowed on variables, at all. However, it's restricted to only
-    // appear in module code by the parser. We "allow" it here, to avoid double-reporting errors.
-    // This means that module code could put it on a variable (to no effect). We'll live with that.
-    permitted |= Modifiers::kHasSideEffects_Flag;
 
     // TODO(skbug.com/11301): Migrate above checks into building a mask of permitted layout flags
 

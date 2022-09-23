@@ -8,26 +8,26 @@ const int $kTileModeDecal  = 3;
 const int $kFilterModeNearest = 0;
 const int $kFilterModeLinear  = 1;
 
-half4 sk_error() {
+$pure half4 sk_error() {
     return half4(1.0, 0.0, 1.0, 1.0);
 }
 
-half4 sk_passthrough(half4 color) {
+$pure half4 sk_passthrough(half4 color) {
     return color;
 }
 
-half4 sk_solid_shader(float4 colorParam) {
+$pure half4 sk_solid_shader(float4 colorParam) {
     return half4(colorParam);
 }
 
 // The localMatrix is passed to the child by the glue code. This snippet just needs to bubble the
 // child's output back up. Local coordinates are passed in from the default glue code and can
 // just be ignored here.
-half4 sk_local_matrix_shader(float4, float4x4, half4 childResult) {
+$pure half4 sk_local_matrix_shader(float4, float4x4, half4 childResult) {
     return childResult;
 }
 
-float $tile(int tileMode, float f, float low, float high) {
+$pure float $tile(int tileMode, float f, float low, float high) {
     switch (tileMode) {
         case $kTileModeClamp:
             return clamp(f, low, high);
@@ -48,15 +48,15 @@ float $tile(int tileMode, float f, float low, float high) {
     }
 }
 
-half4 sk_image_shader(float4 coords,
-                      float4x4 preLocal,
-                      float4 subset,
-                      int tileModeX,
-                      int tileModeY,
-                      int filterMode,
-                      int imgWidth,
-                      int imgHeight,
-                      sampler2D s) {
+$pure half4 sk_image_shader(float4 coords,
+                            float4x4 preLocal,
+                            float4 subset,
+                            int tileModeX,
+                            int tileModeY,
+                            int filterMode,
+                            int imgWidth,
+                            int imgHeight,
+                            sampler2D s) {
     float2 pos = (preLocal * coords).xy;
 
     // Do hard-edge shader transitions to the border color for nearest-neighbor decal tiling at the
@@ -105,7 +105,7 @@ half4 sk_image_shader(float4 coords,
     return color;
 }
 
-float2 $tile_grad(int tileMode, float2 t) {
+$pure float2 $tile_grad(int tileMode, float2 t) {
     switch (tileMode) {
         case $kTileModeClamp:
             t.x = clamp(t.x, 0, 1);
@@ -138,7 +138,7 @@ float2 $tile_grad(int tileMode, float2 t) {
     return t;
 }
 
-half4 $colorize_grad_4(float4 colorsParam[4], float offsetsParam[4], float2 t) {
+$pure half4 $colorize_grad_4(float4 colorsParam[4], float offsetsParam[4], float2 t) {
     if (t.y < 0) {
         return half4(0);
 
@@ -158,7 +158,7 @@ half4 $colorize_grad_4(float4 colorsParam[4], float offsetsParam[4], float2 t) {
     }
 }
 
-half4 $colorize_grad_8(float4 colorsParam[8], float offsetsParam[8], float2 t) {
+$pure half4 $colorize_grad_8(float4 colorsParam[8], float offsetsParam[8], float2 t) {
     if (t.y < 0) {
         return half4(0);
 
@@ -211,19 +211,19 @@ half4 $colorize_grad_8(float4 colorsParam[8], float offsetsParam[8], float2 t) {
     }
 }
 
-float2 $linear_grad_layout(float2 point0Param, float2 point1Param, float2 pos) {
+$pure float2 $linear_grad_layout(float2 point0Param, float2 point1Param, float2 pos) {
     pos -= point0Param;
     float2 delta = point1Param - point0Param;
     float t = dot(pos, delta) / dot(delta, delta);
     return float2(t, 1);
 }
 
-float2 $radial_grad_layout(float2 centerParam, float radiusParam, float2 pos) {
+$pure float2 $radial_grad_layout(float2 centerParam, float radiusParam, float2 pos) {
     float t = distance(pos, centerParam) / radiusParam;
     return float2(t, 1);
 }
 
-float2 $sweep_grad_layout(float2 centerParam, float biasParam, float scaleParam, float2 pos) {
+$pure float2 $sweep_grad_layout(float2 centerParam, float biasParam, float scaleParam, float2 pos) {
     pos -= centerParam;
 
     // Some devices incorrectly implement atan2(y,x) as atan(y/x). In actuality it is
@@ -239,7 +239,7 @@ float2 $sweep_grad_layout(float2 centerParam, float biasParam, float scaleParam,
     return float2(t, 1);
 }
 
-float3x3 $map_to_unit_x(float2 p0, float2 p1) {
+$pure float3x3 $map_to_unit_x(float2 p0, float2 p1) {
     // Returns a matrix that maps [p0, p1] to [(0, 0), (1, 0)]. Results are undefined if p0 = p1.
     // From skia/src/core/SkMatrix.cpp, SkMatrix::setPolyToPoly.
     return float3x3(
@@ -253,11 +253,11 @@ float3x3 $map_to_unit_x(float2 p0, float2 p1) {
     ));
 }
 
-float2 $conical_grad_layout(float2 point0Param,
-                            float2 point1Param,
-                            float radius0Param,
-                            float radius1Param,
-                            float2 pos) {
+$pure float2 $conical_grad_layout(float2 point0Param,
+                                  float2 point1Param,
+                                  float radius0Param,
+                                  float radius1Param,
+                                  float2 pos) {
     const float SK_ScalarNearlyZero = 1.0 / (1 << 12);
     float dCenter = distance(point0Param, point1Param);
     float dRadius = radius1Param - radius0Param;
@@ -366,120 +366,117 @@ float2 $conical_grad_layout(float2 point0Param,
     }
 }
 
-half4 sk_linear_grad_4_shader(float4 coords,
-                              float4x4 preLocal,
-                              float4 colorsParam[4],
-                              float offsetsParam[4],
-                              float2 point0Param,
-                              float2 point1Param,
-                              int tileMode) {
+$pure half4 sk_linear_grad_4_shader(float4 coords,
+                                    float4x4 preLocal,
+                                    float4 colorsParam[4],
+                                    float offsetsParam[4],
+                                    float2 point0Param,
+                                    float2 point1Param,
+                                    int tileMode) {
     float2 pos = (preLocal * coords).xy;
     float2 t = $linear_grad_layout(point0Param, point1Param, pos);
     t = $tile_grad(tileMode, t);
     return $colorize_grad_4(colorsParam, offsetsParam, t);
 }
 
-half4 sk_linear_grad_8_shader(float4 coords,
-                              float4x4 preLocal,
-                              float4 colorsParam[8],
-                              float offsetsParam[8],
-                              float2 point0Param,
-                              float2 point1Param,
-                              int tileMode) {
+$pure half4 sk_linear_grad_8_shader(float4 coords,
+                                    float4x4 preLocal,
+                                    float4 colorsParam[8],
+                                    float offsetsParam[8],
+                                    float2 point0Param,
+                                    float2 point1Param,
+                                    int tileMode) {
     float2 pos = (preLocal * coords).xy;
     float2 t = $linear_grad_layout(point0Param, point1Param, pos);
     t = $tile_grad(tileMode, t);
     return $colorize_grad_8(colorsParam, offsetsParam, t);
 }
 
-half4 sk_radial_grad_4_shader(float4 coords,
-                              float4x4 preLocal,
-                              float4 colorsParam[4],
-                              float offsetsParam[4],
-                              float2 centerParam,
-                              float radiusParam,
-                              int tileMode) {
+$pure half4 sk_radial_grad_4_shader(float4 coords,
+                                    float4x4 preLocal,
+                                    float4 colorsParam[4],
+                                    float offsetsParam[4],
+                                    float2 centerParam,
+                                    float radiusParam,
+                                    int tileMode) {
     float2 pos = (preLocal * coords).xy;
     float2 t = $radial_grad_layout(centerParam, radiusParam, pos);
     t = $tile_grad(tileMode, t);
     return $colorize_grad_4(colorsParam, offsetsParam, t);
 }
 
-half4 sk_radial_grad_8_shader(float4 coords,
-                              float4x4 preLocal,
-                              float4 colorsParam[8],
-                              float offsetsParam[8],
-                              float2 centerParam,
-                              float radiusParam,
-                              int tileMode) {
+$pure half4 sk_radial_grad_8_shader(float4 coords,
+                                    float4x4 preLocal,
+                                    float4 colorsParam[8],
+                                    float offsetsParam[8],
+                                    float2 centerParam,
+                                    float radiusParam,
+                                    int tileMode) {
     float2 pos = (preLocal * coords).xy;
     float2 t = $radial_grad_layout(centerParam, radiusParam, pos);
     t = $tile_grad(tileMode, t);
     return $colorize_grad_8(colorsParam, offsetsParam, t);
 }
 
-half4 sk_sweep_grad_4_shader(float4 coords,
-                             float4x4 preLocal,
-                             float4 colorsParam[4],
-                             float offsetsParam[4],
-                             float2 centerParam,
-                             float biasParam,
-                             float scaleParam,
-                             int tileMode) {
+$pure half4 sk_sweep_grad_4_shader(float4 coords,
+                                   float4x4 preLocal,
+                                   float4 colorsParam[4],
+                                   float offsetsParam[4],
+                                   float2 centerParam,
+                                   float biasParam,
+                                   float scaleParam,
+                                   int tileMode) {
     float2 pos = (preLocal * coords).xy;
     float2 t = $sweep_grad_layout(centerParam, biasParam, scaleParam, pos);
     t = $tile_grad(tileMode, t);
     return $colorize_grad_4(colorsParam, offsetsParam, t);
 }
 
-half4 sk_sweep_grad_8_shader(float4 coords,
-                             float4x4 preLocal,
-                             float4 colorsParam[8],
-                             float offsetsParam[8],
-                             float2 centerParam,
-                             float biasParam,
-                             float scaleParam,
-                             int tileMode) {
+$pure half4 sk_sweep_grad_8_shader(float4 coords,
+                                   float4x4 preLocal,
+                                   float4 colorsParam[8],
+                                   float offsetsParam[8],
+                                   float2 centerParam,
+                                   float biasParam,
+                                   float scaleParam,
+                                   int tileMode) {
     float2 pos = (preLocal * coords).xy;
     float2 t = $sweep_grad_layout(centerParam, biasParam, scaleParam, pos);
     t = $tile_grad(tileMode, t);
     return $colorize_grad_8(colorsParam, offsetsParam, t);
 }
 
-half4 sk_conical_grad_4_shader(float4 coords,
-                               float4x4 preLocal,
-                               float4 colorsParam[4],
-                               float offsetsParam[4],
-                               float2 point0Param,
-                               float2 point1Param,
-                               float radius0Param,
-                               float radius1Param,
-                               int tileMode) {
+$pure half4 sk_conical_grad_4_shader(float4 coords,
+                                     float4x4 preLocal,
+                                     float4 colorsParam[4],
+                                     float offsetsParam[4],
+                                     float2 point0Param,
+                                     float2 point1Param,
+                                     float radius0Param,
+                                     float radius1Param,
+                                     int tileMode) {
     float2 pos = (preLocal * coords).xy;
     float2 t = $conical_grad_layout(point0Param, point1Param, radius0Param, radius1Param, pos);
     t = $tile_grad(tileMode, t);
     return $colorize_grad_4(colorsParam, offsetsParam, t);
 }
 
-half4 sk_conical_grad_8_shader(float4 coords,
-                               float4x4 preLocal,
-                               float4 colorsParam[8],
-                               float offsetsParam[8],
-                               float2 point0Param,
-                               float2 point1Param,
-                               float radius0Param,
-                               float radius1Param,
-                               int tileMode) {
+$pure half4 sk_conical_grad_8_shader(float4 coords,
+                                     float4x4 preLocal,
+                                     float4 colorsParam[8],
+                                     float offsetsParam[8],
+                                     float2 point0Param,
+                                     float2 point1Param,
+                                     float radius0Param,
+                                     float radius1Param,
+                                     int tileMode) {
     float2 pos = (preLocal * coords).xy;
     float2 t = $conical_grad_layout(point0Param, point1Param, radius0Param, radius1Param, pos);
     t = $tile_grad(tileMode, t);
     return $colorize_grad_8(colorsParam, offsetsParam, t);
 }
 
-half4 sk_matrix_colorfilter(half4 colorIn,
-                            float4x4 m,
-                            float4 v,
-                            int inHSLA) {
+$pure half4 sk_matrix_colorfilter(half4 colorIn, float4x4 m, float4 v, int inHSLA) {
     if (bool(inHSLA)) {
         colorIn = $rgb_to_hsl(colorIn.rgb, colorIn.a); // includes unpremul
     } else {
@@ -498,7 +495,7 @@ half4 sk_matrix_colorfilter(half4 colorIn,
     return colorOut;
 }
 
-half4 sk_blend(int blendMode, half4 src, half4 dst) {
+$pure half4 sk_blend(int blendMode, half4 src, half4 dst) {
     const int kClear      = 0;
     const int kSrc        = 1;
     const int kDst        = 2;
@@ -563,15 +560,15 @@ half4 sk_blend(int blendMode, half4 src, half4 dst) {
     }
 }
 
-half4 sk_blend_shader(int blendMode, half4 src, half4 dst) {
+$pure half4 sk_blend_shader(int blendMode, half4 src, half4 dst) {
     return sk_blend(blendMode, src, dst);
 }
 
-half4 sk_blend_colorfilter(half4 dstColor, int blendMode, float4 srcColor) {
+$pure half4 sk_blend_colorfilter(half4 dstColor, int blendMode, float4 srcColor) {
     return sk_blend(blendMode, half4(srcColor), dstColor);
 }
 
-half4 sk_table_colorfilter(half4 inColor, sampler2D s) {
+$pure half4 sk_table_colorfilter(half4 inColor, sampler2D s) {
     half4 coords = unpremul(inColor) * 255.0/256.0 + 0.5/256.0;
     half4 color = half4(sample(s, half2(coords.r, 3.0/8.0)).r,
                         sample(s, half2(coords.g, 5.0/8.0)).r,
@@ -580,7 +577,7 @@ half4 sk_table_colorfilter(half4 inColor, sampler2D s) {
     return color * sample(s, half2(coords.a, 1.0/8.0)).r;
 }
 
-half4 sk_gaussian_colorfilter(half4 inColor) {
+$pure half4 sk_gaussian_colorfilter(half4 inColor) {
     half factor = 1 - inColor.a;
     factor = exp(-factor * factor * 4) - 0.018;
     return half4(factor);

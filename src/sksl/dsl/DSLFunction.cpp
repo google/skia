@@ -45,13 +45,7 @@ void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::s
                        SkTArray<DSLParameter*> params, Position pos) {
     fPosition = pos;
 
-    // Conservatively assume that all functions will have side effects, except functions in modules
-    // with intrinsic names.
     const Context& context = ThreadContext::Context();
-    if (!is_intrinsic_in_module(context, name)) {
-        modifiers.fModifiers.fFlags |= Modifiers::kHasSideEffects_Flag;
-    }
-
     if (context.fConfig->fSettings.fForceNoInline) {
         // Apply the `noinline` modifier to every function. This allows us to test Runtime
         // Effects without any inlining, even when the code is later added to a paint.

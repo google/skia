@@ -1,93 +1,93 @@
 // Not exposed in shared module
 
-$genIType mix($genIType x, $genIType y, $genBType a);
-$genBType mix($genBType x, $genBType y, $genBType a);
-$genType fma($genType a, $genType b, $genType c);
-$genHType fma($genHType a, $genHType b, $genHType c);
-sk_has_side_effects $genType frexp($genType x, out $genIType exp);
-sk_has_side_effects $genHType frexp($genHType x, out $genIType exp);
-$genType ldexp($genType x, in $genIType exp);
-$genHType ldexp($genHType x, in $genIType exp);
+$pure $genIType mix($genIType x, $genIType y, $genBType a);
+$pure $genBType mix($genBType x, $genBType y, $genBType a);
+$pure $genType fma($genType a, $genType b, $genType c);
+$pure $genHType fma($genHType a, $genHType b, $genHType c);
+      $genType frexp($genType x, out $genIType exp);
+      $genHType frexp($genHType x, out $genIType exp);
+$pure $genType ldexp($genType x, in $genIType exp);
+$pure $genHType ldexp($genHType x, in $genIType exp);
 
-uint packSnorm2x16(float2 v);
-uint packUnorm4x8(float4 v);
-uint packSnorm4x8(float4 v);
-float2 unpackSnorm2x16(uint p);
-float4 unpackUnorm4x8(uint p);
-float4 unpackSnorm4x8(uint p);
-uint packHalf2x16(float2 v);
-float2 unpackHalf2x16(uint v);
+$pure uint packSnorm2x16(float2 v);
+$pure uint packUnorm4x8(float4 v);
+$pure uint packSnorm4x8(float4 v);
+$pure float2 unpackSnorm2x16(uint p);
+$pure float4 unpackUnorm4x8(uint p);
+$pure float4 unpackSnorm4x8(uint p);
+$pure uint packHalf2x16(float2 v);
+$pure float2 unpackHalf2x16(uint v);
 
-$bvec lessThan($svec x, $svec y);
-$bvec lessThan($usvec x, $usvec y);
-$bvec lessThan($uvec x, $uvec y);
-$bvec lessThanEqual($uvec x, $uvec y);
-$bvec lessThanEqual($svec x, $svec y);
-$bvec lessThanEqual($usvec x, $usvec y);
-$bvec greaterThan($uvec x, $uvec y);
-$bvec greaterThan($svec x, $svec y);
-$bvec greaterThan($usvec x, $usvec y);
-$bvec greaterThanEqual($uvec x, $uvec y);
-$bvec greaterThanEqual($svec x, $svec y);
-$bvec greaterThanEqual($usvec x, $usvec y);
-$bvec equal($uvec x, $uvec y);
-$bvec equal($svec x, $svec y);
-$bvec equal($usvec x, $usvec y);
-$bvec notEqual($uvec x, $uvec y);
-$bvec notEqual($svec x, $svec y);
-$bvec notEqual($usvec x, $usvec y);
+$pure $bvec lessThan($svec x, $svec y);
+$pure $bvec lessThan($usvec x, $usvec y);
+$pure $bvec lessThan($uvec x, $uvec y);
+$pure $bvec lessThanEqual($uvec x, $uvec y);
+$pure $bvec lessThanEqual($svec x, $svec y);
+$pure $bvec lessThanEqual($usvec x, $usvec y);
+$pure $bvec greaterThan($uvec x, $uvec y);
+$pure $bvec greaterThan($svec x, $svec y);
+$pure $bvec greaterThan($usvec x, $usvec y);
+$pure $bvec greaterThanEqual($uvec x, $uvec y);
+$pure $bvec greaterThanEqual($svec x, $svec y);
+$pure $bvec greaterThanEqual($usvec x, $usvec y);
+$pure $bvec equal($uvec x, $uvec y);
+$pure $bvec equal($svec x, $svec y);
+$pure $bvec equal($usvec x, $usvec y);
+$pure $bvec notEqual($uvec x, $uvec y);
+$pure $bvec notEqual($svec x, $svec y);
+$pure $bvec notEqual($usvec x, $usvec y);
 
-$genIType bitCount($genIType value);
-$genIType bitCount($genUType value);
-$genIType findLSB($genIType value);
-$genIType findLSB($genUType value);
-$genIType findMSB($genIType value);
-$genIType findMSB($genUType value);
+$pure $genIType bitCount($genIType value);
+$pure $genIType bitCount($genUType value);
+$pure $genIType findLSB($genIType value);
+$pure $genIType findLSB($genUType value);
+$pure $genIType findMSB($genIType value);
+$pure $genIType findMSB($genUType value);
 
-sampler2D makeSampler2D(texture2D texture, sampler s);
+$pure sampler2D makeSampler2D(texture2D texture, sampler s);
 
-half4 sample(sampler2D s, float2 P);
-half4 sample(samplerExternalOES s, float2 P, float bias);
-half4 sample(samplerExternalOES s, float2 P);
+$pure half4 sample(sampler2D s, float2 P);
+$pure half4 sample(samplerExternalOES s, float2 P, float bias);
+$pure half4 sample(samplerExternalOES s, float2 P);
 
-half4 sample(sampler2DRect s, float2 P);
-half4 sample(sampler2DRect s, float3 P);
+$pure half4 sample(sampler2DRect s, float2 P);
+$pure half4 sample(sampler2DRect s, float3 P);
 
 // Currently we do not support the generic types of loading subpassInput so we have some explicit
 // versions that we currently use
-half4 subpassLoad(subpassInput subpass);
-half4 subpassLoad(subpassInputMS subpass, int sample);
+$pure half4 subpassLoad(subpassInput subpass);
+$pure half4 subpassLoad(subpassInputMS subpass, int sample);
 
-half4 sample(sampler2D s, float3 P);
-half4 sample(sampler2D s, float3 P, float bias);
+$pure half4 sample(sampler2D s, float3 P);
+$pure half4 sample(sampler2D s, float3 P, float bias);
 
 // Definitions of functions implementing all of the SkBlendMode blends.
 
-half4 blend_clear(half4 src, half4 dst) { return half4(0); }
+$pure half4 blend_clear(half4 src, half4 dst) { return half4(0); }
 
-half4 blend_src(half4 src, half4 dst) { return src; }
+$pure half4 blend_src(half4 src, half4 dst) { return src; }
 
-half4 blend_dst(half4 src, half4 dst) { return dst; }
+$pure half4 blend_dst(half4 src, half4 dst) { return dst; }
 
-half4 blend_src_over(half4 src, half4 dst) { return src + (1 - src.a)*dst; }
+$pure half4 blend_src_over(half4 src, half4 dst) { return src + (1 - src.a)*dst; }
 
-half4 blend_dst_over(half4 src, half4 dst) { return (1 - dst.a)*src + dst; }
+$pure half4 blend_dst_over(half4 src, half4 dst) { return (1 - dst.a)*src + dst; }
 
-half4 blend_src_in(half4 src, half4 dst) { return src*dst.a; }
+$pure half4 blend_src_in(half4 src, half4 dst) { return src*dst.a; }
 
-half4 blend_dst_in(half4 src, half4 dst) { return dst*src.a; }
+$pure half4 blend_dst_in(half4 src, half4 dst) { return dst*src.a; }
 
-half4 blend_src_out(half4 src, half4 dst) { return (1 - dst.a)*src; }
+$pure half4 blend_src_out(half4 src, half4 dst) { return (1 - dst.a)*src; }
 
-half4 blend_dst_out(half4 src, half4 dst) { return (1 - src.a)*dst; }
+$pure half4 blend_dst_out(half4 src, half4 dst) { return (1 - src.a)*dst; }
 
-half4 blend_src_atop(half4 src, half4 dst) { return dst.a*src + (1 - src.a)*dst; }
+$pure half4 blend_src_atop(half4 src, half4 dst) { return dst.a*src + (1 - src.a)*dst; }
 
-half4 blend_dst_atop(half4 src, half4 dst)  { return  (1 - dst.a) * src + src.a*dst; }
+$pure half4 blend_dst_atop(half4 src, half4 dst)  { return  (1 - dst.a) * src + src.a*dst; }
 
-half4 blend_xor(half4 src, half4 dst) { return (1 - dst.a)*src + (1 - src.a)*dst; }
+$pure half4 blend_xor(half4 src, half4 dst) { return (1 - dst.a)*src + (1 - src.a)*dst; }
 
-half4 blend_plus(half4 src, half4 dst) { return min(src + dst, 1); }
+$pure half4 blend_plus(half4 src, half4 dst) { return min(src + dst, 1); }
 
 // This multi-purpose Porter-Duff blend function can perform any of the thirteen blends above,
 // when passed one of the following values for BlendOp:
@@ -104,21 +104,21 @@ half4 blend_plus(half4 src, half4 dst) { return min(src + dst, 1); }
 // - DstATop: half4(0, 0, -1,  1)
 // - Xor:     half4(0, 0, -1, -1)
 // - Plus:    half4(1, 1,  0,  0)
-half4 blend_porter_duff(half4 blendOp, half4 src, half4 dst) {
+$pure half4 blend_porter_duff(half4 blendOp, half4 src, half4 dst) {
     half2 coeff = blendOp.xy + (blendOp.zw * (half2(dst.a, src.a) + min(blendOp.zw, 0)));
     return min(half4(1), src * coeff.x + dst * coeff.y);
 }
 
-half4 blend_modulate(half4 src, half4 dst) { return src*dst; }
+$pure half4 blend_modulate(half4 src, half4 dst) { return src*dst; }
 
-half4 blend_screen(half4 src, half4 dst) { return src + (1 - src)*dst; }
+$pure half4 blend_screen(half4 src, half4 dst) { return src + (1 - src)*dst; }
 
-half $blend_overlay_component(half2 s, half2 d) {
+$pure half $blend_overlay_component(half2 s, half2 d) {
     return (2*d.x <= d.y) ? 2*s.x*d.x
                           : s.y*d.y - 2*(d.y - d.x)*(s.y - s.x);
 }
 
-half4 blend_overlay(half4 src, half4 dst) {
+$pure half4 blend_overlay(half4 src, half4 dst) {
     half4 result = half4($blend_overlay_component(src.ra, dst.ra),
                          $blend_overlay_component(src.ga, dst.ga),
                          $blend_overlay_component(src.ba, dst.ba),
@@ -127,24 +127,24 @@ half4 blend_overlay(half4 src, half4 dst) {
     return result;
 }
 
-half4 blend_overlay(half flip, half4 a, half4 b) {
+$pure half4 blend_overlay(half flip, half4 a, half4 b) {
     return blend_overlay(bool(flip) ? b : a, bool(flip) ? a : b);
 }
 
-half4 blend_lighten(half4 src, half4 dst) {
+$pure half4 blend_lighten(half4 src, half4 dst) {
     half4 result = blend_src_over(src, dst);
     result.rgb = max(result.rgb, (1 - dst.a)*src.rgb + dst.rgb);
     return result;
 }
 
-half4 blend_darken(half mode /* darken: 1, lighten: -1 */, half4 src, half4 dst) {
+$pure half4 blend_darken(half mode /* darken: 1, lighten: -1 */, half4 src, half4 dst) {
     half4 a = blend_src_over(src, dst);
     half3 b = (1 - dst.a) * src.rgb + dst.rgb;  // DstOver.rgb
     a.rgb = mode * min(a.rgb * mode, b.rgb * mode);
     return a;
 }
 
-half4 blend_darken(half4 src, half4 dst) {
+$pure half4 blend_darken(half4 src, half4 dst) {
    return blend_darken(1, src, dst);
 }
 
@@ -152,15 +152,15 @@ const half $kGuardedDivideEpsilon = sk_Caps.mustGuardDivisionEvenAfterExplicitZe
                                         ? 0.00000001
                                         : 0.0;
 
-inline half $guarded_divide(half n, half d) {
+$pure inline half $guarded_divide(half n, half d) {
     return n / (d + $kGuardedDivideEpsilon);
 }
 
-inline half3 $guarded_divide(half3 n, half d) {
+$pure inline half3 $guarded_divide(half3 n, half d) {
     return n / (d + $kGuardedDivideEpsilon);
 }
 
-half $color_dodge_component(half2 s, half2 d) {
+$pure half $color_dodge_component(half2 s, half2 d) {
     if (d.x == 0) {
         return s.x*(1 - d.y);
     } else {
@@ -174,14 +174,14 @@ half $color_dodge_component(half2 s, half2 d) {
     }
 }
 
-half4 blend_color_dodge(half4 src, half4 dst) {
+$pure half4 blend_color_dodge(half4 src, half4 dst) {
     return half4($color_dodge_component(src.ra, dst.ra),
                  $color_dodge_component(src.ga, dst.ga),
                  $color_dodge_component(src.ba, dst.ba),
                  src.a + (1 - src.a)*dst.a);
 }
 
-half $color_burn_component(half2 s, half2 d) {
+$pure half $color_burn_component(half2 s, half2 d) {
     if (d.y == d.x) {
         return s.y*d.y + s.x*(1 - d.y) + d.x*(1 - s.y);
     } else if (s.x == 0) {
@@ -192,18 +192,18 @@ half $color_burn_component(half2 s, half2 d) {
     }
 }
 
-half4 blend_color_burn(half4 src, half4 dst) {
+$pure half4 blend_color_burn(half4 src, half4 dst) {
     return half4($color_burn_component(src.ra, dst.ra),
                  $color_burn_component(src.ga, dst.ga),
                  $color_burn_component(src.ba, dst.ba),
                  src.a + (1 - src.a)*dst.a);
 }
 
-half4 blend_hard_light(half4 src, half4 dst) {
+$pure half4 blend_hard_light(half4 src, half4 dst) {
     return blend_overlay(dst, src);
 }
 
-half $soft_light_component(half2 s, half2 d) {
+$pure half $soft_light_component(half2 s, half2 d) {
     if (2*s.x <= s.y) {
         return $guarded_divide(d.x*d.x*(s.y - 2*s.x), d.y) + (1 - d.y)*s.x + d.x*(-s.y + 2*s.x + 1);
     } else if (4.0 * d.x <= d.y) {
@@ -218,30 +218,30 @@ half $soft_light_component(half2 s, half2 d) {
     }
 }
 
-half4 blend_soft_light(half4 src, half4 dst) {
+$pure half4 blend_soft_light(half4 src, half4 dst) {
     return (dst.a == 0) ? src : half4($soft_light_component(src.ra, dst.ra),
                                       $soft_light_component(src.ga, dst.ga),
                                       $soft_light_component(src.ba, dst.ba),
                                       src.a + (1 - src.a)*dst.a);
 }
 
-half4 blend_difference(half4 src, half4 dst) {
+$pure half4 blend_difference(half4 src, half4 dst) {
     return half4(src.rgb + dst.rgb - 2*min(src.rgb*dst.a, dst.rgb*src.a),
                  src.a + (1 - src.a)*dst.a);
 }
 
-half4 blend_exclusion(half4 src, half4 dst) {
+$pure half4 blend_exclusion(half4 src, half4 dst) {
     return half4(dst.rgb + src.rgb - 2*dst.rgb*src.rgb, src.a + (1 - src.a)*dst.a);
 }
 
-half4 blend_multiply(half4 src, half4 dst) {
+$pure half4 blend_multiply(half4 src, half4 dst) {
     return half4((1 - src.a)*dst.rgb + (1 - dst.a)*src.rgb + src.rgb*dst.rgb,
                  src.a + (1 - src.a)*dst.a);
 }
 
-half $blend_color_luminance(half3 color) { return dot(half3(0.3, 0.59, 0.11), color); }
+$pure half $blend_color_luminance(half3 color) { return dot(half3(0.3, 0.59, 0.11), color); }
 
-half3 $blend_set_color_luminance(half3 hueSatColor, half alpha, half3 lumColor) {
+$pure half3 $blend_set_color_luminance(half3 hueSatColor, half alpha, half3 lumColor) {
     half lum = $blend_color_luminance(lumColor);
     half3 result = lum - $blend_color_luminance(hueSatColor) + hueSatColor;
     half minComp = min(min(result.r, result.g), result.b);
@@ -255,11 +255,11 @@ half3 $blend_set_color_luminance(half3 hueSatColor, half alpha, half3 lumColor) 
     return result;
 }
 
-half $blend_color_saturation(half3 color) {
+$pure half $blend_color_saturation(half3 color) {
     return max(max(color.r, color.g), color.b) - min(min(color.r, color.g), color.b);
 }
 
-half3 $blend_set_color_saturation(half3 color, half3 satColor) {
+$pure half3 $blend_set_color_saturation(half3 color, half3 satColor) {
     half mn = min(min(color.r, color.g), color.b);
     half mx = max(max(color.r, color.g), color.b);
 
@@ -267,7 +267,7 @@ half3 $blend_set_color_saturation(half3 color, half3 satColor) {
                      : half3(0);
 }
 
-half4 blend_hslc(half2 flipSat, half4 src, half4 dst) {
+$pure half4 blend_hslc(half2 flipSat, half4 src, half4 dst) {
     half alpha = dst.a * src.a;
     half3 sda = src.rgb * dst.a;
     half3 dsa = dst.rgb * src.a;
@@ -281,30 +281,30 @@ half4 blend_hslc(half2 flipSat, half4 src, half4 dst) {
                  src.a + dst.a - alpha);
 }
 
-half4 blend_hue(half4 src, half4 dst) {
+$pure half4 blend_hue(half4 src, half4 dst) {
     return blend_hslc(half2(0, 1), src, dst);
 }
 
-half4 blend_saturation(half4 src, half4 dst) {
+$pure half4 blend_saturation(half4 src, half4 dst) {
     return blend_hslc(half2(1), src, dst);
 }
 
-half4 blend_color(half4 src, half4 dst)  {
+$pure half4 blend_color(half4 src, half4 dst)  {
     return blend_hslc(half2(0), src, dst);
 }
 
-half4 blend_luminosity(half4 src, half4 dst) {
+$pure half4 blend_luminosity(half4 src, half4 dst) {
     return blend_hslc(half2(1, 0), src, dst);
 }
 
-float2 proj(float3 p) { return p.xy / p.z; }
+$pure float2 proj(float3 p) { return p.xy / p.z; }
 
 // Implement cross() as a determinant to communicate our intent more clearly to the compiler.
 // NOTE: Due to precision issues, it might be the case that cross(a, a) != 0.
-float cross_length_2d(float2 a, float2 b) {
+$pure float cross_length_2d(float2 a, float2 b) {
     return determinant(float2x2(a, b));
 }
 
-half cross_length_2d(half2 a, half2 b) {
+$pure half cross_length_2d(half2 a, half2 b) {
     return determinant(half2x2(a, b));
 }

@@ -3,237 +3,237 @@
 // See "The OpenGL ES Shading Language, Section 8"
 
 // 8.1 : Angle and Trigonometry Functions
-$genType  radians($genType  degrees);
-$genHType radians($genHType degrees);
-$genType  degrees($genType  radians);
-$genHType degrees($genHType radians);
+$pure $genType  radians($genType  degrees);
+$pure $genHType radians($genHType degrees);
+$pure $genType  degrees($genType  radians);
+$pure $genHType degrees($genHType radians);
 
-$genType  sin($genType  angle);
-$genHType sin($genHType angle);
-$genType  cos($genType  angle);
-$genHType cos($genHType angle);
-$genType  tan($genType  angle);
-$genHType tan($genHType angle);
+$pure $genType  sin($genType  angle);
+$pure $genHType sin($genHType angle);
+$pure $genType  cos($genType  angle);
+$pure $genHType cos($genHType angle);
+$pure $genType  tan($genType  angle);
+$pure $genHType tan($genHType angle);
 
-$genType  asin($genType  x);
-$genHType asin($genHType x);
-$genType  acos($genType  x);
-$genHType acos($genHType x);
-$genType  atan($genType  y, $genType  x);
-$genHType atan($genHType y, $genHType x);
-$genType  atan($genType  y_over_x);
-$genHType atan($genHType y_over_x);
+$pure $genType  asin($genType  x);
+$pure $genHType asin($genHType x);
+$pure $genType  acos($genType  x);
+$pure $genHType acos($genHType x);
+$pure $genType  atan($genType  y, $genType  x);
+$pure $genHType atan($genHType y, $genHType x);
+$pure $genType  atan($genType  y_over_x);
+$pure $genHType atan($genHType y_over_x);
 
 // 8.1 : Angle and Trigonometry Functions (GLSL ES 3.0)
-$es3 $genType  sinh($genType x);
-$es3 $genHType sinh($genHType x);
-$es3 $genType  cosh($genType x);
-$es3 $genHType cosh($genHType x);
-$es3 $genType  tanh($genType x);
-$es3 $genHType tanh($genHType x);
-$es3 $genType  asinh($genType x);
-$es3 $genHType asinh($genHType x);
-$es3 $genType  acosh($genType x);
-$es3 $genHType acosh($genHType x);
-$es3 $genType  atanh($genType x);
-$es3 $genHType atanh($genHType x);
+$pure $es3 $genType  sinh($genType x);
+$pure $es3 $genHType sinh($genHType x);
+$pure $es3 $genType  cosh($genType x);
+$pure $es3 $genHType cosh($genHType x);
+$pure $es3 $genType  tanh($genType x);
+$pure $es3 $genHType tanh($genHType x);
+$pure $es3 $genType  asinh($genType x);
+$pure $es3 $genHType asinh($genHType x);
+$pure $es3 $genType  acosh($genType x);
+$pure $es3 $genHType acosh($genHType x);
+$pure $es3 $genType  atanh($genType x);
+$pure $es3 $genHType atanh($genHType x);
 
 // 8.2 : Exponential Functions
-$genType  pow($genType  x, $genType  y);
-$genHType pow($genHType x, $genHType y);
-$genType  exp($genType  x);
-$genHType exp($genHType x);
-$genType  log($genType  x);
-$genHType log($genHType x);
-$genType  exp2($genType  x);
-$genHType exp2($genHType x);
-$genType  log2($genType  x);
-$genHType log2($genHType x);
+$pure $genType  pow($genType  x, $genType  y);
+$pure $genHType pow($genHType x, $genHType y);
+$pure $genType  exp($genType  x);
+$pure $genHType exp($genHType x);
+$pure $genType  log($genType  x);
+$pure $genHType log($genHType x);
+$pure $genType  exp2($genType  x);
+$pure $genHType exp2($genHType x);
+$pure $genType  log2($genType  x);
+$pure $genHType log2($genHType x);
 
-$genType  sqrt($genType  x);
-$genHType sqrt($genHType x);
-$genType  inversesqrt($genType  x);
-$genHType inversesqrt($genHType x);
+$pure $genType  sqrt($genType  x);
+$pure $genHType sqrt($genHType x);
+$pure $genType  inversesqrt($genType  x);
+$pure $genHType inversesqrt($genHType x);
 
 // 8.3 : Common Functions
-$genType  abs($genType  x);
-$genHType abs($genHType x);
-$genType  sign($genType  x);
-$genHType sign($genHType x);
-$genType  floor($genType  x);
-$genHType floor($genHType x);
-$genType  ceil($genType  x);
-$genHType ceil($genHType x);
-$genType  fract($genType  x);
-$genHType fract($genHType x);
-$genType  mod($genType  x, float     y);
-$genType  mod($genType  x, $genType  y);
-$genHType mod($genHType x, half      y);
-$genHType mod($genHType x, $genHType y);
+$pure $genType  abs($genType  x);
+$pure $genHType abs($genHType x);
+$pure $genType  sign($genType  x);
+$pure $genHType sign($genHType x);
+$pure $genType  floor($genType  x);
+$pure $genHType floor($genHType x);
+$pure $genType  ceil($genType  x);
+$pure $genHType ceil($genHType x);
+$pure $genType  fract($genType  x);
+$pure $genHType fract($genHType x);
+$pure $genType  mod($genType  x, float     y);
+$pure $genType  mod($genType  x, $genType  y);
+$pure $genHType mod($genHType x, half      y);
+$pure $genHType mod($genHType x, $genHType y);
 
-$genType  min($genType  x, $genType  y);
-$genType  min($genType  x, float     y);
-$genHType min($genHType x, $genHType y);
-$genHType min($genHType x, half      y);
-$genType  max($genType  x, $genType  y);
-$genType  max($genType  x, float     y);
-$genHType max($genHType x, $genHType y);
-$genHType max($genHType x, half      y);
-$genType  clamp($genType  x, $genType  minVal, $genType  maxVal);
-$genType  clamp($genType  x, float     minVal, float     maxVal);
-$genHType clamp($genHType x, $genHType minVal, $genHType maxVal);
-$genHType clamp($genHType x, half      minVal, half      maxVal);
-$genType  saturate($genType  x);  // SkSL extension
-$genHType saturate($genHType x);  // SkSL extension
-$genType  mix($genType  x, $genType  y, $genType a);
-$genType  mix($genType  x, $genType  y, float a);
-$genHType mix($genHType x, $genHType y, $genHType a);
-$genHType mix($genHType x, $genHType y, half a);
-$genType  step($genType  edge, $genType x);
-$genType  step(float     edge, $genType x);
-$genHType step($genHType edge, $genHType x);
-$genHType step(half      edge, $genHType x);
-$genType  smoothstep($genType  edge0, $genType  edge1, $genType  x);
-$genType  smoothstep(float     edge0, float     edge1, $genType  x);
-$genHType smoothstep($genHType edge0, $genHType edge1, $genHType x);
-$genHType smoothstep(half      edge0, half      edge1, $genHType x);
+$pure $genType  min($genType  x, $genType  y);
+$pure $genType  min($genType  x, float     y);
+$pure $genHType min($genHType x, $genHType y);
+$pure $genHType min($genHType x, half      y);
+$pure $genType  max($genType  x, $genType  y);
+$pure $genType  max($genType  x, float     y);
+$pure $genHType max($genHType x, $genHType y);
+$pure $genHType max($genHType x, half      y);
+$pure $genType  clamp($genType  x, $genType  minVal, $genType  maxVal);
+$pure $genType  clamp($genType  x, float     minVal, float     maxVal);
+$pure $genHType clamp($genHType x, $genHType minVal, $genHType maxVal);
+$pure $genHType clamp($genHType x, half      minVal, half      maxVal);
+$pure $genType  saturate($genType  x);  // SkSL extension
+$pure $genHType saturate($genHType x);  // SkSL extension
+$pure $genType  mix($genType  x, $genType  y, $genType a);
+$pure $genType  mix($genType  x, $genType  y, float a);
+$pure $genHType mix($genHType x, $genHType y, $genHType a);
+$pure $genHType mix($genHType x, $genHType y, half a);
+$pure $genType  step($genType  edge, $genType x);
+$pure $genType  step(float     edge, $genType x);
+$pure $genHType step($genHType edge, $genHType x);
+$pure $genHType step(half      edge, $genHType x);
+$pure $genType  smoothstep($genType  edge0, $genType  edge1, $genType  x);
+$pure $genType  smoothstep(float     edge0, float     edge1, $genType  x);
+$pure $genHType smoothstep($genHType edge0, $genHType edge1, $genHType x);
+$pure $genHType smoothstep(half      edge0, half      edge1, $genHType x);
 
 // 8.3 : Common Functions (GLSL ES 3.0)
-$es3 $genIType abs($genIType x);
-$es3 $genIType sign($genIType x);
-$es3 $genIType floatBitsToInt ($genType  value);
-$es3 $genUType floatBitsToUint($genType  value);
-$es3 $genType  intBitsToFloat ($genIType value);
-$es3 $genType  uintBitsToFloat($genUType value);
-$es3 $genType  trunc($genType  x);
-$es3 $genHType trunc($genHType x);
-$es3 $genType  round($genType  x);
-$es3 $genHType round($genHType x);
-$es3 $genType  roundEven($genType  x);
-$es3 $genHType roundEven($genHType x);
-$es3 $genIType min($genIType x, $genIType y);
-$es3 $genIType min($genIType x, int y);
-$es3 $genIType max($genIType x, $genIType y);
-$es3 $genIType max($genIType x, int y);
-$es3 $genIType clamp($genIType x, $genIType minVal, $genIType maxVal);
-$es3 $genIType clamp($genIType x, int minVal, int maxVal);
-$es3 $genUType clamp($genUType x, $genUType minVal, $genUType maxVal);
-$es3 $genUType clamp($genUType x, uint minVal, uint maxVal);
-$es3 $genType  mix($genType  x, $genType  y, $genBType a);
-$es3 $genHType mix($genHType x, $genHType y, $genBType a);
+$pure $es3 $genIType abs($genIType x);
+$pure $es3 $genIType sign($genIType x);
+$pure $es3 $genIType floatBitsToInt ($genType  value);
+$pure $es3 $genUType floatBitsToUint($genType  value);
+$pure $es3 $genType  intBitsToFloat ($genIType value);
+$pure $es3 $genType  uintBitsToFloat($genUType value);
+$pure $es3 $genType  trunc($genType  x);
+$pure $es3 $genHType trunc($genHType x);
+$pure $es3 $genType  round($genType  x);
+$pure $es3 $genHType round($genHType x);
+$pure $es3 $genType  roundEven($genType  x);
+$pure $es3 $genHType roundEven($genHType x);
+$pure $es3 $genIType min($genIType x, $genIType y);
+$pure $es3 $genIType min($genIType x, int y);
+$pure $es3 $genIType max($genIType x, $genIType y);
+$pure $es3 $genIType max($genIType x, int y);
+$pure $es3 $genIType clamp($genIType x, $genIType minVal, $genIType maxVal);
+$pure $es3 $genIType clamp($genIType x, int minVal, int maxVal);
+$pure $es3 $genUType clamp($genUType x, $genUType minVal, $genUType maxVal);
+$pure $es3 $genUType clamp($genUType x, uint minVal, uint maxVal);
+$pure $es3 $genType  mix($genType  x, $genType  y, $genBType a);
+$pure $es3 $genHType mix($genHType x, $genHType y, $genBType a);
 
 // 8.3 : Common Functions (GLSL ES 3.0) -- cannot be used in constant-expressions
-$es3 $genBType isnan($genType  x);
-$es3 $genBType isnan($genHType x);
-$es3 $genBType isinf($genType  x);
-$es3 $genBType isinf($genHType x);
-$es3 $genType  modf($genType  x, out $genType  i);
-$es3 $genHType modf($genHType x, out $genHType i);
+$pure $es3 $genBType isnan($genType  x);
+$pure $es3 $genBType isnan($genHType x);
+$pure $es3 $genBType isinf($genType  x);
+$pure $es3 $genBType isinf($genHType x);
+$pure $es3 $genType  modf($genType  x, out $genType  i);
+$pure $es3 $genHType modf($genHType x, out $genHType i);
 
 // 8.4 : Floating-Point Pack and Unpack Functions (GLSL ES 3.0)
-$es3 uint packUnorm2x16(float2 v);
-$es3 float2 unpackUnorm2x16(uint p);
+$pure $es3 uint packUnorm2x16(float2 v);
+$pure $es3 float2 unpackUnorm2x16(uint p);
 
 // 8.5 : Geometric Functions
-float length($genType  x);
-half  length($genHType x);
-float distance($genType  p0, $genType  p1);
-half  distance($genHType p0, $genHType p1);
-float dot($genType  x, $genType  y);
-half  dot($genHType x, $genHType y);
-float3 cross(float3 x, float3 y);
-half3  cross(half3  x, half3  y);
-$genType  normalize($genType  x);
-$genHType normalize($genHType x);
-$genType  faceforward($genType  N, $genType  I, $genType  Nref);
-$genHType faceforward($genHType N, $genHType I, $genHType Nref);
-$genType  reflect($genType  I, $genType  N);
-$genHType reflect($genHType I, $genHType N);
-$genType  refract($genType  I, $genType  N, float eta);
-$genHType refract($genHType I, $genHType N, half eta);
+$pure float length($genType  x);
+$pure half  length($genHType x);
+$pure float distance($genType  p0, $genType  p1);
+$pure half  distance($genHType p0, $genHType p1);
+$pure float dot($genType  x, $genType  y);
+$pure half  dot($genHType x, $genHType y);
+$pure float3 cross(float3 x, float3 y);
+$pure half3  cross(half3  x, half3  y);
+$pure $genType  normalize($genType  x);
+$pure $genHType normalize($genHType x);
+$pure $genType  faceforward($genType  N, $genType  I, $genType  Nref);
+$pure $genHType faceforward($genHType N, $genHType I, $genHType Nref);
+$pure $genType  reflect($genType  I, $genType  N);
+$pure $genHType reflect($genHType I, $genHType N);
+$pure $genType  refract($genType  I, $genType  N, float eta);
+$pure $genHType refract($genHType I, $genHType N, half eta);
 
 // 8.6 : Matrix Functions
-$squareMat  matrixCompMult($squareMat  x, $squareMat  y);
-$squareHMat matrixCompMult($squareHMat x, $squareHMat y);
-$es3 $mat   matrixCompMult($mat x, $mat y);
-$es3 $hmat  matrixCompMult($hmat x, $hmat y);
+$pure $squareMat  matrixCompMult($squareMat  x, $squareMat  y);
+$pure $squareHMat matrixCompMult($squareHMat x, $squareHMat y);
+$pure $es3 $mat   matrixCompMult($mat x, $mat y);
+$pure $es3 $hmat  matrixCompMult($hmat x, $hmat y);
 
 // 8.6 : Matrix Functions (GLSL 1.4, poly-filled by SkSL as needed)
-$squareMat  inverse($squareMat  m);
-$squareHMat inverse($squareHMat m);
+$pure $squareMat  inverse($squareMat  m);
+$pure $squareHMat inverse($squareHMat m);
 
 // 8.6 : Matrix Functions (GLSL ES 3.0)
-$es3 float       determinant($squareMat m);
-$es3 half        determinant($squareHMat m);
-$es3 $squareMat  transpose($squareMat  m);
-$es3 $squareHMat transpose($squareHMat m);
-$es3 float2x3    transpose(float3x2 m);
-$es3 half2x3     transpose(half3x2  m);
-$es3 float2x4    transpose(float4x2 m);
-$es3 half2x4     transpose(half4x2  m);
-$es3 float3x2    transpose(float2x3 m);
-$es3 half3x2     transpose(half2x3  m);
-$es3 float3x4    transpose(float4x3 m);
-$es3 half3x4     transpose(half4x3  m);
-$es3 float4x2    transpose(float2x4 m);
-$es3 half4x2     transpose(half2x4  m);
-$es3 float4x3    transpose(float3x4 m);
-$es3 half4x3     transpose(half3x4  m);
-$es3 $squareMat  outerProduct($vec   c, $vec   r);
-$es3 $squareHMat outerProduct($hvec  c, $hvec  r);
-$es3 float2x3    outerProduct(float3 c, float2 r);
-$es3 half2x3     outerProduct(half3  c, half2  r);
-$es3 float3x2    outerProduct(float2 c, float3 r);
-$es3 half3x2     outerProduct(half2  c, half3  r);
-$es3 float2x4    outerProduct(float4 c, float2 r);
-$es3 half2x4     outerProduct(half4  c, half2  r);
-$es3 float4x2    outerProduct(float2 c, float4 r);
-$es3 half4x2     outerProduct(half2  c, half4  r);
-$es3 float3x4    outerProduct(float4 c, float3 r);
-$es3 half3x4     outerProduct(half4  c, half3  r);
-$es3 float4x3    outerProduct(float3 c, float4 r);
-$es3 half4x3     outerProduct(half3  c, half4  r);
+$pure $es3 float       determinant($squareMat m);
+$pure $es3 half        determinant($squareHMat m);
+$pure $es3 $squareMat  transpose($squareMat  m);
+$pure $es3 $squareHMat transpose($squareHMat m);
+$pure $es3 float2x3    transpose(float3x2 m);
+$pure $es3 half2x3     transpose(half3x2  m);
+$pure $es3 float2x4    transpose(float4x2 m);
+$pure $es3 half2x4     transpose(half4x2  m);
+$pure $es3 float3x2    transpose(float2x3 m);
+$pure $es3 half3x2     transpose(half2x3  m);
+$pure $es3 float3x4    transpose(float4x3 m);
+$pure $es3 half3x4     transpose(half4x3  m);
+$pure $es3 float4x2    transpose(float2x4 m);
+$pure $es3 half4x2     transpose(half2x4  m);
+$pure $es3 float4x3    transpose(float3x4 m);
+$pure $es3 half4x3     transpose(half3x4  m);
+$pure $es3 $squareMat  outerProduct($vec   c, $vec   r);
+$pure $es3 $squareHMat outerProduct($hvec  c, $hvec  r);
+$pure $es3 float2x3    outerProduct(float3 c, float2 r);
+$pure $es3 half2x3     outerProduct(half3  c, half2  r);
+$pure $es3 float3x2    outerProduct(float2 c, float3 r);
+$pure $es3 half3x2     outerProduct(half2  c, half3  r);
+$pure $es3 float2x4    outerProduct(float4 c, float2 r);
+$pure $es3 half2x4     outerProduct(half4  c, half2  r);
+$pure $es3 float4x2    outerProduct(float2 c, float4 r);
+$pure $es3 half4x2     outerProduct(half2  c, half4  r);
+$pure $es3 float3x4    outerProduct(float4 c, float3 r);
+$pure $es3 half3x4     outerProduct(half4  c, half3  r);
+$pure $es3 float4x3    outerProduct(float3 c, float4 r);
+$pure $es3 half4x3     outerProduct(half3  c, half4  r);
 
 // 8.7 : Vector Relational Functions
-$bvec lessThan($vec  x, $vec  y);
-$bvec lessThan($hvec x, $hvec y);
-$bvec lessThan($ivec x, $ivec y);
-$bvec lessThanEqual($vec  x, $vec  y);
-$bvec lessThanEqual($hvec x, $hvec y);
-$bvec lessThanEqual($ivec x, $ivec y);
-$bvec greaterThan($vec  x, $vec  y);
-$bvec greaterThan($hvec x, $hvec y);
-$bvec greaterThan($ivec x, $ivec y);
-$bvec greaterThanEqual($vec  x, $vec  y);
-$bvec greaterThanEqual($hvec x, $hvec y);
-$bvec greaterThanEqual($ivec x, $ivec y);
-$bvec equal($vec  x, $vec  y);
-$bvec equal($hvec x, $hvec y);
-$bvec equal($ivec x, $ivec y);
-$bvec equal($bvec x, $bvec y);
-$bvec notEqual($vec  x, $vec  y);
-$bvec notEqual($hvec x, $hvec y);
-$bvec notEqual($ivec x, $ivec y);
-$bvec notEqual($bvec x, $bvec y);
+$pure $bvec lessThan($vec  x, $vec  y);
+$pure $bvec lessThan($hvec x, $hvec y);
+$pure $bvec lessThan($ivec x, $ivec y);
+$pure $bvec lessThanEqual($vec  x, $vec  y);
+$pure $bvec lessThanEqual($hvec x, $hvec y);
+$pure $bvec lessThanEqual($ivec x, $ivec y);
+$pure $bvec greaterThan($vec  x, $vec  y);
+$pure $bvec greaterThan($hvec x, $hvec y);
+$pure $bvec greaterThan($ivec x, $ivec y);
+$pure $bvec greaterThanEqual($vec  x, $vec  y);
+$pure $bvec greaterThanEqual($hvec x, $hvec y);
+$pure $bvec greaterThanEqual($ivec x, $ivec y);
+$pure $bvec equal($vec  x, $vec  y);
+$pure $bvec equal($hvec x, $hvec y);
+$pure $bvec equal($ivec x, $ivec y);
+$pure $bvec equal($bvec x, $bvec y);
+$pure $bvec notEqual($vec  x, $vec  y);
+$pure $bvec notEqual($hvec x, $hvec y);
+$pure $bvec notEqual($ivec x, $ivec y);
+$pure $bvec notEqual($bvec x, $bvec y);
 
-bool  any($bvec x);
-bool  all($bvec x);
-$bvec not($bvec x);
+$pure bool  any($bvec x);
+$pure bool  all($bvec x);
+$pure $bvec not($bvec x);
 
 // 8.9 : Fragment Processing Functions (GLSL ES 3.0)
-$es3 $genType  dFdx($genType p);
-$es3 $genType  dFdy($genType p);
-$es3 $genHType dFdx($genHType p);
-$es3 $genHType dFdy($genHType p);
-$es3 $genType  fwidth($genType p);
-$es3 $genHType fwidth($genHType p);
+$pure $es3 $genType  dFdx($genType p);
+$pure $es3 $genType  dFdy($genType p);
+$pure $es3 $genHType dFdx($genHType p);
+$pure $es3 $genHType dFdy($genHType p);
+$pure $es3 $genType  fwidth($genType p);
+$pure $es3 $genHType fwidth($genHType p);
 
 
 // SkSL utility functions
 
 // The max() guards against division by zero when the incoming color is transparent black
-half4  unpremul(half4  color) { return half4 (color.rgb / max(color.a, 0.0001), color.a); }
-float4 unpremul(float4 color) { return float4(color.rgb / max(color.a, 0.0001), color.a); }
+$pure half4  unpremul(half4  color) { return half4 (color.rgb / max(color.a, 0.0001), color.a); }
+$pure float4 unpremul(float4 color) { return float4(color.rgb / max(color.a, 0.0001), color.a); }
 
 // Convert RGBA -> HSLA (including unpremul).
 //
@@ -255,7 +255,7 @@ float4 unpremul(float4 color) { return float4(color.rgb / max(color.a, 0.0001), 
 // [2] http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
 // [3] http://www.chilliant.com/rgb2hsv.html
 
-half4 $rgb_to_hsl(half3 c, half a) {
+$pure half4 $rgb_to_hsl(half3 c, half a) {
     half4 p = (c.g < c.b) ? half4(c.bg, -1,  2/3.0)
                           : half4(c.gb,  0, -1/3.0);
     half4 q = (c.r < p.x) ? half4(p.x, c.r, p.yw)
@@ -284,7 +284,7 @@ half4 $rgb_to_hsl(half3 c, half a) {
 // [2] http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl
 // [3] http://www.chilliant.com/rgb2hsv.html
 
-half3 $hsl_to_rgb(half3 hsl) {
+$pure half3 $hsl_to_rgb(half3 hsl) {
     half      C = (1 - abs(2 * hsl.z - 1)) * hsl.y;
     half3     p = hsl.xxx + half3(0, 2/3.0, 1/3.0);
     half3     q = saturate(abs(fract(p) * 6 - 3) - 1);
@@ -292,6 +292,6 @@ half3 $hsl_to_rgb(half3 hsl) {
     return (q - 0.5) * C + hsl.z;
 }
 
-half4 $hsl_to_rgb(half3 hsl, half a) {
+$pure half4 $hsl_to_rgb(half3 hsl, half a) {
     return saturate(half4($hsl_to_rgb(hsl) * a, a));
 }
