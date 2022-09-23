@@ -17,10 +17,10 @@ float pow(float2 x, float y) { return 0; /* allowed */ }
 float pow(half x, float y) { return 0; /* allowed */ }
 
 /*%%*
-duplicate definition of $genHType fma($genHType a, $genHType b, $genHType c)
-duplicate definition of $genHType sin($genHType angle)
-duplicate definition of $genType sin($genType angle)
-duplicate definition of $genHType cos($genHType angle)
-functions 'float2 cos(half2 a)' and '$genHType cos($genHType angle)' differ only in return type
-duplicate definition of $genType pow($genType x, $genType y)
+duplicate definition of 'half fma(half a, half b, half c)'
+duplicate definition of 'half2 sin(half2 a)'
+duplicate definition of 'float3 sin(float3 a)'
+duplicate definition of 'half cos(half2 a)'
+functions 'float2 cos(half2 a)' and '$pure $genHType cos($genHType angle)' differ only in return type
+duplicate definition of 'float pow(float x, float y)'
 *%%*/
