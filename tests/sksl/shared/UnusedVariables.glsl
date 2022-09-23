@@ -6,10 +6,12 @@ float userfunc_ff(float v) {
 vec4 main() {
     float b = 2.0;
     float c = 3.0;
+    b = 2.0;
     b = c + 77.0;
     b = sin(c + 77.0);
     userfunc_ff(c + 77.0);
     b = userfunc_ff(c + 77.0);
+    b = (b = cos(c));
     for (int x = 0;x < 1; ++x) {
         continue;
     }

@@ -7,10 +7,18 @@ noinline float userfunc(float v) {
 }
 
 half4 main(float2 coords) {
-    float a = 1, b = 2, c = 3;
+    float a = 1, b = 2, c = 3, z = 4;
     if (false) {
         a++, b++, c++;
     }
+
+    a = 1;
+    b = 2;
+    z = 3;
+    a = a = 4;
+    z = z = z = 5;
+    a = z = 6;
+    z = a = z = 7;
 
     a = c + 77.0;
     b = c + 77.0;
@@ -18,6 +26,8 @@ half4 main(float2 coords) {
     b = sin(c + 77.0);
     a = userfunc(c + 77.0);
     b = userfunc(c + 77.0);
+    a = a = cos(c);
+    b = b = cos(c);
 
     for (int x=0; x<1; ++x) {
         continue;
@@ -27,6 +37,8 @@ half4 main(float2 coords) {
     float e = d;
     b = 3;
     d++;
+
+    int i, j, k = j = i; // oss-fuzz:51741
 
     return half4(b == 2, b == 3, d == 5, d == 4);
 }

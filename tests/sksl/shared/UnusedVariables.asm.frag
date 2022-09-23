@@ -16,11 +16,11 @@ OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
-OpDecorate %63 RelaxedPrecision
-OpDecorate %65 RelaxedPrecision
-OpDecorate %68 RelaxedPrecision
-OpDecorate %71 RelaxedPrecision
+OpDecorate %64 RelaxedPrecision
+OpDecorate %66 RelaxedPrecision
+OpDecorate %69 RelaxedPrecision
 OpDecorate %72 RelaxedPrecision
+OpDecorate %73 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -74,6 +74,7 @@ OpFunctionEnd
 %d = OpVariable %_ptr_Function_float Function
 OpStore %b %float_2
 OpStore %c %float_3
+OpStore %b %float_2
 %36 = OpFAdd %float %float_3 %float_77
 OpStore %b %36
 %38 = OpFAdd %float %float_3 %float_77
@@ -86,35 +87,38 @@ OpStore %40 %39
 OpStore %43 %42
 %44 = OpFunctionCall %float %userfunc_ff %43
 OpStore %b %44
+%45 = OpExtInst %float %1 Cos %float_3
+OpStore %b %45
+OpStore %b %45
 OpStore %x %int_0
-OpBranch %49
-%49 = OpLabel
-OpLoopMerge %53 %52 None
 OpBranch %50
 %50 = OpLabel
-%54 = OpLoad %int %x
-%56 = OpSLessThan %bool %54 %int_1
-OpBranchConditional %56 %51 %53
+OpLoopMerge %54 %53 None
+OpBranch %51
 %51 = OpLabel
-OpBranch %52
+%55 = OpLoad %int %x
+%57 = OpSLessThan %bool %55 %int_1
+OpBranchConditional %57 %52 %54
 %52 = OpLabel
-%57 = OpLoad %int %x
-%58 = OpIAdd %int %57 %int_1
-OpStore %x %58
-OpBranch %49
+OpBranch %53
 %53 = OpLabel
-%60 = OpLoad %float %c
-OpStore %d %60
-OpStore %b %float_3
-%61 = OpFAdd %float %60 %float_1
+%58 = OpLoad %int %x
+%59 = OpIAdd %int %58 %int_1
+OpStore %x %59
+OpBranch %50
+%54 = OpLabel
+%61 = OpLoad %float %c
 OpStore %d %61
-%62 = OpFOrdEqual %bool %float_3 %float_2
-%63 = OpSelect %float %62 %float_1 %float_0
-%65 = OpSelect %float %true %float_1 %float_0
-%67 = OpFOrdEqual %bool %61 %float_5
-%68 = OpSelect %float %67 %float_1 %float_0
-%70 = OpFOrdEqual %bool %61 %float_4
-%71 = OpSelect %float %70 %float_1 %float_0
-%72 = OpCompositeConstruct %v4float %63 %65 %68 %71
-OpReturnValue %72
+OpStore %b %float_3
+%62 = OpFAdd %float %61 %float_1
+OpStore %d %62
+%63 = OpFOrdEqual %bool %float_3 %float_2
+%64 = OpSelect %float %63 %float_1 %float_0
+%66 = OpSelect %float %true %float_1 %float_0
+%68 = OpFOrdEqual %bool %62 %float_5
+%69 = OpSelect %float %68 %float_1 %float_0
+%71 = OpFOrdEqual %bool %62 %float_4
+%72 = OpSelect %float %71 %float_1 %float_0
+%73 = OpCompositeConstruct %v4float %64 %66 %69 %72
+OpReturnValue %73
 OpFunctionEnd

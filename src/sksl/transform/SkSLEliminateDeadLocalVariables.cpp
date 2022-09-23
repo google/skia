@@ -57,6 +57,11 @@ static bool eliminate_dead_local_variables(const Context& context,
                         // If `anyExpression` is now a lone ExpressionStatement, it's highly likely
                         // that we can eliminate it entirely. This flag will let us know to check.
                         fAssignmentWasEliminated = true;
+
+                        // Re-process the newly cleaned-up expression. This lets us fully clean up
+                        // gnarly assignments like `a = b = 123;` where both `a` and `b` are dead,
+                        // or silly double-assignments like `a = a = 123;`.
+                        return this->visitExpressionPtr(expr);
                     }
                 }
             }
@@ -90,8 +95,12 @@ static bool eliminate_dead_local_variables(const Context& context,
                     // The variable is no longer referenced anywhere so it should be safe to change.
                     const_cast<Variable*>(var)->markEliminated();
                     fMadeChanges = true;
+
+                    // Re-process the newly cleaned-up statement. This lets us fully clean up
+                    // gnarly assignments like `a = b = 123;` where both `a` and `b` are dead,
+                    // or silly double-assignments like `a = a = 123;`.
+                    return this->visitStatementPtr(stmt);
                 }
-                return false;
             }
 
             bool result = INHERITED::visitStatementPtr(stmt);
