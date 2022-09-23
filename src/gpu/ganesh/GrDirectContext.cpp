@@ -129,11 +129,10 @@ void GrDirectContext::abandonContext() {
     }
 
     if (fInsideReleaseProcCnt) {
-        SkDEBUGFAIL("Calling GrDirectContext::abandonContext() while inside a ReleaseProc is not"
+        SkDEBUGFAIL("Calling GrDirectContext::abandonContext() while inside a ReleaseProc is not "
                     "allowed");
         return;
     }
-
 
     INHERITED::abandonContext();
 
@@ -150,9 +149,6 @@ void GrDirectContext::abandonContext() {
     fResourceCache->abandonAll();
 
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
-
-    // Must be after GrResourceCache::abandonAll().
-    fMappedBufferManager.reset();
 
     if (fSmallPathAtlasMgr) {
         fSmallPathAtlasMgr->reset();
