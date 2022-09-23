@@ -176,12 +176,6 @@ public:
         }
     }
 
-    T* prepend() {
-        this->adjustCount(1);
-        memmove(this->data() + 1, this->data(), (fCount - 1) * sizeof(T));
-        return this->data();
-    }
-
     T* append() { return this->append(1, nullptr); }
     T* append(int count, const T* src = nullptr) {
         int oldCount = fCount;
@@ -232,36 +226,6 @@ public:
         return -1;
     }
 
-    int rfind(const T& elem) const {
-        const T* iter = this->data() + fCount;
-        const T* stop = this->data();
-
-        while (iter > stop) {
-            if (*--iter == elem) {
-                return SkToInt(iter - stop);
-            }
-        }
-        return -1;
-    }
-
-    // Returns true iff the array contains this element.
-    bool contains(const T& elem) const { return (this->find(elem) >= 0); }
-
-    // Copies up to max elements into dst. The number of items copied is
-    // capped by count - index. The actual number copied is returned.
-    int copyRange(T* dst, int index, int max) const {
-        SkASSERT(max >= 0);
-        SkASSERT(!max || dst);
-        if (index >= fCount) {
-            return 0;
-        }
-        int count = std::min(max, fCount - index);
-        memcpy(dst, this->data() + index, sizeof(T) * count);
-        return count;
-    }
-
-    void copy(T* dst) const { this->copyRange(dst, 0, fCount); }
-
     // routines to treat the array like a stack
     void     push_back(const T& v) { *this->append() = v; }
 
@@ -300,16 +264,6 @@ public:
         T* stop = this->data() + fCount;
         while (iter < stop) {
             (*iter)->unref();
-            iter += 1;
-        }
-        this->reset();
-    }
-
-    void safeUnrefAll() {
-        T* iter = this->data();
-        T* stop = this->data() + fCount;
-        while (iter < stop) {
-            SkSafeUnref(*iter);
             iter += 1;
         }
         this->reset();
