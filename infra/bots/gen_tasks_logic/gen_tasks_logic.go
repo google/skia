@@ -961,8 +961,8 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					d["os"] = "Debian-bookworm/sid"
 				}
 				if b.parts["cpu_or_gpu_value"] == "RadeonVega6" {
-					// The RadeonVega6 devices are Debian 11.4.
-					d["os"] = "Debian-11.4"
+					// The RadeonVega6 devices are Debian 11.5.
+					d["os"] = "Debian-11.5"
 				}
 
 			} else if b.matchOs("Mac") {
