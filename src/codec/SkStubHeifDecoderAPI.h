@@ -22,14 +22,6 @@ enum HeifColorFormat {
     kHeifColorFormat_RGBA_1010102,
 };
 
-enum HeifCodecPreference {
-    kHeifCodecPreference_none                     = 0,
-    kHeifCodecPreference_preferSoftwareCodecs     = 1,
-    kHeifCodecPreference_onlyHardwareCodecs       = 2,
-    kHeifCodecPreference_preferHardwareCodecs     = 4,
-    kHeifCodecPreference_onlySoftwareCodecs       = 8,
-};
-
 struct HeifStream {
     virtual ~HeifStream() {}
 
@@ -81,10 +73,6 @@ struct HeifDecoder {
 
     uint32_t getColorDepth() {
         return 0;
-    }
-
-    void setCodecPreference(int codecPreference) {
-
     }
 };
 
