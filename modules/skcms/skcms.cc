@@ -293,6 +293,8 @@ enum {
     skcms_Signature_CHAD = 0x63686164,
     skcms_Signature_WTPT = 0x77747074,
 
+    skcms_Signature_CICP = 0x63696370,
+
     // Type signatures
     skcms_Signature_curv = 0x63757276,
     skcms_Signature_mft1 = 0x6D667431,
@@ -1169,6 +1171,29 @@ static bool read_b2a(const skcms_ICCTag* tag, skcms_B2A* b2a, bool pcs_is_xyz) {
     return true;
 }
 
+typedef struct {
+    uint8_t type                     [4];
+    uint8_t reserved                 [4];
+    uint8_t color_primaries          [1];
+    uint8_t transfer_characteristics [1];
+    uint8_t matrix_coefficients      [1];
+    uint8_t video_full_range_flag    [1];
+} CICP_Layout;
+
+static bool read_cicp(const skcms_ICCTag* tag, skcms_CICP* cicp) {
+    if (tag->type != skcms_Signature_CICP || tag->size < SAFE_SIZEOF(CICP_Layout)) {
+        return false;
+    }
+
+    const CICP_Layout* cicpTag = (const CICP_Layout*)tag->buf;
+
+    cicp->color_primaries          = cicpTag->color_primaries[0];
+    cicp->transfer_characteristics = cicpTag->transfer_characteristics[0];
+    cicp->matrix_coefficients      = cicpTag->matrix_coefficients[0];
+    cicp->video_full_range_flag    = cicpTag->video_full_range_flag[0];
+    return true;
+}
+
 void skcms_GetTagByIndex(const skcms_ICCProfile* profile, uint32_t idx, skcms_ICCTag* tag) {
     if (!profile || !profile->buffer || !tag) { return; }
     if (idx > profile->tag_count) { return; }
@@ -1338,6 +1363,15 @@ bool skcms_ParseWithA2BPriority(const void* buf, size_t len,
         }
     }
 
+    skcms_ICCTag cicp_tag;
+    if (skcms_GetTagBySignature(profile, skcms_Signature_CICP, &cicp_tag)) {
+        if (!read_cicp(&cicp_tag, &profile->CICP)) {
+            // Malformed CICP tag
+            return false;
+        }
+        profile->has_CICP = true;
+    }
+
     return usable_as_src(profile);
 }
 
@@ -1432,6 +1466,9 @@ const skcms_ICCProfile* skcms_sRGB_profile() {
                 {{0, {0,0, 0,0,0,0,0}}},
             },
         },
+
+        false, // has_CICP, followed by cicp itself which we don't care about.
+        { 0, 0, 0, 0 },
     };
     return &sRGB_profile;
 }
@@ -1525,6 +1562,9 @@ const skcms_ICCProfile* skcms_XYZD50_profile() {
                 {{0, {0,0, 0,0,0,0,0}}},
             },
         },
+
+        false, // has_CICP, followed by cicp itself which we don't care about.
+        { 0, 0, 0, 0 },
     };
 
     return &XYZD50_profile;

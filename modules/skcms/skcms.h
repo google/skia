@@ -152,6 +152,12 @@ typedef struct skcms_B2A {
     skcms_Curve     output_curves[4];
 } skcms_B2A;
 
+typedef struct skcms_CICP {
+    uint8_t color_primaries;
+    uint8_t transfer_characteristics;
+    uint8_t matrix_coefficients;
+    uint8_t video_full_range_flag;
+} skcms_CICP;
 
 typedef struct skcms_ICCProfile {
     const uint8_t* buffer;
@@ -185,6 +191,10 @@ typedef struct skcms_ICCProfile {
     bool                   has_B2A;
     skcms_B2A              B2A;
 
+    // If the profile has a valid CICP tag, skcms_Parse() sets CICP to that data,
+    // and has_CICP to true.
+    bool                   has_CICP;
+    skcms_CICP             CICP;
 } skcms_ICCProfile;
 
 // The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.
