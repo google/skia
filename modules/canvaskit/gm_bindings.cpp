@@ -219,8 +219,7 @@ static skiatest::Test getTestWithName(std::string name, bool* ok) {
         }
     }
     *ok = false;
-    return skiatest::Test(nullptr, skiatest::TestType::kCPU,
-                          CtsEnforcement::kNever, nullptr);
+    return skiatest::Test::MakeCPU(nullptr, nullptr);
 }
 
 // Based on DM.cpp:run_test
