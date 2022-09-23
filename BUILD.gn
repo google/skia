@@ -2317,7 +2317,10 @@ if (skia_enable_tools) {
   }
 
   test_app("nanobench") {
-    sources = [ "bench/nanobench.cpp" ]
+    sources = [
+      "bench/nanobench.cpp",
+      "bench/nanobench.h",
+    ]
     deps = [
       ":bench",
       ":common_flags_aa",

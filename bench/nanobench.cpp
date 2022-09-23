@@ -1433,7 +1433,7 @@ int main(int argc, char** argv) {
     // those allocations. If a paint has already occurred, some modules will have already been
     // loaded, so we won't be able to capture a delta for them.
     log.beginObject("results");
-    RunSkSLMemoryBenchmarks(&log);
+    RunSkSLModuleBenchmarks(&log);
 
     int runs = 0;
     BenchmarkStream benchStream;

@@ -18,6 +18,18 @@
 
 #include <regex>
 
+#include "src/sksl/generated/sksl_shared.dehydrated.sksl"
+#include "src/sksl/generated/sksl_compute.dehydrated.sksl"
+#include "src/sksl/generated/sksl_frag.dehydrated.sksl"
+#include "src/sksl/generated/sksl_gpu.dehydrated.sksl"
+#include "src/sksl/generated/sksl_public.dehydrated.sksl"
+#include "src/sksl/generated/sksl_rt_shader.dehydrated.sksl"
+#include "src/sksl/generated/sksl_vert.dehydrated.sksl"
+#if defined(SK_GRAPHITE_ENABLED)
+#include "src/sksl/generated/sksl_graphite_frag.dehydrated.sksl"
+#include "src/sksl/generated/sksl_graphite_vert.dehydrated.sksl"
+#endif
+
 class SkSLCompilerStartupBench : public Benchmark {
 protected:
     const char* onGetName() override {
@@ -492,7 +504,7 @@ static void bench(NanoJSONResultsWriter* log, const char* name, int bytes) {
 
 // These benchmarks aren't timed, they produce memory usage statistics. They run standalone, and
 // directly add their results to the nanobench log.
-void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
+void RunSkSLModuleBenchmarks(NanoJSONResultsWriter* log) {
     // Heap used by a default compiler (with no modules loaded)
     int64_t before = heap_bytes_used();
     GrShaderCaps caps;
@@ -538,4 +550,22 @@ void RunSkSLMemoryBenchmarks(NanoJSONResultsWriter* log) {
         computeBytes = (computeBytes - before) + baselineBytes;
         bench(log, "sksl_compiler_compute", computeBytes);
     }
+
+    // Report the dehydrated module sizes.
+    int compilerGPUBinarySize = std::size(SKSL_INCLUDE_sksl_shared) +
+                                std::size(SKSL_INCLUDE_sksl_gpu) +
+                                std::size(SKSL_INCLUDE_sksl_vert) +
+                                std::size(SKSL_INCLUDE_sksl_frag) +
+                                std::size(SKSL_INCLUDE_sksl_public) +
+                                std::size(SKSL_INCLUDE_sksl_rt_shader);
+    bench(log, "sksl_binary_size_gpu", compilerGPUBinarySize);
+
+#if defined(SK_GRAPHITE_ENABLED)
+    int compilerGraphiteBinarySize = std::size(SKSL_INCLUDE_sksl_graphite_frag) +
+                                     std::size(SKSL_INCLUDE_sksl_graphite_vert);
+    bench(log, "sksl_binary_size_graphite", compilerGraphiteBinarySize);
+#endif
+
+    int compilerComputeBinarySize = std::size(SKSL_INCLUDE_sksl_compute);
+    bench(log, "sksl_binary_size_compute", compilerComputeBinarySize);
 }
