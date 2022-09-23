@@ -11,6 +11,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
@@ -20,6 +21,7 @@ namespace SkSL {
 class Context;
 class SymbolTable;
 class Type;
+enum class OperatorPrecedence : uint8_t;
 
 /**
  * An expression which extracts a value from an array or matrix, as in 'm[2]'.
@@ -73,9 +75,7 @@ struct IndexExpression final : public Expression {
                                                                &this->type()));
     }
 
-    std::string description() const override {
-        return this->base()->description() + "[" + this->index()->description() + "]";
-    }
+    std::string description(OperatorPrecedence) const override;
 
     using INHERITED = Expression;
 

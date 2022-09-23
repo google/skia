@@ -36,7 +36,7 @@ public:
                                                                  &this->type()));
     }
 
-    std::string description() const override {
+    std::string description(OperatorPrecedence) const override {
         return "<function>";
     }
 

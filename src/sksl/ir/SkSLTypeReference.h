@@ -43,7 +43,7 @@ public:
         return fValue;
     }
 
-    std::string description() const override {
+    std::string description(OperatorPrecedence) const override {
         return std::string(this->value().name());
     }
 

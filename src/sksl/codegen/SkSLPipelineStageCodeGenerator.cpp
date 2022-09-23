@@ -79,7 +79,7 @@ public:
     void generateCode();
 
 private:
-    using Precedence = Operator::Precedence;
+    using Precedence = OperatorPrecedence;
 
     void write(std::string_view s);
     void writeLine(std::string_view s = std::string_view());

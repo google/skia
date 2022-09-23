@@ -99,7 +99,7 @@ public:
         return fValue;
     }
 
-    std::string description() const override {
+    std::string description(OperatorPrecedence) const override {
         if (this->type().isFloat()) {
             return skstd::to_string(this->floatValue());
         }

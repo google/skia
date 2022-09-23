@@ -14,13 +14,16 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <cstdint>
 #include <memory>
 #include <optional>
+#include <string>
 
 namespace SkSL {
 
 class AnyConstructor;
 class Context;
+enum class OperatorPrecedence : uint8_t;
 
 /**
  * Abstract supertype of all expressions.
@@ -177,6 +180,13 @@ public:
      * Returns a clone at the same position.
      */
     std::unique_ptr<Expression> clone() const { return this->clone(fPosition); }
+
+    /**
+     * Returns a description of the expression.
+     */
+    std::string description() const final;
+    virtual std::string description(OperatorPrecedence parentPrecedence) const = 0;
+
 
 private:
     const Type* fType;

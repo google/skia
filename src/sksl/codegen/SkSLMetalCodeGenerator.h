@@ -77,7 +77,7 @@ public:
     bool generateCode() override;
 
 protected:
-    using Precedence = Operator::Precedence;
+    using Precedence = OperatorPrecedence;
 
     typedef int Requirements;
     inline static constexpr Requirements kNo_Requirements          = 0;

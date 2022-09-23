@@ -19,27 +19,27 @@
 
 namespace SkSL {
 
-Operator::Precedence Operator::getBinaryPrecedence() const {
+OperatorPrecedence Operator::getBinaryPrecedence() const {
     switch (this->kind()) {
         case Kind::STAR:         // fall through
         case Kind::SLASH:        // fall through
-        case Kind::PERCENT:      return Precedence::kMultiplicative;
+        case Kind::PERCENT:      return OperatorPrecedence::kMultiplicative;
         case Kind::PLUS:         // fall through
-        case Kind::MINUS:        return Precedence::kAdditive;
+        case Kind::MINUS:        return OperatorPrecedence::kAdditive;
         case Kind::SHL:          // fall through
-        case Kind::SHR:          return Precedence::kShift;
+        case Kind::SHR:          return OperatorPrecedence::kShift;
         case Kind::LT:           // fall through
         case Kind::GT:           // fall through
         case Kind::LTEQ:         // fall through
-        case Kind::GTEQ:         return Precedence::kRelational;
+        case Kind::GTEQ:         return OperatorPrecedence::kRelational;
         case Kind::EQEQ:         // fall through
-        case Kind::NEQ:          return Precedence::kEquality;
-        case Kind::BITWISEAND:   return Precedence::kBitwiseAnd;
-        case Kind::BITWISEXOR:   return Precedence::kBitwiseXor;
-        case Kind::BITWISEOR:    return Precedence::kBitwiseOr;
-        case Kind::LOGICALAND:   return Precedence::kLogicalAnd;
-        case Kind::LOGICALXOR:   return Precedence::kLogicalXor;
-        case Kind::LOGICALOR:    return Precedence::kLogicalOr;
+        case Kind::NEQ:          return OperatorPrecedence::kEquality;
+        case Kind::BITWISEAND:   return OperatorPrecedence::kBitwiseAnd;
+        case Kind::BITWISEXOR:   return OperatorPrecedence::kBitwiseXor;
+        case Kind::BITWISEOR:    return OperatorPrecedence::kBitwiseOr;
+        case Kind::LOGICALAND:   return OperatorPrecedence::kLogicalAnd;
+        case Kind::LOGICALXOR:   return OperatorPrecedence::kLogicalXor;
+        case Kind::LOGICALOR:    return OperatorPrecedence::kLogicalOr;
         case Kind::EQ:           // fall through
         case Kind::PLUSEQ:       // fall through
         case Kind::MINUSEQ:      // fall through
@@ -50,8 +50,8 @@ Operator::Precedence Operator::getBinaryPrecedence() const {
         case Kind::SHREQ:        // fall through
         case Kind::BITWISEANDEQ: // fall through
         case Kind::BITWISEXOREQ: // fall through
-        case Kind::BITWISEOREQ:  return Precedence::kAssignment;
-        case Kind::COMMA:        return Precedence::kSequence;
+        case Kind::BITWISEOREQ:  return OperatorPrecedence::kAssignment;
+        case Kind::COMMA:        return OperatorPrecedence::kSequence;
         default: SK_ABORT("unsupported binary operator");
     }
 }

@@ -10,6 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
@@ -268,6 +269,14 @@ std::unique_ptr<Expression> PrefixExpression::Make(const Context& context, Posit
     }
 
     return std::make_unique<PrefixExpression>(pos, op, std::move(base));
+}
+
+std::string PrefixExpression::description(OperatorPrecedence parentPrecedence) const {
+    bool needsParens = (OperatorPrecedence::kPrefix >= parentPrecedence);
+    return std::string(needsParens ? "(" : "") +
+           std::string(this->getOperator().tightOperatorName()) +
+           this->operand()->description(OperatorPrecedence::kPrefix) +
+           std::string(needsParens ? ")" : "");
 }
 
 }  // namespace SkSL

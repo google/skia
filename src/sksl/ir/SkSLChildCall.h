@@ -12,6 +12,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
@@ -21,6 +22,7 @@ namespace SkSL {
 class Context;
 class Type;
 class Variable;
+enum class OperatorPrecedence : uint8_t;
 
 /**
  * A call to a child effect object (shader, color filter, or blender).
@@ -55,7 +57,7 @@ public:
 
     std::unique_ptr<Expression> clone(Position pos) const override;
 
-    std::string description() const override;
+    std::string description(OperatorPrecedence) const override;
 
 private:
     const Variable& fChild;

@@ -25,7 +25,7 @@ public:
         return std::make_unique<Poison>(pos, &this->type());
     }
 
-    std::string description() const override {
+    std::string description(OperatorPrecedence) const override {
         return Compiler::POISON_TAG;
     }
 

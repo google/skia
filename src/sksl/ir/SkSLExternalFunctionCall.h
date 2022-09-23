@@ -9,6 +9,7 @@
 #define SKSL_EXTERNALFUNCTIONCALL
 
 #include "include/private/SkTArray.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -44,12 +45,12 @@ public:
                                                       this->arguments().clone());
     }
 
-    std::string description() const override {
+    std::string description(OperatorPrecedence) const override {
         std::string result = std::string(this->function().name()) + "(";
         std::string separator;
         for (const std::unique_ptr<Expression>& arg : this->arguments()) {
             result += separator;
-            result += arg->description();
+            result += arg->description(OperatorPrecedence::kSequence);
             separator = ", ";
         }
         result += ")";

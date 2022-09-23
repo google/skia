@@ -87,7 +87,7 @@ public:
 
     std::unique_ptr<Expression> clone(Position pos) const override;
 
-    std::string description() const override;
+    std::string description(OperatorPrecedence parentPrecedence) const override;
 
     /**
      * If the expression is an assignment like `a = 1` or `a += sin(b)`, returns the

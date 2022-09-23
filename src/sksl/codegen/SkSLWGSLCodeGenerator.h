@@ -117,7 +117,7 @@ public:
 
 private:
     using INHERITED = CodeGenerator;
-    using Precedence = Operator::Precedence;
+    using Precedence = OperatorPrecedence;
 
     // Called by generateCode() as the first step.
     void preprocessProgram();

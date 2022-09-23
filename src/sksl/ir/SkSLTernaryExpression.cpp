@@ -104,4 +104,13 @@ std::unique_ptr<Expression> TernaryExpression::Make(const Context& context,
                                                std::move(ifFalse));
 }
 
+std::string TernaryExpression::description(OperatorPrecedence parentPrecedence) const {
+    bool needsParens = (OperatorPrecedence::kTernary >= parentPrecedence);
+    return std::string(needsParens ? "(" : "") +
+           this->test()->description(OperatorPrecedence::kTernary) + " ? " +
+           this->ifTrue()->description(OperatorPrecedence::kTernary) + " : " +
+           this->ifFalse()->description(OperatorPrecedence::kTernary) +
+           std::string(needsParens ? ")" : "");
+}
+
 }  // namespace SkSL

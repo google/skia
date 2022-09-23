@@ -49,7 +49,7 @@ public:
                 pos, this->self()->clone(), this->overloadChain(), &this->type()));
     }
 
-    std::string description() const override {
+    std::string description(OperatorPrecedence) const override {
         return "<method>";
     }
 

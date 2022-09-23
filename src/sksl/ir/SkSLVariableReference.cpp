@@ -18,7 +18,7 @@ VariableReference::VariableReference(Position pos, const Variable* variable, Ref
     SkASSERT(this->variable());
 }
 
-std::string VariableReference::description() const {
+std::string VariableReference::description(OperatorPrecedence) const {
     return std::string(this->variable()->name());
 }
 

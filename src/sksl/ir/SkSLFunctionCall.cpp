@@ -17,6 +17,7 @@
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/core/SkMatrixInvert.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -848,12 +849,12 @@ std::unique_ptr<Expression> FunctionCall::clone(Position pos) const {
                                           this->arguments().clone());
 }
 
-std::string FunctionCall::description() const {
+std::string FunctionCall::description(OperatorPrecedence) const {
     std::string result = std::string(this->function().name()) + "(";
     const char* separator = "";
     for (const std::unique_ptr<Expression>& arg : this->arguments()) {
         result += separator;
-        result += arg->description();
+        result += arg->description(OperatorPrecedence::kSequence);
         separator = ", ";
     }
     result += ")";

@@ -71,7 +71,7 @@ public:
         return std::make_unique<VariableReference>(pos, this->variable(), this->refKind());
     }
 
-    std::string description() const override;
+    std::string description(OperatorPrecedence) const override;
 
 private:
     const Variable* fVariable;
