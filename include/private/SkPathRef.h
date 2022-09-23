@@ -397,8 +397,8 @@ private:
     /** Makes additional room but does not change the counts or change the genID */
     void incReserve(int additionalVerbs, int additionalPoints) {
         SkDEBUGCODE(this->validate();)
-        fPoints.setReserve(fPoints.count() + additionalPoints);
-        fVerbs.setReserve(fVerbs.count() + additionalVerbs);
+        fPoints.reserve(fPoints.count() + additionalPoints);
+        fVerbs.reserve(fVerbs.count() + additionalVerbs);
         SkDEBUGCODE(this->validate();)
     }
 
@@ -415,9 +415,9 @@ private:
         fIsOval = false;
         fIsRRect = false;
 
-        fPoints.setReserve(pointCount + reservePoints);
+        fPoints.reserve(pointCount + reservePoints);
         fPoints.setCount(pointCount);
-        fVerbs.setReserve(verbCount + reserveVerbs);
+        fVerbs.reserve(verbCount + reserveVerbs);
         fVerbs.setCount(verbCount);
         fConicWeights.setCount(conicCount);
         SkDEBUGCODE(this->validate();)

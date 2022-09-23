@@ -575,7 +575,7 @@ bool SkBaseShadowTessellator::computeConcaveShadow(SkScalar inset, SkScalar outs
     // generate inner ring
     SkTDArray<SkPoint> umbraPolygon;
     SkTDArray<int> umbraIndices;
-    umbraIndices.setReserve(fPathPolygon.count());
+    umbraIndices.reserve(fPathPolygon.count());
     if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), fPathBounds, inset,
                                &umbraPolygon, &umbraIndices)) {
         // TODO: figure out how to handle this case
@@ -585,8 +585,8 @@ bool SkBaseShadowTessellator::computeConcaveShadow(SkScalar inset, SkScalar outs
     // generate outer ring
     SkTDArray<SkPoint> penumbraPolygon;
     SkTDArray<int> penumbraIndices;
-    penumbraPolygon.setReserve(umbraPolygon.count());
-    penumbraIndices.setReserve(umbraPolygon.count());
+    penumbraPolygon.reserve(umbraPolygon.count());
+    penumbraIndices.reserve(umbraPolygon.count());
     if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), fPathBounds, -outset,
                                &penumbraPolygon, &penumbraIndices)) {
         // TODO: figure out how to handle this case
@@ -941,11 +941,11 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
 
     // Outer ring: 3*numPts
     // Middle ring: numPts
-    fPositions.setReserve(4 * path.countPoints());
-    fColors.setReserve(4 * path.countPoints());
+    fPositions.reserve(4 * path.countPoints());
+    fColors.reserve(4 * path.countPoints());
     // Outer ring: 12*numPts
     // Middle ring: 0
-    fIndices.setReserve(12 * path.countPoints());
+    fIndices.reserve(12 * path.countPoints());
 
     if (fIsConvex) {
         fSucceeded = this->computeConvexShadow(inset, outset, false);
@@ -955,7 +955,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
 }
 
 bool SkAmbientShadowTessellator::computePathPolygon(const SkPath& path, const SkMatrix& ctm) {
-    fPathPolygon.setReserve(path.countPoints());
+    fPathPolygon.reserve(path.countPoints());
 
     // walk around the path, tessellate and generate outer ring
     // if original path is transparent, will accumulate sum of points for centroid
@@ -1044,11 +1044,11 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     // Penumbra ring: 3*numPts
     // Umbra ring: numPts
     // Inner ring: numPts
-    fPositions.setReserve(5 * path.countPoints());
-    fColors.setReserve(5 * path.countPoints());
+    fPositions.reserve(5 * path.countPoints());
+    fColors.reserve(5 * path.countPoints());
     // Penumbra ring: 12*numPts
     // Umbra ring: 3*numPts
-    fIndices.setReserve(15 * path.countPoints());
+    fIndices.reserve(15 * path.countPoints());
 
     if (fIsConvex) {
         fSucceeded = this->computeConvexShadow(inset, outset, true);
@@ -1066,8 +1066,8 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
 bool SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, const SkMatrix& ctm,
                                                          const SkMatrix& shadowTransform) {
 
-    fPathPolygon.setReserve(path.countPoints());
-    fClipPolygon.setReserve(path.countPoints());
+    fPathPolygon.reserve(path.countPoints());
+    fClipPolygon.reserve(path.countPoints());
 
     // Walk around the path and compute clip polygon and path polygon.
     // Will also accumulate sum of areas for centroid.

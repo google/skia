@@ -1321,8 +1321,8 @@ bool SkAAClip::setRegion(const SkRegion& rgn) {
     SkTDArray<YOffset> yArray;
     SkTDArray<uint8_t> xArray;
 
-    yArray.setReserve(std::min(bounds.height(), 1024));
-    xArray.setReserve(std::min(bounds.width(), 512) * 128);
+    yArray.reserve(std::min(bounds.height(), 1024));
+    xArray.reserve(std::min(bounds.width(), 512) * 128);
 
     auto appendXRun = [&xArray](uint8_t value, int count) {
         SkASSERT(count >= 0);

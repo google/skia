@@ -68,7 +68,7 @@ private:
     // being generated. Its main function is to de-dup the points.
     class CandidateVerts {
     public:
-        void setReserve(int numPts) { fPts.setReserve(numPts); }
+        void setReserve(int numPts) { fPts.reserve(numPts); }
         void rewind() { fPts.rewind(); }
 
         int numPts() const { return fPts.count(); }
@@ -128,7 +128,7 @@ private:
     // a single polygon inset.
     class Ring {
     public:
-        void setReserve(int numPts) { fPts.setReserve(numPts); }
+        void setReserve(int numPts) { fPts.reserve(numPts); }
         void rewind() { fPts.rewind(); }
 
         int numPts() const { return fPts.count(); }
@@ -202,9 +202,9 @@ private:
     void addTri(int i0, int i1, int i2);
 
     void reservePts(int count) {
-        fPts.setReserve(count);
-        fCoverages.setReserve(count);
-        fMovable.setReserve(count);
+        fPts.reserve(count);
+        fCoverages.reserve(count);
+        fMovable.reserve(count);
     }
 
     SkScalar computeDepthFromEdge(int edgeIdx, const SkPoint& p) const;

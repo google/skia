@@ -86,7 +86,7 @@ void random_test(skiatest::Reporter* reporter) {
         // Create a random set of Mock objects.
         int count = random.nextULessThan(100);
         SkTDArray<Mock> array;
-        array.setReserve(count);
+        array.reserve(count);
         for (int j = 0; j < count; ++j) {
             Mock* mock = array.append();
             mock->fPriority = random.nextS();
@@ -159,7 +159,7 @@ void sort_test(skiatest::Reporter* reporter) {
     // Create a random set of Mock objects and populate the test queue.
     int count = random.nextULessThan(100);
     SkTDArray<Mock> testArray;
-    testArray.setReserve(count);
+    testArray.reserve(count);
     for (int i = 0; i < count; i++) {
         Mock *mock = testArray.append();
         mock->fPriority = random.nextS();
@@ -170,7 +170,7 @@ void sort_test(skiatest::Reporter* reporter) {
 
     // Stick equivalent mock objects into the control queue.
     SkTDArray<Mock> controlArray;
-    controlArray.setReserve(count);
+    controlArray.reserve(count);
     for (int i = 0; i < count; i++) {
         Mock *mock = controlArray.append();
         mock->fPriority = testArray[i].fPriority;

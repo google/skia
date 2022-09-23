@@ -406,7 +406,7 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     // Outer ring: 12*numPts
     // Middle ring: 0
     // Presumptive inner ring: 6*numPts + 6
-    fIndices.setReserve(18*path.countPoints() + 6);
+    fIndices.reserve(18*path.countPoints() + 6);
 
     // Reset the accumulated error for all the future lineTo() calls when iterating over the path.
     fAccumLinearError = 0.f;

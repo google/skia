@@ -169,15 +169,11 @@ public:
         fCount = count;
     }
 
-    void setReserve(int reserve) {
-        SkASSERT(reserve >= 0);
-        if (reserve > fReserve) {
-            this->resizeStorageToAtLeast(reserve);
+    void reserve(int newReserve) {
+        SkASSERT(0 <= newReserve);
+        if (fReserve < newReserve) {
+            this->resizeStorageToAtLeast(newReserve);
         }
-    }
-    void reserve(size_t n) {
-        SkASSERT_RELEASE(SkTFitsIn<int>(n));
-        this->setReserve(SkToInt(n));
     }
 
     T* prepend() {

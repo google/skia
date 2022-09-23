@@ -667,7 +667,7 @@ uint32_t GrResourceCache::getNextTimestamp() {
             // sequential timestamps beginning with 0. This is O(n*lg(n)) but it should be extremely
             // rare.
             SkTDArray<GrGpuResource*> sortedPurgeableResources;
-            sortedPurgeableResources.setReserve(fPurgeableQueue.count());
+            sortedPurgeableResources.reserve(fPurgeableQueue.count());
 
             while (fPurgeableQueue.count()) {
                 *sortedPurgeableResources.append() = fPurgeableQueue.peek();

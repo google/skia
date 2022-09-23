@@ -32,9 +32,9 @@ public:
         : fCurRandRect(0)
         , fCurRectanizer(0) {
         for (int i = 0; i < 3; ++i) {
-           fRects[i].setReserve(kNumRandRects);
+           fRects[i].reserve(kNumRandRects);
         }
-        fRectLocations.setReserve(kNumRandRects);
+        fRectLocations.reserve(kNumRandRects);
 
         SkRandom random;
         for (int i = 0; i < kNumRandRects; ++i) {

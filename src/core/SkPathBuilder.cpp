@@ -64,8 +64,8 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
 }
 
 void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount) {
-    fPts.setReserve(  Sk32_sat_add(fPts.count(),   extraPtCount));
-    fVerbs.setReserve(Sk32_sat_add(fVerbs.count(), extraVbCount));
+    fPts.reserve(  Sk32_sat_add(fPts.count(),   extraPtCount));
+    fVerbs.reserve(Sk32_sat_add(fVerbs.count(), extraVbCount));
 }
 
 SkRect SkPathBuilder::computeBounds() const {

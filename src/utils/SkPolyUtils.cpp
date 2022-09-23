@@ -455,7 +455,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
 
     static constexpr SkScalar kCleanupTolerance = 0.01f;
     if (insetVertexCount >= 0) {
-        insetPolygon->setReserve(insetVertexCount);
+        insetPolygon->reserve(insetVertexCount);
     }
     int currIndex = 0;
     *insetPolygon->push() = head->fIntersection;
@@ -1426,7 +1426,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     static constexpr SkScalar kCleanupTolerance = 0.01f;
-    offsetPolygon->setReserve(offsetVertexCount);
+    offsetPolygon->reserve(offsetVertexCount);
     int currIndex = 0;
     *offsetPolygon->push() = head->fIntersection;
     if (polygonIndices) {
@@ -1705,7 +1705,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
     // In the worst case this is an n^2 algorithm. We can cut down the search space somewhat by
     // noting that only convex vertices can be potential ears, and we only need to check whether
     // any reflex vertices lie inside the ear.
-    triangleIndices->setReserve(triangleIndices->count() + 3 * (polygonSize - 2));
+    triangleIndices->reserve(triangleIndices->count() + 3 * (polygonSize - 2));
     int vertexCount = polygonSize;
     while (vertexCount > 3) {
         bool success = false;
