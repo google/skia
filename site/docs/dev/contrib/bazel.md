@@ -90,20 +90,20 @@ Many Linux machines have a [RAM disk mounted at /dev/shm](https://www.cyberciti.
 and using this as the location for the Bazel sandbox can dramatically improve compile times because
 [sandboxing](https://bazel.build/docs/sandboxing) has been observed to be I/O intensive.
 
-Add the following to `~/.bazelrc` if you have a `/dev/shm` partition that is 4+ GB big. 
+Add the following to `~/.bazelrc` if you have a `/dev/shm` partition that is 4+ GB big.
 ```
-build:clang --sandbox_base=/dev/shm
+build --sandbox_base=/dev/shm
 ```
 
 ### Authenticate to RBE on a Linux VM
 We are in the process of setting up Remote Build Execution (RBE) for Bazel. Some users have reported
 errors when trying to use RBE (via `--config=linux_rbe`) on Linux VMs such as:
 ```
-ERROR: Failed to query remote execution capabilities: 
+ERROR: Failed to query remote execution capabilities:
 Error code 404 trying to get security access token from Compute Engine metadata for the default
 service account. This may be because the virtual machine instance does not have permission
 scopes specified. It is possible to skip checking for Compute Engine metadata by specifying the
-environment  variable NO_GCE_CHECK=true.
+environment variable NO_GCE_CHECK=true.
 ```
 For instances where it is not possible to set the `cloud-platform` scope
 [on the VM](https://skia-review.googlesource.com/c/skia/+/525577), one can directly link to their
@@ -112,3 +112,13 @@ after logging in via `gcloud auth login`:
 ```
 build:remote --google_credentials=/usr/local/google/home/<user>/.config/gcloud/application_default_credentials.json
 ```
+
+### Make local builds compatible with remote builds (e.g. better caching)
+Add the following to `//bazel/user/buildrc` if you are on a Linux x64 box and want to be able to
+share cached build results between things you build locally and build with `--config=linux_rbe`.
+```
+build --host_platform=//bazel/platform:linux_x64_hermetic
+```
+For example, if you are on a laptop, using `--config=linux_rbe` will speed up builds when you have
+access to Internet, but then if you need to go offline, you can still build locally and use the
+previous build results from the remote builds.

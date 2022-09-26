@@ -56,7 +56,8 @@ Defining our own Bazel RBE platforms
 While the generated files *do* have a platform we can use (e.g. 
 `//bazel/rbe/gce_linux/config:platform`), we do not use it because we cannot easily customize it
 without a risk that the changes will be lost when we update the image. Thankfully, we can specify
-our own platforms, which we do in `./BUILD.bazel`.
+our own platforms, which we do in `//bazel/platform`, which is where we put the exec_properties
+needed to use our RBE instances.
 
 More details
 ------------

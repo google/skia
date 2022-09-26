@@ -10,9 +10,17 @@ build --action_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
 # We would like developers to not upload to the remote build cache, only the RBE workers themselves.
 build --remote_upload_local_results=false
 
+# Enforce stricter environment rules, which eliminates some non-hermetic behavior and therefore
+# improves both the remote cache hit rate and the correctness and repeatability of the build.
+build --incompatible_strict_action_env=true
+
 # This tells Bazel that the host platform can use the hermetic toolchain. This is a small lie until
 # Windows support is added.
 build --host_platform=//bazel/platform:host_with_hermetic_toolchain
+# Linux users (the only platform where we support remote builds currently) can add the following
+# line (uncommented) to //bazel/user/buildrc to allow interchangeable operation between local
+# operations and remote operations.
+# build --host_platform=//bazel/platform:linux_x64_hermetic
 
 # Register our toolchains. We do this here, and not in WORKSPACE.bazel because
 # --extra_toolchains has priority over register_toolchains and we conditionally add some toolchains
@@ -105,11 +113,6 @@ build:remote --spawn_strategy=remote,sandboxed
 # Enable remote execution so actions are performed on the remote systems.
 build:remote --remote_executor=grpcs://remotebuildexecution.googleapis.com
 
-# Enforce stricter environment rules, which eliminates some non-hermetic
-# behavior and therefore improves both the remote cache hit rate and the
-# correctness and repeatability of the build.
-build:remote --incompatible_strict_action_env=true
-
 # No compile task should take more than 180 seconds. Really long running tasks
 # are probably a result of spinning up new workers.
 build:remote --remote_timeout=180
@@ -136,8 +139,9 @@ build:linux_rbe --config=remote
 # if at all.
 build:linux_rbe --extra_toolchains=//bazel/rbe/gce_linux/java:all
 build:linux_rbe --extra_toolchains=//bazel/rbe/gce_linux/config:cc-toolchain
-# Make the RBE platform available for selection as an Execution platform.
-build:linux_rbe --extra_execution_platforms=//bazel/rbe:gce_linux_platform
+# Make the Linux platform available for selection as an Execution platform (if it is not already,
+# e.g. on a Linux host)
+build:linux_rbe --extra_execution_platforms=//bazel/platform:linux_x64_hermetic
 
 # Import our specified build configurations
 # https://docs.bazel.build/versions/main/best-practices.html#using-the-bazelrc-file

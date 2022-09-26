@@ -1,3 +1,6 @@
+# https://github.com/bazelbuild/bazel-toolchains/blob/master/rules/exec_properties/exec_properties.bzl
+load("@bazel_toolchains//rules/exec_properties:exec_properties.bzl", "create_rbe_exec_properties_dict")
+
 # https://bazel.build/concepts/platforms-intro
 # https://bazel.build/docs/platforms
 platform(
@@ -7,6 +10,21 @@ platform(
         "@platforms//cpu:x86_64",  # https://github.com/bazelbuild/platforms/blob/main/cpu/BUILD
         ":use_hermetic_toolchain",
     ],
+    # We specify exec_properties because we have an RBE instance that matches this platform.
+    # exec_properties specify some information that is passed along the Remote Execution API
+    # (REAPI) to the dispatcher which will use it to direct the request to the appropriate
+    # machine/worker, using the Remote Worker API (RWAPI).
+    # http://go/skolo-rbe
+    # These properties will be ignored when running locally, but we must specify them if we want
+    # the action cache to treat things built on a local Linux machine to be the same as built on
+    # a Linux RBE worker (which they should, assuming our hermetic toolchain *is* hermetic).
+    # See https://github.com/bazelbuild/bazel/blob/f28209df2b0ebeff1de0b8b7f6b9e215d890e753/src/main/java/com/google/devtools/build/lib/actions/ActionKeyCacher.java#L67-L73
+    # for how the exec_properties and execution platform impact the action cache.
+    exec_properties = create_rbe_exec_properties_dict(
+        container_image = "docker://gcr.io/skia-public/rbe_linux@sha256:4f7ea556fbf46f65f0c6a2d65144bbcb1139acc78ef19be4bd4b04dcfa623f18",
+        os_family = "Linux",
+        pool = "gce_linux",
+    ),
 )
 
 platform(
