@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
+#include "include/private/SkSLDefines.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/sksl/DSLCore.h"
