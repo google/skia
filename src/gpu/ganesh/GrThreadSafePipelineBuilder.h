@@ -13,8 +13,8 @@
 #include <atomic>
 
 #if GR_TEST_UTILS
+#include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
-class SkString;
 #endif
 
 class GrThreadSafePipelineBuilder : public SkRefCnt {

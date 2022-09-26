@@ -14,6 +14,7 @@
 
 #include "include/private/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTestUtils.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 

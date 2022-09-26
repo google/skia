@@ -408,8 +408,8 @@ private:
     struct Word;
     // 8 Words is enough for nearly all instructions (except variable-length instructions like
     // OpAccessChain or OpConstantComposite).
-    using Words = SkSTArray<8, Word>;
-    SpvId writeInstruction(SpvOp_ opCode, const SkTArray<Word>& words, OutputStream& out);
+    using Words = SkSTArray<8, Word, true>;
+    SpvId writeInstruction(SpvOp_ opCode, const SkTArray<Word, true>& words, OutputStream& out);
 
     struct Instruction {
         SpvId                  fOp;
@@ -420,7 +420,7 @@ private:
         struct Hash;
     };
 
-    static Instruction BuildInstructionKey(SpvOp_ opCode, const SkTArray<Word>& words);
+    static Instruction BuildInstructionKey(SpvOp_ opCode, const SkTArray<Word, true>& words);
 
     // The writeOpXxxxx calls will simplify and deduplicate ops where possible.
     SpvId writeOpConstantTrue(const Type& type);

@@ -37,7 +37,7 @@ struct FilterNode {
     sk_sp<SkImageFilter> fFilter;
 
     // FilterNodes wrapping each of fFilter's inputs. Leaf node when fInputNodes is empty.
-    SkTArray<FilterNode> fInputNodes;
+    SkTArray<FilterNode, true> fInputNodes;
 
     // Distance from root filter
     int fDepth;

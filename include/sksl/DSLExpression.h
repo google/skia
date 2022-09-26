@@ -16,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 #if defined(__has_cpp_attribute) && __has_cpp_attribute(clang::reinitializes)
 #define SK_CLANG_REINITIALIZES [[clang::reinitializes]]
@@ -128,7 +129,7 @@ public:
      */
     DSLExpression operator[](DSLExpression index);
 
-    DSLExpression operator()(SkTArray<DSLExpression> args, Position pos = {});
+    DSLExpression operator()(SkTArray<DSLExpression, true> args, Position pos = {});
 
     DSLExpression operator()(ExpressionArray args, Position pos = {});
 
@@ -233,5 +234,10 @@ DSLExpression operator--(DSLExpression expr, int);
 } // namespace dsl
 
 } // namespace SkSL
+
+template <typename T> struct sk_is_trivially_relocatable;
+
+template <>
+struct sk_is_trivially_relocatable<SkSL::dsl::DSLExpression> : std::true_type {};
 
 #endif
