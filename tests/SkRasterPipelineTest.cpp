@@ -605,6 +605,12 @@ public:
     void validate(skiatest::Reporter* r) {
         REPORTER_ASSERT(r, fStackAddrs.size() == fExpectedBehavior.size());
 
+        // This test is storing and comparing stack pointers (to dead stack frames) as a way of
+        // measuring stack usage. Unsurprisingly, ASAN doesn't like that. HWASAN actually inserts
+        // tag bytes in the pointers, causing them not to match. Newer versions of vanilla ASAN
+        // also appear to salt the stack slightly, causing repeated calls to scrape different
+        // addresses, even though $rsp is identical on each invocation of the lambda.
+#if !defined(SK_SANITIZE_ADDRESS)
         void* baseline = fStackAddrs[0];
         for (size_t i = 1; i < fStackAddrs.size(); i++) {
             if (fExpectedBehavior[i] == Behavior::kGrowth) {
@@ -615,6 +621,7 @@ public:
                 // Unknown behavior, nothing we can assert here
             }
         }
+#endif
     }
 
 private:
