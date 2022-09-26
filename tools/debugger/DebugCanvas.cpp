@@ -138,13 +138,13 @@ DebugCanvas::~DebugCanvas() { fCommandVector.deleteAll(); }
 void DebugCanvas::addDrawCommand(DrawCommand* command) { fCommandVector.push_back(command); }
 
 void DebugCanvas::draw(SkCanvas* canvas) {
-    if (!fCommandVector.isEmpty()) {
+    if (!fCommandVector.empty()) {
         this->drawTo(canvas, fCommandVector.count() - 1);
     }
 }
 
 void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
-    SkASSERT(!fCommandVector.isEmpty());
+    SkASSERT(!fCommandVector.empty());
     SkASSERT(index < fCommandVector.count());
 
     int saveCount = originalCanvas->save();

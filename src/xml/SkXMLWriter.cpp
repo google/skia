@@ -46,7 +46,7 @@ void SkXMLWriter::addScalarAttribute(const char name[], SkScalar value) {
 }
 
 void SkXMLWriter::addText(const char text[], size_t length) {
-    if (fElems.isEmpty()) {
+    if (fElems.empty()) {
         return;
     }
 

@@ -844,7 +844,7 @@ private:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || fDraws.isEmpty()) {
+        if (!fProgramInfo || fDraws.empty()) {
             return;
         }
 

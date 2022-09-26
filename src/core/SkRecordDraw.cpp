@@ -203,12 +203,12 @@ public:
     ~FillBounds() {
         // If we have any lingering unpaired Saves, simulate restores to make
         // sure all ops in those Save blocks have their bounds calculated.
-        while (!fSaveStack.isEmpty()) {
+        while (!fSaveStack.empty()) {
             this->popSaveBlock();
         }
 
         // Any control ops not part of any Save/Restore block draw everywhere.
-        while (!fControlIndices.isEmpty()) {
+        while (!fControlIndices.empty()) {
             this->popControl(fCullRect);
         }
     }
@@ -375,7 +375,7 @@ private:
 
     void pushControl() {
         fControlIndices.push_back(fCurrentOp);
-        if (!fSaveStack.isEmpty()) {
+        if (!fSaveStack.empty()) {
             fSaveStack.back().controlOps++;
         }
     }
@@ -388,7 +388,7 @@ private:
 
     void updateSaveBounds(const Bounds& bounds) {
         // If we're in a Save block, expand its bounds to cover these bounds too.
-        if (!fSaveStack.isEmpty()) {
+        if (!fSaveStack.empty()) {
             fSaveStack.back().bounds.join(bounds);
         }
     }

@@ -1154,7 +1154,7 @@ bool SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
 }
 
 void SkSpotShadowTessellator::addToClip(const SkPoint& point) {
-    if (fClipPolygon.isEmpty() || !duplicate_pt(point, fClipPolygon[fClipPolygon.count() - 1])) {
+    if (fClipPolygon.empty() || !duplicate_pt(point, fClipPolygon[fClipPolygon.count() - 1])) {
         fClipPolygon.push_back(point);
     }
 }

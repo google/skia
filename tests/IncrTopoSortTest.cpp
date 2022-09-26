@@ -136,7 +136,7 @@ public:
             }
         }
 
-        if (dependedOn->isEmpty()) {
+        if (dependedOn->empty()) {
             return;
         }
 

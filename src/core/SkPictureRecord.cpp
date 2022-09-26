@@ -286,7 +286,7 @@ void SkPictureRecord::endRecording() {
 }
 
 size_t SkPictureRecord::recordRestoreOffsetPlaceholder() {
-    if (fRestoreOffsetStack.isEmpty()) {
+    if (fRestoreOffsetStack.empty()) {
         return -1;
     }
 
@@ -312,7 +312,7 @@ size_t SkPictureRecord::recordClipRect(const SkRect& rect, SkClipOp op, bool doA
     // id + rect + clip params
     size_t size = 1 * kUInt32Size + sizeof(rect) + 1 * kUInt32Size;
     // recordRestoreOffsetPlaceholder doesn't always write an offset
-    if (!fRestoreOffsetStack.isEmpty()) {
+    if (!fRestoreOffsetStack.empty()) {
         // + restore offset
         size += kUInt32Size;
     }
@@ -334,7 +334,7 @@ size_t SkPictureRecord::recordClipRRect(const SkRRect& rrect, SkClipOp op, bool 
     // op + rrect + clip params
     size_t size = 1 * kUInt32Size + SkRRect::kSizeInMemory + 1 * kUInt32Size;
     // recordRestoreOffsetPlaceholder doesn't always write an offset
-    if (!fRestoreOffsetStack.isEmpty()) {
+    if (!fRestoreOffsetStack.empty()) {
         // + restore offset
         size += kUInt32Size;
     }
@@ -356,7 +356,7 @@ size_t SkPictureRecord::recordClipPath(int pathID, SkClipOp op, bool doAA) {
     // op + path index + clip params
     size_t size = 3 * kUInt32Size;
     // recordRestoreOffsetPlaceholder doesn't always write an offset
-    if (!fRestoreOffsetStack.isEmpty()) {
+    if (!fRestoreOffsetStack.empty()) {
         // + restore offset
         size += kUInt32Size;
     }
@@ -393,7 +393,7 @@ size_t SkPictureRecord::recordClipRegion(const SkRegion& region, SkClipOp op) {
     // op + clip params + region
     size_t size = 2 * kUInt32Size + region.writeToMemory(nullptr);
     // recordRestoreOffsetPlaceholder doesn't always write an offset
-    if (!fRestoreOffsetStack.isEmpty()) {
+    if (!fRestoreOffsetStack.empty()) {
         // + restore offset
         size += kUInt32Size;
     }
@@ -407,7 +407,7 @@ size_t SkPictureRecord::recordClipRegion(const SkRegion& region, SkClipOp op) {
 }
 
 void SkPictureRecord::onResetClip() {
-    if (!fRestoreOffsetStack.isEmpty()) {
+    if (!fRestoreOffsetStack.empty()) {
         // Run back through any previous clip ops, and mark their offset to
         // be 0, disabling their ability to trigger a jump-to-restore, otherwise
         // they could hide this expansion of the clip.

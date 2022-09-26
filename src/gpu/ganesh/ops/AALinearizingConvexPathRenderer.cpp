@@ -279,7 +279,7 @@ private:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
-        if (!fProgramInfo || fMeshes.isEmpty()) {
+        if (!fProgramInfo || fMeshes.empty()) {
             return;
         }
 

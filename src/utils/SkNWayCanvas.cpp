@@ -49,7 +49,7 @@ SkNWayCanvas::~SkNWayCanvas() {
 }
 
 void SkNWayCanvas::addCanvas(SkCanvas* canvas) {
-    if (!fList.isEmpty()) {
+    if (!fList.empty()) {
         // We are using the nway canvas as a wrapper for the originally added canvas, and the device
         // on the nway may contradict calls for the device on this canvas. So, to add a second
         // canvas, the devices on the first canvas, and the nway base device must be different.

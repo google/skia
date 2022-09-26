@@ -105,8 +105,7 @@ public:
         swap(fCount, that.fCount);
     }
 
-    bool isEmpty() const { return fCount == 0; }
-    bool empty() const { return this->isEmpty(); }
+    bool empty() const { return fCount == 0; }
 
     // Return the number of elements in the array
     int    count() const { return fCount; }

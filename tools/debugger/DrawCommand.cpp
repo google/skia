@@ -1996,7 +1996,7 @@ void DrawAtlasCommand::execute(SkCanvas* canvas) const {
     canvas->drawAtlas(fImage.get(),
                       fXform.begin(),
                       fTex.begin(),
-                      fColors.isEmpty() ? nullptr : fColors.begin(),
+                      fColors.empty() ? nullptr : fColors.begin(),
                       fXform.count(),
                       fBlendMode,
                       fSampling,
