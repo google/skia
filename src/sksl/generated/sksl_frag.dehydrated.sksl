@@ -55,4 +55,3 @@ static constexpr uint8_t SKSL_INCLUDE_sksl_frag[] = {14,0,96,0,
 51,255,255,53,0,0,
 57,
 21,};
-static constexpr size_t SKSL_INCLUDE_sksl_frag_LENGTH = sizeof(SKSL_INCLUDE_sksl_frag);

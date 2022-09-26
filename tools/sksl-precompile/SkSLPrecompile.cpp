@@ -130,8 +130,6 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
         out.printf("%s%d,", dehydrator.prefixAtOffset(i), uint8_t(data[i]));
     }
     out.printf("};\n");
-    out.printf("static constexpr size_t SKSL_INCLUDE_%s_LENGTH = sizeof(SKSL_INCLUDE_%s);\n",
-               baseName.c_str(), baseName.c_str());
     if (!out.close()) {
         printf("error writing '%s'\n", outputPath.c_str());
         return ResultCode::kOutputError;

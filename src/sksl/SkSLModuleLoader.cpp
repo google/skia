@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramKind.h"
@@ -41,8 +42,7 @@
     #include "src/sksl/generated/sksl_graphite_vert.dehydrated.sksl"
     #endif
 
-    #define MODULE_DATA(name) Compiler::MakeModuleData(SKSL_INCLUDE_sksl_##name,\
-                                                       SKSL_INCLUDE_sksl_##name##_LENGTH)
+    #define MODULE_DATA(name) Compiler::MakeModuleData(SkSpan(SKSL_INCLUDE_sksl_##name))
 
 #endif
 

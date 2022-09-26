@@ -2705,4 +2705,3 @@ static constexpr uint8_t SKSL_INCLUDE_sksl_shared[] = {14,0,200,3,
 56,5,2,0,
 56,5,2,0,1,
 21,};
-static constexpr size_t SKSL_INCLUDE_sksl_shared_LENGTH = sizeof(SKSL_INCLUDE_sksl_shared);

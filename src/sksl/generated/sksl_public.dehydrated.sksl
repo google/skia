@@ -76,4 +76,3 @@ static constexpr uint8_t SKSL_INCLUDE_sksl_public[] = {14,0,107,0,
 1,0,
 20,
 21,};
-static constexpr size_t SKSL_INCLUDE_sksl_public_LENGTH = sizeof(SKSL_INCLUDE_sksl_public);

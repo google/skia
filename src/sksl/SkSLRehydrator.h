@@ -8,6 +8,7 @@
 #ifndef SKSL_REHYDRATOR
 #define SKSL_REHYDRATOR
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLLayout.h"
@@ -105,11 +106,13 @@ public:
         kVoid_Command,
     };
 
-    // src must remain in memory as long as the objects created from it do
-    Rehydrator(Compiler& compiler, const uint8_t* src, size_t length);
+    // The source data (`src`) must remain in memory as long as any rehydrated objects exist.
+    Rehydrator(Compiler& compiler, SkSpan<const uint8_t> src, std::shared_ptr<SymbolTable> base);
 
-    Rehydrator(Compiler& compiler, const uint8_t* src, size_t length,
-               std::shared_ptr<SymbolTable> base);
+    // FOR TESTING ONLY: the base symbol table is assumed to be the root table with public types.
+    // As above, `src` must remain alive for the lifetime of the rehydrated objects.
+    Rehydrator(Compiler& compiler, SkSpan<const uint8_t> src);
+
 
 #ifdef SK_DEBUG
     ~Rehydrator();

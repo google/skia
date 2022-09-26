@@ -2741,4 +2741,3 @@ static constexpr uint8_t SKSL_INCLUDE_sksl_graphite_vert[] = {14,0,147,5,
 56,71,0,0,
 56,135,0,0,1,1,
 21,};
-static constexpr size_t SKSL_INCLUDE_sksl_graphite_vert_LENGTH = sizeof(SKSL_INCLUDE_sksl_graphite_vert);

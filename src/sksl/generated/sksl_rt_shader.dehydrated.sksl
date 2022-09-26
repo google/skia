@@ -13,4 +13,3 @@ static constexpr uint8_t SKSL_INCLUDE_sksl_rt_shader[] = {14,0,20,0,
 51,255,255,15,0,0,
 57,
 21,};
-static constexpr size_t SKSL_INCLUDE_sksl_rt_shader_LENGTH = sizeof(SKSL_INCLUDE_sksl_rt_shader);

@@ -100,17 +100,18 @@ private:
     std::shared_ptr<SymbolTable> fOldSymbols;
 };
 
-Rehydrator::Rehydrator(Compiler& compiler, const uint8_t* src, size_t length)
-        : Rehydrator(compiler, src, length, ModuleLoader::Get().rootSymbolTableWithPublicTypes()) {}
+Rehydrator::Rehydrator(Compiler& compiler, SkSpan<const uint8_t> src)
+        : Rehydrator(compiler, src, ModuleLoader::Get().rootSymbolTableWithPublicTypes()) {}
 
-Rehydrator::Rehydrator(Compiler& compiler, const uint8_t* src, size_t length,
+Rehydrator::Rehydrator(Compiler& compiler,
+                       SkSpan<const uint8_t> src,
                        std::shared_ptr<SymbolTable> symbols)
-    : fCompiler(compiler)
-    , fSymbolTable(std::move(symbols))
-    SkDEBUGCODE(, fEnd(src + length)) {
+        : fCompiler(compiler)
+        , fSymbolTable(std::move(symbols))
+        SkDEBUGCODE(, fEnd(src.data() + src.size())) {
     SkASSERT(fSymbolTable);
     SkASSERT(fSymbolTable->isBuiltin());
-    fIP = src;
+    fIP = src.data();
     [[maybe_unused]] uint16_t version = this->readU16();
     SkASSERTF(version == kVersion, "Dehydrated file is an unsupported version (current version is "
             "%d, found version %d)", kVersion, version);

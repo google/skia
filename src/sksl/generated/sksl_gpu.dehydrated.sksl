@@ -2869,4 +2869,3 @@ static constexpr uint8_t SKSL_INCLUDE_sksl_gpu[] = {14,0,210,5,
 56,24,1,0,
 56,25,1,0,1,
 21,};
-static constexpr size_t SKSL_INCLUDE_sksl_gpu_LENGTH = sizeof(SKSL_INCLUDE_sksl_gpu);
