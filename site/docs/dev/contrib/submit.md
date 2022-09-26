@@ -50,8 +50,16 @@ extend.
 
 ## Updating BUILD.bazel files
 
-If you added or removed files, or changed #includes, you will need to...
-TODO(kjlubick)
+If you added or removed files, you will need to update the `BUILD.bazel` file in the directory
+of those files. Many `BUILD.bazel` files have a list of files that is broken up into two
+[`filegroup`](https://bazel.build/reference/be/general#filegroup) rules using the
+`split_srcs_and_hdrs` macro. You should add the new file names or delete the old ones from these
+file lists.
+
+If your feature will be conditionally enabled (e.g. like the GPU backends or image codecs), you
+may need to add or modify
+[`select`](https://bazel.build/reference/be/common-definitions#configurable-attributes) statements
+to achieve that goal. Look at existing rules for examples of this.
 
 ## Submitting a patch
 
