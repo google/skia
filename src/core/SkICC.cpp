@@ -14,6 +14,8 @@
 #include "src/core/SkMD5.h"
 #include "src/core/SkUtils.h"
 
+#include <vector>
+
 static constexpr char kDescriptionTagBodyPrefix[12] =
         { 'G', 'o', 'o', 'g', 'l', 'e', '/', 'S', 'k', 'i', 'a' , '/'};
 
@@ -64,105 +66,53 @@ static constexpr uint32_t kCopyrightTagHeader[7] {
     SkEndian_SwapBE32(28),                                   // Offset of string
 };
 
-// We will write a profile with the minimum nine required tags.
-static constexpr uint32_t kICCNumEntries = 9;
-
 static constexpr uint32_t kTAG_desc = SkSetFourByteTag('d', 'e', 's', 'c');
-static constexpr uint32_t kTAG_desc_Bytes = sizeof(kDescriptionTagHeader) +
-                                            kDescriptionTagBodySize;
-static constexpr uint32_t kTAG_desc_Offset = kICCHeaderSize +
-                                             kICCNumEntries * kICCTagTableEntrySize;
-
 static constexpr uint32_t kTAG_XYZ_Bytes = 20;
-static constexpr uint32_t kTAG_rXYZ_Offset = kTAG_desc_Offset + kTAG_desc_Bytes;
-static constexpr uint32_t kTAG_gXYZ_Offset = kTAG_rXYZ_Offset + kTAG_XYZ_Bytes;
-static constexpr uint32_t kTAG_bXYZ_Offset = kTAG_gXYZ_Offset + kTAG_XYZ_Bytes;
-
 static constexpr uint32_t kTAG_TRC_Bytes = 40;
-static constexpr uint32_t kTAG_rTRC_Offset = kTAG_bXYZ_Offset + kTAG_XYZ_Bytes;
-static constexpr uint32_t kTAG_gTRC_Offset = kTAG_rTRC_Offset;
-static constexpr uint32_t kTAG_bTRC_Offset = kTAG_rTRC_Offset;
-
 static constexpr uint32_t kTAG_wtpt = SkSetFourByteTag('w', 't', 'p', 't');
-static constexpr uint32_t kTAG_wtpt_Offset = kTAG_bTRC_Offset + kTAG_TRC_Bytes;
-
 static constexpr uint32_t kTAG_cprt = SkSetFourByteTag('c', 'p', 'r', 't');
-static constexpr uint32_t kTAG_cprt_Bytes = sizeof(kCopyrightTagHeader) +
-                                            sizeof(kCopyrightTagBody);
-static constexpr uint32_t kTAG_cprt_Offset = kTAG_wtpt_Offset + kTAG_XYZ_Bytes;
 
-static constexpr uint32_t kICCProfileSize = kTAG_cprt_Offset + kTAG_cprt_Bytes;
-
-static constexpr uint32_t kICCHeader[kICCHeaderSize / 4] {
-    SkEndian_SwapBE32(kICCProfileSize),  // Size of the profile
-    0,                                   // Preferred CMM type (ignored)
-    SkEndian_SwapBE32(0x04300000),       // Version 4.3
-    SkEndian_SwapBE32(kDisplay_Profile), // Display device profile
-    SkEndian_SwapBE32(kRGB_ColorSpace),  // RGB input color space
-    SkEndian_SwapBE32(kXYZ_PCSSpace),    // XYZ profile connection space
-    0, 0, 0,                             // Date and time (ignored)
-    SkEndian_SwapBE32(kACSP_Signature),  // Profile signature
-    0,                                   // Platform target (ignored)
-    0x00000000,                          // Flags: not embedded, can be used independently
-    0,                                   // Device manufacturer (ignored)
-    0,                                   // Device model (ignored)
-    0, 0,                                // Device attributes (ignored)
-    SkEndian_SwapBE32(1),                // Relative colorimetric rendering intent
-    SkEndian_SwapBE32(0x0000f6d6),       // D50 standard illuminant (X)
-    SkEndian_SwapBE32(0x00010000),       // D50 standard illuminant (Y)
-    SkEndian_SwapBE32(0x0000d32d),       // D50 standard illuminant (Z)
-    0,                                   // Profile creator (ignored)
-    0, 0, 0, 0,                          // Profile id checksum (ignored)
-    0, 0, 0, 0, 0, 0, 0,                 // Reserved (ignored)
-    SkEndian_SwapBE32(kICCNumEntries),   // Number of tags
+static constexpr uint32_t kICCHeader[kICCHeaderSize / 4]{
+        0,                                    // Size of the profile (computed)
+        0,                                    // Preferred CMM type (ignored)
+        SkEndian_SwapBE32(0x04300000),        // Version 4.3
+        SkEndian_SwapBE32(kDisplay_Profile),  // Display device profile
+        SkEndian_SwapBE32(kRGB_ColorSpace),   // RGB input color space
+        SkEndian_SwapBE32(kXYZ_PCSSpace),     // XYZ profile connection space
+        0,
+        0,
+        0,                                   // Date and time (ignored)
+        SkEndian_SwapBE32(kACSP_Signature),  // Profile signature
+        0,                                   // Platform target (ignored)
+        0x00000000,                          // Flags: not embedded, can be used independently
+        0,                                   // Device manufacturer (ignored)
+        0,                                   // Device model (ignored)
+        0,
+        0,                              // Device attributes (ignored)
+        SkEndian_SwapBE32(1),           // Relative colorimetric rendering intent
+        SkEndian_SwapBE32(0x0000f6d6),  // D50 standard illuminant (X)
+        SkEndian_SwapBE32(0x00010000),  // D50 standard illuminant (Y)
+        SkEndian_SwapBE32(0x0000d32d),  // D50 standard illuminant (Z)
+        0,                              // Profile creator (ignored)
+        0,
+        0,
+        0,
+        0,  // Profile id checksum (ignored)
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,  // Reserved (ignored)
+        0,  // Number of tags (computed)
 };
 
-static constexpr uint32_t kICCTagTable[3 * kICCNumEntries] {
-    // Profile description
-    SkEndian_SwapBE32(kTAG_desc),
-    SkEndian_SwapBE32(kTAG_desc_Offset),
-    SkEndian_SwapBE32(kTAG_desc_Bytes),
+// Where inside kICCHeader we store the size of the profile.
+static constexpr uint32_t kICCHeaderSizeoOffset = 0;
 
-    // rXYZ
-    SkEndian_SwapBE32(kTAG_rXYZ),
-    SkEndian_SwapBE32(kTAG_rXYZ_Offset),
-    SkEndian_SwapBE32(kTAG_XYZ_Bytes),
-
-    // gXYZ
-    SkEndian_SwapBE32(kTAG_gXYZ),
-    SkEndian_SwapBE32(kTAG_gXYZ_Offset),
-    SkEndian_SwapBE32(kTAG_XYZ_Bytes),
-
-    // bXYZ
-    SkEndian_SwapBE32(kTAG_bXYZ),
-    SkEndian_SwapBE32(kTAG_bXYZ_Offset),
-    SkEndian_SwapBE32(kTAG_XYZ_Bytes),
-
-    // rTRC
-    SkEndian_SwapBE32(kTAG_rTRC),
-    SkEndian_SwapBE32(kTAG_rTRC_Offset),
-    SkEndian_SwapBE32(kTAG_TRC_Bytes),
-
-    // gTRC
-    SkEndian_SwapBE32(kTAG_gTRC),
-    SkEndian_SwapBE32(kTAG_gTRC_Offset),
-    SkEndian_SwapBE32(kTAG_TRC_Bytes),
-
-    // bTRC
-    SkEndian_SwapBE32(kTAG_bTRC),
-    SkEndian_SwapBE32(kTAG_bTRC_Offset),
-    SkEndian_SwapBE32(kTAG_TRC_Bytes),
-
-    // White point
-    SkEndian_SwapBE32(kTAG_wtpt),
-    SkEndian_SwapBE32(kTAG_wtpt_Offset),
-    SkEndian_SwapBE32(kTAG_XYZ_Bytes),
-
-    // Copyright
-    SkEndian_SwapBE32(kTAG_cprt),
-    SkEndian_SwapBE32(kTAG_cprt_Offset),
-    SkEndian_SwapBE32(kTAG_cprt_Bytes),
-};
+// Where inside kICCHeader we store the number of tags.
+static constexpr uint32_t kICCHeaderNumEntriesOffset = sizeof(kICCHeader) - sizeof(uint32_t);
 
 // This is like SkFloatToFixed, but rounds to nearest, preserving as much accuracy as possible
 // when going float -> fixed -> float (it has the same accuracy when going fixed -> float -> fixed).
@@ -172,15 +122,24 @@ static SkFixed float_round_to_fixed(float x) {
     return sk_float_saturate2int((float)floor((double)x * SK_Fixed1 + 0.5));
 }
 
-static void write_xyz_tag(uint32_t* ptr, const skcms_Matrix3x3& toXYZD50, int col) {
+static sk_sp<SkData> write_xyz_tag(const skcms_Matrix3x3& toXYZD50, int col) {
+    sk_sp<SkData> result = SkData::MakeUninitialized(kTAG_XYZ_Bytes);
+    uint32_t* ptr = reinterpret_cast<uint32_t*>(result->writable_data());
     ptr[0] = SkEndian_SwapBE32(kXYZ_PCSSpace);
     ptr[1] = 0;
     ptr[2] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50.vals[0][col]));
     ptr[3] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50.vals[1][col]));
     ptr[4] = SkEndian_SwapBE32(float_round_to_fixed(toXYZD50.vals[2][col]));
+    return result;
 }
 
-static void write_trc_tag(uint32_t* ptr, const skcms_TransferFunction& fn) {
+static sk_sp<SkData> write_wtpt_tag() {
+    return SkData::MakeWithoutCopy(kWhitePointTag, sizeof(kWhitePointTag));
+}
+
+static sk_sp<SkData> write_trc_tag(const skcms_TransferFunction& fn) {
+    sk_sp<SkData> result = SkData::MakeUninitialized(kTAG_TRC_Bytes);
+    uint32_t* ptr = reinterpret_cast<uint32_t*>(result->writable_data());
     ptr[0] = SkEndian_SwapBE32(kTAG_ParaCurveType);
     ptr[1] = 0;
     ptr[2] = (uint32_t) (SkEndian_SwapBE16(kGABCDEF_ParaCurveType));
@@ -191,6 +150,7 @@ static void write_trc_tag(uint32_t* ptr, const skcms_TransferFunction& fn) {
     ptr[7] = SkEndian_SwapBE32(float_round_to_fixed(fn.d));
     ptr[8] = SkEndian_SwapBE32(float_round_to_fixed(fn.e));
     ptr[9] = SkEndian_SwapBE32(float_round_to_fixed(fn.f));
+    return result;
 }
 
 static bool nearly_equal(float x, float y) {
@@ -296,25 +256,10 @@ static void get_color_profile_tag(char dst[kICCDescriptionTagSize],
     }
 }
 
-sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn,
-                                const skcms_Matrix3x3& toXYZD50) {
-    // We can't encode HDR transfer functions in ICC
-    if (classify_transfer_fn(fn) != sRGBish_TF) {
-        return nullptr;
-    }
-
-    SkAutoMalloc profile(kICCProfileSize);
-    uint8_t* ptr = (uint8_t*) profile.get();
-
-    // Write profile header
-    memcpy(ptr, kICCHeader, sizeof(kICCHeader));
-    ptr += sizeof(kICCHeader);
-
-    // Write tag table
-    memcpy(ptr, kICCTagTable, sizeof(kICCTagTable));
-    ptr += sizeof(kICCTagTable);
-
-    // Write profile description tag
+sk_sp<SkData> write_desc_tag(const skcms_TransferFunction& fn, const skcms_Matrix3x3& toXYZD50) {
+    sk_sp<SkData> result =
+            SkData::MakeUninitialized(sizeof(kDescriptionTagHeader) + kDescriptionTagBodySize);
+    uint8_t* ptr = reinterpret_cast<uint8_t*>(result->writable_data());
     memcpy(ptr, kDescriptionTagHeader, sizeof(kDescriptionTagHeader));
     ptr += sizeof(kDescriptionTagHeader);
     {
@@ -327,29 +272,90 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn,
             *ptr++ = colorProfileTag[i];
         }
     }
+    return result;
+}
 
-    // Write XYZ tags
-    write_xyz_tag((uint32_t*) ptr, toXYZD50, 0);
-    ptr += kTAG_XYZ_Bytes;
-    write_xyz_tag((uint32_t*) ptr, toXYZD50, 1);
-    ptr += kTAG_XYZ_Bytes;
-    write_xyz_tag((uint32_t*) ptr, toXYZD50, 2);
-    ptr += kTAG_XYZ_Bytes;
-
-    // Write TRC tag
-    write_trc_tag((uint32_t*) ptr, fn);
-    ptr += kTAG_TRC_Bytes;
-
-    // Write white point tag (must be D50)
-    memcpy(ptr, kWhitePointTag, sizeof(kWhitePointTag));
-    ptr += sizeof(kWhitePointTag);
-
-    // Write copyright tag
+sk_sp<SkData> write_cprt_tag() {
+    sk_sp<SkData> result =
+            SkData::MakeUninitialized(sizeof(kCopyrightTagHeader) + sizeof(kCopyrightTagBody));
+    uint8_t* ptr = reinterpret_cast<uint8_t*>(result->writable_data());
     memcpy(ptr, kCopyrightTagHeader, sizeof(kCopyrightTagHeader));
     ptr += sizeof(kCopyrightTagHeader);
     memcpy(ptr, kCopyrightTagBody, sizeof(kCopyrightTagBody));
     ptr += sizeof(kCopyrightTagBody);
+    return result;
+}
 
-    SkASSERT(kICCProfileSize == ptr - (uint8_t*) profile.get());
-    return SkData::MakeFromMalloc(profile.release(), kICCProfileSize);
+sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Matrix3x3& toXYZD50) {
+    // We can't encode HDR transfer functions in ICC
+    // TODO(crbug.com/1366315): Use CICP tag for HDR transfer functions.
+    if (classify_transfer_fn(fn) != sRGBish_TF) {
+        return nullptr;
+    }
+    std::vector<std::pair<uint32_t, sk_sp<SkData>>> tags;
+
+    // Compute profile description tag
+    tags.emplace_back(kTAG_desc, write_desc_tag(fn, toXYZD50));
+
+    // Compute XYZ tags
+    tags.emplace_back(kTAG_rXYZ, write_xyz_tag(toXYZD50, 0));
+    tags.emplace_back(kTAG_gXYZ, write_xyz_tag(toXYZD50, 1));
+    tags.emplace_back(kTAG_bXYZ, write_xyz_tag(toXYZD50, 2));
+
+    // Compute TRC tags. Use empty data to indicate that the entry should use
+    // the previous tag's data.
+    tags.emplace_back(kTAG_rTRC, write_trc_tag(fn));
+    tags.emplace_back(kTAG_gTRC, SkData::MakeEmpty());
+    tags.emplace_back(kTAG_bTRC, SkData::MakeEmpty());
+
+    // Compute white point tag (must be D50)
+    tags.emplace_back(kTAG_wtpt, write_wtpt_tag());
+
+    // Compute copyright tag
+    tags.emplace_back(kTAG_cprt, write_cprt_tag());
+
+    // Compute the size of the profile.
+    size_t tag_data_size = 0;
+    for (const auto& tag : tags) {
+        tag_data_size += tag.second->size();
+    }
+    size_t tag_table_size = kICCTagTableEntrySize * tags.size();
+    size_t profile_size = kICCHeaderSize + tag_table_size + tag_data_size;
+
+    // Write the header.
+    SkAutoMalloc profile(profile_size);
+    uint8_t* ptr = (uint8_t*)profile.get();
+    memcpy(ptr, kICCHeader, sizeof(kICCHeader));
+    *reinterpret_cast<uint32_t*>(ptr + kICCHeaderSizeoOffset) = SkEndian_SwapBE32(profile_size);
+    *reinterpret_cast<uint32_t*>(ptr + kICCHeaderNumEntriesOffset) = SkEndian_SwapBE32(tags.size());
+    ptr += sizeof(kICCHeader);
+
+    // Write the tag table. Track the offset and size of the previous tag to
+    // compute each tag's offset. An empty SkData indicates that the previous
+    // tag is to be reused.
+    size_t last_tag_offset = sizeof(kICCHeader) + tag_table_size;
+    size_t last_tag_size = 0;
+    for (const auto& tag : tags) {
+        if (!tag.second->isEmpty()) {
+            last_tag_offset = last_tag_offset + last_tag_size;
+            last_tag_size = tag.second->size();
+        }
+        uint32_t tag_table_entry[3] = {
+                SkEndian_SwapBE32(tag.first),
+                SkEndian_SwapBE32(last_tag_offset),
+                SkEndian_SwapBE32(last_tag_size),
+        };
+        memcpy(ptr, tag_table_entry, sizeof(tag_table_entry));
+        ptr += sizeof(tag_table_entry);
+    }
+
+    // Write the tags.
+    for (const auto& tag : tags) {
+        if (tag.second->isEmpty()) continue;
+        memcpy(ptr, tag.second->data(), tag.second->size());
+        ptr += tag.second->size();
+    }
+
+    SkASSERT(profile_size == static_cast<size_t>(ptr - (uint8_t*)profile.get()));
+    return SkData::MakeFromMalloc(profile.release(), profile_size);
 }
