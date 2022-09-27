@@ -5,6 +5,15 @@ licenses(["notice"])
 exports_files_legacy()
 
 # Not referenced by Bazel target.
+# for exporting to //gn/gpu.gni:skia_shared_mtl_sources.
+filegroup(
+    name = "shared_public_hdrs",
+    srcs = [
+        "MtlMemoryAllocator.h",
+    ],
+)
+
+# Not referenced by Bazel target.
 # for exporting to //gn/gpu.gni:skia_metal_sources.
 filegroup(
     name = "public_hdrs",

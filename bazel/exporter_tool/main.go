@@ -284,6 +284,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//include/private/gpu/vk:private_hdrs",
 				"//src/gpu/vk:vk_hdrs",
 				"//src/gpu/vk:vk_srcs"}},
+		{Var: "skia_shared_mtl_sources",
+			Rules: []string{
+				"//include/gpu/mtl:shared_public_hdrs",
+				"//src/gpu/mtl:shared_srcs",
+			}},
 		{Var: "skia_piet_gpu_sources",
 			Rules: []string{
 				"//src/gpu/piet:piet_hdrs",
