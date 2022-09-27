@@ -45,14 +45,10 @@ void SkTDStorage::reset() {
 
 void SkTDStorage::assign(const void* src, int count, size_t sizeOfT) {
     SkASSERT(count >= 0);
-    if (count > 0) {
-        fCount = count;
-        size_t byteSize = this->size_bytes(sizeOfT);
-        if (fCount > fReserve) {
-            fStorage = static_cast<std::byte*>(sk_realloc_throw(fStorage, byteSize));
-            fReserve = fCount;
-        }
-        memcpy(fStorage, src, byteSize);
+    fCount = count;
+    this->shrinkToFit(sizeOfT);
+    if (count > 0 && src != nullptr) {
+        memcpy(fStorage, src, this->size_bytes(sizeOfT));
     }
 }
 
