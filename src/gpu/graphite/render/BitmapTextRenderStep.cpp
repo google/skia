@@ -49,7 +49,7 @@ BitmapTextRenderStep::BitmapTextRenderStep()
                      /*varyings=*/
                      {{"textureCoords", SkSLType::kFloat2},
                       {"texIndex", SkSLType::kHalf},
-                      {"isA8", SkSLType::kHalf}}) {}
+                      {"maskFormat", SkSLType::kHalf}}) {}
 
 BitmapTextRenderStep::~BitmapTextRenderStep() {}
 
@@ -64,7 +64,7 @@ const char* BitmapTextRenderStep::vertexSkSL() const {
         float2 unormTexCoords = baseCoords + float2(uvPos);
         textureCoords = unormTexCoords * atlasSizeInv;
         texIndex = half(indexAndFlags.x);
-        isA8 = half(indexAndFlags.y);
+        maskFormat = half(indexAndFlags.y);
 
         float4 devPosition = float4(position.xy, depth, position.w);
     )";
@@ -96,8 +96,13 @@ const char* BitmapTextRenderStep::fragmentCoverageSkSL() const {
         } else {
            texColor = sample(text_atlas_0, textureCoords);
         }
-        if (isA8 != 0) {
+        // A8
+        if (maskFormat == 0) {
             outputCoverage = texColor.rrrr;
+        // LCD
+        } else if (maskFormat == 1) {
+            outputCoverage = half4(texColor.rgb, max(max(texColor.r, texColor.g), texColor.b));
+        // RGBA
         } else {
             outputCoverage = texColor;
         }

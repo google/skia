@@ -2057,7 +2057,7 @@ void DirectMaskSubRun::fillInstanceData(DrawWriter* dw,
 
     DrawWriter::Instances instances{*dw, {}, {}, 4};
     instances.reserve(count);
-    unsigned short flags = (fMaskFormat == skgpu::MaskFormat::kA8);
+    unsigned short flags = (unsigned short)fMaskFormat;
     for (auto [glyph, leftTop]: quadData()) {
         auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         instances.append(1) << AtlasPt{uint16_t(ar-al), uint16_t(ab-at)}
@@ -2275,7 +2275,7 @@ public:
                           int offset, int count,
                           int ssboIndex,
                           SkScalar depth) const override {
-        unsigned short flags = (fVertexFiller.grMaskType() == skgpu::MaskFormat::kA8);
+        unsigned short flags = (unsigned short)fVertexFiller.grMaskType();
         fVertexFiller.fillInstanceData(dw,
                                        offset, count,
                                        flags,

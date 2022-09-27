@@ -127,7 +127,9 @@ static void get_packed_glyph_image(
         };
         constexpr int a565Bpp = MaskFormatBytesPerPixel(MaskFormat::kA565);
         constexpr int argbBpp = MaskFormatBytesPerPixel(MaskFormat::kARGB);
+        char* dstRow = (char*)dst;
         for (int y = 0; y < height; y++) {
+            dst = dstRow;
             for (int x = 0; x < width; x++) {
                 uint16_t color565 = 0;
                 memcpy(&color565, src, a565Bpp);
@@ -140,6 +142,7 @@ static void get_packed_glyph_image(
                 src = (char*)src + a565Bpp;
                 dst = (char*)dst + argbBpp;
             }
+            dstRow += dstRB;
         }
     } else {
         SkUNREACHABLE;
