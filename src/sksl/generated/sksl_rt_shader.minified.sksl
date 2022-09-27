@@ -1,0 +1,2 @@
+static constexpr char SKSL_MINIFIED_sksl_rt_shader[] =
+"layout(builtin=15)float4 sk_FragCoord;";

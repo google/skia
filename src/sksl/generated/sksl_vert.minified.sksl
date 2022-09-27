@@ -1,0 +1,4 @@
+static constexpr char SKSL_MINIFIED_sksl_vert[] =
+"out sk_PerVertex{layout(builtin=0)float4 sk_Position;layout(builtin=1)float"
+" sk_PointSize;};layout(builtin=42)in int sk_VertexID;layout(builtin=43)in int"
+" sk_InstanceID;";

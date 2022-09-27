@@ -10,8 +10,9 @@ import subprocess
 import sys
 
 sksl_precompile = sys.argv[1]
-targetDir = sys.argv[2]
-modules = sys.argv[3:]
+sksl_minify = sys.argv[2]
+targetDir = sys.argv[3]
+modules = sys.argv[4:]
 
 dependencies = {
     'sksl_compute': ['sksl_gpu', 'sksl_shared'],
@@ -31,6 +32,8 @@ for module in modules:
         if not os.path.isdir(targetDir):
             os.mkdir(targetDir)
         target = os.path.join(targetDir, moduleName)
+
+        # Assemble the module dependency list and call sksl-precompile to dehydrate the module.
         args = [sksl_precompile, target + ".dehydrated.sksl", module]
         if moduleName not in dependencies:
             print("### Error compiling " + moduleName + ": dependency list must be specified")
@@ -38,6 +41,11 @@ for module in modules:
         for dependent in dependencies[moduleName]:
             args.append(os.path.join(moduleDir, dependent) + ".sksl")
         subprocess.check_output(args).decode('utf-8')
+
+        # Call sksl-minify to recreate the module without whitespace and comments.
+        args = [sksl_minify, target + ".minified.sksl", module]
+        subprocess.check_output(args).decode('utf-8')
+
     except subprocess.CalledProcessError as err:
         print("### Error compiling " + module + ":")
         print(err.output)

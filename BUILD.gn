@@ -656,6 +656,36 @@ if (skia_compile_modules) {
     sksl_precompile_path += ".exe"
   }
 
+  # Generate the sksl-minify binary.
+  skia_executable("sksl-minify") {
+    defines = [
+      "SKSL_STANDALONE",
+      "SK_DISABLE_TRACING",
+    ]
+    sources = skslc_deps
+    sources += [ "tools/sksl-minify/SkSLMinify.cpp" ]
+    libs = []
+    if (is_win) {
+      sources += [ "src/ports/SkOSFile_win.cpp" ]
+    } else {
+      sources += [ "src/ports/SkOSFile_posix.cpp" ]
+      libs += [ "dl" ]
+    }
+    sources += skia_sksl_sources
+    sources += skia_sksl_gpu_sources
+    include_dirs = [ "." ]
+    deps = [ ":run_sksllex" ]
+  }
+
+  sksl_minify_path = "$root_out_dir/"
+  if (host_toolchain != default_toolchain_name) {
+    sksl_minify_path += "$host_toolchain/"
+  }
+  sksl_minify_path += "sksl-minify"
+  if (host_os == "win") {
+    sksl_minify_path += ".exe"
+  }
+
   # Use dehydrate_sksl.py to precompile all of the modules.
   dehydrate_sksl_sources = get_target_outputs(":sksl_pre_includes")
 
@@ -673,6 +703,7 @@ if (skia_compile_modules) {
   action("dehydrate_sksl") {
     script = "gn/dehydrate_sksl.py"
     deps = [
+      ":sksl-minify(//gn/toolchain:$host_toolchain)",
       ":sksl-precompile(//gn/toolchain:$host_toolchain)",
       ":sksl_pre_includes",
     ]
@@ -680,6 +711,7 @@ if (skia_compile_modules) {
     outputs = dehydrate_sksl_outputs
     args = [
       rebase_path(sksl_precompile_path),
+      rebase_path(sksl_minify_path),
       rebase_path("src/sksl/generated"),
     ]
     args += rebase_path(dehydrate_sksl_sources)
