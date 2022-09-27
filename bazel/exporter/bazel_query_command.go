@@ -66,7 +66,7 @@ func NewBazelGNIQueryCommand(ruleNames []string, workspace string) *BazelQueryCo
 
 // Stop the Bazel server if running.
 func shutdownBazelServer() error {
-	cmd := exec.Command("bazel", "shutdown")
+	cmd := exec.Command("bazelisk", "shutdown")
 	_, err := cmd.Output()
 	return err
 }
@@ -106,7 +106,7 @@ func (c *BazelQueryCommand) Read() ([]byte, error) {
 	if c.queryType == "cquery" {
 		args = append(args, allSkiaFlags...)
 	}
-	cmd := exec.Command("bazel", args...)
+	cmd := exec.Command("bazelisk", args...)
 	_ = os.Chdir(pwd)
 	data, err := cmd.Output()
 	if err != nil {
