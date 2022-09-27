@@ -59,7 +59,6 @@ struct ShaderCaps;
 class SymbolTable;
 
 struct LoadedModule {
-    ProgramKind                                  fKind;
     std::shared_ptr<SymbolTable>                 fSymbols;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
 };
@@ -220,12 +219,15 @@ private:
     /** Performs final checks to confirm that a fully-assembled/optimized is valid. */
     bool finalize(Program& program);
 
-    /** Optimize a module in preparation for dehydration. */
-    bool optimizeModuleForDehydration(LoadedModule& module, const ParsedModule& base);
-
-    /** Optimize a module after rehydrating it. */
-    bool optimizeRehydratedModule(LoadedModule& module, const ParsedModule& base,
-                                  ModifiersPool& modifiersPool);
+    /**
+     * Optimize a module after loading it. This should be called at runtime, not during
+     * dehydration, because it runs the inliner (which clones lots of IR nodes), and this
+     * would impact the dehydrated file size.
+     */
+    bool optimizeModuleAfterLoading(ProgramKind kind,
+                                    LoadedModule& module,
+                                    const ParsedModule& base,
+                                    ModifiersPool& modifiersPool);
 
     /** Flattens out function calls when it is safe to do so. */
     bool runInliner(Inliner* inliner,

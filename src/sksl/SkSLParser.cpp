@@ -301,8 +301,7 @@ SkSL::LoadedModule Parser::moduleInheritingFrom(SkSL::ParsedModule baseModule) {
     errorReporter->setSource(*fText);
     this->declarations();
     CurrentSymbolTable()->takeOwnershipOfString(std::move(*fText));
-    SkSL::LoadedModule result{ fKind, CurrentSymbolTable(),
-            std::move(ThreadContext::ProgramElements()) };
+    SkSL::LoadedModule result{CurrentSymbolTable(), std::move(ThreadContext::ProgramElements())};
     errorReporter->setSource(std::string_view());
     End();
     return result;
