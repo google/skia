@@ -222,7 +222,7 @@ Similarly the current font and font size are set directly in the content stream.
 Similar to Skia, PDF allows drawing to be clipped or transformed. However, there
 are a few caveats that affect the design of the PDF backend. PDF does not
 support perspective transforms (perspective transform are treated as identity
-transforms). Clips, however, have more issues to cotend with. PDF clips cannot
+transforms). Clips, however, have more issues to contend with. PDF clips cannot
 be directly unapplied or expanded. i.e. once an area has been clipped off, there
 is no way to draw to it. However, PDF provides a limited depth stack for the PDF
 graphic state (which includes the drawing parameters mentioned above in the
@@ -350,9 +350,9 @@ Gradient shaders are handled purely mathematically. First, the matrix is
 transformed so that specific points in the requested gradient are at pre-defined
 locations, for example, the linear distance of the gradient is always normalized
 to one. Then, a type 4 PDF function is created that achieves the desired
-gradient. A type 4 function is a function defined by a resticted postscript
+gradient. A type 4 function is a function defined by a restricted postscript
 language. The generated functions clamp at the edges so if the desired tiling
-mode is tile or mirror, we hav to add a bit more postscript code to map any
+mode is tile or mirror, we have to add a bit more postscript code to map any
 input parameter into the 0-1 range appropriately. The code to generate the
 postscript code is somewhat obtuse, since it is trying to generate optimized
 (for space) postscript code, but there is a significant number of comments to
@@ -363,7 +363,7 @@ explain the intent.
 PDF supports some of the xfer modes used in Skia directly. For those, it is
 simply a matter of setting the blend mode in the graphic state to the
 appropriate value (Normal/SrcOver, Multiply, Screen, Overlay, Darken, Lighten,
-!ColorDOdge, ColorBurn, HardLight, SoftLight, Difference, Exclusion). Aside from
+!ColorDodge, ColorBurn, HardLight, SoftLight, Difference, Exclusion). Aside from
 the standard SrcOver mode, PDF does not directly support the porter-duff xfer
 modes though. Most of them (Clear, SrcMode, DstMode, DstOver, SrcIn, DstIn,
 SrcOut, DstOut) can be emulated by various means, mostly by creating form

@@ -4,17 +4,17 @@ linkTitle: 'Canvas2D Text Extensions'
 ---
 
 [Shaped Text](/docs/dev/design/text_shaper) is a proposal for exposing the Browser's text shaping engine. It takes in
-a block of (annoated) text, and returns the low-level information needed to correctly measure, hit-test,
+a block of (annotated) text, and returns the low-level information needed to correctly measure, hit-test,
 and draw the text as positioned glyphs. This processing step is needed whenever text is measured or
 drawn in the browser, and this processing can be complex and time consuming. The output of this processing
 is, however, simple and can be rendered quite efficiently. It is runs (tied to a specific Typeface and size)
-of glyph IDs and x,y postions.
+of glyph IDs and x,y positions.
 
 This proposal extends Canvas2D to allow it to draw those glyphs directly, and also includes utilities for
 querying attributes of the glyphs (not needed for drawing, but useful for other operations).
 
 ### Principles
-* Drawing postioned glyphs should be at least as flexible as the existing fillText() method.
+* Drawing positioned glyphs should be at least as flexible as the existing fillText() method.
 * It is expected that drawing glyphs can be faster than fillText() -- no shaping/processing is needed.
 * With the additional utilities, new effects should be easy and efficient.
 
@@ -41,11 +41,11 @@ results are represented in the glyphs, positions, and [Font](/docs/dev/design/te
 [Font](/docs/dev/design/text_shaper) is far more specific in this extension that the existing context.font attribute. In
 today's canvas2d, "font" holds a high-level description of the typeface(s): It is a string with the
 font's name, which has to be resolved to find the actual (set of) resources. For Shaped Text, this
-resolution has already occured. The glyph IDs are specific to exactly 1 resource (i.e. file/blob) and
+resolution has already occurred. The glyph IDs are specific to exactly 1 resource (i.e. file/blob) and
 so the Font interface contains not the name, but a handle to the actual resource.
 
 The upside to this specificity is performance: with all "fallback" and shaping having already
-occured, the draw calls can execute faster.
+occurred, the draw calls can execute faster.
 
 ## Font utilities
 

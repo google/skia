@@ -66,7 +66,7 @@ Jog the command playhead to the end of the list with the
 <img src="../frameplayback.png" style="display: inline-block;" />
 
 The sample file contains multiple frames. Use the encircled play button to play
-back the frames. The current frame is indictated by the slider position, and the
+back the frames. The current frame is indicated by the slider position, and the
 slider can be set manually. Frames can be stepped through with `w` (back) and
 `s` forward. `p` pauses or unpauses the frame playback.
 
@@ -126,7 +126,7 @@ by clicking the `Exit` button on the layer box.
 Clicking any point in the main view will toggle a red crosshair for selecting
 pixels. the selected pixel's color is shown in several formats on the right
 pane. A zoomed view centered on the selected pixel is shown below it. The
-position can be moved precicely by either clicking neighboring pixels in the
+position can be moved precisely by either clicking neighboring pixels in the
 zoom view, or using `H` (left) `L` (right) `J` (down) `K` (up).
 
 When "Break on change" is selected, command playback will pause on any command
@@ -154,8 +154,8 @@ is copied into an HTML canvas without using the GPU.
 Light/Dark - this toggle changes the appearance of the checkerboard behind the
 main view and zoom views to assist in viewing content with transparency.
 
-Display Overdraw Viz - This vizualization shows a red overlay that is darker in
-propertion to how much overdraw has occurred on a pixel. Overdraw meaning that
+Display Overdraw Viz - This visualization shows a red overlay that is darker in
+proportion to how much overdraw has occurred on a pixel. Overdraw meaning that
 the pixel was drawn to more than once.
 
 - As of Dec 2019, this feature may not be working correctly.
