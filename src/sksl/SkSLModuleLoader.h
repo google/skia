@@ -58,6 +58,9 @@ public:
 
     const ParsedModule& loadPublicModule(SkSL::Compiler* compiler);
     const ParsedModule& loadPrivateRTShaderModule(SkSL::Compiler* compiler);
+
+    // This unloads every module. It's useful primarily for benchmarking purposes.
+    void unloadModules();
 };
 
 }  // namespace SkSL

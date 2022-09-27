@@ -157,6 +157,18 @@ ModuleLoader::~ModuleLoader() {
     fModuleLoader.fMutex.release();
 }
 
+void ModuleLoader::unloadModules() {
+    fModuleLoader.fSharedModule           = ParsedModule{};
+    fModuleLoader.fGPUModule              = ParsedModule{};
+    fModuleLoader.fVertexModule           = ParsedModule{};
+    fModuleLoader.fFragmentModule         = ParsedModule{};
+    fModuleLoader.fComputeModule          = ParsedModule{};
+    fModuleLoader.fGraphiteVertexModule   = ParsedModule{};
+    fModuleLoader.fGraphiteFragmentModule = ParsedModule{};
+    fModuleLoader.fPublicModule           = ParsedModule{};
+    fModuleLoader.fRuntimeShaderModule    = ParsedModule{};
+}
+
 ModuleLoader::Impl::Impl() {
     this->makeRootSymbolTable();
 }
