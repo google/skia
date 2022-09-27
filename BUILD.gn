@@ -698,6 +698,9 @@ if (skia_compile_modules) {
     dehydrate_sksl_outputs += [ "$target_out_dir/" + rebase_path(
                                     "src/sksl/generated/$name.dehydrated.sksl",
                                     target_out_dir) ]
+    dehydrate_sksl_outputs += [ "$target_out_dir/" + rebase_path(
+                                    "src/sksl/generated/$name.minified.sksl",
+                                    target_out_dir) ]
   }
 
   action("dehydrate_sksl") {
