@@ -1,36 +1,35 @@
 describe('Font Behavior', () => {
     let container;
 
+    const assetLoadingPromises = [];
     let notoSerifFontBuffer = null;
     // This font is known to support kerning
-    const notoSerifFontLoaded = fetch('/assets/NotoSerif-Regular.ttf').then(
+    assetLoadingPromises.push(fetch('/assets/NotoSerif-Regular.ttf').then(
         (response) => response.arrayBuffer()).then(
         (buffer) => {
             notoSerifFontBuffer = buffer;
-        });
+        }));
 
     let bungeeFontBuffer = null;
     // This font has tofu for incorrect null terminators
     // see https://bugs.chromium.org/p/skia/issues/detail?id=9314
-    const bungeeFontLoaded = fetch('/assets/Bungee-Regular.ttf').then(
+    assetLoadingPromises.push(fetch('/assets/Bungee-Regular.ttf').then(
         (response) => response.arrayBuffer()).then(
         (buffer) => {
             bungeeFontBuffer = buffer;
-        });
+        }));
 
     let colrv1FontBuffer = null;
     // This font has glyphs for COLRv1. Also used in gms/colrv1.cpp
-    const colrv1FontLoaded = fetch('/assets/test_glyphs-glyf_colr_1.ttf').then(
+    assetLoadingPromises.push(fetch('/assets/test_glyphs-glyf_colr_1.ttf').then(
         (response) => response.arrayBuffer()).then(
         (buffer) => {
             colrv1FontBuffer = buffer;
-        });
+        }));
 
     beforeEach(async () => {
-        await LoadCanvasKit;
-        await notoSerifFontLoaded;
-        await bungeeFontLoaded;
-        await colrv1FontLoaded;
+        await EverythingLoaded;
+        await Promise.all(assetLoadingPromises);
         container = document.createElement('div');
         container.innerHTML = `
             <canvas width=600 height=600 id=test></canvas>
@@ -132,7 +131,6 @@ describe('Font Behavior', () => {
     });
 
     gm('textblobs_with_glyphs', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
         const notoSerif = CanvasKit.Typeface.MakeFreeTypeFaceFromData(notoSerifFontBuffer);
 
         const font = new CanvasKit.Font(notoSerif, 24);
@@ -303,7 +301,6 @@ describe('Font Behavior', () => {
     gm('font_edging', (canvas) => {
         // Draw a small font scaled up to see the aliasing artifacts.
         canvas.scale(8, 8);
-        canvas.clear(CanvasKit.WHITE);
         const notoSerif = CanvasKit.Typeface.MakeFreeTypeFaceFromData(notoSerifFontBuffer);
 
         const textPaint = new CanvasKit.Paint();
@@ -424,7 +421,6 @@ describe('Font Behavior', () => {
 
     gm('colrv1_gradients', (canvas) => {
         // Inspired by gm/colrv1.cpp, specifically the kColorFontsRepoGradients one.
-        canvas.clear(CanvasKit.WHITE);
         const colrFace = CanvasKit.Typeface.MakeFreeTypeFaceFromData(colrv1FontBuffer);
 
         const textPaint = new CanvasKit.Paint();

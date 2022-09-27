@@ -342,21 +342,21 @@ karma_test(
     name = "canvaskit_js_tests",
     srcs = [
         ":canvaskit/canvaskit.js",
-        # We want to make sure the CanvasKit JS is loaded before the loader script
-        "tests/bazel/canvaskitinit.js",
-        "tests/bazel/util.js",
-        "tests/bazel/test_reporter.js",
-        # which is loaded before the tests...
-        "tests/bazel/smoke_test.js",
-        "tests/bazel/canvas_test.js",
-        "tests/bazel/canvas2d_test.js",
-        "tests/bazel/core_test.js",
-        "tests/bazel/font_test.js",
-        "tests/bazel/matrix_test.js",
-        "tests/bazel/paragraph_test.js",
-        "tests/bazel/path_test.js",
-        "tests/bazel/rtshader_test.js",
-        "tests/bazel/skottie_test.js",
+        # We want to make sure the CanvasKit JS is loaded before the loader script, so
+        # CanvasKitInit is defined. This loader script makes a promise...
+        "tests/init_with_gold_server.js",
+        "tests/util.js",
+        "tests/bazel_test_reporter.js",
+        # ...which is used by all of the tests
+        "tests/canvas_test.js",
+        "tests/canvas2d_test.js",
+        "tests/core_test.js",
+        "tests/font_test.js",
+        "tests/matrix_test.js",
+        "tests/paragraph_test.js",
+        "tests/path_test.js",
+        "tests/rtshader_test.js",
+        "tests/skottie_test.js",
     ],
     config_file = "karma.bazel.js",
     # The tests need the Gold server to be up and running so they can make POST requests to

@@ -1,47 +1,46 @@
 describe('Paragraph Behavior', function() {
     let container;
 
+    const assetLoadingPromises = [];
     let notoSerifFontBuffer = null;
     // This font is known to support kerning
-    const notoSerifFontLoaded = fetch('/assets/NotoSerif-Regular.ttf').then(
+    assetLoadingPromises.push(fetch('/assets/NotoSerif-Regular.ttf').then(
         (response) => response.arrayBuffer()).then(
         (buffer) => {
             notoSerifFontBuffer = buffer;
-        });
+        }));
 
     let notoSerifBoldItalicFontBuffer = null;
-    const notoSerifBoldItalicFontLoaded = fetch('/assets/NotoSerif-BoldItalic.ttf').then(
+    assetLoadingPromises.push(fetch('/assets/NotoSerif-BoldItalic.ttf').then(
         (response) => response.arrayBuffer()).then(
         (buffer) => {
             notoSerifBoldItalicFontBuffer = buffer;
-        });
+        }));
 
     let emojiFontBuffer = null;
-    const emojiFontLoaded = fetch('/assets/NotoColorEmoji.ttf').then(
+    assetLoadingPromises.push(fetch('/assets/NotoColorEmoji.ttf').then(
         (response) => response.arrayBuffer()).then(
         (buffer) => {
             emojiFontBuffer = buffer;
-        });
+        }));
 
     let robotoFontBuffer = null;
-    const robotoFontLoaded = fetch('/assets/Roboto-Regular.otf').then(
+    assetLoadingPromises.push(fetch('/assets/Roboto-Regular.otf').then(
         (response) => response.arrayBuffer()).then(
         (buffer) => {
             robotoFontBuffer = buffer;
-        });
+        }));
 
     let robotoVariableFontBuffer = null;
-    const robotoVariableFontLoaded = fetch('/assets/RobotoSlab-VariableFont_wght.ttf').then(
+    assetLoadingPromises.push(fetch('/assets/RobotoSlab-VariableFont_wght.ttf').then(
         (response) => response.arrayBuffer()).then(
         (buffer) => {
             robotoVariableFontBuffer = buffer;
-        });
+        }));
 
     beforeEach(async () => {
-        await LoadCanvasKit;
-        await notoSerifFontLoaded;
-        await notoSerifBoldItalicFontLoaded;
-        await emojiFontLoaded;
+        await EverythingLoaded;
+        await Promise.all(assetLoadingPromises);
         container = document.createElement('div');
         container.innerHTML = `
             <canvas width=600 height=600 id=test></canvas>
@@ -130,7 +129,6 @@ describe('Paragraph Behavior', function() {
         expect(flm.left).toBeCloseTo(13.818, 3);
         expect(flm.baseline).toBeCloseTo(21.141, 3);
 
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -163,8 +161,6 @@ describe('Paragraph Behavior', function() {
             'This text has a red foregroundColor and a blue backgroundColor.');
         const paragraph = builder.build();
         paragraph.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         fontMgr.delete();
@@ -201,8 +197,6 @@ describe('Paragraph Behavior', function() {
             'This text is stroked in black and has no fill');
         const paragraph = builder.build();
         paragraph.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
         // Again 5px to the right so you can tell the fill is transparent
         canvas.drawParagraph(paragraph, 15, 10);
@@ -237,8 +231,6 @@ describe('Paragraph Behavior', function() {
             'This text should have a lot of space between the letters and words.');
         const paragraph = builder.build();
         paragraph.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         fontMgr.delete();
@@ -268,8 +260,6 @@ describe('Paragraph Behavior', function() {
         builder.addText('This text should have a shadow behind it.');
         const paragraph = builder.build();
         paragraph.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         fontMgr.delete();
@@ -340,8 +330,6 @@ describe('Paragraph Behavior', function() {
 
         const paragraph2 = builder2.build();
         paragraph2.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
         canvas.drawParagraph(paragraph2, 220, 10);
 
@@ -369,8 +357,6 @@ describe('Paragraph Behavior', function() {
         builder.addText('This Text Should Be In Small Caps');
         const paragraph = builder.build();
         paragraph.layout(300);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         fontMgr.delete();
@@ -451,8 +437,6 @@ describe('Paragraph Behavior', function() {
         paragraph.layout(300);
 
         let rects = paragraph.getRectsForPlaceholders();
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         for (const rect of rects) {
@@ -535,7 +519,6 @@ describe('Paragraph Behavior', function() {
                 color: CanvasKit.Color(0, 200, 200),
             }
         ];
-        canvas.clear(CanvasKit.WHITE);
         // Move it down a bit so we can see the rects that go above 0,0
         canvas.translate(10, 10);
         canvas.drawParagraph(paragraph, 0, 0);
@@ -598,8 +581,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 10, 10);
 
         const paint = new CanvasKit.Paint();
@@ -632,8 +613,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.translate(10, 10);
         canvas.drawParagraph(paragraph, 0, 0);
 
@@ -714,8 +693,6 @@ describe('Paragraph Behavior', function() {
 
         paragraph.layout(wrapTo);
 
-        canvas.clear(CanvasKit.WHITE);
-
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -770,8 +747,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-
-        canvas.clear(CanvasKit.WHITE);
 
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
         canvas.drawParagraph(paragraph, 10, 10);
@@ -842,8 +817,6 @@ describe('Paragraph Behavior', function() {
             start: 25,
             end: 26,
         });
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, 230), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -886,7 +859,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawParagraph(paragraph, 0, 0);
 
         fontMgr.delete();
@@ -898,7 +870,6 @@ describe('Paragraph Behavior', function() {
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
-        canvas.clear(CanvasKit.WHITE);
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.RED);
         paint.setStyle(CanvasKit.PaintStyle.Stroke);
@@ -968,8 +939,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -1019,8 +988,6 @@ describe('Paragraph Behavior', function() {
         const paragraph = builder.build();
 
         paragraph.layout(wrapTo);
-
-        canvas.clear(CanvasKit.WHITE);
         canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
         canvas.drawParagraph(paragraph, 10, 10);
 
@@ -1033,7 +1000,6 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_builder_with_reset', (canvas) => {
-        canvas.clear(CanvasKit.WHITE);
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
 
         const wrapTo = 250;
@@ -1074,6 +1040,47 @@ describe('Paragraph Behavior', function() {
 
         paragraph.delete();
         paragraph2.delete();
+        fontMgr.delete();
+        builder.delete();
+    });
+
+    // This helped find and resolve skbug.com/13247
+    gm('paragraph_saved_to_skpicture', (canvas) => {
+        const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
+
+        const wrapTo = 250;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                fontSize: 20,
+            },
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText('This was saved to an SkPicture\n');
+
+        const boldItalic = new CanvasKit.TextStyle({
+            fontStyle: {
+                weight: CanvasKit.FontWeight.Bold,
+                slant: CanvasKit.FontSlant.Italic,
+            }
+        });
+        builder.pushStyle(boldItalic);
+        builder.addText(`Bold, Italic\n`);
+        builder.pop();
+        const paragraph = builder.build();
+        paragraph.layout(wrapTo);
+
+        const recorder = new CanvasKit.PictureRecorder();
+        const skpCanvas = recorder.beginRecording(CanvasKit.LTRBRect(0, 0, 200, 200));
+        skpCanvas.drawParagraph(paragraph, 10, 10);
+        const picture = recorder.finishRecordingAsPicture();
+
+        canvas.drawPicture(CanvasKit.MakePicture(picture.serialize()));
+
+        picture.delete();
+        recorder.delete();
+        paragraph.delete();
         fontMgr.delete();
         builder.delete();
     });
@@ -1221,4 +1228,5 @@ describe('Paragraph Behavior', function() {
         CanvasKit.Free(mallocedGraphemes);
         CanvasKit.Free(mallocedLineBreaks);
     });
+
 });

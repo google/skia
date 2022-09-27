@@ -2,7 +2,12 @@
 const CANVAS_WIDTH = 600;
 const CANVAS_HEIGHT = 600;
 
+const SHOULD_SKIP = 'should_skip';
+
 const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) => {
+    if (name.includes(' ')) {
+        throw name + " cannot contain spaces";
+    }
     const fetchPromises = [];
     for (const assetOrPromise of assetsToFetchOrPromisesToWaitOn) {
         // https://stackoverflow.com/a/9436948
@@ -32,7 +37,9 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
         Promise.all(fetchPromises).then((values) => {
             try {
                 // If callback returns a promise, the chained .then
-                // will wait for it.
+                // will wait for it. Otherwise, we'll pass the return value on,
+                // which could indicate to skip this test and not report it to Gold.
+                surface.getCanvas().clear(CanvasKit.WHITE);
                 return callback(surface.getCanvas(), values, surface);
             } catch (e) {
                 console.log(`gm ${name} failed with error`, e);
@@ -40,8 +47,14 @@ const _commonGM = (it, pause, name, callback, assetsToFetchOrPromisesToWaitOn) =
                 debugger;
                 done();
             }
-        }).then(() => {
+        }).then((shouldSkip) => {
             surface.flush();
+            if (shouldSkip === SHOULD_SKIP) {
+                surface.delete();
+                done();
+                console.log(`skipped gm ${name}`);
+                return;
+            }
             if (pause) {
                 reportSurface(surface, name, null);
                 console.error('pausing due to pause_gm being invoked');
@@ -134,6 +147,9 @@ const pause_gm = (name, callback, ...assetsToFetchOrPromisesToWaitOn) => {
 };
 
 const _commonMultipleCanvasGM = (it, pause, name, callback) => {
+    if (name.includes(' ')) {
+        throw name + " cannot contain spaces";
+    }
     it(`draws gm ${name} on both CanvasKit and using Canvas2D`, (done) => {
         const skcanvas = CanvasKit.MakeCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         skcanvas._config = 'software_canvas';
@@ -216,7 +232,7 @@ const skip_multipleCanvasGM = (name, callback) => {
 
 
 function reportSurface(surface, testname, done) {
-    // In docker, the webgl canvas is blank, but the surface has the pixel
+    // Sometimes, the webgl canvas is blank, but the surface has the pixel
     // data. So, we copy it out and draw it to a normal canvas to take a picture.
     // To be consistent across CPU and GPU, we just do it for all configurations
     // (even though the CPU canvas shows up after flush just fine).

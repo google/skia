@@ -14,6 +14,7 @@ filegroup(
         "Roboto-Regular.otf",
         "Roboto-Regular.woff",
         "Roboto-Regular.woff2",
+        "RobotoSlab-VariableFont_wght.ttf",
         "animated_gif.json",
         "audio_external.json",
         "brickwork-texture.jpg",

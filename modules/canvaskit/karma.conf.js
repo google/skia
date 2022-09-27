@@ -1,3 +1,4 @@
+// This is the legacy (non-Bazel) test setup.
 const isDocker = require('is-docker')();
 
 module.exports = function(config) {
@@ -12,11 +13,11 @@ module.exports = function(config) {
     files: [
       { pattern: 'build/canvaskit.wasm', included:false, served:true},
       { pattern: 'tests/assets/*', included:false, served:true},
-      'tests/testReporter.js',
       'build/canvaskit.js',
-      'tests/canvaskitinit.js',
+      'tests/legacy_init.js',
       'tests/util.js',
-      'tests/*.spec.js'
+      'tests/legacy_test_reporter.js',
+      'tests/*_test.js'
     ],
 
     proxies: {
