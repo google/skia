@@ -2201,7 +2201,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  if (is_linux || is_mac) {
+  if (is_linux || is_mac || skia_enable_optimize_size) {
     if (skia_enable_skottie) {
       test_app("skottie_tool") {
         deps = [ "modules/skottie:tool" ]
