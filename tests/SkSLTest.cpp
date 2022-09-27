@@ -314,6 +314,7 @@ static void test_clone(skiatest::Reporter* r, const char* testFile, int flags) {
 }
 
 static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flags) {
+#ifndef SK_ENABLE_OPTIMIZE_SIZE  // the Rehydrator is not used in optimize-for-size builds
     SkString shaderString = load_source(r, testFile, /*permutationSuffix=*/"");
     if (shaderString.isEmpty()) {
         return;
@@ -349,6 +350,7 @@ static void test_rehydrate(skiatest::Reporter* r, const char* testFile, int flag
                     testFile,
                     program->description().c_str(),
                     rehydrated->description().c_str());
+#endif
 }
 
 #define SKSL_TEST(flags, ctsEnforcement, name, path)                                       \

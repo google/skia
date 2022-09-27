@@ -64,10 +64,15 @@
 #endif
 
 #ifdef SKSL_STANDALONE
-#define REHYDRATE 0
-#include <fstream>
+    // SkSL modules are loaded from disk
+    #define REHYDRATE 0
+    #include <fstream>
+#elif defined(SK_ENABLE_OPTIMIZE_SIZE)
+    // SkSL modules are loaded from minified, embedded source
+    #define REHYDRATE 0
 #else
-#define REHYDRATE 1
+    // SkSL modules are loaded from dehydrated, embedded IR
+    #define REHYDRATE 1
 #endif
 
 namespace SkSL {
@@ -240,6 +245,20 @@ static LoadedModule compile_module(SkSL::Compiler* compiler,
     return module;
 }
 
+#if defined(SK_ENABLE_OPTIMIZE_SIZE)
+
+// Compiles a module from an embedded, minified SkSL source file.
+static LoadedModule compile_module(SkSL::Compiler* compiler,
+                                   ProgramKind kind,
+                                   SkSpan<const uint8_t> textSpan,
+                                   std::shared_ptr<SymbolTable> base) {
+    SkASSERT(!textSpan.empty());
+    std::string text{reinterpret_cast<const char*>(textSpan.data()), textSpan.size()};
+    return compile_module(compiler, kind, "module", std::move(text), std::move(base));
+}
+
+#elif SKSL_STANDALONE
+
 // Compiles a module from an SkSL source file on disk, and prepares it for dehydration.
 static LoadedModule compile_module_for_dehydration(SkSL::Compiler* compiler,
                                                    ProgramKind kind,
@@ -261,7 +280,8 @@ static LoadedModule compile_module_for_dehydration(SkSL::Compiler* compiler,
     return module;
 }
 
-#endif
+#endif  // SKSL_STANDALONE
+#endif  // REHYDRATE
 
 LoadedModule Compiler::loadModule(ProgramKind kind,
                                   ModuleData data,
@@ -276,6 +296,8 @@ LoadedModule Compiler::loadModule(ProgramKind kind,
 
 #if REHYDRATE
     return load_dehydrated_module(this, kind, data.fData, std::move(base));
+#elif defined(SK_ENABLE_OPTIMIZE_SIZE)
+    return compile_module(this, kind, data.fData, std::move(base));
 #else
     return compile_module_for_dehydration(this, kind, data.fPath, std::move(base));
 #endif

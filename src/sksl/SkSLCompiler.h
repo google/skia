@@ -178,8 +178,15 @@ public:
         return fSymbolTable;
     }
 
-    // When  SKSL_STANDALONE, fPath is used. fData will be empty.
-    // When !SKSL_STANDALONE, fData is used. fPath will be nullptr.
+    // When SKSL_STANDALONE is true:
+    // - fPath contains a path on disk containing the SkSL module
+    // - fData will be empty
+    // When SKSL_STANDALONE is false and SK_ENABLE_OPTIMIZE_SIZE is false:
+    // - fData contains SkSL module code in dehydrated IR form
+    // - fPath will be nullptr
+    // When SKSL_STANDALONE is false and SK_ENABLE_OPTIMIZE_SIZE is true:
+    // - fData contains SkSL module code in minified text form
+    // - fPath will be nullptr
     struct ModuleData {
         const char*           fPath;
         SkSpan<const uint8_t> fData;
@@ -190,6 +197,10 @@ public:
     }
     static ModuleData MakeModuleData(SkSpan<const uint8_t> data) {
         return ModuleData{/*fPath=*/nullptr, data};
+    }
+    static ModuleData MakeModuleSource(std::string_view source) {
+        return ModuleData{nullptr, /*fData=*/{reinterpret_cast<const uint8_t*>(source.data()),
+                                              source.size()}};
     }
 
     LoadedModule loadModule(ProgramKind kind, ModuleData data, ModifiersPool& modifiersPool,

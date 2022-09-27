@@ -7,6 +7,8 @@
 
 #include "src/sksl/SkSLRehydrator.h"
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE  // the Rehydrator is not used in optimize-for-size builds
+
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLProgramKind.h"
@@ -663,3 +665,5 @@ std::shared_ptr<SymbolTable> Rehydrator::symbolTable() {
 }
 
 }  // namespace SkSL
+
+#endif

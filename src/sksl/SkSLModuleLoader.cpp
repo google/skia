@@ -27,9 +27,26 @@
     // to the skslc executable directory. The "data" in this mode is just the filename.
     #define MODULE_DATA(name) Compiler::MakeModulePath("sksl_" #name ".sksl")
 
+#elif defined(SK_ENABLE_OPTIMIZE_SIZE)
+
+    // At runtime, we compile minified SkSL module code.
+    #include "src/sksl/generated/sksl_shared.minified.sksl"
+    #include "src/sksl/generated/sksl_compute.minified.sksl"
+    #include "src/sksl/generated/sksl_frag.minified.sksl"
+    #include "src/sksl/generated/sksl_gpu.minified.sksl"
+    #include "src/sksl/generated/sksl_public.minified.sksl"
+    #include "src/sksl/generated/sksl_rt_shader.minified.sksl"
+    #include "src/sksl/generated/sksl_vert.minified.sksl"
+    #if defined(SK_GRAPHITE_ENABLED)
+    #include "src/sksl/generated/sksl_graphite_frag.minified.sksl"
+    #include "src/sksl/generated/sksl_graphite_vert.minified.sksl"
+    #endif
+
+    #define MODULE_DATA(name) Compiler::MakeModuleSource(SKSL_MINIFIED_sksl_##name)
+
 #else
 
-    // At runtime, we load the dehydrated sksl data files. The data is a (pointer, size) pair.
+    // At runtime, we load the dehydrated SkSL data files.
     #include "src/sksl/generated/sksl_shared.dehydrated.sksl"
     #include "src/sksl/generated/sksl_compute.dehydrated.sksl"
     #include "src/sksl/generated/sksl_frag.dehydrated.sksl"
@@ -223,7 +240,7 @@ const ParsedModule& ModuleLoader::loadPublicModule(SkSL::Compiler* compiler) {
 const ParsedModule& ModuleLoader::loadPrivateRTShaderModule(SkSL::Compiler* compiler) {
     if (!fModuleLoader.fRuntimeShaderModule.fSymbols) {
         const ParsedModule& publicModule = this->loadPublicModule(compiler);
-        fModuleLoader.fRuntimeShaderModule = compiler->parseModule(ProgramKind::kRuntimeShader,
+        fModuleLoader.fRuntimeShaderModule = compiler->parseModule(ProgramKind::kFragment,
                                                                    MODULE_DATA(rt_shader),
                                                                    publicModule,
                                                                    this->coreModifiers());

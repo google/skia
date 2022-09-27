@@ -7,6 +7,8 @@
 
 #include "src/sksl/SkSLDehydrator.h"
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE  // the Dehydrator is not used in optimize-for-size builds
+
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLLayout.h"
@@ -704,3 +706,5 @@ const char* Dehydrator::prefixAtOffset(size_t byte) {
 }
 
 } // namespace SkSL
+
+#endif

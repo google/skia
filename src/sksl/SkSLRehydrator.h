@@ -8,6 +8,8 @@
 #ifndef SKSL_REHYDRATOR
 #define SKSL_REHYDRATOR
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE  // the Rehydrator is not used in optimize-for-size builds
+
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
@@ -241,5 +243,7 @@ private:
 };
 
 }  // namespace SkSL
+
+#endif
 
 #endif

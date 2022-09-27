@@ -8,6 +8,8 @@
 #ifndef SKSL_DEHYDRATOR
 #define SKSL_DEHYDRATOR
 
+#ifndef SK_ENABLE_OPTIMIZE_SIZE  // the Dehydrator is not used in optimize-for-size builds
+
 #include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTHash.h"
@@ -150,5 +152,7 @@ private:
 };
 
 } // namespace SkSL
+
+#endif
 
 #endif
