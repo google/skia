@@ -885,10 +885,11 @@ void GrDrawingManager::newBufferUpdateTask(sk_sp<SkData> src,
     SkDEBUGCODE(this->validate());
 }
 
-sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> src,
+sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> dst,
+                                                        SkIRect dstRect,
+                                                        sk_sp<GrSurfaceProxy> src,
                                                         SkIRect srcRect,
-                                                        sk_sp<GrSurfaceProxy> dst,
-                                                        SkIPoint dstPoint,
+                                                        GrSamplerState::Filter filter,
                                                         GrSurfaceOrigin origin) {
     SkDEBUGCODE(this->validate());
     SkASSERT(fContext);
@@ -906,10 +907,11 @@ sk_sp<GrRenderTask> GrDrawingManager::newCopyRenderTask(sk_sp<GrSurfaceProxy> sr
     this->closeActiveOpsTask();
 
     sk_sp<GrRenderTask> task = GrCopyRenderTask::Make(this,
+                                                      std::move(dst),
+                                                      dstRect,
                                                       src,
                                                       srcRect,
-                                                      std::move(dst),
-                                                      dstPoint,
+                                                      filter,
                                                       origin);
     if (!task) {
         return nullptr;

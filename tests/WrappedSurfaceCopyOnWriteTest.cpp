@@ -108,10 +108,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkipCopyTaskTest,
     srcSC->asFillContext()->clear(SkPMColor4f{0, 0, 1, 1});
 
     sk_sp<GrRenderTask> task =
-            dContext->priv().drawingManager()->newCopyRenderTask(srcSC->asSurfaceProxyRef(),
+            dContext->priv().drawingManager()->newCopyRenderTask(dstSC->asSurfaceProxyRef(),
                                                                  SkIRect::MakeWH(10, 10),
-                                                                 dstSC->asSurfaceProxyRef(),
-                                                                 {0, 0},
+                                                                 srcSC->asSurfaceProxyRef(),
+                                                                 SkIRect::MakeWH(10, 10),
+                                                                 GrSamplerState::Filter::kNearest,
                                                                  kTopLeft_GrSurfaceOrigin);
 
     if (!task) {

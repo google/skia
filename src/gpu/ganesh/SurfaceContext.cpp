@@ -28,6 +28,7 @@
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/geometry/GrRect.h"
 
 #include <memory>
 
@@ -1056,14 +1057,21 @@ sk_sp<GrRenderTask> SurfaceContext::copy(sk_sp<GrSurfaceProxy> src,
         return nullptr;
     }
 
-    if (!caps->canCopySurface(this->asSurfaceProxy(), src.get(), srcRect, dstPoint)) {
+    if (!GrClipSrcRectAndDstPoint(this->dimensions(), &dstPoint,
+                                  src->dimensions(), &srcRect)) {
         return nullptr;
     }
 
-    return this->drawingManager()->newCopyRenderTask(std::move(src),
+    SkIRect dstRect = SkIRect::MakePtSize(dstPoint, srcRect.size());
+    if (!caps->canCopySurface(this->asSurfaceProxy(), src.get(), srcRect, dstRect)) {
+        return nullptr;
+    }
+
+    return this->drawingManager()->newCopyRenderTask(this->asSurfaceProxyRef(),
+                                                     dstRect,
+                                                     std::move(src),
                                                      srcRect,
-                                                     this->asSurfaceProxyRef(),
-                                                     dstPoint,
+                                                     GrSamplerState::Filter::kNearest,
                                                      this->origin());
 }
 

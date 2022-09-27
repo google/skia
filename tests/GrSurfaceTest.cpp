@@ -460,8 +460,11 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
         // Try the low level copy.
         dContext->flushAndSubmit();
         auto gpuCopyResult = dContext->priv().getGpu()->copySurface(
-                proxy->peekSurface(), copySrc.proxy()->peekSurface(), SkIRect::MakeWH(kSize, kSize),
-                {0, 0});
+                proxy->peekSurface(),
+                copySrc.proxy()->peekSurface(),
+                SkIRect::MakeWH(kSize, kSize),
+                SkIRect::MakeWH(kSize, kSize),
+                GrSamplerState::Filter::kNearest);
         REPORTER_ASSERT(reporter, gpuCopyResult == (ioType == kRW_GrIOType));
 
         // Mip regen should not work with a read only texture.

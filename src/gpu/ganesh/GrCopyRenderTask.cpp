@@ -10,41 +10,42 @@
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrResourceAllocator.h"
-#include "src/gpu/ganesh/geometry/GrRect.h"
 
 sk_sp<GrRenderTask> GrCopyRenderTask::Make(GrDrawingManager* drawingMgr,
+                                           sk_sp<GrSurfaceProxy> dst,
+                                           SkIRect dstRect,
                                            sk_sp<GrSurfaceProxy> src,
                                            SkIRect srcRect,
-                                           sk_sp<GrSurfaceProxy> dst,
-                                           SkIPoint dstPoint,
+                                           GrSamplerState::Filter filter,
                                            GrSurfaceOrigin origin) {
     SkASSERT(src);
     SkASSERT(dst);
 
-    if (!GrClipSrcRectAndDstPoint(dst->dimensions(),
-                                  src->dimensions(),
-                                  srcRect,
-                                  dstPoint,
-                                  &srcRect,
-                                  &dstPoint)) {
-        return nullptr;
-    }
+    // canCopySurface() should have returned true, guaranteeing this property.
+    SkASSERT(SkIRect::MakeSize(dst->dimensions()).contains(dstRect));
+    SkASSERT(SkIRect::MakeSize(src->dimensions()).contains(srcRect));
 
     return sk_sp<GrRenderTask>(new GrCopyRenderTask(drawingMgr,
+                                                    std::move(dst),
+                                                    dstRect,
                                                     std::move(src),
                                                     srcRect,
-                                                    std::move(dst),
-                                                    dstPoint,
+                                                    filter,
                                                     origin));
 }
 
 GrCopyRenderTask::GrCopyRenderTask(GrDrawingManager* drawingMgr,
+                                   sk_sp<GrSurfaceProxy> dst,
+                                   SkIRect dstRect,
                                    sk_sp<GrSurfaceProxy> src,
                                    SkIRect srcRect,
-                                   sk_sp<GrSurfaceProxy> dst,
-                                   SkIPoint dstPoint,
+                                   GrSamplerState::Filter filter,
                                    GrSurfaceOrigin origin)
-        : fSrc(std::move(src)), fSrcRect(srcRect), fDstPoint(dstPoint), fOrigin(origin) {
+        : fSrc(std::move(src))
+        , fSrcRect(srcRect)
+        , fDstRect(dstRect)
+        , fFilter(filter)
+        , fOrigin(origin) {
     this->addTarget(drawingMgr, std::move(dst));
 }
 
@@ -70,7 +71,7 @@ GrRenderTask::ExpectedOutcome GrCopyRenderTask::onMakeClosed(GrRecordingContext*
     *targetUpdateBounds = GrNativeRect::MakeIRectRelativeTo(
             fOrigin,
             this->target(0)->height(),
-            SkIRect::MakePtSize(fDstPoint, fSrcRect.size()));
+            fDstRect);
     return ExpectedOutcome::kTargetDirty;
 }
 
@@ -86,10 +87,7 @@ bool GrCopyRenderTask::onExecute(GrOpFlushState* flushState) {
     GrSurface* srcSurface = fSrc->peekSurface();
     GrSurface* dstSurface = dstProxy->peekSurface();
     SkIRect srcRect = GrNativeRect::MakeIRectRelativeTo(fOrigin, srcSurface->height(), fSrcRect);
-    SkIPoint dstPoint = fDstPoint;
-    if (fOrigin == kBottomLeft_GrSurfaceOrigin) {
-        dstPoint.fY = dstSurface->height() - dstPoint.fY - srcRect.height();
-    }
-    return flushState->gpu()->copySurface(dstSurface, srcSurface, srcRect, dstPoint);
+    SkIRect dstRect = GrNativeRect::MakeIRectRelativeTo(fOrigin, dstSurface->height(), fDstRect);
+    return flushState->gpu()->copySurface(dstSurface, srcSurface, srcRect, dstRect, fFilter);
 }
 

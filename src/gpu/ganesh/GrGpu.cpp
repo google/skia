@@ -405,7 +405,7 @@ sk_sp<GrGpuBuffer> GrGpu::createBuffer(size_t size,
 }
 
 bool GrGpu::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                        const SkIPoint& dstPoint) {
+                        const SkIRect& dstRect, GrSamplerState::Filter filter) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(dst && src);
     SkASSERT(!src->framebufferOnly());
@@ -413,10 +413,16 @@ bool GrGpu::copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
     if (dst->readOnly()) {
         return false;
     }
+    // TODO(michaelludwig): copySurface()'s exposed API supports scaling and filtering, but the
+    // private onCopySurface() still needs to be updated to handle that so fail any of the new
+    // scaled copies (there aren't any right now, though, so this should never trigger).
+    if (srcRect.size() != dstRect.size() || filter != GrSamplerState::Filter::kNearest) {
+        return false;
+    }
 
     this->handleDirtyContext();
 
-    return this->onCopySurface(dst, src, srcRect, dstPoint);
+    return this->onCopySurface(dst, src, srcRect, dstRect.topLeft());
 }
 
 bool GrGpu::readPixels(GrSurface* surface,

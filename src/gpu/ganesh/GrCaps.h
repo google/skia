@@ -389,7 +389,7 @@ public:
      * Returns whether or not we will be able to do a copy given the passed in params
      */
     bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                        const SkIRect& srcRect, const SkIPoint& dstPoint) const;
+                        const SkIRect& srcRect, const SkIRect& dstRect) const;
 
     bool dynamicStateArrayGeometryProcessorTextureSupport() const {
         return fDynamicStateArrayGeometryProcessorTextureSupport;

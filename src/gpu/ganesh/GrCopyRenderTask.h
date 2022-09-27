@@ -9,26 +9,30 @@
 #define GrCopyRenderTask_DEFINED
 
 #include "src/gpu/ganesh/GrRenderTask.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 
 class GrCopyRenderTask final : public GrRenderTask {
 public:
     /**
-     * Copies pixels from srcRect in src to SkIRect::MakePtSize(dstPoint, srcRect.dimensions) in
-     * dst. The src/dst share a common origin.
+     * Copies pixels from srcRect in src to dstRect in dst. srcRect and dstRect must both be
+     * contained in their respective surface dimensions; they do not have to have the same size
+     * if the GPU supports scaling and filtering while copying. The src/dst share a common origin.
      */
     static sk_sp<GrRenderTask> Make(GrDrawingManager*,
+                                    sk_sp<GrSurfaceProxy> dst,
+                                    SkIRect dstRect,
                                     sk_sp<GrSurfaceProxy> src,
                                     SkIRect srcRect,
-                                    sk_sp<GrSurfaceProxy> dst,
-                                    SkIPoint dstPoint,
+                                    GrSamplerState::Filter filter,
                                     GrSurfaceOrigin);
 
 private:
     GrCopyRenderTask(GrDrawingManager*,
+                     sk_sp<GrSurfaceProxy> dst,
+                     SkIRect dstRect,
                      sk_sp<GrSurfaceProxy> src,
                      SkIRect srcRect,
-                     sk_sp<GrSurfaceProxy> dst,
-                     SkIPoint dstPoint,
+                     GrSamplerState::Filter filter,
                      GrSurfaceOrigin);
 
     void onMakeSkippable() override { fSrc.reset(); }
@@ -48,7 +52,8 @@ private:
 
     sk_sp<GrSurfaceProxy> fSrc;
     SkIRect fSrcRect;
-    SkIPoint fDstPoint;
+    SkIRect fDstRect;
+    GrSamplerState::Filter fFilter;
     GrSurfaceOrigin fOrigin;
 };
 
