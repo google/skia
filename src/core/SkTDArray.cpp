@@ -72,26 +72,28 @@ void SkTDStorage::reserve(size_t reserveSize, size_t sizeOfT) {
     // Note: this takes a size_t to centralize size checking.
     SkASSERT_RELEASE(SkTFitsIn<int>(reserveSize));
 
-    // Establish the maximum number of elements that includes a valid count for end. In the
-    // largest case end() = &fArray[INT_MAX] which is 1 after the last indexable element.
-    static constexpr int kMaxCount = INT_MAX;
+    if (SkToInt(reserveSize) > fReserve) {
+        // Establish the maximum number of elements that includes a valid count for end. In the
+        // largest case end() = &fArray[INT_MAX] which is 1 after the last indexable element.
+        static constexpr int kMaxCount = INT_MAX;
 
-    // Assume that the array will max out.
-    int expandedReserve = kMaxCount;
-    int newReserve = SkToInt(reserveSize);
-    if (kMaxCount - newReserve > 4) {
-        // Add 1/4 more than we need. Add 4 to ensure this grows by at least 1. Pin to
-        // kMaxCount if no room for 1/4 growth.
-        int growth = 4 + ((newReserve + 4) >> 2);
-        // Read this line as: if (count + growth < kMaxCount) { ... }
-        // It's rewritten to avoid signed integer overflow.
-        if (kMaxCount - newReserve > growth) {
-            expandedReserve = newReserve + growth;
+        // Assume that the array will max out.
+        int expandedReserve = kMaxCount;
+        int newReserve = SkToInt(reserveSize);
+        if (kMaxCount - newReserve > 4) {
+            // Add 1/4 more than we need. Add 4 to ensure this grows by at least 1. Pin to
+            // kMaxCount if no room for 1/4 growth.
+            int growth = 4 + ((newReserve + 4) >> 2);
+            // Read this line as: if (count + growth < kMaxCount) { ... }
+            // It's rewritten to avoid signed integer overflow.
+            if (kMaxCount - newReserve > growth) {
+                expandedReserve = newReserve + growth;
+            }
         }
-    }
 
-    fReserve = expandedReserve;
-    fStorage = static_cast<std::byte*>(sk_realloc_throw(fStorage, mem_size(fReserve, sizeOfT)));
+        fReserve = expandedReserve;
+        fStorage = static_cast<std::byte*>(sk_realloc_throw(fStorage, mem_size(fReserve, sizeOfT)));
+    }
 }
 
 void SkTDStorage::shrinkToFit(size_t sizeOfT) {
