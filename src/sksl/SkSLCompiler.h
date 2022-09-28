@@ -176,13 +176,11 @@ public:
         return fSymbolTable;
     }
 
-    // When SKSL_STANDALONE is true, `moduleData` holds a path to SkSL module source on disk.
-    // When SKSL_STANDALONE is false, `moduleData` holds the SkSL module source.
-    // TODO(skia:13763): the special case for SKSL_STANDALONE should be eliminated
-    ParsedModule parseModule(ProgramKind kind,
-                             std::string_view moduleData,
-                             const ParsedModule& base,
-                             ModifiersPool& modifiersPool);
+    ParsedModule compileModule(ProgramKind kind,
+                               const char* moduleName,
+                               std::string moduleSource,
+                               const ParsedModule& base,
+                               ModifiersPool& modifiersPool);
 
     const ParsedModule& moduleForProgramKind(ProgramKind kind);
 

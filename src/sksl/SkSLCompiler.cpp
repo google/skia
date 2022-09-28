@@ -168,59 +168,12 @@ const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
     SkUNREACHABLE;
 }
 
-// Compiles a module from source.
-static LoadedModule compile_module(SkSL::Compiler* compiler,
-                                   ProgramKind kind,
-                                   std::string_view modulePath,
-                                   std::string text,
-                                   std::shared_ptr<SymbolTable> base) {
-    ParsedModule baseModule = {std::move(base), /*fElements=*/nullptr};
-
-    // Built-in modules always use default program settings.
-    ProgramSettings settings;
-    SkSL::Parser parser{compiler, settings, kind, std::move(text)};
-    LoadedModule module = parser.moduleInheritingFrom(baseModule);
-    SkASSERTF(compiler->errorCount() == 0,
-              "Unexpected errors compiling %.*s\n\n%s\n",
-              (int)modulePath.size(), modulePath.data(), compiler->errorText().c_str());
-    return module;
-}
-
-#if SKSL_STANDALONE
-
-// Compiles a module from an SkSL source file on disk.
-static LoadedModule compile_module(SkSL::Compiler* compiler,
-                                   ProgramKind kind,
-                                   std::string_view modulePath,
-                                   std::shared_ptr<SymbolTable> base) {
-    SkASSERT(!modulePath.empty());
-
-    std::ifstream in(std::string{modulePath});
-    std::string text{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
-    if (in.rdstate()) {
-        SK_ABORT("Error reading %.*s\n", (int)modulePath.size(), modulePath.data());
-    }
-
-    return compile_module(compiler, kind, modulePath, std::move(text), std::move(base));
-}
-
-#else
-
-// Compiles a module from an embedded, minified SkSL source file.
-static LoadedModule compile_module(SkSL::Compiler* compiler,
-                                   ProgramKind kind,
-                                   std::string_view moduleSource,
-                                   std::shared_ptr<SymbolTable> base) {
+ParsedModule Compiler::compileModule(ProgramKind kind,
+                                     const char* moduleName,
+                                     std::string moduleSource,
+                                     const ParsedModule& base,
+                                     ModifiersPool& modifiersPool) {
     SkASSERT(!moduleSource.empty());
-    return compile_module(compiler, kind, "module", std::string(moduleSource), std::move(base));
-}
-
-#endif
-
-ParsedModule Compiler::parseModule(ProgramKind kind,
-                                   std::string_view moduleData,
-                                   const ParsedModule& base,
-                                   ModifiersPool& modifiersPool) {
     SkASSERT(base.fSymbols);
     SkASSERT(this->errorCount() == 0);
 
@@ -228,7 +181,14 @@ ParsedModule Compiler::parseModule(ProgramKind kind,
     AutoShaderCaps autoCaps(fContext, nullptr);
     AutoModifiersPool autoPool(fContext, &modifiersPool);
 
-    LoadedModule module = compile_module(this, kind, moduleData, base.fSymbols);
+    // Compile the module from source, using default program settings.
+    ProgramSettings settings;
+    SkSL::Parser parser{this, settings, kind, std::move(moduleSource)};
+    LoadedModule module = parser.moduleInheritingFrom(ParsedModule{base.fSymbols,
+                                                                   /*fElements=*/nullptr});
+    if (this->errorCount() != 0) {
+        SK_ABORT("Unexpected errors compiling %s:\n\n%s\n", moduleName, this->errorText().c_str());
+    }
     this->optimizeModuleAfterLoading(kind, module, base);
 
     // For modules that just declare (but don't define) intrinsic functions, there will be no new
@@ -273,7 +233,7 @@ ParsedModule Compiler::parseModule(ProgramKind kind,
         }
     }
 
-    return ParsedModule{module.fSymbols, std::move(elements)};
+    return ParsedModule{std::move(module.fSymbols), std::move(elements)};
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
