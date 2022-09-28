@@ -178,6 +178,7 @@ struct SkColor4fXformer {
                      SkColorSpace* src, SkColorSpace* dst);
 
     SkSTArray<4, SkPMColor4f, true> fColors;
+    sk_sp<SkColorSpace>             fIntermediateColorSpace;
 };
 
 struct SkColorConverter {

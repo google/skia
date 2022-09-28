@@ -9,11 +9,13 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
@@ -33,6 +35,11 @@ static const int kGradientTextureSize = 256;
 
 // NOTE: signature takes raw pointers to the color/pos arrays and a count to make it easy for
 // MakeColorizer to transparently take care of hard stops at the end points of the gradient.
+// TODO(skia:13108): This code is totally wrong when using a non-destination interpolation space.
+// We need to plumb the interpolation information to the gradient cache, and actually do the work
+// to convert back to destination space before filling out the bitmap (otherwise we might have
+// values that don't fit in 8888). This will also mean that the top-level colorizer factory will
+// need to return whether or not the interpolated -> dst transform is still necessary.
 static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const SkPMColor4f* colors,
         const SkScalar* positions, int count, bool premul, const GrFPArgs& args) {
     static GrGradientBitmapCache gCache(kMaxNumCachedGradientBitmaps, kGradientTextureSize);
@@ -538,7 +545,6 @@ static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
         std::unique_ptr<GrFragmentProcessor> gradLayout,
         SkPMColor4f leftBorderColor,
         SkPMColor4f rightBorderColor,
-        bool makePremul,
         bool colorsAreOpaque) {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
         "uniform shader colorizer;"
@@ -547,7 +553,6 @@ static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
         "uniform half4 leftBorderColor;"  // t < 0.0
         "uniform half4 rightBorderColor;" // t > 1.0
 
-        "uniform int makePremul;"              // specialized
         "uniform int layoutPreservesOpacity;"  // specialized
 
         "half4 main(float2 coord) {"
@@ -570,9 +575,6 @@ static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
                 // side-channel.
                 "outColor = colorizer.eval(t.x0);"
             "}"
-            "if (bool(makePremul)) {"
-                "outColor.rgb *= outColor.a;"
-            "}"
             "return outColor;"
         "}"
     );
@@ -591,7 +593,6 @@ static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
                           "gradLayout", GrSkSLFP::IgnoreOptFlags(std::move(gradLayout)),
                           "leftBorderColor", leftBorderColor,
                           "rightBorderColor", rightBorderColor,
-                          "makePremul", GrSkSLFP::Specialize<int>(makePremul),
                           "layoutPreservesOpacity",
                               GrSkSLFP::Specialize<int>(layoutPreservesOpacity));
 }
@@ -601,14 +602,12 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
         std::unique_ptr<GrFragmentProcessor> colorizer,
         std::unique_ptr<GrFragmentProcessor> gradLayout,
         bool mirror,
-        bool makePremul,
         bool colorsAreOpaque) {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
         "uniform shader colorizer;"
         "uniform shader gradLayout;"
 
         "uniform int mirror;"                  // specialized
-        "uniform int makePremul;"              // specialized
         "uniform int layoutPreservesOpacity;"  // specialized
         "uniform int useFloorAbsWorkaround;"   // specialized
 
@@ -638,9 +637,6 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
                 // Always sample from (x, 0), discarding y, since the layout FP can use y as a
                 // side-channel.
                 "half4 outColor = colorizer.eval(t.x0);"
-                "if (bool(makePremul)) {"
-                    "outColor.rgb *= outColor.a;"
-                "}"
                 "return outColor;"
             "}"
         "}"
@@ -661,11 +657,102 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
                           "colorizer", GrSkSLFP::IgnoreOptFlags(std::move(colorizer)),
                           "gradLayout", GrSkSLFP::IgnoreOptFlags(std::move(gradLayout)),
                           "mirror", GrSkSLFP::Specialize<int>(mirror),
-                          "makePremul", GrSkSLFP::Specialize<int>(makePremul),
                           "layoutPreservesOpacity",
                                 GrSkSLFP::Specialize<int>(layoutPreservesOpacity),
                           "useFloorAbsWorkaround",
                                 GrSkSLFP::Specialize<int>(useFloorAbsWorkaround));
+}
+
+static std::unique_ptr<GrFragmentProcessor> make_interpolated_to_dst(
+        std::unique_ptr<GrFragmentProcessor> gradient,
+        const SkGradientShader::Interpolation& interpolation,
+        SkColorSpace* intermediateColorSpace,
+        const GrColorInfo& dstInfo,
+        bool allOpaque) {
+    using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
+
+    static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+        "uniform int colorSpace;"    // specialized
+        "uniform int do_unpremul;"   // specialized
+
+        "half4 main(half4 color) {"
+            "if (bool(do_unpremul)) {"
+                "switch (colorSpace) {"
+                    /* kLab   */ "case 2:"
+                    /* kOKLab */ "case 3: color = unpremul(color); break;"
+                    /* kLCH   */ "case 4:"
+                    /* kOKLCH */ "case 5:"
+                    /* kHSL   */ "case 7:"
+                    /* kHWB   */ "case 8: color = $unpremul_polar(color); break;"
+                "}"
+            "}"
+            "switch (colorSpace) {"
+                /* kLab   */ "case 2: color.rgb = $css_lab_to_xyz(color.rgb); break;"
+                /* kOKLab */ "case 3: color.rgb = $css_oklab_to_linear_srgb(color.rgb); break;"
+                /* kLCH   */ "case 4: color.rgb = $css_hcl_to_xyz(color.rgb); break;"
+                /* kOKLCH */ "case 5: color.rgb = $css_okhcl_to_linear_srgb(color.rgb); break;"
+                /* kHSL   */ "case 7: color.rgb = $css_hsl_to_srgb(color.rgb); break;"
+                /* kHWB   */ "case 8: color.rgb = $css_hwb_to_srgb(color.rgb); break;"
+            "}"
+            "return color;"
+        "}"
+    );
+
+    // Are we interpreting premul colors? We use this later to decide if we need to inject a final
+    // premultiplication step.
+    bool inputPremul = static_cast<bool>(interpolation.fInPremul);
+
+    switch (interpolation.fColorSpace) {
+        case ColorSpace::kLab:
+        case ColorSpace::kOKLab:
+        case ColorSpace::kLCH:
+        case ColorSpace::kOKLCH:
+        case ColorSpace::kHSL:
+        case ColorSpace::kHWB:
+            // In these exotic spaces, unpremul the colors if necessary (no need to do this if
+            // they're all opaque), and then convert them to the intermediate SkColorSpace
+            gradient = GrSkSLFP::Make(effect, "GradientCS", std::move(gradient),
+                                      GrSkSLFP::OptFlags::kAll,
+                                      "colorSpace", GrSkSLFP::Specialize<int>(
+                                        static_cast<int>(interpolation.fColorSpace)),
+                                      "do_unpremul", GrSkSLFP::Specialize<int>(
+                                        inputPremul && !allOpaque));
+            // We just forced the colors back to unpremul. Remember that for below
+            inputPremul = false;
+            break;
+        default:
+            break;
+    }
+
+    // Now transform from intermediate to destination color space. There are two tricky things here:
+    // 1) Normally, we'd pass dstInfo to the transform effect. However, if someone is rendering to
+    //    a non-color managed surface (nullptr dst color space), and they chose to interpolate in
+    //    any of the exotic spaces, that transform would do nothing, and leave the colors in
+    //    whatever intermediate space we chose. That could even be something like XYZ, which will
+    //    produce nonsense. So, in this particular case, we break Skia's rules, and treat a null
+    //    destination as sRGB.
+    SkColorSpace* dstColorSpace = dstInfo.colorSpace() ? dstInfo.colorSpace() : sk_srgb_singleton();
+
+    // 2) Alpha type: We already tweaked our idea of "inputPremul" above -- if we interpolated in a
+    //    non-RGB space, then we had to unpremul the colors to get proper conversion back to RGB.
+    //    Our final goal is to emit premul colors, but under certain conditions we don't need to do
+    //    anything to achieve that: i.e. its interpolating already premul colors (inputPremul) or
+    //    all the colors have a = 1, in which case premul is a no op. Note that this allOpaque check
+    //    is more permissive than SkGradientShaderBase's isOpaque(), since we can optimize away the
+    //    make-premul op for two point conical gradients (which report false for isOpaque).
+    SkAlphaType intermediateAlphaType = inputPremul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
+    SkAlphaType dstAlphaType = kPremul_SkAlphaType;
+
+    // If all the colors were opaque, then we don't need to do any premultiplication. We describe
+    // all the colors as *unpremul*, though. That will eliminate any extra unpremul/premul pair
+    // that would be injected if we have to do a color-space conversion here.
+    if (allOpaque) {
+        intermediateAlphaType = dstAlphaType = kUnpremul_SkAlphaType;
+    }
+
+    return GrColorSpaceXformEffect::Make(std::move(gradient),
+                                         intermediateColorSpace, intermediateAlphaType,
+                                         dstColorSpace, dstAlphaType);
 }
 
 namespace GrGradientShader {
@@ -729,24 +816,16 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
         return nullptr;
     }
 
-    // The top-level effect has to export premul colors, but under certain conditions it doesn't
-    // need to do anything to achieve that: i.e. its interpolating already premul colors
-    // (inputPremul) or all the colors have a = 1, in which case premul is a no op. Note that this
-    // allOpaque check is more permissive than SkGradientShaderBase's isOpaque(), since we can
-    // optimize away the make-premul op for two point conical gradients (which report false for
-    // isOpaque).
-    bool makePremul = !inputPremul && !allOpaque;
-
     // All tile modes are supported (unless something was added to SkShader)
     std::unique_ptr<GrFragmentProcessor> gradient;
     switch(shader.getTileMode()) {
         case SkTileMode::kRepeat:
             gradient = make_tiled_gradient(args, std::move(colorizer), std::move(layout),
-                                           /* mirror */ false, makePremul, allOpaque);
+                                           /* mirror */ false, allOpaque);
             break;
         case SkTileMode::kMirror:
             gradient = make_tiled_gradient(args, std::move(colorizer), std::move(layout),
-                                           /* mirror */ true, makePremul, allOpaque);
+                                           /* mirror */ true, allOpaque);
             break;
         case SkTileMode::kClamp:
             // For the clamped mode, the border colors are the first and last colors, corresponding
@@ -755,18 +834,24 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
             // border.
             gradient = make_clamped_gradient(std::move(colorizer), std::move(layout),
                                              colors[0], colors[shader.fColorCount - 1],
-                                             makePremul, allOpaque);
+                                             allOpaque);
             break;
         case SkTileMode::kDecal:
             // Even if the gradient colors are opaque, the decal borders are transparent so
             // disable that optimization
             gradient = make_clamped_gradient(std::move(colorizer), std::move(layout),
                                              SK_PMColor4fTRANSPARENT, SK_PMColor4fTRANSPARENT,
-                                             makePremul, /* colorsAreOpaque */ false);
+                                             /* colorsAreOpaque */ false);
             break;
     }
 
-    return gradient;
+    // If interpolation space is different than destination, wrap the colorizer in a conversion.
+    // This also handles any final premultiplication, etc.
+    return make_interpolated_to_dst(std::move(gradient),
+                                    shader.fInterpolation,
+                                    xformedColors.fIntermediateColorSpace.get(),
+                                    *args.fDstColorInfo,
+                                    allOpaque);
 }
 
 std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,

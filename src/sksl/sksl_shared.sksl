@@ -235,6 +235,11 @@ $pure $es3 $genHType fwidth($genHType p);
 $pure half4  unpremul(half4  color) { return half4 (color.rgb / max(color.a, 0.0001), color.a); }
 $pure float4 unpremul(float4 color) { return float4(color.rgb / max(color.a, 0.0001), color.a); }
 
+// Similar, but used for polar-space CSS colors
+$export $pure half4 $unpremul_polar(half4 color) {
+    return half4(color.r, color.gb / max(color.a, 0.0001), color.a);
+}
+
 // Convert RGBA -> HSLA (including unpremul).
 //
 // Based on work by Sam Hocevar, Emil Persson, and Ian Taylor [1][2][3].  High-level ideas:
@@ -321,17 +326,19 @@ $export $pure half3 $css_lab_to_xyz(half3 lab) {
     return xyz * D50;
 }
 
-// Also used by oklch -> oklab
-$pure half3 $css_lch_to_lab(half3 lch) {
+// Skia stores all polar colors with hue in the first component, so this "LCH -> Lab" transform
+// actually takes "HCL". This is also used to do the same polar transform for OkHCL to OkLAB.
+// See similar comments & logic in SkGradientShaderBase.cpp.
+$pure half3 $css_hcl_to_lab(half3 hcl) {
     return half3(
-        lch[0],
-        lch[1] * cos(radians(lch[2])),
-        lch[1] * sin(radians(lch[2]))
+        hcl[2],
+        hcl[1] * cos(radians(hcl[0])),
+        hcl[1] * sin(radians(hcl[0]))
     );
 }
 
-$export $pure half3 $css_lch_to_xyz(half3 lch) {
-    return $css_lab_to_xyz($css_lch_to_lab(lch));
+$export $pure half3 $css_hcl_to_xyz(half3 hcl) {
+    return $css_lab_to_xyz($css_hcl_to_lab(hcl));
 }
 
 $export $pure half3 $css_oklab_to_linear_srgb(half3 oklab) {
@@ -350,8 +357,8 @@ $export $pure half3 $css_oklab_to_linear_srgb(half3 oklab) {
     );
 }
 
-$export $pure half3 $css_oklch_to_linear_srgb(half3 oklch) {
-    return $css_oklab_to_linear_srgb($css_lch_to_lab(oklch));
+$export $pure half3 $css_okhcl_to_linear_srgb(half3 okhcl) {
+    return $css_oklab_to_linear_srgb($css_hcl_to_lab(okhcl));
 }
 
 // TODO(skia:13108): Use our optimized version (though it has different range)
