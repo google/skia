@@ -1482,14 +1482,21 @@ func (b *jobBuilder) buildstats() {
 // statistics to the GCS bucket belonging to the codesize.skia.org service.
 func (b *jobBuilder) codesize() {
 	compileTaskName := b.compile()
-	compileTaskNameNoPatch := compileTaskName + "-NoPatch"
+	compileTaskNameNoPatch := compileTaskName
+	if b.extraConfig("Android") {
+		compileTaskNameNoPatch += "_NoPatch" // add a second "extra config"
+	} else {
+		compileTaskNameNoPatch += "-NoPatch" // add the only "extra config"
+	}
+
 	bloatyCipdPkg := b.MustGetCipdPackageFromAsset("bloaty")
 
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.cas(CAS_EMPTY)
 		b.dep(b.buildTaskDrivers("linux", "amd64"), compileTaskName)
 		b.dep(b.buildTaskDrivers("linux", "amd64"), compileTaskNameNoPatch)
-		b.cmd("./codesize",
+		cmd := []string{
+			"./codesize",
 			"--local=false",
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
@@ -1507,18 +1514,26 @@ func (b *jobBuilder) codesize() {
 			"--binary_name", b.parts["binary_name"],
 			"--bloaty_cipd_version", bloatyCipdPkg.Version,
 			"--bloaty_binary", "bloaty/bloaty",
-			"--strip_binary", "binutils_linux_x64/strip",
+
 			"--repo", specs.PLACEHOLDER_REPO,
 			"--revision", specs.PLACEHOLDER_REVISION,
 			"--patch_issue", specs.PLACEHOLDER_ISSUE,
 			"--patch_set", specs.PLACEHOLDER_PATCHSET,
 			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
-		)
+		}
+		if strings.Contains(compileTaskName, "Android") {
+			b.asset("android_ndk_linux")
+			cmd = append(cmd, "--strip_binary",
+				"android_ndk_linux/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-strip")
+		} else {
+			b.asset("binutils_linux_x64")
+			cmd = append(cmd, "--strip_binary", "binutils_linux_x64/strip")
+		}
+		b.cmd(cmd...)
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
 		b.cache(CACHES_WORKDIR...)
 		b.cipd(CIPD_PKG_LUCI_AUTH)
 		b.asset("bloaty")
-		b.asset("binutils_linux_x64")
 		b.serviceAccount("skia-external-codesize@skia-swarming-bots.iam.gserviceaccount.com")
 		b.timeout(20 * time.Minute)
 		b.attempts(1)

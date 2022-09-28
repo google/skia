@@ -174,6 +174,12 @@ skia_enable_tools = skia_enable_tools && !is_component_build && skia_enable_gpu
 # The GPU build requires SkSL
 skia_enable_sksl = skia_enable_sksl || skia_enable_gpu
 
+if (skia_enable_optimize_size) {
+  assert(
+      !is_debug,
+      "Must set is_debug to false for skia_enable_optimize_size to do anything. If you want to build with debug mode and the correct define, add extra_cflags=['-DSK_ENABLE_OPTIMIZE_SIZE'] to your GN args.")
+}
+
 # Skia's targets may be built inside other gn build systems.
 # Skia builds other project's build targets inside its build.
 # This is easier if the built-in target types remain generic.

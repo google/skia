@@ -35,6 +35,7 @@
   {"name": "Build-Debian10-Clang-arm-Debug-Android_Vulkan"},
   {"name": "Build-Debian10-Clang-arm-Debug-Chromebook_GLES"},
   {"name": "Build-Debian10-Clang-arm-OptimizeForSize-Android"},
+  {"name": "Build-Debian10-Clang-arm-OptimizeForSize-Android_NoPatch"},
   {"name": "Build-Debian10-Clang-arm-Release-Android"},
   {"name": "Build-Debian10-Clang-arm-Release-Android_API26",
    "cq_config": {}
@@ -263,6 +264,7 @@
   },
   {"name": "CodeSize-skottie_tool_cpu-Debian10-Clang-x86_64-OptimizeForSize"},
   {"name": "CodeSize-skottie_tool_gpu-Debian10-Clang-x86_64-OptimizeForSize"},
+  {"name": "CodeSize-skottie_tool_gpu-Debian10-Clang-arm-OptimizeForSize-Android"},
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"},
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN"},
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN"},
