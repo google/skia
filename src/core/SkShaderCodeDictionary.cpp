@@ -597,12 +597,11 @@ static constexpr char kLocalMatrixShaderName[] = "sk_local_matrix_shader";
 //--------------------------------------------------------------------------------------------------
 static constexpr SkUniform kImageShaderUniforms[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
+        { "imgSize",     SkSLType::kFloat2 },
         { "subset",      SkSLType::kFloat4 },
         { "tilemodeX",   SkSLType::kInt },
         { "tilemodeY",   SkSLType::kInt },
         { "filterMode",  SkSLType::kInt },
-        { "imgWidth",    SkSLType::kInt },
-        { "imgHeight",   SkSLType::kInt },
 };
 
 static constexpr SkTextureAndSampler kISTexturesAndSamplers[] = {

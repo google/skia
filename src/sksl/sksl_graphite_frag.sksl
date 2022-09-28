@@ -50,12 +50,11 @@ $pure float $tile(int tileMode, float f, float low, float high) {
 
 $pure half4 sk_image_shader(float4 coords,
                             float4x4 preLocal,
+                            float2 imgSize,
                             float4 subset,
                             int tileModeX,
                             int tileModeY,
                             int filterMode,
-                            int imgWidth,
-                            int imgHeight,
                             sampler2D s) {
     float2 pos = (preLocal * coords).xy;
 
@@ -87,19 +86,52 @@ $pure half4 sk_image_shader(float4 coords,
         insetClamp = float4(subset.xy + 0.5, subset.zw - 0.5);
     }
     float2 clampedPos = clamp(pos, insetClamp.xy, insetClamp.zw);
-    half4 color = sample(s, clampedPos / float2(imgWidth, imgHeight));
+    half4 color = sample(s, clampedPos / imgSize);
 
-    // Remember the amount the coord moved for clamping. This will be used to implement shader-based
-    // filtering for repeat and decal tiling.
-    half2 error = half2(pos - clampedPos);
+    if (filterMode == $kFilterModeLinear) {
+        // Remember the amount the coord moved for clamping. This is used to implement shader-based
+        // filtering for repeat and decal tiling.
+        half2 error = half2(pos - clampedPos);
+        half2 absError = abs(error);
 
-    // Do soft edge shader filtering for decal tiling and linear filtering using the error values
-    // calculated above.
-    if (tileModeX == $kTileModeDecal && filterMode == $kFilterModeLinear) {
-        color *= max(1 - abs(error.x), 0);
-    }
-    if (tileModeY == $kTileModeDecal && filterMode == $kFilterModeLinear) {
-        color *= max(1 - abs(error.y), 0);
+        // Do 1 or 3 more texture reads depending on whether both x and y tiling modes are repeat
+        // and whether we're near a single subset edge or a corner. Then blend the multiple reads
+        // using the error values calculated above.
+        bool sampleExtraX = tileModeX == $kTileModeRepeat;
+        bool sampleExtraY = tileModeY == $kTileModeRepeat;
+        if (sampleExtraX || sampleExtraY) {
+            float extraCoordX;
+            float extraCoordY;
+            half4 extraColorX;
+            half4 extraColorY;
+            if (sampleExtraX) {
+                extraCoordX = error.x > 0 ? insetClamp.x : insetClamp.z;
+                extraColorX = sample(s, float2(extraCoordX, clampedPos.y) / imgSize);
+            }
+            if (sampleExtraY) {
+                extraCoordY = error.y > 0 ? insetClamp.y : insetClamp.w;
+                extraColorY = sample(s, float2(clampedPos.x, extraCoordY) / imgSize);
+            }
+            if (sampleExtraX && sampleExtraY) {
+                half4 extraColorXY = sample(s, float2(extraCoordX, extraCoordY) / imgSize);
+                color = mix(mix(color, extraColorX, absError.x),
+                            mix(extraColorY, extraColorXY, absError.x),
+                            absError.y);
+            } else if (sampleExtraX) {
+                color = mix(color, extraColorX, absError.x);
+            } else if (sampleExtraY) {
+                color = mix(color, extraColorY, absError.y);
+            }
+        }
+
+        // Do soft edge shader filtering for decal tiling and linear filtering using the error
+        // values calculated above.
+        if (tileModeX == $kTileModeDecal) {
+            color *= max(1 - absError.x, 0);
+        }
+        if (tileModeY == $kTileModeDecal) {
+            color *= max(1 - absError.y, 0);
+        }
     }
 
     return color;

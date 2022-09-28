@@ -355,12 +355,12 @@ void add_image_uniform_data(const SkShaderCodeDictionary* dict,
     }
 
     gatherer->write(SkM44(lmInverse));
+    gatherer->write(SkPoint::Make(imgData.fTextureProxy->dimensions().fWidth,
+                                  imgData.fTextureProxy->dimensions().fHeight));
     gatherer->write(imgData.fSubset);
     gatherer->write(SkTo<int>(imgData.fTileModes[0]));
     gatherer->write(SkTo<int>(imgData.fTileModes[1]));
     gatherer->write(SkTo<int>(imgData.fSampling.filter));
-    gatherer->write(imgData.fTextureProxy->dimensions().fWidth);
-    gatherer->write(imgData.fTextureProxy->dimensions().fHeight);
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kImageShader));
 }
