@@ -281,25 +281,18 @@ uint32_t GrMtlFormatChannels(GrMTLPixelFormat mtlFormat) {
         case MTLPixelFormatR8Unorm:         return kRed_SkColorChannelFlag;
         case MTLPixelFormatA8Unorm:         return kAlpha_SkColorChannelFlag;
         case MTLPixelFormatBGRA8Unorm:      return kRGBA_SkColorChannelFlags;
-#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
         case MTLPixelFormatB5G6R5Unorm:     return kRGB_SkColorChannelFlags;
-#endif
         case MTLPixelFormatRGBA16Float:     return kRGBA_SkColorChannelFlags;
         case MTLPixelFormatR16Float:        return kRed_SkColorChannelFlag;
         case MTLPixelFormatRG8Unorm:        return kRG_SkColorChannelFlags;
         case MTLPixelFormatRGB10A2Unorm:    return kRGBA_SkColorChannelFlags;
-#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBGR10A2Unorm:    return kRGBA_SkColorChannelFlags;
-#endif
-#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
         case MTLPixelFormatABGR4Unorm:      return kRGBA_SkColorChannelFlags;
-#endif
         case MTLPixelFormatRGBA8Unorm_sRGB: return kRGBA_SkColorChannelFlags;
         case MTLPixelFormatR16Unorm:        return kRed_SkColorChannelFlag;
         case MTLPixelFormatRG16Unorm:       return kRG_SkColorChannelFlags;
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8:       return kRGB_SkColorChannelFlags;
-#else
+#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBC1_RGBA:        return kRGBA_SkColorChannelFlags;
 #endif
         case MTLPixelFormatRGBA16Unorm:     return kRGBA_SkColorChannelFlags;
@@ -320,10 +313,8 @@ GrColorFormatDesc GrMtlFormatDesc(GrMTLPixelFormat mtlFormat)  {
             return GrColorFormatDesc::MakeAlpha(8, GrColorTypeEncoding::kUnorm);
         case MTLPixelFormatBGRA8Unorm:
             return GrColorFormatDesc::MakeRGBA(8, GrColorTypeEncoding::kUnorm);
-#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
         case MTLPixelFormatB5G6R5Unorm:
             return GrColorFormatDesc::MakeRGB(5, 6, 5, GrColorTypeEncoding::kUnorm);
-#endif
         case MTLPixelFormatRGBA16Float:
             return GrColorFormatDesc::MakeRGBA(16, GrColorTypeEncoding::kFloat);
         case MTLPixelFormatR16Float:
@@ -332,14 +323,10 @@ GrColorFormatDesc GrMtlFormatDesc(GrMTLPixelFormat mtlFormat)  {
             return GrColorFormatDesc::MakeRG(8, GrColorTypeEncoding::kUnorm);
         case MTLPixelFormatRGB10A2Unorm:
             return GrColorFormatDesc::MakeRGBA(10, 2, GrColorTypeEncoding::kUnorm);
-#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBGR10A2Unorm:
             return GrColorFormatDesc::MakeRGBA(10, 2, GrColorTypeEncoding::kUnorm);
-#endif
-#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
         case MTLPixelFormatABGR4Unorm:
             return GrColorFormatDesc::MakeRGBA(4, GrColorTypeEncoding::kUnorm);
-#endif
         case MTLPixelFormatRGBA8Unorm_sRGB:
             return GrColorFormatDesc::MakeRGBA(8, GrColorTypeEncoding::kSRGBUnorm);
         case MTLPixelFormatR16Unorm:
@@ -352,9 +339,8 @@ GrColorFormatDesc GrMtlFormatDesc(GrMTLPixelFormat mtlFormat)  {
             return GrColorFormatDesc::MakeRG(16, GrColorTypeEncoding::kFloat);
 
         // Compressed texture formats are not expected to have a description.
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8: return GrColorFormatDesc::MakeInvalid();
-#else
+#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBC1_RGBA:  return GrColorFormatDesc::MakeInvalid();
 #endif
 
@@ -373,10 +359,9 @@ SkImage::CompressionType GrMtlBackendFormatToCompressionType(const GrBackendForm
 
 bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
     switch (mtlFormat) {
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8:
             return true;
-#else
+#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBC1_RGBA:
             return true;
 #endif
@@ -387,9 +372,8 @@ bool GrMtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
 
 SkImage::CompressionType GrMtlFormatToCompressionType(MTLPixelFormat mtlFormat) {
     switch (mtlFormat) {
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8: return SkImage::CompressionType::kETC2_RGB8_UNORM;
-#else
+#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBC1_RGBA:  return SkImage::CompressionType::kBC1_RGBA8_UNORM;
 #endif
         default:                      return SkImage::CompressionType::kNone;
@@ -418,25 +402,18 @@ size_t GrMtlFormatBytesPerBlock(MTLPixelFormat mtlFormat) {
         case MTLPixelFormatR8Unorm:         return 1;
         case MTLPixelFormatA8Unorm:         return 1;
         case MTLPixelFormatBGRA8Unorm:      return 4;
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatB5G6R5Unorm:     return 2;
-#endif
         case MTLPixelFormatRGBA16Float:     return 8;
         case MTLPixelFormatR16Float:        return 2;
         case MTLPixelFormatRG8Unorm:        return 2;
         case MTLPixelFormatRGB10A2Unorm:    return 4;
-#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBGR10A2Unorm:    return 4;
-#endif
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatABGR4Unorm:      return 2;
-#endif
         case MTLPixelFormatRGBA8Unorm_sRGB: return 4;
         case MTLPixelFormatR16Unorm:        return 2;
         case MTLPixelFormatRG16Unorm:       return 4;
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8:       return 8;
-#else
+#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBC1_RGBA:        return 8;
 #endif
         case MTLPixelFormatRGBA16Unorm:     return 8;
@@ -480,25 +457,18 @@ const char* GrMtlFormatToStr(GrMTLPixelFormat mtlFormat) {
         case MTLPixelFormatR8Unorm:         return "R8Unorm";
         case MTLPixelFormatA8Unorm:         return "A8Unorm";
         case MTLPixelFormatBGRA8Unorm:      return "BGRA8Unorm";
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatB5G6R5Unorm:     return "B5G6R5Unorm";
-#endif
         case MTLPixelFormatRGBA16Float:     return "RGBA16Float";
         case MTLPixelFormatR16Float:        return "R16Float";
         case MTLPixelFormatRG8Unorm:        return "RG8Unorm";
         case MTLPixelFormatRGB10A2Unorm:    return "RGB10A2Unorm";
-#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBGR10A2Unorm:    return "BGR10A2Unorm";
-#endif
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatABGR4Unorm:      return "ABGR4Unorm";
-#endif
         case MTLPixelFormatRGBA8Unorm_sRGB: return "RGBA8Unorm_sRGB";
         case MTLPixelFormatR16Unorm:        return "R16Unorm";
         case MTLPixelFormatRG16Unorm:       return "RG16Unorm";
-#ifdef SK_BUILD_FOR_IOS
         case MTLPixelFormatETC2_RGB8:       return "ETC2_RGB8";
-#else
+#ifdef SK_BUILD_FOR_MAC
         case MTLPixelFormatBC1_RGBA:        return "BC1_RGBA";
 #endif
         case MTLPixelFormatRGBA16Unorm:     return "RGBA16Unorm";

@@ -543,9 +543,11 @@ void GrMtlCaps::applyDriverCorrectnessWorkarounds(const GrContextOptions&, const
     // We don't have any active Metal workarounds.
 }
 
-// Define this so we can use it to initialize arrays and work around
-// the fact that MTLPixelFormatBGR10A2Unorm is not always available.
-#define kMTLPixelFormatBGR10A2Unorm MTLPixelFormat(94)
+// Define these so we can use them to initialize arrays and work around
+// the fact that these pixel formats are not always available.
+#define kMTLPixelFormatB5G6R5Unorm MTLPixelFormat(40)
+#define kMTLPixelFormatABGR4Unorm MTLPixelFormat(42)
+#define kMTLPixelFormatETC2_RGB8 MTLPixelFormat(180)
 
 // These are all the valid MTLPixelFormats that we support in Skia.  They are roughly ordered from
 // most frequently used to least to improve look up times in arrays.
@@ -554,25 +556,18 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
     MTLPixelFormatR8Unorm,
     MTLPixelFormatA8Unorm,
     MTLPixelFormatBGRA8Unorm,
-#ifdef SK_BUILD_FOR_IOS
-    MTLPixelFormatB5G6R5Unorm,
-#endif
+    kMTLPixelFormatB5G6R5Unorm,
     MTLPixelFormatRGBA16Float,
     MTLPixelFormatR16Float,
     MTLPixelFormatRG8Unorm,
     MTLPixelFormatRGB10A2Unorm,
-#ifdef SK_BUILD_FOR_MAC
-    kMTLPixelFormatBGR10A2Unorm,
-#endif
-#ifdef SK_BUILD_FOR_IOS
-    MTLPixelFormatABGR4Unorm,
-#endif
+    MTLPixelFormatBGR10A2Unorm,
+    kMTLPixelFormatABGR4Unorm,
     MTLPixelFormatRGBA8Unorm_sRGB,
     MTLPixelFormatR16Unorm,
     MTLPixelFormatRG16Unorm,
-#ifdef SK_BUILD_FOR_IOS
-    MTLPixelFormatETC2_RGB8,
-#else
+    kMTLPixelFormatETC2_RGB8,
+#ifdef SK_BUILD_FOR_MAC
     MTLPixelFormatBC1_RGBA,
 #endif
     MTLPixelFormatRGBA16Unorm,
@@ -625,8 +620,10 @@ size_t GrMtlCaps::GetFormatIndex(MTLPixelFormat pixelFormat) {
 void GrMtlCaps::initFormatTable() {
     FormatInfo* info;
 
-    if (@available(macos 10.13, ios 11.0, *)) {
-        SkASSERT(kMTLPixelFormatBGR10A2Unorm == MTLPixelFormatBGR10A2Unorm);
+    if (@available(macos 11.0, *)) {
+        SkASSERT(kMTLPixelFormatB5G6R5Unorm == MTLPixelFormatB5G6R5Unorm);
+        SkASSERT(kMTLPixelFormatABGR4Unorm == MTLPixelFormatABGR4Unorm);
+        SkASSERT(kMTLPixelFormatETC2_RGB8 == MTLPixelFormatETC2_RGB8);
     }
 
     // Format: R8Unorm
@@ -674,37 +671,41 @@ void GrMtlCaps::initFormatTable() {
         }
     }
 
-#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
-    // Format: B5G6R5Unorm
-    {
-        info = &fFormatTable[GetFormatIndex(MTLPixelFormatB5G6R5Unorm)];
-        info->fFlags = FormatInfo::kAllFlags;
-        info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
-        int ctIdx = 0;
-        // Format: B5G6R5Unorm, Surface: kBGR_565
-        {
-            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
-            ctInfo.fColorType = GrColorType::kBGR_565;
-            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
-        }
-    }
+    if (@available(macOS 11.0, iOS 8.0, *)) {
+        if (this->isApple()) {
+            // Format: B5G6R5Unorm
+            {
+                info = &fFormatTable[GetFormatIndex(MTLPixelFormatB5G6R5Unorm)];
+                info->fFlags = FormatInfo::kAllFlags;
+                info->fColorTypeInfoCount = 1;
+                info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+                int ctIdx = 0;
+                // Format: B5G6R5Unorm, Surface: kBGR_565
+                {
+                    auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+                    ctInfo.fColorType = GrColorType::kBGR_565;
+                    ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag |
+                                    ColorTypeInfo::kRenderable_Flag;
+                }
+            }
 
-    // Format: ABGR4Unorm
-    {
-        info = &fFormatTable[GetFormatIndex(MTLPixelFormatABGR4Unorm)];
-        info->fFlags = FormatInfo::kAllFlags;
-        info->fColorTypeInfoCount = 1;
-        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
-        int ctIdx = 0;
-        // Format: ABGR4Unorm, Surface: kABGR_4444
-        {
-            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
-            ctInfo.fColorType = GrColorType::kABGR_4444;
-            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            // Format: ABGR4Unorm
+            {
+                info = &fFormatTable[GetFormatIndex(MTLPixelFormatABGR4Unorm)];
+                info->fFlags = FormatInfo::kAllFlags;
+                info->fColorTypeInfoCount = 1;
+                info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+                int ctIdx = 0;
+                // Format: ABGR4Unorm, Surface: kABGR_4444
+                {
+                    auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+                    ctInfo.fColorType = GrColorType::kABGR_4444;
+                    ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag |
+                                    ColorTypeInfo::kRenderable_Flag;
+                }
+            }
         }
     }
-#endif
 
     // Format: RGBA8Unorm
     {
@@ -792,7 +793,6 @@ void GrMtlCaps::initFormatTable() {
         }
     }
 
-#ifdef SK_BUILD_FOR_MAC
     // Format: BGR10A2Unorm
     if (@available(macos 10.13, ios 11.0, *)) {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatBGR10A2Unorm)];
@@ -811,7 +811,6 @@ void GrMtlCaps::initFormatTable() {
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
         }
     }
-#endif
 
     // Format: R16Float
     {
@@ -891,16 +890,21 @@ void GrMtlCaps::initFormatTable() {
         }
     }
 
-#ifdef SK_BUILD_FOR_IOS
-    // ETC2_RGB8
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatETC2_RGB8)];
-    info->fFlags = FormatInfo::kTexturable_Flag;
-    // NO supported colorTypes
-#else
-    // BC1_RGBA
-    info = &fFormatTable[GetFormatIndex(MTLPixelFormatBC1_RGBA)];
-    info->fFlags = FormatInfo::kTexturable_Flag;
-    // NO supported colorTypes
+    if (@available(macOS 11.0, iOS 8.0, *)) {
+        if (this->isApple()) {
+            // ETC2_RGB8
+            info = &fFormatTable[GetFormatIndex(MTLPixelFormatETC2_RGB8)];
+            info->fFlags = FormatInfo::kTexturable_Flag;
+            // NO supported colorTypes
+        }
+    }
+#ifdef SK_BUILD_FOR_MAC
+    if (this->isMac()) {
+        // BC1_RGBA
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatBC1_RGBA)];
+        info->fFlags = FormatInfo::kTexturable_Flag;
+        // NO supported colorTypes
+    }
 #endif
 
     // Format: RGBA16Unorm
@@ -944,31 +948,31 @@ void GrMtlCaps::initFormatTable() {
 
     std::fill_n(fColorTypeToFormatTable, kGrColorTypeCnt, MTLPixelFormatInvalid);
 
-    this->setColorType(GrColorType::kAlpha_8,          { MTLPixelFormatR8Unorm,
-                                                         MTLPixelFormatA8Unorm });
-#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
-    this->setColorType(GrColorType::kBGR_565,          { MTLPixelFormatB5G6R5Unorm });
-    this->setColorType(GrColorType::kABGR_4444,        { MTLPixelFormatABGR4Unorm });
-#endif
-    this->setColorType(GrColorType::kRGBA_8888,        { MTLPixelFormatRGBA8Unorm });
-    this->setColorType(GrColorType::kRGBA_8888_SRGB,   { MTLPixelFormatRGBA8Unorm_sRGB });
-    this->setColorType(GrColorType::kRGB_888x,         { MTLPixelFormatRGBA8Unorm });
-    this->setColorType(GrColorType::kRG_88,            { MTLPixelFormatRG8Unorm });
-    this->setColorType(GrColorType::kBGRA_8888,        { MTLPixelFormatBGRA8Unorm });
-    this->setColorType(GrColorType::kRGBA_1010102,     { MTLPixelFormatRGB10A2Unorm });
-#ifdef SK_BUILD_FOR_MAC
-    if (@available(macos 10.13, ios 11.0, *)) {
-        this->setColorType(GrColorType::kBGRA_1010102, { MTLPixelFormatBGR10A2Unorm });
+    this->setColorType(GrColorType::kAlpha_8,           { MTLPixelFormatR8Unorm,
+                                                          MTLPixelFormatA8Unorm });
+    if (@available(macOS 11.0, iOS 8.0, *)) {
+        if (this->isApple()) {
+            this->setColorType(GrColorType::kBGR_565,   { MTLPixelFormatB5G6R5Unorm });
+            this->setColorType(GrColorType::kABGR_4444, { MTLPixelFormatABGR4Unorm });
+        }
     }
-#endif
-    this->setColorType(GrColorType::kGray_8,           { MTLPixelFormatR8Unorm });
-    this->setColorType(GrColorType::kAlpha_F16,        { MTLPixelFormatR16Float });
-    this->setColorType(GrColorType::kRGBA_F16,         { MTLPixelFormatRGBA16Float });
-    this->setColorType(GrColorType::kRGBA_F16_Clamped, { MTLPixelFormatRGBA16Float });
-    this->setColorType(GrColorType::kAlpha_16,         { MTLPixelFormatR16Unorm });
-    this->setColorType(GrColorType::kRG_1616,          { MTLPixelFormatRG16Unorm });
-    this->setColorType(GrColorType::kRGBA_16161616,    { MTLPixelFormatRGBA16Unorm });
-    this->setColorType(GrColorType::kRG_F16,           { MTLPixelFormatRG16Float });
+    this->setColorType(GrColorType::kRGBA_8888,         { MTLPixelFormatRGBA8Unorm });
+    this->setColorType(GrColorType::kRGBA_8888_SRGB,    { MTLPixelFormatRGBA8Unorm_sRGB });
+    this->setColorType(GrColorType::kRGB_888x,          { MTLPixelFormatRGBA8Unorm });
+    this->setColorType(GrColorType::kRG_88,             { MTLPixelFormatRG8Unorm });
+    this->setColorType(GrColorType::kBGRA_8888,         { MTLPixelFormatBGRA8Unorm });
+    this->setColorType(GrColorType::kRGBA_1010102,      { MTLPixelFormatRGB10A2Unorm });
+    if (@available(macos 10.13, ios 11.0, *)) {
+        this->setColorType(GrColorType::kBGRA_1010102,  { MTLPixelFormatBGR10A2Unorm });
+    }
+    this->setColorType(GrColorType::kGray_8,            { MTLPixelFormatR8Unorm });
+    this->setColorType(GrColorType::kAlpha_F16,         { MTLPixelFormatR16Float });
+    this->setColorType(GrColorType::kRGBA_F16,          { MTLPixelFormatRGBA16Float });
+    this->setColorType(GrColorType::kRGBA_F16_Clamped,  { MTLPixelFormatRGBA16Float });
+    this->setColorType(GrColorType::kAlpha_16,          { MTLPixelFormatR16Unorm });
+    this->setColorType(GrColorType::kRG_1616,           { MTLPixelFormatRG16Unorm });
+    this->setColorType(GrColorType::kRGBA_16161616,     { MTLPixelFormatRGBA16Unorm });
+    this->setColorType(GrColorType::kRG_F16,            { MTLPixelFormatRG16Float });
 }
 
 void GrMtlCaps::initStencilFormat(id<MTLDevice> physDev) {
@@ -1041,17 +1045,25 @@ GrBackendFormat GrMtlCaps::getBackendFormatFromCompressionType(
         case SkImage::CompressionType::kNone:
             return {};
         case SkImage::CompressionType::kETC2_RGB8_UNORM:
-#ifdef SK_BUILD_FOR_MAC
-            return {};
-#else
-            return GrBackendFormat::MakeMtl(MTLPixelFormatETC2_RGB8);
-#endif
+            if (@available(macOS 11.0, *)) {
+                if (this->isApple()) {
+                    return GrBackendFormat::MakeMtl(MTLPixelFormatETC2_RGB8);
+                } else {
+                    return {};
+                }
+            } else {
+                return {};
+            }
         case SkImage::CompressionType::kBC1_RGB8_UNORM:
             // Metal only supports the RGBA BC1 variant (see following)
             return {};
         case SkImage::CompressionType::kBC1_RGBA8_UNORM:
 #ifdef SK_BUILD_FOR_MAC
-            return GrBackendFormat::MakeMtl(MTLPixelFormatBC1_RGBA);
+            if (this->isMac()) {
+                return GrBackendFormat::MakeMtl(MTLPixelFormatBC1_RGBA);
+            } else {
+                return {};
+            }
 #else
             return {};
 #endif
@@ -1207,24 +1219,19 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMtlCaps::getTestingCombina
     std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
         { GrColorType::kAlpha_8,          GrBackendFormat::MakeMtl(MTLPixelFormatA8Unorm)         },
         { GrColorType::kAlpha_8,          GrBackendFormat::MakeMtl(MTLPixelFormatR8Unorm)         },
-#if defined(SK_BUILD_FOR_IOS) && !TARGET_OS_SIMULATOR
-        { GrColorType::kBGR_565,          GrBackendFormat::MakeMtl(MTLPixelFormatB5G6R5Unorm)     },
-        { GrColorType::kABGR_4444,        GrBackendFormat::MakeMtl(MTLPixelFormatABGR4Unorm)      },
-#endif
+        { GrColorType::kBGR_565,          GrBackendFormat::MakeMtl(kMTLPixelFormatB5G6R5Unorm)    },
+        { GrColorType::kABGR_4444,        GrBackendFormat::MakeMtl(kMTLPixelFormatABGR4Unorm)     },
         { GrColorType::kRGBA_8888,        GrBackendFormat::MakeMtl(MTLPixelFormatRGBA8Unorm)      },
         { GrColorType::kRGBA_8888_SRGB,   GrBackendFormat::MakeMtl(MTLPixelFormatRGBA8Unorm_sRGB) },
         { GrColorType::kRGB_888x,         GrBackendFormat::MakeMtl(MTLPixelFormatRGBA8Unorm)      },
-#ifdef SK_BUILD_FOR_IOS
-        { GrColorType::kRGB_888x,         GrBackendFormat::MakeMtl(MTLPixelFormatETC2_RGB8)       },
-#else
+        { GrColorType::kRGB_888x,         GrBackendFormat::MakeMtl(kMTLPixelFormatETC2_RGB8)      },
+#ifdef SK_BUILD_FOR_MAC
         { GrColorType::kRGBA_8888,        GrBackendFormat::MakeMtl(MTLPixelFormatBC1_RGBA)        },
 #endif
         { GrColorType::kRG_88,            GrBackendFormat::MakeMtl(MTLPixelFormatRG8Unorm)        },
         { GrColorType::kBGRA_8888,        GrBackendFormat::MakeMtl(MTLPixelFormatBGRA8Unorm)      },
         { GrColorType::kRGBA_1010102,     GrBackendFormat::MakeMtl(MTLPixelFormatRGB10A2Unorm)    },
-#ifdef SK_BUILD_FOR_MAC
-        { GrColorType::kBGRA_1010102,     GrBackendFormat::MakeMtl(kMTLPixelFormatBGR10A2Unorm)   },
-#endif
+        { GrColorType::kBGRA_1010102,     GrBackendFormat::MakeMtl(MTLPixelFormatBGR10A2Unorm)    },
         { GrColorType::kGray_8,           GrBackendFormat::MakeMtl(MTLPixelFormatR8Unorm)         },
         { GrColorType::kAlpha_F16,        GrBackendFormat::MakeMtl(MTLPixelFormatR16Float)        },
         { GrColorType::kRGBA_F16,         GrBackendFormat::MakeMtl(MTLPixelFormatRGBA16Float)     },
