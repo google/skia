@@ -76,6 +76,21 @@ public:
                          destinationOrigin: MTLOriginMake(dstRect.left(), dstRect.top(), 0)];
     }
 
+    void copyTextureToTexture(id<MTLTexture> srcTexture,
+                              SkIRect srcRect,
+                              id<MTLTexture> dstTexture,
+                              SkIPoint dstPoint) {
+        [(*fCommandEncoder) copyFromTexture: srcTexture
+                                sourceSlice: 0
+                                sourceLevel: 0
+                               sourceOrigin: MTLOriginMake(srcRect.x(), srcRect.y(), 0)
+                                 sourceSize: MTLSizeMake(srcRect.width(), srcRect.height(), 1)
+                                  toTexture: dstTexture
+                           destinationSlice: 0
+                           destinationLevel: 0
+                          destinationOrigin: MTLOriginMake(dstPoint.fX, dstPoint.fY, 0)];
+    }
+
     void endEncoding() {
         [(*fCommandEncoder) endEncoding];
     }

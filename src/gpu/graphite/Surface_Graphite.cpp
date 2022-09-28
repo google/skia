@@ -37,17 +37,17 @@ sk_sp<SkSurface> Surface::onNewSurface(const SkImageInfo& ii) {
 }
 
 sk_sp<SkImage> Surface::onNewImageSnapshot(const SkIRect* subset) {
-    SkImageInfo ii = subset ? this->imageInfo().makeDimensions(subset->size())
-                            : this->imageInfo();
-
-    // TODO: we need to resolve Graphite's Surface/Image story then expand the handling
-    // in here.
     TextureProxyView srcView = fDevice->readSurfaceView();
     if (!srcView) {
         return nullptr;
     }
 
-    return sk_sp<Image>(new Image(std::move(srcView), ii.colorInfo()));
+    srcView = fDevice->createCopy(subset, srcView.mipmapped());
+    if (!srcView) {
+        return nullptr;
+    }
+
+    return sk_sp<Image>(new Image(std::move(srcView), this->imageInfo().colorInfo()));
 }
 
 void Surface::onWritePixels(const SkPixmap& pixmap, int x, int y) {

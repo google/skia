@@ -17,6 +17,7 @@ namespace skgpu::graphite {
 class Buffer;
 class CommandBuffer;
 class Texture;
+class TextureProxy;
 
 class CopyTextureToBufferTask final : public Task {
 public:
@@ -46,6 +47,31 @@ private:
     sk_sp<Buffer> fBuffer;
     size_t fBufferOffset;
     size_t fBufferRowBytes;
+};
+
+class CopyTextureToTextureTask final : public Task {
+public:
+    static sk_sp<CopyTextureToTextureTask> Make(sk_sp<TextureProxy> srcProxy,
+                                                SkIRect srcRect,
+                                                sk_sp<TextureProxy> dstProxy,
+                                                SkIPoint dstPoint);
+
+    ~CopyTextureToTextureTask() override;
+
+    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override;
+
+    bool addCommands(ResourceProvider*, CommandBuffer*) override;
+
+private:
+    CopyTextureToTextureTask(sk_sp<TextureProxy> srcProxy,
+                             SkIRect srcRect,
+                             sk_sp<TextureProxy> dstProxy,
+                             SkIPoint dstPoint);
+
+    sk_sp<TextureProxy> fSrcProxy;
+    SkIRect fSrcRect;
+    sk_sp<TextureProxy> fDstProxy;
+    SkIPoint fDstPoint;
 };
 
 } // namespace skgpu::graphite

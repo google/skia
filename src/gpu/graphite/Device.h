@@ -64,6 +64,8 @@ public:
     // from the DrawContext as a RenderPassTask and records it in the Device's recorder.
     void flushPendingWorkToRecorder();
 
+    TextureProxyView createCopy(const SkIRect* subset, Mipmapped);
+
     bool readPixels(Context*, Recorder*, const SkPixmap& dst, int x, int y);
 
     const Transform& localToDeviceTransform();

@@ -129,6 +129,10 @@ private:
                                const Texture*,
                                const BufferTextureCopyData* copyData,
                                int count) override;
+    bool onCopyTextureToTexture(const Texture* src,
+                                SkIRect srcRect,
+                                const Texture* dst,
+                                SkIPoint dstPoint) override;
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
 
 #ifdef SK_ENABLE_PIET_GPU

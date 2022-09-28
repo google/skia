@@ -12,8 +12,12 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/graphite/TextureInfo.h"
 
+enum SkColorType : int;
+
 namespace skgpu::graphite {
 
+class Caps;
+enum class Renderable : bool;
 class ResourceProvider;
 class Texture;
 
@@ -34,6 +38,14 @@ public:
     bool isInstantiated() const { return SkToBool(fTexture); }
     sk_sp<Texture> refTexture() const;
     const Texture* texture() const;
+
+    static sk_sp<TextureProxy> Make(const Caps*,
+                                    SkISize dimensions,
+                                    SkColorType,
+                                    Mipmapped,
+                                    Protected,
+                                    Renderable,
+                                    SkBudgeted);
 
 private:
 #ifdef SK_DEBUG

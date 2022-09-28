@@ -135,6 +135,25 @@ bool CommandBuffer::copyBufferToTexture(const Buffer* buffer,
     return true;
 }
 
+bool CommandBuffer::copyTextureToTexture(sk_sp<Texture> src,
+                                         SkIRect srcRect,
+                                         sk_sp<Texture> dst,
+                                         SkIPoint dstPoint) {
+    SkASSERT(src);
+    SkASSERT(dst);
+
+    if (!this->onCopyTextureToTexture(src.get(), srcRect, dst.get(), dstPoint)) {
+        return false;
+    }
+
+    this->trackResource(std::move(src));
+    this->trackResource(std::move(dst));
+
+    SkDEBUGCODE(fHasWork = true;)
+
+    return true;
+}
+
 bool CommandBuffer::synchronizeBufferToCpu(sk_sp<Buffer> buffer) {
     SkASSERT(buffer);
 

@@ -655,6 +655,33 @@ bool MtlCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     return true;
 }
 
+bool MtlCommandBuffer::onCopyTextureToTexture(const Texture* src,
+                                              SkIRect srcRect,
+                                              const Texture* dst,
+                                              SkIPoint dstPoint) {
+    SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
+
+    id<MTLTexture> srcMtlTexture = static_cast<const MtlTexture*>(src)->mtlTexture();
+    id<MTLTexture> dstMtlTexture = static_cast<const MtlTexture*>(dst)->mtlTexture();
+
+    MtlBlitCommandEncoder* blitCmdEncoder = this->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
+
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    blitCmdEncoder->pushDebugGroup(@"copyTextureAsBlit");
+#endif
+
+    blitCmdEncoder->copyTextureToTexture(srcMtlTexture, srcRect, dstMtlTexture, dstPoint);
+
+#ifdef SK_ENABLE_MTL_DEBUG_INFO
+    blitCmdEncoder->popDebugGroup();
+#endif
+    return true;
+}
+
 bool MtlCommandBuffer::onSynchronizeBufferToCpu(const Buffer* buffer, bool* outDidResultInWork) {
 #ifdef SK_BUILD_FOR_MAC
     SkASSERT(!fActiveRenderCommandEncoder);

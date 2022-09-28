@@ -7,6 +7,8 @@
 
 #include "src/gpu/graphite/TextureProxy.h"
 
+#include "src/core/SkMipmap.h"
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
 
@@ -48,6 +50,32 @@ sk_sp<Texture> TextureProxy::refTexture() const {
 
 const Texture* TextureProxy::texture() const {
     return fTexture.get();
+}
+
+sk_sp<TextureProxy> TextureProxy::Make(const Caps* caps,
+                                       SkISize dimensions,
+                                       SkColorType colorType,
+                                       Mipmapped mipmapped,
+                                       Protected isProtected,
+                                       Renderable renderable,
+                                       SkBudgeted budgeted) {
+    if (dimensions.width() < 1 || dimensions.height() < 1) {
+        return nullptr;
+    }
+
+    int mipLevelCount = (mipmapped == Mipmapped::kYes)
+                        ? SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1
+                        : 1;
+
+    TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(colorType,
+                                                                 mipLevelCount,
+                                                                 isProtected,
+                                                                 renderable);
+    if (!textureInfo.isValid()) {
+        return nullptr;
+    }
+
+    return sk_make_sp<TextureProxy>(dimensions, textureInfo, budgeted);
 }
 
 #ifdef SK_DEBUG

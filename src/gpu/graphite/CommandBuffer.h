@@ -77,6 +77,10 @@ public:
                              sk_sp<Texture>,
                              const BufferTextureCopyData*,
                              int count);
+    bool copyTextureToTexture(sk_sp<Texture> src,
+                              SkIRect srcRect,
+                              sk_sp<Texture> dst,
+                              SkIPoint dstPoint);
     bool synchronizeBufferToCpu(sk_sp<Buffer>);
 
 #ifdef SK_ENABLE_PIET_GPU
@@ -106,6 +110,10 @@ private:
                                        const Texture*,
                                        const BufferTextureCopyData*,
                                        int count) = 0;
+    virtual bool onCopyTextureToTexture(const Texture* src,
+                                        SkIRect srcRect,
+                                        const Texture* dst,
+                                        SkIPoint dstPoint) = 0;
     virtual bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) = 0;
 
 #ifdef SK_ENABLE_PIET_GPU
