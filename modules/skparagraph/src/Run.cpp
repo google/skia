@@ -298,6 +298,15 @@ PlaceholderStyle* Run::placeholderStyle() const {
     }
 }
 
+bool Run::isResolved() const {
+    for (auto& glyph :fGlyphs) {
+        if (glyph == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
 Run* Cluster::runOrNull() const {
     if (fRunIndex >= fOwner->runs().size()) {
         return nullptr;

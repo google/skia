@@ -162,6 +162,8 @@ public:
     void resetJustificationShifts() {
         fJustificationShifts.reset();
     }
+
+    bool isResolved() const;
 private:
     friend class ParagraphImpl;
     friend class TextLine;

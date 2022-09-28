@@ -3774,6 +3774,49 @@ private:
     using INHERITED = Sample;
 };
 
+// Non-monotonic glyph placement
+class ParagraphView66 : public ParagraphView_Base {
+protected:
+    SkString name() override { return SkString("ParagraphView66"); }
+    void onDrawContent(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true);
+        fontCollection->disableFontFallback();
+        fontCollection->addFontFromFile("abc/abc.ttf", "abc");
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("abc"), SkString("Roboto")});
+        text_style.setFontSize(20);
+        text_style.setColor(SK_ColorBLACK);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setMaxLines(1);
+        paragraph_style.setEllipsis(u"\u2026");
+        paragraph_style.setTextStyle(text_style);
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+
+        auto draw = [&](bool fallback, const SkString& font) {
+            if(fallback) {
+                fontCollection->enableFontFallback();
+            } else {
+                fontCollection->disableFontFallback();
+            }
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            text_style.setFontFamilies({SkString("abc"), font});
+            builder.pushStyle(text_style);
+            builder.addText(u"abc \u2026 abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc");
+            auto paragraph = builder.Build();
+            paragraph->layout(this->width());
+            paragraph->paint(canvas, 0, 0);
+            canvas->translate(0, paragraph->getHeight());
+        };
+
+        draw(true, SkString("Roboto"));
+        draw(true, SkString("Roboto1"));
+        draw(false, SkString("Roboto"));
+        draw(false, SkString("Roboto1"));
+    }
+private:
+    using INHERITED = Sample;
+};
 
 }  // namespace
 
@@ -3841,3 +3884,5 @@ DEF_SAMPLE(return new ParagraphView62();)
 DEF_SAMPLE(return new ParagraphView63();)
 DEF_SAMPLE(return new ParagraphView64();)
 DEF_SAMPLE(return new ParagraphView65();)
+DEF_SAMPLE(return new ParagraphView66();)
+
