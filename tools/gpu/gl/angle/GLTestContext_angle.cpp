@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "src/ports/SkOSLibrary.h"
-#include "third_party/externals/angle2/include/platform/Platform.h"
+#include "third_party/externals/angle2/include/platform/PlatformMethods.h"
 
 #include <vector>
 
