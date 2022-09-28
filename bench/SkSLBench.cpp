@@ -19,16 +19,16 @@
 
 #include <regex>
 
-#include "src/sksl/generated/sksl_shared.dehydrated.sksl"
-#include "src/sksl/generated/sksl_compute.dehydrated.sksl"
-#include "src/sksl/generated/sksl_frag.dehydrated.sksl"
-#include "src/sksl/generated/sksl_gpu.dehydrated.sksl"
-#include "src/sksl/generated/sksl_public.dehydrated.sksl"
-#include "src/sksl/generated/sksl_rt_shader.dehydrated.sksl"
-#include "src/sksl/generated/sksl_vert.dehydrated.sksl"
+#include "src/sksl/generated/sksl_shared.minified.sksl"
+#include "src/sksl/generated/sksl_compute.minified.sksl"
+#include "src/sksl/generated/sksl_frag.minified.sksl"
+#include "src/sksl/generated/sksl_gpu.minified.sksl"
+#include "src/sksl/generated/sksl_public.minified.sksl"
+#include "src/sksl/generated/sksl_rt_shader.minified.sksl"
+#include "src/sksl/generated/sksl_vert.minified.sksl"
 #if defined(SK_GRAPHITE_ENABLED)
-#include "src/sksl/generated/sksl_graphite_frag.dehydrated.sksl"
-#include "src/sksl/generated/sksl_graphite_vert.dehydrated.sksl"
+#include "src/sksl/generated/sksl_graphite_frag.minified.sksl"
+#include "src/sksl/generated/sksl_graphite_vert.minified.sksl"
 #endif
 
 class SkSLCompilerStartupBench : public Benchmark {
@@ -552,22 +552,22 @@ void RunSkSLModuleBenchmarks(NanoJSONResultsWriter* log) {
         bench(log, "sksl_compiler_compute", computeBytes);
     }
 
-    // Report the dehydrated module sizes.
-    int compilerGPUBinarySize = std::size(SKSL_INCLUDE_sksl_shared) +
-                                std::size(SKSL_INCLUDE_sksl_gpu) +
-                                std::size(SKSL_INCLUDE_sksl_vert) +
-                                std::size(SKSL_INCLUDE_sksl_frag) +
-                                std::size(SKSL_INCLUDE_sksl_public) +
-                                std::size(SKSL_INCLUDE_sksl_rt_shader);
+    // Report the minified module sizes.
+    int compilerGPUBinarySize = std::size(SKSL_MINIFIED_sksl_shared) +
+                                std::size(SKSL_MINIFIED_sksl_gpu) +
+                                std::size(SKSL_MINIFIED_sksl_vert) +
+                                std::size(SKSL_MINIFIED_sksl_frag) +
+                                std::size(SKSL_MINIFIED_sksl_public) +
+                                std::size(SKSL_MINIFIED_sksl_rt_shader);
     bench(log, "sksl_binary_size_gpu", compilerGPUBinarySize);
 
 #if defined(SK_GRAPHITE_ENABLED)
-    int compilerGraphiteBinarySize = std::size(SKSL_INCLUDE_sksl_graphite_frag) +
-                                     std::size(SKSL_INCLUDE_sksl_graphite_vert);
+    int compilerGraphiteBinarySize = std::size(SKSL_MINIFIED_sksl_graphite_frag) +
+                                     std::size(SKSL_MINIFIED_sksl_graphite_vert);
     bench(log, "sksl_binary_size_graphite", compilerGraphiteBinarySize);
 #endif
 
-    int compilerComputeBinarySize = std::size(SKSL_INCLUDE_sksl_compute);
+    int compilerComputeBinarySize = std::size(SKSL_MINIFIED_sksl_compute);
     bench(log, "sksl_binary_size_compute", compilerComputeBinarySize);
 }
 

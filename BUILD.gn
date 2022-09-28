@@ -609,7 +609,7 @@ if (skia_lex) {
 
 if (skia_compile_modules || skia_compile_sksl_tests) {
   # Copy the module source files into the out directory.
-  copy("sksl_pre_includes") {
+  copy("sksl_modules") {
     sources = [
       "src/sksl/sksl_compute.sksl",
       "src/sksl/sksl_frag.sksl",
@@ -626,36 +626,6 @@ if (skia_compile_modules || skia_compile_sksl_tests) {
 }
 
 if (skia_compile_modules) {
-  # Generate the sksl-precompile binary.
-  skia_executable("sksl-precompile") {
-    defines = [
-      "SKSL_STANDALONE",
-      "SK_DISABLE_TRACING",
-    ]
-    sources = skslc_deps
-    sources += [ "tools/sksl-precompile/SkSLPrecompile.cpp" ]
-    libs = []
-    if (is_win) {
-      sources += [ "src/ports/SkOSFile_win.cpp" ]
-    } else {
-      sources += [ "src/ports/SkOSFile_posix.cpp" ]
-      libs += [ "dl" ]
-    }
-    sources += skia_sksl_sources
-    sources += skia_sksl_gpu_sources
-    include_dirs = [ "." ]
-    deps = [ ":run_sksllex" ]
-  }
-
-  sksl_precompile_path = "$root_out_dir/"
-  if (host_toolchain != default_toolchain_name) {
-    sksl_precompile_path += "$host_toolchain/"
-  }
-  sksl_precompile_path += "sksl-precompile"
-  if (host_os == "win") {
-    sksl_precompile_path += ".exe"
-  }
-
   # Generate the sksl-minify binary.
   skia_executable("sksl-minify") {
     defines = [
@@ -686,41 +656,36 @@ if (skia_compile_modules) {
     sksl_minify_path += ".exe"
   }
 
-  # Use dehydrate_sksl.py to precompile all of the modules.
-  dehydrate_sksl_sources = get_target_outputs(":sksl_pre_includes")
+  # Use minify_sksl.py to precompile all of the modules.
+  minify_sksl_sources = get_target_outputs(":sksl_modules")
 
-  dehydrate_sksl_outputs = []
-  foreach(src, dehydrate_sksl_sources) {
+  minify_sksl_outputs = []
+  foreach(src, minify_sksl_sources) {
     name = get_path_info(src, "name")
 
     # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
     # path that starts with target_out_dir and then uses ".." to back up into the src dir.
-    dehydrate_sksl_outputs += [ "$target_out_dir/" + rebase_path(
-                                    "src/sksl/generated/$name.dehydrated.sksl",
-                                    target_out_dir) ]
-    dehydrate_sksl_outputs += [ "$target_out_dir/" + rebase_path(
-                                    "src/sksl/generated/$name.minified.sksl",
-                                    target_out_dir) ]
+    minify_sksl_outputs += [ "$target_out_dir/" + rebase_path(
+                                 "src/sksl/generated/$name.minified.sksl",
+                                 target_out_dir) ]
   }
 
-  action("dehydrate_sksl") {
-    script = "gn/dehydrate_sksl.py"
+  action("minify_sksl") {
+    script = "gn/minify_sksl.py"
     deps = [
       ":sksl-minify(//gn/toolchain:$host_toolchain)",
-      ":sksl-precompile(//gn/toolchain:$host_toolchain)",
-      ":sksl_pre_includes",
+      ":sksl_modules",
     ]
-    sources = dehydrate_sksl_sources
-    outputs = dehydrate_sksl_outputs
+    sources = minify_sksl_sources
+    outputs = minify_sksl_outputs
     args = [
-      rebase_path(sksl_precompile_path),
       rebase_path(sksl_minify_path),
       rebase_path("src/sksl/generated"),
     ]
-    args += rebase_path(dehydrate_sksl_sources)
+    args += rebase_path(minify_sksl_sources)
   }
 } else {
-  group("dehydrate_sksl") {
+  group("minify_sksl") {
   }
 }
 
@@ -775,7 +740,7 @@ if (skia_compile_sksl_tests) {
     action("compile_sksl_${target_name}") {
       script = "gn/compile_sksl_tests.py"
       deps = [
-        ":sksl_pre_includes",
+        ":sksl_modules",
         ":skslc(//gn/toolchain:$host_toolchain)",
       ]
       sources = []
@@ -920,8 +885,8 @@ optional("gpu") {
     ":compile_sksl_metal_tests",
     ":compile_sksl_skvm_tests",
     ":compile_sksl_spirv_tests",
-    ":dehydrate_sksl",
     ":gpu_shared",
+    ":minify_sksl",
     ":run_sksllex",
   ]
   if (skia_generate_workarounds) {
@@ -1424,7 +1389,7 @@ skia_component("skia") {
   libs = []
 
   if (skia_enable_sksl) {
-    deps += [ ":dehydrate_sksl" ]
+    deps += [ ":minify_sksl" ]
     sources += skia_sksl_sources
 
     if (skia_enable_sksl_tracing) {

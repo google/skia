@@ -9,7 +9,6 @@
 #define SKSL_COMPILER
 
 #include "include/core/SkSize.h"
-#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLProgramKind.h"
@@ -19,7 +18,6 @@
 #include "src/sksl/SkSLParsedModule.h"
 
 #include <array>
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -178,34 +176,12 @@ public:
         return fSymbolTable;
     }
 
-    // When SKSL_STANDALONE is true:
-    // - fPath contains a path on disk containing the SkSL module
-    // - fData will be empty
-    // When SKSL_STANDALONE is false and SK_ENABLE_OPTIMIZE_SIZE is false:
-    // - fData contains SkSL module code in dehydrated IR form
-    // - fPath will be nullptr
-    // When SKSL_STANDALONE is false and SK_ENABLE_OPTIMIZE_SIZE is true:
-    // - fData contains SkSL module code in minified text form
-    // - fPath will be nullptr
-    struct ModuleData {
-        const char*           fPath;
-        SkSpan<const uint8_t> fData;
-    };
-
-    static ModuleData MakeModulePath(const char* path) {
-        return ModuleData{path, /*fData=*/{}};
-    }
-    static ModuleData MakeModuleData(SkSpan<const uint8_t> data) {
-        return ModuleData{/*fPath=*/nullptr, data};
-    }
-    static ModuleData MakeModuleSource(std::string_view source) {
-        return ModuleData{nullptr, /*fData=*/{reinterpret_cast<const uint8_t*>(source.data()),
-                                              source.size()}};
-    }
-
-    LoadedModule loadModule(ProgramKind kind, ModuleData data, ModifiersPool& modifiersPool,
-                            std::shared_ptr<SymbolTable> base);
-    ParsedModule parseModule(ProgramKind kind, ModuleData data, const ParsedModule& base,
+    // When SKSL_STANDALONE is true, `moduleData` holds a path to SkSL module source on disk.
+    // When SKSL_STANDALONE is false, `moduleData` holds the SkSL module source.
+    // TODO(skia:13763): the special case for SKSL_STANDALONE should be eliminated
+    ParsedModule parseModule(ProgramKind kind,
+                             std::string_view moduleData,
+                             const ParsedModule& base,
                              ModifiersPool& modifiersPool);
 
     const ParsedModule& moduleForProgramKind(ProgramKind kind);
@@ -230,15 +206,10 @@ private:
     /** Performs final checks to confirm that a fully-assembled/optimized is valid. */
     bool finalize(Program& program);
 
-    /**
-     * Optimize a module after loading it. This should be called at runtime, not during
-     * dehydration, because it runs the inliner (which clones lots of IR nodes), and this
-     * would impact the dehydrated file size.
-     */
+    /** Optimize a module after loading it. */
     bool optimizeModuleAfterLoading(ProgramKind kind,
                                     LoadedModule& module,
-                                    const ParsedModule& base,
-                                    ModifiersPool& modifiersPool);
+                                    const ParsedModule& base);
 
     /** Flattens out function calls when it is safe to do so. */
     bool runInliner(Inliner* inliner,
@@ -262,7 +233,6 @@ private:
     friend class AutoSource;
     friend class ::SkSLCompileBench;
     friend class Parser;
-    friend class Rehydrator;
     friend class ThreadContext;
     friend class dsl::DSLCore;
 };

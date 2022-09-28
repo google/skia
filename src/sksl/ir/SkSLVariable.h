@@ -38,7 +38,6 @@ enum class VariableStorage : int8_t {
     kInterfaceBlock,
     kLocal,
     kParameter,
-    kEliminated
 };
 
 /**
@@ -126,13 +125,6 @@ public:
     }
 
     std::string mangledName() const;
-
-    void markEliminated() {
-        // We mark eliminated variables by changing their storage type.
-        // We can drop eliminated variables during dehydration to save a little space.
-        SkASSERT(!fDeclaration);
-        fStorage = Storage::kEliminated;
-    }
 
 private:
     VarDeclaration* fDeclaration = nullptr;

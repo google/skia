@@ -179,8 +179,6 @@ private:
     bool fAtModuleBoundary = false;
     std::forward_list<std::string> fOwnedStrings;
     SkTHashMap<SymbolKey, const Symbol*, SymbolKey::Hash> fSymbols;
-
-    friend class Dehydrator;
 };
 
 }  // namespace SkSL
