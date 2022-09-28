@@ -43,7 +43,6 @@
 #include <atomic>
 #include <cstdint>
 #include <memory>
-#include <stdio.h>
 #include <utility>
 
 #if defined(SKSL_STANDALONE)
@@ -227,8 +226,7 @@ ParsedModule Compiler::compileModule(ProgramKind kind,
                 break;
             }
             default:
-                printf("Unsupported element: %s\n", element->description().c_str());
-                SkASSERT(false);
+                SkDEBUGFAILF("Unsupported element: %s\n", element->description().c_str());
                 break;
         }
     }

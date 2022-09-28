@@ -34,8 +34,14 @@ for module in modules:
             os.mkdir(targetDir)
         target = os.path.join(targetDir, moduleName)
 
-        # Call sksl-minify to recreate the module without whitespace and comments.
+        # Assemble the module dependency list and call sksl-minify to recreate the module in its
+        # minified form.
         args = [sksl_minify, target + ".minified.sksl", module]
+        if moduleName not in dependencies:
+            print("### Error compiling " + moduleName + ": dependency list must be specified")
+            exit(1)
+        for dependent in dependencies[moduleName]:
+            args.append(os.path.join(moduleDir, dependent) + ".sksl")
         subprocess.check_output(args).decode('utf-8')
 
     except subprocess.CalledProcessError as err:

@@ -12,8 +12,10 @@
 #include "src/core/SkOpts.h"
 #include "src/opts/SkChecksum_opts.h"
 #include "src/opts/SkVM_opts.h"
+#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLLexer.h"
+#include "src/sksl/SkSLModuleLoader.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
 
@@ -58,7 +60,7 @@ static std::string remove_extension(const std::string& path) {
  * Displays a usage banner; used when the command line arguments don't make sense.
  */
 static void show_usage() {
-    printf("usage: sksl-minify <output> <input>\n");
+    printf("usage: sksl-minify <output> <input> [dependencies...]\n");
 }
 
 static std::string_view stringize(const SkSL::Token& token, std::string_view text) {
@@ -69,36 +71,70 @@ static bool maybe_identifier(char c) {
     return std::isalnum(c) || c == '$' || c == '_';
 }
 
-/**
- * Handle a single input.
- */
-ResultCode processCommand(const std::vector<std::string>& paths) {
+static std::list<SkSL::ParsedModule> compile_module_list(SkSpan<const std::string> paths) {
+    // Load in each input as a module, from right to left.
+    // Each module inherits the symbols from its parent module.
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
+    std::list<SkSL::ParsedModule> compiledModules = {
+            {SkSL::ModuleLoader::Get().rootModule().fSymbols,
+             /*fElements=*/nullptr}};
+    for (auto modulePath = paths.rbegin(); modulePath != paths.rend(); ++modulePath) {
+        std::ifstream in(*modulePath);
+        std::string moduleSource{std::istreambuf_iterator<char>(in),
+                                 std::istreambuf_iterator<char>()};
+        if (in.rdstate()) {
+            printf("error reading '%s'\n", modulePath->c_str());
+            return {};
+        }
+
+        // TODO(skia:13778): We don't know the module's ProgramKind here, so we always pass
+        // kFragment. For minification purposes, the ProgramKind doesn't really make a difference
+        // as long as it doesn't limit what we can do.
+        compiledModules.push_front(
+                compiler.compileModule(SkSL::ProgramKind::kFragment,
+                                       modulePath->c_str(),
+                                       std::move(moduleSource),
+                                       compiledModules.front(),
+                                       SkSL::ModuleLoader::Get().coreModifiers()));
+    }
+    return compiledModules;
+}
+
+ResultCode processCommand(const std::vector<std::string>& args) {
     using TokenKind = SkSL::Token::Kind;
 
-    if (paths.size() != 2) {
+    if (args.size() < 2) {
         show_usage();
         return ResultCode::kInputError;
     }
 
-    // Read the original SkSL from the input path.
-    const std::string& inputPath = paths[1];
-    std::ifstream in(inputPath);
-    std::string text{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
-    if (in.rdstate()) {
-        printf("error reading '%s'\n", inputPath.c_str());
+    // Compile the original SkSL from the input path.
+    SkSpan inputPaths(args);
+    inputPaths = inputPaths.subspan(1);
+    std::list<SkSL::ParsedModule> modules = compile_module_list(inputPaths);
+    if (modules.empty()) {
         return ResultCode::kInputError;
     }
 
     // Emit the minified SkSL into our output path.
-    const std::string& outputPath = paths[0];
+    const std::string& outputPath = args[0];
     SkSL::FileOutputStream out(outputPath.c_str());
     if (!out.isValid()) {
         printf("error writing '%s'\n", outputPath.c_str());
         return ResultCode::kOutputError;
     }
 
-    std::string baseName = remove_extension(base_name(inputPath));
+    std::string baseName = remove_extension(base_name(inputPaths.front()));
     out.printf("static constexpr char SKSL_MINIFIED_%s[] =\n\"", baseName.c_str());
+
+    // Re-read the first input module so it can be minified via lexing.
+    // TODO(skia:13775): minify the compiled, optimized IR instead
+    std::ifstream in(inputPaths.front());
+    std::string text{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
+    if (in.rdstate()) {
+        printf("error reading '%s'\n", inputPaths.front().c_str());
+        return {};
+    }
 
     SkSL::Lexer lexer;
     lexer.start(text);
@@ -119,7 +155,7 @@ ResultCode processCommand(const std::vector<std::string>& paths) {
         std::string_view thisTokenText = stringize(token, text);
         if (token.fKind == TokenKind::TK_INVALID) {
             printf("%s: unable to parse '%.*s' at offset %d\n",
-                   inputPath.c_str(),
+                   inputPaths.front().c_str(),
                    (int)thisTokenText.size(), thisTokenText.data(),
                    token.fOffset);
             return ResultCode::kInputError;
