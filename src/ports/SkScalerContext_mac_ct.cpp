@@ -720,8 +720,11 @@ void SkScalerContext_Mac::generateFontMetrics(SkFontMetrics* metrics) {
     metrics->fFlags |= SkFontMetrics::kUnderlinePositionIsValid_Flag;
 
     CFArrayRef ctAxes = ((SkTypeface_Mac*)this->getTypeface())->getVariationAxes();
-    if (ctAxes && CFArrayGetCount(ctAxes) > 0) {
-        // The bounds are only valid for the default variation.
+    if ((ctAxes && CFArrayGetCount(ctAxes) > 0) ||
+        ((SkTypeface_Mac*)this->getTypeface())->fHasColorGlyphs)
+    {
+        // The bounds are only valid for the default outline variation.
+        // In particular `sbix` and `SVG ` data may draw outside these bounds.
         metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
     }
 
