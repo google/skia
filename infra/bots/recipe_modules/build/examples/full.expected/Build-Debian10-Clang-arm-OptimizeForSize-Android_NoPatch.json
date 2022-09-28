@@ -34,8 +34,8 @@
     "cmd": [
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
-      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm-Release-Android_ASAN/Release",
-      "--args=extra_cflags=[\"-DREBUILD_IF_CHANGED_ndk_version=42\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" sanitize=\"ASAN\" target_cpu=\"arm\" werror=true"
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm-OptimizeForSize-Android_NoPatch/OptimizeForSize",
+      "--args=extra_cflags=[\"-DREBUILD_IF_CHANGED_ndk_version=42\"] extra_ldflags=[\"-Wl,--build-id=sha1\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" skia_enable_optimize_size=true skia_use_runtime_icu=true target_cpu=\"arm\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
@@ -48,7 +48,7 @@
     "cmd": [
       "ninja",
       "-C",
-      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm-Release-Android_ASAN/Release"
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm-OptimizeForSize-Android_NoPatch/OptimizeForSize"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
@@ -61,8 +61,8 @@
     "cmd": [
       "python",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['dm', 'nanobench', 'skpbench', 'skottie_tool_gpu']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print('Copying build product %s to %s' % (f, dst_path))\n    shutil.move(f, dst_path)\n",
-      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm-Release-Android_ASAN/Release",
-      "[START_DIR]/[SWARM_OUT_DIR]/out/Release"
+      "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm-OptimizeForSize-Android_NoPatch/OptimizeForSize",
+      "[START_DIR]/[SWARM_OUT_DIR]/out/OptimizeForSize"
     ],
     "infra_step": true,
     "name": "copy build products",

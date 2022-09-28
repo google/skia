@@ -33,6 +33,7 @@ TEST_BUILDERS = [
   'Build-Debian10-GCC-x86_64-Release-Shared_Docker',
   'Build-Debian10-Clang-arm-Release-Android_API26',
   'Build-Debian10-Clang-arm-Release-Android_ASAN',
+  'Build-Debian10-Clang-arm-OptimizeForSize-Android_NoPatch',
   'Build-Debian10-Clang-arm-Release-Chromebook_GLES',
   'Build-Debian10-Clang-arm64-Debug-Android_FrameworkWorkarounds',
   'Build-Debian10-Clang-arm64-Debug-Android_Graphite_Vulkan',
