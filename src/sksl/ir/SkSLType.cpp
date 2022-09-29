@@ -27,6 +27,7 @@
 #include <limits>
 #include <optional>
 #include <string_view>
+#include <utility>
 
 namespace SkSL {
 
@@ -1142,6 +1143,10 @@ SKSL_INT Type::convertArraySize(const Context& context, Position arrayPos,
         return 0;
     }
     return static_cast<int>(count);
+}
+
+std::string Type::Field::description() const {
+    return fModifiers.description() + fType->displayName() + " " + std::string(fName) + ";";
 }
 
 }  // namespace SkSL

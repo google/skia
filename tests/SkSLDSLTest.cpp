@@ -1591,6 +1591,13 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements().back(),
                  "uniform InterfaceBlock3 { float z; } arrayVar[4];");
     EXPECT_EQUAL(intf3[1].field("z"), "arrayVar[1].z");
+
+    DSLGlobalVar intf4 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock4",
+                                        {Field(DSLLayout().builtin(123), kFloat_Type, "sk_Widget")},
+                                        "intf");
+    REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 4);
+    EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements().back(),
+                 "uniform InterfaceBlock4 { layout(builtin=123) float sk_Widget; } intf;");
 }
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLReturn, r, ctxInfo) {
