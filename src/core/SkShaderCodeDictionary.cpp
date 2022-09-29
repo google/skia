@@ -602,6 +602,8 @@ static constexpr SkUniform kImageShaderUniforms[] = {
         { "tilemodeX",   SkSLType::kInt },
         { "tilemodeY",   SkSLType::kInt },
         { "filterMode",  SkSLType::kInt },
+        { "useCubic",    SkSLType::kInt },
+        { "cubicCoeffs", SkSLType::kFloat4x4 },
 };
 
 static constexpr SkTextureAndSampler kISTexturesAndSamplers[] = {

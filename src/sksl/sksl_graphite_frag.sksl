@@ -48,16 +48,13 @@ $pure float $tile(int tileMode, float f, float low, float high) {
     }
 }
 
-$pure half4 sk_image_shader(float4 coords,
-                            float4x4 preLocal,
-                            float2 imgSize,
-                            float4 subset,
-                            int tileModeX,
-                            int tileModeY,
-                            int filterMode,
-                            sampler2D s) {
-    float2 pos = (preLocal * coords).xy;
-
+$pure half4 $sample_image(float2 pos,
+                          float2 imgSize,
+                          float4 subset,
+                          int tileModeX,
+                          int tileModeY,
+                          int filterMode,
+                          sampler2D s) {
     // Do hard-edge shader transitions to the border color for nearest-neighbor decal tiling at the
     // subset boundaries. Snap the input coordinates to nearest neighbor before comparing to the
     // subset rect, to avoid GPU interpolation errors. See https://crbug.com/skia/10403.
@@ -135,6 +132,50 @@ $pure half4 sk_image_shader(float4 coords,
     }
 
     return color;
+}
+
+$pure half4 $cubic_filter_image(float2 pos,
+                                float2 imgSize,
+                                float4 subset,
+                                int tileModeX,
+                                int tileModeY,
+                                float4x4 coeffs,
+                                sampler2D s) {
+    // Determine pos's fractional offset f between texel centers.
+    float2 f = fract(pos - 0.5);
+    // Sample 16 points at 1-pixel intervals from [p - 1.5 ... p + 1.5].
+    pos -= 1.5;
+    // Snap to texel centers to prevent sampling neighboring texels.
+    pos = floor(pos) + 0.5;
+
+    float4 wx = coeffs * float4(1.0, f.x, f.x * f.x, f.x * f.x * f.x);
+    float4 wy = coeffs * float4(1.0, f.y, f.y * f.y, f.y * f.y * f.y);
+    float4 color = float4(0);
+    for (int y = 0; y < 4; ++y) {
+        float4 rowColor = float4(0);
+        for (int x = 0; x < 4; ++x) {
+            rowColor += wx[x] * $sample_image(pos + float2(x, y), imgSize, subset,
+                                              tileModeX, tileModeY, $kFilterModeNearest, s);
+        }
+        color += wy[y] * rowColor;
+    }
+    return half4(color);
+}
+
+$pure half4 sk_image_shader(float4 coords,
+                            float4x4 preLocal,
+                            float2 imgSize,
+                            float4 subset,
+                            int tileModeX,
+                            int tileModeY,
+                            int filterMode,
+                            int useCubic,
+                            float4x4 cubicCoeffs,
+                            sampler2D s) {
+    float2 pos = (preLocal * coords).xy;
+    return (useCubic != 0)
+        ? $cubic_filter_image(pos, imgSize, subset, tileModeX, tileModeY, cubicCoeffs, s)
+        : $sample_image(pos, imgSize, subset, tileModeX, tileModeY, filterMode, s);
 }
 
 $pure float2 $tile_grad(int tileMode, float2 t) {
