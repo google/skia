@@ -54,7 +54,7 @@ public:
     }
 
     std::string description(OperatorPrecedence) const override {
-        return std::string(this->name());
+        return "sk_Caps." + std::string(this->name());
     }
 
 private:
