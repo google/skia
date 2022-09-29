@@ -525,6 +525,11 @@ std::string FunctionDeclaration::description() const {
     for (const Variable* p : this->parameters()) {
         result += separator;
         separator = ", ";
+        // We can't just say `p->description()` here, because occasionally might have added layout
+        // flags onto parameters (like `layout(builtin=10009)`) and don't want to reproduce that.
+        if (p->modifiers().fFlags) {
+            result += Modifiers::DescribeFlags(p->modifiers().fFlags) + " ";
+        }
         result += p->type().displayName();
         result += " ";
         result += p->name();

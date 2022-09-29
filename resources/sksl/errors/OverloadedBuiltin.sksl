@@ -6,11 +6,13 @@ half fma(half a, half b, half c, half d) { return 0; /* allowed */ }
 
 half2 sin(half2 a) { return half2(0); /* error: overloads a builtin */ }
 float3 sin(float3 a) { return float3(0); /* error: overloads a builtin */ }
+float4 sin(inout float4 a) { return float4(0); /* error: overloads a builtin */ }
 half2x2 sin(half2x2 a) { return half2x2(0); /* allowed */ }
 float3x3 sin(float3x3 a) { return float3x3(0); /* allowed */ }
 
 half cos(half2 a) { return 0; /* error: overloads a builtin (despite return type mismatch) */ }
 float2 cos(half2 a) { return 0; /* error: overloads a builtin (despite return type mismatch) */ }
+int cos(out half3 a) { return 0; /* error: overloads a builtin (despite return type mismatch) */ }
 
 float pow(float x, float y) { return 0; /* error: overloads a builtin */ }
 float pow(float2 x, float y) { return 0; /* allowed */ }
@@ -20,7 +22,9 @@ float pow(half x, float y) { return 0; /* allowed */ }
 duplicate definition of 'half fma(half a, half b, half c)'
 duplicate definition of 'half2 sin(half2 a)'
 duplicate definition of 'float3 sin(float3 a)'
+modifiers on parameter 1 differ between declaration and definition
 duplicate definition of 'half cos(half2 a)'
 functions 'float2 cos(half2 a)' and '$pure $genHType cos($genHType angle)' differ only in return type
+functions 'int cos(out half3 a)' and '$pure $genHType cos($genHType angle)' differ only in return type
 duplicate definition of 'float pow(float x, float y)'
 *%%*/

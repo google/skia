@@ -2084,6 +2084,22 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLPrototypes, r, ctxInfo) {
 
     {
         DSLWriter::Reset();
+        DSLParameter x(kInOut_Modifier, kFloat_Type, "x");
+        DSLFunction sqr(kVoid_Type, "sqr", x);
+        sqr.prototype();
+        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
+        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
+                     "void sqr(inout float x);");
+        sqr.define(
+            x *= x
+        );
+        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
+        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1],
+                     "void sqr(inout float x) { x *= x; }");
+    }
+
+    {
+        DSLWriter::Reset();
         DSLParameter x(kFloat_Type, "x");
         DSLFunction sqr(DSLModifiers(SkSL::Modifiers::kNoInline_Flag), kFloat_Type, "sqr", x);
         sqr.prototype();
