@@ -64,6 +64,38 @@ bool Surface::onReadPixels(Context* context,
     return fDevice->readPixels(context, recorder, dst, srcX, srcY);
 }
 
+void Surface::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+                                          const SkIRect& srcRect,
+                                          RescaleGamma rescaleGamma,
+                                          RescaleMode rescaleMode,
+                                          ReadPixelsCallback callback,
+                                          ReadPixelsContext context) {
+    fDevice->asyncRescaleAndReadPixels(info,
+                                       srcRect,
+                                       rescaleGamma,
+                                       rescaleMode,
+                                       callback,
+                                       context);
+}
+
+void Surface::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                                sk_sp<SkColorSpace> dstColorSpace,
+                                                const SkIRect& srcRect,
+                                                const SkISize& dstSize,
+                                                RescaleGamma rescaleGamma,
+                                                RescaleMode rescaleMode,
+                                                ReadPixelsCallback callback,
+                                                ReadPixelsContext context) {
+    fDevice->asyncRescaleAndReadPixelsYUV420(yuvColorSpace,
+                                             dstColorSpace,
+                                             srcRect,
+                                             dstSize,
+                                             rescaleGamma,
+                                             rescaleMode,
+                                             callback,
+                                             context);
+}
+
 sk_sp<const SkCapabilities> Surface::onCapabilities() {
     return fDevice->recorder()->priv().caps()->capabilities();
 }

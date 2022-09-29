@@ -57,6 +57,11 @@
 // TODO: This will be removed once the AnalyticRRectRenderStep is finished being developed.
 #define ENABLE_ANALYTIC_RRECT_RENDERER 0
 
+using RescaleGamma       = SkImage::RescaleGamma;
+using RescaleMode        = SkImage::RescaleMode;
+using ReadPixelsCallback = SkImage::ReadPixelsCallback;
+using ReadPixelsContext  = SkImage::ReadPixelsContext;
+
 namespace skgpu::graphite {
 
 namespace {
@@ -362,6 +367,28 @@ bool Device::readPixels(Context* context,
                             pm.rowBytes(),
                             srcX,
                             srcY);
+}
+
+void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,
+                                       SkIRect srcRect,
+                                       RescaleGamma rescaleGamma,
+                                       RescaleMode rescaleMode,
+                                       ReadPixelsCallback callback,
+                                       ReadPixelsContext context) {
+    // TODO: implement for Graphite
+    callback(context, nullptr);
+}
+
+void Device::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                             sk_sp<SkColorSpace> dstColorSpace,
+                                             SkIRect srcRect,
+                                             SkISize dstSize,
+                                             RescaleGamma rescaleGamma,
+                                             RescaleMode rescaleMode,
+                                             ReadPixelsCallback callback,
+                                             ReadPixelsContext context) {
+    // TODO: implement for Graphite
+    callback(context, nullptr);
 }
 
 bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
