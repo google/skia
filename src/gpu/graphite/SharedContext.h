@@ -39,6 +39,7 @@ public:
     const Caps* caps() const { return fCaps.get(); }
 
     BackendApi backend() const { return fBackend; }
+    Protected isProtected() const { return fProtected; }
 
     GlobalCache* globalCache() { return &fGlobalCache; }
     const GlobalCache* globalCache() const { return &fGlobalCache; }
@@ -56,6 +57,7 @@ protected:
 private:
     std::unique_ptr<const Caps> fCaps;
     BackendApi fBackend;
+    Protected fProtected;
     GlobalCache fGlobalCache;
     RendererProvider fRendererProvider;
     SkShaderCodeDictionary fShaderDictionary;

@@ -229,7 +229,6 @@ public:
         VkPtr<PFN_vkGetMemoryAndroidHardwareBufferANDROID> fGetMemoryAndroidHardwareBuffer;
 #endif
 
-
     } fFunctions;
 };
 

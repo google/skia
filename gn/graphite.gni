@@ -197,11 +197,14 @@ skia_graphite_vk_sources = [
   "$_include_private/VulkanGraphiteTypesPriv.h",
   "$_src/vk/VulkanCaps.cpp",
   "$_src/vk/VulkanCaps.h",
+  "$_src/vk/VulkanCommandBuffer.cpp",
+  "$_src/vk/VulkanCommandBuffer.h",
   "$_src/vk/VulkanGraphiteTypes.cpp",
   "$_src/vk/VulkanResourceProvider.cpp",
   "$_src/vk/VulkanResourceProvider.h",
   "$_src/vk/VulkanSharedContext.cpp",
   "$_src/vk/VulkanSharedContext.h",
+  "$_src/vk/VulkanUtils.h",
 ]
 
 skia_graphite_piet_sources = [

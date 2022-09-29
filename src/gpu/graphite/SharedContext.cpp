@@ -19,6 +19,7 @@ namespace skgpu::graphite {
 SharedContext::SharedContext(std::unique_ptr<const Caps> caps, BackendApi backend)
     : fCaps(std::move(caps))
     , fBackend(backend)
+    , fProtected(Protected::kNo)
     , fGlobalCache()
     , fShaderDictionary() {}
 
