@@ -929,10 +929,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					log.Fatalf("Entry %q not found in Win GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
-				if b.parts["cpu_or_gpu_value"] == "IntelIrisXe" {
-					// The Intel Iris Xe devices have not updated.
-					d["os"] = "Windows-10-19043"
-				}
 			} else if b.isLinux() {
 				gpu, ok := map[string]string{
 					// Intel drivers come from CIPD, so no need to specify the version here.
