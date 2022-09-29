@@ -18,11 +18,8 @@
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
-
-#if SK_GPU_V1
 #include "src/gpu/ganesh/PathRenderer.h"
 #include "src/gpu/ganesh/PathRendererChain.h"
-#endif
 
 // Enabling this will print out which path renderers are being chosen
 #define GR_PATH_RENDERER_SPEW 0
@@ -50,7 +47,6 @@ public:
 
     void freeGpuResources();
 
-#if SK_GPU_V1
     // OpsTasks created at flush time are stored and handled different from the others.
     sk_sp<skgpu::v1::OpsTask> newOpsTask(GrSurfaceProxyView,
                                          sk_sp<GrArenas> arenas);
@@ -60,7 +56,6 @@ public:
     // If 'previousAtlasTask' is provided, closes it and configures dependencies to guarantee
     // previousAtlasTask and all its users are completely out of service before atlasTask executes.
     void addAtlasTask(sk_sp<GrRenderTask> atlasTask, GrRenderTask* previousAtlasTask);
-#endif
 
     // Create a render task that can resolve MSAA and/or regenerate mipmap levels on proxies. This
     // method will only add the new render task to the list. However, it adds the task before the
@@ -138,7 +133,6 @@ public:
 
     GrRecordingContext* getContext() { return fContext; }
 
-#if SK_GPU_V1
     using PathRenderer = skgpu::v1::PathRenderer;
     using PathRendererChain = skgpu::v1::PathRendererChain;
 
@@ -156,7 +150,6 @@ public:
     // Returns a direct pointer to the tessellation path renderer, or null if it is not supported
     // and turned on.
     PathRenderer* getTessellationPathRenderer();
-#endif
 
     void flushIfNecessary();
 
@@ -171,11 +164,9 @@ public:
 
 #if GR_TEST_UTILS
     void testingOnly_removeOnFlushCallbackObject(GrOnFlushCallbackObject*);
-#if SK_GPU_V1
     PathRendererChain::Options testingOnly_getOptionsForPathRendererChain() {
         return fOptionsForPathRendererChain;
     }
-#endif
 #endif
 
     GrRenderTask* getLastRenderTask(const GrSurfaceProxy*) const;
@@ -188,13 +179,9 @@ public:
                        SkIPoint offset);
 
 private:
-#if SK_GPU_V1
     GrDrawingManager(GrRecordingContext*,
                      const PathRendererChain::Options&,
                      bool reduceOpsTaskSplitting);
-#else
-    GrDrawingManager(GrRecordingContext*, bool reduceOpsTaskSplitting);
-#endif
 
     bool wasAbandoned() const;
 
@@ -244,11 +231,9 @@ private:
     SkTArray<sk_sp<GrRenderTask>>            fDAG;
     skgpu::v1::OpsTask*                      fActiveOpsTask = nullptr;
 
-#if SK_GPU_V1
     PathRendererChain::Options               fOptionsForPathRendererChain;
     std::unique_ptr<PathRendererChain>       fPathRendererChain;
     sk_sp<skgpu::v1::SoftwarePathRenderer>   fSoftwarePathRenderer;
-#endif
 
     skgpu::TokenTracker                      fTokenTracker;
     bool                                     fFlushing = false;

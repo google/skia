@@ -21,12 +21,10 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
+#include "src/gpu/ganesh/ops/AtlasTextOp.h"
 #include "src/text/gpu/TextBlob.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
-#if SK_GPU_V1
-#include "src/gpu/ganesh/ops/AtlasTextOp.h"
-#endif
 
 using TextBlobRedrawCoordinator = sktext::gpu::TextBlobRedrawCoordinator;
 
@@ -51,9 +49,7 @@ GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy, bo
 }
 
 GrRecordingContext::~GrRecordingContext() {
-#if SK_GPU_V1
     skgpu::v1::AtlasTextOp::ClearCache();
-#endif
 }
 
 bool GrRecordingContext::init() {
@@ -61,7 +57,6 @@ bool GrRecordingContext::init() {
         return false;
     }
 
-#if SK_GPU_V1
     skgpu::v1::PathRendererChain::Options prcOptions;
     prcOptions.fAllowPathMaskCaching = this->options().fAllowPathMaskCaching;
 #if GR_TEST_UTILS
@@ -71,7 +66,6 @@ bool GrRecordingContext::init() {
     if (this->options().fDisableDistanceFieldPaths) {
         prcOptions.fGpuPathRenderers &= ~GpuPathRenderers::kSmall;
     }
-#endif
 
     bool reduceOpsTaskSplitting = true;
     if (this->caps()->avoidReorderingRenderTasks()) {
@@ -82,9 +76,7 @@ bool GrRecordingContext::init() {
         reduceOpsTaskSplitting = false;
     }
     fDrawingManager.reset(new GrDrawingManager(this,
-#if SK_GPU_V1
                                                prcOptions,
-#endif
                                                reduceOpsTaskSplitting));
     return true;
 }

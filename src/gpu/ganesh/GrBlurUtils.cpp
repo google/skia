@@ -7,8 +7,6 @@
 
 #include "src/gpu/ganesh/GrBlurUtils.h"
 
-#if SK_GPU_V1
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPaint.h"
@@ -593,24 +591,3 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext* rContext,
                        GrStyledShape(shape));
     }
 }
-
-#else // SK_GPU_V1
-
-void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext*,
-                                          skgpu::v1::SurfaceDrawContext*,
-                                          const GrClip*,
-                                          const GrStyledShape&,
-                                          GrPaint&&,
-                                          const SkMatrix& viewMatrix,
-                                          const SkMaskFilter*) {
-}
-
-void GrBlurUtils::drawShapeWithMaskFilter(GrRecordingContext*,
-                                          skgpu::v1::SurfaceDrawContext*,
-                                          const GrClip*,
-                                          const SkPaint&,
-                                          const SkMatrixProvider&,
-                                          const GrStyledShape&) {
-}
-
-#endif // SK_GPU_V1

@@ -42,16 +42,14 @@
 #include "src/gpu/ganesh/GrTransferFromRenderTask.h"
 #include "src/gpu/ganesh/GrWaitRenderTask.h"
 #include "src/gpu/ganesh/GrWritePixelsRenderTask.h"
+#include "src/gpu/ganesh/ops/OpsTask.h"
+#include "src/gpu/ganesh/ops/SoftwarePathRenderer.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "src/text/gpu/SDFTControl.h"
 
-#if SK_GPU_V1
-#include "src/gpu/ganesh/ops/OpsTask.h"
-#include "src/gpu/ganesh/ops/SoftwarePathRenderer.h"
-#endif
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#if SK_GPU_V1
 GrDrawingManager::GrDrawingManager(GrRecordingContext* rContext,
                                    const PathRendererChain::Options& optionsForPathRendererChain,
                                    bool reduceOpsTaskSplitting)
@@ -61,15 +59,6 @@ GrDrawingManager::GrDrawingManager(GrRecordingContext* rContext,
         , fSoftwarePathRenderer(nullptr)
         , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) {
 }
-
-#else
-
-GrDrawingManager::GrDrawingManager(GrRecordingContext* rContext, bool reduceOpsTaskSplitting)
-        : fContext(rContext)
-        , fReduceOpsTaskSplitting(reduceOpsTaskSplitting) {
-}
-
-#endif
 
 GrDrawingManager::~GrDrawingManager() {
     this->closeAllTasks();
@@ -88,11 +77,9 @@ void GrDrawingManager::freeGpuResources() {
         }
     }
 
-#if SK_GPU_V1
     // a path renderer may be holding onto resources
     fPathRendererChain = nullptr;
     fSoftwarePathRenderer = nullptr;
-#endif
 }
 
 // MDB TODO: make use of the 'proxies' parameter.
@@ -323,7 +310,7 @@ void GrDrawingManager::sortTasks() {
         return;
     }
 
-#if SK_GPU_V1 && defined(SK_DEBUG)
+#ifdef SK_DEBUG
     // This block checks for any unnecessary splits in the opsTasks. If two sequential opsTasks
     // could have merged it means the opsTask was artificially split.
     if (!fDAG.empty()) {
@@ -380,7 +367,6 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
     int newCount = 0;
     for (int i = 0; i < fDAG.count(); i++) {
         sk_sp<GrRenderTask>& task = fDAG[i];
-#if SK_GPU_V1
         if (auto opsTask = task->asOpsTask()) {
             size_t remaining = fDAG.size() - i - 1;
             SkSpan<sk_sp<GrRenderTask>> nextTasks{fDAG.end() - remaining, remaining};
@@ -390,7 +376,6 @@ bool GrDrawingManager::reorderTasks(GrResourceAllocator* resourceAllocator) {
             }
             i += removeCount;
         }
-#endif
         fDAG[newCount++] = std::move(task);
     }
     fDAG.resize_back(newCount);
@@ -563,7 +548,6 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
                                      SkIPoint offset) {
     SkDEBUGCODE(this->validate());
 
-#if SK_GPU_V1
     if (fActiveOpsTask) {
         // This is a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
@@ -572,7 +556,6 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
         fActiveOpsTask->makeClosed(fContext);
         fActiveOpsTask = nullptr;
     }
-#endif
 
     // Propagate the DDL proxy's state information to the replay target.
     if (ddl->priv().targetProxy()->isMSAADirty()) {
@@ -603,7 +586,6 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
 
 #ifdef SK_DEBUG
 void GrDrawingManager::validate() const {
-#if SK_GPU_V1
     if (fActiveOpsTask) {
         SkASSERT(!fDAG.empty());
         SkASSERT(!fActiveOpsTask->isClosed());
@@ -634,12 +616,10 @@ void GrDrawingManager::validate() const {
     } else {
         SkASSERT(fActiveOpsTask == nullptr);
     }
-#endif // SK_GPU_V1
 }
 #endif // SK_DEBUG
 
 void GrDrawingManager::closeActiveOpsTask() {
-#if SK_GPU_V1
     if (fActiveOpsTask) {
         // This is a temporary fix for the partial-MDB world. In that world we're not
         // reordering so ops that (in the single opsTask world) would've just glommed onto the
@@ -648,10 +628,8 @@ void GrDrawingManager::closeActiveOpsTask() {
         fActiveOpsTask->makeClosed(fContext);
         fActiveOpsTask = nullptr;
     }
-#endif
 }
 
-#if SK_GPU_V1
 sk_sp<skgpu::v1::OpsTask> GrDrawingManager::newOpsTask(GrSurfaceProxyView surfaceView,
                                                        sk_sp<GrArenas> arenas) {
     SkDEBUGCODE(this->validate());
@@ -699,7 +677,6 @@ void GrDrawingManager::addAtlasTask(sk_sp<GrRenderTask> atlasTask,
 
     SkDEBUGCODE(this->validate());
 }
-#endif // SK_GPU_V1
 
 GrTextureResolveRenderTask* GrDrawingManager::newTextureResolveRenderTaskBefore(
         const GrCaps& caps) {
@@ -758,7 +735,6 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
                                                                     std::move(semaphores),
                                                                     numSemaphores);
 
-#if SK_GPU_V1
     if (fActiveOpsTask && (fActiveOpsTask->target(0) == proxy.get())) {
         SkASSERT(this->getLastRenderTask(proxy.get()) == fActiveOpsTask);
         this->insertTaskBeforeLast(waitTask);
@@ -776,9 +752,7 @@ void GrDrawingManager::newWaitRenderTask(sk_sp<GrSurfaceProxy> proxy,
         // get a circular self dependency of waitTask on waitTask.
         waitTask->addDependenciesFromOtherTask(fActiveOpsTask);
         fActiveOpsTask->addDependency(waitTask.get());
-    } else
-#endif
-    {
+    } else {
         // In this case we just close the previous RenderTask and start and append the waitTask
         // to the DAG. Since it is the last task now we call setLastRenderTask on the proxy. If
         // there is a lastTask on the proxy we make waitTask depend on that task. This
@@ -973,7 +947,6 @@ bool GrDrawingManager::newWritePixelsTask(sk_sp<GrSurfaceProxy> dst,
     return true;
 }
 
-#if SK_GPU_V1
 /*
  * This method finds a path renderer that can draw the specified path on
  * the provided target.
@@ -1031,8 +1004,6 @@ skgpu::v1::PathRenderer* GrDrawingManager::getTessellationPathRenderer() {
     }
     return fPathRendererChain->getTessellationPathRenderer();
 }
-
-#endif // SK_GPU_V1
 
 void GrDrawingManager::flushIfNecessary() {
     auto direct = fContext->asDirectContext();
