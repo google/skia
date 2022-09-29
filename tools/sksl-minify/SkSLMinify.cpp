@@ -71,33 +71,38 @@ static bool maybe_identifier(char c) {
     return std::isalnum(c) || c == '$' || c == '_';
 }
 
-static std::list<SkSL::ParsedModule> compile_module_list(SkSpan<const std::string> paths) {
+static std::optional<SkSL::LoadedModule> compile_module_list(SkSpan<const std::string> paths) {
     // Load in each input as a module, from right to left.
     // Each module inherits the symbols from its parent module.
     SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
-    std::list<SkSL::ParsedModule> compiledModules = {
-            {SkSL::ModuleLoader::Get().rootModule().fSymbols,
-             /*fElements=*/nullptr}};
+    SkSL::LoadedModule loadedModule;
+    std::list<SkSL::ParsedModule> modules = {{SkSL::ModuleLoader::Get().rootModule().fSymbols,
+                                              /*fElements=*/nullptr}};
     for (auto modulePath = paths.rbegin(); modulePath != paths.rend(); ++modulePath) {
         std::ifstream in(*modulePath);
         std::string moduleSource{std::istreambuf_iterator<char>(in),
                                  std::istreambuf_iterator<char>()};
         if (in.rdstate()) {
             printf("error reading '%s'\n", modulePath->c_str());
-            return {};
+            return std::nullopt;
+        }
+
+        // If we have a loaded module, parse it and put it on the list.
+        if (loadedModule.fSymbols) {
+            modules.push_front(loadedModule.parse(modules.front()));
         }
 
         // TODO(skia:13778): We don't know the module's ProgramKind here, so we always pass
         // kFragment. For minification purposes, the ProgramKind doesn't really make a difference
         // as long as it doesn't limit what we can do.
-        compiledModules.push_front(
-                compiler.compileModule(SkSL::ProgramKind::kFragment,
-                                       modulePath->c_str(),
-                                       std::move(moduleSource),
-                                       compiledModules.front(),
-                                       SkSL::ModuleLoader::Get().coreModifiers()));
+        loadedModule = compiler.compileModule(SkSL::ProgramKind::kFragment,
+                                              modulePath->c_str(),
+                                              std::move(moduleSource),
+                                              modules.front(),
+                                              SkSL::ModuleLoader::Get().coreModifiers(),
+                                              /*shouldInline=*/false);
     }
-    return compiledModules;
+    return std::move(loadedModule);
 }
 
 ResultCode processCommand(const std::vector<std::string>& args) {
@@ -111,8 +116,8 @@ ResultCode processCommand(const std::vector<std::string>& args) {
     // Compile the original SkSL from the input path.
     SkSpan inputPaths(args);
     inputPaths = inputPaths.subspan(1);
-    std::list<SkSL::ParsedModule> modules = compile_module_list(inputPaths);
-    if (modules.empty()) {
+    std::optional<SkSL::LoadedModule> module = compile_module_list(inputPaths);
+    if (!module.has_value()) {
         return ResultCode::kInputError;
     }
 

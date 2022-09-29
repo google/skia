@@ -20,6 +20,7 @@
 
 #include <string>
 #include <type_traits>
+#include <utility>
 
 #if SKSL_STANDALONE
 
@@ -210,6 +211,17 @@ static void add_compute_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Bui
     symbols->add(Type::MakeAliasType("texture2D", *types.fReadWriteTexture2D));
 }
 
+static ParsedModule compile_and_parse(SkSL::Compiler* compiler,
+                                      ProgramKind kind,
+                                      const char* moduleName,
+                                      std::string moduleSource,
+                                      const ParsedModule& base,
+                                      ModifiersPool& modifiersPool) {
+    return compiler->compileModule(kind, moduleName, std::move(moduleSource),
+                                   base, modifiersPool, /*shouldInline=*/true)
+                   .parse(base);
+}
+
 const BuiltinTypes& ModuleLoader::builtinTypes() {
     return fModuleLoader.fBuiltinTypes;
 }
@@ -235,10 +247,11 @@ std::shared_ptr<SymbolTable>& ModuleLoader::rootSymbolTableWithPublicTypes() {
 const ParsedModule& ModuleLoader::loadPublicModule(SkSL::Compiler* compiler) {
     if (!fModuleLoader.fPublicModule.fSymbols) {
         const ParsedModule& sharedModule = this->loadSharedModule(compiler);
-        fModuleLoader.fPublicModule = compiler->compileModule(ProgramKind::kGeneric,
-                                                              MODULE_DATA(sksl_public),
-                                                              sharedModule,
-                                                              this->coreModifiers());
+        fModuleLoader.fPublicModule = compile_and_parse(compiler,
+                                                        ProgramKind::kGeneric,
+                                                        MODULE_DATA(sksl_public),
+                                                        sharedModule,
+                                                        this->coreModifiers());
         add_public_type_aliases(fModuleLoader.fPublicModule.fSymbols.get(), this->builtinTypes());
     }
     return fModuleLoader.fPublicModule;
@@ -247,10 +260,11 @@ const ParsedModule& ModuleLoader::loadPublicModule(SkSL::Compiler* compiler) {
 const ParsedModule& ModuleLoader::loadPrivateRTShaderModule(SkSL::Compiler* compiler) {
     if (!fModuleLoader.fRuntimeShaderModule.fSymbols) {
         const ParsedModule& publicModule = this->loadPublicModule(compiler);
-        fModuleLoader.fRuntimeShaderModule = compiler->compileModule(ProgramKind::kFragment,
-                                                                     MODULE_DATA(sksl_rt_shader),
-                                                                     publicModule,
-                                                                     this->coreModifiers());
+        fModuleLoader.fRuntimeShaderModule = compile_and_parse(compiler,
+                                                               ProgramKind::kFragment,
+                                                               MODULE_DATA(sksl_rt_shader),
+                                                               publicModule,
+                                                               this->coreModifiers());
     }
     return fModuleLoader.fRuntimeShaderModule;
 }
@@ -258,10 +272,11 @@ const ParsedModule& ModuleLoader::loadPrivateRTShaderModule(SkSL::Compiler* comp
 const ParsedModule& ModuleLoader::loadSharedModule(SkSL::Compiler* compiler) {
     if (!fModuleLoader.fSharedModule.fSymbols) {
         const ParsedModule& rootModule = this->rootModule();
-        fModuleLoader.fSharedModule = compiler->compileModule(ProgramKind::kFragment,
-                                                              MODULE_DATA(sksl_shared),
-                                                              rootModule,
-                                                              this->coreModifiers());
+        fModuleLoader.fSharedModule = compile_and_parse(compiler,
+                                                        ProgramKind::kFragment,
+                                                        MODULE_DATA(sksl_shared),
+                                                        rootModule,
+                                                        this->coreModifiers());
     }
     return fModuleLoader.fSharedModule;
 }
@@ -269,10 +284,11 @@ const ParsedModule& ModuleLoader::loadSharedModule(SkSL::Compiler* compiler) {
 const ParsedModule& ModuleLoader::loadGPUModule(SkSL::Compiler* compiler) {
     if (!fModuleLoader.fGPUModule.fSymbols) {
         const ParsedModule& sharedModule = this->loadSharedModule(compiler);
-        fModuleLoader.fGPUModule = compiler->compileModule(ProgramKind::kFragment,
-                                                           MODULE_DATA(sksl_gpu),
-                                                           sharedModule,
-                                                           this->coreModifiers());
+        fModuleLoader.fGPUModule = compile_and_parse(compiler,
+                                                     ProgramKind::kFragment,
+                                                     MODULE_DATA(sksl_gpu),
+                                                     sharedModule,
+                                                     this->coreModifiers());
     }
     return fModuleLoader.fGPUModule;
 }
@@ -280,10 +296,11 @@ const ParsedModule& ModuleLoader::loadGPUModule(SkSL::Compiler* compiler) {
 const ParsedModule& ModuleLoader::loadFragmentModule(SkSL::Compiler* compiler) {
     if (!fModuleLoader.fFragmentModule.fSymbols) {
         const ParsedModule& gpuModule = this->loadGPUModule(compiler);
-        fModuleLoader.fFragmentModule = compiler->compileModule(ProgramKind::kFragment,
-                                                                MODULE_DATA(sksl_frag),
-                                                                gpuModule,
-                                                                this->coreModifiers());
+        fModuleLoader.fFragmentModule = compile_and_parse(compiler,
+                                                          ProgramKind::kFragment,
+                                                          MODULE_DATA(sksl_frag),
+                                                          gpuModule,
+                                                          this->coreModifiers());
     }
     return fModuleLoader.fFragmentModule;
 }
@@ -291,10 +308,11 @@ const ParsedModule& ModuleLoader::loadFragmentModule(SkSL::Compiler* compiler) {
 const ParsedModule& ModuleLoader::loadVertexModule(SkSL::Compiler* compiler) {
     if (!fModuleLoader.fVertexModule.fSymbols) {
         const ParsedModule& gpuModule = this->loadGPUModule(compiler);
-        fModuleLoader.fVertexModule = compiler->compileModule(ProgramKind::kVertex,
-                                                              MODULE_DATA(sksl_vert),
-                                                              gpuModule,
-                                                              this->coreModifiers());
+        fModuleLoader.fVertexModule = compile_and_parse(compiler,
+                                                        ProgramKind::kVertex,
+                                                        MODULE_DATA(sksl_vert),
+                                                        gpuModule,
+                                                        this->coreModifiers());
     }
     return fModuleLoader.fVertexModule;
 }
@@ -302,10 +320,11 @@ const ParsedModule& ModuleLoader::loadVertexModule(SkSL::Compiler* compiler) {
 const ParsedModule& ModuleLoader::loadComputeModule(SkSL::Compiler* compiler) {
     if (!fModuleLoader.fComputeModule.fSymbols) {
         const ParsedModule& gpuModule = this->loadGPUModule(compiler);
-        fModuleLoader.fComputeModule = compiler->compileModule(ProgramKind::kCompute,
-                                                               MODULE_DATA(sksl_compute),
-                                                               gpuModule,
-                                                               this->coreModifiers());
+        fModuleLoader.fComputeModule = compile_and_parse(compiler,
+                                                         ProgramKind::kCompute,
+                                                         MODULE_DATA(sksl_compute),
+                                                         gpuModule,
+                                                         this->coreModifiers());
         add_compute_type_aliases(fModuleLoader.fComputeModule.fSymbols.get(), this->builtinTypes());
     }
     return fModuleLoader.fComputeModule;
@@ -315,11 +334,11 @@ const ParsedModule& ModuleLoader::loadGraphiteFragmentModule(SkSL::Compiler* com
 #if defined(SK_GRAPHITE_ENABLED)
     if (!fModuleLoader.fGraphiteFragmentModule.fSymbols) {
         const ParsedModule& fragmentModule = this->loadFragmentModule(compiler);
-        fModuleLoader.fGraphiteFragmentModule =
-                compiler->compileModule(ProgramKind::kGraphiteFragment,
-                                        MODULE_DATA(sksl_graphite_frag),
-                                        fragmentModule,
-                                        this->coreModifiers());
+        fModuleLoader.fGraphiteFragmentModule = compile_and_parse(compiler,
+                                                                  ProgramKind::kGraphiteFragment,
+                                                                  MODULE_DATA(sksl_graphite_frag),
+                                                                  fragmentModule,
+                                                                  this->coreModifiers());
     }
     return fModuleLoader.fGraphiteFragmentModule;
 #else
@@ -331,10 +350,11 @@ const ParsedModule& ModuleLoader::loadGraphiteVertexModule(SkSL::Compiler* compi
 #if defined(SK_GRAPHITE_ENABLED)
     if (!fModuleLoader.fGraphiteVertexModule.fSymbols) {
         const ParsedModule& vertexModule = this->loadVertexModule(compiler);
-        fModuleLoader.fGraphiteVertexModule = compiler->compileModule(ProgramKind::kGraphiteVertex,
-                                                                    MODULE_DATA(sksl_graphite_vert),
-                                                                    vertexModule,
-                                                                    this->coreModifiers());
+        fModuleLoader.fGraphiteVertexModule = compile_and_parse(compiler,
+                                                                ProgramKind::kGraphiteVertex,
+                                                                MODULE_DATA(sksl_graphite_vert),
+                                                                vertexModule,
+                                                                this->coreModifiers());
     }
     return fModuleLoader.fGraphiteVertexModule;
 #else
