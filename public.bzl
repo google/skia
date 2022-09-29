@@ -1594,6 +1594,7 @@ BASE_SRCS_ALL = [
     "src/sksl/transform/SkSLEliminateDeadFunctions.cpp",
     "src/sksl/transform/SkSLEliminateDeadGlobalVariables.cpp",
     "src/sksl/transform/SkSLEliminateDeadLocalVariables.cpp",
+    "src/sksl/transform/SkSLEliminateEmptyStatements.cpp",
     "src/sksl/transform/SkSLEliminateUnreachableCode.cpp",
     "src/sksl/transform/SkSLFindAndDeclareBuiltinFunctions.cpp",
     "src/sksl/transform/SkSLFindAndDeclareBuiltinVariables.cpp",

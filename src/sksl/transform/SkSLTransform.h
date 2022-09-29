@@ -57,6 +57,12 @@ void EliminateUnreachableCode(LoadedModule& module, ProgramUsage* usage);
 void EliminateUnreachableCode(Program& program);
 
 /**
+ * Eliminates empty statements in a module (Nops, or blocks holding only Nops). Not implemented for
+ * Programs because Nops are harmless, but they waste space in long-lived module IR.
+ */
+void EliminateEmptyStatements(LoadedModule& module);
+
+/**
  * Eliminates functions in a program which are never called. Returns true if any changes were made.
  */
 bool EliminateDeadFunctions(Program& program);
