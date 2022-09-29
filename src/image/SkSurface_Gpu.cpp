@@ -159,7 +159,7 @@ void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
 }
 
 void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
-                                                const SkIRect& srcRect,
+                                                SkIRect srcRect,
                                                 RescaleGamma rescaleGamma,
                                                 RescaleMode rescaleMode,
                                                 ReadPixelsCallback callback,
@@ -174,8 +174,8 @@ void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
 
 void SkSurface_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                                       sk_sp<SkColorSpace> dstColorSpace,
-                                                      const SkIRect& srcRect,
-                                                      const SkISize& dstSize,
+                                                      SkIRect srcRect,
+                                                      SkISize dstSize,
                                                       RescaleGamma rescaleGamma,
                                                       RescaleMode rescaleMode,
                                                       ReadPixelsCallback callback,

@@ -332,7 +332,7 @@ sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) c
 }
 
 void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
-                                              const SkIRect& srcRect,
+                                              SkIRect srcRect,
                                               RescaleGamma rescaleGamma,
                                               RescaleMode rescaleMode,
                                               ReadPixelsCallback callback,
@@ -354,8 +354,8 @@ void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
 
 void SkImage_Gpu::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                                     sk_sp<SkColorSpace> dstColorSpace,
-                                                    const SkIRect& srcRect,
-                                                    const SkISize& dstSize,
+                                                    SkIRect srcRect,
+                                                    SkISize dstSize,
                                                     RescaleGamma rescaleGamma,
                                                     RescaleMode rescaleMode,
                                                     ReadPixelsCallback callback,
