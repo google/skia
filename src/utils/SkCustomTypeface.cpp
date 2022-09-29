@@ -458,7 +458,8 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
 
     for (int i = 0; i < glyphCount; ++i) {
         uint32_t gtype;
-        if (!stream->readU32(&gtype)) {
+        if (!stream->readU32(&gtype) ||
+            (gtype != GlyphType::kDrawable && gtype != GlyphType::kPath)) {
             return nullptr;
         }
 
@@ -468,7 +469,7 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
         }
 
         SkRect bounds;
-        if (stream->read(&bounds, sizeof(bounds)) != sizeof(bounds)) {
+        if (stream->read(&bounds, sizeof(bounds)) != sizeof(bounds) || !bounds.isFinite()) {
             return nullptr;
         }
 
@@ -477,6 +478,17 @@ sk_sp<SkTypeface> SkCustomTypefaceBuilder::Deserialize(SkStream* stream) {
         if (stream->read(&sz, sizeof(sz)) != sizeof(sz)) {
             return nullptr;
         }
+
+        // The amount of bytes in the stream must be at least as big as sz, otherwise
+        // sz is invalid.
+        if (stream->hasLength() && stream->hasPosition()) {
+            SkASSERT(stream->getLength() >= stream->getPosition());
+            size_t remainingBytes = stream->getLength() - stream->getPosition();
+            if (sz > remainingBytes) {
+                return nullptr;
+            }
+        }
+
         auto data = SkData::MakeUninitialized(sz);
         if (stream->read(data->writable_data(), sz) != sz) {
             return nullptr;
