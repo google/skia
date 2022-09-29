@@ -66,6 +66,28 @@ sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace>) const {
     return nullptr;
 }
 
+void Image::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
+                                        SkIRect srcRect,
+                                        RescaleGamma rescaleGamma,
+                                        RescaleMode rescaleMode,
+                                        ReadPixelsCallback callback,
+                                        ReadPixelsContext context) const {
+    // TODO
+    callback(context, nullptr);
+}
+
+void Image::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
+                                              sk_sp<SkColorSpace> dstColorSpace,
+                                              const SkIRect srcRect,
+                                              const SkISize dstSize,
+                                              RescaleGamma rescaleGamma,
+                                              RescaleMode rescaleMode,
+                                              ReadPixelsCallback callback,
+                                              ReadPixelsContext context) const {
+    // TODO
+    callback(context, nullptr);
+}
+
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> Image::onAsFragmentProcessor(
         GrRecordingContext*,
