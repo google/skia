@@ -201,8 +201,7 @@ sk_sp<SkRuntimeEffect> make_noise_effect(unsigned loops, const char* filter, con
     return std::move(result.effect);
 }
 
-template <unsigned LOOPS, NoiseFilter FILTER, NoiseFractal FRACTAL>
-sk_sp<SkRuntimeEffect> noise_effect() {
+sk_sp<SkRuntimeEffect> noise_effect(float octaves, NoiseFilter filter, NoiseFractal fractal) {
     static constexpr char const* gFilters[] = {
         gFilterNearestSkSL,
         gFilterLinearSkSL,
@@ -216,14 +215,50 @@ sk_sp<SkRuntimeEffect> noise_effect() {
         gFractalTurbulentSharpSkSL
     };
 
-    static_assert(static_cast<size_t>(FILTER)  < std::size(gFilters));
-    static_assert(static_cast<size_t>(FRACTAL) < std::size(gFractals));
+    SkASSERT(static_cast<size_t>(filter)  < std::size(gFilters));
+    SkASSERT(static_cast<size_t>(fractal) < std::size(gFractals));
 
-    static const SkRuntimeEffect* effect =
-            make_noise_effect(LOOPS,
-                              gFilters[static_cast<size_t>(FILTER)],
-                              gFractals[static_cast<size_t>(FRACTAL)])
-            .release();
+    // Bin the loop counter based on the number of octaves (range: [1..20]).
+    // Low complexities are common, so we maximize resolution for the low end.
+    struct BinInfo {
+        float    threshold;
+        unsigned loops;
+    };
+    static constexpr BinInfo kLoopBins[] = {
+        { 8, 20 },
+        { 4,  8 },
+        { 3,  4 },
+        { 2,  3 },
+        { 1,  2 },
+        { 0,  1 }
+    };
+
+    auto bin_index = [](float octaves) {
+        SkASSERT(octaves > kLoopBins[std::size(kLoopBins) - 1].threshold);
+
+        for (size_t i = 0; i < std::size(kLoopBins); ++i) {
+            if (octaves > kLoopBins[i].threshold) {
+                return i;
+            }
+        }
+        SkUNREACHABLE;
+    };
+
+    static SkRuntimeEffect* kEffectCache[std::size(kLoopBins)]
+                                        [std::size(gFilters)]
+                                        [std::size(gFractals)];
+
+    const size_t bin = bin_index(octaves);
+
+    auto& effect = kEffectCache[bin]
+                               [static_cast<size_t>(filter)]
+                               [static_cast<size_t>(fractal)];
+    if (!effect) {
+        effect = make_noise_effect(kLoopBins[bin].loops,
+                                   gFilters[static_cast<size_t>(filter)],
+                                   gFractals[static_cast<size_t>(fractal)])
+                 .release();
+    }
 
     SkASSERT(effect);
     return sk_ref_sp(effect);
@@ -244,39 +279,25 @@ public:
     SG_ATTRIBUTE(Persistence    , float       , fPersistence    )
 
 private:
-    template <NoiseFilter FI, NoiseFractal FR>
-    sk_sp<SkRuntimeEffect> getEffect() const {
-        // Bin the loop counter based on the number of octaves (range: [1..20]).
-        // Low complexities are common, so we maximize resolution for the low end.
-        if (fOctaves > 8) return noise_effect<20, FI, FR>();
-        if (fOctaves > 4) return noise_effect< 8, FI, FR>();
-        if (fOctaves > 3) return noise_effect< 4, FI, FR>();
-        if (fOctaves > 2) return noise_effect< 3, FI, FR>();
-        if (fOctaves > 1) return noise_effect< 2, FI, FR>();
-
-        return noise_effect<1, FI, FR>();
-    }
-
-    template <NoiseFilter FI>
-    sk_sp<SkRuntimeEffect> getEffect() const {
+    sk_sp<SkRuntimeEffect> getEffect(NoiseFilter filter) const {
         switch (fFractal) {
             case NoiseFractal::kBasic:
-                return this->getEffect<FI, NoiseFractal::kBasic>();
+                return noise_effect(fOctaves, filter, NoiseFractal::kBasic);
             case NoiseFractal::kTurbulentBasic:
-                return this->getEffect<FI, NoiseFractal::kTurbulentBasic>();
+                return noise_effect(fOctaves, filter, NoiseFractal::kTurbulentBasic);
             case NoiseFractal::kTurbulentSmooth:
-                return this->getEffect<FI, NoiseFractal::kTurbulentSmooth>();
+                return noise_effect(fOctaves, filter, NoiseFractal::kTurbulentSmooth);
             case NoiseFractal::kTurbulentSharp:
-                return this->getEffect<FI, NoiseFractal::kTurbulentSharp>();
+                return noise_effect(fOctaves, filter, NoiseFractal::kTurbulentSharp);
         }
         SkUNREACHABLE;
     }
 
     sk_sp<SkRuntimeEffect> getEffect() const {
         switch (fFilter) {
-            case NoiseFilter::kNearest   : return this->getEffect<NoiseFilter::kNearest>();
-            case NoiseFilter::kLinear    : return this->getEffect<NoiseFilter::kLinear>();
-            case NoiseFilter::kSoftLinear: return this->getEffect<NoiseFilter::kSoftLinear>();
+            case NoiseFilter::kNearest   : return this->getEffect(NoiseFilter::kNearest);
+            case NoiseFilter::kLinear    : return this->getEffect(NoiseFilter::kLinear);
+            case NoiseFilter::kSoftLinear: return this->getEffect(NoiseFilter::kSoftLinear);
         }
         SkUNREACHABLE;
     }
