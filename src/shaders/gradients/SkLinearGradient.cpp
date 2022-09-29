@@ -61,6 +61,7 @@ void SkLinearGradient::flatten(SkWriteBuffer& buffer) const {
 SkShaderBase::Context* SkLinearGradient::onMakeContext(
     const ContextRec& rec, SkArenaAlloc* alloc) const
 {
+#if defined(SK_SUPPORT_LEGACY_RASTER_GRADIENTS)
     // make sure our colorspaces are compatible with legacy blits
     if (!rec.isLegacyCompatible(fColorSpace.get())) {
         return nullptr;
@@ -73,6 +74,9 @@ SkShaderBase::Context* SkLinearGradient::onMakeContext(
     return fTileMode != SkTileMode::kDecal
         ? CheckedMakeContext<LinearGradient4fContext>(alloc, *this, rec)
         : nullptr;
+#else
+    return nullptr;
+#endif
 }
 #endif
 
