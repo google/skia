@@ -133,20 +133,22 @@ namespace {
 
 bool validate_backend_texture(const Caps* caps,
                               const BackendTexture& texture,
-                              SkColorType ct) {
-    if (!texture.isValid()) {
+                              const SkColorInfo& info) {
+    if (!texture.isValid() ||
+        texture.dimensions().width() <= 0 ||
+        texture.dimensions().height() <= 0) {
         return false;
     }
 
-    const TextureInfo& info = texture.info();
-    if (!caps->areColorTypeAndTextureInfoCompatible(ct, info)) {
+    if (!SkColorInfoIsValid(info)) {
         return false;
     }
 
-    if (!caps->isRenderable(info)) {
+    if (!caps->isRenderable(texture.info())) {
         return false;
     }
-    return true;
+
+    return caps->areColorTypeAndTextureInfoCompatible(info.colorType(), texture.info());
 }
 
 } // anonymous namespace
@@ -164,20 +166,24 @@ sk_sp<SkSurface> SkSurface::MakeGraphite(Recorder* recorder,
 }
 
 sk_sp<SkSurface> SkSurface::MakeGraphiteFromBackendTexture(Recorder* recorder,
-                                                           const BackendTexture& beTexture,
-                                                           SkColorType colorType,
-                                                           sk_sp<SkColorSpace> colorSpace,
+                                                           const BackendTexture& backendTex,
+                                                           SkColorType ct,
+                                                           sk_sp<SkColorSpace> cs,
                                                            const SkSurfaceProps* props) {
 
     if (!recorder) {
         return nullptr;
     }
 
-    if (!validate_backend_texture(recorder->priv().caps(), beTexture, colorType)) {
+    const Caps* caps = recorder->priv().caps();
+
+    SkColorInfo info(ct, kPremul_SkAlphaType, std::move(cs));
+
+    if (!validate_backend_texture(caps, backendTex, info)) {
         return nullptr;
     }
 
-    sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(beTexture);
+    sk_sp<Texture> texture = recorder->priv().resourceProvider()->createWrappedTexture(backendTex);
     if (!texture) {
         return nullptr;
     }
@@ -186,7 +192,7 @@ sk_sp<SkSurface> SkSurface::MakeGraphiteFromBackendTexture(Recorder* recorder,
 
     sk_sp<Device> device = Device::Make(recorder,
                                         std::move(proxy),
-                                        { colorType, kPremul_SkAlphaType, std::move(colorSpace) },
+                                        info,
                                         SkSurfacePropsCopyOrDefault(props),
                                         /* addInitialClear= */ false);
     if (!device) {

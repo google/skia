@@ -22,6 +22,7 @@ using namespace skgpu::graphite;
 
 namespace {
     const SkISize kSize = {16, 16};
+    const uint32_t kNumLevels = 5;
 }
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(BackendTextureTest, reporter, context) {
@@ -78,7 +79,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(BackendTextureTest, reporter, context) {
 // Tests the wrapping of a BackendTexture in an SkSurface
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
     // TODO: Right now this just tests very basic combinations of surfaces. This should be expanded
-    // to conver a much broader set of things once we add more support in Graphite for different
+    // to cover a much broader set of things once we add more support in Graphite for different
     // formats, color types, etc.
 
     auto caps = context->priv().caps();
@@ -101,7 +102,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
 
     surface.reset();
 
-    // We should fail when trying to wrap the same texture in a surface with a non compatible
+    // We should fail when trying to wrap the same texture in a surface with a non-compatible
     // color type.
     surface = SkSurface::MakeGraphiteFromBackendTexture(recorder.get(),
                                                         texture,
@@ -112,7 +113,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
 
     recorder->deleteBackendTexture(texture);
 
-    // We should fail to make a wrap non renderable texture in a surface.
+    // We should fail to wrap a non-renderable texture in a surface.
     info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
                                               /*levelCount=*/1,
                                               Protected::kNo,
@@ -128,4 +129,48 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
 
     REPORTER_ASSERT(reporter, !surface);
     recorder->deleteBackendTexture(texture);
+}
+
+// Tests the wrapping of a BackendTexture in an SkImage
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(ImageBackendTextureTest, reporter, context) {
+    // TODO: Right now this just tests very basic combinations of images. This should be expanded
+    // to cover a much broader set of things once we add more support in Graphite for different
+    // formats, color types, etc.
+
+    const Caps* caps = context->priv().caps();
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    for (bool withMips : { true, false }) {
+        for (Renderable renderable : { Renderable::kYes, Renderable::kNo }) {
+
+            TextureInfo info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
+                                                                  withMips ? kNumLevels : 1,
+                                                                  Protected::kNo,
+                                                                  renderable);
+
+            BackendTexture texture = recorder->createBackendTexture(kSize, info);
+            REPORTER_ASSERT(reporter, texture.isValid());
+
+            sk_sp<SkImage> image = SkImage::MakeGraphiteFromBackendTexture(recorder.get(),
+                                                                           texture,
+                                                                           kRGBA_8888_SkColorType,
+                                                                           kPremul_SkAlphaType,
+                                                                           /*colorSpace=*/ nullptr);
+            REPORTER_ASSERT(reporter, image);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == withMips);
+
+            image.reset();
+
+            // We should fail when trying to wrap the same texture in an image with a non-compatible
+            // color type.
+            image = SkImage::MakeGraphiteFromBackendTexture(recorder.get(),
+                                                            texture,
+                                                            kAlpha_8_SkColorType,
+                                                            kPremul_SkAlphaType,
+                                                            /* colorSpace= */ nullptr);
+            REPORTER_ASSERT(reporter, !image);
+
+            recorder->deleteBackendTexture(texture);
+        }
+    }
 }

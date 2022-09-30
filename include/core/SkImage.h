@@ -52,6 +52,7 @@ enum class SkEncodedImageFormat;
 
 #if defined(SK_GRAPHITE_ENABLED)
 namespace skgpu::graphite {
+class BackendTexture;
 class Recorder;
 };
 #endif
@@ -1147,6 +1148,28 @@ public:
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
+    /** Creates an SkImage from a GPU texture associated with the recorder.
+
+        SkImage is returned if the format of backendTexture is recognized and supported.
+        Recognized formats vary by GPU back-end.
+
+        @param recorder            The recorder
+        @param backendTexture      texture residing on GPU
+        @param colorSpace          This describes the color space of this image's contents, as
+                                   seen after sampling. In general, if the format of the backend
+                                   texture is SRGB, some linear colorSpace should be supplied
+                                   (e.g., SkColorSpace::MakeSRGBLinear()). If the format of the
+                                   backend texture is linear, then the colorSpace should include
+                                   a description of the transfer function as
+                                   well (e.g., SkColorSpace::MakeSRGB()).
+        @return                    created SkImage, or nullptr
+    */
+    static sk_sp<SkImage> MakeGraphiteFromBackendTexture(skgpu::graphite::Recorder*,
+                                                         const skgpu::graphite::BackendTexture&,
+                                                         SkColorType colorType,
+                                                         SkAlphaType alphaType,
+                                                         sk_sp<SkColorSpace> colorSpace);
+
     struct RequiredImageProperties {
         skgpu::graphite::Mipmapped fMipmapped;
     };
