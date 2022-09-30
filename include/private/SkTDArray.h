@@ -152,10 +152,10 @@ public:
     int count() const { return fStorage.size(); }
     int size()  const { return fStorage.size(); }
 
-     // Return the total number of elements allocated.
-     // reserved() - count() gives you the number of elements you can add
-     // without causing an allocation.
-    int reserved() const { return fStorage.capacity(); }
+    // Return the total number of elements allocated.
+    // Note: capacity() - size() gives you the number of elements you can add without causing an
+    // allocation.
+    int capacity() const { return fStorage.capacity(); }
 
     // return the number of bytes in the array: count * sizeof(T)
     size_t size_bytes() const { return fStorage.size_bytes(); }

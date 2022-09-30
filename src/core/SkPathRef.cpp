@@ -60,9 +60,9 @@ void SkPath::shrinkToFit() {
 
 size_t SkPathRef::approximateBytesUsed() const {
     return sizeof(SkPathRef)
-         + fPoints      .reserved() * sizeof(fPoints      [0])
-         + fVerbs       .reserved() * sizeof(fVerbs       [0])
-         + fConicWeights.reserved() * sizeof(fConicWeights[0]);
+         + fPoints      .capacity() * sizeof(fPoints      [0])
+         + fVerbs       .capacity() * sizeof(fVerbs       [0])
+         + fConicWeights.capacity() * sizeof(fConicWeights[0]);
 }
 
 SkPathRef::~SkPathRef() {
