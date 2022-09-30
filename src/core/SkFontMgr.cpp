@@ -146,6 +146,11 @@ sk_sp<SkTypeface> SkFontMgr::legacyMakeTypeface(const char familyName[], SkFontS
     return this->onLegacyMakeTypeface(familyName, style);
 }
 
+sk_sp<SkFontMgr> SkFontMgr::RefEmpty() {
+    static SkEmptyFontMgr singleton;
+    return sk_ref_sp(&singleton);
+}
+
 // A global function pointer that's not declared, but can be overriden at startup by test tools.
 sk_sp<SkFontMgr> (*gSkFontMgr_DefaultFactory)() = nullptr;
 
@@ -156,7 +161,7 @@ sk_sp<SkFontMgr> SkFontMgr::RefDefault() {
     once([]{
         sk_sp<SkFontMgr> fm = gSkFontMgr_DefaultFactory ? gSkFontMgr_DefaultFactory()
                                                         : SkFontMgr::Factory();
-        singleton = fm ? std::move(fm) : sk_make_sp<SkEmptyFontMgr>();
+        singleton = fm ? std::move(fm) : RefEmpty();
     });
     return singleton;
 }
