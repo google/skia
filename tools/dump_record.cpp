@@ -143,7 +143,7 @@ private:
 int main(int argc, char** argv) {
     CommandLineFlags::Parse(argc, argv);
 
-    for (int i = 0; i < FLAGS_skps.count(); i++) {
+    for (int i = 0; i < FLAGS_skps.size(); i++) {
         if (CommandLineFlags::ShouldSkip(FLAGS_match, FLAGS_skps[i])) {
             continue;
         }
@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
             record.visit(j, dumper);
         }
 
-        if (FLAGS_write.count() > 0) {
+        if (FLAGS_write.size() > 0) {
             SkPictureRecorder r;
             SkRecordDraw(record,
                          r.beginRecording(SkRect::MakeIWH(w, h)),

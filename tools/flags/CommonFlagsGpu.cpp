@@ -80,7 +80,7 @@ static GpuPathRenderers collect_gpu_path_renderers_from_flags() {
             ? GpuPathRenderers::kDefault
             : GpuPathRenderers::kNone;
 
-    for (int i = 0; i < FLAGS_pr.count(); ++i) {
+    for (int i = 0; i < FLAGS_pr.size(); ++i) {
         const char* name = FLAGS_pr[i];
         if (name[0] == '~') {
             gpuPathRenderers &= ~get_named_pathrenderers_flags(&name[1]);

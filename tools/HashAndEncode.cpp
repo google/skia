@@ -143,11 +143,11 @@ bool HashAndEncode::encodePNG(SkWStream* st,
 
     SkString description;
     description.append("Key: ");
-    for (int i = 0; i < key.count(); i++) {
+    for (int i = 0; i < key.size(); i++) {
         description.appendf("%s ", key[i]);
     }
     description.append("Properties: ");
-    for (int i = 0; i < properties.count(); i++) {
+    for (int i = 0; i < properties.size(); i++) {
         description.appendf("%s ", properties[i]);
     }
     description.appendf("MD5: %s", md5);

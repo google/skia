@@ -359,10 +359,10 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
 namespace {
 
 template <typename Strings> bool ShouldSkipImpl(const Strings& strings, const char* name) {
-    int    count      = strings.count();
+    int    count      = strings.size();
     size_t testLen    = strlen(name);
     bool   anyExclude = count == 0;
-    for (int i = 0; i < strings.count(); ++i) {
+    for (int i = 0; i < strings.size(); ++i) {
         const char* matchName = strings[i];
         size_t      matchLen  = strlen(matchName);
         bool        matchExclude, matchStart, matchEnd;

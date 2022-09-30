@@ -132,9 +132,9 @@ public:
             return fStrings[i].c_str();
         }
 
-        int count() const { return fStrings.count(); }
+        int size() const { return fStrings.count(); }
 
-        bool isEmpty() const { return this->count() == 0; }
+        bool isEmpty() const { return this->size() == 0; }
 
         /**
          * Returns true iff string is equal to one of the strings in this array.

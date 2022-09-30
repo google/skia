@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     CommandLineFlags::SetUsage("Prints information about an skp file");
     CommandLineFlags::Parse(argc, argv);
 
-    if (FLAGS_input.count() != 1) {
+    if (FLAGS_input.size() != 1) {
         if (!FLAGS_quiet) {
             SkDebugf("Missing input file\n");
         }

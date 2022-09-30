@@ -64,7 +64,7 @@ bool CollectImages(CommandLineFlags::StringArray images, SkTArray<SkString>* out
 #endif
     };
 
-    for (int i = 0; i < images.count(); ++i) {
+    for (int i = 0; i < images.size(); ++i) {
         const char* flag = images[i];
         if (!sk_exists(flag)) {
             SkDebugf("%s does not exist!\n", flag);
