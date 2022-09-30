@@ -128,7 +128,6 @@ protected:
 
     const SkMatrix fPtsToUnit;
     SkTileMode     fTileMode;
-    Interpolation  fInterpolation;
 
 public:
     SkScalar getPos(int i) const {
@@ -153,6 +152,7 @@ public:
     SkScalar*           fOrigPos;      // original positions
     int                 fColorCount;
     sk_sp<SkColorSpace> fColorSpace;   // color space of gradient stops
+    Interpolation       fInterpolation;
 
     bool colorsAreOpaque() const { return fColorsAreOpaque; }
 
@@ -173,10 +173,11 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 struct SkColor4fXformer {
-    SkColor4fXformer(const SkColor4f* colors, int colorCount, SkColorSpace* src, SkColorSpace* dst);
+    SkColor4fXformer(const SkColor4f* colors, int colorCount,
+                     const SkGradientShader::Interpolation& interpolation,
+                     SkColorSpace* src, SkColorSpace* dst);
 
-    const SkColor4f*              fColors;
-    SkSTArray<4, SkColor4f, true> fStorage;
+    SkSTArray<4, SkPMColor4f, true> fColors;
 };
 
 struct SkColorConverter {

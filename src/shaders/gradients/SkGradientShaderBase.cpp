@@ -323,19 +323,15 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 
     const bool premulGrad = this->interpolateInPremul();
 
-    // Transform all of the colors to destination color space
-    SkColor4fXformer xformedColors(fOrigColors4f, fColorCount, fColorSpace.get(), rec.fDstCS);
-
-    auto prepareColor = [premulGrad, &xformedColors](int i) {
-        SkColor4f c = xformedColors.fColors[i];
-        return premulGrad ? c.premul()
-                          : SkPMColor4f{ c.fR, c.fG, c.fB, c.fA };
-    };
+    // Transform all of the colors to destination color space, possibly premultiplied
+    SkColor4fXformer xformedColors(fOrigColors4f, fColorCount, fInterpolation,
+                                   fColorSpace.get(), rec.fDstCS);
+    const SkPMColor4f* pmColors = xformedColors.fColors.begin();
 
     // The two-stop case with stops at 0 and 1.
     if (fColorCount == 2 && fOrigPos == nullptr) {
-        const SkPMColor4f c_l = prepareColor(0),
-                          c_r = prepareColor(1);
+        const SkPMColor4f c_l = pmColors[0],
+                          c_r = pmColors[1];
 
         // See F and B below.
         auto ctx = alloc->make<SkRasterPipeline_EvenlySpaced2StopGradientCtx>();
@@ -362,9 +358,9 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
             size_t stopCount = fColorCount;
             float gapCount = stopCount - 1;
 
-            SkPMColor4f c_l = prepareColor(0);
+            SkPMColor4f c_l = pmColors[0];
             for (size_t i = 0; i < stopCount - 1; i++) {
-                SkPMColor4f c_r = prepareColor(i + 1);
+                SkPMColor4f c_r = pmColors[i + 1];
                 init_stop_evenly(ctx, gapCount, i, c_l, c_r);
                 c_l = c_r;
             }
@@ -392,12 +388,12 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 
             size_t stopCount = 0;
             float  t_l = fOrigPos[firstStop];
-            SkPMColor4f c_l = prepareColor(firstStop);
+            SkPMColor4f c_l = pmColors[firstStop];
             add_const_color(ctx, stopCount++, c_l);
             // N.B. lastStop is the index of the last stop, not one after.
             for (int i = firstStop; i < lastStop; i++) {
                 float  t_r = fOrigPos[i + 1];
-                SkPMColor4f c_r = prepareColor(i + 1);
+                SkPMColor4f c_r = pmColors[i + 1];
                 SkASSERT(t_l <= t_r);
                 if (t_l < t_r) {
                     init_stop_pos(ctx, stopCount, t_l, t_r, c_l, c_r);
@@ -472,17 +468,9 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
     }
 
     // Transform our colors as we want them interpolated, in dst color space, possibly premul.
-    SkImageInfo common = SkImageInfo::Make(fColorCount,1, kRGBA_F32_SkColorType
-                                                        , kUnpremul_SkAlphaType),
-                src    = common.makeColorSpace(fColorSpace),
-                dst    = common.makeColorSpace(dstInfo.refColorSpace());
-    if (this->interpolateInPremul()) {
-        dst = dst.makeAlphaType(kPremul_SkAlphaType);
-    }
-
-    std::vector<float> rgba(4*fColorCount);  // TODO: SkSTArray?
-    SkAssertResult(SkConvertPixels(dst,   rgba.data(), dst.minRowBytes(),
-                                   src, fOrigColors4f, src.minRowBytes()));
+    SkColor4fXformer xformedColors(fOrigColors4f, fColorCount, fInterpolation,
+                                   fColorSpace.get(), dstInfo.colorSpace());
+    const SkPMColor4f* rgba = xformedColors.fColors.begin();
 
     // Transform our colors into a scale factor f and bias b such that for
     // any t between stops i and i+1, the color we want is mad(t, f[i], b[i]).
@@ -497,8 +485,8 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
         SkASSERT(fOrigPos == nullptr);
 
         // With 2 stops, we upload the single FB as uniforms and interpolate directly with t.
-        F4 lo = F4::Load(rgba.data() + 0),
-           hi = F4::Load(rgba.data() + 4);
+        F4 lo = F4::Load(rgba + 0),
+           hi = F4::Load(rgba + 1);
         F4 F = hi - lo,
            B = lo;
 
@@ -523,14 +511,14 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
 
         // Here's our conceptual stop at t=-inf covering all t<=0, clamping to our first color.
         float  t_lo = this->getPos(0);
-        F4 color_lo = F4::Load(rgba.data());
+        F4 color_lo = F4::Load(rgba);
         fb[0] = { 0.0f, color_lo };
         // N.B. No stops[] entry for this implicit -inf.
 
         // Now the non-edge cases, calculating scale and bias between adjacent normal stops.
         for (int i = 1; i < fColorCount; i++) {
             float  t_hi = this->getPos(i);
-            F4 color_hi = F4::Load(rgba.data() + 4*i);
+            F4 color_hi = F4::Load(rgba + i);
 
             // If t_lo == t_hi, we're on a hard stop, and transition immediately to the next color.
             SkASSERT(t_lo <= t_hi);
@@ -636,21 +624,19 @@ bool SkGradientShaderBase::onAsLuminanceColor(SkColor* lum) const {
 }
 
 SkColor4fXformer::SkColor4fXformer(const SkColor4f* colors, int colorCount,
+                                   const SkGradientShader::Interpolation& interpolation,
                                    SkColorSpace* src, SkColorSpace* dst) {
-    fColors = colors;
+    fColors.reset(colorCount);
 
-    if (dst && !SkColorSpace::Equals(src, dst)) {
-        fStorage.reset(colorCount);
+    auto info = SkImageInfo::Make(colorCount, 1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType);
 
-        auto info = SkImageInfo::Make(colorCount,1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType);
-
-        auto dstInfo = info.makeColorSpace(sk_ref_sp(dst));
-        auto srcInfo = info.makeColorSpace(sk_ref_sp(src));
-        SkAssertResult(SkConvertPixels(dstInfo, fStorage.begin(), info.minRowBytes(),
-                                       srcInfo, fColors         , info.minRowBytes()));
-
-        fColors = fStorage.begin();
+    auto dstInfo = info.makeColorSpace(sk_ref_sp(dst));
+    auto srcInfo = info.makeColorSpace(sk_ref_sp(src));
+    if (interpolation.fInPremul == SkGradientShader::Interpolation::InPremul::kYes) {
+        dstInfo = dstInfo.makeAlphaType(kPremul_SkAlphaType);
     }
+    SkAssertResult(SkConvertPixels(dstInfo, fColors.begin(), info.minRowBytes(),
+                                   srcInfo, colors         , info.minRowBytes()));
 }
 
 SkColorConverter::SkColorConverter(const SkColor* colors, int count) {

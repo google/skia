@@ -695,13 +695,12 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
     // premul issues depending on the interpolation mode
     bool inputPremul = shader.interpolateInPremul();
     bool allOpaque = true;
-    SkAutoSTMalloc<4, SkPMColor4f> colors(shader.fColorCount);
     SkColor4fXformer xformedColors(shader.fOrigColors4f, shader.fColorCount,
+                                   shader.fInterpolation,
                                    shader.fColorSpace.get(), args.fDstColorInfo->colorSpace());
+    const SkPMColor4f* colors = xformedColors.fColors.begin();
+
     for (int i = 0; i < shader.fColorCount; i++) {
-        const SkColor4f& upmColor = xformedColors.fColors[i];
-        colors[i] = inputPremul ? upmColor.premul()
-                                : SkPMColor4f{ upmColor.fR, upmColor.fG, upmColor.fB, upmColor.fA };
         if (allOpaque && !SkScalarNearlyEqual(colors[i].fA, 1.0)) {
             allOpaque = false;
         }
@@ -725,7 +724,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
 
     // All gradients are colorized the same way, regardless of layout
     std::unique_ptr<GrFragmentProcessor> colorizer = make_colorizer(
-            colors.get(), positions, shader.fColorCount, inputPremul, args);
+            colors, positions, shader.fColorCount, inputPremul, args);
     if (colorizer == nullptr) {
         return nullptr;
     }
