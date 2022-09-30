@@ -135,13 +135,10 @@ ResultCode processCommand(const std::vector<std::string>& args) {
     std::string baseName = remove_extension(base_name(inputPaths.front()));
     out.printf("static constexpr char SKSL_MINIFIED_%s[] =\n\"", baseName.c_str());
 
-    // Re-read the first input module so it can be minified via lexing.
-    // TODO(skia:13775): minify the compiled, optimized IR instead
-    std::ifstream in(inputPaths.front());
-    std::string text{std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>()};
-    if (in.rdstate()) {
-        printf("error reading '%s'\n", inputPaths.front().c_str());
-        return {};
+    // Generate the minified text by getting the program's description.
+    std::string text;
+    for (const std::unique_ptr<SkSL::ProgramElement>& element : module->fElements) {
+        text += element->description();
     }
 
     SkSL::Lexer lexer;
