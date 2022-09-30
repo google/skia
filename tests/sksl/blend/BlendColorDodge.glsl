@@ -1,5 +1,5 @@
 #version 400
-const float sk_PrivkGuardedDivideEpsilon = false ? 9.9999999392252903e-09 : 0.0;
+const float sk_PrivkGuardedDivideEpsilon = false ? 1e-08 : 0.0;
 out vec4 sk_FragColor;
 uniform vec4 src;
 uniform vec4 dst;

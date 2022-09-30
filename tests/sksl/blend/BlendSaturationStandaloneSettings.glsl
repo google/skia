@@ -1,5 +1,5 @@
 
-const float sk_PrivkGuardedDivideEpsilon = false ? 9.9999999392252903e-09 : 0.0;
+const float sk_PrivkGuardedDivideEpsilon = false ? 1e-08 : 0.0;
 out vec4 sk_FragColor;
 uniform vec4 src;
 uniform vec4 dst;
@@ -20,8 +20,8 @@ vec4 blend_hslc_h4h2h4h4(vec2 flipSat, vec4 src, vec4 dst) {
         l = _3_mx > _2_mn ? ((l - _2_mn) * blend_color_saturation_Qhh3(r)) / (_3_mx - _2_mn) : vec3(0.0);
         r = dsa;
     }
-    float _4_lum = dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), r);
-    vec3 _5_result = (_4_lum - dot(vec3(0.30000001192092896, 0.5899999737739563, 0.10999999940395355), l)) + l;
+    float _4_lum = dot(vec3(0.3, 0.59, 0.11), r);
+    vec3 _5_result = (_4_lum - dot(vec3(0.3, 0.59, 0.11), l)) + l;
     float _6_minComp = min(min(_5_result.x, _5_result.y), _5_result.z);
     float _7_maxComp = max(max(_5_result.x, _5_result.y), _5_result.z);
     if (_6_minComp < 0.0 && _4_lum != _6_minComp) {

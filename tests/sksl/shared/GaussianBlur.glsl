@@ -20,7 +20,7 @@ vec4 MatrixEffect_Stage1_c0_c0_h4h4f2(vec4 _input, vec2 _coords) {
     vec2 _3_clampedCoord;
     _3_clampedCoord = _2_subsetCoord;
     vec4 _4_textureColor = texture(uTextureSampler_0_Stage1, _3_clampedCoord * unorm_Stage1_c0_c0_c0.zw);
-    float _5_snappedX = floor(_1_inCoord.x + 0.0010000000474974513) + 0.5;
+    float _5_snappedX = floor(_1_inCoord.x + 0.001) + 0.5;
     if (_5_snappedX < usubset_Stage1_c0_c0_c0.x || _5_snappedX > usubset_Stage1_c0_c0_c0.z) {
         _4_textureColor = uborder_Stage1_c0_c0_c0;
     }

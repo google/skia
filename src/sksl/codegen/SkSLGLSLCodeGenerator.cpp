@@ -1088,10 +1088,6 @@ void GLSLCodeGenerator::writePostfixExpression(const PostfixExpression& p,
 
 void GLSLCodeGenerator::writeLiteral(const Literal& l) {
     const Type& type = l.type();
-    if (type.isFloat()) {
-        this->write(skstd::to_string(l.floatValue()));
-        return;
-    }
     if (type.isInteger()) {
         if (type.matches(*fContext.fTypes.fUInt)) {
             this->write(std::to_string(l.intValue() & 0xffffffff) + "u");
@@ -1102,8 +1098,7 @@ void GLSLCodeGenerator::writeLiteral(const Literal& l) {
         }
         return;
     }
-    SkASSERT(type.isBoolean());
-    this->write(l.boolValue() ? "true" : "false");
+    this->write(l.description(OperatorPrecedence::kTopLevel));
 }
 
 void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {

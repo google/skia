@@ -1871,7 +1871,7 @@ void MetalCodeGenerator::writePostfixExpression(const PostfixExpression& p,
 void MetalCodeGenerator::writeLiteral(const Literal& l) {
     const Type& type = l.type();
     if (type.isFloat()) {
-        this->write(skstd::to_string(l.floatValue()));
+        this->write(l.description(OperatorPrecedence::kTopLevel));
         if (!l.type().highPrecision()) {
             this->write("h");
         }
@@ -1890,7 +1890,7 @@ void MetalCodeGenerator::writeLiteral(const Literal& l) {
         return;
     }
     SkASSERT(type.isBoolean());
-    this->write(l.boolValue() ? "true" : "false");
+    this->write(l.description(OperatorPrecedence::kTopLevel));
 }
 
 void MetalCodeGenerator::writeFunctionRequirementArgs(const FunctionDeclaration& f,

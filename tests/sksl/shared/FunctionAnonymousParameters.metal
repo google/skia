@@ -22,6 +22,6 @@ half4 fnRed_h4ifS(Uniforms _uniforms, int _skAnonymousParam0, float f, S _skAnon
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    _out.sk_FragColor = bool(_uniforms.colorGreen.y) ? fnGreen_h4bf2(_uniforms, true, coords) : fnRed_h4ifS(_uniforms, 123, 3.1400001049041748, S{0});
+    _out.sk_FragColor = bool(_uniforms.colorGreen.y) ? fnGreen_h4bf2(_uniforms, true, coords) : fnRed_h4ifS(_uniforms, 123, 3.14, S{0});
     return _out;
 }

@@ -40,7 +40,7 @@ half4 MatrixEffect_Stage1_c0_c0_h4h4f2(thread Globals& _globals, half4 _input, f
     float2 _3_clampedCoord;
     _3_clampedCoord = _2_subsetCoord;
     half4 _4_textureColor = sample(_globals.uTextureSampler_0_Stage1, _3_clampedCoord * _globals._anonInterface0->unorm_Stage1_c0_c0_c0.zw);
-    float _5_snappedX = floor(_1_inCoord.x + 0.0010000000474974513) + 0.5;
+    float _5_snappedX = floor(_1_inCoord.x + 0.001) + 0.5;
     if (_5_snappedX < _globals._anonInterface0->usubset_Stage1_c0_c0_c0.x || _5_snappedX > _globals._anonInterface0->usubset_Stage1_c0_c0_c0.z) {
         _4_textureColor = _globals._anonInterface0->uborder_Stage1_c0_c0_c0;
     }

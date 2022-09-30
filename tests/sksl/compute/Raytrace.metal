@@ -25,7 +25,7 @@ kernel void computeMain(texture2d<half, access::write> dest [[texture(0)]], uint
     float c = dot(t_minus_c, t_minus_c) - sphere_radius * sphere_radius;
     float bsqmc = b * b - c;
     if (bsqmc >= 0.0) {
-        pixel = half4(0.40000000596046448h, 0.40000000596046448h, 1.0h, 1.0h);
+        pixel = half4(0.4h, 0.4h, 1.0h, 1.0h);
     }
     _globals.dest.write(pixel, _in.sk_ThreadPosition.xy);
     return;

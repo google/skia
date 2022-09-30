@@ -14,7 +14,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front
     B.y = true;
     B.z = true;
     float3 F;
-    F.x = 1.2300000190734863;
+    F.x = 1.23;
     F.y = 0.0;
     F.z = 1.0;
     int3 I;

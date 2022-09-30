@@ -12,7 +12,7 @@ struct Outputs {
 };
 half4 unpremul_h4h4(half4 color);
 half4 unpremul_h4h4(half4 color) {
-    return half4(color.xyz / max(color.w, 9.9999997473787516e-05h), color.w);
+    return half4(color.xyz / max(color.w, 0.0001h), color.w);
 }
 half4 live_fn_h4h4h4(half4 a, half4 b) {
     return a + b;

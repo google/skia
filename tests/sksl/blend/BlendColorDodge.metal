@@ -1,7 +1,7 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
-constant const half sk_PrivkGuardedDivideEpsilon = half(false ? 9.9999999392252903e-09 : 0.0);
+constant const half sk_PrivkGuardedDivideEpsilon = half(false ? 1e-08 : 0.0);
 struct Uniforms {
     half4 src;
     half4 dst;

@@ -18,8 +18,8 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     (void)_out;
     _out.sk_FragColor.x = (refract(float2(_uniforms.a, 0), float2(_uniforms.b, 0), _uniforms.c).x);
     _out.sk_FragColor = refract(_uniforms.d, _uniforms.e, _uniforms.c);
-    _out.sk_FragColor.xy = half2(0.5h, -0.86602538824081421h);
-    _out.sk_FragColor.xyz = half3(0.5h, 0.0h, -0.86602538824081421h);
-    _out.sk_FragColor = half4(0.5h, 0.0h, 0.0h, -0.86602538824081421h);
+    _out.sk_FragColor.xy = half2(0.5h, -0.8660254h);
+    _out.sk_FragColor.xyz = half3(0.5h, 0.0h, -0.8660254h);
+    _out.sk_FragColor = half4(0.5h, 0.0h, 0.0h, -0.8660254h);
     return _out;
 }
