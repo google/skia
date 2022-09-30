@@ -473,7 +473,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     if (currIndex >= 1 &&
         SkPointPriv::EqualsWithinTolerance((*insetPolygon)[0], (*insetPolygon)[currIndex],
                                             kCleanupTolerance)) {
-        insetPolygon->pop();
+        insetPolygon->pop_back();
     }
 
     return SkIsConvexPolygon(insetPolygon->begin(), insetPolygon->count());
@@ -1449,9 +1449,9 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     if (currIndex >= 1 &&
         SkPointPriv::EqualsWithinTolerance((*offsetPolygon)[0], (*offsetPolygon)[currIndex],
                                             kCleanupTolerance)) {
-        offsetPolygon->pop();
+        offsetPolygon->pop_back();
         if (polygonIndices) {
-            polygonIndices->pop();
+            polygonIndices->pop_back();
         }
     }
 

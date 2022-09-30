@@ -236,7 +236,7 @@ void SkBaseShadowTessellator::finishPathPolygon() {
     if (fPathPolygon.count() > 1) {
         if (!this->accumulateCentroid(fPathPolygon[fPathPolygon.count() - 1], fPathPolygon[0])) {
             // remove coincident point
-            fPathPolygon.pop();
+            fPathPolygon.pop_back();
         }
     }
 
@@ -249,7 +249,7 @@ void SkBaseShadowTessellator::finishPathPolygon() {
                             fPathPolygon[0])) {
             // remove collinear point
             fPathPolygon[0] = fPathPolygon[fPathPolygon.count() - 1];
-            fPathPolygon.pop();
+            fPathPolygon.pop_back();
         }
     }
 
@@ -768,10 +768,10 @@ void SkBaseShadowTessellator::handleLine(const SkPoint& p) {
                             fPathPolygon[fPathPolygon.count() - 1],
                             pSanitized)) {
             // remove collinear point
-            fPathPolygon.pop();
+            fPathPolygon.pop_back();
             // it's possible that the previous point is coincident with the new one now
             if (duplicate_pt(fPathPolygon[fPathPolygon.count() - 1], pSanitized)) {
-                fPathPolygon.pop();
+                fPathPolygon.pop_back();
             }
         }
     }

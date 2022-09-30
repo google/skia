@@ -279,7 +279,7 @@ void ResourceCache::removeFromNonpurgeableArray(Resource* resource) {
     SkASSERT(fNonpurgeableResources[*index] == resource);
     fNonpurgeableResources[*index] = tail;
     *tail->accessCacheIndex() = *index;
-    fNonpurgeableResources.pop();
+    fNonpurgeableResources.pop_back();
     *index = -1;
 }
 

@@ -246,9 +246,8 @@ protected:
         fNeedToFlush = false;
         --fLevel;
 
-        SkDOM::Node* parent;
-
-        fParentStack.pop(&parent);
+        SkDOM::Node* parent = fParentStack.back();
+        fParentStack.pop_back();
 
         SkDOM::Node* child = parent->fFirstChild;
         SkDOM::Node* prev = nullptr;

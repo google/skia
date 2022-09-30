@@ -50,13 +50,13 @@ public:
         this->validate();
         SkDEBUGCODE(if (SkToBool(INDEX)) { *INDEX(fArray[0]) = -1; })
         if (1 == fArray.count()) {
-            fArray.pop();
+            fArray.pop_back();
             return;
         }
 
         fArray[0] = fArray[fArray.count() - 1];
         this->setIndex(0);
-        fArray.pop();
+        fArray.pop_back();
         this->percolateDownIfNecessary(0);
 
         this->validate();
@@ -80,11 +80,11 @@ public:
         this->validate();
         SkDEBUGCODE(*INDEX(fArray[index]) = -1;)
         if (index == fArray.count() - 1) {
-            fArray.pop();
+            fArray.pop_back();
             return;
         }
         fArray[index] = fArray[fArray.count() - 1];
-        fArray.pop();
+        fArray.pop_back();
         this->setIndex(index);
         this->percolateUpOrDown(index);
         this->validate();

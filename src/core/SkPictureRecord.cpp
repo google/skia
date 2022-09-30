@@ -180,7 +180,7 @@ void SkPictureRecord::willRestore() {
 
     this->recordRestore();
 
-    fRestoreOffsetStack.pop();
+    fRestoreOffsetStack.pop_back();
 
     this->INHERITED::willRestore();
 }

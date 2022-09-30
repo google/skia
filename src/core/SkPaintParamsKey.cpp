@@ -127,7 +127,7 @@ void SkPaintParamsKeyBuilder::endBlock() {
 
     fData[headerOffset + SkPaintParamsKey::kBlockSizeOffsetInBytes] = blockSize;
 
-    fStack.pop();
+    fStack.pop_back();
 
 #ifdef SK_DEBUG
     if (!fStack.empty()) {

@@ -93,7 +93,7 @@ void random_test(skiatest::Reporter* reporter) {
             mock->fValue = random.nextS();
             mock->fIndex = -1;
             if (*mock == kSentinel) {
-                array.pop();
+                array.pop_back();
                 --j;
             }
         }

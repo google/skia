@@ -130,7 +130,7 @@ void SkBasicEdgeBuilder::addLine(const SkPoint pts[]) {
             : kNo_Combine;
 
         switch (combine) {
-            case kTotal_Combine:    fList.pop();           break;
+            case kTotal_Combine:    fList.pop_back();      break;
             case kPartial_Combine:                         break;
             case kNo_Combine:       fList.push_back(edge); break;
         }
@@ -145,7 +145,7 @@ void SkAnalyticEdgeBuilder::addLine(const SkPoint pts[]) {
             : kNo_Combine;
 
         switch (combine) {
-            case kTotal_Combine:    fList.pop();           break;
+            case kTotal_Combine:    fList.pop_back();      break;
             case kPartial_Combine:                         break;
             case kNo_Combine:       fList.push_back(edge); break;
         }

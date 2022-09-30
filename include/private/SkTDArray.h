@@ -240,16 +240,8 @@ public:
     }
 
     // routines to treat the array like a stack
-    void push_back(const T& v) {
-        *reinterpret_cast<T*>(fStorage.push_back()) = v;
-    }
-
-    void pop(T* elem = nullptr) {
-        if (elem != nullptr) {
-            *elem = this->back();
-        }
-        fStorage.pop_back();
-    }
+    void push_back(const T& v) { *reinterpret_cast<T*>(fStorage.push_back()) = v; }
+    void pop_back() { fStorage.pop_back(); }
 
     void deleteAll() {
         for (T p : *this) {

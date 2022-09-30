@@ -107,10 +107,10 @@ int GrAAConvexTessellator::addPt(const SkPoint& pt,
 void GrAAConvexTessellator::popLastPt() {
     this->validate();
 
-    fPts.pop();
-    fCoverages.pop();
-    fMovable.pop();
-    fCurveState.pop();
+    fPts.pop_back();
+    fCoverages.pop_back();
+    fMovable.pop_back();
+    fCurveState.pop_back();
 
     this->validate();
 }

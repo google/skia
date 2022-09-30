@@ -605,7 +605,7 @@ static void XMLCALL end_element_handler(void* data, const char* tag) {
         if (child->end) {
             child->end(self, tag);
         }
-        self->fHandler.pop();
+        self->fHandler.pop_back();
         const TagHandler* parent = self->fHandler.back();
         XML_SetCharacterDataHandler(self->fParser, parent->chars);
     }

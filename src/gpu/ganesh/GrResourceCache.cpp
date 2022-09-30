@@ -653,7 +653,7 @@ void GrResourceCache::removeFromNonpurgeableArray(GrGpuResource* resource) {
     SkASSERT(fNonpurgeableResources[*index] == resource);
     fNonpurgeableResources[*index] = tail;
     *tail->cacheAccess().accessCacheIndex() = *index;
-    fNonpurgeableResources.pop();
+    fNonpurgeableResources.pop_back();
     SkDEBUGCODE(*index = -1);
 }
 

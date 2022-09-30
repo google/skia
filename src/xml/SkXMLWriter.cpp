@@ -71,8 +71,8 @@ bool SkXMLWriter::doStart(const char name[], size_t length) {
 }
 
 SkXMLWriter::Elem* SkXMLWriter::getEnd() {
-    Elem* elem;
-    fElems.pop(&elem);
+    Elem* elem = fElems.back();
+    fElems.pop_back();
     return elem;
 }
 

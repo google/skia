@@ -105,7 +105,7 @@ private:
 
         int fuseWithBoth() {
             if (fPts.count() > 1) {
-                fPts.pop();
+                fPts.pop_back();
             }
 
             fPts[0].fOriginatingIdx = -1;
