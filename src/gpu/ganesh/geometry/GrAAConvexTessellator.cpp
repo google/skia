@@ -148,12 +148,12 @@ void GrAAConvexTessellator::addTri(int i0, int i1, int i2) {
 }
 
 void GrAAConvexTessellator::rewind() {
-    fPts.rewind();
-    fCoverages.rewind();
-    fMovable.rewind();
-    fIndices.rewind();
-    fNorms.rewind();
-    fCurveState.rewind();
+    fPts.clear();
+    fCoverages.clear();
+    fMovable.clear();
+    fIndices.clear();
+    fNorms.clear();
+    fCurveState.clear();
     fInitialRing.rewind();
     fCandidateVerts.rewind();
 #if GR_AA_CONVEX_TESSELLATOR_VIZ
@@ -278,7 +278,7 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
                               &outerStrokeAndAARing);
 
         // discard all the triangles added between the originating ring and the new outer ring
-        fIndices.rewind();
+        fIndices.clear();
 
         outerStrokeAndAARing.init(*this);
 
@@ -293,7 +293,7 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
         }
 
         // the bisectors are only needed for the computation of the outer ring
-        fBisectors.rewind();
+        fBisectors.clear();
 
         Ring* insetAARing;
         this->createInsetRings(outerStrokeAndAARing,
@@ -321,7 +321,7 @@ bool GrAAConvexTessellator::tessellate(const SkMatrix& m, const SkPath& path) {
     }
 
     // the bisectors are only needed for the computation of the outer ring
-    fBisectors.rewind();
+    fBisectors.clear();
     if (SkStrokeRec::kStroke_Style == fStyle && fInitialRing.numPts() > 2) {
         SkASSERT(fStrokeWidth >= 0.0f);
         SkScalar effectiveStrokeWidth = scaleFactor * fStrokeWidth;

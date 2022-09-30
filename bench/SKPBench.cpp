@@ -96,7 +96,7 @@ void SKPBench::onPerCanvasPostDraw(SkCanvas* canvas) {
     }
 
     fSurfaces.reset();
-    fTileRects.rewind();
+    fTileRects.clear();
 }
 
 bool SKPBench::isSuitableFor(Backend backend) {

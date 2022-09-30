@@ -164,7 +164,7 @@ void ImGuiLayer::onPaint(SkSurface* surface) {
         const ImDrawList* drawList = drawData->CmdLists[i];
 
         // De-interleave all vertex data (sigh), convert to Skia types
-        pos.rewind(); uv.rewind(); color.rewind();
+        pos.clear(); uv.clear(); color.clear();
         for (int j = 0; j < drawList->VtxBuffer.size(); ++j) {
             const ImDrawVert& vert = drawList->VtxBuffer[j];
             pos.push_back(SkPoint::Make(vert.pos.x, vert.pos.y));

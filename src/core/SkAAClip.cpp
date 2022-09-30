@@ -490,7 +490,7 @@ private:
             if (*prev->fData == *curr->fData) {
                 prev->fY = curr->fY;
                 if (readyForAnother) {
-                    curr->fData->rewind();
+                    curr->fData->clear();
                     next = curr;
                 } else {
                     delete curr->fData;

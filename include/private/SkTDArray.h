@@ -189,7 +189,7 @@ public:
         fStorage.reset();
     }
 
-    void rewind() {
+    void clear() {
         fStorage.clear();
     }
 

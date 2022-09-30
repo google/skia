@@ -218,7 +218,7 @@ public:
 
     void unlock() {
         SkASSERT(fLocked);
-        fData.rewind();
+        fData.clear();
 #ifdef SK_GRAPHITE_ENABLED
         fBlendInfo = {};
 #endif

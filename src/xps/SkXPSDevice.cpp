@@ -1306,9 +1306,9 @@ HRESULT SkXPSDevice::addXpsPathGeometry(
                     HR(close_figure(segmentTypes, segmentData, segmentStrokes,
                                     stroke, fill,
                                     xpsFigure.get() , xpsFigures));
-                    segmentTypes.rewind();
-                    segmentData.rewind();
-                    segmentStrokes.rewind();
+                    segmentTypes.clear();
+                    segmentData.clear();
+                    segmentStrokes.clear();
                     xpsFigure.reset();
                 }
                 // Define the start point.

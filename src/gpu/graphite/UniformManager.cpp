@@ -559,7 +559,7 @@ void UniformManager::reset() {
     fCurUBOOffset = 0;
     fOffset = 0;
     fReqAlignment = 0;
-    fStorage.rewind();
+    fStorage.clear();
 }
 
 void UniformManager::checkReset() const {

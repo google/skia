@@ -228,9 +228,9 @@ void SkPathRef::Rewind(sk_sp<SkPathRef>* pathRef) {
         (*pathRef)->callGenIDChangeListeners();
         (*pathRef)->fBoundsIsDirty = true;  // this also invalidates fIsFinite
         (*pathRef)->fGenerationID = 0;
-        (*pathRef)->fPoints.rewind();
-        (*pathRef)->fVerbs.rewind();
-        (*pathRef)->fConicWeights.rewind();
+        (*pathRef)->fPoints.clear();
+        (*pathRef)->fVerbs.clear();
+        (*pathRef)->fConicWeights.clear();
         (*pathRef)->fSegmentMask = 0;
         (*pathRef)->fIsOval = false;
         (*pathRef)->fIsRRect = false;
