@@ -275,7 +275,7 @@ public:
         this->reset();
     }
 
-    void shrinkToFit() {
+    void shrink_to_fit() {
         fStorage.shrink_to_fit();
     }
 

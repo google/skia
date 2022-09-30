@@ -50,9 +50,9 @@ void SkPath::shrinkToFit() {
         pr->copy(*fPathRef, 0, 0);
         fPathRef.reset(pr);
     }
-    fPathRef->fPoints.shrinkToFit();
-    fPathRef->fVerbs.shrinkToFit();
-    fPathRef->fConicWeights.shrinkToFit();
+    fPathRef->fPoints.shrink_to_fit();
+    fPathRef->fVerbs.shrink_to_fit();
+    fPathRef->fConicWeights.shrink_to_fit();
     SkDEBUGCODE(fPathRef->validate();)
 }
 
