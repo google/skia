@@ -68,7 +68,7 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* dContext,
         bool result = sc->readPixels(dContext, readPixmap, {0, 0});
         REPORTER_ASSERT(reporter, result);
         REPORTER_ASSERT(reporter,
-                        !memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.bytes()));
+            !memcmp(readBuffer.begin(), controlPixelData.begin(), readBuffer.size_bytes()));
     }
 }
 

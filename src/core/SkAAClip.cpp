@@ -1382,9 +1382,9 @@ bool SkAAClip::setRegion(const SkRegion& rgn) {
     appendXRun(0, bounds.width() - prevRight);
 
     // now pack everything into a RunHead
-    RunHead* head = RunHead::Alloc(yArray.count(), xArray.bytes());
-    memcpy(head->yoffsets(), yArray.begin(), yArray.bytes());
-    memcpy(head->data(), xArray.begin(), xArray.bytes());
+    RunHead* head = RunHead::Alloc(yArray.count(), xArray.size_bytes());
+    memcpy(head->yoffsets(), yArray.begin(), yArray.size_bytes());
+    memcpy(head->data(), xArray.begin(), xArray.size_bytes());
 
     this->setEmpty();
     fBounds = bounds;

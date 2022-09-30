@@ -290,9 +290,9 @@ void SkPathRef::writeToBuffer(SkWBuffer* buffer) const {
     buffer->write32(fVerbs.count());
     buffer->write32(fPoints.count());
     buffer->write32(fConicWeights.count());
-    buffer->write(fVerbs.begin(), fVerbs.bytes());
-    buffer->write(fPoints.begin(), fVerbs.bytes());
-    buffer->write(fConicWeights.begin(), fConicWeights.bytes());
+    buffer->write(fVerbs.begin(), fVerbs.size_bytes());
+    buffer->write(fPoints.begin(), fVerbs.size_bytes());
+    buffer->write(fConicWeights.begin(), fConicWeights.size_bytes());
     buffer->write(&bounds, sizeof(bounds));
 
     SkASSERT(buffer->pos() - beforePos == (size_t) this->writeSize());
@@ -300,7 +300,7 @@ void SkPathRef::writeToBuffer(SkWBuffer* buffer) const {
 
 uint32_t SkPathRef::writeSize() const {
     return uint32_t(5 * sizeof(uint32_t) +
-                    fVerbs.bytes() + fPoints.bytes() + fConicWeights.bytes() +
+                    fVerbs.size_bytes() + fPoints.size_bytes() + fConicWeights.size_bytes() +
                     sizeof(SkRect));
 }
 

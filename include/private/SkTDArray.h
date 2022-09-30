@@ -158,7 +158,7 @@ public:
     int reserved() const { return fStorage.capacity(); }
 
     // return the number of bytes in the array: count * sizeof(T)
-    size_t bytes() const { return fStorage.size_bytes(); }
+    size_t size_bytes() const { return fStorage.size_bytes(); }
 
     T*       data() { return reinterpret_cast<T*>(fStorage.data()); }
     const T* data() const { return reinterpret_cast<const T*>(fStorage.data()); }
