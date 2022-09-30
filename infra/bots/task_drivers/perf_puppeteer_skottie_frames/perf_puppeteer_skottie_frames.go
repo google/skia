@@ -151,6 +151,7 @@ var cpuSkiplist = []string{
     "skottie_asset_018",
     "skottie_asset_019",
     "skottie_asset_021",
+    "navis_loader",
 }
 var gpuSkiplist = []string{}
 
