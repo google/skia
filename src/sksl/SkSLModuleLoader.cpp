@@ -43,16 +43,30 @@
 #else
 
     // We include minified SkSL module code and pass it directly to the compiler.
-    #include "src/sksl/generated/sksl_shared.minified.sksl"
-    #include "src/sksl/generated/sksl_compute.minified.sksl"
-    #include "src/sksl/generated/sksl_frag.minified.sksl"
-    #include "src/sksl/generated/sksl_gpu.minified.sksl"
-    #include "src/sksl/generated/sksl_public.minified.sksl"
-    #include "src/sksl/generated/sksl_rt_shader.minified.sksl"
-    #include "src/sksl/generated/sksl_vert.minified.sksl"
-    #if defined(SK_GRAPHITE_ENABLED)
-    #include "src/sksl/generated/sksl_graphite_frag.minified.sksl"
-    #include "src/sksl/generated/sksl_graphite_vert.minified.sksl"
+    #if defined(SK_ENABLE_OPTIMIZE_SIZE) || !defined(SK_DEBUG)
+        #include "src/sksl/generated/sksl_shared.minified.sksl"
+        #include "src/sksl/generated/sksl_compute.minified.sksl"
+        #include "src/sksl/generated/sksl_frag.minified.sksl"
+        #include "src/sksl/generated/sksl_gpu.minified.sksl"
+        #include "src/sksl/generated/sksl_public.minified.sksl"
+        #include "src/sksl/generated/sksl_rt_shader.minified.sksl"
+        #include "src/sksl/generated/sksl_vert.minified.sksl"
+        #if defined(SK_GRAPHITE_ENABLED)
+        #include "src/sksl/generated/sksl_graphite_frag.minified.sksl"
+        #include "src/sksl/generated/sksl_graphite_vert.minified.sksl"
+        #endif
+    #else
+        #include "src/sksl/generated/sksl_shared.unoptimized.sksl"
+        #include "src/sksl/generated/sksl_compute.unoptimized.sksl"
+        #include "src/sksl/generated/sksl_frag.unoptimized.sksl"
+        #include "src/sksl/generated/sksl_gpu.unoptimized.sksl"
+        #include "src/sksl/generated/sksl_public.unoptimized.sksl"
+        #include "src/sksl/generated/sksl_rt_shader.unoptimized.sksl"
+        #include "src/sksl/generated/sksl_vert.unoptimized.sksl"
+        #if defined(SK_GRAPHITE_ENABLED)
+        #include "src/sksl/generated/sksl_graphite_frag.unoptimized.sksl"
+        #include "src/sksl/generated/sksl_graphite_vert.unoptimized.sksl"
+        #endif
     #endif
 
     #define MODULE_DATA(name) #name, std::string(SKSL_MINIFIED_##name)

@@ -1685,14 +1685,23 @@ BASE_SRCS_ALL = [
 
 TEXTUAL_HDRS = [
     "src/sksl/generated/sksl_compute.minified.sksl",
+    "src/sksl/generated/sksl_compute.unoptimized.sksl",
     "src/sksl/generated/sksl_frag.minified.sksl",
+    "src/sksl/generated/sksl_frag.unoptimized.sksl",
     "src/sksl/generated/sksl_gpu.minified.sksl",
+    "src/sksl/generated/sksl_gpu.unoptimized.sksl",
     "src/sksl/generated/sksl_graphite_frag.minified.sksl",
+    "src/sksl/generated/sksl_graphite_frag.unoptimized.sksl",
     "src/sksl/generated/sksl_graphite_vert.minified.sksl",
+    "src/sksl/generated/sksl_graphite_vert.unoptimized.sksl",
     "src/sksl/generated/sksl_public.minified.sksl",
+    "src/sksl/generated/sksl_public.unoptimized.sksl",
     "src/sksl/generated/sksl_rt_shader.minified.sksl",
+    "src/sksl/generated/sksl_rt_shader.unoptimized.sksl",
     "src/sksl/generated/sksl_shared.minified.sksl",
+    "src/sksl/generated/sksl_shared.unoptimized.sksl",
     "src/sksl/generated/sksl_vert.minified.sksl",
+    "src/sksl/generated/sksl_vert.unoptimized.sksl",
     # Included by GrGLMakeNativeInterface_android.cpp
     "src/gpu/ganesh/gl/egl/GrGLMakeEGLInterface.cpp",
     "src/gpu/ganesh/gl/egl/GrGLMakeNativeInterface_egl.cpp",

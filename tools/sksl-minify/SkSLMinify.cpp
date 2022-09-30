@@ -28,6 +28,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+static bool gUnoptimized = false;
+
 void SkDebugf(const char format[], ...) {
     va_list args;
     va_start(args, format);
@@ -103,10 +105,12 @@ static std::optional<SkSL::LoadedModule> compile_module_list(SkSpan<const std::s
                                               SkSL::ModuleLoader::Get().coreModifiers(),
                                               /*shouldInline=*/false);
     }
-    // Run an optimization pass on the target module before returning it.
-    compiler.optimizeModuleBeforeMinifying(SkSL::ProgramKind::kFragment,
-                                           loadedModule,
-                                           modules.front());
+    if (!gUnoptimized) {
+        // Run an optimization pass on the target module before returning it.
+        compiler.optimizeModuleBeforeMinifying(SkSL::ProgramKind::kFragment,
+                                               loadedModule,
+                                               modules.front());
+    }
     return std::move(loadedModule);
 }
 
@@ -220,11 +224,21 @@ ResultCode processCommand(const std::vector<std::string>& args) {
     return ResultCode::kSuccess;
 }
 
+bool find_boolean_flag(std::vector<std::string>& args, std::string_view flagName) {
+    size_t startingCount = args.size();
+    args.erase(std::remove_if(args.begin(), args.end(),
+                              [&](const std::string& a) { return a == flagName; }),
+               args.end());
+    return args.size() < startingCount;
+}
+
 int main(int argc, const char** argv) {
     std::vector<std::string> args;
     for (int index=1; index<argc; ++index) {
         args.push_back(argv[index]);
     }
+
+    gUnoptimized = find_boolean_flag(args, "--unoptimized");
 
     return (int)processCommand(args);
 }

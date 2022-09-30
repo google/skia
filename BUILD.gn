@@ -668,6 +668,9 @@ if (skia_compile_modules) {
     minify_sksl_outputs += [ "$target_out_dir/" + rebase_path(
                                  "src/sksl/generated/$name.minified.sksl",
                                  target_out_dir) ]
+    minify_sksl_outputs += [ "$target_out_dir/" + rebase_path(
+                                 "src/sksl/generated/$name.unoptimized.sksl",
+                                 target_out_dir) ]
   }
 
   action("minify_sksl") {
