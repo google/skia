@@ -416,10 +416,10 @@ private:
         fIsRRect = false;
 
         fPoints.reserve(pointCount + reservePoints);
-        fPoints.setCount(pointCount);
+        fPoints.resize(pointCount);
         fVerbs.reserve(verbCount + reserveVerbs);
-        fVerbs.setCount(verbCount);
-        fConicWeights.setCount(conicCount);
+        fVerbs.resize(verbCount);
+        fConicWeights.resize(conicCount);
         SkDEBUGCODE(this->validate();)
     }
 

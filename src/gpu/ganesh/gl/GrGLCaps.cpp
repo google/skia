@@ -3388,7 +3388,7 @@ void GrGLCaps::setupSampleCounts(const GrGLContextInfo& ctxInfo, const GrGLInter
                         --count;
                         SkASSERT(!count || temp[count -1] > 1);
                     }
-                    fFormatTable[i].fColorSampleCounts.setCount(count+1);
+                    fFormatTable[i].fColorSampleCounts.resize(count+1);
                     // We initialize our supported values with 1 (no msaa) and reverse the order
                     // returned by GL so that the array is ascending.
                     fFormatTable[i].fColorSampleCounts[0] = 1;
@@ -3426,7 +3426,7 @@ void GrGLCaps::setupSampleCounts(const GrGLContextInfo& ctxInfo, const GrGLInter
                 }
             }
         } else if (FormatInfo::kFBOColorAttachment_Flag & fFormatTable[i].fFlags) {
-            fFormatTable[i].fColorSampleCounts.setCount(1);
+            fFormatTable[i].fColorSampleCounts.resize(1);
             fFormatTable[i].fColorSampleCounts[0] = 1;
         }
     }

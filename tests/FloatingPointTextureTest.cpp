@@ -39,8 +39,8 @@ void runFPTest(skiatest::Reporter* reporter, GrDirectContext* dContext,
     }
 
     SkTDArray<T> controlPixelData, readBuffer;
-    controlPixelData.setCount(arraySize);
-    readBuffer.setCount(arraySize);
+    controlPixelData.resize(arraySize);
+    readBuffer.resize(arraySize);
 
     for (int i = 0; i < arraySize; i += 4) {
         controlPixelData[i + 0] = min;

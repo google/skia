@@ -197,7 +197,7 @@ public:
      // If the array does not have space for count elements, it will increase
      // the storage allocated to some amount greater than that required.
      // It will never shrink the storage.
-    void setCount(int count) {
+    void resize(int count) {
         fStorage.resize(count);
     }
 

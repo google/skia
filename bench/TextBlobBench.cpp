@@ -33,8 +33,8 @@ public:
         // This text seems representative in both length and letter frequency.
         const char* text = "Keep your sentences short, but not overly so.";
 
-        fGlyphs.setCount(fFont.countText(text, strlen(text), SkTextEncoding::kUTF8));
-        fXPos.setCount(fGlyphs.count());
+        fGlyphs.resize(fFont.countText(text, strlen(text), SkTextEncoding::kUTF8));
+        fXPos.resize(fGlyphs.count());
 
         fFont.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, fGlyphs.begin(), fGlyphs.count());
         fFont.getXPos(&fGlyphs[0], fGlyphs.count(), fXPos.begin());

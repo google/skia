@@ -136,7 +136,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
         0,
     };
     SkTDArray<PixelFormat> rankedFormats;
-    rankedFormats.setCount(formatCount);
+    rankedFormats.resize(formatCount);
     for (int i = 0; i < formatCount; ++i) {
         static const int kQueryAttr = SK_WGL_SAMPLES;
         int numSamples;

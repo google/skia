@@ -257,9 +257,9 @@ DEF_SIMPLE_GM(composeshader_bitmap2, canvas, 200, 200) {
     int width = 255;
     int height = 255;
     SkTDArray<uint8_t> dst8Storage;
-    dst8Storage.setCount(width * height);
+    dst8Storage.resize(width * height);
     SkTDArray<uint32_t> dst32Storage;
-    dst32Storage.setCount(width * height * sizeof(int32_t));
+    dst32Storage.resize(width * height * sizeof(int32_t));
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             dst8Storage[y * width + x] = (y + x) / 2;

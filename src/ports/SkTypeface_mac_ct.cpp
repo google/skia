@@ -681,7 +681,7 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenStream(int* ttcIndex) const
     // get table tags
     int numTables = this->countTables();
     SkTDArray<SkFontTableTag> tableTags;
-    tableTags.setCount(numTables);
+    tableTags.resize(numTables);
     this->getTableTags(tableTags.begin());
 
     // CT seems to be unreliable in being able to obtain the type,

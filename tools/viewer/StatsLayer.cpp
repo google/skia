@@ -119,7 +119,7 @@ void StatsLayer::onPaint(SkSurface* surface) {
     const int xStep = 3;
     int i = nextMeasurement;
     SkTDArray<double> sumTimes;
-    sumTimes.setCount(fTimers.count());
+    sumTimes.resize(fTimers.count());
     memset(sumTimes.begin(), 0, sumTimes.count() * sizeof(double));
     int count = 0;
     double totalTime = 0;

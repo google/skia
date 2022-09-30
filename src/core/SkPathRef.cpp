@@ -168,7 +168,7 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
         (*dst)->callGenIDChangeListeners();
         (*dst)->fGenerationID = 0;  // mark as dirty
         // don't copy, just allocate the points
-        (*dst)->fPoints.setCount(src.fPoints.count());
+        (*dst)->fPoints.resize(src.fPoints.count());
     }
     matrix.mapPoints((*dst)->fPoints.begin(), src.fPoints.begin(), src.fPoints.count());
 

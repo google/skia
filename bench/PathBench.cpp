@@ -855,7 +855,7 @@ private:
     }
 
     void onDelayedSetup() override {
-        fQueryRects.setCount(kQueryRectCnt);
+        fQueryRects.resize(kQueryRectCnt);
 
         SkRandom rand;
         for (int i = 0; i < kQueryRectCnt; ++i) {

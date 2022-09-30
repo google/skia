@@ -129,7 +129,7 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
             SkASSERT(!(interceptCount % 2));
 
             SkTDArray<SkScalar> intercepts;
-            intercepts.setCount(interceptCount);
+            intercepts.resize(interceptCount);
             blob->getIntercepts(bounds, intercepts.begin(), &paint);
 
             const SkScalar start = blob->bounds().left();

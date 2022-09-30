@@ -43,7 +43,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
     GrGLint numUnits = 0;
     GL(GetIntegerv(GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &numUnits));
     SkTDArray<GrGLuint> claimedIDs;
-    claimedIDs.setCount(numUnits * targets.count());
+    claimedIDs.resize(numUnits * targets.count());
     GL(GenTextures(claimedIDs.count(), claimedIDs.begin()));
 
     auto resetBindings = [&] {

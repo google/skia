@@ -1029,7 +1029,7 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
         sizeNeeded *= 3;
     }
     if (sizeNeeded > fBits.count()) {
-        fBits.setCount(sizeNeeded);
+        fBits.resize(sizeNeeded);
     }
 
     // erase
