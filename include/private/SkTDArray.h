@@ -176,8 +176,6 @@ public:
         return this->data()[index];
     }
 
-    T& getAt(int index) { return (*this)[index]; }
-
     const T& back() const {
         SkASSERT(this->size() > 0);
         return this->data()[this->size() - 1];

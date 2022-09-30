@@ -541,7 +541,7 @@ void GrResourceCache::purgeUnlockedResources(const GrStdSteadyClock::time_point*
         // Delete the scratch resources. This must be done as a separate pass
         // to avoid messing up the sorted order of the queue
         for (int i = 0; i < scratchResources.count(); i++) {
-            scratchResources.getAt(i)->cacheAccess().release();
+            scratchResources[i]->cacheAccess().release();
         }
     }
 
@@ -612,7 +612,7 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
         // Delete the scratch resources. This must be done as a separate pass
         // to avoid messing up the sorted order of the queue
         for (int i = 0; i < scratchResources.count(); i++) {
-            scratchResources.getAt(i)->cacheAccess().release();
+            scratchResources[i]->cacheAccess().release();
         }
         stillOverbudget = tmpByteBudget < fBytes;
 
