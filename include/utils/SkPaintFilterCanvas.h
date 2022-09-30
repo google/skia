@@ -129,7 +129,7 @@ protected:
 private:
     class AutoPaintFilter;
 
-    SkCanvas* proxy() const { SkASSERT(fList.count() == 1); return fList[0]; }
+    SkCanvas* proxy() const { SkASSERT(fList.size() == 1); return fList[0]; }
 
     SkPaintFilterCanvas* internal_private_asPaintFilterCanvas() const override {
         return const_cast<SkPaintFilterCanvas*>(this);

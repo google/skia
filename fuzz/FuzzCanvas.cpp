@@ -967,14 +967,14 @@ static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
         SkTextEncoding encoding = fuzz_paint_text_encoding(fuzz);
         font.setEdging(make_fuzz_t<bool>(fuzz) ? SkFont::Edging::kAlias : SkFont::Edging::kAntiAlias);
         SkTDArray<uint8_t> text = make_fuzz_text(fuzz, font, encoding);
-        int glyphCount = font.countText(text.begin(), SkToSizeT(text.count()), encoding);
+        int glyphCount = font.countText(text.begin(), SkToSizeT(text.size()), encoding);
         SkASSERT(glyphCount <= kMaxGlyphCount);
         SkScalar x, y;
         const SkTextBlobBuilder::RunBuffer* buffer;
         uint8_t runType;
         fuzz->nextRange(&runType, (uint8_t)0, (uint8_t)2);
         const void* textPtr = text.begin();
-        size_t textLen =  SkToSizeT(text.count());
+        size_t textLen =  SkToSizeT(text.size());
         switch (runType) {
             case 0:
                 fuzz->next(&x, &y);
@@ -1328,7 +1328,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 SkScalar x, y;
                 fuzz->next(&x, &y);
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, font, encoding);
-                canvas->drawSimpleText(text.begin(), SkToSizeT(text.count()), encoding, x, y,
+                canvas->drawSimpleText(text.begin(), SkToSizeT(text.size()), encoding, x, y,
                                        font, paint);
                 break;
             }

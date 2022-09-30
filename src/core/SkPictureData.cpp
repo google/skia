@@ -25,7 +25,7 @@
 #endif
 
 template <typename T> int SafeCount(const T* obj) {
-    return obj ? obj->count() : 0;
+    return obj ? obj->size() : 0;
 }
 
 SkPictureData::SkPictureData(const SkPictInfo& info)

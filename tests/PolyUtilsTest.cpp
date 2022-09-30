@@ -23,63 +23,63 @@ DEF_TEST(PolyUtils, reporter) {
     *poly.append() = SkPoint::Make(-100, 55);
     *poly.append() = SkPoint::Make(100, 55);
     *poly.append() = SkPoint::Make(102.5f, 54.330127f);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) < 0);
-    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) < 0);
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                          &triangleIndices));
 
     // switch winding
     poly[2].set(102.5f, 55.330127f);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) > 0);
-    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) > 0);
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
-    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                          &triangleIndices));
 
     // make degenerate
     poly[2].set(100 + 2.5f, 55);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) == 0);
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) == 0);
     // TODO: should these fail?
-    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
-    REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                           &triangleIndices));
 
     // giant triangle
     poly[0].set(-1.0e+37f, 1.0e+37f);
     poly[1].set(1.0e+37f, 1.0e+37f);
     poly[2].set(-1.0e+37f, -1.0e+37f);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) < 0);
-    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) < 0);
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
-    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                          &triangleIndices));
 
     // teeny triangle
     poly[0].set(-1.0e-38f, 1.0e-38f);
     poly[1].set(-1.0e-38f, -1.0e-38f);
     poly[2].set(1.0e-38f, 1.0e-38f);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) == 0);
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) == 0);
     // TODO: should these fail?
-    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
-    REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                           &triangleIndices));
 
     // triangle way off in space (relative to size so we don't completely obliterate values)
     poly[0].set(-100 + 1.0e+9f, 55 - 1.0e+9f);
     poly[1].set(100 + 1.0e+9f, 55 - 1.0e+9f);
     poly[2].set(150 + 1.0e+9f, 100 - 1.0e+9f);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) > 0);
-    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) > 0);
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
-    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                          &triangleIndices));
 
     ///////////////////////////////////////////////////////////////////////
@@ -105,35 +105,35 @@ DEF_TEST(PolyUtils, reporter) {
     *poly.append() = SkPoint::Make(-100 - 4.330127f, 50 + 2.5f);
     *poly.append() = SkPoint::Make(-100 - 3.535534f, 50 + 3.535534f);
     *poly.append() = SkPoint::Make(-100 - 2.5f, 50 + 4.330127f);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) < 0);
-    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) < 0);
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
-    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                          &triangleIndices));
 
     // translate far enough to obliterate some low bits
-    for (int i = 0; i < poly.count(); ++i) {
+    for (int i = 0; i < poly.size(); ++i) {
         poly[i].offset(1.0e+7f, 1.0e+7f);
     }
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) < 0);
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) < 0);
     // Due to floating point error it's no longer convex
-    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
-    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                           &triangleIndices));
 
     // translate a little farther to create some coincident vertices
-    for (int i = 0; i < poly.count(); ++i) {
+    for (int i = 0; i < poly.size(); ++i) {
         poly[i].offset(4.0e+7f, 4.0e+7f);
     }
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) < 0);
-    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) < 0);
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
     // This can't handle coincident vertices
     triangleIndices.clear();
-    REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                           &triangleIndices));
 
     // troublesome case -- clipped roundrect
@@ -165,11 +165,11 @@ DEF_TEST(PolyUtils, reporter) {
     *poly.append() = SkPoint::Make(381.195313f, 432.207275f);
     *poly.append() = SkPoint::Make(377.312134f, 432.947998f);
     *poly.append() = SkPoint::Make(342.289948f, 432.947998f);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) > 0);
-    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) > 0);
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
-    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                          &triangleIndices));
 
     // a star is born
@@ -186,11 +186,11 @@ DEF_TEST(PolyUtils, reporter) {
     *poly.append() = SkPoint::Make(-28.86f, 0.0f);
     *poly.append() = SkPoint::Make(-43.30f, -25.0f);
     *poly.append() = SkPoint::Make(-14.43f, -25.0f);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) > 0);
-    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) > 0);
+    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
-    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                          &triangleIndices));
 
     // many spiked star
@@ -208,11 +208,11 @@ DEF_TEST(PolyUtils, reporter) {
             *poly.append() = SkPoint::Make(c + SkScalarCos(rad) * r2, c + SkScalarSin(rad) * r2);
             rad += drad;
         }
-        REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) > 0);
-        REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.count()));
-        REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+        REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) > 0);
+        REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.size()));
+        REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.size()));
         triangleIndices.clear();
-        REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+        REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                              &triangleIndices));
     }
 
@@ -230,13 +230,13 @@ DEF_TEST(PolyUtils, reporter) {
     *poly.append() = SkPoint::Make(28.86f, 0.0f);
     *poly.append() = SkPoint::Make(-43.30f, -25.0f);
     *poly.append() = SkPoint::Make(-14.43f, -25.0f);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) > 0);
-    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, !SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) > 0);
+    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, !SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
     // running this just to make sure it doesn't crash
     // the fact that it succeeds doesn't mean anything since the input is not simple
-    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                          &triangleIndices));
 
     // self-intersecting polygon with coincident point
@@ -247,12 +247,12 @@ DEF_TEST(PolyUtils, reporter) {
     *poly.append() = SkPoint::Make(0.00000001f, -0.00000001f);
     *poly.append() = SkPoint::Make(-50, 50);
     *poly.append() = SkPoint::Make(50, 50);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) == 0);
-    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, !SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) == 0);
+    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, !SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
     // running this just to make sure it doesn't crash
-    REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                           &triangleIndices));
 
     // self-intersecting polygon with two equal edges
@@ -263,12 +263,12 @@ DEF_TEST(PolyUtils, reporter) {
     *poly.append() = SkPoint::Make(10, 10);
     *poly.append() = SkPoint::Make(10, 0);
     *poly.append() = SkPoint::Make(0, 10);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) == 0);
-    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, !SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) == 0);
+    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, !SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
     // running this just to make sure it doesn't crash
-    REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                           &triangleIndices));
 
     // absurd self-intersecting polygon
@@ -406,11 +406,11 @@ DEF_TEST(PolyUtils, reporter) {
     *poly.append() = SkPoint::Make(0.0000f, 138.0000f);
     *poly.append() = SkPoint::Make(3284.8125f, 0.0000f);
     *poly.append() = SkPoint::Make(-32768.0625f, 0.0000f);
-    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) < 0);
-    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.count()));
-    REPORTER_ASSERT(reporter, !SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.size()) < 0);
+    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(poly.begin(), poly.size()));
+    REPORTER_ASSERT(reporter, !SkIsSimplePolygon(poly.begin(), poly.size()));
     triangleIndices.clear();
     // running this just to make sure it doesn't crash
-    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+    REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                           &triangleIndices));
 }

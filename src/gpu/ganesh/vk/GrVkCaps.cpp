@@ -1489,14 +1489,14 @@ int GrVkCaps::getRenderTargetSampleCount(int requestedCount, VkFormat format) co
 
     const FormatInfo& info = this->getFormatInfo(format);
 
-    int count = info.fColorSampleCounts.count();
+    int count = info.fColorSampleCounts.size();
 
     if (!count) {
         return 0;
     }
 
     if (1 == requestedCount) {
-        SkASSERT(info.fColorSampleCounts.count() && info.fColorSampleCounts[0] == 1);
+        SkASSERT(info.fColorSampleCounts.size() && info.fColorSampleCounts[0] == 1);
         return 1;
     }
 
@@ -1520,10 +1520,10 @@ int GrVkCaps::maxRenderTargetSampleCount(VkFormat format) const {
     const FormatInfo& info = this->getFormatInfo(format);
 
     const auto& table = info.fColorSampleCounts;
-    if (!table.count()) {
+    if (!table.size()) {
         return 0;
     }
-    return table[table.count() - 1];
+    return table[table.size() - 1];
 }
 
 static inline size_t align_to_4(size_t v) {

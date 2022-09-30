@@ -202,7 +202,7 @@ protected:
     void flushAttributes() {
         SkASSERT(fLevel > 0);
 
-        int attrCount = fAttrs.count();
+        int attrCount = fAttrs.size();
 
         SkDOMAttr* attrs = fAlloc->makeArrayDefault<SkDOMAttr>(attrCount);
         SkDOM::Node* node = fAlloc->make<SkDOM::Node>();

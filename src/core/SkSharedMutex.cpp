@@ -96,7 +96,7 @@
         }
         // Returns true if already exists in Set.
         bool tryRemove(SkThreadID threadID) {
-            for (int i = 0; i < fThreadIDs.count(); ++i) {
+            for (int i = 0; i < fThreadIDs.size(); ++i) {
                 if (fThreadIDs[i] == threadID) {
                     fThreadIDs.remove(i);
                     return true;
@@ -110,7 +110,7 @@
         }
 
         int count() const {
-            return fThreadIDs.count();
+            return fThreadIDs.size();
         }
 
     private:

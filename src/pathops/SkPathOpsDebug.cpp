@@ -64,7 +64,7 @@ int SkPathOpsDebug::gSegmentID = 0;
 
 bool SkPathOpsDebug::ChaseContains(const SkTDArray<SkOpSpanBase* >& chaseArray,
         const SkOpSpanBase* span) {
-    for (int index = 0; index < chaseArray.count(); ++index) {
+    for (int index = 0; index < chaseArray.size(); ++index) {
         const SkOpSpanBase* entry = chaseArray[index];
         if (entry == span) {
             return true;

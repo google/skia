@@ -172,7 +172,7 @@ void ImGuiLayer::onPaint(SkSurface* surface) {
             color.push_back(vert.col);
         }
         // ImGui colors are RGBA
-        SkSwapRB(color.begin(), color.begin(), color.count());
+        SkSwapRB(color.begin(), color.begin(), color.size());
 
         int indexOffset = 0;
 

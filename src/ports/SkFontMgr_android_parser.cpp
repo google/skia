@@ -325,7 +325,7 @@ static const TagHandler familyHandler = {
 };
 
 static FontFamily* find_family(FamilyData* self, const SkString& familyName) {
-    for (int i = 0; i < self->fFamilies.count(); i++) {
+    for (int i = 0; i < self->fFamilies.size(); i++) {
         FontFamily* candidate = self->fFamilies[i];
         for (int j = 0; j < candidate->fNames.count(); j++) {
             if (candidate->fNames[j] == familyName) {
@@ -702,9 +702,9 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
 static int append_system_font_families(SkTDArray<FontFamily*>& fontFamilies,
                                        const SkString& basePath)
 {
-    int initialCount = fontFamilies.count();
+    int initialCount = fontFamilies.size();
     int version = parse_config_file(LMP_SYSTEM_FONTS_FILE, fontFamilies, basePath, false);
-    if (version < 0 || fontFamilies.count() == initialCount) {
+    if (version < 0 || fontFamilies.size() == initialCount) {
         version = parse_config_file(OLD_SYSTEM_FONTS_FILE, fontFamilies, basePath, false);
     }
     return version;
@@ -747,7 +747,7 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
         SkTDArray<FontFamily*> langSpecificFonts;
         parse_config_file(absoluteFilename.c_str(), langSpecificFonts, basePath, true);
 
-        for (int i = 0; i < langSpecificFonts.count(); ++i) {
+        for (int i = 0; i < langSpecificFonts.size(); ++i) {
             FontFamily* family = langSpecificFonts[i];
             family->fLanguages.emplace_back(locale);
             *fallbackFonts.append() = family;
@@ -776,7 +776,7 @@ static void mixin_vendor_fallback_font_families(SkTDArray<FontFamily*>& fallback
     // This loop inserts the vendor fallback fonts in the correct order in the
     // overall fallbacks list.
     int currentOrder = -1;
-    for (int i = 0; i < vendorFonts.count(); ++i) {
+    for (int i = 0; i < vendorFonts.size(); ++i) {
         FontFamily* family = vendorFonts[i];
         int order = family->fOrder;
         if (order < 0) {
@@ -810,7 +810,7 @@ void SkFontMgr_Android_Parser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fon
     SkTDArray<FontFamily*> fallbackFonts;
     append_system_fallback_font_families(fallbackFonts, basePath);
     mixin_vendor_fallback_font_families(fallbackFonts, basePath);
-    fontFamilies.append(fallbackFonts.count(), fallbackFonts.begin());
+    fontFamilies.append(fallbackFonts.size(), fallbackFonts.begin());
 }
 
 void SkFontMgr_Android_Parser::GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,

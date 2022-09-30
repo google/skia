@@ -149,8 +149,7 @@ public:
     bool empty() const { return fStorage.empty(); }
 
     // Return the number of elements in the array
-    int count() const { return fStorage.size(); }
-    int size()  const { return fStorage.size(); }
+    int size() const { return fStorage.size(); }
 
     // Return the total number of elements allocated.
     // Note: capacity() - size() gives you the number of elements you can add without causing an

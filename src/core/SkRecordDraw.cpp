@@ -532,7 +532,7 @@ private:
     }
 
     bool adjustForSaveLayerPaints(SkRect* rect, int savesToIgnore = 0) const {
-        for (int i = fSaveStack.count() - 1 - savesToIgnore; i >= 0; i--) {
+        for (int i = fSaveStack.size() - 1 - savesToIgnore; i >= 0; i--) {
             SkMatrix inverse;
             if (!fSaveStack[i].ctm.invert(&inverse)) {
                 return false;

@@ -80,7 +80,7 @@ public:
         fIndex = 0;
     }
     bool next() {
-        if (fIndex < fList.count()) {
+        if (fIndex < fList.size()) {
             fCanvas = fList[fIndex++];
             return true;
         }

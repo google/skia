@@ -27,7 +27,7 @@ uint32_t SkNamedFactorySet::find(SkFlattenable::Factory factory) {
 }
 
 const char* SkNamedFactorySet::getNextAddedFactoryName() {
-    if (fNextAddedFactory < fNames.count()) {
+    if (fNextAddedFactory < fNames.size()) {
         return fNames[fNextAddedFactory++];
     }
     return nullptr;

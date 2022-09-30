@@ -4247,8 +4247,8 @@ static void test_contains(skiatest::Reporter* reporter) {
 class PathRefTest_Private {
 public:
     static size_t GetFreeSpace(const SkPathRef& ref) {
-        return   (ref.fPoints.capacity() - ref.fPoints.count()) * sizeof(SkPoint)
-               + (ref.fVerbs.capacity()  - ref.fVerbs.count())  * sizeof(uint8_t);
+        return   (ref.fPoints.capacity() - ref.fPoints.size()) * sizeof(SkPoint)
+               + (ref.fVerbs.capacity()  - ref.fVerbs.size())  * sizeof(uint8_t);
     }
 
     static void TestPathRef(skiatest::Reporter* reporter) {

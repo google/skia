@@ -207,7 +207,7 @@ public:
 
     SkPaintParamsKey lockAsKey();
 
-    int sizeInBytes() const { return fData.count(); }
+    int sizeInBytes() const { return fData.size(); }
 
     bool isValid() const { return fIsValid; }
 

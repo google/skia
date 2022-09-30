@@ -37,8 +37,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrSlug_empty,
     font.setTypeface(typeface);
     font.setSize(16);
 
-    const SkTextBlobBuilder::RunBuffer& buf = builder.allocRun(font, glyphs.count(), 0, 0);
-    memcpy(buf.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
+    const SkTextBlobBuilder::RunBuffer& buf = builder.allocRun(font, glyphs.size(), 0, 0);
+    memcpy(buf.glyphs, glyphs.begin(), glyphs.size() * sizeof(uint16_t));
     auto blob = builder.make();
 
     SkPaint p;

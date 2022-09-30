@@ -98,7 +98,7 @@ SkMessageBus<Message, IDType, AllowCopyableMessage>::Inbox::~Inbox() {
     auto* bus = SkMessageBus<Message, IDType, AllowCopyableMessage>::Get();
     SkAutoMutexExclusive lock(bus->fInboxesMutex);
     // This is a cheaper fInboxes.remove(fInboxes.find(this)) when order doesn't matter.
-    for (int i = 0; i < bus->fInboxes.count(); i++) {
+    for (int i = 0; i < bus->fInboxes.size(); i++) {
         if (this == bus->fInboxes[i]) {
             bus->fInboxes.removeShuffle(i);
             break;
@@ -129,7 +129,7 @@ template <typename Message, typename IDType, bool AllowCopyableMessage>
 /*static*/ void SkMessageBus<Message, IDType, AllowCopyableMessage>::Post(Message m) {
     auto* bus = SkMessageBus<Message, IDType, AllowCopyableMessage>::Get();
     SkAutoMutexExclusive lock(bus->fInboxesMutex);
-    for (int i = 0; i < bus->fInboxes.count(); i++) {
+    for (int i = 0; i < bus->fInboxes.size(); i++) {
         if (SkShouldPostMessageToBus(m, bus->fInboxes[i]->fUniqueID)) {
             if constexpr (AllowCopyableMessage) {
                 bus->fInboxes[i]->receive(m);

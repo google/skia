@@ -14,11 +14,11 @@ SkXMLWriter::SkXMLWriter(bool doEscapeMarkup) : fDoEscapeMarkup(doEscapeMarkup)
 {}
 
 SkXMLWriter::~SkXMLWriter() {
-    SkASSERT(fElems.count() == 0);
+    SkASSERT(fElems.size() == 0);
 }
 
 void SkXMLWriter::flush() {
-    while (fElems.count()) {
+    while (fElems.size()) {
         this->endElement();
     }
 }
@@ -60,7 +60,7 @@ void SkXMLWriter::doEnd(Elem* elem) {
 }
 
 bool SkXMLWriter::doStart(const char name[], size_t length) {
-    int level = fElems.count();
+    int level = fElems.size();
     bool firstChild = level > 0 && !fElems[level-1]->fHasChildren;
     if (firstChild) {
         fElems[level-1]->fHasChildren = true;
@@ -215,7 +215,7 @@ void SkXMLStreamWriter::onAddText(const char text[], size_t length) {
         this->newline();
     }
 
-    this->tab(fElems.count() + 1);
+    this->tab(fElems.size() + 1);
     fStream.write(text, length);
     this->newline();
 }
@@ -223,7 +223,7 @@ void SkXMLStreamWriter::onAddText(const char text[], size_t length) {
 void SkXMLStreamWriter::onEndElement() {
     Elem* elem = getEnd();
     if (elem->fHasChildren || elem->fHasText) {
-        this->tab(fElems.count());
+        this->tab(fElems.size());
         fStream.writeText("</");
         fStream.writeText(elem->fName.c_str());
         fStream.writeText(">");
@@ -235,7 +235,7 @@ void SkXMLStreamWriter::onEndElement() {
 }
 
 void SkXMLStreamWriter::onStartElementLen(const char name[], size_t length) {
-    int level = fElems.count();
+    int level = fElems.size();
     if (this->doStart(name, length)) {
         // the first child, need to close with >
         fStream.writeText(">");
@@ -281,7 +281,7 @@ SkXMLParserWriter::~SkXMLParserWriter() {
 }
 
 void SkXMLParserWriter::onAddAttributeLen(const char name[], const char value[], size_t length) {
-    SkASSERT(fElems.count() == 0 || (!fElems.back()->fHasChildren && !fElems.back()->fHasText));
+    SkASSERT(fElems.size() == 0 || (!fElems.back()->fHasChildren && !fElems.back()->fHasText));
     SkString str(value, length);
     fParser.addAttribute(name, str.c_str());
 }

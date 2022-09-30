@@ -206,7 +206,7 @@ static void output_font(sk_sp<SkTypeface> face, const char* identifier, FILE* ou
     fprintf(out, "%s", ptsOut.c_str());
     fprintf(out, "\n};\n\n");
     fprintf(out, "const unsigned char %sVerbs[] = {\n", identifier);
-    int verbCount = verbs.count();
+    int verbCount = verbs.size();
     int outChCount = 0;
     for (int index = 0; index < verbCount;) {
         SkPath::Verb verb = verbs[index];
@@ -229,7 +229,7 @@ static void output_font(sk_sp<SkTypeface> face, const char* identifier, FILE* ou
     // all fonts are now 0x00, 0x20 - 0xFE
     // don't need to generate or output character codes?
     fprintf(out, "const SkUnichar %sCharCodes[] = {\n", identifier);
-    int offsetCount = charCodes.count();
+    int offsetCount = charCodes.size();
     for (int index = 0; index < offsetCount;) {
         unsigned offset = charCodes[index];
         fprintf(out, "%u", offset);

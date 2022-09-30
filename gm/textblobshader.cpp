@@ -40,7 +40,7 @@ private:
             const char* txt = "Blobber";
             size_t txtLen = strlen(txt);
             fGlyphs.append(font.countText(txt, txtLen, SkTextEncoding::kUTF8));
-            font.textToGlyphs(txt, txtLen, SkTextEncoding::kUTF8, fGlyphs.begin(), fGlyphs.count());
+            font.textToGlyphs(txt, txtLen, SkTextEncoding::kUTF8, fGlyphs.begin(), fGlyphs.size());
         }
 
         SkFont font;
@@ -50,7 +50,7 @@ private:
         font.setTypeface(ToolUtils::create_portable_typeface());
 
         SkTextBlobBuilder builder;
-        int glyphCount = fGlyphs.count();
+        int glyphCount = fGlyphs.size();
         const SkTextBlobBuilder::RunBuffer* run;
 
         run = &builder.allocRun(font, glyphCount, 10, 10, nullptr);

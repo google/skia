@@ -26,7 +26,7 @@
 
 static bool findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** startPtr,
         SkOpSpanBase** endPtr, SkOpSegment** result) {
-    while (chase.count()) {
+    while (chase.size()) {
         SkOpSpanBase* span = chase.back();
         chase.pop_back();
         // OPTIMIZE: prev makes this compatible with old code -- but is it necessary?

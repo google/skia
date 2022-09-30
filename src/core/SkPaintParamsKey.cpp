@@ -204,7 +204,7 @@ SkPaintParamsKey SkPaintParamsKeyBuilder::lockAsKey() {
     fIsValid = true;
     fStack.clear();
 
-    return SkPaintParamsKey(SkSpan(fData.begin(), fData.count()), this);
+    return SkPaintParamsKey(SkSpan(fData.begin(), fData.size()), this);
 }
 
 void SkPaintParamsKeyBuilder::makeInvalid() {

@@ -123,7 +123,7 @@ bool SkOpBuilder::FixWinding(SkPath* path) {
 }
 
 void SkOpBuilder::add(const SkPath& path, SkPathOp op) {
-    if (0 == fOps.count() && op != kUnion_SkPathOp) {
+    if (0 == fOps.size() && op != kUnion_SkPathOp) {
         fPathRefs.push_back() = SkPath();
         *fOps.append() = kUnion_SkPathOp;
     }
@@ -141,7 +141,7 @@ void SkOpBuilder::reset() {
    ops one at a time. */
 bool SkOpBuilder::resolve(SkPath* result) {
     SkPath original = *result;
-    int count = fOps.count();
+    int count = fOps.size();
     bool allUnion = true;
     SkPathFirstDirection firstDir = SkPathFirstDirection::kUnknown;
     for (int index = 0; index < count; ++index) {

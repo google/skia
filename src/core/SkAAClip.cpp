@@ -290,7 +290,7 @@ private:
             row->fY = y;
             row->fWidth = 0;
             SkASSERT(row->fData);
-            SkASSERT(0 == row->fData->count());
+            SkASSERT(0 == row->fData->size());
             fCurrRow = row;
         }
 
@@ -383,7 +383,7 @@ private:
 
         size_t dataSize = 0;
         while (row < stop) {
-            dataSize += row->fData->count();
+            dataSize += row->fData->size();
             row += 1;
         }
 
@@ -396,7 +396,7 @@ private:
         int adjustY = fMinY - fBounds.fTop;
         fBounds.fTop = fMinY;
 
-        RunHead* head = RunHead::Alloc(fRows.count(), dataSize);
+        RunHead* head = RunHead::Alloc(fRows.size(), dataSize);
         YOffset* yoffset = head->yoffsets();
         uint8_t* data = head->data();
         uint8_t* baseData = data;
@@ -411,7 +411,7 @@ private:
             yoffset->fOffset = SkToU32(data - baseData);
             yoffset += 1;
 
-            size_t n = row->fData->count();
+            size_t n = row->fData->size();
             memcpy(data, row->fData->begin(), n);
             SkASSERT(compute_row_length(data, fBounds.width()) == n);
             data += n;
@@ -428,11 +428,11 @@ private:
     void dump() {
         this->validate();
         int y;
-        for (y = 0; y < fRows.count(); ++y) {
+        for (y = 0; y < fRows.size(); ++y) {
             const Row& row = fRows[y];
             SkDebugf("Y:%3d W:%3d", row.fY, row.fWidth);
             const SkTDArray<uint8_t>& data = *row.fData;
-            int count = data.count();
+            int count = data.size();
             SkASSERT(!(count & 1));
             const uint8_t* ptr = data.begin();
             for (int x = 0; x < count; x += 2) {
@@ -446,11 +446,11 @@ private:
     void validate() {
 #ifdef SK_DEBUG
         int prevY = -1;
-        for (int i = 0; i < fRows.count(); ++i) {
+        for (int i = 0; i < fRows.size(); ++i) {
             const Row& row = fRows[i];
             SkASSERT(prevY < row.fY);
             SkASSERT(fWidth == row.fWidth);
-            int count = row.fData->count();
+            int count = row.fData->size();
             const uint8_t* ptr = row.fData->begin();
             SkASSERT(!(count & 1));
             int w = 0;
@@ -477,7 +477,7 @@ private:
 
     Row* flushRow(bool readyForAnother) {
         Row* next = nullptr;
-        int count = fRows.count();
+        int count = fRows.size();
         if (count > 0) {
             this->flushRowH(&fRows[count - 1]);
         }
@@ -1359,13 +1359,13 @@ bool SkAAClip::setRegion(const SkRegion& rgn) {
             if (top > prevBot) {
                 currY = yArray.append();
                 currY->fY = top - 1;
-                currY->fOffset = xArray.count();
+                currY->fOffset = xArray.size();
                 appendXRun(0, bounds.width());
             }
             // create a new record for this Y value
             currY = yArray.append();
             currY->fY = bot - 1;
-            currY->fOffset = xArray.count();
+            currY->fOffset = xArray.size();
             prevRight = 0;
             prevBot = bot;
         }
@@ -1382,7 +1382,7 @@ bool SkAAClip::setRegion(const SkRegion& rgn) {
     appendXRun(0, bounds.width() - prevRight);
 
     // now pack everything into a RunHead
-    RunHead* head = RunHead::Alloc(yArray.count(), xArray.size_bytes());
+    RunHead* head = RunHead::Alloc(yArray.size(), xArray.size_bytes());
     memcpy(head->yoffsets(), yArray.begin(), yArray.size_bytes());
     memcpy(head->data(), xArray.begin(), xArray.size_bytes());
 

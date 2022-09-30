@@ -149,11 +149,11 @@ void GrD3DCommandList::aliasingBarrier(sk_sp<GrManagedResource> beforeManagedRes
 void GrD3DCommandList::submitResourceBarriers() {
     SkASSERT(fIsActive);
 
-    if (fResourceBarriers.count()) {
-        fCommandList->ResourceBarrier(fResourceBarriers.count(), fResourceBarriers.begin());
+    if (fResourceBarriers.size()) {
+        fCommandList->ResourceBarrier(fResourceBarriers.size(), fResourceBarriers.begin());
         fResourceBarriers.reset();
     }
-    SkASSERT(!fResourceBarriers.count());
+    SkASSERT(!fResourceBarriers.size());
 }
 
 void GrD3DCommandList::copyBufferToTexture(ID3D12Resource* srcBuffer,

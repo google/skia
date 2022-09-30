@@ -22,7 +22,7 @@ public:
     SkDrawableList() {}
     ~SkDrawableList();
 
-    int count() const { return fArray.count(); }
+    int count() const { return fArray.size(); }
     SkDrawable* const* begin() const { return fArray.begin(); }
     SkDrawable* const* end() const { return fArray.end(); }
 

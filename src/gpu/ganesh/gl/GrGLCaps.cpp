@@ -4748,7 +4748,7 @@ bool GrGLCaps::isFormatRenderable(const GrBackendFormat& format, int sampleCount
 int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrGLFormat format) const {
     const FormatInfo& info = this->getFormatInfo(format);
 
-    int count = info.fColorSampleCounts.count();
+    int count = info.fColorSampleCounts.size();
     if (!count) {
         return 0;
     }
@@ -4772,10 +4772,10 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrGLFormat format) 
 int GrGLCaps::maxRenderTargetSampleCount(GrGLFormat format) const {
     const FormatInfo& info = this->getFormatInfo(format);
     const auto& table = info.fColorSampleCounts;
-    if (!table.count()) {
+    if (!table.size()) {
         return 0;
     }
-    int count = table[table.count() - 1];
+    int count = table[table.size() - 1];
     if (fDriverBugWorkarounds.max_msaa_sample_count_4) {
         count = std::min(count, 4);
     }

@@ -21,14 +21,14 @@ public:
 #ifdef SK_DEBUG
     void print() const {
         SkDebugf("%d: id %c", fIndexInSort, fID);
-        if (fNodesIDependOn.count()) {
-            SkDebugf(" I depend on (%d): ", fNodesIDependOn.count());
+        if (fNodesIDependOn.size()) {
+            SkDebugf(" I depend on (%d): ", fNodesIDependOn.size());
             for (Node* tmp : fNodesIDependOn) {
                 SkDebugf("%c, ", tmp->id());
             }
         }
-        if (fNodesThatDependOnMe.count()) {
-            SkDebugf(" (%d) depend on me: ", fNodesThatDependOnMe.count());
+        if (fNodesThatDependOnMe.size()) {
+            SkDebugf(" (%d) depend on me: ", fNodesThatDependOnMe.size());
             for (Node* tmp : fNodesThatDependOnMe) {
                 SkDebugf("%c, ", tmp->id());
             }
@@ -51,9 +51,9 @@ public:
         return a->indexInSort() > b->indexInSort();
     }
 
-    int numDependents() const { return fNodesThatDependOnMe.count(); }
+    int numDependents() const { return fNodesThatDependOnMe.size(); }
     Node* dependent(int index) const {
-        SkASSERT(0 <= index && index < fNodesThatDependOnMe.count());
+        SkASSERT(0 <= index && index < fNodesThatDependOnMe.size());
         return fNodesThatDependOnMe[index];
     }
 
@@ -126,7 +126,7 @@ public:
         this->validate();
 
         // remove any of the new dependencies that are already satisfied
-        for (int i = 0; i < dependedOn->count(); ++i) {
+        for (int i = 0; i < dependedOn->size(); ++i) {
             if ((*dependedOn)[i]->indexInSort() < dependent->indexInSort()) {
                 dependent->addDependency((*dependedOn)[i]);
                 dependedOn->removeShuffle(i);
@@ -150,7 +150,7 @@ public:
         // use case (i.e., the same dependent for all the new edges).
 
         int lowerBound = fNodes.count();  // 'lowerBound' tracks the left of the affected region
-        for (int i = 0; i < dependedOn->count(); ++i) {
+        for (int i = 0; i < dependedOn->size(); ++i) {
             if ((*dependedOn)[i]->indexInSort() < lowerBound) {
                 this->shift(lowerBound);
             }

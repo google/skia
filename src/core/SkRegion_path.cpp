@@ -521,7 +521,7 @@ bool SkRegion::getBoundaryPath(SkPath* path) const {
         edge[1].set(r.fRight, r.fTop, r.fBottom);
     }
 
-    int count = edges.count();
+    int count = edges.size();
     Edge* start = edges.begin();
     Edge* stop = start + count;
     SkTQSort<Edge>(start, stop, EdgeLT());

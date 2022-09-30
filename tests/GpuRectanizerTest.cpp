@@ -34,7 +34,7 @@ static void test_rectanizer_inserts(skiatest::Reporter*,
                                     Rectanizer* rectanizer,
                                     const SkTDArray<SkISize>& rects) {
     int i;
-    for (i = 0; i < rects.count(); ++i) {
+    for (i = 0; i < rects.size(); ++i) {
         SkIPoint16 loc;
         if (!rectanizer->addRect(rects[i].fWidth, rects[i].fHeight, &loc)) {
             break;

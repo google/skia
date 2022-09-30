@@ -152,7 +152,7 @@ int SkWGLExtensions::selectFormat(const int formats[],
     }
     SkTQSort(rankedFormats.begin(), rankedFormats.end(), pf_less);
     int idx = SkTSearch<PixelFormat, pf_less>(rankedFormats.begin(),
-                                              rankedFormats.count(),
+                                              rankedFormats.size(),
                                               desiredFormat,
                                               sizeof(PixelFormat));
     if (idx < 0) {

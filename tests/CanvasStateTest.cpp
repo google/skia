@@ -266,7 +266,7 @@ DEF_TEST(CanvasState_test_complex_clips, reporter) {
                 }
                 bool success = drawFn(state, clipRect.fLeft, clipRect.fTop,
                                       clipRect.fRight, clipRect.fBottom, clipOps[j],
-                                      rectCoords.count() / 4, rectCoords.begin());
+                                      rectCoords.size() / 4, rectCoords.begin());
                 REPORTER_ASSERT(reporter, success);
 
                 SkCanvasStateUtils::ReleaseCanvasState(state);

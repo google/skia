@@ -283,9 +283,9 @@ public:
     static void Rewind(sk_sp<SkPathRef>* pathRef);
 
     ~SkPathRef();
-    int countPoints() const { return fPoints.count(); }
-    int countVerbs() const { return fVerbs.count(); }
-    int countWeights() const { return fConicWeights.count(); }
+    int countPoints() const { return fPoints.size(); }
+    int countVerbs() const { return fVerbs.size(); }
+    int countWeights() const { return fConicWeights.size(); }
 
     size_t approximateBytesUsed() const;
 
@@ -397,8 +397,8 @@ private:
     /** Makes additional room but does not change the counts or change the genID */
     void incReserve(int additionalVerbs, int additionalPoints) {
         SkDEBUGCODE(this->validate();)
-        fPoints.reserve(fPoints.count() + additionalPoints);
-        fVerbs.reserve(fVerbs.count() + additionalVerbs);
+        fPoints.reserve(fPoints.size() + additionalPoints);
+        fVerbs.reserve(fVerbs.size() + additionalVerbs);
         SkDEBUGCODE(this->validate();)
     }
 

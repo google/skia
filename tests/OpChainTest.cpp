@@ -72,7 +72,7 @@ static void init_combinable(int numGroups, Combinable* combinable, SkRandom* ran
     SkTDArray<int> groups[kNumOps];
     for (int i = 0; i < kNumOps; ++i) {
         auto& group = groups[random->nextULessThan(numGroups)];
-        for (int g = 0; g < group.count(); ++g) {
+        for (int g = 0; g < group.size(); ++g) {
             int j = group[g];
             if (random->nextUScalar1() < mergeProbability) {
                 (*combinable)[combinable_index(i, j)] = GrOp::CombineResult::kMerged;

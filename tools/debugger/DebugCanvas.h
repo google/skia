@@ -129,7 +129,7 @@ public:
     /**
         Returns length of draw command vector.
      */
-    int getSize() const { return fCommandVector.count(); }
+    int getSize() const { return fCommandVector.size(); }
 
     /**
         Toggles the visibility / execution of the draw command at index i with

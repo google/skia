@@ -97,8 +97,8 @@ private:
         font.setTypeface(fTypeface);
         font.setSize(16);
 
-        const SkTextBlobBuilder::RunBuffer& buf = builder.allocRun(font, fGlyphs.count(), 0, 0);
-        memcpy(buf.glyphs, fGlyphs.begin(), fGlyphs.count() * sizeof(uint16_t));
+        const SkTextBlobBuilder::RunBuffer& buf = builder.allocRun(font, fGlyphs.size(), 0, 0);
+        memcpy(buf.glyphs, fGlyphs.begin(), fGlyphs.size() * sizeof(uint16_t));
         return builder.make();
     }
 

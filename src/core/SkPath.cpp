@@ -235,7 +235,7 @@ void SkPath::swap(SkPath& that) {
 
 bool SkPath::isInterpolatable(const SkPath& compare) const {
     // need the same structure (verbs, conicweights) and same point-count
-    return fPathRef->fPoints.count() == compare.fPathRef->fPoints.count() &&
+    return fPathRef->fPoints.size() == compare.fPathRef->fPoints.size() &&
            fPathRef->fVerbs == compare.fPathRef->fVerbs &&
            fPathRef->fConicWeights == compare.fPathRef->fConicWeights;
 }
@@ -1499,7 +1499,7 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
 
 // ignore the last point of the 1st contour
 SkPath& SkPath::reversePathTo(const SkPath& path) {
-    if (path.fPathRef->fVerbs.count() == 0) {
+    if (path.fPathRef->fVerbs.size() == 0) {
         return *this;
     }
 
@@ -3083,7 +3083,7 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
     SkTDArray<SkVector> tangents;
     do {
         SkPoint pts[4];
-        int oldCount = tangents.count();
+        int oldCount = tangents.size();
         switch (iter.next(pts)) {
             case SkPath::kMove_Verb:
             case SkPath::kClose_Verb:
@@ -3104,8 +3104,8 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
                 done = true;
                 break;
        }
-       if (tangents.count() > oldCount) {
-            int last = tangents.count() - 1;
+       if (tangents.size() > oldCount) {
+            int last = tangents.size() - 1;
             const SkVector& tangent = tangents[last];
             if (SkScalarNearlyZero(SkPointPriv::LengthSqd(tangent))) {
                 tangents.remove(last);
@@ -3123,7 +3123,7 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
             }
         }
     } while (!done);
-    return SkToBool(tangents.count()) ^ isInverse;
+    return SkToBool(tangents.size()) ^ isInverse;
 }
 
 int SkPath::ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,

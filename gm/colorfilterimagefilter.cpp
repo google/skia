@@ -217,7 +217,7 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
     SkRect r = SkRect::MakeWH(120, 120);
 
     canvas->translate(20, 20);
-    for (int y = 0; y < shaders.count(); ++y) {
+    for (int y = 0; y < shaders.size(); ++y) {
         SkShader* shader = shaders[y];
 
         canvas->save();

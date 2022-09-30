@@ -351,7 +351,7 @@ static SkBitmap make_bitmap(SkColorType colorType, const SkPath& path,
     canvas->drawPath(path, paint);
 
     paint.setBlendMode(SkBlendMode::kSrc);
-    for (int i = 0; i < circles.count(); ++i) {
+    for (int i = 0; i < circles.size(); ++i) {
         SkColor color;
         switch (i % 3) {
             case 0:  color = kYellow;  break;

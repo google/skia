@@ -103,7 +103,7 @@ void random_test(skiatest::Reporter* reporter) {
         for (int j = 0; j < count; ++j) {
             pq.insert(&array[j]);
         }
-        REPORTER_ASSERT(reporter, pq.count() == array.count());
+        REPORTER_ASSERT(reporter, pq.count() == array.size());
         for (int j = 0; j < count; ++j) {
             // every item should have an entry in the queue.
             REPORTER_ASSERT(reporter, -1 != array[j].fIndex);

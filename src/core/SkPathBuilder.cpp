@@ -64,13 +64,13 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
 }
 
 void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount) {
-    fPts.reserve(  Sk32_sat_add(fPts.count(),   extraPtCount));
-    fVerbs.reserve(Sk32_sat_add(fVerbs.count(), extraVbCount));
+    fPts.reserve(  Sk32_sat_add(fPts.size(),   extraPtCount));
+    fVerbs.reserve(Sk32_sat_add(fVerbs.size(), extraVbCount));
 }
 
 SkRect SkPathBuilder::computeBounds() const {
     SkRect bounds;
-    bounds.setBounds(fPts.begin(), fPts.count());
+    bounds.setBounds(fPts.begin(), fPts.size());
     return bounds;
 }
 
@@ -143,7 +143,7 @@ SkPathBuilder& SkPathBuilder::cubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3) {
 }
 
 SkPathBuilder& SkPathBuilder::close() {
-    if (fVerbs.count() > 0) {
+    if (fVerbs.size() > 0) {
         this->ensureMove();
 
         fVerbs.push_back((uint8_t)SkPathVerb::kClose);
@@ -324,7 +324,7 @@ SkPathBuilder& SkPathBuilder::arcTo(const SkRect& oval, SkScalar startAngle, SkS
         return *this;
     }
 
-    if (fVerbs.count() == 0) {
+    if (fVerbs.size() == 0) {
         forceMoveTo = true;
     }
 

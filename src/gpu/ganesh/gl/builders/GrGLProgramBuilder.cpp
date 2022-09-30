@@ -34,7 +34,7 @@
 #define GL_CALL_RET(R, X) GR_GL_CALL_RET(this->gpu()->glInterface(), R, X)
 
 static void cleanup_shaders(GrGLGpu* gpu, const SkTDArray<GrGLuint>& shaderIDs) {
-    for (int i = 0; i < shaderIDs.count(); ++i) {
+    for (int i = 0; i < shaderIDs.size(); ++i) {
         GR_GL_CALL(gpu->glInterface(), DeleteShader(shaderIDs[i]));
     }
 }

@@ -173,7 +173,7 @@ SkPoint SkPathWriter::update(const SkOpPtT* pt) {
 
 bool SkPathWriter::someAssemblyRequired() {
     this->finishContour();
-    return fEndPtTs.count() > 0;
+    return fEndPtTs.size() > 0;
 }
 
 bool SkPathWriter::changedSlopes(const SkOpPtT* ptT) const {
@@ -209,7 +209,7 @@ void SkPathWriter::assemble() {
     SkDebugf("%s\n", __FUNCTION__);
 #endif
     SkOpPtT const* const* runs = fEndPtTs.begin();  // starts, ends of partial contours
-    int endCount = fEndPtTs.count(); // all starts and ends
+    int endCount = fEndPtTs.size(); // all starts and ends
     SkASSERT(endCount > 0);
     SkASSERT(endCount == fPartials.count() * 2);
 #if DEBUG_ASSEMBLE

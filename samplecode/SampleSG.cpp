@@ -34,7 +34,7 @@ class SampleSG : public Sample {
     std::unique_ptr<sksg::Scene> fScene;
 
     PerNodeInfo* findInfo(sksg::Draw* key) {
-        for (int i = 0; i < fSideCar.count(); ++i) {
+        for (int i = 0; i < fSideCar.size(); ++i) {
             if (fSideCar[i].fDraw == key) {
                 return &fSideCar[i];
             }

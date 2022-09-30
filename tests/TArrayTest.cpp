@@ -329,7 +329,7 @@ template <typename Array> static void test_array_reserve(skiatest::Reporter* rep
         // Two steps forward, one step back
         if (random.nextULessThan(3) < 2) {
             array->push_back();
-        } else if (array->count() > 0) {
+        } else if (array->size() > 0) {
             array->pop_back();
         }
         REPORTER_ASSERT(reporter, array->capacity() >= reserveCount);

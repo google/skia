@@ -179,7 +179,7 @@ public:
             return false;
         }
 
-        for (int i = 0; i < fDependencies.count(); ++i) {
+        for (int i = 0; i < fDependencies.size(); ++i) {
             if (!fDependencies[i]->fWasOutput) {
                 return false;
             }
@@ -203,11 +203,11 @@ public:
     }
     static bool          WasOutput(TopoTestNode* node) { return node->fWasOutput; }
     static uint32_t      GetIndex(TopoTestNode* node) { return node->outputPos(); }
-    static int           NumDependencies(TopoTestNode* node) { return node->fDependencies.count(); }
+    static int           NumDependencies(TopoTestNode* node) { return node->fDependencies.size(); }
     static TopoTestNode* Dependency(TopoTestNode* node, int index) {
         return node->fDependencies[index];
     }
-    static int           NumTargets(TopoTestNode* node) { return node->fTargets.count(); }
+    static int           NumTargets(TopoTestNode* node) { return node->fTargets.size(); }
     static uint32_t      GetTarget(TopoTestNode* node, int i) { return node->fTargets[i]; }
     static uint32_t      GetID(TopoTestNode* node) { return node->id(); }
 

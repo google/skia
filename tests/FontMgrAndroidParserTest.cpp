@@ -26,7 +26,7 @@ DECLARE_bool(verboseFontMgr);
 
 int CountFallbacks(SkTDArray<FontFamily*> fontFamilies) {
     int countOfFallbackFonts = 0;
-    for (int i = 0; i < fontFamilies.count(); i++) {
+    for (int i = 0; i < fontFamilies.size(); i++) {
         if (fontFamilies[i]->fIsFallbackFont) {
             countOfFallbackFonts++;
         }
@@ -66,7 +66,7 @@ static void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char*
     // All file names in the test configuration files start with a capital letter.
     // This is not a general requirement, but it is true of all the test configuration data.
     // Verifying ensures the filenames have been read sanely and have not been 'sliced'.
-    for (int i = 0; i < fontFamilies.count(); ++i) {
+    for (int i = 0; i < fontFamilies.size(); ++i) {
         FontFamily& family = *fontFamilies[i];
         for (int j = 0; j < family.fFonts.count(); ++j) {
             FontFileInfo& file = family.fFonts[j];
@@ -99,7 +99,7 @@ static void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* lab
     }
 
     SkDebugf("\n--- Dumping %s\n", label);
-    for (int i = 0; i < fontFamilies.count(); ++i) {
+    for (int i = 0; i < fontFamilies.size(); ++i) {
         SkDebugf("Family %d:\n", i);
         switch(fontFamilies[i]->fVariant) {
             case kElegant_FontVariant: SkDebugf("  elegant\n"); break;
@@ -184,8 +184,8 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
         GetResourcePath("android_fonts/pre_v17/system_fonts.xml").c_str(),
         GetResourcePath("android_fonts/pre_v17/fallback_fonts.xml").c_str());
 
-    if (preV17FontFamilies.count() > 0) {
-        REPORTER_ASSERT(reporter, preV17FontFamilies.count() == 14);
+    if (preV17FontFamilies.size() > 0) {
+        REPORTER_ASSERT(reporter, preV17FontFamilies.size() == 14);
         REPORTER_ASSERT(reporter, CountFallbacks(preV17FontFamilies) == 10);
 
         DumpLoadedFonts(preV17FontFamilies, "pre version 17");
@@ -203,8 +203,8 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
         GetResourcePath("android_fonts/v17/fallback_fonts.xml").c_str(),
         GetResourcePath("android_fonts/v17").c_str());
 
-    if (v17FontFamilies.count() > 0) {
-        REPORTER_ASSERT(reporter, v17FontFamilies.count() == 56);
+    if (v17FontFamilies.size() > 0) {
+        REPORTER_ASSERT(reporter, v17FontFamilies.size() == 56);
         REPORTER_ASSERT(reporter, CountFallbacks(v17FontFamilies) == 46);
 
         DumpLoadedFonts(v17FontFamilies, "version 17");
@@ -221,8 +221,8 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
         GetResourcePath("android_fonts/v22/fonts.xml").c_str(),
         nullptr);
 
-    if (v22FontFamilies.count() > 0) {
-        REPORTER_ASSERT(reporter, v22FontFamilies.count() == 54);
+    if (v22FontFamilies.size() > 0) {
+        REPORTER_ASSERT(reporter, v22FontFamilies.size() == 54);
         REPORTER_ASSERT(reporter, CountFallbacks(v22FontFamilies) == 42);
 
         DumpLoadedFonts(v22FontFamilies, "version 22");

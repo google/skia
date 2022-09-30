@@ -23,7 +23,7 @@ bool RectanizerSkyline::addRect(int width, int height, SkIPoint16* loc) {
     int bestX = 0;
     int bestY = this->height() + 1;
     int bestIndex = -1;
-    for (int i = 0; i < fSkyline.count(); ++i) {
+    for (int i = 0; i < fSkyline.size(); ++i) {
         int y;
         if (this->rectangleFits(i, width, height, &y)) {
             // minimize y position first, then width of skyline
@@ -67,7 +67,7 @@ bool RectanizerSkyline::rectangleFits(int skylineIndex, int width, int height, i
         }
         widthLeft -= fSkyline[i].fWidth;
         ++i;
-        SkASSERT(i < fSkyline.count() || widthLeft <= 0);
+        SkASSERT(i < fSkyline.size() || widthLeft <= 0);
     }
 
     *ypos = y;
@@ -85,7 +85,7 @@ void RectanizerSkyline::addSkylineLevel(int skylineIndex, int x, int y, int widt
     SkASSERT(newSegment.fY <= this->height());
 
     // delete width of the new skyline segment from following ones
-    for (int i = skylineIndex+1; i < fSkyline.count(); ++i) {
+    for (int i = skylineIndex+1; i < fSkyline.size(); ++i) {
         // The new segment subsumes all or part of fSkyline[i]
         SkASSERT(fSkyline[i-1].fX <= fSkyline[i].fX);
 
@@ -109,7 +109,7 @@ void RectanizerSkyline::addSkylineLevel(int skylineIndex, int x, int y, int widt
     }
 
     // merge fSkylines
-    for (int i = 0; i < fSkyline.count()-1; ++i) {
+    for (int i = 0; i < fSkyline.size()-1; ++i) {
         if (fSkyline[i].fY == fSkyline[i+1].fY) {
             fSkyline[i].fWidth += fSkyline[i+1].fWidth;
             fSkyline.remove(i+1);

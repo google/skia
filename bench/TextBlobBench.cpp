@@ -34,17 +34,17 @@ public:
         const char* text = "Keep your sentences short, but not overly so.";
 
         fGlyphs.resize(fFont.countText(text, strlen(text), SkTextEncoding::kUTF8));
-        fXPos.resize(fGlyphs.count());
+        fXPos.resize(fGlyphs.size());
 
-        fFont.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, fGlyphs.begin(), fGlyphs.count());
-        fFont.getXPos(&fGlyphs[0], fGlyphs.count(), fXPos.begin());
+        fFont.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, fGlyphs.begin(), fGlyphs.size());
+        fFont.getXPos(&fGlyphs[0], fGlyphs.size(), fXPos.begin());
     }
 
     sk_sp<SkTextBlob> makeBlob() {
         const SkTextBlobBuilder::RunBuffer& run =
-            fBuilder.allocRunPosH(fFont, fGlyphs.count(), 10, nullptr);
-        memcpy(run.glyphs, &fGlyphs[0], fGlyphs.count() * sizeof(uint16_t));
-        memcpy(run.pos, &fXPos[0], fXPos.count() * sizeof(SkScalar));
+            fBuilder.allocRunPosH(fFont, fGlyphs.size(), 10, nullptr);
+        memcpy(run.glyphs, &fGlyphs[0], fGlyphs.size() * sizeof(uint16_t));
+        memcpy(run.pos, &fXPos[0], fXPos.size() * sizeof(SkScalar));
         return fBuilder.make();
     }
 

@@ -10,13 +10,13 @@
 #include "tests/PathOpsThreadedCommon.h"
 
 PathOpsThreadedTestRunner::~PathOpsThreadedTestRunner() {
-    for (int index = 0; index < fRunnables.count(); index++) {
+    for (int index = 0; index < fRunnables.size(); index++) {
         delete fRunnables[index];
     }
 }
 
 void PathOpsThreadedTestRunner::render() {
-    SkTaskGroup().batch(fRunnables.count(), [&](int i) {
+    SkTaskGroup().batch(fRunnables.size(), [&](int i) {
         (*fRunnables[i])();
     });
 }

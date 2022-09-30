@@ -236,7 +236,7 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
                 }
                 helpFlags.append(1, &argv[j]);
             }
-            if (0 == helpFlags.count()) {
+            if (0 == helpFlags.size()) {
                 // Only print general help message if help for specific flags is not requested.
                 SkDebugf("%s\n%s\n", argv[0], gUsage.c_str());
             }
@@ -244,7 +244,7 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
                 SkDebugf("Flags:\n");
                 flagsPrinted = true;
             }
-            if (0 == helpFlags.count()) {
+            if (0 == helpFlags.size()) {
                 // If no flags followed --help, print them all
                 SkTDArray<SkFlagInfo*> allFlags;
                 for (SkFlagInfo* flag = CommandLineFlags::gHead; flag; flag = flag->next()) {
@@ -260,7 +260,7 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
                 }
             } else {
                 for (SkFlagInfo* flag = CommandLineFlags::gHead; flag; flag = flag->next()) {
-                    for (int k = 0; k < helpFlags.count(); k++) {
+                    for (int k = 0; k < helpFlags.size(); k++) {
                         if (flag->name().equals(helpFlags[k]) ||
                             flag->shortName().equals(helpFlags[k])) {
                             print_extended_help_for_flag(flag);
@@ -270,9 +270,9 @@ void CommandLineFlags::Parse(int argc, const char* const* argv) {
                     }
                 }
             }
-            if (helpFlags.count() > 0) {
+            if (helpFlags.size() > 0) {
                 SkDebugf("Requested help for unrecognized flags:\n");
-                for (int k = 0; k < helpFlags.count(); k++) {
+                for (int k = 0; k < helpFlags.size(); k++) {
                     SkDebugf("    --%s\n", helpFlags[k]);
                 }
             }

@@ -1617,7 +1617,7 @@ DrawPointsCommand::DrawPointsCommand(SkCanvas::PointMode mode,
         : INHERITED(kDrawPoints_OpType), fMode(mode), fPts(pts, count), fPaint(paint) {}
 
 void DrawPointsCommand::execute(SkCanvas* canvas) const {
-    canvas->drawPoints(fMode, fPts.count(), fPts.begin(), fPaint);
+    canvas->drawPoints(fMode, fPts.size(), fPts.begin(), fPaint);
 }
 
 bool DrawPointsCommand::render(SkCanvas* canvas) const {
@@ -1627,7 +1627,7 @@ bool DrawPointsCommand::render(SkCanvas* canvas) const {
     SkRect bounds;
 
     bounds.setEmpty();
-    for (int i = 0; i < fPts.count(); ++i) {
+    for (int i = 0; i < fPts.size(); ++i) {
         SkRectPriv::GrowToInclude(&bounds, fPts[i]);
     }
 
@@ -1637,7 +1637,7 @@ bool DrawPointsCommand::render(SkCanvas* canvas) const {
     p.setColor(SK_ColorBLACK);
     p.setStyle(SkPaint::kStroke_Style);
 
-    canvas->drawPoints(fMode, fPts.count(), fPts.begin(), p);
+    canvas->drawPoints(fMode, fPts.size(), fPts.begin(), p);
     canvas->restore();
 
     return true;
@@ -1647,7 +1647,7 @@ void DrawPointsCommand::toJSON(SkJSONWriter& writer, UrlDataManager& urlDataMana
     INHERITED::toJSON(writer, urlDataManager);
     writer.appendCString(DEBUGCANVAS_ATTRIBUTE_MODE, pointmode_name(fMode));
     writer.beginArray(DEBUGCANVAS_ATTRIBUTE_POINTS);
-    for (int i = 0; i < fPts.count(); i++) {
+    for (int i = 0; i < fPts.size(); i++) {
         MakeJsonPoint(writer, fPts[i]);
     }
     writer.endArray();  // points
@@ -1997,7 +1997,7 @@ void DrawAtlasCommand::execute(SkCanvas* canvas) const {
                       fXform.begin(),
                       fTex.begin(),
                       fColors.empty() ? nullptr : fColors.begin(),
-                      fXform.count(),
+                      fXform.size(),
                       fBlendMode,
                       fSampling,
                       fCull.getMaybeNull(),

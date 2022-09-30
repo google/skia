@@ -1028,7 +1028,7 @@ const void* SkScalerContext_DW::drawDWMask(const SkGlyph& glyph,
     if (DWRITE_TEXTURE_CLEARTYPE_3x1 == textureType) {
         sizeNeeded *= 3;
     }
-    if (sizeNeeded > fBits.count()) {
+    if (sizeNeeded > fBits.size()) {
         fBits.resize(sizeNeeded);
     }
 

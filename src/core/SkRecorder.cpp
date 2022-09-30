@@ -25,7 +25,7 @@ SkDrawableList::~SkDrawableList() {
 }
 
 SkBigPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {
-    const int count = fArray.count();
+    const int count = fArray.size();
     if (0 == count) {
         return nullptr;
     }

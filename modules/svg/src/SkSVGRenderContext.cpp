@@ -117,7 +117,7 @@ static sk_sp<SkPathEffect> dash_effect(const SkSVGPresentationAttributes& props,
     }
 
     const auto& da = *props.fStrokeDashArray;
-    const auto count = da.dashArray().count();
+    const auto count = da.dashArray().size();
     SkSTArray<128, SkScalar, true> intervals(count);
     for (const auto& dash : da.dashArray()) {
         intervals.push_back(lctx.resolve(dash, SkSVGLengthContext::LengthType::kOther));

@@ -85,7 +85,7 @@ SkOpSpan* FindUndone(SkOpContourHead* contourHead) {
 
 SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
         SkOpSpanBase** endPtr) {
-    while (chase->count()) {
+    while (chase->size()) {
         SkOpSpanBase* span = chase->back();
         chase->pop_back();
         SkOpSegment* segment = span->segment();
@@ -164,7 +164,7 @@ bool SortContourList(SkOpContourHead** contourList, bool evenOdd, bool oppEvenOd
             *list.append() = contour;
         }
     } while ((contour = contour->next()));
-    int count = list.count();
+    int count = list.size();
     if (!count) {
         return false;
     }

@@ -54,45 +54,45 @@ protected:
         switch (fType) {
             case Type::kConvexCheck:
                 for (int i = 0; i < loops; i++) {
-                    (void)SkIsConvexPolygon(poly.begin(), poly.count());
+                    (void)SkIsConvexPolygon(poly.begin(), poly.size());
                 }
                 break;
             case Type::kSimpleCheck:
                 for (int i = 0; i < loops; i++) {
-                    (void)SkIsSimplePolygon(poly.begin(), poly.count());
+                    (void)SkIsSimplePolygon(poly.begin(), poly.size());
                 }
                 break;
             case Type::kInsetConvex:
-                if (SkIsConvexPolygon(poly.begin(), poly.count())) {
+                if (SkIsConvexPolygon(poly.begin(), poly.size())) {
                     SkTDArray<SkPoint> result;
                     for (int i = 0; i < loops; i++) {
-                        (void)SkInsetConvexPolygon(poly.begin(), poly.count(), 10, &result);
-                        (void)SkInsetConvexPolygon(poly.begin(), poly.count(), 40, &result);
+                        (void)SkInsetConvexPolygon(poly.begin(), poly.size(), 10, &result);
+                        (void)SkInsetConvexPolygon(poly.begin(), poly.size(), 40, &result);
                     }
                 }
                 break;
             case Type::kOffsetSimple:
-                if (SkIsSimplePolygon(poly.begin(), poly.count())) {
+                if (SkIsSimplePolygon(poly.begin(), poly.size())) {
                     SkTDArray<SkPoint> result;
                     SkRect bounds;
-                    bounds.setBounds(poly.begin(), poly.count());
+                    bounds.setBounds(poly.begin(), poly.size());
                     for (int i = 0; i < loops; i++) {
-                        (void)SkOffsetSimplePolygon(poly.begin(), poly.count(), bounds, 10,
+                        (void)SkOffsetSimplePolygon(poly.begin(), poly.size(), bounds, 10,
                                                     &result);
-                        (void)SkOffsetSimplePolygon(poly.begin(), poly.count(), bounds, -10,
+                        (void)SkOffsetSimplePolygon(poly.begin(), poly.size(), bounds, -10,
                                                     &result);
                     }
                 }
                 break;
             case Type::kTessellateSimple:
-                if (SkIsSimplePolygon(poly.begin(), poly.count())) {
-                    SkAutoSTMalloc<64, uint16_t> indexMap(poly.count());
-                    for (int i = 0; i < poly.count(); ++i) {
+                if (SkIsSimplePolygon(poly.begin(), poly.size())) {
+                    SkAutoSTMalloc<64, uint16_t> indexMap(poly.size());
+                    for (int i = 0; i < poly.size(); ++i) {
                         indexMap[i] = i;
                     }
                     SkTDArray<uint16_t> triangleIndices;
                     for (int i = 0; i < loops; i++) {
-                        SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+                        SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                    &triangleIndices);
                     }
                 }

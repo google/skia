@@ -1233,7 +1233,7 @@ static void test_timestamp_wrap(skiatest::Reporter* reporter) {
             skgpu::UniqueKey key;
             make_unique_key<0>(&key, j);
             GrGpuResource* res = cache->findAndRefUniqueResource(key);
-            if (currShouldPurgeIdx < shouldPurgeIdxs.count() &&
+            if (currShouldPurgeIdx < shouldPurgeIdxs.size() &&
                 shouldPurgeIdxs[currShouldPurgeIdx] == j) {
                 ++currShouldPurgeIdx;
                 REPORTER_ASSERT(reporter, nullptr == res);
@@ -1243,7 +1243,7 @@ static void test_timestamp_wrap(skiatest::Reporter* reporter) {
             SkSafeUnref(res);
         }
 
-        for (int j = 0; j < resourcesToUnref.count(); ++j) {
+        for (int j = 0; j < resourcesToUnref.size(); ++j) {
             resourcesToUnref[j]->unref();
         }
     }

@@ -2200,7 +2200,7 @@ public:
     }
 
     int count() override {
-        return fArray.count();
+        return fArray.size();
     }
 
     void getStyle(int index, SkFontStyle* fs, SkString* styleName) override {
@@ -2246,16 +2246,16 @@ public:
 
 protected:
     int onCountFamilies() const override {
-        return fLogFontArray.count();
+        return fLogFontArray.size();
     }
 
     void onGetFamilyName(int index, SkString* familyName) const override {
-        SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
+        SkASSERT(index < fLogFontArray.size());
         tchar_to_skstring(fLogFontArray[index].elfLogFont.lfFaceName, familyName);
     }
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
-        SkASSERT((unsigned)index < (unsigned)fLogFontArray.count());
+        SkASSERT(index < fLogFontArray.size());
         return new SkFontStyleSetGDI(fLogFontArray[index].elfLogFont.lfFaceName);
     }
 

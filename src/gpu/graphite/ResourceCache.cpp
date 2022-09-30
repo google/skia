@@ -45,7 +45,7 @@ void ResourceCache::shutdown() {
     }
     this->processReturnedResources();
 
-    while (fNonpurgeableResources.count()) {
+    while (fNonpurgeableResources.size()) {
         Resource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());
         this->removeFromNonpurgeableArray(back);
@@ -266,7 +266,7 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
 }
 
 void ResourceCache::addToNonpurgeableArray(Resource* resource) {
-    int index = fNonpurgeableResources.count();
+    int index = fNonpurgeableResources.size();
     *fNonpurgeableResources.append() = resource;
     *resource->accessCacheIndex() = index;
 }
@@ -324,8 +324,8 @@ uint32_t ResourceCache::getNextTimestamp() {
             // timestamp and assign new timestamps.
             int currP = 0;
             int currNP = 0;
-            while (currP < sortedPurgeableResources.count() &&
-                   currNP < fNonpurgeableResources.count()) {
+            while (currP < sortedPurgeableResources.size() &&
+                   currNP < fNonpurgeableResources.size()) {
                 uint32_t tsP = sortedPurgeableResources[currP]->timestamp();
                 uint32_t tsNP = fNonpurgeableResources[currNP]->timestamp();
                 SkASSERT(tsP != tsNP);
@@ -339,16 +339,16 @@ uint32_t ResourceCache::getNextTimestamp() {
             }
 
             // The above loop ended when we hit the end of one array. Finish the other one.
-            while (currP < sortedPurgeableResources.count()) {
+            while (currP < sortedPurgeableResources.size()) {
                 sortedPurgeableResources[currP++]->setTimestamp(fTimestamp++);
             }
-            while (currNP < fNonpurgeableResources.count()) {
+            while (currNP < fNonpurgeableResources.size()) {
                 *fNonpurgeableResources[currNP]->accessCacheIndex() = currNP;
                 fNonpurgeableResources[currNP++]->setTimestamp(fTimestamp++);
             }
 
             // Rebuild the queue.
-            for (int i = 0; i < sortedPurgeableResources.count(); ++i) {
+            for (int i = 0; i < sortedPurgeableResources.size(); ++i) {
                 fPurgeableQueue.insert(sortedPurgeableResources[i]);
             }
 
@@ -454,7 +454,7 @@ void ResourceCache::validate() const {
     // paused between unref and adding to ReturnQueue) so we can't even make asserts like not
     // purgeable or is in ReturnQueue.
     Stats stats(this);
-    for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
+    for (int i = 0; i < fNonpurgeableResources.size(); ++i) {
         SkASSERT(*fNonpurgeableResources[i]->accessCacheIndex() == i);
         SkASSERT(!fNonpurgeableResources[i]->wasDestroyed());
         SkASSERT(!this->inPurgeableQueue(fNonpurgeableResources[i]));
@@ -478,7 +478,7 @@ bool ResourceCache::isInCache(const Resource* resource) const {
     if (index < fPurgeableQueue.count() && fPurgeableQueue.at(index) == resource) {
         return true;
     }
-    if (index < fNonpurgeableResources.count() && fNonpurgeableResources[index] == resource) {
+    if (index < fNonpurgeableResources.size() && fNonpurgeableResources[index] == resource) {
         return true;
     }
     SkDEBUGFAIL("Resource index should be -1 or the resource should be in the cache.");

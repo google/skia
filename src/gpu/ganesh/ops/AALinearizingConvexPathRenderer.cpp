@@ -285,7 +285,7 @@ private:
 
         flushState->bindPipelineAndScissorClip(*fProgramInfo, chainBounds);
         flushState->bindTextures(fProgramInfo->geomProc(), nullptr, fProgramInfo->pipeline());
-        for (int i = 0; i < fMeshes.count(); ++i) {
+        for (int i = 0; i < fMeshes.size(); ++i) {
             flushState->drawMesh(*fMeshes[i]);
         }
     }

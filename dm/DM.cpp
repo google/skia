@@ -1609,7 +1609,7 @@ int main(int argc, char** argv) {
         return 1;
     }
     gather_tests();
-    int testCount = gCPUTests->count() + gGaneshTests->count() + gGraphiteTests->count();
+    int testCount = gCPUTests->size() + gGaneshTests->size() + gGraphiteTests->size();
     gPending = gSrcs->count() * gSinks->count() + testCount;
     info("%d srcs * %d sinks + %d tests == %d tasks\n",
          gSrcs->count(), gSinks->count(), testCount,

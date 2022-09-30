@@ -300,7 +300,7 @@ void GrQuadBuffer<T>::append(const GrQuad& deviceQuad, T&& metadata, const GrQua
 
 template<typename T>
 void GrQuadBuffer<T>::concat(const GrQuadBuffer<T>& that) {
-    fData.append(that.fData.count(), that.fData.begin());
+    fData.append(that.fData.size(), that.fData.begin());
     fCount += that.fCount;
     if (that.fDeviceType > fDeviceType) {
         fDeviceType = that.fDeviceType;

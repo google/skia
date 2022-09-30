@@ -140,8 +140,8 @@ private:
                 const BlobCfg* cfg = &blobConfigs[blobIndex][l][c];
                 unsigned count = cfg->count;
 
-                if (count > fGlyphs.count() - currentGlyph) {
-                    count = fGlyphs.count() - currentGlyph;
+                if (count > fGlyphs.size() - currentGlyph) {
+                    count = fGlyphs.size() - currentGlyph;
                 }
                 if (0 == count) {
                     break;

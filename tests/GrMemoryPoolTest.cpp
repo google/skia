@@ -200,13 +200,13 @@ DEF_TEST(GrMemoryPool, reporter) {
             for (int i = 0; i < kNumIters; ++i) {
                 float createOrDestroy = r.nextUScalar1();
                 if (createOrDestroy < gCreateFraction[c] ||
-                    0 == instanceRecs.count()) {
+                    0 == instanceRecs.size()) {
                     Rec* rec = instanceRecs.append();
                     rec->fInstance = A::Create(&r);
                     rec->fValue = static_cast<int>(r.nextU());
                     rec->fInstance->setValues(rec->fValue);
                 } else {
-                    int d = r.nextRangeU(0, instanceRecs.count() - 1);
+                    int d = r.nextRangeU(0, instanceRecs.size() - 1);
                     Rec& rec = instanceRecs[d];
                     REPORTER_ASSERT(reporter, rec.fInstance->checkValues(rec.fValue));
                     delete rec.fInstance;

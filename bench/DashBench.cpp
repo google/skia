@@ -71,7 +71,7 @@ protected:
         SkPath path;
         this->makePath(&path);
 
-        paint.setPathEffect(SkDashPathEffect::Make(fIntervals.begin(), fIntervals.count(), 0));
+        paint.setPathEffect(SkDashPathEffect::Make(fIntervals.begin(), fIntervals.size(), 0));
 
         if (fDoClip) {
             SkRect r = path.getBounds();

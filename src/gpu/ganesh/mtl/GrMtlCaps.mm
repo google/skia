@@ -465,7 +465,7 @@ int GrMtlCaps::maxRenderTargetSampleCount(const GrBackendFormat& format) const {
 int GrMtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
     const FormatInfo& formatInfo = this->getFormatInfo(format);
     if (formatInfo.fFlags & FormatInfo::kMSAA_Flag) {
-        return fSampleCounts[fSampleCounts.count() - 1];
+        return fSampleCounts[fSampleCounts.size() - 1];
     } else if (formatInfo.fFlags & FormatInfo::kRenderable_Flag) {
         return 1;
     }
@@ -486,7 +486,7 @@ int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, MTLPixelFormat for
         return 0;
     }
     if (formatInfo.fFlags & FormatInfo::kMSAA_Flag) {
-        int count = fSampleCounts.count();
+        int count = fSampleCounts.size();
         for (int i = 0; i < count; ++i) {
             if (fSampleCounts[i] >= requestedCount) {
                 return fSampleCounts[i];

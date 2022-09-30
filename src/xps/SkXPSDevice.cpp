@@ -1274,7 +1274,7 @@ static HRESULT close_figure(const SkTDArray<XPS_SEGMENT_TYPE>& segmentTypes,
     // even if the counts are all 0.
     if (!segmentTypes.empty() && !segmentData.empty() && !segmentStrokes.empty()) {
         // Add the segment data to the figure.
-        HRM(figure->SetSegments(segmentTypes.count(), segmentData.count(),
+        HRM(figure->SetSegments(segmentTypes.size(), segmentData.size(),
                                 segmentTypes.begin(), segmentData.begin(), segmentStrokes.begin()),
             "Could not set path segments.");
     }

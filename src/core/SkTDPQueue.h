@@ -39,7 +39,7 @@ public:
     SkTDPQueue& operator=(const SkTDPQueue&) = delete;
 
     /** Number of items in the queue. */
-    int count() const { return fArray.count(); }
+    int count() const { return fArray.size(); }
 
     /** Gets the next item in the queue without popping it. */
     const T& peek() const { return fArray[0]; }
@@ -49,12 +49,12 @@ public:
     void pop() {
         this->validate();
         SkDEBUGCODE(if (SkToBool(INDEX)) { *INDEX(fArray[0]) = -1; })
-        if (1 == fArray.count()) {
+        if (1 == fArray.size()) {
             fArray.pop_back();
             return;
         }
 
-        fArray[0] = fArray[fArray.count() - 1];
+        fArray[0] = fArray[fArray.size() - 1];
         this->setIndex(0);
         fArray.pop_back();
         this->percolateDownIfNecessary(0);
@@ -65,9 +65,9 @@ public:
     /** Inserts a new item in the queue based on its priority. */
     void insert(T entry) {
         this->validate();
-        int index = fArray.count();
+        int index = fArray.size();
         *fArray.append() = entry;
-        this->setIndex(fArray.count() - 1);
+        this->setIndex(fArray.size() - 1);
         this->percolateUpIfNecessary(index);
         this->validate();
     }
@@ -76,14 +76,14 @@ public:
     void remove(T entry) {
         SkASSERT(nullptr != INDEX);
         int index = *INDEX(entry);
-        SkASSERT(index >= 0 && index < fArray.count());
+        SkASSERT(index >= 0 && index < fArray.size());
         this->validate();
         SkDEBUGCODE(*INDEX(fArray[index]) = -1;)
-        if (index == fArray.count() - 1) {
+        if (index == fArray.size() - 1) {
             fArray.pop_back();
             return;
         }
-        fArray[index] = fArray[fArray.count() - 1];
+        fArray[index] = fArray[fArray.size() - 1];
         fArray.pop_back();
         this->setIndex(index);
         this->percolateUpOrDown(index);
@@ -96,7 +96,7 @@ public:
     void priorityDidChange(T entry) {
         SkASSERT(nullptr != INDEX);
         int index = *INDEX(entry);
-        SkASSERT(index >= 0 && index < fArray.count());
+        SkASSERT(index >= 0 && index < fArray.size());
         this->validate(index);
         this->percolateUpOrDown(index);
         this->validate();
@@ -110,9 +110,9 @@ public:
      *  until any other operation, other than at(), is performed.
      */
     void sort() {
-        if (fArray.count() > 1) {
+        if (fArray.size() > 1) {
             SkTQSort<T>(fArray.begin(), fArray.end(), LESS);
-            for (int i = 0; i < fArray.count(); i++) {
+            for (int i = 0; i < fArray.size(); i++) {
                 this->setIndex(i);
             }
             this->validate();
@@ -159,13 +159,13 @@ private:
         do {
             int child = LeftOf(index);
 
-            if (child >= fArray.count()) {
+            if (child >= fArray.size()) {
                 // We're a leaf.
                 this->setIndex(index);
                 return;
             }
 
-            if (child + 1 >= fArray.count()) {
+            if (child + 1 >= fArray.size()) {
                 // We only have a left child.
                 if (LESS(fArray[child], fArray[index])) {
                     using std::swap;
@@ -195,7 +195,7 @@ private:
     }
 
     void setIndex(int index) {
-        SkASSERT(index < fArray.count());
+        SkASSERT(index < fArray.size());
         if (SkToBool(INDEX)) {
             *INDEX(fArray[index]) = index;
         }
@@ -203,7 +203,7 @@ private:
 
     void validate(int excludedIndex = -1) const {
 #ifdef SK_DEBUG
-        for (int i = 1; i < fArray.count(); ++i) {
+        for (int i = 1; i < fArray.size(); ++i) {
             int p = ParentOf(i);
             if (excludedIndex != p && excludedIndex != i) {
                 SkASSERT(!(LESS(fArray[i], fArray[p])));

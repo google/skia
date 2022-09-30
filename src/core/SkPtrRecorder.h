@@ -40,7 +40,7 @@ public:
     /**
      *  Return the number of (non-null) ptrs in the set.
      */
-    int count() const { return fList.count(); }
+    int count() const { return fList.size(); }
 
     /**
      *  Copy the ptrs in the set into the specified array (allocated by the
@@ -70,7 +70,7 @@ public:
          * Return the next ptr in the set or null if the end was reached.
          */
         void* next() {
-            return fIndex < fSet.fList.count() ? fSet.fList[fIndex++].fPtr : nullptr;
+            return fIndex < fSet.fList.size() ? fSet.fList[fIndex++].fPtr : nullptr;
         }
 
     private:

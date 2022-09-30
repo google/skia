@@ -168,9 +168,9 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
         (*dst)->callGenIDChangeListeners();
         (*dst)->fGenerationID = 0;  // mark as dirty
         // don't copy, just allocate the points
-        (*dst)->fPoints.resize(src.fPoints.count());
+        (*dst)->fPoints.resize(src.fPoints.size());
     }
-    matrix.mapPoints((*dst)->fPoints.begin(), src.fPoints.begin(), src.fPoints.count());
+    matrix.mapPoints((*dst)->fPoints.begin(), src.fPoints.begin(), src.fPoints.size());
 
     // Need to check this here in case (&src == dst)
     bool canXformBounds = !src.fBoundsIsDirty && matrix.rectStaysRect() && src.countPoints() > 1;
@@ -264,8 +264,8 @@ bool SkPathRef::operator== (const SkPathRef& ref) const {
         SkASSERT(!genIDMatch);
         return false;
     }
-    if (ref.fVerbs.count() == 0) {
-        SkASSERT(ref.fPoints.count() == 0);
+    if (ref.fVerbs.size() == 0) {
+        SkASSERT(ref.fPoints.size() == 0);
     }
     return true;
 }
@@ -287,9 +287,9 @@ void SkPathRef::writeToBuffer(SkWBuffer* buffer) const {
     // TODO: write gen ID here. Problem: We don't know if we're cross process or not from
     // SkWBuffer. Until this is fixed we write 0.
     buffer->write32(0);
-    buffer->write32(fVerbs.count());
-    buffer->write32(fPoints.count());
-    buffer->write32(fConicWeights.count());
+    buffer->write32(fVerbs.size());
+    buffer->write32(fPoints.size());
+    buffer->write32(fConicWeights.size());
     buffer->write(fVerbs.begin(), fVerbs.size_bytes());
     buffer->write(fPoints.begin(), fVerbs.size_bytes());
     buffer->write(fConicWeights.begin(), fConicWeights.size_bytes());
@@ -308,7 +308,7 @@ void SkPathRef::copy(const SkPathRef& ref,
                      int additionalReserveVerbs,
                      int additionalReservePoints) {
     SkDEBUGCODE(this->validate();)
-    this->resetToSize(ref.fVerbs.count(), ref.fPoints.count(), ref.fConicWeights.count(),
+    this->resetToSize(ref.fVerbs.size(), ref.fPoints.size(), ref.fConicWeights.size(),
                       additionalReserveVerbs, additionalReservePoints);
     fVerbs = ref.fVerbs;
     fPoints = ref.fPoints;
@@ -475,7 +475,7 @@ uint32_t SkPathRef::genID() const {
     static const uint32_t kMask = (static_cast<int64_t>(1) << SkPathPriv::kPathRefGenIDBitCnt) - 1;
 
     if (fGenerationID == 0) {
-        if (fPoints.count() == 0 && fVerbs.count() == 0) {
+        if (fPoints.size() == 0 && fVerbs.size() == 0) {
             fGenerationID = kEmptyGenID;
         } else {
             static std::atomic<uint32_t> nextID{kEmptyGenID + 1};
@@ -665,13 +665,13 @@ bool SkPathRef::isValid() const {
         bool isFinite = true;
         auto leftTop = skvx::float2(fBounds.fLeft, fBounds.fTop);
         auto rightBot = skvx::float2(fBounds.fRight, fBounds.fBottom);
-        for (int i = 0; i < fPoints.count(); ++i) {
+        for (int i = 0; i < fPoints.size(); ++i) {
             auto point = skvx::float2(fPoints[i].fX, fPoints[i].fY);
 #ifdef SK_DEBUG
             if (fPoints[i].isFinite() && (any(point < leftTop)|| any(point > rightBot))) {
                 SkDebugf("bad SkPathRef bounds: %g %g %g %g\n",
                          fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
-                for (int j = 0; j < fPoints.count(); ++j) {
+                for (int j = 0; j < fPoints.size(); ++j) {
                     if (i == j) {
                         SkDebugf("*** bounds do not contain: ");
                     }
@@ -695,11 +695,11 @@ bool SkPathRef::isValid() const {
 }
 
 bool SkPathRef::dataMatchesVerbs() const {
-    const auto info = sk_path_analyze_verbs(fVerbs.begin(), fVerbs.count());
+    const auto info = sk_path_analyze_verbs(fVerbs.begin(), fVerbs.size());
     return info.valid                          &&
            info.segmentMask == fSegmentMask    &&
-           info.points      == fPoints.count() &&
-           info.weights     == fConicWeights.count();
+           info.points      == fPoints.size()  &&
+           info.weights     == fConicWeights.size();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

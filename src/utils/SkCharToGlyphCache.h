@@ -21,7 +21,7 @@ public:
 
     // return number of unichars cached
     int count() const {
-        return fK32.count();
+        return fK32.size();
     }
 
     void reset();       // forget all cache entries (to save memory)

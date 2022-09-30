@@ -39,7 +39,7 @@ public:
 
     // Returns the number of resources.
     int getResourceCount() const {
-        return fPurgeableQueue.count() + fNonpurgeableResources.count();
+        return fPurgeableQueue.count() + fNonpurgeableResources.size();
     }
 
     void insertResource(Resource*);

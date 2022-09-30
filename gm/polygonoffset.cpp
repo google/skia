@@ -581,7 +581,7 @@ protected:
             if (result) {
                 SkPath path;
                 path.moveTo(offsetPoly[0]);
-                for (int j = 1; j < offsetPoly.count(); ++j) {
+                for (int j = 1; j < offsetPoly.size(); ++j) {
                     path.lineTo(offsetPoly[j]);
                 }
                 path.close();

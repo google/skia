@@ -363,7 +363,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
         }
     }
     fEdgeList = fList.begin();
-    return is_finite ? fList.count() : 0;
+    return is_finite ? fList.size() : 0;
 }
 
 int SkEdgeBuilder::buildEdges(const SkPath& path,

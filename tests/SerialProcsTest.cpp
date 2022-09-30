@@ -140,10 +140,10 @@ static void test_pictures(skiatest::Reporter* reporter, sk_sp<SkPicture> p0, int
 
     SkSerialProcs sprocs = makes(array_serial_proc, &ctx);
     auto d0 = p0->serialize(&sprocs);
-    REPORTER_ASSERT(reporter, ctx.fArray.count() == count);
+    REPORTER_ASSERT(reporter, ctx.fArray.size() == count);
     SkDeserialProcs dprocs = maked(array_deserial_proc, &ctx);
     p0 = SkPicture::MakeFromData(d0.get(), &dprocs);
-    REPORTER_ASSERT(reporter, ctx.fArray.count() == 0);
+    REPORTER_ASSERT(reporter, ctx.fArray.size() == 0);
 }
 
 DEF_TEST(serial_procs_picture, reporter) {

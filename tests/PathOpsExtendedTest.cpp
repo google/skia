@@ -642,7 +642,7 @@ void initializeTests(skiatest::Reporter* reporter, const char* test) {
         if (inFile.isValid()) {
             SkTDArray<char> inData;
             inData.resize((int) inFile.getLength());
-            size_t inLen = inData.count();
+            size_t inLen = inData.size();
             inFile.read(inData.begin(), inLen);
             inFile.close();
             char* insert = strstr(inData.begin(), marker);
