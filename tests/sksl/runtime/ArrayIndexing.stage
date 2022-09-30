@@ -31,7 +31,7 @@ float index_by_complex_loop_0()
 float index_out_of_bounds_checked_0()
 {
 	float sum = 0.0;
-	for (float f = -2.2999999523162842;f < 17.0; f += 3.7000000476837158) 
+	for (float f = -2.3;f < 17.0; f += 3.7) 
 	{
 		if (f > 0.0 && f < 16.0) 
 		{

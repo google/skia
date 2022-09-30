@@ -1548,6 +1548,7 @@ BASE_SRCS_ALL = [
     "src/sksl/ir/SkSLIndexExpression.cpp",
     "src/sksl/ir/SkSLIndexExpression.h",
     "src/sksl/ir/SkSLInterfaceBlock.h",
+    "src/sksl/ir/SkSLLiteral.cpp",
     "src/sksl/ir/SkSLLiteral.h",
     "src/sksl/ir/SkSLMethodReference.h",
     "src/sksl/ir/SkSLModifiers.cpp",

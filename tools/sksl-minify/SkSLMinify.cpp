@@ -110,9 +110,71 @@ static std::optional<SkSL::LoadedModule> compile_module_list(SkSpan<const std::s
     return std::move(loadedModule);
 }
 
-ResultCode processCommand(const std::vector<std::string>& args) {
+static bool generate_minified_text(std::string_view inputPath,
+                                   std::string_view text,
+                                   SkSL::FileOutputStream& out) {
     using TokenKind = SkSL::Token::Kind;
 
+    SkSL::Lexer lexer;
+    lexer.start(text);
+
+    SkSL::Token token;
+    std::string_view lastTokenText = " ";
+    int lineWidth = 1;
+    for (;;) {
+        token = lexer.next();
+        if (token.fKind == TokenKind::TK_END_OF_FILE) {
+            break;
+        }
+        if (token.fKind == TokenKind::TK_LINE_COMMENT ||
+            token.fKind == TokenKind::TK_BLOCK_COMMENT ||
+            token.fKind == TokenKind::TK_WHITESPACE) {
+            continue;
+        }
+        std::string_view thisTokenText = stringize(token, text);
+        if (token.fKind == TokenKind::TK_INVALID) {
+            printf("%.*s: unable to parse '%.*s' at offset %d\n",
+                   (int)inputPath.size(), inputPath.data(),
+                   (int)thisTokenText.size(), thisTokenText.data(),
+                   token.fOffset);
+            return false;
+        }
+        if (thisTokenText.empty()) {
+            continue;
+        }
+        if (token.fKind == TokenKind::TK_FLOAT_LITERAL) {
+            // We can reduce `3.0` to `3.` safely.
+            if (skstd::contains(thisTokenText, '.')) {
+                while (thisTokenText.back() == '0' && thisTokenText.size() >= 3) {
+                    thisTokenText.remove_suffix(1);
+                }
+            }
+            // We can reduce `0.5` to `.5` safely.
+            if (skstd::starts_with(thisTokenText, "0.") && thisTokenText.size() >= 3) {
+                thisTokenText.remove_prefix(1);
+            }
+        }
+        SkASSERT(!lastTokenText.empty());
+        if (lineWidth > 75) {
+            // We're getting full-ish; wrap to a new line
+            out.writeText("\"\n\"");
+            lineWidth = 1;
+        }
+        if (maybe_identifier(lastTokenText.back()) && maybe_identifier(thisTokenText.front())) {
+            // We are about to put two alphanumeric characters side-by-side; add whitespace between
+            // the tokens.
+            out.writeText(" ");
+            lineWidth++;
+        }
+        out.write(thisTokenText.data(), thisTokenText.size());
+        lineWidth += thisTokenText.size();
+        lastTokenText = thisTokenText;
+    }
+
+    return true;
+}
+
+ResultCode processCommand(const std::vector<std::string>& args) {
     if (args.size() < 2) {
         show_usage();
         return ResultCode::kInputError;
@@ -137,66 +199,15 @@ ResultCode processCommand(const std::vector<std::string>& args) {
     std::string baseName = remove_extension(base_name(inputPaths.front()));
     out.printf("static constexpr char SKSL_MINIFIED_%s[] =\n\"", baseName.c_str());
 
-    // Generate the minified text by getting the program's description.
+    // Generate the program text by getting the program's description.
     std::string text;
     for (const std::unique_ptr<SkSL::ProgramElement>& element : module->fElements) {
         text += element->description();
     }
 
-    SkSL::Lexer lexer;
-    lexer.start(text);
-
-    SkSL::Token token;
-    std::string_view lastTokenText = " ";
-    int lineWidth = 1;
-    for (;;) {
-        token = lexer.next();
-        if (token.fKind == TokenKind::TK_END_OF_FILE) {
-            break;
-        }
-        if (token.fKind == TokenKind::TK_LINE_COMMENT ||
-            token.fKind == TokenKind::TK_BLOCK_COMMENT ||
-            token.fKind == TokenKind::TK_WHITESPACE) {
-            continue;
-        }
-        std::string_view thisTokenText = stringize(token, text);
-        if (token.fKind == TokenKind::TK_INVALID) {
-            printf("%s: unable to parse '%.*s' at offset %d\n",
-                   inputPaths.front().c_str(),
-                   (int)thisTokenText.size(), thisTokenText.data(),
-                   token.fOffset);
-            return ResultCode::kInputError;
-        }
-        if (thisTokenText.empty()) {
-            continue;
-        }
-        if (token.fKind == TokenKind::TK_FLOAT_LITERAL) {
-            // If we have a floating point number that doesn't use exponential notation...
-            if (!skstd::contains(thisTokenText, "e") && !skstd::contains(thisTokenText, "E")) {
-                // ... and has a decimal point...
-                if (skstd::contains(thisTokenText, ".")) {
-                    // ... strip any trailing zeros to save space.
-                    while (thisTokenText.back() == '0' && thisTokenText.size() > 2) {
-                        thisTokenText.remove_suffix(1);
-                    }
-                }
-            }
-        }
-        SkASSERT(!lastTokenText.empty());
-        if (lineWidth > 75) {
-            // We're getting full-ish; wrap to a new line
-            out.writeText("\"\n\"");
-            lineWidth = 1;
-        }
-        if (maybe_identifier(lastTokenText.back()) && maybe_identifier(thisTokenText.front())) {
-            // We are about to put two alphanumeric characters side-by-side; add whitespace between
-            // the tokens.
-            out.writeText(" ");
-            lineWidth++;
-        }
-        out.write(thisTokenText.data(), thisTokenText.size());
-        lineWidth += thisTokenText.size();
-        lastTokenText = thisTokenText;
+    // Eliminate whitespace and perform other basic simplifications via a lexer pass.
+    if (!generate_minified_text(inputPaths.front(), text, out)) {
+        return ResultCode::kInputError;
     }
 
     out.writeText("\";\n");
