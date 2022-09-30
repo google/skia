@@ -36,7 +36,7 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
-using AtlasTextOp = skgpu::v1::AtlasTextOp;
+using AtlasTextOp = skgpu::ganesh::AtlasTextOp;
 #endif  // SK_SUPPORT_GPU
 
 #ifdef SK_GRAPHITE_ENABLED

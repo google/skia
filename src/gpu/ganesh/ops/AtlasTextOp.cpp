@@ -31,9 +31,13 @@
 #include <new>
 #include <utility>
 
+#if GR_TEST_UTILS
+#include "src/gpu/ganesh/GrDrawOpTest.h"
+#endif
+
 using MaskFormat = skgpu::MaskFormat;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 inline static constexpr int kVerticesPerGlyph = 4;
 inline static constexpr int kIndicesPerGlyph = 6;
@@ -485,8 +489,7 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 }
 
 #if GR_TEST_UTILS
-#include "src/gpu/ganesh/GrDrawOpTest.h"
-GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
+GrOp::Owner AtlasTextOp::CreateOpTestingOnly(skgpu::v1::SurfaceDrawContext* sdc,
                                              const SkPaint& skPaint,
                                              const SkFont& font,
                                              const SkMatrixProvider& mtxProvider,
@@ -527,7 +530,7 @@ GrOp::Owner AtlasTextOp::CreateOpTestingOnly(SurfaceDrawContext* sdc,
 }
 #endif
 
-} // namespace skgpu::v1
+} // namespace skgpu::ganesh
 
 #if GR_TEST_UTILS
 GR_DRAW_OP_TEST_DEFINE(AtlasTextOp) {
@@ -553,7 +556,7 @@ GR_DRAW_OP_TEST_DEFINE(AtlasTextOp) {
     int xInt = (random->nextU() % kMaxTrans) * xPos;
     int yInt = (random->nextU() % kMaxTrans) * yPos;
 
-    return skgpu::v1::AtlasTextOp::CreateOpTestingOnly(sdc, skPaint, font, matrixProvider,
-                                                       text, xInt, yInt);
+    return skgpu::ganesh::AtlasTextOp::CreateOpTestingOnly(sdc, skPaint, font, matrixProvider,
+                                                           text, xInt, yInt);
 }
 #endif

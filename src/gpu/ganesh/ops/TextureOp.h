@@ -23,7 +23,7 @@ struct GrTextureSetEntry;
 struct SkRect;
 class SkMatrix;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class SurfaceDrawContext;
 
@@ -86,6 +86,6 @@ private:
     class BatchSizeLimiter;
 };
 
-} // namespace skgpu::v1
+} // namespace skgpu::ganesh
 
 #endif  // TextureOp_DEFINED

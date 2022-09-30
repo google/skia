@@ -26,7 +26,7 @@ struct GrShaderCaps;
 struct VertexWriter;
 
 namespace skgpu::v1::QuadPerEdgeAA {
-    using Saturate = skgpu::v1::TextureOp::Saturate;
+    using Saturate = skgpu::ganesh::TextureOp::Saturate;
 
     enum class CoverageMode { kNone, kWithPosition, kWithColor };
     enum class Subset : bool { kNo = false, kYes = true };

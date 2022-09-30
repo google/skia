@@ -30,6 +30,7 @@
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
@@ -40,6 +41,7 @@
 #include <memory>
 #include <utility>
 
+using namespace skgpu::ganesh;
 using MaskFormat = skgpu::MaskFormat;
 
 class GrResourceProvider;
@@ -194,9 +196,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BasicDrawOpAtlas,
     check(reporter, atlas.get(), 1, 4, 1);
 }
 
-#if SK_GPU_V1
-#include "src/gpu/ganesh/SurfaceDrawContext.h"
-
 // This test verifies that the AtlasTextOp::onPrepare method correctly handles a failure
 // when allocating an atlas page.
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation,
@@ -222,14 +221,14 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation,
     const char* text = "a";
     SkMatrixProvider matrixProvider(SkMatrix::I());
 
-    GrOp::Owner op = skgpu::v1::AtlasTextOp::CreateOpTestingOnly(sdc.get(), paint,
-                                                                 font, matrixProvider,
-                                                                 text, 16, 16);
+    GrOp::Owner op = AtlasTextOp::CreateOpTestingOnly(sdc.get(), paint,
+                                                      font, matrixProvider,
+                                                      text, 16, 16);
     if (!op) {
         return;
     }
 
-    auto atlasTextOp = (skgpu::v1::AtlasTextOp*)op.get();
+    auto atlasTextOp = (AtlasTextOp*)op.get();
     atlasTextOp->finalize(*dContext->priv().caps(), nullptr, GrClampType::kAuto);
 
     TestingUploadTarget uploadTarget;
@@ -256,7 +255,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation,
     op->prepare(&flushState);
     flushState.setOpArgs(nullptr);
 }
-#endif // SK_GPU_V1
 
 void test_atlas_config(skiatest::Reporter* reporter, int maxTextureSize, size_t maxBytes,
                        MaskFormat maskFormat, SkISize expectedDimensions,

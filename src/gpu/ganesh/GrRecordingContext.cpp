@@ -49,7 +49,7 @@ GrRecordingContext::GrRecordingContext(sk_sp<GrContextThreadSafeProxy> proxy, bo
 }
 
 GrRecordingContext::~GrRecordingContext() {
-    skgpu::v1::AtlasTextOp::ClearCache();
+    skgpu::ganesh::AtlasTextOp::ClearCache();
 }
 
 bool GrRecordingContext::init() {

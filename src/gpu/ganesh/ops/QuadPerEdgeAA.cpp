@@ -828,7 +828,7 @@ public:
     }
 
 private:
-    using Saturate = skgpu::v1::TextureOp::Saturate;
+    using Saturate = skgpu::ganesh::TextureOp::Saturate;
 
     QuadPerEdgeAAGeometryProcessor(const VertexSpec& spec)
             : INHERITED(kQuadPerEdgeAAGeometryProcessor_ClassID)

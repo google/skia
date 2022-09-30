@@ -15,7 +15,7 @@
 
 class GrRecordingContext;
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
 class AtlasTextOp final : public GrMeshDrawOp {
 public:
@@ -247,6 +247,6 @@ private:
     using INHERITED = GrMeshDrawOp;
 };
 
-} // namespace skgpu::v1
+} // namespace skgpu::ganesh
 
 #endif // AtlasTextOp_DEFINED
