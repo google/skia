@@ -354,12 +354,15 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind,
         // Removing dead variables may cause more variables to become unreferenced. Try again.
     }
 
+    // We only eliminate private globals (prefixed with `$`) to avoid changing the meaning of the
+    // module code.
+    while (Transform::EliminateDeadGlobalVariables(this->context(), module, usage.get(),
+                                                   /*onlyPrivateGlobals=*/true)) {
+        // Repeat until no changes occur.
+    }
+
     // We eliminate empty statements to avoid runs of `;;;;;;` caused by the previous passes.
     SkSL::Transform::EliminateEmptyStatements(module);
-
-    // Note that we intentionally don't attempt to eliminate unreferenced global variables or
-    // functions here, since those can be referenced by the finished program even if they're
-    // unreferenced now.
 
     return this->errorCount() == 0;
 }

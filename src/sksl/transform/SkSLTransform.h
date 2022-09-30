@@ -71,8 +71,14 @@ bool EliminateDeadFunctions(Program& program);
  * Eliminates variables in a program which are never read or written (past their initializer).
  * Preserves side effects from initializers, if any. Returns true if any changes were made.
  */
-bool EliminateDeadLocalVariables(const Context& context, LoadedModule& module, ProgramUsage* usage);
+bool EliminateDeadLocalVariables(const Context& context,
+                                 LoadedModule& module,
+                                 ProgramUsage* usage);
 bool EliminateDeadLocalVariables(Program& program);
+bool EliminateDeadGlobalVariables(const Context& context,
+                                  LoadedModule& module,
+                                  ProgramUsage* usage,
+                                  bool onlyPrivateGlobals);
 bool EliminateDeadGlobalVariables(Program& program);
 
 } // namespace Transform
