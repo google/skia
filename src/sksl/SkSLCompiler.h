@@ -190,6 +190,11 @@ public:
                                ModifiersPool& modifiersPool,
                                bool shouldInline);
 
+    /** Optimize a module at minification time, before writing it out. */
+    bool optimizeModuleBeforeMinifying(ProgramKind kind,
+                                       LoadedModule& module,
+                                       const ParsedModule& base);
+
     const ParsedModule& moduleForProgramKind(ProgramKind kind);
 
 private:
@@ -212,11 +217,10 @@ private:
     /** Performs final checks to confirm that a fully-assembled/optimized is valid. */
     bool finalize(Program& program);
 
-    /** Optimize a module after loading it. */
+    /** Optimize a module at Skia runtime, after loading it. */
     bool optimizeModuleAfterLoading(ProgramKind kind,
                                     LoadedModule& module,
-                                    const ParsedModule& base,
-                                    bool shouldInline);
+                                    const ParsedModule& base);
 
     /** Flattens out function calls when it is safe to do so. */
     bool runInliner(Inliner* inliner,

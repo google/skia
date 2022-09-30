@@ -102,9 +102,11 @@ static std::optional<SkSL::LoadedModule> compile_module_list(SkSpan<const std::s
                                               modules.front(),
                                               SkSL::ModuleLoader::Get().coreModifiers(),
                                               /*shouldInline=*/false);
-        // We eliminate empty statements to avoid runs of `;;;;;;`.
-        SkSL::Transform::EliminateEmptyStatements(loadedModule);
     }
+    // Run an optimization pass on the target module before returning it.
+    compiler.optimizeModuleBeforeMinifying(SkSL::ProgramKind::kFragment,
+                                           loadedModule,
+                                           modules.front());
     return std::move(loadedModule);
 }
 

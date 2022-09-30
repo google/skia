@@ -189,7 +189,9 @@ LoadedModule Compiler::compileModule(ProgramKind kind,
     if (this->errorCount() != 0) {
         SK_ABORT("Unexpected errors compiling %s:\n\n%s\n", moduleName, this->errorText().c_str());
     }
-    this->optimizeModuleAfterLoading(kind, module, base, shouldInline);
+    if (shouldInline) {
+        this->optimizeModuleAfterLoading(kind, module, base);
+    }
     return module;
 }
 
@@ -332,10 +334,9 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
     }
 }
 
-bool Compiler::optimizeModuleAfterLoading(ProgramKind kind,
-                                          LoadedModule& module,
-                                          const ParsedModule& base,
-                                          bool shouldInline) {
+bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind,
+                                             LoadedModule& module,
+                                             const ParsedModule& base) {
     SkASSERT(this->errorCount() == 0);
 
     // Create a temporary program configuration with default settings.
@@ -353,18 +354,35 @@ bool Compiler::optimizeModuleAfterLoading(ProgramKind kind,
         // Removing dead variables may cause more variables to become unreferenced. Try again.
     }
 
+    // We eliminate empty statements to avoid runs of `;;;;;;` caused by the previous passes.
+    SkSL::Transform::EliminateEmptyStatements(module);
+
     // Note that we intentionally don't attempt to eliminate unreferenced global variables or
     // functions here, since those can be referenced by the finished program even if they're
     // unreferenced now.
 
+    return this->errorCount() == 0;
+}
+
+bool Compiler::optimizeModuleAfterLoading(ProgramKind kind,
+                                          LoadedModule& module,
+                                          const ParsedModule& base) {
+    SkASSERT(this->errorCount() == 0);
+
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
-    if (shouldInline) {
-        // Perform inline-candidate analysis and inline any functions deemed suitable.
-        Inliner inliner(fContext.get());
-        while (this->errorCount() == 0) {
-            if (!this->runInliner(&inliner, module.fElements, module.fSymbols, usage.get())) {
-                break;
-            }
+    // Create a temporary program configuration with default settings.
+    ProgramConfig config;
+    config.fIsBuiltinCode = true;
+    config.fKind = kind;
+    AutoProgramConfig autoConfig(this->context(), &config);
+
+    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module, base);
+
+    // Perform inline-candidate analysis and inline any functions deemed suitable.
+    Inliner inliner(fContext.get());
+    while (this->errorCount() == 0) {
+        if (!this->runInliner(&inliner, module.fElements, module.fSymbols, usage.get())) {
+            break;
         }
     }
 #endif
