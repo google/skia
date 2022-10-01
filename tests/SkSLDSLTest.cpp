@@ -192,11 +192,14 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFlags, r, ctxInfo) {
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFloat, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Expression e1 = Float(std::numeric_limits<float>::max());
-    REPORTER_ASSERT(r, std::stof(e1.release()->description().c_str()) ==
+
+    // We can't use stof here, because old versions of libc++ can throw out_of_range on edge case
+    // inputs like these. (This causes test failure on old Android devices.)
+    REPORTER_ASSERT(r, std::strtof(e1.release()->description().c_str(), nullptr) ==
                        std::numeric_limits<float>::max());
 
     Expression e2 = Float(std::numeric_limits<float>::min());
-    REPORTER_ASSERT(r, std::stof(e2.release()->description().c_str()) ==
+    REPORTER_ASSERT(r, std::strtof(e2.release()->description().c_str(), nullptr) ==
                        std::numeric_limits<float>::min());
 
     EXPECT_EQUAL(Float2(0),
@@ -251,12 +254,15 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFloat, r, ctxInfo) {
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLHalf, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
+
+    // We can't use stof here, because old versions of libc++ can throw out_of_range on edge case
+    // inputs like these. (This causes test failure on old Android devices.)
     Expression e1 = Half(std::numeric_limits<float>::max());
-    REPORTER_ASSERT(r, std::stof(e1.release()->description().c_str()) ==
+    REPORTER_ASSERT(r, std::strtof(e1.release()->description().c_str(), nullptr) ==
                        std::numeric_limits<float>::max());
 
     Expression e2 = Half(std::numeric_limits<float>::min());
-    REPORTER_ASSERT(r, std::stof(e2.release()->description().c_str()) ==
+    REPORTER_ASSERT(r, std::strtof(e2.release()->description().c_str(), nullptr) ==
                        std::numeric_limits<float>::min());
 
     EXPECT_EQUAL(Half2(0),
