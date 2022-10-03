@@ -540,6 +540,7 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     d['skia_use_libjpeg_turbo_encode'] = 'false'
     d['skia_use_libwebp_decode'] = 'false'
     d['skia_use_libwebp_encode'] = 'false'
+    d['skia_use_libgifcodec'] = 'false'
     d['skia_enable_pdf'] = 'false'
     d['skia_use_freetype'] = 'false'
     d['skia_use_fixed_gamma_text'] = 'false'

@@ -1033,6 +1033,26 @@ optional("piet") {
   sources = skia_piet_gpu_sources
 }
 
+optional("gif") {
+  enabled = !skia_use_wuffs && skia_use_libgifcodec
+  _libgifcodec_gni_path = "third_party/externals/libgifcodec/libgifcodec.gni"
+  if ("True" ==
+      exec_script("gn/checkpath.py",
+                  [ rebase_path(_libgifcodec_gni_path, root_build_dir) ],
+                  "trim string")) {
+    public_defines = [ "SK_USE_LIBGIFCODEC" ]
+    public_include_dirs = [
+      ".",
+      skia_libgifcodec_path,
+    ]
+    include_dirs = public_include_dirs
+    import(_libgifcodec_gni_path)
+    sources = rebase_path(libgifcodec_sources + libgifcodec_public,
+                          ".",
+                          skia_libgifcodec_path)
+  }
+}
+
 optional("heif") {
   enabled = skia_use_libheif
   public_defines = [ "SK_HAS_HEIF_LIBRARY" ]
@@ -1304,6 +1324,7 @@ skia_component("skia") {
     ":avx",
     ":crc32",
     ":fontmgr_factory",
+    ":gif",
     ":heif",
     ":hsw",
     ":jpeg_decode",
@@ -1354,6 +1375,7 @@ skia_component("skia") {
     "src/codec/SkParseEncodedOrigin.cpp",
     "src/codec/SkSampledCodec.cpp",
     "src/codec/SkSampler.cpp",
+    "src/codec/SkStreamBuffer.cpp",
     "src/codec/SkSwizzler.cpp",
     "src/codec/SkWbmpCodec.cpp",
     "src/images/SkImageEncoder.cpp",

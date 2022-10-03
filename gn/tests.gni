@@ -275,6 +275,7 @@ tests_sources = [
   "$_tests/SpecialSurfaceTest.cpp",
   "$_tests/SrcOverTest.cpp",
   "$_tests/SrcSrcOverBatchTest.cpp",
+  "$_tests/StreamBufferTest.cpp",
   "$_tests/StreamTest.cpp",
   "$_tests/StrikeForGPUTest.cpp",
   "$_tests/StringTest.cpp",
