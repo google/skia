@@ -414,7 +414,7 @@ SkContourMeasure* SkContourMeasureIter::Impl::buildSegments() {
     if (!SkScalarIsFinite(distance)) {
         return nullptr;
     }
-    if (fSegments.size() == 0) {
+    if (fSegments.empty()) {
         return nullptr;
     }
 
@@ -581,7 +581,7 @@ bool SkContourMeasure::getPosTan(SkScalar distance, SkPoint* pos, SkVector* tang
     }
 
     const SkScalar length = this->length();
-    SkASSERT(length > 0 && fSegments.size() > 0);
+    SkASSERT(length > 0 && !fSegments.empty());
 
     // pin the distance to a legal range
     if (distance < 0) {
@@ -636,7 +636,7 @@ bool SkContourMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
     if (!(startD <= stopD)) {   // catch NaN values as well
         return false;
     }
-    if (!fSegments.size()) {
+    if (fSegments.empty()) {
         return false;
     }
 

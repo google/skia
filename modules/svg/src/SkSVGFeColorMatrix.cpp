@@ -37,9 +37,9 @@ SkColorMatrix SkSVGFeColorMatrix::makeMatrixForType() const {
             return m;
         }
         case SkSVGFeColorMatrixType::kSaturate:
-            return MakeSaturate(fValues.size() > 0 ? fValues[0] : 1);
+            return MakeSaturate(!fValues.empty() ? fValues[0] : 1);
         case SkSVGFeColorMatrixType::kHueRotate:
-            return MakeHueRotate(fValues.size() > 0 ? fValues[0] : 0);
+            return MakeHueRotate(!fValues.empty() ? fValues[0] : 0);
         case SkSVGFeColorMatrixType::kLuminanceToAlpha:
             return MakeLuminanceToAlpha();
     }

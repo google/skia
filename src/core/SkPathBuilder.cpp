@@ -143,7 +143,7 @@ SkPathBuilder& SkPathBuilder::cubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3) {
 }
 
 SkPathBuilder& SkPathBuilder::close() {
-    if (fVerbs.size() > 0) {
+    if (!fVerbs.empty()) {
         this->ensureMove();
 
         fVerbs.push_back((uint8_t)SkPathVerb::kClose);
@@ -324,7 +324,7 @@ SkPathBuilder& SkPathBuilder::arcTo(const SkRect& oval, SkScalar startAngle, SkS
         return *this;
     }
 
-    if (fVerbs.size() == 0) {
+    if (fVerbs.empty()) {
         forceMoveTo = true;
     }
 

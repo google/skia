@@ -85,7 +85,7 @@ SkOpSpan* FindUndone(SkOpContourHead* contourHead) {
 
 SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
         SkOpSpanBase** endPtr) {
-    while (chase->size()) {
+    while (!chase->empty()) {
         SkOpSpanBase* span = chase->back();
         chase->pop_back();
         SkOpSegment* segment = span->segment();

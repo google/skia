@@ -264,8 +264,8 @@ bool SkPathRef::operator== (const SkPathRef& ref) const {
         SkASSERT(!genIDMatch);
         return false;
     }
-    if (ref.fVerbs.size() == 0) {
-        SkASSERT(ref.fPoints.size() == 0);
+    if (ref.fVerbs.empty()) {
+        SkASSERT(ref.fPoints.empty());
     }
     return true;
 }
@@ -475,7 +475,7 @@ uint32_t SkPathRef::genID() const {
     static const uint32_t kMask = (static_cast<int64_t>(1) << SkPathPriv::kPathRefGenIDBitCnt) - 1;
 
     if (fGenerationID == 0) {
-        if (fPoints.size() == 0 && fVerbs.size() == 0) {
+        if (fPoints.empty() && fVerbs.empty()) {
             fGenerationID = kEmptyGenID;
         } else {
             static std::atomic<uint32_t> nextID{kEmptyGenID + 1};

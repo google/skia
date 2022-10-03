@@ -98,7 +98,7 @@ LinearGradient4fContext::LinearGradient4fContext(const SkLinearGradient& shader,
     fIntervals.init(shader, rec.fDstColorSpace, shader.fTileMode,
                     fColorsArePremul, rec.fPaintAlpha * (1.0f / 255), reverseIntervals);
 
-    SkASSERT(fIntervals->size() > 0);
+    SkASSERT(!fIntervals->empty());
     fCachedInterval = fIntervals->begin();
 }
 

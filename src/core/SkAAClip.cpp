@@ -290,7 +290,7 @@ private:
             row->fY = y;
             row->fWidth = 0;
             SkASSERT(row->fData);
-            SkASSERT(0 == row->fData->size());
+            SkASSERT(row->fData->empty());
             fCurrRow = row;
         }
 

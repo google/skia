@@ -174,7 +174,7 @@ void SkPictureRecord::willRestore() {
 #endif
 
     // check for underflow
-    if (fRestoreOffsetStack.size() == 0) {
+    if (fRestoreOffsetStack.empty()) {
         return;
     }
 

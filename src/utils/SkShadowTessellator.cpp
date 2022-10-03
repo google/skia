@@ -194,7 +194,7 @@ bool SkBaseShadowTessellator::accumulateCentroid(const SkPoint& curr, const SkPo
         return false;
     }
 
-    SkASSERT(fPathPolygon.size() > 0);
+    SkASSERT(!fPathPolygon.empty());
     SkVector v0 = curr - fPathPolygon[0];
     SkVector v1 = next - fPathPolygon[0];
     SkScalar quadArea = v0.cross(v1);
@@ -593,7 +593,7 @@ bool SkBaseShadowTessellator::computeConcaveShadow(SkScalar inset, SkScalar outs
         return false;
     }
 
-    if (!umbraPolygon.size() || !penumbraPolygon.size()) {
+    if (umbraPolygon.empty() || penumbraPolygon.empty()) {
         return false;
     }
 
@@ -756,7 +756,7 @@ void SkBaseShadowTessellator::handleLine(const SkPoint& p) {
     SkPoint pSanitized;
     sanitize_point(p, &pSanitized);
 
-    if (fPathPolygon.size() > 0) {
+    if (!fPathPolygon.empty()) {
         if (!this->accumulateCentroid(fPathPolygon[fPathPolygon.size() - 1], pSanitized)) {
             // skip coincident point
             return;

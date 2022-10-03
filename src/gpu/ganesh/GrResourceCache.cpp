@@ -135,7 +135,7 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
 void GrResourceCache::abandonAll() {
     AutoValidate av(this);
 
-    while (fNonpurgeableResources.size()) {
+    while (!fNonpurgeableResources.empty()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());
         back->cacheAccess().abandon();
@@ -173,7 +173,7 @@ void GrResourceCache::releaseAll() {
     // they also have a raw pointer back to this class (which is presumably going away)!
     fProxyProvider->removeAllUniqueKeys();
 
-    while (fNonpurgeableResources.size()) {
+    while (!fNonpurgeableResources.empty()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());
         back->cacheAccess().release();

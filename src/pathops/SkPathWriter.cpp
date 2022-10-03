@@ -173,7 +173,7 @@ SkPoint SkPathWriter::update(const SkOpPtT* pt) {
 
 bool SkPathWriter::someAssemblyRequired() {
     this->finishContour();
-    return fEndPtTs.size() > 0;
+    return !fEndPtTs.empty();
 }
 
 bool SkPathWriter::changedSlopes(const SkOpPtT* ptT) const {

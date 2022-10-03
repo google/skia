@@ -508,7 +508,7 @@ private:
             this->createProgramInfo(flushState);
         }
 
-        if (!fProgramInfo || !fMeshes.size()) {
+        if (!fProgramInfo || fMeshes.empty()) {
             return;
         }
 

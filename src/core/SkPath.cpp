@@ -1499,7 +1499,7 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
 
 // ignore the last point of the 1st contour
 SkPath& SkPath::reversePathTo(const SkPath& path) {
-    if (path.fPathRef->fVerbs.size() == 0) {
+    if (path.fPathRef->fVerbs.empty()) {
         return *this;
     }
 

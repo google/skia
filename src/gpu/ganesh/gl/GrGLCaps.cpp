@@ -4791,7 +4791,7 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrGLFormat format) 
 int GrGLCaps::maxRenderTargetSampleCount(GrGLFormat format) const {
     const FormatInfo& info = this->getFormatInfo(format);
     const auto& table = info.fColorSampleCounts;
-    if (!table.size()) {
+    if (table.empty()) {
         return 0;
     }
     int count = table[table.size() - 1];

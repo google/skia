@@ -677,7 +677,7 @@ bool SkOpCoincidence::addOrOverlap(SkOpSegment* coinSeg, SkOpSegment* oppSeg,
             coinTe, oppTs, oppTe, &overlaps)) {
         return true;
     }
-    SkCoincidentSpans* overlap = overlaps.size() ? overlaps[0] : nullptr;
+    SkCoincidentSpans* overlap = !overlaps.empty() ? overlaps[0] : nullptr;
     for (int index = 1; index < overlaps.size(); ++index) { // combine overlaps before continuing
         SkCoincidentSpans* test = overlaps[index];
         if (overlap->coinPtTStart()->fT > test->coinPtTStart()->fT) {

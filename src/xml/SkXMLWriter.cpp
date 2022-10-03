@@ -14,11 +14,11 @@ SkXMLWriter::SkXMLWriter(bool doEscapeMarkup) : fDoEscapeMarkup(doEscapeMarkup)
 {}
 
 SkXMLWriter::~SkXMLWriter() {
-    SkASSERT(fElems.size() == 0);
+    SkASSERT(fElems.empty());
 }
 
 void SkXMLWriter::flush() {
-    while (fElems.size()) {
+    while (!fElems.empty()) {
         this->endElement();
     }
 }
@@ -281,7 +281,7 @@ SkXMLParserWriter::~SkXMLParserWriter() {
 }
 
 void SkXMLParserWriter::onAddAttributeLen(const char name[], const char value[], size_t length) {
-    SkASSERT(fElems.size() == 0 || (!fElems.back()->fHasChildren && !fElems.back()->fHasText));
+    SkASSERT(fElems.empty() || (!fElems.back()->fHasChildren && !fElems.back()->fHasText));
     SkString str(value, length);
     fParser.addAttribute(name, str.c_str());
 }

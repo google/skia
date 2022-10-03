@@ -853,7 +853,7 @@ void GrAAConvexTessellator::validate() const {
     SkASSERT(fPts.size() == fCoverages.size());
     SkASSERT(fPts.size() == fCurveState.size());
     SkASSERT(0 == (fIndices.size() % 3));
-    SkASSERT(!fBisectors.size() || fBisectors.size() == fNorms.size());
+    SkASSERT(fBisectors.empty() || fBisectors.size() == fNorms.size());
 }
 
 //////////////////////////////////////////////////////////////////////////////

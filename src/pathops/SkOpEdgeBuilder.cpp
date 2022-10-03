@@ -50,7 +50,7 @@ static bool can_add_curve(SkPath::Verb verb, SkPoint* curve) {
 }
 
 void SkOpEdgeBuilder::addOperand(const SkPath& path) {
-    SkASSERT(fPathVerbs.size() > 0 && fPathVerbs.end()[-1] == SkPath::kDone_Verb);
+    SkASSERT(!fPathVerbs.empty() && fPathVerbs.back() == SkPath::kDone_Verb);
     fPathVerbs.pop_back();
     fPath = &path;
     fXorMask[1] = ((int)fPath->getFillType() & 1) ? kEvenOdd_PathOpsMask
