@@ -43,19 +43,21 @@ struct VkPhysicalDeviceFeatures2;
 // (either by deleting the struct or manually releasing the refs) before the underlying vulkan
 // device and instance are destroyed.
 struct SK_API GrVkBackendContext {
-    VkInstance                          fInstance;
-    VkPhysicalDevice                    fPhysicalDevice;
-    VkDevice                            fDevice;
-    VkQueue                             fQueue;
-    uint32_t                            fGraphicsQueueIndex;
-    uint32_t                            fMinAPIVersion; // Deprecated. Use fInstanceVersion instead.
+    VkInstance                          fInstance = VK_NULL_HANDLE;
+    VkPhysicalDevice                    fPhysicalDevice = VK_NULL_HANDLE;
+    VkDevice                            fDevice = VK_NULL_HANDLE;
+    VkQueue                             fQueue = VK_NULL_HANDLE;
+    uint32_t                            fGraphicsQueueIndex = 0;
+    uint32_t                            fMinAPIVersion = 0; // Deprecated. Use fInstanceVersion
+                                                            // instead.
     uint32_t                            fInstanceVersion = 0; // Deprecated. Use fMaxApiVersion
     // The max api version set here should match the value set in VkApplicationInfo::apiVersion when
     // then VkInstance was created.
     uint32_t                            fMaxAPIVersion = 0;
     uint32_t                            fExtensions = 0; // Deprecated. Use fVkExtensions instead.
     const skgpu::VulkanExtensions*      fVkExtensions = nullptr;
-    uint32_t                            fFeatures; // Deprecated. Use fDeviceFeatures[2] instead.
+    uint32_t                            fFeatures = 0; // Deprecated. Use fDeviceFeatures[2]
+                                                       // instead.
     // The client can create their VkDevice with either a VkPhysicalDeviceFeatures or
     // VkPhysicalDeviceFeatures2 struct, thus we have to support taking both. The
     // VkPhysicalDeviceFeatures2 struct is needed so we know if the client enabled any extension
