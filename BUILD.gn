@@ -1988,8 +1988,6 @@ if (skia_enable_tools) {
       "tools/fonts/TestTypeface.cpp",
       "tools/fonts/TestTypeface.h",
       "tools/fonts/ToolUtilsFont.cpp",
-      "tools/random_parse_path.cpp",
-      "tools/random_parse_path.h",
       "tools/timer/TimeUtils.h",
       "tools/timer/Timer.cpp",
       "tools/timer/Timer.h",
