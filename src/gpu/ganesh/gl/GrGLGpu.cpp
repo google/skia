@@ -2043,6 +2043,15 @@ void GrGLGpu::flushProgram(GrGLuint id) {
     fHWProgramID = id;
 }
 
+void GrGLGpu::didDrawTo(GrRenderTarget* rt) {
+    SkASSERT(fHWWriteToColor != kUnknown_TriState);
+    if (fHWWriteToColor == kYes_TriState) {
+        // The bounds are only used to check for empty and we don't know the bounds. The origin
+        // is irrelevant if there are no bounds.
+        this->didWriteToSurface(rt, kTopLeft_GrSurfaceOrigin, /*bounds=*/nullptr);
+    }
+}
+
 GrGLenum GrGLGpu::bindBuffer(GrGpuBufferType type, const GrBuffer* buffer) {
     this->handleDirtyContext();
 
@@ -2083,16 +2092,13 @@ void GrGLGpu::clear(const GrScissorState& scissor,
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
-    if (scissor.enabled()) {
-        this->flushRenderTarget(glRT, useMultisampleFBO, origin, scissor.rect());
-    } else {
-        this->flushRenderTarget(glRT, useMultisampleFBO);
-    }
+    this->flushRenderTarget(glRT, useMultisampleFBO);
     this->flushScissor(scissor, glRT->height(), origin);
     this->disableWindowRectangles();
     this->flushColorWrite(true);
     this->flushClearColor(color);
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
+    this->didWriteToSurface(glRT, origin, scissor.enabled() ? &scissor.rect() : nullptr);
 }
 
 static bool use_tiled_rendering(const GrGLCaps& glCaps,
@@ -2225,7 +2231,7 @@ void GrGLGpu::clearStencilClip(const GrScissorState& scissor, bool insideStencil
         value = 0;
     }
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
-    this->flushRenderTargetNoColorWrites(glRT, useMultisampleFBO);
+    this->flushRenderTarget(glRT, useMultisampleFBO);
 
     this->flushScissor(scissor, glRT->height(), origin);
     this->disableWindowRectangles();
@@ -2266,7 +2272,7 @@ bool GrGLGpu::readOrTransferPixelsFrom(GrSurface* surface,
         if (renderTarget->numSamples() > 1 && renderTarget->isFBO0(useMultisampleFBO)) {
             return false;
         }
-        this->flushRenderTargetNoColorWrites(renderTarget, useMultisampleFBO);
+        this->flushRenderTarget(renderTarget, useMultisampleFBO);
     } else {
         // Use a temporary FBO.
         this->bindSurfaceFBOForPixelOps(surface, 0, GR_GL_FRAMEBUFFER, kSrc_TempFBOTarget);
@@ -2352,18 +2358,7 @@ GrOpsRenderPass* GrGLGpu::onGetOpsRenderPass(
     return fCachedOpsRenderPass.get();
 }
 
-void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, bool useMultisampleFBO,
-                                GrSurfaceOrigin origin, const SkIRect& bounds) {
-    this->flushRenderTargetNoColorWrites(target, useMultisampleFBO);
-    this->didWriteToSurface(target, origin, &bounds);
-}
-
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, bool useMultisampleFBO) {
-    this->flushRenderTargetNoColorWrites(target, useMultisampleFBO);
-    this->didWriteToSurface(target, kTopLeft_GrSurfaceOrigin, nullptr);
-}
-
-void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool useMultisampleFBO) {
     SkASSERT(target);
     GrGpuResource::UniqueID rtID = target->uniqueID();
     if (fHWBoundRenderTargetUniqueID != rtID           ||
@@ -3448,7 +3443,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSur
     // We don't swizzle at all in our copies.
     this->bindTexture(0, filter, skgpu::Swizzle::RGBA(), srcTex);
     if (auto* dstRT = static_cast<GrGLRenderTarget*>(dst->asRenderTarget())) {
-        this->flushRenderTargetNoColorWrites(dstRT, drawToMultisampleFBO);
+        this->flushRenderTarget(dstRT, drawToMultisampleFBO);
     } else {
         auto* dstTex = static_cast<GrGLTexture*>(src->asTexture());
         SkASSERT(dstTex);
