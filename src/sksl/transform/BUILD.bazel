@@ -14,6 +14,7 @@ TRANSFORM_FILES = [
     "SkSLFindAndDeclareBuiltinFunctions.cpp",
     "SkSLFindAndDeclareBuiltinVariables.cpp",
     "SkSLProgramWriter.h",
+    "SkSLRenameLocalVariables.cpp",
     "SkSLReplaceConstVarsWithLiterals.cpp",
     "SkSLTransform.h",
 ]

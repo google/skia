@@ -32,10 +32,10 @@ class Type;
  */
 class SymbolTable {
 public:
-    SymbolTable(bool builtin)
+    explicit SymbolTable(bool builtin)
             : fBuiltin(builtin) {}
 
-    SymbolTable(std::shared_ptr<SymbolTable> parent, bool builtin)
+    explicit SymbolTable(std::shared_ptr<SymbolTable> parent, bool builtin)
             : fParent(parent)
             , fBuiltin(builtin) {}
 
@@ -84,6 +84,12 @@ public:
     Symbol* getMutableSymbol(std::string_view name) const {
         return this->lookup(MakeSymbolKey(name));
     }
+
+    /**
+     * Assigns a new name to the passed-in symbol. The old name will continue to exist in the symbol
+     * table and point to the symbol.
+     */
+    void renameSymbol(Symbol* symbol, std::string_view newName);
 
     /**
      * Returns true if the name refers to a type (user or built-in) in the current symbol table.

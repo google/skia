@@ -339,13 +339,19 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind,
                                              const ParsedModule& base) {
     SkASSERT(this->errorCount() == 0);
 
+    auto m = SkSL::ModuleLoader::Get();
+
     // Create a temporary program configuration with default settings.
     ProgramConfig config;
     config.fIsBuiltinCode = true;
     config.fKind = kind;
     AutoProgramConfig autoConfig(this->context(), &config);
+    AutoModifiersPool autoPool(fContext, &m.coreModifiers());
 
     std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module, base);
+
+    // Look for local variables in functions and give them shorter names.
+    Transform::RenameLocalVariables(this->context(), module, usage.get());
 
     // Replace constant variables with their literal values to save space.
     Transform::ReplaceConstVarsWithLiterals(module, usage.get());

@@ -35,6 +35,11 @@ Symbol* SymbolTable::lookup(const SymbolKey& key) const {
     return fParent ? fParent->lookup(key) : nullptr;
 }
 
+void SymbolTable::renameSymbol(Symbol* symbol, std::string_view newName) {
+    symbol->setName(newName);
+    this->addWithoutOwnership(symbol);
+}
+
 const std::string* SymbolTable::takeOwnershipOfString(std::string str) {
     fOwnedStrings.push_front(std::move(str));
     // Because fOwnedStrings is a linked list, pointers to elements are stable.

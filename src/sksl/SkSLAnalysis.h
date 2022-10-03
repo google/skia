@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <memory>
 #include <set>
+#include <vector>
 
 namespace SkSL {
 
@@ -26,6 +27,7 @@ class Position;
 class ProgramElement;
 class ProgramUsage;
 class Statement;
+class SymbolTable;
 class Variable;
 class VariableReference;
 enum class VariableRefKind : int8_t;
@@ -208,8 +210,25 @@ void DoFinalizationChecks(const Program& program);
  * Error checks compute shader in/outs and returns a vector containing them ordered by location.
  */
 SkTArray<const SkSL::Variable*> GetComputeShaderMainParams(const Context& context,
-        const Program& program);
+                                                           const Program& program);
 
+/**
+ * Tracks the symbol table stack, in conjunction with a ProgramVisitor. Inside `visitStatement`,
+ * pass the current statement and a symbol-table vector to a SymbolTableStackBuilder and the symbol
+ * table stack will be maintained automatically.
+ */
+class SymbolTableStackBuilder {
+public:
+    // If the passed-in statement holds a symbol table, adds it to the stack.
+    SymbolTableStackBuilder(const Statement* stmt,
+                            std::vector<std::shared_ptr<SymbolTable>>* stack);
+
+    // If a symbol table was added to the stack earlier, removes it here.
+    ~SymbolTableStackBuilder();
+
+private:
+    std::vector<std::shared_ptr<SymbolTable>>* fStackToPop = nullptr;
+};
 
 }  // namespace Analysis
 }  // namespace SkSL

@@ -18,6 +18,7 @@ ANALYSIS_FILES = [
     "SkSLProgramUsage.h",
     "SkSLProgramVisitor.h",
     "SkSLSwitchCaseContainsExit.cpp",
+    "SkSLSymbolTableStackBuilder.cpp",
 ]
 
 split_srcs_and_hdrs(
