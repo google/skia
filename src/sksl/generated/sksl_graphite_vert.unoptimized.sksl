@@ -1,6 +1,6 @@
 static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
-"const float $PI=3.1415927;const float $kDegree=3.;const float $kPrecision=4."
-";const float $kLengthTerm=3.;const float $kLengthTermPow2=9.;$pure float wangs_formula_max_fdiff_p2"
+"const float $PI=3.14159274;const float $kDegree=3.;const float $kPrecision="
+"4.;const float $kLengthTerm=3.;const float $kLengthTermPow2=9.;$pure float wangs_formula_max_fdiff_p2"
 "(float2 p0,float2 p1,float2 p2,float2 p3,float2x2 matrix){float2 d0=matrix*"
 "(fma(float2(-2.),p1,p2)+p0);float2 d1=matrix*(fma(float2(-2.),p2,p3)+p1);return"
 " max(dot(d0,d0),dot(d1,d1));}$pure float wangs_formula_cubic(float2 p0,float2"

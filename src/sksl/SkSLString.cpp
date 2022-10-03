@@ -6,6 +6,7 @@
  */
 
 #include "include/private/SkSLString.h"
+#include "include/private/SkStringView.h"
 
 #include <cerrno>
 #include <cmath>
@@ -23,21 +24,25 @@ std::string skstd::to_string(float value) {
 std::string skstd::to_string(double value) {
     std::stringstream buffer;
     buffer.imbue(std::locale::classic());
-    buffer.precision(17);
+    buffer.precision(7);
     buffer << value;
-    bool needsDotZero = true;
-    const std::string str = buffer.str();
-    for (int i = str.size() - 1; i >= 0; --i) {
-        char c = str[i];
-        if (c == '.' || c == 'e') {
-            needsDotZero = false;
-            break;
-        }
+    std::string text = buffer.str();
+
+    if (std::strtof(text.c_str(), nullptr) != value) {
+        buffer.str({});
+        buffer.clear();
+        buffer.precision(9);
+        buffer << value;
+        text = buffer.str();
+        SkASSERT(std::strtof(text.c_str(), nullptr) == value);
     }
-    if (needsDotZero) {
-        buffer << ".0";
+
+    // We need to emit a decimal point to distinguish floats from ints.
+    if (!skstd::contains(text, '.') && !skstd::contains(text, 'e')) {
+        text += ".0";
     }
-    return buffer.str();
+
+    return text;
 }
 
 bool SkSL::stod(std::string_view s, SKSL_FLOAT* value) {
