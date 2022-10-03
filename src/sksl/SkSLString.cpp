@@ -28,13 +28,15 @@ std::string skstd::to_string(double value) {
     buffer << value;
     std::string text = buffer.str();
 
-    if (std::strtof(text.c_str(), nullptr) != value) {
+    float roundtripped;
+    buffer >> roundtripped;
+    if (roundtripped != (float)value) {
         buffer.str({});
         buffer.clear();
         buffer.precision(9);
         buffer << value;
         text = buffer.str();
-        SkASSERT(std::strtof(text.c_str(), nullptr) == value);
+        SkASSERTF((buffer >> roundtripped, roundtripped == (float)value), "%.17g", value);
     }
 
     // We need to emit a decimal point to distinguish floats from ints.
