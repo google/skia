@@ -54,9 +54,6 @@ private:
     SkSL::StatementArray fStatements;
     std::shared_ptr<SkSL::SymbolTable> fSymbols;
     Position fPosition;
-
-    friend class DSLStatement;
-    friend class DSLFunction;
 };
 
 } // namespace dsl

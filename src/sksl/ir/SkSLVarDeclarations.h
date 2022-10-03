@@ -111,8 +111,6 @@ private:
     // if this VarDeclaration is a clone, it doesn't actually own the associated variable
     bool fIsClone;
 
-    friend class IRGenerator;
-
     using INHERITED = Statement;
 };
 

@@ -34,7 +34,6 @@ struct ParsedModule;
 namespace dsl {
 
 class DSLCore;
-class DSLWriter;
 
 } // namespace dsl
 
@@ -168,7 +167,6 @@ private:
     Program::Inputs fInputs;
 
     friend class dsl::DSLCore;
-    friend class dsl::DSLWriter;
 };
 
 } // namespace SkSL

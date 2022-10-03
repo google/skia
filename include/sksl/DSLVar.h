@@ -23,8 +23,6 @@ namespace SkSL {
 
 class Expression;
 class ExpressionArray;
-class IRGenerator;
-class SPIRVCodeGenerator;
 class Variable;
 enum class VariableStorage : int8_t;
 
@@ -139,11 +137,8 @@ protected:
     bool fInitialized = false;
 
     friend class DSLCore;
-    friend class DSLExpression;
     friend class DSLFunction;
     friend class DSLWriter;
-    friend class ::SkSL::IRGenerator;
-    friend class ::SkSL::SPIRVCodeGenerator;
 };
 
 /**

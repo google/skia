@@ -59,7 +59,6 @@ private:
     friend class DSLCore;
     friend class DSLFunction;
     friend class DSLType;
-    friend class DSLVarBase;
     friend class DSLWriter;
 };
 

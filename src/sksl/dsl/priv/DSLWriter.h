@@ -55,9 +55,6 @@ public:
      * Clears any elements or symbols which have been output.
      */
     static void Reset();
-
-    friend class DSLCore;
-    friend class DSLVar;
 };
 
 } // namespace dsl

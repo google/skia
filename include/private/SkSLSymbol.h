@@ -80,8 +80,6 @@ private:
     const Type* fType;
 
     using INHERITED = IRNode;
-
-    friend class Type;
 };
 
 }  // namespace SkSL

@@ -66,7 +66,7 @@ static int parse_modifier_token(Token::Kind token) {
     }
 }
 
-class AutoDepth {
+class Parser::AutoDepth {
 public:
     AutoDepth(Parser* p)
     : fParser(p)
@@ -1473,7 +1473,7 @@ DSLStatement Parser::expressionStatement() {
     return {};
 }
 
-bool Parser::operatorRight(AutoDepth& depth,
+bool Parser::operatorRight(Parser::AutoDepth& depth,
                            Operator::Kind op,
                            BinaryParseFn rightFn,
                            DSLExpression& result) {

@@ -44,8 +44,6 @@ class DSLParameter;
 
 }
 
-class AutoDepth;
-
 /**
  * Consumes .sksl text and invokes DSL functions to instantiate the program.
  */
@@ -62,6 +60,8 @@ public:
     Position position(Token token);
 
 private:
+    class AutoDepth;
+
     /**
      * Return the next token, including whitespace tokens, from the parse stream.
      */
@@ -355,9 +355,6 @@ private:
     // stack on pathological inputs
     int fDepth = 0;
     Token fPushback;
-
-    friend class AutoDepth;
-    friend class HCodeGenerator;
 };
 
 }  // namespace SkSL

@@ -38,8 +38,6 @@
 #define SK_POSITION_BUILTIN                0
 #define SK_POINTSIZE_BUILTIN               1
 
-class SkSLCompileBench;
-
 namespace SkSL {
 
 namespace dsl {
@@ -241,9 +239,6 @@ private:
     static OverrideFlag sOptimizer;
     static OverrideFlag sInliner;
 
-    friend class AutoSource;
-    friend class ::SkSLCompileBench;
-    friend class Parser;
     friend class ThreadContext;
     friend class dsl::DSLCore;
 };

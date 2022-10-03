@@ -186,8 +186,6 @@ private:
     friend DSLExpression SampleChild(int index, DSLExpression coords);
 
     friend class DSLCore;
-    friend class DSLFunction;
-    friend class DSLType;
     friend class DSLVarBase;
     friend class DSLWriter;
 };
