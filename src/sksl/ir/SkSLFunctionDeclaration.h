@@ -40,7 +40,7 @@ public:
     FunctionDeclaration(Position pos,
                         const Modifiers* modifiers,
                         std::string_view name,
-                        std::vector<const Variable*> parameters,
+                        std::vector<Variable*> parameters,
                         const Type* returnType,
                         bool builtin);
 
@@ -72,7 +72,7 @@ public:
         fNextOverload = overload;
     }
 
-    const std::vector<const Variable*>& parameters() const {
+    const std::vector<Variable*>& parameters() const {
         return fParameters;
     }
 
@@ -130,7 +130,7 @@ private:
     mutable const FunctionDefinition* fDefinition;
     const FunctionDeclaration* fNextOverload = nullptr;
     const Modifiers* fModifiers;
-    std::vector<const Variable*> fParameters;
+    std::vector<Variable*> fParameters;
     const Type* fReturnType;
     bool fBuiltin;
     bool fIsMain;

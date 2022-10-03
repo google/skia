@@ -406,7 +406,7 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     // variable at the end of the function call; also, swizzles are supported, whereas Metal doesn't
     // allow a swizzle to be passed to a `floatN&`.)
     const ExpressionArray& arguments = c.arguments();
-    const std::vector<const Variable*>& parameters = function.parameters();
+    const std::vector<Variable*>& parameters = function.parameters();
     SkASSERT(arguments.size() == parameters.size());
 
     bool foundOutParam = false;

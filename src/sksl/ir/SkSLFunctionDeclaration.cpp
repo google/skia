@@ -324,7 +324,7 @@ static bool type_generically_matches(const Type& concreteType, const Type& maybe
  * generic types.
  */
 static bool parameters_match(const std::vector<std::unique_ptr<Variable>>& params,
-                             const std::vector<const Variable*>& otherParams) {
+                             const std::vector<Variable*>& otherParams) {
     // If the param lists are different lengths, they're definitely not a match.
     if (params.size() != otherParams.size()) {
         return false;
@@ -385,7 +385,7 @@ static bool find_existing_declaration(const Context& context,
                                       const Type* returnType,
                                       const FunctionDeclaration** outExistingDecl) {
     auto invalidDeclDescription = [&]() -> std::string {
-        std::vector<const Variable*> paramPtrs;
+        std::vector<Variable*> paramPtrs;
         paramPtrs.reserve(parameters.size());
         for (std::unique_ptr<Variable>& param : parameters) {
             paramPtrs.push_back(param.get());
@@ -441,7 +441,7 @@ static bool find_existing_declaration(const Context& context,
 FunctionDeclaration::FunctionDeclaration(Position pos,
                                          const Modifiers* modifiers,
                                          std::string_view name,
-                                         std::vector<const Variable*> parameters,
+                                         std::vector<Variable*> parameters,
                                          const Type* returnType,
                                          bool builtin)
         : INHERITED(pos, kSymbolKind, name, /*type=*/nullptr)
@@ -477,7 +477,7 @@ const FunctionDeclaration* FunctionDeclaration::Convert(
                                    returnTypePos, returnType, &decl)) {
         return nullptr;
     }
-    std::vector<const Variable*> finalParameters;
+    std::vector<Variable*> finalParameters;
     finalParameters.reserve(parameters.size());
     for (std::unique_ptr<Variable>& param : parameters) {
         finalParameters.push_back(symbols.takeOwnershipOfSymbol(std::move(param)));
@@ -542,8 +542,8 @@ bool FunctionDeclaration::matches(const FunctionDeclaration& f) const {
     if (this->name() != f.name()) {
         return false;
     }
-    const std::vector<const Variable*>& parameters = this->parameters();
-    const std::vector<const Variable*>& otherParameters = f.parameters();
+    const std::vector<Variable*>& parameters = this->parameters();
+    const std::vector<Variable*>& otherParameters = f.parameters();
     if (parameters.size() != otherParameters.size()) {
         return false;
     }
@@ -558,7 +558,7 @@ bool FunctionDeclaration::matches(const FunctionDeclaration& f) const {
 bool FunctionDeclaration::determineFinalTypes(const ExpressionArray& arguments,
                                               ParamTypes* outParameterTypes,
                                               const Type** outReturnType) const {
-    const std::vector<const Variable*>& parameters = this->parameters();
+    const std::vector<Variable*>& parameters = this->parameters();
     SkASSERT(arguments.size() == parameters.size());
 
     outParameterTypes->reserve_back(arguments.size());

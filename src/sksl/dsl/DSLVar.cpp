@@ -19,9 +19,9 @@
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <type_traits>
 #include <utility>
 
 namespace SkSL {
@@ -111,7 +111,7 @@ DSLGlobalVar::DSLGlobalVar(const char* name)
     : INHERITED(SkSL::VariableStorage::kGlobal, kVoid_Type, name, DSLExpression(),
                 Position(), Position()) {
     fName = name;
-    const SkSL::Symbol* result = (*ThreadContext::SymbolTable())[fName];
+    SkSL::Symbol* result = ThreadContext::SymbolTable()->getMutableSymbol(fName);
     SkASSERTF(result, "could not find '%.*s' in symbol table", (int)fName.length(), fName.data());
     fVar = &result->as<SkSL::Variable>();
     fInitialized = true;

@@ -39,7 +39,7 @@ DSLExpression Symbol(std::string_view name, Position pos) {
 }
 
 void AddToSymbolTable(DSLVarBase& var, Position pos) {
-    const SkSL::Variable* skslVar = DSLWriter::Var(var);
+    SkSL::Variable* skslVar = DSLWriter::Var(var);
     if (skslVar) {
         CurrentSymbolTable()->addWithoutOwnership(skslVar);
     }

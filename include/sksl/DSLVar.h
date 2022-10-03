@@ -128,7 +128,7 @@ protected:
     // If you need to determine the variable's type, look at DSLWriter::Var(...)->type() instead.
     DSLType fType;
     std::unique_ptr<SkSL::Statement> fDeclaration;
-    const SkSL::Variable* fVar = nullptr;
+    SkSL::Variable* fVar = nullptr;
     Position fNamePosition;
     std::string_view fName;
     DSLExpression fInitialValue;

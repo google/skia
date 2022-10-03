@@ -42,7 +42,6 @@
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -175,7 +174,8 @@ public:
             // sk_FragColor can end up with a null declaration despite no error occurring due to
             // specific treatment in the compiler. Ignore the null and just grab the existing
             // variable from the symbol table.
-            const SkSL::Symbol* alreadyDeclared = (*ThreadContext::SymbolTable())[var.fName];
+            SkSL::Symbol* alreadyDeclared =
+                    ThreadContext::SymbolTable()->getMutableSymbol(var.fName);
             if (alreadyDeclared && alreadyDeclared->is<Variable>()) {
                 var.fVar = &alreadyDeclared->as<Variable>();
                 var.fInitialized = true;
@@ -259,7 +259,7 @@ public:
         DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
         DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName, DSLExpression(),
                 pos);
-        const SkSL::Variable* skslVar = DSLWriter::Var(var);
+        SkSL::Variable* skslVar = DSLWriter::Var(var);
         if (skslVar) {
             auto intf = std::make_unique<SkSL::InterfaceBlock>(pos, *skslVar, typeName, varName,
                     arraySize, ThreadContext::SymbolTable());

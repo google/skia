@@ -35,7 +35,7 @@ namespace SkSL {
 
 namespace dsl {
 
-const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
+SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
     // fInitialized is true if we have attempted to create a var, whether or not we actually
     // succeeded. If it's true, we don't want to try again, to avoid reporting the same error
     // multiple times.
@@ -50,13 +50,21 @@ const SkSL::Variable* DSLWriter::Var(DSLVarBase& var) {
             }
         }
         std::unique_ptr<SkSL::Variable> skslvar = SkSL::Variable::Convert(ThreadContext::Context(),
-                var.fPosition, var.fModifiers.fPosition, var.fModifiers.fModifiers,
-                &var.fType.skslType(), var.fNamePosition, var.fName, /*isArray=*/false,
-                /*arraySize=*/nullptr, var.storage());
+                                                                          var.fPosition,
+                                                                          var.fModifiers.fPosition,
+                                                                          var.fModifiers.fModifiers,
+                                                                          &var.fType.skslType(),
+                                                                          var.fNamePosition,
+                                                                          var.fName,
+                                                                          /*isArray=*/false,
+                                                                          /*arraySize=*/nullptr,
+                                                                          var.storage());
         SkSL::Variable* varPtr = skslvar.get();
         if (var.storage() != SkSL::VariableStorage::kParameter) {
-            var.fDeclaration = VarDeclaration::Convert(ThreadContext::Context(), std::move(skslvar),
-                    var.fInitialValue.releaseIfPossible(), /*addToSymbolTable=*/false);
+            var.fDeclaration = VarDeclaration::Convert(ThreadContext::Context(),
+                                                       std::move(skslvar),
+                                                       var.fInitialValue.releaseIfPossible(),
+                                                       /*addToSymbolTable=*/false);
             if (var.fDeclaration) {
                 var.fVar = varPtr;
                 var.fInitialized = true;
@@ -70,9 +78,16 @@ std::unique_ptr<SkSL::Variable> DSLWriter::CreateParameterVar(DSLParameter& var)
     // This should only be called on undeclared parameter variables, but we allow the creation to go
     // ahead regardless so we don't have to worry about null pointers potentially sneaking in and
     // breaking things. DSLFunction is responsible for reporting errors for invalid parameters.
-    return SkSL::Variable::Convert(ThreadContext::Context(), var.fPosition,
-            var.fModifiers.fPosition, var.fModifiers.fModifiers, &var.fType.skslType(),
-            var.fNamePosition, var.fName, /*isArray=*/false, /*arraySize=*/nullptr, var.storage());
+    return SkSL::Variable::Convert(ThreadContext::Context(),
+                                   var.fPosition,
+                                   var.fModifiers.fPosition,
+                                   var.fModifiers.fModifiers,
+                                   &var.fType.skslType(),
+                                   var.fNamePosition,
+                                   var.fName,
+                                   /*isArray=*/false,
+                                   /*arraySize=*/nullptr,
+                                   var.storage());
 }
 
 std::unique_ptr<SkSL::Statement> DSLWriter::Declaration(DSLVarBase& var) {
