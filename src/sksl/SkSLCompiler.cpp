@@ -347,6 +347,9 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind,
 
     std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module, base);
 
+    // Replace constant variables with their literal values to save space.
+    Transform::ReplaceConstVarsWithLiterals(module, usage.get());
+
     // Remove any unreachable code.
     Transform::EliminateUnreachableCode(module, usage.get());
 

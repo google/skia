@@ -182,6 +182,7 @@ skia_sksl_sources = [
   "$_src/sksl/transform/SkSLFindAndDeclareBuiltinFunctions.cpp",
   "$_src/sksl/transform/SkSLFindAndDeclareBuiltinVariables.cpp",
   "$_src/sksl/transform/SkSLProgramWriter.h",
+  "$_src/sksl/transform/SkSLReplaceConstVarsWithLiterals.cpp",
   "$_src/sksl/transform/SkSLTransform.h",
 
   # Includes

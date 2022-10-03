@@ -1598,6 +1598,7 @@ BASE_SRCS_ALL = [
     "src/sksl/transform/SkSLFindAndDeclareBuiltinFunctions.cpp",
     "src/sksl/transform/SkSLFindAndDeclareBuiltinVariables.cpp",
     "src/sksl/transform/SkSLProgramWriter.h",
+    "src/sksl/transform/SkSLReplaceConstVarsWithLiterals.cpp",
     "src/sksl/transform/SkSLTransform.h",
     "src/text/GlyphRun.cpp",
     "src/text/GlyphRun.h",

@@ -81,6 +81,9 @@ bool EliminateDeadGlobalVariables(const Context& context,
                                   bool onlyPrivateGlobals);
 bool EliminateDeadGlobalVariables(Program& program);
 
+/** Replaces constant variables in a program with their equivalent values. */
+void ReplaceConstVarsWithLiterals(LoadedModule& module, ProgramUsage* usage);
+
 } // namespace Transform
 } // namespace SkSL
 
