@@ -70,7 +70,6 @@ struct SkShaderSnippet {
         std::string_view fPriorStageOutput;
         std::string_view fDestColor;
         std::string_view fFragCoord;
-        std::string_view fPreLocalMatrix;
     };
     using GenerateExpressionForSnippetFn = std::string (*)(const SkShaderInfo& shaderInfo,
                                                            int entryIndex,

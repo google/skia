@@ -410,7 +410,7 @@ void ArenaData_Image::beginBlock(const SkKeyContext& keyContext,
                                  // none of the ImageData is used
                                  { SkSamplingOptions(),
                                    SkTileMode::kClamp, SkTileMode::kClamp,
-                                   SkRect::MakeEmpty(), SkMatrix::I() });
+                                   SkRect::MakeEmpty()});
 }
 
 CREATE_ARENA_OBJECT(PorterDuffBlendShader, /* numChildSlots */ 2)

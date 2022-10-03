@@ -1236,12 +1236,20 @@ public:
     void addToKey(const SkKeyContext& keyContext,
                   SkPaintParamsKeyBuilder* builder,
                   SkPipelineDataGatherer* gatherer) const override {
-        RuntimeShaderBlock::BeginBlock(keyContext, builder, gatherer,
-                                       {fEffect, this->getLocalMatrix(), fUniforms});
+        const bool needsLocalMatrixBlock = !this->getLocalMatrix().isIdentity();
+        if (needsLocalMatrixBlock) {
+            LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer,
+                                               this->getLocalMatrix());
+        }
+
+        RuntimeShaderBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 
         add_children_to_key(fChildren, fEffect->children(), keyContext, builder, gatherer);
 
         builder->endBlock();
+        if (needsLocalMatrixBlock) {
+            builder->endBlock();
+        }
     }
 
     bool onAppendStages(const SkStageRec& rec) const override {

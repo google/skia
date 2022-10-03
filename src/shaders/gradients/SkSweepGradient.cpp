@@ -183,8 +183,11 @@ std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
 void SkSweepGradient::addToKey(const SkKeyContext& keyContext,
                                SkPaintParamsKeyBuilder* builder,
                                SkPipelineDataGatherer* gatherer) const {
+    const bool needsLocalMatrixBlock = !this->getLocalMatrix().isIdentity();
+    if (needsLocalMatrixBlock) {
+        LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer, this->getLocalMatrix());
+    }
     GradientShaderBlocks::GradientData data(SkShaderBase::GradientType::kSweep,
-                                            SkM44(this->getLocalMatrix()),
                                             fCenter, { 0.0f, 0.0f },
                                             0.0, 0.0f,
                                             fTBias, fTScale,
@@ -195,6 +198,9 @@ void SkSweepGradient::addToKey(const SkKeyContext& keyContext,
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, gatherer, data);
     builder->endBlock();
+    if (needsLocalMatrixBlock) {
+        builder->endBlock();
+    }
 }
 #endif
 

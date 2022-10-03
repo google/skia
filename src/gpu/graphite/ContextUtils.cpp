@@ -125,7 +125,7 @@ std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
                                     const std::vector<SkPaintParamsKey::BlockReader>& readers,
                                     bool needsLocalCoords) {
-    if (!have_uniforms(readers)) {
+    if (!needsLocalCoords && !have_uniforms(readers)) {
         return {};
     }
 
@@ -166,7 +166,7 @@ std::string EmitPaintParamsStorageBuffer(int bufferID,
                                          const char* bufferNamePrefix,
                                          const std::vector<SkPaintParamsKey::BlockReader>& readers,
                                          bool needsLocalCoords) {
-    if (!have_uniforms(readers)) {
+    if (!needsLocalCoords && !have_uniforms(readers)) {
         return {};
     }
 
