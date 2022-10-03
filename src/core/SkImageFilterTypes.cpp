@@ -323,7 +323,12 @@ FilterResult FilterResult::applyTransform(const Context& ctx,
 void FilterResult::concatTransform(const LayerSpace<SkMatrix>& transform,
                                    const SkSamplingOptions& newSampling,
                                    const LayerSpace<SkIRect>& desiredOutput) {
-    SkASSERT(fImage);
+    if (!fImage) {
+        // Under normal circumstances, concatTransform() will only be called when we have an image,
+        // but if resolve() fails to make a special surface, we may end up here at which point
+        // doing nothing further is appropriate.
+        return;
+    }
     fSamplingOptions = newSampling;
     fTransform.postConcat(transform);
     // Rebuild the layer bounds and then restrict to the current desired output.
