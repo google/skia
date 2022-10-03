@@ -68,8 +68,8 @@ DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
                                    GrProtected::kNo, /*label=*/"MtlCopySurfaceTest");
 
         bool result = gpu->copySurface(dst.get(),
-                                       src,
                                        SkIRect::MakeWH(kWidth, kHeight),
+                                       src,
                                        SkIRect::MakeWH(kWidth, kHeight),
                                        GrSamplerState::Filter::kNearest);
         REPORTER_ASSERT(reporter, !result);

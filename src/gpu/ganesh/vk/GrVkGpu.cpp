@@ -2320,7 +2320,8 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
                                 GrVkImage* dstImage,
                                 GrVkImage* srcImage,
                                 const SkIRect& srcRect,
-                                const SkIPoint& dstPoint) {
+                                const SkIRect& dstRect,
+                                GrSamplerState::Filter filter) {
     if (!this->currentCommandBuffer()) {
         return;
     }
@@ -2360,10 +2361,6 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
                              VK_PIPELINE_STAGE_TRANSFER_BIT,
                              false);
 
-    // Flip rect if necessary
-    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, srcRect.width(),
-                                        srcRect.height());
-
     VkImageBlit blitRegion;
     memset(&blitRegion, 0, sizeof(VkImageBlit));
     blitRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
@@ -2380,7 +2377,8 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
                                             *dstImage,
                                             1,
                                             &blitRegion,
-                                            VK_FILTER_NEAREST); // We never scale so any filter works here
+                                            filter == GrSamplerState::Filter::kNearest ?
+                                                    VK_FILTER_NEAREST : VK_FILTER_LINEAR);
 
     // The rect is already in device space so we pass in kTopLeft so no flip is done.
     this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
@@ -2400,8 +2398,9 @@ void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect
     this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
 }
 
-bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                            const SkIPoint& dstPoint) {
+bool GrVkGpu::onCopySurface(GrSurface* dst, const SkIRect& dstRect,
+                            GrSurface* src, const SkIRect& srcRect,
+                            GrSamplerState::Filter filter) {
 #ifdef SK_DEBUG
     if (GrVkRenderTarget* srcRT = static_cast<GrVkRenderTarget*>(src->asRenderTarget())) {
         SkASSERT(!srcRT->wrapsSecondaryCommandBuffer());
@@ -2465,16 +2464,20 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     bool dstHasYcbcr = dstImage->ycbcrConversionInfo().isValid();
     bool srcHasYcbcr = srcImage->ycbcrConversionInfo().isValid();
 
-    if (this->vkCaps().canCopyAsResolve(dstFormat, dstSampleCnt, dstHasYcbcr,
-                                        srcFormat, srcSampleCnt, srcHasYcbcr)) {
-        this->copySurfaceAsResolve(dst, src, srcRect, dstPoint);
-        return true;
-    }
+    if (srcRect.size() == dstRect.size()) {
+        // Prefer resolves or copy-image commands when there is no scaling
+        const SkIPoint dstPoint = dstRect.topLeft();
+        if (this->vkCaps().canCopyAsResolve(dstFormat, dstSampleCnt, dstHasYcbcr,
+                                            srcFormat, srcSampleCnt, srcHasYcbcr)) {
+            this->copySurfaceAsResolve(dst, src, srcRect, dstPoint);
+            return true;
+        }
 
-    if (this->vkCaps().canCopyImage(dstFormat, dstSampleCnt, dstHasYcbcr,
-                                    srcFormat, srcSampleCnt, srcHasYcbcr)) {
-        this->copySurfaceAsCopyImage(dst, src, dstImage, srcImage, srcRect, dstPoint);
-        return true;
+        if (this->vkCaps().canCopyImage(dstFormat, dstSampleCnt, dstHasYcbcr,
+                                        srcFormat, srcSampleCnt, srcHasYcbcr)) {
+            this->copySurfaceAsCopyImage(dst, src, dstImage, srcImage, srcRect, dstPoint);
+            return true;
+        }
     }
 
     if (this->vkCaps().canCopyAsBlit(dstFormat,
@@ -2485,7 +2488,7 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
                                      srcSampleCnt,
                                      srcImage->isLinearTiled(),
                                      srcHasYcbcr)) {
-        this->copySurfaceAsBlit(dst, src, dstImage, srcImage, srcRect, dstPoint);
+        this->copySurfaceAsBlit(dst, src, dstImage, srcImage, srcRect, dstRect, filter);
         return true;
     }
 

@@ -204,8 +204,9 @@ private:
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
-    bool onCopySurface(GrSurface* dst, GrSurface* src,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint) override;
+    bool onCopySurface(GrSurface* dst, const SkIRect& dstRect,
+                       GrSurface* src, const SkIRect& srcRect,
+                       GrSamplerState::Filter) override;
 
     void addFinishedProc(GrGpuFinishedProc finishedProc,
                          GrGpuFinishedContext finishedContext) override;

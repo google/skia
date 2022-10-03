@@ -58,9 +58,10 @@ public:
 
 private:
     bool onSurfaceSupportsWritePixels(const GrSurface* surface) const override;
-    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-        const SkIRect& srcRect, const SkIPoint& dstPoint) const override {
-        return true;
+    bool onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                          const GrSurfaceProxy* src, const SkIRect& srcRect) const override {
+        // Dawn does not support scaling copies
+        return srcRect.size() == dstRect.size();
     }
     GrBackendFormat onGetDefaultBackendFormat(GrColorType) const override;
 

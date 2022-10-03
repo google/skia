@@ -122,8 +122,8 @@ public:
     // equal to the proxy bounds. This is because the render pass will have to do a full size
     // resolve back into the single sample FBO when rendering is complete.
     void drawSingleIntoMSAAFBO(GrGLRenderTarget* rt, const SkIRect& drawBounds) {
-        this->copySurfaceAsDraw(rt, true/*drawToMultisampleFBO*/, rt, drawBounds,
-                                drawBounds.topLeft());
+        this->copySurfaceAsDraw(rt, true/*drawToMultisampleFBO*/, rt, drawBounds, drawBounds,
+                                GrSamplerState::Filter::kNearest);
     }
 
     // The GrGLOpsRenderPass does not buffer up draws before submitting them to the gpu.
@@ -367,8 +367,9 @@ private:
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 
-    bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override;
+    bool onCopySurface(GrSurface* dst, const SkIRect& dstRect,
+                       GrSurface* src, const SkIRect& srcRect,
+                       GrSamplerState::Filter) override;
 
     // binds texture unit in GL
     void setTextureUnit(int unitIdx);
@@ -393,11 +394,11 @@ private:
     bool waitSync(GrGLsync, uint64_t timeout, bool flush);
 
     bool copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSurface* src,
-                           const SkIRect& srcRect, const SkIPoint& dstPoint);
+                           const SkIRect& srcRect, const SkIRect& dstRect, GrSamplerState::Filter);
     void copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
                                       const SkIPoint& dstPoint);
     bool copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                                      const SkIPoint& dstPoint);
+                                      const SkIRect& dstRect, GrSamplerState::Filter);
 
     class ProgramCache : public GrThreadSafePipelineBuilder {
     public:

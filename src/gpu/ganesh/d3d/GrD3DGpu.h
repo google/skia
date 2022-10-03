@@ -203,8 +203,9 @@ private:
                               sk_sp<GrGpuBuffer>,
                               size_t offset) override;
 
-    bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                       const SkIPoint& dstPoint) override;
+    bool onCopySurface(GrSurface* dst, const SkIRect& dstRect,
+                       GrSurface* src, const SkIRect& srcRect,
+                       GrSamplerState::Filter) override;
 
     bool onRegenerateMipMapLevels(GrTexture*) override;
 

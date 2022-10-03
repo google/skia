@@ -88,6 +88,5 @@ bool GrCopyRenderTask::onExecute(GrOpFlushState* flushState) {
     GrSurface* dstSurface = dstProxy->peekSurface();
     SkIRect srcRect = GrNativeRect::MakeIRectRelativeTo(fOrigin, srcSurface->height(), fSrcRect);
     SkIRect dstRect = GrNativeRect::MakeIRectRelativeTo(fOrigin, dstSurface->height(), fDstRect);
-    return flushState->gpu()->copySurface(dstSurface, srcSurface, srcRect, dstRect, fFilter);
+    return flushState->gpu()->copySurface(dstSurface, dstRect, srcSurface, srcRect, fFilter);
 }
-

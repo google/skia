@@ -2970,7 +2970,7 @@ void GrGLGpu::bindTextureToScratchUnit(GrGLenum target, GrGLint textureID) {
 static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
                                                          const GrSurface* src,
                                                          const SkIRect& srcRect,
-                                                         const SkIPoint& dstPoint,
+                                                         const SkIRect& dstRect,
                                                          const GrGLCaps& caps) {
     int dstSampleCnt = 0;
     int srcSampleCnt = 0;
@@ -3004,7 +3004,7 @@ static inline bool can_blit_framebuffer_for_copy_surface(const GrSurface* dst,
 
     return caps.canCopyAsBlit(dstFormat, dstSampleCnt, dstTexTypePtr,
                               srcFormat, srcSampleCnt, srcTexTypePtr,
-                              src->getBoundsRect(), true, srcRect, dstPoint);
+                              src->getBoundsRect(), true, srcRect, dstRect);
 }
 
 static bool rt_has_msaa_render_buffer(const GrGLRenderTarget* rt, const GrGLCaps& glCaps) {
@@ -3132,8 +3132,9 @@ void GrGLGpu::deleteFramebuffer(GrGLuint fboid) {
     }
 }
 
-bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                            const SkIPoint& dstPoint) {
+bool GrGLGpu::onCopySurface(GrSurface* dst, const SkIRect& dstRect,
+                            GrSurface* src, const SkIRect& srcRect,
+                            GrSamplerState::Filter filter) {
     // Don't prefer copying as a draw if the dst doesn't already have a FBO object.
     // This implicitly handles this->glCaps().useDrawInsteadOfAllRenderTargetWrites().
     bool preferCopy = SkToBool(dst->asRenderTarget());
@@ -3141,24 +3142,25 @@ bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRe
     if (preferCopy && this->glCaps().canCopyAsDraw(dstFormat, SkToBool(src->asTexture()))) {
         GrRenderTarget* dstRT = dst->asRenderTarget();
         bool drawToMultisampleFBO = dstRT && dstRT->numSamples() > 1;
-        if (this->copySurfaceAsDraw(dst, drawToMultisampleFBO, src, srcRect, dstPoint)) {
+        if (this->copySurfaceAsDraw(dst, drawToMultisampleFBO, src, srcRect, dstRect, filter)) {
             return true;
         }
     }
 
-    if (can_copy_texsubimage(dst, src, this->glCaps())) {
-        this->copySurfaceAsCopyTexSubImage(dst, src, srcRect, dstPoint);
+    // Prefer copying as with glCopyTexSubImage when the dimensions are the same.
+    if (srcRect.size() == dstRect.size() && can_copy_texsubimage(dst, src, this->glCaps())) {
+        this->copySurfaceAsCopyTexSubImage(dst, src, srcRect, dstRect.topLeft());
         return true;
     }
 
-    if (can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstPoint, this->glCaps())) {
-        return this->copySurfaceAsBlitFramebuffer(dst, src, srcRect, dstPoint);
+    if (can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstRect, this->glCaps())) {
+        return this->copySurfaceAsBlitFramebuffer(dst, src, srcRect, dstRect, filter);
     }
 
     if (!preferCopy && this->glCaps().canCopyAsDraw(dstFormat, SkToBool(src->asTexture()))) {
         GrRenderTarget* dstRT = dst->asRenderTarget();
         bool drawToMultisampleFBO = dstRT && dstRT->numSamples() > 1;
-        if (this->copySurfaceAsDraw(dst, drawToMultisampleFBO, src, srcRect, dstPoint)) {
+        if (this->copySurfaceAsDraw(dst, drawToMultisampleFBO, src, srcRect, dstRect, filter)) {
             return true;
         }
     }
@@ -3437,13 +3439,14 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
 }
 
 bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSurface* src,
-                                const SkIRect& srcRect, const SkIPoint& dstPoint) {
+                                const SkIRect& srcRect, const SkIRect& dstRect,
+                                GrSamplerState::Filter filter) {
     auto* srcTex = static_cast<GrGLTexture*>(src->asTexture());
     if (!srcTex) {
         return false;
     }
     // We don't swizzle at all in our copies.
-    this->bindTexture(0, GrSamplerState::Filter::kNearest, skgpu::Swizzle::RGBA(), srcTex);
+    this->bindTexture(0, filter, skgpu::Swizzle::RGBA(), srcTex);
     if (auto* dstRT = static_cast<GrGLRenderTarget*>(dst->asRenderTarget())) {
         this->flushRenderTargetNoColorWrites(dstRT, drawToMultisampleFBO);
     } else {
@@ -3466,9 +3469,6 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSur
     this->flushViewport(SkIRect::MakeSize(dst->dimensions()),
                         dst->height(),
                         kTopLeft_GrSurfaceOrigin); // the origin is irrelevant in this case
-    int w = srcRect.width();
-    int h = srcRect.height();
-    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY, w, h);
     this->flushProgram(fCopyPrograms[progIdx].fProgram);
     fHWVertexArrayState.setVertexArrayID(this, 0);
     GrGLAttribArrayState* attribs = fHWVertexArrayState.bindInternalVertexArray(this);
@@ -3478,14 +3478,14 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSur
     // dst rect edges in NDC (-1 to 1)
     int dw = dst->width();
     int dh = dst->height();
-    GrGLfloat dx0 = 2.f * dstPoint.fX / dw - 1.f;
-    GrGLfloat dx1 = 2.f * (dstPoint.fX + w) / dw - 1.f;
-    GrGLfloat dy0 = 2.f * dstPoint.fY / dh - 1.f;
-    GrGLfloat dy1 = 2.f * (dstPoint.fY + h) / dh - 1.f;
+    GrGLfloat dx0 = 2.f * dstRect.fLeft / dw - 1.f;
+    GrGLfloat dx1 = 2.f * dstRect.fRight / dw - 1.f;
+    GrGLfloat dy0 = 2.f * dstRect.fTop / dh - 1.f;
+    GrGLfloat dy1 = 2.f * dstRect.fBottom / dh - 1.f;
     GrGLfloat sx0 = (GrGLfloat)srcRect.fLeft;
-    GrGLfloat sx1 = (GrGLfloat)(srcRect.fLeft + w);
+    GrGLfloat sx1 = (GrGLfloat)(srcRect.fRight);
     GrGLfloat sy0 = (GrGLfloat)srcRect.fTop;
-    GrGLfloat sy1 = (GrGLfloat)(srcRect.fTop + h);
+    GrGLfloat sy1 = (GrGLfloat)(srcRect.fBottom);
     int sw = src->width();
     int sh = src->height();
     if (srcTex->textureType() != GrTextureType::kRectangle) {
@@ -3537,10 +3537,8 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurface* src, const
 }
 
 bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                                           const SkIPoint& dstPoint) {
-    SkASSERT(can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstPoint, this->glCaps()));
-    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
-                                        srcRect.width(), srcRect.height());
+                                           const SkIRect& dstRect, GrSamplerState::Filter filter) {
+    SkASSERT(can_blit_framebuffer_for_copy_surface(dst, src, srcRect, dstRect, this->glCaps()));
     if (dst == src) {
         if (SkIRect::Intersects(dstRect, srcRect)) {
             return false;
@@ -3564,7 +3562,8 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const
                             dstRect.fTop,
                             dstRect.fRight,
                             dstRect.fBottom,
-                            GR_GL_COLOR_BUFFER_BIT, GR_GL_NEAREST));
+                            GR_GL_COLOR_BUFFER_BIT,
+                            filter_to_gl_mag_filter(filter)));
     this->unbindSurfaceFBOForPixelOps(dst, 0, GR_GL_DRAW_FRAMEBUFFER);
     this->unbindSurfaceFBOForPixelOps(src, 0, GR_GL_READ_FRAMEBUFFER);
 

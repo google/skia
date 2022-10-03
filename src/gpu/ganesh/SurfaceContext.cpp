@@ -1063,7 +1063,7 @@ sk_sp<GrRenderTask> SurfaceContext::copy(sk_sp<GrSurfaceProxy> src,
     }
 
     SkIRect dstRect = SkIRect::MakePtSize(dstPoint, srcRect.size());
-    if (!caps->canCopySurface(this->asSurfaceProxy(), src.get(), srcRect, dstRect)) {
+    if (!caps->canCopySurface(this->asSurfaceProxy(), dstRect, src.get(), srcRect)) {
         return nullptr;
     }
 

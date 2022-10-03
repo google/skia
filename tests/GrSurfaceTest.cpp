@@ -461,8 +461,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
         dContext->flushAndSubmit();
         auto gpuCopyResult = dContext->priv().getGpu()->copySurface(
                 proxy->peekSurface(),
-                copySrc.proxy()->peekSurface(),
                 SkIRect::MakeWH(kSize, kSize),
+                copySrc.proxy()->peekSurface(),
                 SkIRect::MakeWH(kSize, kSize),
                 GrSamplerState::Filter::kNearest);
         REPORTER_ASSERT(reporter, gpuCopyResult == (ioType == kRW_GrIOType));

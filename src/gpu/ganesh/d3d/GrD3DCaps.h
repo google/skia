@@ -131,8 +131,8 @@ private:
     void applyDriverCorrectnessWorkarounds(int vendorID);
 
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
-    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                          const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
+    bool onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                          const GrSurfaceProxy* src, const SkIRect& srcRect) const override;
     GrBackendFormat onGetDefaultBackendFormat(GrColorType) const override;
 
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;

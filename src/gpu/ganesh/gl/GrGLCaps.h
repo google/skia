@@ -447,7 +447,7 @@ public:
                        GrGLFormat srcFormat, int srcSampleCnt,
                        const GrTextureType* srcTypeIfTexture,
                        const SkRect& srcBounds, bool srcBoundsExact,
-                       const SkIRect& srcRect, const SkIPoint& dstPoint) const;
+                       const SkIRect& srcRect, const SkIRect& dstRect) const;
     bool canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTexturable) const;
 
     DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src,
@@ -540,8 +540,8 @@ private:
     void initFormatTable(const GrGLContextInfo&, const GrGLInterface*, const FormatWorkarounds&);
     void setupSampleCounts(const GrGLContextInfo&, const GrGLInterface*);
     bool onSurfaceSupportsWritePixels(const GrSurface*) const override;
-    bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                          const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
+    bool onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                          const GrSurfaceProxy* src, const SkIRect& srcRect) const override;
     GrBackendFormat onGetDefaultBackendFormat(GrColorType) const override;
     bool onAreColorTypeAndFormatCompatible(GrColorType, const GrBackendFormat&) const override;
 

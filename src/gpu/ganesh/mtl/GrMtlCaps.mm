@@ -286,8 +286,13 @@ bool GrMtlCaps::canCopyAsResolve(MTLPixelFormat dstFormat, int dstSampleCount,
     return true;
 }
 
-bool GrMtlCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                                 const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+bool GrMtlCaps::onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                                 const GrSurfaceProxy* src, const SkIRect& srcRect) const {
+    // Metal does not support scaling copies
+    if (srcRect.size() != dstRect.size()) {
+        return false;
+    }
+
     int dstSampleCnt = 1;
     int srcSampleCnt = 1;
     if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
@@ -299,6 +304,7 @@ bool GrMtlCaps::onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy
 
     // TODO: need some way to detect whether the proxy is framebufferOnly
 
+    const SkIPoint dstPoint = dstRect.topLeft();
     if (this->canCopyAsBlit(GrBackendFormatAsMTLPixelFormat(dst->backendFormat()), dstSampleCnt,
                             GrBackendFormatAsMTLPixelFormat(src->backendFormat()), srcSampleCnt,
                             srcRect, dstPoint, dst == src)) {

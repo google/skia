@@ -388,8 +388,8 @@ public:
     /**
      * Returns whether or not we will be able to do a copy given the passed in params
      */
-    bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                        const SkIRect& srcRect, const SkIRect& dstRect) const;
+    bool canCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                        const GrSurfaceProxy* src, const SkIRect& srcRect) const;
 
     bool dynamicStateArrayGeometryProcessorTextureSupport() const {
         return fDynamicStateArrayGeometryProcessorTextureSupport;
@@ -635,8 +635,8 @@ private:
     virtual void onApplyOptionsOverrides(const GrContextOptions&) {}
     virtual void onDumpJSON(SkJSONWriter*) const {}
     virtual bool onSurfaceSupportsWritePixels(const GrSurface*) const = 0;
-    virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
-                                  const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
+    virtual bool onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRect,
+                                  const GrSurfaceProxy* src, const SkIRect& srcRect) const = 0;
     virtual GrBackendFormat onGetDefaultBackendFormat(GrColorType) const = 0;
 
     // Backends should implement this if they have any extra requirements for use of window

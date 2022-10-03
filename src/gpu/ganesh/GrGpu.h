@@ -372,8 +372,9 @@ public:
     //
     // Backends may or may not support src and dst rects with differing dimensions. This can assume
     // that GrCaps.canCopySurface() returned true for these surfaces and rects.
-    bool copySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                     const SkIRect& dstRect, GrSamplerState::Filter filter);
+    bool copySurface(GrSurface* dst, const SkIRect& dstRect,
+                     GrSurface* src, const SkIRect& srcRect,
+                     GrSamplerState::Filter filter);
 
     // Returns a GrOpsRenderPass which OpsTasks send draw commands to instead of directly
     // to the Gpu object. The 'bounds' rect is the content rect of the renderTarget.
@@ -809,8 +810,9 @@ private:
     virtual bool onRegenerateMipMapLevels(GrTexture*) = 0;
 
     // overridden by backend specific derived class to perform the copy surface
-    virtual bool onCopySurface(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
-                               const SkIPoint& dstPoint) = 0;
+    virtual bool onCopySurface(GrSurface* dst, const SkIRect& dstRect,
+                               GrSurface* src, const SkIRect& srcRect,
+                               GrSamplerState::Filter) = 0;
 
     virtual GrOpsRenderPass* onGetOpsRenderPass(
             GrRenderTarget* renderTarget,
