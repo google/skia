@@ -21,7 +21,6 @@ def GetGNArgs(api_level, debug, arch=None, ndk=None, is_android_bp=False):
         'skia_use_expat':                   'true',
         'skia_use_freetype':                'false',
         'skia_use_icu':                     'false',
-        'skia_use_libgifcodec':             'false',
         'skia_use_libheif':                 'false',
         'skia_use_lua':                     'false',
         'skia_use_piex':                    'false',
