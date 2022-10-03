@@ -5,6 +5,7 @@ This file includes a list of high level updates for each milestone release.
 Milestone 108
 -------------
   * SkShader::asAGradient() has been removed.
+  * SkMesh and SkMeshSpecification has separate sk_sp and bare ptr getters for ref counted types.
 
 * * *
 

@@ -337,21 +337,25 @@ public:
                               sk_sp<const SkData> uniforms,
                               const SkRect& bounds);
 
-    sk_sp<SkMeshSpecification> spec() const { return fSpec; }
+    sk_sp<SkMeshSpecification> refSpec() const { return fSpec; }
+    SkMeshSpecification* spec() const { return fSpec.get(); }
 
     Mode mode() const { return fMode; }
 
-    sk_sp<VertexBuffer> vertexBuffer() const { return fVB; }
+    sk_sp<VertexBuffer> refVertexBuffer() const { return fVB; }
+    VertexBuffer* vertexBuffer() const { return fVB.get(); }
 
     size_t vertexOffset() const { return fVOffset; }
     size_t vertexCount()  const { return fVCount;  }
 
-    sk_sp<IndexBuffer> indexBuffer() const { return fIB; }
+    sk_sp<IndexBuffer> refIndexBuffer() const { return fIB; }
+    IndexBuffer* indexBuffer() const { return fIB.get(); }
 
     size_t indexOffset() const { return fIOffset; }
     size_t indexCount()  const { return fICount;  }
 
-    sk_sp<const SkData> uniforms() const { return fUniforms; }
+    sk_sp<const SkData> refUniforms() const { return fUniforms; }
+    const SkData* uniforms() const { return fUniforms.get(); }
 
     SkRect bounds() const { return fBounds; }
 

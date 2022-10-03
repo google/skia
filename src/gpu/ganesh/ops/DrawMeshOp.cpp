@@ -554,9 +554,9 @@ private:
 
 MeshOp::Mesh::Mesh(const SkMesh& mesh) {
     new (&fMeshData) MeshData();
-    fMeshData.vb = sk_ref_sp(static_cast<SkMeshPriv::VB*>(mesh.vertexBuffer().get()));
+    fMeshData.vb = sk_ref_sp(static_cast<SkMeshPriv::VB*>(mesh.vertexBuffer()));
     if (mesh.indexBuffer()) {
-        fMeshData.ib = sk_ref_sp(static_cast<SkMeshPriv::IB*>(mesh.indexBuffer().get()));
+        fMeshData.ib = sk_ref_sp(static_cast<SkMeshPriv::IB*>(mesh.indexBuffer()));
     }
     fMeshData.vcount  = mesh.vertexCount();
     fMeshData.voffset = mesh.vertexOffset();
@@ -646,13 +646,13 @@ MeshOp::MeshOp(GrProcessorSet*          processorSet,
         , fViewMatrix(matrixProvider.localToDevice()) {
     fMeshes.emplace_back(mesh);
 
-    fSpecification = mesh.spec();
+    fSpecification = mesh.refSpec();
     if (fColorSpaceXform) {
         fUniforms = SkRuntimeEffectPriv::TransformUniforms(mesh.spec()->uniforms(),
-                                                           mesh.uniforms(),
+                                                           mesh.refUniforms(),
                                                            fColorSpaceXform->steps());
     } else {
-        fUniforms = mesh.uniforms();
+        fUniforms = mesh.refUniforms();
     }
 
     fVertexCount = fMeshes.back().vertexCount();
