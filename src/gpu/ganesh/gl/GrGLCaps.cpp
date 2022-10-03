@@ -3790,6 +3790,24 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
+    // Reported on skia-discuss as occurring with these GL strings:
+    // GL_VERSION:  3.1.0 - Build 9.17.10.4459
+    // GL_VENDOR:   Intel
+    // GL_RENDERER: Intel(R) HD Graphics 2000
+    // https://groups.google.com/g/skia-discuss/c/dYV1blEAda0/m/-zuZLXQKAwAJ?utm_medium=email&utm_source=footer
+    // See also http://skbug.com/9286
+    if (ctxInfo.renderer() == GrGLRenderer::kIntelSandyBridge &&
+        ctxInfo.driver() == GrGLDriver::kIntel) {
+        fMapBufferType  = kNone_MapBufferType;
+        fMapBufferFlags = kNone_MapFlags;
+        // On skia-discuss it was reported that after turning off mapping there was this
+        // shader compilation error.
+        // ERROR: 0:18: 'assign' :  cannot convert from '3-component vector of float' to 'varying 2-component vector of float'
+        // for this line:
+        // vTransformedCoords_5_S0 = mat3x2(umatrix_S1_c0_c1) * vec3(_tmp_2_inPosition, 1.0);
+        fShaderCaps->fNonsquareMatrixSupport = false;
+    }
+
     if (ctxInfo.isOverCommandBuffer() && ctxInfo.version() >= GR_GL_VER(3,0)) {
         formatWorkarounds->fDisallowTextureUnorm16 = true;  // http://crbug.com/1224108
         formatWorkarounds->fDisallowETC2Compression = true;  // http://crbug.com/1224111
