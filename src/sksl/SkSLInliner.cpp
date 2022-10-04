@@ -246,29 +246,23 @@ void Inliner::ensureScopedBlocks(Statement* inlinedBody, Statement* parentStmt) 
 
     // The inliner will create inlined function bodies as a Block containing multiple statements,
     // but no scope. Normally, this is fine, but if this block is used as the statement for a
-    // do/for/if/while, this isn't actually possible to represent textually; a scope must be added
-    // for the generated code to match the intent. In the case of Blocks nested inside other Blocks,
-    // we add the scope to the outermost block if needed. Zero-statement blocks have similar
-    // issues--if we don't represent the Block textually somehow, we run the risk of accidentally
-    // absorbing the following statement into our loop--so we also add a scope to these.
+    // do/for/if/while, the block needs to be scoped for the generated code to match the intent.
+    // In the case of Blocks nested inside other Blocks, we add the scope to the outermost block if
+    // needed.
     for (Block* nestedBlock = &block;; ) {
         if (nestedBlock->isScope()) {
             // We found an explicit scope; all is well.
             return;
         }
-        if (nestedBlock->children().size() != 1) {
-            // We found a block with multiple (or zero) statements, but no scope? Let's add a scope
-            // to the outermost block.
-            block.setBlockKind(Block::Kind::kBracedScope);
-            return;
+        if (nestedBlock->children().size() == 1 && nestedBlock->children()[0]->is<Block>()) {
+            // This block wraps another unscoped block; we need to go deeper.
+            nestedBlock = &nestedBlock->children()[0]->as<Block>();
+            continue;
         }
-        if (!nestedBlock->children()[0]->is<Block>()) {
-            // This block has exactly one thing inside, and it's not another block. No need to scope
-            // it.
-            return;
-        }
-        // We have to go deeper.
-        nestedBlock = &nestedBlock->children()[0]->as<Block>();
+        // We found a block containing real statements (not just more blocks), but no scope.
+        // Let's add a scope to the outermost block.
+        block.setBlockKind(Block::Kind::kBracedScope);
+        return;
     }
 }
 

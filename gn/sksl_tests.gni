@@ -649,6 +649,7 @@ sksl_inliner_tests = [
   "/sksl/inliner/InlinerUsesTempVarForMultipleReturns.sksl",
   "/sksl/inliner/InlinerUsesTempVarForReturnsInsideBlockWithVar.sksl",
   "/sksl/inliner/InlineThreshold.sksl",
+  "/sksl/inliner/InlineUnscopedVariable.sksl",
   "/sksl/inliner/InlineWithModifiedArgument.sksl",
   "/sksl/inliner/InlineWithNestedBigCalls.sksl",
   "/sksl/inliner/InlineWithNestedCalls.sksl",

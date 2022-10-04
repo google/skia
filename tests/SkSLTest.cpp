@@ -382,6 +382,7 @@ SKSL_TEST(CPU + GPU, kApiLevel_T, InlinerElidesTempVarForReturnsInsideBlock,    
 SKSL_TEST(CPU + GPU, kApiLevel_T, InlinerUsesTempVarForMultipleReturns,             "inliner/InlinerUsesTempVarForMultipleReturns.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, InlinerUsesTempVarForReturnsInsideBlockWithVar,   "inliner/InlinerUsesTempVarForReturnsInsideBlockWithVar.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, InlineThreshold,                                  "inliner/InlineThreshold.sksl")
+SKSL_TEST(GPU_ES3,   kApiLevel_T, InlineUnscopedVariable,                           "inliner/InlineUnscopedVariable.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, InlineWithModifiedArgument,                       "inliner/InlineWithModifiedArgument.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, InlineWithNestedBigCalls,                         "inliner/InlineWithNestedBigCalls.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, InlineWithUnmodifiedArgument,                     "inliner/InlineWithUnmodifiedArgument.sksl")

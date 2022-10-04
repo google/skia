@@ -1,0 +1,24 @@
+uniform half4 colorGreen;
+
+void DeclareAVariable(int i) { int x; }
+
+void ForLoop2(int i) { for (int x = 0; x < 1; ++x) DeclareAVariable(i); }
+void ForLoop1(int i) { ForLoop2(i); }
+
+void IfStatement2(int i) { if (i > 0) DeclareAVariable(i); else DeclareAVariable(i); }
+void IfStatement1(int i) { IfStatement2(i); }
+
+void WhileLoop2(int i) { while (i-- > 0) DeclareAVariable(i); }
+void WhileLoop1(int i) { WhileLoop2(i); }
+
+void DoLoop2(int i) { do DeclareAVariable(i); while (i-- > 0); }
+void DoLoop1(int i) { DoLoop2(i); }
+
+half4 main(float2 coords) {
+    ForLoop1(123);
+    DoLoop1(123);
+    WhileLoop1(123);
+    IfStatement1(123);
+
+    return colorGreen;
+}
