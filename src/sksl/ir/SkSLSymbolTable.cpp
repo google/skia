@@ -36,7 +36,17 @@ Symbol* SymbolTable::lookup(const SymbolKey& key) const {
 }
 
 void SymbolTable::renameSymbol(Symbol* symbol, std::string_view newName) {
-    symbol->setName(newName);
+    if (symbol->is<FunctionDeclaration>()) {
+        // This is a function declaration, so we need to rename the entire overload set.
+        for (FunctionDeclaration* fn = &symbol->as<FunctionDeclaration>(); fn != nullptr;
+             fn = fn->mutableNextOverload()) {
+            fn->setName(newName);
+        }
+    } else {
+        // Other types of symbols don't allow multiple symbols with the same name.
+        symbol->setName(newName);
+    }
+
     this->addWithoutOwnership(symbol);
 }
 
@@ -52,10 +62,10 @@ void SymbolTable::addWithoutOwnership(Symbol* symbol) {
     // If this is a function declaration, we need to keep the overload chain in sync.
     if (symbol->is<FunctionDeclaration>()) {
         // If we have a function with the same name...
-        const Symbol* existingSymbol = this->lookup(key);
+        Symbol* existingSymbol = this->lookup(key);
         if (existingSymbol && existingSymbol->is<FunctionDeclaration>()) {
             // ... add the existing function as the next overload in the chain.
-            const FunctionDeclaration* existingDecl = &existingSymbol->as<FunctionDeclaration>();
+            FunctionDeclaration* existingDecl = &existingSymbol->as<FunctionDeclaration>();
             symbol->as<FunctionDeclaration>().setNextOverload(existingDecl);
             fSymbols[key] = symbol;
             return;

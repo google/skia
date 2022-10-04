@@ -44,30 +44,34 @@ public:
                         const Type* returnType,
                         bool builtin);
 
-    static const FunctionDeclaration* Convert(const Context& context,
-                                              SymbolTable& symbols,
-                                              Position pos,
-                                              Position modifiersPos,
-                                              const Modifiers* modifiers,
-                                              std::string_view name,
-                                              std::vector<std::unique_ptr<Variable>> parameters,
-                                              Position returnTypePos,
-                                              const Type* returnType);
+    static FunctionDeclaration* Convert(const Context& context,
+                                        SymbolTable& symbols,
+                                        Position pos,
+                                        Position modifiersPos,
+                                        const Modifiers* modifiers,
+                                        std::string_view name,
+                                        std::vector<std::unique_ptr<Variable>> parameters,
+                                        Position returnTypePos,
+                                        const Type* returnType);
 
     const Modifiers& modifiers() const {
         return *fModifiers;
+    }
+
+    void setModifiers(const Modifiers* m) {
+        fModifiers = m;
     }
 
     const FunctionDefinition* definition() const {
         return fDefinition;
     }
 
-    void setDefinition(const FunctionDefinition* definition) const {
+    void setDefinition(const FunctionDefinition* definition) {
         fDefinition = definition;
         fIntrinsicKind = kNotIntrinsic;
     }
 
-    void setNextOverload(const FunctionDeclaration* overload) {
+    void setNextOverload(FunctionDeclaration* overload) {
         SkASSERT(!overload || overload->name() == this->name());
         fNextOverload = overload;
     }
@@ -100,6 +104,10 @@ public:
         return fNextOverload;
     }
 
+    FunctionDeclaration* mutableNextOverload() const {
+        return fNextOverload;
+    }
+
     std::string mangledName() const;
 
     std::string description() const override;
@@ -127,8 +135,8 @@ public:
                              const Type** outReturnType) const;
 
 private:
-    mutable const FunctionDefinition* fDefinition;
-    const FunctionDeclaration* fNextOverload = nullptr;
+    const FunctionDefinition* fDefinition;
+    FunctionDeclaration* fNextOverload = nullptr;
     const Modifiers* fModifiers;
     std::vector<Variable*> fParameters;
     const Type* fReturnType;

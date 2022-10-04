@@ -111,7 +111,7 @@ public:
      * Adds a symbol to this symbol table, conferring ownership.
      */
     template <typename T>
-    const T* add(std::unique_ptr<T> symbol) {
+    T* add(std::unique_ptr<T> symbol) {
         T* ptr = symbol.get();
         this->addWithoutOwnership(ptr);
         this->takeOwnershipOfSymbol(std::move(symbol));

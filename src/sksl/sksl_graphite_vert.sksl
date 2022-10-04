@@ -20,26 +20,26 @@ const float $kLengthTermPow2 = (($kDegree * $kDegree) * (($kDegree - 1) * ($kDeg
                                ($kPrecision * $kPrecision);
 
 // Returns the length squared of the largest forward difference from Wang's cubic formula.
-$pure float wangs_formula_max_fdiff_p2(float2 p0, float2 p1, float2 p2, float2 p3,
-                                       float2x2 matrix) {
+$pure float $wangs_formula_max_fdiff_p2(float2 p0, float2 p1, float2 p2, float2 p3,
+                                        float2x2 matrix) {
     float2 d0 = matrix * (fma(float2(-2), p1, p2) + p0);
     float2 d1 = matrix * (fma(float2(-2), p2, p3) + p1);
     return max(dot(d0,d0), dot(d1,d1));
 }
 
-$pure float wangs_formula_cubic(float2 p0, float2 p1, float2 p2, float2 p3,
-                                float2x2 matrix) {
-    float m = wangs_formula_max_fdiff_p2(p0, p1, p2, p3, matrix);
+$pure float $wangs_formula_cubic(float2 p0, float2 p1, float2 p2, float2 p3,
+                                 float2x2 matrix) {
+    float m = $wangs_formula_max_fdiff_p2(p0, p1, p2, p3, matrix);
     return max(ceil(sqrt($kLengthTerm * sqrt(m))), 1.0);
 }
 
-$pure float wangs_formula_cubic_log2(float2 p0, float2 p1, float2 p2, float2 p3,
-                                     float2x2 matrix) {
-    float m = wangs_formula_max_fdiff_p2(p0, p1, p2, p3, matrix);
+$pure float $wangs_formula_cubic_log2(float2 p0, float2 p1, float2 p2, float2 p3,
+                                      float2x2 matrix) {
+    float m = $wangs_formula_max_fdiff_p2(p0, p1, p2, p3, matrix);
     return ceil(log2(max($kLengthTermPow2 * m, 1.0)) * .25);
 }
 
-$pure float wangs_formula_conic_p2(float2 p0, float2 p1, float2 p2, float w) {
+$pure float $wangs_formula_conic_p2(float2 p0, float2 p1, float2 p2, float w) {
     // Translate the bounding box center to the origin.
     float2 C = (min(min(p0, p1), p2) + max(max(p0, p1), p2)) * 0.5;
     p0 -= C;
@@ -62,19 +62,19 @@ $pure float wangs_formula_conic_p2(float2 p0, float2 p1, float2 p2, float w) {
     return numer/denom;
 }
 
-$pure float wangs_formula_conic(float2 p0, float2 p1, float2 p2, float w) {
-    float n2 = wangs_formula_conic_p2(p0, p1, p2, w);
+$pure float $wangs_formula_conic(float2 p0, float2 p1, float2 p2, float w) {
+    float n2 = $wangs_formula_conic_p2(p0, p1, p2, w);
     return max(ceil(sqrt(n2)), 1.0);
 }
 
-$pure float wangs_formula_conic_log2(float2 p0, float2 p1, float2 p2, float w) {
-    float n2 = wangs_formula_conic_p2(p0, p1, p2, w);
+$pure float $wangs_formula_conic_log2(float2 p0, float2 p1, float2 p2, float w) {
+    float n2 = $wangs_formula_conic_p2(p0, p1, p2, w);
     return ceil(log2(max(n2, 1.0)) * .5);
 }
 
 // Returns the normalized difference between a and b, i.e. normalize(a - b), with care taken for
 // if 'a' and/or 'b' have large coordinates.
-$pure float2 robust_normalize_diff(float2 a, float2 b) {
+$pure float2 $robust_normalize_diff(float2 a, float2 b) {
     float2 diff = a - b;
     if (diff == float2(0.0)) {
         return float2(0.0);
@@ -86,7 +86,7 @@ $pure float2 robust_normalize_diff(float2 a, float2 b) {
 
 // Returns the cosine of the angle between a and b, assuming a and b are unit vectors already.
 // Guaranteed to be between [-1, 1].
-$pure float cosine_between_unit_vectors(float2 a, float2 b) {
+$pure float $cosine_between_unit_vectors(float2 a, float2 b) {
     // Since a and b are assumed to be normalized, the cosine is equal to the dot product, although
     // we clamp that to ensure it falls within the expected range of [-1, 1].
     return clamp(dot(a, b), -1.0, 1.0);
@@ -94,27 +94,27 @@ $pure float cosine_between_unit_vectors(float2 a, float2 b) {
 
 // Extends the middle radius to either the miter point, or the bevel edge if we surpassed the
 // miter limit and need to revert to a bevel join.
-$pure float miter_extent(float cosTheta, float miterLimit) {
+$pure float $miter_extent(float cosTheta, float miterLimit) {
     float x = fma(cosTheta, .5, .5);
     return (x * miterLimit * miterLimit >= 1.0) ? inversesqrt(x) : sqrt(x);
 }
 
 // Returns the number of radial segments required for each radian of rotation, in order for the
 // curve to appear "smooth" as defined by the approximate device-space stroke radius.
-$pure float num_radial_segments_per_radian(float approxDevStrokeRadius) {
+$pure float $num_radial_segments_per_radian(float approxDevStrokeRadius) {
     return .5 / acos(max(1.0 - (1.0 / $kPrecision) / approxDevStrokeRadius, -1.0));
 }
 
 // Unlike mix(), this does not return b when t==1. But it otherwise seems to get better
 // precision than "a*(1 - t) + b*t" for things like chopping cubics on exact cusp points.
 // We override this result anyway when t==1 so it shouldn't be a problem.
-$pure float unchecked_mix(float a, float b, float T) {
+$pure float $unchecked_mix(float a, float b, float T) {
     return fma(b - a, T, a);
 }
-$pure float2 unchecked_mix(float2 a, float2 b, float T) {
+$pure float2 $unchecked_mix(float2 a, float2 b, float T) {
     return fma(b - a, float2(T), a);
 }
-$pure float4 unchecked_mix(float4 a, float4 b, float4 T) {
+$pure float4 $unchecked_mix(float4 a, float4 b, float4 T) {
     return fma(b - a, T, a);
 }
 
@@ -136,14 +136,14 @@ $pure float2 tessellate_filled_curve(float2x2 vectorXform,
         if (isinf(p23.w)) {
             // Conics are 3 points, with the weight in p3.
             w = p3.x;
-            maxResolveLevel = wangs_formula_conic_log2(vectorXform*p0,
-                                                       vectorXform*p1,
-                                                       vectorXform*p2, w);
+            maxResolveLevel = $wangs_formula_conic_log2(vectorXform*p0,
+                                                        vectorXform*p1,
+                                                        vectorXform*p2, w);
             p1 *= w;  // Unproject p1.
             p3 = p2;  // Duplicate the endpoint for shared code that also runs on cubics.
         } else {
             // The patch is an integral cubic.
-            maxResolveLevel = wangs_formula_cubic_log2(p0, p1, p2, p3, vectorXform);
+            maxResolveLevel = $wangs_formula_cubic_log2(p0, p1, p2, p3, vectorXform);
         }
         if (resolveLevel > maxResolveLevel) {
             // This vertex is at a higher resolve level than we need. Demote to a lower
@@ -204,12 +204,12 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         if (p0 == p1 && p2 == p3) {
             numParametricSegments = 1; // a line
         } else {
-            numParametricSegments = wangs_formula_cubic(p0, p1, p2, p3, affineMatrix);
+            numParametricSegments = $wangs_formula_cubic(p0, p1, p2, p3, affineMatrix);
         }
     } else {
-        numParametricSegments = wangs_formula_conic(affineMatrix * p0,
-                                                    affineMatrix * p1,
-                                                    affineMatrix * p2, w);
+        numParametricSegments = $wangs_formula_conic(affineMatrix * p0,
+                                                     affineMatrix * p1,
+                                                     affineMatrix * p2, w);
     }
 
     // Matches skgpu::tess::StrokeParams
@@ -218,10 +218,10 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
     bool isHairline = strokeParams.x == 0.0;
     float numRadialSegmentsPerRadian;
     if (isHairline) {
-        numRadialSegmentsPerRadian = num_radial_segments_per_radian(1.0);
+        numRadialSegmentsPerRadian = $num_radial_segments_per_radian(1.0);
         strokeRadius = 0.5;
     } else {
-        numRadialSegmentsPerRadian = num_radial_segments_per_radian(maxScale * strokeParams.x);
+        numRadialSegmentsPerRadian = $num_radial_segments_per_radian(maxScale * strokeParams.x);
     }
 
     if (isHairline) {
@@ -235,8 +235,8 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
     }
 
     // Find the starting and ending tangents.
-    float2 tan0 = robust_normalize_diff((p0 == p1) ? ((p1 == p2) ? p3 : p2) : p1, p0);
-    float2 tan1 = robust_normalize_diff(p3, (p3 == p2) ? ((p2 == p1) ? p0 : p1) : p2);
+    float2 tan0 = $robust_normalize_diff((p0 == p1) ? ((p1 == p2) ? p3 : p2) : p1, p0);
+    float2 tan1 = $robust_normalize_diff(p3, (p3 == p2) ? ((p2 == p1) ? p0 : p1) : p2);
     if (tan0 == float2(0)) {
         // The stroke is a point. This special case tells us to draw a stroke-width circle as a
         // 180 degree point stroke instead.
@@ -254,8 +254,8 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         // +2 because we emit the beginning and ending edges twice (see above comments).
         numEdgesInJoin = sign(joinType) + 1 + 2;
     } else {
-        float2 prevTan = robust_normalize_diff(p0, lastControlPoint);
-        float joinRads = acos(cosine_between_unit_vectors(prevTan, tan0));
+        float2 prevTan = $robust_normalize_diff(p0, lastControlPoint);
+        float joinRads = acos($cosine_between_unit_vectors(prevTan, tan0));
         float numRadialSegmentsInJoin = max(ceil(joinRads * numRadialSegmentsPerRadian), 1);
         // +2 because we emit the beginning and ending edges twice (see above comment).
         numEdgesInJoin = numRadialSegmentsInJoin + 2;
@@ -276,13 +276,13 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         // means the join is disabled, and to disable it with the existing code we can leave
         // tan0 equal to tan1.
         if (lastControlPoint != p0) {
-            tan0 = robust_normalize_diff(p0, lastControlPoint);
+            tan0 = $robust_normalize_diff(p0, lastControlPoint);
         }
         turn = cross_length_2d(tan0, tan1);
     }
 
     // Calculate the curve's starting angle and rotation.
-    float cosTheta = cosine_between_unit_vectors(tan0, tan1);
+    float cosTheta = $cosine_between_unit_vectors(tan0, tan1);
     float rotation = acos(cosTheta);
     if (turn < 0) {
         // Adjust sign of rotation to match the direction the curve turns.
@@ -337,7 +337,7 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
     }
     // Edge #2 extends to the miter point.
     if (abs(edgeID) == 2 && joinType > 0/*Is the join a miter type?*/) {
-        strokeOutset *= miter_extent(cosTheta, joinType/*miterLimit*/);
+        strokeOutset *= $miter_extent(cosTheta, joinType/*miterLimit*/);
     }
 
     float2 tangent, strokeCoord;
@@ -459,25 +459,25 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         float T = max(parametricT, radialT);
 
         // Evaluate the cubic at T. Use De Casteljau's for its accuracy and stability.
-        float2 ab = unchecked_mix(p0, p1, T);
-        float2 bc = unchecked_mix(p1, p2, T);
-        float2 cd = unchecked_mix(p2, p3, T);
-        float2 abc = unchecked_mix(ab, bc, T);
-        float2 bcd = unchecked_mix(bc, cd, T);
-        float2 abcd = unchecked_mix(abc, bcd, T);
+        float2 ab = $unchecked_mix(p0, p1, T);
+        float2 bc = $unchecked_mix(p1, p2, T);
+        float2 cd = $unchecked_mix(p2, p3, T);
+        float2 abc = $unchecked_mix(ab, bc, T);
+        float2 bcd = $unchecked_mix(bc, cd, T);
+        float2 abcd = $unchecked_mix(abc, bcd, T);
 
         // Evaluate the conic weight at T.
-        float u = unchecked_mix(1.0, w, T);
+        float u = $unchecked_mix(1.0, w, T);
         float v = w + 1 - u;  // == mix(w, 1, T)
-        float uv = unchecked_mix(u, v, T);
+        float uv = $unchecked_mix(u, v, T);
 
         // If we went with T=parametricT, then update the tangent. Otherwise leave it at the radial
         // tangent found previously. (In the event that parametricT == radialT, we keep the radial
         // tangent.)
         if (T != radialT) {
             // We must re-normalize here because the tangent is determined by the curve coefficients
-            tangent = w >= 0.0 ? robust_normalize_diff(bc*u, ab*v)
-                               : robust_normalize_diff(bcd, abc);
+            tangent = w >= 0.0 ? $robust_normalize_diff(bc*u, ab*v)
+                               : $robust_normalize_diff(bcd, abc);
         }
 
         strokeCoord = (w >= 0.0) ? abc/uv : abcd;

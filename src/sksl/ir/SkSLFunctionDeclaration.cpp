@@ -384,7 +384,7 @@ static bool find_existing_declaration(const Context& context,
                                       std::vector<std::unique_ptr<Variable>>& parameters,
                                       Position returnTypePos,
                                       const Type* returnType,
-                                      const FunctionDeclaration** outExistingDecl) {
+                                      FunctionDeclaration** outExistingDecl) {
     auto invalidDeclDescription = [&]() -> std::string {
         std::vector<Variable*> paramPtrs;
         paramPtrs.reserve(parameters.size());
@@ -401,15 +401,15 @@ static bool find_existing_declaration(const Context& context,
     };
 
     ErrorReporter& errors = *context.fErrors;
-    const Symbol* entry = symbols[name];
+    Symbol* entry = symbols.getMutableSymbol(name);
     *outExistingDecl = nullptr;
     if (entry) {
         if (!entry->is<FunctionDeclaration>()) {
             errors.error(pos, "symbol '" + std::string(name) + "' was already defined");
             return false;
         }
-        for (const FunctionDeclaration* other = &entry->as<FunctionDeclaration>();
-             other; other = other->nextOverload()) {
+        for (FunctionDeclaration* other = &entry->as<FunctionDeclaration>(); other;
+             other = other->mutableNextOverload()) {
             SkASSERT(name == other->name());
             if (!parameters_match(parameters, other->parameters())) {
                 continue;
@@ -457,19 +457,18 @@ FunctionDeclaration::FunctionDeclaration(Position pos,
     SkASSERT(std::count(fParameters.begin(), fParameters.end(), nullptr) == 0);
 }
 
-const FunctionDeclaration* FunctionDeclaration::Convert(
-        const Context& context,
-        SymbolTable& symbols,
-        Position pos,
-        Position modifiersPosition,
-        const Modifiers* modifiers,
-        std::string_view name,
-        std::vector<std::unique_ptr<Variable>> parameters,
-        Position returnTypePos,
-        const Type* returnType) {
+FunctionDeclaration* FunctionDeclaration::Convert(const Context& context,
+                                                  SymbolTable& symbols,
+                                                  Position pos,
+                                                  Position modifiersPosition,
+                                                  const Modifiers* modifiers,
+                                                  std::string_view name,
+                                                  std::vector<std::unique_ptr<Variable>> parameters,
+                                                  Position returnTypePos,
+                                                  const Type* returnType) {
     bool isMain = (name == "main");
 
-    const FunctionDeclaration* decl = nullptr;
+    FunctionDeclaration* decl = nullptr;
     if (!check_modifiers(context, modifiersPosition, *modifiers) ||
         !check_return_type(context, returnTypePos, *returnType) ||
         !check_parameters(context, parameters, isMain) ||

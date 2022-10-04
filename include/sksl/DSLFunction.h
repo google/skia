@@ -51,7 +51,7 @@ public:
         this->init(modifiers, returnType, name, std::move(parameters), pos);
     }
 
-    DSLFunction(const SkSL::FunctionDeclaration* decl)
+    DSLFunction(SkSL::FunctionDeclaration* decl)
         : fDecl(decl) {}
 
     virtual ~DSLFunction() = default;
@@ -102,7 +102,7 @@ private:
     void init(DSLModifiers modifiers, const DSLType& returnType, std::string_view name,
               SkTArray<DSLParameter*> params, Position pos);
 
-    const SkSL::FunctionDeclaration* fDecl = nullptr;
+    SkSL::FunctionDeclaration* fDecl = nullptr;
     SkSL::Position fPosition;
 };
 
