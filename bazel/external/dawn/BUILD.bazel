@@ -576,6 +576,7 @@ DAWN_VULKAN_SRCS = [
     "src/dawn/native/vulkan/VulkanFunctions.h",
     "src/dawn/native/vulkan/VulkanInfo.cpp",
     "src/dawn/native/vulkan/VulkanInfo.h",
+    "src/dawn/native/vulkan/external_memory/MemoryService.cpp",
     "src/dawn/native/vulkan/external_memory/MemoryService.h",
     "src/dawn/native/vulkan/external_semaphore/SemaphoreService.h",
 ]
@@ -667,6 +668,8 @@ TINT_SRCS = [
     # From dawn/src/tint/BUILD.gn:libtint_core_all_src
     "src/tint/ast/access.cc",
     "src/tint/ast/access.h",
+    "src/tint/ast/address_space.cc",
+    "src/tint/ast/address_space.h",
     "src/tint/ast/alias.cc",
     "src/tint/ast/alias.h",
     "src/tint/ast/array.cc",
@@ -799,8 +802,6 @@ TINT_SRCS = [
     "src/tint/ast/statement.h",
     "src/tint/ast/static_assert.cc",
     "src/tint/ast/static_assert.h",
-    "src/tint/ast/storage_class.cc",
-    "src/tint/ast/storage_class.h",
     "src/tint/ast/storage_texture.cc",
     "src/tint/ast/storage_texture.h",
     "src/tint/ast/stride_attribute.cc",
