@@ -36,7 +36,10 @@ std::string skstd::to_string(double value) {
         buffer.precision(9);
         buffer << value;
         text = buffer.str();
-        SkASSERTF((buffer >> roundtripped, roundtripped == (float)value), "%.17g", value);
+        // TODO(johnstiles): on older versions of libc++, FLT_MAX will fill the buffer with the
+        // correct value, but reading back into `roundtripped` gives INF. Disable the assertion
+        // until we figure out a better way to check this.
+        //SkASSERTF((buffer >> roundtripped, roundtripped == (float)value), "%.17g", value);
     }
 
     // We need to emit a decimal point to distinguish floats from ints.
