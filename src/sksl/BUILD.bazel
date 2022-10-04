@@ -26,7 +26,6 @@ filegroup(
         "generated/sksl_vert.minified.sksl",
         "generated/sksl_vert.unoptimized.sksl",
     ],
-    visibility = ["//:__subpackages__"],
 )
 
 CORE_SRCS = [
