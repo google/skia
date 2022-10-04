@@ -13,6 +13,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"

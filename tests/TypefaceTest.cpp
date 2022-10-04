@@ -10,7 +10,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
-#include "include/ports/SkTypeface_win.h"
 #include "include/private/SkFixed.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
@@ -27,6 +26,10 @@
 
 #include <algorithm>
 #include <memory>
+
+#if defined(SK_BUILD_FOR_WIN)
+#include "include/ports/SkTypeface_win.h"
+#endif
 
 static void TypefaceStyle_test(skiatest::Reporter* reporter,
                                uint16_t weight, uint16_t width, SkData* data)

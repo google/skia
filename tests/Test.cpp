@@ -7,11 +7,12 @@
 
 #include "tests/Test.h"
 
-#include <stdlib.h>
-
 #include "include/core/SkString.h"
 #include "include/core/SkTime.h"
 #include "tools/flags/CommandLineFlags.h"
+
+#include <cstdlib>
+#include <string>
 
 static DEFINE_string2(tmpDir, t, nullptr, "Temp directory to use.");
 

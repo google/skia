@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkM44.h"
+#include "include/core/SkPath.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMatrixPriv.h"
 #include "tests/Test.h"

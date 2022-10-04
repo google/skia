@@ -112,6 +112,12 @@ WARNINGS = [
     "-Wno-unused-member-function",
     "-Wno-weak-template-vtables",  # This was deprecated in Clang 14 and removed in Clang 15.
     "-Wno-weak-vtables",
+    # https://quuxplusone.github.io/blog/2020/08/26/wrange-loop-analysis/
+    # https://bugzilla.mozilla.org/show_bug.cgi?id=1683213
+    # https://reviews.llvm.org/D73007
+    # May be re-enabled once clang > 12 or XCode > 12 are required.
+    # When this line is removed the -Wrange-loop-construct line below can also be removed.
+    "-Wno-range-loop-analysis",
     # Wno-range-loop-analysis turns off the whole group, but this warning was later split into
     # range-loop-construct and range-loop-bind-reference. We want the former but not the latter.
     # Created from

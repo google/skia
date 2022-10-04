@@ -7,8 +7,11 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMesh.h"
+#include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkZip.h"
 #include "tests/Test.h"
+
+#include <tuple>
 
 using Attribute = SkMeshSpecification::Attribute;
 using Varying   = SkMeshSpecification::Varying;

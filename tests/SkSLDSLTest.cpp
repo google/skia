@@ -119,11 +119,6 @@ static bool whitespace_insensitive_compare(const char* a, const char* b) {
     }
 }
 
-// for use from SkSLDSLOnlyTest.cpp
-void StartDSL(const sk_gpu_test::ContextInfo ctxInfo) {
-    Start(ctxInfo.directContext()->priv().getGpu()->shaderCompiler());
-}
-
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLStartup, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
     Expression e1 = 1;

@@ -8,6 +8,8 @@
 #include "src/core/SkTBlockList.h"
 #include "tests/Test.h"
 
+#include <vector>
+
 namespace {
 struct C {
     C() : fID(-1) { ++gInstCnt; }

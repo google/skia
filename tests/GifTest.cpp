@@ -12,6 +12,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
+#include "include/core/SkUnPreMultiply.h"
 #include "tests/CodecPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"

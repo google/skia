@@ -1523,3 +1523,27 @@ void Dump(const SkDPoint& point) {
 void Dump(const SkOpAngle& angle) {
     angle.dump();
 }
+
+void SkOpSegment::debugAddAngle(double startT, double endT) {
+    SkOpPtT* startPtT = startT == 0 ? fHead.ptT() : startT == 1 ? fTail.ptT()
+            : this->addT(startT);
+    SkOpPtT* endPtT = endT == 0 ? fHead.ptT() : endT == 1 ? fTail.ptT()
+            : this->addT(endT);
+    SkOpAngle* angle = this->globalState()->allocator()->make<SkOpAngle>();
+    SkOpSpanBase* startSpan = &fHead;
+    while (startSpan->ptT() != startPtT) {
+        startSpan = startSpan->upCast()->next();
+    }
+    SkOpSpanBase* endSpan = &fHead;
+    while (endSpan->ptT() != endPtT) {
+        endSpan = endSpan->upCast()->next();
+    }
+    angle->set(startSpan, endSpan);
+    if (startT < endT) {
+        startSpan->upCast()->setToAngle(angle);
+        endSpan->setFromAngle(angle);
+    } else {
+        endSpan->upCast()->setToAngle(angle);
+        startSpan->setFromAngle(angle);
+    }
+}

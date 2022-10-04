@@ -5,7 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gm/gm.h"
+#include "tests/Test.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
@@ -14,7 +15,6 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/RuntimeBlendUtils.h"
 #include "tools/ToolUtils.h"

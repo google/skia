@@ -26,7 +26,6 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -35,7 +34,6 @@
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "src/image/SkImage_GpuBase.h"
 #include "src/image/SkSurface_Gpu.h"
 #include "tests/Test.h"
@@ -48,6 +46,11 @@
 #include <initializer_list>
 #include <memory>
 #include <utility>
+
+#ifdef SK_GL
+#include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#endif
 
 #ifdef SK_VULKAN
 #include "src/gpu/ganesh/vk/GrVkCaps.h"

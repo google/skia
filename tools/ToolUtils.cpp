@@ -23,7 +23,6 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
-#include "include/ports/SkTypeface_win.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkFloatingPoint.h"
 #include "src/core/SkFontPriv.h"
@@ -47,6 +46,10 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#endif
+
+#ifdef SK_BUILD_FOR_WIN
+#include "include/ports/SkTypeface_win.h"
 #endif
 
 namespace ToolUtils {

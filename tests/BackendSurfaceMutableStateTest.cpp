@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+
+#include "tests/Test.h"
+
+#ifdef SK_VULKAN
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -13,13 +17,10 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/image/SkImage_Base.h"
-#include "tests/Test.h"
-#include "tools/gpu/ProxyUtils.h"
-
-#ifdef SK_VULKAN
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
+#include "src/image/SkImage_Base.h"
+#include "tools/gpu/ProxyUtils.h"
 
 DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest,
                                    reporter,

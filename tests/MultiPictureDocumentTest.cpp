@@ -23,7 +23,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
-#include "src/gpu/ganesh/GrCaps.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tests/Test.h"
 #include "tools/SkSharingProc.h"

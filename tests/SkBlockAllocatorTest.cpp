@@ -9,6 +9,7 @@
 #include "tests/Test.h"
 
 #include <cstring>
+#include <vector>
 
 using Block = SkBlockAllocator::Block;
 using GrowthPolicy = SkBlockAllocator::GrowthPolicy;

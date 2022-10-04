@@ -8,8 +8,10 @@
 #ifndef CtsEnforcement_DEFINED
 #define CtsEnforcement_DEFINED
 
-#include <cstdint>
 #include "include/core/SkTypes.h"
+
+#include <climits>
+#include <cstdint>
 
 /**
  * Determines how unit tests are enforced by CTS. Depending on the ApiLevel, a test will be run

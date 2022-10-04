@@ -23,15 +23,11 @@
 #include "include/private/SkImageInfoPriv.h"
 
 #include <png.h>
+#include <webp/decode.h>
 
 #include <algorithm>
 #include <string>
 #include <vector>
-
-// FIXME: Update the Google3 build's dependencies so it can run this test.
-#ifndef SK_BUILD_FOR_GOOGLE3
-#include "webp/decode.h"
-#endif
 
 static bool encode(SkEncodedImageFormat format, SkWStream* dst, const SkPixmap& src) {
     switch (format) {

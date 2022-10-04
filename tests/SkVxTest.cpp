@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPoint.h"
 #include "include/private/SkVx.h"
 #include "include/utils/SkRandom.h"
 #include "tests/Test.h"
+
 #include <numeric>
 
 namespace skvx {

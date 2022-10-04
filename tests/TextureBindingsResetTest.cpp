@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "tests/Test.h"
+
+#ifdef SK_GL
+
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
@@ -12,9 +16,6 @@
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
-#include "tests/Test.h"
-
-#ifdef SK_GL
 
 DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
                                           reporter,

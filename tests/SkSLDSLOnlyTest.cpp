@@ -19,7 +19,7 @@ namespace sk_gpu_test { class ContextInfo; }
 
 using namespace SkSL::dsl;
 
-// Defined in SkSLDSLTest.cpp (so that we don't have to put the required extra includes here)
+// Defined in SkSLDSLUtil.cpp (so that we don't have to put the required extra includes here)
 void StartDSL(const sk_gpu_test::ContextInfo ctxInfo);
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLImportOnly, r, ctxInfo) {

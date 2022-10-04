@@ -12,6 +12,10 @@
 #include "src/core/SkBitmapProcState.h"
 #include "src/opts/SkBitmapProcState_opts.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <string>
+
 int highBits(uint32_t rv) {
     return (rv >> 18) & ((1 << 14) - 1);
 }

@@ -19,7 +19,7 @@
 #include <limits>
 #include <vector>
 
-DEFINE_bool(verboseFontMgr, false, "FontMgr will be very verbose.");
+DECLARE_bool(verboseFontMgr);
 
 DEF_TEST(FontMgr_Font, reporter) {
     SkFont font(nullptr, 24);
