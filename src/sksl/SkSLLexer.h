@@ -54,6 +54,7 @@ struct Token {
         TK_MEDIUMP,
         TK_LOWP,
         TK_ES3,
+        TK_EXPORT,
         TK_THREADGROUP,
         TK_RESERVED,
         TK_IDENTIFIER,

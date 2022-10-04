@@ -38,7 +38,8 @@ static bool check_modifiers(const Context& context,
     const int permitted = Modifiers::kInline_Flag |
                           Modifiers::kNoInline_Flag |
                           (context.fConfig->fIsBuiltinCode ? (Modifiers::kES3_Flag |
-                                                              Modifiers::kPure_Flag) : 0);
+                                                              Modifiers::kPure_Flag |
+                                                              Modifiers::kExport_Flag) : 0);
     modifiers.checkPermitted(context, pos, permitted, /*permittedLayoutFlags=*/0);
     if ((modifiers.fFlags & Modifiers::kInline_Flag) &&
         (modifiers.fFlags & Modifiers::kNoInline_Flag)) {

@@ -52,10 +52,11 @@ struct Modifiers {
         // We use the Metal name for this one (corresponds to the GLSL 'shared' modifier)
         kThreadgroup_Flag    = 1 << 12,
         // SkSL extensions, not present in GLSL
-        kES3_Flag            = 1 << 13,
-        kPure_Flag           = 1 << 14,
-        kInline_Flag         = 1 << 15,
-        kNoInline_Flag       = 1 << 16,
+        kExport_Flag         = 1 << 13,
+        kES3_Flag            = 1 << 14,
+        kPure_Flag           = 1 << 15,
+        kInline_Flag         = 1 << 16,
+        kNoInline_Flag       = 1 << 17,
     };
 
     Modifiers()
@@ -73,6 +74,9 @@ struct Modifiers {
     static std::string DescribeFlags(int flags) {
         // SkSL extensions
         std::string result;
+        if (flags & kExport_Flag) {
+            result += "$export ";
+        }
         if (flags & kES3_Flag) {
             result += "$es3 ";
         }
