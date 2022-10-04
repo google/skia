@@ -750,6 +750,7 @@ BASE_SRCS_ALL = [
     "src/gpu/Blend.cpp",
     "src/gpu/Blend.h",
     "src/gpu/BufferWriter.h",
+    "src/gpu/ClientMappedBufferManager.h",
     "src/gpu/GrAHardwareBufferUtils.h",
     "src/gpu/GrRectanizer.h",
     "src/gpu/KeyBuilder.h",
