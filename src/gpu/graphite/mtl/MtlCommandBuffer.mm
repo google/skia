@@ -24,10 +24,35 @@
 
 namespace skgpu::graphite {
 
-sk_sp<MtlCommandBuffer> MtlCommandBuffer::Make(id<MTLCommandQueue> queue,
-                                               const MtlSharedContext* sharedContext,
-                                               MtlResourceProvider* resourceProvider) {
-    sk_cfp<id<MTLCommandBuffer>> cmdBuffer;
+std::unique_ptr<MtlCommandBuffer> MtlCommandBuffer::Make(id<MTLCommandQueue> queue,
+                                                         const MtlSharedContext* sharedContext,
+                                                         MtlResourceProvider* resourceProvider) {
+    auto commandBuffer = std::unique_ptr<MtlCommandBuffer>(
+            new MtlCommandBuffer(queue, sharedContext, resourceProvider));
+    if (!commandBuffer) {
+        return nullptr;
+    }
+    if (!commandBuffer->createNewMTLCommandBuffer()) {
+        return nullptr;
+    }
+    return commandBuffer;
+}
+
+MtlCommandBuffer::MtlCommandBuffer(id<MTLCommandQueue> queue,
+                                   const MtlSharedContext* sharedContext,
+                                   MtlResourceProvider* resourceProvider)
+        : fQueue(queue)
+        , fSharedContext(sharedContext)
+        , fResourceProvider(resourceProvider) {}
+
+MtlCommandBuffer::~MtlCommandBuffer() {}
+
+bool MtlCommandBuffer::setNewCommandBufferResources() {
+    return this->createNewMTLCommandBuffer();
+}
+
+bool MtlCommandBuffer::createNewMTLCommandBuffer() {
+    SkASSERT(fCommandBuffer == nil);
     if (@available(macOS 11.0, iOS 14.0, tvOS 14.0, *)) {
         sk_cfp<MTLCommandBufferDescriptor*> desc([[MTLCommandBufferDescriptor alloc] init]);
         (*desc).retainedReferences = NO;
@@ -35,31 +60,13 @@ sk_sp<MtlCommandBuffer> MtlCommandBuffer::Make(id<MTLCommandQueue> queue,
         (*desc).errorOptions = MTLCommandBufferErrorOptionEncoderExecutionStatus;
 #endif
         // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
-        cmdBuffer.reset([[queue commandBufferWithDescriptor:desc.get()] retain]);
+        fCommandBuffer.reset([[fQueue commandBufferWithDescriptor:desc.get()] retain]);
     } else {
         // We add a retain here because the command buffer is set to autorelease (not alloc or copy)
-        cmdBuffer.reset([[queue commandBufferWithUnretainedReferences] retain]);
+        fCommandBuffer.reset([[fQueue commandBufferWithUnretainedReferences] retain]);
     }
-    if (cmdBuffer == nil) {
-        return nullptr;
-    }
-
-#ifdef SK_ENABLE_MTL_DEBUG_INFO
-     (*cmdBuffer).label = @"MtlCommandBuffer::Make";
-#endif
-
-    return sk_sp<MtlCommandBuffer>(
-            new MtlCommandBuffer(std::move(cmdBuffer), sharedContext, resourceProvider));
+    return fCommandBuffer != nil;
 }
-
-MtlCommandBuffer::MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer,
-                                   const MtlSharedContext* sharedContext,
-                                   MtlResourceProvider* resourceProvider)
-        : fCommandBuffer(std::move(cmdBuffer))
-        , fSharedContext(sharedContext)
-        , fResourceProvider(resourceProvider) {}
-
-MtlCommandBuffer::~MtlCommandBuffer() {}
 
 bool MtlCommandBuffer::commit() {
     SkASSERT(!fActiveRenderCommandEncoder);
@@ -80,6 +87,15 @@ bool MtlCommandBuffer::commit() {
     }
 
     return ((*fCommandBuffer).status != MTLCommandBufferStatusError);
+}
+
+void MtlCommandBuffer::onResetCommandBuffer() {
+    fCommandBuffer.reset();
+    fActiveRenderCommandEncoder.reset();
+    fActiveComputeCommandEncoder.reset();
+    fActiveBlitCommandEncoder.reset();
+    fCurrentIndexBuffer = nil;
+    fCurrentIndexBufferOffset = 0;
 }
 
 bool MtlCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,

@@ -19,7 +19,8 @@ class VulkanSharedContext;
 
 class VulkanCommandBuffer final : public CommandBuffer {
 public:
-    static sk_sp<VulkanCommandBuffer> Make(const VulkanSharedContext*, VulkanResourceProvider*);
+    static std::unique_ptr<VulkanCommandBuffer> Make(const VulkanSharedContext*,
+                                                     VulkanResourceProvider*);
     ~VulkanCommandBuffer() override;
 
 private:
@@ -27,6 +28,9 @@ private:
                         VkCommandBuffer primaryCommandBuffer,
                         const VulkanSharedContext* sharedContext,
                         VulkanResourceProvider* resourceProvider);
+
+    // TODO: Implement this
+    void onResetCommandBuffer() override {}
 
     // TODO: The virtuals in this class have not yet been implemented as we still haven't
     // implemented the objects they use.

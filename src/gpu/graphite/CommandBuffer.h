@@ -40,9 +40,9 @@ class Sampler;
 class Texture;
 class TextureProxy;
 
-class CommandBuffer : public SkRefCnt {
+class CommandBuffer {
 public:
-    ~CommandBuffer() override;
+    virtual ~CommandBuffer();
 
 #ifdef SK_DEBUG
     bool hasWork() { return fHasWork; }
@@ -50,7 +50,10 @@ public:
 
     void trackResource(sk_sp<Resource> resource);
     // Release all tracked Resources
-    void releaseResources();
+    void resetCommandBuffer();
+
+    // If any work is needed to create new resources for a fresh command buffer do that here.
+    virtual bool setNewCommandBufferResources() { return true; }
 
     void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);
     void callFinishedProcs(bool success);
@@ -91,6 +94,11 @@ protected:
     CommandBuffer();
 
 private:
+    // Release all tracked Resources
+    void releaseResources();
+
+    virtual void onResetCommandBuffer() = 0;
+
     virtual bool onAddRenderPass(const RenderPassDesc&,
                                  const Texture* colorTexture,
                                  const Texture* resolveTexture,

@@ -33,10 +33,12 @@ class MtlSharedContext;
 
 class MtlCommandBuffer final : public CommandBuffer {
 public:
-    static sk_sp<MtlCommandBuffer> Make(id<MTLCommandQueue>,
-                                        const MtlSharedContext*,
-                                        MtlResourceProvider*);
+    static std::unique_ptr<MtlCommandBuffer> Make(id<MTLCommandQueue>,
+                                                  const MtlSharedContext*,
+                                                  MtlResourceProvider*);
     ~MtlCommandBuffer() override;
+
+    bool setNewCommandBufferResources() override;
 
     bool isFinished() {
         return (*fCommandBuffer).status == MTLCommandBufferStatusCompleted ||
@@ -62,9 +64,13 @@ public:
 #endif
 
 private:
-    MtlCommandBuffer(sk_cfp<id<MTLCommandBuffer>> cmdBuffer,
+    MtlCommandBuffer(id<MTLCommandQueue>,
                      const MtlSharedContext* sharedContext,
                      MtlResourceProvider* resourceProvider);
+
+    bool createNewMTLCommandBuffer();
+
+    void onResetCommandBuffer() override;
 
     bool onAddRenderPass(const RenderPassDesc&,
                          const Texture* colorTexture,
@@ -150,6 +156,8 @@ private:
     id<MTLBuffer> fCurrentIndexBuffer;
     size_t fCurrentIndexBufferOffset = 0;
 
+    // The command buffer will outlive the MtlQueueManager which owns the MTLCommandQueue.
+    id<MTLCommandQueue> fQueue;
     const MtlSharedContext* fSharedContext;
     MtlResourceProvider* fResourceProvider;
 

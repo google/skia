@@ -30,6 +30,13 @@ void CommandBuffer::releaseResources() {
     fTrackedResources.reset();
 }
 
+void CommandBuffer::resetCommandBuffer() {
+    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+
+    this->releaseResources();
+    this->onResetCommandBuffer();
+}
+
 void CommandBuffer::trackResource(sk_sp<Resource> resource) {
     fTrackedResources.push_back(std::move(resource));
 }

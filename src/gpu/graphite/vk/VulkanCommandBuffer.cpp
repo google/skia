@@ -12,8 +12,9 @@
 
 namespace skgpu::graphite {
 
-sk_sp<VulkanCommandBuffer> VulkanCommandBuffer::Make(const VulkanSharedContext* sharedContext,
-                                                     VulkanResourceProvider* resourceProvider) {
+std::unique_ptr<VulkanCommandBuffer> VulkanCommandBuffer::Make(
+        const VulkanSharedContext* sharedContext,
+        VulkanResourceProvider* resourceProvider) {
     // Create VkCommandPool
     VkCommandPoolCreateFlags cmdPoolCreateFlags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
     if (sharedContext->isProtected() == Protected::kYes) {
@@ -54,10 +55,10 @@ sk_sp<VulkanCommandBuffer> VulkanCommandBuffer::Make(const VulkanSharedContext* 
         return nullptr;
     }
 
-    return sk_sp<VulkanCommandBuffer>(new VulkanCommandBuffer(pool,
-                                                              primaryCmdBuffer,
-                                                              sharedContext,
-                                                              resourceProvider));
+    return std::unique_ptr<VulkanCommandBuffer>(new VulkanCommandBuffer(pool,
+                                                                        primaryCmdBuffer,
+                                                                        sharedContext,
+                                                                        resourceProvider));
 }
 
 VulkanCommandBuffer::VulkanCommandBuffer(VkCommandPool pool,

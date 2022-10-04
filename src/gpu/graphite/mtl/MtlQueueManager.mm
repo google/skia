@@ -27,7 +27,8 @@ const MtlSharedContext* MtlQueueManager::mtlSharedContext() const {
     return static_cast<const MtlSharedContext*>(fSharedContext);
 }
 
-sk_sp<CommandBuffer> MtlQueueManager::getNewCommandBuffer(ResourceProvider* resourceProvider) {
+std::unique_ptr<CommandBuffer> MtlQueueManager::getNewCommandBuffer(
+        ResourceProvider* resourceProvider) {
     MtlResourceProvider* mtlResourceProvider = static_cast<MtlResourceProvider*>(resourceProvider);
     auto cmdBuffer = MtlCommandBuffer::Make(fQueue.get(),
                                             this->mtlSharedContext(),
@@ -42,8 +43,8 @@ sk_sp<CommandBuffer> MtlQueueManager::getNewCommandBuffer(ResourceProvider* reso
 
 class WorkSubmission final : public GpuWorkSubmission {
 public:
-    WorkSubmission(sk_sp<CommandBuffer> cmdBuffer)
-        : GpuWorkSubmission(std::move(cmdBuffer)) {}
+    WorkSubmission(std::unique_ptr<CommandBuffer> cmdBuffer, QueueManager* queueManager)
+        : GpuWorkSubmission(std::move(cmdBuffer), queueManager) {}
     ~WorkSubmission() override {}
 
     bool isFinished() override {
@@ -63,7 +64,7 @@ QueueManager::OutstandingSubmission MtlQueueManager::onSubmitToGpu() {
     }
 
     std::unique_ptr<GpuWorkSubmission> submission(
-            new WorkSubmission(std::move(fCurrentCommandBuffer)));
+            new WorkSubmission(std::move(fCurrentCommandBuffer), this));
     return submission;
 }
 
