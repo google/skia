@@ -11,6 +11,7 @@ SHARED_FILES = [
     "Blend.cpp",
     "Blend.h",
     "BufferWriter.h",
+    "ClientMappedBufferManager.h",
     "KeyBuilder.h",
     "Rectanizer.h",
     "RectanizerPow2.cpp",
