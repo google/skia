@@ -17,29 +17,24 @@
 #include <sstream>
 #include <string>
 
-std::string skstd::to_string(float value) {
-    return skstd::to_string((double)value);
-}
-
-std::string skstd::to_string(double value) {
+template <typename RoundtripType, int kFullPrecision>
+static std::string to_string_impl(RoundtripType value) {
     std::stringstream buffer;
     buffer.imbue(std::locale::classic());
     buffer.precision(7);
     buffer << value;
     std::string text = buffer.str();
 
-    float roundtripped;
+    double roundtripped;
     buffer >> roundtripped;
-    if (roundtripped != (float)value) {
+    if (value != (RoundtripType)roundtripped) {
         buffer.str({});
         buffer.clear();
-        buffer.precision(9);
+        buffer.precision(kFullPrecision);
         buffer << value;
         text = buffer.str();
-        // TODO(johnstiles): on older versions of libc++, FLT_MAX will fill the buffer with the
-        // correct value, but reading back into `roundtripped` gives INF. Disable the assertion
-        // until we figure out a better way to check this.
-        //SkASSERTF((buffer >> roundtripped, roundtripped == (float)value), "%.17g", value);
+        SkASSERTF((buffer >> roundtripped, value == (RoundtripType)roundtripped),
+                  "%.17g -> %s -> %.17g", value, text.c_str(), roundtripped);
     }
 
     // We need to emit a decimal point to distinguish floats from ints.
@@ -48,6 +43,14 @@ std::string skstd::to_string(double value) {
     }
 
     return text;
+}
+
+std::string skstd::to_string(float value) {
+    return to_string_impl<float, 9>(value);
+}
+
+std::string skstd::to_string(double value) {
+    return to_string_impl<double, 17>(value);
 }
 
 bool SkSL::stod(std::string_view s, SKSL_FLOAT* value) {
