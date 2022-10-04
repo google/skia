@@ -684,10 +684,8 @@ protected:
                                         const void* data,
                                         size_t length);
 
-    // If the surface is a texture this marks its mipmaps as dirty.
-    void didWriteToSurface(GrSurface* surface,
-                           GrSurfaceOrigin origin,
-                           const SkIRect* bounds,
+    // Handles cases where a surface will be updated without a call to flushRenderTarget.
+    void didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
                            uint32_t mipLevels = 1) const;
 
     void setOOMed() { fOOMed = true; }

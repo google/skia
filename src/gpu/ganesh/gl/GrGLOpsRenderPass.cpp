@@ -186,7 +186,6 @@ void GrGLOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
         baseVertex = 0;
     }
     GL_CALL(DrawArrays(glPrimType, baseVertex, vertexCount));
-    fGpu->didDrawTo(fRenderTarget);
 }
 
 void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t minIndexValue,
@@ -212,7 +211,6 @@ void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t mi
         GL_CALL(DrawElements(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT,
                              this->offsetForBaseIndex(baseIndex)));
     }
-    fGpu->didDrawTo(fRenderTarget);
 }
 
 void GrGLOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, int vertexCount,
@@ -237,7 +235,6 @@ void GrGLOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, int
             GL_CALL(DrawArraysInstanced(glPrimType, baseVertex, vertexCount, instanceCountForDraw));
         }
     }
-    fGpu->didDrawTo(fRenderTarget);
 }
 
 void GrGLOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, int instanceCount,
@@ -261,7 +258,6 @@ void GrGLOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, in
                                         this->offsetForBaseIndex(baseIndex), instanceCountForDraw));
         }
     }
-    fGpu->didDrawTo(fRenderTarget);
 }
 
 static const void* buffer_offset_to_gl_address(const GrBuffer* drawIndirectBuffer, size_t offset) {
@@ -308,7 +304,6 @@ void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
                                    buffer_offset_to_gl_address(drawIndirectBuffer, offset)));
         offset += sizeof(GrDrawIndirectCommand);
     }
-    fGpu->didDrawTo(fRenderTarget);
 }
 
 void GrGLOpsRenderPass::multiDrawArraysANGLEOrWebGL(const GrBuffer* drawIndirectBuffer,
@@ -346,7 +341,6 @@ void GrGLOpsRenderPass::multiDrawArraysANGLEOrWebGL(const GrBuffer* drawIndirect
         drawCount -= countInBatch;
         cmds += countInBatch;
     }
-    fGpu->didDrawTo(fRenderTarget);
 }
 
 void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer, size_t offset,
@@ -382,7 +376,6 @@ void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer
                                      buffer_offset_to_gl_address(drawIndirectBuffer, offset)));
         offset += sizeof(GrDrawIndexedIndirectCommand);
     }
-    fGpu->didDrawTo(fRenderTarget);
 }
 
 void GrGLOpsRenderPass::multiDrawElementsANGLEOrWebGL(const GrBuffer* drawIndirectBuffer,
@@ -426,7 +419,6 @@ void GrGLOpsRenderPass::multiDrawElementsANGLEOrWebGL(const GrBuffer* drawIndire
         drawCount -= countInBatch;
         cmds += countInBatch;
     }
-    fGpu->didDrawTo(fRenderTarget);
 }
 
 void GrGLOpsRenderPass::onClear(const GrScissorState& scissor, std::array<float, 4> color) {

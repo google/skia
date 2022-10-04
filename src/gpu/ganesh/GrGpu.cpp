@@ -663,7 +663,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
                               uint32_t mipLevels) const {
     SkASSERT(surface);
     SkASSERT(!surface->readOnly());
-    // Mark any MIP chain as dirty if and only if there is a non-empty bounds.
+    // Mark any MIP chain and resolve buffer as dirty if and only if there is a non-empty bounds.
     if (nullptr == bounds || !bounds->isEmpty()) {
         GrTexture* texture = surface->asTexture();
         if (texture) {
