@@ -180,6 +180,7 @@ GLOBIGNORE+="tests/CodecTest.cpp:"\
 "tests/EncodeTest.cpp:"\
 "tests/FontMgrAndroidParserTest.cpp:"\
 "tests/FontMgrFontConfigTest.cpp:"\
+"tests/FCITest.cpp:"\
 "tests/TypefaceMacTest.cpp:"\
 "tests/SkVMTest.cpp:"
 

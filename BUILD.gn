@@ -468,6 +468,7 @@ optional("fontmgr_FontConfigInterface") {
     "src/ports/SkFontConfigTypeface.h",
     "src/ports/SkFontMgr_FontConfigInterface.cpp",
   ]
+  sources_for_tests = [ "tests/FCITest.cpp" ]
 }
 optional("fontmgr_FontConfigInterface_factory") {
   enabled = skia_enable_fontmgr_FontConfigInterface
