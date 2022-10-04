@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef TextureOp_DEFINED
-#define TextureOp_DEFINED
+#ifndef skgpu_ganesh_TextureOp_DEFINED
+#define skgpu_ganesh_TextureOp_DEFINED
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
@@ -88,4 +88,4 @@ private:
 
 } // namespace skgpu::ganesh
 
-#endif  // TextureOp_DEFINED
+#endif  // skgpu_ganesh_TextureOp_DEFINED

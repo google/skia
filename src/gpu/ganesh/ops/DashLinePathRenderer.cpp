@@ -14,9 +14,10 @@
 #include "src/gpu/ganesh/ops/DashOp.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 
-namespace skgpu::v1 {
+namespace skgpu::ganesh {
 
-PathRenderer::CanDrawPath DashLinePathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
+skgpu::v1::PathRenderer::CanDrawPath DashLinePathRenderer::onCanDrawPath(
+        const CanDrawPathArgs& args) const {
     SkPoint pts[2];
     bool inverted;
     if (args.fShape->style().isDashed() && args.fShape->asLine(pts, &inverted)) {
@@ -59,4 +60,4 @@ bool DashLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
     return true;
 }
 
-} // namespace skgpu::v1
+} // namespace skgpu::ganesh

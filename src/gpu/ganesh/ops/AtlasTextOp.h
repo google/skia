@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef AtlasTextOp_DEFINED
-#define AtlasTextOp_DEFINED
+#ifndef skgpu_ganesh_AtlasTextOp_DEFINED
+#define skgpu_ganesh_AtlasTextOp_DEFINED
 
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
@@ -249,4 +249,4 @@ private:
 
 } // namespace skgpu::ganesh
 
-#endif // AtlasTextOp_DEFINED
+#endif // skgpu_ganesh_AtlasTextOp_DEFINED

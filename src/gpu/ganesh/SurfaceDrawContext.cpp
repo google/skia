@@ -689,8 +689,8 @@ void SurfaceDrawContext::drawRect(const GrClip* clip,
                            stroke.getJoin() == SkPaint::kMiter_Join &&
                            stroke.getMiter() >= SK_ScalarSqrt2) ? GrAAType::kCoverage
                                                                 : this->chooseAAType(aa);
-        GrOp::Owner op = StrokeRectOp::Make(fContext, std::move(paint), aaType, viewMatrix,
-                                            rect, stroke);
+        GrOp::Owner op = ganesh::StrokeRectOp::Make(fContext, std::move(paint), aaType, viewMatrix,
+                                                    rect, stroke);
         // op may be null if the stroke is not supported or if using coverage aa and the view matrix
         // does not preserve rectangles.
         if (op) {
@@ -1760,8 +1760,8 @@ bool SurfaceDrawContext::drawSimpleShape(const GrClip* clip,
             SkRect rects[2];
             if (shape.asNestedRects(rects)) {
                 // Concave AA paths are expensive - try to avoid them for special cases
-                GrOp::Owner op = StrokeRectOp::MakeNested(fContext, std::move(*paint),
-                                                          viewMatrix, rects);
+                GrOp::Owner op = ganesh::StrokeRectOp::MakeNested(fContext, std::move(*paint),
+                                                                  viewMatrix, rects);
                 if (op) {
                     this->addDrawOp(clip, std::move(op));
                     return true;

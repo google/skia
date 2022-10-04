@@ -31,7 +31,7 @@ namespace skgpu::v1 {
 PathRendererChain::PathRendererChain(GrRecordingContext* context, const Options& options) {
     const GrCaps& caps = *context->priv().caps();
     if (options.fGpuPathRenderers & GpuPathRenderers::kDashLine) {
-        fChain.push_back(sk_make_sp<DashLinePathRenderer>());
+        fChain.push_back(sk_make_sp<ganesh::DashLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<AAConvexPathRenderer>());
