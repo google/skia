@@ -4,160 +4,113 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "imgui.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
 #include "include/effects/SkGradientShader.h"
 #include "samplecode/Sample.h"
 
-static sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
-    SkColor colors[] = { c0, c1 };
-    SkPoint pts[] = { { r.fLeft, r.fTop }, { r.fRight, r.fTop } };
-    return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kClamp);
-}
-
-static void test_alphagradients(SkCanvas* canvas) {
-    SkRect r;
-    r.setLTRB(10, 10, 410, 30);
-    SkPaint p, p2;
-    p2.setStyle(SkPaint::kStroke_Style);
-
-    p.setShader(setgrad(r, 0xFF00FF00, 0x0000FF00));
-    canvas->drawRect(r, p);
-    canvas->drawRect(r, p2);
-
-    r.offset(0, r.height() + SkIntToScalar(4));
-    p.setShader(setgrad(r, 0xFF00FF00, 0x00000000));
-    canvas->drawRect(r, p);
-    canvas->drawRect(r, p2);
-
-    r.offset(0, r.height() + SkIntToScalar(4));
-    p.setShader(setgrad(r, 0xFF00FF00, 0x00FF0000));
-    canvas->drawRect(r, p);
-    canvas->drawRect(r, p2);
-}
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////
 
-struct GradData {
-    int             fCount;
-    const SkColor*  fColors;
-    const SkScalar* fPos;
-};
-
-static const SkColor gColors[] = {
-    SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorWHITE, SK_ColorBLACK
-};
-static const SkScalar gPos0[] = { 0, SK_Scalar1 };
-static const SkScalar gPos1[] = { SK_Scalar1/4, SK_Scalar1*3/4 };
-static const SkScalar gPos2[] = {
-    0, SK_Scalar1/8, SK_Scalar1/2, SK_Scalar1*7/8, SK_Scalar1
-};
-
-static const GradData gGradData[] = {
-    { 2, gColors, nullptr },
-    { 2, gColors, gPos0 },
-    { 2, gColors, gPos1 },
-    { 5, gColors, nullptr },
-    { 5, gColors, gPos2 }
-};
-
-static sk_sp<SkShader> MakeLinear(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
-    return SkGradientShader::MakeLinear(pts, data.fColors, data.fPos, data.fCount, tm);
-}
-
-static sk_sp<SkShader> MakeRadial(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
-    SkPoint center;
-    center.set(SkScalarAve(pts[0].fX, pts[1].fX),
-               SkScalarAve(pts[0].fY, pts[1].fY));
-    return SkGradientShader::MakeRadial(center, center.fX, data.fColors,
-                                        data.fPos, data.fCount, tm);
-}
-
-static sk_sp<SkShader> MakeSweep(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
-    SkPoint center;
-    center.set(SkScalarAve(pts[0].fX, pts[1].fX),
-               SkScalarAve(pts[0].fY, pts[1].fY));
-    return SkGradientShader::MakeSweep(center.fX, center.fY, data.fColors, data.fPos, data.fCount);
-}
-
-static sk_sp<SkShader> Make2Conical(const SkPoint pts[2], const GradData& data, SkTileMode tm) {
-    SkPoint center0, center1;
-    center0.set(SkScalarAve(pts[0].fX, pts[1].fX),
-                SkScalarAve(pts[0].fY, pts[1].fY));
-    center1.set(SkScalarInterp(pts[0].fX, pts[1].fX, SkIntToScalar(3)/5),
-                SkScalarInterp(pts[0].fY, pts[1].fY, SkIntToScalar(1)/4));
-    return SkGradientShader::MakeTwoPointConical(
-                            center1, (pts[1].fX - pts[0].fX) / 7,
-                            center0, (pts[1].fX - pts[0].fX) / 2,
-                            data.fColors, data.fPos, data.fCount, tm);
-}
-
-static sk_sp<SkShader> Make2ConicalConcentric(const SkPoint pts[2], const GradData& data,
-                                       SkTileMode tm) {
-    SkPoint center;
-    center.set(SkScalarAve(pts[0].fX, pts[1].fX),
-               SkScalarAve(pts[0].fY, pts[1].fY));
-    return SkGradientShader::MakeTwoPointConical(
-                            center, (pts[1].fX - pts[0].fX) / 7,
-                            center, (pts[1].fX - pts[0].fX) / 2,
-                            data.fColors, data.fPos, data.fCount, tm);
-}
-
-typedef sk_sp<SkShader> (*GradMaker)(const SkPoint pts[2], const GradData& data, SkTileMode tm);
-
-static const GradMaker gGradMakers[] = {
-    MakeLinear, MakeRadial, MakeSweep, Make2Conical, Make2ConicalConcentric
-};
-
-///////////////////////////////////////////////////////////////////////////////
-
-class GradientsView : public Sample {
+class GradientsSample : public Sample {
 public:
-    GradientsView() {
-        this->setBGColor(0xFFDDDDDD);
+    GradientsSample() {
+        this->setBGColor(SK_ColorGRAY);
+        fColors.push_back(SkColors::kBlue);
+        fColors.push_back(SkColors::kYellow);
     }
 
 protected:
     SkString name() override { return SkString("Gradients"); }
 
+    void drawUI() {
+        ImGui::Begin("Gradient");
+
+        ImGui::Checkbox("Dither", &fDither);
+
+        bool premul = static_cast<bool>(fInterpolation.fInPremul);
+        ImGui::Checkbox("Premul", &premul);
+        fInterpolation.fInPremul = static_cast<SkGradientShader::Interpolation::InPremul>(premul);
+
+        int hm = static_cast<int>(fInterpolation.fHueMethod);
+        ImGui::Combo("Hue Method", &hm, "Shorter\0Longer\0Increasing\0Decreasing\0\0");
+        fInterpolation.fHueMethod = static_cast<SkGradientShader::Interpolation::HueMethod>(hm);
+
+        int removeIdx = -1;
+        for (int i = 0; i < (int)fColors.size(); ++i) {
+            ImGui::PushID(i);
+            if (ImGui::Button("X")) {
+                removeIdx = i;
+            }
+            ImGui::SameLine();
+            ImGui::ColorEdit4("##Color", fColors[i].vec());
+            ImGui::PopID();
+        }
+        if (removeIdx >= 0 && fColors.size() > 2) {
+            fColors.erase(fColors.begin() + removeIdx);
+        }
+
+        if (ImGui::Button("+")) {
+            fColors.push_back(SkColors::kBlack);
+        }
+
+        ImGui::End();
+    }
     void onDrawContent(SkCanvas* canvas) override {
-        SkPoint pts[2] = {
-            { 0, 0 },
-            { SkIntToScalar(100), SkIntToScalar(100) }
-        };
-        SkRect r = { 0, 0, SkIntToScalar(100), SkIntToScalar(100) };
+        this->drawUI();
+
+        SkPoint pts[2] = {{0, 0}, {256, 0}};
+        SkRect r = {0, 0, 256, 32};
+        SkPaint labelPaint;
         SkPaint paint;
-        paint.setDither(true);
+        paint.setDither(fDither);
 
         canvas->save();
-        canvas->translate(SkIntToScalar(20), SkIntToScalar(10));
+        canvas->translate(10, 10);
 
-        for (int tm = 0; tm < kSkTileModeCount; ++tm) {
-            canvas->save();
-            for (size_t i = 0; i < std::size(gGradData); i++) {
-                canvas->save();
-                for (size_t j = 0; j < std::size(gGradMakers); j++) {
-                    paint.setShader(gGradMakers[j](pts, gGradData[i], (SkTileMode)tm));
-                    canvas->drawRect(r, paint);
-                    canvas->translate(0, SkIntToScalar(120));
-                }
-                canvas->restore();
-                canvas->translate(SkIntToScalar(120), 0);
-            }
-            canvas->restore();
-            canvas->translate(std::size(gGradData)*SkIntToScalar(120), 0);
+        using CS = SkGradientShader::Interpolation::ColorSpace;
+        struct Config {
+            CS fColorSpace;
+            const char* fLabel;
+        };
+        static const Config kConfigs[] = {
+            { CS::kDestination, "Destination" },
+            { CS::kSRGB,        "sRGB" },
+            { CS::kSRGBLinear,  "Linear sRGB" },
+            { CS::kXYZD65,      "XYZD65" },
+            { CS::kXYZD50,      "XYZD50" },
+            { CS::kLab,         "CIELAB" },
+            { CS::kOKLab,       "Oklab" },
+            { CS::kLCH,         "LCH" },
+            { CS::kOKLCH,       "Oklch" },
+            { CS::kHSL,         "HSL" },
+            { CS::kHWB,         "HWB" },
+        };
+
+        for (const Config& config : kConfigs) {
+            fInterpolation.fColorSpace = config.fColorSpace;
+
+            paint.setShader(SkGradientShader::MakeLinear(pts, fColors.data(),
+                                                         SkColorSpace::MakeSRGB(), nullptr,
+                                                         (int)fColors.size(), SkTileMode::kClamp,
+                                                         fInterpolation, nullptr));
+            canvas->drawRect(r, paint);
+            canvas->drawSimpleText(config.fLabel, strlen(config.fLabel), SkTextEncoding::kUTF8,
+                                   266, 20, SkFont{}, labelPaint);
+            canvas->translate(0, 42);
         }
         canvas->restore();
-
-        canvas->translate(0, SkIntToScalar(370));
-        if ((false)) { // avoid bit rot, suppress warning
-            test_alphagradients(canvas);
-        }
     }
 
 private:
-    using INHERITED = Sample;
+    std::vector<SkColor4f> fColors;
+    SkGradientShader::Interpolation fInterpolation;
+    bool fDither = false;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new GradientsView(); )
+DEF_SAMPLE( return new GradientsSample(); )

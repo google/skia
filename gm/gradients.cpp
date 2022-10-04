@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
@@ -1077,5 +1078,48 @@ DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
             }
         }
         canvas->translate(0, size * 1.1f);
+    }
+}
+
+// TODO(skia:13108): Still need to test:
+//   Hue modes
+//   Varying number of stops
+//   Tilemodes (eg, border handling, decal)
+DEF_SIMPLE_GM_BG(gradients_color_space, canvas, 110, 155, SK_ColorGRAY) {
+    using CS = SkGradientShader::Interpolation::ColorSpace;
+
+    struct Config {
+        CS fColorSpace;
+        const char* fLabel;
+    };
+    static const Config kConfigs[] = {
+        { CS::kSRGB,       "sRGB" },
+        { CS::kXYZD65,     "XYZD65" },
+        { CS::kXYZD50,     "XYZD50" },
+        { CS::kSRGBLinear, "sRGB Linear" },
+        { CS::kLab,        "Lab" },
+        { CS::kOKLab,      "OKLab" },
+        { CS::kLCH,        "LCH" },
+        { CS::kOKLCH,      "OKLCH" },
+        { CS::kHSL,        "HSL" },
+        { CS::kHWB,        "HWB" },
+    };
+
+    SkPoint pts[] = {{0, 0}, {200, 0}};
+    SkColor4f colors[] = {SkColors::kBlue, SkColors::kYellow};
+
+    SkPaint labelPaint;
+    SkPaint p;
+    SkGradientShader::Interpolation interpolation;
+    canvas->translate(5, 5);
+
+    for (const Config& config : kConfigs) {
+        interpolation.fColorSpace = config.fColorSpace;
+        p.setShader(SkGradientShader::MakeLinear(pts, colors, SkColorSpace::MakeSRGB(), nullptr, 2,
+                                                 SkTileMode::kClamp, interpolation, nullptr));
+        canvas->drawRect({0, 0, 200, 20}, p);
+        canvas->drawSimpleText(config.fLabel, strlen(config.fLabel), SkTextEncoding::kUTF8, 210, 15,
+                               SkFont{}, labelPaint);
+        canvas->translate(0, 25);
     }
 }
