@@ -264,6 +264,7 @@ def compile_fn(api, checkout_root, out_dir):
       'skia_use_libwebp_decode':       'false',
       'skia_use_libwebp_encode':       'false',
       'skia_use_vulkan':               'false',
+      'skia_use_wuffs':                'false',
       'skia_use_zlib':                 'false',
     })
   if 'Shared' in extra_tokens:

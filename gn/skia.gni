@@ -37,7 +37,6 @@ declare_args() {
   skia_generate_workarounds = false
   skia_include_multiframe_procs = false
   skia_lex = false
-  skia_libgifcodec_path = "third_party/externals/libgifcodec"
   skia_tools_require_resources = false
   skia_update_fuchsia_sdk = false
   skia_use_angle = false
@@ -71,7 +70,7 @@ declare_args() {
   skia_use_sfml = false
   skia_use_webgl = is_wasm
   skia_use_webgpu = is_wasm
-  skia_use_wuffs = is_wasm
+  skia_use_wuffs = true
   skia_use_x11 = is_linux
   skia_use_xps = true
   skia_enable_graphite = false
@@ -132,7 +131,6 @@ declare_args() {
   skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
   skia_use_dng_sdk =
       !is_fuchsia && !is_wasm && skia_use_libjpeg_turbo_decode && skia_use_zlib
-  skia_use_libgifcodec = !skia_use_wuffs
   skia_use_sfntly = skia_use_icu
   skia_enable_vulkan_debug_layers = skia_enable_gpu_debug_layers
   skia_enable_direct3d_debug_layer = skia_enable_gpu_debug_layers
