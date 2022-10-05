@@ -482,7 +482,9 @@ bool Parser::functionDeclarationEnd(Position start,
     if (hasFunctionBody) {
         AutoSymbolTable symbols;
         for (DSLParameter* var : parameterPointers) {
-            AddToSymbolTable(*var);
+            if (!var->name().empty()) {
+                AddToSymbolTable(*var);
+            }
         }
         Token bodyStart = this->peek();
         std::optional<DSLBlock> body = this->block();
@@ -801,8 +803,6 @@ std::optional<DSLParameter> Parser::parameter(size_t paramIndex) {
         paramText = this->text(name);
         paramPos = this->position(name);
     } else {
-        std::string anonymousName = String::printf("_skAnonymousParam%zu", paramIndex);
-        paramText = *CurrentSymbolTable()->takeOwnershipOfString(std::move(anonymousName));
         paramPos = this->rangeFrom(pos);
     }
     if (!this->parseArrayDimensions(pos, &type)) {

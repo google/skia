@@ -17,6 +17,7 @@
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLFunctionPrototype.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -122,15 +123,8 @@ void Transform::RenamePrivateSymbols(Context& context, LoadedModule& module, Pro
             }
         }
 
-
-        bool visitProgramElement(ProgramElement& elem) override {
-            if (!elem.is<FunctionDefinition>()) {
-                // This transform only looks at function definitions.
-                return false;
-            }
-
+        void minifyFunction(FunctionDefinition& def) {
             // If the function is private, minify its name.
-            const FunctionDefinition& def = elem.as<FunctionDefinition>();
             const FunctionDeclaration* funcDecl = &def.declaration();
             if (skstd::starts_with(def.declaration().name(), '$') &&
                 !(funcDecl->modifiers().fFlags & Modifiers::kExport_Flag)) {
@@ -140,11 +134,39 @@ void Transform::RenamePrivateSymbols(Context& context, LoadedModule& module, Pro
             // Minify the names of each function parameter.
             Analysis::SymbolTableStackBuilder symbolTableStackBuilder(def.body().get(),
                                                                       &fSymbolTableStack);
-            for (const Variable* param : funcDecl->parameters()) {
+            for (Variable* param : funcDecl->parameters()) {
                 this->minifyVariableName(param);
             }
+        }
 
-            return INHERITED::visitProgramElement(elem);
+        void minifyPrototype(FunctionPrototype& proto) {
+            const FunctionDeclaration* funcDecl = &proto.declaration();
+            if (funcDecl->definition()) {
+                // This function is defined somewhere; this isn't just a loose prototype.
+                return;
+            }
+
+            // Eliminate the names of each function parameter.
+            // The parameter names aren't in the symbol table's name lookup map at all.
+            // All we need to do is blank out their names.
+            for (Variable* param : funcDecl->parameters()) {
+                param->setName("");
+            }
+        }
+
+        bool visitProgramElement(ProgramElement& elem) override {
+            switch (elem.kind()) {
+                case ProgramElement::Kind::kFunction:
+                    this->minifyFunction(elem.as<FunctionDefinition>());
+                    return INHERITED::visitProgramElement(elem);
+
+               case ProgramElement::Kind::kFunctionPrototype:
+                   this->minifyPrototype(elem.as<FunctionPrototype>());
+                    return INHERITED::visitProgramElement(elem);
+
+                default:
+                    return false;
+            }
         }
 
         bool visitStatementPtr(std::unique_ptr<Statement>& stmt) override {

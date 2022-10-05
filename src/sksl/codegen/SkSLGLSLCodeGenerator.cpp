@@ -64,6 +64,7 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/spirv.h"
 
+#include <cstddef>
 #include <memory>
 #include <vector>
 
@@ -1108,7 +1109,9 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     this->writeIdentifier(f.mangledName());
     this->write("(");
     const char* separator = "";
-    for (const auto& param : f.parameters()) {
+    for (size_t index = 0; index < f.parameters().size(); ++index) {
+        const Variable* param = f.parameters()[index];
+
         // This is a workaround for our test files. They use the runtime effect signature, so main
         // takes a coords parameter. The IR generator tags those with a builtin ID (sk_FragCoord),
         // and we omit them from the declaration here, so the function is valid GLSL.
@@ -1127,7 +1130,15 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         this->writeTypePrecision(*type);
         this->writeType(*type);
         this->write(" ");
-        this->writeIdentifier(param->mangledName());
+        if (!param->name().empty()) {
+            this->writeIdentifier(param->mangledName());
+        } else {
+            // By the spec, GLSL does not require function parameters to be named (see
+            // `single_declaration` in the Shading Language Grammar), but some older versions of
+            // GLSL report "formal parameter lacks a name" if a parameter is not named.
+            this->write("_skAnonymousParam");
+            this->write(std::to_string(index));
+        }
         for (int s : sizes) {
             this->write("[" + std::to_string(s) + "]");
         }

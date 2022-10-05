@@ -24,7 +24,11 @@ duplicate definition of 'half2 sin(half2 a)'
 duplicate definition of 'float3 sin(float3 a)'
 modifiers on parameter 1 differ between declaration and definition
 duplicate definition of 'half cos(half2 a)'
-functions 'float2 cos(half2 a)' and '$pure $genHType cos($genHType angle)' differ only in return type
-functions 'int cos(out half3 a)' and '$pure $genHType cos($genHType angle)' differ only in return type
+functions 'float2 cos(half2 a)' and '$pure $genHType cos($genHType
+functions 'int cos(out half3 a)' and '$pure $genHType cos($genHType
 duplicate definition of 'float pow(float x, float y)'
 *%%*/
+
+// The `cos` errors are truncated early because the message differs between debug builds
+// (which retain the parameter names on intrinsic functions) and release builds (which
+// strip off the parameter names to save space).
