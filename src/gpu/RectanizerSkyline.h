@@ -27,11 +27,8 @@ public:
 
     void reset() final {
         fAreaSoFar = 0;
-        fSkyline.reset();
-        SkylineSegment* seg = fSkyline.append(1);
-        seg->fX = 0;
-        seg->fY = 0;
-        seg->fWidth = this->width();
+        fSkyline.clear();
+        fSkyline.push_back(SkylineSegment{0, 0, this->width()});
     }
 
     bool addRect(int w, int h, SkIPoint16* loc) final;
