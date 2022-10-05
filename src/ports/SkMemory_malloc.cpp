@@ -69,9 +69,7 @@ void* sk_realloc_throw(void* addr, size_t size) {
 }
 
 void sk_free(void* p) {
-    if (p) {
-        free(p);
-    }
+    free(p);
 }
 
 void* sk_malloc_flags(size_t size, unsigned flags) {
