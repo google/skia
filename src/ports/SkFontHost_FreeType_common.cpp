@@ -2052,6 +2052,10 @@ bool SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face, SkPath* path
     }
     if (face->glyph->outline.flags & FT_OUTLINE_OVERLAP) {
         Simplify(*path, path);
+        // Simplify will return an even-odd path.
+        // A stroke+fill (for fake bold) may be incorrect for even-odd.
+        // https://github.com/flutter/flutter/issues/112546
+        AsWinding(*path, path);
     }
     return true;
 }
