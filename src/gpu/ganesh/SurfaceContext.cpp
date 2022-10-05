@@ -708,10 +708,15 @@ private:
 
         size_t rowBytes() const { return fRowBytes; }
 
+        using sk_is_trivially_relocatable = std::true_type;
+
     private:
         sk_sp<SkData> fData;
         sk_sp<GrGpuBuffer> fMappedBuffer;
         size_t fRowBytes;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fData)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fMappedBuffer)>::value);
     };
     SkSTArray<3, Plane> fPlanes;
     GrDirectContext::DirectContextID fIntendedRecipient;

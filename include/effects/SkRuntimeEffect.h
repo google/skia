@@ -192,8 +192,12 @@ public:
         SkBlender* blender() const;
         SkFlattenable* flattenable() const { return fChild.get(); }
 
+        using sk_is_trivially_relocatable = std::true_type;
+
     private:
         sk_sp<SkFlattenable> fChild;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fChild)>::value);
     };
 
     sk_sp<SkShader> makeShader(sk_sp<const SkData> uniforms,

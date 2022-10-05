@@ -146,6 +146,10 @@ private:
     struct BufferBlock {
         size_t fBytesFree;
         sk_sp<GrBuffer> fBuffer;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fBuffer)>::value);
+
+        using sk_is_trivially_relocatable = std::true_type;
     };
 
     bool createBlock(size_t requestSize);

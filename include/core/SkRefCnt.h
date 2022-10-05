@@ -337,6 +337,8 @@ public:
         swap(fPtr, that.fPtr);
     }
 
+    using sk_is_trivially_relocatable = std::true_type;
+
 private:
     T*  fPtr;
 };
@@ -388,8 +390,5 @@ template <typename T> sk_sp<T> sk_ref_sp(T* obj) {
 template <typename T> sk_sp<T> sk_ref_sp(const T* obj) {
     return sk_sp<T>(const_cast<T*>(SkSafeRef(obj)));
 }
-
-template <typename T>
-struct sk_is_trivially_relocatable<sk_sp<T>> : std::true_type {};
 
 #endif

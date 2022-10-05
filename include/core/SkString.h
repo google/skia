@@ -235,6 +235,8 @@ public:
      */
     void swap(SkString& other);
 
+    using sk_is_trivially_relocatable = std::true_type;
+
 private:
     struct Rec {
     public:
@@ -258,6 +260,8 @@ private:
         void operator delete(void* p) { ::operator delete(p); }
     };
     sk_sp<Rec> fRec;
+
+    static_assert(::sk_is_trivially_relocatable<decltype(fRec)>::value);
 
 #ifdef SK_DEBUG
     const SkString& validate() const;

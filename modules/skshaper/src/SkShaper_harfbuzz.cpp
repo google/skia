@@ -525,6 +525,14 @@ struct ShapedRun {
     std::unique_ptr<ShapedGlyph[]> fGlyphs;
     size_t fNumGlyphs;
     SkVector fAdvance;
+
+    static_assert(::sk_is_trivially_relocatable<decltype(fUtf8Range)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fFont)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fLevel)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fGlyphs)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fAdvance)>::value);
+
+    using sk_is_trivially_relocatable = std::true_type;
 };
 struct ShapedLine {
     SkTArray<ShapedRun> runs;

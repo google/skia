@@ -59,6 +59,8 @@ public:
     static constexpr Swizzle RRRA() { return Swizzle("rrra"); }
     static constexpr Swizzle RGB1() { return Swizzle("rgb1"); }
 
+    using sk_is_trivially_relocatable = std::true_type;
+
 private:
     explicit constexpr Swizzle(uint16_t key) : fKey(key) {}
 
@@ -67,6 +69,8 @@ private:
     static constexpr char IToC(int idx);
 
     uint16_t fKey;
+
+    static_assert(::sk_is_trivially_relocatable<decltype(fKey)>::value);
 };
 
 constexpr Swizzle::Swizzle(const char c[4])

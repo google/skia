@@ -38,6 +38,13 @@ public:
         SkMatrix fLocalToDevice;
         SkClipOp fOp;
         GrAA     fAA;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fShape)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fLocalToDevice)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fOp)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fAA)>::value);
+
+        using sk_is_trivially_relocatable = std::true_type;
     };
 
     // The SkMatrixProvider must outlive the ClipStack.

@@ -515,6 +515,8 @@ private:
             return this->isFromVertices() ? fVertices->priv().indexCount() : fMeshData.icount;
         }
 
+        using sk_is_trivially_relocatable = std::true_type;
+
     private:
         struct MeshData {
             sk_sp<const SkMeshPriv::VB> vb;
@@ -525,6 +527,11 @@ private:
 
             size_t voffset = 0;
             size_t ioffset = 0;
+
+            static_assert(::sk_is_trivially_relocatable<decltype(vb)>::value);
+            static_assert(::sk_is_trivially_relocatable<decltype(ib)>::value);
+
+            using sk_is_trivially_relocatable = std::true_type;
         };
 
         sk_sp<SkVertices> fVertices;
@@ -533,6 +540,9 @@ private:
             SkMatrix fViewMatrix;
             MeshData fMeshData;
         };
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fVertices)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fViewMatrix)>::value);
     };
 
     Helper                     fHelper;

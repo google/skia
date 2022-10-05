@@ -199,6 +199,8 @@ private:
             return SkToBool(this->head());
         }
 
+        using sk_is_trivially_relocatable = std::true_type;
+
     private:
         class List {
         public:
@@ -218,9 +220,14 @@ private:
 
             void validate() const;
 
+            using sk_is_trivially_relocatable = std::true_type;
+
         private:
             GrOp::Owner fHead{nullptr};
             GrOp* fTail{nullptr};
+
+            static_assert(::sk_is_trivially_relocatable<decltype(fHead)>::value);
+            static_assert(::sk_is_trivially_relocatable<decltype(fTail)>::value);
         };
 
         void validate() const;
@@ -235,6 +242,11 @@ private:
         GrDstProxyView fDstProxyView;
         GrAppliedClip* fAppliedClip;
         SkRect fBounds;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fProcessorAnalysis)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fDstProxyView)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fAppliedClip)>::value);
+        static_assert(::sk_is_trivially_relocatable<decltype(fBounds)>::value);
     };
 
     void onMakeSkippable() override;

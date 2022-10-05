@@ -135,6 +135,11 @@ struct GrMipLevel {
     size_t fRowBytes = 0;
     // This may be used to keep fPixels from being freed while a GrMipLevel exists.
     sk_sp<SkData> fOptionalStorage;
+
+    static_assert(::sk_is_trivially_relocatable<decltype(fPixels)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fOptionalStorage)>::value);
+
+    using sk_is_trivially_relocatable = std::true_type;
 };
 
 enum class GrSemaphoreWrapType {

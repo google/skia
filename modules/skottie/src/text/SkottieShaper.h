@@ -32,6 +32,10 @@ public:
     struct RunRec {
         SkFont fFont;
         size_t fSize;
+
+        static_assert(::sk_is_trivially_relocatable<decltype(fFont)>::value);
+
+        using sk_is_trivially_relocatable = std::true_type;
     };
 
     struct ShapedGlyphs {

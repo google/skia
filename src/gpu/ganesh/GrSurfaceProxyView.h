@@ -137,10 +137,16 @@ public:
         return std::move(fProxy);
     }
 
+    using sk_is_trivially_relocatable = std::true_type;
+
 private:
     sk_sp<GrSurfaceProxy> fProxy;
     GrSurfaceOrigin fOrigin = kTopLeft_GrSurfaceOrigin;
     skgpu::Swizzle fSwizzle;
+
+    static_assert(::sk_is_trivially_relocatable<decltype(fProxy)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fOrigin)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fSwizzle)>::value);
 };
 
 #endif
