@@ -21,7 +21,7 @@
 
 class SK_SPI SkTDStorage {
 public:
-    explicit SkTDStorage(int sizeOfT) : fSizeOfT{sizeOfT} {}
+    explicit SkTDStorage(int sizeOfT);
     SkTDStorage(const void* src, int count, int sizeOfT);
 
     // Copy
@@ -56,10 +56,6 @@ public:
     void erase(int index, int count);
     // Removes the entry at 'index' and replaces it with the last array element
     void removeShuffle(int index);
-
-    // assign copies over existing data. If fReserve < count, then fReserve = count, and does not
-    // include the growth factor.
-    void assign(const void* src, int count);
 
     // Insertion routines
     void* prepend();
