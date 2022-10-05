@@ -98,8 +98,8 @@ public:
     void setMaxRunMetrics(const InternalLineMetrics& metrics) { fMaxRunMetrics = metrics; }
     InternalLineMetrics getMaxRunMetrics() const { return fMaxRunMetrics; }
 
-    bool isFirstLine();
-    bool isLastLine();
+    bool isFirstLine() const;
+    bool isLastLine() const;
     void getRectsForRange(TextRange textRange, RectHeightStyle rectHeightStyle, RectWidthStyle rectWidthStyle, std::vector<TextBox>& boxes);
     void getRectsForPlaceholders(std::vector<TextBox>& boxes);
     PositionWithAffinity getGlyphPositionAtCoordinate(SkScalar dx);
@@ -117,6 +117,9 @@ public:
 
     SkScalar metricsWithoutMultiplier(TextHeightBehavior correction);
     void shiftVertically(SkScalar shift) { fOffset.fY += shift; }
+
+    void setAscentStyle(LineMetricStyle style) { fAscentStyle = style; }
+    void setDescentStyle(LineMetricStyle style) { fDescentStyle = style; }
 
     bool endsWithHardLineBreak() const;
 

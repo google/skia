@@ -33,7 +33,10 @@ void Decorations::paint(SkCanvas* canvas, const TextStyle& textStyle, const Text
             continue;
         }
 
-        calculatePosition(decoration, context.run->correctAscent());
+        calculatePosition(decoration,
+                          decoration == TextDecoration::kOverline
+                          ? context.run->correctAscent() - context.run->ascent()
+                          : context.run->correctAscent());
 
         calculatePaint(textStyle);
 
@@ -165,7 +168,7 @@ void Decorations::calculatePosition(TextDecoration decoration, SkScalar ascent) 
           fPosition -= ascent;
           break;
       case TextDecoration::kOverline:
-          fPosition = 0;
+          fPosition = - ascent;
         break;
       case TextDecoration::kLineThrough: {
           fPosition = (fFontMetrics.fFlags & SkFontMetrics::FontMetricsFlags::kStrikeoutPositionIsValid_Flag)

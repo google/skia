@@ -458,7 +458,7 @@ void TextLine::paintDecorations(SkCanvas* canvas, SkScalar x, SkScalar y, TextRa
     SkAutoCanvasRestore acr(canvas, true);
     canvas->translate(x + this->offset().fX, y + this->offset().fY + style.getBaselineShift());
     Decorations decorations;
-    SkScalar correctedBaseline = SkScalarFloorToScalar(this->baseline() + style.getBaselineShift() + 0.5);
+    SkScalar correctedBaseline = SkScalarFloorToScalar(-this->sizes().rawAscent() + style.getBaselineShift() + 0.5);
     decorations.paint(canvas, style, context, correctedBaseline);
 }
 
@@ -909,10 +909,21 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
                                                    StyleType styleType,
                                                    const RunStyleVisitor& visitor) const {
 
+    auto correctContext = [&](TextRange textRange, SkScalar textOffsetInRun) -> ClipContext {
+        auto result = this->measureTextInsideOneRun(
+                                        textRange, run, runOffset, textOffsetInRun, false, true);
+        if (styleType == StyleType::kDecorations) {
+            result.clip.fTop = this->sizes().runTop(run, LineMetricStyle::CSS);
+            result.clip.fBottom =
+                    result.clip.fTop +
+                    run->calculateHeight(LineMetricStyle::CSS, LineMetricStyle::CSS);
+        }
+        return result;
+    };
+
     if (run->fEllipsis) {
         // Extra efforts to get the ellipsis text style
-        ClipContext clipContext = this->measureTextInsideOneRun(run->textRange(), run, runOffset,
-                                                                0, false, true);
+        ClipContext clipContext = correctContext(run->textRange(), 0.0f);
         TextRange testRange(run->fClusterStart, run->fClusterStart + run->textRange().width());
         for (BlockIndex index = fBlockRange.start; index < fBlockRange.end; ++index) {
            auto block = fOwner->styles().begin() + index;
@@ -926,8 +937,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
     }
 
     if (styleType == StyleType::kNone) {
-        ClipContext clipContext = this->measureTextInsideOneRun(textRange, run, runOffset,
-                                                                0, false, true);
+        ClipContext clipContext = correctContext(textRange, 0.0f);
         if (clipContext.clip.height() > 0) {
             visitor(textRange, TextStyle(), clipContext);
             return clipContext.clip.width();
@@ -986,9 +996,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
 
         // We have the style and the text
         auto runStyleTextRange = TextRange(start, start + size);
-        // Measure the text
-        ClipContext clipContext = this->measureTextInsideOneRun(runStyleTextRange, run, runOffset,
-                                                                textOffsetInRun, false, true);
+        ClipContext clipContext = correctContext(runStyleTextRange, textOffsetInRun);
         textOffsetInRun += clipContext.clip.width();
         if (clipContext.clip.height() == 0) {
             continue;
@@ -1106,11 +1114,11 @@ LineMetrics TextLine::getMetrics() const {
     return result;
 }
 
-bool TextLine::isFirstLine() {
+bool TextLine::isFirstLine() const {
     return this == &fOwner->lines().front();
 }
 
-bool TextLine::isLastLine() {
+bool TextLine::isLastLine() const {
     return this == &fOwner->lines().back();
 }
 

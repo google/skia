@@ -484,6 +484,17 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         fHeight += fEndLine.metrics().height();
         parent->lines().back().setMaxRunMetrics(maxRunMetrics);
     }
+
+    if (parent->lines().empty()) {
+        return;
+    }
+    // Correct line metric styles for the first and for the last lines if needed
+    if (disableFirstAscent) {
+        parent->lines().front().setAscentStyle(LineMetricStyle::Typographic);
+    }
+    if (disableLastDescent) {
+        parent->lines().back().setDescentStyle(LineMetricStyle::Typographic);
+    }
 }
 
 }  // namespace textlayout
