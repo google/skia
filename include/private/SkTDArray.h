@@ -49,8 +49,8 @@ public:
     void reserve(int newReserve);
     void shrink_to_fit();
 
-    std::byte* data() { return fStorage; }
-    const std::byte* data() const { return fStorage; }
+    void* data() { return fStorage; }
+    const void* data() const { return fStorage; }
 
     // Deletion routines
     void erase(int index, int count);
@@ -88,7 +88,7 @@ public:
 
 private:
     size_t bytes(int n) const { return SkToSizeT(n * fSizeOfT); }
-    std::byte* address(int n) { return this->data() + this->bytes(n); }
+    void* address(int n) { return fStorage + this->bytes(n); }
 
     // Adds delta to fCount. Crash if outside [0, INT_MAX]
     int calculateSizeOrDie(int delta);
@@ -159,8 +159,8 @@ public:
     // return the number of bytes in the array: count * sizeof(T)
     size_t size_bytes() const { return fStorage.size_bytes(); }
 
-    T*       data() { return reinterpret_cast<T*>(fStorage.data()); }
-    const T* data() const { return reinterpret_cast<const T*>(fStorage.data()); }
+    T*       data() { return static_cast<T*>(fStorage.data()); }
+    const T* data() const { return static_cast<const T*>(fStorage.data()); }
     T*       begin() { return this->data(); }
     const T* begin() const { return this->data(); }
     T*       end() { return this->data() + this->size(); }
@@ -208,14 +208,14 @@ public:
         return static_cast<T*>(fStorage.append());
     }
     T* append(int count, const T* src = nullptr) {
-        return reinterpret_cast<T*>(fStorage.append(src, count));
+        return static_cast<T*>(fStorage.append(src, count));
     }
 
     T* insert(int index) {
-        return reinterpret_cast<T*>(fStorage.insert(index));
+        return static_cast<T*>(fStorage.insert(index));
     }
     T* insert(int index, int count, const T* src = nullptr) {
-        return reinterpret_cast<T*>(fStorage.insert(index, count, src));
+        return static_cast<T*>(fStorage.insert(index, count, src));
     }
 
     void remove(int index, int count = 1) {
@@ -239,7 +239,7 @@ public:
     }
 
     // routines to treat the array like a stack
-    void push_back(const T& v) { *reinterpret_cast<T*>(fStorage.push_back()) = v; }
+    void push_back(const T& v) { *static_cast<T*>(fStorage.push_back()) = v; }
     void pop_back() { fStorage.pop_back(); }
 
     void deleteAll() {
