@@ -767,6 +767,7 @@ sksl_rte_tests = [
 ]
 
 sksl_rte_error_tests = [
+  "/sksl/runtime_errors/Caps.rts",
   "/sksl/runtime_errors/DerivativesES2.rts",
   "/sksl/runtime_errors/ES3Types.rts",
   "/sksl/runtime_errors/FirstClassArrays.rts",

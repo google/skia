@@ -216,7 +216,6 @@ static void add_public_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Buil
     for (BuiltinTypePtr privateType : kPrivateTypes) {
         symbols->add(Type::MakeAliasType((types.*privateType)->name(), *types.fInvalid));
     }
-    symbols->add(Type::MakeAliasType("sk_Caps", *types.fInvalid));
 }
 
 static void add_compute_type_aliases(SkSL::SymbolTable* symbols, const SkSL::BuiltinTypes& types) {
