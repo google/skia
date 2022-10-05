@@ -13,6 +13,7 @@
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
@@ -187,7 +188,7 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
         //                                        : mat * vec)
         if (is_low_precision_matrix_vector_multiply(*left, op, *right, *resultType)) {
             // Look up `sk_Caps.rewriteMatrixVectorMultiply`.
-            auto caps = Setting::Convert(context, pos, "rewriteMatrixVectorMultiply");
+            auto caps = Setting::Make(context, pos, &ShaderCaps::fRewriteMatrixVectorMultiply);
 
             // There are three possible outcomes from Setting::Convert:
             // - If the ShaderCaps aren't known (fCaps in the Context is null), we will get back a
