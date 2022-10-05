@@ -1,0 +1,29 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_library")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+skia_cc_library(
+    name = "debugger",
+    srcs = [
+        "DebugCanvas.cpp",
+        "DebugLayerManager.cpp",
+        "DrawCommand.cpp",
+        "JsonWriteBuffer.cpp",
+        "//src/utils:json_hdrs",
+        "//src/utils:json_srcs",
+    ],
+    hdrs = [
+        "DebugCanvas.h",
+        "DebugLayerManager.h",
+        "DrawCommand.h",
+        "JsonWriteBuffer.h",
+    ],
+    visibility = ["//tests:__subpackages__"],
+    deps = [
+        "//:skia_internal",
+        "//tools:sk_sharing_proc",
+        "//tools:url_data_manager",
+    ],
+)

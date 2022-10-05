@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_library")
 
 licenses(["notice"])
 
@@ -27,4 +27,19 @@ filegroup(
         "test_font_serif.inc",
     ],
     visibility = ["//tools:__subpackages__"],
+)
+
+filegroup(
+    name = "test_empty_typeface",
+    testonly = True,
+    srcs = ["TestEmptyTypeface.h"],
+    visibility = ["//tests:__pkg__"],
+)
+
+skia_cc_library(
+    name = "random_scaler_context",
+    srcs = ["RandomScalerContext.cpp"],
+    hdrs = ["RandomScalerContext.h"],
+    visibility = ["//tests:__pkg__"],
+    deps = ["//:skia_internal"],
 )

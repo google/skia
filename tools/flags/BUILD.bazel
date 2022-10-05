@@ -13,6 +13,7 @@ filegroup(
     ],
     visibility = [
         "//modules/skottie:__pkg__",
+        "//tests:__subpackages__",
         "//tools:__subpackages__",
     ],
 )

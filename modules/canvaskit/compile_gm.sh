@@ -196,6 +196,10 @@ GLOBIGNORE+="tests/BackendAllocationTest.cpp:"\
 # All the tests in these files crash.
 GLOBIGNORE+="tests/GrThreadSafeCacheTest.cpp"
 
+# These are not tests
+GLOBIGNORE+="tests/BazelNoopRunner.cpp:"\
+"tests/BazelTestRunner.cpp"
+
 # Emscripten prefers that the .a files go last in order, otherwise, it
 # may drop symbols that it incorrectly thinks aren't used. One day,
 # Emscripten will use LLD, which may relax this requirement.

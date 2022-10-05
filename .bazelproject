@@ -1,0 +1,19 @@
+directories:
+  .
+  -bin
+  -out
+  -node_modules
+  -third_party/externals
+
+# Automatically includes all relevant targets under the 'directories' above
+derive_targets_from_directories: false
+
+targets:
+  # If source code isn't resolving, add additional targets that compile it here
+  //example:hello_world_vulkan
+  //example:hello_world_gl
+additional_languages:
+  # Uncomment any additional languages you want supported
+  javascript
+  python
+  typescript

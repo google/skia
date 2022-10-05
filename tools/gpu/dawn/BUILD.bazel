@@ -1,0 +1,30 @@
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps")
+
+licenses(["notice"])
+
+exports_files_legacy()
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "DawnTestContext.h",
+    ],
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "DawnTestContext.cpp",
+    ],
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+skia_cc_deps(
+    name = "deps",
+    visibility = ["//tools/gpu:__pkg__"],
+    deps = select({
+        "@platforms//os:linux": ["//include/third_party/vulkan"],
+        "//conditions:default": [],
+    }),
+)

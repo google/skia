@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "py_binary", "skia_cc_library")
+load("//bazel:macros.bzl", "exports_files_legacy", "py_binary", "skia_cc_library", "skia_objc_library")
 
 licenses(["notice"])
 
@@ -30,8 +30,52 @@ skia_cc_library(
     ],
 )
 
+skia_cc_library(
+    name = "registry",
+    hdrs = ["Registry.h"],
+    visibility = ["//tests:__subpackages__"],
+    deps = ["//:skia_internal"],
+)
+
 py_binary(
     name = "embed_resources",
     srcs = ["embed_resources.py"],
     visibility = ["//:__subpackages__"],
+)
+
+skia_cc_library(
+    name = "autorelease_pool",
+    hdrs = ["AutoreleasePool.h"],
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+skia_objc_library(
+    name = "autorelease_pool_objc",
+    srcs = ["AutoreleasePool.mm"],
+    hdrs = ["AutoreleasePool.h"],
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+skia_cc_library(
+    name = "url_data_manager",
+    srcs = ["UrlDataManager.cpp"],
+    hdrs = ["UrlDataManager.h"],
+    visibility = ["//tools/debugger:__pkg__"],
+    deps = ["//:skia_internal"],
+)
+
+skia_cc_library(
+    name = "sk_sharing_proc",
+    srcs = ["SkSharingProc.cpp"],
+    hdrs = ["SkSharingProc.h"],
+    visibility = ["//tools/debugger:__pkg__"],
+    deps = ["//:skia_internal"],
+)
+
+skia_cc_library(
+    name = "runtime_blend_utils",
+    srcs = ["RuntimeBlendUtils.cpp"],
+    hdrs = ["RuntimeBlendUtils.h"],
+    visibility = ["//tests:__pkg__"],
+    deps = ["//:skia_internal"],
 )
