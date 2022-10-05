@@ -10,10 +10,6 @@
 # For example, a default output directory might look like "k8-fastbuild-ST-6a54c1377847".
 # Inside this output directory is a subfolder for the target (e.g. executable) name.
 #
-# Note that multiple definitions of a config are allowed - in this event, they are added together.
-# This is handy if we need to comment on why certain settings are necessary. Otherwise, escaping
-# the trailing newline (and thus having a multi-line definition) is preferred for brevity.
-#
 # Notably, the flags that we turn on and off via //bazel/common_config_settings do not affect
 # the output directory. The output directory is used to store compiled object files (.o files)
 # and generated dependency files (e.g. the output of clang --write-dependencies [5]), so having
@@ -90,7 +86,6 @@ build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
                    --compilation_mode=dbg --keep_going \
                    --with_gl_standard=gl_standard --gpu_backend=gl_backend \
                    --gpu_backend=vulkan_backend --gpu_backend=dawn_backend \
-                   --enable_gpu_test_utils \
                    --include_fontmgr=custom_directory_fontmgr --include_fontmgr=custom_embedded_fontmgr \
                    --include_fontmgr=custom_empty_fontmgr --fontmgr_factory=custom_directory_fontmgr_factory \
                    --include_decoder=avif_decode_codec --include_decoder=gif_decode_codec \
@@ -102,24 +97,3 @@ build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
                    --with_harfbuzz --with_icu \
                    --enable_sksl_tracing \
                    --enable_svg_canvas --enable_pdf_backend
-
-
-build:cpu_only --cc_output_directory_tag=cpu_tests
-
-build:gl_ganesh --enable_gpu_test_utils --gpu_backend=gl_backend \
-                 --cc_output_directory_tag=gl_ganesh
-# We need to have this environment variable set when testing our Ganesh GL backend on Unix,
-# otherwise, we get "Failed to open X display." and connect make a GL context for testing.
-build:gl_ganesh --action_env=DISPLAY=:1
-
-build:vulkan_ganesh --enable_gpu_test_utils --gpu_backend=vulkan_backend \
-                    --cc_output_directory_tag=vulkan_ganesh
-
-build:dawn_ganesh --enable_gpu_test_utils --gpu_backend=dawn_backend \
-                    --cc_output_directory_tag=dawn_ganesh
-
-# Short-hand aliases
-build:cpu --config=cpu_only
-build:gl --config=gl_ganesh
-build:vk --config=vulkan_ganesh
-build:dawn --config=dawn_ganesh

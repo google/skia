@@ -5,16 +5,6 @@ licenses(["notice"])
 exports_files_legacy()
 
 filegroup(
-    name = "discardable_memory_pool",
-    srcs = select({
-        "//src/lazy:use_default_global_memory_pool_true": ["SkDiscardableMemory_none.cpp"],
-        "//conditions:default": [],
-    }),
-)
-
-# Any setting that causes this filegroup to be included also needs to have a dependency on freetype.
-# See "deps" and "uses_freetype" at the bottom of this file.
-filegroup(
     name = "typeface_freetype",
     srcs = [
         "SkFontHost_FreeType.cpp",
@@ -27,9 +17,6 @@ filegroup(
 filegroup(
     name = "fontmgr_factory",
     srcs = selects.with_or({
-        "//bazel/common_config_settings:android_fontmgr_factory": [
-            ":fontmgr_android_factory",
-        ],
         "//bazel/common_config_settings:custom_directory_fontmgr_factory": [
             ":fontmgr_custom_directory_factory",
         ],
@@ -42,9 +29,6 @@ filegroup(
         "//bazel/common_config_settings:fontconfig_fontmgr_factory": [
             ":fontmgr_fontconfig_factory",
         ],
-        "//bazel/common_config_settings:fci_fontmgr_factory": [
-            ":fontmgr_fci_factory",
-        ],
         ("//bazel/common_config_settings:empty_fontmgr_factory", "//conditions:default"): [
             ":fontmgr_empty_factory",
         ],
@@ -55,31 +39,12 @@ filegroup(
     name = "fontmgr",
     srcs = select_multi(
         {
-            "//bazel/common_config_settings:android_fontmgr": [":fontmgr_android"],
             "//bazel/common_config_settings:custom_directory_fontmgr": [":fontmgr_custom_directory"],
             "//bazel/common_config_settings:custom_embedded_fontmgr": [":fontmgr_custom_embedded"],
             "//bazel/common_config_settings:custom_empty_fontmgr": [":fontmgr_custom_empty"],
             "//bazel/common_config_settings:fontconfig_fontmgr": [":fontmgr_fontconfig"],
-            "//bazel/common_config_settings:fci_fontmgr": [":fontmgr_fci"],
         },
     ),
-)
-
-filegroup(
-    name = "fontmgr_android",
-    srcs = [
-        "SkFontMgr_android.cpp",
-        "SkFontMgr_android_parser.cpp",
-        ":typeface_freetype",
-    ],
-)
-
-filegroup(
-    name = "fontmgr_android_factory",
-    srcs = [
-        "SkFontMgr_android_factory.cpp",
-        ":fontmgr_android",
-    ],
 )
 
 filegroup(
@@ -145,8 +110,6 @@ filegroup(
     ],
 )
 
-# Any setting that causes this filegroup to be included also needs to have a dependency on
-# fontconfig. See "deps" and "uses_fontconfig" at the bottom of this file.
 filegroup(
     name = "fontmgr_fontconfig",
     srcs = [
@@ -160,29 +123,6 @@ filegroup(
     srcs = [
         "SkFontMgr_fontconfig_factory.cpp",
         ":fontmgr_fontconfig",
-    ],
-)
-
-# TODO(bungeman, kjlubick) break this up into the direct and Interface part.
-#  Alternatively, delete it.
-# Any setting that causes this filegroup to be included also needs to have a dependency on
-# fontconfig. See "deps" and "uses_fontconfig" at the bottom of this file.
-filegroup(
-    name = "fontmgr_fci",
-    srcs = [
-        "SkFontConfigInterface.cpp",
-        "SkFontConfigInterface_direct.cpp",
-        "SkFontConfigInterface_direct_factory.cpp",
-        "SkFontMgr_FontConfigInterface.cpp",
-        ":typeface_freetype",
-    ],
-)
-
-filegroup(
-    name = "fontmgr_fci_factory",
-    srcs = [
-        "SkFontMgr_FontConfigInterface_factory.cpp",
-        ":fontmgr_fci",
     ],
 )
 
@@ -240,7 +180,6 @@ filegroup(
 filegroup(
     name = "srcs",
     srcs = [
-        ":discardable_memory_pool",
         ":fontmgr",
         ":fontmgr_factory",
         ":global_init",
@@ -264,15 +203,6 @@ filegroup(
     }) + select({
         "@platforms//os:ios": ["SkOSFile_ios.h"],
         "//conditions:default": [],
-    }) + select({
-        "//bazel/common_config_settings:uses_android_fontmgr": ["SkFontMgr_android_parser.h"],
-        "//conditions:default": [],
-    }) + select({
-        "//bazel/common_config_settings:uses_fci_fontmgr": [
-            "SkFontConfigInterface_direct.h",
-            "SkFontConfigTypeface.h",
-        ],
-        "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
 )
@@ -280,20 +210,22 @@ filegroup(
 selects.config_setting_group(
     name = "uses_freetype",
     match_any = [
-        "//bazel/common_config_settings:uses_android_fontmgr",
-        "//bazel/common_config_settings:uses_custom_directory_fontmgr",
-        "//bazel/common_config_settings:uses_custom_embedded_fontmgr",
-        "//bazel/common_config_settings:uses_custom_empty_fontmgr",
-        "//bazel/common_config_settings:uses_fontconfig_fontmgr",
-        "//bazel/common_config_settings:uses_fci_fontmgr",
+        "//bazel/common_config_settings:custom_directory_fontmgr",
+        "//bazel/common_config_settings:custom_directory_fontmgr_factory",
+        "//bazel/common_config_settings:custom_embedded_fontmgr",
+        "//bazel/common_config_settings:custom_embedded_fontmgr_factory",
+        "//bazel/common_config_settings:custom_empty_fontmgr",
+        "//bazel/common_config_settings:custom_empty_fontmgr_factory",
+        "//bazel/common_config_settings:fontconfig_fontmgr",
+        "//bazel/common_config_settings:fontconfig_fontmgr_factory",
     ],
 )
 
 selects.config_setting_group(
     name = "uses_fontconfig",
     match_any = [
-        "//bazel/common_config_settings:uses_fontconfig_fontmgr",
-        "//bazel/common_config_settings:uses_fci_fontmgr",
+        "//bazel/common_config_settings:fontconfig_fontmgr",
+        "//bazel/common_config_settings:fontconfig_fontmgr_factory",
     ],
 )
 
@@ -309,9 +241,6 @@ skia_cc_deps(
         "//conditions:default": [],
     }) + select({
         ":uses_fontconfig": ["//bazel/external/fontconfig:fontconfig"],
-        "//conditions:default": [],
-    }) + select({
-        "//bazel/common_config_settings:uses_android_fontmgr": ["@expat"],
         "//conditions:default": [],
     }),
 )

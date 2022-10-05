@@ -9,22 +9,10 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkNoncopyable.h"
-#include "include/private/SkTArray.h"
 #include "src/core/SkTraceEvent.h"
 #include "tests/CtsEnforcement.h"
 #include "tools/Registry.h"
-
-#if SK_GPU_V1
-#include "tools/gpu/GrContextFactory.h" // IWYU pragma: export (because it is used by a macro)
-#else
-namespace sk_gpu_test { class ContextInfo; }
-#endif
-
-#include <atomic>
-#include <cstdint>
-
-struct GrContextOptions;
+#include "tools/gpu/GrContextFactory.h"
 
 namespace skgpu::graphite { class Context; }
 
@@ -156,11 +144,7 @@ private:
 
 using TestRegistry = sk_tools::Registry<Test>;
 
-#if SK_GPU_V1
 using GrContextFactoryContextType = sk_gpu_test::GrContextFactory::ContextType;
-#else
-using GrContextFactoryContextType = nullptr_t;
-#endif
 
 typedef void GrContextTestFn(Reporter*, const sk_gpu_test::ContextInfo&);
 typedef bool GrContextTypeFilterFn(GrContextFactoryContextType);

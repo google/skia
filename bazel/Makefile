@@ -71,13 +71,9 @@ iwyu_rbe:
 		--config=enforce_iwyu --remote_download_minimal --nobuild_runfile_manifests
 	bazelisk build //modules/skottie:skottie_tool_gpu --config=for_linux_x64_with_rbe \
 		--config=enforce_iwyu --remote_download_minimal --nobuild_runfile_manifests
-	bazelisk build //tests/... --config=for_linux_x64_with_rbe \
-		--config=enforce_iwyu --remote_download_minimal --nobuild_runfile_manifests
 
 iwyu:
 	bazelisk build //:skia_public --config=enforce_iwyu \
 		--nobuild_runfile_manifests
 	bazelisk build //modules/skottie:skottie_tool_gpu --config=enforce_iwyu \
-		--nobuild_runfile_manifests
-	bazelisk build //tests/... --config=enforce_iwyu \
 		--nobuild_runfile_manifests

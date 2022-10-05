@@ -43,8 +43,6 @@ build --flag_alias=include_encoder=//src/images:include_encoder
 build --flag_alias=include_fontmgr=//bazel/common_config_settings:include_fontmgr
 build --flag_alias=with_gl_standard=//src/gpu:with_gl_standard
 
-build --flag_alias=disable_discardable_memory=no//src/lazy:enable_discardable_memory
-build --flag_alias=enable_discardable_memory=//src/lazy:enable_discardable_memory
 build --flag_alias=disable_effect_serialization=no//bazel/common_config_settings:enable_effect_serialization
 build --flag_alias=enable_effect_serialization=//bazel/common_config_settings:enable_effect_serialization
 build --flag_alias=disable_gpu_test_utils=no//src/gpu:enable_gpu_test_utils
@@ -67,8 +65,6 @@ build --flag_alias=disable_tracing=no//bazel/common_config_settings:enable_traci
 build --flag_alias=enable_tracing=//bazel/common_config_settings:enable_tracing
 build --flag_alias=disable_vma=no//src/gpu:use_vulkan_memory_allocator
 build --flag_alias=enable_vma=//src/gpu:use_vulkan_memory_allocator
-build --flag_alias=with_default_global_memory_pool=//src/lazy:use_default_global_memory_pool
-build --flag_alias=with_no_global_memory_pool=no//src/lazy:use_default_global_memory_pool
 build --flag_alias=with_harfbuzz=//bazel/common_config_settings:use_harfbuzz
 build --flag_alias=with_no_harfbuzz=no//bazel/common_config_settings:use_harfbuzz
 build --flag_alias=with_icu=//bazel/common_config_settings:use_icu

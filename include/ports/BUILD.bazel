@@ -1,41 +1,28 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "select_multi")
+load("//bazel:macros.bzl", "exports_files_legacy")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 filegroup(
-    name = "fontmgr",
-    srcs = select_multi(
-        {
-            "//bazel/common_config_settings:uses_android_fontmgr": ["SkFontMgr_android.h"],
-            "//bazel/common_config_settings:uses_custom_directory_fontmgr": ["SkFontMgr_directory.h"],
-            "//bazel/common_config_settings:uses_custom_empty_fontmgr": ["SkFontMgr_empty.h"],
-            "//bazel/common_config_settings:uses_fontconfig_fontmgr": ["SkFontMgr_fontconfig.h"],
-            "//bazel/common_config_settings:uses_fci_fontmgr": [
-                "SkFontConfigInterface.h",
-                "SkFontMgr_FontConfigInterface.h",
-            ],
-            # TODO(kjlubick, bungeman) fuchsia_fontmgr, fontmgr_mac_ct, fontmgr_win
-        },
-    ),
-)
-
-filegroup(
     name = "public_hdrs",
     srcs = [
+        "SkCFObject.h",
+        "SkFontConfigInterface.h",
+        "SkFontMgr_FontConfigInterface.h",
+        "SkFontMgr_android.h",
+        "SkFontMgr_directory.h",
+        "SkFontMgr_empty.h",
+        "SkFontMgr_fontconfig.h",
+        "SkFontMgr_fuchsia.h",
+        "SkFontMgr_indirect.h",
+        "SkFontMgr_mac_ct.h",
         "SkImageGeneratorCG.h",
         "SkImageGeneratorNDK.h",
         "SkImageGeneratorWIC.h",
-        ":fontmgr",
-    ] + select({
-        "@platforms//os:macos": ["SkCFObject.h"],
-        "@platforms//os:ios": ["SkCFObject.h"],
-        "//conditions:default": [],
-    }) + select({
-        "@platforms//os:macos": ["SkTypeface_mac.h"],
-        "@platforms//os:windows": ["SkTypeface_win.h"],
-        "//conditions:default": [],
-    }),
+        "SkRemotableFontMgr.h",
+        "SkTypeface_mac.h",
+        "SkTypeface_win.h",
+    ],
     visibility = ["//include:__pkg__"],
 )

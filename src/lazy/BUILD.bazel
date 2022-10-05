@@ -1,18 +1,8 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
-
-bool_flag(
-    name = "enable_discardable_memory",
-    default = False,
-)
-
-bool_flag(
-    name = "use_default_global_memory_pool",
-    default = False,
-)
 
 LAZY_FILES = [
     "SkDiscardableMemoryPool.cpp",
@@ -22,20 +12,4 @@ LAZY_FILES = [
 split_srcs_and_hdrs(
     name = "lazy",
     files = LAZY_FILES,
-)
-
-filegroup(
-    name = "srcs",
-    srcs = [
-        ":lazy_srcs",
-    ],
-    visibility = ["//src:__pkg__"],
-)
-
-filegroup(
-    name = "private_hdrs",
-    srcs = [
-        ":lazy_hdrs",
-    ],
-    visibility = ["//src:__pkg__"],
 )

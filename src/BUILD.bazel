@@ -35,10 +35,9 @@ filegroup(
         ],
         "//conditions:default": [],
     }) + select({
-        "//src/pdf:enable_pdf_backend_true": ["//src/pdf:srcs"],
-        "//conditions:default": [],
-    }) + select({
-        "//src/lazy:enable_discardable_memory_true": ["//src/lazy:srcs"],
+        "//src/pdf:enable_pdf_backend_true": [
+            "//src/pdf:srcs",
+        ],
         "//conditions:default": [],
     }),
     visibility = ["//:__pkg__"],
@@ -75,10 +74,9 @@ filegroup(
         ],
         "//conditions:default": [],
     }) + select({
-        "//src/pdf:enable_pdf_backend_true": ["//src/pdf:private_hdrs"],
-        "//conditions:default": [],
-    }) + select({
-        "//src/lazy:enable_discardable_memory_true": ["//src/lazy:private_hdrs"],
+        "//src/pdf:enable_pdf_backend_true": [
+            "//src/pdf:private_hdrs",
+        ],
         "//conditions:default": [],
     }),
     visibility = [
@@ -103,10 +101,14 @@ skia_cc_deps(
         "//src/sksl:needs_sksl": ["//src/sksl:deps"],
         "//conditions:default": [],
     }) + select({
-        "//src/svg:enable_svg_canvas_true": ["//src/xml:deps"],
+        "//src/svg:enable_svg_canvas_true": [
+            "//src/xml:deps",
+        ],
         "//conditions:default": [],
     }) + select({
-        "//src/pdf:enable_pdf_backend_true": ["//src/pdf:deps"],
+        "//src/pdf:enable_pdf_backend_true": [
+            "//src/pdf:deps",
+        ],
         "//conditions:default": [],
     }),
 )
