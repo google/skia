@@ -21,3 +21,22 @@ skia_cc_library(
         "//include/third_party/vulkan",
     ],
 )
+
+filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "GrVulkanDefines.h",
+        "VkTestContext.h",
+        "VkTestUtils.h",
+    ],
+    visibility = ["//tools/gpu:__pkg__"],
+)
+
+filegroup(
+    name = "srcs",
+    srcs = [
+        "VkTestContext.cpp",
+        "VkTestUtils.cpp",
+    ],
+    visibility = ["//tools/gpu:__pkg__"],
+)

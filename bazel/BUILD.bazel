@@ -52,6 +52,9 @@ GENERAL_DEFINES = [
 }) + select({
     "//src/shaders:legacy_shader_context_true": [],  # This is the default in SkTypes.h
     "//src/shaders:legacy_shader_context_false": ["SK_DISABLE_LEGACY_SHADERCONTEXT"],
+}) + select({
+    "//src/lazy:enable_discardable_memory_true": ["SK_USE_DISCARDABLE_SCALEDIMAGECACHE"],
+    "//src/lazy:enable_discardable_memory_false": [],
 })
 
 GPU_DEFINES = select_multi({

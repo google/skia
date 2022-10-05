@@ -536,6 +536,8 @@ optional("fontmgr_win") {
 
   public = [ "include/ports/SkTypeface_win.h" ]
   sources = [
+    "include/ports/SkFontMgr_indirect.h",
+    "include/ports/SkRemotableFontMgr.h",
     "src/fonts/SkFontMgr_indirect.cpp",
     "src/ports/SkFontMgr_win_dw.cpp",
     "src/ports/SkScalerContext_win_dw.cpp",

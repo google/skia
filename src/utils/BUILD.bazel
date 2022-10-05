@@ -79,6 +79,7 @@ filegroup(
     ],
     visibility = [
         "//modules/skottie:__pkg__",
+        "//tools/debugger:__pkg__",
     ],
 )
 
@@ -90,6 +91,7 @@ filegroup(
     ],
     visibility = [
         "//modules/skottie:__pkg__",
+        "//tools/debugger:__pkg__",
     ],
 )
 
