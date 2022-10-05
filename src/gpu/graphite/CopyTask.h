@@ -21,7 +21,7 @@ class TextureProxy;
 
 class CopyTextureToBufferTask final : public Task {
 public:
-    static sk_sp<CopyTextureToBufferTask> Make(sk_sp<Texture>,
+    static sk_sp<CopyTextureToBufferTask> Make(sk_sp<TextureProxy>,
                                                SkIRect srcRect,
                                                sk_sp<Buffer>,
                                                size_t bufferOffset,
@@ -29,20 +29,18 @@ public:
 
     ~CopyTextureToBufferTask() override;
 
-    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override {
-        return true;
-    }
+    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override;
 
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 
 private:
-    CopyTextureToBufferTask(sk_sp<Texture>,
+    CopyTextureToBufferTask(sk_sp<TextureProxy>,
                             SkIRect srcRect,
                             sk_sp<Buffer>,
                             size_t bufferOffset,
                             size_t bufferRowBytes);
 
-    sk_sp<Texture> fTexture;
+    sk_sp<TextureProxy> fTextureProxy;
     SkIRect fSrcRect;
     sk_sp<Buffer> fBuffer;
     size_t fBufferOffset;

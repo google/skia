@@ -15,24 +15,24 @@
 
 namespace skgpu::graphite {
 
-sk_sp<CopyTextureToBufferTask> CopyTextureToBufferTask::Make(sk_sp<Texture> texture,
+sk_sp<CopyTextureToBufferTask> CopyTextureToBufferTask::Make(sk_sp<TextureProxy> textureProxy,
                                                              SkIRect srcRect,
                                                              sk_sp<Buffer> buffer,
                                                              size_t bufferOffset,
                                                              size_t bufferRowBytes) {
-    return sk_sp<CopyTextureToBufferTask>(new CopyTextureToBufferTask(std::move(texture),
+    return sk_sp<CopyTextureToBufferTask>(new CopyTextureToBufferTask(std::move(textureProxy),
                                                                       srcRect,
                                                                       std::move(buffer),
                                                                       bufferOffset,
                                                                       bufferRowBytes));
 }
 
-CopyTextureToBufferTask::CopyTextureToBufferTask(sk_sp<Texture> texture,
+CopyTextureToBufferTask::CopyTextureToBufferTask(sk_sp<TextureProxy> textureProxy,
                                                  SkIRect srcRect,
                                                  sk_sp<Buffer> buffer,
                                                  size_t bufferOffset,
                                                  size_t bufferRowBytes)
-        : fTexture(std::move(texture))
+        : fTextureProxy(std::move(textureProxy))
         , fSrcRect(srcRect)
         , fBuffer(std::move(buffer))
         , fBufferOffset(bufferOffset)
@@ -41,9 +41,25 @@ CopyTextureToBufferTask::CopyTextureToBufferTask(sk_sp<Texture> texture,
 
 CopyTextureToBufferTask::~CopyTextureToBufferTask() {}
 
+bool CopyTextureToBufferTask::prepareResources(ResourceProvider* resourceProvider,
+                                                const SkRuntimeEffectDictionary*) {
+    if (!fTextureProxy) {
+        SKGPU_LOG_E("No texture proxy specified for CopyTextureToBufferTask");
+        return false;
+    }
+    if (!fTextureProxy->instantiate(resourceProvider)) {
+        SKGPU_LOG_E("Could not instantiate texture proxy for CopyTextureToBufferTask!");
+        return false;
+    }
+    return true;
+}
+
 bool CopyTextureToBufferTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
-    return commandBuffer->copyTextureToBuffer(
-            std::move(fTexture), fSrcRect, std::move(fBuffer), fBufferOffset, fBufferRowBytes);
+    return commandBuffer->copyTextureToBuffer(fTextureProxy->refTexture(),
+                                              fSrcRect,
+                                              std::move(fBuffer),
+                                              fBufferOffset,
+                                              fBufferRowBytes);
 }
 
 //--------------------------------------------------------------------------------------------------

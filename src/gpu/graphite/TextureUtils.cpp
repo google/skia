@@ -147,12 +147,6 @@ bool ReadPixelsHelper(FlushPendingWorkCallback&& flushPendingWork,
     }
 
     ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
-    if (!srcProxy->instantiate(resourceProvider)) {
-        return false;
-    }
-    sk_sp<Texture> srcTexture = srcProxy->refTexture();
-    SkASSERT(srcTexture);
-
     size_t size = dstRowBytes * dstInfo.height();
     sk_sp<Buffer> dstBuffer = resourceProvider->findOrCreateBuffer(size,
                                                                    BufferType::kXferGpuToCpu,
@@ -162,7 +156,7 @@ bool ReadPixelsHelper(FlushPendingWorkCallback&& flushPendingWork,
     }
 
     SkIRect srcRect = SkIRect::MakeXYWH(srcX, srcY, dstInfo.width(), dstInfo.height());
-    sk_sp<CopyTextureToBufferTask> copyTask = CopyTextureToBufferTask::Make(std::move(srcTexture),
+    sk_sp<CopyTextureToBufferTask> copyTask = CopyTextureToBufferTask::Make(sk_ref_sp(srcProxy),
                                                                             srcRect,
                                                                             dstBuffer,
                                                                             /*bufferOffset=*/0,
