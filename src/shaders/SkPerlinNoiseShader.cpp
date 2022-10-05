@@ -536,15 +536,10 @@ SkShaderBase::Context* SkPerlinNoiseShaderImpl::onMakeContext(const ContextRec& 
 
 static inline SkMatrix total_matrix(const SkShaderBase::ContextRec& rec,
                                     const SkShaderBase& shader) {
-    SkMatrix matrix;
     if (rec.fLocalMatrix) {
-        matrix = SkShaderBase::ConcatLocalMatrices(*rec.fLocalMatrix, shader.getLocalMatrix());
-    } else {
-        matrix = shader.getLocalMatrix();
+        return SkMatrix::Concat(*rec.fMatrix, *rec.fLocalMatrix);
     }
-    matrix.postConcat(*rec.fMatrix);
-
-    return matrix;
+    return *rec.fMatrix;
 }
 
 SkPerlinNoiseShaderImpl::PerlinNoiseShaderContext::PerlinNoiseShaderContext(

@@ -127,7 +127,7 @@ SkShaderBase::GradientType SkColorShader::asGradient(GradientInfo* info,
         info->fTileMode = SkTileMode::kRepeat;
     }
     if (localMatrix) {
-        *localMatrix = this->getLocalMatrix();
+        *localMatrix = SkMatrix::I();
     }
     return GradientType::kColor;
 }

@@ -18,9 +18,9 @@
 
 enum GradientSerializationFlags {
     // Bits 29:31 used for various boolean flags
-    kHasPosition_GSF    = 0x80000000,
-    kHasLocalMatrix_GSF = 0x40000000,
-    kHasColorSpace_GSF  = 0x20000000,
+    kHasPosition_GSF          = 0x80000000,
+    kHasLegacyLocalMatrix_GSF = 0x40000000,
+    kHasColorSpace_GSF        = 0x20000000,
 
     // Bits 12:28 unused
 
@@ -60,9 +60,6 @@ void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
     if (fPos) {
         flags |= kHasPosition_GSF;
     }
-    if (fLocalMatrix) {
-        flags |= kHasLocalMatrix_GSF;
-    }
     sk_sp<SkData> colorSpaceData = fColorSpace ? fColorSpace->serialize() : nullptr;
     if (colorSpaceData) {
         flags |= kHasColorSpace_GSF;
@@ -82,9 +79,6 @@ void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
     if (fPos) {
         buffer.writeScalarArray(fPos, fCount);
     }
-    if (fLocalMatrix) {
-        buffer.writeMatrix(*fLocalMatrix);
-    }
 }
 
 template <int N, typename T, bool MEM_MOVE>
@@ -97,7 +91,8 @@ static bool validate_array(SkReadBuffer& buffer, size_t count, SkSTArray<N, T, M
     return true;
 }
 
-bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
+bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer,
+                                                      SkMatrix* legacyLocalMatrix) {
     // New gradient format. Includes floating point color, color space, densely packed flags
     uint32_t flags = buffer.readUInt();
 
@@ -128,11 +123,11 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
     } else {
         fPos = nullptr;
     }
-    if (SkToBool(flags & kHasLocalMatrix_GSF)) {
-        fLocalMatrix = &fLocalMatrixStorage;
-        buffer.readMatrix(&fLocalMatrixStorage);
+    if (SkToBool(flags & kHasLegacyLocalMatrix_GSF)) {
+        SkASSERT(buffer.isVersionLT(SkPicturePriv::Version::kNoShaderLocalMatrix));
+        buffer.readMatrix(legacyLocalMatrix);
     } else {
-        fLocalMatrix = nullptr;
+        *legacyLocalMatrix = SkMatrix::I();
     }
     return buffer.isValid();
 }
@@ -140,11 +135,9 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit)
-    : INHERITED(desc.fLocalMatrix)
-    , fPtsToUnit(ptsToUnit)
-    , fColorSpace(desc.fColorSpace ? desc.fColorSpace : SkColorSpace::MakeSRGB())
-    , fColorsAreOpaque(true)
-{
+        : fPtsToUnit(ptsToUnit)
+        , fColorSpace(desc.fColorSpace ? desc.fColorSpace : SkColorSpace::MakeSRGB())
+        , fColorsAreOpaque(true) {
     fPtsToUnit.getType();  // Precache so reads are threadsafe.
     SkASSERT(desc.fCount > 1);
 
@@ -229,8 +222,6 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     desc.fTileMode = fTileMode;
     desc.fInterpolation = fInterpolation;
 
-    const SkMatrix& m = this->getLocalMatrix();
-    desc.fLocalMatrix = m.isIdentity() ? nullptr : &m;
     desc.flatten(buffer);
 }
 
@@ -706,10 +697,8 @@ SkGradientShaderBase::Descriptor::Descriptor(const SkColor4f colors[],
                                              const SkScalar pos[],
                                              int colorCount,
                                              SkTileMode mode,
-                                             const Interpolation& interpolation,
-                                             const SkMatrix* localMatrix)
-        : fLocalMatrix(localMatrix)
-        , fColors(colors)
+                                             const Interpolation& interpolation)
+        : fColors(colors)
         , fColorSpace(std::move(colorSpace))
         , fPos(pos)
         , fCount(colorCount)

@@ -29,6 +29,7 @@
 #include "src/core/SkUtils.h"
 #include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkLocalMatrixShader.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLUtil.h"
@@ -1179,10 +1180,8 @@ public:
     SkRTShader(sk_sp<SkRuntimeEffect> effect,
                sk_sp<SkSL::SkVMDebugTrace> debugTrace,
                sk_sp<const SkData> uniforms,
-               const SkMatrix* localMatrix,
                SkSpan<SkRuntimeEffect::ChildPtr> children)
-            : SkShaderBase(localMatrix)
-            , fEffect(std::move(effect))
+            : fEffect(std::move(effect))
             , fDebugTrace(std::move(debugTrace))
             , fUniforms(std::move(uniforms))
             , fChildren(children.begin(), children.end()) {}
@@ -1191,7 +1190,7 @@ public:
         sk_sp<SkRuntimeEffect> unoptimized = fEffect->makeUnoptimizedClone();
         sk_sp<SkSL::SkVMDebugTrace> debugTrace = make_skvm_debug_trace(unoptimized.get(), coord);
         auto debugShader = sk_make_sp<SkRTShader>(unoptimized, debugTrace, fUniforms,
-                                                  &this->getLocalMatrix(), SkSpan(fChildren));
+                                                  SkSpan(fChildren));
 
         return SkRuntimeEffect::TracedShader{std::move(debugShader), std::move(debugTrace)};
     }
@@ -1236,20 +1235,11 @@ public:
     void addToKey(const SkKeyContext& keyContext,
                   SkPaintParamsKeyBuilder* builder,
                   SkPipelineDataGatherer* gatherer) const override {
-        const bool needsLocalMatrixBlock = !this->getLocalMatrix().isIdentity();
-        if (needsLocalMatrixBlock) {
-            LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer,
-                                               this->getLocalMatrix());
-        }
-
         RuntimeShaderBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 
         add_children_to_key(fChildren, fEffect->children(), keyContext, builder, gatherer);
 
         builder->endBlock();
-        if (needsLocalMatrixBlock) {
-            builder->endBlock();
-        }
     }
 
     bool onAppendStages(const SkStageRec& rec) const override {
@@ -1285,17 +1275,8 @@ public:
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
-        uint32_t flags = 0;
-        if (!this->getLocalMatrix().isIdentity()) {
-            flags |= kHasLocalMatrix_Flag;
-        }
-
         buffer.writeString(fEffect->source().c_str());
         buffer.writeDataAsByteArray(fUniforms.get());
-        buffer.write32(flags);
-        if (flags & kHasLocalMatrix_Flag) {
-            buffer.writeMatrix(this->getLocalMatrix());
-        }
         write_child_effects(buffer, fChildren);
     }
 
@@ -1305,7 +1286,7 @@ public:
 
 private:
     enum Flags {
-        kHasLocalMatrix_Flag    = 1 << 1,
+        kHasLegacyLocalMatrix_Flag = 1 << 1,
     };
 
     sk_sp<SkRuntimeEffect> fEffect;
@@ -1319,12 +1300,13 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
     SkString sksl;
     buffer.readString(&sksl);
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
-    uint32_t flags = buffer.read32();
 
-    SkMatrix localM, *localMPtr = nullptr;
-    if (flags & kHasLocalMatrix_Flag) {
-        buffer.readMatrix(&localM);
-        localMPtr = &localM;
+    SkTLazy<SkMatrix> localM;
+    if (buffer.isVersionLT(SkPicturePriv::kNoShaderLocalMatrix)) {
+        uint32_t flags = buffer.read32();
+        if (flags & kHasLegacyLocalMatrix_Flag) {
+            buffer.readMatrix(localM.init());
+        }
     }
 
     auto effect = SkMakeCachedRuntimeEffect(SkRuntimeEffect::MakeForShader, std::move(sksl));
@@ -1355,7 +1337,7 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
     }
 #endif
 
-    return effect->makeShader(std::move(uniforms), SkSpan(children), localMPtr);
+    return effect->makeShader(std::move(uniforms), SkSpan(children), localM.getMaybeNull());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1502,8 +1484,11 @@ sk_sp<SkShader> SkRuntimeEffect::makeShader(sk_sp<const SkData> uniforms,
     if (uniforms->size() != this->uniformSize()) {
         return nullptr;
     }
-    return sk_make_sp<SkRTShader>(sk_ref_sp(this), /*debugTrace=*/nullptr, std::move(uniforms),
-                                  localMatrix, children);
+    return SkLocalMatrixShader::MakeWrapped<SkRTShader>(localMatrix,
+                                                        sk_ref_sp(this),
+                                                        /*debugTrace=*/nullptr,
+                                                        std::move(uniforms),
+                                                        children);
 }
 
 sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,

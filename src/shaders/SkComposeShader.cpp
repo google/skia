@@ -132,9 +132,7 @@ static float* append_two_shaders(const SkStageRec& rec, SkShader* s0, SkShader* 
     return storage->fRes0;
 }
 
-bool SkShader_Blend::onAppendStages(const SkStageRec& orig_rec) const {
-    const LocalMatrixStageRec rec(orig_rec, this->getLocalMatrix());
-
+bool SkShader_Blend::onAppendStages(const SkStageRec& rec) const {
     float* res0 = append_two_shaders(rec, fDst.get(), fSrc.get());
     if (!res0) {
         return false;
@@ -166,8 +164,7 @@ skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 
 std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
-        const GrFPArgs& orig_args) const {
-    GrFPArgs::ConcatLocalMatrix args(orig_args, this->getLocalMatrix());
+        const GrFPArgs& args) const {
     auto fpA = as_SB(fDst)->asFragmentProcessor(args);
     auto fpB = as_SB(fSrc)->asFragmentProcessor(args);
     if (!fpA || !fpB) {

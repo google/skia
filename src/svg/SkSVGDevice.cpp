@@ -626,7 +626,7 @@ SkString SkSVGDevice::AutoElement::addLinearGradientDef(const SkShaderBase::Grad
         gradient.addAttribute("x2", info.fPoint[1].x());
         gradient.addAttribute("y2", info.fPoint[1].y());
 
-        if (!as_SB(shader)->getLocalMatrix().isIdentity()) {
+        if (!localMatrix.isIdentity()) {
             this->addAttribute("gradientTransform", svg_transform(localMatrix));
         }
 

@@ -40,6 +40,13 @@ public:
                                       const SkMatrix* localMatrix,
                                       bool clampAsIfUnpremul = false);
 
+    SkImageShader(sk_sp<SkImage>,
+                  const SkRect& subset,
+                  SkTileMode tmx, SkTileMode tmy,
+                  const SkSamplingOptions&,
+                  bool raw,
+                  bool clampAsIfUnpremul);
+
     bool isOpaque() const override;
 
 #if SK_SUPPORT_GPU
@@ -54,15 +61,6 @@ public:
 
 private:
     SK_FLATTENABLE_HOOKS(SkImageShader)
-
-    SkImageShader(sk_sp<SkImage>,
-                  const SkRect& subset,
-                  SkTileMode tmx,
-                  SkTileMode tmy,
-                  const SkSamplingOptions&,
-                  const SkMatrix* localMatrix,
-                  bool raw,
-                  bool clampAsIfUnpremul);
 
     void flatten(SkWriteBuffer&) const override;
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT

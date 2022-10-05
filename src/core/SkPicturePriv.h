@@ -104,6 +104,7 @@ public:
     // V90: Private API for backdrop scale factor in SaveLayerRec
     // V91: Added raw image shaders
     // V92: Added anisotropic filtering to SkSamplingOptions
+    // V94: Removed local matrices from SkShaderBase. Local matrices always use SkLocalMatrixShader.
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -118,6 +119,7 @@ public:
         kRawImageShaders                    = 91,
         kAnisotropicFilter                  = 92,
         kBlend4fColorFilter                 = 93,
+        kNoShaderLocalMatrix                = 94,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -143,7 +145,7 @@ public:
         // Contact the Infra Gardener (or directly ping rmistry@) if the above steps do not work
         // for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kBlend4fColorFilter
+        kCurrent_Version = kNoShaderLocalMatrix
     };
 };
 

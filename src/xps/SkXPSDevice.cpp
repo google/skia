@@ -1046,19 +1046,13 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     SkMatrix outMatrix;
     SkTileMode xy[2];
     SkImage* image = shader->isAImage(&outMatrix, xy);
-    if (image && image->asLegacyBitmap(&outTexture)) {
-        //TODO: outMatrix??
-        SkMatrix localMatrix = as_SB(shader)->getLocalMatrix();
+    if (image->asLegacyBitmap(&outTexture)) {
         if (parentTransform) {
-            localMatrix.postConcat(*parentTransform);
+            outMatrix.postConcat(*parentTransform);
         }
 
         SkTScopedComPtr<IXpsOMTileBrush> tileBrush;
-        HR(this->createXpsImageBrush(outTexture,
-                                     localMatrix,
-                                     xy,
-                                     skPaint.getAlpha(),
-                                     &tileBrush));
+        HR(this->createXpsImageBrush(outTexture, outMatrix, xy, skPaint.getAlpha(), &tileBrush));
 
         HRM(tileBrush->QueryInterface<IXpsOMBrush>(brush), "QI failed.");
     } else {

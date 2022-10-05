@@ -678,16 +678,12 @@ static void add_effect_to_recorder(skgpu::graphite::Recorder* recorder,
 
 static void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform> rtsUniforms,
                                            SkSpan<const SkUniform> graphiteUniforms,
-                                           int graphiteStartingIndex,
                                            const SkData* uniformData,
                                            SkPipelineDataGatherer* gatherer) {
     // Collect all the other uniforms from the provided SkData.
     const uint8_t* uniformBase = uniformData->bytes();
     for (size_t index = 0; index < rtsUniforms.size(); ++index) {
-        // The runtime shader SkShaderSnippet burns index 0 on the local matrix, so adjust our index
-        // to compensate. (Color filters and blenders don't need any adjustment and pass zero.)
-        int graphiteIndex = index + graphiteStartingIndex;
-        const SkUniform& skUniform = graphiteUniforms[graphiteIndex];
+        const SkUniform& skUniform = graphiteUniforms[index];
         // Get a pointer to the offset in our data for this uniform.
         const uint8_t* uniformPtr = uniformBase + rtsUniforms[index].offset;
         // Pass the uniform data to the gatherer.
@@ -715,7 +711,6 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
         gather_runtime_effect_uniforms(shaderData.fEffect->uniforms(),
                                        entry->fUniforms,
-                                       /*graphiteStartingIndex=*/0,
                                        shaderData.fUniforms.get(),
                                        gatherer);
     }
@@ -756,7 +751,6 @@ void RuntimeColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
 
         gather_runtime_effect_uniforms(filterData.fEffect->uniforms(),
                                        entry->fUniforms,
-                                       /*graphiteStartingIndex=*/0,
                                        filterData.fUniforms.get(),
                                        gatherer);
     }

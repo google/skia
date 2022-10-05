@@ -30,12 +30,13 @@ public:
         Descriptor();
         ~Descriptor();
 
-        Descriptor(const SkColor4f colors[], sk_sp<SkColorSpace> colorSpace,
-                   const SkScalar pos[], int colorCount,
-                   SkTileMode mode, const Interpolation& interpolation,
-                   const SkMatrix* localMatrix);
+        Descriptor(const SkColor4f colors[],
+                   sk_sp<SkColorSpace> colorSpace,
+                   const SkScalar pos[],
+                   int colorCount,
+                   SkTileMode mode,
+                   const Interpolation& interpolation);
 
-        const SkMatrix*     fLocalMatrix;
         const SkColor4f*    fColors;
         sk_sp<SkColorSpace> fColorSpace;
         const SkScalar*     fPos;
@@ -50,7 +51,7 @@ public:
     public:
         DescriptorScope() {}
 
-        bool unflatten(SkReadBuffer&);
+        bool unflatten(SkReadBuffer&, SkMatrix* legacyLocalMatrix);
 
         // fColors and fPos always point into local memory, so they can be safely mutated
         //
@@ -60,7 +61,6 @@ public:
     private:
         SkSTArray<16, SkColor4f, true> fColorStorage;
         SkSTArray<16, SkScalar , true> fPosStorage;
-        SkMatrix                       fLocalMatrixStorage;
     };
 
     SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit);

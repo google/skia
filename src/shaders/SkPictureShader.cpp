@@ -22,6 +22,7 @@
 #include "src/core/SkVM.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkImageShader.h"
+#include "src/shaders/SkLocalMatrixShader.h"
 #include <atomic>
 
 #if SK_SUPPORT_GPU
@@ -35,6 +36,7 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/image/SkImage_Base.h"
+#include "src/shaders/SkLocalMatrixShader.h"
 #endif
 
 sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy, SkFilterMode filter,
@@ -111,26 +113,34 @@ struct ImageFromPictureRec : public SkResourceCache::Rec {
 
 } // namespace
 
-SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture, SkTileMode tmx, SkTileMode tmy,
-                                 SkFilterMode filter, const SkMatrix* localMatrix, const SkRect* tile)
-    : INHERITED(localMatrix)
-    , fPicture(std::move(picture))
-    , fTile(tile ? *tile : fPicture->cullRect())
-    , fTmx(tmx)
-    , fTmy(tmy)
-    , fFilter(filter) {}
+SkPictureShader::SkPictureShader(sk_sp<SkPicture> picture,
+                                 SkTileMode tmx,
+                                 SkTileMode tmy,
+                                 SkFilterMode filter,
+                                 const SkRect* tile)
+        : fPicture(std::move(picture))
+        , fTile(tile ? *tile : fPicture->cullRect())
+        , fTmx(tmx)
+        , fTmy(tmy)
+        , fFilter(filter) {}
 
 sk_sp<SkShader> SkPictureShader::Make(sk_sp<SkPicture> picture, SkTileMode tmx, SkTileMode tmy,
                                       SkFilterMode filter, const SkMatrix* lm, const SkRect* tile) {
     if (!picture || picture->cullRect().isEmpty() || (tile && tile->isEmpty())) {
         return SkShaders::Empty();
     }
-    return sk_sp<SkShader>(new SkPictureShader(std::move(picture), tmx, tmy, filter, lm, tile));
+    return SkLocalMatrixShader::MakeWrapped<SkPictureShader>(lm,
+                                                             std::move(picture),
+                                                             tmx, tmy,
+                                                             filter,
+                                                             tile);
 }
 
 sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
     SkMatrix lm;
-    buffer.readMatrix(&lm);
+    if (buffer.isVersionLT(SkPicturePriv::Version::kNoShaderLocalMatrix)) {
+        buffer.readMatrix(&lm);
+    }
     auto tmx = buffer.read32LE(SkTileMode::kLastTileMode);
     auto tmy = buffer.read32LE(SkTileMode::kLastTileMode);
     SkRect tile = buffer.readRect();
@@ -159,7 +169,6 @@ sk_sp<SkFlattenable> SkPictureShader::CreateProc(SkReadBuffer& buffer) {
 }
 
 void SkPictureShader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeMatrix(this->getLocalMatrix());
     buffer.write32((unsigned)fTmx);
     buffer.write32((unsigned)fTmy);
     buffer.writeRect(fTile);

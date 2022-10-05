@@ -48,8 +48,6 @@ public:
      */
     virtual bool isConstant() const { return false; }
 
-    const SkMatrix& getLocalMatrix() const { return fLocalMatrix; }
-
     using GradientInfo = SkShader::GradientInfo;
     enum class GradientType {
         kNone    = kNone_GradientType,
@@ -184,14 +182,14 @@ public:
     bool appendStages(const SkStageRec&) const;
 
     bool SK_WARN_UNUSED_RESULT computeTotalInverse(const SkMatrix& ctm,
-                                                   const SkMatrix* outerLocalMatrix,
+                                                   const SkMatrix* localMatrix,
                                                    SkMatrix* totalInverse) const;
 
     // Returns the total local matrix for this shader:
     //
-    //   M = shaderLocalMatrix x outerLocalMatrix
+    //   M = shaderLocalMatrix x localMatrix
     //
-    SkTCopyOnFirstWrite<SkMatrix> totalLocalMatrix(const SkMatrix* outerLocalMatrix) const;
+    SkTCopyOnFirstWrite<SkMatrix> totalLocalMatrix(const SkMatrix* localMatrix) const;
 
     virtual SkImage* onIsAImage(SkMatrix*, SkTileMode[2]) const {
         return nullptr;
@@ -247,7 +245,7 @@ public:
     }
 
 protected:
-    SkShaderBase(const SkMatrix* localMatrix = nullptr);
+    SkShaderBase();
 
     void flatten(SkWriteBuffer&) const override;
 
@@ -274,9 +272,6 @@ protected:
     static skvm::Coord ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Coord, skvm::Uniforms*);
 
 private:
-    // This is essentially const, but not officially so it can be modified in constructors.
-    SkMatrix fLocalMatrix;
-
     virtual skvm::Color onProgram(skvm::Builder*,
                                   skvm::Coord device, skvm::Coord local, skvm::Color paint,
                                   const SkMatrixProvider&, const SkMatrix* localM,

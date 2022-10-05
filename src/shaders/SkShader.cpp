@@ -30,26 +30,15 @@
 #include "src/core/SkPaintParamsKey.h"
 #endif
 
-SkShaderBase::SkShaderBase(const SkMatrix* localMatrix)
-    : fLocalMatrix(localMatrix ? *localMatrix : SkMatrix::I()) {
-    // Pre-cache so future calls to fLocalMatrix.getType() are threadsafe.
-    (void)fLocalMatrix.getType();
-}
+SkShaderBase::SkShaderBase() = default;
 
-SkShaderBase::~SkShaderBase() {}
+SkShaderBase::~SkShaderBase() = default;
 
-void SkShaderBase::flatten(SkWriteBuffer& buffer) const {
-    this->INHERITED::flatten(buffer);
-    bool hasLocalM = !fLocalMatrix.isIdentity();
-    buffer.writeBool(hasLocalM);
-    if (hasLocalM) {
-        buffer.writeMatrix(fLocalMatrix);
-    }
-}
+void SkShaderBase::flatten(SkWriteBuffer& buffer) const { this->INHERITED::flatten(buffer); }
 
 SkTCopyOnFirstWrite<SkMatrix>
 SkShaderBase::totalLocalMatrix(const SkMatrix* outerLocalMatrix) const {
-    SkTCopyOnFirstWrite<SkMatrix> m(fLocalMatrix);
+    SkTCopyOnFirstWrite<SkMatrix> m(SkMatrix::I());
 
     if (outerLocalMatrix) {
         *m.writable() = ConcatLocalMatrices(*outerLocalMatrix, *m);
@@ -79,9 +68,7 @@ bool SkShaderBase::asLuminanceColor(SkColor* colorPtr) const {
 SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaAlloc* alloc) const {
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
     // We always fall back to raster pipeline when perspective is present.
-    if (rec.fMatrix->hasPerspective() ||
-        fLocalMatrix.hasPerspective() ||
-        (rec.fLocalMatrix && rec.fLocalMatrix->hasPerspective()) ||
+    if (rec.fMatrix->hasPerspective() || (rec.fLocalMatrix && rec.fLocalMatrix->hasPerspective()) ||
         !this->computeTotalInverse(*rec.fMatrix, rec.fLocalMatrix, nullptr)) {
         return nullptr;
     }
@@ -98,7 +85,6 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
     // We should never use a context with perspective.
     SkASSERT(!rec.fMatrix->hasPerspective());
     SkASSERT(!rec.fLocalMatrix || !rec.fLocalMatrix->hasPerspective());
-    SkASSERT(!shader.getLocalMatrix().hasPerspective());
 
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.

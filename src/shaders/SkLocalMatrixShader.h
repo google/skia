@@ -17,10 +17,18 @@ class SkArenaAlloc;
 
 class SkLocalMatrixShader final : public SkShaderBase {
 public:
-    SkLocalMatrixShader(sk_sp<SkShader> proxy, const SkMatrix& localMatrix)
-        : INHERITED(&localMatrix)
-        , fProxyShader(std::move(proxy)) {
+    template <typename T, typename... Args>
+    static std::enable_if_t<std::is_base_of_v<SkShader, T>, sk_sp<SkShader>>
+    MakeWrapped(const SkMatrix* localMatrix, Args&&... args) {
+        auto t = sk_make_sp<T>(std::forward<Args>(args)...);
+        if (!localMatrix || localMatrix->isIdentity()) {
+            return std::move(t);
+        }
+        return sk_make_sp<SkLocalMatrixShader>(sk_sp<SkShader>(std::move(t)), *localMatrix);
     }
+
+    SkLocalMatrixShader(sk_sp<SkShader> wrapped, const SkMatrix& localMatrix)
+            : fLocalMatrix(localMatrix), fWrappedShader(std::move(wrapped)) {}
 
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 
@@ -35,9 +43,9 @@ public:
 
     sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const override {
         if (localMatrix) {
-            *localMatrix = this->getLocalMatrix();
+            *localMatrix = fLocalMatrix;
         }
-        return fProxyShader;
+        return fWrappedShader;
     }
 
 protected:
@@ -58,7 +66,8 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkLocalMatrixShader)
 
-    sk_sp<SkShader> fProxyShader;
+    SkMatrix fLocalMatrix;
+    sk_sp<SkShader> fWrappedShader;
 
     using INHERITED = SkShaderBase;
 };
