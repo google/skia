@@ -35,10 +35,16 @@ void GrFinishCallbacks::check() {
 
 void GrFinishCallbacks::callAll(bool doDelete) {
     while (!fCallbacks.empty()) {
-        fCallbacks.front().fCallback(fCallbacks.front().fContext);
+        // While we are processing a proc we need to make sure to remove it from
+        // the callback list before calling it. This is because the client could
+        // trigger a call (e.g. calling flushAndSubmit(/*sync=*/true)) that has
+        // us process the finished callbacks. We also must process deleting the
+        // fence before a client may abandon the context.
+        auto finishCallback = fCallbacks.front();
         if (doDelete) {
-            fGpu->deleteFence(fCallbacks.front().fFence);
+            fGpu->deleteFence(finishCallback.fFence);
         }
         fCallbacks.pop_front();
+        finishCallback.fCallback(finishCallback.fContext);
     }
 }
