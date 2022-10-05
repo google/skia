@@ -217,6 +217,10 @@ public:
     // Version for programs that aren't GrGLProgram.
     void flushProgram(GrGLuint);
 
+    // GrGLOpsRenderPass directly makes GL draws. GrGLGpu uses this notification to mark the
+    // destination surface dirty if color writes are enabled.
+    void didDrawTo(GrRenderTarget*);
+
 private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrDirectContext*);
 
@@ -456,14 +460,7 @@ private:
     // and the binding for 'target' will change.
     void bindTextureToScratchUnit(GrGLenum target, GrGLint textureID);
 
-    // The passed bounds contains the render target's color values that will subsequently be
-    // written.
-    void flushRenderTarget(GrGLRenderTarget*, bool useMultisampleFBO, GrSurfaceOrigin,
-                           const SkIRect& bounds);
-    // This version has an implicit bounds of the entire render target.
     void flushRenderTarget(GrGLRenderTarget*, bool useMultisampleFBO);
-    // This version can be used when the render target's colors will not be written.
-    void flushRenderTargetNoColorWrites(GrGLRenderTarget*, bool useMultisampleFBO);
 
     void flushStencil(const GrStencilSettings&, GrSurfaceOrigin);
     void disableStencil();
