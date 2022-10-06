@@ -1059,7 +1059,7 @@ public:
     void addToKey(const SkKeyContext& keyContext,
                   SkPaintParamsKeyBuilder* builder,
                   SkPipelineDataGatherer* gatherer) const override {
-        RuntimeColorFilterBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 
         add_children_to_key(fChildren, fEffect->children(), keyContext, builder, gatherer);
 
@@ -1235,7 +1235,7 @@ public:
     void addToKey(const SkKeyContext& keyContext,
                   SkPaintParamsKeyBuilder* builder,
                   SkPipelineDataGatherer* gatherer) const override {
-        RuntimeShaderBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 
         add_children_to_key(fChildren, fEffect->children(), keyContext, builder, gatherer);
 
@@ -1406,7 +1406,7 @@ public:
                   SkPaintParamsKeyBuilder* builder,
                   SkPipelineDataGatherer* gatherer,
                   bool primitiveColorBlender) const override {
-        RuntimeBlenderBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 
         add_children_to_key(fChildren, fEffect->children(), keyContext, builder, gatherer);
 

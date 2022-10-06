@@ -651,10 +651,10 @@ void PrimitiveBlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
 #endif // SK_GRAPHITE_ENABLED
 }
 
-RuntimeShaderBlock::ShaderData::ShaderData(sk_sp<const SkRuntimeEffect> effect)
+RuntimeEffectBlock::ShaderData::ShaderData(sk_sp<const SkRuntimeEffect> effect)
         : fEffect(std::move(effect)) {}
 
-RuntimeShaderBlock::ShaderData::ShaderData(sk_sp<const SkRuntimeEffect> effect,
+RuntimeEffectBlock::ShaderData::ShaderData(sk_sp<const SkRuntimeEffect> effect,
                                            sk_sp<const SkData> uniforms)
         : fEffect(std::move(effect))
         , fUniforms(std::move(uniforms)) {}
@@ -665,7 +665,7 @@ static bool skdata_matches(const SkData* a, const SkData* b) {
     return a ? a->equals(b) : (a == b);
 }
 
-bool RuntimeShaderBlock::ShaderData::operator==(const ShaderData& rhs) const {
+bool RuntimeEffectBlock::ShaderData::operator==(const ShaderData& rhs) const {
     return fEffect == rhs.fEffect && skdata_matches(fUniforms.get(), rhs.fUniforms.get());
 }
 
@@ -692,7 +692,7 @@ static void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform
 }
 #endif
 
-void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+void RuntimeEffectBlock::BeginBlock(const SkKeyContext& keyContext,
                                     SkPaintParamsKeyBuilder* builder,
                                     SkPipelineDataGatherer* gatherer,
                                     const ShaderData& shaderData) {
@@ -712,46 +712,6 @@ void RuntimeShaderBlock::BeginBlock(const SkKeyContext& keyContext,
         gather_runtime_effect_uniforms(shaderData.fEffect->uniforms(),
                                        entry->fUniforms,
                                        shaderData.fUniforms.get(),
-                                       gatherer);
-    }
-
-    builder->beginBlock(codeSnippetID);
-#endif  // SK_GRAPHITE_ENABLED
-}
-
-RuntimeColorFilterBlock::ColorFilterData::ColorFilterData(sk_sp<const SkRuntimeEffect> effect)
-        : fEffect(std::move(effect)) {}
-
-RuntimeColorFilterBlock::ColorFilterData::ColorFilterData(sk_sp<const SkRuntimeEffect> effect,
-                                                          sk_sp<const SkData> uniforms)
-        : fEffect(std::move(effect))
-        , fUniforms(std::move(uniforms)) {}
-
-bool RuntimeColorFilterBlock::ColorFilterData::operator==(const ColorFilterData& rhs) const {
-    return fEffect == rhs.fEffect &&
-           skdata_matches(fUniforms.get(), rhs.fUniforms.get());
-}
-
-void RuntimeColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
-                                         SkPaintParamsKeyBuilder* builder,
-                                         SkPipelineDataGatherer* gatherer,
-                                         const ColorFilterData& filterData) {
-#ifdef SK_GRAPHITE_ENABLED
-    SkShaderCodeDictionary* dict = keyContext.dict();
-    int codeSnippetID = dict->findOrCreateRuntimeEffectSnippet(filterData.fEffect.get());
-
-    add_effect_to_recorder(keyContext.recorder(), codeSnippetID, filterData.fEffect);
-
-    if (gatherer) {
-        const SkShaderSnippet* entry = dict->getEntry(codeSnippetID);
-        SkASSERT(entry);
-
-        SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, entry->fUniforms);)
-        gatherer->addFlags(entry->fSnippetRequirementFlags);
-
-        gather_runtime_effect_uniforms(filterData.fEffect->uniforms(),
-                                       entry->fUniforms,
-                                       filterData.fUniforms.get(),
                                        gatherer);
     }
 
