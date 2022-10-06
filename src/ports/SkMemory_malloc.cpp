@@ -69,7 +69,9 @@ void* sk_realloc_throw(void* addr, size_t size) {
 }
 
 void sk_free(void* p) {
-    if (p) {
+    // The guard here produces a performance improvement across many tests, and many platforms.
+    // Removing the check was tried in skia cl 588037.
+    if (p != nullptr) {
         free(p);
     }
 }
