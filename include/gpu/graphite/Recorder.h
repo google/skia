@@ -16,6 +16,7 @@
 
 #include <vector>
 
+class SkPixmap;
 class SkRuntimeEffectDictionary;
 class SkTextureDataBlock;
 class SkUniformDataBlock;
@@ -78,11 +79,30 @@ public:
      * if it succeeded or not.
      *
      * If this does return a valid BackendTexture, the caller is required to use
-     * Recorder::deleteBackendTexture or Context::deleteBAckendTexture to delete the texture. It is
+     * Recorder::deleteBackendTexture or Context::deleteBackendTexture to delete the texture. It is
      * safe to use the Context that created this Recorder or any other Recorder created from the
      * same Context to call deleteBackendTexture.
      */
     BackendTexture createBackendTexture(SkISize dimensions, const TextureInfo&);
+
+    /**
+     * If possible, updates a backend texture with the provided pixmap data. The client
+     * should check the return value to see if the update was successful. The client is required
+     * to insert a Recording into the Context and call `submit` to send the upload work to the gpu.
+     * The backend texture must be compatible with the provided pixmap(s). Compatible, in this case,
+     * means that the backend format is compatible with the base pixmap's colortype. The src data
+     * can be deleted when this call returns.
+     * If the backend texture is mip mapped, the data for all the mipmap levels must be provided.
+     * In the mipmapped case all the colortypes of the provided pixmaps must be the same.
+     * Additionally, all the miplevels must be sized correctly (please see
+     * SkMipmap::ComputeLevelSize and ComputeLevelCount).
+     * Note: the pixmap's alphatypes and colorspaces are ignored.
+     * For the Vulkan backend after a successful update the layout of the created VkImage will be:
+     *      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+     */
+    bool updateBackendTexture(const BackendTexture&,
+                              const SkPixmap srcData[],
+                              int numLevels);
 
     /**
      * Called to delete the passed in BackendTexture. This should only be called if the

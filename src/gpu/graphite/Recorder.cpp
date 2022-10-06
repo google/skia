@@ -26,7 +26,9 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/TaskGraph.h"
+#include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
+#include "src/gpu/graphite/UploadTask.h"
 #include "src/gpu/graphite/text/AtlasManager.h"
 #include "src/image/SkImage_Base.h"
 #include "src/text/gpu/StrikeCache.h"
@@ -181,6 +183,66 @@ BackendTexture Recorder::createBackendTexture(SkISize dimensions, const TextureI
         return {};
     }
     return fResourceProvider->createBackendTexture(dimensions, info);
+}
+
+bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
+                                    const SkPixmap srcData[],
+                                    int numLevels) {
+    ASSERT_SINGLE_OWNER
+
+    if (!backendTex.isValid() || backendTex.backend() != this->backend()) {
+        return false;
+    }
+
+    if (!srcData || numLevels <= 0) {
+        return false;
+    }
+
+    // If the texture has MIP levels then we require that the full set is overwritten.
+    int numExpectedLevels = 1;
+    if (backendTex.info().numMipLevels() > 1) {
+        numExpectedLevels = SkMipmap::ComputeLevelCount(backendTex.dimensions().width(),
+                                                        backendTex.dimensions().height()) + 1;
+    }
+    if (numLevels != numExpectedLevels) {
+        return false;
+    }
+
+    SkColorType ct = srcData[0].colorType();
+
+    if (!this->priv().caps()->areColorTypeAndTextureInfoCompatible(ct, backendTex.info())) {
+        return false;
+    }
+
+    sk_sp<Texture> texture = this->priv().resourceProvider()->createWrappedTexture(backendTex);
+    if (!texture) {
+        return false;
+    }
+
+    sk_sp<TextureProxy> proxy(new TextureProxy(std::move(texture)));
+
+    std::vector<MipLevel> mipLevels;
+    mipLevels.resize(numLevels);
+
+    for (int i = 0; i < numLevels; ++i) {
+        SkASSERT(srcData[i].addr());
+        SkASSERT(srcData[i].colorType() == ct);
+
+        mipLevels[i].fPixels = srcData[i].addr();
+        mipLevels[i].fRowBytes = srcData[i].rowBytes();
+    }
+
+    UploadInstance upload = UploadInstance::Make(this,
+                                                 std::move(proxy),
+                                                 ct,
+                                                 mipLevels,
+                                                 SkIRect::MakeSize(backendTex.dimensions()));
+
+    sk_sp<Task> uploadTask = UploadTask::Make(upload);
+
+    this->priv().add(std::move(uploadTask));
+
+    return true;
 }
 
 void Recorder::deleteBackendTexture(BackendTexture& texture) {

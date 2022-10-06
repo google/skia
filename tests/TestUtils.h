@@ -21,7 +21,7 @@ typedef uint32_t GrColor;
 void TestReadPixels(skiatest::Reporter*, GrDirectContext*, skgpu::v1::SurfaceContext*,
                     uint32_t expectedPixelValues[], const char* testName);
 
-// See if trying to write RGBA 8888 pixels to 'dstContext' matches matches the
+// See if trying to write RGBA 8888 pixels to 'dstContext' matches the
 // expectation ('expectedToWork')
 void TestWritePixels(skiatest::Reporter*, GrDirectContext*, skgpu::v1::SurfaceContext*,
                      bool expectedToWork, const char* testName);
