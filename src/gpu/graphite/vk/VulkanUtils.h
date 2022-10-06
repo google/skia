@@ -25,4 +25,15 @@
         }                                                                  \
     } while (false)
 
+// same as VULKAN_CALL but checks for success
+#define VULKAN_CALL_ERRCHECK(IFACE, X)                   \
+    VkResult SK_MACRO_APPEND_LINE(ret);                  \
+    VULKAN_CALL_RESULT(IFACE, SK_MACRO_APPEND_LINE(ret), X)
+
+#define VULKAN_CALL_RESULT_NOCHECK(IFACE, RESULT, X) \
+    do {                                             \
+        (RESULT) = VULKAN_CALL(IFACE, X);            \
+    } while (false)
+
+
 #endif // skgpu_graphite_VulkanUtils_DEFINED

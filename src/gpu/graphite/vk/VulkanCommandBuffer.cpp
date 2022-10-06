@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
 
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/graphite/vk/VulkanUtils.h"
 
@@ -76,9 +77,165 @@ VulkanCommandBuffer::VulkanCommandBuffer(VkCommandPool pool,
     (void) fPrimaryCommandBuffer;
     (void) fSharedContext;
     (void) fResourceProvider;
+    // When making a new command buffer, we automatically begin the command buffer
+    this->begin();
 }
 
 VulkanCommandBuffer::~VulkanCommandBuffer() {}
+
+void VulkanCommandBuffer::onResetCommandBuffer() {
+    SkASSERT(!fActive);
+    VULKAN_CALL_ERRCHECK(fSharedContext->interface(), ResetCommandPool(fSharedContext->device(),
+                                                                       fPool,
+                                                                       0));
+}
+
+bool VulkanCommandBuffer::setNewCommandBufferResources() {
+    this->begin();
+    return true;
+}
+
+void VulkanCommandBuffer::begin() {
+    SkASSERT(!fActive);
+    VkCommandBufferBeginInfo cmdBufferBeginInfo;
+    memset(&cmdBufferBeginInfo, 0, sizeof(VkCommandBufferBeginInfo));
+    cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    cmdBufferBeginInfo.pNext = nullptr;
+    cmdBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    cmdBufferBeginInfo.pInheritanceInfo = nullptr;
+
+    VULKAN_CALL_ERRCHECK(fSharedContext->interface(), BeginCommandBuffer(fPrimaryCommandBuffer,
+                                                                         &cmdBufferBeginInfo));
+    SkDEBUGCODE(fActive = true;)
+}
+
+void VulkanCommandBuffer::end() {
+    SkASSERT(fActive);
+
+    VULKAN_CALL_ERRCHECK(fSharedContext->interface(), EndCommandBuffer(fPrimaryCommandBuffer));
+
+    SkDEBUGCODE(fActive = false;)
+}
+
+static bool submit_to_queue(const VulkanInterface* interface,
+                            VkQueue queue,
+                            VkFence fence,
+                            uint32_t waitCount,
+                            const VkSemaphore* waitSemaphores,
+                            const VkPipelineStageFlags* waitStages,
+                            uint32_t commandBufferCount,
+                            const VkCommandBuffer* commandBuffers,
+                            uint32_t signalCount,
+                            const VkSemaphore* signalSemaphores,
+                            Protected protectedContext) {
+    VkProtectedSubmitInfo protectedSubmitInfo;
+    if (protectedContext == Protected::kYes) {
+        memset(&protectedSubmitInfo, 0, sizeof(VkProtectedSubmitInfo));
+        protectedSubmitInfo.sType = VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO;
+        protectedSubmitInfo.pNext = nullptr;
+        protectedSubmitInfo.protectedSubmit = VK_TRUE;
+    }
+
+    VkSubmitInfo submitInfo;
+    memset(&submitInfo, 0, sizeof(VkSubmitInfo));
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.pNext = protectedContext == Protected::kYes ? &protectedSubmitInfo : nullptr;
+    submitInfo.waitSemaphoreCount = waitCount;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = commandBufferCount;
+    submitInfo.pCommandBuffers = commandBuffers;
+    submitInfo.signalSemaphoreCount = signalCount;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+    VkResult result;
+    VULKAN_CALL_RESULT(interface, result, QueueSubmit(queue, 1, &submitInfo, fence));
+    if (result != VK_SUCCESS) {
+        return false;
+    }
+    return true;
+}
+
+bool VulkanCommandBuffer::submit(VkQueue queue) {
+    this->end();
+
+    auto interface = fSharedContext->interface();
+    auto device = fSharedContext->device();
+    VkResult err;
+
+    if (fSubmitFence == VK_NULL_HANDLE) {
+        VkFenceCreateInfo fenceInfo;
+        memset(&fenceInfo, 0, sizeof(VkFenceCreateInfo));
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        VULKAN_CALL_RESULT(interface, err, CreateFence(device,
+                                                       &fenceInfo,
+                                                       nullptr,
+                                                       &fSubmitFence));
+        if (err) {
+            fSubmitFence = VK_NULL_HANDLE;
+            return false;
+        }
+    } else {
+        // This cannot return DEVICE_LOST so we assert we succeeded.
+        VULKAN_CALL_RESULT(interface, err, ResetFences(device, 1, &fSubmitFence));
+        SkASSERT(err == VK_SUCCESS);
+    }
+
+    SkASSERT(fSubmitFence != VK_NULL_HANDLE);
+
+    bool submitted = submit_to_queue(interface,
+                                     queue,
+                                     fSubmitFence,
+                                     /*waitCount=*/0,
+                                     /*waitSemaphores=*/nullptr,
+                                     /*waitStages=*/nullptr,
+                                     /*commandBufferCount*/1,
+                                     &fPrimaryCommandBuffer,
+                                     /*signalCount=*/0,
+                                     /*signalSemaphores=*/nullptr,
+                                     fSharedContext->isProtected());
+    if (!submitted) {
+        // Destroy the fence or else we will try to wait forever for it to finish.
+        VULKAN_CALL(interface, DestroyFence(device, fSubmitFence, nullptr));
+        fSubmitFence = VK_NULL_HANDLE;
+        return false;
+    }
+    return true;
+}
+
+bool VulkanCommandBuffer::isFinished() {
+    SkASSERT(!fActive);
+    if (VK_NULL_HANDLE == fSubmitFence) {
+        return true;
+    }
+
+    VkResult err;
+    VULKAN_CALL_RESULT_NOCHECK(fSharedContext->interface(), err,
+                               GetFenceStatus(fSharedContext->device(), fSubmitFence));
+    switch (err) {
+        case VK_SUCCESS:
+        case VK_ERROR_DEVICE_LOST:
+            return true;
+
+        case VK_NOT_READY:
+            return false;
+
+        default:
+            SKGPU_LOG_F("Error calling vkGetFenceStatus. Error: %d", err);
+            SK_ABORT("Got an invalid fence status");
+            return false;
+    }
+}
+
+void VulkanCommandBuffer::waitUntilFinished() {
+    if (fSubmitFence == VK_NULL_HANDLE) {
+        return;
+    }
+    VULKAN_CALL_ERRCHECK(fSharedContext->interface(), WaitForFences(fSharedContext->device(),
+                                                                    1,
+                                                                    &fSubmitFence,
+                                                                    /*waitAll=*/true,
+                                                                    /*timeout=*/UINT64_MAX));
+}
 
 bool VulkanCommandBuffer::onAddRenderPass(
         const RenderPassDesc&,

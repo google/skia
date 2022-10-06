@@ -10,7 +10,6 @@
 
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/DrawPass.h"
-#include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/Log.h"
 
 #include <memory>
@@ -45,7 +44,7 @@ public:
                (*fCommandBuffer).status == MTLCommandBufferStatusError;
 
     }
-    void waitUntilFinished(const SharedContext*) {
+    void waitUntilFinished() {
         // TODO: it's not clear what do to if status is Enqueued. Commit and then wait?
         if ((*fCommandBuffer).status == MTLCommandBufferStatusScheduled ||
             (*fCommandBuffer).status == MTLCommandBufferStatusCommitted) {

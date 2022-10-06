@@ -23,14 +23,24 @@ public:
                                                      VulkanResourceProvider*);
     ~VulkanCommandBuffer() override;
 
+    bool setNewCommandBufferResources() override;
+
+    bool submit(VkQueue);
+
+    bool isFinished();
+
+    void waitUntilFinished();
+
 private:
     VulkanCommandBuffer(VkCommandPool pool,
                         VkCommandBuffer primaryCommandBuffer,
                         const VulkanSharedContext* sharedContext,
                         VulkanResourceProvider* resourceProvider);
 
-    // TODO: Implement this
-    void onResetCommandBuffer() override {}
+    void onResetCommandBuffer() override;
+
+    void begin();
+    void end();
 
     // TODO: The virtuals in this class have not yet been implemented as we still haven't
     // implemented the objects they use.
@@ -67,6 +77,12 @@ private:
     VkCommandBuffer fPrimaryCommandBuffer;
     const VulkanSharedContext* fSharedContext;
     VulkanResourceProvider* fResourceProvider;
+
+    VkFence fSubmitFence = VK_NULL_HANDLE;
+
+#ifdef SK_DEBUG
+    bool fActive = false;
+#endif
 };
 
 } // namespace skgpu::graphite

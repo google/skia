@@ -10,7 +10,11 @@
 
 #include "src/gpu/graphite/ResourceProvider.h"
 
+#include "include/gpu/vk/VulkanTypes.h"
+
 namespace skgpu::graphite {
+
+class VulkanCommandBuffer;
 
 class VulkanResourceProvider final : public ResourceProvider {
 public:

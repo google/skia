@@ -28,6 +28,9 @@ enum class Priority : int {
     do { \
         if (priority <= SKGPU_LOWEST_ACTIVE_PRIORITY) { \
             SkDebugf("[graphite] " fmt "\n", ##__VA_ARGS__); \
+            if (priority == skgpu::graphite::Priority::kFatal) { \
+                SK_ABORT("Fatal log call"); \
+            } \
         } \
     } while (0)
 #define SKGPU_LOG_F(fmt, ...) SKGPU_LOG(skgpu::graphite::Priority::kFatal, "** ERROR ** " fmt, \

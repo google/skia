@@ -20,7 +20,7 @@ public:
     virtual ~GpuWorkSubmission();
 
     virtual bool isFinished() = 0;
-    virtual void waitUntilFinished(const SharedContext*) = 0;
+    virtual void waitUntilFinished() = 0;
 
 protected:
     CommandBuffer* commandBuffer() { return fCommandBuffer.get(); }

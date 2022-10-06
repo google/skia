@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
 
 namespace skgpu::graphite {
 

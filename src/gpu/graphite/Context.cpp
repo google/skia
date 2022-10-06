@@ -34,6 +34,7 @@
 
 #ifdef SK_VULKAN
 #include "include/gpu/vk/VulkanBackendContext.h"
+#include "src/gpu/graphite/vk/VulkanQueueManager.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #endif
 
@@ -81,8 +82,8 @@ std::unique_ptr<Context> Context::MakeVulkan(const VulkanBackendContext& backend
         return nullptr;
     }
 
-    // TODO: Make a QueueManager
-    std::unique_ptr<QueueManager> queueManager;
+    std::unique_ptr<QueueManager> queueManager(new VulkanQueueManager(backendContext.fQueue,
+                                                                      sharedContext.get()));
     if (!queueManager) {
         return nullptr;
     }

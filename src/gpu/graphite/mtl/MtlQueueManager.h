@@ -20,7 +20,6 @@
 namespace skgpu::graphite {
 
 class MtlSharedContext;
-class SharedContext;
 
 class MtlQueueManager : public QueueManager {
 public:

@@ -53,7 +53,7 @@ public:
     void resetCommandBuffer();
 
     // If any work is needed to create new resources for a fresh command buffer do that here.
-    virtual bool setNewCommandBufferResources() { return true; }
+    virtual bool setNewCommandBufferResources() = 0;
 
     void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);
     void callFinishedProcs(bool success);

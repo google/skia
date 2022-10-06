@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/mtl/MtlQueueManager.h"
 
+#include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/mtl/MtlCommandBuffer.h"
 #include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
@@ -41,17 +42,17 @@ std::unique_ptr<CommandBuffer> MtlQueueManager::getNewCommandBuffer(
     return std::move(cmdBuffer);
 }
 
-class WorkSubmission final : public GpuWorkSubmission {
+class MtlWorkSubmission final : public GpuWorkSubmission {
 public:
-    WorkSubmission(std::unique_ptr<CommandBuffer> cmdBuffer, QueueManager* queueManager)
+    MtlWorkSubmission(std::unique_ptr<CommandBuffer> cmdBuffer, QueueManager* queueManager)
         : GpuWorkSubmission(std::move(cmdBuffer), queueManager) {}
-    ~WorkSubmission() override {}
+    ~MtlWorkSubmission() override {}
 
     bool isFinished() override {
         return static_cast<MtlCommandBuffer*>(this->commandBuffer())->isFinished();
     }
-    void waitUntilFinished(const SharedContext* context) override {
-        return static_cast<MtlCommandBuffer*>(this->commandBuffer())->waitUntilFinished(context);
+    void waitUntilFinished() override {
+        return static_cast<MtlCommandBuffer*>(this->commandBuffer())->waitUntilFinished();
     }
 };
 
@@ -64,7 +65,7 @@ QueueManager::OutstandingSubmission MtlQueueManager::onSubmitToGpu() {
     }
 
     std::unique_ptr<GpuWorkSubmission> submission(
-            new WorkSubmission(std::move(fCurrentCommandBuffer), this));
+            new MtlWorkSubmission(std::move(fCurrentCommandBuffer), this));
     return submission;
 }
 
