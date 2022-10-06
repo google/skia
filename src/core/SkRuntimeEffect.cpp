@@ -1204,7 +1204,7 @@ public:
         }
 
         SkMatrix matrix;
-        if (!this->totalLocalMatrix(args.fLocalMatrix)->invert(&matrix)) {
+        if (args.fLocalMatrix && !args.fLocalMatrix->invert(&matrix)) {
             return nullptr;
         }
 

@@ -47,8 +47,10 @@ protected:
 private:
     SK_FLATTENABLE_HOOKS(SkPictureShader)
 
-    sk_sp<SkShader> rasterShader(const SkMatrix&, SkTCopyOnFirstWrite<SkMatrix>* localMatrix,
-                                 SkColorType dstColorType, SkColorSpace* dstColorSpace,
+    sk_sp<SkShader> rasterShader(const SkMatrix&,
+                                 SkMatrix* localMatrix,
+                                 SkColorType dstColorType,
+                                 SkColorSpace* dstColorSpace,
                                  const SkSurfaceProps& props) const;
 
     sk_sp<SkPicture>    fPicture;

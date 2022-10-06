@@ -355,9 +355,9 @@ sk_sp<SkShader> SkImageShader::MakeSubset(sk_sp<SkImage> image,
 
 std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         const GrFPArgs& args) const {
-    const auto lm = this->totalLocalMatrix(args.fLocalMatrix);
+    const auto& lm = args.fLocalMatrix ? *args.fLocalMatrix : SkMatrix::I();
     SkMatrix lmInverse;
-    if (!lm->invert(&lmInverse)) {
+    if (!lm.invert(&lmInverse)) {
         return nullptr;
     }
 

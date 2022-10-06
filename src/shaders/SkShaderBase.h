@@ -185,12 +185,6 @@ public:
                                                    const SkMatrix* localMatrix,
                                                    SkMatrix* totalInverse) const;
 
-    // Returns the total local matrix for this shader:
-    //
-    //   M = shaderLocalMatrix x localMatrix
-    //
-    SkTCopyOnFirstWrite<SkMatrix> totalLocalMatrix(const SkMatrix* localMatrix) const;
-
     virtual SkImage* onIsAImage(SkMatrix*, SkTileMode[2]) const {
         return nullptr;
     }

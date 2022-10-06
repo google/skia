@@ -390,38 +390,22 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 
 // TODO: This does not work for arbitrary shader DAGs (when there is no single leaf local matrix).
 // What we really need is proper post-LM plumbing for shaders.
-static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatrix& m) {
-    SkMatrix inverse;
-    if (!shader || !m.invert(&inverse)) {
+static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatrix& lm) {
+    SkMatrix inverse_lm;
+    if (!shader || !lm.invert(&inverse_lm)) {
         return nullptr;
     }
 
-    // Normal LMs pre-compose.  In order to push a post local matrix, we shoot for
-    // something along these lines (where all new components are pre-composed):
-    //
-    //   new_lm X current_lm == current_lm X inv(current_lm) X new_lm X current_lm
-    //
-    // We also have two sources of local matrices:
-    //   - the actual shader lm
-    //   - outer lms applied via SkLocalMatrixShader
-
-    SkMatrix outer_lm;
-    const auto nested_shader = as_SB(shader)->makeAsALocalMatrixShader(&outer_lm);
+    // LMs pre-compose.  In order to push a post local matrix, we peel off any existing local
+    // set a new local matrix of inverse_lm * prev_local_matrix.
+    SkMatrix prev_local_matrix;
+    const auto nested_shader = as_SB(shader)->makeAsALocalMatrixShader(&prev_local_matrix);
     if (nested_shader) {
         // unfurl the shader
         shader = nested_shader.get();
-    } else {
-        outer_lm.reset();
     }
 
-    const auto lm = *as_SB(shader)->totalLocalMatrix(nullptr);
-    SkMatrix lm_inv;
-    if (!lm.invert(&lm_inv)) {
-        return nullptr;
-    }
-
-    // Note: since we unfurled the shader above, we don't need to apply an outer_lm inverse
-    return shader->makeWithLocalMatrix(lm_inv * inverse * lm * outer_lm);
+    return shader->makeWithLocalMatrix(inverse_lm * prev_local_matrix);
 }
 
 void SkBaseDevice::drawGlyphRunList(SkCanvas* canvas,
