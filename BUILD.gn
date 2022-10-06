@@ -848,14 +848,44 @@ optional("gpu_shared") {
   enabled = skia_enable_gpu || skia_enable_graphite
 
   deps = []
+  libs = []
   public_defines = []
   public_deps = []
+  frameworks = []
 
   if (skia_enable_gpu) {
     public_defines += [ "SK_SUPPORT_GPU=1" ]
   }
   if (skia_enable_graphite) {
     public_defines += [ "SK_GRAPHITE_ENABLED" ]
+  }
+
+  if (skia_use_dawn) {
+    public_defines += [ "SK_DAWN" ]
+
+    # When building for WASM, the WebGPU headers are provided by Emscripten. For native builds we
+    # have to depend on Dawn directly.
+    if (!skia_use_webgpu) {
+      public_deps += [
+        "//third_party/externals/dawn/include/dawn:cpp_headers",
+        "//third_party/externals/dawn/src/dawn:cpp",
+        "//third_party/externals/dawn/src/dawn:proc",
+      ]
+
+      if (dawn_enable_d3d12 || dawn_enable_desktop_gl || dawn_enable_metal ||
+          dawn_enable_opengles || dawn_enable_vulkan) {
+        public_deps += [ "//third_party/externals/dawn/src/dawn/native" ]
+      }
+      if (dawn_enable_d3d12) {
+        libs += [
+          "d3d12.lib",
+          "dxgi.lib",
+          "d3dcompiler.lib",
+        ]
+      } else if (dawn_enable_metal) {
+        frameworks += [ "Metal.framework" ]
+      }
+    }
   }
 
   if (skia_use_direct3d) {
@@ -967,32 +997,7 @@ optional("gpu") {
   }
 
   if (skia_use_dawn) {
-    public_defines += [ "SK_DAWN" ]
     sources += skia_dawn_sources
-
-    # When building for WASM, the WebGPU headers are provided by Emscripten. For native builds we
-    # have to depend on Dawn directly.
-    if (!skia_use_webgpu) {
-      public_deps += [ "//third_party/externals/dawn/include/dawn:cpp_headers" ]
-      deps += [
-        "//third_party/externals/dawn/src/dawn:cpp",
-        "//third_party/externals/dawn/src/dawn:proc",
-      ]
-
-      if (dawn_enable_d3d12 || dawn_enable_desktop_gl || dawn_enable_metal ||
-          dawn_enable_opengles || dawn_enable_vulkan) {
-        deps += [ "//third_party/externals/dawn/src/dawn/native" ]
-      }
-      if (dawn_enable_d3d12) {
-        libs += [
-          "d3d12.lib",
-          "dxgi.lib",
-          "d3dcompiler.lib",
-        ]
-      } else if (dawn_enable_metal) {
-        frameworks += [ "Metal.framework" ]
-      }
-    }
   }
 
   if (skia_use_direct3d) {
@@ -1120,6 +1125,9 @@ optional("graphite") {
     sources += skia_graphite_piet_sources
   }
 
+  if (skia_use_dawn) {
+    sources += skia_graphite_dawn_sources
+  }
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
     sources += skia_graphite_mtl_sources

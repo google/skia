@@ -158,6 +158,20 @@ skia_graphite_sources = [
   "$_src/text/AtlasManager.h",
 ]
 
+skia_graphite_dawn_sources = [
+  "$_include/dawn/DawnBackendContext.h",
+  "$_src/dawn/DawnCaps.cpp",
+  "$_src/dawn/DawnCaps.h",
+  "$_src/dawn/DawnCommandBuffer.cpp",
+  "$_src/dawn/DawnCommandBuffer.h",
+  "$_src/dawn/DawnQueueManager.cpp",
+  "$_src/dawn/DawnQueueManager.h",
+  "$_src/dawn/DawnResourceProvider.cpp",
+  "$_src/dawn/DawnResourceProvider.h",
+  "$_src/dawn/DawnSharedContext.cpp",
+  "$_src/dawn/DawnSharedContext.h",
+]
+
 skia_graphite_mtl_sources = [
   "$_include/mtl/MtlBackendContext.h",
   "$_include/mtl/MtlTypes.h",

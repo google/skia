@@ -26,6 +26,7 @@ namespace skgpu::graphite {
 class BackendTexture;
 class Context;
 class ContextPriv;
+struct DawnBackendContext;
 class GlobalCache;
 struct MtlBackendContext;
 class QueueManager;
@@ -47,6 +48,9 @@ public:
 
     ~Context();
 
+#ifdef SK_DAWN
+    static std::unique_ptr<Context> MakeDawn(const DawnBackendContext&, const ContextOptions&);
+#endif
 #ifdef SK_METAL
     static std::unique_ptr<Context> MakeMetal(const MtlBackendContext&, const ContextOptions&);
 #endif

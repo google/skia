@@ -46,6 +46,7 @@ enum class SyncToCpu : bool {
  * Possible 3D APIs that may be used by Graphite.
  */
 enum class BackendApi : unsigned {
+    kDawn,
     kMetal,
     kVulkan,
     kMock,

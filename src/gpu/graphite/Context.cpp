@@ -28,6 +28,11 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
 
+#ifdef SK_DAWN
+#include "include/gpu/graphite/dawn/DawnBackendContext.h"
+#include "src/gpu/graphite/dawn/DawnSharedContext.h"
+#endif
+
 #ifdef SK_METAL
 #include "src/gpu/graphite/mtl/MtlTrampoline.h"
 #endif
@@ -53,6 +58,27 @@ Context::Context(sk_sp<SharedContext> sharedContext, std::unique_ptr<QueueManage
 Context::~Context() {}
 
 BackendApi Context::backend() const { return fSharedContext->backend(); }
+
+#ifdef SK_DAWN
+std::unique_ptr<Context> Context::MakeDawn(const DawnBackendContext& backendContext,
+                                           const ContextOptions& options) {
+    sk_sp<SharedContext> sharedContext = DawnSharedContext::Make(backendContext, options);
+    if (!sharedContext) {
+        return nullptr;
+    }
+
+    // TODO: Make a QueueManager
+    std::unique_ptr<QueueManager> queueManager;
+    if (!queueManager) {
+        return nullptr;
+    }
+
+    auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
+                                                        std::move(queueManager)));
+    SkASSERT(context);
+    return context;
+}
+#endif
 
 #ifdef SK_METAL
 std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendContext,
