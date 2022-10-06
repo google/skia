@@ -672,7 +672,7 @@ void TextAdapter::onSync() {
         float total_tracking = 0;
 
         // Only compute these when needed.
-        if (fRequiresLineAdjustments) {
+        if (fRequiresLineAdjustments && line_span.fCount) {
             for (size_t i = line_span.fOffset; i < line_span.fOffset + line_span.fCount; ++i) {
                 const auto& props = buf[i].props;
                 total_spacing  += props.line_spacing;
