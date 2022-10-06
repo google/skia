@@ -181,7 +181,7 @@ std::unique_ptr<Expression> BinaryExpression::Make(const Context& context,
         return result;
     }
 
-    if (context.fConfig->fSettings.fOptimize) {
+    if (context.fConfig->fSettings.fOptimize && !context.fConfig->fIsBuiltinCode) {
         // When sk_Caps.rewriteMatrixVectorMultiply is set, we rewrite medium-precision
         // matrix * vector multiplication as:
         //   (sk_Caps.rewriteMatrixVectorMultiply ? (mat[0]*vec[0] + ... + mat[N]*vec[N])
