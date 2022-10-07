@@ -252,6 +252,8 @@ DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"GRX0"_t, 1000.f}, {"G
 DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"GRR0"_t, -50.f}, {"COL3"_t, -2.f}, {"COL2"_t, -2.f}, {"COL1"_t, -0.9f}}))
 // Pad cone should appear red.
 DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"GRR0"_t, -50.f}, {"COL3"_t, -2.f}, {"COL2"_t, -2.f}, {"COL1"_t, -1.1f}}))
+// Hard boundary for pad mode, should appear on the right inside the glyph for linear and radial.
+DEF_GM(return F(C(extend_mode),            0.0f,  0.0f, {{"COL3"_t, 1.f}, {"COL2"_t, 1.5f}, {"COL1"_t, 2.f}}))
 // Extend mode with rotation or skew below.
 DEF_GM(return F(C(extend_mode),           -0.5f,  0.0f, {}))
 DEF_GM(return F(C(extend_mode),           -0.5f, 20.0f, {}))

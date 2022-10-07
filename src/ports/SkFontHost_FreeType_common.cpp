@@ -715,16 +715,30 @@ bool colrv1_configure_skpaint(FT_Face face,
             SkScalar colorStopRange = stops.back() - stops.front();
             // If the color stops are all at the same offset position, repeat and reflect modes
             // become meaningless.
-            if (colorStopRange == 0.f && tileMode != SkTileMode::kClamp) {
+            if (colorStopRange == 0.f) {
+              if (tileMode != SkTileMode::kClamp) {
                 paint->setColor(SK_ColorTRANSPARENT);
                 return true;
+              } else {
+                // Insert duplicated fake color stop in pad case at +1.0f to enable the projection
+                // of circles for an originally 0-length color stop range. Adding this stop will
+                // paint the equivalent gradient, because: All font specified color stops are in the
+                // same spot, mode is pad, so everything before this spot is painted with the first
+                // color, everything after this spot is painted with the last color. Not adding this
+                // stop will skip the projection and result in specifying non-normalized color stops
+                // to the shader.
+                stops.push_back(*(stops.end() - 1) + 1.0f);
+                colors.push_back(*(colors.end()-1));
+                colorStopRange = 1.0f;
+              }
             }
+            SkASSERT(colorStopRange != 0.f);
 
             // If the colorStopRange is 0 at this point, the default behavior of the shader is to
             // clamp to 1 color stops that are above 1, clamp to 0 for color stops that are below 0,
             // and repeat the outer color stops at 0 and 1 if the color stops are inside the
             // range. That will result in the correct rendering.
-            if ((colorStopRange != 1 || stops.front() != 0.f) && colorStopRange != 0.f) {
+            if ((colorStopRange != 1 || stops.front() != 0.f)) {
                 SkVector p0p3 = p3 - p0;
                 SkVector p0Offset = p0p3;
                 p0Offset.scale(stops.front());
@@ -775,16 +789,30 @@ bool colrv1_configure_skpaint(FT_Face face,
             SkScalar colorStopRange = stops.back() - stops.front();
             SkTileMode tileMode = ToSkTileMode(radialGradient.colorline.extend);
 
-            if (colorStopRange == 0.f && tileMode != SkTileMode::kClamp) {
+            if (colorStopRange == 0.f) {
+              if (tileMode != SkTileMode::kClamp) {
                 paint->setColor(SK_ColorTRANSPARENT);
                 return true;
+              } else {
+                // Insert duplicated fake color stop in pad case at +1.0f to enable the projection
+                // of circles for an originally 0-length color stop range. Adding this stop will
+                // paint the equivalent gradient, because: All font specified color stops are in the
+                // same spot, mode is pad, so everything before this spot is painted with the first
+                // color, everything after this spot is painted with the last color. Not adding this
+                // stop will skip the projection and result in specifying non-normalized color stops
+                // to the shader.
+                stops.push_back(*(stops.end() - 1) + 1.0f);
+                colors.push_back(*(colors.end()-1));
+                colorStopRange = 1.0f;
+              }
             }
+            SkASSERT(colorStopRange != 0.f);
 
             // If the colorStopRange is 0 at this point, the default behavior of the shader is to
             // clamp to 1 color stops that are above 1, clamp to 0 for color stops that are below 0,
             // and repeat the outer color stops at 0 and 1 if the color stops are inside the
             // range. That will result in the correct rendering.
-            if ((colorStopRange != 1 || stops.front() != 0.f) && colorStopRange != 0.f) {
+            if (colorStopRange != 1 || stops.front() != 0.f) {
                 // For the Skia two-point caonical shader to understand the
                 // COLRv1 color stops we need to scale stops to 0 to 1 range and
                 // interpolate new centers and radii. Otherwise the shader
