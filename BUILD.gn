@@ -2473,6 +2473,7 @@ if (skia_enable_tools) {
       "fuzz/oss_fuzz/FuzzSKSL2SPIRV.cpp",
       "fuzz/oss_fuzz/FuzzSVG.cpp",
       "fuzz/oss_fuzz/FuzzSkDescriptorDeserialize.cpp",
+      "fuzz/oss_fuzz/FuzzSkMeshSpecification.cpp",
       "fuzz/oss_fuzz/FuzzSkParagraph.cpp",
       "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp",
       "fuzz/oss_fuzz/FuzzTextBlobDeserialize.cpp",
@@ -3332,6 +3333,11 @@ if (skia_enable_tools) {
 
     libfuzzer_app("skruntimeeffect") {
       sources = [ "fuzz/oss_fuzz/FuzzSkRuntimeEffect.cpp" ]
+      deps = []
+    }
+
+    libfuzzer_app("skmeshspecification") {
+      sources = [ "fuzz/oss_fuzz/FuzzSkMeshSpecification.cpp" ]
       deps = []
     }
 
