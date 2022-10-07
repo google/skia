@@ -254,6 +254,19 @@ public:
             // SkShaper doesn't care for empty lines.
             this->beginLine();
             this->commitLine();
+
+            // The calls above perform bookkeeping, but they do not add any fragments (since there
+            // are no runs to commit).
+            // Line-based range selectors do require accurate indexing information even for empty
+            // lines though -- so we inject empty fragments solely for line index tracking.
+            fResult.fFragments.push_back({
+                Shaper::ShapedGlyphs(),
+                {0,0},
+                0, 0,
+                fLineCount - 1,
+                false
+            });
+
             return;
         }
 
