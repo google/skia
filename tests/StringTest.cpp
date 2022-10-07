@@ -19,19 +19,21 @@ DEF_TEST(String, reporter) {
     SkString    b((size_t)0);
     SkString    c("");
     SkString    d(nullptr, 0);
+    SkString    v{std::string_view()};
 
     REPORTER_ASSERT(reporter, a.isEmpty());
-    REPORTER_ASSERT(reporter, a == b && a == c && a == d);
+    REPORTER_ASSERT(reporter, a == b && a == c && a == d && a == v);
 
     a.set("hello");
     b.set("hellox", 5);
     c.set(a);
     d.resize(5);
     memcpy(d.writable_str(), "helloz", 5);
+    v.set(std::string_view("hellooooo").substr(0, 5));
 
     REPORTER_ASSERT(reporter, !a.isEmpty());
     REPORTER_ASSERT(reporter, a.size() == 5);
-    REPORTER_ASSERT(reporter, a == b && a == c && a == d);
+    REPORTER_ASSERT(reporter, a == b && a == c && a == d && a == v);
     REPORTER_ASSERT(reporter, a.equals("hello", 5));
     REPORTER_ASSERT(reporter, a.equals("hello"));
     REPORTER_ASSERT(reporter, !a.equals("help"));
@@ -54,6 +56,13 @@ DEF_TEST(String, reporter) {
     REPORTER_ASSERT(reporter,  a.contains(""));
     REPORTER_ASSERT(reporter,  a.contains('e'));
     REPORTER_ASSERT(reporter, !a.contains('z'));
+
+    v.prepend(std::string_view("[["));
+    v.append(std::string_view("]]"));
+    REPORTER_ASSERT(reporter, v.equals("[[hello]]"));
+
+    v.insert(2, std::string_view("?!").substr(0, 1));
+    REPORTER_ASSERT(reporter, v.equals("[[?hello]]"));
 
     SkString    e(a);
     SkString    f("hello");
