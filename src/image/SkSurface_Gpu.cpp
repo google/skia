@@ -158,6 +158,16 @@ void SkSurface_Gpu::onWritePixels(const SkPixmap& src, int x, int y) {
     fDevice->writePixels(src, x, y);
 }
 
+void SkSurface_Gpu::onAsyncReadPixels(const SkImageInfo& info,
+                                      SkIRect srcRect,
+                                      ReadPixelsCallback callback,
+                                      ReadPixelsContext context) {
+    fDevice->asyncReadPixels(info,
+                             srcRect,
+                             callback,
+                             context);
+}
+
 void SkSurface_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                                 SkIRect srcRect,
                                                 RescaleGamma rescaleGamma,

@@ -331,6 +331,24 @@ sk_sp<SkImage> SkImage_Gpu::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) c
                                    this->imageInfo().colorInfo().makeColorSpace(std::move(newCS)));
 }
 
+void SkImage_Gpu::onAsyncReadPixels(const SkImageInfo& info,
+                                    SkIRect srcRect,
+                                    ReadPixelsCallback callback,
+                                    ReadPixelsContext context) const {
+    auto dContext = fContext->asDirectContext();
+    if (!dContext) {
+        // DDL TODO: buffer up the readback so it occurs when the DDL is drawn?
+        callback(context, nullptr);
+        return;
+    }
+    auto ctx = dContext->priv().makeSC(this->makeView(dContext), this->imageInfo().colorInfo());
+    if (!ctx) {
+        callback(context, nullptr);
+        return;
+    }
+    ctx->asyncReadPixels(dContext, srcRect, info.colorType(), callback, context);
+}
+
 void SkImage_Gpu::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                               SkIRect srcRect,
                                               RescaleGamma rescaleGamma,

@@ -369,6 +369,14 @@ bool Device::readPixels(Context* context,
                             srcY);
 }
 
+void Device::asyncReadPixels(const SkImageInfo& info,
+                             SkIRect srcRect,
+                             ReadPixelsCallback callback,
+                             ReadPixelsContext context) {
+    // TODO: implement for Graphite
+    callback(context, nullptr);
+}
+
 void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                        SkIRect srcRect,
                                        RescaleGamma rescaleGamma,

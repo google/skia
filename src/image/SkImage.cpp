@@ -76,13 +76,26 @@ bool SkImage::readPixels(const SkImageInfo& dstInfo, void* dstPixels,
 }
 #endif
 
+void SkImage::asyncReadPixels(const SkImageInfo& info,
+                              const SkIRect& srcRect,
+                              ReadPixelsCallback callback,
+                              ReadPixelsContext context) const {
+    if (!SkIRect::MakeSize(this->dimensions()).contains(srcRect) ||
+        !SkImageInfoIsValid(info)) {
+        callback(context, nullptr);
+        return;
+    }
+    as_IB(this)->onAsyncReadPixels(
+            info, srcRect, callback, context);
+}
+
 void SkImage::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                         const SkIRect& srcRect,
                                         RescaleGamma rescaleGamma,
                                         RescaleMode rescaleMode,
                                         ReadPixelsCallback callback,
                                         ReadPixelsContext context) const {
-    if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) ||
+    if (!SkIRect::MakeSize(this->dimensions()).contains(srcRect) ||
         !SkImageInfoIsValid(info)) {
         callback(context, nullptr);
         return;
@@ -99,7 +112,7 @@ void SkImage::asyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
                                               RescaleMode rescaleMode,
                                               ReadPixelsCallback callback,
                                               ReadPixelsContext context) const {
-    if (!SkIRect::MakeWH(this->width(), this->height()).contains(srcRect) || dstSize.isZero() ||
+    if (!SkIRect::MakeSize(this->dimensions()).contains(srcRect) || dstSize.isZero() ||
         (dstSize.width() & 0b1) || (dstSize.height() & 0b1)) {
         callback(context, nullptr);
         return;

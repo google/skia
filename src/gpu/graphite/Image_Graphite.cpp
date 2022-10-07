@@ -69,6 +69,14 @@ sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace>) const {
     return nullptr;
 }
 
+void Image::onAsyncReadPixels(const SkImageInfo& info,
+                              SkIRect srcRect,
+                              ReadPixelsCallback callback,
+                              ReadPixelsContext context) const {
+    // TODO
+    callback(context, nullptr);
+}
+
 void Image::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                         SkIRect srcRect,
                                         RescaleGamma rescaleGamma,

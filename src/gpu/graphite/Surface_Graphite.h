@@ -32,6 +32,10 @@ public:
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
+    void onAsyncReadPixels(const SkImageInfo& info,
+                           SkIRect srcRect,
+                           ReadPixelsCallback callback,
+                           ReadPixelsContext context) override;
     void onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                      SkIRect srcRect,
                                      RescaleGamma rescaleGamma,
