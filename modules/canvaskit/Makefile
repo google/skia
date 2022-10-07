@@ -99,15 +99,21 @@ npm:
 
 gm_tests_debug:
 	./compile_gm.sh debug
-	mkdir -p ./out
-	cp ../../out/wasm_gm_tests_debug/wasm_gm_tests.js       ./out
-	cp ../../out/wasm_gm_tests_debug/wasm_gm_tests.wasm     ./out
+	- rm -rf build/
+	mkdir build
+	cp ../../out/wasm_gm_tests_debug/wasm_gm_tests.js       ./build
+	cp ../../out/wasm_gm_tests_debug/wasm_gm_tests.wasm     ./build
 
 gm_tests:
 	./compile_gm.sh
-	mkdir -p ./out
-	cp ../../out/wasm_gm_tests/wasm_gm_tests.js       ./out
-	cp ../../out/wasm_gm_tests/wasm_gm_tests.wasm     ./out
+	- rm -rf build/
+	mkdir build
+	cp ../../out/wasm_gm_tests/wasm_gm_tests.js       ./build
+	cp ../../out/wasm_gm_tests/wasm_gm_tests.wasm     ./build
+
+single-gm:
+	echo "Go check out http://localhost:8000/wasm_tools/gms.html"
+	python3 ../../tools/serve_wasm.py
 
 local-example:
 	echo "Go check out http://localhost:8000/npm_build/example.html"

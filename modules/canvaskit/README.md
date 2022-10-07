@@ -130,10 +130,33 @@ sdk and verified/fixed any build issues that have arisen.
   3. Send out CL for review. Feel free to point the reviewer at these steps.
 
 ## Running Skia's GMs and Unit Tests against wasm+WebGL ##
-TODO(kjlubick)
 
 General Tips:
  - Make use of the skip lists and start indexes in the run-wasm-gm-tests.html to focus in on
    problematic tests.
  - `Uncaught (in promise) RuntimeError: function signature mismatch` tends to mean null was
    dereferenced somewhere. Add SkASSERT to verify.
+
+### Debugging some GMs / Unit Tests
+For faster cycle time, it is recommended to focus on specific GMs instead of re-compiling all
+of them. This can be done by modifying the `compile_gm.sh` script (but not checking this in)
+to set `GMS_TO_BUILD` and/or `TESTS_TO_BUILD` to a minimal set of files. There's an `if false`
+that can be commented out to assist with this.
+
+Run `make gm_tests` or `make_gm_tests_debug` from this folder. This will produce a .js and .wasm
+in a (not checked in) `build` subfolder.
+
+Run `make single-gm` and navigate to <http://localhost:8000/wasm_tools/gms.html>. This will load
+that html file and the freshly built wasm_gm_tests binary and run a single GM and unit test that
+was compiled in. Feel free to modify //modules/canvaskit/wasm_tools/gms.html to run the specific
+GM/unit test or tests that you care about.
+
+### Testing all GMs / Unit Tests
+With the current GN build, this can take quite a while to compile and re-compile (the upcoming
+Bazel build should alleviate this).
+
+Run `make gm_tests` or `make_gm_tests_debug` from this folder. This will produce a .js and .wasm
+in a (not checked in) `build` subfolder.
+
+Change directory to `//tools/run-wasm-gm-tests`. Run `make run_local`, which will put all PNGs
+produced by GMs into `/tmp/wasm-gmtests` and run all unit tests.
