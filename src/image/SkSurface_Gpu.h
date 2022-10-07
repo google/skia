@@ -50,7 +50,7 @@ public:
     void onDiscard() override;
     void onResolveMSAA() override;
     GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo& info,
-                                  const GrBackendSurfaceMutableState*) override;
+                                  const skgpu::MutableTextureState*) override;
     bool onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
                  bool deleteSemaphoresAfterWait) override;
     bool onCharacterize(SkSurfaceCharacterization*) const override;

@@ -13,6 +13,7 @@ SHARED_FILES = [
     "BufferWriter.h",
     "ClientMappedBufferManager.h",
     "KeyBuilder.h",
+    "MutableTextureStateRef.h",
     "Rectanizer.h",
     "RectanizerPow2.cpp",
     "RectanizerPow2.h",

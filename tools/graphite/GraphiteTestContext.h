@@ -31,7 +31,7 @@ public:
 
     virtual ~GraphiteTestContext();
 
-    virtual skgpu::graphite::BackendApi backend() = 0;
+    virtual skgpu::BackendApi backend() = 0;
 
     virtual std::unique_ptr<skgpu::graphite::Context> makeContext() = 0;
 

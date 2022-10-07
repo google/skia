@@ -40,7 +40,7 @@ GrSemaphoresSubmitted GrDirectContextPriv::flushSurfaces(
                                                     SkSpan<GrSurfaceProxy*> proxies,
                                                     SkSurface::BackendSurfaceAccess access,
                                                     const GrFlushInfo& info,
-                                                    const GrBackendSurfaceMutableState* newState) {
+                                                    const skgpu::MutableTextureState* newState) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("GrDirectContextPriv", "flushSurfaces", this->context());
 

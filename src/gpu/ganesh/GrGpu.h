@@ -398,7 +398,7 @@ public:
     void executeFlushInfo(SkSpan<GrSurfaceProxy*>,
                           SkSurface::BackendSurfaceAccess access,
                           const GrFlushInfo&,
-                          const GrBackendSurfaceMutableState* newState);
+                          const skgpu::MutableTextureState* newState);
 
     // Called before render tasks are executed during a flush.
     virtual void willExecute() {}
@@ -586,15 +586,15 @@ public:
                                         size_t length);
 
     virtual bool setBackendTextureState(const GrBackendTexture&,
-                                        const GrBackendSurfaceMutableState&,
-                                        GrBackendSurfaceMutableState* previousState,
+                                        const skgpu::MutableTextureState&,
+                                        skgpu::MutableTextureState* previousState,
                                         sk_sp<skgpu::RefCntedCallback> finishedCallback) {
         return false;
     }
 
     virtual bool setBackendRenderTargetState(const GrBackendRenderTarget&,
-                                             const GrBackendSurfaceMutableState&,
-                                             GrBackendSurfaceMutableState* previousState,
+                                             const skgpu::MutableTextureState&,
+                                             skgpu::MutableTextureState* previousState,
                                              sk_sp<skgpu::RefCntedCallback> finishedCallback) {
         return false;
     }
@@ -830,7 +830,7 @@ private:
     virtual void prepareSurfacesForBackendAccessAndStateUpdates(
             SkSpan<GrSurfaceProxy*> proxies,
             SkSurface::BackendSurfaceAccess access,
-            const GrBackendSurfaceMutableState* newState) {}
+            const skgpu::MutableTextureState* newState) {}
 
     virtual bool onSubmitToGpu(bool syncCpu) = 0;
 
