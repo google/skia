@@ -67,6 +67,7 @@ bool SkAndroidFrameworkUtils::ShaderAsALinearGradient(SkShader* shader,
         return false;
     }
     if (info) {
+        info->fColorCount    = baseInfo->fColorCount;  // this is inout in asGradient()
         info->fPoints[0]     = baseInfo->fPoint[0];
         info->fPoints[1]     = baseInfo->fPoint[1];
         info->fTileMode      = baseInfo->fTileMode;
