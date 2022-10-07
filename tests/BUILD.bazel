@@ -197,7 +197,6 @@ CPU_ONLY_TESTS = [
 ]
 
 DEBUGGER_TESTS = [
-    "MatrixClipCollapseTest.cpp",
     "MultiPictureDocumentTest.cpp",
     "DebugLayerManagerTest.cpp",
     "RecordDrawTest.cpp",
