@@ -913,6 +913,7 @@ SkScalar TextLine::iterateThroughSingleRunByStyles(const Run* run,
         auto result = this->measureTextInsideOneRun(
                                         textRange, run, runOffset, textOffsetInRun, false, true);
         if (styleType == StyleType::kDecorations) {
+            // Decorations are drawn based on the real font metrics (regardless of styles and strut)
             result.clip.fTop = this->sizes().runTop(run, LineMetricStyle::CSS);
             result.clip.fBottom =
                     result.clip.fTop +

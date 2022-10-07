@@ -536,9 +536,6 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
         auto textExcludingSpaces = TextRange(0, fTrailingSpaces);
         InternalLineMetrics metrics(this->strutForceHeight());
         metrics.add(&run);
-        if (this->strutEnabled()) {
-            this->strutMetrics().updateLineMetrics(metrics);
-        }
         auto disableFirstAscent = this->paragraphStyle().getTextHeightBehavior() &
                                   TextHeightBehavior::kDisableFirstAscent;
         auto disableLastDescent = this->paragraphStyle().getTextHeightBehavior() &
@@ -548,6 +545,9 @@ void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
         }
         if (disableLastDescent) {
             metrics.fDescent = metrics.fRawDescent;
+        }
+        if (this->strutEnabled()) {
+            this->strutMetrics().updateLineMetrics(metrics);
         }
         ClusterIndex trailingSpaces = fClusters.size();
         do {

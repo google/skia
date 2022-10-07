@@ -336,11 +336,6 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         maxRunMetrics = fEndLine.metrics();
         maxRunMetrics.fForceStrut = false;
 
-        if (parent->strutEnabled()) {
-            // Make sure font metrics are not less than the strut
-            parent->strutMetrics().updateLineMetrics(fEndLine.metrics());
-        }
-
         // TODO: keep start/end/break info for text and runs but in a better way that below
         TextRange textExcludingSpaces(fEndLine.startCluster()->textRange().start, fEndLine.endCluster()->textRange().end);
         TextRange text(fEndLine.startCluster()->textRange().start, fEndLine.breakCluster()->textRange().start);
@@ -357,6 +352,11 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
         }
         if (disableLastDescent && (lastLine || (startLine == end && !fHardLineBreak ))) {
             fEndLine.metrics().fDescent = fEndLine.metrics().fRawDescent;
+        }
+
+        if (parent->strutEnabled()) {
+            // Make sure font metrics are not less than the strut
+            parent->strutMetrics().updateLineMetrics(fEndLine.metrics());
         }
 
         SkScalar lineHeight = fEndLine.metrics().height();
@@ -458,14 +458,14 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     }
 
     if (fHardLineBreak) {
+        if (disableLastDescent) {
+            fEndLine.metrics().fDescent = fEndLine.metrics().fRawDescent;
+        }
+
         // Last character is a line break
         if (parent->strutEnabled()) {
             // Make sure font metrics are not less than the strut
             parent->strutMetrics().updateLineMetrics(fEndLine.metrics());
-        }
-
-        if (disableLastDescent) {
-            fEndLine.metrics().fDescent = fEndLine.metrics().fRawDescent;
         }
 
         ClusterRange clusters(fEndLine.breakCluster() - start, fEndLine.endCluster() - start);
