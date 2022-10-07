@@ -102,6 +102,15 @@ void SkTDStorage::reserve(int newReserve) {
             }
         }
 
+
+        // With a T size of 1, the above allocator produces the progression of 7, 15, ... Since,
+        // the sizeof max_align_t is often 16, there is no reason to allocate anything less than
+        // 16 bytes. This eliminates a realloc when pushing back bytes to an SkTDArray.
+        if (fSizeOfT == 1) {
+            // Round up to the multiple of 16.
+            expandedReserve = (expandedReserve + 15) & ~15;
+        }
+
         fReserve = expandedReserve;
         size_t newStorageSize = this->bytes(fReserve);
         fStorage = static_cast<std::byte*>(sk_realloc_throw(fStorage, newStorageSize));
