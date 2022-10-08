@@ -47,19 +47,24 @@ $pure $genIType findMSB($genUType value);
 $pure sampler2D makeSampler2D(texture2D texture, sampler s);
 
 $pure half4 sample(sampler2D s, float2 P);
-$pure half4 sample(samplerExternalOES s, float2 P, float bias);
+$pure half4 sample(sampler2D s, float3 P);
+$pure half4 sample(sampler2D s, float3 P, float bias);
+
 $pure half4 sample(samplerExternalOES s, float2 P);
+$pure half4 sample(samplerExternalOES s, float2 P, float bias);
 
 $pure half4 sample(sampler2DRect s, float2 P);
 $pure half4 sample(sampler2DRect s, float3 P);
+
+$pure half4 sampleLod(sampler2D s, float2 P, float lod);
+$pure half4 sampleLod(sampler2D s, float3 P, float lod);
+
+$pure half4 sampleGrad(sampler2D s, float2, float2 dPdx, float2 dPdy);
 
 // Currently we do not support the generic types of loading subpassInput so we have some explicit
 // versions that we currently use
 $pure half4 subpassLoad(subpassInput subpass);
 $pure half4 subpassLoad(subpassInputMS subpass, int sample);
-
-$pure half4 sample(sampler2D s, float3 P);
-$pure half4 sample(sampler2D s, float3 P, float bias);
 
 // Definitions of functions implementing all of the SkBlendMode blends.
 

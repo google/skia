@@ -241,6 +241,8 @@ SPIRVCodeGenerator::Intrinsic SPIRVCodeGenerator::getIntrinsic(IntrinsicKind ik)
         case k_makeSampler2D_IntrinsicKind: return SPECIAL(SampledImage);
 
         case k_sample_IntrinsicKind:      return SPECIAL(Texture);
+        case k_sampleGrad_IntrinsicKind:  return SPECIAL(TextureGrad);
+        case k_sampleLod_IntrinsicKind:   return SPECIAL(TextureLod);
         case k_subpassLoad_IntrinsicKind: return SPECIAL(SubpassLoad);
 
         case k_floatBitsToInt_IntrinsicKind:  return ALL_SPIRV(Bitcast);
@@ -1458,6 +1460,43 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                                            out);
                 }
             }
+            break;
+        }
+        case kTextureGrad_SpecialIntrinsic: {
+            SpvOp_ op = SpvOpImageSampleExplicitLod;
+            SkASSERT(arguments.size() == 4);
+            SkASSERT(arguments[0]->type().dimensions() == SpvDim2D);
+            SkASSERT(arguments[1]->type().matches(*fContext.fTypes.fFloat2));
+            SkASSERT(arguments[2]->type().matches(*fContext.fTypes.fFloat2));
+            SkASSERT(arguments[3]->type().matches(*fContext.fTypes.fFloat2));
+            SpvId type = this->getType(callType);
+            SpvId sampler = this->writeExpression(*arguments[0], out);
+            SpvId uv = this->writeExpression(*arguments[1], out);
+            this->writeInstruction(op, type, result, sampler, uv,
+                                   SpvImageOperandsGradMask,
+                                   this->writeExpression(*arguments[2], out),
+                                   this->writeExpression(*arguments[3], out),
+                                   out);
+            break;
+        }
+        case kTextureLod_SpecialIntrinsic: {
+            SpvOp_ op = SpvOpImageSampleExplicitLod;
+            SkASSERT(arguments.size() == 3);
+            SkASSERT(arguments[0]->type().dimensions() == SpvDim2D);
+            SkASSERT(arguments[2]->type().matches(*fContext.fTypes.fFloat));
+            const Type& arg1Type = arguments[1]->type();
+            if (arg1Type.matches(*fContext.fTypes.fFloat3)) {
+                op = SpvOpImageSampleProjExplicitLod;
+            } else {
+                SkASSERT(arg1Type.matches(*fContext.fTypes.fFloat2));
+            }
+            SpvId type = this->getType(callType);
+            SpvId sampler = this->writeExpression(*arguments[0], out);
+            SpvId uv = this->writeExpression(*arguments[1], out);
+            this->writeInstruction(op, type, result, sampler, uv,
+                                   SpvImageOperandsLodMask,
+                                   this->writeExpression(*arguments[2], out),
+                                   out);
             break;
         }
         case kMod_SpecialIntrinsic: {

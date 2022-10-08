@@ -1,0 +1,5 @@
+layout(binding=0) uniform sampler2D t;
+half4 main(float2 coords)
+{
+    return sampleGrad(t, coords, dFdx(coords), dFdy(coords));
+}

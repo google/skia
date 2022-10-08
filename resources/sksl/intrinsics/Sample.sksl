@@ -1,0 +1,6 @@
+layout(binding=0) uniform sampler2D t;
+void main()
+{
+    half4 c = sample(t, half2(0));
+    sk_FragColor = c * sample(t, half3(1));
+}

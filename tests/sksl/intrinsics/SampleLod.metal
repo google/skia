@@ -22,15 +22,14 @@ struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
 struct Globals {
-    sampler2D tex;
+    sampler2D t;
 };
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> tex_Tex [[texture(0)]], sampler tex_Smplr [[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
-    Globals _globals{{tex_Tex, tex_Smplr}};
+fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> t_Tex [[texture(0)]], sampler t_Smplr [[sampler(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+    Globals _globals{{t_Tex, t_Smplr}};
     (void)_globals;
     Outputs _out;
     (void)_out;
-    float4 a = float4(sample(_globals.tex, float2(0.0)));
-    float4 b = float4(sample(_globals.tex, float3(0.0)));
-    _out.sk_FragColor = half4(half2(a.xy), half2(b.zw));
+    half4 c = sampleLod(_globals.t, float2(0.0), 0.0);
+    _out.sk_FragColor = c * sampleLod(_globals.t, float3(1.0), 0.0);
     return _out;
 }

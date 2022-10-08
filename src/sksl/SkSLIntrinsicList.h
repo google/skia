@@ -93,6 +93,8 @@
     SKSL_INTRINSIC(roundEven)          \
     SKSL_INTRINSIC(round)              \
     SKSL_INTRINSIC(sample)             \
+    SKSL_INTRINSIC(sampleGrad)         \
+    SKSL_INTRINSIC(sampleLod)          \
     SKSL_INTRINSIC(saturate)           \
     SKSL_INTRINSIC(sign)               \
     SKSL_INTRINSIC(sinh)               \

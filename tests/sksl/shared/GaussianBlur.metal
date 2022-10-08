@@ -8,6 +8,13 @@ struct sampler2D {
 };
 half4 sample(sampler2D i, float2 p, float b=0) { return i.tex.sample(i.smp, p, bias(b)); }
 half4 sample(sampler2D i, float3 p, float b=0) { return i.tex.sample(i.smp, p.xy / p.z, bias(b)); }
+half4 sampleLod(sampler2D i, float2 p, float lod) { return i.tex.sample(i.smp, p, level(lod)); }
+half4 sampleLod(sampler2D i, float3 p, float lod) {
+    return i.tex.sample(i.smp, p.xy / p.z, level(lod));
+}
+half4 sampleGrad(sampler2D i, float2 p, float2 dPdx, float2 dPdy) {
+    return i.tex.sample(i.smp, p, gradient2d(dPdx, dPdy));
+}
 
 struct Inputs {
     float2 vLocalCoord_Stage0  [[user(locn0)]];

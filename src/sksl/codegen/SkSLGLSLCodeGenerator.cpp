@@ -721,6 +721,18 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             nameWritten = true;
             break;
         }
+        case k_sampleGrad_IntrinsicKind: {
+            SkASSERT(arguments.size() == 4);
+            this->write("textureGrad");
+            nameWritten = true;
+            break;
+        }
+        case k_sampleLod_IntrinsicKind: {
+            SkASSERT(arguments.size() == 3);
+            this->write("textureLod");
+            nameWritten = true;
+            break;
+        }
         case k_transpose_IntrinsicKind:
             if (this->caps().fGLSLGeneration < SkSL::GLSLGeneration::k130) {
                 SkASSERT(arguments.size() == 1);

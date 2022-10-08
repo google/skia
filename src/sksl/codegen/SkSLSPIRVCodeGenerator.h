@@ -134,6 +134,8 @@ private:
         kStep_SpecialIntrinsic,
         kSubpassLoad_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
+        kTextureGrad_SpecialIntrinsic,
+        kTextureLod_SpecialIntrinsic,
     };
 
     enum class Precision {
