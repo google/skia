@@ -112,12 +112,20 @@ var CanvasKit = {
     _size: function() {},
   },
 
-  GrContext: {
-    // public API (from C++ bindings)
-    getResourceCacheLimitBytes: function() {},
-    getResourceCacheUsageBytes: function() {},
-    releaseResourcesAndAbandonContext: function() {},
-    setResourceCacheLimitBytes: function() {},
+  GrDirectContext: {
+    // public API (from webgl.js)
+    prototype: {
+      getResourceCacheLimitBytes: function () {},
+      getResourceCacheUsageBytes: function () {},
+      releaseResourcesAndAbandonContext: function () {},
+      setResourceCacheLimitBytes: function () {},
+    },
+
+    // private API (from C++ bindings)
+    _getResourceCacheLimitBytes: function() {},
+    _getResourceCacheUsageBytes: function() {},
+    _releaseResourcesAndAbandonContext: function() {},
+    _setResourceCacheLimitBytes: function() {},
   },
 
   ManagedAnimation: {

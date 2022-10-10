@@ -1965,4 +1965,40 @@ half4 main(vec2 fragcoord) {
         shader.delete();
         rt.delete();
     });
+
+    it('can create, delete WebGL contexts', () => {
+        if (!CanvasKit.webgl) {
+            return SHOULD_SKIP;
+        }
+
+        const newCanvas = document.createElement('canvas');
+        expect(newCanvas).toBeTruthy();
+        const ctx = CanvasKit.GetWebGLContext(newCanvas);
+        expect(ctx).toBeGreaterThan(0);
+
+        const grContext = CanvasKit.MakeWebGLContext(ctx);
+        expect(grContext).toBeTruthy();
+
+        grContext.delete();
+        expect(grContext.isDeleted()).toBeTrue();
+    });
+
+    it('can create, release, and delete WebGL contexts', () => {
+        if (!CanvasKit.webgl) {
+            return SHOULD_SKIP;
+        }
+
+        const newCanvas = document.createElement('canvas');
+        expect(newCanvas).toBeTruthy();
+        const ctx = CanvasKit.GetWebGLContext(newCanvas);
+        expect(ctx).toBeGreaterThan(0);
+
+        const grContext = CanvasKit.MakeWebGLContext(ctx);
+        expect(grContext).toBeTruthy();
+
+        grContext.releaseResourcesAndAbandonContext();
+
+        grContext.delete();
+        expect(grContext.isDeleted()).toBeTrue();
+    });
 });
