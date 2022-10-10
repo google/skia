@@ -29,6 +29,7 @@ class MtlSharedContext;
 bool MtlFormatIsDepthOrStencil(MTLPixelFormat);
 bool MtlFormatIsDepth(MTLPixelFormat);
 bool MtlFormatIsStencil(MTLPixelFormat);
+bool MtlFormatIsCompressed(MTLPixelFormat);
 
 MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags>);
 

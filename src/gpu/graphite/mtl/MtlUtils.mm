@@ -142,6 +142,19 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
     return compiledLibrary;
 }
 
+bool MtlFormatIsCompressed(MTLPixelFormat mtlFormat) {
+    switch (mtlFormat) {
+        case MTLPixelFormatETC2_RGB8:
+            return true;
+#ifdef SK_BUILD_FOR_MAC
+        case MTLPixelFormatBC1_RGBA:
+            return true;
+#endif
+        default:
+            return false;
+    }
+}
+
 #ifdef SK_BUILD_FOR_IOS
 bool MtlIsAppInBackground() {
     return [NSThread isMainThread] &&
