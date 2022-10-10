@@ -786,28 +786,36 @@ TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
             break;
         }
 
-        // Update textRange by cluster edges
+        // Update textRange by cluster edges (shift start up to the edge of the cluster)
+        TextRange updatedTextRange(textRange);
         if (run->leftToRight()) {
             if (textRange.start != start->textRange().start) {
-                textRange.start = start->textRange().end;
+                updatedTextRange.start = start->textRange().end;
             }
-            textRange.end = end->textRange().end;
+            updatedTextRange.end = end->textRange().end;
         } else {
             if (textRange.start != end->textRange().start) {
-                textRange.start = end->textRange().end;
+                updatedTextRange.start = end->textRange().end;
             }
-            textRange.end = start->textRange().end;
+            updatedTextRange.end = start->textRange().end;
         }
+        SkASSERT(updatedTextRange.start >= textRange.start);
 
-        std::tie(found, startIndex, endIndex) = run->findLimitingGraphemes(textRange);
-        if (startIndex == textRange.start && endIndex == textRange.end) {
+        // Update text range by grapheme edges (shift start up to the edge of the grapheme)
+        std::tie(found, updatedTextRange.start, updatedTextRange.end) =
+                run->findLimitingGraphemes(updatedTextRange);
+        SkASSERT(updatedTextRange.start >= textRange.start);
+        SkASSERT(updatedTextRange.end >= textRange.end);
+
+        // Updated text could only shift right from the initial text
+        // so this loop is going to break soon enough
+        if (updatedTextRange == textRange) {
             break;
         }
 
         // Some clusters are inside graphemes and we need to adjust them
         //SkDebugf("Correct range: [%d:%d) -> [%d:%d)\n", textRange.start, textRange.end, startIndex, endIndex);
-        textRange.start = startIndex;
-        textRange.end = endIndex;
+        textRange = updatedTextRange;
 
         // Move the start until it's on the grapheme edge (and glypheme, too)
     } while (true);
