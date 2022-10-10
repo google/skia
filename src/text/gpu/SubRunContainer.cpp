@@ -27,9 +27,6 @@
 #include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SubRunAllocator.h"
 
-#include <cmath>
-#include <optional>
-
 #if SK_SUPPORT_GPU  // Ganesh Support
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrStyle.h"
@@ -47,6 +44,19 @@ using AtlasTextOp = skgpu::ganesh::AtlasTextOp;
 #endif
 
 #include <cinttypes>
+#include <cmath>
+#include <optional>
+
+// -- GPU Text -------------------------------------------------------------------------------------
+// Naming conventions
+//  * drawMatrix - the CTM from the canvas.
+//  * drawOrigin - the x, y location of the drawTextBlob call.
+//  * positionMatrix - this is the combination of the drawMatrix and the drawOrigin:
+//        positionMatrix = drawMatrix * TranslationMatrix(drawOrigin.x, drawOrigin.y);
+//
+// Note:
+//   In order to transform Slugs, you need to set the fSupportBilerpFromGlyphAtlas on
+//   GrContextOptions.
 
 namespace sktext::gpu {
 // -- SubRunType -----------------------------------------------------------------------------------

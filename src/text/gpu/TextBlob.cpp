@@ -5,17 +5,6 @@
  * found in the LICENSE file.
  */
 
-// -- GPU Text -------------------------------------------------------------------------------------
-// Naming conventions
-//  * drawMatrix - the CTM from the canvas.
-//  * drawOrigin - the x, y location of the drawTextBlob call.
-//  * positionMatrix - this is the combination of the drawMatrix and the drawOrigin:
-//        positionMatrix = drawMatrix * TranslationMatrix(drawOrigin.x, drawOrigin.y);
-//
-// Note:
-//   In order to transform Slugs, you need to set the fSupportBilerpFromGlyphAtlas on
-//   GrContextOptions.
-
 #include "src/text/gpu/TextBlob.h"
 
 #include "include/core/SkMatrix.h"
