@@ -113,7 +113,7 @@ sk_sp<const SkCapabilities> Surface::onCapabilities() {
 #if GRAPHITE_TEST_UTILS && SK_SUPPORT_GPU
 GrSemaphoresSubmitted Surface::onFlush(BackendSurfaceAccess,
                                        const GrFlushInfo&,
-                                       const skgpu::MutableTextureState*) {
+                                       const GrBackendSurfaceMutableState*) {
     fDevice->flushPendingWorkToRecorder();
     return GrSemaphoresSubmitted::kNo;
 }

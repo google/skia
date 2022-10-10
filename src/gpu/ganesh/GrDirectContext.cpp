@@ -914,8 +914,8 @@ bool GrDirectContext::updateCompressedBackendTexture(const GrBackendTexture& bac
 //////////////////////////////////////////////////////////////////////////////
 
 bool GrDirectContext::setBackendTextureState(const GrBackendTexture& backendTexture,
-                                             const skgpu::MutableTextureState& state,
-                                             skgpu::MutableTextureState* previousState,
+                                             const GrBackendSurfaceMutableState& state,
+                                             GrBackendSurfaceMutableState* previousState,
                                              GrGpuFinishedProc finishedProc,
                                              GrGpuFinishedContext finishedContext) {
     auto callback = skgpu::RefCntedCallback::Make(finishedProc, finishedContext);
@@ -929,8 +929,8 @@ bool GrDirectContext::setBackendTextureState(const GrBackendTexture& backendText
 
 
 bool GrDirectContext::setBackendRenderTargetState(const GrBackendRenderTarget& backendRenderTarget,
-                                                  const skgpu::MutableTextureState& state,
-                                                  skgpu::MutableTextureState* previousState,
+                                                  const GrBackendSurfaceMutableState& state,
+                                                  GrBackendSurfaceMutableState* previousState,
                                                   GrGpuFinishedProc finishedProc,
                                                   GrGpuFinishedContext finishedContext) {
     auto callback = skgpu::RefCntedCallback::Make(finishedProc, finishedContext);

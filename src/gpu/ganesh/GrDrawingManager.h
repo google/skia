@@ -158,7 +158,7 @@ public:
     GrSemaphoresSubmitted flushSurfaces(SkSpan<GrSurfaceProxy*>,
                                         SkSurface::BackendSurfaceAccess,
                                         const GrFlushInfo&,
-                                        const skgpu::MutableTextureState* newState);
+                                        const GrBackendSurfaceMutableState* newState);
 
     void addOnFlushCallbackObject(GrOnFlushCallbackObject*);
 
@@ -207,7 +207,7 @@ private:
     bool flush(SkSpan<GrSurfaceProxy*> proxies,
                SkSurface::BackendSurfaceAccess access,
                const GrFlushInfo&,
-               const skgpu::MutableTextureState* newState);
+               const GrBackendSurfaceMutableState* newState);
 
     bool submitToGpu(bool syncToCpu);
 

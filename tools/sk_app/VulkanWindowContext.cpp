@@ -543,7 +543,7 @@ void VulkanWindowContext::swapBuffers() {
     GrFlushInfo info;
     info.fNumSemaphores = 1;
     info.fSignalSemaphores = &beSemaphore;
-    skgpu::MutableTextureState presentState(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, fPresentQueueIndex);
+    GrBackendSurfaceMutableState presentState(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, fPresentQueueIndex);
     surface->flush(info, &presentState);
     surface->recordingContext()->asDirectContext()->submit();
 

@@ -160,8 +160,8 @@ sk_sp<GrVkImage> GrVkImage::Make(GrVkGpu* gpu,
         return nullptr;
     }
 
-    sk_sp<skgpu::MutableTextureStateRef> mutableState(
-            new skgpu::MutableTextureStateRef(info.fImageLayout, info.fCurrentQueueFamily));
+    sk_sp<GrBackendSurfaceMutableStateImpl> mutableState(
+            new GrBackendSurfaceMutableStateImpl(info.fImageLayout, info.fCurrentQueueFamily));
     return sk_sp<GrVkImage>(new GrVkImage(gpu,
                                           dimensions,
                                           attachmentUsages,
@@ -176,7 +176,7 @@ sk_sp<GrVkImage> GrVkImage::Make(GrVkGpu* gpu,
 sk_sp<GrVkImage> GrVkImage::MakeWrapped(GrVkGpu* gpu,
                                         SkISize dimensions,
                                         const GrVkImageInfo& info,
-                                        sk_sp<skgpu::MutableTextureStateRef> mutableState,
+                                        sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                                         UsageFlags attachmentUsages,
                                         GrWrapOwnership ownership,
                                         GrWrapCacheable cacheable,
@@ -211,7 +211,7 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
                      SkISize dimensions,
                      UsageFlags supportedUsages,
                      const GrVkImageInfo& info,
-                     sk_sp<skgpu::MutableTextureStateRef> mutableState,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                      sk_sp<const GrVkImageView> framebufferView,
                      sk_sp<const GrVkImageView> textureView,
                      SkBudgeted budgeted,
@@ -240,7 +240,7 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
                      SkISize dimensions,
                      UsageFlags supportedUsages,
                      const GrVkImageInfo& info,
-                     sk_sp<skgpu::MutableTextureStateRef> mutableState,
+                     sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                      sk_sp<const GrVkImageView> framebufferView,
                      sk_sp<const GrVkImageView> textureView,
                      GrBackendObjectOwnership ownership,

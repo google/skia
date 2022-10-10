@@ -412,7 +412,7 @@ public:
     }
 
     void releaseSurfaceToExternal(SkSurface* surface) override {
-        skgpu::MutableTextureState newState(VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_EXTERNAL);
+        GrBackendSurfaceMutableState newState(VK_IMAGE_LAYOUT_UNDEFINED, VK_QUEUE_FAMILY_EXTERNAL);
         surface->flush({}, &newState);
     }
 

@@ -40,7 +40,7 @@ public:
      * gpu and inits the array of GrBackendSemaphores with the signaled semaphores.
      */
     virtual GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access, const GrFlushInfo&,
-                                          const skgpu::MutableTextureState*) {
+                                          const GrBackendSurfaceMutableState*) {
         return GrSemaphoresSubmitted::kNo;
     }
 #endif

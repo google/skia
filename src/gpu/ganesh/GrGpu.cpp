@@ -679,7 +679,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
 void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
                              SkSurface::BackendSurfaceAccess access,
                              const GrFlushInfo& info,
-                             const skgpu::MutableTextureState* newState) {
+                             const GrBackendSurfaceMutableState* newState) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     GrResourceProvider* resourceProvider = fContext->priv().resourceProvider();

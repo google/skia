@@ -382,7 +382,7 @@ GrSemaphoresSubmitted SkSurface::flush(BackendSurfaceAccess access, const GrFlus
 }
 
 GrSemaphoresSubmitted SkSurface::flush(const GrFlushInfo& info,
-                                       const skgpu::MutableTextureState* newState) {
+                                       const GrBackendSurfaceMutableState* newState) {
     return asSB(this)->onFlush(BackendSurfaceAccess::kNoAccess, info, newState);
 }
 

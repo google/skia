@@ -25,6 +25,8 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/GrAutoLocaleSetter.h",
   "$_src/gpu/ganesh/GrBackendSemaphore.cpp",
   "$_src/gpu/ganesh/GrBackendSurface.cpp",
+  "$_src/gpu/ganesh/GrBackendSurfaceMutableState.cpp",
+  "$_src/gpu/ganesh/GrBackendSurfaceMutableStateImpl.h",
   "$_src/gpu/ganesh/GrBackendTextureImageGenerator.cpp",
   "$_src/gpu/ganesh/GrBackendTextureImageGenerator.h",
   "$_src/gpu/ganesh/GrBackendUtils.cpp",
@@ -855,7 +857,6 @@ skia_shared_gpu_sources = [
   "$_src/gpu/GrAHardwareBufferUtils.h",
   "$_src/gpu/GrRectanizer.h",
   "$_src/gpu/KeyBuilder.h",
-  "$_src/gpu/MutableTextureStateRef.h",
   "$_src/gpu/Rectanizer.h",
   "$_src/gpu/RectanizerPow2.cpp",
   "$_src/gpu/RectanizerPow2.h",
@@ -903,7 +904,6 @@ skia_shared_gpu_sources = [
 
   # Includes
   "$_include/gpu/GpuTypes.h",
-  "$_include/gpu/MutableTextureState.h",
   "$_include/gpu/ShaderErrorHandler.h",
   "$_include/private/SingleOwner.h",
   "$_include/private/chromium/Slug.h",
@@ -922,7 +922,6 @@ skia_shared_vk_sources = [
   "$_include/gpu/vk/VulkanMemoryAllocator.h",
   "$_include/gpu/vk/VulkanTypes.h",
   "$_include/private/gpu/vk/SkiaVulkan.h",
-  "$_include/private/gpu/vk/VulkanTypesPriv.h",
 ]
 
 skia_shared_mtl_sources = [

@@ -32,19 +32,16 @@ class SkPaint;
 class SkSurfaceCharacterization;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
+class GrBackendSurfaceMutableState;
 class GrBackendTexture;
 class GrDirectContext;
 class GrRecordingContext;
 class GrRenderTarget;
 enum GrSurfaceOrigin: int;
 
-namespace skgpu {
-class MutableTextureState;
-}
-
 namespace skgpu::graphite {
-class BackendTexture;
-class Recorder;
+    class BackendTexture;
+    class Recorder;
 }
 
 /** \class SkSurface
@@ -1067,15 +1064,15 @@ public:
         The GrFlushInfo describes additional options to flush. Please see documentation at
         GrFlushInfo for more info.
 
-        If a skgpu::MutableTextureState is passed in, at the end of the flush we will transition
-        the surface to be in the state requested by the skgpu::MutableTextureState. If the surface
+        If a GrBackendSurfaceMutableState is passed in, at the end of the flush we will transition
+        the surface to be in the state requested by the GrBackendSurfaceMutableState. If the surface
         (or SkImage or GrBackendSurface wrapping the same backend object) is used again after this
         flush the state may be changed and no longer match what is requested here. This is often
         used if the surface will be used for presenting or external use and the client wants backend
         object to be prepped for that use. A finishedProc or semaphore on the GrFlushInfo will also
         include the work for any requested state change.
 
-        If the backend API is Vulkan, the caller can set the skgpu::MutableTextureState's
+        If the backend API is Vulkan, the caller can set the GrBackendSurfaceMutableState's
         VkImageLayout to VK_IMAGE_LAYOUT_UNDEFINED or queueFamilyIndex to VK_QUEUE_FAMILY_IGNORED to
         tell Skia to not change those respective states.
 
@@ -1099,7 +1096,7 @@ public:
         @param access  optional state change request after flush
     */
     GrSemaphoresSubmitted flush(const GrFlushInfo& info,
-                                const skgpu::MutableTextureState* newState = nullptr);
+                                const GrBackendSurfaceMutableState* newState = nullptr);
 #endif // SK_SUPPORT_GPU
 
     void flush();

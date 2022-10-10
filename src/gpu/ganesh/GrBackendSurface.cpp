@@ -8,7 +8,7 @@
 #include "include/gpu/GrBackendSurface.h"
 
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/gpu/MutableTextureStateRef.h"
+#include "src/gpu/ganesh/GrBackendSurfaceMutableStateImpl.h"
 
 #if defined(SK_GL)
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
@@ -483,7 +483,7 @@ GrBackendTexture::GrBackendTexture(int width,
                   width,
                   height,
                   vkInfo,
-                  sk_sp<skgpu::MutableTextureStateRef>(new skgpu::MutableTextureStateRef(
+                  sk_sp<GrBackendSurfaceMutableStateImpl>(new GrBackendSurfaceMutableStateImpl(
                           vkInfo.fImageLayout, vkInfo.fCurrentQueueFamily)),
                   label) {}
 
@@ -516,7 +516,7 @@ static GrTextureType vk_image_info_to_texture_type(const GrVkImageInfo& info) {
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    const GrVkImageInfo& vkInfo,
-                                   sk_sp<skgpu::MutableTextureStateRef> mutableState,
+                                   sk_sp<GrBackendSurfaceMutableStateImpl> mutableState,
                                    std::string_view label)
         : fIsValid(true)
         , fWidth(width)
@@ -701,7 +701,7 @@ GrBackendTexture& GrBackendTexture::operator=(const GrBackendTexture& that) {
     return *this;
 }
 
-sk_sp<skgpu::MutableTextureStateRef> GrBackendTexture::getMutableState() const {
+sk_sp<GrBackendSurfaceMutableStateImpl> GrBackendTexture::getMutableState() const {
     return fMutableState;
 }
 
@@ -797,7 +797,7 @@ bool GrBackendTexture::getMockTextureInfo(GrMockTextureInfo* outInfo) const {
     return false;
 }
 
-void GrBackendTexture::setMutableState(const skgpu::MutableTextureState& state) {
+void GrBackendTexture::setMutableState(const GrBackendSurfaceMutableState& state) {
     fMutableState->set(state);
 }
 
@@ -984,8 +984,8 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              const GrVkImageInfo& vkInfo)
         : GrBackendRenderTarget(width, height, vkInfo,
-                                sk_sp<skgpu::MutableTextureStateRef>(
-                                        new skgpu::MutableTextureStateRef(
+                                sk_sp<GrBackendSurfaceMutableStateImpl>(
+                                        new GrBackendSurfaceMutableStateImpl(
                                                 vkInfo.fImageLayout, vkInfo.fCurrentQueueFamily))) {}
 
 static const VkImageUsageFlags kDefaultRTUsageFlags =
@@ -994,7 +994,7 @@ static const VkImageUsageFlags kDefaultRTUsageFlags =
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              const GrVkImageInfo& vkInfo,
-                                             sk_sp<skgpu::MutableTextureStateRef> mutableState)
+                                             sk_sp<GrBackendSurfaceMutableStateImpl> mutableState)
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
@@ -1145,7 +1145,7 @@ GrBackendRenderTarget& GrBackendRenderTarget::operator=(const GrBackendRenderTar
     return *this;
 }
 
-sk_sp<skgpu::MutableTextureStateRef> GrBackendRenderTarget::getMutableState() const {
+sk_sp<GrBackendSurfaceMutableStateImpl> GrBackendRenderTarget::getMutableState() const {
     return fMutableState;
 }
 
@@ -1272,7 +1272,7 @@ bool GrBackendRenderTarget::getMockRenderTargetInfo(GrMockRenderTargetInfo* outI
     return false;
 }
 
-void GrBackendRenderTarget::setMutableState(const skgpu::MutableTextureState& state) {
+void GrBackendRenderTarget::setMutableState(const GrBackendSurfaceMutableState& state) {
     fMutableState->set(state);
 }
 

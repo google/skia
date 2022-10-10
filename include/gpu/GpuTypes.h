@@ -17,16 +17,6 @@
 namespace skgpu {
 
 /**
- * Possible 3D APIs that may be used by Graphite.
- */
-enum class BackendApi : unsigned {
-    kDawn,
-    kMetal,
-    kVulkan,
-    kMock,
-};
-
-/**
  * Value passed into various callbacks to tell the client the result of operations connected to a
  * specific callback. The actual interpretation of kFailed and kSuccess are dependent on the
  * specific callbacks and are documented with the callback itself.
