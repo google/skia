@@ -13,8 +13,7 @@ sksl_minify = sys.argv[1]
 targetDir = sys.argv[2]
 modules = sys.argv[3:]
 
-# This dependency list isn't currently referenced, but a more advanced minifier might need to know
-# about dependent modules to ensure that names are always unique.
+# sksl-minify uses the dependency list to ensure that minified names are unique at global scope.
 dependencies = {
     'sksl_compute': ['sksl_gpu', 'sksl_shared'],
     'sksl_gpu': ['sksl_shared'],
