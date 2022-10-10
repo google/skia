@@ -83,13 +83,13 @@ public:
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
 
     bool setBackendTextureState(const GrBackendTexture&,
-                                const GrBackendSurfaceMutableState&,
-                                GrBackendSurfaceMutableState* previousState,
+                                const skgpu::MutableTextureState&,
+                                skgpu::MutableTextureState* previousState,
                                 sk_sp<skgpu::RefCntedCallback> finishedCallback) override;
 
     bool setBackendRenderTargetState(const GrBackendRenderTarget&,
-                                     const GrBackendSurfaceMutableState&,
-                                     GrBackendSurfaceMutableState* previousState,
+                                     const skgpu::MutableTextureState&,
+                                     skgpu::MutableTextureState* previousState,
                                      sk_sp<skgpu::RefCntedCallback> finishedCallback) override;
 
     void deleteBackendTexture(const GrBackendTexture&) override;
@@ -238,10 +238,10 @@ private:
                                           size_t length) override;
 
     bool setBackendSurfaceState(GrVkImageInfo info,
-                                sk_sp<GrBackendSurfaceMutableStateImpl> currentState,
+                                sk_sp<skgpu::MutableTextureStateRef> currentState,
                                 SkISize dimensions,
-                                const GrVkSharedImageInfo& newInfo,
-                                GrBackendSurfaceMutableState* previousState,
+                                const skgpu::VulkanMutableTextureState& newState,
+                                skgpu::MutableTextureState* previousState,
                                 sk_sp<skgpu::RefCntedCallback> finishedCallback);
 
     sk_sp<GrTexture> onCreateTexture(SkISize,
@@ -336,7 +336,7 @@ private:
     void prepareSurfacesForBackendAccessAndStateUpdates(
             SkSpan<GrSurfaceProxy*> proxies,
             SkSurface::BackendSurfaceAccess access,
-            const GrBackendSurfaceMutableState* newState) override;
+            const skgpu::MutableTextureState* newState) override;
 
     bool onSubmitToGpu(bool syncCpu) override;
 

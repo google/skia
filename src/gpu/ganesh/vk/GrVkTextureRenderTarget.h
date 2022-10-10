@@ -44,7 +44,7 @@ public:
             GrWrapOwnership,
             GrWrapCacheable,
             const GrVkImageInfo&,
-            sk_sp<GrBackendSurfaceMutableStateImpl>);
+            sk_sp<skgpu::MutableTextureStateRef>);
 
     GrBackendFormat backendFormat() const override { return GrVkTexture::backendFormat(); }
 

@@ -1711,7 +1711,7 @@ void GrD3DGpu::addBufferResourceBarriers(GrD3DBuffer* buffer,
 void GrD3DGpu::prepareSurfacesForBackendAccessAndStateUpdates(
         SkSpan<GrSurfaceProxy*> proxies,
         SkSurface::BackendSurfaceAccess access,
-        const GrBackendSurfaceMutableState* newState) {
+        const skgpu::MutableTextureState* newState) {
     // prepare proxies by transitioning to PRESENT renderState
     if (!proxies.empty() && access == SkSurface::BackendSurfaceAccess::kPresent) {
         GrD3DTextureResource* resource;

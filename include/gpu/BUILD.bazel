@@ -9,6 +9,7 @@ filegroup(
     name = "shared_public_hdrs",
     srcs = [
         "GpuTypes.h",
+        "MutableTextureState.h",
         "ShaderErrorHandler.h",
     ],
 )

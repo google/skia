@@ -7,7 +7,7 @@
 
 #include "include/private/gpu/ganesh/GrVkTypesPriv.h"
 
-#include "src/gpu/ganesh/GrBackendSurfaceMutableStateImpl.h"
+#include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/ganesh/vk/GrVkImageLayout.h"
 
 void GrVkBackendSurfaceInfo::cleanup() {};
@@ -17,7 +17,7 @@ void GrVkBackendSurfaceInfo::assign(const GrVkBackendSurfaceInfo& that, bool isT
 }
 
 GrVkImageInfo GrVkBackendSurfaceInfo::snapImageInfo(
-        const GrBackendSurfaceMutableStateImpl* mutableState) const {
+        const skgpu::MutableTextureStateRef* mutableState) const {
     SkASSERT(mutableState);
     GrVkImageInfo newInfo = fImageInfo;
     newInfo.fImageLayout = mutableState->getImageLayout();

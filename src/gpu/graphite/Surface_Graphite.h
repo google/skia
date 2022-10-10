@@ -65,7 +65,7 @@ public:
     // work when looping in a benchmark, as the controlling code expects.
     GrSemaphoresSubmitted onFlush(BackendSurfaceAccess access,
                                   const GrFlushInfo&,
-                                  const GrBackendSurfaceMutableState*) override;
+                                  const skgpu::MutableTextureState*) override;
 #endif
 
 private:
