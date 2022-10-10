@@ -50,20 +50,6 @@ private:
     bool onIsTexturable(const TextureInfo&) const override { return false; }
 
     size_t getTransferBufferAlignment(size_t bytesPerPixel) const override { return 0; }
-
-    bool supportsWritePixels(const TextureProxy*) const override { return false; }
-    bool supportsReadPixels(const TextureProxy*) const override { return false; }
-
-    SkColorType supportedWritePixelsColorType(SkColorType dstColorType,
-                                              const TextureInfo& dstTextureInfo,
-                                              SkColorType srcColorType) const override {
-        return kUnknown_SkColorType;
-    }
-    SkColorType supportedReadPixelsColorType(SkColorType srcColorType,
-                                             const TextureInfo& srcTextureInfo,
-                                             SkColorType dstColorType) const override {
-        return kUnknown_SkColorType;
-    }
 };
 
 } // namespace skgpu::graphite

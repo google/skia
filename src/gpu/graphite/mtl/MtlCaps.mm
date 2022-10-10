@@ -13,7 +13,6 @@
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
-#include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/mtl/MtlUtils.h"
 #include "src/sksl/SkSLUtil.h"
 
@@ -699,77 +698,6 @@ uint32_t MtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
 
 size_t MtlCaps::getTransferBufferAlignment(size_t bytesPerPixel) const {
     return std::max(bytesPerPixel, getMinBufferAlignment());
-}
-
-bool MtlCaps::supportsWritePixels(const TextureInfo& texInfo) const {
-    MtlTextureInfo mtlInfo;
-    texInfo.getMtlTextureInfo(&mtlInfo);
-    if (mtlInfo.fFramebufferOnly) {
-        return false;
-    }
-
-    if (texInfo.numSamples() > 1) {
-        return false;
-    }
-
-    return true;
-}
-
-bool MtlCaps::supportsReadPixels(const TextureInfo& texInfo) const {
-    MtlTextureInfo mtlInfo;
-    texInfo.getMtlTextureInfo(&mtlInfo);
-    if (mtlInfo.fFramebufferOnly) {
-        return false;
-    }
-
-    // We disallow reading back directly from compressed textures.
-    if (MtlFormatIsCompressed((MTLPixelFormat)mtlInfo.fFormat)) {
-        return false;
-    }
-
-    if (texInfo.numSamples() > 1) {
-        return false;
-    }
-
-    return true;
-}
-
-SkColorType MtlCaps::supportedWritePixelsColorType(SkColorType dstColorType,
-                                                   const TextureInfo& dstTextureInfo,
-                                                   SkColorType srcColorType) const {
-    MtlTextureInfo mtlInfo;
-    dstTextureInfo.getMtlTextureInfo(&mtlInfo);
-
-    const FormatInfo& info = this->getFormatInfo((MTLPixelFormat)mtlInfo.fFormat);
-    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
-        const auto& ctInfo = info.fColorTypeInfos[i];
-        if (ctInfo.fColorType == dstColorType) {
-            return dstColorType;
-        }
-    }
-    return kUnknown_SkColorType;
-}
-
-SkColorType MtlCaps::supportedReadPixelsColorType(SkColorType srcColorType,
-                                                  const TextureInfo& srcTextureInfo,
-                                                  SkColorType dstColorType) const {
-    MtlTextureInfo mtlInfo;
-    srcTextureInfo.getMtlTextureInfo(&mtlInfo);
-
-    // TODO: handle compressed formats
-    if (MtlFormatIsCompressed((MTLPixelFormat)mtlInfo.fFormat)) {
-        SkASSERT(this->isTexturable((MTLPixelFormat)mtlInfo.fFormat));
-        return kUnknown_SkColorType;
-    }
-
-    const FormatInfo& info = this->getFormatInfo((MTLPixelFormat)mtlInfo.fFormat);
-    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
-        const auto& ctInfo = info.fColorTypeInfos[i];
-        if (ctInfo.fColorType == srcColorType) {
-            return srcColorType;
-        }
-    }
-    return kUnknown_SkColorType;
 }
 
 // There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
