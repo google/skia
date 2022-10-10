@@ -28,8 +28,6 @@ static constexpr char gBulgeDisplacementSkSL[] =
     "uniform float2 u_center;"
     "uniform float2 u_radius;"
     "uniform float u_h;"
-    "uniform float u_r;"
-    "uniform float u_asinInverseR;"
     "uniform float u_rcpR;"
     "uniform float u_rcpAsinInvR;"
     "uniform float u_selector;"
@@ -109,10 +107,8 @@ private:
         builder.uniform("u_center")       = fCenter;
         builder.uniform("u_radius")       = fRadius;
         builder.uniform("u_h")            = h;
-        builder.uniform("u_r")            = r;
-        builder.uniform("u_asinInverseR") = std::asin(1/r);
-        builder.uniform("u_rcpR")            = 1.0f/r;
-        builder.uniform("u_rcpAsinInvR") = 1.0f/std::asin(1/r);
+        builder.uniform("u_rcpR")         = 1.0f/r;
+        builder.uniform("u_rcpAsinInvR")  = 1.0f/std::asin(1/r);
         builder.uniform("u_selector")     = (fHeight > 0 ? 1.0f : -1.0f);
 
         builder.child("u_layer") = this->contentShader();
