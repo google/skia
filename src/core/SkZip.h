@@ -205,6 +205,9 @@ public:
 };
 
 template<typename... Ts>
+SkZip(size_t size, Ts*... ts) -> SkZip<Ts...>;
+
+template<typename... Ts>
 inline constexpr auto SkMakeZip(Ts&& ... ts) {
     return SkMakeZipDetail::MakeZip(std::forward<Ts>(ts)...);
 }

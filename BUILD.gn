@@ -2129,6 +2129,7 @@ if (skia_enable_tools) {
       "modules/skparagraph:tests",
       "modules/sksg:tests",
       "modules/skshaper",
+      "modules/skshaper:tests",
       "modules/svg:tests",
       "//third_party/libpng",
       "//third_party/libwebp",

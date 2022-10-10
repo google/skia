@@ -138,7 +138,6 @@ CPU_ONLY_TESTS = [
     "ShaderOpacityTest.cpp",
     "ShaderTest.cpp",
     "ShadowTest.cpp",
-    "ShaperTest.cpp",
     "SizeTest.cpp",
     "SkBase64Test.cpp",
     "SkBlockAllocatorTest.cpp",

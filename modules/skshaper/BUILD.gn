@@ -53,7 +53,25 @@ if (skia_enable_skshaper) {
       "../../third_party/icu/config:no_cxx",
     ]
   }
+
+  if (defined(is_skia_standalone) && skia_enable_tools) {
+    skia_source_set("tests") {
+      if (skia_enable_skshaper_tests) {
+        testonly = true
+        sources = skia_shaper_tests
+        deps = [
+          "../..:skia",
+          "../..:test",
+          "../skshaper",
+        ]
+      } else {
+        sources = []
+      }
+    }
+  }
 } else {
   group("skshaper") {
+  }
+  group("tests") {
   }
 }
