@@ -9,10 +9,10 @@
 #define SKSL_DSL_PRIV
 
 #include "include/private/SkSLProgramKind.h"
-#include "src/sksl/SkSLParsedModule.h"
 
 namespace SkSL {
 
+class BuiltinMap;
 class Compiler;
 struct ProgramSettings;
 
@@ -21,8 +21,10 @@ namespace dsl {
 /**
  * Initializes the DSL for compiling modules (SkSL include files).
  */
-void StartModule(SkSL::Compiler* compiler, SkSL::ProgramKind kind,
-                 const SkSL::ProgramSettings& settings, SkSL::ParsedModule baseModule);
+void StartModule(SkSL::Compiler* compiler,
+                 SkSL::ProgramKind kind,
+                 const SkSL::ProgramSettings& settings,
+                 const SkSL::BuiltinMap* baseModule);
 
 } // namespace dsl
 

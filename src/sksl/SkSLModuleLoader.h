@@ -13,9 +13,9 @@
 
 namespace SkSL {
 
+class BuiltinMap;
 class Compiler;
 class ModifiersPool;
-struct ParsedModule;
 class SymbolTable;
 class Type;
 
@@ -37,7 +37,7 @@ public:
     // The built-in types and root module are universal, immutable, and shared by every Compiler.
     // They are created when the ModuleLoader is instantiated and never change.
     const BuiltinTypes& builtinTypes();
-    const ParsedModule& rootModule();
+    const BuiltinMap*   rootModule();
 
     // This is used for testing purposes; it contains root types and public aliases (mat2 for
     // float2x2), and hides private types like sk_Caps.
@@ -48,16 +48,16 @@ public:
 
     // These modules are loaded on demand; once loaded, they are kept for the lifetime of the
     // process.
-    const ParsedModule& loadSharedModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadGPUModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadVertexModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadFragmentModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadComputeModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadGraphiteVertexModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadGraphiteFragmentModule(SkSL::Compiler* compiler);
+    const BuiltinMap* loadSharedModule(SkSL::Compiler* compiler);
+    const BuiltinMap* loadGPUModule(SkSL::Compiler* compiler);
+    const BuiltinMap* loadVertexModule(SkSL::Compiler* compiler);
+    const BuiltinMap* loadFragmentModule(SkSL::Compiler* compiler);
+    const BuiltinMap* loadComputeModule(SkSL::Compiler* compiler);
+    const BuiltinMap* loadGraphiteVertexModule(SkSL::Compiler* compiler);
+    const BuiltinMap* loadGraphiteFragmentModule(SkSL::Compiler* compiler);
 
-    const ParsedModule& loadPublicModule(SkSL::Compiler* compiler);
-    const ParsedModule& loadPrivateRTShaderModule(SkSL::Compiler* compiler);
+    const BuiltinMap* loadPublicModule(SkSL::Compiler* compiler);
+    const BuiltinMap* loadPrivateRTShaderModule(SkSL::Compiler* compiler);
 
     // This unloads every module. It's useful primarily for benchmarking purposes.
     void unloadModules();

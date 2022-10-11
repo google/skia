@@ -20,7 +20,6 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
-#include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
@@ -53,6 +52,8 @@
 
 namespace SkSL {
 
+class BuiltinMap;
+
 namespace dsl {
 
 void Start(SkSL::Compiler* compiler, ProgramKind kind) {
@@ -61,13 +62,16 @@ void Start(SkSL::Compiler* compiler, ProgramKind kind) {
 
 void Start(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettings& settings) {
     ThreadContext::SetInstance(std::make_unique<ThreadContext>(compiler, kind, settings,
-            compiler->moduleForProgramKind(kind), /*isModule=*/false));
+                                                               compiler->moduleForProgramKind(kind),
+                                                               /*isModule=*/false));
 }
 
-void StartModule(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettings& settings,
-                 SkSL::ParsedModule baseModule) {
+void StartModule(SkSL::Compiler* compiler,
+                 ProgramKind kind,
+                 const ProgramSettings& settings,
+                 const SkSL::BuiltinMap* baseModule) {
     ThreadContext::SetInstance(std::make_unique<ThreadContext>(compiler, kind, settings,
-            baseModule, /*isModule=*/true));
+                                                               baseModule, /*isModule=*/true));
 }
 
 void End() {

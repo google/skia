@@ -12,6 +12,7 @@
 #include "src/core/SkOpts.h"
 #include "src/opts/SkChecksum_opts.h"
 #include "src/opts/SkVM_opts.h"
+#include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLLexer.h"
@@ -21,9 +22,9 @@
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <cctype>
+#include <forward_list>
 #include <fstream>
 #include <limits.h>
-#include <list>
 #include <optional>
 #include <stdarg.h>
 #include <stdio.h>
@@ -79,8 +80,7 @@ static std::optional<SkSL::LoadedModule> compile_module_list(SkSpan<const std::s
     // Each module inherits the symbols from its parent module.
     SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
     SkSL::LoadedModule loadedModule;
-    std::list<SkSL::ParsedModule> modules = {{SkSL::ModuleLoader::Get().rootModule().fSymbols,
-                                              /*fElements=*/nullptr}};
+    std::forward_list<std::unique_ptr<const SkSL::BuiltinMap>> modules;
     for (auto modulePath = paths.rbegin(); modulePath != paths.rend(); ++modulePath) {
         std::ifstream in(*modulePath);
         std::string moduleSource{std::istreambuf_iterator<char>(in),
@@ -91,8 +91,11 @@ static std::optional<SkSL::LoadedModule> compile_module_list(SkSpan<const std::s
         }
 
         // If we have a loaded module, parse it and put it on the list.
+        const SkSL::BuiltinMap* base = modules.empty() ? SkSL::ModuleLoader::Get().rootModule()
+                                                       : modules.front().get();
         if (loadedModule.fSymbols) {
-            modules.push_front(loadedModule.parse(modules.front()));
+            modules.push_front(loadedModule.convertToBuiltinMap(base));
+            base = modules.front().get();
         }
 
         // TODO(skia:13778): We don't know the module's ProgramKind here, so we always pass
@@ -101,7 +104,7 @@ static std::optional<SkSL::LoadedModule> compile_module_list(SkSpan<const std::s
         loadedModule = compiler.compileModule(SkSL::ProgramKind::kFragment,
                                               modulePath->c_str(),
                                               std::move(moduleSource),
-                                              modules.front(),
+                                              base,
                                               SkSL::ModuleLoader::Get().coreModifiers(),
                                               /*shouldInline=*/false);
         if (!gUnoptimized) {
@@ -112,7 +115,7 @@ static std::optional<SkSL::LoadedModule> compile_module_list(SkSpan<const std::s
             // renames.)
             compiler.optimizeModuleBeforeMinifying(SkSL::ProgramKind::kFragment,
                                                    loadedModule,
-                                                   modules.front());
+                                                   base);
         }
     }
     return std::move(loadedModule);

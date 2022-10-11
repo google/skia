@@ -60,7 +60,6 @@ CORE_SRCS = [
     "SkSLOperator.cpp",
     "SkSLOutputStream.cpp",
     "SkSLOutputStream.h",
-    "SkSLParsedModule.h",
     "SkSLParser.cpp",
     "SkSLParser.h",
     "SkSLPool.cpp",

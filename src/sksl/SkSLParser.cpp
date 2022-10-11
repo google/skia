@@ -21,7 +21,6 @@
 #include "include/sksl/SkSLVersion.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLConstantFolder.h"
-#include "src/sksl/SkSLParsedModule.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/dsl/priv/DSL_priv.h"
@@ -39,6 +38,8 @@
 using namespace SkSL::dsl;
 
 namespace SkSL {
+
+class BuiltinMap;
 
 static constexpr int kMaxParseDepth = 50;
 
@@ -295,9 +296,9 @@ std::unique_ptr<Program> Parser::program() {
     return result;
 }
 
-SkSL::LoadedModule Parser::moduleInheritingFrom(SkSL::ParsedModule baseModule) {
+SkSL::LoadedModule Parser::moduleInheritingFrom(const SkSL::BuiltinMap* baseModule) {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
-    StartModule(&fCompiler, fKind, fSettings, std::move(baseModule));
+    StartModule(&fCompiler, fKind, fSettings, baseModule);
     SetErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();

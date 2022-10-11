@@ -33,7 +33,7 @@
 
 namespace SkSL {
 
-struct ParsedModule;
+class BuiltinMap;
 struct Program;
 
 namespace dsl {
@@ -41,7 +41,6 @@ class DSLBlock;
 class DSLCase;
 class DSLGlobalVar;
 class DSLParameter;
-
 }
 
 /**
@@ -53,7 +52,7 @@ public:
 
     std::unique_ptr<Program> program();
 
-    SkSL::LoadedModule moduleInheritingFrom(SkSL::ParsedModule baseModule);
+    SkSL::LoadedModule moduleInheritingFrom(const SkSL::BuiltinMap* baseModule);
 
     std::string_view text(Token token);
 

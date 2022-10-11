@@ -21,9 +21,13 @@
 namespace SkSL {
 
 class Symbol;
+class SymbolTable;
 
-BuiltinMap::BuiltinMap(const BuiltinMap* parent, SkSpan<std::unique_ptr<ProgramElement>> elements)
-        : fParent(parent) {
+BuiltinMap::BuiltinMap(const BuiltinMap* parent,
+                       std::shared_ptr<SymbolTable> symbolTable,
+                       SkSpan<std::unique_ptr<ProgramElement>> elements)
+        : fParent(parent)
+        , fSymbolTable(symbolTable) {
     // Transfer all of the program elements from the vector to this builtin element map. This maps
     // global symbols to the declaring ProgramElement.
     for (std::unique_ptr<ProgramElement>& element : elements) {

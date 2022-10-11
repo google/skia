@@ -36,7 +36,6 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLOperator.cpp",
   "$_src/sksl/SkSLOutputStream.cpp",
   "$_src/sksl/SkSLOutputStream.h",
-  "$_src/sksl/SkSLParsedModule.h",
   "$_src/sksl/SkSLParser.cpp",
   "$_src/sksl/SkSLParser.h",
   "$_src/sksl/SkSLPool.cpp",

@@ -15,7 +15,6 @@
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
-#include "src/sksl/SkSLParsedModule.h"
 
 #include <array>
 #include <memory>
@@ -44,6 +43,7 @@ namespace dsl {
     class DSLCore;
 }
 
+class BuiltinMap;
 class Expression;
 class Inliner;
 class ModifiersPool;
@@ -59,11 +59,11 @@ struct LoadedModule {
     std::vector<std::unique_ptr<ProgramElement>> fElements;
 
     /**
-     * Converts a compiled LoadedModule (containing symbols and ProgramElements) into a ParsedModule
-     * (containing a BuiltinMap, useful for looking up symbols quickly by name). Most elements of
-     * `fElements` from this LoadedModule will be moved into the BuiltinMap.
+     * Converts a compiled LoadedModule (containing symbols and ProgramElements) into a BuiltinMap
+     * (useful for looking up symbols quickly by name). Most elements of `fElements` from this
+     * LoadedModule will be moved into the BuiltinMap, and the rest will be deleted.
      */
-    ParsedModule parse(const ParsedModule& base);
+    std::unique_ptr<BuiltinMap> convertToBuiltinMap(const BuiltinMap* parent);
 };
 
 /**
@@ -184,16 +184,16 @@ public:
     LoadedModule compileModule(ProgramKind kind,
                                const char* moduleName,
                                std::string moduleSource,
-                               const ParsedModule& base,
+                               const BuiltinMap* base,
                                ModifiersPool& modifiersPool,
                                bool shouldInline);
 
     /** Optimize a module at minification time, before writing it out. */
     bool optimizeModuleBeforeMinifying(ProgramKind kind,
                                        LoadedModule& module,
-                                       const ParsedModule& base);
+                                       const BuiltinMap* base);
 
-    const ParsedModule& moduleForProgramKind(ProgramKind kind);
+    const BuiltinMap* moduleForProgramKind(ProgramKind kind);
 
 private:
     class CompilerErrorReporter : public ErrorReporter {
@@ -216,9 +216,7 @@ private:
     bool finalize(Program& program);
 
     /** Optimize a module at Skia runtime, after loading it. */
-    bool optimizeModuleAfterLoading(ProgramKind kind,
-                                    LoadedModule& module,
-                                    const ParsedModule& base);
+    bool optimizeModuleAfterLoading(ProgramKind kind, LoadedModule& module, const BuiltinMap* base);
 
     /** Flattens out function calls when it is safe to do so. */
     bool runInliner(Inliner* inliner,

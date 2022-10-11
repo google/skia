@@ -1438,7 +1438,6 @@ BASE_SRCS_ALL = [
     "src/sksl/SkSLOperator.cpp",
     "src/sksl/SkSLOutputStream.cpp",
     "src/sksl/SkSLOutputStream.h",
-    "src/sksl/SkSLParsedModule.h",
     "src/sksl/SkSLParser.cpp",
     "src/sksl/SkSLParser.h",
     "src/sksl/SkSLPool.cpp",

@@ -144,7 +144,7 @@ Compiler::Compiler(const ShaderCaps* caps) : fErrorReporter(this), fCaps(caps) {
 
 Compiler::~Compiler() {}
 
-const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
+const BuiltinMap* Compiler::moduleForProgramKind(ProgramKind kind) {
     auto m = ModuleLoader::Get();
     switch (kind) {
         case ProgramKind::kVertex:               return m.loadVertexModule(this);           break;
@@ -166,11 +166,11 @@ const ParsedModule& Compiler::moduleForProgramKind(ProgramKind kind) {
 LoadedModule Compiler::compileModule(ProgramKind kind,
                                      const char* moduleName,
                                      std::string moduleSource,
-                                     const ParsedModule& base,
+                                     const BuiltinMap* base,
                                      ModifiersPool& modifiersPool,
                                      bool shouldInline) {
+    SkASSERT(base);
     SkASSERT(!moduleSource.empty());
-    SkASSERT(base.fSymbols);
     SkASSERT(this->errorCount() == 0);
 
     // Modules are shared and cannot rely on shader caps.
@@ -180,8 +180,7 @@ LoadedModule Compiler::compileModule(ProgramKind kind,
     // Compile the module from source, using default program settings.
     ProgramSettings settings;
     SkSL::Parser parser{this, settings, kind, std::move(moduleSource)};
-    LoadedModule module = parser.moduleInheritingFrom(ParsedModule{base.fSymbols,
-                                                                   /*fElements=*/nullptr});
+    LoadedModule module = parser.moduleInheritingFrom(base);
     if (this->errorCount() != 0) {
         SK_ABORT("Unexpected errors compiling %s:\n\n%s\n", moduleName, this->errorText().c_str());
     }
@@ -191,17 +190,11 @@ LoadedModule Compiler::compileModule(ProgramKind kind,
     return module;
 }
 
-ParsedModule LoadedModule::parse(const ParsedModule& base) {
-    // For modules that just declare (but don't define) intrinsic functions, there will be no new
-    // program elements. In that case, we can share our parent's element map:
-    if (fElements.empty()) {
-        return ParsedModule{fSymbols, base.fElements};
-    }
-
-    auto elements = std::make_shared<BuiltinMap>(base.fElements.get(), SkSpan(fElements));
+std::unique_ptr<BuiltinMap> LoadedModule::convertToBuiltinMap(const BuiltinMap* parent) {
+    auto elements = std::make_unique<BuiltinMap>(parent, std::move(fSymbols), SkSpan(fElements));
     fElements = std::vector<std::unique_ptr<ProgramElement>>{};
 
-    return ParsedModule{fSymbols, std::move(elements)};
+    return elements;
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
@@ -300,7 +293,7 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
 
 bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind,
                                              LoadedModule& module,
-                                             const ParsedModule& base) {
+                                             const BuiltinMap* base) {
     SkASSERT(this->errorCount() == 0);
 
     auto m = SkSL::ModuleLoader::Get();
@@ -342,7 +335,7 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind,
 
 bool Compiler::optimizeModuleAfterLoading(ProgramKind kind,
                                           LoadedModule& module,
-                                          const ParsedModule& base) {
+                                          const BuiltinMap* base) {
     SkASSERT(this->errorCount() == 0);
 
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
