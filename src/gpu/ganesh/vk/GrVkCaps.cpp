@@ -721,6 +721,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
     shaderCaps->fSampleMaskSupport = true;
 
     shaderCaps->fShaderDerivativeSupport = true;
+    shaderCaps->fExplicitTextureLodSupport = true;
 
     shaderCaps->fDualSourceBlendingSupport = features.features.dualSrcBlend;
 

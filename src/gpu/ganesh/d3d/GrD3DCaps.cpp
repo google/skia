@@ -240,6 +240,7 @@ void GrD3DCaps::initShaderCaps(int vendorID, const D3D12_FEATURE_DATA_D3D12_OPTI
     shaderCaps->fSampleMaskSupport = true;
 
     shaderCaps->fShaderDerivativeSupport = true;
+    shaderCaps->fExplicitTextureLodSupport = true;
 
     shaderCaps->fDualSourceBlendingSupport = true;
 

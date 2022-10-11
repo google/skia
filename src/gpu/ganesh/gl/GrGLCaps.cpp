@@ -384,6 +384,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
                 ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
 
         shaderCaps->fShaderDerivativeSupport = true;
+        shaderCaps->fExplicitTextureLodSupport =
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
 
         shaderCaps->fIntegerSupport = version >= GR_GL_VER(3, 0) &&
             ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k130;
@@ -395,13 +397,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     } else if (GR_IS_GR_GL_ES(standard)) {
         shaderCaps->fDualSourceBlendingSupport = ctxInfo.hasExtension("GL_EXT_blend_func_extended");
 
-        shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(3, 0) ||
-            ctxInfo.hasExtension("GL_OES_standard_derivatives");
-
-        shaderCaps->fIntegerSupport =
+        shaderCaps->fShaderDerivativeSupport =
                 // We use this value for GLSL ES 3.0.
-                version >= GR_GL_VER(3, 0) &&
+                version >= GR_GL_VER(3, 0) || ctxInfo.hasExtension("GL_OES_standard_derivatives");
+        shaderCaps->fExplicitTextureLodSupport =
                 ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
+
+        shaderCaps->fIntegerSupport = version >= GR_GL_VER(3, 0) &&
+                                      ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
         shaderCaps->fNonsquareMatrixSupport =
                 ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
         shaderCaps->fInverseHyperbolicSupport =
@@ -410,6 +413,9 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         shaderCaps->fShaderDerivativeSupport = version >= GR_GL_VER(2, 0) ||
                                                ctxInfo.hasExtension("GL_OES_standard_derivatives") ||
                                                ctxInfo.hasExtension("OES_standard_derivatives");
+        shaderCaps->fExplicitTextureLodSupport =
+                version >= GR_GL_VER(2, 0) &&
+                ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
         shaderCaps->fIntegerSupport = (version >= GR_GL_VER(2, 0));
         shaderCaps->fNonsquareMatrixSupport =
                 ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k300es;
