@@ -41,18 +41,6 @@ public:
                              const char* coordName,
                              GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
 
-    /** Versions of the above that don't rely on implicit derivatives by using an explicit
-        mip-level
-        */
-    void appendTextureLookupExplicitLod(SkString* out,
-                                        SamplerHandle,
-                                        const char* coordName,
-                                        const char* lod) const;
-    void appendTextureLookupExplicitLod(SamplerHandle,
-                                        const char* coordName,
-                                        const char* lod,
-                                        GrGLSLColorSpaceXformHelper* colorXformHelper = nullptr);
-
     /** Does the work of appendTextureLookup and blends the result by dst, treating the texture
         lookup as the src input to the blend. The dst is assumed to be half4 and the result is
         always a half4. If dst is nullptr we use half4(1) as the blend dst. */

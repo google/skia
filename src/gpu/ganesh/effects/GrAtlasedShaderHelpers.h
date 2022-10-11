@@ -87,30 +87,14 @@ static void append_multitexture_lookup(GrGeometryProcessor::ProgramImpl::EmitArg
         return;
     }
 
-    // Conditionally load from the indexed texture sampler. We intentionally sample without implicit
-    // derivatives to avoid undefined behavior in branches (and satisfy Dawn's uniformity analysis).
-    // Atlas textures are not mipped so it's OK to always use mip-level 0.
-    //
-    // On OpenGL versions that lack explicit LOD support (GLSL <1.3, GLSL ES <3.0, WebGL 1) we
-    // fallback to sampling with implicit derivatives in branches. For mip-mapepd textures this
-    // would still be considered undefined behavior by the GLSL ES 1.00 specification, but we don't
-    // worry about this because the texture is assumed to be not mip-mapped and we expect shader
-    // compilers to flatten these branches.
-    auto lookup = [&](int idx) {
-        if (args.fShaderCaps->fExplicitTextureLodSupport) {
-            args.fFragBuilder->appendTextureLookupExplicitLod(
-                    args.fTexSamplers[idx], coordName, "0.0");
-        } else {
-            args.fFragBuilder->appendTextureLookup(args.fTexSamplers[idx], coordName);
-        }
-    };
+    // conditionally load from the indexed texture sampler
     for (int i = 0; i < numTextureSamplers-1; ++i) {
         args.fFragBuilder->codeAppendf("if (%s == %d) { %s = ", texIdx.fsIn(), i, colorName);
-        lookup(i);
+        args.fFragBuilder->appendTextureLookup(args.fTexSamplers[i], coordName);
         args.fFragBuilder->codeAppend("; } else ");
     }
     args.fFragBuilder->codeAppendf("{ %s = ", colorName);
-    lookup(numTextureSamplers - 1);
+    args.fFragBuilder->appendTextureLookup(args.fTexSamplers[numTextureSamplers - 1], coordName);
     args.fFragBuilder->codeAppend("; }");
 }
 
