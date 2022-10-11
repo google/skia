@@ -61,7 +61,9 @@ private:
     void onDraw(SkCanvas* canvas) override {
         if (!fSrcImage) {
             fSrcImage = create_image(canvas);
-            fSrcImageShader = fSrcImage->makeShader(SkSamplingOptions());
+            if (fSrcImage) {
+                fSrcImageShader = fSrcImage->makeShader(SkSamplingOptions());
+            }
         }
 
         canvas->clear(SK_ColorWHITE);

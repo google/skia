@@ -60,8 +60,11 @@ sk_sp<SkShader> create_image_shader(SkCanvas* destCanvas, SkTileMode tmX, SkTile
 
     sk_sp<SkImage> img = SkImage::MakeFromBitmap(bitmap);
     img = ToolUtils::MakeTextureImage(destCanvas, std::move(img));
-
-    return img->makeShader(tmX, tmY, SkSamplingOptions());
+    if (img) {
+        return img->makeShader(tmX, tmY, SkSamplingOptions());
+    } else {
+        return nullptr;
+    }
 }
 
 sk_sp<SkShader> create_blend_shader(SkCanvas* destCanvas, SkBlendMode bm) {

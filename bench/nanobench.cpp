@@ -31,6 +31,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTime.h"
+#include "include/private/SkMacros.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkLeanWindows.h"
@@ -1317,6 +1318,7 @@ static void start_keepalive() {
         }
     });
     (void)intentionallyLeaked;
+    SK_INTENTIONALLY_LEAKED(intentionallyLeaked);
 }
 
 class NanobenchShaderErrorHandler : public GrContextOptions::ShaderErrorHandler {

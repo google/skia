@@ -1746,9 +1746,8 @@ func (b *jobBuilder) fm() {
 				// Occasional false positives may crop up in the standard library without this.
 				b.envPrefixes("LD_LIBRARY_PATH", "clang_linux/tsan")
 			} else {
-				// This isn't strictly required, but we usually get better sanitizer
-				// diagnostics from libc++ than the default OS-provided libstdc++.
-				b.envPrefixes("LD_LIBRARY_PATH", "clang_linux/lib")
+				// The machines we run on may not have libstdc++ installed.
+				b.envPrefixes("LD_LIBRARY_PATH", "clang_linux/lib/x86_64-unknown-linux-gnu")
 			}
 		}
 	})
