@@ -77,7 +77,7 @@ class SK_API Compiler {
 public:
     inline static constexpr const char FRAGCOLOR_NAME[] = "sk_FragColor";
     inline static constexpr const char RTADJUST_NAME[]  = "sk_RTAdjust";
-    inline static constexpr const char PERVERTEX_NAME[] = "sk_PerVertex";
+    inline static constexpr const char POSITION_NAME[]  = "sk_Position";
     inline static constexpr const char POISON_TAG[]     = "<POISON>";
 
     /**
