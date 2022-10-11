@@ -68,12 +68,6 @@ config("default") {
     cflags += [ "-Wno-attributes" ]
   }
 
-  if (is_clang && !is_win) {
-    # In Clang 14, this default was changed. We turn this off to (hopefully) make our
-    # GMs more consistent in the transition.
-    cflags += [ "-ffp-contract=off" ]
-  }
-
   if (is_fuchsia && using_fuchsia_sdk) {
     ldflags += [
       "-v",
@@ -318,6 +312,8 @@ config("default") {
 
     if (is_win) {
       cflags += [
+        "/FI$_suppressions",
+
         # On Release builds, we get strange warnings about string literals.
         "/GF-",
       ]
@@ -325,7 +321,10 @@ config("default") {
       assert(clang_win != "")
       libs += [ "$clang_win/lib/clang/$clang_win_version/lib/windows/clang_rt.asan-x86_64.lib" ]
     } else {
-      cflags += [ "-fno-omit-frame-pointer" ]
+      cflags += [
+        "-include$_suppressions",
+        "-fno-omit-frame-pointer",
+      ]
 
       ldflags += [ "-fsanitize=$sanitizers" ]
     }
@@ -619,13 +618,7 @@ config("optimize") {
     ]
   } else {
     if (skia_enable_optimize_size) {
-      cflags = [
-        "-Oz",
-
-        # We currently use bloaty 1.0 on the CI. Newer versions of Bloaty do not
-        # seem to handle newer DWARF data as well.
-        "-gdwarf-4",
-      ]
+      cflags = [ "-Oz" ]
     } else {
       cflags = [ "-O3" ]
     }

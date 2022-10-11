@@ -183,19 +183,15 @@ protected:
             draw_color_bm(&fColorBitmap, squareLength);
             sk_sp<SkImage> img = SkImage::MakeFromBitmap(fColorBitmap);
             img = ToolUtils::MakeTextureImage(canvas, std::move(img));
-            if (img) {
-                fColorBitmapShader = img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
-                                                     SkSamplingOptions(), SkMatrix::I());
-            }
+            fColorBitmapShader = img->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                 SkSamplingOptions(), SkMatrix::I());
+
             draw_alpha8_bm(&fAlpha8Bitmap, squareLength);
             img = SkImage::MakeFromBitmap(fAlpha8Bitmap);
             img = ToolUtils::MakeTextureImage(canvas, std::move(img));
-            if (img) {
-                fAlpha8BitmapShader = fAlpha8Bitmap.makeShader(SkTileMode::kRepeat,
-                                                               SkTileMode::kRepeat,
-                                                               SkSamplingOptions(),
-                                                               SkMatrix::I());
-            }
+            fAlpha8BitmapShader = fAlpha8Bitmap.makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
+                                                           SkSamplingOptions(), SkMatrix::I());
+
             fLinearGradientShader = make_linear_gradient_shader(squareLength);
             fInitialized = true;
         }
@@ -212,7 +208,7 @@ protected:
         };
         if (fUseLocalMatrix) {
             for (unsigned i = 0; i < std::size(shaders); ++i) {
-                shaders[i] = shaders[i] ? shaders[i]->makeWithLocalMatrix(lm) : nullptr;
+                shaders[i] = shaders[i]->makeWithLocalMatrix(lm);
             }
         }
 

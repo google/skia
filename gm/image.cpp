@@ -333,21 +333,21 @@ DEF_SIMPLE_GPU_GM(new_texture_image, rContext, canvas, 280, 60) {
 
     std::function<sk_sp<SkImage>()> imageFactories[] = {
         // Create sw raster image.
-        [&] {
+        [bmp] {
             return bmp.asImage();
         },
         // Create encoded image.
-        [&] {
+        [bmp] {
             auto src = SkEncodeBitmap(bmp, SkEncodedImageFormat::kPNG, 100);
             return SkImage::MakeFromEncoded(std::move(src));
         },
         // Create YUV encoded image.
-        [&] {
+        [bmp] {
             auto src = SkEncodeBitmap(bmp, SkEncodedImageFormat::kJPEG, 100);
             return SkImage::MakeFromEncoded(std::move(src));
         },
         // Create a picture image.
-        [&] {
+        [render_image] {
             SkPictureRecorder recorder;
             SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kSize), SkIntToScalar(kSize));
             render_image(canvas);
@@ -357,7 +357,7 @@ DEF_SIMPLE_GPU_GM(new_texture_image, rContext, canvas, 280, 60) {
                                             SkImage::BitDepth::kU8, srgbColorSpace);
         },
         // Create a texture image
-        [&]() -> sk_sp<SkImage> {
+        [rContext, render_image]() -> sk_sp<SkImage> {
             auto surface(SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes,
                                                      SkImageInfo::MakeS32(kSize, kSize,
                                                                           kPremul_SkAlphaType)));

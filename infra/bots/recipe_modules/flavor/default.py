@@ -124,7 +124,7 @@ class DefaultFlavor(object):
     ld_library_path = []
 
     workdir = self.m.vars.workdir
-    clang_linux = workdir.join('clang_linux')
+    clang_linux = str(workdir.join('clang_linux'))
     extra_tokens = self.m.vars.extra_tokens
 
     if self.m.vars.is_linux:
@@ -156,18 +156,18 @@ class DefaultFlavor(object):
 
     # Find the MSAN/TSAN-built libc++.
     if 'MSAN' in extra_tokens:
-      ld_library_path.append(clang_linux.join('msan'))
+      ld_library_path.append(clang_linux + '/msan')
     elif 'TSAN' in extra_tokens:
-      ld_library_path.append(clang_linux.join('tsan'))
+      ld_library_path.append(clang_linux + '/tsan')
 
     if any('SAN' in t for t in extra_tokens):
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
-      path.append(clang_linux.join('bin'))
+      path.append(clang_linux + '/bin')
       # We find that testing sanitizer builds with libc++ uncovers more issues
       # than with the system-provided C++ standard library, which is usually
       # libstdc++. libc++ proactively hooks into sanitizers to help their
       # analyses. We ship a copy of libc++ with our Linux toolchain in /lib.
-      ld_library_path.append(clang_linux.join('lib', 'x86_64-unknown-linux-gnu'))
+      ld_library_path.append(clang_linux + '/lib')
     elif self.m.vars.is_linux:
       cmd = ['catchsegv'] + cmd
 

@@ -50,10 +50,7 @@ static void setup(SkCanvas* canvas, SkPaint* paint, const SkBitmap& bm, SkFilter
                   SkTileMode tmx, SkTileMode tmy) {
     sk_sp<SkImage> img = SkImage::MakeFromBitmap(bm);
     img = ToolUtils::MakeTextureImage(canvas, std::move(img));
-    if (img) {
-        // img can be null if the GPU context has been abandoned.
-        paint->setShader(img->makeShader(tmx, tmy, SkSamplingOptions(fm)));
-    }
+    paint->setShader(img->makeShader(tmx, tmy, SkSamplingOptions(fm)));
 }
 
 constexpr SkColorType gColorTypes[] = {
