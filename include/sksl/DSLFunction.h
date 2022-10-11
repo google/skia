@@ -8,6 +8,7 @@
 #ifndef SKSL_DSL_FUNCTION
 #define SKSL_DSL_FUNCTION
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLBlock.h"
@@ -43,12 +44,12 @@ public:
 
         // We can't have a default parameter and a template parameter pack at the same time, so
         // unfortunately we can't capture position from this overload.
-        this->init(modifiers, returnType, name, std::move(parameterArray), Position());
+        this->init(modifiers, returnType, name, parameterArray, Position());
     }
 
     DSLFunction(std::string_view name, const DSLModifiers& modifiers, const DSLType& returnType,
-                SkTArray<DSLParameter*> parameters, Position pos = {}) {
-        this->init(modifiers, returnType, name, std::move(parameters), pos);
+                SkSpan<DSLParameter*> parameters, Position pos = {}) {
+        this->init(modifiers, returnType, name, parameters, pos);
     }
 
     DSLFunction(SkSL::FunctionDeclaration* decl)
@@ -80,7 +81,7 @@ public:
     /**
      * Invokes the function with the given arguments.
      */
-    DSLExpression call(SkTArray<DSLExpression> args, Position pos = {});
+    DSLExpression call(SkSpan<DSLExpression> args, Position pos = {});
 
     DSLExpression call(ExpressionArray args, Position pos = {});
 
@@ -100,7 +101,7 @@ private:
     }
 
     void init(DSLModifiers modifiers, const DSLType& returnType, std::string_view name,
-              SkTArray<DSLParameter*> params, Position pos);
+              SkSpan<DSLParameter*> params, Position pos);
 
     SkSL::FunctionDeclaration* fDecl = nullptr;
     SkSL::Position fPosition;

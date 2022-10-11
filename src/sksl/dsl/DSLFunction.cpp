@@ -42,7 +42,7 @@ static bool is_intrinsic_in_module(const Context& context, std::string_view name
 }
 
 void DSLFunction::init(DSLModifiers modifiers, const DSLType& returnType, std::string_view name,
-                       SkTArray<DSLParameter*> params, Position pos) {
+                       SkSpan<DSLParameter*> params, Position pos) {
     fPosition = pos;
 
     const Context& context = ThreadContext::Context();
@@ -126,7 +126,7 @@ void DSLFunction::define(DSLBlock block, Position pos) {
     ThreadContext::ProgramElements().push_back(std::move(function));
 }
 
-DSLExpression DSLFunction::call(SkTArray<DSLExpression> args, Position pos) {
+DSLExpression DSLFunction::call(SkSpan<DSLExpression> args, Position pos) {
     ExpressionArray released;
     released.reserve_back(args.size());
     for (DSLExpression& arg : args) {
@@ -136,8 +136,8 @@ DSLExpression DSLFunction::call(SkTArray<DSLExpression> args, Position pos) {
 }
 
 DSLExpression DSLFunction::call(ExpressionArray args, Position pos) {
-    std::unique_ptr<SkSL::Expression> result = SkSL::FunctionCall::Convert(ThreadContext::Context(),
-            pos, *fDecl, std::move(args));
+    std::unique_ptr<SkSL::Expression> result =
+            SkSL::FunctionCall::Convert(ThreadContext::Context(), pos, *fDecl, std::move(args));
     return DSLExpression(std::move(result), pos);
 }
 
