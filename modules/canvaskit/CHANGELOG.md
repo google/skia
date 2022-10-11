@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Font resolution algorithm for ellipsis in SkParagraph (skbug.com/11797)
  - GrContexts will properly target the correct WebGL context
+ - CanvasKit built with no_embedded_font will properly link and be able to load fonts from passed-in
+   bytes.
 
 ## [0.37.0] - 2022-09-07
 
