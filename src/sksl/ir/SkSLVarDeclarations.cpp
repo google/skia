@@ -19,7 +19,6 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <cstddef>
@@ -359,7 +358,7 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
     // Detect the declaration of magical variables.
     if ((var->storage() == Variable::Storage::kGlobal) && var->name() == Compiler::FRAGCOLOR_NAME) {
         // Silently ignore duplicate definitions of `sk_FragColor`.
-        const Symbol* symbol = (*ThreadContext::SymbolTable())[var->name()];
+        const Symbol* symbol = ThreadContext::SymbolTable()->find(var->name());
         if (symbol) {
             return nullptr;
         }

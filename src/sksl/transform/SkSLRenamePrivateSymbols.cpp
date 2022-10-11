@@ -38,7 +38,7 @@ static void strip_export_flag(Context& context,
                               const FunctionDeclaration* funcDecl,
                               SymbolTable* symbols) {
     // Remove `$export` from every overload of this function.
-    Symbol* mutableSym = symbols->getMutableSymbol(funcDecl->name());
+    Symbol* mutableSym = symbols->findMutable(funcDecl->name());
     while (mutableSym) {
         FunctionDeclaration* mutableDecl = &mutableSym->as<FunctionDeclaration>();
 
@@ -71,7 +71,7 @@ void Transform::RenamePrivateSymbols(Context& context, LoadedModule& module, Pro
             // Try any single-letter option.
             for (std::string_view letter : kLetters) {
                 std::string name = namePrefix + std::string(letter);
-                if ((*symbolTable)[name] == nullptr) {
+                if (symbolTable->find(name) == nullptr) {
                     return name;
                 }
             }
@@ -80,7 +80,7 @@ void Transform::RenamePrivateSymbols(Context& context, LoadedModule& module, Pro
             for (std::string_view letterA : kLetters) {
                 for (std::string_view letterB : kLetters) {
                     std::string name = namePrefix + std::string(letterA) + std::string(letterB);
-                    if ((*symbolTable)[name] == nullptr) {
+                    if (symbolTable->find(name) == nullptr) {
                         return name;
                     }
                 }
@@ -99,10 +99,10 @@ void Transform::RenamePrivateSymbols(Context& context, LoadedModule& module, Pro
             // everything, we can ignore that problem.
             SymbolTable* symbols = fSymbolTableStack.back().get();
             std::string shortName = FindShortNameForSymbol(var, symbols, "");
-            SkASSERT(symbols->getMutableSymbol(shortName) == nullptr);
+            SkASSERT(symbols->findMutable(shortName) == nullptr);
 
             // Update the symbol's name.
-            Symbol* mutableSym = symbols->getMutableSymbol(var->name());
+            Symbol* mutableSym = symbols->findMutable(var->name());
             SkASSERT(mutableSym == var);
             const std::string* ownedName = symbols->takeOwnershipOfString(std::move(shortName));
             symbols->renameSymbol(mutableSym, *ownedName);
@@ -112,12 +112,12 @@ void Transform::RenamePrivateSymbols(Context& context, LoadedModule& module, Pro
             // Look for a new name for this function.
             SymbolTable* symbols = fSymbolTableStack.back().get();
             std::string shortName = FindShortNameForSymbol(funcDecl, symbols, "$");
-            SkASSERT(symbols->getMutableSymbol(shortName) == nullptr);
+            SkASSERT(symbols->findMutable(shortName) == nullptr);
 
             if (shortName.size() < funcDecl->name().size()) {
                 // Update the function's name. (If the function has overloads, this will rename all
                 // of them at once.)
-                Symbol* mutableSym = symbols->getMutableSymbol(funcDecl->name());
+                Symbol* mutableSym = symbols->findMutable(funcDecl->name());
                 const std::string* ownedName = symbols->takeOwnershipOfString(std::move(shortName));
                 symbols->renameSymbol(mutableSym, *ownedName);
             }

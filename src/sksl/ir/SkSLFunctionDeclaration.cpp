@@ -401,7 +401,7 @@ static bool find_existing_declaration(const Context& context,
     };
 
     ErrorReporter& errors = *context.fErrors;
-    Symbol* entry = symbols.getMutableSymbol(name);
+    Symbol* entry = symbols.findMutable(name);
     *outExistingDecl = nullptr;
     if (entry) {
         if (!entry->is<FunctionDeclaration>()) {

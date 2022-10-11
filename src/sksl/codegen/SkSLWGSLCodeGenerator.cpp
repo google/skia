@@ -48,7 +48,6 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -59,6 +58,9 @@
 #define DUMP_SRC_IR 0
 
 namespace SkSL {
+
+class SymbolTable;
+
 namespace {
 
 // See https://www.w3.org/TR/WGSL/#memory-view-types
@@ -621,7 +623,7 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
     // Generate assignment to sk_FragColor built-in if the user-defined main returns a color.
     if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
         auto symbolTable = top_level_symbol_table(main);
-        const Symbol* symbol = (*symbolTable)["sk_FragColor"];
+        const Symbol* symbol = symbolTable->find("sk_FragColor");
         SkASSERT(symbol);
         if (main.declaration().returnType().matches(symbol->type())) {
             this->write("_stageOut.sk_FragColor = ");

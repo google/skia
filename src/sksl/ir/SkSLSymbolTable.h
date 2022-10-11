@@ -73,7 +73,7 @@ public:
     /**
      * Looks up the requested symbol and returns a const pointer.
      */
-    const Symbol* operator[](std::string_view name) const {
+    const Symbol* find(std::string_view name) const {
         return this->lookup(MakeSymbolKey(name));
     }
 
@@ -81,7 +81,7 @@ public:
      * Looks up the requested symbol and returns a mutable pointer. Use caution--mutating a symbol
      * will have program-wide impact, and built-in symbol tables must never be mutated.
      */
-    Symbol* getMutableSymbol(std::string_view name) const {
+    Symbol* findMutable(std::string_view name) const {
         return this->lookup(MakeSymbolKey(name));
     }
 

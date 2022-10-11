@@ -36,7 +36,7 @@ std::unique_ptr<Expression> FieldAccess::Convert(const Context& context,
     if (baseType.isEffectChild()) {
         // Turn the field name into a free function name, prefixed with '$':
         std::string methodName = "$" + std::string(field);
-        const Symbol* result = symbolTable[methodName];
+        const Symbol* result = symbolTable.find(methodName);
         if (result && result->is<FunctionDeclaration>()) {
             return std::make_unique<MethodReference>(context, pos, std::move(base),
                                                      &result->as<FunctionDeclaration>());

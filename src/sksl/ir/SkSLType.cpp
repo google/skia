@@ -957,7 +957,7 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
         return this;
     }
     // Even if the type isn't a built-in, it might already exist in the SymbolTable.
-    const Symbol* clonedSymbol = (*symbolTable)[this->name()];
+    const Symbol* clonedSymbol = symbolTable->find(this->name());
     if (clonedSymbol != nullptr) {
         const Type& clonedType = clonedSymbol->as<Type>();
         SkASSERT(clonedType.typeKind() == this->typeKind());

@@ -2452,7 +2452,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             // underlying fragcoords directly without flipping it".
             DSLExpression rtFlip(ThreadContext::Compiler().convertIdentifier(Position(),
                     SKSL_RTFLIP_NAME));
-            if (!symbols[DEVICE_COORDS_NAME]) {
+            if (!symbols.find(DEVICE_COORDS_NAME)) {
                 AutoAttachPoolToThread attach(fProgram.fPool.get());
                 Modifiers modifiers;
                 modifiers.fLayout.fBuiltin = DEVICE_FRAGCOORDS_BUILTIN;
@@ -2492,7 +2492,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             // underlying FrontFacing directly".
             DSLExpression rtFlip(ThreadContext::Compiler().convertIdentifier(Position(),
                     SKSL_RTFLIP_NAME));
-            if (!symbols[DEVICE_CLOCKWISE_NAME]) {
+            if (!symbols.find(DEVICE_CLOCKWISE_NAME)) {
                 AutoAttachPoolToThread attach(fProgram.fPool.get());
                 Modifiers modifiers;
                 modifiers.fLayout.fBuiltin = DEVICE_CLOCKWISE_BUILTIN;
@@ -3787,7 +3787,7 @@ SPIRVCodeGenerator::EntrypointAdapter SPIRVCodeGenerator::writeEntrypointAdapter
     std::shared_ptr<SymbolTable> symbolTable = get_top_level_symbol_table(main);
 
     // Get `sk_FragColor` as a writable reference.
-    const Symbol* skFragColorSymbol = (*symbolTable)["sk_FragColor"];
+    const Symbol* skFragColorSymbol = symbolTable->find("sk_FragColor");
     SkASSERT(skFragColorSymbol);
     const Variable& skFragColorVar = skFragColorSymbol->as<Variable>();
     auto skFragColorRef = std::make_unique<VariableReference>(Position(), &skFragColorVar,

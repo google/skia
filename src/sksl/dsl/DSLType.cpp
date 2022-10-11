@@ -21,7 +21,6 @@
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <memory>
@@ -53,7 +52,7 @@ static const SkSL::Type* verify_type(const Context& context,
 static const SkSL::Type* find_type(const Context& context,
                                    Position pos,
                                    std::string_view name) {
-    const Symbol* symbol = (*ThreadContext::SymbolTable())[name];
+    const Symbol* symbol = ThreadContext::SymbolTable()->find(name);
     if (!symbol) {
         context.fErrors->error(pos, String::printf("no symbol named '%.*s'",
                                                    (int)name.length(), name.data()));

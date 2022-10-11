@@ -174,8 +174,7 @@ public:
             // sk_FragColor can end up with a null declaration despite no error occurring due to
             // specific treatment in the compiler. Ignore the null and just grab the existing
             // variable from the symbol table.
-            SkSL::Symbol* alreadyDeclared =
-                    ThreadContext::SymbolTable()->getMutableSymbol(var.fName);
+            SkSL::Symbol* alreadyDeclared = ThreadContext::SymbolTable()->findMutable(var.fName);
             if (alreadyDeclared && alreadyDeclared->is<Variable>()) {
                 var.fVar = &alreadyDeclared->as<Variable>();
                 var.fInitialized = true;

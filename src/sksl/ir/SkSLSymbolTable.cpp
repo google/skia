@@ -14,7 +14,7 @@
 namespace SkSL {
 
 bool SymbolTable::isType(std::string_view name) const {
-    const Symbol* symbol = (*this)[name];
+    const Symbol* symbol = this->find(name);
     return symbol && symbol->is<Type>();
 }
 
@@ -94,7 +94,7 @@ const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {
     }
     // Reuse an existing array type with this name if one already exists in our symbol table.
     std::string arrayName = type->getArrayName(arraySize);
-    if (const Symbol* existingType = (*this)[arrayName]) {
+    if (const Symbol* existingType = this->find(arrayName)) {
         return &existingType->as<Type>();
     }
     // Add a new array type to the symbol table.
