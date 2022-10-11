@@ -11,32 +11,27 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLBlock.h"
 
+#include <utility>
+
 namespace SkSL {
 
 namespace dsl {
 
-DSLBlock::DSLBlock(SkSL::StatementArray statements, std::shared_ptr<SymbolTable> symbols,
-        Position pos)
-    : fStatements(std::move(statements))
-    , fSymbols(std::move(symbols))
-    , fPosition(pos) {}
+DSLBlock::DSLBlock(SkSL::StatementArray statements,
+                   std::shared_ptr<SymbolTable> symbols,
+                   Position pos)
+        : fStatements(std::move(statements))
+        , fSymbols(std::move(symbols))
+        , fPosition(pos) {}
 
-DSLBlock::DSLBlock(SkTArray<DSLStatement> statements, std::shared_ptr<SymbolTable> symbols,
-        Position pos)
-    : fSymbols(std::move(symbols))
-    , fPosition(pos) {
+DSLBlock::DSLBlock(SkTArray<DSLStatement> statements,
+                   std::shared_ptr<SymbolTable> symbols,
+                   Position pos)
+        : fSymbols(std::move(symbols))
+        , fPosition(pos) {
     fStatements.reserve_back(statements.count());
     for (DSLStatement& s : statements) {
         fStatements.push_back(s.release());
-    }
-}
-
-DSLBlock::~DSLBlock() {
-    if (!fStatements.empty()) {
-        // This will convert our Block into a DSLStatement, which is then immediately freed.
-        // If an FP is being generated, this will naturally incorporate the Block's Statement into
-        // our FP. If not, this will assert that unused code wasn't incorporated into the program.
-        DSLStatement(std::move(*this));
     }
 }
 
