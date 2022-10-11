@@ -110,6 +110,25 @@ void GrGLSLShaderBuilder::appendTextureLookup(SamplerHandle samplerHandle,
     this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
 }
 
+void GrGLSLShaderBuilder::appendTextureLookupExplicitLod(SkString* out,
+                                                         SamplerHandle samplerHandle,
+                                                         const char* coordName,
+                                                         const char* lod) const {
+    const char* sampler = fProgramBuilder->samplerVariable(samplerHandle);
+    out->appendf("sampleLod(%s, %s, %s)", sampler, coordName, lod);
+    append_texture_swizzle(out, fProgramBuilder->samplerSwizzle(samplerHandle));
+}
+
+void GrGLSLShaderBuilder::appendTextureLookupExplicitLod(
+        SamplerHandle samplerHandle,
+        const char* coordName,
+        const char* lod,
+        GrGLSLColorSpaceXformHelper* colorXformHelper) {
+    SkString lookup;
+    this->appendTextureLookupExplicitLod(&lookup, samplerHandle, coordName, lod);
+    this->appendColorGamutXform(lookup.c_str(), colorXformHelper);
+}
+
 void GrGLSLShaderBuilder::appendTextureLookupAndBlend(
         const char* dst,
         SkBlendMode mode,
