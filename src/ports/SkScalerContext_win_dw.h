@@ -40,11 +40,12 @@ private:
         using value_type = decltype(SkGlyph::fScalerContextBits);
         static const constexpr value_type ForceBW = 1 << 0;
 
-        static const constexpr value_type OUTLINE = 0 << 1;
-        static const constexpr value_type PNG     = 1 << 1;
-        static const constexpr value_type SVG     = 2 << 1;
-        static const constexpr value_type COLR    = 3 << 1;
-        static const constexpr value_type FormatMask = 0x3 << 1;
+        static const constexpr value_type DW   = 0 << 1;
+        static const constexpr value_type PNG  = 1 << 1;
+        static const constexpr value_type SVG  = 2 << 1;
+        static const constexpr value_type COLR = 3 << 1;
+        static const constexpr value_type PATH = 4 << 1;
+        static const constexpr value_type FormatMask = 0x7 << 1;
     };
 
     static void BilevelToBW(const uint8_t* SK_RESTRICT src, const SkGlyph& glyph);

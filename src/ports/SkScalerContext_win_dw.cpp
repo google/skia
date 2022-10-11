@@ -755,7 +755,7 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
 
      // GetAlphaTextureBounds succeeds but sometimes returns empty bounds like
      // { 0x80000000, 0x80000000, 0x80000000, 0x80000000 }
-     // for small, but not quite zero, sized glyphs.
+     // for small but not quite zero and large (but not really large) glyphs,
      // Only set as non-empty if the returned bounds are non-empty.
     auto glyphCheckAndSetBounds = [](SkGlyph* glyph, const RECT& bbox) {
         if (bbox.left >= bbox.right || bbox.top >= bbox.bottom) {
@@ -835,6 +835,22 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     }
     // TODO: handle the case where a request for DWRITE_TEXTURE_ALIASED_1x1
     // fails, and try DWRITE_TEXTURE_CLEARTYPE_3x1.
+
+    // GetAlphaTextureBounds can fail for various reasons. As a fallback, attempt to generate the
+    // metrics from the path
+    SkDEBUGCODE(glyph->fAdvancesBoundsFormatAndInitialPathDone = true;)
+    this->getPath(*glyph, alloc);
+    const SkPath* devPath = glyph->path();
+    if (devPath) {
+        // Sometimes all the above fails. If so, try to create the glyph from path.
+        const SkMask::Format format = glyph->maskFormat();
+        const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
+        const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
+        const bool hairline = glyph->pathIsHairline();
+        if (GenerateMetricsFromPath(glyph, *devPath, format, doVert, a8LCD, hairline)) {
+            glyph->fScalerContextBits |= ScalerContextBits::PATH;
+        }
+    }
 }
 
 void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
@@ -1332,6 +1348,18 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph) {
     }
     if (format == ScalerContextBits::PNG) {
         this->generatePngGlyphImage(glyph);
+        return;
+    }
+    if (format == ScalerContextBits::PATH) {
+        const SkPath* devPath = glyph.path();
+        SkASSERT_RELEASE(devPath);
+        SkMask mask = glyph.mask();
+        SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
+        const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
+        const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
+        const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
+        const bool hairline = glyph.pathIsHairline();
+        GenerateImageFromPath(mask, *devPath, fPreBlend, doBGR, doVert, a8LCD, hairline);
         return;
     }
 
