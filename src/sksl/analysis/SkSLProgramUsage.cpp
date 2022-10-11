@@ -27,12 +27,12 @@
 
 #include <functional>
 #include <memory>
-#include <string>
 #include <type_traits>
 #include <vector>
 
 namespace SkSL {
 
+class Symbol;
 struct Program;
 
 namespace {
@@ -122,7 +122,7 @@ std::unique_ptr<ProgramUsage> Analysis::GetUsage(const LoadedModule& module,
         addRefs.visitProgramElement(*element);
     }
     if (base.fElements) {
-        base.fElements->foreach([&](const std::string&, const ProgramElement& element) {
+        base.fElements->foreach([&](const Symbol*, const ProgramElement& element) {
             addRefs.visitProgramElement(element);
         });
     }

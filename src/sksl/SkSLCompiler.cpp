@@ -7,8 +7,8 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
-#include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/DSLModifiers.h"
@@ -29,12 +29,9 @@
 #include "src/sksl/ir/SkSLField.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
-#include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLFunctionReference.h"
-#include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLTypeReference.h"
-#include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 #include "src/sksl/transform/SkSLTransform.h"
@@ -201,40 +198,8 @@ ParsedModule LoadedModule::parse(const ParsedModule& base) {
         return ParsedModule{fSymbols, base.fElements};
     }
 
-    auto elements = std::make_shared<BuiltinMap>(base.fElements.get());
-
-    // Now, transfer all of the program elements to a builtin element map. This maps certain types
-    // of global objects to the declaring ProgramElement.
-    for (std::unique_ptr<ProgramElement>& element : fElements) {
-        switch (element->kind()) {
-            case ProgramElement::Kind::kFunction: {
-                const FunctionDefinition& f = element->as<FunctionDefinition>();
-                SkASSERT(f.declaration().isBuiltin());
-                elements->insertOrDie(f.declaration().description(), std::move(element));
-                break;
-            }
-            case ProgramElement::Kind::kFunctionPrototype: {
-                // These are already in the symbol table.
-                break;
-            }
-            case ProgramElement::Kind::kGlobalVar: {
-                const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
-                const Variable& var = global.declaration()->as<VarDeclaration>().var();
-                SkASSERT(var.isBuiltin());
-                elements->insertOrDie(std::string(var.name()), std::move(element));
-                break;
-            }
-            case ProgramElement::Kind::kInterfaceBlock: {
-                const Variable& var = element->as<InterfaceBlock>().variable();
-                SkASSERT(var.isBuiltin());
-                elements->insertOrDie(std::string(var.name()), std::move(element));
-                break;
-            }
-            default:
-                SkDEBUGFAILF("Unsupported element: %s\n", element->description().c_str());
-                break;
-        }
-    }
+    auto elements = std::make_shared<BuiltinMap>(base.fElements.get(), SkSpan(fElements));
+    fElements = std::vector<std::unique_ptr<ProgramElement>>{};
 
     return ParsedModule{fSymbols, std::move(elements)};
 }

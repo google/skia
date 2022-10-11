@@ -44,7 +44,7 @@ void Transform::FindAndDeclareBuiltinFunctions(Program& program) {
                 // Programs that invoke the `dFdy` intrinsic will need the RTFlip input.
                 program.fInputs.fUseFlipRTUniform = !context.fConfig->fSettings.fForceNoRTFlip;
             }
-            if (const ProgramElement* elem = context.fBuiltins->find(fn->description())) {
+            if (const ProgramElement* elem = context.fBuiltins->find(fn)) {
                 // Make sure we only add a built-in function once. We rarely add more than a handful
                 // of builtin functions, so linear search here is good enough.
                 const FunctionDefinition* builtinDef = &elem->as<FunctionDefinition>();

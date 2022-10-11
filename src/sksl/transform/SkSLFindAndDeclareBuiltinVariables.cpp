@@ -23,6 +23,7 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -30,20 +31,24 @@
 
 #include <algorithm>
 #include <memory>
-#include <string>
 #include <string_view>
 #include <vector>
 
 namespace SkSL {
+
+class Symbol;
+
 namespace Transform {
 namespace {
 
 class BuiltinVariableScanner : public ProgramVisitor {
 public:
-    BuiltinVariableScanner(const Context& context) : fContext(context) {}
+    BuiltinVariableScanner(const Context& context, const SymbolTable& symbols)
+            : fContext(context)
+            , fSymbols(symbols) {}
 
-    void addDeclaringElement(const std::string& name) {
-        if (const ProgramElement* decl = fContext.fBuiltins->find(name)) {
+    void addDeclaringElement(const Symbol* var) {
+        if (const ProgramElement* decl = fContext.fBuiltins->find(var)) {
             // Make sure we only add a built-in variable once. We only have a small handful of
             // built-in variables, so linear search here is good enough.
             SkASSERT(decl->is<GlobalVarDeclaration>() || decl->is<InterfaceBlock>());
@@ -61,7 +66,7 @@ public:
             if (funcDef.declaration().isMain()) {
                 if (funcDef.declaration().returnType().matches(*fContext.fTypes.fHalf4)) {
                     // main() returns a half4, so make sure we don't dead-strip sk_FragColor.
-                    this->addDeclaringElement(Compiler::FRAGCOLOR_NAME);
+                    this->addDeclaringElement(fSymbols.find(Compiler::FRAGCOLOR_NAME));
                 }
                 // Once we find main(), we can stop scanning.
                 return true;
@@ -101,6 +106,7 @@ public:
     }
 
     const Context& fContext;
+    const SymbolTable& fSymbols;
     std::vector<const ProgramElement*> fNewElements;
 };
 
@@ -108,7 +114,8 @@ public:
 
 void FindAndDeclareBuiltinVariables(Program& program) {
     const Context& context = *program.fContext;
-    BuiltinVariableScanner scanner(context);
+    const SymbolTable& symbols = *program.fSymbols;
+    BuiltinVariableScanner scanner(context, symbols);
 
     // Find main() in the program and check its return type.
     for (auto& e : program.fOwnedElements) {
@@ -119,13 +126,13 @@ void FindAndDeclareBuiltinVariables(Program& program) {
         // Vulkan requires certain builtin variables be present, even if they're unused. At one
         // time, validation errors would result if sk_Clockwise was missing. Now, it's just (Adreno)
         // driver bugs that drop or corrupt draws if they're missing.
-        scanner.addDeclaringElement("sk_Clockwise");
+        scanner.addDeclaringElement(symbols.find("sk_Clockwise"));
     }
 
     // Scan all the variables used by the program and declare any built-ins.
     for (const auto& [var, counts] : program.fUsage->fVariableCounts) {
         if (var->isBuiltin()) {
-            scanner.addDeclaringElement(std::string(var->name()));
+            scanner.addDeclaringElement(var);
 
             // Set the FlipRT program input if we find sk_FragCoord or sk_Clockwise.
             switch (var->modifiers().fLayout.fBuiltin) {
