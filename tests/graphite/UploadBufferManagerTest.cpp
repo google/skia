@@ -16,7 +16,7 @@
 
 namespace skgpu::graphite {
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(UploadBufferManagerTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     UploadBufferManager* bufferManager = recorder->priv().uploadBufferManager();
 

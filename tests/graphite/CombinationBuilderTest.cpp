@@ -335,7 +335,7 @@ void epoch_test(SkShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
 
 } // anonymous namespace
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(CombinationBuilderTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context) {
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     big_test_new(dict, reporter);

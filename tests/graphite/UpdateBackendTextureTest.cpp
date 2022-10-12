@@ -173,7 +173,7 @@ void check_levels(skiatest::Reporter* reporter,
 
 } // anonymous namespace
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(UpdateImageBackendTextureTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UpdateImageBackendTextureTest, reporter, context) {
     const Caps* caps = context->priv().caps();
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 

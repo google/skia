@@ -35,7 +35,7 @@ SkPaintParamsKey create_key(SkPaintParamsKeyBuilder* builder, int snippetID, int
 } // anonymous namespace
 
 // These are intended to be unit tests of the SkPaintParamsKeyBuilder and SkPaintParamsKey.
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, context) {
 
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     SkPaintParamsKeyBuilder builder(dict);
@@ -45,7 +45,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, contex
     REPORTER_ASSERT(reporter, key.isErrorKey());
 }
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyValidBlockSizeTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyValidBlockSizeTest, reporter, context) {
 
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     SkPaintParamsKeyBuilder builder(dict);
@@ -64,7 +64,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyValidBlockSizeTest, reporter, context) {
     REPORTER_ASSERT(reporter, key.sizeInBytes() == SkPaintParamsKey::kMaxBlockSize);
 }
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyTooLargeBlockSizeTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyTooLargeBlockSizeTest, reporter, context) {
 
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     SkPaintParamsKeyBuilder builder(dict);
@@ -83,7 +83,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyTooLargeBlockSizeTest, reporter, context) {
     REPORTER_ASSERT(reporter, key.isErrorKey());
 }
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context) {
 
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     static const int kBlockDataSize = 4;
@@ -108,7 +108,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context) {
     REPORTER_ASSERT(reporter, !(keyA != keyB));
 }
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksData, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksData, reporter, context) {
 
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     static const int kBlockDataSize = 4;
@@ -135,7 +135,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyEqualityChecksData, reporter, context) {
     REPORTER_ASSERT(reporter, !(keyA != keyB));
 }
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(KeyBlockReaderWorks, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyBlockReaderWorks, reporter, context) {
 
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     static const int kCountX = 3;

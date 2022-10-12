@@ -14,7 +14,7 @@
 using namespace skgpu::graphite;
 
 // Tests to make sure the managing of back pointers between Recorder and Device all work properly.
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(RecorderDevicePtrTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     SkImageInfo info = SkImageInfo::Make({16, 16}, kRGBA_8888_SkColorType, kPremul_SkAlphaType);

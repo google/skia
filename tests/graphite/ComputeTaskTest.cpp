@@ -19,7 +19,7 @@
 
 using namespace skgpu::graphite;
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(ComputeTaskTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ComputeTaskTest, reporter, context) {
     constexpr uint32_t kProblemSize = 512;
     constexpr float kFactor = 4.f;
 

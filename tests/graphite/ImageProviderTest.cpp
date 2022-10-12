@@ -270,7 +270,7 @@ void run_test(skiatest::Reporter* reporter,
 //                    drawn w/o mipmapping    --> dropped draw (blue)
 //                    drawn w/ mipmapping     --> dropped draw (blue)
 //
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(ImageProviderTest_Graphite_Default, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Default, reporter, context) {
     TestCase testcases[] = {
         { "0", create_raster_backed_image_no_mipmaps,   { kBackgroundColor, kBackgroundColor } },
         { "1", create_raster_backed_image_with_mipmaps, { kBackgroundColor, kBackgroundColor } },
@@ -311,7 +311,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ImageProviderTest_Graphite_Default, reporter, con
 //                    drawn w/o mipmapping    --> drawn (yellow) - auto-converted
 //                    drawn w/ mipmapping     --> drawn (yellow) - auto-converted
 //
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(ImageProviderTest_Graphite_Testing, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Testing, reporter, context) {
     TestCase testcases[] = {
         { "0", create_raster_backed_image_no_mipmaps,   { kBaseImageColor, kBaseImageColor } },
         { "1", create_raster_backed_image_with_mipmaps, { kBaseImageColor, kFirstMipLevelColor } },

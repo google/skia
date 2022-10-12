@@ -95,9 +95,9 @@ static bool skip_context(GrContextFactory::ContextType contextType) {
 }
 
 void RunWithGaneshTestContexts(GrContextTestFn* testFn,
-                              GrContextTypeFilterFn* filter,
-                              Reporter* reporter,
-                              const GrContextOptions& options) {
+                               GrContextTypeFilterFn* filter,
+                               Reporter* reporter,
+                               const GrContextOptions& options) {
     for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
         GrContextFactory::ContextType contextType = (GrContextFactory::ContextType)typeInt;
         if (skip_context(contextType)) {
@@ -126,7 +126,9 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn,
 
 namespace graphite {
 
-void RunWithGraphiteTestContexts(GraphiteTestFn* test, Reporter* reporter) { SK_ABORT(); }
+void RunWithGraphiteTestContexts(GraphiteTestFn* test,
+                                 GrContextTypeFilterFn* filter,
+                                 Reporter* reporter) { SK_ABORT(); }
 
 }  // namespace graphite
 

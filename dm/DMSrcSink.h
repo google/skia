@@ -577,7 +577,7 @@ private:
 
 class GraphiteSink : public Sink {
 public:
-    using ContextType = skiatest::graphite::ContextFactory::ContextType;
+    using ContextType = sk_gpu_test::GrContextFactory::ContextType;
 
     GraphiteSink(const SkCommandLineConfigGraphite*);
 

@@ -171,7 +171,7 @@ SkUniquePaintParamsID create_key(Context* context,
 //   call Context::precompile and, somehow, get the created SkPaintParamsKey
 //           - maybe via a testing only callback on SkShaderCodeDictionary::findOrCreate
 //   draw w/ the SkPaint and, again, somehow, intercept the created SkPaintParamsKey
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(PaintParamsKeyTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     auto recorder = context->makeRecorder();
     SkKeyContext keyContext(recorder.get(), {});
     auto dict = keyContext.dict();

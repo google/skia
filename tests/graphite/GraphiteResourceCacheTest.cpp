@@ -74,7 +74,7 @@ static sk_sp<SkData> create_image_data(const SkImageInfo& info) {
     return data;
 }
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, context) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
     ResourceCache* resourceCache = resourceProvider->resourceCache();

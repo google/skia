@@ -348,7 +348,7 @@ struct GraphiteTarget : public Target {
         // context options when we make the factory here.
         this->factory = std::make_unique<ContextFactory>();
 
-        auto [testCtx, ctx] = this->factory->getContextInfo(this->config.graphiteCtxType);
+        auto [testCtx, ctx] = this->factory->getContextInfo(this->config.ctxType);
         if (!ctx) {
             return false;
         }
@@ -545,7 +545,6 @@ static int setup_gpu_bench(Target* target, Benchmark* bench, int maxGpuFrameLag)
 }
 
 #define kBogusContextType GrContextFactory::kGL_ContextType
-#define kBogusGraphiteContextType skiatest::graphite::ContextFactory::ContextType::kMetal
 #define kBogusContextOverrides GrContextFactory::ContextOverrides::kNone
 
 static std::optional<Config> create_config(const SkCommandLineConfig* config) {
@@ -588,7 +587,6 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
                       sampleCount,
                       ctxType,
                       ctxOverrides,
-                      kBogusGraphiteContextType,
                       gpuConfig->getSurfaceFlags()};
     }
 #ifdef SK_GRAPHITE_ENABLED
@@ -637,9 +635,8 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
                       kPremul_SkAlphaType,
                       config->refColorSpace(),
                       sampleCount,
-                      kBogusContextType,
-                      kBogusContextOverrides,
                       graphiteCtxType,
+                      kBogusContextOverrides,
                       0};
     }
 #endif
@@ -658,7 +655,6 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
                       0,                                                                \
                       kBogusContextType,                                                \
                       kBogusContextOverrides,                                           \
-                      kBogusGraphiteContextType,                                        \
                       0};                                                               \
     }
 

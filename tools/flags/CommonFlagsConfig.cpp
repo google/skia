@@ -462,27 +462,25 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     bool get_option_graphite_api(const char*                               optionKey,
                                  SkCommandLineConfigGraphite::ContextType* outContextType) const {
-        using ContextType = skiatest::graphite::ContextFactory::ContextType;
-
         SkString* optionValue = fOptionsMap.find(SkString(optionKey));
         if (optionValue == nullptr) {
             return false;
         }
 #ifdef SK_VULKAN
         if (optionValue->equals("vulkan")) {
-            *outContextType = ContextType::kVulkan;
+            *outContextType = sk_gpu_test::GrContextFactory::kVulkan_ContextType;
             return true;
         }
 #endif
 #ifdef SK_METAL
         if (optionValue->equals("metal")) {
-            *outContextType = ContextType::kMetal;
+            *outContextType = sk_gpu_test::GrContextFactory::kMetal_ContextType;
             return true;
         }
 #endif
 #ifdef SK_DIRECT3D
         if (optionValue->equals("direct3d")) {
-            *outContextType = ContextType::kDirect3D;
+            *outContextType = sk_gpu_test::GrContextFactory::kDirect3D_ContextType;
             return true;
         }
 #endif
@@ -643,9 +641,9 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&           
 SkCommandLineConfigGraphite* parse_command_line_config_graphite(const SkString&           tag,
                                                                 const SkTArray<SkString>& vias,
                                                                 const SkString&           options) {
-    using ContextType = skiatest::graphite::ContextFactory::ContextType;
+    using ContextType = sk_gpu_test::GrContextFactory::ContextType;
 
-    ContextType contextType = ContextType::kMetal;
+    ContextType contextType = sk_gpu_test::GrContextFactory::kMetal_ContextType;
     SkColorType colorType = kRGBA_8888_SkColorType;
     SkAlphaType alphaType = kPremul_SkAlphaType;
 

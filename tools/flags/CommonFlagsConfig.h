@@ -112,7 +112,7 @@ private:
 
 class SkCommandLineConfigGraphite : public SkCommandLineConfig {
 public:
-    using ContextType = skiatest::graphite::ContextFactory::ContextType;
+    using ContextType = sk_gpu_test::GrContextFactory::ContextType;
 
     SkCommandLineConfigGraphite(const SkString&           tag,
                                 const SkTArray<SkString>& viaParts,

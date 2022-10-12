@@ -95,7 +95,7 @@ static sk_sp<SkBlender> get_blender(sk_sp<SkRuntimeEffect> comboEffect,
 
 } // anonymous namespace
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(RTEffectTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RTEffectTest, reporter, context) {
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     sk_sp<SkRuntimeEffect> comboEffect = get_combo_effect();
@@ -132,7 +132,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(RTEffectTest, reporter, context) {
 
 #endif // SK_ENABLE_PRECOMPILE
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(Shader_FindOrCreateSnippetForRuntimeEffect, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(Shader_FindOrCreateSnippetForRuntimeEffect, reporter, context) {
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
@@ -156,7 +156,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(Shader_FindOrCreateSnippetForRuntimeEffect, repor
     REPORTER_ASSERT(reporter, foundSnippetID == snippetID);
 }
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(ColorFilter_FindOrCreateSnippetForRuntimeEffect, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ColorFilter_FindOrCreateSnippetForRuntimeEffect,
+                                   reporter,
+                                   context) {
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(
@@ -181,8 +183,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ColorFilter_FindOrCreateSnippetForRuntimeEffect, 
     REPORTER_ASSERT(reporter, foundSnippetID == snippetID);
 }
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(ShaderUniforms_FindOrCreateSnippetForRuntimeEffect,
-                               reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderUniforms_FindOrCreateSnippetForRuntimeEffect,
+                                   reporter, context) {
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
@@ -224,8 +226,8 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ShaderUniforms_FindOrCreateSnippetForRuntimeEffec
     REPORTER_ASSERT(reporter, snippet->fUniforms[2].count() == 99);
 }
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(ColorFilterUniforms_FindOrCreateSnippetForRuntimeEffect,
-                               reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ColorFilterUniforms_FindOrCreateSnippetForRuntimeEffect,
+                                   reporter, context) {
     SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     std::unique_ptr<SkRuntimeEffect> testEffect(SkMakeRuntimeEffect(

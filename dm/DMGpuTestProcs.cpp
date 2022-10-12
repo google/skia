@@ -92,10 +92,15 @@ void RunWithGaneshTestContexts(GrContextTestFn* testFn, GrContextTypeFilterFn* f
 
 namespace graphite {
 
-void RunWithGraphiteTestContexts(GraphiteTestFn* test, Reporter* reporter) {
+void RunWithGraphiteTestContexts(GraphiteTestFn* test, GrContextTypeFilterFn* filter,
+                                 Reporter* reporter) {
     ContextFactory factory;
-    for (int typeInt = 0; typeInt < ContextFactory::kContextTypeCnt; ++typeInt) {
-        ContextFactory::ContextType contextType = (ContextFactory::ContextType) typeInt;
+    for (int typeInt = 0; typeInt < GrContextFactory::kContextTypeCnt; ++typeInt) {
+        GrContextFactory::ContextType contextType = (GrContextFactory::ContextType) typeInt;
+        if (filter && !(*filter)(contextType)) {
+            continue;
+        }
+
         auto [_, context] = factory.getContextInfo(contextType);
         if (!context) {
             continue;

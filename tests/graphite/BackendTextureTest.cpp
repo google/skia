@@ -25,7 +25,7 @@ namespace {
     const uint32_t kNumLevels = 5;
 }
 
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(BackendTextureTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(BackendTextureTest, reporter, context) {
     auto caps = context->priv().caps();
     auto recorder = context->makeRecorder();
 
@@ -77,7 +77,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(BackendTextureTest, reporter, context) {
 }
 
 // Tests the wrapping of a BackendTexture in an SkSurface
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
     // TODO: Right now this just tests very basic combinations of surfaces. This should be expanded
     // to cover a much broader set of things once we add more support in Graphite for different
     // formats, color types, etc.
@@ -132,7 +132,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(SurfaceBackendTextureTest, reporter, context) {
 }
 
 // Tests the wrapping of a BackendTexture in an SkImage
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(ImageBackendTextureTest, reporter, context) {
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context) {
     // TODO: Right now this just tests very basic combinations of images. This should be expanded
     // to cover a much broader set of things once we add more support in Graphite for different
     // formats, color types, etc.
