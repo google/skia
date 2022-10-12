@@ -263,19 +263,20 @@ static std::string get_desc_string(const skcms_TransferFunction& fn,
     return "Google/Skia/" + md5_hexstring;
 }
 
-static sk_sp<SkData> write_text_tag(const std::string& text) {
+static sk_sp<SkData> write_text_tag(const char* text) {
+    uint32_t text_length = strlen(text);
     uint32_t header[] = {
             SkEndian_SwapBE32(kTAG_TextType),                         // Type signature
             0,                                                        // Reserved
             SkEndian_SwapBE32(1),                                     // Number of records
             SkEndian_SwapBE32(12),                                    // Record size (must be 12)
             SkEndian_SwapBE32(SkSetFourByteTag('e', 'n', 'U', 'S')),  // English USA
-            SkEndian_SwapBE32(2 * text.length()),                     // Length of string in bytes
+            SkEndian_SwapBE32(2 * text_length),                       // Length of string in bytes
             SkEndian_SwapBE32(28),                                    // Offset of string
     };
     SkDynamicMemoryWStream s;
     s.write(header, sizeof(header));
-    for (size_t i = 0; i < text.length(); i++) {
+    for (size_t i = 0; i < text_length; i++) {
         // Convert ASCII to big-endian UTF-16.
         s.write8(0);
         s.write8(text[i]);
@@ -306,29 +307,34 @@ static void skcms_Matrix3x3_apply(const skcms_Matrix3x3* m, float* x) {
     x[2] = y2;
 }
 
-// Convert the specified coordinate in XYZD50 to Lab.
-static void xyzd50_to_Lab(float* xyz) {
+void SkICCFloatXYZD50ToGrid16Lab(const float* xyz_float, uint8_t* grid16_lab) {
     float v[3] = {
-            xyz[0] / kD50_x,
-            xyz[1] / kD50_y,
-            xyz[2] / kD50_z,
+            xyz_float[0] / kD50_x,
+            xyz_float[1] / kD50_y,
+            xyz_float[2] / kD50_z,
     };
     for (size_t i = 0; i < 3; ++i) {
         v[i] = v[i] > 0.008856f ? cbrtf(v[i]) : v[i] * 7.787f + (16 / 116.0f);
     }
-    xyz[0] = v[1] * 116.0f - 16.0f;
-    xyz[1] = (v[0] - v[1]) * 500.0f;
-    xyz[2] = (v[1] - v[2]) * 200.0f;
+    const float L = v[1] * 116.0f - 16.0f;
+    const float a = (v[0] - v[1]) * 500.0f;
+    const float b = (v[1] - v[2]) * 200.0f;
+    const float Lab_unorm[3] = {
+            L * (1 / 100.f),
+            (a + 128.0f) * (1 / 255.0f),
+            (b + 128.0f) * (1 / 255.0f),
+    };
+    // This will encode L=1 as 0xFFFF. This matches how skcms will interpret the
+    // table, but the spec appears to indicate that the value should be 0xFF00.
+    // https://crbug.com/skia/13807
+    for (size_t i = 0; i < 3; ++i) {
+        reinterpret_cast<uint16_t*>(grid16_lab)[i] =
+                SkEndian_SwapBE16(float_round_to_unorm16(Lab_unorm[i]));
+    }
 }
 
-// Convert the specified coordinate from Lab floating-point to Lab fixed-point.
-static void Lab_to_fixed16(const float* Lab, uint16_t* Lab_fixed16) {
-    float L = Lab[0];
-    float a = Lab[1];
-    float b = Lab[2];
-    Lab_fixed16[0] = float_round_to_unorm16(L * (1 / 100.f));
-    Lab_fixed16[1] = float_round_to_unorm16((a + 128.0f) * (1 / 255.0f));
-    Lab_fixed16[2] = float_round_to_unorm16((b + 128.0f) * (1 / 255.0f));
+void SkICCFloatToTable16(const float f, uint8_t* table_16) {
+    *reinterpret_cast<uint16_t*>(table_16) = SkEndian_SwapBE16(float_round_to_unorm16(f));
 }
 
 // Compute the tone mapping gain for luminance value L. The gain should be
@@ -523,7 +529,7 @@ sk_sp<SkData> write_mAB_or_mBA_tag(uint32_t type,
     return s.detachAsData();
 }
 
-sk_sp<SkData> SkWriteICCProfileInternal(const skcms_ICCProfile& profile, const std::string& desc) {
+sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* desc) {
     ICCHeader header;
 
     std::vector<std::pair<uint32_t, sk_sp<SkData>>> tags;
@@ -532,8 +538,8 @@ sk_sp<SkData> SkWriteICCProfileInternal(const skcms_ICCProfile& profile, const s
     tags.emplace_back(kTAG_desc, write_text_tag(desc));
 
     // Compute primaries.
-    if (profile.has_toXYZD50) {
-        const auto& m = profile.toXYZD50;
+    if (profile->has_toXYZD50) {
+        const auto& m = profile->toXYZD50;
         tags.emplace_back(kTAG_rXYZ, write_xyz_tag(m.vals[0][0], m.vals[1][0], m.vals[2][0]));
         tags.emplace_back(kTAG_gXYZ, write_xyz_tag(m.vals[0][1], m.vals[1][1], m.vals[2][1]));
         tags.emplace_back(kTAG_bXYZ, write_xyz_tag(m.vals[0][2], m.vals[1][2], m.vals[2][2]));
@@ -543,34 +549,34 @@ sk_sp<SkData> SkWriteICCProfileInternal(const skcms_ICCProfile& profile, const s
     tags.emplace_back(kTAG_wtpt, write_xyz_tag(kD50_x, kD50_y, kD50_z));
 
     // Compute transfer curves.
-    if (profile.has_trc) {
-        tags.emplace_back(kTAG_rTRC, write_trc_tag(profile.trc[0]));
+    if (profile->has_trc) {
+        tags.emplace_back(kTAG_rTRC, write_trc_tag(profile->trc[0]));
 
         // Use empty data to indicate that the entry should use the previous tag's
         // data.
-        if (!memcmp(&profile.trc[1], &profile.trc[0], sizeof(profile.trc[0]))) {
+        if (!memcmp(&profile->trc[1], &profile->trc[0], sizeof(profile->trc[0]))) {
             tags.emplace_back(kTAG_gTRC, SkData::MakeEmpty());
         } else {
-            tags.emplace_back(kTAG_gTRC, write_trc_tag(profile.trc[1]));
+            tags.emplace_back(kTAG_gTRC, write_trc_tag(profile->trc[1]));
         }
 
-        if (!memcmp(&profile.trc[2], &profile.trc[1], sizeof(profile.trc[1]))) {
+        if (!memcmp(&profile->trc[2], &profile->trc[1], sizeof(profile->trc[1]))) {
             tags.emplace_back(kTAG_bTRC, SkData::MakeEmpty());
         } else {
-            tags.emplace_back(kTAG_bTRC, write_trc_tag(profile.trc[2]));
+            tags.emplace_back(kTAG_bTRC, write_trc_tag(profile->trc[2]));
         }
     }
 
     // Compute CICP.
-    if (profile.has_CICP) {
+    if (profile->has_CICP) {
         // The CICP tag is present in ICC 4.4, so update the header's version.
         header.version = SkEndian_SwapBE32(0x04400000);
-        tags.emplace_back(kTAG_cicp, write_cicp_tag(profile.CICP));
+        tags.emplace_back(kTAG_cicp, write_cicp_tag(profile->CICP));
     }
 
     // Compute A2B0.
-    if (profile.has_A2B) {
-        const auto& a2b = profile.A2B;
+    if (profile->has_A2B) {
+        const auto& a2b = profile->A2B;
         SkASSERT(a2b.output_channels == kNumChannels);
         auto a2b_data = write_mAB_or_mBA_tag(kTAG_mABType,
                                              a2b.output_curves,
@@ -583,8 +589,8 @@ sk_sp<SkData> SkWriteICCProfileInternal(const skcms_ICCProfile& profile, const s
     }
 
     // Compute B2A0.
-    if (profile.has_B2A) {
-        const auto& b2a = profile.B2A;
+    if (profile->has_B2A) {
+        const auto& b2a = profile->B2A;
         SkASSERT(b2a.input_channels == kNumChannels);
         auto b2a_data = write_mAB_or_mBA_tag(kTAG_mBAType,
                                              b2a.input_curves,
@@ -608,8 +614,8 @@ sk_sp<SkData> SkWriteICCProfileInternal(const skcms_ICCProfile& profile, const s
     size_t profile_size = kICCHeaderSize + tag_table_size + tag_data_size;
 
     // Write the header.
-    header.data_color_space = SkEndian_SwapBE32(profile.data_color_space);
-    header.pcs = SkEndian_SwapBE32(profile.pcs);
+    header.data_color_space = SkEndian_SwapBE32(profile->data_color_space);
+    header.pcs = SkEndian_SwapBE32(profile->pcs);
     header.size = SkEndian_SwapBE32(profile_size);
     header.tag_count = SkEndian_SwapBE32(tags.size());
 
@@ -651,8 +657,8 @@ sk_sp<SkData> SkWriteICCProfileInternal(const skcms_ICCProfile& profile, const s
 sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Matrix3x3& toXYZD50) {
     skcms_ICCProfile profile;
     memset(&profile, 0, sizeof(profile));
-    std::vector<uint16_t> trc_table;
-    std::vector<uint16_t> a2b_grid;
+    std::vector<uint8_t> trc_table;
+    std::vector<uint8_t> a2b_grid;
 
     profile.data_color_space = skcms_Signature_RGB;
     profile.pcs = skcms_Signature_XYZ;
@@ -673,12 +679,12 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
             skcms_TransferFunction scaled_hlg = SkNamedTransferFn::kHLG;
             scaled_hlg.f = 1 / 12.f - 1.f;
             constexpr uint32_t kTrcTableSize = 65;
-            trc_table.resize(kTrcTableSize);
+            trc_table.resize(kTrcTableSize * 2);
             for (uint32_t i = 0; i < kTrcTableSize; ++i) {
                 float x = i / (kTrcTableSize - 1.f);
                 float y = skcms_TransferFunction_eval(&scaled_hlg, x);
                 y *= compute_tone_map_gain(scaled_hlg, y);
-                trc_table[i] = SkEndian_SwapBE16(float_round_to_unorm16(y));
+                SkICCFloatToTable16(y, &trc_table[2 * i]);
             }
 
             profile.trc[0].table_entries = kTrcTableSize;
@@ -702,7 +708,7 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
             profile.A2B.grid_points[i] = kGridSize;
         }
 
-        a2b_grid.resize(kGridSize * kGridSize * kGridSize * kNumChannels);
+        a2b_grid.resize(kGridSize * kGridSize * kGridSize * kNumChannels * 2);
         size_t a2b_grid_index = 0;
         for (uint32_t r_index = 0; r_index < kGridSize; ++r_index) {
             for (uint32_t g_index = 0; g_index < kGridSize; ++g_index) {
@@ -712,15 +718,9 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
                             g_index / (kGridSize - 1.f),
                             b_index / (kGridSize - 1.f),
                     };
-                    uint16_t Lab[3] = {0};
-
                     compute_lut_entry(toXYZD50, rgb);
-                    xyzd50_to_Lab(rgb);
-                    Lab_to_fixed16(rgb, Lab);
-
-                    a2b_grid[a2b_grid_index++] = SkEndian_SwapBE16(Lab[0]);
-                    a2b_grid[a2b_grid_index++] = SkEndian_SwapBE16(Lab[1]);
-                    a2b_grid[a2b_grid_index++] = SkEndian_SwapBE16(Lab[2]);
+                    SkICCFloatXYZD50ToGrid16Lab(rgb, &a2b_grid[a2b_grid_index]);
+                    a2b_grid_index += 6;
                 }
             }
         }
@@ -747,5 +747,6 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
         SkASSERT(profile.CICP.transfer_characteristics);
     }
 
-    return SkWriteICCProfileInternal(profile, get_desc_string(fn, toXYZD50));
+    std::string description = get_desc_string(fn, toXYZD50);
+    return SkWriteICCProfile(&profile, description.c_str());
 }

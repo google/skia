@@ -23,6 +23,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTemplates.h"
+#include "modules/skcms/skcms.h"
 #include "src/codec/SkPngPriv.h"
 #include "src/core/SkMSAN.h"
 #include "src/images/SkImageEncoderFns.h"
@@ -73,7 +74,7 @@ public:
     static std::unique_ptr<SkPngEncoderMgr> Make(SkWStream* stream);
 
     bool setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::Options& options);
-    bool setColorSpace(const SkImageInfo& info);
+    bool setColorSpace(const SkImageInfo& info, const SkPngEncoder::Options& options);
     bool writeInfo(const SkImageInfo& srcInfo);
     void chooseProc(const SkImageInfo& srcInfo);
 
@@ -364,8 +365,12 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info) {
     return nullptr;
 }
 
-static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkImageInfo& info) {
-    sk_sp<SkData> icc = icc_from_color_space(info);
+static void set_icc(png_structp png_ptr,
+                    png_infop info_ptr,
+                    const SkImageInfo& info,
+                    const skcms_ICCProfile* profile,
+                    const char* profile_description) {
+    sk_sp<SkData> icc = icc_from_color_space(info, profile, profile_description);
     if (!icc) {
         return;
     }
@@ -381,7 +386,7 @@ static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkImageInfo& 
     png_set_iCCP(png_ptr, info_ptr, name, 0, iccPtr, icc->size());
 }
 
-bool SkPngEncoderMgr::setColorSpace(const SkImageInfo& info) {
+bool SkPngEncoderMgr::setColorSpace(const SkImageInfo& info, const SkPngEncoder::Options& options) {
     if (setjmp(png_jmpbuf(fPngPtr))) {
         return false;
     }
@@ -389,7 +394,7 @@ bool SkPngEncoderMgr::setColorSpace(const SkImageInfo& info) {
     if (info.colorSpace() && info.colorSpace()->isSRGB()) {
         png_set_sRGB(fPngPtr, fInfoPtr, PNG_sRGB_INTENT_PERCEPTUAL);
     } else {
-        set_icc(fPngPtr, fInfoPtr, info);
+        set_icc(fPngPtr, fInfoPtr, info, options.fICCProfile, options.fICCProfileDescription);
     }
 
     return true;
@@ -431,7 +436,7 @@ std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& sr
         return nullptr;
     }
 
-    if (!encoderMgr->setColorSpace(src.info())) {
+    if (!encoderMgr->setColorSpace(src.info(), options)) {
         return nullptr;
     }
 

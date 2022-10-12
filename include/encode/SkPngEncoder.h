@@ -13,6 +13,7 @@
 
 class SkPngEncoderMgr;
 class SkWStream;
+struct skcms_ICCProfile;
 
 class SK_API SkPngEncoder : public SkEncoder {
 public:
@@ -59,6 +60,16 @@ public:
          *  and the (2i + 1)-th entry is the text for the i-th comment.
          */
         sk_sp<SkDataTable> fComments;
+
+        /**
+         * An optional ICC profile to override the default behavior.
+         *
+         * The default behavior is to generate an ICC profile using a primary matrix and
+         * analytic transfer function. If the color space of |src| cannot be represented
+         * in this way (e.g, it is HLG or PQ), then no profile will be embedded.
+         */
+        const skcms_ICCProfile* fICCProfile = nullptr;
+        const char* fICCProfileDescription = nullptr;
     };
 
     /**

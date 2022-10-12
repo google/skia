@@ -58,9 +58,4 @@ enum ParaCurveType {
     kGABCDEF_ParaCurveType     = 4,
 };
 
-sk_sp<SkData> SkWriteICCProfileInternal(const skcms_TransferFunction& in_fn,
-                                        const skcms_Matrix3x3& toXYZD50,
-                                        uint32_t tone_map_clut_size,
-                                        uint32_t tone_map_curv_size);
-
 #endif  // SkICCPriv_DEFINED

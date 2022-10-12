@@ -197,7 +197,8 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& s
     jpeg_set_quality(encoderMgr->cinfo(), options.fQuality, TRUE);
     jpeg_start_compress(encoderMgr->cinfo(), TRUE);
 
-    sk_sp<SkData> icc = icc_from_color_space(src.info());
+    sk_sp<SkData> icc =
+            icc_from_color_space(src.info(), options.fICCProfile, options.fICCProfileDescription);
     if (icc) {
         // Create a contiguous block of memory with the icc signature followed by the profile.
         sk_sp<SkData> markerData =

@@ -12,6 +12,7 @@
 
 class SkJpegEncoderMgr;
 class SkWStream;
+struct skcms_ICCProfile;
 
 class SK_API SkJpegEncoder : public SkEncoder {
 public:
@@ -61,6 +62,16 @@ public:
          *  In the second case, the encoder supports linear or legacy blending.
          */
         AlphaOption fAlphaOption = AlphaOption::kIgnore;
+
+        /**
+         * An optional ICC profile to override the default behavior.
+         *
+         * The default behavior is to generate an ICC profile using a primary matrix and
+         * analytic transfer function. If the color space of |src| cannot be represented
+         * in this way (e.g, it is HLG or PQ), then no profile will be embedded.
+         */
+        const skcms_ICCProfile* fICCProfile = nullptr;
+        const char* fICCProfileDescription = nullptr;
     };
 
     /**
