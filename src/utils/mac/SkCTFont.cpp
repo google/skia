@@ -350,6 +350,7 @@ SkCTFontWeightMapping& SkCTFontGetDataFontWeightMapping() {
         SkOTTableOS2_V0* os2Table = SkTAddOffset<SkOTTableOS2_V0>(data->writable_data(),
                                                                   os2TableOffset);
 
+        CGFloat previousWeight = -CGFLOAT_MAX;
         for (int i = 0; i < 11; ++i) {
             os2Table->usWeightClass.value = SkEndian_SwapBE16(i * 100);
 
@@ -390,19 +391,30 @@ SkCTFontWeightMapping& SkCTFontGetDataFontWeightMapping() {
 
             CFTypeRef weightRef;
             if (!CFDictionaryGetValueIfPresent(fontTraitsDict, kCTFontWeightTrait, &weightRef) ||
-                !weightRef ||
-                CFGetTypeID(weightRef) != CFNumberGetTypeID())
-            {
-                return;
-            }
-            CGFloat weight;
-            CFNumberRef weightNumber = static_cast<CFNumberRef>(weightRef);
-            if (!CFNumberIsFloatType(weightNumber) ||
-                !CFNumberGetValue(weightNumber, kCFNumberCGFloatType, &weight))
+                !weightRef)
             {
                 return;
             }
 
+            // It is possible there is a kCTFontWeightTrait entry, but it is not a CFNumberRef.
+            // This is usually due to a bug with the handling of 0, so set the default to 0.
+            // See https://crbug.com/1372420
+            CGFloat weight = 0;
+            if (CFGetTypeID(weightRef) == CFNumberGetTypeID()) {
+                CFNumberRef weightNumber = static_cast<CFNumberRef>(weightRef);
+                if (!CFNumberIsFloatType(weightNumber) ||
+                    !CFNumberGetValue(weightNumber, kCFNumberCGFloatType, &weight))
+                {
+                    // CFNumberGetValue may modify `weight` even when returning `false`.
+                    weight = 0;
+                }
+            }
+
+            // It is expected that the weights will be strictly monotonically increasing.
+            if (weight <= previousWeight) {
+                return;
+            }
+            previousWeight = weight;
             dataFontWeights[i] = weight;
         }
         selectedDataFontWeights = &dataFontWeights;
