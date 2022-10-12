@@ -143,7 +143,6 @@ struct ModuleLoader::Impl {
     ModifiersPool fCoreModifiers;
 
     std::unique_ptr<const BuiltinMap> fRootModule;
-    std::shared_ptr<SymbolTable>      fRootSymbolTableWithPublicTypes;
 
     std::unique_ptr<const BuiltinMap> fSharedModule;           // [Root] + Public intrinsics
     std::unique_ptr<const BuiltinMap> fGPUModule;              // [Shared] + Non-public intrinsics/
@@ -250,16 +249,6 @@ ModifiersPool& ModuleLoader::coreModifiers() {
 
 const BuiltinMap* ModuleLoader::rootModule() {
     return fModuleLoader.fRootModule.get();
-}
-
-std::shared_ptr<SymbolTable>& ModuleLoader::rootSymbolTableWithPublicTypes() {
-    if (!fModuleLoader.fRootSymbolTableWithPublicTypes) {
-        fModuleLoader.fRootSymbolTableWithPublicTypes =
-                std::make_shared<SymbolTable>(this->rootModule()->symbols(), /*builtin=*/true);
-        add_public_type_aliases(fModuleLoader.fRootSymbolTableWithPublicTypes.get(),
-                                this->builtinTypes());
-    }
-    return fModuleLoader.fRootSymbolTableWithPublicTypes;
 }
 
 const BuiltinMap* ModuleLoader::loadPublicModule(SkSL::Compiler* compiler) {
