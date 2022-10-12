@@ -22,10 +22,10 @@ namespace SkSL {
  */
 class Field final : public Symbol {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kField;
+    inline static constexpr Kind kSymbolKind = Kind::kField;
 
     Field(Position pos, const Variable* owner, int fieldIndex)
-        : INHERITED(pos, kIRNodeKind, owner->type().fields()[fieldIndex].fName,
+        : INHERITED(pos, kSymbolKind, owner->type().fields()[fieldIndex].fName,
                     owner->type().fields()[fieldIndex].fType)
         , fOwner(owner)
         , fFieldIndex(fieldIndex) {}

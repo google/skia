@@ -17,10 +17,10 @@ class Type;
 
 class ExternalFunction : public Symbol {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kExternal;
+    inline static constexpr Kind kSymbolKind = Kind::kExternal;
 
     ExternalFunction(const char* name, const Type& type)
-        : INHERITED(Position(), kIRNodeKind, name, &type) {}
+        : INHERITED(Position(), kSymbolKind, name, &type) {}
 
     virtual int callParameterCount() const = 0;
 

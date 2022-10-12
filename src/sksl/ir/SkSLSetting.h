@@ -28,12 +28,12 @@ class Type;
  */
 class Setting final : public Expression {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kSetting;
+    inline static constexpr Kind kExpressionKind = Kind::kSetting;
 
     using CapsPtr = const bool ShaderCaps::*;
 
     Setting(Position pos, CapsPtr capsPtr, const Type* type)
-        : INHERITED(pos, kIRNodeKind, type)
+        : INHERITED(pos, kExpressionKind, type)
         , fCapsPtr(capsPtr) {}
 
     // Creates the current value of the associated caps bit as a Literal if ShaderCaps are

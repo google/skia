@@ -28,11 +28,11 @@ class SymbolTable;
  */
 class SwitchStatement final : public Statement {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kSwitch;
+    inline static constexpr Kind kStatementKind = Kind::kSwitch;
 
     SwitchStatement(Position pos, bool isStatic, std::unique_ptr<Expression> value,
                     StatementArray cases, std::shared_ptr<SymbolTable> symbols)
-        : INHERITED(pos, kIRNodeKind)
+        : INHERITED(pos, kStatementKind)
         , fIsStatic(isStatic)
         , fValue(std::move(value))
         , fCases(std::move(cases))

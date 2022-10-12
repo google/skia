@@ -17,10 +17,10 @@ namespace SkSL {
  */
 class Extension final : public ProgramElement {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kExtension;
+    inline static constexpr Kind kProgramElementKind = Kind::kExtension;
 
     Extension(Position pos, std::string_view name)
-        : INHERITED(pos, kIRNodeKind)
+        : INHERITED(pos, kProgramElementKind)
         , fName(name) {}
 
     std::string_view name() const {

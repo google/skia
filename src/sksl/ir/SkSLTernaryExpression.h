@@ -28,11 +28,11 @@ enum class OperatorPrecedence : uint8_t;
  */
 class TernaryExpression final : public Expression {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kTernary;
+    inline static constexpr Kind kExpressionKind = Kind::kTernary;
 
     TernaryExpression(Position pos, std::unique_ptr<Expression> test,
             std::unique_ptr<Expression> ifTrue, std::unique_ptr<Expression> ifFalse)
-        : INHERITED(pos, kIRNodeKind, &ifTrue->type())
+        : INHERITED(pos, kExpressionKind, &ifTrue->type())
         , fTest(std::move(test))
         , fIfTrue(std::move(ifTrue))
         , fIfFalse(std::move(ifFalse)) {

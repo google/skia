@@ -18,10 +18,10 @@ namespace SkSL {
  */
 class DiscardStatement final : public Statement {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kDiscard;
+    inline static constexpr Kind kStatementKind = Kind::kDiscard;
 
     DiscardStatement(Position pos)
-    : INHERITED(pos, kIRNodeKind) {}
+    : INHERITED(pos, kStatementKind) {}
 
     static std::unique_ptr<Statement> Make(Position pos) {
         return std::make_unique<DiscardStatement>(pos);

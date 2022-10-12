@@ -25,10 +25,10 @@ class Context;
  */
 class PostfixExpression final : public Expression {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kPostfix;
+    inline static constexpr Kind kExpressionKind = Kind::kPostfix;
 
     PostfixExpression(Position pos, std::unique_ptr<Expression> operand, Operator op)
-        : INHERITED(pos, kIRNodeKind, &operand->type())
+        : INHERITED(pos, kExpressionKind, &operand->type())
         , fOperand(std::move(operand))
         , fOperator(op) {}
 

@@ -18,10 +18,10 @@ namespace SkSL {
  */
 class Nop final : public Statement {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kNop;
+    inline static constexpr Kind kStatementKind = Kind::kNop;
 
     Nop()
-    : INHERITED(Position(), kIRNodeKind) {}
+    : INHERITED(Position(), kStatementKind) {}
 
     static std::unique_ptr<Statement> Make() {
         return std::make_unique<Nop>();

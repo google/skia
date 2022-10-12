@@ -26,10 +26,10 @@ class Type;
  */
 class ConstructorStruct final : public MultiArgumentConstructor {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kConstructorStruct;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorStruct;
 
     ConstructorStruct(Position pos, const Type& type, ExpressionArray arguments)
-        : INHERITED(pos, kIRNodeKind, &type, std::move(arguments)) {}
+        : INHERITED(pos, kExpressionKind, &type, std::move(arguments)) {}
 
     // ConstructorStruct::Convert will typecheck and create struct-constructor expressions.
     // Reports errors via the ErrorReporter; returns null on error.

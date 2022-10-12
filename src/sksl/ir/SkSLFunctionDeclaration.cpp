@@ -445,7 +445,7 @@ FunctionDeclaration::FunctionDeclaration(Position pos,
                                          std::vector<Variable*> parameters,
                                          const Type* returnType,
                                          bool builtin)
-        : INHERITED(pos, kIRNodeKind, name, /*type=*/nullptr)
+        : INHERITED(pos, kSymbolKind, name, /*type=*/nullptr)
         , fDefinition(nullptr)
         , fModifiers(modifiers)
         , fParameters(std::move(parameters))

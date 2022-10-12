@@ -31,10 +31,10 @@ class Type;
  */
 class ConstructorCompound final : public MultiArgumentConstructor {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kConstructorCompound;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorCompound;
 
     ConstructorCompound(Position pos, const Type& type, ExpressionArray args)
-            : INHERITED(pos, kIRNodeKind, &type, std::move(args)) {}
+            : INHERITED(pos, kExpressionKind, &type, std::move(args)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
                                             Position pos,

@@ -44,11 +44,11 @@ class Variable final : public Symbol {
 public:
     using Storage = VariableStorage;
 
-    inline static constexpr Kind kIRNodeKind = Kind::kVariable;
+    inline static constexpr Kind kSymbolKind = Kind::kVariable;
 
     Variable(Position pos, Position modifiersPosition, const Modifiers* modifiers,
             std::string_view name, const Type* type, bool builtin, Storage storage)
-    : INHERITED(pos, kIRNodeKind, name, type)
+    : INHERITED(pos, kSymbolKind, name, type)
     , fModifiersPosition(modifiersPosition)
     , fModifiers(modifiers)
     , fStorage(storage)

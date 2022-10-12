@@ -40,7 +40,7 @@ class VariableReference final : public Expression {
 public:
     using RefKind = VariableRefKind;
 
-    inline static constexpr Kind kIRNodeKind = Kind::kVariableReference;
+    inline static constexpr Kind kExpressionKind = Kind::kVariableReference;
 
     VariableReference(Position pos, const Variable* variable, RefKind refKind);
 

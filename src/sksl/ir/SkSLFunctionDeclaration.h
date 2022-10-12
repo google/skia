@@ -35,7 +35,7 @@ struct Modifiers;
  */
 class FunctionDeclaration final : public Symbol {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kFunctionDeclaration;
+    inline static constexpr Kind kSymbolKind = Kind::kFunctionDeclaration;
 
     FunctionDeclaration(Position pos,
                         const Modifiers* modifiers,

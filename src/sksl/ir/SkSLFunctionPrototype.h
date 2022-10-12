@@ -19,10 +19,10 @@ namespace SkSL {
  */
 class FunctionPrototype final : public ProgramElement {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kFunctionPrototype;
+    inline static constexpr Kind kProgramElementKind = Kind::kFunctionPrototype;
 
     FunctionPrototype(Position pos, const FunctionDeclaration* declaration, bool builtin)
-            : INHERITED(pos, kIRNodeKind)
+            : INHERITED(pos, kProgramElementKind)
             , fDeclaration(declaration)
             , fBuiltin(builtin) {}
 

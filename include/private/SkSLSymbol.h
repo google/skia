@@ -18,7 +18,16 @@ namespace SkSL {
  */
 class Symbol : public IRNode {
 public:
-    using Kind = SymbolKind;
+    enum class Kind {
+        kExternal = (int) ProgramElement::Kind::kLast + 1,
+        kField,
+        kFunctionDeclaration,
+        kType,
+        kVariable,
+
+        kFirst = kExternal,
+        kLast = kVariable
+    };
 
     Symbol(Position pos, Kind kind, std::string_view name, const Type* type = nullptr)
         : INHERITED(pos, (int) kind)
@@ -47,6 +56,30 @@ public:
      */
     void setName(std::string_view newName) {
         fName = newName;
+    }
+
+    /**
+     *  Use is<T> to check the type of a symbol.
+     *  e.g. replace `sym.kind() == Symbol::Kind::kVariable` with `sym.is<Variable>()`.
+     */
+    template <typename T>
+    bool is() const {
+        return this->kind() == T::kSymbolKind;
+    }
+
+    /**
+     *  Use as<T> to downcast symbols. e.g. replace `(Variable&) sym` with `sym.as<Variable>()`.
+     */
+    template <typename T>
+    const T& as() const {
+        SkASSERT(this->is<T>());
+        return static_cast<const T&>(*this);
+    }
+
+    template <typename T>
+    T& as() {
+        SkASSERT(this->is<T>());
+        return static_cast<T&>(*this);
     }
 
 private:

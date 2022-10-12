@@ -28,10 +28,10 @@ class Type;
  */
 class ConstructorCompoundCast final : public SingleArgumentConstructor {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kConstructorCompoundCast;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorCompoundCast;
 
     ConstructorCompoundCast(Position pos, const Type& type, std::unique_ptr<Expression> arg)
-        : INHERITED(pos, kIRNodeKind, &type, std::move(arg)) {}
+        : INHERITED(pos, kExpressionKind, &type, std::move(arg)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
                                             Position pos,

@@ -26,10 +26,10 @@ class Type;
  */
 class ConstructorArray final : public MultiArgumentConstructor {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kConstructorArray;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorArray;
 
     ConstructorArray(Position pos, const Type& type, ExpressionArray arguments)
-        : INHERITED(pos, kIRNodeKind, &type, std::move(arguments)) {}
+        : INHERITED(pos, kExpressionKind, &type, std::move(arguments)) {}
 
     // ConstructorArray::Convert will typecheck and create array-constructor expressions.
     // Reports errors via the ErrorReporter; returns null on error.

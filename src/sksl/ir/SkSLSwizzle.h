@@ -29,11 +29,11 @@ enum class OperatorPrecedence : uint8_t;
  * Represents a vector swizzle operation such as 'float3(1, 2, 3).zyx'.
  */
 struct Swizzle final : public Expression {
-    inline static constexpr Kind kIRNodeKind = Kind::kSwizzle;
+    inline static constexpr Kind kExpressionKind = Kind::kSwizzle;
 
     Swizzle(const Context& context, Position pos, std::unique_ptr<Expression> base,
             const ComponentArray& components)
-            : INHERITED(pos, kIRNodeKind,
+            : INHERITED(pos, kExpressionKind,
                         &base->type().componentType().toCompound(context, components.size(), 1))
             , fBase(std::move(base))
             , fComponents(components) {
@@ -84,7 +84,7 @@ struct Swizzle final : public Expression {
 private:
     Swizzle(Position pos, const Type* type, std::unique_ptr<Expression> base,
             const ComponentArray& components)
-        : INHERITED(pos, kIRNodeKind, type)
+        : INHERITED(pos, kExpressionKind, type)
         , fBase(std::move(base))
         , fComponents(components) {
         SkASSERT(this->components().size() >= 1 && this->components().size() <= 4);

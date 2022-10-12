@@ -29,10 +29,10 @@ enum class OperatorPrecedence : uint8_t;
  */
 class ChildCall final : public Expression {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kChildCall;
+    inline static constexpr Kind kExpressionKind = Kind::kChildCall;
 
     ChildCall(Position pos, const Type* type, const Variable* child, ExpressionArray arguments)
-            : INHERITED(pos, kIRNodeKind, type)
+            : INHERITED(pos, kExpressionKind, type)
             , fChild(*child)
             , fArguments(std::move(arguments)) {}
 

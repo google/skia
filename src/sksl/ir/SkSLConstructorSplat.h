@@ -29,10 +29,10 @@ class Context;
  */
 class ConstructorSplat final : public SingleArgumentConstructor {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kConstructorSplat;
+    inline static constexpr Kind kExpressionKind = Kind::kConstructorSplat;
 
     ConstructorSplat(Position pos, const Type& type, std::unique_ptr<Expression> arg)
-        : INHERITED(pos, kIRNodeKind, &type, std::move(arg)) {}
+        : INHERITED(pos, kExpressionKind, &type, std::move(arg)) {}
 
     // The input argument must be scalar. A "splat" to a scalar type will be optimized into a no-op.
     static std::unique_ptr<Expression> Make(const Context& context,

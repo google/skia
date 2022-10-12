@@ -29,10 +29,10 @@ namespace SkSL {
 
 class Literal : public Expression {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kLiteral;
+    inline static constexpr Kind kExpressionKind = Kind::kLiteral;
 
     Literal(Position pos, double value, const Type* type)
-        : INHERITED(pos, kIRNodeKind, type)
+        : INHERITED(pos, kExpressionKind, type)
         , fValue(value) {}
 
     // Makes a literal of $floatLiteral type.

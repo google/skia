@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLIRNode.h"
+#include "include/private/SkSLStatement.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -29,7 +30,38 @@ enum class OperatorPrecedence : uint8_t;
  */
 class Expression : public IRNode {
 public:
-    using Kind = ExpressionKind;
+    enum class Kind {
+        kBinary = (int) Statement::Kind::kLast + 1,
+        kChildCall,
+        kConstructorArray,
+        kConstructorArrayCast,
+        kConstructorCompound,
+        kConstructorCompoundCast,
+        kConstructorDiagonalMatrix,
+        kConstructorMatrixResize,
+        kConstructorScalarCast,
+        kConstructorSplat,
+        kConstructorStruct,
+        kExternalFunctionCall,
+        kExternalFunctionReference,
+        kFieldAccess,
+        kFunctionReference,
+        kFunctionCall,
+        kIndex,
+        kLiteral,
+        kMethodReference,
+        kPoison,
+        kPostfix,
+        kPrefix,
+        kSetting,
+        kSwizzle,
+        kTernary,
+        kTypeReference,
+        kVariableReference,
+
+        kFirst = kBinary,
+        kLast = kVariableReference
+    };
 
     Expression(Position pos, Kind kind, const Type* type)
         : INHERITED(pos, (int) kind)
@@ -43,6 +75,15 @@ public:
 
     virtual const Type& type() const {
         return *fType;
+    }
+
+    /**
+     *  Use is<T> to check the type of an expression.
+     *  e.g. replace `e.kind() == Expression::Kind::kLiteral` with `e.is<Literal>()`.
+     */
+    template <typename T>
+    bool is() const {
+        return this->kind() == T::kExpressionKind;
     }
 
     bool isAnyConstructor() const {
@@ -61,6 +102,21 @@ public:
 
     bool isBoolLiteral() const {
         return this->kind() == Kind::kLiteral && this->type().isBoolean();
+    }
+
+    /**
+     *  Use as<T> to downcast expressions: e.g. replace `(Literal&) i` with `i.as<Literal>()`.
+     */
+    template <typename T>
+    const T& as() const {
+        SkASSERT(this->is<T>());
+        return static_cast<const T&>(*this);
+    }
+
+    template <typename T>
+    T& as() {
+        SkASSERT(this->is<T>());
+        return static_cast<T&>(*this);
     }
 
     AnyConstructor& asAnyConstructor();

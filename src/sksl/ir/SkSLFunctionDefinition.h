@@ -26,11 +26,11 @@ class Context;
  */
 class FunctionDefinition final : public ProgramElement {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kFunction;
+    inline static constexpr Kind kProgramElementKind = Kind::kFunction;
 
     FunctionDefinition(Position pos, const FunctionDeclaration* declaration, bool builtin,
                        std::unique_ptr<Statement> body)
-        : INHERITED(pos, kIRNodeKind)
+        : INHERITED(pos, kProgramElementKind)
         , fDeclaration(declaration)
         , fBuiltin(builtin)
         , fBody(std::move(body)) {}

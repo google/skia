@@ -37,7 +37,7 @@ struct LoopUnrollInfo {
  */
 class ForStatement final : public Statement {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kFor;
+    inline static constexpr Kind kStatementKind = Kind::kFor;
 
     ForStatement(Position pos,
                  ForLoopPositions forLoopPositions,
@@ -47,7 +47,7 @@ public:
                  std::unique_ptr<Statement> statement,
                  std::unique_ptr<LoopUnrollInfo> unrollInfo,
                  std::shared_ptr<SymbolTable> symbols)
-            : INHERITED(pos, kIRNodeKind)
+            : INHERITED(pos, kStatementKind)
             , fForLoopPositions(forLoopPositions)
             , fSymbolTable(std::move(symbols))
             , fInitializer(std::move(initializer))

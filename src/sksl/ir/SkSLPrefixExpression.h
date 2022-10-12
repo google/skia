@@ -25,11 +25,11 @@ class Context;
  */
 class PrefixExpression final : public Expression {
 public:
-    inline static constexpr Kind kIRNodeKind = Kind::kPrefix;
+    inline static constexpr Kind kExpressionKind = Kind::kPrefix;
 
     // Use PrefixExpression::Make to automatically simplify various prefix expression types.
     PrefixExpression(Position pos, Operator op, std::unique_ptr<Expression> operand)
-        : INHERITED(pos, kIRNodeKind, &operand->type())
+        : INHERITED(pos, kExpressionKind, &operand->type())
         , fOperator(op)
         , fOperand(std::move(operand)) {}
 
