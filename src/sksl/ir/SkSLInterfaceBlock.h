@@ -29,7 +29,7 @@ namespace SkSL {
  */
 class InterfaceBlock final : public ProgramElement {
 public:
-    inline static constexpr Kind kProgramElementKind = Kind::kInterfaceBlock;
+    inline static constexpr Kind kIRNodeKind = Kind::kInterfaceBlock;
 
     InterfaceBlock(Position pos,
                    const Variable& var,
@@ -37,7 +37,7 @@ public:
                    std::string_view instanceName,
                    int arraySize,
                    std::shared_ptr<SymbolTable> typeOwner)
-            : INHERITED(pos, kProgramElementKind)
+            : INHERITED(pos, kIRNodeKind)
             , fVariable(var)
             , fTypeName(typeName)
             , fInstanceName(instanceName)

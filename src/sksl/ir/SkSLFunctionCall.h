@@ -29,11 +29,11 @@ enum class OperatorPrecedence : uint8_t;
  */
 class FunctionCall final : public Expression {
 public:
-    inline static constexpr Kind kExpressionKind = Kind::kFunctionCall;
+    inline static constexpr Kind kIRNodeKind = Kind::kFunctionCall;
 
     FunctionCall(Position pos, const Type* type, const FunctionDeclaration* function,
                  ExpressionArray arguments)
-        : INHERITED(pos, kExpressionKind, type)
+        : INHERITED(pos, kIRNodeKind, type)
         , fFunction(*function)
         , fArguments(std::move(arguments)) {}
 

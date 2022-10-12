@@ -69,7 +69,7 @@ struct CoercionCost {
  */
 class Type : public Symbol {
 public:
-    inline static constexpr Kind kSymbolKind = Kind::kType;
+    inline static constexpr Kind kIRNodeKind = Kind::kType;
     inline static constexpr int kMaxAbbrevLength = 3;
     // Represents unspecified array dimensions, as in `int[]`.
     inline static constexpr int kUnsizedArray = -1;
@@ -567,7 +567,7 @@ public:
 protected:
     Type(std::string_view name, const char* abbrev, TypeKind kind,
             Position pos = Position())
-        : INHERITED(pos, kSymbolKind, name)
+        : INHERITED(pos, kIRNodeKind, name)
         , fTypeKind(kind) {
         SkASSERT(strlen(abbrev) <= kMaxAbbrevLength);
         strcpy(fAbbreviatedName, abbrev);

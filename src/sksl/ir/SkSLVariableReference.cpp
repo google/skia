@@ -12,7 +12,7 @@
 namespace SkSL {
 
 VariableReference::VariableReference(Position pos, const Variable* variable, RefKind refKind)
-    : INHERITED(pos, kExpressionKind, &variable->type())
+    : INHERITED(pos, kIRNodeKind, &variable->type())
     , fVariable(variable)
     , fRefKind(refKind) {
     SkASSERT(this->variable());
