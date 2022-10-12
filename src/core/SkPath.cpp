@@ -359,7 +359,11 @@ uint32_t SkPath::getGenerationID() const {
 SkPath& SkPath::reset() {
     SkDEBUGCODE(this->validate();)
 
-    fPathRef.reset(SkPathRef::CreateEmpty());
+    if (fPathRef->unique()) {
+        fPathRef->reset();
+    } else {
+        fPathRef.reset(SkPathRef::CreateEmpty());
+    }
     this->resetFields();
     return *this;
 }

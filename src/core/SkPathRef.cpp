@@ -694,6 +694,14 @@ bool SkPathRef::isValid() const {
     return true;
 }
 
+void SkPathRef::reset() {
+    commonReset();
+    fPoints.resize(0);
+    fVerbs.resize(0);
+    fConicWeights.resize(0);
+    SkDEBUGCODE(validate();)
+}
+
 bool SkPathRef::dataMatchesVerbs() const {
     const auto info = sk_path_analyze_verbs(fVerbs.begin(), fVerbs.size());
     return info.valid                          &&

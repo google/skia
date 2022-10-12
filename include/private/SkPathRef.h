@@ -346,6 +346,11 @@ public:
     bool isValid() const;
     SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )
 
+    /**
+     * Resets this SkPathRef to a clean state.
+     */
+    void reset();
+
 private:
     enum SerializationOffsets {
         kLegacyRRectOrOvalStartIdx_SerializationShift = 28, // requires 3 bits, ignored.
@@ -402,10 +407,11 @@ private:
         SkDEBUGCODE(this->validate();)
     }
 
-    /** Resets the path ref with verbCount verbs and pointCount points, all uninitialized. Also
-     *  allocates space for reserveVerb additional verbs and reservePoints additional points.*/
-    void resetToSize(int verbCount, int pointCount, int conicCount,
-                     int reserveVerbs = 0, int reservePoints = 0) {
+    /**
+     * Resets all state except that of the verbs, points, and conic-weights.
+     * Intended to be called from other functions that reset state.
+     */
+    void commonReset() {
         SkDEBUGCODE(this->validate();)
         this->callGenIDChangeListeners();
         fBoundsIsDirty = true;      // this also invalidates fIsFinite
@@ -414,7 +420,13 @@ private:
         fSegmentMask = 0;
         fIsOval = false;
         fIsRRect = false;
+    }
 
+    /** Resets the path ref with verbCount verbs and pointCount points, all uninitialized. Also
+     *  allocates space for reserveVerb additional verbs and reservePoints additional points.*/
+    void resetToSize(int verbCount, int pointCount, int conicCount,
+                     int reserveVerbs = 0, int reservePoints = 0) {
+        commonReset();
         fPoints.reserve(pointCount + reservePoints);
         fPoints.resize(pointCount);
         fVerbs.reserve(verbCount + reserveVerbs);
