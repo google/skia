@@ -604,7 +604,10 @@ func marshalJson(data interface{}) string {
 // recipe bundle.
 func (b *taskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	b.cipd(CIPD_PKG_LUCI_AUTH)
-	b.cipd(cipd.MustGetPackage("infra/tools/luci/kitchen/${platform}"))
+	kitchenCipd := cipd.MustGetPackage("infra/tools/luci/kitchen/${platform}")
+	// Temporarily override the Kitchen version.
+	kitchenCipd.Version = "git_revision:1db56b0f2cfb7d6f68dbb2b79f23251f7b9f9ea9"
+	b.cipd(kitchenCipd)
 	b.env("RECIPES_USE_PY3", "true")
 	b.envPrefixes("VPYTHON_DEFAULT_SPEC", "skia/.vpython")
 	b.usesPython()
