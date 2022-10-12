@@ -10,6 +10,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLProgramElement.h"
+#include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 
 #include <functional>
@@ -41,6 +42,7 @@ private:
     const BuiltinMap* fParent = nullptr;
     std::shared_ptr<SymbolTable> fSymbolTable;
     SkTHashMap<const Symbol*, std::unique_ptr<ProgramElement>> fElements;
+    SkTArray<std::unique_ptr<ProgramElement>> fUnmappedElements;
 };
 
 } // namespace SkSL
