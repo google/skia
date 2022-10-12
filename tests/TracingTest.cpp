@@ -13,6 +13,8 @@
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"
 
+#if !defined(SK_DISABLE_TRACING)
+
 static DEFINE_bool(slowTracingTest, false,
                    "Artificially slow down tracing test to produce nicer JSON");
 
@@ -184,3 +186,5 @@ DEF_TEST(Tracing, reporter) {
     test_trace_counters();
     test_trace_objects();
 }
+
+#endif  // SK_DISABLE_TRACING
