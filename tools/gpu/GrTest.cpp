@@ -46,20 +46,28 @@ DRAW_OP_TEST_EXTERN(AAFlatteningConvexPathOp);
 DRAW_OP_TEST_EXTERN(AAHairlineOp);
 DRAW_OP_TEST_EXTERN(AAStrokeRectOp);
 DRAW_OP_TEST_EXTERN(AtlasTextOp);
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 DRAW_OP_TEST_EXTERN(ButtCapDashedCircleOp);
 DRAW_OP_TEST_EXTERN(CircleOp);
+#endif
 DRAW_OP_TEST_EXTERN(DashOpImpl);
 DRAW_OP_TEST_EXTERN(DefaultPathOp);
 DRAW_OP_TEST_EXTERN(DrawAtlasOp);
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 DRAW_OP_TEST_EXTERN(DIEllipseOp);
 DRAW_OP_TEST_EXTERN(EllipseOp);
+#endif
 DRAW_OP_TEST_EXTERN(FillRectOp);
 DRAW_OP_TEST_EXTERN(NonAALatticeOp);
 DRAW_OP_TEST_EXTERN(NonAAStrokeRectOp);
 DRAW_OP_TEST_EXTERN(RegionOp);
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 DRAW_OP_TEST_EXTERN(RRectOp);
+#endif
 DRAW_OP_TEST_EXTERN(ShadowRRectOp);
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 DRAW_OP_TEST_EXTERN(SmallPathOp);
+#endif
 DRAW_OP_TEST_EXTERN(TextureOpImpl);
 DRAW_OP_TEST_EXTERN(TriangulatingPathOp);
 
@@ -76,14 +84,14 @@ void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPain
             DRAW_OP_TEST_ENTRY(AAHairlineOp),
             DRAW_OP_TEST_ENTRY(AAStrokeRectOp),
             DRAW_OP_TEST_ENTRY(AtlasTextOp),
-#ifndef SK_ENABLE_OPTIMIZE_SIZE
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
             DRAW_OP_TEST_ENTRY(ButtCapDashedCircleOp),
             DRAW_OP_TEST_ENTRY(CircleOp),
 #endif
             DRAW_OP_TEST_ENTRY(DashOpImpl),
             DRAW_OP_TEST_ENTRY(DefaultPathOp),
             DRAW_OP_TEST_ENTRY(DrawAtlasOp),
-#ifndef SK_ENABLE_OPTIMIZE_SIZE
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
             DRAW_OP_TEST_ENTRY(DIEllipseOp),
             DRAW_OP_TEST_ENTRY(EllipseOp),
 #endif
@@ -91,11 +99,13 @@ void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPain
             DRAW_OP_TEST_ENTRY(NonAALatticeOp),
             DRAW_OP_TEST_ENTRY(NonAAStrokeRectOp),
             DRAW_OP_TEST_ENTRY(RegionOp),
-#ifndef SK_ENABLE_OPTIMIZE_SIZE
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
             DRAW_OP_TEST_ENTRY(RRectOp),
 #endif
             DRAW_OP_TEST_ENTRY(ShadowRRectOp),
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
             DRAW_OP_TEST_ENTRY(SmallPathOp),
+#endif
             DRAW_OP_TEST_ENTRY(TextureOpImpl),
             DRAW_OP_TEST_ENTRY(TriangulatingPathOp),
     };

@@ -94,9 +94,11 @@ public:
     }
 
     // This accessor should only ever be called by the GrOpFlushState.
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     skgpu::v1::SmallPathAtlasMgr* getSmallPathAtlasMgr() {
         return this->context()->onGetSmallPathAtlasMgr();
     }
+#endif
 
     void createDDLTask(sk_sp<const SkDeferredDisplayList>,
                        sk_sp<GrRenderTargetProxy> newDest,

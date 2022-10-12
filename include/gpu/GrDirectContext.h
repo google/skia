@@ -42,7 +42,9 @@ class SkTraceMemoryDump;
 
 namespace skgpu {
 class Swizzle;
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 namespace v1 { class SmallPathAtlasMgr; }
+#endif
 }
 
 namespace sktext::gpu {
@@ -850,7 +852,9 @@ protected:
     bool init() override;
 
     GrAtlasManager* onGetAtlasManager() { return fAtlasManager.get(); }
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     skgpu::v1::SmallPathAtlasMgr* onGetSmallPathAtlasMgr();
+#endif
 
     GrDirectContext* asDirectContext() override { return this; }
 
@@ -894,7 +898,9 @@ private:
     std::unique_ptr<GrClientMappedBufferManager> fMappedBufferManager;
     std::unique_ptr<GrAtlasManager> fAtlasManager;
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     std::unique_ptr<skgpu::v1::SmallPathAtlasMgr> fSmallPathAtlasMgr;
+#endif
 
     friend class GrDirectContextPriv;
 

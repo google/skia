@@ -144,7 +144,9 @@ public:
 
     virtual sktext::gpu::StrikeCache* strikeCache() const = 0;
     virtual GrAtlasManager* atlasManager() const = 0;
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     virtual skgpu::v1::SmallPathAtlasMgr* smallPathAtlasManager() const = 0;
+#endif
 
     // This should be called during onPrepare of a GrOp. The caller should add any proxies to the
     // array it will use that it did not access during a call to visitProxies. This is usually the

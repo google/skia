@@ -184,7 +184,9 @@ public:
     // At this point we know we're flushing so full access to the GrAtlasManager and
     // SmallPathAtlasMgr is required (and permissible).
     GrAtlasManager* atlasManager() const final;
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     skgpu::v1::SmallPathAtlasMgr* smallPathAtlasManager() const final;
+#endif
 
     /** GrMeshDrawTarget override. */
     SkArenaAlloc* allocator() override { return &fArena; }

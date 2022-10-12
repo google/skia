@@ -8,6 +8,8 @@
 #ifndef SmallPathShapeData_DEFINED
 #define SmallPathShapeData_DEFINED
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #include "src/core/SkOpts.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 
@@ -66,5 +68,7 @@ public:
 };
 
 } // namespace skgpu::v1
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE
 
 #endif // SmallPathShapeData_DEFINED

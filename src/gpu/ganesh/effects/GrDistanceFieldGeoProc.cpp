@@ -314,6 +314,7 @@ GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestDat
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 class GrDistanceFieldPathGeoProc::Impl : public ProgramImpl {
 public:
     void setData(const GrGLSLProgramDataManager& pdman,
@@ -561,6 +562,8 @@ GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData*
                                             flags);
 }
 #endif
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE
 
 ///////////////////////////////////////////////////////////////////////////////
 

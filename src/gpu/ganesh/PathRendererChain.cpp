@@ -49,9 +49,11 @@ PathRendererChain::PathRendererChain(GrRecordingContext* context, const Options&
             fChain.push_back(std::move(atlasPathRenderer));
         }
     }
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
         fChain.push_back(sk_make_sp<SmallPathRenderer>());
     }
+#endif
     if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
         fChain.push_back(sk_make_sp<TriangulatingPathRenderer>());
     }

@@ -135,6 +135,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 /**
  * The output color of this effect is a modulation of the input color and a sample from a
  * distance field texture (using a smoothed step function near 0.5).
@@ -190,6 +191,7 @@ private:
 
     using INHERITED = GrGeometryProcessor;
 };
+#endif // SK_ENABLE_OPTIMIZE_SIZE
 
 /**
  * The output color of this effect is a modulation of the input color and samples from a

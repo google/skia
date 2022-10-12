@@ -8,6 +8,8 @@
 #ifndef SmallPathAtlasMgr_DEFINED
 #define SmallPathAtlasMgr_DEFINED
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
@@ -94,5 +96,7 @@ private:
 };
 
 } // namespace skgpu::v1
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE
 
 #endif // SmallPathAtlasMgr_DEFINED

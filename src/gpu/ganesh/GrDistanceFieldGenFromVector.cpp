@@ -17,6 +17,8 @@
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 namespace {
 // TODO: should we make this real (i.e. src/core) and distinguish it from
 //       pathops SkDPoint?
@@ -862,3 +864,5 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
     }
     return true;
 }
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

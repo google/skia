@@ -10,6 +10,8 @@
 #include "include/private/SkFixed.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 namespace skgpu::v1 {
 
 SmallPathShapeDataKey::SmallPathShapeDataKey(const GrStyledShape& shape, uint32_t dim) {
@@ -51,3 +53,5 @@ SmallPathShapeDataKey::SmallPathShapeDataKey(const GrStyledShape& shape, const S
 }
 
 } // namespace skgpu::v1
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

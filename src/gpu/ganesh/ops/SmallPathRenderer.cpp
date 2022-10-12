@@ -32,6 +32,8 @@
 #include "src/gpu/ganesh/ops/SmallPathAtlasMgr.h"
 #include "src/gpu/ganesh/ops/SmallPathShapeData.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 using MaskFormat = skgpu::MaskFormat;
 
 namespace skgpu::v1 {
@@ -739,3 +741,5 @@ GR_DRAW_OP_TEST_DEFINE(SmallPathOp) {
 }
 
 #endif // GR_TEST_UTILS
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE
