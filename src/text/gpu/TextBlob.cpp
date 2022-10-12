@@ -305,19 +305,14 @@ bool TextBlob::Key::operator==(const TextBlob::Key& that) const {
             return false;
         }
     }
+
     if (fScalerContextFlags != that.fScalerContextFlags) { return false; }
 
-    if (fPositionMatrix.hasPerspective()) {
-        if (fPositionMatrix[SkMatrix::kMPersp0] != that.fPositionMatrix[SkMatrix::kMPersp0] ||
-            fPositionMatrix[SkMatrix::kMPersp1] != that.fPositionMatrix[SkMatrix::kMPersp1] ||
-            fPositionMatrix[SkMatrix::kMPersp2] != that.fPositionMatrix[SkMatrix::kMPersp2]) {
-                return false;
-        }
-    }
+    // DirectSubRuns do not support perspective when used with a TextBlob. SDFT, Transformed,
+    // Path, and Drawable do support perspective.
+    if (fPositionMatrix.hasPerspective() && fHasSomeDirectSubRuns) { return false; }
 
-    if (fHasSomeDirectSubRuns != that.fHasSomeDirectSubRuns) {
-        return false;
-    }
+    if (fHasSomeDirectSubRuns != that.fHasSomeDirectSubRuns) { return false; }
 
     if (fHasSomeDirectSubRuns) {
         auto [compatible, _] = can_use_direct(fPositionMatrix, that.fPositionMatrix);
