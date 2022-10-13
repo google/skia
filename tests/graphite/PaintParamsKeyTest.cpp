@@ -62,6 +62,7 @@ std::tuple<SkPaint, int> create_paint(Recorder* recorder,
     int numTextures = 0;
     switch (shaderType) {
         case ShaderType::kSolidColor:
+            s = SkShaders::Color(SK_ColorYELLOW);
             break;
         case ShaderType::kLinearGradient:
             s = SkGradientShader::MakeLinear(pts, colors, offsets, 2, tm);
