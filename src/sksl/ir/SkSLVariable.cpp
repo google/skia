@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkStringView.h"
 #include "include/sksl/SkSLErrorReporter.h"
@@ -27,13 +28,48 @@ namespace SkSL {
 
 Variable::~Variable() {
     // Unhook this Variable from its associated VarDeclaration, since we're being deleted.
-    if (fDeclaration) {
-        fDeclaration->setVar(nullptr);
+    if (VarDeclaration* declaration = this->varDeclaration()) {
+        declaration->setVar(nullptr);
     }
 }
 
 const Expression* Variable::initialValue() const {
-    return fDeclaration ? fDeclaration->value().get() : nullptr;
+    VarDeclaration* declaration = this->varDeclaration();
+    return declaration ? declaration->value().get() : nullptr;
+}
+
+VarDeclaration* Variable::varDeclaration() const {
+    if (!fDeclaringElement) {
+        return nullptr;
+    }
+    SkASSERT(fDeclaringElement->is<VarDeclaration>() ||
+             fDeclaringElement->is<GlobalVarDeclaration>());
+    return fDeclaringElement->is<GlobalVarDeclaration>()
+               ? &fDeclaringElement->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>()
+               : &fDeclaringElement->as<VarDeclaration>();
+}
+
+GlobalVarDeclaration* Variable::globalVarDeclaration() const {
+    if (!fDeclaringElement) {
+        return nullptr;
+    }
+    SkASSERT(fDeclaringElement->is<VarDeclaration>() ||
+             fDeclaringElement->is<GlobalVarDeclaration>());
+    return fDeclaringElement->is<GlobalVarDeclaration>()
+               ? &fDeclaringElement->as<GlobalVarDeclaration>()
+               : nullptr;
+}
+
+void Variable::setVarDeclaration(VarDeclaration* declaration) {
+    SkASSERT(!fDeclaringElement || this == &declaration->var());
+    if (!fDeclaringElement) {
+        fDeclaringElement = declaration;
+    }
+}
+
+void Variable::setGlobalVarDeclaration(GlobalVarDeclaration* global) {
+    SkASSERT(!fDeclaringElement || this == &global->declaration()->as<VarDeclaration>().var());
+    fDeclaringElement = global;
 }
 
 std::string Variable::mangledName() const {

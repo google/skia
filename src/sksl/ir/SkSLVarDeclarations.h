@@ -35,7 +35,7 @@ class VarDeclaration final : public Statement {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kVarDeclaration;
 
-    VarDeclaration(const Variable* var,
+    VarDeclaration(Variable* var,
                    const Type* baseType,
                    int arraySize,
                    std::unique_ptr<Expression> value,
@@ -74,13 +74,13 @@ public:
         return fBaseType;
     }
 
-    const Variable& var() const {
+    Variable& var() const {
         // This should never be called after the Variable has been deleted.
         SkASSERT(fVar);
         return *fVar;
     }
 
-    void setVar(const Variable* var) {
+    void setVar(Variable* var) {
         fVar = var;
     }
 
@@ -101,10 +101,11 @@ public:
     std::string description() const override;
 
 private:
-    static bool ErrorCheckAndCoerce(const Context& context, const Variable& var,
-            std::unique_ptr<Expression>& value);
+    static bool ErrorCheckAndCoerce(const Context& context,
+                                    const Variable& var,
+                                    std::unique_ptr<Expression>& value);
 
-    const Variable* fVar;
+    Variable* fVar;
     const Type& fBaseType;
     int fArraySize;  // zero means "not an array"
     std::unique_ptr<Expression> fValue;
@@ -126,6 +127,7 @@ public:
             : INHERITED(decl->fPosition, kIRNodeKind)
             , fDeclaration(std::move(decl)) {
         SkASSERT(this->declaration()->is<VarDeclaration>());
+        this->declaration()->as<VarDeclaration>().var().setGlobalVarDeclaration(this);
     }
 
     std::unique_ptr<Statement>& declaration() {

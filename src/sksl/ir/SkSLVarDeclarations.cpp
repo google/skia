@@ -410,7 +410,7 @@ std::unique_ptr<Statement> VarDeclaration::Make(const Context& context, Variable
     SkASSERT(!(value && (var->modifiers().fFlags & Modifiers::kUniform_Flag)));
 
     auto result = std::make_unique<VarDeclaration>(var, baseType, arraySize, std::move(value));
-    var->setDeclaration(result.get());
+    var->setVarDeclaration(result.get());
     return std::move(result);
 }
 

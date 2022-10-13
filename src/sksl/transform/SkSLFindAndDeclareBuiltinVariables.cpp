@@ -10,6 +10,7 @@
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
+#include "include/private/SkSLSymbol.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -35,9 +36,6 @@
 #include <vector>
 
 namespace SkSL {
-
-class Symbol;
-
 namespace Transform {
 namespace {
 
@@ -47,14 +45,28 @@ public:
             : fContext(context)
             , fSymbols(symbols) {}
 
-    void addDeclaringElement(const Symbol* var) {
-        if (const ProgramElement* decl = fContext.fBuiltins->find(var)) {
-            // Make sure we only add a built-in variable once. We only have a small handful of
-            // built-in variables, so linear search here is good enough.
-            SkASSERT(decl->is<GlobalVarDeclaration>() || decl->is<InterfaceBlock>());
-            if (std::find(fNewElements.begin(), fNewElements.end(), decl) == fNewElements.end()) {
-                fNewElements.push_back(decl);
+    void addDeclaringElement(const ProgramElement* decl) {
+        // Make sure we only add a built-in variable once. We only have a small handful of built-in
+        // variables to declare, so linear search here is good enough.
+        if (std::find(fNewElements.begin(), fNewElements.end(), decl) == fNewElements.end()) {
+            fNewElements.push_back(decl);
+        }
+    }
+
+    void addDeclaringElement(const Symbol* symbol) {
+        if (!symbol) {
+            return;
+        }
+        if (symbol->is<Variable>()) {
+            if (const GlobalVarDeclaration* decl = symbol->as<Variable>().globalVarDeclaration()) {
+                this->addDeclaringElement(decl);
+                return;
             }
+        }
+        if (const ProgramElement* decl = fContext.fBuiltins->find(symbol)) {
+            SkASSERT(decl->is<InterfaceBlock>());
+            this->addDeclaringElement(decl);
+            return;
         }
     }
 
