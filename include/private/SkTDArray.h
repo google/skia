@@ -219,18 +219,6 @@ public:
         fStorage.removeShuffle(index);
     }
 
-    int find(const T& elem) const {
-        const T* iter = this->begin();
-        const T* stop = this->end();
-
-        for (; iter < stop; iter++) {
-            if (*iter == elem) {
-                return SkToInt(iter - this->begin());
-            }
-        }
-        return -1;
-    }
-
     // routines to treat the array like a stack
     void push_back(const T& v) {
         this->append();

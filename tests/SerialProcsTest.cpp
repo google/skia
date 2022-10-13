@@ -14,6 +14,8 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
+#include <algorithm>
+
 static sk_sp<SkImage> picture_to_image(sk_sp<SkPicture> pic) {
     SkIRect r = pic->cullRect().round();
     auto surf = SkSurface::MakeRasterN32Premul(r.width(), r.height());
@@ -124,9 +126,11 @@ static sk_sp<SkPicture> array_deserial_proc(const void* data, size_t size, void*
     SkPicture* pic;
     memcpy(&pic, data, size);
 
-    int index = c->fArray.find(pic);
-    SkASSERT(index >= 0);
-    c->fArray.removeShuffle(index);
+    auto found = std::find(c->fArray.begin(), c->fArray.end(), pic);
+    SkASSERT(found != c->fArray.end());
+    if (found != c->fArray.end()) {
+        c->fArray.removeShuffle(std::distance(c->fArray.begin(), found));
+    }
 
     return sk_ref_sp(pic);
 }

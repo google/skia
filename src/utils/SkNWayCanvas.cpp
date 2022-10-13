@@ -24,6 +24,8 @@
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkCanvasPriv.h"
 
+#include <algorithm>
+#include <iterator>
 #include <utility>
 
 namespace sktext {
@@ -61,9 +63,9 @@ void SkNWayCanvas::addCanvas(SkCanvas* canvas) {
 }
 
 void SkNWayCanvas::removeCanvas(SkCanvas* canvas) {
-    int index = fList.find(canvas);
-    if (index >= 0) {
-        fList.removeShuffle(index);
+    auto found = std::find(fList.begin(), fList.end(), canvas);
+    if (found != fList.end()) {
+        fList.removeShuffle(std::distance(fList.begin(), found));
     }
 }
 
