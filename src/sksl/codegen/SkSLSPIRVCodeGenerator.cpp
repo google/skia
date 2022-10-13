@@ -3374,16 +3374,16 @@ MemoryLayout SPIRVCodeGenerator::memoryLayoutForVariable(const Variable& v) cons
 }
 
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool appendRTFlip) {
-    MemoryLayout memoryLayout = this->memoryLayoutForVariable(intf.variable());
+    MemoryLayout memoryLayout = this->memoryLayoutForVariable(*intf.var());
     SpvId result = this->nextId(nullptr);
-    const Variable& intfVar = intf.variable();
+    const Variable& intfVar = *intf.var();
     const Type& type = intfVar.type();
     if (!memoryLayout.isSupported(type)) {
         fContext.fErrors->error(type.fPosition, "type '" + type.displayName() +
-                                            "' is not permitted here");
+                                                "' is not permitted here");
         return this->nextId(nullptr);
     }
-    SpvStorageClass_ storageClass = get_storage_class(intf.variable(), SpvStorageClassFunction);
+    SpvStorageClass_ storageClass = get_storage_class(intfVar, SpvStorageClassFunction);
     if (fProgram.fInputs.fUseFlipRTUniform && appendRTFlip && type.isStruct()) {
         // We can only have one interface block (because we use push_constant and that is limited
         // to one per program), so we need to append rtflip to this one rather than synthesize an
@@ -3408,7 +3408,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                     fProgram.fSymbols->takeOwnershipOfSymbol(Type::MakeStructType(
                             type.fPosition, type.name(), std::move(fields),
                             /*interfaceBlock=*/true));
-            const Variable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
+            Variable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
                     std::make_unique<Variable>(intfVar.fPosition,
                                                intfVar.modifiersPosition(),
                                                &intfVar.modifiers(),
@@ -3418,7 +3418,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                                intfVar.storage()));
             fSPIRVBonusVariables.add(modifiedVar);
             InterfaceBlock modifiedCopy(intf.fPosition,
-                                        *modifiedVar,
+                                        modifiedVar,
                                         intf.typeName(),
                                         intf.instanceName(),
                                         intf.arraySize(),
@@ -3874,9 +3874,13 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
             fUniformBuffer.fStruct.get(), /*builtin=*/false, Variable::Storage::kGlobal);
 
     // Create an interface block object for this global variable.
-    fUniformBuffer.fInterfaceBlock = std::make_unique<InterfaceBlock>(
-            Position(), *fUniformBuffer.fInnerVariable, kUniformBufferName,
-            kUniformBufferName, /*arraySize=*/0, topLevelSymbolTable);
+    fUniformBuffer.fInterfaceBlock =
+            std::make_unique<InterfaceBlock>(Position(),
+                                             fUniformBuffer.fInnerVariable.get(),
+                                             kUniformBufferName,
+                                             kUniformBufferName,
+                                             /*arraySize=*/0,
+                                             topLevelSymbolTable);
 
     // Generate an interface block and hold onto its ID.
     fUniformBufferId = this->writeInterfaceBlock(*fUniformBuffer.fInterfaceBlock);
@@ -3937,7 +3941,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
                             Modifiers::kUniform_Flag);
         modsPtr = fContext.fModifiersPool->add(modifiers);
     }
-    const Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
+    Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
             std::make_unique<Variable>(/*pos=*/Position(),
                                        /*modifiersPosition=*/Position(),
                                        modsPtr,
@@ -3951,7 +3955,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
         fProgram.fSymbols->add(std::make_unique<Field>(Position(), intfVar, /*field=*/0));
     }
     InterfaceBlock intf(Position(),
-                        *intfVar,
+                        intfVar,
                         name,
                         /*instanceName=*/"",
                         /*arraySize=*/0,
@@ -3987,9 +3991,9 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
             const InterfaceBlock& intf = e->as<InterfaceBlock>();
             SpvId id = this->writeInterfaceBlock(intf);
 
-            const Modifiers& modifiers = intf.variable().modifiers();
+            const Modifiers& modifiers = intf.var()->modifiers();
             if ((modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) &&
-                modifiers.fLayout.fBuiltin == -1 && !this->isDead(intf.variable())) {
+                modifiers.fLayout.fBuiltin == -1 && !this->isDead(*intf.var())) {
                 interfaceVars.insert(id);
             }
         }

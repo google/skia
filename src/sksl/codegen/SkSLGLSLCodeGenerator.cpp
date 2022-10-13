@@ -1245,11 +1245,11 @@ void GLSLCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if (intf.typeName() == "sk_PerVertex") {
         return;
     }
-    this->writeModifiers(intf.variable().modifiers(), true);
+    this->writeModifiers(intf.var()->modifiers(), true);
     this->writeIdentifier(intf.typeName());
     this->writeLine(" {");
     fIndentation++;
-    const Type* structType = &intf.variable().type();
+    const Type* structType = &intf.var()->type();
     if (structType->isArray()) {
         structType = &structType->componentType();
     }

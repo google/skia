@@ -39,9 +39,9 @@ BuiltinMap::BuiltinMap(const BuiltinMap* parent,
                 break;
 
             case ProgramElement::Kind::kInterfaceBlock: {
-                const Variable& var = element->as<InterfaceBlock>().variable();
-                SkASSERT(var.isBuiltin());
-                this->insertOrDie(&var, std::move(element));
+                const Variable* var = element->as<InterfaceBlock>().var();
+                SkASSERT(var->isBuiltin());
+                this->insertOrDie(var, std::move(element));
                 break;
             }
             default:

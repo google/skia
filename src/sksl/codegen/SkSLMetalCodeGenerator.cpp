@@ -250,12 +250,12 @@ static bool needs_address_space(const Type& type, const Modifiers& modifiers) {
 
 // returns true if the InterfaceBlock has the `buffer` modifier
 static bool is_buffer(const InterfaceBlock& block) {
-    return block.variable().modifiers().fFlags & Modifiers::kBuffer_Flag;
+    return block.var()->modifiers().fFlags & Modifiers::kBuffer_Flag;
 }
 
 // returns true if the InterfaceBlock has the `readonly` modifier
 static bool is_readonly(const InterfaceBlock& block) {
-    return block.variable().modifiers().fFlags & Modifiers::kReadOnly_Flag;
+    return block.var()->modifiers().fFlags & Modifiers::kReadOnly_Flag;
 }
 
 std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
@@ -2051,11 +2051,11 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                     this->write("const ");
                 }
                 this->write(is_buffer(intf) ? "device " : "constant ");
-                this->writeType(intf.variable().type());
+                this->writeType(intf.var()->type());
                 this->write("& " );
                 this->write(fInterfaceBlockNameMap[&intf]);
                 this->write(" [[buffer(");
-                this->write(std::to_string(this->getUniformBinding(intf.variable().modifiers())));
+                this->write(std::to_string(this->getUniformBinding(intf.var()->modifiers())));
                 this->write(")]]");
                 separator = ", ";
             }
@@ -2218,10 +2218,10 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     if ("sk_PerVertex" == intf.typeName()) {
         return;
     }
-    this->writeModifiers(intf.variable().modifiers());
+    this->writeModifiers(intf.var()->modifiers());
     this->write("struct ");
     this->writeLine(std::string(intf.typeName()) + " {");
-    const Type* structType = &intf.variable().type();
+    const Type* structType = &intf.var()->type();
     if (structType->isArray()) {
         structType = &structType->componentType();
     }

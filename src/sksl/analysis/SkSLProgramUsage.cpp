@@ -48,7 +48,7 @@ public:
             }
         } else if (pe.is<InterfaceBlock>()) {
             // Ensure interface-block variables exist in the variable usage map.
-            fUsage->fVariableCounts[&pe.as<InterfaceBlock>().variable()];
+            fUsage->fVariableCounts[pe.as<InterfaceBlock>().var()];
         }
         return INHERITED::visitProgramElement(pe);
     }

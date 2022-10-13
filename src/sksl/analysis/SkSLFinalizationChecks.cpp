@@ -82,9 +82,9 @@ public:
     }
 
     void checkBindUniqueness(const InterfaceBlock& block) {
-        const Variable& var = block.variable();
-        int32_t set = var.modifiers().fLayout.fSet;
-        int32_t binding = var.modifiers().fLayout.fBinding;
+        const Variable* var = block.var();
+        int32_t set = var->modifiers().fLayout.fSet;
+        int32_t binding = var->modifiers().fLayout.fBinding;
         if (binding != -1) {
             // TODO(skia:13664): This should map a `set` value of -1 to the default settings value
             // used by codegen backends to prevent duplicates that may arise from the effective

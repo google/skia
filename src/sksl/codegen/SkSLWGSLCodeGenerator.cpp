@@ -384,8 +384,8 @@ int count_pipeline_inputs(const Program* program) {
                 inputCount++;
             }
         } else if (e->is<InterfaceBlock>()) {
-            const Variable& v = e->as<InterfaceBlock>().variable();
-            if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
+            const Variable* v = e->as<InterfaceBlock>().var();
+            if (v->modifiers().fFlags & Modifiers::kIn_Flag) {
                 inputCount++;
             }
         }
@@ -983,16 +983,16 @@ void WGSLCodeGenerator::writeStageInputStruct() {
                 }
             }
         } else if (e->is<InterfaceBlock>()) {
-            const Variable& v = e->as<InterfaceBlock>().variable();
+            const Variable* v = e->as<InterfaceBlock>().var();
             // Merge all the members of `in` interface blocks to the input struct, which are
             // specified as either "builtin" or with a "layout(location=".
             //
             // TODO(armansito): Is it legal to have an interface block without a storage qualifier
             // but with members that have individual storage qualifiers?
-            if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
-                for (const auto& f : v.type().fields()) {
-                    this->writePipelineIODeclaration(
-                            f.fModifiers, *f.fType, f.fName, Delimiter::kComma);
+            if (v->modifiers().fFlags & Modifiers::kIn_Flag) {
+                for (const auto& f : v->type().fields()) {
+                    this->writePipelineIODeclaration(f.fModifiers, *f.fType, f.fName,
+                                                     Delimiter::kComma);
                     if (f.fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                         declaredFragCoordsBuiltin = true;
                     }
@@ -1035,16 +1035,16 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
                                                  Delimiter::kComma);
             }
         } else if (e->is<InterfaceBlock>()) {
-            const Variable& v = e->as<InterfaceBlock>().variable();
+            const Variable* v = e->as<InterfaceBlock>().var();
             // Merge all the members of `out` interface blocks to the output struct, which are
             // specified as either "builtin" or with a "layout(location=".
             //
             // TODO(armansito): Is it legal to have an interface block without a storage qualifier
             // but with members that have individual storage qualifiers?
-            if (v.modifiers().fFlags & Modifiers::kOut_Flag) {
-                for (const auto& f : v.type().fields()) {
-                    this->writePipelineIODeclaration(
-                            f.fModifiers, *f.fType, f.fName, Delimiter::kComma);
+            if (v->modifiers().fFlags & Modifiers::kOut_Flag) {
+                for (const auto& f : v->type().fields()) {
+                    this->writePipelineIODeclaration(f.fModifiers, *f.fType, f.fName,
+                                                     Delimiter::kComma);
                     if (f.fModifiers.fLayout.fBuiltin == SK_POSITION_BUILTIN) {
                         declaredPositionBuiltin = true;
                     } else if (f.fModifiers.fLayout.fBuiltin == SK_POINTSIZE_BUILTIN) {

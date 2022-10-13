@@ -219,15 +219,14 @@ public:
     }
 
     static void FindRTAdjust(SkSL::InterfaceBlock& intf, Position pos) {
-        const std::vector<SkSL::Type::Field>& fields =
-                intf.variable().type().componentType().fields();
+        const std::vector<SkSL::Type::Field>& fields = intf.var()->type().componentType().fields();
         const Context& context = ThreadContext::Context();
         for (size_t i = 0; i < fields.size(); ++i) {
             const SkSL::Type::Field& f = fields[i];
             if (f.fName == SkSL::Compiler::RTADJUST_NAME) {
                 if (f.fType->matches(*context.fTypes.fFloat4)) {
                     ThreadContext::RTAdjustData& rtAdjust = ThreadContext::RTAdjustState();
-                    rtAdjust.fInterfaceBlock = &intf.variable();
+                    rtAdjust.fInterfaceBlock = intf.var();
                     rtAdjust.fFieldIndex = i;
                 } else {
                     ThreadContext::ReportError("sk_RTAdjust must have type 'float4'", pos);
@@ -264,8 +263,9 @@ public:
                 pos);
         SkSL::Variable* skslVar = DSLWriter::Var(var);
         if (skslVar) {
-            auto intf = std::make_unique<SkSL::InterfaceBlock>(pos, *skslVar, typeName, varName,
-                    arraySize, ThreadContext::SymbolTable());
+            auto intf = std::make_unique<SkSL::InterfaceBlock>(pos, skslVar, typeName,
+                                                               varName, arraySize,
+                                                               ThreadContext::SymbolTable());
             FindRTAdjust(*intf, pos);
             ThreadContext::ProgramElements().push_back(std::move(intf));
             if (varName.empty()) {

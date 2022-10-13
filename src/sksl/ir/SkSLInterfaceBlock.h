@@ -32,7 +32,7 @@ public:
     inline static constexpr Kind kIRNodeKind = Kind::kInterfaceBlock;
 
     InterfaceBlock(Position pos,
-                   const Variable& var,
+                   Variable* var,
                    std::string_view typeName,
                    std::string_view instanceName,
                    int arraySize,
@@ -43,12 +43,12 @@ public:
             , fInstanceName(instanceName)
             , fArraySize(arraySize)
             , fTypeOwner(std::move(typeOwner)) {
-        SkASSERT(fVariable.type().isInterfaceBlock() ||
-                 (fVariable.type().isArray() &&
-                  fVariable.type().componentType().isInterfaceBlock()));
+        SkASSERT(fVariable->type().isInterfaceBlock() ||
+                 (fVariable->type().isArray() &&
+                  fVariable->type().componentType().isInterfaceBlock()));
     }
 
-    const Variable& variable() const {
+    Variable* var() const {
         return fVariable;
     }
 
@@ -69,15 +69,15 @@ public:
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<InterfaceBlock>(fPosition, this->variable(), this->typeName(),
+        return std::make_unique<InterfaceBlock>(fPosition, this->var(), this->typeName(),
                                                 this->instanceName(), this->arraySize(),
                                                 SymbolTable::WrapIfBuiltin(this->typeOwner()));
     }
 
     std::string description() const override {
-        std::string result = this->variable().modifiers().description() +
+        std::string result = this->var()->modifiers().description() +
                              std::string(this->typeName()) + " {\n";
-        const Type* structType = &this->variable().type();
+        const Type* structType = &this->var()->type();
         if (structType->isArray()) {
             structType = &structType->componentType();
         }
@@ -95,7 +95,7 @@ public:
     }
 
 private:
-    const Variable& fVariable;
+    Variable* fVariable;
     std::string_view fTypeName;
     std::string_view fInstanceName;
     int fArraySize;
