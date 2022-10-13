@@ -418,7 +418,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
             const SkSL::GlobalVarDeclaration& global = elem->as<SkSL::GlobalVarDeclaration>();
             const SkSL::VarDeclaration& varDecl = global.declaration()->as<SkSL::VarDeclaration>();
 
-            const SkSL::Variable& var = varDecl.var();
+            const SkSL::Variable& var = *varDecl.var();
             const SkSL::Type& varType = var.type();
 
             // Child effects that can be sampled ('shader', 'colorFilter', 'blender')

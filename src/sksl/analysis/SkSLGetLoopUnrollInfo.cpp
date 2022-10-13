@@ -94,7 +94,7 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
         return nullptr;
     }
 
-    loopInfo->fIndex = &initDecl.var();
+    loopInfo->fIndex = initDecl.var();
 
     auto is_loop_index = [&](const std::unique_ptr<Expression>& expr) {
         return expr->is<VariableReference>() &&
@@ -208,7 +208,7 @@ std::unique_ptr<LoopUnrollInfo> Analysis::GetLoopUnrollInfo(Position loopPos,
     // Within the body of the loop, the loop index is not statically assigned to, nor is it used as
     // argument to a function 'out' or 'inout' parameter.
     //
-    if (Analysis::StatementWritesToVariable(*loopStatement, initDecl.var())) {
+    if (Analysis::StatementWritesToVariable(*loopStatement, *initDecl.var())) {
         errors.error(loopStatement->fPosition,
                      "loop index must not be modified within body of the loop");
         return nullptr;

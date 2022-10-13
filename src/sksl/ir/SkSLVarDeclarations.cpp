@@ -110,7 +110,7 @@ std::unique_ptr<Statement> VarDeclaration::clone() const {
     // some circumstances - we also disable cloning altogether unless the
     // fAllowVarDeclarationCloneForTesting ProgramSetting is enabled.
     if (ThreadContext::Settings().fAllowVarDeclarationCloneForTesting) {
-        return std::make_unique<VarDeclaration>(&this->var(),
+        return std::make_unique<VarDeclaration>(this->var(),
                                                 &this->baseType(),
                                                 fArraySize,
                                                 this->value() ? this->value()->clone() : nullptr,
@@ -122,8 +122,8 @@ std::unique_ptr<Statement> VarDeclaration::clone() const {
 }
 
 std::string VarDeclaration::description() const {
-    std::string result = this->var().modifiers().description() + this->baseType().description() +
-                         " " + std::string(this->var().name());
+    std::string result = this->var()->modifiers().description() + this->baseType().description() +
+                         " " + std::string(this->var()->name());
     if (this->arraySize() > 0) {
         String::appendf(&result, "[%d]", this->arraySize());
     }

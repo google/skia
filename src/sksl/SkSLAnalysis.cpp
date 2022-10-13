@@ -415,7 +415,7 @@ bool Analysis::DetectVarDeclarationWithoutScope(const Statement& stmt, ErrorRepo
     const Variable* var;
     if (stmt.is<VarDeclaration>()) {
         // The single-variable case. No blocks at all.
-        var = &stmt.as<VarDeclaration>().var();
+        var = stmt.as<VarDeclaration>().var();
     } else if (stmt.is<Block>()) {
         // The multiple-variable case: an unscoped, non-empty block...
         const Block& block = stmt.as<Block>();
@@ -427,7 +427,7 @@ bool Analysis::DetectVarDeclarationWithoutScope(const Statement& stmt, ErrorRepo
         if (!innerStmt.is<VarDeclaration>()) {
             return false;
         }
-        var = &innerStmt.as<VarDeclaration>().var();
+        var = innerStmt.as<VarDeclaration>().var();
     } else {
         // This statement wasn't a variable declaration. No problem.
         return false;
@@ -481,7 +481,7 @@ public:
         if (s.is<ForStatement>()) {
             const ForStatement& f = s.as<ForStatement>();
             SkASSERT(f.initializer() && f.initializer()->is<VarDeclaration>());
-            const Variable* var = &f.initializer()->as<VarDeclaration>().var();
+            const Variable* var = f.initializer()->as<VarDeclaration>().var();
             auto [iter, inserted] = fLoopIndices.insert(var);
             SkASSERT(inserted);
             bool result = this->visitStatement(*f.statement());

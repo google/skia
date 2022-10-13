@@ -28,7 +28,7 @@ bool FuzzSKSL2Pipeline(sk_sp<SkData> bytes) {
 
     class Callbacks : public SkSL::PipelineStage::Callbacks {
         std::string declareUniform(const SkSL::VarDeclaration* decl) override {
-            return std::string(decl->var().name());
+            return std::string(decl->var()->name());
         }
 
         void defineFunction(const char* /*decl*/, const char* /*body*/, bool /*isMain*/) override {}

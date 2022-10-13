@@ -114,18 +114,18 @@ std::unique_ptr<FunctionDefinition> FunctionDefinition::Convert(const Context& c
                     // (i.e., RelaxedPrecision math doesn't mean your variable takes less space.)
                     // We also don't attempt to reclaim slots at the end of a Block.
                     size_t prevSlotsUsed = fSlotsUsed;
-                    const Variable& var = stmt.as<VarDeclaration>().var();
-                    if (var.type().isOrContainsUnsizedArray()) {
+                    const Variable* var = stmt.as<VarDeclaration>().var();
+                    if (var->type().isOrContainsUnsizedArray()) {
                         fContext.fErrors->error(stmt.fPosition,
                                                 "unsized arrays are not permitted here");
                         break;
                     }
-                    fSlotsUsed = SkSafeMath::Add(fSlotsUsed, var.type().slotCount());
+                    fSlotsUsed = SkSafeMath::Add(fSlotsUsed, var->type().slotCount());
                     // To avoid overzealous error reporting, only trigger the error at the first
                     // place where the stack limit is exceeded.
                     if (prevSlotsUsed < kVariableSlotLimit && fSlotsUsed >= kVariableSlotLimit) {
                         fContext.fErrors->error(stmt.fPosition,
-                                                "variable '" + std::string(var.name()) +
+                                                "variable '" + std::string(var->name()) +
                                                 "' exceeds the stack size limit");
                     }
                     break;

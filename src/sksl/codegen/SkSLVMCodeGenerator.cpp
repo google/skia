@@ -479,29 +479,29 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& gvd = e->as<GlobalVarDeclaration>();
             const VarDeclaration& decl = gvd.declaration()->as<VarDeclaration>();
-            const Variable& var = decl.var();
-            SkASSERT(!fSlotMap.find(&var));
+            const Variable* var = decl.var();
+            SkASSERT(!fSlotMap.find(var));
 
             // For most variables, fSlotMap stores an index into fSlots, but for children,
             // fSlotMap stores the index to pass to fSample(Shader|ColorFilter|Blender)
-            if (var.type().isEffectChild()) {
-                fSlotMap.set(&var, fpCount++);
+            if (var->type().isEffectChild()) {
+                fSlotMap.set(var, fpCount++);
                 continue;
             }
 
             // Opaque types include child processors and GL objects (samplers, textures, etc).
             // Of those, only child processors are legal variables.
-            SkASSERT(!var.type().isVoid());
-            SkASSERT(!var.type().isOpaque());
+            SkASSERT(!var->type().isVoid());
+            SkASSERT(!var->type().isOpaque());
 
             // getSlot() allocates space for the variable's value in fSlots, initializes it to zero,
             // and populates fSlotMap.
-            size_t slot   = this->getSlot(var),
-                   nslots = var.type().slotCount();
+            size_t slot   = this->getSlot(*var),
+                   nslots = var->type().slotCount();
 
             // builtin variables are system-defined, with special semantics. The only builtin
             // variable exposed to runtime effects is sk_FragCoord.
-            if (int builtin = var.modifiers().fLayout.fBuiltin; builtin >= 0) {
+            if (int builtin = var->modifiers().fLayout.fBuiltin; builtin >= 0) {
                 switch (builtin) {
                     case SK_FRAGCOORD_BUILTIN:
                         SkASSERT(nslots == 4);
@@ -517,7 +517,7 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
             }
 
             // For uniforms, copy the supplied IDs over
-            if (is_uniform(var)) {
+            if (is_uniform(*var)) {
                 SkASSERT(uniformIter + nslots <= uniforms.end());
                 for (size_t i = 0; i < nslots; ++i) {
                     this->writeToSlot(slot + i, uniformIter[i]);
@@ -2040,8 +2040,8 @@ void SkVMGenerator::writeSwitchStatement(const SwitchStatement& s) {
 }
 
 void SkVMGenerator::writeVarDeclaration(const VarDeclaration& decl) {
-    size_t slot   = this->getSlot(decl.var()),
-           nslots = decl.var().type().slotCount();
+    size_t slot   = this->getSlot(*decl.var()),
+           nslots = decl.var()->type().slotCount();
 
     Value val = decl.value() ? this->writeExpression(*decl.value()) : Value{};
     for (size_t i = 0; i < nslots; ++i) {
@@ -2313,7 +2313,7 @@ std::unique_ptr<UniformInfo> Program_GetUniformInfo(const Program& program) {
             continue;
         }
         const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
-        const Variable& var = decl.declaration()->as<VarDeclaration>().var();
+        const Variable& var = *decl.declaration()->as<VarDeclaration>().var();
         if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
             gather_uniforms(info.get(), var.type(), std::string(var.name()));
         }
@@ -2338,7 +2338,7 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
     for (const SkSL::ProgramElement* e : program.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
-            const Variable& var = decl.declaration()->as<VarDeclaration>().var();
+            const Variable& var = *decl.declaration()->as<VarDeclaration>().var();
             if (var.type().isEffectChild()) {
                 childSlots++;
             } else if (is_uniform(var)) {

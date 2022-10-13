@@ -555,22 +555,22 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
         case Statement::Kind::kVarDeclaration: {
             const VarDeclaration& decl = statement.as<VarDeclaration>();
             std::unique_ptr<Expression> initialValue = expr(decl.value());
-            const Variable& variable = decl.var();
+            const Variable* variable = decl.var();
 
             // We assign unique names to inlined variables--scopes hide most of the problems in this
             // regard, but see `InlinerAvoidsVariableNameOverlap` for a counterexample where unique
             // names are important.
             const std::string* name = symbolTableForStatement->takeOwnershipOfString(
-                    fMangler.uniqueName(variable.name(), symbolTableForStatement));
+                    fMangler.uniqueName(variable->name(), symbolTableForStatement));
             auto clonedVar = std::make_unique<Variable>(
                     pos,
-                    variable.modifiersPosition(),
-                    variableModifiers(variable, initialValue.get()),
+                    variable->modifiersPosition(),
+                    variableModifiers(*variable, initialValue.get()),
                     name->c_str(),
-                    variable.type().clone(symbolTableForStatement),
+                    variable->type().clone(symbolTableForStatement),
                     isBuiltinCode,
-                    variable.storage());
-            varMap->set(&variable, VariableReference::Make(pos, clonedVar.get()));
+                    variable->storage());
+            varMap->set(variable, VariableReference::Make(pos, clonedVar.get()));
             auto result = VarDeclaration::Make(*fContext,
                                                clonedVar.get(),
                                                decl.baseType().clone(symbolTableForStatement),

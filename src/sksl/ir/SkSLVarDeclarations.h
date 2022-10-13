@@ -74,10 +74,8 @@ public:
         return fBaseType;
     }
 
-    Variable& var() const {
-        // This should never be called after the Variable has been deleted.
-        SkASSERT(fVar);
-        return *fVar;
+    Variable* var() const {
+        return fVar;
     }
 
     void setVar(Variable* var) {
@@ -127,7 +125,7 @@ public:
             : INHERITED(decl->fPosition, kIRNodeKind)
             , fDeclaration(std::move(decl)) {
         SkASSERT(this->declaration()->is<VarDeclaration>());
-        this->declaration()->as<VarDeclaration>().var().setGlobalVarDeclaration(this);
+        this->declaration()->as<VarDeclaration>().var()->setGlobalVarDeclaration(this);
     }
 
     std::unique_ptr<Statement>& declaration() {

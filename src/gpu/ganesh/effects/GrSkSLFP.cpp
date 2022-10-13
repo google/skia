@@ -47,15 +47,15 @@ public:
                     , fSpecialized(specialized) {}
 
             std::string declareUniform(const SkSL::VarDeclaration* decl) override {
-                const SkSL::Variable& var = decl->var();
-                if (var.type().isOpaque()) {
+                const SkSL::Variable* var = decl->var();
+                if (var->type().isOpaque()) {
                     // Nothing to do. The only opaque types we should see are children, and those
                     // are handled specially, above.
-                    SkASSERT(var.type().isEffectChild());
-                    return std::string(var.name());
+                    SkASSERT(var->type().isEffectChild());
+                    return std::string(var->name());
                 }
 
-                const SkSL::Type* type = &var.type();
+                const SkSL::Type* type = &var->type();
                 size_t sizeInBytes = type->slotCount() * sizeof(float);
                 const float* floatData = reinterpret_cast<const float*>(fUniformData);
                 const int* intData = reinterpret_cast<const int*>(fUniformData);
@@ -91,8 +91,8 @@ public:
                         fArgs.fUniformHandler->addUniformArray(&fArgs.fFp.cast<GrSkSLFP>(),
                                                                kFragment_GrShaderFlag,
                                                                gpuType,
-                                                               SkString(var.name()).c_str(),
-                                                               isArray ? var.type().columns() : 0,
+                                                               SkString(var->name()).c_str(),
+                                                               isArray ? var->type().columns() : 0,
                                                                &uniformName);
                 fSelf->fUniformHandles.push_back(handle);
                 return std::string(uniformName);

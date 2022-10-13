@@ -71,12 +71,12 @@ public:
         const VarDeclaration& decl = globalDecl.declaration()->as<VarDeclaration>();
 
         size_t prevSlotsUsed = fGlobalSlotsUsed;
-        fGlobalSlotsUsed = SkSafeMath::Add(fGlobalSlotsUsed, decl.var().type().slotCount());
+        fGlobalSlotsUsed = SkSafeMath::Add(fGlobalSlotsUsed, decl.var()->type().slotCount());
         // To avoid overzealous error reporting, only trigger the error at the first place where the
         // global limit is exceeded.
         if (prevSlotsUsed < kVariableSlotLimit && fGlobalSlotsUsed >= kVariableSlotLimit) {
             fContext.fErrors->error(decl.fPosition,
-                                    "global variable '" + std::string(decl.var().name()) +
+                                    "global variable '" + std::string(decl.var()->name()) +
                                     "' exceeds the size limit");
         }
     }

@@ -107,10 +107,10 @@ private:
                     , fContext(context) {}
 
             std::string declareUniform(const SkSL::VarDeclaration* decl) override {
-                const SkSL::Variable& var = decl->var();
-                SkASSERT(!var.type().isOpaque());
+                const SkSL::Variable* var = decl->var();
+                SkASSERT(!var->type().isOpaque());
 
-                const SkSL::Type* type = &var.type();
+                const SkSL::Type* type = &var->type();
                 bool isArray = false;
                 if (type->isArray()) {
                     type = &type->componentType();
@@ -120,7 +120,7 @@ private:
                 SkSLType gpuType;
                 SkAssertResult(SkSL::type_to_sksltype(fContext, *type, &gpuType));
 
-                SkString name(var.name());
+                SkString name(var->name());
                 const SkSpan<const SkMeshSpecification::Uniform> uniforms = fGP.fSpec->uniforms();
                 auto it = std::find_if(uniforms.begin(),
                                        uniforms.end(),
@@ -150,7 +150,7 @@ private:
                                                            shaderFlags,
                                                            gpuType,
                                                            name.c_str(),
-                                                           isArray ? var.type().columns() : 0,
+                                                           isArray ? var->type().columns() : 0,
                                                            &mangledName);
                 return std::string(mangledName);
             }

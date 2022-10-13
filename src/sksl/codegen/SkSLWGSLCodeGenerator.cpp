@@ -378,9 +378,9 @@ int count_pipeline_inputs(const Program* program) {
     int inputCount = 0;
     for (const ProgramElement* e : program->elements()) {
         if (e->is<GlobalVarDeclaration>()) {
-            const Variable& v =
+            const Variable* v =
                     e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>().var();
-            if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
+            if (v->modifiers().fFlags & Modifiers::kIn_Flag) {
                 inputCount++;
             }
         } else if (e->is<InterfaceBlock>()) {
@@ -732,15 +732,15 @@ void WGSLCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
 }
 
 void WGSLCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {
-    bool isConst = varDecl.var().modifiers().fFlags & Modifiers::kConst_Flag;
+    bool isConst = varDecl.var()->modifiers().fFlags & Modifiers::kConst_Flag;
     if (isConst) {
         this->write("let ");
     } else {
         this->write("var ");
     }
-    this->writeName(varDecl.var().mangledName());
+    this->writeName(varDecl.var()->mangledName());
     this->write(": ");
-    this->write(to_wgsl_type(varDecl.var().type()));
+    this->write(to_wgsl_type(varDecl.var()->type()));
 
     if (varDecl.value()) {
         this->write(" = ");
@@ -973,12 +973,12 @@ void WGSLCodeGenerator::writeStageInputStruct() {
     bool declaredFragCoordsBuiltin = false;
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
-            const Variable& v =
-                    e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>().var();
-            if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
-                this->writePipelineIODeclaration(
-                        v.modifiers(), v.type(), v.mangledName(), Delimiter::kComma);
-                if (v.modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
+            const Variable* v = e->as<GlobalVarDeclaration>().declaration()
+                                 ->as<VarDeclaration>().var();
+            if (v->modifiers().fFlags & Modifiers::kIn_Flag) {
+                this->writePipelineIODeclaration(v->modifiers(), v->type(), v->mangledName(),
+                                                 Delimiter::kComma);
+                if (v->modifiers().fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN) {
                     declaredFragCoordsBuiltin = true;
                 }
             }
@@ -1028,11 +1028,11 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
     bool requiresPointSizeBuiltin = false;
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
-            const Variable& v =
-                    e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>().var();
-            if (v.modifiers().fFlags & Modifiers::kOut_Flag) {
-                this->writePipelineIODeclaration(
-                        v.modifiers(), v.type(), v.mangledName(), Delimiter::kComma);
+            const Variable* v = e->as<GlobalVarDeclaration>().declaration()
+                                 ->as<VarDeclaration>().var();
+            if (v->modifiers().fFlags & Modifiers::kOut_Flag) {
+                this->writePipelineIODeclaration(v->modifiers(), v->type(), v->mangledName(),
+                                                 Delimiter::kComma);
             }
         } else if (e->is<InterfaceBlock>()) {
             const Variable& v = e->as<InterfaceBlock>().variable();

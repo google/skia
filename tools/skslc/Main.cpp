@@ -669,7 +669,7 @@ ResultCode processCommand(const std::vector<std::string>& args) {
 
                         std::string declareUniform(const SkSL::VarDeclaration* decl) override {
                             fOutput += decl->description();
-                            return std::string(decl->var().name());
+                            return std::string(decl->var()->name());
                         }
 
                         void defineFunction(const char* decl,

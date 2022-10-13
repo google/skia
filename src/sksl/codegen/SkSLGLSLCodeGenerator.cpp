@@ -1315,11 +1315,11 @@ void GLSLCodeGenerator::writeTypePrecision(const Type& type) {
 }
 
 void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool global) {
-    this->writeModifiers(var.var().modifiers(), global);
+    this->writeModifiers(var.var()->modifiers(), global);
     this->writeTypePrecision(var.baseType());
     this->writeType(var.baseType());
     this->write(" ");
-    this->writeIdentifier(var.var().mangledName());
+    this->writeIdentifier(var.var()->mangledName());
     if (var.arraySize() > 0) {
         this->write("[");
         this->write(std::to_string(var.arraySize()));
@@ -1327,10 +1327,10 @@ void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glob
     }
     if (var.value()) {
         this->write(" = ");
-        this->writeVarInitializer(var.var(), *var.value());
+        this->writeVarInitializer(*var.var(), *var.value());
     }
     if (!fFoundExternalSamplerDecl &&
-        var.var().type().matches(*fContext.fTypes.fSamplerExternalOES)) {
+        var.var()->type().matches(*fContext.fTypes.fSamplerExternalOES)) {
         if (this->caps().externalTextureExtensionString()) {
             this->writeExtension(this->caps().externalTextureExtensionString());
         }
@@ -1339,7 +1339,7 @@ void GLSLCodeGenerator::writeVarDeclaration(const VarDeclaration& var, bool glob
         }
         fFoundExternalSamplerDecl = true;
     }
-    if (!fFoundRectSamplerDecl && var.var().type().matches(*fContext.fTypes.fSampler2DRect)) {
+    if (!fFoundRectSamplerDecl && var.var()->type().matches(*fContext.fTypes.fSampler2DRect)) {
         fFoundRectSamplerDecl = true;
     }
     this->write(";");
@@ -1636,7 +1636,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
         case ProgramElement::Kind::kGlobalVar: {
             const VarDeclaration& decl =
                                    e.as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
-            int builtin = decl.var().modifiers().fLayout.fBuiltin;
+            int builtin = decl.var()->modifiers().fLayout.fBuiltin;
             if (builtin == -1) {
                 // normal var
                 this->writeVarDeclaration(decl, true);

@@ -3465,32 +3465,32 @@ bool SPIRVCodeGenerator::isDead(const Variable& var) const {
 }
 
 void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& varDecl) {
-    const Variable& var = varDecl.var();
-    if (var.modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
+    const Variable* var = varDecl.var();
+    if (var->modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
         !ProgramConfig::IsFragment(kind)) {
         SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
         return;
     }
-    if (this->isDead(var)) {
+    if (this->isDead(*var)) {
         return;
     }
-    SpvStorageClass_ storageClass = get_storage_class(var, SpvStorageClassPrivate);
+    SpvStorageClass_ storageClass = get_storage_class(*var, SpvStorageClassPrivate);
     if (storageClass == SpvStorageClassUniform) {
         // Top-level uniforms are emitted in writeUniformBuffer.
         fTopLevelUniforms.push_back(&varDecl);
         return;
     }
     // Add this global to the variable map.
-    const Type& type = var.type();
+    const Type& type = var->type();
     SpvId id = this->nextId(&type);
-    fVariableMap.set(&var, id);
-    Layout layout = var.modifiers().fLayout;
+    fVariableMap.set(var, id);
+    Layout layout = var->modifiers().fLayout;
     if (layout.fSet < 0 && storageClass == SpvStorageClassUniformConstant) {
         layout.fSet = fProgram.fConfig->fSettings.fDefaultUniformSet;
     }
     SpvId typeId = this->getPointerType(type, storageClass);
     this->writeInstruction(SpvOpVariable, typeId, id, storageClass, fConstantBuffer);
-    this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
+    this->writeInstruction(SpvOpName, id, var->name(), fNameBuffer);
     if (varDecl.value()) {
         SkASSERT(!fCurrentBlock);
         fCurrentBlock = NA;
@@ -3498,23 +3498,23 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
         this->writeOpStore(storageClass, id, value, fGlobalInitializersBuffer);
         fCurrentBlock = 0;
     }
-    this->writeLayout(layout, id, var.fPosition);
-    if (var.modifiers().fFlags & Modifiers::kFlat_Flag) {
+    this->writeLayout(layout, id, var->fPosition);
+    if (var->modifiers().fFlags & Modifiers::kFlat_Flag) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationFlat, fDecorationBuffer);
     }
-    if (var.modifiers().fFlags & Modifiers::kNoPerspective_Flag) {
+    if (var->modifiers().fFlags & Modifiers::kNoPerspective_Flag) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationNoPerspective,
                                fDecorationBuffer);
     }
 }
 
 void SPIRVCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, OutputStream& out) {
-    const Variable& var = varDecl.var();
-    SpvId id = this->nextId(&var.type());
-    fVariableMap.set(&var, id);
-    SpvId type = this->getPointerType(var.type(), SpvStorageClassFunction);
+    const Variable* var = varDecl.var();
+    SpvId id = this->nextId(&var->type());
+    fVariableMap.set(var, id);
+    SpvId type = this->getPointerType(var->type(), SpvStorageClassFunction);
     this->writeInstruction(SpvOpVariable, type, id, SpvStorageClassFunction, fVariableBuffer);
-    this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
+    this->writeInstruction(SpvOpName, id, var->name(), fNameBuffer);
     if (varDecl.value()) {
         SpvId value = this->writeExpression(*varDecl.value(), out);
         this->writeOpStore(SpvStorageClassFunction, id, value, out);
@@ -3855,7 +3855,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
     std::vector<Type::Field> fields;
     fields.reserve(fTopLevelUniforms.size());
     for (const VarDeclaration* topLevelUniform : fTopLevelUniforms) {
-        const Variable* var = &topLevelUniform->var();
+        const Variable* var = topLevelUniform->var();
         fTopLevelUniformMap.set(var, (int)fields.size());
         fields.emplace_back(var->fPosition, var->modifiers(), var->name(), &var->type());
     }

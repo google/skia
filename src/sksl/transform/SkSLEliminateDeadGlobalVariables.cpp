@@ -32,10 +32,10 @@ static bool is_dead_variable(const ProgramElement& element,
     }
     const GlobalVarDeclaration& global = element.as<GlobalVarDeclaration>();
     const VarDeclaration& varDecl = global.declaration()->as<VarDeclaration>();
-    if (onlyPrivateGlobals && !skstd::starts_with(varDecl.var().name(), '$')) {
+    if (onlyPrivateGlobals && !skstd::starts_with(varDecl.var()->name(), '$')) {
         return false;
     }
-    if (!usage->isDead(varDecl.var())) {
+    if (!usage->isDead(*varDecl.var())) {
         return false;
     }
     return true;

@@ -2004,38 +2004,38 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
             if (e->is<GlobalVarDeclaration>()) {
                 const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
                 const VarDeclaration& decl = decls.declaration()->as<VarDeclaration>();
-                const Variable& var = decl.var();
-                const SkSL::Type::TypeKind varKind = var.type().typeKind();
+                const Variable* var = decl.var();
+                const SkSL::Type::TypeKind varKind = var->type().typeKind();
 
                 if (varKind == Type::TypeKind::kSampler || varKind == Type::TypeKind::kTexture) {
-                    if (var.type().dimensions() != SpvDim2D) {
+                    if (var->type().dimensions() != SpvDim2D) {
                         // Not yet implemented--Skia currently only uses 2D textures.
                         fContext.fErrors->error(decls.fPosition, "Unsupported texture dimensions");
                         return false;
                     }
 
-                    int binding = getUniformBinding(var.modifiers());
+                    int binding = getUniformBinding(var->modifiers());
                     this->write(separator);
                     separator = ", ";
 
                     if (varKind == Type::TypeKind::kSampler) {
-                        this->writeType(var.type().textureType());
+                        this->writeType(var->type().textureType());
                         this->write(" ");
-                        this->writeName(var.mangledName());
+                        this->writeName(var->mangledName());
                         this->write(kTextureSuffix);
                         this->write(" [[texture(");
                         this->write(std::to_string(binding));
                         this->write(")]], sampler ");
-                        this->writeName(var.mangledName());
+                        this->writeName(var->mangledName());
                         this->write(kSamplerSuffix);
                         this->write(" [[sampler(");
                         this->write(std::to_string(binding));
                         this->write(")]]");
                     } else {
                         SkASSERT(varKind == Type::TypeKind::kTexture);
-                        this->writeType(var.type());
+                        this->writeType(var->type());
                         this->write(" ");
-                        this->writeName(var.mangledName());
+                        this->writeName(var->mangledName());
                         this->write(" [[texture(");
                         this->write(std::to_string(binding));
                         this->write(")]]");
@@ -2140,11 +2140,11 @@ void MetalCodeGenerator::writeComputeMainInputs() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-            const Variable& var = decls.declaration()->as<VarDeclaration>().var();
-            if (is_input(var)) {
+            const Variable* var = decls.declaration()->as<VarDeclaration>().var();
+            if (is_input(*var)) {
                 this->write(separator);
                 separator = ", ";
-                this->writeName(var.mangledName());
+                this->writeName(var->mangledName());
             }
         }
     }
@@ -2326,13 +2326,13 @@ void MetalCodeGenerator::writeName(std::string_view name) {
 }
 
 void MetalCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl) {
-    this->writeModifiers(varDecl.var().modifiers());
-    this->writeType(varDecl.var().type());
+    this->writeModifiers(varDecl.var()->modifiers());
+    this->writeType(varDecl.var()->type());
     this->write(" ");
-    this->writeName(varDecl.var().mangledName());
+    this->writeName(varDecl.var()->mangledName());
     if (varDecl.value()) {
         this->write(" = ");
-        this->writeVarInitializer(varDecl.var(), *varDecl.value());
+        this->writeVarInitializer(*varDecl.var(), *varDecl.value());
     }
     this->write(";");
 }
@@ -2569,7 +2569,7 @@ void MetalCodeGenerator::writeUniformStruct() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-            const Variable& var = decls.declaration()->as<VarDeclaration>().var();
+            const Variable& var = *decls.declaration()->as<VarDeclaration>().var();
             if (var.modifiers().fFlags & Modifiers::kUniform_Flag &&
                 var.type().typeKind() != Type::TypeKind::kSampler &&
                 var.type().typeKind() != Type::TypeKind::kTexture) {
@@ -2601,7 +2601,7 @@ void MetalCodeGenerator::writeInputStruct() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-            const Variable& var = decls.declaration()->as<VarDeclaration>().var();
+            const Variable& var = *decls.declaration()->as<VarDeclaration>().var();
             if (is_input(var)) {
                 this->write("    ");
                 if (ProgramConfig::IsCompute(fProgram.fConfig->fKind) &&
@@ -2641,7 +2641,7 @@ void MetalCodeGenerator::writeOutputStruct() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-            const Variable& var = decls.declaration()->as<VarDeclaration>().var();
+            const Variable& var = *decls.declaration()->as<VarDeclaration>().var();
             if (is_output(var)) {
                 this->write("    ");
                 if (ProgramConfig::IsCompute(fProgram.fConfig->fKind) &&
@@ -2735,7 +2735,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
         }
         const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
         const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
-        const Variable& var = decl.var();
+        const Variable& var = *decl.var();
         if (var.type().typeKind() == Type::TypeKind::kSampler) {
             visitor->visitSampler(var.type(), var.mangledName());
             continue;
@@ -2887,7 +2887,7 @@ void MetalCodeGenerator::visitThreadgroupStruct(ThreadgroupStructVisitor* visito
         }
         const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
         const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
-        const Variable& var = decl.var();
+        const Variable& var = *decl.var();
         if (var.modifiers().fFlags & Modifiers::kThreadgroup_Flag) {
             SkASSERT(!decl.value());
             SkASSERT(!(var.modifiers().fFlags & Modifiers::kConst_Flag));

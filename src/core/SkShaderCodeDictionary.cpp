@@ -659,7 +659,7 @@ public:
             , fPreamble(preamble) {}
 
     std::string declareUniform(const SkSL::VarDeclaration* decl) override {
-        std::string result = get_mangled_name(std::string(decl->var().name()), fEntryIndex);
+        std::string result = get_mangled_name(std::string(decl->var()->name()), fEntryIndex);
         if (fShaderInfo.ssboIndex()) {
             result = skgpu::graphite::EmitStorageBufferAccess(
                     "fs", fShaderInfo.ssboIndex(), result.c_str());

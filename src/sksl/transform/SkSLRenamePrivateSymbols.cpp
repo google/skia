@@ -175,7 +175,7 @@ void Transform::RenamePrivateSymbols(Context& context, LoadedModule& module, Pro
             if (stmt->is<VarDeclaration>()) {
                 // Minify the variable's name.
                 VarDeclaration& decl = stmt->as<VarDeclaration>();
-                this->minifyVariableName(&decl.var());
+                this->minifyVariableName(decl.var());
             }
 
             return INHERITED::visitStatementPtr(stmt);

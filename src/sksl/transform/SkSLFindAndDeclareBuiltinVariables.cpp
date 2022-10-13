@@ -88,7 +88,7 @@ public:
     }
 
     static std::string_view GlobalVarBuiltinName(const ProgramElement& elem) {
-        return elem.as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>().var().name();
+        return elem.as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>().var()->name();
     }
 
     static std::string_view InterfaceBlockName(const ProgramElement& elem) {

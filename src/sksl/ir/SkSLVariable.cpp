@@ -61,14 +61,14 @@ GlobalVarDeclaration* Variable::globalVarDeclaration() const {
 }
 
 void Variable::setVarDeclaration(VarDeclaration* declaration) {
-    SkASSERT(!fDeclaringElement || this == &declaration->var());
+    SkASSERT(!fDeclaringElement || this == declaration->var());
     if (!fDeclaringElement) {
         fDeclaringElement = declaration;
     }
 }
 
 void Variable::setGlobalVarDeclaration(GlobalVarDeclaration* global) {
-    SkASSERT(!fDeclaringElement || this == &global->declaration()->as<VarDeclaration>().var());
+    SkASSERT(!fDeclaringElement || this == global->declaration()->as<VarDeclaration>().var());
     fDeclaringElement = global;
 }
 

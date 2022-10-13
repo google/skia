@@ -173,9 +173,9 @@ void PipelineStageCodeGenerator::writeChildCall(const ChildCall& c) {
         if (p->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
             const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
-            if (&decl.var() == &c.child()) {
+            if (decl.var() == &c.child()) {
                 found = true;
-            } else if (decl.var().type().isEffectChild()) {
+            } else if (decl.var()->type().isEffectChild()) {
                 ++index;
             }
         }
@@ -420,7 +420,7 @@ void PipelineStageCodeGenerator::writeFunctionDeclaration(const FunctionDeclarat
 
 void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& g) {
     const VarDeclaration& decl = g.declaration()->as<VarDeclaration>();
-    const Variable& var = decl.var();
+    const Variable& var = *decl.var();
 
     if (var.isBuiltin() || var.type().isOpaque()) {
         // Don't re-declare these. (eg, sk_FragCoord, or fragmentProcessor children)
@@ -683,8 +683,8 @@ std::string PipelineStageCodeGenerator::typedVariable(const Type& type, std::str
 }
 
 void PipelineStageCodeGenerator::writeVarDeclaration(const VarDeclaration& var) {
-    this->write(this->modifierString(var.var().modifiers()));
-    this->write(this->typedVariable(var.var().type(), var.var().name()));
+    this->write(this->modifierString(var.var()->modifiers()));
+    this->write(this->typedVariable(var.var()->type(), var.var()->name()));
     if (var.value()) {
         this->write(" = ");
         this->writeExpression(*var.value(), Precedence::kTopLevel);
