@@ -30,7 +30,6 @@
 
 namespace SkSL {
 
-class Symbol;
 struct Program;
 
 namespace {
@@ -120,7 +119,7 @@ std::unique_ptr<ProgramUsage> Analysis::GetUsage(const LoadedModule& module,
         addRefs.visitProgramElement(*element);
     }
     if (base) {
-        base->foreach([&](const Symbol*, const ProgramElement& element) {
+        base->foreach([&](const ProgramElement& element) {
             addRefs.visitProgramElement(element);
         });
     }
