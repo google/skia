@@ -308,7 +308,10 @@ public:
         }
         this->buildNameToFamilyMap(families, custom ? custom->fIsolated : false);
         this->findDefaultStyleSet();
-        families.deleteAll();
+        for (FontFamily* p : families) {
+            delete p;
+        }
+        families.reset();
     }
 
 protected:

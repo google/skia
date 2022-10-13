@@ -238,28 +238,6 @@ public:
     }
     void pop_back() { fStorage.pop_back(); }
 
-    void deleteAll() {
-        for (T p : *this) {
-            delete p;
-        }
-        this->reset();
-    }
-
-    void freeAll() {
-        for (T p : *this) {
-            sk_free(p);
-        }
-
-        this->reset();
-    }
-
-    void unrefAll() {
-        for (T p : *this) {
-            p->unref();
-        }
-        this->reset();
-    }
-
     void shrink_to_fit() {
         fStorage.shrink_to_fit();
     }

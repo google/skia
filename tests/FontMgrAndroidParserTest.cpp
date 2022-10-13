@@ -193,7 +193,10 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
     } else {
         resourcesMissing = true;
     }
-    preV17FontFamilies.deleteAll();
+    for (FontFamily* p : preV17FontFamilies) {
+        delete p;
+    }
+    preV17FontFamilies.reset();
 
 
     SkTDArray<FontFamily*> v17FontFamilies;
@@ -212,7 +215,10 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
     } else {
         resourcesMissing = true;
     }
-    v17FontFamilies.deleteAll();
+    for (FontFamily* p : v17FontFamilies) {
+        delete p;
+    }
+    v17FontFamilies.reset();
 
 
     SkTDArray<FontFamily*> v22FontFamilies;
@@ -230,7 +236,10 @@ DEF_TEST(FontMgrAndroidParser, reporter) {
     } else {
         resourcesMissing = true;
     }
-    v22FontFamilies.deleteAll();
+    for (FontFamily* p : v22FontFamilies) {
+        delete p;
+    }
+    v22FontFamilies.reset();
 
     if (resourcesMissing) {
         SkDebugf("---- Resource files missing for FontConfigParser test\n");

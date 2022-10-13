@@ -21,7 +21,10 @@
 #include <new>
 
 SkDrawableList::~SkDrawableList() {
-    fArray.unrefAll();
+    for(SkDrawable* p : fArray) {
+        p->unref();
+    }
+    fArray.reset();
 }
 
 SkBigPicture::SnapshotArray* SkDrawableList::newDrawableSnapshot() {

@@ -70,5 +70,8 @@ void List::changed() {
 
 void List::reset() {
     SkAutoMutexExclusive lock(fMutex);
-    fListeners.unrefAll();
+    for(SkIDChangeListener* p : fListeners) {
+        p->unref();
+    }
+    fListeners.reset();
 }
