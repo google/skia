@@ -53,10 +53,10 @@ PathRendererChain::PathRendererChain(GrRecordingContext* context, const Options&
     if (options.fGpuPathRenderers & GpuPathRenderers::kSmall) {
         fChain.push_back(sk_make_sp<SmallPathRenderer>());
     }
-#endif
     if (options.fGpuPathRenderers & GpuPathRenderers::kTriangulating) {
         fChain.push_back(sk_make_sp<TriangulatingPathRenderer>());
     }
+#endif
     if (options.fGpuPathRenderers & GpuPathRenderers::kTessellation) {
         if (TessellationPathRenderer::IsSupported(caps)) {
             auto tess = sk_make_sp<TessellationPathRenderer>();

@@ -13,6 +13,8 @@
 #include <vector>
 #include <unordered_map>
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #if TRIANGULATOR_LOGGING
 #define TESS_LOG SkDebugf
 #define DUMP_MESH(MESH) (MESH).dump()
@@ -710,3 +712,5 @@ int GrAATriangulator::polysToAATriangles(Poly* polys,
     vertexAllocator->unlock(actualCount);
     return actualCount;
 }
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

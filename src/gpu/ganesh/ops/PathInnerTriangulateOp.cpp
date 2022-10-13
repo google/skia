@@ -16,6 +16,8 @@
 #include "src/gpu/ganesh/tessellate/GrPathTessellationShader.h"
 #include "src/gpu/ganesh/tessellate/PathTessellator.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 namespace skgpu::v1 {
 
 namespace {
@@ -472,3 +474,5 @@ void PathInnerTriangulateOp::onExecute(GrOpFlushState* flushState, const SkRect&
 }
 
 } // namespace skgpu::v1
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

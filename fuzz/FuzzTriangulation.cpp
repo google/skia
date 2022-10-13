@@ -12,8 +12,9 @@
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 #include "src/gpu/ganesh/geometry/GrTriangulator.h"
 
-DEF_FUZZ(Triangulation, fuzz) {
 
+DEF_FUZZ(Triangulation, fuzz) {
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     SkPath path;
     FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
 
@@ -32,4 +33,5 @@ DEF_FUZZ(Triangulation, fuzz) {
     if (count > 0) {
         allocator.detachVertexData(); // normally handled by the triangulating path renderer.
     }
+#endif // SK_ENABLE_OPTIMIZE_SIZE
 }

@@ -13,6 +13,8 @@
 #include "src/gpu/ganesh/geometry/GrTriangulator.h"
 #include <vector>
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 struct TigerPath {
     const char* fVerbs;
     std::vector<SkPoint> fPoints;
@@ -581,3 +583,5 @@ TigerPath kTigerPaths[] = {
 };
 
 int kNumTigerPaths = (int)std::size(kTigerPaths);
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

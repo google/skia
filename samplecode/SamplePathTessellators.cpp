@@ -79,6 +79,7 @@ private:
 
         PathTessellator::PathDrawList pathList{pathMatrix, fPath, kCyan};
         if (fMode == Mode::kCurveMiddleOut) {
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
             // This emulates what PathStencilCoverOp does when using curves, except we include the
             // middle-out triangles directly in the written patches for convenience (normally they
             // use a simple triangle pipeline). But PathCurveTessellator only knows how to read
@@ -99,6 +100,12 @@ private:
             tess->prepareWithTriangles(flushState, shaderMatrix, &triangles, pathList,
                                        fPath.countVerbs());
             fTessellator = tess;
+#else
+            auto* tess = PathCurveTessellator::Make(alloc, shaderCaps.fInfinitySupport);
+            tess->prepareWithTriangles(flushState, shaderMatrix, nullptr, pathList,
+                                       fPath.countVerbs());
+            fTessellator = tess;
+#endif
         } else {
             // This emulates what PathStencilCoverOp does when using wedges.
             fTessellator = PathWedgeTessellator::Make(alloc, shaderCaps.fInfinitySupport);

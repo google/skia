@@ -8,6 +8,8 @@
 #ifndef GrAATriangulator_DEFINED
 #define GrAATriangulator_DEFINED
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #include "src/gpu/ganesh/geometry/GrTriangulator.h"
 
 // Triangulates the given path in device space with a mesh of alpha ramps for antialiasing.
@@ -84,4 +86,6 @@ private:
     mutable VertexList fOuterMesh;
 };
 
-#endif
+#endif // SK_ENABLE_OPTIMIZE_SIZE
+
+#endif // GrAATriangulator_DEFINED

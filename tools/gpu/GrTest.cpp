@@ -69,7 +69,9 @@ DRAW_OP_TEST_EXTERN(ShadowRRectOp);
 DRAW_OP_TEST_EXTERN(SmallPathOp);
 #endif
 DRAW_OP_TEST_EXTERN(TextureOpImpl);
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 DRAW_OP_TEST_EXTERN(TriangulatingPathOp);
+#endif
 
 void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPaint&& paint) {
     auto rContext = sdc->recordingContext();
@@ -107,7 +109,9 @@ void GrDrawRandomOp(SkRandom* random, skgpu::v1::SurfaceDrawContext* sdc, GrPain
             DRAW_OP_TEST_ENTRY(SmallPathOp),
 #endif
             DRAW_OP_TEST_ENTRY(TextureOpImpl),
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
             DRAW_OP_TEST_ENTRY(TriangulatingPathOp),
+#endif
     };
 
     static constexpr size_t kTotal = std::size(gFactories);

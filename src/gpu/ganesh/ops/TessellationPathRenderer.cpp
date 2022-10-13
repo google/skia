@@ -35,6 +35,7 @@ GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
                                     const SkPath& path,
                                     GrPaint&& paint) {
     SkASSERT(!path.isConvex() || path.isInverseFillType());
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     int numVerbs = path.countVerbs();
     if (numVerbs > 0 && !path.isInverseFillType()) {
         // Check if the path is large and/or simple enough that we can triangulate the inner fan
@@ -58,6 +59,8 @@ GrOp::Owner make_non_convex_fill_op(GrRecordingContext* rContext,
             }
         } // we should be clipped out when the GrClip is analyzed, so just return the default op
     }
+#endif
+
     return GrOp::Make<skgpu::v1::PathStencilCoverOp>(rContext,
                                                      arena,
                                                      viewMatrix,

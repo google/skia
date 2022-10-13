@@ -133,6 +133,7 @@ static void test_path(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, SkPathPriv::GenIDChangeListenersCount(path) == 1);
 }
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 // Test that deleting the original path invalidates the VBs cached by the tessellating path renderer
 DEF_GANESH_TEST(TriangulatingPathRendererCacheTest,
                 reporter,
@@ -157,6 +158,7 @@ DEF_GANESH_TEST(TriangulatingPathRendererCacheTest,
     test_path(reporter, create_concave_path, createPR, kExpectedResources, false, GrAAType::kNone,
               style);
 }
+#endif
 
 // Test that deleting the original path invalidates the textures cached by the SW path renderer
 DEF_GANESH_TEST(SoftwarePathRendererCacheTest,

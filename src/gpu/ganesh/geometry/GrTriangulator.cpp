@@ -16,6 +16,7 @@
 
 #include <algorithm>
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #if TRIANGULATOR_LOGGING
 #define TESS_LOG printf
@@ -1663,3 +1664,5 @@ int GrTriangulator::polysToTriangles(Poly* polys, GrEagerVertexAllocator* vertex
     vertexAllocator->unlock(actualCount);
     return actualCount;
 }
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE

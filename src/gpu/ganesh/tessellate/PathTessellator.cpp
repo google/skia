@@ -159,12 +159,20 @@ void PathCurveTessellator::prepareWithTriangles(
         GrInnerFanTriangulator::BreadcrumbTriangleList* extraTriangles,
         const PathDrawList& pathDrawList,
         int totalCombinedPathVerbCnt) {
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     int patchPreallocCount = FixedCountCurves::PreallocCount(totalCombinedPathVerbCnt) +
                              (extraTriangles ? extraTriangles->count() : 0);
+#else
+    SkASSERT(!extraTriangles);
+    int patchPreallocCount = FixedCountCurves::PreallocCount(totalCombinedPathVerbCnt);
+#endif
+
+
     if (patchPreallocCount) {
         LinearTolerances worstCase;
         CurveWriter writer{fAttribs, &worstCase, target, &fVertexChunkArray, patchPreallocCount};
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
         // Write out extra space-filling triangles to connect the curve patches with any external
         // source of geometry (e.g. inner triangulation that handles winding explicitly).
         if (extraTriangles) {
@@ -186,6 +194,7 @@ void PathCurveTessellator::prepareWithTriangles(
             }
             SkASSERT(breadcrumbCount == extraTriangles->count());
         }
+#endif
 
         write_curve_patches(std::move(writer), shaderMatrix, pathDrawList);
         fMaxVertexCount = FixedCountCurves::VertexCount(worstCase);

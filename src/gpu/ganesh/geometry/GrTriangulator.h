@@ -8,6 +8,8 @@
 #ifndef GrTriangulator_DEFINED
 #define GrTriangulator_DEFINED
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/private/SkColorData.h"
@@ -509,4 +511,6 @@ struct GrTriangulator::Comparator {
     Direction fDirection;
 };
 
-#endif
+#endif // SK_ENABLE_OPTIMIZE_SIZE
+
+#endif // GrTriangulator_DEFINED

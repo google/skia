@@ -24,6 +24,8 @@
 #include "tools/ToolUtils.h"
 #include <map>
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 /*
  * These tests pass by not crashing, hanging or asserting in Debug.
  */
@@ -1317,3 +1319,5 @@ static void test_crbug_1262444(skiatest::Reporter* r) {
 DEF_TEST(TriangulatorBugs, r) {
     test_crbug_1262444(r);
 }
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE
