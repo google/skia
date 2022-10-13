@@ -7,7 +7,11 @@
 
 #include "include/gpu/graphite/BackendTexture.h"
 
+#include "src/gpu/MutableTextureStateRef.h"
+
 namespace skgpu::graphite {
+
+BackendTexture::BackendTexture() {}
 
 BackendTexture::~BackendTexture() {}
 
@@ -71,6 +75,10 @@ bool BackendTexture::operator==(const BackendTexture& that) const {
     return true;
 }
 
+void BackendTexture::setMutableState(const skgpu::MutableTextureState& newState) {
+    fMutableState->set(newState);
+}
+
 #ifdef SK_METAL
 BackendTexture::BackendTexture(SkISize dimensions, MtlHandle mtlTexture)
         : fDimensions(dimensions)
@@ -83,8 +91,42 @@ MtlHandle BackendTexture::getMtlTexture() const {
     }
     return nullptr;
 }
+#endif // SK_METAL
 
-#endif
+#ifdef SK_VULKAN
+BackendTexture::BackendTexture(SkISize dimensions,
+                               const VulkanTextureInfo& info,
+                               VkImageLayout layout,
+                               uint32_t queueFamilyIndex,
+                               VkImage image)
+        : fDimensions(dimensions)
+        , fInfo(info)
+        , fMutableState(new MutableTextureStateRef(layout, queueFamilyIndex))
+        , fVkImage(image) {}
+
+VkImage BackendTexture::getVkImage() const {
+    if (this->isValid() && this->backend() == BackendApi::kVulkan) {
+        return fVkImage;
+    }
+    return VK_NULL_HANDLE;
+}
+
+VkImageLayout BackendTexture::getVkImageLayout() const {
+    if (this->isValid() && this->backend() == BackendApi::kVulkan) {
+        SkASSERT(fMutableState);
+        return fMutableState->getImageLayout();
+    }
+    return VK_IMAGE_LAYOUT_UNDEFINED;
+}
+
+uint32_t BackendTexture::getVkQueueFamilyIndex() const {
+    if (this->isValid() && this->backend() == BackendApi::kVulkan) {
+        SkASSERT(fMutableState);
+        return fMutableState->getQueueFamilyIndex();
+    }
+    return 0;
+}
+#endif // SK_VULKAN
 
 } // namespace skgpu::graphite
 

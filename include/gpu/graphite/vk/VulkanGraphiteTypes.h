@@ -24,8 +24,6 @@ struct VulkanTextureInfo {
     VkImageTiling            fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     VkImageUsageFlags        fImageUsageFlags = 0;
     VkSharingMode            fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    uint32_t                 fCurrentQueueFamily = VK_QUEUE_FAMILY_IGNORED;
-    VkImageLayout            fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
     // Properties related to the image view and sampling. These are less inherent properties of the
     // VkImage but describe how the VkImage should be used within Skia.
@@ -47,8 +45,6 @@ struct VulkanTextureInfo {
                       VkImageTiling imageTiling,
                       VkImageUsageFlags imageUsageFlags,
                       VkSharingMode sharingMode,
-                      uint32_t currentQueueFamily,
-                      VkImageLayout imageLayout,
                       VkImageAspectFlags aspectMask)
             : fSampleCount(sampleCount)
             , fLevelCount(levelCount)
@@ -57,8 +53,6 @@ struct VulkanTextureInfo {
             , fImageTiling(imageTiling)
             , fImageUsageFlags(imageUsageFlags)
             , fSharingMode(sharingMode)
-            , fCurrentQueueFamily(currentQueueFamily)
-            , fImageLayout(imageLayout)
             , fAspectMask(aspectMask) {}
 };
 

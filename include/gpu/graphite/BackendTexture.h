@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_BackendTexture_DEFINED
 #define skgpu_graphite_BackendTexture_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/TextureInfo.h"
@@ -20,15 +21,28 @@
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #endif
 
+namespace skgpu {
+class MutableTextureState;
+class MutableTextureStateRef;
+}
+
 namespace skgpu::graphite {
 
 class BackendTexture {
 public:
-    BackendTexture() {}
+    BackendTexture();
 #ifdef SK_METAL
     // The BackendTexture will not call retain or release on the passed in MtlHandle. Thus the
     // client must keep the MtlHandle valid until they are no longer using the BackendTexture.
     BackendTexture(SkISize dimensions, MtlHandle mtlTexture);
+#endif
+
+#ifdef SK_VULKAN
+    BackendTexture(SkISize dimensions,
+                   const VulkanTextureInfo&,
+                   VkImageLayout,
+                   uint32_t queueFamilyIndex,
+                   VkImage);
 #endif
 
     BackendTexture(const BackendTexture&);
@@ -47,13 +61,30 @@ public:
 
     const TextureInfo& info() const { return fInfo; }
 
+    // If the client changes any of the mutable backend of the GrBackendTexture they should call
+    // this function to inform Skia that those values have changed. The backend API specific state
+    // that can be set from this function are:
+    //
+    // Vulkan: VkImageLayout and QueueFamilyIndex
+    void setMutableState(const skgpu::MutableTextureState&);
+
 #ifdef SK_METAL
     MtlHandle getMtlTexture() const;
 #endif
 
+#ifdef SK_VULKAN
+    VkImage getVkImage() const;
+    VkImageLayout getVkImageLayout() const;
+    uint32_t getVkQueueFamilyIndex() const;
+#endif
+
 private:
+    sk_sp<MutableTextureStateRef> mutableState() const;
+
     SkISize fDimensions;
     TextureInfo fInfo;
+
+    sk_sp<MutableTextureStateRef> fMutableState;
 
     union {
 #ifdef SK_METAL

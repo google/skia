@@ -106,6 +106,7 @@ void RunWithGraphiteTestContexts(GraphiteTestFn* test, GrContextTypeFilterFn* fi
             continue;
         }
 
+        ReporterContext ctx(reporter, SkString(GrContextFactory::ContextTypeName(contextType)));
         (*test)(reporter, context);
     }
 }

@@ -18,7 +18,6 @@ public:
 #ifdef SK_VULKAN
     MutableTextureStateRef(VkImageLayout layout, uint32_t queueFamilyIndex)
             : fState(layout, queueFamilyIndex) {}
-
 #endif
 
     void set(const MutableTextureState& state) { fState = state; }

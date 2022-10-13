@@ -19,8 +19,6 @@ VulkanTextureInfo VulkanTextureSpecToTextureInfo(const VulkanTextureSpec& vkSpec
                              vkSpec.fImageTiling,
                              vkSpec.fImageUsageFlags,
                              vkSpec.fSharingMode,
-                             vkSpec.fCurrentQueueFamily,
-                             vkSpec.fImageLayout,
                              vkSpec.fAspectMask);
 }
 

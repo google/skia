@@ -26,6 +26,12 @@ namespace {
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(BackendTextureTest, reporter, context) {
+    // TODO: Remove this check once Vulkan supports creating default TexutreInfo from caps and we
+    // implement createBackendTexture.
+    if (context->backend() == BackendApi::kVulkan) {
+        return;
+    }
+
     auto caps = context->priv().caps();
     auto recorder = context->makeRecorder();
 
@@ -82,6 +88,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SurfaceBackendTextureTest, reporter, context)
     // to cover a much broader set of things once we add more support in Graphite for different
     // formats, color types, etc.
 
+    // TODO: Remove this check once Vulkan supports creating default TexutreInfo from caps and we
+    // implement createBackendTexture.
+    if (context->backend() == BackendApi::kVulkan) {
+        return;
+    }
+
     auto caps = context->priv().caps();
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
@@ -137,6 +149,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context) {
     // to cover a much broader set of things once we add more support in Graphite for different
     // formats, color types, etc.
 
+    // TODO: Remove this check once Vulkan supports creating default TexutreInfo from caps and we
+    // implement createBackendTexture.
+    if (context->backend() == BackendApi::kVulkan) {
+        return;
+    }
+
     const Caps* caps = context->priv().caps();
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
@@ -174,3 +192,38 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context) {
         }
     }
 }
+
+#ifdef SK_VULKAN
+DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureMutableStateTest, reporter, context) {
+    VulkanTextureInfo info(/*sampleCount=*/1,
+                           /*levelCount=*/1,
+                           /*flags=*/0,
+                           VK_FORMAT_R8G8B8A8_UNORM,
+                           VK_IMAGE_TILING_OPTIMAL,
+                           VK_IMAGE_USAGE_SAMPLED_BIT,
+                           VK_SHARING_MODE_EXCLUSIVE,
+                           VK_IMAGE_ASPECT_COLOR_BIT);
+
+    BackendTexture texture({16, 16},
+                           info,
+                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                           /*queueFamilyIndex=*/1,
+                           VK_NULL_HANDLE);
+
+    REPORTER_ASSERT(reporter, texture.isValid());
+    REPORTER_ASSERT(reporter,
+                    texture.getVkImageLayout() == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    REPORTER_ASSERT(reporter, texture.getVkQueueFamilyIndex() == 1);
+
+    skgpu::MutableTextureState newState(VK_IMAGE_LAYOUT_GENERAL, 0);
+    texture.setMutableState(newState);
+
+    REPORTER_ASSERT(reporter,
+                    texture.getVkImageLayout() == VK_IMAGE_LAYOUT_GENERAL);
+    REPORTER_ASSERT(reporter, texture.getVkQueueFamilyIndex() == 0);
+
+    // TODO: Add to this test to check that the setMutableState calls also update values we see in
+    // wrapped VulkanTextures once we have them. Also check that updates in VulkanTexture are also
+    // visible in the getters of BackendTexture. We will need a real VkImage to do these tests.
+}
+#endif // SK_VULKAN
