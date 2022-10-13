@@ -9,6 +9,8 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "src/sksl/SkSLBuiltinMap.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -31,8 +33,9 @@ BuiltinMap::BuiltinMap(const BuiltinMap* parent,
     for (std::unique_ptr<ProgramElement>& element : elements) {
         switch (element->kind()) {
             case ProgramElement::Kind::kFunction: {
-                // We don't look these up from the BuiltinMap anymore, but we can't delete them.
-                fUnmappedElements.push_back(std::move(element));
+                const FunctionDeclaration& decl = element->as<FunctionDefinition>().declaration();
+                SkASSERT(decl.isBuiltin());
+                this->insertOrDie(&decl, std::move(element));
                 break;
             }
             case ProgramElement::Kind::kFunctionPrototype: {
