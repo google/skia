@@ -111,144 +111,6 @@ static const constexpr bool kTrace = true;
 static const constexpr bool kTrace = false;
 #endif
 
-/*
-// -- TransformedMaskVertexFiller ------------------------------------------------------------------
-class TransformedMaskVertexFiller {
-public:
-    TransformedMaskVertexFiller(MaskFormat maskFormat,
-                                SkScalar strikeToSourceScale,
-                                SkRect sourceBounds,
-                                SkSpan<const SkPoint> leftTop);
-
-    static TransformedMaskVertexFiller Make(SkRect sourceBounds,
-                                            MaskFormat maskType,
-                                            int strikePadding,
-                                            SkScalar strikeToSourceScale,
-                                            const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                            SubRunAllocator* alloc);
-
-    static std::optional<TransformedMaskVertexFiller> MakeFromBuffer(
-            SkReadBuffer& buffer, SubRunAllocator* alloc);
-    int unflattenSize() const;
-    void flatten(SkWriteBuffer& buffer) const;
-
-#if SK_SUPPORT_GPU
-    size_t vertexStride(const SkMatrix& matrix) const {
-        if (fMaskType != MaskFormat::kARGB) {
-            // For formats MaskFormat::kA565 and MaskFormat::kA8 where A8 include SDF.
-            return matrix.hasPerspective() ? sizeof(Mask3DVertex) : sizeof(Mask2DVertex);
-        } else {
-            // For format MaskFormat::kARGB
-            return matrix.hasPerspective() ? sizeof(ARGB3DVertex) : sizeof(ARGB2DVertex);
-        }
-    }
-
-    void fillVertexData(int offset, int count,
-                        SkSpan<const Glyph*> glyphs,
-                        GrColor color,
-                        const SkMatrix& positionMatrix,
-                        SkIRect clip,
-                        void* vertexBuffer) const;
-
-#endif  // SK_SUPPORT_GPU
-#if defined(SK_GRAPHITE_ENABLED)
-    SkRect localRect() const { return fSourceBounds; }
-
-    void fillVertexData(DrawWriter* dw,
-                        int offset, int count,
-                        int ssboIndex,
-                        SkSpan<const Glyph*> glyphs,
-                        SkScalar depth,
-                        const skgpu::graphite::Transform& toDevice) const;
-    void fillInstanceData(DrawWriter* dw,
-                          int offset, int count,
-                          unsigned short flags,
-                          int ssboIndex,
-                          SkSpan<const Glyph*> glyphs,
-                          SkScalar depth) const;
-#endif
-    SkRect deviceRect(const SkMatrix& drawMatrix, SkPoint drawOrigin) const;
-    MaskFormat grMaskType() const {return fMaskType;}
-    int count() const { return SkCount(fLeftTop); }
-
-private:
-    struct AtlasPt {
-        uint16_t u;
-        uint16_t v;
-    };
-
-#if SK_SUPPORT_GPU
-    // Normal text mask, SDFT, or color.
-    struct Mask2DVertex {
-        SkPoint devicePos;
-        GrColor color;
-        AtlasPt atlasPos;
-    };
-
-    struct ARGB2DVertex {
-        ARGB2DVertex(SkPoint d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
-
-        SkPoint devicePos;
-        AtlasPt atlasPos;
-    };
-
-    // Perspective SDFT or SDFT forced to 3D or perspective color.
-    struct Mask3DVertex {
-        SkPoint3 devicePos;
-        GrColor color;
-        AtlasPt atlasPos;
-    };
-
-    struct ARGB3DVertex {
-        ARGB3DVertex(SkPoint3 d, GrColor, AtlasPt a) : devicePos{d}, atlasPos{a} {}
-
-        SkPoint3 devicePos;
-        AtlasPt atlasPos;
-    };
-
-    template<typename Quad, typename VertexData>
-    void fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
-                GrColor color,
-                const SkMatrix& matrix) const;
-
-    template<typename Quad, typename VertexData>
-    void fill3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
-                GrColor color,
-                const SkMatrix& matrix) const;
-#endif  // SK_SUPPORT_GPU
-
-    const MaskFormat fMaskType;
-    const SkScalar fStrikeToSourceScale;
-    const SkRect fSourceBounds;
-    const SkSpan<const SkPoint> fLeftTop;
-};
-
-TransformedMaskVertexFiller::TransformedMaskVertexFiller(
-        MaskFormat maskFormat,
-        SkScalar strikeToSourceScale,
-        SkRect sourceBounds,
-        SkSpan<const SkPoint> leftTop)
-        : fMaskType{maskFormat}
-        , fStrikeToSourceScale{strikeToSourceScale}
-        , fSourceBounds{sourceBounds}
-        , fLeftTop{leftTop} {}
-
-TransformedMaskVertexFiller TransformedMaskVertexFiller::Make(
-        SkRect sourceBounds,
-        MaskFormat maskType,
-        int strikePadding,
-        SkScalar strikeToSourceScale,
-        const SkZip<SkGlyphVariant, SkPoint>& accepted,
-        SubRunAllocator* alloc) {
-    SkSpan<SkPoint> leftTop = alloc->makePODArray<SkPoint>(
-            accepted,
-            [&](auto e) -> SkPoint {
-                auto [variant, pos] = e;
-                return pos;
-            });
-    return TransformedMaskVertexFiller{maskType, strikeToSourceScale, sourceBounds, leftTop};
-}
-*/
 // Returns the empty span if there is a problem reading the positions.
 SkSpan<SkPoint> make_points_from_buffer(SkReadBuffer& buffer, SubRunAllocator* alloc) {
     uint32_t glyphCount = buffer.getArrayCount();
@@ -264,207 +126,9 @@ SkSpan<SkPoint> make_points_from_buffer(SkReadBuffer& buffer, SubRunAllocator* a
     if (!buffer.readPointArray(positionsData, glyphCount)) { return {}; }
     return {positionsData, glyphCount};
 }
-/*
-std::optional<TransformedMaskVertexFiller> TransformedMaskVertexFiller::MakeFromBuffer(
-        SkReadBuffer& buffer, SubRunAllocator* alloc) {
-    int checkingMaskType = buffer.readInt();
-    if (!buffer.validate(0 <= checkingMaskType && checkingMaskType < skgpu::kMaskFormatCount)) {
-        return std::nullopt;
-    }
-    MaskFormat maskType = (MaskFormat)checkingMaskType;
 
-    SkScalar strikeToSourceScale = buffer.readScalar();
-    if (!buffer.validate(0 < strikeToSourceScale)) { return std::nullopt; }
-
-    SkRect sourceBounds = buffer.readRect();
-
-    SkSpan<SkPoint> leftTop = make_points_from_buffer(buffer, alloc);
-    if (leftTop.empty()) { return std::nullopt; }
-
-    SkASSERT(buffer.isValid());
-    return {TransformedMaskVertexFiller{maskType, strikeToSourceScale, sourceBounds, leftTop}};
-}
-
-void TransformedMaskVertexFiller::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeInt(static_cast<int>(fMaskType));
-    buffer.writeScalar(fStrikeToSourceScale);
-    buffer.writeRect(fSourceBounds);
-    buffer.writePointArray(fLeftTop.data(), SkCount(fLeftTop));
-}
-
-SkRect TransformedMaskVertexFiller::deviceRect(
-        const SkMatrix& drawMatrix, SkPoint drawOrigin) const {
-    SkRect outBounds = fSourceBounds;
-    outBounds.offset(drawOrigin);
-    return drawMatrix.mapRect(outBounds);
-}
-
-int TransformedMaskVertexFiller::unflattenSize() const {
-    return fLeftTop.size_bytes();
-}
-
-#if SK_SUPPORT_GPU
-void TransformedMaskVertexFiller::fillVertexData(int offset, int count,
-                                                 SkSpan<const Glyph*> glyphs,
-                                                 GrColor color,
-                                                 const SkMatrix& positionMatrix,
-                                                 SkIRect clip,
-                                                 void* vertexBuffer) const {
-    auto quadData = [&](auto dst) {
-        return SkMakeZip(dst,
-                         glyphs.subspan(offset, count),
-                         fLeftTop.subspan(offset, count));
-    };
-
-    if (!positionMatrix.hasPerspective()) {
-        if (fMaskType == MaskFormat::kARGB) {
-            using Quad = ARGB2DVertex[4];
-            SkASSERT(sizeof(ARGB2DVertex) == this->vertexStride(positionMatrix));
-            this->fill2D(quadData((Quad*) vertexBuffer), color, positionMatrix);
-        } else {
-            using Quad = Mask2DVertex[4];
-            SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
-            this->fill2D(quadData((Quad*) vertexBuffer), color, positionMatrix);
-        }
-    } else {
-        if (fMaskType == MaskFormat::kARGB) {
-            using Quad = ARGB3DVertex[4];
-            SkASSERT(sizeof(ARGB3DVertex) == this->vertexStride(positionMatrix));
-            this->fill3D(quadData((Quad*) vertexBuffer), color, positionMatrix);
-        } else {
-            using Quad = Mask3DVertex[4];
-            SkASSERT(sizeof(Mask3DVertex) == this->vertexStride(positionMatrix));
-            this->fill3D(quadData((Quad*) vertexBuffer), color, positionMatrix);
-        }
-    }
-}
-
-template<typename Quad, typename VertexData>
-void TransformedMaskVertexFiller::fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
-                                         GrColor color,
-                                         const SkMatrix& positionMatrix) const {
-    for (auto[quad, glyph, leftTop] : quadData) {
-        SkPoint widthHeight = SkPoint::Make(glyph->fAtlasLocator.width() * fStrikeToSourceScale,
-                                            glyph->fAtlasLocator.height() * fStrikeToSourceScale);
-        auto [l, t] = leftTop;
-        auto [r, b] = leftTop + widthHeight;
-        SkPoint lt = positionMatrix.mapXY(l, t),
-                lb = positionMatrix.mapXY(l, b),
-                rt = positionMatrix.mapXY(r, t),
-                rb = positionMatrix.mapXY(r, b);
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        quad[0] = {lt, color, {al, at}};  // L,T
-        quad[1] = {lb, color, {al, ab}};  // L,B
-        quad[2] = {rt, color, {ar, at}};  // R,T
-        quad[3] = {rb, color, {ar, ab}};  // R,B
-    }
-}
-
-template<typename Quad, typename VertexData>
-void TransformedMaskVertexFiller::fill3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
-                                         GrColor color,
-                                         const SkMatrix& positionMatrix) const {
-    auto mapXYZ = [&](SkScalar x, SkScalar y) {
-        SkPoint pt{x, y};
-        SkPoint3 result;
-        positionMatrix.mapHomogeneousPoints(&result, &pt, 1);
-        return result;
-    };
-    for (auto[quad, glyph, leftTop] : quadData) {
-        SkPoint widthHeight = SkPoint::Make(glyph->fAtlasLocator.width() * fStrikeToSourceScale,
-                                            glyph->fAtlasLocator.height() * fStrikeToSourceScale);
-        auto [l, t] = leftTop;
-        auto [r, b] = leftTop + widthHeight;
-        SkPoint3 lt = mapXYZ(l, t),
-                 lb = mapXYZ(l, b),
-                 rt = mapXYZ(r, t),
-                 rb = mapXYZ(r, b);
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        quad[0] = {lt, color, {al, at}};  // L,T
-        quad[1] = {lb, color, {al, ab}};  // L,B
-        quad[2] = {rt, color, {ar, at}};  // R,T
-        quad[3] = {rb, color, {ar, ab}};  // R,B
-    }
-}
-#endif  // SK_SUPPORT_GPU
-
-#if defined(SK_GRAPHITE_ENABLED)
-void TransformedMaskVertexFiller::fillVertexData(DrawWriter* dw,
-                                                 int offset, int count,
-                                                 int ssboIndex,
-                                                 SkSpan<const Glyph*> glyphs,
-                                                 SkScalar depth,
-                                                 const Transform& toDevice) const {
-    auto quadData = [&]() {
-        return SkMakeZip(glyphs.subspan(offset, count),
-                         fLeftTop.subspan(offset, count));
-    };
-
-    // TODO: can't handle perspective right now
-    if (toDevice.type() == Transform::Type::kProjection) {
-        return;
-    }
-
-    DrawWriter::Vertices verts{*dw};
-    verts.reserve(6*count);
-    for (auto [glyph, leftTop]: quadData()) {
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        SkPoint widthHeight = SkPoint::Make(glyph->fAtlasLocator.width() * fStrikeToSourceScale,
-                                            glyph->fAtlasLocator.height() * fStrikeToSourceScale);
-        auto [l, t] = leftTop;
-        auto [r, b] = leftTop + widthHeight;
-        SkV2 localCorners[4] = {{l, t}, {r, t}, {r, b}, {l, b}};
-        SkV4 devOut[4];
-        toDevice.mapPoints(localCorners, devOut, 4);
-        // TODO: Ganesh uses indices but that's not available with dynamic vertex data
-        // TODO: we should really use instances as well.
-        verts.append(6) << SkPoint{devOut[0].x, devOut[0].y} << depth << AtlasPt{al, at}  // L,T
-                        << ssboIndex
-                        << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
-                        << ssboIndex
-                        << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}  // R,T
-                        << ssboIndex
-                        << SkPoint{devOut[3].x, devOut[3].y} << depth << AtlasPt{al, ab}  // L,B
-                        << ssboIndex
-                        << SkPoint{devOut[2].x, devOut[2].y} << depth << AtlasPt{ar, ab}  // R,B
-                        << ssboIndex
-                        << SkPoint{devOut[1].x, devOut[1].y} << depth << AtlasPt{ar, at}  // R,T
-                        << ssboIndex;
-    }
-}
-
-void TransformedMaskVertexFiller::fillInstanceData(DrawWriter* dw,
-                                                   int offset, int count,
-                                                   unsigned short flags,
-                                                   int ssboIndex,
-                                                   SkSpan<const Glyph*> glyphs,
-                                                   SkScalar depth) const {
-    auto quadData = [&]() {
-        return SkMakeZip(glyphs.subspan(offset, count),
-                         fLeftTop.subspan(offset, count));
-    };
-
-    DrawWriter::Instances instances{*dw, {}, {}, 4};
-    instances.reserve(count);
-
-    // Need to send width, height, uvPos, xyPos, and strikeToSourceScale
-    // pre-transform coords = (s*w*b_x + t_x, s*h*b_y + t_y)
-    // where (b_x, b_y) are the vertexID coords
-    for (auto [glyph, leftTop]: quadData()) {
-        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
-        instances.append(1) << AtlasPt{uint16_t(ar-al), uint16_t(ab-at)}
-                            << AtlasPt{uint16_t(al & 0x1fff), at}
-                            << leftTop << uint16_t(al >> 13) << flags
-                            << fStrikeToSourceScale
-                            << depth << ssboIndex;
-    }
-}
-
-#endif
-*/
-
-// -- TransformedMaskVertexFiller2 -----------------------------------------------------------------
-// The TransformedMaskVertexFiller2 assumes that all points, glyph atlas entries, and bounds are
+// -- TransformedMaskVertexFiller ------------------------------------------------------------------
+// The TransformedMaskVertexFiller assumes that all points, glyph atlas entries, and bounds are
 // created with respect to the CreationMatrix. This assumes that mapping any point, mask or
 // bounds through the CreationMatrix will result in the proper device position. In order to draw
 // using an arbitrary PositionMatrix, calculate a
@@ -473,32 +137,32 @@ void TransformedMaskVertexFiller::fillInstanceData(DrawWriter* dw,
 //
 // The viewDifference is used to map all points, masks and bounds to position to the device
 // respecting the PositionMatrix.
-class TransformedMaskVertexFiller2 {
+class TransformedMaskVertexFiller {
 public:
-    TransformedMaskVertexFiller2(MaskFormat maskFormat,
-                                 const SkMatrix& creationMatrix,
-                                 SkRect creationBounds,
-                                 SkSpan<const SkPoint> leftTop)
+    TransformedMaskVertexFiller(MaskFormat maskFormat,
+                                const SkMatrix& creationMatrix,
+                                SkRect creationBounds,
+                                SkSpan<const SkPoint> leftTop)
             : fMaskType{maskFormat}
             , fCreationMatrix{creationMatrix}
             , fCreationBounds{creationBounds}
             , fLeftTop{leftTop} {}
 
-    static TransformedMaskVertexFiller2 Make(MaskFormat maskType,
-                                             const SkMatrix& creationMatrix,
-                                             SkRect creationBounds,
-                                             const SkZip<SkGlyphVariant, SkPoint>& accepted,
-                                             SubRunAllocator* alloc) {
+    static TransformedMaskVertexFiller Make(MaskFormat maskType,
+                                            const SkMatrix& creationMatrix,
+                                            SkRect creationBounds,
+                                            const SkZip<SkGlyphVariant, SkPoint>& accepted,
+                                            SubRunAllocator* alloc) {
         SkSpan<SkPoint> leftTop = alloc->makePODArray<SkPoint>(
                 accepted,
                 [&](auto e) -> SkPoint {
                     auto [variant, pos] = e;
                     return pos;
                 });
-        return TransformedMaskVertexFiller2{maskType, creationMatrix, creationBounds, leftTop};
+        return TransformedMaskVertexFiller{maskType, creationMatrix, creationBounds, leftTop};
     }
 
-    static std::optional<TransformedMaskVertexFiller2> MakeFromBuffer(
+    static std::optional<TransformedMaskVertexFiller> MakeFromBuffer(
             SkReadBuffer& buffer, SubRunAllocator* alloc);
 
     int unflattenSize() const;
@@ -603,7 +267,7 @@ private:
     const SkSpan<const SkPoint> fLeftTop;
 };
 
-std::optional<TransformedMaskVertexFiller2> TransformedMaskVertexFiller2::MakeFromBuffer(
+std::optional<TransformedMaskVertexFiller> TransformedMaskVertexFiller::MakeFromBuffer(
         SkReadBuffer& buffer, SubRunAllocator* alloc) {
     int checkingMaskType = buffer.readInt();
     if (!buffer.validate(0 <= checkingMaskType && checkingMaskType < skgpu::kMaskFormatCount)) {
@@ -620,32 +284,32 @@ std::optional<TransformedMaskVertexFiller2> TransformedMaskVertexFiller2::MakeFr
     if (leftTop.empty()) { return std::nullopt; }
 
     SkASSERT(buffer.isValid());
-    return TransformedMaskVertexFiller2{maskType, creationMatrix, creationBounds, leftTop};
+    return TransformedMaskVertexFiller{maskType, creationMatrix, creationBounds, leftTop};
 }
 
-void TransformedMaskVertexFiller2::flatten(SkWriteBuffer& buffer) const {
+void TransformedMaskVertexFiller::flatten(SkWriteBuffer& buffer) const {
     buffer.writeInt(static_cast<int>(fMaskType));
     buffer.writeMatrix(fCreationMatrix);
     buffer.writeRect(fCreationBounds);
     buffer.writePointArray(fLeftTop.data(), SkCount(fLeftTop));
 }
 
-SkRect TransformedMaskVertexFiller2::deviceRect(const SkMatrix& positionMatrix) const {
+SkRect TransformedMaskVertexFiller::deviceRect(const SkMatrix& positionMatrix) const {
     SkMatrix viewDiff = this->viewDifference(positionMatrix);
     return viewDiff.mapRect(fCreationBounds);
 }
 
-int TransformedMaskVertexFiller2::unflattenSize() const {
+int TransformedMaskVertexFiller::unflattenSize() const {
     return fLeftTop.size_bytes();
 }
 
 #if SK_SUPPORT_GPU
-void TransformedMaskVertexFiller2::fillVertexData(int offset, int count,
-                                                  SkSpan<const Glyph*> glyphs,
-                                                  GrColor color,
-                                                  const SkMatrix& positionMatrix,
-                                                  SkIRect clip,
-                                                  void* vertexBuffer) const {
+void TransformedMaskVertexFiller::fillVertexData(int offset, int count,
+                                                 SkSpan<const Glyph*> glyphs,
+                                                 GrColor color,
+                                                 const SkMatrix& positionMatrix,
+                                                 SkIRect clip,
+                                                 void* vertexBuffer) const {
     auto quadData = [&](auto dst) {
         return SkMakeZip(dst,
                          glyphs.subspan(offset, count),
@@ -678,9 +342,9 @@ void TransformedMaskVertexFiller2::fillVertexData(int offset, int count,
 }
 
 template <typename Quad, typename VertexData>
-void TransformedMaskVertexFiller2::fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
-                                          GrColor color,
-                                          const SkMatrix& viewDifference) const {
+void TransformedMaskVertexFiller::fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
+                                         GrColor color,
+                                         const SkMatrix& viewDifference) const {
     for (auto [quad, glyph, leftTop] : quadData) {
         auto [l, t] = leftTop;
         auto [r, b] = leftTop + glyph->fAtlasLocator.widthHeight();
@@ -697,9 +361,9 @@ void TransformedMaskVertexFiller2::fill2D(SkZip<Quad, const Glyph*, const Vertex
 }
 
 template <typename Quad, typename VertexData>
-void TransformedMaskVertexFiller2::fill3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
-                                          GrColor color,
-                                          const SkMatrix& viewDifference) const {
+void TransformedMaskVertexFiller::fill3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
+                                         GrColor color,
+                                         const SkMatrix& viewDifference) const {
     auto mapXYZ = [&](SkScalar x, SkScalar y) {
         SkPoint pt{x, y};
         SkPoint3 result;
@@ -721,7 +385,7 @@ void TransformedMaskVertexFiller2::fill3D(SkZip<Quad, const Glyph*, const Vertex
     }
 }
 
-AtlasTextOp::MaskType TransformedMaskVertexFiller2::opMaskType() const {
+AtlasTextOp::MaskType TransformedMaskVertexFiller::opMaskType() const {
     switch (fMaskType) {
         case MaskFormat::kA8:   return AtlasTextOp::MaskType::kGrayscaleCoverage;
         case MaskFormat::kA565: return AtlasTextOp::MaskType::kLCDCoverage;
@@ -732,12 +396,12 @@ AtlasTextOp::MaskType TransformedMaskVertexFiller2::opMaskType() const {
 #endif  // SK_SUPPORT_GPU
 
 #if defined(SK_GRAPHITE_ENABLED)
-void TransformedMaskVertexFiller2::fillVertexData(DrawWriter* dw,
-                                                  int offset, int count,
-                                                  int ssboIndex,
-                                                  SkSpan<const Glyph*> glyphs,
-                                                  SkScalar depth,
-                                                  const Transform& toDevice) const {
+void TransformedMaskVertexFiller::fillVertexData(DrawWriter* dw,
+                                                 int offset, int count,
+                                                 int ssboIndex,
+                                                 SkSpan<const Glyph*> glyphs,
+                                                 SkScalar depth,
+                                                 const Transform& toDevice) const {
     auto quadData = [&]() {
         return SkMakeZip(glyphs.subspan(offset, count),
                          fLeftTop.subspan(offset, count));
@@ -774,12 +438,12 @@ void TransformedMaskVertexFiller2::fillVertexData(DrawWriter* dw,
     }
 }
 
-void TransformedMaskVertexFiller2::fillInstanceData(DrawWriter* dw,
-                                                    int offset, int count,
-                                                    unsigned short flags,
-                                                    int ssboIndex,
-                                                    SkSpan<const Glyph*> glyphs,
-                                                    SkScalar depth) const {
+void TransformedMaskVertexFiller::fillInstanceData(DrawWriter* dw,
+                                                   int offset, int count,
+                                                   unsigned short flags,
+                                                   int ssboIndex,
+                                                   SkSpan<const Glyph*> glyphs,
+                                                   SkScalar depth) const {
     auto quadData = [&]() {
         return SkMakeZip(glyphs.subspan(offset, count),
                          fLeftTop.subspan(offset, count));
@@ -2110,7 +1774,7 @@ std::tuple<bool, SkRect> DirectMaskSubRun::deviceRectAndCheckTransform(
 class TransformedMaskSubRun final : public SubRun, public AtlasSubRun {
 public:
     TransformedMaskSubRun(const SkMatrix& initialPositionMatrix,
-                          TransformedMaskVertexFiller2&& vertexFiller,
+                          TransformedMaskVertexFiller&& vertexFiller,
                           GlyphVector&& glyphs)
             : fInitialPositionMatrix{initialPositionMatrix}
             , fVertexFiller{std::move(vertexFiller)}
@@ -2123,7 +1787,7 @@ public:
                             SkRect creationBounds,
                             MaskFormat maskType,
                             SubRunAllocator* alloc) {
-        auto vertexFiller = TransformedMaskVertexFiller2::Make(
+        auto vertexFiller = TransformedMaskVertexFiller::Make(
                 maskType, creationMatrix, creationBounds, accepted, alloc);
 
         auto glyphVector = GlyphVector::Make(std::move(strikePromise), accepted.get<0>(), alloc);
@@ -2136,7 +1800,7 @@ public:
                                       SkReadBuffer& buffer,
                                       SubRunAllocator* alloc,
                                       const SkStrikeClient* client) {
-        auto vertexFiller = TransformedMaskVertexFiller2::MakeFromBuffer(buffer, alloc);
+        auto vertexFiller = TransformedMaskVertexFiller::MakeFromBuffer(buffer, alloc);
         if (!buffer.validate(vertexFiller.has_value())) { return nullptr; }
 
         auto glyphVector = GlyphVector::MakeFromBuffer(buffer, client, alloc);
@@ -2318,7 +1982,7 @@ private:
 
     const SkMatrix& fInitialPositionMatrix;
 
-    const TransformedMaskVertexFiller2 fVertexFiller;
+    const TransformedMaskVertexFiller fVertexFiller;
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
@@ -2371,7 +2035,7 @@ public:
     SDFTSubRun(bool useLCDText,
                bool antiAliased,
                const SDFTMatrixRange& matrixRange,
-               TransformedMaskVertexFiller2&& vertexFiller,
+               TransformedMaskVertexFiller&& vertexFiller,
                GlyphVector&& glyphs)
         : fUseLCDText{useLCDText}
         , fAntiAliased{antiAliased}
@@ -2386,7 +2050,7 @@ public:
                             SkRect creationBounds,
                             const SDFTMatrixRange& matrixRange,
                             SubRunAllocator* alloc) {
-        auto vertexFiller = TransformedMaskVertexFiller2::Make(
+        auto vertexFiller = TransformedMaskVertexFiller::Make(
                 MaskFormat::kA8,
                 creationMatrix,
                 creationBounds,
@@ -2410,7 +2074,7 @@ public:
         int useLCD = buffer.readInt();
         int isAntiAliased = buffer.readInt();
         SDFTMatrixRange matrixRange = SDFTMatrixRange::MakeFromBuffer(buffer);
-        auto vertexFiller = TransformedMaskVertexFiller2::MakeFromBuffer(buffer, alloc);
+        auto vertexFiller = TransformedMaskVertexFiller::MakeFromBuffer(buffer, alloc);
         if (!buffer.validate(vertexFiller.has_value())) { return nullptr; }
         auto glyphVector = GlyphVector::MakeFromBuffer(buffer, client, alloc);
         if (!buffer.validate(glyphVector.has_value())) { return nullptr; }
@@ -2600,7 +2264,7 @@ private:
     const bool fAntiAliased;
     const SDFTMatrixRange fMatrixRange;
 
-    const TransformedMaskVertexFiller2 fVertexFiller;
+    const TransformedMaskVertexFiller fVertexFiller;
 
     // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
     // be single threaded.
