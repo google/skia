@@ -295,3 +295,88 @@ $export $pure half3 $hsl_to_rgb(half3 hsl) {
 $export $pure half4 $hsl_to_rgb(half3 hsl, half a) {
     return saturate(half4($hsl_to_rgb(hsl) * a, a));
 }
+
+// Color conversion functions used in gradient interpolation, based on
+// https://www.w3.org/TR/css-color-4/#color-conversion-code
+// TODO(skia:13108): For all of these, we can eliminate any linear math at the beginning
+// (by removing the corresponding linear math at the end of the CPU code).
+$export $pure half3 $css_lab_to_xyz(half3 lab) {
+    const half k = 24389 / 27.0;
+    const half e = 216 / 24389.0;
+
+    half3 f;
+    f[1] = (lab[0] + 16) / 116;
+    f[0] = (lab[1] / 500) + f[1];
+    f[2] = f[1] - (lab[2] / 200);
+
+    half3 f_cubed = pow(f, half3(3));
+
+    half3 xyz = half3(
+        f_cubed[0] > e ? f_cubed[0] : (116 * f[0] - 16) / k,
+        lab[0] > k * e ? f_cubed[1] : lab[0] / k,
+        f_cubed[2] > e ? f_cubed[2] : (116 * f[2] - 16) / k
+    );
+
+    const half3 D50 = half3(0.3457 / 0.3585, 1.0, (1.0 - 0.3457 - 0.3585) / 0.3585);
+    return xyz * D50;
+}
+
+// Also used by oklch -> oklab
+$pure half3 $css_lch_to_lab(half3 lch) {
+    return half3(
+        lch[0],
+        lch[1] * cos(radians(lch[2])),
+        lch[1] * sin(radians(lch[2]))
+    );
+}
+
+$export $pure half3 $css_lch_to_xyz(half3 lch) {
+    return $css_lab_to_xyz($css_lch_to_lab(lch));
+}
+
+$export $pure half3 $css_oklab_to_linear_srgb(half3 oklab) {
+    half l_ = oklab.x + 0.3963377774 * oklab.y + 0.2158037573 * oklab.z,
+         m_ = oklab.x - 0.1055613458 * oklab.y - 0.0638541728 * oklab.z,
+         s_ = oklab.x - 0.0894841775 * oklab.y - 1.2914855480 * oklab.z;
+
+    half l = l_*l_*l_,
+         m = m_*m_*m_,
+         s = s_*s_*s_;
+
+    return half3(
+        +4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+        -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+        -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
+    );
+}
+
+$export $pure half3 $css_oklch_to_linear_srgb(half3 oklch) {
+    return $css_oklab_to_linear_srgb($css_lch_to_lab(oklch));
+}
+
+// TODO(skia:13108): Use our optimized version (though it has different range)
+// Doing so might require fixing (re-deriving?) the math for the HWB version below
+$export $pure half3 $css_hsl_to_srgb(half3 hsl) {
+    hsl.x = mod(hsl.x, 360);
+    if (hsl.x < 0) {
+        hsl.x += 360;
+    }
+
+    hsl.yz /= 100;
+
+    half3 k = mod(half3(0, 8, 4) + hsl.x/30, 12);
+    half a = hsl.y * min(hsl.z, 1 - hsl.z);
+    return hsl.z - a * clamp(min(k - 3, 9 - k), -1, 1);
+}
+
+$export $pure half3 $css_hwb_to_srgb(half3 hwb) {
+    hwb.yz /= 100;
+    if (hwb.y + hwb.z >= 1) {
+        half gray = hwb.y / (hwb.y + hwb.z);
+        return half3(gray);
+    }
+    half3 rgb = $css_hsl_to_srgb(half3(hwb.x, 100, 50));
+    rgb *= (1 - hwb.y - hwb.z);
+    rgb += hwb.y;
+    return rgb;
+}
