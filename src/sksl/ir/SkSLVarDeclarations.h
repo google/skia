@@ -33,14 +33,14 @@ struct Modifiers;
  */
 class VarDeclaration final : public Statement {
 public:
-    inline static constexpr Kind kStatementKind = Kind::kVarDeclaration;
+    inline static constexpr Kind kIRNodeKind = Kind::kVarDeclaration;
 
     VarDeclaration(const Variable* var,
                    const Type* baseType,
                    int arraySize,
                    std::unique_ptr<Expression> value,
                    bool isClone = false)
-            : INHERITED(var->fPosition, kStatementKind)
+            : INHERITED(var->fPosition, kIRNodeKind)
             , fVar(var)
             , fBaseType(*baseType)
             , fArraySize(arraySize)
@@ -120,10 +120,10 @@ private:
  */
 class GlobalVarDeclaration final : public ProgramElement {
 public:
-    inline static constexpr Kind kProgramElementKind = Kind::kGlobalVar;
+    inline static constexpr Kind kIRNodeKind = Kind::kGlobalVar;
 
     GlobalVarDeclaration(std::unique_ptr<Statement> decl)
-            : INHERITED(decl->fPosition, kProgramElementKind)
+            : INHERITED(decl->fPosition, kIRNodeKind)
             , fDeclaration(std::move(decl)) {
         SkASSERT(this->declaration()->is<VarDeclaration>());
     }

@@ -25,7 +25,7 @@ namespace SkSL {
  */
 class TypeReference final : public Expression {
 public:
-    inline static constexpr Kind kExpressionKind = Kind::kTypeReference;
+    inline static constexpr Kind kIRNodeKind = Kind::kTypeReference;
 
     TypeReference(const Context& context, Position pos, const Type* value)
         : TypeReference(pos, value, context.fTypes.fInvalid.get()) {}
@@ -53,7 +53,7 @@ public:
 
 private:
     TypeReference(Position pos, const Type* value, const Type* type)
-        : INHERITED(pos, kExpressionKind, type)
+        : INHERITED(pos, kIRNodeKind, type)
         , fValue(*value) {}
 
     const Type& fValue;

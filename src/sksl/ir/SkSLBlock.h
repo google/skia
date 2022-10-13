@@ -26,7 +26,7 @@ class SymbolTable;
  */
 class Block final : public Statement {
 public:
-    inline static constexpr Kind kStatementKind = Kind::kBlock;
+    inline static constexpr Kind kIRNodeKind = Kind::kBlock;
 
     // "kBracedScope" represents an actual language-level block. Other kinds of block are used to
     // pass around multiple statements as if they were a single unit, with no semantic impact.
@@ -41,7 +41,7 @@ public:
 
     Block(Position pos, StatementArray statements,
           Kind kind = Kind::kBracedScope, const std::shared_ptr<SymbolTable> symbols = nullptr)
-    : INHERITED(pos, kStatementKind)
+    : INHERITED(pos, kIRNodeKind)
     , fChildren(std::move(statements))
     , fBlockKind(kind)
     , fSymbolTable(std::move(symbols)) {}

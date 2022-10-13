@@ -24,10 +24,10 @@ class Context;
  */
 class ExpressionStatement final : public Statement {
 public:
-    inline static constexpr Kind kStatementKind = Kind::kExpression;
+    inline static constexpr Kind kIRNodeKind = Kind::kExpression;
 
     ExpressionStatement(std::unique_ptr<Expression> expression)
-        : INHERITED(expression->fPosition, kStatementKind)
+        : INHERITED(expression->fPosition, kIRNodeKind)
         , fExpression(std::move(expression)) {}
 
     // Creates an SkSL expression-statement; reports errors via ErrorReporter.

@@ -28,10 +28,10 @@ class Type;
  */
 class ConstructorDiagonalMatrix final : public SingleArgumentConstructor {
 public:
-    inline static constexpr Kind kExpressionKind = Kind::kConstructorDiagonalMatrix;
+    inline static constexpr Kind kIRNodeKind = Kind::kConstructorDiagonalMatrix;
 
     ConstructorDiagonalMatrix(Position pos, const Type& type, std::unique_ptr<Expression> arg)
-        : INHERITED(pos, kExpressionKind, &type, std::move(arg)) {}
+        : INHERITED(pos, kIRNodeKind, &type, std::move(arg)) {}
 
     static std::unique_ptr<Expression> Make(const Context& context,
                                             Position pos,

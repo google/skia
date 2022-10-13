@@ -25,11 +25,11 @@ class Context;
  */
 class IfStatement final : public Statement {
 public:
-    inline static constexpr Kind kStatementKind = Kind::kIf;
+    inline static constexpr Kind kIRNodeKind = Kind::kIf;
 
     IfStatement(Position pos, bool isStatic, std::unique_ptr<Expression> test,
                 std::unique_ptr<Statement> ifTrue, std::unique_ptr<Statement> ifFalse)
-        : INHERITED(pos, kStatementKind)
+        : INHERITED(pos, kIRNodeKind)
         , fTest(std::move(test))
         , fIfTrue(std::move(ifTrue))
         , fIfFalse(std::move(ifFalse))

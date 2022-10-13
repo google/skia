@@ -685,7 +685,8 @@ void WGSLCodeGenerator::writeStatement(const Statement& s) {
             this->writeVarDeclaration(s.as<VarDeclaration>());
             break;
         default:
-            SkDEBUGFAILF("unsupported statement (kind: %d) %s", s.kind(), s.description().c_str());
+            SkDEBUGFAILF("unsupported statement (kind: %d) %s",
+                         static_cast<int>(s.kind()), s.description().c_str());
             break;
     }
 }

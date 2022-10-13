@@ -21,10 +21,10 @@ namespace SkSL {
  */
 class ExternalFunctionCall final : public Expression {
 public:
-    inline static constexpr Kind kExpressionKind = Kind::kExternalFunctionCall;
+    inline static constexpr Kind kIRNodeKind = Kind::kExternalFunctionCall;
 
     ExternalFunctionCall(Position pos, const ExternalFunction* function, ExpressionArray arguments)
-        : INHERITED(pos, kExpressionKind, &function->type())
+        : INHERITED(pos, kIRNodeKind, &function->type())
         , fFunction(*function)
         , fArguments(std::move(arguments)) {}
 
