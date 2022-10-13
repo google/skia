@@ -184,7 +184,6 @@ public:
             SkSourceGlyphBuffer* rejected) override;
 
     SkRect prepareForSDFTDrawing(
-            SkScalar strikeToSourceScale,
             SkDrawableGlyphBuffer* accepted,
             SkSourceGlyphBuffer* rejected) override;
 
@@ -422,8 +421,7 @@ SkRect RemoteStrike::prepareForMaskDrawing(
     return boundingRect.rect();
 }
 
-SkRect RemoteStrike::prepareForSDFTDrawing(SkScalar strikeToSourceScale,
-                                           SkDrawableGlyphBuffer* accepted,
+SkRect RemoteStrike::prepareForSDFTDrawing(SkDrawableGlyphBuffer* accepted,
                                            SkSourceGlyphBuffer* rejected) {
     SkGlyphRect boundingRect = skglyph::empty_rect();
     for (auto [i, variant, pos] : SkMakeEnumerate(accepted->input())) {
@@ -431,11 +429,12 @@ SkRect RemoteStrike::prepareForSDFTDrawing(SkScalar strikeToSourceScale,
         SkGlyphDigest digest = this->digest(packedID);
         if (digest.canDrawAsSDFT()) {
             if (!digest.isEmpty()) {
-                // The SDFT glyphs have 2-pixel wide padding that should not be used in
-                // calculating the source rectangle.
-                const SkGlyphRect glyphBounds = digest.bounds()
-                                .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
-                                .scaleAndOffset(strikeToSourceScale, pos);
+                const SkGlyphRect glyphBounds =
+                        digest.bounds()
+                                // The SDFT glyphs have 2-pixel wide padding that should
+                                // not be used in calculating the source rectangle.
+                              .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
+                              .offset(pos);
                 boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
                 accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
             }
