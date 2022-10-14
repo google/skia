@@ -12,7 +12,6 @@
 
 namespace SkSL {
 
-class BuiltinMap;
 class Compiler;
 struct ProgramSettings;
 
@@ -24,7 +23,7 @@ namespace dsl {
 void StartModule(SkSL::Compiler* compiler,
                  SkSL::ProgramKind kind,
                  const SkSL::ProgramSettings& settings,
-                 const SkSL::BuiltinMap* baseModule);
+                 const SkSL::LoadedModule* parent);
 
 } // namespace dsl
 

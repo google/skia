@@ -31,8 +31,6 @@ filegroup(
 CORE_SRCS = [
     "SkSLAnalysis.cpp",
     "SkSLAnalysis.h",
-    "SkSLBuiltinMap.cpp",
-    "SkSLBuiltinMap.h",
     "SkSLBuiltinTypes.cpp",
     "SkSLBuiltinTypes.h",
     "SkSLCompiler.cpp",

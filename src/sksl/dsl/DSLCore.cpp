@@ -51,9 +51,6 @@
 #include <vector>
 
 namespace SkSL {
-
-class BuiltinMap;
-
 namespace dsl {
 
 void Start(SkSL::Compiler* compiler, ProgramKind kind) {
@@ -69,9 +66,9 @@ void Start(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettings& se
 void StartModule(SkSL::Compiler* compiler,
                  ProgramKind kind,
                  const ProgramSettings& settings,
-                 const SkSL::BuiltinMap* baseModule) {
+                 const SkSL::LoadedModule* parent) {
     ThreadContext::SetInstance(std::make_unique<ThreadContext>(compiler, kind, settings,
-                                                               baseModule, /*isModule=*/true));
+                                                               parent, /*isModule=*/true));
 }
 
 void End() {

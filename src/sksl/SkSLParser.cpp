@@ -39,8 +39,6 @@ using namespace SkSL::dsl;
 
 namespace SkSL {
 
-class BuiltinMap;
-
 static constexpr int kMaxParseDepth = 50;
 
 static int parse_modifier_token(Token::Kind token) {
@@ -296,14 +294,17 @@ std::unique_ptr<Program> Parser::program() {
     return result;
 }
 
-SkSL::LoadedModule Parser::moduleInheritingFrom(const SkSL::BuiltinMap* baseModule) {
+std::unique_ptr<SkSL::LoadedModule> Parser::moduleInheritingFrom(const SkSL::LoadedModule* parent) {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
-    StartModule(&fCompiler, fKind, fSettings, baseModule);
+    StartModule(&fCompiler, fKind, fSettings, parent);
     SetErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();
     CurrentSymbolTable()->takeOwnershipOfString(std::move(*fText));
-    SkSL::LoadedModule result{CurrentSymbolTable(), std::move(ThreadContext::ProgramElements())};
+    auto result = std::make_unique<SkSL::LoadedModule>();
+    result->fParent = parent;
+    result->fSymbols = CurrentSymbolTable();
+    result->fElements = std::move(ThreadContext::ProgramElements());
     errorReporter->setSource(std::string_view());
     End();
     return result;

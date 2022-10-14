@@ -18,7 +18,6 @@
 
 namespace SkSL {
 
-class BuiltinMap;
 class Context;
 class ErrorReporter;
 class Expression;
@@ -108,7 +107,7 @@ bool SwitchCaseContainsUnconditionalExit(Statement& stmt);
 bool SwitchCaseContainsConditionalExit(Statement& stmt);
 
 std::unique_ptr<ProgramUsage> GetUsage(const Program& program);
-std::unique_ptr<ProgramUsage> GetUsage(const LoadedModule& module, const BuiltinMap* base);
+std::unique_ptr<ProgramUsage> GetUsage(const LoadedModule& module);
 
 bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
 

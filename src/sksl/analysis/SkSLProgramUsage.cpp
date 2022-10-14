@@ -11,7 +11,6 @@
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLBuiltinMap.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
@@ -24,7 +23,6 @@
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#include <functional>
 #include <memory>
 #include <vector>
 
@@ -111,17 +109,14 @@ std::unique_ptr<ProgramUsage> Analysis::GetUsage(const Program& program) {
     return usage;
 }
 
-std::unique_ptr<ProgramUsage> Analysis::GetUsage(const LoadedModule& module,
-                                                 const BuiltinMap* base) {
+std::unique_ptr<ProgramUsage> Analysis::GetUsage(const LoadedModule& module) {
     auto usage = std::make_unique<ProgramUsage>();
     ProgramUsageVisitor addRefs(usage.get(), /*delta=*/+1);
-    for (const std::unique_ptr<ProgramElement>& element : module.fElements) {
-        addRefs.visitProgramElement(*element);
-    }
-    if (base) {
-        base->foreach([&](const ProgramElement& element) {
-            addRefs.visitProgramElement(element);
-        });
+
+    for (const LoadedModule* m = &module; m != nullptr; m = m->fParent) {
+        for (const std::unique_ptr<ProgramElement>& element : m->fElements) {
+            addRefs.visitProgramElement(*element);
+        }
     }
     return usage;
 }

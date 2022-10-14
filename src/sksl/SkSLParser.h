@@ -21,7 +21,6 @@
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
-#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
@@ -33,7 +32,8 @@
 
 namespace SkSL {
 
-class BuiltinMap;
+class Compiler;
+struct LoadedModule;
 struct Program;
 
 namespace dsl {
@@ -52,7 +52,7 @@ public:
 
     std::unique_ptr<Program> program();
 
-    SkSL::LoadedModule moduleInheritingFrom(const SkSL::BuiltinMap* baseModule);
+    std::unique_ptr<LoadedModule> moduleInheritingFrom(const LoadedModule* parent);
 
     std::string_view text(Token token);
 

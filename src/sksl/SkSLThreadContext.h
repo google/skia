@@ -21,8 +21,8 @@
 
 namespace SkSL {
 
-class BuiltinMap;
 class Compiler;
+struct LoadedModule;
 class ModifiersPool;
 class Pool;
 class Position;
@@ -45,7 +45,7 @@ public:
     ThreadContext(SkSL::Compiler* compiler,
                   SkSL::ProgramKind kind,
                   const SkSL::ProgramSettings& settings,
-                  const SkSL::BuiltinMap* module,
+                  const SkSL::LoadedModule* module,
                   bool isModule);
     ~ThreadContext();
 

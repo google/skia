@@ -7,8 +7,6 @@ _include = get_path_info("../include", "abspath")
 skia_sksl_sources = [
   "$_src/sksl/SkSLAnalysis.cpp",
   "$_src/sksl/SkSLAnalysis.h",
-  "$_src/sksl/SkSLBuiltinMap.cpp",
-  "$_src/sksl/SkSLBuiltinMap.h",
   "$_src/sksl/SkSLBuiltinTypes.cpp",
   "$_src/sksl/SkSLBuiltinTypes.h",
   "$_src/sksl/SkSLCompiler.cpp",

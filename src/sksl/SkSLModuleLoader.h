@@ -13,8 +13,8 @@
 
 namespace SkSL {
 
-class BuiltinMap;
 class Compiler;
+struct LoadedModule;
 class ModifiersPool;
 class Type;
 
@@ -36,23 +36,23 @@ public:
     // The built-in types and root module are universal, immutable, and shared by every Compiler.
     // They are created when the ModuleLoader is instantiated and never change.
     const BuiltinTypes& builtinTypes();
-    const BuiltinMap*   rootModule();
+    const LoadedModule* rootModule();
 
     // This ModifiersPool is shared by every built-in module.
     ModifiersPool& coreModifiers();
 
     // These modules are loaded on demand; once loaded, they are kept for the lifetime of the
     // process.
-    const BuiltinMap* loadSharedModule(SkSL::Compiler* compiler);
-    const BuiltinMap* loadGPUModule(SkSL::Compiler* compiler);
-    const BuiltinMap* loadVertexModule(SkSL::Compiler* compiler);
-    const BuiltinMap* loadFragmentModule(SkSL::Compiler* compiler);
-    const BuiltinMap* loadComputeModule(SkSL::Compiler* compiler);
-    const BuiltinMap* loadGraphiteVertexModule(SkSL::Compiler* compiler);
-    const BuiltinMap* loadGraphiteFragmentModule(SkSL::Compiler* compiler);
+    const LoadedModule* loadSharedModule(SkSL::Compiler* compiler);
+    const LoadedModule* loadGPUModule(SkSL::Compiler* compiler);
+    const LoadedModule* loadVertexModule(SkSL::Compiler* compiler);
+    const LoadedModule* loadFragmentModule(SkSL::Compiler* compiler);
+    const LoadedModule* loadComputeModule(SkSL::Compiler* compiler);
+    const LoadedModule* loadGraphiteVertexModule(SkSL::Compiler* compiler);
+    const LoadedModule* loadGraphiteFragmentModule(SkSL::Compiler* compiler);
 
-    const BuiltinMap* loadPublicModule(SkSL::Compiler* compiler);
-    const BuiltinMap* loadPrivateRTShaderModule(SkSL::Compiler* compiler);
+    const LoadedModule* loadPublicModule(SkSL::Compiler* compiler);
+    const LoadedModule* loadPrivateRTShaderModule(SkSL::Compiler* compiler);
 
     // This unloads every module. It's useful primarily for benchmarking purposes.
     void unloadModules();

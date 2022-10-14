@@ -10,9 +10,9 @@
 
 namespace SkSL {
 
-class BuiltinMap;
 class BuiltinTypes;
 class ErrorReporter;
+struct LoadedModule;
 class ModifiersPool;
 struct ProgramConfig;
 struct ShaderCaps;
@@ -40,8 +40,8 @@ public:
     // The Context holds a pointer to our error reporter.
     ErrorReporter* fErrors;
 
-    // Symbols which have definitions in the include files.
-    const BuiltinMap* fBuiltins = nullptr;
+    // The Context holds a pointer to our module with built-in declarations.
+    const LoadedModule* fModule = nullptr;
 };
 
 }  // namespace SkSL

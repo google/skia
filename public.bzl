@@ -1409,8 +1409,6 @@ BASE_SRCS_ALL = [
     "src/sksl/GLSL.std.450.h",
     "src/sksl/SkSLAnalysis.cpp",
     "src/sksl/SkSLAnalysis.h",
-    "src/sksl/SkSLBuiltinMap.cpp",
-    "src/sksl/SkSLBuiltinMap.h",
     "src/sksl/SkSLBuiltinTypes.cpp",
     "src/sksl/SkSLBuiltinTypes.h",
     "src/sksl/SkSLCompiler.cpp",

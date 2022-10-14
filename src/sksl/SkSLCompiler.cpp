@@ -7,7 +7,6 @@
 
 #include "src/sksl/SkSLCompiler.h"
 
-#include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/sksl/DSLCore.h"
@@ -15,7 +14,6 @@
 #include "include/sksl/DSLType.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLBuiltinMap.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLInliner.h"
 #include "src/sksl/SkSLModuleLoader.h"
@@ -144,7 +142,7 @@ Compiler::Compiler(const ShaderCaps* caps) : fErrorReporter(this), fCaps(caps) {
 
 Compiler::~Compiler() {}
 
-const BuiltinMap* Compiler::moduleForProgramKind(ProgramKind kind) {
+const LoadedModule* Compiler::moduleForProgramKind(ProgramKind kind) {
     auto m = ModuleLoader::Get();
     switch (kind) {
         case ProgramKind::kVertex:               return m.loadVertexModule(this);           break;
@@ -163,13 +161,13 @@ const BuiltinMap* Compiler::moduleForProgramKind(ProgramKind kind) {
     SkUNREACHABLE;
 }
 
-LoadedModule Compiler::compileModule(ProgramKind kind,
-                                     const char* moduleName,
-                                     std::string moduleSource,
-                                     const BuiltinMap* base,
-                                     ModifiersPool& modifiersPool,
-                                     bool shouldInline) {
-    SkASSERT(base);
+std::unique_ptr<LoadedModule> Compiler::compileModule(ProgramKind kind,
+                                                      const char* moduleName,
+                                                      std::string moduleSource,
+                                                      const LoadedModule* parent,
+                                                      ModifiersPool& modifiersPool,
+                                                      bool shouldInline) {
+    SkASSERT(parent);
     SkASSERT(!moduleSource.empty());
     SkASSERT(this->errorCount() == 0);
 
@@ -180,21 +178,14 @@ LoadedModule Compiler::compileModule(ProgramKind kind,
     // Compile the module from source, using default program settings.
     ProgramSettings settings;
     SkSL::Parser parser{this, settings, kind, std::move(moduleSource)};
-    LoadedModule module = parser.moduleInheritingFrom(base);
+    std::unique_ptr<LoadedModule> module = parser.moduleInheritingFrom(parent);
     if (this->errorCount() != 0) {
         SK_ABORT("Unexpected errors compiling %s:\n\n%s\n", moduleName, this->errorText().c_str());
     }
     if (shouldInline) {
-        this->optimizeModuleAfterLoading(kind, module, base);
+        this->optimizeModuleAfterLoading(kind, *module);
     }
     return module;
-}
-
-std::unique_ptr<BuiltinMap> LoadedModule::convertToBuiltinMap(const BuiltinMap* parent) {
-    auto elements = std::make_unique<BuiltinMap>(parent, std::move(fSymbols), SkSpan(fElements));
-    fElements = std::vector<std::unique_ptr<ProgramElement>>{};
-
-    return elements;
 }
 
 std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
@@ -291,9 +282,7 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
     }
 }
 
-bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind,
-                                             LoadedModule& module,
-                                             const BuiltinMap* base) {
+bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, LoadedModule& module) {
     SkASSERT(this->errorCount() == 0);
 
     auto m = SkSL::ModuleLoader::Get();
@@ -305,7 +294,7 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind,
     AutoProgramConfig autoConfig(this->context(), &config);
     AutoModifiersPool autoPool(fContext, &m.coreModifiers());
 
-    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module, base);
+    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
 
     // Look for local variables in functions and give them shorter names.
     Transform::RenamePrivateSymbols(this->context(), module, usage.get());
@@ -333,9 +322,7 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind,
     return this->errorCount() == 0;
 }
 
-bool Compiler::optimizeModuleAfterLoading(ProgramKind kind,
-                                          LoadedModule& module,
-                                          const BuiltinMap* base) {
+bool Compiler::optimizeModuleAfterLoading(ProgramKind kind, LoadedModule& module) {
     SkASSERT(this->errorCount() == 0);
 
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
@@ -345,7 +332,7 @@ bool Compiler::optimizeModuleAfterLoading(ProgramKind kind,
     config.fKind = kind;
     AutoProgramConfig autoConfig(this->context(), &config);
 
-    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module, base);
+    std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
 
     // Perform inline-candidate analysis and inline any functions deemed suitable.
     Inliner inliner(fContext.get());
