@@ -2798,14 +2798,15 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
         rejected->setSource(glyphRun.source());
         const SkFont& runFont = glyphRun.font();
 
-        // Only consider using direct or SDFT drawing if not drawing hairlines.
-        if ((runPaint.getStyle() != SkPaint::kStroke_Style || runPaint.getStrokeWidth() != 0)) {
-            SkScalar approximateDeviceTextSize =
-                    // Since the positionMatrix has the origin prepended, use the plain
-                    // sourceBounds from above.
-                    SkFontPriv::ApproximateTransformedTextSize(runFont, positionMatrix,
-                                                               glyphRunListLocation);
+        SkScalar approximateDeviceTextSize =
+                // Since the positionMatrix has the origin prepended, use the plain
+                // sourceBounds from above.
+                SkFontPriv::ApproximateTransformedTextSize(runFont, positionMatrix,
+                                                           glyphRunListLocation);
 
+        // Only consider using direct or SDFT drawing if not drawing hairlines and not too big.
+        if ((runPaint.getStyle() != SkPaint::kStroke_Style || runPaint.getStrokeWidth() != 0) &&
+                approximateDeviceTextSize < 512) {
             if (SDFTControl.isSDFT(approximateDeviceTextSize, runPaint, positionMatrix)) {
                 // Process SDFT - This should be the .009% case.
                 const auto& [strikeSpec, strikeToSourceScale, matrixRange] =
@@ -2957,7 +2958,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             }
         }
 
-        if (!rejected->source().empty()) {
+        if (!rejected->source().empty() && !SkScalarNearlyZero(approximateDeviceTextSize)) {
             // Drawing of last resort - Scale masks that fit in the atlas to the screen using
             // bilerp.
 
@@ -3014,7 +3015,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
             // Condition the creationMatrix so that glyphs fit in the atlas.
             for (SkScalar maxDimension = maxGlyphDimension(creationMatrix);
-                 0 >= maxDimension || maxDimension > kMaxBilerpAtlasDimension;
+                 maxDimension <= 0 || kMaxBilerpAtlasDimension < maxDimension;
                  maxDimension = maxGlyphDimension(creationMatrix))
             {
                 // The SkScalerContext has a limit of 65536 maximum dimension.
