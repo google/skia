@@ -109,11 +109,11 @@ std::unique_ptr<ProgramUsage> Analysis::GetUsage(const Program& program) {
     return usage;
 }
 
-std::unique_ptr<ProgramUsage> Analysis::GetUsage(const LoadedModule& module) {
+std::unique_ptr<ProgramUsage> Analysis::GetUsage(const Module& module) {
     auto usage = std::make_unique<ProgramUsage>();
     ProgramUsageVisitor addRefs(usage.get(), /*delta=*/+1);
 
-    for (const LoadedModule* m = &module; m != nullptr; m = m->fParent) {
+    for (const Module* m = &module; m != nullptr; m = m->fParent) {
         for (const std::unique_ptr<ProgramElement>& element : m->fElements) {
             addRefs.visitProgramElement(*element);
         }

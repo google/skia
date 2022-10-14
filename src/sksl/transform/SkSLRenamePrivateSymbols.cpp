@@ -50,7 +50,7 @@ static void strip_export_flag(Context& context,
     }
 }
 
-void Transform::RenamePrivateSymbols(Context& context, LoadedModule& module, ProgramUsage* usage) {
+void Transform::RenamePrivateSymbols(Context& context, Module& module, ProgramUsage* usage) {
 
     class SymbolRenamer : public ProgramWriter {
     public:

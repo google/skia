@@ -42,7 +42,7 @@ static bool is_dead_variable(const ProgramElement& element,
 }
 
 bool Transform::EliminateDeadGlobalVariables(const Context& context,
-                                             LoadedModule& module,
+                                             Module& module,
                                              ProgramUsage* usage,
                                              bool onlyPrivateGlobals) {
     auto isDeadVariable = [&](const ProgramElement& element) {

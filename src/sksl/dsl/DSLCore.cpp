@@ -66,7 +66,7 @@ void Start(SkSL::Compiler* compiler, ProgramKind kind, const ProgramSettings& se
 void StartModule(SkSL::Compiler* compiler,
                  ProgramKind kind,
                  const ProgramSettings& settings,
-                 const SkSL::LoadedModule* parent) {
+                 const SkSL::Module* parent) {
     ThreadContext::SetInstance(std::make_unique<ThreadContext>(compiler, kind, settings,
                                                                parent, /*isModule=*/true));
 }

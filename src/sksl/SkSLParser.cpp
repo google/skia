@@ -294,14 +294,14 @@ std::unique_ptr<Program> Parser::program() {
     return result;
 }
 
-std::unique_ptr<SkSL::LoadedModule> Parser::moduleInheritingFrom(const SkSL::LoadedModule* parent) {
+std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* parent) {
     ErrorReporter* errorReporter = &fCompiler.errorReporter();
     StartModule(&fCompiler, fKind, fSettings, parent);
     SetErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();
     CurrentSymbolTable()->takeOwnershipOfString(std::move(*fText));
-    auto result = std::make_unique<SkSL::LoadedModule>();
+    auto result = std::make_unique<SkSL::Module>();
     result->fParent = parent;
     result->fSymbols = CurrentSymbolTable();
     result->fElements = std::move(ThreadContext::ProgramElements());

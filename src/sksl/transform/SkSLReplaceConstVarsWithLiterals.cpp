@@ -28,7 +28,7 @@
 
 namespace SkSL {
 
-void Transform::ReplaceConstVarsWithLiterals(LoadedModule& module, ProgramUsage* usage) {
+void Transform::ReplaceConstVarsWithLiterals(Module& module, ProgramUsage* usage) {
     class ConstVarReplacer : public ProgramWriter {
     public:
         ConstVarReplacer(ProgramUsage* usage) : fUsage(usage) {}

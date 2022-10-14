@@ -201,7 +201,7 @@ static void eliminate_unreachable_code(SkSpan<std::unique_ptr<ProgramElement>> e
     }
 }
 
-void Transform::EliminateUnreachableCode(LoadedModule& module, ProgramUsage* usage) {
+void Transform::EliminateUnreachableCode(Module& module, ProgramUsage* usage) {
     return eliminate_unreachable_code(SkSpan(module.fElements), usage);
 }
 

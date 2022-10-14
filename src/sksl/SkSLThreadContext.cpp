@@ -22,7 +22,7 @@ namespace SkSL {
 ThreadContext::ThreadContext(SkSL::Compiler* compiler,
                              SkSL::ProgramKind kind,
                              const SkSL::ProgramSettings& settings,
-                             const SkSL::LoadedModule* module,
+                             const SkSL::Module* module,
                              bool isModule)
         : fCompiler(compiler)
         , fOldConfig(fCompiler->fContext->fConfig)

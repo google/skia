@@ -14,8 +14,8 @@
 namespace SkSL {
 
 class Compiler;
-struct LoadedModule;
 class ModifiersPool;
+struct Module;
 class Type;
 
 using BuiltinTypePtr = const std::unique_ptr<Type> BuiltinTypes::*;
@@ -36,23 +36,23 @@ public:
     // The built-in types and root module are universal, immutable, and shared by every Compiler.
     // They are created when the ModuleLoader is instantiated and never change.
     const BuiltinTypes& builtinTypes();
-    const LoadedModule* rootModule();
+    const Module* rootModule();
 
     // This ModifiersPool is shared by every built-in module.
     ModifiersPool& coreModifiers();
 
     // These modules are loaded on demand; once loaded, they are kept for the lifetime of the
     // process.
-    const LoadedModule* loadSharedModule(SkSL::Compiler* compiler);
-    const LoadedModule* loadGPUModule(SkSL::Compiler* compiler);
-    const LoadedModule* loadVertexModule(SkSL::Compiler* compiler);
-    const LoadedModule* loadFragmentModule(SkSL::Compiler* compiler);
-    const LoadedModule* loadComputeModule(SkSL::Compiler* compiler);
-    const LoadedModule* loadGraphiteVertexModule(SkSL::Compiler* compiler);
-    const LoadedModule* loadGraphiteFragmentModule(SkSL::Compiler* compiler);
+    const Module* loadSharedModule(SkSL::Compiler* compiler);
+    const Module* loadGPUModule(SkSL::Compiler* compiler);
+    const Module* loadVertexModule(SkSL::Compiler* compiler);
+    const Module* loadFragmentModule(SkSL::Compiler* compiler);
+    const Module* loadComputeModule(SkSL::Compiler* compiler);
+    const Module* loadGraphiteVertexModule(SkSL::Compiler* compiler);
+    const Module* loadGraphiteFragmentModule(SkSL::Compiler* compiler);
 
-    const LoadedModule* loadPublicModule(SkSL::Compiler* compiler);
-    const LoadedModule* loadPrivateRTShaderModule(SkSL::Compiler* compiler);
+    const Module* loadPublicModule(SkSL::Compiler* compiler);
+    const Module* loadPrivateRTShaderModule(SkSL::Compiler* compiler);
 
     // This unloads every module. It's useful primarily for benchmarking purposes.
     void unloadModules();

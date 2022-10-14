@@ -33,7 +33,7 @@
 namespace SkSL {
 
 class Compiler;
-struct LoadedModule;
+struct Module;
 struct Program;
 
 namespace dsl {
@@ -52,7 +52,7 @@ public:
 
     std::unique_ptr<Program> program();
 
-    std::unique_ptr<LoadedModule> moduleInheritingFrom(const LoadedModule* parent);
+    std::unique_ptr<Module> moduleInheritingFrom(const Module* parent);
 
     std::string_view text(Token token);
 

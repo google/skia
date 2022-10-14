@@ -152,7 +152,7 @@ static bool eliminate_dead_local_variables(const Context& context,
 }
 
 bool Transform::EliminateDeadLocalVariables(const Context& context,
-                                            LoadedModule& module,
+                                            Module& module,
                                             ProgramUsage* usage) {
     return eliminate_dead_local_variables(context, SkSpan(module.fElements), usage);
 }

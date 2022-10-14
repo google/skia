@@ -142,7 +142,7 @@ Compiler::Compiler(const ShaderCaps* caps) : fErrorReporter(this), fCaps(caps) {
 
 Compiler::~Compiler() {}
 
-const LoadedModule* Compiler::moduleForProgramKind(ProgramKind kind) {
+const Module* Compiler::moduleForProgramKind(ProgramKind kind) {
     auto m = ModuleLoader::Get();
     switch (kind) {
         case ProgramKind::kVertex:               return m.loadVertexModule(this);           break;
@@ -161,12 +161,12 @@ const LoadedModule* Compiler::moduleForProgramKind(ProgramKind kind) {
     SkUNREACHABLE;
 }
 
-std::unique_ptr<LoadedModule> Compiler::compileModule(ProgramKind kind,
-                                                      const char* moduleName,
-                                                      std::string moduleSource,
-                                                      const LoadedModule* parent,
-                                                      ModifiersPool& modifiersPool,
-                                                      bool shouldInline) {
+std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
+                                                const char* moduleName,
+                                                std::string moduleSource,
+                                                const Module* parent,
+                                                ModifiersPool& modifiersPool,
+                                                bool shouldInline) {
     SkASSERT(parent);
     SkASSERT(!moduleSource.empty());
     SkASSERT(this->errorCount() == 0);
@@ -178,7 +178,7 @@ std::unique_ptr<LoadedModule> Compiler::compileModule(ProgramKind kind,
     // Compile the module from source, using default program settings.
     ProgramSettings settings;
     SkSL::Parser parser{this, settings, kind, std::move(moduleSource)};
-    std::unique_ptr<LoadedModule> module = parser.moduleInheritingFrom(parent);
+    std::unique_ptr<Module> module = parser.moduleInheritingFrom(parent);
     if (this->errorCount() != 0) {
         SK_ABORT("Unexpected errors compiling %s:\n\n%s\n", moduleName, this->errorText().c_str());
     }
@@ -282,7 +282,7 @@ std::unique_ptr<Expression> Compiler::convertIdentifier(Position pos, std::strin
     }
 }
 
-bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, LoadedModule& module) {
+bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module) {
     SkASSERT(this->errorCount() == 0);
 
     auto m = SkSL::ModuleLoader::Get();
@@ -322,7 +322,7 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, LoadedModule& mod
     return this->errorCount() == 0;
 }
 
-bool Compiler::optimizeModuleAfterLoading(ProgramKind kind, LoadedModule& module) {
+bool Compiler::optimizeModuleAfterLoading(ProgramKind kind, Module& module) {
     SkASSERT(this->errorCount() == 0);
 
 #ifndef SK_ENABLE_OPTIMIZE_SIZE

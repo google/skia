@@ -74,12 +74,12 @@ static bool maybe_identifier(char c) {
     return std::isalnum(c) || c == '$' || c == '_';
 }
 
-static std::forward_list<std::unique_ptr<const SkSL::LoadedModule>> compile_module_list(
+static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_list(
         SkSpan<const std::string> paths) {
     // Load in each input as a module, from right to left.
     // Each module inherits the symbols from its parent module.
     SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
-    std::forward_list<std::unique_ptr<const SkSL::LoadedModule>> modules;
+    std::forward_list<std::unique_ptr<const SkSL::Module>> modules;
     for (auto modulePath = paths.rbegin(); modulePath != paths.rend(); ++modulePath) {
         std::ifstream in(*modulePath);
         std::string moduleSource{std::istreambuf_iterator<char>(in),
@@ -92,9 +92,9 @@ static std::forward_list<std::unique_ptr<const SkSL::LoadedModule>> compile_modu
         // TODO(skia:13778): We don't know the module's ProgramKind here, so we always pass
         // kFragment. For minification purposes, the ProgramKind doesn't really make a difference
         // as long as it doesn't limit what we can do.
-        const SkSL::LoadedModule* parent = modules.empty() ? SkSL::ModuleLoader::Get().rootModule()
-                                                           : modules.front().get();
-        std::unique_ptr<SkSL::LoadedModule> m =
+        const SkSL::Module* parent = modules.empty() ? SkSL::ModuleLoader::Get().rootModule()
+                                                     : modules.front().get();
+        std::unique_ptr<SkSL::Module> m =
                 compiler.compileModule(SkSL::ProgramKind::kFragment,
                                        modulePath->c_str(),
                                        std::move(moduleSource),
@@ -188,12 +188,12 @@ ResultCode processCommand(const std::vector<std::string>& args) {
     // Compile the original SkSL from the input path.
     SkSpan inputPaths(args);
     inputPaths = inputPaths.subspan(1);
-    std::forward_list<std::unique_ptr<const SkSL::LoadedModule>> modules =
+    std::forward_list<std::unique_ptr<const SkSL::Module>> modules =
             compile_module_list(inputPaths);
     if (modules.empty()) {
         return ResultCode::kInputError;
     }
-    const SkSL::LoadedModule* module = modules.front().get();
+    const SkSL::Module* module = modules.front().get();
 
     // Emit the minified SkSL into our output path.
     const std::string& outputPath = args[0];

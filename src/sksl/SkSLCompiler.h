@@ -53,8 +53,8 @@ class ProgramUsage;
 struct ShaderCaps;
 class SymbolTable;
 
-struct LoadedModule {
-    const LoadedModule*                          fParent = nullptr;
+struct Module {
+    const Module*                                fParent = nullptr;
     std::shared_ptr<SymbolTable>                 fSymbols;
     std::vector<std::unique_ptr<ProgramElement>> fElements;
 };
@@ -174,17 +174,17 @@ public:
         return fSymbolTable;
     }
 
-    std::unique_ptr<LoadedModule> compileModule(ProgramKind kind,
-                                                const char* moduleName,
-                                                std::string moduleSource,
-                                                const LoadedModule* parent,
-                                                ModifiersPool& modifiersPool,
-                                                bool shouldInline);
+    std::unique_ptr<Module> compileModule(ProgramKind kind,
+                                          const char* moduleName,
+                                          std::string moduleSource,
+                                          const Module* parent,
+                                          ModifiersPool& modifiersPool,
+                                          bool shouldInline);
 
     /** Optimize a module at minification time, before writing it out. */
-    bool optimizeModuleBeforeMinifying(ProgramKind kind, LoadedModule& module);
+    bool optimizeModuleBeforeMinifying(ProgramKind kind, Module& module);
 
-    const LoadedModule* moduleForProgramKind(ProgramKind kind);
+    const Module* moduleForProgramKind(ProgramKind kind);
 
 private:
     class CompilerErrorReporter : public ErrorReporter {
@@ -207,7 +207,7 @@ private:
     bool finalize(Program& program);
 
     /** Optimize a module at Skia runtime, after loading it. */
-    bool optimizeModuleAfterLoading(ProgramKind kind, LoadedModule& module);
+    bool optimizeModuleAfterLoading(ProgramKind kind, Module& module);
 
     /** Flattens out function calls when it is safe to do so. */
     bool runInliner(Inliner* inliner,
