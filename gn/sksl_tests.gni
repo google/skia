@@ -186,6 +186,7 @@ sksl_error_tests = [
   "/sksl/errors/PrototypeInFuncBody.rts",
   "/sksl/errors/ReadonlyWriteonly.compute",
   "/sksl/errors/RedeclareBasicType.rts",
+  "/sksl/errors/RedeclareBuiltinVariables.sksl",
   "/sksl/errors/RedeclareSamplerType.sksl",
   "/sksl/errors/RedeclareShaderType.rts",
   "/sksl/errors/RedeclareStruct.rts",

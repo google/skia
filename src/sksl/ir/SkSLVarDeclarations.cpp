@@ -19,17 +19,14 @@
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <cstddef>
 #include <string_view>
-#include <type_traits>
 #include <vector>
 
 namespace SkSL {
-
-class Symbol;
-
 namespace {
 
 static bool check_valid_uniform_type(Position pos,
@@ -287,7 +284,7 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable&
     if (value) {
         if (var.type().isOpaque()) {
             context.fErrors->error(value->fPosition, "opaque type '" + var.type().displayName() +
-                    "' cannot use initializer expressions");
+                                                     "' cannot use initializer expressions");
             return false;
         }
         if (var.modifiers().fFlags & Modifiers::kIn_Flag) {
@@ -339,7 +336,9 @@ bool VarDeclaration::ErrorCheckAndCoerce(const Context& context, const Variable&
 }
 
 std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
-        std::unique_ptr<Variable> var, std::unique_ptr<Expression> value, bool addToSymbolTable) {
+                                                   std::unique_ptr<Variable> var,
+                                                   std::unique_ptr<Expression> value,
+                                                   bool addToSymbolTable) {
     if (!ErrorCheckAndCoerce(context, *var, value)) {
         return nullptr;
     }
@@ -350,37 +349,45 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
         baseType = &baseType->componentType();
     }
     std::unique_ptr<Statement> varDecl = VarDeclaration::Make(context, var.get(), baseType,
-            arraySize, std::move(value));
+                                                              arraySize, std::move(value));
     if (!varDecl) {
         return nullptr;
     }
 
-    // Detect the declaration of magical variables.
-    if ((var->storage() == Variable::Storage::kGlobal) && var->name() == Compiler::FRAGCOLOR_NAME) {
-        // Silently ignore duplicate definitions of `sk_FragColor`.
-        const Symbol* symbol = ThreadContext::SymbolTable()->find(var->name());
-        if (symbol) {
+    SymbolTable* symbols = ThreadContext::SymbolTable().get();
+    if (var->storage() == Variable::Storage::kGlobal ||
+        var->storage() == Variable::Storage::kInterfaceBlock) {
+        // Check if this globally-scoped variable name overlaps an existing symbol name.
+        if (symbols->find(var->name())) {
+            // We make a special exception and admit duplicate definitions of `sk_FragColor`.
+            // Skia re-declares sk_FragColor as `inout` when framebuffer fetch is used.
+            // When this happens, we just discard the declaration and let GLSLCodeGenerator fix it.
+            if (var->storage() == Variable::Storage::kGlobal &&
+                var->name() == Compiler::FRAGCOLOR_NAME) {
+                return nullptr;
+            }
+            // Other than this, globally-scoped variables should have globally unique names.
+            context.fErrors->error(var->fPosition,
+                                   "symbol '" + std::string(var->name()) + "' was already defined");
             return nullptr;
         }
-    } else if ((var->storage() == Variable::Storage::kGlobal ||
-                var->storage() == Variable::Storage::kInterfaceBlock) &&
-               var->name() == Compiler::RTADJUST_NAME) {
+
         // `sk_RTAdjust` is special, and makes the IR generator emit position-fixup expressions.
-        if (ThreadContext::RTAdjustState().fVar || ThreadContext::RTAdjustState().fInterfaceBlock) {
-            context.fErrors->error(var->fPosition, "duplicate definition of 'sk_RTAdjust'");
-            return nullptr;
+        if (var->name() == Compiler::RTADJUST_NAME) {
+            SkASSERT(!ThreadContext::RTAdjustState().fVar &&
+                     !ThreadContext::RTAdjustState().fInterfaceBlock);
+            if (!var->type().matches(*context.fTypes.fFloat4)) {
+                context.fErrors->error(var->fPosition, "sk_RTAdjust must have type 'float4'");
+                return nullptr;
+            }
+            ThreadContext::RTAdjustState().fVar = var.get();
         }
-        if (!var->type().matches(*context.fTypes.fFloat4)) {
-            context.fErrors->error(var->fPosition, "sk_RTAdjust must have type 'float4'");
-            return nullptr;
-        }
-        ThreadContext::RTAdjustState().fVar = var.get();
     }
 
     if (addToSymbolTable) {
-        ThreadContext::SymbolTable()->add(std::move(var));
+        symbols->add(std::move(var));
     } else {
-        ThreadContext::SymbolTable()->takeOwnershipOfSymbol(std::move(var));
+        symbols->takeOwnershipOfSymbol(std::move(var));
     }
     return varDecl;
 }
