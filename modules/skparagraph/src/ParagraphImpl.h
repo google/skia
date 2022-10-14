@@ -241,7 +241,7 @@ private:
     // They are filled lazily whenever they need and cached
     SkTArray<TextIndex, true> fUTF8IndexForUTF16Index;
     SkTArray<size_t, true> fUTF16IndexForUTF8Index;
-    SkOnce fillUTF16MappingOnce;
+    std::optional<SkOnce> fillUTF16MappingOnce;  // optional SkOnce so that it can be reset when needed.
     size_t fUnresolvedGlyphs;
 
     SkTArray<TextLine, false> fLines;   // kFormatted   (cached: width, max lines, ellipsis, text align)

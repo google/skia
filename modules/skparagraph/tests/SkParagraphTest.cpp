@@ -7247,3 +7247,29 @@ DEF_TEST(SkParagraph_lineMetricsWithEllipsis, reporter) {
     paragraph->getLineMetrics(lm);
     REPORTER_ASSERT(reporter, lm.size() == 1);
 }
+
+DEF_TEST(SkParagraph_lineMetricsAfterUpdate, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    if (!fontCollection->fontsFound()) return;
+    fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+    fontCollection->enableFontFallback();
+
+    auto text = std::u16string(u"hello world");
+
+    ParagraphStyle paragraph_style;
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.addText(text);
+
+    auto paragraph = builder.Build();
+    paragraph->layout(200.);
+
+    std::vector<LineMetrics> lm;
+    paragraph->getLineMetrics(lm);
+    REPORTER_ASSERT(reporter, lm.size() == 1);
+
+    paragraph->updateFontSize(0, text.size(), 42);
+    paragraph->layout(200.);
+    paragraph->getLineMetrics(lm);
+    REPORTER_ASSERT(reporter, lm.size() == 2);
+}

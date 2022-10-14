@@ -72,6 +72,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fPlaceholders(std::move(placeholders))
         , fText(text)
         , fState(kUnknown)
+        , fillUTF16MappingOnce(std::in_place)
         , fUnresolvedGlyphs(0)
         , fPicture(nullptr)
         , fStrutMetrics(false)
@@ -137,6 +138,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fBidiRegions.clear();
         this->fUTF8IndexForUTF16Index.reset();
         this->fUTF16IndexForUTF8Index.reset();
+        this->fillUTF16MappingOnce.emplace();
         this->fRuns.reset();
         this->fClusters.reset();
         this->fClustersIndexFromCodeUnit.reset();
@@ -907,6 +909,7 @@ void ParagraphImpl::setState(InternalState state) {
             fBidiRegions.clear();
             fUTF8IndexForUTF16Index.reset();
             fUTF16IndexForUTF8Index.reset();
+            fillUTF16MappingOnce.emplace();
             [[fallthrough]];
 
         case kShaped:
@@ -1071,7 +1074,8 @@ TextIndex ParagraphImpl::findNextGraphemeBoundary(TextIndex utf8) {
 }
 
 void ParagraphImpl::ensureUTF16Mapping() {
-    fillUTF16MappingOnce([&] {
+    SkASSERT(fillUTF16MappingOnce.has_value());
+    (*fillUTF16MappingOnce)([&] {
         fUnicode->extractUtfConversionMapping(
                 this->text(),
                 [&](size_t index) { fUTF8IndexForUTF16Index.emplace_back(index); },
