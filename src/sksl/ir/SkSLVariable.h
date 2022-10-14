@@ -111,7 +111,7 @@ public:
 
     GlobalVarDeclaration* globalVarDeclaration() const;
 
-    void setGlobalVarDeclaration(GlobalVarDeclaration* declaration);
+    void setGlobalVarDeclaration(GlobalVarDeclaration* global);
 
     void detachDeadVarDeclaration() {
         // The VarDeclaration is being deleted, so our reference to it has become stale.
