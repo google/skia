@@ -347,17 +347,17 @@ std::tuple<SkPoint*, SkScalar*> SkPathRef::growForVerbsInPath(const SkPathRef& p
     fIsRRect = false;
 
     if (int numVerbs = path.countVerbs()) {
-        memcpy(fVerbs.append(numVerbs), path.fVerbs.begin(), numVerbs * sizeof(fVerbs[0]));
+        memcpy(fVerbs.push_back_n(numVerbs), path.fVerbs.begin(), numVerbs * sizeof(fVerbs[0]));
     }
 
     SkPoint* pts = nullptr;
     if (int numPts = path.countPoints()) {
-        pts = fPoints.append(numPts);
+        pts = fPoints.push_back_n(numPts);
     }
 
     SkScalar* weights = nullptr;
     if (int numConics = path.countWeights()) {
-        weights = fConicWeights.append(numConics);
+        weights = fConicWeights.push_back_n(numConics);
     }
 
     SkDEBUGCODE(this->validate();)
@@ -407,12 +407,12 @@ SkPoint* SkPathRef::growForRepeatedVerb(int /*SkPath::Verb*/ verb,
     fIsOval = false;
     fIsRRect = false;
 
-    memset(fVerbs.append(numVbs), verb, numVbs);
+    memset(fVerbs.push_back_n(numVbs), verb, numVbs);
     if (SkPath::kConic_Verb == verb) {
         SkASSERT(weights);
-        *weights = fConicWeights.append(numVbs);
+        *weights = fConicWeights.push_back_n(numVbs);
     }
-    SkPoint* pts = fPoints.append(pCnt);
+    SkPoint* pts = fPoints.push_back_n(pCnt);
 
     SkDEBUGCODE(this->validate();)
     return pts;
@@ -460,11 +460,11 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
     fIsOval = false;
     fIsRRect = false;
 
-    *fVerbs.append() = verb;
+    fVerbs.push_back(verb);
     if (SkPath::kConic_Verb == verb) {
-        *fConicWeights.append() = weight;
+        fConicWeights.push_back(weight);
     }
-    SkPoint* pts = fPoints.append(pCnt);
+    SkPoint* pts = fPoints.push_back_n(pCnt);
 
     SkDEBUGCODE(this->validate();)
     return pts;
@@ -665,13 +665,13 @@ bool SkPathRef::isValid() const {
         bool isFinite = true;
         auto leftTop = skvx::float2(fBounds.fLeft, fBounds.fTop);
         auto rightBot = skvx::float2(fBounds.fRight, fBounds.fBottom);
-        for (int i = 0; i < fPoints.size(); ++i) {
+        for (int i = 0; i < fPoints.count(); ++i) {
             auto point = skvx::float2(fPoints[i].fX, fPoints[i].fY);
 #ifdef SK_DEBUG
             if (fPoints[i].isFinite() && (any(point < leftTop)|| any(point > rightBot))) {
                 SkDebugf("bad SkPathRef bounds: %g %g %g %g\n",
                          fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
-                for (int j = 0; j < fPoints.size(); ++j) {
+                for (int j = 0; j < fPoints.count(); ++j) {
                     if (i == j) {
                         SkDebugf("*** bounds do not contain: ");
                     }
@@ -706,8 +706,8 @@ bool SkPathRef::dataMatchesVerbs() const {
     const auto info = sk_path_analyze_verbs(fVerbs.begin(), fVerbs.size());
     return info.valid                          &&
            info.segmentMask == fSegmentMask    &&
-           info.points      == fPoints.size()  &&
-           info.weights     == fConicWeights.size();
+           info.points      == fPoints.count()  &&
+           info.weights     == fConicWeights.count();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -12,7 +12,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/SkPathRef.h"
 
 class SK_API SkPathBuilder {
 public:
@@ -220,9 +220,9 @@ public:
     }
 
 private:
-    SkTDArray<SkPoint>  fPts;
-    SkTDArray<uint8_t>  fVerbs;
-    SkTDArray<SkScalar> fConicWeights;
+    SkPathRef::PointsArray fPts;
+    SkPathRef::VerbsArray fVerbs;
+    SkPathRef::ConicWeightsArray fConicWeights;
 
     SkPathFillType      fFillType;
     bool                fIsVolatile;
@@ -242,7 +242,7 @@ private:
     int fIsAStart = -1;     // tracks direction iff fIsA is not unknown
     bool fIsACCW  = false;  // tracks direction iff fIsA is not unknown
 
-    int countVerbs() const { return fVerbs.size(); }
+    int countVerbs() const { return fVerbs.count(); }
 
     // called right before we add a (non-move) verb
     void ensureMove() {

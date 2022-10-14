@@ -64,8 +64,8 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
 }
 
 void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount) {
-    fPts.reserve(  Sk32_sat_add(fPts.size(),   extraPtCount));
-    fVerbs.reserve(Sk32_sat_add(fVerbs.size(), extraVbCount));
+    fPts.reserve_back(  Sk32_sat_add(fPts.size(),   extraPtCount));
+    fVerbs.reserve_back(Sk32_sat_add(fVerbs.size(), extraVbCount));
 }
 
 SkRect SkPathBuilder::computeBounds() const {
@@ -107,7 +107,7 @@ SkPathBuilder& SkPathBuilder::lineTo(SkPoint pt) {
 SkPathBuilder& SkPathBuilder::quadTo(SkPoint pt1, SkPoint pt2) {
     this->ensureMove();
 
-    SkPoint* p = fPts.append(2);
+    SkPoint* p = fPts.push_back_n(2);
     p[0] = pt1;
     p[1] = pt2;
     fVerbs.push_back((uint8_t)SkPathVerb::kQuad);
@@ -119,7 +119,7 @@ SkPathBuilder& SkPathBuilder::quadTo(SkPoint pt1, SkPoint pt2) {
 SkPathBuilder& SkPathBuilder::conicTo(SkPoint pt1, SkPoint pt2, SkScalar w) {
     this->ensureMove();
 
-    SkPoint* p = fPts.append(2);
+    SkPoint* p = fPts.push_back_n(2);
     p[0] = pt1;
     p[1] = pt2;
     fVerbs.push_back((uint8_t)SkPathVerb::kConic);
@@ -132,7 +132,7 @@ SkPathBuilder& SkPathBuilder::conicTo(SkPoint pt1, SkPoint pt2, SkScalar w) {
 SkPathBuilder& SkPathBuilder::cubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3) {
     this->ensureMove();
 
-    SkPoint* p = fPts.append(3);
+    SkPoint* p = fPts.push_back_n(3);
     p[0] = pt1;
     p[1] = pt2;
     p[2] = pt3;
@@ -770,8 +770,8 @@ SkPathBuilder& SkPathBuilder::polylineTo(const SkPoint pts[], int count) {
         this->ensureMove();
 
         this->incReserve(count, count);
-        memcpy(fPts.append(count), pts, count * sizeof(SkPoint));
-        memset(fVerbs.append(count), (uint8_t)SkPathVerb::kLine, count);
+        memcpy(fPts.push_back_n(count), pts, count * sizeof(SkPoint));
+        memset(fVerbs.push_back_n(count), (uint8_t)SkPathVerb::kLine, count);
         fSegmentMask |= kLine_SkPathSegmentMask;
     }
     return *this;
