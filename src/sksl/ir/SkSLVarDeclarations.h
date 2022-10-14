@@ -78,8 +78,8 @@ public:
         return fVar;
     }
 
-    void setVar(Variable* var) {
-        fVar = var;
+    void detachDeadVariable() {
+        fVar = nullptr;
     }
 
     int arraySize() const {

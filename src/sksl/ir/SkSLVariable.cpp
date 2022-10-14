@@ -30,7 +30,7 @@ namespace SkSL {
 Variable::~Variable() {
     // Unhook this Variable from its associated VarDeclaration, since we're being deleted.
     if (VarDeclaration* declaration = this->varDeclaration()) {
-        declaration->setVar(nullptr);
+        declaration->detachDeadVariable();
     }
 }
 
