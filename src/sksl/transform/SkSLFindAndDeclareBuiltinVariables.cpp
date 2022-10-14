@@ -77,7 +77,7 @@ public:
             // otherwise unreferenced. Check main's return type to see if it's half4.
             if (funcDef.declaration().isMain()) {
                 if (funcDef.declaration().returnType().matches(*fContext.fTypes.fHalf4)) {
-                    // main() returns a half4, so make sure we don't dead-strip sk_FragColor.
+                    // main() returns a half4, so make sure we include sk_FragColor in the output.
                     this->addDeclaringElement(fSymbols.find(Compiler::FRAGCOLOR_NAME));
                 }
                 // Once we find main(), we can stop scanning.

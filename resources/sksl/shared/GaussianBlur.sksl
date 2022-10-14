@@ -10,7 +10,6 @@ layout (binding=0) uniform uniformBuffer
 	layout(offset=224) float4 unorm_Stage1_c0_c0_c0;
 };
 layout(location = 0) in float2 vLocalCoord_Stage0;
-layout(location = 0, index = 0) out half4 sk_FragColor;
 half4 TextureEffect_Stage1_c0_c0_c0(half4 _input, float2 _coords)
 {
 	half4 _output;

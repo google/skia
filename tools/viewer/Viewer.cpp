@@ -1881,20 +1881,19 @@ static bool ImGui_DragQuad(SkPoint* pts) {
 }
 
 static std::string build_sksl_highlight_shader() {
-    return std::string("out half4 sk_FragColor;\n"
-                        "void main() { sk_FragColor = half4(1, 0, 1, 0.5); }");
+    return std::string("void main() { sk_FragColor = half4(1, 0, 1, 0.5); }");
 }
 
 static std::string build_metal_highlight_shader(const std::string& inShader) {
     // Metal fragment shaders need a lot of non-trivial boilerplate that we don't want to recompute
     // here. So keep all shader code, but right before `return *_out;`, swap out the sk_FragColor.
-    size_t pos = inShader.rfind("return *_out;\n");
+    size_t pos = inShader.rfind("return _out;\n");
     if (pos == std::string::npos) {
         return inShader;
     }
 
     std::string replacementShader = inShader;
-    replacementShader.insert(pos, "_out->sk_FragColor = float4(1.0, 0.0, 1.0, 0.5); ");
+    replacementShader.insert(pos, "_out.sk_FragColor = float4(1.0, 0.0, 1.0, 0.5); ");
     return replacementShader;
 }
 
