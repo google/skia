@@ -18,6 +18,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLExpression.h"
+#include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
@@ -30,6 +31,13 @@ Variable::~Variable() {
     // Unhook this Variable from its associated VarDeclaration, since we're being deleted.
     if (VarDeclaration* declaration = this->varDeclaration()) {
         declaration->setVar(nullptr);
+    }
+}
+
+InterfaceBlockVariable::~InterfaceBlockVariable() {
+    // Unhook this Variable from its associated InterfaceBlock, since we're being deleted.
+    if (fInterfaceBlockElement) {
+        fInterfaceBlockElement->detachDeadVariable();
     }
 }
 
@@ -84,15 +92,21 @@ std::string Variable::mangledName() const {
     return "sk_Priv" + std::string(name);
 }
 
-std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos,
-        Position modifiersPos, const Modifiers& modifiers, const Type* baseType, Position namePos,
-        std::string_view name, bool isArray, std::unique_ptr<Expression> arraySize,
-        Variable::Storage storage) {
+std::unique_ptr<Variable> Variable::Convert(const Context& context,
+                                            Position pos,
+                                            Position modifiersPos,
+                                            const Modifiers& modifiers,
+                                            const Type* baseType,
+                                            Position namePos,
+                                            std::string_view name,
+                                            bool isArray,
+                                            std::unique_ptr<Expression> arraySize,
+                                            Variable::Storage storage) {
     if (modifiers.fLayout.fLocation == 0 && modifiers.fLayout.fIndex == 0 &&
         (modifiers.fFlags & Modifiers::kOut_Flag) &&
         ProgramConfig::IsFragment(context.fConfig->fKind) && name != Compiler::FRAGCOLOR_NAME) {
         context.fErrors->error(modifiersPos,
-                "out location=0, index=0 is reserved for sk_FragColor");
+                               "out location=0, index=0 is reserved for sk_FragColor");
     }
     if (!context.fConfig->fIsBuiltinCode && skstd::starts_with(name, '$')) {
         context.fErrors->error(namePos, "name '" + std::string(name) + "' is reserved");
@@ -112,13 +126,18 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context, Position pos
     }
 
     return Make(context, pos, modifiersPos, modifiers, baseType, name, isArray,
-            std::move(arraySize), storage);
+                std::move(arraySize), storage);
 }
 
-std::unique_ptr<Variable> Variable::Make(const Context& context, Position pos,
-        Position modifiersPos, const Modifiers& modifiers, const Type* baseType,
-        std::string_view name, bool isArray, std::unique_ptr<Expression> arraySize,
-        Variable::Storage storage) {
+std::unique_ptr<Variable> Variable::Make(const Context& context,
+                                         Position pos,
+                                         Position modifiersPos,
+                                         const Modifiers& modifiers,
+                                         const Type* baseType,
+                                         std::string_view name,
+                                         bool isArray,
+                                         std::unique_ptr<Expression> arraySize,
+                                         Variable::Storage storage) {
     const Type* type = baseType;
     int arraySizeValue = 0;
     if (isArray) {
@@ -129,8 +148,23 @@ std::unique_ptr<Variable> Variable::Make(const Context& context, Position pos,
         }
         type = ThreadContext::SymbolTable()->addArrayDimension(type, arraySizeValue);
     }
-    return std::make_unique<Variable>(pos, modifiersPos, context.fModifiersPool->add(modifiers),
-            name, type, context.fConfig->fIsBuiltinCode, storage);
+    if (type->componentType().isInterfaceBlock()) {
+        return std::make_unique<InterfaceBlockVariable>(pos,
+                                                        modifiersPos,
+                                                        context.fModifiersPool->add(modifiers),
+                                                        name,
+                                                        type,
+                                                        context.fConfig->fIsBuiltinCode,
+                                                        storage);
+    } else {
+        return std::make_unique<Variable>(pos,
+                                          modifiersPos,
+                                          context.fModifiersPool->add(modifiers),
+                                          name,
+                                          type,
+                                          context.fConfig->fIsBuiltinCode,
+                                          storage);
+    }
 }
 
 Variable::ScratchVariable Variable::MakeScratchVariable(const Context& context,

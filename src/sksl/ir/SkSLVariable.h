@@ -25,6 +25,7 @@ namespace SkSL {
 class Context;
 class Expression;
 class GlobalVarDeclaration;
+class InterfaceBlock;
 class IRNode;
 class Mangler;
 class SymbolTable;
@@ -42,7 +43,7 @@ enum class VariableStorage : int8_t {
  * variable itself (the storage location), which is shared between all VariableReferences which
  * read or write that storage location.
  */
-class Variable final : public Symbol {
+class Variable : public Symbol {
 public:
     using Storage = VariableStorage;
 
@@ -118,6 +119,15 @@ public:
         fDeclaringElement = nullptr;
     }
 
+    // The interfaceBlock methods are no-op stubs here. They have proper implementations in
+    // InterfaceBlockVariable, declared below this class, which dedicates extra space to store the
+    // pointer back to the InterfaceBlock.
+    virtual InterfaceBlock* interfaceBlock() const { return nullptr; }
+
+    virtual void setInterfaceBlock(InterfaceBlock*) { SkUNREACHABLE; }
+
+    virtual void detachDeadInterfaceBlock() {}
+
     std::string description() const override {
         return this->modifiers().description() + this->type().displayName() + " " +
                std::string(this->name());
@@ -134,6 +144,34 @@ private:
     bool fBuiltin;
 
     using INHERITED = Symbol;
+};
+
+/**
+ * This represents a Variable associated with an InterfaceBlock. Mostly a normal variable, but also
+ * has an extra pointer back to the InterfaceBlock element that owns it.
+ */
+class InterfaceBlockVariable final : public Variable {
+public:
+    using Variable::Variable;
+
+    ~InterfaceBlockVariable() override;
+
+    InterfaceBlock* interfaceBlock() const override { return fInterfaceBlockElement; }
+
+    void setInterfaceBlock(InterfaceBlock* elem) override {
+        SkASSERT(!fInterfaceBlockElement);
+        fInterfaceBlockElement = elem;
+    }
+
+    void detachDeadInterfaceBlock() override {
+        // The InterfaceBlock is being deleted, so our reference to it has become stale.
+        fInterfaceBlockElement = nullptr;
+    }
+
+private:
+    InterfaceBlock* fInterfaceBlockElement = nullptr;
+
+    using INHERITED = Variable;
 };
 
 } // namespace SkSL

@@ -3408,14 +3408,14 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                     fProgram.fSymbols->takeOwnershipOfSymbol(Type::MakeStructType(
                             type.fPosition, type.name(), std::move(fields),
                             /*interfaceBlock=*/true));
-            Variable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
-                    std::make_unique<Variable>(intfVar.fPosition,
-                                               intfVar.modifiersPosition(),
-                                               &intfVar.modifiers(),
-                                               intfVar.name(),
-                                               rtFlipStructType,
-                                               intfVar.isBuiltin(),
-                                               intfVar.storage()));
+            InterfaceBlockVariable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
+                    std::make_unique<InterfaceBlockVariable>(intfVar.fPosition,
+                                                             intfVar.modifiersPosition(),
+                                                             &intfVar.modifiers(),
+                                                             intfVar.name(),
+                                                             rtFlipStructType,
+                                                             intfVar.isBuiltin(),
+                                                             intfVar.storage()));
             fSPIRVBonusVariables.add(modifiedVar);
             InterfaceBlock modifiedCopy(intf.fPosition,
                                         modifiedVar,
@@ -3868,7 +3868,7 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
     layout.fSet     = fProgram.fConfig->fSettings.fDefaultUniformSet;
     Modifiers modifiers{layout, Modifiers::kUniform_Flag};
 
-    fUniformBuffer.fInnerVariable = std::make_unique<Variable>(
+    fUniformBuffer.fInnerVariable = std::make_unique<InterfaceBlockVariable>(
             /*pos=*/Position(), /*modifiersPosition=*/Position(),
             fContext.fModifiersPool->add(modifiers), kUniformBufferName,
             fUniformBuffer.fStruct.get(), /*builtin=*/false, Variable::Storage::kGlobal);
@@ -3941,14 +3941,14 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
                             Modifiers::kUniform_Flag);
         modsPtr = fContext.fModifiersPool->add(modifiers);
     }
-    Variable* intfVar = fSynthetics.takeOwnershipOfSymbol(
-            std::make_unique<Variable>(/*pos=*/Position(),
-                                       /*modifiersPosition=*/Position(),
-                                       modsPtr,
-                                       name,
-                                       intfStruct,
-                                       /*builtin=*/false,
-                                       Variable::Storage::kGlobal));
+    InterfaceBlockVariable* intfVar = fSynthetics.takeOwnershipOfSymbol(
+            std::make_unique<InterfaceBlockVariable>(/*pos=*/Position(),
+                                                     /*modifiersPosition=*/Position(),
+                                                     modsPtr,
+                                                     name,
+                                                     intfStruct,
+                                                     /*builtin=*/false,
+                                                     Variable::Storage::kGlobal));
     fSPIRVBonusVariables.add(intfVar);
     {
         AutoAttachPoolToThread attach(fProgram.fPool.get());

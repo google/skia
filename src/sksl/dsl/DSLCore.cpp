@@ -260,7 +260,7 @@ public:
                         pos, typeName, std::move(skslFields), /*interfaceBlock=*/true));
         DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
         DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName, DSLExpression(),
-                pos);
+                         pos);
         SkSL::Variable* skslVar = DSLWriter::Var(var);
         if (skslVar) {
             auto intf = std::make_unique<SkSL::InterfaceBlock>(pos, skslVar, typeName,
