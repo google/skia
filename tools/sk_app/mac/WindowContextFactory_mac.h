@@ -49,6 +49,9 @@ std::unique_ptr<WindowContext> MakeGLForMac(const MacWindowInfo&, const DisplayP
 
 #ifdef SK_DAWN
 std::unique_ptr<WindowContext> MakeDawnMTLForMac(const MacWindowInfo&, const DisplayParams&);
+#ifdef SK_GRAPHITE_ENABLED
+std::unique_ptr<WindowContext> MakeGraphiteDawnMetalForMac(const MacWindowInfo&, const DisplayParams&);
+#endif
 #endif
 
 #ifdef SK_METAL

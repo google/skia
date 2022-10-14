@@ -64,6 +64,9 @@ public:
 #endif
 #ifdef SK_DAWN
         kDawn_BackendType,
+#ifdef SK_GRAPHITE_ENABLED
+        kGraphiteDawn_BackendType,
+#endif
 #endif
 #ifdef SK_VULKAN
         kVulkan_BackendType,

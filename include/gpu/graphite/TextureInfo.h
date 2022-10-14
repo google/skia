@@ -10,6 +10,10 @@
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 
+#ifdef SK_DAWN
+#include "include/private/gpu/graphite/DawnTypesPriv.h"
+#endif
+
 #ifdef SK_METAL
 #include "include/private/gpu/graphite/MtlTypesPriv.h"
 #endif
@@ -23,6 +27,16 @@ namespace skgpu::graphite {
 class TextureInfo {
 public:
     TextureInfo() {}
+#ifdef SK_DAWN
+    TextureInfo(const DawnTextureInfo& dawnInfo)
+            : fBackend(BackendApi::kDawn)
+            , fValid(true)
+            , fSampleCount(dawnInfo.fSampleCount)
+            , fLevelCount(dawnInfo.fLevelCount)
+            , fProtected(Protected::kNo)
+            , fDawnSpec(dawnInfo) {}
+#endif
+
 #ifdef SK_METAL
     TextureInfo(const MtlTextureInfo& mtlInfo)
             : fBackend(BackendApi::kMetal)
@@ -61,6 +75,16 @@ public:
     uint32_t numMipLevels() const { return fLevelCount; }
     Protected isProtected() const { return fProtected; }
 
+#ifdef SK_DAWN
+    bool getDawnTextureInfo(DawnTextureInfo* info) const {
+        if (!this->isValid() || fBackend != BackendApi::kDawn) {
+            return false;
+        }
+        *info = DawnTextureSpecToTextureInfo(fDawnSpec, fSampleCount, fLevelCount);
+        return true;
+    }
+#endif
+
 #ifdef SK_METAL
     bool getMtlTextureInfo(MtlTextureInfo* info) const {
         if (!this->isValid() || fBackend != BackendApi::kMetal) {
@@ -82,6 +106,13 @@ public:
 #endif
 
 private:
+#ifdef SK_DAWN
+    const DawnTextureSpec& dawnTextureSpec() const {
+        SkASSERT(fValid && fBackend == BackendApi::kDawn);
+        return fDawnSpec;
+    }
+#endif
+
 #ifdef SK_METAL
     friend class MtlCaps;
     friend class MtlGraphicsPipeline;
@@ -109,6 +140,9 @@ private:
     Protected fProtected = Protected::kNo;
 
     union {
+#ifdef SK_DAWN
+        DawnTextureSpec fDawnSpec;
+#endif
 #ifdef SK_METAL
         MtlTextureSpec fMtlSpec;
 #endif

@@ -2769,6 +2769,12 @@ if (skia_enable_tools) {
         if (dawn_enable_metal) {
           sources += [ "tools/sk_app/mac/DawnMTLWindowContext_mac.mm" ]
         }
+        if (skia_enable_graphite) {
+          sources +=
+              [ "tools/sk_app/mac/GraphiteDawnMetalWindowContext_mac.mm" ]
+          sources += [ "tools/sk_app/GraphiteDawnWindowContext.cpp" ]
+          sources += [ "tools/sk_app/GraphiteDawnWindowContext.h" ]
+        }
       }
     }
 

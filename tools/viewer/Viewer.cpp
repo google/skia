@@ -225,6 +225,11 @@ static sk_app::Window::BackendType get_backend_type(const char* str) {
     if (0 == strcmp(str, "dawn")) {
         return sk_app::Window::kDawn_BackendType;
     } else
+#ifdef SK_GRAPHITE_ENABLED
+    if (0 == strcmp(str, "grdawn")) {
+        return sk_app::Window::kGraphiteDawn_BackendType;
+    } else
+#endif
 #endif
 #ifdef SK_VULKAN
     if (0 == strcmp(str, "vk")) {
