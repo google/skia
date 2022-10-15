@@ -357,6 +357,10 @@ public:
      */
     void reset();
 
+    bool isInitialEmptyPathRef() const {
+        return fGenerationID == kEmptyGenID;
+    }
+
 private:
     enum SerializationOffsets {
         kLegacyRRectOrOvalStartIdx_SerializationShift = 28, // requires 3 bits, ignored.
