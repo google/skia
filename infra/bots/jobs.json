@@ -154,6 +154,9 @@
   {"name": "Build-Mac-Clang-x86_64-Debug-ANGLE"},
   {"name": "Build-Mac-Clang-x86_64-Debug-ASAN"},
   {"name": "Build-Mac-Clang-x86_64-Debug-ASAN_Metal"},
+  {"name": "Build-Mac-Clang-x86_64-Debug-Graphite_Dawn",
+   "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
+  },
   {"name": "Build-Mac-Clang-x86_64-Debug-Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
   },
@@ -162,6 +165,7 @@
    "cq_config": {}
    },
   {"name": "Build-Mac-Clang-x86_64-Release-ANGLE"},
+  {"name": "Build-Mac-Clang-x86_64-Release-Graphite_Dawn"},
   {"name": "Build-Mac-Clang-x86_64-Release-Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
   },
@@ -170,6 +174,9 @@
   {"name": "Build-Mac-Clang-x86_64-Release-TSAN_Metal"},
   {"name": "Build-Win-Clang-arm64-Debug"},
   {"name": "Build-Win-Clang-arm64-Debug-ANGLE"},
+  {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn"},
+  {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_NoGpu"},
+  {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_NoPrecompile"},
   {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Metal",
    "cq_config": {}
    },
@@ -178,6 +185,8 @@
    },
   {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Metal_NoPrecompile"},
   {"name": "Build-Mac-Clang-arm64-Debug-ASAN"},
+  {"name": "Build-Mac-Clang-arm64-Debug-ASAN_Graphite_Dawn"},
+  {"name": "Build-Mac-Clang-arm64-Debug-iOS_Graphite_Dawn"},
   {"name": "Build-Mac-Clang-arm64-Debug-ASAN_Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
   },
@@ -186,9 +195,11 @@
   },
   {"name": "Build-Win-Clang-arm64-Release"},
   {"name": "Build-Win-Clang-arm64-Release-ANGLE"},
+  {"name": "Build-Mac-Clang-arm64-Release-Graphite_Dawn"},
   {"name": "Build-Mac-Clang-arm64-Release-Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
   },
+  {"name": "Build-Mac-Clang-arm64-Release-iOS_Graphite_Dawn"},
   {"name": "Build-Mac-Clang-arm64-Release-iOS_Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
   },

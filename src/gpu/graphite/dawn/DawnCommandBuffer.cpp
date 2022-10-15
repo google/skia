@@ -15,9 +15,9 @@
 
 namespace skgpu::graphite {
 
-sk_sp<DawnCommandBuffer> DawnCommandBuffer::Make(wgpu::CommandBuffer cmdBuffer,
-                                                 const DawnSharedContext* sharedContext,
-                                                 DawnResourceProvider* resourceProvider) {
+std::unique_ptr<DawnCommandBuffer> DawnCommandBuffer::Make(wgpu::CommandBuffer cmdBuffer,
+                                                           const DawnSharedContext* sharedContext,
+                                                           DawnResourceProvider* resourceProvider) {
     return nullptr;
 }
 
@@ -26,7 +26,9 @@ DawnCommandBuffer::DawnCommandBuffer(wgpu::CommandBuffer cmdBuffer,
                                      DawnResourceProvider* resourceProvider)
         : fCommandBuffer(std::move(cmdBuffer))
         , fSharedContext(sharedContext)
-        , fResourceProvider(resourceProvider) {}
+        , fResourceProvider(resourceProvider) {
+
+}
 
 DawnCommandBuffer::~DawnCommandBuffer() {}
 
@@ -36,17 +38,17 @@ bool DawnCommandBuffer::commit() {
 }
 
 bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
-                                       const Texture* colorTexture,
-                                       const Texture* resolveTexture,
-                                       const Texture* depthStencilTexture,
-                                       const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
+                                        const Texture* colorTexture,
+                                        const Texture* resolveTexture,
+                                        const Texture* depthStencilTexture,
+                                        const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
     // TODO
     return false;
 }
 
 bool DawnCommandBuffer::onAddComputePass(const ComputePassDesc& computePassDesc,
-                                        const ComputePipeline* pipeline,
-                                        const std::vector<ResourceBinding>& bindings) {
+                                         const ComputePipeline* pipeline,
+                                         const std::vector<ResourceBinding>& bindings) {
     // TODO
     return false;
 }
@@ -73,11 +75,16 @@ bool DawnCommandBuffer::onCopyTextureToTexture(const Texture* src,
     return false;
 }
 
-bool DawnCommandBuffer::onSynchronizeBufferToCpu(const Buffer* buffer, bool* outDidResultInWork) {
+bool DawnCommandBuffer::onSynchronizeBufferToCpu(const Buffer* buffer,
+                                                 bool* outDidResultInWork) {
     return false;
 }
 
 void DawnCommandBuffer::onResetCommandBuffer() {
+}
+
+bool DawnCommandBuffer::setNewCommandBufferResources() {
+    return false;
 }
 
 } // namespace skgpu::graphite

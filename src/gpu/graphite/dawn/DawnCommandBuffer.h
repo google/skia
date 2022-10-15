@@ -15,22 +15,16 @@
 
 #include "webgpu/webgpu_cpp.h"
 
-#include <memory>
-
-#include "include/core/SkTypes.h"
 
 namespace skgpu::graphite {
-class DawnBlitCommandEncoder;
-class DawnComputeCommandEncoder;
-class DawnRenderCommandEncoder;
 class DawnResourceProvider;
 class DawnSharedContext;
 
 class DawnCommandBuffer final : public CommandBuffer {
 public:
-    static sk_sp<DawnCommandBuffer> Make(wgpu::CommandBuffer cmdBuffer,
-                                         const DawnSharedContext*,
-                                         DawnResourceProvider*);
+    static std::unique_ptr<DawnCommandBuffer> Make(wgpu::CommandBuffer cmdBuffer,
+                                                   const DawnSharedContext*,
+                                                   DawnResourceProvider*);
     ~DawnCommandBuffer() override;
 
     bool isFinished() {
@@ -47,8 +41,8 @@ public:
 
 private:
     DawnCommandBuffer(wgpu::CommandBuffer cmdBuffer,
-                     const DawnSharedContext* sharedContext,
-                     DawnResourceProvider* resourceProvider);
+                      const DawnSharedContext* sharedContext,
+                      DawnResourceProvider* resourceProvider);
 
     bool onAddRenderPass(const RenderPassDesc&,
                          const Texture* colorTexture,
@@ -73,11 +67,11 @@ private:
                                 SkIPoint dstPoint) override;
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
     void onResetCommandBuffer() override;
+    bool setNewCommandBufferResources() override;
 
     wgpu::CommandBuffer fCommandBuffer;
-    wgpu::Buffer fCurrentIndexBuffer;
-    const DawnSharedContext* fSharedContext;
-    DawnResourceProvider* fResourceProvider;
+    [[maybe_unused]] const DawnSharedContext* fSharedContext;
+    [[maybe_unused]] DawnResourceProvider* fResourceProvider;
 };
 
 } // namespace skgpu::graphite
