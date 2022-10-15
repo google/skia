@@ -1,0 +1,11 @@
+void $function() {}
+
+float4 main(float2 xy) {
+    const half $one = 1;
+    $function();
+    return $hsl_to_rgb(half3(0), $one);
+}
+
+/*%%*
+name '$one' is reserved
+*%%*/

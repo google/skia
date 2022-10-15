@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 4: name '$one' is reserved
+    const half $one = 1;
+               ^^^^
+1 error

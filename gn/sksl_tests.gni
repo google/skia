@@ -797,6 +797,7 @@ sksl_rte_error_tests = [
   "/sksl/runtime_errors/Ossfuzz36655.rts",
   "/sksl/runtime_errors/Ossfuzz38131.rts",
   "/sksl/runtime_errors/Ossfuzz45279.rts",
+  "/sksl/runtime_errors/PrivateFunctions.rts",
   "/sksl/runtime_errors/PrivateRTShader.rts",
   "/sksl/runtime_errors/ProgramTooLarge_BlocklessLoops.rts",
   "/sksl/runtime_errors/ProgramTooLarge_Extreme.rts",
