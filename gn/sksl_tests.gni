@@ -72,6 +72,7 @@ sksl_error_tests = [
   "/sksl/errors/DuplicateBinding.sksl",
   "/sksl/errors/DuplicateFunction.rts",
   "/sksl/errors/DuplicateOutput.sksl",
+  "/sksl/errors/DuplicateRTAdjust.sksl",
   "/sksl/errors/DuplicateSymbol.rts",
   "/sksl/errors/EmptyArray.rts",
   "/sksl/errors/EmptyStruct.rts",

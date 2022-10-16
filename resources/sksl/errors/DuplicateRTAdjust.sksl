@@ -1,0 +1,5 @@
+MyInterfaceBlock {
+    float4 sk_RTAdjust;
+} interfaceBlock;
+
+float4 sk_RTAdjust;
