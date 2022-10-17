@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkMutex.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/SkTArray.h"
 
 #include <atomic>
 
@@ -65,7 +65,7 @@ public:
 
     private:
         mutable SkMutex fMutex;
-        SkTDArray<SkIDChangeListener*> fListeners SK_GUARDED_BY(fMutex);  // pointers are reffed
+        SkSTArray<1, sk_sp<SkIDChangeListener>> fListeners SK_GUARDED_BY(fMutex);
     };
 
 private:

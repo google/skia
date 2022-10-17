@@ -16,7 +16,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkPathPriv.h"
 #include "src/utils/SkOSPath.h"
