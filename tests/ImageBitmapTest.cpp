@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
-
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "tests/Test.h"
 
 // https://bug.skia.org/5096
 // Test that when we make an image from a subset of a bitmap, that it

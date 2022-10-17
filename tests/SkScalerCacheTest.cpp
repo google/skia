@@ -5,17 +5,31 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkExecutor.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkScalerCache.h"
+#include "src/core/SkScalerContext.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
-#include "src/text/GlyphRun.h"
+#include "src/core/SkZip.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
 #include <atomic>
+#include <cstddef>
+#include <functional>
+#include <initializer_list>
+#include <memory>
 
 class Barrier {
 public:

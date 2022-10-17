@@ -22,6 +22,8 @@
 #include "src/core/SkPathEffectBase.h"
 #include "tests/Test.h"
 
+#include <array>
+
 // crbug.com/348821 was rooted in SkDashPathEffect refusing to flatten and unflatten itself when
 // the effect is nonsense.  Here we test that it fails when passed nonsense parameters.
 

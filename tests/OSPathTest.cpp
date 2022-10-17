@@ -6,8 +6,11 @@
  */
 
 #include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
+
+#include <cstddef>
 
 /**
  *  Test SkOSPath::Join, SkOSPath::Basename, and SkOSPath::Dirname.

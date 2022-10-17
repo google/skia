@@ -8,7 +8,7 @@
 #ifndef PathOpsDebug_DEFINED
 #define PathOpsDebug_DEFINED
 
-#include <stdio.h>
+#include <cstdio>
 
 class PathOpsDebug {
 public:

@@ -8,12 +8,24 @@
 // We want to make sure that if we collapse src-over down to src when blending, that batching still
 // works correctly with a draw that explicitly requests src.
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
+
+struct GrContextOptions;
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SrcSrcOverBatchTest,
                                        reporter,

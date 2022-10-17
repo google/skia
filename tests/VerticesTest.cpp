@@ -5,7 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkVertices.h"
 #include "src/core/SkAutoMalloc.h"
@@ -14,6 +19,8 @@
 #include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+
+#include <cstdint>
 
 static bool equal(const SkVertices* vert0, const SkVertices* vert1) {
     SkVerticesPriv v0(vert0->priv()), v1(vert1->priv());

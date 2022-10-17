@@ -5,10 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkString.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkBase64.h"
-
 #include "tests/Test.h"
+
+#include <cstring>
 
 DEF_TEST(SkBase64, reporter) {
     char all[256];

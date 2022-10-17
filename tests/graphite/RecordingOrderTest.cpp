@@ -7,6 +7,7 @@
 
 #include "tests/Test.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recording.h"
 #include "src/gpu/graphite/ContextPriv.h"

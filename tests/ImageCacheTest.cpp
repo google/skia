@@ -5,9 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkDiscardableMemory.h"
 #include "src/core/SkResourceCache.h"
+#include "src/lazy/SkDiscardableMemoryPool.h"
 #include "tests/Test.h"
+
+#include <cstddef>
+#include <cstdint>
 
 namespace {
 static void* gGlobalAddress;
@@ -104,8 +110,6 @@ static void test_cache_purge_shared_id(skiatest::Reporter* reporter, SkResourceC
         }
     }
 }
-
-#include "src/lazy/SkDiscardableMemoryPool.h"
 
 static SkDiscardableMemoryPool* gPool;
 static SkDiscardableMemory* pool_factory(size_t bytes) {

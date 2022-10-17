@@ -5,9 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkTSort.h"
 #include "tests/Test.h"
+
+#include <cmath>
+#include <cstring>
 
 static bool anderson_darling_test(double p[32]) {
     // Min and max Anderson-Darling values allowable for k=32

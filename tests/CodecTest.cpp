@@ -5,18 +5,14 @@
  * found in the LICENSE file.
  */
 
-// Make sure SkUserConfig.h is included so #defines are available on
-// Android.
-#include "include/core/SkTypes.h"
-#ifdef SK_ENABLE_ANDROID_UTILS
-#include "client_utils/android/FrontBufferedStream.h"
-#endif
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImage.h"
@@ -31,7 +27,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/core/SkUnPreMultiply.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
@@ -49,9 +44,16 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-#include <png.h>
+#ifdef SK_ENABLE_ANDROID_UTILS
+#include "client_utils/android/FrontBufferedStream.h"
+#endif
 
+#include <png.h>
+#include <pngconf.h>
 #include <setjmp.h>
+
+#include <algorithm>
+#include <cstdint>
 #include <cstring>
 #include <initializer_list>
 #include <memory>

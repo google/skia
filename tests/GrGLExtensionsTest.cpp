@@ -8,9 +8,9 @@
 #include "tests/Test.h"
 
 #ifdef SK_GL
-
 #include "include/core/SkTypes.h"
 #include "include/gpu/gl/GrGLExtensions.h"
+#include "include/gpu/gl/GrGLTypes.h"
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 
 const GrGLubyte* simpleGetString(GrGLenum name) {

@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/utils/SkRandom.h"
 #include "src/core/SkTInternalLList.h"
 #include "tests/Test.h"
+
+#include <utility>
 
 class ListElement {
 public:

@@ -4,12 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkTypes.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsConic.h"
 #include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkReduceOrder.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
+
+#include <iterator>
 
 static struct cubicConic {
     CubicPts cubic;

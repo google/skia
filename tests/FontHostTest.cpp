@@ -5,16 +5,27 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkData.h"
 #include "include/core/SkFont.h"
-#include "include/core/SkPaint.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkFontStream.h"
-#include "src/core/SkOSFile.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string>
 
 //#define DUMP_TABLES
 //#define DUMP_TTC_TABLES

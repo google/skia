@@ -8,6 +8,8 @@
 #include "src/core/SkRasterPipeline.h"
 #include "tests/Test.h"
 
+#include <cstdint>
+
 DEF_TEST(F16Stages, r) {
     // Make sure SkRasterPipeline::load_f16 and store_f16 can handle a range of
     // ordinary (0<=x<=1) and interesting (x<0, x>1) values.

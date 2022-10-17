@@ -7,25 +7,43 @@
 
 // This is a GPU-backend specific test.
 
-#include "tests/Test.h"
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkMessageBus.h"
+#include "src/gpu/ResourceKey.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
-#include "src/gpu/ganesh/GrResourceProvider.h"
+#include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
-#ifdef SK_DAWN
-#include "src/gpu/ganesh/dawn/GrDawnGpu.h"
-#endif
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <utility>
+
+class GrResourceProvider;
+struct GrContextOptions;
 
 int GrProxyProvider::numUniqueKeyProxies_TestOnly() const {
     return fUniquelyKeyedProxies.count();

@@ -5,25 +5,33 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkCanvasStateUtils.h"
-#include "src/core/SkCanvasPriv.h"
 #include "src/core/SkTLazy.h"
 #include "tests/Test.h"
-#include "tools/flags/CommandLineFlags.h"
 
+#include <array>
+#include <cstdint>
 #include <cstring>
 
 class SkCanvasState;

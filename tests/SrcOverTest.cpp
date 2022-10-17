@@ -5,8 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkColorData.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkMath.h"
 #include "tests/Test.h"
+
+#include <algorithm>
 
 // our std SkAlpha255To256
 static int test_srcover0(unsigned dst, unsigned alpha) {

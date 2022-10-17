@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
-
 #include "tests/Test.h"
 
 DEF_TEST(ISize, reporter) {

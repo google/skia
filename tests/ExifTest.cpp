@@ -6,9 +6,13 @@
  */
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkStream.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+
+#include <memory>
+#include <utility>
 
 DEF_TEST(ExifOrientation, r) {
     std::unique_ptr<SkStream> stream(GetResourceAsStream("images/exif-orientation-2-ur.jpg"));

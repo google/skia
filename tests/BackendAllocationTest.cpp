@@ -5,37 +5,84 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
-#include "include/core/SkSurfaceCharacterization.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrResourceCache.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
-#include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
-#include "src/image/SkImage_Base.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/ProxyUtils.h"
 
-#ifdef SK_GL
-#include "src/gpu/ganesh/gl/GrGLCaps.h"
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
-#include "src/gpu/ganesh/gl/GrGLGpu.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
+#include <array>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+#include <utility>
+
+#if defined(SK_DAWN)
+#include <dawn/webgpu_cpp.h>
 #endif
 
-#ifdef SK_METAL
+#if defined(SK_GL)
+#include "include/gpu/gl/GrGLInterface.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "src/gpu/ganesh/gl/GrGLCaps.h"
+#include "src/gpu/ganesh/gl/GrGLContext.h"
+#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
+#include "src/gpu/ganesh/gl/GrGLGpu.h"
+#include "tools/gpu/gl/GLTestContext.h"
+#endif
+
+#if defined(SK_METAL)
 #include "include/gpu/mtl/GrMtlTypes.h"
 #include "src/gpu/ganesh/mtl/GrMtlCppUtil.h"
 #endif
 
-#ifdef SK_DIRECT3D
+#if defined(SK_DIRECT3D)
 #include "include/private/gpu/ganesh/GrD3DTypesMinimal.h"
+#endif
+
+#if defined(SK_VULKAN)
+#include "include/gpu/vk/GrVkTypes.h"
+#include "src/gpu/ganesh/vk/GrVkCaps.h"
+#include <vulkan/vulkan_core.h>
 #endif
 
 using sk_gpu_test::ManagedBackendTexture;
@@ -886,8 +933,6 @@ DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GLBackendAllocationTest,
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_VULKAN
-
-#include "src/gpu/ganesh/vk/GrVkCaps.h"
 
 DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendAllocationTest,
                                    reporter,

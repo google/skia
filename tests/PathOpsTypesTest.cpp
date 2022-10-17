@@ -4,8 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "tests/PathOpsTestCommon.h"
+#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
 
 static const double roughlyTests[][2] = {
     {5.0402503619650929e-005, 4.3178054475078825e-005}

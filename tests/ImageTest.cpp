@@ -5,41 +5,84 @@
  * found in the LICENSE file.
  */
 
-#include <functional>
-#include <initializer_list>
-#include <vector>
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageGenerator.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
-#include "include/core/SkRRect.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
-#include "include/core/SkStream.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
-#include "include/gpu/GrContextThreadSafeProxy.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkYUVAInfo.h"
+#include "include/core/SkYUVAPixmaps.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "modules/skcms/skcms.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkBitmapCache.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkOpts.h"
+#include "src/gpu/ResourceKey.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrResourceCache.h"
-#include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuYUVA.h"
+#include "src/shaders/SkImageShader.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/gpu/FenceSync.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/ProxyUtils.h"
+#include "tools/gpu/TestContext.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+class GrContextThreadSafeProxy;
+class GrRecordingContext;
+struct GrContextOptions;
 
 using namespace sk_gpu_test;
 
@@ -333,8 +376,6 @@ DEF_TEST(image_newfrombitmap, reporter) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "src/core/SkBitmapCache.h"
 
 /*
  *  This tests the caching (and preemptive purge) of the raster equivalent of a gpu-image.
@@ -1545,8 +1586,6 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo, CtsEnforcement::
     i2->flushAndSubmit(dContext);
     REPORTER_ASSERT(reporter, numSubmits() == 1);
 }
-
-#include "src/shaders/SkImageShader.h"
 
 constexpr SkM44 gCentripetalCatmulRom
     (0.0f/2, -1.0f/2,  2.0f/2, -1.0f/2,

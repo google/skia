@@ -7,27 +7,53 @@
 
 // This is a GPU-backend specific test. It relies on static initializers to work
 
-#include "include/core/SkTypes.h"
-
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrConfig.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkPointPriv.h"
+#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/ganesh/GrAppliedClip.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrGpu.h"
-#include "src/gpu/ganesh/GrMemoryPool.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
+#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrPipeline.h"
+#include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
+#include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
+#include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/GrSimpleMeshDrawOpHelper.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
+#include <cstddef>
 #include <memory>
+#include <utility>
+
+class GrDstProxyView;
+class GrGLSLProgramDataManager;
+class GrMeshDrawTarget;
+class GrRecordingContext;
+class GrSurfaceProxyView;
+struct GrContextOptions;
+struct GrShaderCaps;
+struct GrSimpleMesh;
+struct SkPoint;
 
 namespace {
 class Op : public GrMeshDrawOp {

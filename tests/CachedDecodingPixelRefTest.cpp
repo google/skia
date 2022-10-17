@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkImageInfo.h"
@@ -18,6 +20,10 @@
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <utility>
 
 class TestImageGenerator : public SkImageGenerator {

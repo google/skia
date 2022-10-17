@@ -5,19 +5,36 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkColorData.h"
-#include "src/core/SkCpu.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkSLProgramKind.h"
 #include "src/core/SkMSAN.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLProgram.h" // IWYU pragma: keep
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkVMVisualizer.h"
 #include "tests/Test.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <initializer_list>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
+namespace SkSL { class FunctionDefinition; }
 
 template <typename Fn>
 static void test_jit_and_interpreter(const skvm::Builder& b, Fn&& test) {

@@ -7,21 +7,35 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatBits.h"
 #include "include/private/SkMutex.h"
+#include "include/private/SkTDArray.h"
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkPathPriv.h"
+#include "src/pathops/SkPathOpsDebug.h"
 #include "tests/PathOpsDebug.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"
+#include "tests/Test.h"
 
-#include <stdlib.h>
-#include <vector>
-#include <string>
 #include <algorithm>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <vector>
 
 std::vector<std::string> gUniqueNames;
 

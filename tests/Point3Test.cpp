@@ -8,8 +8,12 @@
 // Unit tests for src/core/SkPoint3.cpp and its header
 
 #include "include/core/SkPoint3.h"
+#include "include/core/SkScalar.h"
 #include "include/utils/SkRandom.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
 
 static void test_eq_ops(skiatest::Reporter* reporter) {
     const SkPoint3 p0 = SkPoint3::Make(0, 0, 0);

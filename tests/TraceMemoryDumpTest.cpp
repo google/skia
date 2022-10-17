@@ -5,20 +5,34 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
-
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/gpu/ganesh/GrGLTypesPriv.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrRenderTarget.h"
-#include "src/gpu/ganesh/GrTexture.h"
+#include <cstddef>
+#include <cstdint>
+#include <utility>
+
 #ifdef SK_GL
 #include "src/gpu/ganesh/gl/GrGLBuffer.h"
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
+#include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
+#include "src/gpu/ganesh/gl/GrGLTexture.h"
 #include "src/gpu/ganesh/gl/GrGLTextureRenderTarget.h"
 #endif
+
+class SkDiscardableMemory;
+struct GrContextOptions;
 
 /*
  * Build test for SkTraceMemoryDump.

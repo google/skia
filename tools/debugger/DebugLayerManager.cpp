@@ -19,6 +19,7 @@
 #include "include/private/SkTHash.h"
 #include "tools/debugger/DebugCanvas.h"
 
+#include <cstdint>
 #include <memory>
 #include <unordered_map>
 #include <utility>

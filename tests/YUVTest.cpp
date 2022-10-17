@@ -6,12 +6,22 @@
  */
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTemplates.h"
-#include "src/core/SkAutoMalloc.h"
+#include "include/core/SkTypes.h"
+#include "include/core/SkYUVAInfo.h"
+#include "include/core/SkYUVAPixmaps.h"
+#include "include/effects/SkColorMatrix.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+
+#include <memory>
+#include <utility>
 
 static void codec_yuv(skiatest::Reporter* reporter,
                       const char path[],
@@ -125,9 +135,6 @@ DEF_TEST(Jpeg_YUV_Codec, r) {
     // A PNG should fail.
     codec_yuv(r, "images/arrow.png", nullptr);
 }
-
-#include "include/effects/SkColorMatrix.h"
-#include "src/core/SkYUVMath.h"
 
 // Be sure that the two matrices are inverses of each other
 // (i.e. rgb2yuv and yuv2rgb

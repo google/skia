@@ -5,11 +5,21 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkData.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriter32.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstdint>
+#include <cstring>
 
 static void check_contents(skiatest::Reporter* reporter, const SkWriter32& writer,
                            const void* expected, size_t size) {

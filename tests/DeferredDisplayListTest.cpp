@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkDeferredDisplayListRecorder.h"
 #include "include/core/SkImage.h"
@@ -17,6 +19,7 @@
 #include "include/core/SkPromiseImageTexture.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/core/SkSurfaceProps.h"
@@ -26,26 +29,23 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkDeferredDisplayListPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/image/SkImage_GpuBase.h"
-#include "src/image/SkSurface_Gpu.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
-#include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/ProxyUtils.h"
 
+#include <cstddef>
 #include <initializer_list>
 #include <memory>
 #include <utility>
+
+struct GrContextOptions;
 
 #ifdef SK_GL
 #include "include/gpu/gl/GrGLTypes.h"
@@ -53,8 +53,11 @@
 #endif
 
 #ifdef SK_VULKAN
+#include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkSecondaryCBDrawContext_impl.h"
+#include "tools/gpu/vk/VkTestHelper.h"
+#include <vulkan/vulkan_core.h>
 #endif
 
 class SurfaceParameters {
@@ -726,6 +729,21 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLSurfaceCharacterizationTest,
     DDLSurfaceCharacterizationTestImpl(context, reporter);
 }
 
+#if defined(SK_VULKAN)
+DEF_GANESH_TEST(VkProtectedContext_DDLSurfaceCharacterizationTest,
+                reporter,
+                ctxInfo,
+                CtsEnforcement::kNever) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, protectedTestHelper->directContext() != nullptr);
+
+    DDLSurfaceCharacterizationTestImpl(protectedTestHelper->directContext(), reporter);
+}
+#endif
+
 // Test that a DDL created w/o textureability can be replayed into both a textureable and
 // non-textureable destination. Note that DDLSurfaceCharacterizationTest tests that a
 // textureable DDL cannot be played into a non-textureable destination but can be replayed
@@ -847,6 +865,22 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLMakeRenderTargetTest,
 
     DDLMakeRenderTargetTestImpl(context, reporter);
 }
+
+#if defined(SK_VULKAN)
+
+DEF_GANESH_TEST(VkProtectedContext_DDLMakeRenderTargetTest,
+                reporter,
+                ctxInfo,
+                CtsEnforcement::kNever) {
+    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
+    if (!protectedTestHelper->init()) {
+        return;
+    }
+    REPORTER_ASSERT(reporter, protectedTestHelper->directContext() != nullptr);
+
+    DDLMakeRenderTargetTestImpl(protectedTestHelper->directContext(), reporter);
+}
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 static constexpr int kSize = 8;

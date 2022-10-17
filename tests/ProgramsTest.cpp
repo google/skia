@@ -7,29 +7,49 @@
 
 // This is a GPU-backend specific test.
 
-#include "include/core/SkTypes.h"
-
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkChecksum.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrAutoLocaleSetter.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawOpTest.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrPipeline.h"
+#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"
-#include "src/gpu/ganesh/ops/GrDrawOp.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
+
+#include <algorithm>
+#include <array>
+#include <cstdint>
+#include <memory>
+#include <tuple>
+#include <utility>
+
+class GrRecordingContext;
+struct GrShaderCaps;
 
 #ifdef SK_GL
 #include "src/gpu/ganesh/gl/GrGLGpu.h"

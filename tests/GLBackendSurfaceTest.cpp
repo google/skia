@@ -9,22 +9,30 @@
 
 #ifdef SK_GL
 
-#include "tests/Test.h"
-
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrTexture.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/gl/GrGLCaps.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
-#include "src/image/SkImage_Base.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
 #include "tools/gpu/ProxyUtils.h"
+struct GrContextOptions;
 
 static bool sampler_params_invalid(const GrGLTextureParameters& parameters) {
     return SkScalarIsNaN(parameters.samplerOverriddenState().fMaxLOD);

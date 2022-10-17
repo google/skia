@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
 #include "src/gpu/tessellate/Tessellation.h"
 #include "tests/Test.h"
 

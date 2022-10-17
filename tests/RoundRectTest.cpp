@@ -6,12 +6,22 @@
  */
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "tests/Test.h"
+
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <cstdint>
 
 static void test_tricky_radii(skiatest::Reporter* reporter) {
     {

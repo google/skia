@@ -5,16 +5,27 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+
+#include <initializer_list>
+
+struct GrContextOptions;
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(crbug_1271431,
                                        reporter,

@@ -7,14 +7,24 @@
 
 // This is a GPU-backend specific test.
 
-#include "tests/Test.h"
-
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrPixmap.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
+
+#include <memory>
+
+class GrRecordingContext;
+struct GrContextOptions;
 
 static const int kSize = 64;
 

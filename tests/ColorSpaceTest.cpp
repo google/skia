@@ -12,16 +12,19 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkFloatingPoint.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include <png.h>
-
-#include <string.h>
+#include <climits>
+#include <cstddef>
 #include <memory>
+#include <string>
 #include <utility>
+
+#include <png.h>
 
 static bool almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.001f;

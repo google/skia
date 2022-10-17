@@ -5,17 +5,23 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBitmap.h"
-#include "include/core/SkCanvas.h"
-#include "include/core/SkFont.h"
+#include "include/core/SkFontArguments.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/ports/SkFontMgr_FontConfigInterface.h"
+#include "include/core/SkTypes.h"
+#include "include/ports/SkFontConfigInterface.h"
 #include "src/ports/SkFontConfigInterface_direct.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
 #include <fontconfig/fontconfig.h>
+#include <memory>
+#include <utility>
+#include <vector>
 
 namespace {
 

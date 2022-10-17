@@ -7,11 +7,17 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
+#include "include/private/SkFloatBits.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkStroke.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
 
 static bool equal(const SkRect& a, const SkRect& b) {
     return  SkScalarNearlyEqual(a.left(), b.left()) &&

@@ -5,13 +5,25 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
 #include "include/core/SkMesh.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkZip.h"
 #include "tests/Test.h"
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <limits>
+#include <string>
+#include <string_view>
 #include <tuple>
+#include <utility>
+#include <vector>
 
 using Attribute = SkMeshSpecification::Attribute;
 using Varying   = SkMeshSpecification::Varying;

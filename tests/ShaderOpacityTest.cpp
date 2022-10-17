@@ -5,13 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "include/effects/SkGradientShader.h"
 #include "tests/Test.h"
-#include "tools/ToolUtils.h"
 
 static void test_bitmap(skiatest::Reporter* reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(2, 2);

@@ -5,12 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
 
 DEF_TEST(GetColor, reporter) {
     static const struct Rec {

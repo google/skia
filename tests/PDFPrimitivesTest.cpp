@@ -9,35 +9,55 @@
 
 #ifdef SK_SUPPORT_PDF
 
-#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkData.h"
-#include "include/core/SkImageEncoder.h"
-#include "include/core/SkMatrix.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkDocument.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/docs/SkPDFDocument.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTo.h"
+#include "include/utils/SkRandom.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/pdf/SkClusterator.h"
-#include "src/pdf/SkDeflate.h"
-#include "src/pdf/SkPDFDevice.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFFont.h"
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkPDFUnion.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "src/text/GlyphRun.h"
+#include "src/utils/SkFloatToDecimal.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
+#include <cfloat>
 #include <cmath>
+#include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <memory>
+#include <string>
+#include <utility>
+
+class SkTypeface;
 
 template <typename T>
 static SkString emit_to_string(T& obj) {

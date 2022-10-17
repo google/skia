@@ -5,14 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
-
 #include "include/core/SkExecutor.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/gpu/FenceSync.h"
+
+#include <memory>
 
 using namespace sk_gpu_test;
 

@@ -22,7 +22,7 @@ static constexpr int Success = 0;
 #undef None
 static constexpr int None = 0L;
 #endif
-#include "webgpu/webgpu_cpp.h"
+#include "webgpu/webgpu_cpp.h" // IWYU pragma: export
 
 struct GrDawnTextureInfo {
     wgpu::Texture       fTexture;

@@ -17,6 +17,7 @@
 #include "src/core/SkLineClipper.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cstring>
 
 static void test_hairclipping(skiatest::Reporter* reporter) {

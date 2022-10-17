@@ -5,15 +5,34 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkTextBlobPriv.h"
-
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <string>
 
 class TextBlobTester {
 public:
@@ -343,10 +362,6 @@ DEF_TEST(TextBlob_extended, reporter) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#include "include/core/SkCanvas.h"
-#include "include/core/SkSurface.h"
-#include "include/private/SkTArray.h"
-
 static void add_run(SkTextBlobBuilder* builder, const char text[], SkScalar x, SkScalar y,
                     sk_sp<SkTypeface> tf) {
     SkFont font;

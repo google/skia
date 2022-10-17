@@ -12,19 +12,30 @@
  * have been selected to require 32 bits of precision and full IEEE conformance
  */
 
-#include "tests/Test.h"
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/private/SkHalf.h"
+#include "include/private/SkTDArray.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
-#include "src/gpu/ganesh/GrProxyProvider.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrPixmap.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
 #include "tools/gpu/ProxyUtils.h"
 
-#include <float.h>
+#include <string.h>
+#include <initializer_list>
+#include <memory>
+#include <utility>
+
+struct GrContextOptions;
 
 static const int DEV_W = 100, DEV_H = 100;
 

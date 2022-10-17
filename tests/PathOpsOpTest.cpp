@@ -4,9 +4,27 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkFloatBits.h"
+#include "include/utils/SkParsePath.h"
+#include "src/core/SkGeometry.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
 #include "tests/PathOpsDebug.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
+
+#include <cstddef>
+#include <iterator>
 
 class PathTest_Private {
 public:
@@ -3590,8 +3608,6 @@ static void loop1(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
 
-#include "src/pathops/SkPathOpsCubic.h"
-
 static void loop1asQuad(skiatest::Reporter* reporter, const char* filename) {
     CubicPts cubic1 = {{{0,1}, {1,5}, {-5.66666651f,3.33333349f}, {8.83333302f,2.33333349f}}};
     CubicPts cubic2 = {{{1,5}, {-5.66666651f,3.33333349f}, {8.83333302f,2.33333349f}, {0,1}}};
@@ -3655,8 +3671,6 @@ static void loop4(skiatest::Reporter* reporter, const char* filename) {
     pathB.close();
     testPathOp(reporter, path, pathB, kIntersect_SkPathOp, filename);
 }
-
-#include "include/utils/SkParsePath.h"
 
 static void issue3517(skiatest::Reporter* reporter, const char* filename) {
     SkPath path, pathB;
@@ -3847,8 +3861,6 @@ static void cubicOp130(skiatest::Reporter* reporter, const char* filename) {
     pathB.close();
     testPathOp(reporter, path, pathB, kDifference_SkPathOp, filename);
 }
-
-#include "src/core/SkGeometry.h"
 
 static void complex_to_quads(const SkPoint pts[], SkPath* path) {
     SkScalar loopT[3];

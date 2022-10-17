@@ -8,9 +8,14 @@
 #include "include/core/SkSize.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkIPoint16.h"
+#include "src/gpu/Rectanizer.h"
 #include "src/gpu/RectanizerPow2.h"
 #include "src/gpu/RectanizerSkyline.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+
+struct GrContextOptions;
 
 using namespace skgpu;
 

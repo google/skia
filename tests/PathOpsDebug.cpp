@@ -5,14 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkString.h"
-#include "include/private/SkMutex.h"
-#include "src/pathops/SkIntersectionHelper.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkFloatBits.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkOpAngle.h"
 #include "src/pathops/SkOpCoincidence.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkOpSpan.h"
+#include "src/pathops/SkPathOpsConic.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsCurve.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsRect.h"
+#include "src/pathops/SkPathOpsTSect.h"
+#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/PathOpsDebug.h"
-#include "tests/PathOpsTSectDebug.h"
+
+#include <algorithm>
+#include <cfloat>
+#include <cmath>
+#include <cstdint>
 
 bool PathOpsDebug::gJson;
 bool PathOpsDebug::gMarkJsonFlaky;

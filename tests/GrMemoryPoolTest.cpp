@@ -7,10 +7,14 @@
 
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
-#include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 
 // A is the top of an inheritance tree of classes that overload op new and
 // and delete to use a GrMemoryPool. The objects have values of different types

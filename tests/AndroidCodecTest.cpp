@@ -7,24 +7,20 @@
 
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
-#include "include/core/SkBitmap.h"
-#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
-#include "include/core/SkImageGenerator.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "modules/skcms/skcms.h"
-#include "src/codec/SkCodecImageGenerator.h"
-#include "src/core/SkPixmapPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include <string.h>
+#include <string>
+#include <cstdint>
 #include <initializer_list>
 #include <memory>
 #include <utility>

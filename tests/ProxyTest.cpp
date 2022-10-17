@@ -7,27 +7,35 @@
 
 // This is a GPU-backend specific test.
 
+#include "include/core/SkColorType.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/gl/GrGLTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrGpuResource.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
-#include "src/gpu/ganesh/GrSurface.h"
-#include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/ManagedBackendTexture.h"
-#ifdef SK_GL
-#include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
-#endif
 
-#include "tests/TestUtils.h"
+#include <initializer_list>
+
+struct GrContextOptions;
 
 // Check that the surface proxy's member vars are set as expected
 static void check_surface(skiatest::Reporter* reporter,

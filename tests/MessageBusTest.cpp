@@ -5,9 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/SkTArray.h"
 #include "src/core/SkMessageBus.h"
 #include "tests/Test.h"
+
+#include <cstdint>
+#include <utility>
 
 namespace {
 

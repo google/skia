@@ -5,16 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
-#include "tools/Resources.h"
-#include "tools/ToolUtils.h"
-
 #include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkStream.h"
+#include "tests/Test.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
+
+#include <memory>
+#include <utility>
 
 DEF_TEST(AlphaEncodedInfo, r) {
     auto codec = SkCodec::MakeFromStream(GetResourceAsStream("images/grayscale.jpg"));

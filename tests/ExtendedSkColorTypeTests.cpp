@@ -5,17 +5,34 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/gpu/ganesh/GrPixmap.h"
-
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <initializer_list>
+
+class SkPixmap;
+struct GrContextOptions;
 
 static constexpr int kSize = 32;
 

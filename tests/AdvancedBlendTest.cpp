@@ -18,10 +18,12 @@
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/effects/GrCustomXfermode.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
 
 #include <utility>
+
+struct GrContextOptions;
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(AdvancedBlendTest,
                                        reporter,

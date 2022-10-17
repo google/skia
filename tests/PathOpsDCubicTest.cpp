@@ -8,6 +8,9 @@
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
 
+#include <array>
+#include <cstddef>
+
 static const CubicPts hullTests[] = {
 {{{2.6250000819563866, 2.3750000223517418}, {2.833333432674408, 2.3333333432674408}, {3.1111112236976624, 2.3333333134651184}, {3.4074075222015381, 2.3333332538604736}}},
 };

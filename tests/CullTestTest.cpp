@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
-
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/tessellate/CullTest.h"
+#include "tests/Test.h"
+
+#include <initializer_list>
 
 namespace skgpu::tess {
 

@@ -6,9 +6,13 @@
  */
 
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
-#include "include/utils/SkRandom.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
 
 static void check_invalid(skiatest::Reporter* reporter,
                           SkScalar l, SkScalar t, SkScalar r, SkScalar b) {

@@ -5,13 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkPathRef.h"
+#include "include/utils/SkRandom.h"
 #include "src/core/SkPathPriv.h"
 #include "tests/Test.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
 #include <vector>
 
 static void is_empty(skiatest::Reporter* reporter, const SkPath& p) {
@@ -231,8 +238,6 @@ DEF_TEST(pathbuilder_addRRect, reporter) {
         REPORTER_ASSERT(reporter, !bp.isRRect(&tmp));
     }
 }
-
-#include "include/utils/SkRandom.h"
 
 DEF_TEST(pathbuilder_make, reporter) {
     constexpr int N = 100;

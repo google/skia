@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "tests/Test.h"
 #include "tools/SkMetaData.h"
+
+#include <cstdint>
+#include <string>
 
 DEF_TEST(MetaData, reporter) {
     SkMetaData  m1;

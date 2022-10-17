@@ -5,11 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkEnumerate.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphBuffer.h"
-#include "src/core/SkGlyphRunPainter.h"
-#include "src/core/SkScalerContext.h"
+#include "src/core/SkZip.h"
 #include "tests/Test.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <tuple>
 
 DEF_TEST(SkPackedGlyphIDCtor, reporter) {
     using PG = SkPackedGlyphID;

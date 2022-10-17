@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#if 0   // should we revitalize this by consing up a device for drawTextBlob() ?
 #include "src/text/GlyphRun.h"
 
 #include "include/core/SkTextBlob.h"
@@ -13,8 +14,6 @@
 #include <algorithm>
 #include <memory>
 
-
-#if 0   // should we revitalize this by consing up a device for drawTextBlob() ?
 DEF_TEST(GlyphRunBlob, reporter) {
     constexpr uint16_t count = 5;
     constexpr int runCount = 2;

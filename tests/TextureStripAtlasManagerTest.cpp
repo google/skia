@@ -5,16 +5,30 @@
  * found in the LICENSE file.
  */
 
-
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrDirectContext.h"
-
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+
+#include <cstdint>
+#include <utility>
+
+class SkImage;
+struct GrContextOptions;
 
 // The gradient shader will use the texture strip atlas if it has too many colors. Make sure
 // abandoning the context works.

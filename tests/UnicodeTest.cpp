@@ -6,9 +6,14 @@
  */
 
 #include "include/core/SkFont.h"
-#include "include/core/SkPaint.h"
+#include "include/core/SkFontTypes.h"
+#include "src/core/SkFontPriv.h"
 #include "src/utils/SkUTF.h"
 #include "tests/Test.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <string>
 
 // Simple test to ensure that when we call textToGlyphs, we get the same
 // result (for the same text) when using UTF8, UTF16, UTF32.
@@ -43,9 +48,6 @@ DEF_TEST(Unicode_textencodings, reporter) {
     REPORTER_ASSERT(reporter, !memcmp(glyphs8, glyphs16, count8 * sizeof(uint16_t)));
     REPORTER_ASSERT(reporter, !memcmp(glyphs8, glyphs32, count8 * sizeof(uint16_t)));
 }
-
-#include "include/core/SkFont.h"
-#include "src/core/SkFontPriv.h"
 
 DEF_TEST(glyphs_to_unichars, reporter) {
     SkFont font;

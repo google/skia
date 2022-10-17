@@ -5,13 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkStringUtils.h"
 #include "tests/Test.h"
 
-#include "include/core/SkString.h"
-#include "src/core/SkStringUtils.h"
-
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdarg>
+#include <cstdint>
+#include <cstring>
+#include <string_view>
 #include <thread>
 
 DEF_TEST(String, reporter) {

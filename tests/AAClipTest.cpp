@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
@@ -23,7 +26,10 @@
 #include "src/core/SkRasterClip.h"
 #include "tests/Test.h"
 
-#include <string.h>
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <string>
 
 static bool operator==(const SkMask& a, const SkMask& b) {
     if (a.fFormat != b.fFormat || a.fBounds != b.fBounds) {

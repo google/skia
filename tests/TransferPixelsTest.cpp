@@ -7,21 +7,39 @@
 
 // This is a GPU-backend specific test. It relies on static initializers to work
 
-#include "include/core/SkTypes.h"
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrConfig.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColor.h"
+#include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
-#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/SkGr.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
-#include "tools/gpu/GrContextFactory.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <functional>
+#include <initializer_list>
+#include <memory>
+
+struct GrContextOptions;
 
 using sk_gpu_test::GrContextFactory;
 

@@ -5,9 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "tests/Test.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <string_view>
+#include <vector>
 
 DEF_TEST(SkVMDebugTraceSetSource, r) {
     SkSL::SkVMDebugTrace i;

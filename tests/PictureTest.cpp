@@ -13,17 +13,18 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontStyle.h"
-#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
@@ -33,12 +34,12 @@
 #include "src/core/SkRectPriv.h"
 #include "tests/Test.h"
 
+#include <cstddef>
 #include <memory>
+#include <vector>
 
 class SkRRect;
 class SkRegion;
-template <typename T> class SkTDArray;
-
 
 static void make_bm(SkBitmap* bm, int w, int h, SkColor color, bool immutable) {
     bm->allocN32Pixels(w, h);

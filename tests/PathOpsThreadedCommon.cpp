@@ -6,8 +6,9 @@
  */
 
 #include "src/core/SkTaskGroup.h"
-#include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"
+
+#include <functional>
 
 PathOpsThreadedTestRunner::~PathOpsThreadedTestRunner() {
     for (int index = 0; index < fRunnables.size(); index++) {

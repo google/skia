@@ -5,18 +5,27 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBBHFactory.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPicture.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkRecord.h"
+#include "src/core/SkRecordDraw.h"
+#include "src/core/SkRecorder.h"
+#include "src/core/SkRecords.h"
 #include "tests/RecordTestUtils.h"
 #include "tests/Test.h"
 
-#include "include/core/SkSurface.h"
-#include "include/effects/SkImageFilters.h"
-#include "src/core/SkImagePriv.h"
-#include "src/core/SkRecord.h"
-#include "src/core/SkRecordDraw.h"
-#include "src/core/SkRecordOpts.h"
-#include "src/core/SkRecorder.h"
-#include "src/core/SkRecords.h"
-#include "tools/debugger/DebugCanvas.h"
+class SkImage;
 
 static const int W = 1920, H = 1080;
 

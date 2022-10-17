@@ -11,6 +11,7 @@
 #include "tests/Test.h"
 
 #include <thread>
+#include <utility>
 
 static void bounce_ref(void* data) {
     SkRefCnt* ref = static_cast<SkRefCnt*>(data);

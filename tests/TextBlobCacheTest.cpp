@@ -5,33 +5,53 @@
  * found in the LICENSE file.
  */
 
-#include "tools/ToolUtils.h"
-
-#include <string>
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
+#include "include/core/SkFont.h"
 #include "include/core/SkFontMgr.h"
-#include "include/core/SkGraphics.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageEncoder.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/SkSpinlock.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTemplates.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/text/GlyphRun.h"
+#include "src/gpu/ganesh/text/GrAtlasManager.h"
+#include "src/text/gpu/TextBlobRedrawCoordinator.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
 #include "tools/fonts/RandomScalerContext.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #include "include/ports/SkTypeface_win.h"
 #endif
 
-#include "tests/Test.h"
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <string>
 
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/text/GrAtlasManager.h"
-#include "src/text/gpu/TextBlobRedrawCoordinator.h"
+struct GrContextOptions;
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
     int yOffset = 0;

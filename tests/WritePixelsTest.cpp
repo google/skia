@@ -5,21 +5,46 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorPriv.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMallocPixelRef.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkMalloc.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkMathPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 
+#include <array>
+#include <cstdint>
+#include <cstring>
 #include <initializer_list>
+#include <memory>
+#include <utility>
+
+class GrRecordingContext;
+class SkImage;
+struct GrContextOptions;
 
 static const int DEV_W = 100, DEV_H = 100;
 static const SkIRect DEV_RECT = SkIRect::MakeWH(DEV_W, DEV_H);
@@ -272,8 +297,6 @@ static bool check_write(skiatest::Reporter* reporter, SkSurface* surf, SkAlphaTy
 
     return true;
 }
-
-#include "include/core/SkMallocPixelRef.h"
 
 // This is a tricky pattern, because we have to setConfig+rowBytes AND specify
 // a custom pixelRef (which also has to specify its rowBytes), so we have to be

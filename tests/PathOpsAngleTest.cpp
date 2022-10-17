@@ -4,12 +4,26 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatBits.h"
 #include "include/utils/SkRandom.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/pathops/SkIntersections.h"
+#include "src/pathops/SkOpAngle.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"
+#include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cfloat>
+#include <cmath>
 
 static bool gDisableAngleTests = true;
 

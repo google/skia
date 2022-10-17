@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkPathPriv.h"
 #include "tests/Test.h"

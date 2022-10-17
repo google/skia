@@ -5,12 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
-
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/utils/SkJSON.h"
+#include "tests/Test.h"
+
+#include <cstring>
+#include <string_view>
 
 using namespace skjson;
 

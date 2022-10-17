@@ -5,13 +5,17 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsLine.h"
+#include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsQuad.h"
 #include "src/pathops/SkReduceOrder.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/PathOpsThreadedCommon.h"
+#include "tests/Test.h"
 
 #include <utility>
 

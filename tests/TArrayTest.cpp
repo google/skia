@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkRefCnt.h"
 #include "include/private/SkTArray.h"
 #include "include/utils/SkRandom.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstdint>
+#include <initializer_list>
+#include <type_traits>
+#include <utility>
 
 // This class is used to test SkTArray's behavior with classes containing a vtable.
 

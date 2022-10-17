@@ -5,13 +5,8 @@
  * found in the LICENSE file.
  */
 
-#define ABORT_TEST(r, cond, ...)                                   \
-    do {                                                           \
-        if (cond) {                                                \
-            REPORT_FAILURE(r, #cond, SkStringPrintf(__VA_ARGS__)); \
-            return;                                                \
-        }                                                          \
-    } while (0)
+#include "include/core/SkTypes.h"
+#ifdef SK_XML
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -27,16 +22,22 @@
 #include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkParse.h"
 #include "src/shaders/SkImageShader.h"
-#include "tests/Test.h"
-#include "tools/ToolUtils.h"
-
-#include <string.h>
-
-#ifdef SK_XML
-
 #include "src/svg/SkSVGDevice.h"
 #include "src/xml/SkDOM.h"
 #include "src/xml/SkXMLWriter.h"
+#include "tests/Test.h"
+#include "tools/ToolUtils.h"
+
+#include <string>
+
+#define ABORT_TEST(r, cond, ...)                                   \
+    do {                                                           \
+        if (cond) {                                                \
+            REPORT_FAILURE(r, #cond, SkStringPrintf(__VA_ARGS__)); \
+            return;                                                \
+        }                                                          \
+    } while (0)
+
 
 static std::unique_ptr<SkCanvas> MakeDOMCanvas(SkDOM* dom, uint32_t flags = 0) {
     auto svgDevice = SkSVGDevice::Make(SkISize::Make(100, 100),

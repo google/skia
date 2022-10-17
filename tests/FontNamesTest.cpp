@@ -6,12 +6,21 @@
  */
 
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkEndian.h"
 #include "src/sfnt/SkOTTable_name.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"
 
-#include <stddef.h>
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 
 namespace {
 

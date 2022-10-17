@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkDocument.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
@@ -23,11 +24,11 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
-#include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
@@ -39,9 +40,18 @@
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkRecord.h"
+#include "src/core/SkRecords.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/utils/SkCanvasStack.h"
 #include "tests/Test.h"
+
+#include <cstddef>
+#include <initializer_list>
+#include <memory>
+#include <utility>
+
+class SkPicture;
+class SkReadBuffer;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 #include "include/core/SkColorSpace.h"
@@ -51,11 +61,6 @@
 #ifdef SK_SUPPORT_PDF
 #include "include/docs/SkPDFDocument.h"
 #endif
-
-#include <memory>
-#include <utility>
-
-class SkReadBuffer;
 
 struct ClipRectVisitor {
     skiatest::Reporter* r;

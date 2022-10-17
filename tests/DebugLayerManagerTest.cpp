@@ -5,13 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "tests/Test.h"
 #include "tools/debugger/DebugLayerManager.h"
+
+#include <vector>
 
 // Adds one full update, one partial update, and requests one image a few frames later.
 static void test_basic(skiatest::Reporter* reporter) {

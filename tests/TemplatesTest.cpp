@@ -8,6 +8,9 @@
 #include "include/private/SkTemplates.h"
 #include "tests/Test.h"
 
+#include <cstddef>
+#include <utility>
+
 // Tests for some of the helpers in SkTemplates.h
 static void test_automalloc_realloc(skiatest::Reporter* reporter) {
     SkAutoSTMalloc<1, int> array;

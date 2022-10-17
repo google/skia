@@ -6,10 +6,15 @@
  */
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkTSort.h"
 #include "tests/Test.h"
 
-#include "tools/ToolUtils.h"
+#include <algorithm>
+#include <cstdint>
 
 // A node in the graph. This corresponds to an opsTask in the MDB world.
 class Node : public SkRefCnt {

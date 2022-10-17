@@ -4,6 +4,10 @@
 #include "src/utils/SkUTF.h"
 #include "tests/Test.h"
 
+#include <cstdint>
+#include <cstddef>
+#include <string>
+
 DEF_TEST(SkUTF_UTF16, reporter) {
     // Test non-basic-multilingual-plane unicode.
     static const SkUnichar gUni[] = {

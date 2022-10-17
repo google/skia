@@ -4,9 +4,17 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkTypes.h"
 #include "src/pathops/SkLineParameters.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cfloat>
+#include <cmath>
+#include <cstddef>
 
 // tests to verify that distance calculations are coded correctly
 static const CubicPts tests[] = {

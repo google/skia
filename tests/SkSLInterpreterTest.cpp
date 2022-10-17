@@ -22,6 +22,7 @@
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLExternalFunction.h"
@@ -29,8 +30,9 @@
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "tests/Test.h"
 
-#include <math.h>
-#include <stdio.h>
+#include <cmath>
+#include <cstdint>
+#include <cstdio>
 #include <memory>
 #include <string>
 #include <string_view>

@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/utils/SkRandom.h"
 #include "src/core/SkOpts.h"
 #include "tests/Test.h"
+
+#include <cstddef>
+#include <cstdint>
 
 static void set_zero(void* dst, size_t bytes) {
     char* ptr = (char*)dst;

@@ -6,10 +6,12 @@
  */
 
 #include "include/core/SkTypes.h"
-
 #include "include/gpu/GrDirectContext.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/gpu/FenceSync.h"
+
+struct GrContextOptions;
 
 using namespace sk_gpu_test;
 

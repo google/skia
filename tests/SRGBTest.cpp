@@ -5,13 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
 #include "tests/Test.h"
 
-#include <math.h>
+#include <cstdint>
+#include <string>
 
 DEF_TEST(srgb_roundtrip, r) {
     uint32_t reds[256];

@@ -5,12 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrDirectContext.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
-#include "include/core/SkCanvas.h"
-#include "include/core/SkFont.h"
-#include "include/core/SkSurface.h"
-#include "include/gpu/GrDirectContext.h"
+struct GrContextOptions;
 
 // This passes by not crashing.
 static void test(SkCanvas* canvas) {

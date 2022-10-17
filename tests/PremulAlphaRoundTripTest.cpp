@@ -5,15 +5,26 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrPixmap.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/ToolUtils.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+
+struct GrContextOptions;
 
 static uint32_t pack_unpremul_rgba(SkColor c) {
     uint32_t packed;

@@ -5,25 +5,29 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 
 #include <initializer_list>
 #include <vector>
 
+struct GrContextOptions;
 struct Results { int diffs, diffs_0x00, diffs_0xff, diffs_by_1; };
 
 static bool acceptable(const Results& r) {

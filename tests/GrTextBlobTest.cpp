@@ -5,18 +5,46 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorSpace.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrDirectContext.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkSurfacePriv.h"
-#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/core/SkScalerContext.h"
 #include "src/text/GlyphRun.h"
+#include "src/text/gpu/SDFTControl.h"
+#include "src/text/gpu/SubRunAllocator.h"
 #include "src/text/gpu/TextBlob.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <memory>
+#include <tuple>
+#include <utility>
+
+class GrRecordingContext;
+struct GrContextOptions;
 
 using BagOfBytes = sktext::gpu::BagOfBytes;
 using SubRunAllocator = sktext::gpu::SubRunAllocator;

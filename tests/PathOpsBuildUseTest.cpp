@@ -4,8 +4,15 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkFloatBits.h"
 #include "tests/PathOpsExtendedTest.h"
-#include "tests/PathOpsTestCommon.h"
+#include "tests/Test.h"
+
+#include <cstddef>
+#include <iterator>
 
 #define TEST(name) { name, #name }
 

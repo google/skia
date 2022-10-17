@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkFloatingPoint.h"
 #include "src/core/SkScaleToSides.h"
-
 #include "tests/Test.h"
 
 #include <algorithm>
+#include <array>
+#include <cfloat>
 
 DEF_TEST(ScaleToSides, reporter) {
     double interestingValues[] = {

@@ -7,15 +7,26 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkTime.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatBits.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkStrokerPriv.h"
 #include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsQuad.h"
 #include "tests/PathOpsCubicIntersectionTestData.h"
 #include "tests/PathOpsQuadIntersectionTestData.h"
+#include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
 #include "tools/flags/CommandLineFlags.h"
+
+#include <array>
+#include <cfloat>
+#include <cstddef>
+#include <cstdint>
 
 using namespace PathOpsCubicIntersectionTestData;
 

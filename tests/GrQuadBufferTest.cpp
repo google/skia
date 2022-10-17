@@ -5,10 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+#include "src/gpu/ganesh/geometry/GrQuad.h"
+#include "src/gpu/ganesh/geometry/GrQuadBuffer.h"
 #include "tests/Test.h"
 
-#include "src/gpu/ganesh/geometry/GrQuadBuffer.h"
-
+#include <utility>
 #include <vector>
 
 #define ASSERT(cond) REPORTER_ASSERT(r, cond)

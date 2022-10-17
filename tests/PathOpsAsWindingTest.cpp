@@ -5,10 +5,18 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/pathops/SkPathOps.h"
 #include "include/utils/SkParsePath.h"
-#include "tests/PathOpsExtendedTest.h"
-#include "tests/PathOpsThreadedCommon.h"
 #include "tests/Test.h"
+
+#include <initializer_list>
+#include <string>
 
 static SkPath build_squircle(SkPath::Verb verb, const SkRect& rect, SkPathDirection dir) {
     SkPath path;

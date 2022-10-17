@@ -5,12 +5,22 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
 
 static void Union(SkRegion* rgn, const SkIRect& rect) {
     rgn->op(rect, SkRegion::kUnion_Op);

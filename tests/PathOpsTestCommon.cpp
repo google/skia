@@ -4,6 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkTSort.h"
 #include "src/pathops/SkPathOpsBounds.h"
@@ -11,10 +16,14 @@
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsLine.h"
 #include "src/pathops/SkPathOpsQuad.h"
+#include "src/pathops/SkPathOpsRect.h"
 #include "src/pathops/SkPathOpsTSect.h"
+#include "src/pathops/SkPathOpsTypes.h"
 #include "src/pathops/SkReduceOrder.h"
 #include "tests/PathOpsTestCommon.h"
 
+#include <cmath>
+#include <string>
 #include <utility>
 
 static double calc_t_div(const SkDCubic& cubic, double precision, double start) {

@@ -5,10 +5,25 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkVx.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkGeometry.h"
+#include "src/gpu/tessellate/Tessellation.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 #include "tests/Test.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <functional>
+#include <limits>
+#include <string>
+#include <utility>
 
 namespace skgpu::tess {
 

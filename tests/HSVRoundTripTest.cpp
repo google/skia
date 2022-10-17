@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
-
 #include "include/core/SkColor.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "tests/Test.h"
 
 DEF_TEST(ColorToHSVRoundTrip, reporter) {
     SkScalar hsv[3];

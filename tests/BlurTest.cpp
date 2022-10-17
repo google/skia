@@ -5,15 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMaskFilter.h"
-#include "include/core/SkMath.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPixmap.h"
@@ -22,7 +22,6 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
@@ -36,14 +35,18 @@
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMathPriv.h"
 #include "src/effects/SkEmbossMaskFilter.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
-#include "tools/gpu/GrContextFactory.h"
 
 #include <math.h>
 #include <string.h>
+#include <array>
+#include <cstddef>
+#include <cstdint>
 #include <initializer_list>
-#include <utility>
+
+struct GrContextOptions;
 
 #define WRITE_CSV 0
 

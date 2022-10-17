@@ -14,6 +14,8 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
+#include <array>
+#include <cstddef>
 #include <memory>
 #include <utility>
 

@@ -5,13 +5,19 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 #include "tests/Test.h"
 
 #include <array>
-#include <numeric>
+#include <cmath>
+#include <cstdlib>
+#include <limits>
 
 static bool nearly_equal(const SkPoint& a, const SkPoint& b) {
     return SkScalarNearlyEqual(a.fX, b.fX) && SkScalarNearlyEqual(a.fY, b.fY);

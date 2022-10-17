@@ -5,11 +5,27 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/private/SkTDArray.h"
 #include "include/private/chromium/Slug.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+
+#include <cstdint>
+#include <cstring>
+
+struct GrContextOptions;
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrSlug_empty,
                                        reporter,

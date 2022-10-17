@@ -5,14 +5,24 @@
 * found in the LICENSE file
 */
 
-#include "include/core/SkBitmap.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/SkGr.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+
+#include <initializer_list>
+struct GrContextOptions;
 
 static const int kSurfaceSize = 10;
 

@@ -6,6 +6,8 @@
  */
 #include "tests/PathOpsTestCommon.h"
 
+#include <cstddef>
+
 extern const QuadPts quadraticLines[];
 extern const QuadPts quadraticPoints[];
 extern const QuadPts quadraticModEpsilonLines[];

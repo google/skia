@@ -14,21 +14,27 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTemplates.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkOpts.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
 
-#include <math.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <initializer_list>
+
+struct GrContextOptions;
 
 /** convert 0..1 linear value to 0..1 srgb */
 static float linear_to_srgb(float linear) {

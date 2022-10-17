@@ -7,12 +7,16 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
-#include "include/private/SkChecksum.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkTHash.h"
 #include "src/core/SkOpts.h"
 #include "tests/Test.h"
 
-#include <tuple>
+#include <cstdint>
+#include <initializer_list>
+#include <string>
+#include <string_view>
+#include <utility>
 
 // Tests use of const foreach().  map.count() is of course the better way to do this.
 static int count(const SkTHashMap<int, double>& map) {

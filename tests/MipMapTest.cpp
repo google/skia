@@ -5,9 +5,25 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMipmap.h"
+#include "src/core/SkMipmapBuilder.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
@@ -210,10 +226,6 @@ DEF_TEST(MipMap_F16, reporter) {
     bmp.eraseColor(0);
     sk_sp<SkMipmap> mipmap(SkMipmap::Build(bmp, nullptr));
 }
-
-#include "include/core/SkCanvas.h"
-#include "include/core/SkSurface.h"
-#include "src/core/SkMipmapBuilder.h"
 
 static void fill_in_mips(SkMipmapBuilder* builder, sk_sp<SkImage> img) {
     int count = builder->countLevels();

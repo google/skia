@@ -5,12 +5,18 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkMath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatBits.h"
 #include "include/private/SkFloatingPoint.h"
-#include "include/utils/SkRandom.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
 
 static void test_roundtoint(skiatest::Reporter* reporter) {
     SkScalar x = 0.49999997f;

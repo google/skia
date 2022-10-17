@@ -9,10 +9,21 @@
 
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
-#include "include/gpu/vk/GrVkTypes.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/vk/VulkanTypes.h"
 #include "src/core/SkAutoMalloc.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/vk/VkTestUtils.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <functional>
+#include <initializer_list>
+#include <string>
+#include <vulkan/vulkan_core.h>
+
+struct GrContextOptions;
 
 #define ACQUIRE_VK_PROC_NOCHECK(name, instance) \
     PFN_vk##name grVk##name =                                                              \

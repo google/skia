@@ -22,21 +22,25 @@
 #include "src/images/SkImageEncoderPriv.h"
 #endif
 
-#ifndef SK_ENCODE_JPEG
+#if !defined(SK_ENCODE_JPEG)|| !defined(SK_ENCODE_PNG) || !defined(SK_ENCODE_WEBP)
+#include <memory>
+#endif
+
+#if !defined(SK_ENCODE_JPEG)
 bool SkJpegEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
 std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream*, const SkPixmap&, const Options&) {
     return nullptr;
 }
 #endif
 
-#ifndef SK_ENCODE_PNG
+#if !defined(SK_ENCODE_PNG)
 bool SkPngEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
 std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream*, const SkPixmap&, const Options&) {
     return nullptr;
 }
 #endif
 
-#ifndef SK_ENCODE_WEBP
+#if !defined(SK_ENCODE_WEBP)
 bool SkWebpEncoder::Encode(SkWStream*, const SkPixmap&, const Options&) { return false; }
 #endif
 

@@ -9,6 +9,8 @@
 #include "src/core/SkTaskGroup.h"
 #include "tests/Test.h"
 
+#include <functional>
+
 static void add_five(int* x) {
     *x += 5;
 }

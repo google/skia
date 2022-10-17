@@ -5,35 +5,80 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
-
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkPoint.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
-#ifdef SK_DIRECT3D
-#include "include/gpu/d3d/GrD3DTypes.h"
-#endif
+#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/gpu/mock/GrMockTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrBackendTextureImageGenerator.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
-#include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrSemaphore.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
-#include "src/image/SkImage_Base.h"
+#include "src/gpu/ganesh/ops/OpsTask.h"
 #include "src/image/SkSurface_Gpu.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tests/TestUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
 #include "tools/gpu/BackendTextureImageFactory.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/ProxyUtils.h"
+
+#include <initializer_list>
+#include <memory>
+#include <utility>
+
+class GrRenderTask;
+
+#if defined(SK_DIRECT3D)
+#include "include/gpu/d3d/GrD3DTypes.h"
+#endif
+
+#if defined(SK_GL)
+#include "include/gpu/gl/GrGLTypes.h"
+#endif
+
+#if defined(SK_VULKAN)
+#include "include/gpu/vk/GrVkTypes.h"
+#endif
+
+#if defined(SK_DAWN)
+#include "include/gpu/dawn/GrDawnTypes.h"
+#include "dawn/webgpu_cpp.h"
+#endif
 
 static constexpr int kSize = 8;
 

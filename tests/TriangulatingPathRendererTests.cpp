@@ -5,24 +5,61 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
-
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "include/utils/SkRandom.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/core/SkMatrixProvider.h"
+#include "src/core/SkPathPriv.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrEagerVertexAllocator.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
+#include "src/gpu/ganesh/PathRenderer.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
 #include "src/gpu/ganesh/geometry/GrAATriangulator.h"
 #include "src/gpu/ganesh/geometry/GrInnerFanTriangulator.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
+#include "src/gpu/ganesh/geometry/GrTriangulator.h"
+#include "src/gpu/ganesh/ops/TriangulatingPathRenderer.h"
 #include "src/shaders/SkShaderBase.h"
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
 #include "tools/ToolUtils.h"
+
+#include <cmath>
+#include <cstddef>
+#include <initializer_list>
 #include <map>
+#include <memory>
+#include <utility>
+
+class GrRecordingContext;
+class SkShader;
+struct GrContextOptions;
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
@@ -490,8 +527,6 @@ CreatePathFn kNonEdgeAAPaths[] = {
 };
 
 #if SK_GPU_V1
-#include "src/gpu/ganesh/SurfaceDrawContext.h"
-#include "src/gpu/ganesh/ops/TriangulatingPathRenderer.h"
 
 // A simple concave path. Test this with a non-invertible matrix.
 static SkPath create_path_17() {

@@ -6,15 +6,27 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkData.h"
 #include "include/core/SkDrawable.h"
+#include "include/core/SkFlattenable.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkStream.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/shaders/SkShaderBase.h"
 #include "tests/Test.h"
+
+#include <cstdint>
+#include <string>
 
 class IntDrawable : public SkDrawable {
 public:

@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include <memory>
-
 #include "src/core/SkLRUCache.h"
 #include "tests/Test.h"
+
+#include <memory>
+#include <utility>
 
 struct Value {
     Value(int value, int* counter)

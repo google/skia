@@ -34,20 +34,19 @@
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLVariable.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
 
 #include <ctype.h>
-#include <stdlib.h>
 #include <cstdint>
+#include <cstdlib>
 #include <limits>
 #include <memory>
 #include <string>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 #include <vector>
+
+struct GrContextOptions;
 
 using namespace SkSL::dsl;
 

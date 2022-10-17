@@ -5,18 +5,32 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkGraphics.h"
-#include "include/core/SkPicture.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkBitmapCache.h"
+#include "src/core/SkCachedData.h"
+#include "src/core/SkDiscardableMemory.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkResourceCache.h"
 #include "src/image/SkImage_Base.h"
 #include "src/lazy/SkDiscardableMemoryPool.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <memory>
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -107,8 +121,6 @@ static void test_mipmap_notify(skiatest::Reporter* reporter, SkResourceCache* ca
         REPORTER_ASSERT(reporter, !mipmap);
     }
 }
-
-#include "src/lazy/SkDiscardableMemoryPool.h"
 
 static SkDiscardableMemoryPool* gPool = nullptr;
 static int gFactoryCalls = 0;

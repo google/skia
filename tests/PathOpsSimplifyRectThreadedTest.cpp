@@ -5,10 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkMacros.h"
+#include "include/private/SkTDArray.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"
+#include "tests/Test.h"
 
 // four rects, of four sizes
 // for 3 smaller sizes, tall, wide

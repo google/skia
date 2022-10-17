@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "src/core/SkGlyph.h"
 #include "tests/Test.h"
 

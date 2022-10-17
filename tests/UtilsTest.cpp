@@ -7,6 +7,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
+#include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkTSearch.h"
@@ -15,8 +16,13 @@
 #include "tests/Test.h"
 
 #include <array>
+#include <cstddef>
+#include <cstdint>
 #include <initializer_list>
+#include <memory>
+#include <new>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 class RefClass : public SkRefCnt {

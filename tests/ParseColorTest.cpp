@@ -5,8 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColor.h"
+#include "include/core/SkString.h"
 #include "include/utils/SkParse.h"
 #include "tests/Test.h"
+
+#include <string>
 
 static constexpr struct {
     const char* fName;

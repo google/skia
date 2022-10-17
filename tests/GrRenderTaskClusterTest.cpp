@@ -5,10 +5,21 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
+#include "include/private/SkTArray.h"
+#include "src/core/SkTInternalLList.h"
+#include "src/gpu/ganesh/GrRenderTask.h"
 #include "src/gpu/ganesh/GrRenderTaskCluster.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/mock/GrMockRenderTask.h"
 #include "src/gpu/ganesh/mock/GrMockSurfaceProxy.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
+#include <utility>
 
 typedef void (*CreateGraphPF)(SkTArray<sk_sp<GrMockRenderTask>>* graph,
                               SkTArray<sk_sp<GrMockRenderTask>>* expected);

@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkBitmap.h"
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkShader.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecords.h"
 #include "tests/RecordTestUtils.h"
 #include "tests/Test.h"
 
+#include <cstdint>
 #include <new>
 
 // Sums the area of any DrawRect command it sees.

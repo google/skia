@@ -9,6 +9,7 @@
 #include "include/private/SkTFitsIn.h"
 #include "tests/Test.h"
 
+#include <cstdint>
 #include <limits>
 
 #define TEST(S, s, D, expected) REPORTER_ASSERT(reporter, (SkTFitsIn<D>((S)(s)) == (expected)))

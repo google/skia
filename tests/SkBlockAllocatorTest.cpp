@@ -5,10 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
 #include "src/core/SkBlockAllocator.h"
 #include "tests/Test.h"
 
+#include <cstdint>
 #include <cstring>
+#include <new>
 #include <vector>
 
 using Block = SkBlockAllocator::Block;

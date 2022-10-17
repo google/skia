@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkImage.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
 #include "tests/Test.h"
 
 DEF_TEST(ImageFrom565Bitmap, r) {

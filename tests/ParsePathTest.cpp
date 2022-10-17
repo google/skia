@@ -5,8 +5,15 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkString.h"
 #include "include/utils/SkParsePath.h"
 #include "tests/Test.h"
+
+#include <array>
+#include <cstddef>
 
 static void test_to_from(skiatest::Reporter* reporter, const SkPath& path) {
     SkString str, str2;

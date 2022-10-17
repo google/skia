@@ -4,11 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "tests/PathOpsDebug.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkString.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkTDArray.h"
+#include "include/utils/SkRandom.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"
+#include "tests/Test.h"
 
+#include <array>
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
 
 #define TEST(name) { name, #name }
 
@@ -181,8 +189,6 @@ SkString testName;
 testName.printf("tiger8a_x%d", ++gTigerTests);
 testSimplify(reporter, path, testName.c_str());
 }
-
-#include "include/utils/SkRandom.h"
 
 static void tiger8a_h_1(skiatest::Reporter* reporter, const char* ) {
     uint64_t testlines = 0x0000000000002008;  // best so far: 0x0000001d14c14bb1;

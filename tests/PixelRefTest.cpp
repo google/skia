@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "tests/Test.h"
-
+#include "include/core/SkBitmap.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkPixelRef.h"
+#include "include/core/SkRefCnt.h"
 #include "include/private/SkIDChangeListener.h"
+#include "tests/Test.h"
 
 static void decrement_counter_proc(void* pixels, void* ctx) {
     int* counter = (int*)ctx;

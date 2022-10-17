@@ -6,11 +6,13 @@
  */
 
 #include "src/core/SkGaussFilter.h"
+#include "tests/Test.h"
 
 #include <cmath>
+#include <cstdlib>
+#include <initializer_list>
 #include <tuple>
 #include <vector>
-#include "tests/Test.h"
 
 // one part in a million
 static constexpr double kEpsilon = 0.000001;

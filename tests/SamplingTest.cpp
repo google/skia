@@ -6,12 +6,18 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkSamplingPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#include <initializer_list>
 
 // In general, sampling under identity matrix should not affect the pixels. However,
 // cubic resampling when B != 0 is expected to change pixels.

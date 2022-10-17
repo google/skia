@@ -21,6 +21,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
 
+#include <cstddef>
 #include <map>
 #include <vector>
 

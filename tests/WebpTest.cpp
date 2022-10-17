@@ -6,10 +6,14 @@
  */
 
 #include "include/codec/SkCodec.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkImageInfo.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+
+#include <memory>
 
 DEF_TEST(WebpCodecBlend, r) {
     const char* path = "images/blendBG.webp";

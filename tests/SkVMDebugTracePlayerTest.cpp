@@ -5,15 +5,26 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkM44.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/SkSLProgramKind.h"
+#include "src/core/SkVM.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLProgram.h" // IWYU pragma: keep
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/sksl/tracing/SkVMDebugTracePlayer.h"
-
 #include "tests/Test.h"
+
+#include <cstddef>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
+
+namespace SkSL { class FunctionDefinition; }
 
 using LineNumberMap = SkSL::SkVMDebugTracePlayer::LineNumberMap;
 

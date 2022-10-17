@@ -5,9 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkColorSpacePriv.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkRefCnt.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "tests/Test.h"
+
+#include <cstdint>
 
 DEF_TEST(SkColorSpaceXformSteps, r) {
     auto srgb   = SkColorSpace::MakeSRGB(),

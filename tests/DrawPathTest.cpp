@@ -13,6 +13,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -23,6 +24,8 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "tests/Test.h"
+
+#include <cstdint>
 
 // test that we can draw an aa-rect at coordinates > 32K (bigger than fixedpoint)
 static void test_big_aa_rect(skiatest::Reporter* reporter) {

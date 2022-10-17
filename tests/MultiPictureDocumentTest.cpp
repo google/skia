@@ -14,19 +14,27 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tests/Test.h"
 #include "tools/SkSharingProc.h"
 #include "tools/ToolUtils.h"
+
+#include <memory>
+#include <vector>
 
 // Covers rects, ovals, paths, images, text
 static void draw_basic(SkCanvas* canvas, int seed, sk_sp<SkImage> image) {

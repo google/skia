@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkPixelRef.h"
@@ -16,10 +18,12 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkMalloc.h"
 #include "include/utils/SkRandom.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
+#include <cstddef>
 #include <initializer_list>
 
 static void test_peekpixels(skiatest::Reporter* reporter) {

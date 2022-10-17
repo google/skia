@@ -5,21 +5,34 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkColorFilter.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkTypeface.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
 #include "include/effects/SkColorMatrix.h"
-#include "include/private/SkTo.h"
-#include "include/utils/SkRandom.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/utils/SkUTF.h"
 #include "tests/Test.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <initializer_list>
+#include <optional>
+#include <string>
+
 #undef ASSERT
 
 DEF_TEST(Paint_copy, reporter) {

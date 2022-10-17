@@ -6,17 +6,26 @@
  */
 
 #include "include/core/SkData.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontArguments.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontParameters.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkFixed.h"
-#include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "include/private/SkTemplates.h"
+#include "src/core/SkEndian.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkFontMgrPriv.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkTypefaceCache.h"
 #include "src/sfnt/SkOTTable_OS_2.h"
+#include "src/sfnt/SkOTTable_OS_2_V0.h"
 #include "src/sfnt/SkSFNTHeader.h"
 #include "src/utils/SkUTF.h"
 #include "tests/Test.h"
@@ -25,10 +34,15 @@
 #include "tools/fonts/TestEmptyTypeface.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <memory>
+#include <string>
+#include <utility>
 
 #if defined(SK_BUILD_FOR_WIN)
 #include "include/ports/SkTypeface_win.h"
+#include "src/core/SkFontMgrPriv.h"
 #endif
 
 static void TypefaceStyle_test(skiatest::Reporter* reporter,

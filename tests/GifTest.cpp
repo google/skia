@@ -6,16 +6,28 @@
  */
 
 #include "include/codec/SkAndroidCodec.h"
+#include "include/codec/SkCodec.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "tests/CodecPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
+
+#include <cstring>
+#include <initializer_list>
+#include <memory>
+#include <utility>
+#include <vector>
 
 static unsigned char gGIFData[] = {
   0x47, 0x49, 0x46, 0x38, 0x37, 0x61, 0x03, 0x00, 0x03, 0x00, 0xe3, 0x08,

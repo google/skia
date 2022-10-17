@@ -4,7 +4,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatBits.h"
+#include "src/pathops/SkPathOpsDebug.h"
 #include "tests/PathOpsExtendedTest.h"
+#include "tests/Test.h"
+
+#include <cstddef>
+#include <iterator>
 
 #define TEST(name) { name, #name }
 

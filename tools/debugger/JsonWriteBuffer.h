@@ -14,6 +14,8 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkWriteBuffer.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <string_view>
 
 class SkFlattenable;

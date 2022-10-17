@@ -5,10 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include <string_view>
-
 #include "include/private/SkStringView.h"
 #include "tests/Test.h"
+
+#include <string>
+#include <string_view>
 
 DEF_TEST(SkStringViewStartsAndEnds, r) {
     std::string_view empty("");

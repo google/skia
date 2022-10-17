@@ -6,10 +6,16 @@
  */
 
 #include "include/core/SkData.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMallocPixelRef.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkRefCnt.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkPixelRefPriv.h"
 #include "tests/Test.h"
+
+#include <cstddef>
+#include <cstdint>
 
 static void delete_uint8_proc(void* ptr, void*) {
     delete[] static_cast<uint8_t*>(ptr);

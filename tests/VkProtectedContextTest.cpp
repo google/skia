@@ -11,16 +11,34 @@
 
 #if SK_SUPPORT_GPU && defined(SK_VULKAN)
 
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/vk/GrVkBackendContext.h"
+#include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrTypes.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
-#include "tools/gpu/GrContextFactory.h"
 #include "tools/gpu/vk/VkTestHelper.h"
+
+#include <memory>
+#include <utility>
+
+struct GrContextOptions;
 
 static sk_sp<SkSurface> create_protected_sksurface(GrDirectContext* dContext,
                                                    skiatest::Reporter* reporter,
@@ -339,39 +357,6 @@ DEF_GANESH_TEST(VkProtectedContext_DrawProtectedImageOnProtectedSurface,
     REPORTER_ASSERT(reporter, canvas);
 
     canvas->drawImage(image, 0, 0);
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-// Test out DDLs using a protected Vulkan context
-
-void DDLMakeRenderTargetTestImpl(GrDirectContext*, skiatest::Reporter*);
-
-DEF_GANESH_TEST(VkProtectedContext_DDLMakeRenderTargetTest,
-                reporter,
-                ctxInfo,
-                CtsEnforcement::kNever) {
-    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
-    if (!protectedTestHelper->init()) {
-        return;
-    }
-    REPORTER_ASSERT(reporter, protectedTestHelper->directContext() != nullptr);
-
-    DDLMakeRenderTargetTestImpl(protectedTestHelper->directContext(), reporter);
-}
-
-void DDLSurfaceCharacterizationTestImpl(GrDirectContext*, skiatest::Reporter*);
-
-DEF_GANESH_TEST(VkProtectedContext_DDLSurfaceCharacterizationTest,
-                reporter,
-                ctxInfo,
-                CtsEnforcement::kNever) {
-    auto protectedTestHelper = std::make_unique<VkTestHelper>(true);
-    if (!protectedTestHelper->init()) {
-        return;
-    }
-    REPORTER_ASSERT(reporter, protectedTestHelper->directContext() != nullptr);
-
-    DDLSurfaceCharacterizationTestImpl(protectedTestHelper->directContext(), reporter);
 }
 
 #endif  // SK_SUPPORT_GPU && defined(SK_VULKAN)

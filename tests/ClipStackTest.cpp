@@ -5,30 +5,21 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
-#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkPoint.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
-#include "include/core/SkSize.h"
-#include "include/core/SkString.h"
-#include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkGradientShader.h"
-#include "include/private/SkTemplates.h"
-#include "include/utils/SkRandom.h"
 #include "src/core/SkClipStack.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cstring>
 #include <initializer_list>
-#include <new>
 
 static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     SkClipStack s;

@@ -5,9 +5,16 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkRTree.h"
 #include "tests/Test.h"
+
+#include <cmath>
+#include <cstddef>
+#include <vector>
 
 static const int NUM_RECTS = 200;
 static const size_t NUM_ITERATIONS = 100;

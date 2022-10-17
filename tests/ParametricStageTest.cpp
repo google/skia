@@ -5,9 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorSpace.h"
+#include "modules/skcms/skcms.h"
 #include "src/core/SkRasterPipeline.h"
 #include "tests/Test.h"
+
+#include <cmath>
 
 static void check_error(skiatest::Reporter* r, float limit, skcms_TransferFunction fn) {
     float in[256], out[256];

@@ -6,7 +6,10 @@
  */
 
 #include "include/core/SkFont.h"
-#include "include/utils/SkCustomTypeface.h"
+#include "include/core/SkFontTypes.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkPtrRecorder.h"
@@ -14,6 +17,8 @@
 #include "src/core/SkWriteBuffer.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
+
+#include <cstddef>
 
 static SkFont serialize_deserialize(const SkFont& font, skiatest::Reporter* reporter) {
     sk_sp<SkRefCntSet> typefaces = sk_make_sp<SkRefCntSet>();

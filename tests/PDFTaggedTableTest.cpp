@@ -9,9 +9,21 @@
 #ifdef SK_SUPPORT_PDF
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkDocument.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTime.h"
+#include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
+
+#include <memory>
+#include <utility>
+#include <vector>
 
 using PDFTag = SkPDF::StructureElementNode;
 

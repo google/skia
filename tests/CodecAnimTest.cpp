@@ -8,10 +8,14 @@
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
+#include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
@@ -23,7 +27,7 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-#include <stdio.h>
+#include <cstdint>
 #include <cstring>
 #include <initializer_list>
 #include <memory>

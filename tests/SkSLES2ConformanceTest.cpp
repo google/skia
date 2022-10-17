@@ -28,11 +28,13 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
-#include "tools/gpu/GrContextFactory.h"
 
 #include <functional>
+
+struct GrContextOptions;
 
 static void test_expect_fail(skiatest::Reporter* r, const char* testFile) {
     SkRuntimeEffect::Options options{};

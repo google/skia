@@ -6,10 +6,17 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/utils/SkShadowUtils.h"
+#include "include/private/SkShadowFlags.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/utils/SkShadowTessellator.h"

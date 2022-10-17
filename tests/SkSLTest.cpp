@@ -30,18 +30,19 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tests/TestHarness.h"
 #include "tools/Resources.h"
-#include "tools/gpu/GrContextFactory.h"
 
 #include <array>
 #include <memory>
 #include <string>
 #include <vector>
+
+struct GrContextOptions;
 
 static constexpr int kWidth = 2;
 static constexpr int kHeight = 2;

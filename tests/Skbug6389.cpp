@@ -5,8 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMaskFilter.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
 #include "tests/Test.h"

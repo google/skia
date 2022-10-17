@@ -5,30 +5,58 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkGraphics.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSerialProcs.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/SkMutex.h"
+#include "include/private/SkTHash.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "include/private/chromium/Slug.h"
-#include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkScalerCache.h"
-#include "src/core/SkStrikeCache.h"
+#include "src/core/SkGlyph.h"
 #include "src/core/SkStrikeSpec.h"
-#include "src/core/SkSurfacePriv.h"
 #include "src/core/SkTypeface_remote.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/text/gpu/SDFTControl.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/TestEmptyTypeface.h"
+
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <initializer_list>
+#include <memory>
+#include <vector>
 
 // Since SkRemoteGlyphCache is not re-entrant, we can't use it while drawing slugs to simulate
 // text blobs in the GPU stack.

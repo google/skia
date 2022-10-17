@@ -9,16 +9,20 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkFontStyle.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkFontPriv.h"
 #include "tests/Test.h"
+
+#include <memory>
+#include <utility>
 
 static const SkColor bgColor = SK_ColorWHITE;
 

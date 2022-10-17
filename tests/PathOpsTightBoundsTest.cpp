@@ -4,11 +4,21 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkRect.h"
+#include "include/pathops/SkPathOps.h"
+#include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"
 #include "tests/Test.h"
+
+#include <algorithm>
+#include <cstdint>
 
 static void testTightBoundsLines(PathOpsThreadState* data) {
     SkRandom ran;

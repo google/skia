@@ -8,13 +8,26 @@
 #ifndef TestUtils_DEFINED
 #define TestUtils_DEFINED
 
-#include "include/core/SkBitmap.h"
-#include "src/gpu/ganesh/GrDataUtils.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPixmap.h"
-#include "tests/Test.h"
 
-namespace skgpu::v1 { class SurfaceContext; }
+#include <cstdint>
+#include <functional>
+#include <memory>
+
+class GrDirectContext;
+class GrRecordingContext;
 class GrSurfaceProxy;
+class SkBitmap;
+class SkPixmap;
+class SkString;
+namespace skiatest { class Reporter; }
+namespace skgpu::v1 { class SurfaceContext; }
 typedef uint32_t GrColor;
 
 // Ensure that reading back from 'srcContext' as RGBA 8888 matches 'expectedPixelValues

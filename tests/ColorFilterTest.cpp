@@ -5,24 +5,39 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkColorMatrix.h"
+#include "include/effects/SkColorMatrix.h" // IWYU pragma: keep
 #include "include/effects/SkGradientShader.h"
+#include "include/gpu/GrDirectContext.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkAutoMalloc.h"
+#include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkVM.h"
 #include "src/core/SkWriteBuffer.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
-class SkFlattenable;
+#include <cstddef>
+#include <utility>
+
+class SkArenaAlloc;
+struct GrContextOptions;
+struct SkStageRec;
 
 static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
     SkBinaryWriteBuffer wb;
