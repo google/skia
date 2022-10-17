@@ -752,7 +752,6 @@ BASE_SRCS_ALL = [
     "src/gpu/Blend.cpp",
     "src/gpu/Blend.h",
     "src/gpu/BufferWriter.h",
-    "src/gpu/ClientMappedBufferManager.h",
     "src/gpu/GrAHardwareBufferUtils.h",
     "src/gpu/GrRectanizer.h",
     "src/gpu/KeyBuilder.h",
@@ -769,6 +768,7 @@ BASE_SRCS_ALL = [
     "src/gpu/SkRenderEngineAbortf.h",
     "src/gpu/Swizzle.cpp",
     "src/gpu/Swizzle.h",
+    "src/gpu/TClientMappedBufferManager.h",
     # We include the ganesh files, but leave out any specific backend (e.g. GL, Vulkan)
     "src/gpu/ganesh/ClipStack.cpp",
     "src/gpu/ganesh/ClipStack.h",

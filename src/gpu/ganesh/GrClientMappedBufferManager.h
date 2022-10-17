@@ -9,15 +9,15 @@
 #define GrClientMappedBufferManager_DEFINED
 
 #include "include/gpu/GrDirectContext.h"
-#include "src/gpu/ClientMappedBufferManager.h"
+#include "src/gpu/TClientMappedBufferManager.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 
 // This is declared as a class rather than an alias to allow for forward declarations
 class GrClientMappedBufferManager :
-        public skgpu::ClientMappedBufferManager<GrGpuBuffer, GrDirectContext::DirectContextID> {
+        public skgpu::TClientMappedBufferManager<GrGpuBuffer, GrDirectContext::DirectContextID> {
 public:
     GrClientMappedBufferManager(GrDirectContext::DirectContextID ownerID)
-            : ClientMappedBufferManager(ownerID) {}
+            : TClientMappedBufferManager(ownerID) {}
 };
 
 bool SkShouldPostMessageToBus(const GrClientMappedBufferManager::BufferFinishedMessage&,

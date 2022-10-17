@@ -24,6 +24,8 @@ namespace skgpu { struct VulkanBackendContext; }
 namespace skgpu::graphite {
 
 class BackendTexture;
+class Buffer;
+class ClientMappedBufferManager;
 class Context;
 class ContextPriv;
 struct DawnBackendContext;
@@ -94,6 +96,25 @@ public:
     ContextPriv priv();
     const ContextPriv priv() const;  // NOLINT(readability-const-return-type)
 
+    class ContextID {
+    public:
+        static Context::ContextID Next();
+
+        ContextID() : fID(SK_InvalidUniqueID) {}
+
+        bool operator==(const ContextID& that) const { return fID == that.fID; }
+        bool operator!=(const ContextID& that) const { return !(*this == that); }
+
+        void makeInvalid() { fID = SK_InvalidUniqueID; }
+        bool isValid() const { return fID != SK_InvalidUniqueID; }
+
+    private:
+        constexpr ContextID(uint32_t id) : fID(id) {}
+        uint32_t fID;
+    };
+
+    ContextID contextID() const { return fContextID; }
+
 protected:
     Context(sk_sp<SharedContext>, std::unique_ptr<QueueManager>);
 
@@ -105,10 +126,14 @@ private:
     sk_sp<SharedContext> fSharedContext;
     std::unique_ptr<ResourceProvider> fResourceProvider;
     std::unique_ptr<QueueManager> fQueueManager;
+    std::unique_ptr<ClientMappedBufferManager> fMappedBufferManager;
 
     // In debug builds we guard against improper thread handling. This guard is passed to the
     // ResourceCache for the Context.
     mutable SingleOwner fSingleOwner;
+
+    // Needed for MessageBox handling
+    const ContextID fContextID;
 };
 
 } // namespace skgpu::graphite

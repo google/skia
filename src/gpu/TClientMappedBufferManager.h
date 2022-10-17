@@ -4,8 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef skgpu_ClientMappedBufferManager_DEFINED
-#define skgpu_ClientMappedBufferManager_DEFINED
+#ifndef skgpu_TClientMappedBufferManager_DEFINED
+#define skgpu_TClientMappedBufferManager_DEFINED
 
 #include "include/private/SkTArray.h"
 #include "src/core/SkMessageBus.h"
@@ -23,7 +23,7 @@ namespace skgpu {
  * called periodically on the owner's thread to poll for messages and process them.
  */
 template <typename T, typename IDType>
-class ClientMappedBufferManager {
+class TClientMappedBufferManager {
 public:
     /**
      * The message type that internal users of this should post to unmap the buffer.
@@ -45,12 +45,12 @@ public:
                                                   IDType,
                                                   false>;
 
-    ClientMappedBufferManager(IDType ownerID)
+    TClientMappedBufferManager(IDType ownerID)
             : fFinishedBufferInbox(ownerID) {}
-    ClientMappedBufferManager(const ClientMappedBufferManager&) = delete;
-    ClientMappedBufferManager(ClientMappedBufferManager&&) = delete;
+    TClientMappedBufferManager(const TClientMappedBufferManager&) = delete;
+    TClientMappedBufferManager(TClientMappedBufferManager&&) = delete;
 
-    ~ClientMappedBufferManager() {
+    ~TClientMappedBufferManager() {
         this->process();
         if (!fAbandoned) {
             // If we're going down before we got the messages we go ahead and unmap all the buffers.
@@ -62,8 +62,8 @@ public:
         }
     }
 
-    ClientMappedBufferManager& operator=(const ClientMappedBufferManager&) = delete;
-    ClientMappedBufferManager& operator=(ClientMappedBufferManager&&) = delete;
+    TClientMappedBufferManager& operator=(const TClientMappedBufferManager&) = delete;
+    TClientMappedBufferManager& operator=(TClientMappedBufferManager&&) = delete;
 
     /** Initialize BufferFinishedMessage::fIntendedRecipient to this value. It is the
      *  unique ID of the object that owns this buffer manager.
@@ -123,5 +123,5 @@ private:
 
 }  // namespace skgpu
 
-#endif  // skgpu_ClientMappedBufferManager_DEFINED
+#endif  // skgpu_TClientMappedBufferManager_DEFINED
 

@@ -11,7 +11,6 @@ SHARED_FILES = [
     "Blend.cpp",
     "Blend.h",
     "BufferWriter.h",
-    "ClientMappedBufferManager.h",
     "KeyBuilder.h",
     "MutableTextureStateRef.h",
     "Rectanizer.h",
@@ -24,6 +23,7 @@ SHARED_FILES = [
     "ResourceKey.h",
     "Swizzle.cpp",
     "Swizzle.h",
+    "TClientMappedBufferManager.h",
 ]
 
 split_srcs_and_hdrs(
