@@ -71,6 +71,7 @@ sksl_error_tests = [
   "/sksl/errors/DoTypeMismatch.sksl",
   "/sksl/errors/DuplicateBinding.sksl",
   "/sksl/errors/DuplicateFunction.rts",
+  "/sksl/errors/DuplicateInterfaceBlockField.sksl",
   "/sksl/errors/DuplicateOutput.sksl",
   "/sksl/errors/DuplicateRTAdjust.sksl",
   "/sksl/errors/DuplicateSymbol.rts",

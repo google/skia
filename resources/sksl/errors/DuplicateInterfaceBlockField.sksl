@@ -1,0 +1,9 @@
+MyInterfaceBlock {
+    float4 myFloat;
+};
+
+float4 myFloat;
+
+/*%%*
+symbol 'myFloat' was already defined
+*%%*/
