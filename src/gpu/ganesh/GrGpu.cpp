@@ -499,7 +499,11 @@ bool GrGpu::writePixels(GrSurface* surface,
         return false;
     }
 
-    this->didWriteToSurface(surface, kTopLeft_GrSurfaceOrigin, &rect, mipLevelCount);
+    this->didWriteToSurface(surface,
+                            kTopLeft_GrSurfaceOrigin,
+                            &rect,
+                            "gpu write pixels",
+                            mipLevelCount);
     fStats.incTextureUploads();
 
     return true;
@@ -580,7 +584,7 @@ bool GrGpu::transferPixelsTo(GrTexture* texture,
         return false;
     }
 
-    this->didWriteToSurface(texture, kTopLeft_GrSurfaceOrigin, &rect);
+    this->didWriteToSurface(texture, kTopLeft_GrSurfaceOrigin, &rect, "gpu transfer pixels");
     fStats.incTransfersToTexture();
 
     return true;
@@ -659,7 +663,10 @@ void GrGpu::resolveRenderTarget(GrRenderTarget* target, const SkIRect& resolveRe
     this->onResolveRenderTarget(target, resolveRect);
 }
 
-void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const SkIRect* bounds,
+void GrGpu::didWriteToSurface(GrSurface* surface,
+                              GrSurfaceOrigin origin,
+                              const SkIRect* bounds,
+                              const char* reason,
                               uint32_t mipLevels) const {
     SkASSERT(surface);
     SkASSERT(!surface->readOnly());
@@ -668,7 +675,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
         GrTexture* texture = surface->asTexture();
         if (texture) {
             if (mipLevels == 1) {
-                texture->markMipmapsDirty();
+                texture->markMipmapsDirty(reason);
             } else {
                 texture->markMipmapsClean();
             }

@@ -199,7 +199,7 @@ bool GrDawnGpu::onWritePixels(GrSurface* surface,
     }
     this->uploadTextureData(srcColorType, texels, mipLevelCount, rect, texture->texture());
     if (mipLevelCount < texture->maxMipmapLevel() + 1) {
-        texture->markMipmapsDirty();
+        texture->markMipmapsDirty("dawn write pixels");
     }
     return true;
 }
@@ -308,7 +308,7 @@ sk_sp<GrTexture> GrDawnGpu::onWrapRenderableBackendTexture(const GrBackendTextur
     sk_sp<GrTexture> result = GrDawnTexture::MakeWrapped(this, dimensions, GrRenderable::kYes,
                                                          sampleCnt, cacheable, kRW_GrIOType, info,
                                                          tex.getLabel());
-    result->markMipmapsDirty();
+    result->markMipmapsDirty("dawn make wrapped");
     return result;
 }
 

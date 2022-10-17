@@ -414,7 +414,7 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex,
 #endif
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
-        tex->markMipmapsDirty();
+        tex->markMipmapsDirty("mtl upoad texture");
     }
 
     return true;
@@ -510,7 +510,7 @@ bool GrMtlGpu::clearTexture(GrMtlTexture* tex, size_t bpp, uint32_t levelMask) {
 #endif
 
     if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
-        tex->markMipmapsDirty();
+        tex->markMipmapsDirty("mtl clear texture");
     }
 
     return true;

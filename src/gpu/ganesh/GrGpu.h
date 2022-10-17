@@ -688,6 +688,7 @@ protected:
     void didWriteToSurface(GrSurface* surface,
                            GrSurfaceOrigin origin,
                            const SkIRect* bounds,
+                           const char* reason,
                            uint32_t mipLevels = 1) const;
 
     void setOOMed() { fOOMed = true; }

@@ -45,7 +45,8 @@ public:
         return GrTextureTypeHasRestrictedSampling(this->textureType());
     }
 
-    void markMipmapsDirty();
+    void markMipmapsDirty(const char* reason);
+
     void markMipmapsClean();
     GrMipmapped mipmapped() const {
         return GrMipmapped(fMipmapStatus != GrMipmapStatus::kNotAllocated);
@@ -53,6 +54,8 @@ public:
     bool mipmapsAreDirty() const { return fMipmapStatus != GrMipmapStatus::kValid; }
     GrMipmapStatus mipmapStatus() const { return fMipmapStatus; }
     int maxMipmapLevel() const { return fMaxMipmapLevel; }
+
+    SkDEBUGCODE(void assertMipmapsNotDirty();)
 
     static void ComputeScratchKey(const GrCaps& caps,
                                   const GrBackendFormat& format,
@@ -80,6 +83,11 @@ private:
 
     GrTextureType                 fTextureType;
     GrMipmapStatus                fMipmapStatus;
+#if defined(SK_DEBUG)
+    const char*                   fMipmapDirtyReason      = "creation";
+    int                           fMipmapDirtyFlushNum    = 1;
+    bool                          fMipmapDirtyWasFlushing = false;
+#endif
     int                           fMaxMipmapLevel;
     friend class GrTextureResource;
 

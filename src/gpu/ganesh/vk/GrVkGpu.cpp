@@ -528,7 +528,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
                                              texels,
                                              mipLevelCount);
         if (1 == mipLevelCount) {
-            texture->markMipmapsDirty();
+            texture->markMipmapsDirty("vk upload data");
         }
     }
 
@@ -690,7 +690,7 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture,
                                                     &region);
     this->currentCommandBuffer()->addGrBuffer(std::move(transferBuffer));
 
-    tex->markMipmapsDirty();
+    tex->markMipmapsDirty("vk transfer");
     return true;
 }
 
@@ -2312,7 +2312,7 @@ void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect, "vk copy as image");
 }
 
 void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
@@ -2381,7 +2381,7 @@ void GrVkGpu::copySurfaceAsBlit(GrSurface* dst,
                                                     VK_FILTER_NEAREST : VK_FILTER_LINEAR);
 
     // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect, "vk copy as blit");
 }
 
 void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
@@ -2395,7 +2395,7 @@ void GrVkGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect, "vk copy as resolve");
 }
 
 bool GrVkGpu::onCopySurface(GrSurface* dst, const SkIRect& dstRect,
@@ -2637,7 +2637,7 @@ void GrVkGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
     // We had a command buffer when we started the render pass, we should have one now as well.
     SkASSERT(this->currentCommandBuffer());
     this->currentCommandBuffer()->endRenderPass(this);
-    this->didWriteToSurface(target, origin, &bounds);
+    this->didWriteToSurface(target, origin, &bounds, "vk end render pass");
 }
 
 bool GrVkGpu::checkVkResult(VkResult result) {

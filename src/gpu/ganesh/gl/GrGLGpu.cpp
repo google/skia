@@ -2048,7 +2048,7 @@ void GrGLGpu::didDrawTo(GrRenderTarget* rt) {
     if (fHWWriteToColor == kYes_TriState) {
         // The bounds are only used to check for empty and we don't know the bounds. The origin
         // is irrelevant if there are no bounds.
-        this->didWriteToSurface(rt, kTopLeft_GrSurfaceOrigin, /*bounds=*/nullptr);
+        this->didWriteToSurface(rt, kTopLeft_GrSurfaceOrigin, /*bounds=*/nullptr, "GL draw");
     }
 }
 
@@ -2098,7 +2098,10 @@ void GrGLGpu::clear(const GrScissorState& scissor,
     this->flushColorWrite(true);
     this->flushClearColor(color);
     GL_CALL(Clear(GR_GL_COLOR_BUFFER_BIT));
-    this->didWriteToSurface(glRT, origin, scissor.enabled() ? &scissor.rect() : nullptr);
+    this->didWriteToSurface(glRT,
+                            origin,
+                            scissor.enabled() ? &scissor.rect() : nullptr,
+                            "GL clear");
 }
 
 static bool use_tiled_rendering(const GrGLCaps& glCaps,
@@ -2147,7 +2150,7 @@ void GrGLGpu::beginCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
         this->disableWindowRectangles();
         GL_CALL(Clear(clearMask));
         if (clearMask & GR_GL_COLOR_BUFFER_BIT) {
-            this->didWriteToSurface(rt, origin, nullptr);
+            this->didWriteToSurface(rt, origin, nullptr, "gl begin cmd buffer clear");
         }
     }
 }
@@ -3509,7 +3512,7 @@ bool GrGLGpu::copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSur
     GL_CALL(DrawArrays(GR_GL_TRIANGLE_STRIP, 0, 4));
     this->unbindSurfaceFBOForPixelOps(dst, 0, GR_GL_FRAMEBUFFER);
     // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect, "gl copy as draw");
     return true;
 }
 
@@ -3531,7 +3534,7 @@ void GrGLGpu::copySurfaceAsCopyTexSubImage(GrSurface* dst, GrSurface* src, const
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect, "glCopyTexSubImage2D");
 }
 
 bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
@@ -3566,7 +3569,7 @@ bool GrGLGpu::copySurfaceAsBlitFramebuffer(GrSurface* dst, GrSurface* src, const
     this->unbindSurfaceFBOForPixelOps(src, 0, GR_GL_READ_FRAMEBUFFER);
 
     // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
+    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect, "copy as fb blit");
     return true;
 }
 

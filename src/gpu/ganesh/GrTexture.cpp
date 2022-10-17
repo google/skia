@@ -18,11 +18,19 @@
 #ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrDrawingManager.h"
 #endif
 
-void GrTexture::markMipmapsDirty() {
+void GrTexture::markMipmapsDirty(const char* reason) {
     if (GrMipmapStatus::kValid == fMipmapStatus) {
         fMipmapStatus = GrMipmapStatus::kDirty;
+#if defined(SK_DEBUG)
+        fMipmapDirtyReason = reason;
+        if (auto* context = this->getContext()) {
+            fMipmapDirtyFlushNum    = context->priv().drawingManager()->flushNumber();
+            fMipmapDirtyWasFlushing = context->priv().drawingManager()->isFlushing();
+        }
+#endif
     }
 }
 
@@ -30,6 +38,47 @@ void GrTexture::markMipmapsClean() {
     SkASSERT(GrMipmapStatus::kNotAllocated != fMipmapStatus);
     fMipmapStatus = GrMipmapStatus::kValid;
 }
+
+#if defined(SK_DEBUG)
+void GrTexture::assertMipmapsNotDirty() {
+    // There are some cases where we might be given a non-mipmapped texture with a
+    // mipmap filter. See skbug.com/7094.
+    if (this->mipmapped() == GrMipmapped::kYes && this->mipmapsAreDirty()) {
+        SkString msg("MM dirty unexpectedly.");
+        if (auto* context = this->getContext()) {
+            int  flushNum   = context->priv().drawingManager()->flushNumber();
+            bool isFlushing = context->priv().drawingManager()->isFlushing();
+
+            auto flushStr = [](int num, bool is) {
+                return SkStringPrintf("%s flush #%d\n", is ? "in" : "before", num);
+            };
+
+            bool isRT = false;
+            int sampleCount = 1;
+            if (auto* rt = this->asRenderTarget()) {
+                isRT = true;
+                sampleCount = rt->numSamples();
+            }
+            int format = 0;
+#if defined(SK_GL)
+            format = (int)this->backendFormat().asGLFormat();
+#endif
+            msg += SkStringPrintf(
+                    " Dirtied by \"%s\" %s, now we're %s. "
+                    "tex dims: %dx%d, gl fmt: %04x, isRT: %d, sc: %d",
+                    fMipmapDirtyReason,
+                    flushStr(fMipmapDirtyFlushNum, fMipmapDirtyWasFlushing).c_str(),
+                    flushStr(flushNum, isFlushing).c_str(),
+                    this->width(),
+                    this->height(),
+                    format,
+                    isRT,
+                    sampleCount);
+        }
+        SK_ABORT("%s", msg.c_str());
+    }
+}
+#endif
 
 size_t GrTexture::onGpuMemorySize() const {
     return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),

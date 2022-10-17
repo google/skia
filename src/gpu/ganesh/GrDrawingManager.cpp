@@ -210,6 +210,7 @@ bool GrDrawingManager::flush(
         resourceCache->purgeAsNeeded();
     }
     fFlushing = false;
+    SkDEBUGCODE(++fFlushNum);
 
     return true;
 }

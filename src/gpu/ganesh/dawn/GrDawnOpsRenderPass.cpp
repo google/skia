@@ -56,7 +56,7 @@ GrDawnOpsRenderPass::GrDawnOpsRenderPass(GrDawnGpu* gpu, GrRenderTarget* rt, GrS
 wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorOp,
                                                              wgpu::LoadOp stencilOp) {
     if (GrTexture* tex = fRenderTarget->asTexture()) {
-        tex->markMipmapsDirty();
+        tex->markMipmapsDirty("dawn begin render pass");
     }
     auto stencilAttachment = static_cast<GrDawnAttachment*>(fRenderTarget->getStencilAttachment());
 
