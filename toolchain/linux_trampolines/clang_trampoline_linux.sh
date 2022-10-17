@@ -27,12 +27,25 @@ supported_files_or_dirs=(
   "src/svg/"
   "src/utils/"
   "tools/debugger/"
+  "tests/"
+)
+
+excluded_files=(
+# Causes IWYU 8.17 to assert
+# "iwyu.cc:1977: Assertion failed: TODO(csilvers): for objc and clang lang extensions"
+  "tests/SkVxTest.cpp"
 )
 
 function opted_in_to_IWYU_checks() {
   # Need [@] for entire list: https://stackoverflow.com/a/46137325
   for path in ${supported_files_or_dirs[@]}; do
     if [[ $1 == *"-c $path"* ]]; then
+        for e_path in ${excluded_files[@]}; do
+          if [[ $1 == *"-c $e_path"* ]]; then
+            echo ""
+            return 0
+          fi
+        done
       echo $path
       return 0
     fi

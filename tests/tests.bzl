@@ -55,14 +55,14 @@ def skia_cpu_tests(
             size = "small",
             srcs = select({
                 # Make this a no-op test if compiling with a GPU backend.
-                "//src/gpu:has_gpu_backend": ["BazelNoopRunner.cpp"],
+                ":skip_cpu_tests": ["BazelNoopRunner.cpp"],
                 "//conditions:default": [
                     "BazelTestRunner.cpp",
                     filename,
                 ],
             }),
             deps = select({
-                "//src/gpu:has_gpu_backend": [],
+                ":skip_cpu_tests": [],
                 # Only build and apply deps if we have a no-op test.
                 "//conditions:default": [
                     harness,
