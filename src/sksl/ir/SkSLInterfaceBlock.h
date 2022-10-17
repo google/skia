@@ -8,14 +8,20 @@
 #ifndef SKSL_INTERFACEBLOCK
 #define SKSL_INTERFACEBLOCK
 
-#include <memory>
-#include <string_view>
-
+#include "include/core/SkTypes.h"
 #include "include/private/SkSLProgramElement.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
-#include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "include/sksl/SkSLPosition.h"
+#include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVariable.h"
+
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
 namespace SkSL {
+
+class SymbolTable;
 
 /**
  * An interface block, as in:
@@ -49,12 +55,7 @@ public:
         fVariable->setInterfaceBlock(this);
     }
 
-    ~InterfaceBlock() override {
-        // Unhook this InterfaceBlock from its associated Variable, since we're being deleted.
-        if (fVariable) {
-            fVariable->detachDeadInterfaceBlock();
-        }
-    }
+    ~InterfaceBlock() override;
 
     Variable* var() const {
         return fVariable;
@@ -80,31 +81,9 @@ public:
         return fArraySize;
     }
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::make_unique<InterfaceBlock>(fPosition, this->var(), this->typeName(),
-                                                this->instanceName(), this->arraySize(),
-                                                SymbolTable::WrapIfBuiltin(this->typeOwner()));
-    }
+    std::unique_ptr<ProgramElement> clone() const override;
 
-    std::string description() const override {
-        std::string result = this->var()->modifiers().description() +
-                             std::string(this->typeName()) + " {\n";
-        const Type* structType = &this->var()->type();
-        if (structType->isArray()) {
-            structType = &structType->componentType();
-        }
-        for (const auto& f : structType->fields()) {
-            result += f.description() + "\n";
-        }
-        result += "}";
-        if (!this->instanceName().empty()) {
-            result += " " + std::string(this->instanceName());
-            if (this->arraySize() > 0) {
-                String::appendf(&result, "[%d]", this->arraySize());
-            }
-        }
-        return result + ";";
-    }
+    std::string description() const override;
 
 private:
     Variable* fVariable;
