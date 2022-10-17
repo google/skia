@@ -11,7 +11,7 @@
     #define __has_feature(x) 0
 #endif
 
-#if __has_feature(address_sanitizer)
+#if __has_feature(address_sanitizer) && !defined(SK_BUILD_FOR_WIN)
 
 extern "C" {
 
