@@ -1,0 +1,7 @@
+uniform main {
+    float a;
+};
+
+void main() {
+    Files in errors/ must contain an error.
+}
