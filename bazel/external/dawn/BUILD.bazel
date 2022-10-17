@@ -1023,6 +1023,8 @@ TINT_SRCS = [
     "src/tint/writer/append_vector.h",
     "src/tint/writer/array_length_from_uniform_options.cc",
     "src/tint/writer/array_length_from_uniform_options.h",
+    "src/tint/writer/check_supported_extensions.cc",
+    "src/tint/writer/check_supported_extensions.h",
     "src/tint/writer/flatten_bindings.cc",
     "src/tint/writer/flatten_bindings.h",
     "src/tint/writer/float_to_string.cc",
