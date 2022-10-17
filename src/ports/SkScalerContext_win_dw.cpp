@@ -836,6 +836,7 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
     // TODO: handle the case where a request for DWRITE_TEXTURE_ALIASED_1x1
     // fails, and try DWRITE_TEXTURE_CLEARTYPE_3x1.
 
+#ifndef SK_IGNORE_DIRECTWRITE_FALLBACK_BOUNDS_FIX
     // GetAlphaTextureBounds can fail for various reasons. As a fallback, attempt to generate the
     // metrics from the path
     SkDEBUGCODE(glyph->fAdvancesBoundsFormatAndInitialPathDone = true;)
@@ -851,6 +852,7 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph, SkArenaAlloc* alloc) {
             glyph->fScalerContextBits |= ScalerContextBits::PATH;
         }
     }
+#endif
 }
 
 void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
