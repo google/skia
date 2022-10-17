@@ -1,5 +1,5 @@
 int dvec2;
 
 /*%%*
-'dvec2' is a reserved word
+name 'dvec2' is reserved
 *%%*/

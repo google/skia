@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'precision' is a reserved word
+error: 1: name 'precision' is reserved
 int precision;
     ^^^^^^^^^
 1 error

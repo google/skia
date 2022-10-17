@@ -1,6 +1,18 @@
 ### Compilation failed:
 
+error: 1: name '$function' is reserved
+void $function() {}
+     ^^^^^^^^^
 error: 4: name '$one' is reserved
     const half $one = 1;
                ^^^^
-1 error
+error: 5: name '$function' is reserved
+    $function();
+    ^^^^^^^^^
+error: 6: name '$hsl_to_rgb' is reserved
+    return $hsl_to_rgb(half3(0), $one);
+           ^^^^^^^^^^^
+error: 6: name '$one' is reserved
+    return $hsl_to_rgb(half3(0), $one);
+                                 ^^^^
+5 errors

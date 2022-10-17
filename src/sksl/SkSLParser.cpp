@@ -127,8 +127,15 @@ Token Parser::nextRawToken() {
 
         // Some tokens are always invalid, so we detect and report them here.
         switch (token.fKind) {
+            case Token::Kind::TK_PRIVATE_IDENTIFIER:
+                if (ProgramConfig::AllowsPrivateIdentifiers(fKind)) {
+                    token.fKind = Token::Kind::TK_IDENTIFIER;
+                    break;
+                }
+                [[fallthrough]];
+
             case Token::Kind::TK_RESERVED:
-                this->error(token, "'" + std::string(this->text(token)) + "' is a reserved word");
+                this->error(token, "name '" + std::string(this->text(token)) + "' is reserved");
                 token.fKind = Token::Kind::TK_IDENTIFIER;  // reduces additional follow-up errors
                 break;
 

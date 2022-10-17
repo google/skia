@@ -1,5 +1,5 @@
 int varying;
 
 /*%%*
-'varying' is a reserved word
+name 'varying' is reserved
 *%%*/

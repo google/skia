@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'invariant' is a reserved word
+error: 1: name 'invariant' is reserved
 int invariant;
     ^^^^^^^^^
 1 error

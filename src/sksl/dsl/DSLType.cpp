@@ -34,11 +34,11 @@ namespace dsl {
 
 static const SkSL::Type* verify_type(const Context& context,
                                      const SkSL::Type* type,
-                                     bool allowPrivateTypes,
+                                     bool allowGenericTypes,
                                      Position pos) {
     if (!context.fConfig->fIsBuiltinCode && type) {
-        if (!allowPrivateTypes && type->isPrivate()) {
-            context.fErrors->error(pos, "type '" + std::string(type->name()) + "' is private");
+        if (!allowGenericTypes && (type->isGeneric() || type->isLiteral())) {
+            context.fErrors->error(pos, "type '" + std::string(type->name()) + "' is generic");
             return context.fTypes.fPoison.get();
         }
         if (!type->isAllowedInES2(context)) {
@@ -64,7 +64,7 @@ static const SkSL::Type* find_type(const Context& context,
         return context.fTypes.fPoison.get();
     }
     const SkSL::Type* type = &symbol->as<SkSL::Type>();
-    return verify_type(context, type, /*allowPrivateTypes=*/false, pos);
+    return verify_type(context, type, /*allowGenericTypes=*/false, pos);
 }
 
 static const SkSL::Type* find_type(const Context& context,
@@ -186,7 +186,7 @@ static const SkSL::Type* get_type_from_type_constant(TypeConstant tc) {
 DSLType::DSLType(TypeConstant tc, Position pos)
         : fSkSLType(verify_type(ThreadContext::Context(),
                                 get_type_from_type_constant(tc),
-                                /*allowPrivateTypes=*/true,
+                                /*allowGenericTypes=*/false,
                                 pos)) {}
 
 DSLType::DSLType(std::string_view name, Position pos)
@@ -200,7 +200,7 @@ DSLType::DSLType(std::string_view name, DSLModifiers* modifiers, Position pos)
                               &modifiers->fModifiers)) {}
 
 DSLType::DSLType(const SkSL::Type* type, Position pos)
-        : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowPrivateTypes=*/true, pos)) {}
+        : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowGenericTypes=*/true, pos)) {}
 
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();

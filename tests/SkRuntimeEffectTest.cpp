@@ -1221,7 +1221,7 @@ DEF_TEST(SkRuntimeEffectAllowsPrivateAccess, r) {
                 "half4 main(float2 p) { return $hsl_to_rgb(p.xxx, p.y); }";
         SkRuntimeEffect::Result normal =
                 SkRuntimeEffect::MakeForShader(SkString(kShader), defaultOptions);
-        // REPORTER_ASSERT(r, !normal.effect); // TODO(skia:13810): this creation should fail
+        REPORTER_ASSERT(r, !normal.effect);
         SkRuntimeEffect::Result privileged =
                 SkRuntimeEffect::MakeForShader(SkString(kShader), optionsWithAccess);
         REPORTER_ASSERT(r, privileged.effect, "%s", privileged.errorText.c_str());
@@ -1233,7 +1233,7 @@ DEF_TEST(SkRuntimeEffectAllowsPrivateAccess, r) {
                 "half4 main(half4 c)  { return $hsl_to_rgb(c.rgb, c.a); }";
         SkRuntimeEffect::Result normal =
                 SkRuntimeEffect::MakeForColorFilter(SkString(kColorFilter), defaultOptions);
-        // REPORTER_ASSERT(r, !normal.effect); // TODO(skia:13810): this creation should fail
+        REPORTER_ASSERT(r, !normal.effect);
         SkRuntimeEffect::Result privileged =
                 SkRuntimeEffect::MakeForColorFilter(SkString(kColorFilter), optionsWithAccess);
         REPORTER_ASSERT(r, privileged.effect, "%s", privileged.errorText.c_str());
@@ -1245,7 +1245,7 @@ DEF_TEST(SkRuntimeEffectAllowsPrivateAccess, r) {
                 "half4 main(half4 s, half4 d) { return $hsl_to_rgb(s.rgb, d.a); }";
         SkRuntimeEffect::Result normal =
                 SkRuntimeEffect::MakeForBlender(SkString(kBlender), defaultOptions);
-        // REPORTER_ASSERT(r, !normal.effect); // TODO(skia:13810): this creation should fail
+        REPORTER_ASSERT(r, !normal.effect);
         SkRuntimeEffect::Result privileged =
                 SkRuntimeEffect::MakeForBlender(SkString(kBlender), optionsWithAccess);
         REPORTER_ASSERT(r, privileged.effect, "%s", privileged.errorText.c_str());

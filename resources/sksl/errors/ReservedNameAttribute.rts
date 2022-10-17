@@ -1,5 +1,5 @@
 int attribute;
 
 /*%%*
-'attribute' is a reserved word
+name 'attribute' is reserved
 *%%*/

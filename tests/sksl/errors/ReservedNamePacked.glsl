@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'packed' is a reserved word
+error: 1: name 'packed' is reserved
 int packed;
     ^^^^^^
 1 error

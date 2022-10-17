@@ -57,6 +57,7 @@ struct Token {
         TK_EXPORT,
         TK_THREADGROUP,
         TK_RESERVED,
+        TK_PRIVATE_IDENTIFIER,
         TK_IDENTIFIER,
         TK_DIRECTIVE,
         TK_LPAREN,

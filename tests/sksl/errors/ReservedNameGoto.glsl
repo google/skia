@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'goto' is a reserved word
+error: 1: name 'goto' is reserved
 int goto;
     ^^^^
 1 error

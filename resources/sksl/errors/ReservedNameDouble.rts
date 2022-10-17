@@ -1,5 +1,5 @@
 int double;
 
 /*%%*
-'double' is a reserved word
+name 'double' is reserved
 *%%*/

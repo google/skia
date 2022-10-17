@@ -1,5 +1,5 @@
 int input;
 
 /*%%*
-'input' is a reserved word
+name 'input' is reserved
 *%%*/

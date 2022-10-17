@@ -1,5 +1,5 @@
 int goto;
 
 /*%%*
-'goto' is a reserved word
+name 'goto' is reserved
 *%%*/

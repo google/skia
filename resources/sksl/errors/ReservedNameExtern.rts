@@ -1,5 +1,5 @@
 int extern;
 
 /*%%*
-'extern' is a reserved word
+name 'extern' is reserved
 *%%*/

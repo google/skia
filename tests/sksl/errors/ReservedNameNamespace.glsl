@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'namespace' is a reserved word
+error: 1: name 'namespace' is reserved
 int namespace;
     ^^^^^^^^^
 1 error

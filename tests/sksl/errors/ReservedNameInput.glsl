@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'input' is a reserved word
+error: 1: name 'input' is reserved
 int input;
     ^^^^^
 1 error

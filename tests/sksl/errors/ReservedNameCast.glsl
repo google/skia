@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'cast' is a reserved word
+error: 1: name 'cast' is reserved
 int cast;
     ^^^^
 1 error

@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'static' is a reserved word
+error: 1: name 'static' is reserved
 int static;
     ^^^^^^
 1 error

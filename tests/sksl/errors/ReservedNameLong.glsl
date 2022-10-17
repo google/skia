@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'long' is a reserved word
+error: 1: name 'long' is reserved
 int long;
     ^^^^
 1 error

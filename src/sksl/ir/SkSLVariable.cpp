@@ -108,9 +108,6 @@ std::unique_ptr<Variable> Variable::Convert(const Context& context,
         context.fErrors->error(modifiersPos,
                                "out location=0, index=0 is reserved for sk_FragColor");
     }
-    if (!context.fConfig->fIsBuiltinCode && skstd::starts_with(name, '$')) {
-        context.fErrors->error(namePos, "name '" + std::string(name) + "' is reserved");
-    }
     if (baseType->isUnsizedArray() && storage != Variable::Storage::kInterfaceBlock) {
         context.fErrors->error(pos, "unsized arrays are not permitted here");
     }

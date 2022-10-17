@@ -7,5 +7,9 @@ float4 main(float2 xy) {
 }
 
 /*%%*
+name '$function' is reserved
+name '$one' is reserved
+name '$function' is reserved
+name '$hsl_to_rgb' is reserved
 name '$one' is reserved
 *%%*/

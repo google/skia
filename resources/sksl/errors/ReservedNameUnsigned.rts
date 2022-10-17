@@ -1,5 +1,5 @@
 int unsigned;
 
 /*%%*
-'unsigned' is a reserved word
+name 'unsigned' is reserved
 *%%*/

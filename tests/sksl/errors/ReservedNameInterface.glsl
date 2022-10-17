@@ -1,6 +1,6 @@
 ### Compilation failed:
 
-error: 1: 'interface' is a reserved word
+error: 1: name 'interface' is reserved
 int interface;
     ^^^^^^^^^
 1 error

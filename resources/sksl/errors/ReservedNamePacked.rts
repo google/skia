@@ -1,5 +1,5 @@
 int packed;
 
 /*%%*
-'packed' is a reserved word
+name 'packed' is reserved
 *%%*/
