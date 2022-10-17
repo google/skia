@@ -47,8 +47,8 @@ public:
         return options;
     }
 
-    static void UsePrivateRTShaderModule(SkRuntimeEffect::Options* options) {
-        options->usePrivateRTShaderModule = true;
+    static void AllowPrivateAccess(SkRuntimeEffect::Options* options) {
+        options->allowPrivateAccess = true;
     }
 
     static SkRuntimeEffect::Uniform VarAsUniform(const SkSL::Variable&,
@@ -76,11 +76,13 @@ public:
 // Users of the public SkRuntimeEffect::Make*() can of course cache however they like themselves;
 // keeping these APIs private means users will not be forced into our cache or cache policy.
 
-sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result (*make)(SkString sksl),
-                                                 SkString sksl);
+sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(
+        SkRuntimeEffect::Result (*make)(SkString sksl, const SkRuntimeEffect::Options&),
+        SkString sksl);
 
-inline sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(SkRuntimeEffect::Result (*make)(SkString),
-                                                        const char* sksl) {
+inline sk_sp<SkRuntimeEffect> SkMakeCachedRuntimeEffect(
+        SkRuntimeEffect::Result (*make)(SkString, const SkRuntimeEffect::Options&),
+        const char* sksl) {
     return SkMakeCachedRuntimeEffect(make, SkString{sksl});
 }
 
@@ -95,11 +97,10 @@ inline SkRuntimeEffect* SkMakeRuntimeEffect(
     // Our SKSL snippets we embed in Skia should not have comments or excess indentation.
     // Removing them helps trim down code size and speeds up parsing
     if (SkStrContains(sksl, "//") || SkStrContains(sksl, "    ")) {
-        SkDebugf("Found SkSL snippet that can be minified: \n %s\n", sksl);
-        SkASSERT(false);
+        SkDEBUGFAILF("Found SkSL snippet that can be minified: \n %s\n", sksl);
     }
 #endif
-    SkRuntimeEffectPriv::UsePrivateRTShaderModule(&options);
+    SkRuntimeEffectPriv::AllowPrivateAccess(&options);
     auto result = make(SkString{sksl}, options);
     SkASSERTF(result.effect, "%s", result.errorText.c_str());
     return result.effect.release();

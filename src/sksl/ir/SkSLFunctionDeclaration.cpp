@@ -199,7 +199,8 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
     auto paramIsDestColor  = [&](int n) { return paramIsBuiltinColor(n, SK_DEST_COLOR_BUILTIN); };
 
     switch (kind) {
-        case ProgramKind::kRuntimeColorFilter: {
+        case ProgramKind::kRuntimeColorFilter:
+        case ProgramKind::kPrivateRuntimeColorFilter: {
             // (half4|float4) main(half4|float4)
             if (!typeIsValidForColor(returnType)) {
                 errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");
@@ -225,7 +226,8 @@ static bool check_main_signature(const Context& context, Position pos, const Typ
             }
             break;
         }
-        case ProgramKind::kRuntimeBlender: {
+        case ProgramKind::kRuntimeBlender:
+        case ProgramKind::kPrivateRuntimeBlender: {
             // (half4|float4) main(half4|float4, half4|float4)
             if (!typeIsValidForColor(returnType)) {
                 errors.error(pos, "'main' must return: 'vec4', 'float4', or 'half4'");

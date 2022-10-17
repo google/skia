@@ -141,7 +141,9 @@ struct ProgramConfig {
         return (kind == ProgramKind::kRuntimeColorFilter ||
                 kind == ProgramKind::kRuntimeShader ||
                 kind == ProgramKind::kRuntimeBlender ||
+                kind == ProgramKind::kPrivateRuntimeColorFilter ||
                 kind == ProgramKind::kPrivateRuntimeShader ||
+                kind == ProgramKind::kPrivateRuntimeBlender ||
                 kind == ProgramKind::kMeshVertex ||
                 kind == ProgramKind::kMeshFragment);
     }

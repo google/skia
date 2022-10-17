@@ -524,7 +524,9 @@ void RunSkSLModuleBenchmarks(NanoJSONResultsWriter* log) {
     compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeColorFilter);
     compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeShader);
     compiler.moduleForProgramKind(SkSL::ProgramKind::kRuntimeBlender);
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kPrivateRuntimeColorFilter);
     compiler.moduleForProgramKind(SkSL::ProgramKind::kPrivateRuntimeShader);
+    compiler.moduleForProgramKind(SkSL::ProgramKind::kPrivateRuntimeBlender);
     int64_t gpuBytes = heap_bytes_used();
     if (gpuBytes >= 0) {
         gpuBytes = (gpuBytes - before) + baselineBytes;
@@ -612,7 +614,9 @@ DEF_BENCH(return new SkSLModuleLoaderBench("sksl_module_loader_ganesh",
                                                    SkSL::ProgramKind::kRuntimeColorFilter,
                                                    SkSL::ProgramKind::kRuntimeShader,
                                                    SkSL::ProgramKind::kRuntimeBlender,
+                                                   SkSL::ProgramKind::kPrivateRuntimeColorFilter,
                                                    SkSL::ProgramKind::kPrivateRuntimeShader,
+                                                   SkSL::ProgramKind::kPrivateRuntimeBlender,
                                                    SkSL::ProgramKind::kCompute,
                                            });)
 
@@ -623,7 +627,9 @@ DEF_BENCH(return new SkSLModuleLoaderBench("sksl_module_loader_graphite",
                                                    SkSL::ProgramKind::kRuntimeColorFilter,
                                                    SkSL::ProgramKind::kRuntimeShader,
                                                    SkSL::ProgramKind::kRuntimeBlender,
+                                                   SkSL::ProgramKind::kPrivateRuntimeColorFilter,
                                                    SkSL::ProgramKind::kPrivateRuntimeShader,
+                                                   SkSL::ProgramKind::kPrivateRuntimeBlender,
                                                    SkSL::ProgramKind::kCompute,
                                                    SkSL::ProgramKind::kGraphiteVertex,
                                                    SkSL::ProgramKind::kGraphiteFragment,

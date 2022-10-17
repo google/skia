@@ -126,9 +126,9 @@ public:
         friend class SkRuntimeEffect;
         friend class SkRuntimeEffectPriv;
 
-        // Public SkSL does not allow access to sk_FragCoord. The semantics of that variable are
-        // confusing, and expose clients to implementation details of saveLayer and image filters.
-        bool usePrivateRTShaderModule = false;
+        // This flag allows Runtime Effects to access Skia implementation details like sk_FragCoord
+        // and functions with private identifiers (e.g. $rgb_to_hsl).
+        bool allowPrivateAccess = false;
 
         // TODO(skia:11209) - Replace this with a promised SkCapabilities?
         // This flag lifts the ES2 restrictions on Runtime Effects that are gated by the
