@@ -378,8 +378,7 @@ int count_pipeline_inputs(const Program* program) {
     int inputCount = 0;
     for (const ProgramElement* e : program->elements()) {
         if (e->is<GlobalVarDeclaration>()) {
-            const Variable* v =
-                    e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>().var();
+            const Variable* v = e->as<GlobalVarDeclaration>().varDeclaration().var();
             if (v->modifiers().fFlags & Modifiers::kIn_Flag) {
                 inputCount++;
             }

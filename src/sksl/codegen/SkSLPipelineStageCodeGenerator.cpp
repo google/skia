@@ -172,7 +172,7 @@ void PipelineStageCodeGenerator::writeChildCall(const ChildCall& c) {
     for (const ProgramElement* p : fProgram.elements()) {
         if (p->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& global = p->as<GlobalVarDeclaration>();
-            const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+            const VarDeclaration& decl = global.varDeclaration();
             if (decl.var() == &c.child()) {
                 found = true;
             } else if (decl.var()->type().isEffectChild()) {
@@ -419,7 +419,7 @@ void PipelineStageCodeGenerator::writeFunctionDeclaration(const FunctionDeclarat
 }
 
 void PipelineStageCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& g) {
-    const VarDeclaration& decl = g.declaration()->as<VarDeclaration>();
+    const VarDeclaration& decl = g.varDeclaration();
     const Variable& var = *decl.var();
 
     if (var.isBuiltin() || var.type().isOpaque()) {

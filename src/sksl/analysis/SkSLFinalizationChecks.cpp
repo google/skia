@@ -68,7 +68,7 @@ public:
         if (!ProgramConfig::IsRuntimeEffect(fContext.fConfig->fKind)) {
             return;
         }
-        const VarDeclaration& decl = globalDecl.declaration()->as<VarDeclaration>();
+        const VarDeclaration& decl = globalDecl.varDeclaration();
 
         size_t prevSlotsUsed = fGlobalSlotsUsed;
         fGlobalSlotsUsed = SkSafeMath::Add(fGlobalSlotsUsed, decl.var()->type().slotCount());

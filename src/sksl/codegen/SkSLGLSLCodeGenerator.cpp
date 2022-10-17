@@ -1634,8 +1634,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             this->writeExtension(e.as<Extension>().name());
             break;
         case ProgramElement::Kind::kGlobalVar: {
-            const VarDeclaration& decl =
-                                   e.as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>();
+            const VarDeclaration& decl = e.as<GlobalVarDeclaration>().varDeclaration();
             int builtin = decl.var()->modifiers().fLayout.fBuiltin;
             if (builtin == -1) {
                 // normal var

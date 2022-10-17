@@ -4002,7 +4002,7 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     for (const ProgramElement* e : program.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             this->writeGlobalVar(program.fConfig->fKind,
-                                 e->as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>());
+                                 e->as<GlobalVarDeclaration>().varDeclaration());
         }
     }
     // Emit top-level uniforms into a dedicated uniform buffer.

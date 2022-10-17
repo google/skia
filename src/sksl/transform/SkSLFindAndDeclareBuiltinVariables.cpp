@@ -9,7 +9,6 @@
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -88,7 +87,7 @@ public:
     }
 
     static std::string_view GlobalVarBuiltinName(const ProgramElement& elem) {
-        return elem.as<GlobalVarDeclaration>().declaration()->as<VarDeclaration>().var()->name();
+        return elem.as<GlobalVarDeclaration>().varDeclaration().var()->name();
     }
 
     static std::string_view InterfaceBlockName(const ProgramElement& elem) {

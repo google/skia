@@ -478,7 +478,7 @@ void SkVMGenerator::setupGlobals(SkSpan<skvm::Val> uniforms, skvm::Coord device)
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& gvd = e->as<GlobalVarDeclaration>();
-            const VarDeclaration& decl = gvd.declaration()->as<VarDeclaration>();
+            const VarDeclaration& decl = gvd.varDeclaration();
             const Variable* var = decl.var();
             SkASSERT(!fSlotMap.find(var));
 
@@ -2313,7 +2313,7 @@ std::unique_ptr<UniformInfo> Program_GetUniformInfo(const Program& program) {
             continue;
         }
         const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
-        const Variable& var = *decl.declaration()->as<VarDeclaration>().var();
+        const Variable& var = *decl.varDeclaration().var();
         if (var.modifiers().fFlags & Modifiers::kUniform_Flag) {
             gather_uniforms(info.get(), var.type(), std::string(var.name()));
         }
@@ -2338,7 +2338,7 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
     for (const SkSL::ProgramElement* e : program.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decl = e->as<GlobalVarDeclaration>();
-            const Variable& var = *decl.declaration()->as<VarDeclaration>().var();
+            const Variable& var = *decl.varDeclaration().var();
             if (var.type().isEffectChild()) {
                 childSlots++;
             } else if (is_uniform(var)) {

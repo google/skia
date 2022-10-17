@@ -2003,7 +2003,7 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         for (const ProgramElement* e : fProgram.elements()) {
             if (e->is<GlobalVarDeclaration>()) {
                 const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-                const VarDeclaration& decl = decls.declaration()->as<VarDeclaration>();
+                const VarDeclaration& decl = decls.varDeclaration();
                 const Variable* var = decl.var();
                 const SkSL::Type::TypeKind varKind = var->type().typeKind();
 
@@ -2140,7 +2140,7 @@ void MetalCodeGenerator::writeComputeMainInputs() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-            const Variable* var = decls.declaration()->as<VarDeclaration>().var();
+            const Variable* var = decls.varDeclaration().var();
             if (is_input(*var)) {
                 this->write(separator);
                 separator = ", ";
@@ -2569,7 +2569,7 @@ void MetalCodeGenerator::writeUniformStruct() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-            const Variable& var = *decls.declaration()->as<VarDeclaration>().var();
+            const Variable& var = *decls.varDeclaration().var();
             if (var.modifiers().fFlags & Modifiers::kUniform_Flag &&
                 var.type().typeKind() != Type::TypeKind::kSampler &&
                 var.type().typeKind() != Type::TypeKind::kTexture) {
@@ -2601,7 +2601,7 @@ void MetalCodeGenerator::writeInputStruct() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-            const Variable& var = *decls.declaration()->as<VarDeclaration>().var();
+            const Variable& var = *decls.varDeclaration().var();
             if (is_input(var)) {
                 this->write("    ");
                 if (ProgramConfig::IsCompute(fProgram.fConfig->fKind) &&
@@ -2641,7 +2641,7 @@ void MetalCodeGenerator::writeOutputStruct() {
     for (const ProgramElement* e : fProgram.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
             const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
-            const Variable& var = *decls.declaration()->as<VarDeclaration>().var();
+            const Variable& var = *decls.varDeclaration().var();
             if (is_output(var)) {
                 this->write("    ");
                 if (ProgramConfig::IsCompute(fProgram.fConfig->fKind) &&
@@ -2734,7 +2734,7 @@ void MetalCodeGenerator::visitGlobalStruct(GlobalStructVisitor* visitor) {
             continue;
         }
         const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
-        const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+        const VarDeclaration& decl = global.varDeclaration();
         const Variable& var = *decl.var();
         if (var.type().typeKind() == Type::TypeKind::kSampler) {
             visitor->visitSampler(var.type(), var.mangledName());
@@ -2886,7 +2886,7 @@ void MetalCodeGenerator::visitThreadgroupStruct(ThreadgroupStructVisitor* visito
             continue;
         }
         const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
-        const VarDeclaration& decl = global.declaration()->as<VarDeclaration>();
+        const VarDeclaration& decl = global.varDeclaration();
         const Variable& var = *decl.var();
         if (var.modifiers().fFlags & Modifiers::kThreadgroup_Flag) {
             SkASSERT(!decl.value());

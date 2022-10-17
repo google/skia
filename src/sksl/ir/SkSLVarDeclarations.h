@@ -125,7 +125,7 @@ public:
             : INHERITED(decl->fPosition, kIRNodeKind)
             , fDeclaration(std::move(decl)) {
         SkASSERT(this->declaration()->is<VarDeclaration>());
-        this->declaration()->as<VarDeclaration>().var()->setGlobalVarDeclaration(this);
+        this->varDeclaration().var()->setGlobalVarDeclaration(this);
     }
 
     std::unique_ptr<Statement>& declaration() {
@@ -134,6 +134,14 @@ public:
 
     const std::unique_ptr<Statement>& declaration() const {
         return fDeclaration;
+    }
+
+    VarDeclaration& varDeclaration() {
+        return fDeclaration->as<VarDeclaration>();
+    }
+
+    const VarDeclaration& varDeclaration() const {
+        return fDeclaration->as<VarDeclaration>();
     }
 
     std::unique_ptr<ProgramElement> clone() const override {
