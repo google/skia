@@ -2,6 +2,7 @@
   {
     "cmd": [
       "gsutil",
+      "--blah",
       "-m",
       "cp",
       "-Z",
@@ -16,6 +17,7 @@
   {
     "cmd": [
       "gsutil",
+      "--blah",
       "-m",
       "cp",
       "-Z",
@@ -30,6 +32,7 @@
   {
     "cmd": [
       "gsutil",
+      "--blah",
       "-m",
       "cp",
       "-Z",
@@ -44,6 +47,7 @@
   {
     "cmd": [
       "gsutil",
+      "--blah",
       "-m",
       "cp",
       "-Z",
@@ -58,6 +62,7 @@
   {
     "cmd": [
       "gsutil",
+      "--blah",
       "-m",
       "cp",
       "-Z",

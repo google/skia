@@ -1,7 +1,7 @@
 [
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -18,7 +18,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -31,7 +31,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -44,7 +44,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -59,7 +59,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -72,7 +72,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -87,7 +87,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -105,7 +105,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -123,7 +123,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -141,7 +141,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -159,7 +159,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -177,7 +177,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -196,7 +196,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
       "[START_DIR]",
       "[START_DIR]/build/nanobench",

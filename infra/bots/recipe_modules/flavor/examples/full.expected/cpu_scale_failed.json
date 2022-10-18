@@ -2,7 +2,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "import os\nprint(os.environ.get('SWARMING_BOT_ID', ''))\n"
     ],
     "name": "get swarming bot id",
@@ -47,7 +46,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
       "/usr/bin/adb.1.0.35",
       "file.txt"
@@ -91,7 +89,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -104,7 +102,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -120,7 +118,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
       "/usr/bin/adb.1.0.35",
       "device_results_dir"
@@ -199,7 +196,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([\n    ADB, 'shell',\n    'echo \"%s\" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (\n        gov, cpu)]).decode('utf-8')\nactual_gov = subprocess.check_output([\n    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %\n        cpu]).decode('utf-8').strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
       "/usr/bin/adb.1.0.35",
       "4",
@@ -244,7 +240,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root]).decode('utf-8')\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint('Setting frequency to %d' % freq)\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_call([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_call([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_call([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).decode('utf-8').strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "/usr/bin/adb.1.0.35",
       "0.6",
@@ -319,7 +314,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root]).decode('utf-8')\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint('Setting frequency to %d' % freq)\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_call([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_call([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_call([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).decode('utf-8').strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "/usr/bin/adb.1.0.35",
       "0.6",
@@ -394,7 +388,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ntarget_percent = float(sys.argv[2])\ncpu = int(sys.argv[3])\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nroot = '/sys/devices/system/cpu/cpu%d/cpufreq' %cpu\n\n# All devices we test on give a list of their available frequencies.\navailable_freqs = subprocess.check_output([ADB, 'shell',\n    'cat %s/scaling_available_frequencies' % root]).decode('utf-8')\n\n# Check for message like '/system/bin/sh: file not found'\nif available_freqs and '/system/bin/sh' not in available_freqs:\n  available_freqs = sorted(\n      int(i) for i in available_freqs.strip().split())\nelse:\n  raise Exception('Could not get list of available frequencies: %s' %\n                  available_freqs)\n\nmaxfreq = available_freqs[-1]\ntarget = int(round(maxfreq * target_percent))\nfreq = maxfreq\nfor f in reversed(available_freqs):\n  if f <= target:\n    freq = f\n    break\n\nprint('Setting frequency to %d' % freq)\n\n# If scaling_max_freq is lower than our attempted setting, it won't take.\n# We must set min first, because if we try to set max to be less than min\n# (which sometimes happens after certain devices reboot) it returns a\n# perplexing permissions error.\nsubprocess.check_call([ADB, 'shell', 'echo 0 > '\n    '%s/scaling_min_freq' % root])\nsubprocess.check_call([ADB, 'shell', 'echo %d > '\n    '%s/scaling_max_freq' % (freq, root)])\nsubprocess.check_call([ADB, 'shell', 'echo %d > '\n    '%s/scaling_setspeed' % (freq, root)])\ntime.sleep(5)\nactual_freq = subprocess.check_output([ADB, 'shell', 'cat '\n    '%s/scaling_cur_freq' % root]).decode('utf-8').strip()\nif actual_freq != str(freq):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_freq, freq))\n",
       "/usr/bin/adb.1.0.35",
       "0.6",
@@ -469,7 +462,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output([\n    '/usr/bin/adb.1.0.35', 'logcat', '-d']).decode('utf-8', errors='ignore')\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      try:\n        sym = subprocess.check_output([\n            'addr2line', '-Cfpe', local, addr]).decode('utf-8')\n        line = line.replace(addr, addr + ' ' + sym.strip())\n      except subprocess.CalledProcessError:\n        pass\n  print(line)\n",
       "[START_DIR]/build"
     ],
@@ -506,7 +498,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2016 Google Inc.
+# Copyright 2022 Google LLC
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -11,6 +11,7 @@
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
 
@@ -19,18 +20,22 @@ INFRA_BOTS_DIR = os.path.realpath(os.path.join(FILE_DIR, os.pardir, os.pardir))
 sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
 
-
-# Remember to also update the go_win asset when this is updated.
-GO_URL = "https://go.dev/dl/go1.18.linux-amd64.tar.gz"
-
+# https://cloud.google.com/storage/docs/gsutil_install#windows
+URL = "https://storage.googleapis.com/pub/gsutil.zip"
+VERSION = "5.10"
 
 def create_asset(target_dir):
   """Create the asset."""
   with utils.tmp_dir():
-    cwd = os.getcwd()
-    zipfile = os.path.join(cwd, 'go.tar.gz')
-    subprocess.check_call(["wget", '-O', zipfile, GO_URL])
-    subprocess.check_call(["tar", "-xzf", zipfile, "-C", target_dir])
+    subprocess.run(["curl", URL, "--output", "gsutil.zip"], check=True)
+    subprocess.run(["unzip", "gsutil.zip"], check=True)
+    with open("./gsutil/VERSION", "r") as f:
+      version = f.read().strip()
+      if version != VERSION:
+        raise RuntimeError("Action version %s does not match expected version %s"
+                           % (version, VERSION))
+    shutil.move('./gsutil', target_dir)
+
 
 def main():
   parser = argparse.ArgumentParser()
@@ -41,3 +46,4 @@ def main():
 
 if __name__ == '__main__':
   main()
+

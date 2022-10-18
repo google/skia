@@ -1,7 +1,7 @@
 [
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -21,7 +21,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "import os\nprint('%d:%d' % (os.getuid(), os.getgid()))\n"
     ],
     "name": "Docker setup.Get uid and gid",
@@ -34,7 +33,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -88,7 +87,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -106,7 +105,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -135,7 +134,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -153,7 +152,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -233,7 +232,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",

@@ -1,7 +1,7 @@
 [
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -71,7 +71,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -84,7 +84,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -249,7 +249,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint(subprocess.check_output(\n    'scp -r %s %s' % (src, dest), shell=True).decode('utf-8'))\n",
       "[START_DIR]/skia/resources",
       "foo@127.0.0.1:/home/chronos/user/resources"
@@ -269,7 +268,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -287,7 +286,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -381,7 +380,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint(subprocess.check_output(\n    'scp -r %s %s' % (src, dest), shell=True).decode('utf-8'))\n",
       "[START_DIR]/skp",
       "foo@127.0.0.1:/home/chronos/user/skps"
@@ -414,7 +412,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -432,7 +430,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -526,7 +524,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint(subprocess.check_output(\n    'scp -r %s %s' % (src, dest), shell=True).decode('utf-8'))\n",
       "[START_DIR]/skimage",
       "foo@127.0.0.1:/home/chronos/user/images"
@@ -559,7 +556,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -577,7 +574,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -671,7 +668,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint(subprocess.check_output(\n    'scp -r %s %s' % (src, dest), shell=True).decode('utf-8'))\n",
       "[START_DIR]/svg",
       "foo@127.0.0.1:/home/chronos/user/svgs"
@@ -723,7 +719,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint(subprocess.check_output(\n    'scp -r %s %s' % (src, dest), shell=True).decode('utf-8'))\n",
       "foo@127.0.0.1:/home/chronos/user/perf",
       "[START_DIR]/[SWARM_OUT_DIR]"

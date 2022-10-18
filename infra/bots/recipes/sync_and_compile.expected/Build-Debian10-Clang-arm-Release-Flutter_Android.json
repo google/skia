@@ -2,7 +2,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nfrom __future__ import print_function\nimport subprocess\nimport sys\n\nwhich = 'where' if sys.platform == 'win32' else 'which'\ngit = subprocess.check_output([which, 'git']).decode('utf-8')\nprint('git was found at %s' % git)\nif 'cipd_bin_packages' not in git:\n  print('Git must be obtained through CIPD.', file=sys.stderr)\n  sys.exit(1)\n"
     ],
     "env": {
@@ -27,7 +26,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -40,7 +39,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -55,7 +54,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -68,7 +67,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
@@ -159,7 +158,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython3",
       "-u",
       "RECIPE_REPO[depot_tools]/gclient.py",
       "runhooks"
@@ -177,7 +176,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -192,7 +191,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -234,7 +233,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "import errno\nimport glob\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\nbuild_products = ['*.so', 'lib/*.so']\n\ntry:\n  os.makedirs(dst)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\nfor pattern in build_products:\n  path = os.path.join(src, pattern)\n  for f in glob.glob(path):\n    dst_path = os.path.join(dst, os.path.relpath(f, src))\n    if not os.path.isdir(os.path.dirname(dst_path)):\n      os.makedirs(os.path.dirname(dst_path))\n    print('Copying build product %s to %s' % (f, dst_path))\n    shutil.move(f, dst_path)\n",
       "[START_DIR]/cache/work/flutter/src/out/android_release",
       "[START_DIR]/[SWARM_OUT_DIR]"
@@ -272,7 +270,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport shutil\nimport sys\n\nsrc = sys.argv[1]\ndst = sys.argv[2]\n\nif not os.path.isdir(os.path.dirname(dst)):\n  os.makedirs(os.path.dirname(dst))\n\nshutil.copyfile(src, dst)\n",
       "[START_DIR]/cache/work/flutter/src/out/android_release/lib.stripped/libflutter.so",
       "[START_DIR]/[SWARM_OUT_DIR]/libflutter_stripped.so"

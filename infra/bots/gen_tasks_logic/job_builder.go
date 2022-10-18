@@ -105,12 +105,6 @@ func (b *jobBuilder) genTasksForJob() {
 		return
 	}
 
-	// Update Go Dependencies.
-	if b.extraConfig("UpdateGoDeps") {
-		b.updateGoDeps()
-		return
-	}
-
 	// Create docker image.
 	if b.extraConfig("CreateDockerImage") {
 		b.createDockerImage(b.extraConfig("WASM"))

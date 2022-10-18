@@ -2,7 +2,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nfrom __future__ import print_function\nimport subprocess\nimport sys\n\nwhich = 'where' if sys.platform == 'win32' else 'which'\ngit = subprocess.check_output([which, 'git']).decode('utf-8')\nprint('git was found at %s' % git)\nif 'cipd_bin_packages' not in git:\n  print('Git must be obtained through CIPD.', file=sys.stderr)\n  sys.exit(1)\n"
     ],
     "env": {
@@ -27,7 +26,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -42,7 +41,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -55,7 +54,7 @@
   },
   {
     "cmd": [
-      "python",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[depot_tools::bot_update]/resources/bot_update.py",
       "--spec-path",
@@ -129,7 +128,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -173,7 +172,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -193,7 +192,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "[START_DIR]/cache/work/skia/bin/fetch-gn"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
@@ -207,7 +205,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "[START_DIR]/cache/work/skia/bin/fetch-clang-format"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
@@ -301,7 +298,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\ndiff1 = ''''''\n\ndiff2 = ''''''\n\nif diff1 != diff2:\n  print('Generated files have been edited!')\n  exit(1)\n"
     ],
     "cwd": "[START_DIR]/cache/work/skia",

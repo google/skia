@@ -1,7 +1,7 @@
 [
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -17,7 +17,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "import os\nprint(os.environ.get('SWARMING_BOT_ID', ''))\n"
     ],
     "name": "get swarming bot id",
@@ -47,7 +46,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif prior_status == str(value):\n  print('CPU %d online already %d' % (cpu, value))\n  sys.exit()\n\nsubprocess.check_call([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
       "/usr/bin/adb.1.0.35",
       "0",
@@ -97,7 +95,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif prior_status == str(value):\n  print('CPU %d online already %d' % (cpu, value))\n  sys.exit()\n\nsubprocess.check_call([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
       "/usr/bin/adb.1.0.35",
       "1",
@@ -147,7 +144,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif prior_status == str(value):\n  print('CPU %d online already %d' % (cpu, value))\n  sys.exit()\n\nsubprocess.check_call([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
       "/usr/bin/adb.1.0.35",
       "2",
@@ -197,7 +193,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\nvalue = int(sys.argv[3])\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\n# If we try to echo 1 to an already online cpu, adb returns exit code 1.\n# So, check the value before trying to write it.\nprior_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif prior_status == str(value):\n  print('CPU %d online already %d' % (cpu, value))\n  sys.exit()\n\nsubprocess.check_call([ADB, 'shell', 'echo %s > '\n    '/sys/devices/system/cpu/cpu%d/online' % (value, cpu)])\nactual_status = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/online' % cpu]).decode('utf-8').strip()\nif actual_status != str(value):\n  raise Exception('(actual, expected) (%s, %d)'\n                  % (actual_status, value))\n",
       "/usr/bin/adb.1.0.35",
       "3",
@@ -247,7 +242,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([\n    ADB, 'shell',\n    'echo \"%s\" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (\n        gov, cpu)]).decode('utf-8')\nactual_gov = subprocess.check_output([\n    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %\n        cpu]).decode('utf-8').strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
       "/usr/bin/adb.1.0.35",
       "4",
@@ -292,7 +286,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root']).decode('utf-8')\n# check for message like 'adbd cannot run as root in production builds'\nprint(log)\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([\n    ADB, 'shell',\n    'echo \"%s\" > /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (\n        gov, cpu)]).decode('utf-8')\nactual_gov = subprocess.check_output([\n    ADB, 'shell', 'cat /sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' %\n        cpu]).decode('utf-8').strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
       "/usr/bin/adb.1.0.35",
       "0",
@@ -352,7 +345,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -388,7 +381,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -406,7 +399,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -441,7 +434,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
@@ -486,7 +478,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/skps"
@@ -547,7 +538,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -599,7 +590,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -617,7 +608,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -652,7 +643,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
@@ -697,7 +687,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/images"
@@ -758,7 +747,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -810,7 +799,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -828,7 +817,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -863,7 +852,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
@@ -908,7 +896,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/svgs"
@@ -969,7 +956,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -1021,7 +1008,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -1034,7 +1021,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -1050,7 +1037,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\n\n# Remove the path.\nadb = sys.argv[1]\npath = sys.argv[2]\nprint('Removing %s' % path)\ncmd = [adb, 'shell', 'rm', '-rf', path]\nprint(' '.join(cmd))\nsubprocess.check_call(cmd)\n\n# Verify that the path was deleted.\nprint('Checking for existence of %s' % path)\ncmd = [adb, 'shell', 'ls', path]\nprint(' '.join(cmd))\ntry:\n  output = subprocess.check_output(\n      cmd, stderr=subprocess.STDOUT).decode('utf-8')\nexcept subprocess.CalledProcessError as e:\n  output = e.output.decode('utf-8')\nprint('Output was:')\nprint('======')\nprint(output)\nprint('======')\nif 'No such file or directory' not in output:\n  raise Exception('%s exists despite being deleted' % path)\n",
       "/usr/bin/adb.1.0.35",
       "/sdcard/revenge_of_the_skiabot/dm_out"
@@ -1112,7 +1098,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = sys.argv[1]\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[2], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print('Failed to get uninteresting hashes from %s:' % HASHES_URL)\n    print(e)\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print('Retry in %d seconds.' % waittime)\n    time.sleep(waittime)\n",
       "https://example.com/hashes.txt",
       "[START_DIR]/tmp/uninteresting_hashes.txt"
@@ -1176,7 +1161,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "import os\nprint(os.environ.get('SWARMING_TASK_ID', ''))\n"
     ],
     "name": "get swarming task id",
@@ -1188,7 +1172,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -1242,7 +1226,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output([\n      '/usr/bin/adb.1.0.35', 'shell', 'cat', bin_dir + 'rc']).decode('utf-8')))\nexcept ValueError:\n  print(\"Couldn't read the return code.  Probably killed for OOM.\")\n  sys.exit(1)\n",
       "/data/local/tmp/",
       "dm.sh"
@@ -1293,7 +1276,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -1313,7 +1296,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -1330,7 +1313,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -1347,7 +1330,7 @@
   },
   {
     "cmd": [
-      "vpython",
+      "vpython3",
       "-u",
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
@@ -1386,7 +1369,6 @@
   {
     "cmd": [
       "python",
-      "-u",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output([\n    '/usr/bin/adb.1.0.35', 'logcat', '-d']).decode('utf-8', errors='ignore')\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      try:\n        sym = subprocess.check_output([\n            'addr2line', '-Cfpe', local, addr]).decode('utf-8')\n        line = line.replace(addr, addr + ' ' + sym.strip())\n      except subprocess.CalledProcessError:\n        pass\n  print(line)\n",
       "[START_DIR]/build"
     ],

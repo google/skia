@@ -22,7 +22,6 @@ export GOFLAGS="-mod=readonly"
 go mod download
 go install -v go.skia.org/infra/infra/bots/task_drivers/build_push_docker_image
 go install -v go.skia.org/infra/infra/bots/task_drivers/canary
-go install -v go.skia.org/infra/infra/bots/task_drivers/update_go_deps
 
 goos=$2
 goarch=$3

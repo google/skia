@@ -1020,33 +1020,6 @@ func (b *jobBuilder) buildTaskDrivers(goos, goarch string) string {
 	return name
 }
 
-// updateGoDeps generates the task to update Go dependencies.
-func (b *jobBuilder) updateGoDeps() {
-	b.addTask(b.Name, func(b *taskBuilder) {
-		b.usesGo()
-		b.asset("protoc")
-		b.cmd(
-			"./update_go_deps",
-			"--project_id", "skia-swarming-bots",
-			"--task_id", specs.PLACEHOLDER_TASK_ID,
-			"--task_name", b.Name,
-			"--workdir", ".",
-			"--gerrit_project", "skia",
-			"--gerrit_url", "https://skia-review.googlesource.com",
-			"--repo", specs.PLACEHOLDER_REPO,
-			"--revision", specs.PLACEHOLDER_REVISION,
-			"--patch_issue", specs.PLACEHOLDER_ISSUE,
-			"--patch_set", specs.PLACEHOLDER_PATCHSET,
-			"--patch_server", specs.PLACEHOLDER_CODEREVIEW_SERVER,
-		)
-		b.dep(b.buildTaskDrivers("linux", "amd64"))
-		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
-		b.cas(CAS_EMPTY)
-		b.serviceAccount(b.cfg.ServiceAccountRecreateSKPs)
-	})
-}
-
 // createDockerImage creates the specified docker image. Returns the name of the
 // generated task.
 func (b *jobBuilder) createDockerImage(wasm bool) string {
@@ -1394,7 +1367,7 @@ func (b *jobBuilder) infra() {
 		b.kitchenTask("infra", OUTPUT_NONE)
 		b.cas(CAS_WHOLE_REPO)
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
-		b.cipd(specs.CIPD_PKGS_GSUTIL...)
+		b.usesGSUtil()
 		b.idempotent()
 		b.usesGo()
 	})
@@ -1430,7 +1403,7 @@ func (b *jobBuilder) buildstats() {
 			b.Name = uploadName
 			b.serviceAccount(b.cfg.ServiceAccountUploadNano)
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.cipd(specs.CIPD_PKGS_GSUTIL...)
+			b.usesGSUtil()
 			b.dep(depName)
 		})
 	}
@@ -1529,7 +1502,7 @@ func (b *taskBuilder) commonTestPerfAssets() {
 func (b *taskBuilder) directUpload(gsBucket, serviceAccount string) {
 	b.recipeProp("gs_bucket", gsBucket)
 	b.serviceAccount(serviceAccount)
-	b.cipd(specs.CIPD_PKGS_GSUTIL...)
+	b.usesGSUtil()
 }
 
 // dm generates a Test task using dm.
@@ -1635,7 +1608,7 @@ func (b *jobBuilder) dm() {
 			b.kitchenTask("upload_dm_results", OUTPUT_NONE)
 			b.serviceAccount(b.cfg.ServiceAccountUploadGM)
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.cipd(specs.CIPD_PKGS_GSUTIL...)
+			b.usesGSUtil()
 			b.dep(depName)
 		})
 	}
@@ -1823,7 +1796,7 @@ func (b *jobBuilder) puppeteer() {
 		b.Name = uploadName
 		b.serviceAccount(b.cfg.ServiceAccountUploadNano)
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-		b.cipd(specs.CIPD_PKGS_GSUTIL...)
+		b.usesGSUtil()
 		b.dep(depName)
 	})
 }
@@ -1920,7 +1893,7 @@ func (b *jobBuilder) perf() {
 			b.Name = uploadName
 			b.serviceAccount(b.cfg.ServiceAccountUploadNano)
 			b.linuxGceDimensions(MACHINE_TYPE_SMALL)
-			b.cipd(specs.CIPD_PKGS_GSUTIL...)
+			b.usesGSUtil()
 			b.dep(depName)
 		})
 	}

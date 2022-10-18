@@ -2,6 +2,7 @@
   {
     "cmd": [
       "gsutil",
+      "--blah",
       "-m",
       "cp",
       "-Z",
