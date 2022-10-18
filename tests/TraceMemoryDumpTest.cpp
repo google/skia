@@ -5,31 +5,29 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
+#if defined(SK_GL)
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
-#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "tests/CtsEnforcement.h"
-#include "tests/Test.h"
-
-#include <cstddef>
-#include <cstdint>
-#include <utility>
-
-#ifdef SK_GL
 #include "src/gpu/ganesh/gl/GrGLBuffer.h"
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/gpu/ganesh/gl/GrGLRenderTarget.h"
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
 #include "src/gpu/ganesh/gl/GrGLTextureRenderTarget.h"
-#endif
+#include "tests/CtsEnforcement.h"
+#include "tests/Test.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <utility>
 
 class SkDiscardableMemory;
 struct GrContextOptions;
@@ -89,7 +87,6 @@ void ValidateMemoryDumps(skiatest::Reporter* reporter, GrDirectContext* dContext
     }
 }
 
-#ifdef SK_GL
 DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLBuffer,
                                           reporter,
                                           ctxInfo,
@@ -235,4 +232,4 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTextureRender
     ValidateMemoryDumps(reporter, dContext, 3, texRT->gpuMemorySize(), true /* isOwned */);
 }
 
-#endif  // SK_GL
+#endif  // defined(SK_GL)

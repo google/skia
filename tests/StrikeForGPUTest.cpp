@@ -13,7 +13,6 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/StrikeForGPU.h"
-#include "src/text/gpu/SubRunAllocator.h"
 #include "tests/Test.h"
 
 #include <cstdint>

@@ -28,10 +28,13 @@
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/ManagedBackendTexture.h"
+
+#if defined(SK_GL)
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
+#endif
 
 #include <initializer_list>
 

@@ -180,4 +180,8 @@
   { symbol: ["inflate", "public", "\"zlib.h\"", "public"] },
   { symbol: ["inflateEnd", "public", "\"zlib.h\"", "public"] },
 
+  # IWYU seems to get confused on where the namespace sktext is "defined". Any files in
+  # this list are ok.
+  { symbol: ["sktext", "public", "\"src/text/StrikeForGPU.h\"", "public"] },
+  { symbol: ["sktext", "public", "\"src/text/GlyphRun.h\"", "public"] }
 ]

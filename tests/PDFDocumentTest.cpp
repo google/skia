@@ -11,6 +11,7 @@
 #include "include/core/SkDocument.h"
 #include "include/core/SkExecutor.h"
 #include "include/core/SkFont.h"
+#include "include/core/SkImage.h" // IWYU pragma: keep
 #include "include/core/SkPaint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"

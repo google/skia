@@ -2096,6 +2096,7 @@ var shorthandToLabel = map[string]string{
 	"modules_canvaskit":          "//modules/canvaskit:canvaskit",
 	"skia_public":                "//:skia_public",
 	"skottie_tool_gpu":           "//modules/skottie:skottie_tool_gpu",
+	"tests":                      "//tests/...",
 }
 
 // bazelBuild adds a task which builds the specified single-target label (//foo:bar) or
