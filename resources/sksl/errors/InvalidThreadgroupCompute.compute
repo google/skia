@@ -19,7 +19,7 @@ void c() {
 }
 
 /*%%*
-'threadgroup' is not permitted here
+modifier 'threadgroup' is not permitted on a struct field
 'threadgroup' is not permitted here
 'threadgroup' is not permitted here
 'threadgroup' is not permitted here

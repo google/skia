@@ -1,5 +1,5 @@
 Bad { sampler x; };
 
 /*%%*
-variables of type 'sampler' must be global
+opaque type 'sampler' is not permitted in a struct
 *%%*/

@@ -281,7 +281,10 @@ DSLType UnsizedArray(const DSLType& base, Position pos) {
             SkSL::Type::kUnsizedArray);
 }
 
-DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
+DSLType StructType(std::string_view name,
+                   SkSpan<DSLField> fields,
+                   bool interfaceBlock,
+                   Position pos) {
     std::vector<SkSL::Type::Field> skslFields;
     skslFields.reserve(fields.size());
     for (const DSLField& field : fields) {
@@ -289,7 +292,7 @@ DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
             std::string desc = field.fModifiers.fModifiers.description();
             desc.pop_back();  // remove trailing space
             ThreadContext::ReportError("modifier '" + desc + "' is not permitted on a struct field",
-                    field.fModifiers.fPosition);
+                                       field.fModifiers.fPosition);
         }
         if (field.fModifiers.fModifiers.fLayout.fFlags & Layout::kBinding_Flag) {
             ThreadContext::ReportError(
@@ -310,14 +313,22 @@ DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
         }
         skslFields.emplace_back(field.fPosition, field.fModifiers.fModifiers, field.fName, &type);
     }
-    const SkSL::Type* result = ThreadContext::SymbolTable()->add(Type::MakeStructType(pos, name,
-            skslFields));
-    if (result->isTooDeeplyNested()) {
+    std::unique_ptr<Type> newType = Type::MakeStructType(pos, name, skslFields, interfaceBlock);
+    if (newType->isTooDeeplyNested()) {
         ThreadContext::ReportError("struct '" + std::string(name) + "' is too deeply nested", pos);
     }
-    ThreadContext::ProgramElements().push_back(std::make_unique<SkSL::StructDefinition>(Position(),
-            *result));
+    // TODO(skia:13820): we always want the symbol to be visible in the symbol table
+    const SkSL::Type* result =
+            interfaceBlock ? ThreadContext::SymbolTable()->takeOwnershipOfSymbol(std::move(newType))
+                           : ThreadContext::SymbolTable()->add(std::move(newType));
     return DSLType(result, pos);
+}
+
+DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {
+    DSLType result = StructType(name, fields, /*interfaceBlock=*/false, pos);
+    ThreadContext::ProgramElements().push_back(
+            std::make_unique<SkSL::StructDefinition>(pos, result.skslType()));
+    return result;
 }
 
 } // namespace dsl

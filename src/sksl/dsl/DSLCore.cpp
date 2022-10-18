@@ -51,6 +51,9 @@
 #include <vector>
 
 namespace SkSL {
+
+class SymbolTable;
+
 namespace dsl {
 
 void Start(SkSL::Compiler* compiler, ProgramKind kind) {
@@ -236,42 +239,28 @@ public:
     static DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
                                        SkTArray<DSLField> fields, std::string_view varName,
                                        int arraySize, Position pos) {
-        // We need to create a new struct type for the interface block, but we don't want it in the
-        // symbol table. Since dsl::Struct automatically sticks it in the symbol table, we create it
-        // the old fashioned way with MakeStructType.
-        std::vector<SkSL::Type::Field> skslFields;
-        skslFields.reserve(fields.count());
-        for (const DSLField& field : fields) {
-            const SkSL::Type* baseType = &field.fType.skslType();
-            if (baseType->isArray()) {
-                baseType = &baseType->componentType();
-            }
-            SkSL::VarDeclaration::ErrorCheck(ThreadContext::Context(), field.fPosition,
-                    field.fModifiers.fPosition, field.fModifiers.fModifiers, baseType,
-                    Variable::Storage::kInterfaceBlock);
-            skslFields.push_back(SkSL::Type::Field(field.fPosition, field.fModifiers.fModifiers,
-                    field.fName, &field.fType.skslType()));
-        }
-        const SkSL::Type* structType =
-                ThreadContext::SymbolTable()->takeOwnershipOfSymbol(SkSL::Type::MakeStructType(
-                        pos, typeName, std::move(skslFields), /*interfaceBlock=*/true));
-        DSLType varType = arraySize > 0 ? Array(structType, arraySize) : DSLType(structType);
-        DSLGlobalVar var(modifiers, varType, !varName.empty() ? varName : typeName, DSLExpression(),
-                         pos);
+        std::shared_ptr<SymbolTable> symbols = ThreadContext::SymbolTable();
+        const bool anonymous = varName.empty();
+        DSLType dslStructType = StructType(typeName, fields, /*interfaceBlock=*/true, pos);
+        const SkSL::Type* structType = &dslStructType.skslType();
+        DSLType varType = arraySize > 0 ? Array(structType, arraySize)
+                                        : std::move(dslStructType);
+        DSLGlobalVar var(modifiers, varType, anonymous ? typeName : varName, DSLExpression(), pos);
         SkSL::Variable* skslVar = DSLWriter::Var(var);
         if (skslVar) {
             auto intf = std::make_unique<SkSL::InterfaceBlock>(pos, skslVar, typeName,
-                                                               varName, arraySize,
-                                                               ThreadContext::SymbolTable());
+                                                               varName, arraySize, symbols);
             FindRTAdjust(*intf, pos);
             ThreadContext::ProgramElements().push_back(std::move(intf));
-            if (varName.empty()) {
+            if (anonymous) {
+                // Add each field to the top-level symbols.
                 const std::vector<SkSL::Type::Field>& structFields = structType->fields();
                 for (size_t i = 0; i < structFields.size(); ++i) {
-                    ThreadContext::SymbolTable()->add(std::make_unique<SkSL::Field>(
-                            structFields[i].fPosition, skslVar, i));
+                    symbols->add(std::make_unique<SkSL::Field>(structFields[i].fPosition,
+                                                               skslVar, i));
                 }
             } else {
+                // Add the global variable to the top-level symbols.
                 AddToSymbolTable(var);
             }
         }
