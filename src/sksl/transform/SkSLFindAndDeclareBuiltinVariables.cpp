@@ -52,7 +52,7 @@ public:
     }
 
     void addDeclaringElement(const Symbol* symbol) {
-        if (!symbol) {
+        if (!symbol || !symbol->is<Variable>()) {
             return;
         }
         const Variable& var = symbol->as<Variable>();
