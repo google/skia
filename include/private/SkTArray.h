@@ -371,11 +371,20 @@ public:
     const T* begin() const {
         return fItemArray;
     }
+
+    // It's safe to use fItemArray + fCount because if fItemArray is nullptr then adding 0 is
+    // valid and returns nullptr. See [expr.add] in the C++ standard.
     T* end() {
-        return fItemArray ? fItemArray + fCount : nullptr;
+        if (fItemArray == nullptr) {
+            SkASSERT(fCount == 0);
+        }
+        return fItemArray + fCount;
     }
     const T* end() const {
-        return fItemArray ? fItemArray + fCount : nullptr;
+        if (fItemArray == nullptr) {
+            SkASSERT(fCount == 0);
+        }
+        return fItemArray + fCount;
     }
     T* data() { return fItemArray; }
     const T* data() const { return fItemArray; }
