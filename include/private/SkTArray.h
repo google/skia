@@ -549,23 +549,25 @@ private:
         }
     }
 
-    template <bool E = MEM_MOVE> std::enable_if_t<E, void> move(int dst, int src) {
-        memcpy(static_cast<void*>(&fItemArray[dst]),
-               static_cast<void*>(&fItemArray[src]),
-               sizeof(T));
-    }
-    template <bool E = MEM_MOVE> std::enable_if_t<E, void> move(void* dst) {
-        sk_careful_memcpy(dst, fItemArray, fCount * sizeof(T));
+    void move(int dst, int src) {
+        if constexpr (MEM_MOVE) {
+            memcpy(static_cast<void*>(&fItemArray[dst]),
+                   static_cast<void*>(&fItemArray[src]),
+                   sizeof(T));
+        } else {
+            new (&fItemArray[dst]) T(std::move(fItemArray[src]));
+            fItemArray[src].~T();
+        }
     }
 
-    template <bool E = MEM_MOVE> std::enable_if_t<!E, void> move(int dst, int src) {
-        new (&fItemArray[dst]) T(std::move(fItemArray[src]));
-        fItemArray[src].~T();
-    }
-    template <bool E = MEM_MOVE> std::enable_if_t<!E, void> move(void* dst) {
-        for (int i = 0; i < this->count(); ++i) {
-            new (static_cast<char*>(dst) + sizeof(T) * (size_t)i) T(std::move(fItemArray[i]));
-            fItemArray[i].~T();
+    void move(void* dst) {
+        if constexpr (MEM_MOVE) {
+            sk_careful_memcpy(dst, fItemArray, fCount * sizeof(T));
+        } else {
+            for (int i = 0; i < this->count(); ++i) {
+                new (static_cast<char*>(dst) + sizeof(T) * (size_t)i) T(std::move(fItemArray[i]));
+                fItemArray[i].~T();
+            }
         }
     }
 
