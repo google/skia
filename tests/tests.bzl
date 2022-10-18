@@ -4,7 +4,6 @@ This file contains macros that generate multiple test targets, one per file.
 
 load("//bazel:cc_test_with_flags.bzl", "cc_test_with_flags")
 
-# buildifier: disable=unused-variable
 def skia_cpu_tests(
         name,
         tests,
@@ -30,7 +29,7 @@ def skia_cpu_tests(
     a trivially passing executable, which can easily be cached and effectively skipped.
 
     Args:
-        name: Gives a human readable description of a group of tests; not actually used by Bazel.
+        name: The name of the test_suite that groups these tests together.
         tests: A list of strings, corresponding to C++ files with one or more DEF_TEST (see Test.h).
         harness: A label (string) corresponding to a skia_cc_library which all the supplementary
                  test helpers, utils, etc. (e.g. Test.h and Test.cpp). Ideally, this is as small
@@ -49,9 +48,12 @@ def skia_cpu_tests(
                   run anywhere. If it is non-empty, it will only run on platforms which match the
                   entire set of constraints. See https://github.com/bazelbuild/platforms for these.
     """
+    test_targets = []
     for filename in tests:
+        new_target = filename[:-4]  # trim .cpp
+        test_targets.append(new_target)
         cc_test_with_flags(
-            name = filename[:-4],  # trim .cpp
+            name = new_target,
             size = "small",
             srcs = select({
                 # Make this a no-op test if compiling with a GPU backend.
@@ -74,7 +76,12 @@ def skia_cpu_tests(
             target_compatible_with = limit_to,
         )
 
-# buildifier: disable=unused-variable
+    # https://bazel.build/reference/be/general#test_suite
+    native.test_suite(
+        name = name,
+        tests = test_targets,
+    )
+
 def skia_ganesh_tests(
         name,
         tests,
@@ -106,7 +113,7 @@ def skia_ganesh_tests(
     GPU tests defined with DEF_GANESH_TEST.
 
     Args:
-        name: Gives a human readable description of a group of tests; not actually used by Bazel.
+        name: The name of the test_suite that groups these tests together.
         tests: A list of strings, corresponding to C++ files with one or more DEF_GANESH_TEST
                (see Test.h).
         harness: A label (string) corresponding to a skia_cc_library which all the supplementary
@@ -126,9 +133,12 @@ def skia_ganesh_tests(
                   run anywhere. If it is non-empty, it will only run on platforms which match the
                   entire set of constraints. See https://github.com/bazelbuild/platforms for these.
     """
+    test_targets = []
     for filename in tests:
+        new_target = filename[:-4]  # trim .cpp
+        test_targets.append(new_target)
         cc_test_with_flags(
-            name = filename[:-4],  # trim .cpp
+            name = new_target,
             size = "small",
             srcs = select({
                 "//src/gpu:has_gpu_backend": [
@@ -154,3 +164,9 @@ def skia_ganesh_tests(
                 "no-remote",
             ],
         )
+
+    # https://bazel.build/reference/be/general#test_suite
+    native.test_suite(
+        name = name,
+        tests = test_targets,
+    )
