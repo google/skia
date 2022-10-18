@@ -14,6 +14,7 @@
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkPictureRecord.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkStreamPriv.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/core/SkWriteBuffer.h"
@@ -301,7 +302,8 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                                    uint32_t tag,
                                    uint32_t size,
                                    const SkDeserialProcs& procs,
-                                   SkTypefacePlayback* topLevelTFPlayback) {
+                                   SkTypefacePlayback* topLevelTFPlayback,
+                                   int recursionLimit) {
     switch (tag) {
         case SK_PICT_READER_TAG:
             SkASSERT(nullptr == fOpData);
@@ -312,11 +314,17 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             break;
         case SK_PICT_FACTORY_TAG: {
             if (!stream->readU32(&size)) { return false; }
+            if (StreamRemainingLengthIsBelow(stream, size)) {
+                return false;
+            }
             fFactoryPlayback = std::make_unique<SkFactoryPlayback>(size);
             for (size_t i = 0; i < size; i++) {
                 SkString str;
                 size_t len;
                 if (!stream->readPackedUInt(&len)) { return false; }
+                if (StreamRemainingLengthIsBelow(stream, len)) {
+                    return false;
+                }
                 str.resize(len);
                 if (stream->read(str.writable_str(), len) != len) {
                     return false;
@@ -325,8 +333,14 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             }
         } break;
         case SK_PICT_TYPEFACE_TAG: {
+            if (StreamRemainingLengthIsBelow(stream, size)) {
+                return false;
+            }
             fTFPlayback.setCount(size);
             for (uint32_t i = 0; i < size; ++i) {
+                if (stream->isAtEnd()) {
+                    return false;
+                }
                 sk_sp<SkTypeface> tf;
                 if (procs.fTypefaceProc) {
                     tf = procs.fTypefaceProc(&stream, sizeof(stream), procs.fTypefaceCtx);
@@ -343,10 +357,14 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
         } break;
         case SK_PICT_PICTURE_TAG: {
             SkASSERT(fPictures.empty());
+            if (StreamRemainingLengthIsBelow(stream, size)) {
+                return false;
+            }
             fPictures.reserve_back(SkToInt(size));
 
             for (uint32_t i = 0; i < size; i++) {
-                auto pic = SkPicture::MakeFromStream(stream, &procs, topLevelTFPlayback);
+                auto pic = SkPicture::MakeFromStreamPriv(stream, &procs,
+                                                         topLevelTFPlayback, recursionLimit - 1);
                 if (!pic) {
                     return false;
                 }
@@ -354,6 +372,9 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             }
         } break;
         case SK_PICT_BUFFER_SIZE_TAG: {
+            if (StreamRemainingLengthIsBelow(stream, size)) {
+                return false;
+            }
             SkAutoMalloc storage(size);
             if (stream->read(storage.get(), size) != size) {
                 return false;
@@ -493,13 +514,14 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
 SkPictureData* SkPictureData::CreateFromStream(SkStream* stream,
                                                const SkPictInfo& info,
                                                const SkDeserialProcs& procs,
-                                               SkTypefacePlayback* topLevelTFPlayback) {
+                                               SkTypefacePlayback* topLevelTFPlayback,
+                                               int recursionLimit) {
     std::unique_ptr<SkPictureData> data(new SkPictureData(info));
     if (!topLevelTFPlayback) {
         topLevelTFPlayback = &data->fTFPlayback;
     }
 
-    if (!data->parseStream(stream, procs, topLevelTFPlayback)) {
+    if (!data->parseStream(stream, procs, topLevelTFPlayback, recursionLimit)) {
         return nullptr;
     }
     return data.release();
@@ -518,7 +540,8 @@ SkPictureData* SkPictureData::CreateFromBuffer(SkReadBuffer& buffer,
 
 bool SkPictureData::parseStream(SkStream* stream,
                                 const SkDeserialProcs& procs,
-                                SkTypefacePlayback* topLevelTFPlayback) {
+                                SkTypefacePlayback* topLevelTFPlayback,
+                                int recursionLimit) {
     for (;;) {
         uint32_t tag;
         if (!stream->readU32(&tag)) { return false; }
@@ -528,7 +551,7 @@ bool SkPictureData::parseStream(SkStream* stream,
 
         uint32_t size;
         if (!stream->readU32(&size)) { return false; }
-        if (!this->parseStreamTag(stream, tag, size, procs, topLevelTFPlayback)) {
+        if (!this->parseStreamTag(stream, tag, size, procs, topLevelTFPlayback, recursionLimit)) {
             return false; // we're invalid
         }
     }

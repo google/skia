@@ -969,3 +969,11 @@ bool SkStreamCopy(SkWStream* out, SkStream* input) {
         }
     }
 }
+
+bool StreamRemainingLengthIsBelow(SkStream* stream, size_t len) {
+    if (stream->hasLength() && stream->hasPosition()) {
+        size_t remainingBytes = stream->getLength() - stream->getPosition();
+        return len > remainingBytes;
+    }
+    return false;
+}

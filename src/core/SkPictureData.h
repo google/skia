@@ -81,7 +81,8 @@ public:
     static SkPictureData* CreateFromStream(SkStream*,
                                            const SkPictInfo&,
                                            const SkDeserialProcs&,
-                                           SkTypefacePlayback*);
+                                           SkTypefacePlayback*,
+                                           int recursionLimit);
     static SkPictureData* CreateFromBuffer(SkReadBuffer&, const SkPictInfo&);
 
     void serialize(SkWStream*, const SkSerialProcs&, SkRefCntSet*, bool textBlobsOnly=false) const;
@@ -95,7 +96,8 @@ protected:
     explicit SkPictureData(const SkPictInfo& info);
 
     // Does not affect ownership of SkStream.
-    bool parseStream(SkStream*, const SkDeserialProcs&, SkTypefacePlayback*);
+    bool parseStream(SkStream*, const SkDeserialProcs&, SkTypefacePlayback*,
+                     int recursionLimit);
     bool parseBuffer(SkReadBuffer& buffer);
 
 public:
@@ -144,7 +146,8 @@ private:
     // these help us with reading/writing
     // Does not affect ownership of SkStream.
     bool parseStreamTag(SkStream*, uint32_t tag, uint32_t size,
-                        const SkDeserialProcs&, SkTypefacePlayback*);
+                        const SkDeserialProcs&, SkTypefacePlayback*,
+                        int recursionLimit);
     void parseBufferTag(SkReadBuffer&, uint32_t tag, uint32_t size);
     void flattenToBuffer(SkWriteBuffer&, bool textBlobsOnly) const;
 

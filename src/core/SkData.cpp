@@ -10,7 +10,9 @@
 #include "include/private/SkOnce.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkStreamPriv.h"
 #include "src/core/SkWriteBuffer.h"
+
 #include <new>
 
 SkData::SkData(const void* ptr, size_t size, ReleaseProc proc, void* context)
@@ -202,6 +204,11 @@ sk_sp<SkData> SkData::MakeWithCString(const char cstr[]) {
 ///////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkData> SkData::MakeFromStream(SkStream* stream, size_t size) {
+    // reduce the chance of OOM by checking that the stream has enough bytes to read from before
+    // allocating that potentially large buffer.
+    if (StreamRemainingLengthIsBelow(stream, size)) {
+        return nullptr;
+    }
     sk_sp<SkData> data(SkData::MakeUninitialized(size));
     if (stream->read(data->writable_data(), size) != size) {
         return nullptr;
