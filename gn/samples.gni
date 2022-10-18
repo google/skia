@@ -31,6 +31,7 @@ samples_sources = [
   "$_samplecode/SampleFlutterAnimate.cpp",
   "$_samplecode/SampleGlyphTransform.cpp",
   "$_samplecode/SampleGradients.cpp",
+  "$_samplecode/SampleGraphitePrimitives.cpp",
   "$_samplecode/SampleImageFilterDAG.cpp",
   "$_samplecode/SampleLayers.cpp",
   "$_samplecode/SampleManyRects.cpp",
