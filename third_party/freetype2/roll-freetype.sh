@@ -36,8 +36,8 @@ mergeinclude() {
 
 commit() {
   STEP="commit" &&
-  FT_PREVIOUS_REV_SHORT=$(expr substr "${FT_PREVIOUS_REV}" 1 8) &&
-  FT_NEXT_REV_SHORT=$(expr substr "${FT_NEXT_REV}" 1 8) &&
+  FT_PREVIOUS_REV_SHORT=$(echo "${FT_PREVIOUS_REV}" | cut -c 1-8) &&
+  FT_NEXT_REV_SHORT=$(echo "${FT_NEXT_REV}" | cut -c 1-8) &&
   FT_COMMIT_COUNT=$(git -C "${FT_GIT_DIR}" rev-list --count "${FT_PREVIOUS_REV}..${FT_NEXT_REV}") &&
   git commit -m"Roll FreeType from ${FT_PREVIOUS_REV_SHORT} to ${FT_NEXT_REV_SHORT} (${FT_COMMIT_COUNT} commits)
 
