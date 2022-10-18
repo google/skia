@@ -75,6 +75,7 @@ sksl_error_tests = [
   "/sksl/errors/DuplicateInterfaceBlockName.sksl",
   "/sksl/errors/DuplicateOutput.sksl",
   "/sksl/errors/DuplicateRTAdjust.sksl",
+  "/sksl/errors/DuplicateSkClockwise.sksl",
   "/sksl/errors/DuplicateSymbol.rts",
   "/sksl/errors/EmptyArray.rts",
   "/sksl/errors/EmptyStruct.rts",

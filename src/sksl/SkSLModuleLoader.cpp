@@ -218,14 +218,14 @@ static void add_public_type_aliases(SkSL::SymbolTable* symbols, const SkSL::Buil
     // Hide all the private symbols by aliasing them all to "invalid". This will prevent code from
     // using built-in names like `sampler2D` as variable names.
     for (BuiltinTypePtr privateType : kPrivateTypes) {
-        symbols->add(Type::MakeAliasType((types.*privateType)->name(), *types.fInvalid));
+        symbols->inject(Type::MakeAliasType((types.*privateType)->name(), *types.fInvalid));
     }
 }
 
 static void add_compute_type_aliases(SkSL::SymbolTable* symbols, const SkSL::BuiltinTypes& types) {
     // A `texture2D` in a compute shader should generally mean "read-write" texture access, not
     // "sample" texture access. Remap the name `texture2D` to point to `readWriteTexture2D`.
-    symbols->add(Type::MakeAliasType("texture2D", *types.fReadWriteTexture2D));
+    symbols->inject(Type::MakeAliasType("texture2D", *types.fReadWriteTexture2D));
 }
 
 static std::unique_ptr<Module> compile_and_shrink(SkSL::Compiler* compiler,

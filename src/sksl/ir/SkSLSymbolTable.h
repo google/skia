@@ -113,8 +113,24 @@ public:
     template <typename T>
     T* add(std::unique_ptr<T> symbol) {
         T* ptr = symbol.get();
-        this->addWithoutOwnership(ptr);
-        this->takeOwnershipOfSymbol(std::move(symbol));
+        this->addWithoutOwnership(this->takeOwnershipOfSymbol(std::move(symbol)));
+        return ptr;
+    }
+
+    /**
+     * Forces a symbol into this symbol table, without conferring ownership. Replaces any existing
+     * symbol with the same name, if one exists.
+     */
+    void injectWithoutOwnership(Symbol* symbol);
+
+    /**
+     * Forces a symbol into this symbol table, conferring ownership. Replaces any existing symbol
+     * with the same name, if one exists.
+     */
+    template <typename T>
+    T* inject(std::unique_ptr<T> symbol) {
+        T* ptr = symbol.get();
+        this->injectWithoutOwnership(this->takeOwnershipOfSymbol(std::move(symbol)));
         return ptr;
     }
 

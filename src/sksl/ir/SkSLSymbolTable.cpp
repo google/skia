@@ -72,15 +72,25 @@ void SymbolTable::addWithoutOwnership(Symbol* symbol) {
         }
     }
 
-    Symbol*& refInSymbolTable = fSymbols[key];
+    if (fAtModuleBoundary && fParent && fParent->lookup(key)) {
+        // We are attempting to declare a symbol at global scope that already exists in a parent
+        // module. This is a duplicate symbol and should be rejected.
+    } else {
+        Symbol*& refInSymbolTable = fSymbols[key];
 
-    if (refInSymbolTable == nullptr) {
-        refInSymbolTable = symbol;
-        return;
+        if (refInSymbolTable == nullptr) {
+            refInSymbolTable = symbol;
+            return;
+        }
     }
 
     ThreadContext::ReportError("symbol '" + std::string(symbol->name()) + "' was already defined",
                                symbol->fPosition);
+}
+
+void SymbolTable::injectWithoutOwnership(Symbol* symbol) {
+    auto key = MakeSymbolKey(symbol->name());
+    fSymbols[key] = symbol;
 }
 
 const Type* SymbolTable::addArrayDimension(const Type* type, int arraySize) {
