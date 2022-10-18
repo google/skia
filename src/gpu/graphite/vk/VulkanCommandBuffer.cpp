@@ -8,8 +8,8 @@
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
 
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
-#include "src/gpu/graphite/vk/VulkanUtils.h"
 
 namespace skgpu::graphite {
 

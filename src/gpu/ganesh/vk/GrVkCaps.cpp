@@ -30,6 +30,7 @@
 #include "src/gpu/ganesh/vk/GrVkUniformHandler.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanInterface.h"
+#include "src/gpu/vk/VulkanUtils.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>
@@ -1554,12 +1555,12 @@ GrCaps::SupportedWrite GrVkCaps::supportedWritePixelsColorType(GrColorType surfa
 
     // We don't support the ability to upload to external formats or formats that require a ycbcr
     // sampler. In general these types of formats are only used for sampling in a shader.
-    if (backend_format_is_external(surfaceFormat) || GrVkFormatNeedsYcbcrSampler(vkFormat)) {
+    if (backend_format_is_external(surfaceFormat) || skgpu::VkFormatNeedsYcbcrSampler(vkFormat)) {
         return {GrColorType::kUnknown, 0};
     }
 
     // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.
-    size_t offsetAlignment = align_to_4(GrVkFormatBytesPerBlock(vkFormat));
+    size_t offsetAlignment = align_to_4(skgpu::VkFormatBytesPerBlock(vkFormat));
 
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
@@ -1586,7 +1587,7 @@ GrCaps::SurfaceReadPixelsSupport GrVkCaps::surfaceSupportsReadPixels(
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
         // We can't directly read from a compressed format
-        if (GrVkFormatIsCompressed(texImage->imageFormat())) {
+        if (skgpu::VkFormatIsCompressed(texImage->imageFormat())) {
             return SurfaceReadPixelsSupport::kCopyToTexture2D;
         }
         return SurfaceReadPixelsSupport::kSupported;
@@ -1636,7 +1637,7 @@ bool GrVkCaps::onAreColorTypeAndFormatCompatible(GrColorType ct,
     const GrVkYcbcrConversionInfo* ycbcrInfo = format.getVkYcbcrConversionInfo();
     SkASSERT(ycbcrInfo);
 
-    if (ycbcrInfo->isValid() && !GrVkFormatNeedsYcbcrSampler(vkFormat)) {
+    if (ycbcrInfo->isValid() && !skgpu::VkFormatNeedsYcbcrSampler(vkFormat)) {
         // Format may be undefined for external images, which are required to have YCbCr conversion.
         if (VK_FORMAT_UNDEFINED == vkFormat && ycbcrInfo->fExternalFormat != 0) {
             return true;
@@ -1783,7 +1784,7 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
         return {GrColorType::kUnknown, 0};
     }
 
-    if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
+    if (skgpu::VkFormatNeedsYcbcrSampler(vkFormat)) {
         return {GrColorType::kUnknown, 0};
     }
 
@@ -1794,7 +1795,7 @@ GrCaps::SupportedRead GrVkCaps::onSupportedReadPixelsColorType(
     }
 
     // The VkBufferImageCopy bufferOffset field must be both a multiple of 4 and of a single texel.
-    size_t offsetAlignment = align_to_4(GrVkFormatBytesPerBlock(vkFormat));
+    size_t offsetAlignment = align_to_4(skgpu::VkFormatBytesPerBlock(vkFormat));
 
     const auto& info = this->getFormatInfo(vkFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {

@@ -23,6 +23,7 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/ganesh/vk/GrVkImageLayout.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanUtils.h"
 #endif
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlTypes.h"
@@ -233,7 +234,7 @@ uint32_t GrBackendFormat::channelMask() const {
 #endif
 #ifdef SK_VULKAN
         case GrBackendApi::kVulkan:
-            return GrVkFormatChannels(fVk.fFormat);
+            return skgpu::VkFormatChannels(fVk.fFormat);
 #endif
 #ifdef SK_METAL
         case GrBackendApi::kMetal:
@@ -407,6 +408,7 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
 #endif
 #ifdef SK_VULKAN
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanUtils.h"
 #endif
 
 SkString GrBackendFormat::toStr() const {
@@ -427,7 +429,7 @@ SkString GrBackendFormat::toStr() const {
             break;
         case GrBackendApi::kVulkan:
 #ifdef SK_VULKAN
-            str.append(GrVkFormatToStr(fVk.fFormat));
+            str.append(skgpu::VkFormatToStr(fVk.fFormat));
 #endif
             break;
         case GrBackendApi::kMetal:

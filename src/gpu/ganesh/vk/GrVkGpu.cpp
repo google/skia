@@ -44,6 +44,7 @@
 #include "src/gpu/ganesh/vk/GrVkTextureRenderTarget.h"
 #include "src/gpu/vk/VulkanAMDMemoryAllocator.h"
 #include "src/gpu/vk/VulkanInterface.h"
+#include "src/gpu/vk/VulkanUtils.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Gpu.h"
 
@@ -496,7 +497,7 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
         return false;
     }
 
-    SkASSERT(!GrVkFormatIsCompressed(texImage->imageFormat()));
+    SkASSERT(!skgpu::VkFormatIsCompressed(texImage->imageFormat()));
     bool success = false;
     bool linearTiling = texImage->isLinearTiled();
     if (linearTiling) {
@@ -649,7 +650,7 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture,
     VkFormat format = vkImage->imageFormat();
 
     // Can't transfer compressed data
-    SkASSERT(!GrVkFormatIsCompressed(format));
+    SkASSERT(!skgpu::VkFormatIsCompressed(format));
 
     if (!transferBuffer) {
         return false;
@@ -658,7 +659,7 @@ bool GrVkGpu::onTransferPixelsTo(GrTexture* texture,
     if (bufferColorType != this->vkCaps().transferColorType(format, surfaceColorType)) {
         return false;
     }
-    SkASSERT(GrVkFormatBytesPerBlock(format) == GrColorTypeBytesPerPixel(bufferColorType));
+    SkASSERT(skgpu::VkFormatBytesPerBlock(format) == GrColorTypeBytesPerPixel(bufferColorType));
 
     SkASSERT(SkIRect::MakeSize(texture->dimensions()).contains(rect));
 
@@ -730,7 +731,7 @@ bool GrVkGpu::onTransferPixelsFrom(GrSurface* surface,
     if (bufferColorType != this->vkCaps().transferColorType(format, surfaceColorType)) {
         return false;
     }
-    SkASSERT(GrVkFormatBytesPerBlock(format) == GrColorTypeBytesPerPixel(bufferColorType));
+    SkASSERT(skgpu::VkFormatBytesPerBlock(format) == GrColorTypeBytesPerPixel(bufferColorType));
 
     // Set up copy region
     VkBufferImageCopy region;
@@ -894,7 +895,7 @@ static size_t fill_in_compressed_regions(GrStagingBufferManager* stagingBufferMa
     regions->reserve_back(numMipLevels);
     individualMipOffsets->reserve_back(numMipLevels);
 
-    size_t bytesPerBlock = GrVkFormatBytesPerBlock(vkFormat);
+    size_t bytesPerBlock = skgpu::VkFormatBytesPerBlock(vkFormat);
 
     size_t bufferSize = SkCompressedDataSize(compression,
                                              dimensions,
@@ -1127,7 +1128,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
                                           std::string_view label) {
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
-    SkASSERT(!GrVkFormatIsCompressed(pixelFormat));
+    SkASSERT(!skgpu::VkFormatIsCompressed(pixelFormat));
     SkASSERT(mipLevelCount > 0);
 
     GrMipmapStatus mipmapStatus =
@@ -1189,7 +1190,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
                                                     const void* data, size_t dataSize) {
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
-    SkASSERT(GrVkFormatIsCompressed(pixelFormat));
+    SkASSERT(skgpu::VkFormatIsCompressed(pixelFormat));
 
     int numMipLevels = 1;
     if (mipmapped == GrMipmapped::kYes) {
@@ -1609,7 +1610,7 @@ sk_sp<GrAttachment> GrVkGpu::makeMSAAAttachment(SkISize dimensions,
                                                 GrMemoryless memoryless) {
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
-    SkASSERT(!GrVkFormatIsCompressed(pixelFormat));
+    SkASSERT(!skgpu::VkFormatIsCompressed(pixelFormat));
     SkASSERT(this->vkCaps().isFormatRenderable(pixelFormat, numSamples));
 
     fStats.incMSAAAttachmentCreates();
@@ -1624,11 +1625,11 @@ bool copy_src_data(char* mapPtr,
                    const GrPixmap srcData[],
                    int numMipLevels) {
     SkASSERT(srcData && numMipLevels);
-    SkASSERT(!GrVkFormatIsCompressed(vkFormat));
+    SkASSERT(!skgpu::VkFormatIsCompressed(vkFormat));
     SkASSERT(individualMipOffsets.count() == numMipLevels);
     SkASSERT(mapPtr);
 
-    size_t bytesPerPixel = GrVkFormatBytesPerBlock(vkFormat);
+    size_t bytesPerPixel = skgpu::VkFormatBytesPerBlock(vkFormat);
 
     for (int level = 0; level < numMipLevels; ++level) {
         const size_t trimRB = srcData[level].info().width() * bytesPerPixel;
@@ -1736,7 +1737,7 @@ bool GrVkGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
                              false);
 
     // CmdClearColorImage doesn't work for compressed formats
-    SkASSERT(!GrVkFormatIsCompressed(info.fFormat));
+    SkASSERT(!skgpu::VkFormatIsCompressed(info.fFormat));
 
     VkClearColorValue vkColor;
     // If we ever support SINT or UINT formats this needs to be updated to use the int32 and
@@ -1787,7 +1788,7 @@ GrBackendTexture GrVkGpu::onCreateBackendTexture(SkISize dimensions,
         return {};
     }
 
-    if (GrVkFormatNeedsYcbcrSampler(vkFormat)) {
+    if (skgpu::VkFormatNeedsYcbcrSampler(vkFormat)) {
         return {};
     }
 
@@ -2540,7 +2541,7 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
                           false);
 
     size_t bpp = GrColorTypeBytesPerPixel(dstColorType);
-    if (GrVkFormatBytesPerBlock(image->imageFormat()) != bpp) {
+    if (skgpu::VkFormatBytesPerBlock(image->imageFormat()) != bpp) {
         return false;
     }
     size_t tightRowBytes = bpp*rect.width();

@@ -14,6 +14,7 @@
 #include "src/gpu/ganesh/vk/GrVkImageView.h"
 #include "src/gpu/ganesh/vk/GrVkTextureRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanUtils.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
 
@@ -44,7 +45,7 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
              !fTexture->ycbcrConversionInfo().fExternalFormat);
     SkASSERT(SkToBool(fTexture->vkUsageFlags() & VK_IMAGE_USAGE_SAMPLED_BIT));
     this->registerWithCache(budgeted);
-    if (GrVkFormatIsCompressed(fTexture->imageFormat())) {
+    if (skgpu::VkFormatIsCompressed(fTexture->imageFormat())) {
         this->setReadOnly();
     }
 }

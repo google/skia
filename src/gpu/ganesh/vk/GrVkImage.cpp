@@ -12,6 +12,7 @@
 #include "src/gpu/ganesh/vk/GrVkMemory.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanUtils.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
@@ -479,7 +480,7 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
 
     // Create Image
     VkSampleCountFlagBits vkSamples;
-    if (!GrSampleCountToVkSampleCount(imageDesc.fSamples, &vkSamples)) {
+    if (!skgpu::SampleCountToVkSampleCount(imageDesc.fSamples, &vkSamples)) {
         return false;
     }
 

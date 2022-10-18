@@ -15,6 +15,7 @@
 
 #ifdef SK_VULKAN
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanUtils.h"
 #endif
 
 #ifdef SK_DIRECT3D
@@ -107,7 +108,7 @@ size_t GrBackendFormatBytesPerBlock(const GrBackendFormat& format) {
 #ifdef SK_VULKAN
             VkFormat vkFormat;
             SkAssertResult(format.asVkFormat(&vkFormat));
-            return GrVkFormatBytesPerBlock(vkFormat);
+            return skgpu::VkFormatBytesPerBlock(vkFormat);
 #endif
             break;
         }
@@ -167,7 +168,7 @@ int GrBackendFormatStencilBits(const GrBackendFormat& format) {
 #ifdef SK_VULKAN
             VkFormat vkFormat;
             SkAssertResult(format.asVkFormat(&vkFormat));
-            return GrVkFormatStencilBits(vkFormat);
+            return skgpu::VkFormatStencilBits(vkFormat);
 #endif
             break;
         }
