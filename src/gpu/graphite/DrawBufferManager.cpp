@@ -17,7 +17,7 @@ namespace skgpu::graphite {
 namespace {
 
 // TODO: Tune these values on real world data
-static constexpr size_t kVertexBufferSize = 16 << 10; // 16 KB
+static constexpr size_t kVertexBufferSize = 128 << 10; // 16 KB
 static constexpr size_t kIndexBufferSize =   2 << 10; //  2 KB
 static constexpr size_t kUniformBufferSize = 2 << 10; //  2 KB
 static constexpr size_t kStorageBufferSize = 2 << 10; //  2 KB

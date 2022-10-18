@@ -59,4 +59,5 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 ");float ap=(n+1.)-ao;float aq=$u(ao,ap,ah);if(ah!=ag){G=n>=0.?$q(aj*ao,ai*ap"
 "):$q(am,al);}H=n>=0.?al/aq:an;}else{G=y==0.?t:u;H=y==0.?j:m;}float2 I=float2"
 "(G.y,-G.x);H+=I*(p*C);if(r){return float4(H+d,inverse(c)*H);}else{return float4"
-"(c*H+d,H);}}";
+"(c*H+d,H);}}float2 ortho(float2 a){return float2(-a.y,a.x);}float3 calc_line_eq"
+"(float2 a,float2 b){float2 c=ortho(a);return float3(c,-dot(c,b));}";

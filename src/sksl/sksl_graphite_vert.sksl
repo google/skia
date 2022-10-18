@@ -2,6 +2,9 @@
 
 const float $PI = 3.141592653589793238;
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Support functions for tessellating path renderers
+
 // Wang's formula gives the minimum number of evenly spaced (in the parametric sense) line segments
 // that a bezier curve must be chopped into in order to guarantee all lines stay within a distance
 // of "1/precision" pixels from the true curve. Its definition for a bezier curve of degree "n" is
@@ -502,4 +505,17 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         // Normal case. Do the transform after tessellation.
         return float4(affineMatrix * strokeCoord + translate, strokeCoord);
     }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Support functions for analytic round rectangles
+
+float2 ortho(float2 v) {
+    return float2(-v.y, v.x);
+}
+
+// Calculate line equation for a line along 'v' that goes through 'p'
+float3 calc_line_eq(float2 v, float2 p) {
+    float2 n = ortho(v);
+    return float3(n, -dot(n,p));
 }
