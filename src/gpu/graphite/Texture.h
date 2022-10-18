@@ -13,6 +13,10 @@
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
+namespace skgpu {
+class RefCntedCallback;
+};
+
 namespace skgpu::graphite {
 
 class Texture : public Resource {
@@ -25,15 +29,19 @@ public:
     SkISize dimensions() const { return fDimensions; }
     const TextureInfo& textureInfo() const { return fInfo; }
 
+    void setReleaseCallback(sk_sp<RefCntedCallback>);
+
 protected:
     Texture(const SharedContext*,
             SkISize dimensions,
             const TextureInfo& info,
-            Ownership, SkBudgeted);
+            Ownership,
+            SkBudgeted);
 
 private:
     SkISize fDimensions;
     TextureInfo fInfo;
+    sk_sp<RefCntedCallback> fReleaseCallback;
 };
 
 } // namepsace skgpu::graphite
