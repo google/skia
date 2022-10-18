@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/CopyTask.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawBufferManager.h"
 #include "src/gpu/graphite/GlobalCache.h"
@@ -264,6 +265,68 @@ void RecorderPriv::flushTrackedDevices() {
     for (Device* device : fRecorder->fTrackedDevices) {
         device->flushPendingWorkToRecorder();
     }
+}
+
+RecorderPriv::PixelTransferResult RecorderPriv::transferPixels(const TextureProxy* proxy,
+                                                               const SkImageInfo& imageInfo,
+                                                               SkColorType dstCT,
+                                                               const SkIRect& srcRect) {
+    SkASSERT(imageInfo.bounds().contains(srcRect));
+
+    const Caps* caps = this->caps();
+    SkColorType supportedColorType =
+            caps->supportedReadPixelsColorType(imageInfo.colorType(),
+                                               proxy->textureInfo(), dstCT);
+    if (supportedColorType == kUnknown_SkColorType) {
+        return {};
+    }
+
+    // Fail if read color type does not have all of dstCT's color channels and those missing color
+    // channels are in the src.
+    uint32_t dstChannels = SkColorTypeChannelFlags(dstCT);
+    uint32_t legalReadChannels = SkColorTypeChannelFlags(supportedColorType);
+    uint32_t srcChannels = SkColorTypeChannelFlags(imageInfo.colorType());
+    if ((~legalReadChannels & dstChannels) & srcChannels) {
+        return {};
+    }
+
+    size_t rowBytes = caps->getAlignedTextureDataRowBytes(
+                              SkColorTypeBytesPerPixel(supportedColorType) * srcRect.width());
+    size_t size = rowBytes * srcRect.height();
+    sk_sp<Buffer> buffer = this->resourceProvider()->findOrCreateBuffer(
+            size,
+            BufferType::kXferCpuToGpu,
+            PrioritizeGpuReads::kNo);
+    if (!buffer) {
+        return {};
+    }
+
+    // Set up copy task
+    sk_sp<CopyTextureToBufferTask> copyTask = CopyTextureToBufferTask::Make(sk_ref_sp(proxy),
+                                                                            srcRect,
+                                                                            buffer,
+                                                                            /*bufferOffset=*/0,
+                                                                            rowBytes);
+    if (!copyTask) {
+        return {};
+    }
+    this->add(std::move(copyTask));
+
+    PixelTransferResult result;
+    result.fTransferBuffer = std::move(buffer);
+/* TODO: color conversion
+    auto at = this->colorInfo().alphaType();
+    if (supportedRead.fColorType != dstCT) {
+        result.fPixelConverter = [w = rect.width(), h = rect.height(), dstCT, supportedRead, at](
+                void* dst, const void* src) {
+            GrImageInfo srcInfo(supportedRead.fColorType, at, nullptr, w, h);
+            GrImageInfo dstInfo(dstCT,                    at, nullptr, w, h);
+            GrConvertPixels( GrPixmap(dstInfo, dst, dstInfo.minRowBytes()),
+                            GrCPixmap(srcInfo, src, srcInfo.minRowBytes()));
+        };
+    }
+ */
+    return result;
 }
 
 } // namespace skgpu::graphite
