@@ -29,6 +29,7 @@
 #include <stdio.h>
 
 static bool gUnoptimized = false;
+static bool gStringify = false;
 
 void SkDebugf(const char format[], ...) {
     va_list args;
@@ -160,8 +161,8 @@ static bool generate_minified_text(std::string_view inputPath,
             }
         }
         SkASSERT(!lastTokenText.empty());
-        if (lineWidth > 75) {
-            // We're getting full-ish; wrap to a new line
+        if (gStringify && lineWidth > 75) {
+            // We're getting full-ish; wrap to a new line.
             out.writeText("\"\n\"");
             lineWidth = 1;
         }
@@ -204,7 +205,9 @@ ResultCode processCommand(const std::vector<std::string>& args) {
     }
 
     std::string baseName = remove_extension(base_name(inputPaths.front()));
-    out.printf("static constexpr char SKSL_MINIFIED_%s[] =\n\"", baseName.c_str());
+    if (gStringify) {
+        out.printf("static constexpr char SKSL_MINIFIED_%s[] =\n\"", baseName.c_str());
+    }
 
     // Generate the program text by getting the program's description.
     std::string text;
@@ -217,7 +220,9 @@ ResultCode processCommand(const std::vector<std::string>& args) {
         return ResultCode::kInputError;
     }
 
-    out.writeText("\";\n");
+    if (gStringify) {
+        out.writeText("\";\n");
+    }
 
     if (!out.close()) {
         printf("error writing '%s'\n", outputPath.c_str());
@@ -242,6 +247,7 @@ int main(int argc, const char** argv) {
     }
 
     gUnoptimized = find_boolean_flag(args, "--unoptimized");
+    gStringify = find_boolean_flag(args, "--stringify");
 
     return (int)processCommand(args);
 }

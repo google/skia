@@ -43,11 +43,13 @@ for module in modules:
             moduleList.append(os.path.join(moduleDir, dependent) + ".sksl")
 
         # Generate fully-optimized and minified module data (for release/optimize-for-size builds).
-        args = [sksl_minify, target + ".minified.sksl"] + moduleList
+        args = ([sksl_minify, "--stringify", target + ".minified.sksl"] +
+                moduleList)
         subprocess.check_output(args).decode('utf-8')
 
         # Generate unoptimized module data (used in debug, for improved readability).
-        args = [sksl_minify, "--unoptimized", target + ".unoptimized.sksl"] + moduleList
+        args = ([sksl_minify, "--unoptimized", "--stringify", target + ".unoptimized.sksl"] +
+                moduleList)
         subprocess.check_output(args).decode('utf-8')
 
     except subprocess.CalledProcessError as err:
