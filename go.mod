@@ -9,12 +9,17 @@ require (
 	github.com/bazelbuild/remote-apis-sdks v0.0.0-20201120151053-8f976b9bf4fc // indirect
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
 	github.com/go-kit/kit v0.10.0 // indirect
+	github.com/go-openapi/spec v0.19.5 // indirect
+	github.com/go-openapi/strfmt v0.19.5 // indirect
+	github.com/go-openapi/validate v0.19.8 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/uuid v1.1.2
 	github.com/klauspost/compress v1.11.3 // indirect
+	github.com/markbates/pkger v0.17.1 // indirect
 	github.com/stretchr/testify v1.7.0
 	go.chromium.org/luci v0.0.0-20201121231857-b9ab316d7198 // indirect
-	go.skia.org/infra v0.0.0-20220426210209-9d8975cd9401
+	go.larrymyers.com/protoc-gen-twirp_typescript v0.0.0-20201012232926-5c91a3223921 // indirect
+	go.skia.org/infra v0.0.0-20221018142618-5ea492a442f6
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a
 	google.golang.org/api v0.74.0
