@@ -73,12 +73,6 @@ ErrorReporter& GetErrorReporter();
  */
 void SetErrorReporter(ErrorReporter* errorReporter);
 
-DSLGlobalVar sk_FragColor();
-
-DSLGlobalVar sk_FragCoord();
-
-DSLExpression sk_Position();
-
 /**
  * #extension <name> : enable
  */

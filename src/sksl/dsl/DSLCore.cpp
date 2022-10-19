@@ -119,18 +119,6 @@ public:
         return success ? std::move(result) : nullptr;
     }
 
-    static DSLGlobalVar sk_FragColor() {
-        return DSLGlobalVar("sk_FragColor");
-    }
-
-    static DSLGlobalVar sk_FragCoord() {
-        return DSLGlobalVar("sk_FragCoord");
-    }
-
-    static DSLExpression sk_Position() {
-        return DSLExpression(Symbol("sk_Position"));
-    }
-
     template <typename... Args>
     static DSLExpression Call(const char* name, Position pos, Args... args) {
         SkSL::ExpressionArray argArray;
@@ -351,18 +339,6 @@ public:
 
 std::unique_ptr<SkSL::Program> ReleaseProgram(std::unique_ptr<std::string> source) {
     return DSLCore::ReleaseProgram(std::move(source));
-}
-
-DSLGlobalVar sk_FragColor() {
-    return DSLCore::sk_FragColor();
-}
-
-DSLGlobalVar sk_FragCoord() {
-    return DSLCore::sk_FragCoord();
-}
-
-DSLExpression sk_Position() {
-    return DSLCore::sk_Position();
 }
 
 void AddExtension(std::string_view name, Position pos) {

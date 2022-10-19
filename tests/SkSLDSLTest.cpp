@@ -1458,14 +1458,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFor, r, ctxInfo) {
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    Parameter coords(kFloat2_Type, "coords");
-    DSLFunction(kVoid_Type, "main", coords).define(
-        sk_FragColor().assign(Half4(coords, 0, 1))
-    );
-    REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
-    EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
-                 "void main(float2 coords) { sk_FragColor = half4(half2(coords), 0.0, 1.0); }");
-
     {
         DSLWriter::Reset();
         DSLParameter x(kFloat_Type, "x");
@@ -1473,7 +1465,8 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLFunction, r, ctxInfo) {
         sqr.define(
             Return(x * x)
         );
-        EXPECT_EQUAL(sqr(sk_FragCoord().x()), "sqr(sk_FragCoord.x)");
+        DSLVar a(kFloat2_Type, "a");
+        EXPECT_EQUAL(sqr(a.x()), "sqr(a.x)");
         REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
         EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[0],
                 "float sqr(float x) { return x * x; }");
@@ -2001,23 +1994,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
     {
         AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
                                SkSL::ProgramKind::kVertex);
-        DSLGlobalVar rtAdjust(kUniform_Modifier, kFloat4_Type, "sk_RTAdjust");
-        Declare(rtAdjust);
-        DSLFunction(kVoid_Type, "main").define(
-            sk_Position().assign(Half4(0))
-        );
-        REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
-        EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements()[1],
-            "void main() {"
-            "sk_PerVertex.sk_Position = float4(0.0);"
-            "sk_PerVertex.sk_Position = float4(sk_PerVertex.sk_Position.xy * sk_RTAdjust.xz + "
-                "sk_PerVertex.sk_Position.ww * sk_RTAdjust.yw, 0.0, sk_PerVertex.sk_Position.w);"
-            "}");
-    }
-
-    {
-        AutoDSLContext context(ctxInfo.directContext()->priv().getGpu(), default_settings(),
-                               SkSL::ProgramKind::kVertex);
         REPORTER_ASSERT(r, !SkSL::ThreadContext::RTAdjustState().fInterfaceBlock);
 
         DSLGlobalVar intf = InterfaceBlock(kUniform_Modifier, "uniforms",
@@ -2055,18 +2031,17 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInlining, r, ctxInfo) {
     sqr.define(
         Return(x * x)
     );
-    DSLFunction(kVoid_Type, "main").define(
-        sk_FragColor().assign((sqr(2), Half4(sqr(3))))
+    DSLFunction(kHalf4_Type, "main").define(
+        Return(Half4(sqr(3)))
     );
     const char* source = "source test";
     std::unique_ptr<SkSL::Program> program = ReleaseProgram(std::make_unique<std::string>(source));
     EXPECT_EQUAL(*program,
                  "layout(builtin = 17) in bool sk_Clockwise;"
                  "layout(location = 0, index = 0, builtin = 10001) out half4 sk_FragColor;"
-                 "void main() {"
-                 ";"
-                 ";"
-                 "sk_FragColor = (4.0, half4(half(9.0)));"
+                 "half4 main() {"
+                     ";"
+                     "return half4(half(9.0));"
                  "}");
     REPORTER_ASSERT(r, *program->fSource == source);
 }
