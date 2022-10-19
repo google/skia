@@ -67,8 +67,6 @@ public:
             kDestination,
 
             // https://www.w3.org/TR/css-color-4/#interpolation-space
-            kXYZD65,
-            kXYZD50,
             kSRGBLinear,
             kLab,
             kOKLab,

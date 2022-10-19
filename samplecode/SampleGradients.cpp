@@ -80,8 +80,6 @@ protected:
             { CS::kDestination, "Destination" },
             { CS::kSRGB,        "sRGB" },
             { CS::kSRGBLinear,  "Linear sRGB" },
-            { CS::kXYZD65,      "XYZD65" },
-            { CS::kXYZD50,      "XYZD50" },
             { CS::kLab,         "CIELAB" },
             { CS::kOKLab,       "Oklab" },
             { CS::kLCH,         "LCH" },
