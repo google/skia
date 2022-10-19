@@ -78,7 +78,7 @@ public:
             size_t size = (count + kMetaDataCnt) * sizeof(uint32_t);
             SkASSERT(SkToU16(size) == size);
             SkASSERT(SkToU16(domain) == domain);
-            key->fKey[kDomainAndSize_MetaDataIdx] = domain | (size << 16);
+            key->fKey[kDomainAndSize_MetaDataIdx] = SkToU32(domain | (size << 16));
         }
 
     private:

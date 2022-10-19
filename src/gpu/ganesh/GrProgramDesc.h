@@ -37,7 +37,7 @@ public:
 
     // Gets the number of bytes in asKey(). It will be a 4-byte aligned value.
     uint32_t keyLength() const {
-        return fKey.size() * sizeof(uint32_t);
+        return SkToU32(fKey.size() * sizeof(uint32_t));
     }
 
     bool operator== (const GrProgramDesc& that) const {
@@ -82,7 +82,7 @@ protected:
         if (!SkTFitsIn<int>(keyLength) || !SkIsAlign4(keyLength)) {
             return false;
         }
-        desc->fKey.reset(keyLength / 4);
+        desc->fKey.reset(SkToInt(keyLength / 4));
         memcpy(desc->fKey.begin(), keyData, keyLength);
         return true;
     }

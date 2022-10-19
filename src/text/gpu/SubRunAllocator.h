@@ -71,7 +71,7 @@ public:
         // Following this logic, the equation for the additional bytes is
         //   (maxAlignment/minAlignment - 1) * minAlignment
         //     = maxAlignment - minAlignment.
-        int minimumSize = AlignUp(requestedSize, minAlignment)
+        int minimumSize = SkToInt(AlignUp(requestedSize, minAlignment))
                           + blockSize
                           + maxAlignment - minAlignment;
 
@@ -79,7 +79,7 @@ public:
         // maximum int. The > 32K heuristic is from the JEMalloc behavior.
         constexpr int k32K = (1 << 15);
         if (minimumSize >= k32K && minimumSize < std::numeric_limits<int>::max() - k4K) {
-            minimumSize = AlignUp(minimumSize, k4K);
+            minimumSize = SkToInt(AlignUp(minimumSize, k4K));
         }
 
         return minimumSize;

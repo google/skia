@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
+#include "include/private/SkTo.h"
 #include <limits>
 
 // SkSafeMath always check that a series of operations do not overflow.
@@ -73,7 +74,7 @@ private:
         uint64_t by = y;
         uint64_t result = bx * by;
         fOK &= result >> 32 == 0;
-        return result;
+        return SkToU32(result);
     }
 
     uint64_t mul64(uint64_t x, uint64_t y) {

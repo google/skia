@@ -670,7 +670,7 @@ public:
         : STORAGE{}, INHERITED(array, count, static_cast<STORAGE*>(this)) {}
 
     SkSTArray(std::initializer_list<T> data)
-        : SkSTArray(data.begin(), data.size()) {}
+        : SkSTArray(data.begin(), SkToInt(data.size())) {}
 
     explicit SkSTArray(int reserveCount)
         : SkSTArray() {
