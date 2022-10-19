@@ -8,12 +8,8 @@
 #ifndef SKSL_DSL_SYMBOLS
 #define SKSL_DSL_SYMBOLS
 
-#include "include/sksl/SkSLPosition.h" // IWYU pragma: keep
-
 namespace SkSL {
 namespace dsl {
-
-class DSLVarBase;
 
 // This header provides methods for manually managing symbol tables in DSL code. They should not be
 // used by normal hand-written DSL code, where we rely on C++ to manage symbols, but are instead
@@ -31,13 +27,7 @@ void PushSymbolTable();
  */
 void PopSymbolTable();
 
-/**
- * Adds a variable to the current symbol table.
- */
-void AddToSymbolTable(DSLVarBase& var, Position pos = {});
-
 } // namespace dsl
-
 } // namespace SkSL
 
 #endif

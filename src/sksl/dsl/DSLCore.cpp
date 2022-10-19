@@ -13,7 +13,6 @@
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/sksl/DSLModifiers.h"
-#include "include/sksl/DSLSymbols.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/SkSLPosition.h"
@@ -249,7 +248,7 @@ public:
                 }
             } else {
                 // Add the global variable to the top-level symbols.
-                AddToSymbolTable(var);
+                symbols->addWithoutOwnership(skslVar);
             }
         }
         return var;

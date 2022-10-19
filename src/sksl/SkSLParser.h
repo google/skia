@@ -42,6 +42,7 @@ class DSLBlock;
 class DSLCase;
 class DSLGlobalVar;
 class DSLParameter;
+class DSLVarBase;
 }
 
 /**
@@ -278,6 +279,8 @@ private:
     bool identifier(std::string_view* dest);
 
     std::shared_ptr<SymbolTable> symbolTable();
+
+    void addToSymbolTable(dsl::DSLVarBase& var, Position pos = {});
 
     class Checkpoint {
     public:
