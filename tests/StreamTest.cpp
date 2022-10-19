@@ -22,6 +22,7 @@
 #include "tools/Resources.h"
 
 #include <algorithm>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
