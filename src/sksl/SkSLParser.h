@@ -35,6 +35,7 @@ namespace SkSL {
 class Compiler;
 struct Module;
 struct Program;
+class SymbolTable;
 
 namespace dsl {
 class DSLBlock;
@@ -275,6 +276,8 @@ private:
     bool boolLiteral(bool* dest);
 
     bool identifier(std::string_view* dest);
+
+    std::shared_ptr<SymbolTable> symbolTable();
 
     class Checkpoint {
     public:

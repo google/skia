@@ -10,12 +10,7 @@
 
 #include "include/sksl/SkSLPosition.h" // IWYU pragma: keep
 
-#include <memory>
-
 namespace SkSL {
-
-class SymbolTable;
-
 namespace dsl {
 
 class DSLVarBase;
@@ -35,12 +30,6 @@ void PushSymbolTable();
  * constructor).
  */
 void PopSymbolTable();
-
-/**
- * Returns the current symbol table. Outside of SkSL itself, this is an opaque pointer, used only
- * for passing it to DSL methods that require it.
- */
-std::shared_ptr<SymbolTable> CurrentSymbolTable();
 
 /**
  * Adds a variable to the current symbol table.

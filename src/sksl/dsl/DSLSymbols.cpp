@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
+#include <memory>
 #include <type_traits>
 
 namespace SkSL {
@@ -29,14 +30,10 @@ void PopSymbolTable() {
     SymbolTable::Pop(&ThreadContext::SymbolTable());
 }
 
-std::shared_ptr<SymbolTable> CurrentSymbolTable() {
-    return ThreadContext::SymbolTable();
-}
-
 void AddToSymbolTable(DSLVarBase& var, Position pos) {
     SkSL::Variable* skslVar = DSLWriter::Var(var);
     if (skslVar) {
-        CurrentSymbolTable()->addWithoutOwnership(skslVar);
+        ThreadContext::SymbolTable()->addWithoutOwnership(skslVar);
     }
 }
 

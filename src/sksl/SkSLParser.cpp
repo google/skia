@@ -115,6 +115,10 @@ Parser::Parser(Compiler* compiler,
     fLexer.start(*fText);
 }
 
+std::shared_ptr<SymbolTable> Parser::symbolTable() {
+    return fCompiler.symbolTable();
+}
+
 Token Parser::nextRawToken() {
     Token token;
     if (fPushback.fKind != Token::Kind::TK_NONE) {
@@ -235,7 +239,7 @@ bool Parser::expectIdentifier(Token* result) {
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "an identifier", result)) {
         return false;
     }
-    if (CurrentSymbolTable()->isBuiltinType(this->text(*result))) {
+    if (this->symbolTable()->isBuiltinType(this->text(*result))) {
         this->error(*result, "expected an identifier, but found type '" +
                              std::string(this->text(*result)) + "'");
         this->fEncounteredFatalError = true;
@@ -248,7 +252,7 @@ bool Parser::checkIdentifier(Token* result) {
     if (!this->checkNext(Token::Kind::TK_IDENTIFIER, result)) {
         return false;
     }
-    if (CurrentSymbolTable()->isBuiltinType(this->text(*result))) {
+    if (this->symbolTable()->isBuiltinType(this->text(*result))) {
         this->pushback(std::move(*result));
         return false;
     }
@@ -307,10 +311,10 @@ std::unique_ptr<SkSL::Module> Parser::moduleInheritingFrom(const SkSL::Module* p
     SetErrorReporter(errorReporter);
     errorReporter->setSource(*fText);
     this->declarations();
-    CurrentSymbolTable()->takeOwnershipOfString(std::move(*fText));
+    this->symbolTable()->takeOwnershipOfString(std::move(*fText));
     auto result = std::make_unique<SkSL::Module>();
     result->fParent = parent;
-    result->fSymbols = CurrentSymbolTable();
+    result->fSymbols = this->symbolTable();
     result->fElements = std::move(ThreadContext::ProgramElements());
     errorReporter->setSource(std::string_view());
     End();
@@ -421,7 +425,7 @@ bool Parser::declaration() {
     DSLModifiers modifiers = this->modifiers();
     Token lookahead = this->peek();
     if (lookahead.fKind == Token::Kind::TK_IDENTIFIER &&
-        !CurrentSymbolTable()->isType(this->text(lookahead))) {
+        !this->symbolTable()->isType(this->text(lookahead))) {
         // we have an identifier that's not a type, could be the start of an interface block
         return this->interfaceBlock(modifiers);
     }
@@ -670,7 +674,7 @@ DSLStatement Parser::varDeclarationsOrExpressionStatement() {
     if (nextToken.fKind == Token::Kind::TK_HIGHP ||
         nextToken.fKind == Token::Kind::TK_MEDIUMP ||
         nextToken.fKind == Token::Kind::TK_LOWP ||
-        CurrentSymbolTable()->isType(this->text(nextToken))) {
+        this->symbolTable()->isType(this->text(nextToken))) {
         // Statements that begin with a typename are most often variable declarations, but
         // occasionally the type is part of a constructor, and these are actually expression-
         // statements in disguise. First, attempt the common case: parse it as a vardecl.
@@ -1023,7 +1027,7 @@ DSLType Parser::type(DSLModifiers* modifiers) {
     if (!this->expect(Token::Kind::TK_IDENTIFIER, "a type", &type)) {
         return DSLType(nullptr);
     }
-    if (!CurrentSymbolTable()->isType(this->text(type))) {
+    if (!this->symbolTable()->isType(this->text(type))) {
         this->error(type, "no type named '" + std::string(this->text(type)) + "'");
         return DSLType(nullptr);
     }
@@ -1452,8 +1456,7 @@ std::optional<DSLBlock> Parser::block() {
         switch (this->peek().fKind) {
             case Token::Kind::TK_RBRACE:
                 this->nextToken();
-                return DSLBlock(std::move(statements), CurrentSymbolTable(),
-                        this->rangeFrom(start));
+                return DSLBlock(std::move(statements), this->symbolTable(), this->rangeFrom(start));
             case Token::Kind::TK_END_OF_FILE:
                 this->error(this->peek(), "expected '}', but found end of file");
                 return std::nullopt;
