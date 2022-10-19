@@ -3417,15 +3417,10 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                                              intfVar.isBuiltin(),
                                                              intfVar.storage()));
             fSPIRVBonusVariables.add(modifiedVar);
-            InterfaceBlock modifiedCopy(intf.fPosition,
-                                        modifiedVar,
-                                        intf.typeName(),
-                                        intf.instanceName(),
-                                        intf.arraySize(),
-                                        intf.typeOwner());
-            result = this->writeInterfaceBlock(modifiedCopy, false);
-            fProgram.fSymbols->add(std::make_unique<Field>(Position(), modifiedVar,
-                    rtFlipStructType->fields().size() - 1));
+            InterfaceBlock modifiedCopy(intf.fPosition, modifiedVar, intf.typeOwner());
+            result = this->writeInterfaceBlock(modifiedCopy, /*appendRTFlip=*/false);
+            fProgram.fSymbols->add(std::make_unique<Field>(
+                    Position(), modifiedVar, rtFlipStructType->fields().size() - 1));
         }
         fVariableMap.set(&intfVar, result);
         fWroteRTFlip = true;
@@ -3877,9 +3872,6 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
     fUniformBuffer.fInterfaceBlock =
             std::make_unique<InterfaceBlock>(Position(),
                                              fUniformBuffer.fInnerVariable.get(),
-                                             kUniformBufferName,
-                                             kUniformBufferName,
-                                             /*arraySize=*/0,
                                              topLevelSymbolTable);
 
     // Generate an interface block and hold onto its ID.
@@ -3954,13 +3946,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
         AutoAttachPoolToThread attach(fProgram.fPool.get());
         fProgram.fSymbols->add(std::make_unique<Field>(Position(), intfVar, /*field=*/0));
     }
-    InterfaceBlock intf(Position(),
-                        intfVar,
-                        name,
-                        /*instanceName=*/"",
-                        /*arraySize=*/0,
-                        std::make_shared<SymbolTable>(/*builtin=*/false));
-
+    InterfaceBlock intf(Position(), intfVar, std::make_shared<SymbolTable>(/*builtin=*/false));
     this->writeInterfaceBlock(intf, false);
 }
 

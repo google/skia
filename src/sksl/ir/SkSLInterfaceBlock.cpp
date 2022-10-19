@@ -24,9 +24,6 @@ InterfaceBlock::~InterfaceBlock() {
 std::unique_ptr<ProgramElement> InterfaceBlock::clone() const {
     return std::make_unique<InterfaceBlock>(fPosition,
                                             this->var(),
-                                            this->typeName(),
-                                            this->instanceName(),
-                                            this->arraySize(),
                                             SymbolTable::WrapIfBuiltin(this->typeOwner()));
 }
 

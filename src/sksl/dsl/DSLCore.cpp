@@ -239,8 +239,7 @@ public:
         DSLGlobalVar var(modifiers, varType, varName, DSLExpression(), pos);
         SkSL::Variable* skslVar = DSLWriter::Var(var);
         if (skslVar) {
-            auto intf = std::make_unique<SkSL::InterfaceBlock>(pos, skslVar, typeName,
-                                                               varName, arraySize, symbols);
+            auto intf = std::make_unique<SkSL::InterfaceBlock>(pos, skslVar, symbols);
             FindRTAdjust(*intf, pos);
             ThreadContext::ProgramElements().push_back(std::move(intf));
             if (varName.empty()) {
