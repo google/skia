@@ -1568,7 +1568,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements().back(),
                  "uniform InterfaceBlock1 { float a; int b; };");
-    EXPECT_EQUAL(intf.field("a"), "InterfaceBlock1.a");
+    EXPECT_EQUAL(intf.field("a"), "a");
 
     DSLGlobalVar intf2 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock2",
                                         { Field(kFloat2_Type, "x"), Field(kHalf2x2_Type, "y") },

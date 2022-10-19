@@ -3,5 +3,8 @@ uniform main {
 };
 
 void main() {
-    Files in errors/ must contain an error.
 }
+
+/*%%*
+symbol 'main' was already defined
+*%%*/

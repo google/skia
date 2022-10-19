@@ -1,9 +1,6 @@
 ### Compilation failed:
 
-error: 6: unknown identifier 'Files'
-    Files in errors/ must contain an error.
-    ^^^^^
-error: 6: expected ';', but found 'in'
-    Files in errors/ must contain an error.
-          ^^
-2 errors
+error: 5: symbol 'main' was already defined
+void main() {
+^^^^^^^^^^^
+1 error

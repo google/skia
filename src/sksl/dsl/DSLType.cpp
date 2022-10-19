@@ -317,11 +317,7 @@ DSLType StructType(std::string_view name,
     if (newType->isTooDeeplyNested()) {
         ThreadContext::ReportError("struct '" + std::string(name) + "' is too deeply nested", pos);
     }
-    // TODO(skia:13820): we always want the symbol to be visible in the symbol table
-    const SkSL::Type* result =
-            interfaceBlock ? ThreadContext::SymbolTable()->takeOwnershipOfSymbol(std::move(newType))
-                           : ThreadContext::SymbolTable()->add(std::move(newType));
-    return DSLType(result, pos);
+    return DSLType(ThreadContext::SymbolTable()->add(std::move(newType)), pos);
 }
 
 DSLType Struct(std::string_view name, SkSpan<DSLField> fields, Position pos) {

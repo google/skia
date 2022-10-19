@@ -1,4 +1,4 @@
-layout(set=0, binding=0) buffer sizes {
+layout(set=0, binding=0) buffer sizeBuffer {
     int2[] sizes;  // in1, in2, out
 };
 layout(set=0, binding=1) readonly buffer inputs1  {

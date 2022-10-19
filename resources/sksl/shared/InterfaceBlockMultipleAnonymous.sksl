@@ -1,0 +1,11 @@
+layout(binding=1) uniform testBlockA {
+    float2 x;
+};
+
+layout(binding=2) uniform testBlockB {
+    float2 y;
+};
+
+void main() {
+    sk_FragColor = half4(x, y);
+}

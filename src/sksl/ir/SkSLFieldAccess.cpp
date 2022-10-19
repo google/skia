@@ -103,8 +103,11 @@ std::unique_ptr<Expression> FieldAccess::Make(const Context& context,
 }
 
 std::string FieldAccess::description(OperatorPrecedence) const {
-    return this->base()->description(OperatorPrecedence::kPostfix) + "." +
-           std::string(this->base()->type().fields()[this->fieldIndex()].fName);
+    std::string f = this->base()->description(OperatorPrecedence::kPostfix);
+    if (!f.empty()) {
+        f.push_back('.');
+    }
+    return f + std::string(this->base()->type().fields()[this->fieldIndex()].fName);
 }
 
 }  // namespace SkSL

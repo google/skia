@@ -4,7 +4,7 @@ using namespace metal;
 struct Inputs {
     uint3 sk_ThreadPosition;
 };
-struct sizes {
+struct sizeBuffer {
     int2 sizes[1];
 };
 struct inputs1 {
@@ -17,12 +17,12 @@ struct result {
     float resultData[1];
 };
 struct Globals {
-    device sizes* _anonInterface0;
+    device sizeBuffer* _anonInterface0;
     const device inputs1* _anonInterface1;
     const device inputs2* _anonInterface2;
     device result* _anonInterface3;
 };
-kernel void computeMain(device sizes& _anonInterface0 [[buffer(0)]], const device inputs1& _anonInterface1 [[buffer(1)]], const device inputs2& _anonInterface2 [[buffer(2)]], device result& _anonInterface3 [[buffer(3)]], uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
+kernel void computeMain(device sizeBuffer& _anonInterface0 [[buffer(0)]], const device inputs1& _anonInterface1 [[buffer(1)]], const device inputs2& _anonInterface2 [[buffer(2)]], device result& _anonInterface3 [[buffer(3)]], uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
     Globals _globals{&_anonInterface0, &_anonInterface1, &_anonInterface2, &_anonInterface3};
     (void)_globals;
     Inputs _in = { sk_ThreadPosition };

@@ -39,7 +39,9 @@ public:
     }
 
     std::string description() const override {
-        return this->owner().description() + "." + std::string(this->name());
+        return this->owner().name().empty()
+                       ? std::string(this->name())
+                       : (this->owner().description() + "." + std::string(this->name()));
     }
 
 private:
