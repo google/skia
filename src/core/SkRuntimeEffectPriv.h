@@ -102,7 +102,9 @@ inline SkRuntimeEffect* SkMakeRuntimeEffect(
 #endif
     SkRuntimeEffectPriv::AllowPrivateAccess(&options);
     auto result = make(SkString{sksl}, options);
-    SkASSERTF(result.effect, "%s", result.errorText.c_str());
+    if (!result.effect) {
+        SK_ABORT("%s", result.errorText.c_str());
+    }
     return result.effect.release();
 }
 
