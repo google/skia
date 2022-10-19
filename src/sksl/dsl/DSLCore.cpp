@@ -223,9 +223,9 @@ public:
         }
     }
 
-    static DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
-                                       SkTArray<DSLField> fields, std::string_view varName,
-                                       int arraySize, Position pos) {
+    static DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
+                                        SkTArray<DSLField> fields, std::string_view varName,
+                                        int arraySize, Position pos) {
         std::shared_ptr<SymbolTable> symbols = ThreadContext::SymbolTable();
 
         // Build a struct type corresponding to the passed-in fields and array size.
@@ -254,8 +254,10 @@ public:
                 // Add the global variable to the top-level symbols.
                 symbols->addWithoutOwnership(skslVar);
             }
+            return DSLExpression(var);
+        } else {
+            return DSLExpression(nullptr);
         }
-        return var;
     }
 
     static DSLStatement Return(DSLExpression value, Position pos) {
@@ -417,14 +419,14 @@ DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, P
                        pos);
 }
 
-DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
-                            SkTArray<DSLField> fields, std::string_view varName, int arraySize,
-                            Position pos) {
+DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
+                             SkTArray<DSLField> fields, std::string_view varName, int arraySize,
+                             Position pos) {
     SkSL::ProgramKind kind = ThreadContext::GetProgramConfig()->fKind;
     if (!ProgramConfig::IsFragment(kind) && !ProgramConfig::IsVertex(kind) &&
         !ProgramConfig::IsCompute(kind)) {
         ThreadContext::ReportError("interface blocks are not allowed in this kind of program", pos);
-        return DSLGlobalVar();
+        return DSLExpression(nullptr);
     }
     return DSLCore::InterfaceBlock(modifiers, typeName, std::move(fields), varName, arraySize, pos);
 }

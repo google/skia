@@ -1563,31 +1563,33 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
 
 DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLInterfaceBlock, r, ctxInfo) {
     AutoDSLContext context(ctxInfo.directContext()->priv().getGpu());
-    DSLGlobalVar intf = InterfaceBlock(kUniform_Modifier, "InterfaceBlock1",
-                                       { Field(kFloat_Type, "a"), Field(kInt_Type, "b") });
+    DSLExpression intf = InterfaceBlock(kUniform_Modifier, "InterfaceBlock1",
+                                        {Field(kFloat_Type, "a"), Field(kInt_Type, "b")});
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 1);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements().back(),
                  "uniform InterfaceBlock1 { float a; int b; };");
     EXPECT_EQUAL(intf.field("a"), "a");
 
-    DSLGlobalVar intf2 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock2",
-                                        { Field(kFloat2_Type, "x"), Field(kHalf2x2_Type, "y") },
-                                  "blockVar");
+    DSLExpression intf2 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock2",
+                                         {Field(kFloat2_Type, "x"), Field(kHalf2x2_Type, "y")},
+                                         "blockVar");
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 2);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements().back(),
                  "uniform InterfaceBlock2 { float2 x; half2x2 y; } blockVar;");
     EXPECT_EQUAL(intf2.field("x"), "blockVar.x");
 
-    DSLGlobalVar intf3 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock3",
-                                        { Field(kFloat_Type, "z") },"arrayVar", 4);
+    DSLExpression intf3 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock3",
+                                         {Field(kFloat_Type, "z")},
+                                         "arrayVar", 4);
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 3);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements().back(),
                  "uniform InterfaceBlock3 { float z; } arrayVar[4];");
     EXPECT_EQUAL(intf3[1].field("z"), "arrayVar[1].z");
 
-    DSLGlobalVar intf4 = InterfaceBlock(kUniform_Modifier, "InterfaceBlock4",
-                                        {Field(DSLLayout().builtin(123), kFloat_Type, "sk_Widget")},
-                                        "intf");
+    DSLExpression intf4 = InterfaceBlock(
+            kUniform_Modifier, "InterfaceBlock4",
+            {Field(DSLLayout().builtin(123), kFloat_Type, "sk_Widget")},
+            "intf");
     REPORTER_ASSERT(r, SkSL::ThreadContext::ProgramElements().size() == 4);
     EXPECT_EQUAL(*SkSL::ThreadContext::ProgramElements().back(),
                  "uniform InterfaceBlock4 { layout(builtin=123) float sk_Widget; } intf;");
@@ -1996,9 +1998,9 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
                                SkSL::ProgramKind::kVertex);
         REPORTER_ASSERT(r, !SkSL::ThreadContext::RTAdjustState().fInterfaceBlock);
 
-        DSLGlobalVar intf = InterfaceBlock(kUniform_Modifier, "uniforms",
-                                           { Field(kInt_Type, "unused"),
-                                             Field(kFloat4_Type, "sk_RTAdjust") });
+        DSLExpression intf = InterfaceBlock(kUniform_Modifier, "uniforms",
+                                            {Field(kInt_Type, "unused"),
+                                             Field(kFloat4_Type, "sk_RTAdjust")});
         REPORTER_ASSERT(r, SkSL::ThreadContext::RTAdjustState().fInterfaceBlock);
         REPORTER_ASSERT(r, SkSL::ThreadContext::RTAdjustState().fFieldIndex == 1);
     }
@@ -2016,9 +2018,9 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLRTAdjust, r, ctxInfo) {
                                SkSL::ProgramKind::kVertex);
         ExpectError error(r, "symbol 'sk_RTAdjust' was already defined");
         InterfaceBlock(kUniform_Modifier, "uniforms1",
-                       { Field(kInt_Type, "unused1"), Field(kFloat4_Type, "sk_RTAdjust") });
+                       {Field(kInt_Type, "unused1"), Field(kFloat4_Type, "sk_RTAdjust")});
         InterfaceBlock(kUniform_Modifier, "uniforms2",
-                       { Field(kInt_Type, "unused2"), Field(kFloat4_Type, "sk_RTAdjust") });
+                       {Field(kInt_Type, "unused2"), Field(kFloat4_Type, "sk_RTAdjust")});
     }
 }
 

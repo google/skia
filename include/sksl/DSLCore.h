@@ -14,7 +14,7 @@
 #include "include/sksl/DSLCase.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLStatement.h"
-#include "include/sksl/DSLVar.h"
+#include "include/sksl/DSLVar.h"  // IWYU pragma: keep
 #include "include/sksl/SkSLPosition.h"
 
 #include <memory>
@@ -143,9 +143,9 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse = DSLStatement(),
                 Position pos = {});
 
-DSLGlobalVar InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
-                            SkTArray<DSLField> fields, std::string_view varName = "",
-                            int arraySize = 0, Position pos = {});
+DSLExpression InterfaceBlock(const DSLModifiers& modifiers,  std::string_view typeName,
+                             SkTArray<DSLField> fields, std::string_view varName = "",
+                             int arraySize = 0, Position pos = {});
 
 /**
  * return [value];
