@@ -16,7 +16,6 @@ filegroup(
         "DSLLayout.h",
         "DSLModifiers.h",
         "DSLStatement.h",
-        "DSLSymbols.h",
         "DSLType.h",
         "DSLVar.h",
         "SkSLDebugTrace.h",

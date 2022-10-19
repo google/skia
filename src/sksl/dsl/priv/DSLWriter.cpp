@@ -15,7 +15,6 @@
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"
 #include "include/sksl/DSLStatement.h"
-#include "include/sksl/DSLSymbols.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/SkSLPosition.h"
@@ -24,6 +23,7 @@
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLNop.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -121,8 +121,8 @@ void DSLWriter::AddVarDeclaration(DSLStatement& existing, DSLVar& additional) {
 }
 
 void DSLWriter::Reset() {
-    dsl::PopSymbolTable();
-    dsl::PushSymbolTable();
+    SymbolTable::Pop(&ThreadContext::SymbolTable());
+    SymbolTable::Push(&ThreadContext::SymbolTable());
     ThreadContext::ProgramElements().clear();
     ThreadContext::GetModifiersPool()->clear();
 }

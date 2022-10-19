@@ -15,7 +15,6 @@
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLCase.h"
 #include "include/sksl/DSLFunction.h"
-#include "include/sksl/DSLSymbols.h"
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLVersion.h"
@@ -26,6 +25,7 @@
 #include "src/sksl/dsl/priv/DSL_priv.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
 #include <algorithm>
@@ -93,15 +93,18 @@ private:
     int fDepth;
 };
 
-class AutoSymbolTable {
+class Parser::AutoSymbolTable {
 public:
-    AutoSymbolTable() {
-        dsl::PushSymbolTable();
+    AutoSymbolTable(Parser* p) : fParser(p) {
+        SymbolTable::Push(&fParser->symbolTable());
     }
 
     ~AutoSymbolTable() {
-        dsl::PopSymbolTable();
+        SymbolTable::Pop(&fParser->symbolTable());
     }
+
+private:
+    Parser* fParser;
 };
 
 Parser::Parser(Compiler* compiler,
@@ -116,7 +119,7 @@ Parser::Parser(Compiler* compiler,
     fLexer.start(*fText);
 }
 
-std::shared_ptr<SymbolTable> Parser::symbolTable() {
+std::shared_ptr<SymbolTable>& Parser::symbolTable() {
     return fCompiler.symbolTable();
 }
 
@@ -500,7 +503,7 @@ bool Parser::functionDeclarationEnd(Position start,
 
     const bool hasFunctionBody = !this->checkNext(Token::Kind::TK_SEMICOLON);
     if (hasFunctionBody) {
-        AutoSymbolTable symbols;
+        AutoSymbolTable symbols(this);
         for (DSLParameter* var : parameterPointers) {
             if (!var->name().empty()) {
                 this->addToSymbolTable(*var);
@@ -1335,7 +1338,7 @@ dsl::DSLStatement Parser::forStatement() {
     if (!this->expect(Token::Kind::TK_LPAREN, "'('", &lparen)) {
         return {};
     }
-    AutoSymbolTable symbols;
+    AutoSymbolTable symbols(this);
     dsl::DSLStatement initializer;
     Token nextToken = this->peek();
     int firstSemicolonOffset;
@@ -1457,7 +1460,7 @@ std::optional<DSLBlock> Parser::block() {
     if (!depth.increase()) {
         return std::nullopt;
     }
-    AutoSymbolTable symbols;
+    AutoSymbolTable symbols(this);
     StatementArray statements;
     for (;;) {
         switch (this->peek().fKind) {

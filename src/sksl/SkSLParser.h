@@ -62,6 +62,7 @@ public:
 
 private:
     class AutoDepth;
+    class AutoSymbolTable;
 
     /**
      * Return the next token, including whitespace tokens, from the parse stream.
@@ -278,7 +279,7 @@ private:
 
     bool identifier(std::string_view* dest);
 
-    std::shared_ptr<SymbolTable> symbolTable();
+    std::shared_ptr<SymbolTable>& symbolTable();
 
     void addToSymbolTable(dsl::DSLVarBase& var, Position pos = {});
 

@@ -170,7 +170,7 @@ public:
         return *fContext;
     }
 
-    std::shared_ptr<SymbolTable> symbolTable() const {
+    std::shared_ptr<SymbolTable>& symbolTable() {
         return fSymbolTable;
     }
 
