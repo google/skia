@@ -2110,7 +2110,8 @@ DSLExpression Parser::term() {
         case Token::Kind::TK_IDENTIFIER: {
             std::string_view text;
             if (this->identifier(&text)) {
-                return dsl::Symbol(text, this->position(t));
+                Position pos = this->position(t);
+                return DSLExpression(fCompiler.convertIdentifier(pos, text), pos);
             }
             break;
         }

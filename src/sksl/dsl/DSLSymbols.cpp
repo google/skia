@@ -8,7 +8,6 @@
 #include "include/sksl/DSLSymbols.h"
 
 #include "include/sksl/SkSLPosition.h"
-#include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/dsl/priv/DSLWriter.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
@@ -32,10 +31,6 @@ void PopSymbolTable() {
 
 std::shared_ptr<SymbolTable> CurrentSymbolTable() {
     return ThreadContext::SymbolTable();
-}
-
-DSLExpression Symbol(std::string_view name, Position pos) {
-    return DSLExpression(ThreadContext::Compiler().convertIdentifier(pos, name), pos);
 }
 
 void AddToSymbolTable(DSLVarBase& var, Position pos) {

@@ -8,14 +8,12 @@
 #ifndef SKSL_DSL_SYMBOLS
 #define SKSL_DSL_SYMBOLS
 
-#include "include/sksl/DSLExpression.h"
+#include "include/sksl/SkSLPosition.h" // IWYU pragma: keep
 
 #include <memory>
-#include <string_view>
 
 namespace SkSL {
 
-class Position;
 class SymbolTable;
 
 namespace dsl {
@@ -43,11 +41,6 @@ void PopSymbolTable();
  * for passing it to DSL methods that require it.
  */
 std::shared_ptr<SymbolTable> CurrentSymbolTable();
-
-/**
- * Returns an expression referring to the named symbol.
- */
-DSLExpression Symbol(std::string_view name, Position pos = {});
 
 /**
  * Adds a variable to the current symbol table.
