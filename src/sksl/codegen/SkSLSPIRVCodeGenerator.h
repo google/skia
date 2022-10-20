@@ -162,6 +162,8 @@ private:
 
     SpvId getFunctionType(const FunctionDeclaration& function);
 
+    SpvId getFunctionParameterType(const Type& parameterType);
+
     SpvId getPointerType(const Type& type, SpvStorageClass_ storageClass);
 
     SpvId getPointerType(const Type& type, const MemoryLayout& layout,

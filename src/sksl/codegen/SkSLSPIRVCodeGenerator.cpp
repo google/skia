@@ -1142,31 +1142,52 @@ SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
     words.push_back(Word::Result());
     words.push_back(this->getType(function.returnType()));
     for (const Variable* parameter : function.parameters()) {
-        // glslang seems to treat all function arguments as pointers whether they need to be or
-        // not. I was initially puzzled by this until I ran bizarre failures with certain
-        // patterns of function calls and control constructs, as exemplified by this minimal
-        // failure case:
-        //
-        // void sphere(float x) {
-        // }
-        //
-        // void map() {
-        //     sphere(1.0);
-        // }
-        //
-        // void main() {
-        //     for (int i = 0; i < 1; i++) {
-        //         map();
-        //     }
-        // }
-        //
-        // As of this writing, compiling this in the "obvious" way (with sphere taking a float)
-        // crashes. Making it take a float* and storing the argument in a temporary variable,
-        // as glslang does, fixes it. It's entirely possible I simply missed whichever part of
-        // the spec makes this make sense.
-        words.push_back(this->getPointerType(parameter->type(), SpvStorageClassFunction));
+        words.push_back(this->getFunctionParameterType(parameter->type()));
     }
     return this->writeInstruction(SpvOpTypeFunction, words, fConstantBuffer);
+}
+
+SpvId SPIRVCodeGenerator::getFunctionParameterType(const Type& parameterType) {
+    // glslang treats all function arguments as pointers whether they need to be or
+    // not. I was initially puzzled by this until I ran bizarre failures with certain
+    // patterns of function calls and control constructs, as exemplified by this minimal
+    // failure case:
+    //
+    // void sphere(float x) {
+    // }
+    //
+    // void map() {
+    //     sphere(1.0);
+    // }
+    //
+    // void main() {
+    //     for (int i = 0; i < 1; i++) {
+    //         map();
+    //     }
+    // }
+    //
+    // As of this writing, compiling this in the "obvious" way (with sphere taking a float)
+    // crashes. Making it take a float* and storing the argument in a temporary variable,
+    // as glslang does, fixes it.
+    //
+    // The consensus among shader compiler authors seems to be that GPU driver generally don't
+    // handle value-based parameters consistently. It is highly likely that they fit their
+    // implementations to conform to glslang. We take care to do so ourselves.
+    //
+    // Our implementation first stores every parameter value into a function storage-class pointer
+    // before calling a function. The exception is for opaque handle types (samplers and textures)
+    // which must be stored in a pointer with UniformConstant storage-class. This prevents
+    // unnecessary temporaries (becuase opaque handles are always rooted in a pointer variable),
+    // matches glslang's behavior, and translates into WGSL more easily when targeting Dawn.
+    SpvStorageClass_ storageClass;
+    if (parameterType.typeKind() == Type::TypeKind::kSampler ||
+        parameterType.typeKind() == Type::TypeKind::kSeparateSampler ||
+        parameterType.typeKind() == Type::TypeKind::kTexture) {
+        storageClass = SpvStorageClassUniformConstant;
+    } else {
+        storageClass = SpvStorageClassFunction;
+    }
+    return this->getPointerType(parameterType, storageClass);
 }
 
 SpvId SPIRVCodeGenerator::getPointerType(const Type& type, SpvStorageClass_ storageClass) {
@@ -1634,9 +1655,23 @@ SpvId SPIRVCodeGenerator::writeFunctionCallArgument(const FunctionCall& call,
     } else if (funcDecl.isIntrinsic()) {
         // Unlike user function calls, non-out intrinsic arguments don't need pointer parameters.
         return this->writeExpression(arg, out);
+    } else if (arg.is<VariableReference>() &&
+               (arg.type().typeKind() == Type::TypeKind::kSampler ||
+                arg.type().typeKind() == Type::TypeKind::kSeparateSampler ||
+                arg.type().typeKind() == Type::TypeKind::kTexture)) {
+        // Opaque handle (sampler/texture) arguments are always declared as pointers but never
+        // stored in intermediates when calling user-defined functions.
+        //
+        // The case for intrinsics (which take opaque arguments by value) is handled above just like
+        // regular pointers.
+        //
+        // See getFunctionParameterType for further explanation.
+        SpvId* entry = fVariableMap.find(arg.as<VariableReference>().variable());
+        SkASSERTF(entry, "%s", arg.description().c_str());
+        return *entry;
     } else {
         // We always use pointer parameters when calling user functions.
-        // See getFunctionType for further explanation.
+        // See getFunctionParameterType for further explanation.
         tmpValueId = this->writeExpression(arg, out);
         tmpVar = this->nextId(nullptr);
     }
@@ -2125,8 +2160,10 @@ SpvId SPIRVCodeGenerator::writeConstructorMatrixResize(const ConstructorMatrixRe
     return this->writeMatrixCopy(argument, c.argument()->type(), c.type(), out);
 }
 
-static SpvStorageClass_ get_storage_class(const Variable& var,
-                                          SpvStorageClass_ fallbackStorageClass) {
+static SpvStorageClass_ get_storage_class_for_global_variable(
+        const Variable& var, SpvStorageClass_ fallbackStorageClass) {
+    SkASSERT(var.storage() == Variable::Storage::kGlobal);
+
     const Modifiers& modifiers = var.modifiers();
     if (modifiers.fFlags & Modifiers::kIn_Flag) {
         SkASSERT(!(modifiers.fLayout.fFlags & Layout::kPushConstant_Flag));
@@ -2157,7 +2194,7 @@ static SpvStorageClass_ get_storage_class(const Expression& expr) {
             if (var.storage() != Variable::Storage::kGlobal) {
                 return SpvStorageClassFunction;
             }
-            return get_storage_class(var, SpvStorageClassPrivate);
+            return get_storage_class_for_global_variable(var, SpvStorageClassPrivate);
         }
         case Expression::Kind::kFieldAccess:
             return get_storage_class(*expr.as<FieldAccess>().base());
@@ -2397,8 +2434,12 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
         default: {
             // expr isn't actually an lvalue, create a placeholder variable for it. This case
             // happens due to the need to store values in temporary variables during function
-            // calls (see comments in getFunctionType); erroneous uses of rvalues as lvalues
-            // should have been caught before code generation
+            // calls (see comments in getFunctionParameterType); erroneous uses of rvalues as
+            // lvalues should have been caught before code generation.
+            //
+            // This is with the exception of opaque handle types (textures/samplers) which are
+            // always defined as UniformConstant pointers and don't need to be explicitly stored
+            // into a temporary (which is handled explicitly in writeFunctionCallArgument).
             SpvId result = this->nextId(nullptr);
             SpvId pointerType = this->getPointerType(type, SpvStorageClassFunction);
             this->writeInstruction(SpvOpVariable, pointerType, result, SpvStorageClassFunction,
@@ -2520,10 +2561,11 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             if (const Expression* expr = ConstantFolder::GetConstantValueOrNullForVariable(ref)) {
                 return this->writeExpression(*expr, out);
             }
+            // Variable references to opaque handles (texture/sampler) that appear as the argument
+            // of a user-defined function call are explicitly handled in writeFunctionCallArgument.
             return this->getLValue(ref, out)->load(out);
         }
     }
-
 }
 
 SpvId SPIRVCodeGenerator::writeIndexExpression(const IndexExpression& expr, OutputStream& out) {
@@ -3283,7 +3325,8 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
     for (const Variable* parameter : f.parameters()) {
         SpvId id = this->nextId(nullptr);
         fVariableMap.set(parameter, id);
-        SpvId type = this->getPointerType(parameter->type(), SpvStorageClassFunction);
+
+        SpvId type = this->getFunctionParameterType(parameter->type());
         this->writeInstruction(SpvOpFunctionParameter, type, id, out);
     }
     return result;
@@ -3389,7 +3432,8 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                                                 "' is not permitted here");
         return this->nextId(nullptr);
     }
-    SpvStorageClass_ storageClass = get_storage_class(intfVar, SpvStorageClassFunction);
+    SpvStorageClass_ storageClass =
+            get_storage_class_for_global_variable(intfVar, SpvStorageClassFunction);
     if (fProgram.fInputs.fUseFlipRTUniform && appendRTFlip && type.isStruct()) {
         // We can only have one interface block (because we use push_constant and that is limited
         // to one per program), so we need to append rtflip to this one rather than synthesize an
@@ -3490,7 +3534,8 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
         return;
     }
 
-    SpvStorageClass_ storageClass = get_storage_class(*var, SpvStorageClassPrivate);
+    SpvStorageClass_ storageClass =
+            get_storage_class_for_global_variable(*var, SpvStorageClassPrivate);
     if (storageClass == SpvStorageClassUniform) {
         // Top-level uniforms are emitted in writeUniformBuffer.
         fTopLevelUniforms.push_back(&varDecl);

@@ -1,0 +1,31 @@
+layout(set = 0, binding = 0) uniform sampler s;
+layout(set = 0, binding = 1) uniform texture2D t;
+layout(set = 0, binding = 2) uniform sampler2D cs;
+
+// TODO(skia:13876): This change currently exercises the opaque function parameter pointer
+// semantics in the SPIR-V backend but uses sampler and texture2D type uniforms which are not
+// supported in Metal. After the proposed changes in skia:13876 this test will be rewritten and work
+// on all backends.
+
+layout(location = 1) in float2 c;
+
+noinline half4 combined_sampler_only_helper(sampler2D cs_param) {
+    return sample(cs_param, c);
+}
+
+noinline half4 bottom_helper(texture2D t_param, sampler s_param) {
+    return sample(makeSampler2D(t_param, s_param), c);
+}
+
+noinline half4 helpers_helper(texture2D t_param, sampler s_param) {
+    half4 color = sample(makeSampler2D(t_param, s_param), c);
+    return color.bgra * bottom_helper(t_param, s_param);
+}
+
+noinline half4 helper(texture2D t_param, sampler s_param) {
+    return helpers_helper(t_param, s_param);
+}
+
+void main() {
+    sk_FragColor = helper(t, s) + combined_sampler_only_helper(cs);
+}
