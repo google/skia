@@ -909,7 +909,6 @@ optional("gpu_shared") {
   }
 
   if (skia_use_metal) {
-    public_defines += [ "SK_METAL" ]
     sources += skia_shared_mtl_sources
   }
 }
@@ -1017,6 +1016,7 @@ optional("gpu") {
 
   cflags_objcc = []
   if (skia_use_metal) {
+    public_defines += [ "SK_METAL" ]
     sources += skia_metal_sources
     if (skia_enable_metal_debug_info) {
       public_defines += [ "SK_ENABLE_MTL_DEBUG_INFO" ]
@@ -1129,6 +1129,7 @@ optional("graphite") {
     sources += skia_graphite_dawn_sources
   }
   if (skia_use_metal) {
+    public_defines += [ "SK_METAL" ]
     sources += skia_graphite_mtl_sources
     if (skia_enable_metal_debug_info) {
       public_defines += [ "SK_ENABLE_MTL_DEBUG_INFO" ]
