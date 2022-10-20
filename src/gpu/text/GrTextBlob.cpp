@@ -1507,6 +1507,7 @@ static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameter
     DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     DFGPFlags |= useGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
     DFGPFlags |= MT::kAliasedDistanceField == maskType ? kAliased_DistanceFieldEffectFlag : 0;
+    DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
 
     if (isLCD) {
         DFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
@@ -1523,7 +1524,6 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
                             skgpu::v1::SurfaceDrawContext* sdc,
                             GrAtlasSubRunOwner) const {
     SkASSERT(this->glyphCount() != 0);
-    SkASSERT(!viewMatrix.localToDevice().hasPerspective());
 
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
 
@@ -1570,7 +1570,11 @@ std::tuple<bool, int> SDFTSubRun::regenerateAtlas(
 }
 
 size_t SDFTSubRun::vertexStride(const SkMatrix& drawMatrix) const {
-    return sizeof(Mask2DVertex);
+    if (drawMatrix.hasPerspective()) {
+        return sizeof(Mask3DVertex);
+    } else {
+        return sizeof(Mask2DVertex);
+    }
 }
 
 void SDFTSubRun::fillVertexData(
@@ -1705,10 +1709,14 @@ auto GrTextBlob::Key::Make(const SkGlyphRunList& glyphRunList,
 
         // Do any runs use direct drawing types?.
         key.fHasSomeDirectSubRuns = false;
+        SkPoint glyphRunListLocation = { glyphRunList.sourceBounds().centerX(),
+                                         glyphRunList.sourceBounds().centerY() };
         for (auto& run : glyphRunList) {
             SkScalar approximateDeviceTextSize =
-                    SkFontPriv::ApproximateTransformedTextSize(run.font(), drawMatrix);
-            key.fHasSomeDirectSubRuns |= control.isDirect(approximateDeviceTextSize, paint);
+                    SkFontPriv::ApproximateTransformedTextSize(run.font(), drawMatrix,
+                                                               glyphRunListLocation);
+            key.fHasSomeDirectSubRuns |= control.isDirect(approximateDeviceTextSize, paint,
+                                                          drawMatrix);
         }
 
         if (key.fHasSomeDirectSubRuns) {
@@ -1802,12 +1810,15 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
                 bytesNeededForSubRun, supportBilerpAtlas, positionMatrix, initialLuminance)};
 
     const uint64_t uniqueID = glyphRunList.uniqueID();
+    SkPoint glyphRunListCenter = { glyphRunList.sourceBounds().centerX(),
+                                   glyphRunList.sourceBounds().centerY() };
     for (auto& glyphRun : glyphRunList) {
         painter->processGlyphRun(blob.get(),
                                  glyphRun,
                                  positionMatrix,
                                  paint,
                                  control,
+                                 glyphRunListCenter,
                                  "GrTextBlob",
                                  uniqueID);
     }
@@ -2529,7 +2540,11 @@ std::tuple<bool, int> SDFTSubRunNoCache::regenerateAtlas(
 }
 
 size_t SDFTSubRunNoCache::vertexStride(const SkMatrix& drawMatrix) const {
-    return sizeof(Mask2DVertex);
+    if (drawMatrix.hasPerspective()) {
+        return sizeof(Mask3DVertex);
+    } else {
+        return sizeof(Mask2DVertex);
+    }
 }
 
 void SDFTSubRunNoCache::fillVertexData(
@@ -2541,7 +2556,6 @@ void SDFTSubRunNoCache::fillVertexData(
 
     const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
 
-    SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
     fill_transformed_vertices_2D(
             SkMakeZip((Quad*)vertexDst,
                       fGlyphs.glyphs().subspan(offset, count),
@@ -3267,12 +3281,15 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
                                   bytesNeededForSubRun)};
 
     const uint64_t uniqueID = glyphRunList.uniqueID();
+    SkPoint glyphRunListCenter = { glyphRunList.sourceBounds().centerX(),
+                                   glyphRunList.sourceBounds().centerY() };
     for (auto& glyphRun : glyphRunList) {
         painter->processGlyphRun(slug.get(),
                                  glyphRun,
                                  positionMatrix,
                                  paint,
                                  control,
+                                 glyphRunListCenter,
                                  "Make Slug",
                                  uniqueID);
     }

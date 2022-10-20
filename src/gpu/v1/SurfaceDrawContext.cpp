@@ -337,6 +337,8 @@ void SurfaceDrawContext::drawGlyphRunListNoCache(SkCanvas* canvas,
     SkMatrix drawMatrix = viewMatrix.localToDevice();
     drawMatrix.preTranslate(drawOrigin.x(), drawOrigin.y());
     GrSubRunAllocator* const alloc = this->subRunAlloc();
+    SkPoint glyphRunListCenter = { glyphRunList.sourceBounds().centerX(),
+                                   glyphRunList.sourceBounds().centerY() };
 
     GrSubRunNoCachePainter painter{canvas, this, alloc, clip, viewMatrix, glyphRunList, paint};
     for (auto& glyphRun : glyphRunList) {
@@ -345,7 +347,8 @@ void SurfaceDrawContext::drawGlyphRunListNoCache(SkCanvas* canvas,
                                       glyphRun,
                                       drawMatrix,
                                       paint,
-                                      control);
+                                      control,
+                                      glyphRunListCenter);
     }
 }
 
