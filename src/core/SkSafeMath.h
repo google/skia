@@ -74,7 +74,8 @@ private:
         uint64_t by = y;
         uint64_t result = bx * by;
         fOK &= result >> 32 == 0;
-        return SkToU32(result);
+        // Overflow information is capture in fOK. Return the result modulo 2^32.
+        return (uint32_t)result;
     }
 
     uint64_t mul64(uint64_t x, uint64_t y) {
