@@ -45,7 +45,7 @@ static bool utf8_byte_is_continuation(uint8_t c) { return utf8_byte_type(c) == 0
 ////////////////////////////////////////////////////////////////////////////////
 
 int SkUTF::CountUTF8(const char* utf8, size_t byteLength) {
-    if (!utf8) {
+    if (!utf8 && byteLength) {
         return -1;
     }
     int count = 0;

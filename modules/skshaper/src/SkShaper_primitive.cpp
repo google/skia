@@ -80,7 +80,7 @@ static size_t linebreak(const char text[], const char stop[],
     SkScalar accumulatedWidth = 0;
     int glyphIndex = 0;
     const char* start = text;
-    const char* word_start = text;
+    const char* wordStart = text;
     bool prevWS = true;
     *trailing = 0;
 
@@ -91,28 +91,37 @@ static size_t linebreak(const char text[], const char stop[],
         bool currWS = is_breaking_whitespace(uni);
 
         if (!currWS && prevWS) {
-            word_start = prevText;
+            wordStart = prevText;
         }
         prevWS = currWS;
 
         if (width < accumulatedWidth) {
+            bool consumeWhitespace = false;
             if (currWS) {
-                // eat the rest of the whitespace
+                // previous fit, put this and following whitespace in trailing
+                if (prevText == start) {
+                    // don't put this in trailing if it's the first thing
+                    prevText = text;
+                }
+                consumeWhitespace = true;
+            } else if (wordStart != start) {
+                // backup to the last whitespace that fit
+                text = wordStart;
+            } else if (prevText > start) {
+                // backup to just before the glyph that didn't fit
+                text = prevText;
+            } else {
+                // let it overflow, put any following whitespace in trailing
+                prevText = text;
+                consumeWhitespace = true;
+            }
+            if (consumeWhitespace) {
                 const char* next = text;
                 while (next < stop && is_breaking_whitespace(SkUTF::NextUTF8(&next, stop))) {
                     text = next;
                 }
                 if (trailing) {
                     *trailing = text - prevText;
-                }
-            } else {
-                // backup until a whitespace (or 1 char)
-                if (word_start == start) {
-                    if (prevText > start) {
-                        text = prevText;
-                    }
-                } else {
-                    text = word_start;
                 }
             }
             break;
@@ -169,7 +178,7 @@ void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
     sk_ignore_unused_variable(leftToRight);
 
     int glyphCount = font.countText(utf8, utf8Bytes, SkTextEncoding::kUTF8);
-    if (glyphCount <= 0) {
+    if (glyphCount < 0) {
         return;
     }
 
@@ -181,7 +190,7 @@ void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
 
     size_t glyphOffset = 0;
     size_t utf8Offset = 0;
-    while (0 < utf8Bytes) {
+    do {
         size_t bytesCollapsed;
         size_t bytesConsumed = linebreak(utf8, utf8 + utf8Bytes, font, width,
                                          advances.get() + glyphOffset, &bytesCollapsed);
@@ -196,32 +205,36 @@ void SkShaperPrimitive::shape(const char* utf8, size_t utf8Bytes,
             RunHandler::Range(utf8Offset, bytesVisible)
         };
         handler->beginLine();
-        handler->runInfo(info);
+        if (info.glyphCount) {
+            handler->runInfo(info);
+        }
         handler->commitRunInfo();
-        const auto buffer = handler->runBuffer(info);
+        if (info.glyphCount) {
+            const auto buffer = handler->runBuffer(info);
 
-        memcpy(buffer.glyphs, glyphs.get() + glyphOffset, numGlyphs * sizeof(SkGlyphID));
-        SkPoint position = buffer.point;
-        for (size_t i = 0; i < numGlyphs; ++i) {
-            buffer.positions[i] = position;
-            position.fX += advances[i + glyphOffset];
-        }
-        if (buffer.clusters) {
-            const char* txtPtr = utf8;
-            for (size_t i = 0; i < numGlyphs; ++i) {
-                // Each character maps to exactly one glyph.
-                buffer.clusters[i] = SkToU32(txtPtr - utf8 + utf8Offset);
-                SkUTF::NextUTF8(&txtPtr, utf8 + utf8Bytes);
+            memcpy(buffer.glyphs, glyphs.get() + glyphOffset, info.glyphCount * sizeof(SkGlyphID));
+            SkPoint position = buffer.point;
+            for (size_t i = 0; i < info.glyphCount; ++i) {
+                buffer.positions[i] = position;
+                position.fX += advances[i + glyphOffset];
             }
+            if (buffer.clusters) {
+                const char* txtPtr = utf8;
+                for (size_t i = 0; i < info.glyphCount; ++i) {
+                    // Each character maps to exactly one glyph.
+                    buffer.clusters[i] = SkToU32(txtPtr - utf8 + utf8Offset);
+                    SkUTF::NextUTF8(&txtPtr, utf8 + utf8Bytes);
+                }
+            }
+            handler->commitRunBuffer(info);
         }
-        handler->commitRunBuffer(info);
         handler->commitLine();
 
         glyphOffset += SkUTF::CountUTF8(utf8, bytesConsumed);
         utf8Offset += bytesConsumed;
         utf8 += bytesConsumed;
         utf8Bytes -= bytesConsumed;
-    }
+    } while (0 < utf8Bytes);
 
     return;
 }

@@ -34,12 +34,16 @@ struct RunHandler final : public SkShaper::RunHandler {
     SkShaper::RunHandler::Range fRange;
     unsigned fGlyphCount = 0;
 
+    bool fBeginLine = false;
+    bool fCommitRunInfo = false;
+    bool fCommitLine = false;
+
     RunHandler(const char* resource, skiatest::Reporter* reporter, const char* utf8,size_t utf8Size)
         : fResource(resource), fReporter(reporter), fUtf8(utf8), fUtf8Size(utf8Size) {}
 
-    void beginLine() override {}
+    void beginLine() override { fBeginLine = true;}
     void runInfo(const SkShaper::RunHandler::RunInfo& info) override {}
-    void commitRunInfo() override {}
+    void commitRunInfo() override { fCommitRunInfo = true; }
     SkShaper::RunHandler::Buffer runBuffer(const SkShaper::RunHandler::RunInfo& info) override {
         fGlyphCount = SkToUInt(info.glyphCount);
         fRange = info.utf8Range;
@@ -108,7 +112,7 @@ struct RunHandler final : public SkShaper::RunHandler {
                             fClusters[i], fRange.end(), fResource, i, fGlyphCount);
         }
     }
-    void commitLine() override {}
+    void commitLine() override { fCommitLine = true; }
 };
 
 void shaper_test(skiatest::Reporter* reporter, const char* name, SkData* data) {
@@ -122,6 +126,12 @@ void shaper_test(skiatest::Reporter* reporter, const char* name, SkData* data) {
     SkFont font(SkTypeface::MakeDefault());
     RunHandler rh(name, reporter, (const char*)data->data(), data->size());
     shaper->shape((const char*)data->data(), data->size(), font, true, kWidth, &rh);
+
+    // Even on empty input, expect that the line is started, that the zero run infos are comitted,
+    // and the empty line is comitted. This allows the user to properly handle empy runs.
+    REPORTER_ASSERT(reporter, rh.fBeginLine);
+    REPORTER_ASSERT(reporter, rh.fCommitRunInfo);
+    REPORTER_ASSERT(reporter, rh.fCommitLine);
 
     constexpr SkFourByteTag latn = SkSetFourByteTag('l','a','t','n');
     auto fontIterator = SkShaper::TrivialFontRunIterator(font, data->size());
