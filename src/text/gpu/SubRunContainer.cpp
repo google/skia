@@ -89,16 +89,17 @@ using namespace sktext;
 using namespace sktext::gpu;
 
 #if defined(SK_GRAPHITE_ENABLED)
-using BindBufferInfo = skgpu::graphite::BindBufferInfo;
-using BufferType = skgpu::graphite::BufferType;
-using Device = skgpu::graphite::Device;
-using DrawWriter = skgpu::graphite::DrawWriter;
-using Rect = skgpu::graphite::Rect;
-using Recorder = skgpu::graphite::Recorder;
-using Renderer = skgpu::graphite::Renderer;
-using RendererProvider = skgpu::graphite::RendererProvider;
-using TextureProxy = skgpu::graphite::TextureProxy;
-using Transform = skgpu::graphite::Transform;
+namespace gr = skgpu::graphite;
+
+using BindBufferInfo = gr::BindBufferInfo;
+using BufferType = gr::BufferType;
+using Device = gr::Device;
+using DrawWriter = gr::DrawWriter;
+using Recorder = gr::Recorder;
+using Renderer = gr::Renderer;
+using RendererProvider = gr::RendererProvider;
+using TextureProxy = gr::TextureProxy;
+using Transform = gr::Transform;
 #endif
 
 namespace {
@@ -1253,8 +1254,8 @@ public:
     std::tuple<bool, int>
     regenerateAtlas(int begin, int end, Recorder*) const override;
 
-    std::tuple<Rect, Transform> boundsAndDeviceMatrix(const Transform&,
-                                                      SkPoint drawOrigin) const override;
+    std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(const Transform&,
+                                                          SkPoint drawOrigin) const override;
 
     const Renderer* renderer(const RendererProvider* renderers) const override {
         return renderers->bitmapText();
@@ -1608,8 +1609,8 @@ std::tuple<bool, int> DirectMaskSubRun::regenerateAtlas(int begin, int end,
     return fGlyphs.regenerateAtlas(begin, end, fMaskFormat, 0, recorder);
 }
 
-std::tuple<Rect, Transform> DirectMaskSubRun::boundsAndDeviceMatrix(const Transform& localToDevice,
-                                                                    SkPoint drawOrigin) const {
+std::tuple<gr::Rect, Transform> DirectMaskSubRun::boundsAndDeviceMatrix(
+        const Transform& localToDevice, SkPoint drawOrigin) const {
     // The baked-in matrix differs from the current localToDevice by a translation if the upper 2x2
     // remains the same, and there's no perspective. Since there's no projection, Z is irrelevant
     // so it's okay that fInitialPositionMatrix is an SkMatrix and has discarded the 3rd row/col,
@@ -1629,7 +1630,7 @@ std::tuple<Rect, Transform> DirectMaskSubRun::boundsAndDeviceMatrix(const Transf
         if (SkScalarIsInt(offset.x) && SkScalarIsInt(offset.y)) {
             // The offset is an integer (but make sure), which means the generated mask can be
             // accessed without changing how texels would be sampled.
-            return {Rect(fGlyphDeviceBounds),
+            return {gr::Rect(fGlyphDeviceBounds),
                     Transform(SkM44::Translate(SkScalarRoundToInt(offset.x),
                                                SkScalarRoundToInt(offset.y)))};
         }
@@ -1638,7 +1639,7 @@ std::tuple<Rect, Transform> DirectMaskSubRun::boundsAndDeviceMatrix(const Transf
     // Otherwise compute the relative transformation from fInitialPositionMatrix to localToDevice,
     // with the drawOrigin applied. If fInitialPositionMatrix or the concatenation is not invertible
     // the returned Transform is marked invalid and the draw will be automatically dropped.
-    return {Rect(fGlyphDeviceBounds),
+    return {gr::Rect(fGlyphDeviceBounds),
             localToDevice.preTranslate(drawOrigin.x(), drawOrigin.y())
                          .concatInverse(SkM44(fInitialPositionMatrix))};
 }
@@ -1927,11 +1928,11 @@ public:
         return fGlyphs.regenerateAtlas(begin, end, fVertexFiller.grMaskType(), 1, recorder);
     }
 
-    std::tuple<Rect, Transform> boundsAndDeviceMatrix(const Transform& localToDevice,
-                                                      SkPoint drawOrigin) const override {
+    std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(const Transform& localToDevice,
+                                                          SkPoint drawOrigin) const override {
         const SkMatrix viewDifference = fVertexFiller.viewDifference(
                 localToDevice.preTranslate(drawOrigin.x(), drawOrigin.y()));
-        return {Rect(fVertexFiller.creationBounds()), Transform(SkM44(viewDifference))};
+        return {gr::Rect(fVertexFiller.creationBounds()), Transform(SkM44(viewDifference))};
     }
 
     const Renderer* renderer(const RendererProvider* renderers) const override {
@@ -2207,11 +2208,11 @@ public:
                 begin, end, MaskFormat::kA8, SK_DistanceFieldInset, recorder);
     }
 
-    std::tuple<Rect, Transform> boundsAndDeviceMatrix(
-            const Transform& localToDevice, SkPoint drawOrigin) const override {
+    std::tuple<gr::Rect, Transform> boundsAndDeviceMatrix(const Transform& localToDevice,
+                                                          SkPoint drawOrigin) const override {
         const SkMatrix viewDifference = fVertexFiller.viewDifference(
                 localToDevice.preTranslate(drawOrigin.x(), drawOrigin.y()));
-        return {Rect(fVertexFiller.creationBounds()), Transform(SkM44(viewDifference))};
+        return {gr::Rect(fVertexFiller.creationBounds()), Transform(SkM44(viewDifference))};
     }
 
     const Renderer* renderer(const RendererProvider* renderers) const override {

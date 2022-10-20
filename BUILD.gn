@@ -909,6 +909,7 @@ optional("gpu_shared") {
   }
 
   if (skia_use_metal) {
+    public_defines += [ "SK_METAL" ]
     sources += skia_shared_mtl_sources
   }
 }
