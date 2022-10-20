@@ -307,11 +307,23 @@ DEF_TEST(AnimatedImage, r) {
             continue;
         }
 
-        const int defaultRepetitionCount = codec->getRepetitionCount();
         std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
         std::vector<SkBitmap> frames(frameInfos.size());
         // Used down below for our test image.
         const auto imageInfo = codec->getInfo().makeAlphaType(kPremul_SkAlphaType);
+
+        // Get the repetition count after the codec->getFrameInfo() call above
+        // has walked to the end of the encoded image.
+        //
+        // At the file format level, GIF images can declare their repetition
+        // count multiple times and our codec goes with "last one wins".
+        // Furthermore, for single-frame (still) GIF images, a zero, positive
+        // or infinite repetition count are all equivalent in practice (in all
+        // cases, the pixels do not change over time), so the codec has some
+        // leeway in what to return for single-frame GIF images, but it cannot
+        // distinguish single-frame from multiple-frame GIFs until we count the
+        // number of frames (e.g. call getFrameInfo).
+        const int defaultRepetitionCount = codec->getRepetitionCount();
 
         for (size_t i = 0; i < frameInfos.size(); ++i) {
             auto info = codec->getInfo().makeAlphaType(frameInfos[i].fAlphaType);
