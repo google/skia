@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/UploadTask.h"
 
 #include "include/gpu/graphite/Recorder.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
@@ -68,7 +69,15 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
 
     // We assume that if the texture has mip levels, we either upload to all the levels or just the
     // first.
-    SkASSERT(mipLevelCount == 1 || mipLevelCount == textureProxy->textureInfo().numMipLevels());
+#ifdef SK_DEBUG
+    unsigned int numExpectedLevels = 1;
+    if (textureProxy->textureInfo().mipmapped() == Mipmapped::kYes) {
+        numExpectedLevels = SkMipmap::ComputeLevelCount(textureProxy->dimensions().width(),
+                                                        textureProxy->dimensions().height()) + 1;
+    }
+    SkASSERT(mipLevelCount == 1 || mipLevelCount == numExpectedLevels);
+#endif
+
 
     if (dstRect.isEmpty()) {
         return {};

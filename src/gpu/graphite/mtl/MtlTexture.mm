@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/mtl/MtlTypes.h"
 #include "include/private/gpu/graphite/MtlTypesPriv.h"
+#include "src/core/SkMipmap.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlUtils.h"
@@ -36,13 +37,18 @@ sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlSharedContext* shared
         return nullptr;
     }
 
+    int numMipLevels = 1;
+    if (info.mipmapped() == Mipmapped::kYes) {
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    }
+
     sk_cfp<MTLTextureDescriptor*> desc([[MTLTextureDescriptor alloc] init]);
     (*desc).textureType = (info.numSamples() > 1) ? MTLTextureType2DMultisample : MTLTextureType2D;
     (*desc).pixelFormat = (MTLPixelFormat)mtlSpec.fFormat;
     (*desc).width = dimensions.width();
     (*desc).height = dimensions.height();
     (*desc).depth = 1;
-    (*desc).mipmapLevelCount = info.numMipLevels();
+    (*desc).mipmapLevelCount = numMipLevels;
     (*desc).sampleCount = info.numSamples();
     (*desc).arrayLength = 1;
     (*desc).usage = mtlSpec.fUsage;

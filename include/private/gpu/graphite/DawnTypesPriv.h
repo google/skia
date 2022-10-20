@@ -31,7 +31,7 @@ struct DawnTextureSpec {
 
 DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,
                                              uint32_t sampleCount,
-                                             uint32_t levelCount);
+                                             Mipmapped mipmapped);
 
 } // namespace skgpu::graphite
 

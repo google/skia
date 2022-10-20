@@ -16,7 +16,7 @@ TextureInfo& TextureInfo::operator=(const TextureInfo& that) {
     }
     fBackend = that.fBackend;
     fSampleCount = that.fSampleCount;
-    fLevelCount = that.fLevelCount;
+    fMipmapped = that.fMipmapped;
     fProtected = that.fProtected;
 
     switch (that.backend()) {
@@ -51,7 +51,7 @@ bool TextureInfo::operator==(const TextureInfo& that) const {
     }
 
     if (fSampleCount != that.fSampleCount ||
-        fLevelCount != that.fLevelCount ||
+        fMipmapped != that.fMipmapped ||
         fProtected != that.fProtected) {
         return false;
     }

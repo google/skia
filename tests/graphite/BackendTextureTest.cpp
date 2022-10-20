@@ -22,7 +22,6 @@ using namespace skgpu::graphite;
 
 namespace {
     const SkISize kSize = {16, 16};
-    const uint32_t kNumLevels = 5;
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(BackendTextureTest, reporter, context) {
@@ -36,7 +35,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(BackendTextureTest, reporter, context) {
     auto recorder = context->makeRecorder();
 
     TextureInfo info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
-                                                          /*levelCount=*/1,
+                                                          /*mipmapped=*/Mipmapped::kNo,
                                                           Protected::kNo,
                                                           Renderable::kNo);
     REPORTER_ASSERT(reporter, info.isValid());
@@ -98,7 +97,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SurfaceBackendTextureTest, reporter, context)
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
     TextureInfo info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
-                                                          /*levelCount=*/1,
+                                                          /*mipmapped=*/Mipmapped::kNo,
                                                           Protected::kNo,
                                                           Renderable::kYes);
 
@@ -127,7 +126,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(SurfaceBackendTextureTest, reporter, context)
 
     // We should fail to wrap a non-renderable texture in a surface.
     info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
-                                              /*levelCount=*/1,
+                                              /*mipmapped=*/Mipmapped::kNo,
                                               Protected::kNo,
                                               Renderable::kNo);
     texture = recorder->createBackendTexture(kSize, info);
@@ -158,11 +157,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context) {
     const Caps* caps = context->priv().caps();
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 
-    for (bool withMips : { true, false }) {
+    for (Mipmapped mipmapped : { Mipmapped::kYes, Mipmapped::kNo }) {
         for (Renderable renderable : { Renderable::kYes, Renderable::kNo }) {
 
             TextureInfo info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
-                                                                  withMips ? kNumLevels : 1,
+                                                                  mipmapped,
                                                                   Protected::kNo,
                                                                   renderable);
 
@@ -175,7 +174,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context) {
                                                                            kPremul_SkAlphaType,
                                                                            /*colorSpace=*/ nullptr);
             REPORTER_ASSERT(reporter, image);
-            REPORTER_ASSERT(reporter, image->hasMipmaps() == withMips);
+            REPORTER_ASSERT(reporter, image->hasMipmaps() == (mipmapped == Mipmapped::kYes));
 
             image.reset();
 
@@ -196,7 +195,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context) {
 #ifdef SK_VULKAN
 DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureMutableStateTest, reporter, context) {
     VulkanTextureInfo info(/*sampleCount=*/1,
-                           /*levelCount=*/1,
+                           /*mipmapped=*/Mipmapped::kNo,
                            /*flags=*/0,
                            VK_FORMAT_R8G8B8A8_UNORM,
                            VK_IMAGE_TILING_OPTIMAL,

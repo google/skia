@@ -67,7 +67,7 @@ struct MtlTextureSpec {
 
 MtlTextureInfo MtlTextureSpecToTextureInfo(const MtlTextureSpec& mtlSpec,
                                            uint32_t sampleCount,
-                                           uint32_t levelCount);
+                                           Mipmapped mipmapped);
 
 }  // namespace skgpu::graphite
 

@@ -151,7 +151,8 @@ static void get_packed_glyph_image(
 
 MaskFormat AtlasManager::resolveMaskFormat(MaskFormat format) const {
     if (MaskFormat::kA565 == format &&
-        !fRecorder->priv().caps()->getDefaultSampledTextureInfo(kRGB_565_SkColorType, 1,
+        !fRecorder->priv().caps()->getDefaultSampledTextureInfo(kRGB_565_SkColorType,
+                                                                /*mipmapped=*/Mipmapped::kNo,
                                                                 Protected::kNo,
                                                                 Renderable::kNo).isValid()) {
         format = MaskFormat::kARGB;

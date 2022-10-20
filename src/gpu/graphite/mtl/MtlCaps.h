@@ -23,7 +23,7 @@ public:
     ~MtlCaps() override {}
 
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                             uint32_t levelCount,
+                                             Mipmapped mipmapped,
                                              Protected,
                                              Renderable) const override;
 

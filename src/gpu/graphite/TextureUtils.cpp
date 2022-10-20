@@ -39,14 +39,12 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
     if (bitmap.dimensions().area() <= 1) {
         mipmapped = Mipmapped::kNo;
     }
-    int mipLevelCount = (mipmapped == Mipmapped::kYes) ?
-            SkMipmap::ComputeLevelCount(bitmap.width(), bitmap.height()) + 1 : 1;
 
-    auto textureInfo = caps->getDefaultSampledTextureInfo(ct, mipLevelCount, Protected::kNo,
+    auto textureInfo = caps->getDefaultSampledTextureInfo(ct, mipmapped, Protected::kNo,
                                                           Renderable::kNo);
     if (!textureInfo.isValid()) {
         ct = kRGBA_8888_SkColorType;
-        textureInfo = caps->getDefaultSampledTextureInfo(ct, mipLevelCount, Protected::kNo,
+        textureInfo = caps->getDefaultSampledTextureInfo(ct, mipmapped, Protected::kNo,
                                                          Renderable::kNo);
     }
     SkASSERT(textureInfo.isValid());
@@ -66,6 +64,10 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
     if (!SkImageInfoIsValid(bmpToUpload.info())) {
         return {};
     }
+
+    int mipLevelCount = (mipmapped == Mipmapped::kYes) ?
+            SkMipmap::ComputeLevelCount(bitmap.width(), bitmap.height()) + 1 : 1;
+
 
     // setup MipLevels
     sk_sp<SkMipmap> mipmaps;

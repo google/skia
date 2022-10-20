@@ -63,12 +63,8 @@ sk_sp<TextureProxy> TextureProxy::Make(const Caps* caps,
         return nullptr;
     }
 
-    int mipLevelCount = (mipmapped == Mipmapped::kYes)
-                        ? SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1
-                        : 1;
-
     TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(colorType,
-                                                                 mipLevelCount,
+                                                                 mipmapped,
                                                                  isProtected,
                                                                  renderable);
     if (!textureInfo.isValid()) {

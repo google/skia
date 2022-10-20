@@ -8,13 +8,14 @@
 #ifndef skgpu_graphite_DawnTypes_DEFINED
 #define skgpu_graphite_DawnTypes_DEFINED
 
+#include "include/gpu/graphite/GraphiteTypes.h"
 #include "webgpu/webgpu_cpp.h"
 
 namespace skgpu::graphite {
 
 struct DawnTextureInfo {
     uint32_t fSampleCount = 1;
-    uint32_t fLevelCount = 0;
+    Mipmapped fMipmapped = Mipmapped::kNo;
 
     // wgpu::TextureDescriptor properties
     wgpu::TextureFormat fFormat = wgpu::TextureFormat::Undefined;
@@ -23,11 +24,11 @@ struct DawnTextureInfo {
     DawnTextureInfo() = default;
     DawnTextureInfo(const wgpu::Texture& texture);
     DawnTextureInfo(uint32_t sampleCount,
-                    uint32_t levelCount,
+                    Mipmapped mipmapped,
                     wgpu::TextureFormat format,
                     wgpu::TextureUsage usage)
             : fSampleCount(sampleCount)
-            , fLevelCount(levelCount)
+            , fMipmapped(mipmapped)
             , fFormat(format)
             , fUsage(usage) {}
 };

@@ -16,7 +16,7 @@ DawnCaps::DawnCaps() : Caps() {}
 DawnCaps::~DawnCaps() = default;
 
 TextureInfo DawnCaps::getDefaultSampledTextureInfo(SkColorType,
-                                                   uint32_t levelCount,
+                                                   Mipmapped mipmapped,
                                                    Protected,
                                                    Renderable) const {
     return {};

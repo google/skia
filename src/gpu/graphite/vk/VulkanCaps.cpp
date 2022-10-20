@@ -16,7 +16,7 @@ VulkanCaps::VulkanCaps() : Caps() {}
 VulkanCaps::~VulkanCaps() {}
 
 TextureInfo VulkanCaps::getDefaultSampledTextureInfo(SkColorType,
-                                                     uint32_t levelCount,
+                                                     Mipmapped mipmapped,
                                                      Protected,
                                                      Renderable) const {
     return {};

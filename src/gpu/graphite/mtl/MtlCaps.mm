@@ -524,7 +524,7 @@ void MtlCaps::initFormatTable() {
 }
 
 TextureInfo MtlCaps::getDefaultSampledTextureInfo(SkColorType colorType,
-                                                  uint32_t levelCount,
+                                                  Mipmapped mipmapped,
                                                   Protected,
                                                   Renderable renderable) const {
     MTLTextureUsage usage = MTLTextureUsageShaderRead;
@@ -539,7 +539,7 @@ TextureInfo MtlCaps::getDefaultSampledTextureInfo(SkColorType colorType,
 
     MtlTextureInfo info;
     info.fSampleCount = 1;
-    info.fLevelCount = levelCount;
+    info.fMipmapped = mipmapped;
     info.fFormat = format;
     info.fUsage = usage;
     info.fStorageMode = MTLStorageModePrivate;
@@ -567,7 +567,7 @@ TextureInfo MtlCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledI
 
     MtlTextureInfo info;
     info.fSampleCount = this->defaultMSAASamples();
-    info.fLevelCount = 1;
+    info.fMipmapped = Mipmapped::kNo;
     info.fFormat = singleSpec.fFormat;
     info.fUsage = usage;
     info.fStorageMode = this->getDefaultMSAAStorageMode(discardable);
@@ -582,7 +582,7 @@ TextureInfo MtlCaps::getDefaultDepthStencilTextureInfo(
             Protected) const {
     MtlTextureInfo info;
     info.fSampleCount = sampleCount;
-    info.fLevelCount = 1;
+    info.fMipmapped = Mipmapped::kNo;
     info.fFormat = MtlDepthStencilFlagsToFormat(depthStencilType);
     info.fUsage = MTLTextureUsageRenderTarget;
     info.fStorageMode = this->getDefaultMSAAStorageMode(Discardable::kYes);
@@ -810,7 +810,7 @@ void MtlCaps::buildKeyForTexture(SkISize dimensions,
     uint32_t samplesKey = samples_to_key(info.numSamples());
     // We don't have to key the number of mip levels because it is inherit in the combination of
     // isMipped and dimensions.
-    bool isMipped = info.numMipLevels() > 1;
+    bool isMipped = info.mipmapped() == Mipmapped::kYes;
     Protected isProtected = info.isProtected();
     bool isFBOnly = mtlSpec.fFramebufferOnly;
 

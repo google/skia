@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_MtlTypes_DEFINED
 #define skgpu_graphite_MtlTypes_DEFINED
 
+#include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/ports/SkCFObject.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -38,7 +39,7 @@ using MtlHandle = const void*;
 
 struct MtlTextureInfo {
     uint32_t fSampleCount = 1;
-    uint32_t fLevelCount = 0;
+    Mipmapped fMipmapped = Mipmapped::kNo;
 
     // Since we aren't in an Obj-C header we can't directly use Mtl types here. Each of these can
     // cast to their mapped Mtl types list below.
@@ -50,13 +51,13 @@ struct MtlTextureInfo {
     MtlTextureInfo() = default;
     MtlTextureInfo(MtlHandle mtlTexture);
     MtlTextureInfo(uint32_t sampleCount,
-                   uint32_t levelCount,
+                   Mipmapped mipmapped,
                    MtlPixelFormat format,
                    MtlTextureUsage usage,
                    MtlStorageMode storageMode,
                    bool framebufferOnly)
             : fSampleCount(sampleCount)
-            , fLevelCount(levelCount)
+            , fMipmapped(mipmapped)
             , fFormat(format)
             , fUsage(usage)
             , fStorageMode(storageMode)

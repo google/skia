@@ -16,7 +16,7 @@ MtlTextureInfo::MtlTextureInfo(MtlHandle texture) {
     id<MTLTexture> mtlTex = (id<MTLTexture>)texture;
 
     fSampleCount = mtlTex.sampleCount;
-    fLevelCount = mtlTex.mipmapLevelCount;
+    fMipmapped = mtlTex.mipmapLevelCount > 1 ? Mipmapped::kYes : Mipmapped::kNo;
 
     fFormat = mtlTex.pixelFormat;
     fUsage = mtlTex.usage;
@@ -26,11 +26,11 @@ MtlTextureInfo::MtlTextureInfo(MtlHandle texture) {
 
 MtlTextureInfo MtlTextureSpecToTextureInfo(const MtlTextureSpec& mtlSpec,
                                            uint32_t sampleCount,
-                                           uint32_t levelCount) {
+                                           Mipmapped mipmapped) {
     MtlTextureInfo info;
     // Shared info
     info.fSampleCount = sampleCount;
-    info.fLevelCount = levelCount;
+    info.fMipmapped = mipmapped;
 
     // Mtl info
     info.fFormat = mtlSpec.fFormat;

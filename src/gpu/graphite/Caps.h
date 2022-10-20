@@ -41,7 +41,7 @@ public:
     sk_sp<SkCapabilities> capabilities() const;
 
     virtual TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                                     uint32_t levelCount,
+                                                     Mipmapped mipmapped,
                                                      Protected,
                                                      Renderable) const = 0;
 

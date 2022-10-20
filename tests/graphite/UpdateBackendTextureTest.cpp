@@ -70,10 +70,9 @@ BackendTexture create_backend_texture(skiatest::Reporter* reporter,
                                       bool withMips,
                                       Renderable renderable,
                                       const SkColor4f colors[6]) {
-    int numMipLevels = withMips ? kNumMipLevels : 1;
-
+    Mipmapped mipmapped = withMips ? Mipmapped::kYes : Mipmapped::kNo;
     TextureInfo info = caps->getDefaultSampledTextureInfo(ct,
-                                                          numMipLevels,
+                                                          mipmapped,
                                                           Protected::kNo,
                                                           renderable);
 

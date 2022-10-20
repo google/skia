@@ -8,13 +8,14 @@
 #ifndef skgpu_graphite_VulkanGraphiteTypes_DEFINED
 #define skgpu_graphite_VulkanGraphiteTypes_DEFINED
 
+#include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
 
 namespace skgpu::graphite {
 
 struct VulkanTextureInfo {
     uint32_t fSampleCount = 1;
-    uint32_t fLevelCount = 0;
+    Mipmapped fMipmapped = Mipmapped::kNo;
 
     // VkImageCreateInfo properties
     // Currently the only supported flag is VK_IMAGE_CREATE_PROTECTED_BIT. Any other flag will not
@@ -39,7 +40,7 @@ struct VulkanTextureInfo {
 
     VulkanTextureInfo() = default;
     VulkanTextureInfo(uint32_t sampleCount,
-                      uint32_t levelCount,
+                      Mipmapped mipmapped,
                       VkImageCreateFlags flags,
                       VkFormat format,
                       VkImageTiling imageTiling,
@@ -47,7 +48,7 @@ struct VulkanTextureInfo {
                       VkSharingMode sharingMode,
                       VkImageAspectFlags aspectMask)
             : fSampleCount(sampleCount)
-            , fLevelCount(levelCount)
+            , fMipmapped(mipmapped)
             , fFlags(flags)
             , fFormat(format)
             , fImageTiling(imageTiling)

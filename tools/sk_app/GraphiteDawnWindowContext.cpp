@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
+#include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
@@ -73,7 +74,10 @@ void GraphiteDawnWindowContext::destroyContext() {
 
 sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
     auto textureView = fSwapChain.GetCurrentTextureView();
-    skgpu::graphite::DawnTextureInfo info(1, 0, fSwapChainFormat, kTextureUsage);
+    skgpu::graphite::DawnTextureInfo info(/*sampleCount=*/1,
+                                          skgpu::graphite::Mipmapped::kNo,
+                                          fSwapChainFormat,
+                                          kTextureUsage);
     skgpu::graphite::BackendTexture backendTex(this->dimensions(),
                                                info,
                                                std::move(textureView));

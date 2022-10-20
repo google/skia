@@ -15,7 +15,7 @@ DawnTextureInfo::DawnTextureInfo(const wgpu::Texture& texture) {
     SkASSERT(texture);
 
     fSampleCount = texture.GetSampleCount();
-    fLevelCount  = texture.GetMipLevelCount();
+    fMipmapped  = texture.GetMipLevelCount() > 1 ? Mipmapped::kYes : Mipmapped::kNo;
 
     fFormat = texture.GetFormat();
     fUsage =  texture.GetUsage();
@@ -23,11 +23,11 @@ DawnTextureInfo::DawnTextureInfo(const wgpu::Texture& texture) {
 
 DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,
                                              uint32_t sampleCount,
-                                             uint32_t levelCount) {
+                                             Mipmapped mipmapped) {
     DawnTextureInfo info;
     // Shared info
     info.fSampleCount = sampleCount;
-    info.fLevelCount = levelCount;
+    info.fMipmapped = mipmapped;
 
     // Dawn info
     info.fFormat = dawnSpec.fFormat;

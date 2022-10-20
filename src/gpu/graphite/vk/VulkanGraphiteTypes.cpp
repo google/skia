@@ -11,9 +11,9 @@ namespace skgpu::graphite {
 
 VulkanTextureInfo VulkanTextureSpecToTextureInfo(const VulkanTextureSpec& vkSpec,
                                                  uint32_t sampleCount,
-                                                 uint32_t levelCount) {
+                                                 Mipmapped mipmapped) {
     return VulkanTextureInfo(sampleCount,
-                             levelCount,
+                             mipmapped,
                              vkSpec.fFlags,
                              vkSpec.fFormat,
                              vkSpec.fImageTiling,

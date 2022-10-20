@@ -400,10 +400,11 @@ bool DrawAtlas::activateNewPage(Recorder* recorder) {
     SkASSERT(fNumActivePages < this->maxPages());
     SkASSERT(!fProxies[fNumActivePages]);
 
-    auto textureInfo = recorder->priv().caps()->getDefaultSampledTextureInfo(fColorType,
-                                                                             /*levelCount=*/1,
-                                                                             Protected::kNo,
-                                                                             Renderable::kNo);
+    auto textureInfo = recorder->priv().caps()->getDefaultSampledTextureInfo(
+            fColorType,
+            /*mipmapped=*/Mipmapped::kNo,
+            Protected::kNo,
+            Renderable::kNo);
     fProxies[fNumActivePages].reset(new TextureProxy({fTextureWidth, fTextureHeight}, textureInfo,
                                                      SkBudgeted::kYes));
     if (!fProxies[fNumActivePages]) {

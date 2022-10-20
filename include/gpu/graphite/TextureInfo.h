@@ -32,7 +32,7 @@ public:
             : fBackend(BackendApi::kDawn)
             , fValid(true)
             , fSampleCount(dawnInfo.fSampleCount)
-            , fLevelCount(dawnInfo.fLevelCount)
+            , fMipmapped(dawnInfo.fMipmapped)
             , fProtected(Protected::kNo)
             , fDawnSpec(dawnInfo) {}
 #endif
@@ -42,7 +42,7 @@ public:
             : fBackend(BackendApi::kMetal)
             , fValid(true)
             , fSampleCount(mtlInfo.fSampleCount)
-            , fLevelCount(mtlInfo.fLevelCount)
+            , fMipmapped(mtlInfo.fMipmapped)
             , fProtected(Protected::kNo)
             , fMtlSpec(mtlInfo) {}
 #endif
@@ -52,7 +52,7 @@ public:
             : fBackend(BackendApi::kVulkan)
             , fValid(true)
             , fSampleCount(vkInfo.fSampleCount)
-            , fLevelCount(vkInfo.fLevelCount)
+            , fMipmapped(vkInfo.fMipmapped)
             , fProtected(Protected::kNo)
             , fVkSpec(vkInfo) {
         if (vkInfo.fFlags & VK_IMAGE_CREATE_PROTECTED_BIT) {
@@ -72,7 +72,7 @@ public:
     BackendApi backend() const { return fBackend; }
 
     uint32_t numSamples() const { return fSampleCount; }
-    uint32_t numMipLevels() const { return fLevelCount; }
+    Mipmapped mipmapped() const { return fMipmapped; }
     Protected isProtected() const { return fProtected; }
 
 #ifdef SK_DAWN
@@ -80,7 +80,7 @@ public:
         if (!this->isValid() || fBackend != BackendApi::kDawn) {
             return false;
         }
-        *info = DawnTextureSpecToTextureInfo(fDawnSpec, fSampleCount, fLevelCount);
+        *info = DawnTextureSpecToTextureInfo(fDawnSpec, fSampleCount, fMipmapped);
         return true;
     }
 #endif
@@ -90,7 +90,7 @@ public:
         if (!this->isValid() || fBackend != BackendApi::kMetal) {
             return false;
         }
-        *info = MtlTextureSpecToTextureInfo(fMtlSpec, fSampleCount, fLevelCount);
+        *info = MtlTextureSpecToTextureInfo(fMtlSpec, fSampleCount, fMipmapped);
         return true;
     }
 #endif
@@ -100,7 +100,7 @@ public:
         if (!this->isValid() || fBackend != BackendApi::kVulkan) {
             return false;
         }
-        *info = VulkanTextureSpecToTextureInfo(fVkSpec, fSampleCount, fLevelCount);
+        *info = VulkanTextureSpecToTextureInfo(fVkSpec, fSampleCount, fMipmapped);
         return true;
     }
 #endif
@@ -136,7 +136,7 @@ private:
     bool fValid = false;
 
     uint32_t fSampleCount = 1;
-    uint32_t fLevelCount = 0;
+    Mipmapped fMipmapped = Mipmapped::kNo;
     Protected fProtected = Protected::kNo;
 
     union {

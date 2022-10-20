@@ -48,7 +48,7 @@ struct VulkanTextureSpec {
 
 VulkanTextureInfo VulkanTextureSpecToTextureInfo(const VulkanTextureSpec& vkSpec,
                                                  uint32_t sampleCount,
-                                                 uint32_t levelCount);
+                                                 Mipmapped mipmapped);
 
 } // namespace skgpu::graphite
 

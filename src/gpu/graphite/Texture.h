@@ -24,7 +24,7 @@ public:
     ~Texture() override;
 
     int numSamples() const { return fInfo.numSamples(); }
-    Mipmapped mipmapped() const { return Mipmapped(fInfo.numMipLevels() > 1); }
+    Mipmapped mipmapped() const { return fInfo.mipmapped(); }
 
     SkISize dimensions() const { return fDimensions; }
     const TextureInfo& textureInfo() const { return fInfo; }
