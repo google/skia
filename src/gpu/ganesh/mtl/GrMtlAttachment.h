@@ -45,14 +45,14 @@ public:
     ~GrMtlAttachment() override;
 
     GrBackendFormat backendFormat() const override {
-        return GrBackendFormat::MakeMtl(fTexture.pixelFormat);
+        return GrBackendFormat::MakeMtl(SkToU32(fTexture.pixelFormat));
     }
 
     MTLPixelFormat mtlFormat() const { return fTexture.pixelFormat; }
 
     id<MTLTexture> mtlTexture() const { return fTexture; }
 
-    unsigned int sampleCount() const { return fTexture.sampleCount; }
+    unsigned int sampleCount() const { return SkToU32(fTexture.sampleCount); }
 
     bool framebufferOnly() const { return fTexture.framebufferOnly; }
 

@@ -242,7 +242,7 @@ public:
 
     // randomize the array
     static void Shuffle(SkSpan<sk_sp<TopoTestNode>> graph, SkRandom* rand) {
-        for (int i = graph.size() - 1; i > 0; --i) {
+        for (size_t i = graph.size() - 1; i > 0; --i) {
             int swap = rand->nextU() % (i + 1);
 
             graph[i].swap(graph[swap]);

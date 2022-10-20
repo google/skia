@@ -125,7 +125,7 @@ private:
 // SkPackedGlyphIDs.
 class SkDrawableGlyphBuffer {
 public:
-    void ensureSize(size_t size);
+    void ensureSize(int size);
 
     // Load the buffer with SkPackedGlyphIDs and positions at (0, 0) ready to finish positioning
     // during drawing.
@@ -161,11 +161,12 @@ public:
     SkZip<SkGlyphVariant, SkPoint> input() {
         SkASSERT(fPhase == kInput);
         SkDEBUGCODE(fPhase = kProcess);
-        return SkZip<SkGlyphVariant, SkPoint>{fInputSize, fMultiBuffer.get(), fPositions};
+        return SkZip<SkGlyphVariant, SkPoint>{
+                SkToSizeT(fInputSize), fMultiBuffer.get(), fPositions};
     }
 
     // Store the glyph in the next slot, using the position information located at index from.
-    void accept(SkGlyph* glyph, size_t from) {
+    void accept(SkGlyph* glyph, int from) {
         SkASSERT(fPhase == kProcess);
         SkASSERT(fAcceptedSize <= from);
         fPositions[fAcceptedSize] = fPositions[from];
@@ -193,14 +194,15 @@ public:
     SkZip<SkGlyphVariant, SkPoint> accepted() {
         SkASSERT(fPhase == kProcess);
         SkDEBUGCODE(fPhase = kDraw);
-        return SkZip<SkGlyphVariant, SkPoint>{fAcceptedSize, fMultiBuffer.get(), fPositions};
+        return SkZip<SkGlyphVariant, SkPoint>{
+                SkToSizeT(fAcceptedSize), fMultiBuffer.get(), fPositions};
     }
 
     SkZip<SkGlyphVariant, SkPoint, SkMask::Format> acceptedWithMaskFormat() {
         SkASSERT(fPhase == kProcess);
         SkDEBUGCODE(fPhase = kDraw);
         return SkZip<SkGlyphVariant, SkPoint, SkMask::Format>{
-                fAcceptedSize, fMultiBuffer.get(), fPositions, fFormats};
+                SkToSizeT(fAcceptedSize), fMultiBuffer.get(), fPositions, fFormats};
     }
 
     bool empty() const {
@@ -218,9 +220,9 @@ public:
     }
 
 private:
-    size_t fMaxSize{0};
-    size_t fInputSize{0};
-    size_t fAcceptedSize{0};
+    int fMaxSize{0};
+    int fInputSize{0};
+    int fAcceptedSize{0};
     SkAutoTArray<SkGlyphVariant> fMultiBuffer;
     SkAutoTMalloc<SkPoint> fPositions;
     SkAutoTMalloc<SkMask::Format> fFormats;
