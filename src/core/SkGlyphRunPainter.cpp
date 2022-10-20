@@ -278,7 +278,6 @@ void SkGlyphRunListPainter::processGlyphRun(SkGlyphRunPainterInterface* process,
                                             const SkMatrix& drawMatrix,
                                             const SkPaint& runPaint,
                                             const GrSDFTControl& control,
-                                            const SkPoint& listCenter,
                                             const char* tag,
                                             uint64_t uniqueID) {
     #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
@@ -299,17 +298,16 @@ void SkGlyphRunListPainter::processGlyphRun(SkGlyphRunPainterInterface* process,
     fRejected.setSource(glyphRun.source());
     const SkFont& runFont = glyphRun.font();
 
-    // Only consider using direct or SDFT drawing if not drawing hairlines
-    if (runPaint.getStyle() != SkPaint::kStroke_Style || runPaint.getStrokeWidth() != 0) {
+    // Only consider using direct or SDFT drawing if not drawing hairlines and not perspective.
+    if ((runPaint.getStyle() != SkPaint::kStroke_Style || runPaint.getStrokeWidth() != 0)
+             && !drawMatrix.hasPerspective()) {
         SkScalar approximateDeviceTextSize =
-                SkFontPriv::ApproximateTransformedTextSize(runFont, drawMatrix,
-                                                           listCenter);
+                SkFontPriv::ApproximateTransformedTextSize(runFont, drawMatrix);
 
-        if (control.isSDFT(approximateDeviceTextSize, runPaint, drawMatrix)) {
+        if (control.isSDFT(approximateDeviceTextSize, runPaint)) {
             // Process SDFT - This should be the .009% case.
             const auto& [strikeSpec, strikeToSourceScale, matrixRange] =
-                    SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, drawMatrix,
-                                           listCenter, control);
+                    SkStrikeSpec::MakeSDFT(runFont, runPaint, fDeviceProps, drawMatrix, control);
 
             #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
                 msg.appendf("  SDFT case:\n%s", strikeSpec.dump().c_str());
@@ -337,7 +335,7 @@ void SkGlyphRunListPainter::processGlyphRun(SkGlyphRunPainterInterface* process,
             }
         }
 
-        if (!fRejected.source().empty() && !drawMatrix.hasPerspective()) {
+        if (!fRejected.source().empty()) {
             // Process masks including ARGB - this should be the 99.99% case.
             // This will handle medium size emoji that are sharing the run with SDFT drawn text.
             // If things are too big they will be passed along to the drawing of last resort below.

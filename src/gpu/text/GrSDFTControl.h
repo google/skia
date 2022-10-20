@@ -35,13 +35,10 @@ public:
     // Produce a font, a scale factor from the nominal size to the source space size, and matrix
     // range where this font can be reused.
     std::tuple<SkFont, SkScalar, GrSDFTMatrixRange>
-    getSDFFont(const SkFont& font, const SkMatrix& viewMatrix, const SkPoint& textLocation) const;
+    getSDFFont(const SkFont& font, const SkMatrix& viewMatrix) const;
 
-    bool isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
-                  const SkMatrix& matrix) const;
-    bool isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint,
-                const SkMatrix& matrix) const;
-
+    bool isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint) const;
+    bool isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint) const;
 
 private:
     static SkScalar MinSDFTRange(bool useSDFTForSmallText, SkScalar min);

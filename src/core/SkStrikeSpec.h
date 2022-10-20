@@ -76,7 +76,6 @@ public:
             const SkPaint& paint,
             const SkSurfaceProps& surfaceProps,
             const SkMatrix& deviceMatrix,
-            const SkPoint& textLocation,
             const GrSDFTControl& control);
 
     sk_sp<GrTextStrike> findOrCreateGrStrike(GrStrikeCache* cache) const;
