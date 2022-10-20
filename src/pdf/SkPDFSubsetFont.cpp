@@ -110,6 +110,10 @@ static sk_sp<SkData> subset_harfbuzz(sk_sp<SkData> fontData,
 #include "sample/chromium/font_subsetter.h"
 #include <vector>
 
+#if defined(SK_USING_THIRD_PARTY_ICU)
+#include "third_party/icu/SkLoadICU.h"
+#endif
+
 static sk_sp<SkData> subset_sfntly(sk_sp<SkData> fontData,
                                    const SkPDFGlyphUse& glyphUsage,
                                    const char* fontName,
