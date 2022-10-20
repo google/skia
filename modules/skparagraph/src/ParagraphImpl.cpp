@@ -72,7 +72,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fPlaceholders(std::move(placeholders))
         , fText(text)
         , fState(kUnknown)
-        , fillUTF16MappingOnce(std::in_place)
+        , fUTF16IndexMapped(false)
         , fUnresolvedGlyphs(0)
         , fPicture(nullptr)
         , fStrutMetrics(false)
@@ -138,7 +138,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         this->fBidiRegions.clear();
         this->fUTF8IndexForUTF16Index.reset();
         this->fUTF16IndexForUTF8Index.reset();
-        this->fillUTF16MappingOnce.emplace();
+        this->fUTF16IndexMapped = false;
         this->fRuns.reset();
         this->fClusters.reset();
         this->fClustersIndexFromCodeUnit.reset();
@@ -909,7 +909,7 @@ void ParagraphImpl::setState(InternalState state) {
             fBidiRegions.clear();
             fUTF8IndexForUTF16Index.reset();
             fUTF16IndexForUTF8Index.reset();
-            fillUTF16MappingOnce.emplace();
+            fUTF16IndexMapped = false;
             [[fallthrough]];
 
         case kShaped:
@@ -1074,13 +1074,16 @@ TextIndex ParagraphImpl::findNextGraphemeBoundary(TextIndex utf8) {
 }
 
 void ParagraphImpl::ensureUTF16Mapping() {
-    SkASSERT(fillUTF16MappingOnce.has_value());
-    (*fillUTF16MappingOnce)([&] {
-        fUnicode->extractUtfConversionMapping(
-                this->text(),
-                [&](size_t index) { fUTF8IndexForUTF16Index.emplace_back(index); },
-                [&](size_t index) { fUTF16IndexForUTF8Index.emplace_back(index); });
-    });
+    if (fUTF16IndexMapped) {
+        return;
+    }
+
+    fUnicode->extractUtfConversionMapping(
+            this->text(),
+            [&](size_t index) { fUTF8IndexForUTF16Index.emplace_back(index); },
+            [&](size_t index) { fUTF16IndexForUTF8Index.emplace_back(index); });
+
+    fUTF16IndexMapped = true;
 }
 
 void ParagraphImpl::visit(const Visitor& visitor) {
