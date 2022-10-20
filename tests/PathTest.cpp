@@ -5488,7 +5488,6 @@ static void add_verbs(SkPath* path, int count) {
 // Make sure when we call shrinkToFit() that we always shrink (or stay the same)
 // and that if we call twice, we stay the same.
 DEF_TEST(Path_shrinkToFit, reporter) {
-    size_t max_free = 0;
     for (int verbs = 0; verbs < 100; ++verbs) {
         SkPath unique_path, shared_path;
         add_verbs(&unique_path, verbs);
@@ -5504,9 +5503,6 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         uint32_t cID =        copy.getGenerationID();
         REPORTER_ASSERT(reporter, sID == cID);
 
-#ifdef SK_DEBUG
-        size_t before = PathTest_Private::GetFreeSpace(unique_path);
-#endif
         SkPathPriv::ShrinkToFit(&unique_path);
         SkPathPriv::ShrinkToFit(&shared_path);
         REPORTER_ASSERT(reporter, shared_path == unique_path);
@@ -5522,18 +5518,6 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         // outstanding Iterators active on copy, which could have been invalidated during
         // shrinkToFit.
         REPORTER_ASSERT(reporter, sID != shared_path.getGenerationID());
-
-#ifdef SK_DEBUG
-        size_t after = PathTest_Private::GetFreeSpace(unique_path);
-        REPORTER_ASSERT(reporter, before >= after);
-        max_free = std::max(max_free, before - after);
-
-        size_t after2 = PathTest_Private::GetFreeSpace(unique_path);
-        REPORTER_ASSERT(reporter, after == after2);
-#endif
-    }
-    if ((false)) {
-        SkDebugf("max_free %zu\n", max_free);
     }
 }
 

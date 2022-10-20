@@ -144,6 +144,7 @@ CPU_ONLY_TESTS = [
     "SkBlockAllocatorTest.cpp",
     "SkColor4fTest.cpp",
     "SkColorSpaceXformStepsTest.cpp",
+    "SkContainersTest.cpp",
     "SkDOMTest.cpp",
     "SkEnumBitMaskTest.cpp",
     "SkGaussFilterTest.cpp",

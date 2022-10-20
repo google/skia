@@ -238,6 +238,7 @@ skia_sksl_gpu_sources = [
 skslc_deps = [
   "$_src/core/SkArenaAlloc.cpp",
   "$_src/core/SkBlockAllocator.cpp",
+  "$_src/core/SkContainers.cpp",
   "$_src/core/SkCpu.cpp",
   "$_src/core/SkData.cpp",
   "$_src/core/SkHalf.cpp",
