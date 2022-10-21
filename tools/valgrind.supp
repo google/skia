@@ -2,14 +2,20 @@
 
 # Intentional thread / memory leak in DM and nanbench.
 {
-   nanobench_and_dm_keepalive_thread_leak
+   nanobench_keepalive_thread_leak
    Memcheck:Leak
    match-leak-kinds: possible,definite
    ...
-   fun:start_keepalive
+   fun:start_keepalive,_ZNSt6threadC2IZL15start_keepalivevE3$_0JEvEEOT_DpOT0_
    ...
    fun:main
-   ...
+}
+{
+   new_SkNullWStream
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:_Znwm
+   fun:main
 }
 
 # Third party lib, driver issues.
@@ -347,4 +353,16 @@
    ...
    fun:make_get_error_with_random_oom
    ...
+}
+{
+   make_get_error_with_random_oom3
+   Memcheck:Leak
+   match-leak-kinds: definite
+   fun:_Znwm
+   fun:_ZN15GrDirectContext6MakeGLE5sk_spIK13GrGLInterfaceERK16GrContextOptions
+   fun:_ZN11sk_gpu_test16GrContextFactory22getContextInfoInternalENS0_11ContextTypeENS0_16ContextOverridesEP15GrDirectContextj
+   fun:_ZN11sk_gpu_test16GrContextFactory3getENS0_11ContextTypeENS0_16ContextOverridesE
+   fun:_ZL20test_GrContext_oomedPN8skiatest8ReporterERK16GrContextOptions
+   fun:_ZNK8skiatest4Test6ganeshEPNS_8ReporterERK16GrContextOptions
+   fun:main
 }
