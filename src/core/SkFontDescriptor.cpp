@@ -8,6 +8,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "src/core/SkFontDescriptor.h"
+#include "src/core/SkStreamPriv.h"
 
 enum {
     kInvalid        = 0x00,
@@ -129,6 +130,9 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
             case kFontVariation:
                 if (!stream->readPackedUInt(&coordinateCount)) { return false; }
                 if (!SkTFitsIn<CoordinateCountType>(coordinateCount)) { return false; }
+                if (StreamRemainingLengthIsBelow(stream, coordinateCount)) {
+                    return false;
+                }
                 result->fCoordinateCount = SkTo<CoordinateCountType>(coordinateCount);
 
                 result->fVariation.reset(coordinateCount);
@@ -150,6 +154,9 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
             case kPaletteEntryOverrides:
                 if (!stream->readPackedUInt(&paletteEntryOverrideCount)) { return false; }
                 if (!SkTFitsIn<PaletteEntryOverrideCountType>(paletteEntryOverrideCount)) {
+                    return false;
+                }
+                if (StreamRemainingLengthIsBelow(stream, paletteEntryOverrideCount)) {
                     return false;
                 }
                 result->fPaletteEntryOverrideCount =

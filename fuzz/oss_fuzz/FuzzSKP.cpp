@@ -16,7 +16,6 @@ constexpr static SkISize kCanvasSize= {128, 160};
 void FuzzSKP(sk_sp<SkData> bytes) {
     sk_sp<SkPicture> pic = SkPicture::MakeFromData(bytes->data(), bytes->size());
     if (!pic) {
-        SkDebugf("[terminated] Couldn't decode as a picture.\n");
         return;
     }
     sk_sp<SkSurface> surface = SkSurface::MakeRasterN32Premul(kCanvasSize.width(),
