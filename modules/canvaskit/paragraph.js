@@ -67,7 +67,9 @@
         s['_ellipsisLen'] = 0;
       }
 
-      s['heightMultiplier'] = s['heightMultiplier'] || 0;
+      if (s['heightMultiplier'] == null) {
+        s['heightMultiplier'] = -1
+      }
       s['maxLines'] = s['maxLines'] || 0;
       s['replaceTabCharacters'] = s['replaceTabCharacters'] || false;
       s['strutStyle'] = strutStyle(s['strutStyle']);
@@ -101,8 +103,12 @@
             s['_fontFamiliesLen'] = 0;
         }
         s['fontStyle'] = fontStyle(s['fontStyle']);
-        s['fontSize'] = s['fontSize'] || 0;
-        s['heightMultiplier'] = s['heightMultiplier'] || 0;
+        if (s['fontSize'] == null) {
+          s['fontSize'] = -1
+        }
+        if (s['heightMultiplier'] == null) {
+          s['heightMultiplier'] = -1
+        }
         s['halfLeading'] = s['halfLeading'] || false;
         s['leading'] = s['leading'] || 0;
         s['forceStrutHeight'] = s['forceStrutHeight'] || false;
@@ -119,10 +125,14 @@
       s['decorationThickness'] = s['decorationThickness'] || 0;
       s['decorationStyle'] = s['decorationStyle'] || CanvasKit.DecorationStyle.Solid;
       s['textBaseline'] = s['textBaseline'] || CanvasKit.TextBaseline.Alphabetic;
-      s['fontSize'] = s['fontSize'] || 0;
+      if (s['fontSize'] == null) {
+        s['fontSize'] = -1
+      }
       s['letterSpacing'] = s['letterSpacing'] || 0;
       s['wordSpacing'] = s['wordSpacing'] || 0;
-      s['heightMultiplier'] = s['heightMultiplier'] || 0;
+      if (s['heightMultiplier'] == null) {
+        s['heightMultiplier'] = -1
+      }
       s['halfLeading'] = s['halfLeading'] || false;
       s['fontStyle'] = fontStyle(s['fontStyle']);
 

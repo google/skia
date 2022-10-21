@@ -1229,4 +1229,33 @@ describe('Paragraph Behavior', function() {
         CanvasKit.Free(mallocedLineBreaks);
     });
 
+    gm('paragraph_fontSize_and_heightMultiplier_0', (canvas) => {
+        const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
+
+        const wrapTo = 250;
+
+        const paraStyle = new CanvasKit.ParagraphStyle({
+            textStyle: {
+                fontSize: 0,
+                heightMultiplier: 0,
+            },
+        });
+
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.addText('This should not be visible');
+        const paragraph = builder.build();
+        paragraph.layout(wrapTo);
+        canvas.drawParagraph(paragraph, 10, 10);
+
+        let rects = paragraph.getRectsForRange(0, 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
+        const paint = new CanvasKit.Paint();
+        paint.setColor(CanvasKit.Color(255, 0, 0));
+        canvas.drawRect(rects[0], paint);
+        paint.delete();
+
+        paragraph.delete();
+        fontMgr.delete();
+        builder.delete();
+    });
+
 });

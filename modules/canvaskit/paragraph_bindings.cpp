@@ -102,10 +102,10 @@ para::StrutStyle toStrutStyle(const SimpleStrutStyle& s) {
     SkFontStyle fs(s.fontStyle.weight, s.fontStyle.width, s.fontStyle.slant);
     ss.setFontStyle(fs);
 
-    if (s.fontSize != 0) {
+    if (s.fontSize != -1) {
         ss.setFontSize(s.fontSize);
     }
-    if (s.heightMultiplier != 0) {
+    if (s.heightMultiplier != -1) {
         ss.setHeight(s.heightMultiplier);
         ss.setHeightOverride(true);
     }
@@ -141,7 +141,7 @@ para::TextStyle toTextStyle(const SimpleTextStyle& s) {
         ts.setBackgroundColor(p2);
     }
 
-    if (s.fontSize != 0) {
+    if (s.fontSize != -1) {
         ts.setFontSize(s.fontSize);
     }
     if (s.letterSpacing != 0) {
@@ -151,7 +151,7 @@ para::TextStyle toTextStyle(const SimpleTextStyle& s) {
         ts.setWordSpacing(s.wordSpacing);
     }
 
-    if (s.heightMultiplier != 0) {
+    if (s.heightMultiplier != -1) {
         ts.setHeight(s.heightMultiplier);
         ts.setHeightOverride(true);
     }
@@ -264,7 +264,7 @@ para::ParagraphStyle toParagraphStyle(const SimpleParagraphStyle& s) {
     ps.setTextStyle(ts);
     auto ss = toStrutStyle(s.strutStyle);
     ps.setStrutStyle(ss);
-    if (s.heightMultiplier != 0) {
+    if (s.heightMultiplier != -1) {
         ps.setHeight(s.heightMultiplier);
     }
     if (s.maxLines != 0) {
