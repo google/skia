@@ -618,7 +618,9 @@ void Compiler::handleError(std::string_view msg, Position pos) {
     }
     fErrorText += std::string(msg) + "\n";
     if (printLocation) {
-        // Find the beginning of the line
+        const int kMaxSurroundingChars = 100;
+
+        // Find the beginning of the line.
         int lineStart = pos.startOffset();
         while (lineStart > 0) {
             if (src[lineStart - 1] == '\n') {
@@ -627,16 +629,37 @@ void Compiler::handleError(std::string_view msg, Position pos) {
             --lineStart;
         }
 
-        // echo the line
-        for (int i = lineStart; i < (int)src.length(); i++) {
-            switch (src[i]) {
-                case '\t': fErrorText += "    "; break;
-                case '\0': fErrorText += " ";    break;
-                case '\n': i = src.length();     break;
-                default:   fErrorText += src[i]; break;
+        // We don't want to show more than 100 characters surrounding the error, so push the line
+        // start forward and add a leading ellipsis if there would be more than this.
+        std::string lineText;
+        std::string caretText;
+        if ((pos.startOffset() - lineStart) > kMaxSurroundingChars) {
+            lineStart = pos.startOffset() - kMaxSurroundingChars;
+            lineText = "...";
+            caretText = "   ";
+        }
+
+        // Echo the line. Again, we don't want to show more than 100 characters after the end of the
+        // error, so truncate with a trailing ellipsis if needed.
+        const char* lineSuffix = "...\n";
+        int lineStop = pos.endOffset() + kMaxSurroundingChars;
+        if (lineStop >= (int)src.length()) {
+            lineStop = src.length() - 1;
+            lineSuffix = "\n";  // no ellipsis if we reach end-of-file
+        }
+        for (int i = lineStart; i < lineStop; ++i) {
+            char c = src[i];
+            if (c == '\n') {
+                lineSuffix = "\n";  // no ellipsis if we reach end-of-line
+                break;
+            }
+            switch (c) {
+                case '\t': lineText += "    "; break;
+                case '\0': lineText += " ";    break;
+                default:   lineText += src[i]; break;
             }
         }
-        fErrorText += '\n';
+        fErrorText += lineText + lineSuffix;
 
         // print the carets underneath it, pointing to the range in question
         for (int i = lineStart; i < (int)src.length(); i++) {
@@ -645,20 +668,20 @@ void Compiler::handleError(std::string_view msg, Position pos) {
             }
             switch (src[i]) {
                 case '\t':
-                   fErrorText += (i >= pos.startOffset()) ? "^^^^" : "    ";
+                   caretText += (i >= pos.startOffset()) ? "^^^^" : "    ";
                    break;
                 case '\n':
                     SkASSERT(i >= pos.startOffset());
                     // use an ellipsis if the error continues past the end of the line
-                    fErrorText += (pos.endOffset() > i + 1) ? "..." : "^";
+                    caretText += (pos.endOffset() > i + 1) ? "..." : "^";
                     i = src.length();
                     break;
                 default:
-                    fErrorText += (i >= pos.startOffset()) ? '^' : ' ';
+                    caretText += (i >= pos.startOffset()) ? '^' : ' ';
                     break;
             }
         }
-        fErrorText += '\n';
+        fErrorText += caretText + '\n';
     }
 }
 
