@@ -30,6 +30,7 @@
 
 static bool gUnoptimized = false;
 static bool gStringify = false;
+static SkSL::ProgramKind gProgramKind = SkSL::ProgramKind::kFragment;
 
 void SkDebugf(const char format[], ...) {
     va_list args;
@@ -64,7 +65,7 @@ static std::string remove_extension(const std::string& path) {
  * Displays a usage banner; used when the command line arguments don't make sense.
  */
 static void show_usage() {
-    printf("usage: sksl-minify <output> <input> [dependencies...]\n");
+    printf("usage: sksl-minify <output> <input> [--frag|--vert|--compute] [dependencies...]\n");
 }
 
 static std::string_view stringize(const SkSL::Token& token, std::string_view text) {
@@ -90,13 +91,10 @@ static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_lis
             return {};
         }
 
-        // TODO(skia:13778): We don't know the module's ProgramKind here, so we always pass
-        // kFragment. For minification purposes, the ProgramKind doesn't really make a difference
-        // as long as it doesn't limit what we can do.
         const SkSL::Module* parent = modules.empty() ? SkSL::ModuleLoader::Get().rootModule()
                                                      : modules.front().get();
         std::unique_ptr<SkSL::Module> m =
-                compiler.compileModule(SkSL::ProgramKind::kFragment,
+                compiler.compileModule(gProgramKind,
                                        modulePath->c_str(),
                                        std::move(moduleSource),
                                        parent,
@@ -108,7 +106,7 @@ static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_lis
             // (i.e., if module A claims names `$a` and `$b` at global scope, module B will need to
             // start at `$c`. The most straightforward way to handle this is to actually perform the
             // renames.)
-            compiler.optimizeModuleBeforeMinifying(SkSL::ProgramKind::kFragment, *m);
+            compiler.optimizeModuleBeforeMinifying(gProgramKind, *m);
         }
         modules.push_front(std::move(m));
     }
@@ -180,7 +178,7 @@ static bool generate_minified_text(std::string_view inputPath,
     return true;
 }
 
-ResultCode processCommand(const std::vector<std::string>& args) {
+static ResultCode process_command(const std::vector<std::string>& args) {
     if (args.size() < 2) {
         show_usage();
         return ResultCode::kInputError;
@@ -232,12 +230,17 @@ ResultCode processCommand(const std::vector<std::string>& args) {
     return ResultCode::kSuccess;
 }
 
-bool find_boolean_flag(std::vector<std::string>& args, std::string_view flagName) {
+static bool find_boolean_flag(std::vector<std::string>& args, std::string_view flagName) {
     size_t startingCount = args.size();
     args.erase(std::remove_if(args.begin(), args.end(),
                               [&](const std::string& a) { return a == flagName; }),
                args.end());
     return args.size() < startingCount;
+}
+
+static bool has_overlapping_flags(SkSpan<const bool> flags) {
+    // Returns true if more than one boolean is set.
+    return std::count(flags.begin(), flags.end(), true) > 1;
 }
 
 int main(int argc, const char** argv) {
@@ -248,6 +251,20 @@ int main(int argc, const char** argv) {
 
     gUnoptimized = find_boolean_flag(args, "--unoptimized");
     gStringify = find_boolean_flag(args, "--stringify");
+    bool isFrag = find_boolean_flag(args, "--frag");
+    bool isVert = find_boolean_flag(args, "--vert");
+    bool isCompute = find_boolean_flag(args, "--compute");
+    if (has_overlapping_flags({isFrag, isVert, isCompute})) {
+        show_usage();
+        return (int)ResultCode::kInputError;
+    }
+    if (isFrag) {
+        gProgramKind = SkSL::ProgramKind::kFragment;
+    } else if (isVert) {
+        gProgramKind = SkSL::ProgramKind::kVertex;
+    } else if (isCompute) {
+        gProgramKind = SkSL::ProgramKind::kCompute;
+    }
 
-    return (int)processCommand(args);
+    return (int)process_command(args);
 }

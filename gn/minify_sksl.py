@@ -33,6 +33,14 @@ for module in modules:
             os.mkdir(targetDir)
         target = os.path.join(targetDir, moduleName)
 
+        # Determine the program kind based on the module name.
+        if "_compute" in module:
+            programKind = "--compute"
+        elif "_vert" in module:
+            programKind = "--vert"
+        else:
+            programKind = "--frag"
+
         # Assemble the module dependency list and call sksl-minify to recreate the module in its
         # minified form.
         moduleList = [module]
@@ -43,13 +51,13 @@ for module in modules:
             moduleList.append(os.path.join(moduleDir, dependent) + ".sksl")
 
         # Generate fully-optimized and minified module data (for release/optimize-for-size builds).
-        args = ([sksl_minify, "--stringify", target + ".minified.sksl"] +
-                moduleList)
+        destPath = target + ".minified.sksl"
+        args = [sksl_minify, programKind, "--stringify", destPath] + moduleList
         subprocess.check_output(args).decode('utf-8')
 
         # Generate unoptimized module data (used in debug, for improved readability).
-        args = ([sksl_minify, "--unoptimized", "--stringify", target + ".unoptimized.sksl"] +
-                moduleList)
+        destPath = target + ".unoptimized.sksl"
+        args = [sksl_minify, programKind, "--unoptimized", "--stringify", destPath] + moduleList
         subprocess.check_output(args).decode('utf-8')
 
     except subprocess.CalledProcessError as err:
