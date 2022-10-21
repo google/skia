@@ -36,13 +36,21 @@ ENV CLANG_RELEASE=llvmorg-15.0.1
 RUN mkdir -p /tmp/clang && cd /tmp/clang && \
     git clone --depth 1 -b ${CLANG_RELEASE} https://llvm.googlesource.com/llvm-project
 
+# As of October 21, 2022, iwyu 0.19 (for clang 15) was not yet a branch, so we just checkout
+# tip of tree at that time
+RUN git clone https://github.com/include-what-you-use/include-what-you-use.git /tmp/iwyu && \
+    cd /tmp/iwyu && \
+    git checkout 6d416d5f90755dd76d55c0f33f9ac0de6dd27b5f
+
 WORKDIR /tmp/clang/llvm-project
 
 ENV CC=/usr/bin/clang
 ENV CXX=/usr/bin/clang++
 
 # https://libcxx.llvm.org/BuildingLibcxx.html#bootstrapping-build
-# This will build clang first and then use that new clang to build the runtimes
+# https://github.com/include-what-you-use/include-what-you-use#how-to-build-as-part-of-llvm
+# This will build clang first and then use that new clang to build the runtimes and the
+# iwyu probject.
 RUN mkdir ${TARGET_DIR} out && \
     cmake -G Ninja -S llvm -B out \
     -DCMAKE_BUILD_TYPE=Release \
@@ -51,7 +59,9 @@ RUN mkdir ${TARGET_DIR} out && \
     -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi" \
     -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON \
     -DLLVM_USE_LINKER=lld \
-    -DLLVM_ENABLE_TERMINFO=OFF
+    -DLLVM_ENABLE_TERMINFO=OFF \
+    -DLLVM_EXTERNAL_PROJECTS=iwyu \
+    -DLLVM_EXTERNAL_IWYU_SOURCE_DIR=/tmp/iwyu
 
 # TODO(kjlubick) Previously, we would build clang-tools-extra. Do we still need that?
 
