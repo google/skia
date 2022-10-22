@@ -197,28 +197,35 @@ static DEFINE_bool(binaryarchive, false, "Enable MTLBinaryArchive use (if availa
 static_assert(false, "viewer requires GL backend for raster.")
 #endif
 
-const char* kBackendTypeStrings[sk_app::Window::kBackendTypeCount] = {
-    "OpenGL",
+const char* get_backend_string(sk_app::Window::BackendType type) {
+    switch (type) {
+        case sk_app::Window::kNativeGL_BackendType: return "OpenGL";
 #if SK_ANGLE && defined(SK_BUILD_FOR_WIN)
-    "ANGLE",
+        case sk_app::Window::kANGLE_BackendType: return "ANGLE";
 #endif
 #ifdef SK_DAWN
-    "Dawn",
+        case sk_app::Window::kDawn_BackendType: return "Dawn";
+#ifdef SK_GRAPHITE_ENABLED
+        case sk_app::Window::kGraphiteDawn_BackendType: return "Dawn (Graphite)";
+#endif
 #endif
 #ifdef SK_VULKAN
-    "Vulkan",
+        case sk_app::Window::kVulkan_BackendType: return "Vulkan";
 #endif
 #ifdef SK_METAL
-    "Metal",
+        case sk_app::Window::kMetal_BackendType: return "Metal";
 #ifdef SK_GRAPHITE_ENABLED
-    "Metal (Graphite)",
+        case sk_app::Window::kGraphiteMetal_BackendType: return "Metal (Graphite)";
 #endif
 #endif
 #ifdef SK_DIRECT3D
-    "Direct3D",
+        case sk_app::Window::kDirect3D_BackendType: return "Direct3D";
 #endif
-    "Raster"
-};
+        case sk_app::Window::kRaster_BackendType: return "Raster";
+    }
+    SkASSERT(false);
+    return nullptr;
+}
 
 static sk_app::Window::BackendType get_backend_type(const char* str) {
 #ifdef SK_DAWN
@@ -1121,7 +1128,7 @@ void Viewer::updateTitle() {
     }
 
     title.append(" [");
-    title.append(kBackendTypeStrings[fBackendType]);
+    title.append(get_backend_string(fBackendType));
     int msaa = fWindow->sampleCount();
     if (msaa > 1) {
         title.appendf(" MSAA: %i", msaa);
@@ -2999,10 +3006,11 @@ void Viewer::updateUIState() {
         });
 
     // Backend state
-    WriteStateObject(writer, kBackendStateName, kBackendTypeStrings[fBackendType],
+    WriteStateObject(writer, kBackendStateName, get_backend_string(fBackendType),
         [](SkJSONWriter& writer) {
-            for (const auto& str : kBackendTypeStrings) {
-                writer.appendCString(str);
+            for (int i = 0; i < sk_app::Window::kBackendTypeCount; ++i) {
+                auto backendType = static_cast<sk_app::Window::BackendType>(i);
+                writer.appendCString(get_backend_string(backendType));
             }
         });
 
@@ -3085,9 +3093,10 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
         SkDebugf("Slide not found: %s", stateValue.c_str());
     } else if (stateName.equals(kBackendStateName)) {
         for (int i = 0; i < sk_app::Window::kBackendTypeCount; i++) {
-            if (stateValue.equals(kBackendTypeStrings[i])) {
+            auto backendType = static_cast<sk_app::Window::BackendType>(i);
+            if (stateValue.equals(get_backend_string(backendType))) {
                 if (fBackendType != i) {
-                    fBackendType = (sk_app::Window::BackendType)i;
+                    fBackendType = backendType;
                     for(auto& slide : fSlides) {
                         slide->gpuTeardown();
                     }
