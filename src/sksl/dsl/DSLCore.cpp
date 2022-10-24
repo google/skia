@@ -385,12 +385,6 @@ DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, P
 DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
                              SkTArray<DSLField> fields, std::string_view varName, int arraySize,
                              Position pos) {
-    SkSL::ProgramKind kind = ThreadContext::GetProgramConfig()->fKind;
-    if (!ProgramConfig::IsFragment(kind) && !ProgramConfig::IsVertex(kind) &&
-        !ProgramConfig::IsCompute(kind)) {
-        ThreadContext::ReportError("interface blocks are not allowed in this kind of program", pos);
-        return DSLExpression(nullptr);
-    }
     return DSLCore::InterfaceBlock(modifiers, typeName, std::move(fields), varName, arraySize, pos);
 }
 
