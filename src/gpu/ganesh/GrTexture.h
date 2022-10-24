@@ -16,6 +16,10 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSurface.h"
 
+#if defined(SK_DEBUG)
+class GrTextureProxy;
+#endif
+
 class GrTexture : virtual public GrSurface {
 public:
     GrTexture* asTexture() override { return this; }
@@ -55,7 +59,7 @@ public:
     GrMipmapStatus mipmapStatus() const { return fMipmapStatus; }
     int maxMipmapLevel() const { return fMaxMipmapLevel; }
 
-    SkDEBUGCODE(void assertMipmapsNotDirty();)
+    SkDEBUGCODE(void assertMipmapsNotDirty(const GrTextureProxy* proxy);)
 
     static void ComputeScratchKey(const GrCaps& caps,
                                   const GrBackendFormat& format,

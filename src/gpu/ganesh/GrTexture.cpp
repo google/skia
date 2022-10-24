@@ -15,10 +15,14 @@
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrTexture.h"
 
-#ifdef SK_DEBUG
+#if defined(SK_DEBUG)
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#if defined(SK_GL)
+#include "src/gpu/ganesh/gl/GrGLTexture.h"
+#endif
 #endif
 
 void GrTexture::markMipmapsDirty(const char* reason) {
@@ -40,7 +44,7 @@ void GrTexture::markMipmapsClean() {
 }
 
 #if defined(SK_DEBUG)
-void GrTexture::assertMipmapsNotDirty() {
+void GrTexture::assertMipmapsNotDirty(const GrTextureProxy* proxy) {
     // There are some cases where we might be given a non-mipmapped texture with a
     // mipmap filter. See skbug.com/7094.
     if (this->mipmapped() == GrMipmapped::kYes && this->mipmapsAreDirty()) {
@@ -60,12 +64,17 @@ void GrTexture::assertMipmapsNotDirty() {
                 sampleCount = rt->numSamples();
             }
             int format = 0;
+            int borrowed = -1;
 #if defined(SK_GL)
             format = (int)this->backendFormat().asGLFormat();
+            if (context->backend() == GrBackendApi::kOpenGL) {
+                auto gltex = static_cast<GrGLTexture*>(this);
+                borrowed = SkToInt(gltex->idOwnership() == GrBackendObjectOwnership::kBorrowed);
+            }
 #endif
             msg += SkStringPrintf(
                     " Dirtied by \"%s\" %s, now we're %s. "
-                    "tex dims: %dx%d, gl fmt: %04x, isRT: %d, sc: %d",
+                    "tex dims: %dx%d, gl fmt: %04x, isRT: %d, sc: %d, borrowed: %d",
                     fMipmapDirtyReason,
                     flushStr(fMipmapDirtyFlushNum, fMipmapDirtyWasFlushing).c_str(),
                     flushStr(flushNum, isFlushing).c_str(),
@@ -73,7 +82,11 @@ void GrTexture::assertMipmapsNotDirty() {
                     this->height(),
                     format,
                     isRT,
-                    sampleCount);
+                    sampleCount,
+                    borrowed);
+        }
+        if (proxy) {
+            msg += SkStringPrintf(", proxy status = %d", proxy->mipmapsAreDirty());
         }
         SK_ABORT("%s", msg.c_str());
     }
@@ -100,6 +113,12 @@ GrTexture::GrTexture(GrGpu* gpu,
     } else {
         fMaxMipmapLevel = SkMipmap::ComputeLevelCount(this->width(), this->height());
     }
+#if defined(SK_DEBUG)
+    if (fMipmapStatus == GrMipmapStatus::kDirty) {
+        fMipmapDirtyWasFlushing = gpu->getContext()->priv().drawingManager()->isFlushing();
+        fMipmapDirtyFlushNum    = gpu->getContext()->priv().drawingManager()->flushNumber();
+    }
+#endif
     if (textureType == GrTextureType::kExternal) {
         this->setReadOnly();
     }
