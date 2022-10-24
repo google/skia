@@ -369,10 +369,6 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
         fFS.enableSecondaryOutput();
     }
 
-    if (this->shaderCaps()->mustDeclareFragmentShaderOutput()) {
-        fFS.enableCustomOutput();
-    }
-
     SkString openBrace;
     openBrace.printf("{ // Xfer Processor: %s\n", xp.name());
     fFS.codeAppend(openBrace.c_str());

@@ -58,10 +58,6 @@ SkSL::Compiler* GrMtlPipelineStateBuilder::shaderCompiler() const {
     return fGpu->shaderCompiler();
 }
 
-void GrMtlPipelineStateBuilder::finalizeFragmentOutputColor(GrShaderVar& outputColor) {
-    outputColor.addLayoutQualifier("location = 0, index = 0");
-}
-
 void GrMtlPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outputColor) {
     outputColor.addLayoutQualifier("location = 0, index = 1");
 }

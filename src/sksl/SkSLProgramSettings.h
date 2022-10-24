@@ -22,7 +22,8 @@ class ExternalFunction;
  * Holds the compiler settings for a program.
  */
 struct ProgramSettings {
-    // If true the destination fragment color is read sk_FragColor. It must be declared inout.
+    // If true, the destination fragment color can be read from sk_FragColor. It must be declared
+    // inout. This is only supported in GLSL, when framebuffer-fetch is used.
     bool fFragColorIsInOut = false;
     // if true, all halfs are forced to be floats
     bool fForceHighPrecision = false;

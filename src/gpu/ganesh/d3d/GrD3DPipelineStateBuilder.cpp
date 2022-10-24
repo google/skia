@@ -65,10 +65,6 @@ SkSL::Compiler* GrD3DPipelineStateBuilder::shaderCompiler() const {
     return fGpu->shaderCompiler();
 }
 
-void GrD3DPipelineStateBuilder::finalizeFragmentOutputColor(GrShaderVar& outputColor) {
-    outputColor.addLayoutQualifier("location = 0, index = 0");
-}
-
 void GrD3DPipelineStateBuilder::finalizeFragmentSecondaryColor(GrShaderVar& outputColor) {
     outputColor.addLayoutQualifier("location = 0, index = 1");
 }

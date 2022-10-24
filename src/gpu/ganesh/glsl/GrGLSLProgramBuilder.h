@@ -87,9 +87,8 @@ public:
     virtual const GrGLSLUniformHandler* uniformHandler() const = 0;
     virtual GrGLSLVaryingHandler* varyingHandler() = 0;
 
-    // Used for backend customization of the output color and secondary color variables from the
-    // fragment processor. Only used if the outputs are explicitly declared in the shaders
-    virtual void finalizeFragmentOutputColor(GrShaderVar& outputColor) {}
+    // Used for backend customization of the secondary color variable from the fragment processor.
+    // Only used if the output is explicitly declared in the shaders.
     virtual void finalizeFragmentSecondaryColor(GrShaderVar& outputColor) {}
 
     // number of each input/output type in a single allocation block, used by many builders

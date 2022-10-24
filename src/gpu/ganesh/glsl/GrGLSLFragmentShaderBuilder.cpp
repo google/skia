@@ -26,8 +26,7 @@ const char* GrGLSLFragmentShaderBuilder::dstColor() {
         // Some versions of this extension string require declaring custom color output on ES 3.0+
         const char* fbFetchColorName = "sk_LastFragColor";
         if (shaderCaps->fFBFetchNeedsCustomOutput) {
-            this->enableCustomOutput();
-            fCustomColorOutput->setTypeModifier(GrShaderVar::TypeModifier::InOut);
+            fPrimaryColorIsInOut = true;
             fbFetchColorName = DeclaredColorOutputName();
             // Set the dstColor to an intermediate variable so we don't override it with the output
             this->codeAppendf("half4 %s = %s;", kDstColorName, fbFetchColorName);
@@ -46,14 +45,6 @@ void GrGLSLFragmentShaderBuilder::enableAdvancedBlendEquationIfNeeded(
         this->addFeature(1 << kBlendEquationAdvanced_GLSLPrivateFeature,
                          "GL_KHR_blend_equation_advanced");
         this->addLayoutQualifier("blend_support_all_equations", kOut_InterfaceQualifier);
-    }
-}
-
-void GrGLSLFragmentShaderBuilder::enableCustomOutput() {
-    if (!fCustomColorOutput) {
-        fCustomColorOutput = &fOutputs.emplace_back(DeclaredColorOutputName(), SkSLType::kHalf4,
-                                                    GrShaderVar::TypeModifier::Out);
-        fProgramBuilder->finalizeFragmentOutputColor(fOutputs.back());
     }
 }
 
@@ -81,8 +72,7 @@ const char* GrGLSLFragmentShaderBuilder::getPrimaryColorOutputName() const {
 }
 
 bool GrGLSLFragmentShaderBuilder::primaryColorOutputIsInOut() const {
-    return fCustomColorOutput &&
-           fCustomColorOutput->getTypeModifier() == GrShaderVar::TypeModifier::InOut;
+    return fPrimaryColorIsInOut;
 }
 
 const char* GrGLSLFragmentShaderBuilder::getSecondaryColorOutputName() const {
