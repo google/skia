@@ -295,8 +295,11 @@ public:
      */
     static sk_sp<IndexBuffer> MakeIndexBuffer(GrDirectContext*, const void* data, size_t size);
 
-    /** Deprecated in favor of const void* and size_t version above. */
-    static sk_sp<IndexBuffer> MakeIndexBuffer(GrDirectContext*, sk_sp<const SkData>);
+    /**
+     * Makes a copy of an index buffer. The implementation currently only supports a CPU-backed
+     * source buffer.
+     */
+    static sk_sp<IndexBuffer> CopyIndexBuffer(GrDirectContext*, sk_sp<IndexBuffer>);
 
     /**
      * Makes a vertex buffer to be used with SkMeshes. The buffer may be CPU- or GPU-backed
@@ -313,8 +316,11 @@ public:
      */
     static sk_sp<VertexBuffer> MakeVertexBuffer(GrDirectContext*, const void*, size_t size);
 
-    /** Deprecated in favor of const void* and size_t version above. */
-    static sk_sp<VertexBuffer> MakeVertexBuffer(GrDirectContext*, sk_sp<const SkData>);
+    /**
+     * Makes a copy of a vertex buffer. The implementation currently only supports a CPU-backed
+     * source buffer.
+     */
+    static sk_sp<VertexBuffer> CopyVertexBuffer(GrDirectContext*, sk_sp<VertexBuffer>);
 
     enum class Mode { kTriangles, kTriangleStrip };
 

@@ -113,11 +113,9 @@ protected:
             return DrawResult::kOk;
         }
 
-        fColorVB        = SkMesh::MakeVertexBuffer(dc, CpuVBPeek(fColorVB), fColorVB->size());
-        fColorIndexedVB = SkMesh::MakeVertexBuffer(dc,
-                                                   CpuVBPeek(fColorIndexedVB),
-                                                   fColorIndexedVB->size());
-        fIB[1]          = SkMesh::MakeIndexBuffer (dc, CpuIBPeek(fIB[0]), fIB[0]->size());
+        fColorVB        = SkMesh::CopyVertexBuffer(dc, fColorVB);
+        fColorIndexedVB = SkMesh::CopyVertexBuffer(dc, fColorIndexedVB);
+        fIB[1]          = SkMesh::CopyIndexBuffer (dc, fIB[0]);
         if (!fColorVB || !fColorIndexedVB || !fIB[1]) {
             return DrawResult::kFail;
         }
@@ -207,18 +205,6 @@ protected:
     }
 
 private:
-    static const void* CpuVBPeek(sk_sp<SkMesh::VertexBuffer> buffer) {
-        auto vb = static_cast<SkMeshPriv::VB*>(buffer.get());
-        SkASSERT(vb->peek());
-        return vb->peek();
-    }
-
-    static const void* CpuIBPeek(sk_sp<SkMesh::IndexBuffer> buffer) {
-        auto ib = static_cast<SkMeshPriv::IB*>(buffer.get());
-        SkASSERT(ib->peek());
-        return ib->peek();
-    }
-
     void ensureBuffers() {
         if (!fColorVB) {
             fColorVB = SkMesh::MakeVertexBuffer(/*GrDirectContext*=*/nullptr,

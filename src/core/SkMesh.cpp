@@ -500,11 +500,16 @@ sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* dc, const void* data
     return nullptr;
 }
 
-sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* dc, sk_sp<const SkData> data) {
+sk_sp<IndexBuffer> SkMesh::CopyIndexBuffer(GrDirectContext* dc, sk_sp<IndexBuffer> src) {
+    if (!src) {
+        return nullptr;
+    }
+    auto* ib = static_cast<SkMeshPriv::IB*>(src.get());
+    const void* data = ib->peek();
     if (!data) {
         return nullptr;
     }
-    return MakeIndexBuffer(dc, data->data(), data->size());
+    return MakeIndexBuffer(dc, data, ib->size());
 }
 
 sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* dc, const void* data, size_t size) {
@@ -517,11 +522,16 @@ sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* dc, const void* da
     return nullptr;
 }
 
-sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* dc, sk_sp<const SkData> data) {
+sk_sp<VertexBuffer> SkMesh::CopyVertexBuffer(GrDirectContext* dc, sk_sp<VertexBuffer> src) {
+    if (!src) {
+        return nullptr;
+    }
+    auto* vb = static_cast<SkMeshPriv::VB*>(src.get());
+    const void* data = vb->peek();
     if (!data) {
         return nullptr;
     }
-    return MakeVertexBuffer(dc, data->data(), data->size());
+    return MakeVertexBuffer(dc, data, vb->size());
 }
 
 SkMesh SkMesh::Make(sk_sp<SkMeshSpecification> spec,
