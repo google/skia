@@ -87,6 +87,10 @@ struct SkMeshSpecificationPriv {
         }
         SkUNREACHABLE;
     }
+
+    static int PassthroughLocalCoordsVaryingIndex(const SkMeshSpecification& spec) {
+        return spec.fPassthroughLocalCoordsVaryingIndex;
+    }
 };
 
 struct SkMeshPriv {

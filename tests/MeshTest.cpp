@@ -11,6 +11,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkMeshPriv.h"
 #include "src/core/SkZip.h"
 #include "tests/Test.h"
 
@@ -848,4 +849,121 @@ DEF_TEST(MeshSpec, reporter) {
     test_bad_position_varying(reporter);
     test_empty_attribute_name(reporter);
     test_empty_varying_name(reporter);
+}
+
+
+DEF_TEST(MeshSpecVaryingPassthrough, reporter) {
+    static const Attribute kAttributes[]{
+            {Attribute::Type::kFloat2,        0, SkString{"position"}},
+            {Attribute::Type::kFloat2,        8, SkString{"uv"}      },
+            {Attribute::Type::kUByte4_unorm, 16, SkString{"color"}   },
+    };
+    static const Varying kVaryings[]{
+            {Varying::Type::kFloat2, SkString{"position"}},
+            {Varying::Type::kFloat2, SkString{"uv"}      },
+            {Varying::Type::kHalf4,  SkString{"color"}   },
+    };
+
+    static constexpr char kVS[] = R"(
+            Varyings main(const Attributes a) {
+                Varyings v;
+                v.uv       = a.uv;
+                v.position = a.position;
+                v.color    = a.color;
+                return v;
+            }
+    )";
+    auto check = [&] (const char* fs, const char* passthroughAttr) {
+        auto [spec, error] = SkMeshSpecification::Make(kAttributes,
+                                                       /*vertexStride=*/24,
+                                                       kVaryings,
+                                                       SkString(kVS),
+                                                       SkString(fs));
+        if (!spec) {
+            ERRORF(reporter, "%s\n%s", fs, error.c_str());
+            return;
+        }
+        int idx = SkMeshSpecificationPriv::PassthroughLocalCoordsVaryingIndex(*spec);
+        const SkString& actualAttr = idx >= 0 ? spec->attributes()[idx].name : SkString("<none>");
+        if (!passthroughAttr) {
+            if (idx >= 0) {
+                ERRORF(reporter, "Expected no passthrough coords attribute, found %s.\n%s",
+                       actualAttr.c_str(),
+                       fs);
+            }
+        } else if (!actualAttr.equals(passthroughAttr)) {
+            ERRORF(reporter, "Expected %s as passthrough coords attribute, found %s.\n%s",
+                   passthroughAttr,
+                   actualAttr.c_str(),
+                   fs);
+        }
+    };
+
+    // Simple
+    check(R"(float2 main(const Varyings v) {
+                  return v.uv;
+              })",
+          "uv");
+
+    // Simple, using position
+    check(R"(float2 main(const Varyings v) {
+                  return v.position;
+              })",
+          "position");
+
+    // Simple, with output color
+    check(R"(float2 main(const Varyings v, out half4 color) {
+                  color = v.color;
+                  return v.uv;
+              })",
+          "uv");
+
+    // Three returns, all the same.
+    check(R"(uniform int selector;
+
+             float2 main(const Varyings v, out half4 color) {
+                  if (selector == 0) {
+                      color = half4(1, 0, 0, 1);
+                      return v.position;
+                  }
+                  if (selector == 1) {
+                      color = half4(1, 1, 0, 1);
+                      return v.position;
+                  }
+                  color = half4(1, 0, 1, 1);
+                  return v.position;
+             })",
+          "position");
+
+    // Three returns, one not like the others
+    check(R"(uniform int selector;
+
+             float2 main(const Varyings v, out half4 color) {
+                  if (selector == 0) {
+                      color = color.bgra;
+                      return v.position;
+                  }
+                  if (selector == 1) {
+                      color = half4(1);
+                      return v.uv;
+                  }
+                  color = color;
+                  return v.position;
+             })",
+          nullptr);
+
+    // Swizzles aren't handled (yet?).
+    check(R"(float2 main(const Varyings v) {
+                  return v.uv.yx;
+              })",
+          nullptr);
+
+    // Return from non-main fools us?
+    check(R"(half4 get_color(const Varyings v) { return v.color; }
+
+             float2 main(const Varyings v, out half4 color) {
+                  color = get_color(v);
+                  return v.position;
+              })",
+          "position");
 }

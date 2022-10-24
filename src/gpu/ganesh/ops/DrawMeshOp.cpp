@@ -215,6 +215,26 @@ private:
             SkASSERT(fSpecUniformHandles.empty());
             fSpecUniformHandles.resize(mgp.fSpec->uniforms().size());
 
+            SkMeshSpecificationPriv::ColorType meshColorType =
+                    SkMeshSpecificationPriv::GetColorType(*mgp.fSpec);
+            int passthroughLCVaryingIndex =
+                    SkMeshSpecificationPriv::PassthroughLocalCoordsVaryingIndex(*mgp.fSpec);
+
+            // If the user's fragment shader doesn't output color and we also don't need its local
+            // coords then it isn't necessary to call it at all. We might not need its local coords
+            // because local coords aren't required for the paint or because we detected a
+            // passthrough varying returned from the user's FS.
+            bool needUserFS = (passthroughLCVaryingIndex < 0 && mgp.fNeedsLocalCoords) ||
+                              meshColorType != SkMeshSpecificationPriv::ColorType::kNone;
+
+            if (!needUserFS && !mgp.fNeedsLocalCoords) {
+                // Don't bother with it if we don't need it.
+                passthroughLCVaryingIndex = -1;
+            }
+
+            SkSpan<const SkMeshSpecification::Varying> specVaryings =
+                    SkMeshSpecificationPriv::Varyings(*mgp.fSpec);
+
             ////// VS
 
             // emit attributes
@@ -238,12 +258,14 @@ private:
             // Copy the individual attributes into a struct
             vertBuilder->codeAppendf("%s attributes;",
                                      vsCallbacks.getMangledName("Attributes").c_str());
-            size_t i = 0;
-            SkASSERT(mgp.vertexAttributes().count() == (int)mgp.fSpec->attributes().size());
-            for (auto attr : mgp.vertexAttributes()) {
-                vertBuilder->codeAppendf("attributes.%s = %s;",
-                                         mgp.fSpec->attributes()[i++].name.c_str(),
-                                         attr.name());
+            {
+                size_t i = 0;
+                SkASSERT(mgp.vertexAttributes().count() == (int)mgp.fSpec->attributes().size());
+                for (auto attr : mgp.vertexAttributes()) {
+                    vertBuilder->codeAppendf("attributes.%s = %s;",
+                                             mgp.fSpec->attributes()[i++].name.c_str(),
+                                             attr.name());
+                }
             }
 
             // Call the user's vert function.
@@ -251,15 +273,26 @@ private:
                                      vsCallbacks.getMangledName("Varyings").c_str(),
                                      userVertName.c_str());
 
-            // Unpack the varyings from the struct into individual varyings.
-            SkTArray<GrGLSLVarying> varyings;
-            varyings.reserve(varyings.size());
-            for (const auto& v : SkMeshSpecificationPriv::Varyings(*mgp.fSpec)) {
-                varyings.emplace_back(SkMeshSpecificationPriv::VaryingTypeAsSLType(v.type));
-                varyingHandler->addVarying(v.name.c_str(), &varyings.back());
+            // Unpack the "varyings" from the struct into individual real varyings.
+            SkSTArray<SkMeshSpecification::kMaxVaryings, GrGLSLVarying> realVaryings;
+            for (size_t i = 0; i < specVaryings.size(); ++i) {
+                const auto& v = specVaryings[i];
+                // If we aren't actually calling the user's FS then we only need the
+                // passthrough local coords varying, if there is one.
+                if (!needUserFS && static_cast<int>(i) != passthroughLCVaryingIndex) {
+                    continue;
+                }
+                realVaryings.emplace_back(SkMeshSpecificationPriv::VaryingTypeAsSLType(v.type));
+                varyingHandler->addVarying(v.name.c_str(), &realVaryings.back());
                 vertBuilder->codeAppendf("%s = varyings.%s;",
-                                         varyings.back().vsOut(),
+                                         realVaryings.back().vsOut(),
                                          v.name.c_str());
+            }
+            // From here on out passthroughLCVaryingIndex refers to realVaryings. We may have
+            // elided other varyings.
+            if (!needUserFS && passthroughLCVaryingIndex >= 0) {
+                passthroughLCVaryingIndex = 0;
+                SkASSERT(realVaryings.size() == 1);
             }
 
             vertBuilder->codeAppend("float2 pos = varyings.position;");
@@ -291,18 +324,6 @@ private:
                                                 /*inputColor=*/"",
                                                 /*destColor=*/"",
                                                 &fsCallbacks);
-
-            // Pack the varyings into a struct to call the user's frag code.
-            fragBuilder->codeAppendf("%s varyings;",
-                                     fsCallbacks.getMangledName("Varyings").c_str());
-            i = 0;
-            for (const auto& varying : SkMeshSpecificationPriv::Varyings(*mgp.fSpec)) {
-                fragBuilder->codeAppendf("varyings.%s = %s;",
-                                         varying.name.c_str(),
-                                         varyings[i++].vsOut());
-            }
-            SkMeshSpecificationPriv::ColorType meshColorType =
-                    SkMeshSpecificationPriv::GetColorType(*mgp.fSpec);
             const char* uniformColorName = nullptr;
             if (mgp.fColor != SK_PMColor4fILLEGAL) {
                 fColorUniform = uniformHandler->addUniform(nullptr,
@@ -312,32 +333,62 @@ private:
                                                            &uniformColorName);
             }
             if (meshColorType == SkMeshSpecificationPriv::ColorType::kNone) {
-                fragBuilder->codeAppendf("float2 local = %s(varyings);", userFragName.c_str());
                 SkASSERT(uniformColorName);
                 fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, uniformColorName);
-            } else {
-                fColorSpaceHelper.emitCode(uniformHandler,
-                                           mgp.fColorSpaceXform.get(),
-                                           kFragment_GrShaderFlag);
-                if (meshColorType == SkMeshSpecificationPriv::ColorType::kFloat4) {
-                    fragBuilder->codeAppendf("float4 color;");
-                } else {
-                    SkASSERT(meshColorType == SkMeshSpecificationPriv::ColorType::kHalf4);
-                    fragBuilder->codeAppendf("half4 color;");
+            }
+
+            if (needUserFS) {
+                // Pack the real varyings into a struct to call the user's frag code.
+                fragBuilder->codeAppendf("%s varyings;",
+                                         fsCallbacks.getMangledName("Varyings").c_str());
+                SkASSERT(specVaryings.size() == realVaryings.size());
+                for (size_t i = 0; i < specVaryings.size(); ++i) {
+                    fragBuilder->codeAppendf("varyings.%s = %s;",
+                                             specVaryings[i].name.c_str(),
+                                             realVaryings[i].vsOut());
                 }
 
-                fragBuilder->codeAppendf("float2 local = %s(varyings, color);",
-                                         userFragName.c_str());
-                // We ignore the user's color if analysis told us to emit a specific color. The user
-                // color might be float4 and we expect a half4 in the colorspace helper.
-                const char* color = uniformColorName ? uniformColorName : "half4(color)";
-                SkString xformedColor;
-                fragBuilder->appendColorGamutXform(&xformedColor, color, &fColorSpaceHelper);
-                fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, xformedColor.c_str());
+                // Grab the return local coords from the user's FS code only if we actually need it.
+                SkString local;
+                if (passthroughLCVaryingIndex < 0 && mgp.fNeedsLocalCoords) {
+                    local = "float2 local = ";
+                }
+                if (meshColorType == SkMeshSpecificationPriv::ColorType::kNone) {
+                    fragBuilder->codeAppendf("%s%s(varyings);",
+                                             local.c_str(),
+                                             userFragName.c_str());
+                } else {
+                    fColorSpaceHelper.emitCode(uniformHandler,
+                                               mgp.fColorSpaceXform.get(),
+                                               kFragment_GrShaderFlag);
+                    if (meshColorType == SkMeshSpecificationPriv::ColorType::kFloat4) {
+                        fragBuilder->codeAppendf("float4 color;");
+                    } else {
+                        SkASSERT(meshColorType == SkMeshSpecificationPriv::ColorType::kHalf4);
+                        fragBuilder->codeAppendf("half4 color;");
+                    }
+
+                    fragBuilder->codeAppendf("%s%s(varyings, color);",
+                                             local.c_str(),
+                                             userFragName.c_str());
+                    // We ignore the user's color if analysis told us to emit a specific color.
+                    // The user color might be float4 and we expect a half4 in the colorspace
+                    // helper.
+                    const char* color = uniformColorName ? uniformColorName : "half4(color)";
+                    SkString xformedColor;
+                    fragBuilder->appendColorGamutXform(&xformedColor, color, &fColorSpaceHelper);
+                    fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, xformedColor.c_str());
+                }
             }
             if (mgp.fNeedsLocalCoords) {
-                gpArgs->fLocalCoordVar = GrShaderVar("local", SkSLType::kFloat2);
-                gpArgs->fLocalCoordShader = kFragment_GrShaderType;
+                if (passthroughLCVaryingIndex >= 0) {
+                    const auto v = realVaryings[passthroughLCVaryingIndex];
+                    gpArgs->fLocalCoordVar = v.vsOutVar();
+                    gpArgs->fLocalCoordShader = kVertex_GrShaderType;
+                } else {
+                    gpArgs->fLocalCoordVar = GrShaderVar("local", SkSLType::kFloat2);
+                    gpArgs->fLocalCoordShader = kFragment_GrShaderType;
+                }
             }
         }
 

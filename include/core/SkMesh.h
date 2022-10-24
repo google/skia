@@ -196,6 +196,7 @@ private:
     SkMeshSpecification(SkSpan<const Attribute>,
                         size_t,
                         SkSpan<const Varying>,
+                        int passthroughLocalCoordsVaryingIndex,
                         std::vector<Uniform> uniforms,
                         std::unique_ptr<const SkSL::Program>,
                         std::unique_ptr<const SkSL::Program>,
@@ -216,6 +217,7 @@ private:
     const std::unique_ptr<const SkSL::Program> fFS;
     const size_t                               fStride;
           uint32_t                             fHash;
+    const int                                  fPassthroughLocalCoordsVaryingIndex;
     const ColorType                            fColorType;
     const sk_sp<SkColorSpace>                  fColorSpace;
     const SkAlphaType                          fAlphaType;
