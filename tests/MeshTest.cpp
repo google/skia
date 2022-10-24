@@ -959,11 +959,168 @@ DEF_TEST(MeshSpecVaryingPassthrough, reporter) {
           nullptr);
 
     // Return from non-main fools us?
-    check(R"(half4 get_color(const Varyings v) { return v.color; }
+    check(R"(noinline half4 get_color(const Varyings v) { return v.color; }
 
              float2 main(const Varyings v, out half4 color) {
                   color = get_color(v);
                   return v.position;
               })",
           "position");
+}
+
+DEF_TEST(MeshSpecUnusedVaryings, reporter) {
+    static const Attribute kAttributes[]{
+            {Attribute::Type::kFloat2,        0, SkString{"position"}},
+            {Attribute::Type::kFloat2,        8, SkString{"uv"}      },
+            {Attribute::Type::kUByte4_unorm, 16, SkString{"color"}   },
+    };
+    static const Varying kVaryings[]{
+            {Varying::Type::kFloat2, SkString{"position"}},
+            {Varying::Type::kFloat2, SkString{"uv"}      },
+            {Varying::Type::kHalf4,  SkString{"color"}   },
+    };
+
+    static constexpr char kVS[] = R"(
+            Varyings main(const Attributes a) {
+                Varyings v;
+                v.uv       = a.uv;
+                v.position = a.position;
+                v.color    = a.color;
+                return v;
+            }
+    )";
+
+    auto check = [&](const char* fs, bool positionDead, bool uvDead, bool colorDead) {
+        static_assert(std::size(kVaryings) == 3);
+        auto [spec, error] = SkMeshSpecification::Make(kAttributes,
+                                                       /*vertexStride=*/24,
+                                                       kVaryings,
+                                                       SkString(kVS),
+                                                       SkString(fs));
+        if (!spec) {
+            ERRORF(reporter, "%s\n%s", fs, error.c_str());
+            return;
+        }
+        bool positionActuallyDead = SkMeshSpecificationPriv::VaryingIsDead(*spec, 0);
+        bool uvActuallyDead       = SkMeshSpecificationPriv::VaryingIsDead(*spec, 1);
+        bool colorActuallyDead    = SkMeshSpecificationPriv::VaryingIsDead(*spec, 2);
+        auto str = [](bool dead) { return dead ? "dead" : "not dead"; };
+        if (positionActuallyDead != positionDead) {
+            ERRORF(reporter,
+                   "Expected position to be detected %s but it is detected %s.\n%s",
+                   str(positionDead),
+                   str(positionActuallyDead),
+                   fs);
+        }
+        if (uvActuallyDead != uvDead) {
+            ERRORF(reporter,
+                   "Expected uv to be detected %s but it is detected %s.\n%s",
+                   str(uvDead),
+                   str(uvActuallyDead),
+                   fs);
+        }
+        if (colorActuallyDead != colorDead) {
+            ERRORF(reporter,
+                   "Expected color to be detected %s but it is detected %s.\n%s",
+                   str(colorDead),
+                   str(colorActuallyDead),
+                   fs);
+        }
+    };
+
+    // Simple
+    check(R"(float2 main(const Varyings v) {
+                 return v.uv;
+             })",
+          true,
+          true,
+          true);
+
+    // Simple, using position
+    check(R"(float2 main(const Varyings v) {
+                 return v.position;
+             })",
+          true,
+          true,
+          true);
+
+    // Two returns that are both passthrough of the same varying
+    check(R"(float2 main(const Varyings v, out half4 color) {
+                 if (v.color.r > 0.5) {
+                     color = v.color;
+                     return v.uv;
+                 } else {
+                     color = 2*color;
+                     return v.uv;
+                 }
+             })",
+          true,
+          true,
+          false);
+
+    // Two returns that are both passthrough of the different varyings and unused other varying
+    check(R"(float2 main(const Varyings v, out half4 color) {
+                 if (v.position.x > 10) {
+                     color = half4(0);
+                     return v.uv;
+                 } else {
+                     color = half4(1);
+                     return v.position;
+                 }
+             })",
+          false,
+          false,
+          true);
+
+    // Passthrough but we also use the varying elsewhere
+    check(R"(float2 main(const Varyings v, out half4 color) {
+                 color = half4(v.uv.x, 0, 0, 1);
+                 return v.uv;
+             })",
+          true,
+          false,
+          true);
+
+    // Use two varyings is a return statement
+    check(R"(float2 main(const Varyings v) {
+                  return v.uv + v.position;
+              })",
+          false,
+          false,
+          true);
+
+    // Slightly more complicated varying use.
+    check(R"(noinline vec2 get_pos(const Varyings v) { return v.position; }
+
+             noinline half4 identity(half4 c) { return c; }
+
+             float2 main(const Varyings v, out half4 color) {
+                 color = identity(v.color);
+                 return v.uv + get_pos(v);
+             })",
+          false,
+          false,
+          false);
+
+    // Go through assignment to another Varyings.
+    check(R"(float2 main(const Varyings v) {
+                 Varyings otherVaryings;
+                 otherVaryings = v;
+                 return otherVaryings.uv;
+             })",
+          true,
+          false,
+          true);
+
+    // We're not very smart. We just look for any use of the field in any Varyings value and don't
+    // do any data flow analysis.
+    check(R"(float2 main(const Varyings v) {
+                 Varyings otherVaryings;
+                 otherVaryings.uv       = half2(5);
+                 otherVaryings.position = half2(10);
+                 return otherVaryings.position;
+             })",
+          false,
+          false,
+          true);
 }

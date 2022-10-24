@@ -273,26 +273,39 @@ private:
                                      vsCallbacks.getMangledName("Varyings").c_str(),
                                      userVertName.c_str());
 
-            // Unpack the "varyings" from the struct into individual real varyings.
-            SkSTArray<SkMeshSpecification::kMaxVaryings, GrGLSLVarying> realVaryings;
-            for (size_t i = 0; i < specVaryings.size(); ++i) {
-                const auto& v = specVaryings[i];
-                // If we aren't actually calling the user's FS then we only need the
-                // passthrough local coords varying, if there is one.
-                if (!needUserFS && static_cast<int>(i) != passthroughLCVaryingIndex) {
-                    continue;
-                }
-                realVaryings.emplace_back(SkMeshSpecificationPriv::VaryingTypeAsSLType(v.type));
-                varyingHandler->addVarying(v.name.c_str(), &realVaryings.back());
-                vertBuilder->codeAppendf("%s = varyings.%s;",
-                                         realVaryings.back().vsOut(),
-                                         v.name.c_str());
+            if (passthroughLCVaryingIndex >= 0 &&
+                SkMeshSpecificationPriv::VaryingIsDead(*mgp.fSpec, passthroughLCVaryingIndex)) {
+                vertBuilder->codeAppendf("float2 local = varyings.%s\n;",
+                                         specVaryings[passthroughLCVaryingIndex].name.c_str());
+                gpArgs->fLocalCoordVar = GrShaderVar("local", SkSLType::kFloat2);
+                gpArgs->fLocalCoordShader = kVertex_GrShaderType;
             }
-            // From here on out passthroughLCVaryingIndex refers to realVaryings. We may have
-            // elided other varyings.
-            if (!needUserFS && passthroughLCVaryingIndex >= 0) {
-                passthroughLCVaryingIndex = 0;
-                SkASSERT(realVaryings.size() == 1);
+
+            // Unpack the "varyings" from the struct into individual real varyings if they are
+            // required.
+            struct RealVarying {
+                size_t        specIndex;
+                GrGLSLVarying varying;
+            };
+            SkSTArray<SkMeshSpecification::kMaxVaryings, RealVarying> realVaryings;
+            if (needUserFS) {
+                for (size_t i = 0; i < specVaryings.size(); ++i) {
+                    const auto& v = specVaryings[i];
+                    if (SkMeshSpecificationPriv::VaryingIsDead(*mgp.fSpec, i)) {
+                        continue;
+                    }
+                    RealVarying rv {i, SkMeshSpecificationPriv::VaryingTypeAsSLType(v.type)};
+                    realVaryings.push_back(rv);
+                    varyingHandler->addVarying(v.name.c_str(), &realVaryings.back().varying);
+                    vertBuilder->codeAppendf("%s = varyings.%s;",
+                                             realVaryings.back().varying.vsOut(),
+                                             v.name.c_str());
+                    if (passthroughLCVaryingIndex == SkToInt(i)) {
+                        SkASSERT(gpArgs->fLocalCoordVar.getType() == SkSLType::kVoid);
+                        gpArgs->fLocalCoordVar = realVaryings.back().varying.vsOutVar();
+                        gpArgs->fLocalCoordShader = kVertex_GrShaderType;
+                    }
+                }
             }
 
             vertBuilder->codeAppend("float2 pos = varyings.position;");
@@ -341,16 +354,18 @@ private:
                 // Pack the real varyings into a struct to call the user's frag code.
                 fragBuilder->codeAppendf("%s varyings;",
                                          fsCallbacks.getMangledName("Varyings").c_str());
-                SkASSERT(specVaryings.size() == realVaryings.size());
-                for (size_t i = 0; i < specVaryings.size(); ++i) {
+                for (const auto& rv : realVaryings) {
+                    const auto& v = specVaryings[rv.specIndex];
                     fragBuilder->codeAppendf("varyings.%s = %s;",
-                                             specVaryings[i].name.c_str(),
-                                             realVaryings[i].vsOut());
+                                             v.name.c_str(),
+                                             rv.varying.vsOut());
                 }
 
                 // Grab the return local coords from the user's FS code only if we actually need it.
                 SkString local;
-                if (passthroughLCVaryingIndex < 0 && mgp.fNeedsLocalCoords) {
+                if (gpArgs->fLocalCoordVar.getType() == SkSLType::kVoid && mgp.fNeedsLocalCoords) {
+                    gpArgs->fLocalCoordVar = GrShaderVar("local", SkSLType::kFloat2);
+                    gpArgs->fLocalCoordShader = kFragment_GrShaderType;
                     local = "float2 local = ";
                 }
                 if (meshColorType == SkMeshSpecificationPriv::ColorType::kNone) {
@@ -380,16 +395,8 @@ private:
                     fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, xformedColor.c_str());
                 }
             }
-            if (mgp.fNeedsLocalCoords) {
-                if (passthroughLCVaryingIndex >= 0) {
-                    const auto v = realVaryings[passthroughLCVaryingIndex];
-                    gpArgs->fLocalCoordVar = v.vsOutVar();
-                    gpArgs->fLocalCoordShader = kVertex_GrShaderType;
-                } else {
-                    gpArgs->fLocalCoordVar = GrShaderVar("local", SkSLType::kFloat2);
-                    gpArgs->fLocalCoordShader = kFragment_GrShaderType;
-                }
-            }
+            SkASSERT(!mgp.fNeedsLocalCoords ||
+                     gpArgs->fLocalCoordVar.getType() == SkSLType::kFloat2);
         }
 
     private:

@@ -91,6 +91,17 @@ struct SkMeshSpecificationPriv {
     static int PassthroughLocalCoordsVaryingIndex(const SkMeshSpecification& spec) {
         return spec.fPassthroughLocalCoordsVaryingIndex;
     }
+
+    /**
+     * A varying is dead if it is never referenced OR it is only referenced as a passthrough for
+     * local coordinates. In the latter case it's index will returned as
+     * PassthroughLocalCoordsVaryingIndex. Our analysis is not very sophisticated so this is
+     * determined conservatively.
+     */
+    static bool VaryingIsDead(const SkMeshSpecification& spec, int v) {
+        SkASSERT(v >= 0 && SkToSizeT(v) < spec.fVaryings.size());
+        return (1 << v) & spec.fDeadVaryingMask;
+    }
 };
 
 struct SkMeshPriv {
