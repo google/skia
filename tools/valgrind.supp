@@ -1,12 +1,30 @@
 # Pass this file to Valgrind with "--suppressions=tools/valgrind.supp"
 
-# Intentional thread / memory leak in DM and nanbench.
+# Intentional thread / memory leak in nanobench.
 {
    nanobench_keepalive_thread_leak
    Memcheck:Leak
    match-leak-kinds: possible,definite
    ...
-   fun:start_keepalive,_ZNSt6threadC2IZL15start_keepalivevE3$_0JEvEEOT_DpOT0_
+   fun:start_keepalive
+   ...
+   fun:main
+}
+{
+   nanobench_keepalive_thread_leak2
+   Memcheck:Leak
+   match-leak-kinds: possible,definite
+   ...
+   fun:_ZNSt6threadC2IZL15start_keepalivevE3$_0JEvEEOT_DpOT0_
+   ...
+   fun:main
+}
+{
+   nanobench_keepalive_thread_leak3
+   Memcheck:Leak
+   match-leak-kinds: possible,definite
+   ...
+   fun:_ZNSt6thread15_M_start_threadESt10unique_ptrINS_6_StateESt14default_deleteIS1_EEPFvvE
    ...
    fun:main
 }
