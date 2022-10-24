@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
@@ -17,7 +18,6 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
-#include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
@@ -37,7 +37,7 @@ namespace SkSL {
 namespace Transform {
 namespace {
 
-class BuiltinVariableScanner : public ProgramVisitor {
+class BuiltinVariableScanner {
 public:
     BuiltinVariableScanner(const Context& context, const SymbolTable& symbols)
             : fContext(context)
@@ -69,21 +69,22 @@ public:
         }
     }
 
-    bool visitProgramElement(const ProgramElement& pe) override {
-        if (pe.is<FunctionDefinition>()) {
-            const FunctionDefinition& funcDef = pe.as<FunctionDefinition>();
-            // We synthesize writes to sk_FragColor if main() returns a color, even if it's
-            // otherwise unreferenced. Check main's return type to see if it's half4.
+    void addImplicitFragColorWrite(SkSpan<const std::unique_ptr<ProgramElement>> elements) {
+        for (const std::unique_ptr<ProgramElement>& pe : elements) {
+            if (!pe->is<FunctionDefinition>()) {
+                continue;
+            }
+            const FunctionDefinition& funcDef = pe->as<FunctionDefinition>();
             if (funcDef.declaration().isMain()) {
                 if (funcDef.declaration().returnType().matches(*fContext.fTypes.fHalf4)) {
-                    // main() returns a half4, so make sure we include sk_FragColor in the output.
-                    this->addDeclaringElement(fSymbols.find(Compiler::FRAGCOLOR_NAME));
+                    // We synthesize writes to sk_FragColor if main() returns a color, even if it's
+                    // otherwise unreferenced.
+                    this->addDeclaringElement(fSymbols.findBuiltinSymbol(Compiler::FRAGCOLOR_NAME));
                 }
-                // Once we find main(), we can stop scanning.
-                return true;
+                // Now that main() has been found, we can stop scanning.
+                break;
             }
         }
-        return false;
     }
 
     static std::string_view GlobalVarBuiltinName(const ProgramElement& elem) {
@@ -128,16 +129,15 @@ void FindAndDeclareBuiltinVariables(Program& program) {
     const SymbolTable& symbols = *program.fSymbols;
     BuiltinVariableScanner scanner(context, symbols);
 
-    // Find main() in the program and check its return type.
-    for (auto& e : program.fOwnedElements) {
-        scanner.visitProgramElement(*e);
-    }
-
     if (ProgramConfig::IsFragment(program.fConfig->fKind)) {
+        // Find main() in the program and check its return type.
+        // If it's half4, we treat that as an implicit write to sk_FragColor and add a reference.
+        scanner.addImplicitFragColorWrite(program.fOwnedElements);
+
         // Vulkan requires certain builtin variables be present, even if they're unused. At one
         // time, validation errors would result if sk_Clockwise was missing. Now, it's just (Adreno)
         // driver bugs that drop or corrupt draws if they're missing.
-        scanner.addDeclaringElement(symbols.find("sk_Clockwise"));
+        scanner.addDeclaringElement(symbols.findBuiltinSymbol("sk_Clockwise"));
     }
 
     // Scan all the variables used by the program and declare any built-ins.

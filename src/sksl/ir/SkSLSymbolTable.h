@@ -78,6 +78,11 @@ public:
     }
 
     /**
+     * Looks up the requested symbol, only searching the built-in symbol tables. Always const.
+     */
+    const Symbol* findBuiltinSymbol(std::string_view name) const;
+
+    /**
      * Looks up the requested symbol and returns a mutable pointer. Use caution--mutating a symbol
      * will have program-wide impact, and built-in symbol tables must never be mutated.
      */

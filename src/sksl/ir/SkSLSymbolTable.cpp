@@ -25,6 +25,13 @@ bool SymbolTable::isBuiltinType(std::string_view name) const {
     return this->isType(name);
 }
 
+const Symbol* SymbolTable::findBuiltinSymbol(std::string_view name) const {
+    if (!this->isBuiltin()) {
+        return fParent ? fParent->findBuiltinSymbol(name) : nullptr;
+    }
+    return this->find(name);
+}
+
 Symbol* SymbolTable::lookup(const SymbolKey& key) const {
     Symbol** symbolPPtr = fSymbols.find(key);
     if (symbolPPtr) {
