@@ -112,7 +112,7 @@ void Patch::draw(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
     }
 
     int i, npts = (nu + nv) * 2;
-    SkAutoSTMalloc<16, SkPoint> storage(npts + 1);
+    std::unique_ptr<SkPoint[]> storage(new SkPoint[npts + 1]);
     SkPoint* edge0 = storage.get();
     SkPoint* edge1 = edge0 + nu;
     SkPoint* edge2 = edge1 + nv;
@@ -130,7 +130,7 @@ void Patch::draw(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
     }
 
     int row, vertCount = (nu + 1) * (nv + 1);
-    SkAutoTMalloc<SkPoint>  vertStorage(vertCount);
+    std::unique_ptr<SkPoint[]>  vertStorage(new SkPoint[vertCount]);
     SkPoint* verts = vertStorage.get();
 
     // first row
@@ -154,8 +154,8 @@ void Patch::draw(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
 //    canvas->drawPoints(verts, vertCount, paint);
 
     int stripCount = (nu + 1) * 2;
-    SkAutoTMalloc<SkPoint>  stripStorage(stripCount * 2);
-    SkAutoTMalloc<SkColor>  colorStorage(stripCount);
+    std::unique_ptr<SkPoint[]>  stripStorage(new SkPoint[stripCount * 2]);
+    std::unique_ptr<SkColor[]>  colorStorage(new SkColor[stripCount]);
     SkPoint* strip = stripStorage.get();
     SkPoint* tex = strip + stripCount;
     SkColor* colors = colorStorage.get();

@@ -287,7 +287,7 @@ protected:
         paint.setAlpha(0x80);
         paint.setAntiAlias(true);
         int n = path.countPoints();
-        SkAutoSTArray<32, SkPoint> pts(n);
+        std::unique_ptr<SkPoint[]> pts{new SkPoint[n]};
         if (show_lines && fDrawTangents) {
             SkTArray<int> contourCounts;
             getContourCounts(path, &contourCounts);

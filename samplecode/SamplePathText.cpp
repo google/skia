@@ -152,8 +152,8 @@ class PathText::MovingGlyphAnimator : public PathText::GlyphAnimator {
 public:
     MovingGlyphAnimator(Glyph* glyphs)
             : GlyphAnimator(glyphs)
-            , fFrontMatrices(kNumPaths)
-            , fBackMatrices(kNumPaths) {
+            , fFrontMatrices(new SkMatrix[kNumPaths])
+            , fBackMatrices(new SkMatrix[kNumPaths]) {
     }
 
     ~MovingGlyphAnimator() override {
@@ -247,8 +247,8 @@ protected:
     };
 
     Velocity fVelocities[kNumPaths];
-    SkAutoTArray<SkMatrix> fFrontMatrices;
-    SkAutoTArray<SkMatrix> fBackMatrices;
+    std::unique_ptr<SkMatrix[]> fFrontMatrices;
+    std::unique_ptr<SkMatrix[]> fBackMatrices;
     SkTaskGroup fBackgroundAnimationTask;
     double fLastTick;
 };
@@ -260,8 +260,8 @@ class PathText::WavyGlyphAnimator : public PathText::MovingGlyphAnimator {
 public:
     WavyGlyphAnimator(Glyph* glyphs)
             : MovingGlyphAnimator(glyphs)
-            , fFrontPaths(kNumPaths)
-            , fBackPaths(kNumPaths) {
+            , fFrontPaths(new SkPath[kNumPaths])
+            , fBackPaths(new SkPath[kNumPaths]) {
     }
 
     ~WavyGlyphAnimator() override {
@@ -358,8 +358,8 @@ private:
         float fOffsets[4];
     };
 
-    SkAutoTArray<SkPath> fFrontPaths;
-    SkAutoTArray<SkPath> fBackPaths;
+    std::unique_ptr<SkPath[]> fFrontPaths;
+    std::unique_ptr<SkPath[]> fBackPaths;
     Waves fWaves;
 };
 
