@@ -7,6 +7,12 @@ Milestone 108
 
 * * *
 
+Milestone 109
+-------------
+  * SkMesh vertex and fragment main() signatures have changed. See docs on SkMeshSpecification.
+
+* * *
+
 Milestone 108
 -------------
   * SkShader::asAGradient() has been removed.

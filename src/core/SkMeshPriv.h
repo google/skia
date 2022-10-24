@@ -50,8 +50,6 @@ struct SkMeshSpecificationPriv {
 
     static SkAlphaType AlphaType(const SkMeshSpecification& spec) { return spec.fAlphaType; }
 
-    static bool HasLocalCoords(const SkMeshSpecification& spec) { return spec.fHasLocalCoords; }
-
     static SkSLType VaryingTypeAsSLType(Varying::Type type) {
         switch (type) {
             case Varying::Type::kFloat:  return SkSLType::kFloat;

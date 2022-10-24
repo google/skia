@@ -111,33 +111,21 @@ gather_uniforms_and_check_for_main(const SkSL::Program& program,
 
 using ColorType = SkMeshSpecificationPriv::ColorType;
 
-static std::tuple<ColorType, bool>
-get_fs_color_type_and_local_coords(const SkSL::Program& fsProgram) {
+ColorType get_fs_color_type(const SkSL::Program& fsProgram) {
     for (const SkSL::ProgramElement* elem : fsProgram.elements()) {
         if (elem->is<SkSL::FunctionDefinition>()) {
             const SkSL::FunctionDefinition& defn = elem->as<SkSL::FunctionDefinition>();
             const SkSL::FunctionDeclaration& decl = defn.declaration();
             if (decl.isMain()) {
-
-                SkMeshSpecificationPriv::ColorType ct;
                 SkASSERT(decl.parameters().size() == 1 || decl.parameters().size() == 2);
                 if (decl.parameters().size() == 1) {
-                    ct = ColorType::kNone;
-                } else {
-                    const SkSL::Type& paramType = decl.parameters()[1]->type();
-                    SkASSERT(paramType.matches(*fsProgram.fContext->fTypes.fHalf4) ||
-                             paramType.matches(*fsProgram.fContext->fTypes.fFloat4));
-                    ct = paramType.matches(*fsProgram.fContext->fTypes.fHalf4)
-                                 ? ColorType::kHalf4
-                                 : ColorType::kFloat4;
+                    return ColorType::kNone;
                 }
-
-                const SkSL::Type& returnType = decl.returnType();
-                SkASSERT(returnType.matches(*fsProgram.fContext->fTypes.fVoid) ||
-                         returnType.matches(*fsProgram.fContext->fTypes.fFloat2));
-                bool hasLocalCoords = returnType.matches(*fsProgram.fContext->fTypes.fFloat2);
-
-                return std::make_tuple(ct, hasLocalCoords);
+                const SkSL::Type& paramType = decl.parameters()[1]->type();
+                SkASSERT(paramType.matches(*fsProgram.fContext->fTypes.fHalf4) ||
+                         paramType.matches(*fsProgram.fContext->fTypes.fFloat4));
+                return paramType.matches(*fsProgram.fContext->fTypes.fHalf4) ? ColorType::kHalf4
+                                                                             : ColorType::kFloat4;
             }
         }
     }
@@ -274,13 +262,33 @@ SkMeshSpecification::Result SkMeshSpecification::Make(SkSpan<const Attribute> at
     }
     attributesStruct.append("};\n");
 
+    bool userProvidedPositionVarying = false;
+    for (const auto& v : varyings) {
+        if (v.name.equals("position")) {
+            if (v.type != Varying::Type::kFloat2) {
+                return {nullptr, SkString("Varying \"position\" must have type float2.")};
+            }
+            userProvidedPositionVarying = true;
+        }
+    }
+
+    SkSTArray<kMaxVaryings, Varying> tempVaryings;
+    if (!userProvidedPositionVarying) {
+        // Even though we check the # of varyings in MakeFromSourceWithStructs we check here, too,
+        // to avoid overflow with + 1.
+        if (varyings.size() > kMaxVaryings - 1) {
+            RETURN_FAILURE("A maximum of %zu varyings is allowed.", kMaxVaryings);
+        }
+        for (const auto& v : varyings) {
+            tempVaryings.push_back(v);
+        }
+        tempVaryings.push_back(Varying{Varying::Type::kFloat2, SkString("position")});
+        varyings = tempVaryings;
+    }
+
     SkString varyingStruct("struct Varyings {\n");
     for (const auto& v : varyings) {
         varyingStruct.appendf("  %s %s;\n", varying_type_string(v.type), v.name.c_str());
-    }
-    // Throw in an unused variable to avoid an empty struct, which is illegal.
-    if (varyings.empty()) {
-        varyingStruct.append("  bool _empty_;\n");
     }
     varyingStruct.append("};\n");
 
@@ -384,7 +392,7 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
         RETURN_FAILURE("Color transform intrinsics are not permitted in custom mesh shaders");
     }
 
-    auto [ct, hasLocalCoords] = get_fs_color_type_and_local_coords(*fsProgram);
+    ColorType ct = get_fs_color_type(*fsProgram);
 
     if (ct == ColorType::kNone) {
         cs = nullptr;
@@ -405,7 +413,6 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
                                                                std::move(vsProgram),
                                                                std::move(fsProgram),
                                                                ct,
-                                                               hasLocalCoords,
                                                                std::move(cs),
                                                                at)),
             /*error=*/{}};
@@ -420,7 +427,6 @@ SkMeshSpecification::SkMeshSpecification(SkSpan<const Attribute>              at
                                          std::unique_ptr<const SkSL::Program> vs,
                                          std::unique_ptr<const SkSL::Program> fs,
                                          ColorType                            ct,
-                                         bool                                 hasLocalCoords,
                                          sk_sp<SkColorSpace>                  cs,
                                          SkAlphaType                          at)
         : fAttributes(attributes.begin(), attributes.end())
@@ -430,7 +436,6 @@ SkMeshSpecification::SkMeshSpecification(SkSpan<const Attribute>              at
         , fFS(std::move(fs))
         , fStride(stride)
         , fColorType(ct)
-        , fHasLocalCoords(hasLocalCoords)
         , fColorSpace(std::move(cs))
         , fAlphaType(at) {
     fHash = SkOpts::hash_fn(fVS->fSource->c_str(), fVS->fSource->size(), 0);

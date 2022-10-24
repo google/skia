@@ -29,22 +29,31 @@ namespace SkSL { struct Program; }
 
 /**
  * A specification for custom meshes. Specifies the vertex buffer attributes and stride, the
- * vertex program that produces a user-defined set of varyings, a fragment program that ingests
- * the interpolated varyings and produces local coordinates and optionally a color.
+ * vertex program that produces a user-defined set of varyings, and a fragment program that ingests
+ * the interpolated varyings and produces local coordinates for shading and optionally a color.
+ *
+ * The varyings must include a float2 named "position". If the passed varyings does not
+ * contain such a varying then one is implicitly added to the final specification and the SkSL
+ * Varyings struct described below. It is an error to have a varying named "position" that has a
+ * type other than float2.
+ *
+ * The provided attributes and varyings are used to create Attributes and Varyings structs in SkSL
+ * that are used by the shaders. Each attribute from the Attribute span becomes a member of the
+ * SkSL Attributes struct and likewise for the varyings.
  *
  * The signature of the vertex program must be:
- *   float2 main(Attributes, out Varyings)
- * where the return value is a local position that will be transformed by SkCanvas's matrix.
+ *   Varyings main(const Attributes).
  *
  * The signature of the fragment program must be either:
- *   (float2|void) main(Varyings)
+ *   float2 main(const Varyings)
  * or
- *   (float2|void) main(Varyings, out (half4|float4) color)
+ *   float2 main(const Varyings, out (half4|float4) color)
  *
  * where the return value is the local coordinates that will be used to access SkShader. If the
- * return type is void then the interpolated position from vertex shader return is used as the local
- * coordinate. If the color variant is used it will be blended with SkShader (or SkPaint color in
- * absence of a shader) using the SkBlender provided to the SkCanvas draw call.
+ * color variant is used, the returned color will be blended with SkPaint's SkShader (or SkPaint
+ * color in absence of a SkShader) using the SkBlender passed to SkCanvas drawMesh(). To use
+ * interpolated local space positions as the shader coordinates, equivalent to how SkPaths are
+ * shaded, return the position field from the Varying struct as the coordinates.
  *
  * The vertex and fragment programs may both contain uniforms. Uniforms with the same name are
  * assumed to be shared between stages. It is an error to specify uniforms in the vertex and
@@ -191,7 +200,6 @@ private:
                         std::unique_ptr<const SkSL::Program>,
                         std::unique_ptr<const SkSL::Program>,
                         ColorType,
-                        bool hasLocalCoords,
                         sk_sp<SkColorSpace>,
                         SkAlphaType);
 
@@ -209,7 +217,6 @@ private:
     const size_t                               fStride;
           uint32_t                             fHash;
     const ColorType                            fColorType;
-    const bool                                 fHasLocalCoords;
     const sk_sp<SkColorSpace>                  fColorSpace;
     const SkAlphaType                          fAlphaType;
 };
