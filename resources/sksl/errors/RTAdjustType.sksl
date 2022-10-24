@@ -1,0 +1,33 @@
+struct S {
+    int x;
+};
+
+MyInterfaceBlock1 {
+    float3 sk_RTAdjust;
+};
+MyInterfaceBlock2 {
+    half4 sk_RTAdjust;
+};
+MyInterfaceBlock3 {
+    S sk_RTAdjust;
+};
+MyInterfaceBlock4 {
+    int sk_RTAdjust;
+};
+MyInterfaceBlock5 {
+    int sk_RTAdjust[2];
+};
+MyInterfaceBlock6 {
+    bool sk_RTAdjust;
+};
+MyInterfaceBlock7 {
+    float4 sk_RTAdjust[1];
+};
+
+float3 sk_RTAdjust;
+half4 sk_RTAdjust;
+S sk_RTAdjust;
+int sk_RTAdjust;
+int sk_RTAdjust[2];
+bool sk_RTAdjust;
+float4 sk_RTAdjust[1];

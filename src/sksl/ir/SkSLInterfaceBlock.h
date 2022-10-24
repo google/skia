@@ -15,12 +15,14 @@
 #include "src/sksl/ir/SkSLVariable.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
 
 namespace SkSL {
 
+class Context;
 class SymbolTable;
 
 /**
@@ -48,6 +50,28 @@ public:
     }
 
     ~InterfaceBlock() override;
+
+    // Returns an InterfaceBlock; errors are reported to the ErrorReporter.
+    // The caller is responsible for adding the InterfaceBlock to the program elements.
+    // The program's RTAdjustData will be updated if the InterfaceBlock contains sk_RTAdjust.
+    // The passed-in symbol table will be updated with a reference to the interface block variable
+    // (if it is named) or each of the interface block fields (if it is anonymous).
+    static std::unique_ptr<InterfaceBlock> Convert(const Context& context,
+                                                   Position pos,
+                                                   Variable* variable,
+                                                   std::shared_ptr<SymbolTable> symbols);
+
+    // Returns an InterfaceBlock; errors are reported via SkASSERT.
+    // The caller is responsible for adding the InterfaceBlock to the program elements.
+    // If the InterfaceBlock contains sk_RTAdjust, the caller is responsible for passing its field
+    // index in `rtAdjustIndex`.
+    // The passed-in symbol table will be updated with a reference to the interface block variable
+    // (if it is named) or each of the interface block fields (if it is anonymous).
+    static std::unique_ptr<InterfaceBlock> Make(const Context& context,
+                                                Position pos,
+                                                Variable* variable,
+                                                std::optional<int> rtAdjustIndex,
+                                                std::shared_ptr<SymbolTable> symbols);
 
     Variable* var() const {
         return fVariable;
