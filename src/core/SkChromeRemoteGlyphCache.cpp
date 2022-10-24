@@ -825,6 +825,8 @@ protected:
 
         SkMatrix drawMatrix = this->localToDevice();
         drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
+        SkPoint glyphRunListCenter = { glyphRunList.sourceBounds().centerX(),
+                                       glyphRunList.sourceBounds().centerY() };
         const uint64_t uniqueID = glyphRunList.uniqueID();
         for (auto& glyphRun : glyphRunList) {
             fPainter.processGlyphRun(nullptr,
@@ -832,6 +834,7 @@ protected:
                                      drawMatrix,
                                      paint,
                                      control,
+                                     glyphRunListCenter,
                                      "Cache Diff",
                                      uniqueID);
         }
@@ -851,6 +854,8 @@ protected:
         // Run to fill the cache with the right strike transfer information.
         drawMatrix.preTranslate(glyphRunList.origin().x(), glyphRunList.origin().y());
 
+        SkPoint glyphRunListCenter = { glyphRunList.sourceBounds().centerX(),
+                                       glyphRunList.sourceBounds().centerY() };
         // TODO these two passes can be converted into one when the SkRemoteGlyphCache's strike
         //  cache is fortified with enough information for supporting slug creation.
 
@@ -862,6 +867,7 @@ protected:
                                      drawMatrix,
                                      paint,
                                      control,
+                                     glyphRunListCenter,
                                      "Convert Slug Analysis");
         }
 
@@ -1035,7 +1041,7 @@ bool SkStrikeClientImpl::readStrikeData(const volatile void* memory, size_t memo
         SkAutoDescriptor ad;
         if (!deserializer.readDescriptor(&ad)) READ_FAILURE
         #if defined(SK_TRACE_GLYPH_RUN_PROCESS)
-            msg.appendf("  Received descriptor:\n%s", sourceAd.getDesc()->dumpRec().c_str());
+            msg.appendf("  Received descriptor:\n%s", ad.getDesc()->dumpRec().c_str());
         #endif
 
         bool fontMetricsInitialized;

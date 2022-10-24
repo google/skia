@@ -174,12 +174,13 @@ SkStrikeSpec SkStrikeSpec::MakePDFVector(const SkTypeface& typeface, int* size) 
 std::tuple<SkStrikeSpec, SkScalar, GrSDFTMatrixRange>
 SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
                        const SkSurfaceProps& surfaceProps, const SkMatrix& deviceMatrix,
-                       const GrSDFTControl& control) {
+                       const SkPoint& textLocation, const GrSDFTControl& control) {
     // Add filter to the paint which creates the SDFT data for A8 masks.
     SkPaint dfPaint{paint};
     dfPaint.setMaskFilter(GrSDFMaskFilter::Make());
 
-    auto [dfFont, strikeToSourceScale, matrixRange] = control.getSDFFont(font, deviceMatrix);
+    auto [dfFont, strikeToSourceScale, matrixRange] = control.getSDFFont(font, deviceMatrix,
+                                                                         textLocation);
 
     // Fake-gamma and subpixel antialiasing are applied in the shader, so we ignore the
     // passed-in scaler context flags. (It's only used when we fall-back to bitmap text).

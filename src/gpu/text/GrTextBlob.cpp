@@ -354,6 +354,36 @@ void fill_transformed_vertices_2D(SkZip<Quad, const GrGlyph*, const VertexData> 
     }
 }
 
+template<typename Quad, typename VertexData>
+void fill_transformed_vertices_3D(SkZip<Quad, const GrGlyph*, const VertexData> quadData,
+                                  SkScalar dstPadding,
+                                  SkScalar strikeToSource,
+                                  GrColor color,
+                                  const SkMatrix& positionMatrix) {
+    auto mapXYZ = [&](SkScalar x, SkScalar y) {
+        SkPoint pt{x, y};
+        SkPoint3 result;
+        positionMatrix.mapHomogeneousPoints(&result, &pt, 1);
+        return result;
+    };
+    SkPoint inset = {dstPadding, dstPadding};
+    for (auto[quad, glyph, vertexData] : quadData) {
+        auto[pos, rect] = vertexData;
+        auto[l, t, r, b] = rect;
+        SkPoint sLT = (SkPoint::Make(l, t) + inset) * strikeToSource + pos,
+                sRB = (SkPoint::Make(r, b) - inset) * strikeToSource + pos;
+        SkPoint3 lt = mapXYZ(sLT.x(), sLT.y()),
+                 lb = mapXYZ(sLT.x(), sRB.y()),
+                 rt = mapXYZ(sRB.x(), sLT.y()),
+                 rb = mapXYZ(sRB.x(), sRB.y());
+        auto[al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
+        quad[0] = {lt, color, {al, at}};  // L,T
+        quad[1] = {lb, color, {al, ab}};  // L,B
+        quad[2] = {rt, color, {ar, at}};  // R,T
+        quad[3] = {rb, color, {ar, ab}};  // R,B
+    }
+}
+
 // Check for integer translate with the same 2x2 matrix.
 // Returns the translation, and true if the change from initial matrix to the position matrix
 // support using direct glyph masks.
@@ -1507,6 +1537,7 @@ static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameter
     DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
     DFGPFlags |= useGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
     DFGPFlags |= MT::kAliasedDistanceField == maskType ? kAliased_DistanceFieldEffectFlag : 0;
+    DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
 
     if (isLCD) {
         DFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
@@ -1523,7 +1554,6 @@ SDFTSubRun::makeAtlasTextOp(const GrClip* clip,
                             skgpu::v1::SurfaceDrawContext* sdc,
                             GrAtlasSubRunOwner) const {
     SkASSERT(this->glyphCount() != 0);
-    SkASSERT(!viewMatrix.localToDevice().hasPerspective());
 
     const SkMatrix& drawMatrix = viewMatrix.localToDevice();
 
@@ -1570,7 +1600,11 @@ std::tuple<bool, int> SDFTSubRun::regenerateAtlas(
 }
 
 size_t SDFTSubRun::vertexStride(const SkMatrix& drawMatrix) const {
-    return sizeof(Mask2DVertex);
+    if (drawMatrix.hasPerspective()) {
+        return sizeof(Mask3DVertex);
+    } else {
+        return sizeof(Mask2DVertex);
+    }
 }
 
 void SDFTSubRun::fillVertexData(
@@ -1705,10 +1739,14 @@ auto GrTextBlob::Key::Make(const SkGlyphRunList& glyphRunList,
 
         // Do any runs use direct drawing types?.
         key.fHasSomeDirectSubRuns = false;
+        SkPoint glyphRunListLocation = { glyphRunList.sourceBounds().centerX(),
+                                         glyphRunList.sourceBounds().centerY() };
         for (auto& run : glyphRunList) {
             SkScalar approximateDeviceTextSize =
-                    SkFontPriv::ApproximateTransformedTextSize(run.font(), drawMatrix);
-            key.fHasSomeDirectSubRuns |= control.isDirect(approximateDeviceTextSize, paint);
+                    SkFontPriv::ApproximateTransformedTextSize(run.font(), drawMatrix,
+                                                               glyphRunListLocation);
+            key.fHasSomeDirectSubRuns |= control.isDirect(approximateDeviceTextSize, paint,
+                                                          drawMatrix);
         }
 
         if (key.fHasSomeDirectSubRuns) {
@@ -1802,12 +1840,15 @@ sk_sp<GrTextBlob> GrTextBlob::Make(const SkGlyphRunList& glyphRunList,
                 bytesNeededForSubRun, supportBilerpAtlas, positionMatrix, initialLuminance)};
 
     const uint64_t uniqueID = glyphRunList.uniqueID();
+    SkPoint glyphRunListCenter = { glyphRunList.sourceBounds().centerX(),
+                                   glyphRunList.sourceBounds().centerY() };
     for (auto& glyphRun : glyphRunList) {
         painter->processGlyphRun(blob.get(),
                                  glyphRun,
                                  positionMatrix,
                                  paint,
                                  control,
+                                 glyphRunListCenter,
                                  "GrTextBlob",
                                  uniqueID);
     }
@@ -2529,7 +2570,11 @@ std::tuple<bool, int> SDFTSubRunNoCache::regenerateAtlas(
 }
 
 size_t SDFTSubRunNoCache::vertexStride(const SkMatrix& drawMatrix) const {
-    return sizeof(Mask2DVertex);
+    if (drawMatrix.hasPerspective()) {
+        return sizeof(Mask3DVertex);
+    } else {
+        return sizeof(Mask2DVertex);
+    }
 }
 
 void SDFTSubRunNoCache::fillVertexData(
@@ -2537,19 +2582,29 @@ void SDFTSubRunNoCache::fillVertexData(
         GrColor color,
         const SkMatrix& drawMatrix, SkPoint drawOrigin,
         SkIRect clip) const {
-    using Quad = Mask2DVertex[4];
-
     const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
 
-    SkASSERT(sizeof(Mask2DVertex) == this->vertexStride(positionMatrix));
-    fill_transformed_vertices_2D(
-            SkMakeZip((Quad*)vertexDst,
-                      fGlyphs.glyphs().subspan(offset, count),
-                      fVertexData.subspan(offset, count)),
-            SK_DistanceFieldInset,
-            fStrikeToSourceScale,
-            color,
-            positionMatrix);
+    if (positionMatrix.hasPerspective()) {
+        using Quad = Mask3DVertex[4];
+        fill_transformed_vertices_3D(
+                SkMakeZip((Quad*)vertexDst,
+                          fGlyphs.glyphs().subspan(offset, count),
+                          fVertexData.subspan(offset, count)),
+                SK_DistanceFieldInset,
+                fStrikeToSourceScale,
+                color,
+                positionMatrix);
+    } else {
+        using Quad = Mask2DVertex[4];
+        fill_transformed_vertices_2D(
+                SkMakeZip((Quad*)vertexDst,
+                          fGlyphs.glyphs().subspan(offset, count),
+                          fVertexData.subspan(offset, count)),
+                SK_DistanceFieldInset,
+                fStrikeToSourceScale,
+                color,
+                positionMatrix);
+    }
 }
 
 int SDFTSubRunNoCache::glyphCount() const {
@@ -3267,12 +3322,15 @@ sk_sp<Slug> Slug::Make(const SkMatrixProvider& viewMatrix,
                                   bytesNeededForSubRun)};
 
     const uint64_t uniqueID = glyphRunList.uniqueID();
+    SkPoint glyphRunListCenter = { glyphRunList.sourceBounds().centerX(),
+                                   glyphRunList.sourceBounds().centerY() };
     for (auto& glyphRun : glyphRunList) {
         painter->processGlyphRun(slug.get(),
                                  glyphRun,
                                  positionMatrix,
                                  paint,
                                  control,
+                                 glyphRunListCenter,
                                  "Make Slug",
                                  uniqueID);
     }
