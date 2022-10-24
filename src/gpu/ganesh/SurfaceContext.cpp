@@ -1048,35 +1048,64 @@ void SurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext,
 sk_sp<GrRenderTask> SurfaceContext::copy(sk_sp<GrSurfaceProxy> src,
                                          SkIRect srcRect,
                                          SkIPoint dstPoint) {
-    ASSERT_SINGLE_OWNER
-    RETURN_NULLPTR_IF_ABANDONED
-    SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceContext", "copy", fContext);
-
-    const GrCaps* caps = fContext->priv().caps();
-
-    SkASSERT(src->backendFormat().textureType() != GrTextureType::kExternal);
-    SkASSERT(src->backendFormat() == this->asSurfaceProxy()->backendFormat());
-
-    if (this->asSurfaceProxy()->framebufferOnly()) {
-        return nullptr;
-    }
-
     if (!GrClipSrcRectAndDstPoint(this->dimensions(), &dstPoint,
                                   src->dimensions(), &srcRect)) {
         return nullptr;
     }
 
     SkIRect dstRect = SkIRect::MakePtSize(dstPoint, srcRect.size());
+    return this->copyScaled(src, srcRect, dstRect, GrSamplerState::Filter::kNearest);
+}
+
+sk_sp<GrRenderTask> SurfaceContext::copyScaled(sk_sp<GrSurfaceProxy> src,
+                                               SkIRect srcRect,
+                                               SkIRect dstRect,
+                                               GrSamplerState::Filter filter) {
+    ASSERT_SINGLE_OWNER
+    RETURN_NULLPTR_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceContext", "copyScaled", fContext);
+
+    const GrCaps* caps = fContext->priv().caps();
+
+    if (this->asSurfaceProxy()->framebufferOnly()) {
+        return nullptr;
+    }
+
+    // canCopySurface() verifies that src and dst rects are contained in their surfaces.
     if (!caps->canCopySurface(this->asSurfaceProxy(), dstRect, src.get(), srcRect)) {
         return nullptr;
     }
 
+    if (filter == GrSamplerState::Filter::kLinear && !src->isFunctionallyExact()) {
+        // If we're linear filtering an image that is approx-sized, there are cases where the filter
+        // could sample outside the logical dimensions. Specifically if we're upscaling along an
+        // axis where we are copying up to the logical dimension, but that dimension is less than
+        // the actual backing store dimension, the linear filter will access one texel beyond the
+        // logical size, potentially incorporating undefined values.
+        const bool upscalingXAtApproxEdge =
+            dstRect.width() > srcRect.width() &&
+            srcRect.fRight == src->width() &&
+            src->width() < src->backingStoreDimensions().width();
+        const bool upscalingYAtApproxEdge =
+            dstRect.height() > srcRect.height() &&
+            srcRect.height() == src->height() &&
+            srcRect.height() < src->backingStoreDimensions().height();
+        if (upscalingXAtApproxEdge || upscalingYAtApproxEdge) {
+            return nullptr;
+        }
+
+        // NOTE: Any upscaling with the linear filter will include content that's 1px outside the
+        // src rect, but as long as that's still within the logical dimensions we assume it's okay.
+    }
+
+    SkASSERT(src->backendFormat().textureType() != GrTextureType::kExternal);
+    SkASSERT(src->backendFormat() == this->asSurfaceProxy()->backendFormat());
     return this->drawingManager()->newCopyRenderTask(this->asSurfaceProxyRef(),
                                                      dstRect,
                                                      std::move(src),
                                                      srcRect,
-                                                     GrSamplerState::Filter::kNearest,
+                                                     filter,
                                                      this->origin());
 }
 
@@ -1121,19 +1150,22 @@ bool SurfaceContext::rescaleInto(SurfaceFillContext* dst,
     }
 
     GrSurfaceProxyView texView = this->readSurfaceView();
-    if (!texView.asTextureProxy()) {
-        // TODO: If copying supported specifying a renderable copy then we could return the copy
-        // when there are no other conversions.
-        texView = GrSurfaceProxyView::Copy(fContext, std::move(texView), GrMipmapped::kNo, srcRect,
-                                           SkBackingFit::kApprox,
-                                           SkBudgeted::kNo,
-                                           /*label=*/"SurfaceContext_RescaleInto");
-        if (!texView) {
-            return false;
+    // If we perform scaling as draws, texView must be texturable; if it's not already, we have to
+    // make a copy. However, if the scaling can use copyScaled(), we can avoid this copy.
+    auto ensureTexturable = [this](GrSurfaceProxyView texView, SkIRect srcRect) {
+        if (!texView.asTextureProxy()) {
+            // TODO: If copying supported specifying a renderable copy then we could return the copy
+            // when there are no other conversions.
+            texView = GrSurfaceProxyView::Copy(fContext, std::move(texView), GrMipmapped::kNo,
+                                               srcRect, SkBackingFit::kApprox, SkBudgeted::kNo,
+                                               "SurfaceContext_RescaleInto");
+            if (texView) {
+                SkASSERT(texView.asTextureProxy());
+                srcRect = SkIRect::MakeSize(srcRect.size());
+            }
         }
-        SkASSERT(texView.asTextureProxy());
-        srcRect = SkIRect::MakeSize(srcRect.size());
-    }
+        return std::make_pair(std::move(texView), srcRect);
+    };
 
     SkISize finalSize = dstRect.size();
     if (finalSize == srcRect.size()) {
@@ -1150,6 +1182,11 @@ bool SurfaceContext::rescaleInto(SurfaceFillContext* dst,
     // it's unclear how we'd linearize from an unknown color space.
     if (rescaleGamma == RescaleGamma::kLinear && this->colorInfo().colorSpace() &&
         !this->colorInfo().colorSpace()->gammaIsLinear()) {
+        // Colorspace transformations are always handled by drawing so we need to be texturable
+        std::tie(texView, srcRect) = ensureTexturable(texView, srcRect);
+        if (!texView) {
+            return false;
+        }
         auto cs = this->colorInfo().colorSpace()->makeLinearGamma();
         // We'll fall back to kRGBA_8888 if half float not supported.
         GrImageInfo ii(GrColorType::kRGBA_F16,
@@ -1213,6 +1250,11 @@ bool SurfaceContext::rescaleInto(SurfaceFillContext* dst,
         }
         std::unique_ptr<GrFragmentProcessor> fp;
         if (rescaleMode == RescaleMode::kRepeatedCubic) {
+            // Cubic sampling is always handled by drawing with a shader, so we must be texturable
+            std::tie(texView, srcRect) = ensureTexturable(texView, srcRect);
+            if (!texView) {
+                return false;
+            }
             auto dir = GrBicubicEffect::Direction::kXY;
             if (nextDims.width() == srcRect.width()) {
                 dir = GrBicubicEffect::Direction::kY;
@@ -1233,19 +1275,34 @@ bool SurfaceContext::rescaleInto(SurfaceFillContext* dst,
         } else {
             auto filter = rescaleMode == RescaleMode::kNearest ? GrSamplerState::Filter::kNearest
                                                                : GrSamplerState::Filter::kLinear;
-            auto srcRectF = SkRect::Make(srcRect);
-            fp = GrTextureEffect::MakeSubset(std::move(texView),
-                                             this->colorInfo().alphaType(),
-                                             SkMatrix::I(),
-                                             {filter, GrSamplerState::MipmapMode::kNone},
-                                             srcRectF,
-                                             srcRectF,
-                                             *this->caps());
+            if (xform ||
+                texView.origin() != stepDst->origin() ||
+                !stepDst->copyScaled(texView.refProxy(), srcRect, stepDstRect, filter)) {
+                // We could not or were unable to successful perform a scaling blit (which can be
+                // much faster if texView isn't already texturable). Scale by drawing instead.
+                std::tie(texView, srcRect) = ensureTexturable(texView, srcRect);
+                if (!texView) {
+                    return false;
+                }
+                auto srcRectF = SkRect::Make(srcRect);
+                fp = GrTextureEffect::MakeSubset(std::move(texView),
+                                                 this->colorInfo().alphaType(),
+                                                 SkMatrix::I(),
+                                                 {filter, GrSamplerState::MipmapMode::kNone},
+                                                 srcRectF,
+                                                 srcRectF,
+                                                 *this->caps());
+            }
         }
         if (xform) {
+            SkASSERT(SkToBool(fp)); // shouldn't have done a copy if there was a color xform
             fp = GrColorSpaceXformEffect::Make(std::move(fp), std::move(xform));
         }
-        stepDst->fillRectToRectWithFP(srcRect, stepDstRect, std::move(fp));
+        if (fp) {
+            // When fp is not null, we scale by drawing; if it is null, presumably the src has
+            // already been copied into stepDst.
+            stepDst->fillRectToRectWithFP(srcRect, stepDstRect, std::move(fp));
+        }
         texView = stepDst->readSurfaceView();
         tempA = std::move(tempB);
         srcRect = SkIRect::MakeSize(nextDims);
