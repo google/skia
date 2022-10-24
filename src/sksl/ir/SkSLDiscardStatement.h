@@ -9,9 +9,14 @@
 #define SKSL_DISCARDSTATEMENT
 
 #include "include/private/SkSLStatement.h"
-#include "src/sksl/ir/SkSLExpression.h"
+#include "include/sksl/SkSLPosition.h"
+
+#include <memory>
+#include <string>
 
 namespace SkSL {
+
+class Context;
 
 /**
  * A 'discard' statement.
@@ -20,16 +25,15 @@ class DiscardStatement final : public Statement {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kDiscard;
 
-    DiscardStatement(Position pos)
-    : INHERITED(pos, kIRNodeKind) {}
+    DiscardStatement(Position pos) : INHERITED(pos, kIRNodeKind) {}
 
-    static std::unique_ptr<Statement> Make(Position pos) {
-        return std::make_unique<DiscardStatement>(pos);
-    }
+    // Creates a discard-statement; reports errors via ErrorReporter.
+    static std::unique_ptr<Statement> Convert(const Context& context, Position pos);
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::make_unique<DiscardStatement>(fPosition);
-    }
+    // Creates a discard-statement; reports errors via SkASSERT.
+    static std::unique_ptr<Statement> Make(const Context& context, Position pos);
+
+    std::unique_ptr<Statement> clone() const override;
 
     std::string description() const override {
         return "discard;";

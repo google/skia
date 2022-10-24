@@ -33,6 +33,7 @@ IR_FILES = [
     "SkSLConstructorStruct.cpp",
     "SkSLConstructorStruct.h",
     "SkSLContinueStatement.h",
+    "SkSLDiscardStatement.cpp",
     "SkSLDiscardStatement.h",
     "SkSLDoStatement.cpp",
     "SkSLDoStatement.h",

@@ -172,12 +172,12 @@ public:
     }
 
     static DSLStatement Discard(Position pos) {
-        return SkSL::DiscardStatement::Make(pos);
+        return DSLStatement(SkSL::DiscardStatement::Convert(ThreadContext::Context(), pos), pos);
     }
 
     static DSLStatement Do(DSLStatement stmt, DSLExpression test, Position pos) {
         return DSLStatement(DoStatement::Convert(ThreadContext::Context(), pos, stmt.release(),
-                test.release()), pos);
+                                                 test.release()), pos);
     }
 
     static DSLStatement For(DSLStatement initializer, DSLExpression test,
@@ -193,8 +193,12 @@ public:
 
     static DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
             bool isStatic, Position pos) {
-        return DSLStatement(IfStatement::Convert(ThreadContext::Context(), pos, isStatic,
-                test.release(), ifTrue.release(), ifFalse.releaseIfPossible()), pos);
+        return DSLStatement(IfStatement::Convert(ThreadContext::Context(),
+                                                 pos,
+                                                 isStatic,
+                                                 test.release(),
+                                                 ifTrue.release(),
+                                                 ifFalse.releaseIfPossible()), pos);
     }
 
     static DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
@@ -361,9 +365,6 @@ void Declare(SkTArray<DSLGlobalVar>& vars, Position pos) {
 }
 
 DSLStatement Discard(Position pos) {
-    if (!ProgramConfig::IsFragment(ThreadContext::GetProgramConfig()->fKind)) {
-        ThreadContext::ReportError("discard statement is only permitted in fragment shaders", pos);
-    }
     return DSLCore::Discard(pos);
 }
 
