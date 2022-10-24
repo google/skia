@@ -11,7 +11,6 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
-#include "include/private/SkSLSymbol.h"
 #include "include/sksl/DSLModifiers.h"
 #include "include/sksl/DSLType.h"
 #include "include/sksl/DSLVar.h"
@@ -39,12 +38,14 @@
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-#include "src/sksl/ir/SkSLVariable.h"
 
 #include <type_traits>
 #include <vector>
 
 namespace SkSL {
+
+class Variable;
+
 namespace dsl {
 
 void Start(SkSL::Compiler* compiler, ProgramKind kind) {
@@ -148,20 +149,9 @@ public:
 
     static void Declare(DSLGlobalVar& var, Position pos) {
         std::unique_ptr<SkSL::Statement> stmt = DSLWriter::Declaration(var);
-        if (stmt) {
-            if (!stmt->isEmpty()) {
-                ThreadContext::ProgramElements().push_back(
-                        std::make_unique<SkSL::GlobalVarDeclaration>(std::move(stmt)));
-            }
-        } else if (var.fName == SkSL::Compiler::FRAGCOLOR_NAME) {
-            // sk_FragColor can end up with a null declaration despite no error occurring due to
-            // specific treatment in the compiler. Ignore the null and just grab the existing
-            // variable from the symbol table.
-            SkSL::Symbol* alreadyDeclared = ThreadContext::SymbolTable()->findMutable(var.fName);
-            if (alreadyDeclared && alreadyDeclared->is<Variable>()) {
-                var.fVar = &alreadyDeclared->as<Variable>();
-                var.fInitialized = true;
-            }
+        if (stmt && !stmt->isEmpty()) {
+            ThreadContext::ProgramElements().push_back(
+                    std::make_unique<SkSL::GlobalVarDeclaration>(std::move(stmt)));
         }
     }
 

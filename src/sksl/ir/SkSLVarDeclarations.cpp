@@ -359,14 +359,6 @@ std::unique_ptr<Statement> VarDeclaration::Convert(const Context& context,
         var->storage() == Variable::Storage::kInterfaceBlock) {
         // Check if this globally-scoped variable name overlaps an existing symbol name.
         if (symbols->find(var->name())) {
-            // We make a special exception and admit duplicate definitions of `sk_FragColor`.
-            // Skia re-declares sk_FragColor as `inout` when framebuffer fetch is used.
-            // When this happens, we just discard the declaration and let GLSLCodeGenerator fix it.
-            if (var->storage() == Variable::Storage::kGlobal &&
-                var->name() == Compiler::FRAGCOLOR_NAME) {
-                return nullptr;
-            }
-            // Other than this, globally-scoped variables should have globally unique names.
             context.fErrors->error(var->fPosition,
                                    "symbol '" + std::string(var->name()) + "' was already defined");
             return nullptr;

@@ -10,8 +10,7 @@ layout(builtin=10012) out half4 sk_SecondaryFragColor;
 /*%%*
 symbol 'sk_FragCoord' was already defined
 symbol 'sk_Clockwise' was already defined
+symbol 'sk_FragColor' was already defined
 symbol 'sk_LastFragColor' was already defined
 symbol 'sk_SecondaryFragColor' was already defined
 *%%*/
-
-// We don't report an error on sk_FragColor; we allow it to be silently redefined.
