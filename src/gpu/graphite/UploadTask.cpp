@@ -149,7 +149,7 @@ bool UploadInstance::prepareResources(ResourceProvider* resourceProvider) {
         SKGPU_LOG_E("No texture proxy specified for UploadTask");
         return false;
     }
-    if (!fTextureProxy->instantiate(resourceProvider)) {
+    if (!TextureProxy::InstantiateIfNonVolatile(resourceProvider, fTextureProxy.get())) {
         SKGPU_LOG_E("Could not instantiate texture proxy for UploadTask!");
         return false;
     }

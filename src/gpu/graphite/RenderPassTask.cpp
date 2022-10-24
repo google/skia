@@ -41,7 +41,7 @@ RenderPassTask::~RenderPassTask() = default;
 bool RenderPassTask::prepareResources(ResourceProvider* resourceProvider,
                                       const SkRuntimeEffectDictionary* runtimeDict) {
     SkASSERT(fTarget);
-    if (!fTarget->instantiate(resourceProvider)) {
+    if (!TextureProxy::InstantiateIfNonVolatile(resourceProvider, fTarget.get())) {
         SKGPU_LOG_W("Failed to instantiate RenderPassTask target. Will not create renderpass!");
         SKGPU_LOG_W("Dimensions are (%d, %d).",
                     fTarget->dimensions().width(), fTarget->dimensions().height());

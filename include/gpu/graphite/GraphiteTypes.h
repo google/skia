@@ -50,6 +50,15 @@ enum class Mipmapped : bool {
     kYes = true,
 };
 
+/*
+ * Only relevant for Promise Images - should the Promise Image be fulfilled every time a
+ * Recording that references it is inserted into the Context.
+ */
+enum class Volatile : bool {
+    kNo = false,
+    kYes = true
+};
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_GraphiteTypes_DEFINED

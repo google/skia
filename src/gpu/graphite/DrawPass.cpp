@@ -606,7 +606,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
             SKGPU_LOG_W("Failed to validate sampled texture. Will not create renderpass!");
             return false;
         }
-        if (!fSampledTextures[i]->instantiate(resourceProvider)) {
+        if (!TextureProxy::InstantiateIfNonVolatile(resourceProvider, fSampledTextures[i].get())) {
             SKGPU_LOG_W("Failed to instantiate sampled texture. Will not create renderpass!");
             return false;
         }

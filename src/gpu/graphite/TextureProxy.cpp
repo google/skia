@@ -15,34 +15,87 @@
 namespace skgpu::graphite {
 
 TextureProxy::TextureProxy(SkISize dimensions, const TextureInfo& info, SkBudgeted budgeted)
-        : fDimensions(dimensions), fInfo(info), fBudgeted(budgeted) {
-    // TODO: Enable this assert once we are correctly handling the creation of all graphite
-    // SkImages. Right now things like makeImageSnapshot create an invalid proxy with an invalid
-    // TextureInfo.
-    // SkASSERT(fInfo.isValid());
+        : fDimensions(dimensions)
+        , fInfo(info)
+        , fBudgeted(budgeted)
+        , fVolatile(Volatile::kNo) {
+    SkASSERT(fInfo.isValid());
 }
 
 TextureProxy::TextureProxy(sk_sp<Texture> texture)
         : fDimensions(texture->dimensions())
         , fInfo(texture->textureInfo())
         , fBudgeted(texture->budgeted())
+        , fVolatile(Volatile::kNo)
         , fTexture(std::move(texture)) {
     SkASSERT(fInfo.isValid());
 }
 
+TextureProxy::TextureProxy(SkISize dimensions,
+                           const TextureInfo& textureInfo,
+                           SkBudgeted budgeted,
+                           Volatile isVolatile,
+                           LazyInstantiateCallback&& callback)
+        : fDimensions(dimensions)
+        , fInfo(textureInfo)
+        , fBudgeted(budgeted)
+        , fVolatile(isVolatile)
+        , fLazyInstantiateCallback(std::move(callback)) {
+    SkASSERT(fInfo.isValid());
+    SkASSERT(fLazyInstantiateCallback);
+}
+
 TextureProxy::~TextureProxy() {}
+
+bool TextureProxy::isLazy() const {
+    return SkToBool(fLazyInstantiateCallback);
+}
+
+bool TextureProxy::isVolatile() const {
+    SkASSERT(fVolatile == Volatile::kNo || SkToBool(fLazyInstantiateCallback));
+
+    return fVolatile == Volatile::kYes;
+}
+
 
 bool TextureProxy::instantiate(ResourceProvider* resourceProvider) {
     if (fTexture) {
         return true;
     }
-    fTexture = resourceProvider->findOrCreateScratchTexture(fDimensions, fInfo, fBudgeted);
+    if (this->isLazy()) {
+        SkASSERT(!this->isVolatile());  // this must be instantiated via volatileInstantiate
+        fTexture = fLazyInstantiateCallback(resourceProvider, fVolatile);
+    } else {
+        fTexture = resourceProvider->findOrCreateScratchTexture(fDimensions, fInfo, fBudgeted);
+    }
     if (!fTexture) {
         return false;
     }
     SkDEBUGCODE(this->validateTexture(fTexture.get()));
     return true;
 }
+
+bool TextureProxy::volatileInstantiate(ResourceProvider* resourceProvider) {
+    SkASSERT(this->isLazy() && this->isVolatile());
+    SkASSERT(!fTexture);
+
+    fTexture = fLazyInstantiateCallback(resourceProvider, fVolatile);
+    if (!fTexture) {
+        return false;
+    }
+    SkDEBUGCODE(this->validateTexture(fTexture.get()));
+    return true;
+}
+
+bool TextureProxy::InstantiateIfNonVolatile(ResourceProvider* resourceProvider,
+                                            TextureProxy* textureProxy) {
+    if (textureProxy->isVolatile()) {
+        return true;
+    }
+
+    return textureProxy->instantiate(resourceProvider);
+}
+
 
 sk_sp<Texture> TextureProxy::refTexture() const {
     return fTexture;
@@ -72,6 +125,17 @@ sk_sp<TextureProxy> TextureProxy::Make(const Caps* caps,
     }
 
     return sk_make_sp<TextureProxy>(dimensions, textureInfo, budgeted);
+}
+
+sk_sp<TextureProxy> TextureProxy::MakeLazy(SkISize dimensions,
+                                           const TextureInfo& textureInfo,
+                                           SkBudgeted budgeted,
+                                           Volatile isVolatile,
+                                           LazyInstantiateCallback&& callback) {
+    SkASSERT(textureInfo.isValid());
+
+    return sk_sp<TextureProxy>(new TextureProxy(dimensions, textureInfo, budgeted,
+                                                isVolatile, std::move(callback)));
 }
 
 #ifdef SK_DEBUG
