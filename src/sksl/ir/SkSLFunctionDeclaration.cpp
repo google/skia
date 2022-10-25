@@ -431,6 +431,10 @@ static bool find_existing_declaration(const Context& context,
             *outExistingDecl = other;
             break;
         }
+        if (!*outExistingDecl && entry->as<FunctionDeclaration>().isMain()) {
+            errors.error(pos, "duplicate definition of 'main'");
+            return false;
+        }
     }
     return true;
 }
