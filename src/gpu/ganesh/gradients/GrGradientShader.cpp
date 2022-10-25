@@ -671,6 +671,13 @@ static std::unique_ptr<GrFragmentProcessor> make_interpolated_to_dst(
         bool allOpaque) {
     using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
 
+    static_assert(static_cast<int>(ColorSpace::kLab)   == 2);
+    static_assert(static_cast<int>(ColorSpace::kOKLab) == 3);
+    static_assert(static_cast<int>(ColorSpace::kLCH)   == 4);
+    static_assert(static_cast<int>(ColorSpace::kOKLCH) == 5);
+    static_assert(static_cast<int>(ColorSpace::kHSL)   == 7);
+    static_assert(static_cast<int>(ColorSpace::kHWB)   == 8);
+
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
         "uniform int colorSpace;"    // specialized
         "uniform int do_unpremul;"   // specialized
