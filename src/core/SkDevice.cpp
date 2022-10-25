@@ -307,6 +307,10 @@ void SkBaseDevice::drawSpecial(SkSpecialImage*, const SkMatrix&, const SkSamplin
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkBitmap&) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::makeSpecial(const SkImage*) { return nullptr; }
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial(const SkIRect&, bool forceCopy) { return nullptr; }
+sk_sp<SkSpecialImage> SkBaseDevice::snapSpecialScaled(const SkIRect& subset,
+                                                      const SkISize& dstDims) {
+    return nullptr;
+}
 sk_sp<SkSpecialImage> SkBaseDevice::snapSpecial() {
     return this->snapSpecial(SkIRect::MakeWH(this->width(), this->height()));
 }

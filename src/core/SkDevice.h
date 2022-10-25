@@ -228,6 +228,9 @@ public:
     // device. When 'forceCopy' is false, the image can be a view into the device's pixels
     // (avoiding a copy for performance, at the expense of safety). Default returns null.
     virtual sk_sp<SkSpecialImage> snapSpecial(const SkIRect& subset, bool forceCopy = false);
+    // Can return null if unable to perform scaling as part of the copy, even if snapSpecial() w/o
+    // scaling would succeed.
+    virtual sk_sp<SkSpecialImage> snapSpecialScaled(const SkIRect& subset, const SkISize& dstDims);
     // Get a view of the entire device's current contents as an image.
     sk_sp<SkSpecialImage> snapSpecial();
 

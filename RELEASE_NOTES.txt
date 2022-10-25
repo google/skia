@@ -1,15 +1,13 @@
 Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
-Milestone 108
--------------
-  * SkMesh buffer factories added that make copies of CPU-backed buffers.
-
-* * *
 
 Milestone 109
 -------------
   * SkMesh vertex and fragment main() signatures have changed. See docs on SkMeshSpecification.
+  * Added SkImage::RescaleMode::kLinear so that the async rescale/readback APIs can scale in a
+    single step no matter the total scale factor (faster but lower quality than kRepeatedLinear).
+  * SkMesh buffer factories added that make copies of CPU-backed buffers.
 
 * * *
 

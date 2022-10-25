@@ -941,6 +941,7 @@ public:
 
     enum class RescaleMode {
         kNearest,
+        kLinear,
         kRepeatedLinear,
         kRepeatedCubic,
     };

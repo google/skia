@@ -1219,7 +1219,7 @@ bool SurfaceContext::rescaleInto(SurfaceFillContext* dst,
 
     do {
         SkISize nextDims = finalSize;
-        if (rescaleMode != RescaleMode::kNearest) {
+        if (rescaleMode != RescaleMode::kNearest && rescaleMode != RescaleMode::kLinear) {
             if (srcRect.width() > finalSize.width()) {
                 nextDims.fWidth = std::max((srcRect.width() + 1)/2, finalSize.width());
             } else if (srcRect.width() < finalSize.width()) {
