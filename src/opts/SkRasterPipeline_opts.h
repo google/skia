@@ -4066,15 +4066,12 @@ STAGE_PP(check_decal_mask, SkRasterPipeline_DecalTileCtx* ctx) {
     a = a & mask;
 }
 
-SI void round_F_to_U16(F    R, F    G, F    B, F    A, bool interpolatedInPremul,
-                       U16* r, U16* g, U16* b, U16* a) {
+SI void round_F_to_U16(F R, F G, F B, F A, U16* r, U16* g, U16* b, U16* a) {
     auto round = [](F x) { return cast<U16>(x * 255.0f + 0.5f); };
 
-    F limit = interpolatedInPremul ? A
-                                   : 1;
-    *r = round(min(max(0,R), limit));
-    *g = round(min(max(0,G), limit));
-    *b = round(min(max(0,B), limit));
+    *r = round(min(max(0, R), 1));
+    *g = round(min(max(0, G), 1));
+    *b = round(min(max(0, B), 1));
     *a = round(A);  // we assume alpha is already in [0,1].
 }
 
@@ -4119,7 +4116,6 @@ SI void gradient_lookup(const SkRasterPipeline_GradientCtx* c, U32 idx, F t,
                    mad(t, fg, bg),
                    mad(t, fb, bb),
                    mad(t, fa, ba),
-                   c->interpolatedInPremul,
                    r,g,b,a);
 }
 
@@ -4147,7 +4143,6 @@ STAGE_GP(evenly_spaced_2_stop_gradient, const SkRasterPipeline_EvenlySpaced2Stop
                    mad(t, c->f[1], c->b[1]),
                    mad(t, c->f[2], c->b[2]),
                    mad(t, c->f[3], c->b[3]),
-                   c->interpolatedInPremul,
                    &r,&g,&b,&a);
 }
 

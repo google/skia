@@ -339,12 +339,10 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
         auto ctx = alloc->make<SkRasterPipeline_EvenlySpaced2StopGradientCtx>();
         (skvx::float4::Load(c_r.vec()) - skvx::float4::Load(c_l.vec())).store(ctx->f);
         (                                skvx::float4::Load(c_l.vec())).store(ctx->b);
-        ctx->interpolatedInPremul = premulGrad;
 
         p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, ctx);
     } else {
         auto* ctx = alloc->make<SkRasterPipeline_GradientCtx>();
-        ctx->interpolatedInPremul = premulGrad;
 
         // Note: In order to handle clamps in search, the search assumes a stop conceptully placed
         // at -inf. Therefore, the max number of stops is fColorCount+1.

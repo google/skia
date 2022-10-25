@@ -202,13 +202,11 @@ struct SkRasterPipeline_GradientCtx {
     float* fs[4];
     float* bs[4];
     float* ts;
-    bool interpolatedInPremul;
 };
 
 struct SkRasterPipeline_EvenlySpaced2StopGradientCtx {
     float f[4];
     float b[4];
-    bool interpolatedInPremul;
 };
 
 struct SkRasterPipeline_2PtConicalCtx {
