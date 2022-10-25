@@ -116,7 +116,6 @@ protected:
             fixup(R"(void main\(\))",                              "half4 main(float2 xy)");
             fixup(R"(sk_FragColor =)",                             "return");
             fixup(R"(sk_FragCoord)",                               "_FragCoord");
-            fixup(R"(out half4 sk_FragColor;)",                    "");
             fixup(R"(uniform sampler2D )",                         "uniform shader ");
             fixup(R"((flat |noperspective |)in )",                 "uniform ");
             fixup(R"(sample\(([A-Za-z0-9_]+), ([A-Za-z0-9_]+)\))", "$01.eval($02)");
@@ -200,7 +199,6 @@ uniform half urange_S1;
 uniform sampler2D uTextureSampler_0_S1;
 flat in half4 vcolor_S0;
 noperspective in float2 vTransformedCoords_8_S0;
-out half4 sk_FragColor;
 half4 TextureEffect_S1_c0_c0(half4 _input, float2 _coords)
 {
 	return sample(uTextureSampler_0_S1, _coords).000r;
@@ -379,7 +377,6 @@ uniform sampler2D uTextureSampler_0_S1;
 uniform sampler2D uTextureSampler_0_S2;
 flat in half4 vcolor_S0;
 noperspective in float2 vTransformedCoords_3_S0;
-out half4 sk_FragColor;
 half4 TextureEffect_S1_c0_c0(half4 _input)
 {
 	return sample(uTextureSampler_0_S1, vTransformedCoords_3_S0);
@@ -449,7 +446,6 @@ uniform sampler2D uTextureSampler_0_S0;
 noperspective in float2 vTextureCoords_S0;
 flat in float vTexIndex_S0;
 noperspective in half4 vinColor_S0;
-out half4 sk_FragColor;
 void main()
 {
 	// Stage 0, BitmapText
