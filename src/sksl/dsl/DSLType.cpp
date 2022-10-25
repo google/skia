@@ -9,8 +9,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
-#include "include/private/SkSLLayout.h"
-#include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLString.h"
 #include "include/private/SkSLSymbol.h"
@@ -29,6 +27,8 @@
 #include <vector>
 
 namespace SkSL {
+
+struct Modifiers;
 
 namespace dsl {
 
@@ -288,35 +288,11 @@ DSLType StructType(std::string_view name,
     std::vector<SkSL::Type::Field> skslFields;
     skslFields.reserve(fields.size());
     for (const DSLField& field : fields) {
-        if (field.fModifiers.fModifiers.fFlags != Modifiers::kNo_Flag) {
-            std::string desc = field.fModifiers.fModifiers.description();
-            desc.pop_back();  // remove trailing space
-            ThreadContext::ReportError("modifier '" + desc + "' is not permitted on a struct field",
-                                       field.fModifiers.fPosition);
-        }
-        if (field.fModifiers.fModifiers.fLayout.fFlags & Layout::kBinding_Flag) {
-            ThreadContext::ReportError(
-                    "layout qualifier 'binding' is not permitted on a struct field",
-                    field.fModifiers.fPosition);
-        }
-        if (field.fModifiers.fModifiers.fLayout.fFlags & Layout::kSet_Flag) {
-            ThreadContext::ReportError("layout qualifier 'set' is not permitted on a struct field",
-                                       field.fModifiers.fPosition);
-        }
-
-        const SkSL::Type& type = field.fType.skslType();
-        if (type.isVoid()) {
-            ThreadContext::ReportError("type 'void' is not permitted in a struct", field.fPosition);
-        } else if (type.isOpaque()) {
-            ThreadContext::ReportError("opaque type '" + type.displayName() +
-                                       "' is not permitted in a struct", field.fPosition);
-        }
-        skslFields.emplace_back(field.fPosition, field.fModifiers.fModifiers, field.fName, &type);
+        skslFields.emplace_back(field.fPosition, field.fModifiers.fModifiers, field.fName,
+                                &field.fType.skslType());
     }
-    std::unique_ptr<Type> newType = Type::MakeStructType(pos, name, skslFields, interfaceBlock);
-    if (newType->isTooDeeplyNested()) {
-        ThreadContext::ReportError("struct '" + std::string(name) + "' is too deeply nested", pos);
-    }
+    std::unique_ptr<Type> newType = Type::MakeStructType(ThreadContext::Context(), pos, name,
+                                                         std::move(skslFields), interfaceBlock);
     return DSLType(ThreadContext::SymbolTable()->add(std::move(newType)), pos);
 }
 

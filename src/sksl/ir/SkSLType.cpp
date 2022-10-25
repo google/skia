@@ -7,6 +7,7 @@
 
 #include "src/sksl/ir/SkSLType.h"
 
+#include "include/private/SkSLLayout.h"
 #include "include/private/SkSLString.h"
 #include "include/private/SkStringView.h"
 #include "include/private/SkTFitsIn.h"
@@ -646,8 +647,57 @@ std::unique_ptr<Type> Type::MakeScalarType(std::string_view name, const char* ab
 
 }
 
-std::unique_ptr<Type> Type::MakeStructType(Position pos, std::string_view name,
-                                           std::vector<Field> fields, bool interfaceBlock) {
+static bool is_too_deeply_nested(const Type* t, int limit) {
+    if (limit <= 0) {
+        return true;
+    }
+
+    if (t->isStruct()) {
+        for (const Type::Field& f : t->fields()) {
+            if (is_too_deeply_nested(f.fType, limit - 1)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+std::unique_ptr<Type> Type::MakeStructType(const Context& context,
+                                           Position pos,
+                                           std::string_view name,
+                                           std::vector<Field> fields,
+                                           bool interfaceBlock) {
+    for (const Field& field : fields) {
+        if (field.fModifiers.fFlags != Modifiers::kNo_Flag) {
+            std::string desc = field.fModifiers.description();
+            desc.pop_back();  // remove trailing space
+            context.fErrors->error(field.fPosition,
+                                   "modifier '" + desc + "' is not permitted on a struct field");
+        }
+        if (field.fModifiers.fLayout.fFlags & Layout::kBinding_Flag) {
+            context.fErrors->error(field.fPosition,
+                                   "layout qualifier 'binding' is not permitted on a struct field");
+        }
+        if (field.fModifiers.fLayout.fFlags & Layout::kSet_Flag) {
+            context.fErrors->error(field.fPosition,
+                                   "layout qualifier 'set' is not permitted on a struct field");
+        }
+
+        if (field.fType->isVoid()) {
+            context.fErrors->error(field.fPosition, "type 'void' is not permitted in a struct");
+        }
+        if (field.fType->isOpaque()) {
+            context.fErrors->error(field.fPosition, "opaque type '" + field.fType->displayName() +
+                                                    "' is not permitted in a struct");
+        }
+    }
+    for (const Field& field : fields) {
+        if (is_too_deeply_nested(field.fType, kMaxStructDepth)) {
+            context.fErrors->error(pos, "struct '" + std::string(name) + "' is too deeply nested");
+            break;
+        }
+    }
     return std::make_unique<StructType>(pos, name, std::move(fields), interfaceBlock);
 }
 
@@ -969,8 +1019,10 @@ const Type* Type::clone(SymbolTable* symbolTable) const {
             return symbolTable->addArrayDimension(&this->componentType(), this->columns());
         }
         case TypeKind::kStruct: {
+            // We are cloning an existing struct, so there's no need to call MakeStructType and
+            // fully error-check it again.
             const std::string* name = symbolTable->takeOwnershipOfString(std::string(this->name()));
-            return symbolTable->add(Type::MakeStructType(
+            return symbolTable->add(std::make_unique<StructType>(
                     this->fPosition, *name, this->fields(), this->isInterfaceBlock()));
         }
         default:
@@ -1038,26 +1090,6 @@ bool Type::isOrContainsArray() const {
 
 bool Type::isOrContainsUnsizedArray() const {
     return is_or_contains_array(this, /*onlyMatchUnsizedArrays=*/true);
-}
-
-bool Type::isTooDeeplyNested(int limit) const {
-    if (limit < 0) {
-        return true;
-    }
-
-    if (this->isStruct()) {
-        for (const Type::Field& f : this->fields()) {
-            if (f.fType->isTooDeeplyNested(limit - 1)) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
-bool Type::isTooDeeplyNested() const {
-    return this->isTooDeeplyNested(kMaxStructDepth);
 }
 
 bool Type::isAllowedInES2(const Context& context) const {

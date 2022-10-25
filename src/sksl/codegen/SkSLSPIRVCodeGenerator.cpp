@@ -3404,10 +3404,12 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf, bool a
                             fContext.fTypes.fFloat2.get());
         {
             AutoAttachPoolToThread attach(fProgram.fPool.get());
-            const Type* rtFlipStructType =
-                    fProgram.fSymbols->takeOwnershipOfSymbol(Type::MakeStructType(
-                            type.fPosition, type.name(), std::move(fields),
-                            /*interfaceBlock=*/true));
+            const Type* rtFlipStructType = fProgram.fSymbols->takeOwnershipOfSymbol(
+                    Type::MakeStructType(fContext,
+                                         type.fPosition,
+                                         type.name(),
+                                         std::move(fields),
+                                         /*interfaceBlock=*/true));
             InterfaceBlockVariable* modifiedVar = fProgram.fSymbols->takeOwnershipOfSymbol(
                     std::make_unique<InterfaceBlockVariable>(intfVar.fPosition,
                                                              intfVar.modifiersPosition(),
@@ -3852,10 +3854,15 @@ void SPIRVCodeGenerator::writeUniformBuffer(std::shared_ptr<SymbolTable> topLeve
     for (const VarDeclaration* topLevelUniform : fTopLevelUniforms) {
         const Variable* var = topLevelUniform->var();
         fTopLevelUniformMap.set(var, (int)fields.size());
-        fields.emplace_back(var->fPosition, var->modifiers(), var->name(), &var->type());
+        Modifiers modifiers = var->modifiers();
+        modifiers.fFlags &= ~Modifiers::kUniform_Flag;
+        fields.emplace_back(var->fPosition, modifiers, var->name(), &var->type());
     }
-    fUniformBuffer.fStruct = Type::MakeStructType(Position(), kUniformBufferName, std::move(fields),
-            /*interfaceBlock=*/true);
+    fUniformBuffer.fStruct = Type::MakeStructType(fContext,
+                                                  Position(),
+                                                  kUniformBufferName,
+                                                  std::move(fields),
+                                                  /*interfaceBlock=*/true);
 
     // Create a global variable to contain this struct.
     Layout layout;
@@ -3905,7 +3912,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
                         fContext.fTypes.fFloat2.get());
     std::string_view name = "sksl_synthetic_uniforms";
     const Type* intfStruct = fSynthetics.takeOwnershipOfSymbol(
-            Type::MakeStructType(Position(), name, fields, /*interfaceBlock=*/true));
+            Type::MakeStructType(fContext, Position(), name, fields, /*interfaceBlock=*/true));
     bool usePushConstants = fProgram.fConfig->fSettings.fUsePushConstants;
     int binding = -1, set = -1;
     if (!usePushConstants) {
