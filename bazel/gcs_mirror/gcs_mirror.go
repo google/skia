@@ -35,6 +35,7 @@ const (
 
 func main() {
 	var (
+		file          = flag.String("file", "", "A local file on disk to upload. --sha256 must be set.")
 		url           = flag.String("url", "", "The single url to mirror. --sha256 must be set.")
 		sha256Hash    = flag.String("sha256", "", "The sha256sum of the url to mirror. --url must also be set.")
 		jsonFromStdin = flag.Bool("json", false, "If set, read JSON from stdin that consists of a list of objects.")
@@ -42,11 +43,13 @@ func main() {
 	)
 	flag.Parse()
 
-	if (*url != "" && *sha256Hash == "") || (*url == "" && *sha256Hash != "") {
+	if (*file != "" && *sha256Hash != "") || (*url != "" && *sha256Hash != "") {
+		// ok
+	} else if *jsonFromStdin {
+		// ok
+	} else {
 		flag.Usage()
-		fatalf("Must set both of or non of --url and --sha256")
-	} else if *url == "" && *sha256Hash == "" && !*jsonFromStdin {
-		fatalf("Must specify --url and --sha256 or --json")
+		fatalf("Must specify --url/--file and --sha256 or --json")
 	}
 
 	workDir, err := os.MkdirTemp("", "bazel_gcs")
@@ -63,11 +66,16 @@ func main() {
 		if err := processJSON(workDir, b); err != nil {
 			fatalf("Could not process data from stdin: %s", err)
 		}
-	} else {
-		if err := processOne(workDir, *url, *sha256Hash, *noSuffix); err != nil {
+	} else if *url != "" {
+		if err := processOneDownload(workDir, *url, *sha256Hash, *noSuffix); err != nil {
 			fatalf("Error while processing entry: %s", err)
 		}
 		fmt.Printf("https://storage.googleapis.com/skia-world-readable/bazel/%s%s\n", *sha256Hash, getSuffix(*url))
+	} else {
+		if err := processOneLocalFile(*file, *sha256Hash); err != nil {
+			fatalf("Error while processing entry: %s", err)
+		}
+		fmt.Printf("https://storage.googleapis.com/skia-world-readable/bazel/%s%s\n", *sha256Hash, getSuffix(*file))
 	}
 }
 
@@ -87,7 +95,7 @@ func processJSON(workDir string, b []byte) error {
 		return skerr.Wrapf(err, "unmarshalling JSON")
 	}
 	for _, entry := range entries {
-		if err := processOne(workDir, entry.URL, entry.SHA256, false); err != nil {
+		if err := processOneDownload(workDir, entry.URL, entry.SHA256, false); err != nil {
 			return skerr.Wrapf(err, "while processing entry: %+v", entry)
 		}
 	}
@@ -99,7 +107,7 @@ func fixStarlarkComments(b []byte) string {
 	return strings.ReplaceAll(string(b), "#", "//")
 }
 
-func processOne(workDir, url, hash string, noSuffix bool) error {
+func processOneDownload(workDir, url, hash string, noSuffix bool) error {
 	suf := getSuffix(url)
 	if !noSuffix && suf == "" {
 		return skerr.Fmt("%s is not a supported file type", url)
@@ -136,6 +144,36 @@ func processOne(workDir, url, hash string, noSuffix bool) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return skerr.Wrapf(cmd.Run(), "uploading %s to GCS", tmpFile)
+}
+
+func processOneLocalFile(file, hash string) error {
+	file, err := filepath.Abs(file)
+	if err != nil {
+		return skerr.Wrap(err)
+	}
+	suf := getSuffix(file)
+	if suf == "" {
+		return skerr.Fmt("%s is not a supported file type", file)
+	}
+	contents, err := os.ReadFile(file)
+	if err != nil {
+		return skerr.Wrapf(err, "reading %s", file)
+	}
+	// Verify
+	h := sha256.Sum256(contents)
+	if actual := hex.EncodeToString(h[:]); actual != hash {
+		return skerr.Fmt("Invalid hash of %s. %s != %s", file, actual, hash)
+	}
+	fmt.Printf("Uploading %s to GCS...\n", file)
+	// Upload using gsutil (which is assumed to be properly authed)
+	cmd := exec.Command("gsutil",
+		// Add custom metadata so we can figure out what the unrecognizable file name was created
+		// from. Custom metadata values must start with x-goog-meta-
+		"-h", "x-goog-meta-original-file:"+file,
+		"cp", file, gcsBucketAndPrefix+hash+suf)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return skerr.Wrapf(cmd.Run(), "uploading %s to GCS", file)
 }
 
 var supportedSuffixes = []string{".tar.gz", ".tgz", ".tar.xz", ".deb", ".zip"}

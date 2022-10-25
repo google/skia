@@ -56,14 +56,13 @@ RUN mkdir ${TARGET_DIR} out && \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${TARGET_DIR} \
     -DLLVM_ENABLE_PROJECTS="clang;lld;clang-tools-extra" \
-    -DLLVM_ENABLE_RUNTIMES="compiler-rt;libcxx;libcxxabi" \
+    -DLLVM_ENABLE_RUNTIMES="all" \
     -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON \
     -DLLVM_USE_LINKER=lld \
+    -DLLVM_ENABLE_UNWIND_TABLES=OFF \
     -DLLVM_ENABLE_TERMINFO=OFF \
     -DLLVM_EXTERNAL_PROJECTS=iwyu \
     -DLLVM_EXTERNAL_IWYU_SOURCE_DIR=/tmp/iwyu
-
-# TODO(kjlubick) Previously, we would build clang-tools-extra. Do we still need that?
 
 RUN ninja -C out install
 RUN cp out/bin/llvm-symbolizer out/bin/llvm-profdata out/bin/llvm-cov ${TARGET_DIR}/bin
