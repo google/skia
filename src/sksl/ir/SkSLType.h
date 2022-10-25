@@ -231,9 +231,6 @@ public:
         return true;
     }
 
-    /** Returns true if this type is either private, or contains a private field (recursively). */
-    virtual bool isPrivate() const;
-
     /** If this is an alias, returns the underlying type, otherwise returns this. */
     virtual const Type& resolve() const {
         return *this;
