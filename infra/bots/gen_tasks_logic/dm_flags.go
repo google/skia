@@ -683,6 +683,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.model("Wembley", "JioNext") {
 		// These tests run forever on the Wembley.
 		skip(ALL, "gm", ALL, "async_rescale_and_read")
+        // skbug.com/13858
+        skip(ALL, "gm", ALL, "custommesh")
 	}
 
 	if b.os("iOS") {
