@@ -8,12 +8,14 @@
 #ifndef SkSpan_DEFINED
 #define SkSpan_DEFINED
 
+#include "include/core/SkTypes.h"
+
 #include <cstddef>
 #include <initializer_list>
 #include <iterator>
+#include <limits>
 #include <type_traits>
 #include <utility>
-#include "include/private/SkTLogic.h"
 
 // Add macro to check the lifetime of initializer_list arguments. initializer_list has a very
 // short life span, and can only be used as a parameter, and not as a variable.
