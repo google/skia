@@ -273,6 +273,15 @@ struct SK_API GrContextOptions {
      */
     bool fAllowMSAAOnNewIntel = false;
 
+    /**
+     * Currently on ARM Android we disable the use of GL TexStorage because of memory regressions.
+     * However, some clients may still want to use TexStorage. For example, TexStorage support is
+     * required for creating protected textures.
+     *
+     * This flag has no impact on non GL backends.
+     */
+    bool fAlwaysUseTexStorageWhenAvailable = false;
+
 #if GR_TEST_UTILS
     /**
      * Private options that are only meant for testing within Skia's tools.
