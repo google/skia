@@ -1,0 +1,5 @@
+half4 c;
+void  main()          {}
+half4 main(float2 xy) { return c; }
+
+TODO(johnstiles): overloading main should be forbidden
