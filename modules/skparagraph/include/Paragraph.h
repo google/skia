@@ -12,6 +12,8 @@ class SkCanvas;
 namespace skia {
 namespace textlayout {
 
+class ParagraphPainter;
+
 class Paragraph {
 
 public:
@@ -38,6 +40,8 @@ public:
     virtual void layout(SkScalar width) = 0;
 
     virtual void paint(SkCanvas* canvas, SkScalar x, SkScalar y) = 0;
+
+    virtual void paint(ParagraphPainter* painter, SkScalar x, SkScalar y) = 0;
 
     // Returns a vector of bounding boxes that enclose all text between
     // start and end glyph indexes, including start and excluding end

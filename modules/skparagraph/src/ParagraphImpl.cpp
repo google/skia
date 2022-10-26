@@ -10,10 +10,12 @@
 #include "include/private/SkTo.h"
 #include "modules/skparagraph/include/Metrics.h"
 #include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/ParagraphPainter.h"
 #include "modules/skparagraph/include/ParagraphStyle.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
 #include "modules/skparagraph/src/ParagraphImpl.h"
+#include "modules/skparagraph/src/ParagraphPainterImpl.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/src/TextWrapper.h"
@@ -209,8 +211,13 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
 }
 
 void ParagraphImpl::paint(SkCanvas* canvas, SkScalar x, SkScalar y) {
+    CanvasParagraphPainter painter(canvas);
+    paint(&painter, x, y);
+}
+
+void ParagraphImpl::paint(ParagraphPainter* painter, SkScalar x, SkScalar y) {
     for (auto& line : fLines) {
-        line.paint(canvas, x, y);
+        line.paint(painter, x, y);
     }
 }
 
