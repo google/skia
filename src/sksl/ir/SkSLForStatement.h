@@ -8,6 +8,7 @@
 #ifndef SKSL_FORSTATEMENT
 #define SKSL_FORSTATEMENT
 
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"

@@ -14,8 +14,11 @@
 #include <initializer_list>
 #include <iterator>
 #include <limits>
-#include <type_traits>
 #include <utility>
+
+// Having this be an export works around IWYU churn related to
+// https://github.com/include-what-you-use/include-what-you-use/issues/1121
+#include <type_traits> // IWYU pragma: export
 
 // Add macro to check the lifetime of initializer_list arguments. initializer_list has a very
 // short life span, and can only be used as a parameter, and not as a variable.

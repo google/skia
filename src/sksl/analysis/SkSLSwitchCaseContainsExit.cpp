@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLAnalysis.h"
 
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLStatement.h"
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 

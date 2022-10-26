@@ -10,7 +10,6 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/core/SkZip.h"
 #include "tests/Test.h"

@@ -8,6 +8,7 @@
 #ifndef SKSL_CONSTRUCTOR_MATRIX_RESIZE
 #define SKSL_CONSTRUCTOR_MATRIX_RESIZE
 
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"

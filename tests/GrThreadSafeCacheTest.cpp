@@ -21,6 +21,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/core/SkSurfaceProps.h"
@@ -60,7 +61,6 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
@@ -75,13 +75,13 @@
 #include <functional>
 #include <memory>
 #include <thread>
-#include <tuple>
 #include <utility>
 
 class GrDstProxyView;
 class GrProgramInfo;
 class GrThreadSafeVertexTestOp;
 class SkArenaAlloc;
+enum class GrXferBarrierFlags;
 struct GrContextOptions;
 
 static constexpr int kImageWH = 32;

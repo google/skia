@@ -15,14 +15,14 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkBitmaskEnum.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
-#include "include/private/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -60,6 +60,7 @@
 namespace SkSL {
 
 class SymbolTable;
+enum class ProgramKind : int8_t;
 
 namespace {
 

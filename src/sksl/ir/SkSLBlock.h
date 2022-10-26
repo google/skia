@@ -9,8 +9,8 @@
 #define SKSL_BLOCK
 
 #include "include/private/SkSLDefines.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLStatement.h"
-#include "include/private/SkTArray.h"
 #include "include/sksl/SkSLPosition.h"
 
 #include <memory>

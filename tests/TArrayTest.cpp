@@ -12,7 +12,6 @@
 #include <array>
 #include <cstdint>
 #include <initializer_list>
-#include <type_traits>
 #include <utility>
 
 // This class is used to test SkTArray's behavior with classes containing a vtable.

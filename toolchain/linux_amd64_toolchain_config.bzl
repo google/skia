@@ -216,10 +216,13 @@ def _make_default_flags():
                     # are included with an absolute path and fail the build).
                     "-isystem",
                     EXTERNAL_TOOLCHAIN + "/include/c++/v1",
+                    # https://github.com/llvm/llvm-project/issues/57104
+                    "-isystem",
+                    EXTERNAL_TOOLCHAIN + "/include/x86_64-unknown-linux-gnu/c++/v1/",
                     "-isystem",
                     EXTERNAL_TOOLCHAIN + "/usr/include",
                     "-isystem",
-                    EXTERNAL_TOOLCHAIN + "/lib/clang/13.0.0/include",
+                    EXTERNAL_TOOLCHAIN + "/lib/clang/15.0.1/include",
                     "-isystem",
                     EXTERNAL_TOOLCHAIN + "/usr/include/x86_64-linux-gnu",
                     # We do not want clang to search in absolute paths for files. This makes
@@ -257,9 +260,9 @@ def _make_default_flags():
                     "-stdlib=libc++",
                     # We statically include these libc++ libraries so they do not need to be
                     # on a developer's machine (they can be tricky to get).
-                    EXTERNAL_TOOLCHAIN + "/lib/libc++.a",
-                    EXTERNAL_TOOLCHAIN + "/lib/libc++abi.a",
-                    EXTERNAL_TOOLCHAIN + "/lib/libunwind.a",
+                    EXTERNAL_TOOLCHAIN + "/lib/x86_64-unknown-linux-gnu/libc++.a",
+                    EXTERNAL_TOOLCHAIN + "/lib/x86_64-unknown-linux-gnu/libc++abi.a",
+                    EXTERNAL_TOOLCHAIN + "/lib/x86_64-unknown-linux-gnu/libunwind.a",
                     # Dynamically Link in the other parts of glibc (not needed in glibc 2.34+)
                     "-lpthread",
                     "-lm",

@@ -9,6 +9,7 @@
 #define SKSL_CONSTRUCTOR_SPLAT
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"

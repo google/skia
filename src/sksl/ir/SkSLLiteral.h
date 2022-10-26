@@ -10,18 +10,22 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
+#include <cstdint>
 #include <cinttypes>
 #include <memory>
 #include <optional>
 #include <string>
 
 namespace SkSL {
+
+enum class OperatorPrecedence : uint8_t;
 
 /**
  * A literal value. These can contain ints, floats, or booleans.

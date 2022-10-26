@@ -38,7 +38,6 @@
 #include <cstdio>
 #include <memory>
 #include <string>
-#include <tuple>
 
 DECLARE_bool(verboseFontMgr);
 

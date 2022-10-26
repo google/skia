@@ -9,6 +9,7 @@
 #define SKSL_BINARYEXPRESSION
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"

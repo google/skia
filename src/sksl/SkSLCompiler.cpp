@@ -8,6 +8,8 @@
 #include "src/sksl/SkSLCompiler.h"
 
 #include "include/private/SkSLDefines.h"
+#include "include/private/SkSLIRNode.h"
+#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/DSLModifiers.h"

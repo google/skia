@@ -8,8 +8,10 @@
 #ifndef SkColorMatrix_DEFINED
 #define SkColorMatrix_DEFINED
 
-#include "include/core/SkImageInfo.h"
 #include "include/core/SkTypes.h"
+
+// TODO(kjlubick, bungeman) replace this include with a forward declare.
+#include "include/core/SkImageInfo.h" // IWYU pragma: keep
 
 #include <algorithm>
 #include <array>

@@ -9,6 +9,7 @@
 #define SKSL_CONSTRUCTOR_STRUCT
 
 #include "include/private/SkSLDefines.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"

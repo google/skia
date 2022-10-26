@@ -8,7 +8,6 @@
 #ifndef SkWebpCodec_DEFINED
 #define SkWebpCodec_DEFINED
 
-#include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
@@ -24,6 +23,7 @@
 #include <vector>
 
 class SkStream;
+class SkCodec;
 struct SkIRect;
 struct SkImageInfo;
 

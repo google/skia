@@ -8,6 +8,7 @@
 #ifndef SKSL_INDEX
 #define SKSL_INDEX
 
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"
 

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLStatement.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/ir/SkSLBlock.h"

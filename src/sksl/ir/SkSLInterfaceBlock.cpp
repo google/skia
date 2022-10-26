@@ -7,7 +7,6 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLModifiers.h"
-#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLString.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -20,10 +19,12 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <cstddef>
-#include <type_traits>
+#include <cstdint>
 #include <vector>
 
 namespace SkSL {
+
+enum class ProgramKind : int8_t;
 
 InterfaceBlock::~InterfaceBlock() {
     // Unhook this InterfaceBlock from its associated Variable, since we're being deleted.

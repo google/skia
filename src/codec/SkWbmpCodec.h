@@ -9,7 +9,6 @@
 #define SkCodec_wbmp_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "src/codec/SkSwizzler.h"
@@ -20,6 +19,7 @@
 
 class SkSampler;
 class SkStream;
+enum class SkEncodedImageFormat;
 struct SkEncodedInfo;
 struct SkImageInfo;
 

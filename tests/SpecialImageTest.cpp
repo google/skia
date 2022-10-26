@@ -32,7 +32,6 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
-#include <tuple>
 #include <utility>
 
 class GrRecordingContext;

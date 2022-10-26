@@ -11,7 +11,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkFlattenable.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
@@ -36,6 +35,7 @@
 #include <utility>
 
 class SkArenaAlloc;
+class SkFlattenable;
 struct GrContextOptions;
 struct SkStageRec;
 

@@ -7,6 +7,7 @@
 
 #include "src/codec/SkWebpCodec.h"
 
+#include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"

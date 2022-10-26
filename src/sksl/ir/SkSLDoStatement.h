@@ -8,6 +8,7 @@
 #ifndef SKSL_DOSTATEMENT
 #define SKSL_DOSTATEMENT
 
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLExpression.h"

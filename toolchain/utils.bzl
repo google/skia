@@ -38,3 +38,8 @@ def gcs_mirror_url(url, sha256):
 
     mirror_url = "%s/%s%s" % (_GCS_MIRROR_PREFIX, sha256, extension)
     return [mirror_url] if _TEST_GCS_MIRROR else [url, mirror_url]
+
+def gcs_mirror_only(sha256, suffix):
+    if suffix not in _SUPPORTED_SUFFIXES:
+        fail("unsupported suffix %s" % suffix)
+    return "%s/%s%s" % (_GCS_MIRROR_PREFIX, sha256, suffix)

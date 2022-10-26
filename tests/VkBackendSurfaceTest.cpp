@@ -32,8 +32,9 @@
 #include "tests/Test.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/ProxyUtils.h"
+
 #include <vulkan/vulkan_core.h>
-#include <tuple>
+
 class GrTexture;
 struct GrContextOptions;
 

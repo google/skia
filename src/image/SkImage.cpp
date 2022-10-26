@@ -7,6 +7,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
+#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageGenerator.h"

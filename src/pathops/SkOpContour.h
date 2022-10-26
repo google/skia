@@ -21,6 +21,7 @@
 class SkOpAngle;
 class SkOpCoincidence;
 class SkPathWriter;
+enum class SkOpRayDir;
 struct SkOpRayHit;
 
 class SkOpContour {

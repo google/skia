@@ -8,8 +8,6 @@
 #define SkBmpStandardCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkAlphaType.h"
-#include "include/core/SkColorType.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"
@@ -23,6 +21,8 @@
 
 class SkSampler;
 class SkStream;
+enum SkAlphaType : int;
+enum SkColorType : int;
 struct SkImageInfo;
 
 /*

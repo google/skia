@@ -10,9 +10,10 @@
 
 #include "include/private/SkSLLayout.h"
 
-#include <cstddef>
+#include <cstddef> // IWYU pragma: keep
 #include <memory>
 #include <string>
+// IWYU pragma: no_include <cwchar>
 
 namespace SkSL {
 

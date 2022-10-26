@@ -8,6 +8,7 @@
 #ifndef SKSL_EXPRESSIONSTATEMENT
 #define SKSL_EXPRESSIONSTATEMENT
 
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
 

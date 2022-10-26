@@ -12,7 +12,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "tests/Test.h"
-#include "tools/Registry.h"
 
 #include "tests/TestHarness.h"
 

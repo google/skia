@@ -10,6 +10,7 @@
 #include "include/core/SkColorFilter.h"
 
 #ifdef SK_ENABLE_SKSL
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkData.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"

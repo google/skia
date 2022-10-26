@@ -8,15 +8,13 @@
 #ifndef SKSL_UTIL
 #define SKSL_UTIL
 
+#include "include/core/SkTypes.h"
 #include "include/sksl/SkSLVersion.h"
-#include "src/core/SkSLTypeShared.h"
 #include "src/sksl/SkSLGLSL.h"
 
 #include <memory>
 
-#ifndef SKSL_STANDALONE
-#include "include/core/SkTypes.h"
-#endif // SKSL_STANDALONE
+enum class SkSLType : char;
 
 namespace SkSL {
 

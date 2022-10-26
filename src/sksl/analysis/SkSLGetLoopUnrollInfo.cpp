@@ -7,6 +7,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLStatement.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLOperator.h"

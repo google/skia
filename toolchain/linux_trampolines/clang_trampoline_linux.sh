@@ -4,7 +4,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-export LD_LIBRARY_PATH="external/clang_linux_amd64/usr/lib/x86_64-linux-gnu:external/clang_linux_amd64/usr/lib/llvm-13/lib"
+export LD_LIBRARY_PATH="external/clang_linux_amd64/usr/lib/x86_64-linux-gnu"
 
 set -e
 
@@ -76,22 +76,23 @@ else
   # regular compilation with clang.
   # We always allow SkTypes.h because it sets some defines that later #ifdefs use and IWYU is
   # not consistent with detecting that.
-  external/clang_linux_amd64/usr/bin/include-what-you-use \
+  external/clang_linux_amd64/bin/include-what-you-use $@ \
       -Xiwyu --keep="include/core/SkTypes.h" \
       -Xiwyu --no_default_mappings \
-      -Xiwyu --mapping_file=$MAPPING_FILE $@ 2>/dev/null
-  # IWYU returns 2 if everything looks good. It returns some other non-zero exit code otherwise.
-  if [ $? -eq 2 ]; then
+      -Xiwyu --error=3 \
+      -Xiwyu --mapping_file=$MAPPING_FILE 2>/dev/null
+  # IWYU returns 0 if everything looks good. It returns some other non-zero exit code otherwise.
+  if [ $? -eq 0 ]; then
     exit 0 # keep the build going
   else
     # Run IWYU again, but this time display the output. Then return non-zero to fail the build.
     # These flags are a little different, but only in ways that affect what was displayed, not the
     # analysis. If we aren't sure why IWYU wants to include something, try changing verbose to 3.
-    external/clang_linux_amd64/usr/bin/include-what-you-use \
+    external/clang_linux_amd64/bin/include-what-you-use $@ \
         -Xiwyu --keep="include/core/SkTypes.h" \
         -Xiwyu --no_default_mappings \
         -Xiwyu --mapping_file=$MAPPING_FILE -Xiwyu --no_comments \
-        -Xiwyu --quoted_includes_first -Xiwyu --verbose=3 $@
+        -Xiwyu --quoted_includes_first -Xiwyu --verbose=3
     exit 1 # fail the build
   fi
 fi

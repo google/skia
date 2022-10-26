@@ -32,7 +32,6 @@
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkSecondaryCBDrawContext_impl.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
-#include "src/gpu/vk/VulkanInterface.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 
@@ -41,6 +40,8 @@
 #include <memory>
 
 struct GrContextOptions;
+
+namespace skgpu { struct VulkanInterface; }
 
 using sk_gpu_test::GrContextFactory;
 

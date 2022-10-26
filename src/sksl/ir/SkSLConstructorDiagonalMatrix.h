@@ -8,6 +8,7 @@
 #ifndef SKSL_CONSTRUCTOR_DIAGONAL_MATRIX
 #define SKSL_CONSTRUCTOR_DIAGONAL_MATRIX
 
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLExpression.h"

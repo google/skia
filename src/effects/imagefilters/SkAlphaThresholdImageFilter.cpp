@@ -36,7 +36,6 @@
 #include <utility>
 
 #if SK_SUPPORT_GPU
-#include "include/gpu/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
@@ -52,6 +51,8 @@
 
 class GrRecordingContext;
 class SkSurfaceProps;
+enum GrSurfaceOrigin : int;
+enum class GrProtected : bool;
 
 #endif // SK_SUPPORT_GPU
 

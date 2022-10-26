@@ -8,10 +8,8 @@
 #ifndef SKDEBUGCANVAS_H_
 #define SKDEBUGCANVAS_H_
 
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCanvasVirtualEnforcer.h"
-#include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkRect.h"
@@ -42,6 +40,8 @@ class SkShader;
 class SkTextBlob;
 class SkVertices;
 class UrlDataManager;
+enum class SkBlendMode;
+enum class SkClipOp;
 struct SkDrawShadowRec;
 struct SkPoint;
 struct SkRSXform;

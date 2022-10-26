@@ -8,6 +8,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTArray.h"
@@ -23,6 +24,7 @@
 #include "src/sksl/transform/SkSLTransform.h"
 
 #include <memory>
+#include <vector>
 
 namespace SkSL {
 

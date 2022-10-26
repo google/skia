@@ -34,7 +34,6 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPixmap.h"
-#include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrProcessorAnalysis.h"
 #include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
@@ -43,13 +42,11 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
-#include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/ops/GrMeshDrawOp.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 #include "tests/CtsEnforcement.h"
@@ -77,6 +74,7 @@ class GrProgramInfo;
 class GrRecordingContext;
 class GrResourceProvider;
 class SkArenaAlloc;
+enum class GrXferBarrierFlags;
 struct GrContextOptions;
 struct GrShaderCaps;
 

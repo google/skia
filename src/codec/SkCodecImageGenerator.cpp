@@ -8,6 +8,7 @@
 #include "src/codec/SkCodecImageGenerator.h"
 
 #include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkTypes.h"

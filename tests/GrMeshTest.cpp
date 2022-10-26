@@ -35,7 +35,6 @@
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrPixmap.h"
-#include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrProcessorAnalysis.h"
 #include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
@@ -43,7 +42,6 @@
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
@@ -69,6 +67,7 @@ class GrDstProxyView;
 class GrGLSLProgramDataManager;
 class GrRecordingContext;
 class GrSurfaceProxyView;
+enum class GrXferBarrierFlags;
 struct GrContextOptions;
 
 #if 0

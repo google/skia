@@ -9,10 +9,7 @@
 #define SkAndroidCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkColorType.h"
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
@@ -20,6 +17,11 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkNoncopyable.h"
 #include "modules/skcms/skcms.h"
+
+// TODO(kjlubick, bungeman) Replace these includes with forward declares
+#include "include/core/SkAlphaType.h" // IWYU pragma: keep
+#include "include/core/SkColorType.h" // IWYU pragma: keep
+#include "include/core/SkEncodedImageFormat.h" // IWYU pragma: keep
 
 #include <cstddef>
 #include <memory>

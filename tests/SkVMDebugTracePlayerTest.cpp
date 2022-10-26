@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/private/SkSLProgramKind.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/SkSLCompiler.h"

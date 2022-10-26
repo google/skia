@@ -8,18 +8,22 @@
 #ifndef SKSL_SETTING
 #define SKSL_SETTING
 
+#include "include/private/SkSLIRNode.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
+
 
 namespace SkSL {
 
 class Context;
 class Type;
+enum class OperatorPrecedence : uint8_t;
 
 /**
  * Represents a compile-time constant setting, such as sk_Caps.integerSupport. These IRNodes are

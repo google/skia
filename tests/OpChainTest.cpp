@@ -27,7 +27,6 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/GrTextureResolveManager.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 #include "src/gpu/ganesh/ops/OpsTask.h"
 #include "tests/CtsEnforcement.h"
@@ -39,7 +38,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
-#include <memory>
 #include <utility>
 #include <vector>
 
@@ -48,6 +46,7 @@ class GrDrawingManager;
 class GrDstProxyView;
 class GrRecordingContext;
 class SkArenaAlloc;
+enum class GrXferBarrierFlags;
 struct GrContextOptions;
 
 // We create Ops that write a value into a range of a buffer. We create ranges from

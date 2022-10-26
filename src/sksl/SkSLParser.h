@@ -10,7 +10,6 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
-#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/DSLExpression.h"
@@ -25,6 +24,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
@@ -33,9 +33,10 @@
 namespace SkSL {
 
 class Compiler;
+class SymbolTable;
+enum class ProgramKind : int8_t;
 struct Module;
 struct Program;
-class SymbolTable;
 
 namespace dsl {
 class DSLBlock;

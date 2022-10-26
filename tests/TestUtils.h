@@ -12,7 +12,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPixmap.h"
 
@@ -26,6 +25,7 @@ class GrSurfaceProxy;
 class SkBitmap;
 class SkPixmap;
 class SkString;
+enum class GrColorType;
 namespace skiatest { class Reporter; }
 namespace skgpu::v1 { class SurfaceContext; }
 typedef uint32_t GrColor;

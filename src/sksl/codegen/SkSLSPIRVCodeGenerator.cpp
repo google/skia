@@ -10,6 +10,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkOpts_spi.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
@@ -73,7 +74,6 @@
 #include <cmath>
 #include <set>
 #include <string>
-#include <type_traits>
 #include <utility>
 
 #define kLast_Capability SpvCapabilityMultiViewport

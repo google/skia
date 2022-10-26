@@ -21,7 +21,6 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrBuffer.h"
-#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
@@ -29,7 +28,6 @@
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrPixmap.h"
-#include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrProcessorSet.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
@@ -37,7 +35,6 @@
 #include "src/gpu/ganesh/GrSimpleMesh.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
@@ -57,6 +54,8 @@ class GrAppliedClip;
 class GrDstProxyView;
 class GrGLSLProgramDataManager;
 class GrRecordingContext;
+class GrCaps;
+enum class GrXferBarrierFlags;
 namespace skgpu { class KeyBuilder; }
 struct GrContextOptions;
 struct GrShaderCaps;

@@ -8,7 +8,6 @@
 #ifndef SkPaintFilterCanvas_DEFINED
 #define SkPaintFilterCanvas_DEFINED
 
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCanvasVirtualEnforcer.h"
 #include "include/core/SkColor.h"
@@ -20,6 +19,9 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNWayCanvas.h"
+
+// TODO(kjlubick, bungeman) replace this include with a forward declare.
+#include "include/core/SkBlendMode.h" // IWYU pragma: keep
 
 #include <cstddef>
 

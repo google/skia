@@ -7,11 +7,12 @@
 
 #include "src/utils/SkClipStackUtils.h"
 
-#include "include/core/SkClipOp.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
 #include "include/pathops/SkPathOps.h"
 #include "src/core/SkClipStack.h"
+
+enum class SkClipOp;
 
 void SkClipStack_AsPath(const SkClipStack& cs, SkPath* path) {
     path->reset();

@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkPath.h"
-#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
@@ -17,6 +16,8 @@
 #include "src/core/SkGeometry.h"
 
 #include <cstdio>
+
+enum class SkPathDirection;
 
 static inline bool is_between(int c, int min, int max) {
     return (unsigned)(c - min) <= (unsigned)(max - min);

@@ -8,9 +8,11 @@
 #ifndef SkImageEncoder_DEFINED
 #define SkImageEncoder_DEFINED
 
-#include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+
+// TODO(kjlubick, bungeman) replace this include with a forward declare.
+#include "include/core/SkEncodedImageFormat.h" // IWYU pragma: keep
 
 class SkBitmap;
 class SkData;

@@ -11,7 +11,6 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
-#include "include/private/SkPathRef.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkPathPriv.h"
 #include "tests/Test.h"
@@ -20,6 +19,8 @@
 #include <cstdint>
 #include <initializer_list>
 #include <vector>
+
+enum class SkPathConvexity;
 
 static void is_empty(skiatest::Reporter* reporter, const SkPath& p) {
     REPORTER_ASSERT(reporter, p.getBounds().isEmpty());

@@ -39,7 +39,6 @@
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
-#include <type_traits>
 #include <vector>
 
 namespace SkSL {

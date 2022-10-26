@@ -9,10 +9,12 @@
 #define SkShaderUtils_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSLProgramKind.h"
 
+#include <cstdint>
 #include <functional>
 #include <string>
+
+namespace SkSL { enum class ProgramKind : int8_t; }
 
 namespace SkShaderUtils {
 

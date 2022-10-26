@@ -28,8 +28,6 @@ struct SkDLine;
 struct SkDPoint;
 struct SkDQuad;
 
-enum class SkOpPhase : char;
-
 // define this when running fuzz
 // #define SK_BUILD_FOR_FUZZER
 
@@ -156,6 +154,8 @@ enum class SkOpPhase : char;
 #endif
 
 #if DEBUG_COIN
+enum class SkOpPhase : char;
+
     #define DEBUG_COIN_DECLARE_ONLY_PARAMS() \
             int lineNo, SkOpPhase phase, int iteration
     #define DEBUG_COIN_DECLARE_PARAMS() \

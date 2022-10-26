@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLAnalysis.h"

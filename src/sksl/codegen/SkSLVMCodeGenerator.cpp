@@ -15,6 +15,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkSLDefines.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
@@ -68,7 +69,6 @@
 #include <functional>
 #include <iterator>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 
 namespace {
@@ -114,7 +114,6 @@ namespace {
 }  // namespace
 
 namespace SkSL {
-class IRNode;
 
 namespace {
 

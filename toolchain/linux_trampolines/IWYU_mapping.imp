@@ -19,6 +19,10 @@
   { include: ["<__algorithm/stable_sort.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/upper_bound.h>", "private", "<algorithm>", "public"] },
 
+  { include: ["<__chrono/duration.h>", "private", "<chrono>", "public"] },
+  { include: ["<__chrono/steady_clock.h>", "private", "<chrono>", "public"] },
+  { include: ["<__chrono/time_point.h>", "private", "<chrono>", "public"] },
+
   { symbol: ["INT32_MAX", "public", "<climits>", "public"]},
 
   { symbol: ["abs", "public", "<cmath>", "public"]},
@@ -26,13 +30,13 @@
   { symbol: ["sqrt", "public", "<cmath>", "public"]},
 
   # The first of these is the preferred include, but the others are acceptable.
-  { symbol: ["size_t", "public", "<cstddef>", "public"]},
-  { symbol: ["size_t", "public", "<cstdio>", "public"]},
-  { symbol: ["size_t", "public", "<cstdlib>", "public"]},
-  { symbol: ["size_t", "public", "<cstring>", "public"]},
-  { symbol: ["size_t", "public", "<ctime>", "public"]},
-  { symbol: ["size_t", "public", "<cuchar>", "public"]},
-  { symbol: ["size_t", "public", "<cwchar>", "public"]},
+  { symbol: ["size_t", "private", "<cstddef>", "public"]},
+  { symbol: ["size_t", "private", "<cstdio>", "public"]},
+  { symbol: ["size_t", "private", "<cstdlib>", "public"]},
+  { symbol: ["size_t", "private", "<cstring>", "public"]},
+  { symbol: ["size_t", "private", "<ctime>", "public"]},
+  { symbol: ["size_t", "private", "<cuchar>", "public"]},
+  { symbol: ["size_t", "private", "<cwchar>", "public"]},
 
   { symbol: ["int8_t", "public", "<cstdint>", "public"]},
   { symbol: ["int16_t", "public", "<cstdint>", "public"]},
@@ -42,6 +46,7 @@
   { symbol: ["uint16_t", "public", "<cstdint>", "public"]},
   { symbol: ["uint32_t", "public", "<cstdint>", "public"]},
   { symbol: ["uint64_t", "public", "<cstdint>", "public"]},
+
 
   { symbol: ["FILE", "public", "<cstdio>", "public"]},
 
@@ -83,8 +88,12 @@
 
   { include: ["<__locale>", "private", "<locale>", "public"] },
 
+  { include: ["<__numeric/accumulate.h>", "private", "<numeric>", "public"] },
+
   { include: ["<__memory/shared_ptr.h>", "private", "<memory>", "public"] },
   { include: ["<__memory/unique_ptr.h>", "private", "<memory>", "public"] },
+
+  { include: ["<__random/random_device.h>", "private", "<random>", "public"] },
 
   { include: ["<__tuple>", "private", "<tuple>", "public"] },
 
@@ -103,6 +112,8 @@
 
   { symbol: ["std::string", "public", "<string>", "public"] },
 
+  { include: ["<__fwd/string_view.h>", "private", "<string_view>", "public"] },
+
   { include: ["<__hash_table>", "private", "<unordered_map>", "public"] },
 
   { include: ["<__utility/declval.h>", "private", "<utility>", "public"] },
@@ -111,6 +122,12 @@
   { include: ["<__utility/move.h>", "private", "<utility>", "public"] },
   { include: ["<__utility/swap.h>", "private", "<utility>", "public"] },
   { include: ["<__utility/pair.h>", "private", "<utility>", "public"] },
+
+  { include: ["<__type_traits/enable_if.h>", "private", "<type_traits>", "public"] },
+  { include: ["<__type_traits/integral_constant.h>", "private", "<type_traits>", "public"] },
+  { include: ["<__type_traits/is_trivially_copyable.h>", "private", "<type_traits>", "public"] },
+  { include: ["<__type_traits/remove_extent.h>", "private", "<type_traits>", "public"] },
+  { include: ["<__type_traits/remove_pointer.h>", "private", "<type_traits>", "public"] },
 
   { symbol: ["std::__bit_reference", "public", "<vector>", "public"] },
   { include: ["<__bit_reference>", "private",  "<vector>", "public"] },

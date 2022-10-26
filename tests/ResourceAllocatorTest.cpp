@@ -39,7 +39,6 @@
 #include <array>
 #include <cstddef>
 #include <functional>
-#include <type_traits>
 #include <utility>
 
 class GrRecordingContext;

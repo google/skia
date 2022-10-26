@@ -32,7 +32,6 @@
 #include <climits>
 #include <initializer_list>
 #include <memory>
-#include <type_traits>
 #include <utility>
 #include <vector>
 

@@ -11,12 +11,12 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLProgramKind.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLContext.h"  // IWYU pragma: keep
 
 #include <array>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -47,11 +47,12 @@ class Expression;
 class Inliner;
 class ModifiersPool;
 class OutputStream;
+class ProgramUsage;
+class SymbolTable;
+enum class ProgramKind : int8_t;
 struct Program;
 struct ProgramSettings;
-class ProgramUsage;
 struct ShaderCaps;
-class SymbolTable;
 
 struct Module {
     const Module*                                fParent = nullptr;

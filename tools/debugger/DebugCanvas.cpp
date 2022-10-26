@@ -7,6 +7,8 @@
 
 #include "tools/debugger/DebugCanvas.h"
 
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkClipOp.h"
 #include "include/core/SkData.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"

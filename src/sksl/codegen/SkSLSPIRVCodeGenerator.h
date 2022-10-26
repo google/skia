@@ -11,7 +11,6 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
-#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLMemoryLayout.h"
@@ -64,6 +63,7 @@ class SwitchStatement;
 class TernaryExpression;
 class VarDeclaration;
 class VariableReference;
+enum class ProgramKind : int8_t;
 enum IntrinsicKind : int8_t;
 struct IndexExpression;
 struct Program;

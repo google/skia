@@ -7,6 +7,7 @@
 
 #include "src/sksl/SkSLUtil.h"
 
+#include "src/core/SkSLTypeShared.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLOutputStream.h"

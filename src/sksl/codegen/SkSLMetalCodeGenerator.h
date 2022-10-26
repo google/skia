@@ -11,7 +11,6 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
-#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -57,6 +56,7 @@ class TernaryExpression;
 class VarDeclaration;
 class Variable;
 class VariableReference;
+enum class OperatorPrecedence : uint8_t;
 enum IntrinsicKind : int8_t;
 struct IndexExpression;
 struct Layout;

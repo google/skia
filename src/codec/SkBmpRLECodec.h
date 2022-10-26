@@ -8,7 +8,6 @@
 #define SkBmpRLECodec_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/core/SkColorType.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "src/codec/SkBmpCodec.h"
@@ -20,6 +19,7 @@
 #include <memory>
 
 class SkStream;
+enum SkColorType : int;
 struct SkEncodedInfo;
 struct SkImageInfo;
 

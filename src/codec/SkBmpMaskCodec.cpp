@@ -13,7 +13,6 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkTemplates.h"
-#include "src/codec/SkBmpCodec.h"
 #include "src/codec/SkCodecPriv.h"
 
 #include <utility>

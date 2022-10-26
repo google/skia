@@ -9,6 +9,7 @@
 #define SKSL_VARIABLE
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
@@ -26,7 +27,6 @@ class Context;
 class Expression;
 class GlobalVarDeclaration;
 class InterfaceBlock;
-class IRNode;
 class Mangler;
 class SymbolTable;
 class VarDeclaration;

@@ -30,7 +30,6 @@
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/ClipStack.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
-#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrPaint.h"
@@ -39,7 +38,6 @@
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrScissorState.h"
 #include "src/gpu/ganesh/GrWindowRectsState.h"
-#include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/geometry/GrShape.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
@@ -54,10 +52,12 @@
 #include <utility>
 #include <vector>
 
+class GrCaps;
 class GrDstProxyView;
 class GrOpFlushState;
 class GrRecordingContext;
 class GrSurfaceProxyView;
+enum class GrXferBarrierFlags;
 
 namespace {
 

@@ -8,9 +8,7 @@
 #ifndef SKDRAWCOMMAND_H_
 #define SKDRAWCOMMAND_H_
 
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
 #include "include/core/SkDrawable.h"
@@ -47,6 +45,8 @@ class SkFlattenable;
 class SkJSONWriter;
 class SkWStream;
 class UrlDataManager;
+enum class SkBlendMode;
+enum class SkClipOp;
 struct SkPoint3;
 struct SkRSXform;
 

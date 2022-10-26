@@ -18,7 +18,6 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkDashImpl.h"

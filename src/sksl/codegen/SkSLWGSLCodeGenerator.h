@@ -10,7 +10,6 @@
 
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkTHash.h"
-#include "include/sksl/SkSLOperator.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 
 #include <cstdint>
@@ -42,6 +41,7 @@ class Statement;
 class Type;
 class VarDeclaration;
 class VariableReference;
+enum class OperatorPrecedence : uint8_t;
 struct Modifiers;
 struct Program;
 struct Swizzle;

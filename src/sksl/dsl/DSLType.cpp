@@ -19,11 +19,11 @@
 #include "src/sksl/SkSLThreadContext.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLStructDefinition.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 
 #include <memory>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 namespace SkSL {

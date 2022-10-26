@@ -9,10 +9,7 @@
 #ifndef SkNWayCanvas_DEFINED
 #define SkNWayCanvas_DEFINED
 
-#include "include/core/SkBlendMode.h"
-#include "include/core/SkCanvas.h"
 #include "include/core/SkCanvasVirtualEnforcer.h"
-#include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkRefCnt.h"
@@ -21,6 +18,11 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
+
+// TODO(kjlubick, bungeman) replace these includes with forward declares.
+#include "include/core/SkBlendMode.h" // IWYU pragma: keep
+#include "include/core/SkCanvas.h" // IWYU pragma: keep
+#include "include/core/SkClipOp.h" // IWYU pragma: keep
 
 #include <cstddef>
 

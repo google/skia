@@ -26,7 +26,6 @@
 #include <initializer_list>
 #include <limits.h>
 #include <optional>
-#include <tuple>
 #include <utility>
 
 using GlyphVector = sktext::gpu::GlyphVector;

@@ -34,7 +34,6 @@
 #include <cstdint>
 #include <initializer_list>
 
-
 #ifdef SK_GL
 #include "include/gpu/gl/GrGLFunctions.h"
 #include "include/gpu/gl/GrGLInterface.h"
@@ -47,9 +46,10 @@
 #include "src/gpu/ganesh/vk/GrVkCommandPool.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
-#include "src/gpu/vk/VulkanInterface.h"
 
 #include <vulkan/vulkan_core.h>
+
+namespace skgpu { struct VulkanInterface; }
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW
