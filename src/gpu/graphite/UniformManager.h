@@ -35,9 +35,15 @@ class UniformOffsetCalculator {
 public:
     UniformOffsetCalculator(Layout layout, uint32_t startingOffset);
 
-    size_t size() const { return fCurUBOOffset; }
+    size_t size() const { return fOffset; }
 
-    size_t calculateOffset(SkSLType type, unsigned int count);
+    // Calculates the correctly aligned offset to accommodate `count` instances of `type` and
+    // advances the internal offset. Returns the correctly aligned start offset.
+    //
+    // After a call to this method, `size()` will return the offset to the end of `count` instances
+    // of `type` (while the return value equals the aligned start offset). Subsequent calls will
+    // calculate the new start offset starting at `size()`.
+    size_t advanceOffset(SkSLType type, unsigned int count);
 
 protected:
     SkSLType getUniformTypeForLayout(SkSLType type);
@@ -51,7 +57,6 @@ protected:
     WriteUniformFn fWriteUniform;
     Layout fLayout;  // TODO: eventually 'fLayout' will not need to be stored
     uint32_t fOffset = 0;
-    uint32_t fCurUBOOffset = 0;
 };
 
 class UniformManager : public UniformOffsetCalculator {

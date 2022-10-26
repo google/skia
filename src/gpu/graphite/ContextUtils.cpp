@@ -90,8 +90,9 @@ std::string get_uniforms(SkSpan<const SkUniform> uniforms, int* offset, int mang
     UniformOffsetCalculator offsetter(Layout::kMetal, *offset);
 
     for (const SkUniform& u : uniforms) {
-        SkSL::String::appendf(&result, "    layout(offset=%zu) %s %s",
-                              offsetter.calculateOffset(u.type(), u.count()),
+        SkSL::String::appendf(&result,
+                              "    layout(offset=%zu) %s %s",
+                              offsetter.advanceOffset(u.type(), u.count()),
                               SkSLTypeString(u.type()),
                               u.name());
         if (manglingSuffix >= 0) {

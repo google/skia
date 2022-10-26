@@ -194,6 +194,8 @@ private:
         n = (n == SkUniform::kNonArray) ? 1 : n;
         n *= Cols;
 
+        // A null value for `dst` means that this method was called to calculate the size of the
+        // write without actually copying data.
         if (dst) {
             if (stride == RowsOrVecLength * sizeof(UniformType)) {
                 CopyUniforms<MemType, UniformType>(dst, src, n * RowsOrVecLength);
@@ -215,6 +217,8 @@ private:
         size_t stride = 3 * Rules<UniformType, 3, 3>::Stride(1);
         n = std::max(n, 1);
 
+        // A null value for `dst` means that this method was called to calculate the size of the
+        // write without actually copying data.
         if (dst) {
             size_t offset = 0;
             for (int i = 0; i < n; ++i) {
@@ -237,6 +241,8 @@ private:
     }
 
 public:
+    // If `dest` is a nullptr, then this method returns the size of the write without writing any
+    // data.
     static uint32_t WriteUniform(SkSLType type,
                                  CType ctype,
                                  void *dest,
@@ -396,92 +402,16 @@ static uint32_t sksltype_to_alignment_mask(SkSLType type) {
     SK_ABORT("Unexpected type");
 }
 
-/** Returns the size in bytes taken up in uniform buffers for SkSLTypes. */
-inline uint32_t sksltype_to_size(SkSLType type) {
-    switch (type) {
-        case SkSLType::kInt:
-        case SkSLType::kUInt:
-        case SkSLType::kFloat:
-            return 4;
-        case SkSLType::kInt2:
-        case SkSLType::kUInt2:
-        case SkSLType::kFloat2:
-            return 8;
-        case SkSLType::kInt3:
-        case SkSLType::kUInt3:
-        case SkSLType::kFloat3:
-        case SkSLType::kInt4:
-        case SkSLType::kUInt4:
-        case SkSLType::kFloat4:
-            return 16;
-
-        case SkSLType::kFloat2x2:
-            return 16;
-        case SkSLType::kFloat3x3:
-            return 48;
-        case SkSLType::kFloat4x4:
-            return 64;
-
-        case SkSLType::kShort:
-        case SkSLType::kUShort:
-        case SkSLType::kHalf:
-            return 2;
-        case SkSLType::kShort2:
-        case SkSLType::kUShort2:
-        case SkSLType::kHalf2:
-            return 4;
-        case SkSLType::kShort3:
-        case SkSLType::kShort4:
-        case SkSLType::kUShort3:
-        case SkSLType::kUShort4:
-        case SkSLType::kHalf3:
-        case SkSLType::kHalf4:
-            return 8;
-
-        case SkSLType::kHalf2x2:
-            return 8;
-        case SkSLType::kHalf3x3:
-            return 24;
-        case SkSLType::kHalf4x4:
-            return 32;
-
-        // This query is only valid for certain types.
-        case SkSLType::kVoid:
-        case SkSLType::kBool:
-        case SkSLType::kBool2:
-        case SkSLType::kBool3:
-        case SkSLType::kBool4:
-        case SkSLType::kTexture2DSampler:
-        case SkSLType::kTextureExternalSampler:
-        case SkSLType::kTexture2DRectSampler:
-        case SkSLType::kSampler:
-        case SkSLType::kTexture2D:
-        case SkSLType::kInput:
-            break;
-    }
-    SK_ABORT("Unexpected type");
-}
-
 // Given the current offset into the ubo, calculate the offset for the uniform we're trying to add
-// taking into consideration all alignment requirements. The uniformOffset is set to the offset for
-// the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
-static uint32_t get_ubo_aligned_offset(uint32_t* currentOffset,
-                                       SkSLType type,
-                                       int arrayCount) {
+// taking into consideration all alignment requirements. Returns the aligned start offset for the
+// new uniform.
+static uint32_t get_ubo_aligned_offset(uint32_t currentOffset, SkSLType type, int arrayCount) {
     uint32_t alignmentMask = sksltype_to_alignment_mask(type);
-    uint32_t offsetDiff = *currentOffset & alignmentMask;
+    uint32_t offsetDiff = currentOffset & alignmentMask;
     if (offsetDiff != 0) {
         offsetDiff = alignmentMask - offsetDiff + 1;
     }
-    uint32_t uniformOffset = *currentOffset + offsetDiff;
-
-    if (arrayCount) {
-        // TODO(skia:13478): array size calculations currently do not honor std140 layout.
-        *currentOffset = uniformOffset + sksltype_to_size(type) * arrayCount;
-    } else {
-        *currentOffset = uniformOffset + sksltype_to_size(type);
-    }
-    return uniformOffset;
+    return currentOffset + offsetDiff;
 }
 
 SkSLType UniformOffsetCalculator::getUniformTypeForLayout(SkSLType type) {
@@ -516,10 +446,7 @@ SkSLType UniformOffsetCalculator::getUniformTypeForLayout(SkSLType type) {
 }
 
 UniformOffsetCalculator::UniformOffsetCalculator(Layout layout, uint32_t startingOffset)
-        : fLayout(layout)
-        , fOffset(startingOffset)
-        , fCurUBOOffset(startingOffset) {
-
+        : fLayout(layout), fOffset(startingOffset) {
     switch (layout) {
         case Layout::kStd140:
             fWriteUniform = Writer<Rules140>::WriteUniform;
@@ -533,11 +460,11 @@ UniformOffsetCalculator::UniformOffsetCalculator(Layout layout, uint32_t startin
     }
 }
 
-size_t UniformOffsetCalculator::calculateOffset(SkSLType type, unsigned int count) {
+size_t UniformOffsetCalculator::advanceOffset(SkSLType type, unsigned int count) {
     SkSLType revisedType = this->getUniformTypeForLayout(type);
 
     // Insert padding as needed to get the correct uniform alignment.
-    uint32_t alignedOffset = get_ubo_aligned_offset(&fCurUBOOffset, revisedType, count);
+    uint32_t alignedOffset = get_ubo_aligned_offset(fOffset, revisedType, count);
     SkASSERT(alignedOffset >= fOffset);
 
     // Append the uniform size to our offset, then return the uniform start position.
@@ -556,14 +483,12 @@ SkUniformDataBlock UniformManager::finishUniformDataBlock() {
 }
 
 void UniformManager::reset() {
-    fCurUBOOffset = 0;
     fOffset = 0;
     fReqAlignment = 0;
     fStorage.clear();
 }
 
 void UniformManager::checkReset() const {
-    SkASSERT(fCurUBOOffset == 0);
     SkASSERT(fOffset == 0);
     SkASSERT(fStorage.empty());
 }
@@ -593,20 +518,19 @@ void UniformManager::write(SkSLType type, unsigned int count, const void* src) {
 
     SkSLType revisedType = this->getUniformTypeForLayout(type);
 
-    // Insert padding as needed to get the correct uniform alignment.
-    uint32_t alignedOffset = get_ubo_aligned_offset(&fCurUBOOffset, revisedType, count);
-    SkASSERT(alignedOffset >= fOffset);
-    if (alignedOffset > fOffset) {
-        fStorage.append(alignedOffset - fOffset);
-        fOffset = alignedOffset;
-    }
+    const uint32_t startOffset = fOffset;
+    const uint32_t alignedStartOffset = this->advanceOffset(revisedType, count);
+    SkASSERT(fOffset > alignedStartOffset);  // `fOffset` now equals the total bytes to be written
+    const uint32_t bytesNeeded = fOffset - alignedStartOffset;
 
-    uint32_t bytesNeeded = fWriteUniform(revisedType, CType::kDefault,
-                                         /*dest=*/nullptr, count, /*src=*/nullptr);
+    // Insert padding if needed.
+    if (alignedStartOffset > startOffset) {
+        fStorage.append(alignedStartOffset - startOffset);
+    }
     char* dst = fStorage.append(bytesNeeded);
-    uint32_t bytesWritten = fWriteUniform(revisedType, CType::kDefault, dst, count, src);
+    [[maybe_unused]] uint32_t bytesWritten =
+            fWriteUniform(revisedType, CType::kDefault, dst, count, src);
     SkASSERT(bytesNeeded == bytesWritten);
-    fOffset += bytesWritten;
 
     fReqAlignment = std::max(fReqAlignment, sksltype_to_alignment_mask(revisedType) + 1);
 }

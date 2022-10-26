@@ -26,7 +26,7 @@ static AlignmentAndSize calculate_alignment_and_size(Layout layout,
     // Set the start offset at 1 to force alignment.
     constexpr uint32_t kStart = 1;
     UniformOffsetCalculator calc(layout, kStart);
-    size_t alignment = calc.calculateOffset(type, arrayCount);
+    size_t alignment = calc.advanceOffset(type, arrayCount);
     return {alignment, calc.size() - alignment};
 }
 
