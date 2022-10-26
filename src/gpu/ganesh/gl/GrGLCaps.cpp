@@ -4284,6 +4284,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fTransferFromBufferToBufferSupport = false;
     }
 
+    // The Wembley device fails shader compilations with no error message when there is a const
+    // parameter. Given that we've already passed through SkSL compilation and enforced that the
+    // parameter is never written, it is harmless to strip the const off when writing GLSL.
+    // Android API: 31
+    // GL_VERSION : OpenGL ES 3.2 build 1.13@5720833
+    // GL_RENDERER: PowerVR Rogue GE8300
+    // GL_VENDOR  : Imagination Technologies
+    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
+        fShaderCaps->fRemoveConstFromFunctionParameters = true;
+    }
 #ifdef SK_BUILD_FOR_WIN
     // glDrawElementsIndirect fails GrMeshTest on every Win10 Intel bot.
     if (ctxInfo.driver() == GrGLDriver::kIntel ||

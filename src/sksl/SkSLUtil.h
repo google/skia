@@ -138,6 +138,8 @@ struct ShaderCaps {
     bool fRewriteMatrixVectorMultiply = false;
     // Rewrites matrix equality comparisons to avoid an Adreno driver bug. (skia:11308)
     bool fRewriteMatrixComparisons = false;
+    // Strips const from function parameters in the GLSL code generator. (skia:13858)
+    bool fRemoveConstFromFunctionParameters = false;
 
     const char* fVersionDeclString = "";
 
