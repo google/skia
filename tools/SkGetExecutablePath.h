@@ -5,7 +5,12 @@
  * found in the LICENSE file.
  */
 
+#ifndef SkGetExecutablePath_DEFINED
+#define SkGetExecutablePath_DEFINED
+
 #include "include/core/SkString.h"
 
 /** Returns a fully-qualified path to the currently-running executable. */
 SkString SkGetExecutablePath();
+
+#endif
