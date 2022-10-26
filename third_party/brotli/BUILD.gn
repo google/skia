@@ -14,6 +14,7 @@ third_party("brotli") {
     "../externals/brotli/c/common/context.c",
     "../externals/brotli/c/common/dictionary.c",
     "../externals/brotli/c/common/platform.c",
+    "../externals/brotli/c/common/shared_dictionary.c",
     "../externals/brotli/c/common/transform.c",
     "../externals/brotli/c/dec/bit_reader.c",
     "../externals/brotli/c/dec/decode.c",
