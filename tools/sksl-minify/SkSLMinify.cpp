@@ -20,6 +20,8 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/transform/SkSLTransform.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/SkGetExecutablePath.h"
 
 #include <cctype>
 #include <forward_list>
@@ -78,11 +80,26 @@ static bool maybe_identifier(char c) {
 }
 
 static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_list(
-        SkSpan<const std::string> paths) {
+        SkSpan<const std::string> paths, SkSL::ProgramKind kind) {
+    std::forward_list<std::unique_ptr<const SkSL::Module>> modules;
+
+    // If we are compiling a Runtime Shader, and no other modules are specified, we automatically
+    // include the built-in modules for runtime effects (sksl_shared, sksl_public) so that casual
+    // users don't need to always remember to specify these modules. We also set up the public
+    // type aliases so that normal Runtime Shader code works as-is.
+    if (kind == SkSL::ProgramKind::kRuntimeShader && paths.size() == 1) {
+        const std::string minifyDir = SkOSPath::Dirname(SkGetExecutablePath().c_str()).c_str();
+        std::string defaultRuntimeShaderPaths[] = {
+                minifyDir + SkOSPath::SEPARATOR + "sksl_public.sksl",
+                minifyDir + SkOSPath::SEPARATOR + "sksl_shared.sksl",
+        };
+        modules = compile_module_list(defaultRuntimeShaderPaths, SkSL::ProgramKind::kFragment);
+        SkSL::ModuleLoader::Get().addPublicTypeAliases(modules.front().get());
+    }
+
     // Load in each input as a module, from right to left.
     // Each module inherits the symbols from its parent module.
     SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Standalone());
-    std::forward_list<std::unique_ptr<const SkSL::Module>> modules;
     for (auto modulePath = paths.rbegin(); modulePath != paths.rend(); ++modulePath) {
         std::ifstream in(*modulePath);
         std::string moduleSource{std::istreambuf_iterator<char>(in),
@@ -95,7 +112,7 @@ static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_lis
         const SkSL::Module* parent = modules.empty() ? SkSL::ModuleLoader::Get().rootModule()
                                                      : modules.front().get();
         std::unique_ptr<SkSL::Module> m =
-                compiler.compileModule(gProgramKind,
+                compiler.compileModule(kind,
                                        modulePath->c_str(),
                                        std::move(moduleSource),
                                        parent,
@@ -110,7 +127,7 @@ static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_lis
             // (i.e., if module A claims names `$a` and `$b` at global scope, module B will need to
             // start at `$c`. The most straightforward way to handle this is to actually perform the
             // renames.)
-            compiler.optimizeModuleBeforeMinifying(gProgramKind, *m);
+            compiler.optimizeModuleBeforeMinifying(kind, *m);
         }
         modules.push_front(std::move(m));
     }
@@ -192,7 +209,7 @@ static ResultCode process_command(const std::vector<std::string>& args) {
     SkSpan inputPaths(args);
     inputPaths = inputPaths.subspan(1);
     std::forward_list<std::unique_ptr<const SkSL::Module>> modules =
-            compile_module_list(inputPaths);
+            compile_module_list(inputPaths, gProgramKind);
     if (modules.empty()) {
         return ResultCode::kInputError;
     }
@@ -268,6 +285,8 @@ int main(int argc, const char** argv) {
         gProgramKind = SkSL::ProgramKind::kVertex;
     } else if (isCompute) {
         gProgramKind = SkSL::ProgramKind::kCompute;
+    } else {
+        gProgramKind = SkSL::ProgramKind::kRuntimeShader;
     }
 
     return (int)process_command(args);

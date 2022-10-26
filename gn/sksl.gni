@@ -256,6 +256,7 @@ skslc_deps = [
   "$_src/ports/SkOSFile_stdio.cpp",
   "$_src/utils/SkJSON.cpp",
   "$_src/utils/SkJSONWriter.cpp",
+  "$_src/utils/SkOSPath.cpp",
   "$_src/utils/SkParse.cpp",
   "$_src/utils/SkShaderUtils.cpp",
   "$_src/utils/SkUTF.cpp",
