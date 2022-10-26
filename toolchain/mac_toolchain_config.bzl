@@ -278,7 +278,7 @@ def _make_default_flags():
                     "-isystem",
                     XCODE_SYMLINK + "/usr/include",
                     "-isystem",
-                    EXTERNAL_TOOLCHAIN + "/lib/clang/13.0.0/include",
+                    EXTERNAL_TOOLCHAIN + "/lib/clang/15.0.1/include",
                     # Set the framework path to the Mac SDK framework directory. This has
                     # subfolders like OpenGL.framework
                     # We want -iframework so Clang hides diagnostic warnings from those header
