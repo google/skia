@@ -3577,6 +3577,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
     auto glTex = static_cast<GrGLTexture*>(texture);
     // Mipmaps are only supported on 2D textures:
     if (GR_GL_TEXTURE_2D != glTex->target()) {
+        SkDEBUGCODE(glTex->setMipmapRegenFailureReason("not 2d");)
         return false;
     }
     GrGLFormat format = glTex->format();
@@ -3628,6 +3629,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
                                               /*preserve=*/false);
     }
     if (!fMipmapProgramArrayBuffer) {
+        SkDEBUGCODE(glTex->setMipmapRegenFailureReason("no array buffer");)
         return false;
     }
 
@@ -3656,6 +3658,7 @@ bool GrGLGpu::onRegenerateMipMapLevels(GrTexture* texture) {
                 SkDebugf("Failed to create mipmap program.\n");
                 // Invalidate all params to cover base level change in a previous iteration.
                 glTex->textureParamsModified();
+                SkDEBUGCODE(glTex->setMipmapRegenFailureReason("no program");)
                 return false;
             }
         }

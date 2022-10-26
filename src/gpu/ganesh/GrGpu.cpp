@@ -643,6 +643,7 @@ bool GrGpu::regenerateMipMapLevels(GrTexture* texture) {
         return true;
     }
     if (texture->readOnly()) {
+        SkDEBUGCODE(texture->setMipmapRegenFailureReason("read only");)
         return false;
     }
     if (this->onRegenerateMipMapLevels(texture)) {

@@ -55,7 +55,7 @@ public:
 #ifdef SK_DEBUG
     // TODO: Added to verify that task order for mipmaps and rendering is correct
     // Could be removed once verified.
-    bool slatedForMipmapRegen() { return fSlatedForMipmapRegen; }
+    bool slatedForMipmapRegen() const { return fSlatedForMipmapRegen; }
     void needsMipmapRegen() { fSlatedForMipmapRegen = true; }
     void mipmapsRegenerated() { fSlatedForMipmapRegen = false; }
 #endif

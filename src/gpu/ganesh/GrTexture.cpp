@@ -40,6 +40,7 @@ void GrTexture::markMipmapsDirty(const char* reason) {
 
 void GrTexture::markMipmapsClean() {
     SkASSERT(GrMipmapStatus::kNotAllocated != fMipmapStatus);
+    SkDEBUGCODE(fMipmapRegenFailureReason = "did not fail";)
     fMipmapStatus = GrMipmapStatus::kValid;
 }
 
@@ -74,7 +75,7 @@ void GrTexture::assertMipmapsNotDirty(const GrTextureProxy* proxy) {
 #endif
             msg += SkStringPrintf(
                     " Dirtied by \"%s\" %s, now we're %s. "
-                    "tex dims: %dx%d, gl fmt: %04x, isRT: %d, sc: %d, borrowed: %d",
+                    "tex dims: %dx%d, gl fmt: %04x, isRT: %d, sc: %d, borrowed: %d, type:%d, ro:%d",
                     fMipmapDirtyReason,
                     flushStr(fMipmapDirtyFlushNum, fMipmapDirtyWasFlushing).c_str(),
                     flushStr(flushNum, isFlushing).c_str(),
@@ -83,10 +84,14 @@ void GrTexture::assertMipmapsNotDirty(const GrTextureProxy* proxy) {
                     format,
                     isRT,
                     sampleCount,
-                    borrowed);
+                    borrowed,
+                    (int)this->textureType(),
+                    this->readOnly());
         }
         if (proxy) {
-            msg += SkStringPrintf(", proxy status = %d", proxy->mipmapsAreDirty());
+            msg += SkStringPrintf(", proxy status = %d, slated: %d",
+                                  proxy->mipmapsAreDirty(),
+                                  proxy->slatedForMipmapRegen());
         }
         SK_ABORT("%s", msg.c_str());
     }

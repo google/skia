@@ -60,6 +60,7 @@ public:
     int maxMipmapLevel() const { return fMaxMipmapLevel; }
 
     SkDEBUGCODE(void assertMipmapsNotDirty(const GrTextureProxy* proxy);)
+    SkDEBUGCODE(void setMipmapRegenFailureReason(const char* s) { fMipmapRegenFailureReason = s;})
 
     static void ComputeScratchKey(const GrCaps& caps,
                                   const GrBackendFormat& format,
@@ -88,9 +89,10 @@ private:
     GrTextureType                 fTextureType;
     GrMipmapStatus                fMipmapStatus;
 #if defined(SK_DEBUG)
-    const char*                   fMipmapDirtyReason      = "creation";
-    int                           fMipmapDirtyFlushNum    = 1;
-    bool                          fMipmapDirtyWasFlushing = false;
+    const char*                   fMipmapDirtyReason        = "creation";
+    const char*                   fMipmapRegenFailureReason = "did not fail";
+    int                           fMipmapDirtyFlushNum      = 1;
+    bool                          fMipmapDirtyWasFlushing   = false;
 #endif
     int                           fMaxMipmapLevel;
     friend class GrTextureResource;
