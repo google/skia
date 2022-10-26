@@ -24,6 +24,7 @@
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkShaderUtils.h"
 #include "src/utils/SkVMVisualizer.h"
+#include "tools/skslc/ProcessWorklist.h"
 
 #include "spirv-tools/libspirv.hpp"
 
@@ -44,14 +45,6 @@ namespace SkOpts {
     decltype(hash_fn) hash_fn = skslc_standalone::hash_fn;
     decltype(interpret_skvm) interpret_skvm = skslc_standalone::interpret_skvm;
 }
-
-enum class ResultCode {
-    kSuccess = 0,
-    kCompileError = 1,
-    kInputError = 2,
-    kOutputError = 3,
-    kConfigurationError = 4,
-};
 
 static std::unique_ptr<SkWStream> as_SkWStream(SkSL::OutputStream& s) {
     struct Adapter : public SkWStream {
@@ -480,7 +473,7 @@ static bool set_flag(std::optional<bool>* flag, const char* name, bool value) {
 /**
  * Handle a single input.
  */
-ResultCode processCommand(const std::vector<std::string>& args) {
+static ResultCode process_command(SkSpan<std::string> args) {
     std::optional<bool> honorSettings;
     std::vector<std::string> paths;
     for (size_t i = 1; i < args.size(); ++i) {
@@ -762,60 +755,11 @@ ResultCode processCommand(const std::vector<std::string>& args) {
     return ResultCode::kSuccess;
 }
 
-/**
- * Processes multiple inputs in a single invocation of skslc.
- */
-ResultCode processWorklist(const char* worklistPath) {
-    std::string inputPath(worklistPath);
-    if (!skstd::ends_with(inputPath, ".worklist")) {
-        printf("expected .worklist file, found: %s\n\n", worklistPath);
-        show_usage();
-        return ResultCode::kConfigurationError;
-    }
-
-    // The worklist contains one line per argument to pass to skslc. When a blank line is reached,
-    // those arguments will be passed to `processCommand`.
-    auto resultCode = ResultCode::kSuccess;
-    std::vector<std::string> args = {"skslc"};
-    std::ifstream in(worklistPath);
-    for (std::string line; std::getline(in, line); ) {
-        if (in.rdstate()) {
-            printf("error reading '%s'\n", worklistPath);
-            return ResultCode::kInputError;
-        }
-
-        if (!line.empty()) {
-            // We found an argument. Remember it.
-            args.push_back(std::move(line));
-        } else {
-            // We found a blank line. If we have any arguments stored up, process them as a command.
-            if (!args.empty()) {
-                ResultCode outcome = processCommand(args);
-                resultCode = std::max(resultCode, outcome);
-
-                // Clear every argument except the first ("skslc").
-                args.resize(1);
-            }
-        }
-    }
-
-    // If the worklist ended with a list of arguments but no blank line, process those now.
-    if (args.size() > 1) {
-        ResultCode outcome = processCommand(args);
-        resultCode = std::max(resultCode, outcome);
-    }
-
-    // Return the "worst" status we encountered. For our purposes, compilation errors are the least
-    // serious, because they are expected to occur in unit tests. Other types of errors are not
-    // expected at all during a build.
-    return resultCode;
-}
-
 int main(int argc, const char** argv) {
     if (argc == 2) {
         // Worklists are the only two-argument case for skslc, and we don't intend to support
         // nested worklists, so we can process them here.
-        return (int)processWorklist(argv[1]);
+        return (int)ProcessWorklist(argv[1], process_command);
     } else {
         // Process non-worklist inputs.
         std::vector<std::string> args;
@@ -823,6 +767,6 @@ int main(int argc, const char** argv) {
             args.push_back(argv[index]);
         }
 
-        return (int)processCommand(args);
+        return (int)process_command(args);
     }
 }

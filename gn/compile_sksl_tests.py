@@ -56,10 +56,10 @@ targets = []
 worklist = tempfile.NamedTemporaryFile(suffix='.worklist', delete=False, mode='w')
 
 # The `inputs` array pairs off input files with their matching output directory, e.g.:
-#     //skia/tests/sksl/shared/test.sksl
-#     //skia/tests/sksl/shared/golden/
-#     //skia/tests/sksl/intrinsics/abs.sksl
-#     //skia/tests/sksl/intrinsics/golden/
+#     //skia/resources/sksl/shared/HelloWorld.sksl
+#     //skia/tests/sksl/shared/
+#     //skia/resources/sksl/intrinsics/Abs.sksl
+#     //skia/tests/sksl/intrinsics/
 #     ... (etc) ...
 # Here we loop over these inputs and convert them into a worklist file for skslc.
 for input, targetDir in pairwise(inputs):
