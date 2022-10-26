@@ -55,7 +55,7 @@ private:
     std::unique_ptr<FocusController>   fFocusController;
     const int                          fColumns;
 
-    SkTArray<Rec, true>                fRecs;
+    std::vector<Rec>                fRecs;
     std::unique_ptr<sksg::Scene>       fScene;
     std::vector<sk_sp<Animator>>       fSceneAnimators;
     sk_sp<sksg::Group>                 fRoot;

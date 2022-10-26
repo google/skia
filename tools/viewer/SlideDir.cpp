@@ -347,7 +347,7 @@ void SlideDir::unload() {
         slide->unload();
     }
 
-    fRecs.reset();
+    fRecs.clear();
     fScene.reset();
     fFocusController.reset();
     fRoot.reset();
@@ -436,5 +436,5 @@ const SlideDir::Rec* SlideDir::findCell(float x, float y) const {
               row = static_cast<int>(y / fCellSize.height()),
               idx = row * fColumns + col;
 
-    return idx < fRecs.count() ? &fRecs[idx] : nullptr;
+    return idx < (int)fRecs.size() ? &fRecs[idx] : nullptr;
 }

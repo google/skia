@@ -37,7 +37,7 @@ struct FilterNode {
     sk_sp<SkImageFilter> fFilter;
 
     // FilterNodes wrapping each of fFilter's inputs. Leaf node when fInputNodes is empty.
-    SkTArray<FilterNode, true> fInputNodes;
+    std::vector<FilterNode> fInputNodes;
 
     // Distance from root filter
     int fDepth;
@@ -71,7 +71,7 @@ struct FilterNode {
         this->computeInputBounds();
         this->computeOutputBounds();
         if (fFilter) {
-            fInputNodes.reserve_back(fFilter->countInputs());
+            fInputNodes.reserve(fFilter->countInputs());
             for (int i = 0; i < fFilter->countInputs(); ++i) {
                 fInputNodes.emplace_back(fFilter->getInput(i), mapping, content, depth + 1);
             }
@@ -94,7 +94,7 @@ private:
         }
 
         // Fill in children
-        for (int i = 0; i < fInputNodes.count(); ++i) {
+        for (size_t i = 0; i < fInputNodes.size(); ++i) {
             fInputNodes[i].computeOutputBounds();
         }
     }
@@ -276,7 +276,7 @@ static float draw_dag(SkCanvas* canvas, SkSurface* nodeSurface, const FilterNode
     static const float kPad = 20.f;
     float x = nodeResults->width() + kPad;
     float y = 0;
-    for (int i = 0; i < node.fInputNodes.count(); ++i) {
+    for (size_t i = 0; i < node.fInputNodes.size(); ++i) {
         // Line connecting this node to its child
         canvas->drawLine(nodeResults->width(), 0.5f * nodeResults->height(), // right of node
                          x, y + 0.5f * nodeResults->height(), line);         // left of child
