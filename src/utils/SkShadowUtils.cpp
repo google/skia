@@ -32,7 +32,9 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkVerticesPriv.h"
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 #include "src/utils/SkShadowTessellator.h"
+#endif
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/GrStyle.h"
@@ -51,6 +53,7 @@ class SkRRect;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 namespace {
 
 uint64_t resource_cache_shared_id() {
@@ -466,6 +469,7 @@ bool draw_shadow(const FACTORY& factory,
 static bool tilted(const SkPoint3& zPlaneParams) {
     return !SkScalarNearlyZero(zPlaneParams.fX) || !SkScalarNearlyZero(zPlaneParams.fY);
 }
+#endif // SK_ENABLE_OPTIMIZE_SIZE
 
 void SkShadowUtils::ComputeTonalColors(SkColor inAmbientColor, SkColor inSpotColor,
                                        SkColor* outAmbientColor, SkColor* outSpotColor) {
@@ -583,6 +587,14 @@ static bool validate_rec(const SkDrawShadowRec& rec) {
 }
 
 void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
+    if (!validate_rec(rec)) {
+        return;
+    }
+
+    SkMatrix viewMatrix = this->localToDevice();
+    SkAutoDeviceTransformRestore adr(this, SkMatrix::I());
+
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     auto drawVertsProc = [this](const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint,
                                 SkScalar tx, SkScalar ty, bool hasPerspective) {
         if (vertices->priv().vertexCount()) {
@@ -600,21 +612,15 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
         }
     };
 
-    if (!validate_rec(rec)) {
-        return;
-    }
-
-    SkMatrix viewMatrix = this->localToDevice();
-    SkAutoDeviceTransformRestore adr(this, SkMatrix::I());
-
     ShadowedPath shadowedPath(&path, &viewMatrix);
 
     bool tiltZPlane = tilted(rec.fZPlaneParams);
     bool transparent = SkToBool(rec.fFlags & SkShadowFlags::kTransparentOccluder_ShadowFlag);
-    bool directional = SkToBool(rec.fFlags & SkShadowFlags::kDirectionalLight_ShadowFlag);
     bool useBlur = SkToBool(rec.fFlags & SkShadowFlags::kConcaveBlurOnly_ShadowFlag) &&
                    !path.isConvex();
     bool uncached = tiltZPlane || path.isVolatile();
+#endif
+    bool directional = SkToBool(rec.fFlags & SkShadowFlags::kDirectionalLight_ShadowFlag);
 
     SkPoint3 zPlaneParams = rec.fZPlaneParams;
     SkPoint3 devLightPos = rec.fLightPos;
@@ -625,6 +631,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 
     if (SkColorGetA(rec.fAmbientColor) > 0) {
         bool success = false;
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
         if (uncached && !useBlur) {
             sk_sp<SkVertices> vertices = SkShadowTessellator::MakeAmbient(path, viewMatrix,
                                                                           zPlaneParams,
@@ -661,6 +668,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 
             success = draw_shadow(factory, drawVertsProc, shadowedPath, rec.fAmbientColor);
         }
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
         // All else has failed, draw with blur
         if (!success) {
@@ -714,6 +722,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 
     if (SkColorGetA(rec.fSpotColor) > 0) {
         bool success = false;
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
         if (uncached && !useBlur) {
             sk_sp<SkVertices> vertices = SkShadowTessellator::MakeSpot(path, viewMatrix,
                                                                        zPlaneParams,
@@ -807,6 +816,7 @@ void SkBaseDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 #endif
             success = draw_shadow(factory, drawVertsProc, shadowedPath, color);
         }
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
         // All else has failed, draw with blur
         if (!success) {

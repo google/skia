@@ -12,6 +12,8 @@
 #include "include/private/SkTemplates.h"
 #include "src/utils/SkPolyUtils.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 class PolyUtilsBench : public Benchmark {
 public:
     // Evaluate SkTriangulateSimplePolygon's performance (via derived classes) on:
@@ -258,3 +260,4 @@ DEF_BENCH(return new IceCreamPolyUtilsBench(PolyUtilsBench::Type::kInsetConvex);
 DEF_BENCH(return new IceCreamPolyUtilsBench(PolyUtilsBench::Type::kOffsetSimple);)
 DEF_BENCH(return new IceCreamPolyUtilsBench(PolyUtilsBench::Type::kTessellateSimple);)
 
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)

@@ -25,6 +25,8 @@
 #include <limits>
 #include <new>
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 //////////////////////////////////////////////////////////////////////////////////
 // Helper data structures and functions
 
@@ -1764,3 +1766,6 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
 
     return true;
 }
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)
+

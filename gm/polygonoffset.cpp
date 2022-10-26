@@ -23,6 +23,7 @@
 #include <functional>
 #include <memory>
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 static void create_ngon(int n, SkPoint* pts, SkScalar w, SkScalar h, SkPathDirection dir) {
     float angleStep = 360.0f / n, angle = 0.0f;
     if ((n % 2) == 1) {
@@ -624,3 +625,5 @@ private:
 DEF_GM(return new PolygonOffsetGM(true);)
 DEF_GM(return new PolygonOffsetGM(false);)
 }  // namespace skiagm
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)

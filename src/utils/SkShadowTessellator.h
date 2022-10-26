@@ -8,6 +8,8 @@
 #ifndef SkShadowTessellator_DEFINED
 #define SkShadowTessellator_DEFINED
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 
@@ -41,5 +43,7 @@ sk_sp<SkVertices> MakeSpot(const SkPath& path, const SkMatrix& ctm, const SkPoin
 
 
 }  // namespace SkShadowTessellator
+
+#endif // SK_ENABLE_OPTIMIZE_SIZE
 
 #endif

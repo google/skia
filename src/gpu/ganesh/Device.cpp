@@ -987,6 +987,7 @@ void Device::drawMesh(const SkMesh& mesh, sk_sp<SkBlender> blender, const SkPain
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 void Device::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
 #if GR_TEST_UTILS
     if (fContext->priv().options().fAllPathsVolatile && !path.isVolatile()) {
@@ -1002,6 +1003,7 @@ void Device::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
         this->SkBaseDevice::drawShadow(path, rec);
     }
 }
+#endif  // SK_ENABLE_OPTIMIZE_SIZE
 
 ///////////////////////////////////////////////////////////////////////////////
 

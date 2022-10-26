@@ -34,6 +34,7 @@
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 #endif
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 /**
  * Base class
@@ -1183,3 +1184,6 @@ sk_sp<SkVertices> SkShadowTessellator::MakeSpot(const SkPath& path, const SkMatr
                                      directional);
     return spotTess.releaseVertices();
 }
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)
+

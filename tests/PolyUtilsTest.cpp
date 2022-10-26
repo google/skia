@@ -12,6 +12,8 @@
 
 #include <cstdint>
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 DEF_TEST(PolyUtils, reporter) {
 
     SkTDArray<SkPoint> poly;
@@ -417,3 +419,5 @@ DEF_TEST(PolyUtils, reporter) {
     REPORTER_ASSERT(reporter, SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.size(),
                                                           &triangleIndices));
 }
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)

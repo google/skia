@@ -12,6 +12,7 @@
 #include "include/private/SkTemplates.h"
 #include "src/utils/SkPolyUtils.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 void inline ignoreResult(bool ) {}
 
 // clamps the point to the nearest 16th of a pixel
@@ -59,3 +60,6 @@ DEF_FUZZ(PolyUtils, fuzz) {
         ignoreResult(SkTriangulateSimplePolygon(polygon, indexMap, count, &outputIndices));
     }
 }
+#else
+DEF_FUZZ(PolyUtils, fuzz) {}
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)

@@ -22,6 +22,8 @@
 #include "src/utils/SkShadowTessellator.h"
 #include "tests/Test.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 enum ExpectVerts {
     kDont_ExpectVerts,
     kDo_ExpectVerts
@@ -215,3 +217,5 @@ DEF_TEST(ShadowBounds, reporter) {
     path.cubicTo(100, 50, 20, 100, 0, 0);
     check_bounds(reporter, path);
 }
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)

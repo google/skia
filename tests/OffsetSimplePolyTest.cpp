@@ -10,6 +10,8 @@
 #include "src/utils/SkPolyUtils.h"
 #include "tests/Test.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 DEF_TEST(OffsetSimplePoly, reporter) {
     SkTDArray<SkPoint> rrectPoly;
 
@@ -200,3 +202,5 @@ DEF_TEST(OffsetSimplePoly, reporter) {
     result = SkIsSimplePolygon(intersectingPoly.begin(), intersectingPoly.size());
     REPORTER_ASSERT(reporter, !result);
 }
+
+#endif

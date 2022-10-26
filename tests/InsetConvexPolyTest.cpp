@@ -9,6 +9,8 @@
 #include "src/utils/SkPolyUtils.h"
 #include "tests/Test.h"
 
+#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
+
 DEF_TEST(InsetConvexPoly, reporter) {
     SkTDArray<SkPoint> rrectPoly;
 
@@ -106,3 +108,5 @@ DEF_TEST(InsetConvexPoly, reporter) {
     REPORTER_ASSERT(reporter, result);
     REPORTER_ASSERT(reporter, SkIsConvexPolygon(insetPoly.begin(), insetPoly.size()));
 }
+
+#endif // !defined(SK_ENABLE_OPTIMIZE_SIZE)
