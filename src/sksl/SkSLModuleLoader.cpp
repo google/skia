@@ -241,6 +241,9 @@ static std::unique_ptr<Module> compile_and_shrink(SkSL::Compiler* compiler,
                                                         parent,
                                                         modifiersPool,
                                                         /*shouldInline=*/true);
+    if (!m) {
+        SK_ABORT("Unable to load module %s", moduleName);
+    }
 
     // We can eliminate FunctionPrototypes without changing the meaning of the module; the function
     // declaration is still safely in the symbol table. This only impacts our ability to recreate

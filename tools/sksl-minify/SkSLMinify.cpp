@@ -101,6 +101,9 @@ static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_lis
                                        parent,
                                        SkSL::ModuleLoader::Get().coreModifiers(),
                                        /*shouldInline=*/false);
+        if (!m) {
+            return {};
+        }
         if (!gUnoptimized) {
             // We need to optimize every module in the chain. We rename private functions at global
             // scope, and we need to make sure there are no name collisions between nested modules.

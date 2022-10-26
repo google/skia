@@ -184,7 +184,8 @@ std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
     SkSL::Parser parser{this, settings, kind, std::move(moduleSource)};
     std::unique_ptr<Module> module = parser.moduleInheritingFrom(parent);
     if (this->errorCount() != 0) {
-        SK_ABORT("Unexpected errors compiling %s:\n\n%s\n", moduleName, this->errorText().c_str());
+        SkDebugf("Unexpected errors compiling %s:\n\n%s\n", moduleName, this->errorText().c_str());
+        return nullptr;
     }
     if (shouldInline) {
         this->optimizeModuleAfterLoading(kind, *module);
