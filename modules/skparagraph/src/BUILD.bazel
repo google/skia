@@ -19,7 +19,6 @@ filegroup(
         "ParagraphCache.cpp",
         "ParagraphImpl.cpp",
         "ParagraphImpl.h",
-        "ParagraphPainter.h",
         "ParagraphPainterImpl.cpp",
         "ParagraphPainterImpl.h",
         "ParagraphStyle.cpp",

@@ -14,6 +14,7 @@ filegroup(
         "Paragraph.h",
         "ParagraphBuilder.h",
         "ParagraphCache.h",
+        "ParagraphPainter.h",
         "ParagraphStyle.h",
         "TextShadow.h",
         "TextStyle.h",
