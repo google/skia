@@ -116,12 +116,6 @@ public:
     virtual const skgpu::graphite::Renderer* renderer(
             const skgpu::graphite::RendererProvider*) const = 0;
 
-    virtual void fillVertexData(
-            skgpu::graphite::DrawWriter*,
-            int offset, int count,
-            int ssboIndex,
-            SkScalar depth,
-            const skgpu::graphite::Transform& transform) const = 0;
     virtual void fillInstanceData(
             skgpu::graphite::DrawWriter*,
             int offset, int count,
