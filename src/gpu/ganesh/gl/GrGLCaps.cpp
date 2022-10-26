@@ -4274,7 +4274,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // with the same GPU running on Android P (driver 1.10) which did not have this issue. We don't
     // know when the bug appeared in the driver so for now we disable tessellation path renderer for
     // all matching gpus regardless of driver version.
-    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
+    //
+    // 2022-10-28 Update: Testing via Flutter found this is not a problem on driver version 1.15.
+    // See https://github.com/flutter/flutter/issues/113596
+    // GL_VERSION : OpenGL ES 3.1 build 1.15@6133109
+    // GL_RENDERER: PowerVR Rogue AXE-1-16M
+    // GL_VENDOR  : Imagination Technologies
+    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue &&
+        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(1, 15, 0)) {
         fDisableTessellationPathRenderer = true;
     }
 
