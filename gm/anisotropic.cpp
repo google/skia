@@ -175,7 +175,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         auto ct = canvas->imageInfo().colorType() == kUnknown_SkColorType
-                          ? kRGBA_8888_SkColorType
+                          ? kN32_SkColorType
                           : canvas->imageInfo().colorType();
         auto ii = SkImageInfo::Make(kImageSize,
                                     kImageSize,
