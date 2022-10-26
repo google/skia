@@ -639,6 +639,13 @@ if (skia_compile_modules) {
     sources += [ "tools/sksl-minify/SkSLMinify.cpp" ]
     libs = []
     if (is_win) {
+      sources += [ "tools/SkGetExecutablePath_win.cpp" ]
+    } else if (is_mac || is_ios) {
+      sources += [ "tools/SkGetExecutablePath_mac.cpp" ]
+    } else if (is_linux || is_android) {
+      sources += [ "tools/SkGetExecutablePath_linux.cpp" ]
+    }
+    if (is_win) {
       sources += [ "src/ports/SkOSFile_win.cpp" ]
     } else {
       sources += [ "src/ports/SkOSFile_posix.cpp" ]
@@ -2642,6 +2649,7 @@ if (skia_enable_tools) {
 
     if (is_android) {
       sources += [
+        "tools/SkGetExecutablePath_linux.cpp",
         "tools/sk_app/android/RasterWindowContext_android.cpp",
         "tools/sk_app/android/WindowContextFactory_android.h",
         "tools/sk_app/android/Window_android.cpp",
@@ -2653,6 +2661,7 @@ if (skia_enable_tools) {
       libs += [ "android" ]
     } else if (is_linux) {
       sources += [
+        "tools/SkGetExecutablePath_linux.cpp",
         "tools/sk_app/unix/RasterWindowContext_unix.cpp",
         "tools/sk_app/unix/WindowContextFactory_unix.h",
         "tools/sk_app/unix/Window_unix.cpp",
@@ -2667,6 +2676,7 @@ if (skia_enable_tools) {
       ]
     } else if (is_win) {
       sources += [
+        "tools/SkGetExecutablePath_win.cpp",
         "tools/sk_app/win/RasterWindowContext_win.cpp",
         "tools/sk_app/win/WindowContextFactory_win.h",
         "tools/sk_app/win/Window_win.cpp",
@@ -2675,6 +2685,7 @@ if (skia_enable_tools) {
       ]
     } else if (is_mac) {
       sources += [
+        "tools/SkGetExecutablePath_mac.cpp",
         "tools/sk_app/mac/WindowContextFactory_mac.h",
         "tools/sk_app/mac/Window_mac.h",
         "tools/sk_app/mac/Window_mac.mm",
@@ -2687,6 +2698,7 @@ if (skia_enable_tools) {
       ]
     } else if (is_ios) {
       sources += [
+        "tools/SkGetExecutablePath_mac.cpp",
         "tools/sk_app/ios/WindowContextFactory_ios.h",
         "tools/sk_app/ios/Window_ios.h",
         "tools/sk_app/ios/Window_ios.mm",
