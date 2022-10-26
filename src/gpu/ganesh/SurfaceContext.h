@@ -79,14 +79,6 @@ public:
     using RescaleGamma       = SkImage::RescaleGamma;
     using RescaleMode        = SkImage::RescaleMode;
 
-    // GPU implementation for SkImage:: and SkSurface::asyncReadPixels.
-    // Used as the async read step of asyncRescaleAndReadPixels().
-    void asyncReadPixels(GrDirectContext*,
-                         const SkIRect& srcRect,
-                         SkColorType,
-                         ReadPixelsCallback,
-                         ReadPixelsContext);
-
     // GPU implementation for SkImage:: and SkSurface::asyncRescaleAndReadPixels.
     void asyncRescaleAndReadPixels(GrDirectContext*,
                                    const SkImageInfo& info,
@@ -205,6 +197,13 @@ protected:
         std::function<ConversionFn> fPixelConverter;
     };
     PixelTransferResult transferPixels(GrColorType colorType, const SkIRect& rect);
+
+    // The async read step of asyncRescaleAndReadPixels()
+    void asyncReadPixels(GrDirectContext*,
+                         const SkIRect& srcRect,
+                         SkColorType,
+                         ReadPixelsCallback,
+                         ReadPixelsContext);
 
 private:
     friend class ::GrRecordingContextPriv; // for validate

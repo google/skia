@@ -1341,19 +1341,6 @@ bool Device::replaceBackingProxy(SkSurface::ContentChangeMode mode) {
                                      this->surfaceProps());
 }
 
-void Device::asyncReadPixels(const SkImageInfo& info,
-                             const SkIRect& srcRect,
-                             ReadPixelsCallback callback,
-                             ReadPixelsContext context) {
-    auto* sdc = fSurfaceDrawContext.get();
-    // Context TODO: Elevate direct context requirement to public API.
-    auto dContext = sdc->recordingContext()->asDirectContext();
-    if (!dContext) {
-        return;
-    }
-    sdc->asyncReadPixels(dContext, srcRect, info.colorType(), callback, context);
-}
-
 void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                        const SkIRect& srcRect,
                                        RescaleGamma rescaleGamma,

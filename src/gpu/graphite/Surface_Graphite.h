@@ -38,10 +38,6 @@ public:
     sk_sp<SkImage> onAsImage() override;
     sk_sp<SkImage> onMakeImageCopy(const SkIRect* subset, Mipmapped) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
-    void onAsyncReadPixels(const SkImageInfo& info,
-                           SkIRect srcRect,
-                           ReadPixelsCallback callback,
-                           ReadPixelsContext context) override;
     void onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                      SkIRect srcRect,
                                      RescaleGamma rescaleGamma,

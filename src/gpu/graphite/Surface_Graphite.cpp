@@ -85,16 +85,6 @@ bool Surface::onReadPixels(Context* context,
     return fDevice->readPixels(context, recorder, dst, srcX, srcY);
 }
 
-void Surface::onAsyncReadPixels(const SkImageInfo& info,
-                                          SkIRect srcRect,
-                                          ReadPixelsCallback callback,
-                                          ReadPixelsContext context) {
-    fDevice->asyncReadPixels(info,
-                             srcRect,
-                             callback,
-                             context);
-}
-
 void Surface::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                           SkIRect srcRect,
                                           RescaleGamma rescaleGamma,
