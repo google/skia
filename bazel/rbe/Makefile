@@ -1,4 +1,4 @@
-LINUX_VERSION=v1
+LINUX_VERSION=v2
 
 build_linux_container:
 	docker build -t gcr.io/skia-public/rbe_linux:${LINUX_VERSION} ./gce_linux_container/
@@ -11,7 +11,7 @@ generate_linux_config:
 	# https://github.com/bazelbuild/bazel-toolchains/releases/tag/v5.1.2
 	rbe_configs_gen \
 		--bazel_version=5.0.0 \
-		--toolchain_container=gcr.io/skia-public/rbe_linux@sha256:4f7ea556fbf46f65f0c6a2d65144bbcb1139acc78ef19be4bd4b04dcfa623f18 \
+		--toolchain_container=gcr.io/skia-public/rbe_linux@sha256:654139e5cecb163f80a7d18e2b2da6c758ebe6325d2d9c41d9facf58e1b3f799 \
 		--output_src_root=../.. \
 		--output_config_path=bazel/rbe/gce_linux \
 		--exec_os=linux \

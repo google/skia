@@ -41,11 +41,14 @@ This process is:
  3) Run `make build_linux_container` to build the image locally. One may verify it works by running
     something like `docker run -it gcr.io/skia-public/rbe_linux:v2 /bin/bash`.
  4) Note the versions and base image hash that were used. Modify the Dockerfile to use these.
+    1) `docker pull debian:bookworm-slim` is the easiest way to see the sha256 and get the latest.
+    2) Versions can be found looking for logs like:
+       `Get:89 http://deb.debian.org/debian bookworm/main amd64 clang amd64 1:14.0-55.2+b1 [9976 B]`
  5) Run `make push_linux_container` to rebuild the container and push it to GCS where it can
     be used by our RBE workers. Note the sha256 hash of this created container
  6) Modify the appropriate generate step in `Makefile` (e.g. `generate_linux_config`) to refer
     to the correct toolchain_container. Then, run that step.
- 7) Modify the RBE platform in `./BUILD.bazel` to refer to the new `container_image`.
+ 7) Modify the RBE platform in `//platform/BUILD.bazel` to refer to the new `container_image`.
 
 We chose not to use Bazel rules for this container step, as that could be difficult to bootstrap
 without Bazel already setup. Additionally, Make is a simple and sufficient way to script the steps

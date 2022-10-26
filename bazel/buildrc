@@ -105,6 +105,7 @@ build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
 
 
 build:cpu_only --cc_output_directory_tag=cpu_tests
+build:cpu_only_debug --config=cpu --config=debug
 
 build:gl_ganesh --enable_gpu_test_utils --gpu_backend=gl_backend \
                  --cc_output_directory_tag=gl_ganesh

@@ -66,6 +66,10 @@ rbe_known_good_builds:
 	bazelisk build //modules/canvaskit:canvaskit --config=linux_rbe \
 		--config=ck_full_webgl2_debug --remote_download_minimal
 
+rbe_known_good_tests:
+	bazel test //tests/... --config=cpu_only_debug --config=linux_rbe \
+		--remote_download_minimal --test_output=errors
+
 iwyu_rbe:
 	bazelisk build //:skia_public --config=for_linux_x64_with_rbe \
 		--config=enforce_iwyu --remote_download_minimal --nobuild_runfile_manifests
