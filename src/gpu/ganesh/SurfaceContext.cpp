@@ -622,111 +622,14 @@ void SurfaceContext::asyncRescaleAndReadPixels(GrDirectContext* dContext,
                                    callbackContext);
 }
 
-class SurfaceContext::AsyncReadResult : public SkImage::AsyncReadResult {
-public:
-    AsyncReadResult(GrDirectContext::DirectContextID intendedRecipient)
-        : fIntendedRecipient(intendedRecipient) {
-    }
-
-    ~AsyncReadResult() override {
-        for (int i = 0; i < fPlanes.count(); ++i) {
-            fPlanes[i].releaseMappedBuffer(fIntendedRecipient);
-        }
-    }
-
-    int count() const override { return fPlanes.count(); }
-    const void* data(int i) const override { return fPlanes[i].data(); }
-    size_t rowBytes(int i) const override { return fPlanes[i].rowBytes(); }
-
-    bool addTransferResult(const PixelTransferResult& result,
-                           SkISize dimensions,
-                           size_t rowBytes,
-                           GrClientMappedBufferManager* manager) {
-        SkASSERT(!result.fTransferBuffer->isMapped());
-        const void* mappedData = result.fTransferBuffer->map();
-        if (!mappedData) {
-            return false;
-        }
-        if (result.fPixelConverter) {
-            size_t size = rowBytes*dimensions.height();
-            sk_sp<SkData> data = SkData::MakeUninitialized(size);
-            result.fPixelConverter(data->writable_data(), mappedData);
-            this->addCpuPlane(std::move(data), rowBytes);
-            result.fTransferBuffer->unmap();
-        } else {
-            manager->insert(result.fTransferBuffer);
-            this->addMappedPlane(mappedData, rowBytes, std::move(result.fTransferBuffer));
-        }
-        return true;
-    }
-
-    void addCpuPlane(sk_sp<SkData> data, size_t rowBytes) {
-        SkASSERT(data);
-        SkASSERT(rowBytes > 0);
-        fPlanes.emplace_back(std::move(data), rowBytes);
-    }
-
-private:
-    void addMappedPlane(const void* data, size_t rowBytes, sk_sp<GrGpuBuffer> mappedBuffer) {
-        SkASSERT(data);
-        SkASSERT(rowBytes > 0);
-        SkASSERT(mappedBuffer);
-        SkASSERT(mappedBuffer->isMapped());
-        fPlanes.emplace_back(std::move(mappedBuffer), rowBytes);
-    }
-
-    class Plane {
-    public:
-        Plane(sk_sp<GrGpuBuffer> buffer, size_t rowBytes)
-                : fMappedBuffer(std::move(buffer)), fRowBytes(rowBytes) {}
-        Plane(sk_sp<SkData> data, size_t rowBytes) : fData(std::move(data)), fRowBytes(rowBytes) {}
-
-        Plane(const Plane&) = delete;
-        Plane(Plane&&) = default;
-
-        ~Plane() { SkASSERT(!fMappedBuffer); }
-
-        Plane& operator=(const Plane&) = delete;
-        Plane& operator=(Plane&&) = default;
-
-        void releaseMappedBuffer(GrDirectContext::DirectContextID intendedRecipient) {
-            if (fMappedBuffer) {
-                GrClientMappedBufferManager::BufferFinishedMessageBus::Post(
-                        {std::move(fMappedBuffer), intendedRecipient});
-            }
-        }
-
-        const void* data() const {
-            if (fMappedBuffer) {
-                SkASSERT(!fData);
-                SkASSERT(fMappedBuffer->isMapped());
-                return fMappedBuffer->map();
-            }
-            SkASSERT(fData);
-            return fData->data();
-        }
-
-        size_t rowBytes() const { return fRowBytes; }
-
-        using sk_is_trivially_relocatable = std::true_type;
-
-    private:
-        sk_sp<SkData> fData;
-        sk_sp<GrGpuBuffer> fMappedBuffer;
-        size_t fRowBytes;
-
-        static_assert(::sk_is_trivially_relocatable<decltype(fData)>::value);
-        static_assert(::sk_is_trivially_relocatable<decltype(fMappedBuffer)>::value);
-    };
-    SkSTArray<3, Plane> fPlanes;
-    GrDirectContext::DirectContextID fIntendedRecipient;
-};
-
 void SurfaceContext::asyncReadPixels(GrDirectContext* dContext,
                                      const SkIRect& rect,
                                      SkColorType colorType,
                                      ReadPixelsCallback callback,
                                      ReadPixelsContext callbackContext) {
+    using AsyncReadResult = skgpu::TAsyncReadResult<GrGpuBuffer, GrDirectContext::DirectContextID,
+                                                    PixelTransferResult>;
+
     SkASSERT(rect.fLeft >= 0 && rect.fRight <= this->width());
     SkASSERT(rect.fTop >= 0 && rect.fBottom <= this->height());
 
@@ -807,6 +710,9 @@ void SurfaceContext::asyncRescaleAndReadPixelsYUV420(GrDirectContext* dContext,
                                                      RescaleMode rescaleMode,
                                                      ReadPixelsCallback callback,
                                                      ReadPixelsContext callbackContext) {
+    using AsyncReadResult = skgpu::TAsyncReadResult<GrGpuBuffer, GrDirectContext::DirectContextID,
+                                                    PixelTransferResult>;
+
     SkASSERT(srcRect.fLeft >= 0 && srcRect.fRight <= this->width());
     SkASSERT(srcRect.fTop >= 0 && srcRect.fBottom <= this->height());
     SkASSERT(!dstSize.isZero());

@@ -343,6 +343,7 @@ graphite_tests_sources = [
   "$_tests/graphite/KeyTest.cpp",
   "$_tests/graphite/PipelineDataCacheTest.cpp",
   "$_tests/graphite/RTEffectTest.cpp",
+  "$_tests/graphite/ReadWritePixelsGraphiteTest.cpp",
   "$_tests/graphite/RecorderTest.cpp",
   "$_tests/graphite/RecordingOrderTest.cpp",
   "$_tests/graphite/RectTest.cpp",

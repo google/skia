@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Context_DEFINED
 #define skgpu_graphite_Context_DEFINED
 
+#include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
 #include "include/gpu/graphite/ContextOptions.h"
@@ -67,6 +68,12 @@ public:
 
     void insertRecording(const InsertRecordingInfo&);
     void submit(SyncToCpu = SyncToCpu::kNo);
+
+    void asyncReadPixels(const SkImage* image,
+                         SkColorType dstColorType,
+                         const SkIRect& srcRect,
+                         SkImage::ReadPixelsCallback callback,
+                         SkImage::ReadPixelsContext context);
 
     /**
      * Checks whether any asynchronous work is complete and if so calls related callbacks.

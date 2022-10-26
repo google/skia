@@ -254,8 +254,6 @@ private:
                              int numLevels,
                              SkIPoint);
 
-    class AsyncReadResult;
-
     GrColorInfo fColorInfo;
 
     using INHERITED = SkRefCnt;

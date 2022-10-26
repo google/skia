@@ -846,6 +846,7 @@ skia_native_gpu_sources = [
 ]
 
 skia_shared_gpu_sources = [
+  "$_src/gpu/AsyncReadTypes.h",
   "$_src/gpu/AtlasTypes.cpp",
   "$_src/gpu/AtlasTypes.h",
   "$_src/gpu/Blend.cpp",
@@ -867,7 +868,6 @@ skia_shared_gpu_sources = [
   "$_src/gpu/SkRenderEngineAbortf.h",
   "$_src/gpu/Swizzle.cpp",
   "$_src/gpu/Swizzle.h",
-  "$_src/gpu/TClientMappedBufferManager.h",
   "$_src/gpu/tessellate/AffineMatrix.h",
   "$_src/gpu/tessellate/CullTest.h",
   "$_src/gpu/tessellate/FixedCountBufferUtils.cpp",

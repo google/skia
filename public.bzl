@@ -746,6 +746,7 @@ BASE_SRCS_ALL = [
     "src/effects/imagefilters/SkTileImageFilter.cpp",
     "src/fonts/SkFontMgr_indirect.cpp",
     "src/fonts/SkRemotableFontMgr.cpp",
+    "src/gpu/AsyncReadTypes.h",
     "src/gpu/AtlasTypes.cpp",
     "src/gpu/AtlasTypes.h",
     "src/gpu/Blend.cpp",
@@ -767,7 +768,6 @@ BASE_SRCS_ALL = [
     "src/gpu/SkRenderEngineAbortf.h",
     "src/gpu/Swizzle.cpp",
     "src/gpu/Swizzle.h",
-    "src/gpu/TClientMappedBufferManager.h",
     # We include the ganesh files, but leave out any specific backend (e.g. GL, Vulkan)
     "src/gpu/ganesh/ClipStack.cpp",
     "src/gpu/ganesh/ClipStack.h",

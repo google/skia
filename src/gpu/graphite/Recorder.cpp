@@ -26,6 +26,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
+#include "src/gpu/graphite/SynchronizeToCpuTask.h"
 #include "src/gpu/graphite/TaskGraph.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
@@ -310,7 +311,13 @@ RecorderPriv::PixelTransferResult RecorderPriv::transferPixels(const TextureProx
     if (!copyTask) {
         return {};
     }
+    sk_sp<SynchronizeToCpuTask> syncTask = SynchronizeToCpuTask::Make(buffer);
+    if (!syncTask) {
+        return {};
+    }
+
     this->add(std::move(copyTask));
+    this->add(std::move(syncTask));
 
     PixelTransferResult result;
     result.fTransferBuffer = std::move(buffer);

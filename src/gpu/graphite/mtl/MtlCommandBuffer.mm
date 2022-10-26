@@ -45,7 +45,11 @@ MtlCommandBuffer::MtlCommandBuffer(id<MTLCommandQueue> queue,
         , fSharedContext(sharedContext)
         , fResourceProvider(resourceProvider) {}
 
-MtlCommandBuffer::~MtlCommandBuffer() {}
+MtlCommandBuffer::~MtlCommandBuffer() {
+    SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
+    SkASSERT(!fActiveBlitCommandEncoder);
+}
 
 bool MtlCommandBuffer::setNewCommandBufferResources() {
     return this->createNewMTLCommandBuffer();
