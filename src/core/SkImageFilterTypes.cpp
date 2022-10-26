@@ -55,6 +55,37 @@ static bool is_nearly_integer_translation(const skif::LayerSpace<SkMatrix>& m,
     return true;
 }
 
+static SkRect map_rect(const SkMatrix& matrix, const SkRect& rect) {
+    if (rect.isEmpty()) {
+        return SkRect::MakeEmpty();
+    }
+    return matrix.mapRect(rect);
+}
+
+static SkIRect map_rect(const SkMatrix& matrix, const SkIRect& rect) {
+    if (rect.isEmpty()) {
+        return SkIRect::MakeEmpty();
+    }
+    // Unfortunately, there is a range of integer values such that we have 1px precision as an int,
+    // but less precision as a float. This can lead to non-empty SkIRects becoming empty simply
+    // because of float casting. If we're already dealing with a float rect or having a float
+    // output, that's what we're stuck with; but if we are starting form an irect and desiring an
+    // SkIRect output, we go through efforts to preserve the 1px precision for simple transforms.
+    if (matrix.isScaleTranslate()) {
+        double l = (double)matrix.getScaleX()*rect.fLeft   + (double)matrix.getTranslateX();
+        double r = (double)matrix.getScaleX()*rect.fRight  + (double)matrix.getTranslateX();
+        double t = (double)matrix.getScaleY()*rect.fTop    + (double)matrix.getTranslateY();
+        double b = (double)matrix.getScaleY()*rect.fBottom + (double)matrix.getTranslateY();
+
+        return {sk_double_saturate2int(sk_double_floor(std::min(l, r) + kRoundEpsilon)),
+                sk_double_saturate2int(sk_double_floor(std::min(t, b) + kRoundEpsilon)),
+                sk_double_saturate2int(sk_double_ceil(std::max(l, r)  - kRoundEpsilon)),
+                sk_double_saturate2int(sk_double_ceil(std::max(t, b)  - kRoundEpsilon))};
+    } else {
+        return skif::RoundOut(matrix.mapRect(SkRect::Make(rect)));
+    }
+}
+
 namespace skif {
 
 SkIRect RoundOut(SkRect r) { return r.makeInset(kRoundEpsilon, kRoundEpsilon).roundOut(); }
@@ -129,12 +160,12 @@ bool Mapping::adjustLayerSpace(const SkMatrix& layer) {
 // Instantiate map specializations for the 6 geometric types used during filtering
 template<>
 SkRect Mapping::map<SkRect>(const SkRect& geom, const SkMatrix& matrix) {
-    return matrix.mapRect(geom);
+    return map_rect(matrix, geom);
 }
 
 template<>
 SkIRect Mapping::map<SkIRect>(const SkIRect& geom, const SkMatrix& matrix) {
-    return RoundOut(matrix.mapRect(SkRect::Make(geom)));
+    return map_rect(matrix, geom);
 }
 
 template<>
@@ -186,6 +217,14 @@ SkMatrix Mapping::map<SkMatrix>(const SkMatrix& m, const SkMatrix& matrix) {
     return inv;
 }
 
+LayerSpace<SkRect> LayerSpace<SkMatrix>::mapRect(const LayerSpace<SkRect>& r) const {
+    return LayerSpace<SkRect>(map_rect(fData, SkRect(r)));
+}
+
+LayerSpace<SkIRect> LayerSpace<SkMatrix>::mapRect(const LayerSpace<SkIRect>& r) const {
+    return LayerSpace<SkIRect>(map_rect(fData, SkIRect(r)));
+}
+
 sk_sp<SkSpecialImage> FilterResult::imageAndOffset(SkIPoint* offset) const {
     if (!fImage) {
         *offset = {0, 0};
@@ -196,9 +235,17 @@ sk_sp<SkSpecialImage> FilterResult::imageAndOffset(SkIPoint* offset) const {
     // TODO: When there are other tile modes than kDecal, imageAndOffset needs to apply them even if
     // the transform is representable as an offset.
     if (is_nearly_integer_translation(fTransform, &origin)) {
-        // Nothing to resolve
-        *offset = SkIPoint(origin);
-        return fImage;
+        // This is similar to the integer-translate case of applyCrop(), except that it can also
+        // apply any soft-cropping from desired output effects on fLayerBounds (which are a request
+        // for minimum content, not a hard maximum like a regular crop).
+        LayerSpace<IVector> originShift = fLayerBounds.topLeft() - origin;
+        auto subsetImage = fImage->makeSubset(SkIRect::MakeXYWH(originShift.x(),
+                                                                originShift.y(),
+                                                                fLayerBounds.width(),
+                                                                fLayerBounds.height()));
+
+        *offset = SkIPoint(fLayerBounds.topLeft());
+        return subsetImage;
     } else {
         // Legacy fallback requires us to produce a new image that matches this FilterResult but
         // has no new properties legacy code can't handle.
@@ -331,10 +378,12 @@ void FilterResult::concatTransform(const LayerSpace<SkMatrix>& transform,
     }
     fSamplingOptions = newSampling;
     fTransform.postConcat(transform);
-    // Rebuild the layer bounds and then restrict to the current desired output.
-    fLayerBounds = fTransform.mapRect(LayerSpace<SkRect>(SkRect::MakeIWH(fImage->width(),
-                                                                         fImage->height())))
-                             .roundOut();
+    // Rebuild the layer bounds and then restrict to the current desired output. The original value
+    // of fLayerBounds includes the image mapped by the original fTransform as well as any
+    // accumulated soft crops from desired outputs of prior stages. To prevent discarding that info,
+    // we map fLayerBounds by the additional transform, instead of re-mapping the image bounds.
+    fLayerBounds = transform.mapRect(fLayerBounds);
+
     if (!fLayerBounds.intersect(desiredOutput)) {
         // The transformed output doesn't touch the desired, so it would just be transparent black.
         // TODO: This intersection only applies when the tile mode is kDecal.

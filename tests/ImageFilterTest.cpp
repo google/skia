@@ -1939,18 +1939,42 @@ DEF_TEST(XfermodeImageFilterBounds, reporter) {
 }
 
 DEF_TEST(OffsetImageFilterBounds, reporter) {
-    SkIRect src = SkIRect::MakeXYWH(0, 0, 100, 100);
-    sk_sp<SkImageFilter> offset(SkImageFilters::Offset(-50.5f, -50.5f, nullptr));
+    const SkIRect src = SkIRect::MakeXYWH(0, 0, 100, 100);
+    const SkVector srcOffset = {-50.5f, -50.5f};
+    sk_sp<SkImageFilter> offset(SkImageFilters::Offset(srcOffset.fX, srcOffset.fY, nullptr));
 
-    SkIRect expectedForward = SkIRect::MakeXYWH(-50, -50, 100, 100);
+    // Because the offset has a fractional component, the final output and required input bounds
+    // will be rounded out to include an extra pixel.
+    SkIRect expectedForward = SkRect::Make(src).makeOffset(srcOffset.fX, srcOffset.fY).roundOut();
     SkIRect boundsForward = offset->filterBounds(src, SkMatrix::I(),
                                                  SkImageFilter::kForward_MapDirection, nullptr);
     REPORTER_ASSERT(reporter, boundsForward == expectedForward);
 
-    SkIRect expectedReverse = SkIRect::MakeXYWH(50, 50, 100, 100);
+    SkIRect expectedReverse = SkRect::Make(src).makeOffset(-srcOffset.fX, -srcOffset.fY).roundOut();
     SkIRect boundsReverse = offset->filterBounds(src, SkMatrix::I(),
                                                  SkImageFilter::kReverse_MapDirection, &src);
     REPORTER_ASSERT(reporter, boundsReverse == expectedReverse);
+}
+
+DEF_TEST(OffsetImageFilterBoundsNoOverflow, reporter) {
+    const SkIRect src = SkIRect::MakeXYWH(-10.f, -10.f, 20.f, 20.f);
+    const SkScalar bigOffset = SkIntToScalar(std::numeric_limits<int>::max()) * 2.f / 3.f;
+
+    sk_sp<SkImageFilter> filter =
+            SkImageFilters::Blend(SkBlendMode::kSrcOver,
+                                  SkImageFilters::Offset(-bigOffset, -bigOffset, nullptr),
+                                  SkImageFilters::Offset(bigOffset, bigOffset, nullptr));
+    SkIRect boundsForward = filter->filterBounds(src, SkMatrix::I(),
+                                                 SkImageFilter::kForward_MapDirection, nullptr);
+    SkIRect boundsReverse = filter->filterBounds(src, SkMatrix::I(),
+                                                 SkImageFilter::kReverse_MapDirection, nullptr);
+    // NOTE: isEmpty() will return true even if the l/r or t/b didn't overflow but the dimensions
+    // would overflow an int32. However, when isEmpty64() is false, it means the actual edge coords
+    // are valid, which is good enough for our purposes (and gfx::Rect has its own strategies for
+    // ensuring such a rectangle doesn't get accidentally treated as empty during chromium's
+    // conversions).
+    REPORTER_ASSERT(reporter, !boundsForward.isEmpty64());
+    REPORTER_ASSERT(reporter, !boundsReverse.isEmpty64());
 }
 
 static void test_arithmetic_bounds(skiatest::Reporter* reporter, float k1, float k2, float k3,

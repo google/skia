@@ -8,9 +8,11 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilterTypes.h"
@@ -19,6 +21,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSamplingPriv.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/effects/imagefilters/SkCropImageFilter.h"
 
 #include <utility>
 
@@ -47,6 +50,7 @@ protected:
 private:
     friend void ::SkRegisterMatrixTransformImageFilterFlattenable();
     SK_FLATTENABLE_HOOKS(SkMatrixTransformImageFilter)
+    static sk_sp<SkFlattenable> LegacyOffsetCreateProc(SkReadBuffer& buffer);
 
     skif::FilterResult onFilterImage(const skif::Context& context) const override;
 
@@ -74,10 +78,38 @@ sk_sp<SkImageFilter> SkImageFilters::MatrixTransform(const SkMatrix& transform,
                                                                  std::move(input)));
 }
 
+sk_sp<SkImageFilter> SkImageFilters::Offset(SkScalar dx, SkScalar dy,
+                                            sk_sp<SkImageFilter> input,
+                                            const CropRect& cropRect) {
+    // The legacy ::Offset() implementation rounded its offset vector to layer-space pixels, which
+    // is roughly equivalent to using nearest-neighbor sampling with the translation matrix.
+    sk_sp<SkImageFilter> offset = SkImageFilters::MatrixTransform(
+            SkMatrix::Translate(dx, dy),
+            SkSamplingOptions{SkFilterMode::kNearest},
+            std::move(input));
+    // The legacy 'cropRect' applies only to the output of the offset filter.
+    if (cropRect) {
+        offset = SkMakeCropImageFilter(*cropRect, std::move(offset));
+    }
+    return offset;
+}
+
 void SkRegisterMatrixTransformImageFilterFlattenable() {
     SK_REGISTER_FLATTENABLE(SkMatrixTransformImageFilter);
     // TODO(michaelludwig): Remove after grace period for SKPs to stop using old name
     SkFlattenable::Register("SkMatrixImageFilter", SkMatrixTransformImageFilter::CreateProc);
+    // TODO(michaelludwig): Remove after grace period for SKPs to stop using old serialization
+    SkFlattenable::Register("SkOffsetImageFilter",
+                            SkMatrixTransformImageFilter::LegacyOffsetCreateProc);
+    SkFlattenable::Register("SkOffsetImageFilterImpl",
+                            SkMatrixTransformImageFilter::LegacyOffsetCreateProc);
+}
+
+sk_sp<SkFlattenable> SkMatrixTransformImageFilter::LegacyOffsetCreateProc(SkReadBuffer& buffer) {
+    SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 1);
+    SkPoint offset;
+    buffer.readPoint(&offset);
+    return SkImageFilters::Offset(offset.x(), offset.y(), common.getInput(0), common.cropRect());
 }
 
 sk_sp<SkFlattenable> SkMatrixTransformImageFilter::CreateProc(SkReadBuffer& buffer) {
@@ -125,8 +157,7 @@ skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::onGetInputLayerBounds(
     if (!mapping.paramToLayer(fTransform).invert(&inverse)) {
         return skif::LayerSpace<SkIRect>::Empty();
     }
-    skif::LayerSpace<SkIRect> requiredInput =
-            inverse.mapRect(skif::LayerSpace<SkRect>(desiredOutput)).roundOut();
+    skif::LayerSpace<SkIRect> requiredInput = inverse.mapRect(desiredOutput);
 
     // Additionally if there is any filtering beyond nearest neighbor, we request an extra buffer of
     // pixels so that the content is available to the bilerp/bicubic kernel.
@@ -146,6 +177,6 @@ skif::LayerSpace<SkIRect> SkMatrixTransformImageFilter::onGetOutputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& contentBounds) const {
     // The output of this filter is the transformed bounds of its child's output.
-    skif::LayerSpace<SkRect> childOutput{this->visitOutputLayerBounds(mapping, contentBounds)};
-    return mapping.paramToLayer(fTransform).mapRect(childOutput).roundOut();
+    skif::LayerSpace<SkIRect> childOutput = this->visitOutputLayerBounds(mapping, contentBounds);
+    return mapping.paramToLayer(fTransform).mapRect(childOutput);
 }

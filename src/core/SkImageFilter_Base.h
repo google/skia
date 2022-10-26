@@ -482,7 +482,6 @@ void SkRegisterMatrixConvolutionImageFilterFlattenable();
 void SkRegisterMatrixTransformImageFilterFlattenable();
 void SkRegisterMergeImageFilterFlattenable();
 void SkRegisterMorphologyImageFilterFlattenables();
-void SkRegisterOffsetImageFilterFlattenable();
 void SkRegisterPictureImageFilterFlattenable();
 #ifdef SK_ENABLE_SKSL
 void SkRegisterRuntimeImageFilterFlattenable();
