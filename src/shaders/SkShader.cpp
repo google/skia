@@ -97,10 +97,6 @@ SkImage* SkShader::isAImage(SkMatrix* localMatrix, SkTileMode xy[2]) const {
     return as_SB(this)->onIsAImage(localMatrix, xy);
 }
 
-SkShader::GradientType SkShader::asAGradient(GradientInfo* info) const {
-    return static_cast<GradientType>(as_SB(this)->asGradient(info));
-}
-
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkShaderBase::asFragmentProcessor(const GrFPArgs&) const {
     return nullptr;
