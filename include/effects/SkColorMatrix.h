@@ -10,11 +10,10 @@
 
 #include "include/core/SkTypes.h"
 
-// TODO(kjlubick, bungeman) replace this include with a forward declare.
-#include "include/core/SkImageInfo.h" // IWYU pragma: keep
-
 #include <algorithm>
 #include <array>
+
+enum SkYUVColorSpace : int;
 
 class SK_API SkColorMatrix {
 public:

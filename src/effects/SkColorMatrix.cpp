@@ -8,6 +8,8 @@
 #include "include/effects/SkColorMatrix.h"
 #include "src/core/SkYUVMath.h"
 
+enum SkYUVColorSpace : int;
+
 SkColorMatrix SkColorMatrix::RGBtoYUV(SkYUVColorSpace cs) {
     SkColorMatrix m;
     SkColorMatrix_RGB2YUV(cs, m.fMat.data());

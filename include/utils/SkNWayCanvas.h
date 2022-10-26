@@ -19,17 +19,13 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
 
-// TODO(kjlubick, bungeman) replace these includes with forward declares.
-#include "include/core/SkBlendMode.h" // IWYU pragma: keep
-#include "include/core/SkCanvas.h" // IWYU pragma: keep
-#include "include/core/SkClipOp.h" // IWYU pragma: keep
-
 #include <cstddef>
 
 namespace sktext {
 class GlyphRunList;
 }
 
+class SkCanvas;
 class SkData;
 class SkDrawable;
 class SkImage;
@@ -42,6 +38,8 @@ class SkRegion;
 class SkShader;
 class SkTextBlob;
 class SkVertices;
+enum class SkBlendMode;
+enum class SkClipOp;
 struct SkDrawShadowRec;
 struct SkPoint;
 struct SkRSXform;

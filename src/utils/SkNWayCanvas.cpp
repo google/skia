@@ -38,6 +38,8 @@ class SkRRect;
 class SkRegion;
 class SkTextBlob;
 class SkVertices;
+enum class SkBlendMode;
+enum class SkClipOp;
 struct SkDrawShadowRec;
 
 SkNWayCanvas::SkNWayCanvas(int width, int height) : INHERITED(width, height) {}

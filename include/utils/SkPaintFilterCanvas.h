@@ -20,9 +20,6 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkNWayCanvas.h"
 
-// TODO(kjlubick, bungeman) replace this include with a forward declare.
-#include "include/core/SkBlendMode.h" // IWYU pragma: keep
-
 #include <cstddef>
 
 namespace sktext {
@@ -44,6 +41,7 @@ class SkSurface;
 class SkSurfaceProps;
 class SkTextBlob;
 class SkVertices;
+enum class SkBlendMode;
 struct SkDrawShadowRec;
 struct SkPoint;
 struct SkRSXform;
