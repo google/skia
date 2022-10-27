@@ -93,18 +93,30 @@ void Transform::RenamePrivateSymbols(Context& context, Module& module, ProgramUs
         }
 
         void minifyVariableName(const Variable* var) {
+            // Some variables are associated with anonymous parameters--these don't have names and
+            // aren't present in the symbol table. Their names are already empty so there's no way
+            // to shrink them further.
+            if (var->name().empty()) {
+                return;
+            }
+
+            // Ensure that this variable is properly set up in the symbol table.
+            SymbolTable* symbols = fSymbolTableStack.back().get();
+            Symbol* mutableSym = symbols->findMutable(var->name());
+            SkASSERTF(mutableSym != nullptr,
+                      "symbol table missing '%.*s'", (int)var->name().size(), var->name().data());
+            SkASSERTF(mutableSym == var,
+                      "wrong symbol found for '%.*s'", (int)var->name().size(), var->name().data());
+
             // Look for a new name for this symbol.
             // Note: we always rename _every_ variable, even ones with single-letter names. This is
             // a safeguard: if we claimed a name like `i`, and then the program itself contained an
             // `i` later on, in a nested SymbolTable, the two names would clash. By always renaming
             // everything, we can ignore that problem.
-            SymbolTable* symbols = fSymbolTableStack.back().get();
             std::string shortName = FindShortNameForSymbol(var, symbols, "");
             SkASSERT(symbols->findMutable(shortName) == nullptr);
 
             // Update the symbol's name.
-            Symbol* mutableSym = symbols->findMutable(var->name());
-            SkASSERT(mutableSym == var);
             const std::string* ownedName = symbols->takeOwnershipOfString(std::move(shortName));
             symbols->renameSymbol(mutableSym, *ownedName);
         }
