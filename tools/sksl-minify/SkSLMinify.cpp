@@ -22,6 +22,7 @@
 #include "src/sksl/transform/SkSLTransform.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/SkGetExecutablePath.h"
+#include "tools/skslc/ProcessWorklist.h"
 
 #include <cctype>
 #include <forward_list>
@@ -46,13 +47,6 @@ namespace SkOpts {
     decltype(hash_fn) hash_fn = sksl_minify_standalone::hash_fn;
     decltype(interpret_skvm) interpret_skvm;
 }
-
-enum class ResultCode {
-    kSuccess = 0,
-    kCompileError = 1,
-    kInputError = 2,
-    kOutputError = 3,
-};
 
 static std::string base_name(const std::string& path) {
     size_t slashPos = path.find_last_of("/\\");
@@ -199,15 +193,53 @@ static bool generate_minified_text(std::string_view inputPath,
     return true;
 }
 
-static ResultCode process_command(const std::vector<std::string>& args) {
+static bool find_boolean_flag(SkSpan<std::string>* args, std::string_view flagName) {
+    size_t startingCount = args->size();
+    auto iter = std::remove_if(args->begin(), args->end(),
+                               [&](const std::string& a) { return a == flagName; });
+    *args = args->subspan(0, std::distance(args->begin(), iter));
+    return args->size() < startingCount;
+}
+
+static bool has_overlapping_flags(SkSpan<const bool> flags) {
+    // Returns true if more than one boolean is set.
+    return std::count(flags.begin(), flags.end(), true) > 1;
+}
+
+static ResultCode process_command(SkSpan<std::string> args) {
+    // Ignore the process name.
+    SkASSERT(!args.empty());
+    args = args.subspan(1);
+
+    // Process command line flags.
+    gUnoptimized = find_boolean_flag(&args, "--unoptimized");
+    gStringify = find_boolean_flag(&args, "--stringify");
+    bool isFrag = find_boolean_flag(&args, "--frag");
+    bool isVert = find_boolean_flag(&args, "--vert");
+    bool isCompute = find_boolean_flag(&args, "--compute");
+    if (has_overlapping_flags({isFrag, isVert, isCompute})) {
+        show_usage();
+        return ResultCode::kInputError;
+    }
+    if (isFrag) {
+        gProgramKind = SkSL::ProgramKind::kFragment;
+    } else if (isVert) {
+        gProgramKind = SkSL::ProgramKind::kVertex;
+    } else if (isCompute) {
+        gProgramKind = SkSL::ProgramKind::kCompute;
+    } else {
+        gProgramKind = SkSL::ProgramKind::kRuntimeShader;
+    }
+
+    // We expect, at a minimum, an output path and one or more input paths.
     if (args.size() < 2) {
         show_usage();
         return ResultCode::kInputError;
     }
+    const std::string& outputPath = args[0];
+    SkSpan inputPaths = args.subspan(1);
 
     // Compile the original SkSL from the input path.
-    SkSpan inputPaths(args);
-    inputPaths = inputPaths.subspan(1);
     std::forward_list<std::unique_ptr<const SkSL::Module>> modules =
             compile_module_list(inputPaths, gProgramKind);
     if (modules.empty()) {
@@ -216,7 +248,6 @@ static ResultCode process_command(const std::vector<std::string>& args) {
     const SkSL::Module* module = modules.front().get();
 
     // Emit the minified SkSL into our output path.
-    const std::string& outputPath = args[0];
     SkSL::FileOutputStream out(outputPath.c_str());
     if (!out.isValid()) {
         printf("error writing '%s'\n", outputPath.c_str());
@@ -251,43 +282,18 @@ static ResultCode process_command(const std::vector<std::string>& args) {
     return ResultCode::kSuccess;
 }
 
-static bool find_boolean_flag(std::vector<std::string>& args, std::string_view flagName) {
-    size_t startingCount = args.size();
-    args.erase(std::remove_if(args.begin(), args.end(),
-                              [&](const std::string& a) { return a == flagName; }),
-               args.end());
-    return args.size() < startingCount;
-}
-
-static bool has_overlapping_flags(SkSpan<const bool> flags) {
-    // Returns true if more than one boolean is set.
-    return std::count(flags.begin(), flags.end(), true) > 1;
-}
-
 int main(int argc, const char** argv) {
-    std::vector<std::string> args;
-    for (int index=1; index<argc; ++index) {
-        args.push_back(argv[index]);
-    }
-
-    gUnoptimized = find_boolean_flag(args, "--unoptimized");
-    gStringify = find_boolean_flag(args, "--stringify");
-    bool isFrag = find_boolean_flag(args, "--frag");
-    bool isVert = find_boolean_flag(args, "--vert");
-    bool isCompute = find_boolean_flag(args, "--compute");
-    if (has_overlapping_flags({isFrag, isVert, isCompute})) {
-        show_usage();
-        return (int)ResultCode::kInputError;
-    }
-    if (isFrag) {
-        gProgramKind = SkSL::ProgramKind::kFragment;
-    } else if (isVert) {
-        gProgramKind = SkSL::ProgramKind::kVertex;
-    } else if (isCompute) {
-        gProgramKind = SkSL::ProgramKind::kCompute;
+    if (argc == 2) {
+        // Worklists are the only two-argument case for sksl-minify, and we don't intend to support
+        // nested worklists, so we can process them here.
+        return (int)ProcessWorklist(argv[1], process_command);
     } else {
-        gProgramKind = SkSL::ProgramKind::kRuntimeShader;
-    }
+        // Process non-worklist inputs.
+        std::vector<std::string> args;
+        for (int index=0; index<argc; ++index) {
+            args.push_back(argv[index]);
+        }
 
-    return (int)process_command(args);
+        return (int)process_command(args);
+    }
 }

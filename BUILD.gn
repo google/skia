@@ -636,7 +636,11 @@ if (skia_compile_modules) {
       "SK_DISABLE_TRACING",
     ]
     sources = skslc_deps
-    sources += [ "tools/sksl-minify/SkSLMinify.cpp" ]
+    sources += [
+      "tools/sksl-minify/SkSLMinify.cpp",
+      "tools/skslc/ProcessWorklist.cpp",
+      "tools/skslc/ProcessWorklist.h",
+    ]
     libs = []
     if (is_win) {
       sources += [ "tools/SkGetExecutablePath_win.cpp" ]
