@@ -4015,7 +4015,7 @@ namespace skvm {
         if (gSkVMJITViaDylib) {
             // Dump the raw program binary.
             SkString path = SkStringPrintf("/tmp/%s.XXXXXX", debug_name);
-            int fd = mkstemp(path.writable_str());
+            int fd = mkstemp(path.data());
             ::write(fd, jit_entry, a.size());
             close(fd);
 

@@ -85,7 +85,7 @@ HRESULT sk_wchar_to_skstring(WCHAR* name, int nameLen, SkString* skname) {
     }
     skname->resize(len);
 
-    len = WideCharToMultiByte(CP_UTF8, 0, name, nameLen, skname->writable_str(), len, nullptr, nullptr);
+    len = WideCharToMultiByte(CP_UTF8, 0, name, nameLen, skname->data(), len, nullptr, nullptr);
     if (0 == len) {
         HRM(HRESULT_FROM_WIN32(GetLastError()), "Could not convert utf-8 to wchar.");
     }

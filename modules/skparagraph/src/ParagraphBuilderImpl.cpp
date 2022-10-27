@@ -158,7 +158,7 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
 
 
 SkSpan<char> ParagraphBuilderImpl::getText() {
-    return SkSpan<char>(fUtf8.isEmpty() ? nullptr : fUtf8.writable_str(), fUtf8.size());
+    return SkSpan<char>(fUtf8.isEmpty() ? nullptr : fUtf8.data(), fUtf8.size());
 }
 
 const ParagraphStyle& ParagraphBuilderImpl::getParagraphStyle() const {

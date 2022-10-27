@@ -259,7 +259,7 @@ class SkpDebugPlayer {
       size_t len = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
       SkString dst;
       dst.resize(len);
-      SkBase64::Encode(pngData->data(), pngData->size(), dst.writable_str());
+      SkBase64::Encode(pngData->data(), pngData->size(), dst.data());
       dst.prepend("data:image/png;base64,");
       return std::string(dst.c_str());
     }

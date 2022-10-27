@@ -100,7 +100,7 @@ static void tchar_to_skstring(const TCHAR t[], SkString* s) {
 #ifdef UNICODE
     size_t sSize = WideCharToMultiByte(CP_UTF8, 0, t, -1, nullptr, 0, nullptr, nullptr);
     s->resize(sSize);
-    WideCharToMultiByte(CP_UTF8, 0, t, -1, s->writable_str(), sSize, nullptr, nullptr);
+    WideCharToMultiByte(CP_UTF8, 0, t, -1, s->data(), sSize, nullptr, nullptr);
 #else
     s->set(t);
 #endif

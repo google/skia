@@ -33,7 +33,7 @@ DEF_TEST(String, reporter) {
     b.set("hellox", 5);
     c.set(a);
     d.resize(5);
-    memcpy(d.writable_str(), "helloz", 5);
+    memcpy(d.data(), "helloz", 5);
     v.set(std::string_view("hellooooo").substr(0, 5));
 
     REPORTER_ASSERT(reporter, !a.isEmpty());

@@ -71,7 +71,7 @@ void SkStringFromCFString(CFStringRef src, SkString* dst) {
     CFIndex length = CFStringGetMaximumSizeForEncoding(CFStringGetLength(src),
                                                        kCFStringEncodingUTF8) + 1;
     dst->resize(length);
-    CFStringGetCString(src, dst->writable_str(), length, kCFStringEncodingUTF8);
+    CFStringGetCString(src, dst->data(), length, kCFStringEncodingUTF8);
     // Resize to the actual UTF-8 length used, stripping the null character.
     dst->resize(strlen(dst->c_str()));
 }

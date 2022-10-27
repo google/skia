@@ -15,7 +15,7 @@
 
 SkString SkGetExecutablePath() {
     SkString result(/*text=*/nullptr, PATH_MAX);
-    ssize_t len = readlink("/proc/self/exe", result.writable_str(), result.size() - 1);
+    ssize_t len = readlink("/proc/self/exe", result.data(), result.size() - 1);
     if (len < 0 || static_cast<size_t>(len) >= PATH_MAX - 1) {
         result.reset();
     } else {

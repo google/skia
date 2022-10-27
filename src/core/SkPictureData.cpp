@@ -326,7 +326,7 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                     return false;
                 }
                 str.resize(len);
-                if (stream->read(str.writable_str(), len) != len) {
+                if (stream->read(str.data(), len) != len) {
                     return false;
                 }
                 fFactoryPlayback->base()[i] = SkFlattenable::NameToFactory(str.c_str());

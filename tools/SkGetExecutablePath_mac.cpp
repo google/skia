@@ -13,7 +13,7 @@ SkString SkGetExecutablePath() {
     _NSGetExecutablePath(nullptr, &size);
 
     SkString result(/*text=*/nullptr, size);
-    if (_NSGetExecutablePath(result.writable_str(), &size) != 0) {
+    if (_NSGetExecutablePath(result.data(), &size) != 0) {
         result.reset();
     }
     return result;

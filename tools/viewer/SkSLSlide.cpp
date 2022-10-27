@@ -28,10 +28,10 @@ using namespace sk_app;
 static int InputTextCallback(ImGuiInputTextCallbackData* data) {
     if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
         SkString* s = (SkString*)data->UserData;
-        SkASSERT(data->Buf == s->writable_str());
+        SkASSERT(data->Buf == s->data());
         SkString tmp(data->Buf, data->BufTextLen);
         s->swap(tmp);
-        data->Buf = s->writable_str();
+        data->Buf = s->data();
     }
     return 0;
 }
@@ -132,7 +132,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
     // Edit box for shader code
     ImGuiInputTextFlags flags = ImGuiInputTextFlags_CallbackResize;
     ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * 30);
-    if (ImGui::InputTextMultiline("Code", fSkSL.writable_str(), fSkSL.size() + 1, boxSize, flags,
+    if (ImGui::InputTextMultiline("Code", fSkSL.data(), fSkSL.size() + 1, boxSize, flags,
                                   InputTextCallback, &fSkSL)) {
         fCodeIsDirty = true;
     }

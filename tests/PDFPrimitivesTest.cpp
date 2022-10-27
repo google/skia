@@ -64,7 +64,7 @@ static SkString emit_to_string(T& obj) {
     SkDynamicMemoryWStream buffer;
     obj.emitObject(&buffer);
     SkString tmp(buffer.bytesWritten());
-    buffer.copyTo(tmp.writable_str());
+    buffer.copyTo(tmp.data());
     return tmp;
 }
 

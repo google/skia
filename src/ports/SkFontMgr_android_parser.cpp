@@ -138,7 +138,7 @@ static bool is_whitespace(char c) {
 }
 
 static void trim_string(SkString* s) {
-    char* str = s->writable_str();
+    char* str = s->data();
     const char* start = str;  // start is inclusive
     const char* end = start + s->size();  // end is exclusive
     while (is_whitespace(*start)) { ++start; }

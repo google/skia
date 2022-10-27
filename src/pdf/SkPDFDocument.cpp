@@ -555,7 +555,7 @@ SkString SkPDFDocument::nextFontSubsetTag() {
     fNextFontSubsetTag = (fNextFontSubsetTag + 1u) % 308915776u;
 
     SkString subsetTag(7);
-    char* subsetTagData = subsetTag.writable_str();
+    char* subsetTagData = subsetTag.data();
     for (size_t i = 0; i < 6; ++i) {
         subsetTagData[i] = 'A' + (thisFontSubsetTag % 26);
         thisFontSubsetTag /= 26;

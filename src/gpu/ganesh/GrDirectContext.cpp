@@ -996,7 +996,7 @@ SkString GrDirectContext::dump() const {
 
     // Allocate a string big enough to hold all the data, then copy out of the stream
     SkString result(stream.bytesWritten());
-    stream.copyToAndReset(result.writable_str());
+    stream.copyToAndReset(result.data());
     return result;
 }
 #endif

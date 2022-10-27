@@ -195,7 +195,7 @@ SkString escape_xml(const SkString& input,
     size_t afterLen = after ? strlen(after) : 0;
     int extra = count_xml_escape_size(input);
     SkString output(input.size() + extra + beforeLen + afterLen);
-    char* out = output.writable_str();
+    char* out = output.data();
     if (before) {
         strncpy(out, before, beforeLen);
         out += beforeLen;
@@ -218,7 +218,7 @@ SkString escape_xml(const SkString& input,
         out += afterLen;
     }
     // Validate that we haven't written outside of our string.
-    SkASSERT(out == &output.writable_str()[output.size()]);
+    SkASSERT(out == &output.data()[output.size()]);
     *out = '\0';
     return output;
 }

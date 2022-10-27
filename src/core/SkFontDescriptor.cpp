@@ -42,7 +42,7 @@ static bool SK_WARN_UNUSED_RESULT read_string(SkStream* stream, SkString* string
             return false;
         }
         string->resize(length);
-        if (stream->read(string->writable_str(), length) != length) { return false; }
+        if (stream->read(string->data(), length) != length) { return false; }
     }
     return true;
 }

@@ -135,7 +135,7 @@ void SkXMLWriter::addAttributeLen(const char name[], const char value[], size_t 
         size_t   extra = escape_markup(nullptr, value, length);
         if (extra) {
             valueStr.resize(length + extra);
-            (void)escape_markup(valueStr.writable_str(), value, length);
+            (void)escape_markup(valueStr.data(), value, length);
             value = valueStr.c_str();
             length += extra;
         }

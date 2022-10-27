@@ -300,7 +300,7 @@ void SkParsePath::ToSVGString(const SkPath& path, SkString* str, PathEncoding en
                 break;
             case SkPath::kDone_Verb:
                 str->resize(stream.bytesWritten());
-                stream.copyTo(str->writable_str());
+                stream.copyTo(str->data());
             return;
         }
     }

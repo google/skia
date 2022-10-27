@@ -56,7 +56,7 @@ static FILE* font_header(const char* family) {
         if (dashIndex < 0) {
             break;
         }
-        fam.writable_str()[dashIndex] = '_';
+        fam.data()[dashIndex] = '_';
     } while (true);
     outPath.append(fam);
     outPath.append(".inc");

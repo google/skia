@@ -117,10 +117,10 @@ private:
 static int InputTextCallback(ImGuiInputTextCallbackData* data) {
     if (data->EventFlag == ImGuiInputTextFlags_CallbackResize) {
         SkString* s = (SkString*)data->UserData;
-        SkASSERT(data->Buf == s->writable_str());
+        SkASSERT(data->Buf == s->data());
         SkString tmp(data->Buf, data->BufTextLen);
         s->swap(tmp);
-        data->Buf = s->writable_str();
+        data->Buf = s->data();
     }
     return 0;
 }
@@ -158,11 +158,11 @@ public:
             if (lines > 1) {
                 ImGui::LabelText("##Label", "%s", name);
                 ImVec2 boxSize(-1.0f, ImGui::GetTextLineHeight() * (lines + 1));
-                fDirty = ImGui::InputTextMultiline(item(name), s.writable_str(), s.size() + 1,
+                fDirty = ImGui::InputTextMultiline(item(name), s.data(), s.size() + 1,
                                                    boxSize, flags, InputTextCallback, &s)
                       || fDirty;
             } else {
-                fDirty = ImGui::InputText(item(name), s.writable_str(), s.size() + 1, flags,
+                fDirty = ImGui::InputText(item(name), s.data(), s.size() + 1, flags,
                                           InputTextCallback, &s)
                       || fDirty;
             }
@@ -303,7 +303,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
 
         static SkString dirname = GetResourcePath("particles");
         ImGuiInputTextFlags textFlags = ImGuiInputTextFlags_CallbackResize;
-        ImGui::InputText("Directory", dirname.writable_str(), dirname.size() + 1, textFlags,
+        ImGui::InputText("Directory", dirname.data(), dirname.size() + 1, textFlags,
                          InputTextCallback, &dirname);
 
         if (ImGui::Button("New")) {
@@ -347,7 +347,7 @@ void ParticlesSlide::draw(SkCanvas* canvas) {
             }
             ImGui::SameLine();
 
-            ImGui::InputText("##Name", fLoaded[i].fName.writable_str(), fLoaded[i].fName.size() + 1,
+            ImGui::InputText("##Name", fLoaded[i].fName.data(), fLoaded[i].fName.size() + 1,
                              textFlags, InputTextCallback, &fLoaded[i].fName);
 
             if (ImGui::TreeNode("##Details")) {

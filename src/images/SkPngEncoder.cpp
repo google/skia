@@ -380,7 +380,7 @@ static void set_icc(png_structp png_ptr,
     png_const_bytep iccPtr = icc->bytes();
 #else
     SkString str("Skia");
-    char* name = str.writable_str();
+    char* name = str.data();
     png_charp iccPtr = (png_charp) icc->writable_data();
 #endif
     png_set_iCCP(png_ptr, info_ptr, name, 0, iccPtr, icc->size());

@@ -3744,7 +3744,7 @@ protected:
         fIcu->getWords(text.c_str(), text.size(), &words1);
 
         SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags;
-        fIcu->computeCodeUnitFlags(text.writable_str(), text.size(), false, &codeUnitFlags);
+        fIcu->computeCodeUnitFlags(text.data(), text.size(), false, &codeUnitFlags);
 
         std::vector<SkUnicode::Position> graphemeBreaks;
         std::vector<SkUnicode::LineBreakBefore> lineBreaks;
