@@ -201,6 +201,9 @@ private:
         Compiler& fCompiler;
     };
 
+    /** Updates ProgramSettings to eliminate contradictions and to honor the ProgramKind. */
+    static void FinalizeSettings(ProgramSettings* settings, ProgramKind kind);
+
     /** Optimize every function in the program. */
     bool optimize(Program& program);
 

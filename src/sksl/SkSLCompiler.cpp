@@ -165,6 +165,52 @@ const Module* Compiler::moduleForProgramKind(ProgramKind kind) {
     SkUNREACHABLE;
 }
 
+void Compiler::FinalizeSettings(ProgramSettings* settings, ProgramKind kind) {
+    // Honor our optimization-override flags.
+    switch (sOptimizer) {
+        case OverrideFlag::kDefault:
+            break;
+        case OverrideFlag::kOff:
+            settings->fOptimize = false;
+            break;
+        case OverrideFlag::kOn:
+            settings->fOptimize = true;
+            break;
+    }
+
+    switch (sInliner) {
+        case OverrideFlag::kDefault:
+            break;
+        case OverrideFlag::kOff:
+            settings->fInlineThreshold = 0;
+            break;
+        case OverrideFlag::kOn:
+            if (settings->fInlineThreshold == 0) {
+                settings->fInlineThreshold = kDefaultInlineThreshold;
+            }
+            break;
+    }
+
+    // Disable optimization settings that depend on a parent setting which has been disabled.
+    settings->fInlineThreshold *= (int)settings->fOptimize;
+    settings->fRemoveDeadFunctions &= settings->fOptimize;
+    settings->fRemoveDeadVariables &= settings->fOptimize;
+
+    if (kind == ProgramKind::kGeneric) {
+        // For "generic" interpreter programs, leave all functions intact. (The SkVM API supports
+        // calling any function, not just 'main').
+        settings->fRemoveDeadFunctions = false;
+    } else {
+        // Only generic programs (limited to CPU) are able to use external functions.
+        SkASSERT(!settings->fExternalFunctions);
+    }
+
+    // Runtime effects always allow narrowing conversions.
+    if (ProgramConfig::IsRuntimeEffect(kind)) {
+        settings->fAllowNarrowingConversions = true;
+    }
+}
+
 std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
                                                 const char* moduleName,
                                                 std::string moduleSource,
@@ -181,6 +227,7 @@ std::unique_ptr<Module> Compiler::compileModule(ProgramKind kind,
 
     // Compile the module from source, using default program settings.
     ProgramSettings settings;
+    FinalizeSettings(&settings, kind);
     SkSL::Parser parser{this, settings, kind, std::move(moduleSource)};
     std::unique_ptr<Module> module = parser.moduleInheritingFrom(parent);
     if (this->errorCount() != 0) {
@@ -198,48 +245,8 @@ std::unique_ptr<Program> Compiler::convertProgram(ProgramKind kind,
                                                   ProgramSettings settings) {
     TRACE_EVENT0("skia.shaders", "SkSL::Compiler::convertProgram");
 
-    SkASSERT(!settings.fExternalFunctions || (kind == ProgramKind::kGeneric));
-
-    // Honor our optimization-override flags.
-    switch (sOptimizer) {
-        case OverrideFlag::kDefault:
-            break;
-        case OverrideFlag::kOff:
-            settings.fOptimize = false;
-            break;
-        case OverrideFlag::kOn:
-            settings.fOptimize = true;
-            break;
-    }
-
-    switch (sInliner) {
-        case OverrideFlag::kDefault:
-            break;
-        case OverrideFlag::kOff:
-            settings.fInlineThreshold = 0;
-            break;
-        case OverrideFlag::kOn:
-            if (settings.fInlineThreshold == 0) {
-                settings.fInlineThreshold = kDefaultInlineThreshold;
-            }
-            break;
-    }
-
-    // Disable optimization settings that depend on a parent setting which has been disabled.
-    settings.fInlineThreshold *= (int)settings.fOptimize;
-    settings.fRemoveDeadFunctions &= settings.fOptimize;
-    settings.fRemoveDeadVariables &= settings.fOptimize;
-
-    // For "generic" interpreter programs, leave all functions intact. (The API supports calling
-    // any function, not just 'main').
-    if (kind == ProgramKind::kGeneric) {
-        settings.fRemoveDeadFunctions = false;
-    }
-
-    // Runtime effects always allow narrowing conversions.
-    if (ProgramConfig::IsRuntimeEffect(kind)) {
-        settings.fAllowNarrowingConversions = true;
-    }
+    // Make sure the passed-in settings are valid.
+    FinalizeSettings(&settings, kind);
 
     // Put the ShaderCaps into the context while compiling a program.
     AutoShaderCaps autoCaps(fContext, fCaps);
