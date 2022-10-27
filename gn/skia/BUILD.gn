@@ -607,6 +607,7 @@ config("no_rtti") {
 }
 
 config("optimize") {
+  ldflags = []
   if (is_win) {
     cflags = [
       "/O2",
@@ -615,7 +616,7 @@ config("optimize") {
     if (skia_enable_optimize_size) {
       cflags += [ "/Os" ]
     }
-    ldflags = [
+    ldflags += [
       "/OPT:ICF",
       "/OPT:REF",
     ]
@@ -627,18 +628,23 @@ config("optimize") {
         # We currently use bloaty 1.0 on the CI. Newer versions of Bloaty do not
         # seem to handle newer DWARF data as well.
         "-gdwarf-4",
+
+        # Clang 15 turns PIE (Position-indendendent Executable) on by default.
+        "-fno-PIE",
+        "-fno-pie",
       ]
+      ldflags += [ "-nopie" ]
     } else {
       cflags = [ "-O3" ]
     }
     if (is_mac || is_ios) {
-      ldflags = [ "-dead_strip" ]
+      ldflags += [ "-dead_strip" ]
     } else if (!is_wasm) {
       cflags += [
         "-fdata-sections",
         "-ffunction-sections",
       ]
-      ldflags = [ "-Wl,--gc-sections" ]
+      ldflags += [ "-Wl,--gc-sections" ]
     }
   }
 }

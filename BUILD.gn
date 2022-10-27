@@ -2295,13 +2295,15 @@ if (skia_enable_tools) {
       ]
     }
 
-    # optional separate library to dlopen when running CanvasStateTests.
-    skia_shared_library("canvas_state_lib") {
-      sources = [
-        "tests/CanvasStateHelpers.cpp",
-        "tests/CanvasStateHelpers.h",
-      ]
-      deps = [ ":skia" ]
+    if (!skia_enable_optimize_size) {
+      # optional separate library to dlopen when running CanvasStateTests.
+      skia_shared_library("canvas_state_lib") {
+        sources = [
+          "tests/CanvasStateHelpers.cpp",
+          "tests/CanvasStateHelpers.h",
+        ]
+        deps = [ ":skia" ]
+      }
     }
   }
 
