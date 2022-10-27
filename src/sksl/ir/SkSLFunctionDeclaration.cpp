@@ -424,7 +424,7 @@ static bool find_existing_declaration(const Context& context,
                     return false;
                 }
             }
-            if (*modifiers != other->modifiers() || other->definition() || other->isBuiltin()) {
+            if (*modifiers != other->modifiers() || other->definition() || other->isIntrinsic()) {
                 errors.error(pos, "duplicate definition of '" + invalidDeclDescription() + "'");
                 return false;
             }
