@@ -40,19 +40,12 @@ def executeWorklist(input, worklist):
     # Delete the worklist file now that execution is complete.
     os.remove(worklist.name)
 
-def makeEmptyFile(path):
-    try:
-        open(path, 'wb').close()
-    except OSError:
-        pass
-
 def extensionForSpirvAsm(ext):
     return ext if (ext == '.frag' or ext == '.vert') else '.frag'
 
 if settings != "--settings" and settings != "--nosettings":
     sys.exit("### Expected --settings or --nosettings, got " + settings)
 
-targets = []
 worklist = tempfile.NamedTemporaryFile(suffix='.worklist', delete=False, mode='w')
 
 # The `inputs` array pairs off input files with their matching output directory, e.g.:
@@ -71,8 +64,6 @@ for input, targetDir in pairwise(inputs):
     target = os.path.join(targetDir, tail)
     if settings == "--nosettings":
         target += "StandaloneSettings"
-
-    targets.append(target)
 
     if lang == "--glsl":
         worklist.write(input + "\n")
