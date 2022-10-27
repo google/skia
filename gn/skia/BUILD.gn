@@ -628,12 +628,15 @@ config("optimize") {
         # We currently use bloaty 1.0 on the CI. Newer versions of Bloaty do not
         # seem to handle newer DWARF data as well.
         "-gdwarf-4",
-
-        # Clang 15 turns PIE (Position-indendendent Executable) on by default.
-        "-fno-PIE",
-        "-fno-pie",
       ]
-      ldflags += [ "-nopie" ]
+      if (!is_android) {
+        cflags += [
+          # Clang 15 turns PIE (Position-indendendent Executable) on by default.
+          "-fno-PIE",
+          "-fno-pie",
+        ]
+        ldflags += [ "-nopie" ]
+      }
     } else {
       cflags = [ "-O3" ]
     }
