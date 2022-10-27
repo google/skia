@@ -13,10 +13,10 @@
 #include "include/core/SkMatrix.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
-#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkVM.h"
 #include "src/shaders/SkShaderBase.h"
 
+class SkArenaAlloc;
 class SkColorSpace;
 class SkRasterPipeline;
 class SkReadBuffer;
@@ -117,15 +117,6 @@ protected:
     virtual skvm::F32 transformT(skvm::Builder*, skvm::Uniforms*,
                                  skvm::Coord coord, skvm::I32* mask) const = 0;
 
-    template <typename T, typename... Args>
-    static Context* CheckedMakeContext(SkArenaAlloc* alloc, Args&&... args) {
-        auto* ctx = alloc->make<T>(std::forward<Args>(args)...);
-        if (!ctx->isValid()) {
-            return nullptr;
-        }
-        return ctx;
-    }
-
     const SkMatrix fPtsToUnit;
     SkTileMode     fTileMode;
 
@@ -138,14 +129,6 @@ public:
     SkColor getLegacyColor(int i) const {
         SkASSERT(i < fColorCount);
         return fOrigColors4f[i].toSkColor();
-    }
-
-    bool colorsCanConvertToSkColor() const {
-        bool canConvert = true;
-        for (int i = 0; i < fColorCount; ++i) {
-            canConvert &= fOrigColors4f[i].fitsInBytes();
-        }
-        return canConvert;
     }
 
     SkColor4f*          fOrigColors4f; // original colors, as floats
