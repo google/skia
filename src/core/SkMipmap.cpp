@@ -6,9 +6,6 @@
  */
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkCanvas.h"
-#include "include/core/SkImage.h"
-#include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
@@ -20,7 +17,6 @@
 #include "src/core/SkMipmapBuilder.h"
 #include <new>
 
-#if defined(SK_USE_LEGACY_MIPMAP_BUILDER)
 //
 // ColorTypeFilter is the "Type" we pass to some downsample template functions.
 // It controls how we expand a pixel into a large type, with space between each component,
@@ -384,7 +380,6 @@ template <typename F> void downsample_3_3(void* dst, const void* src, size_t src
         p2 += 2;
     }
 }
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -406,10 +401,6 @@ size_t SkMipmap::AllocLevelsSize(int levelCount, size_t pixelSize) {
 
 SkMipmap* SkMipmap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
                           bool computeContents) {
-    const SkColorType ct = src.colorType();
-    const SkAlphaType at = src.alphaType();
-
-#if defined(SK_USE_LEGACY_MIPMAP_BUILDER)
     typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
 
     FilterProc* proc_1_2 = nullptr;
@@ -420,6 +411,9 @@ SkMipmap* SkMipmap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
     FilterProc* proc_3_1 = nullptr;
     FilterProc* proc_3_2 = nullptr;
     FilterProc* proc_3_3 = nullptr;
+
+    const SkColorType ct = src.colorType();
+    const SkAlphaType at = src.alphaType();
 
     switch (ct) {
         case kRGBA_8888_SkColorType:
@@ -558,7 +552,6 @@ SkMipmap* SkMipmap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
         case kSRGBA_8888_SkColorType:  // TODO: needs careful handling
             return nullptr;
     }
-#endif
 
     if (src.width() <= 1 && src.height() <= 1) {
         return nullptr;
@@ -606,6 +599,36 @@ SkMipmap* SkMipmap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
     SkASSERT(SkIsAlign8((uintptr_t)addr));
 
     for (int i = 0; i < countLevels; ++i) {
+        FilterProc* proc;
+        if (height & 1) {
+            if (height == 1) {        // src-height is 1
+                if (width & 1) {      // src-width is 3
+                    proc = proc_3_1;
+                } else {              // src-width is 2
+                    proc = proc_2_1;
+                }
+            } else {                  // src-height is 3
+                if (width & 1) {
+                    if (width == 1) { // src-width is 1
+                        proc = proc_1_3;
+                    } else {          // src-width is 3
+                        proc = proc_3_3;
+                    }
+                } else {              // src-width is 2
+                    proc = proc_2_3;
+                }
+            }
+        } else {                      // src-height is 2
+            if (width & 1) {
+                if (width == 1) {     // src-width is 1
+                    proc = proc_1_2;
+                } else {              // src-width is 3
+                    proc = proc_3_2;
+                }
+            } else {                  // src-width is 2
+                proc = proc_2_2;
+            }
+        }
         width = std::max(1, width >> 1);
         height = std::max(1, height >> 1);
         rowBytes = SkToU32(SkColorTypeMinRowBytes(ct, width));
@@ -619,38 +642,6 @@ SkMipmap* SkMipmap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
 
         const SkPixmap& dstPM = levels[i].fPixmap;
         if (computeContents) {
-#if defined(SK_USE_LEGACY_MIPMAP_BUILDER)
-            FilterProc* proc;
-            if (height & 1) {
-                if (height == 1) {        // src-height is 1
-                    if (width & 1) {      // src-width is 3
-                        proc = proc_3_1;
-                    } else {              // src-width is 2
-                        proc = proc_2_1;
-                    }
-                } else {                  // src-height is 3
-                    if (width & 1) {
-                        if (width == 1) { // src-width is 1
-                            proc = proc_1_3;
-                        } else {          // src-width is 3
-                            proc = proc_3_3;
-                        }
-                    } else {              // src-width is 2
-                        proc = proc_2_3;
-                    }
-                }
-            } else {                      // src-height is 2
-                if (width & 1) {
-                    if (width == 1) {     // src-width is 1
-                        proc = proc_1_2;
-                    } else {              // src-width is 3
-                        proc = proc_3_2;
-                    }
-                } else {                  // src-width is 2
-                    proc = proc_2_2;
-                }
-            }
-
             const void* srcBasePtr = srcPM.addr();
             void* dstBasePtr = dstPM.writable_addr();
 
@@ -660,15 +651,6 @@ SkMipmap* SkMipmap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact,
                 srcBasePtr = (char*)srcBasePtr + srcRB * 2; // jump two rows
                 dstBasePtr = (char*)dstBasePtr + dstPM.rowBytes();
             }
-#else
-            auto dstSurface = SkSurface::MakeRasterDirect(dstPM);
-            auto srcImage = SkImage::MakeFromRaster(srcPM, nullptr, nullptr);
-            SkPaint paint;
-            paint.setBlendMode(SkBlendMode::kSrc);
-            dstSurface->getCanvas()->drawImageRect(srcImage, SkRect::MakeWH(width, height),
-                                                   SkSamplingOptions{SkFilterMode::kLinear},
-                                                   &paint);
-#endif
         }
         srcPM = dstPM;
         addr += height * rowBytes;
