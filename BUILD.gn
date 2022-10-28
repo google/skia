@@ -1953,6 +1953,10 @@ if (skia_enable_tools) {
       sources += [ "tools/graphite/ContextFactory.cpp" ]
       sources += [ "tools/graphite/GraphiteTestContext.h" ]
       sources += [ "tools/graphite/GraphiteTestContext.cpp" ]
+      if (skia_use_dawn) {
+        sources += [ "tools/graphite/dawn/DawnTestContext.cpp" ]
+        sources += [ "tools/graphite/dawn/GraphiteDawnTestContext.h" ]
+      }
       if (skia_use_metal) {
         sources += [ "tools/graphite/mtl/GraphiteMtlTestContext.h" ]
         sources += [ "tools/graphite/mtl/MtlTestContext.mm" ]

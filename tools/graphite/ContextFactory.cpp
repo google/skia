@@ -9,6 +9,9 @@
 
 #include "include/gpu/graphite/Context.h"
 
+#ifdef SK_DAWN
+#include "tools/graphite/dawn/GraphiteDawnTestContext.h"
+#endif
 #ifdef SK_METAL
 #include "tools/graphite/mtl/GraphiteMtlTestContext.h"
 #endif
@@ -45,6 +48,11 @@ std::tuple<GraphiteTestContext*, skgpu::graphite::Context*> ContextFactory::getC
     std::unique_ptr<GraphiteTestContext> testCtx;
 
     switch (type) {
+        case GrContextFactory::kDawn_ContextType: {
+#ifdef SK_DAWN
+            testCtx = graphite::DawnTestContext::Make();
+#endif
+        } break;
         case GrContextFactory::kMetal_ContextType: {
 #ifdef SK_METAL
             testCtx = graphite::MtlTestContext::Make();

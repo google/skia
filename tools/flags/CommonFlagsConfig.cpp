@@ -135,6 +135,9 @@ static const struct {
 #ifdef SK_DIRECT3D
     { "grd3d",                 "graphite", "api=direct3d" },
 #endif
+#ifdef SK_DAWN
+    { "grdawn",                "graphite", "api=dawn" },
+#endif
 #ifdef SK_METAL
     { "grmtl",                 "graphite", "api=metal" },
 #endif
@@ -466,15 +469,9 @@ public:
         if (optionValue == nullptr) {
             return false;
         }
-#ifdef SK_VULKAN
-        if (optionValue->equals("vulkan")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kVulkan_ContextType;
-            return true;
-        }
-#endif
-#ifdef SK_METAL
-        if (optionValue->equals("metal")) {
-            *outContextType = sk_gpu_test::GrContextFactory::kMetal_ContextType;
+#ifdef SK_DAWN
+        if (optionValue->equals("dawn")) {
+            *outContextType = sk_gpu_test::GrContextFactory::kDawn_ContextType;
             return true;
         }
 #endif
@@ -484,6 +481,19 @@ public:
             return true;
         }
 #endif
+#ifdef SK_METAL
+        if (optionValue->equals("metal")) {
+            *outContextType = sk_gpu_test::GrContextFactory::kMetal_ContextType;
+            return true;
+        }
+#endif
+#ifdef SK_VULKAN
+        if (optionValue->equals("vulkan")) {
+            *outContextType = sk_gpu_test::GrContextFactory::kVulkan_ContextType;
+            return true;
+        }
+#endif
+
         return false;
     }
 #endif
