@@ -11,16 +11,6 @@
 namespace skia {
 namespace textlayout {
 
-enum InternalState {
-  kUnknown = 0,
-  kShaped = 2,
-  kClusterized = 3,
-  kMarked = 4,
-  kLineBroken = 5,
-  kFormatted = 6,
-  kDrawn = 7
-};
-
 class ParagraphImpl;
 class ParagraphCacheKey;
 class ParagraphCacheValue;
