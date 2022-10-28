@@ -81,7 +81,7 @@ struct Rules140 {
 
         // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
         int n = RowsOrVecLength == 3 ? 4 : RowsOrVecLength;
-        if (count == 0) {
+        if (count == SkUniform::kNonArray) {
             return n * sizeof(BaseType);
         }
 
@@ -117,7 +117,7 @@ struct Rules430 {
 
         // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
         int n = RowsOrVecLength == 3 ? 4 : RowsOrVecLength;
-        if (count == 0) {
+        if (count == SkUniform::kNonArray) {
             return n * sizeof(BaseType);
         }
 
@@ -405,13 +405,18 @@ static uint32_t sksltype_to_alignment_mask(SkSLType type) {
 // Given the current offset into the ubo, calculate the offset for the uniform we're trying to add
 // taking into consideration all alignment requirements. Returns the aligned start offset for the
 // new uniform.
-static uint32_t get_ubo_aligned_offset(uint32_t currentOffset, SkSLType type, int arrayCount) {
-    uint32_t alignmentMask = sksltype_to_alignment_mask(type);
-    uint32_t offsetDiff = currentOffset & alignmentMask;
-    if (offsetDiff != 0) {
-        offsetDiff = alignmentMask - offsetDiff + 1;
+static uint32_t get_ubo_aligned_offset(Layout layout,
+                                       uint32_t currentOffset,
+                                       SkSLType type,
+                                       int arrayCount) {
+    uint32_t alignmentMask;
+    if (layout == Layout::kStd140 && arrayCount != SkUniform::kNonArray) {
+        // std140 array element alignment always equals the base alignment of a vec4.
+        alignmentMask = sksltype_to_alignment_mask(SkSLType::kFloat4);
+    } else {
+        alignmentMask = sksltype_to_alignment_mask(type);
     }
-    return currentOffset + offsetDiff;
+    return (currentOffset + alignmentMask) & ~alignmentMask;
 }
 
 SkSLType UniformOffsetCalculator::getUniformTypeForLayout(SkSLType type) {
@@ -464,7 +469,7 @@ size_t UniformOffsetCalculator::advanceOffset(SkSLType type, unsigned int count)
     SkSLType revisedType = this->getUniformTypeForLayout(type);
 
     // Insert padding as needed to get the correct uniform alignment.
-    uint32_t alignedOffset = get_ubo_aligned_offset(fOffset, revisedType, count);
+    uint32_t alignedOffset = get_ubo_aligned_offset(fLayout, fOffset, revisedType, count);
     SkASSERT(alignedOffset >= fOffset);
 
     // Append the uniform size to our offset, then return the uniform start position.
@@ -537,7 +542,7 @@ void UniformManager::write(SkSLType type, unsigned int count, const void* src) {
 
 void UniformManager::write(const SkM44& mat) {
     static constexpr SkSLType kType = SkSLType::kFloat4x4;
-    this->write(kType, 1, &mat);
+    this->write(kType, SkUniform::kNonArray, &mat);
 }
 
 void UniformManager::write(const SkColor4f* colors, int count) {
@@ -552,12 +557,12 @@ void UniformManager::write(const SkPMColor4f* premulColors, int count) {
 
 void UniformManager::write(const SkRect& rect) {
     static constexpr SkSLType kType = SkSLType::kFloat4;
-    this->write(kType, 1, &rect);
+    this->write(kType, SkUniform::kNonArray, &rect);
 }
 
 void UniformManager::write(SkPoint point) {
     static constexpr SkSLType kType = SkSLType::kFloat2;
-    this->write(kType, 1, &point);
+    this->write(kType, SkUniform::kNonArray, &point);
 }
 
 void UniformManager::write(const float* floats, int count) {
@@ -567,17 +572,17 @@ void UniformManager::write(const float* floats, int count) {
 
 void UniformManager::write(int i) {
     static constexpr SkSLType kType = SkSLType::kInt;
-    this->write(kType, 1, &i);
+    this->write(kType, SkUniform::kNonArray, &i);
 }
 
 void UniformManager::write(skvx::float2 v) {
     static constexpr SkSLType kType = SkSLType::kFloat2;
-    this->write(kType, 1, &v);
+    this->write(kType, SkUniform::kNonArray, &v);
 }
 
 void UniformManager::write(skvx::float4 v) {
     static constexpr SkSLType kType = SkSLType::kFloat4;
-    this->write(kType, 1, &v);
+    this->write(kType, SkUniform::kNonArray, &v);
 }
 
 } // namespace skgpu::graphite

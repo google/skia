@@ -273,6 +273,45 @@ DEF_TEST(UniformOffsetCalculatorStd140BasicTypesTest, r) {
     EXPECT(SkSLType::kHalf4x4,  /*alignment=*/16, /*size=*/64);
 }
 
-// TODO(skia:13478): Add tests for arrays with std140 layout
+DEF_TEST(UniformOffsetCalculatorStd140ArrayTest, r) {
+    constexpr Layout kLayout = Layout::kStd140;
+    constexpr uint32_t kCount = 3;
+
+    // int[3], float[3], short[3], half[3]
+    EXPECT_ARRAY(SkSLType::kInt,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kFloat, /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kShort, /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kHalf,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
+
+    // int2[3], float2[3], short2[3], half2[3]
+    EXPECT_ARRAY(SkSLType::kInt2,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kFloat2, /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kShort2, /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kHalf2,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
+
+    // int3[3], float3[3], short3[3], half3[3]
+    EXPECT_ARRAY(SkSLType::kInt3,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kFloat3, /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kShort3, /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kHalf3,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
+
+    // int4[3], float4[3], short4[3], half4[3]
+    EXPECT_ARRAY(SkSLType::kInt4,   /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kFloat4, /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kShort4, /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kHalf4,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
+
+    // float2x2[3], half2x2[3]
+    EXPECT_ARRAY(SkSLType::kFloat2x2, /*alignment=*/16, /*stride=*/16, /*size=*/48);
+    EXPECT_ARRAY(SkSLType::kHalf2x2,  /*alignment=*/16, /*stride=*/16, /*size=*/48);
+
+    // float3x3[3], half3x3[3]
+    EXPECT_ARRAY(SkSLType::kFloat3x3, /*alignment=*/16, /*stride=*/48, /*size=*/144);
+    EXPECT_ARRAY(SkSLType::kHalf3x3,  /*alignment=*/16, /*stride=*/48, /*size=*/144);
+
+    // float4x4[3], half4x4[3]
+    EXPECT_ARRAY(SkSLType::kFloat4x4, /*alignment=*/16, /*stride=*/64, /*size=*/192);
+    EXPECT_ARRAY(SkSLType::kHalf4x4,  /*alignment=*/16, /*stride=*/64, /*size=*/192);
+}
 
 }  // namespace

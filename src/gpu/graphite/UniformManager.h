@@ -68,24 +68,25 @@ public:
 
     void reset();
 
-    void checkReset() const;
-    void setExpectedUniforms(SkSpan<const SkUniform>);
-    void checkExpected(SkSLType, unsigned int count);
-    void doneWithExpectedUniforms();
-
     // TODO: do we need to add a 'makeArray' parameter to these?
     void write(const SkM44&);
     void write(const SkColor4f*, int count);
     void write(const SkPMColor4f*, int count);
-    void write(const SkPMColor4f& color) { this->write(&color, 1); }
+    void write(const SkPMColor4f& color) { this->write(&color, SkUniform::kNonArray); }
     void write(const SkRect&);
     void write(SkPoint);
     void write(const float*, int count);
-    void write(float f) { this->write(&f, 1); }
+    void write(float f) { this->write(&f, SkUniform::kNonArray); }
     void write(int);
     void write(skvx::float2);
     void write(skvx::float4);
     void write(SkSLType type, unsigned int count, const void* src);
+
+    // Debug only utilities used for debug assertions and tests.
+    void checkReset() const;
+    void setExpectedUniforms(SkSpan<const SkUniform>);
+    void checkExpected(SkSLType, unsigned int count);
+    void doneWithExpectedUniforms();
 
 private:
 #ifdef SK_DEBUG
