@@ -75,7 +75,8 @@ void GrTexture::assertMipmapsNotDirty(const GrTextureProxy* proxy) {
 #endif
             msg += SkStringPrintf(
                     " Dirtied by \"%s\" %s, now we're %s. "
-                    "tex dims: %dx%d, gl fmt: %04x, isRT: %d, sc: %d, borrowed: %d, type:%d, ro:%d",
+                    "tex dims: %dx%d, gl fmt: %04x, isRT: %d, sc: %d, borrowed: %d, type:%d, ro:%d,"
+                    " dirty failed: \"%s\"",
                     fMipmapDirtyReason,
                     flushStr(fMipmapDirtyFlushNum, fMipmapDirtyWasFlushing).c_str(),
                     flushStr(flushNum, isFlushing).c_str(),
@@ -86,12 +87,16 @@ void GrTexture::assertMipmapsNotDirty(const GrTextureProxy* proxy) {
                     sampleCount,
                     borrowed,
                     (int)this->textureType(),
-                    this->readOnly());
+                    this->readOnly(),
+                    fMipmapRegenFailureReason);
         }
         if (proxy) {
-            msg += SkStringPrintf(", proxy status = %d, slated: %d",
+            msg += SkStringPrintf(", proxy status = %d, slated: %d ",
                                   proxy->mipmapsAreDirty(),
                                   proxy->slatedForMipmapRegen());
+            if (proxy->mipmapsAreDirty()) {
+                msg += proxy->mipmapDirtyReport();
+            }
         }
         SK_ABORT("%s", msg.c_str());
     }

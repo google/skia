@@ -12,6 +12,10 @@
 #include "src/gpu/ganesh/GrTextureProxyPriv.h"
 #include "src/gpu/ganesh/GrTextureResolveRenderTask.h"
 
+#if defined(SK_DEBUG)
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#endif
+
 uint32_t GrRenderTask::CreateUniqueID() {
     static std::atomic<uint32_t> nextID{1};
     uint32_t id;
@@ -80,7 +84,15 @@ void GrRenderTask::makeClosed(GrRecordingContext* rContext) {
         }
         GrTextureProxy* textureProxy = this->target(0)->asTextureProxy();
         if (textureProxy && GrMipmapped::kYes == textureProxy->mipmapped()) {
-            textureProxy->markMipmapsDirty();
+            int flushNum = -1;
+            bool isFlushing = false;
+#if defined(SK_DEBUG)
+            if (auto* dc = GrAsDirectContext(rContext)) {
+                flushNum   = dc->priv().drawingManager()->flushNumber();
+                isFlushing = dc->priv().drawingManager()->isFlushing();
+            }
+#endif
+            textureProxy->markMipmapsDirty("makeClosed task target", flushNum, isFlushing);
         }
     }
 

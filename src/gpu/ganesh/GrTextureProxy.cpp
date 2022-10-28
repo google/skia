@@ -32,6 +32,7 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
         , fMipmapped(mipmapped)
         , fMipmapStatus(mipmapStatus)
         SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
+        SkDEBUGCODE(, fMipmapDirtyReason("creation"))
         , fCreatingProvider(creatingProvider)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
@@ -59,6 +60,7 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
         , fMipmapped(mipmapped)
         , fMipmapStatus(mipmapStatus)
         SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
+        SkDEBUGCODE(, fMipmapDirtyReason("creation"))
         , fCreatingProvider(creatingProvider)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
@@ -76,6 +78,7 @@ GrTextureProxy::GrTextureProxy(sk_sp<GrSurface> surf,
         , fMipmapped(fTarget->asTexture()->mipmapped())
         , fMipmapStatus(fTarget->asTexture()->mipmapStatus())
         SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
+        SkDEBUGCODE(, fMipmapDirtyReason("creation"))
         , fCreatingProvider(creatingProvider)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
