@@ -303,6 +303,7 @@ static std::map<std::string, std::string> cf_api_map = {
 static std::map<std::string, std::string> cf_map = {
     {"android_codec", "android_codec"},
     {"animated_image_decode", "animated_image_decode"},
+    {"colrv1", "colrv1"},
     {"image_decode", "image_decode"},
     {"image_decode_incremental", "image_decode_incremental"},
     {"image_filter_deserialize", "filter_fuzz"},
