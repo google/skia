@@ -13,26 +13,26 @@
 
 SkTDStorage::SkTDStorage(int sizeOfT) : fSizeOfT{sizeOfT} {}
 
-SkTDStorage::SkTDStorage(const void* src, int count, int sizeOfT)
+SkTDStorage::SkTDStorage(const void* src, int size, int sizeOfT)
         : fSizeOfT{sizeOfT}
-        , fReserve{count}
-        , fCount{count} {
-    if (count > 0) {
+        , fCapacity{size}
+        , fSize{size} {
+    if (size > 0) {
         SkASSERT(src != nullptr);
-        size_t storageSize = this->bytes(count);
+        size_t storageSize = this->bytes(size);
         fStorage = static_cast<std::byte*>(sk_malloc_throw(storageSize));
         memcpy(fStorage, src, storageSize);
     }
 }
 
 SkTDStorage::SkTDStorage(const SkTDStorage& that)
-        : SkTDStorage{that.fStorage, that.fCount, that.fSizeOfT} {}
+        : SkTDStorage{that.fStorage, that.fSize, that.fSizeOfT} {}
 
 SkTDStorage& SkTDStorage::operator=(const SkTDStorage& that) {
     if (this != &that) {
-        if (that.fCount <= fReserve) {
-            fCount = that.fCount;
-            if (fCount > 0) {
+        if (that.fSize <= fCapacity) {
+            fSize = that.fSize;
+            if (fSize > 0) {
                 memcpy(fStorage, that.data(), that.size_bytes());
             }
         } else {
@@ -45,8 +45,8 @@ SkTDStorage& SkTDStorage::operator=(const SkTDStorage& that) {
 SkTDStorage::SkTDStorage(SkTDStorage&& that)
         : fSizeOfT{that.fSizeOfT}
         , fStorage(std::exchange(that.fStorage, nullptr))
-        , fReserve{that.fReserve}
-        , fCount{that.fCount} {}
+        , fCapacity{that.fCapacity}
+        , fSize{that.fSize} {}
 
 SkTDStorage& SkTDStorage::operator=(SkTDStorage&& that) {
     if (this != &that) {
@@ -70,35 +70,35 @@ void SkTDStorage::swap(SkTDStorage& that) {
     SkASSERT(fSizeOfT == that.fSizeOfT);
     using std::swap;
     swap(fStorage, that.fStorage);
-    swap(fReserve, that.fReserve);
-    swap(fCount, that.fCount);
+    swap(fCapacity, that.fCapacity);
+    swap(fSize, that.fSize);
 }
 
-void SkTDStorage::resize(int newCount) {
-    SkASSERT(newCount >= 0);
-    if (newCount > fReserve) {
-        this->reserve(newCount);
+void SkTDStorage::resize(int newSize) {
+    SkASSERT(newSize >= 0);
+    if (newSize > fCapacity) {
+        this->reserve(newSize);
     }
-    fCount = newCount;
+    fSize = newSize;
 }
 
-void SkTDStorage::reserve(int newReserve) {
-    SkASSERT(newReserve >= 0);
-    if (newReserve > fReserve) {
+void SkTDStorage::reserve(int newCapacity) {
+    SkASSERT(newCapacity >= 0);
+    if (newCapacity > fCapacity) {
         // Establish the maximum number of elements that includes a valid count for end. In the
         // largest case end() = &fArray[INT_MAX] which is 1 after the last indexable element.
         static constexpr int kMaxCount = INT_MAX;
 
         // Assume that the array will max out.
         int expandedReserve = kMaxCount;
-        if (kMaxCount - newReserve > 4) {
+        if (kMaxCount - newCapacity > 4) {
             // Add 1/4 more than we need. Add 4 to ensure this grows by at least 1. Pin to
             // kMaxCount if no room for 1/4 growth.
-            int growth = 4 + ((newReserve + 4) >> 2);
+            int growth = 4 + ((newCapacity + 4) >> 2);
             // Read this line as: if (count + growth < kMaxCount) { ... }
             // It's rewritten to avoid signed integer overflow.
-            if (kMaxCount - newReserve > growth) {
-                expandedReserve = newReserve + growth;
+            if (kMaxCount - newCapacity > growth) {
+                expandedReserve = newCapacity + growth;
             }
         }
 
@@ -111,19 +111,19 @@ void SkTDStorage::reserve(int newReserve) {
             expandedReserve = (expandedReserve + 15) & ~15;
         }
 
-        fReserve = expandedReserve;
-        size_t newStorageSize = this->bytes(fReserve);
+        fCapacity = expandedReserve;
+        size_t newStorageSize = this->bytes(fCapacity);
         fStorage = static_cast<std::byte*>(sk_realloc_throw(fStorage, newStorageSize));
     }
 }
 
 void SkTDStorage::shrink_to_fit() {
-    if (fReserve != fCount) {
-        fReserve = fCount;
+    if (fCapacity != fSize) {
+        fCapacity = fSize;
         // Because calling realloc with size of 0 is implementation defined, force to a good state
         // by freeing fStorage.
-        if (fReserve > 0) {
-            fStorage = static_cast<std::byte*>(sk_realloc_throw(fStorage, this->bytes(fReserve)));
+        if (fCapacity > 0) {
+            fStorage = static_cast<std::byte*>(sk_realloc_throw(fStorage, this->bytes(fCapacity)));
         } else {
             sk_free(fStorage);
             fStorage = nullptr;
@@ -133,23 +133,23 @@ void SkTDStorage::shrink_to_fit() {
 
 void SkTDStorage::erase(int index, int count) {
     SkASSERT(count >= 0);
-    SkASSERT(fCount >= count);
-    SkASSERT(0 <= index && index <= fCount);
+    SkASSERT(fSize >= count);
+    SkASSERT(0 <= index && index <= fSize);
 
     if (count > 0) {
         // Check that the resulting size fits in an int. This will abort if not.
         const int newCount = this->calculateSizeOrDie(-count);
-        this->moveTail(index, index + count, fCount);
+        this->moveTail(index, index + count, fSize);
         this->resize(newCount);
     }
 }
 
 void SkTDStorage::removeShuffle(int index) {
-    SkASSERT(fCount > 0);
-    SkASSERT(0 <= index && index < fCount);
+    SkASSERT(fSize > 0);
+    SkASSERT(0 <= index && index < fSize);
     // Check that the new count is valid.
     const int newCount = this->calculateSizeOrDie(-1);
-    this->moveTail(index, fCount - 1, fCount);
+    this->moveTail(index, fSize - 1, fSize);
     this->resize(newCount);
 }
 
@@ -158,25 +158,25 @@ void* SkTDStorage::prepend() {
 }
 
 void SkTDStorage::append() {
-    if (fCount < fReserve) {
-        fCount++;
+    if (fSize < fCapacity) {
+        fSize++;
     } else {
-        this->insert(fCount);
+        this->insert(fSize);
     }
 }
 
 void SkTDStorage::append(int count) {
     SkASSERT(count >= 0);
-    // Read as: if (fCount + count <= fReserve) {...}. This is a UB safe way to avoid the add.
-    if (fReserve - fCount >= count) {
-        fCount += count;
+    // Read as: if (fSize + count <= fCapacity) {...}. This is a UB safe way to avoid the add.
+    if (fCapacity - fSize >= count) {
+        fSize += count;
     } else {
-        this->insert(fCount, count, nullptr);
+        this->insert(fSize, count, nullptr);
     }
 }
 
 void* SkTDStorage::append(const void* src, int count) {
-    return this->insert(fCount, count, src);
+    return this->insert(fSize, count, src);
 }
 
 void* SkTDStorage::insert(int index) {
@@ -184,11 +184,11 @@ void* SkTDStorage::insert(int index) {
 }
 
 void* SkTDStorage::insert(int index, int count, const void* src) {
-    SkASSERT(0 <= index && index <= fCount);
+    SkASSERT(0 <= index && index <= fSize);
     SkASSERT(count >= 0);
 
     if (count > 0) {
-        const int oldCount = fCount;
+        const int oldCount = fSize;
         const int newCount = this->calculateSizeOrDie(count);
         this->resize(newCount);
         this->moveTail(index + count, index, oldCount);
@@ -208,20 +208,20 @@ bool operator==(const SkTDStorage& a, const SkTDStorage& b) {
 
 int SkTDStorage::calculateSizeOrDie(int delta) {
     // Check that count will not go negative.
-    SkASSERT_RELEASE(-fCount <= delta);
+    SkASSERT_RELEASE(-fSize <= delta);
 
     // We take care to avoid overflow here.
     // Because count and delta are both signed 32-bit ints, the sum of count and delta is at
     // most 4294967294, which fits fine in uint32_t. Proof follows in assert.
     static_assert(UINT32_MAX >= (uint32_t)INT_MAX + (uint32_t)INT_MAX);
-    uint32_t testCount = (uint32_t)fCount + (uint32_t)delta;
+    uint32_t testCount = (uint32_t)fSize + (uint32_t)delta;
     SkASSERT_RELEASE(SkTFitsIn<int>(testCount));
     return SkToInt(testCount);
 }
 
 void SkTDStorage::moveTail(int to, int tailStart, int tailEnd) {
-    SkASSERT(0 <= to && to <= fCount);
-    SkASSERT(0 <= tailStart && tailStart <= tailEnd && tailEnd <= fCount);
+    SkASSERT(0 <= to && to <= fSize);
+    SkASSERT(0 <= tailStart && tailStart <= tailEnd && tailEnd <= fSize);
     if (to != tailStart && tailStart != tailEnd) {
         this->copySrc(to, this->address(tailStart), tailEnd - tailStart);
     }
