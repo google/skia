@@ -2189,6 +2189,8 @@ func (b *jobBuilder) bazelTest() {
 			default:
 				panic("Gold keys not specified for config " + config)
 			}
+		case "cpu_tests":
+			break
 		default:
 			panic("Unsupported Bazel taskdriver " + taskdriverName)
 		}

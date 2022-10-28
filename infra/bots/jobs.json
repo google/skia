@@ -25,6 +25,12 @@
   {"name": "BazelTest-canvaskit_gold-ck_full_webgl2_release_chrome-linux_x64",
     "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
   },
+  {"name": "BazelTest-cpu_tests-cpu_only_debug_rbe-linux_x64",
+    "cq_config": {"experimental": true}
+  },
+  {"name": "BazelTest-cpu_tests-cpu_only_release_rbe-linux_x64",
+    "cq_config": {"experimental": true}
+  },
   {"name": "Build-Debian10-GCC-x86-Debug-Docker"},
   {"name": "Build-Debian10-GCC-x86-Release-Docker"},
   {"name": "Build-Debian10-GCC-x86_64-Debug-Docker"},

@@ -1,0 +1,20 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "cpu_tests_lib",
+    srcs = ["cpu_tests.go"],
+    importpath = "go.skia.org/skia/infra/bots/task_drivers/cpu_tests",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@org_skia_go_infra//go/exec",
+        "@org_skia_go_infra//task_driver/go/lib/bazel",
+        "@org_skia_go_infra//task_driver/go/lib/os_steps",
+        "@org_skia_go_infra//task_driver/go/td",
+    ],
+)
+
+go_binary(
+    name = "cpu_tests",
+    embed = [":cpu_tests_lib"],
+    visibility = ["//visibility:public"],
+)

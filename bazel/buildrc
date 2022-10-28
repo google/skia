@@ -104,8 +104,13 @@ build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
                    --enable_svg_canvas --enable_pdf_backend
 
 
+build:use_linux_rbe_pool --config=linux_rbe --remote_download_minimal
+
 build:cpu_only --cc_output_directory_tag=cpu_tests
 build:cpu_only_debug --config=cpu --config=debug
+build:cpu_only_release --config=cpu --config=release
+build:cpu_only_debug_rbe --config=cpu_only_debug --config=use_linux_rbe_pool
+build:cpu_only_release_rbe --config=cpu_only_release --config=use_linux_rbe_pool
 
 build:gl_ganesh --enable_gpu_test_utils --gpu_backend=gl_backend \
                  --cc_output_directory_tag=gl_ganesh
