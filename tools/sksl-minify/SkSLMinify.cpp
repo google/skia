@@ -17,6 +17,7 @@
 #include "src/sksl/SkSLFileOutputStream.h"
 #include "src/sksl/SkSLLexer.h"
 #include "src/sksl/SkSLModuleLoader.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/transform/SkSLTransform.h"
@@ -62,7 +63,8 @@ static std::string remove_extension(const std::string& path) {
  * Displays a usage banner; used when the command line arguments don't make sense.
  */
 static void show_usage() {
-    printf("usage: sksl-minify <output> <input> [--frag|--vert|--compute] [dependencies...]\n");
+    printf("usage: sksl-minify <output> <input> [--frag|--vert|--compute|--shader|"
+           "--colorfilter|--blender] [dependencies...]\n");
 }
 
 static std::string_view stringize(const SkSL::Token& token, std::string_view text) {
@@ -77,8 +79,8 @@ static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_lis
         SkSpan<const std::string> paths, SkSL::ProgramKind kind) {
     std::forward_list<std::unique_ptr<const SkSL::Module>> modules;
 
-    // If we are compiling a Runtime Shader...
-    if (kind == SkSL::ProgramKind::kRuntimeShader) {
+    // If we are compiling a Runtime Effect...
+    if (SkSL::ProgramConfig::IsRuntimeEffect(kind)) {
         // ... the parent modules still need to be compiled as Fragment programs.
         // If no modules are explicitly specified, we automatically include the built-in modules for
         // runtime effects (sksl_shared, sksl_public) so that casual users don't need to always
@@ -226,7 +228,10 @@ static ResultCode process_command(SkSpan<std::string> args) {
     bool isFrag = find_boolean_flag(&args, "--frag");
     bool isVert = find_boolean_flag(&args, "--vert");
     bool isCompute = find_boolean_flag(&args, "--compute");
-    if (has_overlapping_flags({isFrag, isVert, isCompute})) {
+    bool isShader = find_boolean_flag(&args, "--shader");
+    bool isColorFilter = find_boolean_flag(&args, "--colorfilter");
+    bool isBlender = find_boolean_flag(&args, "--blender");
+    if (has_overlapping_flags({isFrag, isVert, isCompute, isShader, isColorFilter, isBlender})) {
         show_usage();
         return ResultCode::kInputError;
     }
@@ -236,7 +241,12 @@ static ResultCode process_command(SkSpan<std::string> args) {
         gProgramKind = SkSL::ProgramKind::kVertex;
     } else if (isCompute) {
         gProgramKind = SkSL::ProgramKind::kCompute;
+    } else if (isColorFilter) {
+        gProgramKind = SkSL::ProgramKind::kRuntimeColorFilter;
+    } else if (isBlender) {
+        gProgramKind = SkSL::ProgramKind::kRuntimeBlender;
     } else {
+        // Default case, if no option is specified.
         gProgramKind = SkSL::ProgramKind::kRuntimeShader;
     }
 

@@ -57,6 +57,13 @@ for input, targetDir in pairwise(inputs):
         os.mkdir(targetDir)
 
     target = os.path.join(targetDir, tail)
+
+    if ext == '.rts':
+        worklist.write("--shader\n")
+    elif ext == '.rtcf':
+        worklist.write("--colorfilter\n")
+    elif ext == '.rtb':
+        worklist.write("--blender\n")
     worklist.write(target + ".minified.sksl\n")
     worklist.write(input + "\n")
     worklist.write(public_module + "\n")
