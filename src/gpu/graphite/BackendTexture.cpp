@@ -20,10 +20,10 @@ BackendTexture::~BackendTexture() {
 #ifdef SK_DAWN
     if (this->backend() == BackendApi::kDawn) {
         // Only one of fDawnTexture and fDawnTextureView can be non null.
-        SkASSERT(!(fDawnTexture && fDawnTextureView));
+        SkASSERT(!(fDawn.fTexture && fDawn.fTextureView));
         // Release reference.
-        fDawnTexture = nullptr;
-        fDawnTextureView = nullptr;
+        fDawn.fTexture = nullptr;
+        fDawn.fTextureView = nullptr;
     }
 #endif
 }
@@ -46,8 +46,7 @@ BackendTexture& BackendTexture::operator=(const BackendTexture& that) {
     switch (that.backend()) {
 #ifdef SK_DAWN
         case BackendApi::kDawn:
-            fDawnTexture     = that.fDawnTexture;
-            fDawnTextureView = that.fDawnTextureView;
+            fDawn = that.fDawn;
             break;
 #endif
 #ifdef SK_METAL
@@ -78,10 +77,7 @@ bool BackendTexture::operator==(const BackendTexture& that) const {
     switch (that.backend()) {
 #ifdef SK_DAWN
         case BackendApi::kDawn:
-            if (fDawnTexture.Get() != that.fDawnTexture.Get()) {
-                return false;
-            }
-            if (fDawnTextureView.Get() != that.fDawnTextureView.Get()) {
+            if (fDawn != that.fDawn) {
                 return false;
             }
             break;
@@ -113,25 +109,25 @@ BackendTexture::BackendTexture(wgpu::Texture texture)
     : fDimensions{static_cast<int32_t>(texture.GetWidth()),
                   static_cast<int32_t>(texture.GetHeight())}
     , fInfo(DawnTextureInfo(texture))
-    , fDawnTexture(std::move(texture)) {}
+    , fDawn(std::move(texture)) {}
 
 BackendTexture::BackendTexture(SkISize dimensions,
                                const DawnTextureInfo& info,
                                wgpu::TextureView textureView)
         : fDimensions(dimensions)
         , fInfo(info)
-        , fDawnTextureView(std::move(textureView)) {}
+        , fDawn(std::move(textureView)) {}
 
 wgpu::Texture BackendTexture::getDawnTexture() const {
     if (this->isValid() && this->backend() == BackendApi::kDawn) {
-        return fDawnTexture;
+        return fDawn.fTexture;
     }
     return {};
 }
 
 wgpu::TextureView BackendTexture::getDawnTextureView() const {
     if (this->isValid() && this->backend() == BackendApi::kDawn) {
-        return fDawnTextureView;
+        return fDawn.fTextureView;
     }
     return {};
 }

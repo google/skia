@@ -21,6 +21,11 @@ namespace skgpu::graphite {
  */
 class IntersectionTree {
 public:
+    enum class SplitType : bool {
+        kX,
+        kY
+    };
+
     IntersectionTree();
 
     bool add(Rect rect) {
@@ -42,11 +47,6 @@ private:
 
         virtual bool intersects(Rect) = 0;
         virtual Node* addNonIntersecting(Rect, SkArenaAlloc*) = 0;
-    };
-
-    enum class SplitType : bool {
-        kX,
-        kY
     };
 
     template<SplitType kSplitType> class TreeNode;
