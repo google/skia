@@ -11,13 +11,11 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 
-// TODO(kjlubick, bungeman) replace this include with a forward declare.
-#include "include/core/SkEncodedImageFormat.h" // IWYU pragma: keep
-
 class SkBitmap;
 class SkData;
 class SkPixmap;
 class SkWStream;
+enum class SkEncodedImageFormat;
 
 /**
  * Encode SkPixmap in the given binary image format.
