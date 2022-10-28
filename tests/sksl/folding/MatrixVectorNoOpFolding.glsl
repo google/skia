@@ -1,5 +1,4 @@
 
-out vec4 sk_FragColor;
 uniform mat2 testMatrix2x2;
 uniform mat3 testMatrix3x3;
 uniform vec4 testInputs;

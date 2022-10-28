@@ -1,0 +1,1 @@
+uniform half4 colorRed;uniform half4 colorGreen;bool a(int[2]b){return true;}bool b(){int i[2];int j[2];int k[2];int l[2];int m[2];int n[2];return((((a(i)&&a(j))&&a(k))&&a(l))&&a(m))&&a(n);}bool c(float[3]d){return true;}bool d(float[3]e,float[3]f){return c(e)&&c(f);}half4 main(float2 e){float h[3];float i[3];return b()&&d(h,i)?colorGreen:colorRed;}

@@ -616,29 +616,29 @@ sksl_shared_tests = [
 
 sksl_folding_tests = [
   "/sksl/folding/ArrayFolding.sksl",
-  "/sksl/folding/ArraySizeFolding.sksl",
-  "/sksl/folding/AssignmentOps.sksl",
-  "/sksl/folding/BoolFolding.sksl",
-  "/sksl/folding/CastFolding.sksl",
-  "/sksl/folding/FloatFolding.sksl",
-  "/sksl/folding/IntFoldingES2.sksl",
+  "/sksl/folding/ArraySizeFolding.rts",
+  "/sksl/folding/AssignmentOps.rts",
+  "/sksl/folding/BoolFolding.rts",
+  "/sksl/folding/CastFolding.rts",
+  "/sksl/folding/FloatFolding.rts",
+  "/sksl/folding/IntFoldingES2.rts",
   "/sksl/folding/IntFoldingES3.sksl",
-  "/sksl/folding/MatrixFoldingES2.sksl",
+  "/sksl/folding/MatrixFoldingES2.rts",
   "/sksl/folding/MatrixFoldingES3.sksl",
-  "/sksl/folding/MatrixNoOpFolding.sksl",
-  "/sksl/folding/MatrixScalarNoOpFolding.sksl",
-  "/sksl/folding/MatrixVectorNoOpFolding.sksl",
-  "/sksl/folding/Negation.sksl",
-  "/sksl/folding/PreserveSideEffects.sksl",
-  "/sksl/folding/SelfAssignment.sksl",
-  "/sksl/folding/ShortCircuitBoolFolding.sksl",
-  "/sksl/folding/StructFieldFolding.sksl",
-  "/sksl/folding/StructFieldNoFolding.sksl",
-  "/sksl/folding/SwitchCaseFolding.sksl",
-  "/sksl/folding/SwizzleFolding.sksl",
-  "/sksl/folding/TernaryFolding.sksl",
-  "/sksl/folding/VectorScalarFolding.sksl",
-  "/sksl/folding/VectorVectorFolding.sksl",
+  "/sksl/folding/MatrixNoOpFolding.rts",
+  "/sksl/folding/MatrixScalarNoOpFolding.rts",
+  "/sksl/folding/MatrixVectorNoOpFolding.rts",
+  "/sksl/folding/Negation.rts",
+  "/sksl/folding/PreserveSideEffects.rts",
+  "/sksl/folding/SelfAssignment.rts",
+  "/sksl/folding/ShortCircuitBoolFolding.rts",
+  "/sksl/folding/StructFieldFolding.rts",
+  "/sksl/folding/StructFieldNoFolding.rts",
+  "/sksl/folding/SwitchCaseFolding.rts",
+  "/sksl/folding/SwizzleFolding.rts",
+  "/sksl/folding/TernaryFolding.rts",
+  "/sksl/folding/VectorScalarFolding.rts",
+  "/sksl/folding/VectorVectorFolding.rts",
 ]
 
 sksl_inliner_tests = [
@@ -865,3 +865,7 @@ sksl_skvm_tests_sources = sksl_rte_tests + sksl_rte_error_tests
 ## Tests in sksl_stage_tests_sources will be compiled with --settings on, and are expected to
 ## generate a .stage output file.
 sksl_stage_tests_sources = sksl_rte_tests
+
+## Tests in sksl_minify_tests_sources will be compiled with sksl-minify, and are expected to
+## generate a .minified.sksl file.
+sksl_minify_tests_sources = sksl_rte_tests + sksl_folding_tests

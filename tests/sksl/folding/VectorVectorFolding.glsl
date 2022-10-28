@@ -1,5 +1,4 @@
 
-out vec4 sk_FragColor;
 uniform float unknownInput;
 uniform vec4 colorRed;
 uniform vec4 colorGreen;

@@ -1,5 +1,4 @@
 
-out vec4 sk_FragColor;
 uniform vec4 colorRed;
 uniform vec4 colorGreen;
 bool check_array_is_int_2_bi(int x[2]) {

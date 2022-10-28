@@ -724,7 +724,7 @@ if (skia_compile_modules) {
       testsDir = get_path_info("tests", "abspath")
       resourcesDir = get_path_info("resources", "abspath")
 
-      foreach(partialPath, sksl_rte_tests) {
+      foreach(partialPath, sksl_minify_tests_sources) {
         dst = testsDir + partialPath
         src = resourcesDir + partialPath
 
