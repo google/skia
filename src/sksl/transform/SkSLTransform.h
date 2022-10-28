@@ -65,6 +65,7 @@ void EliminateEmptyStatements(Module& module);
 /**
  * Eliminates functions in a program which are never called. Returns true if any changes were made.
  */
+bool EliminateDeadFunctions(const Context& context, Module& module, ProgramUsage* usage);
 bool EliminateDeadFunctions(Program& program);
 
 /**

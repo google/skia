@@ -1,1 +1,1 @@
-float f;int i;bool b;vec4 main(vec2 a){vec4 c=vec4(vec2(f),f,f);return c;}
+float f;vec4 main(vec2 a){vec4 c=vec4(vec2(f),f,f);return c;}
