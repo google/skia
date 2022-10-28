@@ -193,6 +193,9 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     size_t length;
     if (!stream->readPackedUInt(&length)) { return false; }
     if (length > 0) {
+        if (StreamRemainingLengthIsBelow(stream, length)) {
+            return false;
+        }
         sk_sp<SkData> data(SkData::MakeUninitialized(length));
         if (stream->read(data->writable_data(), length) != length) {
             SkDEBUGFAIL("Could not read font data");
