@@ -74,6 +74,7 @@ ParagraphImpl::ParagraphImpl(const SkString& text,
         , fPlaceholders(std::move(placeholders))
         , fText(text)
         , fState(kUnknown)
+        , fUTF16IndexMapped(false)
         , fUnresolvedGlyphs(0)
         , fPicture(nullptr)
         , fStrutMetrics(false)
@@ -125,7 +126,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         // Most common case: one line of text (and one line is never justified, so no cluster shifts)
         // We cannot mark it as kLineBroken because the new width can be bigger than the old width
         fWidth = floorWidth;
-        fState = kShaped;
+        fState = kMarked;
     } else if (fState >= kLineBroken && fOldWidth != floorWidth) {
         // We can use the results from SkShaper but have to do EVERYTHING ELSE again
         fState = kShaped;
@@ -133,50 +134,45 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         // Nothing changed case: we can reuse the data from the last layout
     }
 
-    if (fState == kUnknown) {
-        // This only happens once at the first layout; the text is immutable
-        // and there is no reason to repeat it
-        if (this->computeCodeUnitProperties()) {
-            fState = kIndexed;
-        }
-    }
+    if (fState < kShaped) {
+        this->fCodeUnitProperties.reset();
+        this->fWords.clear();
+        this->fBidiRegions.clear();
+        this->fUTF8IndexForUTF16Index.reset();
+        this->fUTF16IndexForUTF8Index.reset();
+        this->fUTF16IndexMapped = false;
+        this->fRuns.reset();
+        this->fClusters.reset();
+        this->fClustersIndexFromCodeUnit.reset();
+        this->fClustersIndexFromCodeUnit.push_back_n(fText.size() + 1, EMPTY_INDEX);
+        if (!this->shapeTextIntoEndlessLine()) {
+            this->resetContext();
+            // TODO: merge the two next calls - they always come together
+            this->resolveStrut();
+            this->computeEmptyMetrics();
+            this->fLines.reset();
 
-    if (fState == kIndexed) {
-        // Check if we have the text in the cache and don't need to shape it again
-        if (!fFontCollection->getParagraphCache()->findParagraph(this)) {
-            this->fRuns.reset();
-            this->fClusters.reset();
-            this->fClustersIndexFromCodeUnit.reset();
-            this->fClustersIndexFromCodeUnit.push_back_n(fText.size() + 1, EMPTY_INDEX);
-            if (!this->shapeTextIntoEndlessLine()) {
-                this->resetContext();
-                // TODO: merge the two next calls - they always come together
-                this->resolveStrut();
-                this->computeEmptyMetrics();
-                this->fLines.reset();
-
-                // Set the important values that are not zero
-                fWidth = floorWidth;
-                fHeight = fEmptyMetrics.height();
-                if (fParagraphStyle.getStrutStyle().getStrutEnabled() &&
-                    fParagraphStyle.getStrutStyle().getForceStrutHeight()) {
-                    fHeight = fStrutMetrics.height();
-                }
-                fAlphabeticBaseline = fEmptyMetrics.alphabeticBaseline();
-                fIdeographicBaseline = fEmptyMetrics.ideographicBaseline();
-                fLongestLine = FLT_MIN - FLT_MAX;  // That is what flutter has
-                fMinIntrinsicWidth = 0;
-                fMaxIntrinsicWidth = 0;
-                this->fOldWidth = floorWidth;
-                this->fOldHeight = this->fHeight;
-
-                return;
+            // Set the important values that are not zero
+            fWidth = floorWidth;
+            fHeight = fEmptyMetrics.height();
+            if (fParagraphStyle.getStrutStyle().getStrutEnabled() &&
+                fParagraphStyle.getStrutStyle().getForceStrutHeight()) {
+                fHeight = fStrutMetrics.height();
             }
+            fAlphabeticBaseline = fEmptyMetrics.alphabeticBaseline();
+            fIdeographicBaseline = fEmptyMetrics.ideographicBaseline();
+            fLongestLine = FLT_MIN - FLT_MAX; // That is what flutter has
+            fMinIntrinsicWidth = 0;
+            fMaxIntrinsicWidth = 0;
+            this->fOldWidth = floorWidth;
+            this->fOldHeight = this->fHeight;
+
+            return;
         }
-        fState = kShaped;
+        fState = kMarked;
     }
 
-    if (fState == kShaped) {
+    if (fState < kLineBroken) {
         this->resetContext();
         this->resolveStrut();
         this->computeEmptyMetrics();
@@ -185,7 +181,7 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         fState = kLineBroken;
     }
 
-    if (fState == kLineBroken) {
+    if (fState < kFormatted) {
         // Build the picture lazily not until we actually have to paint (or never)
         this->resetShifts();
         this->formatLines(fWidth);
@@ -499,6 +495,15 @@ void ParagraphImpl::buildClusterTable() {
 bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     if (fText.size() == 0) {
+        return false;
+    }
+
+    // Check the font-resolved text against the cache
+    if (fFontCollection->getParagraphCache()->findParagraph(this)) {
+        return true;
+    }
+
+    if (!computeCodeUnitProperties()) {
         return false;
     }
 
@@ -905,31 +910,34 @@ void ParagraphImpl::setState(InternalState state) {
     fState = state;
     switch (fState) {
         case kUnknown:
-            SkASSERT(false);
-            /*
-            // The text is immutable and so are all the text indexing properties
-            // taken from SkUnicode
+            fRuns.reset();
             fCodeUnitProperties.reset();
             fWords.clear();
             fBidiRegions.clear();
             fUTF8IndexForUTF16Index.reset();
             fUTF16IndexForUTF8Index.reset();
-            */
-            [[fallthrough]];
-
-        case kIndexed:
-            fRuns.reset();
-            fClusters.reset();
+            fUTF16IndexMapped = false;
             [[fallthrough]];
 
         case kShaped:
+            fClusters.reset();
+            [[fallthrough]];
+
+        case kClusterized:
+        case kMarked:
+        case kLineBroken:
+            this->resetContext();
+            this->resolveStrut();
+            this->computeEmptyMetrics();
+            this->resetShifts();
             fLines.reset();
             [[fallthrough]];
 
-        case kLineBroken:
+        case kFormatted:
             fPicture = nullptr;
             [[fallthrough]];
 
+        case kDrawn:
         default:
             break;
     }
@@ -1002,6 +1010,14 @@ SkString ParagraphImpl::getEllipsis() const {
     }
 }
 
+void ParagraphImpl::updateText(size_t from, SkString text) {
+  fText.remove(from, from + text.size());
+  fText.insert(from, text);
+  fState = kUnknown;
+  fOldWidth = 0;
+  fOldHeight = 0;
+}
+
 void ParagraphImpl::updateFontSize(size_t from, size_t to, SkScalar fontSize) {
 
   SkASSERT(from == 0 && to == fText.size());
@@ -1013,7 +1029,7 @@ void ParagraphImpl::updateFontSize(size_t from, size_t to, SkScalar fontSize) {
     textStyle.fStyle.setFontSize(fontSize);
   }
 
-  fState = kIndexed;
+  fState = kUnknown;
   fOldWidth = 0;
   fOldHeight = 0;
 }
@@ -1065,12 +1081,16 @@ TextIndex ParagraphImpl::findNextGraphemeBoundary(TextIndex utf8) {
 }
 
 void ParagraphImpl::ensureUTF16Mapping() {
-    fillUTF16MappingOnce([&] {
-        fUnicode->extractUtfConversionMapping(
-                this->text(),
-                [&](size_t index) { fUTF8IndexForUTF16Index.emplace_back(index); },
-                [&](size_t index) { fUTF16IndexForUTF8Index.emplace_back(index); });
-    });
+    if (fUTF16IndexMapped) {
+        return;
+    }
+
+    fUnicode->extractUtfConversionMapping(
+            this->text(),
+            [&](size_t index) { fUTF8IndexForUTF16Index.emplace_back(index); },
+            [&](size_t index) { fUTF16IndexForUTF8Index.emplace_back(index); });
+
+    fUTF16IndexMapped = true;
 }
 
 void ParagraphImpl::visit(const Visitor& visitor) {

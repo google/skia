@@ -1618,7 +1618,7 @@ protected:
             if (this->isVerbose()) {
                 SkDebugf("Text:>%s<\n", impl->text().data());
             }
-            impl->markDirty();
+            impl->setState(InternalState::kUnknown);
             fParagraph->layout(1000);
             fParagraph->paint(canvas, 300, 200);
 
