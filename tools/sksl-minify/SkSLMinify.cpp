@@ -77,17 +77,26 @@ static std::forward_list<std::unique_ptr<const SkSL::Module>> compile_module_lis
         SkSpan<const std::string> paths, SkSL::ProgramKind kind) {
     std::forward_list<std::unique_ptr<const SkSL::Module>> modules;
 
-    // If we are compiling a Runtime Shader, and no other modules are specified, we automatically
-    // include the built-in modules for runtime effects (sksl_shared, sksl_public) so that casual
-    // users don't need to always remember to specify these modules. We also set up the public
-    // type aliases so that normal Runtime Shader code works as-is.
-    if (kind == SkSL::ProgramKind::kRuntimeShader && paths.size() == 1) {
-        const std::string minifyDir = SkOSPath::Dirname(SkGetExecutablePath().c_str()).c_str();
-        std::string defaultRuntimeShaderPaths[] = {
-                minifyDir + SkOSPath::SEPARATOR + "sksl_public.sksl",
-                minifyDir + SkOSPath::SEPARATOR + "sksl_shared.sksl",
-        };
-        modules = compile_module_list(defaultRuntimeShaderPaths, SkSL::ProgramKind::kFragment);
+    // If we are compiling a Runtime Shader...
+    if (kind == SkSL::ProgramKind::kRuntimeShader) {
+        // ... the parent modules still need to be compiled as Fragment programs.
+        // If no modules are explicitly specified, we automatically include the built-in modules for
+        // runtime effects (sksl_shared, sksl_public) so that casual users don't need to always
+        // remember to specify these modules.
+        if (paths.size() == 1) {
+            const std::string minifyDir = SkOSPath::Dirname(SkGetExecutablePath().c_str()).c_str();
+            std::string defaultRuntimeShaderPaths[] = {
+                    minifyDir + SkOSPath::SEPARATOR + "sksl_public.sksl",
+                    minifyDir + SkOSPath::SEPARATOR + "sksl_shared.sksl",
+            };
+            modules = compile_module_list(defaultRuntimeShaderPaths, SkSL::ProgramKind::kFragment);
+        } else {
+            // The parent modules were listed on the command line; we need to compile them as
+            // fragment programs. The final module keeps the Runtime Shader program-kind.
+            modules = compile_module_list(paths.subspan(1), SkSL::ProgramKind::kFragment);
+            paths = paths.first(1);
+        }
+        // Set up the public type aliases so that Runtime Shader code with GLSL types works as-is.
         SkSL::ModuleLoader::Get().addPublicTypeAliases(modules.front().get());
     }
 
@@ -271,8 +280,9 @@ static ResultCode process_command(SkSpan<std::string> args) {
     }
 
     if (gStringify) {
-        out.writeText("\";\n");
+        out.writeText("\";");
     }
+    out.writeText("\n");
 
     if (!out.close()) {
         printf("error writing '%s'\n", outputPath.c_str());

@@ -1,0 +1,1 @@
+uniform half4 colorGreen;uniform half4 colorRed;half4 main(float2 a){switch(int(colorGreen.y)){default:return colorGreen;}}

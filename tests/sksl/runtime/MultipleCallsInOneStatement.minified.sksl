@@ -1,0 +1,1 @@
+uniform half4 colorRed;uniform half4 colorGreen;int get(int a){return a;}half4 main(float2 a){int b=(get(5)+get(3))+get(2);return b==10?colorGreen:colorRed;}

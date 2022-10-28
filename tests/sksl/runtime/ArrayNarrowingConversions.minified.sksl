@@ -1,0 +1,1 @@
+uniform half4 colorGreen;uniform half4 colorRed;half4 main(float2 a){int b[2]=int[2](1,2);short c[2]=short[2](1,2);float d[2]=float[2](1.,2.);half e[2]=half[2](1.,2.);b=int[2](c);c=short[2](b);d=float[2](e);e=half[2](d);return((b==int[2](c)&&d==float[2](e))&&b==int[2](1,2))&&float[2](e)==float[2](1.,2.)?colorGreen:colorRed;}

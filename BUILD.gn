@@ -701,8 +701,53 @@ if (skia_compile_modules) {
     ]
     args += rebase_path(minify_sksl_sources)
   }
+
+  if (skia_compile_sksl_tests) {
+    # Minify our existing .rts files into golden minified outputs.
+    import("gn/sksl_tests.gni")
+    action("minify_sksl_tests") {
+      script = "gn/minify_sksl_tests.py"
+      deps = [
+        ":sksl-minify(//gn/toolchain:$host_toolchain)",
+        ":sksl_modules",
+      ]
+      sources = []
+      outputs = []
+      response_file_contents = []
+      args = [
+        rebase_path(sksl_minify_path),
+        rebase_path("src/sksl/sksl_shared.sksl"),
+        rebase_path("src/sksl/sksl_public.sksl"),
+        "{{response_file_name}}",
+      ]
+
+      testsDir = get_path_info("tests", "abspath")
+      resourcesDir = get_path_info("resources", "abspath")
+
+      foreach(partialPath, sksl_rte_tests) {
+        dst = testsDir + partialPath
+        src = resourcesDir + partialPath
+
+        dir = get_path_info(dst, "dir")
+        name = get_path_info(dst, "name")
+        ext = get_path_info(dst, "extension")
+        if (ext == "rts") {
+          response_file_contents += rebase_path([
+                                                  src,
+                                                  dir,
+                                                ])
+          sources += [ src ]
+          outputs += [ target_out_dir + "/" +
+                       rebase_path(dir + "/" + name + ".minified.sksl",
+                                   target_out_dir) ]
+        }
+      }
+    }
+  }
 } else {
   group("minify_sksl") {
+  }
+  group("minify_sksl_tests") {
   }
 }
 

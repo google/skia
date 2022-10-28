@@ -1,0 +1,1 @@
+const half r=0.;noinline half opt_barrier(const half a){return a;}half2 compute_ba(const half2 a){return a;}half4 main(float2 a){return half4(opt_barrier(0.),1.,compute_ba(half2(0.,opt_barrier(1.))));}

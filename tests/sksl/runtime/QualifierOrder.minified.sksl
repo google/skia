@@ -1,0 +1,1 @@
+uniform half4 colorGreen;noinline void const_after_in(const vec2 a){}noinline void inout_after_high_precision(inout vec2 a){}noinline void out_after_high_precision(out vec2 a){a=vec2(0.);}vec4 main(vec2 a){const_after_in(a);inout_after_high_precision(a);out_after_high_precision(a);return vec4(colorGreen);}

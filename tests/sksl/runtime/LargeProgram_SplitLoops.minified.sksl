@@ -1,0 +1,1 @@
+void d(inout int e){for(int f=0;f<10;++f)++e;}void c(inout int e){for(int f=0;f<10;++f)d(e);}void b(inout int e){for(int f=0;f<10;++f)c(e);}void a(inout int e){for(int f=0;f<10;++f)b(e);}half4 main(float2 e){int f=0;a(f);return half4(0.);}
