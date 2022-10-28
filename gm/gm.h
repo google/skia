@@ -25,6 +25,10 @@ class SkCanvas;
 class SkMetaData;
 struct GrContextOptions;
 
+namespace skgpu::graphite {
+class Context;
+}
+
 #define DEF_GM(CODE)                                         \
     static skiagm::GMRegistry SK_MACRO_APPEND_COUNTER(REG_)( \
             []() { return std::unique_ptr<skiagm::GM>([]() { CODE; }()); });
@@ -108,6 +112,9 @@ namespace skiagm {
         inline static constexpr char kErrorMsg_DrawSkippedGpuOnly[] =
                 "This test is for GPU configs only.";
 
+        inline static constexpr char kErrorMsg_DrawSkippedGraphiteOnly[] =
+                "This test is for Graphite only.";
+
         DrawResult gpuSetup(GrDirectContext* context, SkCanvas* canvas) {
             SkString errorMsg;
             return this->gpuSetup(context, canvas, &errorMsg);
@@ -127,6 +134,7 @@ namespace skiagm {
             return this->draw(canvas, &errorMsg);
         }
         DrawResult draw(SkCanvas*, SkString* errorMsg);
+        DrawResult draw(skgpu::graphite::Context*, SkCanvas*, SkString* errorMsg);
 
         void drawBackground(SkCanvas*);
         DrawResult drawContent(SkCanvas* canvas) {
@@ -134,6 +142,7 @@ namespace skiagm {
             return this->drawContent(canvas, &errorMsg);
         }
         DrawResult drawContent(SkCanvas*, SkString* errorMsg);
+        DrawResult drawContent(skgpu::graphite::Context*, SkCanvas*, SkString* errorMsg);
 
         SkISize getISize() { return this->onISize(); }
         const char* getName();
@@ -168,6 +177,7 @@ namespace skiagm {
         virtual DrawResult onGpuSetup(GrDirectContext*, SkString*) { return DrawResult::kOk; }
         virtual void onGpuTeardown() {}
         virtual void onOnceBeforeDraw();
+        virtual DrawResult onDraw(skgpu::graphite::Context*, SkCanvas*, SkString* errorMsg);
         virtual DrawResult onDraw(SkCanvas*, SkString* errorMsg);
         virtual void onDraw(SkCanvas*);
 
@@ -208,6 +218,21 @@ namespace skiagm {
 
         virtual DrawResult onDraw(GrRecordingContext*, SkCanvas*, SkString* errorMsg);
         virtual void onDraw(GrRecordingContext*, SkCanvas*);
+    };
+
+    // A GraphiteGM replaces the onDraw method with one that also accepts Graphite Context objects
+    // alongside the SkCanvas. Its onDraw is only invoked on Graphite configs; on non-Graphite
+    // configs it will automatically draw a "Graphite-only" message and abort.
+    class GraphiteGM : public GM {
+    public:
+        GraphiteGM(SkColor backgroundColor = SK_ColorWHITE) : GM(backgroundColor) {}
+
+    private:
+        using GM::onDraw;
+        DrawResult onDraw(SkCanvas*, SkString* errorMsg) final;
+
+        DrawResult onDraw(skgpu::graphite::Context*, SkCanvas*, SkString* errorMsg) override;
+        virtual void onDraw(skgpu::graphite::Context*, SkCanvas*);
     };
 
     // SimpleGM is intended for basic GMs that can define their entire implementation inside a

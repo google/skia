@@ -154,6 +154,17 @@ GrDirectContext* Window::directContext() const {
     return fWindowContext->directContext();
 }
 
+#ifdef SK_GRAPHITE_ENABLED
+skgpu::graphite::Context* Window::graphiteContext() const {
+    if (!fWindowContext) {
+        return nullptr;
+    }
+    return fWindowContext->graphiteContext();
+}
+#else
+skgpu::graphite::Context* Window::graphiteContext() const { return nullptr; }
+#endif
+
 void Window::inval() {
     if (!fWindowContext) {
         return;

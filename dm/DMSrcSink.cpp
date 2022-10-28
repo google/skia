@@ -138,6 +138,19 @@ Result GMSrc::draw(GrDirectContext* context, SkCanvas* canvas) const {
     // the gpu-backed images to live past the lifetime of the GM.
 }
 
+Result GMSrc::drawGraphite(skgpu::graphite::Context* context, SkCanvas* canvas) const {
+    std::unique_ptr<skiagm::GM> gm(fFactory());
+    SkString msg;
+
+    skiagm::DrawResult drawResult = gm->draw(context, canvas, &msg);
+    switch (drawResult) {
+        case skiagm::DrawResult::kOk  : return Result(Result::Status::Ok,    msg);
+        case skiagm::DrawResult::kFail: return Result(Result::Status::Fatal, msg);
+        case skiagm::DrawResult::kSkip: return Result(Result::Status::Skip,  msg);
+        default: SK_ABORT("");
+    }
+}
+
 SkISize GMSrc::size() const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
     return gm->getISize();
@@ -2158,7 +2171,7 @@ Result GraphiteSink::draw(const Src& src,
         if (!surface) {
             return Result::Fatal("Could not create a surface.");
         }
-        Result result = src.draw(/* dContext */ nullptr, surface->getCanvas());
+        Result result = src.drawGraphite(context, surface->getCanvas());
         if (!result.isOk()) {
             return result;
         }
