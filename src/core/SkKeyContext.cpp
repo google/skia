@@ -11,9 +11,8 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 
-SkKeyContext::SkKeyContext(skgpu::graphite::Recorder* recorder, const SkM44& dev2Local)
-        : fRecorder(recorder)
-        , fDev2Local(dev2Local) {
+SkKeyContext::SkKeyContext(skgpu::graphite::Recorder* recorder)
+        : fRecorder(recorder) {
     fDictionary = fRecorder->priv().shaderCodeDictionary();
 }
 #endif

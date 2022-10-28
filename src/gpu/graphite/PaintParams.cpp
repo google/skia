@@ -97,18 +97,6 @@ void PaintParams::toKey(const SkKeyContext& keyContext,
         builder->endBlock();
     }
 
-    if (gatherer) {
-        if (gatherer->needsLocalCoords()) {
-#ifdef SK_DEBUG
-            static constexpr SkUniform kDev2LocalUniform[] = {{ "dev2Local", SkSLType::kFloat4x4 }};
-            UniformExpectationsValidator uev(gatherer,
-                                             SkSpan<const SkUniform>(kDev2LocalUniform, 1));
-#endif
-
-            gatherer->write(keyContext.dev2Local());
-        }
-    }
-
     SkASSERT(builder->sizeInBytes() > 0);
 }
 

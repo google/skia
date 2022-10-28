@@ -462,7 +462,6 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         if (draw.fPaintParams.has_value()) {
             std::tie(shaderID, shadingUniforms, paintTextures) =
                     ExtractPaintData(recorder, &gatherer, &builder,
-                                     draw.fDrawParams.transform().inverse(),
                                      draw.fPaintParams.value());
         } // else depth-only
 
