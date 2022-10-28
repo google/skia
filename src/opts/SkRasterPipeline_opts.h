@@ -1861,6 +1861,12 @@ STAGE(unpremul, NoCtx) {
     g *= scale;
     b *= scale;
 }
+STAGE(unpremul_polar, NoCtx) {
+    float inf = sk_bit_cast<float>(0x7f800000);
+    auto scale = if_then_else(1.0f/a < inf, 1.0f/a, 0);
+    g *= scale;
+    b *= scale;
+}
 
 STAGE(force_opaque    , NoCtx) {  a = 1; }
 STAGE(force_opaque_dst, NoCtx) { da = 1; }
@@ -1901,6 +1907,110 @@ STAGE(hsl_to_rgb, NoCtx) {
     r = hue_to_rgb(h + 0.0f/3.0f);
     g = hue_to_rgb(h + 2.0f/3.0f);
     b = hue_to_rgb(h + 1.0f/3.0f);
+}
+
+// Color conversion functions used in gradient interpolation, based on
+// https://www.w3.org/TR/css-color-4/#color-conversion-code
+STAGE(css_lab_to_xyz, NoCtx) {
+    constexpr float k = 24389 / 27.0f;
+    constexpr float e = 216 / 24389.0f;
+
+    F f[3];
+    f[1] = (r + 16) * (1 / 116.0f);
+    f[0] = (g * (1 / 500.0f)) + f[1];
+    f[2] = f[1] - (b * (1 / 200.0f));
+
+    F f_cubed[3] = { f[0]*f[0]*f[0], f[1]*f[1]*f[1], f[2]*f[2]*f[2] };
+
+    F xyz[3] = {
+        if_then_else(f_cubed[0] > e, f_cubed[0], (116 * f[0] - 16) * (1 / k)),
+        if_then_else(r > k * e,      f_cubed[1], r * (1 / k)),
+        if_then_else(f_cubed[2] > e, f_cubed[2], (116 * f[2] - 16) * (1 / k))
+    };
+
+    constexpr float D50[3] = { 0.3457f / 0.3585f, 1.0f, (1.0f - 0.3457f - 0.3585f) / 0.3585f };
+    r = xyz[0]*D50[0];
+    g = xyz[1]*D50[1];
+    b = xyz[2]*D50[2];
+}
+
+STAGE(css_oklab_to_linear_srgb, NoCtx) {
+    F l_ = r + 0.3963377774f * g + 0.2158037573f * b,
+      m_ = r - 0.1055613458f * g - 0.0638541728f * b,
+      s_ = r - 0.0894841775f * g - 1.2914855480f * b;
+
+    F l = l_*l_*l_,
+      m = m_*m_*m_,
+      s = s_*s_*s_;
+
+    r = +4.0767416621f * l - 3.3077115913f * m + 0.2309699292f * s;
+    g = -1.2684380046f * l + 2.6097574011f * m - 0.3413193965f * s;
+    b = -0.0041960863f * l - 0.7034186147f * m + 1.7076147010f * s;
+}
+
+// Skia stores all polar colors with hue in the first component, so this "LCH -> Lab" transform
+// actually takes "HCL". This is also used to do the same polar transform for OkHCL to OkLAB.
+// See similar comments & logic in SkGradientShaderBase.cpp.
+STAGE(css_hcl_to_lab, NoCtx) {
+    F H = r,
+      C = g,
+      L = b;
+
+    F hueRadians = H * (SK_FloatPI / 180);
+
+    r = L;
+    g = C * cos_(hueRadians);
+    b = C * sin_(hueRadians);
+}
+
+SI F mod_(F x, float y) {
+    return x - y * floor_(x * (1 / y));
+}
+
+struct RGB { F r, g, b; };
+
+SI RGB css_hsl_to_srgb_(F h, F s, F l) {
+    h = mod_(h, 360);
+
+    s *= 0.01f;
+    l *= 0.01f;
+
+    F k[3] = {
+        mod_(0 + h * (1 / 30.0f), 12),
+        mod_(8 + h * (1 / 30.0f), 12),
+        mod_(4 + h * (1 / 30.0f), 12)
+    };
+    F a  = s * min(l, 1 - l);
+    return {
+        l - a * max(-1, min(min(k[0] - 3, 9 - k[0]), 1)),
+        l - a * max(-1, min(min(k[1] - 3, 9 - k[1]), 1)),
+        l - a * max(-1, min(min(k[2] - 3, 9 - k[2]), 1))
+    };
+}
+
+STAGE(css_hsl_to_srgb, NoCtx) {
+    RGB rgb = css_hsl_to_srgb_(r, g, b);
+    r = rgb.r;
+    g = rgb.g;
+    b = rgb.b;
+}
+
+STAGE(css_hwb_to_srgb, NoCtx) {
+    g *= 0.01f;
+    b *= 0.01f;
+
+    F gray = g / (g + b);
+
+    RGB rgb = css_hsl_to_srgb_(r, 100.0f, 50.0f);
+    rgb.r = rgb.r * (1 - g - b) + g;
+    rgb.g = rgb.g * (1 - g - b) + g;
+    rgb.b = rgb.b * (1 - g - b) + g;
+
+    auto isGray = (g + b) >= 1;
+
+    r = if_then_else(isGray, gray, rgb.r);
+    g = if_then_else(isGray, gray, rgb.g);
+    b = if_then_else(isGray, gray, rgb.b);
 }
 
 // Derive alpha's coverage from rgb coverage and the values of src and dst alpha.

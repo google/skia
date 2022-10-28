@@ -83,7 +83,7 @@ struct skcms_TransferFunction;
     M(callback)                                                    \
     M(stack_checkpoint) M(stack_rewind)                            \
     M(unbounded_set_rgb) M(unbounded_uniform_color)                \
-    M(unpremul) M(dither)                                          \
+    M(unpremul) M(unpremul_polar) M(dither)                        \
     M(load_16161616) M(load_16161616_dst) M(store_16161616) M(gather_16161616) \
     M(load_a16)    M(load_a16_dst)  M(store_a16)   M(gather_a16)   \
     M(load_rg1616) M(load_rg1616_dst) M(store_rg1616) M(gather_rg1616) \
@@ -100,6 +100,9 @@ struct skcms_TransferFunction;
     M(matrix_3x3) M(matrix_3x4) M(matrix_4x5) M(matrix_4x3)        \
     M(parametric) M(gamma_) M(PQish) M(HLGish) M(HLGinvish)        \
     M(rgb_to_hsl) M(hsl_to_rgb)                                    \
+    M(css_lab_to_xyz) M(css_oklab_to_linear_srgb)                  \
+    M(css_hcl_to_lab)                                              \
+    M(css_hsl_to_srgb) M(css_hwb_to_srgb)                          \
     M(gauss_a_to_rgba)                                             \
     M(mirror_x)   M(repeat_x)                                      \
     M(mirror_y)   M(repeat_y)                                      \
