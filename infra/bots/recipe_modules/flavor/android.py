@@ -114,9 +114,7 @@ class AndroidFlavor(default.DefaultFlavor):
                  fail_build_on_failure=False)
 
     with self.m.context(cwd=self.m.path['start_dir'].join('skia')):
-      with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY,
-        # https://developer.android.com/studio/command-line/variables#adb_trace
-                       'ADB_TRACE': 'all'}):
+      with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
         return self.m.run.with_retry(self.m.step, title, attempts,
                                      cmd=[self.ADB_BINARY]+list(cmd),
                                      between_attempts_fn=wait_for_device,

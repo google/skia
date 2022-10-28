@@ -36,7 +36,6 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_TRACE": "all",
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
@@ -89,7 +88,6 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_TRACE": "all",
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
@@ -195,7 +193,6 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_TRACE": "all",
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
@@ -233,7 +230,6 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_TRACE": "all",
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
@@ -250,7 +246,6 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_TRACE": "all",
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
@@ -414,7 +409,6 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_TRACE": "all",
       "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
