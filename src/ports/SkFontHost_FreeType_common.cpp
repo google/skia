@@ -1821,10 +1821,15 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
             // Copy the FT_Bitmap into an SkBitmap (either A8 or ARGB)
             SkBitmap unscaledBitmap;
             // TODO: mark this as sRGB when the blits will be sRGB.
-            unscaledBitmap.allocPixels(SkImageInfo::Make(face->glyph->bitmap.width,
-                                                         face->glyph->bitmap.rows,
-                                                         SkColorType_for_FTPixelMode(pixel_mode),
-                                                         kPremul_SkAlphaType));
+            unscaledBitmap.setInfo(SkImageInfo::Make(face->glyph->bitmap.width,
+                                                     face->glyph->bitmap.rows,
+                                                     SkColorType_for_FTPixelMode(pixel_mode),
+                                                     kPremul_SkAlphaType));
+            if (!unscaledBitmap.tryAllocPixels()) {
+                // TODO: set the fImage to indicate "missing"
+                memset(glyph.fImage, 0, glyph.rowBytes() * glyph.fHeight);
+                return;
+            }
 
             SkMask unscaledBitmapAlias;
             unscaledBitmapAlias.fImage = reinterpret_cast<uint8_t*>(unscaledBitmap.getPixels());
@@ -1848,7 +1853,11 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(FT_Face face,
                                                 kPremul_SkAlphaType),
                               bitmapRowBytes);
             if (SkMask::kBW_Format == maskFormat || SkMask::kLCD16_Format == maskFormat) {
-                dstBitmap.allocPixels();
+                if (!dstBitmap.tryAllocPixels()) {
+                    // TODO: set the fImage to indicate "missing"
+                    memset(glyph.fImage, 0, glyph.rowBytes() * glyph.fHeight);
+                    return;
+                }
             } else {
                 dstBitmap.setPixels(glyph.fImage);
             }
