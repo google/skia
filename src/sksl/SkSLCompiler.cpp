@@ -308,8 +308,8 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module) {
 
     std::unique_ptr<ProgramUsage> usage = Analysis::GetUsage(module);
 
-    // Look for local variables in functions and give them shorter names.
-    Transform::RenamePrivateSymbols(this->context(), module, usage.get());
+    // Assign shorter names to symbols as long as it won't change the external meaning of the code.
+    Transform::RenamePrivateSymbols(this->context(), module, usage.get(), kind);
 
     // Replace constant variables with their literal values to save space.
     Transform::ReplaceConstVarsWithLiterals(module, usage.get());

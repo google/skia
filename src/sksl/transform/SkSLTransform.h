@@ -82,7 +82,7 @@ bool EliminateDeadGlobalVariables(const Context& context,
 bool EliminateDeadGlobalVariables(Program& program);
 
 /** Renames private functions and function-local variables to minimize code size. */
-void RenamePrivateSymbols(Context& context, Module& module, ProgramUsage* usage);
+void RenamePrivateSymbols(Context& context, Module& module, ProgramUsage* usage, ProgramKind kind);
 
 /** Replaces constant variables in a program with their equivalent values. */
 void ReplaceConstVarsWithLiterals(Module& module, ProgramUsage* usage);
