@@ -753,6 +753,7 @@ sksl_rte_tests = [
   "/sksl/runtime/ConversionConstructors.rts",
   "/sksl/runtime/GlobalVariables.rts",
   "/sksl/runtime/GLSLTypeNames.rts",
+  "/sksl/runtime/HSLColorFilter.rtcf",
   "/sksl/runtime/LargeProgram_BlocklessLoops.rts",
   "/sksl/runtime/LargeProgram_FlatLoop.rts",
   "/sksl/runtime/LargeProgram_Functions.rts",

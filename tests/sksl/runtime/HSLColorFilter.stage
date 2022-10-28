@@ -1,0 +1,7 @@
+half4 main(half4 hsl)
+{
+	half C = (1.0 - abs(2.0 * _inColor.z - 1.0)) * _inColor.y;
+	half3 p = _inColor.xxx + half3(0.0, 0.6666667, 0.333333343);
+	half3 q = saturate(abs(fract(p) * 6.0 - 3.0) - 1.0);
+	return half4(half4((q - 0.5) * C + _inColor.z, 1.0));
+}
