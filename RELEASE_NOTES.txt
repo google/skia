@@ -8,6 +8,14 @@ Milestone 109
   * Added SkImage::RescaleMode::kLinear so that the async rescale/readback APIs can scale in a
     single step no matter the total scale factor (faster but lower quality than kRepeatedLinear).
   * SkMesh buffer factories added that make copies of CPU-backed buffers.
+  * A utility for minifying Runtime Effect code has been added to Skia. Add the gn argument
+    "skia_compile_modules = true" to your gn args, and a new utility called "sksl-minify" will be
+    compiled as part of your Skia build. Run the command:
+      `skia-minify output-file.sksl input-file.sksl`
+    to write a minified version of the runtime shader "input-file.sksl" into a file named
+    "output-file.sksl". By default, sksl-minify expects a shader, but you can also pass command
+    line options `--colorfilter` or `--blender` if your program is a color-filter or a blender.
+    A compile error will be printed to stdout if an error is found in the program.
 
 * * *
 
