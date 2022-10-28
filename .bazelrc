@@ -29,6 +29,11 @@ build --extra_toolchains=//toolchain:clang_linux_x64_toolchain
 build --extra_toolchains=//toolchain:clang_mac_x64_toolchain
 build --extra_toolchains=//toolchain:clang_mac_arm64_toolchain
 
+# Hide DEBUG messages from Bazel.
+# Many of these are things related to the git checkouts that are not relevent to devs.
+# https://bazel.build/reference/command-line-reference#flag--ui_event_filters
+build --ui_event_filters=-debug
+
 # =============================================================================
 # Alias to build configurations below. This makes configuring things from
 # the command line easier.

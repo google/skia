@@ -173,88 +173,54 @@ browser_repositories(
     firefox = True,
 )
 
-###################################################
-# External C++ deps with Bazel support            #
-###################################################
-# https://bazel.build/reference/be/workspace#local_repository
-local_repository(
-    name = "abseil_cpp",
-    path = "third_party/externals/abseil-cpp",
-)
+load("//bazel:deps.bzl", "git_repos_from_deps")
 
-local_repository(
-    name = "brotli",
-    path = "third_party/externals/brotli",
-)
-
-local_repository(
-    name = "highway",
-    path = "third_party/externals/highway",
-)
-
-local_repository(
-    name = "spirv_tools",
-    path = "third_party/externals/spirv-tools",
-)
-
-local_repository(
-    # This name is important because spirv_tools expects @spirv_headers to exist by that name.
-    name = "spirv_headers",
-    path = "third_party/externals/spirv-headers",
-)
-
-###############################################################################
-# External C++ deps with NO Bazel support                                     #
-# In this case, we need to supply a BUILD file which exposes targets/files    #
-# we need. If these deps depend on other deps (e.g. @dawn -> @spirv_tools),   #
-# then we need to specify those here as well. The workspace_file_content is   #
-# generally ignored; external repos (i.e. the ones starting with @) will be   #
-# resolved with Skia's version of those repos, which is how Bazel avoids      #
-# multiple versions of the same project being compiled together.              #
-###############################################################################
-# https://bazel.build/reference/be/workspace#new_local_repository
-new_local_repository(
-    name = "dawn",
-    build_file = "bazel/external/dawn/BUILD.bazel",
-    path = "third_party/externals/dawn",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "dng_sdk",
-    build_file = "bazel/external/dng_sdk/BUILD.bazel",
-    path = "third_party/externals/dng_sdk",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "expat",
-    build_file = "bazel/external/expat/BUILD.bazel",
-    path = "third_party/externals/expat",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "freetype",
-    build_file = "bazel/external/freetype/BUILD.bazel",
-    path = "third_party/externals/freetype",
-    workspace_file_content = "",
-)
+# This are two lists of Bazel repository names, which is brought in by the following macro.
+# It is here for easier grepping, i.e. someone trying to find where a label like @brotli//:brotlidec
+# was defined. If a dep has its own BUILD rules, then one will need to go to its git repository
+# to find the BUILD or BUILD.bazel file with the rule. If a dep does not have Bazel support, then
+# that means someone on the Skia team wrote a BUILD.bazel file and put it in
+# //bazel/external/<dep_name> and one can go find it there.
+#
+#### START GENERATED LIST OF THIRD_PARTY DEPS
+# @abseil_cpp - https://skia.googlesource.com/external/github.com/abseil/abseil-cpp.git
+# @brotli - https://skia.googlesource.com/external/github.com/google/brotli.git
+# @highway - https://chromium.googlesource.com/external/github.com/google/highway.git
+# @spirv_headers - https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git
+# @spirv_tools - https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git
+#
+# @dawn - //bazel/external/dawn:BUILD.bazel
+# @dng_sdk - //bazel/external/dng_sdk:BUILD.bazel
+# @expat - //bazel/external/expat:BUILD.bazel
+# @freetype - //bazel/external/freetype:BUILD.bazel
+# @harfbuzz - //bazel/external/harfbuzz:BUILD.bazel
+# @icu - //bazel/external/icu:BUILD.bazel
+# @libavif - //bazel/external/libavif:BUILD.bazel
+# @libgav1 - //bazel/external/libgav1:BUILD.bazel
+# @libjpeg_turbo - //bazel/external/libjpeg_turbo:BUILD.bazel
+# @libjxl - //bazel/external/libjxl:BUILD.bazel
+# @libpng - //bazel/external/libpng:BUILD.bazel
+# @libwebp - //bazel/external/libwebp:BUILD.bazel
+# @libyuv - //bazel/external/libyuv:BUILD.bazel
+# @perfetto - //bazel/external/perfetto:BUILD.bazel
+# @piex - //bazel/external/piex:BUILD.bazel
+# @spirv_cross - //bazel/external/spirv_cross:BUILD.bazel
+# @vulkan_headers - //bazel/external/vulkan_headers:BUILD.bazel
+# @vulkan_tools - //bazel/external/vulkan_tools:BUILD.bazel
+# @vulkanmemoryallocator - //bazel/external/vulkanmemoryallocator:BUILD.bazel
+# @wuffs - //bazel/external/wuffs:BUILD.bazel
+# @zlib_skia - //bazel/external/zlib_skia:BUILD.bazel
+#### END GENERATED LIST OF THIRD_PARTY DEPS
+git_repos_from_deps()
 
 # In order to copy the Freetype configurations into the checked out Freetype folder,
 # it is easiest to treat them as a third-party dependency from the perspective of Freetype.
 # To do that, we put them in their own Bazel workspace and then have our injected BUILD.bazel
 # for Freetype reference this workspace.
+# https://bazel.build/reference/be/workspace#new_local_repository
 local_repository(
     name = "freetype_config",
     path = "bazel/external/freetype/config",
-)
-
-new_local_repository(
-    name = "harfbuzz",
-    build_file = "bazel/external/harfbuzz/BUILD.bazel",
-    path = "third_party/externals/harfbuzz",
-    workspace_file_content = "",
 )
 
 local_repository(
@@ -262,120 +228,7 @@ local_repository(
     path = "bazel/external/harfbuzz/config",
 )
 
-new_local_repository(
-    name = "icu",
-    build_file = "bazel/external/icu/BUILD.bazel",
-    path = "third_party/externals/icu",
-    workspace_file_content = "",
-)
-
 local_repository(
     name = "icu_utils",
     path = "bazel/external/icu/utils",
-)
-
-new_local_repository(
-    name = "libavif",
-    build_file = "bazel/external/libavif/BUILD.bazel",
-    path = "third_party/externals/libavif",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "libgav1",
-    build_file = "bazel/external/libgav1/BUILD.bazel",
-    path = "third_party/externals/libgav1",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "libjpeg_turbo",
-    build_file = "bazel/external/libjpeg_turbo/BUILD.bazel",
-    path = "third_party/externals/libjpeg-turbo",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "libjxl",
-    build_file = "bazel/external/libjxl/BUILD.bazel",
-    path = "third_party/externals/libjxl",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "libpng",
-    build_file = "bazel/external/libpng/BUILD.bazel",
-    path = "third_party/externals/libpng",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "libwebp",
-    build_file = "bazel/external/libwebp/BUILD.bazel",
-    path = "third_party/externals/libwebp",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "libyuv",
-    build_file = "bazel/external/libyuv/BUILD.bazel",
-    path = "third_party/externals/libyuv",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "spirv_cross",
-    build_file = "bazel/external/spirv_cross/BUILD.bazel",
-    path = "third_party/externals/spirv-cross",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "perfetto",
-    build_file = "bazel/external/perfetto/BUILD.bazel",
-    path = "third_party/externals/perfetto",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "piex",
-    build_file = "bazel/external/piex/BUILD.bazel",
-    path = "third_party/externals/piex",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "vulkan_headers",
-    build_file = "bazel/external/vulkan_headers/BUILD.bazel",
-    path = "third_party/externals/vulkan-headers",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "vulkan_tools",
-    build_file = "bazel/external/vulkan_tools/BUILD.bazel",
-    path = "third_party/externals/vulkan-tools",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "vulkanmemoryallocator",
-    build_file = "bazel/external/vulkanmemoryallocator/BUILD.bazel",
-    path = "third_party/externals/vulkanmemoryallocator",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    name = "wuffs",
-    build_file = "bazel/external/wuffs/BUILD.bazel",
-    path = "third_party/externals/wuffs",
-    workspace_file_content = "",
-)
-
-new_local_repository(
-    # Some other dependency downloads zlib but with their own rules
-    name = "zlib_skia",
-    build_file = "bazel/external/zlib/BUILD.bazel",
-    path = "third_party/externals/zlib",
-    workspace_file_content = "",
 )
