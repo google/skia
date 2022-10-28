@@ -35,7 +35,7 @@ sk_sp<SkPixelRef> SkMallocPixelRef::MakeAllocate(const SkImageInfo& info, size_t
         return nullptr;
     }
 #if defined(SK_BUILD_FOR_FUZZER)
-    if (size > 100000) {
+    if (size > 10000000) {
         return nullptr;
     }
 #endif
