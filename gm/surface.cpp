@@ -300,7 +300,7 @@ DEF_SURFACE_TESTS(simple_snap_image2, canvas, 256, 256) {
 
 DEF_SIMPLE_GM(snap_with_mips, canvas, 80, 75) {
     auto ct = canvas->imageInfo().colorType() == kUnknown_SkColorType
-                      ? kN32_SkColorType
+                      ? kRGBA_8888_SkColorType
                       : canvas->imageInfo().colorType();
     auto ii = SkImageInfo::Make({32, 32},
                                 ct,
