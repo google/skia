@@ -888,7 +888,7 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
-      "reboot"
+      "reconnect"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -897,7 +897,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb reboot after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
+    "name": "adb reconnect after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
     "timeout": 30
   },
   {
@@ -918,7 +918,8 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
-      "reconnect"
+      "reconnect",
+      "offline"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -927,7 +928,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb reconnect after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
+    "name": "adb reconnect offline after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
     "timeout": 30
   },
   {
@@ -974,6 +975,36 @@
     },
     "infra_step": true,
     "name": "wait for device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1) (3)",
+    "timeout": 180
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "reboot"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "adb reboot after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
+    "timeout": 30
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "wait-for-device"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "wait for device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1) (4)",
     "timeout": 180
   },
   {
