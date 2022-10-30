@@ -126,7 +126,6 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "--sync",
       "[START_DIR]/skia/resources/bar.jpg",
       "[START_DIR]/skia/resources/foo.png",
       "/sdcard/revenge_of_the_skiabot/resources"
@@ -138,7 +137,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push --sync [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
+    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
   },
   {
     "cmd": [
@@ -320,7 +319,6 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "--sync",
       "[START_DIR]/lottie-samples/bar.jpg",
       "[START_DIR]/lottie-samples/foo.png",
       "/sdcard/revenge_of_the_skiabot/lotties"
@@ -332,7 +330,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push --sync [START_DIR]/lottie-samples/* /sdcard/revenge_of_the_skiabot/lotties"
+    "name": "push [START_DIR]/lottie-samples/* /sdcard/revenge_of_the_skiabot/lotties"
   },
   {
     "cmd": [
@@ -509,7 +507,6 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "--sync",
       "[CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg",
       "[CLEANUP]/lwa_tmp_1/nosymlinks/foo.png",
       "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
@@ -521,7 +518,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push --sync [CLEANUP]/lwa_tmp_1/nosymlinks/* /sdcard/revenge_of_the_skiabot/lotties_with_assets"
+    "name": "push [CLEANUP]/lwa_tmp_1/nosymlinks/* /sdcard/revenge_of_the_skiabot/lotties_with_assets"
   },
   {
     "cmd": [

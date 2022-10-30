@@ -702,7 +702,6 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "--sync",
       "[START_DIR]/mskp/bar.jpg",
       "[START_DIR]/mskp/foo.png",
       "/sdcard/revenge_of_the_skiabot/mskp"
@@ -714,7 +713,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push --sync [START_DIR]/mskp/* /sdcard/revenge_of_the_skiabot/mskp"
+    "name": "push [START_DIR]/mskp/* /sdcard/revenge_of_the_skiabot/mskp"
   },
   {
     "cmd": [
