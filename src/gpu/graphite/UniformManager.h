@@ -68,19 +68,28 @@ public:
 
     void reset();
 
-    // TODO: do we need to add a 'makeArray' parameter to these?
+    // Write a single instance of `type` from the data block referenced by `src`.
+    void write(SkSLType type, const void* src);
+
+    // Write an array of `type` with `count` elements from the data block referenced by `src`.
+    // Does nothing if `count` is 0.
+    void writeArray(SkSLType type, const void* src, unsigned int count);
+
+    // Copy from `src` using SkUniform array-count semantics.
+    void write(const SkUniform&, const uint8_t* src);
+
     void write(const SkM44&);
-    void write(const SkColor4f*, int count);
-    void write(const SkPMColor4f*, int count);
-    void write(const SkPMColor4f& color) { this->write(&color, SkUniform::kNonArray); }
+    void write(const SkPMColor4f&);
     void write(const SkRect&);
     void write(SkPoint);
-    void write(const float*, int count);
-    void write(float f) { this->write(&f, SkUniform::kNonArray); }
+    void write(float f);
     void write(int);
     void write(skvx::float2);
     void write(skvx::float4);
-    void write(SkSLType type, unsigned int count, const void* src);
+
+    void writeArray(SkSpan<const SkColor4f>);
+    void writeArray(SkSpan<const SkPMColor4f>);
+    void writeArray(SkSpan<const float>);
 
     // Debug only utilities used for debug assertions and tests.
     void checkReset() const;
@@ -89,6 +98,14 @@ public:
     void doneWithExpectedUniforms();
 
 private:
+    // Writes a single element of the given `type` if `count` == 0 (aka SkUniform::kNonArray).
+    // Writes an array of `count` elements if `count` > 0, obeying any array layout constraints.
+    //
+    // Do not call this method directly for any new write()/writeArray() overloads. Instead
+    // call the write(SkSLType, const void*) and writeArray(SkSLType, const void*, unsigned int)
+    // overloads which correctly abstract the array vs non-array semantics.
+    void writeInternal(SkSLType type, unsigned int count, const void* src);
+
 #ifdef SK_DEBUG
     SkSpan<const SkUniform> fExpectedUniforms;
     int fExpectedUniformIndex = 0;

@@ -98,10 +98,10 @@ void add_linear_gradient_uniform_data(const SkShaderCodeDictionary* dict,
                                       const GradientShaderBlocks::GradientData& gradData,
                                       SkPipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
-    int stops = codeSnippetID == SkBuiltInCodeSnippetID::kLinearGradientShader4 ? 4 : 8;
+    size_t stops = codeSnippetID == SkBuiltInCodeSnippetID::kLinearGradientShader4 ? 4 : 8;
 
-    gatherer->write(gradData.fColor4fs, stops);
-    gatherer->write(gradData.fOffsets, stops);
+    gatherer->writeArray({gradData.fColor4fs, stops});
+    gatherer->writeArray({gradData.fOffsets, stops});
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fPoints[1]);
     gatherer->write(static_cast<int>(gradData.fTM));
@@ -114,10 +114,10 @@ void add_radial_gradient_uniform_data(const SkShaderCodeDictionary* dict,
                                       const GradientShaderBlocks::GradientData& gradData,
                                       SkPipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
-    int stops = codeSnippetID == SkBuiltInCodeSnippetID::kRadialGradientShader4 ? 4 : 8;
+    size_t stops = codeSnippetID == SkBuiltInCodeSnippetID::kRadialGradientShader4 ? 4 : 8;
 
-    gatherer->write(gradData.fColor4fs, stops);
-    gatherer->write(gradData.fOffsets, stops);
+    gatherer->writeArray({gradData.fColor4fs, stops});
+    gatherer->writeArray({gradData.fOffsets, stops});
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fRadii[0]);
     gatherer->write(static_cast<int>(gradData.fTM));
@@ -130,10 +130,10 @@ void add_sweep_gradient_uniform_data(const SkShaderCodeDictionary* dict,
                                      const GradientShaderBlocks::GradientData& gradData,
                                      SkPipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
-    int stops = codeSnippetID == SkBuiltInCodeSnippetID::kSweepGradientShader4 ? 4 : 8;
+    size_t stops = codeSnippetID == SkBuiltInCodeSnippetID::kSweepGradientShader4 ? 4 : 8;
 
-    gatherer->write(gradData.fColor4fs, stops);
-    gatherer->write(gradData.fOffsets, stops);
+    gatherer->writeArray({gradData.fColor4fs, stops});
+    gatherer->writeArray({gradData.fOffsets, stops});
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fBias);
     gatherer->write(gradData.fScale);
@@ -147,10 +147,10 @@ void add_conical_gradient_uniform_data(const SkShaderCodeDictionary* dict,
                                        const GradientShaderBlocks::GradientData& gradData,
                                        SkPipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
-    int stops = codeSnippetID == SkBuiltInCodeSnippetID::kConicalGradientShader4 ? 4 : 8;
+    size_t stops = codeSnippetID == SkBuiltInCodeSnippetID::kConicalGradientShader4 ? 4 : 8;
 
-    gatherer->write(gradData.fColor4fs, stops);
-    gatherer->write(gradData.fOffsets, stops);
+    gatherer->writeArray({gradData.fColor4fs, stops});
+    gatherer->writeArray({gradData.fOffsets, stops});
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fPoints[1]);
     gatherer->write(gradData.fRadii[0]);
@@ -389,7 +389,8 @@ void PorterDuffBlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
     // uniform data of the children.
     if (gatherer) {
         VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kPorterDuffBlendShader)
-        gatherer->write(SkSLType::kHalf4, 1, blendData.fPorterDuffConstants.data());
+        SkASSERT(blendData.fPorterDuffConstants.size() == 4);
+        gatherer->write(SkSLType::kHalf4, blendData.fPorterDuffConstants.data());
         gatherer->addFlags(
                 dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kPorterDuffBlendShader));
     }
@@ -687,7 +688,7 @@ static void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform
         // Get a pointer to the offset in our data for this uniform.
         const uint8_t* uniformPtr = uniformBase + rtsUniforms[index].offset;
         // Pass the uniform data to the gatherer.
-        gatherer->write(skUniform.type(), skUniform.count(), uniformPtr);
+        gatherer->write(skUniform, uniformPtr);
     }
 }
 #endif

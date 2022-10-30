@@ -119,16 +119,19 @@ public:
     const SkTextureDataBlock& textureDataBlock() { return fTextureDataBlock; }
 
     void write(const SkM44& mat) { fUniformManager.write(mat); }
-    void write(const SkColor4f* colors, int numColors) { fUniformManager.write(colors, numColors); }
     void write(const SkPMColor4f& premulColor) { fUniformManager.write(premulColor); }
     void write(const SkRect& rect) { fUniformManager.write(rect); }
     void write(SkPoint point) { fUniformManager.write(point); }
-    void write(const float* floats, int count) { fUniformManager.write(floats, count); }
     void write(float f) { fUniformManager.write(f); }
     void write(int i) { fUniformManager.write(i); }
     void write(skvx::float2 v) { fUniformManager.write(v); }
     void write(skvx::float4 v) { fUniformManager.write(v); }
-    void write(SkSLType t, unsigned int cnt, const void* v) { fUniformManager.write(t, cnt, v); }
+
+    void write(SkSLType t, const void* data) { fUniformManager.write(t, data); }
+    void write(const SkUniform& u, const uint8_t* data) { fUniformManager.write(u, data); }
+
+    void writeArray(SkSpan<const SkColor4f> colors) { fUniformManager.writeArray(colors); }
+    void writeArray(SkSpan<const float> floats) { fUniformManager.writeArray(floats); }
 
     bool hasUniforms() const { return fUniformManager.size(); }
 
