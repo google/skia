@@ -89,18 +89,6 @@ class AndroidFlavor(default.DefaultFlavor):
 
     def wait_for_device(attempt):
       self.m.run(self.m.step,
-                 'adb reconnect after failure of \'%s\' (attempt %d)' % (
-                     title, attempt),
-                 cmd=[self.ADB_BINARY, 'reconnect'],
-                 infra_step=True, timeout=30, abort_on_failure=False,
-                 fail_build_on_failure=False)
-      self.m.run(self.m.step,
-                 'wait for device after failure of \'%s\' (attempt %d)' % (
-                     title, attempt),
-                 cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
-                 timeout=180, abort_on_failure=False,
-                 fail_build_on_failure=False)
-      self.m.run(self.m.step,
                  'adb reconnect offline after failure of \'%s\' (attempt %d)' % (
                      title, attempt),
                  cmd=[self.ADB_BINARY, 'reconnect', 'offline'],
@@ -113,28 +101,10 @@ class AndroidFlavor(default.DefaultFlavor):
                  timeout=180, abort_on_failure=False,
                  fail_build_on_failure=False)
       self.m.run(self.m.step,
-                 'adb reconnect device after failure of \'%s\' (attempt %d)' % (
+                 'adb devices -l after failure of \'%s\' (attempt %d)' % (
                      title, attempt),
-                 cmd=[self.ADB_BINARY, 'reconnect', 'device'],
+                 cmd=[self.ADB_BINARY, 'devices', '-l'],
                  infra_step=True, timeout=30, abort_on_failure=False,
-                 fail_build_on_failure=False)
-      self.m.run(self.m.step,
-                 'wait for device after failure of \'%s\' (attempt %d)' % (
-                     title, attempt),
-                 cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
-                 timeout=180, abort_on_failure=False,
-                 fail_build_on_failure=False)
-      self.m.run(self.m.step,
-                 'adb reboot after failure of \'%s\' (attempt %d)' % (
-                     title, attempt),
-                 cmd=[self.ADB_BINARY, 'reboot'],
-                 infra_step=True, timeout=30, abort_on_failure=False,
-                 fail_build_on_failure=False)
-      self.m.run(self.m.step,
-                 'wait for device after failure of \'%s\' (attempt %d)' % (
-                     title, attempt),
-                 cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
-                 timeout=180, abort_on_failure=False,
                  fail_build_on_failure=False)
     with self.m.context(cwd=self.m.path['start_dir'].join('skia')):
       with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
@@ -550,8 +520,8 @@ time.sleep(60)
                              '/home/chrome-bot/%s.force_quarantine' % bot_id,
                              ' ')
 
-    if self._ever_ran_adb:
-      self._adb('kill adb server', 'kill-server')
+    # if self._ever_ran_adb:
+    #   self._adb('kill adb server', 'kill-server')
 
   def step(self, name, cmd):
     sh = '%s.sh' % cmd[0]
