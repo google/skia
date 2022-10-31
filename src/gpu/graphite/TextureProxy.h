@@ -63,7 +63,7 @@ public:
                                     Renderable,
                                     SkBudgeted);
 
-    using LazyInstantiateCallback = std::function<sk_sp<Texture> (ResourceProvider*, Volatile)>;
+    using LazyInstantiateCallback = std::function<sk_sp<Texture> (ResourceProvider*)>;
 
     static sk_sp<TextureProxy> MakeLazy(SkISize dimensions,
                                         const TextureInfo&,

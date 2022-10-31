@@ -12,6 +12,10 @@
 
 #include "src/gpu/graphite/TextureProxyView.h"
 
+namespace skgpu {
+    class RefCntedCallback;
+}
+
 namespace skgpu::graphite {
 
 class Context;
@@ -85,7 +89,16 @@ public:
 
     TextureProxyView textureProxyView() const { return fTextureProxyView; }
 
+    static sk_sp<TextureProxy> MakePromiseImageLazyProxy(Recorder*,
+                                                         SkISize dimensions,
+                                                         TextureInfo,
+                                                         Volatile,
+                                                         GraphitePromiseImageFulfillProc,
+                                                         sk_sp<RefCntedCallback>,
+                                                         GraphitePromiseTextureReleaseProc);
+
 private:
+
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> onAsFragmentProcessor(
             GrRecordingContext*,
