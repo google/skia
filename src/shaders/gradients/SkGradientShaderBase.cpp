@@ -445,9 +445,9 @@ static skvm::Color css_lab_to_xyz(skvm::Color lab) {
     skvm::F32 f_cubed[3] = { f[0]*f[0]*f[0], f[1]*f[1]*f[1], f[2]*f[2]*f[2] };
 
     skvm::F32 xyz[3] = {
-        f_cubed[0] > e ? f_cubed[0] : (116 * f[0] - 16) * (1 / k),
-        lab.r > k * e  ? f_cubed[1] : lab.r * (1 / k),
-        f_cubed[2] > e ? f_cubed[2] : (116 * f[2] - 16) * (1 / k)
+        skvm::select(f_cubed[0] > e, f_cubed[0], (116 * f[0] - 16) * (1 / k)),
+        skvm::select(lab.r > k * e , f_cubed[1], lab.r * (1 / k)),
+        skvm::select(f_cubed[2] > e, f_cubed[2], (116 * f[2] - 16) * (1 / k))
     };
 
     constexpr float D50[3] = { 0.3457f / 0.3585f, 1.0f, (1.0f - 0.3457f - 0.3585f) / 0.3585f };
