@@ -156,6 +156,9 @@ public:
     // from SkSurface_Base).
     virtual sk_sp<const SkCapabilities> onCapabilities();
 
+    // True for surfaces instantiated by Graphite in GPU memory
+    virtual bool isGraphiteBacked() const { return false; }
+
     inline SkCanvas* getCachedCanvas();
     inline sk_sp<SkImage> refCachedImage();
 

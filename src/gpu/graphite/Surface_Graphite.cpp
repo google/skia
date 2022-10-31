@@ -30,6 +30,10 @@ Recorder* Surface::onGetRecorder() {
     return fDevice->recorder();
 }
 
+TextureProxyView Surface::readSurfaceView() const {
+    return fDevice->readSurfaceView();
+}
+
 SkCanvas* Surface::onNewCanvas() { return new SkCanvas(fDevice); }
 
 sk_sp<SkSurface> Surface::onNewSurface(const SkImageInfo& ii) {

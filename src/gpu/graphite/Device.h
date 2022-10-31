@@ -96,7 +96,7 @@ public:
 #if GRAPHITE_TEST_UTILS
     TextureProxy* proxy();
 #endif
-    TextureProxyView readSurfaceView();
+    TextureProxyView readSurfaceView() const;
 
 private:
     class IntersectionTreeSet;

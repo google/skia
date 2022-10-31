@@ -553,10 +553,10 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
     rules.fAllowUnpremulSrc = true;
     rules.fUncontainedRectSucceeds = false;
 
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
     for (auto renderable : {Renderable::kNo, Renderable::kYes}) {
         auto factory = std::function<GraphiteSrcFactory<Image>>([&](const SkPixmap& src) {
-            std::unique_ptr<Recorder> recorder = context->makeRecorder();
-
             // TODO: put this in the equivalent of sk_gpu_test::MakeBackendTextureImage
             TextureInfo info = recorder->priv().caps()->getDefaultSampledTextureInfo(
                     src.colorType(),
@@ -584,6 +584,63 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphite,
         auto label = SkStringPrintf("Renderable: %d", (int)renderable);
         graphite_read_pixels_test_driver(reporter, rules, factory, reader, label);
     }
+
+    // It's possible that we've created an Image using the factory, but then don't try to do
+    // readPixels on it, leaving a hanging command buffer. So we submit here to clean up.
+    context->submit();
+}
+
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraphite,
+                                         reporter,
+                                         context) {
+    using Recorder = skgpu::graphite::Recorder;
+    using Surface = sk_sp<SkSurface>;
+
+    auto reader = std::function<GraphiteReadSrcFn<Surface>>([context](const Surface& surface,
+                                                                      const SkIPoint& offset,
+                                                                      const SkPixmap& pixels) {
+        AsyncContext asyncContext;
+        auto rect = SkIRect::MakeSize(pixels.dimensions()).makeOffset(offset);
+
+        context->asyncReadPixels(surface.get(), pixels.colorType(), rect,
+                                 async_callback, &asyncContext);
+        if (!asyncContext.fCalled) {
+            context->submit();
+        }
+        while (!asyncContext.fCalled) {
+            context->checkAsyncWorkCompletion();
+        }
+        if (!asyncContext.fResult) {
+            return Result::kFail;
+        }
+        SkRectMemcpy(pixels.writable_addr(), pixels.rowBytes(), asyncContext.fResult->data(0),
+                     asyncContext.fResult->rowBytes(0), pixels.info().minRowBytes(),
+                     pixels.height());
+        return Result::kSuccess;
+    });
+
+    GraphiteReadPixelTestRules rules;
+    rules.fAllowUnpremulSrc = true;
+    rules.fUncontainedRectSucceeds = false;
+
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    auto factory = std::function<GraphiteSrcFactory<Surface>>([&](const SkPixmap& src) {
+        Surface surface = SkSurface::MakeGraphite(recorder.get(),
+                                                  src.info(),
+                                                  skgpu::graphite::Mipmapped::kNo,
+                                                  /*surfaceProps=*/nullptr);
+        if (surface) {
+            surface->writePixels(src, 0, 0);
+
+            std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+            skgpu::graphite::InsertRecordingInfo recordingInfo;
+            recordingInfo.fRecording = recording.get();
+            context->insertRecording(recordingInfo);
+        }
+
+        return surface;
+    });
+    graphite_read_pixels_test_driver(reporter, rules, factory, reader, {});
 
     // It's possible that we've created an Image using the factory, but then don't try to do
     // readPixels on it, leaving a hanging command buffer. So we submit here to clean up.

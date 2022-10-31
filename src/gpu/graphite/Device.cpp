@@ -1149,7 +1149,10 @@ TextureProxy* Device::proxy() {
 }
 #endif
 
-TextureProxyView Device::readSurfaceView() {
+TextureProxyView Device::readSurfaceView() const {
+    if (!fRecorder) {
+        return {};
+    }
     return fDC->readSurfaceView(fRecorder->priv().caps());
 }
 

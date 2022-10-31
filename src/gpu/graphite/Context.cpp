@@ -162,19 +162,63 @@ void Context::asyncReadPixels(const SkImage* image,
                               const SkIRect& srcRect,
                               SkImage::ReadPixelsCallback callback,
                               SkImage::ReadPixelsContext callbackContext) {
+    if (!as_IB(image)->isGraphiteBacked()) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+    auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
+    TextureProxyView proxyView = graphiteImage->textureProxyView();
+    TextureProxy* proxy = proxyView.proxy();
+
+    this->asyncReadPixels(proxy,
+                          image->imageInfo(),
+                          dstColorType,
+                          srcRect,
+                          callback,
+                          callbackContext);
+}
+
+void Context::asyncReadPixels(const SkSurface* surface,
+                              SkColorType dstColorType,
+                              const SkIRect& srcRect,
+                              SkImage::ReadPixelsCallback callback,
+                              SkImage::ReadPixelsContext callbackContext) {
+    if (!static_cast<const SkSurface_Base*>(surface)->isGraphiteBacked()) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+    auto graphiteSurface = reinterpret_cast<const skgpu::graphite::Surface*>(surface);
+    TextureProxyView proxyView = graphiteSurface->readSurfaceView();
+    TextureProxy* proxy = proxyView.proxy();
+
+    this->asyncReadPixels(proxy,
+                          const_cast<SkSurface*>(surface)->imageInfo(), // TODO: remove const_cast
+                          dstColorType,
+                          srcRect,
+                          callback,
+                          callbackContext);
+}
+
+void Context::asyncReadPixels(TextureProxy* proxy,
+                              const SkImageInfo& imageInfo,
+                              SkColorType dstColorType,
+                              const SkIRect& srcRect,
+                              SkImage::ReadPixelsCallback callback,
+                              SkImage::ReadPixelsContext callbackContext) {
+    if (!proxy) {
+        callback(callbackContext, nullptr);
+        return;
+    }
+
     if (dstColorType == kUnknown_SkColorType) {
         callback(callbackContext, nullptr);
         return;
     }
 
-    if (!SkIRect::MakeSize(image->dimensions()).contains(srcRect)) {
+    if (!SkIRect::MakeSize(imageInfo.dimensions()).contains(srcRect)) {
         callback(callbackContext, nullptr);
         return;
     }
-
-    auto graphiteImage = reinterpret_cast<const skgpu::graphite::Image*>(image);
-    TextureProxyView proxyView = graphiteImage->textureProxyView();
-    TextureProxy* proxy = proxyView.proxy();
 
     std::unique_ptr<Recorder> recorder = this->makeRecorder();
     const Caps* caps = recorder->priv().caps();
@@ -186,7 +230,7 @@ void Context::asyncReadPixels(const SkImage* image,
 
     using PixelTransferResult = RecorderPriv::PixelTransferResult;
     PixelTransferResult transferResult =
-            recorder->priv().transferPixels(proxy, image->imageInfo(), dstColorType, srcRect);
+            recorder->priv().transferPixels(proxy, imageInfo, dstColorType, srcRect);
 
     if (!transferResult.fTransferBuffer) {
         // TODO: try to do a synchronous readPixels instead

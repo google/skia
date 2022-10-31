@@ -36,6 +36,7 @@ class QueueManager;
 class Recording;
 class ResourceProvider;
 class SharedContext;
+class TextureProxy;
 
 #ifdef SK_ENABLE_PRECOMPILE
 class BlenderID;
@@ -70,6 +71,12 @@ public:
     void submit(SyncToCpu = SyncToCpu::kNo);
 
     void asyncReadPixels(const SkImage* image,
+                         SkColorType dstColorType,
+                         const SkIRect& srcRect,
+                         SkImage::ReadPixelsCallback callback,
+                         SkImage::ReadPixelsContext context);
+
+    void asyncReadPixels(const SkSurface* surface,
                          SkColorType dstColorType,
                          const SkIRect& srcRect,
                          SkImage::ReadPixelsCallback callback,
@@ -129,6 +136,13 @@ private:
     friend class ContextPriv;
 
     SingleOwner* singleOwner() const { return &fSingleOwner; }
+
+    void asyncReadPixels(TextureProxy* textureProxy,
+                         const SkImageInfo& imageInfo,
+                         SkColorType dstColorType,
+                         const SkIRect& srcRect,
+                         SkImage::ReadPixelsCallback callback,
+                         SkImage::ReadPixelsContext context);
 
     sk_sp<SharedContext> fSharedContext;
     std::unique_ptr<ResourceProvider> fResourceProvider;
