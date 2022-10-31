@@ -79,7 +79,10 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
         return nullptr;
     }
 
-    std::unique_ptr<const VulkanCaps> caps(new VulkanCaps());
+    std::unique_ptr<const VulkanCaps> caps(new VulkanCaps(interface.get(),
+                                                          context.fPhysicalDevice,
+                                                          physDevVersion,
+                                                          context.fVkExtensions));
 
     sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator = context.fMemoryAllocator;
     if (!memoryAllocator) {
