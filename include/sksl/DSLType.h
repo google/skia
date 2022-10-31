@@ -93,6 +93,8 @@ public:
             DSLModifiers* modifiers,
             Position pos = {});
 
+    static DSLType Invalid();
+
     /**
      * Returns true if the SkSL type is non-null.
      */

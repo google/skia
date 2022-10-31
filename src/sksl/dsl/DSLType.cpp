@@ -202,6 +202,10 @@ DSLType::DSLType(std::string_view name, DSLModifiers* modifiers, Position pos)
 DSLType::DSLType(const SkSL::Type* type, Position pos)
         : fSkSLType(verify_type(ThreadContext::Context(), type, /*allowGenericTypes=*/true, pos)) {}
 
+DSLType DSLType::Invalid() {
+    return DSLType(ThreadContext::Context().fTypes.fInvalid.get(), Position());
+}
+
 bool DSLType::isBoolean() const {
     return this->skslType().isBoolean();
 }

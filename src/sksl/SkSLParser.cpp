@@ -1038,7 +1038,7 @@ DSLType Parser::type(DSLModifiers* modifiers) {
     }
     if (!this->symbolTable()->isType(this->text(type))) {
         this->error(type, "no type named '" + std::string(this->text(type)) + "'");
-        return DSLType(nullptr);
+        return DSLType::Invalid();
     }
     DSLType result(this->text(type), modifiers, this->position(type));
     Token bracket;
