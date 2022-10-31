@@ -1542,7 +1542,7 @@ void Viewer::drawSlide(SkSurface* surface) {
         SkPictureRecorder recorder;
         SkCanvas* recorderCanvas = recorder.beginRecording(
                 SkRect::Make(fSlides[fCurrentSlide]->getDimensions()));
-        fSlides[fCurrentSlide]->draw(fWindow->graphiteContext(), recorderCanvas);
+        fSlides[fCurrentSlide]->draw(recorderCanvas);
         sk_sp<SkPicture> picture(recorder.finishRecordingAsPicture());
         SkFILEWStream stream("sample_app.skp");
         picture->serialize(&stream);
@@ -1611,7 +1611,7 @@ void Viewer::drawSlide(SkSurface* surface) {
             for (int x = 0; x < fWindow->width(); x += tileW) {
                 SkAutoCanvasRestore acr(slideCanvas, true);
                 slideCanvas->clipRect(SkRect::MakeXYWH(x, y, tileW, tileH));
-                fSlides[fCurrentSlide]->draw(fWindow->graphiteContext(), slideCanvas);
+                fSlides[fCurrentSlide]->draw(slideCanvas);
             }
         }
 
@@ -1635,9 +1635,9 @@ void Viewer::drawSlide(SkSurface* surface) {
             OveridePaintFilterCanvas filterCanvas(slideCanvas,
                                                   &fPaint, &fPaintOverrides,
                                                   &fFont, &fFontOverrides);
-            fSlides[fCurrentSlide]->draw(fWindow->graphiteContext(), &filterCanvas);
+            fSlides[fCurrentSlide]->draw(&filterCanvas);
         } else {
-            fSlides[fCurrentSlide]->draw(fWindow->graphiteContext(), slideCanvas);
+            fSlides[fCurrentSlide]->draw(slideCanvas);
         }
     }
     fStatsLayer.endTiming(fPaintTimer);

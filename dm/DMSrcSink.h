@@ -22,13 +22,11 @@
 
 //#define TEST_VIA_SVG
 
-namespace skgpu::graphite {
-class Context;
-}
-
-namespace skiagm::verifiers {
+namespace skiagm {
+namespace verifiers {
 class VerifierList;
-}
+}  // namespace verifiers
+}  // namespace skiagm
 
 namespace DM {
 
@@ -95,9 +93,6 @@ struct SinkFlags {
 struct Src {
     virtual ~Src() {}
     virtual Result SK_WARN_UNUSED_RESULT draw(GrDirectContext* context, SkCanvas* canvas) const = 0;
-    virtual Result SK_WARN_UNUSED_RESULT drawGraphite(skgpu::graphite::Context*, SkCanvas*) const {
-        return Result::Ok();
-    }
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
     virtual void modifyGrContextOptions(GrContextOptions* options) const {}
@@ -146,7 +141,6 @@ public:
     explicit GMSrc(skiagm::GMFactory);
 
     Result draw(GrDirectContext*, SkCanvas*) const override;
-    Result drawGraphite(skgpu::graphite::Context*, SkCanvas*) const override;
     SkISize size() const override;
     Name name() const override;
     void modifyGrContextOptions(GrContextOptions* options) const override;
