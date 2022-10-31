@@ -52,6 +52,7 @@ public:
      */
     static bool InstantiateIfNonVolatile(ResourceProvider*, TextureProxy*);
     bool isInstantiated() const { return SkToBool(fTexture); }
+    void deinstantiate();
     sk_sp<Texture> refTexture() const;
     const Texture* texture() const;
 

@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_RecorderPriv_DEFINED
-#define skgpu_graphite_RecorderPriv_DEFINED
+#ifndef skgpu_graphite_RecordingPriv_DEFINED
+#define skgpu_graphite_RecordingPriv_DEFINED
 
 #include "include/gpu/graphite/Recording.h"
 
@@ -14,6 +14,10 @@ namespace skgpu::graphite {
 
 class RecordingPriv {
 public:
+    bool hasVolatileProxies() const;
+    bool instantiateVolatileProxies(ResourceProvider*);
+    void deinstantiateVolatileProxies();
+
     bool addCommands(ResourceProvider*, CommandBuffer*);
     void addResourceRef(sk_sp<Resource> resource);
 
@@ -37,4 +41,3 @@ inline RecordingPriv Recording::priv() {
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_RecordingPriv_DEFINED
-

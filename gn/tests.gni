@@ -343,6 +343,7 @@ graphite_tests_sources = [
   "$_tests/graphite/ImageShaderTest.cpp",
   "$_tests/graphite/IntersectionTreeTest.cpp",
   "$_tests/graphite/KeyTest.cpp",
+  "$_tests/graphite/MutableImagesTest.cpp",
   "$_tests/graphite/PipelineDataCacheTest.cpp",
   "$_tests/graphite/RTEffectTest.cpp",
   "$_tests/graphite/ReadWritePixelsGraphiteTest.cpp",

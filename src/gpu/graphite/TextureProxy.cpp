@@ -96,6 +96,11 @@ bool TextureProxy::InstantiateIfNonVolatile(ResourceProvider* resourceProvider,
     return textureProxy->instantiate(resourceProvider);
 }
 
+void TextureProxy::deinstantiate() {
+    SkASSERT(fVolatile == Volatile::kYes && SkToBool(fLazyInstantiateCallback));
+
+    fTexture.reset();
+}
 
 sk_sp<Texture> TextureProxy::refTexture() const {
     return fTexture;

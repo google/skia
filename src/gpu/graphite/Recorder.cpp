@@ -123,6 +123,17 @@ std::unique_ptr<Recording> Recorder::snap() {
         device->flushPendingWorkToRecorder();
     }
 
+    std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> volatileProxies;
+    fTextureDataCache->foreach([&](const SkTextureDataBlock* block) {
+        for (int j = 0; j < block->numTextures(); ++j) {
+            const SkTextureDataBlock::SampledTexture& tex = block->texture(j);
+
+            if (tex.first->isVolatile()) {
+                volatileProxies.insert(tex.first);
+            }
+        }
+    });
+
     // TODO: fulfill all promise images in the TextureDataCache here
     // TODO: create all the samplers needed in the TextureDataCache here
 
@@ -140,7 +151,8 @@ std::unique_ptr<Recording> Recorder::snap() {
         return nullptr;
     }
 
-    std::unique_ptr<Recording> recording(new Recording(std::move(fGraph)));
+    std::unique_ptr<Recording> recording(new Recording(std::move(fGraph),
+                                                       std::move(volatileProxies)));
     fDrawBufferManager->transferToRecording(recording.get());
     fUploadBufferManager->transferToRecording(recording.get());
 

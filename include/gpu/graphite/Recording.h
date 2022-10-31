@@ -9,8 +9,10 @@
 #define skgpu_graphite_Recording_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkChecksum.h"
 
 #include <memory>
+#include <unordered_set>
 #include <vector>
 
 namespace skgpu::graphite {
@@ -20,6 +22,7 @@ class RecordingPriv;
 class Resource;
 class ResourceProvider;
 class TaskGraph;
+class TextureProxy;
 
 class Recording final {
 public:
@@ -31,7 +34,13 @@ private:
     friend class Recorder; // for ctor
     friend class RecordingPriv;
 
-    Recording(std::unique_ptr<TaskGraph>);
+    struct ProxyHash {
+        std::size_t operator()(const sk_sp<TextureProxy>& proxy) const {
+            return SkGoodHash()(proxy.get());
+        }
+    };
+
+    Recording(std::unique_ptr<TaskGraph>, std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&&);
 
     bool addCommands(CommandBuffer*, ResourceProvider*);
     void addResourceRef(sk_sp<Resource>);
@@ -42,6 +51,11 @@ private:
     // Those refs are stored in the array here and will eventually be passed onto a CommandBuffer
     // when the Recording adds its commands.
     std::vector<sk_sp<Resource>> fExtraResourceRefs;
+
+    // TODO: Once things have settled down, reconsider this data structure based on Chrome's
+    // usage. If all Chrome's images are fulfilled at insert time, this data structure may be
+    // warranted otherwise a uniquified std::vector may suffice.
+    std::unordered_set<sk_sp<TextureProxy>, ProxyHash> fVolatileProxies;
 };
 
 } // namespace skgpu::graphite

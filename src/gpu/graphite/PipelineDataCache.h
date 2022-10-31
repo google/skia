@@ -19,7 +19,7 @@ namespace skgpu::graphite {
 // resettable gatherer had accumulated the input data pointer).
 //
 // If an identical block of data is already in the cache, that existing pointer is returned, making
-// pointer comparison suitable when comparing data blocks retreived from the cache.
+// pointer comparison suitable when comparing data blocks retrieved from the cache.
 //
 // T must define a hash() function, an operator==, and a static Make(const T&, SkArenaAlloc*)
 // factory that's used to copy the data into an arena allocation owned by the PipelineDataCache.
@@ -44,6 +44,14 @@ public:
     // The number of unique T objects in the cache
     int count() const {
         return fDataPointers.count();
+    }
+
+    // Call fn on every item in the set.  You may not mutate anything.
+    template <typename Fn>  // f(T), f(const T&)
+    void foreach(Fn&& fn) const {
+        fDataPointers.foreach([fn](const DataRef& ref){
+            fn(ref.fPointer);
+        });
     }
 
 private:
