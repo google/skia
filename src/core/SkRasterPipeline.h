@@ -237,7 +237,7 @@ public:
 
     void reset();
 
-    enum StockStage {
+    enum Stage {
     #define M(stage) stage,
         SK_RASTER_PIPELINE_STAGES_ALL(M)
     #undef M
@@ -248,9 +248,9 @@ public:
     static constexpr int kNumHighpStages = SK_RASTER_PIPELINE_STAGES_ALL(M);
 #undef M
 
-    void append(StockStage, void* = nullptr);
-    void append(StockStage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
-    void append(StockStage, uintptr_t ctx);
+    void append(Stage, void* = nullptr);
+    void append(Stage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
+    void append(Stage, uintptr_t ctx);
 
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
@@ -297,14 +297,14 @@ public:
 private:
     struct StageList {
         StageList* prev;
-        StockStage stage;
+        Stage      stage;
         void*      ctx;
     };
 
     using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, void** program);
     StartPipelineFn build_pipeline(void**) const;
 
-    void unchecked_append(StockStage, void*);
+    void unchecked_append(Stage, void*);
     int slots_needed() const;
 
     SkArenaAlloc*               fAlloc;

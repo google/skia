@@ -26,7 +26,7 @@ void SkRasterPipeline::reset() {
     fNumStages = 0;
 }
 
-void SkRasterPipeline::append(StockStage stage, void* ctx) {
+void SkRasterPipeline::append(Stage stage, void* ctx) {
     SkASSERT(stage !=           uniform_color);  // Please use append_constant_color().
     SkASSERT(stage != unbounded_uniform_color);  // Please use append_constant_color().
     SkASSERT(stage !=                 set_rgb);  // Please use append_set_rgb().
@@ -40,11 +40,11 @@ void SkRasterPipeline::append(StockStage stage, void* ctx) {
     SkASSERT(stage !=            stack_rewind);  // Please use append_stack_rewind().
     this->unchecked_append(stage, ctx);
 }
-void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
+void SkRasterPipeline::unchecked_append(Stage stage, void* ctx) {
     fStages = fAlloc->make<StageList>( StageList{fStages, stage, ctx} );
     fNumStages += 1;
 }
-void SkRasterPipeline::append(StockStage stage, uintptr_t ctx) {
+void SkRasterPipeline::append(Stage stage, uintptr_t ctx) {
     void* ptrCtx;
     memcpy(&ptrCtx, &ctx, sizeof(ctx));
     this->append(stage, ptrCtx);

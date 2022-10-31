@@ -687,8 +687,8 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
 
     SkRasterPipeline_SamplerCtx* sampler = alloc->make<SkRasterPipeline_SamplerCtx>();
 
-    auto sample = [&](SkRasterPipeline::StockStage setup_x,
-                      SkRasterPipeline::StockStage setup_y) {
+    auto sample = [&](SkRasterPipeline::Stage setup_x,
+                      SkRasterPipeline::Stage setup_y) {
         p->append(setup_x, sampler);
         p->append(setup_y, sampler);
         append_tiling_and_gather();
