@@ -595,12 +595,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.matchExtraConfig("Graphite") {
-		// The Graphite bots run the skps, gms and tests
 		removeFromArgs("image")
 		removeFromArgs("lottie")
 		removeFromArgs("colorImage")
 		removeFromArgs("svg")
-	} else if b.matchExtraConfig("DDL", "PDF") {
+	}
+
+	// Remove skps for all bots except for a select few. On bots that will run SKPs remove some of their other tests.
+	if b.matchExtraConfig("DDL", "PDF") {
 		// The DDL and PDF bots just render the large skps and the gms
 		removeFromArgs("tests")
 		removeFromArgs("image")
@@ -612,13 +614,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		removeFromArgs("gm")
 		removeFromArgs("image")
 		removeFromArgs("colorImage")
-		removeFromArgs("lottie")
 		removeFromArgs("svg")
 	} else if b.matchExtraConfig("FailFlushTimeCallbacks") {
 		// The FailFlushTimeCallbacks bot only runs skps, gms and svgs
 		removeFromArgs("tests")
 		removeFromArgs("image")
-		removeFromArgs("lottie")
 		removeFromArgs("colorImage")
 	} else {
 		// No other bots render the .skps.
