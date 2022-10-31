@@ -55,7 +55,7 @@ void GrTexture::assertMipmapsNotDirty(const GrTextureProxy* proxy) {
             bool isFlushing = context->priv().drawingManager()->isFlushing();
 
             auto flushStr = [](int num, bool is) {
-                return SkStringPrintf("%s flush #%d\n", is ? "in" : "before", num);
+                return SkStringPrintf("%s flush #%d", is ? "in" : "before", num);
             };
 
             bool isRT = false;
@@ -76,7 +76,7 @@ void GrTexture::assertMipmapsNotDirty(const GrTextureProxy* proxy) {
             msg += SkStringPrintf(
                     " Dirtied by \"%s\" %s, now we're %s. "
                     "tex dims: %dx%d, gl fmt: %04x, isRT: %d, sc: %d, borrowed: %d, type:%d, ro:%d,"
-                    " dirty failed: \"%s\"",
+                    " regen failed: \"%s\"",
                     fMipmapDirtyReason,
                     flushStr(fMipmapDirtyFlushNum, fMipmapDirtyWasFlushing).c_str(),
                     flushStr(flushNum, isFlushing).c_str(),

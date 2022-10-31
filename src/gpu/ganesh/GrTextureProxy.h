@@ -39,12 +39,16 @@ public:
                  (GrMipmapStatus::kNotAllocated == fMipmapStatus));
         return GrMipmapped::kYes == fMipmapped && GrMipmapStatus::kValid != fMipmapStatus;
     }
-    void markMipmapsDirty(const char* reason, int flushNum = -1, bool isFlushing = false) {
+    void markMipmapsDirty(const char* reason,
+                          int flushNum = -1,
+                          bool isFlushing = false,
+                          const char* taskName = nullptr) {
         SkASSERT(GrMipmapped::kYes == fMipmapped);
         fMipmapStatus = GrMipmapStatus::kDirty;
         SkDEBUGCODE(fMipmapDirtyReason = reason;)
         SkDEBUGCODE(fMipmapDirtyFlushNum = flushNum;)
         SkDEBUGCODE(fMipmapDirtyWasFlushing = isFlushing;)
+        SkDEBUGCODE(fMipmapDirtyTaskName = taskName;)
     }
     void markMipmapsClean() {
         SkASSERT(GrMipmapped::kYes == fMipmapped);
@@ -64,6 +68,9 @@ public:
     SkString mipmapDirtyReport() const {
         SkString report;
         report.printf("Proxy dirtied by \"%s\"", fMipmapDirtyReason);
+        if (fMipmapDirtyTaskName) {
+            report.appendf(", task \"%s\",", fMipmapDirtyTaskName);
+        }
         if (fMipmapDirtyFlushNum >= 0) {
             report.appendf(" during flush %d, was flushing: %d",
                            fMipmapDirtyFlushNum,
@@ -207,6 +214,8 @@ private:
     SkDEBUGCODE(const char* fMipmapDirtyReason = "";)
     SkDEBUGCODE(int fMipmapDirtyFlushNum = -1;)
     SkDEBUGCODE(bool fMipmapDirtyWasFlushing = false;)
+    SkDEBUGCODE(const char* fMipmapDirtyTaskName = nullptr;)
+
     bool             fSyncTargetKey = true;  // Should target's unique key be sync'ed with ours.
 
     // For GrTextureProxies created in a DDL recording thread it is possible for the uniqueKey

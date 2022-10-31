@@ -34,7 +34,7 @@ private:
     ExpectedOutcome onMakeClosed(GrRecordingContext*, SkIRect* targetUpdateBounds) override;
     bool onExecute(GrOpFlushState*) override;
 
-#if GR_TEST_UTILS
+#if GR_TEST_UTILS || defined(SK_DEBUG)
     const char* name() const final { return "WritePixels"; }
 #endif
 #ifdef SK_DEBUG

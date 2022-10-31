@@ -110,9 +110,11 @@ public:
               SkString indent,
               bool printDependencies,
               bool close) const override;
-    const char* name() const final { return "Ops"; }
     int numOpChains() const { return fOpChains.count(); }
     const GrOp* getChain(int index) const { return fOpChains[index].head(); }
+#endif
+#if GR_TEST_UTILS || defined(SK_DEBUG)
+    const char* name() const final { return "Ops"; }
 #endif
 
 protected:

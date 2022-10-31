@@ -39,7 +39,7 @@ private:
 
     bool onExecute(GrOpFlushState*) override;
 
-#if GR_TEST_UTILS
+#if GR_TEST_UTILS || defined(SK_DEBUG)
     const char* name() const final { return "TransferFrom"; }
 #endif
 #ifdef SK_DEBUG

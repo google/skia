@@ -86,13 +86,15 @@ void GrRenderTask::makeClosed(GrRecordingContext* rContext) {
         if (textureProxy && GrMipmapped::kYes == textureProxy->mipmapped()) {
             int flushNum = -1;
             bool isFlushing = false;
+            const char* taskName = nullptr;
 #if defined(SK_DEBUG)
             if (auto* dc = GrAsDirectContext(rContext)) {
                 flushNum   = dc->priv().drawingManager()->flushNumber();
                 isFlushing = dc->priv().drawingManager()->isFlushing();
             }
+            taskName = this->name();
 #endif
-            textureProxy->markMipmapsDirty("makeClosed task target", flushNum, isFlushing);
+            textureProxy->markMipmapsDirty("makeClosed task target", flushNum, isFlushing, taskName);
         }
     }
 

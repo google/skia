@@ -59,6 +59,8 @@ private:
               SkString indent,
               bool printDependencies,
               bool close) const final;
+#endif
+#if GR_TEST_UTILS || defined(SK_DEBUG)
     const char* name() const final { return "DDL"; }
 #endif
 #ifdef SK_DEBUG
