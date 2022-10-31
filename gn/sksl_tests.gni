@@ -83,6 +83,7 @@ sksl_error_tests = [
   "/sksl/errors/FloatRemainder.rts",
   "/sksl/errors/ForInitStmt.sksl",
   "/sksl/errors/ForTypeMismatch.rts",
+  "/sksl/errors/FunctionParamBadType.rts",
   "/sksl/errors/FunctionParameterOfVoid.rts",
   "/sksl/errors/GenericArgumentMismatch.rts",
   "/sksl/errors/IfTypeMismatch.rts",
