@@ -796,8 +796,8 @@ public:
             return;
         }
 
+        Analysis::SymbolTableStackBuilder scopedStackBuilder(stmt->get(), &fSymbolTableStack);
         size_t oldEnclosingStmtStackSize = fEnclosingStmtStack.size();
-        size_t oldSymbolStackSize = fSymbolTableStack.size();
 
         if (isViableAsEnclosingStatement) {
             fEnclosingStmtStack.push_back(stmt);
@@ -812,10 +812,6 @@ public:
 
             case Statement::Kind::kBlock: {
                 Block& block = (*stmt)->as<Block>();
-                if (block.symbolTable()) {
-                    fSymbolTableStack.push_back(block.symbolTable());
-                }
-
                 for (std::unique_ptr<Statement>& blockStmt : block.children()) {
                     this->visitStatement(&blockStmt);
                 }
@@ -843,10 +839,6 @@ public:
             }
             case Statement::Kind::kFor: {
                 ForStatement& forStmt = (*stmt)->as<ForStatement>();
-                if (forStmt.symbols()) {
-                    fSymbolTableStack.push_back(forStmt.symbols());
-                }
-
                 // The initializer and loop body are candidates for inlining.
                 this->visitStatement(&forStmt.initializer(),
                                      /*isViableAsEnclosingStatement=*/false);
@@ -882,10 +874,6 @@ public:
             }
             case Statement::Kind::kSwitch: {
                 SwitchStatement& switchStmt = (*stmt)->as<SwitchStatement>();
-                if (switchStmt.symbols()) {
-                    fSymbolTableStack.push_back(switchStmt.symbols());
-                }
-
                 this->visitExpression(&switchStmt.value());
                 for (const std::unique_ptr<Statement>& switchCase : switchStmt.cases()) {
                     // The switch-case's fValue cannot be a FunctionCall; skip it.
@@ -904,7 +892,6 @@ public:
         }
 
         // Pop our symbol and enclosing-statement stacks.
-        fSymbolTableStack.resize(oldSymbolStackSize);
         fEnclosingStmtStack.resize(oldEnclosingStmtStackSize);
     }
 

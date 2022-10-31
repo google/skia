@@ -222,7 +222,7 @@ public:
     SymbolTableStackBuilder(const Statement* stmt,
                             std::vector<std::shared_ptr<SymbolTable>>* stack);
 
-    // If a symbol table was added to the stack earlier, removes it here.
+    // If a symbol table was added to the stack earlier, removes it from the stack.
     ~SymbolTableStackBuilder();
 
 private:
