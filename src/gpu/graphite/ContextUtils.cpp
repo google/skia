@@ -27,14 +27,14 @@ std::tuple<SkUniquePaintParamsID, const UniformDataBlock*, const TextureDataBloc
 ExtractPaintData(Recorder* recorder,
                  PipelineDataGatherer* gatherer,
                  PaintParamsKeyBuilder* builder,
+                 const Layout layout,
                  const SkM44& local2Dev,
                  const PaintParams& p) {
-
-    SkDEBUGCODE(gatherer->checkReset());
     SkDEBUGCODE(builder->checkReset());
 
-    KeyContext keyContext(recorder, local2Dev);
+    gatherer->resetWithNewLayout(layout);
 
+    KeyContext keyContext(recorder, local2Dev);
     p.toKey(keyContext, builder, gatherer);
 
     auto dict = recorder->priv().shaderCodeDictionary();
@@ -50,19 +50,17 @@ ExtractPaintData(Recorder* recorder,
             gatherer->hasTextures() ? textureDataCache->insert(gatherer->textureDataBlock())
                                     : nullptr;
 
-    gatherer->reset();
-
     return { entry->uniqueID(), uniforms, textures };
 }
 
-std::tuple<const UniformDataBlock*, const TextureDataBlock*>
-ExtractRenderStepData(UniformDataCache* uniformDataCache,
-                      TextureDataCache* textureDataCache,
-                      PipelineDataGatherer* gatherer,
-                      const RenderStep* step,
-                      const DrawParams& params) {
-    SkDEBUGCODE(gatherer->checkReset());
-
+std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepData(
+        UniformDataCache* uniformDataCache,
+        TextureDataCache* textureDataCache,
+        PipelineDataGatherer* gatherer,
+        const Layout layout,
+        const RenderStep* step,
+        const DrawParams& params) {
+    gatherer->resetWithNewLayout(layout);
     step->writeUniformsAndTextures(params, gatherer);
 
     const UniformDataBlock* uniforms =
@@ -71,8 +69,6 @@ ExtractRenderStepData(UniformDataCache* uniformDataCache,
     const TextureDataBlock* textures =
             gatherer->hasTextures() ? textureDataCache->insert(gatherer->textureDataBlock())
                                     : nullptr;
-
-    gatherer->reset();
 
     return { uniforms, textures };
 }
@@ -86,9 +82,12 @@ std::string get_uniform_header(int bufferID, const char* name) {
     return result;
 }
 
-std::string get_uniforms(SkSpan<const Uniform> uniforms, int* offset, int manglingSuffix) {
+std::string get_uniforms(Layout layout,
+                         SkSpan<const Uniform> uniforms,
+                         int* offset,
+                         int manglingSuffix) {
     std::string result;
-    UniformOffsetCalculator offsetter(Layout::kMetal, *offset);
+    UniformOffsetCalculator offsetter(layout, *offset);
 
     for (const Uniform& u : uniforms) {
         SkSL::String::appendf(&result,
@@ -115,6 +114,7 @@ std::string get_uniforms(SkSpan<const Uniform> uniforms, int* offset, int mangli
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
+                                    const Layout layout,
                                     const std::vector<PaintParamsKey::BlockReader>& readers) {
     int offset = 0;
 
@@ -124,7 +124,7 @@ std::string EmitPaintParamsUniforms(int bufferID,
 
         if (!uniforms.empty()) {
             SkSL::String::appendf(&result, "// %s uniforms\n", readers[i].entry()->fName);
-            result += get_uniforms(uniforms, &offset, i);
+            result += get_uniforms(layout, uniforms, &offset, i);
         }
     }
     result.append("};\n\n");
@@ -132,12 +132,14 @@ std::string EmitPaintParamsUniforms(int bufferID,
     return result;
 }
 
-std::string EmitRenderStepUniforms(int bufferID, const char* name,
+std::string EmitRenderStepUniforms(int bufferID,
+                                   const char* name,
+                                   const Layout layout,
                                    SkSpan<const Uniform> uniforms) {
     int offset = 0;
 
     std::string result = get_uniform_header(bufferID, name);
-    result += get_uniforms(uniforms, &offset, -1);
+    result += get_uniforms(layout, uniforms, &offset, -1);
     result.append("};\n\n");
 
     return result;
@@ -263,7 +265,8 @@ std::string EmitVaryings(const RenderStep* step,
     return result;
 }
 
-std::string GetSkSLVS(const RenderStep* step,
+std::string GetSkSLVS(const Layout uboLayout,
+                      const RenderStep* step,
                       bool defineShadingSsboIndexVarying,
                       bool defineLocalCoordsVarying) {
     // TODO: To more completely support end-to-end rendering, this will need to be updated so that
@@ -289,7 +292,7 @@ std::string GetSkSLVS(const RenderStep* step,
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     // TODO: replace hard-coded bufferID with the backend's renderstep uniform-buffer index.
     if (step->numUniforms() > 0) {
-        sksl += EmitRenderStepUniforms(1, "Step", step->uniforms());
+        sksl += EmitRenderStepUniforms(1, "Step", uboLayout, step->uniforms());
     }
 
     // Varyings needed by RenderStep
@@ -318,7 +321,9 @@ std::string GetSkSLVS(const RenderStep* step,
     return sksl;
 }
 
-std::string GetSkSLFS(const ShaderCodeDictionary* dict,
+std::string GetSkSLFS(const Layout uboLayout,
+                      const Layout ssboLayout,
+                      const ShaderCodeDictionary* dict,
                       const SkRuntimeEffectDictionary* rteDict,
                       const RenderStep* step,
                       SkUniquePaintParamsID paintID,
@@ -337,8 +342,14 @@ std::string GetSkSLFS(const ShaderCodeDictionary* dict,
     *blendInfo = shaderInfo.blendInfo();
     *requiresLocalCoordsVarying = shaderInfo.needsLocalCoords();
 
+    // Extra RenderStep uniforms are always backed by a UBO. Uniforms for the PaintParams are either
+    // UBO or SSBO backed based on `useStorageBuffers`.
     std::string sksl;
-    sksl += shaderInfo.toSkSL(step, useStorageBuffers, *requiresLocalCoordsVarying);
+    sksl += shaderInfo.toSkSL(/*paintUniformsLayout=*/useStorageBuffers ? ssboLayout : uboLayout,
+                              /*renderStepUniformsLayout=*/uboLayout,
+                              step,
+                              /*defineShadingSsboIndexVarying=*/useStorageBuffers,
+                              /*defineLocalCoordsVarying=*/*requiresLocalCoordsVarying);
 
     return sksl;
 }

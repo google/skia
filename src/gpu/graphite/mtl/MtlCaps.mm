@@ -233,8 +233,12 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
         fRequiredUniformBufferAlignment = 16;
     }
 
+    fUniformBufferLayout = Layout::kMetal;
+
     // Metal does not distinguish between uniform and storage buffers.
     fRequiredStorageBufferAlignment = fRequiredUniformBufferAlignment;
+    fStorageBufferLayout = fUniformBufferLayout;
+
     fStorageBufferSupport = true;
     fStorageBufferPreferred = true;
 

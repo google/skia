@@ -441,15 +441,23 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     GraphicsPipelineCache pipelineCache;
 
-    // TODO(b/242076321) Use storage buffers for shading uniforms, if supported by GPU.
+    // Geometry uniforms are currently always UBO-backed.
+    Layout geometryUniformLayout = recorder->priv().caps()->uniformBufferLayout();
     UniformSsboTracker geometrySsboTracker(/*useStorageBuffers=*/false);
-    UniformSsboTracker shadingSsboTracker(
-            /*useStorageBuffers=*/recorder->priv().caps()->storageBufferPreferred());
+
+    bool useStorageBuffers = recorder->priv().caps()->storageBufferPreferred();
+    Layout shadingUniformLayout = useStorageBuffers
+                                          ? recorder->priv().caps()->storageBufferLayout()
+                                          : recorder->priv().caps()->uniformBufferLayout();
+    UniformSsboTracker shadingSsboTracker(useStorageBuffers);
     TextureBindingTracker textureBindingTracker;
 
     ShaderCodeDictionary* dict = recorder->priv().shaderCodeDictionary();
     PaintParamsKeyBuilder builder(dict);
-    PipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
+
+    // The initial layout we pass here is not important as it will be re-assigned when writing
+    // shading and geometry uniforms below.
+    PipelineDataGatherer gatherer(shadingUniformLayout);
 
     std::vector<SortKey> keys;
     keys.reserve(draws->renderStepCount());
@@ -462,7 +470,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         const TextureDataBlock* paintTextures = nullptr;
         if (draw.fPaintParams.has_value()) {
             std::tie(shaderID, shadingUniforms, paintTextures) =
-                    ExtractPaintData(recorder, &gatherer, &builder,
+                    ExtractPaintData(recorder,
+                                     &gatherer,
+                                     &builder,
+                                     shadingUniformLayout,
                                      draw.fDrawParams.transform(),
                                      draw.fPaintParams.value());
         } // else depth-only
@@ -473,10 +484,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
             GraphicsPipelineCache::Index pipelineIndex = pipelineCache.insert(
                     {step, performsShading ? shaderID : SkUniquePaintParamsID::InvalidID()});
-
             auto [geometryUniforms, stepTextures] = ExtractRenderStepData(&geometryUniformDataCache,
                                                                           textureDataCache,
                                                                           &gatherer,
+                                                                          geometryUniformLayout,
                                                                           step,
                                                                           draw.fDrawParams);
 

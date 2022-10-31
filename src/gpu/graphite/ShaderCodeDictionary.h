@@ -35,6 +35,7 @@ class SkRuntimeEffectDictionary;
 
 namespace skgpu::graphite {
 
+enum class Layout;
 class RenderStep;
 
 #ifdef SK_ENABLE_PRECOMPILE
@@ -159,7 +160,9 @@ public:
     }
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 
-    std::string toSkSL(const RenderStep* step,
+    std::string toSkSL(const Layout paintUniformsLayout,
+                       const Layout renderStepUniformsLayout,
+                       const RenderStep* step,
                        const bool defineShadingSsboIndexVarying,
                        const bool defineLocalCoordsVarying) const;
 

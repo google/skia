@@ -43,6 +43,16 @@ enum class BufferType {
 static const int kBufferTypeCount = static_cast<int>(BufferType::kStorage) + 1;
 
 /**
+ * Data layout requirements on host-shareable buffer contents.
+ */
+enum class Layout {
+    kInvalid = 0,
+    kStd140,
+    kStd430,
+    kMetal,
+};
+
+/**
  * When creating the memory for a resource should we use a memory type that prioritizes the
  * effeciency of GPU reads even if it involves extra work to write CPU data to it. For example, we
  * would want this for buffers that we cache to read the same data many times on the GPU.

@@ -451,8 +451,8 @@ SkSLType UniformOffsetCalculator::getUniformTypeForLayout(SkSLType type) {
     return type;
 }
 
-UniformOffsetCalculator::UniformOffsetCalculator(Layout layout, uint32_t startingOffset)
-        : fLayout(layout), fOffset(startingOffset) {
+void UniformOffsetCalculator::setLayout(Layout layout) {
+    fLayout = layout;
     switch (layout) {
         case Layout::kStd140:
             fWriteUniform = Writer<Rules140>::WriteUniform;
@@ -463,7 +463,15 @@ UniformOffsetCalculator::UniformOffsetCalculator(Layout layout, uint32_t startin
         case Layout::kMetal:
             fWriteUniform = Writer<RulesMetal>::WriteUniform;
             break;
+        case Layout::kInvalid:
+            SK_ABORT("Invalid layout type");
+            break;
     }
+}
+
+UniformOffsetCalculator::UniformOffsetCalculator(Layout layout, uint32_t startingOffset)
+        : fLayout(layout), fOffset(startingOffset) {
+    this->setLayout(fLayout);
 }
 
 size_t UniformOffsetCalculator::advanceOffset(SkSLType type, unsigned int count) {
@@ -489,6 +497,13 @@ UniformDataBlock UniformManager::finishUniformDataBlock() {
     char* padding = fStorage.append(paddingSize);
     memset(padding, 0, paddingSize);
     return UniformDataBlock(SkSpan(fStorage.begin(), size));
+}
+
+void UniformManager::resetWithNewLayout(Layout layout) {
+    if (layout != fLayout) {
+        this->setLayout(layout);
+    }
+    this->reset();
 }
 
 void UniformManager::reset() {

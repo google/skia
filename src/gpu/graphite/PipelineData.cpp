@@ -14,14 +14,12 @@ namespace skgpu::graphite {
 
 using SnippetRequirementFlags = SnippetRequirementFlags;
 
-PipelineDataGatherer::PipelineDataGatherer(skgpu::graphite::Layout layout)
-        : fUniformManager(layout)
-        , fSnippetRequirementFlags(SnippetRequirementFlags::kNone) {
-}
+PipelineDataGatherer::PipelineDataGatherer(Layout layout)
+        : fUniformManager(layout), fSnippetRequirementFlags(SnippetRequirementFlags::kNone) {}
 
-void PipelineDataGatherer::reset() {
+void PipelineDataGatherer::resetWithNewLayout(Layout layout) {
+    fUniformManager.resetWithNewLayout(layout);
     fTextureDataBlock.reset();
-    fUniformManager.reset();
     fSnippetRequirementFlags = SnippetRequirementFlags::kNone;
 }
 

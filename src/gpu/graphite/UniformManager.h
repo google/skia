@@ -14,6 +14,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkSLTypeShared.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/Uniform.h"
 
 class SkM44;
@@ -23,12 +24,6 @@ struct SkRect;
 namespace skgpu::graphite {
 
 enum class CType : unsigned;
-
-enum class Layout {
-    kStd140,
-    kStd430,
-    kMetal, /** This is our own self-imposed layout we use for Metal. */
-};
 
 class UniformDataBlock;
 
@@ -48,6 +43,7 @@ public:
 
 protected:
     SkSLType getUniformTypeForLayout(SkSLType type);
+    void setLayout(Layout);
 
     using WriteUniformFn = uint32_t (*)(SkSLType type,
                                         CType ctype,
@@ -67,6 +63,7 @@ public:
     UniformDataBlock finishUniformDataBlock();
     size_t size() const { return fStorage.size(); }
 
+    void resetWithNewLayout(Layout);
     void reset();
 
     // Write a single instance of `type` from the data block referenced by `src`.

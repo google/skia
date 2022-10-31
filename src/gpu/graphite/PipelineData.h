@@ -92,7 +92,8 @@ class PipelineDataGatherer {
 public:
     PipelineDataGatherer(Layout layout);
 
-    void reset();
+    void resetWithNewLayout(Layout layout);
+
     // Check that the gatherer has been reset to its initial state prior to collecting new data.
     SkDEBUGCODE(void checkReset();)
 
