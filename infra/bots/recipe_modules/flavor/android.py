@@ -89,9 +89,9 @@ class AndroidFlavor(default.DefaultFlavor):
 
     def wait_for_device(attempt):
       self.m.run(self.m.step,
-                 'adb kill-server after failure of \'%s\' (attempt %d)' % (
+                 'adb reconnect after failure of \'%s\' (attempt %d)' % (
                      title, attempt),
-                 cmd=[self.ADB_BINARY, 'kill-server'],
+                 cmd=[self.ADB_BINARY, 'reconnect'],
                  infra_step=True, timeout=30, abort_on_failure=False,
                  fail_build_on_failure=False)
       self.m.run(self.m.step,

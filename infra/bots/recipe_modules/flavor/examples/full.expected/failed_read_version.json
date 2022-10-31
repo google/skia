@@ -886,7 +886,7 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
-      "kill-server"
+      "reconnect"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -895,7 +895,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb kill-server after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
+    "name": "adb reconnect after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
     "timeout": 30
   },
   {
