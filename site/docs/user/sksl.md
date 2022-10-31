@@ -254,3 +254,31 @@ gradient as alpha decreases. Unpremultipled colors cause the gradient to display
 incorrectly, becoming too bright and shifting hue as the alpha changes.
 
 <fiddle-embed-sk name='91a25662aab86b212b946cb4df8b12ca'></fiddle-embed-sk>
+
+---
+
+## Minified SkSL
+
+Skia includes a minifier tool which can automatically reduce the size of your Runtime Effect code.
+The tool eliminates whitespace and comments, shortens function and variable names, and
+deletes unreferenced code.
+
+As an example, here is the previous demo in its minified form. The shader code is reduced to
+approximately half of its original size, while displaying the exact same result.
+
+<fiddle-embed-sk name='a6edbedab51be34f74b15c26e276ecc1'></fiddle-embed-sk>
+
+To enable this tool, add `skia_compile_modules = true` to your gn argument list. (At the command
+line, type `gn args out/yourbuild` to access the arguments, or edit the file `out/yourbuild/args.gn`
+directly.) Use `ninja` to compile Skia once more, and you will now have a new utility called
+`sksl-minify` in the output directory.
+
+`sksl-minify` takes the following command line arguments:
+
+- An output path, e.g. `MyShader.minified.sksl`
+- An input path, e.g. `MyShader.sksl`
+- (Optional) Pass `--stringify` to wrap the minified SkSL text in a quoted C++ string.
+  By default, the output file will contain plain SkSL. The minified shader string in the example
+  code above was created with --stringify.
+- (Optional) Pass `--shader`, `--colorfilter` or `--blender` to set the Runtime Effect program kind.
+  The default value is `--shader`.
