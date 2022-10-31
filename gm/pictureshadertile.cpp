@@ -71,11 +71,12 @@ static void draw_scene(SkCanvas* canvas, SkScalar pictureSize) {
     canvas->clear(SK_ColorWHITE);
 
     SkPaint paint;
-    paint.setColor(SK_ColorGREEN);
     paint.setStyle(SkPaint::kFill_Style);
     paint.setAntiAlias(true);
 
+    paint.setColor(SK_ColorGREEN);
     canvas->drawCircle(pictureSize / 4, pictureSize / 4, pictureSize / 4, paint);
+    paint.setColor(SK_ColorBLUE);
     canvas->drawRect(SkRect::MakeXYWH(pictureSize / 2, pictureSize / 2,
                                       pictureSize / 2, pictureSize / 2), paint);
 

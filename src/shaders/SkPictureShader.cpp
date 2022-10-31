@@ -288,7 +288,7 @@ sk_sp<SkShader> SkPictureShader::rasterShader(const SkMatrix& viewMatrix,
     }
 
     ImageFromPictureKey key(info.imageInfo.colorSpace(), info.imageInfo.colorType(),
-                        fPicture->uniqueID(), fTile, info.tileScale, info.props);
+                            fPicture->uniqueID(), fTile, info.tileScale, info.props);
 
     sk_sp<SkImage> image;
     if (!SkResourceCache::Find(key, ImageFromPictureRec::Visitor, &image)) {
@@ -436,5 +436,74 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
 
     return GrTextureEffect::Make(
             std::move(view), kPremul_SkAlphaType, inv, sampler, *ctx->priv().caps());
+}
+#endif
+
+#ifdef SK_ENABLE_SKSL
+#include "src/core/SkKeyContext.h"
+#include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPaintParamsKey.h"
+
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/RecorderPriv.h"
+#endif
+
+void SkPictureShader::addToKey(const SkKeyContext& keyContext,
+                               SkPaintParamsKeyBuilder* builder,
+                               SkPipelineDataGatherer* gatherer) const {
+
+#ifdef SK_GRAPHITE_ENABLED
+    using namespace skgpu::graphite;
+
+    Recorder* recorder = keyContext.recorder();
+    const Caps* caps = recorder->priv().caps();
+
+    // TODO: We'll need additional plumbing to get the correct props from our callers. In
+    // particular we'll need to expand the keyContext to have the surfaceProps, the dstColorType
+    // and dstColorSpace.
+    SkSurfaceProps props{};
+
+    SkMatrix lm = keyContext.localMatrix() ? *keyContext.localMatrix() : SkMatrix::I();
+    CachedImageInfo info = CachedImageInfo::Make(fTile,
+                                                 keyContext.local2Dev().asM33(),
+                                                 &lm,
+                                                 /* dstColorType= */ kRGBA_8888_SkColorType,
+                                                 /* dstColorSpace= */ nullptr,
+                                                 caps->maxTextureSize(),
+                                                 props);
+    if (!info.success) {
+        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
+        builder->endBlock();
+        return;
+    }
+
+    // TODO: right now we're explicitly not caching here. We could expand the ImageProvider
+    // API to include already Graphite-backed images, add a Recorder-local cache or add
+    // rendered-picture images to the global cache.
+    sk_sp<SkImage> img = info.makeImage(SkSurface::MakeGraphite(recorder, info.imageInfo,
+                                                                Mipmapped::kNo, &info.props),
+                                        fPicture.get());
+    if (!img) {
+        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
+        builder->endBlock();
+        return;
+    }
+
+    SkMatrix newLocal;
+    if (info.tileScale.width() != 1 || info.tileScale.height() != 1) {
+        newLocal.preScale(1 / info.tileScale.width(), 1 / info.tileScale.height());
+    }
+
+    sk_sp<SkShader> shader = img->makeShader(fTmx, fTmy, SkSamplingOptions(fFilter), newLocal);
+    if (!shader) {
+        SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
+        builder->endBlock();
+        return;
+    }
+
+    as_SB(shader)->addToKey(keyContext, builder, gatherer);
+#endif // SK_GRAPHITE_ENABLED
+
 }
 #endif

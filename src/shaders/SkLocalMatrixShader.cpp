@@ -34,19 +34,23 @@ SkShaderBase::GradientType SkLocalMatrixShader::asGradient(GradientInfo* info,
 std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
         const GrFPArgs& args) const {
     return as_SB(fWrappedShader)->asFragmentProcessor(GrFPArgs::ConcatLocalMatrix(args,
-                                                                                fLocalMatrix));
+                                                                                  fLocalMatrix));
 }
 #endif
 
 #ifdef SK_ENABLE_SKSL
+#include "src/core/SkKeyContext.h"
+
 void SkLocalMatrixShader::addToKey(const SkKeyContext& keyContext,
                                    SkPaintParamsKeyBuilder* builder,
                                    SkPipelineDataGatherer* gatherer) const {
     LocalMatrixShaderBlock::LMShaderData lmShaderData(fLocalMatrix);
 
-    LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer, lmShaderData);
+    SkKeyContextWithLocalMatrix newContext(keyContext, fLocalMatrix);
 
-    as_SB(fWrappedShader)->addToKey(keyContext, builder, gatherer);
+    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, lmShaderData);
+
+    as_SB(fWrappedShader)->addToKey(newContext, builder, gatherer);
 
     builder->endBlock();
 }

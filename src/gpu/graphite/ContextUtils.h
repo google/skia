@@ -29,6 +29,7 @@ std::tuple<SkUniquePaintParamsID, const SkUniformDataBlock*, const SkTextureData
 ExtractPaintData(Recorder*,
                  SkPipelineDataGatherer* gatherer,
                  SkPaintParamsKeyBuilder* builder,
+                 const SkM44& local2Dev,
                  const PaintParams&);
 
 std::tuple<const SkUniformDataBlock*, const SkTextureDataBlock*>

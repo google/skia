@@ -174,7 +174,7 @@ SkUniquePaintParamsID create_key(Context* context,
 //   draw w/ the SkPaint and, again, somehow, intercept the created SkPaintParamsKey
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     auto recorder = context->makeRecorder();
-    SkKeyContext keyContext(recorder.get());
+    SkKeyContext keyContext(recorder.get(), {});
     auto dict = keyContext.dict();
 
     SkPaintParamsKeyBuilder builder(dict);
@@ -205,7 +205,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                 auto [ p, expectedNumTextures ] = create_paint(recorder.get(), s, tm, bm);
 
                 auto [ uniqueID1, uData, tData] = ExtractPaintData(recorder.get(), &gatherer,
-                                                                   &builder, PaintParams(p));
+                                                                   &builder, {}, PaintParams(p));
 
                 SkUniquePaintParamsID uniqueID2 = create_key(context, &builder, s, tm, bm);
                 // ExtractPaintData and CreateKey agree
