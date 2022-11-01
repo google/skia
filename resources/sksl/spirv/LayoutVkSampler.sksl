@@ -1,0 +1,7 @@
+layout(set=3, binding=5) uniform sampler2D yuvSampler;
+layout(set=7, texture=9, sampler=11) uniform sampler2D vkSampler;
+
+void main() {
+    sk_FragColor = sample(yuvSampler, float2(0)) +
+                   sample(vkSampler, float2(0));
+}

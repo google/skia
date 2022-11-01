@@ -60,6 +60,8 @@ bool Modifiers::checkPermitted(const Context& context,
         { Layout::kLocation_Flag,                 "location"},
         { Layout::kOffset_Flag,                   "offset"},
         { Layout::kBinding_Flag,                  "binding"},
+        { Layout::kTexture_Flag,                  "texture"},
+        { Layout::kSampler_Flag,                  "sampler"},
         { Layout::kIndex_Flag,                    "index"},
         { Layout::kSet_Flag,                      "set"},
         { Layout::kBuiltin_Flag,                  "builtin"},
@@ -71,7 +73,7 @@ bool Modifiers::checkPermitted(const Context& context,
         if (layoutFlags & lf.flag) {
             if (!(permittedLayoutFlags & lf.flag)) {
                 context.fErrors->error(pos, "layout qualifier '" + std::string(lf.name) +
-                        "' is not permitted here");
+                                            "' is not permitted here");
                 success = false;
             }
             layoutFlags &= ~lf.flag;

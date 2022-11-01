@@ -28,10 +28,12 @@ struct Layout {
         kLocation_Flag                   = 1 <<  4,
         kOffset_Flag                     = 1 <<  5,
         kBinding_Flag                    = 1 <<  6,
-        kIndex_Flag                      = 1 <<  7,
-        kSet_Flag                        = 1 <<  8,
-        kBuiltin_Flag                    = 1 <<  9,
-        kInputAttachmentIndex_Flag       = 1 << 10,
+        kTexture_Flag                    = 1 <<  7,
+        kSampler_Flag                    = 1 <<  8,
+        kIndex_Flag                      = 1 <<  9,
+        kSet_Flag                        = 1 << 10,
+        kBuiltin_Flag                    = 1 << 11,
+        kInputAttachmentIndex_Flag       = 1 << 12,
     };
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
@@ -65,6 +67,8 @@ struct Layout {
     int fLocation = -1;
     int fOffset = -1;
     int fBinding = -1;
+    int fTexture = -1;
+    int fSampler = -1;
     int fIndex = -1;
     int fSet = -1;
     // builtin comes from SPIR-V and identifies which particular builtin value this object

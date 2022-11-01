@@ -51,6 +51,16 @@ public:
                               "binding", pos);
     }
 
+    DSLLayout& texture(int texture, Position pos = {}) {
+        return this->intValue(&fSkSLLayout.fTexture, texture, SkSL::Layout::kTexture_Flag,
+                              "texture", pos);
+    }
+
+    DSLLayout& sampler(int sampler, Position pos = {}) {
+        return this->intValue(&fSkSLLayout.fSampler, sampler, SkSL::Layout::kSampler_Flag,
+                              "sampler", pos);
+    }
+
     DSLLayout& index(int index, Position pos = {}) {
         return this->intValue(&fSkSLLayout.fIndex, index, SkSL::Layout::kIndex_Flag, "index", pos);
     }

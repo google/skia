@@ -24,13 +24,19 @@ layout(offset=0)                 float offset;
 error: 9: layout qualifier 'binding' is not permitted here
 layout(binding=0)                float binding;
 ^^^^^^^^^^^^^^^^^
-error: 10: layout qualifier 'index' is not permitted here
+error: 10: layout qualifier 'texture' is not permitted here
+layout(texture=0)                float texture;
+^^^^^^^^^^^^^^^^^
+error: 11: layout qualifier 'sampler' is not permitted here
+layout(sampler=0)                float mySampler;
+^^^^^^^^^^^^^^^^^
+error: 12: layout qualifier 'index' is not permitted here
 layout(index=0)                  float index;
 ^^^^^^^^^^^^^^^
-error: 11: layout qualifier 'set' is not permitted here
+error: 13: layout qualifier 'set' is not permitted here
 layout(set=0)                    float set;
 ^^^^^^^^^^^^^
-error: 12: layout qualifier 'input_attachment_index' is not permitted here
+error: 14: layout qualifier 'input_attachment_index' is not permitted here
 layout(input_attachment_index=0) float input_attachment_index;
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-11 errors
+13 errors

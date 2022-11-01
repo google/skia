@@ -27,6 +27,12 @@ std::string Layout::description() const {
     if (fBinding >= 0) {
         result += separator() + "binding = " + std::to_string(fBinding);
     }
+    if (fTexture >= 0) {
+        result += separator() + "texture = " + std::to_string(fTexture);
+    }
+    if (fSampler >= 0) {
+        result += separator() + "sampler = " + std::to_string(fSampler);
+    }
     if (fIndex >= 0) {
         result += separator() + "index = " + std::to_string(fIndex);
     }
@@ -63,6 +69,8 @@ bool Layout::operator==(const Layout& other) const {
            fLocation             == other.fLocation &&
            fOffset               == other.fOffset &&
            fBinding              == other.fBinding &&
+           fTexture              == other.fTexture &&
+           fSampler              == other.fSampler &&
            fIndex                == other.fIndex &&
            fSet                  == other.fSet &&
            fBuiltin              == other.fBuiltin &&

@@ -869,6 +869,8 @@ DSLLayout Parser::layout() {
         LOCATION,
         OFFSET,
         BINDING,
+        TEXTURE,
+        SAMPLER,
         INDEX,
         SET,
         BUILTIN,
@@ -884,6 +886,8 @@ DSLLayout Parser::layout() {
             {"location",                    LayoutToken::LOCATION},
             {"offset",                      LayoutToken::OFFSET},
             {"binding",                     LayoutToken::BINDING},
+            {"texture",                     LayoutToken::TEXTURE},
+            {"sampler",                     LayoutToken::SAMPLER},
             {"index",                       LayoutToken::INDEX},
             {"set",                         LayoutToken::SET},
             {"builtin",                     LayoutToken::BUILTIN},
@@ -931,6 +935,12 @@ DSLLayout Parser::layout() {
                         break;
                     case LayoutToken::SET:
                         result.set(this->layoutInt(), this->position(t));
+                        break;
+                    case LayoutToken::TEXTURE:
+                        result.texture(this->layoutInt(), this->position(t));
+                        break;
+                    case LayoutToken::SAMPLER:
+                        result.sampler(this->layoutInt(), this->position(t));
                         break;
                     case LayoutToken::BUILTIN:
                         result.builtin(this->layoutInt(), this->position(t));
