@@ -20,11 +20,3 @@ void* sk_realloc_throw(void* buffer, size_t count, size_t elemSize) {
 void* sk_malloc_canfail(size_t count, size_t elemSize) {
     return sk_malloc_canfail(SkSafeMath::Mul(count, elemSize));
 }
-
-size_t sk_malloc_usable_size(void* buffer) {
-    // Since sk_malloc() can be overridden by clients, there is no guarantee
-    // that the memory allocated with it comes from malloc(). So the default
-    // implementation can only return 0 to signal that generic support is not
-    // possible.
-    return 0;
-}

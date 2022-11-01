@@ -93,14 +93,7 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
         allocationSize = (allocationSize + mask) & ~mask;
     }
 
-    char* newBlock = static_cast<char*>(sk_malloc_throw(allocationSize, 1));
-    size_t actualAllocatedSize = sk_malloc_usable_size(newBlock);
-    // 0 means that the allocated size is not available, don't change anything
-    // then.
-    if (actualAllocatedSize) {
-        AssertRelease(actualAllocatedSize >= allocationSize);
-        allocationSize = actualAllocatedSize;
-    }
+    char* newBlock = static_cast<char*>(sk_malloc_throw(allocationSize));
 
     auto previousDtor = fDtorCursor;
     fCursor = newBlock;
