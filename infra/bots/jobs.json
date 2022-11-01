@@ -13,7 +13,7 @@
   },
   {"name": "BazelBuild-skia_public-release-linux_x64"},
   {"name": "BazelBuild-tests-enforce_iwyu-linux_x64",
-    "cq_config": {"experimental": true}
+    "cq_config": {"location_regexes": ["tests/.*"]}
   },
   {"name": "BazelBuild-tests-cpu_only-linux_x64"},
   {"name": "BazelBuild-tests-dawn_ganesh-linux_x64"},

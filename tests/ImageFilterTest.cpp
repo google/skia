@@ -59,6 +59,7 @@
 #include <cstdint>
 #include <string>
 #include <utility>
+#include <limits>
 
 class SkReadBuffer;
 class SkWriteBuffer;
