@@ -71,13 +71,13 @@ public:
     void submit(SyncToCpu = SyncToCpu::kNo);
 
     void asyncReadPixels(const SkImage* image,
-                         SkColorType dstColorType,
+                         const SkColorInfo& dstColorInfo,
                          const SkIRect& srcRect,
                          SkImage::ReadPixelsCallback callback,
                          SkImage::ReadPixelsContext context);
 
     void asyncReadPixels(const SkSurface* surface,
-                         SkColorType dstColorType,
+                         const SkColorInfo& dstColorInfo,
                          const SkIRect& srcRect,
                          SkImage::ReadPixelsCallback callback,
                          SkImage::ReadPixelsContext context);
@@ -138,8 +138,8 @@ private:
     SingleOwner* singleOwner() const { return &fSingleOwner; }
 
     void asyncReadPixels(TextureProxy* textureProxy,
-                         const SkImageInfo& imageInfo,
-                         SkColorType dstColorType,
+                         const SkImageInfo& srcImageInfo,
+                         const SkColorInfo& dstColorInfo,
                          const SkIRect& srcRect,
                          SkImage::ReadPixelsCallback callback,
                          SkImage::ReadPixelsContext context);

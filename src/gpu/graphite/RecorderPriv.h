@@ -69,8 +69,8 @@ public:
         std::function<ConversionFn> fPixelConverter;
     };
     PixelTransferResult transferPixels(const TextureProxy*,
-                                       const SkImageInfo&,
-                                       SkColorType dstColorType,
+                                       const SkImageInfo& srcImageInfo,
+                                       const SkColorInfo& dstColorInfo,
                                        const SkIRect& srcRect);
 
 private:

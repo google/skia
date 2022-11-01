@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recording.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/gpu/AtlasTypes.h"
@@ -281,24 +282,25 @@ void RecorderPriv::flushTrackedDevices() {
 }
 
 RecorderPriv::PixelTransferResult RecorderPriv::transferPixels(const TextureProxy* proxy,
-                                                               const SkImageInfo& imageInfo,
-                                                               SkColorType dstCT,
+                                                               const SkImageInfo& srcImageInfo,
+                                                               const SkColorInfo& dstColorInfo,
                                                                const SkIRect& srcRect) {
-    SkASSERT(imageInfo.bounds().contains(srcRect));
+    SkASSERT(srcImageInfo.bounds().contains(srcRect));
 
     const Caps* caps = this->caps();
     SkColorType supportedColorType =
-            caps->supportedReadPixelsColorType(imageInfo.colorType(),
-                                               proxy->textureInfo(), dstCT);
+            caps->supportedReadPixelsColorType(srcImageInfo.colorType(),
+                                               proxy->textureInfo(),
+                                               dstColorInfo.colorType());
     if (supportedColorType == kUnknown_SkColorType) {
         return {};
     }
 
     // Fail if read color type does not have all of dstCT's color channels and those missing color
     // channels are in the src.
-    uint32_t dstChannels = SkColorTypeChannelFlags(dstCT);
+    uint32_t dstChannels = SkColorTypeChannelFlags(dstColorInfo.colorType());
     uint32_t legalReadChannels = SkColorTypeChannelFlags(supportedColorType);
-    uint32_t srcChannels = SkColorTypeChannelFlags(imageInfo.colorType());
+    uint32_t srcChannels = SkColorTypeChannelFlags(srcImageInfo.colorType());
     if ((~legalReadChannels & dstChannels) & srcChannels) {
         return {};
     }
@@ -333,18 +335,16 @@ RecorderPriv::PixelTransferResult RecorderPriv::transferPixels(const TextureProx
 
     PixelTransferResult result;
     result.fTransferBuffer = std::move(buffer);
-/* TODO: color conversion
-    auto at = this->colorInfo().alphaType();
-    if (supportedRead.fColorType != dstCT) {
-        result.fPixelConverter = [w = rect.width(), h = rect.height(), dstCT, supportedRead, at](
+    if (srcImageInfo.colorInfo() != dstColorInfo) {
+        result.fPixelConverter = [dims = srcRect.size(), dstColorInfo, srcImageInfo](
                 void* dst, const void* src) {
-            GrImageInfo srcInfo(supportedRead.fColorType, at, nullptr, w, h);
-            GrImageInfo dstInfo(dstCT,                    at, nullptr, w, h);
-            GrConvertPixels( GrPixmap(dstInfo, dst, dstInfo.minRowBytes()),
-                            GrCPixmap(srcInfo, src, srcInfo.minRowBytes()));
+            SkImageInfo srcInfo = SkImageInfo::Make(dims, srcImageInfo.colorInfo());
+            SkImageInfo dstInfo = SkImageInfo::Make(dims, dstColorInfo);
+            SkAssertResult(SkConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
+                                           srcInfo, src, srcInfo.minRowBytes()));
         };
     }
- */
+
     return result;
 }
 

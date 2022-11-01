@@ -158,7 +158,7 @@ void Context::submit(SyncToCpu syncToCpu) {
 }
 
 void Context::asyncReadPixels(const SkImage* image,
-                              SkColorType dstColorType,
+                              const SkColorInfo& dstColorInfo,
                               const SkIRect& srcRect,
                               SkImage::ReadPixelsCallback callback,
                               SkImage::ReadPixelsContext callbackContext) {
@@ -172,14 +172,14 @@ void Context::asyncReadPixels(const SkImage* image,
 
     this->asyncReadPixels(proxy,
                           image->imageInfo(),
-                          dstColorType,
+                          dstColorInfo,
                           srcRect,
                           callback,
                           callbackContext);
 }
 
 void Context::asyncReadPixels(const SkSurface* surface,
-                              SkColorType dstColorType,
+                              const SkColorInfo& dstColorInfo,
                               const SkIRect& srcRect,
                               SkImage::ReadPixelsCallback callback,
                               SkImage::ReadPixelsContext callbackContext) {
@@ -193,15 +193,15 @@ void Context::asyncReadPixels(const SkSurface* surface,
 
     this->asyncReadPixels(proxy,
                           const_cast<SkSurface*>(surface)->imageInfo(), // TODO: remove const_cast
-                          dstColorType,
+                          dstColorInfo,
                           srcRect,
                           callback,
                           callbackContext);
 }
 
 void Context::asyncReadPixels(TextureProxy* proxy,
-                              const SkImageInfo& imageInfo,
-                              SkColorType dstColorType,
+                              const SkImageInfo& srcImageInfo,
+                              const SkColorInfo& dstColorInfo,
                               const SkIRect& srcRect,
                               SkImage::ReadPixelsCallback callback,
                               SkImage::ReadPixelsContext callbackContext) {
@@ -210,12 +210,12 @@ void Context::asyncReadPixels(TextureProxy* proxy,
         return;
     }
 
-    if (dstColorType == kUnknown_SkColorType) {
+    if (!SkImageInfoIsValid(srcImageInfo) || !SkColorInfoIsValid(dstColorInfo)) {
         callback(callbackContext, nullptr);
         return;
     }
 
-    if (!SkIRect::MakeSize(imageInfo.dimensions()).contains(srcRect)) {
+    if (!SkIRect::MakeSize(srcImageInfo.dimensions()).contains(srcRect)) {
         callback(callbackContext, nullptr);
         return;
     }
@@ -230,7 +230,7 @@ void Context::asyncReadPixels(TextureProxy* proxy,
 
     using PixelTransferResult = RecorderPriv::PixelTransferResult;
     PixelTransferResult transferResult =
-            recorder->priv().transferPixels(proxy, imageInfo, dstColorType, srcRect);
+            recorder->priv().transferPixels(proxy, srcImageInfo, dstColorInfo, srcRect);
 
     if (!transferResult.fTransferBuffer) {
         // TODO: try to do a synchronous readPixels instead
@@ -248,7 +248,7 @@ void Context::asyncReadPixels(TextureProxy* proxy,
         PixelTransferResult fTransferResult;
     };
     size_t rowBytes = recorder->priv().caps()->getAlignedTextureDataRowBytes(
-            srcRect.width() * SkColorTypeBytesPerPixel(dstColorType));
+            srcRect.width() * SkColorTypeBytesPerPixel(dstColorInfo.colorType()));
     auto* finishContext = new FinishContext{callback,
                                             callbackContext,
                                             srcRect.size(),
