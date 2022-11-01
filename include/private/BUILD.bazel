@@ -36,7 +36,6 @@ filegroup(
         "SkBitmaskEnum.h",
         "SkChecksum.h",
         "SkColorData.h",
-        "SkContainers.h",
         "SkDeque.h",
         "SkEncodedInfo.h",
         "SkFixed.h",
