@@ -38,6 +38,14 @@
   { symbol: ["size_t", "private", "<cuchar>", "public"]},
   { symbol: ["size_t", "private", "<cwchar>", "public"]},
 
+  { symbol: ["std::size_t", "private", "<cstddef>", "public"]},
+  { symbol: ["std::size_t", "private", "<cstdio>", "public"]},
+  { symbol: ["std::size_t", "private", "<cstdlib>", "public"]},
+  { symbol: ["std::size_t", "private", "<cstring>", "public"]},
+  { symbol: ["std::size_t", "private", "<ctime>", "public"]},
+  { symbol: ["std::size_t", "private", "<cuchar>", "public"]},
+  { symbol: ["std::size_t", "private", "<cwchar>", "public"]},
+
   { symbol: ["int8_t", "public", "<cstdint>", "public"]},
   { symbol: ["int16_t", "public", "<cstdint>", "public"]},
   { symbol: ["int32_t", "public", "<cstdint>", "public"]},
