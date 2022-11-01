@@ -341,6 +341,45 @@ private:
     BackendTexture fBETextures[kNumMutations+1];
 };
 
+// case 3 (Surface/Image pair)
+class SurfaceMutator : public Mutator {
+public:
+    static std::unique_ptr<Mutator> Make(skiatest::Reporter* reporter,
+                                         Recorder* recorder,
+                                         bool withMips) {
+        return std::make_unique<SurfaceMutator>(reporter, recorder, withMips);
+    }
+
+    SurfaceMutator(skiatest::Reporter* reporter, Recorder* recorder, bool withMips)
+            : Mutator(reporter, recorder, withMips) {
+    }
+
+    std::unique_ptr<Recording> init(const Caps* /* caps */) override {
+        SkImageInfo ii = SkImageInfo::Make(kImageSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+        fMutatingSurface = SkSurface::MakeGraphite(fRecorder, ii,
+                                                   fWithMips ? Mipmapped::kYes : Mipmapped::kNo);
+        REPORTER_ASSERT(fReporter, fMutatingSurface);
+
+        fMutatingSurface->getCanvas()->clear(kInitialColor);
+
+        fMutatingImg = fMutatingSurface->asImage();
+        REPORTER_ASSERT(fReporter, fMutatingImg);
+
+        return fRecorder->snap();
+    }
+
+    std::unique_ptr<Recording> mutate(int mutationIndex) override {
+        fMutatingSurface->getCanvas()->clear(kMutationColors[mutationIndex]);
+        return fRecorder->snap();
+    }
+
+    int getCase() const override { return 3; }
+
+private:
+    sk_sp<SkSurface> fMutatingSurface;
+};
+
 using MutatorFactoryT = std::unique_ptr<Mutator> (*)(skiatest::Reporter*, Recorder*, bool withMips);
 
 void run_test(skiatest::Reporter* reporter,
@@ -401,8 +440,12 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(MutableImagesTest, reporter, context) {
             // case 2 (volatile promise image)
             run_test(reporter, context, useTwoRecorders, withMips,
                      VolatilePromiseImageMutator::Make);
-            run_test(reporter, context, useTwoRecorders, withMips,
-                     VolatilePromiseImageMutator::Make);
+
+            // case 3 (Surface/Image pair)
+            if (!withMips) {
+                // TODO: allow the mipmapped version when we can automatically regenerate mipmaps
+                run_test(reporter, context, useTwoRecorders, withMips, SurfaceMutator::Make);
+            }
         }
     }
 }

@@ -66,6 +66,15 @@ public:
      */
     virtual sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset = nullptr) { return nullptr; }
 
+#ifdef SK_GRAPHITE_ENABLED
+    virtual sk_sp<SkImage> onAsImage() { return nullptr; }
+
+    virtual sk_sp<SkImage> onMakeImageCopy(const SkIRect* /* subset */,
+                                           skgpu::graphite::Mipmapped) {
+        return nullptr;
+    }
+#endif
+
     virtual void onWritePixels(const SkPixmap&, int x, int y) = 0;
 
     /**

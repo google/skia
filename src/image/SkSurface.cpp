@@ -232,6 +232,29 @@ sk_sp<SkImage> SkSurface::makeImageSnapshot(const SkIRect& srcBounds) {
     }
 }
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/Log.h"
+
+sk_sp<SkImage> SkSurface::asImage() {
+    if (asSB(this)->fCachedImage) {
+        SKGPU_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
+                    "unexpected results. Please use either the old _or_ new API.");
+    }
+
+    return asSB(this)->onAsImage();
+}
+
+sk_sp<SkImage> SkSurface::makeImageCopy(const SkIRect* subset,
+                                        skgpu::graphite::Mipmapped mipmapped) {
+    if (asSB(this)->fCachedImage) {
+        SKGPU_LOG_W("Intermingling makeImageSnapshot and makeImageCopy calls may produce "
+                    "unexpected results. Please use either the old _or_ new API.");
+    }
+
+    return asSB(this)->onMakeImageCopy(subset, mipmapped);
+}
+#endif
+
 sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
     return asSB(this)->onNewSurface(info);
 }
@@ -433,6 +456,3 @@ sk_sp<SkSurface> SkSurface::MakeNull(int width, int height) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
-
-
-

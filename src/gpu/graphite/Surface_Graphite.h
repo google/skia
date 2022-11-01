@@ -33,6 +33,8 @@ public:
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;
+    sk_sp<SkImage> onAsImage() override;
+    sk_sp<SkImage> onMakeImageCopy(const SkIRect* subset, Mipmapped) override;
     void onWritePixels(const SkPixmap&, int x, int y) override;
     void onAsyncReadPixels(const SkImageInfo& info,
                            SkIRect srcRect,
