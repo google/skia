@@ -164,7 +164,7 @@ private:
     // In Vulkan we call the release proc after we are finished with the underlying
     // GrVkImage::Resource object (which occurs after the GPU has finished all work on it).
     void onSetRelease(sk_sp<RefCntedReleaseProc> releaseHelper) override {
-        // Forward the release proc on to the GrVkImage of the release attachment if we have one,
+        // Forward the release proc on to the GrVkImage of the resolve attachment if we have one,
         // otherwise the color attachment.
         GrVkImage* attachment =
                 fResolveAttachment ? fResolveAttachment.get() : fColorAttachment.get();

@@ -53,7 +53,7 @@ class GrOnFlushResourceProvider {
 public:
     explicit GrOnFlushResourceProvider(GrDrawingManager* drawingMgr) : fDrawingMgr(drawingMgr) {}
 
-    bool SK_WARN_UNUSED_RESULT instatiateProxy(GrSurfaceProxy*);
+    bool SK_WARN_UNUSED_RESULT instantiateProxy(GrSurfaceProxy*);
 
     const GrCaps* caps() const;
 

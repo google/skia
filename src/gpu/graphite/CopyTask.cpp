@@ -42,7 +42,7 @@ CopyTextureToBufferTask::CopyTextureToBufferTask(sk_sp<TextureProxy> textureProx
 CopyTextureToBufferTask::~CopyTextureToBufferTask() {}
 
 bool CopyTextureToBufferTask::prepareResources(ResourceProvider* resourceProvider,
-                                                const SkRuntimeEffectDictionary*) {
+                                               const SkRuntimeEffectDictionary*) {
     if (!fTextureProxy) {
         SKGPU_LOG_E("No texture proxy specified for CopyTextureToBufferTask");
         return false;

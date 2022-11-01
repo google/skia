@@ -215,5 +215,5 @@ bool GrDynamicAtlas::instantiate(GrOnFlushResourceProvider* onFlushRP,
         // it will just wrap 'fBackingTexture' if it is non-null.
         fBackingTexture = std::move(backingTexture);
     }
-    return onFlushRP->instatiateProxy(fTextureProxy.get());
+    return onFlushRP->instantiateProxy(fTextureProxy.get());
 }

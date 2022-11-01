@@ -219,7 +219,7 @@ sk_sp<GrTextureProxy> SkImage_GpuBase::MakePromiseImageLazyProxy(
 
     /**
      * This class is the lazy instantiation callback for promise images. It manages calling the
-     * client's Fulfill, Release, and Done procs. It attempts to reuse a GrTexture instance in
+     * client's Fulfill and Release procs. It attempts to reuse a GrTexture instance in
      * cases where the client provides the same SkPromiseImageTexture as Fulfill results for
      * multiple SkImages. The created GrTexture is given a key based on a unique ID associated with
      * the SkPromiseImageTexture.
