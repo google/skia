@@ -115,10 +115,16 @@ namespace DM {
 GMSrc::GMSrc(skiagm::GMFactory factory) : fFactory(factory) {}
 
 Result GMSrc::draw(GrDirectContext* context, SkCanvas* canvas) const {
+    return this->draw(nullptr, context, canvas);
+}
+
+Result GMSrc::draw(skgpu::graphite::Context* graphiteContext,
+                   GrDirectContext* ganeshContext,
+                   SkCanvas* canvas) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
     SkString msg;
 
-    skiagm::DrawResult gpuSetupResult = gm->gpuSetup(context, canvas, &msg);
+    skiagm::DrawResult gpuSetupResult = gm->gpuSetup(ganeshContext, canvas, &msg);
     switch (gpuSetupResult) {
         case skiagm::DrawResult::kOk  : break;
         case skiagm::DrawResult::kFail: return Result(Result::Status::Fatal, msg);
@@ -126,7 +132,7 @@ Result GMSrc::draw(GrDirectContext* context, SkCanvas* canvas) const {
         default: SK_ABORT("");
     }
 
-    skiagm::DrawResult drawResult = gm->draw(canvas, &msg);
+    skiagm::DrawResult drawResult = gm->draw(graphiteContext, canvas, &msg);
     switch (drawResult) {
         case skiagm::DrawResult::kOk  : return Result(Result::Status::Ok,    msg);
         case skiagm::DrawResult::kFail: return Result(Result::Status::Fatal, msg);
@@ -2158,7 +2164,7 @@ Result GraphiteSink::draw(const Src& src,
         if (!surface) {
             return Result::Fatal("Could not create a surface.");
         }
-        Result result = src.draw(/* dContext */ nullptr, surface->getCanvas());
+        Result result = src.draw(context, nullptr, surface->getCanvas());
         if (!result.isOk()) {
             return result;
         }
