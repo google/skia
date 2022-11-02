@@ -473,7 +473,7 @@ static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatr
 }
 
 static SkMatrix tweak_inv_matrix(SkFilterMode filter, SkMatrix matrix) {
-    // See skia:4649 and the GM image_scale_aligned.
+    // See skia:4649 and the GM nearest_half_pixel_image.
     if (filter == SkFilterMode::kNearest) {
         if (matrix.getScaleX() >= 0) {
             matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
