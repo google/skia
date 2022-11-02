@@ -8,6 +8,7 @@
 #include "include/private/SkStringView.h"
 #include "tools/skslc/ProcessWorklist.h"
 
+#include <algorithm>
 #include <fstream>
 #include <vector>
 
