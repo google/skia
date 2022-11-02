@@ -397,7 +397,7 @@ static bool error_on_divide_by_zero(const Context& context, Position pos, Operat
     }
 }
 
-const Expression* ConstantFolder::GetConstantValueForVariable(const Expression& inExpr) {
+const Expression* ConstantFolder::GetConstantValueOrNullForVariable(const Expression& inExpr) {
     for (const Expression* expr = &inExpr;;) {
         if (!expr->is<VariableReference>()) {
             break;
@@ -419,17 +419,19 @@ const Expression* ConstantFolder::GetConstantValueForVariable(const Expression& 
             return expr;
         }
     }
-    // We didn't find a compile-time constant at the end. Return the expression as-is.
-    return &inExpr;
+    // We didn't find a compile-time constant at the end.
+    return nullptr;
 }
 
-std::unique_ptr<Expression> ConstantFolder::MakeConstantValueForVariable(Position pos,
-        std::unique_ptr<Expression> expr) {
-    const Expression* constantExpr = GetConstantValueForVariable(*expr);
-    if (constantExpr != expr.get()) {
-        expr = constantExpr->clone(pos);
-    }
-    return expr;
+const Expression* ConstantFolder::GetConstantValueForVariable(const Expression& inExpr) {
+    const Expression* expr = GetConstantValueOrNullForVariable(inExpr);
+    return expr ? expr : &inExpr;
+}
+
+std::unique_ptr<Expression> ConstantFolder::MakeConstantValueForVariable(
+        Position pos, std::unique_ptr<Expression> inExpr) {
+    const Expression* expr = GetConstantValueOrNullForVariable(*inExpr);
+    return expr ? expr->clone(pos) : std::move(inExpr);
 }
 
 static bool is_scalar_op_matrix(const Expression& left, const Expression& right) {

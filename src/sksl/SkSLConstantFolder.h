@@ -45,6 +45,12 @@ public:
     static const Expression* GetConstantValueForVariable(const Expression& value);
 
     /**
+     * If the expression is a const variable with a known compile-time-constant value, returns that
+     * value. If not, returns null.
+     */
+    static const Expression* GetConstantValueOrNullForVariable(const Expression& value);
+
+    /**
      * If the expression is a const variable with a known compile-time-constant value, returns a
      * clone of that value. If not, returns the original expression as-is.
      */
