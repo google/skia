@@ -8,6 +8,7 @@
 #include "src/sksl/ir/SkSLChildCall.h"
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLString.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -26,11 +27,10 @@ std::unique_ptr<Expression> ChildCall::clone(Position pos) const {
 
 std::string ChildCall::description(OperatorPrecedence) const {
     std::string result = std::string(this->child().name()) + ".eval(";
-    std::string separator;
+    auto separator = SkSL::String::Separator();
     for (const std::unique_ptr<Expression>& arg : this->arguments()) {
-        result += separator;
+        result += separator();
         result += arg->description(OperatorPrecedence::kSequence);
-        separator = ", ";
     }
     result += ")";
     return result;

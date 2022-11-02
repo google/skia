@@ -12,6 +12,7 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLString.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/DSLExpression.h"
@@ -851,11 +852,10 @@ std::unique_ptr<Expression> FunctionCall::clone(Position pos) const {
 
 std::string FunctionCall::description(OperatorPrecedence) const {
     std::string result = std::string(this->function().name()) + "(";
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (const std::unique_ptr<Expression>& arg : this->arguments()) {
-        result += separator;
+        result += separator();
         result += arg->description(OperatorPrecedence::kSequence);
-        separator = ", ";
     }
     result += ")";
     return result;
@@ -909,10 +909,9 @@ const FunctionDeclaration* FunctionCall::FindBestFunctionForCall(
 
 static std::string build_argument_type_list(SkSpan<const std::unique_ptr<Expression>> arguments) {
     std::string result = "(";
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (const std::unique_ptr<Expression>& arg : arguments) {
-        result += separator;
-        separator = ", ";
+        result += separator();
         result += arg->type().displayName();
     }
     return result + ")";

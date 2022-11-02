@@ -8,6 +8,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkSLString.h"
 #include "include/private/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLOperator.h"
@@ -228,11 +229,10 @@ const AnyConstructor& Expression::asAnyConstructor() const {
 
 std::string AnyConstructor::description(OperatorPrecedence) const {
     std::string result = this->type().description() + "(";
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (const std::unique_ptr<Expression>& arg : this->argumentSpan()) {
-        result += separator;
+        result += separator();
         result += arg->description(OperatorPrecedence::kSequence);
-        separator = ", ";
     }
     result.push_back(')');
     return result;

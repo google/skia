@@ -264,10 +264,9 @@ void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
 
     this->write("(");
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (const auto& arg : c.arguments()) {
-        this->write(separator);
-        separator = ", ";
+        this->write(separator());
         this->writeExpression(*arg, Precedence::kSequence);
     }
     this->write(")");
@@ -401,12 +400,11 @@ std::string PipelineStageCodeGenerator::functionDeclaration(const FunctionDeclar
                            (decl.modifiers().fFlags & Modifiers::kNoInline_Flag) ? "noinline " : "",
                            this->typeName(decl.returnType()).c_str(),
                            this->functionName(decl).c_str());
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (const Variable* p : decl.parameters()) {
-        declString.append(separator);
+        declString.append(separator());
         declString.append(this->modifierString(p->modifiers()));
         declString.append(this->typedVariable(p->type(), p->name()).c_str());
-        separator = ", ";
     }
 
     return declString + ")";
@@ -564,10 +562,9 @@ void PipelineStageCodeGenerator::writeAnyConstructor(const AnyConstructor& c,
                                                      Precedence parentPrecedence) {
     this->writeType(c.type());
     this->write("(");
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (const auto& arg : c.argumentSpan()) {
-        this->write(separator);
-        separator = ", ";
+        this->write(separator());
         this->writeExpression(*arg, Precedence::kSequence);
     }
     this->write(")");

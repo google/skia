@@ -47,11 +47,10 @@ public:
 
     std::string description(OperatorPrecedence) const override {
         std::string result = std::string(this->function().name()) + "(";
-        std::string separator;
+        auto separator = SkSL::String::Separator();
         for (const std::unique_ptr<Expression>& arg : this->arguments()) {
-            result += separator;
+            result += separator();
             result += arg->description(OperatorPrecedence::kSequence);
-            separator = ", ";
         }
         result += ")";
         return result;
