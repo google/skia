@@ -259,7 +259,7 @@ static void graphite_read_pixels_test_driver(skiatest::Reporter* reporter,
             REPORTER_ASSERT(reporter, result != Result::kSuccess);
         } else if (readCT == kUnknown_SkColorType) {
             REPORTER_ASSERT(reporter, result != Result::kSuccess);
-        } else if (readAT == kUnknown_SkAlphaType || srcAT == kUnknown_SkAlphaType) {
+        } else if (readAT == kUnknown_SkAlphaType) {
             REPORTER_ASSERT(reporter, result != Result::kSuccess);
         } else if (!rules.fUncontainedRectSucceeds && !surfBounds.contains(rect)) {
             REPORTER_ASSERT(reporter, result != Result::kSuccess);

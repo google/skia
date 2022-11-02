@@ -192,7 +192,7 @@ void Context::asyncReadPixels(const SkSurface* surface,
     TextureProxy* proxy = proxyView.proxy();
 
     this->asyncReadPixels(proxy,
-                          const_cast<SkSurface*>(surface)->imageInfo(), // TODO: remove const_cast
+                          surface->imageInfo(),
                           dstColorInfo,
                           srcRect,
                           callback,
