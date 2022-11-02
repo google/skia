@@ -9,9 +9,7 @@
 #define SkTArray_DEFINED
 
 #include "include/core/SkMath.h"
-#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkContainers.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkSafe32.h"
 #include "include/private/SkTLogic.h"
@@ -395,15 +393,15 @@ public:
         if (fCount == 0) {
             sk_free(fItemArray);
             fItemArray = nullptr;
-            fAllocCount = 0;
         } else {
-            SkSpan<std::byte> allocation = Allocate(fCount);
-            this->move(TCast(allocation.data()));
+            T* newItemArray = TCast(sk_malloc_throw(SkToSizeT(fCount), sizeof(T)));
+            this->move(newItemArray);
             if (fOwnMemory) {
                 sk_free(fItemArray);
             }
-            this->setItemArray(allocation);
+            fItemArray = newItemArray;
         }
+        fAllocCount = fCount;
     }
 
     /**
@@ -498,19 +496,10 @@ protected:
 private:
     static constexpr int kMinHeapAllocCount = 8;
     static_assert(SkIsPow2(kMinHeapAllocCount), "min alloc count not power of two.");
-    // Note for 32-bit machines kMaxCapacity will be <= SIZE_MAX. For 64-bit machines it will
+    // Note for 32-bit machines CalculateMaxCount will be <= SIZE_MAX. For 64-bit machines it will
     // just be INT_MAX if the sizeof(T) < 2^32.
-    static constexpr uint32_t kMaxCapacity = std::min(SIZE_MAX / sizeof(T), (size_t)INT_MAX);
-
-    void setItemArray(SkSpan<std::byte> allocation) {
-        fItemArray = TCast(allocation.data());
-        // We have gotten extra bytes back from the allocation limit, pin to kMaxCapacity. It
-        // would seem like the SkContainerAllocator should handle the divide, but it would have
-        // to a full divide instruction. If done here the size is known at compile, and usually
-        // can be implemented by a right shift. The full divide takes ~50X longer than the shift.
-        fAllocCount =
-                SkToU32(std::min(allocation.size() / sizeof(T), SkToSizeT(kMaxCapacity)));
-        fOwnMemory = true;
+    static constexpr int CalculateMaxCount() {
+        return std::min(SIZE_MAX / sizeof(T), (size_t)INT_MAX);
     }
 
     // We disable Control-Flow Integrity sanitization (go/cfi) when casting item-array buffers.
@@ -526,12 +515,8 @@ private:
     }
 
     size_t bytes(int n) const {
-        SkASSERT(n <= SkToInt(kMaxCapacity));
+        SkASSERT(n <= CalculateMaxCount());
         return SkToSizeT(n) * sizeof(T);
-    }
-
-    static SkSpan<std::byte> Allocate(int capacity, double growthFactor = 1.0) {
-        return SkContainerAllocator{sizeof(T), kMaxCapacity}.allocate(capacity, growthFactor);
     }
 
     void init(int count) {
@@ -541,7 +526,7 @@ private:
             fItemArray = nullptr;
         } else {
             fAllocCount = SkToU32(std::max(count, kMinHeapAllocCount));
-            this->setItemArray(Allocate(fAllocCount));
+            fItemArray = TCast(sk_malloc_throw(SkToSizeT(fAllocCount), sizeof(T)));
         }
         fOwnMemory = true;
     }
@@ -554,8 +539,8 @@ private:
         fItemArray = nullptr;
         if (count > preallocCount) {
             fAllocCount = SkToU32(std::max(count, kMinHeapAllocCount));
-            SkSpan<std::byte> allocation = Allocate(fAllocCount);
-            this->setItemArray(allocation);
+            fItemArray = TCast(sk_malloc_throw(fAllocCount, sizeof(T)));
+            fOwnMemory = true;
         } else {
             fAllocCount = SkToU32(preallocCount);
             fItemArray = TCast(preallocStorage);
@@ -610,6 +595,7 @@ private:
     void checkRealloc(int delta, ReallocType reallocType) {
         // This constant needs to be declared in the function where it is used to work around
         // MSVC's persnickety nature about template definitions.
+        static constexpr int kMaxCount = CalculateMaxCount();
         SkASSERT(delta >= 0);
         SkASSERT(fCount >= 0);
         SkASSERT(fAllocCount >= 0);
@@ -619,25 +605,40 @@ private:
 
         // Note: the maximum range for count is up to INT_MAX.
         SkASSERT_RELEASE(delta <= INT_MAX - fCount);
-        const int newCount = fCount + delta;
+        int newCount = fCount + delta;
 
         // Don't overflow size_t later in the memory allocation. This really only applies
         // to fCounts on 32-bit machines; on 64-bit machines this will probably never produce a
         // check. The check for newCount <= INT_MAX is the SkASSERT_RELEASE above.
-        if constexpr (SkTFitsIn<int>(kMaxCapacity)) {
-            SkASSERT_RELEASE(newCount <= SkToInt(kMaxCapacity));
+        if constexpr (kMaxCount < INT_MAX) {
+            SkASSERT_RELEASE(newCount <= kMaxCount);
         }
 
-        double growthFactor = reallocType == kExactFit ? 1.0 : 1.5;
-        SkSpan<std::byte> allocation = Allocate(newCount, growthFactor);
+        int64_t newAllocCount = kMaxCount;
+        if (reallocType == kExactFit) {
+            newAllocCount = newCount;
+        } else {
+            // Whether we're growing, leave at least 50% extra space for future growth.
+            int64_t expandedAllocCount = newCount + ((newCount + 1) >> 1);
+            // Align the new allocation count to kMinHeapAllocCount.
+            expandedAllocCount =
+                    (expandedAllocCount + (kMinHeapAllocCount - 1)) & ~(kMinHeapAllocCount - 1);
+            if (newAllocCount <= kMaxCount) {
+                newAllocCount = expandedAllocCount;
+            }
+        }
 
-        this->move(TCast(allocation.data()));
+        // Make sure the new allocation fits in 31 bits.
+        SkASSERT(newAllocCount <= INT_MAX);
+        fAllocCount = SkToU32(newAllocCount);
+        SkASSERT(SkToInt(fAllocCount) >= newCount);
+        T* newItemArray = TCast(sk_malloc_throw(this->bytes(fAllocCount)));
+        this->move(newItemArray);
         if (fOwnMemory) {
             sk_free(fItemArray);
         }
-        this->setItemArray(allocation);
-        SkASSERT(SkToInt(fAllocCount) >= newCount);
-        SkASSERT(fItemArray != nullptr);
+        fItemArray = newItemArray;
+        fOwnMemory = true;
     }
 
     T* fItemArray;

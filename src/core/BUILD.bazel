@@ -105,7 +105,6 @@ CORE_FILES = [
     "SkColorSpaceXformSteps.h",
     "SkCompressedDataUtils.cpp",
     "SkCompressedDataUtils.h",
-    "SkContainers.cpp",
     "SkContourMeasure.cpp",
     "SkConvertPixels.cpp",
     "SkConvertPixels.h",
