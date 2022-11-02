@@ -49,6 +49,10 @@ SkCanvas* SkAndroidFrameworkUtils::getBaseWrappedCanvas(SkCanvas* canvas) {
     return result;
 }
 
+void SkAndroidFrameworkUtils::UseLegacyLocalMatrixConcatenation() {
+    // Nothing to do yet.
+}
+
 bool SkAndroidFrameworkUtils::ShaderAsALinearGradient(SkShader* shader,
                                                       LinearGradientInfo* info) {
     SkASSERT(shader);

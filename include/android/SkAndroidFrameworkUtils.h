@@ -59,6 +59,12 @@ public:
     static SkCanvas* getBaseWrappedCanvas(SkCanvas* canvas);
 
     /**
+     * Skia will change the order in which local matrices concatenate. In order to not break Android
+     * apps targeting older API levels we offer this function to use the legacy concatenation order.
+     */
+    static void UseLegacyLocalMatrixConcatenation();
+
+    /**
      *  If the shader represents a linear gradient ShaderAsALinearGradient
      *  returns true and if info is not null, ShaderAsALinearGradient populates
      *  info with the parameters for the gradient. fColorCount is both an input

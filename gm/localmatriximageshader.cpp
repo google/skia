@@ -36,8 +36,8 @@ DEF_SIMPLE_GM(localmatriximageshader, canvas, 250, 250) {
     SkMatrix translate = SkMatrix::Translate(100.0f, 0.0f);
     SkMatrix rotate;
     rotate.setRotate(45.0f);
-    sk_sp<SkShader> redImageShader = redImage->makeShader(SkSamplingOptions(), &rotate);
-    sk_sp<SkShader> redLocalMatrixShader = redImageShader->makeWithLocalMatrix(translate);
+    sk_sp<SkShader> redImageShader = redImage->makeShader(SkSamplingOptions(), &translate);
+    sk_sp<SkShader> redLocalMatrixShader = redImageShader->makeWithLocalMatrix(rotate);
 
     // Rotate about the origin will happen first.
     SkPaint paint;
@@ -45,8 +45,8 @@ DEF_SIMPLE_GM(localmatriximageshader, canvas, 250, 250) {
     canvas->drawIRect(SkIRect::MakeWH(250, 250), paint);
 
     sk_sp<SkImage> blueImage = make_image(canvas, SK_ColorBLUE);
-    sk_sp<SkShader> blueImageShader = blueImage->makeShader(SkSamplingOptions(), &translate);
-    sk_sp<SkShader> blueLocalMatrixShader = blueImageShader->makeWithLocalMatrix(rotate);
+    sk_sp<SkShader> blueImageShader = blueImage->makeShader(SkSamplingOptions(), &rotate);
+    sk_sp<SkShader> blueLocalMatrixShader = blueImageShader->makeWithLocalMatrix(translate);
 
     // Translate will happen first.
     paint.setShader(blueLocalMatrixShader);
