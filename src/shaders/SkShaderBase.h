@@ -275,7 +275,10 @@ public:
 #endif
 
     static SkMatrix ConcatLocalMatrices(const SkMatrix& parentLM, const SkMatrix& childLM) {
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)  // b/256873449
         return SkMatrix::Concat(childLM, parentLM);
+#endif
+        return SkMatrix::Concat(parentLM, childLM);
     }
 
 protected:
