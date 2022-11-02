@@ -20,8 +20,6 @@ public:
                      const SkSurfaceProps*);
     SkSurface_Raster(const SkImageInfo& info, sk_sp<SkPixelRef>, const SkSurfaceProps*);
 
-    SkImageInfo imageInfo() const override { return fBitmap.info(); }
-
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;

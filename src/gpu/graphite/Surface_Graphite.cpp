@@ -26,10 +26,6 @@ Surface::Surface(sk_sp<Device> device)
 
 Surface::~Surface() {}
 
-SkImageInfo Surface::imageInfo() const {
-    return fDevice->imageInfo();
-}
-
 Recorder* Surface::onGetRecorder() {
     return fDevice->recorder();
 }
