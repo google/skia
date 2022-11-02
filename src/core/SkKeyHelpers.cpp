@@ -423,6 +423,23 @@ void BlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
+void ColorFilterShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+                                        SkPaintParamsKeyBuilder* builder,
+                                        SkPipelineDataGatherer* gatherer) {
+#ifdef SK_GRAPHITE_ENABLED
+    auto dict = keyContext.dict();
+
+    if (gatherer) {
+        gatherer->addFlags(
+                dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kColorFilterShader));
+    }
+
+    builder->beginBlock(SkBuiltInCodeSnippetID::kColorFilterShader);
+#endif // SK_GRAPHITE_ENABLED
+}
+
+//--------------------------------------------------------------------------------------------------
+
 #ifdef SK_GRAPHITE_ENABLED
 
 namespace {

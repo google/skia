@@ -77,6 +77,15 @@ sk_sp<SkShader> create_blend_shader(SkCanvas* destCanvas, SkBlendMode bm) {
                                                 SkTileMode::kRepeat, SkTileMode::kRepeat));
 }
 
+sk_sp<SkColorFilter> create_grayscale_colorfilter() {
+    float matrix[20] = {};
+    matrix[0] = matrix[5] = matrix[10] = 0.2126f;
+    matrix[1] = matrix[6] = matrix[11] = 0.7152f;
+    matrix[2] = matrix[7] = matrix[12] = 0.0722f;
+    matrix[18] = 1.0f;
+    return SkColorFilters::Matrix(matrix);
+}
+
 void draw_image_shader_tile(SkCanvas* canvas, SkRect clipRect) {
     SkPaint p;
     p.setShader(create_image_shader(canvas, SkTileMode::kClamp, SkTileMode::kRepeat));
@@ -297,7 +306,19 @@ protected:
 
         // Middle-right tile
         {
-            // <add tile here>
+            sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_128.png"));
+            sk_sp<SkShader> shader;
+
+            if (image) {
+                shader = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat, {});
+                shader = shader->makeWithColorFilter(create_grayscale_colorfilter());
+            }
+
+            SkPaint p;
+            p.setShader(std::move(shader));
+
+            SkRect r = SkRect::MakeXYWH(2*kTileWidth, kTileHeight, kTileWidth, kTileHeight);
+            canvas->drawRect(r.makeInset(1.0f, 1.0f), p);
         }
 
         canvas->restore();

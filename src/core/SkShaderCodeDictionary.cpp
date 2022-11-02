@@ -627,6 +627,11 @@ static constexpr char kBlendShaderName[] = "sk_blend_shader";
 static constexpr int kNumBlendShaderChildren = 2;
 
 //--------------------------------------------------------------------------------------------------
+static constexpr char kColorFilterShaderName[] = "ColorFilterShader";
+
+static constexpr int kNumColorFilterShaderChildren = 2;
+
+//--------------------------------------------------------------------------------------------------
 static constexpr char kRuntimeShaderName[] = "RuntimeEffect";
 
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
@@ -791,10 +796,10 @@ static constexpr char kComposeColorFilterName[] = "ComposeColorFilter";
 
 static constexpr int kNumComposeColorFilterChildren = 2;
 
-void GenerateComposeColorFilterPreamble(const SkShaderInfo& shaderInfo,
-                                        int* entryIndex,
-                                        const SkPaintParamsKey::BlockReader& reader,
-                                        std::string* preamble) {
+void GenerateNestedChildrenPreamble(const SkShaderInfo& shaderInfo,
+                                    int* entryIndex,
+                                    const SkPaintParamsKey::BlockReader& reader,
+                                    std::string* preamble) {
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
     const SkShaderSnippet* entry = reader.entry();
     SkASSERT(entry->fNumChildren == 2);
@@ -1277,6 +1282,18 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             { }      // no data payload
     };
 
+    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kColorFilterShader] = {
+            "ColorFilterShader",
+            {},      // no uniforms
+            SnippetRequirementFlags::kNone,
+            { },     // no samplers
+            kColorFilterShaderName,
+            GenerateDefaultExpression,
+            GenerateNestedChildrenPreamble,
+            kNumColorFilterShaderChildren,
+            { }      // no data payload
+    };
+
     // SkColorFilter snippets
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kMatrixColorFilter] = {
             "MatrixColorFilter",
@@ -1307,7 +1324,7 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             { },     // no samplers
             kComposeColorFilterName,
             GenerateDefaultExpression,
-            GenerateComposeColorFilterPreamble,
+            GenerateNestedChildrenPreamble,
             kNumComposeColorFilterChildren,
             { }      // no data payload
     };

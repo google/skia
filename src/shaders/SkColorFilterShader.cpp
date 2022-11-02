@@ -20,6 +20,11 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #endif
 
+#ifdef SK_ENABLE_SKSL
+#include "src/core/SkKeyHelpers.h"
+#include "src/core/SkPaintParamsKey.h"
+#endif
+
 SkColorFilterShader::SkColorFilterShader(sk_sp<SkShader> shader,
                                          float alpha,
                                          sk_sp<SkColorFilter> filter)
@@ -109,6 +114,23 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
     return std::move(fp);
 }
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef SK_ENABLE_SKSL
+
+void SkColorFilterShader::addToKey(const SkKeyContext& keyContext,
+                                   SkPaintParamsKeyBuilder* builder,
+                                   SkPipelineDataGatherer* gatherer) const {
+    ColorFilterShaderBlock::BeginBlock(keyContext, builder, gatherer);
+
+    as_SB(fShader)->addToKey(keyContext, builder, gatherer);
+    as_CFB(fFilter)->addToKey(keyContext, builder, gatherer);
+
+    builder->endBlock();
+}
+
+#endif // SK_ENABLE_SKSL
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
