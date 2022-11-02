@@ -1472,11 +1472,10 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SpvId type = this->getType(callType);
             SpvId sampler = this->writeExpression(*arguments[0], out);
             SpvId uv = this->writeExpression(*arguments[1], out);
-            this->writeInstruction(op, type, result, sampler, uv,
-                                   SpvImageOperandsGradMask,
-                                   this->writeExpression(*arguments[2], out),
-                                   this->writeExpression(*arguments[3], out),
-                                   out);
+            SpvId dPdx = this->writeExpression(*arguments[2], out);
+            SpvId dPdy = this->writeExpression(*arguments[3], out);
+            this->writeInstruction(op, type, result, sampler, uv, SpvImageOperandsGradMask,
+                                   dPdx, dPdy, out);
             break;
         }
         case kTextureLod_SpecialIntrinsic: {
