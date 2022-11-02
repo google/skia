@@ -487,13 +487,12 @@ void GLSLCodeGenerator::writeTransposeHack(const Expression& mat) {
         std::string transposed =  this->getTypeName(base.toCompound(fContext, r, c));
         fExtraFunctions.writeText((transposed + " " + name + "(" + typeName + " m) { return " +
                                    transposed + "(").c_str());
-        const char* separator = "";
+        auto separator = SkSL::String::Separator();
         for (int row = 0; row < r; ++row) {
             for (int column = 0; column < c; ++column) {
-                fExtraFunctions.writeText(separator);
+                fExtraFunctions.writeText(separator().c_str());
                 fExtraFunctions.writeText(("m[" + std::to_string(column) + "][" +
                                            std::to_string(row) + "]").c_str());
-                separator = ", ";
             }
         }
         fExtraFunctions.writeText("); }\n");
@@ -638,9 +637,8 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             if (!this->caps().fRemovePowWithConstantExponent) {
                 break;
             }
-            // pow(x, y) on some NVIDIA drivers causes crashes if y is a
-            // constant.  It's hard to tell what constitutes "constant" here
-            // so just replace in all cases.
+            // pow(x, y) on some NVIDIA drivers causes crashes if y is a constant.
+            // It's hard to tell what constitutes "constant" here, so just replace in all cases.
 
             // Change pow(x, y) into exp2(y * log2(x))
             this->write("exp2(");
@@ -750,10 +748,9 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->writeIdentifier(function.mangledName());
     }
     this->write("(");
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (const auto& arg : arguments) {
-        this->write(separator);
-        separator = ", ";
+        this->write(separator());
         this->writeExpression(*arg, Precedence::kSequence);
     }
     if (fProgram.fConfig->fSettings.fSharpenTextures && isTextureFunctionWithBias) {
@@ -838,10 +835,9 @@ void GLSLCodeGenerator::writeCastConstructor(const AnyConstructor& c, Precedence
 void GLSLCodeGenerator::writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence) {
     this->writeType(c.type());
     this->write("(");
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (const auto& arg : c.argumentSpan()) {
-        this->write(separator);
-        separator = ", ";
+        this->write(separator());
         this->writeExpression(*arg, Precedence::kSequence);
     }
     this->write(")");
@@ -1122,7 +1118,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     this->write(" ");
     this->writeIdentifier(f.mangledName());
     this->write("(");
-    const char* separator = "";
+    auto separator = SkSL::String::Separator();
     for (size_t index = 0; index < f.parameters().size(); ++index) {
         const Variable* param = f.parameters()[index];
 
@@ -1132,8 +1128,7 @@ void GLSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
         if (f.isMain() && param->modifiers().fLayout.fBuiltin != -1) {
             continue;
         }
-        this->write(separator);
-        separator = ", ";
+        this->write(separator());
         Modifiers modifiers = param->modifiers();
         if (this->caps().fRemoveConstFromFunctionParameters) {
             modifiers.fFlags &= ~Modifiers::kConst_Flag;
