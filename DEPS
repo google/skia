@@ -7,6 +7,12 @@ vars = {
   'sk_tool_revision': 'git_revision:2b0e1cddd81cbf334f53fcf8248a8d78073328eb',
 }
 
+# If you modify this file, you will need to regenerate the Bazel version of this file (bazel/deps.bzl).
+# To do so, run:
+#     bazelisk run //bazel/deps_parser
+#
+# To apply the changes for the GN build, you will need to resync the git repositories using:
+#     ./tools/git-sync-deps
 deps = {
   "buildtools"                                   : "https://chromium.googlesource.com/chromium/src/buildtools.git@b138e6ce86ae843c42a1a08f37903207bebcca75",
   "third_party/externals/angle2"                 : "https://chromium.googlesource.com/angle/angle.git@bae82cfae31732cdce1772242632a9a99107641f",
