@@ -285,7 +285,25 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 		return skerr.Wrap(err)
 	}
 
-	if !args.repoState.IsTryJob() {
+	if args.repoState.IsTryJob() {
+		// Add diff results to the step data. This is consumed by the codesize plugin to display
+		// results on the Gerrit CL for tryjob runs.
+		s, err := os_steps.Stat(ctx, filepath.Join("build", args.binaryName+"_stripped"))
+		if err != nil {
+			return err
+		}
+		totalBytes := s.Size()
+
+		s, err = os_steps.Stat(ctx, filepath.Join("build_nopatch", args.binaryName+"_stripped"))
+		if err != nil {
+			return err
+		}
+		beforeBytes := s.Size()
+
+		diffBytes := totalBytes - beforeBytes
+		td.StepText(ctx, "Diff Bytes", strconv.FormatInt(diffBytes, 10))
+	} else {
+		// Upload perf data for non-tryjob runs on status.skia.org.
 		perfData := format.Format{
 			Version: 1,
 			GitHash: args.repoState.Revision,
