@@ -209,36 +209,40 @@ void VarDeclaration::ErrorCheck(const Context& context,
                                            baseType->displayName() + "'");
         }
     }
+
     int permitted = Modifiers::kConst_Flag | Modifiers::kHighp_Flag | Modifiers::kMediump_Flag |
                     Modifiers::kLowp_Flag;
     if (storage == Variable::Storage::kGlobal) {
         // Uniforms are allowed in all programs
         permitted |= Modifiers::kUniform_Flag;
 
-        if (baseType->isInterfaceBlock()) {
-            permitted |= Modifiers::kBuffer_Flag;
+        // No other modifiers are allowed in runtime effects.
+        if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
+            if (baseType->isInterfaceBlock()) {
+                // Interface blocks allow `buffer`.
+                permitted |= Modifiers::kBuffer_Flag;
 
-            // It is an error for an unsized array to appear anywhere but the last member of a
-            // "buffer" block.
-            const auto& fields = baseType->fields();
-            const size_t illegalRangeEnd =
-                    fields.size() - ((modifiers.fFlags & Modifiers::kBuffer_Flag) ? 1 : 0);
-            for (size_t i = 0; i < illegalRangeEnd; ++i) {
-                if (fields[i].fType->isUnsizedArray()) {
-                    context.fErrors->error(
-                            fields[i].fPosition,
-                            "unsized array must be the last member of a storage block");
+                if (modifiers.fFlags & Modifiers::kBuffer_Flag) {
+                    // Only storage blocks allow `readonly` and `writeonly`.
+                    // (`readonly` and `writeonly` textures are converted to separate types via
+                    // applyAccessQualifiers.)
+                    permitted |= Modifiers::kReadOnly_Flag | Modifiers::kWriteOnly_Flag;
+                }
+
+                // It is an error for an unsized array to appear anywhere but the last member of a
+                // "buffer" block.
+                const auto& fields = baseType->fields();
+                const size_t illegalRangeEnd =
+                        fields.size() - ((modifiers.fFlags & Modifiers::kBuffer_Flag) ? 1 : 0);
+                for (size_t i = 0; i < illegalRangeEnd; ++i) {
+                    if (fields[i].fType->isUnsizedArray()) {
+                        context.fErrors->error(
+                                fields[i].fPosition,
+                                "unsized array must be the last member of a storage block");
+                    }
                 }
             }
-        }
-        // No other modifiers are allowed in runtime effects
-        if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
-            if (baseType->isInterfaceBlock() && (modifiers.fFlags & Modifiers::kBuffer_Flag)) {
-                // Only storage blocks allow `readonly` and `writeonly`.
-                // (`readonly` and `writeonly` textures are converted to separate types via
-                // applyAccessQualifiers.)
-                permitted |= Modifiers::kReadOnly_Flag | Modifiers::kWriteOnly_Flag;
-            }
+
             if (!baseType->isOpaque()) {
                 // Only non-opaque types allow `in` and `out`.
                 permitted |= Modifiers::kIn_Flag | Modifiers::kOut_Flag;
@@ -254,8 +258,6 @@ void VarDeclaration::ErrorCheck(const Context& context,
             }
         }
     }
-
-    // TODO(skbug.com/11301): Migrate above checks into building a mask of permitted layout flags
 
     int permittedLayoutFlags = ~0;
     // We don't allow 'binding' or 'set' on normal uniform variables, only on textures, samplers,
