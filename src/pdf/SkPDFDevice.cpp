@@ -158,23 +158,28 @@ static void draw_points(SkCanvas::PointMode mode,
     draw.drawPoints(mode, count, points, paint, device);
 }
 
-// A shader's matrix is:  CTMM x LocalMatrix x WrappingLocalMatrix.  We want to
-// switch to device space, where CTM = I, while keeping the original behavior.
-//
-//               I * LocalMatrix * NewWrappingMatrix = CTM * LocalMatrix
-//                   LocalMatrix * NewWrappingMatrix = CTM * LocalMatrix
-//  InvLocalMatrix * LocalMatrix * NewWrappingMatrix = InvLocalMatrix * CTM * LocalMatrix
-//                                 NewWrappingMatrix = InvLocalMatrix * CTM * LocalMatrix
-//
 static void transform_shader(SkPaint* paint, const SkMatrix& ctm) {
     SkASSERT(!ctm.isIdentity());
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+    // A shader's matrix is:  CTM x LocalMatrix x WrappingLocalMatrix.  We want to
+    // switch to device space, where CTM = I, while keeping the original behavior.
+    //
+    //               I * LocalMatrix * NewWrappingMatrix = CTM * LocalMatrix
+    //                   LocalMatrix * NewWrappingMatrix = CTM * LocalMatrix
+    //  InvLocalMatrix * LocalMatrix * NewWrappingMatrix = InvLocalMatrix * CTM * LocalMatrix
+    //                                 NewWrappingMatrix = InvLocalMatrix * CTM * LocalMatrix
+    //
     SkMatrix lm = SkPDFUtils::GetShaderLocalMatrix(paint->getShader());
     SkMatrix lmInv;
     if (lm.invert(&lmInv)) {
         SkMatrix m = SkMatrix::Concat(SkMatrix::Concat(lmInv, ctm), lm);
         paint->setShader(paint->getShader()->makeWithLocalMatrix(m));
     }
+    return;
+#endif
+    paint->setShader(paint->getShader()->makeWithLocalMatrix(ctm));
 }
+
 
 static SkTCopyOnFirstWrite<SkPaint> clean_paint(const SkPaint& srcPaint) {
     SkTCopyOnFirstWrite<SkPaint> paint(srcPaint);
