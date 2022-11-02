@@ -6,18 +6,13 @@
  */
 
 #include "include/private/SkSLLayout.h"
+#include "include/private/SkSLString.h"
 
 namespace SkSL {
 
 std::string Layout::description() const {
     std::string result;
-    auto separator = [firstSeparator = true]() mutable -> std::string {
-        if (firstSeparator) {
-            firstSeparator = false;
-            return "";
-        } else {
-            return ", ";
-        }};
+    auto separator = SkSL::String::Separator();
     if (fLocation >= 0) {
         result += separator() + "location = " + std::to_string(fLocation);
     }
