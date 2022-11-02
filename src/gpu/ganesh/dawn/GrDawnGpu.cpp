@@ -751,7 +751,7 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
     wgpu::Texture dstTexture = fDevice.CreateTexture(&texDesc);
 
     const char* vs =
-        "layout(location = 0) out float2 texCoord;"
+        "layout(spirv, location = 0) out float2 texCoord;"
         "float2 positions[4] = float2[4](float2(-1.0, 1.0),"
                                         "float2(1.0, 1.0),"
                                         "float2(-1.0, -1.0),"
@@ -770,8 +770,8 @@ bool GrDawnGpu::onRegenerateMipMapLevels(GrTexture* tex) {
                                             nullptr);
 
     const char* fs =
-        "layout(set = 0, binding = 0) uniform sampler samp;"
-        "layout(set = 0, binding = 1) uniform texture2D tex;"
+        "layout(spirv, set = 0, binding = 0) uniform sampler samp;"
+        "layout(spirv, set = 0, binding = 1) uniform texture2D tex;"
         "layout(location = 0) in float2 texCoord;"
         "void main() {"
             "sk_FragColor = sample(makeSampler2D(tex, samp), texCoord);"

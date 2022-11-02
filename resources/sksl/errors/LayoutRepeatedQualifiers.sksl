@@ -10,6 +10,9 @@ layout (
     set = 1,
     builtin = 1,
     input_attachment_index = 1,
+    spirv,
+    metal,
+    gl,
 
     origin_upper_left,
     push_constant,
@@ -21,7 +24,10 @@ layout (
     index = 2,
     set = 2,
     builtin = 2,
-    input_attachment_index = 2
+    input_attachment_index = 2,
+    spirv,
+    metal,
+    gl
 ) float x;
 
 /*%%*
@@ -36,7 +42,11 @@ layout qualifier 'index' appears more than once
 layout qualifier 'set' appears more than once
 layout qualifier 'builtin' appears more than once
 layout qualifier 'input_attachment_index' appears more than once
+layout qualifier 'spirv' appears more than once
+layout qualifier 'metal' appears more than once
+layout qualifier 'gl' appears more than once
 'layout(color)' is only permitted in runtime effects
 'layout(color)' is only permitted on 'uniform' variables
 'layout(color)' is not permitted on variables of type 'float'
+only one backend qualifier can be used
 *%%*/

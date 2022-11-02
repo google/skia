@@ -271,6 +271,9 @@ void VarDeclaration::ErrorCheck(const Context& context,
         ((modifiers.fFlags & Modifiers::kUniform_Flag) && !permitBindingAndSet)) {
         permittedLayoutFlags &= ~Layout::kBinding_Flag;
         permittedLayoutFlags &= ~Layout::kSet_Flag;
+        permittedLayoutFlags &= ~Layout::kSPIRV_Flag;
+        permittedLayoutFlags &= ~Layout::kMetal_Flag;
+        permittedLayoutFlags &= ~Layout::kGL_Flag;
     }
     if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
         // Disallow all layout flags except 'color' in runtime effects

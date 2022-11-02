@@ -10,6 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
+#include "src/core/SkMathPriv.h"
 #include "src/sksl/SkSLContext.h"
 
 namespace SkSL {
@@ -52,6 +53,13 @@ bool Modifiers::checkPermitted(const Context& context,
     }
     SkASSERT(modifierFlags == 0);
 
+    constexpr int allBackendFlags = Layout::kSPIRV_Flag | Layout::kMetal_Flag | Layout::kGL_Flag;
+    int backendFlags = fLayout.fFlags & allBackendFlags;
+    if (SkPopCount(backendFlags) > 1) {
+        context.fErrors->error(pos, "only one backend qualifier can be used");
+        success = false;
+    }
+
     static constexpr struct { Layout::Flag flag; const char* name; } kLayoutFlags[] = {
         { Layout::kOriginUpperLeft_Flag,          "origin_upper_left"},
         { Layout::kPushConstant_Flag,             "push_constant"},
@@ -66,6 +74,9 @@ bool Modifiers::checkPermitted(const Context& context,
         { Layout::kSet_Flag,                      "set"},
         { Layout::kBuiltin_Flag,                  "builtin"},
         { Layout::kInputAttachmentIndex_Flag,     "input_attachment_index"},
+        { Layout::kSPIRV_Flag,                    "spirv"},
+        { Layout::kMetal_Flag,                    "metal"},
+        { Layout::kGL_Flag,                       "gl"},
     };
 
     int layoutFlags = fLayout.fFlags;

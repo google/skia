@@ -879,6 +879,9 @@ DSLLayout Parser::layout() {
         BLEND_SUPPORT_ALL_EQUATIONS,
         PUSH_CONSTANT,
         COLOR,
+        SPIRV,
+        METAL,
+        GL
     };
 
     using LayoutMap = SkTHashMap<std::string_view, LayoutToken>;
@@ -896,6 +899,9 @@ DSLLayout Parser::layout() {
             {"blend_support_all_equations", LayoutToken::BLEND_SUPPORT_ALL_EQUATIONS},
             {"push_constant",               LayoutToken::PUSH_CONSTANT},
             {"color",                       LayoutToken::COLOR},
+            {"spirv",                       LayoutToken::SPIRV},
+            {"metal",                       LayoutToken::METAL},
+            {"gl",                          LayoutToken::GL},
     };
 
     DSLLayout result;
@@ -909,6 +915,15 @@ DSLLayout Parser::layout() {
             LayoutToken* found = sLayoutTokens->find(text);
             if (found != nullptr) {
                 switch (*found) {
+                    case LayoutToken::SPIRV:
+                        result.spirv(this->position(t));
+                        break;
+                    case LayoutToken::METAL:
+                        result.metal(this->position(t));
+                        break;
+                    case LayoutToken::GL:
+                        result.gl(this->position(t));
+                        break;
                     case LayoutToken::ORIGIN_UPPER_LEFT:
                         result.originUpperLeft(this->position(t));
                         break;
@@ -947,9 +962,6 @@ DSLLayout Parser::layout() {
                         break;
                     case LayoutToken::INPUT_ATTACHMENT_INDEX:
                         result.inputAttachmentIndex(this->layoutInt(), this->position(t));
-                        break;
-                    default:
-                        this->error(t, "'" + text + "' is not a valid layout qualifier");
                         break;
                 }
             } else {

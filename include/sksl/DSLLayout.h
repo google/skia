@@ -81,6 +81,18 @@ public:
                               pos);
     }
 
+    DSLLayout& spirv(Position pos = {}) {
+        return this->flag(SkSL::Layout::kSPIRV_Flag, "spirv", pos);
+    }
+
+    DSLLayout& metal(Position pos = {}) {
+        return this->flag(SkSL::Layout::kMetal_Flag, "metal", pos);
+    }
+
+    DSLLayout& gl(Position pos = {}) {
+        return this->flag(SkSL::Layout::kGL_Flag, "gl", pos);
+    }
+
 private:
     explicit DSLLayout(SkSL::Layout skslLayout)
         : fSkSLLayout(skslLayout) {}

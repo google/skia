@@ -34,6 +34,11 @@ struct Layout {
         kSet_Flag                        = 1 << 10,
         kBuiltin_Flag                    = 1 << 11,
         kInputAttachmentIndex_Flag       = 1 << 12,
+
+        // These flags indicate the backend type; only one at most can be set.
+        kSPIRV_Flag                      = 1 << 13,
+        kMetal_Flag                      = 1 << 14,
+        kGL_Flag                         = 1 << 15,
     };
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
