@@ -124,13 +124,18 @@ std::unique_ptr<Recording> Recorder::snap() {
         device->flushPendingWorkToRecorder();
     }
 
-    std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> volatileProxies;
+    std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> nonVolatileLazyProxies;
+    std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> volatileLazyProxies;
     fTextureDataCache->foreach([&](const SkTextureDataBlock* block) {
         for (int j = 0; j < block->numTextures(); ++j) {
             const SkTextureDataBlock::SampledTexture& tex = block->texture(j);
 
-            if (tex.first->isVolatile()) {
-                volatileProxies.insert(tex.first);
+            if (tex.first->isLazy()) {
+                if (tex.first->isVolatile()) {
+                    volatileLazyProxies.insert(tex.first);
+                } else {
+                    nonVolatileLazyProxies.insert(tex.first);
+                }
             }
         }
     });
@@ -153,7 +158,8 @@ std::unique_ptr<Recording> Recorder::snap() {
     }
 
     std::unique_ptr<Recording> recording(new Recording(std::move(fGraph),
-                                                       std::move(volatileProxies)));
+                                                       std::move(nonVolatileLazyProxies),
+                                                       std::move(volatileLazyProxies)));
     fDrawBufferManager->transferToRecording(recording.get());
     fUploadBufferManager->transferToRecording(recording.get());
 

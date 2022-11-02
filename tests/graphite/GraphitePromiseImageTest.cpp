@@ -175,9 +175,10 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
         check_unfulfilled(promiseChecker, reporter);
 
         std::unique_ptr<Recording> recording = recorder->snap();
-        check_fulfilled_ahead_by_one(reporter, promiseChecker, /* expectedFulfillCnt= */ 1);
+        check_unfulfilled(promiseChecker, reporter);
 
         context->insertRecording({ recording.get() });
+        check_fulfilled_ahead_by_one(reporter, promiseChecker, /* expectedFulfillCnt= */ 1);
     }
 
     context->submit(SyncToCpu::kNo);
@@ -194,10 +195,11 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
         canvas->drawImage(img, 0, 0);
 
         std::unique_ptr<Recording> recording = recorder->snap();
-        // 'img' should still be fulfilled from the first time we snapped a Recording.
         check_fulfilled_ahead_by_one(reporter, promiseChecker, /* expectedFulfillCnt= */ 1);
 
         context->insertRecording({ recording.get() });
+        // 'img' should still be fulfilled from the first time we snapped a Recording.
+        check_fulfilled_ahead_by_one(reporter, promiseChecker, /* expectedFulfillCnt= */ 1);
     }
 
     context->submit(SyncToCpu::kYes);
@@ -213,6 +215,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
         check_fulfilled_ahead_by_one(reporter, promiseChecker, /* expectedFulfillCnt= */ 1);
 
         context->insertRecording({ recording.get() });
+        check_fulfilled_ahead_by_one(reporter, promiseChecker, /* expectedFulfillCnt= */ 1);
     }
 
     // img's proxy is held by the recording so, despite 'img' being freed earlier, the imageRelease
@@ -273,9 +276,13 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
         check_unfulfilled(promiseChecker, reporter);
 
         std::unique_ptr<Recording> recording = recorder->snap();
-        check_fulfills_only(reporter, promiseChecker, /* expectedFulfillCnt= */ 1);
+        check_unfulfilled(promiseChecker, reporter);
 
-        REPORTER_ASSERT(reporter, !recording); // snap should've failed
+        context->insertRecording({ recording.get() });
+        check_fulfilled_ahead_by_one(reporter, promiseChecker, /* expectedFulfillCnt= */ 1);
+
+        context->insertRecording({ recording.get() });
+        check_fulfills_only(reporter, promiseChecker, /* expectedFulfillCnt= */ 2);
     }
 
     {
@@ -288,7 +295,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
         std::unique_ptr<Recording> recording = recorder->snap();
         check_fulfills_only(reporter, promiseChecker, /* expectedFulfillCnt= */ 2);
 
-        REPORTER_ASSERT(reporter, !recording); // snap should've failed
+        context->insertRecording({ recording.get() });
+        check_fulfills_only(reporter, promiseChecker, /* expectedFulfillCnt= */ 3);
     }
 
     {
@@ -304,7 +312,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
         std::unique_ptr<Recording> recording = recorder->snap();
         check_fulfills_only(reporter, promiseChecker, /* expectedFulfillCnt= */ 3);
 
-        REPORTER_ASSERT(reporter, !recording); // snap should've failed
+        context->insertRecording({ recording.get() });
+        check_fulfills_only(reporter, promiseChecker, /* expectedFulfillCnt= */ 4);
     }
 
     surface.reset();
@@ -314,8 +323,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
     promiseChecker.checkImageReleased(reporter, /* expectedReleaseCnt= */ 1);
 
     context->submit(SyncToCpu::kYes);
-    // fulfill should've been called 3x while release should never have been called
-    check_fulfills_only(reporter, promiseChecker, /* expectedFulfillCnt= */ 3);
+    // fulfill should've been called 4x while release should never have been called
+    check_fulfills_only(reporter, promiseChecker, /* expectedFulfillCnt= */ 4);
 }
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageCreationFailureTest,

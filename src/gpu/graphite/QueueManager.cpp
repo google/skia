@@ -66,12 +66,21 @@ void QueueManager::addRecording(const InsertRecordingInfo& info,
         return;
     }
 
-    if (info.fRecording->priv().hasVolatileProxies()) {
-        if (!info.fRecording->priv().instantiateVolatileProxies(resourceProvider)) {
+    if (info.fRecording->priv().hasNonVolatileLazyProxies()) {
+        if (!info.fRecording->priv().instantiateNonVolatileLazyProxies(resourceProvider)) {
             if (callback) {
                 callback->setFailureResult();
             }
-            info.fRecording->priv().deinstantiateVolatileProxies();
+            return;
+        }
+    }
+
+    if (info.fRecording->priv().hasVolatileLazyProxies()) {
+        if (!info.fRecording->priv().instantiateVolatileLazyProxies(resourceProvider)) {
+            if (callback) {
+                callback->setFailureResult();
+            }
+            info.fRecording->priv().deinstantiateVolatileLazyProxies();
             return;
         }
     }
@@ -80,7 +89,7 @@ void QueueManager::addRecording(const InsertRecordingInfo& info,
         if (callback) {
             callback->setFailureResult();
         }
-        info.fRecording->priv().deinstantiateVolatileProxies();
+        info.fRecording->priv().deinstantiateVolatileLazyProxies();
         return;
     }
 
@@ -88,7 +97,7 @@ void QueueManager::addRecording(const InsertRecordingInfo& info,
         fCurrentCommandBuffer->addFinishedProc(std::move(callback));
     }
 
-    info.fRecording->priv().deinstantiateVolatileProxies();
+    info.fRecording->priv().deinstantiateVolatileLazyProxies();
 }
 
 bool QueueManager::submitToGpu() {
