@@ -87,6 +87,12 @@ static void PrintDeviceError(WGPUErrorType, const char* message, void*) {
     SkDebugf("Device error: %s\n", message);
 }
 
+static void PrintDeviceLostMessage(WGPUDeviceLostReason reason, const char* message, void*) {
+    if (reason != WGPUDeviceLostReason_Destroyed) {
+        SkDebugf("Device lost: %s\n", message);
+    }
+}
+
 class DawnTestContextImpl : public sk_gpu_test::DawnTestContext {
 public:
     static wgpu::Device createDevice(const dawn::native::Instance& instance,
@@ -141,6 +147,7 @@ public:
             device = createDevice(*instance, type);
             if (device) {
                 device.SetUncapturedErrorCallback(PrintDeviceError, 0);
+                device.SetDeviceLostCallback(PrintDeviceLostMessage, 0);
             }
         }
         if (!device) {

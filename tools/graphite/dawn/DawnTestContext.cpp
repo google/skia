@@ -78,6 +78,13 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make() {
                 SK_ABORT("Device error: %s\n", message);
             },
             0);
+    device.SetDeviceLostCallback(
+            [](WGPUDeviceLostReason reason, const char* message, void*) {
+                if (reason != WGPUDeviceLostReason_Destroyed) {
+                    SK_ABORT("Device lost: %s\n", message);
+                }
+            },
+            0);
 
     skgpu::graphite::DawnBackendContext backendContext;
     backendContext.fDevice = device;
