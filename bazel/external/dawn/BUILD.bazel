@@ -1014,6 +1014,7 @@ TINT_SRCS = [
     "src/tint/utils/foreach_macro.h",
     "src/tint/utils/hash.h",
     "src/tint/utils/hashmap.h",
+    "src/tint/utils/hashmap_base.h",
     "src/tint/utils/hashset.h",
     "src/tint/utils/map.h",
     "src/tint/utils/math.h",
