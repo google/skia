@@ -567,12 +567,14 @@ private:
      *  In the following move methods, 'src' is destroyed leaving behind uninitialized raw storage.
      */
     void copy(const T* src) {
-        // Some types may be trivially copyable, in which case we *could* use memcopy; but
-        // MEM_MOVE == true implies that the type is trivially movable, and not necessarily
-        // trivially copyable (think sk_sp<>).  So short of adding another template arg, we
-        // must be conservative and use copy construction.
-        for (int i = 0; i < this->count(); ++i) {
-            new (fItemArray + i) T(src[i]);
+        if constexpr (std::is_trivially_copyable_v<T>) {
+            if (!this->empty() && src != nullptr) {
+                sk_careful_memcpy(fItemArray, src, this->size_bytes());
+            }
+        } else {
+            for (int i = 0; i < this->count(); ++i) {
+                new (fItemArray + i) T(src[i]);
+            }
         }
     }
 
