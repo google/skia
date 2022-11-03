@@ -53,8 +53,8 @@ bool Modifiers::checkPermitted(const Context& context,
     }
     SkASSERT(modifierFlags == 0);
 
-    constexpr int allBackendFlags = Layout::kSPIRV_Flag | Layout::kMetal_Flag | Layout::kGL_Flag;
-    int backendFlags = fLayout.fFlags & allBackendFlags;
+    constexpr int kAllBackendFlags = Layout::kSPIRV_Flag | Layout::kMetal_Flag | Layout::kGL_Flag;
+    int backendFlags = fLayout.fFlags & kAllBackendFlags;
     if (SkPopCount(backendFlags) > 1) {
         context.fErrors->error(pos, "only one backend qualifier can be used");
         success = false;
