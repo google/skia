@@ -525,7 +525,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
 
     instanceVersion = std::min(instanceVersion, apiVersion);
 
-    VkPhysicalDevice physDev;
+    SkSTArray<2, VkPhysicalDevice> physDevs;
     VkDevice device;
     VkInstance inst = VK_NULL_HANDLE;
 
@@ -635,16 +635,19 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
         destroy_instance(getInstProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
-    // Just returning the first physical device instead of getting the whole array.
-    // TODO: find best match for our needs
-    gpuCount = 1;
-    err = grVkEnumeratePhysicalDevices(inst, &gpuCount, &physDev);
-    // VK_INCOMPLETE is returned when the count we provide is less than the total device count.
-    if (err && VK_INCOMPLETE != err) {
+    // Allocate enough storage for all available physical devices. We should be able to just ask for
+    // the first one, but a bug in RenderDoc (https://github.com/baldurk/renderdoc/issues/2766)
+    // will smash the stack if we do that.
+    physDevs.resize(gpuCount);
+    err = grVkEnumeratePhysicalDevices(inst, &gpuCount, physDevs.data());
+    if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
         destroy_instance(getInstProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
+    // We just use the first physical device.
+    // TODO: find best match for our needs
+    VkPhysicalDevice physDev = physDevs.front();
 
     VkPhysicalDeviceProperties physDeviceProperties;
     grVkGetPhysicalDeviceProperties(physDev, &physDeviceProperties);
