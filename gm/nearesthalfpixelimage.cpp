@@ -66,6 +66,7 @@ DEF_SIMPLE_GM_CAN_FAIL(nearest_half_pixel_image, canvas, errorMsg, 264, 235) {
         return skiagm::DrawResult::kSkip;
     }
     auto* c = surf->getCanvas();
+    c->clear(SK_ColorWHITE);
 
     // We scale up in the direction not being tested, the one with image dimension of 1, to make the
     // result more easily visible.
