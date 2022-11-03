@@ -525,7 +525,7 @@ public:
 
     /** Returns an ImageInfo describing the surface.
      */
-    SkImageInfo imageInfo();
+    virtual SkImageInfo imageInfo() const { return SkImageInfo::MakeUnknown(fWidth, fHeight); }
 
     /** Returns unique value identifying the content of SkSurface. Returned value changes
         each time the content changes. Content is changed by drawing, or by calling

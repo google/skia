@@ -48,6 +48,10 @@ skgpu::v1::Device* SkSurface_Gpu::getDevice() {
     return fDevice.get();
 }
 
+SkImageInfo SkSurface_Gpu::imageInfo() const {
+    return fDevice->imageInfo();
+}
+
 static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
                                                       SkSurface::BackendHandleAccess access) {
     auto dContext = surface->recordingContext()->asDirectContext();

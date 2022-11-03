@@ -21,6 +21,8 @@ public:
     SkSurface_Gpu(sk_sp<skgpu::v1::Device>);
     ~SkSurface_Gpu() override;
 
+    SkImageInfo imageInfo() const override;
+
     GrRecordingContext* onGetRecordingContext() override;
 
     GrBackendTexture onGetBackendTexture(BackendHandleAccess) override;
