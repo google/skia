@@ -52,8 +52,6 @@ private:
     SK_FLATTENABLE_HOOKS(SkMatrixTransformImageFilter)
     static sk_sp<SkFlattenable> LegacyOffsetCreateProc(SkReadBuffer& buffer);
 
-    MatrixCapability onGetCTMCapability() const override { return MatrixCapability::kComplex; }
-
     skif::FilterResult onFilterImage(const skif::Context& context) const override;
 
     skif::LayerSpace<SkIRect> onGetInputLayerBounds(
