@@ -493,6 +493,7 @@ sksl_shared_tests = [
   "/sksl/shared/ConstVariableComparison.sksl",
   "/sksl/shared/Control.sksl",
   "/sksl/shared/DeadDoWhileLoop.sksl",
+  "/sksl/shared/DeadGlobals.sksl",
   "/sksl/shared/DeadIfStatement.sksl",
   "/sksl/shared/DeadLoopVariable.sksl",
   "/sksl/shared/DeadReturn.sksl",

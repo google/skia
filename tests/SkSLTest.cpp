@@ -458,6 +458,7 @@ SKSL_TEST(CPU + GPU, kApiLevel_T, CommaSideEffects,                "shared/Comma
 SKSL_TEST(CPU + GPU, kApiLevel_T, ConstantIf,                      "shared/ConstantIf.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      ConstArray,                      "shared/ConstArray.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, ConstVariableComparison,         "shared/ConstVariableComparison.sksl")
+SKSL_TEST(CPU + GPU, kNever,      DeadGlobals,                     "shared/DeadGlobals.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      DeadLoopVariable,                "shared/DeadLoopVariable.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, DeadIfStatement,                 "shared/DeadIfStatement.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, DeadReturn,                      "shared/DeadReturn.sksl")
