@@ -40,7 +40,7 @@ void GrTextureResolveRenderTask::addProxy(GrDrawingManager* drawingMgr,
         SkASSERT(GrMipmapped::kYes == textureProxy->mipmapped());
         SkASSERT(textureProxy->mipmapsAreDirty());
         textureProxy->markMipmapsClean();
-        SkDEBUGCODE(textureProxy->needsMipmapRegen();)
+        SkDEBUGCODE(textureProxy->needsMipmapRegen(drawingMgr->flushNumber());)
     }
 
     // Add the proxy as a dependency: We will read the existing contents of this texture while

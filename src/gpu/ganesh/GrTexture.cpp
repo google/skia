@@ -58,45 +58,16 @@ void GrTexture::assertMipmapsNotDirty(const GrTextureEffect& effect) {
                 return SkStringPrintf("%s flush #%d", is ? "in" : "before", num);
             };
 
-            bool isRT = false;
-            int sampleCount = 1;
-            if (auto* rt = this->asRenderTarget()) {
-                isRT = true;
-                sampleCount = rt->numSamples();
-            }
-            int format = 0;
-            int borrowed = -1;
-#if defined(SK_GL)
-            format = (int)this->backendFormat().asGLFormat();
-            if (context->backend() == GrBackendApi::kOpenGL) {
-                auto gltex = static_cast<GrGLTexture*>(this);
-                borrowed = SkToInt(gltex->idOwnership() == GrBackendObjectOwnership::kBorrowed);
-            }
-#endif
             msg += SkStringPrintf(
-                    " Dirtied by \"%s\" %s, now we're %s. "
-                    "tex dims: %dx%d, gl fmt: %04x, isRT: %d, sc: %d, borrowed: %d, type:%d, ro:%d,"
-                    " regen failed: \"%s\"",
+                    " Dirtied by \"%s\" %s, now we're %s. regen failed: \"%s\"",
                     fMipmapDirtyReason,
                     flushStr(fMipmapDirtyFlushNum, fMipmapDirtyWasFlushing).c_str(),
                     flushStr(flushNum, isFlushing).c_str(),
-                    this->width(),
-                    this->height(),
-                    format,
-                    isRT,
-                    sampleCount,
-                    borrowed,
-                    (int)this->textureType(),
-                    this->readOnly(),
                     fMipmapRegenFailureReason);
         }
         GrTextureProxy* proxy = effect.view().asTextureProxy();
-        msg += SkStringPrintf(", proxy status = %d, slated: %d ",
-                              proxy->mipmapsAreDirty(),
-                              proxy->slatedForMipmapRegen());
-        if (proxy->mipmapsAreDirty()) {
-            msg += proxy->mipmapDirtyReport();
-        }
+        msg += ", ";
+        msg += proxy->mipmapDirtyReport();
         msg += SkStringPrintf(" Proxy was %s at effect creation, texture was %s.",
                               effect.proxyDirtyAtCreation(),
                               effect.texMMStatusAtCreation());

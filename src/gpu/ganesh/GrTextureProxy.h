@@ -63,18 +63,29 @@ public:
     // TODO: Added to verify that task order for mipmaps and rendering is correct
     // Could be removed once verified.
     bool slatedForMipmapRegen() const { return fSlatedForMipmapRegen; }
-    void needsMipmapRegen() { fSlatedForMipmapRegen = true; }
+    void needsMipmapRegen(uint32_t flushNum) {
+        fSlatedForMipmapRegen = true;
+        fSlatedForMipmapRegenFlushNum = flushNum;
+        ++fSlatedForMipmapRegenCount;
+    }
     void mipmapsRegenerated() { fSlatedForMipmapRegen = false; }
     SkString mipmapDirtyReport() const {
         SkString report;
-        report.printf("Proxy dirtied by \"%s\"", fMipmapDirtyReason);
-        if (fMipmapDirtyTaskName) {
-            report.appendf(", task \"%s\",", fMipmapDirtyTaskName);
-        }
-        if (fMipmapDirtyFlushNum >= 0) {
-            report.appendf(" during flush %d, was flushing: %d",
-                           fMipmapDirtyFlushNum,
-                           fMipmapDirtyWasFlushing);
+        report.printf("proxy status = %d, slated: %d, #times slated %d, most recently in flush %d",
+                       this->mipmapsAreDirty(),
+                       this->slatedForMipmapRegen(),
+                       fSlatedForMipmapRegenCount,
+                       fSlatedForMipmapRegenFlushNum);
+        if (fMipmapStatus == GrMipmapStatus::kDirty) {
+            report.appendf(" Proxy dirtied by \"%s\"", fMipmapDirtyReason);
+            if (fMipmapDirtyTaskName) {
+                report.appendf(", task \"%s\",", fMipmapDirtyTaskName);
+            }
+            if (fMipmapDirtyFlushNum >= 0) {
+                report.appendf(" during flush %d, was flushing: %d",
+                               fMipmapDirtyFlushNum,
+                               fMipmapDirtyWasFlushing);
+            }
         }
         return report;
     }
@@ -208,13 +219,18 @@ private:
     // NOTE: fMipmapStatus may no longer be equal to fInitialMipmapStatus by the time the texture
     // is instantiated, since it tracks mipmaps in the time frame in which the DAG is being built.
     SkDEBUGCODE(const GrMipmapStatus fInitialMipmapStatus;)
+
     // TODO: Tracking to see if mipmap regen occurs in the correct task order
     // Could be removed once verified.
-    SkDEBUGCODE(bool fSlatedForMipmapRegen = false;)
-    SkDEBUGCODE(const char* fMipmapDirtyReason = "";)
-    SkDEBUGCODE(int fMipmapDirtyFlushNum = -1;)
-    SkDEBUGCODE(bool fMipmapDirtyWasFlushing = false;)
-    SkDEBUGCODE(const char* fMipmapDirtyTaskName = nullptr;)
+#if defined(SK_DEBUG)
+    bool        fSlatedForMipmapRegen          = false;
+    uint32_t    fSlatedForMipmapRegenFlushNum  = 0;
+    int         fSlatedForMipmapRegenCount     = 0;
+    const char* fMipmapDirtyReason             = "";
+    int         fMipmapDirtyFlushNum           = -1;
+    bool        fMipmapDirtyWasFlushing        = false;
+    const char* fMipmapDirtyTaskName           = nullptr;
+#endif
 
     bool             fSyncTargetKey = true;  // Should target's unique key be sync'ed with ours.
 
