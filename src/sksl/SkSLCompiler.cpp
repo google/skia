@@ -396,8 +396,9 @@ bool Compiler::optimize(Program& program) {
         while (Transform::EliminateDeadLocalVariables(program)) {
             // Removing dead variables may cause more variables to become unreferenced. Try again.
         }
-
-        Transform::EliminateDeadGlobalVariables(program);
+        while (Transform::EliminateDeadGlobalVariables(program)) {
+            // Repeat until no changes occur.
+        }
     }
 
     return this->errorCount() == 0;

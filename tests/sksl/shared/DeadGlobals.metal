@@ -1,9 +1,6 @@
 #include <metal_stdlib>
 #include <simd/simd.h>
 using namespace metal;
-constant const float Pi = 3.14;
-constant const float Alias1 = Pi;
-constant const float Alias2 = Alias1;
 struct Uniforms {
     half4 colorGreen;
     half4 colorRed;

@@ -37,6 +37,8 @@ static bool is_dead_variable(const ProgramElement& element,
     if (!usage->isDead(*varDecl.var())) {
         return false;
     }
+    // This declaration is about to be eliminated by remove_if; update ProgramUsage accordingly.
+    usage->remove(&varDecl);
     return true;
 }
 
