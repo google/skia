@@ -42,7 +42,7 @@ void GrProgramInfo::checkMSAAAndMIPSAreResolved() const {
         SkASSERT(tex);
         if (te.samplerState().mipmapped() == GrMipmapped::kYes) {
             // Ensure mipmaps were all resolved ahead of time by the DAG.
-            tex->assertMipmapsNotDirty(te.view().proxy()->asTextureProxy());
+            tex->assertMipmapsNotDirty(te);
         }
     });
 }

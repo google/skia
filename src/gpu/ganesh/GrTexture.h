@@ -17,7 +17,7 @@
 #include "src/gpu/ganesh/GrSurface.h"
 
 #if defined(SK_DEBUG)
-class GrTextureProxy;
+class GrTextureEffect;
 #endif
 
 class GrTexture : virtual public GrSurface {
@@ -59,7 +59,7 @@ public:
     GrMipmapStatus mipmapStatus() const { return fMipmapStatus; }
     int maxMipmapLevel() const { return fMaxMipmapLevel; }
 
-    SkDEBUGCODE(void assertMipmapsNotDirty(const GrTextureProxy* proxy);)
+    SkDEBUGCODE(void assertMipmapsNotDirty(const GrTextureEffect& effect);)
     SkDEBUGCODE(void setMipmapRegenFailureReason(const char* s) { fMipmapRegenFailureReason = s;})
 
     static void ComputeScratchKey(const GrCaps& caps,

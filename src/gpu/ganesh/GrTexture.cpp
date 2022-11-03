@@ -19,7 +19,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #if defined(SK_GL)
 #include "src/gpu/ganesh/gl/GrGLTexture.h"
 #endif
@@ -45,7 +45,7 @@ void GrTexture::markMipmapsClean() {
 }
 
 #if defined(SK_DEBUG)
-void GrTexture::assertMipmapsNotDirty(const GrTextureProxy* proxy) {
+void GrTexture::assertMipmapsNotDirty(const GrTextureEffect& effect) {
     // There are some cases where we might be given a non-mipmapped texture with a
     // mipmap filter. See skbug.com/7094.
     if (this->mipmapped() == GrMipmapped::kYes && this->mipmapsAreDirty()) {
@@ -90,14 +90,16 @@ void GrTexture::assertMipmapsNotDirty(const GrTextureProxy* proxy) {
                     this->readOnly(),
                     fMipmapRegenFailureReason);
         }
-        if (proxy) {
-            msg += SkStringPrintf(", proxy status = %d, slated: %d ",
-                                  proxy->mipmapsAreDirty(),
-                                  proxy->slatedForMipmapRegen());
-            if (proxy->mipmapsAreDirty()) {
-                msg += proxy->mipmapDirtyReport();
-            }
+        GrTextureProxy* proxy = effect.view().asTextureProxy();
+        msg += SkStringPrintf(", proxy status = %d, slated: %d ",
+                              proxy->mipmapsAreDirty(),
+                              proxy->slatedForMipmapRegen());
+        if (proxy->mipmapsAreDirty()) {
+            msg += proxy->mipmapDirtyReport();
         }
+        msg += SkStringPrintf(" Proxy was %s at effect creation, texture was %s.",
+                              effect.proxyDirtyAtCreation(),
+                              effect.texMMStatusAtCreation());
         SK_ABORT("%s", msg.c_str());
     }
 }

@@ -127,6 +127,10 @@ public:
         GrGLSLShaderBuilder::SamplerHandle fSamplerHandle;
     };
 
+#if defined(SK_DEBUG)
+    const char* texMMStatusAtCreation() const { return fTexMMStatusAtCreation; }
+    const char* proxyDirtyAtCreation()  const { return fProxyDirtyAtCreation;  }
+#endif
 private:
     struct Sampling;
 
@@ -161,6 +165,11 @@ private:
     SkRect fSubset;
     SkRect fClamp;
     ShaderMode fShaderModes[2];
+
+#if defined(SK_DEBUG)
+    const char* fTexMMStatusAtCreation = nullptr;
+    const char* fProxyDirtyAtCreation  = nullptr;
+#endif
 
     inline GrTextureEffect(GrSurfaceProxyView, SkAlphaType, const Sampling&);
 
