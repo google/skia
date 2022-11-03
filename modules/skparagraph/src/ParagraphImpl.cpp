@@ -133,17 +133,16 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
         // Nothing changed case: we can reuse the data from the last layout
     }
 
-    if (fState == kUnknown) {
-        // This only happens once at the first layout; the text is immutable
-        // and there is no reason to repeat it
-        if (this->computeCodeUnitProperties()) {
-            fState = kIndexed;
-        }
-    }
-
-    if (fState == kIndexed) {
+    if (fState < kShaped) {
         // Check if we have the text in the cache and don't need to shape it again
         if (!fFontCollection->getParagraphCache()->findParagraph(this)) {
+            if (fState < kIndexed) {
+                // This only happens once at the first layout; the text is immutable
+                // and there is no reason to repeat it
+                if (this->computeCodeUnitProperties()) {
+                    fState = kIndexed;
+                }
+            }
             this->fRuns.reset();
             this->fClusters.reset();
             this->fClustersIndexFromCodeUnit.reset();
@@ -171,6 +170,9 @@ void ParagraphImpl::layout(SkScalar rawWidth) {
                 this->fOldHeight = this->fHeight;
 
                 return;
+            } else {
+                // Add the paragraph to the cache
+                fFontCollection->getParagraphCache()->updateParagraph(this);
             }
         }
         fState = kShaped;
@@ -510,13 +512,7 @@ bool ParagraphImpl::shapeTextIntoEndlessLine() {
 
     this->applySpacingAndBuildClusterTable();
 
-    if (!result) {
-        return false;
-    } else {
-        // Add the paragraph to the cache
-        fFontCollection->getParagraphCache()->updateParagraph(this);
-        return true;
-    }
+    return result;
 }
 
 void ParagraphImpl::breakShapedTextIntoLines(SkScalar maxWidth) {
