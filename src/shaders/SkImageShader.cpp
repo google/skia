@@ -473,22 +473,24 @@ static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatr
 }
 
 static SkMatrix tweak_inv_matrix(SkFilterMode filter, SkMatrix matrix) {
+#if defined(SK_LEGACY_NEAREST_SAMPLE_MATRIX_TWEAK)
     // See skia:4649 and the GM nearest_half_pixel_image.
     if (filter == SkFilterMode::kNearest) {
         if (matrix.getScaleX() >= 0) {
             matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
-                                            floorf(matrix.getTranslateX())));
+                                           floorf(matrix.getTranslateX())));
         }
         if (matrix.getScaleY() >= 0) {
             matrix.setTranslateY(nextafterf(matrix.getTranslateY(),
                                             floorf(matrix.getTranslateY())));
         }
     }
+#endif
     return matrix;
 }
 
 bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) const {
-    SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/12784)
+    SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/12784)
     // We only support certain sampling options in stages so far
     auto sampling = fSampling;
     if (sampling.isAniso()) {
@@ -541,8 +543,18 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     auto gather = alloc->make<SkRasterPipeline_GatherCtx>();
     gather->pixels = pm.addr();
     gather->stride = pm.rowBytesAsPixels();
-    gather->width  = pm.width();
+    gather->width = pm.width();
     gather->height = pm.height();
+    // Our rasterizer biases upward. That is a rect from 0.5...1.5 fills pixel 1 and not pixel 0.
+    // To make an image that is mapped 1:1 with device pixels but at a half pixel offset select
+    // every pixel from the src image once we make exact integer pixel sample values round down not
+    // up. Note that a mirror mapping will not have this property.
+#if !defined(SK_LEGACY_NEAREST_SAMPLE_MATRIX_TWEAK)
+    if (!sampling.useCubic && sampling.filter == SkFilterMode::kNearest) {
+        gather->coordBiasInULPs = -1;
+    }
+#endif
+
     if (sampling.useCubic) {
         CubicResamplerMatrix(sampling.cubic.B, sampling.cubic.C).getColMajor(gather->weights);
     }
@@ -983,6 +995,14 @@ skvm::Color SkImageShader::makeProgram(
                         lerp(sample_texel(u, left,bottom), sample_texel(u, right,bottom), fx), fy);
         } else {
             SkASSERT(sampling.filter == SkFilterMode::kNearest);
+            // Our rasterizer biases upward. That is a rect from 0.5...1.5 fills pixel 1 and not
+            // pixel 0. To make an image that is mapped 1:1 with device pixels but at a half pixel
+            // offset select every pixel from the src image once we make exact integer pixel sample
+            // values round down not up. Note that a mirror mapping will not have this property.
+#if !defined(SK_LEGACY_NEAREST_SAMPLE_MATRIX_TWEAK)
+            local.x = skvm::pun_to_F32(skvm::pun_to_I32(local.x) - 1);
+            local.y = skvm::pun_to_F32(skvm::pun_to_I32(local.y) - 1);
+#endif
             return sample_texel(u, local.x,local.y);
         }
     };

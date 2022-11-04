@@ -1427,9 +1427,8 @@ SI F tan_(F x) {
 // Used by gather_ stages to calculate the base pointer and a vector of indices to load.
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
-    x = clamp(x, ctx->width);
-    y = clamp(y, ctx->height);
-
+    x = clamp(sk_bit_cast<F>(sk_bit_cast<U32>(x) + ctx->coordBiasInULPs), ctx->width );
+    y = clamp(sk_bit_cast<F>(sk_bit_cast<U32>(y) + ctx->coordBiasInULPs), ctx->height);
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
 }
@@ -3567,8 +3566,8 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
     const F w = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->width ) - 1),
             h = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->height) - 1);
 
-    x = min(max(0, x), w);
-    y = min(max(0, y), h);
+    x = min(max(0, sk_bit_cast<F>(sk_bit_cast<U32>(x) + ctx->coordBiasInULPs)), w);
+    y = min(max(0, sk_bit_cast<F>(sk_bit_cast<U32>(y) + ctx->coordBiasInULPs)), h);
 
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
@@ -3576,6 +3575,7 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
 
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, I32 x, I32 y) {
+    SkASSERT(ctx->coordBiasInULPs == 0);
     // Exclusive -> inclusive.
     const I32 w =  ctx->width - 1,
               h = ctx->height - 1;

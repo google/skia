@@ -144,8 +144,8 @@ struct SkRasterPipeline_GatherCtx {
     int         stride;
     float       width;
     float       height;
-
     float       weights[16];  // for bicubic and bicubic_clamp_8888
+    int         coordBiasInULPs = 0;
 };
 
 // State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
