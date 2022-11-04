@@ -8,31 +8,12 @@
 #ifndef SKSL_IRNODE
 #define SKSL_IRNODE
 
-#include "include/private/SkSLString.h"
-#include "include/private/SkTArray.h"
 #include "include/sksl/SkSLPosition.h"
-#include "src/sksl/SkSLLexer.h"
-#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLPool.h"
 
-#include <algorithm>
-#include <atomic>
-#include <unordered_set>
-#include <vector>
+#include <string>
 
 namespace SkSL {
-
-class Expression;
-class FunctionDeclaration;
-class FunctionDefinition;
-class Statement;
-class Symbol;
-class SymbolTable;
-class Type;
-class Variable;
-class VariableReference;
-enum class VariableRefKind : int8_t;
-enum class VariableStorage : int8_t;
 
 // The fKind field of IRNode could contain any of these values.
 enum class ProgramElementKind {

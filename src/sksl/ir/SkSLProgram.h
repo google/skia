@@ -16,6 +16,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
+#include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLExpression.h"

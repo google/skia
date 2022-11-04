@@ -13,6 +13,8 @@
 
 namespace SkSL {
 
+class Type;
+
 /**
  * Represents a symboltable entry.
  */

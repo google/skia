@@ -9,6 +9,7 @@
 #define SKSL_SWITCHCASE
 
 #include "include/private/SkSLStatement.h"
+#include "include/private/SkSLString.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
 #include <inttypes.h>
