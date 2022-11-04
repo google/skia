@@ -717,7 +717,7 @@ SpvId SPIRVCodeGenerator::writeOpConstant(const Type& type, int32_t valueBits) {
 
 SpvId SPIRVCodeGenerator::writeOpConstantComposite(const Type& type,
                                                    const SkTArray<SpvId>& values) {
-    SkASSERT(values.size() == (type.isStruct() ? type.fields().size() : (size_t)type.columns()));
+    SkASSERT(values.size() == (type.isStruct() ? (int)type.fields().size() : type.columns()));
 
     Words words;
     words.push_back(this->getType(type));
@@ -1253,7 +1253,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
             SkTArray<SpvId> argumentIds;
             std::vector<TempVar> tempVars;
             argumentIds.reserve_back(arguments.size());
-            for (size_t i = 0; i < arguments.size(); i++) {
+            for (int i = 0; i < arguments.size(); i++) {
                 argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out));
             }
             this->writeOpCode(SpvOpExtInst, 5 + (int32_t) argumentIds.size(), out);
@@ -1276,7 +1276,7 @@ SpvId SPIRVCodeGenerator::writeIntrinsicCall(const FunctionCall& c, OutputStream
             SkTArray<SpvId> argumentIds;
             std::vector<TempVar> tempVars;
             argumentIds.reserve_back(arguments.size());
-            for (size_t i = 0; i < arguments.size(); i++) {
+            for (int i = 0; i < arguments.size(); i++) {
                 argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out));
             }
             if (!c.type().isVoid()) {
@@ -1674,7 +1674,7 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     std::vector<TempVar> tempVars;
     SkTArray<SpvId> argumentIds;
     argumentIds.reserve_back(arguments.size());
-    for (size_t i = 0; i < arguments.size(); i++) {
+    for (int i = 0; i < arguments.size(); i++) {
         argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out));
     }
     SpvId result = this->nextId(nullptr);
@@ -1961,7 +1961,7 @@ SpvId SPIRVCodeGenerator::writeMatrixConstructor(const ConstructorCompound& c, O
     SkSTArray<4, SpvId> columnIds;
     // SpvIds of scalars we have written to the current column so far.
     SkSTArray<4, SpvId> currentColumn;
-    for (size_t i = 0; i < arguments.size(); i++) {
+    for (int i = 0; i < arguments.size(); i++) {
         const Type& argType = c.arguments()[i]->type();
         if (currentColumn.empty() && argType.isVector() && argType.columns() == rows) {
             // This vector is a complete matrix column by itself and can be used as-is.
@@ -1994,7 +1994,7 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const ConstructorCompound& c, O
     SkASSERT(type.isVector());
 
     SkSTArray<4, SpvId> arguments;
-    for (size_t i = 0; i < c.arguments().size(); i++) {
+    for (int i = 0; i < c.arguments().size(); i++) {
         const Type& argType = c.arguments()[i]->type();
         SkASSERT(componentType.numberKind() == argType.componentType().numberKind());
 
@@ -2299,7 +2299,7 @@ public:
             // value from the left side
             int offset = i;
             // check to see if we are writing this component
-            for (size_t j = 0; j < fComponents.size(); j++) {
+            for (int j = 0; j < fComponents.size(); j++) {
                 if (fComponents[j] == i) {
                     // we're writing to this component, so adjust the offset to pull from
                     // the correct component of the right side instead of preserving the
@@ -3737,7 +3737,7 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
     this->writeOpCode(SpvOpSwitch, size, out);
     this->writeWord(value, out);
     this->writeWord(defaultLabel, out);
-    for (size_t i = 0; i < cases.size(); ++i) {
+    for (int i = 0; i < cases.size(); ++i) {
         const SwitchCase& c = cases[i]->as<SwitchCase>();
         if (c.isDefault()) {
             continue;
@@ -3745,7 +3745,7 @@ void SPIRVCodeGenerator::writeSwitchStatement(const SwitchStatement& s, OutputSt
         this->writeWord(c.value(), out);
         this->writeWord(labels[i], out);
     }
-    for (size_t i = 0; i < cases.size(); ++i) {
+    for (int i = 0; i < cases.size(); ++i) {
         const SwitchCase& c = cases[i]->as<SwitchCase>();
         if (i == 0) {
             this->writeLabel(labels[i], kBranchIsOnPreviousLine, out);

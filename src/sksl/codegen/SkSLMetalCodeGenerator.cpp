@@ -15,6 +15,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLString.h"
+#include "include/private/SkTo.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
@@ -286,7 +287,7 @@ std::string MetalCodeGenerator::getOutParamHelper(const FunctionCall& call,
     this->writeFunctionRequirementParams(function, separator);
 
     SkASSERT(outVars.size() == arguments.size());
-    SkASSERT(outVars.size() == function.parameters().size());
+    SkASSERT(SkToSizeT(outVars.size()) == function.parameters().size());
 
     // We need to detect cases where the caller passes the same variable as an out-param more than
     // once, and avoid reusing the variable name. (In those cases we can actually just ignore the
@@ -408,7 +409,7 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     // allow a swizzle to be passed to a `floatN&`.)
     const ExpressionArray& arguments = c.arguments();
     const std::vector<Variable*>& parameters = function.parameters();
-    SkASSERT(arguments.size() == parameters.size());
+    SkASSERT(SkToSizeT(arguments.size()) == parameters.size());
 
     bool foundOutParam = false;
     SkSTArray<16, VariableReference*> outVars;

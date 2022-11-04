@@ -761,7 +761,7 @@ void SkSVGDevice::syncClipStack(const SkClipStack& cs) {
     SkClipStack::B2TIter iter(cs);
 
     const SkClipStack::Element* elem;
-    size_t rec_idx = 0;
+    int rec_idx = 0;
 
     // First, find/preserve the common bottom.
     while ((elem = iter.next()) && (rec_idx < fClipStack.size())) {

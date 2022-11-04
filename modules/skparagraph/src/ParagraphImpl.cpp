@@ -266,7 +266,7 @@ bool ParagraphImpl::computeCodeUnitProperties() {
     // Get some information about trailing spaces / hard line breaks
     fTrailingSpaces = fText.size();
     TextIndex firstWhitespace = EMPTY_INDEX;
-    for (auto i = 0ul; i < fCodeUnitProperties.size(); ++i) {
+    for (int i = 0; i < fCodeUnitProperties.size(); ++i) {
         auto flags = fCodeUnitProperties[i];
         if (SkUnicode::isPartOfWhiteSpaceBreak(flags)) {
             if (fTrailingSpaces  == fText.size()) {
@@ -663,7 +663,7 @@ void ParagraphImpl::resolveStrut() {
 BlockRange ParagraphImpl::findAllBlocks(TextRange textRange) {
     BlockIndex begin = EMPTY_BLOCK;
     BlockIndex end = EMPTY_BLOCK;
-    for (size_t index = 0; index < fTextStyles.size(); ++index) {
+    for (int index = 0; index < fTextStyles.size(); ++index) {
         auto& block = fTextStyles[index];
         if (block.fRange.end <= textRange.start) {
             continue;
@@ -720,7 +720,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
 
     ensureUTF16Mapping();
 
-    if (start >= end || start > fUTF8IndexForUTF16Index.size() || end == 0) {
+    if (start >= end || start > SkToSizeT(fUTF8IndexForUTF16Index.size()) || end == 0) {
         return results;
     }
 
@@ -736,7 +736,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
     // TODO: This is probably a temp change that makes SkParagraph work as TxtLib
     //  (so we can compare the results). We now include in the selection box only the graphemes
     //  that belongs to the given [start:end) range entirely (not the ones that intersect with it)
-    if (start < fUTF8IndexForUTF16Index.size()) {
+    if (start < SkToSizeT(fUTF8IndexForUTF16Index.size())) {
         auto utf8 = fUTF8IndexForUTF16Index[start];
         // If start points to a trailing surrogate, skip it
         if (start > 0 && fUTF8IndexForUTF16Index[start - 1] == utf8) {
@@ -744,7 +744,7 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         }
         text.start = findNextGraphemeBoundary(utf8);
     }
-    if (end < fUTF8IndexForUTF16Index.size()) {
+    if (end < SkToSizeT(fUTF8IndexForUTF16Index.size())) {
         auto utf8 = findPreviousGraphemeBoundary(fUTF8IndexForUTF16Index[end]);
         text.end = utf8;
     }
@@ -868,12 +868,13 @@ SkSpan<const char> ParagraphImpl::text(TextRange textRange) {
 }
 
 SkSpan<Cluster> ParagraphImpl::clusters(ClusterRange clusterRange) {
-    SkASSERT(clusterRange.start < fClusters.size() && clusterRange.end <= fClusters.size());
+    SkASSERT(clusterRange.start < SkToSizeT(fClusters.size()) &&
+             clusterRange.end <= SkToSizeT(fClusters.size()));
     return SkSpan<Cluster>(&fClusters[clusterRange.start], clusterRange.width());
 }
 
 Cluster& ParagraphImpl::cluster(ClusterIndex clusterIndex) {
-    SkASSERT(clusterIndex < fClusters.size());
+    SkASSERT(clusterIndex < SkToSizeT(fClusters.size()));
     return fClusters[clusterIndex];
 }
 
@@ -883,12 +884,13 @@ Run& ParagraphImpl::runByCluster(ClusterIndex clusterIndex) {
 }
 
 SkSpan<Block> ParagraphImpl::blocks(BlockRange blockRange) {
-    SkASSERT(blockRange.start < fTextStyles.size() && blockRange.end <= fTextStyles.size());
+    SkASSERT(blockRange.start < SkToSizeT(fTextStyles.size()) &&
+             blockRange.end <= SkToSizeT(fTextStyles.size()));
     return SkSpan<Block>(&fTextStyles[blockRange.start], blockRange.width());
 }
 
 Block& ParagraphImpl::block(BlockIndex blockIndex) {
-    SkASSERT(blockIndex < fTextStyles.size());
+    SkASSERT(blockIndex < SkToSizeT(fTextStyles.size()));
     return fTextStyles[blockIndex];
 }
 

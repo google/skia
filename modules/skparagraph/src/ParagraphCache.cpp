@@ -197,7 +197,7 @@ bool ParagraphCacheKey::operator==(const ParagraphCacheKey& other) const {
         return false;
     }
 
-    for (size_t i = 0; i < fTextStyles.size(); ++i) {
+    for (int i = 0; i < fTextStyles.size(); ++i) {
         auto& tsa = fTextStyles[i];
         auto& tsb = other.fTextStyles[i];
         if (tsa.fStyle.isPlaceholder()) {
@@ -213,7 +213,7 @@ bool ParagraphCacheKey::operator==(const ParagraphCacheKey& other) const {
             return false;
         }
     }
-    for (size_t i = 0; i < fPlaceholders.size(); ++i) {
+    for (int i = 0; i < fPlaceholders.size(); ++i) {
         auto& tsa = fPlaceholders[i];
         auto& tsb = other.fPlaceholders[i];
         if (tsa.fRange.width() == 0 && tsb.fRange.width() == 0) {

@@ -135,7 +135,7 @@ static sk_sp<SkData> load_ktx(const char* filename, ImageInfo* imageInfo) {
                                            { (int) pixelWidth, (int) pixelHeight },
                                            &individualMipOffsets,
                                            imageInfo->fMipmapped == GrMipmapped::kYes);
-    SkASSERT(individualMipOffsets.size() == (size_t) numberOfMipmapLevels);
+    SkASSERT(individualMipOffsets.size() == numberOfMipmapLevels);
 
     sk_sp<SkData> data = SkData::MakeUninitialized(dataSize);
 
@@ -289,7 +289,7 @@ static sk_sp<SkData> load_dds(const char* filename, ImageInfo* imageInfo) {
                                            { (int) header.dwWidth, (int) header.dwHeight },
                                            &individualMipOffsets,
                                            imageInfo->fMipmapped == GrMipmapped::kYes);
-    SkASSERT(individualMipOffsets.size() == (size_t) numberOfMipmapLevels);
+    SkASSERT(individualMipOffsets.size() == numberOfMipmapLevels);
 
     sk_sp<SkData> data = SkData::MakeUninitialized(dataSize);
 

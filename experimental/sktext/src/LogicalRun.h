@@ -24,7 +24,8 @@ class LogicalRun {
     TextRange getTextRange() const { return fUtf16Range; }
 
     SkScalar calculateWidth(GlyphRange glyphRange) const {
-        SkASSERT(glyphRange.fStart <= glyphRange.fEnd && glyphRange.fEnd < fPositions.size());
+        SkASSERT(glyphRange.fStart <= glyphRange.fEnd &&
+                 glyphRange.fEnd < SkToSizeT(fPositions.size()));
         return fPositions[glyphRange.fEnd].fX - fPositions[glyphRange.fStart].fX;
     }
     SkScalar calculateWidth(GlyphIndex start, GlyphIndex end) const {
@@ -42,8 +43,7 @@ class LogicalRun {
 
     template <typename Callback>
     void forEachCluster(Callback&& callback) {
-        GlyphIndex glyph = 0;
-        for(; glyph < fClusters.size(); ++glyph) {
+        for(int glyph = 0; glyph < fClusters.size(); ++glyph) {
             callback(glyph, fRunStart + fClusters[glyph]);
         }
     }
@@ -57,7 +57,7 @@ class LogicalRun {
     // Convert indexes into utf16 and also shift them to be on the entire text scale
     template <typename Callback>
     void convertClusterIndexes(Callback&& callback) {
-        for (size_t glyph = 0; glyph < fClusters.size(); ++glyph) {
+        for (int glyph = 0; glyph < fClusters.size(); ++glyph) {
             fClusters[glyph] = callback(fClusters[glyph]);
         }
     }

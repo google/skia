@@ -166,7 +166,7 @@ public:
         return clusterIndex;
     }
     Run& run(RunIndex runIndex) {
-        SkASSERT(runIndex < fRuns.size());
+        SkASSERT(runIndex < SkToSizeT(fRuns.size()));
         return fRuns[runIndex];
     }
 

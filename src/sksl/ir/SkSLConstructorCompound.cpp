@@ -77,7 +77,7 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
         //   -  mat2(float2(a, b), float2(c, d))          -->  mat2(a, b, c, d)
 
         // See how many fields we would have if composite constructors were flattened out.
-        size_t fields = 0;
+        int fields = 0;
         for (const std::unique_ptr<Expression>& arg : args) {
             fields += arg->is<ConstructorCompound>()
                               ? arg->as<ConstructorCompound>().arguments().size()

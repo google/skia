@@ -403,7 +403,7 @@ static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, vo
         return nullptr;
     }
     size_t idx = *reinterpret_cast<const size_t*>(data);
-    if (idx >= array->size()) {
+    if (idx >= SkToSizeT(array->size())) {
         SkASSERT(false);
         return nullptr;
     }

@@ -41,7 +41,8 @@ class VisualRun {
     }
 
     SkScalar calculateWidth(GlyphRange glyphRange) const {
-        SkASSERT(glyphRange.fStart <= glyphRange.fEnd && glyphRange.fEnd < fPositions.size());
+        SkASSERT(glyphRange.fStart <= glyphRange.fEnd &&
+                 glyphRange.fEnd < SkToSizeT(fPositions.size()));
         return fPositions[glyphRange.fEnd].fX - fPositions[glyphRange.fStart].fX;
     }
     SkScalar calculateWidth(GlyphIndex start, GlyphIndex end) const {

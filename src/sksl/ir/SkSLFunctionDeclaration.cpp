@@ -15,6 +15,7 @@
 #include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLString.h"
 #include "include/private/SkStringView.h"
+#include "include/private/SkTo.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
@@ -559,11 +560,11 @@ bool FunctionDeclaration::determineFinalTypes(const ExpressionArray& arguments,
                                               ParamTypes* outParameterTypes,
                                               const Type** outReturnType) const {
     const std::vector<Variable*>& parameters = this->parameters();
-    SkASSERT(arguments.size() == parameters.size());
+    SkASSERT(SkToSizeT(arguments.size()) == parameters.size());
 
     outParameterTypes->reserve_back(arguments.size());
     int genericIndex = -1;
-    for (size_t i = 0; i < arguments.size(); i++) {
+    for (int i = 0; i < arguments.size(); i++) {
         // Non-generic parameters are final as-is.
         const Type& parameterType = parameters[i]->type();
         if (!parameterType.isGeneric()) {

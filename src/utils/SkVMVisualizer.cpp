@@ -53,14 +53,14 @@ void Visualizer::dump(SkWStream* output) {
     SkDebugfStream stream;
     fOutput = output ? output : &stream;
     this->dumpHead();
-    for (size_t id = 0ul; id < fInstructions.size(); ++id) {
+    for (int id = 0; id < fInstructions.size(); ++id) {
         this->dumpInstruction(id);
     }
     this->dumpTail();
 }
 
 void Visualizer::markAsDeadCode(std::vector<bool>& live, const std::vector<int>& newIds) {
-    for (size_t id = 0ul; id < fInstructions.size(); ++id) {
+    for (int id = 0; id < fInstructions.size(); ++id) {
         Instruction& instruction = fInstructions[id];
         if (instruction.instructionIndex < 0) {
             // We skip commands that are duplicates of some other commands

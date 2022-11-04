@@ -778,7 +778,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
 
     out->writeText("  <CBDT>\n");
     out->writeText("    <header version=\"2.0\"/>\n");
-    for (size_t strikeIndex = 0; strikeIndex < goodStrikeSizes.size(); ++strikeIndex) {
+    for (int strikeIndex = 0; strikeIndex < goodStrikeSizes.size(); ++strikeIndex) {
         font.setSize(goodStrikeSizes[strikeIndex]);
 
         out->writeText("    <strikedata index=\"");
@@ -852,7 +852,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
     SkFontMetrics fm;
     out->writeText("  <CBLC>\n");
     out->writeText("    <header version=\"2.0\"/>\n");
-    for (size_t strikeIndex = 0; strikeIndex < goodStrikeSizes.size(); ++strikeIndex) {
+    for (int strikeIndex = 0; strikeIndex < goodStrikeSizes.size(); ++strikeIndex) {
         font.setSize(goodStrikeSizes[strikeIndex]);
         font.getMetrics(&fm);
         out->writeText("    <strike index=\"");

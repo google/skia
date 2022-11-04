@@ -267,7 +267,7 @@ static bool read_child_effects(SkReadBuffer& buffer,
     // If we are validating against an effect, make sure any (non-null) children are the right type
     if (effect) {
         auto childInfo = effect->children();
-        SkASSERT(childInfo.size() == children->size());
+        SkASSERT(childInfo.size() == SkToSizeT(children->size()));
         for (size_t i = 0; i < childCount; i++) {
             std::optional<ChildType> ct = (*children)[i].type();
             if (ct.has_value() && (*ct) != childInfo[i].type) {

@@ -374,7 +374,7 @@ bool SkSVGAttributeParser::parse(SkSVGColorType* color) {
 }
 
 bool SkSVGAttributeParser::parseSVGColor(SkSVGColor* color, SkSVGColor::Vars&& vars) {
-    static const constexpr size_t kVarsLimit = 32;
+    static const constexpr int kVarsLimit = 32;
 
     if (SkSVGColorType c; this->parseSVGColorType(&c)) {
         *color = SkSVGColor(c, std::move(vars));

@@ -143,13 +143,13 @@ struct Value {
         skvm::Val& fVal;
     };
 
-    ValRef    operator[](size_t i) {
+    ValRef    operator[](int i) {
         // These redundant asserts work around what we think is a codegen bug in GCC 8.x for
         // 32-bit x86 Debug builds.
         SkASSERT(i < fVals.size());
         return fVals[i];
     }
-    skvm::Val operator[](size_t i) const {
+    skvm::Val operator[](int i) const {
         // These redundant asserts work around what we think is a codegen bug in GCC 8.x for
         // 32-bit x86 Debug builds.
         SkASSERT(i < fVals.size());
@@ -1740,7 +1740,7 @@ Value SkVMGenerator::writePostfixExpression(const PostfixExpression& p) {
 Value SkVMGenerator::writeSwizzle(const Swizzle& s) {
     Value base = this->writeExpression(*s.base());
     Value swizzled(s.components().size());
-    for (size_t i = 0; i < s.components().size(); ++i) {
+    for (int i = 0; i < s.components().size(); ++i) {
         swizzled[i] = base[s.components()[i]];
     }
     return swizzled;
@@ -1832,7 +1832,7 @@ Value SkVMGenerator::writeStore(const Expression& lhs, const Value& rhs) {
 
     // Start with the identity slot map - this basically says that the values from rhs belong in
     // slots [0, 1, 2 ... N] of the lhs.
-    for (size_t i = 0; i < slots.size(); ++i) {
+    for (int i = 0; i < slots.size(); ++i) {
         slots[i] = i;
     }
 

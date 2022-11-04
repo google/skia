@@ -934,7 +934,7 @@ void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
         std::copy_n(fMeshes[0].indices(), fMeshes[0].indexCount(), indices);
         int voffset = fMeshes[0].vertexCount();
         int ioffset = fMeshes[0].indexCount();
-        for (size_t m = 1; m < fMeshes.size(); ++m) {
+        for (int m = 1; m < fMeshes.size(); ++m) {
             for (int i = 0; i < fMeshes[m].indexCount(); ++i) {
                 indices[ioffset++] = fMeshes[m].indices()[i] + voffset;
             }

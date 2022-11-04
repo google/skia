@@ -16,8 +16,6 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVariable.h"
 
-#include <cstddef>
-
 namespace SkSL {
 
 std::unique_ptr<Expression> ChildCall::clone(Position pos) const {
@@ -55,7 +53,7 @@ std::string ChildCall::description(OperatorPrecedence) const {
     if (params.size() != arguments.size()) {
         return false;
     }
-    for (size_t i = 0; i < arguments.size(); i++) {
+    for (int i = 0; i < arguments.size(); i++) {
         if (!arguments[i]->type().matches(*params[i])) {
             return false;
         }

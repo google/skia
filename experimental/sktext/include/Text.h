@@ -330,12 +330,12 @@ public:
         return (element.fGlyphRange.fStart == 0);
     }
     bool isLastOnTheLine(Position element) const {
-        return (element.fGlyphRange.fEnd == fBoxLines.back().fBoxGlyphs.size());
+        return (element.fGlyphRange.fEnd == SkToSizeT(fBoxLines.back().fBoxGlyphs.size()));
     }
 
     size_t countLines() const { return fBoxLines.size(); }
     BoxLine getLine(size_t lineIndex) const {
-        SkASSERT(lineIndex < fBoxLines.size());
+        SkASSERT(lineIndex < SkToSizeT(fBoxLines.size()));
         return fBoxLines[lineIndex];
     }
 
