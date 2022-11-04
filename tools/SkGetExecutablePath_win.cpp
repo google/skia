@@ -8,8 +8,8 @@
 #include "tools/SkGetExecutablePath.h"
 #include <windows.h>
 
-SkString SkGetExecutablePath() {
+std::string SkGetExecutablePath() {
     char executableFileBuf[MAX_PATH];
     DWORD executablePathLen = GetModuleFileNameA(nullptr, executableFileBuf, MAX_PATH);
-    return (executablePathLen > 0) ? SkString(executableFileBuf) : SkString();
+    return (executablePathLen > 0) ? std::string(executableFileBuf) : std::string();
 }

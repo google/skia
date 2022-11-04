@@ -13,11 +13,11 @@
 
 // Note that /proc/self/exe is Linux-specific; this won't work on other UNIX systems.
 
-SkString SkGetExecutablePath() {
-    SkString result(/*text=*/nullptr, PATH_MAX);
+std::string SkGetExecutablePath() {
+    std::string result(PATH_MAX, '\0');
     ssize_t len = readlink("/proc/self/exe", result.data(), result.size() - 1);
     if (len < 0 || static_cast<size_t>(len) >= PATH_MAX - 1) {
-        result.reset();
+        result.clear();
     } else {
         result.resize(len);
     }
