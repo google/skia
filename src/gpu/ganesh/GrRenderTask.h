@@ -144,6 +144,9 @@ public:
     // Used by GrRenderTaskCluster.
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrRenderTask);
 
+#if GR_TEST_UTILS
+    const GrTextureResolveRenderTask* resolveTask() const { return fTextureResolveTask; }
+#endif
 protected:
     SkDEBUGCODE(bool deferredProxiesAreInstantiated() const;)
 

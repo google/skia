@@ -158,12 +158,12 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
         return;
     }
 
+    bool alreadyDependent = false;
     if (dependedOnTask) {
         if (this->dependsOn(dependedOnTask) || fTextureResolveTask == dependedOnTask) {
-            return;  // don't add duplicate dependencies
-        }
-
-        if (!dependedOnTask->isSetFlag(kAtlas_Flag)) {
+            alreadyDependent = true;
+            dependedOnTask = nullptr;  // don't add duplicate dependencies
+        } else if (!dependedOnTask->isSetFlag(kAtlas_Flag)) {
             // We are closing 'dependedOnTask' here bc the current contents of it are what 'this'
             // renderTask depends on. We need a break in 'dependedOnTask' so that the usage of
             // that state has a chance to execute.
@@ -216,10 +216,12 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
 
         // The GrTextureResolveRenderTask factory should have also marked the proxy clean, set the
         // last renderTask on the textureProxy to textureResolveTask, and closed textureResolveTask.
-        if (GrRenderTargetProxy* renderTargetProxy = dependedOn->asRenderTargetProxy()) {
-            SkASSERT(!renderTargetProxy->isMSAADirty());
+        if (resolveFlags & GrSurfaceProxy::ResolveFlags::kMSAA) {
+            if (GrRenderTargetProxy* renderTargetProxy = dependedOn->asRenderTargetProxy()) {
+                SkASSERT(!renderTargetProxy->isMSAADirty());
+            }
         }
-        if (textureProxy) {
+        if (textureProxy && (resolveFlags & GrSurfaceProxy::ResolveFlags::kMipMaps)) {
             SkASSERT(!textureProxy->mipmapsAreDirty());
         }
         SkASSERT(drawingMgr->getLastRenderTask(dependedOn) == fTextureResolveTask);
@@ -228,7 +230,12 @@ void GrRenderTask::addDependency(GrDrawingManager* drawingMgr, GrSurfaceProxy* d
     }
 
     if (textureProxy && textureProxy->texPriv().isDeferred()) {
-        fDeferredProxies.push_back(textureProxy);
+        if (alreadyDependent) {
+            SkASSERT(std::find(fDeferredProxies.begin(), fDeferredProxies.end(), textureProxy) !=
+                     fDeferredProxies.end());
+        } else {
+            fDeferredProxies.push_back(textureProxy);
+        }
     }
 
     if (dependedOnTask) {

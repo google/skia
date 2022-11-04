@@ -12,13 +12,33 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/SkColorData.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrPaint.h"
+#include "src/gpu/ganesh/GrProxyProvider.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/GrTextureResolveRenderTask.h"
+#include "src/gpu/ganesh/SurfaceContext.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
+#include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "src/gpu/ganesh/ops/OpsTask.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
@@ -26,8 +46,10 @@
 #include "tools/gpu/ManagedBackendTexture.h"
 
 #include <functional>
+#include <initializer_list>
+#include <memory>
+#include <utility>
 
-class GrBackendTexture;
 struct GrContextOptions;
 
 using namespace sk_gpu_test;
@@ -177,4 +199,159 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceResolveTest,
     otherSurface->resolveMSAA();
     dContext->flush();
     dContext->submit();
+}
+
+// This test comes from crbug.com/1355807 and crbug.com/1365578. The underlying issue was:
+//  * We would do a non-mipmapped draw of a proxy. This proxy would add a dependency from the ops
+//    task to the proxy's last render task, which was a copy task targetting the proxy.
+//  * We would do a mipmapped draw of the same proxy to the same ops task.
+//    GrRenderTask::addDependency would detect the pre-existing dependency and early out before
+//    adding the proxy to a resolve task.
+// We also test the case where the first draw should add a MSAA resolve and the second draw should
+// add a mipmap resolve.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(NonmippedDrawBeforeMippedDraw,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
+    using ResolveFlags = GrSurfaceProxy::ResolveFlags;
+    auto dc = ctxInfo.directContext();
+
+    if (!dc->priv().caps()->mipmapSupport()) {
+        return;
+    }
+
+    for (int sampleCount : {1, 4}) {
+        GrRenderable renderable = sampleCount > 1 ? GrRenderable::kYes : GrRenderable::kNo;
+
+        auto bef = dc->priv().caps()->getDefaultBackendFormat(GrColorType::kRGBA_8888, renderable);
+        if (sampleCount > 1) {
+            if (dc->priv().caps()->msaaResolvesAutomatically()) {
+                // MSAA won't add a resolve task.
+                continue;
+            }
+            sampleCount = dc->priv().caps()->getRenderTargetSampleCount(sampleCount, bef);
+            if (!sampleCount) {
+                continue;
+            }
+        }
+
+        // Create a mipmapped proxy
+        auto mmProxy = dc->priv().proxyProvider()->createProxy(bef,
+                                                               {64, 64},
+                                                               renderable,
+                                                               sampleCount,
+                                                               GrMipmapped::kYes,
+                                                               SkBackingFit::kExact,
+                                                               SkBudgeted::kYes,
+                                                               GrProtected::kNo,
+                                                               "test MM Proxy");
+        GrSurfaceProxyView mmProxyView{mmProxy,
+                                       kBottomLeft_GrSurfaceOrigin,
+                                       skgpu::Swizzle::RGBA()};
+
+        if (sampleCount > 1) {
+            // Make sure MSAA surface needs a resolve by drawing to it. This also adds a last
+            // render task to the proxy.
+            auto drawContext = skgpu::v1::SurfaceDrawContext::Make(dc,
+                                                                   GrColorType::kRGBA_8888,
+                                                                   mmProxy,
+                                                                   nullptr,
+                                                                   kBottomLeft_GrSurfaceOrigin,
+                                                                   SkSurfaceProps{});
+            drawContext->fillWithFP(GrFragmentProcessor::MakeColor(SK_PMColor4fWHITE));
+        } else {
+            // Use a copy, as in the original bug, to dirty the mipmap status and also install
+            // a last render task on the proxy.
+            auto src = dc->priv().proxyProvider()->createProxy(bef,
+                                                               {64, 64},
+                                                               GrRenderable::kNo,
+                                                               1,
+                                                               GrMipmapped::kNo,
+                                                               SkBackingFit::kExact,
+                                                               SkBudgeted::kYes,
+                                                               GrProtected::kNo,
+                                                               "testSrc");
+            skgpu::v1::SurfaceContext mmSC(dc,
+                                           mmProxyView,
+                                           {GrColorType::kRGBA_8888, kPremul_SkAlphaType, nullptr});
+            mmSC.testCopy(src);
+        }
+
+        auto drawDst = skgpu::v1::SurfaceDrawContext::Make(dc,
+                                                           GrColorType::kRGBA_8888,
+                                                           nullptr,
+                                                           SkBackingFit::kExact,
+                                                           {8, 8},
+                                                           SkSurfaceProps{},
+                                                           "testDrawDst");
+
+        // Do a non-mipmapped draw from the mipmapped texture. This should add a dependency on the
+        // copy task recorded above. If the src texture is also multisampled this should record a
+        // msaa-only resolve.
+        {
+            auto te = GrTextureEffect::Make(
+                    mmProxyView,
+                    kPremul_SkAlphaType,
+                    SkMatrix::I(),
+                    GrSamplerState{SkFilterMode::kLinear, SkMipmapMode::kNone},
+                    *dc->priv().caps());
+
+            GrPaint paint;
+            paint.setColorFragmentProcessor(std::move(te));
+
+            drawDst->drawRect(nullptr,
+                              std::move(paint),
+                              GrAA::kNo,
+                              SkMatrix::Scale(1/8.f, 1/8.f),
+                              SkRect::Make(mmProxy->dimensions()));
+            if (sampleCount > 1) {
+                const GrTextureResolveRenderTask* resolveTask =
+                        drawDst->getOpsTask()->resolveTask();
+                if (!resolveTask) {
+                    ERRORF(reporter, "No resolve task after drawing MSAA proxy");
+                    return;
+                }
+                if (resolveTask->flagsForProxy(mmProxy) != ResolveFlags::kMSAA) {
+                    ERRORF(reporter, "Expected resolve flags to be kMSAA");
+                    return;
+                }
+            }
+        }
+
+        // Now do a mipmapped draw from the same texture. Ensure that even though we have a
+        // dependency on the copy task we still ensure that a resolve is recorded.
+        {
+            auto te = GrTextureEffect::Make(
+                    mmProxyView,
+                    kPremul_SkAlphaType,
+                    SkMatrix::I(),
+                    GrSamplerState{SkFilterMode::kLinear, SkMipmapMode::kLinear},
+                    *dc->priv().caps());
+
+            GrPaint paint;
+            paint.setColorFragmentProcessor(std::move(te));
+
+            drawDst->drawRect(nullptr,
+                              std::move(paint),
+                              GrAA::kNo,
+                              SkMatrix::Scale(1/8.f, 1/8.f),
+                              SkRect::Make(mmProxy->dimensions()));
+        }
+        const GrTextureResolveRenderTask* resolveTask = drawDst->getOpsTask()->resolveTask();
+        if (!resolveTask) {
+            ERRORF(reporter, "No resolve task after drawing mip mapped proxy");
+            return;
+        }
+
+        ResolveFlags expectedFlags = GrSurfaceProxy::ResolveFlags::kMipMaps;
+        const char* expectedStr = "kMipMaps";
+        if (sampleCount > 1) {
+            expectedFlags |= GrSurfaceProxy::ResolveFlags::kMSAA;
+            expectedStr = "kMipMaps|kMSAA";
+        }
+        if (resolveTask->flagsForProxy(mmProxy) != expectedFlags) {
+            ERRORF(reporter, "Expected resolve flags to be %s", expectedStr);
+            return;
+        }
+    }
 }
