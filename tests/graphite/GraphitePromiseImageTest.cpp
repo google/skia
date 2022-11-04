@@ -14,6 +14,7 @@
 #include "include/gpu/graphite/Recording.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/RecordingPriv.h"
 #include "tests/Test.h"
 
 using namespace skgpu::graphite;
@@ -547,6 +548,79 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageRecorderLoss,
         recording.reset();
 
         check_all_done(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 1);
+
+        context->deleteBackendTexture(testContext.fBackendTex);
+    }
+}
+
+// Test out PromiseImages appearing in multiple Recordings. In particular, test that
+// previous instantiations don't impact the Recording's collection of PromiseImages.
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageMultipleImgUses,
+                                         reporter,
+                                         context) {
+    constexpr SkISize kDimensions{ 16, 16 };
+
+    static constexpr int kNumRecordings = 3;
+
+    for (Volatile isVolatile : { Volatile::kNo, Volatile::kYes }) {
+        int expectedVolatile = (isVolatile == Volatile::kYes) ? 1 : 0;
+        int expectedNonVolatile = 1 - expectedVolatile;
+
+        TestCtx testContext;
+        setup_test_context(context, reporter, &testContext,
+                           kDimensions, isVolatile, /* invalidBackendTex= */ false);
+
+        std::unique_ptr<Recording> recordings[kNumRecordings];
+
+        SkCanvas* canvas = testContext.fSurface->getCanvas();
+
+        for (int i = 0; i < kNumRecordings; ++i) {
+            canvas->drawImage(testContext.fImg, 0, 0);
+
+            recordings[i] = testContext.fRecorder->snap();
+
+            if (isVolatile == Volatile::kYes) {
+                check_fulfills_only(reporter, testContext.fPromiseChecker,
+                                    /* expectedFulfillCnt= */ i);
+            } else {
+                check_fulfills_only(reporter, testContext.fPromiseChecker,
+                                    /* expectedFulfillCnt= */ i > 0 ? 1 : 0);
+            }
+
+            REPORTER_ASSERT(reporter,
+                            recordings[i]->priv().numVolatilePromiseImages() == expectedVolatile);
+            REPORTER_ASSERT(reporter,
+                            recordings[i]->priv().numNonVolatilePromiseImages() ==
+                            expectedNonVolatile);
+
+            REPORTER_ASSERT(reporter, context->insertRecording({ recordings[i].get() }));
+
+            if (isVolatile == Volatile::kYes) {
+                check_fulfills_only(reporter, testContext.fPromiseChecker,
+                                    /* expectedFulfillCnt= */ i+1);
+            } else {
+                check_fulfills_only(reporter, testContext.fPromiseChecker,
+                                    /* expectedFulfillCnt= */ 1);
+            }
+
+            // Non-volatiles are cleared out after a successful insertion
+            REPORTER_ASSERT(reporter, recordings[i]->priv().numNonVolatilePromiseImages() == 0);
+        }
+
+        context->submit(SyncToCpu::kYes);
+
+        testContext.fSurface.reset();
+        testContext.fImg.reset();
+        for (int i = 0; i < kNumRecordings; ++i) {
+            recordings[i].reset();
+        }
+
+        if (isVolatile == Volatile::kYes) {
+            check_all_done(reporter, testContext.fPromiseChecker,
+                           /* expectedFulfillCnt= */ kNumRecordings);
+        } else {
+            check_all_done(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 1);
+        }
 
         context->deleteBackendTexture(testContext.fBackendTex);
     }

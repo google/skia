@@ -21,8 +21,14 @@ public:
     bool hasNonVolatileLazyProxies() const;
     bool instantiateNonVolatileLazyProxies(ResourceProvider*);
 
+#if GR_TEST_UTILS
+    int numVolatilePromiseImages() const;
+    int numNonVolatilePromiseImages() const;
+#endif
+
     bool addCommands(ResourceProvider*, CommandBuffer*);
     void addResourceRef(sk_sp<Resource> resource);
+
 
 private:
     explicit RecordingPriv(Recording* recorder) : fRecording(recorder) {}

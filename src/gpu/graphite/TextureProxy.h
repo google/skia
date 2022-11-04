@@ -80,15 +80,17 @@ private:
     void validateTexture(const Texture*);
 #endif
 
+    // In the following, 'fVolatile' and 'fLazyInstantiateCallback' can be accessed from
+    // multiple threads so need to remain immutable.
     SkISize fDimensions;
-    TextureInfo fInfo;
+    const TextureInfo fInfo;
 
     SkBudgeted fBudgeted;
-    Volatile fVolatile;
+    const Volatile fVolatile;
 
     sk_sp<Texture> fTexture;
 
-    LazyInstantiateCallback fLazyInstantiateCallback;
+    const LazyInstantiateCallback fLazyInstantiateCallback;
 };
 
 } // namepsace skgpu::graphite
