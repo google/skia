@@ -2190,7 +2190,9 @@ Result GraphiteSink::draw(const Src& src,
 
     skgpu::graphite::InsertRecordingInfo info;
     info.fRecording = recording.get();
-    context->insertRecording(info);
+    if (!context->insertRecording(info)) {
+        return Result::Fatal("Context::insertRecording failed.");
+    }
     context->submit(skgpu::graphite::SyncToCpu::kYes);
 
     return Result::Ok();

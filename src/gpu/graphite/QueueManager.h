@@ -28,7 +28,7 @@ public:
     virtual ~QueueManager();
 
     // Adds the commands from the passed in Recording to the current CommandBuffer
-    void addRecording(const InsertRecordingInfo&, ResourceProvider*);
+    bool addRecording(const InsertRecordingInfo&, ResourceProvider*);
 
     bool submitToGpu();
     void checkForFinishedWork(SyncToCpu);

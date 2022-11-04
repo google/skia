@@ -206,7 +206,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
         std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
         check_unfulfilled(testContext.fPromiseChecker, reporter); // NVPIs not fulfilled at snap
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ recording.get() }));
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 1); // NVPIs fulfilled at insert
     }
@@ -231,7 +231,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 1); // No new fulfill
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ recording.get() }));
         // testContext.fImg should still be fulfilled from the first time we inserted a Recording.
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 1);
@@ -252,7 +252,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 1);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ recording.get() }));
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 1);
     }
@@ -292,12 +292,12 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
         std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
         check_unfulfilled(testContext.fPromiseChecker, reporter);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, !context->insertRecording({ recording.get() }));
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 1);
 
         // Test that reinserting gives uninstantiated PromiseImages a second chance
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, !context->insertRecording({ recording.get() }));
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 2);
     }
 
@@ -311,7 +311,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
         std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 2);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, !context->insertRecording({ recording.get() }));
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 3);
     }
 
@@ -328,7 +328,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
         std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 3);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, !context->insertRecording({ recording.get() }));
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 4);
     }
 
@@ -380,12 +380,12 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageTest,
         // Nothing happens at snap time for VPIs
         check_unfulfilled(testContext.fPromiseChecker, reporter);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ recording.get() }));
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 1);  // VPIs fulfilled on insert
 
         // Test that multiple insertions will clobber prior fulfills
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ recording.get() }));
         check_fulfilled_ahead_by_two(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 2);
     }
@@ -403,11 +403,11 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageTest,
         // Nothing happens at snap time for volatile images
         check_all_done(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 2);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ recording.get() }));
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 3);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ recording.get() }));
         check_fulfilled_ahead_by_two(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 4);
     }
@@ -425,11 +425,11 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageTest,
         // Nothing happens at snap time for volatile images
         check_all_done(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 4);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ recording.get() }));
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 5);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ recording.get() }));
         check_fulfilled_ahead_by_two(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 6);
     }
@@ -465,10 +465,10 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageFulfillFail
         std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
         check_unfulfilled(testContext.fPromiseChecker, reporter);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, !context->insertRecording({ recording.get() }));
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 1);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, !context->insertRecording({ recording.get() }));
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 2);
     }
 
@@ -482,10 +482,10 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageFulfillFail
         std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 2);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, !context->insertRecording({ recording.get() }));
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 3);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, !context->insertRecording({ recording.get() }));
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 4);
     }
 
@@ -502,10 +502,10 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageFulfillFail
         std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 4);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, !context->insertRecording({ recording.get() }));
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 5);
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, !context->insertRecording({ recording.get() }));
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 6);
     }
 
@@ -537,7 +537,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageRecorderLoss,
 
         testContext.fRecorder.reset();  // Recorder drop
 
-        context->insertRecording({ recording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ recording.get() }));
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 1);
 
         context->submit(SyncToCpu::kYes);

@@ -144,10 +144,10 @@ std::unique_ptr<Recorder> Context::makeRecorder(const RecorderOptions& options) 
     return std::unique_ptr<Recorder>(new Recorder(fSharedContext, options));
 }
 
-void Context::insertRecording(const InsertRecordingInfo& info) {
+bool Context::insertRecording(const InsertRecordingInfo& info) {
     ASSERT_SINGLE_OWNER
 
-    fQueueManager->addRecording(info, fResourceProvider.get());
+    return fQueueManager->addRecording(info, fResourceProvider.get());
 }
 
 void Context::submit(SyncToCpu syncToCpu) {

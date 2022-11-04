@@ -471,7 +471,7 @@ void run_test(skiatest::Reporter* reporter,
 
     {
         std::unique_ptr<Recording> imgCreationRecording = mutator->init(caps);
-        context->insertRecording({ imgCreationRecording.get() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ imgCreationRecording.get() }));
     }
 
     {
@@ -479,7 +479,7 @@ void run_test(skiatest::Reporter* reporter,
 
         redrawer.init(mutator->getMutatingImage());
 
-        context->insertRecording({ redrawer.imgDrawRecording() });
+        REPORTER_ASSERT(reporter, context->insertRecording({ redrawer.imgDrawRecording() }));
         redrawer.checkResult(context, mutator->getCase(),
                              useTwoRecorders, withMips, kInitialColor);
 
@@ -487,11 +487,12 @@ void run_test(skiatest::Reporter* reporter,
             {
                 std::unique_ptr<Recording> imgMutationRecording = mutator->mutate(i);
                 if (imgMutationRecording) {
-                    context->insertRecording({imgMutationRecording.get()});
+                    REPORTER_ASSERT(reporter,
+                                    context->insertRecording({imgMutationRecording.get()}));
                 }
             }
 
-            context->insertRecording({ redrawer.imgDrawRecording() });
+            REPORTER_ASSERT(reporter, context->insertRecording({ redrawer.imgDrawRecording() }));
             redrawer.checkResult(context, mutator->getCase(),
                                  useTwoRecorders, withMips, kMutationColors[i]);
         }
