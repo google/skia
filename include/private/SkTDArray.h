@@ -188,7 +188,7 @@ public:
         fStorage.resize(count);
     }
 
-    void reserve(size_t n) {
+    void reserve(int n) {
         fStorage.reserve(n);
     }
 
