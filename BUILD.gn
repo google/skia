@@ -715,10 +715,13 @@ if (skia_compile_modules) {
       outputs = []
       response_file_contents = []
       args = [
-        rebase_path(sksl_minify_path),
-        rebase_path("src/sksl/sksl_shared.sksl"),
-        rebase_path("src/sksl/sksl_public.sksl"),
-        "{{response_file_name}}",
+        # Comments are the variable name in minify_sksl_tests.py
+        rebase_path(sksl_minify_path),  # sksl_minify
+        rebase_path("src/sksl/sksl_shared.sksl"),  # shared_module
+        rebase_path("src/sksl/sksl_public.sksl"),  # public_module
+        rebase_path("resources"),  # input_root_dir
+        rebase_path("tests"),  # output_root_dir
+        "{{response_file_name}}",  # input_file
       ]
 
       testsDir = get_path_info("tests", "abspath")
@@ -732,10 +735,7 @@ if (skia_compile_modules) {
         name = get_path_info(dst, "name")
         ext = get_path_info(dst, "extension")
         if (ext == "rts" || ext == "rtcf" || ext == "rtb") {
-          response_file_contents += rebase_path([
-                                                  src,
-                                                  dir,
-                                                ])
+          response_file_contents += [ rebase_path(src) ]
           sources += [ src ]
           outputs += [ target_out_dir + "/" +
                        rebase_path(dir + "/" + name + ".minified.sksl",
