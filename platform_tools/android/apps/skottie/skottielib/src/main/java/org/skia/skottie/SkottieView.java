@@ -86,12 +86,12 @@ public class SkottieView extends FrameLayout {
                     mBackgroundColor = a.getColor(R.styleable.SkottieView_background_color, 0);
                     break;
                 case BACKING_VIEW_SURFACE:
-                    mBackingView = new SurfaceView(context);
-                    mBackgroundColor = a.getColor(R.styleable.SkottieView_background_color, -1);
-                    if (mBackgroundColor == -1) {
+                    if (!a.hasValue(R.styleable.SkottieView_background_color)) {
                         throw new RuntimeException("background_color attribute "
                             + "needed for SurfaceView");
                     }
+                    mBackingView = new SurfaceView(context);
+                    mBackgroundColor = a.getColor(R.styleable.SkottieView_background_color, -1);
                     if (Color.alpha(mBackgroundColor) != 255) {
                         throw new RuntimeException("background_color cannot be transparent");
                     }
