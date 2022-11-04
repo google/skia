@@ -1206,7 +1206,7 @@ public:
         Wrt when and how often the fulfill, imageRelease, and textureRelease callbacks will
         be called:
 
-        For non-volatile promise images, 'fulfill' will be called at Recorder::snap
+        For non-volatile promise images, 'fulfill' will be called at Context::insertRecording
         time. Regardless of whether 'fulfill' succeeded or failed, 'imageRelease' will always be
         called only once - when Skia will no longer try calling 'fulfill' to get a backend
         texture. If 'fulfill' failed (i.e., it didn't return a valid backend texture) then
@@ -1214,9 +1214,9 @@ public:
         'textureRelease' will be called only once when the GPU is done with the contents of the
         promise image. This will usually occur during a Context::submit call but it could occur
         earlier due to error conditions. 'fulfill' can be called multiple times if the promise
-        image is used in multiple recordings. If 'fulfill' fails, the snap itself will fail.
-        Subsequent snap calls (on Recordings that use the promise image) will keep calling
-        'fulfill' until it succeeds.
+        image is used in multiple recordings. If 'fulfill' fails, the insertRecording itself will
+        fail. Subsequent insertRecording calls (with Recordings that use the promise image) will
+        keep calling 'fulfill' until it succeeds.
 
         For volatile promise images, 'fulfill' will be called each time the Recording is inserted
         into a Context. Regardless of whether 'fulfill' succeeded or failed, 'imageRelease'

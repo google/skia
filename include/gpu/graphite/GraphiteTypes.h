@@ -55,8 +55,8 @@ enum class Mipmapped : bool {
  * Recording that references it is inserted into the Context.
  */
 enum class Volatile : bool {
-    kNo = false,
-    kYes = true
+    kNo = false,              // only fulfilled once
+    kYes = true               // fulfilled on every insertion call
 };
 
 } // namespace skgpu::graphite

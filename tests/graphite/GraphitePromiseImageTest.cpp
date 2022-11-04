@@ -186,7 +186,6 @@ void setup_test_context(Context* context,
     testCtx->fSurface = SkSurface::MakeGraphite(testCtx->fRecorder.get(), ii);
 }
 
-
 } // anonymous namespace
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
@@ -205,11 +204,11 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
         check_unfulfilled(testContext.fPromiseChecker, reporter);
 
         std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
-        check_unfulfilled(testContext.fPromiseChecker, reporter);
+        check_unfulfilled(testContext.fPromiseChecker, reporter); // NVPIs not fulfilled at snap
 
         context->insertRecording({ recording.get() });
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
-                                     /* expectedFulfillCnt= */ 1);
+                                     /* expectedFulfillCnt= */ 1); // NVPIs fulfilled at insert
     }
 
     context->submit(SyncToCpu::kNo);
@@ -221,6 +220,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
     check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                  /* expectedFulfillCnt= */ 1);
 
+    // Test that more draws and insertions don't refulfill the NVPI
     {
         SkCanvas* canvas = testContext.fSurface->getCanvas();
 
@@ -229,10 +229,10 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
 
         std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
-                                     /* expectedFulfillCnt= */ 1);
+                                     /* expectedFulfillCnt= */ 1); // No new fulfill
 
         context->insertRecording({ recording.get() });
-        // 'img' should still be fulfilled from the first time we snapped a Recording.
+        // testContext.fImg should still be fulfilled from the first time we inserted a Recording.
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 1);
     }
@@ -241,6 +241,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageTest,
     check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                  /* expectedFulfillCnt= */ 1);
 
+    // Test that dropping the SkImage's ref doesn't change anything
     {
         SkCanvas* canvas = testContext.fSurface->getCanvas();
 
@@ -295,6 +296,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 1);
 
+        // Test that reinserting gives uninstantiated PromiseImages a second chance
         context->insertRecording({ recording.get() });
         check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 2);
     }
@@ -333,7 +335,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(NonVolatileGraphitePromiseImageFulfillF
     testContext.fSurface.reset();
     testContext.fImg.reset();
 
-    // Despite fulfill failing 3x, the imageRelease callback still fires
+    // Despite fulfill failing 4x, the imageRelease callback still fires
     testContext.fPromiseChecker.checkImageReleased(reporter, /* expectedReleaseCnt= */ 1);
 
     context->submit(SyncToCpu::kYes);
@@ -375,13 +377,14 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageTest,
         check_unfulfilled(testContext.fPromiseChecker, reporter);
 
         std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
-        // Nothing happens at snap time for volatile images
+        // Nothing happens at snap time for VPIs
         check_unfulfilled(testContext.fPromiseChecker, reporter);
 
         context->insertRecording({ recording.get() });
         check_fulfilled_ahead_by_one(reporter, testContext.fPromiseChecker,
-                                     /* expectedFulfillCnt= */ 1);
+                                     /* expectedFulfillCnt= */ 1);  // VPIs fulfilled on insert
 
+        // Test that multiple insertions will clobber prior fulfills
         context->insertRecording({ recording.get() });
         check_fulfilled_ahead_by_two(reporter, testContext.fPromiseChecker,
                                      /* expectedFulfillCnt= */ 2);
@@ -511,4 +514,40 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(VolatileGraphitePromiseImageFulfillFail
 
     context->submit(SyncToCpu::kYes);
     check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 6);
+}
+
+// Test out dropping the Recorder prior to inserting the Recording
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(GraphitePromiseImageRecorderLoss,
+                                         reporter,
+                                         context) {
+    constexpr SkISize kDimensions{ 16, 16 };
+
+    for (Volatile isVolatile : { Volatile::kNo, Volatile::kYes }) {
+        TestCtx testContext;
+        setup_test_context(context, reporter, &testContext,
+                           kDimensions, isVolatile, /* invalidBackendTex= */ false);
+
+        SkCanvas* canvas = testContext.fSurface->getCanvas();
+
+        canvas->drawImage(testContext.fImg, 0, 0);
+        check_unfulfilled(testContext.fPromiseChecker, reporter);
+
+        std::unique_ptr<Recording> recording = testContext.fRecorder->snap();
+        check_unfulfilled(testContext.fPromiseChecker, reporter);
+
+        testContext.fRecorder.reset();  // Recorder drop
+
+        context->insertRecording({ recording.get() });
+        check_fulfills_only(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 1);
+
+        context->submit(SyncToCpu::kYes);
+
+        testContext.fSurface.reset();
+        testContext.fImg.reset();
+        recording.reset();
+
+        check_all_done(reporter, testContext.fPromiseChecker, /* expectedFulfillCnt= */ 1);
+
+        context->deleteBackendTexture(testContext.fBackendTex);
+    }
 }
