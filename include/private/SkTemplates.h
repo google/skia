@@ -440,12 +440,14 @@ struct sk_has_trivially_relocatable_member<T, std::void_t<typename T::sk_is_triv
 // By default, all trivially copyable types are trivially relocatable.
 template <typename T>
 struct sk_is_trivially_relocatable
-        : std::disjunction<std::is_trivially_copyable<T>, sk_has_trivially_relocatable_member<T>
->{};
+        : std::disjunction<std::is_trivially_copyable<T>, sk_has_trivially_relocatable_member<T>>{};
 
 // Here be some dragons: while technically not guaranteed, we count on all sane unique_ptr
 // implementations to be trivially relocatable.
 template <typename T>
 struct sk_is_trivially_relocatable<std::unique_ptr<T>> : std::true_type {};
+
+template <typename T>
+inline constexpr bool sk_is_trivially_relocatable_v = sk_is_trivially_relocatable<T>::value;
 
 #endif
