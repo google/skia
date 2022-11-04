@@ -28,6 +28,22 @@ filegroup(
     ],
 )
 
+filegroup(
+    name = "sksl_srcs",
+    srcs = [
+        "sksl_compute.sksl",
+        "sksl_frag.sksl",
+        "sksl_gpu.sksl",
+        "sksl_graphite_frag.sksl",
+        "sksl_graphite_vert.sksl",
+        "sksl_public.sksl",
+        "sksl_rt_shader.sksl",
+        "sksl_shared.sksl",
+        "sksl_vert.sksl",
+    ],
+    visibility = ["//tools/sksl-minify:__pkg__"],
+)
+
 CORE_SRCS = [
     "SkSLAnalysis.cpp",
     "SkSLAnalysis.h",

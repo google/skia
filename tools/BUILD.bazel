@@ -79,3 +79,15 @@ skia_cc_library(
     visibility = ["//tests:__pkg__"],
     deps = ["//:skia_internal"],
 )
+
+skia_cc_library(
+    name = "get_executable_path",
+    srcs = select({
+        "@platforms//os:windows": ["SkGetExecutablePath_win.cpp"],
+        "@platforms//os:macos": ["SkGetExecutablePath_mac.cpp"],
+        "@platforms//os:linux": ["SkGetExecutablePath_linux.cpp"],
+    }),
+    hdrs = ["SkGetExecutablePath.h"],
+    visibility = ["//tools/sksl-minify:__pkg__"],
+    deps = ["//:skia_internal"],
+)

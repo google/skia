@@ -1,0 +1,31 @@
+filegroup(
+    name = "minify_srcs",
+    srcs = [
+        ":sksl_folding_tests",
+        ":sksl_rte_tests",
+    ],
+    visibility = ["//tools/sksl-minify:__pkg__"],
+)
+
+# TODO(kjlubick,cmumford) remove the globs and generate the .gni files from the Bazel files
+filegroup(
+    name = "sksl_rte_tests",
+    srcs = glob(
+        include = [
+            "runtime/*.rtb",
+            "runtime/*.rtcf",
+            "runtime/*.rts",
+        ],
+    ),
+)
+
+filegroup(
+    name = "sksl_folding_tests",
+    srcs = glob(
+        include = [
+            "folding/*.rtb",
+            "folding/*.rtcf",
+            "folding/*.rts",
+        ],
+    ),
+)
