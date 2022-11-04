@@ -100,3 +100,24 @@ DEF_TEST(SkRasterPipelineOpts_Cos, r) {
         REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
     }
 }
+
+DEF_TEST(SkRasterPipelineOpts_Tan, r) {
+    using F = SK_OPTS_NS::F;
+
+    // Our tangent diverges more as we get near infinities (x near +- Pi/2),
+    // so we bring in the domain a little.
+    constexpr float Pi = SK_ScalarPI;
+    constexpr float kEpsilon = 0.16f;
+    constexpr float kTolerance = 0.00175f;
+
+    // Test against various multiples of Pi, to check our periodicity
+    for (float period : {0.0f, -3*Pi, 3*Pi}) {
+        for (float rad = -Pi/2 + kEpsilon; rad <= Pi/2 - kEpsilon; rad += 0.01f) {
+            F result = SK_OPTS_NS::tan_(rad + period);
+            F expected = sk_float_tan(rad);
+            F delta = SK_OPTS_NS::abs_(expected - result);
+
+            REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
+        }
+    }
+}
