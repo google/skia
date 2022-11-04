@@ -2685,6 +2685,13 @@ def go_repositories():
         version = "v0.0.0-20170810143723-de5bf2ad4578",
     )
     go_repository(
+        name = "com_github_r3labs_sse_v2",
+        importpath = "github.com/r3labs/sse/v2",
+        sum = "h1:lZH+W4XOLIq88U5MIHOsLec7+R62uhz3bIi2yn0Sg8o=",
+        version = "v2.8.1",
+    )
+
+    go_repository(
         name = "com_github_rcrowley_go_metrics",
         importpath = "github.com/rcrowley/go-metrics",
         sum = "h1:9ZKAASQSHhDYGoxY8uLVpewe1GDZ2vu2Tr/vTdVAkFQ=",
@@ -3389,6 +3396,13 @@ def go_repositories():
         version = "v2.2.6",
     )
     go_repository(
+        name = "in_gopkg_cenkalti_backoff_v1",
+        importpath = "gopkg.in/cenkalti/backoff.v1",
+        sum = "h1:Arh75ttbsvlpVA7WtVpH4u9h6Zl46xuptxqLxPiSo4Y=",
+        version = "v1.1.0",
+    )
+
+    go_repository(
         name = "in_gopkg_check_v1",
         importpath = "gopkg.in/check.v1",
         sum = "h1:QRR6H1YWRnHb4Y/HeNFCTJLFVxaq6wH4YuVdsUOr75U=",
@@ -4049,8 +4063,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:JpsiEtTKzB8ec50MksHTb6/jVlhzeBxf3QpzGvFd+gQ=",
-        version = "v0.0.0-20221104151015-f07ee4f742b5",
+        sum = "h1:wVu+0o1SnVBVVOzZd8H/ALobBCHGMBIRGcikVT8M/tQ=",
+        version = "v0.0.0-20221104161034-abdd54b23f9d",
     )
     go_repository(
         name = "org_uber_go_atomic",
