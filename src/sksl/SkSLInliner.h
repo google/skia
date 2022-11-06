@@ -104,7 +104,7 @@ private:
         std::unique_ptr<Block> fInlinedBody;
         std::unique_ptr<Expression> fReplacementExpr;
     };
-    InlinedCall inlineCall(FunctionCall*,
+    InlinedCall inlineCall(const FunctionCall&,
                            std::shared_ptr<SymbolTable>,
                            const ProgramUsage&,
                            const FunctionDeclaration* caller);
