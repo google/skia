@@ -28,16 +28,23 @@
 
 #if SKSL_STANDALONE
 
+#include "include/core/SkString.h"
+#include "src/utils/SkOSPath.h"
+#include "tools/SkGetExecutablePath.h"
+
     // In standalone mode, we load the original SkSL source files. GN is responsible for copying
-    // these files from src/sksl/ to the output directory.
+    // these files from src/sksl/ to the directory where the executable is located.
     #include <fstream>
 
     static std::string load_module_file(const char* moduleFilename) {
-        std::ifstream in(std::string{moduleFilename});
+        std::string exePath = SkGetExecutablePath();
+        SkString exeDir = SkOSPath::Dirname(exePath.c_str());
+        SkString modulePath = SkOSPath::Join(exeDir.c_str(), moduleFilename);
+        std::ifstream in(std::string{modulePath.c_str()});
         std::string moduleSource{std::istreambuf_iterator<char>(in),
                                  std::istreambuf_iterator<char>()};
         if (in.rdstate()) {
-            SK_ABORT("Error reading %s\n", moduleFilename);
+            SK_ABORT("Error reading %s\n", modulePath.c_str());
         }
         return moduleSource;
     }
