@@ -41,17 +41,33 @@ OPTS_HDRS = [
 ]
 
 skia_cc_library(
-    name = "avx",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
-    srcs = ["SkOpts_avx.cpp"],
-    copts = DEFAULT_COPTS + ["-mavx"],
+    name = "crc32",  # https://developer.arm.com/documentation/dui0801/g/A32-and-T32-Instructions/CRC32
+    srcs = ["SkOpts_crc32.cpp"],
+    copts = DEFAULT_COPTS + ["-march=armv8-a+crc"],
     textual_hdrs = OPTS_HDRS,
     deps = ["//bazel:defines_from_flags"],
 )
 
 skia_cc_library(
-    name = "crc32",  # https://developer.arm.com/documentation/dui0801/g/A32-and-T32-Instructions/CRC32
-    srcs = ["SkOpts_crc32.cpp"],
-    copts = DEFAULT_COPTS + ["-march=armv8-a+crc"],
+    name = "ssse3",  # https://en.wikipedia.org/wiki/SSSE3
+    srcs = ["SkOpts_ssse3.cpp"],
+    copts = DEFAULT_COPTS + ["-mssse3"],
+    textual_hdrs = OPTS_HDRS,
+    deps = ["//bazel:defines_from_flags"],
+)
+
+skia_cc_library(
+    name = "sse42",  # https://en.wikipedia.org/wiki/SSE4#SSE4.2
+    srcs = ["SkOpts_sse42.cpp"],
+    copts = DEFAULT_COPTS + ["-msse4.2"],
+    textual_hdrs = OPTS_HDRS,
+    deps = ["//bazel:defines_from_flags"],
+)
+
+skia_cc_library(
+    name = "avx",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
+    srcs = ["SkOpts_avx.cpp"],
+    copts = DEFAULT_COPTS + ["-mavx"],
     textual_hdrs = OPTS_HDRS,
     deps = ["//bazel:defines_from_flags"],
 )
@@ -71,22 +87,6 @@ skia_cc_library(
     name = "skx",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#AVX-512
     srcs = ["SkOpts_skx.cpp"],
     copts = DEFAULT_COPTS + ["-march=skylake-avx512"],
-    textual_hdrs = OPTS_HDRS,
-    deps = ["//bazel:defines_from_flags"],
-)
-
-skia_cc_library(
-    name = "ssse3",  # https://en.wikipedia.org/wiki/SSSE3
-    srcs = ["SkOpts_ssse3.cpp"],
-    copts = DEFAULT_COPTS + ["-mssse3"],
-    textual_hdrs = OPTS_HDRS,
-    deps = ["//bazel:defines_from_flags"],
-)
-
-skia_cc_library(
-    name = "sse42",  # https://en.wikipedia.org/wiki/SSE4#SSE4.2
-    srcs = ["SkOpts_sse42.cpp"],
-    copts = DEFAULT_COPTS + ["-msse4.2"],
     textual_hdrs = OPTS_HDRS,
     deps = ["//bazel:defines_from_flags"],
 )
