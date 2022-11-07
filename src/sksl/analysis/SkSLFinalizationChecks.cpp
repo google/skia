@@ -11,7 +11,6 @@
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
-#include "include/private/SkSLStatement.h"
 #include "include/private/SkTHash.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/core/SkSafeMath.h"
@@ -25,10 +24,8 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
-#include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "src/sksl/ir/SkSLSwitchStatement.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -128,28 +125,6 @@ public:
                 }
             }
         }
-    }
-
-    bool visitStatement(const Statement& stmt) override {
-        switch (stmt.kind()) {
-            case Statement::Kind::kIf:
-                if (stmt.as<IfStatement>().isStatic()) {
-                    fContext.fErrors->error(stmt.as<IfStatement>().test()->fPosition,
-                            "static if has non-static test");
-                }
-                break;
-
-            case Statement::Kind::kSwitch:
-                if (stmt.as<SwitchStatement>().isStatic()) {
-                    fContext.fErrors->error(stmt.as<SwitchStatement>().value()->fPosition,
-                            "static switch has non-static test");
-                }
-                break;
-
-            default:
-                break;
-        }
-        return INHERITED::visitStatement(stmt);
     }
 
     bool visitExpression(const Expression& expr) override {

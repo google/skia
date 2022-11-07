@@ -1552,9 +1552,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLIf, r, ctxInfo) {
     Statement y = If(a > b, a -= b, b -= a);
     EXPECT_EQUAL(y, "if (a > b) a -= b; else b -= a;");
 
-    Statement z = StaticIf(a > b, a -= b, b -= a);
-    EXPECT_EQUAL(z, "@if (a > b) a -= b; else b -= a;");
-
     {
         ExpectError error(r, "expected 'bool', but found 'float'");
         If(a + b, a -= b).release();
@@ -1638,21 +1635,6 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSwitch, r, ctxInfo) {
     );
     EXPECT_EQUAL(x, R"(
         switch (b) {
-            case 0: a = 0.0; break;
-            case 1: a = 1.0; continue;
-            case 2: a = 2.0;
-            default: discard;
-        }
-    )");
-
-    Statement y = StaticSwitch(b,
-        Case(0, a.assign(0), Break()),
-        Case(1, a.assign(1), Continue()),
-        Case(2, a.assign(2)  /*Fallthrough*/),
-        Default(Discard())
-    );
-    EXPECT_EQUAL(y, R"(
-        @switch (b) {
             case 0: a = 0.0; break;
             case 1: a = 1.0; continue;
             case 2: a = 2.0;

@@ -500,7 +500,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
         }
         case Statement::Kind::kIf: {
             const IfStatement& i = statement.as<IfStatement>();
-            return IfStatement::Make(*fContext, pos, i.isStatic(), expr(i.test()),
+            return IfStatement::Make(*fContext, pos, expr(i.test()),
                                      stmt(i.ifTrue()), stmt(i.ifFalse()));
         }
         case Statement::Kind::kNop:
@@ -548,7 +548,7 @@ std::unique_ptr<Statement> Inliner::inlineStatement(Position pos,
                     cases.push_back(SwitchCase::Make(pos, sc.value(), stmt(sc.statement())));
                 }
             }
-            return SwitchStatement::Make(*fContext, pos, ss.isStatic(), expr(ss.value()),
+            return SwitchStatement::Make(*fContext, pos, expr(ss.value()),
                                         std::move(cases), SymbolTable::WrapIfBuiltin(ss.symbols()));
         }
         case Statement::Kind::kVarDeclaration: {

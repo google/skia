@@ -282,7 +282,7 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_colorizer(int intervalC
         // Note that this colorizer is also designed to handle the case of exactly 4 intervals (a
         // single chunk). In this case, the binary search for-loop will optimize away entirely, as
         // it can be proven to execute zero times. We also optimize away the calculation of `4 *
-        // chunk` near the end via an @if statement, as the result will always be in chunk 0.
+        // chunk` near the end via an if statement, as the result will always be in chunk 0.
         int loopCount = SkNextLog2(intervalChunks);
         sksl.appendf(
         "#version 300\n" // important space to separate token.
@@ -313,7 +313,7 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_colorizer(int intervalC
             "} else {"
                 "pos = (t < thresholds[chunk].z) ? 2 : 3;"
             "}"
-            "@if (%d > 0) {"
+            "if (%d > 0) {"
                 "pos += 4 * chunk;"
             "}"
             "return t * scale[pos] + bias[pos];"
@@ -324,7 +324,7 @@ static std::unique_ptr<GrFragmentProcessor> make_looping_colorizer(int intervalC
             /* high: */ intervalChunks - 1,
             /* chunk: */ (intervalChunks - 1) / 2,
             /* loopCount: */ loopCount,
-            /* @if (loopCount > 0): */ loopCount);
+            /* if (loopCount > 0): */ loopCount);
 
         auto result = SkRuntimeEffect::MakeForShader(std::move(sksl));
         SkASSERTF(result.effect, "%s", result.errorText.c_str());

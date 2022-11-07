@@ -292,9 +292,6 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
 }
 
 void PipelineStageCodeGenerator::writeIfStatement(const IfStatement& stmt) {
-    if (stmt.isStatic()) {
-        this->write("@");
-    }
     this->write("if (");
     this->writeExpression(*stmt.test(), Precedence::kTopLevel);
     this->write(") ");

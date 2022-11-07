@@ -181,10 +181,9 @@ public:
     }
 
     static DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
-            bool isStatic, Position pos) {
+                           Position pos) {
         return DSLStatement(IfStatement::Convert(ThreadContext::Context(),
                                                  pos,
-                                                 isStatic,
                                                  test.release(),
                                                  ifTrue.release(),
                                                  ifFalse.releaseIfPossible()), pos);
@@ -272,8 +271,7 @@ public:
         return DSLExpression(std::move(result), pos);
     }
 
-    static DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, bool isStatic,
-                               Position pos) {
+    static DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, Position pos) {
         ExpressionArray values;
         values.reserve_back(cases.count());
         StatementArray caseBlocks;
@@ -283,7 +281,7 @@ public:
             caseBlocks.push_back(SkSL::Block::Make(Position(), std::move(c.fStatements),
                                                    Block::Kind::kUnbracedBlock));
         }
-        return DSLStatement(SwitchStatement::Convert(ThreadContext::Context(), pos, isStatic,
+        return DSLStatement(SwitchStatement::Convert(ThreadContext::Context(), pos,
                                                      value.release(),
                                                      std::move(values),
                                                      std::move(caseBlocks),
@@ -368,8 +366,7 @@ DSLStatement For(DSLStatement initializer, DSLExpression test, DSLExpression nex
 }
 
 DSLStatement If(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse, Position pos) {
-    return DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse), /*isStatic=*/false,
-                       pos);
+    return DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse), pos);
 }
 
 DSLExpression InterfaceBlock(const DSLModifiers& modifiers, std::string_view typeName,
@@ -387,18 +384,8 @@ DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifF
     return DSLCore::Select(std::move(test), std::move(ifTrue), std::move(ifFalse), pos);
 }
 
-DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue, DSLStatement ifFalse,
-                      Position pos) {
-    return DSLCore::If(std::move(test), std::move(ifTrue), std::move(ifFalse), /*isStatic=*/true,
-            pos);
-}
-
-DSLStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases, Position pos) {
-    return DSLCore::Switch(std::move(value), std::move(cases), /*isStatic=*/true, pos);
-}
-
 DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, Position pos) {
-    return DSLCore::Switch(std::move(value), std::move(cases), /*isStatic=*/false, pos);
+    return DSLCore::Switch(std::move(value), std::move(cases), pos);
 }
 
 DSLStatement While(DSLExpression test, DSLStatement stmt, Position pos) {

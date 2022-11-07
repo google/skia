@@ -159,24 +159,6 @@ DSLStatement Return(DSLExpression value = DSLExpression(),
 DSLExpression Select(DSLExpression test, DSLExpression ifTrue, DSLExpression ifFalse,
                      Position  = {});
 
-DSLStatement StaticIf(DSLExpression test, DSLStatement ifTrue,
-                      DSLStatement ifFalse = DSLStatement(),
-                      Position pos = {});
-
-// Internal use only
-DSLStatement StaticSwitch(DSLExpression value, SkTArray<DSLCase> cases, Position pos = {});
-
-/**
- * @switch (value) { cases }
- */
-template<class... Cases>
-DSLStatement StaticSwitch(DSLExpression value, Cases... cases) {
-    SkTArray<DSLCase> caseArray;
-    caseArray.reserve_back(sizeof...(cases));
-    (caseArray.push_back(std::move(cases)), ...);
-    return StaticSwitch(std::move(value), std::move(caseArray), Position{});
-}
-
 // Internal use only
 DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, Position pos = {});
 

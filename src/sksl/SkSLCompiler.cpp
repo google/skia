@@ -444,9 +444,8 @@ bool Compiler::finalize(Program& program) {
     // Variables defined in the pre-includes need their declaring elements added to the program.
     Transform::FindAndDeclareBuiltinVariables(program);
 
-    // Do one last correctness-check pass. This looks for @if/@switch statements that didn't
-    // optimize away, or dangling FunctionReference or TypeReference expressions, and reports them
-    // as errors.
+    // Do one last correctness-check pass. This looks for dangling FunctionReference/TypeReference
+    // expressions, and reports them as errors.
     Analysis::DoFinalizationChecks(program);
 
     if (fContext->fConfig->strictES2Mode() && this->errorCount() == 0) {

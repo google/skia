@@ -1,7 +1,7 @@
 uniform half4 colorGreen, colorRed;
 
 float get() {
-    @switch (2) {
+    switch (2) {
         case 1: return abs(1);
         case 2: return abs(2);  // Only this case should be preserved.
         case 3: return abs(3);

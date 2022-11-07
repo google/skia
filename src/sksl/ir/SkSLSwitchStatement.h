@@ -31,10 +31,9 @@ class SwitchStatement final : public Statement {
 public:
     inline static constexpr Kind kIRNodeKind = Kind::kSwitch;
 
-    SwitchStatement(Position pos, bool isStatic, std::unique_ptr<Expression> value,
+    SwitchStatement(Position pos, std::unique_ptr<Expression> value,
                     StatementArray cases, std::shared_ptr<SymbolTable> symbols)
         : INHERITED(pos, kIRNodeKind)
-        , fIsStatic(isStatic)
         , fValue(std::move(value))
         , fCases(std::move(cases))
         , fSymbols(std::move(symbols)) {}
@@ -44,7 +43,6 @@ public:
     // Reports errors via the ErrorReporter.
     static std::unique_ptr<Statement> Convert(const Context& context,
                                               Position pos,
-                                              bool isStatic,
                                               std::unique_ptr<Expression> value,
                                               ExpressionArray caseValues,
                                               StatementArray caseStatements,
@@ -54,7 +52,6 @@ public:
     // already contain non-overlapping, correctly-typed case values. Reports errors via ASSERT.
     static std::unique_ptr<Statement> Make(const Context& context,
                                            Position pos,
-                                           bool isStatic,
                                            std::unique_ptr<Expression> value,
                                            StatementArray cases,
                                            std::shared_ptr<SymbolTable> symbolTable);
@@ -84,10 +81,6 @@ public:
         return fCases;
     }
 
-    bool isStatic() const {
-        return fIsStatic;
-    }
-
     const std::shared_ptr<SymbolTable>& symbols() const {
         return fSymbols;
     }
@@ -97,7 +90,6 @@ public:
     std::string description() const override;
 
 private:
-    bool fIsStatic;
     std::unique_ptr<Expression> fValue;
     StatementArray fCases;  // every Statement inside fCases must be a SwitchCase
     std::shared_ptr<SymbolTable> fSymbols;

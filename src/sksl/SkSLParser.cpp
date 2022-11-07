@@ -1014,8 +1014,7 @@ DSLStatement Parser::statement() {
     }
     this->pushback(start);
     switch (start.fKind) {
-        case Token::Kind::TK_IF: // fall through
-        case Token::Kind::TK_STATIC_IF:
+        case Token::Kind::TK_IF:
             return this->ifStatement();
         case Token::Kind::TK_FOR:
             return this->forStatement();
@@ -1023,8 +1022,7 @@ DSLStatement Parser::statement() {
             return this->doStatement();
         case Token::Kind::TK_WHILE:
             return this->whileStatement();
-        case Token::Kind::TK_SWITCH: // fall through
-        case Token::Kind::TK_STATIC_SWITCH:
+        case Token::Kind::TK_SWITCH:
             return this->switchStatement();
         case Token::Kind::TK_RETURN:
             return this->returnStatement();
@@ -1174,8 +1172,7 @@ bool Parser::interfaceBlock(const dsl::DSLModifiers& modifiers) {
 /* IF LPAREN expression RPAREN statement (ELSE statement)? */
 DSLStatement Parser::ifStatement() {
     Token start;
-    bool isStatic = this->checkNext(Token::Kind::TK_STATIC_IF, &start);
-    if (!isStatic && !this->expect(Token::Kind::TK_IF, "'if'", &start)) {
+    if (!this->expect(Token::Kind::TK_IF, "'if'", &start)) {
         return {};
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
@@ -1200,13 +1197,8 @@ DSLStatement Parser::ifStatement() {
         }
     }
     Position pos = this->rangeFrom(start);
-    if (isStatic) {
-        return StaticIf(std::move(test), std::move(ifTrue),
-                ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), pos);
-    } else {
-        return If(std::move(test), std::move(ifTrue),
-                ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), pos);
-    }
+    return If(std::move(test), std::move(ifTrue),
+              ifFalse.hasValue() ? std::move(ifFalse) : DSLStatement(), pos);
 }
 
 /* DO statement WHILE LPAREN expression RPAREN SEMICOLON */
@@ -1290,8 +1282,7 @@ std::optional<DSLCase> Parser::switchCase() {
 /* SWITCH LPAREN expression RPAREN LBRACE switchCase* (DEFAULT COLON statement*)? RBRACE */
 DSLStatement Parser::switchStatement() {
     Token start;
-    bool isStatic = this->checkNext(Token::Kind::TK_STATIC_SWITCH, &start);
-    if (!isStatic && !this->expect(Token::Kind::TK_SWITCH, "'switch'", &start)) {
+    if (!this->expect(Token::Kind::TK_SWITCH, "'switch'", &start)) {
         return {};
     }
     if (!this->expect(Token::Kind::TK_LPAREN, "'('")) {
@@ -1337,11 +1328,7 @@ DSLStatement Parser::switchStatement() {
         return {};
     }
     Position pos = this->rangeFrom(start);
-    if (isStatic) {
-        return StaticSwitch(std::move(value), std::move(cases), pos);
-    } else {
-        return Switch(std::move(value), std::move(cases), pos);
-    }
+    return Switch(std::move(value), std::move(cases), pos);
 }
 
 static Position range_of_at_least_one_char(int start, int end) {

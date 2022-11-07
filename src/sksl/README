@@ -20,9 +20,6 @@ Differences from GLSL
   bool4 instead of bvec4
 * Matrix types are named <base type><columns>x<rows>, so float2x3 instead of
   mat2x3 and double4x4 instead of dmat4
-* "@if" and "@switch" are static versions of if and switch. They behave exactly
-  the same as if and switch in all respects other than it being a compile-time
-  error to use a non-constant expression as a test.
 * GLSL caps can be referenced via the syntax 'sk_Caps.<name>', e.g.
   sk_Caps.integerSupport. The value will be a constant boolean or int,
   as appropriate. As SkSL supports constant folding and branch elimination, this

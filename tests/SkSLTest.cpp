@@ -510,7 +510,6 @@ SKSL_TEST(CPU + GPU, kApiLevel_T, ScalarConversionConstructorsES2, "shared/Scala
 SKSL_TEST(GPU_ES3,   kNever,      ScalarConversionConstructorsES3, "shared/ScalarConversionConstructorsES3.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, ScopedSymbol,                    "shared/ScopedSymbol.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, StackingVectorCasts,             "shared/StackingVectorCasts.sksl")
-SKSL_TEST(CPU + GPU, kApiLevel_T, StaticIf,                        "shared/StaticIf.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      StaticSwitch,                    "shared/StaticSwitch.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, StructArrayFollowedByScalar,     "shared/StructArrayFollowedByScalar.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, StructsInFunctions,              "shared/StructsInFunctions.sksl")
