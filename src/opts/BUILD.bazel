@@ -50,7 +50,7 @@ skia_cc_library(
 
 skia_cc_library(
     name = "crc32",  # https://developer.arm.com/documentation/dui0801/g/A32-and-T32-Instructions/CRC32
-    srcs = ["SkOpts_ssse3.cpp"],
+    srcs = ["SkOpts_crc32.cpp"],
     copts = DEFAULT_COPTS + ["-march=armv8-a+crc"],
     textual_hdrs = OPTS_HDRS,
     deps = ["//bazel:defines_from_flags"],
