@@ -1,0 +1,63 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "interface_lib",
+    srcs = [
+        "gen_interface.go",
+        "templates.go",
+    ],
+    importpath = "go.skia.org/skia/tools/gpu/gl/interface",
+    visibility = ["//visibility:private"],
+    deps = ["@com_github_flynn_json5//:json5"],
+)
+
+go_binary(
+    name = "interface",
+    embed = [":interface_lib"],
+    visibility = ["//visibility:public"],
+)
+
+_GENERATE_INTERFACE = """
+import os
+import subprocess
+import sys
+
+# Change into the Skia root directory
+# https://bazel.build/docs/user-manual#running-executables
+# Note: Bazel eats single quotes, so we must use double quotes.
+os.chdir(os.environ["BUILD_WORKSPACE_DIRECTORY"])
+
+# execpath returns the path to the given label relative to the Skia root.
+# https://bazel.build/reference/be/make-variables#predefined_label_variables
+gen_interface_exe = "$(execpath :interface)"
+interface_json = "$(execpath interface.json5)"
+
+cmd = [
+    gen_interface_exe, "--in_table", interface_json,
+    "--out_dir", "src/gpu/ganesh/gl",
+]
+if "--dryrun" in sys.argv:
+    cmd.append("--dryrun")
+
+print(subprocess.check_output(cmd, encoding="utf-8"))
+"""
+
+genrule(
+    name = "create_generate_gl_interfaces_script",
+    outs = ["generate_gl_interfaces.py"],
+    cmd = "echo '%s' > $@" % _GENERATE_INTERFACE,
+    exec_tools = [
+        ":interface",
+        ":interface.json5",
+    ],
+)
+
+py_binary(
+    name = "generate_gl_interfaces",
+    srcs = [":generate_gl_interfaces.py"],
+    data = [
+        ":interface",
+        ":interface.json5",
+    ],
+    tags = ["no-remote"],
+)
