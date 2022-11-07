@@ -36,10 +36,9 @@
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStreamPriv.h"
 
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <memory>
-#include <string>
 #include <utility>
 #include <vector>
 

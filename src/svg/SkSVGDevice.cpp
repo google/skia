@@ -54,6 +54,7 @@
 #include "src/text/GlyphRun.h"
 #include "src/xml/SkXMLWriter.h"
 
+#include <cstring>
 #include <memory>
 #include <string>
 #include <utility>

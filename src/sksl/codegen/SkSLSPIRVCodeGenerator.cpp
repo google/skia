@@ -72,6 +72,7 @@
 #include "src/sksl/ir/SkSLVariableReference.h"
 
 #include <cmath>
+#include <cstring>
 #include <set>
 #include <string>
 #include <utility>

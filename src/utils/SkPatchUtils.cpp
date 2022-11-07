@@ -29,7 +29,7 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <string>
+#include <cstring>
 
 namespace {
     enum CubicCtrlPts {

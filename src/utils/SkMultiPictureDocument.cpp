@@ -23,10 +23,9 @@
 
 #include <algorithm>
 #include <climits>
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <functional>
-#include <string>
 
 /*
   File format:

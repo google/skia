@@ -15,7 +15,7 @@
 #include "include/private/SkTArray.h"
 #include "src/utils/SkUTF.h"
 
-#include <cstddef>
+#include <cstring>
 #include <cstdint>
 #include <string>
 #include <type_traits>

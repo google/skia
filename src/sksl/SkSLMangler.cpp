@@ -13,6 +13,7 @@
 #include "src/sksl/ir/SkSLSymbolTable.h"
 
 #include <algorithm>
+#include <cstring>
 #include <ctype.h>
 
 namespace SkSL {

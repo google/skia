@@ -15,6 +15,7 @@
 #endif
 
 #include <cstdarg>
+#include <cstring>
 #include <string>
 #include <utility>
 

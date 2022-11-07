@@ -44,8 +44,8 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <optional>
 #include <string_view>
 #include <vector>

@@ -42,11 +42,10 @@
 #endif
 
 #include <algorithm>
-#include <cstddef>
+#include <cstring>
 #include <functional>
 #include <memory>
 #include <new>
-#include <string>
 #include <utility>
 
 class SkRRect;
