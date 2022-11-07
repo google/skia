@@ -22,8 +22,8 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <memory>
-#include <string>
 
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;

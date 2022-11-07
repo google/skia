@@ -11,8 +11,8 @@
 #include "src/utils/SkUTF.h"
 #include "tests/Test.h"
 
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <string>
 
 // Simple test to ensure that when we call textToGlyphs, we get the same

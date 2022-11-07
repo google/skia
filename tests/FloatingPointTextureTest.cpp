@@ -30,7 +30,7 @@
 #include "tests/Test.h"
 #include "tools/gpu/ProxyUtils.h"
 
-#include <string.h>
+#include <cstring>
 #include <initializer_list>
 #include <memory>
 #include <utility>

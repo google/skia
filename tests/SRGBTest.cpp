@@ -16,7 +16,7 @@
 #include "tests/Test.h"
 
 #include <cstdint>
-#include <string>
+#include <cstring>
 
 DEF_TEST(srgb_roundtrip, r) {
     uint32_t reds[256];

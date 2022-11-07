@@ -49,7 +49,7 @@
 #include "tools/debugger/JsonWriteBuffer.h"
 
 #include <algorithm>
-#include <string>
+#include <cstring>
 #include <utility>
 
 class GrDirectContext;

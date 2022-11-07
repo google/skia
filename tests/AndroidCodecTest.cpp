@@ -19,8 +19,8 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include <string>
 #include <cstdint>
+#include <cstring>
 #include <initializer_list>
 #include <memory>
 #include <utility>

@@ -27,8 +27,8 @@
 #include "src/core/SkRasterClip.h"
 #include "tests/Test.h"
 
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <initializer_list>
 #include <string>
 

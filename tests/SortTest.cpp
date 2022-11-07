@@ -10,6 +10,7 @@
 #include "tests/Test.h"
 
 #include <cstdlib>
+#include <cstring>
 #include <string>
 
 extern "C" {

@@ -13,8 +13,8 @@
 #include "tests/Test.h"
 
 #include <cfloat>
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <string>
 
 static void test_casts(skiatest::Reporter* reporter) {

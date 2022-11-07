@@ -40,8 +40,8 @@
 #include "tests/Test.h"
 
 #include <cstdint>
+#include <cstring>
 #include <memory>
-#include <string>
 #include <utility>
 
 namespace {

@@ -31,8 +31,8 @@
 #include "src/core/SkMathPriv.h"
 #include "tests/Test.h"
 
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <initializer_list>
 #include <memory>
 #include <string>

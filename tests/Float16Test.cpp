@@ -12,7 +12,7 @@
 
 #include <cmath>
 #include <cstdint>
-#include <string>
+#include <cstring>
 
 static bool is_denorm(uint16_t h) {
     return (h & 0x7fff) < 0x0400;

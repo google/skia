@@ -19,7 +19,6 @@
 #include "tools/Resources.h"
 
 #include <algorithm>
-#include <cstddef>
 #include <cstring>
 #include <initializer_list>
 #include <memory>

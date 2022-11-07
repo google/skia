@@ -21,7 +21,7 @@
 #include "src/core/SkPointPriv.h"
 #include "tests/Test.h"
 
-#include <cstddef>
+#include <cstring>
 #include <initializer_list>
 #include <string>
 

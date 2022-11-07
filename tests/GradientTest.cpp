@@ -36,8 +36,8 @@
 #include "src/shaders/SkShaderBase.h"
 #include "tests/Test.h"
 
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <string>
 
 // https://code.google.com/p/chromium/issues/detail?id=448299

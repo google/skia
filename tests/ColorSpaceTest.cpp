@@ -19,9 +19,8 @@
 #include "tools/Resources.h"
 
 #include <climits>
-#include <cstddef>
+#include <cstring>
 #include <memory>
-#include <string>
 #include <utility>
 
 #include <png.h>

@@ -13,6 +13,7 @@
 #include "tests/Test.h"
 
 #include <cstdint>
+#include <cstring>
 #include <initializer_list>
 #include <string>
 #include <string_view>

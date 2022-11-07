@@ -25,7 +25,7 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include <string>
+#include <cstring>
 
 class GrRecordingContext;
 struct GrContextOptions;

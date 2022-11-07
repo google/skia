@@ -30,8 +30,8 @@
 #include "tools/ToolUtils.h"
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <string>
 
 class TextBlobTester {

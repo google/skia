@@ -14,7 +14,7 @@
 
 #include <cmath>
 #include <cstdint>
-#include <string>
+#include <cstring>
 
 namespace skgpu::tess {
 

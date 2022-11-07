@@ -35,8 +35,8 @@
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "tests/Test.h"
 
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <functional>
 #include <initializer_list>
 #include <memory>

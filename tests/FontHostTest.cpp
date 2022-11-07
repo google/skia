@@ -22,8 +22,8 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <memory>
 #include <string>
 
