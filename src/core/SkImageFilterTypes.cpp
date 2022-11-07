@@ -299,8 +299,10 @@ FilterResult FilterResult::applyCrop(const Context& ctx,
     }
 }
 
-static bool compatible_sampling(const SkSamplingOptions& current,
-                                SkSamplingOptions* next) {
+static bool compatible_sampling(const SkSamplingOptions& currentSampling,
+                                bool currentXformWontAffectNearest,
+                                SkSamplingOptions* nextSampling,
+                                bool nextXformWontAffectNearest) {
     // Both transforms could perform non-trivial sampling, but if they are similar enough we
     // assume performing one non-trivial sampling operation with the concatenated transform will
     // not be visually distinguishable from sampling twice.
@@ -308,22 +310,34 @@ static bool compatible_sampling(const SkSamplingOptions& current,
     // drawn with mipmapping, and the majority of filter steps produce images that are at the
     // proper scale and do not define mip levels. The main exception is the ::Image() filter
     // leaf but that doesn't use this system yet.
-    if (current.isAniso() && next->isAniso()) {
+    if (currentSampling.isAniso() && nextSampling->isAniso()) {
         // Assume we can get away with one sampling at the highest anisotropy level
-        *next =  SkSamplingOptions::Aniso(std::max(current.maxAniso, next->maxAniso));
+        *nextSampling =  SkSamplingOptions::Aniso(std::max(currentSampling.maxAniso,
+                                                           nextSampling->maxAniso));
         return true;
-    } else if (current.useCubic && (next->filter == SkFilterMode::kLinear ||
-                                    (next->useCubic && current.cubic.B == next->cubic.B &&
-                                                      current.cubic.C == next->cubic.C))) {
+    } else if (currentSampling.useCubic && (nextSampling->filter == SkFilterMode::kLinear ||
+                                            (nextSampling->useCubic &&
+                                             currentSampling.cubic.B == nextSampling->cubic.B &&
+                                             currentSampling.cubic.C == nextSampling->cubic.C))) {
         // Assume we can get away with the current bicubic filter, since the next is the same
         // or a bilerp that can be upgraded.
-        *next = current;
+        *nextSampling = currentSampling;
         return true;
-    } else if (next->useCubic && current.filter == SkFilterMode::kLinear) {
+    } else if (nextSampling->useCubic && currentSampling.filter == SkFilterMode::kLinear) {
         // Mirror of the above, assume we can just get away with next's cubic resampler
         return true;
-    } else if (current.filter == SkFilterMode::kLinear && next->filter == SkFilterMode::kLinear) {
+    } else if (currentSampling.filter == SkFilterMode::kLinear &&
+               nextSampling->filter == SkFilterMode::kLinear) {
         // Assume we can get away with a single bilerp vs. the two
+        return true;
+    } else if (nextSampling->filter == SkFilterMode::kNearest && currentXformWontAffectNearest) {
+        // The next transform and nearest-neighbor filtering isn't impacted by the current transform
+        SkASSERT(currentSampling.filter == SkFilterMode::kLinear);
+        return true;
+    } else if (currentSampling.filter == SkFilterMode::kNearest && nextXformWontAffectNearest) {
+        // The next transform doesn't change the nearest-neighbor filtering of the current transform
+        SkASSERT(nextSampling->filter == SkFilterMode::kLinear);
+        *nextSampling = currentSampling;
         return true;
     } else {
         // The current or next sampling is nearest neighbor, and will produce visible texels
@@ -344,12 +358,15 @@ FilterResult FilterResult::applyTransform(const Context& ctx,
     // We make sure the new sampling is bilerp (default) if the new transform doesn't matter
     // (and assert that the current is bilerp if its transform didn't matter). Bilerp can be
     // maximally combined, so simplifies the logic in compatible_sampling().
-    SkASSERT(!is_nearly_integer_translation(fTransform) || fSamplingOptions == kDefaultSampling);
-    SkSamplingOptions nextSampling = is_nearly_integer_translation(transform)
-            ? kDefaultSampling : sampling;
+    const bool currentXformIsInteger = is_nearly_integer_translation(fTransform);
+    const bool nextXformIsInteger = is_nearly_integer_translation(transform);
+
+    SkASSERT(!currentXformIsInteger || fSamplingOptions == kDefaultSampling);
+    SkSamplingOptions nextSampling = nextXformIsInteger ? kDefaultSampling : sampling;
 
     FilterResult transformed;
-    if (compatible_sampling(fSamplingOptions, &nextSampling)) {
+    if (compatible_sampling(fSamplingOptions, currentXformIsInteger,
+                            &nextSampling, nextXformIsInteger)) {
         // We can concat transforms and 'nextSampling' will be either fSamplingOptions,
         // sampling, or a merged combination depending on the two transforms in play.
         transformed = *this;
