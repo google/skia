@@ -23,6 +23,7 @@
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLStringStream.h"
+#include "src/sksl/analysis/SkSLProgramUsage.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExternalFunction.h"
 #include "src/sksl/ir/SkSLExternalFunctionReference.h"
@@ -64,7 +65,6 @@
 namespace SkSL {
 
 class ModifiersPool;
-class ProgramUsage;
 
 // These flags allow tools like Viewer or Nanobench to override the compiler's ProgramSettings.
 Compiler::OverrideFlag Compiler::sOptimizer = OverrideFlag::kDefault;
@@ -342,6 +342,9 @@ bool Compiler::optimizeModuleBeforeMinifying(ProgramKind kind, Module& module) {
     // We eliminate empty statements to avoid runs of `;;;;;;` caused by the previous passes.
     SkSL::Transform::EliminateEmptyStatements(module);
 
+    // Make sure that program usage is still correct after the optimization pass is complete.
+    SkASSERT(*usage == *Analysis::GetUsage(module));
+
     return this->errorCount() == 0;
 }
 
@@ -364,6 +367,8 @@ bool Compiler::optimizeModuleAfterLoading(ProgramKind kind, Module& module) {
             break;
         }
     }
+    // Make sure that program usage is still correct after the optimization pass is complete.
+    SkASSERT(*usage == *Analysis::GetUsage(module));
 #endif
 
     return this->errorCount() == 0;
@@ -382,9 +387,8 @@ bool Compiler::optimize(Program& program) {
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
         // Run the inliner only once; it is expensive! Multiple passes can occasionally shake out
         // more wins, but it's diminishing returns.
-        ProgramUsage* usage = program.fUsage.get();
         Inliner inliner(fContext.get());
-        this->runInliner(&inliner, program.fOwnedElements, program.fSymbols, usage);
+        this->runInliner(&inliner, program.fOwnedElements, program.fSymbols, program.fUsage.get());
 #endif
 
         // Unreachable code can confuse some drivers, so it's worth removing. (skia:12012)
@@ -399,6 +403,8 @@ bool Compiler::optimize(Program& program) {
         while (Transform::EliminateDeadGlobalVariables(program)) {
             // Repeat until no changes occur.
         }
+        // Make sure that program usage is still correct after the optimization pass is complete.
+        SkASSERT(*program.usage() == *Analysis::GetUsage(program));
     }
 
     return this->errorCount() == 0;
@@ -454,6 +460,9 @@ bool Compiler::finalize(Program& program) {
         bool enforceSizeLimit = ProgramConfig::IsRuntimeEffect(program.fConfig->fKind);
         Analysis::CheckProgramStructure(program, enforceSizeLimit);
     }
+
+    // Make sure that program usage is still correct after finalization is complete.
+    SkASSERT(*program.usage() == *Analysis::GetUsage(program));
 
     return this->errorCount() == 0;
 }

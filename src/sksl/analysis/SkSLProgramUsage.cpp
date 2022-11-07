@@ -23,7 +23,9 @@
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
+#include <cstring>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 namespace SkSL {
@@ -172,6 +174,68 @@ void ProgramUsage::remove(const Statement* stmt) {
 void ProgramUsage::remove(const ProgramElement& element) {
     ProgramUsageVisitor subRefs(this, /*delta=*/-1);
     subRefs.visitProgramElement(element);
+}
+
+static bool contains_matching_data(const ProgramUsage& a, const ProgramUsage& b) {
+    constexpr bool kReportMismatch = false;
+
+    for (const auto& [varA, varCountA] : a.fVariableCounts) {
+        // Skip variable entries with zero reported usage.
+        if (!varCountA.fVarExists && !varCountA.fRead && !varCountA.fWrite) {
+            continue;
+        }
+        // Find the matching variable in the other map and ensure that its counts match.
+        const ProgramUsage::VariableCounts* varCountB = b.fVariableCounts.find(varA);
+        if (!varCountB || 0 != memcmp(&varCountA, varCountB, sizeof(varCountA))) {
+            if constexpr (kReportMismatch) {
+                SkDebugf("VariableCounts mismatch: '%.*s' (E%d R%d W%d != E%d R%d W%d)\n",
+                         (int)varA->name().size(), varA->name().data(),
+                         varCountA.fVarExists,
+                         varCountA.fRead,
+                         varCountA.fWrite,
+                         varCountB ? varCountB->fVarExists : 0,
+                         varCountB ? varCountB->fRead : 0,
+                         varCountB ? varCountB->fWrite : 0);
+            }
+            return false;
+        }
+    }
+
+    for (const auto& [callA, callCountA] : a.fCallCounts) {
+        // Skip function-call entries with zero reported usage.
+        if (!callCountA) {
+            continue;
+        }
+        // Find the matching function in the other map and ensure that its call-count matches.
+        const int* callCountB = b.fCallCounts.find(callA);
+        if (!callCountB || callCountA != *callCountB) {
+            if constexpr (kReportMismatch) {
+                SkDebugf("CallCounts mismatch: '%.*s' (%d != %d)\n",
+                         (int)callA->name().size(), callA->name().data(),
+                         callCountA,
+                         callCountB ? *callCountB : 0);
+            }
+            return false;
+        }
+    }
+
+    // Every non-zero entry in A has a matching non-zero entry in B.
+    return true;
+}
+
+bool ProgramUsage::operator==(const ProgramUsage& that) const {
+    // ProgramUsage can be "equal" while the underlying hash maps look slightly different, because a
+    // dead-stripped variable or function will have a usage count of zero, but will still exist in
+    // the maps. If the program usage is re-analyzed from scratch, the maps will not contain an
+    // entry for these variables or functions at all. This means our maps can be "equal" while
+    // having different element counts.
+    //
+    // In order to check these maps, we compare map entries bi-directionally, skipping zero-usage
+    // entries. If all the non-zero elements in `this` match the elements in `that`, and all the
+    // non-zero elements in `that` match the elements in `this`, all the non-zero elements must be
+    // identical, and all the zero elements must be either zero or non-existent on both sides.
+    return contains_matching_data(*this, that) &&
+           contains_matching_data(that, *this);
 }
 
 }  // namespace SkSL
