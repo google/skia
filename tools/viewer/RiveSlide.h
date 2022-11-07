@@ -29,8 +29,6 @@ public:
     void unload() override;
     void resize(SkScalar, SkScalar) override;
 
-    SkISize getDimensions() const override;
-
     void draw(SkCanvas*) override;
     bool animate(double) override;
 
@@ -38,7 +36,6 @@ public:
 
 private:
     const SkString fPath;
-    SkSize fWinSize;
     double fSecsBase = 0;
     SkRect fBounds;
     SkMatrix fMat;

@@ -16,8 +16,6 @@ class SkSLDebuggerSlide : public Slide {
 public:
     SkSLDebuggerSlide();
 
-    SkISize getDimensions() const override { return SkISize::MakeEmpty(); }
-
     void draw(SkCanvas* canvas) override;
     bool animate(double nanos) override;
 

@@ -22,7 +22,11 @@ class Context;
 
 class Slide : public SkRefCnt {
 public:
-    virtual SkISize getDimensions() const = 0;
+    /**
+     * A slide may have a content dimensions that is independent of the current window size. An
+     * empty size indicates that the Slide's dimensions are equal to the window's dimensions.
+     */
+    virtual SkISize getDimensions() const { return SkISize::MakeEmpty(); }
 
     virtual void gpuTeardown() { }
     virtual void draw(SkCanvas*) { SK_ABORT("Not implemented."); }

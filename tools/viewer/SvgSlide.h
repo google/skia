@@ -20,13 +20,10 @@ public:
     void unload() override;
     void resize(SkScalar, SkScalar) override;
 
-    SkISize getDimensions() const override;
-
     void draw(SkCanvas*) override;
 private:
     const SkString  fPath;
 
-    SkSize          fWinSize = SkSize::MakeEmpty();
     sk_sp<SkSVGDOM> fDom;
 
     using INHERITED = Slide;

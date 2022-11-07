@@ -352,8 +352,7 @@ public:
                 fSlotManager->setImageSlot(s.first.data(), img);
             }
         }
-        auto dims = fSkottieSlide->getDimensions();
-        fSkottieSlide->load(dims.width(), dims.height());
+        fSkottieSlide->init();
     }
 
     void prepareImageAssetList(const char* dirname) {
@@ -427,7 +426,7 @@ SkottieSlide::SkottieSlide(const SkString& name, const SkString& path)
     fName = name;
 }
 
-void SkottieSlide::load(SkScalar w, SkScalar h) {
+void SkottieSlide::init() {
     class Logger final : public skottie::Logger {
     public:
         struct LogEntry {
@@ -499,7 +498,6 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     }
     fAnimation = builder.makeFromFile(fPath.c_str());
     fAnimationStats = builder.getStats();
-    fWinSize        = SkSize::Make(w, h);
     fTimeBase       = 0; // force a time reset
 
     if (fAnimation) {
@@ -515,17 +513,17 @@ void SkottieSlide::load(SkScalar w, SkScalar h) {
     }
 }
 
+void SkottieSlide::load(SkScalar w, SkScalar h) {
+    fWinSize = SkSize::Make(w, h);
+    this->init();
+}
+
 void SkottieSlide::unload() {
     fAnimation.reset();
 }
 
 void SkottieSlide::resize(SkScalar w, SkScalar h) {
     fWinSize = { w, h };
-}
-
-SkISize SkottieSlide::getDimensions() const {
-    // We always scale to fill the window.
-    return fWinSize.toCeil();
 }
 
 void SkottieSlide::draw(SkCanvas* canvas) {

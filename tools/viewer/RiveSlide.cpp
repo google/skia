@@ -50,15 +50,9 @@ void RiveSlide::unload() {
 }
 
 void RiveSlide::resize(SkScalar w, SkScalar h) {
-    fWinSize = { w, h };
-
     if (fScene) {
         fMat = SkMatrix::RectToRect(fBounds, SkRect::MakeWH(w, h), SkMatrix::kCenter_ScaleToFit);
     }
-}
-
-SkISize RiveSlide::getDimensions() const {
-    return fWinSize.toCeil();
 }
 
 void RiveSlide::draw(SkCanvas* canvas) {

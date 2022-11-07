@@ -23,9 +23,6 @@ class ParticlesSlide : public Slide {
 public:
     ParticlesSlide();
 
-    // TODO: We need a way for primarily interactive slides to always be as large as the window
-    SkISize getDimensions() const override { return SkISize::MakeEmpty(); }
-
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void draw(SkCanvas* canvas) override;
     bool animate(double) override;

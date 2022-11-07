@@ -27,13 +27,14 @@ public:
     void unload() override;
     void resize(SkScalar, SkScalar) override;
 
-    SkISize getDimensions() const override;
-
     void draw(SkCanvas*) override;
     bool animate(double) override;
 
     bool onChar(SkUnichar) override;
     bool onMouse(SkScalar x, SkScalar y, skui::InputState, skui::ModifierKey modifiers) override;
+
+    // Initializes the Skottie animation independent of window size.
+    void init();
 
 private:
     SkRect UIArea() const;
