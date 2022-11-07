@@ -85,6 +85,15 @@ config_setting(
     },
 )
 
+selects.config_setting_group(
+    name = "release_build_mac",
+    match_all = [
+        "@platforms//os:macos",
+        ":release_build",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
 # =============================================================================
 #                     Configurable Skia Features
 # =============================================================================

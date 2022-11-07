@@ -88,6 +88,8 @@ skia_cc_library(
         "@platforms//os:linux": ["SkGetExecutablePath_linux.cpp"],
     }),
     hdrs = ["SkGetExecutablePath.h"],
-    visibility = ["//tools/sksl-minify:__pkg__"],
-    deps = ["//:skia_internal"],
+    visibility = [
+        "//src/sksl:__pkg__",
+        "//tools/sksl-minify:__pkg__",
+    ],
 )

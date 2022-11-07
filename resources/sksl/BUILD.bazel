@@ -7,14 +7,95 @@ filegroup(
     visibility = ["//tools/sksl-minify:__pkg__"],
 )
 
+filegroup(
+    name = "sksl_glsl_tests_sources",
+    srcs = [
+        ":sksl_error_tests",
+        ":sksl_folding_tests",
+        ":sksl_glsl_tests",
+        ":sksl_inliner_tests",
+        ":sksl_shared_tests",
+    ],
+    visibility = ["//tools/skslc:__pkg__"],
+)
+
+filegroup(
+    name = "sksl_glsl_settings_tests_sources",
+    srcs = [
+        ":sksl_blend_tests",
+        ":sksl_settings_tests",
+    ],
+    visibility = ["//tools/skslc:__pkg__"],
+)
+
+filegroup(
+    name = "sksl_metal_tests_sources",
+    srcs = [
+        ":sksl_blend_tests",
+        ":sksl_metal_tests",
+        ":sksl_shared_tests",
+    ],
+    visibility = ["//tools/skslc:__pkg__"],
+)
+
+filegroup(
+    name = "sksl_skvm_tests_sources",
+    srcs = [
+        ":sksl_rte_error_tests",
+        ":sksl_rte_tests",
+    ],
+    visibility = ["//tools/skslc:__pkg__"],
+)
+
+filegroup(
+    name = "sksl_stage_tests_sources",
+    srcs = [
+        ":sksl_rte_tests",
+    ],
+    visibility = ["//tools/skslc:__pkg__"],
+)
+
+filegroup(
+    name = "sksl_spirv_tests_sources",
+    srcs = [
+        ":sksl_blend_tests",
+        ":sksl_shared_tests",
+        ":sksl_spirv_tests",
+    ],
+    visibility = ["//tools/skslc:__pkg__"],
+)
+
+filegroup(
+    name = "sksl_wgsl_tests_sources",
+    srcs = [
+        ":sksl_wgsl_tests",
+    ],
+    visibility = ["//tools/skslc:__pkg__"],
+)
+
 # TODO(kjlubick,cmumford) remove the globs and generate the .gni files from the Bazel files
 filegroup(
-    name = "sksl_rte_tests",
+    name = "sksl_blend_tests",
     srcs = glob(
         include = [
-            "runtime/*.rtb",
-            "runtime/*.rtcf",
-            "runtime/*.rts",
+            "blend/*.sksl",
+        ],
+        allow_empty = False,
+    ),
+)
+
+filegroup(
+    name = "sksl_error_tests",
+    srcs = glob(
+        include = [
+            "errors/*.rts",
+            "errors/*.sksl",
+            "errors/*.vert",
+        ],
+        allow_empty = False,
+        exclude = [
+            "errors/Ossfuzz36850.sksl",
+            "errors/Ossfuzz37469.sksl",
         ],
     ),
 )
@@ -27,5 +108,140 @@ filegroup(
             "folding/*.rtcf",
             "folding/*.rts",
         ],
+    ),
+)
+
+filegroup(
+    name = "sksl_glsl_tests",
+    srcs = glob(
+        include = [
+            "glsl/*.sksl",
+        ],
+    ),
+)
+
+filegroup(
+    name = "sksl_inliner_tests",
+    srcs = glob(
+        include = [
+            "inliner/*.sksl",
+        ],
+    ),
+)
+
+filegroup(
+    name = "sksl_metal_tests",
+    srcs = glob(
+        include = [
+            "compute/*.compute",
+            "errors/*.compute",
+            "metal/*.sksl",
+            "metal/*.vert",
+        ],
+        allow_empty = False,
+        exclude = [
+            "errors/InvalidThreadgroupCompute.compute",
+            "errors/ReadonlyWriteonly.compute",
+        ],
+    ),
+)
+
+filegroup(
+    name = "sksl_rte_error_tests",
+    srcs = glob(
+        include = [
+            "runtime_errors/*.rtb",
+            "runtime_errors/*.rtcf",
+            "runtime_errors/*.rts",
+        ],
+    ),
+)
+
+filegroup(
+    name = "sksl_rte_tests",
+    srcs = glob(
+        include = [
+            "runtime/*.rtb",
+            "runtime/*.rtcf",
+            "runtime/*.rts",
+        ],
+    ),
+)
+
+filegroup(
+    name = "sksl_settings_tests",
+    srcs = [
+        "glsl/TypePrecision.sksl",
+        "inliner/ExponentialGrowth.sksl",
+        "inliner/InlinerCanBeDisabled.sksl",
+        "shared/Derivatives.sksl",
+        "shared/Optimizations.sksl",
+        "shared/Switch.sksl",
+        "shared/SwitchDefaultOnly.sksl",
+        "shared/SwitchWithFallthrough.sksl",
+        "shared/SwitchWithLoops.sksl",
+        "shared/SwitchWithLoopsES3.sksl",
+        "workarounds/AbsInt.sksl",
+        "workarounds/BlendGuardedDivide.sksl",
+        "workarounds/BuiltinDeterminantSupport.sksl",
+        "workarounds/BuiltinFMASupport.sksl",
+        "workarounds/FractNegative.sksl",
+        "workarounds/FragCoords.sksl",
+        "workarounds/LoopCondition.sksl",
+        "workarounds/MinAndAbsTogether.sksl",
+        "workarounds/NegatedAtan.sksl",
+        "workarounds/NegatedLdexp.sksl",
+        "workarounds/PowWithConstantExponent.sksl",
+        "workarounds/RewriteDoWhileLoops.sksl",
+        "workarounds/RewriteMatrixComparisons.sksl",
+        "workarounds/RewriteMatrixVectorMultiply.sksl",
+        "workarounds/TernaryShortCircuit.sksl",
+    ],
+)
+
+filegroup(
+    name = "sksl_shared_tests",
+    srcs = glob(
+        include = [
+            "intrinsics/*.sksl",
+            "shared/*.rtcf",
+            "shared/*.vert",
+        ],
+    ),
+)
+
+filegroup(
+    name = "sksl_spirv_tests",
+    srcs = [
+        "errors/LayoutInInterfaceBlock.sksl",
+        "errors/LayoutInStruct.sksl",
+        "errors/Ossfuzz36850.sksl",
+        "errors/Ossfuzz37469.sksl",
+        "errors/UndefinedFunction.rts",
+        "shared/Switch.sksl",
+        "shared/SwitchDefaultOnly.sksl",
+        "shared/SwitchWithFallthrough.sksl",
+        "shared/SwitchWithLoops.sksl",
+        "workarounds/RewriteMatrixVectorMultiply.sksl",
+    ] + glob(
+        include = [
+            "spirv/*.sksl",
+        ],
+        allow_empty = False,
+    ),
+)
+
+filegroup(
+    name = "sksl_wgsl_tests",
+    srcs = [
+        "shared/HelloWorld.sksl",
+        "shared/InstanceID.vert",
+        "shared/VertexID.vert",
+    ] + glob(
+        include = [
+            "wgsl/*.sksl",
+            "wgsl/*.vert",
+        ],
+        allow_empty = False,
     ),
 )
