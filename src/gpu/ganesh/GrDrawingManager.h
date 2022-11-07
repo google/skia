@@ -234,6 +234,7 @@ private:
     sk_sp<GrBufferAllocPool::CpuBufferCache> fCpuBufferCache;
 
     SkTArray<sk_sp<GrRenderTask>>            fDAG;
+    std::vector<int>                         fReorderBlockerTaskIndices;
     skgpu::v1::OpsTask*                      fActiveOpsTask = nullptr;
 
     PathRendererChain::Options               fOptionsForPathRendererChain;

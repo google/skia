@@ -24,7 +24,9 @@ GrBufferUpdateRenderTask::GrBufferUpdateRenderTask(sk_sp<SkData> src,
                                                    size_t dstOffset)
         : fSrc(std::move(src))
         , fDst(std::move(dst))
-        , fDstOffset(dstOffset) {}
+        , fDstOffset(dstOffset) {
+    this->setFlag(kBlocksReordering_Flag);
+}
 
 GrBufferUpdateRenderTask::~GrBufferUpdateRenderTask() = default;
 

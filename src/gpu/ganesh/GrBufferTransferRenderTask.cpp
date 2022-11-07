@@ -32,7 +32,9 @@ GrBufferTransferRenderTask::GrBufferTransferRenderTask(sk_sp<GrGpuBuffer> src,
         , fDst(std::move(dst))
         , fSrcOffset(srcOffset)
         , fDstOffset(dstOffset)
-        , fSize(size) {}
+        , fSize(size) {
+    this->setFlag(kBlocksReordering_Flag);
+}
 
 GrBufferTransferRenderTask::~GrBufferTransferRenderTask() = default;
 
