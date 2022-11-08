@@ -301,6 +301,9 @@ private:
         void*      ctx;
     };
 
+    bool build_lowp_pipeline(void** ip) const;
+    void build_highp_pipeline(void** ip) const;
+
     using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, void** program);
     StartPipelineFn build_pipeline(void**) const;
 

@@ -41,7 +41,7 @@ void SkRasterPipeline::append(Stage stage, void* ctx) {
     this->unchecked_append(stage, ctx);
 }
 void SkRasterPipeline::unchecked_append(Stage stage, void* ctx) {
-    fStages = fAlloc->make<StageList>( StageList{fStages, stage, ctx} );
+    fStages = fAlloc->make<StageList>(StageList{fStages, stage, ctx});
     fNumStages += 1;
 }
 void SkRasterPipeline::append(Stage stage, uintptr_t ctx) {
@@ -376,41 +376,56 @@ void SkRasterPipeline::append_stack_rewind() {
     this->unchecked_append(SkRasterPipeline::stack_rewind, fRewindCtx);
 }
 
-SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) const {
-    // stack_checkpoint and stack_rewind are only implemented in highp. We only need these stages
-    // when generating long (or looping) pipelines from SkSL. The other stages used by the SkSL RP
-    // generator will only have highp implementations, because we can't execute SkSL code without
-    // floating point.
-    if (!gForceHighPrecisionRasterPipeline && !fRewindCtx) {
-        // We'll try to build a lowp pipeline, but if that fails fallback to a highp float pipeline.
-        void** reset_point = ip;
+static void prepend_to_pipeline(void**& ip, SkOpts::StageFn stageFn, void* ctx) {
+    *--ip = ctx;
+    *--ip = (void*)stageFn;
+}
 
-        // Stages are stored backwards in fStages, so we reverse here, back to front.
-        *--ip = (void*)SkOpts::just_return_lowp;
-        for (const StageList* st = fStages; st; st = st->prev) {
-            // All of the stages with lowp implementations come first in the enumeration. Any stage
-            // with a larger value only has a highp implementation.
-            if (st->stage >= kNumLowpStages || !SkOpts::stages_lowp[st->stage]) {
-                ip = reset_point;
-                break;
-            }
-            *--ip = st->ctx;
-            *--ip = (void*)SkOpts::stages_lowp[st->stage];
-        }
-        if (ip != reset_point) {
-            return SkOpts::start_pipeline_lowp;
-        }
+static void prepend_to_pipeline(void**& ip, SkOpts::StageFn stageFn) {
+    *--ip = (void*)stageFn;
+}
+
+bool SkRasterPipeline::build_lowp_pipeline(void** ip) const {
+    if (gForceHighPrecisionRasterPipeline || fRewindCtx) {
+        return false;
     }
-
-    *--ip = (void*)SkOpts::just_return_highp;
+    // Stages are stored backwards in fStages; to compensate, we assemble the pipeline in reverse
+    // here, back to front.
+    prepend_to_pipeline(ip, SkOpts::just_return_lowp);
     for (const StageList* st = fStages; st; st = st->prev) {
-        *--ip = st->ctx;
-        *--ip = (void*)SkOpts::stages_highp[st->stage];
+        if (st->stage >= kNumLowpStages || !SkOpts::stages_lowp[st->stage]) {
+            // This program contains a stage that doesn't exist in lowp.
+            return false;
+        }
+        prepend_to_pipeline(ip, SkOpts::stages_lowp[st->stage], st->ctx);
+        continue;
     }
+    return true;
+}
+
+void SkRasterPipeline::build_highp_pipeline(void** ip) const {
+    // We assemble the pipeline in reverse, since the stage list is stored backwards.
+    prepend_to_pipeline(ip, SkOpts::just_return_highp);
+    for (const StageList* st = fStages; st; st = st->prev) {
+        prepend_to_pipeline(ip, SkOpts::stages_highp[st->stage], st->ctx);
+    }
+
+    // stack_checkpoint and stack_rewind are only implemented in highp. We only need these stages
+    // when generating long (or looping) pipelines from SkSL. The other stages used by the SkSL
+    // Raster Pipeline generator will only have highp implementations, because we can't execute SkSL
+    // code without floating point.
     if (fRewindCtx) {
-        *--ip = fRewindCtx;
-        *--ip = (void*)SkOpts::stages_highp[stack_checkpoint];
+        prepend_to_pipeline(ip, SkOpts::stages_highp[stack_checkpoint], fRewindCtx);
     }
+}
+
+SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) const {
+    // We try to build a lowp pipeline first; if that fails, we fall back to a highp float pipeline.
+    if (this->build_lowp_pipeline(ip)) {
+        return SkOpts::start_pipeline_lowp;
+    }
+
+    this->build_highp_pipeline(ip);
     return SkOpts::start_pipeline_highp;
 }
 
