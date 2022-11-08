@@ -2655,10 +2655,7 @@ STAGE(gradient, const SkRasterPipeline_GradientCtx* c) {
     gradient_lookup(c, idx, t, &r, &g, &b, &a);
 }
 
-STAGE(evenly_spaced_2_stop_gradient, const void* ctx) {
-    struct Ctx { float f[4], b[4]; };
-    auto c = (const Ctx*)ctx;
-
+STAGE(evenly_spaced_2_stop_gradient, const SkRasterPipeline_EvenlySpaced2StopGradientCtx* c) {
     auto t = r;
     r = mad(t, c->f[0], c->b[0]);
     g = mad(t, c->f[1], c->b[1]);
