@@ -93,3 +93,53 @@ skia_cc_library(
         "//tools/sksl-minify:__pkg__",
     ],
 )
+
+# Regenerate workarounds with `bazel run //tools:generate_workarounds`
+py_binary(
+    name = "generate_workarounds",
+    srcs = [":generate_workarounds.py"],
+    args = [
+        "--output-file",
+        "include/gpu/GrDriverBugWorkaroundsAutogen.h",
+        "src/gpu/gpu_workaround_list.txt",
+    ],
+    data = [
+        ":build_workaround_header",
+    ],
+    tags = ["no-remote"],
+)
+
+py_binary(
+    name = "build_workaround_header",
+    srcs = ["build_workaround_header.py"],
+)
+
+_GENERATE_WORKAROUNDS = """
+import os
+import subprocess
+import sys
+
+# https://bazel.build/docs/user-manual#running-executables
+# Note: Bazel eats single quotes, so we must use double quotes.
+os.chdir(os.environ["BUILD_WORKSPACE_DIRECTORY"])
+
+# execpath returns the path to the given label relative to the Skia root.
+# This will be something like:
+#   bazel-out/k8-opt-exec-81C6BA4F/bin/tools/build_workaround_header
+# https://bazel.build/reference/be/make-variables#predefined_label_variables
+generate_script = os.path.abspath("$(execpath :build_workaround_header)")
+
+result = subprocess.run(
+    [generate_script] + sys.argv[1:], capture_output=True, encoding="utf-8")
+if result.returncode != 0:
+    print(result.stdout)
+    print(result.stderr)
+    sys.exit(result.returncode)
+"""
+
+genrule(
+    name = "create_generate_workarounds_script",
+    outs = ["generate_workarounds.py"],
+    cmd = "echo '%s' > $@" % _GENERATE_WORKAROUNDS,
+    exec_tools = [":build_workaround_header"],
+)
