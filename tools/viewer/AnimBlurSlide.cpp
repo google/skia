@@ -9,7 +9,7 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/Slide.h"
 
 SkScalar get_anim_sin(double secs, SkScalar amplitude, SkScalar periodInSec, SkScalar phaseInSec) {
     if (!periodInSec) {
@@ -21,13 +21,14 @@ SkScalar get_anim_sin(double secs, SkScalar amplitude, SkScalar periodInSec, SkS
     return amplitude * SkDoubleToScalar(sin(t)) + amplitude;
 }
 
-class AnimBlurView : public Sample {
+class AnimBlurSlide : public Slide {
     SkScalar fBlurSigma = 0;
     SkScalar fCircleRadius = 100;
 
-    SkString name() override { return SkString("AnimBlur"); }
+public:
+    AnimBlurSlide() { fName ="AnimBlur"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         static const SkBlurStyle gStyles[] = {
             kNormal_SkBlurStyle,
             kInner_SkBlurStyle,
@@ -47,10 +48,11 @@ class AnimBlurView : public Sample {
         }
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         fBlurSigma = get_anim_sin(1e-9 * nanos, 100, 4, 5);
         fCircleRadius = 3 + get_anim_sin(1e-9 * nanos, 150, 25, 3);
         return true;
     }
 };
-DEF_SAMPLE( return new AnimBlurView(); )
+
+DEF_SLIDE( return new AnimBlurSlide(); )

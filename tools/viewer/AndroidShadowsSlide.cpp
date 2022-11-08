@@ -12,15 +12,15 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/utils/SkCamera.h"
 #include "include/utils/SkShadowUtils.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkBlurMask.h"
 #include "src/utils/SkUTF.h"
 #include "tools/ToolUtils.h"
 #include "tools/timer/TimeUtils.h"
+#include "tools/viewer/Slide.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
-class ShadowsView : public Sample {
+class ShadowsSlide : public Slide {
     SkPath    fRectPath;
     SkPath    fRRPath;
     SkPath    fCirclePath;
@@ -47,7 +47,10 @@ class ShadowsView : public Sample {
     bool      fIgnoreShadowAlpha = false;
     bool      fDoAlphaAnimation = false;
 
-    void onOnceBeforeDraw() override {
+public:
+    ShadowsSlide() { fName = "AndroidShadows"; }
+
+    void load(SkScalar w, SkScalar h) override {
         fCirclePath.addCircle(0, 0, 50);
         fRectPath.addRect(SkRect::MakeXYWH(-100, -50, 200, 100));
         fRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-100, -50, 200, 100), 4, 4));
@@ -91,8 +94,6 @@ class ShadowsView : public Sample {
 
         fLightPos = SkPoint3::Make(350, 0, 600);
     }
-
-    SkString name() override { return SkString("AndroidShadows"); }
 
     bool onChar(SkUnichar uni) override {
             bool handled = false;
@@ -145,46 +146,17 @@ class ShadowsView : public Sample {
             return false;
     }
 
-    void drawShadowedPath(SkCanvas* canvas, const SkPath& path,
-                          const SkPoint3& zPlaneParams,
-                          const SkPaint& paint, SkScalar ambientAlpha,
-                          const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
-        if (fIgnoreShadowAlpha) {
-            ambientAlpha = 1;
-            spotAlpha = 1;
-        }
-        if (!fShowAmbient) {
-            ambientAlpha = 0;
-        }
-        if (!fShowSpot) {
-            spotAlpha = 0;
-        }
-        uint32_t flags = 0;
-        if (fUseAlt) {
-            flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
-        }
-        if (fUseBlur) {
-            flags |= SkShadowFlags::kConcaveBlurOnly_ShadowFlag;
-        }
 
-        SkColor ambientColor = SkColorSetARGB(ambientAlpha * 255, 0, 0, 0);
-        SkColor spotColor = SkColorSetARGB(spotAlpha * 255, 0, 0, 0);
-        SkShadowUtils::DrawShadow(canvas, path, zPlaneParams, lightPos, lightWidth,
-                                  ambientColor, spotColor, flags);
-
-        if (fShowObject) {
-            canvas->drawPath(path, paint);
-        } else {
-            SkPaint strokePaint;
-
-            strokePaint.setColor(paint.getColor());
-            strokePaint.setStyle(SkPaint::kStroke_Style);
-
-            canvas->drawPath(path, strokePaint);
+    bool animate(double nanos) override {
+        fAnimTranslate = TimeUtils::PingPong(1e-9 * nanos, 30, 0, 125, -125);
+        fAnimAngle = TimeUtils::PingPong(1e-9 * nanos, 15, 0, 0, 20);
+        if (fDoAlphaAnimation) {
+            fAnimAlpha = TimeUtils::PingPong(1e-9 * nanos, 5, 0, 1, 0);
         }
+        return true;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFDDDDDD);
 
         const SkScalar kLightWidth = 800;
@@ -325,19 +297,47 @@ class ShadowsView : public Sample {
                                lightPos, kLightWidth, .5f);
     }
 
-    bool onAnimate(double nanos) override {
-        fAnimTranslate = TimeUtils::PingPong(1e-9 * nanos, 30, 0, 125, -125);
-        fAnimAngle = TimeUtils::PingPong(1e-9 * nanos, 15, 0, 0, 20);
-        if (fDoAlphaAnimation) {
-            fAnimAlpha = TimeUtils::PingPong(1e-9 * nanos, 5, 0, 1, 0);
-        }
-        return true;
-    }
-
 private:
-    using INHERITED = Sample;
+    void drawShadowedPath(SkCanvas* canvas, const SkPath& path,
+                          const SkPoint3& zPlaneParams,
+                          const SkPaint& paint, SkScalar ambientAlpha,
+                          const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
+        if (fIgnoreShadowAlpha) {
+            ambientAlpha = 1;
+            spotAlpha = 1;
+        }
+        if (!fShowAmbient) {
+            ambientAlpha = 0;
+        }
+        if (!fShowSpot) {
+            spotAlpha = 0;
+        }
+        uint32_t flags = 0;
+        if (fUseAlt) {
+            flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
+        }
+        if (fUseBlur) {
+            flags |= SkShadowFlags::kConcaveBlurOnly_ShadowFlag;
+        }
+
+        SkColor ambientColor = SkColorSetARGB(ambientAlpha * 255, 0, 0, 0);
+        SkColor spotColor = SkColorSetARGB(spotAlpha * 255, 0, 0, 0);
+        SkShadowUtils::DrawShadow(canvas, path, zPlaneParams, lightPos, lightWidth,
+                                  ambientColor, spotColor, flags);
+
+        if (fShowObject) {
+            canvas->drawPath(path, paint);
+        } else {
+            SkPaint strokePaint;
+
+            strokePaint.setColor(paint.getColor());
+            strokePaint.setStyle(SkPaint::kStroke_Style);
+
+            canvas->drawPath(path, strokePaint);
+        }
+    }
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new ShadowsView(); )
+DEF_SLIDE( return new ShadowsSlide(); )

@@ -13,8 +13,8 @@
 #include "include/core/SkSurface.h"
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkPaintPriv.h"
+#include "tools/viewer/Slide.h"
 
 typedef void (*DrawAtlasProc)(SkCanvas*, SkImage*, const SkRSXform[], const SkRect[],
                               const SkColor[], int, const SkRect*, const SkSamplingOptions&,
@@ -205,16 +205,12 @@ private:
     using INHERITED = SkDrawable;
 };
 
-class DrawAtlasView : public Sample {
-    const char* fName;
+class DrawAtlasSlide : public Slide {
     DrawAtlasProc fProc;
     sk_sp<DrawAtlasDrawable> fDrawable;
 
 public:
-    DrawAtlasView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) { }
-
-protected:
-    SkString name() override { return SkString(fName); }
+    DrawAtlasSlide(const char name[], DrawAtlasProc proc) : fProc(proc) { fName = name; }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -224,29 +220,28 @@ protected:
             return false;
     }
 
-    void onOnceBeforeDraw() override {
-        fDrawable = sk_make_sp<DrawAtlasDrawable>(fProc, SkRect::MakeWH(640, 480));
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawDrawable(fDrawable.get());
     }
 
-    bool onAnimate(double /*nanos*/) override { return true; }
+    bool animate(double /*nanos*/) override { return true; }
 #if 0
     // TODO: switch over to use this for our animation
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         SkScalar angle = SkDoubleToScalar(fmod(1e-9 * nanos * 360 / 24, 360));
         fAnimatingDrawable->setSweep(angle);
         return true;
     }
 #endif
 
-private:
-    using INHERITED = Sample;
+    void load(SkScalar winWidth, SkScalar winHeight) override {
+        fDrawable = sk_make_sp<DrawAtlasDrawable>(fProc, SkRect::Make(this->getDimensions()));
+    }
+
+    SkISize getDimensions() const override { return {640, 480}; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new DrawAtlasView("DrawAtlas", draw_atlas); )
-DEF_SAMPLE( return new DrawAtlasView("DrawAtlasSim", draw_atlas_sim); )
+DEF_SLIDE( return new DrawAtlasSlide("DrawAtlas", draw_atlas); )
+DEF_SLIDE( return new DrawAtlasSlide("DrawAtlasSim", draw_atlas_sim); )

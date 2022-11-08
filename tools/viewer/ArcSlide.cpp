@@ -22,8 +22,8 @@
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
-#include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
+#include "tools/viewer/Slide.h"
 
 static void testparse() {
     SkRect r;
@@ -37,7 +37,7 @@ static void testparse() {
     SkParsePath::ToSVGString(p2, &str2);
 }
 
-class ArcsView : public Sample {
+class ArcsSlide : public Slide {
     class MyDrawable : public SkDrawable {
         SkRect   fR;
         SkScalar fSweep;
@@ -82,8 +82,6 @@ class ArcsView : public Sample {
     SkRect fRect = {20, 20, 220, 220};
     sk_sp<MyDrawable> fAnimatingDrawable;
     sk_sp<SkDrawable> fRootDrawable;
-
-    SkString name() override { return SkString("Arcs"); }
 
     static void DrawRectWithLines(SkCanvas* canvas, const SkRect& r, const SkPaint& p) {
         canvas->drawRect(r, p);
@@ -159,9 +157,11 @@ class ArcsView : public Sample {
         DrawArcs(canvas);
     }
 
-    void onOnceBeforeDraw() override {
+public:
+    ArcsSlide() { fName = "Arcs"; }
+
+    void load(SkScalar w, SkScalar h) override {
         testparse();
-        this->setBGColor(0xFFDDDDDD);
 
         fAnimatingDrawable = sk_make_sp<MyDrawable>(fRect);
 
@@ -170,11 +170,12 @@ class ArcsView : public Sample {
         fRootDrawable = recorder.finishRecordingAsDrawable();
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(0xFFDDDDDD);
         canvas->drawDrawable(fRootDrawable.get());
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         SkScalar angle = SkDoubleToScalar(fmod(1e-9 * nanos * 360 / 24, 360));
         if (fAnimatingDrawable) {
             fAnimatingDrawable->setSweep(angle);
@@ -183,4 +184,4 @@ class ArcsView : public Sample {
     }
 };
 
-DEF_SAMPLE( return new ArcsView(); )
+DEF_SLIDE( return new ArcsSlide(); )

@@ -14,15 +14,14 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
-#include "tools/timer/TimeUtils.h"
-
-#include "samplecode/Sample.h"
 #include "tools/Resources.h"
+#include "tools/timer/TimeUtils.h"
+#include "tools/viewer/Slide.h"
 
 static constexpr char kPauseKey = 'p';
 static constexpr char kResetKey = 'r';
 
-class SampleAnimatedImage : public Sample {
+class AnimatedImageSlide : public Slide {
     sk_sp<SkAnimatedImage>  fImage;
     sk_sp<SkDrawable>       fDrawable;
     SkScalar                fYOffset = 0;
@@ -31,12 +30,15 @@ class SampleAnimatedImage : public Sample {
     double                  fLastWallTime = 0.0;
     double                  fTimeToShowNextFrame = 0.0;
 
-    void onDrawBackground(SkCanvas* canvas) override {
+public:
+    AnimatedImageSlide() { fName = "AnimatedImage"; }
+
+    void draw(SkCanvas* canvas) override {
         SkFont font;
         font.setSize(20);
 
         SkString str = SkStringPrintf("Press '%c' to start/pause; '%c' to reset.",
-                kPauseKey, kResetKey);
+                                      kPauseKey, kResetKey);
         const char* text = str.c_str();
         SkRect bounds;
         font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
@@ -44,9 +46,7 @@ class SampleAnimatedImage : public Sample {
 
         canvas->drawSimpleText(text, strlen(text), SkTextEncoding::kUTF8, 5, fYOffset, font, SkPaint());
         fYOffset *= 2;
-    }
 
-    void onDrawContent(SkCanvas* canvas) override {
         if (!fImage) {
             return;
         }
@@ -57,7 +57,7 @@ class SampleAnimatedImage : public Sample {
         canvas->drawDrawable(fDrawable.get(), fImage->getBounds().width(), 0);
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         if (!fImage) {
             return false;
         }
@@ -78,7 +78,7 @@ class SampleAnimatedImage : public Sample {
         return true;
     }
 
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         sk_sp<SkData> file(GetResourceAsData("images/alphabetAnim.gif"));
         std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(file));
         if (!codec) {
@@ -96,8 +96,6 @@ class SampleAnimatedImage : public Sample {
         canvas->drawDrawable(fImage.get());
         fDrawable = recorder.finishRecordingAsDrawable();
     }
-
-    SkString name() override { return SkString("AnimatedImage"); }
 
     bool onChar(SkUnichar uni) override {
         if (fImage) {
@@ -121,4 +119,4 @@ class SampleAnimatedImage : public Sample {
     }
 };
 
-DEF_SAMPLE( return new SampleAnimatedImage(); )
+DEF_SLIDE( return new AnimatedImageSlide(); )

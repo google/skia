@@ -13,8 +13,8 @@
 #include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
+#include "tools/viewer/Slide.h"
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
@@ -40,13 +40,14 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkSc
 //            -- this feature boosts the rendering out of the small point-size
 //               SDF-text special case (which falls back to bitmap fonts for small points)
 
-class AnimatedTextView : public Sample {
+class AnimatedTextSlide : public Slide {
     float fScale = 1;
     float fScaleInc = 0.1f;
     float fRotation = 0;
     int   fSizeScale = 1;
 
-    SkString name() override { return SkString("AnimatedText"); }
+public:
+    AnimatedTextSlide() { fName = "AnimatedText"; }
 
     bool onChar(SkUnichar uni) override {
             if ('2' == uni) {
@@ -60,7 +61,7 @@ class AnimatedTextView : public Sample {
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkFont font(SkTypeface::MakeFromFile("/skimages/samplefont.ttf"));
 
         SkPaint paint;
@@ -97,7 +98,7 @@ class AnimatedTextView : public Sample {
         font.setSize(16);
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         // TODO: use nanos
         // We add noise to the scale and rotation animations to
         // keep the font atlas from falling into a steady state
@@ -112,4 +113,4 @@ class AnimatedTextView : public Sample {
     }
 };
 
-DEF_SAMPLE( return new AnimatedTextView(); )
+DEF_SLIDE( return new AnimatedTextSlide(); )

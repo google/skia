@@ -2914,7 +2914,13 @@ if (skia_enable_tools) {
     test_app("viewer") {
       is_shared_library = is_android
       sources = [
+        "tools/viewer/AndroidShadowsSlide.cpp",
+        "tools/viewer/AnimBlurSlide.cpp",
         "tools/viewer/AnimTimer.h",
+        "tools/viewer/AnimatedImageSlide.cpp",
+        "tools/viewer/AnimatedTextSlide.cpp",
+        "tools/viewer/ArcSlide.cpp",
+        "tools/viewer/AtlasSlide.cpp",
         "tools/viewer/BisectSlide.cpp",
         "tools/viewer/BisectSlide.h",
         "tools/viewer/ClickHandlerSlide.cpp",
