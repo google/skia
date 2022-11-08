@@ -2001,10 +2001,7 @@ STAGE(emboss, const SkRasterPipeline_EmbossCtx* ctx) {
     b = mad(b, mul, add);
 }
 
-STAGE(byte_tables, const void* ctx) {
-    struct Tables { const uint8_t *r, *g, *b, *a; };
-    auto tables = (const Tables*)ctx;
-
+STAGE(byte_tables, const SkRasterPipeline_TablesCtx* tables) {
     r = from_byte(gather(tables->r, to_unorm(r, 255)));
     g = from_byte(gather(tables->g, to_unorm(g, 255)));
     b = from_byte(gather(tables->b, to_unorm(b, 255)));

@@ -225,6 +225,10 @@ struct SkRasterPipeline_EmbossCtx {
                                add;
 };
 
+struct SkRasterPipeline_TablesCtx {
+    const uint8_t *r, *g, *b, *a;
+};
+
 class SkRasterPipeline {
 public:
     explicit SkRasterPipeline(SkArenaAlloc*);

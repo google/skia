@@ -101,15 +101,14 @@ public:
             p->append(SkRasterPipeline::unpremul);
         }
 
-        // Notice fBitmap is in a,r,g,b order, but the byte_tables stage takes r,g,b,a pointers.
-        const uint8_t *a = fBitmap.getAddr8(0,0),
-                      *r = fBitmap.getAddr8(0,1),
-                      *g = fBitmap.getAddr8(0,2),
-                      *b = fBitmap.getAddr8(0,3);
-        struct Tables { const uint8_t *r, *g, *b, *a; };
-        p->append(SkRasterPipeline::byte_tables, rec.fAlloc->make<Tables>(Tables{r,g,b,a}));
+        SkRasterPipeline_TablesCtx* tables = rec.fAlloc->make<SkRasterPipeline_TablesCtx>();
+        tables->a = fBitmap.getAddr8(0, 0);
+        tables->r = fBitmap.getAddr8(0, 1);
+        tables->g = fBitmap.getAddr8(0, 2);
+        tables->b = fBitmap.getAddr8(0, 3);
+        p->append(SkRasterPipeline::byte_tables, tables);
 
-        bool definitelyOpaque = shaderIsOpaque && a[0xff] == 0xff;
+        bool definitelyOpaque = shaderIsOpaque && tables->a[0xff] == 0xff;
         if (!definitelyOpaque) {
             p->append(SkRasterPipeline::premul);
         }
