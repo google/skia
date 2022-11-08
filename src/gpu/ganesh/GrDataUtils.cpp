@@ -612,14 +612,18 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
                                                   &dstIsNormalized,
                                                   &dstIsSRGB);
 
-    bool clampGamut;
+    bool clampGamut = false;
     SkTLazy<SkColorSpaceXformSteps> steps;
     skgpu::Swizzle loadStoreSwizzle;
     if (alphaOrCSConversion) {
         steps.init(src.colorSpace(), src.alphaType(), dst.colorSpace(), dst.alphaType());
+#if defined(SK_USE_LEGACY_GAMUT_CLAMP)
         clampGamut = dstIsNormalized && dst.alphaType() == kPremul_SkAlphaType;
+#endif
     } else {
+#if defined(SK_USE_LEGACY_GAMUT_CLAMP)
         clampGamut = dstIsNormalized && !srcIsNormalized && dst.alphaType() == kPremul_SkAlphaType;
+#endif
         if (!clampGamut) {
             loadStoreSwizzle = skgpu::Swizzle::Concat(loadSwizzle, storeSwizzle);
         }
