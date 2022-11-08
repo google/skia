@@ -8,24 +8,21 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/Slide.h"
 
 /**
  * Animated sample used to develop a predecessor of GrDrawOp combining.
  */
-class ManyRectsView : public Sample {
+class ManyRectsSlide : public Slide {
 private:
     enum {
         N = 1000,
     };
 
 public:
-    ManyRectsView() {}
+    ManyRectsSlide() { fName = "ManyRects"; }
 
-protected:
-    SkString name() override { return SkString("ManyRects"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkISize dsize = canvas->getBaseLayerSize();
         canvas->clear(0xFFF0E0F0);
 
@@ -59,9 +56,8 @@ protected:
 
 private:
     SkRandom fRandom;
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new ManyRectsView(); )
+DEF_SLIDE(return new ManyRectsSlide();)

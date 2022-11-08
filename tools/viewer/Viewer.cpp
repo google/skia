@@ -771,12 +771,12 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 }
 
 void Viewer::initSlides() {
-    using SlideFactory = sk_sp<Slide>(*)(const SkString& name, const SkString& path);
+    using SlideMaker = sk_sp<Slide> (*)(const SkString& name, const SkString& path);
     static const struct {
         const char*                            fExtension;
         const char*                            fDirName;
         const CommandLineFlags::StringArray&   fFlags;
-        const SlideFactory                     fFactory;
+        const SlideMaker                       fFactory;
     } gExternalSlidesInfo[] = {
         { ".mskp", "mskp-dir", FLAGS_mskps,
           [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
@@ -814,17 +814,16 @@ void Viewer::initSlides() {
 
     SkTArray<sk_sp<Slide>> dirSlides;
 
-    const auto addSlide =
-            [&](const SkString& name, const SkString& path, const SlideFactory& fact) {
-                if (CommandLineFlags::ShouldSkip(FLAGS_match, name.c_str())) {
-                    return;
-                }
+    const auto addSlide = [&](const SkString& name, const SkString& path, const SlideMaker& fact) {
+        if (CommandLineFlags::ShouldSkip(FLAGS_match, name.c_str())) {
+            return;
+        }
 
-                if (auto slide = fact(name, path)) {
-                    dirSlides.push_back(slide);
-                    fSlides.push_back(std::move(slide));
-                }
-            };
+        if (auto slide = fact(name, path)) {
+            dirSlides.push_back(slide);
+            fSlides.push_back(std::move(slide));
+        }
+    };
 
     if (!FLAGS_file.isEmpty()) {
         // single file mode
@@ -883,16 +882,15 @@ void Viewer::initSlides() {
         }
     }
 
-    std::sort(fSlides.begin() + firstSample, fSlides.end(), orderBySlideName);
-
-    // Particle demo
-    {
-        // TODO: Convert this to a sample
-        auto slide = sk_make_sp<ParticlesSlide>();
+    // Registered slides are replacing Samples.
+    for (const SlideFactory& factory : SlideRegistry::Range()) {
+        auto slide = sk_sp<Slide>(factory());
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
-            fSlides.push_back(std::move(slide));
+            fSlides.push_back(slide);
         }
     }
+
+    std::sort(fSlides.begin() + firstSample, fSlides.end(), orderBySlideName);
 
     // Runtime shader editor
     {

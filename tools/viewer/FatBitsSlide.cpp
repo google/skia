@@ -20,11 +20,10 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkPointPriv.h"
 #include "tools/ToolUtils.h"
-
-class SkEvent;
+#include "tools/viewer/ClickHandlerSlide.h"
+#include "tools/viewer/Slide.h"
 
 #define FAT_PIXEL_COLOR     SK_ColorBLACK
 #define PIXEL_CENTER_SIZE   3
@@ -58,7 +57,7 @@ public:
         fUseTriangle = false;
         fStrokeCap = SkPaint::kButt_Cap;
 
-        fClipRect.setLTRB(2, 2, 11, 8 );
+        fClipRect.setLTRB(2, 2, 11, 8);
     }
 
     int getZoom() const { return fZoom; }
@@ -360,94 +359,89 @@ void FatBits::drawTriangle(SkCanvas* canvas, SkPoint pts[3]) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IndexClick : public Sample::Click {
+class IndexClick : public ClickHandlerSlide::Click {
     int fIndex;
+
 public:
     IndexClick(int index) : fIndex(index) {}
 
-    static int GetIndex(Sample::Click* click) {
-        return ((IndexClick*)click)->fIndex;
-    }
+    static int GetIndex(Click* click) { return ((IndexClick*)click)->fIndex; }
 };
 
-class DrawLineView : public Sample {
+class DrawLineSlide : public ClickHandlerSlide {
     FatBits fFB;
     SkPoint fPts[3];
     bool    fIsRect;
     int     fZoom = 64;
+
 public:
-    DrawLineView() {
+    DrawLineSlide() {
         fFB.setWHZ(24*2, 16*2, fZoom);
         fPts[0].set(1, 1);
         fPts[1].set(5, 4);
         fPts[2].set(2, 6);
         SkMatrix::Scale(fZoom, fZoom).mapPoints(fPts, 3);
         fIsRect = false;
+        fName = "FatBits";
     }
 
-    void setStyle(FatBits::Style s) {
-        fFB.setStyle(s);
-    }
-
-protected:
-    SkString name() override { return SkString("FatBits"); }
+    void setStyle(FatBits::Style s) { fFB.setStyle(s); }
 
     bool onChar(SkUnichar uni) override {
-            switch (uni) {
-                case 'c':
-                    fFB.setUseClip(!fFB.getUseClip());
-                    return true;
-                case 'r':
-                    fIsRect = !fIsRect;
-                    return true;
-                case 'o':
-                    fFB.toggleRectAsOval();
-                    return true;
-                case 'x':
-                    fFB.setGrid(!fFB.getGrid());
-                    return true;
-                case 's':
-                    if (FatBits::kStroke_Style == fFB.getStyle()) {
-                        this->setStyle(FatBits::kHair_Style);
-                    } else {
-                        this->setStyle(FatBits::kStroke_Style);
-                    }
-                    return true;
-                case 'k': {
-                    const SkPaint::Cap caps[] = {
-                        SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap,
-                    };
-                    fFB.fStrokeCap = caps[(fFB.fStrokeCap + 1) % 3];
-                    return true;
-                } break;
-                case 'a':
-                    fFB.setAA(!fFB.getAA());
-                    return true;
-                case 'w':
-                    fFB.setShowSkeleton(!fFB.getShowSkeleton());
-                    return true;
-                case 'g':
-                    fFB.togglePixelColors();
-                    return true;
-                case 't':
-                    fFB.setTriangle(!fFB.getTriangle());
-                    return true;
-                case '-':
-                    fFB.fStrokeWidth -= 0.125f;
-                    return true;
-                case '=':
-                    fFB.fStrokeWidth += 0.125f;
-                    return true;
-            }
-            return false;
+        switch (uni) {
+            case 'c':
+                fFB.setUseClip(!fFB.getUseClip());
+                return true;
+            case 'r':
+                fIsRect = !fIsRect;
+                return true;
+            case 'o':
+                fFB.toggleRectAsOval();
+                return true;
+            case 'x':
+                fFB.setGrid(!fFB.getGrid());
+                return true;
+            case 's':
+                if (FatBits::kStroke_Style == fFB.getStyle()) {
+                    this->setStyle(FatBits::kHair_Style);
+                } else {
+                    this->setStyle(FatBits::kStroke_Style);
+                }
+                return true;
+            case 'k': {
+                const SkPaint::Cap caps[] = {
+                    SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap,
+                };
+                fFB.fStrokeCap = caps[(fFB.fStrokeCap + 1) % 3];
+                return true;
+            } break;
+            case 'a':
+                fFB.setAA(!fFB.getAA());
+                return true;
+            case 'w':
+                fFB.setShowSkeleton(!fFB.getShowSkeleton());
+                return true;
+            case 'g':
+                fFB.togglePixelColors();
+                return true;
+            case 't':
+                fFB.setTriangle(!fFB.getTriangle());
+                return true;
+            case '-':
+                fFB.fStrokeWidth -= 0.125f;
+                return true;
+            case '=':
+                fFB.fStrokeWidth += 0.125f;
+                return true;
+        }
+        return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         fFB.drawBG(canvas);
         if (fFB.getTriangle()) {
             fFB.drawTriangle(canvas, fPts);
-        }
-        else if (fIsRect) {
+        } else if (fIsRect) {
             fFB.drawRect(canvas, fPts);
         } else {
             fFB.drawLine(canvas, fPts);
@@ -467,7 +461,8 @@ protected:
         }
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         SkPoint pt = { x, y };
         int index = -1;
         int count = fFB.getTriangle() ? 3 : 2;
@@ -495,12 +490,8 @@ protected:
         }
         return true;
     }
-
-private:
-
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new DrawLineView(); )
+DEF_SLIDE(return new DrawLineSlide();)

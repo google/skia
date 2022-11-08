@@ -56,4 +56,6 @@ private:
     sk_sp<TestingResourceProvider> fResourceProvider;
 };
 
+DEF_SLIDE(return new ParticlesSlide;)
+
 #endif
