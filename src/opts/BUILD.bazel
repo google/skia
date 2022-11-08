@@ -11,8 +11,9 @@ Skia's headers. These libraries are each compiled with a different set of compil
 (e.g. architecture options) and linked into the final library or binary.
 """
 
-load("//bazel:macros.bzl", "exports_files_legacy", "selects", "skia_cc_deps", "skia_cc_library")
+load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
 load("//bazel:copts.bzl", "DEFAULT_COPTS")
+load("//bazel:macros.bzl", "exports_files_legacy", "selects", "skia_cc_deps", "skia_cc_library")
 
 licenses(["notice"])
 
@@ -44,41 +45,41 @@ skia_cc_library(
     name = "crc32",  # https://developer.arm.com/documentation/dui0801/g/A32-and-T32-Instructions/CRC32
     srcs = ["SkOpts_crc32.cpp"],
     copts = DEFAULT_COPTS + ["-march=armv8-a+crc"],
+    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
-    deps = ["//bazel:defines_from_flags"],
 )
 
 skia_cc_library(
     name = "ssse3",  # https://en.wikipedia.org/wiki/SSSE3
     srcs = ["SkOpts_ssse3.cpp"],
     copts = DEFAULT_COPTS + ["-mssse3"],
+    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
-    deps = ["//bazel:defines_from_flags"],
 )
 
 skia_cc_library(
     name = "sse42",  # https://en.wikipedia.org/wiki/SSE4#SSE4.2
     srcs = ["SkOpts_sse42.cpp"],
     copts = DEFAULT_COPTS + ["-msse4.2"],
+    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
-    deps = ["//bazel:defines_from_flags"],
 )
 
 skia_cc_library(
     name = "avx",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
     srcs = ["SkOpts_avx.cpp"],
     copts = DEFAULT_COPTS + ["-mavx"],
+    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
-    deps = ["//bazel:defines_from_flags"],
 )
 
 skia_cc_library(
     name = "hsw",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#Advanced_Vector_Extensions_2
     srcs = ["SkOpts_hsw.cpp"],
     copts = DEFAULT_COPTS + ["-march=haswell"],
+    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
     deps = [
-        "//bazel:defines_from_flags",
         "//modules/skcms",  # Needed to implement SkRasterPipeline_opts.h
     ],
 )
@@ -87,8 +88,8 @@ skia_cc_library(
     name = "skx",  # https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#AVX-512
     srcs = ["SkOpts_skx.cpp"],
     copts = DEFAULT_COPTS + ["-march=skylake-avx512"],
+    local_defines = DEFAULT_DEFINES + DEFAULT_LOCAL_DEFINES,
     textual_hdrs = OPTS_HDRS,
-    deps = ["//bazel:defines_from_flags"],
 )
 
 skia_cc_deps(

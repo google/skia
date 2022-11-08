@@ -430,6 +430,7 @@ func GenTasks(cfg *Config) {
 			"skia/BUILD.bazel",
 			"skia/WORKSPACE.bazel",
 			"skia/bazel",
+			"skia/defines.bzl",
 			"skia/go_repositories.bzl",
 			"skia/requirements.txt",
 			"skia/toolchain",
