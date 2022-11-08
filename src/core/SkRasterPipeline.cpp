@@ -376,36 +376,32 @@ void SkRasterPipeline::append_stack_rewind() {
     this->unchecked_append(SkRasterPipeline::stack_rewind, fRewindCtx);
 }
 
-static void prepend_to_pipeline(void**& ip, SkOpts::StageFn stageFn, void* ctx) {
-    *--ip = ctx;
-    *--ip = (void*)stageFn;
+static void prepend_to_pipeline(SkRasterPipelineStage*& ip, SkOpts::StageFn stageFn, void* ctx) {
+    --ip;
+    ip->fn = stageFn;
+    ip->ctx = ctx;
 }
 
-static void prepend_to_pipeline(void**& ip, SkOpts::StageFn stageFn) {
-    *--ip = (void*)stageFn;
-}
-
-bool SkRasterPipeline::build_lowp_pipeline(void** ip) const {
+bool SkRasterPipeline::build_lowp_pipeline(SkRasterPipelineStage* ip) const {
     if (gForceHighPrecisionRasterPipeline || fRewindCtx) {
         return false;
     }
     // Stages are stored backwards in fStages; to compensate, we assemble the pipeline in reverse
     // here, back to front.
-    prepend_to_pipeline(ip, SkOpts::just_return_lowp);
+    prepend_to_pipeline(ip, SkOpts::just_return_lowp, /*ctx=*/nullptr);
     for (const StageList* st = fStages; st; st = st->prev) {
         if (st->stage >= kNumLowpStages || !SkOpts::stages_lowp[st->stage]) {
             // This program contains a stage that doesn't exist in lowp.
             return false;
         }
         prepend_to_pipeline(ip, SkOpts::stages_lowp[st->stage], st->ctx);
-        continue;
     }
     return true;
 }
 
-void SkRasterPipeline::build_highp_pipeline(void** ip) const {
+void SkRasterPipeline::build_highp_pipeline(SkRasterPipelineStage* ip) const {
     // We assemble the pipeline in reverse, since the stage list is stored backwards.
-    prepend_to_pipeline(ip, SkOpts::just_return_highp);
+    prepend_to_pipeline(ip, SkOpts::just_return_highp, /*ctx=*/nullptr);
     for (const StageList* st = fStages; st; st = st->prev) {
         prepend_to_pipeline(ip, SkOpts::stages_highp[st->stage], st->ctx);
     }
@@ -419,7 +415,8 @@ void SkRasterPipeline::build_highp_pipeline(void** ip) const {
     }
 }
 
-SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) const {
+SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(
+        SkRasterPipelineStage* ip) const {
     // We try to build a lowp pipeline first; if that fails, we fall back to a highp float pipeline.
     if (this->build_lowp_pipeline(ip)) {
         return SkOpts::start_pipeline_lowp;
@@ -429,12 +426,15 @@ SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) co
     return SkOpts::start_pipeline_highp;
 }
 
-int SkRasterPipeline::slots_needed() const {
-    // If we have any stack_rewind stages, we will also need to inject a stack_checkpoint
-    int stagesWithContext = fNumStages + (fRewindCtx ? 1 : 0);
+int SkRasterPipeline::stages_needed() const {
+    // Add 1 to budget for a `just_return` stage at the end.
+    int stages = fNumStages + 1;
 
-    // just_return has no context, all other stages do
-    return 2 * stagesWithContext + 1;
+    // If we have any stack_rewind stages, we will need to inject a stack_checkpoint stage.
+    if (fRewindCtx) {
+        stages += 1;
+    }
+    return stages;
 }
 
 void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
@@ -442,12 +442,12 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
         return;
     }
 
-    int slotsNeeded = this->slots_needed();
+    int stagesNeeded = this->stages_needed();
 
     // Best to not use fAlloc here... we can't bound how often run() will be called.
-    SkAutoSTMalloc<64, void*> program(slotsNeeded);
+    SkAutoSTMalloc<32, SkRasterPipelineStage> program(stagesNeeded);
 
-    auto start_pipeline = this->build_pipeline(program.get() + slotsNeeded);
+    auto start_pipeline = this->build_pipeline(program.get() + stagesNeeded);
     start_pipeline(x,y,x+w,y+h, program.get());
 }
 
@@ -456,11 +456,11 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
         return [](size_t, size_t, size_t, size_t) {};
     }
 
-    int slotsNeeded = this->slots_needed();
+    int stagesNeeded = this->stages_needed();
 
-    void** program = fAlloc->makeArray<void*>(slotsNeeded);
+    SkRasterPipelineStage* program = fAlloc->makeArray<SkRasterPipelineStage>(stagesNeeded);
 
-    auto start_pipeline = this->build_pipeline(program + slotsNeeded);
+    auto start_pipeline = this->build_pipeline(program + stagesNeeded);
     return [=](size_t x, size_t y, size_t w, size_t h) {
         start_pipeline(x,y,x+w,y+h, program);
     };
