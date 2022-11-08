@@ -35,7 +35,7 @@ SI Dst widen_cast(const Src& src) {
 // - StageFn: a function pointer from `stages_lowp` or `stages_highp`
 // - a Context pointer: a pointer to data used by the StageFn. Most context structures are declared
 //   at the top of SkRasterPipeline.h, and have names ending in Ctx ("SkRasterPipeline_SamplerCtx").
-//   Ctx::None is used to represent a null context pointer.
+
 // load_and_inc() reads one pointer from the stage-data array, and increments the array pointer.
 SI void* load_and_inc(void**& program) {
 #if defined(__GNUC__) && defined(__x86_64__)
@@ -50,20 +50,15 @@ SI void* load_and_inc(void**& program) {
 }
 
 struct Ctx {
-    struct None {};
-
     void**& program;
 
     template <typename T>
     operator T*() {
         return (T*)load_and_inc(program);
     }
-    operator None() {
-        load_and_inc(program);
-        return None{};
-    }
 };
 
+using NoCtx = const void*;
 
 #if !defined(__clang__)
     #define JUMPER_IS_SCALAR
@@ -1464,7 +1459,7 @@ SI I32 cond_to_mask(I32 cond) {
 
 // Now finally, normal Stages!
 
-STAGE(seed_shader, Ctx::None) {
+STAGE(seed_shader, NoCtx) {
     static const float iota[] = {
         0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
         8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
@@ -1533,12 +1528,12 @@ STAGE(uniform_color_dst, const SkRasterPipeline_UniformColorCtx* c) {
 }
 
 // splats opaque-black into r,g,b,a
-STAGE(black_color, Ctx::None) {
+STAGE(black_color, NoCtx) {
     r = g = b = 0.0f;
     a = 1.0f;
 }
 
-STAGE(white_color, Ctx::None) {
+STAGE(white_color, NoCtx) {
     r = g = b = a = 1.0f;
 }
 
@@ -1580,7 +1575,7 @@ STAGE(store_dst, float* ptr) {
 // Most blend modes apply the same logic to each channel.
 #define BLEND_MODE(name)                       \
     SI F name##_channel(F s, F d, F sa, F da); \
-    STAGE(name, Ctx::None) {                   \
+    STAGE(name, NoCtx) {                   \
         r = name##_channel(r,dr,a,da);         \
         g = name##_channel(g,dg,a,da);         \
         b = name##_channel(b,db,a,da);         \
@@ -1612,7 +1607,7 @@ BLEND_MODE(xor_)     { return s*inv(da) + d*inv(sa); }
 // Most other blend modes apply the same logic to colors, and srcover to alpha.
 #define BLEND_MODE(name)                       \
     SI F name##_channel(F s, F d, F sa, F da); \
-    STAGE(name, Ctx::None) {                   \
+    STAGE(name, NoCtx) {                   \
         r = name##_channel(r,dr,a,da);         \
         g = name##_channel(g,dg,a,da);         \
         b = name##_channel(b,db,a,da);         \
@@ -1707,7 +1702,7 @@ SI void clip_color(F* r, F* g, F* b, F a) {
     *b = clip(*b);
 }
 
-STAGE(hue, Ctx::None) {
+STAGE(hue, NoCtx) {
     F R = r*a,
       G = g*a,
       B = b*a;
@@ -1721,7 +1716,7 @@ STAGE(hue, Ctx::None) {
     b = b*inv(da) + db*inv(a) + B;
     a = a + da - a*da;
 }
-STAGE(saturation, Ctx::None) {
+STAGE(saturation, NoCtx) {
     F R = dr*a,
       G = dg*a,
       B = db*a;
@@ -1735,7 +1730,7 @@ STAGE(saturation, Ctx::None) {
     b = b*inv(da) + db*inv(a) + B;
     a = a + da - a*da;
 }
-STAGE(color, Ctx::None) {
+STAGE(color, NoCtx) {
     F R = r*da,
       G = g*da,
       B = b*da;
@@ -1748,7 +1743,7 @@ STAGE(color, Ctx::None) {
     b = b*inv(da) + db*inv(a) + B;
     a = a + da - a*da;
 }
-STAGE(luminosity, Ctx::None) {
+STAGE(luminosity, NoCtx) {
     F R = dr*a,
       G = dg*a,
       B = db*a;
@@ -1789,14 +1784,14 @@ STAGE(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
 
 SI F clamp_01_(F v) { return min(max(0, v), 1); }
 
-STAGE(clamp_01, Ctx::None) {
+STAGE(clamp_01, NoCtx) {
     r = clamp_01_(r);
     g = clamp_01_(g);
     b = clamp_01_(b);
     a = clamp_01_(a);
 }
 
-STAGE(clamp_gamut, Ctx::None) {
+STAGE(clamp_gamut, NoCtx) {
     a = min(max(a, 0), 1.0f);
     r = min(max(r, 0), a);
     g = min(max(g, 0), a);
@@ -1814,47 +1809,47 @@ STAGE(unbounded_set_rgb, const float* rgb) {
     b = rgb[2];
 }
 
-STAGE(swap_rb, Ctx::None) {
+STAGE(swap_rb, NoCtx) {
     auto tmp = r;
     r = b;
     b = tmp;
 }
-STAGE(swap_rb_dst, Ctx::None) {
+STAGE(swap_rb_dst, NoCtx) {
     auto tmp = dr;
     dr = db;
     db = tmp;
 }
 
-STAGE(move_src_dst, Ctx::None) {
+STAGE(move_src_dst, NoCtx) {
     dr = r;
     dg = g;
     db = b;
     da = a;
 }
-STAGE(move_dst_src, Ctx::None) {
+STAGE(move_dst_src, NoCtx) {
     r = dr;
     g = dg;
     b = db;
     a = da;
 }
-STAGE(swap_src_dst, Ctx::None) {
+STAGE(swap_src_dst, NoCtx) {
     std::swap(r, dr);
     std::swap(g, dg);
     std::swap(b, db);
     std::swap(a, da);
 }
 
-STAGE(premul, Ctx::None) {
+STAGE(premul, NoCtx) {
     r = r * a;
     g = g * a;
     b = b * a;
 }
-STAGE(premul_dst, Ctx::None) {
+STAGE(premul_dst, NoCtx) {
     dr = dr * da;
     dg = dg * da;
     db = db * da;
 }
-STAGE(unpremul, Ctx::None) {
+STAGE(unpremul, NoCtx) {
     float inf = sk_bit_cast<float>(0x7f800000);
     auto scale = if_then_else(1.0f/a < inf, 1.0f/a, 0);
     r *= scale;
@@ -1862,10 +1857,10 @@ STAGE(unpremul, Ctx::None) {
     b *= scale;
 }
 
-STAGE(force_opaque    , Ctx::None) {  a = 1; }
-STAGE(force_opaque_dst, Ctx::None) { da = 1; }
+STAGE(force_opaque    , NoCtx) {  a = 1; }
+STAGE(force_opaque_dst, NoCtx) { da = 1; }
 
-STAGE(rgb_to_hsl, Ctx::None) {
+STAGE(rgb_to_hsl, NoCtx) {
     F mx = max(r, max(g,b)),
       mn = min(r, min(g,b)),
       d = mx - mn,
@@ -1885,7 +1880,7 @@ STAGE(rgb_to_hsl, Ctx::None) {
     g = s;
     b = l;
 }
-STAGE(hsl_to_rgb, Ctx::None) {
+STAGE(hsl_to_rgb, NoCtx) {
     // See GrRGBToHSLFilterEffect.fp
 
     F h = r,
@@ -2487,9 +2482,9 @@ STAGE(repeat_y, const SkRasterPipeline_TileCtx* ctx) { g = exclusive_repeat(g, c
 STAGE(mirror_x, const SkRasterPipeline_TileCtx* ctx) { r = exclusive_mirror(r, ctx); }
 STAGE(mirror_y, const SkRasterPipeline_TileCtx* ctx) { g = exclusive_mirror(g, ctx); }
 
-STAGE( clamp_x_1, Ctx::None) { r = clamp_01_(r); }
-STAGE(repeat_x_1, Ctx::None) { r = clamp_01_(r - floor_(r)); }
-STAGE(mirror_x_1, Ctx::None) { r = clamp_01_(abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f )); }
+STAGE( clamp_x_1, NoCtx) { r = clamp_01_(r); }
+STAGE(repeat_x_1, NoCtx) { r = clamp_01_(r - floor_(r)); }
+STAGE(mirror_x_1, NoCtx) { r = clamp_01_(abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f )); }
 
 // Decal stores a 32bit mask after checking the coordinate (x and/or y) against its domain:
 //      mask == 0x00000000 if the coordinate(s) are out of bounds
@@ -2519,28 +2514,28 @@ STAGE(check_decal_mask, SkRasterPipeline_DecalTileCtx* ctx) {
     a = sk_bit_cast<F>(sk_bit_cast<U32>(a) & mask);
 }
 
-STAGE(alpha_to_gray, Ctx::None) {
+STAGE(alpha_to_gray, NoCtx) {
     r = g = b = a;
     a = 1;
 }
-STAGE(alpha_to_gray_dst, Ctx::None) {
+STAGE(alpha_to_gray_dst, NoCtx) {
     dr = dg = db = da;
     da = 1;
 }
-STAGE(alpha_to_red, Ctx::None) {
+STAGE(alpha_to_red, NoCtx) {
     r = a;
     a = 1;
 }
-STAGE(alpha_to_red_dst, Ctx::None) {
+STAGE(alpha_to_red_dst, NoCtx) {
     dr = da;
     da = 1;
 }
 
-STAGE(bt709_luminance_or_luma_to_alpha, Ctx::None) {
+STAGE(bt709_luminance_or_luma_to_alpha, NoCtx) {
     a = r*0.2126f + g*0.7152f + b*0.0722f;
     r = g = b = 0;
 }
-STAGE(bt709_luminance_or_luma_to_rgb, Ctx::None) {
+STAGE(bt709_luminance_or_luma_to_rgb, NoCtx) {
     r = g = b = r*0.2126f + g*0.7152f + b*0.0722f;
 }
 
@@ -2660,7 +2655,7 @@ STAGE(evenly_spaced_2_stop_gradient, const SkRasterPipeline_EvenlySpaced2StopGra
     a = mad(t, c->f[3], c->b[3]);
 }
 
-STAGE(xy_to_unit_angle, Ctx::None) {
+STAGE(xy_to_unit_angle, NoCtx) {
     F X = r,
       Y = g;
     F xabs = abs_(X),
@@ -2686,7 +2681,7 @@ STAGE(xy_to_unit_angle, Ctx::None) {
     r = phi;
 }
 
-STAGE(xy_to_radius, Ctx::None) {
+STAGE(xy_to_radius, NoCtx) {
     F X2 = r * r,
       Y2 = g * g;
     r = sqrt_(X2 + Y2);
@@ -2694,14 +2689,14 @@ STAGE(xy_to_radius, Ctx::None) {
 
 // Please see https://skia.org/dev/design/conical for how our 2pt conical shader works.
 
-STAGE(negate_x, Ctx::None) { r = -r; }
+STAGE(negate_x, NoCtx) { r = -r; }
 
 STAGE(xy_to_2pt_conical_strip, const SkRasterPipeline_2PtConicalCtx* ctx) {
     F x = r, y = g, &t = r;
     t = x + sqrt_(ctx->fP0 - y*y); // ctx->fP0 = r0 * r0
 }
 
-STAGE(xy_to_2pt_conical_focal_on_circle, Ctx::None) {
+STAGE(xy_to_2pt_conical_focal_on_circle, NoCtx) {
     F x = r, y = g, &t = r;
     t = x + y*y / x; // (x^2 + y^2) / x
 }
@@ -2726,7 +2721,7 @@ STAGE(alter_2pt_conical_compensate_focal, const SkRasterPipeline_2PtConicalCtx* 
     t = t + ctx->fP1; // ctx->fP1 = f
 }
 
-STAGE(alter_2pt_conical_unswap, Ctx::None) {
+STAGE(alter_2pt_conical_unswap, NoCtx) {
     F& t = r;
     t = 1 - t;
 }
@@ -2875,7 +2870,7 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
-STAGE(gauss_a_to_rgba, Ctx::None) {
+STAGE(gauss_a_to_rgba, NoCtx) {
     // x = 1 - x;
     // exp(-x * x * 4) - 0.018f;
     // ... now approximate with quartic
@@ -3390,7 +3385,7 @@ SI F abs_(F x) { return sk_bit_cast<F>( sk_bit_cast<I32>(x) & 0x7fffffff ); }
 
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
 
-STAGE_GG(seed_shader, Ctx::None) {
+STAGE_GG(seed_shader, NoCtx) {
     static const float iota[] = {
         0.5f, 1.5f, 2.5f, 3.5f, 4.5f, 5.5f, 6.5f, 7.5f,
         8.5f, 9.5f,10.5f,11.5f,12.5f,13.5f,14.5f,15.5f,
@@ -3434,8 +3429,8 @@ STAGE_PP(uniform_color_dst, const SkRasterPipeline_UniformColorCtx* c) {
     db = c->rgba[2];
     da = c->rgba[3];
 }
-STAGE_PP(black_color, Ctx::None) { r = g = b =   0; a = 255; }
-STAGE_PP(white_color, Ctx::None) { r = g = b = 255; a = 255; }
+STAGE_PP(black_color, NoCtx) { r = g = b =   0; a = 255; }
+STAGE_PP(white_color, NoCtx) { r = g = b = 255; a = 255; }
 
 STAGE_PP(set_rgb, const float rgb[3]) {
     r = from_float(rgb[0]);
@@ -3444,60 +3439,60 @@ STAGE_PP(set_rgb, const float rgb[3]) {
 }
 
 // No need to clamp against 0 here (values are unsigned)
-STAGE_PP(clamp_01, Ctx::None) {
+STAGE_PP(clamp_01, NoCtx) {
     r = min(r, 255);
     g = min(g, 255);
     b = min(b, 255);
     a = min(a, 255);
 }
 
-STAGE_PP(clamp_gamut, Ctx::None) {
+STAGE_PP(clamp_gamut, NoCtx) {
     a = min(a, 255);
     r = min(r, a);
     g = min(g, a);
     b = min(b, a);
 }
 
-STAGE_PP(premul, Ctx::None) {
+STAGE_PP(premul, NoCtx) {
     r = div255_accurate(r * a);
     g = div255_accurate(g * a);
     b = div255_accurate(b * a);
 }
-STAGE_PP(premul_dst, Ctx::None) {
+STAGE_PP(premul_dst, NoCtx) {
     dr = div255_accurate(dr * da);
     dg = div255_accurate(dg * da);
     db = div255_accurate(db * da);
 }
 
-STAGE_PP(force_opaque    , Ctx::None) {  a = 255; }
-STAGE_PP(force_opaque_dst, Ctx::None) { da = 255; }
+STAGE_PP(force_opaque    , NoCtx) {  a = 255; }
+STAGE_PP(force_opaque_dst, NoCtx) { da = 255; }
 
-STAGE_PP(swap_rb, Ctx::None) {
+STAGE_PP(swap_rb, NoCtx) {
     auto tmp = r;
     r = b;
     b = tmp;
 }
-STAGE_PP(swap_rb_dst, Ctx::None) {
+STAGE_PP(swap_rb_dst, NoCtx) {
     auto tmp = dr;
     dr = db;
     db = tmp;
 }
 
-STAGE_PP(move_src_dst, Ctx::None) {
+STAGE_PP(move_src_dst, NoCtx) {
     dr = r;
     dg = g;
     db = b;
     da = a;
 }
 
-STAGE_PP(move_dst_src, Ctx::None) {
+STAGE_PP(move_dst_src, NoCtx) {
     r = dr;
     g = dg;
     b = db;
     a = da;
 }
 
-STAGE_PP(swap_src_dst, Ctx::None) {
+STAGE_PP(swap_src_dst, NoCtx) {
     std::swap(r, dr);
     std::swap(g, dg);
     std::swap(b, db);
@@ -3509,7 +3504,7 @@ STAGE_PP(swap_src_dst, Ctx::None) {
 // The same logic applied to all 4 channels.
 #define BLEND_MODE(name)                                 \
     SI U16 name##_channel(U16 s, U16 d, U16 sa, U16 da); \
-    STAGE_PP(name, Ctx::None) {                          \
+    STAGE_PP(name, NoCtx) {                          \
         r = name##_channel(r,dr,a,da);                   \
         g = name##_channel(g,dg,a,da);                   \
         b = name##_channel(b,db,a,da);                   \
@@ -3536,7 +3531,7 @@ STAGE_PP(swap_src_dst, Ctx::None) {
 // The same logic applied to color, and srcover for alpha.
 #define BLEND_MODE(name)                                 \
     SI U16 name##_channel(U16 s, U16 d, U16 sa, U16 da); \
-    STAGE_PP(name, Ctx::None) {                          \
+    STAGE_PP(name, NoCtx) {                          \
         r = name##_channel(r,dr,a,da);                   \
         g = name##_channel(g,dg,a,da);                   \
         b = name##_channel(b,db,a,da);                   \
@@ -3969,28 +3964,28 @@ STAGE_PP(store_r8, const SkRasterPipeline_MemoryCtx* ctx) {
     store_8(ptr_at_xy<uint8_t>(ctx, dx,dy), tail, r);
 }
 
-STAGE_PP(alpha_to_gray, Ctx::None) {
+STAGE_PP(alpha_to_gray, NoCtx) {
     r = g = b = a;
     a = 255;
 }
-STAGE_PP(alpha_to_gray_dst, Ctx::None) {
+STAGE_PP(alpha_to_gray_dst, NoCtx) {
     dr = dg = db = da;
     da = 255;
 }
-STAGE_PP(alpha_to_red, Ctx::None) {
+STAGE_PP(alpha_to_red, NoCtx) {
     r = a;
     a = 255;
 }
-STAGE_PP(alpha_to_red_dst, Ctx::None) {
+STAGE_PP(alpha_to_red_dst, NoCtx) {
     dr = da;
     da = 255;
 }
 
-STAGE_PP(bt709_luminance_or_luma_to_alpha, Ctx::None) {
+STAGE_PP(bt709_luminance_or_luma_to_alpha, NoCtx) {
     a = (r*54 + g*183 + b*19)/256;  // 0.2126, 0.7152, 0.0722 with 256 denominator.
     r = g = b = 0;
 }
-STAGE_PP(bt709_luminance_or_luma_to_rgb, Ctx::None) {
+STAGE_PP(bt709_luminance_or_luma_to_rgb, NoCtx) {
     r = g = b =(r*54 + g*183 + b*19)/256;  // 0.2126, 0.7152, 0.0722 with 256 denominator.
 }
 
@@ -4113,9 +4108,9 @@ STAGE_PP(emboss, const SkRasterPipeline_EmbossCtx* ctx) {
 // Even repeat and mirror funnel through a clamp to handle bad inputs like +Inf, NaN.
 SI F clamp_01_(F v) { return min(max(0, v), 1); }
 
-STAGE_GG(clamp_x_1 , Ctx::None) { x = clamp_01_(x); }
-STAGE_GG(repeat_x_1, Ctx::None) { x = clamp_01_(x - floor_(x)); }
-STAGE_GG(mirror_x_1, Ctx::None) {
+STAGE_GG(clamp_x_1 , NoCtx) { x = clamp_01_(x); }
+STAGE_GG(repeat_x_1, NoCtx) { x = clamp_01_(x - floor_(x)); }
+STAGE_GG(mirror_x_1, NoCtx) {
     auto two = [](F x){ return x+x; };
     x = clamp_01_(abs_( (x-1.0f) - two(floor_((x-1.0f)*0.5f)) - 1.0f ));
 }
@@ -4319,7 +4314,7 @@ STAGE_GP(bilerp_clamp_8888, const SkRasterPipeline_GatherCtx* ctx) {
     a = lerpY(topA, bottomA);
 }
 
-STAGE_GG(xy_to_unit_angle, Ctx::None) {
+STAGE_GG(xy_to_unit_angle, NoCtx) {
     F xabs = abs_(x),
       yabs = abs_(y);
 
@@ -4342,7 +4337,7 @@ STAGE_GG(xy_to_unit_angle, Ctx::None) {
     phi = if_then_else(phi != phi , 0              , phi);  // Check for NaN.
     x = phi;
 }
-STAGE_GG(xy_to_radius, Ctx::None) {
+STAGE_GG(xy_to_radius, NoCtx) {
     x = sqrt_(x*x + y*y);
 }
 
