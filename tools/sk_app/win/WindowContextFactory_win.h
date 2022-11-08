@@ -32,6 +32,9 @@ std::unique_ptr<WindowContext> MakeD3D12ForWin(HWND, const DisplayParams&);
 
 #ifdef SK_DAWN
 std::unique_ptr<WindowContext> MakeDawnD3D12ForWin(HWND, const DisplayParams&);
+#ifdef SK_GRAPHITE_ENABLED
+std::unique_ptr<WindowContext> MakeGraphiteDawnD3D12ForWin(HWND, const DisplayParams&);
+#endif
 #endif
 
 std::unique_ptr<WindowContext> MakeRasterForWin(HWND, const DisplayParams&);

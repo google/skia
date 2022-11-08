@@ -26,6 +26,7 @@ protected:
     bool isGpuContext() override { return true; }
     void initializeContext(int width, int height);
     wgpu::Device createDevice(wgpu::BackendType type);
+    wgpu::SwapChain createSwapChain();
     void destroyContext();
 
     virtual bool onInitializeContext() = 0;

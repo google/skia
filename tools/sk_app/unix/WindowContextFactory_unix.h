@@ -44,6 +44,11 @@ std::unique_ptr<WindowContext> MakeGLForXlib(const XlibWindowInfo&, const Displa
 std::unique_ptr<WindowContext> MakeDawnVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);
 #endif
 
+#if defined(SK_DAWN) && defined(SK_GRAPHITE_ENABLED)
+std::unique_ptr<WindowContext> MakeGraphiteDawnVulkanForXlib(const XlibWindowInfo&,
+                                                             const DisplayParams&);
+#endif
+
 std::unique_ptr<WindowContext> MakeRasterForXlib(const XlibWindowInfo&, const DisplayParams&);
 
 }  // namespace window_context_factory

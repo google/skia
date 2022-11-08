@@ -364,6 +364,12 @@ bool Window_win::attach(BackendType attachType) {
             fWindowContext =
                     window_context_factory::MakeDawnD3D12ForWin(fHWnd, fRequestedDisplayParams);
             break;
+#ifdef SK_GRAPHITE_ENABLED
+        case kGraphiteDawn_BackendType:
+            fWindowContext = window_context_factory::MakeGraphiteDawnD3D12ForWin(
+                    fHWnd, fRequestedDisplayParams);
+            break;
+#endif
 #endif
         case kRaster_BackendType:
             fWindowContext =

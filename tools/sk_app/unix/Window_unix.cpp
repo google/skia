@@ -401,6 +401,13 @@ bool Window_unix::attach(BackendType attachType) {
                     window_context_factory::MakeDawnVulkanForXlib(winInfo, fRequestedDisplayParams);
             break;
 #endif
+#if defined(SK_DAWN) && defined(SK_GRAPHITE_ENABLED)
+        case kGraphiteDawn_BackendType:
+            fWindowContext =
+                    window_context_factory::MakeGraphiteDawnVulkanForXlib(winInfo,
+                                                                          fRequestedDisplayParams);
+            break;
+#endif
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
             fWindowContext =

@@ -135,4 +135,17 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     return nullptr;
 }
 
+wgpu::SwapChain GraphiteDawnWindowContext::createSwapChain() {
+    wgpu::SwapChainDescriptor swapChainDesc;
+    swapChainDesc.usage = kTextureUsage;
+    swapChainDesc.format = fSwapChainFormat;
+    swapChainDesc.width = fWidth;
+    swapChainDesc.height = fHeight;
+    swapChainDesc.presentMode = wgpu::PresentMode::Fifo;
+    swapChainDesc.implementation = 0;
+    auto swapChain = fDevice.CreateSwapChain(fSurface, &swapChainDesc);
+    SkASSERT(swapChain);
+    return swapChain;
+}
+
 }   //namespace sk_app
