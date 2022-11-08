@@ -31,8 +31,6 @@ VK_FILES = [
     "GrVkMSAALoadManager.cpp",
     "GrVkMSAALoadManager.h",
     "GrVkManagedResource.h",
-    "GrVkMemory.cpp",
-    "GrVkMemory.h",
     "GrVkOpsRenderPass.cpp",
     "GrVkOpsRenderPass.h",
     "GrVkPipeline.cpp",

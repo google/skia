@@ -14,7 +14,6 @@
 #include "src/gpu/ganesh/GrStagingBufferManager.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
 #include "src/gpu/ganesh/vk/GrVkMSAALoadManager.h"
-#include "src/gpu/ganesh/vk/GrVkMemory.h"
 #include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
 #include "src/gpu/ganesh/vk/GrVkSemaphore.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"

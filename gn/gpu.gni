@@ -637,8 +637,6 @@ skia_vk_sources = [
   "$_src/gpu/ganesh/vk/GrVkMSAALoadManager.cpp",
   "$_src/gpu/ganesh/vk/GrVkMSAALoadManager.h",
   "$_src/gpu/ganesh/vk/GrVkManagedResource.h",
-  "$_src/gpu/ganesh/vk/GrVkMemory.cpp",
-  "$_src/gpu/ganesh/vk/GrVkMemory.h",
   "$_src/gpu/ganesh/vk/GrVkOpsRenderPass.cpp",
   "$_src/gpu/ganesh/vk/GrVkOpsRenderPass.h",
   "$_src/gpu/ganesh/vk/GrVkPipeline.cpp",
@@ -915,6 +913,8 @@ skia_shared_vk_sources = [
   "$_src/gpu/vk/VulkanExtensions.cpp",
   "$_src/gpu/vk/VulkanInterface.cpp",
   "$_src/gpu/vk/VulkanInterface.h",
+  "$_src/gpu/vk/VulkanMemory.cpp",
+  "$_src/gpu/vk/VulkanMemory.h",
   "$_src/gpu/vk/VulkanUtils.h",
 
   # Includes

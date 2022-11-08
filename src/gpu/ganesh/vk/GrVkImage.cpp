@@ -9,9 +9,9 @@
 
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkImageView.h"
-#include "src/gpu/ganesh/vk/GrVkMemory.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/gpu/vk/VulkanMemory.h"
 #include "src/gpu/vk/VulkanUtils.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
@@ -516,13 +516,37 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
         return false;
     }
 
-    GrMemoryless memoryless = imageDesc.fUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT
-                                      ? GrMemoryless::kYes
-                                      : GrMemoryless::kNo;
+    skgpu::Protected isProtected = gpu->protectedContext() ? skgpu::Protected::kYes
+                                                           : skgpu::Protected::kNo;
+    bool forceDedicatedMemory = gpu->vkCaps().shouldAlwaysUseDedicatedImageMemory();
+    bool useLazyAllocation =
+            SkToBool(imageDesc.fUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT);
+
+    auto checkResult = [gpu](VkResult result) {
+        return gpu->checkVkResult(result);
+    };
+    auto allocator = gpu->memoryAllocator();
     skgpu::VulkanAlloc alloc;
-    if (!GrVkMemory::AllocAndBindImageMemory(gpu, image, memoryless, &alloc) ||
-        (memoryless == GrMemoryless::kYes &&
+    if (!skgpu::VulkanMemory::AllocImageMemory(allocator,
+                                               image,
+                                               isProtected,
+                                               forceDedicatedMemory,
+                                               useLazyAllocation,
+                                               checkResult,
+                                               &alloc) ||
+        (useLazyAllocation &&
          !SkToBool(alloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag))) {
+        VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));
+        return false;
+    }
+
+    // Bind buffer
+    GR_VK_CALL_RESULT(gpu, result, BindImageMemory(gpu->device(),
+                                                   image,
+                                                   alloc.fMemory,
+                                                   alloc.fOffset));
+    if (result) {
+        skgpu::VulkanMemory::FreeImageMemory(allocator, alloc);
         VK_CALL(gpu, DestroyImage(gpu->device(), image, nullptr));
         return false;
     }
@@ -544,7 +568,7 @@ bool GrVkImage::InitImageInfo(GrVkGpu* gpu, const ImageDesc& imageDesc, GrVkImag
 
 void GrVkImage::DestroyImageInfo(const GrVkGpu* gpu, GrVkImageInfo* info) {
     VK_CALL(gpu, DestroyImage(gpu->device(), info->fImage, nullptr));
-    GrVkMemory::FreeImageMemory(gpu, info->fAlloc);
+    skgpu::VulkanMemory::FreeImageMemory(gpu->memoryAllocator(), info->fAlloc);
 }
 
 GrVkImage::~GrVkImage() {
@@ -602,7 +626,7 @@ void GrVkImage::setResourceRelease(sk_sp<RefCntedReleaseProc> releaseHelper) {
 void GrVkImage::Resource::freeGPUData() const {
     this->invokeReleaseProc();
     VK_CALL(fGpu, DestroyImage(fGpu->device(), fImage, nullptr));
-    GrVkMemory::FreeImageMemory(fGpu, fAlloc);
+    skgpu::VulkanMemory::FreeImageMemory(fGpu->memoryAllocator(), fAlloc);
 }
 
 void GrVkImage::BorrowedResource::freeGPUData() const {
