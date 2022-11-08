@@ -616,12 +616,12 @@ function paragraphBuilderTests(CK: CanvasKit, fontMgr?: FontMgr, paint?: Paint) 
     const mallocedWords = new Uint32Array(10);
     const mallocedGraphemes =  new Uint32Array(10);
     const mallocedLineBreaks =  new Uint32Array(10);
-    const paragraph3 = builder.buildWithClientInfo(
+    const paragraph3 = builder.buildWithClientInfo(// $ExpectType Paragraph
         mallocedBidis,
         mallocedWords,
         mallocedGraphemes,
         mallocedLineBreaks
-    ); // $ExpectType Paragraph
+    );
 }
 
 function particlesTests(CK: CanvasKit, canvas?: Canvas) {

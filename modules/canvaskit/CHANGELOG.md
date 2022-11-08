@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.37.1] - 2022-11-08
+
 ### Fixed
  - Font resolution algorithm for ellipsis in SkParagraph (skbug.com/11797)
  - GrContexts will properly target the correct WebGL context
