@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkContainers.h"
 #include "include/private/SkMalloc.h"
 #include "src/core/SkArenaAlloc.h"
 
@@ -94,13 +93,12 @@ void SkArenaAlloc::ensureSpace(uint32_t size, uint32_t alignment) {
         allocationSize = (allocationSize + mask) & ~mask;
     }
 
-    SkSpan<std::byte> newSpan = sk_allocate_throw(allocationSize);
-    char* newBlock = reinterpret_cast<char*>(newSpan.data());
+    char* newBlock = static_cast<char*>(sk_malloc_throw(allocationSize));
 
     auto previousDtor = fDtorCursor;
     fCursor = newBlock;
     fDtorCursor = newBlock;
-    fEnd = fCursor + newSpan.size_bytes();
+    fEnd = fCursor + allocationSize;
 
     // poison the unused bytes in the block.
     sk_asan_poison_memory_region(fCursor, fEnd - fCursor);
