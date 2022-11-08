@@ -278,7 +278,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest,
     int k2 = caps->getRenderTargetSampleCount(2, beFormat);
     int k4 = caps->getRenderTargetSampleCount(4, beFormat);
 
-    static const TestCase nonOverlappingTests[] = {
+    // This cannot be made static as some of the members depend on non static variables like
+    // kConditionallyShare, k2, and k4.
+    const TestCase nonOverlappingTests[] = {
         // Two non-overlapping intervals w/ compatible proxies should share
         // both same size & approx
         {{64, kRT, kRGBA, kA, 1, kNotB, kDeferred},
