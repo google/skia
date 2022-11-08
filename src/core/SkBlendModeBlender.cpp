@@ -69,20 +69,15 @@ void SkBlenderBase::addToKey(const SkKeyContext& keyContext,
                              SkPaintParamsKeyBuilder* builder,
                              SkPipelineDataGatherer* gatherer,
                              bool primitiveColorBlender) const {
-
     std::optional<SkBlendMode> bm = as_BB(this)->asBlendMode();
-    // If there is no primitive blender, do not default to any type of blending - just ignore it
-    // entirely.
-    if (primitiveColorBlender && !bm.has_value()) { return; }
-
-    if (primitiveColorBlender) {
+    if (primitiveColorBlender && bm.has_value()) {
         PrimitiveBlendModeBlock::BeginBlock(keyContext, builder, gatherer, bm.value());
-    } else if (bm.has_value()) {
-        BlendModeBlock::BeginBlock(keyContext, builder, gatherer, bm.value());
-    } else {
-        BlendModeBlock::BeginBlock(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
+        builder->endBlock();
+    } else if (!primitiveColorBlender) {
+        BlendModeBlock::BeginBlock(keyContext, builder, gatherer,
+                                   bm.value_or(SkBlendMode::kSrcOver));
+        builder->endBlock();
     }
-    builder->endBlock();
 }
 #endif
 

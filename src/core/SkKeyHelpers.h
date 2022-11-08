@@ -35,7 +35,13 @@ enum class ShaderType : uint32_t;
 }
 #endif
 
-// The KeyHelpers can be used to manually construct an SkPaintParamsKey
+/**
+ * The KeyHelpers can be used to manually construct an SkPaintParamsKey.
+ *
+ * TODO: If we restructure how the keys are made, we can utilize a single block type for the
+ * different blend blocks outlined below. The different Src/Dst pairings could instead be encoded
+ * as parent-child relationships.
+ */
 
 struct PassthroughShaderBlock {
 
@@ -177,6 +183,9 @@ struct PorterDuffBlendShaderBlock {
 };
 
 struct BlendShaderBlock {
+    /**
+     * Blend shader blocks are used to blend the output of two shaders.
+     */
     struct BlendShaderData {
         SkBlendMode fBM;
     };
@@ -217,6 +226,9 @@ struct MatrixColorFilterBlock {
 };
 
 struct BlendColorFilterBlock {
+    /**
+     * Blend color filter blocks are used to blend the output of a shader with a color uniform.
+     */
     struct BlendColorFilterData {
         BlendColorFilterData(SkBlendMode blendMode, const SkPMColor4f& srcColor)
                 : fBlendMode(blendMode)
@@ -261,6 +273,9 @@ struct GaussianColorFilterBlock {
 };
 
 struct BlendModeBlock {
+    /**
+     * Blend mode blocks are used to blend a color attachment with the output of a shader.
+     */
     static void BeginBlock(const SkKeyContext&,
                            SkPaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
@@ -268,6 +283,11 @@ struct BlendModeBlock {
 };
 
 struct PrimitiveBlendModeBlock {
+    /**
+     * Primitive blend mode blocks are used to blend a primitive color emitted by certain draw
+     * geometry calls (drawVertices, drawAtlas, etc.) with either the paint color or the output of
+     * another shader. Dst: primitiveColor Src: Paint color/shader output
+     */
     static void BeginBlock(const SkKeyContext&,
                            SkPaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,

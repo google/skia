@@ -57,10 +57,12 @@ public:
     virtual SkRuntimeEffect* asRuntimeEffect() const { return nullptr; }
 
 #ifdef SK_ENABLE_SKSL
-    // TODO: make pure virtual
-    // 'primitiveColorBlender' is true when this blender is acting to blend the primitive's color
-    // with the paint's color. When false, the blender is acting to blend the result of the paint
-    // evaluation with the back buffer.
+    /**
+     * TODO: Make pure virtual.
+     * primitiveColorBlender = true when blending the result of the paint evaluation with a
+     * primitive color (which is supplied by certain geometries). primitiveColorBlender = false when
+     * blending the result of the paint evaluation with the back buffer.
+     */
     virtual void addToKey(const SkKeyContext&,
                           SkPaintParamsKeyBuilder*,
                           SkPipelineDataGatherer*,

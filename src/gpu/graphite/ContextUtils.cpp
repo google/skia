@@ -302,7 +302,7 @@ std::string GetSkSLVS(const RenderStep* step,
     // Vertex shader body
     sksl += step->vertexSkSL();
     sksl += "sk_Position = float4(devPosition.xy * rtAdjust.xy + devPosition.ww * rtAdjust.zw,"
-            "                     devPosition.zw);";
+            "devPosition.zw);";
 
     if (defineShadingSsboIndexVarying) {
         // Assign SSBO index value to the SSBO index varying

@@ -656,16 +656,15 @@ void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
 void PrimitiveBlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
                                          SkPaintParamsKeyBuilder *builder,
                                          SkPipelineDataGatherer* gatherer,
-                                         SkBlendMode pbm) {
-
+                                         SkBlendMode bm) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
     // Unlike in the usual blendmode case, the primitive blend mode will always be implemented
     // via shader-based blending.
     if (gatherer) {
-        add_shaderbasedblender_uniform_data(dict, pbm, gatherer);
+        add_shaderbasedblender_uniform_data(dict, bm, gatherer);
     }
-    builder->beginBlock(SkBuiltInCodeSnippetID::kShaderBasedBlender);
+    builder->beginBlock(SkBuiltInCodeSnippetID::kPrimitiveColorShaderBasedBlender);
 #endif // SK_GRAPHITE_ENABLED
 }
 

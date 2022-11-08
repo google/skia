@@ -149,6 +149,11 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
     std::string lastOutputVar = "initialColor";
     mainBody += "half4 initialColor = half4(0);";
 
+    if (step->emitsPrimitiveColor()) {
+        mainBody += "half4 primitiveColor;";
+        mainBody += step->fragmentColorSkSL();
+    }
+
     for (int entryIndex = 0; entryIndex < (int)fBlockReaders.size();) {
         // Emit shader main body code. This never alters the preamble or increases the entry index.
         static constexpr char kUnusedDestColor[] = "half4(1)";
@@ -164,13 +169,6 @@ std::string SkShaderInfo::toSkSL(const skgpu::graphite::RenderStep* step,
         emit_preamble_for_entry(*this, &entryIndex, &preamble);
     }
 
-    if (step->emitsPrimitiveColor()) {
-        mainBody += "half4 primitiveColor;";
-        mainBody += step->fragmentColorSkSL();
-        // TODO: Apply primitive blender
-        // For now, just overwrite the prior color stored in lastOutputVar
-        SkSL::String::appendf(&mainBody, "%s = primitiveColor;", lastOutputVar.c_str());
-    }
     if (step->emitsCoverage()) {
         mainBody += "half4 outputCoverage;";
         mainBody += step->fragmentCoverageSkSL();
@@ -893,18 +891,23 @@ std::string GenerateShaderBasedBlenderExpression(const SkShaderInfo& shaderInfo,
                                                  const SkPaintParamsKey::BlockReader& reader,
                                                  const SkShaderSnippet::Args& args) {
 #if defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
+    const bool usePrimitiveColorAsDst = reader.entry()->needsDestColor();
+
     SkASSERT(reader.entry()->fUniforms.size() == 1);
     SkASSERT(reader.numDataPayloadFields() == 0);
 
     std::string uniformName = reader.entry()->getMangledUniformName(shaderInfo, 0, entryIndex);
 
-    // TODO: emit function to perform dest read into preamble, and replace half(1) with that call
+    // TODO: emit function to perform dest read into preamble, and replace half4(1) with that call
     // (The `args.destColor` variable might seem tempting here, but this is used for programmatic
     // src+dest blends within the shader, not for blends against the destination surface.)
-    return SkSL::String::printf("%s(%s, %.*s, half4(1))",
+    const char * destColor = usePrimitiveColorAsDst ? "primitiveColor" : "half4(1)";
+
+    return SkSL::String::printf("%s(%s, %.*s, %s)",
                                 reader.entry()->fStaticFunctionName,
                                 uniformName.c_str(),
-                                (int)args.fPriorStageOutput.size(), args.fPriorStageOutput.data());
+                                (int)args.fPriorStageOutput.size(), args.fPriorStageOutput.data(),
+                                destColor);
 #else
     return std::string(args.fPriorStageOutput);
 #endif  // defined(SK_GRAPHITE_ENABLED) && defined(SK_ENABLE_SKSL)
@@ -1366,6 +1369,17 @@ SkShaderCodeDictionary::SkShaderCodeDictionary() {
             "ShaderBasedBlender",
             SkSpan(kShaderBasedBlenderUniforms),
             SnippetRequirementFlags::kNone,
+            { },     // no samplers
+            kBlendHelperName,
+            GenerateShaderBasedBlenderExpression,
+            GenerateDefaultPreamble,
+            kNoChildren,
+            { }      // no data payload
+    };
+    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kPrimitiveColorShaderBasedBlender] = {
+            "PrimitiveColorShaderBasedBlender",
+            SkSpan(kShaderBasedBlenderUniforms),
+            SnippetRequirementFlags::kDestColor,
             { },     // no samplers
             kBlendHelperName,
             GenerateShaderBasedBlenderExpression,
