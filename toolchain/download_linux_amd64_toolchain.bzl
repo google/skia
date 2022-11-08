@@ -25,19 +25,25 @@ debs_to_install = [
     # (libm), etc. linux-libc-dev has the header files specific to linux. libc6-dev has the libc
     # system headers (e.g. malloc.h, math.h).
     {
-        # From https://packages.debian.org/bullseye/amd64/libc6/download
-        "sha256": "a6263062b476cee1052972621d473b159debec6e424f661eda88248b00331d79",
-        "url": "https://ftp.debian.org/debian/pool/main/g/glibc/libc6_2.31-13+deb11u4_amd64.deb",
+        # We use this old version of glibc because as of Nov 2022, many of our Swarming machines
+        # are still on Debian 10. While many of the Bazel tasks can be run in RBE, using a newer
+        # Debian 11 image (see //bazel/rbe/gce_linux_container/Dockerfile) some tasks need to be
+        # run on these host machines using Debian 10. As a result, we need to compile and link
+        # against a version of glibc that can be run on Debian 10 until we update those Swarming
+        # hosts.
+        # From https://packages.debian.org/buster/amd64/libc6/download
+        "sha256": "980066e3e6124b8d84cdfd4cfa96d78a97cd659f8f3ba995bbcb887dad9ac237",
+        "url": "https://security.debian.org/debian-security/pool/updates/main/g/glibc/libc6_2.28-10+deb10u2_amd64.deb",
     },
     {
-        # From https://packages.debian.org/bullseye/amd64/linux-libc-dev/download
-        "sha256": "e89023a5fc58c30ebb8cbb82de77f872baeafe7a5449f574b03cea478f7e9e6d",
-        "url": "https://ftp.debian.org/debian/pool/main/l/linux/linux-libc-dev_5.10.140-1_amd64.deb",
+        # From https://packages.debian.org/buster/amd64/linux-libc-dev/download
+        "sha256": "e724656440d71d6316772fe58d7a8ac9634a0060a94af4e3b50e4f0a9e5a75e0",
+        "url": "https://security.debian.org/debian-security/pool/updates/main/l/linux/linux-libc-dev_4.19.260-1_amd64.deb",
     },
     {
-        # From https://packages.debian.org/bullseye/amd64/libc6-dev/download
-        "sha256": "5f368eb89d102ccd23529a02fb17aaa1c15e7612506e22ef0c559b71f5049a91",
-        "url": "https://ftp.debian.org/debian/pool/main/g/glibc/libc6-dev_2.31-13+deb11u4_amd64.deb",
+        # From https://packages.debian.org/buster/amd64/libc6-dev/download
+        "sha256": "6c11087f5bdc6a2a59fc6424e003dddede53fb97888ade2e35738448fa30a159",
+        "url": "https://security.debian.org/debian-security/pool/updates/main/g/glibc/libc6-dev_2.28-10+deb10u2_amd64.deb",
     },
     # These two put the X11 include files in ${PWD}/usr/include/X11
     # libx11-dev puts libX11.a in ${PWD}/usr/lib/x86_64-linux-gnu
