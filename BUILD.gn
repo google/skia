@@ -1215,6 +1215,10 @@ optional("graphite") {
   if (skia_use_vulkan) {
     sources += skia_graphite_vk_sources
   }
+  if (skia_enable_precompile) {
+    public += skia_graphite_precompile_public
+    sources += skia_graphite_precompile_sources
+  }
 }
 
 optional("pdf") {
@@ -1460,11 +1464,6 @@ skia_component("skia") {
       defines += [ "SKSL_ENABLE_TRACING" ]
       sources += skia_sksl_tracing_sources
     }
-  }
-
-  if (skia_enable_precompile) {
-    public += skia_precompile_public
-    sources += skia_precompile_sources
   }
 
   if (skia_build_for_debugger) {

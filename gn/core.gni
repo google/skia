@@ -629,15 +629,6 @@ skia_pathops_sources = [
   "$_src/pathops/SkReduceOrder.h",
 ]
 
-skia_precompile_public = [ "$_include/gpu/graphite/CombinationBuilder.h" ]
-
-skia_precompile_sources = [
-  "$_src/gpu/graphite/CombinationBuilder.cpp",
-  "$_src/gpu/graphite/FactoryFunctions.cpp",
-  "$_src/gpu/graphite/FactoryFunctions.h",
-  "$_src/gpu/graphite/Precompile.h",
-]
-
 skia_skpicture_public = [
   "$_include/core/SkPicture.h",
   "$_include/core/SkPictureRecorder.h",
