@@ -1551,6 +1551,12 @@ STAGE(store_src, float* ptr) {
     sk_unaligned_store(ptr + 2*N, b);
     sk_unaligned_store(ptr + 3*N, a);
 }
+// store registers r,g into context
+STAGE(store_src_rg, float* ptr) {
+    sk_unaligned_store(ptr + 0*N, r);
+    sk_unaligned_store(ptr + 1*N, g);
+}
+// store register a into context
 STAGE(store_src_a, float* ptr) {
     sk_unaligned_store(ptr, a);
 }

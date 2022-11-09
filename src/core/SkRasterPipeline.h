@@ -118,7 +118,9 @@ struct skcms_TransferFunction;
     M(alter_2pt_conical_compensate_focal)                          \
     M(alter_2pt_conical_unswap)                                    \
     M(mask_2pt_conical_nan)                                        \
-    M(mask_2pt_conical_degenerates) M(apply_vector_mask)
+    M(mask_2pt_conical_degenerates) M(apply_vector_mask)           \
+    /* Dedicated SkSL stages begin here: */                        \
+    M(store_src_rg)
 
 // The combined list of all stages:
 #define SK_RASTER_PIPELINE_STAGES_ALL(M) \
