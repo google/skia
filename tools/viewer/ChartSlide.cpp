@@ -10,7 +10,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/Slide.h"
 
 // Generates y values for the chart plots.
 static void gen_data(SkScalar yAvg, SkScalar ySpread, int count, SkTDArray<SkScalar>* dataPts) {
@@ -79,7 +79,7 @@ static void gen_paths(const SkTDArray<SkScalar>& topData,
 
 // A set of scrolling line plots with the area between each plot filled. Stresses out GPU path
 // filling
-class ChartView : public Sample {
+class ChartSlide : public Slide {
     inline static constexpr int kNumGraphs = 5;
     inline static constexpr int kPixelsPerTick = 3;
     inline static constexpr int kShiftPerFrame = 1;
@@ -87,9 +87,10 @@ class ChartView : public Sample {
     SkISize             fSize = {-1, -1};
     SkTDArray<SkScalar> fData[kNumGraphs];
 
-    SkString name() override { return SkString("Chart"); }
+public:
+    ChartSlide() { fName = "Chart"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         bool sizeChanged = false;
         if (canvas->getBaseLayerSize() != fSize) {
             fSize = canvas->getBaseLayerSize();
@@ -158,4 +159,4 @@ class ChartView : public Sample {
     }
 };
 
-DEF_SAMPLE( return new ChartView(); )
+DEF_SLIDE( return new ChartSlide(); )

@@ -12,8 +12,8 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkVertices.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
 #include "tools/Resources.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 struct VSphere {
     SkV2     fCenter;
@@ -81,7 +81,7 @@ static SkM44 normals(SkM44 m) {
     return m.transpose();
 }
 
-class Sample3DView : public Sample {
+class ThreeDSlide : public ClickHandlerSlide {
 protected:
     float   fNear = 0.05f;
     float   fFar = 4;
@@ -230,7 +230,7 @@ public:
     bool isAnimating() const { return fAngleSpeed != 0; }
 };
 
-class SampleCubeBase : public Sample3DView {
+class CubeBaseSlide : public ThreeDSlide {
     enum {
         DX = 400,
         DY = 300
@@ -252,7 +252,7 @@ protected:
     Flags   fFlags;
 
 public:
-    SampleCubeBase(Flags flags)
+    CubeBaseSlide(Flags flags)
         : fSphere({200 + DX, 200 + DY}, 400)
         , fFlags(flags)
     {}
@@ -262,12 +262,12 @@ public:
             case 'Z': fLight.fDistance += 10; return true;
             case 'z': fLight.fDistance -= 10; return true;
         }
-        return this->Sample3DView::onChar(uni);
+        return this->ThreeDSlide::onChar(uni);
     }
 
     virtual void drawFace(SkCanvas*, SkColor, int face, bool front, const SkM44& localToWorld) = 0;
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         if (!canvas->recordingContext() && !(fFlags & kCanRunOnCPU)) {
             return;
         }
@@ -349,25 +349,20 @@ public:
         return true;
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         return fRotateAnimator.isAnimating();
     }
-
-private:
-    using INHERITED = Sample3DView;
 };
 
-class SampleBump3D : public SampleCubeBase {
+class Bump3DSlide : public CubeBaseSlide {
     sk_sp<SkShader>        fBmpShader, fImgShader;
     sk_sp<SkRuntimeEffect> fEffect;
     SkRRect                fRR;
 
 public:
-    SampleBump3D() : SampleCubeBase(Flags(kCanRunOnCPU | kShowLightDome)) {}
+    Bump3DSlide() : CubeBaseSlide(Flags(kCanRunOnCPU | kShowLightDome)) { fName = "bump3d"; }
 
-    SkString name() override { return SkString("bump3d"); }
-
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         fRR = SkRRect::MakeRectXY({20, 20, 380, 380}, 50, 50);
         auto img = GetResourceAsImage("images/brickwork-texture.jpg");
         fImgShader = img->makeShader(SkSamplingOptions(), SkMatrix::Scale(2, 2));
@@ -430,19 +425,17 @@ public:
         canvas->drawRRect(fRR, paint);
     }
 };
-DEF_SAMPLE( return new SampleBump3D; )
+DEF_SLIDE( return new Bump3DSlide; )
 
 #include "modules/skottie/include/Skottie.h"
 
-class SampleSkottieCube : public SampleCubeBase {
+class SkottieCubeSlide : public CubeBaseSlide {
     sk_sp<skottie::Animation> fAnim[6];
 
 public:
-    SampleSkottieCube() : SampleCubeBase(kCanRunOnCPU) {}
+    SkottieCubeSlide() : CubeBaseSlide(kCanRunOnCPU) { fName = "skottie3d"; }
 
-    SkString name() override { return SkString("skottie3d"); }
-
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         const char* files[] = {
             "skottie/skottie-chained-mattes.json",
             "skottie/skottie-gradient-ramp.json",
@@ -471,7 +464,7 @@ public:
         fAnim[face]->render(canvas, &r);
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         for (auto& anim : fAnim) {
             SkScalar dur = anim->duration();
             SkScalar t = fmod(1e-9 * nanos, dur) / dur;
@@ -480,4 +473,4 @@ public:
         return true;
     }
 };
-DEF_SAMPLE( return new SampleSkottieCube; )
+DEF_SLIDE( return new SkottieCubeSlide; )

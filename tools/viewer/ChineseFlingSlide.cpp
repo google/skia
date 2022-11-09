@@ -5,16 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "samplecode/Sample.h"
-#include "tools/Resources.h"
-#include "tools/ToolUtils.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkRandom.h"
+#include "tools/Resources.h"
+#include "tools/ToolUtils.h"
+#include "tools/viewer/Slide.h"
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
@@ -39,7 +38,7 @@ static sk_sp<SkTypeface> chinese_typeface() {
 #endif
 }
 
-class ChineseFlingView : public Sample {
+class ChineseFlingSlide : public Slide {
     inline static constexpr int kNumBlobs = 200;
     inline static constexpr int kWordLength = 16;
 
@@ -49,9 +48,10 @@ class ChineseFlingView : public Sample {
     SkRandom             fRand;
     int                  fIndex = 0;
 
-    SkString name() override { return SkString("chinese-fling"); }
+public:
+    ChineseFlingSlide() { fName = "chinese-fling"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->clear(0xFFDDDDDD);
 
         SkPaint paint;
@@ -73,7 +73,7 @@ class ChineseFlingView : public Sample {
         fIndex %= kNumBlobs;
     }
 
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         fTypeface = chinese_typeface();
 
         SkFont font(fTypeface, 56);
@@ -104,7 +104,7 @@ class ChineseFlingView : public Sample {
     }
 };
 
-class ChineseZoomView : public Sample {
+class ChineseZoomSlide : public Slide {
     inline static constexpr int kNumBlobs = 8;
     inline static constexpr int kParagraphLength = 175;
 
@@ -116,7 +116,8 @@ class ChineseZoomView : public Sample {
     SkScalar             fScale = 15;
     SkScalar             fTranslate = 0;
 
-    SkString name() override { return SkString("chinese-zoom"); }
+public:
+    ChineseZoomSlide() { fName = "chinese-zoom"; }
 
     bool onChar(SkUnichar uni) override {
             if ('>' == uni) {
@@ -130,7 +131,7 @@ class ChineseZoomView : public Sample {
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->clear(0xFFDDDDDD);
 
         SkPaint paint;
@@ -179,7 +180,7 @@ class ChineseZoomView : public Sample {
         }
     }
 
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         fTypeface = chinese_typeface();
 
         SkFont font(fTypeface, 11);
@@ -221,5 +222,5 @@ class ChineseZoomView : public Sample {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new ChineseFlingView(); )
-DEF_SAMPLE( return new ChineseZoomView(); )
+DEF_SLIDE( return new ChineseFlingSlide(); )
+DEF_SLIDE( return new ChineseZoomSlide(); )

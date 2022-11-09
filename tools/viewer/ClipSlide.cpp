@@ -12,9 +12,10 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkPathPriv.h"
 #include "tools/Resources.h"
+#include "tools/viewer/ClickHandlerSlide.h"
+#include "tools/viewer/Slide.h"
 
 constexpr int W = 150;
 constexpr int H = 200;
@@ -98,10 +99,11 @@ static void show_thick(SkCanvas* canvas, bool doAA) {
 
 typedef void (*CanvasProc)(SkCanvas*, bool);
 
-class ClipView : public Sample {
-    SkString name() override { return SkString("Clip"); }
+class ClipSlide : public Slide {
+public:
+    ClipSlide() { fName = "Clip"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
 
@@ -131,7 +133,7 @@ class ClipView : public Sample {
     }
 };
 
-DEF_SAMPLE( return new ClipView(); )
+DEF_SLIDE( return new ClipSlide(); )
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -296,19 +298,20 @@ static SkPath make_path() {
     return path.detach();
 }
 
-class HalfPlaneView : public Sample {
+class HalfPlaneSlide : public ClickHandlerSlide {
     SkPoint fPts[2];
     SkPath fPath;
 
-    SkString name() override { return SkString("halfplane"); }
+public:
+    HalfPlaneSlide() { fName = "halfplane"; }
 
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         fPts[0] = {0, 0};
         fPts[1] = {3, 2};
         fPath = make_path();
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkPaint paint;
 
         paint.setColor({0.5f, 0.5f, 0.5f, 1.0f}, nullptr);
@@ -331,7 +334,7 @@ class HalfPlaneView : public Sample {
         return true;
     }
 };
-DEF_SAMPLE( return new HalfPlaneView(); )
+DEF_SLIDE( return new HalfPlaneSlide(); )
 
 static void draw_halfplane(SkCanvas* canvas, const SkHalfPlane& p, SkColor c) {
     SkPoint pts[2];
@@ -351,19 +354,20 @@ static void compute_half_planes(const SkMatrix& mx, SkScalar width, SkScalar hei
     planes[3] = { 2*d/height,       2*e/height,       2*f/height };
 }
 
-class HalfPlaneView2 : public Sample {
+class HalfPlaneSlide2 : public ClickHandlerSlide {
     SkPoint fPts[4];
     SkPath fPath;
 
-    SkString name() override { return SkString("halfplane2"); }
+public:
+    HalfPlaneSlide2() { fName = "halfplane2"; }
 
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         fPath = make_path();
         SkRect r = fPath.getBounds();
         r.toQuad(fPts);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkMatrix mx;
         {
             SkRect r = fPath.getBounds();
@@ -415,7 +419,7 @@ class HalfPlaneView2 : public Sample {
         return true;
     }
 };
-DEF_SAMPLE( return new HalfPlaneView2(); )
+DEF_SLIDE( return new HalfPlaneSlide2(); )
 
 static SkM44 inv(const SkM44& m) {
     SkM44 inverse;
@@ -427,7 +431,7 @@ static SkHalfPlane half_plane_w0(const SkMatrix& m) {
     return { m[SkMatrix::kMPersp0], m[SkMatrix::kMPersp1], m[SkMatrix::kMPersp2] - 0.05f };
 }
 
-class SampleCameraView : public Sample {
+class SampleCameraSlide : public ClickHandlerSlide {
     float   fNear = 0.05f;
     float   fFar = 4;
     float   fAngle = SK_ScalarPI / 4;
@@ -488,14 +492,15 @@ public:
     }
 };
 
-class HalfPlaneView3 : public SampleCameraView {
+class HalfPlaneSlide3 : public SampleCameraSlide {
     SkPath fPath;
     sk_sp<SkShader> fShader;
     bool fShowUnclipped = false;
 
-    SkString name() override { return SkString("halfplane3"); }
+public:
+    HalfPlaneSlide3() { fName = "halfplane3"; }
 
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         fPath = make_path();
         fShader = GetResourceAsImage("images/mandrill_128.png")
                         ->makeShader(SkSamplingOptions(), SkMatrix::Scale(3, 3));
@@ -506,10 +511,10 @@ class HalfPlaneView3 : public SampleCameraView {
             case 'u': fShowUnclipped = !fShowUnclipped; return true;
             default: break;
         }
-        return this->SampleCameraView::onChar(uni);
+        return this->SampleCameraSlide::onChar(uni);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkM44 mx = this->get44({0, 0, 400, 400});
 
         SkPaint paint;
@@ -542,10 +547,16 @@ class HalfPlaneView3 : public SampleCameraView {
         SkHalfPlane hpw = half_plane_w0(mx.asM33());
         draw_halfplane(canvas, hpw, planeColor);
     }
-};
-DEF_SAMPLE( return new HalfPlaneView3(); )
 
-class HalfPlaneCoons : public SampleCameraView {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+        return nullptr;
+    }
+    bool onClick(Click* click) override { return false; }
+};
+DEF_SLIDE( return new HalfPlaneSlide3(); )
+
+class HalfPlaneCoonsSlide : public SampleCameraSlide {
     SkPoint fPatch[12];
     SkColor fColors[4] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK };
     SkPoint fTex[4]    = {{0, 0}, {256, 0}, {256, 256}, {0, 256}};
@@ -555,9 +566,10 @@ class HalfPlaneCoons : public SampleCameraView {
     bool fShowSkeleton = false;
     bool fShowTex = false;
 
-    SkString name() override { return SkString("halfplane-coons"); }
+public:
+    HalfPlaneCoonsSlide() { fName = "halfplane-coons"; }
 
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         fPatch[0] = {   0, 0 };
         fPatch[1] = { 100, 0 };
         fPatch[2] = { 200, 0 };
@@ -574,7 +586,7 @@ class HalfPlaneCoons : public SampleCameraView {
         fShader = GetResourceAsImage("images/mandrill_256.png")->makeShader(SkSamplingOptions());
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkPaint paint;
 
         canvas->save();
@@ -606,6 +618,17 @@ class HalfPlaneCoons : public SampleCameraView {
         canvas->restore();
     }
 
+    bool onChar(SkUnichar uni) override {
+        switch (uni) {
+            case 'h': fShowHandles = !fShowHandles; return true;
+            case 'k': fShowSkeleton = !fShowSkeleton; return true;
+            case 't': fShowTex = !fShowTex; return true;
+            default: break;
+        }
+        return this->SampleCameraSlide::onChar(uni);
+    }
+
+protected:
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         auto dist = [](SkPoint a, SkPoint b) { return (b - a).length(); };
 
@@ -621,15 +644,6 @@ class HalfPlaneCoons : public SampleCameraView {
         return nullptr;
     }
 
-    bool onChar(SkUnichar uni) override {
-        switch (uni) {
-            case 'h': fShowHandles = !fShowHandles; return true;
-            case 'k': fShowSkeleton = !fShowSkeleton; return true;
-            case 't': fShowTex = !fShowTex; return true;
-            default: break;
-        }
-        return this->SampleCameraView::onChar(uni);
-    }
-
+    bool onClick(Click* click) override { return false; }
 };
-DEF_SAMPLE( return new HalfPlaneCoons(); )
+DEF_SLIDE( return new HalfPlaneCoonsSlide(); )

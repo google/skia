@@ -11,22 +11,25 @@
 #include "include/core/SkString.h"
 #include "include/utils/SkCamera.h"
 #include "samplecode/DecodeFile.h"
-#include "samplecode/Sample.h"
 #include "src/effects/SkEmbossMaskFilter.h"
 #include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"
+#include "tools/viewer/Slide.h"
 
 namespace {
-class CameraView : public Sample {
+class CameraSlide : public Slide {
     SkTArray<sk_sp<SkShader>> fShaders;
     int fShaderIndex = 0;
     bool fFrontFace = false;
     SkScalar fRX = 0;
     SkScalar fRY = 0;
+    SkSize fSize;
 
-    SkString name() override { return SkString("Camera"); }
+public:
+    CameraSlide() { fName = "Camera"; }
 
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
+        fSize = {w, h};
         for (const char* resource : {
             "images/mandrill_512_q075.jpg",
             "images/dog.jpg",
@@ -40,12 +43,12 @@ class CameraView : public Sample {
                                                  SkMatrix::RectToRect(src, dst)));
             }
         }
-        this->setBGColor(0xFFDDDDDD);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(0xFFDDDDDD);
         if (fShaders.count() > 0) {
-            canvas->translate(this->width()/2, this->height()/2);
+            canvas->translate(fSize.width()/2, fSize.height()/2);
 
             Sk3DView    view;
             view.rotateX(fRX);
@@ -66,10 +69,12 @@ class CameraView : public Sample {
         }
     }
 
-    bool onAnimate(double nanos) override {
+    void resize(SkScalar w, SkScalar h) override { fSize = {w, h}; }
+
+    bool animate(double nanos) override {
         fRY = nanos ? TimeUtils::Scaled(1e-9 * nanos, 90, 360) : 0;
         return true;
     }
 };
 }  // namespace
-DEF_SAMPLE( return new CameraView(); )
+DEF_SLIDE( return new CameraSlide(); )

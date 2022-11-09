@@ -8,21 +8,18 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "modules/audioplayer/SkAudioPlayer.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkUtils.h"
 #include "tools/Resources.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
-class AudioView : public Sample {
+class AudioSlide : public ClickHandlerSlide {
     std::unique_ptr<SkAudioPlayer> fPlayer;
     SkRect                         fBar;
 
 public:
-    AudioView() {}
+    AudioSlide() { fName = "Audio"; }
 
-protected:
-    SkString name() override { return SkString("Audio"); }
-
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         auto data = SkData::MakeFromFileName("/Users/reed/skia/mp3/scott-joplin-peacherine-rag.mp3");
         if (data) {
             fPlayer = SkAudioPlayer::Make(data);
@@ -36,7 +33,7 @@ protected:
         fBar = { 10, 10, 510, 30 };
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         if (!fPlayer) {
             return;
         }
@@ -60,7 +57,7 @@ protected:
             }
             return true;
         }
-        return this->INHERITED::onChar(c);
+        return this->ClickHandlerSlide::onChar(c);
     }
 
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
@@ -85,11 +82,12 @@ protected:
         return nullptr;
     }
 
-    bool onAnimate(double /*nanos*/) override {
+    bool onClick(ClickHandlerSlide::Click*) override { return false; }
+
+    bool animate(double /*nanos*/) override {
         return true;
     }
 
-private:
-    using INHERITED = Sample;
 };
-DEF_SAMPLE( return new AudioView; )
+
+DEF_SLIDE( return new AudioSlide; )

@@ -9,9 +9,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPath.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
 #include "tools/timer/TimeUtils.h"
+#include "tools/viewer/Slide.h"
 
 // This draws an animation where every cubic has a cusp, to test drawing a circle
 // at the cusp point. Create a unit square. A cubic with its control points
@@ -99,13 +99,11 @@ struct data {
 
 size_t datCount = std::size(dat);
 
-class CuspView : public Sample {
+class CuspSlide : public Slide {
 public:
-    CuspView() {}
-protected:
-    SkString name() override { return SkString("Cusp"); }
+    CuspSlide() { fName = "Cusp"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkPaint p;
         p.setAntiAlias(true);
         p.setStyle(SkPaint::kStroke_Style);
@@ -166,17 +164,13 @@ protected:
         canvas->drawSimpleText(timeStr.c_str(), timeStr.size(), SkTextEncoding::kUTF8, 20, 20, SkFont(), SkPaint());
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         curTime = TimeUtils::NanosToMSec(nanos);
         if (!start) {
             start = curTime;
         }
         return true;
     }
-
-private:
-
-    using INHERITED = Sample;
 };
 
-DEF_SAMPLE( return new CuspView(); )
+DEF_SLIDE( return new CuspSlide(); )

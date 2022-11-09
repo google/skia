@@ -14,14 +14,14 @@
 #include "include/core/SkStream.h"
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGNode.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "src/xml/SkDOM.h"
 #include "tools/Resources.h"
+#include "tools/viewer/Slide.h"
 
 namespace {
-class AnimatedSVGSample : public Sample {
+class AnimatedSVGSlide : public Slide {
     inline static constexpr auto kAnimationIterations = 5;
     enum State {
         kZoomIn,
@@ -30,16 +30,14 @@ class AnimatedSVGSample : public Sample {
     };
     sk_sp<SkSVGDOM> fDom;
     const char*     fResource = nullptr;
-    const char*     fName = nullptr;
     State           fState = kZoomIn;
     int             fAnimationLoop = kAnimationIterations;
     SkScalar        fDelta = 1;
 
 public:
-    AnimatedSVGSample(const char* r, const char* n) : fResource(r), fName(n) {}
+    AnimatedSVGSlide(const char* r, const char* n) : fResource(r) { fName = n; }
 
-private:
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         SkASSERT(fResource);
         auto data = GetResourceAsData(fResource);
         if (!data) {
@@ -50,11 +48,11 @@ private:
 
         fDom = SkSVGDOM::MakeFromStream(svgStream);
         if (fDom) {
-            fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
+            fDom->setContainerSize(SkSize::Make(w, h));
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         if (fDom) {
             canvas->setMatrix(SkMatrix::Scale(3, 3));
             canvas->clipRect(SkRect::MakeLTRB(0, 0, 400, 400));
@@ -82,15 +80,13 @@ private:
         }
     }
 
-    void onSizeChange() override {
+    void resize(SkScalar w, SkScalar h) override {
         if (fDom) {
-            fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
+            fDom->setContainerSize(SkSize::Make(w, h));
         }
     }
 
-    SkString name() override { return SkASSERT(fName), SkString(fName); }
-
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         if (!fDom) {
             return false;
         }
@@ -118,6 +114,6 @@ private:
 };
 } // namespace
 
-DEF_SAMPLE( return new AnimatedSVGSample("Cowboy.svg", "SampleCowboy"); )
+DEF_SLIDE( return new AnimatedSVGSlide("Cowboy.svg", "SampleCowboy"); )
 
 #endif  // defined(SK_ENABLE_SVG)

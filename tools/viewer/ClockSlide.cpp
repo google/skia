@@ -4,23 +4,23 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "samplecode/Sample.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkTime.h"
 #include "include/utils/SkRandom.h"
+#include "tools/viewer/Slide.h"
 
 // Implementation in C++ of Mozilla Canvas2D benchmark Canvas Clock Test
 // See https://code.google.com/p/skia/issues/detail?id=1626
 
 #define USE_PATH 1
 
-class ClockView : public Sample {
-    SkString name() override { return SkString("Clock"); }
+class ClockSlide : public Slide {
+public:
+    ClockSlide() { fName = "Clock"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkPaint paintFill;
         SkPaint paintStroke;
         SkPath  path;
@@ -206,7 +206,7 @@ class ClockView : public Sample {
         canvas->restore();
     }
 
-    bool onAnimate(double /*nanos*/) override { return true; }
+    bool animate(double /*nanos*/) override { return true; }
 };
 
-DEF_SAMPLE( return new ClockView(); )
+DEF_SLIDE( return new ClockSlide(); )

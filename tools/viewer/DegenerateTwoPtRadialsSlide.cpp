@@ -9,7 +9,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkGradientShader.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/Slide.h"
 
 static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta) {
     SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorMAGENTA };
@@ -34,17 +34,12 @@ static void draw_gradient2(SkCanvas* canvas, const SkRect& rect, SkScalar delta)
 }
 
 
-class DegenerateTwoPtRadialsView : public Sample {
+class DegenerateTwoPtRadialsSlide : public Slide {
 public:
-    DegenerateTwoPtRadialsView() {
-        fTime = 0;
-        this->setBGColor(0xFFDDDDDD);
-    }
+    DegenerateTwoPtRadialsSlide() { fName = "DegenerateTwoPtRadials"; }
 
-protected:
-    SkString name() override { return SkString("DegenerateTwoPtRadials"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(0xFFDDDDDD);
         SkScalar delta = fTime / 15.f;
         int intPart = SkScalarFloorToInt(delta);
         delta = delta - SK_Scalar1 * intPart;
@@ -66,16 +61,15 @@ protected:
                            SkFont(), SkPaint());
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         fTime = SkDoubleToScalar(1e-9 * nanos / 15);
         return true;
     }
 
 private:
     SkScalar           fTime;
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new DegenerateTwoPtRadialsView(); )
+DEF_SLIDE( return new DegenerateTwoPtRadialsSlide(); )

@@ -2914,6 +2914,7 @@ if (skia_enable_tools) {
     test_app("viewer") {
       is_shared_library = is_android
       sources = [
+        "tools/viewer/3DSlide.cpp",
         "tools/viewer/AndroidShadowsSlide.cpp",
         "tools/viewer/AnimBlurSlide.cpp",
         "tools/viewer/AnimTimer.h",
@@ -2921,10 +2922,19 @@ if (skia_enable_tools) {
         "tools/viewer/AnimatedTextSlide.cpp",
         "tools/viewer/ArcSlide.cpp",
         "tools/viewer/AtlasSlide.cpp",
+        "tools/viewer/AudioSlide.cpp",
         "tools/viewer/BisectSlide.cpp",
         "tools/viewer/BisectSlide.h",
+        "tools/viewer/CameraSlide.cpp",
+        "tools/viewer/ChartSlide.cpp",
+        "tools/viewer/ChineseFlingSlide.cpp",
         "tools/viewer/ClickHandlerSlide.cpp",
         "tools/viewer/ClickHandlerSlide.h",
+        "tools/viewer/ClipSlide.cpp",
+        "tools/viewer/ClockSlide.cpp",
+        "tools/viewer/CowboySlide.cpp",
+        "tools/viewer/CuspSlide.cpp",
+        "tools/viewer/DegenerateTwoPtRadialsSlide.cpp",
         "tools/viewer/FatBitsSlide.cpp",
         "tools/viewer/GMSlide.cpp",
         "tools/viewer/GMSlide.h",
