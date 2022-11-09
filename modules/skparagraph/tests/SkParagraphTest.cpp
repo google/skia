@@ -2684,7 +2684,7 @@ UNIX_ONLY_TEST(SkParagraph_ArabicRectsLTRLeftAlignParagraph, reporter) {
     REPORTER_ASSERT(reporter, boxes.size() == 2ull);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 83.92f, EPSILON100));  // DIFF: 89.40625
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.27f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 110.16f, EPSILON100)); // DIFF: 121.87891
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 105.16f, EPSILON100)); // DIFF: 121.87891
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
 }
 
@@ -2732,7 +2732,7 @@ UNIX_ONLY_TEST(SkParagraph_ArabicRectsLTRRightAlignParagraph, reporter) {
     REPORTER_ASSERT(reporter, boxes.size() == 2ull); // DIFF
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.left(), 561.5f, EPSILON100));         // DIFF
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.top(), -0.27f, EPSILON100));
-    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 587.74f, EPSILON100));       // DIFF
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.right(), 582.74f, EPSILON100));       // DIFF
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(boxes[0].rect.bottom(), 44, EPSILON100));
 }
 

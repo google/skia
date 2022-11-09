@@ -415,7 +415,9 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
             continue;
         }
         bool soFarWhitespacesOnly = true;
-        run.iterateThroughClusters([this, &run, &shift, &soFarWhitespacesOnly](Cluster* cluster) {
+        bool wordSpacingPending = false;
+        Cluster* lastSpaceCluster = nullptr;
+        run.iterateThroughClusters([this, &run, &shift, &soFarWhitespacesOnly, &wordSpacingPending, &lastSpaceCluster](Cluster* cluster) {
             // Shift the cluster (shift collected from the previous clusters)
             run.shift(cluster, shift);
 
@@ -432,8 +434,15 @@ void ParagraphImpl::applySpacingAndBuildClusterTable() {
             if (currentStyle->fStyle.getWordSpacing() != 0) {
                 if (cluster->isWhitespaceBreak() && cluster->isSoftBreak()) {
                     if (!soFarWhitespacesOnly) {
-                        shift += run.addSpacesAtTheEnd(currentStyle->fStyle.getWordSpacing(), cluster);
+                        lastSpaceCluster = cluster;
+                        wordSpacingPending = true;
                     }
+                } else if (wordSpacingPending) {
+                    SkScalar spacing = currentStyle->fStyle.getWordSpacing();
+                    run.addSpacesAtTheEnd(spacing, lastSpaceCluster);
+                    run.shift(cluster, spacing);
+                    shift += spacing;
+                    wordSpacingPending = false;
                 }
             }
             // Process letter spacing

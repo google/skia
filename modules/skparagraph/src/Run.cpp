@@ -139,18 +139,11 @@ void Run::iterateThroughClusters(const ClusterVisitor& visitor) {
     }
 }
 
-SkScalar Run::addSpacesAtTheEnd(SkScalar space, Cluster* cluster) {
-    if (cluster->endPos() == cluster->startPos()) {
-        return 0;
-    }
-
-    fPositions[cluster->endPos() - 1].fX += space;
+void Run::addSpacesAtTheEnd(SkScalar space, Cluster* cluster) {
     // Increment the run width
     fAdvance.fX += space;
     // Increment the cluster width
-    cluster->space(space, space);
-
-    return space;
+    cluster->space(space);
 }
 
 SkScalar Run::addSpacesEvenly(SkScalar space) {
@@ -178,7 +171,7 @@ SkScalar Run::addSpacesEvenly(SkScalar space, Cluster* cluster) {
     // Increment the run width
     fAdvance.fX += shift;
     // Increment the cluster width
-    cluster->space(shift, space);
+    cluster->space(shift);
     cluster->setHalfLetterSpacing(space / 2);
 
     return shift;
