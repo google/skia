@@ -94,6 +94,33 @@ selects.config_setting_group(
     visibility = ["//:__subpackages__"],
 )
 
+selects.config_setting_group(
+    name = "release_build_linux",
+    match_all = [
+        "@platforms//os:linux",
+        ":release_build",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+selects.config_setting_group(
+    name = "fast_build_mac",
+    match_all = [
+        "@platforms//os:macos",
+        ":fast_build",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
+selects.config_setting_group(
+    name = "fast_build_linux",
+    match_all = [
+        "@platforms//os:linux",
+        ":fast_build",
+    ],
+    visibility = ["//:__subpackages__"],
+)
+
 # =============================================================================
 #                     Configurable Skia Features
 # =============================================================================

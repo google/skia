@@ -12,14 +12,14 @@ because the relevant Skia source file was compiled in.
 
 OPT_LEVEL = select({
     "//bazel/common_config_settings:debug_build": [],
-    "//bazel/common_config_settings:fast_build": [
+    "//bazel/common_config_settings:fast_build_linux": [
         "-Wl,--strip-debug",
     ],
+    "//bazel/common_config_settings:fast_build_mac": [],
     "//bazel/common_config_settings:release_build_mac": [
         "-dead_strip",
     ],
-    "//conditions:default": [
-        # release and non-mac
+    "//bazel/common_config_settings:release_build_linux": [
         "-Wl,--gc-sections",
         "-Wl,--strip-all",
     ],
