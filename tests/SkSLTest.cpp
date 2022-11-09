@@ -455,6 +455,7 @@ SKSL_TEST(CPU + GPU, kApiLevel_T, Assignment,                      "shared/Assig
 SKSL_TEST(CPU + GPU, kApiLevel_T, CastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, CommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, CommaSideEffects,                "shared/CommaSideEffects.sksl")
+SKSL_TEST(CPU + GPU, kApiLevel_T, CompileTimeConstantVariables,    "shared/CompileTimeConstantVariables.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, ConstantIf,                      "shared/ConstantIf.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      ConstArray,                      "shared/ConstArray.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, ConstVariableComparison,         "shared/ConstVariableComparison.sksl")

@@ -480,6 +480,7 @@ sksl_shared_tests = [
   "/sksl/shared/ClockwiseNoRTFlip.sksl",
   "/sksl/shared/CommaMixedTypes.sksl",
   "/sksl/shared/CommaSideEffects.sksl",
+  "/sksl/shared/CompileTimeConstantVariables.sksl",
   "/sksl/shared/ComplexDelete.sksl",
   "/sksl/shared/ConstantIf.sksl",
   "/sksl/shared/ConstArray.sksl",
