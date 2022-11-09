@@ -26,7 +26,7 @@ py_binary(
     data = [
         ":sksl_minify",
         "//gn:minify_sksl_tests",
-        "//resources/sksl:sksl_minify_tests_sources",
+        "//resources/sksl:minify_srcs",
     ],
     main = ":sksl_minify_tests.py",
     tags = ["no-remote"],
@@ -65,16 +65,11 @@ os.chdir(os.environ["BUILD_WORKSPACE_DIRECTORY"])
 sksl_minify_exe = os.path.abspath("$(execpath //tools/sksl-minify:sksl_minify)")
 minify_script = os.path.abspath("$(execpath //gn:minify_sksl)")
 
-result = subprocess.run([
-        minify_script,
-        sksl_minify_exe,
-        "src/sksl/generated",
-    ] + glob.glob("src/sksl/*.sksl"),
-    capture_output=True, encoding="utf-8")
-if result.returncode != 0:
-    print(result.stdout)
-    print(result.stderr)
-    sys.exit(result.returncode)
+print(subprocess.check_output([
+    minify_script,
+    sksl_minify_exe,
+    "src/sksl/generated",
+] + glob.glob("src/sksl/*.sksl"), encoding="utf-8"))
 """
 
 genrule(
@@ -92,7 +87,6 @@ genrule(
 _SKSL_MINIFY_TESTS = """
 import os
 import subprocess
-import sys
 
 # Change into the Skia root directory
 # https://bazel.build/docs/user-manual#running-executables
@@ -109,19 +103,15 @@ sksl_minify_exe = os.path.abspath("$(execpath //tools/sksl-minify:sksl_minify)")
 minify_script = os.path.abspath("$(execpath //gn:minify_sksl_tests)")
 test_inputs = os.path.abspath("$(execpath :test_input_list.txt)")
 
-result = subprocess.run([
-        minify_script,
-        sksl_minify_exe,
-        "src/sksl/sksl_shared.sksl",
-        "src/sksl/sksl_public.sksl",
-        "resources",
-        "tests",
-        test_inputs,
-    ], capture_output=True, encoding="utf-8")
-if result.returncode != 0:
-    print(result.stdout)
-    print(result.stderr)
-    sys.exit(result.returncode)
+print(subprocess.check_output([
+    minify_script,
+    sksl_minify_exe,
+    "src/sksl/sksl_shared.sksl",
+    "src/sksl/sksl_public.sksl",
+    "resources",
+    "tests",
+    test_inputs,
+], encoding="utf-8"))
 """
 
 genrule(
@@ -137,7 +127,7 @@ genrule(
 
 genrule(
     name = "enumerate_test_input_list",
-    srcs = ["//resources/sksl:sksl_minify_tests_sources"],
+    srcs = ["//resources/sksl:minify_srcs"],
     outs = ["test_input_list.txt"],
     # Put a space seperated list of file names into the one output
     # This is done because the list could be quite long and overflow

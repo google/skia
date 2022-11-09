@@ -117,10 +117,8 @@ result = subprocess.run([
     compile_tests_script,
     sksl_compile_exe,
 ] + sys.argv[1:-1] + [input_file], capture_output=True, encoding="utf-8")
-if result.returncode != 0:
-    print(result.stdout)
-    print(result.stderr)
-    sys.exit(result.returncode)
+print(result.stdout)
+sys.exit(result.returncode)
 """
 
 genrule(

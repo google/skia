@@ -665,24 +665,87 @@ if (skia_compile_modules) {
     deps = [ ":run_sksllex" ]
   }
 
-  action("minify_sksl") {
-    script = "gn/bazel_minify_sksl.py"
+  sksl_minify_path = "$root_out_dir/"
+  if (host_toolchain != default_toolchain_name) {
+    sksl_minify_path += "$host_toolchain/"
+  }
+  sksl_minify_path += "sksl-minify"
+  if (host_os == "win") {
+    sksl_minify_path += ".exe"
+  }
 
-    # This is a placeholder file that is never created. By not creating the file, GN will always
-    # re-run the script. This is better than having to have a correct list of input files. Notably,
-    # Bazel is good at caching the action if nothing actually changed.
-    outputs = [ "$target_gen_dir/ran_sksl_minify.txt" ]
+  # Use minify_sksl.py to precompile all of the modules.
+  minify_sksl_sources = get_target_outputs(":sksl_modules")
+
+  minify_sksl_outputs = []
+  foreach(src, minify_sksl_sources) {
+    name = get_path_info(src, "name")
+
+    # GN insists its outputs should go somewhere underneath target_out_dir, so we trick it with a
+    # path that starts with target_out_dir and then uses ".." to back up into the src dir.
+    minify_sksl_outputs += [ "$target_out_dir/" + rebase_path(
+                                 "src/sksl/generated/$name.minified.sksl",
+                                 target_out_dir) ]
+    minify_sksl_outputs += [ "$target_out_dir/" + rebase_path(
+                                 "src/sksl/generated/$name.unoptimized.sksl",
+                                 target_out_dir) ]
+  }
+
+  action("minify_sksl") {
+    script = "gn/minify_sksl.py"
+    deps = [
+      ":sksl-minify(//gn/toolchain:$host_toolchain)",
+      ":sksl_modules",
+    ]
+    sources = minify_sksl_sources
+    outputs = minify_sksl_outputs
+    args = [
+      rebase_path(sksl_minify_path),
+      rebase_path("src/sksl/generated"),
+    ]
+    args += rebase_path(minify_sksl_sources)
   }
 
   if (skia_compile_sksl_tests) {
     # Minify our existing .rts files into golden minified outputs.
+    import("gn/sksl_tests.gni")
     action("minify_sksl_tests") {
-      script = "gn/bazel_minify_sksl_tests.py"
+      script = "gn/minify_sksl_tests.py"
+      deps = [
+        ":sksl-minify(//gn/toolchain:$host_toolchain)",
+        ":sksl_modules",
+      ]
+      sources = []
+      outputs = []
+      response_file_contents = []
+      args = [
+        # Comments are the variable name in minify_sksl_tests.py
+        rebase_path(sksl_minify_path),  # sksl_minify
+        rebase_path("src/sksl/sksl_shared.sksl"),  # shared_module
+        rebase_path("src/sksl/sksl_public.sksl"),  # public_module
+        rebase_path("resources"),  # input_root_dir
+        rebase_path("tests"),  # output_root_dir
+        "{{response_file_name}}",  # input_file
+      ]
 
-      # This is a placeholder file that is never created. By not creating the file, GN will always
-      # re-run the script. This is better than having to have a correct list of input files.
-      # Notably, Bazel is good at caching the action if nothing actually changed.
-      outputs = [ "$target_gen_dir/ran_sksl_minify_tests.txt" ]
+      testsDir = get_path_info("tests", "abspath")
+      resourcesDir = get_path_info("resources", "abspath")
+
+      foreach(partialPath, sksl_minify_tests_sources) {
+        dst = testsDir + partialPath
+        src = resourcesDir + partialPath
+
+        dir = get_path_info(dst, "dir")
+        name = get_path_info(dst, "name")
+        ext = get_path_info(dst, "extension")
+        if (ext == "rts" || ext == "rtcf" || ext == "rtb") {
+          response_file_contents += [ rebase_path(src) ]
+          sources += [ src ]
+          outputs += [ target_out_dir + "/" +
+                       rebase_path(dir + "/" + name + ".minified.sksl",
+                                   target_out_dir) ]
+        }
+      }
     }
   }
 } else {
@@ -738,17 +801,117 @@ if (skia_compile_sksl_tests) {
     ]
   }
 
-  # Build the test files using skslc.
-  action("compile_sksl_tests") {
-    script = "gn/bazel_compile_sksl_tests.py"
+  skslc_path = "$root_out_dir/"
+  if (host_toolchain != default_toolchain_name) {
+    skslc_path += "$host_toolchain/"
+  }
+  skslc_path += "skslc"
+  if (host_os == "win") {
+    skslc_path += ".exe"
+  }
 
-    # This is a placeholder file that is never created. By not creating the file, GN will always
-    # re-run the script. This is better than having to have a correct list of input files. Notably,
-    # Bazel is good at caching the action if nothing actually changed.
-    outputs = [ "$target_gen_dir/ran_compile_sksl_tests.txt" ]
+  # Build the test files using skslc.
+  import("gn/sksl_tests.gni")
+  template("compile_sksl") {
+    # Compile the passed-in `sources` into `outputs` using skslc, with the given language/settings.
+    action("compile_sksl_${target_name}") {
+      script = "gn/compile_sksl_tests.py"
+      deps = [
+        ":sksl_modules",
+        ":skslc(//gn/toolchain:$host_toolchain)",
+      ]
+      sources = []
+      outputs = []
+      response_file_contents = []
+      args = [
+        # Comments are the variable name in compile_sksl_tests.py
+        rebase_path(skslc_path),  # skslc
+        invoker.lang,  # lang
+        invoker.settings,  # settings
+        rebase_path("resources"),  # input_root_dir
+        rebase_path("tests"),  # output_root_dir
+        "{{response_file_name}}",  # input_file
+      ]
+
+      testsDir = get_path_info("tests", "abspath")
+      resourcesDir = get_path_info("resources", "abspath")
+
+      foreach(partialPath, invoker.sources) {
+        dst = testsDir + partialPath
+        src = resourcesDir + partialPath
+
+        dir = get_path_info(dst, "dir")
+        name = get_path_info(dst, "name")
+        ext = get_path_info(dst, "extension")
+        response_file_contents += [ rebase_path(src) ]
+        sources += [ src ]
+
+        foreach(outExtension, invoker.outExtensions) {
+          # SPIR-V uses separate extensions for .vert shaders.
+          if (ext == "vert" && outExtension == ".asm.frag") {
+            outExtension = ".asm.vert"
+          }
+          outputs +=
+              [ target_out_dir + "/" +
+                rebase_path(dir + "/" + name + outExtension, target_out_dir) ]
+        }
+      }
+    }
+  }
+  compile_sksl("glsl_tests") {
+    sources = sksl_glsl_tests_sources + sksl_glsl_settings_tests_sources
+    outExtensions = [ ".glsl" ]
+    lang = "--glsl"
+    settings = "--settings"
+  }
+  compile_sksl("glsl_nosettings_tests") {
+    sources = sksl_glsl_settings_tests_sources
+    outExtensions = [ "StandaloneSettings.glsl" ]
+    lang = "--glsl"
+    settings = "--nosettings"
+  }
+  compile_sksl("metal_tests") {
+    sources = sksl_metal_tests_sources
+    outExtensions = [ ".metal" ]
+    lang = "--metal"
+    settings = "--settings"
+  }
+  compile_sksl("skvm_tests") {
+    sources = sksl_skvm_tests_sources
+    outExtensions = [ ".skvm" ]
+    lang = "--skvm"
+    settings = "--settings"
+  }
+  compile_sksl("stage_tests") {
+    sources = sksl_stage_tests_sources
+    outExtensions = [ ".stage" ]
+    lang = "--stage"
+    settings = "--settings"
+  }
+  compile_sksl("spirv_tests") {
+    sources = sksl_spirv_tests_sources
+    outExtensions = [ ".asm.frag" ]
+    lang = "--spirv"
+    settings = "--settings"
+  }
+  compile_sksl("wgsl_tests") {
+    sources = sksl_wgsl_tests_sources
+    outExtensions = [ ".wgsl" ]
+    lang = "--wgsl"
+    settings = "--settings"
   }
 } else {
-  group("compile_sksl_tests") {
+  group("compile_sksl_glsl_tests") {
+  }
+  group("compile_sksl_glsl_nosettings_tests") {
+  }
+  group("compile_sksl_metal_tests") {
+  }
+  group("compile_sksl_skvm_tests") {
+  }
+  group("compile_sksl_spirv_tests") {
+  }
+  group("compile_sksl_wgsl_tests") {
   }
 }
 
@@ -825,7 +988,11 @@ optional("gpu_shared") {
 optional("gpu") {
   enabled = skia_enable_gpu
   deps = [
-    ":compile_sksl_tests",
+    ":compile_sksl_glsl_nosettings_tests",
+    ":compile_sksl_glsl_tests",
+    ":compile_sksl_metal_tests",
+    ":compile_sksl_skvm_tests",
+    ":compile_sksl_spirv_tests",
     ":gpu_shared",
     ":minify_sksl",
     ":run_sksllex",
