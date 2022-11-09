@@ -40,26 +40,6 @@ Image::Image(TextureProxyView view,
 
 Image::~Image() {}
 
-bool Image::testingOnly_ReadPixels(Context* context,
-                                   Recorder* recorder,
-                                   const SkImageInfo& dstInfo,
-                                   void* dstPixels,
-                                   size_t dstRowBytes,
-                                   int srcX,
-                                   int srcY) {
-    return ReadPixelsHelper([recorder]() {
-                                recorder->priv().flushTrackedDevices();
-                            },
-                            context,
-                            recorder,
-                            fTextureProxyView.proxy(),
-                            dstInfo,
-                            dstPixels,
-                            dstRowBytes,
-                            srcX,
-                            srcY);
-}
-
 sk_sp<SkImage> Image::onMakeColorTypeAndColorSpace(SkColorType,
                                                    sk_sp<SkColorSpace>,
                                                    GrDirectContext*) const {

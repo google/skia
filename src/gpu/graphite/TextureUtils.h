@@ -35,18 +35,6 @@ sk_sp<SkImage> MakeFromBitmap(Recorder*,
                               sk_sp<SkMipmap>,
                               SkBudgeted,
                               SkImage::RequiredImageProperties);
-
-using FlushPendingWorkCallback = std::function<void()>;
-
-bool ReadPixelsHelper(FlushPendingWorkCallback&&,
-                      Context*,
-                      Recorder*,
-                      TextureProxy* srcProxy,
-                      const SkImageInfo& dstInfo,
-                      void* dstPixels,
-                      size_t dstRowBytes,
-                      int srcX,
-                      int srcY);
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_TextureUtils_DEFINED

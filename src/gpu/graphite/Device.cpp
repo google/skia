@@ -359,17 +359,9 @@ bool Device::readPixels(Context* context,
                         const SkPixmap& pm,
                         int srcX,
                         int srcY) {
-    return ReadPixelsHelper([this]() {
-                                this->flushPendingWorkToRecorder();
-                            },
-                            context,
-                            recorder,
-                            fDC->target(),
-                            pm.info(),
-                            pm.writable_addr(),
-                            pm.rowBytes(),
-                            srcX,
-                            srcY);
+    this->flushPendingWorkToRecorder();
+    return context->priv().readPixels(recorder, pm, fDC->target(), this->imageInfo(),
+                                      srcX, srcY);
 }
 
 void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,

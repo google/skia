@@ -156,17 +156,10 @@ void check_levels(skiatest::Reporter* reporter,
             return;
         }
 
-        // We're going to get pre-mul back
-        SkColor4f expected;
-        expected.fR = colors[i].fR * colors[i].fA;
-        expected.fG = colors[i].fG * colors[i].fA;
-        expected.fB = colors[i].fB * colors[i].fA;
-        expected.fA = colors[i].fA;
-
         SkString str;
         str.appendf("mip-level %d", i);
 
-        check_solid_pixmap(reporter, expected, actual, image->colorType(), str.c_str());
+        check_solid_pixmap(reporter, colors[i], actual, image->colorType(), str.c_str());
     }
 }
 

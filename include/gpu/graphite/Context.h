@@ -137,7 +137,8 @@ private:
 
     SingleOwner* singleOwner() const { return &fSingleOwner; }
 
-    void asyncReadPixels(TextureProxy* textureProxy,
+    void asyncReadPixels(Recorder* recorder,
+                         const TextureProxy* textureProxy,
                          const SkImageInfo& srcImageInfo,
                          const SkColorInfo& dstColorInfo,
                          const SkIRect& srcRect,

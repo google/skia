@@ -41,6 +41,12 @@ public:
     void stopCapture() {
         fContext->fQueueManager->stopCapture();
     }
+
+    bool readPixels(Recorder*,
+                    const SkPixmap&,
+                    const TextureProxy*,
+                    const SkImageInfo& srcImageInfo,
+                    int srcX, int srcY);
 #endif
 
 private:
