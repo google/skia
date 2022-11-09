@@ -15,66 +15,21 @@
 #include "src/gpu/ganesh/GrResourceCache.h"
 #include "src/gpu/ganesh/GrTexture.h"
 
-#if defined(SK_DEBUG)
+#ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrDrawingManager.h"
-#include "src/gpu/ganesh/effects/GrTextureEffect.h"
-#if defined(SK_GL)
-#include "src/gpu/ganesh/gl/GrGLTexture.h"
-#endif
 #endif
 
-void GrTexture::markMipmapsDirty(const char* reason) {
+void GrTexture::markMipmapsDirty() {
     if (GrMipmapStatus::kValid == fMipmapStatus) {
         fMipmapStatus = GrMipmapStatus::kDirty;
-#if defined(SK_DEBUG)
-        fMipmapDirtyReason = reason;
-        if (auto* context = this->getContext()) {
-            fMipmapDirtyFlushNum    = context->priv().drawingManager()->flushNumber();
-            fMipmapDirtyWasFlushing = context->priv().drawingManager()->isFlushing();
-        }
-#endif
     }
 }
 
 void GrTexture::markMipmapsClean() {
     SkASSERT(GrMipmapStatus::kNotAllocated != fMipmapStatus);
-    SkDEBUGCODE(fMipmapRegenFailureReason = "did not fail";)
     fMipmapStatus = GrMipmapStatus::kValid;
 }
-
-#if defined(SK_DEBUG)
-void GrTexture::assertMipmapsNotDirty(const GrTextureEffect& effect) {
-    // There are some cases where we might be given a non-mipmapped texture with a
-    // mipmap filter. See skbug.com/7094.
-    if (this->mipmapped() == GrMipmapped::kYes && this->mipmapsAreDirty()) {
-        SkString msg("MM dirty unexpectedly.");
-        if (auto* context = this->getContext()) {
-            int  flushNum   = context->priv().drawingManager()->flushNumber();
-            bool isFlushing = context->priv().drawingManager()->isFlushing();
-
-            auto flushStr = [](int num, bool is) {
-                return SkStringPrintf("%s flush #%d", is ? "in" : "before", num);
-            };
-
-            msg += SkStringPrintf(
-                    " Dirtied by \"%s\" %s, now we're %s. regen failed: \"%s\"",
-                    fMipmapDirtyReason,
-                    flushStr(fMipmapDirtyFlushNum, fMipmapDirtyWasFlushing).c_str(),
-                    flushStr(flushNum, isFlushing).c_str(),
-                    fMipmapRegenFailureReason);
-        }
-        GrTextureProxy* proxy = effect.view().asTextureProxy();
-        msg += ", ";
-        msg += proxy->mipmapDirtyReport();
-        msg += SkStringPrintf(" Proxy was %s at effect creation, texture was %s.",
-                              effect.proxyDirtyAtCreation(),
-                              effect.texMMStatusAtCreation());
-        SK_ABORT("%s", msg.c_str());
-    }
-}
-#endif
 
 size_t GrTexture::onGpuMemorySize() const {
     return GrSurface::ComputeSize(this->backendFormat(), this->dimensions(),
@@ -96,12 +51,6 @@ GrTexture::GrTexture(GrGpu* gpu,
     } else {
         fMaxMipmapLevel = SkMipmap::ComputeLevelCount(this->width(), this->height());
     }
-#if defined(SK_DEBUG)
-    if (fMipmapStatus == GrMipmapStatus::kDirty) {
-        fMipmapDirtyWasFlushing = gpu->getContext()->priv().drawingManager()->isFlushing();
-        fMipmapDirtyFlushNum    = gpu->getContext()->priv().drawingManager()->flushNumber();
-    }
-#endif
     if (textureType == GrTextureType::kExternal) {
         this->setReadOnly();
     }

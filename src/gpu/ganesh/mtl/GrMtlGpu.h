@@ -121,7 +121,7 @@ public:
     // to.
     void submitIndirectCommandBuffer(GrSurface* surface, GrSurfaceOrigin origin,
                                      const SkIRect* bounds) {
-        this->didWriteToSurface(surface, origin, bounds, "mtl submit indirect");
+        this->didWriteToSurface(surface, origin, bounds);
     }
 
     GrRingBuffer* uniformsRingBuffer() override { return &fUniformsRingBuffer; }

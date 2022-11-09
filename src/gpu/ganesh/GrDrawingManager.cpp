@@ -210,7 +210,6 @@ bool GrDrawingManager::flush(
         resourceCache->purgeAsNeeded();
     }
     fFlushing = false;
-    SkDEBUGCODE(++fFlushNum);
 
     return true;
 }
@@ -620,15 +619,7 @@ void GrDrawingManager::createDDLTask(sk_sp<const SkDeferredDisplayList> ddl,
     }
     GrTextureProxy* newTextureProxy = newDest->asTextureProxy();
     if (newTextureProxy && GrMipmapped::kYes == newTextureProxy->mipmapped()) {
-        int flushNum = -1;
-        bool isFlushing = false;
-#if defined(SK_DEBUG)
-        if (auto* dc = GrAsDirectContext(fContext)) {
-            flushNum   = dc->priv().drawingManager()->flushNumber();
-            isFlushing = dc->priv().drawingManager()->isFlushing();
-        }
-#endif
-        newTextureProxy->markMipmapsDirty("createDDLTask dst", flushNum, isFlushing);
+        newTextureProxy->markMipmapsDirty();
     }
 
     // Here we jam the proxy that backs the current replay SkSurface into the LazyProxyData.

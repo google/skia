@@ -508,8 +508,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReadOnlyTexture,
                                                       GrWrapCacheable::kNo, ioType,
                                                       mbet->refCountedCallback());
             dContext->flushAndSubmit();
-            // Avoids assert in GrGpu
-            proxy->peekTexture()->markMipmapsDirty("test");
+            proxy->peekTexture()->markMipmapsDirty();  // avoids assert in GrGpu.
             auto regenResult =
                     dContext->priv().getGpu()->regenerateMipMapLevels(proxy->peekTexture());
             REPORTER_ASSERT(reporter, regenResult == (ioType == kRW_GrIOType));

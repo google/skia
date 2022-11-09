@@ -53,7 +53,6 @@ void GrTextureResolveRenderTask::addProxy(GrDrawingManager* drawingMgr,
         SkASSERT(GrMipmapped::kYes == textureProxy->mipmapped());
         SkASSERT(textureProxy->mipmapsAreDirty());
         textureProxy->markMipmapsClean();
-        SkDEBUGCODE(textureProxy->needsMipmapRegen(drawingMgr->flushNumber());)
     }
 
     // We must do this after updating the proxy state because of assertions that the proxy isn't
@@ -105,10 +104,6 @@ bool GrTextureResolveRenderTask::onExecute(GrOpFlushState* flushState) {
                 flushState->gpu()->regenerateMipMapLevels(texture);
                 SkASSERT(!texture->mipmapsAreDirty());
             }
-#ifdef SK_DEBUG
-            GrTextureProxy* textureProxy = this->target(i)->asTextureProxy();
-            textureProxy->mipmapsRegenerated();
-#endif
         }
     }
 

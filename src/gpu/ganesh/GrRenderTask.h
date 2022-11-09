@@ -109,8 +109,6 @@ public:
                       SkString indent,
                       bool printDependencies,
                       bool close) const;
-#endif
-#if GR_TEST_UTILS || defined(SK_DEBUG)
     virtual const char* name() const = 0;
 #endif
 

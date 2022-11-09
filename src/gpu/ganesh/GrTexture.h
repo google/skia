@@ -16,10 +16,6 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrSurface.h"
 
-#if defined(SK_DEBUG)
-class GrTextureEffect;
-#endif
-
 class GrTexture : virtual public GrSurface {
 public:
     GrTexture* asTexture() override { return this; }
@@ -49,8 +45,7 @@ public:
         return GrTextureTypeHasRestrictedSampling(this->textureType());
     }
 
-    void markMipmapsDirty(const char* reason);
-
+    void markMipmapsDirty();
     void markMipmapsClean();
     GrMipmapped mipmapped() const {
         return GrMipmapped(fMipmapStatus != GrMipmapStatus::kNotAllocated);
@@ -58,9 +53,6 @@ public:
     bool mipmapsAreDirty() const { return fMipmapStatus != GrMipmapStatus::kValid; }
     GrMipmapStatus mipmapStatus() const { return fMipmapStatus; }
     int maxMipmapLevel() const { return fMaxMipmapLevel; }
-
-    SkDEBUGCODE(void assertMipmapsNotDirty(const GrTextureEffect& effect);)
-    SkDEBUGCODE(void setMipmapRegenFailureReason(const char* s) { fMipmapRegenFailureReason = s;})
 
     static void ComputeScratchKey(const GrCaps& caps,
                                   const GrBackendFormat& format,
@@ -88,12 +80,6 @@ private:
 
     GrTextureType                 fTextureType;
     GrMipmapStatus                fMipmapStatus;
-#if defined(SK_DEBUG)
-    const char*                   fMipmapDirtyReason        = "creation";
-    const char*                   fMipmapRegenFailureReason = "did not fail";
-    int                           fMipmapDirtyFlushNum      = 1;
-    bool                          fMipmapDirtyWasFlushing   = false;
-#endif
     int                           fMaxMipmapLevel;
     friend class GrTextureResource;
 

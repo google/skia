@@ -815,16 +815,6 @@ GrTextureEffect::GrTextureEffect(GrSurfaceProxyView view,
     SkASSERT(fShaderModes[1] != ShaderMode::kNone || (fSubset.fTop == 0 && fSubset.fBottom == 0));
     this->setUsesSampleCoordsDirectly();
     std::copy_n(sampling.fBorder, 4, fBorder);
-#if defined(SK_DEBUG)
-    if (!fView.proxy()->isInstantiated()) {
-        fTexMMStatusAtCreation = "uninstantiated";
-    } else if (fView.asTextureProxy()->peekTexture()->mipmapsAreDirty()) {
-        fTexMMStatusAtCreation = "dirty";
-    } else {
-        fTexMMStatusAtCreation = "clean";
-    }
-    fProxyDirtyAtCreation = fView.asTextureProxy()->mipmapsAreDirty() ? "dirty" : "clean";
-#endif
 }
 
 GrTextureEffect::GrTextureEffect(const GrTextureEffect& src)
@@ -836,10 +826,6 @@ GrTextureEffect::GrTextureEffect(const GrTextureEffect& src)
         , fShaderModes{src.fShaderModes[0], src.fShaderModes[1]} {
     std::copy_n(src.fBorder, 4, fBorder);
     this->setUsesSampleCoordsDirectly();
-#if defined(SK_DEBUG)
-    fTexMMStatusAtCreation = "processor cloned?";
-    fProxyDirtyAtCreation  = "processor cloned?";
-#endif
 }
 
 std::unique_ptr<GrFragmentProcessor> GrTextureEffect::clone() const {

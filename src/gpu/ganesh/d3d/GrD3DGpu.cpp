@@ -228,7 +228,7 @@ void GrD3DGpu::submit(GrOpsRenderPass* renderPass) {
 
 void GrD3DGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
                              const SkIRect& bounds) {
-    this->didWriteToSurface(target, origin, &bounds, "d3d end render pass");
+    this->didWriteToSurface(target, origin, &bounds);
 }
 
 void GrD3DGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
@@ -525,10 +525,7 @@ void GrD3DGpu::copySurfaceAsCopyTexture(GrSurface* dst, GrSurface* src,
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst,
-                            kTopLeft_GrSurfaceOrigin,
-                            &dstRect,
-                            "d3d copyTextureRegionToTexture");
+    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
 }
 
 void GrD3DGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRect& srcRect,
@@ -540,7 +537,7 @@ void GrD3DGpu::copySurfaceAsResolve(GrSurface* dst, GrSurface* src, const SkIRec
     SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
                                         srcRect.width(), srcRect.height());
     // The rect is already in device space so we pass in kTopLeft so no flip is done.
-    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect, "d3d copy as resolve");
+    this->didWriteToSurface(dst, kTopLeft_GrSurfaceOrigin, &dstRect);
 }
 
 void GrD3DGpu::resolveTexture(GrSurface* dst, int32_t dstX, int32_t dstY,
@@ -789,7 +786,7 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex,
                                                    rect.top());
 
     if (mipLevelCount < (int)desc.MipLevels) {
-        tex->markMipmapsDirty("d3d uploadToTexture");
+        tex->markMipmapsDirty();
     }
 
     return true;
@@ -883,7 +880,7 @@ bool GrD3DGpu::onTransferPixelsTo(GrTexture* texture,
                                                    rect.top());
     this->currentCommandList()->addGrBuffer(std::move(transferBuffer));
 
-    d3dTex->markMipmapsDirty("d3d onTransferPixelsTo");
+    d3dTex->markMipmapsDirty();
     return true;
 }
 

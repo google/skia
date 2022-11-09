@@ -49,9 +49,7 @@ public:
 
     bool hasBaseLevelBeenBoundToFBO() const { return fBaseLevelHasBeenBoundToFBO; }
     void baseLevelWasBoundToFBO() { fBaseLevelHasBeenBoundToFBO = true; }
-#if defined(SK_DEBUG)
-    GrBackendObjectOwnership idOwnership() const { return fTextureIDOwnership; }
-#endif
+
     static sk_sp<GrGLTexture> MakeWrapped(GrGLGpu*,
                                           GrMipmapStatus,
                                           const Desc&,
