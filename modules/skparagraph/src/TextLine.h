@@ -5,6 +5,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/private/SkBitmaskEnum.h" // IWYU pragma: keep
 #include "include/private/base/SkTArray.h"
 #include "modules/skparagraph/include/DartTypes.h"
 #include "modules/skparagraph/include/Metrics.h"
@@ -35,6 +36,13 @@ public:
       SkRect clip;
       SkScalar fExcludedTrailingSpaces;
       bool clippingNeeded;
+    };
+
+    enum TextAdjustment {
+        GlyphCluster = 0x01,    // All text producing glyphs pointing to the same ClusterIndex
+        GlyphemeCluster = 0x02, // base glyph + all attached diacritics
+        Grapheme = 0x04,        // Text adjusted to graphemes
+        GraphemeGluster = 0x05, // GlyphCluster & Grapheme
     };
 
     TextLine() = default;
@@ -76,14 +84,22 @@ public:
     SkScalar ideographicBaseline() const { return fSizes.ideographicBaseline(); }
     SkScalar baseline() const { return fSizes.baseline(); }
 
-    using RunVisitor = std::function<bool(const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width)>;
+    using RunVisitor = std::function<bool(
+            const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width)>;
     void iterateThroughVisualRuns(bool includingGhostSpaces, const RunVisitor& runVisitor) const;
-    using RunStyleVisitor = std::function<void(TextRange textRange, const TextStyle& style, const ClipContext& context)>;
-    SkScalar iterateThroughSingleRunByStyles(const Run* run, SkScalar runOffset, TextRange textRange,
-                                         StyleType styleType, const RunStyleVisitor& visitor) const;
+    using RunStyleVisitor = std::function<void(
+            TextRange textRange, const TextStyle& style, const ClipContext& context)>;
+    SkScalar iterateThroughSingleRunByStyles(TextAdjustment textAdjustment,
+                                             const Run* run,
+                                             SkScalar runOffset,
+                                             TextRange textRange,
+                                             StyleType styleType,
+                                             const RunStyleVisitor& visitor) const;
 
     using ClustersVisitor = std::function<bool(const Cluster* cluster, bool ghost)>;
-    void iterateThroughClustersInGlyphsOrder(bool reverse, bool includeGhosts, const ClustersVisitor& visitor) const;
+    void iterateThroughClustersInGlyphsOrder(bool reverse,
+                                             bool includeGhosts,
+                                             const ClustersVisitor& visitor) const;
 
     void format(TextAlign align, SkScalar maxWidth);
     void paint(ParagraphPainter* painter, SkScalar x, SkScalar y);
@@ -109,7 +125,7 @@ public:
                                         SkScalar runOffsetInLine,
                                         SkScalar textOffsetInRunInLine,
                                         bool includeGhostSpaces,
-                                        bool limitToGraphemes) const;
+                                        TextAdjustment textAdjustment) const;
 
     LineMetrics getMetrics() const;
 
@@ -191,5 +207,9 @@ public:
 };
 }  // namespace textlayout
 }  // namespace skia
+
+namespace sknonstd {
+    template <> struct is_bitmask_enum<skia::textlayout::TextLine::TextAdjustment> : std::true_type {};
+}  // namespace sknonstd
 
 #endif  // TextLine_DEFINED

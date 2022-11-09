@@ -142,6 +142,8 @@ public:
     void ensureUTF16Mapping();
     TextIndex findNextGraphemeBoundary(TextIndex utf8);
     TextIndex findPreviousGraphemeBoundary(TextIndex utf8);
+    TextIndex findNextGlyphClusterBoundary(TextIndex utf8);
+    TextIndex findPreviousGlyphClusterBoundary(TextIndex utf8);
     size_t getUTF16Index(TextIndex index) {
         return fUTF16IndexForUTF8Index[index];
     }

@@ -466,6 +466,11 @@ void ParagraphImpl::buildClusterTable() {
     for (auto& run : fRuns) {
         cluster_count += run.isPlaceholder() ? 1 : run.size();
         fCodeUnitProperties[run.fTextRange.start] |= SkUnicode::CodeUnitFlags::kGraphemeStart;
+        fCodeUnitProperties[run.fTextRange.start] |= SkUnicode::CodeUnitFlags::kGlyphClusterStart;
+    }
+    if (!fRuns.empty()) {
+        fCodeUnitProperties[fRuns.back().textRange().end] |= SkUnicode::CodeUnitFlags::kGraphemeStart;
+        fCodeUnitProperties[fRuns.back().textRange().end] |= SkUnicode::CodeUnitFlags::kGlyphClusterStart;
     }
     fClusters.reserve_back(cluster_count);
 
@@ -497,8 +502,10 @@ void ParagraphImpl::buildClusterTable() {
                 }
                 SkSpan<const char> text(fText.c_str() + charStart, charEnd - charStart);
                 fClusters.emplace_back(this, runIndex, glyphStart, glyphEnd, text, width, height);
+                fCodeUnitProperties[charStart] |= SkUnicode::CodeUnitFlags::kGlyphClusterStart;
             });
         }
+        fCodeUnitProperties[run.textRange().start] |= SkUnicode::CodeUnitFlags::kGlyphClusterStart;
 
         run.setClusterRange(runStart, fClusters.size());
         fMaxIntrinsicWidth += run.advance().fX;
@@ -753,10 +760,10 @@ std::vector<TextBox> ParagraphImpl::getRectsForRange(unsigned start,
         if (start > 0 && fUTF8IndexForUTF16Index[start - 1] == utf8) {
             utf8 = fUTF8IndexForUTF16Index[start + 1];
         }
-        text.start = findNextGraphemeBoundary(utf8);
+        text.start = this->findNextGraphemeBoundary(utf8);
     }
     if (end < SkToSizeT(fUTF8IndexForUTF16Index.size())) {
-        auto utf8 = findPreviousGraphemeBoundary(fUTF8IndexForUTF16Index[end]);
+        auto utf8 = this->findPreviousGraphemeBoundary(fUTF8IndexForUTF16Index[end]);
         text.end = utf8;
     }
     //SkDebugf("getRectsForRange(%d,%d) -> (%d:%d)\n", start, end, text.start, text.end);
@@ -1069,6 +1076,22 @@ TextIndex ParagraphImpl::findNextGraphemeBoundary(TextIndex utf8) {
     while (utf8 < fText.size() &&
           (fCodeUnitProperties[utf8] & SkUnicode::CodeUnitFlags::kGraphemeStart) == 0) {
         ++utf8;
+    }
+    return utf8;
+}
+
+TextIndex ParagraphImpl::findNextGlyphClusterBoundary(TextIndex utf8) {
+    while (utf8 < fText.size() &&
+          (fCodeUnitProperties[utf8] & SkUnicode::CodeUnitFlags::kGlyphClusterStart) == 0) {
+        ++utf8;
+    }
+    return utf8;
+}
+
+TextIndex ParagraphImpl::findPreviousGlyphClusterBoundary(TextIndex utf8) {
+    while (utf8 > 0 &&
+          (fCodeUnitProperties[utf8] & SkUnicode::CodeUnitFlags::kGlyphClusterStart) == 0) {
+        --utf8;
     }
     return utf8;
 }

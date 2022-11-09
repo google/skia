@@ -1907,7 +1907,7 @@ public:
                 }
                 line.iterateThroughVisualRuns(true,
                     [&](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
-                    *width = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, false).clip.width();
+                    *width = line.measureTextInsideOneRun(textRange, run, runOffset, 0, true, TextLine::TextAdjustment::GlyphCluster).clip.width();
                     if (this->isVerbose()) {
                         SkDebugf("%zu[%zu: %zu) @%f + %f %s\n",
                                  run->index(), textRange.start, textRange.end, runOffset, *width,
@@ -3827,9 +3827,9 @@ public:
 };
 
 // Arabic Ligature case should be painted into multi styles but queried as a single glyph
-class ParagraphSlide_MultiStyle_Arabic : public ParagraphSlide_Base {
+class ParagraphSlide_MultiStyle_Arabic1 : public ParagraphSlide_Base {
 public:
-    ParagraphSlide_MultiStyle_Arabic() { fName = "SkStringParagraphSlide_MultiStyle_Arabic"; }
+    ParagraphSlide_MultiStyle_Arabic1() { fName = "SkStringParagraphSlide_MultiStyle_Arabic1"; }
 
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
@@ -3984,9 +3984,9 @@ public:
     }
 };
 
-class ParagraphSlideLast : public ParagraphSlide_Base {
+class ParagraphSlide_MultiStyle_Arabic2 : public ParagraphSlide_Base {
 public:
-    ParagraphSlideLast() { fName = SkString("ParagraphSlideLast"); }
+    ParagraphSlide_MultiStyle_Arabic2() { fName = SkString("ParagraphSlide_MultiStyle_Arabic2"); }
 
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
@@ -4082,7 +4082,7 @@ DEF_SLIDE(return new ParagraphSlide68();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_Logo();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_FFI();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_EmojiFamily();)
-DEF_SLIDE(return new ParagraphSlide_MultiStyle_Arabic();)
+DEF_SLIDE(return new ParagraphSlide_MultiStyle_Arabic1();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_Zalgo();)
-DEF_SLIDE(return new ParagraphSlideLast();)
+DEF_SLIDE(return new ParagraphSlide_MultiStyle_Arabic2();)
 
