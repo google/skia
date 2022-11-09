@@ -1438,7 +1438,7 @@ private:
         fRoundCaps |= that->fRoundCaps;
         fWideColor |= that->fWideColor;
 
-        fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
+        fCircles.push_back_n(that->fCircles.size(), that->fCircles.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fAllFill = fAllFill && that->fAllFill;
@@ -1448,7 +1448,7 @@ private:
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
         SkString string;
-        for (int i = 0; i < fCircles.count(); ++i) {
+        for (int i = 0; i < fCircles.size(); ++i) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f\n",
@@ -1761,7 +1761,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
+        fCircles.push_back_n(that->fCircles.size(), that->fCircles.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fWideColor |= that->fWideColor;
@@ -1771,7 +1771,7 @@ private:
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
         SkString string;
-        for (int i = 0; i < fCircles.count(); ++i) {
+        for (int i = 0; i < fCircles.size(); ++i) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f, OnAngle: %.2f, TotalAngle: %.2f, "
@@ -1989,7 +1989,7 @@ private:
             }
         }
 
-        QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.count());
+        QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.size());
         VertexWriter verts{helper.vertices()};
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -2060,7 +2060,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fEllipses.push_back_n(that->fEllipses.count(), that->fEllipses.begin());
+        fEllipses.push_back_n(that->fEllipses.size(), that->fEllipses.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
@@ -2265,7 +2265,7 @@ private:
             this->createProgramInfo(target);
         }
 
-        QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.count());
+        QuadHelper helper(target, fProgramInfo->geomProc().vertexStride(), fEllipses.size());
         VertexWriter verts{helper.vertices()};
         if (!verts) {
             return;
@@ -2332,7 +2332,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fEllipses.push_back_n(that->fEllipses.count(), that->fEllipses.begin());
+        fEllipses.push_back_n(that->fEllipses.size(), that->fEllipses.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
@@ -2799,7 +2799,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fRRects.push_back_n(that->fRRects.count(), that->fRRects.begin());
+        fRRects.push_back_n(that->fRRects.size(), that->fRRects.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fAllFill = fAllFill && that->fAllFill;
@@ -2810,7 +2810,7 @@ private:
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
         SkString string;
-        for (int i = 0; i < fRRects.count(); ++i) {
+        for (int i = 0; i < fRRects.size(); ++i) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "InnerRad: %.2f, OuterRad: %.2f\n",
@@ -3016,7 +3016,7 @@ private:
         PatternHelper helper(target, GrPrimitiveType::kTriangles,
                              fProgramInfo->geomProc().vertexStride(),
                              std::move(indexBuffer), kVertsPerStandardRRect, indicesPerInstance,
-                             fRRects.count(), kNumRRectsInIndexBuffer);
+                             fRRects.size(), kNumRRectsInIndexBuffer);
         VertexWriter verts{helper.vertices()};
         if (!verts) {
             SkDebugf("Could not allocate vertices\n");
@@ -3121,7 +3121,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fRRects.push_back_n(that->fRRects.count(), that->fRRects.begin());
+        fRRects.push_back_n(that->fRRects.size(), that->fRRects.begin());
         fWideColor = fWideColor || that->fWideColor;
         return CombineResult::kMerged;
     }

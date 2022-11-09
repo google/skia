@@ -206,13 +206,13 @@ protected:
             fMatrices.push_back(m);
         }
 
-        SkASSERT(kNumRows == fPaints.count() + fMatrices.count());
+        SkASSERT(kNumRows == fPaints.size() + fMatrices.size());
     }
 
     void onDraw(SkCanvas* canvas) override {
         canvas->translate(0, kRadius+kPad);
 
-        for (int i = 0; i < fPaints.count(); ++i) {
+        for (int i = 0; i < fPaints.size(); ++i) {
             int saveCount = canvas->save();
             draw_row(canvas, fPaints[i], SkMatrix::I());
             canvas->restoreToCount(saveCount);
@@ -220,7 +220,7 @@ protected:
             canvas->translate(0, 2*(kRadius+kPad));
         }
 
-        for (int i = 0; i < fMatrices.count(); ++i) {
+        for (int i = 0; i < fMatrices.size(); ++i) {
             int saveCount = canvas->save();
             draw_row(canvas, fPaints[0], fMatrices[i]);
             canvas->restoreToCount(saveCount);

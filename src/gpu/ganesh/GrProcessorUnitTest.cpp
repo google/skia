@@ -52,7 +52,7 @@ std::unique_ptr<GrFragmentProcessor> GrProcessorTestData::inputFP() {
 
 GrProcessorTestData::ViewInfo GrProcessorTestData::randomView() {
     SkASSERT(!fViews.empty());
-    return fViews[fRandom->nextULessThan(fViews.count())];
+    return fViews[fRandom->nextULessThan(fViews.size())];
 }
 
 GrProcessorTestData::ViewInfo GrProcessorTestData::randomAlphaOnlyView() {
@@ -82,17 +82,17 @@ GrProcessorTestFactory<ProcessorSmartPtr>::GrProcessorTestFactory(MakeProc makeP
 template <class ProcessorSmartPtr>
 ProcessorSmartPtr GrProcessorTestFactory<ProcessorSmartPtr>::Make(GrProcessorTestData* data) {
     VerifyFactoryCount();
-    if (GetFactories()->count() == 0) {
+    if (GetFactories()->size() == 0) {
         return nullptr;
     }
-    uint32_t idx = data->fRandom->nextULessThan(GetFactories()->count());
+    uint32_t idx = data->fRandom->nextULessThan(GetFactories()->size());
     return MakeIdx(idx, data);
 }
 
 template <class ProcessorSmartPtr>
 ProcessorSmartPtr GrProcessorTestFactory<ProcessorSmartPtr>::MakeIdx(int idx,
                                                                      GrProcessorTestData* data) {
-    SkASSERT(idx < GetFactories()->count());
+    SkASSERT(idx < GetFactories()->size());
     GrProcessorTestFactory<ProcessorSmartPtr>* factory = (*GetFactories())[idx];
     ProcessorSmartPtr processor = factory->fMakeProc(data);
     if (processor == nullptr) {
@@ -103,7 +103,7 @@ ProcessorSmartPtr GrProcessorTestFactory<ProcessorSmartPtr>::MakeIdx(int idx,
 
 template <class ProcessorSmartPtr>
 int GrProcessorTestFactory<ProcessorSmartPtr>::Count() {
-    return GetFactories()->count();
+    return GetFactories()->size();
 }
 
 GrXPFactoryTestFactory::GrXPFactoryTestFactory(GetFn* getProc) : fGetProc(getProc) {
@@ -112,10 +112,10 @@ GrXPFactoryTestFactory::GrXPFactoryTestFactory(GetFn* getProc) : fGetProc(getPro
 
 const GrXPFactory* GrXPFactoryTestFactory::Get(GrProcessorTestData* data) {
     VerifyFactoryCount();
-    if (GetFactories()->count() == 0) {
+    if (GetFactories()->size() == 0) {
         return nullptr;
     }
-    uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->count() - 1);
+    uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->size() - 1);
     const GrXPFactory* xpf = (*GetFactories())[idx]->fGetProc(data);
     SkASSERT(xpf);
     return xpf;
@@ -152,25 +152,25 @@ static constexpr int kGPFactoryCount = 14;
 static constexpr int kXPFactoryCount = 4;
 
 template <> void GrFragmentProcessorTestFactory::VerifyFactoryCount() {
-    if (kFPFactoryCount != GetFactories()->count()) {
+    if (kFPFactoryCount != GetFactories()->size()) {
         SkDebugf("\nExpected %d fragment processor factories, found %d.\n", kFPFactoryCount,
-                 GetFactories()->count());
+                 GetFactories()->size());
         SK_ABORT("Wrong number of fragment processor factories!");
     }
 }
 
 template <> void GrGeometryProcessorTestFactory::VerifyFactoryCount() {
-    if (kGPFactoryCount != GetFactories()->count()) {
+    if (kGPFactoryCount != GetFactories()->size()) {
         SkDebugf("\nExpected %d geometry processor factories, found %d.\n", kGPFactoryCount,
-                 GetFactories()->count());
+                 GetFactories()->size());
         SK_ABORT("Wrong number of geometry processor factories!");
     }
 }
 
 void GrXPFactoryTestFactory::VerifyFactoryCount() {
-    if (kXPFactoryCount != GetFactories()->count()) {
+    if (kXPFactoryCount != GetFactories()->size()) {
         SkDebugf("\nExpected %d xp factory factories, found %d.\n", kXPFactoryCount,
-                 GetFactories()->count());
+                 GetFactories()->size());
         SK_ABORT("Wrong number of xp factory factories!");
     }
 }

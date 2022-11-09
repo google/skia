@@ -29,7 +29,7 @@ protected:
     void onDelayedSetup() final {
         SkTArray<SkRect> rects;
         this->gatherRects(&rects);
-        fRectCount = rects.count();
+        fRectCount = rects.size();
         fRects = fAlignedAllocator.makeArray<Rect>(fRectCount);
         for (int i = 0; i < fRectCount; ++i) {
             fRects[i] = rects[i];
@@ -145,7 +145,7 @@ private:
             rects->push_back(drawBounds);
         });
         SkDebugf(">> Found %i stencil/cover paths in %s <<\n",
-                 rects->count(), FLAGS_intersectionTreeFile[0]);
+                 rects->size(), FLAGS_intersectionTreeFile[0]);
     }
 
     void onPerCanvasPostDraw(SkCanvas*) override {

@@ -30,7 +30,7 @@ SKPBench::SKPBench(const char* name, const SkPicture* pic, const SkIRect& clip, 
 }
 
 SKPBench::~SKPBench() {
-    for (int i = 0; i < fSurfaces.count(); ++i) {
+    for (int i = 0; i < fSurfaces.size(); ++i) {
         fSurfaces[i]->unref();
     }
 }

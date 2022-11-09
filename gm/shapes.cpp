@@ -52,7 +52,7 @@ protected:
         fShapes.push_back().setRectXY(SkRect::MakeXYWH(15, -20, 100, 100), 20, 15);
         fRotations.push_back(282);
 
-        fSimpleShapeCount = fShapes.count();
+        fSimpleShapeCount = fShapes.size();
 
         fShapes.push_back().setNinePatch(SkRect::MakeXYWH(140, -50, 90, 110), 10, 5, 25, 35);
         fRotations.push_back(0);
@@ -104,7 +104,7 @@ public:
 private:
     void drawShapes(SkCanvas* canvas) const override {
         SkRandom rand(2);
-        for (int i = 0; i < fShapes.count(); i++) {
+        for (int i = 0; i < fShapes.size(); i++) {
             SkPaint paint(fPaint);
             paint.setColor(rand.nextU() & ~0x808080);
             paint.setAlphaf(0.5f);  // Use alpha to detect double blends.
@@ -136,7 +136,7 @@ public:
 private:
     void drawShapes(SkCanvas* canvas) const override {
         SkRandom rand;
-        for (int i = 0; i < fShapes.count(); i++) {
+        for (int i = 0; i < fShapes.size(); i++) {
             const SkRRect& outer = fShapes[i];
             const SkRRect& inner = fShapes[(i * 7 + 11) % fSimpleShapeCount];
             float s = 0.95f * std::min(outer.rect().width() / inner.rect().width(),

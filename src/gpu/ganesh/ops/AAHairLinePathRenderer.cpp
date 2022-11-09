@@ -434,7 +434,7 @@ int gather_lines_and_quads(const SkPath& path,
                     } else {
                         GrPathUtils::convertCubicToQuads(devPts, SK_Scalar1, &q);
                     }
-                    for (int i = 0; i < q.count(); i += 3) {
+                    for (int i = 0; i < q.size(); i += 3) {
                         if (persp) {
                             addSrcChoppedQuad(&q[i], !verbsInContour && 0 == i);
                         } else {
@@ -925,14 +925,14 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
+        fPaths.push_back_n(that->fPaths.size(), that->fPaths.begin());
         return CombineResult::kMerged;
     }
 
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
         return SkStringPrintf("Color: 0x%08x Coverage: 0x%02x, Count: %d\n%s",
-                              fColor.toBytes_RGBA(), fCoverage, fPaths.count(),
+                              fColor.toBytes_RGBA(), fCoverage, fPaths.size(),
                               fHelper.dumpInfo().c_str());
     }
 #endif
@@ -1057,7 +1057,7 @@ AAHairlineOp::Program AAHairlineOp::predictPrograms(const GrCaps* caps) const {
     // given path.
     Program neededPrograms = Program::kLine;
 
-    for (int i = 0; i < fPaths.count(); i++) {
+    for (int i = 0; i < fPaths.size(); i++) {
         uint32_t mask = fPaths[i].fPath.getSegmentMasks();
 
         if (mask & (SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask)) {
@@ -1171,7 +1171,7 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
     FloatArray cWeights;
     int quadCount = 0;
 
-    int instanceCount = fPaths.count();
+    int instanceCount = fPaths.size();
     bool convertConicsToQuads = !target->caps().shaderCaps()->fFloatIs32Bits;
     for (int i = 0; i < instanceCount; i++) {
         const PathData& args = fPaths[i];
@@ -1180,8 +1180,8 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
                                             &conics, &qSubdivs, &cWeights);
     }
 
-    int lineCount = lines.count() / 2;
-    int conicCount = conics.count() / 3;
+    int lineCount = lines.size() / 2;
+    int conicCount = conics.size() / 3;
     int quadAndConicCount = conicCount + quadCount;
 
     static constexpr int kMaxLines = SK_MaxS32 / kLineSegNumVertices;
@@ -1232,7 +1232,7 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
         // Setup vertices
         BezierVertex* bezVerts = reinterpret_cast<BezierVertex*>(vertices);
 
-        int unsubdivQuadCnt = quads.count() / 3;
+        int unsubdivQuadCnt = quads.size() / 3;
         for (int i = 0; i < unsubdivQuadCnt; ++i) {
             SkASSERT(qSubdivs[i] >= 0);
             if (!quads[3*i].isFinite() || !quads[3*i+1].isFinite() || !quads[3*i+2].isFinite()) {

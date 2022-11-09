@@ -306,7 +306,7 @@ void SlideDir::load(SkScalar winWidth, SkScalar winHeight) {
 
     fRoot = sksg::Group::Make();
 
-    for (int i = 0; i < fSlides.count(); ++i) {
+    for (int i = 0; i < fSlides.size(); ++i) {
         const auto& slide     = fSlides[i];
         slide->load(winWidth, winHeight);
 
@@ -356,7 +356,7 @@ void SlideDir::unload() {
 
 SkISize SlideDir::getDimensions() const {
     return SkSize::Make(fWinSize.width(),
-                        fCellSize.height() * (1 + (fSlides.count() - 1) / fColumns)).toCeil();
+                        fCellSize.height() * (1 + (fSlides.size() - 1) / fColumns)).toCeil();
 }
 
 void SlideDir::draw(SkCanvas* canvas) {

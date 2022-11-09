@@ -111,7 +111,7 @@ protected:
         canvas->translate(margin, margin);
 
         SkPaint paint;
-        for (int p = 0; p < fPaths.count(); ++p) {
+        for (int p = 0; p < fPaths.size(); ++p) {
             canvas->save();
             for (size_t a = 0; a < std::size(kAlphaValue); ++a) {
                 paint.setARGB(kAlphaValue[a], 0, 0, 0);

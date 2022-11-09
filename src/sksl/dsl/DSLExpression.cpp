@@ -182,7 +182,7 @@ DSLExpression DSLExpression::index(DSLExpression index, Position pos) {
 
 DSLExpression DSLExpression::operator()(SkTArray<DSLExpression> args, Position pos) {
     ExpressionArray converted;
-    converted.reserve_back(args.count());
+    converted.reserve_back(args.size());
     for (DSLExpression& arg : args) {
         converted.push_back(arg.release());
     }

@@ -986,13 +986,13 @@ protected:
             return nullptr;
         }
 
-        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
+        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
         Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
                                    axisValues, name);
 
         auto data = std::make_unique<SkFontData>(
             std::move(stream), args.getCollectionIndex(), args.getPalette().index,
-            axisValues.get(), axisDefinitions.count(),
+            axisValues.get(), axisDefinitions.size(),
             args.getPalette().overrides, args.getPalette().overrideCount);
         return sk_sp<SkTypeface>(new SkTypeface_stream(std::move(data), std::move(name),
                                                        style, isFixedPitch));

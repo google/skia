@@ -25,7 +25,7 @@ int OverdrawHandler::handle(Request* request, MHD_Connection* connection,
     SkTArray<SkString> commands;
     SkStrSplit(url, "/", &commands);
 
-    if (commands.count() != 2) {
+    if (commands.size() != 2) {
         return MHD_NO;
     }
 

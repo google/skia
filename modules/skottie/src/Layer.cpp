@@ -206,13 +206,13 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     if (!has_effect) {
         sk_sp<sksg::GeometryNode> clip_node;
 
-        if (mask_stack.count() == 1) {
+        if (mask_stack.size() == 1) {
             // Single path -> just clip.
             clip_node = std::move(mask_stack.front().mask_path);
         } else {
             // Multiple clip paths -> merge.
             std::vector<sksg::Merge::Rec> merge_recs;
-            merge_recs.reserve(SkToSizeT(mask_stack.count()));
+            merge_recs.reserve(SkToSizeT(mask_stack.size()));
 
             for (auto& mask : mask_stack) {
                 merge_recs.push_back({std::move(mask.mask_path), mask.merge_mode });
@@ -225,13 +225,13 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
 
     // Complex masks (non-opaque or blurred) turn into a mask node stack.
     sk_sp<sksg::RenderNode> maskNode;
-    if (mask_stack.count() == 1) {
+    if (mask_stack.size() == 1) {
         // no group needed for single mask
         const auto rec = mask_stack.front();
         maskNode = rec.mask_adapter->makeMask(std::move(rec.mask_path));
     } else {
         std::vector<sk_sp<sksg::RenderNode>> masks;
-        masks.reserve(SkToSizeT(mask_stack.count()));
+        masks.reserve(SkToSizeT(mask_stack.size()));
         for (auto& rec : mask_stack) {
             masks.push_back(rec.mask_adapter->makeMask(std::move(rec.mask_path)));
         }

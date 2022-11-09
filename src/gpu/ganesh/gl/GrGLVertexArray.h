@@ -53,7 +53,7 @@ public:
                             GrPrimitiveRestart = GrPrimitiveRestart::kNo);
 
     void invalidate() {
-        int count = fAttribArrayStates.count();
+        int count = fAttribArrayStates.size();
         for (int i = 0; i < count; ++i) {
             fAttribArrayStates[i].invalidate();
         }
@@ -63,7 +63,7 @@ public:
     /**
      * The number of attrib arrays that this object is configured to track.
      */
-    int count() const { return fAttribArrayStates.count(); }
+    int count() const { return fAttribArrayStates.size(); }
 
 private:
     inline static constexpr int kInvalidDivisor = -1;

@@ -328,7 +328,7 @@ void DrawAtlas::compact(DrawToken startTokenForNextFlush) {
         // to evict them if there's available space in lower index pages. Since we prioritize
         // uploading to the first pages, this will eventually clear out usage of this page unless
         // we have a large need.
-        if (availablePlots.count() && usedPlots && usedPlots <= fNumPlots / 4) {
+        if (availablePlots.size() && usedPlots && usedPlots <= fNumPlots / 4) {
             plotIter.init(fPages[lastPageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
             while (Plot* plot = plotIter.get()) {
                 // If this plot was used recently
@@ -336,13 +336,13 @@ void DrawAtlas::compact(DrawToken startTokenForNextFlush) {
                     // See if there's room in an lower index page and if so evict.
                     // We need to be somewhat harsh here so that a handful of plots that are
                     // consistently in use don't end up locking the page in memory.
-                    if (availablePlots.count() > 0) {
+                    if (availablePlots.size() > 0) {
                         this->processEvictionAndResetRects(plot);
                         this->processEvictionAndResetRects(availablePlots.back());
                         availablePlots.pop_back();
                         --usedPlots;
                     }
-                    if (!usedPlots || !availablePlots.count()) {
+                    if (!usedPlots || !availablePlots.size()) {
                         break;
                     }
                 }

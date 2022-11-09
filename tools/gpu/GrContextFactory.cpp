@@ -61,7 +61,7 @@ void GrContextFactory::destroyContexts() {
     // deleted before a parent context. This relies on the fact that when we make a new context we
     // append it to the end of fContexts array.
     // TODO: Look into keeping a dependency dag for contexts and deletion order
-    for (int i = fContexts.count() - 1; i >= 0; --i) {
+    for (int i = fContexts.size() - 1; i >= 0; --i) {
         Context& context = fContexts[i];
         SkScopeExit restore(nullptr);
         if (context.fTestContext) {
@@ -82,7 +82,7 @@ void GrContextFactory::abandonContexts() {
     // abandoned before a parent context. This relies on the fact that when we make a new context we
     // append it to the end of fContexts array.
     // TODO: Look into keeping a dependency dag for contexts and deletion order
-    for (int i = fContexts.count() - 1; i >= 0; --i) {
+    for (int i = fContexts.size() - 1; i >= 0; --i) {
         Context& context = fContexts[i];
         if (!context.fAbandoned) {
             if (context.fTestContext) {
@@ -111,7 +111,7 @@ void GrContextFactory::releaseResourcesAndAbandonContexts() {
     // abandoned before a parent context. This relies on the fact that when we make a new context we
     // append it to the end of fContexts array.
     // TODO: Look into keeping a dependency dag for contexts and deletion order
-    for (int i = fContexts.count() - 1; i >= 0; --i) {
+    for (int i = fContexts.size() - 1; i >= 0; --i) {
         Context& context = fContexts[i];
         SkScopeExit restore(nullptr);
         if (!context.fAbandoned) {
@@ -138,7 +138,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     // (shareIndex != 0) -> (shareContext != nullptr)
     SkASSERT((shareIndex == 0) || (shareContext != nullptr));
 
-    for (int i = 0; i < fContexts.count(); ++i) {
+    for (int i = 0; i < fContexts.size(); ++i) {
         Context& context = fContexts[i];
         if (context.fType == type &&
             context.fOverrides == overrides &&
@@ -154,7 +154,7 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
     // If we're trying to create a context in a share group, find the primary context
     Context* primaryContext = nullptr;
     if (shareContext) {
-        for (int i = 0; i < fContexts.count(); ++i) {
+        for (int i = 0; i < fContexts.size(); ++i) {
             if (!fContexts[i].fAbandoned && fContexts[i].fGrContext == shareContext) {
                 primaryContext = &fContexts[i];
                 break;
@@ -349,7 +349,7 @@ ContextInfo GrContextFactory::getContextInfo(ContextType type, ContextOverrides 
 ContextInfo GrContextFactory::getSharedContextInfo(GrDirectContext* shareContext,
                                                    uint32_t shareIndex) {
     SkASSERT(shareContext);
-    for (int i = 0; i < fContexts.count(); ++i) {
+    for (int i = 0; i < fContexts.size(); ++i) {
         if (!fContexts[i].fAbandoned && fContexts[i].fGrContext == shareContext) {
             return this->getContextInfoInternal(fContexts[i].fType, fContexts[i].fOverrides,
                                                 shareContext, shareIndex);

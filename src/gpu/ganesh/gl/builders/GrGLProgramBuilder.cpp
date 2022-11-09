@@ -537,7 +537,7 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
         return false;
     }
 
-    for (int i = 0; i < meta.fAttributeNames.count(); ++i) {
+    for (int i = 0; i < meta.fAttributeNames.size(); ++i) {
         GR_GL_CALL(glGpu->glInterface(), BindAttribLocation(programID, i,
                                                           meta.fAttributeNames[i].c_str()));
     }

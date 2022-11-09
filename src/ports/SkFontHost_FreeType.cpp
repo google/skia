@@ -747,7 +747,7 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArgum
     if (!Scanner::GetAxes(face, &axisDefinitions)) {
         return nullptr;
     }
-    int axisCount = axisDefinitions.count();
+    int axisCount = axisDefinitions.size();
 
     SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> currentPosition(axisCount);
     int currentAxisCount = GetVariationDesignPosition(fta, currentPosition, axisCount);
@@ -2236,7 +2236,7 @@ bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) 
     const SkString& name,
     const SkFontArguments::VariationPosition::Coordinate* current)
 {
-    for (int i = 0; i < axisDefinitions.count(); ++i) {
+    for (int i = 0; i < axisDefinitions.size(); ++i) {
         const Scanner::AxisDefinition& axisDefinition = axisDefinitions[i];
         const SkScalar axisMin = SkFixedToScalar(axisDefinition.fMinimum);
         const SkScalar axisMax = SkFixedToScalar(axisDefinition.fMaximum);
@@ -2246,7 +2246,7 @@ bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) 
 
         // Then the current value.
         if (current) {
-            for (int j = 0; j < axisDefinitions.count(); ++j) {
+            for (int j = 0; j < axisDefinitions.size(); ++j) {
                 const auto& coordinate = current[j];
                 if (axisDefinition.fTag == coordinate.axis) {
                     const SkScalar axisValue = SkTPin(coordinate.value, axisMin, axisMax);
@@ -2286,7 +2286,7 @@ bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) 
         for (int i = 0; i < position.coordinateCount; ++i) {
             SkFourByteTag skTag = position.coordinates[i].axis;
             bool found = false;
-            for (int j = 0; j < axisDefinitions.count(); ++j) {
+            for (int j = 0; j < axisDefinitions.size(); ++j) {
                 if (skTag == axisDefinitions[j].fTag) {
                     found = true;
                     break;

@@ -190,13 +190,13 @@ DEF_TEST(TopoSort, reporter) {
 
         (tests[i].fCreate)(&graph);
 
-        const int numNodes = graph.count();
+        const int numNodes = graph.size();
 
         ToolUtils::TopoTestNode::Shuffle(graph, &rand);
 
         bool actualResult = GrTTopoSort<ToolUtils::TopoTestNode>(graph);
         REPORTER_ASSERT(reporter, actualResult == tests[i].fExpectedResult);
-        REPORTER_ASSERT(reporter, numNodes == graph.count());
+        REPORTER_ASSERT(reporter, numNodes == graph.size());
 
         if (tests[i].fExpectedResult) {
             for (const auto& node : graph) {

@@ -1107,7 +1107,7 @@ bool GrGLGpu::uploadColorToTex(GrGLFormat textureFormat,
         }
     }
     this->uploadTexData(texDims, target, SkIRect::MakeSize(texDims), externalFormat, externalType,
-                        bpp, levels.begin(), levels.count());
+                        bpp, levels.begin(), levels.size());
     return true;
 }
 
@@ -1715,7 +1715,7 @@ int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
         GL_CALL(GenRenderbuffers(1, &sbRBID));
 
         // look over formats till I find a compatible one
-        int stencilFmtCnt = this->glCaps().stencilFormats().count();
+        int stencilFmtCnt = this->glCaps().stencilFormats().size();
         if (sbRBID) {
             GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, sbRBID));
             for (int i = 0; i < stencilFmtCnt && sbRBID; ++i) {
@@ -2181,11 +2181,11 @@ void GrGLGpu::endCommandBuffer(GrGLRenderTarget* rt, bool useMultisampleFBO,
 
         if (!discardAttachments.empty()) {
             if (GrGLCaps::kInvalidate_InvalidateFBType == this->glCaps().invalidateFBType()) {
-                GL_CALL(InvalidateFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.count(),
+                GL_CALL(InvalidateFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.size(),
                                               discardAttachments.begin()));
             } else {
                 SkASSERT(GrGLCaps::kDiscard_InvalidateFBType == this->glCaps().invalidateFBType());
-                GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.count(),
+                GL_CALL(DiscardFramebuffer(GR_GL_FRAMEBUFFER, discardAttachments.size(),
                                            discardAttachments.begin()));
             }
         }

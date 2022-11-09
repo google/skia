@@ -212,7 +212,7 @@ private:
         }
 
         size_t vertexStride =  fProgramInfo->geomProc().vertexStride();
-        int instanceCount = fPaths.count();
+        int instanceCount = fPaths.size();
 
         int64_t vertexCount = 0;
         int64_t indexCount = 0;
@@ -296,7 +296,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
+        fPaths.push_back_n(that->fPaths.size(), that->fPaths.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }

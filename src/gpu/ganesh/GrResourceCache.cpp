@@ -440,10 +440,10 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
 void GrResourceCache::purgeAsNeeded() {
     SkTArray<skgpu::UniqueKeyInvalidatedMessage> invalidKeyMsgs;
     fInvalidUniqueKeyInbox.poll(&invalidKeyMsgs);
-    if (invalidKeyMsgs.count()) {
+    if (invalidKeyMsgs.size()) {
         SkASSERT(fProxyProvider);
 
-        for (int i = 0; i < invalidKeyMsgs.count(); ++i) {
+        for (int i = 0; i < invalidKeyMsgs.size(); ++i) {
             if (invalidKeyMsgs[i].inThreadSafeCache()) {
                 fThreadSafeCache->remove(invalidKeyMsgs[i].key());
                 SkASSERT(!fThreadSafeCache->has(invalidKeyMsgs[i].key()));

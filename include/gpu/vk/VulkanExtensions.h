@@ -48,7 +48,7 @@ public:
 #ifdef SK_DEBUG
     void dump() const {
         SkDebugf("**Vulkan Extensions**\n");
-        for (int i = 0; i < fExtensions.count(); ++i) {
+        for (int i = 0; i < fExtensions.size(); ++i) {
             SkDebugf("%s. Version: %d\n",
                      fExtensions[i].fName.c_str(), fExtensions[i].fSpecVersion);
         }

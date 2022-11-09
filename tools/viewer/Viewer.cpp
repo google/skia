@@ -531,10 +531,10 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
       fWindow->inval();
     });
     fCommands.addCommand(skui::Key::kRight, "Right", "Navigation", "Next slide", [this]() {
-        this->setCurrentSlide(fCurrentSlide < fSlides.count() - 1 ? fCurrentSlide + 1 : 0);
+        this->setCurrentSlide(fCurrentSlide < fSlides.size() - 1 ? fCurrentSlide + 1 : 0);
     });
     fCommands.addCommand(skui::Key::kLeft, "Left", "Navigation", "Previous slide", [this]() {
-        this->setCurrentSlide(fCurrentSlide > 0 ? fCurrentSlide - 1 : fSlides.count() - 1);
+        this->setCurrentSlide(fCurrentSlide > 0 ? fCurrentSlide - 1 : fSlides.size() - 1);
     });
     fCommands.addCommand(skui::Key::kUp, "Up", "Transform", "Zoom in", [this]() {
         this->changeZoomLevel(1.f / 32.f);
@@ -859,7 +859,7 @@ void Viewer::initSlides() {
     }
 
     // GMs
-    int firstGM = fSlides.count();
+    int firstGM = fSlides.size();
     for (skiagm::GMFactory gmFactory : skiagm::GMRegistry::Range()) {
         std::unique_ptr<skiagm::GM> gm = gmFactory();
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
@@ -874,7 +874,7 @@ void Viewer::initSlides() {
     std::sort(fSlides.begin() + firstGM, fSlides.end(), orderBySlideName);
 
     // samples
-    int firstSample = fSlides.count();
+    int firstSample = fSlides.size();
     for (const SampleFactory factory : SampleRegistry::Range()) {
         auto slide = sk_make_sp<SampleSlide>(factory);
         if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
@@ -921,7 +921,7 @@ void Viewer::initSlides() {
                 while (it.next(&name)) {
                     sortedFilenames.push_back(name);
                 }
-                if (sortedFilenames.count()) {
+                if (sortedFilenames.size()) {
                     SkTQSort(sortedFilenames.begin(), sortedFilenames.end(),
                              [](const SkString& a, const SkString& b) {
                                  return strcmp(a.c_str(), b.c_str()) < 0;
@@ -941,7 +941,7 @@ void Viewer::initSlides() {
         }
     }
 
-    if (!fSlides.count()) {
+    if (fSlides.empty()) {
         auto slide = sk_make_sp<NullSlide>();
         fSlides.push_back(std::move(slide));
     }
@@ -1146,7 +1146,7 @@ void Viewer::updateTitle() {
 int Viewer::startupSlide() const {
 
     if (!FLAGS_slide.isEmpty()) {
-        int count = fSlides.count();
+        int count = fSlides.size();
         for (int i = 0; i < count; i++) {
             if (fSlides[i]->getName().equals(FLAGS_slide[0])) {
                 return i;
@@ -1168,7 +1168,7 @@ void Viewer::listNames() const {
 }
 
 void Viewer::setCurrentSlide(int slide) {
-    SkASSERT(slide >= 0 && slide < fSlides.count());
+    SkASSERT(slide >= 0 && slide < fSlides.size());
 
     if (slide == fCurrentSlide) {
         return;
@@ -1812,10 +1812,10 @@ bool Viewer::onMouse(int x, int y, skui::InputState state, skui::ModifierKey mod
 
 bool Viewer::onFling(skui::InputState state) {
     if (skui::InputState::kRight == state) {
-        this->setCurrentSlide(fCurrentSlide > 0 ? fCurrentSlide - 1 : fSlides.count() - 1);
+        this->setCurrentSlide(fCurrentSlide > 0 ? fCurrentSlide - 1 : fSlides.size() - 1);
         return true;
     } else if (skui::InputState::kLeft == state) {
-        this->setCurrentSlide(fCurrentSlide < fSlides.count() - 1 ? fCurrentSlide + 1 : 0);
+        this->setCurrentSlide(fCurrentSlide < fSlides.size() - 1 ? fCurrentSlide + 1 : 0);
         return true;
     }
     return false;
@@ -2443,7 +2443,7 @@ void Viewer::drawImGui() {
                 filteredSlideNames.clear();
                 filteredSlideIndices.clear();
                 int filteredIndex = 0;
-                for (int i = 0; i < fSlides.count(); ++i) {
+                for (int i = 0; i < fSlides.size(); ++i) {
                     const char* slideName = fSlides[i]->getName().c_str();
                     if (filter.PassFilter(slideName) || i == fCurrentSlide) {
                         if (i == fCurrentSlide) {
@@ -2792,10 +2792,10 @@ void Viewer::drawImGui() {
         ImGui::End();
     }
 
-    if (gShaderErrorHandler.fErrors.count()) {
+    if (gShaderErrorHandler.fErrors.size()) {
         ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
         ImGui::Begin("Shader Errors", nullptr, ImGuiWindowFlags_NoFocusOnAppearing);
-        for (int i = 0; i < gShaderErrorHandler.fErrors.count(); ++i) {
+        for (int i = 0; i < gShaderErrorHandler.fErrors.size(); ++i) {
             ImGui::TextWrapped("%s", gShaderErrorHandler.fErrors[i].c_str());
             std::string sksl(gShaderErrorHandler.fShaders[i].c_str());
             SkShaderUtils::VisitLineByLine(sksl, [](int lineNumber, const char* lineText) {
@@ -3080,7 +3080,7 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
     // For example, after slide change, updateUIState is called inside setupCurrentSlide;
     // after backend change, updateUIState is called in this function.
     if (stateName.equals(kSlideStateName)) {
-        for (int i = 0; i < fSlides.count(); ++i) {
+        for (int i = 0; i < fSlides.size(); ++i) {
             if (fSlides[i]->getName().equals(stateValue)) {
                 this->setCurrentSlide(i);
                 return;

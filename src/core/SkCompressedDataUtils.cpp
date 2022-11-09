@@ -245,7 +245,7 @@ bool SkDecompress(sk_sp<SkData> data,
 
 size_t SkCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,
                             SkTArray<size_t>* individualMipOffsets, bool mipmapped) {
-    SkASSERT(!individualMipOffsets || !individualMipOffsets->count());
+    SkASSERT(!individualMipOffsets || !individualMipOffsets->size());
 
     int numMipLevels = 1;
     if (mipmapped) {

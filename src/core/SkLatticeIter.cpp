@@ -198,7 +198,7 @@ SkLatticeIter::SkLatticeIter(const SkCanvas::Lattice& lattice, const SkRect& dst
             }
         }
 
-        for (int j = 0; j < fRectTypes.count(); j++) {
+        for (int j = 0; j < fRectTypes.size(); j++) {
             if (SkCanvas::Lattice::kTransparent == fRectTypes[j]) {
                 fNumRectsToDraw--;
             }
@@ -254,22 +254,22 @@ SkLatticeIter::SkLatticeIter(int w, int h, const SkIRect& c, const SkRect& dst) 
 }
 
 bool SkLatticeIter::next(SkIRect* src, SkRect* dst, bool* isFixedColor, SkColor* fixedColor) {
-    int currRect = fCurrX + fCurrY * (fSrcX.count() - 1);
+    int currRect = fCurrX + fCurrY * (fSrcX.size() - 1);
     if (currRect == fNumRectsInLattice) {
         return false;
     }
 
     const int x = fCurrX;
     const int y = fCurrY;
-    SkASSERT(x >= 0 && x < fSrcX.count() - 1);
-    SkASSERT(y >= 0 && y < fSrcY.count() - 1);
+    SkASSERT(x >= 0 && x < fSrcX.size() - 1);
+    SkASSERT(y >= 0 && y < fSrcY.size() - 1);
 
-    if (fSrcX.count() - 1 == ++fCurrX) {
+    if (fSrcX.size() - 1 == ++fCurrX) {
         fCurrX = 0;
         fCurrY += 1;
     }
 
-    if (fRectTypes.count() > 0
+    if (fRectTypes.size() > 0
         && SkToBool(SkCanvas::Lattice::kTransparent == fRectTypes[currRect])) {
         return this->next(src, dst, isFixedColor, fixedColor);
     }
@@ -277,7 +277,7 @@ bool SkLatticeIter::next(SkIRect* src, SkRect* dst, bool* isFixedColor, SkColor*
     src->setLTRB(fSrcX[x], fSrcY[y], fSrcX[x + 1], fSrcY[y + 1]);
     dst->setLTRB(fDstX[x], fDstY[y], fDstX[x + 1], fDstY[y + 1]);
     if (isFixedColor && fixedColor) {
-        *isFixedColor = fRectTypes.count() > 0
+        *isFixedColor = fRectTypes.size() > 0
                      && SkToBool(SkCanvas::Lattice::kFixedColor == fRectTypes[currRect]);
         if (*isFixedColor) {
             *fixedColor = fColors[currRect];
@@ -290,13 +290,13 @@ void SkLatticeIter::mapDstScaleTranslate(const SkMatrix& matrix) {
     SkASSERT(matrix.isScaleTranslate());
     SkScalar tx = matrix.getTranslateX();
     SkScalar sx = matrix.getScaleX();
-    for (int i = 0; i < fDstX.count(); i++) {
+    for (int i = 0; i < fDstX.size(); i++) {
         fDstX[i] = fDstX[i] * sx + tx;
     }
 
     SkScalar ty = matrix.getTranslateY();
     SkScalar sy = matrix.getScaleY();
-    for (int i = 0; i < fDstY.count(); i++) {
+    for (int i = 0; i < fDstY.size(); i++) {
         fDstY[i] = fDstY[i] * sy + ty;
     }
 }

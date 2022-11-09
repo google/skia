@@ -283,7 +283,7 @@ void ChromeTracingTracer::flush() {
     writer.beginArray();
 
     uint64_t clockOffset = 0;
-    if (fBlocks.count() > 0) {
+    if (fBlocks.size() > 0) {
         clockOffset = reinterpret_cast<TraceEvent*>(fBlocks[0].fBlock.get())->fClockBegin;
     } else if (fCurBlock.fEventsInBlock > 0) {
         clockOffset = reinterpret_cast<TraceEvent*>(fCurBlock.fBlock.get())->fClockBegin;
@@ -301,7 +301,7 @@ void ChromeTracingTracer::flush() {
         }
     };
 
-    for (int i = 0; i < fBlocks.count(); ++i) {
+    for (int i = 0; i < fBlocks.size(); ++i) {
         event_block_to_json(&writer, fBlocks[i], &serializationState);
     }
     event_block_to_json(&writer, fCurBlock, &serializationState);

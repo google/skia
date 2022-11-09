@@ -447,7 +447,7 @@ public:
 private:
     GrPrimitiveType primType() const {
         if (this->isHairline()) {
-            int instanceCount = fPaths.count();
+            int instanceCount = fPaths.size();
 
             // We avoid indices when we have a single hairline contour.
             bool isIndexed = instanceCount > 1 ||
@@ -497,7 +497,7 @@ private:
         PathGeoBuilder pathGeoBuilder(this->primType(), target, &fMeshes);
 
         // fill buffers
-        for (int i = 0; i < fPaths.count(); i++) {
+        for (int i = 0; i < fPaths.size(); i++) {
             const PathData& args = fPaths[i];
             pathGeoBuilder.addPath(args.fPath, args.fTolerance);
         }
@@ -541,14 +541,14 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
+        fPaths.push_back_n(that->fPaths.size(), that->fPaths.begin());
         return CombineResult::kMerged;
     }
 
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
         SkString string = SkStringPrintf("Color: 0x%08x Count: %d\n",
-                                         fColor.toBytes_RGBA(), fPaths.count());
+                                         fColor.toBytes_RGBA(), fPaths.size());
         for (const auto& path : fPaths) {
             string.appendf("Tolerance: %.2f\n", path.fTolerance);
         }

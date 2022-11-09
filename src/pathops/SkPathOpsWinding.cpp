@@ -277,7 +277,7 @@ bool SkOpSpan::sortableTop(SkOpContour* contourHead) {
         sorted.push_back(hit);
         hit = hit->fNext;
     }
-    int count = sorted.count();
+    int count = sorted.size();
     SkTQSort(sorted.begin(), sorted.end(),
              xy_index(dir) ? less_than(dir) ? hit_compare_y : reverse_hit_compare_y
                            : less_than(dir) ? hit_compare_x : reverse_hit_compare_x);

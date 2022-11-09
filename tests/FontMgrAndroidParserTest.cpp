@@ -63,7 +63,7 @@ static bool isDIGIT(int c) {
 
 static void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* firstExpectedFile,
                                 skiatest::Reporter* reporter) {
-    REPORTER_ASSERT(reporter, fontFamilies[0]->fNames.count() == 5);
+    REPORTER_ASSERT(reporter, fontFamilies[0]->fNames.size() == 5);
     REPORTER_ASSERT(reporter, !strcmp(fontFamilies[0]->fNames[0].c_str(), "sans-serif"));
     REPORTER_ASSERT(reporter,
                     !strcmp(fontFamilies[0]->fFonts[0].fFileName.c_str(), firstExpectedFile));
@@ -85,7 +85,7 @@ static void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char*
     // Verifying ensures the filenames have been read sanely and have not been 'sliced'.
     for (int i = 0; i < fontFamilies.size(); ++i) {
         FontFamily& family = *fontFamilies[i];
-        for (int j = 0; j < family.fFonts.count(); ++j) {
+        for (int j = 0; j < family.fFonts.size(); ++j) {
             FontFileInfo& file = family.fFonts[j];
             REPORTER_ASSERT(reporter, !file.fFileName.isEmpty() &&
                                       file.fFileName[0] >= 'A' &&
@@ -95,7 +95,7 @@ static void ValidateLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char*
 }
 
 static void DumpFiles(const FontFamily& fontFamily) {
-    for (int j = 0; j < fontFamily.fFonts.count(); ++j) {
+    for (int j = 0; j < fontFamily.fFonts.size(); ++j) {
         const FontFileInfo& ffi = fontFamily.fFonts[j];
         SkDebugf("  file (%d) %s#%d", ffi.fWeight, ffi.fFileName.c_str(), ffi.fIndex);
         for (const auto& coordinate : ffi.fVariationDesignPosition) {
@@ -131,7 +131,7 @@ static void DumpLoadedFonts(SkTDArray<FontFamily*> fontFamilies, const char* lab
             }
             SkDebugf("\n");
         }
-        for (int j = 0; j < fontFamilies[i]->fNames.count(); ++j) {
+        for (int j = 0; j < fontFamilies[i]->fNames.size(); ++j) {
             SkDebugf("  name %s\n", fontFamilies[i]->fNames[j].c_str());
         }
         DumpFiles(*fontFamilies[i]);

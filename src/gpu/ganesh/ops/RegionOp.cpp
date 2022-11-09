@@ -112,7 +112,7 @@ private:
             }
         }
 
-        int numRegions = fRegions.count();
+        int numRegions = fRegions.size();
         int numRects = 0;
         for (int i = 0; i < numRegions; i++) {
             numRects += fRegions[i].fRegion.computeRegionComplexity();
@@ -163,15 +163,15 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fRegions.push_back_n(that->fRegions.count(), that->fRegions.begin());
+        fRegions.push_back_n(that->fRegions.size(), that->fRegions.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
 
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
-        SkString str = SkStringPrintf("# combined: %d\n", fRegions.count());
-        for (int i = 0; i < fRegions.count(); ++i) {
+        SkString str = SkStringPrintf("# combined: %d\n", fRegions.size());
+        for (int i = 0; i < fRegions.size(); ++i) {
             const RegionInfo& info = fRegions[i];
             str.appendf("%d: Color: 0x%08x, Region with %d rects\n", i, info.fColor.toBytes_RGBA(),
                         info.fRegion.computeRegionComplexity());

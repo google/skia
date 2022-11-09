@@ -410,7 +410,7 @@ void TestSVGTypeface::exportTtxCommon(SkWStream*                out,
     }
     if (glyfInfo) {
         for (int i = 0; i < fGlyphCount; ++i) {
-            for (int j = 0; j < (*glyfInfo)[i].fLayers.count(); ++j) {
+            for (int j = 0; j < (*glyfInfo)[i].fLayers.size(); ++j) {
                 out->writeText("    <GlyphID name=\"glyf");
                 out->writeHexAsText(i, 4);
                 out->writeText("l");
@@ -643,7 +643,7 @@ void TestSVGTypeface::exportTtxCommon(SkWStream*                out,
     }
     if (glyfInfo) {
         for (int i = 0; i < fGlyphCount; ++i) {
-            for (int j = 0; j < (*glyfInfo)[i].fLayers.count(); ++j) {
+            for (int j = 0; j < (*glyfInfo)[i].fLayers.size(); ++j) {
                 out->writeText("    <mtx name=\"glyf");
                 out->writeHexAsText(i, 4);
                 out->writeText("l");
@@ -1166,7 +1166,7 @@ void path_to_quads(const SkPath& path, SkPath* quadPath) {
             case SkPathVerb::kCubic:
                 qPts.reset();
                 convertCubicToQuads(pts, SK_Scalar1, &qPts);
-                for (int i = 0; i < qPts.count(); i += 3) {
+                for (int i = 0; i < qPts.size(); i += 3) {
                     quadPath->quadTo(
                             qPts[i + 1].fX, qPts[i + 1].fY, qPts[i + 2].fX, qPts[i + 2].fY);
                 }
@@ -1428,7 +1428,7 @@ void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
         out->writeText("    <ColorGlyph name=\"glyf");
         out->writeHexAsText(i, 4);
         out->writeText("\">\n");
-        for (int j = 0; j < glyfInfos[i].fLayers.count(); ++j) {
+        for (int j = 0; j < glyfInfos[i].fLayers.size(); ++j) {
             const int colorIndex = glyfInfos[i].fLayers[j].fLayerColorIndex;
             out->writeText("      <layer colorID=\"");
             out->writeDecAsText(colorIndex);

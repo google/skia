@@ -173,7 +173,7 @@ int SkPDFTagTree::createMarkIdForNodeId(int nodeId, unsigned pageIndex) {
         fMarksPerPage.push_back();
     }
     SkTArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[pageIndex];
-    int markId = pageMarks.count();
+    int markId = pageMarks.size();
     tag->fMarkedContent.push_back({pageIndex, markId});
     pageMarks.push_back(tag);
     return markId;

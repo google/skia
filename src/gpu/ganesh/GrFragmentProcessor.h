@@ -189,7 +189,7 @@ public:
         }
     }
 
-    int numChildProcessors() const { return fChildProcessors.count(); }
+    int numChildProcessors() const { return fChildProcessors.size(); }
     int numNonNullChildProcessors() const;
 
     GrFragmentProcessor* childProcessor(int index) { return fChildProcessors[index].get(); }
@@ -523,7 +523,7 @@ public:
     // is the responsibility of the caller.
     void setData(const GrGLSLProgramDataManager& pdman, const GrFragmentProcessor& processor);
 
-    int numChildProcessors() const { return fChildProcessors.count(); }
+    int numChildProcessors() const { return fChildProcessors.size(); }
 
     ProgramImpl* childProcessor(int index) const { return fChildProcessors[index].get(); }
 

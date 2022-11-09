@@ -445,7 +445,7 @@ size_t SkResourceCache::getEffectiveSingleAllocationByteLimit() const {
 void SkResourceCache::checkMessages() {
     SkTArray<PurgeSharedIDMessage> msgs;
     fPurgeSharedIDInbox.poll(&msgs);
-    for (int i = 0; i < msgs.count(); ++i) {
+    for (int i = 0; i < msgs.size(); ++i) {
         this->purgeSharedID(msgs[i].fSharedID);
     }
 }

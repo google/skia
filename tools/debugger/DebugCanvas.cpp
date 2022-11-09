@@ -257,14 +257,14 @@ void DebugCanvas::drawTo(SkCanvas* originalCanvas, int index, int m) {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(1);
-        for (int i = 0; i < childrenBounds.count(); i++) {
+        for (int i = 0; i < childrenBounds.size(); i++) {
             if (childrenBounds[i].fProxyUniqueID != proxyID) {
                 // offscreen draw, ignore for now
                 continue;
             }
             paint.setColor(kTotalBounds);
             finalCanvas->drawRect(childrenBounds[i].fBounds, paint);
-            for (int j = 0; j < childrenBounds[i].fOps.count(); j++) {
+            for (int j = 0; j < childrenBounds[i].fOps.size(); j++) {
                 const GrAuditTrail::OpInfo::Op& op = childrenBounds[i].fOps[j];
                 if (op.fClientID != index) {
                     paint.setColor(kOtherOpBounds);

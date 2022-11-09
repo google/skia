@@ -60,7 +60,7 @@ private:
                    SkFontIdentity::kInvalidDataId);
 
         SkAutoMutexExclusive ama(fDataIdCacheMutex);
-        int count = fDataIdCache.count();
+        int count = fDataIdCache.size();
         int i;
         for (i = 0; i < count; ++i) {
             const DataId& current = fDataIdCache[i];
@@ -419,7 +419,7 @@ public:
 
     SkStreamAsset* getData(int dataId) const override {
         SkAutoMutexExclusive ama(fDataIdCacheMutex);
-        if (dataId >= fDataIdCache.count()) {
+        if (dataId >= fDataIdCache.size()) {
             return nullptr;
         }
         const DataId& id = fDataIdCache[dataId];

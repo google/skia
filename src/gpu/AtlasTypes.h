@@ -395,7 +395,7 @@ public:
         uint32_t fPlotIndex;
     };
 
-    int count() const { return fPlotsToUpdate.count(); }
+    int count() const { return fPlotsToUpdate.size(); }
 
     const PlotData& plotData(int index) const { return fPlotsToUpdate[index]; }
 

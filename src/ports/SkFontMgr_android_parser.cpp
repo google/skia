@@ -185,7 +185,7 @@ static const TagHandler axisHandler = {
                 if (valueLen == 4) {
                     axisTag = SkSetFourByteTag(value[0], value[1], value[2], value[3]);
                     axisTagIsValid = true;
-                    for (int j = 0; j < file.fVariationDesignPosition.count() - 1; ++j) {
+                    for (int j = 0; j < file.fVariationDesignPosition.size() - 1; ++j) {
                         if (file.fVariationDesignPosition[j].axis == axisTag) {
                             axisTagIsValid = false;
                             SK_FONTCONFIGPARSER_WARNING("'%c%c%c%c' axis specified more than once",
@@ -327,7 +327,7 @@ static const TagHandler familyHandler = {
 static FontFamily* find_family(FamilyData* self, const SkString& familyName) {
     for (int i = 0; i < self->fFamilies.size(); i++) {
         FontFamily* candidate = self->fFamilies[i];
-        for (int j = 0; j < candidate->fNames.count(); j++) {
+        for (int j = 0; j < candidate->fNames.size(); j++) {
             if (candidate->fNames[j] == familyName) {
                 return candidate;
             }
@@ -375,7 +375,7 @@ static const TagHandler aliasHandler = {
             FontFamily* family = new FontFamily(targetFamily->fBasePath, self->fIsFallback);
             family->fNames.push_back().set(aliasName);
 
-            for (int i = 0; i < targetFamily->fFonts.count(); i++) {
+            for (int i = 0; i < targetFamily->fFonts.size(); i++) {
                 if (targetFamily->fFonts[i].fWeight == weight) {
                     family->fFonts.push_back(targetFamily->fFonts[i]);
                 }
@@ -430,7 +430,7 @@ static const TagHandler fileHandler = {
                     } else if (MEMEQ("compact", value, valueLen)) {
                         currentFamily.fVariant = kCompact_FontVariant;
                     }
-                    if (currentFamily.fFonts.count() > 1 && currentFamily.fVariant != prevVariant) {
+                    if (currentFamily.fFonts.size() > 1 && currentFamily.fVariant != prevVariant) {
                         SK_FONTCONFIGPARSER_WARNING("'%s' unexpected variant found\n"
                             "Note: Every font file within a family must have identical variants.",
                             value);
@@ -440,7 +440,7 @@ static const TagHandler fileHandler = {
                     SkLanguage currentLanguage = SkLanguage(value, valueLen);
                     bool showWarning = false;
                     if (currentFamily.fLanguages.empty()) {
-                        showWarning = (currentFamily.fFonts.count() > 1);
+                        showWarning = (currentFamily.fFonts.size() > 1);
                         currentFamily.fLanguages.push_back(std::move(currentLanguage));
                     } else if (currentFamily.fLanguages[0] != currentLanguage) {
                         showWarning = true;

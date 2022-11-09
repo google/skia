@@ -1231,7 +1231,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceContextWritePixelsMipped,
                     // Going through intermediate textures is not supported for MIP levels (because
                     // we don't support rendering to non-base levels). So it's hard to have any hard
                     // rules about when we expect success.
-                    if (!sc->writePixels(direct, levels.begin(), levels.count())) {
+                    if (!sc->writePixels(direct, levels.begin(), levels.size())) {
                         continue;
                     }
                     // Make sure the pixels from the unowned pixmap are released and then put the
