@@ -180,7 +180,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         }
     }
 
-    if (0 == codecs->count()) {
+    if (0 == codecs->size()) {
         SkCodecPrintf("Error: could not find any valid embedded ico codecs.\n");
         return nullptr;
     }
@@ -188,7 +188,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
     // Use the largest codec as a "suggestion" for image info
     size_t maxSize = 0;
     int maxIndex = 0;
-    for (int i = 0; i < codecs->count(); i++) {
+    for (int i = 0; i < codecs->size(); i++) {
         SkImageInfo info = codecs->operator[](i)->getInfo();
         size_t size = info.computeMinByteSize();
 
@@ -227,7 +227,7 @@ SkISize SkIcoCodec::onGetScaledDimensions(float desiredScale) const {
     // At least one image will have smaller error than this initial value
     float minError = ((float) (origWidth * origHeight)) - desiredSize + 1.0f;
     int32_t minIndex = -1;
-    for (int32_t i = 0; i < fEmbeddedCodecs->count(); i++) {
+    for (int32_t i = 0; i < fEmbeddedCodecs->size(); i++) {
         auto dimensions = fEmbeddedCodecs->operator[](i)->dimensions();
         int width = dimensions.width();
         int height = dimensions.height();
@@ -246,7 +246,7 @@ int SkIcoCodec::chooseCodec(const SkISize& requestedSize, int startIndex) {
     SkASSERT(startIndex >= 0);
 
     // FIXME: Cache the index from onGetScaledDimensions?
-    for (int i = startIndex; i < fEmbeddedCodecs->count(); i++) {
+    for (int i = startIndex; i < fEmbeddedCodecs->size(); i++) {
         if (fEmbeddedCodecs->operator[](i)->dimensions() == requestedSize) {
             return i;
         }

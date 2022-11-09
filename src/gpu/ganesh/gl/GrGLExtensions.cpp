@@ -25,7 +25,7 @@ static int find_string(const SkTArray<SkString>& strings, const char ext[]) {
     }
     SkString extensionStr(ext);
     int idx = SkTSearch<SkString, extension_compare>(&strings.front(),
-                                                     strings.count(),
+                                                     strings.size(),
                                                      extensionStr,
                                                      sizeof(SkString));
     return idx;
@@ -137,7 +137,7 @@ bool GrGLExtensions::remove(const char ext[]) {
     // This is not terribly effecient but we really only expect this function to be called at
     // most a handful of times when our test programs start.
     fStrings.removeShuffle(idx);
-    if (idx != fStrings.count()) {
+    if (idx != fStrings.size()) {
         SkTInsertionSort(fStrings.begin() + idx, fStrings.size() - idx, extension_compare);
     }
     return true;
@@ -158,7 +158,7 @@ void GrGLExtensions::add(const char ext[]) {
 
 void GrGLExtensions::dumpJSON(SkJSONWriter* writer) const {
     writer->beginArray();
-    for (int i = 0; i < fStrings.count(); ++i) {
+    for (int i = 0; i < fStrings.size(); ++i) {
         writer->appendString(fStrings[i]);
     }
     writer->endArray();

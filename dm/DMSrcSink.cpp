@@ -1202,7 +1202,7 @@ Result BisectSrc::draw(GrDirectContext* context, SkCanvas* canvas) const {
         return result;
     }
 
-    int start = 0, end = pathFinder.foundPaths().count();
+    int start = 0, end = pathFinder.foundPaths().size();
     for (const char* ch = fTrail.c_str(); *ch; ++ch) {
         int midpt = (start + end) / 2;
         if ('l' == *ch) {
@@ -1380,15 +1380,15 @@ MSKPSrc::MSKPSrc(Path path) : fPath(path) {
     int count = SkMultiPictureDocumentReadPageCount(stream.get());
     if (count > 0) {
         fPages.reset(count);
-        (void)SkMultiPictureDocumentReadPageSizes(stream.get(), &fPages[0], fPages.count());
+        (void)SkMultiPictureDocumentReadPageSizes(stream.get(), &fPages[0], fPages.size());
     }
 }
 
-int MSKPSrc::pageCount() const { return fPages.count(); }
+int MSKPSrc::pageCount() const { return fPages.size(); }
 
 SkISize MSKPSrc::size() const { return this->size(0); }
 SkISize MSKPSrc::size(int i) const {
-    return i >= 0 && i < fPages.count() ? fPages[i].fSize.toCeil() : SkISize{0, 0};
+    return i >= 0 && i < fPages.size() ? fPages[i].fSize.toCeil() : SkISize{0, 0};
 }
 
 Result MSKPSrc::draw(GrDirectContext* context, SkCanvas* c) const {
@@ -1398,7 +1398,7 @@ Result MSKPSrc::draw(int i, GrDirectContext*, SkCanvas* canvas) const {
     if (this->pageCount() == 0) {
         return Result::Fatal("Unable to parse MultiPictureDocument file: %s", fPath.c_str());
     }
-    if (i >= fPages.count() || i < 0) {
+    if (i >= fPages.size() || i < 0) {
         return Result::Fatal("MultiPictureDocument page number out of range: %d", i);
     }
     SkPicture* page = fPages[i].fPicture.get();
@@ -1407,7 +1407,7 @@ Result MSKPSrc::draw(int i, GrDirectContext*, SkCanvas* canvas) const {
         if (!stream) {
             return Result::Fatal("Unable to open file: %s", fPath.c_str());
         }
-        if (!SkMultiPictureDocumentRead(stream.get(), &fPages[0], fPages.count())) {
+        if (!SkMultiPictureDocumentRead(stream.get(), &fPages[0], fPages.size())) {
             return Result::Fatal("SkMultiPictureDocument reader failed on page %d: %s", i,
                                  fPath.c_str());
         }

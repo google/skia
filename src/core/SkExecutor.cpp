@@ -78,11 +78,11 @@ public:
 
     ~SkThreadPool() override {
         // Signal each thread that it's time to shut down.
-        for (int i = 0; i < fThreads.count(); i++) {
+        for (int i = 0; i < fThreads.size(); i++) {
             this->add(nullptr);
         }
         // Wait for each thread to shut down.
-        for (int i = 0; i < fThreads.count(); i++) {
+        for (int i = 0; i < fThreads.size(); i++) {
             fThreads[i].join();
         }
     }

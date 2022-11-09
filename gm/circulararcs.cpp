@@ -209,7 +209,7 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
     linePaint.setAntiAlias(true);
     linePaint.setColor(SK_ColorRED);
     SkScalar midX   = std::size(arcs) * (kS + kPad) - kPad/2.f;
-    SkScalar height = paints.count() * (kS + kPad);
+    SkScalar height = paints.size() * (kS + kPad);
     canvas->drawLine(midX, -kPad, midX, height, linePaint);
 
     for (auto paint : paints) {
@@ -300,7 +300,7 @@ DEF_SIMPLE_GM(circular_arc_stroke_matrix, canvas, 820, 1090) {
     matrices.push_back().setAll( 0,  1,  0,
                                 -1,  0,  2*kRadius,
                                  0,  0,  1);
-    int baseMatrixCnt = matrices.count();
+    int baseMatrixCnt = matrices.size();
 
 
     SkMatrix tinyCW;

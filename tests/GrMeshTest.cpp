@@ -98,7 +98,7 @@ public:
     sk_sp<const GrBuffer> makeIndexBuffer(const uint16_t[], int count);
 
     template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const SkTArray<T>& data) {
-        return this->makeVertexBuffer(data.begin(), data.count());
+        return this->makeVertexBuffer(data.begin(), data.size());
     }
     template<typename T> sk_sp<const GrBuffer> makeVertexBuffer(const std::vector<T>& data) {
         return this->makeVertexBuffer(data.data(), data.size());
@@ -288,7 +288,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo, CtsEnforce
                          baseIndexData.push_back(kIndexPattern[i]);
                      }
                      helper->fIndexBuffer2 = helper->makeIndexBuffer(baseIndexData.begin(),
-                                                                     baseIndexData.count());
+                                                                     baseIndexData.size());
                      helper->fInstBuffer = helper->makeVertexBuffer(boxes);
                      VALIDATE(helper->fInstBuffer);
                      helper->fVertBuffer =
@@ -357,7 +357,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrMeshTest, reporter, ctxInfo, CtsEnforce
                          }
                      }
                      helper->fIndexBuffer2 = helper->makeIndexBuffer(baseIndexData.begin(),
-                                                                     baseIndexData.count());
+                                                                     baseIndexData.size());
                      VALIDATE(helper->fIndexBuffer2);
                      helper->fInstBuffer = helper->makeVertexBuffer(boxes);
                      VALIDATE(helper->fInstBuffer);

@@ -111,7 +111,7 @@ public:
               bool printDependencies,
               bool close) const override;
     const char* name() const final { return "Ops"; }
-    int numOpChains() const { return fOpChains.count(); }
+    int numOpChains() const { return fOpChains.size(); }
     const GrOp* getChain(int index) const { return fOpChains[index].head(); }
 #endif
 

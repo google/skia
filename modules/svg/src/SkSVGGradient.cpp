@@ -40,7 +40,7 @@ void SkSVGGradient::collectColorStops(const SkSVGRenderContext& ctx,
                               0.f, 1.f));
     }
 
-    SkASSERT(colors->count() == pos->count());
+    SkASSERT(colors->size() == pos->size());
 
     if (pos->empty() && !fHref.iri().isEmpty()) {
         const auto ref = ctx.findNodeById(fHref);
@@ -91,7 +91,7 @@ bool SkSVGGradient::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) con
                            * SkMatrix::Scale(obbt.scale.x, obbt.scale.y)
                            * fGradientTransform;
 
-    paint->setShader(this->onMakeShader(ctx, colors.begin(), pos.begin(), colors.count(), tileMode,
+    paint->setShader(this->onMakeShader(ctx, colors.begin(), pos.begin(), colors.size(), tileMode,
                                         localMatrix));
     return true;
 }

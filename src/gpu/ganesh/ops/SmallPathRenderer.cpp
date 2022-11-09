@@ -146,7 +146,7 @@ private:
     }
 
     void onPrepareDraws(GrMeshDrawTarget* target) override {
-        int instanceCount = fShapes.count();
+        int instanceCount = fShapes.size();
 
         auto atlasMgr = target->smallPathAtlasManager();
         if (!atlasMgr) {
@@ -628,7 +628,7 @@ private:
             }
         }
 
-        fShapes.push_back_n(that->fShapes.count(), that->fShapes.begin());
+        fShapes.push_back_n(that->fShapes.size(), that->fShapes.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }

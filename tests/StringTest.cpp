@@ -216,7 +216,7 @@ DEF_TEST(String_SkStrSplit, r) {
     SkTArray<SkString> results;
 
     SkStrSplit("a-_b_c-dee--f-_-_-g-", "-_", &results);
-    REPORTER_ASSERT(r, results.count() == 6);
+    REPORTER_ASSERT(r, results.size() == 6);
     REPORTER_ASSERT(r, results[0].equals("a"));
     REPORTER_ASSERT(r, results[1].equals("b"));
     REPORTER_ASSERT(r, results[2].equals("c"));
@@ -226,21 +226,21 @@ DEF_TEST(String_SkStrSplit, r) {
 
     results.reset();
     SkStrSplit("\n", "\n", &results);
-    REPORTER_ASSERT(r, results.count() == 0);
+    REPORTER_ASSERT(r, results.size() == 0);
 
     results.reset();
     SkStrSplit("", "\n", &results);
-    REPORTER_ASSERT(r, results.count() == 0);
+    REPORTER_ASSERT(r, results.size() == 0);
 
     results.reset();
     SkStrSplit("a", "\n", &results);
-    REPORTER_ASSERT(r, results.count() == 1);
+    REPORTER_ASSERT(r, results.size() == 1);
     REPORTER_ASSERT(r, results[0].equals("a"));
 }
 DEF_TEST(String_SkStrSplit_All, r) {
     SkTArray<SkString> results;
     SkStrSplit("a-_b_c-dee--f-_-_-g-", "-_", kStrict_SkStrSplitMode, &results);
-    REPORTER_ASSERT(r, results.count() == 13);
+    REPORTER_ASSERT(r, results.size() == 13);
     REPORTER_ASSERT(r, results[0].equals("a"));
     REPORTER_ASSERT(r, results[1].equals(""));
     REPORTER_ASSERT(r, results[2].equals("b"));
@@ -257,29 +257,29 @@ DEF_TEST(String_SkStrSplit_All, r) {
 
     results.reset();
     SkStrSplit("\n", "\n", kStrict_SkStrSplitMode, &results);
-    REPORTER_ASSERT(r, results.count() == 2);
+    REPORTER_ASSERT(r, results.size() == 2);
     REPORTER_ASSERT(r, results[0].equals(""));
     REPORTER_ASSERT(r, results[1].equals(""));
 
     results.reset();
     SkStrSplit("", "\n", kStrict_SkStrSplitMode, &results);
-    REPORTER_ASSERT(r, results.count() == 0);
+    REPORTER_ASSERT(r, results.size() == 0);
 
     results.reset();
     SkStrSplit("a", "\n", kStrict_SkStrSplitMode, &results);
-    REPORTER_ASSERT(r, results.count() == 1);
+    REPORTER_ASSERT(r, results.size() == 1);
     REPORTER_ASSERT(r, results[0].equals("a"));
 
     results.reset();
     SkStrSplit(",,", ",", kStrict_SkStrSplitMode, &results);
-    REPORTER_ASSERT(r, results.count() == 3);
+    REPORTER_ASSERT(r, results.size() == 3);
     REPORTER_ASSERT(r, results[0].equals(""));
     REPORTER_ASSERT(r, results[1].equals(""));
     REPORTER_ASSERT(r, results[2].equals(""));
 
     results.reset();
     SkStrSplit(",a,b,", ",", kStrict_SkStrSplitMode, &results);
-    REPORTER_ASSERT(r, results.count() == 4);
+    REPORTER_ASSERT(r, results.size() == 4);
     REPORTER_ASSERT(r, results[0].equals(""));
     REPORTER_ASSERT(r, results[1].equals("a"));
     REPORTER_ASSERT(r, results[2].equals("b"));

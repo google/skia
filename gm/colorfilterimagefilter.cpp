@@ -214,7 +214,7 @@ DEF_SIMPLE_GM(colorfiltershader, canvas, 610, 610) {
         SkShader* shader = shaders[y].get();
 
         canvas->save();
-        for (int x = -1; x < filters.count(); ++x) {
+        for (int x = -1; x < filters.size(); ++x) {
             sk_sp<SkColorFilter> filter = x >= 0 ? filters[x] : nullptr;
 
             paint.setShader(shader->makeWithColorFilter(filter));

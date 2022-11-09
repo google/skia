@@ -14,7 +14,7 @@
 SkTypefaceCache::SkTypefaceCache() {}
 
 void SkTypefaceCache::add(sk_sp<SkTypeface> face) {
-    if (fTypefaces.count() >= TYPEFACE_CACHE_LIMIT) {
+    if (fTypefaces.size() >= TYPEFACE_CACHE_LIMIT) {
         this->purge(TYPEFACE_CACHE_LIMIT >> 2);
     }
 
@@ -31,7 +31,7 @@ sk_sp<SkTypeface> SkTypefaceCache::findByProcAndRef(FindProc proc, void* ctx) co
 }
 
 void SkTypefaceCache::purge(int numToPurge) {
-    int count = fTypefaces.count();
+    int count = fTypefaces.size();
     int i = 0;
     while (i < count) {
         if (fTypefaces[i]->unique()) {
@@ -47,7 +47,7 @@ void SkTypefaceCache::purge(int numToPurge) {
 }
 
 void SkTypefaceCache::purgeAll() {
-    this->purge(fTypefaces.count());
+    this->purge(fTypefaces.size());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

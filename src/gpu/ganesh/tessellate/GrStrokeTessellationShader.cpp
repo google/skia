@@ -126,14 +126,14 @@ GrStrokeTessellationShader::GrStrokeTessellationShader(const GrShaderCaps& shade
         fAttribs.emplace_back("curveTypeAttr", kFloat_GrVertexAttribType, SkSLType::kFloat);
     }
 
-    this->setInstanceAttributesWithImplicitOffsets(fAttribs.data(), fAttribs.count());
+    this->setInstanceAttributesWithImplicitOffsets(fAttribs.data(), fAttribs.size());
     SkASSERT(this->instanceStride() == sizeof(SkPoint) * 4 + PatchAttribsStride(fPatchAttribs));
     if (!shaderCaps.fVertexIDSupport) {
         constexpr static Attribute kVertexAttrib("edgeID", kFloat_GrVertexAttribType,
                                                     SkSLType::kFloat);
         this->setVertexAttributesWithImplicitOffsets(&kVertexAttrib, 1);
     }
-    SkASSERT(fAttribs.count() <= kMaxAttribCount);
+    SkASSERT(fAttribs.size() <= kMaxAttribCount);
 }
 
 // This base class emits shader code for our parametric/radial stroke tessellation algorithm

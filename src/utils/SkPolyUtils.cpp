@@ -1337,7 +1337,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     edgeData[0].fPrev = prevEdge;
 
     // now clip edges
-    SkASSERT(edgeData.count() == (int)numEdges);
+    SkASSERT(edgeData.size() == (int)numEdges);
     auto head = &edgeData[0];
     auto currEdge = head;
     unsigned int offsetVertexCount = numEdges;

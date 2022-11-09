@@ -633,7 +633,7 @@ sk_sp<GrTexture> GrMtlGpu::onCreateCompressedTexture(SkISize dimensions,
     SkDEBUGCODE(size_t combinedBufferSize =) SkCompressedDataSize(compressionType, dimensions,
                                                                   &individualMipOffsets,
                                                                   mipmapped == GrMipmapped::kYes);
-    SkASSERT(individualMipOffsets.count() == numMipLevels);
+    SkASSERT(individualMipOffsets.size() == numMipLevels);
     SkASSERT(dataSize == combinedBufferSize);
 
     // offset value must be a multiple of the destination texture's pixel size in bytes
@@ -848,7 +848,7 @@ void copy_src_data(char* dst,
                    int numMipLevels,
                    size_t bufferSize) {
     SkASSERT(srcData && numMipLevels);
-    SkASSERT(individualMipOffsets.count() == numMipLevels);
+    SkASSERT(individualMipOffsets.size() == numMipLevels);
 
     for (int level = 0; level < numMipLevels; ++level) {
         const size_t trimRB = srcData[level].width() * bytesPerPixel;
@@ -1047,7 +1047,7 @@ bool GrMtlGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendT
                                               backendTexture.dimensions(),
                                               &individualMipOffsets,
                                               mipmapped == GrMipmapped::kYes);
-    SkASSERT(individualMipOffsets.count() == numMipLevels);
+    SkASSERT(individualMipOffsets.size() == numMipLevels);
 
     size_t alignment = std::max(SkCompressedBlockSize(compression),
                                 this->mtlCaps().getMinBufferAlignment());

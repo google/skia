@@ -635,14 +635,14 @@ struct ShapedRunGlyphIterator {
 
     ShapedGlyph* next() {
         const SkTArray<ShapedRun>& runs = *fRuns;
-        SkASSERT(fRunIndex < runs.count());
+        SkASSERT(fRunIndex < runs.size());
         SkASSERT(fGlyphIndex < runs[fRunIndex].fNumGlyphs);
 
         ++fGlyphIndex;
         if (fGlyphIndex == runs[fRunIndex].fNumGlyphs) {
             fGlyphIndex = 0;
             ++fRunIndex;
-            if (fRunIndex >= runs.count()) {
+            if (fRunIndex >= runs.size()) {
                 return nullptr;
             }
         }
@@ -651,7 +651,7 @@ struct ShapedRunGlyphIterator {
 
     ShapedGlyph* current() {
         const SkTArray<ShapedRun>& runs = *fRuns;
-        if (fRunIndex >= runs.count()) {
+        if (fRunIndex >= runs.size()) {
             return nullptr;
         }
         return &runs[fRunIndex].fGlyphs[fGlyphIndex];

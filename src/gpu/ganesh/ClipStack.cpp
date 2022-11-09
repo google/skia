@@ -345,7 +345,7 @@ GrSurfaceProxyView render_sw_mask(GrRecordingContext* context,
             TRACE_EVENT0("skia.gpu", "Threaded SW Clip Mask Render");
             GrSWMaskHelper helper(uploaderRaw->getPixels());
             if (helper.init(bounds)) {
-                for (int i = 0; i < uploaderRaw->data().count(); ++i) {
+                for (int i = 0; i < uploaderRaw->data().size(); ++i) {
                     draw_to_sw_mask(&helper, uploaderRaw->data()[i], i == 0);
                 }
             } else {
@@ -1481,7 +1481,7 @@ GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
             // cannot be used, or cannot handle smooth clips.
             std::tie(hasSWMask, clipFP) = GetSWMaskFP(
                      rContext, &fMasks, cs, scissorBounds, elementsForMask.begin(),
-                     elementsForMask.count(), std::move(clipFP));
+                     elementsForMask.size(), std::move(clipFP));
         }
 
         if (!hasSWMask) {
@@ -1492,7 +1492,7 @@ GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
             } else {
                 // Rasterize the remaining elements to the stencil buffer
                 render_stencil_mask(rContext, sdc, cs.genID(), scissorBounds,
-                                    elementsForMask.begin(), elementsForMask.count(), out);
+                                    elementsForMask.begin(), elementsForMask.size(), out);
             }
         }
     }

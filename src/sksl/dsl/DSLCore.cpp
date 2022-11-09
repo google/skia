@@ -273,9 +273,9 @@ public:
 
     static DSLStatement Switch(DSLExpression value, SkTArray<DSLCase> cases, Position pos) {
         ExpressionArray values;
-        values.reserve_back(cases.count());
+        values.reserve_back(cases.size());
         StatementArray caseBlocks;
-        caseBlocks.reserve_back(cases.count());
+        caseBlocks.reserve_back(cases.size());
         for (DSLCase& c : cases) {
             values.push_back(c.fValue.releaseIfPossible());
             caseBlocks.push_back(SkSL::Block::Make(Position(), std::move(c.fStatements),

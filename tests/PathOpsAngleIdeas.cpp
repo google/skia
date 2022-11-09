@@ -107,7 +107,7 @@ static void orderQuads(skiatest::Reporter* reporter, const SkDQuad& quad, double
         if (t < 0) {
             continue;
         }
-        for (int index = 0; index < tArray->count(); ++index) {
+        for (int index = 0; index < tArray->size(); ++index) {
             double matchT = (*tArray)[index];
             if (approximately_equal(t, matchT)) {
                 goto next;
@@ -245,7 +245,7 @@ static bool orderTRange(skiatest::Reporter* reporter, const SkDQuad& quad1, cons
     SkTArray<double, false> t1Array, t2Array;
     orderQuads(reporter, quad1, r, &t1Array);
     orderQuads(reporter,quad2, r, &t2Array);
-    if (!t1Array.count() || !t2Array.count()) {
+    if (t1Array.empty() || t2Array.empty()) {
         return false;
     }
     SkTQSort<double>(t1Array.begin(), t1Array.end());

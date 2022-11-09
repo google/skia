@@ -90,7 +90,7 @@ static void setup_vertex_input_state(
 
     uint32_t vertexBinding = 0, instanceBinding = 0;
 
-    int nextBinding = bindingDescs->count();
+    int nextBinding = bindingDescs->size();
     if (vaCount) {
         vertexBinding = nextBinding++;
     }
@@ -136,7 +136,7 @@ static void setup_vertex_input_state(
     vertexInputInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputInfo->pNext = nullptr;
     vertexInputInfo->flags = 0;
-    vertexInputInfo->vertexBindingDescriptionCount = bindingDescs->count();
+    vertexInputInfo->vertexBindingDescriptionCount = bindingDescs->size();
     vertexInputInfo->pVertexBindingDescriptions = bindingDescs->begin();
     vertexInputInfo->vertexAttributeDescriptionCount = vaCount + iaCount;
     vertexInputInfo->pVertexAttributeDescriptions = attributeDesc;

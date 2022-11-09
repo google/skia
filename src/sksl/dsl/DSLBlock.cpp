@@ -29,7 +29,7 @@ DSLBlock::DSLBlock(SkTArray<DSLStatement> statements,
                    Position pos)
         : fSymbols(std::move(symbols))
         , fPosition(pos) {
-    fStatements.reserve_back(statements.count());
+    fStatements.reserve_back(statements.size());
     for (DSLStatement& s : statements) {
         fStatements.push_back(s.release());
     }

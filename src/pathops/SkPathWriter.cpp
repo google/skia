@@ -211,7 +211,7 @@ void SkPathWriter::assemble() {
     SkOpPtT const* const* runs = fEndPtTs.begin();  // starts, ends of partial contours
     int endCount = fEndPtTs.size(); // all starts and ends
     SkASSERT(endCount > 0);
-    SkASSERT(endCount == fPartials.count() * 2);
+    SkASSERT(endCount == fPartials.size() * 2);
 #if DEBUG_ASSEMBLE
     for (int index = 0; index < endCount; index += 2) {
         const SkOpPtT* eStart = runs[index];
@@ -250,7 +250,7 @@ void SkPathWriter::assemble() {
         } while (true);
         partWriter.finishContour();
         const SkTArray<SkPath>& partPartials = partWriter.partials();
-        if (!partPartials.count()) {
+        if (partPartials.empty()) {
             continue;
         }
         // if pIndex is even, reverse and prepend to fPartials; otherwise, append

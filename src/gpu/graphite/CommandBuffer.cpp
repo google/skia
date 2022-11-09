@@ -47,7 +47,7 @@ void CommandBuffer::addFinishedProc(sk_sp<RefCntedCallback> finishedProc) {
 
 void CommandBuffer::callFinishedProcs(bool success) {
     if (!success) {
-        for (int i = 0; i < fFinishedProcs.count(); ++i) {
+        for (int i = 0; i < fFinishedProcs.size(); ++i) {
             fFinishedProcs[i]->setFailureResult();
         }
     }

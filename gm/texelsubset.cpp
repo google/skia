@@ -139,7 +139,7 @@ protected:
 
         SkScalar y = kDrawPad + kTestPad;
         SkRect drawRect;
-        for (int tm = 0; tm < textureMatrices.count(); ++tm) {
+        for (int tm = 0; tm < textureMatrices.size(); ++tm) {
             for (int my = 0; my < GrSamplerState::kWrapModeCount; ++my) {
                 SkScalar x = kDrawPad + kTestPad;
                 auto wmy = static_cast<Wrap>(my);
@@ -205,7 +205,7 @@ protected:
                 }
                 y += localRect.height() + kTestPad;
             }
-            if (tm < textureMatrices.count() - 1) {
+            if (tm < textureMatrices.size() - 1) {
                 SkPaint paint;
                 paint.setColor(SK_ColorRED);
                 SkScalar midY = SkScalarFloorToScalar(drawRect.bottom() + kTestPad/2.f) + 0.5f;

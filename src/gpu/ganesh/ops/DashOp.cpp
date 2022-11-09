@@ -329,7 +329,7 @@ private:
     }
 
     void onPrepareDraws(GrMeshDrawTarget* target) override {
-        int instanceCount = fLines.count();
+        int instanceCount = fLines.size();
         SkPaint::Cap cap = this->cap();
         DashCap capType = (SkPaint::kRound_Cap == cap) ? kRound_DashCap : kNonRound_DashCap;
 
@@ -654,7 +654,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fLines.push_back_n(that->fLines.count(), that->fLines.begin());
+        fLines.push_back_n(that->fLines.size(), that->fLines.begin());
         return CombineResult::kMerged;
     }
 

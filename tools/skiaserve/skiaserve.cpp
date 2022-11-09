@@ -49,13 +49,13 @@ public:
     }
 
     ~UrlManager() {
-        for (int i = 0; i < fHandlers.count(); i++) { delete fHandlers[i]; }
+        for (int i = 0; i < fHandlers.size(); i++) { delete fHandlers[i]; }
     }
 
     // This is clearly not efficient for a large number of urls and handlers
     int invoke(Request* request, MHD_Connection* connection, const char* url, const char* method,
                const char* upload_data, size_t* upload_data_size) const {
-        for (int i = 0; i < fHandlers.count(); i++) {
+        for (int i = 0; i < fHandlers.size(); i++) {
             if (fHandlers[i]->canHandle(method, url)) {
                 return fHandlers[i]->handle(request, connection, url, method, upload_data,
                                             upload_data_size);

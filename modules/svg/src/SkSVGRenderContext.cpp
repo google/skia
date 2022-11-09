@@ -130,12 +130,12 @@ static sk_sp<SkPathEffect> dash_effect(const SkSVGPresentationAttributes& props,
         memcpy(intervals.begin() + count, intervals.begin(), count * sizeof(SkScalar));
     }
 
-    SkASSERT((intervals.count() & 1) == 0);
+    SkASSERT((intervals.size() & 1) == 0);
 
     const auto phase = lctx.resolve(*props.fStrokeDashOffset,
                                     SkSVGLengthContext::LengthType::kOther);
 
-    return SkDashPathEffect::Make(intervals.begin(), intervals.count(), phase);
+    return SkDashPathEffect::Make(intervals.begin(), intervals.size(), phase);
 }
 
 }  // namespace

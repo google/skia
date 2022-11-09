@@ -25,7 +25,7 @@ int DataHandler::handle(Request* request, MHD_Connection* connection,
     SkTArray<SkString> commands;
     SkStrSplit(url, "/", &commands);
 
-    if (!request->hasPicture() || commands.count() != 2) {
+    if (!request->hasPicture() || commands.size() != 2) {
         return MHD_NO;
     }
 

@@ -499,7 +499,7 @@ int main(int argc, char** argv) {
     const SkCommandLineConfigGpu* config = nullptr; // Initialize for spurious warning.
     SkCommandLineConfigArray configs;
     ParseConfigs(FLAGS_config, &configs);
-    if (configs.count() != 1 || !(config = configs[0]->asConfigGpu())) {
+    if (configs.size() != 1 || !(config = configs[0]->asConfigGpu())) {
         exitf(ExitErr::kUsage, "invalid config '%s': must specify one (and only one) GPU config",
                                join(FLAGS_config).c_str());
     }

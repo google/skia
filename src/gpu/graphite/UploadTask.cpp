@@ -32,7 +32,7 @@ size_t compute_combined_buffer_size(int mipLevelCount,
                                     size_t minTransferBufferAlignment,
                                     const SkISize& baseDimensions,
                                     SkTArray<size_t>* individualMipOffsets) {
-    SkASSERT(individualMipOffsets && !individualMipOffsets->count());
+    SkASSERT(individualMipOffsets && !individualMipOffsets->size());
     SkASSERT(mipLevelCount >= 1);
 
     individualMipOffsets->push_back(0);
@@ -51,7 +51,7 @@ size_t compute_combined_buffer_size(int mipLevelCount,
         combinedBufferSize += trimmedSize;
     }
 
-    SkASSERT(individualMipOffsets->count() == mipLevelCount);
+    SkASSERT(individualMipOffsets->size() == mipLevelCount);
     return combinedBufferSize;
 }
 
