@@ -291,18 +291,16 @@
   {"name": "Canary-Chromium"},
   {"name": "Canary-Flutter"},
   {"name": "Canary-G3"},
-  {"name": "CodeSize-dm-Debian10-Clang-x86_64-OptimizeForSize",
-   "cq_config": {}
-   },
-  {"name": "CodeSize-fm-Debian10-Clang-x86_64-OptimizeForSize",
-   "cq_config": {}
-   },
+  {"name": "CodeSize-dm-Debian10-Clang-x86_64-OptimizeForSize"},
+  {"name": "CodeSize-fm-Debian10-Clang-x86_64-OptimizeForSize"},
   {"name": "CodeSize-skottie_tool-Debian10-Clang-x86_64-OptimizeForSize",
     "cq_config": {}
   },
   {"name": "CodeSize-skottie_tool_cpu-Debian10-Clang-x86_64-OptimizeForSize"},
   {"name": "CodeSize-skottie_tool_gpu-Debian10-Clang-x86_64-OptimizeForSize"},
-  {"name": "CodeSize-skottie_tool_gpu-Debian10-Clang-arm-OptimizeForSize-Android"},
+  {"name": "CodeSize-skottie_tool_gpu-Debian10-Clang-arm-OptimizeForSize-Android",
+    "cq_config": {}
+  },
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All"},
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN"},
   {"name": "FM-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-MSAN"},
