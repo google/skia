@@ -304,6 +304,7 @@ std::tuple<SkRect, size_t> SkScalerCache::prepareForMaskDrawing(
     return {boundingRect.rect(), increase};
 }
 
+#if !defined(SK_DISABLE_SDF_TEXT)
 std::tuple<SkRect, size_t> SkScalerCache::prepareForSDFTDrawing(
         SkDrawableGlyphBuffer* accepted,
         SkSourceGlyphBuffer* rejected) {
@@ -336,6 +337,7 @@ std::tuple<SkRect, size_t> SkScalerCache::prepareForSDFTDrawing(
 
     return {boundingRect.rect(), increase};
 }
+#endif
 
 size_t SkScalerCache::prepareForPathDrawing(
         SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {

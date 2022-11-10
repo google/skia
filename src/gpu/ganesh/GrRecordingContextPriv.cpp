@@ -49,12 +49,16 @@ void GrRecordingContextPriv::moveRenderTasksToDDL(SkDeferredDisplayList* ddl) {
 }
 
 sktext::gpu::SDFTControl GrRecordingContextPriv::getSDFTControl(bool useSDFTForSmallText) const {
+#if !defined(SK_DISABLE_SDF_TEXT)
     return sktext::gpu::SDFTControl{
             this->caps()->shaderCaps()->supportsDistanceFieldText(),
             useSDFTForSmallText,
             !this->caps()->disablePerspectiveSDFText(),
             this->options().fMinDistanceFieldFontSize,
             this->options().fGlyphsAsPathsFontSize};
+#else
+    return sktext::gpu::SDFTControl{};
+#endif
 }
 
 std::unique_ptr<skgpu::v1::SurfaceContext> GrRecordingContextPriv::makeSC(

@@ -423,6 +423,7 @@
 // The top-level define SK_ENABLE_OPTIMIZE_SIZE can be used to remove several large features at once
 #if defined(SK_ENABLE_OPTIMIZE_SIZE)
 #   define SK_FORCE_RASTER_PIPELINE_BLITTER
+#   define SK_DISABLE_SDF_TEXT
 #endif
 
 #ifndef SK_DISABLE_LEGACY_SHADERCONTEXT

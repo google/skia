@@ -146,7 +146,11 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                          int srcPadding,
                                                          GrResourceProvider* resourceProvider,
                                                          GrDeferredUploadTarget* uploadTarget) {
+#if !defined(SK_DISABLE_SDF_TEXT)
     SkASSERT(0 <= srcPadding && srcPadding <= SK_DistanceFieldInset);
+#else
+    SkASSERT(0 <= srcPadding);
+#endif
 
     if (skGlyph.image() == nullptr) {
         return GrDrawOpAtlas::ErrorCode::kError;
@@ -172,6 +176,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
             // The transformed mask/image case.
             padding = 1;
             break;
+#if !defined(SK_DISABLE_SDF_TEXT)
         case SK_DistanceFieldInset:
             // The SDFT case.
             // If the srcPadding == SK_DistanceFieldInset (SDFT case) then the padding is built
@@ -179,6 +184,7 @@ GrDrawOpAtlas::ErrorCode GrAtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
             // TODO: can the SDFT glyph image in the cache be reduced by the padding?
             padding = 0;
             break;
+#endif
         default:
             // The padding is not one of the know forms.
             return GrDrawOpAtlas::ErrorCode::kError;

@@ -379,7 +379,7 @@ SkRect SkMaskFilter::approximateFilteredBounds(const SkRect& src) const {
 
 void SkMaskFilter::RegisterFlattenables() {
     sk_register_blur_maskfilter_createproc();
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)) && !defined(SK_DISABLE_SDF_TEXT)
     sktext::gpu::register_sdf_maskfilter_createproc();
 #endif
 }

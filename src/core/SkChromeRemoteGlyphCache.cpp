@@ -183,9 +183,11 @@ public:
             SkDrawableGlyphBuffer* accepted,
             SkSourceGlyphBuffer* rejected) override;
 
+#if !defined(SK_DISABLE_SDF_TEXT)
     SkRect prepareForSDFTDrawing(
             SkDrawableGlyphBuffer* accepted,
             SkSourceGlyphBuffer* rejected) override;
+#endif
 
     void prepareForPathDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override;
@@ -421,6 +423,7 @@ SkRect RemoteStrike::prepareForMaskDrawing(
     return boundingRect.rect();
 }
 
+#if !defined(SK_DISABLE_SDF_TEXT)
 SkRect RemoteStrike::prepareForSDFTDrawing(SkDrawableGlyphBuffer* accepted,
                                            SkSourceGlyphBuffer* rejected) {
     SkGlyphRect boundingRect = skglyph::empty_rect();
@@ -446,6 +449,7 @@ SkRect RemoteStrike::prepareForSDFTDrawing(SkDrawableGlyphBuffer* accepted,
     }
     return boundingRect.rect();
 }
+#endif // !defined(SK_DISABLE_SDF_TEXT)
 
 void RemoteStrike::prepareForPathDrawing(
         SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
@@ -839,11 +843,15 @@ std::unique_ptr<SkCanvas> SkStrikeServer::makeAnalysisCanvas(int width, int heig
                                                              bool DFTPerspSupport) {
 #if SK_SUPPORT_GPU
     GrContextOptions ctxOptions;
+#if !defined(SK_DISABLE_SDF_TEXT)
     auto control = sktext::gpu::SDFTControl{DFTSupport,
                                             props.isUseDeviceIndependentFonts(),
                                             DFTPerspSupport,
                                             ctxOptions.fMinDistanceFieldFontSize,
                                             ctxOptions.fGlyphsAsPathsFontSize};
+#else
+    auto control = sktext::gpu::SDFTControl{};
+#endif
 
     sk_sp<SkBaseDevice> trackingDevice(new GlyphTrackingDevice(
             SkISize::Make(width, height),

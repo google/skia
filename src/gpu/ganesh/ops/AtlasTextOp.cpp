@@ -176,13 +176,17 @@ GrProcessorSet::Analysis AtlasTextOp::finalize(const GrCaps& caps,
 
     switch (this->maskType()) {
         case MaskType::kGrayscaleCoverage:
+#if !defined(SK_DISABLE_SDF_TEXT)
         case MaskType::kAliasedDistanceField:
         case MaskType::kGrayscaleDistanceField:
+#endif
             coverage = GrProcessorAnalysisCoverage::kSingleChannel;
             break;
         case MaskType::kLCDCoverage:
+#if !defined(SK_DISABLE_SDF_TEXT)
         case MaskType::kLCDDistanceField:
         case MaskType::kLCDBGRDistanceField:
+#endif
             coverage = GrProcessorAnalysisCoverage::kLCD;
             break;
         case MaskType::kColorBitmap:
@@ -224,8 +228,10 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
     SkASSERT(views[0].proxy());
 
     static constexpr int kMaxTextures = GrBitmapTextGeoProc::kMaxTextures;
+#if !defined(SK_DISABLE_SDF_TEXT)
     static_assert(GrDistanceFieldA8TextGeoProc::kMaxTextures == kMaxTextures);
     static_assert(GrDistanceFieldLCDTextGeoProc::kMaxTextures == kMaxTextures);
+#endif
 
     auto primProcProxies = target->allocPrimProcProxyPtrs(kMaxTextures);
     for (unsigned i = 0; i < numActiveViews; ++i) {
@@ -239,11 +245,14 @@ void AtlasTextOp::onPrepareDraws(GrMeshDrawTarget* target) {
     flushInfo.fPrimProcProxies = primProcProxies;
     flushInfo.fIndexBuffer = resourceProvider->refNonAAQuadIndexBuffer();
 
+#if !defined(SK_DISABLE_SDF_TEXT)
     if (this->usesDistanceFields()) {
         flushInfo.fGeometryProcessor = this->setupDfProcessor(target->allocator(),
                                                               *target->caps().shaderCaps(),
                                                               localMatrix, views, numActiveViews);
-    } else {
+    } else
+#endif
+    {
         auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kLinear
                                            : GrSamplerState::Filter::kNearest;
         // Bitmap text uses a single color, combineIfPossible ensures all geometries have the same
@@ -368,6 +377,7 @@ void AtlasTextOp::createDrawForGeneratedGlyphs(GrMeshDrawTarget* target,
                 flushInfo->fPrimProcProxies[i]->ref();
             }
         }
+#if !defined(SK_DISABLE_SDF_TEXT)
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
                 reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewViews(
@@ -376,7 +386,9 @@ void AtlasTextOp::createDrawForGeneratedGlyphs(GrMeshDrawTarget* target,
                 reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->addNewViews(
                         views, numActiveViews, GrSamplerState::Filter::kLinear);
             }
-        } else {
+        } else
+#endif
+        {
             auto filter = fNeedsGlyphTransform ? GrSamplerState::Filter::kLinear
                                                : GrSamplerState::Filter::kNearest;
             reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewViews(views, numActiveViews, filter);
@@ -421,12 +433,15 @@ GrOp::CombineResult AtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, con
         }
     }
 
-    if (this->usesDistanceFields()) {
+#if !defined(SK_DISABLE_SDF_TEXT)
+   if (this->usesDistanceFields()) {
         SkASSERT(that->usesDistanceFields());
         if (fLuminanceColor != that->fLuminanceColor) {
             return CombineResult::kCannotCombine;
         }
-    } else {
+    } else
+#endif
+    {
         if (this->maskType() == MaskType::kColorBitmap &&
             fHead->fColor != that->fHead->fColor) {
             // This ensures all merged bitmap color text ops have a constant color
@@ -442,6 +457,7 @@ GrOp::CombineResult AtlasTextOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, con
     return CombineResult::kMerged;
 }
 
+#if !defined(SK_DISABLE_SDF_TEXT)
 // TODO trying to figure out why lcd is so whack
 GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
                                                    const GrShaderCaps& caps,
@@ -487,6 +503,7 @@ GrGeometryProcessor* AtlasTextOp::setupDfProcessor(SkArenaAlloc* arena,
 #endif
     }
 }
+#endif // !defined(SK_DISABLE_SDF_TEXT)
 
 #if GR_TEST_UTILS
 GrOp::Owner AtlasTextOp::CreateOpTestingOnly(skgpu::v1::SurfaceDrawContext* sdc,

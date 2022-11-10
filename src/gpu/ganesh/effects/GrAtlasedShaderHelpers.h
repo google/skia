@@ -14,13 +14,13 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 
-static void append_index_uv_varyings(GrGeometryProcessor::ProgramImpl::EmitArgs& args,
-                                     int numTextureSamplers,
-                                     const char* inTexCoordsName,
-                                     const char* atlasDimensionsInvName,
-                                     GrGLSLVarying* uv,
-                                     GrGLSLVarying* texIdx,
-                                     GrGLSLVarying* st) {
+static inline void append_index_uv_varyings(GrGeometryProcessor::ProgramImpl::EmitArgs& args,
+                                            int numTextureSamplers,
+                                            const char* inTexCoordsName,
+                                            const char* atlasDimensionsInvName,
+                                            GrGLSLVarying* uv,
+                                            GrGLSLVarying* texIdx,
+                                            GrGLSLVarying* st) {
     using Interpolation = GrGLSLVaryingHandler::Interpolation;
     // This extracts the texture index and texel coordinates from the same variable
     // Packing structure: texel coordinates have the 2-bit texture page encoded in bits 13 & 14 of
@@ -75,11 +75,11 @@ static void append_index_uv_varyings(GrGeometryProcessor::ProgramImpl::EmitArgs&
     }
 }
 
-static void append_multitexture_lookup(GrGeometryProcessor::ProgramImpl::EmitArgs& args,
-                                       int numTextureSamplers,
-                                       const GrGLSLVarying& texIdx,
-                                       const char* coordName,
-                                       const char* colorName) {
+static inline void append_multitexture_lookup(GrGeometryProcessor::ProgramImpl::EmitArgs& args,
+                                              int numTextureSamplers,
+                                              const GrGLSLVarying& texIdx,
+                                              const char* coordName,
+                                              const char* colorName) {
     SkASSERT(numTextureSamplers > 0);
     // This shouldn't happen, but will avoid a crash if it does
     if (numTextureSamplers <= 0) {

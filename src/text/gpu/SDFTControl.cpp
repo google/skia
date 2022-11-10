@@ -21,6 +21,7 @@
 
 namespace sktext::gpu {
 
+#if !defined(SK_DISABLE_SDF_TEXT)
 // DF sizes and thresholds for usage of the small and medium sizes. For example, above
 // kSmallDFFontLimit we will use the medium size. The large size is used up until the size at
 // which we switch over to drawing as paths as controlled by Control.
@@ -47,15 +48,22 @@ SDFTControl::SDFTControl(
         , fAbleToUsePerspectiveSDFT{useSDFTForPerspectiveText} {
     SkASSERT_RELEASE(0 < min && min <= max);
 }
+#endif // !defined(SK_DISABLE_SDF_TEXT)
 
 bool SDFTControl::isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                            const SkMatrix& matrix) const {
-    return !isSDFT(approximateDeviceTextSize, paint, matrix) &&
+#if !defined(SK_DISABLE_SDF_TEXT)
+    const bool isSDFT = this->isSDFT(approximateDeviceTextSize, paint, matrix);
+#else
+    const bool isSDFT = false;
+#endif
+    return !isSDFT &&
            !matrix.hasPerspective() &&
             0 < approximateDeviceTextSize &&
             approximateDeviceTextSize < SkGlyphDigest::kSkSideTooBigForAtlas;
 }
 
+#if !defined(SK_DISABLE_SDF_TEXT)
 bool SDFTControl::isSDFT(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                          const SkMatrix& matrix) const {
     return fAbleToUseSDFT &&
@@ -129,5 +137,6 @@ SDFTMatrixRange SDFTMatrixRange::MakeFromBuffer(SkReadBuffer& buffer) {
     SkScalar max = buffer.readScalar();
     return SDFTMatrixRange{min, max};
 }
+#endif // !defined(SK_DISABLE_SDF_TEXT)
 
 }  // namespace sktext::gpu

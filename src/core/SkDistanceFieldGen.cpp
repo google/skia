@@ -15,6 +15,8 @@
 
 #include <utility>
 
+#if !defined(SK_DISABLE_SDF_TEXT)
+
 struct DFData {
     float   fAlpha;      // alpha value of source texel
     float   fDistSq;     // distance squared to nearest (so far) edge texel
@@ -559,3 +561,5 @@ bool SkGenerateDistanceFieldFromBWImage(unsigned char* distanceField,
 
     return generate_distance_field_from_image(distanceField, copyPtr, width, height);
 }
+
+#endif // !defined(SK_DISABLE_SDF_TEXT)

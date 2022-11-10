@@ -146,12 +146,14 @@ public:
         return rect;
     }
 
+#if !defined(SK_DISABLE_SDF_TEXT)
     SkRect prepareForSDFTDrawing(SkDrawableGlyphBuffer* accepted,
                                  SkSourceGlyphBuffer* rejected) override {
         auto [rect, increase] = fScalerCache.prepareForSDFTDrawing(accepted, rejected);
         this->updateDelta(increase);
         return rect;
     }
+#endif
 
     void prepareForPathDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override {

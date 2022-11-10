@@ -13,6 +13,8 @@
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/gpu/SDFMaskFilter.h"
 
+#if !defined(SK_DISABLE_SDF_TEXT)
+
 namespace sktext::gpu {
 
 class SDFMaskFilterImpl : public SkMaskFilterBase {
@@ -102,3 +104,5 @@ sk_sp<SkMaskFilter> SDFMaskFilter::Make() {
 }
 
 }  // namespace sktext::gpu
+
+#endif // !defined(SK_DISABLE_SDF_TEXT)

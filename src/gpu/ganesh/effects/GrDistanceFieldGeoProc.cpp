@@ -18,6 +18,8 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 
+#if !defined(SK_DISABLE_SDF_TEXT)
+
 // Assuming a radius of a little less than the diagonal of the fragment
 #define SK_DistanceFieldAAFactor     "0.65"
 
@@ -314,7 +316,6 @@ GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestDat
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 class GrDistanceFieldPathGeoProc::Impl : public ProgramImpl {
 public:
     void setData(const GrGLSLProgramDataManager& pdman,
@@ -563,7 +564,6 @@ GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData*
 }
 #endif
 
-#endif // SK_ENABLE_OPTIMIZE_SIZE
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -874,3 +874,5 @@ GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestDa
                                                1, samplerState, wa, flags, localMatrix);
 }
 #endif
+
+#endif // !defined(SK_DISABLE_SDF_TEXT)

@@ -63,7 +63,9 @@ namespace sktext::gpu {
 enum SubRun::SubRunType : int {
     kBad = 0,  // Make this 0 to line up with errors from readInt.
     kDirectMask,
+#if !defined(SK_DISABLE_SDF_TEXT)
     kSDFT,
+#endif
     kTransformMask,
     kPath,
     kDrawable,
@@ -1901,6 +1903,8 @@ bool has_some_antialiasing(const SkFont& font ) {
            || edging == SkFont::Edging::kSubpixelAntiAlias;
 }
 
+#if !defined(SK_DISABLE_SDF_TEXT)
+
 #if SK_SUPPORT_GPU
 
 static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameters(
@@ -2162,6 +2166,8 @@ private:
     mutable GlyphVector fGlyphs;
 };  // class SDFTSubRun
 
+#endif // !defined(SK_DISABLE_SDF_TEXT)
+
 // -- SubRun ---------------------------------------------------------------------------------------
 
 template<typename AddSingleMaskFormat>
@@ -2211,7 +2217,9 @@ SubRunOwner SubRun::MakeFromBuffer(const SkMatrix& initialPositionMatrix,
     static Maker makers[kSubRunTypeCount] = {
             nullptr,                                             // 0 index is bad.
             DirectMaskSubRun::MakeFromBuffer,
+#if !defined(SK_DISABLE_SDF_TEXT)
             SDFTSubRun::MakeFromBuffer,
+#endif
             TransformedMaskSubRun::MakeFromBuffer,
             PathSubRun::MakeFromBuffer,
             DrawableSubRun::MakeFromBuffer,
@@ -2330,7 +2338,9 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
     const SkSurfaceProps deviceProps = strikeDeviceInfo.fSurfaceProps;
     const SkScalerContextFlags scalerContextFlags = strikeDeviceInfo.fScalerContextFlags;
+#if !defined(SK_DISABLE_SDF_TEXT)
     const SDFTControl SDFTControl = *strikeDeviceInfo.fSDFTControl;
+#endif
 
     auto bufferScope = SkSubRunBuffers::EnsureBuffers(glyphRunList);
     auto [accepted, rejected] = bufferScope.buffers();
@@ -2362,6 +2372,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
         // Only consider using direct or SDFT drawing if not drawing hairlines and not too big.
         if ((runPaint.getStyle() != SkPaint::kStroke_Style || runPaint.getStrokeWidth() != 0) &&
                 approximateDeviceTextSize < 512) {
+#if !defined(SK_DISABLE_SDF_TEXT)
             if (SDFTControl.isSDFT(approximateDeviceTextSize, runPaint, positionMatrix)) {
                 // Process SDFT - This should be the .009% case.
                 const auto& [strikeSpec, strikeToSourceScale, matrixRange] =
@@ -2411,6 +2422,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                     }
                 }
             }
+#endif // !defined(SK_DISABLE_SDF_TEXT)
 
             if (!rejected->source().empty() && !positionMatrix.hasPerspective()) {
                 // Process masks including ARGB - this should be the 99.99% case.

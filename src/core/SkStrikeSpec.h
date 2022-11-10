@@ -76,7 +76,7 @@ public:
     // Make a strike spec for PDF Vector strikes
     static SkStrikeSpec MakePDFVector(const SkTypeface& typeface, int* size);
 
-#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+#if (SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)) && !defined(SK_DISABLE_SDF_TEXT)
     // Create a strike spec for scaled distance field text.
     static std::tuple<SkStrikeSpec, SkScalar, sktext::gpu::SDFTMatrixRange> MakeSDFT(
             const SkFont& font,
