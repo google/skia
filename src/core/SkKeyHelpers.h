@@ -23,7 +23,6 @@
 #include "src/shaders/SkShaderBase.h"
 
 class SkData;
-class SkPaintParamsKeyBuilder;
 class SkPipelineDataGatherer;
 class SkRuntimeEffect;
 class SkUniquePaintParamsID;
@@ -31,6 +30,7 @@ class SkKeyContext;
 
 #ifdef SK_ENABLE_PRECOMPILE
 namespace skgpu::graphite {
+class PaintParamsKeyBuilder;
 enum class ShaderType : uint32_t;
 }
 #endif
@@ -46,7 +46,7 @@ enum class ShaderType : uint32_t;
 struct PassthroughShaderBlock {
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*);
 
 };
@@ -54,7 +54,7 @@ struct PassthroughShaderBlock {
 struct PassthroughBlenderBlock {
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*);
 
 };
@@ -62,7 +62,7 @@ struct PassthroughBlenderBlock {
 struct SolidColorShaderBlock {
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const SkPMColor4f&);
 
@@ -121,7 +121,7 @@ struct GradientShaderBlocks {
     };
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const GradientData&);
 
@@ -138,7 +138,7 @@ struct LocalMatrixShaderBlock {
     };
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const LMShaderData&);
 
@@ -165,7 +165,7 @@ struct ImageShaderBlock {
     };
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const ImageData&);
 
@@ -177,7 +177,7 @@ struct PorterDuffBlendShaderBlock {
     };
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const PorterDuffBlendShaderData&);
 };
@@ -191,14 +191,14 @@ struct BlendShaderBlock {
     };
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const BlendShaderData&);
 };
 
 struct ColorFilterShaderBlock {
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*);
 };
 
@@ -220,7 +220,7 @@ struct MatrixColorFilterBlock {
     };
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const MatrixColorFilterData&);
 };
@@ -240,14 +240,14 @@ struct BlendColorFilterBlock {
     };
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const BlendColorFilterData&);
 };
 
 struct ComposeColorFilterBlock {
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*);
 };
 
@@ -261,14 +261,14 @@ struct TableColorFilterBlock {
     };
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const TableColorFilterData&);
 };
 
 struct GaussianColorFilterBlock {
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*);
 };
 
@@ -277,7 +277,7 @@ struct BlendModeBlock {
      * Blend mode blocks are used to blend a color attachment with the output of a shader.
      */
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            SkBlendMode);
 };
@@ -289,7 +289,7 @@ struct PrimitiveBlendModeBlock {
      * another shader. Dst: primitiveColor Src: Paint color/shader output
      */
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            SkBlendMode);
 };
@@ -313,7 +313,7 @@ struct RuntimeEffectBlock {
     };
 
     static void BeginBlock(const SkKeyContext&,
-                           SkPaintParamsKeyBuilder*,
+                           skgpu::graphite::PaintParamsKeyBuilder*,
                            SkPipelineDataGatherer*,
                            const ShaderData&);
 };

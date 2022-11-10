@@ -15,9 +15,9 @@
 #include "src/core/SkUtils.h"
 #include "src/core/SkVM.h"
 
-#ifdef SK_ENABLE_SKSL
+#ifdef SK_GRAPHITE_ENABLED
 #include "src/core/SkKeyHelpers.h"
-#include "src/core/SkPaintParamsKey.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
 #include "src/shaders/SkShaderBase.h"
@@ -46,9 +46,9 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-#ifdef SK_ENABLE_SKSL
+#ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
+                  skgpu::graphite::PaintParamsKeyBuilder*,
                   SkPipelineDataGatherer*) const override;
 #endif
 
@@ -82,9 +82,9 @@ public:
 #if SK_SUPPORT_GPU
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
-#ifdef SK_ENABLE_SKSL
+#ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext&,
-                  SkPaintParamsKeyBuilder*,
+                  skgpu::graphite::PaintParamsKeyBuilder*,
                   SkPipelineDataGatherer*) const override;
 #endif
 
@@ -220,9 +220,9 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
 
 #endif
 
-#ifdef SK_ENABLE_SKSL
+#ifdef SK_GRAPHITE_ENABLED
 void SkColorShader::addToKey(const SkKeyContext& keyContext,
-                             SkPaintParamsKeyBuilder* builder,
+                             skgpu::graphite::PaintParamsKeyBuilder* builder,
                              SkPipelineDataGatherer* gatherer) const {
     SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
                                       SkColor4f::FromColor(fColor).premul());
@@ -230,7 +230,7 @@ void SkColorShader::addToKey(const SkKeyContext& keyContext,
 }
 
 void SkColor4Shader::addToKey(const SkKeyContext& keyContext,
-                              SkPaintParamsKeyBuilder* builder,
+                              skgpu::graphite::PaintParamsKeyBuilder* builder,
                               SkPipelineDataGatherer* gatherer) const {
     SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, fColor.premul());
     builder->endBlock();

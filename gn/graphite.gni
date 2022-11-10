@@ -79,6 +79,8 @@ skia_graphite_sources = [
   "$_src/Log.h",
   "$_src/PaintParams.cpp",
   "$_src/PaintParams.h",
+  "$_src/PaintParamsKey.cpp",
+  "$_src/PaintParamsKey.h",
   "$_src/PipelineDataCache.h",
   "$_src/QueueManager.cpp",
   "$_src/QueueManager.h",

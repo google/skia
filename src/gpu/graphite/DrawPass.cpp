@@ -21,6 +21,7 @@
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineDataCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
@@ -32,7 +33,6 @@
 #include "src/gpu/graphite/geom/BoundsManager.h"
 
 #include "src/core/SkMathPriv.h"
-#include "src/core/SkPaintParamsKey.h"
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkTBlockList.h"
 
@@ -447,7 +447,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     TextureBindingTracker textureBindingTracker;
 
     SkShaderCodeDictionary* dict = recorder->priv().shaderCodeDictionary();
-    SkPaintParamsKeyBuilder builder(dict);
+    PaintParamsKeyBuilder builder(dict);
     SkPipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
 
     std::vector<SortKey> keys;

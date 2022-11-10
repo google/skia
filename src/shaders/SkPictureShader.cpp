@@ -419,21 +419,18 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
 }
 #endif
 
-#ifdef SK_ENABLE_SKSL
+#ifdef SK_GRAPHITE_ENABLED
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
-#include "src/core/SkPaintParamsKey.h"
 
-#ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/RecorderPriv.h"
-#endif
 
 void SkPictureShader::addToKey(const SkKeyContext& keyContext,
-                               SkPaintParamsKeyBuilder* builder,
+                               skgpu::graphite::PaintParamsKeyBuilder* builder,
                                SkPipelineDataGatherer* gatherer) const {
 
-#ifdef SK_GRAPHITE_ENABLED
     using namespace skgpu::graphite;
 
     Recorder* recorder = keyContext.recorder();
@@ -483,7 +480,6 @@ void SkPictureShader::addToKey(const SkKeyContext& keyContext,
     }
 
     as_SB(shader)->addToKey(keyContext, builder, gatherer);
-#endif // SK_GRAPHITE_ENABLED
-
 }
-#endif
+
+#endif // SK_GRAPHITE_ENABLED

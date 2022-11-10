@@ -111,7 +111,7 @@ std::tuple<SkPaint, int> create_paint(Recorder* recorder,
 }
 
 SkUniquePaintParamsID create_key(Context* context,
-                                 SkPaintParamsKeyBuilder* keyBuilder,
+                                 PaintParamsKeyBuilder* keyBuilder,
                                  ShaderType shaderType,
                                  SkTileMode tileMode,
                                  SkBlendMode blendMode) {
@@ -169,15 +169,15 @@ SkUniquePaintParamsID create_key(Context* context,
 // TODO: rather than what we're doing here we should:
 //   create a PaintCombinations object for a single combination
 //   traverse it to create an SkPaint (or create it in parallel)
-//   call Context::precompile and, somehow, get the created SkPaintParamsKey
+//   call Context::precompile and, somehow, get the created PaintParamsKey
 //           - maybe via a testing only callback on SkShaderCodeDictionary::findOrCreate
-//   draw w/ the SkPaint and, again, somehow, intercept the created SkPaintParamsKey
+//   draw w/ the SkPaint and, again, somehow, intercept the created PaintParamsKey
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     auto recorder = context->makeRecorder();
     SkKeyContext keyContext(recorder.get(), {});
     auto dict = keyContext.dict();
 
-    SkPaintParamsKeyBuilder builder(dict);
+    PaintParamsKeyBuilder builder(dict);
     SkPipelineDataGatherer gatherer(Layout::kMetal);
 
     for (auto s : { ShaderType::kSolidColor,

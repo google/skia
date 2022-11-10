@@ -8,11 +8,10 @@
 #ifndef skgpu_graphite_ContextUtils_DEFINED
 #define skgpu_graphite_ContextUtils_DEFINED
 
-#include "src/core/SkPaintParamsKey.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineDataCache.h"
 
 class SkM44;
-class SkPaintParamsKeyBuilder;
 class SkPipelineDataGatherer;
 class SkRuntimeEffectDictionary;
 class SkUniquePaintParamsID;
@@ -28,7 +27,7 @@ class RenderStep;
 std::tuple<SkUniquePaintParamsID, const SkUniformDataBlock*, const SkTextureDataBlock*>
 ExtractPaintData(Recorder*,
                  SkPipelineDataGatherer* gatherer,
-                 SkPaintParamsKeyBuilder* builder,
+                 PaintParamsKeyBuilder* builder,
                  const SkM44& local2Dev,
                  const PaintParams&);
 
@@ -53,17 +52,17 @@ std::string GetSkSLFS(const SkShaderCodeDictionary*,
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
-                                    const std::vector<SkPaintParamsKey::BlockReader>&);
+                                    const std::vector<PaintParamsKey::BlockReader>&);
 std::string EmitRenderStepUniforms(int bufferID, const char* name,
                                    SkSpan<const SkUniform> uniforms);
 std::string EmitPaintParamsStorageBuffer(int bufferID,
                                          const char* bufferTypePrefix,
                                          const char* bufferNamePrefix,
-                                         const std::vector<SkPaintParamsKey::BlockReader>& readers);
+                                         const std::vector<PaintParamsKey::BlockReader>& readers);
 std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
                                     const char* ssboIndex,
                                     const char* uniformName);
-std::string EmitTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockReader>&,
+std::string EmitTexturesAndSamplers(const std::vector<PaintParamsKey::BlockReader>&,
                                     int* binding);
 std::string EmitVaryings(const RenderStep* step,
                          const char* direction,

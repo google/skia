@@ -508,8 +508,6 @@ BASE_SRCS_ALL = [
     "src/core/SkOverdrawCanvas.cpp",
     "src/core/SkPaint.cpp",
     "src/core/SkPaintDefaults.h",
-    "src/core/SkPaintParamsKey.cpp",
-    "src/core/SkPaintParamsKey.h",
     "src/core/SkPaintPriv.cpp",
     "src/core/SkPaintPriv.h",
     "src/core/SkPath.cpp",

@@ -11,12 +11,13 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 
-class SkPaintParamsKeyBuilder;
 class SkPipelineDataGatherer;
 class SkShader;
 class SkKeyContext;
 
 namespace skgpu::graphite {
+
+class PaintParamsKeyBuilder;
 
 // TBD: If occlusion culling is eliminated as a phase, we can easily move the paint conversion
 // back to Device when the command is recorded (similar to SkPaint -> GrPaint), and then
@@ -59,7 +60,7 @@ public:
     bool skipColorXform() const { return fSkipColorXform; }
 
     void toKey(const SkKeyContext&,
-               SkPaintParamsKeyBuilder*,
+               PaintParamsKeyBuilder*,
                SkPipelineDataGatherer*) const;
 
 private:
@@ -77,6 +78,6 @@ private:
     // active clipShader().
 };
 
-} // namespace skgpu
+} // namespace skgpu::graphite
 
 #endif // skgpu_PaintParams_DEFINED

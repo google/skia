@@ -26,7 +26,7 @@ namespace skgpu::graphite {
 std::tuple<SkUniquePaintParamsID, const SkUniformDataBlock*, const SkTextureDataBlock*>
 ExtractPaintData(Recorder* recorder,
                  SkPipelineDataGatherer* gatherer,
-                 SkPaintParamsKeyBuilder* builder,
+                 PaintParamsKeyBuilder* builder,
                  const SkM44& local2Dev,
                  const PaintParams& p) {
 
@@ -115,7 +115,7 @@ std::string get_uniforms(SkSpan<const SkUniform> uniforms, int* offset, int mang
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
-                                    const std::vector<SkPaintParamsKey::BlockReader>& readers) {
+                                    const std::vector<PaintParamsKey::BlockReader>& readers) {
     int offset = 0;
 
     std::string result = get_uniform_header(bufferID, name);
@@ -147,7 +147,7 @@ std::string EmitPaintParamsStorageBuffer(
         int bufferID,
         const char* bufferTypePrefix,
         const char* bufferNamePrefix,
-        const std::vector<SkPaintParamsKey::BlockReader>& readers) {
+        const std::vector<PaintParamsKey::BlockReader>& readers) {
 
     std::string result;
     SkSL::String::appendf(&result, "struct %sUniformData {\n", bufferTypePrefix);
@@ -186,7 +186,7 @@ std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
     return SkSL::String::printf("%sUniformData[%s].%s", bufferNamePrefix, ssboIndex, uniformName);
 }
 
-std::string EmitTexturesAndSamplers(const std::vector<SkPaintParamsKey::BlockReader>& readers,
+std::string EmitTexturesAndSamplers(const std::vector<PaintParamsKey::BlockReader>& readers,
                                     int* binding) {
     std::string result;
     for (int i = 0; i < (int) readers.size(); ++i) {

@@ -11,7 +11,6 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkKeyContext.h"
-#include "src/core/SkPaintParamsKey.h"
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -21,6 +20,7 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/Blend.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
@@ -33,10 +33,12 @@ constexpr SkPMColor4f kErrorColor = { 1, 0, 0, 1 };
 #define VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID) \
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, dict->getUniforms(codeSnippetID));)
 
+using namespace skgpu::graphite;
+
 //--------------------------------------------------------------------------------------------------
 
 void PassthroughShaderBlock::BeginBlock(const SkKeyContext& keyContext,
-                                        SkPaintParamsKeyBuilder* builder,
+                                        PaintParamsKeyBuilder* builder,
                                         SkPipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
     builder->beginBlock(SkBuiltInCodeSnippetID::kPassthroughShader);
@@ -46,7 +48,7 @@ void PassthroughShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 //--------------------------------------------------------------------------------------------------
 
 void PassthroughBlenderBlock::BeginBlock(const SkKeyContext& keyContext,
-                                         SkPaintParamsKeyBuilder* builder,
+                                         PaintParamsKeyBuilder* builder,
                                          SkPipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
     builder->beginBlock(SkBuiltInCodeSnippetID::kPassthroughBlender);
@@ -73,7 +75,7 @@ void add_solid_uniform_data(const SkShaderCodeDictionary* dict,
 #endif // SK_GRAPHITE_ENABLED
 
 void SolidColorShaderBlock::BeginBlock(const SkKeyContext& keyContext,
-                                       SkPaintParamsKeyBuilder* builder,
+                                       PaintParamsKeyBuilder* builder,
                                        SkPipelineDataGatherer* gatherer,
                                        const SkPMColor4f& premulColor) {
 #ifdef SK_GRAPHITE_ENABLED
@@ -213,7 +215,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
 }
 
 void GradientShaderBlocks::BeginBlock(const SkKeyContext& keyContext,
-                                      SkPaintParamsKeyBuilder *builder,
+                                      PaintParamsKeyBuilder *builder,
                                       SkPipelineDataGatherer* gatherer,
                                       const GradientData& gradData) {
 #ifdef SK_GRAPHITE_ENABLED
@@ -291,7 +293,7 @@ void add_localmatrixshader_uniform_data(const SkShaderCodeDictionary* dict,
 #endif // SK_GRAPHITE_ENABLED
 
 void LocalMatrixShaderBlock::BeginBlock(const SkKeyContext& keyContext,
-                                        SkPaintParamsKeyBuilder* builder,
+                                        PaintParamsKeyBuilder* builder,
                                         SkPipelineDataGatherer* gatherer,
                                         const LMShaderData& lmShaderData) {
 
@@ -350,7 +352,7 @@ ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
 }
 
 void ImageShaderBlock::BeginBlock(const SkKeyContext& keyContext,
-                                  SkPaintParamsKeyBuilder* builder,
+                                  PaintParamsKeyBuilder* builder,
                                   SkPipelineDataGatherer* gatherer,
                                   const ImageData& imgData) {
 
@@ -379,7 +381,7 @@ void ImageShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 //--------------------------------------------------------------------------------------------------
 
 void PorterDuffBlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
-                                            SkPaintParamsKeyBuilder* builder,
+                                            PaintParamsKeyBuilder* builder,
                                             SkPipelineDataGatherer* gatherer,
                                             const PorterDuffBlendShaderData& blendData) {
 #ifdef SK_GRAPHITE_ENABLED
@@ -402,7 +404,7 @@ void PorterDuffBlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 //--------------------------------------------------------------------------------------------------
 
 void BlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
-                                  SkPaintParamsKeyBuilder* builder,
+                                  PaintParamsKeyBuilder* builder,
                                   SkPipelineDataGatherer* gatherer,
                                   const BlendShaderData& blendData) {
 #ifdef SK_GRAPHITE_ENABLED
@@ -424,7 +426,7 @@ void BlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 //--------------------------------------------------------------------------------------------------
 
 void ColorFilterShaderBlock::BeginBlock(const SkKeyContext& keyContext,
-                                        SkPaintParamsKeyBuilder* builder,
+                                        PaintParamsKeyBuilder* builder,
                                         SkPipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
@@ -461,7 +463,7 @@ void add_matrix_colorfilter_uniform_data(const SkShaderCodeDictionary* dict,
 #endif // SK_GRAPHITE_ENABLED
 
 void MatrixColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
-                                        SkPaintParamsKeyBuilder* builder,
+                                        PaintParamsKeyBuilder* builder,
                                         SkPipelineDataGatherer* gatherer,
                                         const MatrixColorFilterData& matrixCFData) {
 #ifdef SK_GRAPHITE_ENABLED
@@ -496,7 +498,7 @@ void add_blend_colorfilter_uniform_data(const SkShaderCodeDictionary* dict,
 #endif // SK_GRAPHITE_ENABLED
 
 void BlendColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
-                                       SkPaintParamsKeyBuilder* builder,
+                                       PaintParamsKeyBuilder* builder,
                                        SkPipelineDataGatherer* gatherer,
                                        const BlendColorFilterData& data) {
 #ifdef SK_GRAPHITE_ENABLED
@@ -512,7 +514,7 @@ void BlendColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 void ComposeColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
-                                         SkPaintParamsKeyBuilder* builder,
+                                         PaintParamsKeyBuilder* builder,
                                          SkPipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
     builder->beginBlock(SkBuiltInCodeSnippetID::kComposeColorFilter);
@@ -521,7 +523,7 @@ void ComposeColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 void GaussianColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
-                                          SkPaintParamsKeyBuilder* builder,
+                                          PaintParamsKeyBuilder* builder,
                                           SkPipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
     builder->beginBlock(SkBuiltInCodeSnippetID::kGaussianColorFilter);
@@ -548,7 +550,7 @@ void add_table_colorfilter_uniform_data(const SkShaderCodeDictionary* dict,
 TableColorFilterBlock::TableColorFilterData::TableColorFilterData() {}
 
 void TableColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
-                                       SkPaintParamsKeyBuilder* builder,
+                                       PaintParamsKeyBuilder* builder,
                                        SkPipelineDataGatherer* gatherer,
                                        const TableColorFilterData& data) {
 #ifdef SK_GRAPHITE_ENABLED
@@ -627,7 +629,7 @@ void add_shaderbasedblender_uniform_data(const SkShaderCodeDictionary* dict,
 #endif // SK_GRAPHITE_ENABLED
 
 void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
-                                SkPaintParamsKeyBuilder *builder,
+                                PaintParamsKeyBuilder *builder,
                                 SkPipelineDataGatherer* gatherer,
                                 SkBlendMode bm) {
 
@@ -654,7 +656,7 @@ void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
 }
 
 void PrimitiveBlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
-                                         SkPaintParamsKeyBuilder *builder,
+                                         PaintParamsKeyBuilder *builder,
                                          SkPipelineDataGatherer* gatherer,
                                          SkBlendMode bm) {
 #ifdef SK_GRAPHITE_ENABLED
@@ -710,7 +712,7 @@ static void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform
 #endif
 
 void RuntimeEffectBlock::BeginBlock(const SkKeyContext& keyContext,
-                                    SkPaintParamsKeyBuilder* builder,
+                                    PaintParamsKeyBuilder* builder,
                                     SkPipelineDataGatherer* gatherer,
                                     const ShaderData& shaderData) {
 #ifdef SK_GRAPHITE_ENABLED

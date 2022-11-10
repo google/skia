@@ -26,14 +26,16 @@ class SkColorSpace;
 class SkImage;
 struct SkImageInfo;
 class SkPaint;
-class SkPaintParamsKeyBuilder;
 class SkPipelineDataGatherer;
 class SkRasterPipeline;
 class SkRuntimeEffect;
 class SkKeyContext;
 class SkStageUpdater;
-
 class SkUpdatableShader;
+
+namespace skgpu::graphite {
+class PaintParamsKeyBuilder;
+}
 
 class SkShaderBase : public SkShader {
 public:
@@ -260,7 +262,7 @@ public:
                         skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
 
 
-#ifdef SK_ENABLE_SKSL
+#ifdef SK_GRAPHITE_ENABLED
     /**
         Add implementation details, for the specified backend, of this SkShader to the
         provided key.
@@ -270,7 +272,7 @@ public:
         @param gatherer   if non-null, storage for this shader's data
     */
     virtual void addToKey(const SkKeyContext& keyContext,
-                          SkPaintParamsKeyBuilder* builder,
+                          skgpu::graphite::PaintParamsKeyBuilder* builder,
                           SkPipelineDataGatherer* gatherer) const;
 #endif
 

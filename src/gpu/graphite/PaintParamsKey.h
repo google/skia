@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkPaintParamsKey_DEFINED
-#define SkPaintParamsKey_DEFINED
+#ifndef skgpu_graphite_PaintParamsKey_DEFINED
+#define skgpu_graphite_PaintParamsKey_DEFINED
 
 #include "include/core/SkColor.h"
 #include "include/core/SkSpan.h"
@@ -14,18 +14,18 @@
 #include "include/private/SkMacros.h"
 #include "include/private/SkTDArray.h"
 #include "src/core/SkBuiltInCodeSnippetID.h"
-
-#ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/Blend.h"
-#endif
 
 #include <array>
 #include <limits>
 
-class SkPaintParamsKeyBuilder;
 class SkShaderCodeDictionary;
 class SkShaderInfo;
 struct SkShaderSnippet;
+
+namespace skgpu::graphite {
+
+class PaintParamsKeyBuilder;
 
 // This class is a compact representation of the shader needed to implement a given
 // PaintParams. Its structure is a series of blocks where each block has a
@@ -35,7 +35,7 @@ struct SkShaderSnippet;
 // The rest of the data in the block is dependent on the individual code snippet.
 // If a given block has child blocks, they appear in the key right after their parent
 // block's header.
-class SkPaintParamsKey {
+class PaintParamsKey {
 public:
     #pragma pack(push, 1)
     struct Header {
@@ -62,7 +62,7 @@ public:
         uint32_t fCount;
     };
 
-    ~SkPaintParamsKey();
+    ~PaintParamsKey();
 
     class BlockReader {
     public:
@@ -94,7 +94,7 @@ public:
 #endif
 
     private:
-        friend class SkPaintParamsKey; // for ctor
+        friend class PaintParamsKey; // for ctor
 
         BlockReader(const SkShaderCodeDictionary*,
                     SkSpan<const uint8_t> parentSpan,
@@ -123,28 +123,28 @@ public:
     const uint8_t* data() const { return fData.data(); }
     int sizeInBytes() const { return SkTo<int>(fData.size()); }
 
-    bool operator==(const SkPaintParamsKey& that) const;
-    bool operator!=(const SkPaintParamsKey& that) const { return !(*this == that); }
+    bool operator==(const PaintParamsKey& that) const;
+    bool operator!=(const PaintParamsKey& that) const { return !(*this == that); }
 
 #if GR_TEST_UTILS
     bool isErrorKey() const;
 #endif
 
 private:
-    friend class SkPaintParamsKeyBuilder;   // for the parented-data ctor
-    friend class SkShaderCodeDictionary;    // for the raw-data ctor
+    friend class PaintParamsKeyBuilder;       // for the parented-data ctor
+    friend class ::SkShaderCodeDictionary;    // for the raw-data ctor
 
     // This ctor is to be used when paintparams keys are being consecutively generated
     // by a key builder. The memory backing this key's span is shared between the
     // builder and its keys.
-    SkPaintParamsKey(SkSpan<const uint8_t> span, SkPaintParamsKeyBuilder* originatingBuilder);
+    PaintParamsKey(SkSpan<const uint8_t> span, PaintParamsKeyBuilder* originatingBuilder);
 
     // This ctor is used when this key isn't being created by a builder (i.e., when the key
     // is in the dictionary). In this case the dictionary will own the memory backing the span.
-    SkPaintParamsKey(SkSpan<const uint8_t> rawData);
+    PaintParamsKey(SkSpan<const uint8_t> rawData);
 
     static void AddBlockToShaderInfo(const SkShaderCodeDictionary*,
-                                     const SkPaintParamsKey::BlockReader&,
+                                     const BlockReader&,
                                      SkShaderInfo*);
 
     // The memory referenced in 'fData' is always owned by someone else.
@@ -155,11 +155,11 @@ private:
     SkSpan<const uint8_t> fData;
 
     // This class should only ever access the 'lock' and 'unlock' calls on 'fOriginatingBuilder'
-    SkPaintParamsKeyBuilder* fOriginatingBuilder;
+    PaintParamsKeyBuilder* fOriginatingBuilder;
 };
 
-// The SkPaintParamsKeyBuilder and the SkPaintParamsKeys snapped from it share the same
-// underlying block of memory. When an SkPaintParamsKey is snapped from the builder it 'locks'
+// The PaintParamsKeyBuilder and the PaintParamsKeys snapped from it share the same
+// underlying block of memory. When an PaintParamsKey is snapped from the builder it 'locks'
 // the memory and 'unlocks' it in its destructor. Because of this relationship, the builder
 // can only have one extant key and that key must be destroyed before the builder can be reused
 // to create another one.
@@ -168,19 +168,17 @@ private:
 // being used in a tight loop to generate keys which can be recycled once they've been used to
 // find the dictionary's matching uniqueID. We don't expect the cost of copying the key's memory
 // into the dictionary to be prohibitive since that should be infrequent.
-class SkPaintParamsKeyBuilder {
+class PaintParamsKeyBuilder {
 public:
-    SkPaintParamsKeyBuilder(const SkShaderCodeDictionary*);
-    ~SkPaintParamsKeyBuilder() {
+    PaintParamsKeyBuilder(const SkShaderCodeDictionary*);
+    ~PaintParamsKeyBuilder() {
         SkASSERT(!this->isLocked());
     }
 
-#ifdef SK_GRAPHITE_ENABLED
     void setBlendInfo(const skgpu::BlendInfo& blendInfo) {
         fBlendInfo = blendInfo;
     }
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
-#endif
 
     void beginBlock(int32_t codeSnippetID);
     void beginBlock(SkBuiltInCodeSnippetID id) { this->beginBlock(static_cast<int32_t>(id)); }
@@ -205,7 +203,7 @@ public:
     uint8_t byte(int offset) const { return fData[offset]; }
 #endif
 
-    SkPaintParamsKey lockAsKey();
+    PaintParamsKey lockAsKey();
 
     int sizeInBytes() const { return fData.size(); }
 
@@ -219,9 +217,8 @@ public:
     void unlock() {
         SkASSERT(fLocked);
         fData.clear();
-#ifdef SK_GRAPHITE_ENABLED
         fBlendInfo = {};
-#endif
+
         SkDEBUGCODE(fLocked = false;)
         SkDEBUGCODE(this->checkReset();)
     }
@@ -229,11 +226,11 @@ public:
     SkDEBUGCODE(bool isLocked() const { return fLocked; })
 
 private:
-    void addToKey(uint32_t count, const void* data, SkPaintParamsKey::DataPayloadType payloadType);
+    void addToKey(uint32_t count, const void* data, PaintParamsKey::DataPayloadType payloadType);
     void makeInvalid();
 
 #ifdef SK_DEBUG
-    void checkExpectations(SkPaintParamsKey::DataPayloadType actualType, uint32_t actualCount);
+    void checkExpectations(PaintParamsKey::DataPayloadType actualType, uint32_t actualCount);
 #endif
 
     // Information about the current block being written
@@ -241,7 +238,7 @@ private:
         int fCodeSnippetID;
         int fHeaderOffset;
 #ifdef SK_DEBUG
-        SkSpan<const SkPaintParamsKey::DataPayloadField> fDataPayloadExpectations;
+        SkSpan<const PaintParamsKey::DataPayloadField> fDataPayloadExpectations;
         int fCurDataPayloadEntry = 0;
         int fNumExpectedChildren = 0;
         int fNumActualChildren = 0;
@@ -257,10 +254,9 @@ private:
     // repeated use of the builder will hit a high-water mark and avoid lots of allocations.
     SkTDArray<StackFrame> fStack;
     SkTDArray<uint8_t> fData;
-
-#ifdef SK_GRAPHITE_ENABLED
     skgpu::BlendInfo fBlendInfo;
-#endif
 };
 
-#endif // SkPaintParamsKey_DEFINED
+} // skgpu::graphite
+
+#endif // skgpu_graphite_PaintParamsKey_DEFINED

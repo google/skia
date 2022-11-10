@@ -23,7 +23,6 @@
 
 class SkArenaAllocWithReset;
 class SkKeyContext;
-class SkPaintParamsKeyBuilder;
 class SkShaderCodeDictionary;
 class SkUniquePaintParamsID;
 
@@ -33,6 +32,7 @@ class CombinationBuilder;
 class CombinationBuilderTestAccess;
 class Context;
 class Option;
+class PaintParamsKeyBuilder;
 
 enum class ShaderType : uint32_t {
     kSolidColor,
@@ -158,7 +158,7 @@ private:
     }
 
     // 'desiredCombination' must be less than numCombinations
-    void createKey(const SkKeyContext&, int desiredCombination, SkPaintParamsKeyBuilder*);
+    void createKey(const SkKeyContext&, int desiredCombination, PaintParamsKeyBuilder*);
 
 #ifdef SK_DEBUG
     void dump() const;

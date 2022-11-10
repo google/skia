@@ -22,7 +22,6 @@
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkOpts.h"
-#include "src/core/SkPaintParamsKey.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -52,6 +51,10 @@
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/image/SkImage_Gpu.h"
+#endif
+
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
 #include <algorithm>
@@ -940,10 +943,11 @@ static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
 }
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
 static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children,
                                 SkSpan<const SkRuntimeEffect::Child> childInfo,
                                 const SkKeyContext& keyContext,
-                                SkPaintParamsKeyBuilder* builder,
+                                skgpu::graphite::PaintParamsKeyBuilder* builder,
                                 SkPipelineDataGatherer* gatherer) {
     SkASSERT(children.size() == childInfo.size());
 
@@ -976,6 +980,7 @@ static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children
         }
     }
 }
+#endif
 
 class RuntimeEffectVMCallbacks : public SkSL::SkVMCallbacks {
 public:
@@ -1075,8 +1080,9 @@ public:
     }
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext& keyContext,
-                  SkPaintParamsKeyBuilder* builder,
+                  skgpu::graphite::PaintParamsKeyBuilder* builder,
                   SkPipelineDataGatherer* gatherer) const override {
         RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 
@@ -1084,6 +1090,7 @@ public:
 
         builder->endBlock();
     }
+#endif
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         return false;
@@ -1251,8 +1258,9 @@ public:
     }
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext& keyContext,
-                  SkPaintParamsKeyBuilder* builder,
+                  skgpu::graphite::PaintParamsKeyBuilder* builder,
                   SkPipelineDataGatherer* gatherer) const override {
         RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 
@@ -1260,6 +1268,7 @@ public:
 
         builder->endBlock();
     }
+#endif
 
     bool onAppendStages(const SkStageRec& rec) const override {
         return false;
@@ -1421,8 +1430,9 @@ public:
     }
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext& keyContext,
-                  SkPaintParamsKeyBuilder* builder,
+                  skgpu::graphite::PaintParamsKeyBuilder* builder,
                   SkPipelineDataGatherer* gatherer,
                   bool primitiveColorBlender) const override {
         RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
@@ -1431,6 +1441,7 @@ public:
 
         builder->endBlock();
     }
+#endif
 
     void flatten(SkWriteBuffer& buffer) const override {
         buffer.writeString(fEffect->source().c_str());
