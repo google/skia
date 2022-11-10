@@ -1460,6 +1460,8 @@ BASE_SRCS_ALL = [
     "src/sksl/codegen/SkSLSPIRVCodeGenerator.h",
     "src/sksl/codegen/SkSLSPIRVtoHLSL.cpp",
     "src/sksl/codegen/SkSLSPIRVtoHLSL.h",
+    "src/sksl/codegen/SkSLRasterPipelineBuilder.cpp",
+    "src/sksl/codegen/SkSLRasterPipelineBuilder.h",
     "src/sksl/codegen/SkSLVMCodeGenerator.cpp",
     "src/sksl/codegen/SkSLVMCodeGenerator.h",
     "src/sksl/codegen/SkSLWGSLCodeGenerator.cpp",

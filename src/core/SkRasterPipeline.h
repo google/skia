@@ -270,6 +270,7 @@ public:
     // Allocates a thunk which amortizes run() setup cost in alloc.
     std::function<void(size_t, size_t, size_t, size_t)> compile() const;
 
+    // Prints the entire StageList using SkDebugf.
     void dump() const;
 
     // Appends a stage for the specified matrix.
@@ -323,6 +324,8 @@ private:
     SkRasterPipeline_RewindCtx* fRewindCtx;
     StageList*                  fStages;
     int                         fNumStages;
+
+    friend struct TestingOnly_SkRasterPipelineInspector;
 };
 
 template <size_t bytes>
