@@ -107,6 +107,7 @@ public:
 
 private:
 #ifdef SK_DAWN
+    friend class DawnCaps;
     const DawnTextureSpec& dawnTextureSpec() const {
         SkASSERT(fValid && fBackend == BackendApi::kDawn);
         return fDawnSpec;

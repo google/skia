@@ -175,6 +175,8 @@ skia_graphite_dawn_sources = [
   "$_src/dawn/DawnSharedContext.cpp",
   "$_src/dawn/DawnSharedContext.h",
   "$_src/dawn/DawnTypesPriv.cpp",
+  "$_src/dawn/DawnUtils.cpp",
+  "$_src/dawn/DawnUtils.h",
 ]
 
 skia_graphite_mtl_sources = [
