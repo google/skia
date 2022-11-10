@@ -2932,7 +2932,6 @@ if (skia_enable_tools) {
         "tools/viewer/ClipSlide.cpp",
         "tools/viewer/ClockSlide.cpp",
         "tools/viewer/CowboySlide.cpp",
-        "tools/viewer/CuspSlide.cpp",
         "tools/viewer/DegenerateTwoPtRadialsSlide.cpp",
         "tools/viewer/FatBitsSlide.cpp",
         "tools/viewer/FilterBoundsSlide.cpp",
