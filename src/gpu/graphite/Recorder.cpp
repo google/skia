@@ -111,6 +111,11 @@ Recorder::~Recorder() {
     for (auto& device : fTrackedDevices) {
         device->abandonRecorder();
     }
+#if GRAPHITE_TEST_UTILS
+    if (fContext) {
+        fContext->priv().deregisterRecorder(this);
+    }
+#endif
 
     // TODO: needed?
     fStrikeCache->freeAll();
@@ -185,7 +190,7 @@ void Recorder::deregisterDevice(const Device* device) {
     }
 }
 
-#if GR_TEST_UTILS
+#if GRAPHITE_TEST_UTILS
 bool Recorder::deviceIsRegistered(Device* device) {
     ASSERT_SINGLE_OWNER
     for (auto& currentDevice : fTrackedDevices) {
@@ -353,5 +358,13 @@ RecorderPriv::PixelTransferResult RecorderPriv::transferPixels(const TextureProx
 
     return result;
 }
+
+#if GRAPHITE_TEST_UTILS
+// used by the Context that created this Recorder to set a back pointer
+void RecorderPriv::setContext(Context* context) {
+    fRecorder->fContext = context;
+}
+#endif
+
 
 } // namespace skgpu::graphite

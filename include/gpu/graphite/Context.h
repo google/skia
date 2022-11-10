@@ -130,7 +130,7 @@ public:
     ContextID contextID() const { return fContextID; }
 
 protected:
-    Context(sk_sp<SharedContext>, std::unique_ptr<QueueManager>);
+    Context(sk_sp<SharedContext>, std::unique_ptr<QueueManager>, const ContextOptions&);
 
 private:
     friend class ContextPriv;
@@ -153,6 +153,14 @@ private:
     // In debug builds we guard against improper thread handling. This guard is passed to the
     // ResourceCache for the Context.
     mutable SingleOwner fSingleOwner;
+
+#if GRAPHITE_TEST_UTILS
+    // In test builds a Recorder may track the Context that was used to create it.
+    bool fStoreContextRefInRecorder = false;
+    // If this tracking is on, to allow the client to safely delete this Context or its Recorders
+    // in any order we must also track the Recorders created here.
+    std::vector<Recorder*> fTrackedRecorders;
+#endif
 
     // Needed for MessageBox handling
     const ContextID fContextID;

@@ -42,6 +42,8 @@ public:
         fContext->fQueueManager->stopCapture();
     }
 
+    void deregisterRecorder(const Recorder*);
+
     bool readPixels(Recorder*,
                     const SkPixmap&,
                     const TextureProxy*,

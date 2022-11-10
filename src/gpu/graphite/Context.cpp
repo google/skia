@@ -62,9 +62,14 @@ Context::ContextID Context::ContextID::Next() {
 }
 
 //--------------------------------------------------------------------------------------------------
-Context::Context(sk_sp<SharedContext> sharedContext, std::unique_ptr<QueueManager> queueManager)
+Context::Context(sk_sp<SharedContext> sharedContext,
+                 std::unique_ptr<QueueManager> queueManager,
+                 const ContextOptions& options)
         : fSharedContext(std::move(sharedContext))
         , fQueueManager(std::move(queueManager))
+#if GRAPHITE_TEST_UTILS
+        , fStoreContextRefInRecorder(options.fStoreContextRefInRecorder)
+#endif
         , fContextID(ContextID::Next()) {
     // We have to create this outside the initializer list because we need to pass in the Context's
     // SingleOwner object and it is declared last
@@ -72,7 +77,14 @@ Context::Context(sk_sp<SharedContext> sharedContext, std::unique_ptr<QueueManage
     fMappedBufferManager = std::make_unique<ClientMappedBufferManager>(this->contextID());
 }
 
-Context::~Context() {}
+Context::~Context() {
+#if GRAPHITE_TEST_UTILS
+    ASSERT_SINGLE_OWNER
+    for (auto& recorder : fTrackedRecorders) {
+        recorder->priv().setContext(nullptr);
+    }
+#endif
+}
 
 BackendApi Context::backend() const { return fSharedContext->backend(); }
 
@@ -91,7 +103,8 @@ std::unique_ptr<Context> Context::MakeDawn(const DawnBackendContext& backendCont
     }
 
     auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
-                                                        std::move(queueManager)));
+                                                        std::move(queueManager),
+                                                        options));
     SkASSERT(context);
     return context;
 }
@@ -111,7 +124,8 @@ std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendCont
     }
 
     auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
-                                                        std::move(queueManager)));
+                                                        std::move(queueManager),
+                                                        options));
     SkASSERT(context);
     return context;
 }
@@ -141,7 +155,13 @@ std::unique_ptr<Context> Context::MakeVulkan(const VulkanBackendContext& backend
 std::unique_ptr<Recorder> Context::makeRecorder(const RecorderOptions& options) {
     ASSERT_SINGLE_OWNER
 
-    return std::unique_ptr<Recorder>(new Recorder(fSharedContext, options));
+    auto recorder = std::unique_ptr<Recorder>(new Recorder(fSharedContext, options));
+#if GRAPHITE_TEST_UTILS
+    if (fStoreContextRefInRecorder) {
+        recorder->priv().setContext(this);
+    }
+#endif
+    return recorder;
 }
 
 bool Context::insertRecording(const InsertRecordingInfo& info) {
@@ -362,6 +382,18 @@ bool ContextPriv::readPixels(Recorder* recorder,
                  asyncContext.fResult->rowBytes(0), pm.info().minRowBytes(),
                  pm.height());
     return true;
+}
+
+void ContextPriv::deregisterRecorder(const Recorder* recorder) {
+    SKGPU_ASSERT_SINGLE_OWNER(fContext->singleOwner())
+    for (auto it = fContext->fTrackedRecorders.begin();
+         it != fContext->fTrackedRecorders.end();
+         it++) {
+        if (*it == recorder) {
+            fContext->fTrackedRecorders.erase(it);
+            return;
+        }
+    }
 }
 #endif
 
