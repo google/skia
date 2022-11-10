@@ -124,12 +124,6 @@ def compile_fn(api, checkout_root, out_dir):
         # We have some bots on 10.13.
         env['MACOSX_DEPLOYMENT_TARGET'] = '10.13'
 
-  if 'CheckGeneratedFiles' in extra_tokens:
-    compiler = 'Clang'
-    args['skia_compile_modules'] = 'true'
-    args['skia_compile_sksl_tests'] = 'true'
-    args['skia_generate_workarounds'] = 'true'
-
   # ccache + clang-tidy.sh chokes on the argument list.
   if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5' or os == 'Mac10.15.7') and 'Tidy' not in extra_tokens:
     if api.vars.is_linux:
@@ -337,12 +331,6 @@ def compile_fn(api, checkout_root, out_dir):
             'fetch-gn',
             script=skia_dir.join('bin', 'fetch-gn'),
             infra_step=True)
-    if 'CheckGeneratedFiles' in extra_tokens:
-      env['PATH'] = '%s:%%(PATH)s' % skia_dir.join('bin')
-      api.run(api.python,
-              'fetch-clang-format',
-              script=skia_dir.join('bin', 'fetch-clang-format'),
-              infra_step=True)
 
     with api.env(env):
       if ccache:

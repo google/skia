@@ -20,7 +20,6 @@
 **[Recipes](#Recipes)**
   * [build:examples/full](#recipes-build_examples_full) (Python3 ✅)
   * [builder_name_schema:examples/full](#recipes-builder_name_schema_examples_full) (Python3 ✅)
-  * [check_generated_files](#recipes-check_generated_files) (Python3 ✅)
   * [checkout:examples/full](#recipes-checkout_examples_full) (Python3 ✅)
   * [compile](#recipes-compile) (Python3 ✅)
   * [compute_buildstats](#recipes-compute_buildstats) (Python3 ✅)
@@ -320,13 +319,6 @@ PYTHON_VERSION_COMPATIBILITY: PY3
 PYTHON_VERSION_COMPATIBILITY: PY3
 
 &mdash; **def [RunSteps](/infra/bots/recipe_modules/builder_name_schema/examples/full.py#12)(api):**
-### *recipes* / [check\_generated\_files](/infra/bots/recipes/check_generated_files.py)
-
-[DEPS](/infra/bots/recipes/check_generated_files.py#10): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [recipe\_engine/python][recipe_engine/recipe_modules/python], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [build](#recipe_modules-build), [checkout](#recipe_modules-checkout), [infra](#recipe_modules-infra), [run](#recipe_modules-run), [vars](#recipe_modules-vars)
-
-PYTHON_VERSION_COMPATIBILITY: PY3
-
-&mdash; **def [RunSteps](/infra/bots/recipes/check_generated_files.py#26)(api):**
 ### *recipes* / [checkout:examples/full](/infra/bots/recipe_modules/checkout/examples/full.py)
 
 [DEPS](/infra/bots/recipe_modules/checkout/examples/full.py#7): [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/properties][recipe_engine/recipe_modules/properties], [checkout](#recipe_modules-checkout), [run](#recipe_modules-run), [vars](#recipe_modules-vars)

@@ -89,7 +89,6 @@ TEST_BUILDERS = [
   'Build-Win-Clang-x86_64-Release-Shared',
   "Build-Win-Clang-x86_64-Release-Dawn",
   'Build-Win-Clang-x86_64-Release-Vulkan',
-  'Housekeeper-PerCommit-CheckGeneratedFiles',
 ]
 
 # Default properties used for TEST_BUILDERS.
