@@ -352,6 +352,7 @@ graphite_tests_sources = [
   "$_tests/graphite/RecordingOrderTest.cpp",
   "$_tests/graphite/RectTest.cpp",
   "$_tests/graphite/ShapeTest.cpp",
+  "$_tests/graphite/TextureProxyTest.cpp",
   "$_tests/graphite/TransformTest.cpp",
   "$_tests/graphite/UniformManagerTest.cpp",
   "$_tests/graphite/UniformOffsetCalculatorTest.cpp",
