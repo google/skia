@@ -111,13 +111,10 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
                                                const std::string& msl,
                                                ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
-    // TODO: Ideally we could use initWithBytesNoCopy: here, but appears that when Metal
-    // caches shaders, it takes a ref to the NSString passed in, rather than a copy.
-    // This means that when our std::string goes out of scope they're referring an NSString
-    // with deleted data. To work around this, we need to use stringWithCString:.
-    // Filed with Apple as FB11578913.
-    auto nsSource = [NSString stringWithCString:msl.c_str()
-                                       encoding:NSMacOSRomanStringEncoding];
+    auto nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
+                                                   length:msl.size()
+                                                 encoding:NSUTF8StringEncoding
+                                             freeWhenDone:NO];
     MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
     // array<> is supported in MSL 2.0 on MacOS 10.13+ and iOS 11+,
     // and in MSL 1.2 on iOS 10+ (but not MacOS).
