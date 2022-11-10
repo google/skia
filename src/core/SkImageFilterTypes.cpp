@@ -226,31 +226,9 @@ LayerSpace<SkIRect> LayerSpace<SkMatrix>::mapRect(const LayerSpace<SkIRect>& r) 
 }
 
 sk_sp<SkSpecialImage> FilterResult::imageAndOffset(SkIPoint* offset) const {
-    if (!fImage) {
-        *offset = {0, 0};
-        return nullptr;
-    }
-
-    LayerSpace<SkIPoint> origin;
-    // TODO: When there are other tile modes than kDecal, imageAndOffset needs to apply them even if
-    // the transform is representable as an offset.
-    if (is_nearly_integer_translation(fTransform, &origin)) {
-        // This is similar to the integer-translate case of applyCrop(), except that it can also
-        // apply any soft-cropping from desired output effects on fLayerBounds (which are a request
-        // for minimum content, not a hard maximum like a regular crop).
-        LayerSpace<IVector> originShift = fLayerBounds.topLeft() - origin;
-        auto subsetImage = fImage->makeSubset(SkIRect::MakeXYWH(originShift.x(),
-                                                                originShift.y(),
-                                                                fLayerBounds.width(),
-                                                                fLayerBounds.height()));
-
-        *offset = SkIPoint(fLayerBounds.topLeft());
-        return subsetImage;
-    } else {
-        // Legacy fallback requires us to produce a new image that matches this FilterResult but
-        // has no new properties legacy code can't handle.
-        return this->resolve(this->layerBounds()).imageAndOffset(offset);
-    }
+    auto [image, origin] = this->resolve(fLayerBounds);
+    *offset = SkIPoint(origin);
+    return image;
 }
 
 FilterResult FilterResult::applyCrop(const Context& ctx,
@@ -265,37 +243,14 @@ FilterResult FilterResult::applyCrop(const Context& ctx,
 
     if (crop.contains(fLayerBounds)) {
         // The original crop does not affect the image (although the context's desired output might)
-        // We can tighten fLayerBounds to tightBounds without resolving the image, regardless of the
-        // transform type.
+        // We can tighten fLayerBounds to the desired output without resolving the image, regardless
+        // of the transform type.
         // TODO(michaelludwig): If the crop would use mirror or repeat, the above isn't true.
         FilterResult restrictedOutput = *this;
         SkAssertResult(restrictedOutput.fLayerBounds.intersect(ctx.desiredOutput()));
         return restrictedOutput;
     } else {
-        // The crop modifies the effective image. If the transform is axis-aligned, we can apply the
-        // crop to the special image directly w/o resolving the transformation. Otherwise the image
-        // is not pixel-aligned with the layer coordinate space, so the crop rect's edges aren't
-        // aligned with the image data and we have to resolve it first.
-
-        // // TODO(michaelludwig): Only valid for kDecal, although kClamp would only need 1 extra
-        // pixel of padding so some restriction could happen.
-        if (!tightBounds.intersect(fLayerBounds)) {
-            return {};
-        }
-
-        // TODO(michaelludwig): If we get to the point where all filter results track bounds in
-        // floating point, then we can extend this case to any S+T transform.
-        LayerSpace<SkIPoint> origin;
-        if (is_nearly_integer_translation(fTransform, &origin)) {
-            LayerSpace<IVector> originShift = tightBounds.topLeft() - origin;
-            auto subsetImage = fImage->makeSubset(SkIRect::MakeXYWH(originShift.x(),
-                                                                    originShift.y(),
-                                                                    tightBounds.width(),
-                                                                    tightBounds.height()));
-            return {std::move(subsetImage), tightBounds.topLeft()};
-        } else {
-            return this->resolve(tightBounds);
-        }
+        return this->resolve(tightBounds);
     }
 }
 
@@ -400,7 +355,6 @@ void FilterResult::concatTransform(const LayerSpace<SkMatrix>& transform,
     // accumulated soft crops from desired outputs of prior stages. To prevent discarding that info,
     // we map fLayerBounds by the additional transform, instead of re-mapping the image bounds.
     fLayerBounds = transform.mapRect(fLayerBounds);
-
     if (!fLayerBounds.intersect(desiredOutput)) {
         // The transformed output doesn't touch the desired, so it would just be transparent black.
         // TODO: This intersection only applies when the tile mode is kDecal.
@@ -408,19 +362,41 @@ void FilterResult::concatTransform(const LayerSpace<SkMatrix>& transform,
     }
 }
 
-FilterResult FilterResult::resolve(const LayerSpace<SkIRect>& dstBounds) const {
-    // This assumes that 'dstBounds' has already been optimized to be as small as necessary for
-    // correctness given any further processing and desired output, and assuming kDecal sampling.
-    if (!fImage || dstBounds.isEmpty()) {
-        return {};
+std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> FilterResult::resolve(
+        LayerSpace<SkIRect> dstBounds) const {
+    // TODO(michaelludwig): Only valid for kDecal, although kClamp would only need 1 extra
+    // pixel of padding so some restriction could happen. We also should skip the intersection if
+    // we need to include transparent black pixels.
+    if (!fImage || !dstBounds.intersect(fLayerBounds)) {
+        return {nullptr, {}};
     }
+
+    // TODO: This logic to skip a draw will also need to account for the tile mode, but we can
+    // always restrict to the intersection of dstBounds and the image's subset since we are
+    // currently always decal sampling.
+    // TODO(michaelludwig): If we get to the point where all filter results track bounds in
+    // floating point, then we can extend this case to any S+T transform.
+    LayerSpace<SkIPoint> origin;
+    if (is_nearly_integer_translation(fTransform, &origin)) {
+        LayerSpace<SkIRect> imageBounds(SkIRect::MakeXYWH(origin.x(), origin.y(),
+                                                          fImage->width(), fImage->height()));
+        if (!imageBounds.intersect(dstBounds)) {
+            return {nullptr, {}};
+        }
+
+        SkIRect subset = SkIRect(imageBounds).makeOffset(-origin.x(), -origin.y());
+        SkASSERT(subset.fLeft >= 0 && subset.fTop >= 0 &&
+                 subset.fRight <= fImage->width() && subset.fBottom <= fImage->height());
+
+        return {fImage->makeSubset(subset), imageBounds.topLeft()};
+    } // else fall through and attempt a draw
 
     sk_sp<SkSpecialSurface> surface = fImage->makeSurface(fImage->colorType(),
                                                           fImage->getColorSpace(),
                                                           SkISize(dstBounds.size()),
                                                           kPremul_SkAlphaType, {});
     if (!surface) {
-        return {};
+        return {nullptr, {}};
     }
     SkCanvas* canvas = surface->getCanvas();
     // skbug.com/5075: GPU-backed special surfaces don't reset their contents.

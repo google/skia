@@ -597,6 +597,9 @@ public:
     explicit FilterResult(sk_sp<SkSpecialImage> image)
             : FilterResult(std::move(image), LayerSpace<SkIPoint>({0, 0})) {}
 
+    FilterResult(std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> imageAndOrigin)
+            : FilterResult(std::move(std::get<0>(imageAndOrigin)), std::get<1>(imageAndOrigin)) {}
+
     FilterResult(sk_sp<SkSpecialImage> image, const LayerSpace<SkIPoint>& origin)
             : fImage(std::move(image))
             , fSamplingOptions(kDefaultSampling)
@@ -649,7 +652,8 @@ public:
 private:
     // Renders this FilterResult into a new, but visually equivalent, image that fills 'dstBounds',
     // has nearest-neighbor sampling, and a transform that just translates by 'dstBounds' TL corner.
-    FilterResult resolve(const LayerSpace<SkIRect>& dstBounds) const;
+    std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>>
+    resolve(LayerSpace<SkIRect> dstBounds) const;
 
     // Update metadata to concat the given transform directly.
     void concatTransform(const LayerSpace<SkMatrix>& transform,
