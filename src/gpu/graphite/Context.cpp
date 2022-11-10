@@ -146,7 +146,8 @@ std::unique_ptr<Context> Context::MakeVulkan(const VulkanBackendContext& backend
     }
 
     auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
-                                                        std::move(queueManager)));
+                                                        std::move(queueManager),
+                                                        options));
     SkASSERT(context);
     return context;
 }
