@@ -14,6 +14,7 @@ OpName %i2 "i2"
 OpName %s2 "s2"
 OpName %f2 "f2"
 OpName %h2 "h2"
+OpName %cf2 "cf2"
 OpDecorate %sk_Clockwise BuiltIn FrontFacing
 OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
@@ -31,9 +32,9 @@ OpDecorate %34 RelaxedPrecision
 OpDecorate %_arr_float_int_2 ArrayStride 16
 OpDecorate %h2 RelaxedPrecision
 OpDecorate %42 RelaxedPrecision
-OpDecorate %66 RelaxedPrecision
-OpDecorate %68 RelaxedPrecision
+OpDecorate %67 RelaxedPrecision
 OpDecorate %69 RelaxedPrecision
+OpDecorate %70 RelaxedPrecision
 %bool = OpTypeBool
 %_ptr_Input_bool = OpTypePointer Input %bool
 %sk_Clockwise = OpVariable %_ptr_Input_bool Input
@@ -80,7 +81,8 @@ OpFunctionEnd
 %s2 = OpVariable %_ptr_Function__arr_int_int_2 Function
 %f2 = OpVariable %_ptr_Function__arr_float_int_2 Function
 %h2 = OpVariable %_ptr_Function__arr_float_int_2 Function
-%58 = OpVariable %_ptr_Function_v4float Function
+%cf2 = OpVariable %_ptr_Function__arr_float_int_2 Function
+%59 = OpVariable %_ptr_Function_v4float Function
 %32 = OpCompositeConstruct %_arr_int_int_2 %int_1 %int_2
 OpStore %i2 %32
 %34 = OpCompositeConstruct %_arr_int_int_2 %int_1 %int_2
@@ -93,41 +95,42 @@ OpStore %i2 %34
 OpStore %s2 %34
 OpStore %f2 %42
 OpStore %h2 %42
-%45 = OpLogicalAnd %bool %true %true
-OpSelectionMerge %47 None
-OpBranchConditional %45 %46 %47
-%46 = OpLabel
-%48 = OpLogicalAnd %bool %true %true
-OpBranch %47
+OpStore %cf2 %40
+%46 = OpLogicalAnd %bool %true %true
+OpSelectionMerge %48 None
+OpBranchConditional %46 %47 %48
 %47 = OpLabel
-%49 = OpPhi %bool %false %25 %48 %46
-OpSelectionMerge %51 None
-OpBranchConditional %49 %50 %51
-%50 = OpLabel
-%52 = OpLogicalAnd %bool %true %true
-OpBranch %51
+%49 = OpLogicalAnd %bool %true %true
+OpBranch %48
+%48 = OpLabel
+%50 = OpPhi %bool %false %25 %49 %47
+OpSelectionMerge %52 None
+OpBranchConditional %50 %51 %52
 %51 = OpLabel
-%53 = OpPhi %bool %false %47 %52 %50
-OpSelectionMerge %55 None
-OpBranchConditional %53 %54 %55
-%54 = OpLabel
-%56 = OpLogicalAnd %bool %true %true
-OpBranch %55
+%53 = OpLogicalAnd %bool %true %true
+OpBranch %52
+%52 = OpLabel
+%54 = OpPhi %bool %false %48 %53 %51
+OpSelectionMerge %56 None
+OpBranchConditional %54 %55 %56
 %55 = OpLabel
-%57 = OpPhi %bool %false %51 %56 %54
-OpSelectionMerge %62 None
-OpBranchConditional %57 %60 %61
-%60 = OpLabel
-%63 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
-%66 = OpLoad %v4float %63
-OpStore %58 %66
-OpBranch %62
+%57 = OpLogicalAnd %bool %true %true
+OpBranch %56
+%56 = OpLabel
+%58 = OpPhi %bool %false %52 %57 %55
+OpSelectionMerge %63 None
+OpBranchConditional %58 %61 %62
 %61 = OpLabel
-%67 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
-%68 = OpLoad %v4float %67
-OpStore %58 %68
-OpBranch %62
+%64 = OpAccessChain %_ptr_Uniform_v4float %10 %int_0
+%67 = OpLoad %v4float %64
+OpStore %59 %67
+OpBranch %63
 %62 = OpLabel
-%69 = OpLoad %v4float %58
-OpReturnValue %69
+%68 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
+%69 = OpLoad %v4float %68
+OpStore %59 %69
+OpBranch %63
+%63 = OpLabel
+%70 = OpLoad %v4float %59
+OpReturnValue %70
 OpFunctionEnd

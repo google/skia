@@ -3511,8 +3511,19 @@ bool SPIRVCodeGenerator::isDead(const Variable& var) const {
              (Modifiers::kIn_Flag | Modifiers::kOut_Flag | Modifiers::kUniform_Flag));
 }
 
+// This function determines whether to skip an OpVariable (of pointer type) declaration for
+// compile-time constant scalars and vectors which we turn into OpConstant/OpConstantComposite and
+// always reference by value.
+//
+// Accessing a matrix or array member with a dynamic index requires the use of OpAccessChain which
+// requires a base operand of pointer type. However, a vector can always be accessed by value using
+// OpVectorExtractDynamic (see writeIndexExpression).
+//
+// This is why we always emit an OpVariable for all non-scalar and non-vector types in case they get
+// accessed via a dynamic index.
 static bool is_vardecl_compile_time_constant(const VarDeclaration& varDecl) {
     return varDecl.var()->modifiers().fFlags & Modifiers::kConst_Flag &&
+           (varDecl.var()->type().isScalar() || varDecl.var()->type().isVector()) &&
            (ConstantFolder::GetConstantValueOrNullForVariable(*varDecl.value()) ||
             Analysis::IsCompileTimeConstant(*varDecl.value()));
 }

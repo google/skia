@@ -355,6 +355,7 @@ sksl_spirv_tests = [
   "spirv/Ossfuzz35916.sksl",
   "spirv/Ossfuzz37627.sksl",
   "spirv/Ossfuzz44096.sksl",
+  "spirv/Ossfuzz53202.sksl",
   "spirv/UnusedInterfaceBlock.sksl",
   "workarounds/RewriteMatrixVectorMultiply.sksl",
 ]
@@ -482,6 +483,8 @@ sksl_shared_tests = [
   "shared/CommaSideEffects.sksl",
   "shared/CompileTimeConstantVariables.sksl",
   "shared/ComplexDelete.sksl",
+  "shared/ConstantCompositeAccessViaConstantIndex.sksl",
+  "shared/ConstantCompositeAccessViaDynamicIndex.sksl",
   "shared/ConstantIf.sksl",
   "shared/ConstArray.sksl",
   "shared/ConstGlobal.sksl",

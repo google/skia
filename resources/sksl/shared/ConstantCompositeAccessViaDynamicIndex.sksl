@@ -1,0 +1,17 @@
+int zero = 0;
+
+// Although all of these variables have compile-time constant values, we expect them to be NOT
+// constant-folded as they are accessed by an index with a value determine at runtime.
+const half[2] globalArray = half[2](1, 1);
+const half2 globalVector = half2(1, 1);
+const half2x2 globalMatrix = half2x2(1, 1, 1, 1);
+
+half4 main(float2) {
+    const half[2] localArray = half[2](0, 1);
+    const half2 localVector = half2(1, 1);
+    const half2x2 localMatrix = half2x2(0, 1, 2, 3);
+
+    return half4(globalArray[zero] * localArray[zero],
+                 globalVector[zero] * localVector[zero],
+                 globalMatrix[zero] * localMatrix[zero]);
+}

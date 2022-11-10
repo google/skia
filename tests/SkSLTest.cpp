@@ -456,6 +456,10 @@ SKSL_TEST(CPU + GPU, kApiLevel_T, CastsRoundTowardZero,            "shared/Casts
 SKSL_TEST(CPU + GPU, kApiLevel_T, CommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, CommaSideEffects,                "shared/CommaSideEffects.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, CompileTimeConstantVariables,    "shared/CompileTimeConstantVariables.sksl")
+// TODO(skia:13934) Enable these tests when the Metal array comparison bug is fixed. Currently these
+// result in invalid Metal code.
+//SKSL_TEST(GPU_ES3,   kNever,      ConstantCompositeAccessViaConstantIndex, "shared/ConstantCompositeAccessViaConstantIndex.sksl");
+//SKSL_TEST(GPU_ES3,   kNever,      ConstantCompositeAccessViaDynamicIndex,  "shared/ConstantCompositeAccessViaDynamicIndex.sksl");
 SKSL_TEST(CPU + GPU, kApiLevel_T, ConstantIf,                      "shared/ConstantIf.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      ConstArray,                      "shared/ConstArray.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, ConstVariableComparison,         "shared/ConstVariableComparison.sksl")
