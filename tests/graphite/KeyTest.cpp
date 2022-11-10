@@ -28,8 +28,8 @@ SkPaintParamsKey create_key_with_data(SkPaintParamsKeyBuilder* builder,
 
 SkPaintParamsKey create_key(SkPaintParamsKeyBuilder* builder, int snippetID, int size) {
     SkASSERT(size <= 1024);
-    static constexpr uint8_t kDummyData[1024] = {};
-    return create_key_with_data(builder, snippetID, SkSpan(kDummyData, size));
+    static constexpr uint8_t kEmptyBuffer[1024] = {};
+    return create_key_with_data(builder, snippetID, SkSpan(kEmptyBuffer, size));
 }
 
 } // anonymous namespace
