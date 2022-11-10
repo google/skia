@@ -9,6 +9,8 @@ CORE_SKSLC_FILES = [
     "SkParse.cpp",
     "SkUTF.cpp",
     "SkUTF.h",
+    "SkOSPath.h",
+    "SkOSPath.cpp",
     "SkVMVisualizer.cpp",
     "SkVMVisualizer.h",
 ]
@@ -49,8 +51,6 @@ CORE_FILES = [
     "SkMultiPictureDocumentPriv.h",
     "SkNWayCanvas.cpp",
     "SkNullCanvas.cpp",
-    "SkOSPath.cpp",
-    "SkOSPath.h",
     "SkOrderedFontMgr.cpp",
     "SkPaintFilterCanvas.cpp",
     "SkParseColor.cpp",

@@ -15,6 +15,10 @@ generate_cmake:
 
 .PHONY: generate_gni
 generate_gni:
+	# It is tempting to try to put this into a blaze run command. However, that
+	# is currently infeasible due to the fact that the exporter tool *calls*
+	# Bazel, resulting in a deadlock because only one Bazel command can run
+	# at a time.
 	cd .. && bazelisk build //bazel/exporter_tool && ${EXPORTER_TOOL} \
 		-output_format=gni -proj_name=Skia ${EXPORTER_RULES} \
 		&& bin/gn format gn/*.gni modules/*/*.gni

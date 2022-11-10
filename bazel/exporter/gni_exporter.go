@@ -85,6 +85,9 @@ skia_core_public += skia_skpicture_public`
 const skshaperFooter = `
 declare_args() {
   skia_enable_skshaper = true
+}
+declare_args() {
+  skia_enable_skshaper_tests = skia_enable_skshaper
 }`
 
 // Map of GNI file names to footer text to be appended to the end of the file.

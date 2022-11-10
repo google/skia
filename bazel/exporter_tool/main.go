@@ -332,6 +332,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{"//modules/skshaper/src:harfbuzz_srcs"}},
 		{Var: "skia_shaper_coretext_sources",
 			Rules: []string{"//modules/skshaper/src:coretext_srcs"}},
+		{Var: "skia_shaper_tests",
+			Rules: []string{"//modules/skshaper/tests:tests_srcs"}},
 	}},
 	{GNI: "modules/skunicode/skunicode.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_unicode_public",
