@@ -13,24 +13,22 @@
 #include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
 #include "tools/timer/Timer.h"
+#include "tools/viewer/Slide.h"
 
 // Create an animation of a bunch of letters that rotate in place. This is intended to stress
 // the glyph atlas and test that we don't see corruption or bad slowdowns.
-class FlutterAnimateView : public Sample {
+class FlutterAnimateView : public Slide {
 public:
-    FlutterAnimateView() : fCurrTime(0), fResetTime(0) {}
+    FlutterAnimateView() : fCurrTime(0), fResetTime(0) { fName = "FlutterAnimate"; }
 
-protected:
-    void onOnceBeforeDraw() override {
+public:
+    void load(SkScalar w, SkScalar h) override {
         fTypeface = SkTypeface::MakeFromFile("/skimages/samplefont.ttf");
         initChars();
     }
 
-    SkString name() override { return SkString("FlutterAnimate"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkFont font(fTypeface, 50);
         SkPaint paint;
 
@@ -51,7 +49,7 @@ protected:
         }
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         fCurrTime = 1e-9 * nanos - fResetTime;
         if (fCurrTime > kDuration) {
             this->initChars();
@@ -88,10 +86,8 @@ private:
     sk_sp<SkTypeface> fTypeface;
     inline static constexpr int kNumChars = 40;
     AnimatedChar fChars[kNumChars];
-
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new FlutterAnimateView(); )
+DEF_SLIDE( return new FlutterAnimateView(); )

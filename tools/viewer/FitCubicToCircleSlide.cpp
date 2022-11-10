@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "samplecode/Sample.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "tools/viewer/ClickHandlerSlide.h"
+
 #include <tuple>
 
 // Math constants are not always defined.
@@ -32,15 +32,19 @@ constexpr static int kRadius = 250;
 //
 // Press 'E' to iteratively cut the arc in half and report the improvement in max error after each
 // halving. (It turns out that max error improves by exactly 64x on every halving.)
-class SampleFitCubicToCircle : public Sample {
-    SkString name() override { return SkString("FitCubicToCircle"); }
-    void onOnceBeforeDraw() override { this->fitCubic(); }
-    void fitCubic();
-    void onDrawContent(SkCanvas*) override;
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override;
-    bool onClick(Sample::Click*) override;
+class SampleFitCubicToCircle : public ClickHandlerSlide {
+public:
+    SampleFitCubicToCircle() { fName = "FitCubicToCircle"; }
+    void load(SkScalar w, SkScalar h) override { this->fitCubic(); }
+    void draw(SkCanvas*) override;
     bool onChar(SkUnichar) override;
 
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override;
+    bool onClick(Click*) override;
+
+private:
+    void fitCubic();
     // Coordinates of two points on the unit circle. These are the two endpoints of the arc we fit.
     double fEndptsX[2] = {0, 1};
     double fEndptsY[2] = {-1, 0};
@@ -146,7 +150,7 @@ void SampleFitCubicToCircle::fitCubic() {
     }
 }
 
-void SampleFitCubicToCircle::onDrawContent(SkCanvas* canvas) {
+void SampleFitCubicToCircle::draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
     SkPaint circlePaint;
@@ -186,7 +190,7 @@ void SampleFitCubicToCircle::onDrawContent(SkCanvas* canvas) {
     }
 }
 
-class SampleFitCubicToCircle::Click : public Sample::Click {
+class SampleFitCubicToCircle::Click : public ClickHandlerSlide::Click {
 public:
     Click(int ptIdx) : fPtIdx(ptIdx) {}
 
@@ -208,8 +212,8 @@ private:
     int fPtIdx;
 };
 
-Sample::Click* SampleFitCubicToCircle::onFindClickHandler(SkScalar x, SkScalar y,
-                                                          skui::ModifierKey) {
+ClickHandlerSlide::Click* SampleFitCubicToCircle::onFindClickHandler(SkScalar x, SkScalar y,
+                                                                     skui::ModifierKey) {
     double dx0 = x - fCubicX[0];
     double dy0 = y - fCubicY[0];
     double dx3 = x - fCubicX[3];
@@ -221,7 +225,7 @@ Sample::Click* SampleFitCubicToCircle::onFindClickHandler(SkScalar x, SkScalar y
     }
 }
 
-bool SampleFitCubicToCircle::onClick(Sample::Click* click) {
+bool SampleFitCubicToCircle::onClick(ClickHandlerSlide::Click* click) {
     Click* myClick = (Click*)click;
     myClick->doClick(this);
     return true;
@@ -254,4 +258,4 @@ bool SampleFitCubicToCircle::onChar(SkUnichar unichar) {
     return false;
 }
 
-DEF_SAMPLE(return new SampleFitCubicToCircle;)
+DEF_SLIDE(return new SampleFitCubicToCircle;)

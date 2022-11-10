@@ -12,15 +12,15 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/utils/SkCamera.h"
 #include "include/utils/SkShadowUtils.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkBlurMask.h"
 #include "src/utils/SkUTF.h"
 #include "tools/ToolUtils.h"
 #include "tools/timer/TimeUtils.h"
+#include "tools/viewer/Slide.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
-class MaterialShadowsView : public Sample {
+class MaterialShadowsSlide : public Slide {
     SkPath    fCirclePath;
     SkPath    fCapsulePath;
     SkPath    fLargeRRPath;
@@ -28,7 +28,10 @@ class MaterialShadowsView : public Sample {
 
     SkPoint3  fLightPos;
 
-    void onOnceBeforeDraw() override {
+public:
+    MaterialShadowsSlide() { fName = "MaterialShadows"; }
+
+    void load(SkScalar w, SkScalar h) override {
         fCirclePath.addCircle(0, 0, 56/2);
         fCapsulePath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-64, -24, 128, 48), 24, 24));
         fLargeRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-64, -64, 128, 128), 4, 4));
@@ -36,8 +39,6 @@ class MaterialShadowsView : public Sample {
 
         fLightPos = SkPoint3::Make(0, -700, 700);
     }
-
-    SkString name() override { return SkString("MaterialShadows"); }
 
     void drawShadowedPath(SkCanvas* canvas, const SkPath& path,
                           const SkPoint3& zPlaneParams,
@@ -54,7 +55,7 @@ class MaterialShadowsView : public Sample {
         canvas->drawPath(path, paint);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFFFFFFF);
 
         const SkScalar kLightRadius = 1.1f;
@@ -137,11 +138,8 @@ class MaterialShadowsView : public Sample {
         canvas->restore();
 
     }
-
-private:
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new MaterialShadowsView(); )
+DEF_SLIDE( return new MaterialShadowsSlide(); )

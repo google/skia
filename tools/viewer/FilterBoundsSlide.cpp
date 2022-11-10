@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "samplecode/Sample.h"
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -19,12 +17,11 @@
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
-
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMatrixPriv.h"
-
 #include "tools/ToolUtils.h"
+#include "tools/viewer/Slide.h"
 
 static constexpr float kLineHeight = 16.f;
 static constexpr float kLineInset = 8.f;
@@ -164,17 +161,17 @@ static void draw_scale_factors(SkCanvas* canvas, const skif::Mapping& mapping, c
     }
 }
 
-class FilterBoundsSample : public Sample {
+class FilterBoundsSample : public Slide {
 public:
-    FilterBoundsSample() {}
+    FilterBoundsSample() { fName = "FilterBounds"; }
 
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         fBlur = SkImageFilters::Blur(8.f, 8.f, nullptr);
         fImage = ToolUtils::create_checkerboard_image(
                 300, 300, SK_ColorMAGENTA, SK_ColorLTGRAY, 50);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         // The local content, e.g. what would be submitted to drawRect or the bounds to saveLayer
         const SkRect localContentRect = SkRect::MakeLTRB(100.f, 20.f, 180.f, 140.f);
         SkMatrix ctm = canvas->getLocalToDeviceAs3x3();
@@ -248,13 +245,9 @@ public:
         draw_scale_key(canvas, y);
     }
 
-    SkString name() override { return SkString("FilterBounds"); }
-
 private:
     sk_sp<SkImageFilter> fBlur;
     sk_sp<SkImage>       fImage;
-
-    using INHERITED = Sample;
 };
 
-DEF_SAMPLE(return new FilterBoundsSample();)
+DEF_SLIDE(return new FilterBoundsSample();)

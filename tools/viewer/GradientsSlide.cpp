@@ -9,22 +9,19 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/effects/SkGradientShader.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/Slide.h"
 
 #include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GradientsSample : public Sample {
+class GradientsSlide : public Slide {
 public:
-    GradientsSample() {
-        this->setBGColor(SK_ColorGRAY);
+    GradientsSlide() {
+        fName = "Gradients";
         fColors.push_back(SkColors::kBlue);
         fColors.push_back(SkColors::kYellow);
     }
-
-protected:
-    SkString name() override { return SkString("Gradients"); }
 
     void drawUI() {
         ImGui::Begin("Gradient");
@@ -59,7 +56,10 @@ protected:
 
         ImGui::End();
     }
-    void onDrawContent(SkCanvas* canvas) override {
+
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorGRAY);
+
         this->drawUI();
 
         SkPoint pts[2] = {{0, 0}, {256, 0}};
@@ -111,4 +111,4 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new GradientsSample(); )
+DEF_SLIDE( return new GradientsSlide(); )

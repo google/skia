@@ -5,8 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "samplecode/Sample.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
@@ -19,15 +17,13 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
-
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
-
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkSpecialImage.h"
-
 #include "tools/ToolUtils.h"
+#include "tools/viewer/Slide.h"
 
 namespace {
 
@@ -309,21 +305,11 @@ static void draw_dag(SkCanvas* canvas, sk_sp<SkImageFilter> filter,
     canvas->restore();
 }
 
-class ImageFilterDAGSample : public Sample {
+class ImageFilterDAGSlide : public Slide {
 public:
-    ImageFilterDAGSample() {}
+    ImageFilterDAGSlide() { fName = "ImageFilterDAG"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
-        static const SkRect kFilterRect = SkRect::MakeXYWH(20.f, 20.f, 60.f, 60.f);
-        static const SkISize kFilterSurfaceSize = SkISize::Make(
-                2 * (kFilterRect.fRight + kFilterRect.fLeft),
-                2 * (kFilterRect.fBottom + kFilterRect.fTop));
-
-        // Somewhat clunky, but we want to use the viewer calculated CTM in the mini surfaces used
-        // per DAG node. The rotation matrix viewer calculates is based on the sample size so trick
-        // it into calculating the right matrix for us w/ 1 frame latency.
-        this->setSize(kFilterSurfaceSize.width(), kFilterSurfaceSize.height());
-
+    void draw(SkCanvas* canvas) override {
         // Make a large DAG
         //        /--- Color Filter <---- Blur <--- Offset
         // Merge <
@@ -342,11 +328,16 @@ public:
         draw_dag(canvas, std::move(merge0), kFilterRect, kFilterSurfaceSize);
     }
 
-    SkString name() override { return SkString("ImageFilterDAG"); }
+    // We want to use the viewer calculated CTM in the mini surfaces used per DAG node. The rotation
+    // matrix viewer calculates is based on the slide content size.
+    SkISize getDimensions() const override { return kFilterSurfaceSize; }
 
 private:
+    static constexpr SkRect kFilterRect = SkRect::MakeXYWH(20.f, 20.f, 60.f, 60.f);
+    static constexpr SkISize kFilterSurfaceSize = SkISize::Make(
+            2 * (kFilterRect.fRight + kFilterRect.fLeft),
+            2 * (kFilterRect.fBottom + kFilterRect.fTop));
 
-    using INHERITED = Sample;
 };
 
-DEF_SAMPLE(return new ImageFilterDAGSample();)
+DEF_SLIDE(return new ImageFilterDAGSlide();)

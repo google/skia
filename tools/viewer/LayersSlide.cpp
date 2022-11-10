@@ -17,8 +17,9 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkCamera.h"
-#include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
+#include "tools/viewer/ClickHandlerSlide.h"
+#include "tools/viewer/Slide.h"
 
 static void make_paint(SkPaint* paint, const SkMatrix& localMatrix) {
     SkColor colors[] = { 0, SK_ColorWHITE };
@@ -89,19 +90,12 @@ static void test_fade(SkCanvas* canvas) {
     canvas->drawRect(r, paint);
 }
 
-class LayersView : public Sample {
+class LayersSlide : public Slide {
 public:
-    LayersView() {}
+    LayersSlide() { fName = "Layers"; }
 
-protected:
-    SkString name() override { return SkString("Layers"); }
-
-    void drawBG(SkCanvas* canvas) {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorGRAY);
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
-        this->drawBG(canvas);
 
         if ((true)) {
             SkRect r;
@@ -156,11 +150,8 @@ protected:
 
         test_fade(canvas);
     }
-
-private:
-    using INHERITED = Sample;
 };
-DEF_SAMPLE( return new LayersView; )
+DEF_SLIDE( return new LayersSlide; )
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -168,23 +159,22 @@ DEF_SAMPLE( return new LayersView; )
 
 #include "tools/Resources.h"
 
-class BackdropView : public Sample {
+class BackdropSlide : public ClickHandlerSlide {
     SkPoint fCenter;
     SkScalar fAngle;
     sk_sp<SkImage> fImage;
     sk_sp<SkImageFilter> fFilter;
+
 public:
-    BackdropView() {
+    BackdropSlide() {
         fCenter.set(200, 150);
         fAngle = 0;
         fImage = GetResourceAsImage("images/mandrill_512.png");
         fFilter = SkImageFilters::Dilate(8, 8, nullptr);
+        fName = "Backdrop";
     }
 
-protected:
-    SkString name() override { return SkString("Backdrop"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawImage(fImage.get(), 0, 0);
 
         const SkScalar w = 250;
@@ -206,12 +196,13 @@ protected:
         canvas->restore();
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         fAngle = SkDoubleToScalar(fmod(1e-9 * nanos * 360 / 5, 360));
         return true;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         return new Click();
     }
 
@@ -219,8 +210,6 @@ protected:
         fCenter = click->fCurr;
         return true;
     }
-
-private:
-    using INHERITED = Sample;
 };
-DEF_SAMPLE( return new BackdropView; )
+
+DEF_SLIDE( return new BackdropSlide; )

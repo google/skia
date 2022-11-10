@@ -8,11 +8,11 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/Slide.h"
 
-class MegaStrokeView : public Sample {
+class MegaStrokeSlide : public Slide {
 public:
-    MegaStrokeView() {
+    MegaStrokeSlide() {
         fClip.setLTRB(0, 0, 950, 600);
         fAngle = 0;
         fPlusMinus = 0;
@@ -23,20 +23,15 @@ public:
                 fMegaPath.lineTo(SkIntToScalar(index), SkIntToScalar(rand.nextRangeU(500, 600)));
             }
         }
+        fName = "MegaStroke";
     }
-
-protected:
-    SkString name() override { return SkString("MegaStroke"); }
 
     bool onChar(SkUnichar uni) override {
         fClip.setLTRB(0, 0, 950, 600);
         return true;
     }
 
-    void onDrawBackground(SkCanvas* canvas) override {
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setARGB(255,255,153,0);
@@ -65,20 +60,17 @@ protected:
         fClip = divSim;
     }
 
-    void onSizeChange() override {
-        fClip.setWH(950, 600);
-    }
+    void resize(SkScalar w, SkScalar h) override { fClip.setWH(950, 600); }
 
-    bool onAnimate(double /*nanos*/) override { return true; }
+    bool animate(double /*nanos*/) override { return true; }
 
 private:
     SkPath      fMegaPath;
     SkRect      fClip;
     int         fAngle;
     int         fPlusMinus;
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new MegaStrokeView(); )
+DEF_SLIDE( return new MegaStrokeSlide(); )

@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "samplecode/Sample.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkVertices.h"
 #include "include/private/SkTPin.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 #include <unordered_set>
 
@@ -438,19 +437,22 @@ static const uint16_t kEdgeIndices[] = {
     kBL+13,  kBL+13,kBL+16,kBR+10,kBR+14,  kBR+14,
 };
 
-class GraphitePrimitivesSample : public Sample {
+class GraphitePrimitivesSlide : public ClickHandlerSlide {
     static constexpr float kControlPointRadius = 3.f;
     static constexpr float kBaseScale = 50.f;
+
 public:
-    GraphitePrimitivesSample()
+    GraphitePrimitivesSlide()
         : fOrigin{300.f, 300.f}
         , fXAxisPoint{300.f + kBaseScale, 300.f}
         , fYAxisPoint{300.f, 300.f + kBaseScale}
         , fStrokeWidth{10.f}
         , fJoinMode(SkPaint::kMiter_Join)
-        , fMode(PrimitiveMode::kFillRect) {}
+        , fMode(PrimitiveMode::kFillRect) {
+        fName = "GraphitePrimitives";
+    }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->save();
         SkM44 viewMatrix = canvas->getLocalToDevice();
 
@@ -488,10 +490,11 @@ public:
         canvas->restore();
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override;
-    bool onClick(Sample::Click*) override;
     bool onChar(SkUnichar) override;
-    SkString name() override { return SkString("GraphitePrimitives"); }
+
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override;
+    bool onClick(Click*) override;
 
 private:
     class Click;
@@ -632,7 +635,7 @@ private:
     bool fColorize = true;
 };
 
-class GraphitePrimitivesSample::Click : public Sample::Click {
+class GraphitePrimitivesSlide::Click : public ClickHandlerSlide::Click {
 public:
     Click(SkV2* point) : fPoint(point) {}
 
@@ -645,7 +648,8 @@ private:
     SkV2* fPoint;
 };
 
-Sample::Click* GraphitePrimitivesSample::onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) {
+ClickHandlerSlide::Click* GraphitePrimitivesSlide::onFindClickHandler(SkScalar x, SkScalar y,
+                                                                      skui::ModifierKey) {
     auto selected = [x,y](const SkV2& p) {
         return ((p - SkV2{x,y}).length() < kControlPointRadius);
     };
@@ -661,13 +665,13 @@ Sample::Click* GraphitePrimitivesSample::onFindClickHandler(SkScalar x, SkScalar
     }
 }
 
-bool GraphitePrimitivesSample::onClick(Sample::Click* click) {
+bool GraphitePrimitivesSlide::onClick(ClickHandlerSlide::Click* click) {
     Click* myClick = (Click*) click;
     myClick->drag();
     return true;
 }
 
-bool GraphitePrimitivesSample::onChar(SkUnichar code) {
+bool GraphitePrimitivesSlide::onChar(SkUnichar code) {
         switch(code) {
             case '1':
                 fMode = PrimitiveMode::kFillRect;
@@ -709,4 +713,4 @@ bool GraphitePrimitivesSample::onChar(SkUnichar code) {
         return false;
 }
 
-DEF_SAMPLE(return new GraphitePrimitivesSample();)
+DEF_SLIDE(return new GraphitePrimitivesSlide();)
