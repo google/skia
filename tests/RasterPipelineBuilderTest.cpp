@@ -32,12 +32,12 @@ DEF_TEST(RasterPipelineBuilder, r) {
     builder.store_dst(four_slots_at(6));
     builder.load_src(four_slots_at(1));
     builder.load_dst(four_slots_at(3));
-    builder.finish();
+    SkSL::RP::Program program = builder.finish();
 
-    // Ask the builder to instantiate this program.
+    // Instantiate this program.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
     SkRasterPipeline pipeline(&alloc);
-    builder.appendStages(&pipeline, &alloc);
+    program.appendStages(&pipeline, &alloc);
 
     // Double check that the resulting stage list contains the correct ops.
     // (Note that the RasterPipeline stage list is stored in backwards order.)
