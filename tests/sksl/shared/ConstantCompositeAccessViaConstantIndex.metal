@@ -15,17 +15,20 @@ struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
 
-template <typename T1, typename T2, size_t N>
-bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right);
-template <typename T1, typename T2, size_t N>
-bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right);
+template <typename T1, typename T2>
+bool operator==(const array_ref<T1> left, const array_ref<T2> right);
+template <typename T1, typename T2>
+bool operator!=(const array_ref<T1> left, const array_ref<T2> right);
 
 thread bool operator==(const half2x2 left, const half2x2 right);
 thread bool operator!=(const half2x2 left, const half2x2 right);
 
-template <typename T1, typename T2, size_t N>
-bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right) {
-    for (size_t index = 0; index < N; ++index) {
+template <typename T1, typename T2>
+bool operator==(const array_ref<T1> left, const array_ref<T2> right) {
+    if (left.size() != right.size()) {
+        return false;
+    }
+    for (size_t index = 0; index < left.size(); ++index) {
         if (!all(left[index] == right[index])) {
             return false;
         }
@@ -33,8 +36,8 @@ bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& righ
     return true;
 }
 
-template <typename T1, typename T2, size_t N>
-bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right) {
+template <typename T1, typename T2>
+bool operator!=(const array_ref<T1> left, const array_ref<T2> right) {
     return !(left == right);
 }
 thread bool operator==(const half2x2 left, const half2x2 right) {
@@ -50,7 +53,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     const array<half, 5> localArray = array<half, 5>{0.0h, 1.0h, 2.0h, 3.0h, 4.0h};
     const half2 localVector = half2(1.0h, 1.0h);
     const half2x2 localMatrix = half2x2(half2(0.0h, 1.0h), half2(2.0h, 3.0h));
-    if (((((globalArray == _uniforms.testArray || all(globalVector == _uniforms.colorRed.xy)) || globalMatrix == _uniforms.testMatrix2x2) || localArray == _uniforms.testArray) || all(localVector == _uniforms.colorRed.xy)) || localMatrix == _uniforms.testMatrix2x2) {
+    if (((((make_array_ref(globalArray) == make_array_ref(_uniforms.testArray) || all(globalVector == _uniforms.colorRed.xy)) || globalMatrix == _uniforms.testMatrix2x2) || make_array_ref(localArray) == make_array_ref(_uniforms.testArray)) || all(localVector == _uniforms.colorRed.xy)) || localMatrix == _uniforms.testMatrix2x2) {
         _out.sk_FragColor = _uniforms.colorRed;
         return _out;
     }

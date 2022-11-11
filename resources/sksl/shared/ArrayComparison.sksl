@@ -1,13 +1,14 @@
 uniform half4 colorGreen, colorRed;
+uniform float[5] testArray, testArrayNegative;
 
 struct S {
     int x, y;
 };
 
 half4 main(float2 coords) {
-    float f1[4] = float[4](1, 2, 3, 4);
-    float f2[4] = float[4](1, 2, 3, 4);
-    float[4] f3 = float[4](1, 2, 3, -4);
+    float f1[5] = float[5](1, 2, 3, 4, 5);
+    float f2[5] = float[5](1, 2, 3, 4, 5);
+    float[5] f3 = float[5](1, 2, 3, -4, 5);
 
     int3 v1[2] = int3[2](int3(1, 2, 3), int3(4, 5, 6));
     int3[2] v2 = int3[2](int3(1, 2, 3), int3(4, 5, 6));
@@ -21,7 +22,14 @@ half4 main(float2 coords) {
     S[3] s2 = S[3](S(1, 2), S(0, 0), S(5, 6));
     S s3[3] = S[3](S(1, 2), S(3, 4), S(5, 6));
 
-    return (f1 == f2) && (f1 != f3) &&
+    return // same address space (function)
+           (f1 == f2) && (f1 != f3) &&
+           // same address space (uniform)
+           (testArray != testArrayNegative) &&
+           // mixed address space
+           (testArray == f1) && (testArray != f3) &&
+           // mixed address space, reverse argument order
+           (f1 == testArray) && (f3 != testArray) &&
            (v1 == v2) && (v1 != v3) &&
            (m1 == m2) && (m1 != m3) &&
            (s1 != s2) && (s3 == s1) ? colorGreen : colorRed;

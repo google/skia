@@ -1,0 +1,17 @@
+uniform half4 colorGreen, colorRed;
+uniform float[5] testArray;
+
+struct S {
+    int x, y;
+    half2x2 m;
+    float[5] a;
+};
+
+half4 main(float2 coords) {
+    float array[5] = float[5](1, 2, 3, 4, 5);
+    S s1 = S(1, 2, half2x2(1), array);
+    S s2 = S(1, 2, half2x2(1), testArray);
+    S s3 = S(1, 2, half2x2(2), float[5](1, 2, 3, 4, 5));
+
+    return (s1 == s2) && (s1 != s3) ? colorGreen : colorRed;
+}

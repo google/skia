@@ -586,6 +586,7 @@ sksl_shared_tests = [
   "shared/StaticSwitchWithStaticConditionalBreak.sksl",
   "shared/StaticSwitchWithStaticConditionalBreakInsideBlock.sksl",
   "shared/StructArrayFollowedByScalar.sksl",
+  "shared/StructComparison.sksl",
   "shared/StructMaxDepth.sksl",
   "shared/Structs.sksl",
   "shared/StructsInFunctions.sksl",

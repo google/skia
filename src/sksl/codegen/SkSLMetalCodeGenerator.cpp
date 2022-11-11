@@ -1631,15 +1631,18 @@ void MetalCodeGenerator::writeArrayEqualityHelpers(const Type& type) {
     if (!fHelpers.contains(key)) {
         fHelpers.add(key);
         fExtraFunctionPrototypes.writeText(R"(
-template <typename T1, typename T2, size_t N>
-bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right);
-template <typename T1, typename T2, size_t N>
-bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right);
+template <typename T1, typename T2>
+bool operator==(const array_ref<T1> left, const array_ref<T2> right);
+template <typename T1, typename T2>
+bool operator!=(const array_ref<T1> left, const array_ref<T2> right);
 )");
         fExtraFunctions.writeText(R"(
-template <typename T1, typename T2, size_t N>
-bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& right) {
-    for (size_t index = 0; index < N; ++index) {
+template <typename T1, typename T2>
+bool operator==(const array_ref<T1> left, const array_ref<T2> right) {
+    if (left.size() != right.size()) {
+        return false;
+    }
+    for (size_t index = 0; index < left.size(); ++index) {
         if (!all(left[index] == right[index])) {
             return false;
         }
@@ -1647,8 +1650,8 @@ bool operator==(thread const array<T1, N>& left, thread const array<T2, N>& righ
     return true;
 }
 
-template <typename T1, typename T2, size_t N>
-bool operator!=(thread const array<T1, N>& left, thread const array<T2, N>& right) {
+template <typename T1, typename T2>
+bool operator!=(const array_ref<T1> left, const array_ref<T2> right) {
     return !(left == right);
 }
 )");
@@ -1685,10 +1688,18 @@ thread bool operator!=(thread const %s& left, thread const %s& right);
 
         const char* separator = "";
         for (const Type::Field& field : type.fields()) {
-            fExtraFunctions.printf("%sall(left.%.*s == right.%.*s)",
-                                   separator,
-                                   (int)field.fName.size(), field.fName.data(),
-                                   (int)field.fName.size(), field.fName.data());
+            if (field.fType->isArray()) {
+                fExtraFunctions.printf(
+                        "%s(make_array_ref(left.%.*s) == make_array_ref(right.%.*s))",
+                        separator,
+                        (int)field.fName.size(), field.fName.data(),
+                        (int)field.fName.size(), field.fName.data());
+            } else {
+                fExtraFunctions.printf("%sall(left.%.*s == right.%.*s)",
+                                       separator,
+                                       (int)field.fName.size(), field.fName.data(),
+                                       (int)field.fName.size(), field.fName.data());
+            }
             separator = " &&\n           ";
         }
         fExtraFunctions.printf(
@@ -1782,6 +1793,10 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                    op.removeAssignment().kind() != Operator::Kind::STAR;
     if (needMatrixSplatOnScalar) {
         this->writeNumberAsMatrix(left, rightType);
+    } else if (op.isEquality() && leftType.isArray()) {
+        this->write("make_array_ref(");
+        this->writeExpression(left, precedence);
+        this->write(")");
     } else {
         this->writeExpression(left, precedence);
     }
@@ -1805,6 +1820,10 @@ void MetalCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                               op.removeAssignment().kind() != Operator::Kind::STAR;
     if (needMatrixSplatOnScalar) {
         this->writeNumberAsMatrix(right, leftType);
+    } else if (op.isEquality() && rightType.isArray()) {
+        this->write("make_array_ref(");
+        this->writeExpression(right, precedence);
+        this->write(")");
     } else {
         this->writeExpression(right, precedence);
     }
