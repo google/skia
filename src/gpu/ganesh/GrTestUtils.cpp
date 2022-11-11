@@ -296,8 +296,7 @@ TestDashPathEffect::TestDashPathEffect(const SkScalar* intervals, int count, SkS
 bool TestDashPathEffect::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                                       const SkRect* cullRect, const SkMatrix&) const {
     return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals.get(), fCount,
-                                      fInitialDashLength, fInitialDashIndex, fIntervalLength,
-                                      fPhase);
+                                      fInitialDashLength, fInitialDashIndex, fIntervalLength);
 }
 
 SkPathEffect::DashType TestDashPathEffect::onAsADash(DashInfo* info) const {
