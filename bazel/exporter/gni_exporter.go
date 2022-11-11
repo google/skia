@@ -385,13 +385,7 @@ func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *build.Q
 	}
 
 	sort.Slice(files, func(i, j int) bool {
-		// Generally sort alphabetically, but make $_include/ after $_src.
-		isfx := extractTopLevelFolder(files[i])
-		jsfx := extractTopLevelFolder(files[j])
-		if isfx == jsfx {
-			return strings.ToLower(files[i]) < strings.ToLower(files[j])
-		}
-		return isfx >= jsfx // Make $_include come after $_src.
+		return strings.ToLower(files[i]) < strings.ToLower(files[j])
 	})
 	if dup, hasDup := findDuplicate(files); hasDup {
 		return gniFileContents{}, skerr.Fmt("%q is included in two or more rules.", dup)
@@ -411,13 +405,7 @@ func (e *GNIExporter) convertGNIFileList(desc GNIFileListExportDesc, qr *build.Q
 	var contents bytes.Buffer
 	fmt.Fprintf(&contents, "%s = [\n", desc.Var)
 
-	printedIncludeComment := false
-	onlyHeaders := fileListContainsOnlyCppHeaderFiles(files)
 	for _, target := range files {
-		if !onlyHeaders && !printedIncludeComment && strings.HasPrefix(target, "$_include") {
-			fmt.Fprintf(&contents, "\n  # Includes\n")
-			printedIncludeComment = true
-		}
 		fmt.Fprintf(&contents, "  %q,\n", target)
 	}
 	fmt.Fprintln(&contents, "]")
