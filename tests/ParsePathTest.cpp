@@ -16,14 +16,13 @@
 #include <cstddef>
 
 static void test_to_from(skiatest::Reporter* reporter, const SkPath& path) {
-    SkString str, str2;
-    SkParsePath::ToSVGString(path, &str);
+    SkString str = SkParsePath::ToSVGString(path);
 
     SkPath path2;
     bool success = SkParsePath::FromSVGString(str.c_str(), &path2);
     REPORTER_ASSERT(reporter, success);
 
-    SkParsePath::ToSVGString(path2, &str2);
+    SkString str2 = SkParsePath::ToSVGString(path2);
     REPORTER_ASSERT(reporter, str == str2);
 #if 0 // closed paths are not equal, the iter explicitly gives the closing
       // edge, even if it is not in the path.

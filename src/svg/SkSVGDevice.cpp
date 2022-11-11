@@ -666,9 +666,7 @@ void SkSVGDevice::AutoElement::addRectAttributes(const SkRect& rect) {
 
 void SkSVGDevice::AutoElement::addPathAttributes(const SkPath& path,
                                                  SkParsePath::PathEncoding encoding) {
-    SkString pathData;
-    SkParsePath::ToSVGString(path, &pathData, encoding);
-    this->addAttribute("d", pathData);
+    this->addAttribute("d", SkParsePath::ToSVGString(path, encoding));
 }
 
 void SkSVGDevice::AutoElement::addTextAttributes(const SkFont& font) {

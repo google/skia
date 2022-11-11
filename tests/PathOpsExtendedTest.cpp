@@ -427,8 +427,7 @@ static void json_path_out(const SkPath& path, const char* pathName, const char* 
         "InverseEvenOdd",
     };
     if (PathOpsDebug::gOutputSVG) {
-        SkString svg;
-        SkParsePath::ToSVGString(path, &svg);
+        SkString svg = SkParsePath::ToSVGString(path);
         fprintf(PathOpsDebug::gOut, "  \"%s\": \"%s\",\n", pathName, svg.c_str());
     } else {
                                  // MOVE, LINE, QUAD, CONIC, CUBIC, CLOSE

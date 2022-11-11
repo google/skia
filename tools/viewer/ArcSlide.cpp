@@ -25,18 +25,6 @@
 #include "src/utils/SkUTF.h"
 #include "tools/viewer/Slide.h"
 
-static void testparse() {
-    SkRect r;
-    r.setLTRB(0, 0, 10, 10.5f);
-    SkPath p, p2;
-    SkString str, str2;
-
-    p.addRect(r);
-    SkParsePath::ToSVGString(p, &str);
-    SkParsePath::FromSVGString(str.c_str(), &p2);
-    SkParsePath::ToSVGString(p2, &str2);
-}
-
 class ArcsSlide : public Slide {
     class MyDrawable : public SkDrawable {
         SkRect   fR;
@@ -161,8 +149,6 @@ public:
     ArcsSlide() { fName = "Arcs"; }
 
     void load(SkScalar w, SkScalar h) override {
-        testparse();
-
         fAnimatingDrawable = sk_make_sp<MyDrawable>(fRect);
 
         SkPictureRecorder recorder;

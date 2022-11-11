@@ -209,13 +209,11 @@ void ApplyQuadTo(SkPath& p, SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) 
 //========================================================================================
 
 JSString EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
-    SkString s;
-    SkParsePath::ToSVGString(path, &s);
     // Wrapping it in val automatically turns it into a JS string.
     // Not too sure on performance implications, but is is simpler than
     // returning a raw pointer to const char * and then using
     // UTF8ToString() on the calling side.
-    return emscripten::val(s.c_str());
+    return emscripten::val(SkParsePath::ToSVGString(path).c_str());
 }
 
 

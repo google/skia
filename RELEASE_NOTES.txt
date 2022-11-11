@@ -2,6 +2,12 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 110
+-------------
+  * SkParsePath::ToSVGString now returns the string, rather than modifying a passed-in string.
+
+* * *
+
 Milestone 109
 -------------
   * SkMesh vertex and fragment main() signatures have changed. See docs on SkMeshSpecification.

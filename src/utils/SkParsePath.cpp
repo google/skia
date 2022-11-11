@@ -240,7 +240,7 @@ static void write_scalar(SkWStream* stream, SkScalar value) {
     stream->write(buffer, stop - buffer);
 }
 
-void SkParsePath::ToSVGString(const SkPath& path, SkString* str, PathEncoding encoding) {
+SkString SkParsePath::ToSVGString(const SkPath& path, PathEncoding encoding) {
     SkDynamicMemoryWStream  stream;
 
     SkPoint current_point{0,0};
@@ -294,10 +294,13 @@ void SkParsePath::ToSVGString(const SkPath& path, SkString* str, PathEncoding en
             case SkPath::kClose_Verb:
                 stream.write("Z", 1);
                 break;
-            case SkPath::kDone_Verb:
-                str->resize(stream.bytesWritten());
-                stream.copyTo(str->data());
-            return;
+            case SkPath::kDone_Verb: {
+                SkString str;
+                str.resize(stream.bytesWritten());
+                stream.copyTo(str.data());
+                return str;
+            }
         }
     }
+    return SkString{};
 }

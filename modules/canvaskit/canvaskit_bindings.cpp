@@ -435,9 +435,7 @@ SkPathOrNull MakeAsWinding(const SkPath& self) {
 #endif
 
 JSString ToSVGString(const SkPath& path) {
-    SkString s;
-    SkParsePath::ToSVGString(path, &s);
-    return emscripten::val(s.c_str());
+    return emscripten::val(SkParsePath::ToSVGString(path).c_str());
 }
 
 SkPathOrNull MakePathFromSVGString(std::string str) {
