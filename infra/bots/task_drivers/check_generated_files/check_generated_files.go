@@ -107,11 +107,16 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
+	if err := generateGNIFiles(ctx, skiaPath); err != nil {
+		td.Fatal(ctx, err)
+	}
+
 	if err := checkGitDiff(ctx, absGit, skiaPath); err != nil {
 		td.Fatal(ctx, err)
 	}
 }
 
+// bazelRun runs the given Bazel label from the Skia path with any given args using Bazelisk.
 func bazelRun(ctx context.Context, skiaPath, label string, args ...string) error {
 	return td.Do(ctx, td.Props("bazel run "+label), func(ctx context.Context) error {
 		runCmd := &sk_exec.Command{
@@ -130,7 +135,9 @@ func bazelRun(ctx context.Context, skiaPath, label string, args ...string) error
 	})
 }
 
-// gitInit
+// gitInit creates a temporary git repository with all files in the Skia path. This allows the later
+// git diff call to work properly. This is necessary because our current Swarming setup does not
+// include the .git folder when copying down files.
 func gitInit(ctx context.Context, gitPath, skiaPath string) error {
 	step := fmt.Sprintf("Setting git baseline in %s", skiaPath)
 	err := td.Do(ctx, td.Props(step), func(ctx context.Context) error {
@@ -170,6 +177,27 @@ func gitInit(ctx context.Context, gitPath, skiaPath string) error {
 		return nil
 	})
 	return err
+}
+
+// generateGNIFiles re-generates the .gni files from BUILD.bazel files, allowing interopt between
+// the new system (Bazel) and the old one GN.
+func generateGNIFiles(ctx context.Context, skiaPath string) error {
+	return td.Do(ctx, td.Props("Generate GNI files from BUILD.bazel ones"), func(ctx context.Context) error {
+		// Note: This is not done with bazel run ... because the exporter_tool calls Bazel, causing
+		// an apparent deadlock because there can only be one running bazel task at a time.
+		runCmd := &sk_exec.Command{
+			Name:       "make",
+			Args:       []string{"-C", "bazel", "generate_gni_rbe"},
+			InheritEnv: true, // Need to make sure bazelisk is on the path,
+			Dir:        skiaPath,
+			LogStdout:  true,
+			LogStderr:  true,
+		}
+		if _, err := sk_exec.RunCommand(ctx, runCmd); err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 // checkGitDiff runs git diff and returns error if the diff is non-empty.
