@@ -1,9 +1,9 @@
 /*
-* Copyright 2016 Google Inc.
-*
-* Use of this source code is governed by a BSD-style license that can be
-* found in the LICENSE file.
-*/
+ * Copyright 2016 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
 
 #include "tools/viewer/Viewer.h"
 
@@ -1742,11 +1742,11 @@ bool Viewer::onTouch(intptr_t owner, skui::InputState state, float x, float y) {
                 // swiping left or right
                 if (SkTAbs(dir.fX) > SkTAbs(dir.fY)) {
                     if (dir.fX < 0) {
-                        this->setCurrentSlide(fCurrentSlide < fSlides.count() - 1 ?
+                        this->setCurrentSlide(fCurrentSlide < fSlides.size() - 1 ?
                                               fCurrentSlide + 1 : 0);
                     } else {
                         this->setCurrentSlide(fCurrentSlide > 0 ?
-                                              fCurrentSlide - 1 : fSlides.count() - 1);
+                                              fCurrentSlide - 1 : fSlides.size() - 1);
                     }
                 }
                 fGesture.reset();

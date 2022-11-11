@@ -1341,7 +1341,7 @@ sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {
 #if SK_LENIENT_SKSL_DESERIALIZATION
     if (!effect) {
         // If any children were SkShaders, return the first one. This is a reasonable fallback.
-        for (int i = 0; i < children.count(); i++) {
+        for (int i = 0; i < children.size(); i++) {
             if (children[i].shader()) {
                 SkDebugf("Serialized SkSL failed to compile. Replacing shader with child %d.\n", i);
                 return sk_ref_sp(children[i].shader());
