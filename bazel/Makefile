@@ -1,5 +1,5 @@
 EXPORTER_TOOL=bazel-bin/bazel/exporter_tool/exporter_tool_/exporter_tool
-EXPORTER_RULES=-rule='//src/...' -rule='//modules/...' -rule='//include/...'
+EXPORTER_RULES=-rule='//src/...' -rule='//modules/...' -rule='//include/...' -rule='//resources/...'
 
 generate:
 	echo "You do not need to run this any more for C++ code, only if you modify go code"

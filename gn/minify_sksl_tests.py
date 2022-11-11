@@ -21,7 +21,12 @@ output_root_dir = sys.argv[5]
 # The last arg is a file containing a space seperated list of filenames
 input_file = sys.argv[6]
 with open(input_file, 'r') as reader:
-    inputs = shlex.split(reader.read())
+    all_inputs = shlex.split(reader.read())
+
+inputs = []
+for file in all_inputs:
+    if file.endswith(".rts") or file.endswith(".rtcf") or file.endswith(".rtb"):
+        inputs.append(file)
 
 def executeWorklist(input, worklist):
     # Invoke sksl-minify, passing in the worklist.
