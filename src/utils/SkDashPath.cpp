@@ -304,7 +304,7 @@ private:
 bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                                 const SkRect* cullRect, const SkScalar aIntervals[],
                                 int32_t count, SkScalar initialDashLength, int32_t initialDashIndex,
-                                SkScalar intervalLength,
+                                SkScalar intervalLength, SkScalar startPhase,
                                 StrokeRecApplication strokeRecApplication) {
     // we must always have an even number of intervals
     SkASSERT(is_even(count));
@@ -326,7 +326,7 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
         // potentially a better fix is described here: bug.skia.org/7445
         if (src.isRect(nullptr) && src.isLastContourClosed() && is_even(initialDashIndex)) {
             SkScalar pathLength = SkPathMeasure(src, false, rec->getResScale()).getLength();
-            SkScalar endPhase = SkScalarMod(pathLength + initialDashLength, intervalLength);
+            SkScalar endPhase = SkScalarMod(pathLength + startPhase, intervalLength);
             int index = 0;
             while (endPhase > intervals[index]) {
                 endPhase -= intervals[index++];
@@ -461,7 +461,7 @@ bool SkDashPath::FilterDashPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec
     CalcDashParameters(info.fPhase, info.fIntervals, info.fCount,
                        &initialDashLength, &initialDashIndex, &intervalLength);
     return InternalFilter(dst, src, rec, cullRect, info.fIntervals, info.fCount, initialDashLength,
-                          initialDashIndex, intervalLength);
+                          initialDashIndex, intervalLength, info.fPhase);
 }
 
 bool SkDashPath::ValidDashPath(SkScalar phase, const SkScalar intervals[], int32_t count) {
