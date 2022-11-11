@@ -1236,5 +1236,8 @@ cc_library(
         # Tint requires "include/spirv/unified1/spirv.hpp11", which is provided
         # by this rule
         "@spirv_headers//:spirv_cpp11_headers",
+        # Tint requires "include/spirv/unified1/spirv.h", which is provided by
+        # this rule
+        "@spirv_headers//:spirv_c_headers",
     ],
 )
