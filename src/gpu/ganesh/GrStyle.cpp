@@ -149,7 +149,7 @@ bool GrStyle::applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath&
                                        &initialIndex, &intervalLength);
         if (!SkDashPath::InternalFilter(dst, src, strokeRec,
                                         nullptr, intervals, intervalCnt,
-                                        initialLength, initialIndex, intervalLength,
+                                        initialLength, initialIndex, intervalLength, phase,
                                         SkDashPath::StrokeRecApplication::kDisallow)) {
             return false;
         }
