@@ -472,23 +472,6 @@ static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatr
     return SkSamplingOptions(filter, sampling.mipmap);
 }
 
-static SkMatrix tweak_inv_matrix(SkFilterMode filter, SkMatrix matrix) {
-#if defined(SK_LEGACY_NEAREST_SAMPLE_MATRIX_TWEAK)
-    // See skia:4649 and the GM nearest_half_pixel_image.
-    if (filter == SkFilterMode::kNearest) {
-        if (matrix.getScaleX() >= 0) {
-            matrix.setTranslateX(nextafterf(matrix.getTranslateX(),
-                                           floorf(matrix.getTranslateX())));
-        }
-        if (matrix.getScaleY() >= 0) {
-            matrix.setTranslateY(nextafterf(matrix.getTranslateY(),
-                                            floorf(matrix.getTranslateY())));
-        }
-    }
-#endif
-    return matrix;
-}
-
 bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) const {
     SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/12784)
     // We only support certain sampling options in stages so far
@@ -535,7 +518,6 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
             if (rec.fMatrixProvider.localToDeviceHitsPixelCenters()) {
                 sampling = tweak_sampling(sampling, sampleM);
             }
-            sampleM = tweak_inv_matrix(sampling.filter, sampleM);
         }
         p->append_matrix(alloc, sampleM);
     }
@@ -800,7 +782,6 @@ skvm::Color SkImageShader::makeProgram(
         if (matrices.localToDeviceHitsPixelCenters()) {
             sampling = tweak_sampling(sampling, upperInv);
         }
-        upperInv = tweak_inv_matrix(sampling.filter, upperInv);
     }
 
     SkPixmap lowerPixmap;
@@ -999,10 +980,8 @@ skvm::Color SkImageShader::makeProgram(
             // pixel 0. To make an image that is mapped 1:1 with device pixels but at a half pixel
             // offset select every pixel from the src image once we make exact integer pixel sample
             // values round down not up. Note that a mirror mapping will not have this property.
-#if !defined(SK_LEGACY_NEAREST_SAMPLE_MATRIX_TWEAK)
             local.x = skvm::pun_to_F32(skvm::pun_to_I32(local.x) - 1);
             local.y = skvm::pun_to_F32(skvm::pun_to_I32(local.y) - 1);
-#endif
             return sample_texel(u, local.x,local.y);
         }
     };

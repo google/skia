@@ -165,21 +165,12 @@ public:
             biasX = s.fFilterOneX >> 1;
             biasY = s.fFilterOneY >> 1;
         } else {
-#if defined(SK_LEGACY_NEAREST_SAMPLE_MATRIX_TWEAK)
-            // SkFixed epsilon bias to ensure inverse-mapped bitmap coordinates are rounded
-            // consistently WRT geometry.  Note that we only need the bias for positive scales:
-            // for negative scales, the rounding is intrinsically correct.
-            // We scale it to persist SkFractionalInt -> SkFixed conversions.
-            biasX = (s.fInvMatrix.getScaleX() > 0);
-            biasY = (s.fInvMatrix.getScaleY() > 0);
-#else
             // Our rasterizer biases upward. That is a rect from 0.5...1.5 fills pixel 1 and not
             // pixel 0. To make an image that is mapped 1:1 with device pixels but at a half pixel
             // offset select every pixel from the src image once we make exact integer pixel sample
             // values round down not up. Note that a mirror mapping will not have this property.
             biasX = 1;
             biasY = 1;
-#endif
         }
 
         // punt to unsigned for defined underflow behavior
