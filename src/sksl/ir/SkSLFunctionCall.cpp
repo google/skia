@@ -472,7 +472,7 @@ static std::unique_ptr<Expression> optimize_intrinsic_call(const Context& contex
     // Replace constant variables with their literal values.
     IntrinsicArguments arguments = {};
     SkASSERT(SkToSizeT(argArray.size()) <= arguments.size());
-    for (int index = 0; index < argArray.size(); ++index) {
+    for (int index = 0; index < argArray.count(); ++index) {
         arguments[index] = ConstantFolder::GetConstantValueForVariable(*argArray[index]);
     }
 
@@ -1003,7 +1003,7 @@ std::unique_ptr<Expression> FunctionCall::Convert(const Context& context,
         if (function.parameters().size() != 1) {
             msg += "s";
         }
-        msg += ", but found " + std::to_string(arguments.size());
+        msg += ", but found " + std::to_string(arguments.count());
         context.fErrors->error(pos, msg);
         return nullptr;
     }

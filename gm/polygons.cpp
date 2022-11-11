@@ -123,9 +123,9 @@ protected:
         paint.setStyle(SkPaint::kStroke_Style);
         for (int join = 0; join < kNumJoins; ++join) {
             for (int width = 0; width < kNumStrokeWidths; ++width) {
-                for (int i = 0; i < fPolygons.size(); ++i) {
+                for (int i = 0; i < fPolygons.count(); ++i) {
                     canvas->save();
-                    SetLocation(canvas, counter, fPolygons.size());
+                    SetLocation(canvas, counter, fPolygons.count());
 
                     SetColorAndAlpha(&paint, &rand);
                     paint.setStrokeJoin(kJoins[join]);
@@ -148,9 +148,9 @@ protected:
         paint.setStrokeWidth(SkIntToScalar(20));
         for (int style = 0; style < kNumExtraStyles; ++style) {
             paint.setStyle(kStyles[style]);
-            for (int i = 0; i < fPolygons.size(); ++i) {
+            for (int i = 0; i < fPolygons.count(); ++i) {
                 canvas->save();
-                SetLocation(canvas, counter, fPolygons.size());
+                SetLocation(canvas, counter, fPolygons.count());
                 SetColorAndAlpha(&paint, &rand);
                 canvas->drawPath(fPolygons[i], paint);
                 canvas->restore();

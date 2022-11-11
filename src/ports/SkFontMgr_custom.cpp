@@ -137,11 +137,11 @@ void SkFontStyleSet_Custom::appendTypeface(sk_sp<SkTypeface_Custom> typeface) {
 }
 
 int SkFontStyleSet_Custom::count() {
-    return fStyles.size();
+    return fStyles.count();
 }
 
 void SkFontStyleSet_Custom::getStyle(int index, SkFontStyle* style, SkString* name) {
-    SkASSERT(index < fStyles.size());
+    SkASSERT(index < fStyles.count());
     if (style) {
         *style = fStyles[index]->fontStyle();
     }
@@ -151,7 +151,7 @@ void SkFontStyleSet_Custom::getStyle(int index, SkFontStyle* style, SkString* na
 }
 
 SkTypeface* SkFontStyleSet_Custom::createTypeface(int index) {
-    SkASSERT(index < fStyles.size());
+    SkASSERT(index < fStyles.count());
     return SkRef(fStyles[index].get());
 }
 
@@ -191,21 +191,21 @@ SkFontMgr_Custom::SkFontMgr_Custom(const SystemFontLoader& loader) : fDefaultFam
 }
 
 int SkFontMgr_Custom::onCountFamilies() const {
-    return fFamilies.size();
+    return fFamilies.count();
 }
 
 void SkFontMgr_Custom::onGetFamilyName(int index, SkString* familyName) const {
-    SkASSERT(index < fFamilies.size());
+    SkASSERT(index < fFamilies.count());
     familyName->set(fFamilies[index]->getFamilyName());
 }
 
 SkFontStyleSet_Custom* SkFontMgr_Custom::onCreateStyleSet(int index) const {
-    SkASSERT(index < fFamilies.size());
+    SkASSERT(index < fFamilies.count());
     return SkRef(fFamilies[index].get());
 }
 
 SkFontStyleSet_Custom* SkFontMgr_Custom::onMatchFamily(const char familyName[]) const {
-    for (int i = 0; i < fFamilies.size(); ++i) {
+    for (int i = 0; i < fFamilies.count(); ++i) {
         if (fFamilies[i]->getFamilyName().equals(familyName)) {
             return SkRef(fFamilies[i].get());
         }
@@ -250,12 +250,12 @@ sk_sp<SkTypeface> SkFontMgr_Custom::onMakeFromStreamArgs(std::unique_ptr<SkStrea
     }
 
     const SkFontArguments::VariationPosition position = args.getVariationDesignPosition();
-    SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
+    SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
     Scanner::computeAxisValues(axisDefinitions, position, axisValues, name);
 
     auto data = std::make_unique<SkFontData>(
         std::move(stream), args.getCollectionIndex(), args.getPalette().index,
-        axisValues.get(), axisDefinitions.size(),
+        axisValues.get(), axisDefinitions.count(),
         args.getPalette().overrides, args.getPalette().overrideCount);
     return sk_sp<SkTypeface>(new SkTypeface_Stream(std::move(data), style, isFixedPitch, false, name));
 }

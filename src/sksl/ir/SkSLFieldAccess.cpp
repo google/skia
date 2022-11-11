@@ -67,7 +67,7 @@ static std::unique_ptr<Expression> extract_field(Position pos,
                                                  int fieldIndex) {
     // Confirm that the fields that are being removed are side-effect free.
     const ExpressionArray& args = ctor.arguments();
-    int numFields = args.size();
+    int numFields = args.count();
     for (int index = 0; index < numFields; ++index) {
         if (fieldIndex == index) {
             continue;

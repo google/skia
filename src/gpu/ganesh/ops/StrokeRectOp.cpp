@@ -629,7 +629,7 @@ void AAStrokeRectOp::onPrepareDraws(GrMeshDrawTarget* target) {
     int outerVertexNum = this->miterStroke() ? 4 : 8;
     int verticesPerInstance = (outerVertexNum + innerVertexNum) * 2;
     int indicesPerInstance = this->miterStroke() ? kMiterIndexCnt : kBevelIndexCnt;
-    int instanceCount = fRects.size();
+    int instanceCount = fRects.count();
     int maxQuads = this->miterStroke() ? kNumMiterRectsInIndexBuffer : kNumBevelRectsInIndexBuffer;
 
     sk_sp<const GrGpuBuffer> indexBuffer =
@@ -788,7 +788,7 @@ GrOp::CombineResult AAStrokeRectOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, 
         return CombineResult::kCannotCombine;
     }
 
-    fRects.push_back_n(that->fRects.size(), that->fRects.begin());
+    fRects.push_back_n(that->fRects.count(), that->fRects.begin());
     fWideColor |= that->fWideColor;
     return CombineResult::kMerged;
 }

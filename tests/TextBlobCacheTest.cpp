@@ -56,7 +56,7 @@ struct GrContextOptions;
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
     int yOffset = 0;
     for (int r = 0; r < redraw; r++) {
-        for (int i = 0; i < blobs.size(); i++) {
+        for (int i = 0; i < blobs.count(); i++) {
             const auto& blob = blobs[i];
             const SkRect& bounds = blob->bounds();
             yOffset += SkScalarCeilToInt(bounds.height());

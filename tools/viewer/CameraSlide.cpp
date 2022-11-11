@@ -47,7 +47,7 @@ public:
 
     void draw(SkCanvas* canvas) override {
         canvas->clear(0xFFDDDDDD);
-        if (fShaders.size() > 0) {
+        if (fShaders.count() > 0) {
             canvas->translate(fSize.width()/2, fSize.height()/2);
 
             Sk3DView    view;
@@ -58,7 +58,7 @@ public:
             bool frontFace = view.dotWithNormal(0, 0, SK_Scalar1) < 0;
             if (frontFace != fFrontFace) {
                 fFrontFace = frontFace;
-                fShaderIndex = (fShaderIndex + 1) % fShaders.size();
+                fShaderIndex = (fShaderIndex + 1) % fShaders.count();
             }
 
             SkPaint paint;

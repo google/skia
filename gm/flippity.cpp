@@ -113,7 +113,7 @@ static sk_sp<SkImage> make_text_image(GrDirectContext* dContext, const char* tex
 static sk_sp<SkImage> make_reference_image(GrDirectContext* dContext,
                                            const SkTArray<sk_sp<SkImage>>& labels,
                                            bool bottomLeftOrigin) {
-    SkASSERT(kNumLabels == labels.size());
+    SkASSERT(kNumLabels == labels.count());
 
     SkImageInfo ii =
             SkImageInfo::Make(kImageSize, kImageSize, kRGBA_8888_SkColorType, kOpaque_SkAlphaType);
@@ -229,7 +229,7 @@ private:
     }
 
     void makeLabels(GrDirectContext* dContext) {
-        if (fLabels.size()) {
+        if (fLabels.count()) {
             return;
         }
 
@@ -245,7 +245,7 @@ private:
         for (int i = 0; i < kNumLabels; ++i) {
             fLabels.push_back(make_text_image(dContext, kLabelText[i], kLabelColors[i]));
         }
-        SkASSERT(kNumLabels == fLabels.size());
+        SkASSERT(kNumLabels == fLabels.count());
     }
 
     DrawResult onGpuSetup(GrDirectContext* dContext, SkString* errorMsg) override {

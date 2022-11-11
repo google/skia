@@ -149,7 +149,7 @@ DEF_TEST(GrRenderTaskCluster, reporter) {
         // TODO: Why does Span not want to convert from sk_sp<GrMockRenderTask> to
         // `const sk_sp<GrRenderTask>`?
         SkSpan<const sk_sp<GrRenderTask>> graphSpan(
-            reinterpret_cast<sk_sp<GrRenderTask>*>(graph.data()), graph.size());
+            reinterpret_cast<sk_sp<GrRenderTask>*>(graph.data()), graph.count());
         bool actualResult = GrClusterRenderTasks(graphSpan, &llist);
 
         if (expectedOutput.empty()) {
@@ -168,7 +168,7 @@ DEF_TEST(GrRenderTaskCluster, reporter) {
             for ([[maybe_unused]] GrRenderTask* t : llist) {
                 newCount++;
             }
-            REPORTER_ASSERT(reporter, newCount == expectedOutput.size());
+            REPORTER_ASSERT(reporter, newCount == expectedOutput.count());
 
             int j = 0;
             for (GrRenderTask* n : llist) {

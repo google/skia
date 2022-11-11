@@ -72,7 +72,7 @@ public:
         Index* index = fDataToIndex.find(data);
         if (!index) {
             SkASSERT(SkToU32(fIndexToData.size()) < kInvalidIndex - 1);
-            index = fDataToIndex.set(data, (Index) fIndexToData.size());
+            index = fDataToIndex.set(data, (Index) fIndexToData.count());
             fIndexToData.push_back(C{data});
         }
         return *index;
@@ -583,7 +583,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
                                 const SkRuntimeEffectDictionary* runtimeDict,
                                 const RenderPassDesc& renderPassDesc) {
-    fFullPipelines.reserve_back(fPipelineDescs.size());
+    fFullPipelines.reserve_back(fPipelineDescs.count());
     for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs) {
         auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(runtimeDict,
                                                                        pipelineDesc,
@@ -598,7 +598,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
     // once we've created pipelines, so we drop the storage for them here.
     fPipelineDescs.reset();
 
-    for (int i = 0; i < fSampledTextures.size(); ++i) {
+    for (int i = 0; i < fSampledTextures.count(); ++i) {
         // TODO: We need to remove this check once we are creating valid SkImages from things like
         // snapshot, save layers, etc. Right now we only support SkImages directly made for graphite
         // and all others have a TextureProxy with an invalid TextureInfo.
@@ -612,8 +612,8 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
         }
     }
 
-    fSamplers.reserve_back(fSamplerDescs.size());
-    for (int i = 0; i < fSamplerDescs.size(); ++i) {
+    fSamplers.reserve_back(fSamplerDescs.count());
+    for (int i = 0; i < fSamplerDescs.count(); ++i) {
         sk_sp<Sampler> sampler = resourceProvider->findOrCreateCompatibleSampler(
                 fSamplerDescs[i].fSamplingOptions,
                 fSamplerDescs[i].fTileModes[0],

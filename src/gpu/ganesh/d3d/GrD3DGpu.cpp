@@ -149,7 +149,7 @@ bool GrD3DGpu::submitDirectCommandList(SyncQueue sync) {
     SkASSERT(fCurrentDirectCommandList);
 
     fResourceProvider.prepForSubmit();
-    for (int i = 0; i < fMipmapCPUDescriptors.size(); ++i) {
+    for (int i = 0; i < fMipmapCPUDescriptors.count(); ++i) {
         fResourceProvider.recycleShaderView(fMipmapCPUDescriptors[i]);
     }
     fMipmapCPUDescriptors.reset();

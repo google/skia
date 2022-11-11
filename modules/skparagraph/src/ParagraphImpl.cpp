@@ -1093,7 +1093,7 @@ void ParagraphImpl::visit(const Visitor& visitor) {
             const uint32_t* clusterPtr = &R->fClusterIndexes[0];
 
             if (R->fClusterStart > 0) {
-                int count = R->fClusterIndexes.size();
+                int count = R->fClusterIndexes.count();
                 clusterStorage.reset(count);
                 for (int i = 0; i < count; ++i) {
                     clusterStorage[i] = R->fClusterStart + R->fClusterIndexes[i];

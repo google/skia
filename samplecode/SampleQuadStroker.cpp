@@ -292,7 +292,7 @@ protected:
             SkTArray<int> contourCounts;
             getContourCounts(path, &contourCounts);
             SkPoint* ptPtr = pts.get();
-            for (int i = 0; i < contourCounts.size(); ++i) {
+            for (int i = 0; i < contourCounts.count(); ++i) {
                 int count = contourCounts[i];
                 path.getPoints(ptPtr, count);
                 canvas->drawPoints(SkCanvas::kPolygon_PointMode, count, ptPtr, paint);

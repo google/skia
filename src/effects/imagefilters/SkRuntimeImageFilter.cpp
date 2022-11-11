@@ -188,7 +188,7 @@ sk_sp<SkSpecialImage> SkRuntimeImageFilter::onFilterImage(const Context& ctx,
     SkAssertResult(ctm.invert(&inverse));
 
     const int inputCount = this->countInputs();
-    SkASSERT(inputCount == fChildShaderNames.size());
+    SkASSERT(inputCount == fChildShaderNames.count());
 
     SkSTArray<1, sk_sp<SkShader>> inputShaders;
     for (int i = 0; i < inputCount; i++) {

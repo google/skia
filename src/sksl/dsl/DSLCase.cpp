@@ -19,7 +19,7 @@ DSLCase::DSLCase(DSLExpression value, SkSL::StatementArray statements, Position 
 DSLCase::DSLCase(DSLExpression value, SkTArray<DSLStatement> statements, Position pos)
     : fValue(std::move(value))
     , fPosition(pos) {
-    fStatements.reserve_back(statements.size());
+    fStatements.reserve_back(statements.count());
     for (DSLStatement& stmt : statements) {
         fStatements.push_back(stmt.release());
     }

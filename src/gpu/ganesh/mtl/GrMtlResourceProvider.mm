@@ -111,7 +111,7 @@ const GrMtlRenderPipeline* GrMtlResourceProvider::findOrCreateMSAALoadPipeline(
         }
     }
 
-    for (int i = 0; i < fMSAALoadPipelines.size(); ++i) {
+    for (int i = 0; i < fMSAALoadPipelines.count(); ++i) {
         if (fMSAALoadPipelines[i].fColorFormat == colorFormat &&
             fMSAALoadPipelines[i].fSampleCount == sampleCount &&
             fMSAALoadPipelines[i].fStencilFormat == stencilFormat) {
@@ -151,7 +151,7 @@ const GrMtlRenderPipeline* GrMtlResourceProvider::findOrCreateMSAALoadPipeline(
     auto renderPipeline = GrMtlRenderPipeline::Make(pso);
 
     fMSAALoadPipelines.push_back({renderPipeline, colorFormat, sampleCount, stencilFormat});
-    return fMSAALoadPipelines[fMSAALoadPipelines.size()-1].fPipeline.get();
+    return fMSAALoadPipelines[fMSAALoadPipelines.count()-1].fPipeline.get();
 }
 
 void GrMtlResourceProvider::destroyResources() {

@@ -39,7 +39,7 @@ void GrAuditTrail::addOp(const GrOp* op, GrRenderTargetProxy::UniqueID proxyID) 
     }
 
     // Our algorithm doesn't bother to reorder inside of an OpNode so the ChildID will start at 0
-    auditOp->fOpsTaskID = fOpsTask.size();
+    auditOp->fOpsTaskID = fOpsTask.count();
     auditOp->fChildID = 0;
 
     // We use the op pointer as a key to find the OpNode we are 'glomming' ops onto
@@ -55,23 +55,23 @@ void GrAuditTrail::opsCombined(const GrOp* consumer, const GrOp* consumed) {
     int* indexPtr = fIDLookup.find(consumer->uniqueID());
     SkASSERT(indexPtr);
     int index = *indexPtr;
-    SkASSERT(index < fOpsTask.size() && fOpsTask[index]);
+    SkASSERT(index < fOpsTask.count() && fOpsTask[index]);
     OpNode& consumerOp = *fOpsTask[index];
 
     // Look up the op which will be glommed
     int* consumedPtr = fIDLookup.find(consumed->uniqueID());
     SkASSERT(consumedPtr);
     int consumedIndex = *consumedPtr;
-    SkASSERT(consumedIndex < fOpsTask.size() && fOpsTask[consumedIndex]);
+    SkASSERT(consumedIndex < fOpsTask.count() && fOpsTask[consumedIndex]);
     OpNode& consumedOp = *fOpsTask[consumedIndex];
 
     // steal all of consumed's ops
-    for (int i = 0; i < consumedOp.fChildren.size(); i++) {
+    for (int i = 0; i < consumedOp.fChildren.count(); i++) {
         Op* childOp = consumedOp.fChildren[i];
 
         // set the ids for the child op
         childOp->fOpsTaskID = index;
-        childOp->fChildID = consumerOp.fChildren.size();
+        childOp->fChildID = consumerOp.fChildren.count();
         consumerOp.fChildren.push_back(childOp);
     }
 
@@ -85,12 +85,12 @@ void GrAuditTrail::opsCombined(const GrOp* consumer, const GrOp* consumed) {
 }
 
 void GrAuditTrail::copyOutFromOpsTask(OpInfo* outOpInfo, int opsTaskID) {
-    SkASSERT(opsTaskID < fOpsTask.size());
+    SkASSERT(opsTaskID < fOpsTask.count());
     const OpNode* bn = fOpsTask[opsTaskID].get();
     SkASSERT(bn);
     outOpInfo->fBounds = bn->fBounds;
     outOpInfo->fProxyUniqueID    = bn->fProxyUniqueID;
-    for (int j = 0; j < bn->fChildren.size(); j++) {
+    for (int j = 0; j < bn->fChildren.count(); j++) {
         OpInfo::Op& outOp = outOpInfo->fOps.push_back();
         const Op* currentOp = bn->fChildren[j];
         outOp.fBounds = currentOp->fBounds;
@@ -105,7 +105,7 @@ void GrAuditTrail::getBoundsByClientID(SkTArray<OpInfo>* outInfo, int clientID) 
         // back a new op info struct.  We happen to know that ops are in sequential order in the
         // oplist, otherwise we'd have to do more bookkeeping
         int currentOpsTaskID = kGrAuditTrailInvalidID;
-        for (int i = 0; i < (*opsLookup)->size(); i++) {
+        for (int i = 0; i < (*opsLookup)->count(); i++) {
             const Op* op = (**opsLookup)[i];
 
             // Because we will copy out all of the ops associated with a given op list id everytime
@@ -142,7 +142,7 @@ template <typename T>
 void GrAuditTrail::JsonifyTArray(SkJSONWriter& writer, const char* name, const T& array) {
     if (array.size()) {
         writer.beginArray(name);
-        for (int i = 0; i < array.size(); i++) {
+        for (int i = 0; i < array.count(); i++) {
             // Handle sentinel nullptrs
             if (array[i]) {
                 array[i]->toJson(writer);
@@ -183,9 +183,9 @@ void GrAuditTrail::Op::toJson(SkJSONWriter& writer) const {
     writer.appendS32("OpsTaskID", fOpsTaskID);
     writer.appendS32("ChildID", fChildID);
     skrect_to_json(writer, "Bounds", fBounds);
-    if (fStackTrace.size()) {
+    if (fStackTrace.count()) {
         writer.beginArray("Stack");
-        for (int i = 0; i < fStackTrace.size(); i++) {
+        for (int i = 0; i < fStackTrace.count(); i++) {
             writer.appendString(fStackTrace[i]);
         }
         writer.endArray();

@@ -260,7 +260,7 @@ GrGLSLUniformHandler::SamplerHandle GrMtlUniformHandler::addSampler(
     fSamplers.push_back(tempInfo);
 
     fSamplerSwizzles.push_back(swizzle);
-    SkASSERT(fSamplerSwizzles.size() == fSamplers.count());
+    SkASSERT(fSamplerSwizzles.count() == fSamplers.count());
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }
 

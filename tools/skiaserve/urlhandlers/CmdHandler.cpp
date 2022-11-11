@@ -24,7 +24,7 @@ int CmdHandler::handle(Request* request, MHD_Connection* connection,
     SkTArray<SkString> commands;
     SkStrSplit(url, "/", &commands);
 
-    if (!request->hasPicture() || commands.size() > 3) {
+    if (!request->hasPicture() || commands.count() > 3) {
         return MHD_NO;
     }
 
@@ -35,7 +35,7 @@ int CmdHandler::handle(Request* request, MHD_Connection* connection,
     }
 
     // /cmd/N, for now only delete supported
-    if (commands.size() == 2 && 0 == strcmp(method, MHD_HTTP_METHOD_DELETE)) {
+    if (commands.count() == 2 && 0 == strcmp(method, MHD_HTTP_METHOD_DELETE)) {
         int n;
         sscanf(commands[1].c_str(), "%d", &n);
         request->fDebugCanvas->deleteDrawCommandAt(n);
@@ -43,7 +43,7 @@ int CmdHandler::handle(Request* request, MHD_Connection* connection,
     }
 
     // /cmd/N/[0|1]
-    if (commands.size() == 3 && 0 == strcmp(method, MHD_HTTP_METHOD_POST))  {
+    if (commands.count() == 3 && 0 == strcmp(method, MHD_HTTP_METHOD_POST))  {
         int n, toggle;
         sscanf(commands[1].c_str(), "%d", &n);
         sscanf(commands[2].c_str(), "%d", &toggle);

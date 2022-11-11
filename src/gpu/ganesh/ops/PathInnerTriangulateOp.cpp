@@ -41,8 +41,8 @@ public:
             fInstanceAttribs.emplace_back("curveType", kFloat_GrVertexAttribType, SkSLType::kFloat);
         }
         this->setInstanceAttributesWithImplicitOffsets(fInstanceAttribs.data(),
-                                                       fInstanceAttribs.size());
-        SkASSERT(fInstanceAttribs.size() <= kMaxInstanceAttribCount);
+                                                       fInstanceAttribs.count());
+        SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribCount);
 
         if (!shaderCaps.fVertexIDSupport) {
             constexpr static Attribute kVertexIdxAttrib("vertexidx", kFloat_GrVertexAttribType,

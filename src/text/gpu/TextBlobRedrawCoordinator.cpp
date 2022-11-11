@@ -264,7 +264,7 @@ TextBlobRedrawCoordinator::BlobIDCacheEntry::find(const TextBlob::Key& key) cons
 }
 
 int TextBlobRedrawCoordinator::BlobIDCacheEntry::findBlobIndex(const TextBlob::Key& key) const {
-    for (int i = 0; i < fBlobs.size(); ++i) {
+    for (int i = 0; i < fBlobs.count(); ++i) {
         if (fBlobs[i]->key() == key) {
             return i;
         }

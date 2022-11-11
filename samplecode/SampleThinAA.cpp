@@ -261,7 +261,7 @@ protected:
         fShapes.push_back(PathRenderer::MakeCurve(2.f)); // Shallow curve
         fShapes.push_back(PathRenderer::MakeCurve(8.f)); // Deep curve
 
-        for (int i = 0; i < fShapes.size(); ++i) {
+        for (int i = 0; i < fShapes.count(); ++i) {
             fNative.push_back(OffscreenShapeRenderer::Make(fShapes[i], 1));
             fRaster.push_back(OffscreenShapeRenderer::Make(fShapes[i], 1, /* raster */ true));
             fSS4.push_back(OffscreenShapeRenderer::Make(fShapes[i], 4)); // 4x4 -> 16 samples
@@ -464,7 +464,7 @@ private:
                     SkTArray<sk_sp<OffscreenShapeRenderer>> shapes) {
         SkAutoCanvasRestore autoRestore(canvas, /* save */ true);
 
-        for (int i = 0; i < shapes.size(); ++i) {
+        for (int i = 0; i < shapes.count(); ++i) {
             this->drawShape(canvas, name, gridX, shapes[i].get(), i == 0);
             // drawShape positions the canvas properly for the next iteration
         }

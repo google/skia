@@ -197,7 +197,7 @@ void VisitLineByLine(const std::string& text,
                      const std::function<void(int lineNumber, const char* lineText)>& visitFn) {
     SkTArray<SkString> lines;
     SkStrSplit(text.c_str(), "\n", kStrict_SkStrSplitMode, &lines);
-    for (int i = 0; i < lines.size(); ++i) {
+    for (int i = 0; i < lines.count(); ++i) {
         visitFn(i + 1, lines[i].c_str());
     }
 }

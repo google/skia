@@ -153,7 +153,7 @@ private:
     }
 
     void cycleRectanizer() {
-        fCurRectanizer = (fCurRectanizer + 1) % fRectanizers.size();
+        fCurRectanizer = (fCurRectanizer + 1) % fRectanizers.count();
 
         fRectanizers[fCurRectanizer]->reset();
         fCurRandRect = 0;

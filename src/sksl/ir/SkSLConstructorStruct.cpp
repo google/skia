@@ -37,7 +37,7 @@ std::unique_ptr<Expression> ConstructorStruct::Convert(const Context& context,
     }
 
     // Convert each constructor argument to the struct's field type.
-    for (int index=0; index<args.size(); ++index) {
+    for (int index=0; index<args.count(); ++index) {
         std::unique_ptr<Expression>& argument = args[index];
         const Type::Field& field = type.fields()[index];
 
@@ -54,7 +54,7 @@ std::unique_ptr<Expression> ConstructorStruct::Convert(const Context& context,
                                                          const Type& type) {
     SkASSERT(type.fields().size() == SkToSizeT(args.size()));
 
-    for (int index = 0; index < args.size(); ++index) {
+    for (int index = 0; index < args.count(); ++index) {
         const std::unique_ptr<Expression>& argument = args[index];
         const Type::Field& field = type.fields()[index];
         if (!argument->type().matches(*field.fType)) {

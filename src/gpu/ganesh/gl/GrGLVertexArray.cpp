@@ -84,7 +84,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                GrGLsizei stride,
                                size_t offsetInBytes,
                                int divisor) {
-    SkASSERT(index >= 0 && index < fAttribArrayStates.size());
+    SkASSERT(index >= 0 && index < fAttribArrayStates.count());
     SkASSERT(0 == divisor || gpu->caps()->drawInstancedSupport());
     AttribArrayState* array = &fAttribArrayStates[index];
     const char* offsetAsPtr;
@@ -143,7 +143,7 @@ void GrGLAttribArrayState::set(GrGLGpu* gpu,
 
 void GrGLAttribArrayState::enableVertexArrays(const GrGLGpu* gpu, int enabledCount,
                                               GrPrimitiveRestart enablePrimitiveRestart) {
-    SkASSERT(enabledCount <= fAttribArrayStates.size());
+    SkASSERT(enabledCount <= fAttribArrayStates.count());
 
     if (!fEnableStateIsValid || enabledCount != fNumEnabledArrays) {
         int firstIdxToEnable = fEnableStateIsValid ? fNumEnabledArrays : 0;
@@ -151,7 +151,7 @@ void GrGLAttribArrayState::enableVertexArrays(const GrGLGpu* gpu, int enabledCou
             GR_GL_CALL(gpu->glInterface(), EnableVertexAttribArray(i));
         }
 
-        int endIdxToDisable = fEnableStateIsValid ? fNumEnabledArrays : fAttribArrayStates.size();
+        int endIdxToDisable = fEnableStateIsValid ? fNumEnabledArrays : fAttribArrayStates.count();
         for (int i = enabledCount; i < endIdxToDisable; ++i) {
             GR_GL_CALL(gpu->glInterface(), DisableVertexAttribArray(i));
         }

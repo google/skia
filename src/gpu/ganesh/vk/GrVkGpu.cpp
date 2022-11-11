@@ -259,12 +259,12 @@ void GrVkGpu::destroyResources() {
         fMainCmdPool = nullptr;
     }
 
-    for (int i = 0; i < fSemaphoresToWaitOn.size(); ++i) {
+    for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
         fSemaphoresToWaitOn[i]->unref();
     }
     fSemaphoresToWaitOn.reset();
 
-    for (int i = 0; i < fSemaphoresToSignal.size(); ++i) {
+    for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
         fSemaphoresToSignal[i]->unref();
     }
     fSemaphoresToSignal.reset();
@@ -391,7 +391,7 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     SkASSERT(!fCachedOpsRenderPass || !fCachedOpsRenderPass->isActive());
 
     if (!this->currentCommandBuffer()->hasWork() && kForce_SyncQueue != sync &&
-        !fSemaphoresToSignal.size() && !fSemaphoresToWaitOn.size()) {
+        !fSemaphoresToSignal.count() && !fSemaphoresToWaitOn.count()) {
         // We may have added finished procs during the flush call. Since there is no actual work
         // we are not submitting the command buffer and may never come back around to submit it.
         // Thus we call all current finished procs manually, since the work has technically
@@ -419,7 +419,7 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     // continue to hold onto these semaphores and wait on them during the next command buffer
     // submission.
     if (didSubmit) {
-        for (int i = 0; i < fSemaphoresToWaitOn.size(); ++i) {
+        for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
             fSemaphoresToWaitOn[i]->unref();
         }
         fSemaphoresToWaitOn.reset();
@@ -429,7 +429,7 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     // not try to recover the work that wasn't submitted and instead just drop it all. The client
     // will be notified that the semaphores were not submit so that they will not try to wait on
     // them.
-    for (int i = 0; i < fSemaphoresToSignal.size(); ++i) {
+    for (int i = 0; i < fSemaphoresToSignal.count(); ++i) {
         fSemaphoresToSignal[i]->unref();
     }
     fSemaphoresToSignal.reset();
@@ -905,7 +905,7 @@ static size_t fill_in_compressed_regions(GrStagingBufferManager* stagingBufferMa
                                              dimensions,
                                              individualMipOffsets,
                                              mipmapped == GrMipmapped::kYes);
-    SkASSERT(individualMipOffsets->size() == numMipLevels);
+    SkASSERT(individualMipOffsets->count() == numMipLevels);
 
     // Get a staging buffer slice to hold our mip data.
     // Vulkan requires offsets in the buffer to be aligned to multiple of the texel size and 4
@@ -1046,7 +1046,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkImage* texImage,
                                                     vkBuffer->vkBuffer(),
                                                     texImage,
                                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                    regions.size(),
+                                                    regions.count(),
                                                     regions.begin());
     return true;
 }
@@ -1113,7 +1113,7 @@ bool GrVkGpu::uploadTexDataCompressed(GrVkImage* uploadTexture,
                                                     vkBuffer->vkBuffer(),
                                                     uploadTexture,
                                                     VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                                    regions.size(),
+                                                    regions.count(),
                                                     regions.begin());
 
     return true;
@@ -1181,7 +1181,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
         texImage->setImageLayout(this, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                             VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, false);
         this->currentCommandBuffer()->clearColorImage(this, texImage, &kZeroClearColor,
-                                                      ranges.size(), ranges.begin());
+                                                      ranges.count(), ranges.begin());
     }
     return std::move(tex);
 }
@@ -1630,7 +1630,7 @@ bool copy_src_data(char* mapPtr,
                    int numMipLevels) {
     SkASSERT(srcData && numMipLevels);
     SkASSERT(!skgpu::VkFormatIsCompressed(vkFormat));
-    SkASSERT(individualMipOffsets.size() == numMipLevels);
+    SkASSERT(individualMipOffsets.count() == numMipLevels);
     SkASSERT(mapPtr);
 
     size_t bytesPerPixel = skgpu::VkFormatBytesPerBlock(vkFormat);
@@ -1879,7 +1879,7 @@ bool GrVkGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
                                  static_cast<GrVkBuffer*>(slice.fBuffer)->vkBuffer(),
                                  image,
                                  image->currentLayout(),
-                                 regions.size(),
+                                 regions.count(),
                                  regions.begin());
 
     // Change image layout to shader read since if we use this texture as a borrowed

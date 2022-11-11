@@ -45,7 +45,7 @@ protected:
 
     void onDraw(int loops, SkCanvas*) override {
         for (int i = 0; i < loops; ++i) {
-            for (int j = 0; j < fGraph.size(); ++j) {
+            for (int j = 0; j < fGraph.count(); ++j) {
                 fGraph[j]->reset();
             }
 
@@ -55,7 +55,7 @@ protected:
             SkASSERT(actualResult);
 
 #ifdef SK_DEBUG
-            for (int j = 0; j < fGraph.size(); ++j) {
+            for (int j = 0; j < fGraph.count(); ++j) {
                 SkASSERT(fGraph[j]->check());
             }
 #endif

@@ -365,7 +365,7 @@ bool GrVkOpsRenderPass::set(GrRenderTarget* rt,
 
     this->INHERITED::set(rt, origin);
 
-    for (int i = 0; i < sampledProxies.size(); ++i) {
+    for (int i = 0; i < sampledProxies.count(); ++i) {
         if (sampledProxies[i]->isInstantiated()) {
             SkASSERT(sampledProxies[i]->asTextureProxy());
             GrVkTexture* vkTex = static_cast<GrVkTexture*>(sampledProxies[i]->peekTexture());

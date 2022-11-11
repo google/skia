@@ -34,7 +34,7 @@ SkPictureData::SkPictureData(const SkPictInfo& info)
 
 void SkPictureData::initForPlayback() const {
     // ensure that the paths bounds are pre-computed
-    for (int i = 0; i < fPaths.size(); i++) {
+    for (int i = 0; i < fPaths.count(); i++) {
         fPaths[i].updateBoundsCache();
     }
 }
@@ -150,7 +150,7 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec,
 
 void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer, bool textBlobsOnly) const {
     if (!textBlobsOnly) {
-        int numPaints = fPaints.size();
+        int numPaints = fPaints.count();
         if (numPaints > 0) {
             write_tag_size(buffer, SK_PICT_PAINT_BUFFER_TAG, numPaints);
             for (const SkPaint& paint : fPaints) {
@@ -158,7 +158,7 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer, bool textBlobsOnly) c
             }
         }
 
-        int numPaths = fPaths.size();
+        int numPaths = fPaths.count();
         if (numPaths > 0) {
             write_tag_size(buffer, SK_PICT_PATH_BUFFER_TAG, numPaths);
             buffer.writeInt(numPaths);
@@ -169,7 +169,7 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer, bool textBlobsOnly) c
     }
 
     if (!fTextBlobs.empty()) {
-        write_tag_size(buffer, SK_PICT_TEXTBLOB_BUFFER_TAG, fTextBlobs.size());
+        write_tag_size(buffer, SK_PICT_TEXTBLOB_BUFFER_TAG, fTextBlobs.count());
         for (const auto& blob : fTextBlobs) {
             SkTextBlobPriv::Flatten(*blob, buffer);
         }
@@ -177,7 +177,7 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer, bool textBlobsOnly) c
 
 #if SK_SUPPORT_GPU
     if (!textBlobsOnly) {
-        write_tag_size(buffer, SK_PICT_SLUG_BUFFER_TAG, fSlugs.size());
+        write_tag_size(buffer, SK_PICT_SLUG_BUFFER_TAG, fSlugs.count());
         for (const auto& slug : fSlugs) {
             slug->doFlatten(buffer);
         }
@@ -186,14 +186,14 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer, bool textBlobsOnly) c
 
     if (!textBlobsOnly) {
         if (!fVertices.empty()) {
-            write_tag_size(buffer, SK_PICT_VERTICES_BUFFER_TAG, fVertices.size());
+            write_tag_size(buffer, SK_PICT_VERTICES_BUFFER_TAG, fVertices.count());
             for (const auto& vert : fVertices) {
                 vert->priv().encode(buffer);
             }
         }
 
         if (!fImages.empty()) {
-            write_tag_size(buffer, SK_PICT_IMAGE_BUFFER_TAG, fImages.size());
+            write_tag_size(buffer, SK_PICT_IMAGE_BUFFER_TAG, fImages.count());
             for (const auto& img : fImages) {
                 buffer.writeImage(img.get());
             }
@@ -264,7 +264,7 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
 
     // Write sub-pictures by calling serialize again.
     if (!fPictures.empty()) {
-        write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictures.size());
+        write_tag_size(stream, SK_PICT_PICTURE_TAG, fPictures.count());
         for (const auto& pic : fPictures) {
             pic->serialize(stream, &procs, typefaceSet, /*textBlobsOnly=*/ false);
         }
@@ -278,14 +278,14 @@ void SkPictureData::flatten(SkWriteBuffer& buffer) const {
     buffer.writeByteArray(fOpData->bytes(), fOpData->size());
 
     if (!fPictures.empty()) {
-        write_tag_size(buffer, SK_PICT_PICTURE_TAG, fPictures.size());
+        write_tag_size(buffer, SK_PICT_PICTURE_TAG, fPictures.count());
         for (const auto& pic : fPictures) {
             SkPicturePriv::Flatten(pic, buffer);
         }
     }
 
     if (!fDrawables.empty()) {
-        write_tag_size(buffer, SK_PICT_DRAWABLE_TAG, fDrawables.size());
+        write_tag_size(buffer, SK_PICT_DRAWABLE_TAG, fDrawables.count());
         for (const auto& draw : fDrawables) {
             buffer.writeFlattenable(draw.get());
         }
@@ -581,7 +581,7 @@ const SkPaint* SkPictureData::optionalPaint(SkReadBuffer* reader) const {
     if (index == 0) {
         return nullptr; // recorder wrote a zero for no paint (likely drawimage)
     }
-    return reader->validate(index > 0 && index <= fPaints.size()) ?
+    return reader->validate(index > 0 && index <= fPaints.count()) ?
         &fPaints[index - 1] : nullptr;
 }
 

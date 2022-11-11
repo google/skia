@@ -54,7 +54,7 @@ static void print_table_header(SkFILEWStream* stream,
     }
     stream->writeDecAsText(matchCount);
     stream->writeText(" of ");
-    stream->writeDecAsText(differences.size());
+    stream->writeDecAsText(differences.count());
     stream->writeText(" diffs matched ");
     if (colorThreshold == 0) {
         stream->writeText("exactly");
@@ -284,7 +284,7 @@ void print_diff_page(const int matchCount,
     print_table_header(&outputStream, matchCount, colorThreshold, differences,
                        baseDir, comparisonDir);
     int i;
-    for (i = 0; i < differences.size(); i++) {
+    for (i = 0; i < differences.count(); i++) {
         const DiffRecord& diff = differences[i];
 
         switch (diff.fResult) {

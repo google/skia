@@ -27,7 +27,7 @@ void skiatest::Reporter::reportFailedWithContext(const skiatest::Failure& f) {
     SkString fullMessage = f.message;
     if (!fContextStack.empty()) {
         fullMessage.append(" [");
-        for (int i = 0; i < fContextStack.size(); ++i) {
+        for (int i = 0; i < fContextStack.count(); ++i) {
             if (i > 0) {
                 fullMessage.append(", ");
             }

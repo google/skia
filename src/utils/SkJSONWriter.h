@@ -68,8 +68,8 @@ public:
     ~SkJSONWriter() {
         this->flush();
         delete[] fBlock;
-        SkASSERT(fScopeStack.size() == 1);
-        SkASSERT(fNewlineStack.size() == 1);
+        SkASSERT(fScopeStack.count() == 1);
+        SkASSERT(fNewlineStack.count() == 1);
     }
 
     /**
@@ -353,7 +353,7 @@ private:
         if (Mode::kPretty == fMode) {
             if (multiline) {
                 this->write("\n", 1);
-                for (int i = 0; i < fScopeStack.size() - 1; ++i) {
+                for (int i = 0; i < fScopeStack.count() - 1; ++i) {
                     this->write("   ", 3);
                 }
             } else {

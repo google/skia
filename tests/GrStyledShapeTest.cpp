@@ -320,7 +320,7 @@ void test_inversions(skiatest::Reporter* r, const GrStyledShape& shape, const Ke
     Key noninvertedKey;
     make_key(&noninvertedKey, noninverted);
 
-    if (invertedKey.size() || noninvertedKey.size()) {
+    if (invertedKey.count() || noninvertedKey.count()) {
         REPORTER_ASSERT(r, invertedKey != noninvertedKey);
     }
     if (shape.style().isSimpleFill()) {
@@ -339,7 +339,7 @@ void test_inversions(skiatest::Reporter* r, const GrStyledShape& shape, const Ke
     make_key(&doubleFlipKey, doubleFlip);
     // It can be the case that the double flip has no key but preserve does. This happens when the
     // original shape has an inherited style key. That gets dropped on the first inversion flip.
-    if (preserveKey.size() && !doubleFlipKey.size()) {
+    if (preserveKey.count() && !doubleFlipKey.count()) {
         preserveKey.reset();
     }
     check_equivalence(r, preserve, doubleFlip, preserveKey, doubleFlipKey);
@@ -726,15 +726,15 @@ private:
 
 void TestCase::testExpectations(skiatest::Reporter* reporter, SelfExpectations expectations) const {
     // The base's key should always be valid (unless the path is volatile)
-    REPORTER_ASSERT(reporter, fBaseKey.size());
+    REPORTER_ASSERT(reporter, fBaseKey.count());
     if (expectations.fPEHasEffect) {
         REPORTER_ASSERT(reporter, fBaseKey != fAppliedPEKey);
-        REPORTER_ASSERT(reporter, expectations.fPEHasValidKey == SkToBool(fAppliedPEKey.size()));
+        REPORTER_ASSERT(reporter, expectations.fPEHasValidKey == SkToBool(fAppliedPEKey.count()));
         REPORTER_ASSERT(reporter, fBaseKey != fAppliedFullKey);
-        REPORTER_ASSERT(reporter, expectations.fPEHasValidKey == SkToBool(fAppliedFullKey.size()));
+        REPORTER_ASSERT(reporter, expectations.fPEHasValidKey == SkToBool(fAppliedFullKey.count()));
         if (expectations.fStrokeApplies && expectations.fPEHasValidKey) {
             REPORTER_ASSERT(reporter, fAppliedPEKey != fAppliedFullKey);
-            REPORTER_ASSERT(reporter, SkToBool(fAppliedFullKey.size()));
+            REPORTER_ASSERT(reporter, SkToBool(fAppliedFullKey.count()));
         }
     } else {
         REPORTER_ASSERT(reporter, fBaseKey == fAppliedPEKey);
@@ -1382,16 +1382,16 @@ void test_volatile_path(skiatest::Reporter* reporter, const Geo& geo) {
     // We expect a shape made from a volatile path to have a key iff the shape is recognized
     // as a specialized geometry.
     if (geo.isNonPath(dashAndStroke)) {
-        REPORTER_ASSERT(reporter, SkToBool(volatileCase.baseKey().size()));
+        REPORTER_ASSERT(reporter, SkToBool(volatileCase.baseKey().count()));
         // In this case all the keys should be identical to the non-volatile case.
         TestCase nonVolatileCase(reporter, geo.path(), dashAndStroke);
         volatileCase.compare(reporter, nonVolatileCase, TestCase::kAllSame_ComparisonExpecation);
     } else {
         // None of the keys should be valid.
-        REPORTER_ASSERT(reporter, SkToBool(volatileCase.baseKey().empty()));
-        REPORTER_ASSERT(reporter, SkToBool(volatileCase.appliedPathEffectKey().empty()));
-        REPORTER_ASSERT(reporter, SkToBool(volatileCase.appliedFullStyleKey().empty()));
-        REPORTER_ASSERT(reporter, SkToBool(volatileCase.appliedPathEffectThenStrokeKey().empty()));
+        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.baseKey().count()));
+        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.appliedPathEffectKey().count()));
+        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.appliedFullStyleKey().count()));
+        REPORTER_ASSERT(reporter, !SkToBool(volatileCase.appliedPathEffectThenStrokeKey().count()));
     }
 }
 
@@ -1569,9 +1569,9 @@ DEF_TEST(GrStyledShape_empty_shape, reporter) {
     REPORTER_ASSERT(reporter, fillInvertedEmptyCase.appliedFullStyleShape().inverseFilled());
 
     const Key& emptyKey = fillEmptyCase.baseKey();
-    REPORTER_ASSERT(reporter, emptyKey.size());
+    REPORTER_ASSERT(reporter, emptyKey.count());
     const Key& inverseEmptyKey = fillInvertedEmptyCase.baseKey();
-    REPORTER_ASSERT(reporter, inverseEmptyKey.size());
+    REPORTER_ASSERT(reporter, inverseEmptyKey.count());
     TestCase::SelfExpectations expectations;
     expectations.fStrokeApplies = false;
     expectations.fPEHasEffect = false;
@@ -2247,7 +2247,7 @@ DEF_TEST(GrStyledShape, reporter) {
         geos.emplace_back(new PathGeo(hLinePath, PathGeo::Invert::kYes));
     }
 
-    for (int i = 0; i < geos.size(); ++i) {
+    for (int i = 0; i < geos.count(); ++i) {
         test_basic(reporter, *geos[i]);
         test_scale(reporter, *geos[i]);
         test_dash_fill(reporter, *geos[i]);
@@ -2268,7 +2268,7 @@ DEF_TEST(GrStyledShape, reporter) {
         test_volatile_path(reporter, *geos[i]);
     }
 
-    for (int i = 0; i < rrectPathGeos.size(); ++i) {
+    for (int i = 0; i < rrectPathGeos.count(); ++i) {
         const RRectPathGeo& rrgeo = *rrectPathGeos[i];
         SkPaint fillPaint;
         TestCase fillPathCase(reporter, rrgeo.path(), fillPaint);

@@ -46,7 +46,7 @@ DEF_TEST(MessageBus, r) {
     // Make sure we got two.
     SkTArray<TestMessage> messages;
     inbox1.poll(&messages);
-    REPORTER_ASSERT(r, 2 == messages.size());
+    REPORTER_ASSERT(r, 2 == messages.count());
     REPORTER_ASSERT(r, 5 == messages[0].x);
     REPORTER_ASSERT(r, 6 == messages[1].x);
 
@@ -54,16 +54,16 @@ DEF_TEST(MessageBus, r) {
     const TestMessage m3 = { 1, 0.3f };
     TestMessageBus::Post(m3);
     inbox1.poll(&messages);
-    REPORTER_ASSERT(r, 1 == messages.size());
+    REPORTER_ASSERT(r, 1 == messages.count());
     REPORTER_ASSERT(r, 1 == messages[0].x);
 
     // Nothing was sent since the last read.
     inbox1.poll(&messages);
-    REPORTER_ASSERT(r, 0 == messages.size());
+    REPORTER_ASSERT(r, 0 == messages.count());
 
     // Over all this time, inbox2 should have piled up 3 messages.
     inbox2.poll(&messages);
-    REPORTER_ASSERT(r, 3 == messages.size());
+    REPORTER_ASSERT(r, 3 == messages.count());
     REPORTER_ASSERT(r, 5 == messages[0].x);
     REPORTER_ASSERT(r, 6 == messages[1].x);
     REPORTER_ASSERT(r, 1 == messages[2].x);
@@ -100,7 +100,7 @@ DEF_TEST(MessageBusSp, r) {
     // Make sure we got two.
     SkTArray<sk_sp<TestMessageRefCnt>> messages;
     inbox1.poll(&messages);
-    REPORTER_ASSERT(r, 2 == messages.size());
+    REPORTER_ASSERT(r, 2 == messages.count());
     REPORTER_ASSERT(r, messages[0]->unique());
     REPORTER_ASSERT(r, messages[1]->unique());
     REPORTER_ASSERT(r, 5 == messages[0]->x);
@@ -110,7 +110,7 @@ DEF_TEST(MessageBusSp, r) {
     auto m3 = sk_make_sp<TestMessageRefCnt>(1, 0.3f);
     TestMessageBus::Post(std::move(m3));
     inbox1.poll(&messages);
-    REPORTER_ASSERT(r, 1 == messages.size());
+    REPORTER_ASSERT(r, 1 == messages.count());
     REPORTER_ASSERT(r, messages[0]->unique());
     REPORTER_ASSERT(r, 1 == messages[0]->x);
 
@@ -120,7 +120,7 @@ DEF_TEST(MessageBusSp, r) {
 
     // Nothing was sent since the last read.
     inbox1.poll(&messages);
-    REPORTER_ASSERT(r, 0 == messages.size());
+    REPORTER_ASSERT(r, 0 == messages.count());
 }
 
 namespace {
@@ -160,14 +160,14 @@ DEF_TEST(MessageBus_SkShouldPostMessageToBus, r) {
 
     SkTArray<AddressedMessage> messages;
     inbox1.poll(&messages);
-    REPORTER_ASSERT(r, messages.size() == 2);
-    if (messages.size() == 2) {
+    REPORTER_ASSERT(r, messages.count() == 2);
+    if (messages.count() == 2) {
         REPORTER_ASSERT(r, !messages[0].fInboxID.isValid());
         REPORTER_ASSERT(r, messages[1].fInboxID == id1);
     }
     inbox2.poll(&messages);
-    REPORTER_ASSERT(r, messages.size() == 2);
-    if (messages.size() == 2) {
+    REPORTER_ASSERT(r, messages.count() == 2);
+    if (messages.count() == 2) {
         REPORTER_ASSERT(r, !messages[0].fInboxID.isValid());
         REPORTER_ASSERT(r, messages[1].fInboxID == id2);
     }

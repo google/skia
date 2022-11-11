@@ -176,7 +176,7 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
     }
 
     StatementArray cases;
-    for (int i = 0; i < caseValues.size(); ++i) {
+    for (int i = 0; i < caseValues.count(); ++i) {
         if (caseValues[i]) {
             Position casePos = caseValues[i]->fPosition;
             // Case values must be constant integers of the same type as the switch value

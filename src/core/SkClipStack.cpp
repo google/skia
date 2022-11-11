@@ -54,7 +54,7 @@ SkClipStack::Element::Element(const Element& that) {
 
 SkClipStack::Element::~Element() {
 #if SK_SUPPORT_GPU
-    for (int i = 0; i < fKeysToInvalidate.size(); ++i) {
+    for (int i = 0; i < fKeysToInvalidate.count(); ++i) {
         fProxyProvider->processInvalidUniqueKey(fKeysToInvalidate[i], nullptr,
                                                 GrProxyProvider::InvalidateGPUResource::kYes);
     }

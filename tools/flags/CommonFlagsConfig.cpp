@@ -420,10 +420,10 @@ public:
     ExtendedOptions(const SkString& optionsString, bool* outParseSucceeded) {
         SkTArray<SkString> optionParts;
         SkStrSplit(optionsString.c_str(), ",", kStrict_SkStrSplitMode, &optionParts);
-        for (int i = 0; i < optionParts.size(); ++i) {
+        for (int i = 0; i < optionParts.count(); ++i) {
             SkTArray<SkString> keyValueParts;
             SkStrSplit(optionParts[i].c_str(), "=", kStrict_SkStrSplitMode, &keyValueParts);
-            if (keyValueParts.size() != 2) {
+            if (keyValueParts.count() != 2) {
                 *outParseSucceeded = false;
                 return;
             }
@@ -716,13 +716,13 @@ void ParseConfigs(const CommandLineFlags::StringArray& configs,
         SkString           tag(configs[i]);
         SkTArray<SkString> parts;
         SkStrSplit(tag.c_str(), "[", kStrict_SkStrSplitMode, &parts);
-        if (parts.size() == 2) {
+        if (parts.count() == 2) {
             SkTArray<SkString> parts2;
             SkStrSplit(parts[1].c_str(), "]", kStrict_SkStrSplitMode, &parts2);
-            if (parts2.size() == 2 && parts2[1].isEmpty()) {
+            if (parts2.count() == 2 && parts2[1].isEmpty()) {
                 SkStrSplit(parts[0].c_str(), "-", kStrict_SkStrSplitMode, &vias);
-                if (vias.size()) {
-                    extendedBackend = vias[vias.size() - 1];
+                if (vias.count()) {
+                    extendedBackend = vias[vias.count() - 1];
                     vias.pop_back();
                 } else {
                     extendedBackend = parts[0];
@@ -735,8 +735,8 @@ void ParseConfigs(const CommandLineFlags::StringArray& configs,
         if (extendedBackend.isEmpty()) {
             simpleBackend = tag;
             SkStrSplit(tag.c_str(), "-", kStrict_SkStrSplitMode, &vias);
-            if (vias.size()) {
-                simpleBackend = vias[vias.size() - 1];
+            if (vias.count()) {
+                simpleBackend = vias[vias.count() - 1];
                 vias.pop_back();
             }
             for (auto& predefinedConfig : gPredefinedConfigs) {

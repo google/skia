@@ -95,7 +95,7 @@ public:
     }
     std::unique_ptr<SkFontData> onMakeFontData() const override {
         return std::make_unique<SkFontData>(
-                this->makeStream(), fIndex, 0, fAxes.begin(), fAxes.size(), nullptr, 0);
+                this->makeStream(), fIndex, 0, fAxes.begin(), fAxes.count(), nullptr, 0);
     }
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
         std::unique_ptr<SkFontData> data = this->cloneFontData(args);
@@ -174,13 +174,13 @@ public:
     explicit SkFontStyleSet_Android(const FontFamily& family, const Scanner& scanner,
                                     const bool cacheFontFiles) {
         const SkString* cannonicalFamilyName = nullptr;
-        if (family.fNames.size() > 0) {
+        if (family.fNames.count() > 0) {
             cannonicalFamilyName = &family.fNames[0];
         }
         fFallbackFor = family.fFallbackFor;
 
         // TODO? make this lazy
-        for (int i = 0; i < family.fFonts.size(); ++i) {
+        for (int i = 0; i < family.fFonts.count(); ++i) {
             const FontFileInfo& fontFile = family.fFonts[i];
 
             SkString pathName(family.fBasePath);
@@ -228,25 +228,25 @@ public:
                 familyName = *cannonicalFamilyName;
             }
 
-            SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
+            SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
             SkFontArguments::VariationPosition position = {
                 fontFile.fVariationDesignPosition.begin(),
-                fontFile.fVariationDesignPosition.size()
+                fontFile.fVariationDesignPosition.count()
             };
             Scanner::computeAxisValues(axisDefinitions, position,
                                        axisValues, familyName);
 
             fStyles.push_back().reset(new SkTypeface_AndroidSystem(
-                    pathName, cacheFontFiles, ttcIndex, axisValues.get(), axisDefinitions.size(),
+                    pathName, cacheFontFiles, ttcIndex, axisValues.get(), axisDefinitions.count(),
                     style, isFixedWidth, familyName, family.fLanguages, variant));
         }
     }
 
     int count() override {
-        return fStyles.size();
+        return fStyles.count();
     }
     void getStyle(int index, SkFontStyle* style, SkString* name) override {
-        if (index < 0 || fStyles.size() <= index) {
+        if (index < 0 || fStyles.count() <= index) {
             return;
         }
         if (style) {
@@ -257,7 +257,7 @@ public:
         }
     }
     SkTypeface_AndroidSystem* createTypeface(int index) override {
-        if (index < 0 || fStyles.size() <= index) {
+        if (index < 0 || fStyles.count() <= index) {
             return nullptr;
         }
         return SkRef(fStyles[index].get());
@@ -319,11 +319,11 @@ protected:
      *  exist among the families.
      */
     int onCountFamilies() const override {
-        return fNameToFamilyMap.size();
+        return fNameToFamilyMap.count();
     }
 
     void onGetFamilyName(int index, SkString* familyName) const override {
-        if (index < 0 || fNameToFamilyMap.size() <= index) {
+        if (index < 0 || fNameToFamilyMap.count() <= index) {
             familyName->reset();
             return;
         }
@@ -331,7 +331,7 @@ protected:
     }
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
-        if (index < 0 || fNameToFamilyMap.size() <= index) {
+        if (index < 0 || fNameToFamilyMap.count() <= index) {
             return nullptr;
         }
         return SkRef(fNameToFamilyMap[index].styleSet);
@@ -342,13 +342,13 @@ protected:
             return nullptr;
         }
         SkAutoAsciiToLC tolc(familyName);
-        for (int i = 0; i < fNameToFamilyMap.size(); ++i) {
+        for (int i = 0; i < fNameToFamilyMap.count(); ++i) {
             if (fNameToFamilyMap[i].name.equals(tolc.lc())) {
                 return SkRef(fNameToFamilyMap[i].styleSet);
             }
         }
         // TODO: eventually we should not need to name fallback families.
-        for (int i = 0; i < fFallbackNameToFamilyMap.size(); ++i) {
+        for (int i = 0; i < fFallbackNameToFamilyMap.count(); ++i) {
             if (fFallbackNameToFamilyMap[i].name.equals(tolc.lc())) {
                 return SkRef(fFallbackNameToFamilyMap[i].styleSet);
             }
@@ -368,7 +368,7 @@ protected:
             const SkFontStyle& style, bool elegant,
             const SkString& langTag, SkUnichar character)
     {
-        for (int i = 0; i < fallbackNameToFamilyMap.size(); ++i) {
+        for (int i = 0; i < fallbackNameToFamilyMap.count(); ++i) {
             SkFontStyleSet_Android* family = fallbackNameToFamilyMap[i].styleSet;
             if (familyName != family->fFallbackFor) {
                 continue;
@@ -471,13 +471,13 @@ protected:
             return nullptr;
         }
 
-        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
+        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
         Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
                                    axisValues, name);
 
         auto data = std::make_unique<SkFontData>(
             std::move(stream), args.getCollectionIndex(), args.getPalette().index,
-            axisValues.get(), axisDefinitions.size(),
+            axisValues.get(), axisDefinitions.count(),
             args.getPalette().overrides, args.getPalette().overrideCount);
         return sk_sp<SkTypeface>(new SkTypeface_AndroidStream(std::move(data),
                                                               style, isFixedPitch, name));
@@ -510,7 +510,7 @@ private:
         if (family.fIsFallbackFont) {
             nameToFamily = &fFallbackNameToFamilyMap;
 
-            if (0 == family.fNames.size()) {
+            if (0 == family.fNames.count()) {
                 SkString& fallbackName = family.fNames.push_back();
                 fallbackName.printf("%.2x##fallback", familyIndex);
             }

@@ -385,7 +385,7 @@ static inline void add_cubic(const SkPoint pts[4],
                              PathSegmentArray* segments) {
     SkSTArray<15, SkPoint, true> quads;
     GrPathUtils::convertCubicToQuads(pts, SK_Scalar1, &quads);
-    int count = quads.size();
+    int count = quads.count();
     for (int q = 0; q < count; q += 3) {
         add_quad(&quads[q], segments);
     }
@@ -631,7 +631,7 @@ static float distance_to_segment(const SkPoint& point,
 static void calculate_distance_field_data(PathSegmentArray* segments,
                                           DFData* dataPtr,
                                           int width, int height) {
-    int count = segments->size();
+    int count = segments->count();
     // for each segment
     for (int a = 0; a < count; ++a) {
         PathSegment& segment = (*segments)[a];

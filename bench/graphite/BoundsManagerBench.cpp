@@ -37,7 +37,7 @@ protected:
         SkTArray<SkRect> rects;
         this->gatherRects(&rects);
 
-        fRectCount = rects.size();
+        fRectCount = rects.count();
         fRects = fAlignedAllocator.makeArray<Rect>(fRectCount);
         for (int i = 0; i < fRectCount; ++i) {
             fRects[i] = rects[i];

@@ -239,7 +239,7 @@ class ConvexPathsGM : public skiagm::GM {
         // As we've added more paths this has gotten pretty big. Scale the whole thing down.
         canvas->scale(2.0f/3, 2.0f/3);
 
-        for (int i = 0; i < fPaths.size(); ++i) {
+        for (int i = 0; i < fPaths.count(); ++i) {
             canvas->save();
             // position the path, and make it at off-integer coords.
             canvas->translate(200.0f * (i % 5) + 1.0f/10,

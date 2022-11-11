@@ -191,7 +191,7 @@ SkString DrawAtlasOpImpl::onDumpInfo() const {
     SkString string;
     for (const auto& geo : fGeoData) {
         string.appendf("Color: 0x%08x, Quads: %d\n", geo.fColor.toBytes_RGBA(),
-                       geo.fVerts.size() / 4);
+                       geo.fVerts.count() / 4);
     }
     string += fHelper.dumpInfo();
     return string;
@@ -223,7 +223,7 @@ void DrawAtlasOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
         this->createProgramInfo(target);
     }
 
-    int instanceCount = fGeoData.size();
+    int instanceCount = fGeoData.count();
     size_t vertexStride = fProgramInfo->geomProc().vertexStride();
 
     int numQuads = this->quadCount();
@@ -238,7 +238,7 @@ void DrawAtlasOpImpl::onPrepareDraws(GrMeshDrawTarget* target) {
     for (int i = 0; i < instanceCount; i++) {
         const Geometry& args = fGeoData[i];
 
-        size_t allocSize = args.fVerts.size();
+        size_t allocSize = args.fVerts.count();
         memcpy(vertPtr, args.fVerts.begin(), allocSize);
         vertPtr += allocSize;
     }
@@ -278,7 +278,7 @@ GrOp::CombineResult DrawAtlasOpImpl::onCombineIfPossible(GrOp* t,
         return CombineResult::kCannotCombine;
     }
 
-    fGeoData.push_back_n(that->fGeoData.size(), that->fGeoData.begin());
+    fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
     fQuadCount += that->quadCount();
 
     return CombineResult::kMerged;

@@ -704,9 +704,9 @@ int OpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
     int addlProxyCount = 0;
     int addlOpChainCount = 0;
     for (const auto& toMerge : mergingNodes) {
-        addlDeferredProxyCount += toMerge->fDeferredProxies.size();
-        addlProxyCount += toMerge->fSampledProxies.size();
-        addlOpChainCount += toMerge->fOpChains.size();
+        addlDeferredProxyCount += toMerge->fDeferredProxies.count();
+        addlProxyCount += toMerge->fSampledProxies.count();
+        addlOpChainCount += toMerge->fOpChains.count();
         fClippedContentBounds.join(toMerge->fClippedContentBounds);
         fTotalBounds.join(toMerge->fTotalBounds);
         fRenderPassXferBarriers |= toMerge->fRenderPassXferBarriers;
@@ -737,11 +737,11 @@ int OpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
         for (GrRenderTask* renderTask : toMerge->dependencies()) {
             renderTask->replaceDependent(toMerge.get(), this);
         }
-        fDeferredProxies.move_back_n(toMerge->fDeferredProxies.size(),
+        fDeferredProxies.move_back_n(toMerge->fDeferredProxies.count(),
                                      toMerge->fDeferredProxies.data());
-        fSampledProxies.move_back_n(toMerge->fSampledProxies.size(),
+        fSampledProxies.move_back_n(toMerge->fSampledProxies.count(),
                                     toMerge->fSampledProxies.data());
-        fOpChains.move_back_n(toMerge->fOpChains.size(),
+        fOpChains.move_back_n(toMerge->fOpChains.count(),
                               toMerge->fOpChains.data());
         toMerge->fDeferredProxies.reset();
         toMerge->fSampledProxies.reset();
@@ -816,8 +816,8 @@ void OpsTask::dump(const SkString& label,
             break;
     }
 
-    SkDebugf("%s%d ops:\n", indent.c_str(), fOpChains.size());
-    for (int i = 0; i < fOpChains.size(); ++i) {
+    SkDebugf("%s%d ops:\n", indent.c_str(), fOpChains.count());
+    for (int i = 0; i < fOpChains.count(); ++i) {
         SkDebugf("%s*******************************\n", indent.c_str());
         if (!fOpChains[i].head()) {
             SkDebugf("%s%d: <combined forward or failed instantiation>\n", indent.c_str(), i);
@@ -895,7 +895,7 @@ void OpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
         return;
     }
 
-    for (int i = 0; i < fDeferredProxies.size(); ++i) {
+    for (int i = 0; i < fDeferredProxies.count(); ++i) {
         SkASSERT(!fDeferredProxies[i]->isInstantiated());
         // We give all the deferred proxies a write usage at the very start of flushing. This
         // locks them out of being reused for the entire flush until they are read - and then
@@ -908,10 +908,10 @@ void OpsTask::gatherProxyIntervals(GrResourceAllocator* alloc) const {
     GrSurfaceProxy* targetProxy = this->target(0);
 
     // Add the interval for all the writes to this OpsTasks's target
-    if (fOpChains.size()) {
+    if (fOpChains.count()) {
         unsigned int cur = alloc->curOp();
 
-        alloc->addInterval(targetProxy, cur, cur + fOpChains.size() - 1,
+        alloc->addInterval(targetProxy, cur, cur + fOpChains.count() - 1,
                            GrResourceAllocator::ActualUse::kYes);
     } else {
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
@@ -979,7 +979,7 @@ void OpsTask::recordOp(
                op->bounds().fRight, op->bounds().fBottom);
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
     GrOP_INFO("\tOutcome:\n");
-    int maxCandidates = std::min(kMaxOpChainDistance, fOpChains.size());
+    int maxCandidates = std::min(kMaxOpChainDistance, fOpChains.count());
     if (maxCandidates) {
         int i = 0;
         while (true) {
@@ -1012,11 +1012,11 @@ void OpsTask::recordOp(
 
 void OpsTask::forwardCombine(const GrCaps& caps) {
     SkASSERT(!this->isClosed());
-    GrOP_INFO("opsTask: %d ForwardCombine %d ops:\n", this->uniqueID(), fOpChains.size());
+    GrOP_INFO("opsTask: %d ForwardCombine %d ops:\n", this->uniqueID(), fOpChains.count());
 
-    for (int i = 0; i < fOpChains.size() - 1; ++i) {
+    for (int i = 0; i < fOpChains.count() - 1; ++i) {
         OpChain& chain = fOpChains[i];
-        int maxCandidateIdx = std::min(i + kMaxOpChainDistance, fOpChains.size() - 1);
+        int maxCandidateIdx = std::min(i + kMaxOpChainDistance, fOpChains.count() - 1);
         int j = i + 1;
         while (true) {
             OpChain& candidate = fOpChains[j];

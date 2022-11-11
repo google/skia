@@ -90,7 +90,7 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(
 
     fSamplers.push_back(tempInfo);
     fSamplerSwizzles.push_back(swizzle);
-    SkASSERT(fSamplers.count() == fSamplerSwizzles.size());
+    SkASSERT(fSamplers.count() == fSamplerSwizzles.count());
 
     return GrGLSLUniformHandler::SamplerHandle(fSamplers.count() - 1);
 }

@@ -71,7 +71,7 @@ public:
 template <typename T>
 T* read_index_base_1_or_null(SkReadBuffer* reader, const SkTArray<sk_sp<T>>& array) {
     int index = reader->readInt();
-    return reader->validate(index > 0 && index <= array.size()) ? array[index - 1].get() : nullptr;
+    return reader->validate(index > 0 && index <= array.count()) ? array[index - 1].get() : nullptr;
 }
 
 class SkPictureData {
@@ -104,12 +104,12 @@ public:
     const SkImage* getImage(SkReadBuffer* reader) const {
         // images are written base-0, unlike paths, pictures, drawables, etc.
         const int index = reader->readInt();
-        return reader->validateIndex(index, fImages.size()) ? fImages[index].get() : nullptr;
+        return reader->validateIndex(index, fImages.count()) ? fImages[index].get() : nullptr;
     }
 
     const SkPath& getPath(SkReadBuffer* reader) const {
         int index = reader->readInt();
-        return reader->validate(index > 0 && index <= fPaths.size()) ?
+        return reader->validate(index > 0 && index <= fPaths.count()) ?
                 fPaths[index - 1] : fEmptyPath;
     }
 

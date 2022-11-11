@@ -88,7 +88,7 @@ struct MultiPictureDocument final : public SkDocument {
         SkASSERT(wStream->bytesWritten() == 0);
         wStream->writeText(kMagic);
         wStream->write32(kVersion);
-        wStream->write32(SkToU32(fPages.size()));
+        wStream->write32(SkToU32(fPages.count()));
         for (SkSize s : fSizes) {
             wStream->write(&s, sizeof(s));
         }

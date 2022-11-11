@@ -574,7 +574,7 @@ int main(int argc, char** argv) {
                                           : SkColorSpace::MakeRGB(tf,gamut);
     const SkColorInfo color_info{ct,at,cs};
 
-    for (int i = 0; i < sources.size(); i += replicas)
+    for (int i = 0; i < sources.count(); i += replicas)
     SkTaskGroup{}.batch(replicas, [=](int replica) {
         Source source = sources[i+replica];
 

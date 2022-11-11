@@ -263,7 +263,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
     int pending;
     {
         SkAutoSpinlock lock(*gMutex);
-        for (int i = 0; i < gRunning->size(); i++) {
+        for (int i = 0; i < gRunning->count(); i++) {
             if (gRunning->at(i).id == id) {
                 gRunning->removeShuffle(i);
                 break;
@@ -282,7 +282,7 @@ static void done(const char* config, const char* src, const char* srcOptions, co
 
         SkAutoSpinlock lock(*gMutex);
         info("\n%dMB RAM, %dMB peak, %d queued, %d active:\n",
-             curr, peak, gPending - gRunning->size(), gRunning->size());
+             curr, peak, gPending - gRunning->count(), gRunning->count());
         for (auto& task : *gRunning) {
             task.dump();
         }
@@ -464,7 +464,7 @@ static void gather_uninteresting_hashes() {
             gUninterestingHashes->add(hash);
         }
         info("FYI: loaded %d distinct uninteresting hashes from %d lines\n",
-             gUninterestingHashes->count(), hashes.size());
+             gUninterestingHashes->count(), hashes.count());
     }
 }
 
@@ -1056,7 +1056,7 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfi
     SkCommandLineConfigArray configs;
     ParseConfigs(FLAGS_config, &configs);
     AutoreleasePool pool;
-    for (int i = 0; i < configs.size(); i++) {
+    for (int i = 0; i < configs.count(); i++) {
         const SkCommandLineConfig& config = *configs[i];
         Sink* sink = create_sink(grCtxOptions, &config);
         if (sink == nullptr) {
@@ -1069,7 +1069,7 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfi
         sink->setColorSpace(config.refColorSpace());
 
         const SkTArray<SkString>& parts = config.getViaParts();
-        for (int j = parts.size(); j-- > 0;) {
+        for (int j = parts.count(); j-- > 0;) {
             const SkString& part = parts[j];
             Sink* next = create_via(part, sink);
             if (next == nullptr) {
@@ -1087,11 +1087,11 @@ static bool gather_sinks(const GrContextOptions& grCtxOptions, bool defaultConfi
     }
 
     // If no configs were requested (just running tests, perhaps?), then we're okay.
-    if (configs.size() == 0 ||
+    if (configs.count() == 0 ||
         // If we're using the default configs, we're okay.
         defaultConfigs ||
         // Otherwise, make sure that all specified configs have become sinks.
-        configs.size() == gSinks->size()) {
+        configs.count() == gSinks->count()) {
         return true;
     }
     return false;
@@ -1610,9 +1610,9 @@ int main(int argc, char** argv) {
     }
     gather_tests();
     int testCount = gCPUTests->size() + gGaneshTests->size() + gGraphiteTests->size();
-    gPending = gSrcs->size() * gSinks->size() + testCount;
+    gPending = gSrcs->count() * gSinks->count() + testCount;
     info("%d srcs * %d sinks + %d tests == %d tasks\n",
-         gSrcs->size(), gSinks->size(), testCount,
+         gSrcs->count(), gSinks->count(), testCount,
          gPending);
 
     // Kick off as much parallel work as we can, making note of any serial work we'll need to do.
@@ -1662,7 +1662,7 @@ int main(int argc, char** argv) {
         for (const SkString& fail : *gFailures) {
             info("\t%s\n", fail.c_str());
         }
-        info("%d failures\n", gFailures->size());
+        info("%d failures\n", gFailures->count());
         return 1;
     }
 

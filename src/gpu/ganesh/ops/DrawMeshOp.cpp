@@ -914,7 +914,7 @@ void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
             m.writeVertices(verts, *fSpecification, transform);
         }
     } else {
-        SkASSERT(fMeshes.size() == 1);
+        SkASSERT(fMeshes.count() == 1);
         SkASSERT(firstVertex % fSpecification->stride() == 0);
         firstVertex /= fSpecification->stride();
     }
@@ -943,7 +943,7 @@ void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
         SkASSERT(voffset == fVertexCount);
         SkASSERT(ioffset == fIndexCount);
     } else if (indexBuffer) {
-        SkASSERT(fMeshes.size() == 1);
+        SkASSERT(fMeshes.count() == 1);
         SkASSERT(firstIndex % sizeof(uint16_t) == 0);
         firstIndex /= sizeof(uint16_t);
     }
@@ -1041,7 +1041,7 @@ GrOp::CombineResult MeshOp::onCombineIfPossible(GrOp* t, SkArenaAlloc*, const Gr
     // the render target context. A mis-match should be impossible.
     SkASSERT(GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get()));
 
-    fMeshes.move_back_n(that->fMeshes.size(), that->fMeshes.begin());
+    fMeshes.move_back_n(that->fMeshes.count(), that->fMeshes.begin());
     fVertexCount += that->fVertexCount;
     fIndexCount  += that->fIndexCount;
     return CombineResult::kMerged;

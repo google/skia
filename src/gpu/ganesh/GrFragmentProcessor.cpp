@@ -116,8 +116,8 @@ SkString GrFragmentProcessor::dumpTreeInfo() const {
 
 std::unique_ptr<GrFragmentProcessor::ProgramImpl> GrFragmentProcessor::makeProgramImpl() const {
     std::unique_ptr<ProgramImpl> impl = this->onMakeProgramImpl();
-    impl->fChildProcessors.push_back_n(fChildProcessors.size());
-    for (int i = 0; i < fChildProcessors.size(); ++i) {
+    impl->fChildProcessors.push_back_n(fChildProcessors.count());
+    for (int i = 0; i < fChildProcessors.count(); ++i) {
         impl->fChildProcessors[i] = fChildProcessors[i] ? fChildProcessors[i]->makeProgramImpl()
                                                         : nullptr;
     }

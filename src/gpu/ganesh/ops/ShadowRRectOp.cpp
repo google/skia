@@ -550,7 +550,7 @@ private:
     }
 
     void onPrepareDraws(GrMeshDrawTarget* target) override {
-        int instanceCount = fGeoData.size();
+        int instanceCount = fGeoData.count();
 
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;
@@ -620,7 +620,7 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
         ShadowCircularRRectOp* that = t->cast<ShadowCircularRRectOp>();
-        fGeoData.push_back_n(that->fGeoData.size(), that->fGeoData.begin());
+        fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         return CombineResult::kMerged;
@@ -629,7 +629,7 @@ private:
 #if GR_TEST_UTILS
     SkString onDumpInfo() const override {
         SkString string;
-        for (int i = 0; i < fGeoData.size(); ++i) {
+        for (int i = 0; i < fGeoData.count(); ++i) {
             string.appendf(
                     "Color: 0x%08x Rect [L: %.2f, T: %.2f, R: %.2f, B: %.2f],"
                     "OuterRad: %.2f, Umbra: %.2f, InnerRad: %.2f, BlurRad: %.2f\n",

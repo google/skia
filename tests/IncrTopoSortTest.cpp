@@ -99,7 +99,7 @@ public:
         sk_sp<Node> tmp(new Node(id));
 
         fNodes.push_back(tmp);       // The graph gets the creation ref
-        tmp->setIndexInSort(fNodes.size()-1);
+        tmp->setIndexInSort(fNodes.count()-1);
         this->validate();
         return tmp.get();
     }
@@ -154,7 +154,7 @@ public:
         // TODO: although this is the general algorithm, I think this can be simplified for our
         // use case (i.e., the same dependent for all the new edges).
 
-        int lowerBound = fNodes.size();  // 'lowerBound' tracks the left of the affected region
+        int lowerBound = fNodes.count();  // 'lowerBound' tracks the left of the affected region
         for (int i = 0; i < dependedOn->size(); ++i) {
             if ((*dependedOn)[i]->indexInSort() < lowerBound) {
                 this->shift(lowerBound);
@@ -176,9 +176,9 @@ public:
     void getActual(SkString* actual) const {
         this->validate();
 
-        for (int i = 0; i < fNodes.size(); ++i) {
+        for (int i = 0; i < fNodes.count(); ++i) {
             (*actual) += fNodes[i]->id();
-            if (i < fNodes.size()-1) {
+            if (i < fNodes.count()-1) {
                 (*actual) += ',';
             }
         }
@@ -187,7 +187,7 @@ public:
 #ifdef SK_DEBUG
     void print() const {
         SkDebugf("-------------------\n");
-        for (int i = 0; i < fNodes.size(); ++i) {
+        for (int i = 0; i < fNodes.count(); ++i) {
             if (fNodes[i]) {
                 SkDebugf("%c ", fNodes[i]->id());
             } else {
@@ -196,14 +196,14 @@ public:
         }
         SkDebugf("\n");
 
-        for (int i = 0; i < fNodes.size(); ++i) {
+        for (int i = 0; i < fNodes.count(); ++i) {
             if (fNodes[i]) {
                 fNodes[i]->print();
             }
         }
 
         SkDebugf("Stack: ");
-        for (int i = 0; i < fStack.size(); ++i) {
+        for (int i = 0; i < fStack.count(); ++i) {
            SkDebugf("%c/%c ", fStack[i].fNode->id(), fStack[i].fDest->id());
         }
         SkDebugf("\n");
@@ -214,14 +214,14 @@ private:
     void validate() const {
         REPORTER_ASSERT(fReporter, fStack.empty());
 
-        for (int i = 0; i < fNodes.size(); ++i) {
+        for (int i = 0; i < fNodes.count(); ++i) {
             REPORTER_ASSERT(fReporter, fNodes[i]->indexInSort() == i);
 
             fNodes[i]->validate(fReporter);
         }
 
         // All the nodes in the Queue had better have been marked as visited
-        for (int i = 0; i < fStack.size(); ++i) {
+        for (int i = 0; i < fStack.count(); ++i) {
             SkASSERT(fStack[i].fNode->visited());
         }
     }
@@ -256,7 +256,7 @@ private:
     // Does 'fStack' have 'node'? That is, was 'node' discovered to be in violation of the
     // topological constraints?
     bool stackContains(Node* node) {
-        for (int i = 0; i < fStack.size(); ++i) {
+        for (int i = 0; i < fStack.count(); ++i) {
             if (node == fStack[i].fNode.get()) {
                 return true;
             }

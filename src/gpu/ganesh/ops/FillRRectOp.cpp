@@ -393,9 +393,9 @@ private:
         }
         fColorAttrib = &fInstanceAttribs.push_back(
                 MakeColorAttribute("color", (fFlags & ProcessorFlags::kWideColor)));
-        SkASSERT(fInstanceAttribs.size() <= kMaxInstanceAttribs);
+        SkASSERT(fInstanceAttribs.count() <= kMaxInstanceAttribs);
         this->setInstanceAttributesWithImplicitOffsets(fInstanceAttribs.begin(),
-                                                       fInstanceAttribs.size());
+                                                       fInstanceAttribs.count());
     }
 
     inline static constexpr Attribute kVertexAttribs[] = {

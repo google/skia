@@ -64,7 +64,7 @@ GrVkPipelineState::~GrVkPipelineState() {
 void GrVkPipelineState::freeGPUResources(GrVkGpu* gpu) {
     fPipeline.reset();
     fDataManager.releaseData();
-    for (int i = 0; i < fImmutableSamplers.size(); ++i) {
+    for (int i = 0; i < fImmutableSamplers.count(); ++i) {
         if (fImmutableSamplers[i]) {
             fImmutableSamplers[i]->unref();
             fImmutableSamplers[i] = nullptr;

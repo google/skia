@@ -257,7 +257,7 @@ public:
         this->addFilter("blend", SkImageFilters::Blend(
                 SkBlendMode::kSrc, input, input, cropRect));
     }
-    int count() const { return fFilters.size(); }
+    int count() const { return fFilters.count(); }
     SkImageFilter* getFilter(int index) const { return fFilters[index].fFilter.get(); }
     const char* getName(int index) const { return fFilters[index].fName; }
     bool needsSaveLayer(int index) const { return fFilters[index].fNeedsSaveLayer; }

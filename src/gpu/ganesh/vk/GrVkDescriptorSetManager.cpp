@@ -69,7 +69,7 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
                                       uint32_t* descCountPerSet) {
     if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
         VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
-        uint32_t numBindings = visibilities.size();
+        uint32_t numBindings = visibilities.count();
         std::unique_ptr<VkDescriptorSetLayoutBinding[]> dsSamplerBindings(
                 new VkDescriptorSetLayoutBinding[numBindings]);
         *descCountPerSet = 0;
@@ -116,7 +116,7 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
         }
     } else if (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
         static constexpr int kUniformDescPerSet = 1;
-        SkASSERT(kUniformDescPerSet == visibilities.size());
+        SkASSERT(kUniformDescPerSet == visibilities.count());
         // Create Uniform Buffer Descriptor
         VkDescriptorSetLayoutBinding dsUniBinding;
         dsUniBinding.binding = GrVkUniformHandler::kUniformBinding;
@@ -149,7 +149,7 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
     } else {
         SkASSERT(type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT);
         static constexpr int kInputDescPerSet = 1;
-        SkASSERT(kInputDescPerSet == visibilities.size());
+        SkASSERT(kInputDescPerSet == visibilities.count());
 
         // Create Input Buffer Descriptor
         VkDescriptorSetLayoutBinding dsInpuBinding;
@@ -190,9 +190,9 @@ GrVkDescriptorSetManager* GrVkDescriptorSetManager::Create(
         const SkTArray<const GrVkSampler*>& immutableSamplers) {
 #ifdef SK_DEBUG
     if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
-        SkASSERT(visibilities.size() == immutableSamplers.size());
+        SkASSERT(visibilities.count() == immutableSamplers.count());
     } else {
-        SkASSERT(immutableSamplers.empty());
+        SkASSERT(immutableSamplers.count() == 0);
     }
 #endif
 
@@ -211,10 +211,10 @@ GrVkDescriptorSetManager::GrVkDescriptorSetManager(
         uint32_t descCountPerSet, const SkTArray<uint32_t>& visibilities,
         const SkTArray<const GrVkSampler*>& immutableSamplers)
     : fPoolManager(descSetLayout, type, descCountPerSet) {
-    for (int i = 0; i < visibilities.size(); ++i) {
+    for (int i = 0; i < visibilities.count(); ++i) {
         fBindingVisibilities.push_back(visibilities[i]);
     }
-    for (int i = 0; i < immutableSamplers.size(); ++i) {
+    for (int i = 0; i < immutableSamplers.count(); ++i) {
         const GrVkSampler* sampler = immutableSamplers[i];
         if (sampler) {
             sampler->ref();
@@ -226,7 +226,7 @@ GrVkDescriptorSetManager::GrVkDescriptorSetManager(
 const GrVkDescriptorSet* GrVkDescriptorSetManager::getDescriptorSet(GrVkGpu* gpu,
                                                                     const Handle& handle) {
     const GrVkDescriptorSet* ds = nullptr;
-    int count = fFreeSets.size();
+    int count = fFreeSets.count();
     if (count > 0) {
         ds = fFreeSets[count - 1];
         fFreeSets.removeShuffle(count - 1);
@@ -250,12 +250,12 @@ void GrVkDescriptorSetManager::recycleDescriptorSet(const GrVkDescriptorSet* des
 void GrVkDescriptorSetManager::release(GrVkGpu* gpu) {
     fPoolManager.freeGPUResources(gpu);
 
-    for (int i = 0; i < fFreeSets.size(); ++i) {
+    for (int i = 0; i < fFreeSets.count(); ++i) {
         fFreeSets[i]->unref();
     }
     fFreeSets.reset();
 
-    for (int i = 0; i < fImmutableSamplers.size(); ++i) {
+    for (int i = 0; i < fImmutableSamplers.count(); ++i) {
         if (fImmutableSamplers[i]) {
             fImmutableSamplers[i]->unref();
         }
@@ -271,7 +271,7 @@ bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
     }
 
     SkASSERT(type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
-    if (fBindingVisibilities.size() != uniHandler->numSamplers()) {
+    if (fBindingVisibilities.count() != uniHandler->numSamplers()) {
         return false;
     }
     for (int i = 0; i < uniHandler->numSamplers(); ++i) {
@@ -287,7 +287,7 @@ bool GrVkDescriptorSetManager::isZeroSampler() const {
     if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER != fPoolManager.fDescType) {
         return false;
     }
-    if (fBindingVisibilities.size()) {
+    if (fBindingVisibilities.count()) {
         return false;
     }
     return true;

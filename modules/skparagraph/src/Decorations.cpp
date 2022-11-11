@@ -120,7 +120,7 @@ void Decorations::calculateGaps(const TextLine::ClipContext& context, const SkRe
     SkPathBuilder path;
     auto start = rect.fLeft;
     path.moveTo(rect.fLeft, rect.fTop);
-    for (int i = 0; i < intersections.size(); i += 2) {
+    for (int i = 0; i < intersections.count(); i += 2) {
         auto end = intersections[i] - halo;
         if (end - start >= halo) {
             start = intersections[i + 1] + halo;

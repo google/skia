@@ -93,7 +93,7 @@ GrBufferAllocPool::GrBufferAllocPool(GrGpu* gpu, GrGpuBufferType bufferType,
         , fBufferType(bufferType) {}
 
 void GrBufferAllocPool::deleteBlocks() {
-    if (fBlocks.size()) {
+    if (fBlocks.count()) {
         GrBuffer* buffer = fBlocks.back().fBuffer.get();
         if (!buffer->isCpuBuffer() && static_cast<GrGpuBuffer*>(buffer)->isMapped()) {
             UNMAP_BUFFER(fBlocks.back());
@@ -151,11 +151,11 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
         SkASSERT(buffer->isCpuBuffer() || !static_cast<const GrGpuBuffer*>(buffer)->isMapped());
     }
     size_t bytesInUse = 0;
-    for (int i = 0; i < fBlocks.size() - 1; ++i) {
+    for (int i = 0; i < fBlocks.count() - 1; ++i) {
         const GrBuffer* buffer = fBlocks[i].fBuffer.get();
         SkASSERT(buffer->isCpuBuffer() || !static_cast<const GrGpuBuffer*>(buffer)->isMapped());
     }
-    for (int i = 0; !wasDestroyed && i < fBlocks.size(); ++i) {
+    for (int i = 0; !wasDestroyed && i < fBlocks.count(); ++i) {
         GrBuffer* buffer = fBlocks[i].fBuffer.get();
         if (!buffer->isCpuBuffer() && static_cast<GrGpuBuffer*>(buffer)->wasDestroyed()) {
             wasDestroyed = true;
@@ -170,7 +170,7 @@ void GrBufferAllocPool::validate(bool unusedBlockAllowed) const {
         SkASSERT(bytesInUse == fBytesInUse);
         if (unusedBlockAllowed) {
             SkASSERT((fBytesInUse && !fBlocks.empty()) ||
-                     (!fBytesInUse && (fBlocks.size() < 2)));
+                     (!fBytesInUse && (fBlocks.count() < 2)));
         } else {
             SkASSERT((0 == fBytesInUse) == fBlocks.empty());
         }
@@ -325,7 +325,7 @@ bool GrBufferAllocPool::createBlock(size_t requestSize) {
 
     block.fBytesFree = block.fBuffer->size();
     if (fBufferPtr) {
-        SkASSERT(fBlocks.size() > 1);
+        SkASSERT(fBlocks.count() > 1);
         BufferBlock& prev = fBlocks.fromBack(1);
         GrBuffer* buffer = prev.fBuffer.get();
         if (!buffer->isCpuBuffer()) {

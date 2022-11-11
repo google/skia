@@ -233,7 +233,7 @@ public:
 
 #ifdef SK_DEBUG
     static void Print(const SkTArray<TopoTestNode*>& graph) {
-        for (int i = 0; i < graph.size(); ++i) {
+        for (int i = 0; i < graph.count(); ++i) {
             SkDebugf("%d, ", graph[i]->id());
         }
         SkDebugf("\n");

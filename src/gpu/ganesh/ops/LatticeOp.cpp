@@ -236,7 +236,7 @@ private:
             }
         }
 
-        int patchCnt = fPatches.size();
+        int patchCnt = fPatches.count();
         int numRects = 0;
         for (int i = 0; i < patchCnt; i++) {
             numRects += fPatches[i].fIter->numRectsToDraw();
@@ -353,7 +353,7 @@ private:
             return CombineResult::kCannotCombine;
         }
 
-        fPatches.move_back_n(that->fPatches.size(), that->fPatches.begin());
+        fPatches.move_back_n(that->fPatches.count(), that->fPatches.begin());
         fWideColor |= that->fWideColor;
         return CombineResult::kMerged;
     }
@@ -362,7 +362,7 @@ private:
     SkString onDumpInfo() const override {
         SkString str;
 
-        for (int i = 0; i < fPatches.size(); ++i) {
+        for (int i = 0; i < fPatches.count(); ++i) {
             str.appendf("%d: Color: 0x%08x Dst [L: %.2f, T: %.2f, R: %.2f, B: %.2f]\n", i,
                         fPatches[i].fColor.toBytes_RGBA(), fPatches[i].fDst.fLeft,
                         fPatches[i].fDst.fTop, fPatches[i].fDst.fRight, fPatches[i].fDst.fBottom);

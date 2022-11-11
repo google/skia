@@ -269,7 +269,7 @@ protected:
             return nullptr;
         }
 
-        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
+        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.count());
         Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
                                    axisValues, name);
 
@@ -277,7 +277,7 @@ protected:
                                                      args.getCollectionIndex(),
                                                      args.getPalette().index,
                                                      axisValues.get(),
-                                                     axisDefinitions.size(),
+                                                     axisDefinitions.count(),
                                                      args.getPalette().overrides,
                                                      args.getPalette().overrideCount);
         return sk_sp<SkTypeface>(SkTypeface_FCI::Create(std::move(fontData), std::move(name),

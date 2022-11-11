@@ -111,7 +111,7 @@ void GrMtlPipelineState::setTextures(const GrGeometryProcessor& geomProc,
         fSamplerBindings.emplace_back(te.samplerState(), te.texture(), fGpu);
     });
 
-    SkASSERT(fNumSamplers == fSamplerBindings.size());
+    SkASSERT(fNumSamplers == fSamplerBindings.count());
 }
 
 void GrMtlPipelineState::setDrawState(GrMtlRenderCommandEncoder* renderCmdEncoder,
@@ -127,7 +127,7 @@ void GrMtlPipelineState::bindUniforms(GrMtlRenderCommandEncoder* renderCmdEncode
 }
 
 void GrMtlPipelineState::bindTextures(GrMtlRenderCommandEncoder* renderCmdEncoder) {
-    SkASSERT(fNumSamplers == fSamplerBindings.size());
+    SkASSERT(fNumSamplers == fSamplerBindings.count());
     for (int index = 0; index < fNumSamplers; ++index) {
         renderCmdEncoder->setFragmentTexture(fSamplerBindings[index].fTexture, index);
         renderCmdEncoder->setFragmentSamplerState(fSamplerBindings[index].fSampler, index);
@@ -226,7 +226,7 @@ void GrMtlPipelineState::SetDynamicScissorRectState(GrMtlRenderCommandEncoder* r
 
 bool GrMtlPipelineState::doesntSampleAttachment(
         const MTLRenderPassAttachmentDescriptor* attachment) const {
-    for (int i = 0; i < fSamplerBindings.size(); ++i) {
+    for (int i = 0; i < fSamplerBindings.count(); ++i) {
         if (attachment.texture == fSamplerBindings[i].fTexture ||
             attachment.resolveTexture == fSamplerBindings[i].fTexture) {
             return false;

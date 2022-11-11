@@ -146,14 +146,14 @@ static void toQuadraticTs(const SkDCubic* cubic, double precision, SkTArray<doub
 void CubicToQuads(const SkDCubic& cubic, double precision, SkTArray<SkDQuad, true>& quads) {
     SkTArray<double, true> ts;
     toQuadraticTs(&cubic, precision, &ts);
-    if (ts.empty()) {
+    if (ts.count() <= 0) {
         SkDQuad quad = cubic.toQuad();
         quads.push_back(quad);
         return;
     }
     double tStart = 0;
-    for (int i1 = 0; i1 <= ts.size(); ++i1) {
-        const double tEnd = i1 < ts.size() ? ts[i1] : 1;
+    for (int i1 = 0; i1 <= ts.count(); ++i1) {
+        const double tEnd = i1 < ts.count() ? ts[i1] : 1;
         SkDRect bounds;
         bounds.setBounds(cubic);
         SkDCubic part = cubic.subDivide(tStart, tEnd);
@@ -192,7 +192,7 @@ void CubicPathToQuads(const SkPath& cubicPath, SkPath* quadPath) {
                 quads.reset();
                 cubic.set(pts);
                 CubicToQuads(cubic, cubic.calcPrecision(), quads);
-                for (int index = 0; index < quads.size(); ++index) {
+                for (int index = 0; index < quads.count(); ++index) {
                     SkPoint qPts[2] = {
                         quads[index][1].asSkPoint(),
                         quads[index][2].asSkPoint()

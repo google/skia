@@ -301,7 +301,7 @@ void GrGLSLShaderBuilder::compileAndAppendLayoutQualifiers() {
             continue;
         }
         this->layoutQualifiers().appendf("layout(%s", params[0].c_str());
-        for (int i = 1; i < params.size(); ++i) {
+        for (int i = 1; i < params.count(); ++i) {
             this->layoutQualifiers().appendf(", %s", params[i].c_str());
         }
         this->layoutQualifiers().appendf(") %s;\n", interfaceQualifierNames[interface]);

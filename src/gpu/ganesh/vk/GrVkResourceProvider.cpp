@@ -27,9 +27,9 @@ GrVkResourceProvider::GrVkResourceProvider(GrVkGpu* gpu)
 }
 
 GrVkResourceProvider::~GrVkResourceProvider() {
-    SkASSERT(0 == fRenderPassArray.size());
-    SkASSERT(0 == fExternalRenderPasses.size());
-    SkASSERT(0 == fMSAALoadPipelines.size());
+    SkASSERT(0 == fRenderPassArray.count());
+    SkASSERT(0 == fExternalRenderPasses.count());
+    SkASSERT(0 == fMSAALoadPipelines.count());
     SkASSERT(VK_NULL_HANDLE == fPipelineCache);
 }
 
@@ -85,11 +85,11 @@ void GrVkResourceProvider::init() {
     // Init uniform descriptor objects
     GrVkDescriptorSetManager* dsm = GrVkDescriptorSetManager::CreateUniformManager(fGpu);
     fDescriptorSetManagers.emplace_back(dsm);
-    SkASSERT(1 == fDescriptorSetManagers.size());
+    SkASSERT(1 == fDescriptorSetManagers.count());
     fUniformDSHandle = GrVkDescriptorSetManager::Handle(0);
     dsm = GrVkDescriptorSetManager::CreateInputManager(fGpu);
     fDescriptorSetManagers.emplace_back(dsm);
-    SkASSERT(2 == fDescriptorSetManagers.size());
+    SkASSERT(2 == fDescriptorSetManagers.count());
     fInputDSHandle = GrVkDescriptorSetManager::Handle(1);
 }
 
@@ -130,7 +130,7 @@ GrVkResourceProvider::findCompatibleRenderPass(GrVkRenderPass::AttachmentsDescri
                                                SelfDependencyFlags selfDepFlags,
                                                LoadFromResolve loadFromResolve,
                                                CompatibleRPHandle* compatibleHandle) {
-    for (int i = 0; i < fRenderPassArray.size(); ++i) {
+    for (int i = 0; i < fRenderPassArray.count(); ++i) {
         if (fRenderPassArray[i].isCompatible(*desc, attachmentFlags, selfDepFlags,
                                              loadFromResolve)) {
             const GrVkRenderPass* renderPass = fRenderPassArray[i].getCompatibleRenderPass();
@@ -150,14 +150,14 @@ GrVkResourceProvider::findCompatibleRenderPass(GrVkRenderPass::AttachmentsDescri
     fRenderPassArray.emplace_back(renderPass);
 
     if (compatibleHandle) {
-        *compatibleHandle = CompatibleRPHandle(fRenderPassArray.size() - 1);
+        *compatibleHandle = CompatibleRPHandle(fRenderPassArray.count() - 1);
     }
     return renderPass;
 }
 
 const GrVkRenderPass* GrVkResourceProvider::findCompatibleExternalRenderPass(
         VkRenderPass renderPass, uint32_t colorAttachmentIndex) {
-    for (int i = 0; i < fExternalRenderPasses.size(); ++i) {
+    for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
         if (fExternalRenderPasses[i]->isCompatibleExternalRP(renderPass)) {
             fExternalRenderPasses[i]->ref();
 #ifdef SK_DEBUG
@@ -203,7 +203,7 @@ GrVkResourceProvider::findRenderPass(const CompatibleRPHandle& compatibleHandle,
                                      const GrVkRenderPass::LoadStoreOps& colorOps,
                                      const GrVkRenderPass::LoadStoreOps& resolveOps,
                                      const GrVkRenderPass::LoadStoreOps& stencilOps) {
-    SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.size());
+    SkASSERT(compatibleHandle.isValid() && compatibleHandle.toIndex() < fRenderPassArray.count());
     CompatibleRenderPassSet& compatibleSet = fRenderPassArray[compatibleHandle.toIndex()];
     const GrVkRenderPass* renderPass = compatibleSet.getRenderPass(fGpu,
                                                                    colorOps,
@@ -286,7 +286,7 @@ sk_sp<const GrVkPipeline> GrVkResourceProvider::findOrCreateMSAALoadPipeline(
         VkPipelineLayout pipelineLayout) {
     // Find or Create a compatible pipeline
     sk_sp<const GrVkPipeline> pipeline;
-    for (int i = 0; i < fMSAALoadPipelines.size() && !pipeline; ++i) {
+    for (int i = 0; i < fMSAALoadPipelines.count() && !pipeline; ++i) {
         if (fMSAALoadPipelines[i].fRenderPass->isCompatible(renderPass)) {
             pipeline = fMSAALoadPipelines[i].fPipeline;
         }
@@ -323,7 +323,7 @@ sk_sp<const GrVkPipeline> GrVkResourceProvider::findOrCreateMSAALoadPipeline(
 void GrVkResourceProvider::getZeroSamplerDescriptorSetHandle(
         GrVkDescriptorSetManager::Handle* handle) {
     SkASSERT(handle);
-    for (int i = 0; i < fDescriptorSetManagers.size(); ++i) {
+    for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
         if (fDescriptorSetManagers[i]->isZeroSampler()) {
             *handle = GrVkDescriptorSetManager::Handle(i);
             return;
@@ -333,7 +333,7 @@ void GrVkResourceProvider::getZeroSamplerDescriptorSetHandle(
     GrVkDescriptorSetManager* dsm =
             GrVkDescriptorSetManager::CreateZeroSamplerManager(fGpu);
     fDescriptorSetManagers.emplace_back(dsm);
-    *handle = GrVkDescriptorSetManager::Handle(fDescriptorSetManagers.size() - 1);
+    *handle = GrVkDescriptorSetManager::Handle(fDescriptorSetManagers.count() - 1);
 }
 
 void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
@@ -342,7 +342,7 @@ void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
     SkASSERT(handle);
     SkASSERT(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type ||
              VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type);
-    for (int i = 0; i < fDescriptorSetManagers.size(); ++i) {
+    for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
         if (fDescriptorSetManagers[i]->isCompatible(type, &uniformHandler)) {
            *handle = GrVkDescriptorSetManager::Handle(i);
            return;
@@ -352,7 +352,7 @@ void GrVkResourceProvider::getSamplerDescriptorSetHandle(VkDescriptorType type,
     GrVkDescriptorSetManager* dsm = GrVkDescriptorSetManager::CreateSamplerManager(fGpu, type,
                                                                                    uniformHandler);
     fDescriptorSetManagers.emplace_back(dsm);
-    *handle = GrVkDescriptorSetManager::Handle(fDescriptorSetManagers.size() - 1);
+    *handle = GrVkDescriptorSetManager::Handle(fDescriptorSetManagers.count() - 1);
 }
 
 VkDescriptorSetLayout GrVkResourceProvider::getUniformDSLayout() const {
@@ -393,13 +393,13 @@ void GrVkResourceProvider::recycleDescriptorSet(const GrVkDescriptorSet* descSet
     SkASSERT(descSet);
     SkASSERT(handle.isValid());
     int managerIdx = handle.toIndex();
-    SkASSERT(managerIdx < fDescriptorSetManagers.size());
+    SkASSERT(managerIdx < fDescriptorSetManagers.count());
     fDescriptorSetManagers[managerIdx]->recycleDescriptorSet(descSet);
 }
 
 GrVkCommandPool* GrVkResourceProvider::findOrCreateCommandPool() {
     GrVkCommandPool* result;
-    if (fAvailableCommandPools.size()) {
+    if (fAvailableCommandPools.count()) {
         result = fAvailableCommandPools.back();
         fAvailableCommandPools.pop_back();
     } else {
@@ -433,7 +433,7 @@ void GrVkResourceProvider::checkCommandBuffers() {
     // TODO: We really need to have a more robust way to protect us from client proc calls that
     // happen in the middle of us doing work. This may be just one of many potential pitfalls that
     // could happen from the client triggering GrDirectContext changes during a proc call.
-    for (int i = fActiveCommandPools.size() - 1; fActiveCommandPools.size() && i >= 0; --i) {
+    for (int i = fActiveCommandPools.count() - 1; fActiveCommandPools.count() && i >= 0; --i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
         if (!pool->isOpen()) {
             GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
@@ -456,7 +456,7 @@ void GrVkResourceProvider::checkCommandBuffers() {
 }
 
 void GrVkResourceProvider::forceSyncAllCommandBuffers() {
-    for (int i = fActiveCommandPools.size() - 1; fActiveCommandPools.size() && i >= 0; --i) {
+    for (int i = fActiveCommandPools.count() - 1; fActiveCommandPools.count() && i >= 0; --i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
         if (!pool->isOpen()) {
             GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
@@ -467,7 +467,7 @@ void GrVkResourceProvider::forceSyncAllCommandBuffers() {
 
 void GrVkResourceProvider::addFinishedProcToActiveCommandBuffers(
         sk_sp<skgpu::RefCntedCallback> finishedCallback) {
-    for (int i = 0; i < fActiveCommandPools.size(); ++i) {
+    for (int i = 0; i < fActiveCommandPools.count(); ++i) {
         GrVkCommandPool* pool = fActiveCommandPools[i];
         GrVkPrimaryCommandBuffer* buffer = pool->getPrimaryCommandBuffer();
         buffer->addFinishedProc(finishedCallback);
@@ -484,12 +484,12 @@ void GrVkResourceProvider::destroyResources() {
     fMSAALoadPipelines.reset();
 
     // loop over all render pass sets to make sure we destroy all the internal VkRenderPasses
-    for (int i = 0; i < fRenderPassArray.size(); ++i) {
+    for (int i = 0; i < fRenderPassArray.count(); ++i) {
         fRenderPassArray[i].releaseResources();
     }
     fRenderPassArray.reset();
 
-    for (int i = 0; i < fExternalRenderPasses.size(); ++i) {
+    for (int i = 0; i < fExternalRenderPasses.count(); ++i) {
         fExternalRenderPasses[i]->unref();
     }
     fExternalRenderPasses.reset();
@@ -521,7 +521,7 @@ void GrVkResourceProvider::destroyResources() {
     // We must release/destroy all command buffers and pipeline states before releasing the
     // GrVkDescriptorSetManagers. Additionally, we must release all uniform buffers since they hold
     // refs to GrVkDescriptorSets.
-    for (int i = 0; i < fDescriptorSetManagers.size(); ++i) {
+    for (int i = 0; i < fDescriptorSetManagers.count(); ++i) {
         fDescriptorSetManagers[i]->release(fGpu);
     }
     fDescriptorSetManagers.reset();
@@ -588,8 +588,8 @@ GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
         const GrVkRenderPass::LoadStoreOps& colorOps,
         const GrVkRenderPass::LoadStoreOps& resolveOps,
         const GrVkRenderPass::LoadStoreOps& stencilOps) {
-    for (int i = 0; i < fRenderPasses.size(); ++i) {
-        int idx = (i + fLastReturnedIndex) % fRenderPasses.size();
+    for (int i = 0; i < fRenderPasses.count(); ++i) {
+        int idx = (i + fLastReturnedIndex) % fRenderPasses.count();
         if (fRenderPasses[idx]->equalLoadStoreOps(colorOps, resolveOps, stencilOps)) {
             fLastReturnedIndex = idx;
             return fRenderPasses[idx];
@@ -601,12 +601,12 @@ GrVkRenderPass* GrVkResourceProvider::CompatibleRenderPassSet::getRenderPass(
         return nullptr;
     }
     fRenderPasses.push_back(renderPass);
-    fLastReturnedIndex = fRenderPasses.size() - 1;
+    fLastReturnedIndex = fRenderPasses.count() - 1;
     return renderPass;
 }
 
 void GrVkResourceProvider::CompatibleRenderPassSet::releaseResources() {
-    for (int i = 0; i < fRenderPasses.size(); ++i) {
+    for (int i = 0; i < fRenderPasses.count(); ++i) {
         if (fRenderPasses[i]) {
             fRenderPasses[i]->unref();
             fRenderPasses[i] = nullptr;

@@ -222,7 +222,7 @@ private:
 
     static sk_sp<SkImage> CreatePromiseImages(const void* rawData, size_t length, void* ctxIn);
 
-    bool isValidID(int id) const { return id >= 0 && id < fImageInfo.size(); }
+    bool isValidID(int id) const { return id >= 0 && id < fImageInfo.count(); }
     const PromiseImageInfo& getInfo(int id) const { return fImageInfo[id]; }
     void uploadImage(GrDirectContext*, PromiseImageInfo*);
 

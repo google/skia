@@ -252,7 +252,7 @@ GrGLSLUniformHandler::SamplerHandle GrSPIRVUniformHandler::addSampler(const GrBa
 
     fSamplers.push_back(tempInfo);
     fSamplerSwizzles.push_back(swizzle);
-    SkASSERT(fSamplerSwizzles.size() == fSamplers.count());
+    SkASSERT(fSamplerSwizzles.count() == fSamplers.count());
 
     SkString mangleTexName = fProgramBuilder->nameVariable('t', name, /*mangle=*/true);
     SkString texLayoutQualifier;

@@ -48,10 +48,10 @@ std::unique_ptr<Expression> ConstructorArray::Convert(const Context& context,
     }
 
     // Check that the number of constructor arguments matches the array size.
-    if (type.columns() != args.size()) {
+    if (type.columns() != args.count()) {
         context.fErrors->error(pos, String::printf("invalid arguments to '%s' constructor "
                 "(expected %d elements, but found %d)", type.displayName().c_str(), type.columns(),
-                args.size()));
+                args.count()));
         return nullptr;
     }
 
@@ -73,7 +73,7 @@ std::unique_ptr<Expression> ConstructorArray::Make(const Context& context,
                                                    ExpressionArray args) {
     SkASSERT(!context.fConfig->strictES2Mode());
     SkASSERT(type.isAllowedInES2(context));
-    SkASSERT(type.columns() == args.size());
+    SkASSERT(type.columns() == args.count());
     SkASSERT(std::all_of(args.begin(), args.end(), [&](const std::unique_ptr<Expression>& arg) {
         return type.componentType().matches(arg->type());
     }));

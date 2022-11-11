@@ -63,7 +63,7 @@ void JsonWriter::DumpJson(const char* dir,
     {
         SkAutoMutexExclusive lock(bitmap_result_mutex());
         writer.beginArray("results");
-        for (int i = 0; i < gBitmapResults.size(); i++) {
+        for (int i = 0; i < gBitmapResults.count(); i++) {
             writer.beginObject();
 
             writer.beginObject("key");

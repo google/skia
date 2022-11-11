@@ -635,7 +635,7 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
     // Create variables in the extra statements to hold the arguments, and assign the arguments to
     // them.
     VariableRewriteMap varMap;
-    for (int i = 0; i < arguments.size(); ++i) {
+    for (int i = 0; i < arguments.count(); ++i) {
         // If the parameter isn't written to within the inline function ...
         const Expression* arg = arguments[i].get();
         const Variable* param = function.declaration().parameters()[i];
@@ -667,7 +667,7 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
                                                          usage, caller->isBuiltin()));
     }
 
-    SkASSERT(inlineStatements.size() <= expectedStmtCount);
+    SkASSERT(inlineStatements.count() <= expectedStmtCount);
 
     // Wrap all of the generated statements in a block. We need a real Block here, because we need
     // to add another child statement to the Block later.

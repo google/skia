@@ -671,13 +671,13 @@ bool SkPathRef::isValid() const {
         bool isFinite = true;
         auto leftTop = skvx::float2(fBounds.fLeft, fBounds.fTop);
         auto rightBot = skvx::float2(fBounds.fRight, fBounds.fBottom);
-        for (int i = 0; i < fPoints.size(); ++i) {
+        for (int i = 0; i < fPoints.count(); ++i) {
             auto point = skvx::float2(fPoints[i].fX, fPoints[i].fY);
 #ifdef SK_DEBUG
             if (fPoints[i].isFinite() && (any(point < leftTop)|| any(point > rightBot))) {
                 SkDebugf("bad SkPathRef bounds: %g %g %g %g\n",
                          fBounds.fLeft, fBounds.fTop, fBounds.fRight, fBounds.fBottom);
-                for (int j = 0; j < fPoints.size(); ++j) {
+                for (int j = 0; j < fPoints.count(); ++j) {
                     if (i == j) {
                         SkDebugf("*** bounds do not contain: ");
                     }
@@ -712,8 +712,8 @@ bool SkPathRef::dataMatchesVerbs() const {
     const auto info = sk_path_analyze_verbs(fVerbs.begin(), fVerbs.size());
     return info.valid                          &&
            info.segmentMask == fSegmentMask    &&
-           info.points      == fPoints.size()  &&
-           info.weights     == fConicWeights.size();
+           info.points      == fPoints.count()  &&
+           info.weights     == fConicWeights.count();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

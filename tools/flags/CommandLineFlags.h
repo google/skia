@@ -128,11 +128,11 @@ public:
         StringArray() {}
         explicit StringArray(const SkTArray<SkString>& strings) : fStrings(strings) {}
         const char* operator[](int i) const {
-            SkASSERT(i >= 0 && i < fStrings.size());
+            SkASSERT(i >= 0 && i < fStrings.count());
             return fStrings[i].c_str();
         }
 
-        int size() const { return fStrings.size(); }
+        int size() const { return fStrings.count(); }
 
         bool isEmpty() const { return this->size() == 0; }
 
@@ -140,7 +140,7 @@ public:
          * Returns true iff string is equal to one of the strings in this array.
          */
         bool contains(const char* string) const {
-            for (int i = 0; i < fStrings.size(); i++) {
+            for (int i = 0; i < fStrings.count(); i++) {
                 if (fStrings[i].equals(string)) {
                     return true;
                 }
@@ -149,7 +149,7 @@ public:
         }
 
         void set(int i, const char* str) {
-            if (i >= fStrings.size()) {
+            if (i >= fStrings.count()) {
                 this->append(str);
                 return;
             }

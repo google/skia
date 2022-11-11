@@ -84,7 +84,7 @@ SkTypeface* SkFontMgr_Indirect::createTypefaceFromFontId(const SkFontIdentity& i
 
     sk_sp<SkTypeface> dataTypeface;
     int dataTypefaceIndex = 0;
-    for (int i = 0; i < fDataCache.size(); ++i) {
+    for (int i = 0; i < fDataCache.count(); ++i) {
         const DataEntry& entry = fDataCache[i];
         if (entry.fDataId == id.fDataId) {
             if (entry.fTtcIndex == id.fTtcIndex &&

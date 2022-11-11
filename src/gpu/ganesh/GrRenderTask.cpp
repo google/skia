@@ -56,7 +56,7 @@ GrRenderTask::~GrRenderTask() {
 }
 
 bool GrRenderTask::deferredProxiesAreInstantiated() const {
-    for (int i = 0; i < fDeferredProxies.size(); ++i) {
+    for (int i = 0; i < fDeferredProxies.count(); ++i) {
         if (!fDeferredProxies[i]->isInstantiated()) {
             return false;
         }
@@ -94,7 +94,7 @@ void GrRenderTask::makeClosed(GrRecordingContext* rContext) {
 }
 
 void GrRenderTask::prepare(GrOpFlushState* flushState) {
-    for (int i = 0; i < fDeferredProxies.size(); ++i) {
+    for (int i = 0; i < fDeferredProxies.count(); ++i) {
         fDeferredProxies[i]->texPriv().scheduleUpload(flushState);
     }
 
@@ -250,7 +250,7 @@ void GrRenderTask::replaceDependent(const GrRenderTask* toReplace, GrRenderTask*
 }
 
 bool GrRenderTask::dependsOn(const GrRenderTask* dependedOn) const {
-    for (int i = 0; i < fDependencies.size(); ++i) {
+    for (int i = 0; i < fDependencies.count(); ++i) {
         if (fDependencies[i] == dependedOn) {
             return true;
         }
@@ -266,7 +266,7 @@ void GrRenderTask::addDependent(GrRenderTask* dependent) {
 
 #ifdef SK_DEBUG
 bool GrRenderTask::isDependent(const GrRenderTask* dependent) const {
-    for (int i = 0; i < fDependents.size(); ++i) {
+    for (int i = 0; i < fDependents.count(); ++i) {
         if (fDependents[i] == dependent) {
             return true;
         }
@@ -278,7 +278,7 @@ bool GrRenderTask::isDependent(const GrRenderTask* dependent) const {
 void GrRenderTask::validate() const {
     // TODO: check for loops and duplicates
 
-    for (int i = 0; i < fDependencies.size(); ++i) {
+    for (int i = 0; i < fDependencies.count(); ++i) {
         SkASSERT(fDependencies[i]->isDependent(this));
     }
 }
@@ -330,14 +330,14 @@ void GrRenderTask::dump(const SkString& label,
     }
 
     if (printDependencies) {
-        SkDebugf("%sI rely On (%d): ", indent.c_str(), fDependencies.size());
-        for (int i = 0; i < fDependencies.size(); ++i) {
+        SkDebugf("%sI rely On (%d): ", indent.c_str(), fDependencies.count());
+        for (int i = 0; i < fDependencies.count(); ++i) {
             SkDebugf("%d, ", fDependencies[i]->fUniqueID);
         }
         SkDebugf("\n");
 
-        SkDebugf("%s(%d) Rely On Me: ", indent.c_str(), fDependents.size());
-        for (int i = 0; i < fDependents.size(); ++i) {
+        SkDebugf("%s(%d) Rely On Me: ", indent.c_str(), fDependents.count());
+        for (int i = 0; i < fDependents.count(); ++i) {
             SkDebugf("%d, ", fDependents[i]->fUniqueID);
         }
         SkDebugf("\n");

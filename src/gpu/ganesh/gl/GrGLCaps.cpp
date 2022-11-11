@@ -1177,7 +1177,7 @@ void GrGLCaps::onDumpJSON(SkJSONWriter* writer) const {
 
     writer->beginArray("Stencil Formats");
 
-    for (int i = 0; i < fStencilFormats.size(); ++i) {
+    for (int i = 0; i < fStencilFormats.count(); ++i) {
         writer->beginObject(nullptr, false);
         writer->appendS32("stencil bits", GrGLFormatStencilBits(fStencilFormats[i]));
         writer->appendS32("total bytes", GrGLFormatBytesPerBlock(fStencilFormats[i]));

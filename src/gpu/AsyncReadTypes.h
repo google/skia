@@ -133,12 +133,12 @@ public:
     }
 
     ~TAsyncReadResult() override {
-        for (int i = 0; i < fPlanes.size(); ++i) {
+        for (int i = 0; i < fPlanes.count(); ++i) {
             fPlanes[i].releaseMappedBuffer(fIntendedRecipient);
         }
     }
 
-    int count() const override { return fPlanes.size(); }
+    int count() const override { return fPlanes.count(); }
     const void* data(int i) const override { return fPlanes[i].data(); }
     size_t rowBytes(int i) const override { return fPlanes[i].rowBytes(); }
 

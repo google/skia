@@ -22,7 +22,7 @@
 
 struct Stats {
     Stats(const SkTArray<double>& samples, bool want_plot) {
-        int n = samples.size();
+        int n = samples.count();
         if (!n) {
             min = max = mean = var = median = 0;
             return;

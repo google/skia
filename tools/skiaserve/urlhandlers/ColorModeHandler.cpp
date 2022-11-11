@@ -25,7 +25,7 @@ int ColorModeHandler::handle(Request* request, MHD_Connection* connection,
     SkTArray<SkString> commands;
     SkStrSplit(url, "/", &commands);
 
-    if (commands.size() != 2) {
+    if (commands.count() != 2) {
         return MHD_NO;
     }
 

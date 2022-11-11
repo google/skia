@@ -93,7 +93,7 @@ public:
     bool dependsOn(const GrRenderTask* dependedOn) const;
 
     uint32_t uniqueID() const { return fUniqueID; }
-    int numTargets() const { return fTargets.size(); }
+    int numTargets() const { return fTargets.count(); }
     GrSurfaceProxy* target(int i) const { return fTargets[i].get(); }
 
     /*
@@ -250,7 +250,7 @@ private:
             return renderTask->isSetFlag(kTempMark_Flag);
         }
         static int NumDependencies(const GrRenderTask* renderTask) {
-            return renderTask->fDependencies.size();
+            return renderTask->fDependencies.count();
         }
         static GrRenderTask* Dependency(GrRenderTask* renderTask, int index) {
             return renderTask->fDependencies[index];
