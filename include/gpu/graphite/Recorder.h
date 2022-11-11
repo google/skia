@@ -180,7 +180,7 @@ private:
 
 #if GRAPHITE_TEST_UTILS
     // For testing use only -- the Context used to create this Recorder
-    Context* fContext;
+    Context* fContext = nullptr;
 #endif
 };
 
