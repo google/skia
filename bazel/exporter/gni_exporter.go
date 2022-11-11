@@ -74,33 +74,12 @@ var deprecatedFiles = []string{
 	"include/effects/SkLayerDrawLooper.h",
 }
 
-// The footer written to gn/core.gni.
+// The footer written to core.gni.
 const coreGNIFooter = `skia_core_sources += skia_pathops_sources
 skia_core_sources += skia_skpicture_sources
 
 skia_core_public += skia_pathops_public
 skia_core_public += skia_skpicture_public`
-
-// The footer written to gn/sksl_tests.gni.
-const skslTestsFooter = `sksl_glsl_tests_sources =
-    sksl_error_tests + sksl_glsl_tests + sksl_inliner_tests +
-    sksl_folding_tests + sksl_shared_tests
-
-sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
-
-sksl_metal_tests_sources =
-    sksl_metal_tests + sksl_blend_tests + sksl_shared_tests
-
-sksl_wgsl_tests_sources = sksl_wgsl_tests
-
-sksl_spirv_tests_sources =
-    sksl_blend_tests + sksl_shared_tests + sksl_spirv_tests
-
-sksl_skvm_tests_sources = sksl_rte_tests + sksl_rte_error_tests
-
-sksl_stage_tests_sources = sksl_rte_tests
-
-sksl_minify_tests_sources = sksl_rte_tests + sksl_folding_tests`
 
 // The footer written to modules/skshaper/skshaper.gni.
 const skshaperFooter = `
@@ -114,7 +93,6 @@ declare_args() {
 // Map of GNI file names to footer text to be appended to the end of the file.
 var footerMap = map[string]string{
 	"gn/core.gni":                   coreGNIFooter,
-	"gn/sksl_tests.gni":             skslTestsFooter,
 	"modules/skshaper/skshaper.gni": skshaperFooter,
 }
 
@@ -202,11 +180,6 @@ func makeRelativeFilePathForGNI(path string) (string, error) {
 	if strings.HasPrefix(path, "modules/") {
 		return "$_modules/" + strings.TrimPrefix(path, "modules/"), nil
 	}
-	// These sksl tests are purposely listed as a relative path underneath resources/sksl because
-	// that relative path is re-used by the GN logic to put stuff under //tests/sksl as well.
-	if strings.HasPrefix(path, "resources/sksl/") {
-		return strings.TrimPrefix(path, "resources/sksl/"), nil
-	}
 
 	return "", skerr.Fmt("can't find path for %q\n", path)
 }
@@ -243,14 +216,9 @@ func fileListContainsOnlyCppHeaderFiles(files []string) bool {
 }
 
 // Write the *.gni file header.
-func writeGNFileHeader(writer interfaces.Writer, gniFile *gniFileContents, pathToWorkspace, filePath string) {
+func writeGNFileHeader(writer interfaces.Writer, gniFile *gniFileContents, pathToWorkspace string) {
 	fmt.Fprintln(writer, "# DO NOT EDIT: This is a generated file.")
 	fmt.Fprintln(writer, "# See //bazel/exporter_tool/README.md for more information.")
-	if filePath == "gn/sksl_tests.gni" {
-	    fmt.Fprintln(writer, "#")
-	    fmt.Fprintln(writer, "# The source of truth is resources/sksl/BUILD.bazel")
-	    fmt.Fprintln(writer, "# To update this file, run make -C bazel generate_gni")
-	}
 	writer.WriteString("\n")
 	if gniFile.hasSrcs {
 		fmt.Fprintf(writer, "_src = get_path_info(\"%s/src\", \"abspath\")\n", pathToWorkspace)
@@ -467,7 +435,7 @@ func (e *GNIExporter) exportGNIFile(gniExportDesc GNIExportDesc, qr *build.Query
 	}
 
 	pathToWorkspace := getPathToTopDir(gniExportDesc.GNI)
-	writeGNFileHeader(writer, &gniFileContents, pathToWorkspace, gniExportDesc.GNI)
+	writeGNFileHeader(writer, &gniFileContents, pathToWorkspace)
 	writer.WriteString("\n")
 
 	_, err = writer.Write(gniFileContents.data)

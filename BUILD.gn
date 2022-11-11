@@ -833,8 +833,8 @@ if (skia_compile_sksl_tests) {
         "{{response_file_name}}",  # input_file
       ]
 
-      testsDir = get_path_info("tests/sksl/", "abspath")
-      resourcesDir = get_path_info("resources/sksl/", "abspath")
+      testsDir = get_path_info("tests", "abspath")
+      resourcesDir = get_path_info("resources", "abspath")
 
       foreach(partialPath, invoker.sources) {
         dst = testsDir + partialPath
