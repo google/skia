@@ -37,11 +37,14 @@ def compile_fn(api, checkout_root, out_dir):
       'target_cpu': quote(target_arch),
       'werror': 'true',
   }
+  env = {}
   extra_cflags.append('-DREBUILD_IF_CHANGED_ndk_version=%s' %
                       api.run.asset_version(ndk_asset, skia_dir))
 
   if configuration != 'Debug':
     args['is_debug'] = 'false'
+  if 'Dawn' in extra_tokens:
+    util.set_dawn_args_and_env(args, env, api, skia_dir)
   if 'Vulkan' in extra_tokens:
     args['ndk_api'] = 26
     args['skia_enable_vulkan_debug_layers'] = 'false'
@@ -88,9 +91,10 @@ def compile_fn(api, checkout_root, out_dir):
             script=skia_dir.join('bin', 'fetch-gn'),
             infra_step=True)
 
-    api.run(api.step, 'gn gen',
-            cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-    api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
+    with api.env(env):
+      api.run(api.step, 'gn gen',
+              cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
+      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
 ANDROID_BUILD_PRODUCTS_LIST = [

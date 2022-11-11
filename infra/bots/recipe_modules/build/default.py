@@ -214,12 +214,7 @@ def compile_fn(api, checkout_root, out_dir):
   if configuration != 'Debug':
     args['is_debug'] = 'false'
   if 'Dawn' in extra_tokens:
-    args['skia_use_dawn'] = 'true'
-    args['skia_use_gl'] = 'false'
-    # Dawn imports jinja2, which imports markupsafe. Along with DEPS, make it
-    # importable.
-    env['PYTHONPATH'] = api.path.pathsep.join([
-        str(skia_dir.join('third_party', 'externals')), '%%(PYTHONPATH)s'])
+    util.set_dawn_args_and_env(args, env, api, skia_dir)
   if 'ANGLE' in extra_tokens:
     args['skia_use_angle'] = 'true'
   if 'SwiftShader' in extra_tokens:
