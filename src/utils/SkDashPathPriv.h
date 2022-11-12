@@ -47,7 +47,7 @@ namespace SkDashPath {
     bool InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                         const SkRect* cullRect, const SkScalar aIntervals[],
                         int32_t count, SkScalar initialDashLength, int32_t initialDashIndex,
-                        SkScalar intervalLength, SkScalar startPhase,
+                        SkScalar intervalLength,
                         StrokeRecApplication = StrokeRecApplication::kAllow);
 
     bool ValidDashPath(SkScalar phase, const SkScalar intervals[], int32_t count);
