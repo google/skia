@@ -273,6 +273,7 @@
           glCtx.texImage2D(glCtx.TEXTURE_2D, 0, glCtx.RGBA, glCtx.RGBA, glCtx.UNSIGNED_BYTE, src);
         }
         resetTexture(glCtx, info);
+        this._resetContext();
         return this.makeImageFromTexture(newTex, info);
       };
 
