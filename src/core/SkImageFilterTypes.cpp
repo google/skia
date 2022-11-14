@@ -384,7 +384,13 @@ std::pair<sk_sp<SkSpecialImage>, LayerSpace<SkIPoint>> FilterResult::resolve(
             return {nullptr, {}};
         }
 
-        SkIRect subset = SkIRect(imageBounds).makeOffset(-origin.x(), -origin.y());
+        // Offset the image subset directly to avoid issues negating (origin). With the prior
+        // intersection (bounds - origin) will be >= 0, but (bounds + (-origin)) may not, (e.g.
+        // origin is INT_MIN).
+        SkIRect subset = { imageBounds.left() - origin.x(),
+                           imageBounds.top() - origin.y(),
+                           imageBounds.right() - origin.x(),
+                           imageBounds.bottom() - origin.y() };
         SkASSERT(subset.fLeft >= 0 && subset.fTop >= 0 &&
                  subset.fRight <= fImage->width() && subset.fBottom <= fImage->height());
 
