@@ -9,11 +9,12 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/private/SkSLProgramKind.h"
+#include "include/private/SkTHash.h"
 #include "src/core/SkOSFile.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
-#include "src/sksl/ir/SkSLProgram.h" // IWYU pragma: keep
+#include "src/sksl/ir/SkSLProgram.h"  // IWYU pragma: keep
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -23,6 +24,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -86,20 +88,20 @@ static void check_expected_errors(skiatest::Reporter* r,
 }
 
 static void test_expect_fail(skiatest::Reporter* r, const char* testFile, SkSL::ProgramKind kind) {
-#ifdef SK_ENABLE_OPTIMIZE_SIZE
     // In a size-optimized build, there are a handful of errors which report differently, or not at
     // all. Skip over those tests.
     static const auto* kTestsToSkip = new SkTHashSet<std::string_view>{
+#ifdef SK_ENABLE_OPTIMIZE_SIZE
         "sksl/errors/ArrayInlinedIndexOutOfRange.sksl",
         "sksl/errors/MatrixInlinedIndexOutOfRange.sksl",
         "sksl/errors/OverflowInlinedLiteral.sksl",
         "sksl/errors/VectorInlinedIndexOutOfRange.sksl",
+#endif
     };
     if (kTestsToSkip->contains(testFile)) {
         INFOF(r, "%s: skipped in SK_ENABLE_OPTIMIZE_SIZE mode", testFile);
         return;
     }
-#endif
 
     sk_sp<SkData> shaderData = GetResourceAsData(testFile);
     if (!shaderData) {

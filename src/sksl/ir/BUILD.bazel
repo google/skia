@@ -76,6 +76,7 @@ IR_FILES = [
     "SkSLPostfixExpression.h",
     "SkSLPrefixExpression.cpp",
     "SkSLPrefixExpression.h",
+    "SkSLProgram.cpp",
     "SkSLProgram.h",
     "SkSLReturnStatement.h",
     "SkSLSetting.cpp",

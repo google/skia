@@ -8,28 +8,23 @@
 #ifndef SKSL_PROGRAM
 #define SKSL_PROGRAM
 
-#include <vector>
 #include <memory>
-
-#include "include/private/SkSLDefines.h"
-#include "include/private/SkSLModifiers.h"
-#include "include/private/SkSLProgramElement.h"
-#include "include/private/SkTHash.h"
-#include "src/sksl/SkSLAnalysis.h"
-#include "src/sksl/SkSLModifiersPool.h"
-#include "src/sksl/SkSLProgramSettings.h"
-#include "src/sksl/analysis/SkSLProgramUsage.h"
-#include "src/sksl/ir/SkSLExpression.h"
-#include "src/sksl/ir/SkSLLiteral.h"
-#include "src/sksl/ir/SkSLSymbolTable.h"
+#include <string>
+#include <vector>
 
 // name of the uniform used to handle features that are sensitive to whether Y is flipped.
+// TODO: find a better home for this constant
 #define SKSL_RTFLIP_NAME "u_skRTFlip"
 
 namespace SkSL {
 
 class Context;
+class ModifiersPool;
 class Pool;
+class ProgramElement;
+class ProgramUsage;
+class SymbolTable;
+struct ProgramConfig;
 
 /**
  * Represents a fully-digested program, ready for code generation.
@@ -51,30 +46,9 @@ struct Program {
             std::unique_ptr<ModifiersPool> modifiers,
             std::shared_ptr<SymbolTable> symbols,
             std::unique_ptr<Pool> pool,
-            Inputs inputs)
-    : fSource(std::move(source))
-    , fConfig(std::move(config))
-    , fContext(context)
-    , fModifiers(std::move(modifiers))
-    , fSymbols(symbols)
-    , fPool(std::move(pool))
-    , fOwnedElements(std::move(elements))
-    , fSharedElements(std::move(sharedElements))
-    , fInputs(inputs) {
-        fUsage = Analysis::GetUsage(*this);
-    }
+            Inputs inputs);
 
-    ~Program() {
-        // Some or all of the program elements are in the pool. To free them safely, we must attach
-        // the pool before destroying any program elements. (Otherwise, we may accidentally call
-        // delete on a pooled node.)
-        AutoAttachPoolToThread attach(fPool.get());
-
-        fOwnedElements.clear();
-        fContext.reset();
-        fSymbols.reset();
-        fModifiers.reset();
-    }
+    ~Program();
 
     class ElementsCollection {
     public:
@@ -136,20 +110,14 @@ struct Program {
         const Program& fProgram;
     };
 
-    // Can be used to iterate over *all* elements in this Program, both owned and shared (builtin).
-    // The iterator's value type is 'const ProgramElement*', so it's clear that you *must not*
-    // modify anything (as you might be mutating shared data).
+    /**
+     * Iterates over *all* elements in this Program, both owned and shared (builtin). The iterator's
+     * value type is `const ProgramElement*`, so it's clear that you *must not* modify anything (as
+     * you might be mutating shared data).
+     */
     ElementsCollection elements() const { return ElementsCollection(*this); }
 
-    std::string description() const {
-        std::string result;
-        result += fConfig->versionDescription();
-        for (const ProgramElement* e : this->elements()) {
-            result += e->description();
-        }
-        return result;
-    }
-
+    std::string description() const;
     const ProgramUsage* usage() const { return fUsage.get(); }
 
     std::unique_ptr<std::string> fSource;

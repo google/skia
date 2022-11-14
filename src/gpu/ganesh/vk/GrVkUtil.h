@@ -16,6 +16,7 @@
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
+namespace SkSL { struct ProgramSettings; }
 class GrVkGpu;
 
 // makes a Vk call on the interface

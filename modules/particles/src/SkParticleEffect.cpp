@@ -9,6 +9,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/private/SkOnce.h"
+#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkTPin.h"
 #include "modules/particles/include/SkParticleBinding.h"
 #include "modules/particles/include/SkParticleDrawable.h"
@@ -18,6 +19,7 @@
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"

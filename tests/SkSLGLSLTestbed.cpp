@@ -8,6 +8,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLProgramKind.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "tests/Test.h"

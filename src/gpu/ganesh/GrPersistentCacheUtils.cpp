@@ -10,6 +10,7 @@
 #include "include/private/SkSLString.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
+#include "src/sksl/SkSLProgramSettings.h"
 
 namespace GrPersistentCacheUtils {
 

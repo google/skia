@@ -20,6 +20,7 @@
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkResourceProvider.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+#include "src/sksl/SkSLProgramSettings.h"
 
 GrVkMSAALoadManager::GrVkMSAALoadManager()
         : fVertShaderModule(VK_NULL_HANDLE)

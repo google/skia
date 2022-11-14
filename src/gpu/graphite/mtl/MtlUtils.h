@@ -21,6 +21,8 @@ class ShaderErrorHandler;
 
 namespace SkSL {
     class Compiler;
+    enum class ProgramKind : int8_t;
+    struct ProgramSettings;
 }
 
 namespace skgpu::graphite {

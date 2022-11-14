@@ -16,6 +16,7 @@
 #include "src/gpu/ganesh/mtl/GrMtlRenderTarget.h"
 #include "src/gpu/ganesh/mtl/GrMtlTexture.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/utils/SkShaderUtils.h"
 
 #import <Metal/Metal.h>

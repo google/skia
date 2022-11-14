@@ -174,6 +174,7 @@ skia_sksl_sources = [
   "$_src/sksl/ir/SkSLPostfixExpression.h",
   "$_src/sksl/ir/SkSLPrefixExpression.cpp",
   "$_src/sksl/ir/SkSLPrefixExpression.h",
+  "$_src/sksl/ir/SkSLProgram.cpp",
   "$_src/sksl/ir/SkSLProgram.h",
   "$_src/sksl/ir/SkSLReturnStatement.h",
   "$_src/sksl/ir/SkSLSetting.cpp",

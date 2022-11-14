@@ -49,6 +49,7 @@
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
+#include "src/sksl/ir/SkSLSymbolTable.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -60,7 +61,6 @@
 
 namespace SkSL {
 
-class SymbolTable;
 enum class ProgramKind : int8_t;
 
 namespace {
@@ -251,8 +251,8 @@ std::optional<WGSLCodeGenerator::Builtin> builtin_from_sksl_name(int builtin) {
     return std::nullopt;
 }
 
-std::shared_ptr<SymbolTable> top_level_symbol_table(const FunctionDefinition& f) {
-    return f.body()->as<Block>().symbolTable()->fParent;
+const SymbolTable* top_level_symbol_table(const FunctionDefinition& f) {
+    return f.body()->as<Block>().symbolTable()->fParent.get();
 }
 
 const char* delimiter_to_str(WGSLCodeGenerator::Delimiter delimiter) {
@@ -621,7 +621,7 @@ void WGSLCodeGenerator::writeEntryPoint(const FunctionDefinition& main) {
 
     // Generate assignment to sk_FragColor built-in if the user-defined main returns a color.
     if (ProgramConfig::IsFragment(fProgram.fConfig->fKind)) {
-        auto symbolTable = top_level_symbol_table(main);
+        const SymbolTable* symbolTable = top_level_symbol_table(main);
         const Symbol* symbol = symbolTable->find("sk_FragColor");
         SkASSERT(symbol);
         if (main.declaration().returnType().matches(symbol->type())) {

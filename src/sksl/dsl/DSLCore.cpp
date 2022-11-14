@@ -16,6 +16,7 @@
 #include "include/sksl/DSLVar.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLModifiersPool.h"  // IWYU pragma: keep
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLThreadContext.h"

@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/dawn/GrDawnProgramBuilder.h"
 
+#include "include/private/SkSLProgramKind.h"
 #include "src/gpu/ganesh/GrAutoLocaleSetter.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"

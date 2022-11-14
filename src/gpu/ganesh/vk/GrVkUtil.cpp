@@ -8,11 +8,13 @@
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 
 #include "include/gpu/GrDirectContext.h"
+#include "include/private/SkSLProgramKind.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 
 bool GrVkFormatIsSupported(VkFormat format) {
     switch (format) {

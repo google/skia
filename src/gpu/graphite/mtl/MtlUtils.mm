@@ -12,6 +12,7 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 #include "src/utils/SkShaderUtils.h"
 
 #ifdef SK_BUILD_FOR_IOS

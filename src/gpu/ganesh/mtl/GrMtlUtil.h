@@ -18,6 +18,10 @@
 
 class GrMtlGpu;
 class GrSurface;
+namespace SkSL {
+    enum class ProgramKind : int8_t;
+    struct ProgramSettings;
+}
 
 GR_NORETAIN_BEGIN
 

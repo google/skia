@@ -1549,6 +1549,7 @@ BASE_SRCS_ALL = [
     "src/sksl/ir/SkSLPostfixExpression.h",
     "src/sksl/ir/SkSLPrefixExpression.cpp",
     "src/sksl/ir/SkSLPrefixExpression.h",
+    "src/sksl/ir/SkSLProgram.cpp",
     "src/sksl/ir/SkSLProgram.h",
     "src/sksl/ir/SkSLReturnStatement.h",
     "src/sksl/ir/SkSLSetting.cpp",

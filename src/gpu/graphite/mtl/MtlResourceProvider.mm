@@ -9,6 +9,7 @@
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/BackendTexture.h"
+#include "include/private/SkSLProgramKind.h"
 
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/Blend.h"
@@ -24,6 +25,7 @@
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlTexture.h"
 #include "src/gpu/graphite/mtl/MtlUtils.h"
+#include "src/sksl/SkSLProgramSettings.h"
 
 #import <Metal/Metal.h>
 

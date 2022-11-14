@@ -15,6 +15,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkHalf.h"
+#include "include/private/SkSLProgramKind.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
@@ -44,6 +45,7 @@
 #include "src/gpu/ganesh/gl/GrGLTextureRenderTarget.h"
 #include "src/gpu/ganesh/gl/builders/GrGLShaderStringBuilder.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLProgramSettings.h"
 
 #include <cmath>
 #include <memory>
