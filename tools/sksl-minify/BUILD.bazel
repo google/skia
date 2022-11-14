@@ -26,7 +26,7 @@ py_binary(
     data = [
         ":sksl_minify",
         "//gn:minify_sksl_tests",
-        "//resources/sksl:minify_srcs",
+        "//resources/sksl:sksl_minify_tests_sources",
     ],
     main = ":sksl_minify_tests.py",
     tags = ["no-remote"],
@@ -87,6 +87,7 @@ genrule(
 _SKSL_MINIFY_TESTS = """
 import os
 import subprocess
+import sys
 
 # Change into the Skia root directory
 # https://bazel.build/docs/user-manual#running-executables
@@ -103,7 +104,7 @@ sksl_minify_exe = os.path.abspath("$(execpath //tools/sksl-minify:sksl_minify)")
 minify_script = os.path.abspath("$(execpath //gn:minify_sksl_tests)")
 test_inputs = os.path.abspath("$(execpath :test_input_list.txt)")
 
-print(subprocess.check_output([
+result = subprocess.run([
     minify_script,
     sksl_minify_exe,
     "src/sksl/sksl_shared.sksl",
@@ -111,7 +112,11 @@ print(subprocess.check_output([
     "resources",
     "tests",
     test_inputs,
-], encoding="utf-8"))
+], capture_output=True, encoding="utf-8")
+if result.returncode != 0:
+    print(result.stdout)
+    print(result.stderr)
+    sys.exit(result.returncode)
 """
 
 genrule(
@@ -127,7 +132,7 @@ genrule(
 
 genrule(
     name = "enumerate_test_input_list",
-    srcs = ["//resources/sksl:minify_srcs"],
+    srcs = ["//resources/sksl:sksl_minify_tests_sources"],
     outs = ["test_input_list.txt"],
     # Put a space seperated list of file names into the one output
     # This is done because the list could be quite long and overflow
