@@ -20,7 +20,8 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
-#include "src/sksl/ir/SkSLProgram.h" // IWYU pragma: keep
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkVMVisualizer.h"
 #include "tests/Test.h"
@@ -34,8 +35,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-namespace SkSL { class FunctionDefinition; }
 
 template <typename Fn>
 static void test_jit_and_interpreter(const skvm::Builder& b, Fn&& test) {
@@ -2873,12 +2872,12 @@ DEF_TEST(SkVM_Visualizer, r) {
     SkSL::ProgramSettings settings;
     auto program = compiler.convertProgram(SkSL::ProgramKind::kGeneric,
                                            std::string(src), settings);
-    const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
+    const SkSL::FunctionDeclaration* main = program->getFunction("main");
     SkSL::SkVMDebugTrace d;
     d.setSource(src);
     auto v = std::make_unique<skvm::viz::Visualizer>(&d);
     skvm::Builder b(skvm::Features{}, /*createDuplicates=*/true);
-    SkSL::ProgramToSkVM(*program, *main, &b, &d, /*uniforms=*/{});
+    SkSL::ProgramToSkVM(*program, *main->definition(), &b, &d, /*uniforms=*/{});
 
     skvm::Program p = b.done(nullptr, true, std::move(v));
     SkDynamicMemoryWStream vizFile;

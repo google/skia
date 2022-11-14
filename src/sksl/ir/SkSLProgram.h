@@ -19,6 +19,7 @@
 namespace SkSL {
 
 class Context;
+class FunctionDeclaration;
 class ModifiersPool;
 class Pool;
 class ProgramElement;
@@ -116,6 +117,13 @@ struct Program {
      * you might be mutating shared data).
      */
     ElementsCollection elements() const { return ElementsCollection(*this); }
+
+    /**
+     * Returns a function declaration with the given name; null is returned if the function doesn't
+     * exist or has no definition. If the function might have overloads, you can use nextOverload()
+     * to search for the function with the expected parameter list.
+     */
+    const FunctionDeclaration* getFunction(const char* functionName) const;
 
     std::string description() const;
     const ProgramUsage* usage() const { return fUsage.get(); }

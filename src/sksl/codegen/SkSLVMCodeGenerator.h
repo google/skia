@@ -74,8 +74,6 @@ bool ProgramToSkVM(const Program& program,
                    SkSpan<skvm::Val> uniforms,
                    SkVMSignature* outSignature = nullptr);
 
-const FunctionDefinition* Program_GetFunction(const Program& program, const char* function);
-
 struct UniformInfo {
     struct Uniform {
         std::string fName;

@@ -2270,16 +2270,6 @@ bool ProgramToSkVM(const Program& program,
     return true;
 }
 
-const FunctionDefinition* Program_GetFunction(const Program& program, const char* function) {
-    for (const ProgramElement* e : program.elements()) {
-        if (e->is<FunctionDefinition>() &&
-            e->as<FunctionDefinition>().declaration().name() == function) {
-            return &e->as<FunctionDefinition>();
-        }
-    }
-    return nullptr;
-}
-
 static void gather_uniforms(UniformInfo* info, const Type& type, const std::string& name) {
     switch (type.typeKind()) {
         case Type::TypeKind::kStruct:
@@ -2327,7 +2317,7 @@ std::unique_ptr<UniformInfo> Program_GetUniformInfo(const Program& program) {
 bool testingOnly_ProgramToSkVMShader(const Program& program,
                                      skvm::Builder* builder,
                                      SkVMDebugTrace* debugTrace) {
-    const SkSL::FunctionDefinition* main = Program_GetFunction(program, "main");
+    const SkSL::FunctionDeclaration* main = program.getFunction("main");
     if (!main) {
         return false;
     }
@@ -2403,7 +2393,7 @@ bool testingOnly_ProgramToSkVMShader(const Program& program,
     skvm::Color inColor = builder->uniformColor(SkColors::kWhite, &uniforms);
     skvm::Color destColor = builder->uniformColor(SkColors::kBlack, &uniforms);
 
-    skvm::Color result = SkSL::ProgramToSkVM(program, *main, builder, debugTrace,
+    skvm::Color result = SkSL::ProgramToSkVM(program, *main->definition(), builder, debugTrace,
                                              SkSpan(uniformVals), device, local, inColor,
                                              destColor, &callbacks);
 

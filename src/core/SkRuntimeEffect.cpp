@@ -378,11 +378,11 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
     }
 
     // Find 'main', then locate the sample coords parameter. (It might not be present.)
-    const SkSL::FunctionDefinition* main = SkSL::Program_GetFunction(*program, "main");
+    const SkSL::FunctionDeclaration* main = program->getFunction("main");
     if (!main) {
         RETURN_FAILURE("missing 'main' function");
     }
-    const auto& mainParams = main->declaration().parameters();
+    const auto& mainParams = main->parameters();
     auto iter = std::find_if(mainParams.begin(), mainParams.end(), [](const SkSL::Variable* p) {
         return p->modifiers().fLayout.fBuiltin == SK_MAIN_COORDS_BUILTIN;
     });
@@ -413,7 +413,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
     }
 
     // Shaders are the only thing that cares about this, but it's inexpensive (and safe) to call.
-    if (SkSL::Analysis::ReturnsOpaqueColor(*main)) {
+    if (SkSL::Analysis::ReturnsOpaqueColor(*main->definition())) {
         flags |= kAlwaysOpaque_Flag;
     }
 
@@ -469,7 +469,7 @@ SkRuntimeEffect::Result SkRuntimeEffect::MakeInternal(std::unique_ptr<SkSL::Prog
 
     sk_sp<SkRuntimeEffect> effect(new SkRuntimeEffect(std::move(program),
                                                       options,
-                                                      *main,
+                                                      *main->definition(),
                                                       std::move(uniforms),
                                                       std::move(children),
                                                       std::move(sampleUsages),

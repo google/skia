@@ -6,13 +6,17 @@
  */
 
 #include "include/private/SkSLProgramElement.h"
+#include "include/private/SkSLSymbol.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLModifiersPool.h"
 #include "src/sksl/SkSLPool.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/ir/SkSLSymbolTable.h" // IWYU pragma: keep
 
+#include <type_traits>
 #include <utility>
 
 namespace SkSL {
@@ -56,6 +60,13 @@ std::string Program::description() const {
         result += e->description();
     }
     return result;
+}
+
+const FunctionDeclaration* Program::getFunction(const char* functionName) const {
+    const Symbol* symbol = fSymbols->find(functionName);
+    bool valid = symbol && symbol->is<FunctionDeclaration>() &&
+                 symbol->as<FunctionDeclaration>().definition();
+    return valid ? &symbol->as<FunctionDeclaration>() : nullptr;
 }
 
 }  // namespace SkSL
