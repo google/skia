@@ -7,7 +7,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkShader.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/Slide.h"
 
 static void make_bitmap(SkBitmap* bm) {
     const int W = 100;
@@ -38,16 +38,12 @@ static void make_paint(SkPaint* paint, SkTileMode tm) {
     paint->setShader(bm.makeShader(tm, tm, SkSamplingOptions()));
 }
 
-class RepeatTileView : public Sample {
+class RepeatTileSlide : public Slide {
 public:
-    RepeatTileView() {
-        this->setBGColor(SK_ColorGRAY);
-    }
+    RepeatTileSlide() { fName = "RepeatTile"; }
 
-protected:
-    SkString name() override { return SkString("RepeatTile"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorGRAY);
         SkPaint paint;
         make_paint(&paint, SkTileMode::kRepeat);
 
@@ -56,10 +52,8 @@ protected:
         canvas->drawPaint(paint);
     }
 
-private:
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new RepeatTileView(); )
+DEF_SLIDE( return new RepeatTileSlide(); )

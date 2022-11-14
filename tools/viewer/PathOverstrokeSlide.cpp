@@ -6,7 +6,7 @@
  */
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/Slide.h"
 
 #include <iostream>
 #include <cmath>
@@ -15,24 +15,22 @@
 
 #define LIN_SEGMENTS 10
 
-class OverstrokeView : public Sample {
-   public:
+class OverstrokeSlide : public Slide {
     SkScalar fStroke;
     int fPathType;  // super lazy enum
     bool fClosePath;
     bool fDrawFillPath;
     bool fDumpHex;
-    OverstrokeView() {
+
+public:
+    OverstrokeSlide() {
         fStroke = 5;
         fPathType = 0;
         fClosePath = false;
         fDrawFillPath = false;
         fDumpHex = false;
-        this->setBGColor(0xFFFFFFFF);
+        fName = "PathOverstroke";
     }
-
-   protected:
-    SkString name() override { return SkString("PathOverstroke"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -117,7 +115,8 @@ class OverstrokeView : public Sample {
         return path;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(0xFFFFFFFF);
         const float SCALE = 1;
 
         canvas->translate(30, 40);
@@ -189,11 +188,8 @@ class OverstrokeView : public Sample {
         hairp.setColor(SK_ColorGREEN);
         canvas->drawPath(path, hairp);
     }
-
-   private:
-    using INHERITED = Sample;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new OverstrokeView(); )
+DEF_SLIDE( return new OverstrokeSlide(); )

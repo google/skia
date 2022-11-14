@@ -26,12 +26,12 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
 #include "include/utils/SkTextUtils.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkStroke.h"
 #include "tools/ToolUtils.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 #include <cfloat>
 
@@ -105,7 +105,7 @@ struct CircleTypeButton : public StrokeTypeButton {
     bool fFill;
 };
 
-class QuadStrokerView : public Sample {
+class QuadStrokerSlide : public ClickHandlerSlide {
     enum {
         SKELETON_COLOR = 0xFF0000FF,
         WIREFRAME_COLOR = 0x80FF0000
@@ -149,9 +149,7 @@ class QuadStrokerView : public Sample {
     #define kWidthMin 1
     #define kWidthMax 100
 public:
-    QuadStrokerView() {
-        this->setBGColor(SK_ColorLTGRAY);
-
+    QuadStrokerSlide() {
         fPts[0].set(50, 200);  // cubic
         fPts[1].set(50, 100);
         fPts[2].set(150, 50);
@@ -199,10 +197,8 @@ public:
         fTextButton.fEnabled = false;
         fAnimate = false;
         setAsNeeded();
+        fName = "QuadStroker";
     }
-
-protected:
-    SkString name() override { return SkString("QuadStroker"); }
 
     bool onChar(SkUnichar uni) override {
         if (fTextButton.fEnabled) {
@@ -225,29 +221,243 @@ protected:
         return false;
     }
 
-    void onSizeChange() override {
-        fRadiusControl.setXYWH(this->width() - 200, 30, 30, 400);
-        fWeightControl.setXYWH(this->width() - 150, 30, 30, 400);
-        fErrorControl.setXYWH(this->width() - 100, 30, 30, 400);
-        fWidthControl.setXYWH(this->width() -  50, 30, 30, 400);
-        int buttonOffset = 450;
-        fCubicButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
-        buttonOffset += 50;
-        fConicButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
-        buttonOffset += 50;
-        fQuadButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
-        buttonOffset += 50;
-        fArcButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
-        buttonOffset += 50;
-        fRRectButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
-        buttonOffset += 50;
-        fCircleButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
-        buttonOffset += 50;
-        fTextButton.fBounds.setXYWH(this->width() - 50, SkIntToScalar(buttonOffset), 30, 30);
-        this->INHERITED::onSizeChange();
+    void load(SkScalar w, SkScalar h) override { this->layout(w, h); }
+
+    void resize(SkScalar w, SkScalar h) override { this->layout(w, h); }
+
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorLTGRAY);
+
+        SkPath path;
+        SkScalar width = fWidth;
+
+        if (fCubicButton.fEnabled) {
+            path.moveTo(fPts[0]);
+            path.cubicTo(fPts[1], fPts[2], fPts[3]);
+            setForSingles();
+            draw_stroke(canvas, path, width, 950, false);
+        }
+
+        if (fConicButton.fEnabled) {
+            path.reset();
+            path.moveTo(fPts[4]);
+            path.conicTo(fPts[5], fPts[6], fWeight);
+            setForSingles();
+            draw_stroke(canvas, path, width, 950, false);
+        }
+
+        if (fQuadButton.fEnabled) {
+            path.reset();
+            path.moveTo(fPts[7]);
+            path.quadTo(fPts[8], fPts[9]);
+            setForSingles();
+            draw_stroke(canvas, path, width, 950, false);
+        }
+
+        if (fArcButton.fEnabled) {
+            path.reset();
+            path.moveTo(fPts[10]);
+            path.arcTo(fPts[11], fPts[12], fRadius);
+            setForGeometry();
+            draw_stroke(canvas, path, width, 950, false);
+            SkPath pathPts;
+            pathPts.moveTo(fPts[10]);
+            pathPts.lineTo(fPts[11]);
+            pathPts.lineTo(fPts[12]);
+            draw_points(canvas, pathPts, SK_ColorDKGRAY, true);
+        }
+
+        if (fRRectButton.fEnabled) {
+            SkScalar rad = 32;
+            SkRect r;
+            r.setBounds(&fPts[13], 2);
+            path.reset();
+            SkRRect rr;
+            rr.setRectXY(r, rad, rad);
+            path.addRRect(rr);
+            setForGeometry();
+            draw_stroke(canvas, path, width, 950, false);
+
+            path.reset();
+            SkRRect rr2;
+            rr.inset(width/2, width/2, &rr2);
+            path.addRRect(rr2, SkPathDirection::kCCW);
+            rr.inset(-width/2, -width/2, &rr2);
+            path.addRRect(rr2, SkPathDirection::kCW);
+            SkPaint paint;
+            paint.setAntiAlias(true);
+            paint.setColor(0x40FF8844);
+            canvas->drawPath(path, paint);
+        }
+
+        if (fCircleButton.fEnabled) {
+            path.reset();
+            SkRect r;
+            r.setBounds(&fPts[15], 2);
+            path.addOval(r);
+            setForGeometry();
+            if (fCircleButton.fFill) {
+                if (fArcButton.fEnabled) {
+                    SkPoint center;
+                    if (arcCenter(&center)) {
+                        r.setLTRB(center.fX - fRadius, center.fY - fRadius,
+                                  center.fX + fRadius, center.fY + fRadius);
+                    }
+                }
+                draw_fill(canvas, r, width);
+            } else {
+                draw_stroke(canvas, path, width, 950, false);
+            }
+        }
+
+        if (fTextButton.fEnabled) {
+            path.reset();
+            SkFont font;
+            font.setSize(fTextSize);
+            SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8,
+                                 0, fTextSize, font, &path);
+            setForText();
+            draw_stroke(canvas, path, width * fWidthScale / fTextSize, fTextSize, true);
+        }
+
+        if (fAnimate) {
+            fWidth += fDWidth;
+            if (fDWidth > 0 && fWidth > kWidthMax) {
+                fDWidth = -fDWidth;
+            } else if (fDWidth < 0 && fWidth < kWidthMin) {
+                fDWidth = -fDWidth;
+            }
+        }
+        setAsNeeded();
+        if (fConicButton.fEnabled) {
+            draw_control(canvas, fWeightControl, fWeight, 0, 5, "weight");
+        }
+        if (fArcButton.fEnabled) {
+            draw_control(canvas, fRadiusControl, fRadius, 0, 500, "radius");
+        }
+#ifdef SK_DEBUG
+        draw_control(canvas, fErrorControl, gDebugStrokerError, kStrokerErrorMin, kStrokerErrorMax,
+                     "error");
+#endif
+        draw_control(canvas, fWidthControl, fWidth * fWidthScale, kWidthMin * fWidthScale,
+                     kWidthMax * fWidthScale, "width");
+        draw_button(canvas, fQuadButton);
+        draw_button(canvas, fCubicButton);
+        draw_button(canvas, fConicButton);
+        draw_button(canvas, fArcButton);
+        draw_button(canvas, fRRectButton);
+        draw_button(canvas, fCircleButton);
+        draw_button(canvas, fTextButton);
+    }
+protected:
+    class MyClick : public Click {
+    public:
+        int fIndex;
+        MyClick(int index) : fIndex(index) {}
+    };
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        for (size_t i = 0; i < std::size(fPts); ++i) {
+            if (hittest(fPts[i], x, y)) {
+                return new MyClick((int)i);
+            }
+        }
+        const SkRect& rectPt = SkRect::MakeXYWH(x, y, 1, 1);
+        if (fWeightControl.contains(rectPt)) {
+            return new MyClick((int) std::size(fPts) + 1);
+        }
+        if (fRadiusControl.contains(rectPt)) {
+            return new MyClick((int) std::size(fPts) + 2);
+        }
+#ifdef SK_DEBUG
+        if (fErrorControl.contains(rectPt)) {
+            return new MyClick((int) std::size(fPts) + 3);
+        }
+#endif
+        if (fWidthControl.contains(rectPt)) {
+            return new MyClick((int) std::size(fPts) + 4);
+        }
+        if (fCubicButton.fBounds.contains(rectPt)) {
+            fCubicButton.fEnabled ^= true;
+            return new MyClick((int) std::size(fPts) + 5);
+        }
+        if (fConicButton.fBounds.contains(rectPt)) {
+            fConicButton.fEnabled ^= true;
+            return new MyClick((int) std::size(fPts) + 6);
+        }
+        if (fQuadButton.fBounds.contains(rectPt)) {
+            fQuadButton.fEnabled ^= true;
+            return new MyClick((int) std::size(fPts) + 7);
+        }
+        if (fArcButton.fBounds.contains(rectPt)) {
+            fArcButton.fEnabled ^= true;
+            return new MyClick((int) std::size(fPts) + 8);
+        }
+        if (fRRectButton.fBounds.contains(rectPt)) {
+            fRRectButton.fEnabled ^= true;
+            return new MyClick((int) std::size(fPts) + 9);
+        }
+        if (fCircleButton.fBounds.contains(rectPt)) {
+            bool wasEnabled = fCircleButton.fEnabled;
+            fCircleButton.fEnabled = !fCircleButton.fFill;
+            fCircleButton.fFill = wasEnabled && !fCircleButton.fFill;
+            return new MyClick((int) std::size(fPts) + 10);
+        }
+        if (fTextButton.fBounds.contains(rectPt)) {
+            fTextButton.fEnabled ^= true;
+            return new MyClick((int) std::size(fPts) + 11);
+        }
+        return nullptr;
     }
 
-     void copyMinToMax() {
+    bool onClick(Click* click) override {
+        int index = ((MyClick*)click)->fIndex;
+        if (index < (int) std::size(fPts)) {
+            fPts[index].offset(click->fCurr.fX - click->fPrev.fX,
+                               click->fCurr.fY - click->fPrev.fY);
+        } else if (index == (int) std::size(fPts) + 1) {
+            fWeight = MapScreenYtoValue(click->fCurr.fY, fWeightControl, 0, 5);
+        } else if (index == (int) std::size(fPts) + 2) {
+            fRadius = MapScreenYtoValue(click->fCurr.fY, fRadiusControl, 0, 500);
+        }
+#ifdef SK_DEBUG
+        else if (index == (int) std::size(fPts) + 3) {
+            gDebugStrokerError = std::max(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY,
+                                                                         fErrorControl, kStrokerErrorMin, kStrokerErrorMax));
+            gDebugStrokerErrorSet = true;
+        }
+#endif
+        else if (index == (int) std::size(fPts) + 4) {
+            fWidth = std::max(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY, fWidthControl,
+                                                             kWidthMin, kWidthMax));
+            fAnimate = fWidth <= kWidthMin;
+        }
+        return true;
+    }
+
+private:
+    void layout(SkScalar w, SkScalar h) {
+        fRadiusControl.setXYWH(w - 200, 30, 30, 400);
+        fWeightControl.setXYWH(w - 150, 30, 30, 400);
+        fErrorControl.setXYWH(w - 100, 30, 30, 400);
+        fWidthControl.setXYWH(w -  50, 30, 30, 400);
+        int buttonOffset = 450;
+        fCubicButton.fBounds.setXYWH(w - 50, SkIntToScalar(buttonOffset), 30, 30);
+        buttonOffset += 50;
+        fConicButton.fBounds.setXYWH(w - 50, SkIntToScalar(buttonOffset), 30, 30);
+        buttonOffset += 50;
+        fQuadButton.fBounds.setXYWH(w - 50, SkIntToScalar(buttonOffset), 30, 30);
+        buttonOffset += 50;
+        fArcButton.fBounds.setXYWH(w - 50, SkIntToScalar(buttonOffset), 30, 30);
+        buttonOffset += 50;
+        fRRectButton.fBounds.setXYWH(w - 50, SkIntToScalar(buttonOffset), 30, 30);
+        buttonOffset += 50;
+        fCircleButton.fBounds.setXYWH(w - 50, SkIntToScalar(buttonOffset), 30, 30);
+        buttonOffset += 50;
+        fTextButton.fBounds.setXYWH(w - 50, SkIntToScalar(buttonOffset), 30, 30);
+    }
+
+    void copyMinToMax() {
         erase(fMaxSurface);
         SkCanvas* canvas = fMaxSurface->getCanvas();
         canvas->save();
@@ -267,7 +477,7 @@ protected:
         }
     }
 
-   void setWHZ(int width, int height, int zoom) {
+    void setWHZ(int width, int height, int zoom) {
         fZoom = zoom;
         fBounds.setIWH(width * zoom, height * zoom);
         fMatrix.setScale(SkIntToScalar(zoom), SkIntToScalar(zoom));
@@ -585,223 +795,12 @@ protected:
                 && SkScalarNearlyEqual(beforeCCW.fY, afterCW.fY);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
-        SkPath path;
-        SkScalar width = fWidth;
-
-        if (fCubicButton.fEnabled) {
-            path.moveTo(fPts[0]);
-            path.cubicTo(fPts[1], fPts[2], fPts[3]);
-            setForSingles();
-            draw_stroke(canvas, path, width, 950, false);
-        }
-
-        if (fConicButton.fEnabled) {
-            path.reset();
-            path.moveTo(fPts[4]);
-            path.conicTo(fPts[5], fPts[6], fWeight);
-            setForSingles();
-            draw_stroke(canvas, path, width, 950, false);
-        }
-
-        if (fQuadButton.fEnabled) {
-            path.reset();
-            path.moveTo(fPts[7]);
-            path.quadTo(fPts[8], fPts[9]);
-            setForSingles();
-            draw_stroke(canvas, path, width, 950, false);
-        }
-
-        if (fArcButton.fEnabled) {
-            path.reset();
-            path.moveTo(fPts[10]);
-            path.arcTo(fPts[11], fPts[12], fRadius);
-            setForGeometry();
-            draw_stroke(canvas, path, width, 950, false);
-            SkPath pathPts;
-            pathPts.moveTo(fPts[10]);
-            pathPts.lineTo(fPts[11]);
-            pathPts.lineTo(fPts[12]);
-            draw_points(canvas, pathPts, SK_ColorDKGRAY, true);
-        }
-
-        if (fRRectButton.fEnabled) {
-            SkScalar rad = 32;
-            SkRect r;
-            r.setBounds(&fPts[13], 2);
-            path.reset();
-            SkRRect rr;
-            rr.setRectXY(r, rad, rad);
-            path.addRRect(rr);
-            setForGeometry();
-            draw_stroke(canvas, path, width, 950, false);
-
-            path.reset();
-            SkRRect rr2;
-            rr.inset(width/2, width/2, &rr2);
-            path.addRRect(rr2, SkPathDirection::kCCW);
-            rr.inset(-width/2, -width/2, &rr2);
-            path.addRRect(rr2, SkPathDirection::kCW);
-            SkPaint paint;
-            paint.setAntiAlias(true);
-            paint.setColor(0x40FF8844);
-            canvas->drawPath(path, paint);
-        }
-
-        if (fCircleButton.fEnabled) {
-            path.reset();
-            SkRect r;
-            r.setBounds(&fPts[15], 2);
-            path.addOval(r);
-            setForGeometry();
-            if (fCircleButton.fFill) {
-                if (fArcButton.fEnabled) {
-                    SkPoint center;
-                    if (arcCenter(&center)) {
-                        r.setLTRB(center.fX - fRadius, center.fY - fRadius,
-                                  center.fX + fRadius, center.fY + fRadius);
-                    }
-                }
-                draw_fill(canvas, r, width);
-            } else {
-                draw_stroke(canvas, path, width, 950, false);
-            }
-        }
-
-        if (fTextButton.fEnabled) {
-            path.reset();
-            SkFont font;
-            font.setSize(fTextSize);
-            SkTextUtils::GetPath(fText.c_str(), fText.size(), SkTextEncoding::kUTF8,
-                                 0, fTextSize, font, &path);
-            setForText();
-            draw_stroke(canvas, path, width * fWidthScale / fTextSize, fTextSize, true);
-        }
-
-        if (fAnimate) {
-            fWidth += fDWidth;
-            if (fDWidth > 0 && fWidth > kWidthMax) {
-                fDWidth = -fDWidth;
-            } else if (fDWidth < 0 && fWidth < kWidthMin) {
-                fDWidth = -fDWidth;
-            }
-        }
-        setAsNeeded();
-        if (fConicButton.fEnabled) {
-            draw_control(canvas, fWeightControl, fWeight, 0, 5, "weight");
-        }
-        if (fArcButton.fEnabled) {
-            draw_control(canvas, fRadiusControl, fRadius, 0, 500, "radius");
-        }
-#ifdef SK_DEBUG
-        draw_control(canvas, fErrorControl, gDebugStrokerError, kStrokerErrorMin, kStrokerErrorMax,
-                "error");
-#endif
-        draw_control(canvas, fWidthControl, fWidth * fWidthScale, kWidthMin * fWidthScale,
-                kWidthMax * fWidthScale, "width");
-        draw_button(canvas, fQuadButton);
-        draw_button(canvas, fCubicButton);
-        draw_button(canvas, fConicButton);
-        draw_button(canvas, fArcButton);
-        draw_button(canvas, fRRectButton);
-        draw_button(canvas, fCircleButton);
-        draw_button(canvas, fTextButton);
-    }
-
-    class MyClick : public Click {
-    public:
-        int fIndex;
-        MyClick(int index) : fIndex(index) {}
-    };
-
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
-        for (size_t i = 0; i < std::size(fPts); ++i) {
-            if (hittest(fPts[i], x, y)) {
-                return new MyClick((int)i);
-            }
-        }
-        const SkRect& rectPt = SkRect::MakeXYWH(x, y, 1, 1);
-        if (fWeightControl.contains(rectPt)) {
-            return new MyClick((int) std::size(fPts) + 1);
-        }
-        if (fRadiusControl.contains(rectPt)) {
-            return new MyClick((int) std::size(fPts) + 2);
-        }
-#ifdef SK_DEBUG
-        if (fErrorControl.contains(rectPt)) {
-            return new MyClick((int) std::size(fPts) + 3);
-        }
-#endif
-        if (fWidthControl.contains(rectPt)) {
-            return new MyClick((int) std::size(fPts) + 4);
-        }
-        if (fCubicButton.fBounds.contains(rectPt)) {
-            fCubicButton.fEnabled ^= true;
-            return new MyClick((int) std::size(fPts) + 5);
-        }
-        if (fConicButton.fBounds.contains(rectPt)) {
-            fConicButton.fEnabled ^= true;
-            return new MyClick((int) std::size(fPts) + 6);
-        }
-        if (fQuadButton.fBounds.contains(rectPt)) {
-            fQuadButton.fEnabled ^= true;
-            return new MyClick((int) std::size(fPts) + 7);
-        }
-        if (fArcButton.fBounds.contains(rectPt)) {
-            fArcButton.fEnabled ^= true;
-            return new MyClick((int) std::size(fPts) + 8);
-        }
-        if (fRRectButton.fBounds.contains(rectPt)) {
-            fRRectButton.fEnabled ^= true;
-            return new MyClick((int) std::size(fPts) + 9);
-        }
-        if (fCircleButton.fBounds.contains(rectPt)) {
-            bool wasEnabled = fCircleButton.fEnabled;
-            fCircleButton.fEnabled = !fCircleButton.fFill;
-            fCircleButton.fFill = wasEnabled && !fCircleButton.fFill;
-            return new MyClick((int) std::size(fPts) + 10);
-        }
-        if (fTextButton.fBounds.contains(rectPt)) {
-            fTextButton.fEnabled ^= true;
-            return new MyClick((int) std::size(fPts) + 11);
-        }
-        return nullptr;
-    }
-
     static SkScalar MapScreenYtoValue(SkScalar y, const SkRect& control, SkScalar min,
             SkScalar max) {
         return (y - control.fTop) / control.height() * (max - min) + min;
     }
-
-    bool onClick(Click* click) override {
-        int index = ((MyClick*)click)->fIndex;
-        if (index < (int) std::size(fPts)) {
-            fPts[index].offset(click->fCurr.fX - click->fPrev.fX,
-                               click->fCurr.fY - click->fPrev.fY);
-        } else if (index == (int) std::size(fPts) + 1) {
-            fWeight = MapScreenYtoValue(click->fCurr.fY, fWeightControl, 0, 5);
-        } else if (index == (int) std::size(fPts) + 2) {
-            fRadius = MapScreenYtoValue(click->fCurr.fY, fRadiusControl, 0, 500);
-        }
-#ifdef SK_DEBUG
-        else if (index == (int) std::size(fPts) + 3) {
-            gDebugStrokerError = std::max(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY,
-                    fErrorControl, kStrokerErrorMin, kStrokerErrorMax));
-            gDebugStrokerErrorSet = true;
-        }
-#endif
-        else if (index == (int) std::size(fPts) + 4) {
-            fWidth = std::max(FLT_EPSILON, MapScreenYtoValue(click->fCurr.fY, fWidthControl,
-                    kWidthMin, kWidthMax));
-            fAnimate = fWidth <= kWidthMin;
-        }
-        return true;
-    }
-
-private:
-    using INHERITED = Sample;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new QuadStrokerView(); )
+DEF_SLIDE( return new QuadStrokerSlide(); )

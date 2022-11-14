@@ -23,12 +23,13 @@
 #include "include/private/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 #include "samplecode/DecodeFile.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"
+#include "tools/viewer/ClickHandlerSlide.h"
+#include "tools/viewer/Slide.h"
 
 namespace {
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
@@ -203,7 +204,7 @@ static constexpr SkScalar DY = 0;
 static constexpr SkScalar kS = 50;
 static constexpr SkScalar kT = 40;
 
-struct PatchView : public Sample {
+struct PatchSlide : public ClickHandlerSlide {
     sk_sp<SkShader> fShader0;
     sk_sp<SkShader> fShader1;
     SkScalar fAngle = 0;
@@ -224,19 +225,22 @@ struct PatchView : public Sample {
         {kS * 0, kT * 2},
     };
 
-    void onOnceBeforeDraw() override {
+public:
+    PatchSlide() { fName = "Patch"; }
+
+    void load(SkScalar w, SkScalar h) override {
         fShader0 = make_shader0(&fSize0);
         fSize1 = fSize0;
         if (fSize0.fX == 0 || fSize0.fY == 0) {
             fSize1.set(2, 2);
         }
         fShader1 = make_shader1(fSize1);
-        this->setBGColor(SK_ColorGRAY);
     }
 
-    SkString name() override { return SkString("Patch"); }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorGRAY);
+
         const int nu = 10;
         const int nv = 10;
 
@@ -282,22 +286,19 @@ struct PatchView : public Sample {
         drawpatches(canvas, paint, nu, nv, &patch);
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         fAngle = TimeUtils::Scaled(1e-9 * nanos, 60, 360);
         return true;
     }
 
+protected:
     class PtClick : public Click {
     public:
         int fIndex;
         PtClick(int index) : fIndex(index) {}
     };
 
-    static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
-        return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
-    }
-
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         x -= DX;
         y -= DY;
         for (size_t i = 0; i < std::size(fPts); i++) {
@@ -314,10 +315,12 @@ struct PatchView : public Sample {
     }
 
 private:
-    using INHERITED = Sample;
+    static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
+        return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
+    }
 };
 }  // namespace
-DEF_SAMPLE( return new PatchView(); )
+DEF_SLIDE( return new PatchSlide(); )
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -358,7 +361,7 @@ static sk_sp<SkVertices> make_verts(const SkPath& path, SkScalar width) {
     return builder.detach();
 }
 
-class PseudoInkView : public Sample {
+class PseudoInkSlide : public ClickHandlerSlide {
     enum { N = 100 };
     SkPath            fPath;
     sk_sp<SkVertices> fVertices[N];
@@ -366,21 +369,19 @@ class PseudoInkView : public Sample {
     bool              fDirty = true;
 
 public:
-    PseudoInkView() {
+    PseudoInkSlide() {
         fSkeletonP.setStyle(SkPaint::kStroke_Style);
         fSkeletonP.setAntiAlias(true);
 
         fStrokeP.setStyle(SkPaint::kStroke_Style);
         fStrokeP.setStrokeWidth(30);
         fStrokeP.setColor(0x44888888);
+        fName = "PseudoInk";
     }
 
-protected:
-    SkString name() override { return SkString("PseudoInk"); }
+    bool animate(double nanos) override { return true; }
 
-    bool onAnimate(double nanos) override { return true; }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         if (fDirty) {
             for (int i = 0; i < N; ++i) {
                 fVertices[i] = make_verts(fPath, 30);
@@ -395,6 +396,7 @@ protected:
  //       canvas->drawPath(fPath, fSkeletonP);
     }
 
+protected:
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         Click* click = new Click();
         fPath.reset();
@@ -413,22 +415,19 @@ protected:
         }
         return true;
     }
-
-private:
-    using INHERITED = Sample;
 };
 }  // namespace
-DEF_SAMPLE( return new PseudoInkView(); )
+DEF_SLIDE( return new PseudoInkSlide(); )
 
 namespace {
 // Show stroking options using patheffects (and pathops)
 // and why strokeandfill is a hacks
-class ManyStrokesView : public Sample {
+class ManyStrokesSlide : public ClickHandlerSlide {
     SkPath              fPath;
     sk_sp<SkPathEffect> fPE[6];
 
 public:
-    ManyStrokesView() {
+    ManyStrokesSlide() {
         fPE[0] = SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap);
 
         auto p0 = SkStrokePathEffect::Make(25, SkPaint::kRound_Join, SkPaint::kRound_Cap);
@@ -439,31 +438,12 @@ public:
         fPE[3] = SkMergePathEffect::Make(nullptr, p1, SkPathOp::kUnion_SkPathOp);
         fPE[4] = SkMergePathEffect::Make(p0, nullptr, SkPathOp::kDifference_SkPathOp);
         fPE[5] = SkMergePathEffect::Make(p0, nullptr, SkPathOp::kIntersect_SkPathOp);
+        fName = "ManyStrokes";
     }
 
-protected:
-    SkString name() override { return SkString("ManyStrokes"); }
+    bool animate(double nanos) override { return true; }
 
-    bool onAnimate(double nanos) override { return true; }
-
-    void dodraw(SkCanvas* canvas, sk_sp<SkPathEffect> pe, SkScalar x, SkScalar y,
-                const SkPaint* ptr = nullptr) {
-        SkPaint paint;
-        paint.setAntiAlias(true);
-        paint.setPathEffect(pe);
-        canvas->save();
-        canvas->translate(x, y);
-        canvas->drawPath(fPath, ptr ? *ptr : paint);
-
-        paint.setPathEffect(nullptr);
-        paint.setStyle(SkPaint::kStroke_Style);
-        paint.setColor(SK_ColorGREEN);
-        canvas->drawPath(fPath, paint);
-
-        canvas->restore();
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkPaint p;
         p.setColor(0);
         this->dodraw(canvas, nullptr, 0, 0, &p);
@@ -483,6 +463,7 @@ protected:
         this->dodraw(canvas, nullptr, 600, 0, &p);
     }
 
+protected:
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         Click* click = new Click();
         fPath.reset();
@@ -502,7 +483,22 @@ protected:
     }
 
 private:
-    using INHERITED = Sample;
+    void dodraw(SkCanvas* canvas, sk_sp<SkPathEffect> pe, SkScalar x, SkScalar y,
+                const SkPaint* ptr = nullptr) {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setPathEffect(pe);
+        canvas->save();
+        canvas->translate(x, y);
+        canvas->drawPath(fPath, ptr ? *ptr : paint);
+
+        paint.setPathEffect(nullptr);
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setColor(SK_ColorGREEN);
+        canvas->drawPath(fPath, paint);
+
+        canvas->restore();
+    }
 };
 }  // namespace
-DEF_SAMPLE( return new ManyStrokesView(); )
+DEF_SLIDE( return new ManyStrokesSlide(); )

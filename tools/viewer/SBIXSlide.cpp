@@ -13,7 +13,6 @@
 #include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "include/ports/SkFontMgr_empty.h"
-#include "samplecode/Sample.h"
 #include "src/sfnt/SkOTTable_glyf.h"
 #include "src/sfnt/SkOTTable_head.h"
 #include "src/sfnt/SkOTTable_hhea.h"
@@ -23,6 +22,7 @@
 #include "src/sfnt/SkSFNTHeader.h"
 #include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 namespace {
 
@@ -54,9 +54,7 @@ static inline ShortCoordinate sk_float_saturate2sm8(float x) {
     return ShortCoordinate{ negative, negative ? (uint8_t)-x : (uint8_t)x };
 }
 
-struct SBIXView : public Sample {
-    SkString name() override { return SkString("SBIX"); }
-
+struct SBIXSlide : public ClickHandlerSlide {
     SkPoint  fPts[12] = {
         {0, 0}, // min
         {0, 0}, // max
@@ -69,6 +67,91 @@ struct SBIXView : public Sample {
     bool fInputChanged = false;
     bool fDirty = true;
 
+public:
+    SBIXSlide() { fName = "SBIX"; }
+
+    void load(SkScalar w, SkScalar h) override {
+        fFontMgr.emplace_back(SkFontMgr::RefDefault());
+        //fFontMgr.emplace_back(SkFontMgr_New_Custom_Empty());
+        // GetResourceAsData may be backed by a read only file mapping.
+        // For sanity always make a copy.
+        fSBIXData = GetResourceAsData(kFontFile);
+
+        updateSBIXData(fSBIXData.get(), true);
+    }
+
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(SK_ColorGRAY);
+
+        canvas->translate(DX, DY);
+
+        SkPaint paint;
+        SkPoint position{0, 0};
+        SkPoint origin{0, 0};
+
+        if (fDirty) {
+            sk_sp<SkData> data(updateSBIXData(fSBIXData.get(), false));
+            fFonts.clear();
+            for (auto&& fontmgr : fFontMgr) {
+                fFonts.emplace_back(fontmgr->makeFromData(data), kFontSize);
+            }
+            fDirty = false;
+        }
+        for (auto&& font : fFonts) {
+            paint.setStyle(SkPaint::kFill_Style);
+            paint.setColor(SK_ColorBLACK);
+            canvas->drawGlyphs(1, &kGlyphID, &position, origin, font, paint);
+
+            paint.setStrokeWidth(SkIntToScalar(kPointSize / 2));
+            paint.setStyle(SkPaint::kStroke_Style);
+            SkScalar advance;
+            SkRect rect;
+            font.getWidthsBounds(&kGlyphID, 1, &advance, &rect, &paint);
+
+            paint.setColor(SK_ColorRED);
+            canvas->drawRect(rect, paint);
+            paint.setColor(SK_ColorGREEN);
+            canvas->drawLine(0, 0, advance, 0, paint);
+            paint.setColor(SK_ColorRED);
+            canvas->drawPoint(0, 0, paint);
+            canvas->drawPoint(advance, 0, paint);
+
+            paint.setStrokeWidth(SkIntToScalar(kPointSize));
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, std::size(fPts), fPts, paint);
+
+            canvas->translate(kFontSize, 0);
+        }
+    }
+
+protected:
+    static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
+        return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(kPointSize);
+    }
+
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        x -= DX;
+        y -= DY;
+        for (size_t i = 0; i < std::size(fPts); i++) {
+            if (hittest(fPts[i], x, y)) {
+                return new PtClick((int)i);
+            }
+        }
+        return nullptr;
+    }
+
+    bool onClick(Click* click) override {
+        fPts[((PtClick*)click)->fIndex].set(click->fCurr.fX - DX, click->fCurr.fY - DY);
+        fDirty = true;
+        return true;
+    }
+
+private:
+    class PtClick : public Click {
+    public:
+        int fIndex;
+        PtClick(int index) : fIndex(index) {}
+    };
+
     sk_sp<SkData> updateSBIXData(SkData* originalData, bool setPts) {
         // Lots of unlikely to be aligned pointers in here, which is UB. Total hack.
 
@@ -79,7 +162,7 @@ struct SBIXView : public Sample {
         SkASSERT_RELEASE(memcmp(sfntHeader, originalData->data(), originalData->size()) == 0);
 
         SkSFNTHeader::TableDirectoryEntry* tableEntry =
-            SkTAfter<SkSFNTHeader::TableDirectoryEntry>(sfntHeader);
+                SkTAfter<SkSFNTHeader::TableDirectoryEntry>(sfntHeader);
         SkSFNTHeader::TableDirectoryEntry* glyfTableEntry = nullptr;
         SkSFNTHeader::TableDirectoryEntry* headTableEntry = nullptr;
         SkSFNTHeader::TableDirectoryEntry* hheaTableEntry = nullptr;
@@ -168,8 +251,8 @@ struct SBIXView : public Sample {
                                                                        contourCount);
                 SK_OT_BYTE* instructions = SkTAfter<SK_OT_BYTE>(numInstructions);
                 SkOTTableGlyphData::Simple::Flags* flags =
-                    SkTAfter<SkOTTableGlyphData::Simple::Flags>(
-                        instructions, SkEndian_SwapBE16(*numInstructions));
+                        SkTAfter<SkOTTableGlyphData::Simple::Flags>(
+                                instructions, SkEndian_SwapBE16(*numInstructions));
 
                 int numResultPoints = SkEndian_SwapBE16(endPtsOfContours[contourCount-1]) + 1;
                 struct Coordinate {
@@ -247,7 +330,7 @@ struct SBIXView : public Sample {
                     coordinates[pointIndex].flags->field.xIsSame_xShortVectorPositive = !x.negative;
                 } else {
                     *reinterpret_cast<SK_OT_SHORT*>(xCoordinates + coordinates[pointIndex].offsetToXDelta) =
-                        SkEndian_SwapBE16(sk_float_saturate2int16(fPts[3].x()*toEm));
+                            SkEndian_SwapBE16(sk_float_saturate2int16(fPts[3].x()*toEm));
                 }
 
                 if (coordinates[pointIndex].yDeltaSize == 0) {
@@ -259,7 +342,7 @@ struct SBIXView : public Sample {
                     coordinates[pointIndex].flags->field.yIsSame_yShortVectorPositive = !y.negative;
                 } else {
                     *reinterpret_cast<SK_OT_SHORT*>(yCoordinates + coordinates[pointIndex].offsetToYDelta) =
-                        SkEndian_SwapBE16(sk_float_saturate2int16(-fPts[3].y()*toEm));
+                            SkEndian_SwapBE16(sk_float_saturate2int16(-fPts[3].y()*toEm));
                 }
             }
         }
@@ -275,7 +358,7 @@ struct SBIXView : public Sample {
             }
         } else {
             SkOTTableHorizontalMetrics::ShortMetric* shortMetrics =
-                SkTAfter<SkOTTableHorizontalMetrics::ShortMetric>(fullMetrics, numberOfFullMetrics);
+                    SkTAfter<SkOTTableHorizontalMetrics::ShortMetric>(fullMetrics, numberOfFullMetrics);
             int shortMetricIndex = kGlyphID - numberOfFullMetrics;
             if (setPts) {
                 fPts[2].fX = (int16_t)SkEndian_SwapBE16(shortMetrics[shortMetricIndex].lsb) / toEm;
@@ -287,88 +370,6 @@ struct SBIXView : public Sample {
         headTable->flags.field.LeftSidebearingAtX0 = false;
         return dataCopy;
     }
-
-    void onOnceBeforeDraw() override {
-        fFontMgr.emplace_back(SkFontMgr::RefDefault());
-        //fFontMgr.emplace_back(SkFontMgr_New_Custom_Empty());
-        // GetResourceAsData may be backed by a read only file mapping.
-        // For sanity always make a copy.
-        fSBIXData = GetResourceAsData(kFontFile);
-        this->setBGColor(SK_ColorGRAY);
-
-        updateSBIXData(fSBIXData.get(), true);
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
-        canvas->translate(DX, DY);
-
-        SkPaint paint;
-        SkPoint position{0, 0};
-        SkPoint origin{0, 0};
-
-        if (fDirty) {
-            sk_sp<SkData> data(updateSBIXData(fSBIXData.get(), false));
-            fFonts.clear();
-            for (auto&& fontmgr : fFontMgr) {
-                fFonts.emplace_back(fontmgr->makeFromData(data), kFontSize);
-            }
-            fDirty = false;
-        }
-        for (auto&& font : fFonts) {
-            paint.setStyle(SkPaint::kFill_Style);
-            paint.setColor(SK_ColorBLACK);
-            canvas->drawGlyphs(1, &kGlyphID, &position, origin, font, paint);
-
-            paint.setStrokeWidth(SkIntToScalar(kPointSize / 2));
-            paint.setStyle(SkPaint::kStroke_Style);
-            SkScalar advance;
-            SkRect rect;
-            font.getWidthsBounds(&kGlyphID, 1, &advance, &rect, &paint);
-
-            paint.setColor(SK_ColorRED);
-            canvas->drawRect(rect, paint);
-            paint.setColor(SK_ColorGREEN);
-            canvas->drawLine(0, 0, advance, 0, paint);
-            paint.setColor(SK_ColorRED);
-            canvas->drawPoint(0, 0, paint);
-            canvas->drawPoint(advance, 0, paint);
-
-            paint.setStrokeWidth(SkIntToScalar(kPointSize));
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, std::size(fPts), fPts, paint);
-
-            canvas->translate(kFontSize, 0);
-        }
-    }
-
-    class PtClick : public Click {
-    public:
-        int fIndex;
-        PtClick(int index) : fIndex(index) {}
-    };
-
-    static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
-        return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(kPointSize);
-    }
-
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
-        x -= DX;
-        y -= DY;
-        for (size_t i = 0; i < std::size(fPts); i++) {
-            if (hittest(fPts[i], x, y)) {
-                return new PtClick((int)i);
-            }
-        }
-        return nullptr;
-    }
-
-    bool onClick(Click* click) override {
-        fPts[((PtClick*)click)->fIndex].set(click->fCurr.fX - DX, click->fCurr.fY - DY);
-        fDirty = true;
-        return true;
-    }
-
-private:
-    using INHERITED = Sample;
 };
 }  // namespace
-DEF_SAMPLE( return new SBIXView(); )
+DEF_SLIDE( return new SBIXSlide(); )

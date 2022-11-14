@@ -16,22 +16,21 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkTo.h"
-#include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 #include <utility>
 
-class PathClipView : public Sample {
+class PathClipSlide : public ClickHandlerSlide {
 public:
     SkRect fOval;
     SkPoint fCenter;
 
-    PathClipView() : fOval(SkRect::MakeWH(200, 50)), fCenter(SkPoint::Make(250, 250)) {}
+    PathClipSlide() : fOval(SkRect::MakeWH(200, 50)), fCenter(SkPoint::Make(250, 250)) {
+        fName = "PathClip";
+    }
 
-protected:
-    SkString name() override { return SkString("PathClip"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         const SkRect oval = fOval.makeOffset(fCenter.fX - fOval.centerX(),
                                              fCenter.fY - fOval.centerY());
 
@@ -52,17 +51,17 @@ protected:
         canvas->drawOval(oval, p);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         return new Click([&](Click* c) {
             fCenter = c->fCurr;
             return false;
         });
     }
 
-private:
-    using INHERITED = Sample;
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
 };
-DEF_SAMPLE( return new PathClipView; )
+DEF_SLIDE( return new PathClipSlide; )
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -143,16 +142,16 @@ static void draw_clipped_line(SkCanvas* canvas, const SkRect& bounds,
 
 // Demonstrate edge-clipping that is used in the scan converter
 //
-class EdgeClipView : public Sample {
+class EdgeClipSlide : public ClickHandlerSlide {
     enum {
         N = 3
     };
-public:
     SkPoint fPoly[N];
     SkRect  fClip;
     SkColor fEdgeColor[N];
 
-    EdgeClipView() : fClip(SkRect::MakeLTRB(150, 150, 550, 450)) {
+public:
+    EdgeClipSlide() : fClip(SkRect::MakeLTRB(150, 150, 550, 450)) {
         fPoly[0].set(300, 40);
         fPoly[1].set(550, 250);
         fPoly[2].set(40, 450);
@@ -160,10 +159,8 @@ public:
         fEdgeColor[0] = 0xFFFF0000;
         fEdgeColor[1] = 0xFF00FF00;
         fEdgeColor[2] = 0xFF0000FF;
+        fName = "EdgeClip";
     }
-
-protected:
-    SkString name() override { return SkString("EdgeClip"); }
 
     static SkScalar snap(SkScalar x) {
         return SkScalarRoundToScalar(x * 0.5f) * 2;
@@ -177,7 +174,7 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkPath path;
         path.addPoly(fPoly, N, true);
 
@@ -275,7 +272,8 @@ protected:
         return dx*dx + dy*dy <= rad*rad;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         for (int i = 0; i < N; ++i) {
             if (hit_test(fPoly[i], x, y)) {
                 return new VertClick(&fPoly[i]);
@@ -298,9 +296,6 @@ protected:
         ((MyClick*)click)->handleMove();
         return true;
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-DEF_SAMPLE( return new EdgeClipView; )
+DEF_SLIDE( return new EdgeClipSlide; )

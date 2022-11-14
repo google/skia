@@ -12,9 +12,9 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkUtils.h"
 #include "tools/Resources.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 const float gMat[] = {
     .3f, .6f, .1f, 0, 0,
@@ -23,7 +23,7 @@ const float gMat[] = {
       0,   0,   0, 1, 0,
 };
 
-class MixerView : public Sample {
+class MixerSlide : public ClickHandlerSlide {
     sk_sp<SkImage>          fImg;
     sk_sp<SkColorFilter>    fCF0;
     sk_sp<SkColorFilter>    fCF1;
@@ -32,25 +32,9 @@ class MixerView : public Sample {
     float fDW = 0.02f;
 
 public:
-    MixerView() {}
+    MixerSlide() { fName = "Mixer"; }
 
-protected:
-    SkString name() override { return SkString("Mixer"); }
-
-    void dodraw(SkCanvas* canvas, sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float gap) {
-        SkPaint paint;
-        paint.setColorFilter(cf0);
-        canvas->drawImage(fImg, 0, 0, SkSamplingOptions(), &paint);
-
-        paint.setColorFilter(SkColorFilters::Lerp(fWeight, cf0, cf1));
-        canvas->drawImage(fImg, fImg->width() + gap * fWeight, 0,
-                          SkSamplingOptions(), &paint);
-
-        paint.setColorFilter(cf1);
-        canvas->drawImage(fImg, 2*fImg->width() + gap, 0, SkSamplingOptions(), &paint);
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         if (!fImg) {
             fImg = GetResourceAsImage("images/mandrill_256.png");
             fCF0 = SkColorFilters::Matrix(gMat);
@@ -72,6 +56,7 @@ protected:
         }
     }
 
+protected:
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click() : nullptr;
@@ -84,8 +69,20 @@ protected:
     }
 
 private:
+    void dodraw(SkCanvas* canvas, sk_sp<SkColorFilter> cf0, sk_sp<SkColorFilter> cf1, float gap) {
+        SkPaint paint;
+        paint.setColorFilter(cf0);
+        canvas->drawImage(fImg, 0, 0, SkSamplingOptions(), &paint);
+
+        paint.setColorFilter(SkColorFilters::Lerp(fWeight, cf0, cf1));
+        canvas->drawImage(fImg, fImg->width() + gap * fWeight, 0,
+                          SkSamplingOptions(), &paint);
+
+        paint.setColorFilter(cf1);
+        canvas->drawImage(fImg, 2*fImg->width() + gap, 0, SkSamplingOptions(), &paint);
+    }
+
     SkIRect fRect;
 
-    using INHERITED = Sample;
 };
-DEF_SAMPLE( return new MixerView; )
+DEF_SLIDE( return new MixerSlide; )

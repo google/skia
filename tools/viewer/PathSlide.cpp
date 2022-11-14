@@ -19,9 +19,9 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkParsePath.h"
-#include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
 #include "tools/timer/TimeUtils.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 #include "src/core/SkGeometry.h"
 
@@ -72,25 +72,19 @@ static void test_cubic2() {
     canvas.drawPath(path, paint);
 }
 
-class PathView : public Sample {
+class PathSlide : public ClickHandlerSlide {
     SkScalar fPrevSecs;
-public:
     SkScalar fDStroke, fStroke, fMinStroke, fMaxStroke;
     SkPath fPath[6];
     bool fShowHairline;
-    bool fOnce;
 
-    PathView() {
+public:
+    PathSlide() {
         fPrevSecs = 0;
-        fOnce = false;
+        fName = "Paths";
     }
 
-    void init() {
-        if (fOnce) {
-            return;
-        }
-        fOnce = true;
-
+    void load(SkScalar w, SkScalar h) override {
         test_cubic();
         test_cubic2();
 
@@ -126,12 +120,7 @@ public:
         fPath[5].moveTo(52, 50);
         fPath[5].lineTo(50, V);
         fPath[5].lineTo(50, 50);
-
-        this->setBGColor(0xFFDDDDDD);
     }
-
-protected:
-    SkString name() override { return SkString("Paths"); }
 
     void drawPath(SkCanvas* canvas, const SkPath& path, SkPaint::Join j) {
         SkPaint paint;
@@ -156,8 +145,9 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
-        this->init();
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(0xFFDDDDDD);
+
         canvas->translate(50, 50);
 
         static const SkPaint::Join gJoins[] = {
@@ -178,7 +168,7 @@ protected:
         }
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         SkScalar currSecs = TimeUtils::Scaled(1e-9 * nanos, 100);
         SkScalar delta = currSecs - fPrevSecs;
         fPrevSecs = currSecs;
@@ -190,33 +180,31 @@ protected:
         return true;
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         fShowHairline = !fShowHairline;
         return nullptr;
     }
 
-private:
-    using INHERITED = Sample;
+    bool onClick(ClickHandlerSlide::Click*) override { return false; }
 };
-DEF_SAMPLE( return new PathView; )
+
+DEF_SLIDE( return new PathSlide; )
 
 //////////////////////////////////////////////////////////////////////////////
 
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/utils/SkRandom.h"
 
-class ArcToView : public Sample {
+class ArcToSlide : public ClickHandlerSlide {
     bool fDoFrame, fDoCorner, fDoConic;
     SkPaint fPtsPaint, fSkeletonPaint, fCornerPaint;
-public:
     enum {
         N = 4
     };
     SkPoint fPts[N];
 
-    ArcToView()
-        : fDoFrame(false), fDoCorner(false), fDoConic(false)
-    {
+public:
+    ArcToSlide() : fDoFrame(false), fDoCorner(false), fDoConic(false) {
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
             fPts[i].fX = 20 + rand.nextUScalar1() * 640;
@@ -238,14 +226,9 @@ public:
         fSkeletonPaint.setAntiAlias(true);
         fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
         fSkeletonPaint.setColor(SK_ColorRED);
-    }
 
-    void toggle(bool& value) {
-        value = !value;
+        fName = "ArcTo";
     }
-
-protected:
-    SkString name() override { return SkString("ArcTo"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -256,18 +239,7 @@ protected:
             }
             return false;
     }
-
-    void makePath(SkPath* path) {
-        path->moveTo(fPts[0]);
-        for (int i = 1; i < N; ++i) {
-            path->lineTo(fPts[i]);
-        }
-        if (!fDoFrame) {
-            path->close();
-        }
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
 
         SkPath path;
@@ -280,7 +252,8 @@ protected:
         canvas->drawPath(path, fSkeletonPaint);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         const SkScalar tol = 4;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
@@ -294,27 +267,46 @@ protected:
         return nullptr;
     }
 
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
+
 private:
-    using INHERITED = Sample;
+    void makePath(SkPath* path) {
+        path->moveTo(fPts[0]);
+        for (int i = 1; i < N; ++i) {
+            path->lineTo(fPts[i]);
+        }
+        if (!fDoFrame) {
+            path->close();
+        }
+    }
+
+    void toggle(bool& value) {
+        value = !value;
+    }
 };
-DEF_SAMPLE( return new ArcToView; )
+DEF_SLIDE( return new ArcToSlide; )
 
 /////////////
 
-class FatStroke : public Sample {
+class FatStrokeSlide : public ClickHandlerSlide {
     bool fClosed, fShowStroke, fShowHidden, fShowSkeleton, fAsCurves = false;
     int  fJoinType, fCapType;
     float fWidth = 30;
     SkPaint fPtsPaint, fHiddenPaint, fSkeletonPaint, fStrokePaint;
-public:
+
     enum {
         N = 4
     };
     SkPoint fPts[N];
 
-    FatStroke() : fClosed(false), fShowStroke(true), fShowHidden(false), fShowSkeleton(true),
-                  fJoinType(0), fCapType(0)
-    {
+public:
+    FatStrokeSlide()
+            : fClosed(false)
+            , fShowStroke(true)
+            , fShowHidden(false)
+            , fShowSkeleton(true)
+            , fJoinType(0)
+            , fCapType(0) {
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
             fPts[i].fX = 20 + rand.nextUScalar1() * 640;
@@ -337,19 +329,9 @@ public:
         fSkeletonPaint.setAntiAlias(true);
         fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
         fSkeletonPaint.setColor(SK_ColorRED);
+
+        fName = "FatStroke";
     }
-
-    void toggle(bool& value) {
-        value = !value;
-    }
-
-    void toggle3(int& value) {
-        value = (value + 1) % 3;
-    }
-
-protected:
-    SkString name() override { return SkString("FatStroke"); }
-
     bool onChar(SkUnichar uni) override {
             switch (uni) {
                 case '1': this->toggle(fShowSkeleton); return true;
@@ -366,24 +348,7 @@ protected:
             return false;
     }
 
-    void makePath(SkPath* path) {
-        path->moveTo(fPts[0]);
-        if (fAsCurves) {
-            for (int i = 1; i < N-2; ++i) {
-                path->quadTo(fPts[i], (fPts[i+1] + fPts[i]) * 0.5f);
-            }
-            path->quadTo(fPts[N-2], fPts[N-1]);
-        } else {
-            for (int i = 1; i < N; ++i) {
-                path->lineTo(fPts[i]);
-            }
-        }
-        if (fClosed) {
-            path->close();
-        }
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFEEEEEE);
 
         SkPath path;
@@ -407,7 +372,8 @@ protected:
         canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         const SkScalar tol = 4;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
@@ -421,10 +387,35 @@ protected:
         return nullptr;
     }
 
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
+
 private:
-    using INHERITED = Sample;
+    void toggle(bool& value) {
+        value = !value;
+    }
+
+    void toggle3(int& value) {
+        value = (value + 1) % 3;
+    }
+
+    void makePath(SkPath* path) {
+        path->moveTo(fPts[0]);
+        if (fAsCurves) {
+            for (int i = 1; i < N-2; ++i) {
+                path->quadTo(fPts[i], (fPts[i+1] + fPts[i]) * 0.5f);
+            }
+            path->quadTo(fPts[N-2], fPts[N-1]);
+        } else {
+            for (int i = 1; i < N; ++i) {
+                path->lineTo(fPts[i]);
+            }
+        }
+        if (fClosed) {
+            path->close();
+        }
+    }
 };
-DEF_SAMPLE( return new FatStroke; )
+DEF_SLIDE( return new FatStrokeSlide; )
 
 static int compute_parallel_to_base(const SkPoint pts[4], SkScalar t[2]) {
     // F = At^3 + Bt^2 + Ct + D
@@ -447,25 +438,23 @@ static int compute_parallel_to_base(const SkPoint pts[4], SkScalar t[2]) {
     return n;
 }
 
-class CubicCurve : public Sample {
-public:
+class CubicCurveSlide : public ClickHandlerSlide {
     enum {
         N = 4
     };
     SkPoint fPts[N];
 
-    CubicCurve() {
+public:
+    CubicCurveSlide() {
         SkRandom rand;
         for (int i = 0; i < N; ++i) {
             fPts[i].fX = 20 + rand.nextUScalar1() * 640;
             fPts[i].fY = 20 + rand.nextUScalar1() * 480;
         }
+        fName = "CubicCurve";
     }
 
-protected:
-    SkString name() override { return SkString("CubicCurve"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setAntiAlias(true);
 
@@ -515,7 +504,8 @@ protected:
         }
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         const SkScalar tol = 8;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < N; ++i) {
@@ -526,13 +516,12 @@ protected:
                 });
             }
         }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
+        return nullptr;
     }
 
-private:
-    using INHERITED = Sample;
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
 };
-DEF_SAMPLE( return new CubicCurve; )
+DEF_SLIDE( return new CubicCurveSlide; )
 
 static SkPoint lerp(SkPoint a, SkPoint b, float t) {
     return a * (1 - t) + b * t;
@@ -553,8 +542,7 @@ static int find_max_deviation_cubic(const SkPoint src[4], SkScalar ts[2]) {
     return SkFindUnitQuadRoots(3 * A.cross(Z), 2 * B.cross(Z), C.cross(Z), ts);
 }
 
-class CubicCurve2 : public Sample {
-public:
+class CubicCurve2Slide : public ClickHandlerSlide {
     enum {
         N = 7
     };
@@ -566,7 +554,8 @@ public:
     bool fShowInnerQuads = false;
     SkScalar fScale = 0.75;
 
-    CubicCurve2() {
+public:
+    CubicCurve2Slide() {
         fPts[0] = { 90, 300 };
         fPts[1] = { 30, 60 };
         fPts[2] = { 250, 30 };
@@ -575,10 +564,9 @@ public:
         fQuad[0] = fPts[0] + SkVector{ 300, 0};
         fQuad[1] = fPts[1] + SkVector{ 300, 0};
         fQuad[2] = fPts[2] + SkVector{ 300, 0};
-    }
 
-protected:
-    SkString name() override { return SkString("CubicCurve2"); }
+        fName = "CubicCurve2";
+    }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -600,6 +588,79 @@ protected:
         canvas->drawCircle(p.fX, p.fY, radius, paint);
     }
 
+    void draw(SkCanvas* canvas) override {
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        {
+            paint.setStyle(SkPaint::kStroke_Style);
+            SkPath path;
+            path.moveTo(fPts[0]);
+            path.cubicTo(fPts[1], fPts[2], fPts[3]);
+            path.moveTo(fQuad[0]);
+            path.quadTo(fQuad[1], fQuad[2]);
+            canvas->drawPath(path, paint);
+        }
+
+        if (fShowSub) {
+            paint.setColor(SK_ColorRED);
+            paint.setStrokeWidth(1.7f);
+            this->showFrame(canvas, fPts, 3, paint);
+            this->showFrame(canvas, fQuad, 2, paint);
+
+            paint.setColor(SK_ColorBLACK);
+            paint.setStyle(SkPaint::kFill_Style);
+            SkFont font(nullptr, 20);
+            canvas->drawString(SkStringPrintf("t = %g", fT), 20, 20, font, paint);
+        }
+
+        if (fShowFlatness) {
+            this->showFlattness(canvas);
+        }
+
+        if (fShowInnerQuads) {
+            this->showInnerQuads(canvas);
+        }
+
+        paint.setColor(SK_ColorGRAY);
+        paint.setStroke(true);
+        canvas->drawPath(SkPathBuilder().addPolygon(fPts, 4, false).detach(), paint);
+        canvas->drawPath(SkPathBuilder().addPolygon(fQuad, 3, false).detach(), paint);
+
+        for (SkPoint p : fPts) {
+            Dot(canvas, p, 7, SK_ColorBLACK);
+        }
+
+        if ((false)) {
+            SkScalar ts[2];
+            int n = SkFindCubicInflections(fPts, ts);
+            for (int i = 0; i < n; ++i) {
+                SkPoint p;
+                SkEvalCubicAt(fPts, ts[i], &p, nullptr, nullptr);
+                canvas->drawCircle(p.fX, p.fY, 3, paint);
+            }
+        }
+
+    }
+
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        const SkScalar tol = 8;
+        const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
+        for (int i = 0; i < N; ++i) {
+            if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
+                return new Click([this, i](Click* c) {
+                    fPts[i] = c->fCurr;
+                    return true;
+                });
+            }
+        }
+        return nullptr;
+    }
+
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
+
+private:
     void showFrame(SkCanvas* canvas, const SkPoint pts[], int count, const SkPaint& p) {
         SkPaint paint(p);
         SkPoint storage[3 + 2 + 1];
@@ -688,78 +749,6 @@ protected:
         canvas->drawLine(p0, p1, paint);
         Dot(canvas, p2, 4, 0xFF00AA00);
     }
-
-    void onDrawContent(SkCanvas* canvas) override {
-        SkPaint paint;
-        paint.setAntiAlias(true);
-
-        {
-            paint.setStyle(SkPaint::kStroke_Style);
-            SkPath path;
-            path.moveTo(fPts[0]);
-            path.cubicTo(fPts[1], fPts[2], fPts[3]);
-            path.moveTo(fQuad[0]);
-            path.quadTo(fQuad[1], fQuad[2]);
-            canvas->drawPath(path, paint);
-        }
-
-        if (fShowSub) {
-            paint.setColor(SK_ColorRED);
-            paint.setStrokeWidth(1.7f);
-            this->showFrame(canvas, fPts, 3, paint);
-            this->showFrame(canvas, fQuad, 2, paint);
-
-            paint.setColor(SK_ColorBLACK);
-            paint.setStyle(SkPaint::kFill_Style);
-            SkFont font(nullptr, 20);
-            canvas->drawString(SkStringPrintf("t = %g", fT), 20, 20, font, paint);
-        }
-
-        if (fShowFlatness) {
-            this->showFlattness(canvas);
-        }
-
-        if (fShowInnerQuads) {
-            this->showInnerQuads(canvas);
-        }
-
-        paint.setColor(SK_ColorGRAY);
-        paint.setStroke(true);
-        canvas->drawPath(SkPathBuilder().addPolygon(fPts, 4, false).detach(), paint);
-        canvas->drawPath(SkPathBuilder().addPolygon(fQuad, 3, false).detach(), paint);
-
-        for (SkPoint p : fPts) {
-            Dot(canvas, p, 7, SK_ColorBLACK);
-        }
-
-        if ((false)) {
-            SkScalar ts[2];
-            int n = SkFindCubicInflections(fPts, ts);
-            for (int i = 0; i < n; ++i) {
-                SkPoint p;
-                SkEvalCubicAt(fPts, ts[i], &p, nullptr, nullptr);
-                canvas->drawCircle(p.fX, p.fY, 3, paint);
-            }
-        }
-
-    }
-
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
-        const SkScalar tol = 8;
-        const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
-        for (int i = 0; i < N; ++i) {
-            if (r.intersects(SkRect::MakeXYWH(fPts[i].fX, fPts[i].fY, 1, 1))) {
-                return new Click([this, i](Click* c) {
-                    fPts[i] = c->fCurr;
-                    return true;
-                });
-            }
-        }
-        return this->INHERITED::onFindClickHandler(x, y, modi);
-    }
-
-private:
-    using INHERITED = Sample;
 };
-DEF_SAMPLE( return new CubicCurve2; )
+DEF_SLIDE( return new CubicCurve2Slide; )
 

@@ -9,8 +9,8 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
+#include "tools/viewer/Slide.h"
 #if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #include "src/gpu/RectanizerPow2.h"
 #include "src/gpu/RectanizerSkyline.h"
@@ -26,9 +26,9 @@ using namespace skgpu;
 //          Rand -> random rects from 2-256
 //          Pow2Rand -> random power of 2 sized rects from 2-256
 //          SmallPow2 -> 128x128 rects
-class RectanizerView : public Sample {
+class RectanizerSlide : public Slide {
 public:
-    RectanizerView()
+    RectanizerSlide()
         : fCurRandRect(0)
         , fCurRectanizer(0) {
         for (int i = 0; i < 3; ++i) {
@@ -53,10 +53,8 @@ public:
             std::unique_ptr<Rectanizer>(new RectanizerPow2(kWidth, kHeight)));
         fRectanizers.push_back(
             std::unique_ptr<Rectanizer>(new RectanizerSkyline(kWidth, kHeight)));
+        fName = "Rectanizer";
     }
-
-protected:
-    SkString name() override { return SkString("Rectanizer"); }
 
     bool onChar(SkUnichar uni) override {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];
@@ -77,7 +75,7 @@ protected:
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         if (fCurRandRect < kNumRandRects) {
             if (fRectanizers[fCurRectanizer]->addRect((*fCurRects)[fCurRandRect].fWidth,
                                                       (*fCurRects)[fCurRandRect].fHeight,
@@ -181,12 +179,10 @@ private:
         fRectanizers[fCurRectanizer]->reset();
         fCurRandRect = 0;
     }
-
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new RectanizerView(); )
+DEF_SLIDE( return new RectanizerSlide(); )
 
 #endif

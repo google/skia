@@ -10,31 +10,33 @@
 #include "include/core/SkPath.h"
 #include "include/private/SkVx.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
 #include "tools/ToolUtils.h"
+#include "tools/viewer/Slide.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Static text from paths.
-class PathText : public Sample {
-public:
+class PathTextSlide : public Slide {
     constexpr static int kNumPaths = 1500;
-    virtual const char* getName() const { return "PathText"; }
+    SkSize fSize;
 
-    PathText() {}
+public:
+    PathTextSlide() { fName = "PathText"; }
 
     virtual void reset() {
         for (Glyph& glyph : fGlyphs) {
-            glyph.reset(fRand, this->width(), this->height());
+            glyph.reset(fRand, fSize.width(), fSize.height());
         }
-        fGlyphAnimator->reset(&fRand, this->width(), this->height());
+        fGlyphAnimator->reset(&fRand, fSize.width(), fSize.height());
     }
 
-    void onOnceBeforeDraw() final {
+    void load(SkScalar w, SkScalar h) final {
+        fSize = {w, h};
+
         SkFont defaultFont;
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
         auto strike = strikeSpec.findOrCreateStrike();
@@ -55,24 +57,24 @@ public:
             const SkPath& p = glyphPaths[i % 52];
             fGlyphs[i].init(fRand, p);
         }
-
-        this->Sample::onOnceBeforeDraw();
         this->reset();
     }
-    void onSizeChange() final { this->Sample::onSizeChange(); this->reset(); }
 
-    SkString name() override { return SkString(this->getName()); }
+    void resize(SkScalar w, SkScalar h) final {
+        fSize = {w, h};
+        this->reset();
+    }
 
     bool onChar(SkUnichar) override;
 
-    bool onAnimate(double nanos) final {
-        return fGlyphAnimator->animate(nanos, this->width(), this->height());
+    bool animate(double nanos) final {
+        return fGlyphAnimator->animate(nanos, fSize.width(), fSize.height());
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         if (fDoClip) {
             SkPath deviceSpaceClipPath = fClipPath;
-            deviceSpaceClipPath.transform(SkMatrix::Scale(this->width(), this->height()));
+            deviceSpaceClipPath.transform(SkMatrix::Scale(fSize.width(), fSize.height()));
             canvas->save();
             canvas->clipPath(deviceSpaceClipPath, SkClipOp::kDifference, true);
             canvas->clear(SK_ColorBLACK);
@@ -127,13 +129,13 @@ protected:
     std::unique_ptr<GlyphAnimator> fGlyphAnimator = std::make_unique<GlyphAnimator>(fGlyphs);
 };
 
-void PathText::Glyph::init(SkRandom& rand, const SkPath& path) {
+void PathTextSlide::Glyph::init(SkRandom& rand, const SkPath& path) {
     fPath = path;
     fPaint.setAntiAlias(true);
     fPaint.setColor(rand.nextU() | 0x80808080);
 }
 
-void PathText::Glyph::reset(SkRandom& rand, int w, int h) {
+void PathTextSlide::Glyph::reset(SkRandom& rand, int w, int h) {
     int screensize = std::max(w, h);
     const SkRect& bounds = fPath.getBounds();
     SkScalar t;
@@ -148,7 +150,7 @@ void PathText::Glyph::reset(SkRandom& rand, int w, int h) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Text from paths with animated transformation matrices.
-class PathText::MovingGlyphAnimator : public PathText::GlyphAnimator {
+class PathTextSlide::MovingGlyphAnimator : public PathTextSlide::GlyphAnimator {
 public:
     MovingGlyphAnimator(Glyph* glyphs)
             : GlyphAnimator(glyphs)
@@ -256,7 +258,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Text from paths with animated control points.
-class PathText::WavyGlyphAnimator : public PathText::MovingGlyphAnimator {
+class PathTextSlide::WavyGlyphAnimator : public PathTextSlide::MovingGlyphAnimator {
 public:
     WavyGlyphAnimator(Glyph* glyphs)
             : MovingGlyphAnimator(glyphs)
@@ -363,7 +365,7 @@ private:
     Waves fWaves;
 };
 
-void PathText::WavyGlyphAnimator::Waves::reset(SkRandom& rand, int w, int h) {
+void PathTextSlide::WavyGlyphAnimator::Waves::reset(SkRandom& rand, int w, int h) {
     const double pixelsPerMeter = 0.06 * std::max(w, h);
     const double medianWavelength = 8 * pixelsPerMeter;
     const double medianWaveAmplitude = 0.05 * 4 * pixelsPerMeter;
@@ -383,7 +385,7 @@ void PathText::WavyGlyphAnimator::Waves::reset(SkRandom& rand, int w, int h) {
     }
 }
 
-SkPoint PathText::WavyGlyphAnimator::Waves::apply(float tsec, const skvx::float2 matrix[3],
+SkPoint PathTextSlide::WavyGlyphAnimator::Waves::apply(float tsec, const skvx::float2 matrix[3],
                                                   const SkPoint& pt) const {
     constexpr static int kTablePeriod = 1 << 12;
     static float sin2table[kTablePeriod + 1];
@@ -430,22 +432,22 @@ SkPoint PathText::WavyGlyphAnimator::Waves::apply(float tsec, const skvx::float2
     return {devicePt[0] + offsetY[0] + offsetY[1], devicePt[1] - offsetX[0] - offsetX[1]};
 }
 
-bool PathText::onChar(SkUnichar unichar) {
+bool PathTextSlide::onChar(SkUnichar unichar) {
     switch (unichar) {
         case 'X':
             fDoClip = !fDoClip;
             return true;
         case 'S':
             fGlyphAnimator = std::make_unique<GlyphAnimator>(fGlyphs);
-            fGlyphAnimator->reset(&fRand, this->width(), this->height());
+            fGlyphAnimator->reset(&fRand, fSize.width(), fSize.height());
             return true;
         case 'M':
             fGlyphAnimator = std::make_unique<MovingGlyphAnimator>(fGlyphs);
-            fGlyphAnimator->reset(&fRand, this->width(), this->height());
+            fGlyphAnimator->reset(&fRand, fSize.width(), fSize.height());
             return true;
         case 'W':
             fGlyphAnimator = std::make_unique<WavyGlyphAnimator>(fGlyphs);
-            fGlyphAnimator->reset(&fRand, this->width(), this->height());
+            fGlyphAnimator->reset(&fRand, fSize.width(), fSize.height());
             return true;
     }
     return false;
@@ -453,5 +455,4 @@ bool PathText::onChar(SkUnichar unichar) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Sample* MakePathTextSample() { return new PathText; }
-static SampleRegistry gPathTextSample(MakePathTextSample);
+DEF_SLIDE( return new PathTextSlide; )
