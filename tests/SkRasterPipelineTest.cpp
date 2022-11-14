@@ -7,7 +7,6 @@
 
 #include "include/private/SkHalf.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/gpu/Swizzle.h"
 #include "tests/Test.h"
@@ -35,31 +34,6 @@ DEF_TEST(SkRasterPipeline, r) {
     REPORTER_ASSERT(r, ((result >> 16) & 0xffff) == 0x0000);
     REPORTER_ASSERT(r, ((result >> 32) & 0xffff) == 0x3800);
     REPORTER_ASSERT(r, ((result >> 48) & 0xffff) == 0x3c00);
-}
-
-DEF_TEST(SkRasterPipeline_ImmediateStoreUnmasked, r) {
-    float val[SkRasterPipeline_kMaxStride_highp + 1] = {};
-
-    float immVal = 123.0f;
-    const void* immValCtx = nullptr;
-    memcpy(&immValCtx, &immVal, sizeof(float));
-
-    SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::immediate_f, immValCtx);
-    p.append(SkRasterPipeline::store_unmasked, val);
-    p.run(0,0,1,1);
-
-    // `val` should be populated with `123.0` in the frontmost positions
-    // (depending on the architecture that SkRasterPipeline is targeting).
-    size_t index = 0;
-    for (; index < SkOpts::raster_pipeline_highp_stride; ++index) {
-        REPORTER_ASSERT(r, val[index] == immVal);
-    }
-
-    // The remaining slots should have been left alone.
-    for (; index < std::size(val); ++index) {
-        REPORTER_ASSERT(r, val[index] == 0.0f);
-    }
 }
 
 DEF_TEST(SkRasterPipeline_empty, r) {
