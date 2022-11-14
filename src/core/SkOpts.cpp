@@ -91,6 +91,9 @@ namespace SkOpts {
     DEFINE_DEFAULT(interpret_skvm);
 #undef DEFINE_DEFAULT
 
+    size_t raster_pipeline_lowp_stride  = SK_OPTS_NS::raster_pipeline_lowp_stride();
+    size_t raster_pipeline_highp_stride = SK_OPTS_NS::raster_pipeline_highp_stride();
+
 #define M(st) (StageFn)SK_OPTS_NS::st,
     StageFn stages_highp[] = { SK_RASTER_PIPELINE_STAGES_ALL(M) };
     StageFn just_return_highp = (StageFn)SK_OPTS_NS::just_return;

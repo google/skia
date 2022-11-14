@@ -6,7 +6,7 @@
  */
 
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkEffectPriv.h"
+#include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "tests/Test.h"
@@ -62,7 +62,7 @@ DEF_TEST(RasterPipelineBuilder, r) {
     // they are all where we expect them to be.
     const auto* firstStage = stages;
     const float* slot0 = (const float*)firstStage->ctx;
-    constexpr int N = SkRasterPipeline_kMaxStride_highp;
+    const int N = SkOpts::raster_pipeline_highp_stride;
 
     stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
     REPORTER_ASSERT(r, stages->ctx == slot0 + (3 * N));

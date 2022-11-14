@@ -4494,6 +4494,13 @@ STAGE_PP(swizzle, void* ctx) {
 #endif//defined(JUMPER_IS_SCALAR) controlling whether we build lowp stages
 }  // namespace lowp
 
+/* This gives us SK_OPTS::lowp::N if lowp::N has been set, or SK_OPTS::N if it hasn't. */
+namespace lowp { static constexpr size_t lowp_N = N; }
+
+/** Allow outside code to access the Raster Pipeline pixel stride. */
+constexpr size_t raster_pipeline_lowp_stride() { return lowp::lowp_N; }
+constexpr size_t raster_pipeline_highp_stride() { return N; }
+
 }  // namespace SK_OPTS_NS
 
 #undef SI

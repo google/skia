@@ -124,6 +124,9 @@ namespace SkOpts {
     extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, void**);
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, void**);
 
+    extern size_t raster_pipeline_lowp_stride;
+    extern size_t raster_pipeline_highp_stride;
+
     extern void (*interpret_skvm)(const skvm::InterpreterInstruction insts[], int ninsts,
                                   int nregs, int loop, const int strides[],
                                   skvm::TraceHook* traceHooks[], int nTraceHooks,

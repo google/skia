@@ -6,6 +6,7 @@
  */
 
 #include "src/core/SkArenaAlloc.h"
+#include "src/core/SkOpts.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 
 #include <algorithm>
@@ -42,9 +43,8 @@ Program::Program(SkTArray<Instruction> instrs) : fInstructions(std::move(instrs)
 void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
     // skslc and sksl-minify do not actually include SkRasterPipeline.
 #if !defined(SKSL_STANDALONE)
-    // Allocate a contiguous slab of slot data. TODO(skia:13676): use an architecture-specific value
-    // for N to avoid tons of dead space between slots.
-    constexpr int N = SkRasterPipeline_kMaxStride_highp;
+    // Allocate a contiguous slab of slot data.
+    const int N = SkOpts::raster_pipeline_highp_stride;
     float* slotPtr = alloc->makeArray<float>(N * fNumSlots);
 
     for (const Instruction& inst : fInstructions) {
