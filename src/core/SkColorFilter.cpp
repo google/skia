@@ -30,7 +30,7 @@
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/core/SkKeyHelpers.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
@@ -152,7 +152,7 @@ void SkColorFilterBase::addToKey(const SkKeyContext& keyContext,
                                  skgpu::graphite::PaintParamsKeyBuilder* builder,
                                  skgpu::graphite::PipelineDataGatherer* gatherer) const {
     // Return the input color as-is.
-    PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
+    skgpu::graphite::PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
     builder->endBlock();
 }
 #endif
@@ -211,6 +211,8 @@ public:
     void addToKey(const SkKeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
                   skgpu::graphite::PipelineDataGatherer* gatherer) const override {
+        using namespace skgpu::graphite;
+
         ComposeColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
 
         as_CFB(fInner)->addToKey(keyContext, builder, gatherer);

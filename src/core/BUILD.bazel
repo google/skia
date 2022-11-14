@@ -392,8 +392,6 @@ split_srcs_and_hdrs(
 SKSL_FILES = [
     "SkKeyContext.cpp",
     "SkKeyContext.h",
-    "SkKeyHelpers.cpp",
-    "SkKeyHelpers.h",
     "SkRuntimeEffect.cpp",
     "SkSLTypeShared.cpp",
     "SkSLTypeShared.h",

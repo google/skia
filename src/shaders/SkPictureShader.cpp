@@ -421,9 +421,8 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/core/SkKeyContext.h"
-#include "src/core/SkKeyHelpers.h"
-
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 

@@ -172,12 +172,14 @@ GrFPResult SkModeColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentProc
 
 #ifdef SK_GRAPHITE_ENABLED
 
-#include "src/core/SkKeyHelpers.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 
 void SkModeColorFilter::addToKey(const SkKeyContext& keyContext,
                                  skgpu::graphite::PaintParamsKeyBuilder* builder,
                                  skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
+
     // TODO: Take into account the render target color space once graphite has color management.
     SkPMColor4f color = map_color(fColor, sk_srgb_singleton(), nullptr);
     BlendColorFilterBlock::BlendColorFilterData data(fMode, color);

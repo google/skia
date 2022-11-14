@@ -10,10 +10,9 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/CombinationBuilder.h"
 #include "include/gpu/graphite/Context.h"
-#include "src/core/SkKeyHelpers.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
-
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 using namespace skgpu::graphite;

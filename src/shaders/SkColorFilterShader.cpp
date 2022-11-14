@@ -21,7 +21,7 @@
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/core/SkKeyHelpers.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
@@ -122,6 +122,8 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
 void SkColorFilterShader::addToKey(const SkKeyContext& keyContext,
                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
+
     ColorFilterShaderBlock::BeginBlock(keyContext, builder, gatherer);
 
     as_SB(fShader)->addToKey(keyContext, builder, gatherer);

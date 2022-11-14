@@ -8,7 +8,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 
 #include <cstring>
-#include "src/core/SkKeyHelpers.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 namespace skgpu::graphite {

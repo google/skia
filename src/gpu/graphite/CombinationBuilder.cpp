@@ -8,12 +8,12 @@
 #include "include/gpu/graphite/CombinationBuilder.h"
 
 #include "src/core/SkKeyContext.h"
-#include "src/core/SkKeyHelpers.h"
 #include "src/core/SkMathPriv.h"
 #include "src/shaders/SkShaderBase.h"
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #endif
 

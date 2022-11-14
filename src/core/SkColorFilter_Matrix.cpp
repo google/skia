@@ -19,7 +19,7 @@
 #include "src/core/SkWriteBuffer.h"
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/core/SkKeyHelpers.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif // SK_GRAPHITE_ENABLED
 
@@ -214,6 +214,8 @@ GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentP
 void SkColorFilter_Matrix::addToKey(const SkKeyContext& keyContext,
                                     skgpu::graphite::PaintParamsKeyBuilder* builder,
                                     skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
+
     MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(fMatrix,
                                                                fDomain == Domain::kHSLA);
 

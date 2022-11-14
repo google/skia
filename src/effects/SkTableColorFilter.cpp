@@ -28,8 +28,8 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/core/SkKeyContext.h"
-#include "src/core/SkKeyHelpers.h"
 #include "src/gpu/graphite/Image_Graphite.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 
 namespace skgpu::graphite {
@@ -294,6 +294,8 @@ GrFPResult SkTable_ColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentPr
 void SkTable_ColorFilter::addToKey(const SkKeyContext& keyContext,
                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
+
     TableColorFilterBlock::TableColorFilterData data;
 
     // TODO(b/239604347): remove this hack. This is just here until we determine what Graphite's

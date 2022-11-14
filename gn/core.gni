@@ -303,8 +303,6 @@ skia_core_sources = [
   "$_src/core/SkImagePriv.h",
   "$_src/core/SkKeyContext.cpp",
   "$_src/core/SkKeyContext.h",
-  "$_src/core/SkKeyHelpers.cpp",
-  "$_src/core/SkKeyHelpers.h",
   "$_src/core/SkLRUCache.h",
   "$_src/core/SkLatticeIter.cpp",
   "$_src/core/SkLatticeIter.h",

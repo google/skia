@@ -33,7 +33,7 @@ class SkWriteBuffer;
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/core/SkKeyContext.h"
-#include "src/core/SkKeyHelpers.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 
 namespace skgpu::graphite {
@@ -119,6 +119,8 @@ GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragment
 void SkGaussianColorFilter::addToKey(const SkKeyContext& keyContext,
                                      skgpu::graphite::PaintParamsKeyBuilder* builder,
                                      skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
+
     GaussianColorFilterBlock::BeginBlock(keyContext, builder, gatherer);
     builder->endBlock();
 }

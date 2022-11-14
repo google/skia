@@ -15,7 +15,7 @@
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/core/SkKeyHelpers.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
@@ -69,6 +69,8 @@ void SkBlenderBase::addToKey(const SkKeyContext& keyContext,
                              skgpu::graphite::PaintParamsKeyBuilder* builder,
                              skgpu::graphite::PipelineDataGatherer* gatherer,
                              bool primitiveColorBlender) const {
+    using namespace skgpu::graphite;
+
     std::optional<SkBlendMode> bm = as_BB(this)->asBlendMode();
     if (primitiveColorBlender && bm.has_value()) {
         PrimitiveBlendModeBlock::BeginBlock(keyContext, builder, gatherer, bm.value());
