@@ -99,6 +99,14 @@ public:
         fInstructions.push_back({SkRasterPipeline::load_dst, {slots.index}});
     }
 
+    void immediate_f(float val) {
+        fInstructions.push_back({SkRasterPipeline::immediate_f, {}, val, 0});
+    }
+
+    void store_unmasked(Slot slot) {
+        fInstructions.push_back({SkRasterPipeline::store_unmasked, {slot}});
+    }
+
 private:
     SkTArray<Instruction> fInstructions;
 };
