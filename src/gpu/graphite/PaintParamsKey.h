@@ -19,13 +19,13 @@
 #include <array>
 #include <limits>
 
-class SkShaderCodeDictionary;
-class SkShaderInfo;
-struct SkShaderSnippet;
 
 namespace skgpu::graphite {
 
 class PaintParamsKeyBuilder;
+class ShaderCodeDictionary;
+class ShaderInfo;
+struct ShaderSnippet;
 
 // This class is a compact representation of the shader needed to implement a given
 // PaintParams. Its structure is a series of blocks where each block has a
@@ -54,7 +54,7 @@ public:
     };
 
     // A given snippet's data payload is stored as an SkSpan of DataPayloadFields in the
-    // SkShaderCodeDictionary. That span just defines the structure of the data payload. The actual
+    // ShaderCodeDictionary. That span just defines the structure of the data payload. The actual
     // data is stored in the paint params key.
     struct DataPayloadField {
         const char* fName;
@@ -78,7 +78,7 @@ public:
         int32_t codeSnippetId() const;
 
         // Return the childIndex-th child's BlockReader
-        BlockReader child(const SkShaderCodeDictionary*, int childIndex) const;
+        BlockReader child(const ShaderCodeDictionary*, int childIndex) const;
 
         // Retrieve the fieldIndex-th field in the data payload as a span. The type being read
         // is checked against the data payload's structure.
@@ -86,17 +86,17 @@ public:
         SkSpan<const int32_t> ints(int fieldIndex) const;
         SkSpan<const SkColor4f> colors(int fieldIndex) const;
 
-        const SkShaderSnippet* entry() const { return fEntry; }
+        const ShaderSnippet* entry() const { return fEntry; }
 
 #ifdef SK_DEBUG
         int numDataPayloadFields() const;
-        void dump(const SkShaderCodeDictionary*, int indent) const;
+        void dump(const ShaderCodeDictionary*, int indent) const;
 #endif
 
     private:
         friend class PaintParamsKey; // for ctor
 
-        BlockReader(const SkShaderCodeDictionary*,
+        BlockReader(const ShaderCodeDictionary*,
                     SkSpan<const uint8_t> parentSpan,
                     int offsetInParent);
 
@@ -105,19 +105,19 @@ public:
         SkSpan<const uint8_t> dataPayload() const;
 
         SkSpan<const uint8_t> fBlock;
-        const SkShaderSnippet* fEntry;
+        const ShaderSnippet* fEntry;
     };
 
-    BlockReader reader(const SkShaderCodeDictionary*, int headerOffset) const;
+    BlockReader reader(const ShaderCodeDictionary*, int headerOffset) const;
 
 #ifdef SK_DEBUG
     uint8_t byte(int offset) const {
         SkASSERT(offset < this->sizeInBytes());
         return fData[offset];
     }
-    void dump(const SkShaderCodeDictionary*) const;
+    void dump(const ShaderCodeDictionary*) const;
 #endif
-    void toShaderInfo(const SkShaderCodeDictionary*, SkShaderInfo*) const;
+    void toShaderInfo(const ShaderCodeDictionary*, ShaderInfo*) const;
 
     SkSpan<const uint8_t> asSpan() const { return fData; }
     const uint8_t* data() const { return fData.data(); }
@@ -131,8 +131,8 @@ public:
 #endif
 
 private:
-    friend class PaintParamsKeyBuilder;       // for the parented-data ctor
-    friend class ::SkShaderCodeDictionary;    // for the raw-data ctor
+    friend class PaintParamsKeyBuilder;   // for the parented-data ctor
+    friend class ShaderCodeDictionary;    // for the raw-data ctor
 
     // This ctor is to be used when paintparams keys are being consecutively generated
     // by a key builder. The memory backing this key's span is shared between the
@@ -143,9 +143,9 @@ private:
     // is in the dictionary). In this case the dictionary will own the memory backing the span.
     PaintParamsKey(SkSpan<const uint8_t> rawData);
 
-    static void AddBlockToShaderInfo(const SkShaderCodeDictionary*,
+    static void AddBlockToShaderInfo(const ShaderCodeDictionary*,
                                      const BlockReader&,
-                                     SkShaderInfo*);
+                                     ShaderInfo*);
 
     // The memory referenced in 'fData' is always owned by someone else.
     // If 'fOriginatingBuilder' is null, the dictionary's SkArena owns the 'fData' memory and no
@@ -170,7 +170,7 @@ private:
 // into the dictionary to be prohibitive since that should be infrequent.
 class PaintParamsKeyBuilder {
 public:
-    PaintParamsKeyBuilder(const SkShaderCodeDictionary*);
+    PaintParamsKeyBuilder(const ShaderCodeDictionary*);
     ~PaintParamsKeyBuilder() {
         SkASSERT(!this->isLocked());
     }
@@ -245,7 +245,7 @@ private:
 #endif
     };
 
-    const SkShaderCodeDictionary* fDict;
+    const ShaderCodeDictionary* fDict;
 
     bool fIsValid = true;
     SkDEBUGCODE(bool fLocked = false;)

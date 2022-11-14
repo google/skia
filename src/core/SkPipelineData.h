@@ -28,7 +28,9 @@
 class SkArenaAlloc;
 class SkUniform;
 
+namespace skgpu::graphite {
 enum class SnippetRequirementFlags : uint32_t;
+}
 
 class SkUniformDataBlock {
 public:
@@ -112,7 +114,7 @@ public:
     bool hasTextures() const { return !fTextureDataBlock.empty(); }
 #endif // SK_GRAPHITE_ENABLED
 
-    void addFlags(SkEnumBitMask<SnippetRequirementFlags> flags);
+    void addFlags(SkEnumBitMask<skgpu::graphite::SnippetRequirementFlags> flags);
     bool needsLocalCoords() const;
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -151,8 +153,8 @@ private:
 
     SkTextureDataBlock                     fTextureDataBlock;
     skgpu::graphite::UniformManager        fUniformManager;
+    SkEnumBitMask<skgpu::graphite::SnippetRequirementFlags> fSnippetRequirementFlags;
 #endif // SK_GRAPHITE_ENABLED
-    SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags;
 };
 
 #if defined(SK_DEBUG) && defined(SK_GRAPHITE_ENABLED)

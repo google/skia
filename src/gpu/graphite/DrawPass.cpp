@@ -446,7 +446,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             /*useStorageBuffers=*/recorder->priv().caps()->storageBufferPreferred());
     TextureBindingTracker textureBindingTracker;
 
-    SkShaderCodeDictionary* dict = recorder->priv().shaderCodeDictionary();
+    ShaderCodeDictionary* dict = recorder->priv().shaderCodeDictionary();
     PaintParamsKeyBuilder builder(dict);
     SkPipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
 

@@ -13,10 +13,9 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/SharedContext.h"
 
-class SkShaderCodeDictionary;
-
 namespace skgpu::graphite {
 
+class ShaderCodeDictionary;
 class TextureProxy;
 
 class RecorderPriv {
@@ -34,10 +33,10 @@ public:
     SkRuntimeEffectDictionary* runtimeEffectDictionary() {
         return fRecorder->fRuntimeEffectDict.get();
     }
-    const SkShaderCodeDictionary* shaderCodeDictionary() const {
+    const ShaderCodeDictionary* shaderCodeDictionary() const {
         return fRecorder->fSharedContext->shaderCodeDictionary();
     }
-    SkShaderCodeDictionary* shaderCodeDictionary() {
+    ShaderCodeDictionary* shaderCodeDictionary() {
         return fRecorder->fSharedContext->shaderCodeDictionary();
     }
 

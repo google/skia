@@ -19,7 +19,7 @@ public:
         return builder->numCombinations();
     }
     static std::vector<SkUniquePaintParamsID> BuildCombinations(
-                SkShaderCodeDictionary* dict,
+                ShaderCodeDictionary* dict,
                 skgpu::graphite::CombinationBuilder* builder) {
         std::vector<SkUniquePaintParamsID> uniqueIDs;
 

@@ -13,12 +13,12 @@
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkPipelineData.h"
-#include "src/core/SkShaderCodeDictionary.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/UniformManager.h"
 
 namespace skgpu::graphite {
@@ -190,12 +190,12 @@ std::string EmitTexturesAndSamplers(const std::vector<PaintParamsKey::BlockReade
                                     int* binding) {
     std::string result;
     for (int i = 0; i < (int) readers.size(); ++i) {
-        SkSpan<const SkTextureAndSampler> samplers = readers[i].entry()->fTexturesAndSamplers;
+        SkSpan<const TextureAndSampler> samplers = readers[i].entry()->fTexturesAndSamplers;
 
         if (!samplers.empty()) {
             SkSL::String::appendf(&result, "// %s samplers\n", readers[i].entry()->fName);
 
-            for (const SkTextureAndSampler& t : samplers) {
+            for (const TextureAndSampler& t : samplers) {
                 SkSL::String::appendf(&result,
                                       "layout(binding=%d) uniform sampler2D %s_%d;\n",
                                       *binding, t.name(), i);
@@ -318,7 +318,7 @@ std::string GetSkSLVS(const RenderStep* step,
     return sksl;
 }
 
-std::string GetSkSLFS(const SkShaderCodeDictionary* dict,
+std::string GetSkSLFS(const ShaderCodeDictionary* dict,
                       const SkRuntimeEffectDictionary* rteDict,
                       const RenderStep* step,
                       SkUniquePaintParamsID paintID,
@@ -331,7 +331,7 @@ std::string GetSkSLFS(const SkShaderCodeDictionary* dict,
     }
 
     const char* shadingSsboIndexVar = useStorageBuffers ? "shadingSsboIndexVar" : nullptr;
-    SkShaderInfo shaderInfo(rteDict, shadingSsboIndexVar);
+    ShaderInfo shaderInfo(rteDict, shadingSsboIndexVar);
 
     dict->getShaderInfo(paintID, &shaderInfo);
     *blendInfo = shaderInfo.blendInfo();

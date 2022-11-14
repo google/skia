@@ -10,11 +10,11 @@
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkMathPriv.h"
-#include "src/core/SkShaderCodeDictionary.h"
 #include "src/shaders/SkShaderBase.h"
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/ShaderCodeDictionary.h"
 #endif
 
 using namespace skgpu::graphite;
@@ -528,7 +528,7 @@ int CombinationOption::numChildSlots() const { return fDataInArena->numSlots(); 
 SkDEBUGCODE(int CombinationOption::epoch() const { return fDataInArena->epoch(); })
 
 //--------------------------------------------------------------------------------------------------
-CombinationBuilder::CombinationBuilder(SkShaderCodeDictionary* dict)
+CombinationBuilder::CombinationBuilder(ShaderCodeDictionary* dict)
         : fDictionary(dict) {
     fArena = std::make_unique<SkArenaAllocWithReset>(64);
     this->reset();
@@ -747,7 +747,7 @@ void CombinationBuilder::createKey(const SkKeyContext& keyContext,
 }
 
 void CombinationBuilder::buildCombinations(
-        SkShaderCodeDictionary* dict,
+        ShaderCodeDictionary* dict,
         const std::function<void(SkUniquePaintParamsID)>& func) {
     SkKeyContext keyContext(dict);
     PaintParamsKeyBuilder builder(dict);

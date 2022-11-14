@@ -7,10 +7,10 @@
 
 #include "tests/Test.h"
 
-#include "src/core/SkShaderCodeDictionary.h"
 
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 using namespace skgpu::graphite;
 
@@ -39,7 +39,7 @@ PaintParamsKey create_key(PaintParamsKeyBuilder* builder, int snippetID, int siz
 // These are intended to be unit tests of the PaintParamsKeyBuilder and PaintParamsKey.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, context) {
 
-    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     PaintParamsKeyBuilder builder(dict);
 
     // Invalid code snippet ID, key creation fails.
@@ -49,7 +49,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, co
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyValidBlockSizeTest, reporter, context) {
 
-    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     PaintParamsKeyBuilder builder(dict);
 
     // _Just_ on the edge of being too big
@@ -68,7 +68,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyValidBlockSizeTest, reporter, context) {
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyTooLargeBlockSizeTest, reporter, context) {
 
-    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     PaintParamsKeyBuilder builder(dict);
 
     // Too big by one byte
@@ -87,7 +87,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyTooLargeBlockSizeTest, reporter, context) 
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context) {
 
-    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     static const int kBlockDataSize = 4;
     static constexpr PaintParamsKey::DataPayloadField kDataFields[] = {
             {"data", PaintParamsKey::DataPayloadType::kByte, kBlockDataSize},
@@ -112,7 +112,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksData, reporter, context) {
 
-    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     static const int kBlockDataSize = 4;
     static constexpr PaintParamsKey::DataPayloadField kDataFields[] = {
             {"data", PaintParamsKey::DataPayloadType::kByte, kBlockDataSize},
@@ -139,7 +139,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksData, reporter, context) {
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyBlockReaderWorks, reporter, context) {
 
-    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     static const int kCountX = 3;
     static const int kCountY = 2;
     static const int kCountZ = 7;

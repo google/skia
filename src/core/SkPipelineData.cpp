@@ -7,7 +7,12 @@
 
 #include "src/core/SkOpts.h"
 #include "src/core/SkPipelineData.h"
-#include "src/core/SkShaderCodeDictionary.h"
+
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/ShaderCodeDictionary.h"
+#endif
+
+using SnippetRequirementFlags = skgpu::graphite::SnippetRequirementFlags;
 
 #ifdef SK_GRAPHITE_ENABLED
 SkPipelineDataGatherer::SkPipelineDataGatherer(skgpu::graphite::Layout layout)
@@ -20,8 +25,8 @@ void SkPipelineDataGatherer::reset() {
 #ifdef SK_GRAPHITE_ENABLED
     fTextureDataBlock.reset();
     fUniformManager.reset();
-#endif
     fSnippetRequirementFlags = SnippetRequirementFlags::kNone;
+#endif
 }
 
 #ifdef SK_DEBUG
@@ -29,17 +34,23 @@ void SkPipelineDataGatherer::checkReset() {
 #ifdef SK_GRAPHITE_ENABLED
     SkASSERT(fTextureDataBlock.empty());
     SkDEBUGCODE(fUniformManager.checkReset());
-#endif
     SkASSERT(fSnippetRequirementFlags == SnippetRequirementFlags::kNone);
+#endif
 }
 #endif // SK_DEBUG
 
 void SkPipelineDataGatherer::addFlags(SkEnumBitMask<SnippetRequirementFlags> flags) {
+#ifdef SK_GRAPHITE_ENABLED
     fSnippetRequirementFlags |= flags;
+#endif
 }
 
 bool SkPipelineDataGatherer::needsLocalCoords() const {
+#ifdef SK_GRAPHITE_ENABLED
     return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
+#else
+    return false;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

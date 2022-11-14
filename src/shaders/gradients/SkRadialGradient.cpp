@@ -17,8 +17,6 @@
 
 #include "src/shaders/gradients/SkGradientShaderBase.h"
 
-class SkShaderCodeDictionary;
-
 namespace {
 
 SkMatrix rad_to_unit_matrix(const SkPoint& center, SkScalar radius) {

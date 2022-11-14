@@ -13,12 +13,12 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ResourceKey.h"
 
-class SkShaderCodeDictionary;
 
 namespace skgpu::graphite {
 
 class ComputePipeline;
 class GraphicsPipeline;
+class ShaderCodeDictionary;
 
 /**
  * GlobalCache holds GPU resources that should be shared by every Recorder. The common requirement

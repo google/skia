@@ -10,8 +10,6 @@
 
 #include "src/shaders/gradients/SkGradientShaderBase.h"
 
-class SkShaderCodeDictionary;
-
 class SkLinearGradient final : public SkGradientShaderBase {
 public:
     SkLinearGradient(const SkPoint pts[2], const Descriptor&);

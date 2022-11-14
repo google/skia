@@ -399,8 +399,6 @@ SKSL_FILES = [
     "SkRuntimeEffect.cpp",
     "SkSLTypeShared.cpp",
     "SkSLTypeShared.h",
-    "SkShaderCodeDictionary.cpp",
-    "SkShaderCodeDictionary.h",
     "SkUniform.h",
 ]
 

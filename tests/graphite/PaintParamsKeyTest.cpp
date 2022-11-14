@@ -22,13 +22,13 @@
 #include "src/core/SkKeyHelpers.h"
 #include "src/core/SkPipelineData.h"
 #include "src/core/SkRuntimeEffectPriv.h"
-#include "src/core/SkShaderCodeDictionary.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/shaders/SkImageShader.h"
 #include "tests/graphite/CombinationBuilderTestAccess.h"
 
@@ -115,7 +115,7 @@ SkUniquePaintParamsID create_key(Context* context,
                                  ShaderType shaderType,
                                  SkTileMode tileMode,
                                  SkBlendMode blendMode) {
-    SkShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
     CombinationBuilder combinationBuilder(context->priv().shaderCodeDictionary());
 
@@ -170,7 +170,7 @@ SkUniquePaintParamsID create_key(Context* context,
 //   create a PaintCombinations object for a single combination
 //   traverse it to create an SkPaint (or create it in parallel)
 //   call Context::precompile and, somehow, get the created PaintParamsKey
-//           - maybe via a testing only callback on SkShaderCodeDictionary::findOrCreate
+//           - maybe via a testing only callback on ShaderCodeDictionary::findOrCreate
 //   draw w/ the SkPaint and, again, somehow, intercept the created PaintParamsKey
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     auto recorder = context->makeRecorder();

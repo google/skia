@@ -13,9 +13,9 @@
 #include "include/core/SkSize.h"
 
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "src/core/SkShaderCodeDictionary.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/RendererProvider.h"
+#include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 namespace skgpu {
 class SingleOwner;
@@ -46,8 +46,8 @@ public:
 
     const RendererProvider* rendererProvider() const { return &fRendererProvider; }
 
-    SkShaderCodeDictionary* shaderCodeDictionary() { return &fShaderDictionary; }
-    const SkShaderCodeDictionary* shaderCodeDictionary() const { return &fShaderDictionary; }
+    ShaderCodeDictionary* shaderCodeDictionary() { return &fShaderDictionary; }
+    const ShaderCodeDictionary* shaderCodeDictionary() const { return &fShaderDictionary; }
 
     virtual std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*) = 0;
 
@@ -60,7 +60,7 @@ private:
     Protected fProtected;
     GlobalCache fGlobalCache;
     RendererProvider fRendererProvider;
-    SkShaderCodeDictionary fShaderDictionary;
+    ShaderCodeDictionary fShaderDictionary;
 };
 
 } // namespace skgpu::graphite

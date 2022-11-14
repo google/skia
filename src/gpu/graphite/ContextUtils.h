@@ -42,7 +42,7 @@ std::string GetSkSLVS(const RenderStep* step,
                       bool defineShadingSsboIndexVarying,
                       bool defineLocalCoordsVarying);
 
-std::string GetSkSLFS(const SkShaderCodeDictionary*,
+std::string GetSkSLFS(const ShaderCodeDictionary*,
                       const SkRuntimeEffectDictionary*,
                       const RenderStep* renderStep,
                       SkUniquePaintParamsID paintID,

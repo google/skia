@@ -31,8 +31,5 @@ SkKeyContext::SkKeyContext(const SkKeyContext& other)
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"
 
-SkKeyContext::SkKeyContext(GrRecordingContext* rContext) : fRecordingContext(rContext) {
-    // TODO: fill this out for Ganesh
-    fDictionary = nullptr;
-}
+SkKeyContext::SkKeyContext(GrRecordingContext* rContext) : fRecordingContext(rContext) {}
 #endif

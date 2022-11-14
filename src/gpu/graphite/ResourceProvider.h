@@ -17,7 +17,6 @@
 
 struct SkSamplingOptions;
 class SkRuntimeEffectDictionary;
-class SkShaderCodeDictionary;
 
 namespace skgpu {
 class SingleOwner;
@@ -39,6 +38,7 @@ class GraphicsPipeline;
 class GraphicsPipelineDesc;
 class GraphiteResourceKey;
 class ResourceCache;
+class ShaderCodeDictionary;
 class Sampler;
 class SharedContext;
 class Texture;

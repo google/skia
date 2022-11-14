@@ -602,8 +602,6 @@ BASE_SRCS_ALL = [
     "src/core/SkScan_Path.cpp",
     "src/core/SkScopeExit.h",
     "src/core/SkSemaphore.cpp",
-    "src/core/SkShaderCodeDictionary.cpp",
-    "src/core/SkShaderCodeDictionary.h",
     "src/core/SkSharedMutex.cpp",
     "src/core/SkSharedMutex.h",
     "src/core/SkSpecialImage.cpp",

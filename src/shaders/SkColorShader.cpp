@@ -14,15 +14,12 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkUtils.h"
 #include "src/core/SkVM.h"
+#include "src/shaders/SkShaderBase.h"
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/core/SkKeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
-
-#include "src/shaders/SkShaderBase.h"
-
-class SkShaderCodeDictionary;
 
 /** \class SkColorShader
     A Shader that represents a single color. In general, this effect can be

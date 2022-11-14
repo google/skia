@@ -12,13 +12,12 @@
 #include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/SharedContext.h"
 
-class SkShaderCodeDictionary;
-
 namespace skgpu::graphite {
 
 class Caps;
 class GlobalCache;
 class ResourceProvider;
+class ShaderCodeDictionary;
 
 /** Class that adds methods to Context that are only intended for use internal to Skia.
     This class is purely a privileged window into Context. It should never have additional
@@ -28,10 +27,10 @@ public:
 #if GRAPHITE_TEST_UTILS
     const Caps* caps() const { return fContext->fSharedContext->caps(); }
 
-    const SkShaderCodeDictionary* shaderCodeDictionary() const {
+    const ShaderCodeDictionary* shaderCodeDictionary() const {
         return fContext->fSharedContext->shaderCodeDictionary();
     }
-    SkShaderCodeDictionary* shaderCodeDictionary() {
+    ShaderCodeDictionary* shaderCodeDictionary() {
         return fContext->fSharedContext->shaderCodeDictionary();
     }
 

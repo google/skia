@@ -9,7 +9,7 @@
 
 #include <cstring>
 #include "src/core/SkKeyHelpers.h"
-#include "src/core/SkShaderCodeDictionary.h"
+#include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 namespace skgpu::graphite {
 
@@ -29,7 +29,7 @@ static PaintParamsKey::Header read_header(SkSpan<const uint8_t> parentSpan, int 
 }
 
 //--------------------------------------------------------------------------------------------------
-PaintParamsKeyBuilder::PaintParamsKeyBuilder(const SkShaderCodeDictionary* dict)
+PaintParamsKeyBuilder::PaintParamsKeyBuilder(const ShaderCodeDictionary* dict)
         : fDict(dict) {}
 
 #ifdef SK_DEBUG
@@ -81,7 +81,7 @@ void PaintParamsKeyBuilder::beginBlock(int32_t codeSnippetID) {
     this->addByte(0);  // this will be filled in when endBlock is called
 
 #ifdef SK_DEBUG
-    const SkShaderSnippet* snippet = fDict->getEntry(codeSnippetID);
+    const ShaderSnippet* snippet = fDict->getEntry(codeSnippetID);
 
     fStack.back().fDataPayloadExpectations = snippet->fDataPayloadExpectations;
     fStack.back().fCurDataPayloadEntry = 0;
@@ -244,7 +244,7 @@ bool PaintParamsKey::operator==(const PaintParamsKey& that) const {
            !memcmp(fData.data(), that.fData.data(), fData.size());
 }
 
-PaintParamsKey::BlockReader PaintParamsKey::reader(const SkShaderCodeDictionary* dict,
+PaintParamsKey::BlockReader PaintParamsKey::reader(const ShaderCodeDictionary* dict,
                                                    int headerOffset) const {
     return BlockReader(dict, fData, headerOffset);
 }
@@ -252,7 +252,7 @@ PaintParamsKey::BlockReader PaintParamsKey::reader(const SkShaderCodeDictionary*
 #ifdef SK_DEBUG
 
 // This just iterates over the top-level blocks calling block-specific dump methods.
-void PaintParamsKey::dump(const SkShaderCodeDictionary* dict) const {
+void PaintParamsKey::dump(const ShaderCodeDictionary* dict) const {
     SkDebugf("--------------------------------------\n");
     SkDebugf("PaintParamsKey (%dB):\n", this->sizeInBytes());
 
@@ -265,9 +265,9 @@ void PaintParamsKey::dump(const SkShaderCodeDictionary* dict) const {
 }
 #endif // SK_DEBUG
 
-void PaintParamsKey::AddBlockToShaderInfo(const SkShaderCodeDictionary* dict,
+void PaintParamsKey::AddBlockToShaderInfo(const ShaderCodeDictionary* dict,
                                           const PaintParamsKey::BlockReader& reader,
-                                          SkShaderInfo* result) {
+                                          ShaderInfo* result) {
 
     result->add(reader);
     result->addFlags(dict->getEntry(reader.codeSnippetId())->fSnippetRequirementFlags);
@@ -281,8 +281,8 @@ void PaintParamsKey::AddBlockToShaderInfo(const SkShaderCodeDictionary* dict,
     }
 }
 
-void PaintParamsKey::toShaderInfo(const SkShaderCodeDictionary* dict,
-                                  SkShaderInfo* result) const {
+void PaintParamsKey::toShaderInfo(const ShaderCodeDictionary* dict,
+                                  ShaderInfo* result) const {
 
     int curHeaderOffset = 0;
     while (curHeaderOffset < this->sizeInBytes()) {
@@ -305,7 +305,7 @@ bool PaintParamsKey::isErrorKey() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-PaintParamsKey::BlockReader::BlockReader(const SkShaderCodeDictionary* dict,
+PaintParamsKey::BlockReader::BlockReader(const ShaderCodeDictionary* dict,
                                          SkSpan<const uint8_t> parentSpan,
                                          int offsetInParent) {
     Header header = read_header(parentSpan, offsetInParent);
@@ -318,7 +318,7 @@ PaintParamsKey::BlockReader::BlockReader(const SkShaderCodeDictionary* dict,
 int PaintParamsKey::BlockReader::numChildren() const { return fEntry->fNumChildren; }
 
 PaintParamsKey::BlockReader PaintParamsKey::BlockReader::child(
-        const SkShaderCodeDictionary* dict,
+        const ShaderCodeDictionary* dict,
         int childIndex) const {
     SkASSERT(childIndex < fEntry->fNumChildren);
 
@@ -394,7 +394,7 @@ static void output_indent(int indent) {
     SkDebugf("%*c", 4 * indent, ' ');
 }
 
-void PaintParamsKey::BlockReader::dump(const SkShaderCodeDictionary* dict, int indent) const {
+void PaintParamsKey::BlockReader::dump(const ShaderCodeDictionary* dict, int indent) const {
     uint8_t id = static_cast<uint8_t>(this->codeSnippetId());
     uint8_t blockSize = this->blockSize();
 

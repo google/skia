@@ -103,6 +103,8 @@ skia_graphite_sources = [
   "$_src/ResourceTypes.h",
   "$_src/Sampler.cpp",
   "$_src/Sampler.h",
+  "$_src/ShaderCodeDictionary.cpp",
+  "$_src/ShaderCodeDictionary.h",
   "$_src/SharedContext.cpp",
   "$_src/SharedContext.h",
   "$_src/SpecialImage_Graphite.cpp",
