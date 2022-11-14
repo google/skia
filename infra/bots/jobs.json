@@ -596,9 +596,7 @@
   {"name": "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Debug-All-Vulkan"},
   {"name": "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All"},
   {"name": "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"},
-  {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All",
-   "cq_config": {}
-   },
+  {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ASAN_Vulkan"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL1"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL1_Vulkan"},
