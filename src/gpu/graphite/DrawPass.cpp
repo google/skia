@@ -408,6 +408,7 @@ DrawPass::~DrawPass() = default;
 std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                          std::unique_ptr<DrawList> draws,
                                          sk_sp<TextureProxy> target,
+                                         SkISize deviceSize,
                                          std::pair<LoadOp, StoreOp> ops,
                                          std::array<float, 4> clearColor) {
     // NOTE: This assert is here to ensure SortKey is as tightly packed as possible. Any change to
@@ -507,15 +508,15 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // bugs in the DrawOrder determination code?
     std::sort(keys.begin(), keys.end());
 
-    // Set viewport to the entire texture for now (eventually, we may have logically smaller bounds
-    // within an approx-sized texture). It is assumed that this also configures the sk_rtAdjust
-    // intrinsic for programs (however the backend chooses to do so).
-    drawPass->fCommandList.setViewport(SkRect::Make(drawPass->fTarget->dimensions()));
-
     // Used to record vertex/instance data, buffer binds, and draw calls
     DrawWriter drawWriter(&drawPass->fCommandList, bufferMgr);
     GraphicsPipelineCache::Index lastPipeline = GraphicsPipelineCache::kInvalidIndex;
-    SkIRect lastScissor = SkIRect::MakeSize(drawPass->fTarget->dimensions());
+    SkIRect lastScissor = SkIRect::MakeSize(deviceSize);
+
+    SkASSERT(!drawPass->fTarget->isInstantiated() ||
+             SkIRect::MakeSize(drawPass->fTarget->dimensions()).contains(lastScissor));
+    drawPass->fCommandList.setScissor(lastScissor);
+
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = key.draw();
         const RenderStep& renderStep = key.renderStep();

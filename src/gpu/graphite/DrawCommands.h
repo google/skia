@@ -32,7 +32,6 @@ namespace DrawPassCommands {
     M(BindUniformBuffer)                                            \
     M(BindDrawBuffers)                                              \
     M(BindTexturesAndSamplers)                                      \
-    M(SetViewport)                                                  \
     M(SetScissor)                                                   \
     M(Draw)                                                         \
     M(DrawIndexed)                                                  \
@@ -85,10 +84,6 @@ COMMAND(BindTexturesAndSamplers,
             int fNumTexSamplers;
             PODArray<int> fTextureIndices;
             PODArray<int> fSamplerIndices);
-COMMAND(SetViewport,
-            SkRect fViewport;
-            float fMinDepth;
-            float fMaxDepth);
 COMMAND(SetScissor,
             SkIRect fScissor);
 COMMAND(Draw,
@@ -147,12 +142,6 @@ public:
         int* samplerIndices = fAlloc.makeArrayDefault<int>(numTexSamplers);
         this->add<BindTexturesAndSamplers>(numTexSamplers, textureIndices, samplerIndices);
         return {textureIndices, samplerIndices};
-    }
-
-    void setViewport(const SkRect& viewport,
-                     float minDepth = 0,
-                     float maxDepth = 1) {
-        this->add<SetViewport>(viewport, minDepth, maxDepth);
     }
 
     void setScissor(SkIRect scissor) {

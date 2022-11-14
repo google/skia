@@ -48,6 +48,7 @@ class TextureProxyView;
 class DrawContext final : public SkRefCnt {
 public:
     static sk_sp<DrawContext> Make(sk_sp<TextureProxy> target,
+                                   SkISize deviceSize,
                                    const SkColorInfo&,
                                    const SkSurfaceProps&);
 

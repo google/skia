@@ -106,10 +106,13 @@ bool MtlCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                        const Texture* colorTexture,
                                        const Texture* resolveTexture,
                                        const Texture* depthStencilTexture,
+                                       SkRect viewport,
                                        const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
     if (!this->beginRenderPass(renderPassDesc, colorTexture, resolveTexture, depthStencilTexture)) {
         return false;
     }
+
+    this->setViewport(viewport.x(), viewport.y(), viewport.width(), viewport.height(), 0, 1);
 
     for (size_t i = 0; i < drawPasses.size(); ++i) {
         this->addDrawPass(drawPasses[i].get());
@@ -292,16 +295,6 @@ void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
                                                 drawPass->getSampler(bts->fSamplerIndices[j]),
                                                 j);
                 }
-                break;
-            }
-            case DrawPassCommands::Type::kSetViewport: {
-                auto sv = static_cast<DrawPassCommands::SetViewport*>(cmdPtr);
-                this->setViewport(sv->fViewport.fLeft,
-                                  sv->fViewport.fTop,
-                                  sv->fViewport.width(),
-                                  sv->fViewport.height(),
-                                  sv->fMinDepth,
-                                  sv->fMaxDepth);
                 break;
             }
             case DrawPassCommands::Type::kSetScissor: {

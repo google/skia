@@ -228,6 +228,15 @@ sk_sp<Device> Device::Make(Recorder* recorder,
                            const SkColorInfo& colorInfo,
                            const SkSurfaceProps& props,
                            bool addInitialClear) {
+    return Make(recorder, target, target->dimensions(), colorInfo, props, addInitialClear);
+}
+
+sk_sp<Device> Device::Make(Recorder* recorder,
+                           sk_sp<TextureProxy> target,
+                           SkISize deviceSize,
+                           const SkColorInfo& colorInfo,
+                           const SkSurfaceProps& props,
+                           bool addInitialClear) {
     if (!recorder) {
         return nullptr;
     }
@@ -235,7 +244,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
         return nullptr;
     }
 
-    sk_sp<DrawContext> dc = DrawContext::Make(std::move(target), colorInfo, props);
+    sk_sp<DrawContext> dc = DrawContext::Make(std::move(target), deviceSize, colorInfo, props);
     if (!dc) {
         return nullptr;
     }

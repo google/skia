@@ -242,6 +242,7 @@ bool VulkanCommandBuffer::onAddRenderPass(
         const Texture* colorTexture,
         const Texture* resolveTexture,
         const Texture* depthStencilTexture,
+        SkRect viewport,
         const std::vector<std::unique_ptr<DrawPass>>& drawPasses) {
     return false;
 }

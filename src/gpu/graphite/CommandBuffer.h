@@ -62,6 +62,7 @@ public:
                        sk_sp<Texture> colorTexture,
                        sk_sp<Texture> resolveTexture,
                        sk_sp<Texture> depthStencilTexture,
+                       SkRect viewport,
                        const std::vector<std::unique_ptr<DrawPass>>& drawPasses);
 
     bool addComputePass(const ComputePassDesc&,
@@ -103,6 +104,7 @@ private:
                                  const Texture* colorTexture,
                                  const Texture* resolveTexture,
                                  const Texture* depthStencilTexture,
+                                 SkRect viewport,
                                  const std::vector<std::unique_ptr<DrawPass>>& drawPasses) = 0;
 
     virtual bool onAddComputePass(const ComputePassDesc&,

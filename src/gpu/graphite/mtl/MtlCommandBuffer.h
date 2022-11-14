@@ -75,6 +75,7 @@ private:
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture,
+                         SkRect viewport,
                          const std::vector<std::unique_ptr<DrawPass>>& drawPasses) override;
     bool onAddComputePass(const ComputePassDesc&,
                           const ComputePipeline*,

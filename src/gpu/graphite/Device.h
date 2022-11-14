@@ -52,6 +52,12 @@ public:
                               const SkColorInfo&,
                               const SkSurfaceProps&,
                               bool addInitialClear);
+    static sk_sp<Device> Make(Recorder* recorder,
+                              sk_sp<TextureProxy>,
+                              SkISize deviceSize,
+                              const SkColorInfo&,
+                              const SkSurfaceProps&,
+                              bool addInitialClear);
 
     Device* asGraphiteDevice() override { return this; }
 

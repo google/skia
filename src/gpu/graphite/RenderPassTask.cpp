@@ -108,6 +108,7 @@ bool RenderPassTask::addCommands(ResourceProvider* resourceProvider, CommandBuff
                                         std::move(colorAttachment),
                                         std::move(resolveAttachment),
                                         std::move(depthStencilAttachment),
+                                        SkRect::Make(fTarget->dimensions()),
                                         fDrawPasses);
 }
 
