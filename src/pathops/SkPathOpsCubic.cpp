@@ -412,7 +412,7 @@ int SkDCubic::RootsReal(double A, double B, double C, double D, double s[3]) {
     //     set print elements 400 # if line doesn't fit
     char str[1024];
     sk_bzero(str, sizeof(str));
-    SK_SNPRINTF(str, sizeof(str), "Solve[%1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]",
+    snprintf(str, sizeof(str), "Solve[%1.19g x^3 + %1.19g x^2 + %1.19g x + %1.19g == 0, x]",
             A, B, C, D);
     SkPathOpsDebug::MathematicaIze(str, sizeof(str));
     SkDebugf("%s\n", str);

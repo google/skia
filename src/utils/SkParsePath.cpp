@@ -235,11 +235,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
 
 static void write_scalar(SkWStream* stream, SkScalar value) {
     char buffer[64];
-#ifdef SK_BUILD_FOR_WIN
-    int len = _snprintf(buffer, sizeof(buffer), "%g", value);
-#else
     int len = snprintf(buffer, sizeof(buffer), "%g", value);
-#endif
     char* stop = buffer + len;
     stream->write(buffer, stop - buffer);
 }

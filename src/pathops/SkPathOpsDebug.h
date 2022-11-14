@@ -47,15 +47,10 @@ struct SkDQuad;
 #else
     #define SK_RAND(seed) rand_r(&seed)
 #endif
-#ifdef SK_BUILD_FOR_WIN
-    #define SK_SNPRINTF _snprintf
-#else
-    #define SK_SNPRINTF snprintf
-#endif
 
 #define WIND_AS_STRING(x) char x##Str[12]; \
         if (!SkPathOpsDebug::ValidWind(x)) strcpy(x##Str, "?"); \
-        else SK_SNPRINTF(x##Str, sizeof(x##Str), "%d", x)
+        else snprintf(x##Str, sizeof(x##Str), "%d", x)
 
 #if FORCE_RELEASE
 
