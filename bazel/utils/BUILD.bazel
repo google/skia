@@ -1,0 +1,38 @@
+# A helper function to get the go platform string of the Bazel host.
+# This can be used to do cross-platform go compilations.
+# Example:
+#    $ bazelisk run //bazel:go_platform
+#    darwin_arm64
+py_binary(
+    name = "go_platform",
+    srcs = ["go_platform.py"],
+    data = ["@go_sdk//:bin/go"],
+    tags = ["no-remote"],  # Need the platform of the host
+)
+
+_GO_PLATFORM = """
+import os
+import subprocess
+
+# https://bazel.build/reference/be/make-variables#predefined_label_variables
+go_exe = os.path.abspath("$(execpath @go_sdk//:bin/go)")
+
+result = subprocess.run([
+    go_exe,
+    "version",
+], capture_output=True, encoding="utf-8")
+
+# e.g. go version go1.18 darwin/arm64
+os_arch = result.stdout.strip().split(" ")[3]
+# e.g. darwin/arm64
+print(os_arch.replace("/", "_"))
+"""
+
+genrule(
+    name = "create_go_platform_script",
+    outs = ["go_platform.py"],
+    cmd = "echo '%s' > $@" % _GO_PLATFORM,
+    exec_tools = [
+        "@go_sdk//:bin/go",
+    ],
+)
