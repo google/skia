@@ -322,10 +322,21 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
                 "DstTextureCoords",
                 &dstTextureCoordsName);
         fFS.codeAppend("// Read color from copy of the destination\n");
-        fFS.codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s.xy) * %s.zw;\n",
-                        dstTextureCoordsName, dstTextureCoordsName);
-        if (fDstTextureOrigin == kBottomLeft_GrSurfaceOrigin) {
-            fFS.codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;\n");
+        if (dstTextureProxy->textureType() == GrTextureType::k2D) {
+            fFS.codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s.xy) * %s.zw;\n",
+                    dstTextureCoordsName, dstTextureCoordsName);
+            if (fDstTextureOrigin == kBottomLeft_GrSurfaceOrigin) {
+                fFS.codeAppend("_dstTexCoord.y = 1.0 - _dstTexCoord.y;\n");
+            }
+        } else {
+            SkASSERT(dstTextureProxy->textureType() == GrTextureType::kRectangle);
+            fFS.codeAppendf("half2 _dstTexCoord = (half2(sk_FragCoord.xy) - %s.xy);\n",
+                    dstTextureCoordsName);
+            if (fDstTextureOrigin == kBottomLeft_GrSurfaceOrigin) {
+                // When the texture type is kRectangle, instead of a scale stored in the zw of the
+                // uniform, we store the height in z so we can flip the coord here.
+                fFS.codeAppendf("_dstTexCoord.y = %s.z - _dstTexCoord.y;\n", dstTextureCoordsName);
+            }
         }
         const char* dstColor = fFS.dstColor();
         SkString dstColorDecl = SkStringPrintf("half4 %s;", dstColor);

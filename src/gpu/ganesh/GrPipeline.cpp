@@ -117,11 +117,21 @@ void GrPipeline::setDstTextureUniforms(const GrGLSLProgramDataManager& pdm,
 
     if (dstTexture) {
         if (fBuiltinUniformHandles->fDstTextureCoordsUni.isValid()) {
+            float scaleX = 1.f;
+            float scaleY = 1.f;
+            if (dstTexture->textureType() == GrTextureType::kRectangle) {
+                // When we have a rectangle texture, we use the scaleX component to store the height
+                // in case we need to flip the coords when using a bottom left origin.
+                scaleX = dstTexture->height();
+            } else {
+                scaleX /= dstTexture->width();
+                scaleY /= dstTexture->height();
+            }
             pdm.set4f(fBuiltinUniformHandles->fDstTextureCoordsUni,
                       static_cast<float>(this->dstTextureOffset().fX),
                       static_cast<float>(this->dstTextureOffset().fY),
-                      1.f / dstTexture->width(),
-                      1.f / dstTexture->height());
+                      scaleX,
+                      scaleY);
         }
     } else {
         SkASSERT(!fBuiltinUniformHandles->fDstTextureCoordsUni.isValid());
