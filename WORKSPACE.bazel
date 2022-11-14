@@ -92,10 +92,10 @@ pip_install(
 #######################################################################################
 http_archive(
     name = "io_bazel_rules_go",
-    sha256 = "099a9fb96a376ccbbb7d291ed4ecbdfd42f6bc822ab77ae6f1b5cb9e914e94fa",
+    sha256 = "2b1641428dff9018f9e85c0384f03ec6c10660d935b750e3fa1492a281a53b0f",
     urls = [
-        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
-        "https://github.com/bazelbuild/rules_go/releases/download/v0.35.0/rules_go-v0.35.0.zip",
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.29.0/rules_go-v0.29.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.29.0/rules_go-v0.29.0.zip",
     ],
 )
 
@@ -108,7 +108,7 @@ http_archive(
     ],
 )
 
-load("@io_bazel_rules_go//go:deps.bzl", "go_download_sdk", "go_register_toolchains", "go_rules_dependencies")
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
 load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
 load("//:go_repositories.bzl", "go_repositories")
 
@@ -117,28 +117,9 @@ go_repositories()
 
 go_rules_dependencies()
 
-# For our Linux RBE pool
-go_download_sdk(
-    name = "go_sdk_linux_amd64",
-    goarch = "amd64",
-    goos = "linux",
-    version = "1.18",
-)
+go_register_toolchains(version = "1.18")
 
-# For the host machine
-go_download_sdk(
-    name = "go_sdk",
-    version = "1.18",
-)
-
-# Do not specify a version here or it will be an error (because we
-# specified the version above when downloading SDKs)
-go_register_toolchains()
-
-gazelle_dependencies(
-    go_repository_default_config = "//:WORKSPACE.bazel",
-    go_sdk = "go_sdk",
-)
+gazelle_dependencies(go_repository_default_config = "//:WORKSPACE.bazel")
 
 # Because the skia infra repo has a dependency on google.golang.org/grpc (aka
 # @org_golang_google_grpc), we need to have this library available to build protos.
