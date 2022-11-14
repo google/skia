@@ -168,7 +168,7 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
 }
 
 void AnalyticRRectRenderStep::writeUniformsAndTextures(const DrawParams&,
-                                                       SkPipelineDataGatherer*) const {
+                                                       PipelineDataGatherer*) const {
     // All data is uploaded as instance attributes, so no uniforms are needed.
 }
 

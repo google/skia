@@ -123,7 +123,7 @@ SkUpdatableShader* SkShaderBase::onUpdatableShader(SkArenaAlloc* alloc) const {
 // TODO: add implementations for derived classes
 void SkShaderBase::addToKey(const SkKeyContext& keyContext,
                             skgpu::graphite::PaintParamsKeyBuilder* builder,
-                            SkPipelineDataGatherer* gatherer) const {
+                            skgpu::graphite::PipelineDataGatherer* gatherer) const {
     SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
     builder->endBlock();
 }

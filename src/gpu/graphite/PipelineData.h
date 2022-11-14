@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkPipelineData_DEFINED
-#define SkPipelineData_DEFINED
+#ifndef skgpu_graphite_PipelineData_DEFINED
+#define skgpu_graphite_PipelineData_DEFINED
 
 #include <vector>
 #include "include/core/SkPoint.h"
@@ -15,65 +15,60 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/SkColorData.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkEnumBitMask.h"
 #include "src/core/SkUniform.h"
-
-#ifdef SK_GRAPHITE_ENABLED
-#include "include/private/SkVx.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
-#endif
 
 class SkArenaAlloc;
 class SkUniform;
 
 namespace skgpu::graphite {
+
 enum class SnippetRequirementFlags : uint32_t;
-}
 
-class SkUniformDataBlock {
+class UniformDataBlock {
 public:
-    static SkUniformDataBlock* Make(const SkUniformDataBlock&, SkArenaAlloc*);
+    static UniformDataBlock* Make(const UniformDataBlock&, SkArenaAlloc*);
 
-    SkUniformDataBlock(SkSpan<const char> data) : fData(data) {}
-    SkUniformDataBlock() = default;
+    UniformDataBlock(SkSpan<const char> data) : fData(data) {}
+    UniformDataBlock() = default;
 
     const char* data() const { return fData.data(); }
     size_t size() const { return fData.size(); }
 
     uint32_t hash() const;
 
-    bool operator==(const SkUniformDataBlock& that) const {
+    bool operator==(const UniformDataBlock& that) const {
         return fData.size() == that.fData.size() &&
                !memcmp(fData.data(), that.fData.data(), fData.size());
     }
-    bool operator!=(const SkUniformDataBlock& that) const { return !(*this == that); }
+    bool operator!=(const UniformDataBlock& that) const { return !(*this == that); }
 
 private:
     SkSpan<const char> fData;
 };
 
-#ifdef SK_GRAPHITE_ENABLED
-class SkTextureDataBlock {
+class TextureDataBlock {
 public:
-    using SampledTexture = std::pair<sk_sp<skgpu::graphite::TextureProxy>,
-                                     skgpu::graphite::SamplerDesc>;
+    using SampledTexture = std::pair<sk_sp<TextureProxy>, SamplerDesc>;
 
-    static SkTextureDataBlock* Make(const SkTextureDataBlock&, SkArenaAlloc*);
-    SkTextureDataBlock() = default;
+    static TextureDataBlock* Make(const TextureDataBlock&, SkArenaAlloc*);
+    TextureDataBlock() = default;
 
     bool empty() const { return fTextureData.empty(); }
     int numTextures() const { return SkTo<int>(fTextureData.size()); }
     const SampledTexture& texture(int index) const { return fTextureData[index]; }
 
-    bool operator==(const SkTextureDataBlock&) const;
-    bool operator!=(const SkTextureDataBlock& other) const { return !(*this == other);  }
+    bool operator==(const TextureDataBlock&) const;
+    bool operator!=(const TextureDataBlock& other) const { return !(*this == other);  }
     uint32_t hash() const;
 
     void add(const SkSamplingOptions& sampling,
              const SkTileMode tileModes[2],
-             sk_sp<skgpu::graphite::TextureProxy> proxy) {
+             sk_sp<TextureProxy> proxy) {
         fTextureData.push_back({std::move(proxy), {sampling, {tileModes[0], tileModes[1]}}});
     }
 
@@ -85,40 +80,34 @@ private:
     // TODO: Move this into a SkSpan that's managed by the gatherer or copied into the arena.
     std::vector<SampledTexture> fTextureData;
 };
-#endif // SK_GRAPHITE_ENABLED
 
 // The PipelineDataGatherer is just used to collect information for a given PaintParams object.
 //   The UniformData is added to a cache and uniquified. Only that unique ID is passed around.
 //   The TextureData is also added to a cache and uniquified. Only that ID is passed around.
 
-// TODO: The current plan for fixing uniform padding is for the SkPipelineDataGatherer to hold a
+// TODO: The current plan for fixing uniform padding is for the PipelineDataGatherer to hold a
 // persistent uniformManager. A stretch goal for this system would be for this combination
 // to accumulate all the uniforms and then rearrange them to minimize padding. This would,
 // obviously, vastly complicate uniform accumulation.
-class SkPipelineDataGatherer {
+class PipelineDataGatherer {
 public:
-#ifdef SK_GRAPHITE_ENABLED
-    SkPipelineDataGatherer(skgpu::graphite::Layout layout);
-#endif
+    PipelineDataGatherer(Layout layout);
 
     void reset();
     // Check that the gatherer has been reset to its initial state prior to collecting new data.
     SkDEBUGCODE(void checkReset();)
 
-#ifdef SK_GRAPHITE_ENABLED
     void add(const SkSamplingOptions& sampling,
              const SkTileMode tileModes[2],
-             sk_sp<skgpu::graphite::TextureProxy> proxy) {
+             sk_sp<TextureProxy> proxy) {
         fTextureDataBlock.add(sampling, tileModes, std::move(proxy));
     }
     bool hasTextures() const { return !fTextureDataBlock.empty(); }
-#endif // SK_GRAPHITE_ENABLED
 
-    void addFlags(SkEnumBitMask<skgpu::graphite::SnippetRequirementFlags> flags);
+    void addFlags(SkEnumBitMask<SnippetRequirementFlags> flags);
     bool needsLocalCoords() const;
 
-#ifdef SK_GRAPHITE_ENABLED
-    const SkTextureDataBlock& textureDataBlock() { return fTextureDataBlock; }
+    const TextureDataBlock& textureDataBlock() { return fTextureDataBlock; }
 
     void write(const SkM44& mat) { fUniformManager.write(mat); }
     void write(const SkPMColor4f& premulColor) { fUniformManager.write(premulColor); }
@@ -139,7 +128,7 @@ public:
 
     // Returns the uniform data written so far. Will automatically pad the end of the data as needed
     // to the overall required alignment, and so should only be called when all writing is done.
-    SkUniformDataBlock finishUniformDataBlock() { return fUniformManager.finishUniformDataBlock(); }
+    UniformDataBlock finishUniformDataBlock() { return fUniformManager.finishUniformDataBlock(); }
 
 private:
 #ifdef SK_DEBUG
@@ -151,16 +140,15 @@ private:
     void doneWithExpectedUniforms() { fUniformManager.doneWithExpectedUniforms(); }
 #endif // SK_DEBUG
 
-    SkTextureDataBlock                     fTextureDataBlock;
-    skgpu::graphite::UniformManager        fUniformManager;
-    SkEnumBitMask<skgpu::graphite::SnippetRequirementFlags> fSnippetRequirementFlags;
-#endif // SK_GRAPHITE_ENABLED
+    TextureDataBlock                       fTextureDataBlock;
+    UniformManager                         fUniformManager;
+    SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags;
 };
 
-#if defined(SK_DEBUG) && defined(SK_GRAPHITE_ENABLED)
+#ifdef SK_DEBUG
 class UniformExpectationsValidator {
 public:
-    UniformExpectationsValidator(SkPipelineDataGatherer *gatherer,
+    UniformExpectationsValidator(PipelineDataGatherer *gatherer,
                                  SkSpan<const SkUniform> expectedUniforms)
             : fGatherer(gatherer) {
         fGatherer->setExpectedUniforms(expectedUniforms);
@@ -171,13 +159,15 @@ public:
     }
 
 private:
-    SkPipelineDataGatherer *fGatherer;
+    PipelineDataGatherer *fGatherer;
 
     UniformExpectationsValidator(UniformExpectationsValidator &&) = delete;
     UniformExpectationsValidator(const UniformExpectationsValidator &) = delete;
     UniformExpectationsValidator &operator=(UniformExpectationsValidator &&) = delete;
     UniformExpectationsValidator &operator=(const UniformExpectationsValidator &) = delete;
 };
-#endif // SK_DEBUG && SK_GRAPHITE_ENABLED
+#endif // SK_DEBUG
 
-#endif // SkPipelineData_DEFINED
+} // namespace skgpu::graphite
+
+#endif // skgpu_graphite_PipelineData_DEFINED

@@ -64,7 +64,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
 protected:
@@ -181,7 +181,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
 
 void SkShader_Blend::addToKey(const SkKeyContext& keyContext,
                               skgpu::graphite::PaintParamsKeyBuilder* builder,
-                              SkPipelineDataGatherer* gatherer) const {
+                              skgpu::graphite::PipelineDataGatherer* gatherer) const {
     SkSpan<const float> porterDuffConstants = skgpu::GetPorterDuffBlendConstants(fMode);
     if (!porterDuffConstants.empty()) {
         PorterDuffBlendShaderBlock::BeginBlock(keyContext, builder, gatherer,

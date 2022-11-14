@@ -46,7 +46,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
 private:
@@ -82,7 +82,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
 private:
@@ -220,7 +220,7 @@ std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
 #ifdef SK_GRAPHITE_ENABLED
 void SkColorShader::addToKey(const SkKeyContext& keyContext,
                              skgpu::graphite::PaintParamsKeyBuilder* builder,
-                             SkPipelineDataGatherer* gatherer) const {
+                             skgpu::graphite::PipelineDataGatherer* gatherer) const {
     SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
                                       SkColor4f::FromColor(fColor).premul());
     builder->endBlock();
@@ -228,7 +228,7 @@ void SkColorShader::addToKey(const SkKeyContext& keyContext,
 
 void SkColor4Shader::addToKey(const SkKeyContext& keyContext,
                               skgpu::graphite::PaintParamsKeyBuilder* builder,
-                              SkPipelineDataGatherer* gatherer) const {
+                              skgpu::graphite::PipelineDataGatherer* gatherer) const {
     SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, fColor.premul());
     builder->endBlock();
 }

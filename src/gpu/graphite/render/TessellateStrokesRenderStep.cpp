@@ -8,11 +8,11 @@
 #include "src/gpu/graphite/render/TessellateStrokesRenderStep.h"
 
 #include "src/core/SkGeometry.h"
-#include "src/core/SkPipelineData.h"
 
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/render/DynamicInstancesPatchAllocator.h"
 
@@ -208,7 +208,7 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
 }
 
 void TessellateStrokesRenderStep::writeUniformsAndTextures(const DrawParams& params,
-                                                           SkPipelineDataGatherer* gatherer) const {
+                                                           PipelineDataGatherer* gatherer) const {
     SkASSERT(params.transform().type() < Transform::Type::kProjection); // TODO: Implement perspective
 
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)

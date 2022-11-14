@@ -26,8 +26,6 @@
 #include <vector>
 
 enum class SkPathFillType;
-class SkPipelineDataGatherer;
-class SkTextureDataBlock;
 
 namespace skgpu { enum class MaskFormat; }
 
@@ -35,7 +33,9 @@ namespace skgpu::graphite {
 
 class DrawWriter;
 class DrawParams;
+class PipelineDataGatherer;
 class ResourceProvider;
+class TextureDataBlock;
 
 struct Varying {
     const char* fName;
@@ -73,7 +73,7 @@ public:
     // values will be de-duplicated across all draws using the RenderStep before uploading to the
     // GPU, but it can be assumed the uniforms will be bound before the draws recorded in
     // 'writeVertices' are executed.
-    virtual void writeUniformsAndTextures(const DrawParams&, SkPipelineDataGatherer*) const = 0;
+    virtual void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const = 0;
 
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable. This will be automatically

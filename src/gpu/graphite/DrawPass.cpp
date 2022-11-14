@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PipelineDataCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
@@ -33,7 +34,6 @@
 #include "src/gpu/graphite/geom/BoundsManager.h"
 
 #include "src/core/SkMathPriv.h"
-#include "src/core/SkPipelineData.h"
 #include "src/core/SkTBlockList.h"
 
 #include <algorithm>
@@ -95,19 +95,19 @@ private:
 // Tracks uniform data on the CPU and then its transition to storage in a GPU buffer (ubo or ssbo).
 struct CpuOrGpuData {
     union {
-        const SkUniformDataBlock* fCpuData;
+        const UniformDataBlock* fCpuData;
         BindBufferInfo fGpuData;
     };
 
     // Can only start from CPU data
-    CpuOrGpuData(const SkUniformDataBlock* cpuData) : fCpuData(cpuData) {}
+    CpuOrGpuData(const UniformDataBlock* cpuData) : fCpuData(cpuData) {}
 };
 
 // Tracks the combination of textures from the paint and from the RenderStep to describe the full
 // binding that needs to be in the command list.
 struct TextureBinding {
-    const SkTextureDataBlock* fPaintTextures;
-    const SkTextureDataBlock* fStepTextures;
+    const TextureDataBlock* fPaintTextures;
+    const TextureDataBlock* fStepTextures;
 
     bool operator==(const TextureBinding& other) const {
         return fPaintTextures == other.fPaintTextures &&
@@ -121,7 +121,7 @@ struct TextureBinding {
     }
 };
 
-using UniformSsboCache = DenseBiMap<const SkUniformDataBlock*, CpuOrGpuData>;
+using UniformSsboCache = DenseBiMap<const UniformDataBlock*, CpuOrGpuData>;
 using TextureBindingCache = DenseBiMap<TextureBinding>;
 using GraphicsPipelineCache = DenseBiMap<GraphicsPipelineDesc>;
 
@@ -130,8 +130,8 @@ using GraphicsPipelineCache = DenseBiMap<GraphicsPipelineDesc>;
 // Bind commands to a CommandList when necessary.
 class TextureBindingTracker {
 public:
-    TextureBindingCache::Index trackTextures(const SkTextureDataBlock* paintTextures,
-                                             const SkTextureDataBlock* stepTextures) {
+    TextureBindingCache::Index trackTextures(const TextureDataBlock* paintTextures,
+                                             const TextureDataBlock* stepTextures) {
         if (!paintTextures && !stepTextures) {
             return TextureBindingCache::kInvalidIndex;
         }
@@ -198,7 +198,7 @@ public:
     // Maps a given {pipeline index, uniform data cache index} pair to an SSBO index within the
     // pipeline's accumulated array of uniforms.
     UniformSsboCache::Index trackUniforms(GraphicsPipelineCache::Index pipelineIndex,
-                                          const SkUniformDataBlock* cpuData) {
+                                          const UniformDataBlock* cpuData) {
         if (!cpuData) {
             return UniformSsboCache::kInvalidIndex;
         }
@@ -448,7 +448,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
     ShaderCodeDictionary* dict = recorder->priv().shaderCodeDictionary();
     PaintParamsKeyBuilder builder(dict);
-    SkPipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
+    PipelineDataGatherer gatherer(Layout::kMetal);  // TODO: get the layout from the recorder
 
     std::vector<SortKey> keys;
     keys.reserve(draws->renderStepCount());
@@ -457,8 +457,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         // bound independently of those used by the rest of the RenderStep, then we can upload now
         // and remember the location for re-use on any RenderStep that does shading.
         SkUniquePaintParamsID shaderID;
-        const SkUniformDataBlock* shadingUniforms = nullptr;
-        const SkTextureDataBlock* paintTextures = nullptr;
+        const UniformDataBlock* shadingUniforms = nullptr;
+        const TextureDataBlock* paintTextures = nullptr;
         if (draw.fPaintParams.has_value()) {
             std::tie(shaderID, shadingUniforms, paintTextures) =
                     ExtractPaintData(recorder, &gatherer, &builder,

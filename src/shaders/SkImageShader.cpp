@@ -388,7 +388,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 #ifdef SK_GRAPHITE_ENABLED
 void SkImageShader::addToKey(const SkKeyContext& keyContext,
                              skgpu::graphite::PaintParamsKeyBuilder* builder,
-                             SkPipelineDataGatherer* gatherer) const {
+                             skgpu::graphite::PipelineDataGatherer* gatherer) const {
     ImageShaderBlock::ImageData imgData(fSampling, fTileModeX, fTileModeY, fSubset);
 
     auto [ imageToDraw, newSampling ] = skgpu::graphite::GetGraphiteBacked(keyContext.recorder(),

@@ -7,13 +7,13 @@
 
 #include "src/gpu/graphite/render/VerticesRenderStep.h"
 
-#include "src/core/SkPipelineData.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/core/SkVertState.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
 namespace skgpu::graphite {
@@ -173,7 +173,7 @@ void VerticesRenderStep::writeVertices(DrawWriter* writer,
 }
 
 void VerticesRenderStep::writeUniformsAndTextures(const DrawParams& params,
-                                                  SkPipelineDataGatherer* gatherer) const {
+                                                  PipelineDataGatherer* gatherer) const {
     // Vertices are transformed on the GPU. Store PaintDepth as a uniform to avoid copying the
     // same depth for each vertex.
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)

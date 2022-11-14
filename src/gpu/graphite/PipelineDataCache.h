@@ -10,7 +10,7 @@
 
 #include "include/private/SkTHash.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkPipelineData.h"
+#include "src/gpu/graphite/PipelineData.h"
 
 
 namespace skgpu::graphite {
@@ -79,12 +79,12 @@ private:
 };
 
 // A UniformDataCache lives for the entire duration of a Recorder.
-using UniformDataCache = PipelineDataCache<SkUniformDataBlock>;
+using UniformDataCache = PipelineDataCache<UniformDataBlock>;
 
 // A TextureDataCache only lives for a single Recording. When a Recording is snapped it is pulled
 // off of the Recorder and goes with the Recording as a record of the required Textures and
 // Samplers.
-using TextureDataCache = PipelineDataCache<SkTextureDataBlock>;
+using TextureDataCache = PipelineDataCache<TextureDataBlock>;
 
 } // namespace skgpu::graphite
 

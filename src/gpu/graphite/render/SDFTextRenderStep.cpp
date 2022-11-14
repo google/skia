@@ -7,12 +7,11 @@
 
 #include "src/gpu/graphite/render/SDFTextRenderStep.h"
 
-#include "src/core/SkPipelineData.h"
-
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkSLString.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 #include "src/gpu/graphite/text/AtlasManager.h"
@@ -149,7 +148,7 @@ void SDFTextRenderStep::writeVertices(DrawWriter* dw,
 }
 
 void SDFTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
-                                                 SkPipelineDataGatherer* gatherer) const {
+                                                 PipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     const SubRunData& subRunData = params.geometry().subRunData();

@@ -18,10 +18,10 @@
 
 class SkPixmap;
 class SkRuntimeEffectDictionary;
-class SkTextureDataBlock;
-class SkUniformDataBlock;
 
-namespace skgpu { class TokenTracker; }
+namespace skgpu {
+class TokenTracker;
+}
 
 namespace sktext::gpu {
 class StrikeCache;
@@ -45,11 +45,13 @@ class SharedContext;
 class Task;
 class TaskGraph;
 class TextureInfo;
+class TextureDataBlock;
+class UniformDataBlock;
 class UploadBufferManager;
 
 template<typename T> class PipelineDataCache;
-using UniformDataCache = PipelineDataCache<SkUniformDataBlock>;
-using TextureDataCache = PipelineDataCache<SkTextureDataBlock>;
+using UniformDataCache = PipelineDataCache<UniformDataBlock>;
+using TextureDataCache = PipelineDataCache<TextureDataBlock>;
 
 struct SK_API RecorderOptions final {
     RecorderOptions();

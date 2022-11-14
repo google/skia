@@ -948,7 +948,7 @@ static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children
                                 SkSpan<const SkRuntimeEffect::Child> childInfo,
                                 const SkKeyContext& keyContext,
                                 skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                SkPipelineDataGatherer* gatherer) {
+                                skgpu::graphite::PipelineDataGatherer* gatherer) {
     SkASSERT(children.size() == childInfo.size());
 
     for (size_t index = 0; index < children.size(); ++index) {
@@ -1083,7 +1083,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  SkPipelineDataGatherer* gatherer) const override {
+                  skgpu::graphite::PipelineDataGatherer* gatherer) const override {
         RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 
         add_children_to_key(fChildren, fEffect->children(), keyContext, builder, gatherer);
@@ -1261,7 +1261,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  SkPipelineDataGatherer* gatherer) const override {
+                  skgpu::graphite::PipelineDataGatherer* gatherer) const override {
         RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 
         add_children_to_key(fChildren, fEffect->children(), keyContext, builder, gatherer);
@@ -1433,7 +1433,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  SkPipelineDataGatherer* gatherer,
+                  skgpu::graphite::PipelineDataGatherer* gatherer,
                   bool primitiveColorBlender) const override {
         RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, {fEffect, fUniforms});
 

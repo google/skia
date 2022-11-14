@@ -394,8 +394,6 @@ SKSL_FILES = [
     "SkKeyContext.h",
     "SkKeyHelpers.cpp",
     "SkKeyHelpers.h",
-    "SkPipelineData.cpp",
-    "SkPipelineData.h",
     "SkRuntimeEffect.cpp",
     "SkSLTypeShared.cpp",
     "SkSLTypeShared.h",

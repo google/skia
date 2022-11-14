@@ -38,7 +38,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
     sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const override {

@@ -11,7 +11,6 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkKeyContext.h"
-#include "src/core/SkPipelineData.h"
 #include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkUniform.h"
@@ -20,6 +19,7 @@
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
@@ -39,7 +39,7 @@ using namespace skgpu::graphite;
 
 void PassthroughShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                         PaintParamsKeyBuilder* builder,
-                                        SkPipelineDataGatherer* gatherer) {
+                                        PipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
     builder->beginBlock(SkBuiltInCodeSnippetID::kPassthroughShader);
 #endif // SK_GRAPHITE_ENABLED
@@ -49,7 +49,7 @@ void PassthroughShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 void PassthroughBlenderBlock::BeginBlock(const SkKeyContext& keyContext,
                                          PaintParamsKeyBuilder* builder,
-                                         SkPipelineDataGatherer* gatherer) {
+                                         PipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
     builder->beginBlock(SkBuiltInCodeSnippetID::kPassthroughBlender);
 #endif // SK_GRAPHITE_ENABLED
@@ -63,7 +63,7 @@ namespace {
 
 void add_solid_uniform_data(const ShaderCodeDictionary* dict,
                             const SkPMColor4f& premulColor,
-                            SkPipelineDataGatherer* gatherer) {
+                            PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kSolidColorShader)
     gatherer->write(premulColor);
 
@@ -76,7 +76,7 @@ void add_solid_uniform_data(const ShaderCodeDictionary* dict,
 
 void SolidColorShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                        PaintParamsKeyBuilder* builder,
-                                       SkPipelineDataGatherer* gatherer,
+                                       PipelineDataGatherer* gatherer,
                                        const SkPMColor4f& premulColor) {
 #ifdef SK_GRAPHITE_ENABLED
     if (gatherer) {
@@ -98,7 +98,7 @@ namespace {
 void add_linear_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                       SkBuiltInCodeSnippetID codeSnippetID,
                                       const GradientShaderBlocks::GradientData& gradData,
-                                      SkPipelineDataGatherer* gatherer) {
+                                      PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
     size_t stops = codeSnippetID == SkBuiltInCodeSnippetID::kLinearGradientShader4 ? 4 : 8;
 
@@ -114,7 +114,7 @@ void add_linear_gradient_uniform_data(const ShaderCodeDictionary* dict,
 void add_radial_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                       SkBuiltInCodeSnippetID codeSnippetID,
                                       const GradientShaderBlocks::GradientData& gradData,
-                                      SkPipelineDataGatherer* gatherer) {
+                                      PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
     size_t stops = codeSnippetID == SkBuiltInCodeSnippetID::kRadialGradientShader4 ? 4 : 8;
 
@@ -130,7 +130,7 @@ void add_radial_gradient_uniform_data(const ShaderCodeDictionary* dict,
 void add_sweep_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                      SkBuiltInCodeSnippetID codeSnippetID,
                                      const GradientShaderBlocks::GradientData& gradData,
-                                     SkPipelineDataGatherer* gatherer) {
+                                     PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
     size_t stops = codeSnippetID == SkBuiltInCodeSnippetID::kSweepGradientShader4 ? 4 : 8;
 
@@ -147,7 +147,7 @@ void add_sweep_gradient_uniform_data(const ShaderCodeDictionary* dict,
 void add_conical_gradient_uniform_data(const ShaderCodeDictionary* dict,
                                        SkBuiltInCodeSnippetID codeSnippetID,
                                        const GradientShaderBlocks::GradientData& gradData,
-                                       SkPipelineDataGatherer* gatherer) {
+                                       PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
     size_t stops = codeSnippetID == SkBuiltInCodeSnippetID::kConicalGradientShader4 ? 4 : 8;
 
@@ -216,7 +216,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
 
 void GradientShaderBlocks::BeginBlock(const SkKeyContext& keyContext,
                                       PaintParamsKeyBuilder *builder,
-                                      SkPipelineDataGatherer* gatherer,
+                                      PipelineDataGatherer* gatherer,
                                       const GradientData& gradData) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
@@ -273,7 +273,7 @@ namespace {
 
 void add_localmatrixshader_uniform_data(const ShaderCodeDictionary* dict,
                                         const SkM44& localMatrix,
-                                        SkPipelineDataGatherer* gatherer) {
+                                        PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kLocalMatrixShader)
 
     SkM44 lmInverse;
@@ -294,7 +294,7 @@ void add_localmatrixshader_uniform_data(const ShaderCodeDictionary* dict,
 
 void LocalMatrixShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                         PaintParamsKeyBuilder* builder,
-                                        SkPipelineDataGatherer* gatherer,
+                                        PipelineDataGatherer* gatherer,
                                         const LMShaderData& lmShaderData) {
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -318,7 +318,7 @@ namespace {
 
 void add_image_uniform_data(const ShaderCodeDictionary* dict,
                             const ImageShaderBlock::ImageData& imgData,
-                            SkPipelineDataGatherer* gatherer) {
+                            PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kImageShader)
 
     gatherer->write(SkPoint::Make(imgData.fTextureProxy->dimensions().fWidth,
@@ -353,7 +353,7 @@ ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
 
 void ImageShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                   PaintParamsKeyBuilder* builder,
-                                  SkPipelineDataGatherer* gatherer,
+                                  PipelineDataGatherer* gatherer,
                                   const ImageData& imgData) {
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -382,7 +382,7 @@ void ImageShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 void PorterDuffBlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                             PaintParamsKeyBuilder* builder,
-                                            SkPipelineDataGatherer* gatherer,
+                                            PipelineDataGatherer* gatherer,
                                             const PorterDuffBlendShaderData& blendData) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
@@ -405,7 +405,7 @@ void PorterDuffBlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 void BlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                   PaintParamsKeyBuilder* builder,
-                                  SkPipelineDataGatherer* gatherer,
+                                  PipelineDataGatherer* gatherer,
                                   const BlendShaderData& blendData) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
@@ -427,7 +427,7 @@ void BlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 void ColorFilterShaderBlock::BeginBlock(const SkKeyContext& keyContext,
                                         PaintParamsKeyBuilder* builder,
-                                        SkPipelineDataGatherer* gatherer) {
+                                        PipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
 
@@ -448,7 +448,7 @@ namespace {
 
 void add_matrix_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
                                          const MatrixColorFilterBlock::MatrixColorFilterData& data,
-                                         SkPipelineDataGatherer* gatherer) {
+                                         PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kMatrixColorFilter)
     gatherer->write(data.fMatrix);
     gatherer->write(data.fTranslate);
@@ -464,7 +464,7 @@ void add_matrix_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
 
 void MatrixColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                         PaintParamsKeyBuilder* builder,
-                                        SkPipelineDataGatherer* gatherer,
+                                        PipelineDataGatherer* gatherer,
                                         const MatrixColorFilterData& matrixCFData) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
@@ -485,7 +485,7 @@ namespace {
 
 void add_blend_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
                                         const BlendColorFilterBlock::BlendColorFilterData& data,
-                                        SkPipelineDataGatherer* gatherer) {
+                                        PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kBlendColorFilter)
     gatherer->write(SkTo<int>(data.fBlendMode));
     gatherer->write(data.fSrcColor);
@@ -499,7 +499,7 @@ void add_blend_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
 
 void BlendColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                        PaintParamsKeyBuilder* builder,
-                                       SkPipelineDataGatherer* gatherer,
+                                       PipelineDataGatherer* gatherer,
                                        const BlendColorFilterData& data) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
@@ -515,7 +515,7 @@ void BlendColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
 //--------------------------------------------------------------------------------------------------
 void ComposeColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                          PaintParamsKeyBuilder* builder,
-                                         SkPipelineDataGatherer* gatherer) {
+                                         PipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
     builder->beginBlock(SkBuiltInCodeSnippetID::kComposeColorFilter);
 #endif // SK_GRAPHITE_ENABLED
@@ -524,7 +524,7 @@ void ComposeColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
 //--------------------------------------------------------------------------------------------------
 void GaussianColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                           PaintParamsKeyBuilder* builder,
-                                          SkPipelineDataGatherer* gatherer) {
+                                          PipelineDataGatherer* gatherer) {
 #ifdef SK_GRAPHITE_ENABLED
     builder->beginBlock(SkBuiltInCodeSnippetID::kGaussianColorFilter);
 #endif // SK_GRAPHITE_ENABLED
@@ -537,7 +537,7 @@ namespace {
 
 void add_table_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
                                         const TableColorFilterBlock::TableColorFilterData& data,
-                                        SkPipelineDataGatherer* gatherer) {
+                                        PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kTableColorFilter)
 
     gatherer->addFlags(dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kTableColorFilter));
@@ -551,7 +551,7 @@ TableColorFilterBlock::TableColorFilterData::TableColorFilterData() {}
 
 void TableColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
                                        PaintParamsKeyBuilder* builder,
-                                       SkPipelineDataGatherer* gatherer,
+                                       PipelineDataGatherer* gatherer,
                                        const TableColorFilterData& data) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
@@ -616,7 +616,7 @@ const skgpu::BlendInfo& get_blend_info(SkBlendMode bm) {
 
 void add_shaderbasedblender_uniform_data(const ShaderCodeDictionary* dict,
                                          SkBlendMode bm,
-                                         SkPipelineDataGatherer* gatherer) {
+                                         PipelineDataGatherer* gatherer) {
     VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kShaderBasedBlender)
     gatherer->write(SkTo<int>(bm));
 
@@ -630,7 +630,7 @@ void add_shaderbasedblender_uniform_data(const ShaderCodeDictionary* dict,
 
 void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
                                 PaintParamsKeyBuilder *builder,
-                                SkPipelineDataGatherer* gatherer,
+                                PipelineDataGatherer* gatherer,
                                 SkBlendMode bm) {
 
 #ifdef SK_GRAPHITE_ENABLED
@@ -657,7 +657,7 @@ void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
 
 void PrimitiveBlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
                                          PaintParamsKeyBuilder *builder,
-                                         SkPipelineDataGatherer* gatherer,
+                                         PipelineDataGatherer* gatherer,
                                          SkBlendMode bm) {
 #ifdef SK_GRAPHITE_ENABLED
     auto dict = keyContext.dict();
@@ -698,7 +698,7 @@ static void add_effect_to_recorder(skgpu::graphite::Recorder* recorder,
 static void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform> rtsUniforms,
                                            SkSpan<const SkUniform> graphiteUniforms,
                                            const SkData* uniformData,
-                                           SkPipelineDataGatherer* gatherer) {
+                                           PipelineDataGatherer* gatherer) {
     // Collect all the other uniforms from the provided SkData.
     const uint8_t* uniformBase = uniformData->bytes();
     for (size_t index = 0; index < rtsUniforms.size(); ++index) {
@@ -713,7 +713,7 @@ static void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform
 
 void RuntimeEffectBlock::BeginBlock(const SkKeyContext& keyContext,
                                     PaintParamsKeyBuilder* builder,
-                                    SkPipelineDataGatherer* gatherer,
+                                    PipelineDataGatherer* gatherer,
                                     const ShaderData& shaderData) {
 #ifdef SK_GRAPHITE_ENABLED
     ShaderCodeDictionary* dict = keyContext.dict();

@@ -5,81 +5,66 @@
  * found in the LICENSE file.
  */
 
+#include "src/gpu/graphite/PipelineData.h"
+
 #include "src/core/SkOpts.h"
-#include "src/core/SkPipelineData.h"
-
-#ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
-#endif
 
-using SnippetRequirementFlags = skgpu::graphite::SnippetRequirementFlags;
+namespace skgpu::graphite {
 
-#ifdef SK_GRAPHITE_ENABLED
-SkPipelineDataGatherer::SkPipelineDataGatherer(skgpu::graphite::Layout layout)
+using SnippetRequirementFlags = SnippetRequirementFlags;
+
+PipelineDataGatherer::PipelineDataGatherer(skgpu::graphite::Layout layout)
         : fUniformManager(layout)
         , fSnippetRequirementFlags(SnippetRequirementFlags::kNone) {
 }
-#endif
 
-void SkPipelineDataGatherer::reset() {
-#ifdef SK_GRAPHITE_ENABLED
+void PipelineDataGatherer::reset() {
     fTextureDataBlock.reset();
     fUniformManager.reset();
     fSnippetRequirementFlags = SnippetRequirementFlags::kNone;
-#endif
 }
 
 #ifdef SK_DEBUG
-void SkPipelineDataGatherer::checkReset() {
-#ifdef SK_GRAPHITE_ENABLED
+void PipelineDataGatherer::checkReset() {
     SkASSERT(fTextureDataBlock.empty());
     SkDEBUGCODE(fUniformManager.checkReset());
     SkASSERT(fSnippetRequirementFlags == SnippetRequirementFlags::kNone);
-#endif
 }
 #endif // SK_DEBUG
 
-void SkPipelineDataGatherer::addFlags(SkEnumBitMask<SnippetRequirementFlags> flags) {
-#ifdef SK_GRAPHITE_ENABLED
+void PipelineDataGatherer::addFlags(SkEnumBitMask<SnippetRequirementFlags> flags) {
     fSnippetRequirementFlags |= flags;
-#endif
 }
 
-bool SkPipelineDataGatherer::needsLocalCoords() const {
-#ifdef SK_GRAPHITE_ENABLED
+bool PipelineDataGatherer::needsLocalCoords() const {
     return fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords;
-#else
-    return false;
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-SkUniformDataBlock* SkUniformDataBlock::Make(const SkUniformDataBlock& other,
-                                             SkArenaAlloc* arena) {
+UniformDataBlock* UniformDataBlock::Make(const UniformDataBlock& other, SkArenaAlloc* arena) {
     static constexpr size_t kUniformAlignment = alignof(void*);
     char* mem = static_cast<char*>(arena->makeBytesAlignedTo(other.size(), kUniformAlignment));
     memcpy(mem, other.data(), other.size());
 
     return arena->make([&](void* ptr) {
-        return new (ptr) SkUniformDataBlock(SkSpan<const char>(mem, other.size()));
+        return new (ptr) UniformDataBlock(SkSpan<const char>(mem, other.size()));
     });
 }
 
-uint32_t SkUniformDataBlock::hash() const {
+uint32_t UniformDataBlock::hash() const {
     return SkOpts::hash_fn(fData.data(), fData.size(), 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-#ifdef SK_GRAPHITE_ENABLED
-
-SkTextureDataBlock* SkTextureDataBlock::Make(const SkTextureDataBlock& other,
+TextureDataBlock* TextureDataBlock::Make(const TextureDataBlock& other,
                                              SkArenaAlloc* arena) {
     return arena->make([&](void *ptr) {
-        return new (ptr) SkTextureDataBlock(other);
+        return new (ptr) TextureDataBlock(other);
     });
 }
 
-bool SkTextureDataBlock::operator==(const SkTextureDataBlock& other) const {
+bool TextureDataBlock::operator==(const TextureDataBlock& other) const {
     if (fTextureData.size() != other.fTextureData.size()) {
         return false;
     }
@@ -93,7 +78,7 @@ bool SkTextureDataBlock::operator==(const SkTextureDataBlock& other) const {
     return true;
 }
 
-uint32_t SkTextureDataBlock::hash() const {
+uint32_t TextureDataBlock::hash() const {
     uint32_t hash = 0;
 
     for (auto& d : fTextureData) {
@@ -110,4 +95,4 @@ uint32_t SkTextureDataBlock::hash() const {
     return hash;
 }
 
-#endif
+} // namespace skgpu::graphite

@@ -26,7 +26,6 @@ class SkColorSpace;
 class SkImage;
 struct SkImageInfo;
 class SkPaint;
-class SkPipelineDataGatherer;
 class SkRasterPipeline;
 class SkRuntimeEffect;
 class SkKeyContext;
@@ -35,6 +34,7 @@ class SkUpdatableShader;
 
 namespace skgpu::graphite {
 class PaintParamsKeyBuilder;
+class PipelineDataGatherer;
 }
 
 class SkShaderBase : public SkShader {
@@ -273,7 +273,7 @@ public:
     */
     virtual void addToKey(const SkKeyContext& keyContext,
                           skgpu::graphite::PaintParamsKeyBuilder* builder,
-                          SkPipelineDataGatherer* gatherer) const;
+                          skgpu::graphite::PipelineDataGatherer* gatherer) const;
 #endif
 
     static SkMatrix ConcatLocalMatrices(const SkMatrix& parentLM, const SkMatrix& childLM) {

@@ -12,9 +12,9 @@
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkKeyContext.h"
-#include "src/core/SkPipelineData.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/PaintParams.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ResourceProvider.h"
@@ -23,9 +23,9 @@
 
 namespace skgpu::graphite {
 
-std::tuple<SkUniquePaintParamsID, const SkUniformDataBlock*, const SkTextureDataBlock*>
+std::tuple<SkUniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*>
 ExtractPaintData(Recorder* recorder,
-                 SkPipelineDataGatherer* gatherer,
+                 PipelineDataGatherer* gatherer,
                  PaintParamsKeyBuilder* builder,
                  const SkM44& local2Dev,
                  const PaintParams& p) {
@@ -43,10 +43,10 @@ ExtractPaintData(Recorder* recorder,
 
     auto entry = dict->findOrCreate(builder);
 
-    const SkUniformDataBlock* uniforms =
+    const UniformDataBlock* uniforms =
             gatherer->hasUniforms() ? uniformDataCache->insert(gatherer->finishUniformDataBlock())
                                     : nullptr;
-    const SkTextureDataBlock* textures =
+    const TextureDataBlock* textures =
             gatherer->hasTextures() ? textureDataCache->insert(gatherer->textureDataBlock())
                                     : nullptr;
 
@@ -55,20 +55,20 @@ ExtractPaintData(Recorder* recorder,
     return { entry->uniqueID(), uniforms, textures };
 }
 
-std::tuple<const SkUniformDataBlock*, const SkTextureDataBlock*>
+std::tuple<const UniformDataBlock*, const TextureDataBlock*>
 ExtractRenderStepData(UniformDataCache* uniformDataCache,
                       TextureDataCache* textureDataCache,
-                      SkPipelineDataGatherer* gatherer,
+                      PipelineDataGatherer* gatherer,
                       const RenderStep* step,
                       const DrawParams& params) {
     SkDEBUGCODE(gatherer->checkReset());
 
     step->writeUniformsAndTextures(params, gatherer);
 
-    const SkUniformDataBlock* uniforms =
+    const UniformDataBlock* uniforms =
             gatherer->hasUniforms() ? uniformDataCache->insert(gatherer->finishUniformDataBlock())
                                     : nullptr;
-    const SkTextureDataBlock* textures =
+    const TextureDataBlock* textures =
             gatherer->hasTextures() ? textureDataCache->insert(gatherer->textureDataBlock())
                                     : nullptr;
 

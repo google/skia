@@ -12,7 +12,6 @@
 #include "src/gpu/graphite/PipelineDataCache.h"
 
 class SkM44;
-class SkPipelineDataGatherer;
 class SkRuntimeEffectDictionary;
 class SkUniquePaintParamsID;
 
@@ -21,20 +20,21 @@ namespace skgpu::graphite {
 class DrawParams;
 class GraphicsPipelineDesc;
 class PaintParams;
+class PipelineDataGatherer;
 class Recorder;
 class RenderStep;
 
-std::tuple<SkUniquePaintParamsID, const SkUniformDataBlock*, const SkTextureDataBlock*>
+std::tuple<SkUniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*>
 ExtractPaintData(Recorder*,
-                 SkPipelineDataGatherer* gatherer,
+                 PipelineDataGatherer* gatherer,
                  PaintParamsKeyBuilder* builder,
                  const SkM44& local2Dev,
                  const PaintParams&);
 
-std::tuple<const SkUniformDataBlock*, const SkTextureDataBlock*>
+std::tuple<const UniformDataBlock*, const TextureDataBlock*>
 ExtractRenderStepData(UniformDataCache* uniformDataCache,
                       TextureDataCache* textureDataCache,
-                      SkPipelineDataGatherer* gatherer,
+                      PipelineDataGatherer* gatherer,
                       const RenderStep* step,
                       const DrawParams& params);
 

@@ -42,7 +42,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 protected:
     SkRadialGradient(SkReadBuffer& buffer);
@@ -143,7 +143,7 @@ std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
 #ifdef SK_GRAPHITE_ENABLED
 void SkRadialGradient::addToKey(const SkKeyContext& keyContext,
                                 skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                SkPipelineDataGatherer* gatherer) const {
+                                skgpu::graphite::PipelineDataGatherer* gatherer) const {
     GradientShaderBlocks::GradientData data(GradientType::kRadial,
                                             fCenter, { 0.0f, 0.0f },
                                             fRadius, 0.0f,

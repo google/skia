@@ -32,7 +32,9 @@
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 
-class SkPipelineDataGatherer;
+namespace skgpu::graphite {
+class PipelineDataGatherer;
+}
 #endif
 
 #if SK_SUPPORT_GPU
@@ -92,7 +94,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  SkPipelineDataGatherer* gatherer) const override;
+                  skgpu::graphite::PipelineDataGatherer* gatherer) const override;
 #endif
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
@@ -291,7 +293,7 @@ GrFPResult SkTable_ColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentPr
 
 void SkTable_ColorFilter::addToKey(const SkKeyContext& keyContext,
                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                   SkPipelineDataGatherer* gatherer) const {
+                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {
     TableColorFilterBlock::TableColorFilterData data;
 
     // TODO(b/239604347): remove this hack. This is just here until we determine what Graphite's

@@ -67,7 +67,7 @@ sk_sp<SkBlender> SkBlender::Mode(SkBlendMode mode) {
 #ifdef SK_GRAPHITE_ENABLED
 void SkBlenderBase::addToKey(const SkKeyContext& keyContext,
                              skgpu::graphite::PaintParamsKeyBuilder* builder,
-                             SkPipelineDataGatherer* gatherer,
+                             skgpu::graphite::PipelineDataGatherer* gatherer,
                              bool primitiveColorBlender) const {
     std::optional<SkBlendMode> bm = as_BB(this)->asBlendMode();
     if (primitiveColorBlender && bm.has_value()) {

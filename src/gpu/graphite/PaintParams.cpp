@@ -13,9 +13,9 @@
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
-#include "src/core/SkPipelineData.h"
 #include "src/core/SkUniform.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/shaders/SkShaderBase.h"
 
 namespace skgpu::graphite {
@@ -62,7 +62,7 @@ sk_sp<SkBlender> PaintParams::refPrimitiveBlender() const { return fPrimitiveBle
 
 void PaintParams::toKey(const SkKeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
-                        SkPipelineDataGatherer* gatherer) const {
+                        PipelineDataGatherer* gatherer) const {
 
     // Begin the key with a solid color shader block to set the initial color to the paint's color.
     SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, fColor.makeOpaque().premul());

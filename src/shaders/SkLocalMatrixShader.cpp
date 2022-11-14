@@ -43,7 +43,7 @@ std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
 
 void SkLocalMatrixShader::addToKey(const SkKeyContext& keyContext,
                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                   SkPipelineDataGatherer* gatherer) const {
+                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {
     LocalMatrixShaderBlock::LMShaderData lmShaderData(fLocalMatrix);
 
     SkKeyContextWithLocalMatrix newContext(keyContext, fLocalMatrix);

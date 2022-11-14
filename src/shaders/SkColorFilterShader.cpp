@@ -121,7 +121,7 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
 
 void SkColorFilterShader::addToKey(const SkKeyContext& keyContext,
                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                   SkPipelineDataGatherer* gatherer) const {
+                                   skgpu::graphite::PipelineDataGatherer* gatherer) const {
     ColorFilterShaderBlock::BeginBlock(keyContext, builder, gatherer);
 
     as_SB(fShader)->addToKey(keyContext, builder, gatherer);

@@ -86,7 +86,7 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
 }
 
 void CoverBoundsRenderStep::writeUniformsAndTextures(const DrawParams&,
-                                                     SkPipelineDataGatherer*) const {
+                                                     PipelineDataGatherer*) const {
     // All data is uploaded as instance attributes, so no uniforms are needed.
 }
 

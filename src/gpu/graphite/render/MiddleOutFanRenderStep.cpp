@@ -7,10 +7,9 @@
 
 #include "src/gpu/graphite/render/MiddleOutFanRenderStep.h"
 
-#include "src/core/SkPipelineData.h"
-
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
@@ -64,7 +63,7 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer,
 }
 
 void MiddleOutFanRenderStep::writeUniformsAndTextures(const DrawParams& params,
-                                                      SkPipelineDataGatherer* gatherer) const {
+                                                      PipelineDataGatherer* gatherer) const {
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     gatherer->write(params.transform().matrix());

@@ -50,7 +50,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
 private:
@@ -213,7 +213,7 @@ GrFPResult SkColorFilter_Matrix::asFragmentProcessor(std::unique_ptr<GrFragmentP
 #ifdef SK_GRAPHITE_ENABLED
 void SkColorFilter_Matrix::addToKey(const SkKeyContext& keyContext,
                                     skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                    SkPipelineDataGatherer* gatherer) const {
+                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
     MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(fMatrix,
                                                                fDomain == Domain::kHSLA);
 

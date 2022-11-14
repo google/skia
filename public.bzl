@@ -532,8 +532,6 @@ BASE_SRCS_ALL = [
     "src/core/SkPictureRecord.cpp",
     "src/core/SkPictureRecord.h",
     "src/core/SkPictureRecorder.cpp",
-    "src/core/SkPipelineData.cpp",
-    "src/core/SkPipelineData.h",
     "src/core/SkPixelRef.cpp",
     "src/core/SkPixelRefPriv.h",
     "src/core/SkPixmap.cpp",

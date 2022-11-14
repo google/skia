@@ -19,7 +19,6 @@
 class SkM44;
 struct SkPoint;
 struct SkRect;
-class SkUniformDataBlock;
 
 namespace skgpu::graphite {
 
@@ -30,6 +29,8 @@ enum class Layout {
     kStd430,
     kMetal, /** This is our own self-imposed layout we use for Metal. */
 };
+
+class UniformDataBlock;
 
 class UniformOffsetCalculator {
 public:
@@ -63,7 +64,7 @@ class UniformManager : public UniformOffsetCalculator {
 public:
     UniformManager(Layout layout) : UniformOffsetCalculator(layout, /*startingOffset=*/0) {}
 
-    SkUniformDataBlock finishUniformDataBlock();
+    UniformDataBlock finishUniformDataBlock();
     size_t size() const { return fStorage.size(); }
 
     void reset();

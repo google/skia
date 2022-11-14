@@ -13,7 +13,6 @@
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recording.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/core/SkPipelineData.h"
 #include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
@@ -23,6 +22,7 @@
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawBufferManager.h"
 #include "src/gpu/graphite/GlobalCache.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PipelineDataCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
@@ -131,9 +131,9 @@ std::unique_ptr<Recording> Recorder::snap() {
 
     std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> nonVolatileLazyProxies;
     std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> volatileLazyProxies;
-    fTextureDataCache->foreach([&](const SkTextureDataBlock* block) {
+    fTextureDataCache->foreach([&](const TextureDataBlock* block) {
         for (int j = 0; j < block->numTextures(); ++j) {
-            const SkTextureDataBlock::SampledTexture& tex = block->texture(j);
+            const TextureDataBlock::SampledTexture& tex = block->texture(j);
 
             if (tex.first->isLazy()) {
                 if (tex.first->isVolatile()) {

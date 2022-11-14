@@ -20,12 +20,12 @@
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkKeyContext.h"
 #include "src/core/SkKeyHelpers.h"
-#include "src/core/SkPipelineData.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/PaintParams.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
@@ -178,7 +178,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     auto dict = keyContext.dict();
 
     PaintParamsKeyBuilder builder(dict);
-    SkPipelineDataGatherer gatherer(Layout::kMetal);
+    PipelineDataGatherer gatherer(Layout::kMetal);
 
     for (auto s : { ShaderType::kSolidColor,
                     ShaderType::kLinearGradient,

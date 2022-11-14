@@ -22,7 +22,6 @@
 #include <memory>
 
 class SkRuntimeEffectDictionary;
-class SkTextureDataBlock;
 
 namespace skgpu::graphite {
 
@@ -34,6 +33,7 @@ class Recorder;
 struct RenderPassDesc;
 class ResourceProvider;
 class Sampler;
+class TextureDataBlock;
 class TextureProxy;
 class Texture;
 enum class UniformSlot;

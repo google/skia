@@ -65,7 +65,7 @@ public:
 #ifdef SK_GRAPHITE_ENABLED
     void addToKey(const SkKeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
-                  SkPipelineDataGatherer*) const override;
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
     bool isOpaque() const override;
 
@@ -533,7 +533,7 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
 #ifdef SK_GRAPHITE_ENABLED
 void SkTwoPointConicalGradient::addToKey(const SkKeyContext& keyContext,
                                          skgpu::graphite::PaintParamsKeyBuilder* builder,
-                                         SkPipelineDataGatherer* gatherer) const {
+                                         skgpu::graphite::PipelineDataGatherer* gatherer) const {
     GradientShaderBlocks::GradientData data(GradientType::kConical,
                                             fCenter1, fCenter2,
                                             fRadius1, fRadius2,
