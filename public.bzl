@@ -1448,6 +1448,8 @@ BASE_SRCS_ALL = [
     "src/sksl/codegen/SkSLMetalCodeGenerator.h",
     "src/sksl/codegen/SkSLPipelineStageCodeGenerator.cpp",
     "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h",
+    "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.cpp",
+    "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h",
     "src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
     "src/sksl/codegen/SkSLSPIRVCodeGenerator.h",
     "src/sksl/codegen/SkSLSPIRVtoHLSL.cpp",

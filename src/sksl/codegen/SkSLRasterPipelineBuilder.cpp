@@ -18,8 +18,8 @@ namespace RP {
 
 using SkRP = SkRasterPipeline;
 
-Program Builder::finish() {
-    return Program{std::move(fInstructions)};
+std::unique_ptr<Program> Builder::finish() {
+    return std::make_unique<Program>(std::move(fInstructions));
 }
 
 void Program::optimize() {

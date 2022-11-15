@@ -10,6 +10,7 @@
 #include "src/core/SkRasterPipeline.h"
 
 #include <initializer_list>
+#include <memory>
 
 class SkArenaAlloc;
 
@@ -71,7 +72,7 @@ private:
 class Builder {
 public:
     /** Finalizes and optimizes the program. */
-    Program finish();
+    std::unique_ptr<Program> finish();
 
     /** Assemble a program from the Raster Pipeline instructions below. */
     void store_src_rg(SlotRange slots) {

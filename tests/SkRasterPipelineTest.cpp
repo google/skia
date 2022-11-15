@@ -89,7 +89,7 @@ DEF_TEST(SkRasterPipeline_JIT, r) {
     };
 
     SkRasterPipeline_MemoryCtx src = { buf +  0, 0 },
-                       dst = { buf + 36, 0 };
+                               dst = { buf + 36, 0 };
 
     // Copy buf[x] to buf[x+36] for x in [15,35).
     SkRasterPipeline_<256> p;

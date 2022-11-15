@@ -38,12 +38,12 @@ DEF_TEST(RasterPipelineBuilder, r) {
     builder.store_dst(four_slots_at(6));
     builder.load_src(four_slots_at(1));
     builder.load_dst(four_slots_at(3));
-    SkSL::RP::Program program = builder.finish();
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish();
 
     // Instantiate this program.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
     SkRasterPipeline pipeline(&alloc);
-    program.appendStages(&pipeline, &alloc);
+    program->appendStages(&pipeline, &alloc);
 
     // Double check that the resulting stage list contains the correct ops.
     // (Note that the RasterPipeline stage list is stored in backwards order.)
@@ -92,12 +92,12 @@ DEF_TEST(RasterPipelineBuilderImmediate, r) {
     builder.immediate_f(333.0f);
     builder.immediate_f(0.0f);
     builder.immediate_f(-5555.0f);
-    SkSL::RP::Program program = builder.finish();
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish();
 
     // Instantiate this program.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
     SkRasterPipeline pipeline(&alloc);
-    program.appendStages(&pipeline, &alloc);
+    program->appendStages(&pipeline, &alloc);
 
     // Double check that the resulting stage list contains the expected immediate values.
     const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
@@ -119,12 +119,12 @@ DEF_TEST(RasterPipelineBuilderStoreUnmasked, r) {
     builder.store_unmasked(12);
     builder.store_unmasked(34);
     builder.store_unmasked(0);
-    SkSL::RP::Program program = builder.finish();
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish();
 
     // Instantiate this program.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
     SkRasterPipeline pipeline(&alloc);
-    program.appendStages(&pipeline, &alloc);
+    program->appendStages(&pipeline, &alloc);
 
     // Double check that the resulting stage list contains the expected stores.
     const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
