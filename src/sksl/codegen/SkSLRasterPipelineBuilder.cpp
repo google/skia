@@ -10,7 +10,6 @@
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 
 #include <algorithm>
-#include <cstring>
 #include <utility>
 
 namespace SkSL {
@@ -72,16 +71,6 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
 
             case SkRP::load_dst:
                 pipeline->append(SkRP::load_dst, slotA);
-                break;
-
-            case SkRP::immediate_f: {
-                void* immCtx = nullptr;
-                memcpy(&immCtx, &inst.fImmF32, sizeof(inst.fImmF32));
-                pipeline->append(SkRP::immediate_f, immCtx);
-                break;
-            }
-            case SkRP::store_unmasked:
-                pipeline->append(SkRP::store_unmasked, slotA);
                 break;
 
             default:
