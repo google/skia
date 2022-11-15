@@ -1,7 +1,7 @@
 ### Compilation failed:
 
-error: SPIR-V validation error: Structure id 11 decorated as Block for variable in Uniform storage class must follow standard uniform buffer layout rules: member 0 contains an array with stride 4 not satisfying alignment to 16
-  %testUniforms = OpTypeStruct %_arr_float_int_2
+error: SPIR-V validation error: Expected Constituent type to be equal to the corresponding member type of Result Type struct
+  %30 = OpCompositeConstruct %S %29
 
 OpCapability Shader
 %1 = OpExtInstImport "GLSL.std.450"
@@ -22,7 +22,7 @@ OpName %s2 "s2"
 OpDecorate %_arr_float_int_2 ArrayStride 4
 OpMemberDecorate %testPushConstants 0 Offset 0
 OpDecorate %testPushConstants Block
-OpDecorate %_arr_float_int_2 ArrayStride 16
+OpDecorate %_arr_float_int_2_0 ArrayStride 16
 OpMemberDecorate %testUniforms 0 Offset 0
 OpDecorate %testUniforms Block
 OpDecorate %10 Binding 0
@@ -32,7 +32,7 @@ OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpMemberDecorate %S 0 Offset 0
-OpDecorate %51 RelaxedPrecision
+OpDecorate %52 RelaxedPrecision
 %float = OpTypeFloat 32
 %int = OpTypeInt 32 1
 %int_2 = OpConstant %int 2
@@ -40,7 +40,8 @@ OpDecorate %51 RelaxedPrecision
 %testPushConstants = OpTypeStruct %_arr_float_int_2
 %_ptr_PushConstant_testPushConstants = OpTypePointer PushConstant %testPushConstants
 %3 = OpVariable %_ptr_PushConstant_testPushConstants PushConstant
-%testUniforms = OpTypeStruct %_arr_float_int_2
+%_arr_float_int_2_0 = OpTypeArray %float %int_2
+%testUniforms = OpTypeStruct %_arr_float_int_2_0
 %_ptr_Uniform_testUniforms = OpTypePointer Uniform %testUniforms
 %10 = OpVariable %_ptr_Uniform_testUniforms Uniform
 %bool = OpTypeBool
@@ -50,48 +51,48 @@ OpDecorate %51 RelaxedPrecision
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output
 %void = OpTypeVoid
-%20 = OpTypeFunction %void
-%S = OpTypeStruct %_arr_float_int_2
+%21 = OpTypeFunction %void
+%S = OpTypeStruct %_arr_float_int_2_0
 %_ptr_Function_S = OpTypePointer Function %S
 %int_0 = OpConstant %int 0
 %_ptr_PushConstant__arr_float_int_2 = OpTypePointer PushConstant %_arr_float_int_2
-%_ptr_Uniform__arr_float_int_2 = OpTypePointer Uniform %_arr_float_int_2
+%_ptr_Uniform__arr_float_int_2_0 = OpTypePointer Uniform %_arr_float_int_2_0
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %float_1 = OpConstant %float 1
-%48 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
+%49 = OpConstantComposite %v4float %float_1 %float_1 %float_1 %float_1
 %float_0 = OpConstant %float 0
-%50 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
-%main = OpFunction %void None %20
-%21 = OpLabel
+%51 = OpConstantComposite %v4float %float_0 %float_0 %float_0 %float_0
+%main = OpFunction %void None %21
+%22 = OpLabel
 %s1 = OpVariable %_ptr_Function_S Function
 %s2 = OpVariable %_ptr_Function_S Function
-%42 = OpVariable %_ptr_Function_v4float Function
-%26 = OpAccessChain %_ptr_PushConstant__arr_float_int_2 %3 %int_0
-%28 = OpLoad %_arr_float_int_2 %26
-%29 = OpCompositeConstruct %S %28
-OpStore %s1 %29
-%31 = OpAccessChain %_ptr_Uniform__arr_float_int_2 %10 %int_0
-%33 = OpLoad %_arr_float_int_2 %31
-%34 = OpCompositeConstruct %S %33
-OpStore %s2 %34
-%35 = OpCompositeExtract %float %28 0
-%36 = OpCompositeExtract %float %33 0
-%37 = OpFOrdEqual %bool %35 %36
-%38 = OpCompositeExtract %float %28 1
-%39 = OpCompositeExtract %float %33 1
-%40 = OpFOrdEqual %bool %38 %39
-%41 = OpLogicalAnd %bool %40 %37
-OpSelectionMerge %46 None
-OpBranchConditional %41 %44 %45
-%44 = OpLabel
-OpStore %42 %48
-OpBranch %46
+%43 = OpVariable %_ptr_Function_v4float Function
+%27 = OpAccessChain %_ptr_PushConstant__arr_float_int_2 %3 %int_0
+%29 = OpLoad %_arr_float_int_2 %27
+%30 = OpCompositeConstruct %S %29
+OpStore %s1 %30
+%32 = OpAccessChain %_ptr_Uniform__arr_float_int_2_0 %10 %int_0
+%34 = OpLoad %_arr_float_int_2_0 %32
+%35 = OpCompositeConstruct %S %34
+OpStore %s2 %35
+%36 = OpCompositeExtract %float %29 0
+%37 = OpCompositeExtract %float %34 0
+%38 = OpFOrdEqual %bool %36 %37
+%39 = OpCompositeExtract %float %29 1
+%40 = OpCompositeExtract %float %34 1
+%41 = OpFOrdEqual %bool %39 %40
+%42 = OpLogicalAnd %bool %41 %38
+OpSelectionMerge %47 None
+OpBranchConditional %42 %45 %46
 %45 = OpLabel
-OpStore %42 %50
-OpBranch %46
+OpStore %43 %49
+OpBranch %47
 %46 = OpLabel
-%51 = OpLoad %v4float %42
-OpStore %sk_FragColor %51
+OpStore %43 %51
+OpBranch %47
+%47 = OpLabel
+%52 = OpLoad %v4float %43
+OpStore %sk_FragColor %52
 OpReturn
 OpFunctionEnd
 

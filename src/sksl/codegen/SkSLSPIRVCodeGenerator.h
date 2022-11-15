@@ -485,6 +485,7 @@ private:
 
     bool isDead(const Variable& var) const;
 
+    MemoryLayout memoryLayoutForStorageClass(SpvStorageClass_ storageClass);
     MemoryLayout memoryLayoutForVariable(const Variable&) const;
 
     struct EntrypointAdapter {
