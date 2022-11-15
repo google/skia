@@ -12,6 +12,8 @@
 
 namespace skgpu::graphite {
 
+class DawnSharedContext;
+
 class DawnResourceProvider final : public ResourceProvider {
 public:
     DawnResourceProvider(SharedContext* sharedContext, SingleOwner*);
@@ -33,7 +35,9 @@ private:
                                  SkTileMode yTileMode) override;
 
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
-    void onDeleteBackendTexture(BackendTexture&) override {}
+    void onDeleteBackendTexture(BackendTexture&) override;
+
+    const DawnSharedContext* dawnSharedContext() const;
 };
 
 } // namespace skgpu::graphite
