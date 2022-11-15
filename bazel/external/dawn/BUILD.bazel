@@ -736,8 +736,6 @@ TINT_SRCS = [
     "src/tint/ast/f16.h",
     "src/tint/ast/f32.cc",
     "src/tint/ast/f32.h",
-    "src/tint/ast/fallthrough_statement.cc",
-    "src/tint/ast/fallthrough_statement.h",
     "src/tint/ast/float_literal_expression.cc",
     "src/tint/ast/float_literal_expression.h",
     "src/tint/ast/for_loop_statement.cc",
