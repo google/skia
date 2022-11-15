@@ -93,7 +93,7 @@ private:
                               VkPhysicalDevice,
                               const VkPhysicalDeviceProperties&,
                               VkFormat,
-                              const VkImageUsageFlags&);
+                              VkImageUsageFlags);
 
         bool isSampleCountSupported(int requestedCount) const;
 
@@ -117,9 +117,8 @@ private:
                   VkFormat);
 
 
-        bool isTexturable(const VkImageTiling&) const;
-        bool isRenderable(const VkImageTiling&,
-                          uint32_t sampleCount) const;
+        bool isTexturable(VkImageTiling) const;
+        bool isRenderable(VkImageTiling, uint32_t sampleCount) const;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
@@ -131,8 +130,8 @@ private:
         SkDEBUGCODE(bool fIsWrappedOnly;)
 
     private:
-        bool isTexturable(const VkFormatFeatureFlags&) const;
-        bool isRenderable(const VkFormatFeatureFlags&) const;
+        bool isTexturable(VkFormatFeatureFlags) const;
+        bool isRenderable(VkFormatFeatureFlags) const;
     };
 
     // Map SkColorType to VkFormat.
@@ -153,7 +152,7 @@ private:
                   VkPhysicalDevice,
                   const VkPhysicalDeviceProperties&,
                   VkFormat);
-        bool isDepthStencilSupported(const VkFormatFeatureFlags&) const;
+        bool isDepthStencilSupported(VkFormatFeatureFlags) const;
 
         VkFormatProperties fFormatProperties;
         SupportedSampleCounts fSupportedSampleCounts;

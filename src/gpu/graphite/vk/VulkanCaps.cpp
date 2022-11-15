@@ -660,7 +660,7 @@ void VulkanCaps::SupportedSampleCounts::initSampleCounts(const skgpu::VulkanInte
         VkPhysicalDevice physDev,
         const VkPhysicalDeviceProperties& physProps,
         VkFormat format,
-        const VkImageUsageFlags& usage) {
+        VkImageUsageFlags usage) {
     VkImageFormatProperties properties;
 
     VkResult result;
@@ -734,7 +734,7 @@ void VulkanCaps::FormatInfo::init(const skgpu::VulkanInterface* interface,
     }
 }
 
-bool VulkanCaps::FormatInfo::isTexturable(const VkImageTiling& imageTiling) const {
+bool VulkanCaps::FormatInfo::isTexturable(VkImageTiling imageTiling) const {
     switch (imageTiling) {
         case VK_IMAGE_TILING_OPTIMAL:
             return this->isTexturable(fFormatProperties.optimalTilingFeatures);
@@ -746,7 +746,7 @@ bool VulkanCaps::FormatInfo::isTexturable(const VkImageTiling& imageTiling) cons
     SkUNREACHABLE;
 }
 
-bool VulkanCaps::FormatInfo::isRenderable(const VkImageTiling& imageTiling,
+bool VulkanCaps::FormatInfo::isRenderable(VkImageTiling imageTiling,
                                           uint32_t sampleCount) const {
     if (!fSupportedSampleCounts.isSampleCountSupported(sampleCount)) {
         return false;
@@ -762,12 +762,12 @@ bool VulkanCaps::FormatInfo::isRenderable(const VkImageTiling& imageTiling,
     SkUNREACHABLE;
 }
 
-bool VulkanCaps::FormatInfo::isTexturable(const VkFormatFeatureFlags& flags) const {
+bool VulkanCaps::FormatInfo::isTexturable(VkFormatFeatureFlags flags) const {
     return SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT & flags) &&
            SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT & flags);
 }
 
-bool VulkanCaps::FormatInfo::isRenderable(const VkFormatFeatureFlags& flags) const {
+bool VulkanCaps::FormatInfo::isRenderable(VkFormatFeatureFlags flags) const {
     return SkToBool(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT & flags);
 }
 
@@ -836,8 +836,7 @@ void VulkanCaps::DepthStencilFormatInfo::init(const skgpu::VulkanInterface* inte
     fSupportedSampleCounts.initSampleCounts(interface, physDev, properties, format, usageFlags);
 }
 
-bool VulkanCaps::DepthStencilFormatInfo::isDepthStencilSupported(const VkFormatFeatureFlags& flags)
-        const {
+bool VulkanCaps::DepthStencilFormatInfo::isDepthStencilSupported(VkFormatFeatureFlags flags) const {
     return SkToBool(VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT & flags);
 }
 
