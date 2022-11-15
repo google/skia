@@ -743,6 +743,7 @@ bool VulkanTestHelper::importHardwareBuffer(skiatest::Reporter* reporter,
             if (supportedFlags == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
                 typeIndex = i;
                 heapIndex = pdmp.memoryTypes[i].heapIndex;
+                REPORTER_ASSERT(reporter, heapIndex < pdmp.memoryHeapCount);
                 foundHeap = true;
             }
         }

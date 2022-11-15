@@ -45,6 +45,7 @@ def compile_fn(api, checkout_root, out_dir):
     args['is_debug'] = 'false'
   if 'Dawn' in extra_tokens:
     util.set_dawn_args_and_env(args, env, api, skia_dir)
+    args['ndk_api'] = 26 #skia_use_gl=false, so use vulkan
   if 'Vulkan' in extra_tokens:
     args['ndk_api'] = 26
     args['skia_enable_vulkan_debug_layers'] = 'false'

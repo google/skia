@@ -29,7 +29,7 @@
 #include "dawn/native/MetalBackend.h"
 #elif defined(SK_BUILD_FOR_WIN)
 #include "dawn/native/D3D12Backend.h"
-#elif defined(SK_BUILD_FOR_UNIX)
+#elif defined(SK_BUILD_FOR_UNIX) || (defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26)
 #include "dawn/native/VulkanBackend.h"
 #endif
 
@@ -138,7 +138,7 @@ public:
 #elif defined(SK_BUILD_FOR_WIN)
             type = wgpu::BackendType::D3D12;
             dawn::native::d3d12::AdapterDiscoveryOptions adapterOptions;
-#elif defined(SK_BUILD_FOR_UNIX)
+#elif defined(SK_BUILD_FOR_UNIX) || (defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26)
             type = wgpu::BackendType::Vulkan;
             dawn::native::vulkan::AdapterDiscoveryOptions adapterOptions;
 #endif
