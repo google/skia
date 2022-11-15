@@ -20,6 +20,11 @@ TextureInfo& TextureInfo::operator=(const TextureInfo& that) {
     fProtected = that.fProtected;
 
     switch (that.backend()) {
+#ifdef SK_DAWN
+        case BackendApi::kDawn:
+            fDawnSpec = that.fDawnSpec;
+            break;
+#endif
 #ifdef SK_METAL
         case BackendApi::kMetal:
             fMtlSpec = that.fMtlSpec;
@@ -57,6 +62,10 @@ bool TextureInfo::operator==(const TextureInfo& that) const {
     }
 
     switch (fBackend) {
+#ifdef SK_DAWN
+        case BackendApi::kDawn:
+            return fDawnSpec == that.fDawnSpec;
+#endif
 #ifdef SK_METAL
         case BackendApi::kMetal:
             return fMtlSpec == that.fMtlSpec;
