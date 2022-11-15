@@ -62,6 +62,10 @@ private:
                          VkPhysicalDevice,
                          const VkPhysicalDeviceProperties&);
 
+    void initDepthStencilFormatTable(const skgpu::VulkanInterface*,
+                                     VkPhysicalDevice,
+                                     const VkPhysicalDeviceProperties&);
+
     const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override {
         return nullptr;
     }
@@ -83,6 +87,20 @@ private:
                                              SkColorType dstColorType) const override {
         return kUnknown_SkColorType;
     }
+    // Struct that determines and stores which sample count quantities a VkFormat supports.
+    struct SupportedSampleCounts {
+        void initSampleCounts(const skgpu::VulkanInterface*,
+                              VkPhysicalDevice,
+                              const VkPhysicalDeviceProperties&,
+                              VkFormat,
+                              const VkImageUsageFlags&);
+
+        bool isSampleCountSupported(int requestedCount) const;
+
+        SkTDArray<int> fSampleCounts;
+    };
+
+    // Struct that determines and stores useful information about VkFormats.
     struct FormatInfo {
         uint32_t colorTypeFlags(SkColorType colorType) const {
             for (int i = 0; i < fColorTypeInfoCount; ++i) {
@@ -97,32 +115,65 @@ private:
                   VkPhysicalDevice,
                   const VkPhysicalDeviceProperties&,
                   VkFormat);
-        void initSampleCounts(const skgpu::VulkanInterface*,
-                              VkPhysicalDevice,
-                              const VkPhysicalDeviceProperties&,
-                              VkFormat);
 
-        SkTDArray<int> fColorSampleCounts;
+
+        bool isTexturable(const VkImageTiling&) const;
+        bool isRenderable(const VkImageTiling&,
+                          uint32_t sampleCount) const;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
 
         VkFormatProperties fFormatProperties;
+        SupportedSampleCounts fSupportedSampleCounts;
+
         // Indicates that a format is only supported if we are wrapping a texture with it.
         SkDEBUGCODE(bool fIsWrappedOnly;)
+
+    private:
+        bool isTexturable(const VkFormatFeatureFlags&) const;
+        bool isRenderable(const VkFormatFeatureFlags&) const;
     };
+
+    // Map SkColorType to VkFormat.
+    VkFormat fColorTypeToFormatTable[kSkColorTypeCnt];
+    void setColorType(SkColorType, std::initializer_list<VkFormat> formats);
+    VkFormat getFormatFromColorType(SkColorType) const;
+
+    // Map VkFormat to FormatInfo.
+    static const size_t kNumVkFormats = 22;
+    FormatInfo fFormatTable[kNumVkFormats];
 
     FormatInfo& getFormatInfo(VkFormat);
     const FormatInfo& getFormatInfo(VkFormat) const;
 
-    VkFormat fColorTypeToFormatTable[kSkColorTypeCnt];
-    void setColorType(SkColorType, std::initializer_list<VkFormat> formats);
+    // A more lightweight equivalent to FormatInfo for depth/stencil VkFormats.
+    struct DepthStencilFormatInfo {
+        void init(const skgpu::VulkanInterface*,
+                  VkPhysicalDevice,
+                  const VkPhysicalDeviceProperties&,
+                  VkFormat);
+        bool isDepthStencilSupported(const VkFormatFeatureFlags&) const;
 
-    static const size_t kNumVkFormats = 22;
-    FormatInfo fFormatTable[kNumVkFormats];
+        VkFormatProperties fFormatProperties;
+        SupportedSampleCounts fSupportedSampleCounts;
+    };
 
-    // TODO: Assign real value to fSupportsYcbcrConversion.
-    bool fSupportsYcbcrConversion = false;
+    // Map DepthStencilFlags to VkFormat.
+    static const size_t kNumDepthStencilFlags = 4;
+    VkFormat fDepthStencilFlagsToFormatTable[kNumDepthStencilFlags];
+    VkFormat getFormatFromDepthStencilFlags(const SkEnumBitMask<DepthStencilFlags>& flags) const;
+
+    // Map depth/stencil VkFormats to DepthStencilFormatInfo.
+    static const size_t kNumDepthStencilVkFormats = 3;
+    DepthStencilFormatInfo fDepthStencilFormatTable[kNumDepthStencilVkFormats];
+
+    DepthStencilFormatInfo& getDepthStencilFormatInfo(VkFormat);
+    const DepthStencilFormatInfo& getDepthStencilFormatInfo(VkFormat) const;
+
+    // Various bools to define whether certain Vulkan features are supported.
+    bool fSupportsMemorylessAttachments = false;
+    bool fSupportsYcbcrConversion = false; // TODO: Determine & assign real value.
 };
 
 } // namespace skgpu::graphite

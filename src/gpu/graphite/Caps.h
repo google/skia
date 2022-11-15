@@ -123,6 +123,8 @@ public:
 
     bool clampToBorderSupport() const { return fClampToBorderSupport; }
 
+    bool protectedSupport() const { return fProtectedSupport; }
+
     // Returns whether storage buffers are supported.
     bool storageBufferSupport() const { return fStorageBufferSupport; }
 
@@ -185,7 +187,7 @@ protected:
     std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
 
     bool fClampToBorderSupport = true;
-
+    bool fProtectedSupport = false;
     bool fStorageBufferSupport = false;
     bool fStorageBufferPreferred = false;
 
