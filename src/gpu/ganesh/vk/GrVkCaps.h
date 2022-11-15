@@ -330,7 +330,8 @@ private:
                     const skgpu::VulkanExtensions&);
     void initShaderCaps(const VkPhysicalDeviceProperties&, const VkPhysicalDeviceFeatures2&);
 
-    void initFormatTable(const skgpu::VulkanInterface*,
+    void initFormatTable(const GrContextOptions&,
+                         const skgpu::VulkanInterface*,
                          VkPhysicalDevice,
                          const VkPhysicalDeviceProperties&);
     void initStencilFormat(const skgpu::VulkanInterface* iface, VkPhysicalDevice physDev);
@@ -382,12 +383,14 @@ private:
             return 0;
         }
 
-        void init(const skgpu::VulkanInterface*,
+        void init(const GrContextOptions&,
+                  const skgpu::VulkanInterface*,
                   VkPhysicalDevice,
                   const VkPhysicalDeviceProperties&,
                   VkFormat);
         static void InitFormatFlags(VkFormatFeatureFlags, uint16_t* flags);
-        void initSampleCounts(const skgpu::VulkanInterface*,
+        void initSampleCounts(const GrContextOptions&,
+                              const skgpu::VulkanInterface*,
                               VkPhysicalDevice,
                               const VkPhysicalDeviceProperties&,
                               VkFormat);

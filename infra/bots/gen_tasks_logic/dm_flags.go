@@ -228,7 +228,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			}
 		} else if b.matchGpu("Intel") {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
-			sampleCount = 0
+			if b.gpu("IntelIrisXe") && b.matchOs("Win") && b.extraConfig("ANGLE") {
+				// Make an exception for newer GPUs + D3D
+				args = append(args, "--allowMSAAOnNewIntel", "true")
+			} else {
+				sampleCount = 0
+			}
 		} else if b.os("ChromeOS") {
 			glPrefix = "gles"
 		}

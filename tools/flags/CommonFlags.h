@@ -37,6 +37,7 @@ bool CollectImages(CommandLineFlags::StringArray dir, SkTArray<SkString>* output
  *     --disableDriverCorrectnessWorkarounds
  *     --reduceOpsTaskSplitting
  *     --dontReduceOpsTaskSplitting
+ *     --allowMSAAOnNewIntel
  */
 void SetCtxOptions(struct GrContextOptions*);
 
