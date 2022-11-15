@@ -168,8 +168,6 @@ class DefaultFlavor(object):
       # libstdc++. libc++ proactively hooks into sanitizers to help their
       # analyses. We ship a copy of libc++ with our Linux toolchain in /lib.
       ld_library_path.append(clang_linux.join('lib', 'x86_64-unknown-linux-gnu'))
-    elif self.m.vars.is_linux:
-      cmd = ['catchsegv'] + cmd
 
     if 'ASAN' in extra_tokens:
       os = self.m.vars.builder_cfg.get('os', '')

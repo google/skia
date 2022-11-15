@@ -99,7 +99,6 @@
   },
   {
     "cmd": [
-      "catchsegv",
       "[START_DIR]/build/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
@@ -228,7 +227,6 @@
   },
   {
     "cmd": [
-      "catchsegv",
       "[START_DIR]/build/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
@@ -357,7 +355,6 @@
   },
   {
     "cmd": [
-      "catchsegv",
       "[START_DIR]/build/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",

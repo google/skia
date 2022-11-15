@@ -195,7 +195,6 @@
   },
   {
     "cmd": [
-      "catchsegv",
       "[START_DIR]/build/dm",
       "--some-flag"
     ],
