@@ -736,10 +736,14 @@ void VulkanCaps::FormatInfo::init(const skgpu::VulkanInterface* interface,
 
 bool VulkanCaps::FormatInfo::isTexturable(const VkImageTiling& imageTiling) const {
     switch (imageTiling) {
-        case VK_IMAGE_TILING_OPTIMAL: this->isTexturable(fFormatProperties.optimalTilingFeatures);
-        case VK_IMAGE_TILING_LINEAR: this->isTexturable(fFormatProperties.linearTilingFeatures);
-        default: SkUNREACHABLE;
+        case VK_IMAGE_TILING_OPTIMAL:
+            return this->isTexturable(fFormatProperties.optimalTilingFeatures);
+        case VK_IMAGE_TILING_LINEAR:
+            return this->isTexturable(fFormatProperties.linearTilingFeatures);
+        default:
+            return false;
     }
+    SkUNREACHABLE;
 }
 
 bool VulkanCaps::FormatInfo::isRenderable(const VkImageTiling& imageTiling,
@@ -748,10 +752,14 @@ bool VulkanCaps::FormatInfo::isRenderable(const VkImageTiling& imageTiling,
         return false;
     }
     switch (imageTiling) {
-        case VK_IMAGE_TILING_OPTIMAL: this->isRenderable(fFormatProperties.optimalTilingFeatures);
-        case VK_IMAGE_TILING_LINEAR: this->isRenderable(fFormatProperties.linearTilingFeatures);
-        default: SkUNREACHABLE;
+        case VK_IMAGE_TILING_OPTIMAL:
+            return this->isRenderable(fFormatProperties.optimalTilingFeatures);
+        case VK_IMAGE_TILING_LINEAR:
+            return this->isRenderable(fFormatProperties.linearTilingFeatures);
+        default:
+            return false;
     }
+    SkUNREACHABLE;
 }
 
 bool VulkanCaps::FormatInfo::isTexturable(const VkFormatFeatureFlags& flags) const {
