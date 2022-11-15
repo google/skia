@@ -8,6 +8,8 @@
 #ifndef SKSL_PROGRAM
 #define SKSL_PROGRAM
 
+#include "src/sksl/ir/SkSLType.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -26,6 +28,19 @@ class ProgramElement;
 class ProgramUsage;
 class SymbolTable;
 struct ProgramConfig;
+
+/** Represents a list the Uniforms contained within a Program. */
+struct UniformInfo {
+    struct Uniform {
+        std::string fName;
+        SkSL::Type::NumberKind fKind;
+        int fColumns;
+        int fRows;
+        int fSlot;
+    };
+    std::vector<Uniform> fUniforms;
+    int fUniformSlotCount = 0;
+};
 
 /**
  * Represents a fully-digested program, ready for code generation.
@@ -124,6 +139,12 @@ struct Program {
      * to search for the function with the expected parameter list.
      */
     const FunctionDeclaration* getFunction(const char* functionName) const;
+
+    /**
+     * Returns a list of uniforms used by this Program. The uniform list will exclude opaque types
+     * like textures, samplers, or child effects.
+     */
+    std::unique_ptr<UniformInfo> getUniformInfo();
 
     std::string description() const;
     const ProgramUsage* usage() const { return fUsage.get(); }

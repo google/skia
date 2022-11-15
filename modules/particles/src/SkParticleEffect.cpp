@@ -168,7 +168,7 @@ void SkParticleEffectParams::prepare(const skresources::ResourceProvider* resour
             return nullptr;
         }
 
-        std::unique_ptr<SkSL::UniformInfo> uniformInfo = SkSL::Program_GetUniformInfo(*program);
+        std::unique_ptr<SkSL::UniformInfo> uniformInfo = program->getUniformInfo();
 
         // For each entry point, convert to an skvm::Program. We need a fresh Builder and uniform
         // IDs (though we can reuse the Uniforms object, thanks to how it works).

@@ -15,6 +15,7 @@
 #include "modules/skresources/include/SkResources.h"
 #include "src/core/SkOSFile.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
