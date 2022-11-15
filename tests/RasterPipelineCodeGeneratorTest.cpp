@@ -73,7 +73,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorTest, r) {
     // Add in your SkSL here.
     test(r,
          R"__SkSL__(
-             half4 main() {
+             half4 main(float2 coords) {
                  return half4(1, 1, 0, 1);
              }
          )__SkSL__");
