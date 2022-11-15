@@ -425,6 +425,7 @@ func GenTasks(cfg *Config) {
 			"skia/resources",
 			"skia/package.json",
 			"skia/package-lock.json",
+			"skia/DEPS", // needed to check generation
 			// Needed to run bazel
 			"skia/.bazelrc",
 			"skia/.bazelversion",
