@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.37.2] - 2022-11-15
+
+### Fixed
+ - Images made from textures correctly invalidate internal state, reducing flicker (skbug.com/13903)
+
 ## [0.37.1] - 2022-11-08
 
 ### Fixed
