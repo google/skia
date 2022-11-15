@@ -45,10 +45,10 @@ class SkTArray_SynthProvider:
 
     def num_children(self):
         try:
-            count = self.fCount.GetValueAsSigned(0)
-            count = max(count, 0)
-            count = min(count, 10000)
-            return count
+            size = self.fSize.GetValueAsSigned(0)
+            size = max(size, 0)
+            size = min(size, 10000)
+            return size
         except:
             return 0
 
@@ -66,16 +66,15 @@ class SkTArray_SynthProvider:
 
         try:
             offset = index * self.dataSize
-            return self.fItemArray.CreateChildAtOffset('[' + str(index) + ']',
-                                                       offset, self.dataType)
+            return self.fData.CreateChildAtOffset('[' + str(index) + ']', offset, self.dataType)
         except:
             return None
 
     def update(self):
         try:
-            self.fItemArray = self.valobj.GetChildMemberWithName('fItemArray')
-            self.fCount = self.valobj.GetChildMemberWithName('fCount')
-            self.dataType = self.fItemArray.GetType().GetPointeeType()
+            self.fData = self.valobj.GetChildMemberWithName('fData')
+            self.fSize = self.valobj.GetChildMemberWithName('fSize')
+            self.dataType = self.fData.GetType().GetPointeeType()
             self.dataSize = self.dataType.GetByteSize()
         except:
             pass
