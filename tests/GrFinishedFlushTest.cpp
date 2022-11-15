@@ -166,7 +166,7 @@ static void abandon_context(void* context) {
 
 static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResult> result) {
     // We don't actually care about the results so just drop them without doing anything.
-};
+}
 
 // This test checks that calls to the async read pixels callback can safely be made even if the
 // context has been abandoned previously. Specifically there was a bug where the client buffer

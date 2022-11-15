@@ -96,7 +96,7 @@ private:
     using INHERITED = SkImageFilter_Base;
 };
 
-}; // end namespace
+} // end namespace
 
 sk_sp<SkImageFilter> SkImageFilters::Arithmetic(
         SkScalar k1, SkScalar k2, SkScalar k3, SkScalar k4, bool enforcePMColor,

@@ -43,7 +43,7 @@ static inline bool circle_stays_circle(const SkMatrix& m) { return m.isSimilarit
 // Produces TriStrip vertex data for an origin-centered rectangle from [-x, -y] to [x, y]
 static inline VertexWriter::TriStrip<float> origin_centered_tri_strip(float x, float y) {
     return VertexWriter::TriStrip<float>{ -x, -y, x, y };
-};
+}
 
 }  // namespace
 
@@ -254,7 +254,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(CircleGeometryProcessor)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* CircleGeometryProcessor::TestCreate(GrProcessorTestData* d) {
@@ -698,7 +698,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(EllipseGeometryProcessor)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* EllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {
@@ -888,7 +888,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DIEllipseGeometryProcessor)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DIEllipseGeometryProcessor::TestCreate(GrProcessorTestData* d) {

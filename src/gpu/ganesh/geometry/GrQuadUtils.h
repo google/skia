@@ -215,7 +215,7 @@ namespace GrQuadUtils {
         friend int ClipToW0(DrawQuad*, DrawQuad*); // To reuse Vertices struct
     };
 
-}; // namespace GrQuadUtils
+} // namespace GrQuadUtils
 
 void GrQuadUtils::Outset(const skvx::float4& edgeDistances, GrQuad* quad) {
     TessellationHelper outsetter;

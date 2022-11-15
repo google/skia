@@ -22,7 +22,7 @@ using sk_gpu_test::GrContextFactory;
 
 namespace skgpu::graphite {
     class Context;
-};
+}
 
 namespace skiatest::graphite {
 

@@ -185,7 +185,7 @@ static void async_callback(void* c, std::unique_ptr<const SkSurface::AsyncReadRe
     auto context = static_cast<AsyncContext*>(c);
     context->fResult = std::move(result);
     context->fCalled = true;
-};
+}
 
 }  // anonymous namespace
 

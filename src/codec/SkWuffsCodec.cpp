@@ -345,7 +345,7 @@ void SkWuffsFrameHolder::init(SkWuffsCodec* codec, int width, int height) {
 
 const SkFrame* SkWuffsFrameHolder::onGetFrame(int i) const {
     return fCodec->frame(i);
-};
+}
 
 // -------------------------------- SkWuffsCodec implementation
 

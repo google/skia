@@ -87,7 +87,7 @@ void test_invalid_effect(skiatest::Reporter* r, const char* src, const char* exp
     REPORTER_ASSERT(r, errorText.contains(expected),
                     "Expected error message to contain \"%s\". Actual message: \"%s\"",
                     expected, errorText.c_str());
-};
+}
 
 #define EMPTY_MAIN "half4 main(float2 p) { return half4(0); }"
 

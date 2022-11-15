@@ -441,7 +441,7 @@ SkColor lerpSkColor(SkColor c0, SkColor c1, float t) {
                c_4f = c0_4f + (c1_4f - c0_4f) * t;
 
     return Sk4f_toL32(c_4f);
-};
+}
 
 enum TruncateStops {
     TruncateStart,
@@ -479,7 +479,7 @@ void truncateToStopInterpolating(SkScalar zeroRadiusStop,
         stops.insert(stops.end(), 1);
         colors.insert(colors.end(), lerpColor);
     }
-};
+}
 
 struct OpaquePaintHasher {
   size_t operator()(const FT_OpaquePaint& opaquePaint) {

@@ -14,7 +14,7 @@ enum class Flags {
     kB = 2,
     kC = 4
 };
-SK_MAKE_BITMASK_OPS(Flags);
+SK_MAKE_BITMASK_OPS(Flags)
 
 DEF_TEST(skgpu_Mask, r) {
     SkEnumBitMask<Flags> flags = Flags::kNone;

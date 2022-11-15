@@ -226,7 +226,7 @@ bool GrGaussianConvolutionFragmentProcessor::onIsEqual(const GrFragmentProcessor
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrGaussianConvolutionFragmentProcessor);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrGaussianConvolutionFragmentProcessor)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrGaussianConvolutionFragmentProcessor::TestCreate(

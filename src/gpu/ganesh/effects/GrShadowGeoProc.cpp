@@ -71,7 +71,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrRRectShadowGeoProc::makeProg
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrRRectShadowGeoProc)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrRRectShadowGeoProc::TestCreate(GrProcessorTestData* d) {

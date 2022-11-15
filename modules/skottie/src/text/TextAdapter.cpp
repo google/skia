@@ -69,7 +69,7 @@ static float align_factor(SkTextUtils::Align a) {
     }
 
     SkUNREACHABLE;
-};
+}
 
 // Text path semantics
 //

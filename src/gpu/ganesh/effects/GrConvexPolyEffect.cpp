@@ -187,7 +187,7 @@ bool GrConvexPolyEffect::onIsEqual(const GrFragmentProcessor& other) const {
 
 //////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConvexPolyEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrConvexPolyEffect)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::TestCreate(GrProcessorTestData* d) {

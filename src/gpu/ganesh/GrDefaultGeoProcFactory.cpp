@@ -243,7 +243,7 @@ private:
     using INHERITED = GrGeometryProcessor;
 };
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DefaultGeoProc::TestCreate(GrProcessorTestData* d) {

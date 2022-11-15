@@ -29,7 +29,7 @@ static bool is_whitespace(char c) {
     // TODO: we've been getting away with this simple heuristic,
     // but ideally we should use SkUicode::isWhiteSpace().
     return c == ' ' || c == '\t' || c == '\r' || c == '\n';
-};
+}
 
 // Helper for interfacing with SkShaper: buffers shaper-fed runs and performs
 // per-line position adjustments (for external line breaking, horizontal alignment, etc).

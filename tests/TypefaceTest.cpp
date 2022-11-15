@@ -171,7 +171,7 @@ DEF_TEST(FontDescriptorNegativeVariationSerialize, reporter) {
     }
 
     REPORTER_ASSERT(reporter, descD.getVariation()[0].value == -1.0f);
-};
+}
 
 DEF_TEST(TypefaceAxes, reporter) {
     using Variation = SkFontArguments::VariationPosition;

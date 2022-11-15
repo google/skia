@@ -77,7 +77,7 @@ size_t SkCanvasPriv::WriteLattice(void* buffer, const SkCanvas::Lattice& lattice
         SkASSERT(writer.bytesWritten() == size);
     }
     return size;
-};
+}
 
 void SkCanvasPriv::WriteLattice(SkWriteBuffer& buffer, const SkCanvas::Lattice& lattice) {
     const size_t size = WriteLattice(nullptr, lattice);

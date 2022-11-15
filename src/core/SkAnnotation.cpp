@@ -13,15 +13,15 @@
 
 const char* SkAnnotationKeys::URL_Key() {
     return "SkAnnotationKey_URL";
-};
+}
 
 const char* SkAnnotationKeys::Define_Named_Dest_Key() {
     return "SkAnnotationKey_Define_Named_Dest";
-};
+}
 
 const char* SkAnnotationKeys::Link_Named_Dest_Key() {
     return "SkAnnotationKey_Link_Named_Dest";
-};
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

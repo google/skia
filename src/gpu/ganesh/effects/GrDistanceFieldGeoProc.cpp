@@ -283,7 +283,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldA8TextGeoProc::
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldA8TextGeoProc)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrDistanceFieldA8TextGeoProc::TestCreate(GrProcessorTestData* d) {
@@ -537,7 +537,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldPathGeoProc::ma
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldPathGeoProc)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrDistanceFieldPathGeoProc::TestCreate(GrProcessorTestData* d) {
@@ -850,7 +850,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> GrDistanceFieldLCDTextGeoProc:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(GrDistanceFieldLCDTextGeoProc)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* GrDistanceFieldLCDTextGeoProc::TestCreate(GrProcessorTestData* d) {

@@ -56,7 +56,7 @@ class BackendTexture;
 class Recorder;
 class TextureInfo;
 enum class Volatile : bool;
-};
+}
 #endif
 
 /** \class SkImage

@@ -52,7 +52,7 @@ static inline int get_scaled_dimension(int srcDimension, int sampleSize) {
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-static inline int get_start_coord(int sampleFactor) { return sampleFactor / 2; };
+static inline int get_start_coord(int sampleFactor) { return sampleFactor / 2; }
 
 /*
  * Given a coordinate in the original image, this returns the corresponding
@@ -62,7 +62,7 @@ static inline int get_start_coord(int sampleFactor) { return sampleFactor / 2; }
  *
  * This does not need to be called and is not called when sampleFactor == 1.
  */
-static inline int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sampleFactor; };
+static inline int get_dst_coord(int srcCoord, int sampleFactor) { return srcCoord / sampleFactor; }
 
 /*
  * When scaling, we will discard certain y-coordinates (rows) and

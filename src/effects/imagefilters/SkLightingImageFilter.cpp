@@ -121,13 +121,13 @@ static SkPoint3 read_point3(SkReadBuffer& buffer) {
                     SkScalarIsFinite(point.fY) &&
                     SkScalarIsFinite(point.fZ));
     return point;
-};
+}
 
 static void write_point3(const SkPoint3& point, SkWriteBuffer& buffer) {
     buffer.writeScalar(point.fX);
     buffer.writeScalar(point.fY);
     buffer.writeScalar(point.fZ);
-};
+}
 
 namespace {
 class GpuLight;
@@ -1755,7 +1755,7 @@ std::unique_ptr<GrFragmentProcessor::ProgramImpl> DiffuseLightingEffect::onMakeP
     return std::make_unique<Impl>();
 }
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(DiffuseLightingEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(DiffuseLightingEffect)
 
 #if GR_TEST_UTILS
 
@@ -1975,7 +1975,7 @@ bool SpecularLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 std::unique_ptr<GrFragmentProcessor::ProgramImpl>
 SpecularLightingEffect::onMakeProgramImpl() const { return std::make_unique<Impl>(); }
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(SpecularLightingEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(SpecularLightingEffect)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> SpecularLightingEffect::TestCreate(GrProcessorTestData* d) {

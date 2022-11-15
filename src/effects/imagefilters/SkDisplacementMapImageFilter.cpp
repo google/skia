@@ -525,7 +525,7 @@ bool GrDisplacementMapEffect::onIsEqual(const GrFragmentProcessor& sBase) const 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDisplacementMapEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrDisplacementMapEffect)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrDisplacementMapEffect::TestCreate(GrProcessorTestData* d) {

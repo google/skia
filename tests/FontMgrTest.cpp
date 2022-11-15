@@ -31,7 +31,7 @@
 class SkDescriptor;
 class SkFontDescriptor;
 
-DECLARE_bool(verboseFontMgr);
+DECLARE_bool(verboseFontMgr)
 
 DEF_TEST(FontMgr_Font, reporter) {
     SkFont font(nullptr, 24);

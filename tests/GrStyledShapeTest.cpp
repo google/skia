@@ -1044,7 +1044,7 @@ template <typename T>
 static void test_stroke_param(skiatest::Reporter* reporter, const Geo& geo,
                               std::function<void(SkPaint*, T)> setter, T a, T b) {
     test_stroke_param_impl(reporter, geo, setter, a, b, true, true);
-};
+}
 
 static void test_stroke_cap(skiatest::Reporter* reporter, const Geo& geo) {
     SkPaint hairline;
@@ -1062,7 +1062,7 @@ static void test_stroke_cap(skiatest::Reporter* reporter, const Geo& geo) {
         SkPaint::kButt_Cap, SkPaint::kRound_Cap,
         affectsStroke,
         affectsDashAndStroke);
-};
+}
 
 static bool shape_known_not_to_have_joins(const GrStyledShape& shape) {
     return shape.asLine(nullptr, nullptr) || shape.isEmpty();
@@ -1084,7 +1084,7 @@ static void test_stroke_join(skiatest::Reporter* reporter, const Geo& geo) {
             [](SkPaint* p, SkPaint::Join j) { p->setStrokeJoin(j);},
             SkPaint::kRound_Join, SkPaint::kBevel_Join,
             affectsStroke, true);
-};
+}
 
 static void test_miter_limit(skiatest::Reporter* reporter, const Geo& geo) {
     auto setMiterJoinAndLimit = [](SkPaint* p, SkScalar miter) {

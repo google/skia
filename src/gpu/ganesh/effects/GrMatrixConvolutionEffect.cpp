@@ -347,7 +347,7 @@ std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::Make(GrRecording
                                           gain, bias, kernelOffset, convolveAlpha));
 }
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMatrixConvolutionEffect)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrMatrixConvolutionEffect::TestCreate(GrProcessorTestData* d) {

@@ -133,7 +133,7 @@ extern "C" {
                                           FT_Alloc_size_t new_size, void* block) {
         return sk_realloc_throw(block, new_size);
     }
-};
+}
 FT_MemoryRec_ gFTMemory = { nullptr, sk_ft_alloc, sk_ft_free, sk_ft_realloc };
 
 class FreeTypeLibrary : SkNoncopyable {
@@ -1169,7 +1169,7 @@ void SkScalerContext_FreeType::setGlyphBounds(SkGlyph* glyph, SkRect* bounds, bo
     glyph->fHeight = SkToU16(irect.height());
     glyph->fTop    = SkToS16(irect.top   ());
     glyph->fLeft   = SkToS16(irect.left  ());
-};
+}
 
 void SkScalerContext_FreeType::updateGlyphBoundsIfLCD(SkGlyph* glyph) {
     if (glyph->fMaskFormat == SkMask::kLCD16_Format &&

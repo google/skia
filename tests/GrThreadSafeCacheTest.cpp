@@ -1624,7 +1624,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache15Verts,
 
 static bool newer_is_always_better(SkData* /* incumbent */, SkData* /* challenger */) {
     return true;
-};
+}
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrThreadSafeCache16Verts,
                                        reporter,

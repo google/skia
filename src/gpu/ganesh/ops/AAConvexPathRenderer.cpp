@@ -670,7 +670,7 @@ std::unique_ptr<GrGeometryProcessor::ProgramImpl> QuadEdgeEffect::makeProgramImp
     return std::make_unique<Impl>();
 }
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(QuadEdgeEffect)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* QuadEdgeEffect::TestCreate(GrProcessorTestData* d) {

@@ -391,7 +391,7 @@ void apply_paint_blend_mode(const SkPaint& paint, SkJSONWriter& writer) {
     }
 }
 
-};  // namespace
+}  // namespace
 
 void DrawCommand::MakeJsonColor(SkJSONWriter& writer, const SkColor color) {
     writer.beginArray(nullptr, false);

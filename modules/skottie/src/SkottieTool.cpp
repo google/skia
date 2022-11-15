@@ -67,7 +67,7 @@ enum class OutputFormat {
 auto ms_since(std::chrono::steady_clock::time_point start) {
     const auto elapsed = std::chrono::steady_clock::now() - start;
     return std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
-};
+}
 
 std::unique_ptr<SkFILEWStream> make_file_stream(size_t frame_index, const char* extension) {
     const auto file = SkStringPrintf("0%06zu.%s", frame_index, extension);

@@ -97,7 +97,7 @@ private:
 };
 }  // anonymous namespace
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BigKeyProcessor)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> BigKeyProcessor::TestCreate(GrProcessorTestData*) {

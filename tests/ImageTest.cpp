@@ -165,7 +165,7 @@ static sk_sp<SkImage> create_picture_image() {
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(), SkISize::Make(10, 10),
                                     nullptr, nullptr, SkImage::BitDepth::kU8,
                                     SkColorSpace::MakeSRGB());
-};
+}
 // Want to ensure that our Release is called when the owning image is destroyed
 struct RasterDataHolder {
     RasterDataHolder() : fReleaseCount(0) {}
@@ -1257,7 +1257,7 @@ static sk_sp<SkImage> create_picture_image(sk_sp<SkColorSpace> space) {
     canvas->clear(SK_ColorCYAN);
     return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(), SkISize::Make(10, 10),
                                     nullptr, nullptr, SkImage::BitDepth::kU8, std::move(space));
-};
+}
 
 DEF_TEST(Image_ColorSpace, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();

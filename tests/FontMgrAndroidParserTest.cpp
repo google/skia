@@ -39,7 +39,7 @@
 #include <memory>
 #include <string>
 
-DECLARE_bool(verboseFontMgr);
+DECLARE_bool(verboseFontMgr)
 
 int CountFallbacks(SkTDArray<FontFamily*> fontFamilies) {
     int countOfFallbackFonts = 0;

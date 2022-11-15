@@ -67,8 +67,8 @@ private:
 };
 
 #ifndef SK_DEBUG
-inline void SkSharedMutex::assertHeld() const {};
-inline void SkSharedMutex::assertHeldShared() const {};
+inline void SkSharedMutex::assertHeld() const {}
+inline void SkSharedMutex::assertHeldShared() const {}
 #endif  // SK_DEBUG
 
 class SK_SCOPED_CAPABILITY SkAutoSharedMutexExclusive {

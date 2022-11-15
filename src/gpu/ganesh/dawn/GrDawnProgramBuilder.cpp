@@ -438,7 +438,7 @@ wgpu::ShaderModule GrDawnProgramBuilder::createShaderModule(const GrGLSLShaderBu
     }
 
     return fGpu->createShaderModule(spirvSource);
-};
+}
 
 const GrCaps* GrDawnProgramBuilder::caps() const {
     return fGpu->caps();

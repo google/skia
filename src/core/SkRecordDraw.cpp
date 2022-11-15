@@ -78,14 +78,14 @@ namespace SkRecords {
 template <> void Draw::draw(const NoOp&) {}
 
 #define DRAW(T, call) template <> void Draw::draw(const T& r) { fCanvas->call; }
-DRAW(Flush, flush());
-DRAW(Restore, restore());
-DRAW(Save, save());
+DRAW(Flush, flush())
+DRAW(Restore, restore())
+DRAW(Save, save())
 DRAW(SaveLayer, saveLayer(SkCanvasPriv::ScaledBackdropLayer(r.bounds,
                                                             r.paint,
                                                             r.backdrop.get(),
                                                             r.backdropScale,
-                                                            r.saveLayerFlags)));
+                                                            r.saveLayerFlags)))
 
 template <> void Draw::draw(const SaveBehind& r) {
     SkCanvasPriv::SaveBehind(fCanvas, r.subset);
@@ -95,26 +95,26 @@ template <> void Draw::draw(const DrawBehind& r) {
     SkCanvasPriv::DrawBehind(fCanvas, r.paint);
 }
 
-DRAW(SetMatrix, setMatrix(fInitialCTM.asM33() * r.matrix));
-DRAW(SetM44, setMatrix(fInitialCTM * r.matrix));
-DRAW(Concat44, concat(r.matrix));
-DRAW(Concat, concat(r.matrix));
-DRAW(Translate, translate(r.dx, r.dy));
-DRAW(Scale, scale(r.sx, r.sy));
+DRAW(SetMatrix, setMatrix(fInitialCTM.asM33() * r.matrix))
+DRAW(SetM44, setMatrix(fInitialCTM * r.matrix))
+DRAW(Concat44, concat(r.matrix))
+DRAW(Concat, concat(r.matrix))
+DRAW(Translate, translate(r.dx, r.dy))
+DRAW(Scale, scale(r.sx, r.sy))
 
-DRAW(ClipPath, clipPath(r.path, r.opAA.op(), r.opAA.aa()));
-DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op(), r.opAA.aa()));
-DRAW(ClipRect, clipRect(r.rect, r.opAA.op(), r.opAA.aa()));
-DRAW(ClipRegion, clipRegion(r.region, r.op));
-DRAW(ClipShader, clipShader(r.shader, r.op));
+DRAW(ClipPath, clipPath(r.path, r.opAA.op(), r.opAA.aa()))
+DRAW(ClipRRect, clipRRect(r.rrect, r.opAA.op(), r.opAA.aa()))
+DRAW(ClipRect, clipRect(r.rect, r.opAA.op(), r.opAA.aa()))
+DRAW(ClipRegion, clipRegion(r.region, r.op))
+DRAW(ClipShader, clipShader(r.shader, r.op))
 
 template <> void Draw::draw(const ResetClip& r) {
     SkCanvasPriv::ResetClip(fCanvas);
 }
 
-DRAW(DrawArc, drawArc(r.oval, r.startAngle, r.sweepAngle, r.useCenter, r.paint));
-DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint));
-DRAW(DrawImage, drawImage(r.image.get(), r.left, r.top, r.sampling, r.paint));
+DRAW(DrawArc, drawArc(r.oval, r.startAngle, r.sweepAngle, r.useCenter, r.paint))
+DRAW(DrawDRRect, drawDRRect(r.outer, r.inner, r.paint))
+DRAW(DrawImage, drawImage(r.image.get(), r.left, r.top, r.sampling, r.paint))
 
 template <> void Draw::draw(const DrawImageLattice& r) {
     SkCanvas::Lattice lattice;
@@ -128,33 +128,33 @@ template <> void Draw::draw(const DrawImageLattice& r) {
     fCanvas->drawImageLattice(r.image.get(), lattice, r.dst, r.filter, r.paint);
 }
 
-DRAW(DrawImageRect, drawImageRect(r.image.get(), r.src, r.dst, r.sampling, r.paint, r.constraint));
-DRAW(DrawOval, drawOval(r.oval, r.paint));
-DRAW(DrawPaint, drawPaint(r.paint));
-DRAW(DrawPath, drawPath(r.path, r.paint));
-DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.bmode, r.paint));
-DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint));
-DRAW(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint));
-DRAW(DrawRRect, drawRRect(r.rrect, r.paint));
-DRAW(DrawRect, drawRect(r.rect, r.paint));
-DRAW(DrawRegion, drawRegion(r.region, r.paint));
-DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint));
+DRAW(DrawImageRect, drawImageRect(r.image.get(), r.src, r.dst, r.sampling, r.paint, r.constraint))
+DRAW(DrawOval, drawOval(r.oval, r.paint))
+DRAW(DrawPaint, drawPaint(r.paint))
+DRAW(DrawPath, drawPath(r.path, r.paint))
+DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.bmode, r.paint))
+DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint))
+DRAW(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint))
+DRAW(DrawRRect, drawRRect(r.rrect, r.paint))
+DRAW(DrawRect, drawRect(r.rect, r.paint))
+DRAW(DrawRegion, drawRegion(r.region, r.paint))
+DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint))
 #if SK_SUPPORT_GPU
-DRAW(DrawSlug, drawSlug(r.slug.get()));
+DRAW(DrawSlug, drawSlug(r.slug.get()))
 #else
 // Turn draw into a nop.
 template <> void Draw::draw(const DrawSlug&) {}
 #endif
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(), r.xforms, r.texs, r.colors, r.count, r.mode, r.sampling,
-                          r.cull, r.paint));
-DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint));
-DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec));
-DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()));
+                          r.cull, r.paint))
+DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint))
+DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec))
+DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()))
 
 DRAW(DrawEdgeAAQuad, experimental_DrawEdgeAAQuad(
-        r.rect, r.clip, r.aa, r.color, r.mode));
+        r.rect, r.clip, r.aa, r.color, r.mode))
 DRAW(DrawEdgeAAImageSet, experimental_DrawEdgeAAImageSet(
-        r.set.get(), r.count, r.dstClips, r.preViewMatrices, r.sampling, r.paint, r.constraint));
+        r.set.get(), r.count, r.dstClips, r.preViewMatrices, r.sampling, r.paint, r.constraint))
 
 #undef DRAW
 

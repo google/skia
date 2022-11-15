@@ -74,7 +74,7 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
             return {true, 4, GR_GL_UNSIGNED_SHORT};
     }
     SK_ABORT("Unknown vertex attrib type");
-};
+}
 
 void GrGLAttribArrayState::set(GrGLGpu* gpu,
                                int index,

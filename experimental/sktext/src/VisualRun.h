@@ -141,6 +141,6 @@ private:
     bool fIsHardBreak;
     size_t fGlyphCount;
 };
-}; // namespace text
+} // namespace text
 } // namespace skia
 #endif

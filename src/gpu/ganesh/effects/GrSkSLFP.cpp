@@ -437,7 +437,7 @@ SkPMColor4f GrSkSLFP::constantOutputForConstantInput(const SkPMColor4f& inputCol
 
 /**************************************************************************************************/
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP)
 
 #if GR_TEST_UTILS
 

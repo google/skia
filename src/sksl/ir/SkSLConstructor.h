@@ -136,7 +136,7 @@ namespace Constructor {
                                         Position pos,
                                         const Type& type,
                                         ExpressionArray args);
-};
+}
 
 }  // namespace SkSL
 

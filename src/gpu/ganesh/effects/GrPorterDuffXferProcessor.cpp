@@ -828,7 +828,7 @@ GrXPFactory::AnalysisProperties GrPorterDuffXPFactory::analysisProperties(
     return analysis_properties(color, coverage, caps, clampType, fBlendMode);
 }
 
-GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory);
+GR_DEFINE_XP_FACTORY_TEST(GrPorterDuffXPFactory)
 
 #if GR_TEST_UTILS
 const GrXPFactory* GrPorterDuffXPFactory::TestGet(GrProcessorTestData* d) {

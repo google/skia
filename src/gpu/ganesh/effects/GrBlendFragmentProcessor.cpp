@@ -189,7 +189,7 @@ private:
 /////////////////////////////////////////////////////////////////////
 
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BlendFragmentProcessor);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(BlendFragmentProcessor)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> BlendFragmentProcessor::TestCreate(GrProcessorTestData* d) {

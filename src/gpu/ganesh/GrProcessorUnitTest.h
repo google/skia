@@ -147,14 +147,14 @@ private:
  */
 #define GR_DEFINE_FRAGMENT_PROCESSOR_TEST(Effect)          \
     GrFragmentProcessorTestFactory* Effect::gTestFactory = \
-            new GrFragmentProcessorTestFactory(Effect::TestCreate, #Effect)
+            new GrFragmentProcessorTestFactory(Effect::TestCreate, #Effect);
 
 #define GR_DEFINE_GEOMETRY_PROCESSOR_TEST(Effect)          \
     GrGeometryProcessorTestFactory* Effect::gTestFactory = \
-            new GrGeometryProcessorTestFactory(Effect::TestCreate, #Effect)
+            new GrGeometryProcessorTestFactory(Effect::TestCreate, #Effect);
 
 #define GR_DEFINE_XP_FACTORY_TEST(Factory) \
-    GrXPFactoryTestFactory* Factory::gTestFactory = new GrXPFactoryTestFactory(Factory::TestGet)
+    GrXPFactoryTestFactory* Factory::gTestFactory = new GrXPFactoryTestFactory(Factory::TestGet);
 
 #else // !SK_ALLOW_STATIC_GLOBAL_INITIALIZERS
 

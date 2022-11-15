@@ -93,7 +93,7 @@ private:
     const ShaderFlags fShaderFlags;
 };
 
-GR_MAKE_BITFIELD_CLASS_OPS(AtlasInstancedHelper::ShaderFlags);
+GR_MAKE_BITFIELD_CLASS_OPS(AtlasInstancedHelper::ShaderFlags)
 
 } // namespace skgpu::v1
 

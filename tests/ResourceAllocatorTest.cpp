@@ -81,7 +81,7 @@ constexpr ProxyParams::Kind kBackend = ProxyParams::Kind::kBackend;
 constexpr ProxyParams::Kind kInstantiated = ProxyParams::Kind::kInstantiated;
 constexpr ProxyParams::Kind kLazy = ProxyParams::Kind::kLazy;
 constexpr ProxyParams::Kind kFullyLazy = ProxyParams::Kind::kFullyLazy;
-};
+}
 
 static sk_sp<GrSurfaceProxy> make_deferred(GrProxyProvider* proxyProvider, const GrCaps* caps,
                                            const ProxyParams& p) {

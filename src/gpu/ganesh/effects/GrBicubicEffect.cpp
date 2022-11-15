@@ -234,7 +234,7 @@ SkPMColor4f GrBicubicEffect::constantOutputForConstantInput(const SkPMColor4f& i
     return GrFragmentProcessor::ConstantOutputForConstantInput(this->childProcessor(0), input);
 }
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrBicubicEffect)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::TestCreate(GrProcessorTestData* d) {

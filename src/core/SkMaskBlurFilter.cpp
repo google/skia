@@ -327,7 +327,7 @@ static void store(uint8_t* to, const fp88& v, int width) {
             to[i] = buffer[i];
         }
     }
-};
+}
 
 static constexpr uint16_t _____ = 0u;
 static constexpr uint16_t kHalf = 0x80u;

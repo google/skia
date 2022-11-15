@@ -10,7 +10,7 @@
 #include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/ganesh/vk/GrVkImageLayout.h"
 
-void GrVkBackendSurfaceInfo::cleanup() {};
+void GrVkBackendSurfaceInfo::cleanup() {}
 
 void GrVkBackendSurfaceInfo::assign(const GrVkBackendSurfaceInfo& that, bool isThisValid) {
     fImageInfo = that.fImageInfo;

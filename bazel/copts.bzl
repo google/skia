@@ -143,6 +143,7 @@ WARNINGS = [
     "-Wdeprecated-this-capture",
     "-Wdeprecated-volatile",
     "-Wdeprecated-writable-strings",
+    "-Wc++98-compat-extra-semi",
 ]
 
 DEFAULT_COPTS = CORE_COPTS + OPT_LEVEL + WARNINGS

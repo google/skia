@@ -871,7 +871,7 @@ DashingCircleEffect::DashingCircleEffect(const SkPMColor4f& color,
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 }
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingCircleEffect)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
@@ -1085,7 +1085,7 @@ DashingLineEffect::DashingLineEffect(const SkPMColor4f& color,
     this->setVertexAttributesWithImplicitOffsets(&fInPosition, 3);
 }
 
-GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect);
+GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DashingLineEffect)
 
 #if GR_TEST_UTILS
 GrGeometryProcessor* DashingLineEffect::TestCreate(GrProcessorTestData* d) {

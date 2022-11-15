@@ -91,7 +91,7 @@ private:
     using INHERITED = SkImageFilter_Base;
 };
 
-}; // end namespace
+} // end namespace
 
 sk_sp<SkImageFilter> SkImageFilters::AlphaThreshold(
         const SkRegion& region, SkScalar innerMin, SkScalar outerMax, sk_sp<SkImageFilter> input,

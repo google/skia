@@ -237,11 +237,11 @@ SkPDFIndirectReference SkPDFDocument::emit(const SkPDFObject& object, SkPDFIndir
 SkWStream* SkPDFDocument::beginObject(SkPDFIndirectReference ref) SK_REQUIRES(fMutex) {
     begin_indirect_object(&fOffsetMap, ref, this->getStream());
     return this->getStream();
-};
+}
 
 void SkPDFDocument::endObject() SK_REQUIRES(fMutex) {
     end_indirect_object(this->getStream());
-};
+}
 
 static SkSize operator*(SkISize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
 static SkSize operator*(SkSize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }

@@ -669,7 +669,7 @@ private:
 };
 
 /////////////////////////////////////////////////////////////////////
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoise2Effect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrPerlinNoise2Effect)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrPerlinNoise2Effect::TestCreate(GrProcessorTestData* d) {

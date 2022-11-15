@@ -242,7 +242,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(ColorTableEffect)
 
 #if GR_TEST_UTILS
 

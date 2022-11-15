@@ -373,7 +373,7 @@ bool GrMorphologyEffect::onIsEqual(const GrFragmentProcessor& sBase) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect);
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrMorphologyEffect)
 
 #if GR_TEST_UTILS
 std::unique_ptr<GrFragmentProcessor> GrMorphologyEffect::TestCreate(GrProcessorTestData* d) {

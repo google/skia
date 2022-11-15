@@ -263,7 +263,7 @@ static SkAutoPixmapStorage make_ref_data(const SkImageInfo& info, bool forceOpaq
         surface->getCanvas()->drawPaint(paint);
     }
     return result;
-};
+}
 
 template <typename T>
 static void gpu_read_pixels_test_driver(skiatest::Reporter* reporter,
@@ -615,7 +615,7 @@ static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResu
     auto context = static_cast<AsyncContext*>(c);
     context->fResult = std::move(result);
     context->fCalled = true;
-};
+}
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
                                        reporter,

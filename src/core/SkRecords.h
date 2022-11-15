@@ -161,38 +161,38 @@ struct T {                              \
     __VA_ARGS__;                        \
 };
 
-RECORD(NoOp, 0);
-RECORD(Flush, 0);
+RECORD(NoOp, 0)
+RECORD(Flush, 0)
 RECORD(Restore, 0,
-        TypedMatrix matrix);
-RECORD(Save, 0);
+        TypedMatrix matrix)
+RECORD(Save, 0)
 
 RECORD(SaveLayer, kHasPaint_Tag,
        Optional<SkRect> bounds;
        Optional<SkPaint> paint;
        sk_sp<const SkImageFilter> backdrop;
        SkCanvas::SaveLayerFlags saveLayerFlags;
-       SkScalar backdropScale);
+       SkScalar backdropScale)
 
 RECORD(SaveBehind, 0,
-       Optional<SkRect> subset);
+       Optional<SkRect> subset)
 
 RECORD(SetMatrix, 0,
-        TypedMatrix matrix);
+        TypedMatrix matrix)
 RECORD(SetM44, 0,
-        SkM44 matrix);
+        SkM44 matrix)
 RECORD(Concat, 0,
-        TypedMatrix matrix);
+        TypedMatrix matrix)
 RECORD(Concat44, 0,
-       SkM44 matrix);
+       SkM44 matrix)
 
 RECORD(Translate, 0,
         SkScalar dx;
-        SkScalar dy);
+        SkScalar dy)
 
 RECORD(Scale, 0,
        SkScalar sx;
-       SkScalar sy);
+       SkScalar sy)
 
 struct ClipOpAndAA {
     ClipOpAndAA() {}
@@ -209,20 +209,20 @@ static_assert(sizeof(ClipOpAndAA) == 4, "ClipOpAndAASize");
 
 RECORD(ClipPath, 0,
         PreCachedPath path;
-        ClipOpAndAA opAA);
+        ClipOpAndAA opAA)
 RECORD(ClipRRect, 0,
         SkRRect rrect;
-        ClipOpAndAA opAA);
+        ClipOpAndAA opAA)
 RECORD(ClipRect, 0,
         SkRect rect;
-        ClipOpAndAA opAA);
+        ClipOpAndAA opAA)
 RECORD(ClipRegion, 0,
         SkRegion region;
-        SkClipOp op);
+        SkClipOp op)
 RECORD(ClipShader, 0,
         sk_sp<SkShader> shader;
-        SkClipOp op);
-RECORD(ResetClip, 0);
+        SkClipOp op)
+RECORD(ResetClip, 0)
 
 // While not strictly required, if you have an SkPaint, it's fastest to put it first.
 RECORD(DrawArc, kDraw_Tag|kHasPaint_Tag,
@@ -230,21 +230,21 @@ RECORD(DrawArc, kDraw_Tag|kHasPaint_Tag,
        SkRect oval;
        SkScalar startAngle;
        SkScalar sweepAngle;
-       unsigned useCenter);
+       unsigned useCenter)
 RECORD(DrawDRRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkRRect outer;
-        SkRRect inner);
+        SkRRect inner)
 RECORD(DrawDrawable, kDraw_Tag,
         Optional<SkMatrix> matrix;
         SkRect worstCaseBounds;
-        int32_t index);
+        int32_t index)
 RECORD(DrawImage, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> image;
         SkScalar left;
         SkScalar top;
-        SkSamplingOptions sampling);
+        SkSamplingOptions sampling)
 RECORD(DrawImageLattice, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> image;
@@ -257,50 +257,50 @@ RECORD(DrawImageLattice, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         PODArray<SkColor> colors;
         SkIRect src;
         SkRect dst;
-        SkFilterMode filter);
+        SkFilterMode filter)
 RECORD(DrawImageRect, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> image;
         SkRect src;
         SkRect dst;
         SkSamplingOptions sampling;
-        SkCanvas::SrcRectConstraint constraint);
+        SkCanvas::SrcRectConstraint constraint)
 RECORD(DrawOval, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
-        SkRect oval);
+        SkRect oval)
 RECORD(DrawPaint, kDraw_Tag|kHasPaint_Tag,
-        SkPaint paint);
+        SkPaint paint)
 RECORD(DrawBehind, kDraw_Tag|kHasPaint_Tag,
-       SkPaint paint);
+       SkPaint paint)
 RECORD(DrawPath, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
-        PreCachedPath path);
+        PreCachedPath path)
 RECORD(DrawPicture, kDraw_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkPicture> picture;
-        TypedMatrix matrix);
+        TypedMatrix matrix)
 RECORD(DrawPoints, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         SkCanvas::PointMode mode;
         unsigned count;
-        PODArray<SkPoint> pts);
+        PODArray<SkPoint> pts)
 RECORD(DrawRRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
-        SkRRect rrect);
+        SkRRect rrect)
 RECORD(DrawRect, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
-        SkRect rect);
+        SkRect rect)
 RECORD(DrawRegion, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
-        SkRegion region);
+        SkRegion region)
 RECORD(DrawTextBlob, kDraw_Tag|kHasText_Tag|kHasPaint_Tag,
         SkPaint paint;
         sk_sp<const SkTextBlob> blob;
         SkScalar x;
-        SkScalar y);
+        SkScalar y)
 #if SK_SUPPORT_GPU
 RECORD(DrawSlug, kDraw_Tag|kHasText_Tag,
-       sk_sp<const sktext::gpu::Slug> slug);
+       sk_sp<const sktext::gpu::Slug> slug)
 #else
 RECORD(DrawSlug, 0)
 #endif
@@ -309,7 +309,7 @@ RECORD(DrawPatch, kDraw_Tag|kHasPaint_Tag,
         PODArray<SkPoint> cubics;
         PODArray<SkColor> colors;
         PODArray<SkPoint> texCoords;
-        SkBlendMode bmode);
+        SkBlendMode bmode)
 RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         Optional<SkPaint> paint;
         sk_sp<const SkImage> atlas;
@@ -319,24 +319,24 @@ RECORD(DrawAtlas, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
         int count;
         SkBlendMode mode;
         SkSamplingOptions sampling;
-        Optional<SkRect> cull);
+        Optional<SkRect> cull)
 RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         sk_sp<SkVertices> vertices;
-        SkBlendMode bmode);
+        SkBlendMode bmode)
 RECORD(DrawShadowRec, kDraw_Tag,
        PreCachedPath path;
-       SkDrawShadowRec rec);
+       SkDrawShadowRec rec)
 RECORD(DrawAnnotation, 0,  // TODO: kDraw_Tag, skia:5548
        SkRect rect;
        SkString key;
-       sk_sp<SkData> value);
+       sk_sp<SkData> value)
 RECORD(DrawEdgeAAQuad, kDraw_Tag,
        SkRect rect;
        PODArray<SkPoint> clip;
        SkCanvas::QuadAAFlags aa;
        SkColor4f color;
-       SkBlendMode mode);
+       SkBlendMode mode)
 RECORD(DrawEdgeAAImageSet, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
        Optional<SkPaint> paint;
        SkAutoTArray<SkCanvas::ImageSetEntry> set;
@@ -344,7 +344,7 @@ RECORD(DrawEdgeAAImageSet, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
        PODArray<SkPoint> dstClips;
        PODArray<SkMatrix> preViewMatrices;
        SkSamplingOptions sampling;
-       SkCanvas::SrcRectConstraint constraint);
+       SkCanvas::SrcRectConstraint constraint)
 #undef RECORD
 
 }  // namespace SkRecords
