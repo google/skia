@@ -77,6 +77,7 @@ def main():
   src_dir = getenv(ENV_VAR)
 
   target_dir = os.path.abspath(args.target_dir)
+  shutil.rmtree(target_dir)
   shutil.copytree(src_dir, target_dir, ignore=filter_toolchain_files)
 
 
