@@ -45,7 +45,7 @@
     #define INC_MATH_IS_SAFE_NOW
 
 #else
-    #include <math.h>
+    #include <math.h> // IWYU pragma: export
 
 #endif
 

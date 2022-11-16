@@ -61,9 +61,22 @@ filegroup(
 
 generate_cpp_files_for_headers(
     name = "generated_srcs",
-    headers = [":public_hdrs"],
+    headers = [
+        ":public_hdrs",
+        ":private_hdrs",
+    ],
     # All headers listed here (using paths relative to the Skia root) will have a .cpp file
     # generated that is a copy of the header file just with a .cpp suffix so Bazel will try to
     # compile it. This allows us to run IWYU on these files.
-    to_generate = ["include/core/SkRefCnt.h"],
+    to_generate = [
+        "include/config/SkUserConfig.h",
+        "include/core/SkAlphaType.h",
+        "include/core/SkFontTypes.h",
+        "include/core/SkRefCnt.h",
+        "include/private/SkMacros.h",
+        "include/private/SkSafe_math.h",
+        "include/private/SkTFitsIn.h",
+        "include/private/SkTPin.h",
+        "include/private/SkThreadAnnotations.h",
+    ],
 )

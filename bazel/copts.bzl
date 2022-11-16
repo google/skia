@@ -147,6 +147,7 @@ WARNINGS = [
 ] + select({
     "//bazel/common_config_settings:compile_generated_cpp_files_for_headers_true": [
         # These warnings show up when we compile generated .cpp files when enforcing IWYU
+        "-Wno-unused-function",
         "-Wno-unused-template",
     ],
     "//conditions:default": [],

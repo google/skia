@@ -151,6 +151,12 @@
   { include: ["<__type_traits/remove_extent.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/remove_pointer.h>", "private", "<type_traits>", "public"] },
 
+  { include: ["<__type_traits/is_enum.h>", "private", "<type_traits>", "public"] },
+  { include: ["<__type_traits/is_integral.h>", "private", "<type_traits>", "public"] },
+  { include: ["<__type_traits/is_signed.h>", "private", "<type_traits>", "public"] },
+  { include: ["<__type_traits/is_unsigned.h>", "private", "<type_traits>", "public"] },
+  { include: ["<__type_traits/underlying_type.h>", "private", "<type_traits>", "public"] },
+
   { symbol: ["std::__bit_reference", "private", "<vector>", "public"] },
   { include: ["<__bit_reference>", "private",  "<vector>", "public"] },
 
