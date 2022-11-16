@@ -8,10 +8,11 @@
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
 
 #include "include/gpu/graphite/BackendTexture.h"
+#include "src/gpu/graphite/ComputePipeline.h"
+#include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/dawn/DawnSampler.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/gpu/graphite/dawn/DawnTexture.h"
-
 
 namespace skgpu::graphite {
 
