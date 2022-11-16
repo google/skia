@@ -18,9 +18,9 @@ struct GrFPArgs;
 class GrFragmentProcessor;
 class SkColorInfo;
 class SkRuntimeEffect;
-class SkKeyContext;
 
 namespace skgpu::graphite {
+class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
 }
@@ -66,7 +66,7 @@ public:
      * primitive color (which is supplied by certain geometries). primitiveColorBlender = false when
      * blending the result of the paint evaluation with the back buffer.
      */
-    virtual void addToKey(const SkKeyContext&,
+    virtual void addToKey(const skgpu::graphite::KeyContext&,
                           skgpu::graphite::PaintParamsKeyBuilder*,
                           skgpu::graphite::PipelineDataGatherer*,
                           bool primitiveColorBlender) const;

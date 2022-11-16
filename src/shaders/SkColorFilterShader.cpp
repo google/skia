@@ -119,7 +119,7 @@ std::unique_ptr<GrFragmentProcessor> SkColorFilterShader::asFragmentProcessor(
 
 #ifdef SK_GRAPHITE_ENABLED
 
-void SkColorFilterShader::addToKey(const SkKeyContext& keyContext,
+void SkColorFilterShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;

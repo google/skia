@@ -10,11 +10,11 @@
 #include "include/core/SkData.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkDebugUtils.h"
-#include "src/core/SkKeyContext.h"
 #include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkUniform.h"
 #include "src/gpu/Blend.h"
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -34,7 +34,7 @@ namespace skgpu::graphite {
 
 //--------------------------------------------------------------------------------------------------
 
-void PassthroughShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+void PassthroughShaderBlock::BeginBlock(const KeyContext& keyContext,
                                         PaintParamsKeyBuilder* builder,
                                         PipelineDataGatherer* gatherer) {
     builder->beginBlock(SkBuiltInCodeSnippetID::kPassthroughShader);
@@ -42,7 +42,7 @@ void PassthroughShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
-void PassthroughBlenderBlock::BeginBlock(const SkKeyContext& keyContext,
+void PassthroughBlenderBlock::BeginBlock(const KeyContext& keyContext,
                                          PaintParamsKeyBuilder* builder,
                                          PipelineDataGatherer* gatherer) {
     builder->beginBlock(SkBuiltInCodeSnippetID::kPassthroughBlender);
@@ -63,7 +63,7 @@ void add_solid_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void SolidColorShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+void SolidColorShaderBlock::BeginBlock(const KeyContext& keyContext,
                                        PaintParamsKeyBuilder* builder,
                                        PipelineDataGatherer* gatherer,
                                        const SkPMColor4f& premulColor) {
@@ -197,7 +197,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
     }
 }
 
-void GradientShaderBlocks::BeginBlock(const SkKeyContext& keyContext,
+void GradientShaderBlocks::BeginBlock(const KeyContext& keyContext,
                                       PaintParamsKeyBuilder *builder,
                                       PipelineDataGatherer* gatherer,
                                       const GradientData& gradData) {
@@ -269,7 +269,7 @@ void add_localmatrixshader_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void LocalMatrixShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+void LocalMatrixShaderBlock::BeginBlock(const KeyContext& keyContext,
                                         PaintParamsKeyBuilder* builder,
                                         PipelineDataGatherer* gatherer,
                                         const LMShaderData& lmShaderData) {
@@ -321,7 +321,7 @@ ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
     , fSubset(subset) {
 }
 
-void ImageShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+void ImageShaderBlock::BeginBlock(const KeyContext& keyContext,
                                   PaintParamsKeyBuilder* builder,
                                   PipelineDataGatherer* gatherer,
                                   const ImageData& imgData) {
@@ -348,7 +348,7 @@ void ImageShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
-void PorterDuffBlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+void PorterDuffBlendShaderBlock::BeginBlock(const KeyContext& keyContext,
                                             PaintParamsKeyBuilder* builder,
                                             PipelineDataGatherer* gatherer,
                                             const PorterDuffBlendShaderData& blendData) {
@@ -369,7 +369,7 @@ void PorterDuffBlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
-void BlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+void BlendShaderBlock::BeginBlock(const KeyContext& keyContext,
                                   PaintParamsKeyBuilder* builder,
                                   PipelineDataGatherer* gatherer,
                                   const BlendShaderData& blendData) {
@@ -389,7 +389,7 @@ void BlendShaderBlock::BeginBlock(const SkKeyContext& keyContext,
 
 //--------------------------------------------------------------------------------------------------
 
-void ColorFilterShaderBlock::BeginBlock(const SkKeyContext& keyContext,
+void ColorFilterShaderBlock::BeginBlock(const KeyContext& keyContext,
                                         PaintParamsKeyBuilder* builder,
                                         PipelineDataGatherer* gatherer) {
     auto dict = keyContext.dict();
@@ -420,7 +420,7 @@ void add_matrix_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void MatrixColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
+void MatrixColorFilterBlock::BeginBlock(const KeyContext& keyContext,
                                         PaintParamsKeyBuilder* builder,
                                         PipelineDataGatherer* gatherer,
                                         const MatrixColorFilterData& matrixCFData) {
@@ -449,7 +449,7 @@ void add_blend_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void BlendColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
+void BlendColorFilterBlock::BeginBlock(const KeyContext& keyContext,
                                        PaintParamsKeyBuilder* builder,
                                        PipelineDataGatherer* gatherer,
                                        const BlendColorFilterData& data) {
@@ -463,14 +463,14 @@ void BlendColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
 }
 
 //--------------------------------------------------------------------------------------------------
-void ComposeColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
+void ComposeColorFilterBlock::BeginBlock(const KeyContext& keyContext,
                                          PaintParamsKeyBuilder* builder,
                                          PipelineDataGatherer* gatherer) {
     builder->beginBlock(SkBuiltInCodeSnippetID::kComposeColorFilter);
 }
 
 //--------------------------------------------------------------------------------------------------
-void GaussianColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
+void GaussianColorFilterBlock::BeginBlock(const KeyContext& keyContext,
                                           PaintParamsKeyBuilder* builder,
                                           PipelineDataGatherer* gatherer) {
     builder->beginBlock(SkBuiltInCodeSnippetID::kGaussianColorFilter);
@@ -492,7 +492,7 @@ void add_table_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
 
 TableColorFilterBlock::TableColorFilterData::TableColorFilterData() {}
 
-void TableColorFilterBlock::BeginBlock(const SkKeyContext& keyContext,
+void TableColorFilterBlock::BeginBlock(const KeyContext& keyContext,
                                        PaintParamsKeyBuilder* builder,
                                        PipelineDataGatherer* gatherer,
                                        const TableColorFilterData& data) {
@@ -566,7 +566,7 @@ void add_shaderbasedblender_uniform_data(const ShaderCodeDictionary* dict,
 
 } // anonymous namespace
 
-void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
+void BlendModeBlock::BeginBlock(const KeyContext& keyContext,
                                 PaintParamsKeyBuilder *builder,
                                 PipelineDataGatherer* gatherer,
                                 SkBlendMode bm) {
@@ -591,7 +591,7 @@ void BlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
     }
 }
 
-void PrimitiveBlendModeBlock::BeginBlock(const SkKeyContext& keyContext,
+void PrimitiveBlendModeBlock::BeginBlock(const KeyContext& keyContext,
                                          PaintParamsKeyBuilder *builder,
                                          PipelineDataGatherer* gatherer,
                                          SkBlendMode bm) {
@@ -643,7 +643,7 @@ static void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform
     }
 }
 
-void RuntimeEffectBlock::BeginBlock(const SkKeyContext& keyContext,
+void RuntimeEffectBlock::BeginBlock(const KeyContext& keyContext,
                                     PaintParamsKeyBuilder* builder,
                                     PipelineDataGatherer* gatherer,
                                     const ShaderData& shaderData) {

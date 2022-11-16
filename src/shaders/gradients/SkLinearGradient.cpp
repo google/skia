@@ -100,7 +100,7 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-void SkLinearGradient::addToKey(const SkKeyContext& keyContext,
+void SkLinearGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                 skgpu::graphite::PaintParamsKeyBuilder* builder,
                                 skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;

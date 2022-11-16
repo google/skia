@@ -25,8 +25,8 @@
 #include "src/shaders/SkTransformShader.h"
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/core/SkKeyContext.h"
 #include "src/gpu/graphite/ImageUtils.h"
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
@@ -386,7 +386,7 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-void SkImageShader::addToKey(const SkKeyContext& keyContext,
+void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                              skgpu::graphite::PaintParamsKeyBuilder* builder,
                              skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;

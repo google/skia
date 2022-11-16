@@ -11,8 +11,8 @@
 #include "include/private/SkSLString.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkBlenderBase.h"
-#include "src/core/SkKeyContext.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -33,7 +33,7 @@ ExtractPaintData(Recorder* recorder,
     SkDEBUGCODE(gatherer->checkReset());
     SkDEBUGCODE(builder->checkReset());
 
-    SkKeyContext keyContext(recorder, local2Dev);
+    KeyContext keyContext(recorder, local2Dev);
 
     p.toKey(keyContext, builder, gatherer);
 

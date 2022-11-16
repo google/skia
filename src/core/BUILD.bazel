@@ -390,8 +390,6 @@ split_srcs_and_hdrs(
 
 # These files are only needed if SkSL is enabled (GPU backend or SkVM).
 SKSL_FILES = [
-    "SkKeyContext.cpp",
-    "SkKeyContext.h",
     "SkRuntimeEffect.cpp",
     "SkSLTypeShared.cpp",
     "SkSLTypeShared.h",

@@ -27,8 +27,8 @@
 #include <utility>
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/core/SkKeyContext.h"
 #include "src/gpu/graphite/Image_Graphite.h"
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 
@@ -92,9 +92,9 @@ public:
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-    void addToKey(const SkKeyContext& keyContext,
-                  skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  skgpu::graphite::PipelineDataGatherer* gatherer) const override;
+    void addToKey(const skgpu::graphite::KeyContext&,
+                  skgpu::graphite::PaintParamsKeyBuilder*,
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
@@ -291,7 +291,7 @@ GrFPResult SkTable_ColorFilter::asFragmentProcessor(std::unique_ptr<GrFragmentPr
 
 #ifdef SK_GRAPHITE_ENABLED
 
-void SkTable_ColorFilter::addToKey(const SkKeyContext& keyContext,
+void SkTable_ColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;

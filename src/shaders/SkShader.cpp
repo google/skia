@@ -121,7 +121,7 @@ SkUpdatableShader* SkShaderBase::onUpdatableShader(SkArenaAlloc* alloc) const {
 
 #ifdef SK_GRAPHITE_ENABLED
 // TODO: add implementations for derived classes
-void SkShaderBase::addToKey(const SkKeyContext& keyContext,
+void SkShaderBase::addToKey(const skgpu::graphite::KeyContext& keyContext,
                             skgpu::graphite::PaintParamsKeyBuilder* builder,
                             skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;

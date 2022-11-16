@@ -18,11 +18,11 @@
 #include "include/gpu/graphite/CombinationBuilder.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkUniquePaintParamsID.h"
-#include "src/core/SkKeyContext.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GlobalCache.h"
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PipelineData.h"
@@ -174,7 +174,7 @@ SkUniquePaintParamsID create_key(Context* context,
 //   draw w/ the SkPaint and, again, somehow, intercept the created PaintParamsKey
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     auto recorder = context->makeRecorder();
-    SkKeyContext keyContext(recorder.get(), {});
+    KeyContext keyContext(recorder.get(), {});
     auto dict = keyContext.dict();
 
     PaintParamsKeyBuilder builder(dict);

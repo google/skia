@@ -12,10 +12,10 @@
 #include "include/core/SkPaint.h"
 
 class SkShader;
-class SkKeyContext;
 
 namespace skgpu::graphite {
 
+class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
 
@@ -59,7 +59,7 @@ public:
 
     bool skipColorXform() const { return fSkipColorXform; }
 
-    void toKey(const SkKeyContext&,
+    void toKey(const KeyContext&,
                PaintParamsKeyBuilder*,
                PipelineDataGatherer*) const;
 

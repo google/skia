@@ -17,6 +17,7 @@
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
@@ -39,16 +40,14 @@ std::unique_ptr<GrFragmentProcessor> SkLocalMatrixShader::asFragmentProcessor(
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/core/SkKeyContext.h"
-
-void SkLocalMatrixShader::addToKey(const SkKeyContext& keyContext,
+void SkLocalMatrixShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                    skgpu::graphite::PaintParamsKeyBuilder* builder,
                                    skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;
 
     LocalMatrixShaderBlock::LMShaderData lmShaderData(fLocalMatrix);
 
-    SkKeyContextWithLocalMatrix newContext(keyContext, fLocalMatrix);
+    KeyContextWithLocalMatrix newContext(keyContext, fLocalMatrix);
 
     LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, lmShaderData);
 

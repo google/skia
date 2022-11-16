@@ -11,8 +11,8 @@
 #include "include/core/SkShader.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorFilterBase.h"
-#include "src/core/SkKeyContext.h"
 #include "src/core/SkUniform.h"
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineData.h"
@@ -60,7 +60,7 @@ sk_sp<SkColorFilter> PaintParams::refColorFilter() const { return fColorFilter; 
 
 sk_sp<SkBlender> PaintParams::refPrimitiveBlender() const { return fPrimitiveBlender; }
 
-void PaintParams::toKey(const SkKeyContext& keyContext,
+void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
 

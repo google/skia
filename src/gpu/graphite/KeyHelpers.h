@@ -22,10 +22,10 @@
 class SkData;
 class SkRuntimeEffect;
 class SkUniquePaintParamsID;
-class SkKeyContext;
 
 namespace skgpu::graphite {
 
+class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
 
@@ -39,7 +39,7 @@ class PipelineDataGatherer;
 
 struct PassthroughShaderBlock {
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*);
 
@@ -47,7 +47,7 @@ struct PassthroughShaderBlock {
 
 struct PassthroughBlenderBlock {
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*);
 
@@ -55,7 +55,7 @@ struct PassthroughBlenderBlock {
 
 struct SolidColorShaderBlock {
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const SkPMColor4f&);
@@ -114,7 +114,7 @@ struct GradientShaderBlocks {
         float                  fOffsets[kMaxStops];
     };
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const GradientData&);
@@ -131,7 +131,7 @@ struct LocalMatrixShaderBlock {
         const SkM44 fLocalMatrix;
     };
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const LMShaderData&);
@@ -156,7 +156,7 @@ struct ImageShaderBlock {
         sk_sp<TextureProxy> fTextureProxy;
     };
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const ImageData&);
@@ -168,7 +168,7 @@ struct PorterDuffBlendShaderBlock {
         SkSpan<const float> fPorterDuffConstants;
     };
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const PorterDuffBlendShaderData&);
@@ -182,14 +182,14 @@ struct BlendShaderBlock {
         SkBlendMode fBM;
     };
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const BlendShaderData&);
 };
 
 struct ColorFilterShaderBlock {
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*);
 };
@@ -211,7 +211,7 @@ struct MatrixColorFilterBlock {
         bool         fInHSLA;
     };
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const MatrixColorFilterData&);
@@ -231,14 +231,14 @@ struct BlendColorFilterBlock {
         SkPMColor4f fSrcColor;
     };
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const BlendColorFilterData&);
 };
 
 struct ComposeColorFilterBlock {
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*);
 };
@@ -250,14 +250,14 @@ struct TableColorFilterBlock {
         sk_sp<TextureProxy> fTextureProxy;
     };
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const TableColorFilterData&);
 };
 
 struct GaussianColorFilterBlock {
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*);
 };
@@ -266,7 +266,7 @@ struct BlendModeBlock {
     /**
      * Blend mode blocks are used to blend a color attachment with the output of a shader.
      */
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            SkBlendMode);
@@ -278,7 +278,7 @@ struct PrimitiveBlendModeBlock {
      * geometry calls (drawVertices, drawAtlas, etc.) with either the paint color or the output of
      * another shader. Dst: primitiveColor Src: Paint color/shader output
      */
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            SkBlendMode);
@@ -302,7 +302,7 @@ struct RuntimeEffectBlock {
         sk_sp<const SkData>          fUniforms;
     };
 
-    static void BeginBlock(const SkKeyContext&,
+    static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const ShaderData&);

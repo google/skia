@@ -28,11 +28,11 @@ struct SkImageInfo;
 class SkPaint;
 class SkRasterPipeline;
 class SkRuntimeEffect;
-class SkKeyContext;
 class SkStageUpdater;
 class SkUpdatableShader;
 
 namespace skgpu::graphite {
+class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
 }
@@ -271,7 +271,7 @@ public:
         @param builder    builder for creating the key for this SkShader
         @param gatherer   if non-null, storage for this shader's data
     */
-    virtual void addToKey(const SkKeyContext& keyContext,
+    virtual void addToKey(const skgpu::graphite::KeyContext& keyContext,
                           skgpu::graphite::PaintParamsKeyBuilder* builder,
                           skgpu::graphite::PipelineDataGatherer* gatherer) const;
 #endif

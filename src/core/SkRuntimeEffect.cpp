@@ -946,7 +946,7 @@ static GrFPResult make_effect_fp(sk_sp<SkRuntimeEffect> effect,
 #ifdef SK_GRAPHITE_ENABLED
 static void add_children_to_key(SkSpan<const SkRuntimeEffect::ChildPtr> children,
                                 SkSpan<const SkRuntimeEffect::Child> childInfo,
-                                const SkKeyContext& keyContext,
+                                const skgpu::graphite::KeyContext& keyContext,
                                 skgpu::graphite::PaintParamsKeyBuilder* builder,
                                 skgpu::graphite::PipelineDataGatherer* gatherer) {
     using namespace skgpu::graphite;
@@ -1083,7 +1083,7 @@ public:
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-    void addToKey(const SkKeyContext& keyContext,
+    void addToKey(const skgpu::graphite::KeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
                   skgpu::graphite::PipelineDataGatherer* gatherer) const override {
         using namespace skgpu::graphite;
@@ -1263,7 +1263,7 @@ public:
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-    void addToKey(const SkKeyContext& keyContext,
+    void addToKey(const skgpu::graphite::KeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
                   skgpu::graphite::PipelineDataGatherer* gatherer) const override {
         using namespace skgpu::graphite;
@@ -1437,7 +1437,7 @@ public:
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-    void addToKey(const SkKeyContext& keyContext,
+    void addToKey(const skgpu::graphite::KeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
                   skgpu::graphite::PipelineDataGatherer* gatherer,
                   bool primitiveColorBlender) const override {

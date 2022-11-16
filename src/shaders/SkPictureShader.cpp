@@ -38,6 +38,14 @@
 #include "src/shaders/SkLocalMatrixShader.h"
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/RecorderPriv.h"
+#endif
+
 sk_sp<SkShader> SkPicture::makeShader(SkTileMode tmx, SkTileMode tmy, SkFilterMode filter,
                                       const SkMatrix* localMatrix, const SkRect* tile) const {
     if (localMatrix && !localMatrix->invert(nullptr)) {
@@ -420,13 +428,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/core/SkKeyContext.h"
-#include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/PaintParamsKey.h"
-#include "src/gpu/graphite/RecorderPriv.h"
-
-void SkPictureShader::addToKey(const SkKeyContext& keyContext,
+void SkPictureShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                skgpu::graphite::PaintParamsKeyBuilder* builder,
                                skgpu::graphite::PipelineDataGatherer* gatherer) const {
 
@@ -480,5 +482,4 @@ void SkPictureShader::addToKey(const SkKeyContext& keyContext,
 
     as_SB(shader)->addToKey(keyContext, builder, gatherer);
 }
-
 #endif // SK_GRAPHITE_ENABLED

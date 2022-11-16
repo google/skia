@@ -148,11 +148,13 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
 }
 
 #ifdef SK_GRAPHITE_ENABLED
-void SkColorFilterBase::addToKey(const SkKeyContext& keyContext,
+void SkColorFilterBase::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                  skgpu::graphite::PaintParamsKeyBuilder* builder,
                                  skgpu::graphite::PipelineDataGatherer* gatherer) const {
+    using namespace skgpu::graphite;
+
     // Return the input color as-is.
-    skgpu::graphite::PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
+    PassthroughShaderBlock::BeginBlock(keyContext, builder, gatherer);
     builder->endBlock();
 }
 #endif
@@ -208,7 +210,7 @@ public:
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-    void addToKey(const SkKeyContext& keyContext,
+    void addToKey(const skgpu::graphite::KeyContext& keyContext,
                   skgpu::graphite::PaintParamsKeyBuilder* builder,
                   skgpu::graphite::PipelineDataGatherer* gatherer) const override {
         using namespace skgpu::graphite;

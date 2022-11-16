@@ -32,7 +32,7 @@ class SkReadBuffer;
 class SkWriteBuffer;
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "src/core/SkKeyContext.h"
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 
@@ -57,9 +57,9 @@ public:
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-    void addToKey(const SkKeyContext& keyContext,
-                  skgpu::graphite::PaintParamsKeyBuilder* builder,
-                  skgpu::graphite::PipelineDataGatherer* gatherer) const override;
+    void addToKey(const skgpu::graphite::KeyContext&,
+                  skgpu::graphite::PaintParamsKeyBuilder*,
+                  skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
 protected:
@@ -116,7 +116,7 @@ GrFPResult SkGaussianColorFilter::asFragmentProcessor(std::unique_ptr<GrFragment
 
 #ifdef SK_GRAPHITE_ENABLED
 
-void SkGaussianColorFilter::addToKey(const SkKeyContext& keyContext,
+void SkGaussianColorFilter::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                      skgpu::graphite::PaintParamsKeyBuilder* builder,
                                      skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;

@@ -13,7 +13,9 @@
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkShaderBase.h"
 
-class SkKeyContext;
+namespace skgpu::graphite {
+class KeyContext;
+}
 
 class SkImageShader : public SkShaderBase {
 public:
@@ -53,7 +55,7 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 #ifdef SK_GRAPHITE_ENABLED
-    void addToKey(const SkKeyContext&,
+    void addToKey(const skgpu::graphite::KeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
                   skgpu::graphite::PipelineDataGatherer*) const override;
 #endif

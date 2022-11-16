@@ -21,6 +21,7 @@
 #include "src/shaders/SkShaderBase.h"
 
 #ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/Blend.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
@@ -62,7 +63,7 @@ public:
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-    void addToKey(const SkKeyContext&,
+    void addToKey(const skgpu::graphite::KeyContext&,
                   skgpu::graphite::PaintParamsKeyBuilder*,
                   skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
@@ -176,10 +177,7 @@ std::unique_ptr<GrFragmentProcessor> SkShader_Blend::asFragmentProcessor(
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-
-#include "src/gpu/Blend.h"
-
-void SkShader_Blend::addToKey(const SkKeyContext& keyContext,
+void SkShader_Blend::addToKey(const skgpu::graphite::KeyContext& keyContext,
                               skgpu::graphite::PaintParamsKeyBuilder* builder,
                               skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;

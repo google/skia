@@ -22,7 +22,6 @@
 #include "include/private/SkTHash.h"
 
 class SkArenaAllocWithReset;
-class SkKeyContext;
 class SkUniquePaintParamsID;
 
 namespace skgpu::graphite {
@@ -30,6 +29,7 @@ namespace skgpu::graphite {
 class CombinationBuilder;
 class CombinationBuilderTestAccess;
 class Context;
+class KeyContext;
 class Option;
 class PaintParamsKeyBuilder;
 class ShaderCodeDictionary;
@@ -158,7 +158,7 @@ private:
     }
 
     // 'desiredCombination' must be less than numCombinations
-    void createKey(const SkKeyContext&, int desiredCombination, PaintParamsKeyBuilder*);
+    void createKey(const KeyContext&, int desiredCombination, PaintParamsKeyBuilder*);
 
 #ifdef SK_DEBUG
     void dump() const;
