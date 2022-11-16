@@ -1027,7 +1027,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				}
 			} else if b.os("ChromeOS") {
 				version, ok := map[string]string{
-					"IntelUHDGraphics605": "14233.0.0",
+					"IntelUHDGraphics605": "15236.2.0",
 					"RadeonVega3":         "14233.0.0",
 					"Adreno618":           "14150.39.0",
 					"MaliT860":            "14092.77.0",
