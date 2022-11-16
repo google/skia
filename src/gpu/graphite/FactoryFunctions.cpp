@@ -11,6 +11,7 @@
 
 #include "src/gpu/graphite/FactoryFunctions.h"
 #include "src/gpu/graphite/Precompile.h"
+#include "src/gpu/graphite/PrecompileBasePriv.h"
 
 namespace skgpu::graphite {
 
@@ -30,9 +31,19 @@ sk_sp<PrecompileBlender> PrecompileBlender::Mode(SkBlendMode blendMode) {
 }
 
 //--------------------------------------------------------------------------------------------------
-class BlendPrecompileShader : public PrecompileShader {
+class PrecompileColorShader : public PrecompileShader {
 public:
-    BlendPrecompileShader(SkSpan<const sk_sp<PrecompileBlender>> blenders,
+    PrecompileColorShader() {}
+};
+
+sk_sp<PrecompileShader> PrecompileShaders::Color() {
+    return sk_make_sp<PrecompileColorShader>();
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompileBlendShader : public PrecompileShader {
+public:
+    PrecompileBlendShader(SkSpan<const sk_sp<PrecompileBlender>> blenders,
                           SkSpan<const sk_sp<PrecompileShader>> dsts,
                           SkSpan<const sk_sp<PrecompileShader>> srcs)
             : fBlenders(blenders.begin(), blenders.end())
@@ -41,21 +52,32 @@ public:
     }
 
 private:
+    int numChildCombinations() const override {
+        int numBlenderCombos = CountBlenderCombos(fBlenders);
+
+        int numDstCombos = 0;
+        for (auto d : fDsts) {
+            numDstCombos += d->priv().numChildCombinations();
+        }
+
+        int numSrcCombos = 0;
+        for (auto s : fSrcs) {
+            numSrcCombos += s->priv().numChildCombinations();
+        }
+
+        return numBlenderCombos * numDstCombos * numSrcCombos;
+    }
+
     std::vector<sk_sp<PrecompileBlender>> fBlenders;
     std::vector<sk_sp<PrecompileShader>> fDsts;
     std::vector<sk_sp<PrecompileShader>> fSrcs;
 };
 
-//--------------------------------------------------------------------------------------------------
-sk_sp<PrecompileShader> PrecompileShaders::Color() {
-    return sk_make_sp<PrecompileShader>();
-}
-
 sk_sp<PrecompileShader> PrecompileShaders::Blend(
         SkSpan<const sk_sp<PrecompileBlender>> blenders,
         SkSpan<const sk_sp<PrecompileShader>> dsts,
         SkSpan<const sk_sp<PrecompileShader>> srcs) {
-    return sk_make_sp<BlendPrecompileShader>(std::move(blenders),
+    return sk_make_sp<PrecompileBlendShader>(std::move(blenders),
                                              std::move(dsts), std::move(srcs));
 }
 
@@ -69,21 +91,25 @@ sk_sp<PrecompileShader> PrecompileShaders::Blend(
         tmp.emplace_back(PrecompileBlender::Mode(bm));
     }
 
-    return sk_make_sp<BlendPrecompileShader>(tmp, std::move(dsts), std::move(srcs));
+    return sk_make_sp<PrecompileBlendShader>(tmp, std::move(dsts), std::move(srcs));
 }
 
+//--------------------------------------------------------------------------------------------------
 sk_sp<PrecompileShader> PrecompileShaders::Image() {
     return sk_make_sp<PrecompileShader>();
 }
 
+//--------------------------------------------------------------------------------------------------
 sk_sp<PrecompileShader> PrecompileShaders::LinearGradient() {
     return sk_make_sp<PrecompileShader>();
 }
 
+//--------------------------------------------------------------------------------------------------
 sk_sp<PrecompileShader> PrecompileShaders::RadialGradient() {
     return sk_make_sp<PrecompileShader>();
 }
 
+//--------------------------------------------------------------------------------------------------
 sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient() {
     return sk_make_sp<PrecompileShader>();
 }
@@ -139,7 +165,7 @@ bool precompilebase_is_valid_as_child(const PrecompileBase *child) {
 
 #endif // SK_DEBUG
 
-}
+} // anonymous namespace
 
 PrecompileChildPtr::PrecompileChildPtr(sk_sp<PrecompileBase> child)
         : fChild(std::move(child)) {
@@ -194,6 +220,10 @@ public:
     }
 
 private:
+    int numChildCombinations() const override {
+        return fChildOptions.size();
+    }
+
     sk_sp<SkRuntimeEffect> fEffect;
     std::vector<std::vector<PrecompileChildPtr>> fChildOptions;
 };

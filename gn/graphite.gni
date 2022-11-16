@@ -255,5 +255,7 @@ skia_graphite_precompile_sources = [
   "$_src/CombinationBuilder.cpp",
   "$_src/FactoryFunctions.cpp",
   "$_src/FactoryFunctions.h",
+  "$_src/PaintOptionsPriv.h",
+  "$_src/Precompile.cpp",
   "$_src/Precompile.h",
 ]

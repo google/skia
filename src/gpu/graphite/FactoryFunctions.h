@@ -120,6 +120,9 @@ private:
 
 using PrecompileChildOptions = SkSpan<const PrecompileChildPtr>;
 
+// TODO: the precompile RuntimeEffects are handling their child options different from the
+// rest of the precompile system!
+
 // These will move to be on SkRuntimeEffect to parallel makeShader, makeColorFilter and
 // makeBlender
 sk_sp<PrecompileShader> MakePrecompileShader(
