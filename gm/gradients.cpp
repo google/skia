@@ -1081,9 +1081,7 @@ DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
     }
 }
 
-// TODO(skia:13108): Still need to test:
-//   Varying number of stops
-//   Tilemodes (eg, border handling, decal)
+// TODO(skia:13774): Still need to test degenerate gradients in strange color spaces
 DEF_SIMPLE_GM_BG(gradients_color_space, canvas, 265, 205, SK_ColorGRAY) {
     using CS = SkGradientShader::Interpolation::ColorSpace;
 
@@ -1153,4 +1151,58 @@ DEF_SIMPLE_GM_BG(gradients_hue_method, canvas, 285, 105, SK_ColorGRAY) {
                                SkFont{}, labelPaint);
         canvas->translate(0, 25);
     }
+}
+
+DEF_SIMPLE_GM_BG(gradients_color_space_tilemode, canvas, 360, 105, SK_ColorGRAY) {
+    // Test exotic (CSS) gradient color spaces in conjunction with tile modes. Rather than test
+    // every combination, we pick one color space that has a sufficiently strange interpolated
+    // representation (OKLCH) and just use that. We're mostly interested in making sure that things
+    // like decal mode are implemented at the correct time in the pipeline, relative to hue
+    // conversion, re-premultiplication, etc.
+    SkPoint pts[] = {{20, 0}, {120, 0}};
+    SkColor4f colors[] = {SkColors::kBlue, SkColors::kYellow};
+
+    SkPaint p;
+    SkGradientShader::Interpolation interpolation;
+    interpolation.fColorSpace = SkGradientShader::Interpolation::ColorSpace::kOKLCH;
+
+    canvas->translate(5, 5);
+
+    for (int tm = 0; tm < kSkTileModeCount; ++tm) {
+        p.setShader(SkGradientShader::MakeLinear(pts, colors, SkColorSpace::MakeSRGB(), nullptr, 2,
+                                                 static_cast<SkTileMode>(tm), interpolation,
+                                                 nullptr));
+        canvas->drawRect({0, 0, 350, 20}, p);
+        canvas->translate(0, 25);
+    }
+}
+
+DEF_SIMPLE_GM_BG(gradients_color_space_many_stops, canvas, 500, 500, SK_ColorGRAY) {
+    // Test exotic (CSS) gradient color spaces with many stops. Rather than test every combination,
+    // we pick one color space that has a sufficiently strange interpolated representation (OKLCH)
+    // and just use that. We're mostly interested in making sure that the texture fallback on GPU
+    // works correctly.
+    const SkPoint pts[] = { {50, 50}, {450, 465}};
+
+    const unsigned kStopCount = 200;
+    SkColor4f colors[kStopCount];
+    for (unsigned i = 0; i < kStopCount; i++) {
+        switch (i % 5) {
+            case 0: colors[i] = SkColors::kRed; break;
+            case 1: colors[i] = SkColors::kGreen; break;
+            case 2: colors[i] = SkColors::kGreen; break;
+            case 3: colors[i] = SkColors::kBlue; break;
+            case 4: colors[i] = SkColors::kRed; break;
+        }
+    }
+
+    SkPaint p;
+
+    SkGradientShader::Interpolation interpolation;
+    interpolation.fColorSpace = SkGradientShader::Interpolation::ColorSpace::kOKLCH;
+    p.setShader(SkGradientShader::MakeLinear(pts, colors, SkColorSpace::MakeSRGB(), nullptr,
+                                             std::size(colors), SkTileMode::kClamp, interpolation,
+                                             nullptr));
+
+    canvas->drawRect(SkRect::MakeXYWH(0, 0, 500, 500), p);
 }
