@@ -70,12 +70,12 @@ public:
         SkASSERT(ptr || fSize == 0);  // disallow nullptr + a nonzero size
         SkASSERT(fSize < kMaxSize);
     }
-    template <typename U, typename = typename std::enable_if<std::is_same<const U, T>::value>::type>
-    constexpr SkSpan(const SkSpan<U>& that) : fPtr(std::data(that)), fSize{std::size(that)} {}
+    template <typename U, typename = std::enable_if_t<std::is_same_v<const U, T>>>
+    constexpr SkSpan(const SkSpan<U>& that) : fPtr(std::data(that)), fSize(std::size(that)) {}
     constexpr SkSpan(const SkSpan& o) = default;
     template<size_t N> constexpr SkSpan(T(&a)[N]) : SkSpan(a, N) { }
     template<typename Container>
-    constexpr SkSpan(Container& c) : SkSpan{std::data(c), std::size(c)} { }
+    constexpr SkSpan(Container& c) : SkSpan(std::data(c), std::size(c)) { }
     SkSpan(std::initializer_list<T> il SK_CHECK_IL_LIFETIME)
             : SkSpan(std::data(il), std::size(il)) {}
 
