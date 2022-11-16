@@ -9,11 +9,11 @@ skia_cc_library(
     srcs = [
         "GrVulkanMemoryAllocator.cpp",
     ],
-    hdrs = [
-        "GrVulkanMemoryAllocator.h",
-    ],
     includes = [
         ".",
+    ],
+    textual_hdrs = [
+        "GrVulkanMemoryAllocator.h",
     ],
     visibility = ["//:__subpackages__"],
     deps = [

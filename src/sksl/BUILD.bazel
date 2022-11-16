@@ -95,6 +95,13 @@ split_srcs_and_hdrs(
     files = CORE_SRCS,
 )
 
+skia_filegroup(
+    name = "gpu_hdrs",
+    srcs = [
+        "GLSL.std.450.h",
+    ],
+)
+
 selects.config_setting_group(
     name = "needs_sksl",
     match_any = [
@@ -153,9 +160,7 @@ skia_filegroup(
         "//src/sksl/tracing:private_hdrs",
         "//src/sksl/transform:private_hdrs",
     ] + select({
-        ":use_sksl_gpu_srcs": [
-            "GLSL.std.450.h",
-        ],
+        ":use_sksl_gpu_srcs": [":gpu_hdrs"],
         "//conditions:default": [],
     }),
     visibility = ["//src:__pkg__"],
