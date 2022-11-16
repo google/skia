@@ -209,7 +209,6 @@
   {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Metal_NoPrecompile"},
   {"name": "Build-Mac-Clang-arm64-Debug-ASAN"},
   {"name": "Build-Mac-Clang-arm64-Debug-ASAN_Graphite_Dawn"},
-  {"name": "Build-Mac-Clang-arm64-Debug-iOS_Graphite_Dawn"},
   {"name": "Build-Mac-Clang-arm64-Debug-ASAN_Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
   },
@@ -222,7 +221,6 @@
   {"name": "Build-Mac-Clang-arm64-Release-Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
   },
-  {"name": "Build-Mac-Clang-arm64-Release-iOS_Graphite_Dawn"},
   {"name": "Build-Mac-Clang-arm64-Release-iOS_Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*"]}
   },
