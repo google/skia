@@ -528,7 +528,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
         return nullptr;
     }
     uint8_t imageFilterType;
-    fuzz->nextRange(&imageFilterType, 0, 24);
+    fuzz->nextRange(&imageFilterType, 0, 23);
     switch (imageFilterType) {
         case 0:
             return nullptr;
@@ -747,33 +747,22 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
                                           useCropRect ? &cropRect : nullptr);
         }
         case 19: {
-            SkPaint paint;
-            fuzz_paint(fuzz, &paint, depth - 1);
-            bool useCropRect;
-            fuzz->next(&useCropRect);
-            SkIRect cropRect;
-            if (useCropRect) {
-                fuzz->next(&cropRect);
-            }
-            return SkImageFilters::Paint(paint, useCropRect ? &cropRect : nullptr);
-        }
-        case 20: {
             sk_sp<SkPicture> picture = make_fuzz_picture(fuzz, depth - 1);
             return SkImageFilters::Picture(std::move(picture));
         }
-        case 21: {
+        case 20: {
             SkRect cropRect;
             fuzz->next(&cropRect);
             sk_sp<SkPicture> picture = make_fuzz_picture(fuzz, depth - 1);
             return SkImageFilters::Picture(std::move(picture), cropRect);
         }
-        case 22: {
+        case 21: {
             SkRect src, dst;
             fuzz->next(&src, &dst);
             sk_sp<SkImageFilter> input = make_fuzz_imageFilter(fuzz, depth - 1);
             return SkImageFilters::Tile(src, dst, std::move(input));
         }
-        case 23: {
+        case 22: {
             SkBlendMode blendMode;
             bool useCropRect;
             fuzz->next(&useCropRect);
@@ -787,7 +776,7 @@ static sk_sp<SkImageFilter> make_fuzz_imageFilter(Fuzz* fuzz, int depth) {
             return SkImageFilters::Blend(blendMode, std::move(bg), std::move(fg),
                                          useCropRect ? &cropRect : nullptr);
         }
-        case 24: {
+        case 23: {
             sk_sp<SkShader> shader = make_fuzz_shader(fuzz, depth - 1);
             bool useCropRect;
             fuzz->next(&useCropRect);

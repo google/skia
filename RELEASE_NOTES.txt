@@ -5,6 +5,7 @@ This file includes a list of high level updates for each milestone release.
 Milestone 110
 -------------
   * SkParsePath::ToSVGString now returns the string, rather than modifying a passed-in string.
+  * Removed previously deprecated SkImageFilters::Paint factory. Use SkImageFilters::Shader instead.
 
 * * *
 

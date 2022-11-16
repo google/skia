@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMatrix.h"
@@ -18,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkSpecialSurface.h"
@@ -29,13 +31,10 @@ namespace {
 
 class SkShaderImageFilter final : public SkImageFilter_Base {
 public:
-    SkShaderImageFilter(const SkPaint& paint, const SkRect* rect)
+    SkShaderImageFilter(sk_sp<SkShader> shader, SkImageFilters::Dither dither, const SkRect* rect)
             : INHERITED(nullptr, 0, rect)
-            , fPaint(paint) {}
-
-    static sk_sp<SkImageFilter> Make(const SkPaint& paint, const SkRect* rect) {
-        return sk_sp<SkImageFilter>(new SkShaderImageFilter(paint, rect));
-    }
+            , fShader(std::move(shader))
+            , fDither(dither) {}
 
 protected:
     void flatten(SkWriteBuffer&) const override;
@@ -47,25 +46,18 @@ private:
 
     bool onAffectsTransparentBlack() const override { return true; }
 
-    // This filter only applies the shader and dithering policy of the paint.
-    SkPaint fPaint;
+    sk_sp<SkShader> fShader;
+    SkImageFilters::Dither fDither;
 
     using INHERITED = SkImageFilter_Base;
 };
 
 } // end namespace
 
-// TODO(michaelludwig) - Remove this deprecated factory once modules/svg is updated
-sk_sp<SkImageFilter> SkImageFilters::Paint(const SkPaint& paint, const CropRect& cropRect) {
-    return SkShaderImageFilter::Make(paint, cropRect);
-}
-
-sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader, Dither dither,
+sk_sp<SkImageFilter> SkImageFilters::Shader(sk_sp<SkShader> shader,
+                                            Dither dither,
                                             const CropRect& cropRect) {
-    SkPaint paint;
-    paint.setShader(std::move(shader));
-    paint.setDither((bool) dither);
-    return SkShaderImageFilter::Make(paint, cropRect);
+    return sk_sp<SkImageFilter>(new SkShaderImageFilter(std::move(shader), dither, cropRect));
 }
 
 void SkRegisterShaderImageFilterFlattenable() {
@@ -77,12 +69,28 @@ void SkRegisterShaderImageFilterFlattenable() {
 
 sk_sp<SkFlattenable> SkShaderImageFilter::CreateProc(SkReadBuffer& buffer) {
     SK_IMAGEFILTER_UNFLATTEN_COMMON(common, 0);
-    return SkShaderImageFilter::Make(buffer.readPaint(), common.cropRect());
+    sk_sp<SkShader> shader;
+    bool dither;
+    if (buffer.isVersionLT(SkPicturePriv::kShaderImageFilterSerializeShader)) {
+        // The old implementation stored an entire SkPaint, but we only need the SkShader and dither
+        // boolean. We could fail if the paint stores more effects than that, but this is simpler.
+        SkPaint paint = buffer.readPaint();
+        shader = paint.getShader() ? paint.refShader()
+                                   : SkShaders::Color(paint.getColor4f(), nullptr);
+        dither = paint.isDither();
+    } else {
+        shader = buffer.readShader();
+        dither = buffer.readBool();
+    }
+    return SkImageFilters::Shader(std::move(shader),
+                                  SkImageFilters::Dither(dither),
+                                  common.cropRect());
 }
 
 void SkShaderImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->INHERITED::flatten(buffer);
-    buffer.writePaint(fPaint);
+    buffer.writeFlattenable(fShader.get());
+    buffer.writeBool(fDither == SkImageFilters::Dither::kYes);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +123,10 @@ sk_sp<SkSpecialImage> SkShaderImageFilter::onFilterImage(const Context& ctx,
     }
     canvas->setMatrix(matrix);
     if (rect.isFinite()) {
-        canvas->drawRect(rect, fPaint);
+        SkPaint paint;
+        paint.setShader(fShader);
+        paint.setDither(fDither == SkImageFilters::Dither::kYes);
+        canvas->drawRect(rect, paint);
     }
 
     offset->fX = bounds.fLeft;

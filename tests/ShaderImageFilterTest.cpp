@@ -132,7 +132,7 @@ static void test_scaled(skiatest::Reporter* reporter) {
     }
 }
 
-DEF_TEST(PaintImageFilter, reporter) {
+DEF_TEST(ShaderImageFilter, reporter) {
     test_unscaled(reporter);
     test_scaled(reporter);
 }
@@ -148,9 +148,7 @@ static void test_runtime_shader(skiatest::Reporter* r, SkSurface* surface) {
     SkRuntimeShaderBuilder builder(effect);
 
     // create a red image filter to feed as input into the SkImageFilters::RuntimeShader
-    SkPaint redPaint;
-    redPaint.setColor(SK_ColorRED);
-    sk_sp<SkImageFilter> input = SkImageFilters::Paint(redPaint);
+    sk_sp<SkImageFilter> input = SkImageFilters::Shader(SkShaders::Color(SK_ColorRED));
 
     // Create the different variations of SkImageFilters::RuntimeShader
     // All 3 variations should produce the same pixel output
