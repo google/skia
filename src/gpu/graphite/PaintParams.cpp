@@ -11,11 +11,11 @@
 #include "include/core/SkShader.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorFilterBase.h"
-#include "src/core/SkUniform.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineData.h"
+#include "src/gpu/graphite/Uniform.h"
 #include "src/shaders/SkShaderBase.h"
 
 namespace skgpu::graphite {

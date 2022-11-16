@@ -19,8 +19,8 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkBuiltInCodeSnippetID.h"
 #include "src/core/SkEnumBitMask.h"
-#include "src/core/SkUniform.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/Uniform.h"
 
 #include <array>
 #include <cstddef>
@@ -79,7 +79,7 @@ struct ShaderSnippet {
     ShaderSnippet() = default;
 
     ShaderSnippet(const char* name,
-                  SkSpan<const SkUniform> uniforms,
+                  SkSpan<const Uniform> uniforms,
                   SkEnumBitMask<SnippetRequirementFlags> snippetRequirementFlags,
                   SkSpan<const TextureAndSampler> texturesAndSamplers,
                   const char* functionName,
@@ -113,7 +113,7 @@ struct ShaderSnippet {
     }
 
     const char* fName = nullptr;
-    SkSpan<const SkUniform> fUniforms;
+    SkSpan<const Uniform> fUniforms;
     SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags{SnippetRequirementFlags::kNone};
     SkSpan<const TextureAndSampler> fTexturesAndSamplers;
     const char* fStaticFunctionName = nullptr;
@@ -215,7 +215,7 @@ public:
 
     const Entry* lookup(SkUniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
-    SkSpan<const SkUniform> getUniforms(SkBuiltInCodeSnippetID) const;
+    SkSpan<const Uniform> getUniforms(SkBuiltInCodeSnippetID) const;
     SkEnumBitMask<SnippetRequirementFlags> getSnippetRequirementFlags(
             SkBuiltInCodeSnippetID id) const {
         return fBuiltInCodeSnippets[(int) id].fSnippetRequirementFlags;
@@ -250,7 +250,7 @@ private:
     // It returns the code snippet ID to use to identify the supplied user-defined code
     int addUserDefinedSnippet(
         const char* name,
-        SkSpan<const SkUniform> uniforms,
+        SkSpan<const Uniform> uniforms,
         SkEnumBitMask<SnippetRequirementFlags> snippetRequirementFlags,
         SkSpan<const TextureAndSampler> texturesAndSamplers,
         const char* functionName,
@@ -261,7 +261,7 @@ private:
 
     const char* addTextToArena(std::string_view text);
 
-    SkSpan<const SkUniform> convertUniforms(const SkRuntimeEffect* effect);
+    SkSpan<const Uniform> convertUniforms(const SkRuntimeEffect* effect);
 
     std::array<ShaderSnippet, kBuiltInCodeSnippetIDCount> fBuiltInCodeSnippets;
 
@@ -313,7 +313,7 @@ private:
 
     // This arena holds:
     //   - the Entries held in `fHash` and `fEntryVector`
-    //   - SkUniform data created by `findOrCreateRuntimeEffectSnippet`
+    //   - Uniform data created by `findOrCreateRuntimeEffectSnippet`
     // and in all cases is guarded by `fSpinLock`
     SkArenaAlloc fArena{256};
 };

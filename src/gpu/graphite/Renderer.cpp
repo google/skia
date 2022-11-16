@@ -19,7 +19,7 @@ static uint32_t next_id() {
 RenderStep::RenderStep(std::string_view className,
                std::string_view variantName,
                SkEnumBitMask<Flags> flags,
-               std::initializer_list<SkUniform> uniforms,
+               std::initializer_list<Uniform> uniforms,
                PrimitiveType primitiveType,
                DepthStencilSettings depthStencilSettings,
                SkSpan<const Attribute> vertexAttrs,

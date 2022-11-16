@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkUniform_DEFINED
-#define SkUniform_DEFINED
+#ifndef skgpu_graphite_Uniform_DEFINED
+#define skgpu_graphite_Uniform_DEFINED
 
 #include "src/core/SkSLTypeShared.h"
+
+namespace skgpu::graphite {
 
 // TODO: can SkRuntimeEffect::Uniform be absorbed into this class!?
 
@@ -17,20 +19,20 @@
  *  type:       The type of the uniform
  *  count:      Number of elements of 'type' in the array or kNonArray if not an array.
  */
-class SkUniform {
+class Uniform {
 public:
     static constexpr int kNonArray = 0;
 
-    constexpr SkUniform(const char* name, SkSLType type) : SkUniform(name, type, kNonArray) {}
+    constexpr Uniform(const char* name, SkSLType type) : Uniform(name, type, kNonArray) {}
 
-    constexpr SkUniform(const char* name, SkSLType type, int count)
+    constexpr Uniform(const char* name, SkSLType type, int count)
             : fType      (static_cast<unsigned>(type))
             , fCount     (static_cast<unsigned>(count))
             , fName      (name) {
     }
 
-    constexpr SkUniform(const SkUniform&) = default;
-    SkUniform& operator=(const SkUniform&) = default;
+    constexpr Uniform(const Uniform&) = default;
+    Uniform& operator=(const Uniform&) = default;
 
     constexpr bool isInitialized() const { return this->type() != SkSLType::kVoid; }
 
@@ -46,4 +48,6 @@ private:
     static_assert(kSkSLTypeCount <= (1 << 6));
 };
 
-#endif // SkUniform_DEFINED
+} // namespace skgpu::graphite
+
+#endif // skgpu_graphite_Uniform_DEFINED
