@@ -62,6 +62,52 @@ DEF_TEST(SkRasterPipeline_ImmediateStoreUnmasked, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_InitLaneMasks, r) {
+    for (size_t width = 1; width <= SkOpts::raster_pipeline_highp_stride; ++width) {
+        SkRasterPipeline_<256> p;
+
+        // Initialize dRGBA to unrelated values.
+        SkRasterPipeline_UniformColorCtx uniformCtx;
+        uniformCtx.a = 0.0f;
+        uniformCtx.r = 0.25f;
+        uniformCtx.g = 0.50f;
+        uniformCtx.b = 0.75f;
+        p.append(SkRasterPipeline::uniform_color_dst, &uniformCtx);
+
+        // Overwrite dRGB with lane masks up to the tail width.
+        p.append(SkRasterPipeline::init_lane_masks);
+
+        // Use the store_dst command to write out dRGBA for inspection.
+        int32_t dRGBA[4 * SkRasterPipeline_kMaxStride_highp] = {};
+        p.append(SkRasterPipeline::store_dst, dRGBA);
+
+        // Execute our program.
+        p.run(0,0,width,1);
+
+        // Initialized data should look like on/on/on/off (RGB are set, A is ignored) and is
+        // striped by the raster pipeline stride because we wrote it using store_dst.
+        size_t index = 0;
+        int32_t* channelR = dRGBA;
+        int32_t* channelG = channelR + SkOpts::raster_pipeline_highp_stride;
+        int32_t* channelB = channelG + SkOpts::raster_pipeline_highp_stride;
+        int32_t* channelA = channelB + SkOpts::raster_pipeline_highp_stride;
+        for (; index < width; ++index) {
+            REPORTER_ASSERT(r, *channelR++ == ~0);
+            REPORTER_ASSERT(r, *channelG++ == ~0);
+            REPORTER_ASSERT(r, *channelB++ == ~0);
+            REPORTER_ASSERT(r, *channelA++ ==  0);
+        }
+
+        // The rest of the output array should be untouched (all zero).
+        for (; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+            REPORTER_ASSERT(r, *channelR++ == 0);
+            REPORTER_ASSERT(r, *channelG++ == 0);
+            REPORTER_ASSERT(r, *channelB++ == 0);
+            REPORTER_ASSERT(r, *channelA++ == 0);
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_empty, r) {
     // No asserts... just a test that this is safe to run.
     SkRasterPipeline_<256> p;

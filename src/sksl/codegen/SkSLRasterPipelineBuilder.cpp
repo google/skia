@@ -52,6 +52,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
         auto SlotA = [&]() { return &slotPtr[N * inst.fSlotA]; };
 
         switch (inst.fOp) {
+            case SkRP::init_lane_masks:
+                pipeline->append(SkRP::init_lane_masks);
+                break;
+
             case SkRP::store_src_rg:
                 pipeline->append(SkRP::store_src_rg, SlotA());
                 break;

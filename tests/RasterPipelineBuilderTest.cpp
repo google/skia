@@ -36,6 +36,7 @@ DEF_TEST(RasterPipelineBuilder, r) {
     builder.store_src_rg(two_slots_at(0));
     builder.store_src(four_slots_at(2));
     builder.store_dst(four_slots_at(6));
+    builder.init_lane_masks();
     builder.load_src(four_slots_at(1));
     builder.load_dst(four_slots_at(3));
     std::unique_ptr<SkSL::RP::Program> program = builder.finish();
@@ -52,6 +53,9 @@ DEF_TEST(RasterPipelineBuilder, r) {
     stages = stages->prev;
 
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_src);
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::init_lane_masks);
     stages = stages->prev;
 
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_dst);
@@ -75,6 +79,9 @@ DEF_TEST(RasterPipelineBuilder, r) {
     stages = stages->prev;
 
     REPORTER_ASSERT(r, stages->ctx == slot0 + (1 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->ctx == nullptr);
     stages = stages->prev;
 
     REPORTER_ASSERT(r, stages->ctx == slot0 + (6 * N));

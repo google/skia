@@ -2973,6 +2973,16 @@ STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
+// All control flow stages used by SkSL maintain some state in the common registers:
+//   dr: condition mask
+//   dg: loop mask
+//   db: returned mask
+STAGE(init_lane_masks, NoCtx) {
+    uint32_t iota[] = {0,1,2,3,4,5,6,7};
+    I32 mask = tail ? cond_to_mask(sk_unaligned_load<U32>(iota) < tail) : I32(~0);
+    dr = dg = db = sk_bit_cast<F>(mask);
+}
+
 STAGE(store_unmasked, float* ctx) {
     sk_unaligned_store(ctx, r);
 }

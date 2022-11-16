@@ -75,6 +75,10 @@ public:
     std::unique_ptr<Program> finish();
 
     /** Assemble a program from the Raster Pipeline instructions below. */
+    void init_lane_masks() {
+        fInstructions.push_back({SkRasterPipeline::init_lane_masks, {}});
+    }
+
     void store_src_rg(SlotRange slots) {
         SkASSERT(slots.count == 2);
         fInstructions.push_back({SkRasterPipeline::store_src_rg, {slots.index}});
