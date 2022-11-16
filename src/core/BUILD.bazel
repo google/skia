@@ -393,6 +393,7 @@ SKSL_FILES = [
     "SkRuntimeEffect.cpp",
     "SkSLTypeShared.cpp",
     "SkSLTypeShared.h",
+    "SkUniform.h",
 ]
 
 split_srcs_and_hdrs(

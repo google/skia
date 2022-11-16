@@ -649,6 +649,7 @@ BASE_SRCS_ALL = [
     "src/core/SkTypeface_remote.cpp",
     "src/core/SkTypeface_remote.h",
     "src/core/SkUnPreMultiply.cpp",
+    "src/core/SkUniform.h",
     "src/core/SkUtils.cpp",
     "src/core/SkUtils.h",
     "src/core/SkUtilsArm.cpp",

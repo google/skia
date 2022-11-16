@@ -7,8 +7,8 @@
 
 #include "include/private/SkHalf.h"
 #include "src/core/SkSLTypeShared.h"
+#include "src/core/SkUniform.h"
 #include "src/gpu/graphite/PipelineData.h"
-#include "src/gpu/graphite/Uniform.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "tests/Test.h"
 
@@ -62,7 +62,7 @@ DEF_TEST(UniformManagerCheckSingleUniform, r) {
         UniformManager mgr(layout);
 
         for (SkSLType type : kTypes) {
-            const Uniform expectations[] = {{"uniform", type}};
+            const SkUniform expectations[] = {{"uniform", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
             mgr.write(type, kFloats);
             mgr.doneWithExpectedUniforms();
@@ -85,7 +85,7 @@ DEF_TEST(UniformManagerCheckFloatEncoding, r) {
             }
 
             // Write our uniform float scalar/vector.
-            const Uniform expectations[] = {{"uniform", type}};
+            const SkUniform expectations[] = {{"uniform", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
             mgr.write(type, kFloats);
             mgr.doneWithExpectedUniforms();
@@ -113,7 +113,7 @@ DEF_TEST(UniformManagerCheckIntEncoding, r) {
             }
 
             // Write our uniform int scalar/vector.
-            const Uniform expectations[] = {{"uniform", type}};
+            const SkUniform expectations[] = {{"uniform", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
             mgr.write(type, kInts);
             mgr.doneWithExpectedUniforms();
@@ -143,7 +143,7 @@ DEF_TEST(UniformManagerCheckScalarVectorPacking, r) {
             }
 
             // Write three matching uniforms.
-            const Uniform expectations[] = {{"a", type}, {"b", type}, {"c", type}};
+            const SkUniform expectations[] = {{"a", type}, {"b", type}, {"c", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
             mgr.write(type, kFloats);
             mgr.write(type, kFloats);
@@ -174,7 +174,7 @@ DEF_TEST(UniformManagerCheckMatrixPacking, r) {
             }
 
             // Write three matching uniforms.
-            const Uniform expectations[] = {{"a", type}, {"b", type}, {"c", type}};
+            const SkUniform expectations[] = {{"a", type}, {"b", type}, {"c", type}};
             mgr.setExpectedUniforms(SkSpan(expectations));
             mgr.write(type, kFloats);
             mgr.write(type, kFloats);
@@ -211,7 +211,7 @@ DEF_TEST(UniformManagerCheckPaddingScalarVector, r) {
                 }
 
                 // Write two scalar/vector uniforms.
-                const Uniform expectations[] = {{"a", type1}, {"b", type2}};
+                const SkUniform expectations[] = {{"a", type1}, {"b", type2}};
                 mgr.setExpectedUniforms(SkSpan(expectations));
                 mgr.write(type1, kFloats);
                 mgr.write(type2, kFloats);
@@ -310,7 +310,7 @@ DEF_TEST(UniformManagerCheckPaddingVectorMatrix, r) {
                 }
 
                 // Write the scalar/vector and matrix uniforms.
-                const Uniform expectations[] = {{"a", type1}, {"b", type2}};
+                const SkUniform expectations[] = {{"a", type1}, {"b", type2}};
                 mgr.setExpectedUniforms(SkSpan(expectations));
                 mgr.write(type1, kFloats);
                 mgr.write(type2, kFloats);
@@ -417,7 +417,7 @@ DEF_TEST(UniformManagerCheckPaddingMatrixVector, r) {
                 }
 
                 // Write the scalar/vector and matrix uniforms.
-                const Uniform expectations[] = {{"a", type1}, {"b", type2}};
+                const SkUniform expectations[] = {{"a", type1}, {"b", type2}};
                 mgr.setExpectedUniforms(SkSpan(expectations));
                 mgr.write(type1, kFloats);
                 mgr.write(type2, kFloats);
@@ -567,7 +567,7 @@ DEF_TEST(UniformManagerMetalArrayLayout, r) {
     };
     for (size_t i = 0; i < std::size(kExpectedLayout); i++) {
         const SkSLType arrayType = kTypes[i];
-        const Uniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
+        const SkUniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
 
         mgr.setExpectedUniforms(SkSpan(expectations));
         mgr.write(SkSLType::kHalf, kHalfs);
@@ -639,7 +639,7 @@ DEF_TEST(UniformManagerStd430ArrayLayout, r) {
     };
     for (size_t i = 0; i < std::size(kExpectedLayout); i++) {
         const SkSLType arrayType = kTypes[i];
-        const Uniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
+        const SkUniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
 
         mgr.setExpectedUniforms(SkSpan(expectations));
         mgr.write(SkSLType::kHalf, kHalfs);
@@ -711,7 +711,7 @@ DEF_TEST(UniformManagerStd140ArrayLayout, r) {
     };
     for (size_t i = 0; i < std::size(kExpectedLayout); i++) {
         const SkSLType arrayType = kTypes[i];
-        const Uniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
+        const SkUniform expectations[] = {{"a", SkSLType::kHalf}, {"b", arrayType, kArraySize}};
 
         mgr.setExpectedUniforms(SkSpan(expectations));
         mgr.write(SkSLType::kHalf, kHalfs);

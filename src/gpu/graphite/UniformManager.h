@@ -14,6 +14,7 @@
 #include "include/private/SkTDArray.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkSLTypeShared.h"
+#include "src/core/SkUniform.h"
 
 class SkM44;
 struct SkPoint;
@@ -29,7 +30,6 @@ enum class Layout {
     kMetal, /** This is our own self-imposed layout we use for Metal. */
 };
 
-class Uniform;
 class UniformDataBlock;
 
 class UniformOffsetCalculator {
@@ -76,8 +76,8 @@ public:
     // Does nothing if `count` is 0.
     void writeArray(SkSLType type, const void* src, unsigned int count);
 
-    // Copy from `src` using Uniform array-count semantics.
-    void write(const Uniform&, const uint8_t* src);
+    // Copy from `src` using SkUniform array-count semantics.
+    void write(const SkUniform&, const uint8_t* src);
 
     void write(const SkM44&);
     void write(const SkPMColor4f&);
@@ -94,12 +94,12 @@ public:
 
     // Debug only utilities used for debug assertions and tests.
     void checkReset() const;
-    void setExpectedUniforms(SkSpan<const Uniform>);
+    void setExpectedUniforms(SkSpan<const SkUniform>);
     void checkExpected(SkSLType, unsigned int count);
     void doneWithExpectedUniforms();
 
 private:
-    // Writes a single element of the given `type` if `count` == 0 (aka Uniform::kNonArray).
+    // Writes a single element of the given `type` if `count` == 0 (aka SkUniform::kNonArray).
     // Writes an array of `count` elements if `count` > 0, obeying any array layout constraints.
     //
     // Do not call this method directly for any new write()/writeArray() overloads. Instead
@@ -108,7 +108,7 @@ private:
     void writeInternal(SkSLType type, unsigned int count, const void* src);
 
 #ifdef SK_DEBUG
-    SkSpan<const Uniform> fExpectedUniforms;
+    SkSpan<const SkUniform> fExpectedUniforms;
     int fExpectedUniformIndex = 0;
 #endif // SK_DEBUG
 

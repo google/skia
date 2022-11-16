@@ -54,7 +54,7 @@ std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,
                                     const std::vector<PaintParamsKey::BlockReader>&);
 std::string EmitRenderStepUniforms(int bufferID, const char* name,
-                                   SkSpan<const Uniform> uniforms);
+                                   SkSpan<const SkUniform> uniforms);
 std::string EmitPaintParamsStorageBuffer(int bufferID,
                                          const char* bufferTypePrefix,
                                          const char* bufferNamePrefix,

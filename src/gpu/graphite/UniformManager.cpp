@@ -12,7 +12,6 @@
 #include "include/private/SkTemplates.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/PipelineData.h"
-#include "src/gpu/graphite/Uniform.h"
 
 // ensure that these types are the sizes the uniform data is expecting
 static_assert(sizeof(int32_t) == 4);
@@ -71,18 +70,18 @@ struct Rules140 {
      * that for single (non-array) scalars or vectors we don't require a stride.
      */
     static constexpr size_t Stride(int count) {
-        SkASSERT(count >= 1 || count == graphite::Uniform::kNonArray);
+        SkASSERT(count >= 1 || count == SkUniform::kNonArray);
         static_assert(RowsOrVecLength >= 1 && RowsOrVecLength <= 4);
         static_assert(Cols >= 1 && Cols <= 4);
         if (Cols != 1) {
             // This is a matrix or array of matrices. We return the stride between columns.
             SkASSERT(RowsOrVecLength > 1);
-            return Rules140<BaseType, RowsOrVecLength>::Stride(Uniform::kNonArray);
+            return Rules140<BaseType, RowsOrVecLength>::Stride(SkUniform::kNonArray);
         }
 
         // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
         int n = RowsOrVecLength == 3 ? 4 : RowsOrVecLength;
-        if (count == Uniform::kNonArray) {
+        if (count == SkUniform::kNonArray) {
             return n * sizeof(BaseType);
         }
 
@@ -106,19 +105,19 @@ struct Rules140 {
 template<typename BaseType, int RowsOrVecLength = 1, int Cols = 1>
 struct Rules430 {
     static constexpr size_t Stride(int count) {
-        SkASSERT(count >= 1 || count == Uniform::kNonArray);
+        SkASSERT(count >= 1 || count == SkUniform::kNonArray);
         static_assert(RowsOrVecLength >= 1 && RowsOrVecLength <= 4);
         static_assert(Cols >= 1 && Cols <= 4);
 
         if (Cols != 1) {
             // This is a matrix or array of matrices. We return the stride between columns.
             SkASSERT(RowsOrVecLength > 1);
-            return Rules430<BaseType, RowsOrVecLength>::Stride(Uniform::kNonArray);
+            return Rules430<BaseType, RowsOrVecLength>::Stride(SkUniform::kNonArray);
         }
 
         // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
         int n = RowsOrVecLength == 3 ? 4 : RowsOrVecLength;
-        if (count == Uniform::kNonArray) {
+        if (count == SkUniform::kNonArray) {
             return n * sizeof(BaseType);
         }
 
@@ -133,14 +132,14 @@ struct Rules430 {
 template<typename BaseType, int RowsOrVecLength = 1, int Cols = 1>
 struct RulesMetal {
     static constexpr size_t Stride(int count) {
-        SkASSERT(count >= 1 || count == Uniform::kNonArray);
+        SkASSERT(count >= 1 || count == SkUniform::kNonArray);
         static_assert(RowsOrVecLength >= 1 && RowsOrVecLength <= 4);
         static_assert(Cols >= 1 && Cols <= 4);
 
         if (Cols != 1) {
             // This is a matrix or array of matrices. We return the stride between columns.
             SkASSERT(RowsOrVecLength > 1);
-            return RulesMetal<BaseType, RowsOrVecLength>::Stride(Uniform::kNonArray);
+            return RulesMetal<BaseType, RowsOrVecLength>::Stride(SkUniform::kNonArray);
         }
 
         // Get alignment of a single non-array vector of BaseType by Rule 1, 2, or 3.
@@ -192,7 +191,7 @@ private:
     template <typename MemType, typename UniformType, int RowsOrVecLength = 1, int Cols = 1>
     static uint32_t Write(void *dst, int n, const MemType src[]) {
         size_t stride = Rules<UniformType, RowsOrVecLength, Cols>::Stride(n);
-        n = (n == Uniform::kNonArray) ? 1 : n;
+        n = (n == SkUniform::kNonArray) ? 1 : n;
         n *= Cols;
 
         // A null value for `dst` means that this method was called to calculate the size of the
@@ -249,7 +248,7 @@ public:
                                  void *dest,
                                  int n,
                                  const void *src) {
-        SkASSERT(n >= 1 || n == Uniform::kNonArray);
+        SkASSERT(n >= 1 || n == SkUniform::kNonArray);
         switch (type) {
             case SkSLType::kShort:
                 return Write<int32_t, int16_t>(dest, n, static_cast<const int32_t *>(src));
@@ -473,7 +472,7 @@ size_t UniformOffsetCalculator::advanceOffset(SkSLType type, unsigned int count)
     uint32_t alignedOffset = get_ubo_aligned_offset(fLayout,
                                                     fOffset,
                                                     revisedType,
-                                                    /*isArray=*/count != Uniform::kNonArray);
+                                                    /*isArray=*/count != SkUniform::kNonArray);
     SkASSERT(alignedOffset >= fOffset);
 
     // Append the uniform size to our offset, then return the uniform start position.
@@ -502,7 +501,7 @@ void UniformManager::checkReset() const {
     SkASSERT(fStorage.empty());
 }
 
-void UniformManager::setExpectedUniforms(SkSpan<const Uniform> expectedUniforms) {
+void UniformManager::setExpectedUniforms(SkSpan<const SkUniform> expectedUniforms) {
     SkDEBUGCODE(fExpectedUniforms = expectedUniforms;)
     SkDEBUGCODE(fExpectedUniformIndex = 0;)
 }
@@ -544,11 +543,11 @@ void UniformManager::writeInternal(SkSLType type, unsigned int count, const void
 
 void UniformManager::write(SkSLType type, const void* src) {
     this->checkExpected(type, 1);
-    this->writeInternal(type, Uniform::kNonArray, src);
+    this->writeInternal(type, SkUniform::kNonArray, src);
 }
 
 void UniformManager::writeArray(SkSLType type, const void* src, unsigned int count) {
-    // Don't write any elements if count is 0. Since Uniform::kNonArray == 0, passing count
+    // Don't write any elements if count is 0. Since SkUniform::kNonArray == 0, passing count
     // directly would cause a one-element non-array write.
     if (count > 0) {
         this->checkExpected(type, count);
@@ -556,8 +555,8 @@ void UniformManager::writeArray(SkSLType type, const void* src, unsigned int cou
     }
 }
 
-void UniformManager::write(const Uniform& u, const uint8_t* src) {
-    this->checkExpected(u.type(), (u.count() == Uniform::kNonArray) ? 1 : u.count());
+void UniformManager::write(const SkUniform& u, const uint8_t* src) {
+    this->checkExpected(u.type(), (u.count() == SkUniform::kNonArray) ? 1 : u.count());
     this->writeInternal(u.type(), u.count(), src);
 }
 

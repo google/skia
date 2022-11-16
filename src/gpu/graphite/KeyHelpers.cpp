@@ -12,6 +12,7 @@
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/core/SkRuntimeEffectPriv.h"
+#include "src/core/SkUniform.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
@@ -21,7 +22,6 @@
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
-#include "src/gpu/graphite/Uniform.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/shaders/SkImageShader.h"
 
@@ -629,17 +629,17 @@ static void add_effect_to_recorder(skgpu::graphite::Recorder* recorder,
 }
 
 static void gather_runtime_effect_uniforms(SkSpan<const SkRuntimeEffect::Uniform> rtsUniforms,
-                                           SkSpan<const Uniform> graphiteUniforms,
+                                           SkSpan<const SkUniform> graphiteUniforms,
                                            const SkData* uniformData,
                                            PipelineDataGatherer* gatherer) {
     // Collect all the other uniforms from the provided SkData.
     const uint8_t* uniformBase = uniformData->bytes();
     for (size_t index = 0; index < rtsUniforms.size(); ++index) {
-        const Uniform& uniform = graphiteUniforms[index];
+        const SkUniform& skUniform = graphiteUniforms[index];
         // Get a pointer to the offset in our data for this uniform.
         const uint8_t* uniformPtr = uniformBase + rtsUniforms[index].offset;
         // Pass the uniform data to the gatherer.
-        gatherer->write(uniform, uniformPtr);
+        gatherer->write(skUniform, uniformPtr);
     }
 }
 

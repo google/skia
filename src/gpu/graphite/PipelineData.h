@@ -17,16 +17,17 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkEnumBitMask.h"
+#include "src/core/SkUniform.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
 
 class SkArenaAlloc;
+class SkUniform;
 
 namespace skgpu::graphite {
 
 enum class SnippetRequirementFlags : uint32_t;
-class Uniform;
 
 class UniformDataBlock {
 public:
@@ -118,7 +119,7 @@ public:
     void write(skvx::float4 v) { fUniformManager.write(v); }
 
     void write(SkSLType t, const void* data) { fUniformManager.write(t, data); }
-    void write(const Uniform& u, const uint8_t* data) { fUniformManager.write(u, data); }
+    void write(const SkUniform& u, const uint8_t* data) { fUniformManager.write(u, data); }
 
     void writeArray(SkSpan<const SkColor4f> colors) { fUniformManager.writeArray(colors); }
     void writeArray(SkSpan<const float> floats) { fUniformManager.writeArray(floats); }
@@ -133,7 +134,9 @@ private:
 #ifdef SK_DEBUG
     friend class UniformExpectationsValidator;
 
-    void setExpectedUniforms(SkSpan<const Uniform> expectedUniforms);
+    void setExpectedUniforms(SkSpan<const SkUniform> expectedUniforms) {
+        fUniformManager.setExpectedUniforms(expectedUniforms);
+    }
     void doneWithExpectedUniforms() { fUniformManager.doneWithExpectedUniforms(); }
 #endif // SK_DEBUG
 
@@ -146,7 +149,10 @@ private:
 class UniformExpectationsValidator {
 public:
     UniformExpectationsValidator(PipelineDataGatherer *gatherer,
-                                 SkSpan<const Uniform> expectedUniforms);
+                                 SkSpan<const SkUniform> expectedUniforms)
+            : fGatherer(gatherer) {
+        fGatherer->setExpectedUniforms(expectedUniforms);
+    }
 
     ~UniformExpectationsValidator() {
         fGatherer->doneWithExpectedUniforms();
