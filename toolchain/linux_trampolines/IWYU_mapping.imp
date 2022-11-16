@@ -19,15 +19,22 @@
   { include: ["<__algorithm/stable_sort.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/upper_bound.h>", "private", "<algorithm>", "public"] },
 
+  { symbol: ["std::swap", "private", "<algorithm>", "public"] },
+  { symbol: ["std::swap", "private", "<utility>", "public"] },
+  { symbol: ["std::swap", "private", "<string_view>", "public"] },
+
   { include: ["<__chrono/duration.h>", "private", "<chrono>", "public"] },
   { include: ["<__chrono/steady_clock.h>", "private", "<chrono>", "public"] },
   { include: ["<__chrono/time_point.h>", "private", "<chrono>", "public"] },
 
-  { symbol: ["INT32_MAX", "public", "<climits>", "public"]},
+  { symbol: ["INT32_MAX", "private", "<climits>", "public"]},
 
-  { symbol: ["abs", "public", "<cmath>", "public"]},
-  { symbol: ["fabs", "public", "<cmath>", "public"]},
-  { symbol: ["sqrt", "public", "<cmath>", "public"]},
+  { symbol: ["abs", "private", "<cmath>", "public"]},
+  { symbol: ["fabs", "private", "<cmath>", "public"]},
+  { symbol: ["sqrt", "private", "<cmath>", "public"]},
+
+  { symbol: ["std::abs", "private", "<cmath>", "public"]},
+  { symbol: ["std::abs", "private", "<cstdlib>", "public"]},
 
   # Prefer cstring over string.h for memcpy and memcmp.
   { symbol: ["memcpy", "private", "<cstring>", "public"]},
@@ -52,17 +59,17 @@
   { symbol: ["std::size_t", "private", "<cuchar>", "public"]},
   { symbol: ["std::size_t", "private", "<cwchar>", "public"]},
 
-  { symbol: ["int8_t", "public", "<cstdint>", "public"]},
-  { symbol: ["int16_t", "public", "<cstdint>", "public"]},
-  { symbol: ["int32_t", "public", "<cstdint>", "public"]},
-  { symbol: ["int64_t", "public", "<cstdint>", "public"]},
-  { symbol: ["uint8_t", "public", "<cstdint>", "public"]},
-  { symbol: ["uint16_t", "public", "<cstdint>", "public"]},
-  { symbol: ["uint32_t", "public", "<cstdint>", "public"]},
-  { symbol: ["uint64_t", "public", "<cstdint>", "public"]},
+  { symbol: ["int8_t", "private", "<cstdint>", "public"]},
+  { symbol: ["int16_t", "private", "<cstdint>", "public"]},
+  { symbol: ["int32_t", "private", "<cstdint>", "public"]},
+  { symbol: ["int64_t", "private", "<cstdint>", "public"]},
+  { symbol: ["uint8_t", "private", "<cstdint>", "public"]},
+  { symbol: ["uint16_t", "private", "<cstdint>", "public"]},
+  { symbol: ["uint32_t", "private", "<cstdint>", "public"]},
+  { symbol: ["uint64_t", "private", "<cstdint>", "public"]},
 
 
-  { symbol: ["FILE", "public", "<cstdio>", "public"]},
+  { symbol: ["FILE", "private", "<cstdio>", "public"]},
 
   { include: ["<__functional/function.h>", "private", "<functional>", "public"] },
 
@@ -86,19 +93,19 @@
   { include: ["<__iterator/size.h>", "private", "<vector>", "public"] },
 
   # std::size is available from all of these
-  { symbol: ["std::size", "public", "<iterator>", "public"] },
-  { symbol: ["std::size", "public", "<array>", "public"] },
-  { symbol: ["std::size", "public", "<deque>", "public"] },
-  { symbol: ["std::size", "public", "<forward_list>", "public"] },
-  { symbol: ["std::size", "public", "<list>", "public"] },
-  { symbol: ["std::size", "public", "<map>", "public"] },
-  { symbol: ["std::size", "public", "<regex>", "public"] },
-  { symbol: ["std::size", "public", "<set>", "public"] },
-  { symbol: ["std::size", "public", "<string>", "public"] },
-  { symbol: ["std::size", "public", "<string_view>", "public"] },
-  { symbol: ["std::size", "public", "<unordered_map>", "public"] },
-  { symbol: ["std::size", "public", "<unordered_set>", "public"] },
-  { symbol: ["std::size", "public", "<vector>", "public"] },
+  { symbol: ["std::size", "private", "<iterator>", "public"] },
+  { symbol: ["std::size", "private", "<array>", "public"] },
+  { symbol: ["std::size", "private", "<deque>", "public"] },
+  { symbol: ["std::size", "private", "<forward_list>", "public"] },
+  { symbol: ["std::size", "private", "<list>", "public"] },
+  { symbol: ["std::size", "private", "<map>", "public"] },
+  { symbol: ["std::size", "private", "<regex>", "public"] },
+  { symbol: ["std::size", "private", "<set>", "public"] },
+  { symbol: ["std::size", "private", "<string>", "public"] },
+  { symbol: ["std::size", "private", "<string_view>", "public"] },
+  { symbol: ["std::size", "private", "<unordered_map>", "public"] },
+  { symbol: ["std::size", "private", "<unordered_set>", "public"] },
+  { symbol: ["std::size", "private", "<vector>", "public"] },
 
   { include: ["<__locale>", "private", "<locale>", "public"] },
 
@@ -113,18 +120,18 @@
 
   { include: ["<__tree>", "private", "<set>", "public"] },
 
-  { symbol: ["std::istringstream", "public", "<sstream>", "public"] },
-  { symbol: ["std::ostringstream", "public", "<sstream>", "public"] },
-  { symbol: ["std::stringstream", "public", "<sstream>", "public"] },
-  { symbol: ["std::stringbuf", "public", "<sstream>", "public"] },
-  { symbol: ["std::basic_istringstream", "public", "<sstream>", "public"] },
-  { symbol: ["std::basic_ostringstream", "public", "<sstream>", "public"] },
-  { symbol: ["std::basic_stringstream", "public", "<sstream>", "public"] },
-  { symbol: ["std::basic_stringbuf", "public", "<sstream>", "public"] },
+  { symbol: ["std::istringstream", "private", "<sstream>", "public"] },
+  { symbol: ["std::ostringstream", "private", "<sstream>", "public"] },
+  { symbol: ["std::stringstream", "private", "<sstream>", "public"] },
+  { symbol: ["std::stringbuf", "private", "<sstream>", "public"] },
+  { symbol: ["std::basic_istringstream", "private", "<sstream>", "public"] },
+  { symbol: ["std::basic_ostringstream", "private", "<sstream>", "public"] },
+  { symbol: ["std::basic_stringstream", "private", "<sstream>", "public"] },
+  { symbol: ["std::basic_stringbuf", "private", "<sstream>", "public"] },
 
-  { symbol: ["va_list", "public", "<stdarg.h>", "public"] },
+  { symbol: ["va_list", "private", "<stdarg.h>", "public"] },
 
-  { symbol: ["std::string", "public", "<string>", "public"] },
+  { symbol: ["std::string", "private", "<string>", "public"] },
 
   { include: ["<__fwd/string_view.h>", "private", "<string_view>", "public"] },
 
@@ -139,11 +146,12 @@
 
   { include: ["<__type_traits/enable_if.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/integral_constant.h>", "private", "<type_traits>", "public"] },
+  { include: ["<__type_traits/is_convertible.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/is_trivially_copyable.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/remove_extent.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/remove_pointer.h>", "private", "<type_traits>", "public"] },
 
-  { symbol: ["std::__bit_reference", "public", "<vector>", "public"] },
+  { symbol: ["std::__bit_reference", "private", "<vector>", "public"] },
   { include: ["<__bit_reference>", "private",  "<vector>", "public"] },
 
   { include: ["<scripts/pnglibconf.h.prebuilt>", "private", "<pngconf.h>", "public"] },
@@ -208,11 +216,11 @@
   {include: ["<ostream>", "public", "<sstream>", "public"] },
   {include: ["<streambuf>", "public", "<ios>", "public"] },
 
-  { symbol: ["inflate", "public", "\"zlib.h\"", "public"] },
-  { symbol: ["inflateEnd", "public", "\"zlib.h\"", "public"] },
+  { symbol: ["inflate", "private", "\"zlib.h\"", "public"] },
+  { symbol: ["inflateEnd", "private", "\"zlib.h\"", "public"] },
 
   # IWYU seems to get confused on where the namespace sktext is "defined". Any files in
   # this list are ok.
-  { symbol: ["sktext", "public", "\"src/text/StrikeForGPU.h\"", "public"] },
-  { symbol: ["sktext", "public", "\"src/text/GlyphRun.h\"", "public"] }
+  { symbol: ["sktext", "private", "\"src/text/StrikeForGPU.h\"", "public"] },
+  { symbol: ["sktext", "private", "\"src/text/GlyphRun.h\"", "public"] }
 ]

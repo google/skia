@@ -144,7 +144,13 @@ WARNINGS = [
     "-Wdeprecated-volatile",
     "-Wdeprecated-writable-strings",
     "-Wc++98-compat-extra-semi",
-]
+] + select({
+    "//bazel/common_config_settings:compile_generated_cpp_files_for_headers_true": [
+        # These warnings show up when we compile generated .cpp files when enforcing IWYU
+        "-Wno-unused-template",
+    ],
+    "//conditions:default": [],
+})
 
 DEFAULT_COPTS = CORE_COPTS + OPT_LEVEL + WARNINGS
 

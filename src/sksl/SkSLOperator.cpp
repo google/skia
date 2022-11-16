@@ -15,7 +15,6 @@
 #include "src/sksl/ir/SkSLType.h"
 
 #include <memory>
-#include <utility>
 
 namespace SkSL {
 

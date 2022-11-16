@@ -17,7 +17,6 @@ if [[ "$@" != *DSKIA_ENFORCE_IWYU* || "$@" == *use-ld* ]]; then
 fi
 
 supported_files_or_dirs=(
-  "experimental/bazel_test/"
   "modules/skunicode/"
   "src/codec/"
   "src/effects/"
@@ -28,6 +27,9 @@ supported_files_or_dirs=(
   "src/utils/"
   "tools/debugger/"
   "tests/"
+
+  # See //bazel/generate_cpp_files_for_headers.bzl and //include/BUILD.bazel for more.
+  "include/gen/"
 )
 
 excluded_files=(
@@ -39,7 +41,9 @@ excluded_files=(
 function opted_in_to_IWYU_checks() {
   # Need [@] for entire list: https://stackoverflow.com/a/46137325
   for path in ${supported_files_or_dirs[@]}; do
-    if [[ $1 == *"-c $path"* ]]; then
+    # If this was a generated file, it will be in a different subdirectory, starting with
+    # bazel-out, (e.g. bazel-out/k8-iwyu-dbg/bin/src/gen/SkRefCnt.cpp) so check that location also.
+    if [[ $1 == *"-c $path"* ]] || [[ $1 == *"-c bazel-out"*"$path"* ]]; then
         for e_path in ${excluded_files[@]}; do
           if [[ $1 == *"-c $e_path"* ]]; then
             echo ""

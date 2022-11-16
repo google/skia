@@ -12,6 +12,8 @@
 #include "include/private/SkColorData.h"
 #include "src/core/SkVM_fwd.h"
 
+#include <memory>
+
 class GrColorInfo;
 class GrFragmentProcessor;
 class GrRecordingContext;

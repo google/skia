@@ -11,6 +11,7 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 #include <optional>

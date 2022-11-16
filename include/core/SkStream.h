@@ -13,7 +13,7 @@
 #include "include/core/SkScalar.h"
 #include "include/private/SkTo.h"
 
-#include <memory.h>
+#include <memory>
 
 class SkStream;
 class SkStreamRewindable;

@@ -14,6 +14,7 @@ load("@io_bazel_rules_go//go:def.bzl", _go_binary = "go_binary", _go_library = "
 load("//bazel:cc_binary_with_flags.bzl", "cc_binary_with_flags")
 load("//bazel:copts.bzl", "DEFAULT_COPTS", "DEFAULT_OBJC_COPTS")
 load("//bazel:flags.bzl", _bool_flag = "bool_flag", _string_flag_with_values = "string_flag_with_values")
+load("//bazel:generate_cpp_files_for_headers.bzl", _generate_cpp_files_for_headers = "generate_cpp_files_for_headers")
 load("//bazel:linkopts.bzl", "DEFAULT_LINKOPTS")
 
 # re-export symbols that are commonly used or that are not supported in G3
@@ -27,6 +28,7 @@ requirement = _requirement
 selects = _selects
 string_flag_with_values = _string_flag_with_values
 wasm_cc_binary = _wasm_cc_binary
+generate_cpp_files_for_headers = _generate_cpp_files_for_headers
 
 def select_multi(values_map):
     """select() but allowing multiple matches of the keys.

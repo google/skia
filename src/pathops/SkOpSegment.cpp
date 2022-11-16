@@ -14,9 +14,8 @@
 #include "src/pathops/SkPathOpsLine.h"
 #include "src/pathops/SkPathWriter.h"
 
-#include <cfloat>
 #include <algorithm>
-#include <utility>
+#include <cfloat>
 
 /*
 After computing raw intersections, post process all segments to:

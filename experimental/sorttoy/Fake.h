@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 
+#include <memory>
 #include <vector>
 
 class Cmd;

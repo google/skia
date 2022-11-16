@@ -12,6 +12,8 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkScalar.h"
 
+#include <memory>
+
 class GrBackendDrawableInfo;
 class SkCanvas;
 class SkMatrix;

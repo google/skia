@@ -10,6 +10,8 @@
 
 #include "include/core/SkRefCnt.h"
 
+#include <memory>
+
 namespace skgpu::graphite {
 class CommandBuffer;
 class SharedContext;

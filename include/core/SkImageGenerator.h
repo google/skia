@@ -15,6 +15,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkYUVAPixmaps.h"
 
+#include <memory>
 #include <optional>
 
 class GrRecordingContext;

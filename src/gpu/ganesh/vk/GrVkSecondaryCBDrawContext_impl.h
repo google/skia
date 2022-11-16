@@ -12,6 +12,8 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
 
+#include <memory>
+
 class GrBackendSemaphore;
 class GrRecordingContext;
 struct GrVkDrawableInfo;

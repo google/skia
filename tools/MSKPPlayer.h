@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 
+#include <memory>
 #include <unordered_map>
 #include <vector>
 

@@ -53,7 +53,6 @@
 #include <cstring>
 #include <initializer_list>
 #include <memory>
-#include <utility>
 #include <vector>
 
 static void set_radii(SkVector radii[4], int index, float rad) {

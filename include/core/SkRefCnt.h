@@ -9,14 +9,13 @@
 #define SkRefCnt_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
 
-#include <atomic>       // std::atomic, std::memory_order_*
-#include <cstddef>      // std::nullptr_t
-#include <iosfwd>       // std::basic_ostream
-#include <memory>       // TODO: unused
-#include <type_traits>  // std::enable_if, std::is_convertible
-#include <utility>      // std::forward, std::swap
+#include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <iosfwd>
+#include <type_traits>
+#include <utility>
 
 /** \class SkRefCntBase
 

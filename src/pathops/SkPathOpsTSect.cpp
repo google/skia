@@ -20,7 +20,6 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <utility>
 
 #define COINCIDENT_SPAN_COUNT 9
 

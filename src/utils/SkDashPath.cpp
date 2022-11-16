@@ -24,7 +24,6 @@
 #include <cmath>
 #include <cstdint>
 #include <iterator>
-#include <utility>
 
 static inline int is_even(int x) {
     return !(x & 1);

@@ -101,7 +101,8 @@ build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
                    --include_encoder=webp_encode_codec \
                    --with_harfbuzz --with_icu \
                    --enable_sksl_tracing \
-                   --enable_svg_canvas --enable_pdf_backend
+                   --enable_svg_canvas --enable_pdf_backend \
+                   --compile_generated_cpp_files_for_headers
 
 
 build:use_linux_rbe_pool --config=linux_rbe --remote_download_minimal

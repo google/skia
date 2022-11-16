@@ -26,7 +26,6 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
-#include <utility>
 
 SkDashImpl::SkDashImpl(const SkScalar intervals[], int count, SkScalar phase)
         : fPhase(0)

@@ -18,6 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkSLSampleUsage.h"
+#include "include/private/SkTemplates.h"
 
 #include <string>
 #include <optional>

@@ -17,7 +17,6 @@
 #include "src/pathops/SkPathOpsPoint.h"
 
 #include <algorithm>
-#include <utility>
 
 // returns true if coincident span's start and end are the same
 bool SkCoincidentSpans::collapsed(const SkOpPtT* test) const {
