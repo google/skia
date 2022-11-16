@@ -10,6 +10,8 @@
 
 #include "include/core/SkTypes.h"
 
+#include <cstdint>
+
 // 64bit -> 32bit utilities
 
 // Handy util that can be passed two ints, and will automatically promote to

@@ -149,6 +149,7 @@ WARNINGS = [
         # These warnings show up when we compile generated .cpp files when enforcing IWYU
         "-Wno-unused-function",
         "-Wno-unused-template",
+        "-Wno-unused-const-variable",
     ],
     "//conditions:default": [],
 })

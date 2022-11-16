@@ -8,7 +8,6 @@
 #ifndef SkMalloc_DEFINED
 #define SkMalloc_DEFINED
 
-#include <cstddef>
 #include <cstring>
 
 #include "include/core/SkTypes.h"
