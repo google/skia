@@ -1,11 +1,11 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 # This group is exported as //modules/svg/svg.gni:skia_svg_public
-filegroup(
+skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "SkSVGAttribute.h",

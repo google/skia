@@ -1,11 +1,11 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 # In separate group for exporting to //gn/gpu.gni:skia_vk_sources.
-filegroup(
+skia_filegroup(
     name = "impl_vk_hdrs",
     srcs = ["GrVkSecondaryCBDrawContext.h"],
 )
@@ -26,13 +26,13 @@ split_srcs_and_hdrs(
     files = VK_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [":vk_srcs"],
     visibility = ["//src/gpu:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":impl_vk_hdrs",

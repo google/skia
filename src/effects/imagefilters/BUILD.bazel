@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -34,13 +34,13 @@ split_srcs_and_hdrs(
     files = IMAGEFILTERS_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [":imagefilters_srcs"],
     visibility = ["//src/effects:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [":imagefilters_hdrs"],
     visibility = ["//src/effects:__pkg__"],

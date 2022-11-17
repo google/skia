@@ -1,10 +1,10 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         "Adapter.h",
@@ -32,7 +32,7 @@ filegroup(
     visibility = ["//modules/skottie:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "skottie_tool",
     srcs = [
         "SkottieTool.cpp",

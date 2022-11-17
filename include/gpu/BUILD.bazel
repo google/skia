@@ -1,11 +1,11 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "select_multi")
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 # In separate group for mapping to //gn/gpu.gni:skia_shared_gpu_sources.
-filegroup(
+skia_filegroup(
     name = "shared_public_hdrs",
     srcs = [
         "GpuTypes.h",
@@ -14,7 +14,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "GrBackendDrawableInfo.h",

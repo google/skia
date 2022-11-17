@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy")
+load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
@@ -9,7 +9,7 @@ bool_flag(
     default = False,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         "SkSVGCanvas.cpp",
@@ -18,7 +18,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "SkSVGDevice.h",

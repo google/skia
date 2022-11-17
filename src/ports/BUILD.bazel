@@ -1,10 +1,10 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "selects", "skia_cc_deps")
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "selects", "skia_cc_deps", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "discardable_memory_pool",
     srcs = select({
         "//src/lazy:use_default_global_memory_pool_true": ["SkDiscardableMemory_none.cpp"],
@@ -12,9 +12,9 @@ filegroup(
     }),
 )
 
-# Any setting that causes this filegroup to be included also needs to have a dependency on freetype.
+# Any setting that causes this skia_filegroup to be included also needs to have a dependency on freetype.
 # See "deps" and "uses_freetype" at the bottom of this file.
-filegroup(
+skia_filegroup(
     name = "typeface_freetype",
     srcs = [
         "SkFontHost_FreeType.cpp",
@@ -24,7 +24,7 @@ filegroup(
 
 # There can only be one FontMgr Factory, but multiple different types of FontMgr compiled into
 # a single build.
-filegroup(
+skia_filegroup(
     name = "fontmgr_factory",
     srcs = selects.with_or({
         "//bazel/common_config_settings:android_fontmgr_factory": [
@@ -51,7 +51,7 @@ filegroup(
     }),
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr",
     srcs = select_multi(
         {
@@ -65,7 +65,7 @@ filegroup(
     ),
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_android",
     srcs = [
         "SkFontMgr_android.cpp",
@@ -74,7 +74,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_android_factory",
     srcs = [
         "SkFontMgr_android_factory.cpp",
@@ -82,7 +82,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_custom",
     srcs = [
         "SkFontMgr_custom.cpp",
@@ -90,14 +90,14 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_empty_factory",
     srcs = [
         "SkFontMgr_empty_factory.cpp",
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_custom_directory",
     srcs = [
         "SkFontMgr_custom_directory.cpp",
@@ -105,7 +105,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_custom_directory_factory",
     srcs = [
         "SkFontMgr_custom_directory_factory.cpp",
@@ -113,7 +113,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_custom_embedded",
     srcs = [
         "SkFontMgr_custom_embedded.cpp",
@@ -121,7 +121,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_custom_embedded_factory",
     srcs = [
         "SkFontMgr_custom_embedded_factory.cpp",
@@ -129,7 +129,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_custom_empty",
     srcs = [
         "SkFontMgr_custom_empty.cpp",
@@ -137,7 +137,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_custom_empty_factory",
     srcs = [
         "SkFontMgr_custom_empty_factory.cpp",
@@ -145,9 +145,9 @@ filegroup(
     ],
 )
 
-# Any setting that causes this filegroup to be included also needs to have a dependency on
+# Any setting that causes this skia_filegroup to be included also needs to have a dependency on
 # fontconfig. See "deps" and "uses_fontconfig" at the bottom of this file.
-filegroup(
+skia_filegroup(
     name = "fontmgr_fontconfig",
     srcs = [
         "SkFontMgr_fontconfig.cpp",
@@ -155,7 +155,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_fontconfig_factory",
     srcs = [
         "SkFontMgr_fontconfig_factory.cpp",
@@ -165,9 +165,9 @@ filegroup(
 
 # TODO(bungeman, kjlubick) break this up into the direct and Interface part.
 #  Alternatively, delete it.
-# Any setting that causes this filegroup to be included also needs to have a dependency on
+# Any setting that causes this skia_filegroup to be included also needs to have a dependency on
 # fontconfig. See "deps" and "uses_fontconfig" at the bottom of this file.
-filegroup(
+skia_filegroup(
     name = "fontmgr_fci",
     srcs = [
         "SkFontConfigInterface.cpp",
@@ -178,7 +178,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "fontmgr_fci_factory",
     srcs = [
         "SkFontMgr_FontConfigInterface_factory.cpp",
@@ -186,18 +186,18 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "global_init",
     srcs = ["SkGlobalInitialization_default.cpp"],
 )
 
-filegroup(
+skia_filegroup(
     name = "image_generator",
     srcs = ["SkImageGenerator_skia.cpp"],  # TODO(kjlubick) add select() if necessary
 )
 
 # In own group to prevent exporting to *.gni files.
-filegroup(
+skia_filegroup(
     name = "osfile_platform",
     srcs = select({
         "@platforms//os:windows": ["SkOSFile_win.cpp"],
@@ -206,7 +206,7 @@ filegroup(
     }),
 )
 
-filegroup(
+skia_filegroup(
     name = "osfile",
     srcs = [
         "SkOSFile_stdio.cpp",
@@ -215,12 +215,12 @@ filegroup(
     visibility = ["//tools/skslc:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "malloc",
     srcs = ["SkMemory_malloc.cpp"],  # TODO(kjlubick) add select() if necessary
 )
 
-filegroup(
+skia_filegroup(
     name = "load_dynamic_library",
     srcs = select({
         "@platforms//os:windows": ["SkOSLibrary_win.cpp"],
@@ -228,7 +228,7 @@ filegroup(
     }),
 )
 
-filegroup(
+skia_filegroup(
     name = "skdebug",
     srcs = select({
         "@platforms//os:windows": ["SkDebug_win.cpp"],
@@ -237,7 +237,7 @@ filegroup(
     }),
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":discardable_memory_pool",
@@ -253,7 +253,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = ["SkOSLibrary.h"] + select({
         ":uses_freetype": [

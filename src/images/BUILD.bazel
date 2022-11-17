@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "string_flag_with_values")
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "skia_filegroup", "string_flag_with_values")
 
 licenses(["notice"])
 
@@ -14,9 +14,9 @@ string_flag_with_values(
     ],
 )
 
-# In separate filegroup from "srcs" to prevent these files from being
+# In separate skia_filegroup from "srcs" to prevent these files from being
 # exported to GNI.
-filegroup(
+skia_filegroup(
     name = "optional_srcs",
     srcs = select_multi({
         ":jpeg_encode_codec": [
@@ -28,7 +28,7 @@ filegroup(
     }),
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         "SkImageEncoder.cpp",
@@ -37,7 +37,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "SkImageEncoderFns.h",

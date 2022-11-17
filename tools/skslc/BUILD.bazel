@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_binary_with_flags", "skia_cc_library")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_binary_with_flags", "skia_cc_library", "skia_filegroup")
 load(":compile_sksl.bzl", "compile_sksl")
 
 licenses(["notice"])
@@ -30,7 +30,7 @@ skia_cc_library(
     deps = ["//:skia_internal"],
 )
 
-filegroup(
+skia_filegroup(
     name = "glsl_tests_with_settings",
     srcs = [
         "//resources/sksl:sksl_glsl_settings_tests_sources",

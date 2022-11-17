@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -39,13 +39,13 @@ split_srcs_and_hdrs(
     files = DAWN_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [":dawn_srcs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [":dawn_hdrs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],

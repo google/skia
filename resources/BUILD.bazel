@@ -1,4 +1,6 @@
-filegroup(
+load("//bazel:macros.bzl", "skia_filegroup")
+
+skia_filegroup(
     name = "resources",
     srcs = glob(["**"]),
     visibility = ["//tests:__pkg__"],

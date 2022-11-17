@@ -155,6 +155,10 @@ def skia_defines(name, visibility, defines):
     """A self-documenting wrapper around cc_library for defines"""
     native.cc_library(name = name, visibility = visibility, defines = defines)
 
+def skia_filegroup(**kwargs):
+    """A wrapper around filegroup allowing us to customize visibility in G3."""
+    native.filegroup(**kwargs)
+
 def skia_objc_library(name, copts = DEFAULT_OBJC_COPTS, **kwargs):
     """A wrapper around cc_library for Skia Objective C libraries.
 
@@ -228,11 +232,11 @@ def split_srcs_and_hdrs(name, files):
     if len(srcs) == 0 or len(hdrs) == 0:
         fail("The list consist of either only source or header files. No need to use this macro.")
 
-    native.filegroup(
+    skia_filegroup(
         name = name + "_srcs",
         srcs = srcs,
     )
-    native.filegroup(
+    skia_filegroup(
         name = name + "_hdrs",
         srcs = hdrs,
     )

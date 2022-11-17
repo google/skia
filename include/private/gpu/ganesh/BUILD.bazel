@@ -1,28 +1,28 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "select_multi")
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 # In own group for mapping to //gpu.gni:skia_dawn_sources.
-filegroup(
+skia_filegroup(
     name = "dawn_private_hdrs",
     srcs = ["GrDawnTypesPriv.h"],
 )
 
 # In own group for mapping to //gpu.gni:skia_vk_sources.
-filegroup(
+skia_filegroup(
     name = "vk_private_hdrs",
     srcs = ["GrVkTypesPriv.h"],
 )
 
 # In own group for mapping to //gn/gpu.gni:skia_direct3d_sources.
-filegroup(
+skia_filegroup(
     name = "d3d_private_hdrs",
     srcs = ["GrD3DTypesMinimal.h"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "GrContext_Base.h",

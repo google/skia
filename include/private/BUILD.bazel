@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
@@ -7,8 +7,8 @@ exports_files_legacy(
     visibility = ["//tools/skui:__pkg__"],
 )
 
-# In own filegroup for mapping to the //gn/sksl.gni file.
-filegroup(
+# In own skia_filegroup for mapping to the //gn/sksl.gni file.
+skia_filegroup(
     name = "sksl_private_hdrs",
     srcs = [
         "SkSLDefines.h",
@@ -24,13 +24,13 @@ filegroup(
     ],
 )
 
-# In own filegroup for mapping to //gn/gpu.gni:skia_shared_gpu_sources.
-filegroup(
+# In own skia_filegroup for mapping to //gn/gpu.gni:skia_shared_gpu_sources.
+skia_filegroup(
     name = "shared_gpu_private_hdrs",
     srcs = ["SingleOwner.h"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "SkBitmaskEnum.h",

@@ -1,12 +1,12 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-# Maintain SkPicture files in separate filegroup so that the legacy
+# Maintain SkPicture files in separate skia_filegroup so that the legacy
 # skia_skpicture_public GNI file list can be created.
-filegroup(
+skia_filegroup(
     name = "skpicture_public_hdrs",
     srcs = [
         "SkPicture.h",
@@ -15,7 +15,7 @@ filegroup(
     visibility = ["//include:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "SkAlphaType.h",

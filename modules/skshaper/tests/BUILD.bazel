@@ -1,10 +1,10 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "tests_srcs",
-    srcs = [ "ShaperTest.cpp" ],
+    srcs = ["ShaperTest.cpp"],
 )

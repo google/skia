@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -23,13 +23,13 @@ split_srcs_and_hdrs(
     files = TESSELLATE_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [":tessellate_srcs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [":tessellate_hdrs"],
     visibility = ["//src/gpu/ganesh:__pkg__"],

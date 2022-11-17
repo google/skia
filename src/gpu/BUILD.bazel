@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "select_multi", "selects", "skia_cc_deps", "split_srcs_and_hdrs", "string_flag_with_values")
+load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "select_multi", "selects", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs", "string_flag_with_values")
 
 licenses(["notice"])
 
@@ -92,7 +92,7 @@ bool_flag(
     default = False,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
@@ -106,7 +106,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",

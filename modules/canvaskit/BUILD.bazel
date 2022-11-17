@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "wasm_cc_binary")
+load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "skia_filegroup", "wasm_cc_binary")
 load("//bazel:karma_test.bzl", "karma_test")
 load("//bazel:copts.bzl", "DEFAULT_COPTS")
 
@@ -39,7 +39,7 @@ DEBUG_OPTS = [
     "--source-map-base=/build/",
 ]
 
-filegroup(
+skia_filegroup(
     name = "hdrs",
     srcs = [
         "WasmCommon.h",

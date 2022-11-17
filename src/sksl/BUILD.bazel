@@ -1,10 +1,10 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "selects", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "selects", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "txts",
     srcs = [
         "generated/sksl_compute.minified.sksl",
@@ -28,7 +28,7 @@ filegroup(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "sksl_srcs",
     srcs = [
         "sksl_compute.sksl",
@@ -128,7 +128,7 @@ bool_flag(
     default = False,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
@@ -142,7 +142,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",

@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "skia_cc_deps", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "bool_flag", "exports_files_legacy", "skia_cc_deps", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -61,12 +61,12 @@ bool_flag(
 )
 
 # In own group for mapping to //gn/gpu.gni:skia_null_gpu_sources.
-filegroup(
+skia_filegroup(
     name = "native_interface_none",
     srcs = ["GrGLMakeNativeInterface_none.cpp"],
 )
 
-filegroup(
+skia_filegroup(
     name = "native_interface",
     srcs = select({
         "//bazel/common_config_settings:linux_x64": ["//src/gpu/ganesh/gl/glx:srcs"],
@@ -79,7 +79,7 @@ filegroup(
     }),
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
@@ -91,7 +91,7 @@ filegroup(
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",

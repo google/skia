@@ -13,21 +13,21 @@ Skia's headers. These libraries are each compiled with a different set of compil
 
 load("//:defines.bzl", "DEFAULT_DEFINES", "DEFAULT_LOCAL_DEFINES")
 load("//bazel:copts.bzl", "DEFAULT_COPTS")
-load("//bazel:macros.bzl", "exports_files_legacy", "selects", "skia_cc_deps", "skia_cc_library")
+load("//bazel:macros.bzl", "exports_files_legacy", "selects", "skia_cc_deps", "skia_cc_library", "skia_filegroup")
 
 package(
     features = [
         # While the OPTS_HDRS are already pulled in as textual_headers,
         # any implicit dependency on the system headers also needs to be textual.
         "-use_header_modules",
-    ]
+    ],
 )
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "SkBitmapProcState_opts.h",

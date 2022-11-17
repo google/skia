@@ -1,11 +1,11 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 # Group is exported to //gn/gpu.gni:skia_shared_vk_sources.
-filegroup(
+skia_filegroup(
     name = "shared_public_hdrs",
     srcs = [
         "VulkanBackendContext.h",
@@ -16,7 +16,7 @@ filegroup(
 )
 
 # Group is exported to //gn/gpu.gni:skia_vk_sources.
-filegroup(
+skia_filegroup(
     name = "public_hdrs",
     srcs = [
         "GrVkBackendContext.h",

@@ -1,22 +1,22 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 # In own group for export to //modules/skshaper/skshaper.gni:skia_shaper_harfbuzz_sources.
-filegroup(
+skia_filegroup(
     name = "harfbuzz_srcs",
     srcs = ["SkShaper_harfbuzz.cpp"],
 )
 
 # In own group for export to //modules/skshaper/skshaper.gni:skia_shaper_coretext_sources.
-filegroup(
+skia_filegroup(
     name = "coretext_srcs",
     srcs = ["SkShaper_coretext.cpp"],
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         "SkShaper.cpp",

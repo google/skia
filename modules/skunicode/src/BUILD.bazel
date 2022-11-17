@@ -1,22 +1,22 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 # In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_builtin_icu_sources.
-filegroup(
+skia_filegroup(
     name = "builtin_srcs",
     srcs = ["SkUnicode_icu_builtin.cpp"],
 )
 
 # In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_runtime_icu_sources.
-filegroup(
+skia_filegroup(
     name = "runtime_srcs",
     srcs = ["SkUnicode_icu_runtime.cpp"],
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         "SkUnicode.cpp",
@@ -29,7 +29,7 @@ filegroup(
     visibility = ["//modules/skunicode:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "no_icu",
     srcs = [
         "SkUnicode.cpp",

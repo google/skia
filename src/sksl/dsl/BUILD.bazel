@@ -1,10 +1,10 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         "DSLBlock.cpp",
@@ -21,7 +21,7 @@ filegroup(
     visibility = ["//src/sksl:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "//src/sksl/dsl/priv:private_hdrs",

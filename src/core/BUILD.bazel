@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -401,7 +401,7 @@ split_srcs_and_hdrs(
     files = SKSL_FILES,
 )
 
-# SkPicture files are maintained as a separate filegroups for backward compatability
+# SkPicture files are maintained as a separate skia_filegroups for backward compatability
 # with GNI files. This allows the generation of skia_skpicture_sources GNI file list.
 SKPICTURE_FILES = [
     "SkBigPicture.cpp",
@@ -428,7 +428,7 @@ split_srcs_and_hdrs(
     files = SKPICTURE_FILES,
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_skslc_srcs",
@@ -443,7 +443,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":core_hdrs",

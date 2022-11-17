@@ -4,6 +4,7 @@ load(
     "select_multi",
     "selects",
     "skia_cc_deps",
+    "skia_filegroup",
     "split_srcs_and_hdrs",
     "string_flag_with_values",
 )
@@ -189,7 +190,7 @@ selects.config_setting_group(
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":decode_android_srcs",
@@ -209,7 +210,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         ":decode_android_hdrs",

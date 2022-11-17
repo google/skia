@@ -1,11 +1,11 @@
-load("//bazel:macros.bzl", "exports_files_legacy")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
 
 licenses(["notice"])
 
 exports_files_legacy()
 
 # This group is mapped to //gn/gpu.gni:skia_shared_gpu_sources.
-filegroup(
+skia_filegroup(
     name = "shared_private_hdrs",
     srcs = [
         "Slug.h",
@@ -13,14 +13,14 @@ filegroup(
 )
 
 # This group is mapped to //gn/gpu.gni:skia_gpu_sources.
-filegroup(
+skia_filegroup(
     name = "gpu_private_hdrs",
     srcs = [
         "GrSlug.h",
     ],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "SkChromeRemoteGlyphCache.h",

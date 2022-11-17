@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
@@ -41,12 +41,12 @@ split_srcs_and_hdrs(
 
 # Not referenced by Bazel target.
 # File group use to export to //gn/gpu.gni:skia_metal_sources.
-filegroup(
+skia_filegroup(
     name = "mtl_srcs",
     srcs = ["SkSurface_GpuMtl.mm"],
 )
 
-filegroup(
+skia_filegroup(
     name = "srcs",
     srcs = [":core_srcs"] + select({
         "//src/gpu:has_gpu_backend": [":gpu_srcs"],
@@ -55,7 +55,7 @@ filegroup(
     visibility = ["//src:__pkg__"],
 )
 
-filegroup(
+skia_filegroup(
     name = "private_hdrs",
     srcs = [":core_hdrs"] + select({
         "//src/gpu:has_gpu_backend": [":gpu_hdrs"],
