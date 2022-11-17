@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/dawn/GrDawnOpsRenderPass.h"
 
+#include "src/gpu/ganesh/GrNativeRect.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"

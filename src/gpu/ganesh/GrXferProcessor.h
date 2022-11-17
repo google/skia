@@ -19,7 +19,9 @@
 class GrGLSLXPFragmentBuilder;
 class GrGLSLProgramDataManager;
 struct GrShaderCaps;
-
+namespace skgpu {
+    class KeyBuilder;
+}
 /**
  * Barriers for blending. When a shader reads the dst directly, an Xfer barrier is sometimes
  * required after a pixel has been written, before it can be safely read again.

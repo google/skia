@@ -9,6 +9,7 @@
 
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"

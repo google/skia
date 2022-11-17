@@ -9,6 +9,8 @@
 
 #include "src/core/SkGpuBlurUtils.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"

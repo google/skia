@@ -12,6 +12,7 @@
 #include "include/private/SkTPin.h"
 #include "src/core/SkOpts.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"

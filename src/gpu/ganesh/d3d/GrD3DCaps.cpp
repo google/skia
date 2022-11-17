@@ -15,6 +15,7 @@
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
 #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"

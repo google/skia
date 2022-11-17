@@ -10,6 +10,7 @@
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTo.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrPipeline.h"

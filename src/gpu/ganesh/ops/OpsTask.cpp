@@ -16,6 +16,7 @@
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
+#include "src/gpu/ganesh/GrNativeRect.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"

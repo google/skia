@@ -8,15 +8,25 @@
 #ifndef GrRenderTargetProxy_DEFINED
 #define GrRenderTargetProxy_DEFINED
 
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/gpu/Swizzle.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrNativeRect.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 #include "src/text/gpu/SubRunAllocator.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+
+class GrBackendFormat;
+class GrCaps;
 class GrResourceProvider;
+class GrSurface;
+enum class GrProtected : bool;
+struct SkISize;
 
 // GrArenas matches the lifetime of a single frame. It is created and held on the
 // SurfaceFillContext's RenderTargetProxy with the first call to get an arena. Each OpsTask

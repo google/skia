@@ -30,6 +30,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/GrProcessor.cpp"
   "src/gpu/ganesh/GrCaps.cpp"
   "src/gpu/ganesh/GrSurfaceProxy.cpp"
+  "src/gpu/ganesh/GrRenderTargetProxy.cpp"
 
   # See //bazel/generate_cpp_files_for_headers.bzl and //include/BUILD.bazel for more.
   "include/gen/"

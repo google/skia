@@ -7,14 +7,16 @@
 
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 
-#include "src/core/SkMathPriv.h"
+#include "include/core/SkSize.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrTypes.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
-#include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
-#include "src/gpu/ganesh/GrTextureRenderTargetProxy.h"
+
+#include <utility>
 
 #ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"

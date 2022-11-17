@@ -10,6 +10,7 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrNativeRect.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrOpsTypes.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"

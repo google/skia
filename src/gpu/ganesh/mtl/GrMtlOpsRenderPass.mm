@@ -9,6 +9,7 @@
 
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrColor.h"
+#include "src/gpu/ganesh/GrNativeRect.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/mtl/GrMtlCommandBuffer.h"
 #include "src/gpu/ganesh/mtl/GrMtlPipelineState.h"

@@ -24,6 +24,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
+#include "src/gpu/ganesh/GrNativeRect.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 #include "src/gpu/ganesh/GrOpFlushState.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
