@@ -2983,6 +2983,10 @@ STAGE(init_lane_masks, NoCtx) {
     dr = dg = db = sk_bit_cast<F>(mask);
 }
 
+STAGE(load_unmasked, float* ctx) {
+    r = sk_unaligned_load<F>(ctx);
+}
+
 STAGE(store_unmasked, float* ctx) {
     sk_unaligned_store(ctx, r);
 }

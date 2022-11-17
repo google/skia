@@ -120,11 +120,12 @@ DEF_TEST(RasterPipelineBuilderImmediate, r) {
     REPORTER_ASSERT(r, contains_value<float>(stages->ctx, 333.0f));
 }
 
-DEF_TEST(RasterPipelineBuilderStoreUnmasked, r) {
+DEF_TEST(RasterPipelineBuilderLoadStoreUnmasked, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.store_unmasked(12);
+    builder.load_unmasked(12);
     builder.store_unmasked(34);
+    builder.store_unmasked(56);
     builder.store_unmasked(0);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish();
 
@@ -143,9 +144,13 @@ DEF_TEST(RasterPipelineBuilderStoreUnmasked, r) {
     stages = stages->prev;
 
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_unmasked);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (34 * N));
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (56 * N));
     stages = stages->prev;
 
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_unmasked);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (34 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_unmasked);
     REPORTER_ASSERT(r, stages->ctx == slot0 + (12 * N));
 }

@@ -108,6 +108,10 @@ public:
         fInstructions.push_back({SkRasterPipeline::immediate_f, {}, val, 0});
     }
 
+    void load_unmasked(Slot slot) {
+        fInstructions.push_back({SkRasterPipeline::load_unmasked, {slot}});
+    }
+
     void store_unmasked(Slot slot) {
         fInstructions.push_back({SkRasterPipeline::store_unmasked, {slot}});
     }

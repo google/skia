@@ -82,6 +82,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 pipeline->append(SkRP::immediate_f, immCtx);
                 break;
             }
+            case SkRP::load_unmasked:
+                pipeline->append(SkRP::load_unmasked, SlotA());
+                break;
+
             case SkRP::store_unmasked:
                 pipeline->append(SkRP::store_unmasked, SlotA());
                 break;
