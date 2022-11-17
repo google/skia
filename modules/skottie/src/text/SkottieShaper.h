@@ -45,6 +45,11 @@ public:
         std::vector<SkGlyphID> fGlyphIDs;
         std::vector<SkPoint>   fGlyphPos;
 
+        // fClusters[i] is an input string index, pointing to the start of the UTF sequence
+        // associated with fGlyphs[i].  The number of entries matches the number of glyphs.
+        // Only available with Flags::kClusters.
+        std::vector<size_t>    fClusters;
+
         enum class BoundsType { kConservative, kTight };
         SkRect computeBounds(BoundsType) const;
 
@@ -133,6 +138,9 @@ public:
 
         // Compute the advance and ascent for each fragment.
         kTrackFragmentAdvanceAscent = 0x02,
+
+        // Return cluster information.
+        kClusters                   = 0x04,
     };
 
     struct TextDesc {

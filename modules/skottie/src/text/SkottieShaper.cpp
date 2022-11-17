@@ -244,7 +244,7 @@ public:
         return std::move(fResult);
     }
 
-    void shapeLine(const char* start, const char* end) {
+    void shapeLine(const char* start, const char* end, size_t utf8_offset) {
         if (!fShaper) {
             return;
         }
@@ -297,6 +297,7 @@ public:
         const auto shape_ltr   = fDesc.fDirection == Shaper::Direction::kLTR;
 
         fUTF8 = start;
+        fUTF8Offset = utf8_offset;
         fShaper->shape(start, SkToSizeT(end - start), fFont, shape_ltr, shape_width, this);
         fUTF8 = nullptr;
     }
@@ -334,6 +335,9 @@ private:
                     { {run.fFont, 1} },
                     { glyphs[i] },
                     { {0,0} },
+                    fDesc.fFlags & Shaper::kClusters
+                        ? std::vector<size_t>{ fUTF8Offset + clusters[i] }
+                        : std::vector<size_t>({}),
                 },
                 { fBox.x() + pos[i].fX, fBox.y() + pos[i].fY },
                 advance, ascent,
@@ -349,14 +353,14 @@ private:
     void commitConsolidatedRun(const skottie::Shaper::RunRec& run,
                                const SkGlyphID* glyphs,
                                const SkPoint* pos,
-                               const uint32_t*,
+                               const uint32_t* clusters,
                                uint32_t) {
         // In consolidated mode we just accumulate glyphs to a single fragment in ResultBuilder.
         // Glyph positions are baked in the fragment runs (Fragment::fPos only reflects the
         // box origin).
 
         if (fResult.fFragments.empty()) {
-            fResult.fFragments.push_back({{{}, {}, {}}, {fBox.x(), fBox.y()}, 0, 0, 0, false});
+            fResult.fFragments.push_back({{{}, {}, {}, {}}, {fBox.x(), fBox.y()}, 0, 0, 0, false});
         }
 
         auto& current_glyphs = fResult.fFragments.back().fGlyphs;
@@ -366,6 +370,13 @@ private:
 
         for (size_t i = 0; i < run.fSize; ++i) {
             fResult.fMissingGlyphCount += (glyphs[i] == kMissingGlyphID);
+        }
+
+        if (fDesc.fFlags & Shaper::kClusters) {
+            current_glyphs.fClusters.reserve(current_glyphs.fClusters.size() + run.fSize);
+            for (size_t i = 0; i < run.fSize; ++i) {
+                current_glyphs.fClusters.push_back(fUTF8Offset + clusters[i]);
+            }
         }
     }
 
@@ -408,7 +419,8 @@ private:
     float    fFirstLineAscent = 0,
              fLastLineDescent = 0;
 
-    const char* fUTF8 = nullptr; // only valid during shapeLine() calls
+    const char* fUTF8       = nullptr; // only valid during shapeLine() calls
+    size_t      fUTF8Offset = 0;       // current line offset within the original string
 
     Shaper::Result fResult;
 };
@@ -423,16 +435,17 @@ Shaper::Result ShapeImpl(const SkString& txt, const Shaper::TextDesc& desc,
 
     const char* ptr        = txt.c_str();
     const char* line_start = ptr;
+    const char* begin      = ptr;
     const char* end        = ptr + txt.size();
 
     ResultBuilder rbuilder(desc, box, fontmgr);
     while (ptr < end) {
         if (is_line_break(SkUTF::NextUTF8(&ptr, end))) {
-            rbuilder.shapeLine(line_start, ptr - 1);
+            rbuilder.shapeLine(line_start, ptr - 1, SkToSizeT(line_start - begin));
             line_start = ptr;
         }
     }
-    rbuilder.shapeLine(line_start, ptr);
+    rbuilder.shapeLine(line_start, ptr, SkToSizeT(line_start - begin));
 
     return rbuilder.finalize(shaped_size);
 }
