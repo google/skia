@@ -115,7 +115,6 @@ public:
 
     SkRect extendHeight(const ClipContext& context) const;
 
-    SkScalar metricsWithoutMultiplier(TextHeightBehavior correction);
     void shiftVertically(SkScalar shift) { fOffset.fY += shift; }
 
     void setAscentStyle(LineMetricStyle style) { fAscentStyle = style; }

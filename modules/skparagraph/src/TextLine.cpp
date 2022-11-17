@@ -327,33 +327,6 @@ SkRect TextLine::extendHeight(const ClipContext& context) const {
     return result;
 }
 
-SkScalar TextLine::metricsWithoutMultiplier(TextHeightBehavior correction) {
-
-    if (this->fSizes.getForceStrut()) {
-        return 0;
-    }
-
-    InternalLineMetrics result;
-    this->iterateThroughVisualRuns(true,
-        [&result](const Run* run, SkScalar runOffset, TextRange textRange, SkScalar* width) {
-        InternalLineMetrics runMetrics(run->ascent(), run->descent(), run->leading());
-        result.add(runMetrics);
-        return true;
-    });
-    SkScalar delta = 0;
-    if (correction  == TextHeightBehavior::kDisableFirstAscent) {
-        delta += (this->fSizes.fAscent - result.fAscent);
-        this->fSizes.fAscent = result.fAscent;
-        this->fAscentStyle = LineMetricStyle::Typographic;
-    } else if (correction  == TextHeightBehavior::kDisableLastDescent) {
-        delta -= (this->fSizes.fDescent - result.fDescent);
-        this->fSizes.fDescent = result.fDescent;
-        this->fDescentStyle = LineMetricStyle::Typographic;
-    }
-    fAdvance.fY += delta;
-    return delta;
-}
-
 void TextLine::buildTextBlob(TextRange textRange, const TextStyle& style, const ClipContext& context) {
     if (context.run->placeholderStyle() != nullptr) {
         return;
