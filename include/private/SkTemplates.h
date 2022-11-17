@@ -407,8 +407,14 @@ public:
      */
     void* get() { return fStorage; }
     const void* get() const { return fStorage; }
+
+    // Act as a container of bytes because the storage is uninitialized.
+    std::byte* data() { return fStorage; }
+    const std::byte* data() const { return fStorage; }
+    size_t size() const { return std::size(fStorage); }
+
 private:
-    alignas(T) char fStorage[sizeof(T)*N];
+    alignas(T) std::byte fStorage[sizeof(T) * N];
 };
 
 using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<void(void*), sk_free>>;

@@ -687,6 +687,10 @@ public:
         INHERITED::operator=(std::move(that));
         return *this;
     }
+
+    // Force the use of SkTArray for data() and size().
+    using INHERITED::data;
+    using INHERITED::size;
 };
 
 #endif
