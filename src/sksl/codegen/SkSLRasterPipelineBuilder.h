@@ -9,6 +9,8 @@
 #include "include/private/SkTArray.h"
 #include "src/core/SkRasterPipeline.h"
 
+#include <cstdint>
+#include <cstring>
 #include <initializer_list>
 #include <memory>
 
@@ -108,6 +110,20 @@ public:
 
     void immediate_f(float val) {
         fInstructions.push_back({SkRasterPipeline::immediate_f, {}, val, 0});
+    }
+
+    void immediate_i(int32_t val) {
+        // SkRasterPipeline registers are floats, so it's easiest just to reuse immediate_f here.
+        float immF;
+        memcpy(&immF, &val, sizeof(float));
+        fInstructions.push_back({SkRasterPipeline::immediate_f, {}, immF, 0});
+    }
+
+    void immediate_u(uint32_t val) {
+        // SkRasterPipeline registers are floats, so it's easiest just to reuse immediate_f here.
+        float immF;
+        memcpy(&immF, &val, sizeof(float));
+        fInstructions.push_back({SkRasterPipeline::immediate_f, {}, immF, 0});
     }
 
     void load_unmasked(Slot slot) {

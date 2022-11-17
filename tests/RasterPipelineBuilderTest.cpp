@@ -99,6 +99,8 @@ DEF_TEST(RasterPipelineBuilderImmediate, r) {
     builder.immediate_f(333.0f);
     builder.immediate_f(0.0f);
     builder.immediate_f(-5555.0f);
+    builder.immediate_i(-123);
+    builder.immediate_u(456);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish();
 
     // Instantiate this program.
@@ -108,6 +110,14 @@ DEF_TEST(RasterPipelineBuilderImmediate, r) {
 
     // Double check that the resulting stage list contains the expected immediate values.
     const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::immediate_f);
+    REPORTER_ASSERT(r, contains_value<uint32_t>(stages->ctx, 456));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::immediate_f);
+    REPORTER_ASSERT(r, contains_value<int32_t>(stages->ctx, -123));
+    stages = stages->prev;
+
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::immediate_f);
     REPORTER_ASSERT(r, contains_value<float>(stages->ctx, -5555.0f));
     stages = stages->prev;
