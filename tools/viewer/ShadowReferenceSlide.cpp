@@ -11,13 +11,13 @@
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
 #include "include/utils/SkShadowUtils.h"
-#include "samplecode/Sample.h"
 #include "tools/Resources.h"
+#include "tools/viewer/Slide.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Sample to compare the Material Design shadow reference to our results
 
-class ShadowRefView : public Sample {
+class ShadowRefSlide : public Slide {
     SkPath         fRRectPath;
     sk_sp<SkImage> fReferenceImage;
 
@@ -27,19 +27,18 @@ class ShadowRefView : public Sample {
     bool      fShowObject;
 
 public:
-    ShadowRefView()
+    ShadowRefSlide()
         : fShowAmbient(true)
         , fShowSpot(true)
         , fUseAlt(false)
-        , fShowObject(true) {}
+        , fShowObject(true) {
+        fName = "ShadowReference";
+    }
 
-protected:
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         fRRectPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-130, -128.5, 130, 128.5), 4, 4));
         fReferenceImage = GetResourceAsImage("images/shadowreference.png");
     }
-
-    SkString name() override { return SkString("ShadowReference"); }
 
     bool onChar(SkUnichar uni) override {
             bool handled = false;
@@ -69,45 +68,7 @@ protected:
             return false;
     }
 
-    void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(0xFFFFFFFF);
-        canvas->drawImage(fReferenceImage, 10, 30);
-    }
-
-    void drawShadowedPath(SkCanvas* canvas, const SkPath& path,
-                          const SkPoint3& zPlaneParams,
-                          const SkPaint& paint, SkScalar ambientAlpha,
-                          const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
-        if (!fShowAmbient) {
-            ambientAlpha = 0;
-        }
-        if (!fShowSpot) {
-            spotAlpha = 0;
-        }
-        uint32_t flags = 0;
-        if (fUseAlt) {
-            flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
-        }
-
-        SkColor ambientColor = SkColorSetARGB(ambientAlpha * 255, 0, 0, 0);
-        SkColor spotColor = SkColorSetARGB(spotAlpha * 255, 0, 0, 0);
-        SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
-                                  lightPos, lightWidth,
-                                  ambientColor, spotColor, flags);
-
-        if (fShowObject) {
-            canvas->drawPath(path, paint);
-        } else {
-            SkPaint strokePaint;
-
-            strokePaint.setColor(paint.getColor());
-            strokePaint.setStyle(SkPaint::kStroke_Style);
-
-            canvas->drawPath(path, strokePaint);
-        }
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         this->drawBG(canvas);
         const SkScalar kDP = 4;  // the reference image is 4x bigger than it is displayed on
                                  // on the web page, so we need to reflect that here and
@@ -192,9 +153,45 @@ protected:
     }
 
 private:
-    using INHERITED = Sample;
+    void drawBG(SkCanvas* canvas) {
+        canvas->drawColor(0xFFFFFFFF);
+        canvas->drawImage(fReferenceImage, 10, 30);
+    }
+
+    void drawShadowedPath(SkCanvas* canvas, const SkPath& path,
+                          const SkPoint3& zPlaneParams,
+                          const SkPaint& paint, SkScalar ambientAlpha,
+                          const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
+        if (!fShowAmbient) {
+            ambientAlpha = 0;
+        }
+        if (!fShowSpot) {
+            spotAlpha = 0;
+        }
+        uint32_t flags = 0;
+        if (fUseAlt) {
+            flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
+        }
+
+        SkColor ambientColor = SkColorSetARGB(ambientAlpha * 255, 0, 0, 0);
+        SkColor spotColor = SkColorSetARGB(spotAlpha * 255, 0, 0, 0);
+        SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
+                                  lightPos, lightWidth,
+                                  ambientColor, spotColor, flags);
+
+        if (fShowObject) {
+            canvas->drawPath(path, paint);
+        } else {
+            SkPaint strokePaint;
+
+            strokePaint.setColor(paint.getColor());
+            strokePaint.setStyle(SkPaint::kStroke_Style);
+
+            canvas->drawPath(path, strokePaint);
+        }
+    }
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new ShadowRefView(); )
+DEF_SLIDE( return new ShadowRefSlide(); )

@@ -10,13 +10,12 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkPath.h"
 #include "include/private/SkTDArray.h"
-#include "samplecode/Sample.h"
-
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGRect.h"
 #include "modules/sksg/include/SkSGScene.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 struct PerNodeInfo {
     // key
@@ -27,7 +26,7 @@ struct PerNodeInfo {
     sksg::PaintNode*    fPaint;
 };
 
-class SampleSG : public Sample {
+class SGSlide : public ClickHandlerSlide {
     // TODO(kjlubick) use a vector instead of our private SkTDArray
     SkTDArray<PerNodeInfo> fSideCar;
     sk_sp<sksg::Group> fGroup;
@@ -51,7 +50,7 @@ class SampleSG : public Sample {
     }
 
 public:
-    SampleSG() {
+    SGSlide() {
         fGroup = sksg::Group::Make();
 
         fScene = sksg::Scene::Make(fGroup);
@@ -65,15 +64,14 @@ public:
         p = sksg::Color::Make(SK_ColorBLUE);
         d = sksg::Draw::Make(r, p);
         this->appendNode(d, r, p);
+        fName = "SceneGraph";
     }
 
-protected:
-    SkString name() override { return SkString("SceneGraph"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         fScene->render(canvas);
     }
 
+protected:
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         if (auto node = fScene->nodeAt({x, y})) {
             Click* click = new Click();
@@ -100,12 +98,8 @@ protected:
         }
         return false;
     }
-
-private:
-
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new SampleSG(); )
+DEF_SLIDE( return new SGSlide(); )

@@ -13,8 +13,8 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkGeometry.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 enum class VerbType {
     kTriangles,
@@ -36,17 +36,25 @@ static const char* verb_type_name(VerbType verbType) {
 /**
  * This sample visualizes simple strokes.
  */
-class StrokeVerbView : public Sample {
-    void onOnceBeforeDraw() override { this->updatePath(); }
-    void onDrawContent(SkCanvas*) override;
+class StrokeVerbSlide : public ClickHandlerSlide {
+public:
+    StrokeVerbSlide() { fName = "StrokeVerb"; }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override;
-    bool onClick(Sample::Click*) override;
+    void load(SkScalar w, SkScalar h) override { this->updatePath(); }
+
+    void draw(SkCanvas*) override;
+
     bool onChar(SkUnichar) override;
-    SkString name() override { return SkString("StrokeVerb"); }
 
+protected:
     class Click;
 
+    ClickHandlerSlide::Click* onFindClickHandler(SkScalar x, SkScalar y,
+                                                 skui::ModifierKey) override;
+    bool onClick(ClickHandlerSlide::Click*) override;
+
+
+private:
     void updateAndInval() { this->updatePath(); }
 
     void updatePath();
@@ -64,7 +72,7 @@ class StrokeVerbView : public Sample {
     SkPath fPath;
 };
 
-void StrokeVerbView::onDrawContent(SkCanvas* canvas) {
+void StrokeVerbSlide::draw(SkCanvas* canvas) {
     canvas->clear(SK_ColorBLACK);
 
     SkPaint outlinePaint;
@@ -104,7 +112,7 @@ void StrokeVerbView::onDrawContent(SkCanvas* canvas) {
     canvas->drawString(caption, 10, 30, font, captionPaint);
 }
 
-void StrokeVerbView::updatePath() {
+void StrokeVerbSlide::updatePath() {
     fPath.reset();
     fPath.moveTo(fPoints[0]);
     switch (fVerbType) {
@@ -125,7 +133,7 @@ void StrokeVerbView::updatePath() {
     }
 }
 
-class StrokeVerbView::Click : public Sample::Click {
+class StrokeVerbSlide::Click : public ClickHandlerSlide::Click {
 public:
     Click(int ptIdx) : fPtIdx(ptIdx) {}
 
@@ -143,7 +151,8 @@ private:
     int fPtIdx;
 };
 
-Sample::Click* StrokeVerbView::onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) {
+ClickHandlerSlide::Click* StrokeVerbSlide::onFindClickHandler(SkScalar x, SkScalar y,
+                                                              skui::ModifierKey) {
     for (int i = 0; i < 4; ++i) {
         if (VerbType::kCubics != fVerbType && 2 == i) {
             continue;
@@ -155,14 +164,14 @@ Sample::Click* StrokeVerbView::onFindClickHandler(SkScalar x, SkScalar y, skui::
     return new Click(-1);
 }
 
-bool StrokeVerbView::onClick(Sample::Click* click) {
+bool StrokeVerbSlide::onClick(ClickHandlerSlide::Click* click) {
     Click* myClick = (Click*)click;
     myClick->doClick(fPoints);
     this->updateAndInval();
     return true;
 }
 
-bool StrokeVerbView::onChar(SkUnichar unichar) {
+bool StrokeVerbSlide::onChar(SkUnichar unichar) {
         if (unichar >= '1' && unichar <= '4') {
             fVerbType = VerbType(unichar - '1');
             this->updateAndInval();
@@ -218,6 +227,6 @@ bool StrokeVerbView::onChar(SkUnichar unichar) {
         return false;
 }
 
-DEF_SAMPLE(return new StrokeVerbView;)
+DEF_SLIDE(return new StrokeVerbSlide;)
 
 #endif  // SK_SUPPORT_GPU

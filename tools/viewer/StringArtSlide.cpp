@@ -7,7 +7,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 // Reproduces https://code.google.com/p/chromium/issues/detail?id=279014
 
@@ -15,24 +15,25 @@
 // The particular shape rendered can be controlled by clicking horizontally, thereby
 // generating an angle from 0 to 1.
 
-class StringArtView : public Sample {
+class StringArtSlide : public ClickHandlerSlide {
 public:
-    StringArtView() : fAngle(0.305f) {}
+    StringArtSlide() : fAngle(0.305f) { fName = "StringArt"; }
 
-protected:
-    SkString name() override { return SkString("StringArt"); }
+    void load(SkScalar w, SkScalar h) override { fSize = {w, h}; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void resize(SkScalar w, SkScalar h) override { fSize = {w, h}; }
+
+    void draw(SkCanvas* canvas) override {
         SkScalar angle = fAngle*SK_ScalarPI + SkScalarHalf(SK_ScalarPI);
 
-        SkPoint center = SkPoint::Make(SkScalarHalf(this->width()), SkScalarHalf(this->height()));
+        SkPoint center = SkPoint::Make(fSize.width()/2, fSize.height()/2);
         SkScalar length = 5;
         SkScalar step = angle;
 
         SkPath path;
         path.moveTo(center);
 
-        while (length < (SkScalarHalf(std::min(this->width(), this->height())) - 10.f))
+        while (length < (std::min(fSize.width(), fSize.height())/2 - 10.f))
         {
             SkPoint rp = SkPoint::Make(length*SkScalarCos(step) + center.fX,
                                        length*SkScalarSin(step) + center.fY);
@@ -50,16 +51,19 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
-        fAngle = x/width();
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+        fAngle = x/fSize.width();
         return nullptr;
     }
-private:
 
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
+
+private:
     SkScalar fAngle;
-    using INHERITED = Sample;
+    SkSize fSize;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new StringArtView(); )
+DEF_SLIDE( return new StringArtSlide(); )

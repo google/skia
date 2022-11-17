@@ -8,12 +8,11 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradientShader.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
-
 #include "tools/ToolUtils.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 #define BG_COLOR    0xFFDDDDDD
 
@@ -400,20 +399,13 @@ static const SlideProc gProc[] = {
     mesh_slide,
 };
 
-class SlideView : public Sample {
+class SlidesSlide : public ClickHandlerSlide {
     int fIndex;
-    bool fOnce;
+
 public:
-    SlideView() {
-        fOnce = false;
-    }
+    SlidesSlide() { fName = "Slides"; }
 
-    void init() {
-        if (fOnce) {
-            return;
-        }
-        fOnce = true;
-
+    void load(SkScalar w, SkScalar h) override {
         fIndex = 0;
 
         SkBitmap bm;
@@ -430,27 +422,21 @@ public:
             str.printf("/skimages/slide_%zu.png", i);
             ToolUtils::EncodeImageToFile(str.c_str(), bm, SkEncodedImageFormat::kPNG, 100);
         }
-        this->setBGColor(BG_COLOR);
     }
 
-protected:
-    SkString name() override { return SkString("Slides"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
-        this->init();
+    void draw(SkCanvas* canvas) override {
         gProc[fIndex](canvas);
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
-        this->init();
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         fIndex = (fIndex + 1) % std::size(gProc);
         return nullptr;
     }
 
-private:
-    using INHERITED = Sample;
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new SlideView(); )
+DEF_SLIDE( return new SlidesSlide(); )

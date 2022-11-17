@@ -5,20 +5,19 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "samplecode/Sample.h"
-#include "tools/Resources.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint3.h"
 #include "include/utils/SkShadowUtils.h"
+#include "tools/Resources.h"
+#include "tools/viewer/Slide.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Sample to demonstrate tonal color shadows
 
-class ShadowColorView : public Sample {
+class ShadowColorSlide : public Slide {
     SkPath    fRectPath;
     int       fZIndex;
 
@@ -30,21 +29,20 @@ class ShadowColorView : public Sample {
     bool      fDarkBackground;
 
 public:
-    ShadowColorView()
+    ShadowColorSlide()
         : fZIndex(8)
         , fShowAmbient(true)
         , fShowSpot(true)
         , fUseAlt(false)
         , fShowObject(true)
         , fTwoPassColor(false)
-        , fDarkBackground(false) {}
-
-protected:
-    void onOnceBeforeDraw() override {
-        fRectPath.addRect(SkRect::MakeXYWH(-50, -50, 100, 100));
+        , fDarkBackground(false) {
+        fName = "ShadowColor";
     }
 
-    SkString name() override { return SkString("ShadowColor"); }
+    void load(SkScalar w, SkScalar h) override {
+        fRectPath.addRect(SkRect::MakeXYWH(-50, -50, 100, 100));
+    }
 
     bool onChar(SkUnichar uni) override {
             bool handled = false;
@@ -90,77 +88,7 @@ protected:
             return false;
     }
 
-
-    void drawShadowedPath(SkCanvas* canvas, const SkPath& path,
-                          const SkPoint3& zPlaneParams,
-                          const SkPaint& paint, SkScalar ambientAlpha,
-                          const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
-        if (!fShowAmbient) {
-            ambientAlpha = 0;
-        }
-        if (!fShowSpot) {
-            spotAlpha = 0;
-        }
-        uint32_t flags = 0;
-        if (fUseAlt) {
-            flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
-        }
-
-        if (fTwoPassColor) {
-            SkColor ambientColor = SkColorSetARGB(ambientAlpha*255, 0, 0, 0);
-            SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
-                                      lightPos, lightWidth,
-                                      ambientColor, SK_ColorTRANSPARENT, flags);
-
-            if (paint.getColor() != SK_ColorBLACK) {
-                SkColor color = paint.getColor();
-
-                uint8_t max = std::max(std::max(SkColorGetR(color), SkColorGetG(color)),
-                                     SkColorGetB(color));
-                uint8_t min = std::min(std::min(SkColorGetR(color), SkColorGetG(color)),
-                                     SkColorGetB(color));
-                SkScalar luminance = 0.5f*(max + min) / 255.f;
-                SkScalar alpha = (.6 - .4*luminance)*luminance*luminance + 0.3f;
-                spotAlpha -= (alpha - 0.3f)*.5f;
-                SkColor spotColor = SkColorSetARGB(alpha*SkColorGetA(color), SkColorGetR(color),
-                                                   SkColorGetG(color), SkColorGetB(color));
-
-                SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
-                                          lightPos, lightWidth,
-                                          SK_ColorTRANSPARENT, spotColor, flags);
-            }
-
-            SkColor spotGreyscale = SkColorSetARGB(spotAlpha * 255, 0, 0, 0);
-            SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
-                                      lightPos, lightWidth,
-                                      SK_ColorTRANSPARENT, spotGreyscale, flags);
-        } else {
-            SkColor color = paint.getColor();
-            SkColor baseAmbient = SkColorSetARGB(ambientAlpha*SkColorGetA(color),
-                                                 SkColorGetR(color), SkColorGetG(color),
-                                                 SkColorGetB(color));
-            SkColor baseSpot = SkColorSetARGB(spotAlpha*SkColorGetA(color),
-                                              SkColorGetR(color), SkColorGetG(color),
-                                              SkColorGetB(color));
-            SkColor tonalAmbient, tonalSpot;
-            SkShadowUtils::ComputeTonalColors(baseAmbient, baseSpot, &tonalAmbient, &tonalSpot);
-            SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
-                                      lightPos, lightWidth,
-                                      tonalAmbient, tonalSpot, flags);
-        }
-        if (fShowObject) {
-            canvas->drawPath(path, paint);
-        } else {
-            SkPaint strokePaint;
-
-            strokePaint.setColor(paint.getColor());
-            strokePaint.setStyle(SkPaint::kStroke_Style);
-
-            canvas->drawPath(path, strokePaint);
-        }
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         const SkScalar kLightWidth = 600;
         const SkScalar kAmbientAlpha = 0.03f;
         const SkScalar kSpotAlpha = 0.25f;
@@ -221,9 +149,76 @@ protected:
     }
 
 private:
-    using INHERITED = Sample;
+    void drawShadowedPath(SkCanvas* canvas, const SkPath& path,
+                          const SkPoint3& zPlaneParams,
+                          const SkPaint& paint, SkScalar ambientAlpha,
+                          const SkPoint3& lightPos, SkScalar lightWidth, SkScalar spotAlpha) {
+        if (!fShowAmbient) {
+            ambientAlpha = 0;
+        }
+        if (!fShowSpot) {
+            spotAlpha = 0;
+        }
+        uint32_t flags = 0;
+        if (fUseAlt) {
+            flags |= SkShadowFlags::kGeometricOnly_ShadowFlag;
+        }
+
+        if (fTwoPassColor) {
+            SkColor ambientColor = SkColorSetARGB(ambientAlpha*255, 0, 0, 0);
+            SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
+                                      lightPos, lightWidth,
+                                      ambientColor, SK_ColorTRANSPARENT, flags);
+
+            if (paint.getColor() != SK_ColorBLACK) {
+                SkColor color = paint.getColor();
+
+                uint8_t max = std::max(std::max(SkColorGetR(color), SkColorGetG(color)),
+                                       SkColorGetB(color));
+                uint8_t min = std::min(std::min(SkColorGetR(color), SkColorGetG(color)),
+                                       SkColorGetB(color));
+                SkScalar luminance = 0.5f*(max + min) / 255.f;
+                SkScalar alpha = (.6 - .4*luminance)*luminance*luminance + 0.3f;
+                spotAlpha -= (alpha - 0.3f)*.5f;
+                SkColor spotColor = SkColorSetARGB(alpha*SkColorGetA(color), SkColorGetR(color),
+                                                   SkColorGetG(color), SkColorGetB(color));
+
+                SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
+                                          lightPos, lightWidth,
+                                          SK_ColorTRANSPARENT, spotColor, flags);
+            }
+
+            SkColor spotGreyscale = SkColorSetARGB(spotAlpha * 255, 0, 0, 0);
+            SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
+                                      lightPos, lightWidth,
+                                      SK_ColorTRANSPARENT, spotGreyscale, flags);
+        } else {
+            SkColor color = paint.getColor();
+            SkColor baseAmbient = SkColorSetARGB(ambientAlpha*SkColorGetA(color),
+                                                 SkColorGetR(color), SkColorGetG(color),
+                                                 SkColorGetB(color));
+            SkColor baseSpot = SkColorSetARGB(spotAlpha*SkColorGetA(color),
+                                              SkColorGetR(color), SkColorGetG(color),
+                                              SkColorGetB(color));
+            SkColor tonalAmbient, tonalSpot;
+            SkShadowUtils::ComputeTonalColors(baseAmbient, baseSpot, &tonalAmbient, &tonalSpot);
+            SkShadowUtils::DrawShadow(canvas, path, zPlaneParams,
+                                      lightPos, lightWidth,
+                                      tonalAmbient, tonalSpot, flags);
+        }
+        if (fShowObject) {
+            canvas->drawPath(path, paint);
+        } else {
+            SkPaint strokePaint;
+
+            strokePaint.setColor(paint.getColor());
+            strokePaint.setStyle(SkPaint::kStroke_Style);
+
+            canvas->drawPath(path, strokePaint);
+        }
+    }
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new ShadowColorView(); )
+DEF_SLIDE( return new ShadowColorSlide(); )

@@ -9,10 +9,10 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkSurface.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkPaintPriv.h"
 #include "tools/Resources.h"
 #include "tools/timer/Timer.h"
+#include "tools/viewer/Slide.h"
 
 #include <stdio.h>
 
@@ -46,9 +46,10 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
 }
 
 
-class DrawShipView : public Sample {
+class DrawShipSlide : public Slide {
 public:
-    DrawShipView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) {
+    DrawShipSlide(const char name[], DrawAtlasProc proc) : fProc(proc) {
+        fName = name;
         fAtlas = GetResourceAsImage("images/ship.png");
         if (!fAtlas) {
             SkDebugf("\nCould not decode file ship.png. Falling back to penguin mode.\n");
@@ -81,15 +82,9 @@ public:
                                            SkIntToScalar(fAtlas->height()));
         fXform[currIndex] = SkRSXform::MakeFromRadians(0.5f, SK_ScalarPI*0.5f,
                                                        kWidth*0.5f, kHeight*0.5f, anchorX, anchorY);
-
     }
 
-    ~DrawShipView() override {}
-
-protected:
-    SkString name() override { return SkString(fName); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         const float kCosDiff = 0.99984769515f;
         const float kSinDiff = 0.01745240643f;
 
@@ -122,7 +117,7 @@ protected:
               SkSamplingOptions(SkFilterMode::kLinear), &paint);
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         //TODO: use nanos
         //SkScalar angle = SkDoubleToScalar(fmod(1e-9 * nanos * 360 / 24, 360));
         //fAnimatingDrawable->setSweep(angle);
@@ -130,17 +125,14 @@ protected:
     }
 
 private:
-    const char*         fName;
     DrawAtlasProc       fProc;
 
     sk_sp<SkImage> fAtlas;
     SkRSXform   fXform[kGrid*kGrid+1];
     SkRect      fTex[kGrid*kGrid+1];
-
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new DrawShipView("DrawShip", draw_atlas); )
-DEF_SAMPLE( return new DrawShipView("DrawShipSim", draw_atlas_sim); )
+DEF_SLIDE( return new DrawShipSlide("DrawShip", draw_atlas); )
+DEF_SLIDE( return new DrawShipSlide("DrawShipSim", draw_atlas_sim); )

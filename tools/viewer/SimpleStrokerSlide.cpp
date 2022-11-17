@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
 #include "include/utils/SkParsePath.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 #include "src/core/SkGeometry.h"
 
@@ -347,7 +347,7 @@ float SkPathStroker2::squaredLineLength(const PathSegment& lineSeg) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class SimpleStroker : public Sample {
+class SimpleStrokerSlide : public ClickHandlerSlide {
     bool fShowSkiaStroke, fShowHidden, fShowSkeleton;
     float fWidth = 175;
     SkPaint fPtsPaint, fStrokePaint, fMirrorStrokePaint, fNewFillPaint, fHiddenPaint,
@@ -357,7 +357,7 @@ class SimpleStroker : public Sample {
 public:
     SkPoint fPts[kN];
 
-    SimpleStroker() : fShowSkiaStroke(true), fShowHidden(true), fShowSkeleton(true) {
+    SimpleStrokerSlide() : fShowSkiaStroke(true), fShowHidden(true), fShowSkeleton(true) {
         fPts[0] = {500, 200};
         fPts[1] = {300, 200};
         fPts[2] = {100, 100};
@@ -384,12 +384,8 @@ public:
         fSkeletonPaint.setAntiAlias(true);
         fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
         fSkeletonPaint.setColor(SK_ColorRED);
+        fName = "SimpleStroker";
     }
-
-    void toggle(bool& value) { value = !value; }
-
-protected:
-    SkString name() override { return SkString("SimpleStroker"); }
 
     bool onChar(SkUnichar uni) override {
         switch (uni) {
@@ -414,14 +410,7 @@ protected:
         return false;
     }
 
-    void makePath(SkPath* path) {
-        path->moveTo(fPts[0]);
-        for (int i = 1; i < kN; ++i) {
-            path->lineTo(fPts[i]);
-        }
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFEEEEEE);
 
         SkPath path;
@@ -461,7 +450,8 @@ protected:
         }
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         const SkScalar tol = 4;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (int i = 0; i < kN; ++i) {
@@ -475,8 +465,18 @@ protected:
         return nullptr;
     }
 
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
+
 private:
-    using INHERITED = Sample;
+    void toggle(bool& value) { value = !value; }
+
+    void makePath(SkPath* path) {
+        path->moveTo(fPts[0]);
+        for (int i = 1; i < kN; ++i) {
+            path->lineTo(fPts[i]);
+        }
+    }
+
 };
 
-DEF_SAMPLE(return new SimpleStroker;)
+DEF_SLIDE(return new SimpleStrokerSlide;)

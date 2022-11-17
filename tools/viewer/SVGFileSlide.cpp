@@ -13,21 +13,21 @@
 #include "include/core/SkStream.h"
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGNode.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "src/xml/SkDOM.h"
+#include "tools/viewer/Slide.h"
 
 namespace {
 
-class SVGFileView : public Sample {
+class SVGFileSlide : public Slide {
 public:
-    SVGFileView(const SkString& path)
-        : fPath(path), fLabel(SkStringPrintf("[%s]", SkOSPath::Basename(path.c_str()).c_str())) {}
-    ~SVGFileView() override = default;
+    SVGFileSlide(const SkString& path) : fPath(path) {
+        fName = SkStringPrintf("[%s]", SkOSPath::Basename(path.c_str()).c_str());
+    }
+    ~SVGFileSlide() override = default;
 
-protected:
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         SkFILEStream svgStream(fPath.c_str());
         if (!svgStream.isValid()) {
             SkDebugf("file not found: \"%s\"\n", fPath.c_str());
@@ -36,38 +36,30 @@ protected:
 
         fDom = SkSVGDOM::MakeFromStream(svgStream);
         if (fDom) {
-            fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
+            fDom->setContainerSize(SkSize{w, h});
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         if (fDom) {
             fDom->render(canvas);
         }
     }
 
-    void onSizeChange() override {
+    void resize(SkScalar w, SkScalar h) override {
         if (fDom) {
-            fDom->setContainerSize(SkSize::Make(this->width(), this->height()));
+            fDom->setContainerSize({w, h});
         }
-
-        this->INHERITED::onSizeChange();
     }
-
-    SkString name() override { return fLabel; }
 
 private:
     sk_sp<SkSVGDOM> fDom;
     SkString        fPath;
-    SkString        fLabel;
-
-    using INHERITED = Sample;
 };
 
 } // anonymous namespace
 
-Sample* CreateSampleSVGFileView(const SkString& filename);
-Sample* CreateSampleSVGFileView(const SkString& filename) {
-    return new SVGFileView(filename);
+Slide* CreateSampleSVGFileSlide(const SkString& filename) {
+    return new SVGFileSlide(filename);
 }
 #endif  // defined(SK_ENABLE_SVG)
