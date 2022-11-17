@@ -33,6 +33,7 @@ def create_asset(target_dir):
       input=(sha256 + ' kubectl').encode('utf-8'))[0].decode('utf-8')
   if 'OK' not in output:
     raise ValueError('Got wrong checksum for kubectl: %s' % output)
+  subprocess.check_call(['chmod', 'a+x', 'kubectl'], cwd=target_dir)
 
 
 def main():
