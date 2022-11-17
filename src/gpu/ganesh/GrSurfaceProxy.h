@@ -9,20 +9,34 @@
 #define GrSurfaceProxy_DEFINED
 
 #include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkString.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
 #include "src/gpu/ganesh/GrSurface.h"
-#include "src/gpu/ganesh/GrTexture.h"
+
+#include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <string>
+#include <string_view>
+#include <utility>
 
 class GrCaps;
 class GrContext_Base;
 class GrRecordingContext;
+class GrRenderTarget;
 class GrRenderTargetProxy;
 class GrRenderTask;
 class GrResourceProvider;
 class GrSurfaceProxyPriv;
-class GrSurfaceProxyView;
+class GrTexture;
 class GrTextureProxy;
 
 class GrSurfaceProxy : public SkNVRefCnt<GrSurfaceProxy> {
@@ -82,10 +96,8 @@ public:
         LazyCallbackResult(LazyCallbackResult&& that) = default;
         LazyCallbackResult(sk_sp<GrSurface> surf,
                            bool releaseCallback = true,
-                           LazyInstantiationKeyMode mode = LazyInstantiationKeyMode::kSynced)
-                : fSurface(std::move(surf)), fKeyMode(mode), fReleaseCallback(releaseCallback) {}
-        LazyCallbackResult(sk_sp<GrTexture> tex)
-                : LazyCallbackResult(sk_sp<GrSurface>(std::move(tex))) {}
+                           LazyInstantiationKeyMode mode = LazyInstantiationKeyMode::kSynced);
+        LazyCallbackResult(sk_sp<GrTexture> tex);
 
         LazyCallbackResult& operator=(const LazyCallbackResult&) = default;
         LazyCallbackResult& operator=(LazyCallbackResult&&) = default;

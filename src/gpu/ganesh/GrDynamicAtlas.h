@@ -13,6 +13,7 @@
 
 class GrOnFlushResourceProvider;
 class GrResourceProvider;
+class GrSurfaceProxyView;
 struct SkIPoint16;
 struct SkIRect;
 

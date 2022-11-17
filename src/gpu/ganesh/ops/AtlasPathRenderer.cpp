@@ -11,6 +11,7 @@
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
+#include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrModulateAtlasCoverageEffect.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"

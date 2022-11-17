@@ -14,6 +14,7 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 
 class GrImageContext;
+class GrSurfaceProxyView;
 class GrBackendRenderTarget;
 struct GrVkDrawableInfo;
 class SkBitmap;

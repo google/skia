@@ -12,6 +12,7 @@
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
+#include "src/gpu/ganesh/GrTexture.h"
 
 GrThreadSafeCache::VertexData::~VertexData () {
     this->reset();

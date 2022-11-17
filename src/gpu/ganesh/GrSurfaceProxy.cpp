@@ -6,26 +6,32 @@
  */
 
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
-#include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkPoint.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "src/core/SkMathPriv.h"
-#include "src/gpu/ganesh/GrAttachment.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrRenderTask.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
 #include "src/gpu/ganesh/GrSurface.h"
+#include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTexture.h"
-#include "src/gpu/ganesh/GrTextureRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
+
+#include <memory>
 
 #ifdef SK_DEBUG
 #include "include/gpu/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrRenderTarget.h"
 
 static bool is_valid_lazy(const SkISize& dimensions, SkBackingFit fit) {
     // A "fully" lazy proxy's width and height are not known until instantiation time.
@@ -40,6 +46,13 @@ static bool is_valid_non_lazy(SkISize dimensions) {
     return dimensions.fWidth > 0 && dimensions.fHeight > 0;
 }
 #endif
+
+GrSurfaceProxy::LazyCallbackResult::LazyCallbackResult(sk_sp<GrSurface> surf,
+                                                       bool releaseCallback,
+                                                       LazyInstantiationKeyMode mode)
+        : fSurface(std::move(surf)), fKeyMode(mode), fReleaseCallback(releaseCallback) {}
+GrSurfaceProxy::LazyCallbackResult::LazyCallbackResult(sk_sp<GrTexture> tex)
+        : LazyCallbackResult(sk_sp<GrSurface>(std::move(tex))) {}
 
 // Deferred version
 GrSurfaceProxy::GrSurfaceProxy(const GrBackendFormat& format,
