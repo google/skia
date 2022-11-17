@@ -195,14 +195,7 @@ public:
         }
     }
 
-    /**
-     * Number of elements in the array.
-     */
-    int count() const { return fSize; }
-
-    /**
-     * Is the array empty.
-     */
+    // Is the array empty.
     bool empty() const { return fSize == 0; }
 
     /**
