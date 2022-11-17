@@ -9,11 +9,21 @@
 #define GrSurfaceProxyView_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/SkTemplates.h"
 #include "src/gpu/Swizzle.h"
-#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+
+#include <string_view>
+#include <type_traits>
+#include <utility>
+
+class GrRecordingContext;
+class GrRenderTargetProxy;
+class GrTextureProxy;
+struct SkIRect;
 
 class GrSurfaceProxyView {
 public:
@@ -34,66 +44,34 @@ public:
     GrSurfaceProxyView& operator=(const GrSurfaceProxyView&) = default;
     GrSurfaceProxyView& operator=(GrSurfaceProxyView&& view) = default;
 
-    bool operator==(const GrSurfaceProxyView& view) const {
-        return fProxy->uniqueID() == view.fProxy->uniqueID() &&
-               fOrigin == view.fOrigin &&
-               fSwizzle == view.fSwizzle;
-    }
+    bool operator==(const GrSurfaceProxyView& view) const;
     bool operator!=(const GrSurfaceProxyView& other) const { return !(*this == other); }
 
     int width() const { return this->proxy()->width(); }
     int height() const { return this->proxy()->height(); }
     SkISize dimensions() const { return this->proxy()->dimensions(); }
 
-    GrMipmapped mipmapped() const {
-        if (const GrTextureProxy* proxy = this->asTextureProxy()) {
-            return proxy->mipmapped();
-        }
-        return GrMipmapped::kNo;
-    }
+    GrMipmapped mipmapped() const;
 
     GrSurfaceProxy* proxy() const { return fProxy.get(); }
     sk_sp<GrSurfaceProxy> refProxy() const { return fProxy; }
 
-    GrTextureProxy* asTextureProxy() const {
-        if (!fProxy) {
-            return nullptr;
-        }
-        return fProxy->asTextureProxy();
-    }
-    sk_sp<GrTextureProxy> asTextureProxyRef() const {
-        return sk_ref_sp<GrTextureProxy>(this->asTextureProxy());
-    }
+    GrTextureProxy* asTextureProxy() const;
+    sk_sp<GrTextureProxy> asTextureProxyRef() const;
 
-    GrRenderTargetProxy* asRenderTargetProxy() const {
-        if (!fProxy) {
-            return nullptr;
-        }
-        return fProxy->asRenderTargetProxy();
-    }
-
-    sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() const {
-        return sk_ref_sp<GrRenderTargetProxy>(this->asRenderTargetProxy());
-    }
+    GrRenderTargetProxy* asRenderTargetProxy() const;
+    sk_sp<GrRenderTargetProxy> asRenderTargetProxyRef() const;
 
     GrSurfaceOrigin origin() const { return fOrigin; }
     skgpu::Swizzle swizzle() const { return fSwizzle; }
 
-    void concatSwizzle(skgpu::Swizzle swizzle) {
-        fSwizzle = skgpu::Swizzle::Concat(fSwizzle, swizzle);
-    }
+    void concatSwizzle(skgpu::Swizzle swizzle);
 
-    GrSurfaceProxyView makeSwizzle(skgpu::Swizzle swizzle) const & {
-        return {fProxy, fOrigin, skgpu::Swizzle::Concat(fSwizzle, swizzle)};
-    }
+    GrSurfaceProxyView makeSwizzle(skgpu::Swizzle swizzle) const&;
 
-    GrSurfaceProxyView makeSwizzle(skgpu::Swizzle swizzle) && {
-        return {std::move(fProxy), fOrigin, skgpu::Swizzle::Concat(fSwizzle, swizzle)};
-    }
+    GrSurfaceProxyView makeSwizzle(skgpu::Swizzle swizzle) &&;
 
-    void reset() {
-        *this = {};
-    }
+    void reset();
 
     // Helper that copies a rect of a src view'' proxy and then creates a view for the copy with
     // the same origin and swizzle as the src view.
@@ -103,39 +81,18 @@ public:
                                    SkIRect srcRect,
                                    SkBackingFit fit,
                                    SkBudgeted budgeted,
-                                   std::string_view label) {
-        auto copy = GrSurfaceProxy::Copy(context,
-                                         src.refProxy(),
-                                         src.origin(),
-                                         mipmapped,
-                                         srcRect,
-                                         fit,
-                                         budgeted,
-                                         label);
-        return {std::move(copy), src.origin(), src.swizzle()};
-    }
+                                   std::string_view label);
 
     static GrSurfaceProxyView Copy(GrRecordingContext* rContext,
                                    GrSurfaceProxyView src,
                                    GrMipmapped mipmapped,
                                    SkBackingFit fit,
                                    SkBudgeted budgeted,
-                                   std::string_view label) {
-        auto copy = GrSurfaceProxy::Copy(rContext,
-                                         src.refProxy(),
-                                         src.origin(),
-                                         mipmapped,
-                                         fit,
-                                         budgeted,
-                                         label);
-        return {std::move(copy), src.origin(), src.swizzle()};
-    }
+                                   std::string_view label);
 
     // This does not reset the origin or swizzle, so the View can still be used to access those
     // properties associated with the detached proxy.
-    sk_sp<GrSurfaceProxy> detachProxy() {
-        return std::move(fProxy);
-    }
+    sk_sp<GrSurfaceProxy> detachProxy() { return std::move(fProxy); }
 
     using sk_is_trivially_relocatable = std::true_type;
 
@@ -150,4 +107,3 @@ private:
 };
 
 #endif
-

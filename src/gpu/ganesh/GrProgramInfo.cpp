@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/GrProgramInfo.h"
 
 #include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 

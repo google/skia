@@ -931,6 +931,7 @@ BASE_SRCS_ALL = [
     "src/gpu/ganesh/GrSurfaceProxy.cpp",
     "src/gpu/ganesh/GrSurfaceProxy.h",
     "src/gpu/ganesh/GrSurfaceProxyPriv.h",
+    "src/gpu/ganesh/GrSurfaceProxyView.cpp",
     "src/gpu/ganesh/GrSurfaceProxyView.h",
     "src/gpu/ganesh/GrTTopoSort.h",
     "src/gpu/ganesh/GrTestUtils.cpp",

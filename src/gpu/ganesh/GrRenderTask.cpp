@@ -9,6 +9,7 @@
 
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrTextureProxyPriv.h"
 #include "src/gpu/ganesh/GrTextureResolveRenderTask.h"
 

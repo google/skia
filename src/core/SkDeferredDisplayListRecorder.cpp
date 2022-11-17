@@ -30,6 +30,7 @@ sk_sp<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() { return nu
 #include "include/gpu/GrYUVABackendTextures.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/image/SkImage_Gpu.h"

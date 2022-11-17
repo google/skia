@@ -8,6 +8,7 @@
 #ifndef GrMeshDrawTarget_DEFINED
 #define GrMeshDrawTarget_DEFINED
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrDrawIndirectCommand.h"
 #include "src/gpu/ganesh/GrSimpleMesh.h"
 

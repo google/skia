@@ -210,6 +210,7 @@ skia_gpu_sources = [
   "$_src/gpu/ganesh/GrSurfaceProxy.cpp",
   "$_src/gpu/ganesh/GrSurfaceProxy.h",
   "$_src/gpu/ganesh/GrSurfaceProxyPriv.h",
+  "$_src/gpu/ganesh/GrSurfaceProxyView.cpp",
   "$_src/gpu/ganesh/GrSurfaceProxyView.h",
   "$_src/gpu/ganesh/GrTTopoSort.h",
   "$_src/gpu/ganesh/GrTestUtils.cpp",

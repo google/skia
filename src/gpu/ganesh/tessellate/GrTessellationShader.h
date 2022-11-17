@@ -8,6 +8,7 @@
 #ifndef GrTessellationShader_DEFINED
 #define GrTessellationShader_DEFINED
 
+#include "src/core/SkArenaAlloc.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"

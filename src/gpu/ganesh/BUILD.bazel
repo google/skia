@@ -194,6 +194,7 @@ CORE_FILES = [
     "GrSurfaceProxy.cpp",
     "GrSurfaceProxy.h",
     "GrSurfaceProxyPriv.h",
+    "GrSurfaceProxyView.cpp",
     "GrSurfaceProxyView.h",
     "GrTTopoSort.h",
     "GrTestUtils.cpp",
