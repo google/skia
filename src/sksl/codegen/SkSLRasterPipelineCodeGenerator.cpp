@@ -46,7 +46,6 @@ public:
     /** Creates slots associated with an SkSL variable or return value. */
     SlotRange createSlots(std::string name,
                           const Type& type,
-                          int extraSlots,
                           Position pos,
                           bool isFunctionReturnValue);
 
@@ -54,29 +53,23 @@ public:
     SlotRange getSlots(const Variable& v);
 
     /**
-     * Looks up the slots associated with an SkSL function's return value and returned-mask; creates
-     * the range if necessary. Note that recursion is never supported, so we don't need to maintain
-     * return values in a stack; we can just statically allocate one slot per function call-site.
+     * Looks up the slots associated with an SkSL function's return value; creates the range if
+     * necessary. Note that recursion is never supported, so we don't need to maintain return values
+     * in a stack; we can just statically allocate one slot per function call-site.
      */
-    struct FunctionSlots {
-        SlotRange fReturnSlots;
-        Slot      fReturnedMask;
-    };
-    FunctionSlots getFunctionSlots(const IRNode& callSite, const FunctionDeclaration& f);
+    SlotRange getFunctionSlots(const IRNode& callSite, const FunctionDeclaration& f);
 
     /** The Builder stitches our instructions together into Raster Pipeline code. */
     Builder* builder() { return &fBuilder; }
 
 private:
-    static FunctionSlots FunctionSlotsFromRange(SlotRange fs);
-
     [[maybe_unused]] const SkSL::Program& fProgram;
     Builder fBuilder;
 
     SkTHashMap<const IRNode*, SlotRange> fSlotMap;
     int fSlotCount = 0;
 
-    SkTArray<FunctionSlots> fFunctionStack;
+    SkTArray<SlotRange> fFunctionStack;
 };
 
 SlotRange Generator::createSlots(int numSlots) {
@@ -87,12 +80,11 @@ SlotRange Generator::createSlots(int numSlots) {
 
 SlotRange Generator::createSlots(std::string name,
                                  const Type& type,
-                                 int extraSlots,
                                  Position pos,
                                  bool isFunctionReturnValue) {
     // TODO(skia:13676): `name`, `pos` and `isFunctionReturnValue` will be used by the debugger.
     // For now, ignore these and just create the raw slots.
-    return this->createSlots(type.slotCount() + extraSlots);
+    return this->createSlots(type.slotCount());
 }
 
 SlotRange Generator::getSlots(const Variable& v) {
@@ -102,36 +94,24 @@ SlotRange Generator::getSlots(const Variable& v) {
     }
     SlotRange range = this->createSlots(std::string(v.name()),
                                         v.type(),
-                                        /*extraSlots=*/0,
                                         v.fPosition,
                                         /*isFunctionReturnValue=*/false);
     fSlotMap.set(&v, range);
     return range;
 }
 
-Generator::FunctionSlots Generator::FunctionSlotsFromRange(SlotRange range) {
-    // We allocate one extra slot after a function result so that we can hold the returned-mask.
-    SkASSERT(range.count >= 1);
-
-    FunctionSlots fs;
-    fs.fReturnSlots = SlotRange{range.index, range.count - 1};
-    fs.fReturnedMask = range.index + fs.fReturnSlots.count;
-    return fs;
-}
-
-Generator::FunctionSlots Generator::getFunctionSlots(const IRNode& callSite,
+SlotRange Generator::getFunctionSlots(const IRNode& callSite,
                                                      const FunctionDeclaration& f) {
     SlotRange* entry = fSlotMap.find(&callSite);
     if (entry != nullptr) {
-        return FunctionSlotsFromRange(*entry);
+        return *entry;
     }
     SlotRange range = this->createSlots("[" + std::string(f.name()) + "].result",
                                         f.returnType(),
-                                        /*extraSlots=*/1,
                                         f.fPosition,
                                         /*isFunctionReturnValue=*/true);
     fSlotMap.set(&callSite, range);
-    return FunctionSlotsFromRange(range);
+    return range;
 }
 
 SlotRange Generator::writeFunction(const IRNode& callSite,
@@ -145,7 +125,7 @@ SlotRange Generator::writeFunction(const IRNode& callSite,
              function.declaration().returnType().slotCount() == 4 &&
              function.declaration().returnType().componentType().isFloat());
 
-    SlotRange functionResult = fFunctionStack.back().fReturnSlots;
+    SlotRange functionResult = fFunctionStack.back();
     SkASSERT(functionResult.count == 4);
 
     // TODO(skia:13676): emit a function body
