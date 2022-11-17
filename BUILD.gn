@@ -2698,31 +2698,31 @@ if (skia_enable_tools) {
       ]
     }
 
-    test_app("androidkit") {
+    test_app("jetski") {
       is_shared_library = true
 
       sources = [
-        "modules/androidkit/src/AndroidKit.cpp",
-        "modules/androidkit/src/Canvas.cpp",
-        "modules/androidkit/src/ColorFilters.cpp",
-        "modules/androidkit/src/Font.cpp",
-        "modules/androidkit/src/FontChainAdapter.cpp",
-        "modules/androidkit/src/Gradients.cpp",
-        "modules/androidkit/src/Image.cpp",
-        "modules/androidkit/src/ImageFilter.cpp",
-        "modules/androidkit/src/Matrix.cpp",
-        "modules/androidkit/src/Paint.cpp",
-        "modules/androidkit/src/Path.cpp",
-        "modules/androidkit/src/PathBuilder.cpp",
-        "modules/androidkit/src/RuntimeShaderBuilder.cpp",
-        "modules/androidkit/src/Shader.cpp",
-        "modules/androidkit/src/SkottieAnimation.cpp",
-        "modules/androidkit/src/Surface.cpp",
-        "modules/androidkit/src/Surface.h",
-        "modules/androidkit/src/SurfaceThread.cpp",
-        "modules/androidkit/src/SurfaceThread.h",
-        "modules/androidkit/src/Text.cpp",
-        "modules/androidkit/src/Utils.cpp",
+        "modules/jetski/src/Canvas.cpp",
+        "modules/jetski/src/ColorFilters.cpp",
+        "modules/jetski/src/Font.cpp",
+        "modules/jetski/src/FontChainAdapter.cpp",
+        "modules/jetski/src/Gradients.cpp",
+        "modules/jetski/src/Image.cpp",
+        "modules/jetski/src/ImageFilter.cpp",
+        "modules/jetski/src/JetSki.cpp",
+        "modules/jetski/src/Matrix.cpp",
+        "modules/jetski/src/Paint.cpp",
+        "modules/jetski/src/Path.cpp",
+        "modules/jetski/src/PathBuilder.cpp",
+        "modules/jetski/src/RuntimeShaderBuilder.cpp",
+        "modules/jetski/src/Shader.cpp",
+        "modules/jetski/src/SkottieAnimation.cpp",
+        "modules/jetski/src/Surface.cpp",
+        "modules/jetski/src/Surface.h",
+        "modules/jetski/src/SurfaceThread.cpp",
+        "modules/jetski/src/SurfaceThread.h",
+        "modules/jetski/src/Text.cpp",
+        "modules/jetski/src/Utils.cpp",
       ]
       libs = [
         "android",
