@@ -16,6 +16,11 @@ split_srcs_and_hdrs(
 )
 
 CORE_FILES = [
+    "ClipStack.cpp",
+    "ClipStack.h",
+    "Device.cpp",
+    "Device_drawTexture.cpp",
+    "Device_v1.h",
     "GrAHardwareBufferImageGenerator.cpp",
     "GrAHardwareBufferImageGenerator.h",
     "GrAHardwareBufferUtils.cpp",
@@ -229,17 +234,12 @@ CORE_FILES = [
     "GrYUVABackendTextures.cpp",
     "GrYUVATextureProxies.cpp",
     "GrYUVATextureProxies.h",
-    "SkGr.cpp",
-    "SkGr.h",
-    "ClipStack.cpp",
-    "ClipStack.h",
-    "Device.cpp",
-    "Device_drawTexture.cpp",
-    "Device_v1.h",
     "PathRenderer.cpp",
     "PathRenderer.h",
     "PathRendererChain.cpp",
     "PathRendererChain.h",
+    "SkGr.cpp",
+    "SkGr.h",
     "StencilClip.h",
     "StencilMaskHelper.cpp",
     "StencilMaskHelper.h",
@@ -249,6 +249,7 @@ CORE_FILES = [
     "SurfaceDrawContext.h",
     "SurfaceFillContext.cpp",
     "SurfaceFillContext.h",
+    "TestFormatColorTypeCombination.h",
 ]
 
 split_srcs_and_hdrs(
