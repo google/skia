@@ -15,7 +15,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 const SkBlendMode gModes[] = {
     SkBlendMode::kSrcOver,
@@ -103,28 +103,9 @@ protected:
     }
 };
 
-class XferDemo : public Sample {
-    enum {
-        N = 4
-    };
-
-    SkRect        fModeRect[N_Modes];
-    ModeButton    fModeButtons[N_Modes];
-    sk_sp<CircDrawable> fDrs[N];
-    CircDrawable* fSelected;
-
-    void addButtons() {
-        SkScalar x = 10;
-        SkScalar y = 10;
-        for (int i = 0; i < N_Modes; ++i) {
-            fModeButtons[i].init(SkBlendMode_Name(gModes[i]), SkRect::MakeXYWH(x, y, 70, 25));
-            fModeRect[i] = SkRect::MakeXYWH(x, y + 28, 70, 2);
-            x += 80;
-        }
-    }
-
+class XferSlide : public ClickHandlerSlide {
 public:
-    XferDemo() {
+    XferSlide() {
         const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK };
         for (int i = 0; i < N; ++i) {
             fDrs[i].reset(new CircDrawable(200, colors[i]));
@@ -134,12 +115,10 @@ public:
         fSelected = nullptr;
 
         this->addButtons();
+        fName = "XferDemo";
     }
 
-protected:
-    SkString name() override { return SkString("XferDemo"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         for (int i = 0; i < N_Modes; ++i) {
             fModeButtons[i].draw(canvas);
         }
@@ -161,7 +140,8 @@ protected:
         canvas->restore();
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         // Check mode buttons first
         for (int i = 0; i < N_Modes; ++i) {
             if (fModeButtons[i].hitTest(x, y)) {
@@ -194,46 +174,35 @@ protected:
     }
 
 private:
-    using INHERITED = Sample;
+    enum {
+        N = 4
+    };
+
+    SkRect        fModeRect[N_Modes];
+    ModeButton    fModeButtons[N_Modes];
+    sk_sp<CircDrawable> fDrs[N];
+    CircDrawable* fSelected;
+
+    void addButtons() {
+        SkScalar x = 10;
+        SkScalar y = 10;
+        for (int i = 0; i < N_Modes; ++i) {
+            fModeButtons[i].init(SkBlendMode_Name(gModes[i]), SkRect::MakeXYWH(x, y, 70, 25));
+            fModeRect[i] = SkRect::MakeXYWH(x, y + 28, 70, 2);
+            x += 80;
+        }
+    }
 };
-DEF_SAMPLE( return new XferDemo; )
+
+DEF_SLIDE( return new XferSlide; )
 
 //////////////////////////////////////////////////////////////////////////////
 
 #include "tools/Resources.h"
 
-class CubicResamplerDemo : public Sample {
-    struct Rec {
-        sk_sp<SkImage>  fImage;
-        SkRect          fBounds;
-
-        void draw(SkCanvas* canvas, SkCubicResampler cubic) const {
-            SkRect r = fBounds;
-            SkPaint paint;
-
-            SkMatrix lm = SkMatrix::Translate(r.x(), r.y())
-                        * SkMatrix::Scale(10, 10);
-            paint.setShader(fImage->makeShader(SkSamplingOptions(), lm));
-            canvas->drawRect(r, paint);
-
-            r.offset(r.width() + 10, 0);
-            lm.postTranslate(r.width() + 10, 0);
-
-            paint.setShader(fImage->makeShader(SkSamplingOptions(SkFilterMode::kLinear), lm));
-            canvas->drawRect(r, paint);
-
-            r.offset(r.width() + 10, 0);
-            lm.postTranslate(r.width() + 10, 0);
-
-            paint.setShader(fImage->makeShader(SkTileMode::kClamp, SkTileMode::kClamp,
-                                               SkSamplingOptions(cubic), &lm));
-            canvas->drawRect(r, paint);
-        }
-    };
-    std::vector<Rec> fRecs;
-
+class CubicResamplerSlide : public ClickHandlerSlide {
 public:
-    CubicResamplerDemo() {
+    CubicResamplerSlide() {
         const char* names[] = {
             "images/mandrill_128.png",
             "images/rle.bmp",
@@ -247,12 +216,10 @@ public:
 
         fDomain.setXYWH(r.fLeft + 3*r.width() + 40, 50, 200, 200);
         fCubic = {.3f, .5f};
+        fName = "CubicResampler";
     }
 
-protected:
-    SkString name() override { return SkString("CubicResampler"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         for (const auto& rec : fRecs) {
             rec.draw(canvas, fCubic);
         }
@@ -287,7 +254,8 @@ protected:
         };
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey) override {
         if (fDomain.contains(x, y)) {
             return new Click([this](Click* click) {
                 auto [B, C] = pin_unitize(fDomain, click->fCurr);
@@ -298,10 +266,40 @@ protected:
         return nullptr;
     }
 
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
+
 private:
+    struct Rec {
+        sk_sp<SkImage>  fImage;
+        SkRect          fBounds;
+
+        void draw(SkCanvas* canvas, SkCubicResampler cubic) const {
+            SkRect r = fBounds;
+            SkPaint paint;
+
+            SkMatrix lm = SkMatrix::Translate(r.x(), r.y())
+                          * SkMatrix::Scale(10, 10);
+            paint.setShader(fImage->makeShader(SkSamplingOptions(), lm));
+            canvas->drawRect(r, paint);
+
+            r.offset(r.width() + 10, 0);
+            lm.postTranslate(r.width() + 10, 0);
+
+            paint.setShader(fImage->makeShader(SkSamplingOptions(SkFilterMode::kLinear), lm));
+            canvas->drawRect(r, paint);
+
+            r.offset(r.width() + 10, 0);
+            lm.postTranslate(r.width() + 10, 0);
+
+            paint.setShader(fImage->makeShader(SkTileMode::kClamp, SkTileMode::kClamp,
+                                               SkSamplingOptions(cubic), &lm));
+            canvas->drawRect(r, paint);
+        }
+    };
+
+    std::vector<Rec>        fRecs;
     SkRect                  fDomain;
     SkImage::CubicResampler fCubic;
-
-    using INHERITED = Sample;
 };
-DEF_SAMPLE( return new CubicResamplerDemo; )
+
+DEF_SLIDE( return new CubicResamplerSlide; )

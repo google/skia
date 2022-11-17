@@ -4,7 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "samplecode/Sample.h"
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
@@ -22,6 +21,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkUTF.h"
+#include "tools/viewer/Slide.h"
 
 typedef std::unique_ptr<SkShaper> (*ShaperFactory)();
 
@@ -33,16 +33,28 @@ static const char gText[] =
     "a decent respect to the opinions of mankind requires that they should "
     "declare the causes which impel them to the separation.";
 
-class TextBoxView : public Sample {
-    SkString fName;
+class TextBoxSlide : public Slide {
 public:
-    TextBoxView(ShaperFactory fact, const char suffix[]) : fShaper(fact()) {
-        fName.printf("TextBox_%s", suffix);
+    TextBoxSlide(ShaperFactory fact, const char suffix[]) : fShaper(fact()) {
+        fName = SkStringPrintf("TextBox_%s", suffix);
     }
 
-protected:
-    SkString name() override { return fName; }
+    void load(SkScalar w, SkScalar h) override { fSize = {w, h}; }
 
+    void resize(SkScalar w, SkScalar h) override { fSize = {w, h}; }
+
+    void draw(SkCanvas* canvas) override {
+        SkScalar width = fSize.width() / 3;
+        drawTest(canvas, width, fSize.height(), SK_ColorBLACK, SK_ColorWHITE);
+        canvas->translate(width, 0);
+        drawTest(canvas, width, fSize.height(), SK_ColorWHITE, SK_ColorBLACK);
+        canvas->translate(width, 0);
+        drawTest(canvas, width, fSize.height()/2, SK_ColorGRAY, SK_ColorWHITE);
+        canvas->translate(0, fSize.height()/2);
+        drawTest(canvas, width, fSize.height()/2, SK_ColorGRAY, SK_ColorBLACK);
+    }
+
+private:
     void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
         SkAutoCanvasRestore acr(canvas, true);
 
@@ -65,27 +77,32 @@ protected:
             size_t utf8Bytes = sizeof(gText) - 1;
 
             std::unique_ptr<SkShaper::BiDiRunIterator> bidi(
-                SkShaper::MakeBiDiRunIterator(utf8, utf8Bytes, 0xfe));
+                    SkShaper::MakeBiDiRunIterator(utf8, utf8Bytes, 0xfe));
             if (!bidi) {
                 return;
             }
 
             std::unique_ptr<SkShaper::LanguageRunIterator> language(
-                SkShaper::MakeStdLanguageRunIterator(utf8, utf8Bytes));
+                    SkShaper::MakeStdLanguageRunIterator(utf8, utf8Bytes));
             if (!language) {
                 return;
             }
 
             SkFourByteTag undeterminedScript = SkSetFourByteTag('Z','y','y','y');
             std::unique_ptr<SkShaper::ScriptRunIterator> script(
-                SkShaper::MakeScriptRunIterator(utf8, utf8Bytes, undeterminedScript));
+                    SkShaper::MakeScriptRunIterator(utf8, utf8Bytes, undeterminedScript));
             if (!script) {
                 return;
             }
 
             std::unique_ptr<SkShaper::FontRunIterator> font(
-                SkShaper::MakeFontMgrRunIterator(utf8, utf8Bytes, srcFont, SkFontMgr::RefDefault(),
-                                                 "Arial", SkFontStyle::Bold(), &*language));
+                    SkShaper::MakeFontMgrRunIterator(utf8,
+                                                     utf8Bytes,
+                                                     srcFont,
+                                                     SkFontMgr::RefDefault(),
+                                                     "Arial",
+                                                     SkFontStyle::Bold(),
+                                                     &*language));
             if (!font) {
                 return;
             }
@@ -97,78 +114,20 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
-        SkScalar width = this->width() / 3;
-        drawTest(canvas, width, this->height(), SK_ColorBLACK, SK_ColorWHITE);
-        canvas->translate(width, 0);
-        drawTest(canvas, width, this->height(), SK_ColorWHITE, SK_ColorBLACK);
-        canvas->translate(width, 0);
-        drawTest(canvas, width, this->height()/2, SK_ColorGRAY, SK_ColorWHITE);
-        canvas->translate(0, this->height()/2);
-        drawTest(canvas, width, this->height()/2, SK_ColorGRAY, SK_ColorBLACK);
-    }
-
-private:
+    SkSize fSize;
     std::unique_ptr<SkShaper> fShaper;
-    using INHERITED = Sample;
 };
 
-DEF_SAMPLE( return new TextBoxView([](){ return SkShaper::Make(); }, "default"); );
+DEF_SLIDE( return new TextBoxSlide([](){ return SkShaper::Make(); }, "default"); );
 #ifdef SK_SHAPER_CORETEXT_AVAILABLE
-DEF_SAMPLE( return new TextBoxView(SkShaper::MakeCoreText, "coretext"); );
+DEF_SLIDE( return new TextBoxSlide(SkShaper::MakeCoreText, "coretext"); );
 #endif
 
-class SampleShaper : public Sample {
+class ShaperSlide : public Slide {
 public:
-    SampleShaper() {}
+    ShaperSlide() { fName = "shaper"; }
 
-protected:
-    SkString name() override { return SkString("shaper"); }
-
-    void drawTest(SkCanvas* canvas, const char str[], SkScalar size,
-                  std::unique_ptr<SkShaper> shaper) {
-        if (!shaper) return;
-
-        SkTextBlobBuilderRunHandler builder(str, {0, 0});
-        SkFont srcFont;
-        srcFont.setSize(size);
-        srcFont.setEdging(SkFont::Edging::kSubpixelAntiAlias);
-        srcFont.setSubpixel(true);
-
-        size_t len = strlen(str);
-
-        std::unique_ptr<SkShaper::BiDiRunIterator> bidi(
-            SkShaper::MakeBiDiRunIterator(str, len, 0xfe));
-        if (!bidi) {
-            return;
-        }
-
-        std::unique_ptr<SkShaper::LanguageRunIterator> language(
-            SkShaper::MakeStdLanguageRunIterator(str, len));
-        if (!language) {
-            return;
-        }
-
-        SkFourByteTag undeterminedScript = SkSetFourByteTag('Z','y','y','y');
-        std::unique_ptr<SkShaper::ScriptRunIterator> script(
-            SkShaper::MakeScriptRunIterator(str, len, undeterminedScript));
-        if (!script) {
-            return;
-        }
-
-        std::unique_ptr<SkShaper::FontRunIterator> font(
-            SkShaper::MakeFontMgrRunIterator(str, len, srcFont, SkFontMgr::RefDefault(),
-                                             "Arial", SkFontStyle::Bold(), &*language));
-        if (!font) {
-            return;
-        }
-
-        shaper->shape(str, len, *font, *bidi, *script, *language, 2000, &builder);
-
-        canvas->drawTextBlob(builder.makeBlob(), 0, 0, SkPaint());
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->translate(10, 30);
 
         const char text[] = "world";
@@ -184,6 +143,49 @@ protected:
     }
 
 private:
-    using INHERITED = Sample;
+    void drawTest(SkCanvas* canvas, const char str[], SkScalar size,
+                  std::unique_ptr<SkShaper> shaper) {
+        if (!shaper) return;
+
+        SkTextBlobBuilderRunHandler builder(str, {0, 0});
+        SkFont srcFont;
+        srcFont.setSize(size);
+        srcFont.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+        srcFont.setSubpixel(true);
+
+        size_t len = strlen(str);
+
+        std::unique_ptr<SkShaper::BiDiRunIterator> bidi(
+                SkShaper::MakeBiDiRunIterator(str, len, 0xfe));
+        if (!bidi) {
+            return;
+        }
+
+        std::unique_ptr<SkShaper::LanguageRunIterator> language(
+                SkShaper::MakeStdLanguageRunIterator(str, len));
+        if (!language) {
+            return;
+        }
+
+        SkFourByteTag undeterminedScript = SkSetFourByteTag('Z','y','y','y');
+        std::unique_ptr<SkShaper::ScriptRunIterator> script(
+                SkShaper::MakeScriptRunIterator(str, len, undeterminedScript));
+        if (!script) {
+            return;
+        }
+
+        std::unique_ptr<SkShaper::FontRunIterator> font(
+                SkShaper::MakeFontMgrRunIterator(str, len, srcFont, SkFontMgr::RefDefault(),
+                                                 "Arial", SkFontStyle::Bold(), &*language));
+        if (!font) {
+            return;
+        }
+
+        shaper->shape(str, len, *font, *bidi, *script, *language, 2000, &builder);
+
+        canvas->drawTextBlob(builder.makeBlob(), 0, 0, SkPaint());
+    }
+
 };
-DEF_SAMPLE( return new SampleShaper; );
+
+DEF_SLIDE( return new ShaperSlide; );

@@ -9,18 +9,8 @@ _samplecode = get_path_info("../samplecode", "abspath")
 samples_sources = [
   "$_samplecode/Sample.cpp",
   "$_samplecode/Sample.h",
-  "$_samplecode/SampleTextBox.cpp",
-  "$_samplecode/SampleTextureUpload.cpp",
-  "$_samplecode/SampleThinAA.cpp",
-  "$_samplecode/SampleTiming.cpp",
-  "$_samplecode/SampleVariableWidthStroker.cpp",
-  "$_samplecode/SampleXfer.cpp",
-  "$_samplecode/vertexdump.cpp",
 ]
 
-skgpu_v1_samples_sources = [
-  "$_samplecode/SampleDegenerateQuads.cpp",
-  "$_samplecode/SamplePathTessellators.cpp",
-]
+skgpu_v1_samples_sources = []
 
 samples_sources += skgpu_v1_samples_sources

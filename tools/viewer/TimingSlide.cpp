@@ -8,23 +8,21 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkSurface.h"
-#include "samplecode/Sample.h"
+#include "tools/viewer/Slide.h"
+
 #include <chrono>
 
-struct TimingSample : public Sample {
-    inline static constexpr int W = 24,
-                                H = 16;
-    sk_sp<SkImage> fImg;
+class TimingSlide : public Slide {
+public:
+    TimingSlide() { fName = "Timing";}
 
-    SkString name() override { return SkString("Timing"); }
-
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         sk_sp<SkSurface> surf = SkSurface::MakeRasterN32Premul(W,H);
         surf->getCanvas()->drawString("abc", 2,H-4, SkFont{}, SkPaint{});
         fImg = surf->makeImageSnapshot();
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->scale(8,8);
 
         // Draw normally.
@@ -92,5 +90,10 @@ struct TimingSample : public Sample {
             }
         }
     }
+private:
+    inline static constexpr int W = 24,
+                                H = 16;
+    sk_sp<SkImage> fImg;
 };
-DEF_SAMPLE( return new TimingSample; )
+
+DEF_SLIDE( return new TimingSlide; )

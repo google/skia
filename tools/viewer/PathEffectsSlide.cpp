@@ -16,9 +16,9 @@
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
 #include "src/utils/SkUTF.h"
 #include "tools/timer/TimeUtils.h"
+#include "tools/viewer/Slide.h"
 
 #define CORNER_RADIUS   12
 
@@ -68,17 +68,15 @@ static sk_sp<SkPathEffect> make_warp_pe(SkScalar phase) {
 
 #include "include/core/SkColorFilter.h"
 
-class PathEffectView : public Sample {
+class PathEffectSlide : public Slide {
     SkPath  fPath;
     SkPoint fClickPt;
     SkScalar fPhase;
 
 public:
-    PathEffectView() : fPhase(0) {
-        }
+    PathEffectSlide() : fPhase(0) { fName = "PathEffects"; }
 
-protected:
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         SkRandom    rand;
         int         steps = 20;
         SkScalar    dist = SkIntToScalar(400);
@@ -104,13 +102,11 @@ protected:
         }
 
         fClickPt.set(SkIntToScalar(200), SkIntToScalar(200));
-
-        this->setBGColor(0xFFDDDDDD);
     }
 
-    SkString name() override { return SkString("PathEffects"); }
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(0xFFDDDDDD);
 
-    void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
 
         canvas->translate(0, 50);
@@ -132,15 +128,12 @@ protected:
         canvas->drawPath(fPath, paint);
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         fPhase = TimeUtils::Scaled(1e-9 * nanos, 40);
         return true;
     }
-
-private:
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new PathEffectView(); )
+DEF_SLIDE( return new PathEffectSlide(); )

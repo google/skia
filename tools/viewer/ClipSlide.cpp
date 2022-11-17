@@ -431,7 +431,7 @@ static SkHalfPlane half_plane_w0(const SkMatrix& m) {
     return { m[SkMatrix::kMPersp0], m[SkMatrix::kMPersp1], m[SkMatrix::kMPersp2] - 0.05f };
 }
 
-class SampleCameraSlide : public ClickHandlerSlide {
+class CameraSlide : public ClickHandlerSlide {
     float   fNear = 0.05f;
     float   fFar = 4;
     float   fAngle = SK_ScalarPI / 4;
@@ -492,7 +492,7 @@ public:
     }
 };
 
-class HalfPlaneSlide3 : public SampleCameraSlide {
+class HalfPlaneSlide3 : public CameraSlide {
     SkPath fPath;
     sk_sp<SkShader> fShader;
     bool fShowUnclipped = false;
@@ -511,7 +511,7 @@ public:
             case 'u': fShowUnclipped = !fShowUnclipped; return true;
             default: break;
         }
-        return this->SampleCameraSlide::onChar(uni);
+        return this->CameraSlide::onChar(uni);
     }
 
     void draw(SkCanvas* canvas) override {
@@ -556,7 +556,7 @@ protected:
 };
 DEF_SLIDE( return new HalfPlaneSlide3(); )
 
-class HalfPlaneCoonsSlide : public SampleCameraSlide {
+class HalfPlaneCoonsSlide : public CameraSlide {
     SkPoint fPatch[12];
     SkColor fColors[4] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE, SK_ColorBLACK };
     SkPoint fTex[4]    = {{0, 0}, {256, 0}, {256, 256}, {0, 256}};
@@ -625,7 +625,7 @@ public:
             case 't': fShowTex = !fShowTex; return true;
             default: break;
         }
-        return this->SampleCameraSlide::onChar(uni);
+        return this->CameraSlide::onChar(uni);
     }
 
 protected:

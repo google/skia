@@ -11,9 +11,8 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/utils/SkParsePath.h"
-#include "samplecode/Sample.h"
-
 #include "src/core/SkGeometry.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 #include <stack>
 
@@ -1020,9 +1019,9 @@ SkPoint SkVarWidthStroker::unitNormal(const PathSegment& seg, float t, SkPoint* 
 
 //////////////////////////////////////////////////////////////////////////////
 
-class VariableWidthStroker : public Sample {
+class VariableWidthStrokerSlide : public ClickHandlerSlide {
 public:
-    VariableWidthStroker()
+    VariableWidthStrokerSlide()
             : fShowHidden(true)
             , fShowSkeleton(true)
             , fShowStrokePoints(false)
@@ -1053,30 +1052,13 @@ public:
         fSkeletonPaint.setAntiAlias(true);
         fSkeletonPaint.setStyle(SkPaint::kStroke_Style);
         fSkeletonPaint.setColor(SK_ColorRED);
+
+        fName = "VariableWidthStroker";
     }
 
-private:
-    /** Selectable menu item for choosing distance functions */
-    struct DistFncMenuItem {
-        std::string fName;
-        int fDegree;
-        bool fSelected;
-        std::vector<float> fWeights;
+    void load(SkScalar w, SkScalar h) override { fWinSize = {w, h}; }
 
-        DistFncMenuItem(const std::string& name, int degree, bool selected) {
-            fName = name;
-            fDegree = degree;
-            fSelected = selected;
-            fWeights.resize(degree + 1, 1.0f);
-        }
-    };
-
-    SkString name() override { return SkString("VariableWidthStroker"); }
-
-    void onSizeChange() override {
-        fWinSize = SkSize::Make(this->width(), this->height());
-        INHERITED::onSizeChange();
-    }
+    void resize(SkScalar w, SkScalar h) override { fWinSize = {w, h}; }
 
     bool onChar(SkUnichar uni) override {
         switch (uni) {
@@ -1113,45 +1095,7 @@ private:
         return false;
     }
 
-    void toggle(bool& value) { value = !value; }
-    void toggle(SkVarWidthStroker::LengthMetric& value) {
-        value = value == SkVarWidthStroker::LengthMetric::kPathLength
-                        ? SkVarWidthStroker::LengthMetric::kNumSegments
-                        : SkVarWidthStroker::LengthMetric::kPathLength;
-    }
-
-    void resetToDefaults() {
-        fPathPts[0] = {300, 400};
-        fPathPts[1] = {500, 400};
-        fPathPts[2] = {700, 400};
-        fPathPts[3] = {900, 400};
-        fPathPts[4] = {1100, 400};
-
-        fWidth = 175;
-
-        fLengthMetric = SkVarWidthStroker::LengthMetric::kPathLength;
-        fDistFncs = fDefaultsDistFncs;
-        fDistFncsInner = fDefaultsDistFncs;
-    }
-
-    void makePath(SkPath* path) {
-        path->moveTo(fPathPts[0]);
-        path->quadTo(fPathPts[1], fPathPts[2]);
-        path->quadTo(fPathPts[3], fPathPts[4]);
-    }
-
-    static ScalarBezCurve makeDistFnc(const std::vector<DistFncMenuItem>& fncs, float strokeWidth) {
-        const float radius = strokeWidth / 2;
-        for (const auto& df : fncs) {
-            if (df.fSelected) {
-                return ScalarBezCurve::Mul(ScalarBezCurve(df.fDegree, df.fWeights), radius);
-            }
-        }
-        SkASSERT(false);
-        return ScalarBezCurve(0, {radius});
-    }
-
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFEEEEEE);
 
         SkPath path;
@@ -1197,7 +1141,8 @@ private:
         }
     }
 
-    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+protected:
+    Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         const SkScalar tol = 4;
         const SkRect r = SkRect::MakeXYWH(x - tol, y - tol, tol * 2, tol * 2);
         for (size_t i = 0; i < fPathPts.size(); ++i) {
@@ -1209,6 +1154,62 @@ private:
             }
         }
         return nullptr;
+    }
+
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
+
+private:
+    /** Selectable menu item for choosing distance functions */
+    struct DistFncMenuItem {
+        std::string fName;
+        int fDegree;
+        bool fSelected;
+        std::vector<float> fWeights;
+
+        DistFncMenuItem(const std::string& name, int degree, bool selected) {
+            fName = name;
+            fDegree = degree;
+            fSelected = selected;
+            fWeights.resize(degree + 1, 1.0f);
+        }
+    };
+
+    void toggle(bool& value) { value = !value; }
+    void toggle(SkVarWidthStroker::LengthMetric& value) {
+        value = value == SkVarWidthStroker::LengthMetric::kPathLength
+                        ? SkVarWidthStroker::LengthMetric::kNumSegments
+                        : SkVarWidthStroker::LengthMetric::kPathLength;
+    }
+
+    void resetToDefaults() {
+        fPathPts[0] = {300, 400};
+        fPathPts[1] = {500, 400};
+        fPathPts[2] = {700, 400};
+        fPathPts[3] = {900, 400};
+        fPathPts[4] = {1100, 400};
+
+        fWidth = 175;
+
+        fLengthMetric = SkVarWidthStroker::LengthMetric::kPathLength;
+        fDistFncs = fDefaultsDistFncs;
+        fDistFncsInner = fDefaultsDistFncs;
+    }
+
+    void makePath(SkPath* path) {
+        path->moveTo(fPathPts[0]);
+        path->quadTo(fPathPts[1], fPathPts[2]);
+        path->quadTo(fPathPts[3], fPathPts[4]);
+    }
+
+    static ScalarBezCurve makeDistFnc(const std::vector<DistFncMenuItem>& fncs, float strokeWidth) {
+        const float radius = strokeWidth / 2;
+        for (const auto& df : fncs) {
+            if (df.fSelected) {
+                return ScalarBezCurve::Mul(ScalarBezCurve(df.fDegree, df.fWeights), radius);
+            }
+        }
+        SkASSERT(false);
+        return ScalarBezCurve(0, {radius});
     }
 
     void drawStrokePoints(SkCanvas* canvas, const SkPath& fillPath) {
@@ -1384,8 +1385,6 @@ private:
             DistFncMenuItem("30?!", 30, false)};
     std::vector<DistFncMenuItem> fDistFncs = fDefaultsDistFncs;
     std::vector<DistFncMenuItem> fDistFncsInner = fDefaultsDistFncs;
-
-    using INHERITED = Sample;
 };
 
-DEF_SAMPLE(return new VariableWidthStroker;)
+DEF_SLIDE(return new VariableWidthStrokerSlide;)

@@ -5,14 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "samplecode/Sample.h"
-
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkSurface.h"
+#include "tools/viewer/Slide.h"
 
 namespace skiagm {
 
@@ -246,14 +245,11 @@ private:
     using INHERITED = ShapeRenderer;
 };
 
-class ThinAASample : public Sample {
+class ThinAASlide : public Slide {
 public:
-    ThinAASample() {
-        this->setBGColor(0xFFFFFFFF);
-    }
+    ThinAASlide() { fName = "Thin-AA"; }
 
-protected:
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         // Setup all base renderers
         fShapes.push_back(RectRenderer::Make());
         fShapes.push_back(PathRenderer::MakeLine());
@@ -285,7 +281,8 @@ protected:
         fAnimRotate = false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
+        canvas->clear(0xFFFFFFFF);
         // Move away from screen edge and add instructions
         SkPaint text;
         SkFont font(nullptr, 12);
@@ -319,7 +316,7 @@ protected:
         this->drawShapes(canvas, "SSx64", 4, fSS16);
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         SkScalar t = 1e-9 * nanos;
         SkScalar dt = fLastFrameTime < 0.f ? 0.f : t - fLastFrameTime;
         fLastFrameTime = t;
@@ -375,8 +372,6 @@ protected:
 
         return true;
     }
-
-    SkString name() override { return SkString("Thin-AA"); }
 
     bool onChar(SkUnichar key) override {
             switch(key) {
@@ -539,12 +534,10 @@ private:
         // Lastly, shift the canvas translation down by 8 * kTH + padding for the next set of shapes
         canvas->translate(0.f, 8.f * ShapeRenderer::kTileHeight + 20.f);
     }
-
-    using INHERITED = Sample;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-DEF_SAMPLE( return new ThinAASample; )
+DEF_SLIDE( return new ThinAASlide; )
 
 }  // namespace skiagm
