@@ -533,7 +533,7 @@ void SkPDFDict::insertTextString(const char key[], SkString value) {
 
 static void serialize_stream(SkPDFDict* origDict,
                              SkStreamAsset* stream,
-                             bool deflate,
+                             SkPDFSteamCompressionEnabled compress,
                              SkPDFDocument* doc,
                              SkPDFIndirectReference ref) {
     // Code assumes that the stream starts at the beginning.
@@ -543,9 +543,12 @@ static void serialize_stream(SkPDFDict* origDict,
     SkPDFDict tmpDict;
     SkPDFDict& dict = origDict ? *origDict : tmpDict;
     static const size_t kMinimumSavings = strlen("/Filter_/FlateDecode_");
-    if (deflate && stream->getLength() > kMinimumSavings) {
+    if (doc->metadata().fCompressionLevel != SkPDF::Metadata::CompressionLevel::None &&
+        compress == SkPDFSteamCompressionEnabled::Yes &&
+        stream->getLength() > kMinimumSavings)
+    {
         SkDynamicMemoryWStream compressedData;
-        SkDeflateWStream deflateWStream(&compressedData);
+        SkDeflateWStream deflateWStream(&compressedData,SkToInt(doc->metadata().fCompressionLevel));
         SkStreamCopy(&deflateWStream, stream);
         deflateWStream.finalize();
         #ifdef SK_PDF_BASE85_BINARY
@@ -578,7 +581,7 @@ static void serialize_stream(SkPDFDict* origDict,
 SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,
                                       std::unique_ptr<SkStreamAsset> content,
                                       SkPDFDocument* doc,
-                                      bool deflate) {
+                                      SkPDFSteamCompressionEnabled compress) {
     SkPDFIndirectReference ref = doc->reserveRef();
     if (SkExecutor* executor = doc->executor()) {
         SkPDFDict* dictPtr = dict.release();
@@ -586,14 +589,14 @@ SkPDFIndirectReference SkPDFStreamOut(std::unique_ptr<SkPDFDict> dict,
         // Pass ownership of both pointers into a std::function, which should
         // only be executed once.
         doc->incrementJobCount();
-        executor->add([dictPtr, contentPtr, deflate, doc, ref]() {
-            serialize_stream(dictPtr, contentPtr, deflate, doc, ref);
+        executor->add([dictPtr, contentPtr, compress, doc, ref]() {
+            serialize_stream(dictPtr, contentPtr, compress, doc, ref);
             delete dictPtr;
             delete contentPtr;
             doc->signalJobComplete();
         });
         return ref;
     }
-    serialize_stream(dict.get(), content.get(), deflate, doc, ref);
+    serialize_stream(dict.get(), content.get(), compress, doc, ref);
     return ref;
 }

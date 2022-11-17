@@ -333,7 +333,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                                 "FontFile2",
                                 SkPDFStreamOut(std::move(tmp),
                                                SkMemoryStream::Make(std::move(subsetFontData)),
-                                               doc, true));
+                                               doc, SkPDFSteamCompressionEnabled::Yes));
                         break;
                     }
                     // If subsetting fails, fall back to original font data.
@@ -346,7 +346,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                 tmp->insertInt("Length1", fontSize);
                 descriptor->insertRef("FontFile2",
                                       SkPDFStreamOut(std::move(tmp), std::move(fontAsset),
-                                                     doc, true));
+                                                     doc, SkPDFSteamCompressionEnabled::Yes));
                 break;
             }
             case SkAdvancedTypefaceMetrics::kType1CID_Font: {
@@ -354,7 +354,7 @@ static void emit_subset_type0(const SkPDFFont& font, SkPDFDocument* doc) {
                 tmp->insertName("Subtype", "CIDFontType0C");
                 descriptor->insertRef("FontFile3",
                                       SkPDFStreamOut(std::move(tmp), std::move(fontAsset),
-                                                     doc, true));
+                                                     doc, SkPDFSteamCompressionEnabled::Yes));
                 break;
             }
             default:

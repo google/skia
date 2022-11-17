@@ -68,6 +68,13 @@ SkDeflateWStream::SkDeflateWStream(SkWStream* out,
                                    int compressionLevel,
                                    bool gzip)
     : fImpl(std::make_unique<SkDeflateWStream::Impl>()) {
+
+    // There has existed at some point at least one zlib implementation which thought it was being
+    // clever by randomizing the compression level. This is actually not entirely incorrect, except
+    // for the no-compression level which should always be deterministically pass-through.
+    // Users should instead consider the zero compression level broken and handle it themselves.
+    SkASSERT(compressionLevel != 0);
+
     fImpl->fOut = out;
     fImpl->fInBufferIndex = 0;
     if (!fImpl->fOut) {

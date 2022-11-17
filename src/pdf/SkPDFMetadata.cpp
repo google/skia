@@ -316,7 +316,7 @@ SkPDFIndirectReference SkPDFMetadata::MakeXMPObject(
     dict->insertName("Subtype", "XML");
     return SkPDFStreamOut(std::move(dict),
                           SkMemoryStream::MakeCopy(value.c_str(), value.size()),
-                          docPtr, false);
+                          docPtr, SkPDFSteamCompressionEnabled::No);
 }
 
 #undef SKPDF_CUSTOM_PRODUCER_KEY

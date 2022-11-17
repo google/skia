@@ -21,9 +21,9 @@ class SkDeflateWStream final : public SkWStream {
 public:
     /** Does not take ownership of the stream.
 
-        @param compressionLevel - 0 is no compression; 1 is best
-        speed; 9 is best compression.  The default, -1, is to use
-        zlib's Z_DEFAULT_COMPRESSION level.
+        @param compressionLevel 1 is best speed; 9 is best compression.
+        The default, -1, is to use zlib's Z_DEFAULT_COMPRESSION level.
+        0 would be no compression, but due to broken zlibs, users should handle that themselves.
 
         @param gzip iff true, output a gzip file. "The gzip format is
         a wrapper, documented in RFC 1952, around a deflate stream."
@@ -31,7 +31,7 @@ public:
         stream, allowing a client to identify a gzip file.
      */
     SkDeflateWStream(SkWStream*,
-                     int compressionLevel = -1,
+                     int compressionLevel,
                      bool gzip = false);
 
     /** The destructor calls finalize(). */

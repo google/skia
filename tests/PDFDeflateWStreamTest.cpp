@@ -125,7 +125,7 @@ DEF_TEST(SkPDF_DeflateWStream, r) {
 
         SkDynamicMemoryWStream dynamicMemoryWStream;
         {
-            SkDeflateWStream deflateWStream(&dynamicMemoryWStream);
+            SkDeflateWStream deflateWStream(&dynamicMemoryWStream, -1);
             uint32_t j = 0;
             while (j < size) {
                 uint32_t writeSize =
@@ -170,7 +170,7 @@ DEF_TEST(SkPDF_DeflateWStream, r) {
             }
         }
     }
-    SkDeflateWStream emptyDeflateWStream(nullptr);
+    SkDeflateWStream emptyDeflateWStream(nullptr, -1);
     REPORTER_ASSERT(r, !emptyDeflateWStream.writeText("FOO"));
 }
 

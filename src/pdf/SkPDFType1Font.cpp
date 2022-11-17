@@ -245,8 +245,9 @@ static SkPDFIndirectReference make_type1_font_descriptor(SkPDFDocument* doc,
                 dict->insertInt("Length2", data);
                 dict->insertInt("Length3", trailer);
                 auto fontStream = SkMemoryStream::Make(std::move(fontData));
-                descriptor.insertRef("FontFile", SkPDFStreamOut(std::move(dict),
-                                                                std::move(fontStream), doc, true));
+                descriptor.insertRef("FontFile",
+                                     SkPDFStreamOut(std::move(dict), std::move(fontStream),
+                                                    doc, SkPDFSteamCompressionEnabled::Yes));
             }
         }
     }

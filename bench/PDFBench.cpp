@@ -176,7 +176,8 @@ protected:
             SkNullWStream wStream;
             SkPDFDocument doc(&wStream, SkPDF::Metadata());
             doc.beginPage(256, 256);
-            (void)SkPDFStreamOut(nullptr, fAsset->duplicate(), &doc, true);
+            (void)SkPDFStreamOut(nullptr, fAsset->duplicate(),
+                                 &doc, SkPDFSteamCompressionEnabled::Yes);
        }
     }
 

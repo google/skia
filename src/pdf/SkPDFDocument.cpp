@@ -501,7 +501,8 @@ static SkPDFIndirectReference make_srgb_color_profile(SkPDFDocument* doc) {
     std::unique_ptr<SkPDFDict> dict = SkPDFMakeDict();
     dict->insertInt("N", 3);
     dict->insertObject("Range", SkPDFMakeArray(0, 1, 0, 1, 0, 1));
-    return SkPDFStreamOut(std::move(dict), SkMemoryStream::Make(SkSrgbIcm()), doc, true);
+    return SkPDFStreamOut(std::move(dict), SkMemoryStream::Make(SkSrgbIcm()),
+                          doc, SkPDFSteamCompressionEnabled::Yes);
 }
 
 static std::unique_ptr<SkPDFArray> make_srgb_output_intents(SkPDFDocument* doc) {

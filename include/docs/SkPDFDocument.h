@@ -143,6 +143,17 @@ struct Metadata {
     */
     SkExecutor* fExecutor = nullptr;
 
+    /** PDF streams may be compressed to save space.
+        Use this to specify the desired compression vs time tradeoff.
+    */
+    enum class CompressionLevel : int {
+        Default = -1,
+        None = 0,
+        LowButFast = 1,
+        Average = 6,
+        HighButSlow = 9,
+    } fCompressionLevel = CompressionLevel::Default;
+
     /** Preferred Subsetter. Only respected if both are compiled in.
 
         The Sfntly subsetter is deprecated.
