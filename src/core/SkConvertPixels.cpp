@@ -213,9 +213,6 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, int 
     SkRasterPipeline_<256> pipeline;
     pipeline.append_load(srcInfo.colorType(), &src);
     steps.apply(&pipeline);
-
-    pipeline.append_clamp_if_normalized(dstInfo);
-
     pipeline.append_store(dstInfo.colorType(), &dst);
     pipeline.run(0,0, srcInfo.width(), srcInfo.height());
 }
