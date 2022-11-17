@@ -46,6 +46,10 @@ protected:
                           const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override;
 
+#ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
+    Context* onMakeContext(const ContextRec&, SkArenaAlloc*) const override;
+#endif
+
 private:
     SK_FLATTENABLE_HOOKS(SkPictureShader)
 
