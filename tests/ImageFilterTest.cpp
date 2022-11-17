@@ -2013,7 +2013,7 @@ DEF_TEST(XfermodeImageFilterBounds, reporter) {
     }
 
     SkIRect intersection = background_rect;
-    intersection.intersect(foreground_rect);
+    SkAssertResult(intersection.intersect(foreground_rect));
     expectedBounds[static_cast<int>(SkBlendMode::kClear)] = SkIRect::MakeEmpty();
     expectedBounds[static_cast<int>(SkBlendMode::kSrc)] = foreground_rect;
     expectedBounds[static_cast<int>(SkBlendMode::kDst)] = background_rect;
@@ -2126,7 +2126,7 @@ static void test_arithmetic_combinations(skiatest::Reporter* reporter, float v) 
     SkIRect unionRect = bgRect;
     unionRect.join(fgRect);
     SkIRect intersection = bgRect;
-    intersection.intersect(fgRect);
+    SkAssertResult(intersection.intersect(fgRect));
 
     // Test with crop. When k4 is non-zero, the result is expected to be cropRect
     // regardless of inputs because the filter affects the whole crop area. When there is no crop

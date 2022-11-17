@@ -510,7 +510,7 @@ struct SK_API SkIRect {
         @param r  limit of result
         @return   true if r and SkIRect have area in common
     */
-    bool intersect(const SkIRect& r) {
+    [[nodiscard]] bool intersect(const SkIRect& r) {
         return this->intersect(*this, r);
     }
 
@@ -1086,7 +1086,7 @@ struct SK_API SkRect {
 
         example: https://fiddle.skia.org/c/@Rect_intersect
     */
-    bool intersect(const SkRect& r);
+    [[nodiscard]] bool intersect(const SkRect& r);
 
     /** Returns true if a intersects b, and sets SkRect to intersection.
         Returns false if a does not intersect b, and leaves SkRect unchanged.

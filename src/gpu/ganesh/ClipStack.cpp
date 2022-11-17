@@ -1452,7 +1452,7 @@ GrClip::Effect ClipStack::apply(GrRecordingContext* rContext,
                     }
                     if (result == GrDrawOp::ClipResult::kClippedGeometrically) {
                         // The op clipped its own geometry. Tighten the draw bounds.
-                        bounds->intersect(SkRect::Make(e.outerBounds()));
+                        SkAssertResult(bounds->intersect(SkRect::Make(e.outerBounds())));
                     }
                     fullyApplied = true;
                     SkDEBUGCODE(opClippedInternally = true;)

@@ -510,7 +510,7 @@ SurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization
     // so we can potentially combine it with the draw geometry so that no clipping is needed.
     SkASSERT(result.fEffect == GrClip::Effect::kClipped && result.fIsRRect);
     SkRect clippedBounds = result.fRRect.getBounds();
-    clippedBounds.intersect(rtRect);
+    SkAssertResult(clippedBounds.intersect(rtRect));
     if (!drawBounds.intersect(clippedBounds)) {
         // Our fractional bounds aren't actually inside the clip. GrClip::preApply() can sometimes
         // think in terms of rounded-out bounds. Discard the draw.

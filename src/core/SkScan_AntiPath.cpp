@@ -27,7 +27,9 @@ static SkIRect safeRoundOut(const SkRect& src) {
     // too large. e.g. { -SK_MaxS32 ... SK_MaxS32 } is considered empty because its width
     // exceeds signed 32bit.
     const int32_t limit = SK_MaxS32 >> SK_SUPERSAMPLE_SHIFT;
-    (void)dst.intersect({ -limit, -limit, limit, limit});
+    if (!dst.intersect({ -limit, -limit, limit, limit})) {
+        dst.setEmpty();
+    }
 
     return dst;
 }
