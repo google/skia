@@ -31,6 +31,10 @@ void PipelineDataGatherer::checkReset() {
     SkDEBUGCODE(fUniformManager.checkReset());
     SkASSERT(fSnippetRequirementFlags == SnippetRequirementFlags::kNone);
 }
+
+void PipelineDataGatherer::setExpectedUniforms(SkSpan<const Uniform> expectedUniforms) {
+    fUniformManager.setExpectedUniforms(expectedUniforms);
+}
 #endif // SK_DEBUG
 
 void PipelineDataGatherer::addFlags(SkEnumBitMask<SnippetRequirementFlags> flags) {
@@ -94,5 +98,13 @@ uint32_t TextureDataBlock::hash() const {
 
     return hash;
 }
+
+#ifdef SK_DEBUG
+UniformExpectationsValidator::UniformExpectationsValidator(PipelineDataGatherer *gatherer,
+                                                           SkSpan<const Uniform> expectedUniforms)
+        : fGatherer(gatherer) {
+    fGatherer->setExpectedUniforms(expectedUniforms);
+}
+#endif
 
 } // namespace skgpu::graphite

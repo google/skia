@@ -6,11 +6,11 @@
  */
 
 #include "src/core/SkSLTypeShared.h"
+#include "src/gpu/graphite/Uniform.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "tests/Test.h"
 
-using skgpu::graphite::Layout;
-using skgpu::graphite::UniformOffsetCalculator;
+using namespace skgpu::graphite;
 
 namespace {
 
@@ -22,7 +22,7 @@ struct AlignmentAndSize {
 };
 static AlignmentAndSize calculate_alignment_and_size(Layout layout,
                                                      SkSLType type,
-                                                     size_t arrayCount = SkUniform::kNonArray) {
+                                                     size_t arrayCount = Uniform::kNonArray) {
     // Set the start offset at 1 to force alignment.
     constexpr uint32_t kStart = 1;
     UniformOffsetCalculator calc(layout, kStart);

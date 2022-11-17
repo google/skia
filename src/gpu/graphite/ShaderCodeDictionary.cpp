@@ -223,7 +223,7 @@ const ShaderCodeDictionary::Entry* ShaderCodeDictionary::lookup(
     return fEntryVector[codeID.asUInt()];
 }
 
-SkSpan<const SkUniform> ShaderCodeDictionary::getUniforms(SkBuiltInCodeSnippetID id) const {
+SkSpan<const Uniform> ShaderCodeDictionary::getUniforms(SkBuiltInCodeSnippetID id) const {
     return fBuiltInCodeSnippets[(int) id].fUniforms;
 }
 
@@ -416,14 +416,14 @@ void GenerateDefaultPreamble(const ShaderInfo& shaderInfo,
 static constexpr int kFourStopGradient = 4;
 static constexpr int kEightStopGradient = 8;
 
-static constexpr SkUniform kLinearGradientUniforms4[] = {
+static constexpr Uniform kLinearGradientUniforms4[] = {
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
         { "point0",      SkSLType::kFloat2 },
         { "point1",      SkSLType::kFloat2 },
         { "tilemode",    SkSLType::kInt },
 };
-static constexpr SkUniform kLinearGradientUniforms8[] = {
+static constexpr Uniform kLinearGradientUniforms8[] = {
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
         { "offsets",     SkSLType::kFloat,  kEightStopGradient },
         { "point0",      SkSLType::kFloat2 },
@@ -431,14 +431,14 @@ static constexpr SkUniform kLinearGradientUniforms8[] = {
         { "tilemode",    SkSLType::kInt },
 };
 
-static constexpr SkUniform kRadialGradientUniforms4[] = {
+static constexpr Uniform kRadialGradientUniforms4[] = {
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
         { "center",      SkSLType::kFloat2 },
         { "radius",      SkSLType::kFloat },
         { "tilemode",    SkSLType::kInt },
 };
-static constexpr SkUniform kRadialGradientUniforms8[] = {
+static constexpr Uniform kRadialGradientUniforms8[] = {
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
         { "offsets",     SkSLType::kFloat,  kEightStopGradient },
         { "center",      SkSLType::kFloat2 },
@@ -446,7 +446,7 @@ static constexpr SkUniform kRadialGradientUniforms8[] = {
         { "tilemode",    SkSLType::kInt },
 };
 
-static constexpr SkUniform kSweepGradientUniforms4[] = {
+static constexpr Uniform kSweepGradientUniforms4[] = {
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
         { "center",      SkSLType::kFloat2 },
@@ -454,7 +454,7 @@ static constexpr SkUniform kSweepGradientUniforms4[] = {
         { "scale",       SkSLType::kFloat },
         { "tilemode",    SkSLType::kInt },
 };
-static constexpr SkUniform kSweepGradientUniforms8[] = {
+static constexpr Uniform kSweepGradientUniforms8[] = {
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
         { "offsets",     SkSLType::kFloat,  kEightStopGradient },
         { "center",      SkSLType::kFloat2 },
@@ -463,7 +463,7 @@ static constexpr SkUniform kSweepGradientUniforms8[] = {
         { "tilemode",    SkSLType::kInt },
 };
 
-static constexpr SkUniform kConicalGradientUniforms4[] = {
+static constexpr Uniform kConicalGradientUniforms4[] = {
         { "colors",      SkSLType::kFloat4, kFourStopGradient },
         { "offsets",     SkSLType::kFloat,  kFourStopGradient },
         { "point0",      SkSLType::kFloat2 },
@@ -472,7 +472,7 @@ static constexpr SkUniform kConicalGradientUniforms4[] = {
         { "radius1",     SkSLType::kFloat },
         { "tilemode",    SkSLType::kInt },
 };
-static constexpr SkUniform kConicalGradientUniforms8[] = {
+static constexpr Uniform kConicalGradientUniforms8[] = {
         { "colors",      SkSLType::kFloat4, kEightStopGradient },
         { "offsets",     SkSLType::kFloat,  kEightStopGradient },
         { "point0",      SkSLType::kFloat2 },
@@ -492,14 +492,14 @@ static constexpr char kConicalGradient4Name[] = "sk_conical_grad_4_shader";
 static constexpr char kConicalGradient8Name[] = "sk_conical_grad_8_shader";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr SkUniform kSolidShaderUniforms[] = {
+static constexpr Uniform kSolidShaderUniforms[] = {
         { "color", SkSLType::kFloat4 }
 };
 
 static constexpr char kSolidShaderName[] = "sk_solid_shader";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr SkUniform kLocalMatrixShaderUniforms[] = {
+static constexpr Uniform kLocalMatrixShaderUniforms[] = {
         { "localMatrix", SkSLType::kFloat4x4 },
 };
 
@@ -546,7 +546,7 @@ void GenerateLocalMatrixPreamble(const ShaderInfo& shaderInfo,
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr SkUniform kImageShaderUniforms[] = {
+static constexpr Uniform kImageShaderUniforms[] = {
         { "imgSize",     SkSLType::kFloat2 },
         { "subset",      SkSLType::kFloat4 },
         { "tilemodeX",   SkSLType::kInt },
@@ -573,14 +573,14 @@ static_assert(1 == static_cast<int>(SkFilterMode::kLinear),
 static constexpr char kImageShaderName[] = "sk_image_shader";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr SkUniform kPorterDuffBlendShaderUniforms[] = {
+static constexpr Uniform kPorterDuffBlendShaderUniforms[] = {
         { "blendConstants", SkSLType::kHalf4 },
 };
 
 static constexpr char kPorterDuffBlendShaderName[] = "blend_porter_duff";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr SkUniform kBlendShaderUniforms[] = {
+static constexpr Uniform kBlendShaderUniforms[] = {
         { "blendMode", SkSLType::kInt },
 };
 
@@ -726,7 +726,7 @@ std::string GenerateRuntimeShaderExpression(const ShaderInfo& shaderInfo,
 //--------------------------------------------------------------------------------------------------
 // TODO: investigate the implications of having separate hlsa and rgba matrix colorfilters. It
 // may be that having them separate will not contribute to combinatorial explosion.
-static constexpr SkUniform kMatrixColorFilterUniforms[] = {
+static constexpr Uniform kMatrixColorFilterUniforms[] = {
         { "matrix",    SkSLType::kFloat4x4 },
         { "translate", SkSLType::kFloat4 },
         { "inHSL",     SkSLType::kInt },
@@ -735,7 +735,7 @@ static constexpr SkUniform kMatrixColorFilterUniforms[] = {
 static constexpr char kMatrixColorFilterName[] = "sk_matrix_colorfilter";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr SkUniform kBlendColorFilterUniforms[] = {
+static constexpr Uniform kBlendColorFilterUniforms[] = {
         { "blendMode", SkSLType::kInt },
         { "color",     SkSLType::kFloat4 }
 };
@@ -824,7 +824,7 @@ std::string GenerateFixedFunctionBlenderExpression(const ShaderInfo&,
 }
 
 //--------------------------------------------------------------------------------------------------
-static constexpr SkUniform kShaderBasedBlenderUniforms[] = {
+static constexpr Uniform kShaderBasedBlenderUniforms[] = {
         { "blendMode", SkSLType::kInt },
 };
 
@@ -878,7 +878,7 @@ static constexpr int kNoChildren = 0;
 
 int ShaderCodeDictionary::addUserDefinedSnippet(
         const char* name,
-        SkSpan<const SkUniform> uniforms,
+        SkSpan<const Uniform> uniforms,
         SkEnumBitMask<SnippetRequirementFlags> snippetRequirementFlags,
         SkSpan<const TextureAndSampler> texturesAndSamplers,
         const char* functionName,
@@ -986,14 +986,14 @@ const char* ShaderCodeDictionary::addTextToArena(std::string_view text) {
     return textInArena;
 }
 
-SkSpan<const SkUniform> ShaderCodeDictionary::convertUniforms(const SkRuntimeEffect* effect) {
-    using Uniform = SkRuntimeEffect::Uniform;
-    SkSpan<const Uniform> uniforms = effect->uniforms();
+SkSpan<const Uniform> ShaderCodeDictionary::convertUniforms(const SkRuntimeEffect* effect) {
+    using rteUniform = SkRuntimeEffect::Uniform;
+    SkSpan<const rteUniform> uniforms = effect->uniforms();
 
-    // Convert the SkRuntimeEffect::Uniform array into its SkUniform equivalent.
+    // Convert the SkRuntimeEffect::Uniform array into its Uniform equivalent.
     int numUniforms = uniforms.size();
-    SkUniform* uniformArray = fArena.makeInitializedArray<SkUniform>(numUniforms, [&](int index) {
-        const Uniform* u;
+    Uniform* uniformArray = fArena.makeInitializedArray<Uniform>(numUniforms, [&](int index) {
+        const rteUniform* u;
         u = &uniforms[index];
 
         // The existing uniform names live in the passed-in SkRuntimeEffect and may eventually
@@ -1001,13 +1001,13 @@ SkSpan<const SkUniform> ShaderCodeDictionary::convertUniforms(const SkRuntimeEff
         // entire array is allocated in one big slab before any initialization calls are done.)
         const char* name = this->addTextToArena(u->name);
 
-        // Add one SkUniform to our array.
+        // Add one Uniform to our array.
         SkSLType type = uniform_type_to_sksl_type(*u);
-        return (u->flags & Uniform::kArray_Flag) ? SkUniform(name, type, u->count)
-                                                 : SkUniform(name, type);
+        return (u->flags & rteUniform::kArray_Flag) ? Uniform(name, type, u->count)
+                                                    : Uniform(name, type);
     });
 
-    return SkSpan<const SkUniform>(uniformArray, numUniforms);
+    return SkSpan<const Uniform>(uniformArray, numUniforms);
 }
 
 int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect) {
