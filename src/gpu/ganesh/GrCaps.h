@@ -9,42 +9,30 @@
 #define GrCaps_DEFINED
 
 #include "include/core/SkCapabilities.h"
-#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkTypes.h"
+#include "include/core/SkString.h"
 #include "include/gpu/GrDriverBugWorkarounds.h"
-#include "include/gpu/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 
-#include <algorithm>
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <tuple>
-#include <vector>
-
 class GrBackendFormat;
 class GrBackendRenderTarget;
+class GrBackendTexture;
+struct GrContextOptions;
 class GrProgramDesc;
 class GrProgramInfo;
-class GrRenderTarget;
 class GrRenderTargetProxy;
 class GrSurface;
 class SkJSONWriter;
-struct GrContextOptions;
-struct SkIRect;
-struct SkISize;
 
 namespace skgpu {
-    class KeyBuilder;
-}
-namespace GrTest {
-    struct TestFormatColorTypeCombination;
+class KeyBuilder;
 }
 
 /**
@@ -543,7 +531,12 @@ public:
                                                                            int sampleCount) const;
 
 #if GR_TEST_UTILS
-    virtual std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const = 0;
+    struct TestFormatColorTypeCombination {
+        GrColorType fColorType;
+        GrBackendFormat fFormat;
+    };
+
+    virtual std::vector<TestFormatColorTypeCombination> getTestingCombinations() const = 0;
 #endif
 
 protected:

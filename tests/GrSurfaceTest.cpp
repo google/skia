@@ -47,7 +47,6 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
-#include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/ManagedBackendTexture.h"
@@ -172,10 +171,10 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability,
 
     static constexpr SkISize kDims = {64, 64};
 
-    const std::vector<GrTest::TestFormatColorTypeCombination>& combos =
+    const std::vector<GrCaps::TestFormatColorTypeCombination>& combos =
             caps->getTestingCombinations();
 
-    for (const GrTest::TestFormatColorTypeCombination& combo : combos) {
+    for (const GrCaps::TestFormatColorTypeCombination& combo : combos) {
 
         SkASSERT(combo.fColorType != GrColorType::kUnknown);
         SkASSERT(combo.fFormat.isValid());
@@ -285,10 +284,10 @@ DEF_GANESH_TEST(InitialTextureClear, reporter, baseOptions, CtsEnforcement::kApi
         GrProxyProvider* proxyProvider = dContext->priv().proxyProvider();
         const GrCaps* caps = dContext->priv().caps();
 
-        const std::vector<GrTest::TestFormatColorTypeCombination>& combos =
+        const std::vector<GrCaps::TestFormatColorTypeCombination>& combos =
                 caps->getTestingCombinations();
 
-        for (const GrTest::TestFormatColorTypeCombination& combo : combos) {
+        for (const GrCaps::TestFormatColorTypeCombination& combo : combos) {
 
             SkASSERT(combo.fColorType != GrColorType::kUnknown);
             SkASSERT(combo.fFormat.isValid());
@@ -297,7 +296,7 @@ DEF_GANESH_TEST(InitialTextureClear, reporter, baseOptions, CtsEnforcement::kApi
                 continue;
             }
 
-            auto checkColor = [reporter](const GrTest::TestFormatColorTypeCombination& combo,
+            auto checkColor = [reporter](const GrCaps::TestFormatColorTypeCombination& combo,
                                          uint32_t readColor) {
                 // We expect that if there is no alpha in the src color type and we read it to a
                 // color type with alpha that we will get one for alpha rather than zero. We used to

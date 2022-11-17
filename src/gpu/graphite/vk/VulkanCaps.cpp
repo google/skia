@@ -10,7 +10,6 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanExtensions.h"
-#include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 
 namespace skgpu::graphite {

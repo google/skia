@@ -96,7 +96,7 @@ public:
     bool renderTargetSupportsDiscardableMSAA(const GrMtlRenderTarget*) const;
 
 #if GR_TEST_UTILS
-    std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
+    std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
     void onDumpJSON(SkJSONWriter*) const override;
 

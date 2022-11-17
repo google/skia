@@ -141,7 +141,7 @@ public:
                            ProgramDescOverrideFlags) const override;
 
 #if GR_TEST_UTILS
-    std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
+    std::vector<GrCaps::TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
 
 private:
