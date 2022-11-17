@@ -38,5 +38,5 @@ SkSpan<std::byte> sk_allocate_canfail(size_t size);
 // Returns the empty span if size is 0. sk_allocate_throw aborts on failure.
 SkSpan<std::byte> sk_allocate_throw(size_t size);
 
-[[noreturn]] void sk_report_container_overflow_and_die();
+SK_SPI [[noreturn]] void sk_report_container_overflow_and_die();
 #endif  // SkContainers_DEFINED
