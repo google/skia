@@ -655,11 +655,9 @@ bool SkBlitter::UseLegacyBlitter(const SkPixmap& device,
     return false;
 #else
 
-#if !defined(SK_SUPPORT_LEGACY_DITHER)
     if (paint.isDither()) {
         return false;
     }
-#endif
 
     const SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
     const auto mode = paint.asBlendMode();
