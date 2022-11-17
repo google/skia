@@ -12,6 +12,7 @@
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/core/SkAutoMalloc.h"
+#include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"

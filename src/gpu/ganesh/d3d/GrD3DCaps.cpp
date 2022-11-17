@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "src/gpu/ganesh/d3d/GrD3DCaps.h"
 
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/d3d/GrD3DBackendContext.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
-
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
@@ -17,7 +17,7 @@
 #include "src/gpu/ganesh/GrProgramInfo.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrStencilSettings.h"
-#include "src/gpu/ganesh/d3d/GrD3DCaps.h"
+#include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"
 #include "src/gpu/ganesh/d3d/GrD3DRenderTarget.h"
 #include "src/gpu/ganesh/d3d/GrD3DTexture.h"
@@ -1087,8 +1087,8 @@ GrProgramDesc GrD3DCaps::makeDesc(GrRenderTarget* rt,
 }
 
 #if GR_TEST_UTILS
-std::vector<GrCaps::TestFormatColorTypeCombination> GrD3DCaps::getTestingCombinations() const {
-    std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
+std::vector<GrTest::TestFormatColorTypeCombination> GrD3DCaps::getTestingCombinations() const {
+    std::vector<GrTest::TestFormatColorTypeCombination> combos = {
         {GrColorType::kAlpha_8,        GrBackendFormat::MakeDxgi(DXGI_FORMAT_R8_UNORM)           },
         {GrColorType::kBGR_565,        GrBackendFormat::MakeDxgi(DXGI_FORMAT_B5G6R5_UNORM)       },
         {GrColorType::kABGR_4444,      GrBackendFormat::MakeDxgi(DXGI_FORMAT_B4G4R4A4_UNORM)     },

@@ -9,6 +9,7 @@
 
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
+#include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 
 int GrMockCaps::getRenderTargetSampleCount(int requestCount, GrColorType ct) const {
     requestCount = std::max(requestCount, 1);
@@ -43,9 +44,9 @@ uint64_t GrMockCaps::computeFormatKey(const GrBackendFormat& format) const {
 }
 
 #if GR_TEST_UTILS
-std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombinations() const {
+std::vector<GrTest::TestFormatColorTypeCombination> GrMockCaps::getTestingCombinations() const {
     // TODO: need to add compressed formats to this list
-    std::vector<GrCaps::TestFormatColorTypeCombination> combos = {
+    std::vector<GrTest::TestFormatColorTypeCombination> combos = {
         { GrColorType::kAlpha_8,        GrBackendFormat::MakeMock(GrColorType::kAlpha_8,
                                                                   SkImage::CompressionType::kNone)},
         { GrColorType::kBGR_565,        GrBackendFormat::MakeMock(GrColorType::kBGR_565,
@@ -92,7 +93,7 @@ std::vector<GrCaps::TestFormatColorTypeCombination> GrMockCaps::getTestingCombin
     };
 
 #ifdef SK_DEBUG
-    for (const GrCaps::TestFormatColorTypeCombination& combo : combos) {
+    for (const GrTest::TestFormatColorTypeCombination& combo : combos) {
         SkASSERT(this->onAreColorTypeAndFormatCompatible(combo.fColorType, combo.fFormat));
     }
 #endif

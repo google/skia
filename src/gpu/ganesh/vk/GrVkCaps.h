@@ -271,7 +271,7 @@ public:
     bool supportsMemorylessAttachments() const { return fSupportsMemorylessAttachments; }
 
 #if GR_TEST_UTILS
-    std::vector<TestFormatColorTypeCombination> getTestingCombinations() const override;
+    std::vector<GrTest::TestFormatColorTypeCombination> getTestingCombinations() const override;
 #endif
 
 private:
