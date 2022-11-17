@@ -573,17 +573,6 @@ cflags_cc       = strip_slashes(js['targets']['//:skia']['cflags_cc'])
 local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
 export_includes = strip_slashes(js['targets']['//:public']['include_dirs'])
 
-if (gn_args['skia_enable_skottie']):
-  # Skottie sits on top of skia, so we need to specify these sources to be built
-  # Python sets handle duplicate flags, source files, and includes for us
-  android_srcs.update(strip_slashes(js['targets']['//modules/skottie:skottie']['sources']))
-  gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'sources',
-                                     android_srcs, '//:skia')
-
-  local_includes.update(strip_slashes(js['targets']['//modules/skottie:skottie']['include_dirs']))
-  gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'include_dirs',
-                                     local_includes, '//:skia')
-
 gm_srcs         = strip_slashes(js['targets']['//:gm']['sources'])
 gm_includes     = strip_slashes(js['targets']['//:gm']['include_dirs'])
 
@@ -636,6 +625,18 @@ win_srcs        = strip_headers(win_srcs)
 
 srcs = android_srcs.intersection(linux_srcs).intersection(mac_srcs)
 srcs = srcs.intersection(win_srcs)
+
+if (gn_args['skia_enable_skottie']):
+  # Skottie sits on top of skia, so we need to specify these sources to be built
+  # Python sets handle duplicate flags, source files, and includes for us
+  srcs.update(strip_slashes(js['targets']['//modules/skottie:skottie']['sources']))
+  gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'sources',
+                                     srcs, '//:skia')
+
+  local_includes.update(strip_slashes(js['targets']['//modules/skottie:skottie']['include_dirs']))
+  gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'include_dirs',
+                                     local_includes, '//:skia')
+
 android_srcs    = android_srcs.difference(srcs)
 linux_srcs      =   linux_srcs.difference(srcs)
 mac_srcs        =     mac_srcs.difference(srcs)
