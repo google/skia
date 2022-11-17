@@ -9,8 +9,11 @@
 #define GrBicubicTextureEffect_DEFINED
 
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
 
 class GrInvariantOutput;
+class GrSurfaceProxyView;
 
 class GrBicubicEffect : public GrFragmentProcessor {
 public:

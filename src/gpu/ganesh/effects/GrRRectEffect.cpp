@@ -11,6 +11,7 @@
 #include "src/core/SkTLazy.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/effects/GrConvexPolyEffect.h"
 #include "src/gpu/ganesh/effects/GrOvalEffect.h"

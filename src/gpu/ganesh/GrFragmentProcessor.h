@@ -8,6 +8,7 @@
 #ifndef GrFragmentProcessor_DEFINED
 #define GrFragmentProcessor_DEFINED
 
+#include "include/private/SkColorData.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkSLString.h"

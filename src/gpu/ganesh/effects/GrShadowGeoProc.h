@@ -11,6 +11,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 
 class GrGLRRectShadowGeoProc;
 class GrSurfaceProxyView;

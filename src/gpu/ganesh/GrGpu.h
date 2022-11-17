@@ -18,6 +18,7 @@
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
@@ -27,7 +28,6 @@ class GrBackendRenderTarget;
 class GrBackendSemaphore;
 struct GrContextOptions;
 class GrDirectContext;
-class GrGpuBuffer;
 class GrGLContext;
 class GrPath;
 class GrPathRenderer;

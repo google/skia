@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "include/gpu/d3d/GrD3DTypes.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrManagedResource.h"
 #include "src/gpu/ganesh/d3d/GrD3DPipelineStateDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramBuilder.h"

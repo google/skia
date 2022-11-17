@@ -11,6 +11,7 @@
 #include "include/core/SkYUVAInfo.h"
 #include "src/core/SkYUVAInfoLocation.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 
 class GrYUVATextureProxies;
 

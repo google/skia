@@ -13,11 +13,13 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProcessor.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 
 class GrGLDistanceFieldA8TextGeoProc;
-class GrGLDistanceFieldPathGeoProc;
 class GrGLDistanceFieldLCDTextGeoProc;
+class GrGLDistanceFieldPathGeoProc;
 class GrInvariantOutput;
+class GrSurfaceProxyView;
 
 enum GrDistanceFieldEffectFlags {
     kSimilarity_DistanceFieldEffectFlag   = 0x001, // ctm is similarity matrix

@@ -9,6 +9,7 @@
 #define GrOpsRenderPass_DEFINED
 
 #include "include/core/SkDrawable.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 

@@ -11,6 +11,7 @@
 #include "include/core/SkBlendMode.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkMacros.h"
+#include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 
 // See the comment above GrXPFactory's definition about this warning suppression.

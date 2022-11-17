@@ -9,8 +9,10 @@
 #define GrMeshDrawOp_DEFINED
 
 #include "src/gpu/ganesh/GrAppliedClip.h"
+#include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
+
 #include <type_traits>
 
 class SkArenaAlloc;

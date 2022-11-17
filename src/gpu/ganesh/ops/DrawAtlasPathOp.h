@@ -9,6 +9,8 @@
 #define DrawAtlasPathOp_DEFINED
 
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/ganesh/GrBuffer.h"
+#include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/ops/AtlasInstancedHelper.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 
