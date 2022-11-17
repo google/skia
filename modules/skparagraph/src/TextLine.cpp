@@ -694,25 +694,25 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
                       true,
                       std::numeric_limits<SkScalar>::max(),
                       &handler);
-        auto ellipisRun = handler.run();
-        ellipisRun->fTextRange = TextRange(0, ellipsis.size());
-        ellipisRun->fOwner = fOwner;
-        return ellipisRun;
+        auto ellipsisRun = handler.run();
+        ellipsisRun->fTextRange = TextRange(0, ellipsis.size());
+        ellipsisRun->fOwner = fOwner;
+        return ellipsisRun;
     };
 
     // Check the current font
-    auto ellisisRun = shaped(run.fFont.refTypeface(), false);
-    if (ellisisRun->isResolved()) {
-        return ellisisRun;
+    auto ellipsisRun = shaped(run.fFont.refTypeface(), false);
+    if (ellipsisRun->isResolved()) {
+        return ellipsisRun;
     }
 
     // Check all allowed fonts
     std::vector<sk_sp<SkTypeface>> typefaces = fOwner->fontCollection()->findTypefaces(
             textStyle.getFontFamilies(), textStyle.getFontStyle(), textStyle.getFontArguments());
     for (const auto& typeface : typefaces) {
-        ellisisRun = shaped(typeface, false);
-        if (ellisisRun->isResolved()) {
-            return ellisisRun;
+        ellipsisRun = shaped(typeface, false);
+        if (ellipsisRun->isResolved()) {
+            return ellipsisRun;
         }
     }
 
@@ -724,13 +724,13 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
        auto typeface = fOwner->fontCollection()->defaultFallback(
                     unicode, textStyle.getFontStyle(), textStyle.getLocale());
         if (typeface) {
-            ellisisRun = shaped(typeface, true);
-            if (ellisisRun->isResolved()) {
-                return ellisisRun;
+            ellipsisRun = shaped(typeface, true);
+            if (ellipsisRun->isResolved()) {
+                return ellipsisRun;
             }
         }
     }
-    return ellisisRun;
+    return ellipsisRun;
 }
 
 TextLine::ClipContext TextLine::measureTextInsideOneRun(TextRange textRange,
