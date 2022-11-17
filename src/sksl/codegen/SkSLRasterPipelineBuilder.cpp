@@ -26,7 +26,7 @@ void Program::optimize() {
     // TODO(johnstiles): perform any last-minute cleanup of the instruction stream here
 }
 
-int Program::numSlots() {
+int Program::numValueSlots() {
     Slot s = NA;
     for (const Instruction& inst : fInstructions) {
         for (Slot cur : {inst.fSlotA, inst.fSlotB, inst.fSlotC}) {
@@ -36,9 +36,35 @@ int Program::numSlots() {
     return s + 1;
 }
 
+int Program::numConditionMaskSlots() {
+    int largest = 0;
+    int current = 0;
+    for (const Instruction& inst : fInstructions) {
+        switch (inst.fOp) {
+            case SkRasterPipeline::store_condition_mask:
+                ++current;
+                largest = std::max(current, largest);
+                break;
+
+            case SkRasterPipeline::load_condition_mask:
+                --current;
+                SkASSERTF(current >= 0, "unbalanced condition-mask push/pop");
+                break;
+
+            default:
+                // This op doesn't affect the stack.
+                break;
+        }
+    }
+
+    SkASSERTF(current == 0, "unbalanced condition-mask push/pop");
+    return largest;
+}
+
 Program::Program(SkTArray<Instruction> instrs) : fInstructions(std::move(instrs)) {
     this->optimize();
-    fNumSlots = this->numSlots();
+    fNumValueSlots = this->numValueSlots();
+    fNumConditionMaskSlots = this->numConditionMaskSlots();
 }
 
 void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
@@ -46,7 +72,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
 #if !defined(SKSL_STANDALONE)
     // Allocate a contiguous slab of slot data.
     const int N = SkOpts::raster_pipeline_highp_stride;
-    float* slotPtr = alloc->makeArray<float>(N * fNumSlots);
+    float* slotPtr = alloc->makeArray<float>(N * (fNumValueSlots + fNumConditionMaskSlots));
+
+    // Store the condition-mask stack directly after the values.
+    float* conditionStackPtr = &slotPtr[N * fNumValueSlots];
 
     for (const Instruction& inst : fInstructions) {
         auto SlotA = [&]() { return &slotPtr[N * inst.fSlotA]; };
@@ -88,6 +117,16 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
 
             case SkRP::store_unmasked:
                 pipeline->append(SkRP::store_unmasked, SlotA());
+                break;
+
+            case SkRP::store_condition_mask:
+                pipeline->append(SkRP::store_condition_mask, conditionStackPtr);
+                conditionStackPtr += N;
+                break;
+
+            case SkRP::load_condition_mask:
+                conditionStackPtr -= N;
+                pipeline->append(SkRP::load_condition_mask, conditionStackPtr);
                 break;
 
             default:

@@ -2991,6 +2991,14 @@ STAGE(store_unmasked, float* ctx) {
     sk_unaligned_store(ctx, r);
 }
 
+STAGE(load_condition_mask, float* ctx) {
+    dr = sk_unaligned_load<F>(ctx);
+}
+
+STAGE(store_condition_mask, float* ctx) {
+    sk_unaligned_store(ctx, dr);
+}
+
 STAGE(immediate_f, void* ctx) {
     float val;
     memcpy(&val, &ctx, sizeof(val));

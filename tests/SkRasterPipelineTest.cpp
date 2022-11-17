@@ -85,6 +85,29 @@ DEF_TEST(SkRasterPipeline_LoadStoreUnmasked, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, r) {
+    int32_t val[SkRasterPipeline_kMaxStride_highp] = {};
+    int32_t data[] = {~0, 0, ~0, 0, ~0, ~0, ~0, 0};
+    static_assert(std::size(data) == SkRasterPipeline_kMaxStride_highp);
+
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_condition_mask, data);
+    p.append(SkRasterPipeline::store_condition_mask, val);
+    p.run(0,0,1,1);
+
+    // `val` should be populated with `data` in the frontmost positions
+    // (depending on the architecture that SkRasterPipeline is targeting).
+    size_t index = 0;
+    for (; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+        REPORTER_ASSERT(r, val[index] == data[index]);
+    }
+
+    // The remaining slots should have been left alone.
+    for (; index < std::size(val); ++index) {
+        REPORTER_ASSERT(r, val[index] == 0);
+    }
+}
+
 DEF_TEST(SkRasterPipeline_InitLaneMasks, r) {
     for (size_t width = 1; width <= SkOpts::raster_pipeline_highp_stride; ++width) {
         SkRasterPipeline_<256> p;

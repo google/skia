@@ -63,10 +63,12 @@ public:
 
 private:
     void optimize();
-    int numSlots();
+    int numValueSlots();
+    int numConditionMaskSlots();
 
     SkTArray<Instruction> fInstructions;
-    Slot fNumSlots = NA;
+    int fNumValueSlots = 0;
+    int fNumConditionMaskSlots = 0;
 };
 
 class Builder {
@@ -114,6 +116,16 @@ public:
 
     void store_unmasked(Slot slot) {
         fInstructions.push_back({SkRasterPipeline::store_unmasked, {slot}});
+    }
+
+    void push_condition_mask() {
+        // Raster pipeline uses a "store" op, and the builder manages the stack position.
+        fInstructions.push_back({SkRasterPipeline::store_condition_mask, {}});
+    }
+
+    void pop_condition_mask() {
+        // Raster pipeline uses a "load" op, and the builder manages the stack position.
+        fInstructions.push_back({SkRasterPipeline::load_condition_mask, {}});
     }
 
 private:
