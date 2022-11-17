@@ -100,3 +100,7 @@ SkSpan<std::byte> sk_allocate_throw(size_t size) {
     void* ptr = sk_malloc_throw(adjustedSize);
     return complete_size(ptr, adjustedSize);
 }
+
+void sk_report_container_overflow_and_die() {
+    SK_ABORT("Requested capacity is too large.");
+}

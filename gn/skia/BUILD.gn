@@ -63,7 +63,10 @@ config("default") {
   # (These unknown attribute warnings are on by default, so we don't make
   # disabling them part of :warnings, as some targets remove :warnings.)
   if (is_win && !is_clang) {
-    cflags += [ "/wd5030" ]
+    cflags += [
+      "/wd5030",
+      "/wd5051",
+    ]
   } else {
     cflags += [ "-Wno-attributes" ]
   }
