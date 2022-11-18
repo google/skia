@@ -698,8 +698,7 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
         skvm::I32 ix;
         if (fOrigPos == nullptr) {
             // Evenly spaced stops... we can calculate ix directly.
-            // Of note: we need to clamp t and skip over that conceptual -inf stop we made up.
-            ix = trunc(clamp01(t) * uniformF(stops.size() - 1) + 1.0f);
+            ix = trunc(clamp(t * uniformF(stops.size() - 1) + 1.0f, 0.0f, uniformF(stops.size())));
         } else {
             // Starting ix at 0 bakes in our conceptual first stop at -inf.
             // TODO: good place to experiment with a loop in skvm.... stops.size() can be huge.
