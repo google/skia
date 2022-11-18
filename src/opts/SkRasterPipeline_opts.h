@@ -2991,6 +2991,13 @@ STAGE(store_unmasked, float* ctx) {
     sk_unaligned_store(ctx, r);
 }
 
+STAGE(store_masked, float* ctx) {
+    // We should probably dedicate a register (da?) to holding "dr & dg & db" so we don't need to
+    // recompute this bitmask every time we perform a masked operation.
+    I32 mask = sk_bit_cast<I32>(dr) & sk_bit_cast<I32>(dg) & sk_bit_cast<I32>(db);
+    sk_unaligned_store(ctx, if_then_else(mask, r, sk_unaligned_load<F>(ctx)));
+}
+
 STAGE(load_condition_mask, float* ctx) {
     dr = sk_unaligned_load<F>(ctx);
 }

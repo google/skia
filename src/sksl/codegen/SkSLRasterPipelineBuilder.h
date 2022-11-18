@@ -134,6 +134,10 @@ public:
         fInstructions.push_back({SkRasterPipeline::store_unmasked, {slot}});
     }
 
+    void store_masked(Slot slot) {
+        fInstructions.push_back({SkRasterPipeline::store_masked, {slot}});
+    }
+
     void push_condition_mask() {
         // Raster pipeline uses a "store" op, and the builder manages the stack position.
         fInstructions.push_back({SkRasterPipeline::store_condition_mask, {}});

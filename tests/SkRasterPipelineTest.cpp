@@ -85,6 +85,39 @@ DEF_TEST(SkRasterPipeline_LoadStoreUnmasked, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_LoadStoreMasked, r) {
+    for (size_t width = 0; width < SkRasterPipeline_kMaxStride_highp; ++width) {
+        float val[] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+        float data[] = {2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f};
+        const int32_t mask[] = {0, ~0, ~0, ~0, ~0, ~0, 0, ~0};
+        static_assert(std::size(val) == SkRasterPipeline_kMaxStride_highp);
+        static_assert(std::size(data) == SkRasterPipeline_kMaxStride_highp);
+        static_assert(std::size(mask) == SkRasterPipeline_kMaxStride_highp);
+
+        SkRasterPipeline_<256> p;
+        p.append(SkRasterPipeline::init_lane_masks);
+        p.append(SkRasterPipeline::load_condition_mask, mask);
+        p.append(SkRasterPipeline::load_unmasked, data);
+        p.append(SkRasterPipeline::store_masked, val);
+        p.run(0, 0, width, 1);
+
+        // Where the mask is set, and the width is sufficient, `val` should be populated.
+        size_t index = 0;
+        for (; index < width; ++index) {
+            if (mask[index]) {
+                REPORTER_ASSERT(r, val[index] == 2.0f);
+            } else {
+                REPORTER_ASSERT(r, val[index] == 1.0f);
+            }
+        }
+
+        // The remaining slots should have been left alone.
+        for (; index < std::size(val); ++index) {
+            REPORTER_ASSERT(r, val[index] == 1.0f);
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, r) {
     int32_t val[SkRasterPipeline_kMaxStride_highp] = {};
     int32_t data[] = {~0, 0, ~0, 0, ~0, ~0, ~0, 0};
