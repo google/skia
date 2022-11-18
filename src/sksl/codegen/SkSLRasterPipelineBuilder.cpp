@@ -119,10 +119,6 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 pipeline->append(SkRP::store_unmasked, SlotA());
                 break;
 
-            case SkRP::store_masked:
-                pipeline->append(SkRP::store_masked, SlotA());
-                break;
-
             case SkRP::store_condition_mask:
                 pipeline->append(SkRP::store_condition_mask, conditionStackPtr);
                 conditionStackPtr += N;
