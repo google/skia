@@ -4,7 +4,7 @@ vars = {
   # Three lines of non-changing comments so that
   # the commit queue can handle CLs rolling different
   # dependencies without interference from each other.
-  'sk_tool_revision': 'git_revision:83450cb8d105e86e3fdc4739815b4986c2ac6039',
+  'sk_tool_revision': 'git_revision:5f68de3ef7cdb22373991e482b4f2c5d7cd47928',
 }
 
 # If you modify this file, you will need to regenerate the Bazel version of this file (bazel/deps.bzl).
