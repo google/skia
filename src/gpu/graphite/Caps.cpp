@@ -80,12 +80,16 @@ skgpu::Swizzle Caps::getWriteSwizzle(SkColorType ct, const TextureInfo& info) co
 }
 
 sktext::gpu::SDFTControl Caps::getSDFTControl(bool useSDFTForSmallText) const {
+#if !defined(SK_DISABLE_SDF_TEXT)
     return sktext::gpu::SDFTControl{
             this->shaderCaps()->supportsDistanceFieldText(),
             useSDFTForSmallText,
             true, /*ableToUsePerspectiveSDFT*/
             this->minDistanceFieldFontSize(),
             this->glyphsAsPathsFontSize()};
+#else
+    return sktext::gpu::SDFTControl{};
+#endif
 }
 
 } // namespace skgpu::graphite

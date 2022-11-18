@@ -165,7 +165,11 @@ MaskFormat AtlasManager::resolveMaskFormat(MaskFormat format) const {
 DrawAtlas::ErrorCode AtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
                                                    Glyph* glyph,
                                                    int srcPadding) {
+#if !defined(SK_DISABLE_SDF_TEXT)
     SkASSERT(0 <= srcPadding && srcPadding <= SK_DistanceFieldInset);
+#else
+    SkASSERT(0 <= srcPadding);
+#endif
 
     if (skGlyph.image() == nullptr) {
         return DrawAtlas::ErrorCode::kError;
@@ -191,6 +195,7 @@ DrawAtlas::ErrorCode AtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
             // The transformed mask/image case.
             padding = 1;
             break;
+#if !defined(SK_DISABLE_SDF_TEXT)
         case SK_DistanceFieldInset:
             // The SDFT case.
             // If the srcPadding == SK_DistanceFieldInset (SDFT case) then the padding is built
@@ -198,6 +203,7 @@ DrawAtlas::ErrorCode AtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
             // TODO: can the SDFT glyph image in the cache be reduced by the padding?
             padding = 0;
             break;
+#endif
         default:
             // The padding is not one of the know forms.
             return DrawAtlas::ErrorCode::kError;
