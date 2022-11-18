@@ -78,7 +78,7 @@ if (skia_enable_sktext && skia_enable_skshaper && skia_use_harfbuzz) {
       }
     }
 
-    source_set("samples") {
+    source_set("slides") {
       testonly = true
       sources = [
         "editor/Cursor.cpp",
@@ -86,7 +86,7 @@ if (skia_enable_sktext && skia_enable_skshaper && skia_use_harfbuzz) {
         "editor/Mouse.cpp",
         "editor/Selection.cpp",
         "editor/Texts.cpp",
-        "samples/Text.cpp",
+        "slides/Text.cpp",
       ]
       deps = [
         ":sktext",
@@ -118,7 +118,7 @@ if (skia_enable_sktext && skia_enable_skshaper && skia_use_harfbuzz) {
   }
   group("bench") {
   }
-  group("samples") {
+  group("slides") {
   }
   group("text_editor") {
   }

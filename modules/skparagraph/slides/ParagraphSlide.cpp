@@ -19,20 +19,30 @@
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/viewer/ClickHandlerSlide.h"
 
 static DEFINE_bool(verboseParagraph, false, "paragraph samples very verbose.");
 
 using namespace skia::textlayout;
 namespace {
 
-class ParagraphView_Base : public Sample {
+class ParagraphSlide_Base : public ClickHandlerSlide {
+public:
+    void load(SkScalar w, SkScalar h) override { fSize = {w, h}; }
+
+    void resize(SkScalar w, SkScalar h) override { fSize = {w, h}; }
+
 protected:
+    Click * onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
+        return nullptr;
+    }
+    bool onClick(ClickHandlerSlide::Click *) override { return false; }
+
     sk_sp<TestFontCollection> getFontCollection() {
         // If we reset font collection we need to reset paragraph cache
         static sk_sp<TestFontCollection> fFC = nullptr;
@@ -45,7 +55,11 @@ protected:
     bool isVerbose() {
         return FLAGS_verboseParagraph;
     }
-};
+
+    SkSize size() const { return fSize; }
+
+private:
+    SkSize fSize;};
 
 sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
     SkColor colors[] = {c0, c1};
@@ -63,10 +77,15 @@ void writeHtml(const char* name, Paragraph* paragraph) {
 }
 */
 
-class ParagraphView1 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph1"); }
+class ParagraphSlide1 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide1() { fName = "Paragraph1"; }
 
+    void draw(SkCanvas* canvas) override {
+        drawTest(canvas, this->size().width(), this->size().height(), SK_ColorRED, SK_ColorWHITE);
+    }
+
+protected:
     void drawTest(SkCanvas* canvas, SkScalar w, SkScalar h, SkColor fg, SkColor bg) {
         const std::vector<
             std::tuple<std::string, bool, bool, int, SkColor, SkColor, bool, TextDecorationStyle>>
@@ -160,20 +179,82 @@ protected:
             canvas->translate(0, paragraph->getHeight());
         }
     }
+};
 
-    void onDrawContent(SkCanvas* canvas) override {
-        drawTest(canvas, this->width(), this->height(), SK_ColorRED, SK_ColorWHITE);
+class ParagraphSlide2 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide2() { fName = "Paragraph2"; }
+
+    void draw(SkCanvas* canvas) override {
+        std::vector<const char*> cupertino = {
+                "google_logogoogle_gsuper_g_logo 1 "
+                "google_logogoogle_gsuper_g_logo 12 "
+                "google_logogoogle_gsuper_g_logo 123 "
+                "google_logogoogle_gsuper_g_logo 1234 "
+                "google_logogoogle_gsuper_g_logo 12345 "
+                "google_logogoogle_gsuper_g_logo 123456 "
+                "google_logogoogle_gsuper_g_logo 1234567 "
+                "google_logogoogle_gsuper_g_logo 12345678 "
+                "google_logogoogle_gsuper_g_logo 123456789 "
+                "google_logogoogle_gsuper_g_logo 1234567890 "
+                "google_logogoogle_gsuper_g_logo 123456789 "
+                "google_logogoogle_gsuper_g_logo 12345678 "
+                "google_logogoogle_gsuper_g_logo 1234567 "
+                "google_logogoogle_gsuper_g_logo 123456 "
+                "google_logogoogle_gsuper_g_logo 12345 "
+                "google_logogoogle_gsuper_g_logo 1234 "
+                "google_logogoogle_gsuper_g_logo 123 "
+                "google_logogoogle_gsuper_g_logo 12 "
+                "google_logogoogle_gsuper_g_logo 1 "
+                "google_logogoogle_gsuper_g_logo "
+                "google_logogoogle_gsuper_g_logo "
+                "google_logogoogle_gsuper_g_logo "
+                "google_logogoogle_gsuper_g_logo "
+                "google_logogoogle_gsuper_g_logo "
+                "google_logogoogle_gsuper_g_logo"};
+        std::vector<const char*> text = {
+                "My neighbor came over to say,\n"
+                "Although not in a neighborly way,\n\n"
+                "That he'd knock me around,\n\n\n"
+                "If I didn't stop the sound,\n\n\n\n"
+                "Of the classical music I play."};
+
+        std::vector<const char*> long_word = {
+                "A_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_"
+                "very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_"
+                "very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_"
+                "very_very_very_very_very_very_very_long_text"};
+
+        std::vector<const char*> very_long = {
+                "A very very very very very very very very very very very very very very very very "
+                "very very very very very very very very very very very very very very very very "
+                "very very very very very very very very very very very very very very very very "
+                "very very very very very very very long text"};
+
+        std::vector<const char*> very_word = {
+                "A very_very_very_very_very_very_very_very_very_very "
+                "very_very_very_very_very_very_very_very_very_very very very very very very very "
+                "very very very very very very very very very very very very very very very very "
+                "very very very very very very very very very very very very very long text"};
+
+        SkScalar width = this->size().width() / 5;
+        SkScalar height = this->size().height();
+        drawText(canvas, width, height, long_word, SK_ColorBLACK, SK_ColorWHITE, "Google Sans", 30);
+        canvas->translate(width, 0);
+        drawText(canvas, width, height, very_long, SK_ColorBLACK, SK_ColorWHITE, "Google Sans", 30);
+        canvas->translate(width, 0);
+        drawText(canvas, width, height, very_word, SK_ColorBLACK, SK_ColorWHITE, "Google Sans", 30);
+        canvas->translate(width, 0);
+        drawText(canvas, width, height / 2, text, SK_ColorBLACK, SK_ColorWHITE, "Roboto", 20, 100,
+                 u"\u2026");
+        canvas->translate(0, height / 2);
+        drawCode(canvas, width, height / 2);
+        canvas->translate(width, -height / 2);
+
+        drawText(canvas, width, height, cupertino, SK_ColorBLACK, SK_ColorWHITE, "Google Sans", 30);
     }
 
 private:
-
-    using INHERITED = Sample;
-};
-
-class ParagraphView2 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph2"); }
-
     void drawCode(SkCanvas* canvas, SkScalar w, SkScalar h) {
         SkPaint comment;
         comment.setColor(SK_ColorGRAY);
@@ -342,84 +423,48 @@ protected:
 
         canvas->translate(0, paragraph->getHeight() + margin);
     }
+};
 
-    void onDrawContent(SkCanvas* canvas) override {
-        std::vector<const char*> cupertino = {
-                "google_logogoogle_gsuper_g_logo 1 "
-                "google_logogoogle_gsuper_g_logo 12 "
-                "google_logogoogle_gsuper_g_logo 123 "
-                "google_logogoogle_gsuper_g_logo 1234 "
-                "google_logogoogle_gsuper_g_logo 12345 "
-                "google_logogoogle_gsuper_g_logo 123456 "
-                "google_logogoogle_gsuper_g_logo 1234567 "
-                "google_logogoogle_gsuper_g_logo 12345678 "
-                "google_logogoogle_gsuper_g_logo 123456789 "
-                "google_logogoogle_gsuper_g_logo 1234567890 "
-                "google_logogoogle_gsuper_g_logo 123456789 "
-                "google_logogoogle_gsuper_g_logo 12345678 "
-                "google_logogoogle_gsuper_g_logo 1234567 "
-                "google_logogoogle_gsuper_g_logo 123456 "
-                "google_logogoogle_gsuper_g_logo 12345 "
-                "google_logogoogle_gsuper_g_logo 1234 "
-                "google_logogoogle_gsuper_g_logo 123 "
-                "google_logogoogle_gsuper_g_logo 12 "
-                "google_logogoogle_gsuper_g_logo 1 "
-                "google_logogoogle_gsuper_g_logo "
-                "google_logogoogle_gsuper_g_logo "
-                "google_logogoogle_gsuper_g_logo "
-                "google_logogoogle_gsuper_g_logo "
-                "google_logogoogle_gsuper_g_logo "
-                "google_logogoogle_gsuper_g_logo"};
-        std::vector<const char*> text = {
-                "My neighbor came over to say,\n"
-                "Although not in a neighborly way,\n\n"
-                "That he'd knock me around,\n\n\n"
-                "If I didn't stop the sound,\n\n\n\n"
-                "Of the classical music I play."};
+class ParagraphSlide3 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide3() { fName = "Paragraph3"; }
 
-        std::vector<const char*> long_word = {
-                "A_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_"
-                "very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_"
-                "very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_very_"
-                "very_very_very_very_very_very_very_long_text"};
+    void draw(SkCanvas* canvas) override {
+        const std::string options =  // { "open-source open-source open-source open-source" };
+                {"Flutter is an open-source project to help developers "
+                 "build high-performance, high-fidelity, mobile apps for "
+                 "iOS and Android "
+                 "from a single codebase. This design lab is a playground "
+                 "and showcase of Flutter's many widgets, behaviors, "
+                 "animations, layouts, and more."};
 
-        std::vector<const char*> very_long = {
-                "A very very very very very very very very very very very very very very very very "
-                "very very very very very very very very very very very very very very very very "
-                "very very very very very very very very very very very very very very very very "
-                "very very very very very very very long text"};
+        canvas->drawColor(SK_ColorDKGRAY);
+        SkScalar width = this->size().width() / 4;
+        SkScalar height = this->size().height() / 2;
 
-        std::vector<const char*> very_word = {
-                "A very_very_very_very_very_very_very_very_very_very "
-                "very_very_very_very_very_very_very_very_very_very very very very very very very "
-                "very very very very very very very very very very very very very very very very "
-                "very very very very very very very very very very very very very long text"};
+        const std::string line =
+                "World domination is such an ugly phrase - I prefer to call it world optimisation";
 
-        SkScalar width = this->width() / 5;
-        SkScalar height = this->height();
-        drawText(canvas, width, height, long_word, SK_ColorBLACK, SK_ColorWHITE, "Google Sans", 30);
+        drawLine(canvas, width, height, line, TextAlign::kLeft, 1, false, SK_ColorLTGRAY);
         canvas->translate(width, 0);
-        drawText(canvas, width, height, very_long, SK_ColorBLACK, SK_ColorWHITE, "Google Sans", 30);
+        drawLine(canvas, width, height, line, TextAlign::kRight, 2, false, SK_ColorLTGRAY);
         canvas->translate(width, 0);
-        drawText(canvas, width, height, very_word, SK_ColorBLACK, SK_ColorWHITE, "Google Sans", 30);
+        drawLine(canvas, width, height, line, TextAlign::kCenter, 3, false, SK_ColorLTGRAY);
         canvas->translate(width, 0);
-        drawText(canvas, width, height / 2, text, SK_ColorBLACK, SK_ColorWHITE, "Roboto", 20, 100,
-                 u"\u2026");
-        canvas->translate(0, height / 2);
-        drawCode(canvas, width, height / 2);
-        canvas->translate(width, -height / 2);
+        drawLine(canvas, width, height, line, TextAlign::kJustify, 4, false, SK_ColorLTGRAY);
+        canvas->translate(-width * 3, height);
 
-        drawText(canvas, width, height, cupertino, SK_ColorBLACK, SK_ColorWHITE, "Google Sans", 30);
+        drawLine(canvas, width, height, line, TextAlign::kLeft, 1, true, SK_ColorLTGRAY);
+        canvas->translate(width, 0);
+        drawLine(canvas, width, height, line, TextAlign::kRight, 2, true, SK_ColorLTGRAY);
+        canvas->translate(width, 0);
+        drawLine(canvas, width, height, line, TextAlign::kCenter, 3, true, SK_ColorLTGRAY);
+        canvas->translate(width, 0);
+        drawLine(canvas, width, height, line, TextAlign::kJustify, 4, true, SK_ColorLTGRAY);
+        canvas->translate(width, 0);
     }
 
 private:
-    using INHERITED = Sample;
-};
-
-class ParagraphView3 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph3"); }
-
     void drawLine(SkCanvas* canvas, SkScalar w, SkScalar h, const std::string& text,
                   TextAlign align, size_t lineLimit = std::numeric_limits<size_t>::max(),
                   bool RTL = false, SkColor background = SK_ColorGRAY,
@@ -499,50 +544,21 @@ protected:
         result += u"\u202C";
         return result;
     }
+};
 
-    void onDrawContent(SkCanvas* canvas) override {
-        const std::string options =  // { "open-source open-source open-source open-source" };
-                {"Flutter is an open-source project to help developers "
-                 "build high-performance, high-fidelity, mobile apps for "
-                 "iOS and Android "
-                 "from a single codebase. This design lab is a playground "
-                 "and showcase of Flutter's many widgets, behaviors, "
-                 "animations, layouts, and more."};
+class ParagraphSlide4 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide4() { fName = "Paragraph4"; }
 
-        canvas->drawColor(SK_ColorDKGRAY);
-        SkScalar width = this->width() / 4;
-        SkScalar height = this->height() / 2;
+    void draw(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        SkScalar width = this->size().width();
+        SkScalar height = this->size().height();
 
-        const std::string line =
-                "World domination is such an ugly phrase - I prefer to call it world optimisation";
-
-        drawLine(canvas, width, height, line, TextAlign::kLeft, 1, false, SK_ColorLTGRAY);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kRight, 2, false, SK_ColorLTGRAY);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kCenter, 3, false, SK_ColorLTGRAY);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kJustify, 4, false, SK_ColorLTGRAY);
-        canvas->translate(-width * 3, height);
-
-        drawLine(canvas, width, height, line, TextAlign::kLeft, 1, true, SK_ColorLTGRAY);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kRight, 2, true, SK_ColorLTGRAY);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kCenter, 3, true, SK_ColorLTGRAY);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kJustify, 4, true, SK_ColorLTGRAY);
-        canvas->translate(width, 0);
+        drawFlutter(canvas, width, height / 2);
     }
 
 private:
-    using INHERITED = Sample;
-};
-
-class ParagraphView4 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph4"); }
-
     void drawFlutter(SkCanvas* canvas, SkScalar w, SkScalar h,
                      const char* ff = "Google Sans", SkScalar fs = 30,
                      size_t lineLimit = std::numeric_limits<size_t>::max(),
@@ -662,26 +678,60 @@ protected:
             canvas->translate(0, h + margin);
         }
     }
+};
 
-    void onDrawContent(SkCanvas* canvas) override {
+class ParagraphSlide5 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide5() { fName = "Paragraph5"; }
+
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        SkScalar width = this->width();
-        SkScalar height = this->height();
+        SkScalar width = this->size().width();
+        SkScalar height = this->size().height() / 8;
 
-        drawFlutter(canvas, width, height / 2);
+        const std::u16string text1 =
+                u"A \u202ENAC\u202Cner, exceedingly \u202ENAC\u202Cny,\n"
+                "One morning remarked to his granny:\n"
+                "A \u202ENAC\u202Cner \u202ENAC\u202C \u202ENAC\u202C,\n"
+                "Anything that he \u202ENAC\u202C,\n"
+                "But a \u202ENAC\u202Cner \u202ENAC\u202C't \u202ENAC\u202C a \u202ENAC\u202C, "
+                "\u202ENAC\u202C he?";
+        bidi(canvas, width, height * 3, text1, u"", 5);
+        canvas->translate(0, height * 3);
+
+        bidi(canvas, width, height, u"\u2067DETALOSI\u2069", u"");
+        canvas->translate(0, height);
+
+        bidi(canvas, width, height, u"\u202BDEDDEBME\u202C", u"");
+        canvas->translate(0, height);
+
+        bidi(canvas, width, height, u"\u202EEDIRREVO\u202C", u"");
+        canvas->translate(0, height);
+
+        bidi(canvas, width, height, u"\u200FTICILPMI\u200E", u"");
+        canvas->translate(0, height);
+
+        bidi(canvas,
+             width,
+             height,
+             u"123 456 7890 \u202EZYXWV UTS RQP ONM LKJ IHG FED CBA\u202C.",
+             u"",
+             2);
+        canvas->translate(0, height);
+
+        // bidi(canvas, width, height, u"", u"");
+        // canvas->translate(0, height);
     }
 
 private:
-    using INHERITED = Sample;
-};
-
-class ParagraphView5 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph5"); }
-
-    void bidi(SkCanvas* canvas, SkScalar w, SkScalar h, const std::u16string& text,
-              const std::u16string& expected, size_t lineLimit = std::numeric_limits<size_t>::max(),
-              const char* ff = "Roboto", SkScalar fs = 30,
+    void bidi(SkCanvas* canvas,
+              SkScalar w,
+              SkScalar h,
+              const std::u16string& text,
+              const std::u16string& expected,
+              size_t lineLimit = std::numeric_limits<size_t>::max(),
+              const char* ff = "Roboto",
+              SkScalar fs = 30,
               const std::u16string& ellipsis = u"\u2026") {
         SkAutoCanvasRestore acr(canvas, true);
 
@@ -703,14 +753,16 @@ protected:
         style0.setForegroundColor(black);
         style0.setFontFamilies({SkString(ff)});
         style0.setFontSize(fs);
-        style0.setFontStyle(SkFontStyle(SkFontStyle::kNormal_Weight, SkFontStyle::kNormal_Width,
+        style0.setFontStyle(SkFontStyle(SkFontStyle::kNormal_Weight,
+                                        SkFontStyle::kNormal_Width,
                                         SkFontStyle::kItalic_Slant));
 
         TextStyle style1;
         style1.setForegroundColor(gray);
         style1.setFontFamilies({SkString(ff)});
         style1.setFontSize(fs);
-        style1.setFontStyle(SkFontStyle(SkFontStyle::kBold_Weight, SkFontStyle::kNormal_Width,
+        style1.setFontStyle(SkFontStyle(SkFontStyle::kBold_Weight,
+                                        SkFontStyle::kNormal_Width,
                                         SkFontStyle::kUpright_Slant));
 
         ParagraphStyle paraStyle;
@@ -755,49 +807,11 @@ protected:
         paragraph->layout(w - margin * 2);
         paragraph->paint(canvas, margin, margin);
     }
-
-    void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorWHITE);
-        SkScalar width = this->width();
-        SkScalar height = this->height() / 8;
-
-        const std::u16string text1 =
-                u"A \u202ENAC\u202Cner, exceedingly \u202ENAC\u202Cny,\n"
-                "One morning remarked to his granny:\n"
-                "A \u202ENAC\u202Cner \u202ENAC\u202C \u202ENAC\u202C,\n"
-                "Anything that he \u202ENAC\u202C,\n"
-                "But a \u202ENAC\u202Cner \u202ENAC\u202C't \u202ENAC\u202C a \u202ENAC\u202C, "
-                "\u202ENAC\u202C he?";
-        bidi(canvas, width, height * 3, text1, u"", 5);
-        canvas->translate(0, height * 3);
-
-        bidi(canvas, width, height, u"\u2067DETALOSI\u2069", u"");
-        canvas->translate(0, height);
-
-        bidi(canvas, width, height, u"\u202BDEDDEBME\u202C", u"");
-        canvas->translate(0, height);
-
-        bidi(canvas, width, height, u"\u202EEDIRREVO\u202C", u"");
-        canvas->translate(0, height);
-
-        bidi(canvas, width, height, u"\u200FTICILPMI\u200E", u"");
-        canvas->translate(0, height);
-
-        bidi(canvas, width, height, u"123 456 7890 \u202EZYXWV UTS RQP ONM LKJ IHG FED CBA\u202C.",
-             u"", 2);
-        canvas->translate(0, height);
-
-        // bidi(canvas, width, height, u"", u"");
-        // canvas->translate(0, height);
-    }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView6 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph6"); }
+class ParagraphSlide6 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide6() { fName = "Paragraph6"; }
 
     void hangingS(SkCanvas* canvas, SkScalar w, SkScalar h, SkScalar fs = 60.0) {
         auto ff = "HangingS";
@@ -954,21 +968,18 @@ protected:
         }
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
-        SkScalar width = this->width();
-        SkScalar height = this->height() / 4;
+        SkScalar width = this->size().width();
+        SkScalar height = this->size().height() / 4;
 
         hangingS(canvas, width, height);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView7 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph7"); }
+class ParagraphSlide7 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide7() { fName = "Paragraph7"; }
 
     void drawText(SkCanvas* canvas, SkColor background, SkScalar letterSpace, SkScalar w,
                   SkScalar h) {
@@ -1001,11 +1012,11 @@ protected:
         paragraph->paint(canvas, 10, 10);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
-        auto h = this->height() / 4;
-        auto w = this->width() / 2;
+        auto h = this->size().height() / 4;
+        auto w = this->size().width() / 2;
 
         drawText(canvas, SK_ColorGRAY, 1, w, h);
         canvas->translate(0, h);
@@ -1031,14 +1042,11 @@ protected:
         drawText(canvas, SK_ColorBLUE, 20, w, h);
         canvas->translate(0, h);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView8 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph8"); }
+class ParagraphSlide8 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide8() { fName = "Paragraph8"; }
 
     void drawText(SkCanvas* canvas, SkColor background, SkScalar wordSpace, SkScalar w,
                   SkScalar h) {
@@ -1071,11 +1079,11 @@ protected:
         paragraph->paint(canvas, 10, 10);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
-        auto h = this->height() / 4;
-        auto w = this->width() / 2;
+        auto h = this->size().height() / 4;
+        auto w = this->size().width() / 2;
 
         drawText(canvas, SK_ColorGRAY, 1, w, h);
         canvas->translate(0, h);
@@ -1101,14 +1109,11 @@ protected:
         drawText(canvas, SK_ColorBLUE, 20, w, h);
         canvas->translate(0, h);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView9 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph9"); }
+class ParagraphSlide9 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide9() { fName = "Paragraph9"; }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -1190,26 +1195,24 @@ protected:
         paragraph->paint(canvas, 0, 0);
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
-        auto h = this->height();
-        auto w = this->width();
+        auto h = this->size().height();
+        auto w = this->size().width();
 
         drawText(canvas, SK_ColorGRAY, w, h);
     }
 
 private:
-    using INHERITED = Sample;
     SkScalar letterSpacing;
-    SkScalar wordSpacing;
-};
+    SkScalar wordSpacing;};
 
-class ParagraphView10 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph10"); }
+class ParagraphSlide10 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide10() { fName = "Paragraph10"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto multiplier = 5.67;
         const char* text = "English English 字典 字典 😀😃😄 😀😃😄";
@@ -1236,20 +1239,17 @@ protected:
         builder.pop();
 
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
 
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView11 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph11"); }
+class ParagraphSlide11 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide11() { fName = "Paragraph11"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto text = "\U0001f469\U0000200D\U0001f469\U0000200D\U0001f466\U0001f469\U0000200D\U0001f469\U0000200D\U0001f467\U0000200D\U0001f467\U0001f1fa\U0001f1f8";
@@ -1323,16 +1323,13 @@ protected:
             }
         }
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView12 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph12"); }
+class ParagraphSlide12 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide12() { fName = "Paragraph12"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         const char* text = "Atwater Peel Sherbrooke Bonaventure Angrignon Peel Côte-des-Neiges";
@@ -1362,16 +1359,13 @@ protected:
             canvas->drawRect(result.front().rect, paint);
         }
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView14 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph14"); }
+class ParagraphSlide14 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide14() { fName = "Paragraph14"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         TextStyle text_style;
         text_style.setFontFamilies({SkString("Ahem")});
@@ -1397,16 +1391,13 @@ protected:
         paint.setStrokeWidth(1);
         canvas->drawRect(SkRect::MakeXYWH(0, 0, 300, 100), paint);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView15 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph15"); }
+class ParagraphSlide15 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide15() { fName = "Paragraph15"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         TextStyle text_style;
@@ -1444,16 +1435,13 @@ protected:
         paragraph->paint(canvas, 50, 50);
 
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView16 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph16"); }
+class ParagraphSlide16 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide16() { fName = "Paragraph16"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         const char* text = "content";
@@ -1479,16 +1467,13 @@ protected:
         paragraph->layout(800);
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView17 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph17"); }
+class ParagraphSlide17 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide17() { fName = "Paragraph17"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
@@ -1515,9 +1500,6 @@ protected:
         paragraph->layout(10000);
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
 class Zalgo {
@@ -1549,9 +1531,9 @@ public:
     }
 };
 
-class ParagraphView18 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph18"); }
+class ParagraphSlide18 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide18() { fName = "Paragraph18"; }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -1572,7 +1554,7 @@ protected:
             return false;
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         if (++fIndex > fLimit) {
             fRedraw = true;
             fIndex = 0;
@@ -1582,7 +1564,7 @@ protected:
         return true;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto navy = SkColorSetRGB(0, 0, 139);
@@ -1648,15 +1630,13 @@ private:
     bool fRepeat = false;
     size_t fIndex = 0;
     size_t fLimit = 20;
-    std::unique_ptr<Paragraph> fParagraph;
-    using INHERITED = Sample;
-};
+    std::unique_ptr<Paragraph> fParagraph;};
 
-class ParagraphView19 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph19"); }
+class ParagraphSlide19 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide19() { fName = "Paragraph19"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
@@ -1671,19 +1651,16 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(this->width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView20 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph20"); }
+class ParagraphSlide20 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide20() { fName = "Paragraph20"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
@@ -1700,19 +1677,16 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(this->width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView21 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph21"); }
+class ParagraphSlide21 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide21() { fName = "Paragraph21"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         const char* text =  "Referral Code";
@@ -1728,14 +1702,11 @@ protected:
         paragraph->layout(0);
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView22 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph22"); }
+class ParagraphSlide22 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide22() { fName = "Paragraph22"; }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -1751,7 +1722,7 @@ protected:
             return false;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
         ParagraphStyle paragraph_style;
@@ -1773,21 +1744,19 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(" of coconuts.");
         auto paragraph = builder.Build();
-        paragraph->layout(this->width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
         collection->getParagraphCache()->turnOn(true);
     }
 
 private:
-    using INHERITED = Sample;
-    bool direction;
-};
+    bool direction;};
 
-class ParagraphView23 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph23"); }
+class ParagraphSlide23 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide23() { fName = "Paragraph23"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         const char* text =  "Text with shadow";
@@ -1828,16 +1797,13 @@ protected:
         draw(-10, 10, 5);
         canvas->translate(0, 100);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView24 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph24"); }
+class ParagraphSlide24 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide24() { fName = "Paragraph24"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         ParagraphStyle paragraph_style;
@@ -1851,7 +1817,7 @@ protected:
             builder.pushStyle(text_style);
             builder.addText("Right_to_left:");
             auto paragraph = builder.Build();
-            paragraph->layout(this->width());
+            paragraph->layout(this->size().width());
             paragraph->paint(canvas, 0, 0);
         }
         canvas->translate(0, 200);
@@ -1860,7 +1826,7 @@ protected:
             builder.pushStyle(text_style);
             builder.addText("Right_to_left+");
             auto paragraph = builder.Build();
-            paragraph->layout(this->width());
+            paragraph->layout(this->size().width());
             paragraph->paint(canvas, 0, 0);
         }
         canvas->translate(0, 200);
@@ -1869,20 +1835,17 @@ protected:
             builder.pushStyle(text_style);
             builder.addText("Right_to_left.");
             auto paragraph = builder.Build();
-            paragraph->layout(this->width());
+            paragraph->layout(this->size().width());
             paragraph->paint(canvas, 0, 0);
         }
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView25 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph25"); }
+class ParagraphSlide25 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide25() { fName = "Paragraph25"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 /*
  * Shell: ParagraphStyle: 1.000000 1
@@ -1940,16 +1903,13 @@ Shell: layout('Go to device settings ￼ and set up a passcode. ￼', 280.000000
             paragraph->paint(canvas, 0, 0);
         }
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView26 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph26"); }
+class ParagraphSlide26 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide26() { fName = "Paragraph26"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         //fontCollection->enableFontFallback();
@@ -1975,7 +1935,7 @@ protected:
         builder.addText(u"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ut dolor ornare, fermentum nibh in, consectetur libero. Ut id semper est. Sed malesuada, est id bibendum egestas, urna risus tristique nibh, euismod interdum risus turpis nec purus. Maecenas dolor nisl, consectetur in vestibulum et, tincidunt id leo. Duis maximus, odio eget tristique commodo, lacus tellus dapibus leo, consequat pellentesque arcu nisi sit amet diam. Quisque euismod venenatis egestas. Mauris posuere volutpat iaculis. Suspendisse finibus tempor urna, dignissim venenatis sapien finibus eget. Donec interdum lacus ac venenatis fringilla. Curabitur eget lacinia augue. Vestibulum eu vulputate odio. Quisque nec imperdiet");
 
         auto paragraph = builder.Build();
-        paragraph->layout(this->width() / 2);
+        paragraph->layout(this->size().width() / 2);
 
         std::vector<LineMetrics> lines;
         paragraph->getLineMetrics(lines); // <-- error happens here
@@ -1983,16 +1943,13 @@ protected:
         canvas->translate(10, 10);
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView27 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph27"); }
+class ParagraphSlide27 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide27() { fName = "Paragraph27"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
         fontCollection->enableFontFallback();
@@ -2117,16 +2074,13 @@ protected:
         draw(w, h, TextDirection::kLtr, TextAlign::kLeft, "LTR+LEFT##1234567890");
         draw(w, h, TextDirection::kLtr, TextAlign::kLeft, "قففغغغغقففغغغغقففغغغ");
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView28 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph28"); }
+class ParagraphSlide28 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide28() { fName = "Paragraph28"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         const char* text = "AAAAA BBBBB CCCCC DDDDD EEEEE FFFFF GGGGG HHHHH IIIII JJJJJ KKKKK LLLLL MMMMM NNNNN OOOOO PPPPP QQQQQ";
 
@@ -2153,16 +2107,13 @@ protected:
         paragraph->paint(canvas, 0, 0);
         */
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView29 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph29"); }
+class ParagraphSlide29 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide29() { fName = "Paragraph29"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         const char* text = "ffi";
         canvas->drawColor(SK_ColorWHITE);
@@ -2178,7 +2129,7 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
         auto width = paragraph->getLongestLine();
         auto height = paragraph->getHeight();
@@ -2222,16 +2173,13 @@ protected:
             }
         }
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView30 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph30"); }
+class ParagraphSlide30 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide30() { fName = "Paragraph30"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         const std::u16string text = //u"\U0001f600\U0001f1e6\U0001f1f9\U0001f601\U0001f9f1\U0001f61a\U0001f431\U0001f642\U0001f38e\U0001f60d\U0001f3b9\U0001f917\U0001f6bb\U0001f609\U0001f353\U0001f618\U0001f1eb\U0001f1f0\U0001f468\u200D\U0001f469\u200D\U0001f466\u200D\U0001f466\U0001f468\u200D\U0001f469\u200D\U0001f467\u200D\U0001f466\U0001f468\u200D\U0001f469\u200D\U0001f467\U0001f46a";
         u"\U0001f469\u200D\U0001f469\u200D\U0001f466\U0001f469\u200D\U0001f469\u200D\U0001f467\u200D\U0001f467\U0001f1fa\U0001f1f8";
@@ -2251,7 +2199,7 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
         std::pair<size_t, size_t> rects[] = {
             { 0, 2}, { 0, 4}, {0, 8},
@@ -2291,16 +2239,13 @@ protected:
             }
         }
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView31 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph31"); }
+class ParagraphSlide31 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide31() { fName = "Paragraph31"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
 
@@ -2318,19 +2263,16 @@ protected:
         auto s = u"েن েূথ";
         builder.addText(s);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView32 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph32"); }
+class ParagraphSlide32 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide32() { fName = "Paragraph32"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
 
@@ -2357,19 +2299,16 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(u"\u904d zh-HK ");
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView33 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph33"); }
+class ParagraphSlide33 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide33() { fName = "Paragraph33"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
 
@@ -2387,22 +2326,20 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(u"AAAAA \U0001f600 BBBBB CCCCC DDDDD EEEEE");
         auto paragraph = builder.Build();
-        paragraph->layout(width() / 2);
+        paragraph->layout(this->size().width() / 2);
         SkPaint paint;
         paint.setColor(SK_ColorLTGRAY);
-        canvas->drawRect(SkRect::MakeXYWH(0, 0, width()/2, paragraph->getHeight()), paint);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, this->size().width()/2, paragraph->getHeight()),
+                         paint);
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView34 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph34"); }
+class ParagraphSlide34 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide34() { fName = "Paragraph34"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
         auto text = "ضخمة ص ،😁😂🤣ضضض ؤ،،😗😗😍😋شسي،😗😁😁ؤرى،😗😃😄😍ببب،🥰😅🥰🥰🥰ثيلااتن";
@@ -2445,14 +2382,11 @@ protected:
         }
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView35 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph35"); }
+class ParagraphSlide35 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide35() { fName = "Paragraph35"; }
 
     Click* onFindClickHandler(SkScalar x, SkScalar y, skui::ModifierKey modi) override {
         return new Click;
@@ -2463,7 +2397,7 @@ protected:
         return true;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
 
@@ -2482,7 +2416,7 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());//758
+        paragraph->layout(this->size().width());//758
 
         //auto res1 = paragraph->getGlyphPositionAtCoordinate(line.width() + line.spacesWidth() / 2, line.offset().fY + 10);
         //auto res2 = paragraph->getWordBoundary(res1.position);
@@ -2506,15 +2440,13 @@ protected:
     }
 
 private:
-    using INHERITED = Sample;
-    SkPoint fPoint;
-};
+    SkPoint fPoint;};
 
-class ParagraphView36 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph36"); }
+class ParagraphSlide36 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide36() { fName = "Paragraph36"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
         auto text = "String is too big for WinMSVC";
@@ -2536,20 +2468,17 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
 
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView37 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph37"); }
+class ParagraphSlide37 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide37() { fName = "Paragraph37"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         const char* text = "String is too big for WinMSVC";
                 // "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaয়ৠঝোণ৺ঢ়মৈবৗৗঘথফড়৭২খসঢ়ৃঢ়ঁ৷থডঈঽলবনদ২ৢৃঀজঝ৩ঠ৪৫৯০ঌয়্মওৗ৲গখদ৹ঈ৴৹ঢ়ৄএৡফণহলঈ৲থজোৱে ঀকৰঀষজঝঃাখশঽএমংি";
                 //"ৎৣ়ৎঽতঃ৳্ৱব৴ৣঈ৷ূঁঢঢ়শটডৎ৵৵ৰৃ্দংঊাথৗদঊউদ৯ঐৃধা৬হওধি়৭ঽম৯স০ঢফৈঢ়কষঁছফীআে৶ৰ৶ঌৌঊ্ঊঝএঀঃদঞ৮তব৬ৄঊঙঢ়ৡগ৶৹৹ঌড়ঘৄ৷লপ১ভড়৶েঢ়৯ৎকনংট২ংএঢৌৌঐনো০টঽুৠগআ৷৭৩৬তো৻ঈ০ূসষঅঝআমণঔা১ণৈো৵চঽ৩বমৎঙঘ২ঠৠৈী৫তঌণচ৲ঔী৮ঘৰঔ";
@@ -2568,7 +2497,7 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        auto w = width() / 2;
+        auto w = this->size().width() / 2;
         paragraph->layout(w);
         auto impl = static_cast<ParagraphImpl*>(paragraph.get());
 
@@ -2594,16 +2523,13 @@ protected:
 
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView38 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph38"); }
+class ParagraphSlide38 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide38() { fName = "Paragraph38"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
 
@@ -2653,19 +2579,16 @@ protected:
         builder.addText("Wavy underline: {does not skip}\n");
 
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView39 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph39"); }
+class ParagraphSlide39 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide39() { fName = "Paragraph39"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
 
@@ -2689,19 +2612,16 @@ protected:
             "text5 with line break\n"
         );
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView41 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph41"); }
+class ParagraphSlide41 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide41() { fName = "Paragraph41"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
 
@@ -2731,7 +2651,7 @@ protected:
             builder.pushStyle(text_style);
             builder.addText("World domination is such an ugly phrase - I prefer to call it world optimisation");
             auto paragraph = builder.Build();
-            paragraph->layout(width());
+            paragraph->layout(this->size().width());
             paragraph->paint(canvas, 0, 0);
             canvas->drawLine(0, paragraph->getHeight(), paragraph->getMaxWidth(), paragraph->getHeight(), line);
             canvas->translate(0, paragraph->getHeight());
@@ -2742,16 +2662,13 @@ protected:
         draw(SK_ColorGRAY, TextHeightBehavior::kDisableAll);
 
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView42 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph42"); }
+class ParagraphSlide42 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide42() { fName = "Paragraph42"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         SkString text("Atwater Peel Sherbrooke Bonaventure\nhi\nwasssup!");
         canvas->drawColor(SK_ColorWHITE);
@@ -2769,7 +2686,7 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text.c_str());
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
 
         auto boxes = paragraph->getRectsForRange(0, 7, RectHeightStyle::kIncludeLineSpacingTop, RectWidthStyle::kMax);
         for (auto& box : boxes) {
@@ -2787,16 +2704,13 @@ protected:
 
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView43 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph43"); }
+class ParagraphSlide43 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide43() { fName = "Paragraph43"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         SkString text("World domination is such an ugly phrase - I prefer to call it world optimisation");
         canvas->drawColor(SK_ColorWHITE);
@@ -2818,19 +2732,16 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text.c_str());
         auto paragraph = builder.Build();
-        paragraph->layout(width() / 4);
+        paragraph->layout(this->size().width() / 4);
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView44 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph44"); }
+class ParagraphSlide44 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide44() { fName = "Paragraph44"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         const std::u16string text = u"The quick brown fox \U0001f98a ate a zesty ham burger fons \U0001f354."
                                     "The \U0001f469\u200D\U0001f469\u200D\U0001f467\u200D\U0001f467 laughed.";
@@ -2854,16 +2765,13 @@ protected:
         paragraph->layout(305);//width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView45 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph45"); }
+class ParagraphSlide45 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide45() { fName = "Paragraph45"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
       // This test crashed when resources/fonts directory had only 5 fonts listed below
       std::string fonts = GetResourcePath("fonts/").c_str();
@@ -2907,19 +2815,16 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView46 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph44"); }
+class ParagraphSlide46 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide46() { fName = "Paragraph46"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         auto text = "XXXXXXXXXX\nYYYYYYYYYY\nZZZZZZZZZZ";
         canvas->drawColor(SK_ColorWHITE);
@@ -2930,7 +2835,7 @@ protected:
 
         ParagraphStyle paragraph_style;
 
-        auto column = width()/3;
+        auto column = this->size().width()/3;
         auto draw = [&](SkScalar x) {
             ParagraphBuilderImpl builder(paragraph_style, fontCollection);
             TextStyle text_style;
@@ -2948,16 +2853,13 @@ protected:
 
         draw(column*0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView47 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph47"); }
+class ParagraphSlide47 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide47() { fName = "Paragraph47"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
     canvas->clear(SK_ColorWHITE);
 
@@ -3002,17 +2904,14 @@ protected:
     paragraph2->paint(canvas, 200, 500);
     canvas->restore();
     }
-
-private:
-    using INHERITED = Sample;
 };
 
 
-class ParagraphView48 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph48"); }
+class ParagraphSlide48 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide48() { fName = "Paragraph48"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorGRAY);
 
         // To reproduce the client problem set DEFAULT_FONT_FAMILY to something
@@ -3054,16 +2953,13 @@ protected:
         paragraph3->paint(canvas, 200, 400);
         canvas->restore();
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView49 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph49"); }
+class ParagraphSlide49 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide49() { fName = "Paragraph49"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorGRAY);
         auto fontCollection = getFontCollection();
         fontCollection->disableFontFallback();
@@ -3088,16 +2984,13 @@ protected:
         paragraph->layout(360);
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView50 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph50"); }
+class ParagraphSlide50 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide50() { fName = "Paragraph50"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
@@ -3120,16 +3013,13 @@ protected:
         paragraph->layout(360);
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView51 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph51"); }
+class ParagraphSlide51 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide51() { fName = "Paragraph51"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
@@ -3149,16 +3039,13 @@ protected:
         paragraph->layout(1000);
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView52 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph52"); }
+class ParagraphSlide52 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide52() { fName = "Paragraph52"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         //const char* text = "😀😃😄 ABC 😀😃😄 DEF GHI";
 
@@ -3183,7 +3070,7 @@ protected:
         builder.pop();
 
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
 
         paragraph->paint(canvas, 0, 0);
         }
@@ -3204,22 +3091,19 @@ protected:
         builder.pop();
 
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
 
         paragraph->paint(canvas, 0, 400);
         }
 
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView53 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph53"); }
+class ParagraphSlide53 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide53() { fName = "Paragraph53"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         const char* text1 = "אאא בבב גגג דדד ההה";
         const char* text2 = "ששש תתת";
@@ -3242,7 +3126,7 @@ protected:
         builder.pop();
 
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
         canvas->translate(0, paragraph->getHeight() + 20);
         }
@@ -3260,22 +3144,19 @@ protected:
         builder.pop();
 
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
         canvas->translate(0, paragraph->getHeight() + 20);
         }
 
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView54 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph54"); }
+class ParagraphSlide54 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide54() { fName = "Paragraph54"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         //std::string text("يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ");
         //auto text = "ד👨‍👩‍👧‍👦😀";
@@ -3299,19 +3180,16 @@ protected:
         builder.addText(text);
 
         auto paragraph = builder.Build();
-        paragraph->layout(/*360*/width());
+        paragraph->layout(/*360*/this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView55 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph55"); }
+class ParagraphSlide55 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide55() { fName = "Paragraph55"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         std::string text("يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ");
 
@@ -3339,19 +3217,16 @@ protected:
         builder.addText(text.substr(30, 50).data());
 
         auto paragraph = builder.Build();
-        paragraph->layout(/*360*/width());
+        paragraph->layout(/*360*/this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView56 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph56"); }
+class ParagraphSlide56 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide56() { fName = "Paragraph56"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto text = "BAM BAM BAM by Jade Baraldo\n"
                     "Now on Top 100 Music Videos United States";
@@ -3373,19 +3248,16 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(text);
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView57 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph57"); }
+class ParagraphSlide57 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide57() { fName = "Paragraph57"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = sk_make_sp<FontCollection>();
@@ -3403,7 +3275,7 @@ protected:
         builder.addText("בבבב\n\nאאאא");
         builder.pop();
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
 
         auto height = paragraph->getHeight();
@@ -3414,16 +3286,13 @@ protected:
         SkDebugf("res2: %d %s\n", res2.position, res2.affinity == Affinity::kDownstream ? "D" : "U");
         SkDebugf("res3: %d %s\n", res3.position, res3.affinity == Affinity::kDownstream ? "D" : "U");
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView58 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph58"); }
+class ParagraphSlide58 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide58() { fName = "Paragraph58"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection = getFontCollection();
@@ -3441,19 +3310,16 @@ protected:
         builder.addText(u"Text1 Google\u00A0Pay Text2");
 
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView59 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("Paragraph59"); }
+class ParagraphSlide59 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide59() { fName = "Paragraph59"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         auto fontCollection = getFontCollection();
         //fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -3468,7 +3334,7 @@ protected:
         builder.pushStyle(text_style);
         builder.addText("The quick brown fox ate a hamburgerfons and got sick.");
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
 
         paragraph->paint(canvas, 0, 0);
 
@@ -3491,16 +3357,13 @@ protected:
 
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView60 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("ParagraphView60"); }
+class ParagraphSlide60 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide60() { fName = "Paragraph60"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         SkString text("");
         canvas->drawColor(SK_ColorWHITE);
@@ -3516,20 +3379,17 @@ protected:
         builder.pushStyle(text_style);
         builder.addText("    ");
         auto paragraph = builder.Build();
-        paragraph->layout(width());
+        paragraph->layout(this->size().width());
         auto result = paragraph->getGlyphPositionAtCoordinate(20, 2); // "hello    " 60,2
         SkDebugf("getGlyphPositionAtCoordinate(20,2)=%d %s\n", result.position, result.affinity == Affinity::kDownstream ? "D" : "U");
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView61 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("ParagraphView61"); }
+class ParagraphSlide61 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide61() { fName = "Paragraph61"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         SkString text("");
         canvas->drawColor(SK_ColorWHITE);
@@ -3553,17 +3413,14 @@ protected:
             SkDebugf("Line[%zu:%zu <= %zu <= %zu)\n", metric.fStartIndex, metric.fEndExcludingWhitespaces, metric.fEndIndex, metric.fEndIncludingNewline);
         }
     }
-
-private:
-    using INHERITED = Sample;
 };
 
 // Selection jumping back and forth on Chinese text
-class ParagraphView62 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("ParagraphView62"); }
+class ParagraphSlide62 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide62() { fName = "Paragraph62"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         SkString text("");
         canvas->drawColor(SK_ColorWHITE);
@@ -3603,17 +3460,14 @@ protected:
         //auto rects130 = paragraph->getRectsForRange(0.0f, 130.0f, RectHeightStyle::kTight, RectWidthStyle::kTight);
         //auto rects140 = paragraph->getRectsForRange(0.0f, 140.0f, RectHeightStyle::kTight, RectWidthStyle::kTight);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
 // Baseline shift
-class ParagraphView63 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("ParagraphView63"); }
+class ParagraphSlide63 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide63() { fName = "Paragraph63"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
 
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
@@ -3649,16 +3503,13 @@ protected:
         }
         */
     }
-
-private:
-    using INHERITED = Sample;
 };
 
 // Non-monotonic glyph placement
-class ParagraphView64 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("ParagraphView64"); }
-    void onDrawContent(SkCanvas* canvas) override {
+class ParagraphSlide64 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide64() { fName = "Paragraph64"; }
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -3680,15 +3531,13 @@ protected:
         paragraph->layout(paragraph->getMaxIntrinsicWidth() + 1);
         paragraph->paint(canvas, 0, 0);
     }
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView65 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("ParagraphView65"); }
+class ParagraphSlide65 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide65() { fName = "Paragraph65"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
 
         auto fontCollection =
@@ -3769,16 +3618,13 @@ protected:
         paragraph->layout(600);
         paragraph->paint(canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
 // Non-monotonic glyph placement
-class ParagraphView66 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("ParagraphView66"); }
-    void onDrawContent(SkCanvas* canvas) override {
+class ParagraphSlide66 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide66() { fName = "Paragraph66"; }
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), true);
         fontCollection->disableFontFallback();
@@ -3804,7 +3650,7 @@ protected:
             builder.pushStyle(text_style);
             builder.addText(u"abc \u2026 abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc abc");
             auto paragraph = builder.Build();
-            paragraph->layout(this->width());
+            paragraph->layout(this->size().width());
             paragraph->paint(canvas, 0, 0);
             canvas->translate(0, paragraph->getHeight());
         };
@@ -3814,14 +3660,12 @@ protected:
         draw(false, SkString("Roboto"));
         draw(false, SkString("Roboto1"));
     }
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView67 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("ParagraphView67"); }
-    void onDrawContent(SkCanvas* canvas) override {
+class ParagraphSlide67 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide67() { fName = "Paragraph67"; }
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -3880,7 +3724,7 @@ protected:
             builder.addText(text);
             builder.pop();
             auto paragraph = builder.Build();
-            paragraph->layout(width());
+            paragraph->layout(this->size().width());
             paragraph->paint(canvas, 0, 0);
             if (test) {
                 /*
@@ -3908,14 +3752,12 @@ protected:
         draw("overline\nBBB\nCCC", true);
         draw("===================");
     }
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphView68 : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("ParagraphView68"); }
-    void onDrawContent(SkCanvas* canvas) override {
+class ParagraphSlide68 : public ParagraphSlide_Base {
+public:
+    ParagraphSlide68() { fName = "Paragraph68"; }
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -3953,7 +3795,7 @@ protected:
             builder.addText(text);
             builder.pop();
             auto paragraph = builder.Build();
-            paragraph->layout(width());
+            paragraph->layout(this->size().width());
             paragraph->paint(canvas, 0, 0);
             SkDebugf("paragraph='%s' %f\n", text, paragraph->getHeight());
             canvas->translate(0, paragraph->getHeight() + 20);
@@ -3961,14 +3803,12 @@ protected:
         draw("x");
         draw("");
     }
-private:
-    using INHERITED = Sample;
 };
 
-class ParagraphViewLast : public ParagraphView_Base {
-protected:
-    SkString name() override { return SkString("ParagraphViewLast"); }
-    void onDrawContent(SkCanvas* canvas) override {
+class ParagraphSlideLast : public ParagraphSlide_Base {
+public:
+    ParagraphSlideLast() { fName = "ParagraphSlideLast"; }
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -3988,79 +3828,77 @@ protected:
         builder.pushStyle(text_style);
         builder.addText(u"\u064e\u0647\u064f");
         auto paragraph = builder.Build();
-        paragraph->layout(this->width());
+        paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
     }
-private:
-    using INHERITED = Sample;
 };
 }  // namespace
 
 //////////////////////////////////////////////////////////////////////////////
-DEF_SAMPLE(return new ParagraphView1();)
-DEF_SAMPLE(return new ParagraphView2();)
-DEF_SAMPLE(return new ParagraphView3();)
-DEF_SAMPLE(return new ParagraphView4();)
-DEF_SAMPLE(return new ParagraphView5();)
-DEF_SAMPLE(return new ParagraphView6();)
-DEF_SAMPLE(return new ParagraphView7();)
-DEF_SAMPLE(return new ParagraphView8();)
-DEF_SAMPLE(return new ParagraphView9();)
-DEF_SAMPLE(return new ParagraphView10();)
-DEF_SAMPLE(return new ParagraphView11();)
-DEF_SAMPLE(return new ParagraphView12();)
-DEF_SAMPLE(return new ParagraphView14();)
-DEF_SAMPLE(return new ParagraphView15();)
-DEF_SAMPLE(return new ParagraphView16();)
-DEF_SAMPLE(return new ParagraphView17();)
-DEF_SAMPLE(return new ParagraphView18();)
-DEF_SAMPLE(return new ParagraphView19();)
-DEF_SAMPLE(return new ParagraphView20();)
-DEF_SAMPLE(return new ParagraphView21();)
-DEF_SAMPLE(return new ParagraphView22();)
-DEF_SAMPLE(return new ParagraphView23();)
-DEF_SAMPLE(return new ParagraphView24();)
-DEF_SAMPLE(return new ParagraphView25();)
-DEF_SAMPLE(return new ParagraphView26();)
-DEF_SAMPLE(return new ParagraphView27();)
-DEF_SAMPLE(return new ParagraphView28();)
-DEF_SAMPLE(return new ParagraphView29();)
-DEF_SAMPLE(return new ParagraphView30();)
-DEF_SAMPLE(return new ParagraphView31();)
-DEF_SAMPLE(return new ParagraphView32();)
-DEF_SAMPLE(return new ParagraphView33();)
-DEF_SAMPLE(return new ParagraphView34();)
-DEF_SAMPLE(return new ParagraphView35();)
-DEF_SAMPLE(return new ParagraphView36();)
-DEF_SAMPLE(return new ParagraphView37();)
-DEF_SAMPLE(return new ParagraphView38();)
-DEF_SAMPLE(return new ParagraphView39();)
-DEF_SAMPLE(return new ParagraphView41();)
-DEF_SAMPLE(return new ParagraphView42();)
-DEF_SAMPLE(return new ParagraphView43();)
-DEF_SAMPLE(return new ParagraphView44();)
-DEF_SAMPLE(return new ParagraphView45();)
-DEF_SAMPLE(return new ParagraphView46();)
-DEF_SAMPLE(return new ParagraphView47();)
-DEF_SAMPLE(return new ParagraphView48();)
-DEF_SAMPLE(return new ParagraphView49();)
-DEF_SAMPLE(return new ParagraphView50();)
-DEF_SAMPLE(return new ParagraphView51();)
-DEF_SAMPLE(return new ParagraphView52();)
-DEF_SAMPLE(return new ParagraphView53();)
-DEF_SAMPLE(return new ParagraphView54();)
-DEF_SAMPLE(return new ParagraphView55();)
-DEF_SAMPLE(return new ParagraphView56();)
-DEF_SAMPLE(return new ParagraphView57();)
-DEF_SAMPLE(return new ParagraphView58();)
-DEF_SAMPLE(return new ParagraphView59();)
-DEF_SAMPLE(return new ParagraphView60();)
-DEF_SAMPLE(return new ParagraphView61();)
-DEF_SAMPLE(return new ParagraphView62();)
-DEF_SAMPLE(return new ParagraphView63();)
-DEF_SAMPLE(return new ParagraphView64();)
-DEF_SAMPLE(return new ParagraphView65();)
-DEF_SAMPLE(return new ParagraphView66();)
-DEF_SAMPLE(return new ParagraphView67();)
-DEF_SAMPLE(return new ParagraphView68();)
-DEF_SAMPLE(return new ParagraphViewLast();)
+DEF_SLIDE(return new ParagraphSlide1();)
+DEF_SLIDE(return new ParagraphSlide2();)
+DEF_SLIDE(return new ParagraphSlide3();)
+DEF_SLIDE(return new ParagraphSlide4();)
+DEF_SLIDE(return new ParagraphSlide5();)
+DEF_SLIDE(return new ParagraphSlide6();)
+DEF_SLIDE(return new ParagraphSlide7();)
+DEF_SLIDE(return new ParagraphSlide8();)
+DEF_SLIDE(return new ParagraphSlide9();)
+DEF_SLIDE(return new ParagraphSlide10();)
+DEF_SLIDE(return new ParagraphSlide11();)
+DEF_SLIDE(return new ParagraphSlide12();)
+DEF_SLIDE(return new ParagraphSlide14();)
+DEF_SLIDE(return new ParagraphSlide15();)
+DEF_SLIDE(return new ParagraphSlide16();)
+DEF_SLIDE(return new ParagraphSlide17();)
+DEF_SLIDE(return new ParagraphSlide18();)
+DEF_SLIDE(return new ParagraphSlide19();)
+DEF_SLIDE(return new ParagraphSlide20();)
+DEF_SLIDE(return new ParagraphSlide21();)
+DEF_SLIDE(return new ParagraphSlide22();)
+DEF_SLIDE(return new ParagraphSlide23();)
+DEF_SLIDE(return new ParagraphSlide24();)
+DEF_SLIDE(return new ParagraphSlide25();)
+DEF_SLIDE(return new ParagraphSlide26();)
+DEF_SLIDE(return new ParagraphSlide27();)
+DEF_SLIDE(return new ParagraphSlide28();)
+DEF_SLIDE(return new ParagraphSlide29();)
+DEF_SLIDE(return new ParagraphSlide30();)
+DEF_SLIDE(return new ParagraphSlide31();)
+DEF_SLIDE(return new ParagraphSlide32();)
+DEF_SLIDE(return new ParagraphSlide33();)
+DEF_SLIDE(return new ParagraphSlide34();)
+DEF_SLIDE(return new ParagraphSlide35();)
+DEF_SLIDE(return new ParagraphSlide36();)
+DEF_SLIDE(return new ParagraphSlide37();)
+DEF_SLIDE(return new ParagraphSlide38();)
+DEF_SLIDE(return new ParagraphSlide39();)
+DEF_SLIDE(return new ParagraphSlide41();)
+DEF_SLIDE(return new ParagraphSlide42();)
+DEF_SLIDE(return new ParagraphSlide43();)
+DEF_SLIDE(return new ParagraphSlide44();)
+DEF_SLIDE(return new ParagraphSlide45();)
+DEF_SLIDE(return new ParagraphSlide46();)
+DEF_SLIDE(return new ParagraphSlide47();)
+DEF_SLIDE(return new ParagraphSlide48();)
+DEF_SLIDE(return new ParagraphSlide49();)
+DEF_SLIDE(return new ParagraphSlide50();)
+DEF_SLIDE(return new ParagraphSlide51();)
+DEF_SLIDE(return new ParagraphSlide52();)
+DEF_SLIDE(return new ParagraphSlide53();)
+DEF_SLIDE(return new ParagraphSlide54();)
+DEF_SLIDE(return new ParagraphSlide55();)
+DEF_SLIDE(return new ParagraphSlide56();)
+DEF_SLIDE(return new ParagraphSlide57();)
+DEF_SLIDE(return new ParagraphSlide58();)
+DEF_SLIDE(return new ParagraphSlide59();)
+DEF_SLIDE(return new ParagraphSlide60();)
+DEF_SLIDE(return new ParagraphSlide61();)
+DEF_SLIDE(return new ParagraphSlide62();)
+DEF_SLIDE(return new ParagraphSlide63();)
+DEF_SLIDE(return new ParagraphSlide64();)
+DEF_SLIDE(return new ParagraphSlide65();)
+DEF_SLIDE(return new ParagraphSlide66();)
+DEF_SLIDE(return new ParagraphSlide67();)
+DEF_SLIDE(return new ParagraphSlide68();)
+DEF_SLIDE(return new ParagraphSlideLast();)

@@ -10,9 +10,6 @@
 #include "include/core/SkRRect.h"
 #include "include/private/SkTPin.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/Sample.h"
-#include "tools/timer/TimeUtils.h"
-
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
@@ -21,6 +18,8 @@
 #include "modules/sksg/include/SkSGRect.h"
 #include "modules/sksg/include/SkSGScene.h"
 #include "modules/sksg/include/SkSGTransform.h"
+#include "tools/timer/TimeUtils.h"
+#include "tools/viewer/Slide.h"
 
 namespace {
 
@@ -78,12 +77,11 @@ void update_pos(const sk_sp<sksg::RRect>& rr, const SkPoint& pos) {
 
 }  // namespace
 
-class PongView final : public Sample {
+class PongSlide final : public Slide {
 public:
-    PongView() = default;
+    PongSlide() { fName = "SGPong"; }
 
-protected:
-    void onOnceBeforeDraw() override {
+    void load(SkScalar w, SkScalar h) override {
         const SkRect fieldBounds = kBounds.makeOutset(kBallSize / 2, kBallSize / 2);
         const SkRRect ball = SkRRect::MakeOval(SkRect::MakeWH(kBallSize, kBallSize));
         const SkRRect paddle = SkRRect::MakeRectXY(SkRect::MakeWH(kPaddleSize.width(),
@@ -145,15 +143,13 @@ protected:
         // Handle everything in a normalized 1x1 space.
         fContentMatrix = sksg::Matrix<SkMatrix>::Make(
             SkMatrix::RectToRect(SkRect::MakeWH(1, 1),
-                                 SkRect::MakeIWH(this->width(), this->height())));
+                                 SkRect::MakeWH(w, h)));
         auto root = sksg::TransformEffect::Make(std::move(group), fContentMatrix);
         fScene = sksg::Scene::Make(std::move(root));
 
         // Off we go.
         this->updatePaddleStrategy();
     }
-
-    SkString name() override { return SkString("SGPong"); }
 
     bool onChar(SkUnichar uni) override {
             switch (uni) {
@@ -172,17 +168,14 @@ protected:
             return false;
     }
 
-    void onSizeChange() override {
+    void resize(SkScalar w, SkScalar h) override {
         if (fContentMatrix) {
             fContentMatrix->setMatrix(SkMatrix::RectToRect(SkRect::MakeWH(1, 1),
-                                                           SkRect::MakeIWH(this->width(),
-                                                                           this->height())));
+                                                           SkRect::MakeWH(w, h)));
         }
-
-        this->INHERITED::onSizeChange();
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         sksg::InvalidationController ic;
         fScene->render(canvas);
 
@@ -201,7 +194,7 @@ protected:
         }
     }
 
-    bool onAnimate(double nanos) override {
+    bool animate(double nanos) override {
         // onAnimate may fire before the first draw.
         if (fScene) {
             SkScalar dt = (TimeUtils::NanosToMSec(nanos) - fLastTick) * fTimeScale;
@@ -300,8 +293,6 @@ private:
     SkMSec                        fLastTick  = 0;
     SkScalar                      fTimeScale = 1.0f;
     bool                          fShowInval = false;
-
-    using INHERITED = Sample;
 };
 
-DEF_SAMPLE( return new PongView(); )
+DEF_SLIDE( return new PongSlide(); )

@@ -2291,7 +2291,7 @@ if (skia_enable_tools) {
   }
 
   import("gn/samples.gni")
-  test_lib("samples") {
+  test_lib("slides") {
     sources = samples_sources
     if (!skia_enable_skgpu_v1) {
       sources -= skgpu_v1_samples_sources
@@ -2301,9 +2301,9 @@ if (skia_enable_tools) {
       ":flags",
       ":gpu_tool_utils",
       ":xml",
-      "experimental/sktext:samples",
+      "experimental/sktext:slides",
       "modules/audioplayer",
-      "modules/skparagraph:samples",
+      "modules/skparagraph:slides",
       "modules/skshaper",
       "modules/svg",
       "//third_party/imgui",
@@ -3056,9 +3056,9 @@ if (skia_enable_tools) {
         ":flags",
         ":gm",
         ":gpu_tool_utils",
-        ":samples",
         ":sk_app",
         ":skia",
+        ":slides",
         ":tool_utils",
         ":trace",
         "experimental/sktext",
@@ -3066,7 +3066,7 @@ if (skia_enable_tools) {
         "modules/particles",
         "modules/skottie",
         "modules/skottie:utils",
-        "modules/sksg:samples",
+        "modules/sksg:slides",
         "modules/skshaper:skshaper",
         "modules/svg",
         "//third_party/imgui",

@@ -11,37 +11,63 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTime.h"
-#include "samplecode/Sample.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 #include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/viewer/Slide.h"
 
 using namespace skia::text;
 using namespace skia::editor;
 
 namespace {
-class TextSample_HelloWorld : public Sample {
-protected:
-    SkString name() override { return SkString("TextSample_HelloWorld"); }
-
-    void onDrawContent(SkCanvas* canvas) override {
+class TextSlide_HelloWorld : public Slide {
+public:
+    TextSlide_HelloWorld() { fName = "TextSlide_HelloWorld"; }
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         skia::text::Paint::drawText(u"Hello word", canvas, 0, 0);
     }
-
-private:
-    using INHERITED = Sample;
 };
 
-class TextSample_Align_Dir : public Sample {
-
+class TextSlide_Align_Dir : public Slide {
 public:
-    TextSample_Align_Dir() : fUnicode(SkUnicode::Make()) { }
-protected:
-    SkString name() override { return SkString("TextSample_Align_Dir"); }
+    TextSlide_Align_Dir() : fUnicode(SkUnicode::Make()) { fName = "TextSlide_Align_Dir"; }
 
+    void draw(SkCanvas* canvas) override {
+
+        canvas->drawColor(SK_ColorDKGRAY);
+        SkScalar width = fSize.width() / 4;
+        SkScalar height = fSize.height() / 2;
+
+        const std::u16string line = u"One line of text";
+
+        drawLine(canvas, width, height, line, TextAlign::kLeft, TextDirection::kLtr);
+        canvas->translate(width, 0);
+        drawLine(canvas, width, height, line, TextAlign::kRight, TextDirection::kLtr);
+        canvas->translate(width, 0);
+        drawLine(canvas, width, height, line, TextAlign::kCenter, TextDirection::kLtr);
+        canvas->translate(width, 0);
+        drawLine(canvas, width, height, line, TextAlign::kJustify, TextDirection::kLtr);
+        canvas->translate(-width * 3, height);
+
+        drawLine(canvas, width, height, line, TextAlign::kLeft, TextDirection::kRtl);
+        canvas->translate(width, 0);
+        drawLine(canvas, width, height, line, TextAlign::kRight, TextDirection::kRtl);
+        canvas->translate(width, 0);
+        drawLine(canvas, width, height, line, TextAlign::kCenter, TextDirection::kRtl);
+        canvas->translate(width, 0);
+        drawLine(canvas, width, height, line, TextAlign::kJustify, TextDirection::kRtl);
+        canvas->translate(width, 0);
+
+    }
+
+    void load(SkScalar w, SkScalar h) override { fSize = {w, h}; }
+
+    void resize(SkScalar w, SkScalar h) override { fSize = {w, h}; }
+
+private:
     void drawLine(SkCanvas* canvas, SkScalar w, SkScalar h,
                   const std::u16string& text,
                   TextAlign align,
@@ -84,66 +110,49 @@ protected:
         return result;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
-
-        canvas->drawColor(SK_ColorDKGRAY);
-        SkScalar width = this->width() / 4;
-        SkScalar height = this->height() / 2;
-
-        const std::u16string line = u"One line of text";
-
-        drawLine(canvas, width, height, line, TextAlign::kLeft, TextDirection::kLtr);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kRight, TextDirection::kLtr);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kCenter, TextDirection::kLtr);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kJustify, TextDirection::kLtr);
-        canvas->translate(-width * 3, height);
-
-        drawLine(canvas, width, height, line, TextAlign::kLeft, TextDirection::kRtl);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kRight, TextDirection::kRtl);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kCenter, TextDirection::kRtl);
-        canvas->translate(width, 0);
-        drawLine(canvas, width, height, line, TextAlign::kJustify, TextDirection::kRtl);
-        canvas->translate(width, 0);
-
-    }
-
-private:
-    using INHERITED = Sample;
     std::unique_ptr<SkUnicode> fUnicode;
+    SkSize fSize;
 };
 
-class TextSample_LongLTR : public Sample {
-protected:
-    SkString name() override { return SkString("TextSample_LongLTR"); }
+class TextSlide_LongLTR : public Slide {
+public:
+    TextSlide_LongLTR() { fName = "TextSlide_LongLTR"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void load(SkScalar w, SkScalar h) override { fWidth = w; }
+
+    void resize(SkScalar w, SkScalar h) override { fWidth = w; }
+
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         Paint::drawText(u"A very_very_very_very_very_very_very_very_very_very "
                 "very_very_very_very_very_very_very_very_very_very very very very very very very "
                 "very very very very very very very very very very very very very very very very "
-                "very very very very very very very very very very very very very long text", canvas, this->width());
+                "very very very very very very very very very very very very very long text",
+                canvas, fWidth);
 
     }
 
 private:
-    using INHERITED = Sample;
     std::unique_ptr<SkUnicode> fUnicode;
+    SkScalar fWidth;
 };
 
-class TextSample_LongRTL1 : public Sample {
-protected:
-    SkString name() override { return SkString("TextSample_LongRTL"); }
+class TextSlide_LongRTL1 : public Slide {
+public:
+    TextSlide_LongRTL1() { fName = "TextSlide_LongRTL"; }
 
+    void draw(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        Paint::drawText(mirror("LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)"),
+                        canvas, 0, 0);
+    }
+
+private:
     std::u16string mirror(const std::string& text) {
         std::u16string result;
         result += u"\u202E";
         for (auto i = text.size(); i > 0; --i) {
-          result += text[i - 1];
+            result += text[i - 1];
         }
         for (auto ch : text) {
             result += ch;
@@ -152,21 +161,14 @@ protected:
         return result;
     }
 
-    void onDrawContent(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorWHITE);
-        Paint::drawText(mirror("LONG MIRRORED TEXT SHOULD SHOW RIGHT TO LEFT (AS NORMAL)"), canvas, 0, 0);
-    }
-
-private:
-    using INHERITED = Sample;
     std::unique_ptr<SkUnicode> fUnicode;
 };
 
-class TextSample_LongRTL2 : public Sample {
-protected:
-    SkString name() override { return SkString("TextSample_LongRTL"); }
+class TextSlide_LongRTL2 : public Slide {
+public:
+    TextSlide_LongRTL2() { fName = "TextSlide_LongRTL"; }
 
-    void onDrawContent(SkCanvas* canvas) override {
+    void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         std::u16string utf16(u"يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُيَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُيَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ يَهْدِيْكُمُ اللَّهُ وَيُصْلِحُ بَالَكُمُ");
         Paint::drawText(utf16, canvas,
@@ -177,14 +179,13 @@ protected:
     }
 
 private:
-    using INHERITED = Sample;
     std::unique_ptr<SkUnicode> fUnicode;
 };
 
 }  // namespace
 
-DEF_SAMPLE(return new TextSample_HelloWorld();)
-DEF_SAMPLE(return new TextSample_Align_Dir();)
-DEF_SAMPLE(return new TextSample_LongLTR();)
-DEF_SAMPLE(return new TextSample_LongRTL1();)
-DEF_SAMPLE(return new TextSample_LongRTL2();)
+DEF_SLIDE(return new TextSlide_HelloWorld();)
+DEF_SLIDE(return new TextSlide_Align_Dir();)
+DEF_SLIDE(return new TextSlide_LongLTR();)
+DEF_SLIDE(return new TextSlide_LongRTL1();)
+DEF_SLIDE(return new TextSlide_LongRTL2();)

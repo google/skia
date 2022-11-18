@@ -47,7 +47,7 @@ if (skia_enable_tools) {
       "../../tools/viewer/SampleSlide.cpp",
       "../../tools/viewer/SvgSlide.cpp",
     ]
-    deps = [ "../..:samples" ]
+    deps = [ "../..:slides" ]
   }
 
   component("gm_wasm") {
