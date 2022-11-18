@@ -632,6 +632,7 @@ if (gn_args['skia_enable_skottie']):
   srcs.update(strip_slashes(js['targets']['//modules/skottie:skottie']['sources']))
   gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'sources',
                                      srcs, '//:skia')
+  srcs = strip_headers(srcs)
 
   local_includes.update(strip_slashes(js['targets']['//modules/skottie:skottie']['include_dirs']))
   gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'include_dirs',
