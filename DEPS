@@ -5,6 +5,10 @@ vars = {
   # the commit queue can handle CLs rolling different
   # dependencies without interference from each other.
   'sk_tool_revision': 'git_revision:5f68de3ef7cdb22373991e482b4f2c5d7cd47928',
+
+  # ninja CIPD package version.
+  # https://chrome-infra-packages.appspot.com/p/infra/3pp/tools/ninja
+  'ninja_version': 'version:2@1.8.2.chromium.3',
 }
 
 # If you modify this file, you will need to regenerate the Bazel version of this file (bazel/deps.bzl).
@@ -67,6 +71,10 @@ deps = {
       {
         'package': 'skia/tools/sk/${{platform}}',
         'version': Var('sk_tool_revision'),
+      },
+      {
+        'package': 'infra/3pp/tools/ninja/${{platform}}',
+        'version': Var('ninja_version'),
       }
     ],
     'dep_type': 'cipd',
