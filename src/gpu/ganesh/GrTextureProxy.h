@@ -8,15 +8,25 @@
 #ifndef GrTextureProxy_DEFINED
 #define GrTextureProxy_DEFINED
 
-#include "include/gpu/GrBackendSurface.h"
-#include "src/gpu/ganesh/GrSamplerState.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/ResourceKey.h"
+#include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
 
-class GrCaps;
+#include <cstddef>
+#include <memory>
+#include <string_view>
+
+class GrBackendFormat;
 class GrDeferredProxyUploader;
 class GrProxyProvider;
 class GrResourceProvider;
 class GrTextureProxyPriv;
+struct SkISize;
 
 // This class delays the acquisition of textures until they are actually required
 class GrTextureProxy : virtual public GrSurfaceProxy {
@@ -52,7 +62,7 @@ public:
     // been instantiated or not.
     GrMipmapped proxyMipmapped() const { return fMipmapped; }
 
-    GrTextureType textureType() const { return this->backendFormat().textureType(); }
+    GrTextureType textureType() const;
 
     /** If true then the texture does not support MIP maps and only supports clamp wrap mode. */
     bool hasRestrictedSampling() const {
