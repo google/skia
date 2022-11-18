@@ -71,28 +71,32 @@ static constexpr inline
 typename std::enable_if<(std::is_integral<S>::value || std::is_enum<S>::value) &&
                         (std::is_integral<D>::value || std::is_enum<D>::value), bool>::type
 /*bool*/ SkTFitsIn(S src) {
+    // Ensure that is_signed and is_unsigned are passed the arithmetic underlyng types of enums.
+    using Sa = typename sk_strip_enum<S>::type;
+    using Da = typename sk_strip_enum<D>::type;
+
     // SkTFitsIn() is used in public headers, so needs to be written targeting at most C++11.
     return
 
     // E.g. (int8_t)(uint8_t) int8_t(-1) == -1, but the uint8_t == 255, not -1.
-    (std::is_signed<S>::value && std::is_unsigned<D>::value && sizeof(S) <= sizeof(D)) ?
+    (std::is_signed<Sa>::value && std::is_unsigned<Da>::value && sizeof(Sa) <= sizeof(Da)) ?
         (S)0 <= src :
 
     // E.g. (uint8_t)(int8_t) uint8_t(255) == 255, but the int8_t == -1.
-    (std::is_signed<D>::value && std::is_unsigned<S>::value && sizeof(D) <= sizeof(S)) ?
-        src <= (S)std::numeric_limits<typename sk_strip_enum<D>::type>::max() :
+    (std::is_signed<Da>::value && std::is_unsigned<Sa>::value && sizeof(Da) <= sizeof(Sa)) ?
+        src <= (S)std::numeric_limits<Da>::max() :
 
 #if !defined(SK_DEBUG) && !defined(__MSVC_RUNTIME_CHECKS )
     // Correct (simple) version. This trips up MSVC's /RTCc run-time checking.
     (S)(D)src == src;
 #else
     // More complex version that's safe with /RTCc. Used in all debug builds, for coverage.
-    (std::is_signed<S>::value) ?
-        (intmax_t)src >= (intmax_t)std::numeric_limits<typename sk_strip_enum<D>::type>::min() &&
-        (intmax_t)src <= (intmax_t)std::numeric_limits<typename sk_strip_enum<D>::type>::max() :
+    (std::is_signed<Sa>::value) ?
+        (intmax_t)src >= (intmax_t)std::numeric_limits<Da>::min() &&
+        (intmax_t)src <= (intmax_t)std::numeric_limits<Da>::max() :
 
     // std::is_unsigned<S> ?
-        (uintmax_t)src <= (uintmax_t)std::numeric_limits<typename sk_strip_enum<D>::type>::max();
+        (uintmax_t)src <= (uintmax_t)std::numeric_limits<Da>::max();
 #endif
 }
 
