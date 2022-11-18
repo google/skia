@@ -50,6 +50,10 @@ bin/clang-format.exe
 bin/sk
 bin/sk.exe
 bin/sk.version
+third_party/ninja
+bin/ninja.exe
+bin/ninja.version
+
 
 node_modules
 tools/lottiecap/filmstrip.png
