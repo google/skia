@@ -48,7 +48,7 @@ desired_version = found[0]
 
 # Determine which version (if any) we currently have.
 # depot_tools scripts expect ninja to be in third_party
-os.makedirs(os.path.join('third_party', 'ninja'))
+os.makedirs(os.path.join('third_party', 'ninja'), exist_ok=True)
 ninja_path = os.path.join('third_party', 'ninja', ninja)
 current_sha256 = sha256sum(ninja_path)
 ninja_version_path = os.path.join('bin', 'ninja.version')
