@@ -36,6 +36,31 @@ int Program::numValueSlots() {
     return s + 1;
 }
 
+int Program::numTempStackSlots() {
+    int largest = 0;
+    int current = 0;
+    for (const Instruction& inst : fInstructions) {
+        switch (inst.fOp) {
+            case BuilderOp::push_temp_f:
+                ++current;
+                largest = std::max(current, largest);
+                break;
+
+            case BuilderOp::discard_temp:
+                --current;
+                SkASSERTF(current >= 0, "unbalanced temp stack push/pop");
+                break;
+
+            default:
+                // This op doesn't affect the stack.
+                break;
+        }
+    }
+
+    SkASSERTF(current == 0, "unbalanced temp stack push/pop");
+    return largest;
+}
+
 int Program::numConditionMaskSlots() {
     int largest = 0;
     int current = 0;
@@ -64,7 +89,16 @@ int Program::numConditionMaskSlots() {
 Program::Program(SkTArray<Instruction> instrs) : fInstructions(std::move(instrs)) {
     this->optimize();
     fNumValueSlots = this->numValueSlots();
+    fNumTempStackSlots = this->numTempStackSlots();
     fNumConditionMaskSlots = this->numConditionMaskSlots();
+}
+
+template <typename T>
+[[maybe_unused]] static void* context_bit_pun(T val) {
+    static_assert(sizeof(T) <= sizeof(void*));
+    void* contextBits = nullptr;
+    memcpy(&contextBits, &val, sizeof(val));
+    return contextBits;
 }
 
 void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
@@ -72,10 +106,12 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
 #if !defined(SKSL_STANDALONE)
     // Allocate a contiguous slab of slot data.
     const int N = SkOpts::raster_pipeline_highp_stride;
-    float* slotPtr = alloc->makeArray<float>(N * (fNumValueSlots + fNumConditionMaskSlots));
+    int totalSlots = fNumValueSlots + fNumTempStackSlots + fNumConditionMaskSlots;
+    float* slotPtr = alloc->makeArray<float>(N * totalSlots);
 
-    // Store the condition-mask stack directly after the values.
-    float* conditionStackPtr = &slotPtr[N * fNumValueSlots];
+    // Store the stacks immediately after the values.
+    float* tempStackPtr = slotPtr + (N * fNumValueSlots);
+    float* conditionStackPtr = tempStackPtr + (N * fNumTempStackSlots);
 
     for (const Instruction& inst : fInstructions) {
         auto SlotA = [&]() { return &slotPtr[N * inst.fSlotA]; };
@@ -106,9 +142,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 break;
 
             case SkRP::immediate_f: {
-                void* immCtx = nullptr;
-                memcpy(&immCtx, &inst.fImmF32, sizeof(inst.fImmF32));
-                pipeline->append(SkRP::immediate_f, immCtx);
+                pipeline->append(SkRP::immediate_f, context_bit_pun(inst.fImmF32));
                 break;
             }
             case SkRP::load_unmasked:
@@ -127,6 +161,16 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
             case SkRP::load_condition_mask:
                 conditionStackPtr -= N;
                 pipeline->append(SkRP::load_condition_mask, conditionStackPtr);
+                break;
+
+            case BuilderOp::push_temp_f:
+                pipeline->append(SkRP::immediate_f, context_bit_pun(inst.fImmF32));
+                pipeline->append(SkRP::store_unmasked, tempStackPtr);
+                tempStackPtr += N;
+                break;
+
+            case BuilderOp::discard_temp:
+                tempStackPtr -= N;
                 break;
 
             default:
