@@ -3012,6 +3012,38 @@ STAGE(immediate_f, void* ctx) {
     r = F(val);
 }
 
+template <int NumSlots>
+SI void copy_n_slots_masked_fn(SkRasterPipeline_CopySlotsMaskedCtx* ctx, F& dr, F& dg, F& db) {
+    // Compute the mask; if it's completely zero, we can stop here.
+    I32 mask = sk_bit_cast<I32>(dr) & sk_bit_cast<I32>(dg) & sk_bit_cast<I32>(db);
+    if (any(mask)) {
+        // Get pointers to our slots.
+        F* dst  = (F*) ctx->dst;
+        F* src  = (F*) ctx->src;
+
+        // Mask off and copy slots.
+        for (int count = 0; count < NumSlots; ++count) {
+            sk_unaligned_store(dst, if_then_else(mask, sk_unaligned_load<F>(src),
+                                                       sk_unaligned_load<F>(dst)));
+            dst += 1;
+            src += 1;
+        }
+    }
+}
+
+STAGE(copy_slot_masked, SkRasterPipeline_CopySlotsMaskedCtx* ctx) {
+    copy_n_slots_masked_fn<1>(ctx, dr, dg, db);
+}
+STAGE(copy_2_slots_masked, SkRasterPipeline_CopySlotsMaskedCtx* ctx) {
+    copy_n_slots_masked_fn<2>(ctx, dr, dg, db);
+}
+STAGE(copy_3_slots_masked, SkRasterPipeline_CopySlotsMaskedCtx* ctx) {
+    copy_n_slots_masked_fn<3>(ctx, dr, dg, db);
+}
+STAGE(copy_4_slots_masked, SkRasterPipeline_CopySlotsMaskedCtx* ctx) {
+    copy_n_slots_masked_fn<4>(ctx, dr, dg, db);
+}
+
 STAGE(gauss_a_to_rgba, NoCtx) {
     // x = 1 - x;
     // exp(-x * x * 4) - 0.018f;
