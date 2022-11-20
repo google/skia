@@ -115,6 +115,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
 
     for (const Instruction& inst : fInstructions) {
         auto SlotA = [&]() { return &slotPtr[N * inst.fSlotA]; };
+        auto SlotB = [&]() { return &slotPtr[N * inst.fSlotB]; };
 
         switch (inst.fOp) {
             case SkRP::init_lane_masks:
@@ -155,6 +156,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
 
             case SkRP::store_masked:
                 pipeline->append(SkRP::store_masked, SlotA());
+                break;
+
+            case SkRP::copy_slot_masked:
+                pipeline->append_copy_slots_masked(alloc, SlotA(), SlotB(), inst.fImmI32);
                 break;
 
             case SkRP::store_condition_mask:

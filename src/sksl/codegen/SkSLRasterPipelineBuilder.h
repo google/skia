@@ -160,6 +160,12 @@ public:
         fInstructions.push_back({SkRasterPipeline::store_masked, {slot}});
     }
 
+    void copy_slots_masked(SlotRange dst, SlotRange src) {
+        SkASSERT(dst.count == src.count);
+        fInstructions.push_back({SkRasterPipeline::copy_slot_masked,
+                                 {dst.index, src.index}, 0.0f, dst.count});
+    }
+
     void push_condition_mask() {
         // Raster pipeline uses a "store" op, and the builder manages the stack position.
         fInstructions.push_back({SkRasterPipeline::store_condition_mask, {}});
