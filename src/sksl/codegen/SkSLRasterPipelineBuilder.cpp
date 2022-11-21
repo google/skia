@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/private/SkMalloc.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
@@ -115,8 +116,11 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
 #if !defined(SKSL_STANDALONE)
     // Allocate a contiguous slab of slot data.
     const int N = SkOpts::raster_pipeline_highp_stride;
-    int totalSlots = fNumValueSlots + fNumTempStackSlots + fNumConditionMaskSlots;
-    float* slotPtr = alloc->makeArray<float>(N * totalSlots);
+    const int totalSlots = fNumValueSlots + fNumTempStackSlots + fNumConditionMaskSlots;
+    const int vectorWidth = N * sizeof(float);
+    const int allocSize = vectorWidth * totalSlots;
+    float* slotPtr = static_cast<float*>(alloc->makeBytesAlignedTo(allocSize, vectorWidth));
+    sk_bzero(slotPtr, allocSize);
 
     // Store the stacks immediately after the values.
     float* tempStackPtr = slotPtr + (N * fNumValueSlots);
