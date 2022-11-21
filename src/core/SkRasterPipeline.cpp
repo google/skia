@@ -193,6 +193,27 @@ void SkRasterPipeline::append_copy_slots_unmasked(SkArenaAlloc* alloc,
     this->unchecked_append(stage, ctx);
 }
 
+void SkRasterPipeline::append_zero_slots_unmasked(float* dst, int numSlots) {
+    SkASSERT(numSlots >= 0);
+    while (numSlots > 4) {
+        this->append_zero_slots_unmasked(dst, /*numSlots=*/4);
+        dst += 4 * SkOpts::raster_pipeline_highp_stride;
+        numSlots -= 4;
+    }
+
+    SkRasterPipeline::Stage stage;
+    switch (numSlots) {
+        case 0:  return;
+        case 1:  stage = SkRasterPipeline::zero_slot_unmasked;     break;
+        case 2:  stage = SkRasterPipeline::zero_2_slots_unmasked;  break;
+        case 3:  stage = SkRasterPipeline::zero_3_slots_unmasked;  break;
+        case 4:  stage = SkRasterPipeline::zero_4_slots_unmasked;  break;
+        default: SkUNREACHABLE;
+    }
+
+    this->unchecked_append(stage, dst);
+}
+
 void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix) {
     SkMatrix::TypeMask mt = matrix.getType();
 

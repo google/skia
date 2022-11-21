@@ -10,6 +10,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkMalloc.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkUtils.h"  // unaligned_{load,store}
 #include <cstdint>
@@ -3010,6 +3011,20 @@ STAGE(immediate_f, void* ctx) {
     float val;
     memcpy(&val, &ctx, sizeof(val));
     r = F(val);
+}
+
+STAGE(zero_slot_unmasked, F* dst) {
+    // We don't even bother masking off the tail; we're filling slots, not the destination surface.
+    sk_bzero(dst, sizeof(F) * 1);
+}
+STAGE(zero_2_slots_unmasked, F* dst) {
+    sk_bzero(dst, sizeof(F) * 2);
+}
+STAGE(zero_3_slots_unmasked, F* dst) {
+    sk_bzero(dst, sizeof(F) * 3);
+}
+STAGE(zero_4_slots_unmasked, F* dst) {
+    sk_bzero(dst, sizeof(F) * 4);
 }
 
 STAGE(copy_slot_unmasked, SkRasterPipeline_CopySlotsCtx* ctx) {

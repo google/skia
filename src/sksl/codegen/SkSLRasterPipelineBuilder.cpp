@@ -175,6 +175,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 pipeline->append_copy_slots_unmasked(alloc, SlotA(), SlotB(), inst.fImmA);
                 break;
 
+            case BuilderOp::zero_slot_unmasked:
+                pipeline->append_zero_slots_unmasked(SlotA(), inst.fImmA);
+                break;
+
             case BuilderOp::push_slots:
                 pipeline->append_copy_slots_unmasked(alloc, tempStackPtr, SlotA(), inst.fImmA);
                 tempStackPtr += N * inst.fImmA;
@@ -191,8 +195,12 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 break;
 
             case BuilderOp::push_literal_f:
-                pipeline->append(SkRP::immediate_f, context_bit_pun(inst.fImmA));
-                pipeline->append(SkRP::store_unmasked, tempStackPtr);
+                if (inst.fImmA == 0) {
+                    pipeline->append_zero_slots_unmasked(tempStackPtr, /*numSlots=*/1);
+                } else {
+                    pipeline->append(SkRP::immediate_f, context_bit_pun(inst.fImmA));
+                    pipeline->append(SkRP::store_unmasked, tempStackPtr);
+                }
                 tempStackPtr += N;
                 break;
 

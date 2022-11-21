@@ -212,18 +212,12 @@ DEF_TEST(RasterPipelineBuilderPushPopConditionMask, r) {
     REPORTER_ASSERT(r, stages->ctx == slot0 + (97 * N));
     stages = stages->prev;
 
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_unmasked);
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::zero_slot_unmasked);
     REPORTER_ASSERT(r, stages->ctx == slot0 + (99 * N));
     stages = stages->prev;
 
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::immediate_f);
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_unmasked);
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::zero_slot_unmasked);
     REPORTER_ASSERT(r, stages->ctx == slot0 + (98 * N));
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::immediate_f);
     stages = stages->prev;
 
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);

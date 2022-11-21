@@ -191,6 +191,10 @@ public:
         fInstructions.push_back({BuilderOp::copy_slot_unmasked, {dst.index, src.index}, dst.count});
     }
 
+    void zero_slots_unmasked(SlotRange dst) {
+        fInstructions.push_back({BuilderOp::zero_slot_unmasked, {dst.index}, dst.count});
+    }
+
     void push_condition_mask() {
         // Raster pipeline uses a "store" op, and the builder manages the stack position.
         fInstructions.push_back({BuilderOp::store_condition_mask, {}});

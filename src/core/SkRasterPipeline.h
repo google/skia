@@ -129,7 +129,9 @@ struct skcms_TransferFunction;
     M(copy_slot_masked)    M(copy_2_slots_masked)                  \
     M(copy_3_slots_masked) M(copy_4_slots_masked)                  \
     M(copy_slot_unmasked)    M(copy_2_slots_unmasked)              \
-    M(copy_3_slots_unmasked) M(copy_4_slots_unmasked)
+    M(copy_3_slots_unmasked) M(copy_4_slots_unmasked)              \
+    M(zero_slot_unmasked)    M(zero_2_slots_unmasked)              \
+    M(zero_3_slots_unmasked) M(zero_4_slots_unmasked)
 
 // The combined list of all stages:
 #define SK_RASTER_PIPELINE_STAGES_ALL(M) \
@@ -318,6 +320,9 @@ public:
     // Appends one or more `copy_n_slots_[un]masked` stages, based on `numSlots`.
     void append_copy_slots_masked(SkArenaAlloc* alloc, float* dst, float* src, int numSlots);
     void append_copy_slots_unmasked(SkArenaAlloc* alloc, float* dst, float* src, int numSlots);
+
+    // Appends one or more `zero_n_slots_unmasked` stages, based on `numSlots`.
+    void append_zero_slots_unmasked(float* dst, int numSlots);
 
     void append_load    (SkColorType, const SkRasterPipeline_MemoryCtx*);
     void append_load_dst(SkColorType, const SkRasterPipeline_MemoryCtx*);
