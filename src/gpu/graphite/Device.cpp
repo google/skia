@@ -642,9 +642,9 @@ void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
         // Force the style to be a stroke, using the radius and cap from the paint
         SkStrokeRec stroke(paint, SkPaint::kStroke_Style);
         size_t inc = (mode == SkCanvas::kLines_PointMode) ? 2 : 1;
-        for (size_t i = 0; i < count; i += inc) {
+        for (size_t i = 0; i < count-1; i += inc) {
             this->drawGeometry(this->localToDeviceTransform(),
-                               Geometry(Shape(points[i], points[(i + 1) % count])),
+                               Geometry(Shape(points[i], points[i + 1])),
                                paint, stroke);
         }
     }
