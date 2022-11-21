@@ -40,7 +40,7 @@ DEF_TEST(SkRasterPipeline, r) {
 }
 
 DEF_TEST(SkRasterPipeline_ImmediateStoreUnmasked, r) {
-    float val[SkRasterPipeline_kMaxStride_highp + 1] = {};
+    alignas(64) float val[SkRasterPipeline_kMaxStride_highp + 1] = {};
 
     float immVal = 123.0f;
     const void* immValCtx = nullptr;
@@ -65,8 +65,8 @@ DEF_TEST(SkRasterPipeline_ImmediateStoreUnmasked, r) {
 }
 
 DEF_TEST(SkRasterPipeline_LoadStoreUnmasked, r) {
-    float val[SkRasterPipeline_kMaxStride_highp] = {};
-    float data[] = {123.0f, 456.0f, 789.0f, -876.0f, -543.0f, -210.0f, 12.0f, -3.0f};
+    alignas(64) float val[SkRasterPipeline_kMaxStride_highp] = {};
+    alignas(64) float data[] = {123.0f, 456.0f, 789.0f, -876.0f, -543.0f, -210.0f, 12.0f, -3.0f};
     static_assert(std::size(data) == SkRasterPipeline_kMaxStride_highp);
 
     SkRasterPipeline_<256> p;
@@ -89,9 +89,9 @@ DEF_TEST(SkRasterPipeline_LoadStoreUnmasked, r) {
 
 DEF_TEST(SkRasterPipeline_LoadStoreMasked, r) {
     for (size_t width = 0; width < SkOpts::raster_pipeline_highp_stride; ++width) {
-        float val[] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
-        float data[] = {2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f};
-        const int32_t mask[] = {0, ~0, ~0, ~0, ~0, ~0, 0, ~0};
+        alignas(64) float val[] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
+        alignas(64) float data[] = {2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f};
+        alignas(64) const int32_t mask[] = {0, ~0, ~0, ~0, ~0, ~0, 0, ~0};
         static_assert(std::size(val) == SkRasterPipeline_kMaxStride_highp);
         static_assert(std::size(data) == SkRasterPipeline_kMaxStride_highp);
         static_assert(std::size(mask) == SkRasterPipeline_kMaxStride_highp);
@@ -121,8 +121,8 @@ DEF_TEST(SkRasterPipeline_LoadStoreMasked, r) {
 }
 
 DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, r) {
-    int32_t val[SkRasterPipeline_kMaxStride_highp] = {};
-    int32_t data[] = {~0, 0, ~0, 0, ~0, ~0, ~0, 0};
+    alignas(64) int32_t val[SkRasterPipeline_kMaxStride_highp] = {};
+    alignas(64) int32_t data[] = {~0, 0, ~0, 0, ~0, ~0, ~0, 0};
     static_assert(std::size(data) == SkRasterPipeline_kMaxStride_highp);
 
     SkRasterPipeline_<256> p;
@@ -159,7 +159,7 @@ DEF_TEST(SkRasterPipeline_InitLaneMasks, r) {
         p.append(SkRasterPipeline::init_lane_masks);
 
         // Use the store_dst command to write out dRGBA for inspection.
-        int32_t dRGBA[4 * SkRasterPipeline_kMaxStride_highp] = {};
+        alignas(64) int32_t dRGBA[4 * SkRasterPipeline_kMaxStride_highp] = {};
         p.append(SkRasterPipeline::store_dst, dRGBA);
 
         // Execute our program.
@@ -191,14 +191,14 @@ DEF_TEST(SkRasterPipeline_InitLaneMasks, r) {
 
 DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
     // Allocate space for 20 source slots and 20 dest slots.
-    float slots[41 * SkRasterPipeline_kMaxStride_highp];
+    alignas(64) float slots[40 * SkRasterPipeline_kMaxStride_highp];
     const int srcIndex = 0, dstIndex = 20;
 
     static_assert(SkRasterPipeline_kMaxStride_highp == 8);
-    const int32_t kMask1[SkRasterPipeline_kMaxStride_highp] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
-    const int32_t kMask2[SkRasterPipeline_kMaxStride_highp] = { 0,  0,  0,  0,  0,  0,  0,  0};
-    const int32_t kMask3[SkRasterPipeline_kMaxStride_highp] = {~0,  0, ~0, ~0, ~0, ~0,  0, ~0};
-    const int32_t kMask4[SkRasterPipeline_kMaxStride_highp] = { 0, ~0,  0,  0,  0, ~0, ~0,  0};
+    alignas(64) const int32_t kMask1[8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
+    alignas(64) const int32_t kMask2[8] = { 0,  0,  0,  0,  0,  0,  0,  0};
+    alignas(64) const int32_t kMask3[8] = {~0,  0, ~0, ~0, ~0, ~0,  0, ~0};
+    alignas(64) const int32_t kMask4[8] = { 0, ~0,  0,  0,  0, ~0, ~0,  0};
 
     const int N = SkOpts::raster_pipeline_highp_stride;
 
@@ -240,7 +240,7 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
 
 DEF_TEST(SkRasterPipeline_CopySlotsUnmasked, r) {
     // Allocate space for 20 source slots and 20 dest slots.
-    float slots[41 * SkRasterPipeline_kMaxStride_highp];
+    alignas(64) float slots[40 * SkRasterPipeline_kMaxStride_highp];
     const int srcIndex = 0, dstIndex = 20;
     const int N = SkOpts::raster_pipeline_highp_stride;
 
