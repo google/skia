@@ -111,6 +111,12 @@ protected:
     SkTileMode     fTileMode;
 
 public:
+    static void AppendGradientFillStages(SkRasterPipeline* p,
+                                         SkArenaAlloc* alloc,
+                                         const SkPMColor4f* colors,
+                                         const SkScalar* positions,
+                                         int count);
+
     SkScalar getPos(int i) const {
         SkASSERT(i < fColorCount);
         return fPositions ? fPositions[i] : SkIntToScalar(i) / (fColorCount - 1);

@@ -290,6 +290,92 @@ static void init_stop_pos(SkRasterPipeline_GradientCtx* ctx, size_t stop, float 
     add_stop_color(ctx, stop, Fs, Bs);
 }
 
+void SkGradientShaderBase::AppendGradientFillStages(SkRasterPipeline* p,
+                                                    SkArenaAlloc* alloc,
+                                                    const SkPMColor4f* pmColors,
+                                                    const SkScalar* positions,
+                                                    int count) {
+    // The two-stop case with stops at 0 and 1.
+    if (count == 2 && positions == nullptr) {
+        const SkPMColor4f c_l = pmColors[0],
+                          c_r = pmColors[1];
+
+        // See F and B below.
+        auto ctx = alloc->make<SkRasterPipeline_EvenlySpaced2StopGradientCtx>();
+        (skvx::float4::Load(c_r.vec()) - skvx::float4::Load(c_l.vec())).store(ctx->f);
+        (                                skvx::float4::Load(c_l.vec())).store(ctx->b);
+
+        p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, ctx);
+    } else {
+        auto* ctx = alloc->make<SkRasterPipeline_GradientCtx>();
+
+        // Note: In order to handle clamps in search, the search assumes a stop conceptully placed
+        // at -inf. Therefore, the max number of stops is fColorCount+1.
+        for (int i = 0; i < 4; i++) {
+            // Allocate at least at for the AVX2 gather from a YMM register.
+            ctx->fs[i] = alloc->makeArray<float>(std::max(count + 1, 8));
+            ctx->bs[i] = alloc->makeArray<float>(std::max(count + 1, 8));
+        }
+
+        if (positions == nullptr) {
+            // Handle evenly distributed stops.
+
+            size_t stopCount = count;
+            float gapCount = stopCount - 1;
+
+            SkPMColor4f c_l = pmColors[0];
+            for (size_t i = 0; i < stopCount - 1; i++) {
+                SkPMColor4f c_r = pmColors[i + 1];
+                init_stop_evenly(ctx, gapCount, i, c_l, c_r);
+                c_l = c_r;
+            }
+            add_const_color(ctx, stopCount - 1, c_l);
+
+            ctx->stopCount = stopCount;
+            p->append(SkRasterPipeline::evenly_spaced_gradient, ctx);
+        } else {
+            // Handle arbitrary stops.
+
+            ctx->ts = alloc->makeArray<float>(count + 1);
+
+            // Remove the default stops inserted by SkGradientShaderBase::SkGradientShaderBase
+            // because they are naturally handled by the search method.
+            int firstStop;
+            int lastStop;
+            if (count > 2) {
+                firstStop = pmColors[0] != pmColors[1] ? 0 : 1;
+                lastStop = pmColors[count - 2] != pmColors[count - 1] ? count - 1 : count - 2;
+            } else {
+                firstStop = 0;
+                lastStop = 1;
+            }
+
+            size_t stopCount = 0;
+            float  t_l = positions[firstStop];
+            SkPMColor4f c_l = pmColors[firstStop];
+            add_const_color(ctx, stopCount++, c_l);
+            // N.B. lastStop is the index of the last stop, not one after.
+            for (int i = firstStop; i < lastStop; i++) {
+                float  t_r = positions[i + 1];
+                SkPMColor4f c_r = pmColors[i + 1];
+                SkASSERT(t_l <= t_r);
+                if (t_l < t_r) {
+                    init_stop_pos(ctx, stopCount, t_l, t_r, c_l, c_r);
+                    stopCount += 1;
+                }
+                t_l = t_r;
+                c_l = c_r;
+            }
+
+            ctx->ts[stopCount] = t_l;
+            add_const_color(ctx, stopCount++, c_l);
+
+            ctx->stopCount = stopCount;
+            p->append(SkRasterPipeline::gradient, ctx);
+        }
+    }
+}
+
 bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
@@ -330,88 +416,7 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 
     // Transform all of the colors to destination color space, possibly premultiplied
     SkColor4fXformer xformedColors(this, rec.fDstCS);
-    const SkPMColor4f* pmColors = xformedColors.fColors.begin();
-
-    // The two-stop case with stops at 0 and 1.
-    if (fColorCount == 2 && fPositions == nullptr) {
-        const SkPMColor4f c_l = pmColors[0],
-                          c_r = pmColors[1];
-
-        // See F and B below.
-        auto ctx = alloc->make<SkRasterPipeline_EvenlySpaced2StopGradientCtx>();
-        (skvx::float4::Load(c_r.vec()) - skvx::float4::Load(c_l.vec())).store(ctx->f);
-        (                                skvx::float4::Load(c_l.vec())).store(ctx->b);
-
-        p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, ctx);
-    } else {
-        auto* ctx = alloc->make<SkRasterPipeline_GradientCtx>();
-
-        // Note: In order to handle clamps in search, the search assumes a stop conceptully placed
-        // at -inf. Therefore, the max number of stops is fColorCount+1.
-        for (int i = 0; i < 4; i++) {
-            // Allocate at least at for the AVX2 gather from a YMM register.
-            ctx->fs[i] = alloc->makeArray<float>(std::max(fColorCount+1, 8));
-            ctx->bs[i] = alloc->makeArray<float>(std::max(fColorCount+1, 8));
-        }
-
-        if (fPositions == nullptr) {
-            // Handle evenly distributed stops.
-
-            size_t stopCount = fColorCount;
-            float gapCount = stopCount - 1;
-
-            SkPMColor4f c_l = pmColors[0];
-            for (size_t i = 0; i < stopCount - 1; i++) {
-                SkPMColor4f c_r = pmColors[i + 1];
-                init_stop_evenly(ctx, gapCount, i, c_l, c_r);
-                c_l = c_r;
-            }
-            add_const_color(ctx, stopCount - 1, c_l);
-
-            ctx->stopCount = stopCount;
-            p->append(SkRasterPipeline::evenly_spaced_gradient, ctx);
-        } else {
-            // Handle arbitrary stops.
-
-            ctx->ts = alloc->makeArray<float>(fColorCount+1);
-
-            // Remove the default stops inserted by SkGradientShaderBase::SkGradientShaderBase
-            // because they are naturally handled by the search method.
-            int firstStop;
-            int lastStop;
-            if (fColorCount > 2) {
-                firstStop = pmColors[0] != pmColors[1] ? 0 : 1;
-                lastStop = pmColors[fColorCount - 2] != pmColors[fColorCount - 1] ? fColorCount - 1
-                                                                                  : fColorCount - 2;
-            } else {
-                firstStop = 0;
-                lastStop = 1;
-            }
-
-            size_t stopCount = 0;
-            float  t_l = fPositions[firstStop];
-            SkPMColor4f c_l = pmColors[firstStop];
-            add_const_color(ctx, stopCount++, c_l);
-            // N.B. lastStop is the index of the last stop, not one after.
-            for (int i = firstStop; i < lastStop; i++) {
-                float  t_r = fPositions[i + 1];
-                SkPMColor4f c_r = pmColors[i + 1];
-                SkASSERT(t_l <= t_r);
-                if (t_l < t_r) {
-                    init_stop_pos(ctx, stopCount, t_l, t_r, c_l, c_r);
-                    stopCount += 1;
-                }
-                t_l = t_r;
-                c_l = c_r;
-            }
-
-            ctx->ts[stopCount] = t_l;
-            add_const_color(ctx, stopCount++, c_l);
-
-            ctx->stopCount = stopCount;
-            p->append(SkRasterPipeline::gradient, ctx);
-        }
-    }
+    AppendGradientFillStages(p, alloc, xformedColors.fColors.begin(), fPositions, fColorCount);
 
     using ColorSpace = Interpolation::ColorSpace;
     bool colorIsPremul = this->interpolateInPremul();
