@@ -71,6 +71,7 @@ class AndroidFlavor(default.DefaultFlavor):
       'Pixel': range(0, 2),
       'Pixel2XL': range(0, 4),
       'Pixel6': range(4,8), # Only use the 4 small cores.
+      'Pixel7': range(4,8),
     }
 
     self.gpu_scaling = {
@@ -134,7 +135,7 @@ class AndroidFlavor(default.DefaultFlavor):
       # AndroidOne doesn't support ondemand governor. hotplug is similar.
       if device == 'AndroidOne':
         self._set_governor(i, 'hotplug')
-      elif device in ['Pixel3a', 'Pixel4', 'Pixel4a', 'Wembley', 'Pixel6']:
+      elif device in ['Pixel3a', 'Pixel4', 'Pixel4a', 'Wembley', 'Pixel6', 'Pixel7']:
         # Pixel3a/4/4a have userspace powersave performance schedutil.
         # performance seems like a reasonable choice.
         self._set_governor(i, 'performance')
@@ -147,9 +148,9 @@ class AndroidFlavor(default.DefaultFlavor):
       self.m.vars.internal_hardware_label):
       return
 
-    # Set to 'powersave' for Pixel6.
+    # Set to 'powersave' for Pixel6 and Pixel7.
     for i in self.cpus_to_scale.get(device, [0]):
-      if device in ['Pixel6']:
+      if device in ['Pixel6', 'Pixel7']:
         self._set_governor(i, 'powersave')
       else:
         self._set_governor(i, 'userspace')
