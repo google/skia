@@ -46,15 +46,24 @@ int Program::numTempStackSlots() {
                 largest = std::max(current, largest);
                 break;
 
+            case BuilderOp::push_slots:
+                current += inst.fImmI32;
+                largest = std::max(current, largest);
+                break;
+
+            case BuilderOp::pop_slots:
+                current -= inst.fImmI32;
+                break;
+
             case BuilderOp::discard_temp:
                 --current;
-                SkASSERTF(current >= 0, "unbalanced temp stack push/pop");
                 break;
 
             default:
                 // This op doesn't affect the stack.
                 break;
         }
+        SkASSERTF(current >= 0, "unbalanced temp stack push/pop");
     }
 
     SkASSERTF(current == 0, "unbalanced temp stack push/pop");
@@ -164,6 +173,16 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
 
             case SkRP::copy_slot_unmasked:
                 pipeline->append_copy_slots_unmasked(alloc, SlotA(), SlotB(), inst.fImmI32);
+                break;
+
+            case BuilderOp::push_slots:
+                pipeline->append_copy_slots_unmasked(alloc, tempStackPtr, SlotA(), inst.fImmI32);
+                tempStackPtr += N * inst.fImmI32;
+                break;
+
+            case BuilderOp::pop_slots:
+                tempStackPtr -= N * inst.fImmI32;
+                pipeline->append_copy_slots_masked(alloc, SlotA(), tempStackPtr, inst.fImmI32);
                 break;
 
             case SkRP::store_condition_mask:

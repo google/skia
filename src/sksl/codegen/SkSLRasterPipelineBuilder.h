@@ -33,6 +33,8 @@ struct SlotRange {
 namespace BuilderOp {
     enum {
         push_temp_f = SkRasterPipeline::kNumHighpStages + 1,
+        push_slots,
+        pop_slots,
         discard_temp,
     };
 }
@@ -142,6 +144,16 @@ public:
 
     void push_temp_u(uint32_t val) {
         fInstructions.push_back({BuilderOp::push_temp_f, {}, sk_bit_cast<float>(val), 0});
+    }
+
+    void push_slots(SlotRange src) {
+        // Translates into copy_slots_unmasked (from values into temp stack) in Raster Pipeline.
+        fInstructions.push_back({BuilderOp::push_slots, {src.index}, 0.0f, src.count});
+    }
+
+    void pop_slots(SlotRange dst) {
+        // Translates into copy_slots_masked (from temp stack into values) in Raster Pipeline.
+        fInstructions.push_back({BuilderOp::pop_slots, {dst.index}, 0.0f, dst.count});
     }
 
     void discard_temp() {
