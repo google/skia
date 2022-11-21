@@ -91,6 +91,18 @@ public:
                           destinationOrigin: MTLOriginMake(dstPoint.fX, dstPoint.fY, 0)];
     }
 
+    void copyBufferToBuffer(id<MTLBuffer> srcBuffer,
+                            size_t srcOffset,
+                            id<MTLBuffer> dstBuffer,
+                            size_t dstOffset,
+                            size_t size) {
+        [(*fCommandEncoder) copyFromBuffer: srcBuffer
+                              sourceOffset: srcOffset
+                                  toBuffer: dstBuffer
+                         destinationOffset: dstOffset
+                                      size: size];
+    }
+
     void endEncoding() {
         [(*fCommandEncoder) endEncoding];
     }

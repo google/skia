@@ -253,6 +253,14 @@ bool VulkanCommandBuffer::onAddComputePass(const ComputePassDesc&,
     return false;
 }
 
+bool VulkanCommandBuffer::onCopyBufferToBuffer(const Buffer* srcBuffer,
+                                               size_t srcOffset,
+                                               const Buffer* dstBuffer,
+                                               size_t dstOffset,
+                                               size_t size) {
+    return false;
+}
+
 bool VulkanCommandBuffer::onCopyTextureToBuffer(const Texture*,
                                                 SkIRect srcRect,
                                                 const Buffer*,

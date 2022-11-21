@@ -54,6 +54,14 @@ bool DawnCommandBuffer::onAddComputePass(const ComputePassDesc& computePassDesc,
     return false;
 }
 
+bool DawnCommandBuffer::onCopyBufferToBuffer(const Buffer* srcBuffer,
+                                             size_t srcOffset,
+                                             const Buffer* dstBuffer,
+                                             size_t dstOffset,
+                                             size_t size) {
+    return false;
+}
+
 bool DawnCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
                                               SkIRect srcRect,
                                               const Buffer* buffer,

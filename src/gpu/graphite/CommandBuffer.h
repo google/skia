@@ -72,6 +72,11 @@ public:
     //---------------------------------------------------------------
     // Can only be used outside renderpasses
     //---------------------------------------------------------------
+    bool copyBufferToBuffer(sk_sp<Buffer> srcBuffer,
+                            size_t srcOffset,
+                            sk_sp<Buffer> dstBuffer,
+                            size_t dstOffset,
+                            size_t size);
     bool copyTextureToBuffer(sk_sp<Texture>,
                              SkIRect srcRect,
                              sk_sp<Buffer>,
@@ -111,6 +116,11 @@ private:
                                   const ComputePipeline*,
                                   const std::vector<ResourceBinding>& bindings) = 0;
 
+    virtual bool onCopyBufferToBuffer(const Buffer* srcBuffer,
+                                      size_t srcOffset,
+                                      const Buffer* dstBuffer,
+                                      size_t dstOffset,
+                                      size_t size) = 0;
     virtual bool onCopyTextureToBuffer(const Texture*,
                                        SkIRect srcRect,
                                        const Buffer*,

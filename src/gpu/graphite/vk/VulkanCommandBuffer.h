@@ -54,6 +54,11 @@ private:
                           const ComputePipeline*,
                           const std::vector<ResourceBinding>& bindings) override;
 
+    bool onCopyBufferToBuffer(const Buffer* srcBuffer,
+                              size_t srcOffset,
+                              const Buffer* dstBuffer,
+                              size_t dstOffset,
+                              size_t size) override;
     bool onCopyTextureToBuffer(const Texture*,
                                SkIRect srcRect,
                                const Buffer*,

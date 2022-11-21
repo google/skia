@@ -104,6 +104,26 @@ bool CommandBuffer::addComputePass(const ComputePassDesc& computePassDesc,
     return true;
 }
 
+bool CommandBuffer::copyBufferToBuffer(sk_sp<Buffer> srcBuffer,
+                                       size_t srcOffset,
+                                       sk_sp<Buffer> dstBuffer,
+                                       size_t dstOffset,
+                                       size_t size) {
+    SkASSERT(srcBuffer);
+    SkASSERT(dstBuffer);
+
+    if (!this->onCopyBufferToBuffer(srcBuffer.get(), srcOffset, dstBuffer.get(), dstOffset, size)) {
+        return false;
+    }
+
+    this->trackResource(std::move(srcBuffer));
+    this->trackResource(std::move(dstBuffer));
+
+    SkDEBUGCODE(fHasWork = true;)
+
+    return true;
+}
+
 bool CommandBuffer::copyTextureToBuffer(sk_sp<Texture> texture,
                                         SkIRect srcRect,
                                         sk_sp<Buffer> buffer,
