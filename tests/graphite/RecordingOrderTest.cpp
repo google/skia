@@ -83,14 +83,7 @@ bool run_test(skiatest::Reporter* reporter,
     context->insertRecording(info);
     context->submit();
 
-    // For now, we cast and call directly into Surface. Once we have a better idea of
-    // what the public API for synchronous graphite readPixels we can update this call to use
-    // that instead.
-    if (!static_cast<skgpu::graphite::Surface*>(surface.get())->onReadPixels(context,
-                                                                             recorder,
-                                                                             pm0,
-                                                                             0,
-                                                                             0)) {
+    if (!surface->readPixels(pm0, 0, 0)) {
         ERRORF(reporter, "readPixels failed");
         return false;
     }
@@ -104,11 +97,7 @@ bool run_test(skiatest::Reporter* reporter,
     context->insertRecording(info);
     context->submit();
 
-    if (!static_cast<skgpu::graphite::Surface*>(surface.get())->onReadPixels(context,
-                                                                             recorder,
-                                                                             pm1,
-                                                                             0,
-                                                                             0)) {
+    if (!surface->readPixels(pm1, 0, 0)) {
         ERRORF(reporter, "readPixels failed");
         return false;
     }

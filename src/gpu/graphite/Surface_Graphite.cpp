@@ -77,14 +77,6 @@ void Surface::onWritePixels(const SkPixmap& pixmap, int x, int y) {
 
 bool Surface::onCopyOnWrite(ContentChangeMode) { return true; }
 
-bool Surface::onReadPixels(Context* context,
-                           Recorder* recorder,
-                           const SkPixmap& dst,
-                           int srcX,
-                           int srcY) {
-    return fDevice->readPixels(context, recorder, dst, srcX, srcY);
-}
-
 void Surface::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                           SkIRect srcRect,
                                           RescaleGamma rescaleGamma,

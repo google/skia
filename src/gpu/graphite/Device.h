@@ -72,8 +72,6 @@ public:
 
     TextureProxyView createCopy(const SkIRect* subset, Mipmapped);
 
-    bool readPixels(Context*, Recorder*, const SkPixmap& dst, int x, int y);
-
     void asyncRescaleAndReadPixels(const SkImageInfo& info,
                                    SkIRect srcRect,
                                    SkImage::RescaleGamma rescaleGamma,

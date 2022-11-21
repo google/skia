@@ -370,17 +370,6 @@ bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
     return false;
 }
 
-// TODO: remove this?
-bool Device::readPixels(Context* context,
-                        Recorder* recorder,
-                        const SkPixmap& pm,
-                        int srcX,
-                        int srcY) {
-    this->flushPendingWorkToRecorder();
-    return context->priv().readPixels(recorder, pm, fDC->target(), this->imageInfo(),
-                                      srcX, srcY);
-}
-
 void Device::asyncRescaleAndReadPixels(const SkImageInfo& info,
                                        SkIRect srcRect,
                                        RescaleGamma rescaleGamma,

@@ -2169,16 +2169,9 @@ Result GraphiteSink::draw(const Src& src,
             return result;
         }
 
-        // For now we cast and call directly into Surface. Once we have a better idea of
-        // what the public API for synchronous graphite readPixels we can update this call to use
-        // that instead.
         SkPixmap pm;
         if (!dst->peekPixels(&pm) ||
-            !static_cast<skgpu::graphite::Surface*>(surface.get())->onReadPixels(context,
-                                                                                 recorder.get(),
-                                                                                 pm,
-                                                                                 0,
-                                                                                 0)) {
+            !surface->readPixels(pm, 0, 0)) {
             return Result::Fatal("Could not readback from surface.");
         }
     }

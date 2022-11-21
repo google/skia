@@ -53,7 +53,6 @@ public:
                                            ReadPixelsCallback callback,
                                            ReadPixelsContext context) override;
     bool onCopyOnWrite(ContentChangeMode) override;
-    bool onReadPixels(Context*, Recorder*, const SkPixmap& dst, int srcX, int srcY);
     sk_sp<const SkCapabilities> onCapabilities() override;
     bool isGraphiteBacked() const override { return true; }
 

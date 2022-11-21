@@ -124,11 +124,7 @@ public:
 
         fReadbackPM.erase(SkColors::kTransparent);
 
-        // For now, we cast and call directly into Surface. Once we have a better idea of
-        // what the public API for synchronous graphite readPixels we can update this call to use
-        // that instead.
-        auto surface = static_cast<skgpu::graphite::Surface*>(fImgDrawSurface.get());
-        if (!surface->onReadPixels(context, fRecorder, fReadbackPM, 0, 0)) {
+        if (!fImgDrawSurface->readPixels(fReadbackPM, 0, 0)) {
             ERRORF(fReporter, "readPixels failed");
         }
 

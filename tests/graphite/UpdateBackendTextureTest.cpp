@@ -144,14 +144,7 @@ void check_levels(skiatest::Reporter* reporter,
         canvas->drawImageRect(image, SkRect::MakeWH(drawSize, drawSize), sampling, &paint);
 #endif
 
-        // For now, we cast and call directly into Surface. Once we have a better idea of
-        // what the public API for synchronous graphite readPixels we can update this call to use
-        // that instead.
-        if (!static_cast<skgpu::graphite::Surface*>(surf.get())->onReadPixels(context,
-                                                                              recorder,
-                                                                              actual,
-                                                                              0,
-                                                                              0)) {
+        if (!surf->readPixels(actual, 0, 0)) {
             ERRORF(reporter, "readPixels failed");
             return;
         }

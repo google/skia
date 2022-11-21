@@ -60,8 +60,7 @@ void test_draw(skiatest::Reporter* reporter,
     bool peekPixelsSuccess = result.peekPixels(&pm);
     REPORTER_ASSERT(reporter, peekPixelsSuccess);
 
-    bool readPixelsSuccess =
-            static_cast<Surface*>(surface.get())->onReadPixels(context, recorder.get(), pm, 0, 0);
+    bool readPixelsSuccess = surface->readPixels(pm, 0, 0);
     REPORTER_ASSERT(reporter, readPixelsSuccess);
 
     for (const Expectation& e : expectations) {

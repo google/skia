@@ -390,31 +390,19 @@ void paint_canvas(SkCanvas* canvas, SkPaint* paint, const PreTestFn& preTestCall
 }
 
 static bool read_pixels(SkSurface* surface,
-                        const GraphiteInfo* graphite,
                         GrColor* pixels) {
     SkImageInfo info = surface->imageInfo();
     SkPixmap dest{info, pixels, info.minRowBytes()};
-    if (graphite) {
-#ifdef SK_GRAPHITE_ENABLED
-        auto* graphiteSurface = static_cast<skgpu::graphite::Surface*>(surface);
-        return graphiteSurface->onReadPixels(graphite->context, graphite->recorder, dest,
-                                             /*srcX=*/0, /*srcY=*/0);
-#else
-        return false;
-#endif
-    } else {
-        return surface->readPixels(dest, /*srcX=*/0, /*srcY=*/0);
-    }
+    return surface->readPixels(dest, /*srcX=*/0, /*srcY=*/0);
 }
 
 static void verify_2x2_surface_results(skiatest::Reporter* r,
                                        const SkRuntimeEffect* effect,
                                        SkSurface* surface,
-                                       const GraphiteInfo* graphite,
                                        std::array<GrColor, 4> expected) {
     std::array<GrColor, 4> actual;
     SkImageInfo info = surface->imageInfo();
-    if (!read_pixels(surface, graphite, actual.data())) {
+    if (!read_pixels(surface, actual.data())) {
         REPORT_FAILURE(r, "readPixels", SkString("readPixels failed"));
         return;
     }
@@ -500,8 +488,7 @@ public:
 
         paint_canvas(canvas, &paint, preTestCallback);
 
-        verify_2x2_surface_results(fReporter, fBuilder->effect(), fSurface.get(), fGraphite,
-                                   expected);
+        verify_2x2_surface_results(fReporter, fBuilder->effect(), fSurface.get(), expected);
     }
 
     std::string trace(const SkIPoint& traceCoord) {
@@ -581,8 +568,7 @@ public:
 
         paint_canvas(canvas, &paint, preTestCallback);
 
-        verify_2x2_surface_results(fReporter, fBuilder->effect(), fSurface.get(), fGraphite,
-                                   expected);
+        verify_2x2_surface_results(fReporter, fBuilder->effect(), fSurface.get(), expected);
     }
 
     void test(GrColor expected, PreTestFn preTestCallback = nullptr) {
@@ -752,8 +738,7 @@ static void verify_draw_obeys_capabilities(skiatest::Reporter* r,
 
     surface->getCanvas()->clear(SK_ColorRED);
     surface->getCanvas()->drawPaint(paint);
-    verify_2x2_surface_results(r, effect, surface, /*graphite=*/nullptr,
-                               {kExpected, kExpected, kExpected, kExpected});
+    verify_2x2_surface_results(r, effect, surface, {kExpected, kExpected, kExpected, kExpected});
 }
 
 static void test_RuntimeEffectObeysCapabilities(skiatest::Reporter* r, SkSurface* surface) {
