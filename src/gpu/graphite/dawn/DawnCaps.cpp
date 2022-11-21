@@ -350,12 +350,42 @@ void DawnCaps::setColorType(SkColorType colorType,
     }
 }
 
+uint64_t DawnCaps::getRenderPassDescKey(const RenderPassDesc& renderPassDesc) const {
+    DawnTextureInfo colorInfo, depthStencilInfo;
+    renderPassDesc.fColorAttachment.fTextureInfo.getDawnTextureInfo(&colorInfo);
+    renderPassDesc.fDepthStencilAttachment.fTextureInfo.getDawnTextureInfo(&depthStencilInfo);
+    SkASSERT(static_cast<uint32_t>(colorInfo.fFormat) <= 0xffff &&
+             static_cast<uint32_t>(depthStencilInfo.fFormat) <= 0xffff);
+    uint32_t colorAttachmentKey =
+            static_cast<uint32_t>(colorInfo.fFormat) << 16 | colorInfo.fSampleCount;
+    uint32_t dsAttachmentKey =
+            static_cast<uint32_t>(depthStencilInfo.fFormat) << 16 | depthStencilInfo.fSampleCount;
+    return (((uint64_t) colorAttachmentKey) << 32) | dsAttachmentKey;
+}
+
 UniqueKey DawnCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,
                                             const RenderPassDesc& renderPassDesc) const {
-    return {};
+    UniqueKey pipelineKey;
+    {
+        static const skgpu::UniqueKey::Domain kGraphicsPipelineDomain = UniqueKey::GenerateDomain();
+        // 4 uint32_t's (render step id, paint id, uint64 RenderPass desc)
+        UniqueKey::Builder builder(&pipelineKey, kGraphicsPipelineDomain, 4, "GraphicsPipeline");
+        // add GraphicsPipelineDesc key
+        builder[0] = pipelineDesc.renderStepID();
+        builder[1] = pipelineDesc.paintParamsID().asUInt();
+
+        // add RenderPassDesc key
+        uint64_t renderPassKey = this->getRenderPassDescKey(renderPassDesc);
+        builder[2] = renderPassKey & 0xFFFFFFFF;
+        builder[3] = (renderPassKey >> 32) & 0xFFFFFFFF;
+        builder.finish();
+    }
+
+    return pipelineKey;
 }
 
 UniqueKey DawnCaps::makeComputePipelineKey(const ComputePipelineDesc& pipelineDesc) const {
+    SkASSERT(false);
     return {};
 }
 

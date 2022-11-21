@@ -13,6 +13,20 @@
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
 
 namespace skgpu::graphite {
+namespace {
+
+wgpu::ShaderModule CreateNoopFragment(const wgpu::Device& device) {
+    wgpu::ShaderModuleWGSLDescriptor wgslDesc;
+    wgslDesc.source =
+            "@fragment\n"
+            "fn main() {}\n";
+    wgpu::ShaderModuleDescriptor smDesc;
+    smDesc.nextInChain = &wgslDesc;
+    auto fsModule = device.CreateShaderModule(&smDesc);
+    return fsModule;
+}
+
+}
 
 sk_sp<SharedContext> DawnSharedContext::Make(const DawnBackendContext& backendContext,
                                              const ContextOptions& options) {
@@ -20,27 +34,31 @@ sk_sp<SharedContext> DawnSharedContext::Make(const DawnBackendContext& backendCo
         return {};
     }
 
+    auto noopFragment = CreateNoopFragment(backendContext.fDevice);
+    if (!noopFragment) {
+        return {};
+    }
+
     auto caps = std::make_unique<const DawnCaps>(backendContext.fDevice, options);
 
     return sk_sp<SharedContext>(new DawnSharedContext(backendContext,
-                                                      std::move(caps)));
+                                                      std::move(caps),
+                                                      std::move(noopFragment)));
 }
 
 DawnSharedContext::DawnSharedContext(const DawnBackendContext& backendContext,
-                                     std::unique_ptr<const DawnCaps> caps)
+                                     std::unique_ptr<const DawnCaps> caps,
+                                     wgpu::ShaderModule noopFragment)
         : skgpu::graphite::SharedContext(std::move(caps), BackendApi::kDawn)
         , fDevice(backendContext.fDevice)
-        , fQueue(backendContext.fQueue) {}
+        , fQueue(backendContext.fQueue)
+        , fNoopFragment(std::move(noopFragment)) {}
 
 DawnSharedContext::~DawnSharedContext() = default;
 
 std::unique_ptr<ResourceProvider> DawnSharedContext::makeResourceProvider(
         SingleOwner* singleOwner) {
     return std::unique_ptr<ResourceProvider>(new DawnResourceProvider(this, singleOwner));
-}
-
-const DawnCaps* DawnSharedContext::dawnCaps() const {
-    return static_cast<const DawnCaps*>(caps());
 }
 
 } // namespace skgpu::graphite

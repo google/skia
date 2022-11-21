@@ -9,7 +9,7 @@
 
 #include "include/gpu/graphite/BackendTexture.h"
 #include "src/gpu/graphite/ComputePipeline.h"
-#include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
 #include "src/gpu/graphite/dawn/DawnSampler.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/gpu/graphite/dawn/DawnTexture.h"
@@ -48,8 +48,11 @@ sk_sp<GraphicsPipeline> DawnResourceProvider::createGraphicsPipeline(
         const SkRuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
-    SkASSERT(false);
-    return {};
+    return DawnGraphicsPipeline::Make(this->dawnSharedContext(),
+                                      this->skslCompiler(),
+                                      runtimeDict,
+                                      pipelineDesc,
+                                      renderPassDesc);
 }
 
 sk_sp<ComputePipeline> DawnResourceProvider::createComputePipeline(const ComputePipelineDesc&) {

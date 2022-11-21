@@ -179,6 +179,8 @@ skia_graphite_dawn_sources = [
   "$_src/dawn/DawnCaps.h",
   "$_src/dawn/DawnCommandBuffer.cpp",
   "$_src/dawn/DawnCommandBuffer.h",
+  "$_src/dawn/DawnGraphicsPipeline.cpp",
+  "$_src/dawn/DawnGraphicsPipeline.h",
   "$_src/dawn/DawnQueueManager.cpp",
   "$_src/dawn/DawnQueueManager.h",
   "$_src/dawn/DawnResourceProvider.cpp",
