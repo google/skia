@@ -772,25 +772,6 @@ SkColorType MtlCaps::supportedReadPixelsColorType(SkColorType srcColorType,
     return kUnknown_SkColorType;
 }
 
-// There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
-// options instead of the actual sample value.
-uint32_t samples_to_key(uint32_t numSamples) {
-    switch (numSamples) {
-        case 1:
-            return 0;
-        case 2:
-            return 1;
-        case 4:
-            return 2;
-        case 8:
-            return 3;
-        case 16:
-            return 4;
-        default:
-            SkUNREACHABLE;
-    }
-}
-
 void MtlCaps::buildKeyForTexture(SkISize dimensions,
                                  const TextureInfo& info,
                                  ResourceType type,
@@ -807,7 +788,7 @@ void MtlCaps::buildKeyForTexture(SkISize dimensions,
     SkASSERT(mtlSpec.fFormat != MTLPixelFormatInvalid);
     uint64_t formatKey = static_cast<uint64_t>(mtlSpec.fFormat);
 
-    uint32_t samplesKey = samples_to_key(info.numSamples());
+    uint32_t samplesKey = SamplesToKey(info.numSamples());
     // We don't have to key the number of mip levels because it is inherit in the combination of
     // isMipped and dimensions.
     bool isMipped = info.mipmapped() == Mipmapped::kYes;

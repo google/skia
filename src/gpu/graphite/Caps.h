@@ -162,6 +162,25 @@ protected:
     // TODO: This value should be set by some context option. For now just making it 4.
     uint32_t defaultMSAASamples() const { return 4; }
 
+    // There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
+    // options instead of the actual sample value.
+    static inline uint32_t SamplesToKey(uint32_t numSamples) {
+        switch (numSamples) {
+            case 1:
+                return 0;
+            case 2:
+                return 1;
+            case 4:
+                return 2;
+            case 8:
+                return 3;
+            case 16:
+                return 4;
+            default:
+                SkUNREACHABLE;
+        }
+    }
+
     // ColorTypeInfo for a specific format.
     // Used in format tables.
     struct ColorTypeInfo {

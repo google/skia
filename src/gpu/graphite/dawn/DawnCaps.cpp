@@ -363,7 +363,40 @@ void DawnCaps::buildKeyForTexture(SkISize dimensions,
                                   const TextureInfo& info,
                                   ResourceType type,
                                   Shareable shareable,
-                                  GraphiteResourceKey* key) const {}
+                                  GraphiteResourceKey* key) const {
+    const DawnTextureSpec& dawnSpec = info.dawnTextureSpec();
+
+    SkASSERT(!dimensions.isEmpty());
+
+    SkASSERT(dawnSpec.fFormat != wgpu::TextureFormat::Undefined);
+    uint32_t formatKey = static_cast<uint32_t>(dawnSpec.fFormat);
+
+    uint32_t samplesKey = SamplesToKey(info.numSamples());
+    // We don't have to key the number of mip levels because it is inherit in the combination of
+    // isMipped and dimensions.
+    bool isMipped = info.mipmapped() == Mipmapped::kYes;
+    Protected isProtected = info.isProtected();
+
+    // Confirm all the below parts of the key can fit in a single uint32_t. The sum of the shift
+    // amounts in the asserts must be less than or equal to 32.
+    SkASSERT(samplesKey                             < (1u << 3));
+    SkASSERT(static_cast<uint32_t>(isMipped)        < (1u << 1));
+    SkASSERT(static_cast<uint32_t>(isProtected)     < (1u << 1));
+    SkASSERT(static_cast<uint32_t>(dawnSpec.fUsage) < (1u << 5));
+
+    // We need two uint32_ts for dimensions, 1 for format, and 1 for the rest of the key;
+    static int kNum32DataCnt = 2 + 1 + 1;
+
+    GraphiteResourceKey::Builder builder(key, type, kNum32DataCnt, shareable);
+
+    builder[0] = dimensions.width();
+    builder[1] = dimensions.height();
+    builder[2] = formatKey;
+    builder[3] = (samplesKey                                   << 0) |
+                 (static_cast<uint32_t>(isMipped)              << 3) |
+                 (static_cast<uint32_t>(isProtected)           << 4) |
+                 (static_cast<uint32_t>(dawnSpec.fUsage)       << 5);
+}
 
 } // namespace skgpu::graphite
 
