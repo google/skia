@@ -142,25 +142,52 @@ void SkRasterPipeline::append_copy_slots_masked(SkArenaAlloc* alloc,
                                                 float* src,
                                                 int numSlots) {
     SkASSERT(numSlots >= 0);
+    while (numSlots > 4) {
+        this->append_copy_slots_masked(alloc, dst, src, /*numSlots=*/4);
+        dst += 4 * SkOpts::raster_pipeline_highp_stride;
+        src += 4 * SkOpts::raster_pipeline_highp_stride;
+        numSlots -= 4;
+    }
 
     SkRasterPipeline::Stage stage;
     switch (numSlots) {
-        case 0: return;
-        case 1: stage = SkRasterPipeline::copy_slot_masked;     break;
-        case 2: stage = SkRasterPipeline::copy_2_slots_masked;  break;
-        case 3: stage = SkRasterPipeline::copy_3_slots_masked;  break;
-        case 4: stage = SkRasterPipeline::copy_4_slots_masked;  break;
-        default:
-            // Split this copy up into consecutive groups of 4.
-            this->append_copy_slots_masked(alloc, dst, src, /*numSlots=*/4);
-            dst += 4 * SkOpts::raster_pipeline_highp_stride;
-            src += 4 * SkOpts::raster_pipeline_highp_stride;
-            numSlots -= 4;
-            this->append_copy_slots_masked(alloc, dst, src, numSlots);
-            return;
+        case 0:  return;
+        case 1:  stage = SkRasterPipeline::copy_slot_masked;     break;
+        case 2:  stage = SkRasterPipeline::copy_2_slots_masked;  break;
+        case 3:  stage = SkRasterPipeline::copy_3_slots_masked;  break;
+        case 4:  stage = SkRasterPipeline::copy_4_slots_masked;  break;
+        default: SkUNREACHABLE;
     }
 
-    auto ctx = alloc->make<SkRasterPipeline_CopySlotsMaskedCtx>();
+    auto ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
+    ctx->dst = dst;
+    ctx->src = src;
+    this->unchecked_append(stage, ctx);
+}
+
+void SkRasterPipeline::append_copy_slots_unmasked(SkArenaAlloc* alloc,
+                                                  float* dst,
+                                                  float* src,
+                                                  int numSlots) {
+    SkASSERT(numSlots >= 0);
+    while (numSlots > 4) {
+        this->append_copy_slots_unmasked(alloc, dst, src, /*numSlots=*/4);
+        dst += 4 * SkOpts::raster_pipeline_highp_stride;
+        src += 4 * SkOpts::raster_pipeline_highp_stride;
+        numSlots -= 4;
+    }
+
+    SkRasterPipeline::Stage stage;
+    switch (numSlots) {
+        case 0:  return;
+        case 1:  stage = SkRasterPipeline::copy_slot_unmasked;     break;
+        case 2:  stage = SkRasterPipeline::copy_2_slots_unmasked;  break;
+        case 3:  stage = SkRasterPipeline::copy_3_slots_unmasked;  break;
+        case 4:  stage = SkRasterPipeline::copy_4_slots_unmasked;  break;
+        default: SkUNREACHABLE;
+    }
+
+    auto ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
     ctx->dst = dst;
     ctx->src = src;
     this->unchecked_append(stage, ctx);

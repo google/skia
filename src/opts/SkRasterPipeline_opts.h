@@ -3012,8 +3012,22 @@ STAGE(immediate_f, void* ctx) {
     r = F(val);
 }
 
+STAGE(copy_slot_unmasked, SkRasterPipeline_CopySlotsCtx* ctx) {
+    // We don't even bother masking off the tail; we're filling slots, not the destination surface.
+    memcpy(ctx->dst, ctx->src, sizeof(F) * 1);
+}
+STAGE(copy_2_slots_unmasked, SkRasterPipeline_CopySlotsCtx* ctx) {
+    memcpy(ctx->dst, ctx->src, sizeof(F) * 2);
+}
+STAGE(copy_3_slots_unmasked, SkRasterPipeline_CopySlotsCtx* ctx) {
+    memcpy(ctx->dst, ctx->src, sizeof(F) * 3);
+}
+STAGE(copy_4_slots_unmasked, SkRasterPipeline_CopySlotsCtx* ctx) {
+    memcpy(ctx->dst, ctx->src, sizeof(F) * 4);
+}
+
 template <int NumSlots>
-SI void copy_n_slots_masked_fn(SkRasterPipeline_CopySlotsMaskedCtx* ctx, F& dr, F& dg, F& db) {
+SI void copy_n_slots_masked_fn(SkRasterPipeline_CopySlotsCtx* ctx, F& dr, F& dg, F& db) {
     // Compute the mask; if it's completely zero, we can stop here.
     I32 mask = sk_bit_cast<I32>(dr) & sk_bit_cast<I32>(dg) & sk_bit_cast<I32>(db);
     if (any(mask)) {
@@ -3031,16 +3045,16 @@ SI void copy_n_slots_masked_fn(SkRasterPipeline_CopySlotsMaskedCtx* ctx, F& dr, 
     }
 }
 
-STAGE(copy_slot_masked, SkRasterPipeline_CopySlotsMaskedCtx* ctx) {
+STAGE(copy_slot_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
     copy_n_slots_masked_fn<1>(ctx, dr, dg, db);
 }
-STAGE(copy_2_slots_masked, SkRasterPipeline_CopySlotsMaskedCtx* ctx) {
+STAGE(copy_2_slots_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
     copy_n_slots_masked_fn<2>(ctx, dr, dg, db);
 }
-STAGE(copy_3_slots_masked, SkRasterPipeline_CopySlotsMaskedCtx* ctx) {
+STAGE(copy_3_slots_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
     copy_n_slots_masked_fn<3>(ctx, dr, dg, db);
 }
-STAGE(copy_4_slots_masked, SkRasterPipeline_CopySlotsMaskedCtx* ctx) {
+STAGE(copy_4_slots_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
     copy_n_slots_masked_fn<4>(ctx, dr, dg, db);
 }
 

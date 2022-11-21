@@ -162,6 +162,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 pipeline->append_copy_slots_masked(alloc, SlotA(), SlotB(), inst.fImmI32);
                 break;
 
+            case SkRP::copy_slot_unmasked:
+                pipeline->append_copy_slots_unmasked(alloc, SlotA(), SlotB(), inst.fImmI32);
+                break;
+
             case SkRP::store_condition_mask:
                 pipeline->append(SkRP::store_condition_mask, conditionStackPtr);
                 conditionStackPtr += N;

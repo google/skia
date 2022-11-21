@@ -238,6 +238,42 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_CopySlotsUnmasked, r) {
+    // Allocate space for 20 source slots and 20 dest slots.
+    float slots[41 * SkRasterPipeline_kMaxStride_highp];
+    const int srcIndex = 0, dstIndex = 20;
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    for (int slotCount = 0; slotCount < 20; ++slotCount) {
+        // Initialize the destination slots to 0,1,2.. and the source slots to 1000,1001,1002...
+        std::iota(&slots[N * dstIndex],  &slots[N * (dstIndex + 20)], 0.0f);
+        std::iota(&slots[N * srcIndex],  &slots[N * (srcIndex + 20)], 1000.0f);
+
+        // Run `copy_slots_unmasked` over our data.
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        p.append_copy_slots_unmasked(&alloc, &slots[N * dstIndex], &slots[N * srcIndex], slotCount);
+        p.run(0,0,20,1);
+
+        // Verify that the destination has been overwritten in each slot.
+        float expectedUnchanged = 0.0f, expectedChanged = 1000.0f;
+        float* destPtr = &slots[N * dstIndex];
+        for (int checkSlot = 0; checkSlot < 20; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                if (checkSlot < slotCount) {
+                    REPORTER_ASSERT(r, *destPtr == expectedChanged);
+                } else {
+                    REPORTER_ASSERT(r, *destPtr == expectedUnchanged);
+                }
+
+                ++destPtr;
+                expectedUnchanged += 1.0f;
+                expectedChanged += 1.0f;
+            }
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_empty, r) {
     // No asserts... just a test that this is safe to run.
     SkRasterPipeline_<256> p;

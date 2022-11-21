@@ -20,8 +20,16 @@ static SkSL::RP::SlotRange two_slots_at(SkSL::RP::Slot index) {
     return SkSL::RP::SlotRange{index, 2};
 }
 
+static SkSL::RP::SlotRange three_slots_at(SkSL::RP::Slot index) {
+    return SkSL::RP::SlotRange{index, 3};
+}
+
 static SkSL::RP::SlotRange four_slots_at(SkSL::RP::Slot index) {
     return SkSL::RP::SlotRange{index, 4};
+}
+
+static SkSL::RP::SlotRange five_slots_at(SkSL::RP::Slot index) {
+    return SkSL::RP::SlotRange{index, 5};
 }
 
 template <typename T>
@@ -331,15 +339,54 @@ DEF_TEST(RasterPipelineBuilderCopySlotsMasked, r) {
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     stages = stages->prev;
-    const auto* ctx = static_cast<const SkRasterPipeline_CopySlotsMaskedCtx*>(stages->ctx);
+    const auto* ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(stages->ctx);
 
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::copy_4_slots_masked);
     REPORTER_ASSERT(r, ctx->dst == slot0 + (1 * N));
     REPORTER_ASSERT(r, ctx->src == slot0 + (5 * N));
     stages = stages->prev;
-    ctx = static_cast<const SkRasterPipeline_CopySlotsMaskedCtx*>(stages->ctx);
+    ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(stages->ctx);
 
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::copy_2_slots_masked);
+    REPORTER_ASSERT(r, ctx->dst == slot0 + (0 * N));
+    REPORTER_ASSERT(r, ctx->src == slot0 + (2 * N));
+}
+
+DEF_TEST(RasterPipelineBuilderCopySlotsUnmasked, r) {
+    // Create a very simple nonsense program.
+    SkSL::RP::Builder builder;
+    builder.copy_slots_unmasked(three_slots_at(0),  three_slots_at(2));
+    builder.copy_slots_unmasked(five_slots_at(1), five_slots_at(5));
+    builder.store_unmasked(0);  // make it easy to find the first slot
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish();
+
+    // Instantiate this program.
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
+    SkRasterPipeline pipeline(&alloc);
+    program->appendStages(&pipeline, &alloc);
+
+    // Double check that the resulting stage list contains the expected stores.
+    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_unmasked);
+    const float* slot0 = (const float*)stages->ctx;
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    stages = stages->prev;
+    const auto* ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(stages->ctx);
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::copy_slot_unmasked);
+    REPORTER_ASSERT(r, ctx->dst == slot0 + (5 * N));
+    REPORTER_ASSERT(r, ctx->src == slot0 + (9 * N));
+    stages = stages->prev;
+    ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(stages->ctx);
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::copy_4_slots_unmasked);
+    REPORTER_ASSERT(r, ctx->dst == slot0 + (1 * N));
+    REPORTER_ASSERT(r, ctx->src == slot0 + (5 * N));
+    stages = stages->prev;
+    ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(stages->ctx);
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::copy_3_slots_unmasked);
     REPORTER_ASSERT(r, ctx->dst == slot0 + (0 * N));
     REPORTER_ASSERT(r, ctx->src == slot0 + (2 * N));
 }
