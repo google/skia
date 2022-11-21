@@ -42,22 +42,18 @@ int Program::numTempStackSlots() {
     int current = 0;
     for (const Instruction& inst : fInstructions) {
         switch (inst.fOp) {
-            case BuilderOp::push_temp_f:
+            case BuilderOp::push_literal_f:
                 ++current;
                 largest = std::max(current, largest);
                 break;
 
             case BuilderOp::push_slots:
-                current += inst.fImmI32;
+                current += inst.fImmA;
                 largest = std::max(current, largest);
                 break;
 
-            case BuilderOp::pop_slots:
-                current -= inst.fImmI32;
-                break;
-
-            case BuilderOp::discard_temp:
-                --current;
+            case BuilderOp::discard_stack:
+                current -= inst.fImmA;
                 break;
 
             default:
@@ -76,12 +72,12 @@ int Program::numConditionMaskSlots() {
     int current = 0;
     for (const Instruction& inst : fInstructions) {
         switch (inst.fOp) {
-            case SkRasterPipeline::store_condition_mask:
+            case BuilderOp::store_condition_mask:
                 ++current;
                 largest = std::max(current, largest);
                 break;
 
-            case SkRasterPipeline::load_condition_mask:
+            case BuilderOp::load_condition_mask:
                 --current;
                 SkASSERTF(current >= 0, "unbalanced condition-mask push/pop");
                 break;
@@ -131,82 +127,82 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
         auto SlotB = [&]() { return &slotPtr[N * inst.fSlotB]; };
 
         switch (inst.fOp) {
-            case SkRP::init_lane_masks:
+            case BuilderOp::init_lane_masks:
                 pipeline->append(SkRP::init_lane_masks);
                 break;
 
-            case SkRP::store_src_rg:
+            case BuilderOp::store_src_rg:
                 pipeline->append(SkRP::store_src_rg, SlotA());
                 break;
 
-            case SkRP::store_src:
+            case BuilderOp::store_src:
                 pipeline->append(SkRP::store_src, SlotA());
                 break;
 
-            case SkRP::store_dst:
+            case BuilderOp::store_dst:
                 pipeline->append(SkRP::store_dst, SlotA());
                 break;
 
-            case SkRP::load_src:
+            case BuilderOp::load_src:
                 pipeline->append(SkRP::load_src, SlotA());
                 break;
 
-            case SkRP::load_dst:
+            case BuilderOp::load_dst:
                 pipeline->append(SkRP::load_dst, SlotA());
                 break;
 
-            case SkRP::immediate_f: {
-                pipeline->append(SkRP::immediate_f, context_bit_pun(inst.fImmF32));
+            case BuilderOp::immediate_f: {
+                pipeline->append(SkRP::immediate_f, context_bit_pun(inst.fImmA));
                 break;
             }
-            case SkRP::load_unmasked:
+            case BuilderOp::load_unmasked:
                 pipeline->append(SkRP::load_unmasked, SlotA());
                 break;
 
-            case SkRP::store_unmasked:
+            case BuilderOp::store_unmasked:
                 pipeline->append(SkRP::store_unmasked, SlotA());
                 break;
 
-            case SkRP::store_masked:
+            case BuilderOp::store_masked:
                 pipeline->append(SkRP::store_masked, SlotA());
                 break;
 
-            case SkRP::copy_slot_masked:
-                pipeline->append_copy_slots_masked(alloc, SlotA(), SlotB(), inst.fImmI32);
+            case BuilderOp::copy_slot_masked:
+                pipeline->append_copy_slots_masked(alloc, SlotA(), SlotB(), inst.fImmA);
                 break;
 
-            case SkRP::copy_slot_unmasked:
-                pipeline->append_copy_slots_unmasked(alloc, SlotA(), SlotB(), inst.fImmI32);
+            case BuilderOp::copy_slot_unmasked:
+                pipeline->append_copy_slots_unmasked(alloc, SlotA(), SlotB(), inst.fImmA);
                 break;
 
             case BuilderOp::push_slots:
-                pipeline->append_copy_slots_unmasked(alloc, tempStackPtr, SlotA(), inst.fImmI32);
-                tempStackPtr += N * inst.fImmI32;
+                pipeline->append_copy_slots_unmasked(alloc, tempStackPtr, SlotA(), inst.fImmA);
+                tempStackPtr += N * inst.fImmA;
                 break;
 
-            case BuilderOp::pop_slots:
-                tempStackPtr -= N * inst.fImmI32;
-                pipeline->append_copy_slots_masked(alloc, SlotA(), tempStackPtr, inst.fImmI32);
-                break;
-
-            case SkRP::store_condition_mask:
+            case BuilderOp::store_condition_mask:
                 pipeline->append(SkRP::store_condition_mask, conditionStackPtr);
                 conditionStackPtr += N;
                 break;
 
-            case SkRP::load_condition_mask:
+            case BuilderOp::load_condition_mask:
                 conditionStackPtr -= N;
                 pipeline->append(SkRP::load_condition_mask, conditionStackPtr);
                 break;
 
-            case BuilderOp::push_temp_f:
-                pipeline->append(SkRP::immediate_f, context_bit_pun(inst.fImmF32));
+            case BuilderOp::push_literal_f:
+                pipeline->append(SkRP::immediate_f, context_bit_pun(inst.fImmA));
                 pipeline->append(SkRP::store_unmasked, tempStackPtr);
                 tempStackPtr += N;
                 break;
 
-            case BuilderOp::discard_temp:
-                tempStackPtr -= N;
+            case BuilderOp::copy_stack_to_slots: {
+                float* src = tempStackPtr - N * inst.fImmA;
+                pipeline->append_copy_slots_masked(alloc, SlotA(), src, inst.fImmA);
+                break;
+            }
+            case BuilderOp::discard_stack:
+                tempStackPtr -= N * inst.fImmA;
                 break;
 
             default:

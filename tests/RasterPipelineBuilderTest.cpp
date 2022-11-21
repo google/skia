@@ -186,10 +186,9 @@ DEF_TEST(RasterPipelineBuilderPushPopConditionMask, r) {
     builder.pop_condition_mask();  // pop  from 100
     builder.push_condition_mask(); // push into 100
     builder.pop_condition_mask();  // pop  from 100
-    builder.push_temp_f(0);        // reserve slot 98 for the temp stack
-    builder.push_temp_f(0);        //  "        "  99  "   "   "      "
-    builder.discard_temp();        // balance temp stack
-    builder.discard_temp();        //  "        "     "
+    builder.push_literal_f(0);     // reserve slot 98 for the temp stack
+    builder.push_literal_f(0);     //  "        "  99  "   "   "      "
+    builder.discard_stack(2);      // balance temp stack
     builder.store_unmasked(97);    // reserve slots 0-97 for values
     builder.store_unmasked(0);     // make it easy to find the first slot
     std::unique_ptr<SkSL::RP::Program> program = builder.finish();
@@ -270,12 +269,11 @@ DEF_TEST(RasterPipelineBuilderPushPopConditionMask, r) {
 DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_temp_f(13.5f);    // push into 1
-    builder.push_temp_i(-246);     // push into 2
-    builder.discard_temp();        // discard 2
-    builder.push_temp_u(357);      // push into 2
-    builder.discard_temp();        // discard 2
-    builder.discard_temp();        // discard 1
+    builder.push_literal_f(13.5f); // push into 1
+    builder.push_literal_i(-246);  // push into 2
+    builder.discard_stack();       // discard 2
+    builder.push_literal_u(357);   // push into 2
+    builder.discard_stack(2);      // discard 1 and 2
     builder.load_unmasked(0);      // make it easy to find the first slot
     std::unique_ptr<SkSL::RP::Program> program = builder.finish();
 
@@ -285,7 +283,7 @@ DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     program->appendStages(&pipeline, &alloc);
 
     // Double check that the resulting stage list contains the expected temp-value pushes.
-    // `discard_temp` isn't in the list because it doesn't create any ops.
+    // `discard_stack` isn't in the list because it doesn't create any ops.
     // (Note that, as always, stage lists are in reverse order.)
     const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
     const float* slot0 = (const float*)stages->ctx;

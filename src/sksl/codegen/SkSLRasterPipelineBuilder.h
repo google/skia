@@ -30,19 +30,22 @@ struct SlotRange {
 };
 
 // Ops that the builder will contextually rewrite into different RasterPipeline stages.
-namespace BuilderOp {
-    enum {
-        push_temp_f = SkRasterPipeline::kNumHighpStages + 1,
-        push_slots,
-        pop_slots,
-        discard_temp,
-    };
-}
+enum class BuilderOp {
+    // We support all the native Raster Pipeline stages.
+    #define M(stage) stage,
+        SK_RASTER_PIPELINE_STAGES_ALL(M)
+    #undef M
+    // We also support Builder-specific ops; these are converted into real RP stages during
+    // `appendStages`.
+    push_literal_f,
+    push_slots,
+    copy_stack_to_slots,
+    discard_stack,
+};
 
 // Represents a single raster-pipeline SkSL instruction.
 struct Instruction {
-    Instruction(int op, std::initializer_list<Slot> slots)
-            : fOp(op), fImmF32(0.0f), fImmI32(0) {
+    Instruction(BuilderOp op, std::initializer_list<Slot> slots) : fOp(op), fImmA(0) {
         auto iter = slots.begin();
         if (iter != slots.end()) { fSlotA = *iter++; }
         if (iter != slots.end()) { fSlotB = *iter++; }
@@ -50,8 +53,7 @@ struct Instruction {
         SkASSERT(iter == slots.end());
     }
 
-    Instruction(int op, std::initializer_list<Slot> slots, float f, int i)
-            : fOp(op), fImmF32(f), fImmI32(i) {
+    Instruction(BuilderOp op, std::initializer_list<Slot> slots, int i) : fOp(op), fImmA(i) {
         auto iter = slots.begin();
         if (iter != slots.end()) { fSlotA = *iter++; }
         if (iter != slots.end()) { fSlotB = *iter++; }
@@ -59,12 +61,11 @@ struct Instruction {
         SkASSERT(iter == slots.end());
     }
 
-    int   fOp;
-    Slot  fSlotA = NA;
-    Slot  fSlotB = NA;
-    Slot  fSlotC = NA;
-    float fImmF32 = 0.0f;
-    int   fImmI32 = 0;
+    BuilderOp fOp;
+    Slot      fSlotA = NA;
+    Slot      fSlotB = NA;
+    Slot      fSlotC = NA;
+    int       fImmA = 0;
 };
 
 class Program {
@@ -92,106 +93,112 @@ public:
 
     /** Assemble a program from the Raster Pipeline instructions below. */
     void init_lane_masks() {
-        fInstructions.push_back({SkRasterPipeline::init_lane_masks, {}});
+        fInstructions.push_back({BuilderOp::init_lane_masks, {}});
     }
 
     void store_src_rg(SlotRange slots) {
         SkASSERT(slots.count == 2);
-        fInstructions.push_back({SkRasterPipeline::store_src_rg, {slots.index}});
+        fInstructions.push_back({BuilderOp::store_src_rg, {slots.index}});
     }
 
     void store_src(SlotRange slots) {
         SkASSERT(slots.count == 4);
-        fInstructions.push_back({SkRasterPipeline::store_src, {slots.index}});
+        fInstructions.push_back({BuilderOp::store_src, {slots.index}});
     }
 
     void store_dst(SlotRange slots) {
         SkASSERT(slots.count == 4);
-        fInstructions.push_back({SkRasterPipeline::store_dst, {slots.index}});
+        fInstructions.push_back({BuilderOp::store_dst, {slots.index}});
     }
 
     void load_src(SlotRange slots) {
         SkASSERT(slots.count == 4);
-        fInstructions.push_back({SkRasterPipeline::load_src, {slots.index}});
+        fInstructions.push_back({BuilderOp::load_src, {slots.index}});
     }
 
     void load_dst(SlotRange slots) {
         SkASSERT(slots.count == 4);
-        fInstructions.push_back({SkRasterPipeline::load_dst, {slots.index}});
+        fInstructions.push_back({BuilderOp::load_dst, {slots.index}});
     }
 
+    // Use the same SkRasterPipeline op regardless of the literal type.
     void immediate_f(float val) {
-        fInstructions.push_back({SkRasterPipeline::immediate_f, {}, val, 0});
+        fInstructions.push_back({BuilderOp::immediate_f, {}, sk_bit_cast<int32_t>(val)});
     }
 
-    // SkRasterPipeline registers are floats, so it's easiest just to reuse immediate_f here.
     void immediate_i(int32_t val) {
-        fInstructions.push_back({SkRasterPipeline::immediate_f, {}, sk_bit_cast<float>(val), 0});
+        fInstructions.push_back({BuilderOp::immediate_f, {}, val});
     }
 
     void immediate_u(uint32_t val) {
-        fInstructions.push_back({SkRasterPipeline::immediate_f, {}, sk_bit_cast<float>(val), 0});
+        fInstructions.push_back({BuilderOp::immediate_f, {}, sk_bit_cast<int32_t>(val)});
     }
 
-    void push_temp_f(float val) {
-        fInstructions.push_back({BuilderOp::push_temp_f, {}, val, 0});
+    void push_literal_f(float val) {
+        fInstructions.push_back({BuilderOp::push_literal_f, {}, sk_bit_cast<int32_t>(val)});
     }
 
-    // SkRasterPipeline registers are floats, so it's easiest just to reuse push_immediate_f here.
-    void push_temp_i(int32_t val) {
-        fInstructions.push_back({BuilderOp::push_temp_f, {}, sk_bit_cast<float>(val), 0});
+    void push_literal_i(int32_t val) {
+        fInstructions.push_back({BuilderOp::push_literal_f, {}, val});
     }
 
-    void push_temp_u(uint32_t val) {
-        fInstructions.push_back({BuilderOp::push_temp_f, {}, sk_bit_cast<float>(val), 0});
+    void push_literal_u(uint32_t val) {
+        fInstructions.push_back({BuilderOp::push_literal_f, {}, sk_bit_cast<int32_t>(val)});
     }
 
     void push_slots(SlotRange src) {
         // Translates into copy_slots_unmasked (from values into temp stack) in Raster Pipeline.
-        fInstructions.push_back({BuilderOp::push_slots, {src.index}, 0.0f, src.count});
+        fInstructions.push_back({BuilderOp::push_slots, {src.index}, src.count});
+    }
+
+    void copy_stack_to_slots(SlotRange dst) {
+        // Translates into copy_slots_unmasked (from temp stack to values) in Raster Pipeline.
+        // Does not discard any values on the temp stack.
+        fInstructions.push_back({BuilderOp::copy_stack_to_slots, {dst.index}, dst.count});
+    }
+
+    void discard_stack(int32_t count = 1) {
+        // Shrinks the temp stack, discarding values on top.
+        fInstructions.push_back({BuilderOp::discard_stack, {}, count});
     }
 
     void pop_slots(SlotRange dst) {
-        // Translates into copy_slots_masked (from temp stack into values) in Raster Pipeline.
-        fInstructions.push_back({BuilderOp::pop_slots, {dst.index}, 0.0f, dst.count});
-    }
-
-    void discard_temp() {
-        fInstructions.push_back({BuilderOp::discard_temp, {}});
+        // The opposite of push_slots; copies values from the temp stack into value slots, then
+        // shrinks the temp stack.
+        this->copy_stack_to_slots(dst);
+        this->discard_stack(dst.count);
     }
 
     void load_unmasked(Slot slot) {
-        fInstructions.push_back({SkRasterPipeline::load_unmasked, {slot}});
+        fInstructions.push_back({BuilderOp::load_unmasked, {slot}});
     }
 
     void store_unmasked(Slot slot) {
-        fInstructions.push_back({SkRasterPipeline::store_unmasked, {slot}});
+        fInstructions.push_back({BuilderOp::store_unmasked, {slot}});
     }
 
     void store_masked(Slot slot) {
-        fInstructions.push_back({SkRasterPipeline::store_masked, {slot}});
+        fInstructions.push_back({BuilderOp::store_masked, {slot}});
     }
 
     void copy_slots_masked(SlotRange dst, SlotRange src) {
         SkASSERT(dst.count == src.count);
-        fInstructions.push_back({SkRasterPipeline::copy_slot_masked,
-                                 {dst.index, src.index}, 0.0f, dst.count});
+        fInstructions.push_back({BuilderOp::copy_slot_masked, {dst.index, src.index}, dst.count});
     }
 
     void copy_slots_unmasked(SlotRange dst, SlotRange src) {
         SkASSERT(dst.count == src.count);
-        fInstructions.push_back({SkRasterPipeline::copy_slot_unmasked,
-                                 {dst.index, src.index}, 0.0f, dst.count});
+        fInstructions.push_back({BuilderOp::copy_slot_unmasked, {dst.index, src.index}, dst.count});
     }
 
     void push_condition_mask() {
         // Raster pipeline uses a "store" op, and the builder manages the stack position.
-        fInstructions.push_back({SkRasterPipeline::store_condition_mask, {}});
+        fInstructions.push_back({BuilderOp::store_condition_mask, {}});
     }
 
     void pop_condition_mask() {
         // Raster pipeline uses a "load" op, and the builder manages the stack position.
-        fInstructions.push_back({SkRasterPipeline::load_condition_mask, {}});
+        fInstructions.push_back({BuilderOp::load_condition_mask, {}});
     }
 
 private:

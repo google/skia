@@ -212,19 +212,19 @@ bool Generator::pushConstructorCompound(const ConstructorCompound& c) {
 bool Generator::pushLiteral(const Literal& l) {
     switch (l.type().numberKind()) {
         case Type::NumberKind::kFloat:
-            fBuilder.push_temp_f(l.floatValue());
+            fBuilder.push_literal_f(l.floatValue());
             return true;
 
         case Type::NumberKind::kSigned:
-            fBuilder.push_temp_i(l.intValue());
+            fBuilder.push_literal_i(l.intValue());
             return true;
 
         case Type::NumberKind::kUnsigned:
-            fBuilder.push_temp_u(l.intValue());
+            fBuilder.push_literal_u(l.intValue());
             return true;
 
         case Type::NumberKind::kBoolean:
-            fBuilder.push_temp_i(l.boolValue() ? ~0 : 0);
+            fBuilder.push_literal_i(l.boolValue() ? ~0 : 0);
             return true;
 
         default:
