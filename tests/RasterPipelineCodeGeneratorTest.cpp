@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLProgramKind.h"
 #include "src/core/SkArenaAlloc.h"
@@ -19,15 +20,16 @@
 #include "tests/Test.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 
 static void test(skiatest::Reporter* r,
                  const char* src,
-                 SkSL::ProgramKind kind = SkSL::ProgramKind::kFragment) {
+                 std::optional<SkColor4f> color) {
     SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
     SkSL::ProgramSettings settings;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, std::string(src),
-                                                                     settings);
+    std::unique_ptr<SkSL::Program> program =
+            compiler.convertProgram(SkSL::ProgramKind::kFragment, std::string(src), settings);
     if (!program) {
         ERRORF(r, "Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
         return;
@@ -41,8 +43,16 @@ static void test(skiatest::Reporter* r,
     SkRasterPipeline pipeline(&alloc);
     std::unique_ptr<SkSL::RP::Program> rasterProg =
             SkSL::MakeRasterPipelineProgram(*program, *main->definition());
-    if (!rasterProg) {
+    if (!rasterProg && !color.has_value()) {
+        // We didn't get a program, as expected. Test passes.
+        return;
+    }
+    if (!rasterProg && color.has_value()) {
         ERRORF(r, "MakeRasterPipelineProgram failed");
+        return;
+    }
+    if (rasterProg && !color.has_value()) {
+        ERRORF(r, "MakeRasterPipelineProgram should have failed, but didn't");
         return;
     }
 
@@ -55,13 +65,18 @@ static void test(skiatest::Reporter* r,
     pipeline.append(SkRasterPipeline::store_8888, &outCtx);
     pipeline.run(0, 0, 1, 1);
 
-    // Make sure the first pixel (exclusively) of `out` is magenta.
-    constexpr uint32_t R = 0xFF;
-    constexpr uint32_t G = 0xFF;
-    constexpr uint32_t B = 0x00;
-    constexpr uint32_t A = 0xFF;
-    constexpr uint32_t RGBA = (R << 0) | (G << 8) | (B << 16) | (A << 24);
-    REPORTER_ASSERT(r, out[0] == RGBA);
+    // Make sure the first pixel (exclusively) of `out` matches RGBA.
+    uint32_t expected = color->toBytes_RGBA();
+    REPORTER_ASSERT(r, out[0] == expected,
+                    "Got:%02X%02X%02X%02X Expected:%02X%02X%02X%02X",
+                    (out[0] >> 24) & 0xFF,
+                    (out[0] >> 16) & 0xFF,
+                    (out[0] >> 8) & 0xFF,
+                    out[0] & 0xFF,
+                    (expected >> 24) & 0xFF,
+                    (expected >> 16) & 0xFF,
+                    (expected >> 8) & 0xFF,
+                    expected & 0xFF);
 
     // Make sure the rest of the pixels are untouched.
     for (size_t i = 1; i < std::size(out); ++i) {
@@ -69,12 +84,34 @@ static void test(skiatest::Reporter* r,
     }
 }
 
-DEF_TEST(SkSLRasterPipelineCodeGeneratorTest, r) {
-    // Add in your SkSL here.
+DEF_TEST(SkSLRasterPipelineCodeGeneratorMagentaTest, r) {
     test(r,
          R"__SkSL__(
              half4 main(float2 coords) {
                  return half4(1, 1, 0, 1);
              }
-         )__SkSL__");
+         )__SkSL__",
+         SkColor4f{1.0f, 1.0f, 0.0f, 1.0f});
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorDarkGreenTest, r) {
+    // Add in your SkSL here.
+    test(r,
+         R"__SkSL__(
+             half4 main(float2 coords) {
+                 return half4(half2(0, 0.499), half2(0, 1));
+             }
+         )__SkSL__",
+         SkColor4f{0.0f, 0.499f, 0.0f, 1.0f});
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorWhite_Unsupported, r) {
+    // Add in your SkSL here.
+    test(r,
+         R"__SkSL__(
+             half4 main(float2 coords) {
+                 return half4(1.0);
+             }
+         )__SkSL__",
+         std::nullopt);
 }
