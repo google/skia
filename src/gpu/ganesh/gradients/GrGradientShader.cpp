@@ -789,9 +789,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
     // premul issues depending on the interpolation mode
     bool inputPremul = shader.interpolateInPremul();
     bool allOpaque = true;
-    SkColor4fXformer xformedColors(shader.fOrigColors4f, shader.fColorCount,
-                                   shader.fInterpolation,
-                                   shader.fColorSpace.get(), args.fDstColorInfo->colorSpace());
+    SkColor4fXformer xformedColors(&shader, args.fDstColorInfo->colorSpace());
     const SkPMColor4f* colors = xformedColors.fColors.begin();
 
     for (int i = 0; i < shader.fColorCount; i++) {

@@ -156,9 +156,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 
 struct SkColor4fXformer {
-    SkColor4fXformer(const SkColor4f* colors, int colorCount,
-                     const SkGradientShader::Interpolation& interpolation,
-                     SkColorSpace* src, SkColorSpace* dst);
+    SkColor4fXformer(const SkGradientShaderBase* shader, SkColorSpace* dst);
 
     SkSTArray<4, SkPMColor4f, true> fColors;
     sk_sp<SkColorSpace>             fIntermediateColorSpace;

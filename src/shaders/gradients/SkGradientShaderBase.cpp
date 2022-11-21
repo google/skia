@@ -326,8 +326,7 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
     }
 
     // Transform all of the colors to destination color space, possibly premultiplied
-    SkColor4fXformer xformedColors(fOrigColors4f, fColorCount, fInterpolation,
-                                   fColorSpace.get(), rec.fDstCS);
+    SkColor4fXformer xformedColors(this, rec.fDstCS);
     const SkPMColor4f* pmColors = xformedColors.fColors.begin();
 
     // The two-stop case with stops at 0 and 1.
@@ -623,8 +622,7 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
     }
 
     // Transform our colors as we want them interpolated, in dst color space, possibly premul.
-    SkColor4fXformer xformedColors(fOrigColors4f, fColorCount, fInterpolation,
-                                   fColorSpace.get(), dstInfo.colorSpace());
+    SkColor4fXformer xformedColors(this, dstInfo.colorSpace());
     const SkPMColor4f* rgba = xformedColors.fColors.begin();
 
     // Transform our colors into a scale factor f and bias b such that for
@@ -983,11 +981,12 @@ static bool color_space_is_polar(SkGradientShader::Interpolation::ColorSpace cs)
 //    Two have hue as the first component, and two have it as the third component. To reduce
 //    complexity, we always store hue in the first component, swapping it with luminance for
 //    LCH and Oklch. The backend code (eg, shaders) needs to know about this.
-SkColor4fXformer::SkColor4fXformer(const SkColor4f* colors, int colorCount,
-                                   const SkGradientShader::Interpolation& interpolation,
-                                   SkColorSpace* src, SkColorSpace* dst) {
+SkColor4fXformer::SkColor4fXformer(const SkGradientShaderBase* shader, SkColorSpace* dst) {
     using ColorSpace = SkGradientShader::Interpolation::ColorSpace;
     using HueMethod = SkGradientShader::Interpolation::HueMethod;
+
+    const int colorCount = shader->fColorCount;
+    const SkGradientShader::Interpolation interpolation = shader->fInterpolation;
 
     // 1) Determine the color space of our intermediate colors
     fIntermediateColorSpace = intermediate_color_space(interpolation.fColorSpace, dst);
@@ -996,11 +995,11 @@ SkColor4fXformer::SkColor4fXformer(const SkColor4f* colors, int colorCount,
     auto info = SkImageInfo::Make(colorCount, 1, kRGBA_F32_SkColorType, kUnpremul_SkAlphaType);
 
     auto dstInfo = info.makeColorSpace(fIntermediateColorSpace);
-    auto srcInfo = info.makeColorSpace(sk_ref_sp(src));
+    auto srcInfo = info.makeColorSpace(shader->fColorSpace);
 
     fColors.reset(colorCount);
-    SkAssertResult(SkConvertPixels(dstInfo, fColors.begin(), info.minRowBytes(),
-                                   srcInfo, colors         , info.minRowBytes()));
+    SkAssertResult(SkConvertPixels(dstInfo, fColors.begin()      , info.minRowBytes(),
+                                   srcInfo, shader->fOrigColors4f, info.minRowBytes()));
 
     // 3) Transform to the interpolation color space (if it's special)
     ConvertColorProc convertFn = nullptr;
