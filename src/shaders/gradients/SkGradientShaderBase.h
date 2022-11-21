@@ -88,9 +88,6 @@ public:
     static constexpr SkScalar kDegenerateThreshold = SK_Scalar1 / (1 << 15);
 
 protected:
-    class GradientShaderBase4fContext;
-
-    SkGradientShaderBase(SkReadBuffer& );
     void flatten(SkWriteBuffer&) const override;
 
     void commonAsAGradient(GradientInfo*) const;
@@ -129,6 +126,8 @@ public:
     int                 fColorCount;   // length of fColors (and fPositions, if not nullptr)
     sk_sp<SkColorSpace> fColorSpace;   // color space of gradient stops
     Interpolation       fInterpolation;
+    bool                fFirstStopIsImplicit;
+    bool                fLastStopIsImplicit;
 
     bool colorsAreOpaque() const { return fColorsAreOpaque; }
 

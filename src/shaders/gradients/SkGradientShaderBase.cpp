@@ -71,12 +71,27 @@ void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
 
     buffer.writeUInt(flags);
 
-    buffer.writeColor4fArray(fColors, fColorCount);
+    // If we injected implicit first/last stops at construction time, omit those when serializing:
+    int colorCount = fColorCount;
+    const SkColor4f* colors = fColors;
+    const SkScalar* positions = fPositions;
+    if (fFirstStopIsImplicit) {
+        colorCount--;
+        colors++;
+        if (positions) {
+            positions++;
+        }
+    }
+    if (fLastStopIsImplicit) {
+        colorCount--;
+    }
+
+    buffer.writeColor4fArray(colors, colorCount);
     if (colorSpaceData) {
         buffer.writeDataAsByteArray(colorSpaceData.get());
     }
-    if (fPositions) {
-        buffer.writeScalarArray(fPositions, fColorCount);
+    if (positions) {
+        buffer.writeScalarArray(positions, colorCount);
     }
 }
 
@@ -141,6 +156,8 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer,
 SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit)
         : fPtsToUnit(ptsToUnit)
         , fColorSpace(desc.fColorSpace ? desc.fColorSpace : SkColorSpace::MakeSRGB())
+        , fFirstStopIsImplicit(false)
+        , fLastStopIsImplicit(false)
         , fColorsAreOpaque(true) {
     fPtsToUnit.getType();  // Precache so reads are threadsafe.
     SkASSERT(desc.fColorCount > 1);
@@ -163,12 +180,10 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
      */
     fColorCount = desc.fColorCount;
     // check if we need to add in start and/or end position/colors
-    bool needsFirst = false;
-    bool needsLast = false;
     if (desc.fPositions) {
-        needsFirst = desc.fPositions[0] != 0;
-        needsLast = desc.fPositions[desc.fColorCount - 1] != SK_Scalar1;
-        fColorCount += needsFirst + needsLast;
+        fFirstStopIsImplicit = desc.fPositions[0] != 0;
+        fLastStopIsImplicit = desc.fPositions[desc.fColorCount - 1] != SK_Scalar1;
+        fColorCount += fFirstStopIsImplicit + fLastStopIsImplicit;
     }
 
     size_t storageSize =
@@ -178,14 +193,14 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
 
     // Now copy over the colors, adding the duplicates at t=0 and t=1 as needed
     SkColor4f* colors = fColors;
-    if (needsFirst) {
+    if (fFirstStopIsImplicit) {
         *colors++ = desc.fColors[0];
     }
     for (int i = 0; i < desc.fColorCount; ++i) {
         colors[i] = desc.fColors[i];
         fColorsAreOpaque = fColorsAreOpaque && (desc.fColors[i].fA == 1);
     }
-    if (needsLast) {
+    if (fLastStopIsImplicit) {
         colors += desc.fColorCount;
         *colors = desc.fColors[desc.fColorCount - 1];
     }
@@ -195,8 +210,8 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
         SkScalar* positions = fPositions;
         *positions++ = prev; // force the first pos to 0
 
-        int startIndex = needsFirst ? 0 : 1;
-        int count = desc.fColorCount + needsLast;
+        int startIndex = fFirstStopIsImplicit ? 0 : 1;
+        int count = desc.fColorCount + fLastStopIsImplicit;
 
         bool uniformStops = true;
         const SkScalar uniformStep = desc.fPositions[startIndex] - prev;
@@ -365,9 +380,9 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
             int firstStop;
             int lastStop;
             if (fColorCount > 2) {
-                firstStop = fColors[0] != fColors[1] ? 0 : 1;
-                lastStop = fColors[fColorCount - 2] != fColors[fColorCount - 1]
-                           ? fColorCount - 1 : fColorCount - 2;
+                firstStop = pmColors[0] != pmColors[1] ? 0 : 1;
+                lastStop = pmColors[fColorCount - 2] != pmColors[fColorCount - 1] ? fColorCount - 1
+                                                                                  : fColorCount - 2;
             } else {
                 firstStop = 0;
                 lastStop = 1;
@@ -1030,7 +1045,11 @@ SkColor4fXformer::SkColor4fXformer(const SkGradientShaderBase* shader, SkColorSp
                     }
                     break;
                 case HueMethod::kLonger:
-                    if (0 < h2 - h1 && h2 - h1 < 180) {
+                    if ((i == 0 && shader->fFirstStopIsImplicit) ||
+                        (i == colorCount - 2 && shader->fLastStopIsImplicit)) {
+                        // Do nothing. We don't want to introduce a full revolution for these stops
+                        // Full rationale at skbug.com/13941
+                    } else if (0 < h2 - h1 && h2 - h1 < 180) {
                         h2 -= 360;  // i.e. h1 += 360
                         delta -= 360;
                     } else if (-180 < h2 - h1 && h2 - h1 <= 0) {
