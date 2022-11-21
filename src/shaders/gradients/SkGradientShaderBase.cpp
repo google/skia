@@ -176,7 +176,7 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     fOrigPos           = desc.fPos ? reinterpret_cast<SkScalar*>(fOrigColors4f + fColorCount)
                                    : nullptr;
 
-    // Now copy over the colors, adding the dummies as needed
+    // Now copy over the colors, adding the duplicates at t=0 and t=1 as needed
     SkColor4f* origColors = fOrigColors4f;
     if (needsFirst) {
         *origColors++ = desc.fColors[0];
