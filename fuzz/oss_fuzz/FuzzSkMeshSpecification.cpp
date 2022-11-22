@@ -99,7 +99,7 @@ static void FuzzSkMeshSpecification(SkSpan<const uint8_t> data) {
                 " lowp ",
                 " $es3 ",
                 " $export ",
-                " threadgroup ",
+                " workgroup ",
                 " << ",
                 " >> ",
                 " && ",

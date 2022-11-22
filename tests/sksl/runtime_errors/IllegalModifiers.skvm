@@ -12,9 +12,9 @@ in                  float _in;
 error: 4: 'out' is not permitted here
 out                 float _out;
 ^^^
-error: 5: 'threadgroup' is not permitted here
-threadgroup         float _threadgroup;
-^^^^^^^^^^^
+error: 5: 'workgroup' is not permitted here
+workgroup           float _workgroup;
+^^^^^^^^^
 error: 6: '$es3' is not permitted here
 $es3                float _es3;
 ^^^^
@@ -45,9 +45,9 @@ in                  void in_fn() {}
 error: 16: 'out' is not permitted here
 out                 void out_fn() {}
 ^^^
-error: 17: 'threadgroup' is not permitted here
-threadgroup         void threadgroup_fn() {}
-^^^^^^^^^^^
+error: 17: 'workgroup' is not permitted here
+workgroup           void workgroup_fn() {}
+^^^^^^^^^
 error: 18: '$es3' is not permitted here
 $es3                void es3_fn() {}
 ^^^^

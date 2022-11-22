@@ -49,8 +49,8 @@ struct Modifiers {
         kReadOnly_Flag       = 1 <<  9,
         kWriteOnly_Flag      = 1 << 10,
         kBuffer_Flag         = 1 << 11,
-        // We use the Metal name for this one (corresponds to the GLSL 'shared' modifier)
-        kThreadgroup_Flag    = 1 << 12,
+        // Corresponds to the GLSL 'shared' modifier. Only allowed in a compute program.
+        kWorkgroup_Flag      = 1 << 12,
         // SkSL extensions, not present in GLSL
         kExport_Flag         = 1 << 13,
         kES3_Flag            = 1 << 14,
@@ -130,8 +130,8 @@ struct Modifiers {
         }
 
         // We're using a non-GLSL name for this one; the GLSL equivalent is "shared"
-        if (flags & kThreadgroup_Flag) {
-            result += "threadgroup ";
+        if (flags & kWorkgroup_Flag) {
+            result += "workgroup ";
         }
 
         if (!result.empty()) {

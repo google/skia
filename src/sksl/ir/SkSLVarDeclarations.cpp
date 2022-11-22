@@ -176,9 +176,9 @@ void VarDeclaration::ErrorCheck(const Context& context,
         (modifiers.fFlags & Modifiers::kBuffer_Flag)) {
         context.fErrors->error(pos, "'uniform buffer' variables not permitted");
     }
-    if ((modifiers.fFlags & Modifiers::kThreadgroup_Flag) &&
+    if ((modifiers.fFlags & Modifiers::kWorkgroup_Flag) &&
         (modifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag))) {
-        context.fErrors->error(pos, "in / out variables may not be declared threadgroup");
+        context.fErrors->error(pos, "in / out variables may not be declared workgroup");
     }
     if ((modifiers.fFlags & Modifiers::kUniform_Flag)) {
         check_valid_uniform_type(pos, baseType, context);
@@ -248,9 +248,9 @@ void VarDeclaration::ErrorCheck(const Context& context,
                 permitted |= Modifiers::kIn_Flag | Modifiers::kOut_Flag;
             }
             if (ProgramConfig::IsCompute(context.fConfig->fKind)) {
-                // Only compute shaders allow `threadgroup`.
+                // Only compute shaders allow `workgroup`.
                 if (!baseType->isOpaque()) {
-                    permitted |= Modifiers::kThreadgroup_Flag;
+                    permitted |= Modifiers::kWorkgroup_Flag;
                 }
             } else {
                 // Only vertex/fragment shaders allow `flat` and `noperspective`.

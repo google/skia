@@ -1,5 +1,0 @@
-threadgroup int x;
-
-/*%%*
-'threadgroup' is not permitted here
-*%%*/

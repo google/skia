@@ -58,7 +58,7 @@ static int parse_modifier_token(Token::Kind token) {
         case Token::Kind::TK_LOWP:           return Modifiers::kLowp_Flag;
         case Token::Kind::TK_EXPORT:         return Modifiers::kExport_Flag;
         case Token::Kind::TK_ES3:            return Modifiers::kES3_Flag;
-        case Token::Kind::TK_THREADGROUP:    return Modifiers::kThreadgroup_Flag;
+        case Token::Kind::TK_WORKGROUP:      return Modifiers::kWorkgroup_Flag;
         case Token::Kind::TK_READONLY:       return Modifiers::kReadOnly_Flag;
         case Token::Kind::TK_WRITEONLY:      return Modifiers::kWriteOnly_Flag;
         case Token::Kind::TK_BUFFER:         return Modifiers::kBuffer_Flag;
@@ -979,7 +979,7 @@ DSLLayout Parser::layout() {
 }
 
 /* layout? (UNIFORM | CONST | IN | OUT | INOUT | LOWP | MEDIUMP | HIGHP | FLAT | NOPERSPECTIVE |
-            VARYING | INLINE | THREADGROUP | READONLY | WRITEONLY | BUFFER)* */
+            VARYING | INLINE | WORKGROUP | READONLY | WRITEONLY | BUFFER)* */
 DSLModifiers Parser::modifiers() {
     int start = this->peek().fOffset;
     DSLLayout layout = this->layout();

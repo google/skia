@@ -1012,7 +1012,7 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->write(")");
             return true;
         }
-        case k_threadgroupBarrier_IntrinsicKind:
+        case k_workgroupBarrier_IntrinsicKind:
             this->write("threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup | "
                                             "mem_flags::mem_texture)");
             return true;
@@ -1434,7 +1434,7 @@ static bool is_uniforms(const Variable& var) {
 // true if the var is part of the Threadgroups struct
 static bool is_threadgroup(const Variable& var) {
     SkASSERT(var.storage() == VariableStorage::kGlobal);
-    return var.modifiers().fFlags & Modifiers::kThreadgroup_Flag;
+    return var.modifiers().fFlags & Modifiers::kWorkgroup_Flag;
 }
 
 // true if the var is part of the Globals struct
@@ -2907,7 +2907,7 @@ void MetalCodeGenerator::visitThreadgroupStruct(ThreadgroupStructVisitor* visito
         const GlobalVarDeclaration& global = element->as<GlobalVarDeclaration>();
         const VarDeclaration& decl = global.varDeclaration();
         const Variable& var = *decl.var();
-        if (var.modifiers().fFlags & Modifiers::kThreadgroup_Flag) {
+        if (var.modifiers().fFlags & Modifiers::kWorkgroup_Flag) {
             SkASSERT(!decl.value());
             SkASSERT(!(var.modifiers().fFlags & Modifiers::kConst_Flag));
             visitor->visitNonconstantVariable(var);

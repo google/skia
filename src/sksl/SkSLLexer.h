@@ -53,7 +53,7 @@ struct Token {
         TK_LOWP,
         TK_ES3,
         TK_EXPORT,
-        TK_THREADGROUP,
+        TK_WORKGROUP,
         TK_RESERVED,
         TK_PRIVATE_IDENTIFIER,
         TK_IDENTIFIER,

@@ -2,7 +2,7 @@
 // *** IMPORTANT ***
 // *****************
 //
-// 1. This file is only used when gn arg sksl_lex is set to true. It is used to regenerate the
+// 1. This file is only used when gn arg skia_lex is set to true. It is used to regenerate the
 //    SkSLLexer.h and SkSLLexer.cpp files.
 // 2. Since token IDs are used to identify operators and baked into the .dehydrated.sksl files,
 //    after modifying this file it is likely everything will break until you update the dehydrated
@@ -46,7 +46,7 @@ MEDIUMP        = "mediump"
 LOWP           = "lowp"
 ES3            = "$es3"
 EXPORT         = "$export"
-THREADGROUP    = "threadgroup"
+WORKGROUP      = "workgroup"
 RESERVED       = attribute|varying|precision|invariant|asm|class|union|enum|typedef|template|this|packed|goto|volatile|public|static|extern|external|interface|long|double|fixed|unsigned|superp|input|output|hvec[234]|dvec[234]|fvec[234]|sampler[13]D|sampler[12]DShadow|sampler3DRect|sampler2DRectShadow|samplerCube|sizeof|cast|namespace|using|gl_[0-9a-zA-Z_]*
 PRIVATE_IDENTIFIER = $[0-9a-zA-Z_]*
 IDENTIFIER     = [a-zA-Z_][0-9a-zA-Z_]*

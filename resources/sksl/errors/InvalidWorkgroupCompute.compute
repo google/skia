@@ -1,0 +1,27 @@
+layout(set=0, binding=0) workgroup float x;
+
+layout(set=0, binding=1) workgroup buffer myBuffer {
+   float foo;
+};
+
+layout(set=0, binding=2) buffer myOtherBuffer {
+   workgroup float bar;
+};
+
+workgroup texture2D tex;
+
+workgroup void a() {}
+
+void b(workgroup int b) {}
+
+void c() {
+    workgroup bool x;
+}
+
+/*%%*
+modifier 'workgroup' is not permitted on a struct field
+'workgroup' is not permitted here
+'workgroup' is not permitted here
+'workgroup' is not permitted here
+expected expression, but found 'workgroup'
+*%%*/

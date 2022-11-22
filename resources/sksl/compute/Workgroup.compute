@@ -9,10 +9,10 @@ layout(set=0, binding=1) writeonly buffer outputs {
     float[] out_data;
 };
 
-threadgroup float[SIZE * 2] shared_data;
+workgroup float[SIZE * 2] shared_data;
 
-// Use a separate function here simply to ensure that we're passing the threadgroups struct
-// correctly
+// Test that workgroup-shared variables are passed to user-defined functions
+// correctly.
 noinline void store(uint i, float value) {
     shared_data[i] = value;
 }
@@ -27,7 +27,7 @@ void main() {
     shared_data[id * 2] = in_data[id * 2];
     shared_data[id * 2 + 1] = in_data[id * 2 + 1];
 
-    threadgroupBarrier();
+    workgroupBarrier();
 
     const uint steps = uint(log2(float(SIZE))) + 1;
     for (uint step = 0; step < steps; step++) {
@@ -39,7 +39,7 @@ void main() {
         // Accumulate the read data into our element
         store(wr_id, shared_data[wr_id] + shared_data[rd_id]);
 
-        threadgroupBarrier();
+        workgroupBarrier();
     }
 
     // Write the final result out

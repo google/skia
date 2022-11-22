@@ -2,7 +2,7 @@ flat                float _flat;
 noperspective       float _noperspective;
 in                  float _in;
 out                 float _out;
-threadgroup         float _threadgroup;
+workgroup           float _workgroup;
 $es3                float _es3;
 $pure               float _pure;
 inline              float _inline;
@@ -14,7 +14,7 @@ flat                void flat_fn() {}
 noperspective       void noperspective_fn() {}
 in                  void in_fn() {}
 out                 void out_fn() {}
-threadgroup         void threadgroup_fn() {}
+workgroup           void workgroup_fn() {}
 $es3                void es3_fn() {}
 $pure               void sk_pure_fn() {}
 readonly            void readonly_fn() {}
@@ -30,7 +30,7 @@ float4 main(float2 xy) {
 'noperspective' is not permitted here
 'in' is not permitted here
 'out' is not permitted here
-'threadgroup' is not permitted here
+'workgroup' is not permitted here
 '$es3' is not permitted here
 '$pure' is not permitted here
 'inline' is not permitted here
@@ -41,7 +41,7 @@ type 'float' does not support qualifier 'writeonly'
 'noperspective' is not permitted here
 'in' is not permitted here
 'out' is not permitted here
-'threadgroup' is not permitted here
+'workgroup' is not permitted here
 '$es3' is not permitted here
 '$pure' is not permitted here
 type 'void' does not support qualifier 'readonly'

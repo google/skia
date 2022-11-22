@@ -105,7 +105,6 @@
     SKSL_INTRINSIC(subpassLoad)        \
     SKSL_INTRINSIC(tanh)               \
     SKSL_INTRINSIC(tan)                \
-    SKSL_INTRINSIC(threadgroupBarrier) \
     SKSL_INTRINSIC(toLinearSrgb)       \
     SKSL_INTRINSIC(transpose)          \
     SKSL_INTRINSIC(trunc)              \
@@ -117,6 +116,7 @@
     SKSL_INTRINSIC(unpackUnorm2x16)    \
     SKSL_INTRINSIC(unpackUnorm4x8)     \
     SKSL_INTRINSIC(width)              \
+    SKSL_INTRINSIC(workgroupBarrier)   \
     SKSL_INTRINSIC(write)
 
 namespace SkSL {

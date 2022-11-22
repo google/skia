@@ -8,4 +8,4 @@ void write($writableTexture2D t, uint2 pos, half4 color);
 $pure uint width($genTexture2D t);
 $pure uint height($genTexture2D t);
 
-void threadgroupBarrier();
+void workgroupBarrier();
