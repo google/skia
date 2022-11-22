@@ -1,0 +1,13 @@
+diff --git a/third_party/expat/include/expat_config/expat_config.h b/third_party/expat/include/expat_config/expat_config.h
+index 795b5aaf0e..4968b01756 100644
+--- a/third_party/expat/include/expat_config/expat_config.h
++++ b/third_party/expat/include/expat_config/expat_config.h
+@@ -11,7 +11,7 @@
+ /* #undef HAVE_ARC4RANDOM */
+ 
+ /* Define to 1 if you have the `arc4random_buf' function. */
+-#define HAVE_ARC4RANDOM_BUF 1
++/* #define HAVE_ARC4RANDOM_BUF 1 */
+ 
+ /* Define to 1 if you have the <dlfcn.h> header file. */
+ #define HAVE_DLFCN_H 1
