@@ -32,15 +32,15 @@ public:
 
         Descriptor(const SkColor4f colors[],
                    sk_sp<SkColorSpace> colorSpace,
-                   const SkScalar pos[],
+                   const SkScalar positions[],
                    int colorCount,
                    SkTileMode mode,
                    const Interpolation& interpolation);
 
         const SkColor4f*    fColors;
         sk_sp<SkColorSpace> fColorSpace;
-        const SkScalar*     fPos;
-        int                 fCount;
+        const SkScalar*     fPositions;
+        int                 fColorCount;  // length of fColors (and fPositions, if not nullptr)
         SkTileMode          fTileMode;
         Interpolation       fInterpolation;
 
@@ -53,14 +53,9 @@ public:
 
         bool unflatten(SkReadBuffer&, SkMatrix* legacyLocalMatrix);
 
-        // fColors and fPos always point into local memory, so they can be safely mutated
-        //
-        SkColor4f* mutableColors() { return const_cast<SkColor4f*>(fColors); }
-        SkScalar* mutablePos() { return const_cast<SkScalar*>(fPos); }
-
     private:
         SkSTArray<16, SkColor4f, true> fColorStorage;
-        SkSTArray<16, SkScalar , true> fPosStorage;
+        SkSTArray<16, SkScalar , true> fPositionStorage;
     };
 
     SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit);
@@ -123,17 +118,17 @@ protected:
 public:
     SkScalar getPos(int i) const {
         SkASSERT(i < fColorCount);
-        return fOrigPos ? fOrigPos[i] : SkIntToScalar(i) / (fColorCount - 1);
+        return fPositions ? fPositions[i] : SkIntToScalar(i) / (fColorCount - 1);
     }
 
     SkColor getLegacyColor(int i) const {
         SkASSERT(i < fColorCount);
-        return fOrigColors4f[i].toSkColor();
+        return fColors[i].toSkColor();
     }
 
-    SkColor4f*          fOrigColors4f; // original colors, as floats
-    SkScalar*           fOrigPos;      // original positions
-    int                 fColorCount;
+    SkColor4f*          fColors;       // points into fStorage
+    SkScalar*           fPositions;    // points into fStorage, or nullptr
+    int                 fColorCount;   // length of fColors (and fPositions, if not nullptr)
     sk_sp<SkColorSpace> fColorSpace;   // color space of gradient stops
     Interpolation       fInterpolation;
 

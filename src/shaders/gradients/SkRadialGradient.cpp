@@ -93,8 +93,8 @@ sk_sp<SkFlattenable> SkRadialGradient::CreateProc(SkReadBuffer& buffer) {
                                         radius,
                                         desc.fColors,
                                         std::move(desc.fColorSpace),
-                                        desc.fPos,
-                                        desc.fCount,
+                                        desc.fPositions,
+                                        desc.fColorCount,
                                         desc.fTileMode,
                                         desc.fInterpolation,
                                         &legacyLocalMatrix);
@@ -152,8 +152,8 @@ void SkRadialGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                             0.0f, 0.0f,
                                             fTileMode,
                                             fColorCount,
-                                            fOrigColors4f,
-                                            fOrigPos);
+                                            fColors,
+                                            fPositions);
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, gatherer, data);
     builder->endBlock();

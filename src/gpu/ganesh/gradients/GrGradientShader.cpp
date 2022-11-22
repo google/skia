@@ -803,8 +803,8 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientShaderBase& 
     // requires lots of position tests, calculate all of the positions up front if needed.
     SkTArray<SkScalar, true> implicitPos;
     SkScalar* positions;
-    if (shader.fOrigPos) {
-        positions = shader.fOrigPos;
+    if (shader.fPositions) {
+        positions = shader.fPositions;
     } else {
         implicitPos.reserve_back(shader.fColorCount);
         SkScalar posScale = SK_Scalar1 / (shader.fColorCount - 1);

@@ -91,8 +91,8 @@ sk_sp<SkFlattenable> SkSweepGradient::CreateProc(SkReadBuffer& buffer) {
     return SkGradientShader::MakeSweep(center.x(), center.y(),
                                        desc.fColors,
                                        std::move(desc.fColorSpace),
-                                       desc.fPos,
-                                       desc.fCount,
+                                       desc.fPositions,
+                                       desc.fColorCount,
                                        desc.fTileMode,
                                        startAngle,
                                        endAngle,
@@ -199,8 +199,8 @@ void SkSweepGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                             fTBias, fTScale,
                                             fTileMode,
                                             fColorCount,
-                                            fOrigColors4f,
-                                            fOrigPos);
+                                            fColors,
+                                            fPositions);
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, gatherer, data);
     builder->endBlock();
