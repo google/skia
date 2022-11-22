@@ -21,7 +21,8 @@ public:
     VulkanCaps(const skgpu::VulkanInterface*,
                VkPhysicalDevice device,
                uint32_t physicalDeviceVersion,
-               const skgpu::VulkanExtensions*);
+               const skgpu::VulkanExtensions*,
+               const ContextOptions&);
     ~VulkanCaps() override;
 
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
@@ -48,6 +49,10 @@ public:
                             Shareable,
                             GraphiteResourceKey*) const override {}
 
+    bool shouldAlwaysUseDedicatedImageMemory() const {
+        return fShouldAlwaysUseDedicatedImageMemory;
+    }
+
 private:
     enum VkVendor {
         kAMD_VkVendor             = 4098,
@@ -57,6 +62,14 @@ private:
         kNvidia_VkVendor          = 4318,
         kQualcomm_VkVendor        = 20803,
     };
+
+    void init(const skgpu::VulkanInterface*,
+              VkPhysicalDevice,
+              uint32_t physicalDeviceVersion,
+              const skgpu::VulkanExtensions*,
+              const ContextOptions&);
+
+    void applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties&);
 
     void initFormatTable(const skgpu::VulkanInterface*,
                          VkPhysicalDevice,
@@ -173,6 +186,8 @@ private:
     // Various bools to define whether certain Vulkan features are supported.
     bool fSupportsMemorylessAttachments = false;
     bool fSupportsYcbcrConversion = false; // TODO: Determine & assign real value.
+
+    bool fShouldAlwaysUseDedicatedImageMemory = false;
 };
 
 } // namespace skgpu::graphite

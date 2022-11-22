@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/Texture.h"
 
+#include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/RefCntedCallback.h"
 
 namespace skgpu::graphite {
@@ -14,11 +15,13 @@ namespace skgpu::graphite {
 Texture::Texture(const SharedContext* sharedContext,
                  SkISize dimensions,
                  const TextureInfo& info,
+                 sk_sp<MutableTextureStateRef> mutableState,
                  Ownership ownership,
                  SkBudgeted budgeted)
         : Resource(sharedContext, ownership, budgeted)
         , fDimensions(dimensions)
-        , fInfo(info) {}
+        , fInfo(info)
+        , fMutableState(std::move(mutableState)) {}
 
 Texture::~Texture() {}
 

@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/mtl/MtlTypes.h"
 #include "include/private/gpu/graphite/MtlTypesPriv.h"
 #include "src/core/SkMipmap.h"
+#include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/graphite/mtl/MtlCaps.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/graphite/mtl/MtlUtils.h"
@@ -89,7 +90,7 @@ MtlTexture::MtlTexture(const MtlSharedContext* sharedContext,
                        sk_cfp<id<MTLTexture>> texture,
                        Ownership ownership,
                        SkBudgeted budgeted)
-        : Texture(sharedContext, dimensions, info, ownership, budgeted)
+        : Texture(sharedContext, dimensions, info, /*mutableState=*/nullptr, ownership, budgeted)
         , fTexture(std::move(texture)) {}
 
 sk_sp<Texture> MtlTexture::Make(const MtlSharedContext* sharedContext,

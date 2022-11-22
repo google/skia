@@ -16,6 +16,13 @@ struct SK_API ContextOptions {
     ContextOptions() {}
 
     /**
+     * Disables correctness workarounds that are enabled for particular GPUs, OSes, or drivers.
+     * This does not affect code path choices that are made for perfomance reasons nor does it
+     * override other ContextOption settings.
+     */
+    bool fDisableDriverCorrectnessWorkarounds = false;
+
+    /**
      * If present, use this object to report shader compilation failures. If not, report failures
      * via SkDebugf and assert.
      */

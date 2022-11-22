@@ -7,24 +7,40 @@
 
 #include "src/gpu/graphite/vk/VulkanCaps.h"
 
+#include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 
+#ifdef SK_BUILD_FOR_ANDROID
+#include <sys/system_properties.h>
+#endif
+
 namespace skgpu::graphite {
 
 VulkanCaps::VulkanCaps(const skgpu::VulkanInterface* vkInterface,
                        VkPhysicalDevice physDev,
                        uint32_t physicalDeviceVersion,
-                       const skgpu::VulkanExtensions* extensions) :
-    Caps() {
-    // Graphite requires Vulkan version 1.1 or later, which has protected support.
-    fProtectedSupport = true;
+                       const skgpu::VulkanExtensions* extensions,
+                       const ContextOptions& contextOptions)
+        : Caps() {
+    this->init(vkInterface, physDev, physicalDeviceVersion, extensions, contextOptions);
+}
 
+VulkanCaps::~VulkanCaps() {}
+
+void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
+                      VkPhysicalDevice physDev,
+                      uint32_t physicalDeviceVersion,
+                      const skgpu::VulkanExtensions* extensions,
+                      const ContextOptions& contextOptions) {
     VkPhysicalDeviceProperties physDevProperties;
     VULKAN_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &physDevProperties));
+
+    // Graphite requires Vulkan version 1.1 or later, which has protected support.
+    fProtectedSupport = true;
 
     // Enable the use of memoryless attachments for tiler GPUs (ARM Mali and Qualcomm Adreno).
     if (physDevProperties.vendorID == kARM_VkVendor ||
@@ -32,11 +48,38 @@ VulkanCaps::VulkanCaps(const skgpu::VulkanInterface* vkInterface,
         fSupportsMemorylessAttachments = true;
     }
 
+#ifdef SK_BUILD_FOR_UNIX
+    if (kNvidia_VkVendor == properties.vendorID) {
+        // On NVIDIA linux we see a big perf regression when not using dedicated image allocations.
+        fShouldAlwaysUseDedicatedImageMemory = true;
+    }
+#endif
+
     this->initFormatTable(vkInterface, physDev, physDevProperties);
     this->initDepthStencilFormatTable(vkInterface, physDev, physDevProperties);
+
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+        this->applyDriverCorrectnessWorkarounds(physDevProperties);
+    }
 }
 
-VulkanCaps::~VulkanCaps() {}
+void VulkanCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
+    // By default, we initialize the Android API version to 0 since we consider certain things
+    // "fixed" only once above a certain version. This way, we default to enabling the workarounds.
+    int androidAPIVersion = 0;
+#if defined(SK_BUILD_FOR_ANDROID)
+    char androidAPIVersionStr[PROP_VALUE_MAX];
+    int strLength = __system_property_get("ro.build.version.sdk", androidAPIVersionStr);
+    // Defaults to zero since most checks care if it is greater than a specific value. So this will
+    // just default to it being less.
+    androidAPIVersion = (strLength == 0) ? 0 : atoi(androidAPIVersionStr);
+#endif
+
+    // On Mali galaxy s7 we see lots of rendering issues when we suballocate VkImages.
+    if (kARM_VkVendor == properties.vendorID && androidAPIVersion <= 28) {
+        fShouldAlwaysUseDedicatedImageMemory = true;
+    }
+}
 
 // These are all the valid VkFormats that we support in Skia. They are roughly ordered from most
 // frequently used to least to improve look up times in arrays.

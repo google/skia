@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 #include "include/private/gpu/graphite/DawnTypesPriv.h"
 #include "src/core/SkMipmap.h"
+#include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
@@ -101,7 +102,7 @@ DawnTexture::DawnTexture(const DawnSharedContext* sharedContext,
                          wgpu::TextureView textureView,
                          Ownership ownership,
                          SkBudgeted budgeted)
-        : Texture(sharedContext, dimensions, info, ownership, budgeted)
+        : Texture(sharedContext, dimensions, info, /*mutableState=*/nullptr, ownership, budgeted)
         , fTexture(std::move(texture))
         , fTextureView(std::move(textureView)) {}
 

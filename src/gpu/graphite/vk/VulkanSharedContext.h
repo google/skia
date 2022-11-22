@@ -11,6 +11,7 @@
 #include "src/gpu/graphite/SharedContext.h"
 
 #include "include/gpu/vk/VulkanTypes.h"
+#include "src/gpu/graphite/vk/VulkanCaps.h"
 
 namespace skgpu {
 struct VulkanBackendContext;
@@ -27,6 +28,8 @@ class VulkanSharedContext final : public SharedContext {
 public:
     static sk_sp<SharedContext> Make(const VulkanBackendContext&, const ContextOptions&);
     ~VulkanSharedContext() override;
+
+    const VulkanCaps& vulkanCaps() const { return static_cast<const VulkanCaps&>(*this->caps()); }
 
     const skgpu::VulkanInterface* interface() const { return fInterface.get(); }
 

@@ -245,6 +245,8 @@ skia_graphite_vk_sources = [
   "$_src/vk/VulkanResourceProvider.h",
   "$_src/vk/VulkanSharedContext.cpp",
   "$_src/vk/VulkanSharedContext.h",
+  "$_src/vk/VulkanTexture.cpp",
+  "$_src/vk/VulkanTexture.h",
 ]
 
 skia_graphite_piet_sources = [
