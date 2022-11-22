@@ -14,7 +14,7 @@ layout(set=0, binding=3) writeonly buffer result {
 void main() {
     sizes[2] = int2(sizes[0].x, sizes[1].y);
 
-    int2 resultCell = int2(sk_ThreadPosition.x, sk_ThreadPosition.y);
+    int2 resultCell = int2(sk_GlobalInvocationID.x, sk_GlobalInvocationID.y);
     float result = 0.0;
     for (int i = 0; i < sizes[0].y; ++i) {
       int a = i + resultCell.x * sizes[0].y;

@@ -7,5 +7,5 @@ layout(set=0, binding=1) buffer outputBuffer {
 };
 
 void main() {
-    results[sk_ThreadPosition.x] *= x;
+    results[sk_GlobalInvocationID.x] *= x;
 }

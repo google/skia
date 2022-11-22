@@ -1407,13 +1407,26 @@ void MetalCodeGenerator::writeFragCoord() {
     }
 }
 
+static bool is_compute_builtin(const Variable& var) {
+    switch (var.modifiers().fLayout.fBuiltin) {
+        case SK_NUMWORKGROUPS_BUILTIN:
+        case SK_WORKGROUPID_BUILTIN:
+        case SK_LOCALINVOCATIONID_BUILTIN:
+        case SK_GLOBALINVOCATIONID_BUILTIN:
+        case SK_LOCALINVOCATIONINDEX_BUILTIN:
+            return true;
+        default:
+            break;
+    }
+    return false;
+}
+
 // true if the var is part of the Inputs struct
 static bool is_input(const Variable& var) {
     SkASSERT(var.storage() == VariableStorage::kGlobal);
     return var.modifiers().fFlags & Modifiers::kIn_Flag &&
-            (var.modifiers().fLayout.fBuiltin == -1 ||
-             var.modifiers().fLayout.fBuiltin == SK_THREADPOSITION) &&
-            var.type().typeKind() != Type::TypeKind::kTexture;
+           (var.modifiers().fLayout.fBuiltin == -1 || is_compute_builtin(var)) &&
+           var.type().typeKind() != Type::TypeKind::kTexture;
 }
 
 // true if the var is part of the Outputs struct
@@ -2063,6 +2076,39 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
                         this->write(std::to_string(binding));
                         this->write(")]]");
                     }
+                } else if (ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
+                    std::string type, attr;
+                    switch (var->modifiers().fLayout.fBuiltin) {
+                        case SK_NUMWORKGROUPS_BUILTIN:
+                            type = "uint3 ";
+                            attr = " [[threadgroups_per_grid]]";
+                            break;
+                        case SK_WORKGROUPID_BUILTIN:
+                            type = "uint3 ";
+                            attr = " [[threadgroup_position_in_grid]]";
+                            break;
+                        case SK_LOCALINVOCATIONID_BUILTIN:
+                            type = "uint3 ";
+                            attr = " [[thread_position_in_threadgroup]]";
+                            break;
+                        case SK_GLOBALINVOCATIONID_BUILTIN:
+                            type = "uint3 ";
+                            attr = " [[thread_position_in_grid]]";
+                            break;
+                        case SK_LOCALINVOCATIONINDEX_BUILTIN:
+                            type = "uint ";
+                            attr = " [[thread_index_in_threadgroup]]";
+                            break;
+                        default:
+                            break;
+                    }
+                    if (!attr.empty()) {
+                        this->write(separator);
+                        this->write(type);
+                        this->write(var->name());
+                        this->write(attr);
+                        separator = ", ";
+                    }
                 }
             } else if (e->is<InterfaceBlock>()) {
                 const InterfaceBlock& intf = e->as<InterfaceBlock>();
@@ -2097,10 +2143,6 @@ bool MetalCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) 
         } else if (ProgramConfig::IsVertex(fProgram.fConfig->fKind)) {
             this->write(separator);
             this->write("uint sk_VertexID [[vertex_id]], uint sk_InstanceID [[instance_id]]");
-            separator = ", ";
-        } else if (ProgramConfig::IsCompute(fProgram.fConfig->fKind)) {
-            this->write(separator);
-            this->write("uint3 sk_ThreadPosition [[thread_position_in_grid]]");
             separator = ", ";
         }
     } else {
@@ -2155,7 +2197,7 @@ static bool is_block_ending_with_return(const Statement* stmt) {
 }
 
 void MetalCodeGenerator::writeComputeMainInputs() {
-    // Compute shaders only have input variables (e.g. sk_ThreadPosition) and access program
+    // Compute shaders only have input variables (e.g. sk_GlobalInvocationID) and access program
     // inputs/outputs via the Globals and Uniforms structs. We collect the allowed "in" parameters
     // into an Input struct here, since the rest of the code expects the normal _in / _out pattern.
     this->write("Inputs _in = { ");

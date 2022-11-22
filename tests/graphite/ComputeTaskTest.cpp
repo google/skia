@@ -38,7 +38,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ComputeTaskTest, reporter, context) {
             "    float out_data[];"
             "};"
             "void main() {"
-            "    out_data[sk_ThreadPosition.x] = in_data[sk_ThreadPosition.x] * in_factor;"
+            "    out_data[sk_GlobalInvocationID.x] = in_data[sk_GlobalInvocationID.x] * in_factor;"
             "}",
             "TestArrayMultiply");
 

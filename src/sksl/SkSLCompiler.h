@@ -31,11 +31,17 @@
 #define SK_SECONDARYFRAGCOLOR_BUILTIN  10012
 #define SK_FRAGCOORD_BUILTIN              15
 #define SK_CLOCKWISE_BUILTIN              17
-#define SK_THREADPOSITION                 28
+
 #define SK_VERTEXID_BUILTIN               42
 #define SK_INSTANCEID_BUILTIN             43
 #define SK_POSITION_BUILTIN                0
 #define SK_POINTSIZE_BUILTIN               1
+
+#define SK_NUMWORKGROUPS_BUILTIN          24
+#define SK_WORKGROUPID_BUILTIN            26
+#define SK_LOCALINVOCATIONID_BUILTIN      27
+#define SK_GLOBALINVOCATIONID_BUILTIN     28
+#define SK_LOCALINVOCATIONINDEX_BUILTIN   29
 
 namespace SkSL {
 

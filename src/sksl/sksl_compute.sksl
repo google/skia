@@ -1,6 +1,10 @@
 // defines built-in interfaces supported by SkSL compute shaders
 
-layout(builtin=28) in uint3 sk_ThreadPosition;
+layout(builtin=24) in uint3 sk_NumWorkgroups;
+layout(builtin=26) in uint3 sk_WorkgroupID;
+layout(builtin=27) in uint3 sk_LocalInvocationID;
+layout(builtin=28) in uint3 sk_GlobalInvocationID;
+layout(builtin=29) in uint sk_LocalInvocationIndex;
 
 $pure half4 read($readableTexture2D t, uint2 pos);
 void write($writableTexture2D t, uint2 pos, half4 color);

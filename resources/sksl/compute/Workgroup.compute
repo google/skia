@@ -18,7 +18,7 @@ noinline void store(uint i, float value) {
 }
 
 void main() {
-    uint id = sk_ThreadPosition.x;
+    uint id = sk_GlobalInvocationID.x;
     uint rd_id;
     uint wr_id;
     uint mask;

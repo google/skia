@@ -1,0 +1,11 @@
+layout(metal, binding = 0) buffer outputs {
+    uint outputBuffer[];
+};
+
+noinline uint helper() {
+    return sk_NumWorkgroups.x + sk_WorkgroupID.x + sk_LocalInvocationID.x + sk_GlobalInvocationID.x;
+}
+
+void main() {
+    outputBuffer[sk_LocalInvocationIndex] = helper();
+}

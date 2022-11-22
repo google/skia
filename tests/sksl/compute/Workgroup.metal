@@ -2,7 +2,7 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Inputs {
-    uint3 sk_ThreadPosition;
+    uint3 sk_GlobalInvocationID;
 };
 struct inputs {
     float in_data[1];
@@ -20,13 +20,13 @@ struct Threadgroups {
 void store_vIf(threadgroup Threadgroups& _threadgroups, uint i, float value) {
     _threadgroups.shared_data[i] = value;
 }
-kernel void computeMain(const device inputs& _anonInterface0 [[buffer(0)]], device outputs& _anonInterface1 [[buffer(1)]], uint3 sk_ThreadPosition [[thread_position_in_grid]]) {
+kernel void computeMain(uint3 sk_GlobalInvocationID [[thread_position_in_grid]], const device inputs& _anonInterface0 [[buffer(0)]], device outputs& _anonInterface1 [[buffer(1)]]) {
     Globals _globals{&_anonInterface0, &_anonInterface1};
     (void)_globals;
     threadgroup Threadgroups _threadgroups{{}};
     (void)_threadgroups;
-    Inputs _in = { sk_ThreadPosition };
-    uint id = _in.sk_ThreadPosition.x;
+    Inputs _in = { sk_GlobalInvocationID };
+    uint id = _in.sk_GlobalInvocationID.x;
     uint rd_id;
     uint wr_id;
     uint mask;

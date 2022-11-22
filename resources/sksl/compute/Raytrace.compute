@@ -5,8 +5,8 @@ void main () {
 
     float max_x = 5.0;
     float max_y = 5.0;
-    float x = (float(sk_ThreadPosition.x * 2 - width(dest)) / float(width(dest)));
-    float y = (float(sk_ThreadPosition.y * 2 - height(dest)) / float(height(dest)));
+    float x = (float(sk_GlobalInvocationID.x * 2 - width(dest)) / float(width(dest)));
+    float y = (float(sk_GlobalInvocationID.y * 2 - height(dest)) / float(height(dest)));
     float3 ray_origin = float3(0.0, 0.0, -1.0);
     float3 ray_target = float3(x * max_x, y * max_y, 0.0);
 
@@ -22,5 +22,5 @@ void main () {
         pixel = half4(0.4, 0.4, 1.0, 1.0);
     }
 
-    write(dest, sk_ThreadPosition.xy, pixel);
+    write(dest, sk_GlobalInvocationID.xy, pixel);
 }
