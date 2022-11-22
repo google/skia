@@ -1,4 +1,5 @@
 static constexpr char SKSL_MINIFIED_sksl_compute[] =
 "layout(builtin=28)in uint3 sk_ThreadPosition;$pure half4 read($readableTexture2D"
 ",uint2);void write($writableTexture2D,uint2,half4);$pure uint width($genTexture2D"
-");$pure uint height($genTexture2D);void workgroupBarrier();";
+");$pure uint height($genTexture2D);void workgroupBarrier();void storageBarrier"
+"();";

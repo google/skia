@@ -32,14 +32,14 @@ kernel void computeMain(const device inputs& _anonInterface0 [[buffer(0)]], devi
     uint mask;
     _threadgroups.shared_data[id * 2u] = _globals._anonInterface0->in_data[id * 2u];
     _threadgroups.shared_data[id * 2u + 1u] = _globals._anonInterface0->in_data[id * 2u + 1u];
-    threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup | mem_flags::mem_texture);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
     const uint steps = 10u;
     for (uint step = 0u;step < steps; step++) {
         mask = (1u << step) - 1u;
         rd_id = ((id >> step) << step + 1u) + mask;
         wr_id = (rd_id + 1u) + (id & mask);
         store_vIf(_threadgroups, wr_id, _threadgroups.shared_data[wr_id] + _threadgroups.shared_data[rd_id]);
-        threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup | mem_flags::mem_texture);
+        threadgroup_barrier(mem_flags::mem_threadgroup);
     }
     _globals._anonInterface1->out_data[id * 2u] = _threadgroups.shared_data[id * 2u];
     _globals._anonInterface1->out_data[id * 2u + 1u] = _threadgroups.shared_data[id * 2u + 1u];

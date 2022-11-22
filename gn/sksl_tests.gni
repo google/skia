@@ -305,6 +305,7 @@ sksl_glsl_tests = [
 
 sksl_metal_tests = [
   "compute/ArrayAdd.compute",
+  "compute/Barrier.compute",
   "compute/Desaturate.compute",
   "compute/DesaturateFunction.compute",
   "compute/DesaturateReadWrite.compute",

@@ -512,6 +512,7 @@ skia_filegroup(
     name = "sksl_metal_tests",
     srcs = [
         "compute/ArrayAdd.compute",
+        "compute/Barrier.compute",
         "compute/Desaturate.compute",
         "compute/DesaturateFunction.compute",
         "compute/DesaturateReadWrite.compute",

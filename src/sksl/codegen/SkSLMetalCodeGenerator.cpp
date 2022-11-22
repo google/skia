@@ -1012,9 +1012,11 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->write(")");
             return true;
         }
+        case k_storageBarrier_IntrinsicKind:
+            this->write("threadgroup_barrier(mem_flags::mem_device)");
+            return true;
         case k_workgroupBarrier_IntrinsicKind:
-            this->write("threadgroup_barrier(mem_flags::mem_device | mem_flags::mem_threadgroup | "
-                                            "mem_flags::mem_texture)");
+            this->write("threadgroup_barrier(mem_flags::mem_threadgroup)");
             return true;
         default:
             return false;
