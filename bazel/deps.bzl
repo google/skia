@@ -42,7 +42,7 @@ def git_repos_from_deps():
     new_git_repository(
         name = "expat",
         build_file = "@//bazel/external/expat:BUILD.bazel",
-        commit = "a28238bdeebc087071777001245df1876a11f5ee",
+        commit = "441f98d02deafd9b090aea568282b28f66a50e36",
         remote = "https://chromium.googlesource.com/external/github.com/libexpat/libexpat.git",
     )
 

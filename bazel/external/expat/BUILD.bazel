@@ -54,7 +54,6 @@ cc_library(
     srcs = EXPAT_SRCS,
     hdrs = EXPAT_HDRS,
     defines = [
-        "HAVE_MEMMOVE",
         "XML_DEV_URANDOM",
         "XML_STATIC",
     ],
