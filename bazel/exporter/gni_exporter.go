@@ -91,8 +91,6 @@ sksl_glsl_settings_tests_sources = sksl_blend_tests + sksl_settings_tests
 sksl_metal_tests_sources =
     sksl_metal_tests + sksl_blend_tests + sksl_shared_tests
 
-sksl_hlsl_tests_sources = sksl_blend_tests + sksl_shared_tests
-
 sksl_wgsl_tests_sources = sksl_wgsl_tests
 
 sksl_spirv_tests_sources =

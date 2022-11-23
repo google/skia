@@ -7,4 +7,3 @@ compile_all_tests:
 	bazel run //tools/skslc:compile_stage_tests --config=release
 	bazel run //tools/skslc:compile_spirv_tests --config=release
 	bazel run //tools/skslc:compile_wgsl_tests --config=release
-	bazel run //tools/skslc:compile_hlsl_tests --config=release

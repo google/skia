@@ -20,7 +20,6 @@ skia_filegroup(
         ":sksl_folding_tests",
         ":sksl_glsl_tests",
         ":sksl_inliner_tests",
-        ":sksl_inverse_hyperbolic_intrinsics_tests",
         ":sksl_shared_tests",
     ],
     visibility = ["//tools/skslc:__pkg__"],
@@ -43,7 +42,6 @@ skia_filegroup(
     name = "sksl_metal_tests_sources",
     srcs = [
         ":sksl_blend_tests",
-        ":sksl_inverse_hyperbolic_intrinsics_tests",
         ":sksl_metal_tests",
         ":sksl_shared_tests",
     ],
@@ -77,20 +75,8 @@ skia_filegroup(
     name = "sksl_spirv_tests_sources",
     srcs = [
         ":sksl_blend_tests",
-        ":sksl_inverse_hyperbolic_intrinsics_tests",
         ":sksl_shared_tests",
         ":sksl_spirv_tests",
-    ],
-    visibility = ["//tools/skslc:__pkg__"],
-)
-
-# Tests in sksl_hlsl_tests_sources will be compiled with --settings on, and are expected to
-# generate a .hlsl output file.
-skia_filegroup(
-    name = "sksl_hlsl_tests_sources",
-    srcs = [
-        ":sksl_blend_tests",
-        ":sksl_shared_tests",
     ],
     visibility = ["//tools/skslc:__pkg__"],
 )
@@ -684,27 +670,19 @@ skia_filegroup(
     ],
 )
 
-# TODO(skia:12352): HLSL doesn't support inverse hyperbolic functions as intrinsics. These tests are
-# grouped separately for HLSL tests until there is a reasonable workaround in place.
-skia_filegroup(
-    name = "sksl_inverse_hyperbolic_intrinsics_tests",
-    srcs = [
-        "intrinsics/Acosh.sksl",
-        "intrinsics/Asinh.sksl",
-        "intrinsics/Atanh.sksl",
-    ],
-)
-
 skia_filegroup(
     name = "sksl_shared_tests",
     srcs = [
         "intrinsics/AbsFloat.sksl",
         "intrinsics/AbsInt.sksl",
         "intrinsics/Acos.sksl",
+        "intrinsics/Acosh.sksl",
         "intrinsics/All.sksl",
         "intrinsics/Any.sksl",
         "intrinsics/Asin.sksl",
+        "intrinsics/Asinh.sksl",
         "intrinsics/Atan.sksl",
+        "intrinsics/Atanh.sksl",
         "intrinsics/BitCount.sksl",
         "intrinsics/Ceil.sksl",
         "intrinsics/ClampFloat.sksl",
