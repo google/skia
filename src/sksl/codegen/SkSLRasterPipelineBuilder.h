@@ -41,6 +41,7 @@ enum class BuilderOp {
     push_slots,
     copy_stack_to_slots,
     discard_stack,
+    duplicate,
 };
 
 // Represents a single raster-pipeline SkSL instruction.
@@ -167,6 +168,12 @@ public:
         // shrinks the temp stack.
         this->copy_stack_to_slots(dst);
         this->discard_stack(dst.count);
+    }
+
+    void duplicate(int count) {
+        // Creates duplicates of the top item on the temp stack.
+        SkASSERT(count >= 0);
+        fInstructions.push_back({BuilderOp::duplicate, {}, count});
     }
 
     void load_unmasked(Slot slot) {

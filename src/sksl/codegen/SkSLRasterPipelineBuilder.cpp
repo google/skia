@@ -52,6 +52,11 @@ int Program::numTempStackSlots() {
                 largest = std::max(current, largest);
                 break;
 
+            case BuilderOp::duplicate:
+                current += inst.fImmA;
+                largest = std::max(current, largest);
+                break;
+
             case BuilderOp::discard_stack:
                 current -= inst.fImmA;
                 break;
@@ -209,6 +214,14 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 pipeline->append_copy_slots_masked(alloc, SlotA(), src, inst.fImmA);
                 break;
             }
+            case BuilderOp::duplicate:
+                pipeline->append(SkRP::load_unmasked, tempStackPtr - N);
+                for (int index = 0; index < inst.fImmA; ++index) {
+                    pipeline->append(SkRP::store_unmasked, tempStackPtr);
+                    tempStackPtr += N;
+                }
+                break;
+
             case BuilderOp::discard_stack:
                 tempStackPtr -= N * inst.fImmA;
                 break;

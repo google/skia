@@ -19,6 +19,7 @@
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
@@ -79,6 +80,7 @@ public:
     /** Pushes an expression to the value stack. */
     bool pushExpression(const Expression& e);
     bool pushConstructorCompound(const ConstructorCompound& c);
+    bool pushConstructorSplat(const ConstructorSplat& c);
     bool pushLiteral(const Literal& l);
 
     /** Pops an expression from the value stack and copies it into slots. */
@@ -191,6 +193,9 @@ bool Generator::pushExpression(const Expression& e) {
         case Expression::Kind::kConstructorCompound:
             return this->pushConstructorCompound(e.as<ConstructorCompound>());
 
+        case Expression::Kind::kConstructorSplat:
+            return this->pushConstructorSplat(e.as<ConstructorSplat>());
+
         case Expression::Kind::kLiteral:
             return this->pushLiteral(e.as<Literal>());
 
@@ -206,6 +211,14 @@ bool Generator::pushConstructorCompound(const ConstructorCompound& c) {
             return false;
         }
     }
+    return true;
+}
+
+bool Generator::pushConstructorSplat(const ConstructorSplat& c) {
+    if (!this->pushExpression(*c.argument())) {
+        return false;
+    }
+    fBuilder.duplicate(c.type().slotCount() - 1);
     return true;
 }
 
