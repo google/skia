@@ -114,11 +114,12 @@ sk_sp<Texture> DawnTexture::Make(const DawnSharedContext* sharedContext,
     if (!texture) {
         return {};
     }
+    auto textureView = texture.CreateView();
     return sk_sp<Texture>(new DawnTexture(sharedContext,
                                           dimensions,
                                           info,
                                           std::move(texture),
-                                          nullptr,
+                                          std::move(textureView),
                                           Ownership::kOwned,
                                           budgeted));
 }
@@ -131,11 +132,12 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
         SKGPU_LOG_E("No valid texture passed into MakeWrapped\n");
         return {};
     }
+    auto textureView = texture.CreateView();
     return sk_sp<Texture>(new DawnTexture(sharedContext,
                                           dimensions,
                                           info,
                                           std::move(texture),
-                                          nullptr,
+                                          std::move(textureView),
                                           Ownership::kWrapped,
                                           SkBudgeted::kNo));
 }
@@ -159,6 +161,7 @@ sk_sp<Texture> DawnTexture::MakeWrapped(const DawnSharedContext* sharedContext,
 
 void DawnTexture::freeGpuData() {
     fTexture = nullptr;
+    fTextureView = nullptr;
 }
 
 } // namespace skgpu::graphite

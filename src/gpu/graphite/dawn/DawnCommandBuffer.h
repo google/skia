@@ -12,37 +12,29 @@
 #include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
 
 #include "webgpu/webgpu_cpp.h"
 
-
 namespace skgpu::graphite {
+class DawnBuffer;
+class DawnQueueManager;
 class DawnResourceProvider;
 class DawnSharedContext;
+class DawnTexture;
 
 class DawnCommandBuffer final : public CommandBuffer {
 public:
-    static std::unique_ptr<DawnCommandBuffer> Make(wgpu::CommandBuffer cmdBuffer,
-                                                   const DawnSharedContext*,
-                                                   DawnResourceProvider*);
+    static std::unique_ptr<DawnCommandBuffer> Make(const DawnSharedContext* d);
     ~DawnCommandBuffer() override;
 
-    bool isFinished() {
-        // TODO
-        return false;
-    }
-
-    void waitUntilFinished(const SharedContext*) {
-        // TODO
-    }
-
-    bool commit();
-
+    wgpu::CommandBuffer finishEncoding();
 
 private:
-    DawnCommandBuffer(wgpu::CommandBuffer cmdBuffer,
-                      const DawnSharedContext* sharedContext,
-                      DawnResourceProvider* resourceProvider);
+    DawnCommandBuffer(const DawnSharedContext* sharedContext);
+
+    void onResetCommandBuffer() override;
+    bool setNewCommandBufferResources() override;
 
     bool onAddRenderPass(const RenderPassDesc&,
                          const Texture* colorTexture,
@@ -53,6 +45,56 @@ private:
     bool onAddComputePass(const ComputePassDesc&,
                           const ComputePipeline*,
                           const std::vector<ResourceBinding>& bindings) override;
+
+    // Methods for populating a Dawn RenderPassEncoder:
+    bool beginRenderPass(const RenderPassDesc&,
+                         const Texture* colorTexture,
+                         const Texture* resolveTexture,
+                         const Texture* depthStencilTexture);
+    void endRenderPass();
+
+    void addDrawPass(const DrawPass*);
+
+    void bindGraphicsPipeline(const GraphicsPipeline*);
+    void setBlendConstants(float* blendConstants);
+
+    void bindUniformBuffer(const BindBufferInfo& info, UniformSlot);
+    void bindDrawBuffers(const BindBufferInfo& vertices,
+                         const BindBufferInfo& instances,
+                         const BindBufferInfo& indices);
+
+    void bindTextureAndSamplers(const DrawPass& drawPass,
+                                const DrawPassCommands::BindTexturesAndSamplers& command);
+
+    void setScissor(unsigned int left, unsigned int top, unsigned int width, unsigned int height);
+    void preprocessViewport(const SkRect& viewport);
+    void setViewport(const SkRect& viewport);
+
+    void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount);
+    void drawIndexed(PrimitiveType type,
+                     unsigned int baseIndex,
+                     unsigned int indexCount,
+                     unsigned int baseVertex);
+    void drawInstanced(PrimitiveType type,
+                       unsigned int baseVertex,
+                       unsigned int vertexCount,
+                       unsigned int baseInstance,
+                       unsigned int instanceCount);
+    void drawIndexedInstanced(PrimitiveType type,
+                              unsigned int baseIndex,
+                              unsigned int indexCount,
+                              unsigned int baseVertex,
+                              unsigned int baseInstance,
+                              unsigned int instanceCount);
+
+    // Methods for populating a Dawn ComputePassEncoder:
+    void beginComputePass();
+    void bindComputePipeline(const ComputePipeline*);
+    void bindBuffer(const Buffer* buffer, unsigned int offset, unsigned int index);
+    void dispatchThreadgroups(const WorkgroupSize& globalSize, const WorkgroupSize& localSize);
+    void endComputePass();
+
+    // Methods for doing texture/buffer to texture/buffer copying:
     bool onCopyBufferToBuffer(const Buffer* srcBuffer,
                               size_t srcOffset,
                               const Buffer* dstBuffer,
@@ -72,14 +114,25 @@ private:
                                 const Texture* dst,
                                 SkIPoint dstPoint) override;
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
-    void onResetCommandBuffer() override;
-    bool setNewCommandBufferResources() override;
 
-    wgpu::CommandBuffer fCommandBuffer;
-    [[maybe_unused]] const DawnSharedContext* fSharedContext;
-    [[maybe_unused]] DawnResourceProvider* fResourceProvider;
+    // Commiting uniform buffers' changes if any before drawing
+    void syncUniformBuffers();
+
+    bool fBoundUniformBuffersDirty = false;
+
+    std::array<const DawnBuffer*, DawnGraphicsPipeline::kNumUniformBuffers> fBoundUniformBuffers;
+    std::array<uint32_t, DawnGraphicsPipeline::kNumUniformBuffers> fBoundUniformBufferOffsets;
+
+    wgpu::CommandEncoder fCommandEncoder;
+    wgpu::RenderPassEncoder fActiveRenderPassEncoder;
+    wgpu::ComputePassEncoder fActiveComputePassEncoder;
+
+    wgpu::Buffer fInstrinsicConstantBuffer;
+
+    const DawnGraphicsPipeline* fActiveGraphicsPipeline = nullptr;
+    const DawnSharedContext* fSharedContext;
 };
 
-} // namespace skgpu::graphite
+}  // namespace skgpu::graphite
 
-#endif // skgpu_graphite_DawnCommandBuffer_DEFINED
+#endif  // skgpu_graphite_DawnCommandBuffer_DEFINED
