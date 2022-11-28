@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_ComputeTypes_DEFINED
 #define skgpu_graphite_ComputeTypes_DEFINED
 
-#include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 
 namespace skgpu::graphite {
 
@@ -62,14 +62,9 @@ struct ComputePassDesc {
 // pipeline stack.
 using BindingIndex = uint32_t;
 
-struct BufferBinding {
-    sk_sp<Buffer> fBuffer;
-    size_t fOffset;
-};
-
 struct ResourceBinding {
     BindingIndex fIndex;
-    BufferBinding fResource;
+    BindBufferInfo fBuffer;
 };
 
 }  // namespace skgpu::graphite

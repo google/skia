@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_SynchronizeToCpuTask_DEFINED
 #define skgpu_graphite_SynchronizeToCpuTask_DEFINED
 
+#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Task.h"
 
 namespace skgpu::graphite {

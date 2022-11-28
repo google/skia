@@ -95,10 +95,6 @@ bool CommandBuffer::addComputePass(const ComputePassDesc& computePassDesc,
 
     this->trackResource(std::move(pipeline));
 
-    for (const auto& binding : bindings) {
-        this->trackResource(binding.fResource.fBuffer);
-    }
-
     SkDEBUGCODE(fHasWork = true;)
 
     return true;

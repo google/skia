@@ -13,6 +13,8 @@
 
 namespace skgpu::graphite {
 
+class Buffer;
+
 /**
  * Is the Texture renderable or not
  */
@@ -96,6 +98,23 @@ enum class LastRemovedRef {
     kUsage,
     kCommandBuffer,
     kCache,
+};
+
+/*
+ * Struct that can be passed into bind buffer calls on the CommandBuffer. The ownership of the
+ * buffer and its usage in command submission must be tracked by the caller (e.g. as with
+ * buffers created by DrawBufferManager).
+ */
+struct BindBufferInfo {
+    const Buffer* fBuffer = nullptr;
+    size_t fOffset = 0;
+
+    operator bool() const { return SkToBool(fBuffer); }
+
+    bool operator==(const BindBufferInfo& o) const {
+        return fBuffer == o.fBuffer && (!fBuffer || fOffset == o.fOffset);
+    }
+    bool operator!=(const BindBufferInfo& o) const { return !(*this == o); }
 };
 
 };  // namespace skgpu::graphite

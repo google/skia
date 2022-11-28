@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
+#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ComputePassTask.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ComputeTypes.h"
@@ -49,8 +50,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ComputeTaskTest, reporter, context) {
             sizeof(float) * kProblemSize, BufferType::kStorage, PrioritizeGpuReads::kNo);
 
     std::vector<ResourceBinding> bindings;
-    bindings.push_back({/*index=*/0, {inputBuffer, /*offset=*/0}});
-    bindings.push_back({/*index=*/1, {outputBuffer, /*offset=*/0}});
+    bindings.push_back({/*index=*/0, {inputBuffer.get(), /*offset=*/0}});
+    bindings.push_back({/*index=*/1, {outputBuffer.get(), /*offset=*/0}});
 
     // Initialize "in_data" to contain an ascending sequence of integers.
     // Initialize "out_data" to "-1"s.

@@ -13,6 +13,8 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTileMode.h"
 
+#include "src/gpu/graphite/ResourceTypes.h"
+
 #include <array>
 
 namespace skgpu::graphite {
@@ -142,24 +144,6 @@ static constexpr inline size_t VertexAttribTypeSize(VertexAttribType type) {
     }
     SkUNREACHABLE;
 }
-
-/*
- * Struct returned by the DrawBufferManager that can be passed into bind buffer calls on the
- * CommandBuffer.
- */
-struct BindBufferInfo {
-    const Buffer* fBuffer = nullptr;
-    size_t fOffset = 0;
-
-    operator bool() const { return SkToBool(fBuffer); }
-
-    bool operator==(const BindBufferInfo& o) const {
-        return fBuffer == o.fBuffer && (!fBuffer || fOffset == o.fOffset);
-    }
-    bool operator!=(const BindBufferInfo& o) const {
-        return !(*this == o);
-    }
-};
 
 /**
  * Struct used to describe how a Texture/TextureProxy/TextureProxyView is sampled.

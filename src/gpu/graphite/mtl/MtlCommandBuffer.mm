@@ -128,8 +128,7 @@ bool MtlCommandBuffer::onAddComputePass(const ComputePassDesc& computePassDesc,
     this->beginComputePass();
     this->bindComputePipeline(pipeline);
     for (const ResourceBinding& binding : bindings) {
-        this->bindBuffer(
-                binding.fResource.fBuffer.get(), binding.fResource.fOffset, binding.fIndex);
+        this->bindBuffer(binding.fBuffer.fBuffer, binding.fBuffer.fOffset, binding.fIndex);
     }
     this->dispatchThreadgroups(computePassDesc.fGlobalDispatchSize,
                                computePassDesc.fLocalDispatchSize);
