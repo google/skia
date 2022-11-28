@@ -195,15 +195,19 @@
   },
   {
     "cmd": [
+      "python",
+      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
+      "[START_DIR]",
       "[START_DIR]/build/dm",
       "--some-flag"
     ],
+    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/build/swiftshader_out",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "dm"
+    "name": "symbolized dm"
   },
   {
     "name": "$result"

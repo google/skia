@@ -195,9 +195,13 @@
   },
   {
     "cmd": [
+      "python",
+      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
+      "[START_DIR]",
       "[START_DIR]/build/dm",
       "--some-flag"
     ],
+    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux:[START_DIR]/linux_vulkan_sdk/lib",
@@ -207,7 +211,7 @@
       "VK_LAYER_PATH": "[START_DIR]/linux_vulkan_sdk/etc/vulkan/explicit_layer.d",
       "VULKAN_SDK": "[START_DIR]/linux_vulkan_sdk"
     },
-    "name": "dm"
+    "name": "symbolized dm"
   },
   {
     "name": "$result"

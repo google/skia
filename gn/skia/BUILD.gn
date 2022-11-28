@@ -609,7 +609,10 @@ config("debug_symbols") {
       ldflags = [ "/DEBUG:FASTLINK" ]
     }
   } else {
-    cflags = [ "-g" ]
+    cflags = [
+      "-g",
+      "-gdwarf-4",  # older versions of addr2line do not work well with v5
+    ]
   }
 }
 

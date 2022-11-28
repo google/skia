@@ -99,6 +99,9 @@
   },
   {
     "cmd": [
+      "python",
+      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
+      "[START_DIR]",
       "[START_DIR]/build/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
@@ -118,6 +121,7 @@
       "gles",
       "--nocpu"
     ],
+    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux",
@@ -125,7 +129,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json"
     },
-    "name": "dm"
+    "name": "symbolized dm"
   },
   {
     "cmd": [
@@ -230,6 +234,9 @@
   },
   {
     "cmd": [
+      "python",
+      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
+      "[START_DIR]",
       "[START_DIR]/build/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
@@ -249,6 +256,7 @@
       "gles",
       "--nocpu"
     ],
+    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux",
@@ -256,7 +264,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json"
     },
-    "name": "dm (2)"
+    "name": "symbolized dm (2)"
   },
   {
     "cmd": [
@@ -361,6 +369,9 @@
   },
   {
     "cmd": [
+      "python",
+      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
+      "[START_DIR]",
       "[START_DIR]/build/dm",
       "--resourcePath",
       "[START_DIR]/skia/resources",
@@ -380,6 +391,7 @@
       "gles",
       "--nocpu"
     ],
+    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/mesa_intel_driver_linux",
@@ -387,7 +399,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json"
     },
-    "name": "dm (3)"
+    "name": "symbolized dm (3)"
   },
   {
     "cmd": [

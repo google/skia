@@ -152,6 +152,9 @@
   },
   {
     "cmd": [
+      "python",
+      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
+      "[START_DIR]",
       "[START_DIR]/build/dm",
       "--example",
       "--flags",
@@ -172,11 +175,12 @@
       "--writePath",
       "[START_DIR]/[SWARM_OUT_DIR]"
     ],
+    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "dm"
+    "name": "symbolized dm"
   },
   {
     "cmd": [
