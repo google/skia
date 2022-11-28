@@ -322,7 +322,14 @@
   {"name": "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64"},
   {"name": "Housekeeper-PerCommit-BundleRecipes"},
   {"name": "Housekeeper-PerCommit-CheckGeneratedFiles",
-   "cq_config": {"location_regexes": ["src/gpu/effects/generated/.*", "src/sksl/.*", "src/gpu/gpu_workaround_list.txt"]}
+   "cq_config": {"location_regexes": [
+     ".*BUILD.bazel",
+     "gn/.*.gni",
+     "modules/.*.gni",
+     "src/gpu/effects/generated/.*",
+     "src/sksl/.*",
+     "src/gpu/gpu_workaround_list.txt"
+   ]}
    },
   {"name": "Housekeeper-PerCommit-CreateDockerImage_Skia_Release"},
   {"name": "Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release"},
