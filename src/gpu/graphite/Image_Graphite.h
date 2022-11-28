@@ -12,6 +12,10 @@
 
 #include "src/gpu/graphite/TextureProxyView.h"
 
+#if SK_SUPPORT_GPU
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#endif
+
 namespace skgpu {
     class RefCntedCallback;
 }

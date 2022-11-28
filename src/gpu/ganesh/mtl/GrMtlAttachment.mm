@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/mtl/GrMtlAttachment.h"
 
+#include "include/gpu/GrBackendSurface.h"
 #include "src/gpu/ganesh/mtl/GrMtlGpu.h"
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"
 
@@ -161,6 +162,10 @@ sk_sp<GrMtlAttachment> GrMtlAttachment::MakeWrapped(
 GrMtlAttachment::~GrMtlAttachment() {
     // should have been released or abandoned first
     SkASSERT(!fTexture);
+}
+
+GrBackendFormat GrMtlAttachment::backendFormat() const {
+    return GrBackendFormat::MakeMtl(SkToU32(fTexture.pixelFormat));
 }
 
 void GrMtlAttachment::onRelease() {

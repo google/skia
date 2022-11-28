@@ -15,6 +15,10 @@
 #include "src/core/SkTLazy.h"
 #include "src/image/SkImage_Base.h"
 
+#if SK_SUPPORT_GPU
+#include "src/gpu/ganesh/GrTextureProxy.h"
+#endif
+
 class SkPictureImageGenerator : public SkImageGenerator {
 public:
     SkPictureImageGenerator(const SkImageInfo&, sk_sp<SkPicture>, const SkMatrix*,

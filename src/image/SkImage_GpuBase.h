@@ -12,11 +12,13 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkYUVAInfoLocation.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/image/SkImage_Base.h"
 
 class GrColorSpaceXform;
 class GrDirectContext;
 class GrImageContext;
+class GrTextureProxy;
 class SkColorSpace;
 
 class SkImage_GpuBase : public SkImage_Base {

@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
 
 #include "src/core/SkPathPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrMemoryPool.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"

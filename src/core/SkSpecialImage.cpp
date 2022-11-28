@@ -12,6 +12,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "src/core/SkSpecialSurface.h"
 #include "src/core/SkSurfacePriv.h"
@@ -85,6 +86,8 @@ sk_sp<SkShader> SkSpecialImage::asShader(const SkSamplingOptions& sampling,
 }
 
 #if SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/TextureProxyView.h"
+
 bool SkSpecialImage::isGraphiteBacked() const {
     return SkToBool(this->textureProxyView());
 }

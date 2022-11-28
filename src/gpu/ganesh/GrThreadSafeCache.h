@@ -14,6 +14,7 @@
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTInternalLList.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
 // Ganesh creates a lot of utility textures (e.g., blurred-rrect masks) that need to be shared

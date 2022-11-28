@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/GrResourceAllocator.h"
 
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"

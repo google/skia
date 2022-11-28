@@ -71,6 +71,7 @@
 
 #ifdef ENABLE_GPU
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #endif // ENABLE_GPU
 
 #ifdef CK_ENABLE_WEBGL

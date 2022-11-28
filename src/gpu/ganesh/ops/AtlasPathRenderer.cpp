@@ -9,6 +9,7 @@
 
 #include "include/private/SkVx.h"
 #include "src/core/SkIPoint16.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"

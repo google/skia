@@ -13,14 +13,14 @@
 #include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/gl/GrGLDefines_impl.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_GpuBase.h"
-#include "tools/gpu/ProxyUtils.h"
-
 #include "tools/Resources.h"
+#include "tools/gpu/ProxyUtils.h"
 
 //-------------------------------------------------------------------------------------------------
 struct ImageInfo {

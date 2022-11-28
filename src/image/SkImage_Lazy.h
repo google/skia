@@ -14,6 +14,7 @@
 
 #if SK_SUPPORT_GPU
 #include "include/core/SkYUVAPixmaps.h"
+class GrCaps;
 #endif
 
 class SharedGenerator;

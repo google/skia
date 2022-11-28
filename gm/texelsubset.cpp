@@ -18,6 +18,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrSamplerState.h"

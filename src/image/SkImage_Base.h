@@ -10,29 +10,50 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkMipmap.h"
+
 #include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string_view>
+#include <tuple>
 
 #if SK_SUPPORT_GPU
-#include "include/private/SkTDArray.h"
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+#include "include/gpu/GrTypes.h"
 #include "src/gpu/ganesh/SkGr.h"
-
-class GrTexture;
 #endif
 
-#ifdef SK_GRAPHITE_ENABLED
-#include "src/gpu/graphite/TextureProxyView.h"
+#if defined(SK_GRAPHITE_ENABLED)
+namespace skgpu {
+namespace graphite {
+class TextureProxyView;
+}
+}
 #endif
 
-#include <new>
-
+class GrBackendTexture;
 class GrDirectContext;
+class GrFragmentProcessor;
 class GrImageContext;
-class GrSamplerState;
-class SkCachedData;
+class GrRecordingContext;
+class GrSurfaceProxyView;
+class SkBitmap;
+class SkColorSpace;
+class SkMatrix;
+class SkPixmap;
+enum SkAlphaType : int;
+enum SkColorType : int;
+enum SkYUVColorSpace : int;
+enum class GrColorType;
+enum class SkTileMode;
+struct SkIRect;
+struct SkISize;
+struct SkImageInfo;
+struct SkRect;
 
 enum {
     kNeedNewImageUniqueID = 0
@@ -249,23 +270,5 @@ static inline SkImage_Base* as_IB(const sk_sp<SkImage>& image) {
 static inline const SkImage_Base* as_IB(const SkImage* image) {
     return static_cast<const SkImage_Base*>(image);
 }
-
-#if SK_SUPPORT_GPU
-inline GrSurfaceProxyView SkImage_Base::CopyView(GrRecordingContext* context,
-                                                 GrSurfaceProxyView src,
-                                                 GrMipmapped mipmapped,
-                                                 GrImageTexGenPolicy policy,
-                                                 std::string_view label) {
-    SkBudgeted budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted
-                          ? SkBudgeted::kYes
-                          : SkBudgeted::kNo;
-    return GrSurfaceProxyView::Copy(context,
-                                    std::move(src),
-                                    mipmapped,
-                                    SkBackingFit::kExact,
-                                    budgeted,
-                                    /*label=*/label);
-}
-#endif
 
 #endif

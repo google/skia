@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"

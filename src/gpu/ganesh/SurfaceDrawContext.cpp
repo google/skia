@@ -18,6 +18,7 @@
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/utils/SkShadowUtils.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkBlendModePriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkDrawProcs.h"
 #include "src/core/SkDrawShadowInfo.h"

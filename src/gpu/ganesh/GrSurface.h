@@ -10,13 +10,13 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
-#include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/GrGpuResource.h"
 
 class GrRenderTarget;
 class GrTexture;
+class GrBackendFormat;
 
 class GrSurface : public GrGpuResource {
 public:

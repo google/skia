@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 
+#include "src/core/SkBlendModePriv.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"

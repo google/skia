@@ -19,6 +19,7 @@
 #include "include/private/SkShadowFlags.h"
 #include "include/private/SkTo.h"
 #include "include/private/chromium/Slug.h"
+#include "src/core/SkBlendModePriv.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDraw.h"

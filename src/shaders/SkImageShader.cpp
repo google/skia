@@ -29,6 +29,7 @@
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/TextureProxyView.h"
 #endif
 
 SkM44 SkImageShader::CubicResamplerMatrix(float B, float C) {
