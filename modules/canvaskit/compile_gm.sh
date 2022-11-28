@@ -67,15 +67,8 @@ GN_FONT+="skia_enable_fontmgr_custom_embedded=true skia_enable_fontmgr_custom_em
 
 GN_SHAPER="skia_use_icu=true skia_use_system_icu=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
 
-# Turn off exiting while we check for ninja (which may not be on PATH)
-set +e
-NINJA=`which ninja`
-if [[ -z $NINJA ]]; then
-  git clone "https://chromium.googlesource.com/chromium/tools/depot_tools.git" --depth 1 $BUILD_DIR/depot_tools
-  NINJA=$BUILD_DIR/depot_tools/ninja
-fi
-# Re-enable error checking
-set -e
+./bin/fetch-ninja
+NINJA=third_party/ninja/ninja
 
 ./bin/fetch-gn
 

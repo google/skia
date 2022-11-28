@@ -74,19 +74,13 @@ OUTPUT="-o $BUILD_DIR/pathkit.js"
 source $EMSDK/emsdk_env.sh
 EMCXX=`which em++`
 
-# Turn off exiting while we check for ninja (which may not be on PATH)
-set +e
-NINJA=`which ninja`
-if [[ -z $NINJA ]]; then
-  git clone "https://chromium.googlesource.com/chromium/tools/depot_tools.git" --depth 1 $BUILD_DIR/depot_tools
-  NINJA=$BUILD_DIR/depot_tools/ninja
-fi
-# Re-enable error checking
-set -e
+./bin/fetch-ninja
+NINJA=third_party/ninja/ninja
 
 echo "Compiling bitcode"
 
 ./bin/fetch-gn
+
 ./bin/gn gen ${BUILD_DIR} \
   --args="skia_emsdk_dir=\"${EMSDK}\" \
   extra_cflags=[
