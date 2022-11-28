@@ -62,6 +62,9 @@ public:
     /** Looks up the slots associated with an SkSL variable; creates the slot if necessary. */
     SlotRange getSlots(const Variable& v);
 
+    /** Returns the number of slots needed by the program. */
+    int slotCount() const { return fSlotCount; }
+
     /**
      * Looks up the slots associated with an SkSL function's return value; creates the range if
      * necessary. Note that recursion is never supported, so we don't need to maintain return values
@@ -305,7 +308,7 @@ std::unique_ptr<RP::Program> MakeRasterPipelineProgram(const SkSL::Program& prog
     if (!generator.writeProgram(function)) {
         return nullptr;
     }
-    return generator.builder()->finish();
+    return generator.builder()->finish(generator.slotCount());
 }
 
 }  // namespace SkSL

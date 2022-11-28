@@ -71,7 +71,7 @@ struct Instruction {
 
 class Program {
 public:
-    Program(SkTArray<Instruction> instrs);
+    Program(SkTArray<Instruction> instrs, int numValueSlots);
 
     void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc);
 
@@ -90,7 +90,7 @@ private:
 class Builder {
 public:
     /** Finalizes and optimizes the program. */
-    std::unique_ptr<Program> finish();
+    std::unique_ptr<Program> finish(int numValueSlots);
 
     /** Assemble a program from the Raster Pipeline instructions below. */
     void init_lane_masks() {

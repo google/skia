@@ -19,22 +19,12 @@ namespace RP {
 
 using SkRP = SkRasterPipeline;
 
-std::unique_ptr<Program> Builder::finish() {
-    return std::make_unique<Program>(std::move(fInstructions));
+std::unique_ptr<Program> Builder::finish(int numValueSlots) {
+    return std::make_unique<Program>(std::move(fInstructions), numValueSlots);
 }
 
 void Program::optimize() {
     // TODO(johnstiles): perform any last-minute cleanup of the instruction stream here
-}
-
-int Program::numValueSlots() {
-    Slot s = NA;
-    for (const Instruction& inst : fInstructions) {
-        for (Slot cur : {inst.fSlotA, inst.fSlotB, inst.fSlotC}) {
-            s = std::max(s, cur);
-        }
-    }
-    return s + 1;
 }
 
 int Program::numTempStackSlots() {
@@ -97,9 +87,10 @@ int Program::numConditionMaskSlots() {
     return largest;
 }
 
-Program::Program(SkTArray<Instruction> instrs) : fInstructions(std::move(instrs)) {
+Program::Program(SkTArray<Instruction> instrs, int numValueSlots)
+        : fInstructions(std::move(instrs))
+        , fNumValueSlots(numValueSlots) {
     this->optimize();
-    fNumValueSlots = this->numValueSlots();
     fNumTempStackSlots = this->numTempStackSlots();
     fNumConditionMaskSlots = this->numConditionMaskSlots();
 }
