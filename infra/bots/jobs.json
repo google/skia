@@ -324,6 +324,7 @@
   {"name": "Housekeeper-PerCommit-CheckGeneratedFiles",
    "cq_config": {"location_regexes": [
      ".*BUILD.bazel",
+     "DEPS",
      "gn/.*.gni",
      "modules/.*.gni",
      "src/gpu/effects/generated/.*",

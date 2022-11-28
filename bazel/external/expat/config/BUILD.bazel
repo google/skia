@@ -1,0 +1,6 @@
+exports_files(
+    [
+        "expat_config.h",
+    ],
+    visibility = ["//visibility:public"],
+)

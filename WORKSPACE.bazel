@@ -252,6 +252,11 @@ local_repository(
     path = "bazel/external/icu/utils",
 )
 
+local_repository(
+    name = "expat_config",
+    path = "bazel/external/expat/config",
+)
+
 load("//bazel:cipd_install.bzl", "cipd_install")
 
 cipd_install(
