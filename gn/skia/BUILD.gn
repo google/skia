@@ -487,6 +487,11 @@ config("warnings") {
       "-Wno-unused-macros",
       "-Wno-unused-member-function",
       "-Wno-non-c-typedef-for-linkage",  # Dawn, not Skia per se.
+
+      # We would like to fix this, otherwise it could cause runtime issues
+      # when compiled for WASM.
+      # https://github.com/emscripten-core/emscripten/issues/16126
+      "-Wno-cast-function-type-strict",
     ]
     cflags_cc += [
       "-Wno-abstract-vbase-init",
@@ -505,7 +510,6 @@ config("warnings") {
       "-Wno-shadow-uncaptured-local",
       "-Wno-zero-as-null-pointer-constant",  # VK_NULL_HANDLE is defined as 0
       "-Wno-declaration-after-statement",
-      "-Wno-cast-function-type-strict",
 
       # https://quuxplusone.github.io/blog/2020/08/26/wrange-loop-analysis/
       # https://bugzilla.mozilla.org/show_bug.cgi?id=1683213
