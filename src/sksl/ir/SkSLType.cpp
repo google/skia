@@ -360,6 +360,18 @@ private:
     int8_t fBitWidth;
 };
 
+class AtomicType final : public Type {
+public:
+    inline static constexpr TypeKind kTypeKind = TypeKind::kAtomic;
+
+    AtomicType(std::string_view name, const char* abbrev) : INHERITED(name, abbrev, kTypeKind) {}
+
+    bool isAllowedInES2() const override { return false; }
+
+private:
+    using INHERITED = Type;
+};
+
 class MatrixType final : public Type {
 public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kMatrix;
@@ -496,9 +508,9 @@ public:
     inline static constexpr TypeKind kTypeKind = TypeKind::kStruct;
 
     StructType(Position pos, std::string_view name, std::vector<Field> fields, bool interfaceBlock)
-        : INHERITED(std::move(name), "S", kTypeKind, pos)
-        , fFields(std::move(fields))
-        , fInterfaceBlock(interfaceBlock) {}
+            : INHERITED(std::move(name), "S", kTypeKind, pos)
+            , fFields(std::move(fields))
+            , fInterfaceBlock(interfaceBlock) {}
 
     const std::vector<Field>& fields() const override {
         return fFields;
@@ -625,7 +637,10 @@ std::unique_ptr<Type> Type::MakeScalarType(std::string_view name, const char* ab
                                            Type::NumberKind numberKind, int8_t priority,
                                            int8_t bitWidth) {
     return std::make_unique<ScalarType>(name, abbrev, numberKind, priority, bitWidth);
+}
 
+std::unique_ptr<Type> Type::MakeAtomicType(std::string_view name, const char* abbrev) {
+    return std::make_unique<AtomicType>(name, abbrev);
 }
 
 static bool is_too_deeply_nested(const Type* t, int limit) {
@@ -668,7 +683,7 @@ std::unique_ptr<Type> Type::MakeStructType(const Context& context,
         if (field.fType->isVoid()) {
             context.fErrors->error(field.fPosition, "type 'void' is not permitted in a struct");
         }
-        if (field.fType->isOpaque()) {
+        if (field.fType->isOpaque() && !field.fType->isAtomic()) {
             context.fErrors->error(field.fPosition, "opaque type '" + field.fType->displayName() +
                                                     "' is not permitted in a struct");
         }
@@ -1069,6 +1084,26 @@ bool Type::isOrContainsUnsizedArray() const {
     return is_or_contains_array(this, /*onlyMatchUnsizedArrays=*/true);
 }
 
+bool Type::isOrContainsAtomic() const {
+    if (this->isAtomic()) {
+        return true;
+    }
+
+    if (this->isArray() && this->componentType().isOrContainsAtomic()) {
+        return true;
+    }
+
+    if (this->isStruct()) {
+        for (const Field& f : this->fields()) {
+            if (f.fType->isOrContainsAtomic()) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 bool Type::isAllowedInES2(const Context& context) const {
     return !context.fConfig->strictES2Mode() || this->isAllowedInES2();
 }
@@ -1121,7 +1156,7 @@ bool Type::checkIfUsableInArray(const Context& context, Position arrayPos) const
         context.fErrors->error(arrayPos, "type 'void' may not be used in an array");
         return false;
     }
-    if (this->isOpaque()) {
+    if (this->isOpaque() && !this->isAtomic()) {
         context.fErrors->error(arrayPos, "opaque type '" + std::string(this->name()) +
                                          "' may not be used in an array");
         return false;

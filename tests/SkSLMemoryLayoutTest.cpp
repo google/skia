@@ -46,6 +46,7 @@ DEF_TEST(SkSLMemoryLayout140Test, r) {
     REPORTER_ASSERT(r, 48 == layout.size(*context.fTypes.fFloat3x3));
     REPORTER_ASSERT(r, 64 == layout.size(*context.fTypes.fFloat4x2));
     REPORTER_ASSERT(r, 64 == layout.size(*context.fTypes.fFloat4x4));
+    REPORTER_ASSERT(r,  4 == layout.size(*context.fTypes.fAtomicUInt));
     REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fFloat));
     REPORTER_ASSERT(r,  8 == layout.alignment(*context.fTypes.fFloat2));
     REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat3));
@@ -63,6 +64,7 @@ DEF_TEST(SkSLMemoryLayout140Test, r) {
     REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat3x3));
     REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat4x2));
     REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat4x4));
+    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fAtomicUInt));
 
     // struct 1
     std::vector<SkSL::Type::Field> fields1;
@@ -142,6 +144,7 @@ DEF_TEST(SkSLMemoryLayout430Test, r) {
     REPORTER_ASSERT(r, 48 == layout.size(*context.fTypes.fFloat3x3));
     REPORTER_ASSERT(r, 32 == layout.size(*context.fTypes.fFloat4x2));
     REPORTER_ASSERT(r, 64 == layout.size(*context.fTypes.fFloat4x4));
+    REPORTER_ASSERT(r,  4 == layout.size(*context.fTypes.fAtomicUInt));
     REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fFloat));
     REPORTER_ASSERT(r,  8 == layout.alignment(*context.fTypes.fFloat2));
     REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat3));
@@ -159,6 +162,7 @@ DEF_TEST(SkSLMemoryLayout430Test, r) {
     REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat3x3));
     REPORTER_ASSERT(r,  8 == layout.alignment(*context.fTypes.fFloat4x2));
     REPORTER_ASSERT(r, 16 == layout.alignment(*context.fTypes.fFloat4x4));
+    REPORTER_ASSERT(r,  4 == layout.alignment(*context.fTypes.fAtomicUInt));
 
     // struct 1
     std::vector<SkSL::Type::Field> fields1;
@@ -334,6 +338,10 @@ DEF_TEST(SkSLMemoryLayoutWGSLUniformTest, r) {
     REPORTER_ASSERT(r, 8 == layout.alignment(*context.fTypes.fHalf4x4));
     REPORTER_ASSERT(r, 16 == layout.stride(*context.fTypes.fFloat4x4));
     REPORTER_ASSERT(r, 8 == layout.stride(*context.fTypes.fHalf4x4));
+
+    // atomic<u32>
+    REPORTER_ASSERT(r, 4 == layout.size(*context.fTypes.fAtomicUInt));
+    REPORTER_ASSERT(r, 4 == layout.alignment(*context.fTypes.fAtomicUInt));
 
     // bool is not a host-shareable type and returns 0 for WGSL.
     REPORTER_ASSERT(r, 0 == layout.size(*context.fTypes.fBool));
@@ -585,6 +593,10 @@ DEF_TEST(SkSLMemoryLayoutWGSLStorageTest, r) {
     REPORTER_ASSERT(r, 16 == layout.stride(*context.fTypes.fFloat4x4));
     REPORTER_ASSERT(r, 8 == layout.stride(*context.fTypes.fHalf4x4));
 
+    // atomic<u32>
+    REPORTER_ASSERT(r, 4 == layout.size(*context.fTypes.fAtomicUInt));
+    REPORTER_ASSERT(r, 4 == layout.alignment(*context.fTypes.fAtomicUInt));
+
     // bool is not a host-shareable type and returns 0 for WGSL.
     REPORTER_ASSERT(r, 0 == layout.size(*context.fTypes.fBool));
     REPORTER_ASSERT(r, 0 == layout.size(*context.fTypes.fBool2));
@@ -814,6 +826,9 @@ DEF_TEST(SkSLMemoryLayoutWGSLSupportedTypesTest, r) {
     // mat4x4<f32>, mat4x4<f16>
     REPORTER_ASSERT(r, layout.isSupported(*context.fTypes.fFloat4x4));
     REPORTER_ASSERT(r, layout.isSupported(*context.fTypes.fHalf4x4));
+
+    // atomic<u32>
+    REPORTER_ASSERT(r, layout.isSupported(*context.fTypes.fAtomicUInt));
 
     // arrays and structs
     REPORTER_ASSERT(r, layout.isSupported(*testArray));

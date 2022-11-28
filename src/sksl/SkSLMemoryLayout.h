@@ -72,6 +72,7 @@ public:
         // See OpenGL Spec 7.6.2.2 Standard Uniform Block Layout
         switch (type.typeKind()) {
             case Type::TypeKind::kScalar:
+            case Type::TypeKind::kAtomic:
                 return this->size(type);
             case Type::TypeKind::kVector:
                 return GetVectorAlignment(this->size(type.componentType()), type.columns());
@@ -137,6 +138,9 @@ public:
                     return 2;
                 }
                 return 4;
+            case Type::TypeKind::kAtomic:
+                // Our atomic types (currently atomicUint) always occupy 4 bytes.
+                return 4;
             case Type::TypeKind::kVector:
                 if (this->isMetal() && type.columns() == 3) {
                     return 4 * this->size(type.componentType());
@@ -170,6 +174,9 @@ public:
      */
     size_t isSupported(const Type& type) const {
         switch (type.typeKind()) {
+            case Type::TypeKind::kAtomic:
+                return true;
+
             case Type::TypeKind::kScalar:
                 // bool and short are not host-shareable in WGSL.
                 return !this->isWGSL() ||

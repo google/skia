@@ -111,7 +111,7 @@ std::unique_ptr<Expression> BinaryExpression::Convert(const Context& context,
         return nullptr;
     }
 
-    if (isAssignment && leftType->componentType().isOpaque()) {
+    if (isAssignment && (leftType->componentType().isOpaque() || leftType->isOrContainsAtomic())) {
         context.fErrors->error(pos, "assignments to opaque type '" + left->type().displayName() +
                 "' are not permitted");
         return nullptr;

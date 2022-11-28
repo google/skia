@@ -36,6 +36,15 @@ std::unique_ptr<Expression> ConstructorStruct::Convert(const Context& context,
         return nullptr;
     }
 
+    // A struct with atomic members cannot be constructed.
+    if (type.isOrContainsAtomic()) {
+        context.fErrors->error(
+                pos,
+                String::printf("construction of struct type '%s' with atomic member is not allowed",
+                               type.displayName().c_str()));
+        return nullptr;
+    }
+
     // Convert each constructor argument to the struct's field type.
     for (int index=0; index<args.size(); ++index) {
         std::unique_ptr<Expression>& argument = args[index];
@@ -71,6 +80,7 @@ std::unique_ptr<Expression> ConstructorStruct::Make(const Context& context,
                                                     ExpressionArray args) {
     SkASSERT(type.isAllowedInES2(context));
     SkASSERT(arguments_match_field_types(args, type));
+    SkASSERT(!type.isOrContainsAtomic());
     return std::make_unique<ConstructorStruct>(pos, type, std::move(args));
 }
 

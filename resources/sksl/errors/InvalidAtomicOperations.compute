@@ -1,0 +1,123 @@
+workgroup atomicUint wgCounterA;
+workgroup atomicUint wgCounterB;
+
+struct S {
+    atomicUint memberAtomic;
+};
+workgroup S wgStructWithAtomicMember;
+workgroup atomicUint wgAtomicArray[2];
+workgroup atomicUint wgAtomicArray2[2];
+workgroup S wgStructWithAtomicMemberArray[2];
+
+struct NestedS {
+    S nestedStructWithAtomicMember;
+};
+workgroup NestedS wgNestedStructWithAtomicMember;
+
+void main() {
+    wgCounterA = 1;
+    wgCounterA = atomicUint(1);
+
+    +wgCounterA;
+    -wgCounterA;
+    !wgCounterA;
+    ~wgCounterA;
+
+    wgCounterA++;
+    wgCounterA--;
+    ++wgCounterA;
+    --wgCounterA;
+
+    wgCounterA = -wgCounterA;
+    wgCounterA = +wgCounterA;
+    wgCounterA = wgCounterB;
+    wgCounterA += wgCounterB;
+    wgCounterA -= wgCounterB;
+    wgCounterA *= wgCounterB;
+    wgCounterA /= wgCounterB;
+
+    wgCounterA = wgCounterA + 1;
+    wgCounterA = wgCounterA - 1;
+    wgCounterA = wgCounterA * 1;
+    wgCounterA = wgCounterA / 1;
+    wgCounterA = wgCounterA + wgCounterB;
+    wgCounterA = wgCounterA - wgCounterB;
+    wgCounterA = wgCounterA * wgCounterB;
+    wgCounterA = wgCounterA / wgCounterB;
+
+    wgCounterA == wgCounterB;
+    wgCounterA != wgCounterB;
+    wgCounterA < wgCounterB;
+    wgCounterA <= wgCounterB;
+    wgCounterA > wgCounterB;
+    wgCounterA >= wgCounterB;
+    wgCounterA && wgCounterB;
+    wgCounterA || wgCounterB;
+    wgCounterA & wgCounterB;
+    wgCounterA | wgCounterB;
+
+    uint a = wgCounterA;
+    wgStructWithAtomicMember = S(1);
+    wgStructWithAtomicMember = S(atomicUint(1));
+    wgStructWithAtomicMember = S(wgCounterA);
+
+    wgAtomicArray[0] = wgCounterA;
+    wgAtomicArray[1] = wgCounterB;
+    wgAtomicArray = wgAtomicArray2;
+    wgAtomicArray = atomicUint[2](wgCounterA, wgCounterB);
+
+    wgStructWithAtomicMemberArray[0] = wgStructWithAtomicMember;
+    wgStructWithAtomicMemberArray = S[2](wgStructWithAtomicMember,
+                                         wgStructWithAtomicMember);
+    wgNestedStructWithAtomicMember = NestedS(wgStructWithAtomicMember);
+}
+
+/*%%*
+type mismatch: '=' cannot operate on 'atomicUint', 'int'
+cannot construct 'atomicUint'
+'+' cannot operate on 'atomicUint'
+'-' cannot operate on 'atomicUint'
+'!' cannot operate on 'atomicUint'
+'~' cannot operate on 'atomicUint'
+'++' cannot operate on 'atomicUint'
+'--' cannot operate on 'atomicUint'
+'++' cannot operate on 'atomicUint'
+'--' cannot operate on 'atomicUint'
+'-' cannot operate on 'atomicUint'
+'+' cannot operate on 'atomicUint'
+assignments to opaque type 'atomicUint' are not permitted
+type mismatch: '+=' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '-=' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '*=' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '/=' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '+' cannot operate on 'atomicUint', 'int'
+type mismatch: '-' cannot operate on 'atomicUint', 'int'
+type mismatch: '*' cannot operate on 'atomicUint', 'int'
+type mismatch: '/' cannot operate on 'atomicUint', 'int'
+type mismatch: '+' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '-' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '*' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '/' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '==' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '!=' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '<' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '<=' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '>' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '>=' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '&&' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '||' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '&' cannot operate on 'atomicUint', 'atomicUint'
+type mismatch: '|' cannot operate on 'atomicUint', 'atomicUint'
+expected 'uint', but found 'atomicUint'
+construction of struct type 'S' with atomic member is not allowed
+cannot construct 'atomicUint'
+construction of struct type 'S' with atomic member is not allowed
+construction of struct type 'S' with atomic member is not allowed
+assignments to opaque type 'atomicUint' are not permitted
+assignments to opaque type 'atomicUint' are not permitted
+assignments to opaque type 'atomicUint[2]' are not permitted
+construction of array type 'atomicUint[2]' with atomic member is not allowed
+assignments to opaque type 'S' are not permitted
+construction of array type 'S[2]' with atomic member is not allowed
+construction of struct type 'NestedS' with atomic member is not allowed
+*%%*/

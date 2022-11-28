@@ -62,8 +62,9 @@ static bool check_valid_uniform_type(Position pos,
         }
 
         // We disallow boolean uniforms in SkSL since they are not well supported by backend
-        // platforms and drivers.
-        if (error || (ct.isBoolean() && (t->isScalar() || t->isVector()))) {
+        // platforms and drivers. We disallow atomic variables in uniforms as that doesn't map
+        // cleanly to all backends.
+        if (error || (ct.isBoolean() && (t->isScalar() || t->isVector())) || ct.isAtomic()) {
             context.fErrors->error(
                     pos, "variables of type '" + t->displayName() + "' may not be uniform");
             return false;
@@ -152,7 +153,8 @@ void VarDeclaration::ErrorCheck(const Context& context,
         return;
     }
 
-    if (baseType->componentType().isOpaque() && storage != Variable::Storage::kGlobal) {
+    if (baseType->componentType().isOpaque() && !baseType->componentType().isAtomic() &&
+        storage != Variable::Storage::kGlobal) {
         context.fErrors->error(pos,
                 "variables of type '" + baseType->displayName() + "' must be global");
     }
@@ -190,6 +192,29 @@ void VarDeclaration::ErrorCheck(const Context& context,
     if (baseType->isEffectChild() && (context.fConfig->fKind == ProgramKind::kMeshVertex ||
                                       context.fConfig->fKind == ProgramKind::kMeshFragment)) {
         context.fErrors->error(pos, "effects are not permitted in custom mesh shaders");
+    }
+    if (baseType->isOrContainsAtomic()) {
+        // An atomic variable (or a struct or an array that contains an atomic member) must be
+        // either:
+        //   a. Declared as a workgroup-shared variable, OR
+        //   b. Declared as the member of writable storage buffer block (i.e. has no readonly
+        //   restriction).
+        //
+        // The checks below will enforce these two rules on all declarations. If the variable is not
+        // declared with the workgroup modifier, then it must be declared in the interface block
+        // storage. If this is the declaration for an interface block that contains an atomic
+        // member, then it must have the `buffer` modifier and no `readonly` modifier.
+        bool isWorkgroup = modifiers.fFlags & Modifiers::kWorkgroup_Flag;
+        bool isBlockMember = (storage == Variable::Storage::kInterfaceBlock);
+        bool isWritableStorageBuffer = modifiers.fFlags & Modifiers::kBuffer_Flag &&
+                                       !(modifiers.fFlags & Modifiers::kReadOnly_Flag);
+
+        if (!isWorkgroup &&
+            !(baseType->isInterfaceBlock() ? isWritableStorageBuffer : isBlockMember)) {
+            context.fErrors->error(pos,
+                                   "atomics are only permitted in workgroup variables and writable "
+                                   "storage blocks");
+        }
     }
     if (modifiers.fLayout.fFlags & Layout::kColor_Flag) {
         if (!ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
@@ -249,7 +274,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
             }
             if (ProgramConfig::IsCompute(context.fConfig->fKind)) {
                 // Only compute shaders allow `workgroup`.
-                if (!baseType->isOpaque()) {
+                if (!baseType->isOpaque() || baseType->isAtomic()) {
                     permitted |= Modifiers::kWorkgroup_Flag;
                 }
             } else {

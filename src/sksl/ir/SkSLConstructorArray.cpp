@@ -33,6 +33,15 @@ std::unique_ptr<Expression> ConstructorArray::Convert(const Context& context,
         return nullptr;
     }
 
+    // An array of atomics cannot be constructed.
+    if (type.isOrContainsAtomic()) {
+        context.fErrors->error(
+                pos,
+                String::printf("construction of array type '%s' with atomic member is not allowed",
+                               type.displayName().c_str()));
+        return nullptr;
+    }
+
     // If there is a single argument containing an array of matching size and the types are
     // coercible, this is actually a cast. i.e., `half[10](myFloat10Array)`. This isn't a GLSL
     // feature, but the Pipeline stage code generator needs this functionality so that code which
@@ -74,6 +83,7 @@ std::unique_ptr<Expression> ConstructorArray::Make(const Context& context,
     SkASSERT(!context.fConfig->strictES2Mode());
     SkASSERT(type.isAllowedInES2(context));
     SkASSERT(type.columns() == args.size());
+    SkASSERT(!type.isOrContainsAtomic());
     SkASSERT(std::all_of(args.begin(), args.end(), [&](const std::unique_ptr<Expression>& arg) {
         return type.componentType().matches(arg->type());
     }));

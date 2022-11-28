@@ -101,6 +101,8 @@ sksl_error_tests = [
   "errors/InterfaceBlockWithNoMembers.sksl",
   "errors/IntrinsicInGlobalVariable.sksl",
   "errors/InvalidAssignment.rts",
+  "errors/InvalidAtomicDeclarations.compute",
+  "errors/InvalidAtomicOperations.compute",
   "errors/InvalidExtensionDirective.sksl",
   "errors/InvalidOutParams.rts",
   "errors/InvalidToken.rts",
@@ -306,6 +308,7 @@ sksl_glsl_tests = [
 
 sksl_metal_tests = [
   "compute/ArrayAdd.compute",
+  "compute/Atomics.compute",
   "compute/Barrier.compute",
   "compute/BuiltinStageInputs.compute",
   "compute/Desaturate.compute",

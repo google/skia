@@ -158,6 +158,8 @@ public:
     const std::unique_ptr<Type> fColorFilter;
     const std::unique_ptr<Type> fShader;
     const std::unique_ptr<Type> fBlender;
+
+    const std::unique_ptr<Type> fAtomicUInt;
 };
 
 }  // namespace SkSL
