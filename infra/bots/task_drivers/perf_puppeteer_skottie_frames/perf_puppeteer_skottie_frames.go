@@ -152,6 +152,10 @@ var cpuSkiplist = []string{
     "skottie_asset_019",
     "skottie_asset_021",
     "navis_loader",
+    "ciclista_salita",
+    "loading",
+    "Loading_2",
+    "animacion1_-_payme",
 }
 var gpuSkiplist = []string{}
 
