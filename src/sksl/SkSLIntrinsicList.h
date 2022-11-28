@@ -26,6 +26,9 @@
     SKSL_INTRINSIC(asin)             \
     SKSL_INTRINSIC(atanh)            \
     SKSL_INTRINSIC(atan)             \
+    SKSL_INTRINSIC(atomicAdd)        \
+    SKSL_INTRINSIC(atomicLoad)       \
+    SKSL_INTRINSIC(atomicStore)      \
     SKSL_INTRINSIC(bitCount)         \
     SKSL_INTRINSIC(ceil)             \
     SKSL_INTRINSIC(clamp)            \

@@ -529,7 +529,9 @@ skia_filegroup(
     name = "sksl_metal_tests",
     srcs = [
         "compute/ArrayAdd.compute",
-        "compute/Atomics.compute",
+        "compute/AtomicDeclarations.compute",
+        "compute/AtomicOperations.compute",
+        "compute/AtomicOperationsOverArrayAndStruct.compute",
         "compute/Barrier.compute",
         "compute/BuiltinStageInputs.compute",
         "compute/Desaturate.compute",

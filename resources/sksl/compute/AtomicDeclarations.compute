@@ -1,0 +1,28 @@
+struct S {
+    atomicUint structMemberAtomic;          // valid
+    atomicUint structMemberAtomicArray[2];  // valid
+};
+
+struct NestedS {
+    S nestedStructWithAtomicMember;  // valid
+};
+
+layout(metal, binding = 0) buffer ssbo {
+    atomicUint ssboAtomic;          // valid
+    atomicUint ssboAtomicArray[2];  // valid
+    S ssboStructWithAtomicMember;         // valid
+    S ssboStructWithAtomicMemberArray[2]; // valid
+    NestedS ssboNestedStructWithAtomicMember;  // valid
+};
+
+workgroup atomicUint wgAtomic;          // valid
+workgroup atomicUint wgAtomicArray[2];  // valid
+workgroup NestedS wgNestedStructWithAtomicMember;  // valid;
+
+void main() {
+    // Do something with each workgroup atomic to prevent them from getting eliminated as
+    // dead globals.
+    atomicAdd(wgAtomicArray[1], atomicLoad(wgAtomic));
+    atomicAdd(wgAtomicArray[0], atomicLoad(wgAtomicArray[1]));
+    atomicAdd(wgNestedStructWithAtomicMember.nestedStructWithAtomicMember.structMemberAtomic, 1);
+}

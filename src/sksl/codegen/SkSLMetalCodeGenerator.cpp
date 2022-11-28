@@ -1022,6 +1022,25 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
         case k_workgroupBarrier_IntrinsicKind:
             this->write("threadgroup_barrier(mem_flags::mem_threadgroup)");
             return true;
+        case k_atomicAdd_IntrinsicKind:
+            this->write("atomic_fetch_add_explicit(&");
+            this->writeExpression(*c.arguments()[0], Precedence::kSequence);
+            this->write(", ");
+            this->writeExpression(*c.arguments()[1], Precedence::kSequence);
+            this->write(", memory_order_relaxed)");
+            return true;
+        case k_atomicLoad_IntrinsicKind:
+            this->write("atomic_load_explicit(&");
+            this->writeExpression(*c.arguments()[0], Precedence::kSequence);
+            this->write(", memory_order_relaxed)");
+            return true;
+        case k_atomicStore_IntrinsicKind:
+            this->write("atomic_store_explicit(&");
+            this->writeExpression(*c.arguments()[0], Precedence::kSequence);
+            this->write(", ");
+            this->writeExpression(*c.arguments()[1], Precedence::kSequence);
+            this->write(", memory_order_relaxed)");
+            return true;
         default:
             return false;
     }

@@ -109,3 +109,221 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeTaskTest, reporter, context) {
         outputBuffer->unmap();
     }
 }
+
+// TODO(b/260622403): The shader tested here is identical to
+// `resources/sksl/compute/AtomicsOperations.compute`. It would be nice to be able to exercise SkSL
+// features like this as part of SkSLTest.cpp instead of as a graphite test.
+// TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
+// compute programs.
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeShaderAtomicOperationsTest, reporter, context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    // Construct a kernel that increments a global (device memory) counter across multiple
+    // workgroups. Each workgroup maintains its own independent tally in a workgroup-shared counter
+    // which is then added to the global count.
+    //
+    // This exercises atomic store/load/add and coherent reads and writes over memory in storage and
+    // workgroup address spaces.
+    ComputePipelineDesc pipelineDesc;
+    pipelineDesc.setProgram(
+            R"(
+                layout(metal, binding = 0) buffer ssbo {
+                    atomicUint globalCounter;
+                };
+
+                workgroup atomicUint localCounter;
+
+                void main() {
+                    // Initialize the local counter.
+                    if (sk_LocalInvocationID.x == 0) {
+                        atomicStore(localCounter, 0);
+                    }
+
+                    // Synchronize the threads in the workgroup so they all see the initial value.
+                    workgroupBarrier();
+
+                    // All threads increment the counter.
+                    atomicAdd(localCounter, 1);
+
+                    // Synchronize the threads again to ensure they have all executed the increment
+                    // and the following load reads the same value across all threads in the
+                    // workgroup.
+                    workgroupBarrier();
+
+                    // Add the workgroup-only tally to the global counter.
+                    if (sk_LocalInvocationID.x == 0) {
+                        atomicAdd(globalCounter, atomicLoad(localCounter));
+                    }
+                }
+            )",
+            "TestAtomicOperations");
+
+    ResourceProvider* provider = recorder->priv().resourceProvider();
+    sk_sp<Buffer> ssbo = provider->findOrCreateBuffer(
+            sizeof(uint32_t), BufferType::kStorage, PrioritizeGpuReads::kNo);
+
+    std::vector<ResourceBinding> bindings;
+    bindings.push_back({/*index=*/0, {ssbo.get(), /*offset=*/0}});
+
+    // Initialize the global counter to 0.
+    {
+        uint32_t* ssboData = static_cast<uint32_t*>(ssbo->map());
+        ssboData[0] = 0;
+        ssbo->unmap();
+    }
+
+    constexpr uint32_t kWorkgroupCount = 32;
+    constexpr uint32_t kWorkgroupSize = 1024;
+
+    ComputePassDesc desc;
+    desc.fGlobalDispatchSize = WorkgroupSize(kWorkgroupCount, 1, 1);
+    desc.fLocalDispatchSize = WorkgroupSize(kWorkgroupSize, 1, 1);
+
+    // Record the compute pass task.
+    recorder->priv().add(ComputePassTask::Make(std::move(bindings), pipelineDesc, desc));
+
+    // Ensure the output buffer is synchronized to the CPU once the GPU submission has finished.
+    recorder->priv().add(SynchronizeToCpuTask::Make(ssbo));
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    context->submit(SyncToCpu::kYes);
+
+    // Verify the contents of the output buffer.
+    {
+        constexpr uint32_t kExpectedCount = kWorkgroupCount * kWorkgroupSize;
+        const uint32_t result = static_cast<const uint32_t*>(ssbo->map())[0];
+        REPORTER_ASSERT(reporter,
+                        result == kExpectedCount,
+                        "expected '%d', found '%d'",
+                        kExpectedCount, result);
+        ssbo->unmap();
+    }
+}
+
+// TODO(b/260622403): The shader tested here is identical to
+// `resources/sksl/compute/AtomicsOperationsOverArrayAndStruct.compute`. It would be nice to be able
+// to exercise SkSL features like this as part of SkSLTest.cpp instead of as a graphite test.
+// TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
+// compute programs.
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeShaderAtomicOperationsOverArrayAndStructTest,
+                                    reporter,
+                                    context) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    // Construct a kernel that increments a two global (device memory) counters across multiple
+    // workgroups. Each workgroup maintains its own independent tallies in workgroup-shared counters
+    // which are then added to the global counts.
+    //
+    // This exercises atomic store/load/add and coherent reads and writes over memory in storage and
+    // workgroup address spaces.
+    ComputePipelineDesc pipelineDesc;
+    pipelineDesc.setProgram(
+            R"(
+                const uint WORKGROUP_SIZE = 1024;
+
+                struct GlobalCounts {
+                    atomicUint firstHalfCount;
+                    atomicUint secondHalfCount;
+                };
+                layout(metal, binding = 0) buffer ssbo {
+                    GlobalCounts globalCounts;
+                };
+
+                workgroup atomicUint localCounts[2];
+
+                void main() {
+                    // Initialize the local counts.
+                    if (sk_LocalInvocationID.x == 0) {
+                        atomicStore(localCounts[0], 0);
+                        atomicStore(localCounts[1], 0);
+                    }
+
+                    // Synchronize the threads in the workgroup so they all see the initial value.
+                    workgroupBarrier();
+
+                    // Each thread increments one of the local counters based on its invocation
+                    // index.
+                    uint idx = sk_LocalInvocationID.x < (WORKGROUP_SIZE / 2) ? 0 : 1;
+                    atomicAdd(localCounts[idx], 1);
+
+                    // Synchronize the threads again to ensure they have all executed the increments
+                    // and the following load reads the same value across all threads in the
+                    // workgroup.
+                    workgroupBarrier();
+
+                    // Add the workgroup-only tally to the global counter.
+                    if (sk_LocalInvocationID.x == 0) {
+                        atomicAdd(globalCounts.firstHalfCount, atomicLoad(localCounts[0]));
+                        atomicAdd(globalCounts.secondHalfCount, atomicLoad(localCounts[1]));
+                    }
+                }
+            )",
+            "TestAtomicOperationsOverArrayAndStruct");
+
+    ResourceProvider* provider = recorder->priv().resourceProvider();
+    sk_sp<Buffer> ssbo = provider->findOrCreateBuffer(
+            2 * sizeof(uint32_t), BufferType::kStorage, PrioritizeGpuReads::kNo);
+
+    std::vector<ResourceBinding> bindings;
+    bindings.push_back({/*index=*/0, {ssbo.get(), /*offset=*/0}});
+
+    // Initialize the global counter to 0.
+    {
+        uint32_t* ssboData = static_cast<uint32_t*>(ssbo->map());
+        ssboData[0] = 0;
+        ssboData[1] = 0;
+        ssbo->unmap();
+    }
+
+    constexpr uint32_t kWorkgroupCount = 32;
+    constexpr uint32_t kWorkgroupSize = 1024;
+
+    ComputePassDesc desc;
+    desc.fGlobalDispatchSize = WorkgroupSize(kWorkgroupCount, 1, 1);
+    desc.fLocalDispatchSize = WorkgroupSize(kWorkgroupSize, 1, 1);
+
+    // Record the compute pass task.
+    recorder->priv().add(ComputePassTask::Make(std::move(bindings), pipelineDesc, desc));
+
+    // Ensure the output buffer is synchronized to the CPU once the GPU submission has finished.
+    recorder->priv().add(SynchronizeToCpuTask::Make(ssbo));
+
+    // Submit the work and wait for it to complete.
+    std::unique_ptr<Recording> recording = recorder->snap();
+    if (!recording) {
+        ERRORF(reporter, "Failed to make recording");
+        return;
+    }
+
+    InsertRecordingInfo insertInfo;
+    insertInfo.fRecording = recording.get();
+    context->insertRecording(insertInfo);
+    context->submit(SyncToCpu::kYes);
+
+    // Verify the contents of the output buffer.
+    {
+        constexpr uint32_t kExpectedCount = kWorkgroupCount * kWorkgroupSize / 2;
+
+        const uint32_t* ssboData = static_cast<const uint32_t*>(ssbo->map());
+        const uint32_t firstHalfCount = ssboData[0];
+        const uint32_t secondHalfCount = ssboData[1];
+        REPORTER_ASSERT(reporter,
+                        firstHalfCount == kExpectedCount,
+                        "expected '%d', found '%d'",
+                        kExpectedCount, firstHalfCount);
+        REPORTER_ASSERT(reporter,
+                        secondHalfCount == kExpectedCount,
+                        "expected '%d', found '%d'",
+                        kExpectedCount, secondHalfCount);
+        ssbo->unmap();
+    }
+}

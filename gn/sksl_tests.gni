@@ -308,7 +308,9 @@ sksl_glsl_tests = [
 
 sksl_metal_tests = [
   "compute/ArrayAdd.compute",
-  "compute/Atomics.compute",
+  "compute/AtomicDeclarations.compute",
+  "compute/AtomicOperations.compute",
+  "compute/AtomicOperationsOverArrayAndStruct.compute",
   "compute/Barrier.compute",
   "compute/BuiltinStageInputs.compute",
   "compute/Desaturate.compute",

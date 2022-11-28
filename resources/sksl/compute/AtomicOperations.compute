@@ -1,0 +1,28 @@
+layout(metal, binding = 0) buffer ssbo {
+    atomicUint globalCounter;
+};
+
+workgroup atomicUint localCounter;
+
+void main() {
+    // Initialize the local counter.
+    if (sk_LocalInvocationID.x == 0) {
+        atomicStore(localCounter, 0);
+    }
+
+    // Synchronize the threads in the workgroup so they all see the initial value.
+    workgroupBarrier();
+
+    // All threads increment the counter.
+    atomicAdd(localCounter, 1);
+
+    // Synchronize the threads again to ensure they have all executed the increment
+    // and the following load reads the same value across all threads in the
+    // workgroup.
+    workgroupBarrier();
+
+    // Add the workgroup-only tally to the global counter.
+    if (sk_LocalInvocationID.x == 0) {
+        atomicAdd(globalCounter, atomicLoad(localCounter));
+    }
+}

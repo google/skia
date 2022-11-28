@@ -66,6 +66,18 @@ $pure half4 sampleGrad(sampler2D s, float2, float2 dPdx, float2 dPdy);
 $pure half4 subpassLoad(subpassInput subpass);
 $pure half4 subpassLoad(subpassInputMS subpass, int sample);
 
+/** Atomically loads the value from `a` and returns it. */
+$pure uint atomicLoad(atomicUint a);
+
+/** Atomically stores the value of `value` to `a` */
+void atomicStore(atomicUint a, uint value);
+
+/**
+ * Performs an atomic addition of `value` to the contents of `a` and returns the original contents
+ * of `a` from before the addition occurred.
+ */
+uint atomicAdd(atomicUint a, uint value);
+
 // Definitions of functions implementing all of the SkBlendMode blends.
 
 $pure half4 blend_clear(half4 src, half4 dst) { return half4(0); }
