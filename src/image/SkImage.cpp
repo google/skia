@@ -267,7 +267,7 @@ bool SkImage::isValid(GrRecordingContext* rContext) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 SkImage_Base::SkImage_Base(const SkImageInfo& info, uint32_t uniqueID)
-        : INHERITED(info, uniqueID), fAddedToRasterCache(false) {}
+        : SkImage(info, uniqueID), fAddedToRasterCache(false) {}
 
 SkImage_Base::~SkImage_Base() {
     if (fAddedToRasterCache.load()) {
