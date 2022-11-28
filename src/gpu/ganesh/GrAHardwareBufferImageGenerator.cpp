@@ -23,6 +23,7 @@
 #include "include/gpu/gl/GrGLTypes.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
