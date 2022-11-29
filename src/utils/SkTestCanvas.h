@@ -33,4 +33,13 @@ public:
             const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
 };
 
+struct SkSerializeSlugTestKey {};
+template <>
+class SkTestCanvas<SkSerializeSlugTestKey> : public SkCanvas {
+public:
+    SkTestCanvas(SkCanvas* canvas);
+    void onDrawGlyphRunList(
+            const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
+};
+
 #endif  // SkTestCanvas_DEFINED

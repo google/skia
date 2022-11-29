@@ -70,6 +70,7 @@ public:
                            bool                      useDDLSink,
                            bool                      OOPRish,
                            bool                      slug,
+                           bool                      serializedSlug,
                            bool                      reducedShaders,
                            SurfType);
 
@@ -86,6 +87,7 @@ public:
     bool          getUseDDLSink() const { return fUseDDLSink; }
     bool          getOOPRish() const { return fOOPRish; }
     bool          getSlug() const { return fSlug; }
+    bool          getSerializedSlug() const { return fSerializeSlug; }
     bool          getReducedShaders() const { return fReducedShaders; }
     SurfType      getSurfType() const { return fSurfType; }
 
@@ -102,6 +104,7 @@ private:
     bool                fUseDDLSink;
     bool                fOOPRish;
     bool                fSlug;
+    bool                fSerializeSlug;
     bool                fReducedShaders;
     SurfType            fSurfType;
 };
