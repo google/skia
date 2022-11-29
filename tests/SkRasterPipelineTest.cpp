@@ -307,6 +307,78 @@ DEF_TEST(SkRasterPipeline_ZeroSlotsUnmasked, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_AddFloats, r) {
+    // Allocate space for 20 dest slots.
+    alignas(64) float slots[20 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    for (int slotCount = 0; slotCount < 10; ++slotCount) {
+        // Initialize the slot values to 1,2,3...
+        std::iota(&slots[0], &slots[20 * N], 1.0f);
+
+        // Run `add_n_floats` over our data.
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        p.append_adjacent_math_op(&alloc, SkRasterPipeline::Stage::add_n_floats,
+                                  &slots[0], &slots[slotCount * N], slotCount);
+        p.run(0,0,1,1);
+
+        // Verify that the affected slots now equal (1,2,3...) + (4,5,6...).
+        float leftValue = 1.0f;
+        float rightValue = float(slotCount * N) + 1.0f;
+        float* destPtr = &slots[0];
+        for (int checkSlot = 0; checkSlot < 20; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                if (checkSlot < slotCount) {
+                    REPORTER_ASSERT(r, *destPtr == leftValue + rightValue);
+                } else {
+                    REPORTER_ASSERT(r, *destPtr == leftValue);
+                }
+
+                ++destPtr;
+                leftValue += 1.0f;
+                rightValue += 1.0f;
+            }
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_AddInts, r) {
+    // Allocate space for 20 dest slots.
+    alignas(64) int slots[20 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    for (int slotCount = 0; slotCount < 10; ++slotCount) {
+        // Initialize the slot values to 1,2,3...
+        std::iota(&slots[0], &slots[20 * N], 1);
+
+        // Run `add_n_ints` over our data.
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        p.append_adjacent_math_op(&alloc, SkRasterPipeline::Stage::add_n_ints,
+                                  (float*)&slots[0], (float*)&slots[slotCount * N], slotCount);
+        p.run(0,0,1,1);
+
+        // Verify that the affected slots now equal (1,2,3...) + (4,5,6...).
+        int leftValue = 1;
+        int rightValue = float(slotCount * N) + 1;
+        int* destPtr = &slots[0];
+        for (int checkSlot = 0; checkSlot < 20; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                if (checkSlot < slotCount) {
+                    REPORTER_ASSERT(r, *destPtr == leftValue + rightValue);
+                } else {
+                    REPORTER_ASSERT(r, *destPtr == leftValue);
+                }
+
+                ++destPtr;
+                leftValue += 1;
+                rightValue += 1;
+            }
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_empty, r) {
     // No asserts... just a test that this is safe to run.
     SkRasterPipeline_<256> p;

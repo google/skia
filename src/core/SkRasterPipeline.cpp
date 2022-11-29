@@ -214,6 +214,27 @@ void SkRasterPipeline::append_zero_slots_unmasked(float* dst, int numSlots) {
     this->unchecked_append(stage, dst);
 }
 
+void SkRasterPipeline::append_adjacent_math_op(SkArenaAlloc* alloc,
+                                               SkRasterPipeline::Stage baseStage,
+                                               float* dst,
+                                               float* src,
+                                               int numSlots) {
+    // The source and destination must be directly next to one another.
+    SkASSERT(numSlots >= 0);
+    SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots) == src);
+
+    if (numSlots > 4) {
+        auto ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
+        ctx->dst = dst;
+        ctx->src = src;
+        this->unchecked_append(baseStage, ctx);
+        return;
+    } else if (numSlots > 0) {
+        auto specializedStage = (SkRasterPipeline::Stage)(baseStage + numSlots);
+        this->unchecked_append(specializedStage, dst);
+    }
+}
+
 void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix) {
     SkMatrix::TypeMask mt = matrix.getType();
 
