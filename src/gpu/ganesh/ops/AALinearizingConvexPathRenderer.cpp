@@ -369,7 +369,7 @@ AALinearizingConvexPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) cons
         if (strokeWidth < 1.0f && stroke.getStyle() == SkStrokeRec::kStroke_Style) {
             return CanDrawPath::kNo;
         }
-        if (strokeWidth > kMaxStrokeWidth ||
+        if ((strokeWidth > kMaxStrokeWidth && !args.fShape->isRect()) ||
             !args.fShape->knownToBeClosed() ||
             stroke.getJoin() == SkPaint::Join::kRound_Join) {
             return CanDrawPath::kNo;
