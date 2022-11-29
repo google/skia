@@ -54,8 +54,10 @@ void GraphiteMetalWindowContext::initializeContext() {
     skgpu::graphite::MtlBackendContext backendContext = {};
     backendContext.fDevice.retain((skgpu::graphite::MtlHandle)fDevice.get());
     backendContext.fQueue.retain((skgpu::graphite::MtlHandle)fQueue.get());
-    fGraphiteContext = skgpu::graphite::Context::MakeMetal(backendContext,
-                                                           skgpu::graphite::ContextOptions());
+
+    skgpu::graphite::ContextOptions contextOptions;
+    contextOptions.fStoreContextRefInRecorder = true;
+    fGraphiteContext = skgpu::graphite::Context::MakeMetal(backendContext, contextOptions);
     fGraphiteRecorder = fGraphiteContext->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
     // TODO
 //    if (!fGraphiteContext && fDisplayParams.fMSAASampleCount > 1) {
