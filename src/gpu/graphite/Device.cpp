@@ -147,6 +147,19 @@ bool create_img_shader_paint(sk_sp<SkImage> image,
     return true;
 }
 
+bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
+#if ENABLE_ANALYTIC_RRECT_RENDERER
+    // We send regular filled [round] rectangles and quadrilaterals, and stroked [r]rects with
+    // circular corners to a single Renderer that does not trigger MSAA.
+    return !shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style &&
+            (shape.isRect() /* || shape.isQuadrilateral()*/ ||
+             (shape.isRRect() && (type == SkStrokeRec::kFill_Style ||
+                                  SkRRectPriv::AllCornersCircular(shape.rrect()))));
+#else
+    return false;
+#endif
+}
+
 } // anonymous namespace
 
 /**
@@ -795,11 +808,8 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     // TODO: The tessellating path renderers haven't implemented perspective yet, so transform to
     // device space so we draw something approximately correct (barring local coord issues).
-    if (geometry.isShape() && localToDevice.type() == Transform::Type::kProjection
-#if ENABLE_ANALYTIC_RRECT_RENDERER
-        && (geometry.shape().isPath() || !style.isFillStyle())
-#endif
-    ) {
+    if (geometry.isShape() && localToDevice.type() == Transform::Type::kProjection &&
+        !is_simple_shape(geometry.shape(), style.getStyle())) {
         SkPath devicePath = geometry.shape().asPath();
         devicePath.transform(localToDevice.matrix().asM33());
         this->drawGeometry(Transform::Identity(), Geometry(Shape(devicePath)), paint, style, flags,
@@ -979,19 +989,10 @@ const Renderer* Device::chooseRenderer(const Geometry& geometry,
     }
 
     const Shape& shape = geometry.shape();
-#if ENABLE_ANALYTIC_RRECT_RENDERER
-    // We send regular filled [round] rectangles and quadrilaterals, and stroked [r]rects with
-    // circular corners to a single Renderer that does not trigger MSAA. We can't use this renderer
-    // if we require MSAA for an effect (i.e. clipping or stroke-and-fill).
-    const bool simpleShape =
-            !requireMSAA && !shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style &&
-            (shape.isRect() || shape.isRRect() /* || shape.isQuadrilateral()*/) &&
-            (!shape.isRRect() || type == SkStrokeRec::kFill_Style ||
-                    SkRRectPriv::AllCornersCircular(shape.rrect()));
-    if (simpleShape) {
+    // We can't use this renderer if we require MSAA for an effect (i.e. clipping or stroke+fill).
+    if (!requireMSAA && is_simple_shape(shape, type)) {
         return renderers->analyticRRect();
     }
-#endif
 
     // If we got here, it requires tessellated path rendering or an MSAA technique applied to a
     // simple shape (so we interpret them as paths to reduce the number of pipelines we need).
