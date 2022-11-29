@@ -205,6 +205,11 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 pipeline->append_copy_slots_masked(alloc, SlotA(), src, inst.fImmA);
                 break;
             }
+            case BuilderOp::copy_stack_to_slots_unmasked: {
+                float* src = tempStackPtr - N * inst.fImmA;
+                pipeline->append_copy_slots_unmasked(alloc, SlotA(), src, inst.fImmA);
+                break;
+            }
             case BuilderOp::duplicate:
                 pipeline->append(SkRP::load_unmasked, tempStackPtr - N);
                 for (int index = 0; index < inst.fImmA; ++index) {

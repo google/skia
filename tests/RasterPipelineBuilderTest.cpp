@@ -381,11 +381,11 @@ DEF_TEST(RasterPipelineBuilderCopySlotsUnmasked, r) {
 DEF_TEST(RasterPipelineBuilderPushPopSlots, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_slots(four_slots_at(10));  // push from 10~13 into 50~53
-    builder.pop_slots(two_slots_at(20));    // pop from 52~53 into 20~21
-    builder.push_slots(three_slots_at(30)); // push from 30~32 into 52~54
-    builder.pop_slots(five_slots_at(0));    // pop from 50~54 into 0~4
-    builder.load_unmasked(0);               // make it easy to find the first slot
+    builder.push_slots(four_slots_at(10));           // push from 10~13 into 50~53
+    builder.pop_slots_unmasked(two_slots_at(20));    // pop from 52~53 into 20~21 (unmasked)
+    builder.push_slots(three_slots_at(30));          // push from 30~32 into 52~54
+    builder.pop_slots(five_slots_at(0));             // pop from 50~54 into 0~4 (masked)
+    builder.load_unmasked(0);                        // make it easy to find the first slot
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/50);
 
     // Instantiate this program.
@@ -422,7 +422,7 @@ DEF_TEST(RasterPipelineBuilderPushPopSlots, r) {
     stages = stages->prev;
     ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(stages->ctx);
 
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::copy_2_slots_masked);
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::copy_2_slots_unmasked);
     REPORTER_ASSERT(r, ctx->src == slot0 + (52 * N));
     REPORTER_ASSERT(r, ctx->dst == slot0 + (20 * N));
     stages = stages->prev;
