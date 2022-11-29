@@ -383,9 +383,11 @@ protected:
      * local-to-device matrix (i.e. just like drawSpecial and drawDevice).
      *
      * The final paint must not have an image filter or mask filter set on it; a shader is ignored.
+     * The provided color type will be used for any intermediate surfaces that need to be created as
+     * part of filter evaluation. It does not have to be src's color type or this Device's type.
      */
-    virtual void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
-                                   const SkImageFilter*, const SkSamplingOptions&, const SkPaint&);
+    void drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src, SkColorType ct,
+                           const SkImageFilter*, const SkSamplingOptions&, const SkPaint&);
 
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&);
     virtual sk_sp<SkSpecialImage> makeSpecial(const SkImage*);
@@ -574,8 +576,6 @@ protected:
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
 #endif
 
-    void drawFilteredImage(const skif::Mapping&, SkSpecialImage* src, const SkImageFilter*,
-                           const SkSamplingOptions&, const SkPaint&) override {}
 #if SK_SUPPORT_GPU
     void drawSlug(SkCanvas*, const sktext::gpu::Slug*, const SkPaint&) override {}
 #endif

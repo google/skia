@@ -815,17 +815,18 @@ static std::pair<skif::Mapping, skif::LayerSpace<SkIRect>> get_layer_mapping_and
     return {mapping, layerBounds};
 }
 
-static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, bool f16) {
-    SkColorType ct = f16 ? SkColorType::kRGBA_F16_SkColorType : prev.colorType();
-    if (!f16 &&
-        prev.bytesPerPixel() <= 4 &&
-        prev.colorType() != kRGBA_8888_SkColorType &&
-        prev.colorType() != kBGRA_8888_SkColorType) {
-        // "Upgrade" A8, G8, 565, 4444, 1010102, 101010x, and 888x to 8888,
-        // ensuring plenty of alpha bits for the layer, perhaps losing some color bits in return.
-        ct = kN32_SkColorType;
+// Ideally image filters operate in the dst color type, but if there is insufficient alpha bits
+// we move some bits from color channels into the alpha channel since that can greatly improve
+// the quality of blurs and other filters.
+static SkColorType image_filter_color_type(SkImageInfo dstInfo) {
+    if (dstInfo.bytesPerPixel() <= 4 &&
+        dstInfo.colorType() != kRGBA_8888_SkColorType &&
+        dstInfo.colorType() != kBGRA_8888_SkColorType) {
+        // "Upgrade" A8, G8, 565, 4444, 1010102, 101010x, and 888x to 8888
+        return kN32_SkColorType;
+    } else {
+        return dstInfo.colorType();
     }
-    return SkImageInfo::Make(w, h, ct, kPremul_SkAlphaType, prev.refColorSpace());
 }
 
 static bool draw_layer_as_sprite(const SkMatrix& matrix, const SkISize& size) {
@@ -845,6 +846,18 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
                                             SkScalar scaleFactor) {
     check_drawdevice_colorspaces(dst->imageInfo().colorSpace(),
                                  src->imageInfo().colorSpace());
+    sk_sp<SkColorSpace> filterColorSpace = dst->imageInfo().refColorSpace(); // == src.refColorSpace
+
+    // 'filterColorType' ends up being the actual color type of the layer, so image filtering is
+    // effectively done in the layer's format. We get there in a roundabout way due to handling both
+    // regular and backdrop filters:
+    //  - For regular filters, 'src' is the layer and 'dst' is the parent device. But the layer
+    //    was constructed with a color type equal to image_filter_color_type(dst), so this matches
+    //    the layer.
+    //  - For backdrop filters, 'src' is the parent device and 'dst' is the layer, which was already
+    //    constructed as image_filter_color_type(src). Calling image_filter_color_type twice does
+    //    not change the color type, so it remains the color type of the layer.
+    const SkColorType filterColorType = image_filter_color_type(dst->imageInfo());
 
     // 'filter' sees the src device's buffer as the implicit input image, and processes the image
     // in this device space (referred to as the "layer" space). However, the filter
@@ -952,8 +965,11 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
             }
             // Make a new surface and draw 'srcImage' into it with the srcToIntermediate transform
             // to produce the final input image for the filter
-            SkBaseDevice::CreateInfo info(make_layer_info(src->imageInfo(), requiredInput.width(),
-                                                          requiredInput.height(), false),
+            SkBaseDevice::CreateInfo info(SkImageInfo::Make(requiredInput.width(),
+                                                            requiredInput.height(),
+                                                            filterColorType,
+                                                            kPremul_SkAlphaType,
+                                                            filterColorSpace),
                                           SkPixelGeometry::kUnknown_SkPixelGeometry,
                                           SkBaseDevice::TileUsage::kNever_TileUsage,
                                           fAllocator.get());
@@ -985,7 +1001,8 @@ void SkCanvas::internalDrawDeviceWithFilter(SkBaseDevice* src,
                 draw_layer_as_sprite(mapping.layerToDevice(), filterInput->subset().size());
         SkSamplingOptions sampling{use_nn ? SkFilterMode::kNearest : SkFilterMode::kLinear};
         if (filter) {
-            dst->drawFilteredImage(mapping, filterInput.get(), filter, sampling, paint);
+            dst->drawFilteredImage(mapping, filterInput.get(), filterColorType, filter,
+                                   sampling, paint);
         } else {
             dst->drawSpecial(filterInput.get(), mapping.layerToDevice(), sampling, paint);
         }
@@ -1136,13 +1153,13 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     sk_sp<SkBaseDevice> newDevice;
     if (strategy == kFullLayer_SaveLayerStrategy) {
         SkASSERT(!layerBounds.isEmpty());
-        SkImageInfo info = make_layer_info(priorDevice->imageInfo(),
-                                           layerBounds.width(), layerBounds.height(),
-                                           SkToBool(rec.fSaveLayerFlags & kF16ColorType));
-        if (rec.fSaveLayerFlags & kF16ColorType) {
-            info = info.makeColorType(kRGBA_F16_SkColorType);
-        }
-        SkASSERT(info.alphaType() != kOpaque_SkAlphaType);
+
+        SkColorType layerColorType = SkToBool(rec.fSaveLayerFlags & kF16ColorType)
+                ? kRGBA_F16_SkColorType
+                : image_filter_color_type(priorDevice->imageInfo());
+        SkImageInfo info = SkImageInfo::Make(layerBounds.width(), layerBounds.height(),
+                                             layerColorType, kPremul_SkAlphaType,
+                                             priorDevice->imageInfo().refColorSpace());
 
         SkPixelGeometry geo = rec.fSaveLayerFlags & kPreserveLCDText_SaveLayerFlag
                                       ? fProps.pixelGeometry()
@@ -2304,7 +2321,11 @@ void SkCanvas::onDrawImage2(const SkImage* image, SkScalar x, SkScalar y,
             skif::Mapping mapping(layerToDevice, deviceToLayer, SkMatrix::Translate(-x, -y));
 
             if (this->predrawNotify()) {
-                device->drawFilteredImage(mapping, special.get(), filter.get(), sampling,realPaint);
+                // While we are skipping an initial layer, evaluate the rest of the image filter
+                // pipeline in the same color format as we would have if there was a layer.
+                const auto filterColorType = image_filter_color_type(device->imageInfo());
+                device->drawFilteredImage(mapping, special.get(), filterColorType, filter.get(),
+                                          sampling,realPaint);
             }
             return;
         } // else fall through to regular drawing path

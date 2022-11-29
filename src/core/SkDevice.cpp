@@ -323,18 +323,17 @@ void SkBaseDevice::drawDevice(SkBaseDevice* device, const SkSamplingOptions& sam
     }
 }
 
-void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping, SkSpecialImage* src,
-                                     const SkImageFilter* filter, const SkSamplingOptions& sampling,
+void SkBaseDevice::drawFilteredImage(const skif::Mapping& mapping,
+                                     SkSpecialImage* src,
+                                     SkColorType colorType,
+                                     const SkImageFilter* filter,
+                                     const SkSamplingOptions& sampling,
                                      const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter() && !paint.getMaskFilter());
 
     skif::LayerSpace<SkIRect> targetOutput = mapping.deviceToLayer(
             skif::DeviceSpace<SkIRect>(this->devClipBounds()));
 
-    // FIXME If the saved layer (so src) was created to use F16, should we do all image filtering
-    // in F16 and then only flatten to the destination color encoding at the end?
-    // Currently, this context converts everything to the dst color type ASAP.
-    SkColorType colorType = this->imageInfo().colorType();
     if (colorType == kUnknown_SkColorType) {
         colorType = kRGBA_8888_SkColorType;
     }
