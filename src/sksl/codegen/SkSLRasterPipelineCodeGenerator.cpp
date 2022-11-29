@@ -26,7 +26,9 @@
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
+#include "src/sksl/ir/SkSLVariableReference.h"
 
 #include <optional>
 #include <string>
@@ -79,15 +81,21 @@ public:
     bool writeStatement(const Statement& s);
     bool writeBlock(const Block& b);
     bool writeReturnStatement(const ReturnStatement& r);
+    bool writeVarDeclaration(const VarDeclaration& v);
 
     /** Pushes an expression to the value stack. */
     bool pushExpression(const Expression& e);
     bool pushConstructorCompound(const ConstructorCompound& c);
     bool pushConstructorSplat(const ConstructorSplat& c);
     bool pushLiteral(const Literal& l);
+    bool pushVariableReference(const VariableReference& v);
 
     /** Pops an expression from the value stack and copies it into slots. */
     void popToSlotRange(SlotRange r) { fBuilder.pop_slots(r); }
+    void popToSlotRangeUnmasked(SlotRange r) { fBuilder.pop_slots_unmasked(r); }
+
+    /** Zeroes out a range of slots. */
+    void zeroSlotRangeUnmasked(SlotRange r) { fBuilder.zero_slots_unmasked(r); }
 
 private:
     [[maybe_unused]] const SkSL::Program& fProgram;
@@ -159,11 +167,14 @@ bool Generator::writeStatement(const Statement& s) {
         case Statement::Kind::kBlock:
             return this->writeBlock(s.as<Block>());
 
+        case Statement::Kind::kNop:
+            return true;
+
         case Statement::Kind::kReturn:
             return this->writeReturnStatement(s.as<ReturnStatement>());
 
-        case Statement::Kind::kNop:
-            return true;
+        case Statement::Kind::kVarDeclaration:
+            return this->writeVarDeclaration(s.as<VarDeclaration>());
 
         default:
             // Unsupported statement
@@ -191,6 +202,18 @@ bool Generator::writeReturnStatement(const ReturnStatement& r) {
     return true;
 }
 
+bool Generator::writeVarDeclaration(const VarDeclaration& v) {
+    if (v.value()) {
+        if (!this->pushExpression(*v.value())) {
+            return false;
+        }
+        this->popToSlotRangeUnmasked(this->getSlots(*v.var()));
+    } else {
+        this->zeroSlotRangeUnmasked(this->getSlots(*v.var()));
+    }
+    return true;
+}
+
 bool Generator::pushExpression(const Expression& e) {
     switch (e.kind()) {
         case Expression::Kind::kConstructorCompound:
@@ -201,6 +224,9 @@ bool Generator::pushExpression(const Expression& e) {
 
         case Expression::Kind::kLiteral:
             return this->pushLiteral(e.as<Literal>());
+
+        case Expression::Kind::kVariableReference:
+            return this->pushVariableReference(e.as<VariableReference>());
 
         default:
             // Unsupported expression
@@ -246,6 +272,11 @@ bool Generator::pushLiteral(const Literal& l) {
         default:
             SkUNREACHABLE;
     }
+}
+
+bool Generator::pushVariableReference(const VariableReference& v) {
+    fBuilder.push_slots(this->getSlots(*v.variable()));
+    return true;
 }
 
 bool Generator::writeProgram(const FunctionDefinition& function) {
