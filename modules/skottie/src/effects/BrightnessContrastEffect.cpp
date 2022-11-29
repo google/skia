@@ -15,6 +15,8 @@
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGColorFilter.h"
 
+#include <cmath>
+
 namespace skottie::internal {
 
 #ifdef SK_ENABLE_SKSL

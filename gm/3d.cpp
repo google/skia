@@ -9,12 +9,14 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 
+#include <cmath>
+
 struct Info {
     float   fNear = 0.05f;
     float   fFar = 4;
     float   fAngle = SK_ScalarPI / 4;
 
-    SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
+    SkV3    fEye { 0, 0, 1.0f/std::tan(fAngle/2) - 1 };
     SkV3    fCOA { 0, 0, 0 };
     SkV3    fUp  { 0, 1, 0 };
 };

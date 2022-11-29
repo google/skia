@@ -11,6 +11,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTPin.h"
 
+#include <cstdint>
+
 class SK_API SkFontStyle {
 public:
     enum Weight {

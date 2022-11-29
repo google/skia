@@ -2804,7 +2804,7 @@ DEF_TEST(SkVM_fast_mul, r) {
             if (i < 4) {
                 REPORTER_ASSERT(r, slow[i] == 0.0f);
             } else {
-                REPORTER_ASSERT(r, isnan(slow[i]));
+                REPORTER_ASSERT(r, std::isnan(slow[i]));
             }
         }
     });

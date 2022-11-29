@@ -56,7 +56,7 @@ struct VSphere {
         SkScalar length = axis.length();
 
         if (!SkScalarNearlyZero(length)) {
-            return {axis * (1.0f / length), acos(u.dot(v))};
+            return {axis * (1.0f / length), std::acos(u.dot(v))};
         }
         return {{0, 0, 0}, 0};
     }
@@ -87,7 +87,7 @@ protected:
     float   fFar = 4;
     float   fAngle = SK_ScalarPI / 12;
 
-    SkV3    fEye { 0, 0, 1.0f/tan(fAngle/2) - 1 };
+    SkV3    fEye { 0, 0, 1.0f/std::tan(fAngle/2) - 1 };
     SkV3    fCOA { 0, 0, 0 };
     SkV3    fUp  { 0, 1, 0 };
 

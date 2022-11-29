@@ -17,6 +17,8 @@
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
 
+#include <cmath>
+
 #if defined(HAVE_VIDEO_DECODER)
     #include "experimental/ffmpeg/SkVideoDecoder.h"
     #include "include/core/SkStream.h"

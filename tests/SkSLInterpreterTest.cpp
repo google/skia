@@ -76,7 +76,7 @@ static void verify_values(skiatest::Reporter* r,
                           bool exactCompare) {
     auto exact_equiv = [](float x, float y) {
         return x == y
-            || (isnan(x) && isnan(y));
+            || (std::isnan(x) && std::isnan(y));
     };
 
     bool valid = true;

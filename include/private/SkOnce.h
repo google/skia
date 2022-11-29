@@ -9,7 +9,9 @@
 #define SkOnce_DEFINED
 
 #include "include/private/SkThreadAnnotations.h"
+
 #include <atomic>
+#include <cstdint>
 #include <utility>
 
 // SkOnce provides call-once guarantees for Skia, much like std::once_flag/std::call_once().

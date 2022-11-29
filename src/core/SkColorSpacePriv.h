@@ -11,6 +11,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/private/SkFixed.h"
+#include "include/private/SkFloatingPoint.h"
 #include "src/core/SkVM_fwd.h"
 
 #define SkColorSpacePrintf(...)

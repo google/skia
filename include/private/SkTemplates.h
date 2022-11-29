@@ -12,13 +12,14 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTLogic.h"
 
-#include <string.h>
 #include <array>
 #include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <memory>
-#include <new>
 #include <type_traits>
 #include <utility>
+
 
 /** \file SkTemplates.h
 

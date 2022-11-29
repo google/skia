@@ -10,12 +10,11 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatBits.h"
-#include "include/private/SkSafe_math.h"
-#include <float.h>
-#include <math.h>
+
+#include <cfloat>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
-#include <limits>
 
 constexpr float SK_FloatSqrt2 = 1.41421356f;
 constexpr float SK_FloatPI    = 3.14159265f;
