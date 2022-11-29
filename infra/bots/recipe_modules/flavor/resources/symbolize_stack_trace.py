@@ -23,6 +23,14 @@ def main(basedir, cmd):
         logs.append(line)
     proc.wait()
     print('Command exited with code %s' % proc.returncode)
+
+    try:
+        subprocess.check_call(['addr2line', '--help'])
+    except OSError:
+        print('addr2line not found on PATH. Skipping symbolization.')
+        return
+
+
     # Stacktraces generally look like:
     # /lib/x86_64-linux-gnu/libc.so.6(abort+0x16a) [0x7fa90e8d0c62]
     # /b/s/w/irISUIyA/linux_vulkan_intel_driver_debug/./libvulkan_intel.so(+0x1f4d0a) [0x7fa909eead0a]
