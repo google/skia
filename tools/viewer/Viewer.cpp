@@ -76,8 +76,6 @@
     #include "tools/viewer/SkottieSlide.h"
 #endif
 
-#include "tools/viewer/RiveSlide.h"
-
 #if defined(SK_ENABLE_SVG)
 #include "modules/svg/include/SkSVGOpenTypeSVGDecoder.h"
 #endif
@@ -800,10 +798,7 @@ void Viewer::initSlides() {
                 return sk_make_sp<SkottieSlide>(name, path);}
         },
 #endif
-        { ".riv", "rive-dir", FLAGS_rives,
-            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
-                return sk_make_sp<RiveSlide>(name, path);}
-        },
+
 #if defined(SK_ENABLE_SVG)
         { ".svg", "svg-dir", FLAGS_svgs,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {

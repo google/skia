@@ -3015,8 +3015,6 @@ if (skia_enable_tools) {
         "tools/viewer/QuadStrokerSlide.cpp",
         "tools/viewer/RectanizerSlide.cpp",
         "tools/viewer/RepeatTileSlide.cpp",
-        "tools/viewer/RiveSlide.cpp",
-        "tools/viewer/RiveSlide.h",
         "tools/viewer/SBIXSlide.cpp",
         "tools/viewer/SGSlide.cpp",
         "tools/viewer/SKPSlide.cpp",
@@ -3078,7 +3076,6 @@ if (skia_enable_tools) {
         "modules/skshaper:skshaper",
         "modules/svg",
         "//third_party/imgui",
-        "//third_party/rive",
       ]
       if (skia_use_vulkan) {
         deps += [
