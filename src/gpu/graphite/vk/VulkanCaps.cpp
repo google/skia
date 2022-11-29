@@ -49,7 +49,7 @@ void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
     }
 
 #ifdef SK_BUILD_FOR_UNIX
-    if (kNvidia_VkVendor == properties.vendorID) {
+    if (kNvidia_VkVendor == physDevProperties.vendorID) {
         // On NVIDIA linux we see a big perf regression when not using dedicated image allocations.
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
