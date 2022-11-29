@@ -47,6 +47,8 @@ int Program::numTempStackSlots() {
                 largest = std::max(current, largest);
                 break;
 
+            case BuilderOp::add_n_floats:
+            case BuilderOp::add_n_ints:
             case BuilderOp::discard_stack:
                 current -= inst.fImmA;
                 break;
@@ -115,9 +117,15 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
     sk_bzero(slotPtr, allocSize);
 
     // Store the stacks immediately after the values.
-    float* tempStackPtr = slotPtr + (N * fNumValueSlots);
-    float* conditionStackPtr = tempStackPtr + (N * fNumTempStackSlots);
+    float* slotPtrEnd = slotPtr + (N * fNumValueSlots);
+    float* tempStackBase = slotPtrEnd;
+    float* tempStackEnd  = tempStackBase + (N * fNumTempStackSlots);
+    float* conditionStackBase = tempStackEnd;
+    [[maybe_unused]] float* conditionStackEnd  = conditionStackBase + (N * fNumConditionMaskSlots);
 
+    // Track our current position for each stack.
+    float* tempStackPtr = tempStackBase;
+    float* conditionStackPtr = conditionStackBase;
     for (const Instruction& inst : fInstructions) {
         auto SlotA = [&]() { return &slotPtr[N * inst.fSlotA]; };
         auto SlotB = [&]() { return &slotPtr[N * inst.fSlotB]; };
@@ -163,6 +171,14 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 pipeline->append(SkRP::store_masked, SlotA());
                 break;
 
+            case BuilderOp::add_n_floats:
+            case BuilderOp::add_n_ints: {
+                tempStackPtr -= N * inst.fImmA;              // pop the source value
+                float* dst = tempStackPtr - N * inst.fImmA;  // overwrite the dest value
+                pipeline->append_adjacent_math_op(alloc, (SkRP::Stage)inst.fOp,
+                                                  dst, tempStackPtr, inst.fImmA);
+                break;
+            }
             case BuilderOp::copy_slot_masked:
                 pipeline->append_copy_slots_masked(alloc, SlotA(), SlotB(), inst.fImmA);
                 break;
@@ -226,6 +242,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 SkDEBUGFAILF("Raster Pipeline: unsupported instruction %d", (int)inst.fOp);
                 break;
         }
+        SkASSERT(tempStackPtr >= tempStackBase);
+        SkASSERT(tempStackPtr <= tempStackEnd);
+        SkASSERT(conditionStackPtr >= conditionStackBase);
+        SkASSERT(conditionStackPtr <= conditionStackEnd);
     }
 #endif
 }

@@ -13,10 +13,12 @@
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
+#include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
+#include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
@@ -85,6 +87,7 @@ public:
 
     /** Pushes an expression to the value stack. */
     bool pushExpression(const Expression& e);
+    bool pushBinaryExpression(const BinaryExpression& c);
     bool pushConstructorCompound(const ConstructorCompound& c);
     bool pushConstructorSplat(const ConstructorSplat& c);
     bool pushLiteral(const Literal& l);
@@ -96,6 +99,9 @@ public:
 
     /** Zeroes out a range of slots. */
     void zeroSlotRangeUnmasked(SlotRange r) { fBuilder.zero_slots_unmasked(r); }
+
+    /** Expression utilities. */
+    void add(SkSL::Type::NumberKind numberKind, int slots);
 
 private:
     [[maybe_unused]] const SkSL::Program& fProgram;
@@ -216,6 +222,9 @@ bool Generator::writeVarDeclaration(const VarDeclaration& v) {
 
 bool Generator::pushExpression(const Expression& e) {
     switch (e.kind()) {
+        case Expression::Kind::kBinary:
+            return this->pushBinaryExpression(e.as<BinaryExpression>());
+
         case Expression::Kind::kConstructorCompound:
             return this->pushConstructorCompound(e.as<ConstructorCompound>());
 
@@ -232,6 +241,49 @@ bool Generator::pushExpression(const Expression& e) {
             // Unsupported expression
             return false;
     }
+}
+
+void Generator::add(SkSL::Type::NumberKind numberKind, int slots) {
+    switch (numberKind) {
+        case Type::NumberKind::kFloat:    fBuilder.add_floats(slots); return;
+        case Type::NumberKind::kSigned:
+        case Type::NumberKind::kUnsigned: fBuilder.add_ints(slots); return;
+        default:                          SkUNREACHABLE;
+    }
+}
+
+bool Generator::pushBinaryExpression(const BinaryExpression& e) {
+    if (e.getOperator().kind() == OperatorKind::EQ) {
+        // TODO: implement `var = expr` assignment
+        return false;
+    }
+
+    // TODO: add support for non-matching types (e.g. matrix-vector ops)
+    if (!e.left()->type().matches(e.right()->type())) {
+        return false;
+    }
+
+    const Type& type = e.left()->type();
+
+    this->pushExpression(*e.left());
+    this->pushExpression(*e.right());
+    Type::NumberKind numberKind = type.componentType().numberKind();
+
+    switch (e.getOperator().removeAssignment().kind()) {
+        case OperatorKind::PLUS:
+            this->add(numberKind, type.slotCount());
+            break;
+
+        default:
+            return false;
+    }
+
+    if (e.getOperator().isAssignment()) {
+        // TODO: implement `var += expr` compound assignment
+        return false;
+    }
+
+    return true;
 }
 
 bool Generator::pushConstructorCompound(const ConstructorCompound& c) {

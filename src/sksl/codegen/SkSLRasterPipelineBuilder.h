@@ -165,6 +165,18 @@ public:
         fInstructions.push_back({BuilderOp::copy_stack_to_slots_unmasked, {dst.index}, dst.count});
     }
 
+    void add_floats(int32_t slots) {
+        // Adds two floating-point values at the top of the temp stack, given a slot count of
+        // `slots`. Both input values are consumed, and the result is pushed onto the stack.
+        fInstructions.push_back({BuilderOp::add_n_floats, {}, slots});
+    }
+
+    void add_ints(int32_t slots) {
+        // Adds two integer values at the top of the temp stack, given a slot count of
+        // `slots`. Both input values are consumed, and the result is pushed onto the stack.
+        fInstructions.push_back({BuilderOp::add_n_ints, {}, slots});
+    }
+
     void discard_stack(int32_t count = 1) {
         // Shrinks the temp stack, discarding values on top.
         fInstructions.push_back({BuilderOp::discard_stack, {}, count});

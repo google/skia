@@ -128,3 +128,16 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorVarDeclGreenTest, r) {
          )__SkSL__",
          SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorAdditionTest, r) {
+    // Add in your SkSL here.
+    test(r,
+         R"__SkSL__(
+             half4 main(float2 coords) {
+                 half4 x = half4(0, 1, 0, -1);
+                 half4 y = half4(0, 0, 0,  2);
+                 return x + y;
+             }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+}
