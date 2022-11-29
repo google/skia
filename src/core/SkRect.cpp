@@ -7,7 +7,6 @@
 
 #include "include/core/SkRect.h"
 
-#include "include/private/SkMalloc.h"
 #include "src/core/SkRectPriv.h"
 
 bool SkIRect::intersect(const SkIRect& a, const SkIRect& b) {

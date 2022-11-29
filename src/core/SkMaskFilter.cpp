@@ -4,28 +4,49 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/core/SkMaskFilter.h"
 
-#include "src/core/SkMaskFilterBase.h"
-
+#include "include/core/SkFlattenable.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkRRect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkRegion.h"
+#include "include/core/SkStrokeRec.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkMask.h"
+#include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
-#include "src/core/SkReadBuffer.h"
-#include "src/core/SkWriteBuffer.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <memory>
 
 #if SK_SUPPORT_GPU
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
-#include "src/gpu/ganesh/GrTextureProxy.h"
+
+class GrClip;
+class GrRecordingContext;
+class GrStyledShape;
+enum class GrColorType;
+struct GrFPArgs;
+namespace skgpu { namespace v1 { class SurfaceDrawContext; } }
 #endif
 #if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #include "src/text/gpu/SDFMaskFilter.h"
 #endif
+
+class SkRRect;
+enum SkAlphaType : int;
+struct SkDeserialProcs;
 
 SkMaskFilterBase::NinePatch::~NinePatch() {
     if (fCache) {

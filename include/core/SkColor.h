@@ -13,6 +13,7 @@
 #include "include/core/SkTypes.h"
 
 #include <array>
+#include <cstdint>
 
 /** \file SkColor.h
 

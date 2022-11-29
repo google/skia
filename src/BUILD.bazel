@@ -125,6 +125,8 @@ generate_cpp_files_for_headers(
     # generated that is a copy of the header file just with a .cpp suffix so Bazel will try to
     # compile it. This allows us to run IWYU on these files.
     to_generate = [
+        "src/core/SkAutoMalloc.h",
+        "src/core/SkScopeExit.h",
         "src/image/SkImage_Base.h",
     ],
 )

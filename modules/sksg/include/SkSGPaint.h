@@ -10,6 +10,7 @@
 
 #include "modules/sksg/include/SkSGNode.h"
 
+#include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 

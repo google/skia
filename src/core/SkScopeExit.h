@@ -12,6 +12,7 @@
 #include "include/private/SkMacros.h"
 
 #include <functional>
+#include <utility>
 
 /** SkScopeExit calls a std:::function<void()> in its destructor. */
 class SkScopeExit {

@@ -8,24 +8,28 @@
 #ifndef SkPaint_DEFINED
 #define SkPaint_DEFINED
 
-#include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
 
+#include <cstdint>
 #include <optional>
+#include <type_traits>
 
 class SkBlender;
 class SkColorFilter;
 class SkColorSpace;
-struct SkRect;
 class SkImageFilter;
 class SkMaskFilter;
 class SkMatrix;
 class SkPath;
 class SkPathEffect;
 class SkShader;
+enum class SkBlendMode;
+struct SkRect;
 
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all

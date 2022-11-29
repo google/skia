@@ -4,12 +4,24 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "include/core/SkFlattenable.h"
+
+#include "include/core/SkData.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTDArray.h"
 #include "src/core/SkPtrRecorder.h"
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkWriteBuffer.h"
 
 #include <algorithm>
+#include <cstdint>
+#include <cstring>
+#include <iterator>
+#include <utility>
+
+struct SkDeserialProcs;
+struct SkSerialProcs;
 
 SkNamedFactorySet::SkNamedFactorySet() : fNextAddedFactory(0) {}
 

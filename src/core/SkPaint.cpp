@@ -7,35 +7,35 @@
 
 #include "include/core/SkPaint.h"
 
-#include "include/core/SkData.h"
-#include "include/core/SkGraphics.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkBlender.h"
+#include "include/core/SkColorFilter.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/core/SkTypeface.h"
-#include "include/private/SkMutex.h"
+#include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
-#include "src/core/SkDraw.h"
-#include "src/core/SkMaskGamma.h"
-#include "src/core/SkOpts.h"
+#include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintDefaults.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkPathEffectBase.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSafeRange.h"
-#include "src/core/SkStringUtils.h"
-#include "src/core/SkStroke.h"
-#include "src/core/SkSurfacePriv.h"
-#include "src/core/SkTLazy.h"
 #include "src/core/SkWriteBuffer.h"
-#include "src/shaders/SkShaderBase.h"
+
+#include <utility>
 
 // define this to get a printf for out-of-range parameter in setters
 // e.g. setTextSize(-1)
@@ -204,8 +204,6 @@ void SkPaint::setStrokeJoin(Join jt) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "include/core/SkStream.h"
 
 #ifdef SK_DEBUG
     static void ASSERT_FITS_IN(uint32_t value, int bitCount) {

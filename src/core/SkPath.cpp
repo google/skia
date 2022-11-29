@@ -7,26 +7,33 @@
 
 #include "include/core/SkPath.h"
 
-#include "include/core/SkData.h"
-#include "include/core/SkMath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
-#include "include/private/SkMacros.h"
+#include "include/core/SkStream.h"
+#include "include/core/SkString.h"
+#include "include/private/SkFloatBits.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/SkPathRef.h"
+#include "include/private/SkTArray.h"
+#include "include/private/SkTDArray.h"
 #include "include/private/SkTo.h"
-#include "src/core/SkBuffer.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkCubicClipper.h"
+#include "src/core/SkEdgeClipper.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPathMakers.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
-#include "src/core/SkSafeMath.h"
+#include "src/core/SkStringUtils.h"
 #include "src/core/SkTLazy.h"
-// need SkDVector
 #include "src/pathops/SkPathOpsPoint.h"
 
+#include <algorithm>
 #include <cmath>
+#include <cstring>
+#include <iterator>
 #include <utility>
 
 struct SkPath_Storage_Equivalent {
@@ -894,8 +901,6 @@ SkPath& SkPath::addPoly(const SkPoint pts[], int count, bool close) {
     SkDEBUGCODE(this->validate();)
     return *this;
 }
-
-#include "src/core/SkGeometry.h"
 
 static bool arc_is_lone_point(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                               SkPoint* pt) {
@@ -1913,10 +1918,6 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "include/core/SkStream.h"
-#include "include/core/SkString.h"
-#include "src/core/SkStringUtils.h"
 
 static void append_params(SkString* str, const char label[], const SkPoint pts[],
                           int count, SkScalarAsStringType strType, SkScalar conicWeight = -12345) {
@@ -3686,8 +3687,6 @@ bool SkPathPriv::IsNestedFillRects(const SkPath& path, SkRect rects[2], SkPathDi
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "src/core/SkEdgeClipper.h"
 
 struct SkHalfPlane {
     SkScalar fA, fB, fC;

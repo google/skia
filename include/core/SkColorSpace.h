@@ -9,10 +9,13 @@
 #define SkColorSpace_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkOnce.h"
 #include "modules/skcms/skcms.h"
-#include <memory>
+
+#include <cstddef>
+#include <cstdint>
 
 class SkData;
 

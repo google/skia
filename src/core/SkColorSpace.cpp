@@ -7,10 +7,13 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkOpts_spi.h"
 #include "include/private/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkOpts.h"
+
+#include <cstring>
 
 bool SkColorSpacePrimaries::toXYZD50(skcms_Matrix3x3* toXYZ_D50) const {
     return skcms_PrimariesToXYZD50(fRX, fRY, fGX, fGY, fBX, fBY, fWX, fWY, toXYZ_D50);

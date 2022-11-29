@@ -10,19 +10,25 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPathTypes.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
+#include <atomic>
+#include <cstddef>
+#include <cstdint>
 #include <initializer_list>
 #include <tuple>
+#include <type_traits>
 
-class SkAutoPathBoundsUpdate;
 class SkData;
 class SkPathRef;
 class SkRRect;
 class SkWStream;
-
 enum class SkPathConvexity;
 enum class SkPathFirstDirection;
 

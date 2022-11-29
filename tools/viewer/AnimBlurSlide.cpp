@@ -5,11 +5,14 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/utils/SkRandom.h"
 #include "tools/viewer/Slide.h"
+
+#include <iterator>
 
 SkScalar get_anim_sin(double secs, SkScalar amplitude, SkScalar periodInSec, SkScalar phaseInSec) {
     if (!periodInSec) {
