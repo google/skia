@@ -19,21 +19,46 @@ namespace RP {
 
 using SkRP = SkRasterPipeline;
 
-#define ALL_BINARY_OP_CASES         \
-         BuilderOp::add_n_floats:   \
-    case BuilderOp::add_n_ints:     \
-    case BuilderOp::cmple_n_floats: \
-    case BuilderOp::cmple_n_ints:   \
-    case BuilderOp::cmplt_n_floats: \
-    case BuilderOp::cmplt_n_ints:   \
-    case BuilderOp::cmpeq_n_floats: \
-    case BuilderOp::cmpeq_n_ints:   \
-    case BuilderOp::cmpne_n_floats: \
+#define ALL_SINGLE_SLOT_UNARY_OP_CASES \
+         BuilderOp::bitwise_not
+
+#define ALL_SINGLE_SLOT_BINARY_OP_CASES \
+         BuilderOp::bitwise_and:        \
+    case BuilderOp::bitwise_or:         \
+    case BuilderOp::bitwise_xor
+
+#define ALL_MULTI_SLOT_BINARY_OP_CASES \
+         BuilderOp::add_n_floats:      \
+    case BuilderOp::add_n_ints:        \
+    case BuilderOp::cmple_n_floats:    \
+    case BuilderOp::cmple_n_ints:      \
+    case BuilderOp::cmplt_n_floats:    \
+    case BuilderOp::cmplt_n_ints:      \
+    case BuilderOp::cmpeq_n_floats:    \
+    case BuilderOp::cmpeq_n_ints:      \
+    case BuilderOp::cmpne_n_floats:    \
     case BuilderOp::cmpne_n_ints
+
+void Builder::unary_op(BuilderOp op, int32_t slots) {
+    switch (op) {
+        case ALL_SINGLE_SLOT_UNARY_OP_CASES:
+            SkASSERT(slots == 1);
+            fInstructions.push_back({op, {}, slots});
+            break;
+
+        default:
+            SkDEBUGFAIL("not a unary op");
+            break;
+    }
+}
 
 void Builder::binary_op(BuilderOp op, int32_t slots) {
     switch (op) {
-        case ALL_BINARY_OP_CASES:
+        case ALL_SINGLE_SLOT_BINARY_OP_CASES:
+            SkASSERT(slots == 1);
+            [[fallthrough]];
+
+        case ALL_MULTI_SLOT_BINARY_OP_CASES:
             fInstructions.push_back({op, {}, slots});
             break;
 
@@ -71,7 +96,11 @@ int Program::numTempStackSlots() {
                 largest = std::max(current, largest);
                 break;
 
-            case ALL_BINARY_OP_CASES:
+            case ALL_SINGLE_SLOT_BINARY_OP_CASES:
+                current -= 1;
+                break;
+
+            case ALL_MULTI_SLOT_BINARY_OP_CASES:
             case BuilderOp::discard_stack:
                 current -= inst.fImmA;
                 break;
@@ -194,7 +223,18 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 pipeline->append(SkRP::store_masked, SlotA());
                 break;
 
-            case ALL_BINARY_OP_CASES: {
+            case ALL_SINGLE_SLOT_UNARY_OP_CASES: {
+                float* dst = tempStackPtr - N;  // overwrite the dest value
+                pipeline->append((SkRP::Stage)inst.fOp, dst);
+                break;
+            }
+            case ALL_SINGLE_SLOT_BINARY_OP_CASES: {
+                tempStackPtr -= N;              // pop the source value
+                float* dst = tempStackPtr - N;  // overwrite the dest value
+                pipeline->append_adjacent_single_slot_op((SkRP::Stage)inst.fOp, dst, tempStackPtr);
+                break;
+            }
+            case ALL_MULTI_SLOT_BINARY_OP_CASES: {
                 tempStackPtr -= N * inst.fImmA;              // pop the source value
                 float* dst = tempStackPtr - N * inst.fImmA;  // overwrite the dest value
                 pipeline->append_adjacent_multi_slot_op(alloc, (SkRP::Stage)inst.fOp,

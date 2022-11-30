@@ -165,6 +165,10 @@ public:
         fInstructions.push_back({BuilderOp::copy_stack_to_slots_unmasked, {dst.index}, dst.count});
     }
 
+    // Performs a unary op (like `bitwise_not`), given a slot count of `slots`. The stack top is
+    // replaced with the result.
+    void unary_op(BuilderOp op, int32_t slots);
+
     // Performs a binary op (like `add_n_floats` or `cmpeq_n_ints`), given a slot count of
     // `slots`. Both input values are consumed, and the result is pushed onto the stack.
     void binary_op(BuilderOp op, int32_t slots);

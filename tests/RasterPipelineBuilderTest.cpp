@@ -481,7 +481,7 @@ DEF_TEST(RasterPipelineBuilderDuplicateSlots, r) {
     REPORTER_ASSERT(r, contains_value<float>(stages->ctx, 1.0f));
 }
 
-DEF_TEST(RasterPipelineBuilderBinaryOps, r) {
+DEF_TEST(RasterPipelineBuilderUnaryAndBinaryOps, r) {
     using BuilderOp = SkSL::RP::BuilderOp;
 
     // Create a very simple nonsense program.
@@ -494,7 +494,10 @@ DEF_TEST(RasterPipelineBuilderBinaryOps, r) {
     builder.push_literal_i(5);                     // push into 3
     builder.push_literal_i(6);                     // push into 4
     builder.binary_op(BuilderOp::add_n_ints, 1);   // compute 5+6 and store into 3
-    builder.discard_stack(3);                      // balance stack
+    builder.binary_op(BuilderOp::bitwise_and, 1);  // compute 2&11 and store into 2
+    builder.binary_op(BuilderOp::bitwise_xor, 1);  // compute 1^2 and store into 1
+    builder.unary_op(BuilderOp::bitwise_not, 1);   // compute ~3 and store into 1
+    builder.discard_stack(1);                      // balance stack
     builder.load_unmasked(0);                      // make it easy to find the first slot
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
 
@@ -511,6 +514,18 @@ DEF_TEST(RasterPipelineBuilderBinaryOps, r) {
 
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_unmasked);
     REPORTER_ASSERT(r, stages->ctx == slot0 + (0 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::bitwise_not);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (1 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::bitwise_xor);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (1 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::bitwise_and);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (2 * N));
     stages = stages->prev;
 
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::add_int);
