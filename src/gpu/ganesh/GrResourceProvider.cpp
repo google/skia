@@ -28,6 +28,8 @@
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/SkGr.h"
 
+using namespace skia::internal;
+
 const int GrResourceProvider::kMinScratchTextureSize = 16;
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)

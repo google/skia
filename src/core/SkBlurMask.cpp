@@ -16,6 +16,8 @@
 #include "src/core/SkMaskBlurFilter.h"
 #include "src/core/SkMathPriv.h"
 
+using namespace skia::internal;
+
 // This constant approximates the scaling done in the software path's
 // "high quality" mode, in SkBlurMask::Blur() (1 / sqrt(3)).
 // IMHO, it actually should be 1:  we blur "less" than we should do
@@ -372,7 +374,7 @@ void SkBlurMask::ComputeBlurredScanline(uint8_t *pixels, const uint8_t *profile,
                                         unsigned int width, SkScalar sigma) {
 
     unsigned int profile_size = SkScalarCeilToInt(6*sigma);
-    SkAutoTMalloc<uint8_t> horizontalScanline(width);
+    skia::internal::SkAutoTMalloc<uint8_t> horizontalScanline(width);
 
     unsigned int sw = width - profile_size;
     // nearest odd number less than the profile size represents the center

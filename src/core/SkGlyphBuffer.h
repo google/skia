@@ -224,8 +224,8 @@ private:
     int fInputSize{0};
     int fAcceptedSize{0};
     SkAutoTArray<SkGlyphVariant> fMultiBuffer;
-    SkAutoTMalloc<SkPoint> fPositions;
-    SkAutoTMalloc<SkMask::Format> fFormats;
+    skia::internal::SkAutoTMalloc<SkPoint> fPositions;
+    skia::internal::SkAutoTMalloc<SkMask::Format> fFormats;
 
 #ifdef SK_DEBUG
     enum {

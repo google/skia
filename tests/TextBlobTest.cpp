@@ -34,6 +34,8 @@
 #include <cstring>
 #include <string>
 
+using namespace skia::internal;
+
 class TextBlobTester {
 public:
     // This unit test feeds an SkTextBlobBuilder various runs then checks to see if

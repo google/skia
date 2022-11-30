@@ -58,6 +58,8 @@
 #include "src/utils/win/SkTScopedComPtr.h"
 #include "src/xps/SkXPSDevice.h"
 
+using namespace skia::internal;
+
 //Windows defines a FLOAT type,
 //make it clear when converting a scalar that this is what is wanted.
 #define SkScalarToFLOAT(n) SkScalarToFloat(n)

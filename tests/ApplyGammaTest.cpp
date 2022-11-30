@@ -34,6 +34,8 @@
 #include <cstdint>
 #include <initializer_list>
 
+using namespace skia::internal;
+
 struct GrContextOptions;
 
 /** convert 0..1 linear value to 0..1 srgb */

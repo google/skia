@@ -13,6 +13,8 @@
 #include "src/gpu/ganesh/geometry/GrTriangulator.h"
 #include <vector>
 
+using namespace skia::internal;
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 struct TigerPath {

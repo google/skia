@@ -35,6 +35,8 @@
 #include <png.h>
 #include <pngconf.h>
 
+using namespace skia::internal;
+
 class SkSampler;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK

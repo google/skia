@@ -29,6 +29,7 @@
 #include "src/image/SkImage_Gpu.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 
+using namespace  skia::internal;
 using MaskFormat = skgpu::MaskFormat;
 
 #define ASSERT_OWNED_PROXY(P) \
