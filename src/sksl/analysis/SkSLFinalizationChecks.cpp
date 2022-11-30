@@ -110,12 +110,10 @@ public:
 
         // Searches for `out` parameters that are not written to. According to the GLSL spec,
         // the value of an out-param that's never assigned to is unspecified, so report it.
-        // Structs are currently exempt from the rule because custom mesh specifications require an
-        // `out` parameter for a Varyings struct, even if your mesh program doesn't need Varyings.
         for (const Variable* param : funcDecl.parameters()) {
             const int paramInout = param->modifiers().fFlags & (Modifiers::Flag::kIn_Flag |
                                                                 Modifiers::Flag::kOut_Flag);
-            if (!param->type().isStruct() && paramInout == Modifiers::Flag::kOut_Flag) {
+            if (paramInout == Modifiers::Flag::kOut_Flag) {
                 ProgramUsage::VariableCounts counts = fUsage.get(*param);
                 if (counts.fWrite <= 0) {
                     fContext.fErrors->error(param->fPosition,
