@@ -58,6 +58,8 @@
 #include <memory>
 #include <utility>
 
+using namespace skia_private;
+
 class GrRecordingContext;
 class SkShader;
 struct GrContextOptions;
@@ -916,7 +918,7 @@ public:
     }
     void unlock(int actualCount) override {}
     SkPoint operator[](int idx) const { return fPoints[idx]; }
-    SkAutoTMalloc<SkPoint> fPoints;
+    AutoTMalloc<SkPoint> fPoints;
 };
 
 class SimplerVertexAllocator : public GrEagerVertexAllocator {
@@ -931,7 +933,7 @@ public:
 
     void unlock(int) override {}
 
-    SkAutoTMalloc<char> fVertexData;
+    AutoTMalloc<char> fVertexData;
     size_t fVertexAllocSize = 0;
 };
 

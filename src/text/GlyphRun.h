@@ -182,9 +182,9 @@ private:
             const SkTextBlob* blob, const SkRect& bounds, SkPoint origin);
 
     int fMaxTotalRunSize{0};
-    SkAutoTMalloc<SkPoint> fPositions;
+    skia_private::AutoTMalloc<SkPoint> fPositions;
     int fMaxScaledRotations{0};
-    SkAutoTMalloc<SkVector> fScaledRotations;
+    skia_private::AutoTMalloc<SkVector> fScaledRotations;
 
     std::vector<GlyphRun> fGlyphRunListStorage;
     std::optional<GlyphRunList> fGlyphRunList;  // Defaults to no value;

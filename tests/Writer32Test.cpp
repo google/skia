@@ -22,6 +22,8 @@
 #include <cstdint>
 #include <cstring>
 
+using namespace skia_private;
+
 static void check_contents(skiatest::Reporter* reporter, const SkWriter32& writer,
                            const void* expected, size_t size) {
     SkAutoSMalloc<256> storage(size);
@@ -97,7 +99,7 @@ static void testWritePad(skiatest::Reporter* reporter, SkWriter32* writer) {
     // Create some random data to write.
     const size_t dataSize = 10;
 
-    SkAutoTMalloc<uint32_t> originalData(dataSize);
+    AutoTMalloc<uint32_t> originalData(dataSize);
     {
         SkRandom rand(0);
         for (size_t i = 0; i < dataSize; i++) {

@@ -35,6 +35,8 @@
 #include <cstdint>
 #include <initializer_list>
 
+using namespace skia_private;
+
 struct GrContextOptions;
 
 /** convert 0..1 linear value to 0..1 srgb */
@@ -107,7 +109,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforce
 
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(kBaseSize);
 
-    SkAutoTMalloc<uint32_t> srcPixels(kBaseSize.area());
+    AutoTMalloc<uint32_t> srcPixels(kBaseSize.area());
     for (int y = 0; y < kBaseSize.fHeight; ++y) {
         for (int x = 0; x < kBaseSize.fWidth; ++x) {
             srcPixels.get()[y*kBaseSize.fWidth+x] = SkPreMultiplyARGB(x, y, x, 0xFF);
@@ -118,7 +120,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforce
     bm.installPixels(ii, srcPixels.get(), kRowBytes);
     auto img = bm.asImage();
 
-    SkAutoTMalloc<uint32_t> read(kBaseSize.area());
+    AutoTMalloc<uint32_t> read(kBaseSize.area());
 
     // We allow more error on GPUs with lower precision shader variables.
     float error = context->priv().caps()->shaderCaps()->fHalfIs32Bits ? 0.5f : 1.2f;

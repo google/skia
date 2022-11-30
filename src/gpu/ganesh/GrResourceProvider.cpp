@@ -40,6 +40,8 @@
 
 struct SkImageInfo;
 
+using namespace skia_private;
+
 const int GrResourceProvider::kMinScratchTextureSize = 16;
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
@@ -493,7 +495,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::findOrMakeStaticBuffer(
 
     // Map the buffer. Use a staging buffer on the heap if mapping isn't supported.
     skgpu::VertexWriter vertexWriter = {buffer->map(), size};
-    SkAutoTMalloc<char> stagingBuffer;
+    AutoTMalloc<char> stagingBuffer;
     if (!vertexWriter) {
         SkASSERT(!buffer->isMapped());
         vertexWriter = {stagingBuffer.reset(size), size};

@@ -52,6 +52,8 @@
 #include <memory>
 #include <utility>
 
+using namespace skia_private;
+
 struct GrContextOptions;
 
 // skbug.com/5932
@@ -81,7 +83,7 @@ static void test_clear(skiatest::Reporter* reporter, GrDirectContext* dContext,
         int w = sfc->width();
         int h = sfc->height();
         int pixelCnt = w * h;
-        SkAutoTMalloc<uint32_t> expectedPixels(pixelCnt);
+        AutoTMalloc<uint32_t> expectedPixels(pixelCnt);
 
         // The clear color is a GrColor, our readback is to kRGBA_8888, which may be different.
         uint32_t expectedColor0 = 0;
@@ -122,7 +124,7 @@ static void test_copy_to_surface(skiatest::Reporter* reporter,
                                  const char* testName) {
 
     int pixelCnt = dstContext->width() * dstContext->height();
-    SkAutoTMalloc<uint32_t> pixels(pixelCnt);
+    AutoTMalloc<uint32_t> pixels(pixelCnt);
     for (int y = 0; y < dstContext->width(); ++y) {
         for (int x = 0; x < dstContext->height(); ++x) {
             pixels.get()[y * dstContext->width() + x] =

@@ -32,6 +32,8 @@
 #include <DXProgrammableCapture.h>
 #endif
 
+using namespace skia_private;
+
 GrThreadSafePipelineBuilder* GrD3DGpu::pipelineBuilder() {
     return nullptr;
 }
@@ -387,9 +389,9 @@ sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
     // Either upload only the first miplevel or all miplevels
     SkASSERT(1 == mipLevelCount || mipLevelCount == (int)desc.MipLevels);
 
-    SkAutoTMalloc<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
-    SkAutoTMalloc<UINT> numRows(mipLevelCount);
-    SkAutoTMalloc<UINT64> rowSizeInBytes(mipLevelCount);
+    AutoTMalloc<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
+    AutoTMalloc<UINT> numRows(mipLevelCount);
+    AutoTMalloc<UINT64> rowSizeInBytes(mipLevelCount);
     UINT64 combinedBufferSize;
     // We reset the width and height in the description to match our subrectangle size
     // so we don't end up allocating more space than we need.
@@ -736,7 +738,7 @@ bool GrD3DGpu::uploadToTexture(GrD3DTexture* tex,
         }
     }
 
-    SkAutoTMalloc<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
+    AutoTMalloc<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
     UINT64 combinedBufferSize;
     // We reset the width and height in the description to match our subrectangle size
     // so we don't end up allocating more space than we need.
@@ -1568,10 +1570,10 @@ bool GrD3DGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendT
                                                     backendTexture.dimensions().height()) + 1;
     }
     SkASSERT(mipLevelCount == info.fLevelCount);
-    SkAutoTMalloc<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
+    AutoTMalloc<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
     UINT64 combinedBufferSize;
-    SkAutoTMalloc<UINT> numRows(mipLevelCount);
-    SkAutoTMalloc<UINT64> rowSizeInBytes(mipLevelCount);
+    AutoTMalloc<UINT> numRows(mipLevelCount);
+    AutoTMalloc<UINT64> rowSizeInBytes(mipLevelCount);
     fDevice->GetCopyableFootprints(&desc,
                                    0,
                                    mipLevelCount,

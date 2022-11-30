@@ -24,7 +24,7 @@ SkEventTracer::Handle SkDebugfTracer::addTraceEvent(char phase,
         } else {
             args.append(" ");
         }
-        skia_internal::TraceValueUnion value;
+        skia_private::TraceValueUnion value;
         value.as_uint = argValues[i];
         switch (argTypes[i]) {
             case TRACE_VALUE_TYPE_BOOL:

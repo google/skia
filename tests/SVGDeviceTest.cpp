@@ -30,6 +30,8 @@
 
 #include <string>
 
+using namespace skia_private;
+
 #define ABORT_TEST(r, cond, ...)                                   \
     do {                                                           \
         if (cond) {                                                \
@@ -84,7 +86,7 @@ void check_text_node(skiatest::Reporter* reporter,
         int xposCount = textLen;
         REPORTER_ASSERT(reporter, SkParse::Count(x) == xposCount);
 
-        SkAutoTMalloc<SkScalar> xpos(xposCount);
+        AutoTMalloc<SkScalar> xpos(xposCount);
         SkParse::FindScalars(x, xpos.get(), xposCount);
         if (scalarsPerPos < 1) {
             // For default-positioned text, we cannot make any assumptions regarding
@@ -105,7 +107,7 @@ void check_text_node(skiatest::Reporter* reporter,
         int yposCount = (scalarsPerPos < 2) ? 1 : textLen;
         REPORTER_ASSERT(reporter, SkParse::Count(y) == yposCount);
 
-        SkAutoTMalloc<SkScalar> ypos(yposCount);
+        AutoTMalloc<SkScalar> ypos(yposCount);
         SkParse::FindScalars(y, ypos.get(), yposCount);
         if (scalarsPerPos < 2) {
             REPORTER_ASSERT(reporter, ypos[0] == offset.y());
@@ -134,7 +136,7 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
     check_text_node(reporter, dom, dom.finishParsing(), offset, 0, txt, expected);
 
     {
-        SkAutoTMalloc<SkScalar> xpos(len);
+        AutoTMalloc<SkScalar> xpos(len);
         for (int i = 0; i < SkToInt(len); ++i) {
             xpos[i] = SkIntToScalar(txt[i]);
         }
@@ -145,7 +147,7 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
     check_text_node(reporter, dom, dom.finishParsing(), offset, 1, txt, expected);
 
     {
-        SkAutoTMalloc<SkPoint> pos(len);
+        AutoTMalloc<SkPoint> pos(len);
         for (int i = 0; i < SkToInt(len); ++i) {
             pos[i] = SkPoint::Make(SkIntToScalar(txt[i]), 150 - SkIntToScalar(txt[i]));
         }

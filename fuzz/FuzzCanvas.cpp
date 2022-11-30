@@ -61,6 +61,8 @@
 #include <iostream>
 #include <utility>
 
+using namespace skia_private;
+
 static DEFINE_bool2(gpuInfo, g, false, "Display GPU information on relevant targets.");
 
 // TODO:
@@ -796,7 +798,7 @@ static sk_sp<SkImage> make_fuzz_image(Fuzz* fuzz) {
     int w, h;
     fuzz->nextRange(&w, 1, 1024);
     fuzz->nextRange(&h, 1, 1024);
-    SkAutoTMalloc<SkPMColor> data(w * h);
+    AutoTMalloc<SkPMColor> data(w * h);
     SkPixmap pixmap(SkImageInfo::MakeN32Premul(w, h), data.get(), w * sizeof(SkPMColor));
     int n = w * h;
     for (int i = 0; i < n; ++i) {

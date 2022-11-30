@@ -12,6 +12,8 @@
 #include "include/utils/SkRandom.h"
 #include "src/core/SkRTree.h"
 
+using namespace skia_private;
+
 // confine rectangles to a smallish area, so queries generally hit something, and overlap occurs:
 static const SkScalar GENERATE_EXTENTS = 1000.0f;
 static const int NUM_BUILD_RECTS = 500;
@@ -37,7 +39,7 @@ protected:
     }
     void onDraw(int loops, SkCanvas* canvas) override {
         SkRandom rand;
-        SkAutoTMalloc<SkRect> rects(NUM_BUILD_RECTS);
+        AutoTMalloc<SkRect> rects(NUM_BUILD_RECTS);
         for (int i = 0; i < NUM_BUILD_RECTS; ++i) {
             rects[i] = fProc(rand, i, NUM_BUILD_RECTS);
         }
@@ -70,7 +72,7 @@ protected:
     }
     void onDelayedSetup() override {
         SkRandom rand;
-        SkAutoTMalloc<SkRect> rects(NUM_QUERY_RECTS);
+        AutoTMalloc<SkRect> rects(NUM_QUERY_RECTS);
         for (int i = 0; i < NUM_QUERY_RECTS; ++i) {
             rects[i] = fProc(rand, i, NUM_QUERY_RECTS);
         }

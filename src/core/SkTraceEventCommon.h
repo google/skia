@@ -241,7 +241,7 @@ static inline void sk_noop(...) {}
 
 #elif defined(SK_ANDROID_FRAMEWORK_USE_PERFETTO)
 
-namespace skia_internal {
+namespace skia_private {
     // ATrace can't accept ::perfetto::DynamicString or ::perfetto::StaticString, so any trace event
     // names that were wrapped in TRACE_STR_COPY or TRACE_STR_STATIC need to be unboxed back to
     // char* before being passed to ATrace.
@@ -311,14 +311,14 @@ namespace skia_internal {
     } SK_PERFETTO_UID(scoped_event) {                                                           \
         [&]() {                                                                                 \
             static_assert(!force_always_trace ||                                                \
-                        ::skia_internal::StrEndsWithAndLongerThan(category, ".always"),         \
+                        ::skia_private::StrEndsWithAndLongerThan(category, ".always"),         \
                     "[force_always_trace == true] requires [category] to end in '.always'");    \
             if (force_always_trace ||                                                           \
                     CC_UNLIKELY(SkAndroidFrameworkTraceUtil::getEnableTracing())) {             \
                 if (SkAndroidFrameworkTraceUtil::getUsePerfettoTrackEvents()) {                 \
                     TRACE_EVENT_BEGIN(category, name, ##__VA_ARGS__);                           \
                 } else {                                                                        \
-                    ATRACE_BEGIN(::skia_internal::UnboxPerfettoString(name));                   \
+                    ATRACE_BEGIN(::skia_private::UnboxPerfettoString(name));                   \
                 }                                                                               \
             }                                                                                   \
             return 0;                                                                           \

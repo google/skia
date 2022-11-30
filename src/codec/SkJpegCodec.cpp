@@ -38,6 +38,8 @@
 #include <cstring>
 #include <utility>
 
+using namespace skia_private;
+
 class SkSampler;
 struct SkGainmapInfo;
 
@@ -985,7 +987,7 @@ SkCodec::Result SkJpegCodec::onGetYUVAPlanes(const SkYUVAPixmaps& yuvaPixmaps) {
         // this requirement using an extra row buffer.
         // FIXME: Should SkCodec have an extra memory buffer that can be shared among
         //        all of the implementations that use temporary/garbage memory?
-        SkAutoTMalloc<JSAMPLE> extraRow(planes[0].rowBytes());
+        AutoTMalloc<JSAMPLE> extraRow(planes[0].rowBytes());
         for (int i = remainingRows; i < numYRowsPerBlock; i++) {
             rowptrs[i] = extraRow.get();
         }

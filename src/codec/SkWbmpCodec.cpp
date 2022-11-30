@@ -21,6 +21,8 @@
 
 #include <utility>
 
+using namespace skia_private;
+
 // Each bit represents a pixel, so width is actually a number of bits.
 // A row will always be stored in bytes, so we round width up to the
 // nearest multiple of 8 to get the number of bits actually in the row.
@@ -133,7 +135,7 @@ SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
 
     // Perform the decode
     SkISize size = info.dimensions();
-    SkAutoTMalloc<uint8_t> src(fSrcRowBytes);
+    AutoTMalloc<uint8_t> src(fSrcRowBytes);
     void* dstRow = dst;
     for (int y = 0; y < size.height(); ++y) {
         if (!this->readRow(src.get())) {

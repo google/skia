@@ -7,7 +7,7 @@ void draw(SkCanvas* ) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);  // device aligned, 32 bpp, Premultiplied
     const size_t minRowBytes = info.minRowBytes();  // bytes used by one bitmap row
     const size_t size = info.computeMinByteSize();  // bytes used by all rows
-    SkAutoTMalloc<SkPMColor> storage(size);  // allocate storage for pixels
+    AutoTMalloc<SkPMColor> storage(size);  // allocate storage for pixels
     SkPMColor* pixels = storage.get();  // get pointer to allocated storage
     // create a SkCanvas backed by a raster device, and delete it when the
     // function goes out of scope.

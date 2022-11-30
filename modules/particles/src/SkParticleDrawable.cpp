@@ -22,6 +22,8 @@
 
 #include <math.h>
 
+using namespace skia_private;
+
 static sk_sp<SkImage> make_circle_image(int radius) {
     auto surface = SkSurface::MakeRasterN32Premul(radius * 2, radius * 2);
     surface->getCanvas()->clear(SK_ColorTRANSPARENT);
@@ -69,9 +71,9 @@ struct DrawAtlasArrays {
         }
     }
 
-    SkAutoTMalloc<SkRSXform> fXforms;
-    SkAutoTMalloc<SkRect>    fRects;
-    SkAutoTMalloc<SkColor>   fColors;
+    AutoTMalloc<SkRSXform> fXforms;
+    AutoTMalloc<SkRect>    fRects;
+    AutoTMalloc<SkColor>   fColors;
 };
 
 class SkCircleDrawable : public SkParticleDrawable {

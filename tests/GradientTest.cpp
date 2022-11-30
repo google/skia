@@ -41,6 +41,8 @@
 #include <cstring>
 #include <string>
 
+using namespace skia_private;
+
 // https://code.google.com/p/chromium/issues/detail?id=448299
 // Giant (inverse) matrix causes overflow when converting/computing using 32.32
 // Before the fix, we would assert (and then crash).
@@ -77,8 +79,8 @@ struct GradRec {
                    SkShaderBase::GradientInfo* info,
                    SkShaderBase::GradientType gt,
                    const SkMatrix& localMatrix = SkMatrix::I()) const {
-        SkAutoTMalloc<SkColor> colorStorage(fColorCount);
-        SkAutoTMalloc<SkScalar> posStorage(fColorCount);
+        AutoTMalloc<SkColor> colorStorage(fColorCount);
+        AutoTMalloc<SkScalar> posStorage(fColorCount);
 
         info->fColorCount = fColorCount;
         info->fColors = colorStorage;

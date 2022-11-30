@@ -16,6 +16,8 @@
 #include <cstddef>
 #include <vector>
 
+using namespace skia_private;
+
 static const int NUM_RECTS = 200;
 static const size_t NUM_ITERATIONS = 100;
 static const size_t NUM_QUERIES = 50;
@@ -78,7 +80,7 @@ DEF_TEST(RTree, reporter) {
     }
 
     SkRandom rand;
-    SkAutoTMalloc<SkRect> rects(NUM_RECTS);
+    AutoTMalloc<SkRect> rects(NUM_RECTS);
     for (size_t i = 0; i < NUM_ITERATIONS; ++i) {
         SkRTree rtree;
         REPORTER_ASSERT(reporter, 0 == rtree.getCount());

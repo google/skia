@@ -9,6 +9,8 @@
 
 #include <ctype.h>
 
+using namespace skia_private;
+
 /*
   "A standard Type 1 font program, as described in the Adobe Type 1
   Font Format specification, consists of three parts: a clear-text
@@ -141,7 +143,7 @@ static sk_sp<SkData> convert_type1_font_stream(std::unique_ptr<SkStreamAsset> sr
     }
     // Flatten and Nul-terminate the source stream so that we can use
     // strstr() to search it.
-    SkAutoTMalloc<uint8_t> sourceBuffer(SkToInt(srcLen + 1));
+    AutoTMalloc<uint8_t> sourceBuffer(SkToInt(srcLen + 1));
     (void)srcStream->read(sourceBuffer.get(), srcLen);
     sourceBuffer[SkToInt(srcLen)] = 0;
     const uint8_t* src = sourceBuffer.get();

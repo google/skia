@@ -27,6 +27,8 @@
 #include <memory>
 #include <string>
 
+using namespace skia_private;
+
 //#define DUMP_TABLES
 //#define DUMP_TTC_TABLES
 
@@ -143,7 +145,7 @@ static void test_tables(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& f
 
     int count = face->countTables();
 
-    SkAutoTMalloc<SkFontTableTag> storage(count);
+    AutoTMalloc<SkFontTableTag> storage(count);
     SkFontTableTag* tags = storage.get();
 
     int count2 = face->getTableTags(tags);

@@ -43,6 +43,8 @@
 
 #include <utility>
 
+using namespace skia_private;
+
 static SkPaint make_paint_with_image(const SkPaint& origPaint, const SkBitmap& bitmap,
                                      const SkSamplingOptions& sampling,
                                      SkMatrix* matrix = nullptr) {
@@ -1017,7 +1019,7 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkSamplingOptions& s
         }
 
         // allocate (and clear) our temp buffer to hold the transformed bitmap
-        SkAutoTMalloc<uint8_t> storage(size);
+        AutoTMalloc<uint8_t> storage(size);
         mask.fImage = storage.get();
         memset(mask.fImage, 0, size);
 

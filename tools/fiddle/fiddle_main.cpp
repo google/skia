@@ -31,6 +31,8 @@ static DEFINE_double(frame, 1.0,
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/gl/GLTestContext.h"
 
+using namespace skia_private;
+
 // Globals externed in fiddle_main.h
 GrBackendTexture backEndTexture;
 GrBackendRenderTarget backEndRenderTarget;
@@ -171,7 +173,7 @@ static bool setup_backend_objects(GrDirectContext* dContext,
         auto resourceProvider = dContext->priv().resourceProvider();
 
         SkISize offscreenDims = {options.fOffScreenWidth, options.fOffScreenHeight};
-        SkAutoTMalloc<uint32_t> data(offscreenDims.area());
+        AutoTMalloc<uint32_t> data(offscreenDims.area());
         sk_memset32(data.get(), 0, offscreenDims.area());
 
         // This backend object should be renderable but not textureable. Given the limitations

@@ -41,7 +41,6 @@
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
-#include "src/core/SkTHash.h"
 #include "include/private/base/SkTo.h"
 #include "include/svg/SkSVGCanvas.h"
 #include "include/utils/SkBase64.h"
@@ -49,6 +48,7 @@
 #include "src/core/SkClipStack.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTLazy.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkShaderBase.h"
@@ -59,6 +59,8 @@
 #include <memory>
 #include <string>
 #include <utility>
+
+using namespace skia_private;
 
 #if SK_SUPPORT_GPU
 class SkMesh;
@@ -971,7 +973,7 @@ void SkSVGDevice::drawBitmapCommon(const MxCp& mc, const SkBitmap& bm, const SkP
     }
 
     size_t b64Size = SkBase64::Encode(pngData->data(), pngData->size(), nullptr);
-    SkAutoTMalloc<char> b64Data(b64Size);
+    AutoTMalloc<char> b64Data(b64Size);
     SkBase64::Encode(pngData->data(), pngData->size(), b64Data.get());
 
     SkString svgImageData("data:image/png;base64,");

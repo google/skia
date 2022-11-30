@@ -11,6 +11,8 @@
 #include <cstddef>
 #include <utility>
 
+using namespace skia_private;
+
 // Tests for some of the helpers in SkTemplates.h
 static void test_automalloc_realloc(skiatest::Reporter* reporter) {
     SkAutoSTMalloc<1, int> array;
@@ -111,7 +113,7 @@ static void test_container_apis(skiatest::Reporter* reporter) {
 DEF_TEST(TemplateContainerAPIs, reporter) {
     test_container_apis<SkAutoTArray<int>, int>(reporter);
     test_container_apis<SkAutoSTArray<kStackPreallocCount, int>, int>(reporter);
-    test_container_apis<SkAutoTMalloc<int>, size_t>(reporter);
+    test_container_apis<AutoTMalloc<int>, size_t>(reporter);
     test_container_apis<SkAutoSTMalloc<kStackPreallocCount, int>, size_t>(reporter);
 }
 
@@ -134,17 +136,17 @@ template<typename TAutoMalloc> static void test_realloc_to_zero(skiatest::Report
 }
 
 DEF_TEST(AutoReallocToZero, reporter) {
-    test_realloc_to_zero<SkAutoTMalloc<int> >(reporter);
+    test_realloc_to_zero<AutoTMalloc<int> >(reporter);
     test_realloc_to_zero<SkAutoSTMalloc<kStackPreallocCount, int> >(reporter);
 }
 
-DEF_TEST(SkAutoTMallocSelfMove, r) {
+DEF_TEST(AutoTMallocSelfMove, r) {
 #if defined(__clang__)
     #pragma clang diagnostic push
     #pragma clang diagnostic ignored "-Wself-move"
 #endif
 
-    SkAutoTMalloc<int> foo(20);
+    AutoTMalloc<int> foo(20);
     REPORTER_ASSERT(r, foo.get());
 
     foo = std::move(foo);

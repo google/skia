@@ -491,7 +491,7 @@ private:
     friend class SkTextBlobPriv;
     friend class SkTextBlobBuilderPriv;
 
-    SkAutoTMalloc<uint8_t> fStorage;
+    skia_private::AutoTMalloc<uint8_t> fStorage;
     size_t                 fStorageSize;
     size_t                 fStorageUsed;
 

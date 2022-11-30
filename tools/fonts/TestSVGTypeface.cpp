@@ -49,6 +49,8 @@
 
 #include <utility>
 
+using namespace skia_private;
+
 class SkDescriptor;
 
 TestSVGTypeface::TestSVGTypeface(const char*                              name,
@@ -1444,7 +1446,7 @@ void TestSVGTypeface::exportTtxColr(SkWStream* out) const {
     out->writeText("  </COLR>\n");
 
     // The colors must be written in order, the 'index' is ignored by ttx.
-    SkAutoTMalloc<SkColor> colorsInOrder(colors.count());
+    AutoTMalloc<SkColor> colorsInOrder(colors.count());
     colors.foreach ([&colorsInOrder](const SkColor& c, const int* i) { colorsInOrder[*i] = c; });
     out->writeText("  <CPAL>\n");
     out->writeText("    <version value=\"0\"/>\n");

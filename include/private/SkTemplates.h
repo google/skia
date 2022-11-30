@@ -231,8 +231,8 @@ public:
 
 private:
 #if defined(SK_BUILD_FOR_GOOGLE3)
-    // Stack frame size is limited for SK_BUILD_FOR_GOOGLE3. 4k is less than the actual max, but some functions
-    // have multiple large stack allocations.
+    // Stack frame size is limited for SK_BUILD_FOR_GOOGLE3. 4k is less than the actual max,
+    // but some functions have multiple large stack allocations.
     static const int kMaxBytes = 4 * 1024;
     static const int kCount = kCountRequested * sizeof(T) > kMaxBytes
         ? kMaxBytes / sizeof(T)
@@ -246,23 +246,24 @@ private:
     alignas(T) char fStorage[kCount * sizeof(T)];
 };
 
+namespace skia_private {
 /** Manages an array of T elements, freeing the array in the destructor.
  *  Does NOT call any constructors/destructors on T (T must be POD).
  */
 template <typename T,
           typename = std::enable_if_t<std::is_trivially_default_constructible<T>::value &&
                                       std::is_trivially_destructible<T>::value>>
-class SkAutoTMalloc  {
+class AutoTMalloc  {
 public:
     /** Takes ownership of the ptr. The ptr must be a value which can be passed to sk_free. */
-    explicit SkAutoTMalloc(T* ptr = nullptr) : fPtr(ptr) {}
+    explicit AutoTMalloc(T* ptr = nullptr) : fPtr(ptr) {}
 
     /** Allocates space for 'count' Ts. */
-    explicit SkAutoTMalloc(size_t count)
+    explicit AutoTMalloc(size_t count)
         : fPtr(count ? (T*)sk_malloc_throw(count, sizeof(T)) : nullptr) {}
 
-    SkAutoTMalloc(SkAutoTMalloc&&) = default;
-    SkAutoTMalloc& operator=(SkAutoTMalloc&&) = default;
+    AutoTMalloc(AutoTMalloc&&) = default;
+    AutoTMalloc& operator=(AutoTMalloc&&) = default;
 
     /** Resize the memory area pointed to by the current ptr preserving contents. */
     void realloc(size_t count) {
@@ -299,6 +300,11 @@ public:
 private:
     std::unique_ptr<T, SkOverloadedFunctionObject<void(void*), sk_free>> fPtr;
 };
+}  // namespace skia_private
+
+// TODO remove after all external client uses are removed.
+template <typename T>
+using SkAutoTMalloc = skia_private::AutoTMalloc<T>;
 
 template <size_t kCountRequested,
           typename T,

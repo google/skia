@@ -35,6 +35,8 @@
 #include <png.h>
 #include <pngconf.h>
 
+using namespace skia_private;
+
 class SkSampler;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -645,7 +647,7 @@ private:
     int                     fLinesDecoded;
     bool                    fInterlacedComplete;
     size_t                  fPng_rowbytes;
-    SkAutoTMalloc<png_byte> fInterlaceBuffer;
+    AutoTMalloc<png_byte> fInterlaceBuffer;
 
     using INHERITED = SkPngCodec;
 

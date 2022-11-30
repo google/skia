@@ -13,6 +13,8 @@
 #include "src/gpu/ganesh/geometry/GrTriangulator.h"
 #include <vector>
 
+using namespace skia_private;
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 struct TigerPath {
@@ -88,7 +90,7 @@ protected:
 
     SkString fName;
     SkTArray<SkPath> fPaths;
-    SkAutoTMalloc<char> fVertexData;
+    AutoTMalloc<char> fVertexData;
     size_t fVertexAllocSize = 0;
     SkArenaAllocWithReset fArena{GrTriangulator::kArenaDefaultChunkSize};
 };

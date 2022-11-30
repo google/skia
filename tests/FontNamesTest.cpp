@@ -22,6 +22,8 @@
 #include <cstdint>
 #include <cstring>
 
+using namespace skia_private;
+
 namespace {
 
 template <size_t R, size_t D> struct Format0NameTable {
@@ -185,7 +187,7 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
             if (0 == nameTableSize) {
                 continue;
             }
-            SkAutoTMalloc<uint8_t> nameTableData(nameTableSize);
+            AutoTMalloc<uint8_t> nameTableData(nameTableSize);
             size_t copied = typeface->getTableData(nameTag, 0, nameTableSize, nameTableData.get());
             if (copied != nameTableSize) {
                 continue;

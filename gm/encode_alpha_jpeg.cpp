@@ -21,6 +21,8 @@
 #include "include/private/SkTemplates.h"
 #include "tools/Resources.h"
 
+using namespace skia_private;
+
 namespace skiagm {
 
 static inline void read_into_pixmap(SkPixmap* dst, SkImageInfo dstInfo, void* dstPixels,
@@ -101,7 +103,7 @@ protected:
     }
 
 private:
-    SkAutoTMalloc<uint8_t> fStorage;
+    AutoTMalloc<uint8_t> fStorage;
 
     using INHERITED = GM;
 };

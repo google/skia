@@ -61,6 +61,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 #if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR < 5
     // FIXME (scroggo): Google3 needs to be updated to use a newer version of libpng. In
     // the meantime, we had to break some pieces of SkPngCodec in order to support Google3.
@@ -650,7 +652,7 @@ static void test_dimensions(skiatest::Reporter* r, const char path[]) {
         // Set up for the decode
         size_t rowBytes = scaledDims.width() * sizeof(SkPMColor);
         size_t totalBytes = scaledInfo.computeByteSize(rowBytes);
-        SkAutoTMalloc<SkPMColor> pixels(totalBytes);
+        AutoTMalloc<SkPMColor> pixels(totalBytes);
 
         SkAndroidCodec::AndroidOptions options;
         options.fSampleSize = sampleSize;

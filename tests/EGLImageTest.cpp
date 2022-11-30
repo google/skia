@@ -49,6 +49,8 @@
 #include <memory>
 #include <utility>
 
+using namespace skia_private;
+
 struct GrContextOptions;
 
 using sk_gpu_test::GLTestContext;
@@ -158,7 +160,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest,
     // Populate the texture using GL context 1. Important to use TexSubImage as TexImage orphans
     // the EGL image. Also, this must be done after creating the EGLImage as the texture
     // contents may not be preserved when the image is created.
-    SkAutoTMalloc<uint32_t> pixels(kSize * kSize);
+    AutoTMalloc<uint32_t> pixels(kSize * kSize);
     for (int i = 0; i < kSize*kSize; ++i) {
         pixels.get()[i] = 0xDDAABBCC;
     }

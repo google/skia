@@ -34,6 +34,8 @@
 #include <cstring>
 #include <string>
 
+using namespace skia_private;
+
 class TextBlobTester {
 public:
     // This unit test feeds an SkTextBlobBuilder various runs then checks to see if
@@ -333,7 +335,7 @@ DEF_TEST(TextBlob_extended, reporter) {
     const char text2[] = "Bar";
 
     int glyphCount = font.countText(text1, strlen(text1), SkTextEncoding::kUTF8);
-    SkAutoTMalloc<uint16_t> glyphs(glyphCount);
+    AutoTMalloc<uint16_t> glyphs(glyphCount);
     (void)font.textToGlyphs(text1, strlen(text1), SkTextEncoding::kUTF8, glyphs.get(), glyphCount);
 
     auto run = textBlobBuilder.allocRunText(font, glyphCount, 0, 0, SkToInt(strlen(text2)));

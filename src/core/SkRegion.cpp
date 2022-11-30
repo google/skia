@@ -16,6 +16,8 @@
 #include <algorithm>
 #include <utility>
 
+using namespace skia_private;
+
 /* Region Layout
  *
  *  TOP
@@ -65,7 +67,7 @@ public:
     }
 private:
     SkRegionPriv::RunType fStack[kRunArrayStackCount];
-    SkAutoTMalloc<SkRegionPriv::RunType> fMalloc;
+    AutoTMalloc<SkRegionPriv::RunType> fMalloc;
     int fCount = kRunArrayStackCount;
     SkRegionPriv::RunType* fPtr;  // non-owning pointer
 };

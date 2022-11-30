@@ -16,6 +16,8 @@
 
 #include <dwrite.h>
 
+using namespace skia_private;
+
 ///////////////////////////////////////////////////////////////////////////////
 //  SkIDWriteFontFileStream
 
@@ -205,7 +207,7 @@ SK_STDMETHODIMP SkDWriteFontFileStreamWrapper::ReadFileFragment(
         if (!fStream->seek(static_cast<size_t>(fileOffset))) {
             return E_FAIL;
         }
-        SkAutoTMalloc<uint8_t> streamData(static_cast<size_t>(fragmentSize));
+        AutoTMalloc<uint8_t> streamData(static_cast<size_t>(fragmentSize));
         if (fStream->read(streamData.get(), static_cast<size_t>(fragmentSize)) != fragmentSize) {
             return E_FAIL;
         }

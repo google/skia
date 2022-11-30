@@ -9,6 +9,8 @@
 #include "include/private/SkTemplates.h"
 #include "src/core/SkOpts.h"
 
+using namespace skia_private;
+
 template <typename T>
 class MemsetBench : public Benchmark {
 public:
@@ -24,7 +26,7 @@ public:
 
 private:
     int fN;
-    SkAutoTMalloc<T> fBuffer;
+    AutoTMalloc<T> fBuffer;
     SkString fName;
 };
 

@@ -136,7 +136,7 @@ private:
     Coordinates fVariation;
     int fPaletteIndex = 0;
     int fPaletteEntryOverrideCount = 0;
-    SkAutoTMalloc<SkFontArguments::Palette::Override> fPaletteEntryOverrides;
+    skia_private::AutoTMalloc<SkFontArguments::Palette::Override> fPaletteEntryOverrides;
 };
 
 #endif // SkFontDescriptor_DEFINED

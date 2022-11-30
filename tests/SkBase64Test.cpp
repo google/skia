@@ -13,6 +13,8 @@
 
 #include <cstring>
 
+using namespace skia_private;
+
 DEF_TEST(SkBase64, reporter) {
     char all[256];
     for (int index = 0; index < 255; ++index) {
@@ -25,7 +27,7 @@ DEF_TEST(SkBase64, reporter) {
 
         // Encode
         size_t encodeLength = SkBase64::Encode(all + offset, length, nullptr);
-        SkAutoTMalloc<char> src(encodeLength + 1);
+        AutoTMalloc<char> src(encodeLength + 1);
         SkBase64::Encode(all + offset, length, src.get());
 
         src[SkToInt(encodeLength)] = '\0';
@@ -41,7 +43,7 @@ DEF_TEST(SkBase64, reporter) {
         }
         REPORTER_ASSERT(reporter, decodeLength == length);
 
-        SkAutoTMalloc<char> dst(decodeLength);
+        AutoTMalloc<char> dst(decodeLength);
         err = SkBase64::Decode(src.get(), encodeLength, dst, &decodeLength);
         if (err != SkBase64::kNoError) {
             REPORT_FAILURE(reporter, "err", SkString("SkBase64::Decode failed!"));

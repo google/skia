@@ -58,6 +58,8 @@
 #include "src/utils/win/SkTScopedComPtr.h"
 #include "src/xps/SkXPSDevice.h"
 
+using namespace skia_private;
+
 //Windows defines a FLOAT type,
 //make it clear when converting a scalar that this is what is wanted.
 #define SkScalarToFLOAT(n) SkScalarToFloat(n)
@@ -356,7 +358,7 @@ static HRESULT subset_typeface(const SkXPSDevice::TypefaceUse& current) {
         sk_realloc_throw,
         sk_free,
         nullptr);
-    SkAutoTMalloc<unsigned char> fontPackageBuffer(fontPackageBufferRaw);
+    AutoTMalloc<unsigned char> fontPackageBuffer(fontPackageBufferRaw);
     if (result != NO_ERROR) {
         SkDEBUGF("CreateFontPackage Error %lu", result);
         return E_UNEXPECTED;

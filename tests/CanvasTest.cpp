@@ -50,6 +50,8 @@
 #include <memory>
 #include <utility>
 
+using namespace skia_private;
+
 class SkPicture;
 class SkReadBuffer;
 
@@ -192,7 +194,7 @@ DEF_TEST(CanvasNewRasterTest, reporter) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(10, 10);
     const size_t minRowBytes = info.minRowBytes();
     const size_t size = info.computeByteSize(minRowBytes);
-    SkAutoTMalloc<SkPMColor> storage(size);
+    AutoTMalloc<SkPMColor> storage(size);
     SkPMColor* baseAddr = storage.get();
     sk_bzero(baseAddr, size);
 
