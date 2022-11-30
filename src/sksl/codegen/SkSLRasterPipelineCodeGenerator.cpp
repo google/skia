@@ -26,6 +26,7 @@
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLType.h"
@@ -83,7 +84,8 @@ public:
     /** Appends a statement to the program. */
     bool writeStatement(const Statement& s);
     bool writeBlock(const Block& b);
-    bool writeExpressionStatement(const ExpressionStatement& b);
+    bool writeExpressionStatement(const ExpressionStatement& e);
+    bool writeIfStatement(const IfStatement& i);
     bool writeReturnStatement(const ReturnStatement& r);
     bool writeVarDeclaration(const VarDeclaration& v);
 
@@ -226,6 +228,9 @@ bool Generator::writeStatement(const Statement& s) {
         case Statement::Kind::kExpression:
             return this->writeExpressionStatement(s.as<ExpressionStatement>());
 
+        case Statement::Kind::kIf:
+            return this->writeIfStatement(s.as<IfStatement>());
+
         case Statement::Kind::kNop:
             return true;
 
@@ -255,6 +260,34 @@ bool Generator::writeExpressionStatement(const ExpressionStatement& e) {
         return false;
     }
     this->discardExpression(e.expression()->type().slotCount());
+    return true;
+}
+
+bool Generator::writeIfStatement(const IfStatement& i) {
+    if (!this->pushExpression(*i.test())) {
+        return false;
+    }
+
+    // Apply the test-expression as a condition, then run the if-true branch.
+    fBuilder.push_condition_mask();
+    if (!this->writeStatement(*i.ifTrue())) {
+        return false;
+    }
+    fBuilder.pop_condition_mask();
+
+    if (i.ifFalse()) {
+        // The test condition is still at the top of the stack. Negate it, apply it as a condition
+        // mask again, and run the if-false branch.
+        fBuilder.unary_op(BuilderOp::bitwise_not, /*slots=*/1);
+        fBuilder.push_condition_mask();
+        if (!this->writeStatement(*i.ifFalse())) {
+            return false;
+        }
+        fBuilder.pop_condition_mask();
+    }
+
+    // Jettison the test condition.
+    this->discardExpression(/*slots=*/1);
     return true;
 }
 

@@ -82,7 +82,7 @@ int Program::numTempStackSlots() {
     for (const Instruction& inst : fInstructions) {
         switch (inst.fOp) {
             case BuilderOp::push_literal_f:
-            case BuilderOp::store_condition_mask:
+            case BuilderOp::push_condition_mask:
                 ++current;
                 largest = std::max(current, largest);
                 break;
@@ -97,7 +97,7 @@ int Program::numTempStackSlots() {
                 largest = std::max(current, largest);
                 break;
 
-            case BuilderOp::load_condition_mask:
+            case BuilderOp::pop_condition_mask:
             case ALL_SINGLE_SLOT_BINARY_OP_CASES:
                 current -= 1;
                 break;
@@ -230,12 +230,12 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 tempStackPtr += N * inst.fImmA;
                 break;
 
-            case BuilderOp::store_condition_mask:
-                pipeline->append(SkRP::store_condition_mask, tempStackPtr);
+            case BuilderOp::push_condition_mask:
+                pipeline->append(SkRP::combine_condition_mask, tempStackPtr - N);
                 tempStackPtr += N;
                 break;
 
-            case BuilderOp::load_condition_mask:
+            case BuilderOp::pop_condition_mask:
                 tempStackPtr -= N;
                 pipeline->append(SkRP::load_condition_mask, tempStackPtr);
                 break;
