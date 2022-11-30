@@ -197,8 +197,8 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
             case ALL_BINARY_OP_CASES: {
                 tempStackPtr -= N * inst.fImmA;              // pop the source value
                 float* dst = tempStackPtr - N * inst.fImmA;  // overwrite the dest value
-                pipeline->append_adjacent_math_op(alloc, (SkRP::Stage)inst.fOp,
-                                                  dst, tempStackPtr, inst.fImmA);
+                pipeline->append_adjacent_multi_slot_op(alloc, (SkRP::Stage)inst.fOp,
+                                                        dst, tempStackPtr, inst.fImmA);
                 break;
             }
             case BuilderOp::copy_slot_masked:

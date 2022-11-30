@@ -3073,6 +3073,19 @@ STAGE(copy_4_slots_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
     copy_n_slots_masked_fn<4>(ctx, dr, dg, db);
 }
 
+STAGE(bitwise_and, I32* dst) {
+    dst[0] &= dst[1];
+}
+STAGE(bitwise_or, I32* dst) {
+    dst[0] |= dst[1];
+}
+STAGE(bitwise_xor, I32* dst) {
+    dst[0] ^= dst[1];
+}
+STAGE(bitwise_not, I32* dst) {
+    dst[0] = ~dst[0];
+}
+
 template <typename T, void (*ApplyFn)(T*, T*)>
 SI void apply_to_adjacent(T* dst, T* src) {
     T* end = src;

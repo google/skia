@@ -320,8 +320,11 @@ DEF_TEST(SkRasterPipeline_AddFloats, r) {
         // Run `add_n_floats` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        p.append_adjacent_math_op(&alloc, SkRasterPipeline::Stage::add_n_floats,
-                                  &slots[0], &slots[slotCount * N], slotCount);
+        p.append_adjacent_multi_slot_op(&alloc,
+                                        SkRasterPipeline::Stage::add_n_floats,
+                                        &slots[0],
+                                        &slots[slotCount * N],
+                                        slotCount);
         p.run(0,0,1,1);
 
         // Verify that the affected slots now equal (1,2,3...) + (4,5,6...).
@@ -374,8 +377,8 @@ DEF_TEST(SkRasterPipeline_CompareFloats, r) {
             // Run the comparison op over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            p.append_adjacent_math_op(&alloc, op.stage,
-                                      &slots[0], &slots[slotCount * N], slotCount);
+            p.append_adjacent_multi_slot_op(
+                    &alloc, op.stage, &slots[0], &slots[slotCount * N], slotCount);
             p.run(0, 0, 1, 1);
 
             // Verify that the affected slots now contain "(0,1,2,0...) op (1,2,0,1...)".
@@ -428,8 +431,8 @@ DEF_TEST(SkRasterPipeline_CompareInts, r) {
             // Run the comparison op over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            p.append_adjacent_math_op(&alloc, op.stage,
-                                      (float*)&slots[0], (float*)&slots[slotCount * N], slotCount);
+            p.append_adjacent_multi_slot_op(
+                    &alloc, op.stage, (float*)&slots[0], (float*)&slots[slotCount * N], slotCount);
             p.run(0, 0, 1, 1);
 
             // Verify that the affected slots now contain "(0,1,2,0...) op (1,2,0,1...)".
@@ -452,6 +455,90 @@ DEF_TEST(SkRasterPipeline_CompareInts, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_BinaryBitwiseOps, r) {
+    // Allocate space for 2 slots.
+    alignas(64) int slots[2 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    struct BitwiseOp {
+        SkRasterPipeline::Stage stage;
+        std::function<int(int, int)> verify;
+    };
+
+    static const BitwiseOp kBitwiseOps[] = {
+        {SkRasterPipeline::Stage::bitwise_and, [](int a, int b) { return a & b; }},
+        {SkRasterPipeline::Stage::bitwise_or,  [](int a, int b) { return a | b; }},
+        {SkRasterPipeline::Stage::bitwise_xor, [](int a, int b) { return a ^ b; }},
+    };
+
+    for (const BitwiseOp& op : kBitwiseOps) {
+        // Initialize the slot values to -5,-4,-3,-2...
+        std::iota(&slots[0], &slots[2 * N], -5);
+        int leftValue = slots[0];
+        int rightValue = slots[N];
+
+        // Run the bitwise op over our data.
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        p.append_adjacent_single_slot_op(op.stage, (float*)&slots[0], (float*)&slots[N]);
+        p.run(0, 0, 1, 1);
+
+        // Verify that the destination slots have been updated.
+        int* destPtr = &slots[0];
+        for (int checkSlot = 0; checkSlot < 2; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                if (checkSlot == 0) {
+                    int expected = op.verify(leftValue, rightValue);
+                    REPORTER_ASSERT(r, *destPtr == expected);
+                } else {
+                    REPORTER_ASSERT(r, *destPtr == leftValue);
+                }
+
+                ++destPtr;
+                ++leftValue;
+                ++rightValue;
+            }
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_UnaryBitwiseOps, r) {
+    // Allocate space for 1 slot.
+    alignas(64) int slots[SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    struct BitwiseOp {
+        SkRasterPipeline::Stage stage;
+        std::function<int(int)> verify;
+    };
+
+    static const BitwiseOp kBitwiseOps[] = {
+        {SkRasterPipeline::Stage::bitwise_not, [](int a) { return ~a; }},
+    };
+
+    for (const BitwiseOp& op : kBitwiseOps) {
+        // Initialize the slot values to -3,-2,-1...
+        std::iota(&slots[0], &slots[N], -3);
+        int inputValue = slots[0];
+
+        // Run the bitwise op over our data.
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        p.append(op.stage, &slots[0]);
+        p.run(0, 0, 1, 1);
+
+        // Verify that the destination slots have been updated.
+        int* destPtr = &slots[0];
+        for (int checkLane = 0; checkLane < N; ++checkLane) {
+            int expected = op.verify(inputValue);
+            REPORTER_ASSERT(r, *destPtr == expected);
+
+            ++destPtr;
+            ++inputValue;
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_AddInts, r) {
     // Allocate space for 20 dest slots.
     alignas(64) int slots[20 * SkRasterPipeline_kMaxStride_highp];
@@ -464,8 +551,11 @@ DEF_TEST(SkRasterPipeline_AddInts, r) {
         // Run `add_n_ints` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        p.append_adjacent_math_op(&alloc, SkRasterPipeline::Stage::add_n_ints,
-                                  (float*)&slots[0], (float*)&slots[slotCount * N], slotCount);
+        p.append_adjacent_multi_slot_op(&alloc,
+                                        SkRasterPipeline::Stage::add_n_ints,
+                                        (float*)&slots[0],
+                                        (float*)&slots[slotCount * N],
+                                        slotCount);
         p.run(0,0,1,1);
 
         // Verify that the affected slots now equal (1,2,3...) + (4,5,6...).
