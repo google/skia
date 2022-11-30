@@ -123,24 +123,58 @@ DEF_TEST(SkRasterPipeline_LoadStoreMasked, r) {
 
 DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, r) {
     alignas(64) int32_t val[SkRasterPipeline_kMaxStride_highp] = {};
-    alignas(64) int32_t data[] = {~0, 0, ~0, 0, ~0, ~0, ~0, 0};
-    static_assert(std::size(data) == SkRasterPipeline_kMaxStride_highp);
+    alignas(64) int32_t mask[]  = {~0, 0, ~0,  0, ~0, ~0, ~0,  0};
+    alignas(64) int32_t mask2[] = { 0, 0, ~0, ~0, ~0,  0, ~0, ~0};
+    alignas(64) int32_t combination[2 * SkRasterPipeline_kMaxStride_highp] = {};
+    alignas(64) int32_t dst[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    static_assert(std::size(mask)  == SkRasterPipeline_kMaxStride_highp);
+    static_assert(std::size(mask2) == SkRasterPipeline_kMaxStride_highp);
+
+    std::copy(std::begin(mask2), std::end(mask2), std::begin(combination));
 
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_condition_mask, data);
+    p.append(SkRasterPipeline::init_lane_masks);
+    p.append(SkRasterPipeline::load_condition_mask, mask);
     p.append(SkRasterPipeline::store_condition_mask, val);
+    p.append(SkRasterPipeline::combine_condition_mask, combination);
+    p.append(SkRasterPipeline::store_dst, dst);
     p.run(0,0,1,1);
 
-    // `val` should be populated with `data` in the frontmost positions
-    // (depending on the architecture that SkRasterPipeline is targeting).
-    size_t index = 0;
-    for (; index < SkOpts::raster_pipeline_highp_stride; ++index) {
-        REPORTER_ASSERT(r, val[index] == data[index]);
-    }
+    {
+        // `val` should be populated with `mask` in the frontmost positions
+        // (depending on the architecture that SkRasterPipeline is targeting).
+        size_t index = 0;
+        for (; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+            REPORTER_ASSERT(r, val[index] == mask[index]);
+        }
 
-    // The remaining slots should have been left alone.
-    for (; index < std::size(val); ++index) {
-        REPORTER_ASSERT(r, val[index] == 0);
+        // The remaining slots should have been left alone.
+        for (; index < std::size(val); ++index) {
+            REPORTER_ASSERT(r, val[index] == 0);
+        }
+    }
+    {
+        // `combination` should be populated with `mask2` in the frontmost positions, then `mask` in
+        // the immediately-following positions.
+        size_t index = 0;
+        for (size_t loop = 0; loop < SkOpts::raster_pipeline_highp_stride; ++loop, ++index) {
+            REPORTER_ASSERT(r, combination[index] == mask2[loop]);
+        }
+        for (size_t loop = 0; loop < SkOpts::raster_pipeline_highp_stride; ++loop, ++index) {
+            REPORTER_ASSERT(r, combination[index] == mask[loop]);
+        }
+
+        // The remaining slots should have been left alone.
+        for (; index < std::size(combination); ++index) {
+            REPORTER_ASSERT(r, combination[index] == 0);
+        }
+    }
+    {
+        // `dst` should be populated with `mask & mask2` in the frontmost positions (dr).
+        for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+            REPORTER_ASSERT(r, dst[index] == (mask[index] & mask2[index]));
+        }
+        // The remaining slots are ignored (dg/db/da don't matter here).
     }
 }
 

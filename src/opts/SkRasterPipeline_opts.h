@@ -2999,12 +2999,20 @@ STAGE(store_masked, float* ctx) {
     sk_unaligned_store(ctx, if_then_else(mask, r, sk_unaligned_load<F>(ctx)));
 }
 
-STAGE(load_condition_mask, float* ctx) {
+STAGE(load_condition_mask, F* ctx) {
     dr = sk_unaligned_load<F>(ctx);
 }
 
-STAGE(store_condition_mask, float* ctx) {
+STAGE(store_condition_mask, F* ctx) {
     sk_unaligned_store(ctx, dr);
+}
+
+STAGE(combine_condition_mask, I32* stack) {
+    // Store off the current condition-mask in the following stack slot.
+    stack[1] = sk_bit_cast<I32>(dr);
+
+    // Intersect the current condition-mask with the condition-mask on the stack.
+    dr = sk_bit_cast<F>(stack[0] & stack[1]);
 }
 
 STAGE(immediate_f, void* ctx) {

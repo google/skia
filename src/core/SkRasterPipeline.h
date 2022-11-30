@@ -122,19 +122,19 @@ struct skcms_TransferFunction;
     M(alter_2pt_conical_unswap)                                    \
     M(mask_2pt_conical_nan)                                        \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)           \
-    /* Dedicated SkSL stages begin here: */                        \
-    M(init_lane_masks) M(store_src_rg) M(immediate_f)              \
-    M(load_unmasked) M(store_unmasked) M(store_masked)             \
-    M(load_condition_mask) M(store_condition_mask)                 \
-    M(bitwise_and) M(bitwise_or) M(bitwise_xor) M(bitwise_not)     \
-    M(copy_slot_masked)    M(copy_2_slots_masked)                  \
-    M(copy_3_slots_masked) M(copy_4_slots_masked)                  \
-    M(copy_slot_unmasked)    M(copy_2_slots_unmasked)              \
-    M(copy_3_slots_unmasked) M(copy_4_slots_unmasked)              \
-    M(zero_slot_unmasked)    M(zero_2_slots_unmasked)              \
-    M(zero_3_slots_unmasked) M(zero_4_slots_unmasked)              \
-    M(add_n_floats) M(add_float) M(add_2_floats) M(add_3_floats) M(add_4_floats) \
-    M(add_n_ints)   M(add_int)   M(add_2_ints)   M(add_3_ints)   M(add_4_ints)   \
+    /* Dedicated SkSL stages begin here: */                                                \
+    M(init_lane_masks) M(store_src_rg) M(immediate_f)                                      \
+    M(load_unmasked) M(store_unmasked) M(store_masked)                                     \
+    M(load_condition_mask) M(store_condition_mask) M(combine_condition_mask)               \
+    M(bitwise_and) M(bitwise_or) M(bitwise_xor) M(bitwise_not)                             \
+    M(copy_slot_masked)    M(copy_2_slots_masked)                                          \
+    M(copy_3_slots_masked) M(copy_4_slots_masked)                                          \
+    M(copy_slot_unmasked)    M(copy_2_slots_unmasked)                                      \
+    M(copy_3_slots_unmasked) M(copy_4_slots_unmasked)                                      \
+    M(zero_slot_unmasked)    M(zero_2_slots_unmasked)                                      \
+    M(zero_3_slots_unmasked) M(zero_4_slots_unmasked)                                      \
+    M(add_n_floats) M(add_float) M(add_2_floats) M(add_3_floats) M(add_4_floats)           \
+    M(add_n_ints)   M(add_int)   M(add_2_ints)   M(add_3_ints)   M(add_4_ints)             \
     M(cmplt_n_floats) M(cmplt_float) M(cmplt_2_floats) M(cmplt_3_floats) M(cmplt_4_floats) \
     M(cmplt_n_ints)   M(cmplt_int)   M(cmplt_2_ints)   M(cmplt_3_ints)   M(cmplt_4_ints)   \
     M(cmple_n_floats) M(cmple_float) M(cmple_2_floats) M(cmple_3_floats) M(cmple_4_floats) \
