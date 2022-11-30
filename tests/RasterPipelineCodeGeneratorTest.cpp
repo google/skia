@@ -28,6 +28,7 @@ static void test(skiatest::Reporter* r,
                  std::optional<SkColor4f> color) {
     SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
     SkSL::ProgramSettings settings;
+    settings.fOptimize = false; // TEMP: dead-code elimination will remove test code
     std::unique_ptr<SkSL::Program> program =
             compiler.convertProgram(SkSL::ProgramKind::kFragment, std::string(src), settings);
     if (!program) {
@@ -124,6 +125,11 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorVariableGreenTest, r) {
                  half _1 = 1, _0 = 0;
                  half2 _0_1;
                  _0_1 = half2(_0, _1);
+                 bool lt;
+                 lt = _0 < _1;
+                 bool gt = _1 > _0;
+                 bool match = (lt == gt);
+                 bool mismatch = (_0_1 != half2(_0, _1));
                  return half4(_0, _1, _0_1);
              }
          )__SkSL__",

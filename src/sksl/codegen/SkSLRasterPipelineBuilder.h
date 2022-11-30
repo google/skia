@@ -43,6 +43,7 @@ enum class BuilderOp {
     copy_stack_to_slots_unmasked,
     discard_stack,
     duplicate,
+    unsupported
 };
 
 // Represents a single raster-pipeline SkSL instruction.
