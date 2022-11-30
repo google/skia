@@ -408,7 +408,7 @@ void SkImageShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
         imgData.fTextureProxy = view.refProxy();
     }
 
-    ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, imgData);
+    ImageShaderBlock::BeginBlock(keyContext, builder, gatherer, &imgData);
     builder->endBlock();
 }
 #endif

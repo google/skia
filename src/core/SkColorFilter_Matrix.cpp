@@ -219,7 +219,7 @@ void SkColorFilter_Matrix::addToKey(const skgpu::graphite::KeyContext& keyContex
     MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(fMatrix,
                                                                fDomain == Domain::kHSLA);
 
-    MatrixColorFilterBlock::BeginBlock(keyContext, builder, gatherer, matrixCFData);
+    MatrixColorFilterBlock::BeginBlock(keyContext, builder, gatherer, &matrixCFData);
     builder->endBlock();
 }
 #endif // SK_GRAPHITE_ENABLED

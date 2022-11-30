@@ -324,10 +324,11 @@ ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
 void ImageShaderBlock::BeginBlock(const KeyContext& keyContext,
                                   PaintParamsKeyBuilder* builder,
                                   PipelineDataGatherer* gatherer,
-                                  const ImageData& imgData) {
+                                  const ImageData* imgData) {
+    SkASSERT(!gatherer == !imgData);
 
     // TODO: allow through lazy proxies
-    if (gatherer && !imgData.fTextureProxy) {
+    if (gatherer && !imgData->fTextureProxy) {
         // TODO: At some point the pre-compile path should also be creating a texture
         // proxy (i.e., we can remove the 'pipelineData' in the above test).
         SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, kErrorColor);
@@ -336,11 +337,11 @@ void ImageShaderBlock::BeginBlock(const KeyContext& keyContext,
 
     auto dict = keyContext.dict();
     if (gatherer) {
-        gatherer->add(imgData.fSampling,
-                      imgData.fTileModes,
-                      imgData.fTextureProxy);
+        gatherer->add(imgData->fSampling,
+                      imgData->fTileModes,
+                      imgData->fTextureProxy);
 
-        add_image_uniform_data(dict, imgData, gatherer);
+        add_image_uniform_data(dict, *imgData, gatherer);
     }
 
     builder->beginBlock(SkBuiltInCodeSnippetID::kImageShader);
@@ -423,11 +424,13 @@ void add_matrix_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
 void MatrixColorFilterBlock::BeginBlock(const KeyContext& keyContext,
                                         PaintParamsKeyBuilder* builder,
                                         PipelineDataGatherer* gatherer,
-                                        const MatrixColorFilterData& matrixCFData) {
+                                        const MatrixColorFilterData* matrixCFData) {
+    SkASSERT(!gatherer == !matrixCFData);
+
     auto dict = keyContext.dict();
 
     if (gatherer) {
-        add_matrix_colorfilter_uniform_data(dict, matrixCFData, gatherer);
+        add_matrix_colorfilter_uniform_data(dict, *matrixCFData, gatherer);
     }
 
     builder->beginBlock(SkBuiltInCodeSnippetID::kMatrixColorFilter);
