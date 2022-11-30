@@ -12,6 +12,7 @@
 #include "src/gpu/Swizzle.h"
 #include "tests/Test.h"
 
+#include <cmath>
 #include <numeric>
 
 DEF_TEST(SkRasterPipeline, r) {
@@ -338,6 +339,114 @@ DEF_TEST(SkRasterPipeline_AddFloats, r) {
                 ++destPtr;
                 leftValue += 1.0f;
                 rightValue += 1.0f;
+            }
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_CompareFloats, r) {
+    // Allocate space for 20 dest slots.
+    alignas(64) float slots[20 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    struct CompareOp {
+        SkRasterPipeline::Stage stage;
+        std::function<bool(float, float)> verify;
+    };
+
+    static const CompareOp kCompareOps[] = {
+        {SkRasterPipeline::Stage::cmpeq_n_floats, [](float a, float b) { return a == b; }},
+        {SkRasterPipeline::Stage::cmpne_n_floats, [](float a, float b) { return a != b; }},
+        {SkRasterPipeline::Stage::cmplt_n_floats, [](float a, float b) { return a <  b; }},
+        {SkRasterPipeline::Stage::cmple_n_floats, [](float a, float b) { return a <= b; }},
+    };
+
+    for (const CompareOp& op : kCompareOps) {
+        for (int slotCount = 0; slotCount < 10; ++slotCount) {
+            // Initialize the slot values to 0,1,2,0,1,2,0,1,2...
+            for (int index = 0; index < 20 * N; ++index) {
+                slots[index] = std::fmod(index, 3.0f);
+            }
+
+            float leftValue = slots[0];
+            float rightValue = slots[slotCount * N];
+
+            // Run the comparison op over our data.
+            SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+            SkRasterPipeline p(&alloc);
+            p.append_adjacent_math_op(&alloc, op.stage,
+                                      &slots[0], &slots[slotCount * N], slotCount);
+            p.run(0, 0, 1, 1);
+
+            // Verify that the affected slots now contain "(0,1,2,0...) op (1,2,0,1...)".
+            float* destPtr = &slots[0];
+            for (int checkSlot = 0; checkSlot < 20; ++checkSlot) {
+                for (int checkLane = 0; checkLane < N; ++checkLane) {
+                    if (checkSlot < slotCount) {
+                        bool compareIsTrue = op.verify(leftValue, rightValue);
+                        REPORTER_ASSERT(r, *(int*)destPtr == (compareIsTrue ? ~0 : 0));
+                    } else {
+                        REPORTER_ASSERT(r, *destPtr == leftValue);
+                    }
+
+                    ++destPtr;
+                    leftValue = std::fmod(leftValue + 1.0f, 3.0f);
+                    rightValue = std::fmod(rightValue + 1.0f, 3.0f);
+                }
+            }
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_CompareInts, r) {
+    // Allocate space for 20 dest slots.
+    alignas(64) int slots[20 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    struct CompareOp {
+        SkRasterPipeline::Stage stage;
+        std::function<bool(int, int)> verify;
+    };
+
+    static const CompareOp kCompareOps[] = {
+        {SkRasterPipeline::Stage::cmpeq_n_ints, [](int a, int b) { return a == b; }},
+        {SkRasterPipeline::Stage::cmpne_n_ints, [](int a, int b) { return a != b; }},
+        {SkRasterPipeline::Stage::cmplt_n_ints, [](int a, int b) { return a <  b; }},
+        {SkRasterPipeline::Stage::cmple_n_ints, [](int a, int b) { return a <= b; }},
+    };
+
+    for (const CompareOp& op : kCompareOps) {
+        for (int slotCount = 0; slotCount < 10; ++slotCount) {
+            // Initialize the slot values to 0,1,2,0,1,2,0,1,2...
+            for (int index = 0; index < 20 * N; ++index) {
+                slots[index] = index % 3;
+            }
+
+            int leftValue = slots[0];
+            int rightValue = slots[slotCount * N];
+
+            // Run the comparison op over our data.
+            SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+            SkRasterPipeline p(&alloc);
+            p.append_adjacent_math_op(&alloc, op.stage,
+                                      (float*)&slots[0], (float*)&slots[slotCount * N], slotCount);
+            p.run(0, 0, 1, 1);
+
+            // Verify that the affected slots now contain "(0,1,2,0...) op (1,2,0,1...)".
+            int* destPtr = &slots[0];
+            for (int checkSlot = 0; checkSlot < 20; ++checkSlot) {
+                for (int checkLane = 0; checkLane < N; ++checkLane) {
+                    if (checkSlot < slotCount) {
+                        bool compareIsTrue = op.verify(leftValue, rightValue);
+                        REPORTER_ASSERT(r, *destPtr == (compareIsTrue ? ~0 : 0));
+                    } else {
+                        REPORTER_ASSERT(r, *destPtr == leftValue);
+                    }
+
+                    ++destPtr;
+                    leftValue = (leftValue + 1) % 3;
+                    rightValue = (rightValue + 1) % 3;
+                }
             }
         }
     }
