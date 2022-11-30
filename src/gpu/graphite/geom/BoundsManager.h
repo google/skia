@@ -221,7 +221,7 @@ private:
     const int   fGridWidth;
     const int   fGridHeight;
 
-    SkAutoTMalloc<CompressedPaintersOrder> fNodes;
+    skia::internal::SkAutoTMalloc<CompressedPaintersOrder> fNodes;
 };
 
 // A BoundsManager that first relies on BruteForceBoundsManager for N draw calls, and then switches

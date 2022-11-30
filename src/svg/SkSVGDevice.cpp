@@ -60,6 +60,8 @@
 #include <string>
 #include <utility>
 
+using namespace skia::internal;
+
 #if SK_SUPPORT_GPU
 class SkMesh;
 #endif

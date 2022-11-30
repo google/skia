@@ -31,6 +31,8 @@ static DEFINE_double(frame, 1.0,
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/gl/GLTestContext.h"
 
+using namespace skia::internal;
+
 // Globals externed in fiddle_main.h
 GrBackendTexture backEndTexture;
 GrBackendRenderTarget backEndRenderTarget;

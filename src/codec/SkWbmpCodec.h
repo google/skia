@@ -60,7 +60,7 @@ private:
 
     // Used for scanline decodes:
     std::unique_ptr<SkSwizzler> fSwizzler;
-    SkAutoTMalloc<uint8_t>      fSrcBuffer;
+    skia::internal::SkAutoTMalloc<uint8_t>      fSrcBuffer;
 
     int onGetScanlines(void* dst, int count, size_t dstRowBytes) override;
     bool onSkipScanlines(int count) override;

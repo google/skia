@@ -12,6 +12,8 @@
 #include "include/utils/SkRandom.h"
 #include "src/core/SkRTree.h"
 
+using namespace skia::internal;
+
 // confine rectangles to a smallish area, so queries generally hit something, and overlap occurs:
 static const SkScalar GENERATE_EXTENTS = 1000.0f;
 static const int NUM_BUILD_RECTS = 500;

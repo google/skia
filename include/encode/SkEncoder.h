@@ -53,7 +53,7 @@ protected:
 
     const SkPixmap&        fSrc;
     int                    fCurrRow;
-    SkAutoTMalloc<uint8_t> fStorage;
+    skia::internal::SkAutoTMalloc<uint8_t> fStorage;
 };
 
 #endif

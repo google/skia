@@ -49,6 +49,8 @@
 #include <memory>
 #include <utility>
 
+using namespace skia::internal;
+
 struct GrContextOptions;
 
 using sk_gpu_test::GLTestContext;

@@ -251,7 +251,7 @@ private:
     size_t fCapacity;                  // Number of bytes we can write to fData.
     size_t fUsed;                      // Number of bytes written.
     void* fExternal;                   // Unmanaged memory block.
-    SkAutoTMalloc<uint8_t> fInternal;  // Managed memory block.
+    skia::internal::SkAutoTMalloc<uint8_t> fInternal;  // Managed memory block.
 };
 
 /**

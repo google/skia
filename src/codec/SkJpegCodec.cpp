@@ -34,6 +34,8 @@
 #include <cstring>
 #include <utility>
 
+using namespace skia::internal;
+
 class SkSampler;
 
 // This warning triggers false postives way too often in here.

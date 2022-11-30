@@ -11,6 +11,8 @@
 #include <cstddef>
 #include <utility>
 
+using namespace skia::internal;
+
 // Tests for some of the helpers in SkTemplates.h
 static void test_automalloc_realloc(skiatest::Reporter* reporter) {
     SkAutoSTMalloc<1, int> array;

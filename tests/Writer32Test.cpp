@@ -22,6 +22,8 @@
 #include <cstdint>
 #include <cstring>
 
+using namespace skia::internal;
+
 static void check_contents(skiatest::Reporter* reporter, const SkWriter32& writer,
                            const void* expected, size_t size) {
     SkAutoSMalloc<256> storage(size);

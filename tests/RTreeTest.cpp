@@ -16,6 +16,8 @@
 #include <cstddef>
 #include <vector>
 
+using namespace skia::internal;
+
 static const int NUM_RECTS = 200;
 static const size_t NUM_ITERATIONS = 100;
 static const size_t NUM_QUERIES = 50;

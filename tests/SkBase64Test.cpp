@@ -13,6 +13,8 @@
 
 #include <cstring>
 
+using namespace skia::internal;
+
 DEF_TEST(SkBase64, reporter) {
     char all[256];
     for (int index = 0; index < 255; ++index) {
