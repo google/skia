@@ -81,12 +81,10 @@ private:
     void optimize();
     int numValueSlots();
     int numTempStackSlots();
-    int numConditionMaskSlots();
 
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;
     int fNumTempStackSlots = 0;
-    int fNumConditionMaskSlots = 0;
 };
 
 class Builder {

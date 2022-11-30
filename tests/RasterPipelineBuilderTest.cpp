@@ -176,6 +176,8 @@ DEF_TEST(RasterPipelineBuilderLoadStoreAccumulator, r) {
 DEF_TEST(RasterPipelineBuilderPushPopConditionMask, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
+    builder.push_literal_f(0);     // push into 98 with a temp
+    builder.push_literal_f(0);     // push into 99 with a temp
     builder.push_condition_mask(); // push into 100
     builder.push_condition_mask(); // push into 101
     builder.push_condition_mask(); // push into 102
@@ -186,8 +188,6 @@ DEF_TEST(RasterPipelineBuilderPushPopConditionMask, r) {
     builder.pop_condition_mask();  // pop  from 100
     builder.push_condition_mask(); // push into 100
     builder.pop_condition_mask();  // pop  from 100
-    builder.push_literal_f(0);     // reserve slot 98 for the temp stack
-    builder.push_literal_f(0);     //  "        "  99  "   "   "      "
     builder.discard_stack(2);      // balance temp stack
     builder.store_unmasked(0);     // make it easy to find the first slot
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/98);
@@ -207,6 +207,46 @@ DEF_TEST(RasterPipelineBuilderPushPopConditionMask, r) {
     REPORTER_ASSERT(r, stages->ctx == slot0 + (0 * N));
     stages = stages->prev;
 
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (100 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_condition_mask);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (100 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (100 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (101 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (102 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_condition_mask);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (102 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (102 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_condition_mask);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (102 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_condition_mask);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (101 * N));
+    stages = stages->prev;
+
+    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_condition_mask);
+    REPORTER_ASSERT(r, stages->ctx == slot0 + (100 * N));
+    stages = stages->prev;
+
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::zero_slot_unmasked);
     REPORTER_ASSERT(r, stages->ctx == slot0 + (99 * N));
     stages = stages->prev;
@@ -214,45 +254,6 @@ DEF_TEST(RasterPipelineBuilderPushPopConditionMask, r) {
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::zero_slot_unmasked);
     REPORTER_ASSERT(r, stages->ctx == slot0 + (98 * N));
     stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (100 * N));
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_condition_mask);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (100 * N));
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (100 * N));
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (101 * N));
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (102 * N));
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_condition_mask);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (102 * N));
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_condition_mask);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (102 * N));
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_condition_mask);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (102 * N));
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_condition_mask);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (101 * N));
-    stages = stages->prev;
-
-    REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_condition_mask);
-    REPORTER_ASSERT(r, stages->ctx == slot0 + (100 * N));
 }
 
 DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
