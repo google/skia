@@ -298,10 +298,15 @@ bool Generator::pushExpression(const Expression& e) {
 
 void Generator::add(SkSL::Type::NumberKind numberKind, int slots) {
     switch (numberKind) {
-        case Type::NumberKind::kFloat:    fBuilder.add_floats(slots); return;
+        case Type::NumberKind::kFloat:
+            fBuilder.binary_op(BuilderOp::add_n_floats, slots);
+            return;
         case Type::NumberKind::kSigned:
-        case Type::NumberKind::kUnsigned: fBuilder.add_ints(slots); return;
-        default:                          SkUNREACHABLE;
+        case Type::NumberKind::kUnsigned:
+            fBuilder.binary_op(BuilderOp::add_n_ints, slots);
+            return;
+        default:
+            SkUNREACHABLE;
     }
 }
 
