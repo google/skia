@@ -451,3 +451,37 @@ func setupMockGit(t *testing.T, repoState types.RepoState) (*gerrit_testutils.Mo
 	mockGitiles := gitiles.NewRepo(gitBuilder.RepoUrl(), urlMock.Client())
 	return mockGerrit, mockGitiles, repoState
 }
+
+func TestParseBloatyDiffOutput(t *testing.T) {
+	tests := []struct {
+		desc             string
+		bloatyDiff       string
+		expectedVMDiff   string
+		expectedFileDiff string
+	}{
+		{
+			desc:             "empty diff",
+			bloatyDiff:       "",
+			expectedVMDiff:   "",
+			expectedFileDiff: "",
+		},
+		{
+			desc:             "well-formed diff",
+			bloatyDiff:       "test\n\test\n+0.0% +832 TOTAL +848 +0.0%\n\n",
+			expectedVMDiff:   "+832",
+			expectedFileDiff: "+848",
+		},
+		{
+			desc:             "malformed diff",
+			bloatyDiff:       "test\n\test\ntest\n",
+			expectedVMDiff:   "",
+			expectedFileDiff: "",
+		},
+	}
+
+	for _, test := range tests {
+		actualVMDiff, actualFileDiff := parseBloatyDiffOutput(test.bloatyDiff)
+		assert.Equal(t, test.expectedVMDiff, actualVMDiff, test.desc)
+		assert.Equal(t, test.expectedFileDiff, actualFileDiff, test.desc)
+	}
+}

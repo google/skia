@@ -25,6 +25,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -284,10 +285,17 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	if err = uploadFileToGCS(ctx, args.codesizeGCS, fmt.Sprintf("%s/%s.tsv", gcsDir, args.binaryName), []byte(bloatyOutput)); err != nil {
 		return skerr.Wrap(err)
 	}
-
 	if args.repoState.IsTryJob() {
-		// Add diff results to the step data. This is consumed by the codesize plugin to display
-		// results on the Gerrit CL for tryjob runs.
+		// Add VM and file diff results to the step data. This is consumed by the codesize plugin
+		// to display results on the Gerrit CL for tryjob runs.
+		vmDiff, fileDiff := parseBloatyDiffOutput(bloatyDiffOutput)
+		if vmDiff != "" && fileDiff != "" {
+			td.StepText(ctx, "VM Diff", vmDiff)
+			td.StepText(ctx, "File Diff", fileDiff)
+		}
+
+		// TODO(rmistry): Remove the below "Diff Bytes" section after the above
+		// works and is integrated with the codesize plugin.
 		s, err := os_steps.Stat(ctx, filepath.Join("build", args.binaryName+"_stripped"))
 		if err != nil {
 			return err
@@ -321,6 +329,26 @@ func runSteps(ctx context.Context, args runStepsArgs) error {
 	}
 
 	return nil
+}
+
+// parseBloatyDiffOutput parses bloaty output and returns the VM diff
+// and the file diff strings.
+// Example: for "...\n...\n+0.0% +832 TOTAL +848Ki +0.0%\n\n" we return
+// (+832, +848Ki).
+// If the output is not in expected format then we return empty strings.
+func parseBloatyDiffOutput(bloatyDiffOutput string) (string, string) {
+	tokens := strings.Split(strings.Trim(bloatyDiffOutput, "\n"), "\n")
+	if len(tokens) > 0 {
+		// Final line in bloaty output is the line with the results.
+		outputLine := tokens[len(tokens)-1]
+		words := strings.Fields(outputLine)
+		// Format is expected to look like this:
+		// +0.0% +832 TOTAL +848 +0.0%
+		if len(words) == 5 {
+			return words[1], words[3]
+		}
+	}
+	return "", ""
 }
 
 // runBloaty runs Bloaty against the given binary and returns the Bloaty output in TSV format and
