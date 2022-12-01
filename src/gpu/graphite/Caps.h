@@ -138,6 +138,9 @@ public:
     // correct results.
     bool storageBufferPreferred() const { return fStorageBufferPreferred; }
 
+    // Returns whether a draw buffer can be mapped.
+    bool drawBufferCanBeMapped() const { return fDrawBufferCanBeMapped; }
+
     // Returns the skgpu::Swizzle to use when sampling or reading back from a texture with the
     // passed in SkColorType and TextureInfo.
     skgpu::Swizzle getReadSwizzle(SkColorType, const TextureInfo&) const;
@@ -217,6 +220,7 @@ protected:
     bool fProtectedSupport = false;
     bool fStorageBufferSupport = false;
     bool fStorageBufferPreferred = false;
+    bool fDrawBufferCanBeMapped = true;
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Client-provided Caps

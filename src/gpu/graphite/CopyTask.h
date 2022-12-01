@@ -19,6 +19,25 @@ class CommandBuffer;
 class Texture;
 class TextureProxy;
 
+class CopyBufferToBufferTask final : public Task {
+public:
+    static sk_sp<CopyBufferToBufferTask> Make(sk_sp<Buffer> srcBuffer,
+                                              sk_sp<Buffer> dstBuffer);
+
+    ~CopyBufferToBufferTask() override;
+
+    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override;
+
+    bool addCommands(ResourceProvider*, CommandBuffer*) override;
+
+private:
+    CopyBufferToBufferTask(sk_sp<Buffer> srcBuffer,
+                           sk_sp<Buffer> dstBuffer);
+
+    sk_sp<Buffer> fSrcBuffer;
+    sk_sp<Buffer> fDstBuffer;
+};
+
 class CopyTextureToBufferTask final : public Task {
 public:
     static sk_sp<CopyTextureToBufferTask> Make(sk_sp<TextureProxy>,

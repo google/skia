@@ -15,6 +15,30 @@
 
 namespace skgpu::graphite {
 
+sk_sp<CopyBufferToBufferTask> CopyBufferToBufferTask::Make(sk_sp<Buffer> srcBuffer,
+                                                           sk_sp<Buffer> dstBuffer) {
+    SkASSERT(srcBuffer);
+    SkASSERT(dstBuffer);
+    SkASSERT(srcBuffer->size() == dstBuffer->size());
+    return sk_sp<CopyBufferToBufferTask>(new CopyBufferToBufferTask(std::move(srcBuffer),
+                                                                    std::move(dstBuffer)));
+}
+
+CopyBufferToBufferTask::CopyBufferToBufferTask(sk_sp<Buffer> srcBuffer,
+                                               sk_sp<Buffer> dstBuffer)
+        : fSrcBuffer(std::move(srcBuffer))
+        , fDstBuffer(std::move(dstBuffer)) {}
+
+CopyBufferToBufferTask::~CopyBufferToBufferTask() = default;
+
+bool CopyBufferToBufferTask::prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) {
+    return true;
+}
+
+bool CopyBufferToBufferTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
+    return commandBuffer->copyBufferToBuffer(fSrcBuffer, 0, fDstBuffer, 0, fDstBuffer->size());
+}
+
 sk_sp<CopyTextureToBufferTask> CopyTextureToBufferTask::Make(sk_sp<TextureProxy> textureProxy,
                                                              SkIRect srcRect,
                                                              sk_sp<Buffer> buffer,

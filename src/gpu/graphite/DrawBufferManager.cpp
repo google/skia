@@ -9,8 +9,11 @@
 
 #include "include/gpu/graphite/Recording.h"
 #include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/CopyTask.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/SharedContext.h"
 
 namespace skgpu::graphite {
 
@@ -21,13 +24,6 @@ static constexpr size_t kVertexBufferSize = 128 << 10; // 16 KB
 static constexpr size_t kIndexBufferSize =   2 << 10; //  2 KB
 static constexpr size_t kUniformBufferSize = 2 << 10; //  2 KB
 static constexpr size_t kStorageBufferSize = 2 << 10; //  2 KB
-
-void* map_offset(BindBufferInfo binding) {
-    // DrawBufferManager owns the Buffer, and this is only ever called when we know
-    // it's okay to remove 'const' from the Buffer*
-    return SkTAddOffset<void>(const_cast<Buffer*>(binding.fBuffer)->map(),
-                              static_cast<ptrdiff_t>(binding.fOffset));
-}
 
 size_t sufficient_block_size(size_t requiredBytes, size_t blockSize) {
     // Always request a buffer at least 'requiredBytes', but keep them in multiples of
@@ -56,7 +52,7 @@ DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider,
         : fResourceProvider(resourceProvider)
         , fCurrentBuffers{{
                 { BufferType::kVertex,  /*fStartAlignment=*/4, kVertexBufferSize  },
-                { BufferType::kIndex,   /*fStartAlignment=*/1, kIndexBufferSize   },
+                { BufferType::kIndex,   /*fStartAlignment=*/4, kIndexBufferSize   },
                 { BufferType::kUniform, uniformStartAlignment, kUniformBufferSize },
                 { BufferType::kStorage, ssboStartAlignment,    kStorageBufferSize } }} {}
 
@@ -67,12 +63,13 @@ std::tuple<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size
         return {};
     }
 
-    auto bindInfo = this->prepareBindBuffer(&fCurrentBuffers[kVertexBufferIndex], requiredBytes);
-    if (!bindInfo) {
+    auto& info = fCurrentBuffers[kVertexBufferIndex];
+    auto [ptr, bindInfo] = this->prepareBindBuffer(&info, requiredBytes);
+    if (!ptr) {
         return {};
     }
 
-    return {VertexWriter(map_offset(*bindInfo), requiredBytes), *bindInfo};
+    return {VertexWriter(ptr, requiredBytes), bindInfo};
 }
 
 void DrawBufferManager::returnVertexBytes(size_t unusedBytes) {
@@ -85,12 +82,13 @@ std::tuple<IndexWriter, BindBufferInfo> DrawBufferManager::getIndexWriter(size_t
         return {};
     }
 
-    auto bindInfo = this->prepareBindBuffer(&fCurrentBuffers[kIndexBufferIndex], requiredBytes);
-    if (!bindInfo) {
+    auto& info = fCurrentBuffers[kIndexBufferIndex];
+    auto [ptr, bindInfo] = this->prepareBindBuffer(&info, requiredBytes);
+    if (!ptr) {
         return {};
     }
 
-    return {IndexWriter(map_offset(*bindInfo), requiredBytes), *bindInfo};
+    return {IndexWriter(ptr, requiredBytes), bindInfo};
 }
 
 std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(
@@ -99,12 +97,13 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(
         return {};
     }
 
-    auto bindInfo = this->prepareBindBuffer(&fCurrentBuffers[kUniformBufferIndex], requiredBytes);
-    if (!bindInfo) {
+    auto& info = fCurrentBuffers[kUniformBufferIndex];
+    auto [ptr, bindInfo] = this->prepareBindBuffer(&info, requiredBytes);
+    if (!ptr) {
         return {};
     }
 
-    return {UniformWriter(map_offset(*bindInfo), requiredBytes), *bindInfo};
+    return {UniformWriter(ptr, requiredBytes), bindInfo};
 }
 
 std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_t requiredBytes) {
@@ -112,12 +111,12 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_
         return {};
     }
 
-    auto bindInfo = this->prepareBindBuffer(&fCurrentBuffers[kStorageBufferIndex], requiredBytes);
-    if (!bindInfo) {
+    auto& info = fCurrentBuffers[kStorageBufferIndex];
+    auto [ptr, bindInfo] = this->prepareBindBuffer(&info, requiredBytes);
+    if (!ptr) {
         return {};
     }
-
-    return {UniformWriter(map_offset(*bindInfo), requiredBytes), *bindInfo};
+    return {UniformWriter(ptr, requiredBytes), bindInfo};
 }
 
 BindBufferInfo DrawBufferManager::getStaticBuffer(BufferType type,
@@ -148,9 +147,19 @@ BindBufferInfo DrawBufferManager::getStaticBuffer(BufferType type,
 }
 
 void DrawBufferManager::transferToRecording(Recording* recording) {
-    for (auto& buffer : fUsedBuffers) {
-        buffer->unmap();
-        recording->priv().addResourceRef(std::move(buffer));
+    bool useTransferBuffer = !fResourceProvider->sharedContext()->caps()->drawBufferCanBeMapped();
+    for (auto& [buffer, transferBuffer] : fUsedBuffers) {
+        if (useTransferBuffer) {
+            if (transferBuffer) {
+                SkASSERT(buffer);
+                transferBuffer->unmap();
+                recording->priv().addTask(CopyBufferToBufferTask::Make(std::move(transferBuffer),
+                                                                       std::move(buffer)));
+            }
+        } else {
+           buffer->unmap();
+           recording->priv().addResourceRef(std::move(buffer));
+        }
     }
     fUsedBuffers.clear();
 
@@ -160,8 +169,18 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
         if (!info.fBuffer) {
             continue;
         }
-        info.fBuffer->unmap();
-        recording->priv().addResourceRef(std::move(info.fBuffer));
+        if (useTransferBuffer) {
+            if (info.fTransferBuffer) {
+                info.fTransferBuffer->unmap();
+                SkASSERT(info.fBuffer);
+                recording->priv().addTask(CopyBufferToBufferTask::Make(
+                        std::move(info.fTransferBuffer), info.fBuffer));
+            }
+        } else {
+            info.fBuffer->unmap();
+            recording->priv().addResourceRef(std::move(info.fBuffer));
+        }
+        info.fOffset = 0;
     }
 
     // Assume all static buffers were used, but don't lose our ref
@@ -173,14 +192,17 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
     }
 }
 
-std::optional<BindBufferInfo> DrawBufferManager::prepareBindBuffer(BufferInfo* info,
+std::pair<void*, BindBufferInfo> DrawBufferManager::prepareBindBuffer(BufferInfo* info,
                                                                    size_t requiredBytes) {
     SkASSERT(info);
     SkASSERT(requiredBytes);
 
+    bool useTransferBuffer = !fResourceProvider->sharedContext()->caps()->drawBufferCanBeMapped();
+
     if (info->fBuffer &&
         !can_fit(requiredBytes, info->fBuffer.get(), info->fOffset, info->fStartAlignment)) {
-        fUsedBuffers.push_back(std::move(info->fBuffer));
+        SkASSERT(!info->fTransferBuffer || info->fBuffer->size() == info->fTransferBuffer->size());
+        fUsedBuffers.emplace_back(std::move(info->fBuffer), std::move(info->fTransferBuffer));
     }
 
     if (!info->fBuffer) {
@@ -188,10 +210,22 @@ std::optional<BindBufferInfo> DrawBufferManager::prepareBindBuffer(BufferInfo* i
         info->fBuffer = fResourceProvider->findOrCreateBuffer(
                 bufferSize,
                 info->fType,
-                PrioritizeGpuReads::kNo);
+                useTransferBuffer ? PrioritizeGpuReads::kYes : PrioritizeGpuReads::kNo);
         info->fOffset = 0;
         if (!info->fBuffer) {
-            return {};
+            return {nullptr, {}};
+        }
+    }
+
+    if (useTransferBuffer && !info->fTransferBuffer) {
+        info->fTransferBuffer = fResourceProvider->findOrCreateBuffer(
+                info->fBuffer->size(),
+                BufferType::kXferCpuToGpu,
+                PrioritizeGpuReads::kNo);
+        SkASSERT(info->fBuffer->size() == info->fTransferBuffer->size());
+        SkASSERT(info->fOffset == 0);
+        if (!info->fTransferBuffer) {
+            return {nullptr, {}};
         }
     }
 
@@ -201,7 +235,9 @@ std::optional<BindBufferInfo> DrawBufferManager::prepareBindBuffer(BufferInfo* i
     bindInfo.fOffset = info->fOffset;
     info->fOffset += requiredBytes;
 
-    return {bindInfo};
+    void* ptr = SkTAddOffset<void>(info->getMappableBuffer()->map(),
+                                   static_cast<ptrdiff_t>(bindInfo.fOffset));
+    return {ptr, bindInfo};
 }
 
 } // namespace skgpu::graphite

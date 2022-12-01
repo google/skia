@@ -12,6 +12,8 @@
 
 namespace skgpu::graphite {
 
+class Task;
+
 class RecordingPriv {
 public:
     bool hasVolatileLazyProxies() const;
@@ -28,7 +30,7 @@ public:
 
     bool addCommands(ResourceProvider*, CommandBuffer*);
     void addResourceRef(sk_sp<Resource> resource);
-
+    void addTask(sk_sp<Task> task);
 
 private:
     explicit RecordingPriv(Recording* recorder) : fRecording(recorder) {}

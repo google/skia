@@ -99,4 +99,9 @@ void RecordingPriv::addResourceRef(sk_sp<Resource> resource) {
     fRecording->fExtraResourceRefs.push_back(std::move(resource));
 }
 
+void RecordingPriv::addTask(sk_sp<Task> task) {
+    fRecording->fGraph->prepend(std::move(task));
+}
+
+
 } // namespace skgpu::graphite
