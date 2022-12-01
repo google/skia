@@ -139,8 +139,9 @@ DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, r) {
     p.append(SkRasterPipeline::load_condition_mask, mask);
     p.append(SkRasterPipeline::store_condition_mask, val);
     p.append(SkRasterPipeline::combine_condition_mask, combination);
+    p.append(SkRasterPipeline::update_return_mask);
     p.append(SkRasterPipeline::store_dst, dst);
-    p.run(0,0,1,1);
+    p.run(0,0,SkOpts::raster_pipeline_highp_stride,1);
 
     {
         // `val` should be populated with `mask` in the frontmost positions
@@ -172,11 +173,22 @@ DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, r) {
         }
     }
     {
-        // `dst` should be populated with `mask & mask2` in the frontmost positions (dr).
+        // `dr` (dst channel zero) should be populated with `mask & mask2`.
+        const int dr = 0 * SkOpts::raster_pipeline_highp_stride;
         for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
-            REPORTER_ASSERT(r, dst[index] == (mask[index] & mask2[index]));
+            REPORTER_ASSERT(r, dst[dr + index] == (mask[index] & mask2[index]));
         }
-        // The remaining slots are ignored (dg/db/da don't matter here).
+        // `dg` (dst channel one) isn't used in this test and is ignored.
+        // `db` (dst channel two) should be populated with the opposite of `dr`.
+        const int db = 2 * SkOpts::raster_pipeline_highp_stride;
+        for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+            REPORTER_ASSERT(r, dst[db + index] == ~(mask[index] & mask2[index]));
+        }
+        // `da` (dst channel three) should be zero.
+        const int da = 3 * SkOpts::raster_pipeline_highp_stride;
+        for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+            REPORTER_ASSERT(r, dst[da + index] == 0);
+        }
     }
 }
 
@@ -202,7 +214,7 @@ DEF_TEST(SkRasterPipeline_InitLaneMasks, r) {
         // Execute our program.
         p.run(0,0,width,1);
 
-        // Initialized data should look like on/on/on/off (RGB are set, A is ignored) and is
+        // Initialized data should look like on/on/on/on (RGBA are all set) and is
         // striped by the raster pipeline stride because we wrote it using store_dst.
         size_t index = 0;
         int32_t* channelR = dRGBA;
@@ -213,7 +225,7 @@ DEF_TEST(SkRasterPipeline_InitLaneMasks, r) {
             REPORTER_ASSERT(r, *channelR++ == ~0);
             REPORTER_ASSERT(r, *channelG++ == ~0);
             REPORTER_ASSERT(r, *channelB++ == ~0);
-            REPORTER_ASSERT(r, *channelA++ ==  0);
+            REPORTER_ASSERT(r, *channelA++ == ~0);
         }
 
         // The rest of the output array should be untouched (all zero).
