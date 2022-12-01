@@ -50,7 +50,7 @@ SkGradientShaderBase::Descriptor::Descriptor() {
 }
 SkGradientShaderBase::Descriptor::~Descriptor() = default;
 
-void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
+void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
     uint32_t flags = 0;
     if (fPositions) {
         flags |= kHasPosition_GSF;
@@ -216,18 +216,6 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
 }
 
 SkGradientShaderBase::~SkGradientShaderBase() {}
-
-void SkGradientShaderBase::flatten(SkWriteBuffer& buffer) const {
-    Descriptor desc;
-    desc.fColors = fColors;
-    desc.fColorSpace = fColorSpace;
-    desc.fPositions = fPositions;
-    desc.fColorCount = fColorCount;
-    desc.fTileMode = fTileMode;
-    desc.fInterpolation = fInterpolation;
-
-    desc.flatten(buffer);
-}
 
 static void add_stop_color(SkRasterPipeline_GradientCtx* ctx, size_t stop,
                            SkPMColor4f Fs, SkPMColor4f Bs) {

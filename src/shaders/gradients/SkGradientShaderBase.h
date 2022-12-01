@@ -43,8 +43,6 @@ public:
         int                 fColorCount;  // length of fColors (and fPositions, if not nullptr)
         SkTileMode          fTileMode;
         Interpolation       fInterpolation;
-
-        void flatten(SkWriteBuffer&) const;
     };
 
     class DescriptorScope : public Descriptor {
