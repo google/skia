@@ -149,7 +149,7 @@ func main() {
 	defer td.EndRun(ctx)
 
 	// Setup.
-	client, err := auth_steps.InitHttpClient(ctx, *local, gerrit.AuthScope)
+	client, _, err := auth_steps.InitHttpClient(ctx, *local, gerrit.AuthScope)
 	if err != nil {
 		td.Fatal(ctx, err)
 	}

@@ -117,7 +117,7 @@ func main() {
 	}
 
 	// Make an HTTP client with the required permissions to hit GCS, Gerrit and Gitiles.
-	httpClient, err := auth_steps.InitHttpClient(ctx, *local, auth.ScopeReadWrite, gerrit.AuthScope, auth.ScopeUserinfoEmail)
+	httpClient, _, err := auth_steps.InitHttpClient(ctx, *local, auth.ScopeReadWrite, gerrit.AuthScope, auth.ScopeUserinfoEmail)
 	if err != nil {
 		td.Fatal(ctx, skerr.Wrap(err))
 	}
