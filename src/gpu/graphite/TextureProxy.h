@@ -33,16 +33,22 @@ public:
     int numSamples() const { return fInfo.numSamples(); }
     Mipmapped mipmapped() const { return fInfo.mipmapped(); }
 
-    SkISize dimensions() const { return fDimensions; }
+    SkISize dimensions() const;
     const TextureInfo& textureInfo() const { return fInfo; }
 
     bool isLazy() const;
+    bool isFullyLazy() const;
     bool isVolatile() const;
 
     bool instantiate(ResourceProvider*);
     /*
      * We currently only instantiate lazy proxies at insertion-time. Snap-time 'instantiate'
-     * calls should be wrapped in 'InstantiateIfNotLazy'
+     * calls should be wrapped in 'InstantiateIfNotLazy'.
+     *
+     * Unlike Ganesh, in Graphite we do not update the proxy's dimensions with the instantiating
+     * texture's dimensions. This means that when a fully-lazy proxy is instantiated and
+     * deinstantiated, it goes back to being fully-lazy and without dimensions, and can be
+     * re-instantiated with a new texture with different dimensions than the first.
      */
     bool lazyInstantiate(ResourceProvider*);
     /*
@@ -70,6 +76,10 @@ public:
                                         SkBudgeted,
                                         Volatile,
                                         LazyInstantiateCallback&&);
+    static sk_sp<TextureProxy> MakeFullyLazy(const TextureInfo&,
+                                             SkBudgeted,
+                                             Volatile,
+                                             LazyInstantiateCallback&&);
 
 private:
     TextureProxy(SkISize dimensions,
