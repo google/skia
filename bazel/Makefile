@@ -31,11 +31,6 @@ generate_gni_rbe:
         ${EXPORTER_TOOL} -output_format=gni -proj_name=Skia ${EXPORTER_RULES} \
 		&& bazelisk run //bazel/external/gn -- format gn/*.gni modules/*/*.gni
 
-.PHONY: check_gni
-check_gni:
-	cd .. && bazelisk build //bazel/exporter_tool && ${EXPORTER_TOOL} \
-		-output_format=gni -proj_name=Skia ${EXPORTER_RULES} -check_current
-
 .PHONY: mocks
 mocks:
 	go generate ./...

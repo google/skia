@@ -7,7 +7,6 @@ package exporter
 
 import (
 	"bytes"
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -104,22 +103,6 @@ func TestGNIExporterExport_ValidInput_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, publicSrcsExpectedGNI, contents.String())
-}
-
-func TestGNIExporterCheckCurrent_CurrentData_ReturnZero(t *testing.T) {
-	fs := mocks.NewFileSystem(t)
-	fs.On("ReadFile", mock.Anything).Run(func(args mock.Arguments) {
-		path := args.String(0)
-		assert.True(t, filepath.IsAbs(path))
-		assert.Equal(t, "/path/to/workspace/gn/core.gni", filepath.ToSlash(path))
-	}).Return([]byte(publicSrcsExpectedGNI), nil)
-	e := NewGNIExporter(testExporterParams, fs)
-	qcmd := mocks.NewQueryCommand(t)
-	var errBuff bytes.Buffer
-	numOutOfDate, err := e.CheckCurrent(qcmd, &errBuff)
-	os.Stdout.Write(errBuff.Bytes()) // Echo output messages to stdout.
-	assert.NoError(t, err)
-	assert.Zero(t, numOutOfDate)
 }
 
 func TestMakeRelativeFilePathForGNI_MatchingRootDir_Success(t *testing.T) {

@@ -447,25 +447,12 @@ func doExport(qr interfaces.QueryCommand, exp interfaces.Exporter, outFormat str
 	}
 }
 
-func doCheckCurrent(qr interfaces.QueryCommand, exp interfaces.Exporter, outFormat string) {
-	numOutOfDate, err := exp.CheckCurrent(qr, os.Stdout)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error running %s currency check: %v\n", outFormat, err)
-		os.Exit(verifyErr)
-	}
-	if numOutOfDate > 0 {
-		fmt.Fprintf(os.Stdout, "%d files are out of date\n", numOutOfDate)
-		os.Exit(verifyErr)
-	}
-}
-
 func main() {
 	var (
 		queryRules    = common.NewMultiStringFlag("rule", nil, "Bazel rule (may be repeated).")
 		outFormat     = flag.String("output_format", "", "Desired output format. One of cmake or gni.")
 		cmakeFileName = flag.String("out", "CMakeLists.txt", "CMake output file")
 		projName      = flag.String("proj_name", "", "CMake project name")
-		checkCurrent  = flag.Bool("check_current", false, "Identify any out-of-date target files")
 		cpuprofile    = flag.String("cpuprofile", "", "write cpu profile to file")
 	)
 	flag.Parse()
@@ -488,11 +475,6 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error getting pwd: %v", err)
 		os.Exit(unknownErr)
-	}
-	if *checkCurrent && *outFormat != "gni" {
-		fmt.Fprintf(os.Stderr, "-check_current is only supported for gni output")
-		flag.PrintDefaults()
-		os.Exit(invalidArgErr)
 	}
 	if *cpuprofile != "" {
 		f, err := os.Create(*cpuprofile)
@@ -517,9 +499,5 @@ func main() {
 	fs := fileSystem{workspaceDir: workspaceDir, outFormat: *outFormat}
 	defer fs.Shutdown()
 	var exp interfaces.Exporter = createExporter(*projName, *cmakeFileName, &fs)
-	if *checkCurrent {
-		doCheckCurrent(qcmd, exp, *outFormat)
-	} else {
-		doExport(qcmd, exp, *outFormat)
-	}
+	doExport(qcmd, exp, *outFormat)
 }

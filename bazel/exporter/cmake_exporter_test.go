@@ -262,11 +262,3 @@ func TestGetRuleCopts_CoptsExists_Success(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, []string{"${DEFAULT_COMPILE_FLAGS}", "-O1"}, copts)
 }
-
-func TestCheckCurrent_Unsupported_ReturnsError(t *testing.T) {
-	fs := mocks.NewFileSystem(t)
-	e := NewCMakeExporter("projName", testWorkspaceDir, testCMakeOutFname, fs)
-	qcmd := mocks.NewQueryCommand(t)
-	_, err := e.CheckCurrent(qcmd, nil)
-	assert.Error(t, err)
-}

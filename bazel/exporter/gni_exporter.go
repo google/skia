@@ -6,7 +6,6 @@
 package exporter
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
 	"path/filepath"
@@ -252,9 +251,9 @@ func writeGNFileHeader(writer interfaces.Writer, gniFile *gniFileContents, pathT
 	fmt.Fprintln(writer, "# DO NOT EDIT: This is a generated file.")
 	fmt.Fprintln(writer, "# See //bazel/exporter_tool/README.md for more information.")
 	if filePath == "gn/sksl_tests.gni" {
-	    fmt.Fprintln(writer, "#")
-	    fmt.Fprintln(writer, "# The source of truth is resources/sksl/BUILD.bazel")
-	    fmt.Fprintln(writer, "# To update this file, run make -C bazel generate_gni")
+		fmt.Fprintln(writer, "#")
+		fmt.Fprintln(writer, "# The source of truth is resources/sksl/BUILD.bazel")
+		fmt.Fprintln(writer, "# To update this file, run make -C bazel generate_gni")
 	}
 	writer.WriteString("\n")
 	if gniFile.hasSrcs {
@@ -511,67 +510,6 @@ func (e *GNIExporter) Export(qcmd interfaces.QueryCommand) error {
 		}
 	}
 	return nil
-}
-
-// Retrieve all variable names from a GNI file identified by |filepath|.
-func (e *GNIExporter) getFileGNIVariables(filepath string) ([]string, error) {
-	fileBytes, err := e.fs.ReadFile(filepath)
-	if err != nil {
-		return nil, skerr.Wrap(err)
-	}
-	reader := bytes.NewReader(fileBytes)
-	scanner := bufio.NewScanner(reader)
-	var variables []string
-	for scanner.Scan() {
-		if v := getGNILineVariable(scanner.Text()); v != "" {
-			variables = append(variables, v)
-		}
-	}
-	return variables, nil
-}
-
-// Check that all required GNI variables are present in the GNI file described by |gniExportDesc|.
-func (e *GNIExporter) checkGNIFileVariables(gniExportDesc GNIExportDesc, writer interfaces.Writer) (ok bool, err error) {
-	var expectedVars []string
-	for _, varDesc := range gniExportDesc.Vars {
-		expectedVars = append(expectedVars, varDesc.Var)
-	}
-	absPath := e.workspaceToAbsPath(gniExportDesc.GNI)
-	actual, err := e.getFileGNIVariables(absPath)
-	if err != nil {
-		return false, skerr.Wrap(err)
-	}
-	ok = true
-	for _, e := range expectedVars {
-		if !util.In(e, actual) {
-			fmt.Fprintf(writer, "Error: Expected variable %s not found in %s\n", e, absPath)
-			ok = false
-		}
-	}
-	return ok, nil
-}
-
-// Ensure the proper variables are defined in all generated GNI files.
-// This ensures that the GNI files distributed with Skia contain the
-// file lists needed to build, and for backward compatibility.
-func (e *GNIExporter) checkAllVariables(writer interfaces.Writer) (numFileErrors int, err error) {
-	for _, gniDesc := range e.exportGNIDescs {
-		ok, err := e.checkGNIFileVariables(gniDesc, writer)
-		if err != nil {
-			return 0, skerr.Wrap(err)
-		}
-		if !ok {
-			numFileErrors += 1
-		}
-	}
-	return numFileErrors, nil
-}
-
-// CheckCurrent will determine if each on-disk GNI file is current. In other words,
-// do the file contents exactly match what would be produced if Export were
-// run?
-func (e *GNIExporter) CheckCurrent(qcmd interfaces.QueryCommand, errWriter interfaces.Writer) (numFileErrors int, err error) {
-	return e.checkAllVariables(errWriter)
 }
 
 // Make sure GNIExporter fulfills the Exporter interface.

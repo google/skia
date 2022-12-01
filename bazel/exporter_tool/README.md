@@ -152,13 +152,3 @@ filegroup(
 In each case the referenced rule (`win_example_srcs`) is not
 followed and **only files directly listed in a rule are exported**
 to a GNI file.
-
-# Out of Date Check
-The exporter tool has a flag to identify all output files which are
-out of date. This can be run as so:
-
-```sh
-exporter_tool -check_current ...
-```
-
-The will return a zero return code if all files are up to date.

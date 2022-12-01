@@ -464,9 +464,5 @@ func (e *CMakeExporter) Export(qcmd interfaces.QueryCommand) error {
 	return nil
 }
 
-func (e *CMakeExporter) CheckCurrent(qcmd interfaces.QueryCommand, errWriter interfaces.Writer) (int, error) {
-	return 0, skerr.Fmt("CheckCurrent not supported for CMake")
-}
-
 // Make sure CMakeExporter fulfills the Exporter interface.
 var _ interfaces.Exporter = (*CMakeExporter)(nil)
