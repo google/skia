@@ -130,7 +130,9 @@ DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, r) {
     static_assert(std::size(mask)  == SkRasterPipeline_kMaxStride_highp);
     static_assert(std::size(mask2) == SkRasterPipeline_kMaxStride_highp);
 
-    std::copy(std::begin(mask2), std::end(mask2), std::begin(combination));
+    std::copy(std::begin(mask2),
+              std::begin(mask2) + SkOpts::raster_pipeline_highp_stride,
+              std::begin(combination));
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::init_lane_masks);
