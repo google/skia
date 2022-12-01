@@ -635,8 +635,8 @@ private:
 
     T* fData;
     int fSize;
+    uint32_t fOwnMemory : 1;
     uint32_t fCapacity : 31;
-    uint32_t fOwnMemory  :  1;
 };
 
 template <typename T, bool M> static inline void swap(SkTArray<T, M>& a, SkTArray<T, M>& b) {
