@@ -126,7 +126,7 @@ public:
     }
 
     ~SkTArray() {
-        this->clear();
+        this->destroyAll();
         if (fOwnMemory) {
             sk_free(fData);
         }
@@ -136,7 +136,7 @@ public:
      * Resets to size() == 0.
      */
     void reset() {
-        this->pop_back_n(fSize);
+        this->clear();
     }
 
     /**
@@ -303,9 +303,9 @@ public:
     void pop_back_n(int n) {
         SkASSERT(n >= 0);
         SkASSERT(this->size() >= n);
-        T* const end = this->end();
-        for (T* ptr = end - n; ptr < end; ++ptr) {
-            ptr->~T();
+        int i = fSize;
+        while (i-- > fSize - n) {
+            (*this)[i].~T();
         }
         fSize -= n;
     }
@@ -374,7 +374,10 @@ public:
     size_t size_bytes() const { return this->bytes(fSize); }
     void resize(size_t count) { this->resize_back((int)count); }
 
-    void clear() { this->pop_back_n(fSize); }
+    void clear() {
+        this->destroyAll();
+        fSize = 0;
+    }
 
     void shrink_to_fit() {
         if (!fOwnMemory || fSize == fCapacity) {
@@ -552,6 +555,17 @@ private:
             fCapacity = SkToU32(preallocCount);
             fData = TCast(preallocStorage);
             fOwnMemory = false;
+        }
+    }
+
+    void destroyAll() {
+        if (!this->empty()) {
+            T* cursor = this->begin();
+            T* const end = this->end();
+            do {
+                cursor->~T();
+                cursor++;
+            } while (cursor < end);
         }
     }
 
