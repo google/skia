@@ -52,11 +52,13 @@ public:
 
     struct FrameData {
         // SkImage payload.
-        sk_sp<SkImage>    image;
+        sk_sp<SkImage>       image;
         // Resampling parameters.
-        SkSamplingOptions sampling;
+        SkSamplingOptions    sampling;
         // Additional image transform to be applied before AE scaling rules.
-        SkMatrix          matrix = SkMatrix::I();
+        SkMatrix             matrix = SkMatrix::I();
+        // Scaling strategy for aspect ratio adjustments.
+        SkMatrix::ScaleToFit scaling = SkMatrix::kCenter_ScaleToFit;
     };
 
     /**

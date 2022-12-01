@@ -24,7 +24,7 @@ SkMatrix image_matrix(const ImageAsset::FrameData& frame_data, const SkISize& de
 
     return frame_data.matrix * SkMatrix::RectToRect(SkRect::Make(frame_data.image->bounds()),
                                                     SkRect::Make(dest_size),
-                                                    SkMatrix::kCenter_ScaleToFit);
+                                                    frame_data.scaling);
 }
 
 class FootageAnimator final : public Animator {

@@ -102,6 +102,7 @@ ImageAsset::FrameData ImageAsset::getFrameData(float t) {
         this->getFrame(t),
         SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNearest),
         SkMatrix::I(),
+        SkMatrix::kCenter_ScaleToFit,
     };
 }
 
