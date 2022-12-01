@@ -20,6 +20,7 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkImageFilterCache.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkImagePriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkStrikeCache.h"

@@ -13,7 +13,6 @@
 #include "include/core/SkRegion.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
-#include "src/core/SkImagePriv.h"
 #include "src/shaders/SkShaderBase.h"
 
 class SkArenaAlloc;
@@ -294,5 +293,8 @@ private:
     SkRectClipBlitter   fRectBlitter;
     SkRgnClipBlitter    fRgnBlitter;
 };
+
+// A good size for creating shader contexts on the stack.
+enum {kSkBlitterContextSize = 3332};
 
 #endif

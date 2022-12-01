@@ -9,6 +9,7 @@
 
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/ops/DashOp.h"

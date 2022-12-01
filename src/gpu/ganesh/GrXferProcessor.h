@@ -13,7 +13,6 @@
 #include "src/gpu/ganesh/GrNonAtomicRef.h"
 #include "src/gpu/ganesh/GrProcessor.h"
 #include "src/gpu/ganesh/GrProcessorAnalysis.h"
-#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
 class GrGLSLXPFragmentBuilder;

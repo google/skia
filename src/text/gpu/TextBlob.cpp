@@ -27,6 +27,7 @@
 #if SK_SUPPORT_GPU  // Ganesh Support
 #include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrClip.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #endif
 

@@ -20,9 +20,6 @@ enum SkCopyPixelsMode {
     kNever_SkCopyPixelsMode,      //!< never copy src pixels (even if they are marked mutable)
 };
 
-// A good size for creating shader contexts on the stack.
-enum {kSkBlitterContextSize = 3332};
-
 // If alloc is non-nullptr, it will be used to allocate the returned SkShader, and MUST outlive
 // the SkShader.
 sk_sp<SkShader> SkMakeBitmapShader(const SkBitmap& src, SkTileMode, SkTileMode,

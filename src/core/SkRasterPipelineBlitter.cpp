@@ -7,6 +7,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkShader.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
