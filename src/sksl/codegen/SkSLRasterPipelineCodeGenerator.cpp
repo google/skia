@@ -292,13 +292,13 @@ bool Generator::writeIfStatement(const IfStatement& i) {
 }
 
 bool Generator::writeReturnStatement(const ReturnStatement& r) {
-    // TODO(skia:13676): update the return mask!
     if (r.expression()) {
         if (!this->pushExpression(*r.expression())) {
             return false;
         }
         this->popToSlotRange(fFunctionStack.back());
     }
+    fBuilder.update_return_mask();
     return true;
 }
 

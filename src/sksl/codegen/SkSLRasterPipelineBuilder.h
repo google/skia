@@ -233,6 +233,10 @@ public:
         fInstructions.push_back({BuilderOp::pop_condition_mask, {}});
     }
 
+    void update_return_mask() {
+        fInstructions.push_back({BuilderOp::update_return_mask, {}});
+    }
+
 private:
     SkTArray<Instruction> fInstructions;
 };

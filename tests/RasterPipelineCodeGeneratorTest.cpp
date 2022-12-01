@@ -168,7 +168,16 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorIfElseTest, r) {
                          result = colorWhite;
                      }
                  }
-                 return result;
+                 if (colorRed == colorBlue) { // FALSE
+                     return colorWhite;
+                 }
+                 if (colorRed != colorGreen) { // TRUE
+                     return result;
+                 }
+                 if (colorRed == colorWhite) { // FALSE
+                     return colorBlue;
+                 }
+                 return colorRed;
              }
          )__SkSL__",
          SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});

@@ -272,6 +272,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
                 tempStackPtr -= N * inst.fImmA;
                 break;
 
+            case BuilderOp::update_return_mask:
+                pipeline->append(SkRP::update_return_mask);
+                break;
+
             default:
                 SkDEBUGFAILF("Raster Pipeline: unsupported instruction %d", (int)inst.fOp);
                 break;
