@@ -347,6 +347,34 @@ def _RunCommandAndCheckGitDiff(output_api, command):
   return results
 
 
+def _CheckGNIGenerated(input_api, output_api):
+  """Ensures that the generated *.gni files are current.
+
+  The Bazel project files are authoritative and some *.gni files are
+  generated from them using the exporter_tool. This check ensures they
+  are still current.
+  """
+  if 'win32' in sys.platform:
+    # TODO(crbug.com/skia/12541): Remove when Bazel builds work on Windows.
+    # Note: `make` is not installed on Windows by default.
+    return [
+        output_api.PresubmitPromptWarning(
+            'Skipping Bazel=>GNI export check on Windows (unsupported platform).'
+        )
+    ]
+  for affected_file in input_api.AffectedFiles(include_deletes=True):
+    affected_file_path = affected_file.LocalPath()
+    if affected_file_path.endswith('BUILD.bazel') or affected_file_path.endswith('.gni'):
+      # Generate GNI files and verify no changes.
+      results = _RunCommandAndCheckGitDiff(output_api,
+              ['make', '-C', 'bazel', 'generate_gni'])
+      if results:
+        return results
+
+  # No Bazel build files changed.
+  return []
+
+
 def _CheckBuildifier(input_api, output_api):
   """Runs Buildifier and fails on linting errors, or if it produces any diffs.
 
@@ -498,6 +526,7 @@ def CheckChangeOnUpload(input_api, output_api):
   results.extend(_CheckBuildifier(input_api, output_api))
   # We don't want this to block the CQ (for now).
   results.extend(_CheckDEPS(input_api, output_api))
+  results.extend(_CheckGNIGenerated(input_api, output_api))
   return results
 
 
