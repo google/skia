@@ -242,6 +242,21 @@ def _RegenerateAllExamplesCPP(input_api, output_api):
     )]
   return results
 
+
+def _CheckGeneratedBazelBUILDFiles(input_api, output_api):
+    if 'win32' in sys.platform:
+      # TODO(crbug.com/skia/12541): Remove when Bazel builds work on Windows.
+      # Note: `make` is not installed on Windows by default.
+      return []
+    for affected_file in input_api.AffectedFiles(include_deletes=True):
+      affected_file_path = affected_file.LocalPath()
+      if (affected_file_path.endswith('.go') or
+          affected_file_path.endswith('BUILD.bazel')):
+        return _RunCommandAndCheckGitDiff(output_api,
+                                          ['make', '-C', 'bazel', 'generate_go'])
+    return []  # No modified Go source files.
+
+
 def _CheckBazelBUILDFiles(input_api, output_api):
   """Makes sure our BUILD.bazel files are compatible with G3."""
   results = []
@@ -464,6 +479,7 @@ def _CommonChecks(input_api, output_api):
   results.extend(_RegenerateAllExamplesCPP(input_api, output_api))
   results.extend(_CheckBazelBUILDFiles(input_api, output_api))
   results.extend(_CheckBannedAPIs(input_api, output_api))
+  results.extend(_CheckGeneratedBazelBUILDFiles(input_api, output_api))
   return results
 
 
