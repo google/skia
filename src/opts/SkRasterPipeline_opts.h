@@ -1102,32 +1102,39 @@ static void start_pipeline(size_t dx, size_t dy,
 }
 
 #if JUMPER_NARROW_STAGES
-    #define STAGE(name, ARG)                                                         \
-        SI void name##_k(ARG, size_t dx, size_t dy, size_t tail,                     \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);        \
+    #define DECLARE_STAGE(name, ARG, STAGE_RET, INC, OFFSET)                         \
+        SI STAGE_RET name##_k(ARG, size_t dx, size_t dy, size_t tail,                \
+                              F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);   \
         static void ABI name(Params* params, SkRasterPipelineStage* program,         \
                              F r, F g, F b, F a) {                                   \
-            name##_k(Ctx{program},params->dx,params->dy,params->tail, r,g,b,a,       \
-                     params->dr, params->dg, params->db, params->da);                \
-            auto fn = (Stage)(++program)->fn;                                        \
+            OFFSET name##_k(Ctx{program},params->dx,params->dy,params->tail, r,g,b,a,\
+                            params->dr, params->dg, params->db, params->da);         \
+            INC;                                                                     \
+            auto fn = (Stage)program->fn;                                            \
             fn(params, program, r,g,b,a);                                            \
         }                                                                            \
-        SI void name##_k(ARG, size_t dx, size_t dy, size_t tail,                     \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+        SI STAGE_RET name##_k(ARG, size_t dx, size_t dy, size_t tail,                \
+                              F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 #else
-    #define STAGE(name, ARG)                                                                    \
-        SI void name##_k(ARG, size_t dx, size_t dy, size_t tail,                                \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);                   \
+    #define DECLARE_STAGE(name, ARG, STAGE_RET, INC, OFFSET)                                    \
+        SI STAGE_RET name##_k(ARG, size_t dx, size_t dy, size_t tail,                           \
+                              F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da);              \
         static void ABI name(size_t tail, SkRasterPipelineStage* program, size_t dx, size_t dy, \
                              F r, F g, F b, F a, F dr, F dg, F db, F da) {                      \
-            name##_k(Ctx{program},dx,dy,tail, r,g,b,a, dr,dg,db,da);                            \
-            auto fn = (Stage)(++program)->fn;                                                   \
+            OFFSET name##_k(Ctx{program},dx,dy,tail, r,g,b,a, dr,dg,db,da);                     \
+            INC;                                                                                \
+            auto fn = (Stage)program->fn;                                                       \
             fn(tail, program, dx,dy, r,g,b,a, dr,dg,db,da);                                     \
         }                                                                                       \
-        SI void name##_k(ARG, size_t dx, size_t dy, size_t tail,                                \
-                         F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
+        SI STAGE_RET name##_k(ARG, size_t dx, size_t dy, size_t tail,                           \
+                              F& r, F& g, F& b, F& a, F& dr, F& dg, F& db, F& da)
 #endif
 
+// A typical stage returns void, and always increments the program counter by 1.
+#define STAGE(name, arg)        DECLARE_STAGE(name, arg, void, ++program, /*no offset*/)
+
+// A branch stage returns an integer, which is added directly to the program counter.
+#define STAGE_BRANCH(name, arg) DECLARE_STAGE(name, arg, int, /*no increment*/, program +=)
 
 // just_return() is a simple no-op stage that only exists to end the chain,
 // returning back up to start_pipeline(), and from there to the caller.
@@ -3028,6 +3035,18 @@ STAGE(update_return_mask, NoCtx) {
     // stay masked-off until the end of the function.
     db = sk_bit_cast<F>(sk_bit_cast<I32>(db) & ~execution_mask());
     update_execution_mask();
+}
+
+STAGE_BRANCH(branch_if_any_active_lanes, int* offset) {
+    return any(sk_bit_cast<I32>(da)) ? *offset : 1;
+}
+
+STAGE_BRANCH(branch_if_no_active_lanes, int* offset) {
+    return any(sk_bit_cast<I32>(da)) ? 1 : *offset;
+}
+
+STAGE_BRANCH(jump, int* offset) {
+    return *offset;
 }
 
 STAGE(immediate_f, void* ctx) {

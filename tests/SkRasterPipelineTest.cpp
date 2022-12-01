@@ -626,6 +626,119 @@ DEF_TEST(SkRasterPipeline_AddInts, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_Jump, r) {
+    // Allocate space for 4 slots.
+    alignas(64) float slots[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    alignas(64) static constexpr float kColorDarkRed[4] = {0.5f, 0.0f, 0.0f, 0.75f};
+    alignas(64) static constexpr float kColorGreen[4]   = {0.0f, 1.0f, 0.0f, 1.0f};
+    const int offset = 2;
+
+    // Make a program which jumps over an append_constant_color op.
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    p.append_constant_color(&alloc, kColorGreen);    // assign green
+    p.append(SkRasterPipeline::jump, &offset);       // jump over the dark-red color assignment
+    p.append_constant_color(&alloc, kColorDarkRed);  // (not executed)
+    p.append(SkRasterPipeline::store_src, slots);    // store the result so we can check it
+    p.run(0,0,1,1);
+
+    // Verify that the slots contain green.
+    float* destPtr = &slots[0];
+    for (int checkSlot = 0; checkSlot < 4; ++checkSlot) {
+        for (int checkLane = 0; checkLane < N; ++checkLane) {
+            REPORTER_ASSERT(r, *destPtr == kColorGreen[checkSlot]);
+            ++destPtr;
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_BranchIfAnyActiveLanes, r) {
+    // Allocate space for 4 slots.
+    alignas(64) float slots[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    alignas(64) static constexpr float kColorDarkRed[4] = {0.5f, 0.0f, 0.0f, 0.75f};
+    alignas(64) static constexpr float kColorGreen[4]   = {0.0f, 1.0f, 0.0f, 1.0f};
+    const int offset = 2;
+
+    // An array of all zeros.
+    alignas(64) static constexpr int32_t kNoLanesActive[4 * SkRasterPipeline_kMaxStride_highp] = {};
+
+    // An array of all zeros, except for a single ~0 in the first dA slot.
+    alignas(64) int32_t oneLaneActive[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    oneLaneActive[3*N] = ~0;
+
+    // Make a program which conditionally branches past two append_constant_color ops.
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    p.append_constant_color(&alloc, kColorDarkRed);                  // set the color to dark red
+    p.append(SkRasterPipeline::load_dst, kNoLanesActive);            // make no lanes active
+    p.append(SkRasterPipeline::branch_if_any_active_lanes, &offset); // do not skip past next line
+    p.append_constant_color(&alloc, kColorGreen);                    // set the color to green
+    p.append(SkRasterPipeline::load_dst, oneLaneActive);             // set one lane active
+    p.append(SkRasterPipeline::branch_if_any_active_lanes, &offset); // skip past next line
+    p.append_constant_color(&alloc, kColorDarkRed);                  // (not executed)
+    p.append(SkRasterPipeline::init_lane_masks);                     // set all lanes active
+    p.append(SkRasterPipeline::branch_if_any_active_lanes, &offset); // skip past next line
+    p.append_constant_color(&alloc, kColorDarkRed);                  // (not executed)
+    p.append(SkRasterPipeline::store_src, slots);                    // store final color
+    p.run(0,0,1,1);
+
+    // Verify that the slots contain green.
+    float* destPtr = &slots[0];
+    for (int checkSlot = 0; checkSlot < 4; ++checkSlot) {
+        for (int checkLane = 0; checkLane < N; ++checkLane) {
+            REPORTER_ASSERT(r, *destPtr == kColorGreen[checkSlot]);
+            ++destPtr;
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_BranchIfNoActiveLanes, r) {
+    // Allocate space for 4 slots.
+    alignas(64) float slots[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    alignas(64) static constexpr float kColorBlack[4]   = {0.0f, 0.0f, 0.0f, 0.0f};
+    alignas(64) static constexpr float kColorRed[4]     = {1.0f, 0.0f, 0.0f, 1.0f};
+    alignas(64) static constexpr float kColorBlue[4]    = {0.0f, 0.0f, 1.0f, 1.0f};
+    const int offset = 2;
+
+    // An array of all zeros.
+    alignas(64) static constexpr int32_t kNoLanesActive[4 * SkRasterPipeline_kMaxStride_highp] = {};
+
+    // An array of all zeros, except for a single ~0 in the first dA slot.
+    alignas(64) int32_t oneLaneActive[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    oneLaneActive[3*N] = ~0;
+
+    // Make a program which conditionally branches past a append_constant_color op.
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    p.append_constant_color(&alloc, kColorBlack);                    // set the color to black
+    p.append(SkRasterPipeline::init_lane_masks);                     // set all lanes active
+    p.append(SkRasterPipeline::branch_if_no_active_lanes, &offset);  // do not skip past next line
+    p.append_constant_color(&alloc, kColorRed);                      // sets the color to red
+    p.append(SkRasterPipeline::load_dst, oneLaneActive);             // set one lane active
+    p.append(SkRasterPipeline::branch_if_no_active_lanes, &offset);  // do not skip past next line
+    p.append(SkRasterPipeline::swap_rb);                             // swap R and B (making blue)
+    p.append(SkRasterPipeline::load_dst, kNoLanesActive);            // make no lanes active
+    p.append(SkRasterPipeline::branch_if_no_active_lanes, &offset);  // skip past next line
+    p.append_constant_color(&alloc, kColorBlack);                    // (not executed)
+    p.append(SkRasterPipeline::store_src, slots);                    // store final blue color
+    p.run(0,0,1,1);
+
+    // Verify that the slots contain blue.
+    float* destPtr = &slots[0];
+    for (int checkSlot = 0; checkSlot < 4; ++checkSlot) {
+        for (int checkLane = 0; checkLane < N; ++checkLane) {
+            REPORTER_ASSERT(r, *destPtr == kColorBlue[checkSlot]);
+            ++destPtr;
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_empty, r) {
     // No asserts... just a test that this is safe to run.
     SkRasterPipeline_<256> p;

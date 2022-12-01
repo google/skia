@@ -127,6 +127,7 @@ struct skcms_TransferFunction;
     M(load_unmasked) M(store_unmasked) M(store_masked)                                     \
     M(load_condition_mask) M(store_condition_mask) M(combine_condition_mask)               \
     M(update_return_mask)                                                                  \
+    M(branch_if_any_active_lanes) M(branch_if_no_active_lanes) M(jump)                     \
     M(bitwise_and) M(bitwise_or) M(bitwise_xor) M(bitwise_not)                             \
     M(copy_slot_masked)    M(copy_2_slots_masked)                                          \
     M(copy_3_slots_masked) M(copy_4_slots_masked)                                          \
