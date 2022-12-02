@@ -303,6 +303,34 @@ public:
     }
 #endif
 
+#ifdef SK_GRAPHITE_ENABLED
+    void addToKey(const skgpu::graphite::KeyContext& keyContext,
+                  skgpu::graphite::PaintParamsKeyBuilder* builder,
+                  skgpu::graphite::PipelineDataGatherer* gatherer) const override {
+        using namespace skgpu::graphite;
+
+        constexpr SkAlphaType alphaType = kPremul_SkAlphaType;
+        const SkColorSpace* srcColorSpace = nullptr;
+        const SkColorSpace* dstColorSpace = nullptr;
+        switch (fDir) {
+            case Direction::kLinearToSRGB:
+                srcColorSpace = sk_srgb_linear_singleton();
+                dstColorSpace = sk_srgb_singleton();
+                break;
+            case Direction::kSRGBToLinear:
+                srcColorSpace = sk_srgb_singleton();
+                dstColorSpace = sk_srgb_linear_singleton();
+                break;
+            default:
+                SkUNREACHABLE;
+        }
+        ColorSpaceTransformBlock::ColorSpaceTransformData data(
+                srcColorSpace, alphaType, dstColorSpace, alphaType);
+        ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data);
+        builder->endBlock();
+    }
+#endif
+
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         if (!shaderIsOpaque) {
             rec.fPipeline->append(SkRasterPipeline::unpremul);

@@ -102,4 +102,13 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 "(sample(b,float2(half2(c.x,.375))).x,sample(b,float2(half2(c.y,.625))).x,sample"
 "(b,float2(half2(c.z,.875))).x,1.);return d*sample(b,float2(half2(c.w,.125))"
 ").x;}$pure half4 sk_gaussian_colorfilter(half4 a){half b=1.-a.w;b=exp((-b*b"
-")*4.)-.018;return half4(b);}";
+")*4.)-.018;return half4(b);}$pure half $v(int a,half b,half[7]c){half d=c[0"
+"];half e=c[1];half f=c[2];half g=c[3];half h=c[4];half i=c[5];half j=c[6];half"
+" k=sign(b);b=abs(b);switch(a){case 1:b=b<h?g*b+j:pow(e*b+f,d)+i;break;case 2"
+":b=pow(max(e+f*pow(b,g),0.)/(h+i*pow(b,g)),j);break;case 3:b=b*e<=1.?pow(b*"
+"e,f):exp((b-i)*g)+h;b*=j+1.;break;case 4:b/=j+1.;b=b<=1.?e*pow(b,f):g*log(b"
+"-h)+i;break;}return k*b;}half4 sk_color_space_transform(half4 a,int b,int c"
+",int d,half[7]e,half[7]f,half3x3 g){if(bool(b&1)){a=unpremul(a);}if(bool(b&"
+"2)){a.x=$v(c,a.x,e);a.y=$v(c,a.y,e);a.z=$v(c,a.z,e);}if(bool(b&4)){a.xyz=g*"
+"a.xyz;}if(bool(b&8)){a.x=$v(d,a.x,f);a.y=$v(d,a.y,f);a.z=$v(d,a.z,f);}if(bool"
+"(b&16)){a.xyz*=a.w;}return a;}";

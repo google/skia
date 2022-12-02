@@ -16,6 +16,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/private/SkColorData.h"
+#include "src/core/SkColorSpaceXFormSteps.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/shaders/SkShaderBase.h"
 
@@ -262,6 +263,21 @@ struct GaussianColorFilterBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*);
+};
+
+struct ColorSpaceTransformBlock {
+    struct ColorSpaceTransformData {
+        ColorSpaceTransformData(const SkColorSpace* src,
+                                SkAlphaType srcAT,
+                                const SkColorSpace* dst,
+                                SkAlphaType dstAT);
+        SkColorSpaceXformSteps fSteps;
+    };
+
+    static void BeginBlock(const KeyContext&,
+                           PaintParamsKeyBuilder*,
+                           PipelineDataGatherer*,
+                           const ColorSpaceTransformData*);
 };
 
 struct BlendModeBlock {
