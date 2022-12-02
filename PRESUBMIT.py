@@ -507,7 +507,6 @@ def _CommonChecks(input_api, output_api):
   results.extend(_RegenerateAllExamplesCPP(input_api, output_api))
   results.extend(_CheckBazelBUILDFiles(input_api, output_api))
   results.extend(_CheckBannedAPIs(input_api, output_api))
-  results.extend(_CheckGeneratedBazelBUILDFiles(input_api, output_api))
   return results
 
 
@@ -526,6 +525,8 @@ def CheckChangeOnUpload(input_api, output_api):
   results.extend(_CheckBuildifier(input_api, output_api))
   # We don't want this to block the CQ (for now).
   results.extend(_CheckDEPS(input_api, output_api))
+  # Bazelisk is not yet included in the Presubmit job.
+  results.extend(_CheckGeneratedBazelBUILDFiles(input_api, output_api))
   results.extend(_CheckGNIGenerated(input_api, output_api))
   return results
 
