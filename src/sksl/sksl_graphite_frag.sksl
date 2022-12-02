@@ -8,17 +8,6 @@ const int $kTileModeDecal  = 3;
 const int $kFilterModeNearest = 0;
 const int $kFilterModeLinear  = 1;
 
-const int $kTFKindSRGB  = 1;
-const int $kTFKindPQ = 2;
-const int $kTFKindHLG = 3;
-const int $kTFKindHLGinv = 4;
-
-const int $kColorSpaceXformFlagUnpremul = 0x1;
-const int $kColorSpaceXformFlagLinearize = 0x2;
-const int $kColorSpaceXformFlagGamutTransform = 0x4;
-const int $kColorSpaceXformFlagEncode = 0x8;
-const int $kColorSpaceXformFlagPremul = 0x10;
-
 $pure half4 sk_error() {
     return half4(1.0, 0.0, 1.0, 1.0);
 }
@@ -640,63 +629,4 @@ $pure half4 sk_gaussian_colorfilter(half4 inColor) {
     half factor = 1 - inColor.a;
     factor = exp(-factor * factor * 4) - 0.018;
     return half4(factor);
-}
-
-$pure half $apply_xfer_fn(int kind, half x, half cs[7]) {
-    half G = cs[0], A = cs[1], B = cs[2], C = cs[3], D = cs[4], E = cs[5], F = cs[6];
-    half s = sign(x);
-    x = abs(x);
-    switch (kind) {
-        case $kTFKindSRGB:
-            x = (x < D) ? (C * x) + F
-                        : pow(A * x + B, G) + E;
-            break;
-        case $kTFKindPQ:
-            x = pow(max(A + B * pow(x, C), 0) / (D + E * pow(x, C)), F);
-            break;
-        case $kTFKindHLG:
-            x = (x * A <= 1) ? pow(x * A, B)
-                             : exp((x - E) * C) + D;
-            x *= (F + 1);
-            break;
-        case $kTFKindHLGinv:
-            x /= (F + 1);
-            x = (x <= 1) ? A * pow(x, B)
-                         : C * log(x - D) + E;
-            break;
-    }
-    return s * x;
-}
-
-// TODO(b/239548614) need to plumb Graphite equivalent of fColorSpaceMathNeedsFloat.
-// This would change 'color' from half4 to float4
-half4 sk_color_space_transform(half4 color,
-                               int flags,
-                               int srcKind,
-                               int dstKind,
-                               half srcCoeffs[7],
-                               half dstCoeffs[7],
-                               half3x3 gamutTransform) {
-    if (bool(flags & $kColorSpaceXformFlagUnpremul)) {
-        color = unpremul(color);
-    }
-
-    if (bool(flags & $kColorSpaceXformFlagLinearize)) {
-        color.r = $apply_xfer_fn(srcKind, color.r, srcCoeffs);
-        color.g = $apply_xfer_fn(srcKind, color.g, srcCoeffs);
-        color.b = $apply_xfer_fn(srcKind, color.b, srcCoeffs);
-    }
-    if (bool(flags & $kColorSpaceXformFlagGamutTransform)) {
-        color.rgb = gamutTransform * color.rgb;
-    }
-    if (bool(flags & $kColorSpaceXformFlagEncode)) {
-        color.r = $apply_xfer_fn(dstKind, color.r, dstCoeffs);
-        color.g = $apply_xfer_fn(dstKind, color.g, dstCoeffs);
-        color.b = $apply_xfer_fn(dstKind, color.b, dstCoeffs);
-    }
-
-    if (bool(flags & $kColorSpaceXformFlagPremul)) {
-        color.rgb *= color.a;
-    }
-    return color;
 }

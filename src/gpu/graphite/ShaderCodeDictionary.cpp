@@ -13,8 +13,6 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/private/SkOpts_spi.h"
 #include "include/private/SkSLString.h"
-#include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkSLTypeShared.h"
@@ -802,42 +800,6 @@ static constexpr char kTableColorFilterName[] = "sk_table_colorfilter";
 static constexpr char kGaussianColorFilterName[] = "sk_gaussian_colorfilter";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumXferFnCoeffs = 7;
-
-static constexpr Uniform kColorSpaceTransformUniforms[] = {
-        { "flags",          SkSLType::kInt },
-        { "srcKind",        SkSLType::kInt },
-        { "dstKind",        SkSLType::kInt },
-        { "srcCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
-        { "dstCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
-        { "gamutTransform", SkSLType::kHalf3x3 },
-};
-
-static_assert(0 == static_cast<int>(TFKind::Bad_TF),
-              "ColorSpaceTransform code depends on TFKind");
-static_assert(1 == static_cast<int>(TFKind::sRGBish_TF),
-              "ColorSpaceTransform code depends on TFKind");
-static_assert(2 == static_cast<int>(TFKind::PQish_TF),
-              "ColorSpaceTransform code depends on TFKind");
-static_assert(3 == static_cast<int>(TFKind::HLGish_TF),
-              "ColorSpaceTransform code depends on TFKind");
-static_assert(4 == static_cast<int>(TFKind::HLGinvish_TF),
-              "ColorSpaceTransform code depends on TFKind");
-
-static_assert(0x1 == SkColorSpaceXformSteps::Flags{.unpremul = true}.mask(),
-              "ColorSpaceTransform code depends on SkColorSpaceXformSteps::Flags");
-static_assert(0x2 == SkColorSpaceXformSteps::Flags{.linearize = true}.mask(),
-              "ColorSpaceTransform code depends on SkColorSpaceXformSteps::Flags");
-static_assert(0x4 == SkColorSpaceXformSteps::Flags{.gamut_transform = true}.mask(),
-              "ColorSpaceTransform code depends on SkColorSpaceXformSteps::Flags");
-static_assert(0x8 == SkColorSpaceXformSteps::Flags{.encode = true}.mask(),
-              "ColorSpaceTransform code depends on SkColorSpaceXformSteps::Flags");
-static_assert(0x10 == SkColorSpaceXformSteps::Flags{.premul = true}.mask(),
-              "ColorSpaceTransform code depends on SkColorSpaceXformSteps::Flags");
-
-static constexpr char kColorSpaceTransformName[] = "sk_color_space_transform";
-
-//--------------------------------------------------------------------------------------------------
 static constexpr char kErrorName[] = "sk_error";
 
 //--------------------------------------------------------------------------------------------------
@@ -1338,17 +1300,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kColorSpaceXformColorFilter] = {
-            "ColorSpaceTransform",
-            SkSpan(kColorSpaceTransformUniforms),
-            SnippetRequirementFlags::kPriorStageOutput,
-            { },     // no samplers
-            kColorSpaceTransformName,
-            GenerateDefaultExpression,
-            GenerateDefaultPreamble,
-            kNoChildren,
-            { }      // no data payload
-    };
+
     fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kFixedFunctionBlender] = {
             "FixedFunctionBlender",
             { },     // no uniforms

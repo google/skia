@@ -42,7 +42,6 @@ enum class SkBuiltInCodeSnippetID : int32_t {
     kComposeColorFilter,
     kTableColorFilter,
     kGaussianColorFilter,
-    kColorSpaceXformColorFilter,
 
     // SkBlender code snippets (evaluating a blend as part of the shader graph)
     kPassthroughBlender,

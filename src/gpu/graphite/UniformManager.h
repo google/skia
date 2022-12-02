@@ -18,7 +18,6 @@
 #include "src/gpu/graphite/Uniform.h"
 
 class SkM44;
-class SkMatrix;
 struct SkPoint;
 struct SkRect;
 
@@ -89,9 +88,6 @@ public:
     void writeArray(SkSpan<const SkColor4f>);
     void writeArray(SkSpan<const SkPMColor4f>);
     void writeArray(SkSpan<const float>);
-
-    void writeHalf(const SkMatrix&);
-    void writeHalfArray(SkSpan<const float>);
 
     // Debug only utilities used for debug assertions and tests.
     void checkReset() const;

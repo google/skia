@@ -124,9 +124,6 @@ public:
     void writeArray(SkSpan<const SkColor4f> colors) { fUniformManager.writeArray(colors); }
     void writeArray(SkSpan<const float> floats) { fUniformManager.writeArray(floats); }
 
-    void writeHalf(const SkMatrix& mat) { fUniformManager.writeHalf(mat); }
-    void writeHalfArray(SkSpan<const float> floats) { fUniformManager.writeHalfArray(floats); }
-
     bool hasUniforms() const { return fUniformManager.size(); }
 
     // Returns the uniform data written so far. Will automatically pad the end of the data as needed
