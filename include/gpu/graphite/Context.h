@@ -32,6 +32,7 @@ class ContextPriv;
 struct DawnBackendContext;
 class GlobalCache;
 struct MtlBackendContext;
+class PaintOptions;
 class QueueManager;
 class Recording;
 class ResourceProvider;
@@ -91,6 +92,8 @@ public:
     // TODO: add "ShaderID addUserDefinedShader(sk_sp<SkRuntimeEffect>)" here
     // TODO: add "ColorFilterID addUserDefinedColorFilter(sk_sp<SkRuntimeEffect>)" here
     BlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
+
+    void precompile(const PaintOptions&);
 
     void precompile(CombinationBuilder*);
 #endif

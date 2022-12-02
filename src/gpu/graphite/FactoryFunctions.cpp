@@ -10,8 +10,12 @@
 #ifdef SK_ENABLE_PRECOMPILE
 
 #include "src/gpu/graphite/FactoryFunctions.h"
+
+#include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/PrecompileBasePriv.h"
+#include "src/shaders/SkShaderBase.h"
 
 namespace skgpu::graphite {
 
@@ -23,6 +27,12 @@ public:
     std::optional<SkBlendMode> asBlendMode() const final { return fBlendMode; }
 
 private:
+    void addToKey(const KeyContext& keyContext,
+                  int desiredCombination,
+                  PaintParamsKeyBuilder* builder) const override {
+    }
+
+
     SkBlendMode fBlendMode;
 };
 
@@ -34,6 +44,13 @@ sk_sp<PrecompileBlender> PrecompileBlender::Mode(SkBlendMode blendMode) {
 class PrecompileColorShader : public PrecompileShader {
 public:
     PrecompileColorShader() {}
+
+private:
+    void addToKey(const KeyContext& keyContext,
+                  int desiredCombination,
+                  PaintParamsKeyBuilder* builder) const override {
+    }
+
 };
 
 sk_sp<PrecompileShader> PrecompileShaders::Color() {
@@ -79,6 +96,11 @@ private:
         return numBlenderCombos * numDstCombos * numSrcCombos;
     }
 
+    void addToKey(const KeyContext& keyContext,
+                  int desiredCombination,
+                  PaintParamsKeyBuilder* builder) const override {
+    }
+
     std::vector<sk_sp<PrecompileBlender>> fBlenders;
     std::vector<sk_sp<PrecompileShader>> fDsts;
     std::vector<sk_sp<PrecompileShader>> fSrcs;
@@ -106,46 +128,102 @@ sk_sp<PrecompileShader> PrecompileShaders::Blend(
 }
 
 //--------------------------------------------------------------------------------------------------
+class PrecompileImageShader : public PrecompileShader {
+public:
+    PrecompileImageShader() {}
+
+private:
+    void addToKey(const KeyContext& keyContext,
+                  int desiredCombination,
+                  PaintParamsKeyBuilder* builder) const override {
+    }
+};
+
 sk_sp<PrecompileShader> PrecompileShaders::Image() {
-    return sk_make_sp<PrecompileShader>();
+    return sk_make_sp<PrecompileImageShader>();
 }
 
 //--------------------------------------------------------------------------------------------------
+class PrecompileGradientShader : public PrecompileShader {
+public:
+    PrecompileGradientShader(SkShaderBase::GradientType type) : fType(type) {}
+
+private:
+    /*
+     * The gradients currently have two specializations based on the number of stops.
+     */
+    inline static constexpr int kNumStopVariants = 2;
+    inline static constexpr int kStopVariants[kNumStopVariants] = { 4, 8 };
+
+    int numIntrinsicCombinations() const override {
+        return kNumStopVariants;
+    }
+
+    void addToKey(const KeyContext& keyContext,
+                  int desiredCombination,
+                  PaintParamsKeyBuilder* builder) const override {
+    }
+
+    // TODO: remove attribute once this is used in follow up CLs
+    [[maybe_unused]] SkShaderBase::GradientType fType;
+};
+
 sk_sp<PrecompileShader> PrecompileShaders::LinearGradient() {
-    return sk_make_sp<PrecompileShader>();
+    return sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kLinear);
 }
 
-//--------------------------------------------------------------------------------------------------
 sk_sp<PrecompileShader> PrecompileShaders::RadialGradient() {
-    return sk_make_sp<PrecompileShader>();
-}
-
-//--------------------------------------------------------------------------------------------------
-sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient() {
-    return sk_make_sp<PrecompileShader>();
+    return sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kRadial);
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::SweepGradient() {
-    return sk_make_sp<PrecompileShader>();
+    return sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kSweep);
+}
+
+sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient() {
+    return sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kConical);
 }
 
 //--------------------------------------------------------------------------------------------------
+class PrecompileBlurMaskFilter : public PrecompileMaskFilter {
+public:
+    PrecompileBlurMaskFilter() {}
+
+private:
+    void addToKey(const KeyContext& keyContext,
+                  int desiredCombination,
+                  PaintParamsKeyBuilder* builder) const override {
+    }
+};
+
 sk_sp<PrecompileMaskFilter> PrecompileMaskFilters::Blur() {
-    return sk_make_sp<PrecompileMaskFilter>();
+    return sk_make_sp<PrecompileBlurMaskFilter>();
 }
 
 //--------------------------------------------------------------------------------------------------
+class PrecompileMatrixColorFilter : public PrecompileColorFilter {
+public:
+    PrecompileMatrixColorFilter() {}
+
+private:
+    void addToKey(const KeyContext& keyContext,
+                  int desiredCombination,
+                  PaintParamsKeyBuilder* builder) const override {
+    }
+};
+
 sk_sp<PrecompileColorFilter> PrecompileColorFilters::Matrix() {
-    return sk_make_sp<PrecompileColorFilter>();
+    return sk_make_sp<PrecompileMatrixColorFilter>();
 }
 
 //--------------------------------------------------------------------------------------------------
+// TODO: need to figure out how we're going to decompose ImageFilters
 sk_sp<PrecompileImageFilter> PrecompileImageFilters::Blur() {
-    return sk_make_sp<PrecompileImageFilter>();
+    return nullptr; // sk_make_sp<PrecompileImageFilter>();
 }
 
 sk_sp<PrecompileImageFilter> PrecompileImageFilters::Image() {
-    return sk_make_sp<PrecompileImageFilter>();
+    return nullptr; // sk_make_sp<PrecompileImageFilter>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,6 +311,11 @@ public:
 private:
     int numChildCombinations() const override {
         return fChildOptions.size();
+    }
+
+    void addToKey(const KeyContext& keyContext,
+                  int desiredCombination,
+                  PaintParamsKeyBuilder* builder) const override {
     }
 
     sk_sp<SkRuntimeEffect> fEffect;

@@ -51,16 +51,18 @@ void no_blend_mode_option_test(ShaderCodeDictionary* dict, skiatest::Reporter* r
     REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 1);
 }
 
-void big_test_new(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
+void big_test_new(Context* context, skiatest::Reporter* reporter) {
 
-    // paintOptions (7)
-    //  |- sweepGrad_0 (1) | blendShader_0 (6)
-    //  |                     0: linearGrad_0 (1) | solid_0 (1)
-    //  |                     1: linearGrad_1 (1) | blendShader_1 (2)
-    //  |                                            0: radGrad_0 (1) | solid_1 (1)
-    //  |                                            1: imageShader_0 (1)
+    // paintOptions (17)
+    //  |- sweepGrad_0 (2) | blendShader_0 (15)
+    //  |                     0: kSrc (1)
+    //  |                     1: (dsts) linearGrad_0 (2) | solid_0 (1)
+    //  |                     2: (srcs) linearGrad_1 (2) | blendShader_1 (3)
+    //  |                                            0: kDst (1)
+    //  |                                            1: (dsts) radGrad_0 (2) | solid_1 (1)
+    //  |                                            2: (srcs) imageShader_0 (1)
     //  |
-    //  |- 4-built-in-blend-modes (just 1)
+    //  |- 4-built-in-blend-modes (just 1 since all are PorterDuff)
 
     PaintOptions paintOptions;
 
@@ -103,7 +105,7 @@ void big_test_new(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
     // now, blend modes
     paintOptions.setBlendModes(evenMoreBlendModes);                             // c array
 
-    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 7);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 17);
 
 //    context->precompile({paintOptions});
 }
@@ -343,7 +345,7 @@ void epoch_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
-    big_test_new(dict, reporter);
+    big_test_new(context, reporter);
     runtime_effect_test(dict, reporter);
 
     empty_test(dict, reporter);
