@@ -9,6 +9,7 @@
 
 #include "include/core/SkData.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkDebugUtils.h"
 #include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -515,6 +516,48 @@ void TableColorFilterBlock::BeginBlock(const KeyContext& keyContext,
     }
 
     builder->beginBlock(SkBuiltInCodeSnippetID::kTableColorFilter);
+}
+
+//--------------------------------------------------------------------------------------------------
+namespace {
+
+void add_color_space_xform_uniform_data(
+        const ShaderCodeDictionary* dict,
+        const ColorSpaceTransformBlock::ColorSpaceTransformData* data,
+        PipelineDataGatherer* gatherer) {
+    static constexpr int kNumXferFnCoeffs = 7;
+
+    VALIDATE_UNIFORMS(gatherer, dict, SkBuiltInCodeSnippetID::kColorSpaceXformColorFilter)
+    gatherer->write(SkTo<int>(data->fSteps.flags.mask()));
+    gatherer->write(SkTo<int>(classify_transfer_fn(data->fSteps.srcTF)));
+    gatherer->write(SkTo<int>(classify_transfer_fn(data->fSteps.dstTFInv)));
+    gatherer->writeHalfArray({&data->fSteps.srcTF.g, kNumXferFnCoeffs});
+    gatherer->writeHalfArray({&data->fSteps.dstTFInv.g, kNumXferFnCoeffs});
+
+    SkMatrix gamutTransform;
+    gamutTransform.set9(data->fSteps.src_to_dst_matrix);
+    gatherer->writeHalf(gamutTransform);
+
+    gatherer->addFlags(
+            dict->getSnippetRequirementFlags(SkBuiltInCodeSnippetID::kColorSpaceXformColorFilter));
+}
+
+}  // anonymous namespace
+
+ColorSpaceTransformBlock::ColorSpaceTransformData::ColorSpaceTransformData(const SkColorSpace* src,
+                                                                           SkAlphaType srcAT,
+                                                                           const SkColorSpace* dst,
+                                                                           SkAlphaType dstAT)
+        : fSteps(src, srcAT, dst, dstAT) {}
+
+void ColorSpaceTransformBlock::BeginBlock(const KeyContext& keyContext,
+                                          PaintParamsKeyBuilder* builder,
+                                          PipelineDataGatherer* gatherer,
+                                          const ColorSpaceTransformData* data) {
+    if (gatherer) {
+        add_color_space_xform_uniform_data(keyContext.dict(), data, gatherer);
+    }
+    builder->beginBlock(SkBuiltInCodeSnippetID::kColorSpaceXformColorFilter);
 }
 
 //--------------------------------------------------------------------------------------------------
