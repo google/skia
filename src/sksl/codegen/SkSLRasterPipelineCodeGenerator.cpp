@@ -43,7 +43,9 @@ namespace RP {
 
 class Generator {
 public:
-    Generator(const SkSL::Program& program) : fProgram(program) {}
+    Generator(const SkSL::Program& program, SkRPDebugTrace* debugTrace)
+            : fProgram(program)
+            , fDebugTrace(debugTrace) {}
 
     /** Converts the SkSL main() function into a set of Instructions. */
     bool writeProgram(const FunctionDefinition& function);
@@ -126,6 +128,7 @@ public:
 private:
     [[maybe_unused]] const SkSL::Program& fProgram;
     Builder fBuilder;
+    SkRPDebugTrace* fDebugTrace = nullptr;
 
     SkTHashMap<const IRNode*, SlotRange> fSlotMap;
     int fSlotCount = 0;
@@ -565,13 +568,14 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
 }  // namespace RP
 
 std::unique_ptr<RP::Program> MakeRasterPipelineProgram(const SkSL::Program& program,
-                                                       const FunctionDefinition& function) {
+                                                       const FunctionDefinition& function,
+                                                       SkRPDebugTrace* debugTrace) {
     // TODO(skia:13676): add mechanism for uniform passing
-    RP::Generator generator(program);
+    RP::Generator generator(program, debugTrace);
     if (!generator.writeProgram(function)) {
         return nullptr;
     }
-    return generator.builder()->finish(generator.slotCount());
+    return generator.builder()->finish(generator.slotCount(), debugTrace);
 }
 
 }  // namespace SkSL

@@ -1569,6 +1569,8 @@ BASE_SRCS_ALL = [
     "src/sksl/ir/SkSLVariableReference.h",
     # We do not include src/sksl/lex/* because that is only needed to regenerate the lexer.
     "src/sksl/spirv.h",
+    "src/sksl/tracing/SkRPDebugTrace.cpp",
+    "src/sksl/tracing/SkRPDebugTrace.h",
     "src/sksl/tracing/SkSLDebugInfo.h",
     "src/sksl/tracing/SkVMDebugTrace.cpp",
     "src/sksl/tracing/SkVMDebugTrace.h",

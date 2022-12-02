@@ -15,8 +15,12 @@
 #include <memory>
 
 class SkArenaAlloc;
+class SkWStream;
 
 namespace SkSL {
+
+class SkRPDebugTrace;
+
 namespace RP {
 
 // A single scalar in our program consumes one slot.
@@ -75,9 +79,10 @@ struct Instruction {
 
 class Program {
 public:
-    Program(SkTArray<Instruction> instrs, int numValueSlots);
+    Program(SkTArray<Instruction> instrs, int numValueSlots, SkRPDebugTrace* debugTrace);
 
     void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc);
+    void dump(SkWStream* s);
 
 private:
     void optimize();
@@ -87,12 +92,13 @@ private:
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;
     int fNumTempStackSlots = 0;
+    SkRPDebugTrace* fDebugTrace = nullptr;
 };
 
 class Builder {
 public:
     /** Finalizes and optimizes the program. */
-    std::unique_ptr<Program> finish(int numValueSlots);
+    std::unique_ptr<Program> finish(int numValueSlots, SkRPDebugTrace* debugTrace = nullptr);
 
     /** Assemble a program from the Raster Pipeline instructions below. */
     void init_lane_masks() {

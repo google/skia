@@ -9,6 +9,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
+#include "src/sksl/tracing/SkRPDebugTrace.h"
 
 #include <algorithm>
 #include <cstring>
@@ -68,8 +69,8 @@ void Builder::binary_op(BuilderOp op, int32_t slots) {
     }
 }
 
-std::unique_ptr<Program> Builder::finish(int numValueSlots) {
-    return std::make_unique<Program>(std::move(fInstructions), numValueSlots);
+std::unique_ptr<Program> Builder::finish(int numValueSlots, SkRPDebugTrace* debugTrace) {
+    return std::make_unique<Program>(std::move(fInstructions), numValueSlots, debugTrace);
 }
 
 void Program::optimize() {
@@ -118,11 +119,18 @@ int Program::numTempStackSlots() {
     return largest;
 }
 
-Program::Program(SkTArray<Instruction> instrs, int numValueSlots)
+Program::Program(SkTArray<Instruction> instrs, int numValueSlots, SkRPDebugTrace* debugTrace)
         : fInstructions(std::move(instrs))
-        , fNumValueSlots(numValueSlots) {
+        , fNumValueSlots(numValueSlots)
+        , fDebugTrace(debugTrace) {
     this->optimize();
     fNumTempStackSlots = this->numTempStackSlots();
+}
+
+void Program::dump(SkWStream* s) {
+    if (fDebugTrace) {
+        fDebugTrace->dump(s);
+    }
 }
 
 template <typename T>

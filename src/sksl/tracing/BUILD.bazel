@@ -25,6 +25,7 @@ skia_filegroup(
 skia_filegroup(
     name = "srcs",
     srcs = [
+        "SkRPDebugTrace.cpp",
         "SkVMDebugTrace.cpp",
         ":enabled_srcs",
     ],
@@ -34,6 +35,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        "SkRPDebugTrace.h",
         "SkSLDebugInfo.h",
         "SkVMDebugTrace.h",
         ":enabled_hdrs",
