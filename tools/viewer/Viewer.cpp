@@ -51,7 +51,6 @@
 #include "tools/viewer/MSKPSlide.h"
 #include "tools/viewer/ParticlesSlide.h"
 #include "tools/viewer/SKPSlide.h"
-#include "tools/viewer/SampleSlide.h"
 #include "tools/viewer/SkSLDebuggerSlide.h"
 #include "tools/viewer/SkSLSlide.h"
 #include "tools/viewer/SlideDir.h"
@@ -868,14 +867,7 @@ void Viewer::initSlides() {
     };
     std::sort(fSlides.begin() + firstGM, fSlides.end(), orderBySlideName);
 
-    // samples
-    int firstSample = fSlides.size();
-    for (const SampleFactory factory : SampleRegistry::Range()) {
-        auto slide = sk_make_sp<SampleSlide>(factory);
-        if (!CommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
-            fSlides.push_back(slide);
-        }
-    }
+    int firstRegisteredSlide = fSlides.size();
 
     // Registered slides are replacing Samples.
     for (const SlideFactory& factory : SlideRegistry::Range()) {
@@ -885,7 +877,7 @@ void Viewer::initSlides() {
         }
     }
 
-    std::sort(fSlides.begin() + firstSample, fSlides.end(), orderBySlideName);
+    std::sort(fSlides.begin() + firstRegisteredSlide, fSlides.end(), orderBySlideName);
 
     // Runtime shader editor
     {

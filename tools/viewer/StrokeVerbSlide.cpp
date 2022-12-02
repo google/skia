@@ -189,7 +189,7 @@ bool StrokeVerbSlide::onChar(SkUnichar unichar) {
                 this->updateAndInval();
                 return true;
             }
-            if (unichar == '+' || unichar == '=') {
+            if (unichar == '=') {
                 *valueToScale *= 5/4.f;
                 this->updateAndInval();
                 return true;

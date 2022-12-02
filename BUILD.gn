@@ -2298,25 +2298,6 @@ if (skia_enable_tools) {
     }
   }
 
-  import("gn/samples.gni")
-  test_lib("slides") {
-    sources = samples_sources
-    if (!skia_enable_skgpu_v1) {
-      sources -= skgpu_v1_samples_sources
-    }
-    public_deps = [ ":tool_utils" ]
-    deps = [
-      ":flags",
-      ":gpu_tool_utils",
-      ":xml",
-      "experimental/sktext:slides",
-      "modules/audioplayer",
-      "modules/skparagraph:slides",
-      "modules/skshaper",
-      "modules/svg",
-      "//third_party/imgui",
-    ]
-  }
   test_lib("hash_and_encode") {
     sources = [
       "tools/HashAndEncode.cpp",
@@ -3020,8 +3001,6 @@ if (skia_enable_tools) {
         "tools/viewer/SKPSlide.cpp",
         "tools/viewer/SKPSlide.h",
         "tools/viewer/SVGFileSlide.cpp",
-        "tools/viewer/SampleSlide.cpp",
-        "tools/viewer/SampleSlide.h",
         "tools/viewer/ShadowColorSlide.cpp",
         "tools/viewer/ShadowReferenceSlide.cpp",
         "tools/viewer/ShadowUtilsSlide.cpp",
@@ -3064,14 +3043,16 @@ if (skia_enable_tools) {
         ":gpu_tool_utils",
         ":sk_app",
         ":skia",
-        ":slides",
         ":tool_utils",
         ":trace",
+        ":xml",
         "experimental/sktext",
+        "experimental/sktext:slides",
         "modules/audioplayer",
         "modules/particles",
         "modules/skottie",
         "modules/skottie:utils",
+        "modules/skparagraph:slides",
         "modules/sksg:slides",
         "modules/skshaper:skshaper",
         "modules/svg",

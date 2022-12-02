@@ -59,7 +59,8 @@ protected:
     SkSize size() const { return fSize; }
 
 private:
-    SkSize fSize;};
+    SkSize fSize;
+};
 
 sk_sp<SkShader> setgrad(const SkRect& r, SkColor c0, SkColor c1) {
     SkColor colors[] = {c0, c1};
@@ -1206,7 +1207,8 @@ public:
 
 private:
     SkScalar letterSpacing;
-    SkScalar wordSpacing;};
+    SkScalar wordSpacing;
+};
 
 class ParagraphSlide10 : public ParagraphSlide_Base {
 public:
@@ -1630,7 +1632,8 @@ private:
     bool fRepeat = false;
     size_t fIndex = 0;
     size_t fLimit = 20;
-    std::unique_ptr<Paragraph> fParagraph;};
+    std::unique_ptr<Paragraph> fParagraph;
+};
 
 class ParagraphSlide19 : public ParagraphSlide_Base {
 public:
@@ -1750,7 +1753,8 @@ public:
     }
 
 private:
-    bool direction;};
+    bool direction = false;
+};
 
 class ParagraphSlide23 : public ParagraphSlide_Base {
 public:
@@ -2440,7 +2444,8 @@ public:
     }
 
 private:
-    SkPoint fPoint;};
+    SkPoint fPoint;
+};
 
 class ParagraphSlide36 : public ParagraphSlide_Base {
 public:

@@ -236,8 +236,8 @@ static void gradient_slide(SkCanvas* canvas) {
 
 #include "include/core/SkStream.h"
 #include "include/utils/SkRandom.h"
-#include "samplecode/DecodeFile.h"
 #include "src/core/SkOSFile.h"
+#include "tools/DecodeFile.h"
 
 static sk_sp<SkShader> make_shader0(SkIPoint* size) {
     SkBitmap    bm;
