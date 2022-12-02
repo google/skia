@@ -6,6 +6,7 @@ Milestone 110
 -------------
   * SkParsePath::ToSVGString now returns the string, rather than modifying a passed-in string.
   * Removed previously deprecated SkImageFilters::Paint factory. Use SkImageFilters::Shader instead.
+  * SkMesh::Make and SkMesh::MakeIndexed now return a SkMesh and error message string.
 
 * * *
 

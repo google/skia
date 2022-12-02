@@ -335,7 +335,19 @@ public:
 
     enum class Mode { kTriangles, kTriangleStrip };
 
-    static SkMesh Make(sk_sp<SkMeshSpecification>,
+#ifdef SK_LEGACY_MESH_MAKE
+    using Result = SkMesh;
+#else
+    struct Result;
+#endif
+
+    /**
+     * Creates a non-indexed SkMesh. The returned SkMesh can be tested for validity using
+     * SkMesh::isValid(). An invalid mesh simply fails to draws if passed to SkCanvas::drawMesh().
+     * If the mesh is invalid the returned string give contain the reason for the failure (e.g. the
+     * vertex buffer was null or uniform data too small).
+     */
+    static Result Make(sk_sp<SkMeshSpecification>,
                        Mode,
                        sk_sp<VertexBuffer>,
                        size_t vertexCount,
@@ -343,7 +355,13 @@ public:
                        sk_sp<const SkData> uniforms,
                        const SkRect& bounds);
 
-    static SkMesh MakeIndexed(sk_sp<SkMeshSpecification>,
+    /**
+     * Creates an indexed SkMesh. The returned SkMesh can be tested for validity using
+     * SkMesh::isValid(). A invalid mesh simply fails to draw if passed to SkCanvas::drawMesh().
+     * If the mesh is invalid the returned string give contain the reason for the failure (e.g. the
+     * index buffer was null or uniform data too small).
+     */
+    static Result MakeIndexed(sk_sp<SkMeshSpecification>,
                               Mode,
                               sk_sp<VertexBuffer>,
                               size_t vertexCount,
@@ -381,7 +399,7 @@ public:
 private:
     friend struct SkMeshPriv;
 
-    bool validate() const;
+    std::tuple<bool, SkString> validate() const;
 
     sk_sp<SkMeshSpecification> fSpec;
 
@@ -400,6 +418,10 @@ private:
 
     SkRect fBounds = SkRect::MakeEmpty();
 };
+
+#ifndef SK_LEGACY_MESH_MAKE
+struct SkMesh::Result { SkMesh mesh; SkString error; };
+#endif
 
 #endif  // SK_ENABLE_SKSL
 
