@@ -26,6 +26,9 @@ public:
     /** Generates a human-readable dump of the debug trace. */
     void dump(SkWStream* o) const override;
 
+    /** Attaches the SkSL source to be debugged. */
+    void setSource(std::string source);
+
     /** A 1:1 mapping of slot numbers to debug information. */
     std::vector<SlotDebugInfo> fSlotInfo;
     std::vector<FunctionDebugInfo> fFuncInfo;

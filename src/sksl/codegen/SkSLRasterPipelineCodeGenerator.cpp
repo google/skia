@@ -11,6 +11,7 @@
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLStatement.h"
+#include "include/private/SkStringView.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "include/sksl/SkSLOperator.h"
@@ -28,14 +29,20 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLLiteral.h"
+#include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/tracing/SkRPDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugInfo.h"
 
+#include <cstddef>
 #include <optional>
 #include <string>
+#include <string_view>
+#include <utility>
 #include <vector>
 
 namespace SkSL {
@@ -57,6 +64,22 @@ public:
     std::optional<SlotRange> writeFunction(const IRNode& callSite,
                                            const FunctionDefinition& function,
                                            SkSpan<const SlotRange> args);
+
+    /** Used by `createSlots` to add this variable to SlotDebugInfo inside SkRPDebugTrace. */
+    void addDebugSlotInfoForGroup(const std::string& varName,
+                                  const Type& type,
+                                  Position pos,
+                                  int* groupIndex,
+                                  bool isFunctionReturnValue);
+    void addDebugSlotInfo(const std::string& varName,
+                          const Type& type,
+                          Position pos,
+                          bool isFunctionReturnValue);
+    /**
+     * Returns the slot index of this function inside the FunctionDebugInfo array in SkRPDebugTrace.
+     * The FunctionDebugInfo slot will be created if it doesn't already exist.
+     */
+    int getDebugFunctionInfo(const FunctionDeclaration& decl);
 
     /** Implements low-level slot creation; slots will not be known to the debugger. */
     SlotRange createSlots(int numSlots);
@@ -126,7 +149,7 @@ public:
     void foldWithOp(BuilderOp op, int elements);
 
 private:
-    [[maybe_unused]] const SkSL::Program& fProgram;
+    const SkSL::Program& fProgram;
     Builder fBuilder;
     SkRPDebugTrace* fDebugTrace = nullptr;
 
@@ -168,6 +191,66 @@ std::unique_ptr<LValue> LValue::Make(const Expression& e) {
     return nullptr;
 }
 
+void Generator::addDebugSlotInfoForGroup(const std::string& varName,
+                                         const Type& type,
+                                         Position pos,
+                                         int* groupIndex,
+                                         bool isFunctionReturnValue) {
+    SkASSERT(fDebugTrace);
+    switch (type.typeKind()) {
+        case Type::TypeKind::kArray: {
+            int nslots = type.columns();
+            const Type& elemType = type.componentType();
+            for (int slot = 0; slot < nslots; ++slot) {
+                this->addDebugSlotInfoForGroup(varName + "[" + std::to_string(slot) + "]", elemType,
+                                               pos, groupIndex, isFunctionReturnValue);
+            }
+            break;
+        }
+        case Type::TypeKind::kStruct: {
+            for (const Type::Field& field : type.fields()) {
+                this->addDebugSlotInfoForGroup(varName + "." + std::string(field.fName),
+                                               *field.fType, pos, groupIndex,
+                                               isFunctionReturnValue);
+            }
+            break;
+        }
+        default:
+            SkASSERTF(0, "unsupported slot type %d", (int)type.typeKind());
+            [[fallthrough]];
+
+        case Type::TypeKind::kScalar:
+        case Type::TypeKind::kVector:
+        case Type::TypeKind::kMatrix: {
+            Type::NumberKind numberKind = type.componentType().numberKind();
+            int nslots = type.slotCount();
+
+            for (int slot = 0; slot < nslots; ++slot) {
+                SlotDebugInfo slotInfo;
+                slotInfo.name = varName;
+                slotInfo.columns = type.columns();
+                slotInfo.rows = type.rows();
+                slotInfo.componentIndex = slot;
+                slotInfo.groupIndex = (*groupIndex)++;
+                slotInfo.numberKind = numberKind;
+                slotInfo.pos = pos;
+                slotInfo.fnReturnValue = isFunctionReturnValue ? 1 : -1;
+                fDebugTrace->fSlotInfo.push_back(std::move(slotInfo));
+            }
+            break;
+        }
+    }
+}
+
+void Generator::addDebugSlotInfo(const std::string& varName,
+                                 const Type& type,
+                                 Position pos,
+                                 bool isFunctionReturnValue) {
+    int groupIndex = 0;
+    this->addDebugSlotInfoForGroup(varName, type, pos, &groupIndex, isFunctionReturnValue);
+    SkASSERT((size_t)groupIndex == type.slotCount());
+}
+
 SlotRange Generator::createSlots(int numSlots) {
     SlotRange range = {fSlotCount, numSlots};
     fSlotCount += numSlots;
@@ -178,9 +261,23 @@ SlotRange Generator::createSlots(std::string name,
                                  const Type& type,
                                  Position pos,
                                  bool isFunctionReturnValue) {
-    // TODO(skia:13676): `name`, `pos` and `isFunctionReturnValue` will be used by the debugger.
-    // For now, ignore these and just create the raw slots.
-    return this->createSlots(type.slotCount());
+    size_t nslots = type.slotCount();
+    if (nslots == 0) {
+        return {};
+    }
+    if (fDebugTrace) {
+        // Our debug slot-info table should have the same length as the actual slot table.
+        SkASSERT(fDebugTrace->fSlotInfo.size() == (size_t)fSlotCount);
+
+        // Append slot names and types to our debug slot-info table.
+        fDebugTrace->fSlotInfo.reserve(fSlotCount + nslots);
+        this->addDebugSlotInfo(name, type, pos, isFunctionReturnValue);
+
+        // Confirm that we added the expected number of slots.
+        SkASSERT(fDebugTrace->fSlotInfo.size() == (size_t)(fSlotCount + nslots));
+    }
+
+    return this->createSlots(nslots);
 }
 
 SlotRange Generator::getSlots(const Variable& v) {
@@ -209,9 +306,41 @@ SlotRange Generator::getFunctionSlots(const IRNode& callSite, const FunctionDecl
     return range;
 }
 
+int Generator::getDebugFunctionInfo(const FunctionDeclaration& decl) {
+    SkASSERT(fDebugTrace);
+
+    std::string name = decl.description();
+
+    // When generating the debug trace, we typically mark every function as `noinline`. This makes
+    // the trace more confusing, since this isn't in the source program, so remove it.
+    static constexpr std::string_view kNoInline = "noinline ";
+    if (skstd::starts_with(name, kNoInline)) {
+        name = name.substr(kNoInline.size());
+    }
+
+    // Look for a matching FunctionDebugInfo slot.
+    for (size_t index = 0; index < fDebugTrace->fFuncInfo.size(); ++index) {
+        if (fDebugTrace->fFuncInfo[index].name == name) {
+            return index;
+        }
+    }
+
+    // We've never called this function before; create a new slot to hold its information.
+    int slot = (int)fDebugTrace->fFuncInfo.size();
+    fDebugTrace->fFuncInfo.push_back(FunctionDebugInfo{std::move(name)});
+    return slot;
+}
+
 std::optional<SlotRange> Generator::writeFunction(const IRNode& callSite,
                                                   const FunctionDefinition& function,
                                                   SkSpan<const SlotRange> args) {
+    [[maybe_unused]] int funcIndex = -1;
+    if (fDebugTrace) {
+        funcIndex = this->getDebugFunctionInfo(function.declaration());
+        SkASSERT(funcIndex >= 0);
+        // TODO(debugger): add trace for function-enter
+    }
+
     fFunctionStack.push_back(this->getFunctionSlots(callSite, function.declaration()));
 
     if (!this->writeStatement(*function.body())) {
@@ -220,6 +349,11 @@ std::optional<SlotRange> Generator::writeFunction(const IRNode& callSite,
 
     SlotRange functionResult = fFunctionStack.back();
     fFunctionStack.pop_back();
+
+    if (fDebugTrace) {
+        // TODO(debugger): add trace for function-exit
+    }
+
     return functionResult;
 }
 
@@ -515,6 +649,10 @@ bool Generator::pushVariableReference(const VariableReference& v) {
 }
 
 bool Generator::writeProgram(const FunctionDefinition& function) {
+    if (fDebugTrace) {
+        // Copy the program source into the debug info so that it will be written in the trace file.
+        fDebugTrace->setSource(*fProgram.fSource);
+    }
     // Assign slots to the parameters of main; copy src and dst into those slots as appropriate.
     SkSTArray<2, SlotRange> args;
     for (const SkSL::Variable* param : function.declaration().parameters()) {

@@ -8,6 +8,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
@@ -51,8 +52,8 @@ DEF_TEST(SkVMDebugTraceWrite, r) {
         "//\\\\//\\\\ third line",
     };
     i.fSlotInfo = {
-        {"SkVM_DebugTrace", 1, 2, 3, 4, (SkSL::Type::NumberKind)5,  6, -1},
-        {"Unit_Test",       6, 7, 8, 8, (SkSL::Type::NumberKind)10, 11, 12},
+        {"SkVM_DebugTrace", 1, 2, 3, 4, (SkSL::Type::NumberKind)5,  6,  SkSL::Position{}, -1},
+        {"Unit_Test",       6, 7, 8, 8, (SkSL::Type::NumberKind)10, 11, SkSL::Position{}, 12},
     };
     i.fFuncInfo = {
         {"void testFunc();"},
@@ -150,27 +151,27 @@ DEF_TEST(SkVMDebugTraceGetSlotComponentSuffix, r) {
     // - fnReturnValue
 
     SkSL::SkVMDebugTrace i;
-    i.fSlotInfo = {{"s", 1, 1, 0,  0,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"v", 4, 1, 0,  0,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"v", 4, 1, 1,  1,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"v", 4, 1, 2,  2,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"v", 4, 1, 3,  3,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 0,  0,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 1,  1,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 2,  2,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 3,  3,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 4,  4,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 5,  5,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 6,  6,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 7,  7,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 8,  8,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 9,  9,  SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 10, 10, SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 11, 11, SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 12, 12, SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 13, 13, SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 14, 14, SkSL::Type::NumberKind::kFloat, 0, -1},
-                   {"m", 4, 4, 15, 15, SkSL::Type::NumberKind::kFloat, 0, -1}};
+    i.fSlotInfo = {{"s", 1, 1, 0,  0,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"v", 4, 1, 0,  0,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"v", 4, 1, 1,  1,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"v", 4, 1, 2,  2,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"v", 4, 1, 3,  3,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 0,  0,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 1,  1,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 2,  2,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 3,  3,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 4,  4,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 5,  5,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 6,  6,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 7,  7,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 8,  8,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 9,  9,  SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 10, 10, SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 11, 11, SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 12, 12, SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 13, 13, SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 14, 14, SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1},
+                   {"m", 4, 4, 15, 15, SkSL::Type::NumberKind::kFloat, 0, SkSL::Position{}, -1}};
 
     const std::string kExpected[] = {"",
                                      ".x",     ".y",     ".z",     ".w",
