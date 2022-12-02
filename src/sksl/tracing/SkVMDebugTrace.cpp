@@ -14,6 +14,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkStreamPriv.h"
+#include "src/sksl/ir/SkSLType.h"
 #include "src/utils/SkJSON.h"
 #include "src/utils/SkJSONWriter.h"
 
@@ -29,7 +30,7 @@ static constexpr char kTraceVersion[] = "20220209";
 namespace SkSL {
 
 std::string SkVMDebugTrace::getSlotComponentSuffix(int slotIndex) const {
-    const SkSL::SkVMSlotInfo& slot = fSlotInfo[slotIndex];
+    const SkSL::SlotDebugInfo& slot = fSlotInfo[slotIndex];
 
     if (slot.rows > 1) {
         return "["  + std::to_string(slot.componentIndex / slot.rows) +
@@ -104,7 +105,7 @@ void SkVMDebugTrace::setSource(std::string source) {
 
 void SkVMDebugTrace::dump(SkWStream* o) const {
     for (size_t index = 0; index < fSlotInfo.size(); ++index) {
-        const SkVMSlotInfo& info = fSlotInfo[index];
+        const SlotDebugInfo& info = fSlotInfo[index];
 
         o->writeText("$");
         o->writeDecAsText(index);
@@ -137,7 +138,7 @@ void SkVMDebugTrace::dump(SkWStream* o) const {
     }
 
     for (size_t index = 0; index < fFuncInfo.size(); ++index) {
-        const SkVMFunctionInfo& info = fFuncInfo[index];
+        const FunctionDebugInfo& info = fFuncInfo[index];
 
         o->writeText("F");
         o->writeDecAsText(index);
@@ -161,7 +162,7 @@ void SkVMDebugTrace::dump(SkWStream* o) const {
                     break;
 
                 case SkSL::SkVMTraceInfo::Op::kVar: {
-                    const SkVMSlotInfo& slot = fSlotInfo[data0];
+                    const SlotDebugInfo& slot = fSlotInfo[data0];
                     o->writeText(indent.c_str());
                     o->writeText(slot.name.c_str());
                     o->writeText(this->getSlotComponentSuffix(data0).c_str());
@@ -216,7 +217,7 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
     json.beginArray("slots");
 
     for (size_t index = 0; index < fSlotInfo.size(); ++index) {
-        const SkVMSlotInfo& info = fSlotInfo[index];
+        const SlotDebugInfo& info = fSlotInfo[index];
 
         json.beginObject();
         json.appendString("name", info.name.data(), info.name.size());
@@ -238,7 +239,7 @@ void SkVMDebugTrace::writeTrace(SkWStream* w) const {
     json.beginArray("functions");
 
     for (size_t index = 0; index < fFuncInfo.size(); ++index) {
-        const SkVMFunctionInfo& info = fFuncInfo[index];
+        const FunctionDebugInfo& info = fFuncInfo[index];
 
         json.beginObject();
         json.appendString("name", info.name);
@@ -308,7 +309,7 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
 
         // Grow the slot array to hold this element.
         fSlotInfo.push_back({});
-        SkVMSlotInfo& info = fSlotInfo.back();
+        SlotDebugInfo& info = fSlotInfo.back();
 
         // Populate the SlotInfo with our JSON data.
         const skjson::StringValue* name     = (*element)["name"];
@@ -346,7 +347,7 @@ bool SkVMDebugTrace::readTrace(SkStream* r) {
 
         // Grow the function array to hold this element.
         fFuncInfo.push_back({});
-        SkVMFunctionInfo& info = fFuncInfo.back();
+        FunctionDebugInfo& info = fFuncInfo.back();
 
         // Populate the FunctionInfo with our JSON data.
         const skjson::StringValue* name = (*element)["name"];

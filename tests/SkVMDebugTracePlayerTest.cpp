@@ -16,6 +16,7 @@
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/sksl/tracing/SkSLDebugInfo.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/sksl/tracing/SkVMDebugTracePlayer.h"
 #include "tests/Test.h"
@@ -84,7 +85,7 @@ static std::string make_vars_string(
             continue;
         }
 
-        const SkSL::SkVMSlotInfo& slot = trace.fSlotInfo[var.fSlotIndex];
+        const SkSL::SlotDebugInfo& slot = trace.fSlotInfo[var.fSlotIndex];
         text += var.fDirty ? "##": "";
         text += slot.name;
         text += trace.getSlotComponentSuffix(var.fSlotIndex);

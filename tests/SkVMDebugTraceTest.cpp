@@ -9,6 +9,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "src/sksl/ir/SkSLType.h"
+#include "src/sksl/tracing/SkSLDebugInfo.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "tests/Test.h"
 
@@ -139,7 +140,7 @@ DEF_TEST(SkVMDebugTraceRead, r) {
 }
 
 DEF_TEST(SkVMDebugTraceGetSlotComponentSuffix, r) {
-    // SkVMSlotInfo fields:
+    // SlotDebugInfo fields:
     // - name
     // - columns
     // - rows

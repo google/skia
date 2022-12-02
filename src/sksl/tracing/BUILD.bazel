@@ -34,6 +34,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        "SkSLDebugInfo.h",
         "SkVMDebugTrace.h",
         ":enabled_hdrs",
     ],

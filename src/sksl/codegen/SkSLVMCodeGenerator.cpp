@@ -62,6 +62,7 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
+#include "src/sksl/tracing/SkSLDebugInfo.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 
 #include <algorithm>
@@ -204,12 +205,12 @@ private:
     Value getSlotValue(size_t slot, size_t nslots);
 
     /**
-     * Returns the slot index of this function inside the SkVMFunctionInfo array in SkVMDebugTrace.
-     * The SkVMFunctionInfo slot will be created if it doesn't already exist.
+     * Returns the slot index of this function inside the FunctionDebugInfo array in SkVMDebugTrace.
+     * The FunctionDebugInfo slot will be created if it doesn't already exist.
      */
     int getDebugFunctionInfo(const FunctionDeclaration& decl);
 
-    /** Used by `createSlot` to add this variable to the SkVMSlotInfo array inside SkVMDebugTrace.*/
+    /** Used by `createSlot` to add this variable to SlotDebugInfo inside SkVMDebugTrace. */
     void addDebugSlotInfo(const std::string& varName, const Type& type, int line,
                           int fnReturnValue);
 
@@ -560,7 +561,7 @@ int SkVMGenerator::getDebugFunctionInfo(const FunctionDeclaration& decl) {
         name = name.substr(kNoInline.size());
     }
 
-    // Look for a matching SkVMFunctionInfo slot.
+    // Look for a matching FunctionDebugInfo slot.
     for (size_t index = 0; index < fDebugTrace->fFuncInfo.size(); ++index) {
         if (fDebugTrace->fFuncInfo[index].name == name) {
             return index;
@@ -569,7 +570,7 @@ int SkVMGenerator::getDebugFunctionInfo(const FunctionDeclaration& decl) {
 
     // We've never called this function before; create a new slot to hold its information.
     int slot = (int)fDebugTrace->fFuncInfo.size();
-    fDebugTrace->fFuncInfo.push_back(SkVMFunctionInfo{std::move(name)});
+    fDebugTrace->fFuncInfo.push_back(FunctionDebugInfo{std::move(name)});
     return slot;
 }
 
@@ -669,7 +670,7 @@ void SkVMGenerator::addDebugSlotInfoForGroup(const std::string& varName, const T
             int nslots = type.slotCount();
 
             for (int slot = 0; slot < nslots; ++slot) {
-                SkVMSlotInfo slotInfo;
+                SlotDebugInfo slotInfo;
                 slotInfo.name = varName;
                 slotInfo.columns = type.columns();
                 slotInfo.rows = type.rows();
