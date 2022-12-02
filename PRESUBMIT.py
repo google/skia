@@ -248,6 +248,9 @@ def _CheckGeneratedBazelBUILDFiles(input_api, output_api):
       # TODO(crbug.com/skia/12541): Remove when Bazel builds work on Windows.
       # Note: `make` is not installed on Windows by default.
       return []
+    if 'darwin' in sys.platform:
+      # This takes too long on Mac with default settings. Probably due to sandboxing.
+      return []
     for affected_file in input_api.AffectedFiles(include_deletes=True):
       affected_file_path = affected_file.LocalPath()
       if (affected_file_path.endswith('.go') or
