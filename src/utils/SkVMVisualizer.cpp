@@ -9,9 +9,9 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkOpts_spi.h"
 #include "src/core/SkStreamPriv.h"
-#include "src/sksl/tracing/SkSLDebugInfo.h"
 
 #if defined(SK_ENABLE_SKSL)
+#include "src/sksl/tracing/SkSLDebugInfo.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #endif
 
