@@ -11,11 +11,6 @@
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "tests/Test.h"
 
-struct TestingOnly_SkRasterPipelineInspector {
-    using StageList = SkRasterPipeline::StageList;
-    static StageList* GetStageList(SkRasterPipeline* p) { return p->fStages; }
-};
-
 static SkSL::RP::SlotRange two_slots_at(SkSL::RP::Slot index) {
     return SkSL::RP::SlotRange{index, 2};
 }
@@ -57,7 +52,7 @@ DEF_TEST(RasterPipelineBuilder, r) {
 
     // Double check that the resulting stage list contains the correct ops.
     // (Note that the RasterPipeline stage list is stored in backwards order.)
-    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    const auto* stages = pipeline.getStageList();
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_dst);
     stages = stages->prev;
 
@@ -86,7 +81,7 @@ DEF_TEST(RasterPipelineBuilder, r) {
     const float* slot0 = (const float*)firstStage->ctx;
     const int N = SkOpts::raster_pipeline_highp_stride;
 
-    stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    stages = pipeline.getStageList();
     REPORTER_ASSERT(r, stages->ctx == slot0 + (3 * N));
     stages = stages->prev;
 
@@ -124,7 +119,7 @@ DEF_TEST(RasterPipelineBuilderImmediate, r) {
     program->appendStages(&pipeline, &alloc);
 
     // Double check that the resulting stage list contains the expected immediate values.
-    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    const auto* stages = pipeline.getStageList();
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::immediate_f);
     REPORTER_ASSERT(r, contains_value<uint32_t>(stages->ctx, 456));
     stages = stages->prev;
@@ -160,7 +155,7 @@ DEF_TEST(RasterPipelineBuilderLoadStoreAccumulator, r) {
     program->appendStages(&pipeline, &alloc);
 
     // Double check that the resulting stage list contains the expected stores.
-    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    const auto* stages = pipeline.getStageList();
     const float* slot0 = (const float*)stages->ctx;
     const int N = SkOpts::raster_pipeline_highp_stride;
 
@@ -206,7 +201,7 @@ DEF_TEST(RasterPipelineBuilderPushPopConditionMask, r) {
 
     // Double check that the resulting stage list contains the expected pushes and pops.
     // (Note that, as always, stage lists are in reverse order.)
-    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    const auto* stages = pipeline.getStageList();
     const float* slot0 = (const float*)stages->ctx;
     const int N = SkOpts::raster_pipeline_highp_stride;
 
@@ -282,7 +277,7 @@ DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     // Double check that the resulting stage list contains the expected temp-value pushes.
     // `discard_stack` isn't in the list because it doesn't create any ops.
     // (Note that, as always, stage lists are in reverse order.)
-    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    const auto* stages = pipeline.getStageList();
     const float* slot0 = (const float*)stages->ctx;
     const int N = SkOpts::raster_pipeline_highp_stride;
 
@@ -328,7 +323,7 @@ DEF_TEST(RasterPipelineBuilderCopySlotsMasked, r) {
     program->appendStages(&pipeline, &alloc);
 
     // Double check that the resulting stage list contains the expected stores.
-    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    const auto* stages = pipeline.getStageList();
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::load_unmasked);
     const float* slot0 = (const float*)stages->ctx;
     const int N = SkOpts::raster_pipeline_highp_stride;
@@ -361,7 +356,7 @@ DEF_TEST(RasterPipelineBuilderCopySlotsUnmasked, r) {
     program->appendStages(&pipeline, &alloc);
 
     // Double check that the resulting stage list contains the expected stores.
-    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    const auto* stages = pipeline.getStageList();
     REPORTER_ASSERT(r, stages->stage == SkRasterPipeline::store_unmasked);
     const float* slot0 = (const float*)stages->ctx;
     const int N = SkOpts::raster_pipeline_highp_stride;
@@ -403,7 +398,7 @@ DEF_TEST(RasterPipelineBuilderPushPopSlots, r) {
 
     // Double check that the resulting stage list contains the expected pushes and pops, represented
     // as copy-slots. (Note that, as always, stage lists are in reverse order.)
-    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    const auto* stages = pipeline.getStageList();
     const float* slot0 = (const float*)stages->ctx;
     const int N = SkOpts::raster_pipeline_highp_stride;
 
@@ -457,7 +452,7 @@ DEF_TEST(RasterPipelineBuilderDuplicateSlots, r) {
 
     // Double check that the resulting stage list contains the expected pushes and pops, represented
     // as copy-slots. (Note that, as always, stage lists are in reverse order.)
-    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    const auto* stages = pipeline.getStageList();
     const float* slot0 = (const float*)stages->ctx;
     const int N = SkOpts::raster_pipeline_highp_stride;
 
@@ -516,7 +511,7 @@ DEF_TEST(RasterPipelineBuilderUnaryAndBinaryOps, r) {
 
     // Double check that the resulting stage list contains the expected pushes and adds. (Note that,
     // as always, stage lists are in reverse order.)
-    const auto* stages = TestingOnly_SkRasterPipelineInspector::GetStageList(&pipeline);
+    const auto* stages = pipeline.getStageList();
     const float* slot0 = (const float*)stages->ctx;
     const int N = SkOpts::raster_pipeline_highp_stride;
 

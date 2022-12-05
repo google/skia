@@ -295,8 +295,6 @@ public:
     static constexpr int kNumHighpStages = SK_RASTER_PIPELINE_STAGES_ALL(M);
 #undef M
 
-    static const char* GetStageName(Stage stage);
-
     void append(Stage, void* = nullptr);
     void append(Stage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
     void append(Stage, uintptr_t ctx);
@@ -309,6 +307,16 @@ public:
 
     // Allocates a thunk which amortizes run() setup cost in alloc.
     std::function<void(size_t, size_t, size_t, size_t)> compile() const;
+
+    // Callers can inspect the stage list for debugging purposes.
+    struct StageList {
+        StageList* prev;
+        Stage      stage;
+        void*      ctx;
+    };
+
+    static const char* GetStageName(Stage stage);
+    const StageList* getStageList() const { return fStages; }
 
     // Prints the entire StageList using SkDebugf.
     void dump() const;
@@ -367,12 +375,6 @@ public:
     bool empty() const { return fStages == nullptr; }
 
 private:
-    struct StageList {
-        StageList* prev;
-        Stage      stage;
-        void*      ctx;
-    };
-
     bool build_lowp_pipeline(SkRasterPipelineStage* ip) const;
     void build_highp_pipeline(SkRasterPipelineStage* ip) const;
 
@@ -386,8 +388,6 @@ private:
     SkRasterPipeline_RewindCtx* fRewindCtx;
     StageList*                  fStages;
     int                         fNumStages;
-
-    friend struct TestingOnly_SkRasterPipelineInspector;
 };
 
 template <size_t bytes>
