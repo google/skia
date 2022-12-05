@@ -27,7 +27,7 @@ static std::string to_string_impl(RoundtripType value) {
 
     double roundtripped;
     buffer >> roundtripped;
-    if (value != (RoundtripType)roundtripped) {
+    if (value != (RoundtripType)roundtripped && std::isfinite(value)) {
         buffer.str({});
         buffer.clear();
         buffer.precision(kFullPrecision);
