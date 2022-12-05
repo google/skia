@@ -295,6 +295,8 @@ public:
     static constexpr int kNumHighpStages = SK_RASTER_PIPELINE_STAGES_ALL(M);
 #undef M
 
+    static const char* GetStageName(Stage stage);
+
     void append(Stage, void* = nullptr);
     void append(Stage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
     void append(Stage, uintptr_t ctx);

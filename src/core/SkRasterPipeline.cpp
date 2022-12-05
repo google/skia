@@ -70,17 +70,21 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     fNumStages += src.fNumStages;
 }
 
+const char* SkRasterPipeline::GetStageName(SkRasterPipeline::Stage stage) {
+    const char* name = "";
+    switch (stage) {
+    #define M(x) case x: name = #x; break;
+        SK_RASTER_PIPELINE_STAGES_ALL(M)
+    #undef M
+    }
+    return name;
+}
+
 void SkRasterPipeline::dump() const {
     SkDebugf("SkRasterPipeline, %d stages\n", fNumStages);
     std::vector<const char*> stages;
     for (auto st = fStages; st; st = st->prev) {
-        const char* name = "";
-        switch (st->stage) {
-        #define M(x) case x: name = #x; break;
-            SK_RASTER_PIPELINE_STAGES_ALL(M)
-        #undef M
-        }
-        stages.push_back(name);
+        stages.push_back(GetStageName(st->stage));
     }
     std::reverse(stages.begin(), stages.end());
     for (const char* name : stages) {
