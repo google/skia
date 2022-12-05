@@ -15,6 +15,7 @@
   { include: ["<__algorithm/min.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/move.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/remove_if.h>", "private", "<algorithm>", "public"] },
+  { include: ["<__algorithm/reverse.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/search.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/sort.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/stable_sort.h>", "private", "<algorithm>", "public"] },
