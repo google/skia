@@ -192,16 +192,21 @@ protected:
                                                    kRect);
                     }
                 }
+#ifdef SK_LEGACY_MESH_MAKE
+                const SkMesh& mesh = result;
+#else
                 if (!result.mesh.isValid()) {
                     SkDebugf("Mesh creation failed: %s\n", result.error.c_str());
                     return DrawResult::kFail;
                 }
+                const SkMesh& mesh = result.mesh;
+#endif
                 SkPaint paint;
                 paint.setColor(SK_ColorGREEN);
                 paint.setShader(shader ? fShader : nullptr);
                 paint.setAlpha(alpha);
 
-                canvas->drawMesh(result.mesh, blender, paint);
+                canvas->drawMesh(mesh, blender, paint);
 
                 canvas->translate(0, 150);
                 ++i;
@@ -433,15 +438,20 @@ protected:
                                            /*vertexOffset=*/0,
                                            /*uniforms=    */nullptr,
                                            kRect);
+#ifdef SK_LEGACY_MESH_MAKE
+                const SkMesh& mesh = result;
+#else
                 if (!result.mesh.isValid()) {
                     SkDebugf("Mesh creation failed: %s\n", result.error.c_str());
                     return DrawResult::kFail;
                 }
+                const SkMesh& mesh = result.mesh;
+#endif
 
                 SkPaint paint;
                 paint.setShader(useShader ? fShader : nullptr);
                 SkBlendMode mode = useShader ? SkBlendMode::kModulate : SkBlendMode::kDst;
-                canvas->drawMesh(result.mesh, SkBlender::Mode(mode), paint);
+                canvas->drawMesh(mesh, SkBlender::Mode(mode), paint);
 
                 c->translate(0, kRect.height() + 10);
             }
@@ -588,14 +598,19 @@ protected:
                                        /*uniforms=    */std::move(unis),
                                        kRect);
 
+#ifdef SK_LEGACY_MESH_MAKE
+            const SkMesh& mesh = result;
+#else
             if (!result.mesh.isValid()) {
                 SkDebugf("Mesh creation failed: %s\n", result.error.c_str());
                 return DrawResult::kFail;
             }
+            const SkMesh& mesh = result.mesh;
+#endif
 
             SkPaint paint;
             paint.setShader(fShader);
-            canvas->drawMesh(result.mesh, SkBlender::Mode(SkBlendMode::kModulate), paint);
+            canvas->drawMesh(mesh, SkBlender::Mode(SkBlendMode::kModulate), paint);
 
             canvas->translate(0, kRect.height() + 10);
         }
@@ -765,12 +780,18 @@ protected:
                                            /*vertexOffset=*/0,
                                            nullptr,
                                            bounds);
+
+#ifdef SK_LEGACY_MESH_MAKE
+                const SkMesh& mesh = result;
+#else
                 if (!result.mesh.isValid()) {
                     SkDebugf("Mesh creation failed: %s\n", result.error.c_str());
                     return DrawResult::kFail;
                 }
+                const SkMesh& mesh = result.mesh;
+#endif
 
-                canvas->drawMesh(result.mesh, SkBlender::Mode(SkBlendMode::kDst), paint);
+                canvas->drawMesh(mesh, SkBlender::Mode(SkBlendMode::kDst), paint);
 
                 canvas->translate(0, r.height() + 10);
             }
@@ -829,12 +850,17 @@ protected:
                                                   /*uniforms=   */ nullptr,
                                                   bounds);
 
+#ifdef SK_LEGACY_MESH_MAKE
+                const SkMesh& mesh = result;
+#else
                 if (!result.mesh.isValid()) {
                     SkDebugf("Mesh creation failed: %s\n", result.error.c_str());
                     return DrawResult::kFail;
                 }
+                const SkMesh& mesh = result.mesh;
+#endif
 
-                canvas->drawMesh(result.mesh, SkBlender::Mode(SkBlendMode::kDst), paint);
+                canvas->drawMesh(mesh, SkBlender::Mode(SkBlendMode::kDst), paint);
             }
             canvas->translate(0, r.height() + 10);
         }
@@ -967,21 +993,25 @@ protected:
                                                   indexMeshOffset,
                                                   /*uniforms=*/nullptr,
                                                   bounds);
-
+#ifdef SK_LEGACY_MESH_MAKE
+                SkMesh& mesh = result;
+#else
                 if (!result.mesh.isValid()) {
                     SkDebugf("Mesh creation failed: %s\n", result.error.c_str());
                     return DrawResult::kFail;
                 }
+                SkMesh& mesh = result.mesh;
+#endif
 
                 SkPaint paint;
                 // The color will be transparent black. Set the blender to kDstOver so when combined
                 // with the paint's opaque black we get opaque black.
-                canvas->drawMesh(result.mesh, SkBlender::Mode(SkBlendMode::kDstOver), paint);
+                canvas->drawMesh(mesh, SkBlender::Mode(SkBlendMode::kDstOver), paint);
                 canvas->translate(bounds.width() + 10, 0);
                 if (ctx) {
                     // Free up the buffers for recycling in the cache. This helps test that
                     // a recycled buffer gets zero'ed.
-                    result.mesh = {};
+                    mesh = {};
                     SkASSERT(!ib);  // NOLINT - bugprone-use-after-move. We're asserting it's moved.
                     SkASSERT(!vb);  // NOLINT
                     ctx->flushAndSubmit(true);
