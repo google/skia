@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecordingPriv.h"
+#include "src/gpu/graphite/Task.h"
 
 namespace skgpu::graphite {
 
@@ -31,6 +32,26 @@ QueueManager::~QueueManager() {
     this->checkForFinishedWork(SyncToCpu::kYes);
 }
 
+bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider) {
+    if (!fCurrentCommandBuffer) {
+        if (fAvailableCommandBuffers.size()) {
+            fCurrentCommandBuffer = std::move(fAvailableCommandBuffers.back());
+            fAvailableCommandBuffers.pop_back();
+            if (!fCurrentCommandBuffer->setNewCommandBufferResources()) {
+                fCurrentCommandBuffer.reset();
+            }
+        }
+    }
+    if (!fCurrentCommandBuffer) {
+        fCurrentCommandBuffer = this->getNewCommandBuffer(resourceProvider);
+    }
+    if (!fCurrentCommandBuffer) {
+        return false;
+    }
+
+    return true;
+}
+
 bool QueueManager::addRecording(const InsertRecordingInfo& info,
                                 ResourceProvider* resourceProvider) {
     sk_sp<RefCntedCallback> callback;
@@ -47,19 +68,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info,
         return false;
     }
 
-    if (!fCurrentCommandBuffer) {
-        if (fAvailableCommandBuffers.size()) {
-            fCurrentCommandBuffer = std::move(fAvailableCommandBuffers.back());
-            fAvailableCommandBuffers.pop_back();
-            if (!fCurrentCommandBuffer->setNewCommandBufferResources()) {
-                fCurrentCommandBuffer.reset();
-            }
-        }
-    }
-    if (!fCurrentCommandBuffer) {
-        fCurrentCommandBuffer = this->getNewCommandBuffer(resourceProvider);
-    }
-    if (!fCurrentCommandBuffer) {
+    if (!this->setupCommandBuffer(resourceProvider)) {
         if (callback) {
             callback->setFailureResult();
         }
@@ -93,7 +102,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info,
             callback->setFailureResult();
         }
         info.fRecording->priv().deinstantiateVolatileLazyProxies();
-        SKGPU_LOG_E("Adding commands to the CommandBuffer has failed");
+        SKGPU_LOG_E("Adding Recording commands to the CommandBuffer has failed");
         return false;
     }
 
@@ -102,6 +111,49 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info,
     }
 
     info.fRecording->priv().deinstantiateVolatileLazyProxies();
+    return true;
+}
+
+bool QueueManager::addTask(Task* task,
+                           ResourceProvider* resourceProvider) {
+    SkASSERT(task);
+    if (!task) {
+        SKGPU_LOG_E("No valid Task passed into addTask call");
+        return false;
+    }
+
+    if (!this->setupCommandBuffer(resourceProvider)) {
+        SKGPU_LOG_E("CommandBuffer creation failed");
+        return false;
+    }
+
+    if (!task->addCommands(resourceProvider, fCurrentCommandBuffer.get())) {
+        SKGPU_LOG_E("Adding Task commands to the CommandBuffer has failed");
+        return false;
+    }
+
+    return true;
+}
+
+bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
+                                 ResourceProvider* resourceProvider) {
+    sk_sp<RefCntedCallback> callback;
+    if (info.fFinishedProc) {
+        callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
+    }
+
+    if (!this->setupCommandBuffer(resourceProvider)) {
+        if (callback) {
+            callback->setFailureResult();
+        }
+        SKGPU_LOG_E("CommandBuffer creation failed");
+        return false;
+    }
+
+    if (callback) {
+        fCurrentCommandBuffer->addFinishedProc(std::move(callback));
+    }
+
     return true;
 }
 

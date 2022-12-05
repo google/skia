@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/Device.h"
 
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/Recording.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
@@ -375,8 +376,19 @@ bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
 #if GRAPHITE_TEST_UTILS
     if (Context* context = fRecorder->priv().context()) {
         this->flushPendingWorkToRecorder();
-        return context->priv().readPixels(fRecorder, pm, fDC->target(), this->imageInfo(),
-                                          srcX, srcY);
+        // Add all previous commands generated to the command buffer.
+        // If the client snaps later they'll only get post-read commands in their Recording,
+        // but since they're doing a readPixels in the middle that shouldn't be unexpected.
+        std::unique_ptr<Recording> recording = fRecorder->snap();
+        if (!recording) {
+            return false;
+        }
+        InsertRecordingInfo info;
+        info.fRecording = recording.get();
+        if (!context->insertRecording(info)) {
+            return false;
+        }
+        return context->priv().readPixels(pm, fDC->target(), this->imageInfo(), srcX, srcY);
     }
 #endif
     // We have no access to a context to do a read pixels here.

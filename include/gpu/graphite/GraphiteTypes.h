@@ -16,6 +16,7 @@
 namespace skgpu::graphite {
 
 class Recording;
+class Task;
 
 using GpuFinishedContext = void*;
 using GpuFinishedProc = void (*)(GpuFinishedContext finishedContext, CallbackResult);
@@ -30,6 +31,19 @@ using GpuFinishedProc = void (*)(GpuFinishedContext finishedContext, CallbackRes
  */
 struct InsertRecordingInfo {
     Recording* fRecording = nullptr;
+    GpuFinishedContext fFinishedContext = nullptr;
+    GpuFinishedProc fFinishedProc = nullptr;
+};
+
+/**
+ * The fFinishedProc is called when the Recording has been submitted and finished on the GPU, or
+ * when there is a failure that caused it not to be submitted. The callback will always be called
+ * and the caller can use the callback to know it is safe to free any resources associated with
+ * the Recording that they may be holding onto. If the Recording is successfully submitted to the
+ * GPU the callback will be called with CallbackResult::kSuccess once the GPU has finished. All
+ * other cases where some failure occured it will be called with CallbackResult::kFailed.
+ */
+struct InsertFinishInfo {
     GpuFinishedContext fFinishedContext = nullptr;
     GpuFinishedProc fFinishedProc = nullptr;
 };

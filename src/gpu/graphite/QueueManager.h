@@ -22,6 +22,7 @@ class GpuWorkSubmission;
 struct InsertRecordingInfo;
 class ResourceProvider;
 class SharedContext;
+class Task;
 
 class QueueManager {
 public:
@@ -29,6 +30,12 @@ public:
 
     // Adds the commands from the passed in Recording to the current CommandBuffer
     bool addRecording(const InsertRecordingInfo&, ResourceProvider*);
+
+    // Adds the commands from the passed in Task to the current CommandBuffer
+    bool addTask(Task*, ResourceProvider*);
+
+    // Adds the commands from the passed in Task to the current CommandBuffer
+    bool addFinishInfo(const InsertFinishInfo&, ResourceProvider*);
 
     bool submitToGpu();
     void checkForFinishedWork(SyncToCpu);
@@ -51,6 +58,8 @@ protected:
 private:
     virtual std::unique_ptr<CommandBuffer> getNewCommandBuffer(ResourceProvider*) = 0;
     virtual OutstandingSubmission onSubmitToGpu() = 0;
+
+    bool setupCommandBuffer(ResourceProvider*);
 
     SkDeque fOutstandingSubmissions;
 
