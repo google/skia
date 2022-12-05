@@ -435,6 +435,13 @@ public:
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 };
 
+class GPURemoteSlugSink : public GPUSink {
+public:
+    GPURemoteSlugSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
+
+    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+};
+
 class GPUThreadTestingSink : public GPUSink {
 public:
     GPUThreadTestingSink(const SkCommandLineConfigGpu*, const GrContextOptions&);

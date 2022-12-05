@@ -16,6 +16,7 @@
 #define SkTestCanvas_DEFINED
 
 #include "include/core/SkSize.h"
+#include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "include/utils/SkNWayCanvas.h"
 #include "src/core/SkDevice.h"
 #include "src/text/GlyphRun.h"
@@ -40,6 +41,19 @@ public:
     SkTestCanvas(SkCanvas* canvas);
     void onDrawGlyphRunList(
             const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
+};
+
+struct SkRemoteSlugTestKey {};
+template <>
+class SkTestCanvas<SkRemoteSlugTestKey> : public SkCanvas {
+public:
+    SkTestCanvas(SkCanvas* canvas);
+    void onDrawGlyphRunList(
+            const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
+
+private:
+    std::unique_ptr<SkStrikeServer::DiscardableHandleManager> fHandleManager;
+    SkStrikeServer fStrikeServer;
 };
 
 #endif  // SkTestCanvas_DEFINED

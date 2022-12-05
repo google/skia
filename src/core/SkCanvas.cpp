@@ -3023,6 +3023,62 @@ void SkTestCanvas<SkSerializeSlugTestKey>::onDrawGlyphRunList(
         }
     }
 }
+
+class HandleManager : public SkStrikeServer::DiscardableHandleManager {
+public:
+    SkDiscardableHandleId createHandle() override {
+        return 0;
+    }
+
+    bool lockHandle(SkDiscardableHandleId id) override {
+        return true;
+    }
+
+    bool isHandleDeleted(SkDiscardableHandleId id) override {
+        return false;
+    }
+};
+
+SkTestCanvas<SkRemoteSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
+        : SkCanvas(sk_ref_sp(canvas->baseDevice()))
+        , fHandleManager(new HandleManager{})
+        , fStrikeServer(fHandleManager.get()) {}
+
+void SkTestCanvas<SkRemoteSlugTestKey>::onDrawGlyphRunList(
+        const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
+    SkRect bounds = glyphRunList.sourceBoundsWithOrigin();
+    if (this->internalQuickReject(bounds, paint)) {
+        return;
+    }
+    auto layer = this->aboutToDraw(this, paint, &bounds);
+    if (layer) {
+        if (glyphRunList.hasRSXForm()) {
+            this->SkCanvas::onDrawGlyphRunList(glyphRunList, layer->paint());
+        } else {
+            sk_sp<SkData> bytes;
+            {
+                auto analysisCanvas = fStrikeServer.makeAnalysisCanvas(
+                        this->topDevice()->width(),
+                        this->topDevice()->height(),
+                        this->fProps,
+                        this->topDevice()->imageInfo().refColorSpace(),
+                        // TODO: Where should we get this value from?
+                        true);
+                auto slug = analysisCanvas->onConvertGlyphRunListToSlug(glyphRunList,
+                                                                        layer->paint());
+                if (slug != nullptr) {
+                    bytes = slug->serialize();
+                }
+            }
+            {
+                if (bytes != nullptr) {
+                    auto slug = Slug::Deserialize(bytes->data(), bytes->size());
+                    this->drawSlug(slug.get());
+                }
+            }
+        }
+    }
+}
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

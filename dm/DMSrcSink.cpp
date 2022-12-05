@@ -1631,6 +1631,26 @@ Result GPUSerializeSlugSink::draw(
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+GPURemoteSlugSink::GPURemoteSlugSink(
+        const SkCommandLineConfigGpu* config, const GrContextOptions& options)
+        : GPUSink(config, options) {}
+
+Result GPURemoteSlugSink::draw(
+        const Src& src, SkBitmap* dst, SkWStream* write, SkString* log) const {
+    GrContextOptions grOptions = this->baseContextOptions();
+    // Force padded atlas entries for slug drawing.
+    grOptions.fSupportBilerpFromGlyphAtlas |= true;
+
+    SkTLazy<SkTestCanvas<SkSerializeSlugTestKey>> testCanvas;
+
+    return onDraw(src, dst, write, log, grOptions, nullptr,
+                  [&](SkCanvas* canvas) {
+                      testCanvas.init(canvas);
+                      return testCanvas.get();
+                  });
+}
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 GPUThreadTestingSink::GPUThreadTestingSink(const SkCommandLineConfigGpu* config,
                                            const GrContextOptions& grCtxOptions)
         : INHERITED(config, grCtxOptions)
