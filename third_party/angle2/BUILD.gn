@@ -8,6 +8,7 @@ declare_args() {
 
 group("angle2") {
   public_deps = [
+    "//third_party/externals/angle2:includes",
     "//third_party/externals/angle2:libEGL",
     "//third_party/externals/angle2:libGLESv2",
   ]
