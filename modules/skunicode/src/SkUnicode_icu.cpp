@@ -63,12 +63,9 @@ static void ubrk_close_wrapper(UBreakIterator* bi) {
     sk_ubrk_close(bi);
 }
 
-using SkUnicodeBidi = std::unique_ptr<UBiDi, SkFunctionWrapper<decltype(ubidi_close),
-                                                               ubidi_close_wrapper>>;
-using ICUUText = std::unique_ptr<UText, SkFunctionWrapper<decltype(utext_close),
-                                                         utext_close_wrapper>>;
-using ICUBreakIterator = std::unique_ptr<UBreakIterator, SkFunctionWrapper<decltype(ubrk_close),
-                                                                           ubrk_close_wrapper>>;
+using SkUnicodeBidi = std::unique_ptr<UBiDi, SkFunctionObject<ubidi_close_wrapper>>;
+using ICUUText = std::unique_ptr<UText, SkFunctionObject<utext_close_wrapper>>;
+using ICUBreakIterator = std::unique_ptr<UBreakIterator, SkFunctionObject<ubrk_close_wrapper>>;
 /** Replaces invalid utf-8 sequences with REPLACEMENT CHARACTER U+FFFD. */
 static inline SkUnichar utf8_next(const char** ptr, const char* end) {
     SkUnichar val = SkUTF::NextUTF8(ptr, end);

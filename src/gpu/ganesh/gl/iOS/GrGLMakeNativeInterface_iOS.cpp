@@ -18,7 +18,7 @@
 sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
     static const char kPath[] =
         "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib";
-    std::unique_ptr<void, SkFunctionWrapper<int(void*), dlclose>> lib(dlopen(kPath, RTLD_LAZY));
+    std::unique_ptr<void, SkFunctionObject<dlclose>> lib(dlopen(kPath, RTLD_LAZY));
     return GrGLMakeAssembledGLESInterface(lib.get(), [](void* ctx, const char* name) {
             return (GrGLFuncPtr)dlsym(ctx ? ctx : RTLD_DEFAULT, name); });
 }

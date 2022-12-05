@@ -49,13 +49,15 @@ template <typename D, typename S> inline D* SkTAddOffset(S* ptr, ptrdiff_t byteO
     return reinterpret_cast<D*>(reinterpret_cast<sknonstd::same_cv_t<char, D>*>(ptr) + byteOffset);
 }
 
-// TODO: when C++17 the language is available, use template <auto P>
-template <typename T, T* P> struct SkFunctionWrapper {
+template <typename T, T* P> struct SkOverloadedFunctionObject {
     template <typename... Args>
     auto operator()(Args&&... args) const -> decltype(P(std::forward<Args>(args)...)) {
         return P(std::forward<Args>(args)...);
     }
 };
+
+template <auto F> using SkFunctionObject =
+    SkOverloadedFunctionObject<std::remove_pointer_t<decltype(F)>, F>;
 
 /** \class SkAutoTCallVProc
 
@@ -66,8 +68,8 @@ template <typename T, T* P> struct SkFunctionWrapper {
     function.
 */
 template <typename T, void (*P)(T*)> class SkAutoTCallVProc
-    : public std::unique_ptr<T, SkFunctionWrapper<std::remove_pointer_t<decltype(P)>, P>> {
-    using inherited = std::unique_ptr<T, SkFunctionWrapper<std::remove_pointer_t<decltype(P)>, P>>;
+    : public std::unique_ptr<T, SkFunctionObject<P>> {
+    using inherited = std::unique_ptr<T, SkFunctionObject<P>>;
 public:
     using inherited::inherited;
     SkAutoTCallVProc(const SkAutoTCallVProc&) = delete;
@@ -284,7 +286,7 @@ public:
     T* release() { return fPtr.release(); }
 
 private:
-    std::unique_ptr<T, SkFunctionWrapper<void(void*), sk_free>> fPtr;
+    std::unique_ptr<T, SkOverloadedFunctionObject<void(void*), sk_free>> fPtr;
 };
 
 template <size_t kCountRequested,
@@ -418,7 +420,7 @@ private:
     alignas(T) std::byte fStorage[sizeof(T) * N];
 };
 
-using SkAutoFree = std::unique_ptr<void, SkFunctionWrapper<void(void*), sk_free>>;
+using SkAutoFree = std::unique_ptr<void, SkOverloadedFunctionObject<void(void*), sk_free>>;
 
 template<typename C, std::size_t... Is>
 constexpr auto SkMakeArrayFromIndexSequence(C c, std::index_sequence<Is...> is)

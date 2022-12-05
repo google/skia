@@ -1639,7 +1639,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> LogFontTypeface::onGetAdvancedMetrics
 
     // The design HFONT must be destroyed after the HDC
     using HFONT_T = typename std::remove_pointer<HFONT>::type;
-    std::unique_ptr<HFONT_T, SkFunctionWrapper<decltype(DeleteObject), DeleteObject>> designFont;
+    std::unique_ptr<HFONT_T, SkFunctionObject<DeleteObject>> designFont;
     SkAutoHDC hdc(lf);
 
     const char stem_chars[] = {'i', 'I', '!', '1'};

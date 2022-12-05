@@ -102,6 +102,7 @@ constexpr float kColorStopShift =
 #endif
 
 namespace {
+using SkUniqueFTSize = std::unique_ptr<FT_SizeRec, SkFunctionObject<FT_Done_Size>>;
 
 FT_Pixel_Mode compute_pixel_mode(SkMask::Format format) {
     switch (format) {
@@ -1349,10 +1350,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
 
 SkPath GetClipBoxPath(FT_Face face, uint16_t glyphId, bool untransformed) {
     SkPath resultPath;
-
-    using DoneFTSize = SkFunctionWrapper<decltype(FT_Done_Size), FT_Done_Size>;
-    std::unique_ptr<std::remove_pointer_t<FT_Size>, DoneFTSize> unscaledFtSize = nullptr;
-
+    SkUniqueFTSize unscaledFtSize = nullptr;
     FT_Size oldSize = face->size;
     FT_Matrix oldTransform;
     FT_Vector oldDelta;
@@ -2027,8 +2025,7 @@ bool generateFacePathCOLRv1(FT_Face face, SkGlyphID glyphID, SkPath* path) {
     flags |= FT_LOAD_NO_AUTOHINT;
     flags |= FT_LOAD_IGNORE_TRANSFORM;
 
-    using DoneFTSize = SkFunctionWrapper<decltype(FT_Done_Size), FT_Done_Size>;
-    std::unique_ptr<std::remove_pointer_t<FT_Size>, DoneFTSize> unscaledFtSize([face]() -> FT_Size {
+    SkUniqueFTSize unscaledFtSize([face]() -> FT_Size {
         FT_Size size;
         FT_Error err = FT_New_Size(face, &size);
         if (err != 0) {

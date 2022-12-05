@@ -238,6 +238,6 @@ template <> struct SkMask::AlphaIter<SkMask::kLCD16_Format> {
  *  When this object loses scope, the buffer is freed with SkMask::FreeImage().
  */
 using SkAutoMaskFreeImage =
-        std::unique_ptr<uint8_t, SkFunctionWrapper<decltype(SkMask::FreeImage), SkMask::FreeImage>>;
+        std::unique_ptr<uint8_t, SkFunctionObject<SkMask::FreeImage>>;
 
 #endif

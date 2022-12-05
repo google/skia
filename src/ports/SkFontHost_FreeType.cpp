@@ -63,6 +63,9 @@
 
 namespace {
 [[maybe_unused]] static inline const constexpr bool kSkShowTextBlitCoverage = false;
+
+using SkUniqueFTFace = std::unique_ptr<FT_FaceRec, SkFunctionObject<FT_Done_Face>>;
+using SkUniqueFTSize = std::unique_ptr<FT_SizeRec, SkFunctionObject<FT_Done_Size>>;
 }
 
 // SK_FREETYPE_MINIMUM_RUNTIME_VERSION 0x<major><minor><patch><flags>
@@ -112,9 +115,6 @@ static bool isLCD(const SkScalerContextRec& rec) {
 static SkScalar SkFT_FixedToScalar(FT_Fixed x) {
   return SkFixedToScalar(x);
 }
-
-using SkUniqueFTFace =
-        std::unique_ptr<FT_FaceRec, SkFunctionWrapper<decltype(FT_Done_Face), FT_Done_Face>>;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -959,8 +959,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> ty
         fLoadGlyphFlags = loadFlags;
     }
 
-    using DoneFTSize = SkFunctionWrapper<decltype(FT_Done_Size), FT_Done_Size>;
-    std::unique_ptr<std::remove_pointer_t<FT_Size>, DoneFTSize> ftSize([this]() -> FT_Size {
+    SkUniqueFTSize ftSize([this]() -> FT_Size {
         FT_Size size;
         FT_Error err = FT_New_Size(fFaceRec->fFace.get(), &size);
         if (err != 0) {

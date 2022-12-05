@@ -57,7 +57,7 @@ struct FCLocker {
     ) }
 };
 
-using UniqueFCConfig = std::unique_ptr<FcConfig, SkFunctionWrapper<decltype(FcConfigDestroy), FcConfigDestroy>>;
+using UniqueFCConfig = std::unique_ptr<FcConfig, SkFunctionObject<FcConfigDestroy>>;
 
 } // namespace
 
