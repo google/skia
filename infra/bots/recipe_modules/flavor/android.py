@@ -107,6 +107,18 @@ class AndroidFlavor(default.DefaultFlavor):
                  cmd=[self.ADB_BINARY, 'devices', '-l'],
                  infra_step=True, timeout=30, abort_on_failure=False,
                  fail_build_on_failure=False)
+      self.m.run(self.m.step,
+                 'adb reboot device after failure of \'%s\' (attempt %d)' % (
+                     title, attempt),
+                 cmd=[self.ADB_BINARY, 'reboot'],
+                 infra_step=True, timeout=30, abort_on_failure=False,
+                 fail_build_on_failure=False)
+      self.m.run(self.m.step,
+                 'wait for device after failure of \'%s\' (attempt %d)' % (
+                     title, attempt),
+                 cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
+                 timeout=180, abort_on_failure=False,
+                 fail_build_on_failure=False)
     with self.m.context(cwd=self.m.path['start_dir'].join('skia')):
       with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
         return self.m.run.with_retry(self.m.step, title, attempts,

@@ -933,6 +933,36 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
+      "reboot"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "adb reboot device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1)",
+    "timeout": 30
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "wait-for-device"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "wait for device after failure of 'read /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION' (attempt 1) (2)",
+    "timeout": 180
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
