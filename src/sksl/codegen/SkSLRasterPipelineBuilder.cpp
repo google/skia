@@ -5,22 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkStream.h"
 #include "include/private/SkMalloc.h"
-#include "include/private/SkSLString.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkRPDebugTrace.h"
-#include "src/sksl/tracing/SkSLDebugInfo.h"
 
 #include <algorithm>
-#include <cmath>
 #include <cstring>
 #include <utility>
-#include <string>
-#include <tuple>
-#include <vector>
 
 namespace SkSL {
 namespace RP {
@@ -129,6 +122,12 @@ Program::Program(SkTArray<Instruction> instrs, int numValueSlots, SkRPDebugTrace
     fNumTempStackSlots = this->numTempStackSlots();
 }
 
+void Program::dump(SkWStream* s) {
+    if (fDebugTrace) {
+        fDebugTrace->dump(s);
+    }
+}
+
 template <typename T>
 [[maybe_unused]] static void* context_bit_pun(T val) {
     static_assert(sizeof(T) <= sizeof(void*));
@@ -148,14 +147,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
     float* slotPtr = static_cast<float*>(alloc->makeBytesAlignedTo(allocSize, vectorWidth));
     sk_bzero(slotPtr, allocSize);
 
-    this->appendStages(pipeline, alloc, slotPtr);
-#endif
-}
-
-void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, float* slotPtr) {
-#if !defined(SKSL_STANDALONE)
     // Store the temp stack immediately after the values.
-    const int N = SkOpts::raster_pipeline_highp_stride;
     float* slotPtrEnd = slotPtr + (N * fNumValueSlots);
     float* tempStackBase = slotPtrEnd;
     float* tempStackPtr = tempStackBase;
@@ -296,358 +288,6 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
         tempStackPtr += stack_usage(inst) * N;
         SkASSERT(tempStackPtr >= tempStackBase);
         SkASSERT(tempStackPtr <= tempStackEnd);
-    }
-#endif
-}
-
-void Program::dump(SkWStream* out) {
-    // TODO: skslc will want to dump these programs; we'll need to include some portion of
-    // SkRasterPipeline into skslc for this to work properly.
-
-#if !defined(SKSL_STANDALONE)
-    // We never execute the program, so we don't actually need to allocate slots for its
-    // execution. The program does require a pointer range for storing its data, though.
-    // Any location will do, so just pick a spot on the stack for the starting point.
-    const int N = SkOpts::raster_pipeline_highp_stride;
-    float slotBase[1];
-    const float* slotEnd = slotBase + (N * fNumValueSlots);
-    const float* tempStackBase = slotEnd;
-    const float* tempStackEnd = tempStackBase + (N * fNumTempStackSlots);
-
-    // Instantiate this program.
-    SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
-    SkRasterPipeline pipeline(&alloc);
-    this->appendStages(&pipeline, &alloc, slotBase);
-    const SkRP::StageList* st = pipeline.getStageList();
-
-    // The stage list is in reverse order, so let's flip it.
-    struct Stage {
-        SkRP::Stage op;
-        void*       ctx;
-    };
-    SkTArray<Stage> stages;
-    for (; st != nullptr; st = st->prev) {
-        stages.push_back(Stage{st->stage, st->ctx});
-    }
-    std::reverse(stages.begin(), stages.end());
-
-    // Emit the program's instruction list.
-    for (int index = 0; index < stages.size(); ++index) {
-        const Stage& stage = stages[index];
-
-        // Interpret the context value as a 32-bit immediate value of unknown type (int/float).
-        auto ImmCtx = [&](void* ctx) -> std::string {
-            // Start with `0x3F800000` as a baseline.
-            uint32_t immUnsigned;
-            memcpy(&immUnsigned, &ctx, sizeof(uint32_t));
-            auto text = SkSL::String::printf("0x%08X", immUnsigned);
-
-            // Extend it to `0x3F800000 (1.0)` for finite floating point values.
-            float immFloat;
-            memcpy(&immFloat, &ctx, sizeof(float));
-            if (std::isfinite(immFloat)) {
-                text += " (";
-                text += skstd::to_string(immFloat);
-                text += ")";
-            }
-            return text;
-        };
-
-        // Print `1` for single slots and `1..3` for ranges of slots.
-        auto AsRange = [](int first, int count) -> std::string {
-            std::string text = std::to_string(first);
-            if (count > 1) {
-                text += ".." + std::to_string(first + count - 1);
-            }
-            return text;
-        };
-
-        // Interpret the context value as a pointer, most likely to a slot range.
-        auto PtrCtx = [&](void* ctx, int numSlots) -> std::string {
-            float *ctxAsSlot = static_cast<float*>(ctx);
-            if (fDebugTrace) {
-                // Handle pointers to named slots.
-                if (ctxAsSlot >= slotBase && ctxAsSlot < slotEnd) {
-                    int slotIdx = ctxAsSlot - slotBase;
-                    SkASSERT((slotIdx % N) == 0);
-                    slotIdx /= N;
-                    if (slotIdx < (int)fDebugTrace->fSlotInfo.size()) {
-                        const SlotDebugInfo& slotInfo = fDebugTrace->fSlotInfo[slotIdx];
-                        // If we're covering the entire slot, return `name`.
-                        if (numSlots == slotInfo.columns * slotInfo.rows) {
-                            return slotInfo.name;
-                        }
-                        // If we are only covering part of the slot, return `name(1..2)`.
-                        return slotInfo.name + "(" +
-                               AsRange(slotInfo.componentIndex, numSlots) + ")";
-                    }
-                }
-            }
-            // Handle pointers to value slots (when no debug info exists).
-            if (ctxAsSlot >= slotBase && ctxAsSlot < slotEnd) {
-                int valueIdx = ctxAsSlot - slotBase;
-                SkASSERT((valueIdx % N) == 0);
-                return "v" + AsRange(valueIdx / N, numSlots);
-            }
-            // Handle pointers to temporary stack slots.
-            if (ctxAsSlot >= tempStackBase && ctxAsSlot < tempStackEnd) {
-                int stackIdx = ctxAsSlot - tempStackBase;
-                SkASSERT((stackIdx % N) == 0);
-                return "$" + AsRange(stackIdx / N, numSlots);
-            }
-            // This pointer is out of our expected bounds; this might happen at the program edges.
-            return "ExternalPtr(" + AsRange(0, numSlots) + ")";
-        };
-
-        // Interpret the context value as a pointer to two adjacent values.
-        auto AdjacentPtrCtx = [&](void* ctx, int numSlots) -> std::tuple<std::string, std::string> {
-            float *ctxAsSlot = static_cast<float*>(ctx);
-            return std::make_tuple(PtrCtx(ctxAsSlot, numSlots),
-                                   PtrCtx(ctxAsSlot + (N * numSlots), numSlots));
-        };
-
-        // Interpret the context value as a CopySlots structure.
-        auto CopySlotsCtx = [&](void* v, int numSlots) -> std::tuple<std::string, std::string> {
-            auto *ctx = static_cast<SkRasterPipeline_CopySlotsCtx*>(v);
-            return std::make_tuple(PtrCtx(ctx->dst, numSlots),
-                                   PtrCtx(ctx->src, numSlots));
-        };
-
-        // Interpret the context value as a CopySlots structure.
-        auto AdjacentCopySlotsCtx = [&](void* v) -> std::tuple<std::string, std::string> {
-            auto *ctx = static_cast<SkRasterPipeline_CopySlotsCtx*>(v);
-            int numSlots = ctx->src - ctx->dst;
-            return std::make_tuple(PtrCtx(ctx->dst, numSlots),
-                                   PtrCtx(ctx->src, numSlots));
-        };
-
-        std::string opArg1, opArg2;
-        switch (stage.op) {
-            case SkRP::immediate_f:
-                opArg1 = ImmCtx(stage.ctx);
-                break;
-
-            case SkRP::load_unmasked:
-            case SkRP::load_condition_mask:
-            case SkRP::store_masked:
-            case SkRP::store_unmasked:
-            case SkRP::bitwise_not:
-            case SkRP::zero_slot_unmasked:
-                opArg1 = PtrCtx(stage.ctx, 1);
-                break;
-
-            case SkRP::store_src_rg:
-            case SkRP::zero_2_slots_unmasked:
-                opArg1 = PtrCtx(stage.ctx, 2);
-                break;
-
-            case SkRP::zero_3_slots_unmasked:
-                opArg1 = PtrCtx(stage.ctx, 3);
-                break;
-
-            case SkRP::load_src:
-            case SkRP::load_dst:
-            case SkRP::store_src:
-            case SkRP::store_dst:
-            case SkRP::zero_4_slots_unmasked:
-                opArg1 = PtrCtx(stage.ctx, 4);
-                break;
-
-            case SkRP::copy_slot_masked:
-            case SkRP::copy_slot_unmasked:
-                std::tie(opArg1, opArg2) = CopySlotsCtx(stage.ctx, 1);
-                break;
-
-            case SkRP::copy_2_slots_masked:
-            case SkRP::copy_2_slots_unmasked:
-                std::tie(opArg1, opArg2) = CopySlotsCtx(stage.ctx, 2);
-                break;
-
-            case SkRP::copy_3_slots_masked:
-            case SkRP::copy_3_slots_unmasked:
-                std::tie(opArg1, opArg2) = CopySlotsCtx(stage.ctx, 3);
-                break;
-
-            case SkRP::copy_4_slots_masked:
-            case SkRP::copy_4_slots_unmasked:
-                std::tie(opArg1, opArg2) = CopySlotsCtx(stage.ctx, 4);
-                break;
-
-            case SkRP::combine_condition_mask:
-            case SkRP::bitwise_and: case SkRP::bitwise_or: case SkRP::bitwise_xor:
-            case SkRP::add_float:   case SkRP::add_int:
-            case SkRP::cmplt_float: case SkRP::cmplt_int:
-            case SkRP::cmple_float: case SkRP::cmple_int:
-            case SkRP::cmpeq_float: case SkRP::cmpeq_int:
-            case SkRP::cmpne_float: case SkRP::cmpne_int:
-                std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 1);
-                break;
-
-            case SkRP::add_2_floats:   case SkRP::add_2_ints:
-            case SkRP::cmplt_2_floats: case SkRP::cmplt_2_ints:
-            case SkRP::cmple_2_floats: case SkRP::cmple_2_ints:
-            case SkRP::cmpeq_2_floats: case SkRP::cmpeq_2_ints:
-            case SkRP::cmpne_2_floats: case SkRP::cmpne_2_ints:
-                std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 2);
-                break;
-
-            case SkRP::add_3_floats:   case SkRP::add_3_ints:
-            case SkRP::cmplt_3_floats: case SkRP::cmplt_3_ints:
-            case SkRP::cmple_3_floats: case SkRP::cmple_3_ints:
-            case SkRP::cmpeq_3_floats: case SkRP::cmpeq_3_ints:
-            case SkRP::cmpne_3_floats: case SkRP::cmpne_3_ints:
-                std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 3);
-                break;
-
-            case SkRP::add_4_floats:   case SkRP::add_4_ints:
-            case SkRP::cmplt_4_floats: case SkRP::cmplt_4_ints:
-            case SkRP::cmple_4_floats: case SkRP::cmple_4_ints:
-            case SkRP::cmpeq_4_floats: case SkRP::cmpeq_4_ints:
-            case SkRP::cmpne_4_floats: case SkRP::cmpne_4_ints:
-                std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 4);
-                break;
-
-            case SkRP::add_n_floats:   case SkRP::add_n_ints:
-            case SkRP::cmplt_n_floats: case SkRP::cmplt_n_ints:
-            case SkRP::cmple_n_floats: case SkRP::cmple_n_ints:
-            case SkRP::cmpeq_n_floats: case SkRP::cmpeq_n_ints:
-            case SkRP::cmpne_n_floats: case SkRP::cmpne_n_ints:
-                std::tie(opArg1, opArg2) = AdjacentCopySlotsCtx(stage.ctx);
-                break;
-
-            default:
-                break;
-        }
-
-        std::string opText;
-        switch (stage.op) {
-            case SkRP::init_lane_masks:
-                opText = "CondMask = LoopMask = RetMask = true";
-                break;
-
-            case SkRP::update_return_mask:
-                opText = "RetMask &= ~(CondMask & LoopMask & RetMask)";
-                break;
-
-            case SkRP::combine_condition_mask:
-                opText = opArg2 + " = CondMask;  CondMask &= " + opArg1;
-                break;
-
-            case SkRP::load_condition_mask:
-                opText = "CondMask = " + opArg1;
-                break;
-
-            case SkRP::immediate_f:
-            case SkRP::load_unmasked:
-                opText = "src.r = " + opArg1;
-                break;
-
-            case SkRP::store_unmasked:
-                opText = opArg1 + " = src.r";
-                break;
-
-            case SkRP::store_src_rg:
-                opText = opArg1 + " = src.rg";
-                break;
-
-            case SkRP::store_src:
-                opText = opArg1 + " = src.rgba";
-                break;
-
-            case SkRP::store_dst:
-                opText = opArg1 + " = dst.rgba";
-                break;
-
-            case SkRP::load_src:
-                opText = "src.rgba = " + opArg1;
-                break;
-
-            case SkRP::load_dst:
-                opText = "dst.rgba = " + opArg1;
-                break;
-
-            case SkRP::store_masked:
-                opText = opArg1 + " = Mask(src.r)";
-                break;
-
-            case SkRP::bitwise_and:
-                opText = opArg1 + " &= " + opArg2;
-                break;
-
-            case SkRP::bitwise_or:
-                opText = opArg1 + " |= " + opArg2;
-                break;
-
-            case SkRP::bitwise_xor:
-                opText = opArg1 + " ^= " + opArg2;
-                break;
-
-            case SkRP::bitwise_not:
-                opText = opArg1 + " = ~" + opArg1;
-                break;
-
-            case SkRP::copy_slot_masked:      case SkRP::copy_2_slots_masked:
-            case SkRP::copy_3_slots_masked:   case SkRP::copy_4_slots_masked:
-                opText = opArg1 + " = Mask(" + opArg2 + ")";
-                break;
-
-            case SkRP::copy_slot_unmasked:    case SkRP::copy_2_slots_unmasked:
-            case SkRP::copy_3_slots_unmasked: case SkRP::copy_4_slots_unmasked:
-                opText = opArg1 + " = " + opArg2;
-                break;
-
-            case SkRP::zero_slot_unmasked:    case SkRP::zero_2_slots_unmasked:
-            case SkRP::zero_3_slots_unmasked: case SkRP::zero_4_slots_unmasked:
-                opText = opArg1 + " = 0";
-                break;
-
-            case SkRP::add_float:    case SkRP::add_int:
-            case SkRP::add_2_floats: case SkRP::add_2_ints:
-            case SkRP::add_3_floats: case SkRP::add_3_ints:
-            case SkRP::add_4_floats: case SkRP::add_4_ints:
-            case SkRP::add_n_floats: case SkRP::add_n_ints:
-                opText = opArg1 + " += " + opArg2;
-                break;
-
-            case SkRP::cmplt_float:    case SkRP::cmplt_int:
-            case SkRP::cmplt_2_floats: case SkRP::cmplt_2_ints:
-            case SkRP::cmplt_3_floats: case SkRP::cmplt_3_ints:
-            case SkRP::cmplt_4_floats: case SkRP::cmplt_4_ints:
-            case SkRP::cmplt_n_floats: case SkRP::cmplt_n_ints:
-                opText = opArg1 + " = lessThan(" + opArg1 + ", " + opArg2 + ")";
-                break;
-
-            case SkRP::cmple_float:    case SkRP::cmple_int:
-            case SkRP::cmple_2_floats: case SkRP::cmple_2_ints:
-            case SkRP::cmple_3_floats: case SkRP::cmple_3_ints:
-            case SkRP::cmple_4_floats: case SkRP::cmple_4_ints:
-            case SkRP::cmple_n_floats: case SkRP::cmple_n_ints:
-                opText = opArg1 + " = lessThanEqual(" + opArg1 + ", " + opArg2 + ")";
-                break;
-
-            case SkRP::cmpeq_float:    case SkRP::cmpeq_int:
-            case SkRP::cmpeq_2_floats: case SkRP::cmpeq_2_ints:
-            case SkRP::cmpeq_3_floats: case SkRP::cmpeq_3_ints:
-            case SkRP::cmpeq_4_floats: case SkRP::cmpeq_4_ints:
-            case SkRP::cmpeq_n_floats: case SkRP::cmpeq_n_ints:
-                opText = opArg1 + " = equal(" + opArg1 + ", " + opArg2 + ")";
-                break;
-
-            case SkRP::cmpne_float:    case SkRP::cmpne_int:
-            case SkRP::cmpne_2_floats: case SkRP::cmpne_2_ints:
-            case SkRP::cmpne_3_floats: case SkRP::cmpne_3_ints:
-            case SkRP::cmpne_4_floats: case SkRP::cmpne_4_ints:
-            case SkRP::cmpne_n_floats: case SkRP::cmpne_n_ints:
-                opText = opArg1 + " = notEqual(" + opArg1 + ", " + opArg2 + ")";
-                break;
-
-            default:
-                break;
-        }
-
-        const char* opName = SkRasterPipeline::GetStageName(stage.op);
-        auto line = SkSL::String::printf("% 5d. %-25s %s\n", index + 1, opName, opText.c_str());
-        out->writeText(line.c_str());
     }
 #endif
 }
