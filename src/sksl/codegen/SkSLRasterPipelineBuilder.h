@@ -85,6 +85,8 @@ public:
     void dump(SkWStream* s);
 
 private:
+    float* allocateSlotData(SkArenaAlloc* alloc);
+    void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, float* slotPtr);
     void optimize();
     int numValueSlots();
     int numTempStackSlots();

@@ -24,6 +24,11 @@
 #include <optional>
 #include <string>
 
+//#define DUMP_PROGRAMS 1
+#if defined(DUMP_PROGRAMS)
+#include "src/core/SkStreamPriv.h"
+#endif
+
 static void test(skiatest::Reporter* r,
                  const char* src,
                  std::optional<SkColor4f> color) {
@@ -57,6 +62,14 @@ static void test(skiatest::Reporter* r,
         ERRORF(r, "MakeRasterPipelineProgram should have failed, but didn't");
         return;
     }
+
+#if defined(DUMP_PROGRAMS)
+    // Dump the program instructions via SkDebugf.
+    SkDebugf("-----\n\n");
+    SkDebugfStream stream;
+    rasterProg->dump(&stream);
+    SkDebugf("\n-----\n\n");
+#endif
 
     // Append the SkSL program to the raster pipeline.
     rasterProg->appendStages(&pipeline, &alloc);
