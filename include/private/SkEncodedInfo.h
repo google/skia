@@ -165,7 +165,7 @@ public:
         }
 
         return SkEncodedInfo(width, height, color, alpha,
-                bitsPerComponent, colorDepth, std::move(profile));
+                static_cast<uint8_t>(bitsPerComponent), colorDepth, std::move(profile));
     }
 
     /*
