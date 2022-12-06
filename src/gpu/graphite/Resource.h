@@ -105,6 +105,8 @@ protected:
     Resource(const SharedContext*, Ownership, SkBudgeted);
     virtual ~Resource();
 
+    const SharedContext* sharedContext() const { return fSharedContext; }
+
     // Overridden to free GPU resources in the backend API.
     virtual void freeGpuData() = 0;
 

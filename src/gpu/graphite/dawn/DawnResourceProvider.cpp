@@ -8,8 +8,8 @@
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
 
 #include "include/gpu/graphite/BackendTexture.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/ComputePipeline.h"
+#include "src/gpu/graphite/dawn/DawnBuffer.h"
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
 #include "src/gpu/graphite/dawn/DawnSampler.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
@@ -71,8 +71,7 @@ sk_sp<Texture> DawnResourceProvider::createTexture(SkISize dimensions,
 sk_sp<Buffer> DawnResourceProvider::createBuffer(size_t size,
                                                  BufferType type,
                                                  PrioritizeGpuReads prioritizeGpuReads) {
-    SkASSERT(false);
-    return {};
+    return DawnBuffer::Make(dawnSharedContext(), size, type, prioritizeGpuReads);
 }
 
 sk_sp<Sampler> DawnResourceProvider::createSampler(const SkSamplingOptions& options,
