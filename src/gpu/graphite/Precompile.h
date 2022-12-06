@@ -21,6 +21,9 @@
 
 class SkRuntimeEffect;
 
+// TODO: move SkUniquePaintParamsID to the skgpu::graphite namespace
+class SkUniquePaintParamsID;
+
 namespace skgpu::graphite {
 
 class PrecompileBasePriv;
@@ -166,7 +169,9 @@ private:
     int numCombinations() const;
     // 'desiredCombination' must be less than the result of the numCombinations call
     void createKey(const KeyContext&, int desiredCombination, PaintParamsKeyBuilder*) const;
-    void buildCombinations(ShaderCodeDictionary*) const;
+    void buildCombinations(
+        ShaderCodeDictionary*,
+        const std::function<void(SkUniquePaintParamsID)>& processCombination) const;
 
     std::vector<sk_sp<PrecompileShader>> fShaderOptions;
     std::vector<sk_sp<PrecompileMaskFilter>> fMaskFilterOptions;

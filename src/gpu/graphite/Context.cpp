@@ -372,14 +372,30 @@ void Context::checkAsyncWorkCompletion() {
 
 #ifdef SK_ENABLE_PRECOMPILE
 
-BlenderID Context::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
-    return fSharedContext->shaderCodeDictionary()->addUserDefinedBlender(std::move(effect));
-}
-
 void Context::precompile(const PaintOptions& options) {
     ASSERT_SINGLE_OWNER
 
-    options.priv().buildCombinations(fSharedContext->shaderCodeDictionary());
+    options.priv().buildCombinations(
+        fSharedContext->shaderCodeDictionary(),
+        [&](SkUniquePaintParamsID uniqueID) {
+            for (const Renderer* r : fSharedContext->rendererProvider()->renderers()) {
+                for (auto&& s : r->steps()) {
+                    if (s->performsShading()) {
+                        GraphicsPipelineDesc desc(s, uniqueID);
+                        (void) desc;
+
+                        // TODO: Combine the desc with the renderpass description set to generate a
+                        // full GraphicsPipeline and MSL program. Cache that compiled pipeline on
+                        // the resource provider in a map from desc -> pipeline so that any
+                        // later desc created from equivalent RenderStep + Combination maps to it.
+                    }
+                }
+            }
+        });
+}
+
+BlenderID Context::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
+    return fSharedContext->shaderCodeDictionary()->addUserDefinedBlender(std::move(effect));
 }
 
 void Context::precompile(CombinationBuilder* combinationBuilder) {
@@ -461,6 +477,7 @@ void ContextPriv::deregisterRecorder(const Recorder* recorder) {
         }
     }
 }
+
 #endif
 
 } // namespace skgpu::graphite
