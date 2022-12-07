@@ -49,6 +49,14 @@ public:
     static sk_sp<PrecompileShader> TwoPointConicalGradient();
     static sk_sp<PrecompileShader> SweepGradient();
 
+    // TODO: hide these? The issue here is that, in the main Skia API, these are only accessed
+    // via makeWithLocalMatrix and makeWithColorFilter. However, in the combination API, clients
+    // may want to create a set of these (i.e., pass SkSpans to the factory functions vs
+    // just single options).
+    static sk_sp<PrecompileShader> LocalMatrix(sk_sp<PrecompileShader> wrapped);
+    static sk_sp<PrecompileShader> ColorFilter(sk_sp<PrecompileShader>,
+                                               sk_sp<PrecompileColorFilter>);
+
 private:
     PrecompileShaders() = delete;
 };

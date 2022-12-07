@@ -365,8 +365,8 @@ void ArenaData_LocalMatrix::beginBlock(const KeyContext& keyContext,
                                        PaintParamsKeyBuilder* builder) const {
     SkASSERT(intrinsicCombination == 0);
 
-    LocalMatrixShaderBlock::BeginBlock(keyContext, builder, /*gatherer=*/nullptr,
-                                       { SkMatrix::I() });
+    LocalMatrixShaderBlock::BeginBlock(keyContext, builder, /* gatherer= */nullptr,
+                                       /* lmShaderData= */ nullptr);
 }
 
 // Split out due to constructor work

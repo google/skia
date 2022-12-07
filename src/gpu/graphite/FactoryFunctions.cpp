@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/FactoryFunctions.h"
 
 #include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/PrecompileBasePriv.h"
@@ -182,6 +183,83 @@ sk_sp<PrecompileShader> PrecompileShaders::SweepGradient() {
 
 sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient() {
     return sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kConical);
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompileLocalMatrixShader : public PrecompileShader {
+public:
+    PrecompileLocalMatrixShader(sk_sp<PrecompileShader> wrapped) : fWrapped(std::move(wrapped)) {}
+
+private:
+    bool isALocalMatrixShader() const override { return true; }
+
+    int numChildCombinations() const override {
+        return fWrapped->numChildCombinations();
+    }
+
+    void addToKey(const KeyContext& keyContext,
+                  int desiredCombination,
+                  PaintParamsKeyBuilder* builder) const override {
+        SkASSERT(desiredCombination < fWrapped->numCombinations());
+
+        LocalMatrixShaderBlock::BeginBlock(keyContext, builder,
+                                           /* gatherer= */ nullptr, /* lmShaderData= */ nullptr);
+
+        fWrapped->priv().addToKey(keyContext, desiredCombination, builder);
+
+        builder->endBlock();
+    }
+
+    sk_sp<PrecompileShader> fWrapped;
+};
+
+sk_sp<PrecompileShader> PrecompileShaders::LocalMatrix(sk_sp<PrecompileShader> wrapped) {
+    return sk_make_sp<PrecompileLocalMatrixShader>(std::move(wrapped));
+}
+
+//--------------------------------------------------------------------------------------------------
+class PrecompileColorFilterShader : public PrecompileShader {
+public:
+    PrecompileColorFilterShader(sk_sp<PrecompileShader> shader, sk_sp<PrecompileColorFilter> cf)
+            : fShader(std::move(shader))
+            , fColorFilter(std::move(cf)) {}
+
+private:
+    int numChildCombinations() const override {
+        const int numShaderCombos = fShader->numCombinations();
+        const int numColorFilterCombos = fColorFilter->numCombinations();
+
+        return numShaderCombos * numColorFilterCombos;
+    }
+
+    void addToKey(const KeyContext& keyContext,
+                  int desiredCombination,
+                  PaintParamsKeyBuilder* builder) const override {
+
+        SkASSERT(desiredCombination < this->numCombinations());
+
+        const int numShaderCombos = fShader->numCombinations();
+        SkDEBUGCODE(int numColorFilterCombos = fColorFilter->numCombinations();)
+
+        int desiredShaderCombination = desiredCombination % numShaderCombos;
+        int desiredColorFilterCombination = desiredCombination / numShaderCombos;
+        SkASSERT(desiredColorFilterCombination < numColorFilterCombos);
+
+        ColorFilterShaderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr);
+
+        fShader->priv().addToKey(keyContext, desiredShaderCombination, builder);
+        fColorFilter->priv().addToKey(keyContext, desiredColorFilterCombination, builder);
+
+        builder->endBlock();
+    }
+
+    sk_sp<PrecompileShader> fShader;
+    sk_sp<PrecompileColorFilter> fColorFilter;
+};
+
+sk_sp<PrecompileShader> PrecompileShaders::ColorFilter(sk_sp<PrecompileShader> shader,
+                                                       sk_sp<PrecompileColorFilter> cf) {
+    return sk_make_sp<PrecompileColorFilterShader>(std::move(shader), std::move(cf));
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -135,7 +135,7 @@ struct LocalMatrixShaderBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
-                           const LMShaderData&);
+                           const LMShaderData*);
 
 };
 

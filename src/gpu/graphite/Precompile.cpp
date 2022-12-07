@@ -9,6 +9,7 @@
 
 #ifdef SK_ENABLE_PRECOMPILE
 
+#include "src/gpu/graphite/FactoryFunctions.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Precompile.h"
@@ -16,6 +17,25 @@
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 namespace skgpu::graphite {
+
+//--------------------------------------------------------------------------------------------------
+sk_sp<PrecompileShader> PrecompileShader::makeWithLocalMatrix() {
+    if (this->priv().isALocalMatrixShader()) {
+        // SkShader::makeWithLocalMatrix collapses chains of localMatrix shaders so we need to
+        // follow suit here
+        return sk_ref_sp(this);
+    }
+
+    return PrecompileShaders::LocalMatrix(sk_ref_sp(this));
+}
+
+sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(sk_sp<PrecompileColorFilter> cf) {
+    if (!cf) {
+        return sk_ref_sp(this);
+    }
+
+    return PrecompileShaders::ColorFilter(sk_ref_sp(this), std::move(cf));
+}
 
 //--------------------------------------------------------------------------------------------------
 int PaintOptions::numShaderCombinations() const {

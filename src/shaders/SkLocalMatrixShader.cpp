@@ -49,7 +49,7 @@ void SkLocalMatrixShader::addToKey(const skgpu::graphite::KeyContext& keyContext
 
     KeyContextWithLocalMatrix newContext(keyContext, fLocalMatrix);
 
-    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, lmShaderData);
+    LocalMatrixShaderBlock::BeginBlock(newContext, builder, gatherer, &lmShaderData);
 
     as_SB(fWrappedShader)->addToKey(newContext, builder, gatherer);
 

@@ -70,6 +70,8 @@ private:
     friend class PaintOptions;
     friend class PrecompileBasePriv;
 
+    virtual bool isALocalMatrixShader() const { return false; }
+
     virtual void addToKey(const KeyContext&,
                           int desiredCombination,
                           PaintParamsKeyBuilder*) const = 0;
@@ -94,9 +96,15 @@ void PrecompileBase::AddToKey(const KeyContext& keyContext,
 }
 
 //--------------------------------------------------------------------------------------------------
+class PrecompileColorFilter;
+
 class PrecompileShader : public PrecompileBase {
 public:
     PrecompileShader() : PrecompileBase(Type::kShader) {}
+
+    sk_sp<PrecompileShader> makeWithLocalMatrix();
+
+    sk_sp<PrecompileShader> makeWithColorFilter(sk_sp<PrecompileColorFilter>);
 };
 
 class PrecompileMaskFilter : public PrecompileBase {

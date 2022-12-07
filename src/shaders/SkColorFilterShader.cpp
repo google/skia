@@ -141,5 +141,5 @@ sk_sp<SkShader> SkShader::makeWithColorFilter(sk_sp<SkColorFilter> filter) const
     if (!filter) {
         return sk_ref_sp(base);
     }
-    return sk_make_sp<SkColorFilterShader>(sk_ref_sp(base), 1.0f, filter);
+    return sk_make_sp<SkColorFilterShader>(sk_ref_sp(base), 1.0f, std::move(filter));
 }
