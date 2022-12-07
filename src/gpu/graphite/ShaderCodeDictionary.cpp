@@ -197,7 +197,7 @@ size_t ShaderCodeDictionary::RuntimeEffectKey::Hash::operator()(RuntimeEffectKey
 
 const ShaderCodeDictionary::Entry* ShaderCodeDictionary::findOrCreate(
         PaintParamsKeyBuilder* builder) {
-    PaintParamsKey key = builder->lockAsKey();
+    const PaintParamsKey& key = builder->lockAsKey();
 
     SkAutoSpinlock lock{fSpinLock};
 

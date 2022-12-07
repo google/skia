@@ -105,9 +105,7 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     PrecompileBase::AddToKey(keyContext, keyBuilder, fBlenderOptions, desiredBlendCombination);
 }
 
-void PaintOptions::buildCombinations(
-        ShaderCodeDictionary* dict,
-        const std::function<void(SkUniquePaintParamsID)>& processCombination) const {
+void PaintOptions::buildCombinations(ShaderCodeDictionary* dict) const {
     KeyContext keyContext(dict);
     PaintParamsKeyBuilder builder(dict);
 
@@ -115,11 +113,7 @@ void PaintOptions::buildCombinations(
     for (int i = 0; i < numCombinations; ++i) {
         this->createKey(keyContext, i, &builder);
 
-        // The 'findOrCreate' calls lockAsKey on builder and then destroys the returned
-        // PaintParamsKey. This serves to reset the builder.
-        auto entry = dict->findOrCreate(&builder);
-
-        processCombination(entry->uniqueID());
+        [[maybe_unused]] auto entry = dict->findOrCreate(&builder);
     }
 }
 

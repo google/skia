@@ -23,10 +23,8 @@ public:
         return fPaintOptions->numCombinations();
     }
 
-    void buildCombinations(
-            ShaderCodeDictionary* dict,
-            const std::function<void(SkUniquePaintParamsID)>& processCombination) const {
-        fPaintOptions->buildCombinations(dict, processCombination);
+    void buildCombinations(ShaderCodeDictionary* dict) const {
+        fPaintOptions->buildCombinations(dict);
     }
 
 private:
