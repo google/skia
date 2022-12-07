@@ -528,11 +528,9 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     // To make an image that is mapped 1:1 with device pixels but at a half pixel offset select
     // every pixel from the src image once we make exact integer pixel sample values round down not
     // up. Note that a mirror mapping will not have this property.
-#if !defined(SK_LEGACY_NEAREST_SAMPLE_MATRIX_TWEAK)
     if (!sampling.useCubic && sampling.filter == SkFilterMode::kNearest) {
         gather->coordBiasInULPs = -1;
     }
-#endif
 
     if (sampling.useCubic) {
         CubicResamplerMatrix(sampling.cubic.B, sampling.cubic.C).getColMajor(gather->weights);
