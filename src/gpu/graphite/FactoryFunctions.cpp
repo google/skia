@@ -31,6 +31,12 @@ private:
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,
                   PaintParamsKeyBuilder* builder) const override {
+        SkASSERT(desiredCombination == 0); // The blend mode blender only ever has one combination
+
+        // The blend mode is used in this BeginBlock! It is used to choose between fixed function
+        // and shader-based blending
+        BlendModeBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr, fBlendMode);
+        builder->endBlock();
     }
 
 
@@ -50,6 +56,14 @@ private:
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,
                   PaintParamsKeyBuilder* builder) const override {
+
+        SkASSERT(desiredCombination == 0); // The color shader only ever has one combination
+
+        constexpr SkPMColor4f kUnusedColor = { 1, 0, 0, 1 };
+
+        SolidColorShaderBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr,
+                                          kUnusedColor); // color isn't used w/o a gatherer
+        builder->endBlock();
     }
 
 };
@@ -137,6 +151,11 @@ private:
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,
                   PaintParamsKeyBuilder* builder) const override {
+        SkASSERT(desiredCombination == 0);
+
+        ImageShaderBlock::BeginBlock(keyContext, builder,
+                                     /* gatherer= */ nullptr, /* imgData= */ nullptr);
+        builder->endBlock();
     }
 };
 
@@ -163,10 +182,20 @@ private:
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,
                   PaintParamsKeyBuilder* builder) const override {
+        const int intrinsicCombination = desiredCombination / this->numChildCombinations();
+        SkDEBUGCODE(int childCombination = desiredCombination % this->numChildCombinations();)
+        SkASSERT(intrinsicCombination < kNumStopVariants);
+        SkASSERT(childCombination == 0);
+
+        // Only the type and number of stops are accessed when there is no gatherer
+        GradientShaderBlocks::GradientData gradData(fType, kStopVariants[intrinsicCombination]);
+
+        // TODO: we may need SkLocalMatrixShader-wrapped versions too
+        GradientShaderBlocks::BeginBlock(keyContext, builder, /* gatherer= */ nullptr, gradData);
+        builder->endBlock();
     }
 
-    // TODO: remove attribute once this is used in follow up CLs
-    [[maybe_unused]] SkShaderBase::GradientType fType;
+    SkShaderBase::GradientType fType;
 };
 
 sk_sp<PrecompileShader> PrecompileShaders::LinearGradient() {
@@ -271,6 +300,10 @@ private:
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,
                   PaintParamsKeyBuilder* builder) const override {
+        SkASSERT(desiredCombination == 0);
+
+        // TODO: need to add a BlurMaskFilter Block. This is somewhat blocked on figuring out
+        // what we're going to do with the Blur system.
     }
 };
 
@@ -287,6 +320,12 @@ private:
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,
                   PaintParamsKeyBuilder* builder) const override {
+        SkASSERT(desiredCombination == 0);
+
+        MatrixColorFilterBlock::BeginBlock(keyContext, builder,
+                                           /* gatherer= */ nullptr,
+                                           /* matrixCFData= */ nullptr);
+        builder->endBlock();
     }
 };
 
