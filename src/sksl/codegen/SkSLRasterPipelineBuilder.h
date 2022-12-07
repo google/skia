@@ -52,6 +52,7 @@ enum class BuilderOp {
     push_condition_mask,
     pop_condition_mask,
     change_stack,
+    label,
     unsupported
 };
 
@@ -82,7 +83,11 @@ struct Instruction {
 
 class Program {
 public:
-    Program(SkTArray<Instruction> instrs, int numValueSlots, SkRPDebugTrace* debugTrace);
+    Program(SkTArray<Instruction> instrs,
+            int numValueSlots,
+            int numLabels,
+            int numBranches,
+            SkRPDebugTrace* debugTrace);
 
     void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc);
     void dump(SkWStream* s);
@@ -99,6 +104,8 @@ private:
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;
     int fNumTempStackSlots = 0;
+    int fNumLabels = 0;
+    int fNumBranches = 0;
     SkTHashMap<int, int> fTempStackMaxDepths;
     SkRPDebugTrace* fDebugTrace = nullptr;
 };
@@ -107,6 +114,15 @@ class Builder {
 public:
     /** Finalizes and optimizes the program. */
     std::unique_ptr<Program> finish(int numValueSlots, SkRPDebugTrace* debugTrace = nullptr);
+
+    /**
+     * Peels off a label ID for use in the program. Set the label's position in the program with
+     * the `label` instruction. Actually branch to the target with an instruction like
+     * `branch_if_any_active_lanes` or `jump`.
+     */
+    int nextLabelID() {
+        return fNumLabels++;
+    }
 
     /** Assemble a program from the Raster Pipeline instructions below. */
     void init_lane_masks() {
@@ -140,6 +156,29 @@ public:
 
     void change_stack(int stackIdx) {
         fInstructions.push_back({BuilderOp::change_stack, {}, stackIdx});
+    }
+
+    void label(int labelID) {
+        SkASSERT(labelID >= 0 && labelID < fNumLabels);
+        fInstructions.push_back({BuilderOp::label, {}, labelID});
+    }
+
+    void jump(int labelID) {
+        SkASSERT(labelID >= 0 && labelID < fNumLabels);
+        fInstructions.push_back({BuilderOp::jump, {}, labelID});
+        ++fNumBranches;
+    }
+
+    void branch_if_any_active_lanes(int labelID) {
+        SkASSERT(labelID >= 0 && labelID < fNumLabels);
+        fInstructions.push_back({BuilderOp::branch_if_any_active_lanes, {}, labelID});
+        ++fNumBranches;
+    }
+
+    void branch_if_no_active_lanes(int labelID) {
+        SkASSERT(labelID >= 0 && labelID < fNumLabels);
+        fInstructions.push_back({BuilderOp::branch_if_no_active_lanes, {}, labelID});
+        ++fNumBranches;
     }
 
     // We use the same SkRasterPipeline op regardless of the literal type, and bitcast the value.
@@ -264,6 +303,8 @@ public:
 
 private:
     SkTArray<Instruction> fInstructions;
+    int fNumLabels = 0;
+    int fNumBranches = 0;
 };
 
 }  // namespace RP

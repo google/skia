@@ -317,6 +317,7 @@ public:
 
     static const char* GetStageName(Stage stage);
     const StageList* getStageList() const { return fStages; }
+    int getNumStages() const { return fNumStages; }
 
     // Prints the entire StageList using SkDebugf.
     void dump() const;
