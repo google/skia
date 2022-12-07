@@ -207,12 +207,14 @@ R"(    1. copy_4_slots_unmasked     $0..3 = v10..13
 )");
 }
 
-DEF_TEST(RasterPipelineBuilderDuplicateSlots, r) {
+DEF_TEST(RasterPipelineBuilderDuplicateAndSelectSlots, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
     builder.push_literal_f(1.0f);           // push into 1
     builder.duplicate(3);                   // duplicate into 2~4
-    builder.discard_stack(4);               // balance stack
+    builder.select(2);                      // combine 1~2 and 3~4 into 1~2
+    builder.select(1);                      // combine 1 and 2 into 1
+    builder.discard_stack(1);               // balance stack
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
 
     check(r, *program,
@@ -222,6 +224,8 @@ R"(    1. immediate_f               src.r = 0x3F800000 (1.0)
     4. store_unmasked            $1 = src.r
     5. store_unmasked            $2 = src.r
     6. store_unmasked            $3 = src.r
+    7. copy_2_slots_masked       $0..1 = Mask($2..3)
+    8. copy_slot_masked          $0 = Mask($1)
 )");
 }
 

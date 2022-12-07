@@ -31,6 +31,7 @@
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -116,11 +117,12 @@ public:
 
     /** Pushes an expression to the value stack. */
     bool pushAssignmentExpression(const BinaryExpression& e);
-    bool pushExpression(const Expression& e);
     bool pushBinaryExpression(const BinaryExpression& e);
     bool pushConstructorCompound(const ConstructorCompound& c);
     bool pushConstructorSplat(const ConstructorSplat& c);
+    bool pushExpression(const Expression& e);
     bool pushLiteral(const Literal& l);
+    bool pushTernaryExpression(const TernaryExpression& t);
     bool pushVariableReference(const VariableReference& v);
 
     /** Copies an expression from the value stack and copies it into slots. */
@@ -157,6 +159,9 @@ private:
     int fSlotCount = 0;
 
     SkTArray<SlotRange> fFunctionStack;
+
+    static constexpr int kPrimaryStack = 0;
+    static constexpr int kTernaryStack = 1;
 };
 
 struct LValue {
@@ -465,6 +470,9 @@ bool Generator::pushExpression(const Expression& e) {
         case Expression::Kind::kLiteral:
             return this->pushLiteral(e.as<Literal>());
 
+        case Expression::Kind::kTernary:
+            return this->pushTernaryExpression(e.as<TernaryExpression>());
+
         case Expression::Kind::kVariableReference:
             return this->pushVariableReference(e.as<VariableReference>());
 
@@ -641,6 +649,44 @@ bool Generator::pushLiteral(const Literal& l) {
         default:
             SkUNREACHABLE;
     }
+}
+
+bool Generator::pushTernaryExpression(const TernaryExpression& t) {
+    // Apply the test-expression as a condition on its own separate stack.
+    fBuilder.change_stack(kTernaryStack);
+    if (!this->pushExpression(*t.test())) {
+        return false;
+    }
+    fBuilder.push_condition_mask();
+    fBuilder.change_stack(kPrimaryStack);
+
+    // Push the true-expression onto the primary stack.
+    if (!this->pushExpression(*t.ifTrue())) {
+        return false;
+    }
+
+    // Negate the test condition.
+    fBuilder.change_stack(kTernaryStack);
+    fBuilder.pop_condition_mask();
+    fBuilder.unary_op(BuilderOp::bitwise_not, /*slots=*/1);
+    fBuilder.push_condition_mask();
+    fBuilder.change_stack(kPrimaryStack);
+
+    // Push the false-expression onto the main stack after the true-expression.
+    if (!this->pushExpression(*t.ifFalse())) {
+        return false;
+    }
+
+    // Use select to mask-merge the false results on top of the true results; the mask is already
+    // set up for this.
+    fBuilder.select(/*slots=*/t.ifTrue()->type().slotCount());
+
+    // Jettison the test condition.
+    fBuilder.change_stack(kTernaryStack);
+    fBuilder.pop_condition_mask();
+    this->discardExpression(/*slots=*/1);
+    fBuilder.change_stack(kPrimaryStack);
+    return true;
 }
 
 bool Generator::pushVariableReference(const VariableReference& v) {

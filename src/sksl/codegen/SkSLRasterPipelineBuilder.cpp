@@ -100,6 +100,7 @@ static int stack_usage(const Instruction& inst) {
 
         case ALL_MULTI_SLOT_BINARY_OP_CASES:
         case BuilderOp::discard_stack:
+        case BuilderOp::select:
             return -inst.fImmA;
 
         case ALL_SINGLE_SLOT_UNARY_OP_CASES:
@@ -253,6 +254,12 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
                 pipeline->append_adjacent_multi_slot_op(alloc, (SkRP::Stage)inst.fOp,
                                                         dst, src, inst.fImmA);
+                break;
+            }
+            case BuilderOp::select: {
+                float* src = tempStackPtr - (inst.fImmA * N);
+                float* dst = tempStackPtr - (inst.fImmA * 2 * N);
+                pipeline->append_copy_slots_masked(alloc, dst, src, inst.fImmA);
                 break;
             }
             case BuilderOp::copy_slot_masked:

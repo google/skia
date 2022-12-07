@@ -48,6 +48,7 @@ enum class BuilderOp {
     copy_stack_to_slots_unmasked,
     discard_stack,
     duplicate,
+    select,
     push_condition_mask,
     pop_condition_mask,
     change_stack,
@@ -207,6 +208,13 @@ public:
         // Creates duplicates of the top item on the temp stack.
         SkASSERT(count >= 0);
         fInstructions.push_back({BuilderOp::duplicate, {}, count});
+    }
+
+    void select(int slots) {
+        // Overlays the top two entries on the stack, making one hybrid entry. The execution mask
+        // is used to select which lanes are preserved.
+        SkASSERT(slots > 0);
+        fInstructions.push_back({BuilderOp::select, {}, slots});
     }
 
     void pop_slots_unmasked(SlotRange dst) {
