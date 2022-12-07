@@ -108,16 +108,25 @@ static int stack_usage(const Instruction& inst) {
     }
 }
 
-int Program::numTempStackSlots() {
-    int largest = 0;
-    int current = 0;
+Program::StackDepthMap Program::tempStackMaxDepths() {
+    StackDepthMap largest;
+    StackDepthMap current;
+
+    int curIdx = 0;
     for (const Instruction& inst : fInstructions) {
-        current += stack_usage(inst);
-        largest = std::max(current, largest);
-        SkASSERTF(current >= 0, "unbalanced temp stack push/pop");
+        if (inst.fOp == BuilderOp::change_stack) {
+            curIdx = inst.fImmA;
+        }
+        current[curIdx] += stack_usage(inst);
+        largest[curIdx] = std::max(current[curIdx], largest[curIdx]);
+        SkASSERTF(current[curIdx] >= 0, "unbalanced temp stack push/pop on stack %d", curIdx);
     }
 
-    SkASSERTF(current == 0, "unbalanced temp stack push/pop");
+    for (const auto& [stackIdx, depth] : current) {
+        (void)stackIdx;
+        SkASSERTF(depth == 0, "unbalanced temp stack push/pop");
+    }
+
     return largest;
 }
 
@@ -126,7 +135,14 @@ Program::Program(SkTArray<Instruction> instrs, int numValueSlots, SkRPDebugTrace
         , fNumValueSlots(numValueSlots)
         , fDebugTrace(debugTrace) {
     this->optimize();
-    fNumTempStackSlots = this->numTempStackSlots();
+
+    fTempStackMaxDepths = this->tempStackMaxDepths();
+
+    fNumTempStackSlots = 0;
+    for (const auto& [stackIdx, depth] : fTempStackMaxDepths) {
+        (void)stackIdx;
+        fNumTempStackSlots += depth;
+    }
 }
 
 template <typename T>
@@ -162,12 +178,23 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
     const int N = SkOpts::raster_pipeline_highp_stride;
     float* slotPtrEnd = slotPtr + (N * fNumValueSlots);
     float* tempStackBase = slotPtrEnd;
-    float* tempStackPtr = tempStackBase;
     [[maybe_unused]] float* tempStackEnd = tempStackBase + (N * fNumTempStackSlots);
+    StackDepthMap tempStackDepth;
+    int currentStack = 0;
+
+    // Assemble a map holding the current stack-top for each temporary stack. Position each temp
+    // stack immediately after the previous temp stack; temp stacks are never allowed to overlap.
+    int pos = 0;
+    SkTHashMap<int, float*> tempStackMap;
+    for (auto& [idx, depth] : fTempStackMaxDepths) {
+        tempStackMap[idx] = tempStackBase + (pos * N);
+        pos += depth;
+    }
 
     for (const Instruction& inst : fInstructions) {
         auto SlotA = [&]() { return &slotPtr[N * inst.fSlotA]; };
         auto SlotB = [&]() { return &slotPtr[N * inst.fSlotB]; };
+        float*& tempStackPtr = tempStackMap[currentStack];
 
         switch (inst.fOp) {
             case BuilderOp::init_lane_masks:
@@ -286,6 +313,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 break;
             }
             case BuilderOp::discard_stack:
+                break;
+
+            case BuilderOp::change_stack:
+                currentStack = inst.fImmA;
                 break;
 
             case BuilderOp::update_return_mask:

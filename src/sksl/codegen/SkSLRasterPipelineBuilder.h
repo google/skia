@@ -7,6 +7,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTHash.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkUtils.h"
 
@@ -49,6 +50,7 @@ enum class BuilderOp {
     duplicate,
     push_condition_mask,
     pop_condition_mask,
+    change_stack,
     unsupported
 };
 
@@ -85,15 +87,18 @@ public:
     void dump(SkWStream* s);
 
 private:
+    using StackDepthMap = SkTHashMap<int, int>; // <stack index, depth of stack>
+
     float* allocateSlotData(SkArenaAlloc* alloc);
     void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, float* slotPtr);
     void optimize();
     int numValueSlots();
-    int numTempStackSlots();
+    StackDepthMap tempStackMaxDepths();
 
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;
     int fNumTempStackSlots = 0;
+    SkTHashMap<int, int> fTempStackMaxDepths;
     SkRPDebugTrace* fDebugTrace = nullptr;
 };
 
@@ -132,7 +137,11 @@ public:
         fInstructions.push_back({BuilderOp::load_dst, {slots.index}});
     }
 
-    // Use the same SkRasterPipeline op regardless of the literal type.
+    void change_stack(int stackIdx) {
+        fInstructions.push_back({BuilderOp::change_stack, {}, stackIdx});
+    }
+
+    // We use the same SkRasterPipeline op regardless of the literal type, and bitcast the value.
     void immediate_f(float val) {
         fInstructions.push_back({BuilderOp::immediate_f, {}, sk_bit_cast<int32_t>(val)});
     }

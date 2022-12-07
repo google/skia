@@ -134,20 +134,31 @@ R"(    1. zero_slot_unmasked        $0 = 0
 DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_literal_f(13.5f); // push into 1
-    builder.push_literal_i(-246);  // push into 2
+    builder.change_stack(1);
+    builder.push_literal_i(999);   // push into 2
+    builder.change_stack(0);
+    builder.push_literal_f(13.5f); // push into 0
+    builder.push_literal_i(-246);  // push into 1
     builder.discard_stack();       // discard 2
     builder.push_literal_u(357);   // push into 2
-    builder.discard_stack(2);      // discard 1 and 2
+    builder.change_stack(1);
+    builder.push_literal_i(999);   // push into 3
+    builder.discard_stack(2);      // discard 2 and 3
+    builder.change_stack(0);
+    builder.discard_stack(2);      // discard 0 and 1
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
 
     check(r, *program,
-R"(    1. immediate_f               src.r = 0x41580000 (13.5)
-    2. store_unmasked            $0 = src.r
-    3. immediate_f               src.r = 0xFFFFFF0A
-    4. store_unmasked            $1 = src.r
-    5. immediate_f               src.r = 0x00000165 (5.002636e-43)
+R"(    1. immediate_f               src.r = 0x000003E7 (1.399897e-42)
+    2. store_unmasked            $2 = src.r
+    3. immediate_f               src.r = 0x41580000 (13.5)
+    4. store_unmasked            $0 = src.r
+    5. immediate_f               src.r = 0xFFFFFF0A
     6. store_unmasked            $1 = src.r
+    7. immediate_f               src.r = 0x00000165 (5.002636e-43)
+    8. store_unmasked            $1 = src.r
+    9. immediate_f               src.r = 0x000003E7 (1.399897e-42)
+   10. store_unmasked            $3 = src.r
 )");
 }
 
