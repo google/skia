@@ -413,6 +413,73 @@ PrecompileBlender* PrecompileChildPtr::blender() const {
 }
 
 //--------------------------------------------------------------------------------------------------
+namespace {
+
+int num_options_in_set(const std::vector<PrecompileChildPtr>& optionSet) {
+    int numOptions = 1;
+    for (const PrecompileChildPtr& childOption : optionSet) {
+        // A missing child will fall back to a passthrough object
+        if (childOption.base()) {
+            numOptions *= childOption.base()->numCombinations();
+        }
+    }
+
+    return numOptions;
+}
+
+// This is the precompile correlate to SkRuntimeEffect.cpp's add_children_to_key
+void add_children_to_key(const KeyContext& keyContext,
+                         int desiredCombination,
+                         PaintParamsKeyBuilder* builder,
+                         const std::vector<PrecompileChildPtr>& optionSet,
+                         SkSpan<const SkRuntimeEffect::Child> childInfo) {
+    using ChildType = SkRuntimeEffect::ChildType;
+
+    SkASSERT(optionSet.size() == childInfo.size());
+
+    int remainingCombinations = desiredCombination;
+
+    for (size_t index = 0; index < optionSet.size(); ++index) {
+        const PrecompileChildPtr& childOption = optionSet[index];
+
+        const int numChildCombos = childOption.base() ? childOption.base()->numCombinations()
+                                                      : 1;
+        const int curCombo = remainingCombinations % numChildCombos;
+        remainingCombinations /= numChildCombos;
+
+        std::optional<ChildType> type = childOption.type();
+        if (type == ChildType::kShader) {
+            childOption.shader()->priv().addToKey(keyContext, curCombo, builder);
+        } else if (type == ChildType::kColorFilter) {
+            childOption.colorFilter()->priv().addToKey(keyContext, curCombo, builder);
+        } else if (type == ChildType::kBlender) {
+            childOption.blender()->priv().addToKey(keyContext, curCombo, builder);
+        } else {
+            SkASSERT(curCombo == 0);
+
+            // We don't have a child effect. Substitute in a no-op effect.
+            switch (childInfo[index].type) {
+                case ChildType::kShader:
+                case ChildType::kColorFilter:
+                    // A "passthrough" shader returns the input color as-is.
+                    PassthroughShaderBlock::BeginBlock(keyContext, builder,
+                                                       /* gatherer= */ nullptr);
+                    builder->endBlock();
+                    break;
+
+                case ChildType::kBlender:
+                    // A "passthrough" blender performs `blend_src_over(src, dest)`.
+                    PassthroughBlenderBlock::BeginBlock(keyContext, builder,
+                                                        /* gatherer= */ nullptr);
+                    builder->endBlock();
+                    break;
+            }
+        }
+    }
+}
+
+} // anonymous namespace
+
 template<typename T>
 class PrecompileRTEffect : public T {
 public:
@@ -427,12 +494,36 @@ public:
 
 private:
     int numChildCombinations() const override {
-        return fChildOptions.size();
+        int numOptions = 0;
+        for (const std::vector<PrecompileChildPtr>& optionSet : fChildOptions) {
+            numOptions += num_options_in_set(optionSet);
+        }
+
+        return numOptions ? numOptions : 1;
     }
 
     void addToKey(const KeyContext& keyContext,
                   int desiredCombination,
                   PaintParamsKeyBuilder* builder) const override {
+
+        SkASSERT(desiredCombination < this->numCombinations());
+
+        SkSpan<const SkRuntimeEffect::Child> childInfo = fEffect->children();
+
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, /* gatherer= */ nullptr, { fEffect });
+
+        for (const std::vector<PrecompileChildPtr>& optionSet : fChildOptions) {
+            int numOptionsInSet = num_options_in_set(optionSet);
+
+            if (desiredCombination < numOptionsInSet) {
+                add_children_to_key(keyContext, desiredCombination, builder, optionSet, childInfo);
+                break;
+            }
+
+            desiredCombination -= numOptionsInSet;
+        }
+
+        builder->endBlock();
     }
 
     sk_sp<SkRuntimeEffect> fEffect;
