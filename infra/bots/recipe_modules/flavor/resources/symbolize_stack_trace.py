@@ -25,7 +25,9 @@ def main(basedir, cmd):
     print('Command exited with code %s' % proc.returncode)
 
     try:
-        subprocess.check_call(['addr2line', '--help'])
+        subprocess.check_call(['addr2line', '--help'],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL)
     except OSError:
         print('addr2line not found on PATH. Skipping symbolization.')
         return
