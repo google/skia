@@ -21,6 +21,7 @@
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLExpression.h"
@@ -118,6 +119,7 @@ public:
     /** Pushes an expression to the value stack. */
     bool pushAssignmentExpression(const BinaryExpression& e);
     bool pushBinaryExpression(const BinaryExpression& e);
+    bool pushConstructorCast(const AnyConstructor& c);
     bool pushConstructorCompound(const ConstructorCompound& c);
     bool pushConstructorSplat(const ConstructorSplat& c);
     bool pushExpression(const Expression& e);
@@ -468,6 +470,10 @@ bool Generator::pushExpression(const Expression& e) {
         case Expression::Kind::kConstructorCompound:
             return this->pushConstructorCompound(e.as<ConstructorCompound>());
 
+        case Expression::Kind::kConstructorCompoundCast:
+        case Expression::Kind::kConstructorScalarCast:
+            return this->pushConstructorCast(e.asAnyConstructor());
+
         case Expression::Kind::kConstructorSplat:
             return this->pushConstructorSplat(e.as<ConstructorSplat>());
 
@@ -621,6 +627,22 @@ bool Generator::pushConstructorCompound(const ConstructorCompound& c) {
         }
     }
     return true;
+}
+
+bool Generator::pushConstructorCast(const AnyConstructor& c) {
+    SkASSERT(c.argumentSpan().size() == 1);
+    const Expression& inner = *c.argumentSpan().front();
+
+    if (!this->pushExpression(inner)) {
+        return unsupported();
+    }
+    if (inner.type().componentType().numberKind() == c.type().componentType().numberKind()) {
+        // Since we ignore type precision, this cast is effectively a no-op.
+        return true;
+    }
+
+    // TODO: add RP op to convert values on stack from the inner type to the outer type
+    return unsupported();
 }
 
 bool Generator::pushConstructorSplat(const ConstructorSplat& c) {
