@@ -313,6 +313,10 @@ public:
         fInstructions.push_back({BuilderOp::pop_loop_mask, {}});
     }
 
+    void merge_loop_mask() {
+        fInstructions.push_back({BuilderOp::merge_loop_mask, {}});
+    }
+
     void push_return_mask() {
         fInstructions.push_back({BuilderOp::push_return_mask, {}});
     }

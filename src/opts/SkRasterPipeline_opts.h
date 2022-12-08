@@ -3036,6 +3036,13 @@ STAGE(store_loop_mask, F* ctx) {
     sk_unaligned_store(ctx, dg);
 }
 
+STAGE(merge_loop_mask, I32* ptr) {
+    // Set the loop-mask to the intersection of the current loop-mask with the mask at the pointer.
+    // (Note: this behavior subtly differs from merge_condition_mask!)
+    dg = sk_bit_cast<F>(sk_bit_cast<I32>(dg) & ptr[0]);
+    update_execution_mask();
+}
+
 STAGE(load_return_mask, F* ctx) {
     db = sk_unaligned_load<F>(ctx);
     update_execution_mask();
