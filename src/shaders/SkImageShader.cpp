@@ -524,13 +524,6 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     gather->stride = pm.rowBytesAsPixels();
     gather->width = pm.width();
     gather->height = pm.height();
-    // Our rasterizer biases upward. That is a rect from 0.5...1.5 fills pixel 1 and not pixel 0.
-    // To make an image that is mapped 1:1 with device pixels but at a half pixel offset select
-    // every pixel from the src image once we make exact integer pixel sample values round down not
-    // up. Note that a mirror mapping will not have this property.
-    if (!sampling.useCubic && sampling.filter == SkFilterMode::kNearest) {
-        gather->coordBiasInULPs = -1;
-    }
 
     if (sampling.useCubic) {
         CubicResamplerMatrix(sampling.cubic.B, sampling.cubic.C).getColMajor(gather->weights);
@@ -542,6 +535,24 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     limit_x->invScale = 1.0f / pm.width();
     limit_y->scale = pm.height();
     limit_y->invScale = 1.0f / pm.height();
+
+    // We would like an image that is mapped 1:1 with device pixels but at a half pixel offset
+    // to select every pixel from the src image once. Our rasterizer biases upward. That is a rect
+    // from 0.5...1.5 fills pixel 1 and not pixel 0. So we make exact integer pixel sample values
+    // select the pixel to the left/above the integer value.
+    //
+    // Note that a mirror mapping between canvas and image space will not have this property - on
+    // one side of the image a row/column will be skipped and one repeated on the other side.
+    //
+    // The GM nearest_half_pixel_image tests both of the above scenarios.
+    //
+    // The implementation of SkTileMode::kMirror also modifies integer pixel snapping to create
+    // consistency when the sample coords are running backwards and must account for gather
+    // modification we perform here. The GM mirror_tile tests this.
+    if (!sampling.useCubic && sampling.filter == SkFilterMode::kNearest) {
+        gather->roundDownAtInteger = true;
+        limit_x->mirrorBiasDir = limit_y->mirrorBiasDir = 1;
+    }
 
     SkRasterPipeline_DecalTileCtx* decal_ctx = nullptr;
     bool decal_x_and_y = fTileModeX == SkTileMode::kDecal && fTileModeY == SkTileMode::kDecal;

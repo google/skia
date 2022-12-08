@@ -185,7 +185,8 @@ struct SkRasterPipeline_GatherCtx {
     float       width;
     float       height;
     float       weights[16];  // for bicubic and bicubic_clamp_8888
-    int         coordBiasInULPs = 0;
+    // Controls whether pixel i-1 or i is selected when floating point sample position is exactly i.
+    bool        roundDownAtInteger = false;
 };
 
 // State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
@@ -206,6 +207,11 @@ struct SkRasterPipeline_SamplerCtx {
 struct SkRasterPipeline_TileCtx {
     float scale;
     float invScale; // cache of 1/scale
+    // When in the reflection portion of mirror tiling we need to snap the opposite direction
+    // at integer sample points than when in the forward direction. This controls which way we bias
+    // in the reflection. It should be 1 if SkRasterPipeline_GatherCtx::roundDownAtInteger is true
+    // and otherwise -1.
+    int   mirrorBiasDir = -1;
 };
 
 struct SkRasterPipeline_DecalTileCtx {
