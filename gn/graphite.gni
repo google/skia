@@ -25,6 +25,7 @@ skia_graphite_sources = [
   "$_src/BackendTexture.cpp",
   "$_src/Buffer.cpp",
   "$_src/Buffer.h",
+  "$_src/BuiltInCodeSnippetID.h",
   "$_src/Caps.cpp",
   "$_src/Caps.h",
   "$_src/ClientMappedBufferManager.cpp",

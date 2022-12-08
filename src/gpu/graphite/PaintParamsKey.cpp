@@ -213,7 +213,7 @@ void PaintParamsKeyBuilder::makeInvalid() {
 
     fStack.clear();
     fData.clear();
-    this->beginBlock(SkBuiltInCodeSnippetID::kError);
+    this->beginBlock(BuiltInCodeSnippetID::kError);
     this->endBlock();
 
     SkASSERT(fIsValid);
@@ -298,7 +298,7 @@ bool PaintParamsKey::isErrorKey() const {
         return false;
     }
     Header header = read_header(this->asSpan(), /*headerOffset=*/0);
-    return header.codeSnippetID == (int32_t)SkBuiltInCodeSnippetID::kError &&
+    return header.codeSnippetID == (int32_t) BuiltInCodeSnippetID::kError &&
            header.blockSize == sizeof(Header);
 }
 #endif

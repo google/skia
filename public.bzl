@@ -343,7 +343,6 @@ BASE_SRCS_ALL = [
     "src/core/SkBlurMask.h",
     "src/core/SkBuffer.cpp",
     "src/core/SkBuffer.h",
-    "src/core/SkBuiltInCodeSnippetID.h",
     "src/core/SkCachedData.cpp",
     "src/core/SkCachedData.h",
     "src/core/SkCanvas.cpp",

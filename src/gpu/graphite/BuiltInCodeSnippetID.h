@@ -5,13 +5,15 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkBuiltInCodeSnippetID_DEFINED
-#define SkBuiltInCodeSnippetID_DEFINED
+#ifndef skgpu_graphite_BuiltInCodeSnippetID_DEFINED
+#define skgpu_graphite_BuiltInCodeSnippetID_DEFINED
 
 #include "include/core/SkTypes.h"
 
+namespace skgpu::graphite {
+
 // TODO: this needs to be expanded into a more flexible dictionary (esp. for user-supplied SkSL)
-enum class SkBuiltInCodeSnippetID : int32_t {
+enum class BuiltInCodeSnippetID : int32_t {
     // This isn't just a signal for a failure during paintparams key creation. It also actually
     // implements the default behavior for an erroneous draw. Currently it just draws solid
     // magenta.
@@ -54,6 +56,8 @@ enum class SkBuiltInCodeSnippetID : int32_t {
 
     kLast = kPrimitiveColorShaderBasedBlender
 };
-static constexpr int kBuiltInCodeSnippetIDCount = static_cast<int>(SkBuiltInCodeSnippetID::kLast)+1;
+static constexpr int kBuiltInCodeSnippetIDCount = static_cast<int>(BuiltInCodeSnippetID::kLast)+1;
 
-#endif // SkBuiltInCodeSnippetID_DEFINED
+} // skgpu::graphite
+
+#endif // skgpu_graphite_BuiltInCodeSnippetID_DEFINED

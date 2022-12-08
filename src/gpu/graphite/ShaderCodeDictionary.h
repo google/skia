@@ -17,8 +17,8 @@
 #include "include/private/SkTo.h"
 #include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkArenaAlloc.h"
-#include "src/core/SkBuiltInCodeSnippetID.h"
 #include "src/core/SkEnumBitMask.h"
+#include "src/gpu/graphite/BuiltInCodeSnippetID.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Uniform.h"
 
@@ -218,9 +218,9 @@ public:
 
     const Entry* lookup(SkUniquePaintParamsID) const SK_EXCLUDES(fSpinLock);
 
-    SkSpan<const Uniform> getUniforms(SkBuiltInCodeSnippetID) const;
+    SkSpan<const Uniform> getUniforms(BuiltInCodeSnippetID) const;
     SkEnumBitMask<SnippetRequirementFlags> getSnippetRequirementFlags(
-            SkBuiltInCodeSnippetID id) const {
+            BuiltInCodeSnippetID id) const {
         return fBuiltInCodeSnippets[(int) id].fSnippetRequirementFlags;
     }
 
@@ -230,7 +230,7 @@ public:
 
     // This method can return nullptr
     const ShaderSnippet* getEntry(int codeSnippetID) const;
-    const ShaderSnippet* getEntry(SkBuiltInCodeSnippetID codeSnippetID) const {
+    const ShaderSnippet* getEntry(BuiltInCodeSnippetID codeSnippetID) const {
         return this->getEntry(SkTo<int>(codeSnippetID));
     }
 

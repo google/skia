@@ -83,7 +83,6 @@ CORE_FILES = [
     "SkBlurMask.h",
     "SkBuffer.cpp",
     "SkBuffer.h",
-    "SkBuiltInCodeSnippetID.h",
     "SkCachedData.cpp",
     "SkCachedData.h",
     "SkCanvas.cpp",

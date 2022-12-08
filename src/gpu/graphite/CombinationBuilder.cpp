@@ -711,7 +711,7 @@ void CombinationBuilder::createKey(const KeyContext& keyContext,
     int desiredBlendCombination = desiredCombination % numBlendModeCombos;
 
     // Keys begin with solid color shaders to assign the paint's color, so add this to the key.
-    keyBuilder->beginBlock(SkBuiltInCodeSnippetID::kSolidColorShader);
+    keyBuilder->beginBlock(BuiltInCodeSnippetID::kSolidColorShader);
     keyBuilder->endBlock();
 
     // TODO: Once the ColorFilterID class is implemented, include the alpha color filtering step in

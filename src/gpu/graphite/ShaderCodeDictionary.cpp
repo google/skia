@@ -229,7 +229,7 @@ const ShaderCodeDictionary::Entry* ShaderCodeDictionary::lookup(
     return fEntryVector[codeID.asUInt()];
 }
 
-SkSpan<const Uniform> ShaderCodeDictionary::getUniforms(SkBuiltInCodeSnippetID id) const {
+SkSpan<const Uniform> ShaderCodeDictionary::getUniforms(BuiltInCodeSnippetID id) const {
     return fBuiltInCodeSnippets[(int) id].fUniforms;
 }
 
@@ -1092,7 +1092,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
     // The 0th index is reserved as invalid
     fEntryVector.push_back(nullptr);
 
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kError] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kError] = {
             "Error",
             { },     // no uniforms
             SnippetRequirementFlags::kNone,
@@ -1103,7 +1103,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kPassthroughShader] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPassthroughShader] = {
             "PassthroughShader",
             { },     // no uniforms
             SnippetRequirementFlags::kPriorStageOutput,
@@ -1114,7 +1114,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int)SkBuiltInCodeSnippetID::kPassthroughBlender] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPassthroughBlender] = {
             "PassthroughBlender",
             {},      // no uniforms
             SnippetRequirementFlags::kPriorStageOutput | SnippetRequirementFlags::kDestColor,
@@ -1125,7 +1125,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             {}       // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSolidColorShader] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kSolidColorShader] = {
             "SolidColor",
             SkSpan(kSolidShaderUniforms),
             SnippetRequirementFlags::kNone,
@@ -1136,7 +1136,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kLinearGradientShader4] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLinearGradientShader4] = {
             "LinearGradient4",
             SkSpan(kLinearGradientUniforms4),
             SnippetRequirementFlags::kLocalCoords,
@@ -1147,7 +1147,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kLinearGradientShader8] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLinearGradientShader8] = {
             "LinearGradient8",
             SkSpan(kLinearGradientUniforms8),
             SnippetRequirementFlags::kLocalCoords,
@@ -1158,7 +1158,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kRadialGradientShader4] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kRadialGradientShader4] = {
             "RadialGradient4",
             SkSpan(kRadialGradientUniforms4),
             SnippetRequirementFlags::kLocalCoords,
@@ -1169,7 +1169,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kRadialGradientShader8] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kRadialGradientShader8] = {
             "RadialGradient8",
             SkSpan(kRadialGradientUniforms8),
             SnippetRequirementFlags::kLocalCoords,
@@ -1180,7 +1180,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSweepGradientShader4] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kSweepGradientShader4] = {
             "SweepGradient4",
             SkSpan(kSweepGradientUniforms4),
             SnippetRequirementFlags::kLocalCoords,
@@ -1191,7 +1191,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kSweepGradientShader8] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kSweepGradientShader8] = {
             "SweepGradient8",
             SkSpan(kSweepGradientUniforms8),
             SnippetRequirementFlags::kLocalCoords,
@@ -1202,7 +1202,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kConicalGradientShader4] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kConicalGradientShader4] = {
             "ConicalGradient4",
             SkSpan(kConicalGradientUniforms4),
             SnippetRequirementFlags::kLocalCoords,
@@ -1213,7 +1213,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kConicalGradientShader8] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kConicalGradientShader8] = {
             "ConicalGradient8",
             SkSpan(kConicalGradientUniforms8),
             SnippetRequirementFlags::kLocalCoords,
@@ -1224,7 +1224,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kLocalMatrixShader] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLocalMatrixShader] = {
             "LocalMatrixShader",
             SkSpan(kLocalMatrixShaderUniforms),
             (SnippetRequirementFlags::kPriorStageOutput |
@@ -1236,7 +1236,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNumLocalMatrixShaderChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kImageShader] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kImageShader] = {
             "ImageShader",
             SkSpan(kImageShaderUniforms),
             SnippetRequirementFlags::kLocalCoords,
@@ -1247,7 +1247,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kPorterDuffBlendShader] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPorterDuffBlendShader] = {
             "PorterDuffBlendShader",
             SkSpan(kPorterDuffBlendShaderUniforms),
             SnippetRequirementFlags::kNone,
@@ -1259,7 +1259,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             { }      // no data payload
     };
 
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kBlendShader] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kBlendShader] = {
             "BlendShader",
             SkSpan(kBlendShaderUniforms),
             SnippetRequirementFlags::kNone,
@@ -1271,7 +1271,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             { }      // no data payload
     };
 
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kColorFilterShader] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorFilterShader] = {
             "ColorFilterShader",
             {},      // no uniforms
             SnippetRequirementFlags::kNone,
@@ -1284,7 +1284,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
     };
 
     // SkColorFilter snippets
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kMatrixColorFilter] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kMatrixColorFilter] = {
             "MatrixColorFilter",
             SkSpan(kMatrixColorFilterUniforms),
             SnippetRequirementFlags::kPriorStageOutput,
@@ -1295,7 +1295,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kBlendColorFilter] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kBlendColorFilter] = {
             "BlendColorFilter",
             SkSpan(kBlendColorFilterUniforms),
             SnippetRequirementFlags::kPriorStageOutput,
@@ -1306,7 +1306,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kComposeColorFilter] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kComposeColorFilter] = {
             "ComposeColorFilter",
             { },     // no uniforms
             SnippetRequirementFlags::kPriorStageOutput,
@@ -1317,7 +1317,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNumComposeColorFilterChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kTableColorFilter] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kTableColorFilter] = {
             "TableColorFilter",
             { },     // no uniforms
             SnippetRequirementFlags::kPriorStageOutput,
@@ -1328,7 +1328,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kGaussianColorFilter] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kGaussianColorFilter] = {
             "GaussianColorFilter",
             { },     // no uniforms
             SnippetRequirementFlags::kPriorStageOutput,
@@ -1339,7 +1339,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kColorSpaceXformColorFilter] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorSpaceXformColorFilter] = {
             "ColorSpaceTransform",
             SkSpan(kColorSpaceTransformUniforms),
             SnippetRequirementFlags::kPriorStageOutput,
@@ -1350,7 +1350,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kFixedFunctionBlender] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kFixedFunctionBlender] = {
             "FixedFunctionBlender",
             { },     // no uniforms
             SnippetRequirementFlags::kNone,
@@ -1361,7 +1361,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             kFixedFunctionDataFields
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kShaderBasedBlender] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kShaderBasedBlender] = {
             "ShaderBasedBlender",
             SkSpan(kShaderBasedBlenderUniforms),
             SnippetRequirementFlags::kNone,
@@ -1372,7 +1372,7 @@ ShaderCodeDictionary::ShaderCodeDictionary() {
             kNoChildren,
             { }      // no data payload
     };
-    fBuiltInCodeSnippets[(int) SkBuiltInCodeSnippetID::kPrimitiveColorShaderBasedBlender] = {
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPrimitiveColorShaderBasedBlender] = {
             "PrimitiveColorShaderBasedBlender",
             SkSpan(kShaderBasedBlenderUniforms),
             SnippetRequirementFlags::kDestColor,

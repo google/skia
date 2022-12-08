@@ -190,7 +190,6 @@ skia_core_sources = [
   "$_src/core/SkBlurMask.h",
   "$_src/core/SkBuffer.cpp",
   "$_src/core/SkBuffer.h",
-  "$_src/core/SkBuiltInCodeSnippetID.h",
   "$_src/core/SkCachedData.cpp",
   "$_src/core/SkCachedData.h",
   "$_src/core/SkCanvas.cpp",
