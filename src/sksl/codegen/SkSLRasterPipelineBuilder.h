@@ -51,6 +51,10 @@ enum class BuilderOp {
     select,
     push_condition_mask,
     pop_condition_mask,
+    push_loop_mask,
+    pop_loop_mask,
+    push_return_mask,
+    pop_return_mask,
     set_current_stack,
     label,
     unsupported
@@ -299,6 +303,22 @@ public:
 
     void merge_condition_mask() {
         fInstructions.push_back({BuilderOp::merge_condition_mask, {}});
+    }
+
+    void push_loop_mask() {
+        fInstructions.push_back({BuilderOp::push_loop_mask, {}});
+    }
+
+    void pop_loop_mask() {
+        fInstructions.push_back({BuilderOp::pop_loop_mask, {}});
+    }
+
+    void push_return_mask() {
+        fInstructions.push_back({BuilderOp::push_return_mask, {}});
+    }
+
+    void pop_return_mask() {
+        fInstructions.push_back({BuilderOp::pop_return_mask, {}});
     }
 
     void update_return_mask() {

@@ -97,34 +97,34 @@ R"(    1. load_unmasked                  src.r = v12
 )");
 }
 
-DEF_TEST(RasterPipelineBuilderPushPopConditionMask, r) {
+DEF_TEST(RasterPipelineBuilderPushPopMaskRegisters, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
     builder.push_condition_mask();  // push into 0
-    builder.push_condition_mask();  // push into 1
-    builder.push_condition_mask();  // push into 2
+    builder.push_loop_mask();       // push into 1
+    builder.push_return_mask();     // push into 2
     builder.merge_condition_mask(); // set the condition-mask to 1 & 2
     builder.pop_condition_mask();   // pop from 2
     builder.merge_condition_mask(); // set the condition-mask to 0 & 1
     builder.push_condition_mask();  // push into 2
     builder.pop_condition_mask();   // pop from 2
-    builder.pop_condition_mask();   // pop from 1
-    builder.pop_condition_mask();   // pop from 0
+    builder.pop_loop_mask();        // pop from 1
+    builder.pop_return_mask();      // pop from 0
     builder.push_condition_mask();  // push into 0
     builder.pop_condition_mask();   // pop from 0
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0);
 
     check(r, *program,
 R"(    1. store_condition_mask           $0 = CondMask
-    2. store_condition_mask           $1 = CondMask
-    3. store_condition_mask           $2 = CondMask
+    2. store_loop_mask                $1 = LoopMask
+    3. store_return_mask              $2 = RetMask
     4. merge_condition_mask           CondMask = $1 & $2
     5. load_condition_mask            CondMask = $2
     6. merge_condition_mask           CondMask = $0 & $1
     7. store_condition_mask           $2 = CondMask
     8. load_condition_mask            CondMask = $2
-    9. load_condition_mask            CondMask = $1
-   10. load_condition_mask            CondMask = $0
+    9. load_loop_mask                 LoopMask = $1
+   10. load_return_mask               RetMask = $0
    11. store_condition_mask           $0 = CondMask
    12. load_condition_mask            CondMask = $0
 )");

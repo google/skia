@@ -89,6 +89,8 @@ static int stack_usage(const Instruction& inst) {
     switch (inst.fOp) {
         case BuilderOp::push_literal_f:
         case BuilderOp::push_condition_mask:
+        case BuilderOp::push_loop_mask:
+        case BuilderOp::push_return_mask:
             return 1;
 
         case BuilderOp::push_slots:
@@ -97,6 +99,8 @@ static int stack_usage(const Instruction& inst) {
 
         case ALL_SINGLE_SLOT_BINARY_OP_CASES:
         case BuilderOp::pop_condition_mask:
+        case BuilderOp::pop_loop_mask:
+        case BuilderOp::pop_return_mask:
             return -1;
 
         case ALL_MULTI_SLOT_BINARY_OP_CASES:
@@ -332,6 +336,26 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 pipeline->append(SkRP::merge_condition_mask, ptr);
                 break;
             }
+            case BuilderOp::push_loop_mask: {
+                float* dst = tempStackPtr;
+                pipeline->append(SkRP::store_loop_mask, dst);
+                break;
+            }
+            case BuilderOp::pop_loop_mask: {
+                float* src = tempStackPtr - (1 * N);
+                pipeline->append(SkRP::load_loop_mask, src);
+                break;
+            }
+            case BuilderOp::push_return_mask: {
+                float* dst = tempStackPtr;
+                pipeline->append(SkRP::store_return_mask, dst);
+                break;
+            }
+            case BuilderOp::pop_return_mask: {
+                float* src = tempStackPtr - (1 * N);
+                pipeline->append(SkRP::load_return_mask, src);
+                break;
+            }
             case BuilderOp::push_literal_f: {
                 float* dst = tempStackPtr;
                 if (inst.fImmA == 0) {
@@ -529,6 +553,10 @@ void Program::dump(SkWStream* out) {
             case SkRP::load_unmasked:
             case SkRP::load_condition_mask:
             case SkRP::store_condition_mask:
+            case SkRP::load_loop_mask:
+            case SkRP::store_loop_mask:
+            case SkRP::load_return_mask:
+            case SkRP::store_return_mask:
             case SkRP::store_masked:
             case SkRP::store_unmasked:
             case SkRP::bitwise_not:
@@ -632,20 +660,36 @@ void Program::dump(SkWStream* out) {
                 opText = "CondMask = LoopMask = RetMask = true";
                 break;
 
-            case SkRP::update_return_mask:
-                opText = "RetMask &= ~(CondMask & LoopMask & RetMask)";
-                break;
-
-            case SkRP::merge_condition_mask:
-                opText = "CondMask = " + opArg1 + " & " + opArg2;
-                break;
-
             case SkRP::load_condition_mask:
                 opText = "CondMask = " + opArg1;
                 break;
 
             case SkRP::store_condition_mask:
                 opText = opArg1 + " = CondMask";
+                break;
+
+            case SkRP::merge_condition_mask:
+                opText = "CondMask = " + opArg1 + " & " + opArg2;
+                break;
+
+            case SkRP::load_loop_mask:
+                opText = "LoopMask = " + opArg1;
+                break;
+
+            case SkRP::store_loop_mask:
+                opText = opArg1 + " = LoopMask";
+                break;
+
+            case SkRP::load_return_mask:
+                opText = "RetMask = " + opArg1;
+                break;
+
+            case SkRP::store_return_mask:
+                opText = opArg1 + " = RetMask";
+                break;
+
+            case SkRP::update_return_mask:
+                opText = "RetMask &= ~(CondMask & LoopMask & RetMask)";
                 break;
 
             case SkRP::immediate_f:

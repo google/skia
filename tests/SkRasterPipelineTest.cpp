@@ -164,6 +164,92 @@ DEF_TEST(SkRasterPipeline_LoadStoreConditionMask, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_LoadStoreLoopMask, r) {
+    alignas(64) int32_t mask[]  = {~0, 0, ~0,  0, ~0, ~0, ~0,  0};
+    alignas(64) int32_t maskCopy[SkRasterPipeline_kMaxStride_highp] = {};
+    alignas(64) int32_t dst[4 * SkRasterPipeline_kMaxStride_highp] = {};
+
+    static_assert(std::size(mask) == SkRasterPipeline_kMaxStride_highp);
+
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::init_lane_masks);
+    p.append(SkRasterPipeline::load_loop_mask, mask);
+    p.append(SkRasterPipeline::store_loop_mask, maskCopy);
+    p.append(SkRasterPipeline::store_dst, dst);
+    p.run(0,0,SkOpts::raster_pipeline_highp_stride,1);
+
+    {
+        // `maskCopy` should be populated with `mask` in the frontmost positions
+        // (depending on the architecture that SkRasterPipeline is targeting).
+        size_t index = 0;
+        for (; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+            REPORTER_ASSERT(r, maskCopy[index] == mask[index]);
+        }
+
+        // The remaining slots should have been left alone.
+        for (; index < std::size(maskCopy); ++index) {
+            REPORTER_ASSERT(r, maskCopy[index] == 0);
+        }
+    }
+    {
+        // `dg` and `da` should be populated with `mask`.
+        // `dr` and `db` should remain initialized to true.
+        const int dr = 0 * SkOpts::raster_pipeline_highp_stride;
+        const int dg = 1 * SkOpts::raster_pipeline_highp_stride;
+        const int db = 2 * SkOpts::raster_pipeline_highp_stride;
+        const int da = 3 * SkOpts::raster_pipeline_highp_stride;
+        for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+            REPORTER_ASSERT(r, dst[dr + index] == ~0);
+            REPORTER_ASSERT(r, dst[dg + index] == mask[index]);
+            REPORTER_ASSERT(r, dst[db + index] == ~0);
+            REPORTER_ASSERT(r, dst[da + index] == mask[index]);
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_LoadStoreReturnMask, r) {
+    alignas(64) int32_t mask[]  = {~0, 0, ~0,  0, ~0, ~0, ~0,  0};
+    alignas(64) int32_t maskCopy[SkRasterPipeline_kMaxStride_highp] = {};
+    alignas(64) int32_t dst[4 * SkRasterPipeline_kMaxStride_highp] = {};
+
+    static_assert(std::size(mask) == SkRasterPipeline_kMaxStride_highp);
+
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::init_lane_masks);
+    p.append(SkRasterPipeline::load_return_mask, mask);
+    p.append(SkRasterPipeline::store_return_mask, maskCopy);
+    p.append(SkRasterPipeline::store_dst, dst);
+    p.run(0,0,SkOpts::raster_pipeline_highp_stride,1);
+
+    {
+        // `maskCopy` should be populated with `mask` in the frontmost positions
+        // (depending on the architecture that SkRasterPipeline is targeting).
+        size_t index = 0;
+        for (; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+            REPORTER_ASSERT(r, maskCopy[index] == mask[index]);
+        }
+
+        // The remaining slots should have been left alone.
+        for (; index < std::size(maskCopy); ++index) {
+            REPORTER_ASSERT(r, maskCopy[index] == 0);
+        }
+    }
+    {
+        // `db` and `da` should be populated with `mask`.
+        // `dr` and `dg` should remain initialized to true.
+        const int dr = 0 * SkOpts::raster_pipeline_highp_stride;
+        const int dg = 1 * SkOpts::raster_pipeline_highp_stride;
+        const int db = 2 * SkOpts::raster_pipeline_highp_stride;
+        const int da = 3 * SkOpts::raster_pipeline_highp_stride;
+        for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+            REPORTER_ASSERT(r, dst[dr + index] == ~0);
+            REPORTER_ASSERT(r, dst[dg + index] == ~0);
+            REPORTER_ASSERT(r, dst[db + index] == mask[index]);
+            REPORTER_ASSERT(r, dst[da + index] == mask[index]);
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_MergeConditionMask, r) {
     alignas(64) int32_t mask[]  = { 0,  0, ~0, ~0, 0, ~0, 0, ~0,
                                    ~0, ~0, ~0, ~0, 0,  0, 0,  0};
@@ -177,13 +263,16 @@ DEF_TEST(SkRasterPipeline_MergeConditionMask, r) {
     p.run(0,0,SkOpts::raster_pipeline_highp_stride,1);
 
     // `dr` and `da` should be populated with `mask[x] & mask[y]` in the frontmost positions.
-    // `dg` and `db` aren't used in this test and are ignored.
+    // `dg` and `db` should remain initialized to true.
     const int dr = 0 * SkOpts::raster_pipeline_highp_stride;
+    const int dg = 1 * SkOpts::raster_pipeline_highp_stride;
+    const int db = 2 * SkOpts::raster_pipeline_highp_stride;
     const int da = 3 * SkOpts::raster_pipeline_highp_stride;
-
     for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
         int32_t expected = mask[index] & mask[index + SkOpts::raster_pipeline_highp_stride];
         REPORTER_ASSERT(r, dst[dr + index] == expected);
+        REPORTER_ASSERT(r, dst[dg + index] == ~0);
+        REPORTER_ASSERT(r, dst[db + index] == ~0);
         REPORTER_ASSERT(r, dst[da + index] == expected);
     }
 }
@@ -206,7 +295,6 @@ DEF_TEST(SkRasterPipeline_UpdateReturnMask, r) {
     const int dg = 1 * SkOpts::raster_pipeline_highp_stride;
     const int db = 2 * SkOpts::raster_pipeline_highp_stride;
     const int da = 3 * SkOpts::raster_pipeline_highp_stride;
-
     for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
         // `db` should have masked off any lanes that are currently executing.
         int32_t expected = initial[db + index] & ~initial[da + index];
