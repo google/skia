@@ -235,3 +235,21 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorNestedTernaryTest, r) {
          )__SkSL__",
          SkColor4f{0.499f, 0.499f, 0.499f, 0.499f});
 }
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorDoWhileTest, r) {
+    // Add in your SkSL here.
+    test(r,
+         R"__SkSL__(
+             half4 main(float2 coords) {
+                 const half4 colorGreen = half4(0,1,0,1);
+                 const half4 colorRed   = half4(1,0,0,1);
+                 half x = 0, y = 1;
+                 do {
+                     y += y;
+                     x += 1;
+                 } while (x < 10);
+                 return (y == 1024) ? colorGreen : colorRed;
+             }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+}

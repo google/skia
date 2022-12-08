@@ -24,6 +24,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
+#include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -111,6 +112,7 @@ public:
     /** Appends a statement to the program. */
     bool writeStatement(const Statement& s);
     bool writeBlock(const Block& b);
+    bool writeDoStatement(const DoStatement& d);
     bool writeExpressionStatement(const ExpressionStatement& e);
     bool writeIfStatement(const IfStatement& i);
     bool writeReturnStatement(const ReturnStatement& r);
@@ -378,6 +380,9 @@ bool Generator::writeStatement(const Statement& s) {
         case Statement::Kind::kBlock:
             return this->writeBlock(s.as<Block>());
 
+        case Statement::Kind::kDo:
+            return this->writeDoStatement(s.as<DoStatement>());
+
         case Statement::Kind::kExpression:
             return this->writeExpressionStatement(s.as<ExpressionStatement>());
 
@@ -404,6 +409,35 @@ bool Generator::writeBlock(const Block& b) {
             return unsupported();
         }
     }
+    return true;
+}
+
+bool Generator::writeDoStatement(const DoStatement& d) {
+    // Save off the original loop mask.
+    fBuilder.push_loop_mask();
+
+    // Write the do-loop body.
+    int labelID = fBuilder.nextLabelID();
+    fBuilder.label(labelID);
+    if (!this->writeStatement(*d.statement())) {
+        return false;
+    }
+
+    // Emit the test-expression, in order to combine it with the loop mask.
+    if (!this->pushExpression(*d.test())) {
+        return false;
+    }
+
+    // Mask off any lanes in the loop mask where the test-expression is false; this breaks the loop.
+    // We don't use the test expression for anything else, so jettison it.
+    fBuilder.merge_loop_mask();
+    this->discardExpression(/*slots=*/1);
+
+    // If any lanes are still running, go back to the top and run the loop body again.
+    fBuilder.branch_if_any_active_lanes(labelID);
+
+    // Restore the loop mask.
+    fBuilder.pop_loop_mask();
     return true;
 }
 
