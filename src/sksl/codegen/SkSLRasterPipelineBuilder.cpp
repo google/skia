@@ -116,7 +116,7 @@ Program::StackDepthMap Program::tempStackMaxDepths() {
 
     int curIdx = 0;
     for (const Instruction& inst : fInstructions) {
-        if (inst.fOp == BuilderOp::change_stack) {
+        if (inst.fOp == BuilderOp::set_current_stack) {
             curIdx = inst.fImmA;
         }
         current[curIdx] += stack_usage(inst);
@@ -360,7 +360,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
             case BuilderOp::discard_stack:
                 break;
 
-            case BuilderOp::change_stack:
+            case BuilderOp::set_current_stack:
                 currentStack = inst.fImmA;
                 break;
 

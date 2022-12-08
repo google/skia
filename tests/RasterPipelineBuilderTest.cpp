@@ -134,17 +134,17 @@ R"(    1. zero_slot_unmasked             $0 = 0
 DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.change_stack(1);
+    builder.set_current_stack(1);
     builder.push_literal_i(999);   // push into 2
-    builder.change_stack(0);
+    builder.set_current_stack(0);
     builder.push_literal_f(13.5f); // push into 0
     builder.push_literal_i(-246);  // push into 1
     builder.discard_stack();       // discard 2
     builder.push_literal_u(357);   // push into 2
-    builder.change_stack(1);
+    builder.set_current_stack(1);
     builder.push_literal_i(999);   // push into 3
     builder.discard_stack(2);      // discard 2 and 3
-    builder.change_stack(0);
+    builder.set_current_stack(0);
     builder.discard_stack(2);      // discard 0 and 1
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
 

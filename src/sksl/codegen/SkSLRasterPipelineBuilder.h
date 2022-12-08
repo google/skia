@@ -51,7 +51,7 @@ enum class BuilderOp {
     select,
     push_condition_mask,
     pop_condition_mask,
-    change_stack,
+    set_current_stack,
     label,
     unsupported
 };
@@ -154,8 +154,8 @@ public:
         fInstructions.push_back({BuilderOp::load_dst, {slots.index}});
     }
 
-    void change_stack(int stackIdx) {
-        fInstructions.push_back({BuilderOp::change_stack, {}, stackIdx});
+    void set_current_stack(int stackIdx) {
+        fInstructions.push_back({BuilderOp::set_current_stack, {}, stackIdx});
     }
 
     void label(int labelID) {

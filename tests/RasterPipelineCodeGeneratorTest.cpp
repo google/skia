@@ -222,3 +222,16 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorTernaryTest, r) {
          )__SkSL__",
          SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorNestedTernaryTest, r) {
+    // Add in your SkSL here.
+    test(r,
+         R"__SkSL__(
+             half4 main(float2 coords) {
+                 half three = 3, one = 1, two = 2;
+                 half result = (three > (one > two ? 2.0 : 5.0)) ? 1.0 : 0.499;
+                 return half4(result);
+             }
+         )__SkSL__",
+         SkColor4f{0.499f, 0.499f, 0.499f, 0.499f});
+}
