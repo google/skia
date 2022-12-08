@@ -263,6 +263,7 @@ gm_sources = [
   "$_gm/matriximagefilter.cpp",
   "$_gm/mesh.cpp",
   "$_gm/mipmap.cpp",
+  "$_gm/mirrortile.cpp",
   "$_gm/mixedtextblobs.cpp",
   "$_gm/mixercolorfilter.cpp",
   "$_gm/modecolorfilters.cpp",
