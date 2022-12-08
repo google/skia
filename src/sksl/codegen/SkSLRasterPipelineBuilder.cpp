@@ -318,13 +318,18 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 break;
             }
             case BuilderOp::push_condition_mask: {
-                float* dst = tempStackPtr - (1 * N);
-                pipeline->append(SkRP::combine_condition_mask, dst);
+                float* dst = tempStackPtr;
+                pipeline->append(SkRP::store_condition_mask, dst);
                 break;
             }
             case BuilderOp::pop_condition_mask: {
                 float* src = tempStackPtr - (1 * N);
                 pipeline->append(SkRP::load_condition_mask, src);
+                break;
+            }
+            case BuilderOp::merge_condition_mask: {
+                float* ptr = tempStackPtr - (2 * N);
+                pipeline->append(SkRP::merge_condition_mask, ptr);
                 break;
             }
             case BuilderOp::push_literal_f: {
@@ -523,6 +528,7 @@ void Program::dump(SkWStream* out) {
 
             case SkRP::load_unmasked:
             case SkRP::load_condition_mask:
+            case SkRP::store_condition_mask:
             case SkRP::store_masked:
             case SkRP::store_unmasked:
             case SkRP::bitwise_not:
@@ -567,7 +573,7 @@ void Program::dump(SkWStream* out) {
                 std::tie(opArg1, opArg2) = CopySlotsCtx(stage.ctx, 4);
                 break;
 
-            case SkRP::combine_condition_mask:
+            case SkRP::merge_condition_mask:
             case SkRP::bitwise_and: case SkRP::bitwise_or: case SkRP::bitwise_xor:
             case SkRP::add_float:   case SkRP::add_int:
             case SkRP::cmplt_float: case SkRP::cmplt_int:
@@ -630,12 +636,16 @@ void Program::dump(SkWStream* out) {
                 opText = "RetMask &= ~(CondMask & LoopMask & RetMask)";
                 break;
 
-            case SkRP::combine_condition_mask:
-                opText = opArg2 + " = CondMask;  CondMask &= " + opArg1;
+            case SkRP::merge_condition_mask:
+                opText = "CondMask = " + opArg1 + " & " + opArg2;
                 break;
 
             case SkRP::load_condition_mask:
                 opText = "CondMask = " + opArg1;
+                break;
+
+            case SkRP::store_condition_mask:
+                opText = opArg1 + " = CondMask";
                 break;
 
             case SkRP::immediate_f:

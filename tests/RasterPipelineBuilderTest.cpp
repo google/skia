@@ -100,34 +100,33 @@ R"(    1. load_unmasked                  src.r = v12
 DEF_TEST(RasterPipelineBuilderPushPopConditionMask, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_literal_f(0);     // push into 98 with a temp
-    builder.push_literal_f(0);     // push into 99 with a temp
-    builder.push_condition_mask(); // combine from 99 into 100
-    builder.push_condition_mask(); // combine from 100 into 101
-    builder.push_condition_mask(); // combine from 101 into 102
-    builder.pop_condition_mask();  // pop from 102
-    builder.push_condition_mask(); // combine from 101 into 102
-    builder.pop_condition_mask();  // pop from 102
-    builder.pop_condition_mask();  // pop from 101
-    builder.pop_condition_mask();  // pop from 100
-    builder.push_condition_mask(); // combine from 99 into 100
-    builder.pop_condition_mask();  // pop from 100
-    builder.discard_stack(2);      // balance temp stack
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/98);
+    builder.push_condition_mask();  // push into 0
+    builder.push_condition_mask();  // push into 1
+    builder.push_condition_mask();  // push into 2
+    builder.merge_condition_mask(); // set the condition-mask to 1 & 2
+    builder.pop_condition_mask();   // pop from 2
+    builder.merge_condition_mask(); // set the condition-mask to 0 & 1
+    builder.push_condition_mask();  // push into 2
+    builder.pop_condition_mask();   // pop from 2
+    builder.pop_condition_mask();   // pop from 1
+    builder.pop_condition_mask();   // pop from 0
+    builder.push_condition_mask();  // push into 0
+    builder.pop_condition_mask();   // pop from 0
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0);
 
     check(r, *program,
-R"(    1. zero_slot_unmasked             $0 = 0
-    2. zero_slot_unmasked             $1 = 0
-    3. combine_condition_mask         $2 = CondMask;  CondMask &= $1
-    4. combine_condition_mask         $3 = CondMask;  CondMask &= $2
-    5. combine_condition_mask         $4 = CondMask;  CondMask &= $3
-    6. load_condition_mask            CondMask = $4
-    7. combine_condition_mask         $4 = CondMask;  CondMask &= $3
-    8. load_condition_mask            CondMask = $4
-    9. load_condition_mask            CondMask = $3
-   10. load_condition_mask            CondMask = $2
-   11. combine_condition_mask         $2 = CondMask;  CondMask &= $1
-   12. load_condition_mask            CondMask = $2
+R"(    1. store_condition_mask           $0 = CondMask
+    2. store_condition_mask           $1 = CondMask
+    3. store_condition_mask           $2 = CondMask
+    4. merge_condition_mask           CondMask = $1 & $2
+    5. load_condition_mask            CondMask = $2
+    6. merge_condition_mask           CondMask = $0 & $1
+    7. store_condition_mask           $2 = CondMask
+    8. load_condition_mask            CondMask = $2
+    9. load_condition_mask            CondMask = $1
+   10. load_condition_mask            CondMask = $0
+   11. store_condition_mask           $0 = CondMask
+   12. load_condition_mask            CondMask = $0
 )");
 }
 

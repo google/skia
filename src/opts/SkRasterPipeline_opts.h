@@ -3021,12 +3021,9 @@ STAGE(store_condition_mask, F* ctx) {
     sk_unaligned_store(ctx, dr);
 }
 
-STAGE(combine_condition_mask, I32* stack) {
-    // Store off the current condition-mask in the following stack slot.
-    stack[1] = sk_bit_cast<I32>(dr);
-
-    // Intersect the current condition-mask with the condition-mask on the stack.
-    dr = sk_bit_cast<F>(stack[0] & stack[1]);
+STAGE(merge_condition_mask, I32* ptr) {
+    // Set the condition-mask to the intersection of two adjacent masks at the pointer.
+    dr = sk_bit_cast<F>(ptr[0] & ptr[1]);
     update_execution_mask();
 }
 
