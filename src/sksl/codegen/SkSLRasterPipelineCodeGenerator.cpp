@@ -196,6 +196,11 @@ std::unique_ptr<LValue> LValue::Make(const Expression& e) {
     return nullptr;
 }
 
+static bool unsupported() {
+    // If MakeRasterPipelineProgram returns false, set a breakpoint here for more information.
+    return false;
+}
+
 void Generator::addDebugSlotInfoForGroup(const std::string& varName,
                                          const Type& type,
                                          Position pos,
@@ -383,15 +388,14 @@ bool Generator::writeStatement(const Statement& s) {
             return this->writeVarDeclaration(s.as<VarDeclaration>());
 
         default:
-            // Unsupported statement
-            return false;
+            return unsupported();
     }
 }
 
 bool Generator::writeBlock(const Block& b) {
     for (const std::unique_ptr<Statement>& stmt : b.children()) {
         if (!this->writeStatement(*stmt)) {
-            return false;
+            return unsupported();
         }
     }
     return true;
@@ -399,7 +403,7 @@ bool Generator::writeBlock(const Block& b) {
 
 bool Generator::writeExpressionStatement(const ExpressionStatement& e) {
     if (!this->pushExpression(*e.expression())) {
-        return false;
+        return unsupported();
     }
     this->discardExpression(e.expression()->type().slotCount());
     return true;
@@ -407,13 +411,13 @@ bool Generator::writeExpressionStatement(const ExpressionStatement& e) {
 
 bool Generator::writeIfStatement(const IfStatement& i) {
     if (!this->pushExpression(*i.test())) {
-        return false;
+        return unsupported();
     }
 
     // Apply the test-expression as a condition, then run the if-true branch.
     fBuilder.push_condition_mask();
     if (!this->writeStatement(*i.ifTrue())) {
-        return false;
+        return unsupported();
     }
     fBuilder.pop_condition_mask();
 
@@ -423,7 +427,7 @@ bool Generator::writeIfStatement(const IfStatement& i) {
         fBuilder.unary_op(BuilderOp::bitwise_not, /*slots=*/1);
         fBuilder.push_condition_mask();
         if (!this->writeStatement(*i.ifFalse())) {
-            return false;
+            return unsupported();
         }
         fBuilder.pop_condition_mask();
     }
@@ -436,7 +440,7 @@ bool Generator::writeIfStatement(const IfStatement& i) {
 bool Generator::writeReturnStatement(const ReturnStatement& r) {
     if (r.expression()) {
         if (!this->pushExpression(*r.expression())) {
-            return false;
+            return unsupported();
         }
         this->popToSlotRange(fFunctionStack.back());
     }
@@ -447,7 +451,7 @@ bool Generator::writeReturnStatement(const ReturnStatement& r) {
 bool Generator::writeVarDeclaration(const VarDeclaration& v) {
     if (v.value()) {
         if (!this->pushExpression(*v.value())) {
-            return false;
+            return unsupported();
         }
         this->popToSlotRangeUnmasked(this->getSlots(*v.var()));
     } else {
@@ -477,8 +481,7 @@ bool Generator::pushExpression(const Expression& e) {
             return this->pushVariableReference(e.as<VariableReference>());
 
         default:
-            // Unsupported expression
-            return false;
+            return unsupported();
     }
 }
 
@@ -492,7 +495,7 @@ bool Generator::binaryOp(SkSL::Type::NumberKind numberKind, int slots, const Bin
         default:                          SkUNREACHABLE;
     }
     if (op == BuilderOp::unsupported) {
-        return false;
+        return unsupported();
     }
     fBuilder.binary_op(op, slots);
     return true;
@@ -513,7 +516,7 @@ void Generator::foldWithOp(BuilderOp op, int elements) {
 bool Generator::pushBinaryExpression(const BinaryExpression& e) {
     // TODO: add support for non-matching types (e.g. matrix-vector ops)
     if (!e.left()->type().matches(e.right()->type())) {
-        return false;
+        return unsupported();
     }
 
     // Handle simple assignment (`var = expr`).
@@ -547,7 +550,7 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
                                                     BuilderOp::add_n_ints,
                                                     BuilderOp::unsupported};
             if (!this->binaryOp(numberKind, type.slotCount(), kPlus)) {
-                return false;
+                return unsupported();
             }
             break;
         }
@@ -559,7 +562,7 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
                                                         BuilderOp::unsupported,
                                                         BuilderOp::unsupported};
             if (!this->binaryOp(numberKind, type.slotCount(), kLessThan)) {
-                return false;
+                return unsupported();
             }
             SkASSERT(type.slotCount() == 1);  // operator< only works with scalar types
             break;
@@ -572,7 +575,7 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
                                                               BuilderOp::unsupported,
                                                               BuilderOp::unsupported};
             if (!this->binaryOp(numberKind, type.slotCount(), kLessThanEquals)) {
-                return false;
+                return unsupported();
             }
             SkASSERT(type.slotCount() == 1);  // operator<= only works with scalar types
             break;
@@ -583,7 +586,7 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
                                                       BuilderOp::cmpeq_n_ints,
                                                       BuilderOp::cmpeq_n_ints};
             if (!this->binaryOp(numberKind, type.slotCount(), kEquals)) {
-                return false;
+                return unsupported();
             }
             this->foldWithOp(BuilderOp::bitwise_and, type.slotCount());  // fold vector result
             break;
@@ -594,13 +597,13 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
                                                          BuilderOp::cmpne_n_ints,
                                                          BuilderOp::cmpne_n_ints};
             if (!this->binaryOp(numberKind, type.slotCount(), kNotEquals)) {
-                return false;
+                return unsupported();
             }
             this->foldWithOp(BuilderOp::bitwise_or, type.slotCount());  // fold vector result
             break;
         }
         default:
-            return false;
+            return unsupported();
     }
 
     // Handle compound assignment (`var *= expr`).
@@ -614,7 +617,7 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
 bool Generator::pushConstructorCompound(const ConstructorCompound& c) {
     for (const std::unique_ptr<Expression> &arg : c.arguments()) {
         if (!this->pushExpression(*arg)) {
-            return false;
+            return unsupported();
         }
     }
     return true;
@@ -622,7 +625,7 @@ bool Generator::pushConstructorCompound(const ConstructorCompound& c) {
 
 bool Generator::pushConstructorSplat(const ConstructorSplat& c) {
     if (!this->pushExpression(*c.argument())) {
-        return false;
+        return unsupported();
     }
     fBuilder.duplicate(c.type().slotCount() - 1);
     return true;
@@ -655,14 +658,14 @@ bool Generator::pushTernaryExpression(const TernaryExpression& t) {
     // Apply the test-expression as a condition on its own separate stack.
     fBuilder.change_stack(kTernaryStack);
     if (!this->pushExpression(*t.test())) {
-        return false;
+        return unsupported();
     }
     fBuilder.push_condition_mask();
     fBuilder.change_stack(kPrimaryStack);
 
     // Push the true-expression onto the primary stack.
     if (!this->pushExpression(*t.ifTrue())) {
-        return false;
+        return unsupported();
     }
 
     // Negate the test condition.
@@ -674,7 +677,7 @@ bool Generator::pushTernaryExpression(const TernaryExpression& t) {
 
     // Push the false-expression onto the main stack after the true-expression.
     if (!this->pushExpression(*t.ifFalse())) {
-        return false;
+        return unsupported();
     }
 
     // Use select to mask-merge the false results on top of the true results; the mask is already
@@ -729,7 +732,7 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
             }
             default: {
                 SkDEBUGFAIL("Invalid parameter to main()");
-                return false;
+                return unsupported();
             }
         }
     }
@@ -740,7 +743,7 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
     // Invoke main().
     std::optional<SlotRange> mainResult = this->writeFunction(function, function, args);
     if (!mainResult.has_value()) {
-        return false;
+        return unsupported();
     }
 
     // Move the result of main() from slots into RGBA. Allow dRGBA to remain in a trashed state.
