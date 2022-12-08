@@ -35,7 +35,7 @@ public:
     };
 
     enum class BufferUsage {
-        // Buffers that will only be accessed from the device (large const buffers). Will always be
+        // Buffers that will only be accessed from the device (large const buffers) will always be
         // in device local memory.
         kGpuOnly,
         // Buffers that typically will be updated multiple times by the host and read on the gpu

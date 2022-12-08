@@ -51,7 +51,6 @@ private:
 
     VkDevice fDevice;
     uint32_t fQueueIndex;
-
 };
 
 } // namespace skgpu::graphite

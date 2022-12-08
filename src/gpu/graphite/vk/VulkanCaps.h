@@ -53,6 +53,19 @@ public:
         return fShouldAlwaysUseDedicatedImageMemory;
     }
 
+    // Returns whether a pure GPU accessible buffer is more performant to read than a buffer that is
+    // also host visible. If so then in some cases we may prefer the cost of doing a copy to the
+    // buffer. This typically would only be the case for buffers that are written once and read
+    // many times on the gpu.
+    bool gpuOnlyBuffersMorePerformant() const { return fGpuOnlyBuffersMorePerformant; }
+
+    // For our CPU write and GPU read buffers (vertex, uniform, etc.), we should keep these buffers
+    // persistently mapped. In general, the answer will be yes. The main case where we don't do this
+    // is when using special memory that is DEVICE_LOCAL and HOST_VISIBLE on discrete GPUs.
+    bool shouldPersistentlyMapCpuToGpuBuffers() const {
+        return fShouldPersistentlyMapCpuToGpuBuffers;
+    }
+
 private:
     enum VkVendor {
         kAMD_VkVendor             = 4098,
@@ -186,8 +199,9 @@ private:
     // Various bools to define whether certain Vulkan features are supported.
     bool fSupportsMemorylessAttachments = false;
     bool fSupportsYcbcrConversion = false; // TODO: Determine & assign real value.
-
     bool fShouldAlwaysUseDedicatedImageMemory = false;
+    bool fGpuOnlyBuffersMorePerformant = false;
+    bool fShouldPersistentlyMapCpuToGpuBuffers = true;
 };
 
 } // namespace skgpu::graphite

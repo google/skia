@@ -55,6 +55,20 @@ void VulkanCaps::init(const skgpu::VulkanInterface* vkInterface,
     }
 #endif
 
+    if (physDevProperties.vendorID == kNvidia_VkVendor ||
+        physDevProperties.vendorID == kAMD_VkVendor) {
+        // On discrete GPUs, it can be faster to read gpu-only memory compared to memory that is
+        // also mappable on the host.
+        fGpuOnlyBuffersMorePerformant = true;
+
+        // On discrete GPUs we try to use special DEVICE_LOCAL and HOST_VISIBLE memory for our
+        // cpu write, gpu read buffers. This memory is not ideal to be kept persistently mapped.
+        // Some discrete GPUs do not expose this special memory, however we still disable
+        // persistently mapped buffers for all of them since most GPUs with updated drivers do
+        // expose it. If this becomes an issue we can try to be more fine grained.
+        fShouldPersistentlyMapCpuToGpuBuffers = false;
+    }
+
     this->initFormatTable(vkInterface, physDev, physDevProperties);
     this->initDepthStencilFormatTable(vkInterface, physDev, physDevProperties);
 
