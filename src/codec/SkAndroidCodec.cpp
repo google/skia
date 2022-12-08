@@ -117,6 +117,9 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromCodec(std::unique_ptr<Sk
 #ifdef SK_CODEC_DECODES_AVIF
         case SkEncodedImageFormat::kAVIF:
 #endif
+#ifdef SK_CODEC_DECODES_JPEGR
+        case SkEncodedImageFormat::kJPEGR:
+#endif
 #if defined(SK_CODEC_DECODES_WEBP) || defined(SK_CODEC_DECODES_RAW) || \
         defined(SK_HAS_WUFFS_LIBRARY) || defined(SK_CODEC_DECODES_AVIF)
             return std::make_unique<SkAndroidCodecAdapter>(codec.release());
