@@ -73,8 +73,9 @@ wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorO
     wgpu::RenderPassDescriptor renderPassDescriptor;
     renderPassDescriptor.colorAttachmentCount = 1;
     renderPassDescriptor.colorAttachments = colorAttachments;
+
+    wgpu::RenderPassDepthStencilAttachment depthStencilAttachment;
     if (stencilAttachment) {
-        wgpu::RenderPassDepthStencilAttachment depthStencilAttachment;
         depthStencilAttachment.view = stencilAttachment->view();
         depthStencilAttachment.depthLoadOp = stencilOp;
         depthStencilAttachment.stencilLoadOp = stencilOp;
@@ -86,6 +87,7 @@ wgpu::RenderPassEncoder GrDawnOpsRenderPass::beginRenderPass(wgpu::LoadOp colorO
     } else {
         renderPassDescriptor.depthStencilAttachment = nullptr;
     }
+
     return fEncoder.BeginRenderPass(&renderPassDescriptor);
 }
 
