@@ -164,6 +164,10 @@ void GrCaps::applyOptionsOverrides(const GrContextOptions& options) {
     fAvoidStencilBuffers = options.fAvoidStencilBuffers;
 
     fDriverBugWorkarounds.applyOverrides(options.fDriverBugWorkarounds);
+
+    if (options.fDisableTessellationPathRenderer) {
+        fDisableTessellationPathRenderer = true;
+    }
 }
 
 

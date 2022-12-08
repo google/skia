@@ -245,6 +245,12 @@ struct SK_API GrContextOptions {
     bool fSuppressMipmapSupport = false;
 
     /**
+     * If true, the TessellationPathRenderer will not be used for path rendering.
+     * If false, will fallback to any driver workarounds, if set.
+     */
+    bool fDisableTessellationPathRenderer = false;
+
+    /**
      * If true, and if supported, enables hardware tessellation in the caps.
      * DEPRECATED: This value is ignored; experimental hardware tessellation is always disabled.
      */
