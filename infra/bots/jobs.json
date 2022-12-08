@@ -612,7 +612,6 @@
   {"name": "Test-Debian10-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ASAN_Vulkan"},
-  {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL1"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL1_Vulkan"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL3_ASAN"},
   {"name": "Test-Debian10-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL3_ASAN_Vulkan"},
@@ -648,6 +647,7 @@
   {"name": "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All-ASAN",
    "cq_config": {}
    },
+  {"name": "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All-DDL1"},
   {"name": "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All-DDL3_ASAN"},
   {"name": "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All-OOPRDDL_ASAN"},
   {"name": "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Release-All"},
