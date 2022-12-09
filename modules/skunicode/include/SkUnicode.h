@@ -139,7 +139,8 @@ class SKUNICODE_API SkUnicode {
                                     int utf8Units,
                                     TextDirection dir,
                                     std::vector<BidiRegion>* results) = 0;
-        virtual bool getWords(const char utf8[], int utf8Units, std::vector<Position>* results) = 0;
+        virtual bool getWords(const char utf8[], int utf8Units, const char* locale,
+                              std::vector<Position>* results) = 0;
         virtual bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,
                                       SkTArray<SkUnicode::CodeUnitFlags, true>* results) = 0;
         virtual bool computeCodeUnitFlags(char16_t utf16[], int utf16Units, bool replaceTabs,

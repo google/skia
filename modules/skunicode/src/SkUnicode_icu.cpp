@@ -288,7 +288,7 @@ class SkUnicode_icu : public SkUnicode {
         return true;
     }
 
-    static bool extractWords(uint16_t utf16[], int utf16Units, std::vector<Position>* words) {
+    static bool extractWords(uint16_t utf16[], int utf16Units, const char* locale,  std::vector<Position>* words) {
 
         UErrorCode status = U_ZERO_ERROR;
 
@@ -452,11 +452,11 @@ public:
         return SkUnicode_icu::extractBidi(utf8, utf8Units, dir, results);
     }
 
-    bool getWords(const char utf8[], int utf8Units, std::vector<Position>* results) override {
+    bool getWords(const char utf8[], int utf8Units, const char* locale, std::vector<Position>* results) override {
 
         // Convert to UTF16 since we want the results in utf16
         auto utf16 = convertUtf8ToUtf16(utf8, utf8Units);
-        return SkUnicode_icu::extractWords((uint16_t*)utf16.c_str(), utf16.size(), results);
+        return SkUnicode_icu::extractWords((uint16_t*)utf16.c_str(), utf16.size(), locale, results);
     }
 
     bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,

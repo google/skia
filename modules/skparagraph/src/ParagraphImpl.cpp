@@ -841,7 +841,7 @@ PositionWithAffinity ParagraphImpl::getGlyphPositionAtCoordinate(SkScalar dx, Sk
 SkRange<size_t> ParagraphImpl::getWordBoundary(unsigned offset) {
 
     if (fWords.empty()) {
-        if (!fUnicode->getWords(fText.c_str(), fText.size(), &fWords)) {
+        if (!fUnicode->getWords(fText.c_str(), fText.size(), nullptr, &fWords)) {
             return {0, 0 };
         }
     }

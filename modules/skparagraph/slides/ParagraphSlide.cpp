@@ -3595,7 +3595,7 @@ public:
                 text.c_str(), text.size(), SkUnicode::TextDirection::kLTR, &bidiRegions);
 
         std::vector<SkUnicode::Position> words1;
-        fIcu->getWords(text.c_str(), text.size(), &words1);
+        fIcu->getWords(text.c_str(), text.size(), nullptr, &words1);
 
         SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags;
         fIcu->computeCodeUnitFlags(text.data(), text.size(), false, &codeUnitFlags);

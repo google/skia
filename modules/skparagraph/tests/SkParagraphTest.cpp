@@ -218,7 +218,7 @@ public:
                              &bidiRegions);
 
         std::vector<SkUnicode::Position> words;
-        fIcu->getWords(text.data(), text.size(), &words);
+        fIcu->getWords(text.data(), text.size(), nullptr, &words);
 
         SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags;
         fIcu->computeCodeUnitFlags(
@@ -286,8 +286,8 @@ public:
         return fClient->computeCodeUnitFlags(utf16, utf16Units, replaceTabs, results);
     }
 
-    bool getWords(const char utf8[], int utf8Units, std::vector<Position>* results) override {
-        return fClient->getWords(utf8, utf8Units, results);
+    bool getWords(const char utf8[], int utf8Units, const char* locale, std::vector<Position>* results) override {
+        return fClient->getWords(utf8, utf8Units, locale, results);
     }
 
     SkString toUpper(const SkString& str) override {
