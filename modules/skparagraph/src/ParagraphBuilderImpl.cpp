@@ -208,7 +208,7 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::BuildWithClientInfo(
 
     // This is the place where SkUnicode is paired with SkParagraph
     fUnicode =
-            SkUnicode::Make(text,
+            SkUnicode::MakeClientBasedUnicode(text,
                             std::move(bidiRegionsUtf8),
                             std::move(wordsUtf8),
                             std::move(graphemeBreaksUtf8),

@@ -260,13 +260,20 @@ class SKUNICODE_API SkUnicode {
 
         virtual void reorderVisual(const BidiLevel runLevels[], int levelsCount, int32_t logicalFromVisual[]) = 0;
 
+        virtual std::unique_ptr<SkUnicode> copy() = 0;
+
         static std::unique_ptr<SkUnicode> Make();
 
-        static std::unique_ptr<SkUnicode> Make(SkSpan<char> text,
-                                               std::vector<SkUnicode::BidiRegion> bidiRegions,
-                                               std::vector<SkUnicode::Position> words,
-                                               std::vector<SkUnicode::Position> graphemeBreaks,
-                                               std::vector<SkUnicode::LineBreakBefore> lineBreaks);
+#ifdef SKUNICODE_IMPLEMENTATION
+        static std::unique_ptr<SkUnicode> MakeClientBasedUnicode
+                  (SkSpan<char> text,
+                   std::vector<SkUnicode::BidiRegion> bidiRegions,
+                   std::vector<SkUnicode::Position> words,
+                   std::vector<SkUnicode::Position> graphemeBreaks,
+                   std::vector<SkUnicode::LineBreakBefore> lineBreaks);
+
+        static std::unique_ptr<SkUnicode> MakeIcuBasedUnicode();
+#endif
 };
 
 namespace sknonstd {

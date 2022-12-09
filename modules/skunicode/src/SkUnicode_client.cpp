@@ -23,28 +23,56 @@
 
 class SkUnicode_client : public SkUnicode {
 public:
+    struct Data {
+        SkSpan<const char> fText8;
+        SkSpan<const char16_t> fText16;
+        std::vector<BidiRegion> fBidiRegions;
+        std::vector<Position> fWords;
+        std::vector<SkUnicode::Position> fGraphemeBreaks;
+        std::vector<SkUnicode::LineBreakBefore> fLineBreaks;
+        Data(SkSpan<char> text,
+             std::vector<SkUnicode::BidiRegion> bidiRegions,
+             std::vector<SkUnicode::Position> words,
+             std::vector<SkUnicode::Position> graphemeBreaks,
+             std::vector<SkUnicode::LineBreakBefore> lineBreaks)
+            : fText8(text)
+            , fText16(SkSpan<const char16_t>(nullptr, 0))
+            , fBidiRegions(std::move(bidiRegions))
+            , fWords(std::move(words))
+            , fGraphemeBreaks(std::move(graphemeBreaks))
+            , fLineBreaks(std::move(lineBreaks)) {
+        }
+
+        void reset() {
+            fText8 = SkSpan<const char>(nullptr, 0);
+            fText16 = SkSpan<const char16_t>(nullptr, 0);
+            fBidiRegions.clear();
+            fGraphemeBreaks.clear();
+            fLineBreaks.clear();
+        }
+    };
     SkUnicode_client() = delete;
     SkUnicode_client(SkSpan<char> text,
                      std::vector<SkUnicode::BidiRegion> bidiRegions,
                      std::vector<SkUnicode::Position> words,
                      std::vector<SkUnicode::Position> graphemeBreaks,
                      std::vector<SkUnicode::LineBreakBefore> lineBreaks)
-            : fText8(text)
-            , fBidiRegions(std::move(bidiRegions))
-            , fWords(std::move(words))
-            , fGraphemeBreaks(std::move(graphemeBreaks))
-            , fLineBreaks(std::move(lineBreaks)) {
+            : fData(std::make_shared<Data>(text,
+                                           std::move(bidiRegions),
+                                           std::move(words),
+                                           std::move(graphemeBreaks),
+                                           std::move(lineBreaks))) {}
+    SkUnicode_client(const SkUnicode_client* origin)
+            : fData(origin->fData) {}
+
+
+    std::unique_ptr<SkUnicode> copy() override {
+        return std::make_unique<SkUnicode_client>(this);
     }
 
     ~SkUnicode_client() override = default;
 
-    void reset() {
-        fText8 = SkSpan<const char>(nullptr, 0);
-        fText16 = SkSpan<const char16_t>(nullptr, 0);
-        fBidiRegions.clear();
-        fGraphemeBreaks.clear();
-        fLineBreaks.clear();
-    }
+    void reset() { fData->reset(); }
     // For SkShaper
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const uint16_t text[], int count,
                                                      SkBidiIterator::Direction dir) override;
@@ -59,7 +87,7 @@ public:
                         int utf8Units,
                         TextDirection dir,
                         std::vector<BidiRegion>* results) override {
-        *results = fBidiRegions;
+        *results = fData->fBidiRegions;
         return true;
     }
 
@@ -144,13 +172,13 @@ public:
                               SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
         results->clear();
         results->push_back_n(utf8Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
-        for (auto& lineBreak : fLineBreaks) {
+        for (auto& lineBreak : fData->fLineBreaks) {
             (*results)[lineBreak.pos] |=
                 lineBreak.breakType == LineBreakType::kHardLineBreak
                     ? CodeUnitFlags::kHardLineBreakBefore
                     : CodeUnitFlags::kSoftLineBreakBefore;
         }
-        for (auto& grapheme : fGraphemeBreaks) {
+        for (auto& grapheme : fData->fGraphemeBreaks) {
             (*results)[grapheme] |= CodeUnitFlags::kGraphemeStart;
         }
         const char* current = utf8;
@@ -186,26 +214,26 @@ public:
                           SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
         results->clear();
         results->push_back_n(utf16Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
-        for (auto& lineBreak : fLineBreaks) {
+        for (auto& lineBreak : fData->fLineBreaks) {
             (*results)[lineBreak.pos] |=
                 lineBreak.breakType == LineBreakType::kHardLineBreak
                     ? CodeUnitFlags::kHardLineBreakBefore
                     : CodeUnitFlags::kSoftLineBreakBefore;
         }
-        for (auto& grapheme : fGraphemeBreaks) {
+        for (auto& grapheme : fData->fGraphemeBreaks) {
             (*results)[grapheme] |= CodeUnitFlags::kGraphemeStart;
         }
         return true;
     }
 
     bool getWords(const char utf8[], int utf8Units, std::vector<Position>* results) override {
-        *results = fWords;
+        *results = fData->fWords;
         return true;
     }
 
     SkString toUpper(const SkString& str) override {
         SkASSERT(false);
-        return SkString(fText8.data(), fText8.size());
+        return SkString(fData->fText8.data(), fData->fText8.size());
     }
 
     void reorderVisual(const BidiLevel runLevels[],
@@ -219,23 +247,18 @@ private:
     friend class SkBidiIterator_client;
     friend class SkBreakIterator_client;
 
-    SkSpan<const char> fText8;
-    SkSpan<const char16_t> fText16;
-    std::vector<BidiRegion> fBidiRegions;
-    std::vector<Position> fWords;
-    std::vector<SkUnicode::Position> fGraphemeBreaks;
-    std::vector<SkUnicode::LineBreakBefore> fLineBreaks;
+    std::shared_ptr<Data> fData;
 };
 
 class SkBidiIterator_client : public SkBidiIterator {
-    SkUnicode_client* fUnicode;
+    std::shared_ptr<SkUnicode_client::Data> fData;
 public:
-    explicit SkBidiIterator_client(SkUnicode_client* unicode) : fUnicode(unicode) { }
-    Position getLength() override { return fUnicode->fBidiRegions.size(); }
+    explicit SkBidiIterator_client(std::shared_ptr<SkUnicode_client::Data> data) : fData(data) { }
+    Position getLength() override { return fData->fBidiRegions.size(); }
     Level getLevelAt(Position pos) override {
         auto found = std::lower_bound(
-                fUnicode->fBidiRegions.begin(),
-                fUnicode->fBidiRegions.end(),
+                fData->fBidiRegions.begin(),
+                fData->fBidiRegions.end(),
                 SkUnicode::BidiRegion(pos, pos, 0),
                 [](const SkUnicode::BidiRegion& a, const SkUnicode::BidiRegion& b) {
                     return a.start <= b.start && a.end <= b.end;
@@ -244,37 +267,37 @@ public:
     }
 };
 class SkBreakIterator_client: public SkBreakIterator {
-    SkUnicode_client* fUnicode;
+    std::shared_ptr<SkUnicode_client::Data> fData;
     Position fLastResult;
     Position fStart;
     Position fEnd;
 public:
-    explicit SkBreakIterator_client(SkUnicode_client* unicode) : fUnicode(unicode) { }
+    explicit SkBreakIterator_client(std::shared_ptr<SkUnicode_client::Data> data) : fData(data) { }
     Position first() override
-      { return fUnicode->fLineBreaks[fStart + (fLastResult = 0)].pos; }
+      { return fData->fLineBreaks[fStart + (fLastResult = 0)].pos; }
     Position current() override
-      { return fUnicode->fLineBreaks[fStart + fLastResult].pos; }
+      { return fData->fLineBreaks[fStart + fLastResult].pos; }
     Position next() override
-      { return fUnicode->fLineBreaks[fStart + fLastResult + 1].pos; }
+      { return fData->fLineBreaks[fStart + fLastResult + 1].pos; }
     Status status() override {
-        return fUnicode->fLineBreaks[fStart + fLastResult].breakType ==
+        return fData->fLineBreaks[fStart + fLastResult].breakType ==
                        SkUnicode::LineBreakType::kHardLineBreak
                        ? SkUnicode::CodeUnitFlags::kHardLineBreakBefore
                        : SkUnicode::CodeUnitFlags::kSoftLineBreakBefore;
     }
     bool isDone() override { return fStart + fLastResult == fEnd; }
     bool setText(const char utftext8[], int utf8Units) override {
-        SkASSERT(utftext8 >= fUnicode->fText8.data() &&
-                 utf8Units <= SkToS16(fUnicode->fText8.size()));
-        fStart = utftext8 - fUnicode->fText8.data();
+        SkASSERT(utftext8 >= fData->fText8.data() &&
+                 utf8Units <= SkToS16(fData->fText8.size()));
+        fStart = utftext8 - fData->fText8.data();
         fEnd = fStart + utf8Units;
         fLastResult = 0;
         return true;
     }
     bool setText(const char16_t utftext16[], int utf16Units) override {
-        SkASSERT(utftext16 >= fUnicode->fText16.data() &&
-                 utf16Units <= SkToS16(fUnicode->fText16.size()));
-        fStart = utftext16 - fUnicode->fText16.data();
+        SkASSERT(utftext16 >= fData->fText16.data() &&
+                 utf16Units <= SkToS16(fData->fText16.size()));
+        fStart = utftext16 - fData->fText16.data();
         fEnd = fStart + utf16Units;
         fLastResult = 0;
         return true;
@@ -282,25 +305,26 @@ public:
 };
 std::unique_ptr<SkBidiIterator> SkUnicode_client::makeBidiIterator(const uint16_t text[], int count,
                                                  SkBidiIterator::Direction dir) {
-    return std::make_unique<SkBidiIterator_client>(this);
+    return std::make_unique<SkBidiIterator_client>(fData);
 }
 std::unique_ptr<SkBidiIterator> SkUnicode_client::makeBidiIterator(const char text[],
                                                  int count,
                                                  SkBidiIterator::Direction dir) {
-    return std::make_unique<SkBidiIterator_client>(this);
+    return std::make_unique<SkBidiIterator_client>(fData);
 }
 std::unique_ptr<SkBreakIterator> SkUnicode_client::makeBreakIterator(const char locale[],
                                                    BreakType breakType) {
-    return std::make_unique<SkBreakIterator_client>(this);
+    return std::make_unique<SkBreakIterator_client>(fData);
 }
 std::unique_ptr<SkBreakIterator> SkUnicode_client::makeBreakIterator(BreakType breakType) {
-    return std::make_unique<SkBreakIterator_client>(this);
+    return std::make_unique<SkBreakIterator_client>(fData);
 }
-std::unique_ptr<SkUnicode> SkUnicode::Make(SkSpan<char> text,
-                                           std::vector<SkUnicode::BidiRegion> bidiRegions,
-                                           std::vector<SkUnicode::Position> words,
-                                           std::vector<SkUnicode::Position> graphemeBreaks,
-                                           std::vector<SkUnicode::LineBreakBefore> lineBreaks) {
-    return std::make_unique<SkUnicode_client>(text, bidiRegions, words,  graphemeBreaks,
-                                              lineBreaks);
+
+std::unique_ptr<SkUnicode> SkUnicode::MakeClientBasedUnicode(
+        SkSpan<char> text,
+        std::vector<SkUnicode::BidiRegion> bidiRegions,
+        std::vector<SkUnicode::Position> words,
+        std::vector<SkUnicode::Position> graphemeBreaks,
+        std::vector<SkUnicode::LineBreakBefore> lineBreaks) {
+    return std::make_unique<SkUnicode_client>(text, bidiRegions, words, graphemeBreaks, lineBreaks);
 }

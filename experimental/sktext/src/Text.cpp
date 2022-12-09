@@ -254,7 +254,7 @@ std::unique_ptr<ShapedText> FontResolvedText::shape(UnicodeText* unicodeText,
             unicodeText->getUnicode(), text8.c_str(), text8.size(), textDirection == TextDirection::kLtr ? 0 : 1));
     std::unique_ptr<SkShaper::ScriptRunIterator> scriptIter(
         SkShaper::MakeSkUnicodeHbScriptRunIterator(text8.c_str(), text8.size()));
-    auto shaper = SkShaper::MakeShapeDontWrapOrReorder();
+    auto shaper = SkShaper::MakeShapeDontWrapOrReorder(unicodeText->getUnicode()->copy());
     if (shaper == nullptr) {
         // For instance, loadICU does not work. We have to stop the process
         return nullptr;

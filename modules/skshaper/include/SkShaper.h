@@ -47,7 +47,8 @@ public:
     #ifdef SK_SHAPER_HARFBUZZ_AVAILABLE
     static std::unique_ptr<SkShaper> MakeShaperDrivenWrapper(sk_sp<SkFontMgr> = nullptr);
     static std::unique_ptr<SkShaper> MakeShapeThenWrap(sk_sp<SkFontMgr> = nullptr);
-    static std::unique_ptr<SkShaper> MakeShapeDontWrapOrReorder(sk_sp<SkFontMgr> = nullptr);
+    static std::unique_ptr<SkShaper> MakeShapeDontWrapOrReorder(std::unique_ptr<SkUnicode> unicode,
+                                                                sk_sp<SkFontMgr> = nullptr);
     static void PurgeHarfBuzzCache();
     #endif
     #ifdef SK_SHAPER_CORETEXT_AVAILABLE

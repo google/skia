@@ -219,6 +219,11 @@ class SkIcuBreakIteratorCache {
 };
 
 class SkUnicode_icu : public SkUnicode {
+
+    std::unique_ptr<SkUnicode> copy() override {
+        return std::make_unique<SkUnicode_icu>();
+    }
+
     static bool extractBidi(const char utf8[],
                             int utf8Units,
                             TextDirection dir,
@@ -561,7 +566,7 @@ public:
     }
 };
 
-std::unique_ptr<SkUnicode> SkUnicode::Make() {
+std::unique_ptr<SkUnicode> SkUnicode::MakeIcuBasedUnicode() {
     #if defined(SK_USING_THIRD_PARTY_ICU)
     if (!SkLoadICU()) {
         static SkOnce once;

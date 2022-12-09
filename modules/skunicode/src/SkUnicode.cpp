@@ -70,3 +70,12 @@ bool SkUnicode::isControl(SkUnicode::CodeUnitFlags flags) {
 bool SkUnicode::isPartOfWhiteSpaceBreak(SkUnicode::CodeUnitFlags flags) {
     return (flags & SkUnicode::kPartOfWhiteSpaceBreak) == SkUnicode::kPartOfWhiteSpaceBreak;
 }
+
+
+std::unique_ptr<SkUnicode> SkUnicode::Make() {
+#ifdef SKUNICODE_IMPLEMENTATION
+    return SkUnicode::MakeIcuBasedUnicode();
+#else
+    return nullptr;
+#endif
+}

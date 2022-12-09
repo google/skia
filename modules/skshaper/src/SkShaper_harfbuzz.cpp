@@ -1526,14 +1526,14 @@ std::unique_ptr<SkShaper> SkShaper::MakeShaperDrivenWrapper(sk_sp<SkFontMgr> fon
 std::unique_ptr<SkShaper> SkShaper::MakeShapeThenWrap(sk_sp<SkFontMgr> fontmgr) {
     return MakeHarfBuzz(std::move(fontmgr), false);
 }
-std::unique_ptr<SkShaper> SkShaper::MakeShapeDontWrapOrReorder(sk_sp<SkFontMgr> fontmgr) {
+std::unique_ptr<SkShaper> SkShaper::MakeShapeDontWrapOrReorder(std::unique_ptr<SkUnicode> unicode,
+                                                               sk_sp<SkFontMgr> fontmgr) {
     HBBuffer buffer(hb_buffer_create());
     if (!buffer) {
         SkDEBUGF("Could not create hb_buffer");
         return nullptr;
     }
 
-    auto unicode = SkUnicode::Make();
     if (!unicode) {
         return nullptr;
     }
