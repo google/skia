@@ -31,9 +31,6 @@ enum class SkEncodedImageFormat {
     kHEIF,
     kAVIF,
     kJPEGXL,
-#ifdef SK_CODEC_DECODES_JPEGR
-    kJPEGR
-#endif
 };
 
 #endif  // SkEncodedImageFormat_DEFINED

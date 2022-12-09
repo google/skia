@@ -282,13 +282,7 @@ cc_defaults {
       android: {
         shared_libs: [
             "libheif",
-            "libimage_io",
         ],
-        static_libs: [
-            "libjpegrecoverymap",
-            "libjpegdecoder",
-            "libjpegencoder",
-        ]
       },
       darwin: {
         host_ldlibs: [
@@ -537,10 +531,8 @@ def generate_args(target_os, enable_gpu, renderengine = False):
 
   if target_os == '"android"' and not renderengine:
     d['skia_use_libheif']  = 'true'
-    d['skia_use_jpegr'] = 'true'
   else:
     d['skia_use_libheif']  = 'false'
-    d['skia_use_jpegr'] = 'false'
 
   if renderengine:
     d['skia_use_libpng_decode'] = 'false'

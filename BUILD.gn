@@ -1176,16 +1176,6 @@ optional("heif") {
   sources = [ "src/codec/SkHeifCodec.cpp" ]
 }
 
-optional("jpegr") {
-  enabled = skia_use_jpegr
-  public_defines = [ "SK_CODEC_DECODES_JPEGR" ]
-
-  # The dependency for Android is set in gn_to_bp.py.
-  deps = []
-
-  sources = [ "src/codec/SkJpegRCodec.cpp" ]
-}
-
 optional("avif") {
   enabled = skia_use_libavif
   public_defines = [ "SK_CODEC_DECODES_AVIF" ]
@@ -1453,7 +1443,6 @@ skia_component("skia") {
     ":hsw",
     ":jpeg_decode",
     ":jpeg_encode",
-    ":jpegr",
     ":jpegxl_decode",
     ":ndk_images",
     ":piet",

@@ -58,13 +58,7 @@ public:
      *  this many bytes, or by implementing rewind() to be able to rewind()
      *  after reading this many bytes.
      */
-    static constexpr size_t MinBufferedBytesNeeded() {
-#ifdef  SK_CODEC_DECODES_JPEGR
-        return 1024;
-#else
-        return 32;
-#endif
-    }
+    static constexpr size_t MinBufferedBytesNeeded() { return 32; }
 
     /**
      *  Error codes for various SkCodec methods.

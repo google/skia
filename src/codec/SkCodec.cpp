@@ -41,10 +41,6 @@
 #include "src/codec/SkHeifCodec.h"
 #endif
 
-#ifdef SK_CODEC_DECODES_JPEGR
-#include "src/codec/SkJpegRCodec.h"
-#endif
-
 #ifdef SK_CODEC_DECODES_JPEG
 #include "src/codec/SkJpegCodec.h"
 #endif
@@ -77,11 +73,6 @@ struct DecoderProc {
 
 static std::vector<DecoderProc>* decoders() {
     static auto* decoders = new std::vector<DecoderProc> {
-
-    // JPEGR Decoder should be checked before JPEG, because JPEGR is an extension of JPEG
-    #ifdef SK_CODEC_DECODES_JPEGR
-        { SkJpegRCodec::IsJpegR, SkJpegRCodec::MakeFromStream },
-    #endif
     #ifdef SK_CODEC_DECODES_JPEG
         { SkJpegCodec::IsJpeg, SkJpegCodec::MakeFromStream },
     #endif
