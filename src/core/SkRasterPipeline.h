@@ -127,7 +127,7 @@ struct skcms_TransferFunction;
     M(load_unmasked) M(store_unmasked) M(store_masked)                                        \
     M(load_condition_mask) M(store_condition_mask) M(merge_condition_mask)                    \
     M(load_loop_mask)      M(store_loop_mask)      M(mask_off_loop_mask)                      \
-    M(reenable_loop_mask)  M(merge_loop_mask)                                                  \
+    M(reenable_loop_mask)  M(merge_loop_mask)                                                 \
     M(load_return_mask)    M(store_return_mask)    M(mask_off_return_mask)                    \
     M(branch_if_any_active_lanes) M(branch_if_no_active_lanes) M(jump)                        \
     M(bitwise_and) M(bitwise_or) M(bitwise_xor) M(bitwise_not)                                \
@@ -139,6 +139,12 @@ struct skcms_TransferFunction;
     M(zero_3_slots_unmasked) M(zero_4_slots_unmasked)                                         \
     M(add_n_floats) M(add_float) M(add_2_floats) M(add_3_floats) M(add_4_floats)              \
     M(add_n_ints)   M(add_int)   M(add_2_ints)   M(add_3_ints)   M(add_4_ints)                \
+    M(sub_n_floats) M(sub_float) M(sub_2_floats) M(sub_3_floats) M(sub_4_floats)              \
+    M(sub_n_ints)   M(sub_int)   M(sub_2_ints)   M(sub_3_ints)   M(sub_4_ints)                \
+    M(mul_n_floats) M(mul_float) M(mul_2_floats) M(mul_3_floats) M(mul_4_floats)              \
+    M(mul_n_ints)   M(mul_int)   M(mul_2_ints)   M(mul_3_ints)   M(mul_4_ints)                \
+    M(div_n_floats) M(div_float) M(div_2_floats) M(div_3_floats) M(div_4_floats)              \
+    M(div_n_ints)   M(div_int)   M(div_2_ints)   M(div_3_ints)   M(div_4_ints)                \
     M(cmplt_n_floats) M(cmplt_float) M(cmplt_2_floats) M(cmplt_3_floats) M(cmplt_4_floats)    \
     M(cmplt_n_ints)   M(cmplt_int)   M(cmplt_2_ints)   M(cmplt_3_ints)   M(cmplt_4_ints)      \
     M(cmple_n_floats) M(cmple_float) M(cmple_2_floats) M(cmple_3_floats) M(cmple_4_floats)    \

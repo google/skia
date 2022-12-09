@@ -272,37 +272,55 @@ DEF_TEST(RasterPipelineBuilderUnaryAndBinaryOps, r) {
 
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
+    builder.push_literal_f(0.0f);                  // push into 0
     builder.push_literal_f(1.0f);                  // push into 1
     builder.push_literal_f(2.0f);                  // push into 2
     builder.push_literal_f(3.0f);                  // push into 3
     builder.push_literal_f(4.0f);                  // push into 4
     builder.binary_op(BuilderOp::add_n_floats, 2); // compute (1,2)+(3,4) and store into 1~2
-    builder.push_literal_i(5);                     // push into 3
-    builder.push_literal_i(6);                     // push into 4
-    builder.binary_op(BuilderOp::add_n_ints, 1);   // compute 5+6 and store into 3
+    builder.binary_op(BuilderOp::mul_n_floats, 1); // compute 1*2 and store into 1
+    builder.push_literal_i(5);                     // push into 2
+    builder.push_literal_i(6);                     // push into 3
+    builder.push_literal_i(7);                     // push into 4
+    builder.push_literal_i(8);                     // push into 5
+    builder.push_literal_i(9);                     // push into 6
+    builder.push_literal_i(10);                    // push into 7
+    builder.binary_op(BuilderOp::div_n_floats, 3); // compute (2,3,4)/(5,6,7) and store into 2~4
+    builder.binary_op(BuilderOp::sub_n_ints, 1);   // compute 3-4 and store into 3
     builder.binary_op(BuilderOp::bitwise_and, 1);  // compute 2&11 and store into 2
     builder.binary_op(BuilderOp::bitwise_xor, 1);  // compute 1^2 and store into 1
     builder.unary_op(BuilderOp::bitwise_not, 1);   // compute ~3 and store into 1
-    builder.discard_stack(1);                      // balance stack
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
+    builder.discard_stack(2);                      // balance stack
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0);
 
     check(r, *program,
-R"(    1. immediate_f                    src.r = 0x3F800000 (1.0)
-    2. store_unmasked                 $0 = src.r
-    3. immediate_f                    src.r = 0x40000000 (2.0)
-    4. store_unmasked                 $1 = src.r
-    5. immediate_f                    src.r = 0x40400000 (3.0)
-    6. store_unmasked                 $2 = src.r
-    7. immediate_f                    src.r = 0x40800000 (4.0)
-    8. store_unmasked                 $3 = src.r
-    9. add_2_floats                   $0..1 += $2..3
-   10. immediate_f                    src.r = 0x00000005 (7.006492e-45)
-   11. store_unmasked                 $2 = src.r
-   12. immediate_f                    src.r = 0x00000006 (8.407791e-45)
-   13. store_unmasked                 $3 = src.r
-   14. add_int                        $2 += $3
-   15. bitwise_and                    $1 &= $2
-   16. bitwise_xor                    $0 ^= $1
-   17. bitwise_not                    $0 = ~$0
+R"(    1. zero_slot_unmasked             $0 = 0
+    2. immediate_f                    src.r = 0x3F800000 (1.0)
+    3. store_unmasked                 $1 = src.r
+    4. immediate_f                    src.r = 0x40000000 (2.0)
+    5. store_unmasked                 $2 = src.r
+    6. immediate_f                    src.r = 0x40400000 (3.0)
+    7. store_unmasked                 $3 = src.r
+    8. immediate_f                    src.r = 0x40800000 (4.0)
+    9. store_unmasked                 $4 = src.r
+   10. add_2_floats                   $1..2 += $3..4
+   11. mul_float                      $1 *= $2
+   12. immediate_f                    src.r = 0x00000005 (7.006492e-45)
+   13. store_unmasked                 $2 = src.r
+   14. immediate_f                    src.r = 0x00000006 (8.407791e-45)
+   15. store_unmasked                 $3 = src.r
+   16. immediate_f                    src.r = 0x00000007 (9.809089e-45)
+   17. store_unmasked                 $4 = src.r
+   18. immediate_f                    src.r = 0x00000008 (1.121039e-44)
+   19. store_unmasked                 $5 = src.r
+   20. immediate_f                    src.r = 0x00000009 (1.261169e-44)
+   21. store_unmasked                 $6 = src.r
+   22. immediate_f                    src.r = 0x0000000A (1.401298e-44)
+   23. store_unmasked                 $7 = src.r
+   24. div_3_floats                   $2..4 /= $5..7
+   25. sub_int                        $3 -= $4
+   26. bitwise_and                    $2 &= $3
+   27. bitwise_xor                    $1 ^= $2
+   28. bitwise_not                    $1 = ~$1
 )");
 }

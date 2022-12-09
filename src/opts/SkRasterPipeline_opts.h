@@ -3176,6 +3176,21 @@ SI void add_fn(T* dst, T* src) {
 }
 
 template <typename T>
+SI void sub_fn(T* dst, T* src) {
+    *dst -= *src;
+}
+
+template <typename T>
+SI void mul_fn(T* dst, T* src) {
+    *dst *= *src;
+}
+
+template <typename T>
+SI void div_fn(T* dst, T* src) {
+    *dst /= *src;
+}
+
+template <typename T>
 SI void cmplt_fn(T* dst, T* src) {
     static_assert(sizeof(T) == sizeof(I32));
     I32 result = cond_to_mask(*dst < *src);
@@ -3220,6 +3235,9 @@ SI void cmpne_fn(T* dst, T* src) {
     }
 
 DECLARE_BINARY_STAGES(add)
+DECLARE_BINARY_STAGES(sub)
+DECLARE_BINARY_STAGES(mul)
+DECLARE_BINARY_STAGES(div)
 DECLARE_BINARY_STAGES(cmplt)
 DECLARE_BINARY_STAGES(cmple)
 DECLARE_BINARY_STAGES(cmpeq)

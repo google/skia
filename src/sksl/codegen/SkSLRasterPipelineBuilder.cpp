@@ -38,6 +38,12 @@ using SkRP = SkRasterPipeline;
 #define ALL_MULTI_SLOT_BINARY_OP_CASES \
          BuilderOp::add_n_floats:      \
     case BuilderOp::add_n_ints:        \
+    case BuilderOp::sub_n_floats:      \
+    case BuilderOp::sub_n_ints:        \
+    case BuilderOp::mul_n_floats:      \
+    case BuilderOp::mul_n_ints:        \
+    case BuilderOp::div_n_floats:      \
+    case BuilderOp::div_n_ints:        \
     case BuilderOp::cmple_n_floats:    \
     case BuilderOp::cmple_n_ints:      \
     case BuilderOp::cmplt_n_floats:    \
@@ -626,6 +632,9 @@ void Program::dump(SkWStream* out) {
             case SkRP::merge_condition_mask:
             case SkRP::bitwise_and: case SkRP::bitwise_or: case SkRP::bitwise_xor:
             case SkRP::add_float:   case SkRP::add_int:
+            case SkRP::sub_float:   case SkRP::sub_int:
+            case SkRP::mul_float:   case SkRP::mul_int:
+            case SkRP::div_float:   case SkRP::div_int:
             case SkRP::cmplt_float: case SkRP::cmplt_int:
             case SkRP::cmple_float: case SkRP::cmple_int:
             case SkRP::cmpeq_float: case SkRP::cmpeq_int:
@@ -634,6 +643,9 @@ void Program::dump(SkWStream* out) {
                 break;
 
             case SkRP::add_2_floats:   case SkRP::add_2_ints:
+            case SkRP::sub_2_floats:   case SkRP::sub_2_ints:
+            case SkRP::mul_2_floats:   case SkRP::mul_2_ints:
+            case SkRP::div_2_floats:   case SkRP::div_2_ints:
             case SkRP::cmplt_2_floats: case SkRP::cmplt_2_ints:
             case SkRP::cmple_2_floats: case SkRP::cmple_2_ints:
             case SkRP::cmpeq_2_floats: case SkRP::cmpeq_2_ints:
@@ -642,6 +654,9 @@ void Program::dump(SkWStream* out) {
                 break;
 
             case SkRP::add_3_floats:   case SkRP::add_3_ints:
+            case SkRP::sub_3_floats:   case SkRP::sub_3_ints:
+            case SkRP::mul_3_floats:   case SkRP::mul_3_ints:
+            case SkRP::div_3_floats:   case SkRP::div_3_ints:
             case SkRP::cmplt_3_floats: case SkRP::cmplt_3_ints:
             case SkRP::cmple_3_floats: case SkRP::cmple_3_ints:
             case SkRP::cmpeq_3_floats: case SkRP::cmpeq_3_ints:
@@ -650,6 +665,9 @@ void Program::dump(SkWStream* out) {
                 break;
 
             case SkRP::add_4_floats:   case SkRP::add_4_ints:
+            case SkRP::sub_4_floats:   case SkRP::sub_4_ints:
+            case SkRP::mul_4_floats:   case SkRP::mul_4_ints:
+            case SkRP::div_4_floats:   case SkRP::div_4_ints:
             case SkRP::cmplt_4_floats: case SkRP::cmplt_4_ints:
             case SkRP::cmple_4_floats: case SkRP::cmple_4_ints:
             case SkRP::cmpeq_4_floats: case SkRP::cmpeq_4_ints:
@@ -658,6 +676,9 @@ void Program::dump(SkWStream* out) {
                 break;
 
             case SkRP::add_n_floats:   case SkRP::add_n_ints:
+            case SkRP::sub_n_floats:   case SkRP::sub_n_ints:
+            case SkRP::mul_n_floats:   case SkRP::mul_n_ints:
+            case SkRP::div_n_floats:   case SkRP::div_n_ints:
             case SkRP::cmplt_n_floats: case SkRP::cmplt_n_ints:
             case SkRP::cmple_n_floats: case SkRP::cmple_n_ints:
             case SkRP::cmpeq_n_floats: case SkRP::cmpeq_n_ints:
@@ -796,6 +817,30 @@ void Program::dump(SkWStream* out) {
             case SkRP::add_4_floats: case SkRP::add_4_ints:
             case SkRP::add_n_floats: case SkRP::add_n_ints:
                 opText = opArg1 + " += " + opArg2;
+                break;
+
+            case SkRP::sub_float:    case SkRP::sub_int:
+            case SkRP::sub_2_floats: case SkRP::sub_2_ints:
+            case SkRP::sub_3_floats: case SkRP::sub_3_ints:
+            case SkRP::sub_4_floats: case SkRP::sub_4_ints:
+            case SkRP::sub_n_floats: case SkRP::sub_n_ints:
+                opText = opArg1 + " -= " + opArg2;
+                break;
+
+            case SkRP::mul_float:    case SkRP::mul_int:
+            case SkRP::mul_2_floats: case SkRP::mul_2_ints:
+            case SkRP::mul_3_floats: case SkRP::mul_3_ints:
+            case SkRP::mul_4_floats: case SkRP::mul_4_ints:
+            case SkRP::mul_n_floats: case SkRP::mul_n_ints:
+                opText = opArg1 + " *= " + opArg2;
+                break;
+
+            case SkRP::div_float:    case SkRP::div_int:
+            case SkRP::div_2_floats: case SkRP::div_2_ints:
+            case SkRP::div_3_floats: case SkRP::div_3_ints:
+            case SkRP::div_4_floats: case SkRP::div_4_ints:
+            case SkRP::div_n_floats: case SkRP::div_n_ints:
+                opText = opArg1 + " /= " + opArg2;
                 break;
 
             case SkRP::cmplt_float:    case SkRP::cmplt_int:
