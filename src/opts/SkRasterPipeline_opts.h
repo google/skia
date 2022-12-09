@@ -1422,8 +1422,8 @@ SI F tan_(F x) {
 // Used by gather_ stages to calculate the base pointer and a vector of indices to load.
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
-    x = clamp(sk_bit_cast<F>(sk_bit_cast<U32>(x) - (uint32_t)ctx->roundDownAtInteger), ctx->width );
-    y = clamp(sk_bit_cast<F>(sk_bit_cast<U32>(y) - (uint32_t)ctx->roundDownAtInteger), ctx->height);
+    x = clamp(sk_bit_cast<F>(sk_bit_cast<U32>(x) + ctx->coordBiasInULPs), ctx->width );
+    y = clamp(sk_bit_cast<F>(sk_bit_cast<U32>(y) + ctx->coordBiasInULPs), ctx->height);
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
 }
@@ -2583,20 +2583,8 @@ SI F exclusive_repeat(F v, const SkRasterPipeline_TileCtx* ctx) {
 SI F exclusive_mirror(F v, const SkRasterPipeline_TileCtx* ctx) {
     auto limit = ctx->scale;
     auto invLimit = ctx->invScale;
-
-    // This is "repeat" over the range 0..2*limit
-    auto u = v - floor_(v*invLimit*0.5f)*2*limit;
-    // s will be 0 when moving forward (e.g. [0, limit)) and 1 when moving backward (e.g.
-    // [limit, 2*limit)).
-    auto s = floor_(u*invLimit);
-    // This is the mirror result.
-    auto m = u - 2*s*(u - limit);
-    // Apply a bias to m if moving backwards so that we snap consistently at exact integer coords in
-    // the logical infinite image. This is tested by mirror_tile GM.
-    auto biasInUlps = trunc_(s);
-    return sk_bit_cast<F>(sk_bit_cast<U32>(m) + ctx->mirrorBiasDir*biasInUlps);
+    return abs_( (v-limit) - (limit+limit)*floor_((v-limit)*(invLimit*0.5f)) - limit );
 }
-
 // Tile x or y to [0,limit) == [0,limit - 1 ulp] (think, sampling from images).
 // The gather stages will hard clamp the output of these stages to [0,limit)...
 // we just need to do the basic repeat or mirroring.
@@ -3944,8 +3932,8 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
     const F w = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->width ) - 1),
             h = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->height) - 1);
 
-    x = min(max(0, sk_bit_cast<F>(sk_bit_cast<U32>(x) - (uint32_t)ctx->roundDownAtInteger)), w);
-    y = min(max(0, sk_bit_cast<F>(sk_bit_cast<U32>(y) - (uint32_t)ctx->roundDownAtInteger)), h);
+    x = min(max(0, sk_bit_cast<F>(sk_bit_cast<U32>(x) + ctx->coordBiasInULPs)), w);
+    y = min(max(0, sk_bit_cast<F>(sk_bit_cast<U32>(y) + ctx->coordBiasInULPs)), h);
 
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
@@ -3953,8 +3941,7 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
 
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, I32 x, I32 y) {
-    // This flag doesn't make sense when the sample coords are integers.
-    SkASSERT(!ctx->roundDownAtInteger);
+    SkASSERT(ctx->coordBiasInULPs == 0);
     // Exclusive -> inclusive.
     const I32 w =  ctx->width - 1,
               h = ctx->height - 1;
