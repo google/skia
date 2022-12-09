@@ -180,6 +180,8 @@ public:
     //
     // Returns positive infinity if the transformed homogeneous point has w <= 0.
     static SkScalar DifferentialAreaScale(const SkMatrix& m, const SkPoint& p);
+
+    static SkScalar ComputeResScaleForStroking(const SkMatrix& matrix);
 };
 
 #endif

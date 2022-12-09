@@ -18,7 +18,7 @@
 #include "include/utils/SkRandom.h"
 
 #include "src/core/SkDraw.h"
-#include "src/core/SkPaintPriv.h"
+#include "src/core/SkMatrixPriv.h"
 
 enum Flags {
     kStroke_Flag = 1 << 0,
@@ -996,7 +996,7 @@ protected:
                                                6222222.5f, 28333.334f, 0.0f, 0.0f, 1.0f);
         for (int i = 0; i < loops; ++i) {
             SkPath dst;
-            paint.getFillPath(path, &dst, nullptr, SkPaintPriv::ComputeResScaleForStroking(mtx));
+            paint.getFillPath(path, &dst, nullptr, SkMatrixPriv::ComputeResScaleForStroking(mtx));
         }
     }
 
