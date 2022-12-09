@@ -237,7 +237,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorNestedTernaryTest, r) {
 }
 
 DEF_TEST(SkSLRasterPipelineCodeGeneratorDoWhileTest, r) {
-    // This is loosely based on shared/DoWhileControlFlow.sksl.
+    // This is based on shared/DoWhileControlFlow.sksl (but avoids swizzles).
     test(r,
          R"__SkSL__(
             half4 main(float2 coords) {
@@ -252,9 +252,8 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorDoWhileTest, r) {
                 // Verify that continue is allowed in a do-while loop.
                 do {
                     b += -0.25;
-                    // TODO(skia:13676): implement continue
-                    //if (a == 1) continue; // should always happen
-                    //g = 0;
+                    if (a == 1) continue; // should always happen
+                    g = 0;
                 } while (b > 0.0);
 
                 return half4(r, g, b, a);
