@@ -357,6 +357,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 pipeline->append(SkRP::mask_off_loop_mask);
                 break;
 
+            case BuilderOp::reenable_loop_mask:
+                pipeline->append(SkRP::reenable_loop_mask, SlotA());
+                break;
+
             case BuilderOp::merge_loop_mask: {
                 float* src = tempStackPtr - (1 * N);
                 pipeline->append(SkRP::merge_loop_mask, src);
@@ -572,6 +576,7 @@ void Program::dump(SkWStream* out) {
             case SkRP::load_loop_mask:
             case SkRP::store_loop_mask:
             case SkRP::merge_loop_mask:
+            case SkRP::reenable_loop_mask:
             case SkRP::load_return_mask:
             case SkRP::store_return_mask:
             case SkRP::store_masked:
@@ -699,6 +704,10 @@ void Program::dump(SkWStream* out) {
 
             case SkRP::mask_off_loop_mask:
                 opText = "LoopMask &= ~(CondMask & LoopMask & RetMask)";
+                break;
+
+            case SkRP::reenable_loop_mask:
+                opText = "LoopMask |= " + opArg1;
                 break;
 
             case SkRP::merge_loop_mask:

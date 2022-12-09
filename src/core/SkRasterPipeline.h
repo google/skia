@@ -126,7 +126,8 @@ struct skcms_TransferFunction;
     M(init_lane_masks) M(store_src_rg) M(immediate_f)                                         \
     M(load_unmasked) M(store_unmasked) M(store_masked)                                        \
     M(load_condition_mask) M(store_condition_mask) M(merge_condition_mask)                    \
-    M(load_loop_mask)      M(store_loop_mask)      M(mask_off_loop_mask)   M(merge_loop_mask) \
+    M(load_loop_mask)      M(store_loop_mask)      M(mask_off_loop_mask)                      \
+    M(reenable_loop_mask)  M(merge_loop_mask)                                                  \
     M(load_return_mask)    M(store_return_mask)    M(mask_off_return_mask)                    \
     M(branch_if_any_active_lanes) M(branch_if_no_active_lanes) M(jump)                        \
     M(bitwise_and) M(bitwise_or) M(bitwise_xor) M(bitwise_not)                                \

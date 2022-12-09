@@ -317,6 +317,11 @@ public:
         fInstructions.push_back({BuilderOp::mask_off_loop_mask, {}});
     }
 
+    void reenable_loop_mask(SlotRange src) {
+        SkASSERT(src.count == 1);
+        fInstructions.push_back({BuilderOp::reenable_loop_mask, {src.index}});
+    }
+
     void merge_loop_mask() {
         fInstructions.push_back({BuilderOp::merge_loop_mask, {}});
     }

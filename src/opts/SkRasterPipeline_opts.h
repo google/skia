@@ -3048,17 +3048,23 @@ STAGE(store_loop_mask, F* ctx) {
     sk_unaligned_store(ctx, dg);
 }
 
-STAGE(merge_loop_mask, I32* ptr) {
-    // Set the loop-mask to the intersection of the current loop-mask with the mask at the pointer.
-    // (Note: this behavior subtly differs from merge_condition_mask!)
-    dg = sk_bit_cast<F>(sk_bit_cast<I32>(dg) & ptr[0]);
-    update_execution_mask();
-}
-
 STAGE(mask_off_loop_mask, NoCtx) {
     // We encountered a break statement. If a lane was active, it should be masked off now, and stay
     // masked-off until the termination of the loop.
     dg = sk_bit_cast<F>(sk_bit_cast<I32>(dg) & ~execution_mask());
+    update_execution_mask();
+}
+
+STAGE(reenable_loop_mask, I32* ptr) {
+    // Set the loop-mask to the union of the current loop-mask with the mask at the pointer.
+    dg = sk_bit_cast<F>(sk_bit_cast<I32>(dg) | ptr[0]);
+    update_execution_mask();
+}
+
+STAGE(merge_loop_mask, I32* ptr) {
+    // Set the loop-mask to the intersection of the current loop-mask with the mask at the pointer.
+    // (Note: this behavior subtly differs from merge_condition_mask!)
+    dg = sk_bit_cast<F>(sk_bit_cast<I32>(dg) & ptr[0]);
     update_execution_mask();
 }
 

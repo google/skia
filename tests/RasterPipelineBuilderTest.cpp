@@ -22,6 +22,10 @@ static void check(skiatest::Reporter* r, SkSL::RP::Program& program, std::string
                     (int)actual.size(), actual.data());
 }
 
+static SkSL::RP::SlotRange one_slot_at(SkSL::RP::Slot index) {
+    return SkSL::RP::SlotRange{index, 1};
+}
+
 static SkSL::RP::SlotRange two_slots_at(SkSL::RP::Slot index) {
     return SkSL::RP::SlotRange{index, 2};
 }
@@ -47,6 +51,7 @@ DEF_TEST(RasterPipelineBuilder, r) {
     builder.init_lane_masks();
     builder.mask_off_return_mask();
     builder.mask_off_loop_mask();
+    builder.reenable_loop_mask(one_slot_at(4));
     builder.load_src(four_slots_at(1));
     builder.load_dst(four_slots_at(3));
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/10);
@@ -58,8 +63,9 @@ R"(    1. store_src_rg                   v0..1 = src.rg
     4. init_lane_masks                CondMask = LoopMask = RetMask = true
     5. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
     6. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-    7. load_src                       src.rgba = v1..4
-    8. load_dst                       dst.rgba = v3..6
+    7. reenable_loop_mask             LoopMask |= v4
+    8. load_src                       src.rgba = v1..4
+    9. load_dst                       dst.rgba = v3..6
 )");
 }
 
