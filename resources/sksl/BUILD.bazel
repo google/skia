@@ -343,6 +343,7 @@ skia_filegroup(
         "errors/RedeclareUserType.rts",
         "errors/RedeclareVariable.rts",
         "errors/ReservedNameAsm.rts",
+        "errors/ReservedNameAtomic.rts",
         "errors/ReservedNameAttribute.rts",
         "errors/ReservedNameCast.rts",
         "errors/ReservedNameDouble.rts",
