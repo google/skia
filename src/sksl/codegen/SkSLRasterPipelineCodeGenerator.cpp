@@ -21,6 +21,7 @@
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
+#include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
@@ -112,6 +113,7 @@ public:
     /** Appends a statement to the program. */
     bool writeStatement(const Statement& s);
     bool writeBlock(const Block& b);
+    bool writeBreakStatement(const BreakStatement& b);
     bool writeDoStatement(const DoStatement& d);
     bool writeExpressionStatement(const ExpressionStatement& e);
     bool writeIfStatement(const IfStatement& i);
@@ -380,6 +382,9 @@ bool Generator::writeStatement(const Statement& s) {
         case Statement::Kind::kBlock:
             return this->writeBlock(s.as<Block>());
 
+        case Statement::Kind::kBreak:
+            return this->writeBreakStatement(s.as<BreakStatement>());
+
         case Statement::Kind::kDo:
             return this->writeDoStatement(s.as<DoStatement>());
 
@@ -409,6 +414,11 @@ bool Generator::writeBlock(const Block& b) {
             return unsupported();
         }
     }
+    return true;
+}
+
+bool Generator::writeBreakStatement(const BreakStatement&) {
+    fBuilder.mask_off_loop_mask();
     return true;
 }
 

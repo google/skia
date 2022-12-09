@@ -237,19 +237,28 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorNestedTernaryTest, r) {
 }
 
 DEF_TEST(SkSLRasterPipelineCodeGeneratorDoWhileTest, r) {
-    // Add in your SkSL here.
+    // This is loosely based on shared/DoWhileControlFlow.sksl.
     test(r,
          R"__SkSL__(
-             half4 main(float2 coords) {
-                 const half4 colorGreen = half4(0,1,0,1);
-                 const half4 colorRed   = half4(1,0,0,1);
-                 half x = 0, y = 1;
-                 do {
-                     y += y;
-                     x += 1;
-                 } while (x < 10);
-                 return (y == 1024) ? colorGreen : colorRed;
-             }
+            half4 main(float2 coords) {
+                half r = 1.0, g = 1.0, b = 1.0, a = 1.0;
+
+                // Verify that break is allowed in a do-while loop.
+                do {
+                    r += -0.25;
+                    if (r <= 0) break;
+                } while (a == 1.0);
+
+                // Verify that continue is allowed in a do-while loop.
+                do {
+                    b += -0.25;
+                    // TODO(skia:13676): implement continue
+                    //if (a == 1) continue; // should always happen
+                    //g = 0;
+                } while (b > 0.0);
+
+                return half4(r, g, b, a);
+            }
          )__SkSL__",
          SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
