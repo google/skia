@@ -45,7 +45,8 @@ DEF_TEST(RasterPipelineBuilder, r) {
     builder.store_src(four_slots_at(2));
     builder.store_dst(four_slots_at(6));
     builder.init_lane_masks();
-    builder.update_return_mask();
+    builder.mask_off_return_mask();
+    builder.mask_off_loop_mask();
     builder.load_src(four_slots_at(1));
     builder.load_dst(four_slots_at(3));
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/10);
@@ -55,9 +56,10 @@ R"(    1. store_src_rg                   v0..1 = src.rg
     2. store_src                      v2..5 = src.rgba
     3. store_dst                      v6..9 = dst.rgba
     4. init_lane_masks                CondMask = LoopMask = RetMask = true
-    5. update_return_mask             RetMask &= ~(CondMask & LoopMask & RetMask)
-    6. load_src                       src.rgba = v1..4
-    7. load_dst                       dst.rgba = v3..6
+    5. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+    6. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+    7. load_src                       src.rgba = v1..4
+    8. load_dst                       dst.rgba = v3..6
 )");
 }
 

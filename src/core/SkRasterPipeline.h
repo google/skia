@@ -122,29 +122,29 @@ struct skcms_TransferFunction;
     M(alter_2pt_conical_unswap)                                    \
     M(mask_2pt_conical_nan)                                        \
     M(mask_2pt_conical_degenerates) M(apply_vector_mask)           \
-    /* Dedicated SkSL stages begin here: */                                                \
-    M(init_lane_masks) M(store_src_rg) M(immediate_f)                                      \
-    M(load_unmasked) M(store_unmasked) M(store_masked)                                     \
-    M(load_condition_mask) M(store_condition_mask) M(merge_condition_mask)                 \
-    M(load_loop_mask)      M(store_loop_mask)      M(merge_loop_mask)                      \
-    M(load_return_mask)    M(store_return_mask)    M(update_return_mask)                   \
-    M(branch_if_any_active_lanes) M(branch_if_no_active_lanes) M(jump)                     \
-    M(bitwise_and) M(bitwise_or) M(bitwise_xor) M(bitwise_not)                             \
-    M(copy_slot_masked)    M(copy_2_slots_masked)                                          \
-    M(copy_3_slots_masked) M(copy_4_slots_masked)                                          \
-    M(copy_slot_unmasked)    M(copy_2_slots_unmasked)                                      \
-    M(copy_3_slots_unmasked) M(copy_4_slots_unmasked)                                      \
-    M(zero_slot_unmasked)    M(zero_2_slots_unmasked)                                      \
-    M(zero_3_slots_unmasked) M(zero_4_slots_unmasked)                                      \
-    M(add_n_floats) M(add_float) M(add_2_floats) M(add_3_floats) M(add_4_floats)           \
-    M(add_n_ints)   M(add_int)   M(add_2_ints)   M(add_3_ints)   M(add_4_ints)             \
-    M(cmplt_n_floats) M(cmplt_float) M(cmplt_2_floats) M(cmplt_3_floats) M(cmplt_4_floats) \
-    M(cmplt_n_ints)   M(cmplt_int)   M(cmplt_2_ints)   M(cmplt_3_ints)   M(cmplt_4_ints)   \
-    M(cmple_n_floats) M(cmple_float) M(cmple_2_floats) M(cmple_3_floats) M(cmple_4_floats) \
-    M(cmple_n_ints)   M(cmple_int)   M(cmple_2_ints)   M(cmple_3_ints)   M(cmple_4_ints)   \
-    M(cmpeq_n_floats) M(cmpeq_float) M(cmpeq_2_floats) M(cmpeq_3_floats) M(cmpeq_4_floats) \
-    M(cmpeq_n_ints)   M(cmpeq_int)   M(cmpeq_2_ints)   M(cmpeq_3_ints)   M(cmpeq_4_ints)   \
-    M(cmpne_n_floats) M(cmpne_float) M(cmpne_2_floats) M(cmpne_3_floats) M(cmpne_4_floats) \
+    /* Dedicated SkSL stages begin here: */                                                   \
+    M(init_lane_masks) M(store_src_rg) M(immediate_f)                                         \
+    M(load_unmasked) M(store_unmasked) M(store_masked)                                        \
+    M(load_condition_mask) M(store_condition_mask) M(merge_condition_mask)                    \
+    M(load_loop_mask)      M(store_loop_mask)      M(mask_off_loop_mask)   M(merge_loop_mask) \
+    M(load_return_mask)    M(store_return_mask)    M(mask_off_return_mask)                    \
+    M(branch_if_any_active_lanes) M(branch_if_no_active_lanes) M(jump)                        \
+    M(bitwise_and) M(bitwise_or) M(bitwise_xor) M(bitwise_not)                                \
+    M(copy_slot_masked)    M(copy_2_slots_masked)                                             \
+    M(copy_3_slots_masked) M(copy_4_slots_masked)                                             \
+    M(copy_slot_unmasked)    M(copy_2_slots_unmasked)                                         \
+    M(copy_3_slots_unmasked) M(copy_4_slots_unmasked)                                         \
+    M(zero_slot_unmasked)    M(zero_2_slots_unmasked)                                         \
+    M(zero_3_slots_unmasked) M(zero_4_slots_unmasked)                                         \
+    M(add_n_floats) M(add_float) M(add_2_floats) M(add_3_floats) M(add_4_floats)              \
+    M(add_n_ints)   M(add_int)   M(add_2_ints)   M(add_3_ints)   M(add_4_ints)                \
+    M(cmplt_n_floats) M(cmplt_float) M(cmplt_2_floats) M(cmplt_3_floats) M(cmplt_4_floats)    \
+    M(cmplt_n_ints)   M(cmplt_int)   M(cmplt_2_ints)   M(cmplt_3_ints)   M(cmplt_4_ints)      \
+    M(cmple_n_floats) M(cmple_float) M(cmple_2_floats) M(cmple_3_floats) M(cmple_4_floats)    \
+    M(cmple_n_ints)   M(cmple_int)   M(cmple_2_ints)   M(cmple_3_ints)   M(cmple_4_ints)      \
+    M(cmpeq_n_floats) M(cmpeq_float) M(cmpeq_2_floats) M(cmpeq_3_floats) M(cmpeq_4_floats)    \
+    M(cmpeq_n_ints)   M(cmpeq_int)   M(cmpeq_2_ints)   M(cmpeq_3_ints)   M(cmpeq_4_ints)      \
+    M(cmpne_n_floats) M(cmpne_float) M(cmpne_2_floats) M(cmpne_3_floats) M(cmpne_4_floats)    \
     M(cmpne_n_ints)   M(cmpne_int)   M(cmpne_2_ints)   M(cmpne_3_ints)   M(cmpne_4_ints)
 
 // The combined list of all stages:

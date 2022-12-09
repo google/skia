@@ -309,7 +309,7 @@ DEF_TEST(SkRasterPipeline_MergeLoopMask, r) {
     }
 }
 
-DEF_TEST(SkRasterPipeline_UpdateReturnMask, r) {
+DEF_TEST(SkRasterPipeline_MaskOffLoopMask, r) {
     alignas(64) int32_t initial[]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // dr (condition)
                                       ~0,  0, ~0, ~0,  0,  0,  0, ~0,  // dg (loop)
                                       ~0, ~0,  0, ~0,  0,  0, ~0, ~0,  // db (return)
@@ -319,7 +319,36 @@ DEF_TEST(SkRasterPipeline_UpdateReturnMask, r) {
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_dst, initial);
-    p.append(SkRasterPipeline::update_return_mask);
+    p.append(SkRasterPipeline::mask_off_loop_mask);
+    p.append(SkRasterPipeline::store_dst, dst);
+    p.run(0,0,SkOpts::raster_pipeline_highp_stride,1);
+
+    const int dr = 0 * SkOpts::raster_pipeline_highp_stride;
+    const int dg = 1 * SkOpts::raster_pipeline_highp_stride;
+    const int db = 2 * SkOpts::raster_pipeline_highp_stride;
+    const int da = 3 * SkOpts::raster_pipeline_highp_stride;
+    for (size_t index = 0; index < SkOpts::raster_pipeline_highp_stride; ++index) {
+        // `dg` should have masked off any lanes that are currently executing.
+        int32_t expected = initial[dg + index] & ~initial[da + index];
+        REPORTER_ASSERT(r, dst[dg + index] == expected);
+
+        // `da` should contain `dr & dg & gb`.
+        expected = dst[dr + index] & dst[dg + index] & dst[db + index];
+        REPORTER_ASSERT(r, dst[da + index] == expected);
+    }
+}
+
+DEF_TEST(SkRasterPipeline_MaskOffReturnMask, r) {
+    alignas(64) int32_t initial[]  = {~0, ~0, ~0, ~0, ~0,  0, ~0, ~0,  // dr (condition)
+                                      ~0,  0, ~0, ~0,  0,  0,  0, ~0,  // dg (loop)
+                                      ~0, ~0,  0, ~0,  0,  0, ~0, ~0,  // db (return)
+                                      ~0,  0,  0, ~0,  0,  0,  0, ~0}; // da (combined)
+    alignas(64) int32_t dst[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    static_assert(std::size(initial) == (4 * SkRasterPipeline_kMaxStride_highp));
+
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_dst, initial);
+    p.append(SkRasterPipeline::mask_off_return_mask);
     p.append(SkRasterPipeline::store_dst, dst);
     p.run(0,0,SkOpts::raster_pipeline_highp_stride,1);
 

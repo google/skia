@@ -353,6 +353,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 pipeline->append(SkRP::load_loop_mask, src);
                 break;
             }
+            case BuilderOp::mask_off_loop_mask:
+                pipeline->append(SkRP::mask_off_loop_mask);
+                break;
+
             case BuilderOp::merge_loop_mask: {
                 float* src = tempStackPtr - (1 * N);
                 pipeline->append(SkRP::merge_loop_mask, src);
@@ -368,6 +372,10 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 pipeline->append(SkRP::load_return_mask, src);
                 break;
             }
+            case BuilderOp::mask_off_return_mask:
+                pipeline->append(SkRP::mask_off_return_mask);
+                break;
+
             case BuilderOp::push_literal_f: {
                 float* dst = tempStackPtr;
                 if (inst.fImmA == 0) {
@@ -403,10 +411,6 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
 
             case BuilderOp::set_current_stack:
                 currentStack = inst.fImmA;
-                break;
-
-            case BuilderOp::update_return_mask:
-                pipeline->append(SkRP::update_return_mask);
                 break;
 
             default:
@@ -693,6 +697,10 @@ void Program::dump(SkWStream* out) {
                 opText = opArg1 + " = LoopMask";
                 break;
 
+            case SkRP::mask_off_loop_mask:
+                opText = "LoopMask &= ~(CondMask & LoopMask & RetMask)";
+                break;
+
             case SkRP::merge_loop_mask:
                 opText = "LoopMask &= " + opArg1;
                 break;
@@ -705,7 +713,7 @@ void Program::dump(SkWStream* out) {
                 opText = opArg1 + " = RetMask";
                 break;
 
-            case SkRP::update_return_mask:
+            case SkRP::mask_off_return_mask:
                 opText = "RetMask &= ~(CondMask & LoopMask & RetMask)";
                 break;
 

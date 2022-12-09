@@ -3055,6 +3055,13 @@ STAGE(merge_loop_mask, I32* ptr) {
     update_execution_mask();
 }
 
+STAGE(mask_off_loop_mask, NoCtx) {
+    // We encountered a break statement. If a lane was active, it should be masked off now, and stay
+    // masked-off until the termination of the loop.
+    dg = sk_bit_cast<F>(sk_bit_cast<I32>(dg) & ~execution_mask());
+    update_execution_mask();
+}
+
 STAGE(load_return_mask, F* ctx) {
     db = sk_unaligned_load<F>(ctx);
     update_execution_mask();
@@ -3064,7 +3071,7 @@ STAGE(store_return_mask, F* ctx) {
     sk_unaligned_store(ctx, db);
 }
 
-STAGE(update_return_mask, NoCtx) {
+STAGE(mask_off_return_mask, NoCtx) {
     // We encountered a return statement. If a lane was active, it should be masked off now, and
     // stay masked-off until the end of the function.
     db = sk_bit_cast<F>(sk_bit_cast<I32>(db) & ~execution_mask());

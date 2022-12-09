@@ -487,7 +487,7 @@ bool Generator::writeReturnStatement(const ReturnStatement& r) {
         }
         this->popToSlotRange(fFunctionStack.back());
     }
-    fBuilder.update_return_mask();
+    fBuilder.mask_off_return_mask();
     return true;
 }
 
