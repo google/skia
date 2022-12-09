@@ -3538,93 +3538,6 @@ public:
     }
 };
 
-class ParagraphSlide65 : public ParagraphSlide_Base {
-public:
-    ParagraphSlide65() { fName = "Paragraph65"; }
-
-    void draw(SkCanvas* canvas) override {
-        canvas->drawColor(SK_ColorWHITE);
-
-        auto fontCollection =
-                sk_make_sp<TestFontCollection>(GetResourcePath("fonts").c_str(), false, true);
-
-        ParagraphStyle paragraph_style;
-        TextStyle textStyle;
-        textStyle.setFontFamilies({SkString("Roboto")});
-        textStyle.setFontSize(50.0);
-        textStyle.setColor(SK_ColorBLACK);
-        ParagraphBuilderImpl builder(paragraph_style, fontCollection);
-        builder.pushStyle(textStyle);
-        builder.addText("The quick brown fox ate a hamburgerfons and got sick.");
-
-        auto text0 = builder.getText();
-        SkString text(text0.data(), text0.size());
-        std::vector<SkUnicode::BidiRegion> bidis = {{0, text.size(), 0}};
-        std::vector<size_t> words = {0, text.size()};
-        std::vector<size_t> graphemes;
-        for (auto i = 0ul; i <= text.size(); ++i) {
-            graphemes.emplace_back(i);
-        }
-        std::vector<SkUnicode::LineBreakBefore> breaks;
-        for (auto i = 0ul; i <= text.size(); ++i) {
-            breaks.emplace_back(text.size(), SkUnicode::LineBreakType::kSoftLineBreak);
-        }
-        breaks[0] = {0ul, SkUnicode::LineBreakType::kSoftLineBreak};
-        for (int i = 0; i < SkToS16(text.size()); ++i) {
-            i = text.find(" ");
-            if (i == -1) break;
-            breaks[i + 1] = {SkToU32(i + 1), SkUnicode::LineBreakType::kSoftLineBreak};
-            text[i] = '?';
-        }
-        for (int i = 0; i < SkToS16(text.size()); ++i) {
-            i = text.find("\n");
-            if (i == -1) break;
-            breaks[i + 1] = {SkToU32(i + 1), SkUnicode::LineBreakType::kHardLineBreak};
-            text[i] = '?';
-        }
-
-        for (auto i = text.size(); i > 0; --i) {
-            if (breaks[i - 1].pos == text.size()) {
-                breaks.erase(breaks.begin() + i - 1);
-            }
-        }
-
-        auto fIcu = SkUnicode::Make();
-        std::vector<SkUnicode::BidiRegion> bidiRegions;
-        fIcu->getBidiRegions(
-                text.c_str(), text.size(), SkUnicode::TextDirection::kLTR, &bidiRegions);
-
-        std::vector<SkUnicode::Position> words1;
-        fIcu->getWords(text.c_str(), text.size(), nullptr, &words1);
-
-        SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags;
-        fIcu->computeCodeUnitFlags(text.data(), text.size(), false, &codeUnitFlags);
-
-        std::vector<SkUnicode::Position> graphemeBreaks;
-        std::vector<SkUnicode::LineBreakBefore> lineBreaks;
-        SkUnicode::Position pos = 0;
-        for (auto& flag : codeUnitFlags) {
-            if (SkUnicode::isGraphemeStart(flag)) {
-                graphemeBreaks.emplace_back(pos);
-            }
-            if (SkUnicode::isHardLineBreak(flag)) {
-                lineBreaks.emplace_back(pos, SkUnicode::LineBreakType::kHardLineBreak);
-            }
-            if (SkUnicode::isSoftLineBreak(flag)) {
-                lineBreaks.emplace_back(pos, SkUnicode::LineBreakType::kSoftLineBreak);
-            }
-            ++pos;
-        }
-
-        auto paragraph = builder.BuildWithClientInfo(std::move(bidis),
-                                                     std::move(words),
-                                                     std::move(graphemes),
-                                                     std::move(breaks));
-        paragraph->layout(600);
-        paragraph->paint(canvas, 0, 0);
-    }
-};
-
 // Non-monotonic glyph placement
 class ParagraphSlide66 : public ParagraphSlide_Base {
 public:
@@ -3902,7 +3815,6 @@ DEF_SLIDE(return new ParagraphSlide61();)
 DEF_SLIDE(return new ParagraphSlide62();)
 DEF_SLIDE(return new ParagraphSlide63();)
 DEF_SLIDE(return new ParagraphSlide64();)
-DEF_SLIDE(return new ParagraphSlide65();)
 DEF_SLIDE(return new ParagraphSlide66();)
 DEF_SLIDE(return new ParagraphSlide67();)
 DEF_SLIDE(return new ParagraphSlide68();)

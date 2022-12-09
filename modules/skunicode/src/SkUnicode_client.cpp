@@ -21,6 +21,12 @@
 #include <utility>
 #include <vector>
 
+#ifdef SK_UNICODE_CLIENT_IMPLEMENTATION
+#include "modules/skunicode/src/SkUnicode_client.h"
+#else
+#include <unicode/ubidi.h>
+#endif
+
 class SkUnicode_client : public SkUnicode {
 public:
     struct Data {
@@ -239,9 +245,11 @@ public:
     void reorderVisual(const BidiLevel runLevels[],
                        int levelsCount,
                        int32_t logicalFromVisual[]) override {
-        // This is a temp solution until we "borrow" reorderVisual code
-        static std::unique_ptr<SkUnicode> icu = SkUnicode::Make();
-        return icu->reorderVisual(runLevels, levelsCount, logicalFromVisual);
+        #ifdef SK_UNICODE_ICU_IMPLEMENTATION
+        ubidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
+        #else
+        ubidi_reorderVisual_skia(runLevels, levelsCount, logicalFromVisual);
+        #endif
     }
 private:
     friend class SkBidiIterator_client;

@@ -70,7 +70,6 @@ public:
     void SetUnicode(std::unique_ptr<SkUnicode> unicode) {
         fUnicode = std::move(unicode);
     }
-
     // Support for Flutter optimization
     void Reset() override;
 

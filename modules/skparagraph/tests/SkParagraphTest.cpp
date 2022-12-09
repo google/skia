@@ -199,11 +199,10 @@ private:
     const char* name;
 };
 
-//#define SK_CLIENT_ICU
-#ifdef SK_CLIENT_ICU
+#if defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
 class SkUnicode_test : public SkUnicode {
 public:
-    SkUnicode_test() = delete;
+    SkUnicode_test() { }
 
     SkUnicode_test(SkSpan<char> text, const ParagraphStyle& style) {
 
@@ -240,12 +239,12 @@ public:
             ++pos;
         }
 
-        fClient = SkUnicode::Make(text, bidiRegions, words, graphemeBreaks, lineBreaks);
+        fClient = SkUnicode::MakeClientBasedUnicode(text, bidiRegions, words, graphemeBreaks, lineBreaks);
         SkTArray<SkUnicode::CodeUnitFlags, true> codeUnitFlags1;
         fClient->computeCodeUnitFlags(
                 text.data(), text.size(), style.getReplaceTabCharacters(), &codeUnitFlags1);
         SkASSERT(codeUnitFlags.size() == codeUnitFlags1.size());
-        for (auto i = 0ul; i < codeUnitFlags.size(); ++i) {
+        for (auto i = 0; i < codeUnitFlags.size(); ++i) {
             // Deal with tabulation separately (to avoid all this trouble to copy the initial text)
             if ((codeUnitFlags1[i] & CodeUnitFlags::kTabulation) == CodeUnitFlags::kTabulation) {
                 SkASSERT((codeUnitFlags[i] | CodeUnitFlags::kTabulation) ==
@@ -254,6 +253,13 @@ public:
                 SkASSERT(codeUnitFlags[i] == codeUnitFlags1[i]);
             }
         }
+    }
+
+    std::unique_ptr<SkUnicode> copy() override {
+        auto unicode = std::make_unique<SkUnicode_test>();
+        unicode->fIcu = fIcu->copy();
+        unicode->fClient = fClient->copy();
+        return unicode;
     }
 
     ~SkUnicode_test() override = default;
@@ -273,7 +279,17 @@ public:
                         int utf8Units,
                         TextDirection dir,
                         std::vector<BidiRegion>* results) override {
-        return fClient->getBidiRegions(utf8, utf8Units, dir, results);
+        std::vector<SkUnicode::BidiRegion> bidiRegions;
+        auto result0 = fIcu->getBidiRegions(utf8, utf8Units, dir, &bidiRegions);
+        auto result1 = fClient->getBidiRegions(utf8, utf8Units, dir, results);
+        SkASSERT(result0 == result1);
+        SkASSERT(results->size() == bidiRegions.size());
+        for (size_t i = 0; i < results->size(); ++i) {
+            SkASSERT(bidiRegions[i].level == (*results)[i].level);
+            SkASSERT(bidiRegions[i].start == (*results)[i].start);
+            SkASSERT(bidiRegions[i].end == (*results)[i].end);
+        }
+        return result1;
     }
 
     bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,
@@ -297,7 +313,13 @@ public:
     void reorderVisual(const BidiLevel runLevels[],
                        int levelsCount,
                        int32_t logicalFromVisual[]) override {
-        return fClient->reorderVisual(runLevels, levelsCount, logicalFromVisual);
+        std::vector<int32_t> logicalFromVisual0;
+        logicalFromVisual0.resize(levelsCount);
+        fIcu->reorderVisual(runLevels, levelsCount, logicalFromVisual0.data());
+        fClient->reorderVisual(runLevels, levelsCount, logicalFromVisual);
+        for (int i = 0; i < levelsCount; ++i) {
+            SkASSERT(logicalFromVisual0[i] == logicalFromVisual[i]);
+        }
     }
 private:
     friend class SkBidiIterator_test;

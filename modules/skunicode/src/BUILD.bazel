@@ -16,23 +16,29 @@ skia_filegroup(
     srcs = ["SkUnicode_icu_runtime.cpp"],
 )
 
+# In own group for export to //modules/skunicode/skunicode.gni:skia_unicode_common_icu_sources.
 skia_filegroup(
     name = "srcs",
     srcs = [
         "SkUnicode.cpp",
-        "SkUnicode_client.cpp",
-        "SkUnicode_icu.cpp",
-        "SkUnicode_icu.h",
-        ":builtin_srcs",
-        # TODO(kjlubick, bungeman): add support for SkUnicdoe_icu_runtime.cpp
     ],
     visibility = ["//modules/skunicode:__pkg__"],
 )
 
 skia_filegroup(
-    name = "no_icu",
+    name = "icu_srcs",
     srcs = [
-        "SkUnicode.cpp",
+        "SkUnicode_icu.cpp",
+        "SkUnicode_icu.h",
+        ":builtin_srcs",
+        # TODO(kjlubick, bungeman): add support for SkUnicode_icu_runtime.cpp
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)
+
+skia_filegroup(
+    name = "client_srcs",
+    srcs = [
         "SkUnicode_client.cpp",
     ],
     visibility = ["//modules/skunicode:__pkg__"],
