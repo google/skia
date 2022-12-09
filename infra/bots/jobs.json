@@ -31,6 +31,7 @@
   {"name": "BazelTest-cpu_tests-cpu_only_release_rbe-linux_x64",
     "cq_config": {"experimental": true}
   },
+  {"name": "BazelTest-toolchain_layering_check-release-linux_x64"},
   {"name": "Build-Debian10-GCC-x86-Debug-Docker"},
   {"name": "Build-Debian10-GCC-x86-Release-Docker"},
   {"name": "Build-Debian10-GCC-x86_64-Debug-Docker"},

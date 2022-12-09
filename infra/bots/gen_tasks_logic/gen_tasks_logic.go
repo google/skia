@@ -414,6 +414,7 @@ func GenTasks(cfg *Config) {
 		Paths: []string{
 			// source code
 			"skia/example",
+			"skia/experimental/bazel_test",
 			"skia/include",
 			"skia/modules",
 			"skia/src",
@@ -2230,6 +2231,8 @@ func (b *jobBuilder) bazelTest() {
 				panic("Gold keys not specified for config " + config)
 			}
 		case "cpu_tests":
+			break
+		case "toolchain_layering_check":
 			break
 		default:
 			panic("Unsupported Bazel taskdriver " + taskdriverName)
