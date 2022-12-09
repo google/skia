@@ -248,12 +248,14 @@ DEF_TEST(RasterPipelineBuilderBranches, r) {
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
 
     check(r, *program,
-R"(    1. jump                           jump +4 (#5)
+R"(    1. jump                           jump +5 (#6)
     2. immediate_f                    src.r = 0x3F800000 (1.0)
     3. immediate_f                    src.r = 0x40000000 (2.0)
-    4. branch_if_no_active_lanes      branch_if_no_active_lanes -1 (#3)
-    5. immediate_f                    src.r = 0x40400000 (3.0)
-    6. branch_if_any_active_lanes     branch_if_any_active_lanes -4 (#2)
+    4. stack_rewind
+    5. branch_if_no_active_lanes      branch_if_no_active_lanes -2 (#3)
+    6. immediate_f                    src.r = 0x40400000 (3.0)
+    7. stack_rewind
+    8. branch_if_any_active_lanes     branch_if_any_active_lanes -6 (#2)
 )");
 }
 

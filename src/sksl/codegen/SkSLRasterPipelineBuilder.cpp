@@ -198,9 +198,9 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
     // during initial program construction).
     int* branchTargets = alloc->makeArrayDefault<int>(fNumBranches);
     SkTArray<int> labelOffsets;
-    labelOffsets.resize(fNumLabels);
+    labelOffsets.push_back_n(fNumLabels, -1);
     SkTArray<int> branchGoesToLabel;
-    branchGoesToLabel.resize(fNumBranches);
+    branchGoesToLabel.push_back_n(fNumBranches, -1);
     int currentBranchOp = 0;
 
     // Assemble a map holding the current stack-top for each temporary stack. Position each temp
@@ -229,9 +229,16 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
             case BuilderOp::jump:
             case BuilderOp::branch_if_any_active_lanes:
             case BuilderOp::branch_if_no_active_lanes:
-                // For now, write the absolute pipeline position into the branch targets, because
-                // the associated label might not have been reached yet. We will go back over the
-                // branch targets at the end and fix them up.
+                // If we have already encountered the label associated with this branch, this is a
+                // backwards branch. Add a stack-rewind immediately before the branch to ensure that
+                // long-running loops don't use an unbounded amount of stack space.
+                if (labelOffsets[inst.fImmA] >= 0) {
+                    pipeline->append_stack_rewind();
+                }
+
+                // Write the absolute pipeline position into the branch targets, because the
+                // associated label might not have been reached yet. We will go back over the branch
+                // targets at the end and fix them up.
                 SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
                 SkASSERT(currentBranchOp >= 0 && currentBranchOp < fNumBranches);
                 branchTargets[currentBranchOp] = pipeline->getNumStages();
@@ -816,7 +823,10 @@ void Program::dump(SkWStream* out) {
                 break;
         }
 
-        auto line = SkSL::String::printf("% 5d. %-30s %s\n", index + 1, opName, opText.c_str());
+        std::string line = !opText.empty()
+                ? SkSL::String::printf("% 5d. %-30s %s\n", index + 1, opName, opText.c_str())
+                : SkSL::String::printf("% 5d. %s\n", index + 1, opName);
+
         out->writeText(line.c_str());
     }
 #endif
