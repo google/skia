@@ -423,6 +423,14 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.extraConfig("Slug") {
 			// Test slug drawing
 			configs = []string{"glslug", "glserializeslug", "glremoteslug"}
+			// glremoteslug does not handle layers right. Exclude the tests for now.
+			skip("glremoteslug", "gm", ALL, "rtif_distort")
+			skip("glremoteslug", "gm", ALL, "textfilter_image")
+			skip("glremoteslug", "gm", ALL, "textfilter_color")
+			skip("glremoteslug", "gm", ALL, "savelayerpreservelcdtext")
+			skip("glremoteslug", "gm", ALL, "typefacerendering_pfa")
+			skip("glremoteslug", "gm", ALL, "typefacerendering_pfb")
+			skip("glremoteslug", "gm", ALL, "typefacerendering")
 		}
 		if b.extraConfig("Direct3D") {
 			configs = []string{"d3d"}

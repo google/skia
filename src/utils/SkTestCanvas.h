@@ -48,8 +48,15 @@ template <>
 class SkTestCanvas<SkRemoteSlugTestKey> : public SkCanvas {
 public:
     SkTestCanvas(SkCanvas* canvas);
+    ~SkTestCanvas() override;
     void onDrawGlyphRunList(
             const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
+
+private:
+    std::unique_ptr<SkStrikeServer::DiscardableHandleManager> fServerHandleManager;
+    sk_sp<SkStrikeClient::DiscardableHandleManager> fClientHandleManager;
+    SkStrikeServer fStrikeServer;
+    SkStrikeClient fStrikeClient;
 };
 
 #endif  // SkTestCanvas_DEFINED
