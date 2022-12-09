@@ -245,18 +245,38 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorDoWhileTest, r) {
 
                 // Verify that break is allowed in a do-while loop.
                 do {
-                    r += -0.25;
+                    r -= 0.25;
                     if (r <= 0) break;
                 } while (a == 1.0);
 
                 // Verify that continue is allowed in a do-while loop.
                 do {
-                    b += -0.25;
+                    b -= 0.25;
                     if (a == 1) continue; // should always happen
                     g = 0;
                 } while (b > 0.0);
 
                 return half4(r, g, b, a);
+            }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorArithmeticTest, r) {
+    test(r,
+         R"__SkSL__(
+            half4 main(float2 coords) {
+                const half4 colorGreen = half4(0,1,0,1), colorRed = half4(1,0,0,1);
+
+                half a = 3.0, b = 4.0, c = a + b - 2.0;
+                if (a*a + b*b == c*c*c/5.0) {
+                    int A = 3, B = 4, C = A + B - 2;
+                    if (A*A + B*B == C*C*C/5) {
+                        return colorGreen;
+                    }
+                }
+
+                return colorRed;
             }
          )__SkSL__",
          SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});

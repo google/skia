@@ -631,11 +631,43 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
 
     switch (basicOp.kind()) {
         case OperatorKind::PLUS: {
-            static constexpr auto kPlus = BinaryOps{BuilderOp::add_n_floats,
-                                                    BuilderOp::add_n_ints,
-                                                    BuilderOp::add_n_ints,
-                                                    BuilderOp::unsupported};
-            if (!this->binaryOp(numberKind, type.slotCount(), kPlus)) {
+            static constexpr auto kAdd = BinaryOps{BuilderOp::add_n_floats,
+                                                   BuilderOp::add_n_ints,
+                                                   BuilderOp::add_n_ints,
+                                                   BuilderOp::unsupported};
+            if (!this->binaryOp(numberKind, type.slotCount(), kAdd)) {
+                return unsupported();
+            }
+            break;
+        }
+        case OperatorKind::MINUS: {
+            static constexpr auto kSubtract = BinaryOps{BuilderOp::sub_n_floats,
+                                                        BuilderOp::sub_n_ints,
+                                                        BuilderOp::sub_n_ints,
+                                                        BuilderOp::unsupported};
+            if (!this->binaryOp(numberKind, type.slotCount(), kSubtract)) {
+                return unsupported();
+            }
+            break;
+        }
+        case OperatorKind::STAR: {
+            // TODO(skia:13676): add support for unsigned *
+            static constexpr auto kMultiply = BinaryOps{BuilderOp::mul_n_floats,
+                                                        BuilderOp::mul_n_ints,
+                                                        BuilderOp::unsupported,
+                                                        BuilderOp::unsupported};
+            if (!this->binaryOp(numberKind, type.slotCount(), kMultiply)) {
+                return unsupported();
+            }
+            break;
+        }
+        case OperatorKind::SLASH: {
+            // TODO(skia:13676): add support for unsigned /
+            static constexpr auto kDivide = BinaryOps{BuilderOp::div_n_floats,
+                                                      BuilderOp::div_n_ints,
+                                                      BuilderOp::unsupported,
+                                                      BuilderOp::unsupported};
+            if (!this->binaryOp(numberKind, type.slotCount(), kDivide)) {
                 return unsupported();
             }
             break;
