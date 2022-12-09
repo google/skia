@@ -2488,7 +2488,7 @@ void GrGLCaps::initFormatTable(const GrGLContextInfo& ctxInfo, const GrGLInterfa
         info.fInternalFormatForRenderbuffer = GR_GL_RGBX8;
         info.fDefaultExternalFormat = GR_GL_RGB;
         info.fDefaultExternalType = GR_GL_UNSIGNED_BYTE;
-        info.fDefaultColorType = GrColorType::kRGB_888x;
+        info.fDefaultColorType = GrColorType::kRGB_888;
 
         bool supportsSizedRGBX = false;
         // The GL_ANGLE_rgbx_internal_format extension only adds the sized GL_RGBX8 type and does
