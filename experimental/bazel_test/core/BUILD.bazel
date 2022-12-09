@@ -1,0 +1,13 @@
+cc_library(
+    name = "core",
+    srcs = [
+        "core.cpp",
+        "core_priv.h",
+    ],
+    hdrs = ["core.h"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//experimental/bazel_test/base",
+        "//experimental/bazel_test/base:base_priv",
+    ],
+)

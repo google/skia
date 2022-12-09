@@ -12,7 +12,8 @@ The destination folder for these files and symlinks are:
   (See https://bazel.build/docs/output_directories#layout-diagram)
 """
 
-load("//toolchain:utils.bzl", "gcs_mirror_url")
+load(":clang_layering_check.bzl", "generate_system_module_map")
+load(":utils.bzl", "gcs_mirror_url")
 
 # From https://github.com/llvm/llvm-project/releases/tag/llvmorg-15.0.1
 # When updating this, don't forget to use //bazel/gcs_mirror to upload a new version.
@@ -70,18 +71,38 @@ def _download_mac_toolchain_impl(ctx):
         "./symlinks/xcode/MacSDK/Frameworks",
     )
 
+    # This list of files lines up with _make_default_flags() in mac_toolchain_config.bzl
+    # It is all locations that our toolchain could find a system header.
+    builtin_include_directories = [
+        "include/c++/v1",
+        "lib/clang/15.0.1/include",
+        "symlinks/xcode/Frameworks",
+        "symlinks/xcode/include",
+    ]
+
+    generate_system_module_map(
+        ctx,
+        module_file = "toolchain_system_headers.modulemap",
+        folders = builtin_include_directories,
+    )
+
     # Create a BUILD.bazel file that makes the files necessary for compiling,
     # linking and creating archive files visible to Bazel.
     # The smaller the globs are, the more performant the sandboxed builds will be.
     # Additionally, globs that are too wide can pick up infinite symlink loops,
     # and be difficult to quash: https://github.com/bazelbuild/bazel/issues/13950
     # https://bazel.build/rules/lib/repository_ctx#file
-    #
     ctx.file(
         "BUILD.bazel",
         content = """
 # DO NOT EDIT THIS BAZEL FILE DIRECTLY
 # Generated from ctx.file action in download_mac_toolchain.bzl
+filegroup(
+    name = "generated_module_map",
+    srcs = ["toolchain_system_headers.modulemap"],
+    visibility = ["//visibility:public"],
+)
+
 filegroup(
     name = "archive_files",
     srcs = [
@@ -97,7 +118,7 @@ filegroup(
     ] + glob(
         include = [
             "include/c++/v1/**",
-            "lib/clang/15.0.1/**",
+            "lib/clang/15.0.1/include/**",
             "symlinks/xcode/MacSDK/Frameworks/AppKit.Framework/**",
             "symlinks/xcode/MacSDK/Frameworks/ApplicationServices.Framework/**",
             "symlinks/xcode/MacSDK/Frameworks/Carbon.Framework/**",

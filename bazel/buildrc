@@ -130,3 +130,7 @@ build:cpu --config=cpu_only
 build:gl --config=gl_ganesh
 build:vk --config=vulkan_ganesh
 build:dawn --config=dawn_ganesh
+
+# Layering check does not work without sandboxing because the system headers are not in the
+# right spot and so they are not found.
+build:no_sandbox --spawn_strategy=local --features=-layering_check

@@ -13,7 +13,8 @@ resolver) and extracted to
 which will act as our sysroot.
 """
 
-load("//toolchain:utils.bzl", "gcs_mirror_only", "gcs_mirror_url")
+load(":clang_layering_check.bzl", "generate_system_module_map")
+load(":utils.bzl", "gcs_mirror_only", "gcs_mirror_url")
 
 # The clang from CIPD has no prefix, and we download it directly from our GCS bucket
 # This is clang 15.0.1 and iwyu built from source.
@@ -193,6 +194,22 @@ def _download_linux_amd64_toolchain_impl(ctx):
             ".",
         )
 
+    # This list of files lines up with _make_default_flags() in linux_amd64_toolchain_config.bzl
+    # It is all locations that our toolchain could find a system header.
+    builtin_include_directories = [
+        "include/c++/v1",
+        "include/x86_64-unknown-linux-gnu/c++/v1",
+        "lib/clang/15.0.1/include",
+        "usr/include",
+        "usr/include/x86_64-linux-gnu",
+    ]
+
+    generate_system_module_map(
+        ctx,
+        module_file = "toolchain_system_headers.modulemap",
+        folders = builtin_include_directories,
+    )
+
     # Create a BUILD.bazel file that makes the files downloaded into the toolchain visible.
     # We have separate groups for each task because doing less work (sandboxing fewer files
     # or uploading less data to RBE) makes compiles go faster. We try to strike a balance
@@ -204,6 +221,12 @@ def _download_linux_amd64_toolchain_impl(ctx):
         content = """
 # DO NOT EDIT THIS BAZEL FILE DIRECTLY
 # Generated from ctx.file action in download_linux_amd64_toolchain.bzl
+filegroup(
+    name = "generated_module_map",
+    srcs = ["toolchain_system_headers.modulemap"],
+    visibility = ["//visibility:public"],
+)
+
 filegroup(
     name = "archive_files",
     srcs = [

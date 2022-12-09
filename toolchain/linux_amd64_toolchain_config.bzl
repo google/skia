@@ -11,6 +11,7 @@ It follows the example of:
  - https://github.com/emscripten-core/emsdk/blob/7f39d100d8cd207094decea907121df72065517e/bazel/emscripten_toolchain/crosstool.bzl
 """
 
+# https://github.com/bazelbuild/bazel/blob/master/tools/cpp/cc_toolchain_config_lib.bzl
 load(
     "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
     "action_config",
@@ -23,6 +24,7 @@ load(
 
 # https://github.com/bazelbuild/bazel/blob/master/tools/build_defs/cc/action_names.bzl
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
+load(":clang_layering_check.bzl", "make_layering_check_features")
 
 # The location of the created clang toolchain.
 EXTERNAL_TOOLCHAIN = "external/clang_linux_amd64"
@@ -31,6 +33,7 @@ def _linux_amd64_toolchain_info(ctx):
     action_configs = _make_action_configs()
     features = []
     features += _make_default_flags()
+    features += make_layering_check_features()
     features += _make_diagnostic_flags()
     features += _make_iwyu_flags()
 
@@ -123,7 +126,7 @@ def _make_action_configs():
     # https://github.com/emscripten-core/emsdk/blob/7f39d100d8cd207094decea907121df72065517e/bazel/emscripten_toolchain/crosstool.bzl#L143
     # By default, there are no flags or libraries passed to the llvm-ar tool, so
     # we need to specify them. The variables mentioned by expand_if_available are defined
-    # https://docs.bazel.build/versions/main/cc-toolchain-config-reference.html#cctoolchainconfiginfo-build-variables
+    # https://bazel.build/docs/cc-toolchain-config-reference#cctoolchainconfiginfo-build-variables
     cpp_link_static_library_action = action_config(
         action_name = ACTION_NAMES.cpp_link_static_library,
         flag_sets = [

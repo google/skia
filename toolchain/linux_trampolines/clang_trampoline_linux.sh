@@ -6,7 +6,7 @@
 
 export LD_LIBRARY_PATH="external/clang_linux_amd64/usr/lib/x86_64-linux-gnu"
 
-set -e
+set -euo pipefail
 
 # We only want to run include-what-you-use if DSKIA_ENFORCE_IWYU is in the arguments
 # passed in (i.e. the "skia_enforce_iwyu" feature is enabled) and we are not linking
