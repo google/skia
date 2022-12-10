@@ -281,3 +281,127 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorArithmeticTest, r) {
          )__SkSL__",
          SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalOr, r) {
+    test(r,
+         R"__SkSL__(
+            half4 main(float2 coords) {
+                const half4 colorGreen = half4(0,1,0,1), colorRed = half4(1,0,0,1);
+
+                int x = 1, y = 1;
+                if ((x == 1) || ((y += 1) == 2)) { // LHS true, RHS not executed but would be true
+                    return (x == 1 && y == 1) ? colorGreen : colorRed;
+                } else {
+                    return colorRed;
+                }
+            }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+
+    test(r,
+         R"__SkSL__(
+            half4 main(float2 coords) {
+                const half4 colorGreen = half4(0,1,0,1), colorRed = half4(1,0,0,1);
+
+                int x = 1, y = 1;
+                if ((x == 1) || ((y += 1) == 3)) { // LHS true, RHS not executed but would be false
+                    return (x == 1 && y == 1) ? colorGreen : colorRed;
+                } else {
+                    return colorRed;
+                }
+            }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+
+    test(r,
+         R"__SkSL__(
+            half4 main(float2 coords) {
+                const half4 colorGreen = half4(0,1,0,1), colorRed = half4(1,0,0,1);
+
+                int x = 1, y = 1;
+                if ((x == 2) || ((y += 1) == 2)) { // LHS false, RHS is executed and is true
+                    return (x == 1 && y == 2) ? colorGreen : colorRed;
+                } else {
+                    return colorRed;
+                }
+            }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+
+    test(r,
+         R"__SkSL__(
+            half4 main(float2 coords) {
+                const half4 colorGreen = half4(0,1,0,1), colorRed = half4(1,0,0,1);
+
+                int x = 1, y = 1;
+                if ((x == 2) || ((y += 1) == 3)) { // LHS false, RHS is executed and is false
+                    return colorRed;
+                } else {
+                    return (x == 1 && y == 2) ? colorGreen : colorRed;
+                }
+            }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalAnd, r) {
+    test(r,
+         R"__SkSL__(
+            half4 main(float2 coords) {
+                const half4 colorGreen = half4(0,1,0,1), colorRed = half4(1,0,0,1);
+
+                int x = 1, y = 1;
+                if ((x == 1) && ((y += 1) == 2)) { // LHS true, RHS is executed and is true
+                    return (x == 1 && y == 2) ? colorGreen : colorRed;
+                } else {
+                    return colorRed;
+                }
+            }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+
+    test(r,
+         R"__SkSL__(
+            half4 main(float2 coords) {
+                const half4 colorGreen = half4(0,1,0,1), colorRed = half4(1,0,0,1);
+
+                int x = 1, y = 1;
+                if ((x == 1) && ((y += 1) == 3)) { // LHS true, RHS is executed and is false
+                    return colorRed;
+                } else {
+                    return (x == 1 && y == 2) ? colorGreen : colorRed;
+                }
+            }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+
+    test(r,
+         R"__SkSL__(
+            half4 main(float2 coords) {
+                const half4 colorGreen = half4(0,1,0,1), colorRed = half4(1,0,0,1);
+
+                int x = 1, y = 1;
+                if ((x == 2) && ((y += 1) == 2)) { // LHS false, RHS not executed but would be true
+                    return colorRed;
+                } else {
+                    return (x == 1 && y == 1) ? colorGreen : colorRed;
+                }
+            }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+
+    test(r,
+         R"__SkSL__(
+            half4 main(float2 coords) {
+                const half4 colorGreen = half4(0,1,0,1), colorRed = half4(1,0,0,1);
+
+                int x = 1, y = 1;
+                if ((x == 2) && ((y += 1) == 3)) { // LHS false, RHS not executed but would be false
+                    return colorRed;
+                } else {
+                    return (x == 1 && y == 1) ? colorGreen : colorRed;
+                }
+            }
+         )__SkSL__",
+         SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
+}
