@@ -842,37 +842,69 @@ bool Generator::pushTernaryExpression(const TernaryExpression& t) {
 bool Generator::pushTernaryExpression(const Expression& test,
                                       const Expression& ifTrue,
                                       const Expression& ifFalse) {
-    // Merge the current condition-mask with the test-expression in a separate stack.
-    this->nextTempStack();
-    fBuilder.push_condition_mask();
-    if (!this->pushExpression(test)) {
-        return unsupported();
+    if (!Analysis::HasSideEffects(ifTrue) && !Analysis::HasSideEffects(ifFalse)) {
+        // We can take some shortcuts if the true- and false-expressions are side-effect free.
+        // First, push the false-expression onto the primary stack.
+        int cleanupLabelID = fBuilder.nextLabelID();
+        if (!this->pushExpression(ifFalse)) {
+            return unsupported();
+        }
+
+        // Next, merge the current condition-mask with the test-expression in a separate stack.
+        this->nextTempStack();
+        fBuilder.push_condition_mask();
+        if (!this->pushExpression(test)) {
+            return unsupported();
+        }
+        fBuilder.merge_condition_mask();
+        this->previousTempStack();
+
+        // If no lanes are active, we can skip the true-expression entirely. This isn't super likely
+        // to happen, so it's probably only a win for non-trivial true-expressions.
+        if (!Analysis::IsTrivialExpression(ifTrue)) {
+            fBuilder.branch_if_no_active_lanes(cleanupLabelID);
+        }
+
+        // Push the true-expression onto the primary stack, immediately after the false-expression.
+        if (!this->pushExpression(ifTrue)) {
+            return unsupported();
+        }
+
+        // Use a select to conditionally mask-merge the true-expression and false-expression lanes.
+        fBuilder.select(/*slots=*/ifTrue.type().slotCount());
+        fBuilder.label(cleanupLabelID);
+    } else {
+        // Merge the current condition-mask with the test-expression in a separate stack.
+        this->nextTempStack();
+        fBuilder.push_condition_mask();
+        if (!this->pushExpression(test)) {
+            return unsupported();
+        }
+        fBuilder.merge_condition_mask();
+        this->previousTempStack();
+
+        // Push the true-expression onto the primary stack.
+        if (!this->pushExpression(ifTrue)) {
+            return unsupported();
+        }
+
+        // Switch back to the test-expression stack temporarily, and negate the test condition.
+        this->nextTempStack();
+        fBuilder.unary_op(BuilderOp::bitwise_not, /*slots=*/1);
+        fBuilder.merge_condition_mask();
+        this->previousTempStack();
+
+        // Push the false-expression onto the primary stack, immediately after the true-expression.
+        if (!this->pushExpression(ifFalse)) {
+            return unsupported();
+        }
+
+        // Use a select to conditionally mask-merge the true-expression and false-expression lanes;
+        // the mask is already set up for this.
+        fBuilder.select(/*slots=*/ifTrue.type().slotCount());
     }
-    fBuilder.merge_condition_mask();
-    this->previousTempStack();
 
-    // Push the true-expression onto the primary stack.
-    if (!this->pushExpression(ifTrue)) {
-        return unsupported();
-    }
-
-    // Switch back to the test-expression stack temporarily, and negate the test condition.
-    this->nextTempStack();
-    fBuilder.unary_op(BuilderOp::bitwise_not, /*slots=*/1);
-    fBuilder.merge_condition_mask();
-    this->previousTempStack();
-
-    // Push the false-expression onto the primary stack, immediately after the true-expression.
-    if (!this->pushExpression(ifFalse)) {
-        return unsupported();
-    }
-
-    // Use a select to conditionally mask-merge the true-expression and false-expression lanes;
-    // the mask is already set up for this.
-    fBuilder.select(/*slots=*/ifTrue.type().slotCount());
-
-    // Switch back to the test-expression stack one last time, in order to restore the
-    // condition-mask to its original state and jettison the test-expression.
+    // Restore the condition-mask to its original state and jettison the test-expression.
     this->nextTempStack();
     this->discardExpression(/*slots=*/1);
     fBuilder.pop_condition_mask();
