@@ -1351,13 +1351,6 @@ SI F clamp(F v, F limit) {
     return min(max(0, v), inclusive);
 }
 
-// clamp to (0,limit).
-SI F clamp_ex(F v, F limit) {
-    const F inclusiveZ = std::numeric_limits<float>::min(),
-            inclusiveL = sk_bit_cast<F>( sk_bit_cast<U32>(limit) - 1 );
-    return min(max(inclusiveZ, v), inclusiveL);
-}
-
 // Bhaskara I's sine approximation
 // 16x(pi - x) / (5*pi^2 - 4x(pi - x)
 // ... divide by 4
@@ -1429,12 +1422,8 @@ SI F tan_(F x) {
 // Used by gather_ stages to calculate the base pointer and a vector of indices to load.
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
-    // We use exclusive clamp so that our min value is > 0 because ULP subtraction using U32 would
-    // produce a NaN if applied to +0.f.
-    x = clamp_ex(x, ctx->width );
-    y = clamp_ex(y, ctx->height);
-    x = sk_bit_cast<F>(sk_bit_cast<U32>(x) - (uint32_t)ctx->roundDownAtInteger);
-    y = sk_bit_cast<F>(sk_bit_cast<U32>(y) - (uint32_t)ctx->roundDownAtInteger);
+    x = clamp(sk_bit_cast<F>(sk_bit_cast<U32>(x) + ctx->coordBiasInULPs), ctx->width );
+    y = clamp(sk_bit_cast<F>(sk_bit_cast<U32>(y) + ctx->coordBiasInULPs), ctx->height);
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
 }
@@ -3958,15 +3947,11 @@ SI T* ptr_at_xy(const SkRasterPipeline_MemoryCtx* ctx, size_t dx, size_t dy) {
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
     // Exclusive -> inclusive.
-    const F z = std::numeric_limits<float>::min(),
-            w = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->width ) - 1),
+    const F w = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->width ) - 1),
             h = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->height) - 1);
 
-    x = min(max(z, x), w);
-    y = min(max(z, y), h);
-
-    x = sk_bit_cast<F>(sk_bit_cast<U32>(x) - (uint32_t)ctx->roundDownAtInteger);
-    y = sk_bit_cast<F>(sk_bit_cast<U32>(y) - (uint32_t)ctx->roundDownAtInteger);
+    x = min(max(0, sk_bit_cast<F>(sk_bit_cast<U32>(x) + ctx->coordBiasInULPs)), w);
+    y = min(max(0, sk_bit_cast<F>(sk_bit_cast<U32>(y) + ctx->coordBiasInULPs)), h);
 
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
@@ -3974,8 +3959,7 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
 
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, I32 x, I32 y) {
-    // This flag doesn't make sense when the coords are integers.
-    SkASSERT(ctx->roundDownAtInteger == 0);
+    SkASSERT(ctx->coordBiasInULPs == 0);
     // Exclusive -> inclusive.
     const I32 w =  ctx->width - 1,
               h = ctx->height - 1;

@@ -529,7 +529,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     // every pixel from the src image once we make exact integer pixel sample values round down not
     // up. Note that a mirror mapping will not have this property.
     if (!sampling.useCubic && sampling.filter == SkFilterMode::kNearest) {
-        gather->roundDownAtInteger = true;
+        gather->coordBiasInULPs = -1;
     }
 
     if (sampling.useCubic) {
