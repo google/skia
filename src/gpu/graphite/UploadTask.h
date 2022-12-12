@@ -10,6 +10,7 @@
 
 #include "src/gpu/graphite/Task.h"
 
+#include <memory>
 #include <vector>
 
 #include "include/core/SkImageInfo.h"
@@ -31,6 +32,18 @@ struct MipLevel {
 };
 
 /**
+ * The ConditionalUploadContext, if set, is used to determine whether an upload needs to occur
+ * on Recording playback. Clients will need to create their own subclasses to store the
+ * necessary data and override the needsUpload() method to do this check.
+ */
+class ConditionalUploadContext {
+public:
+    virtual ~ConditionalUploadContext() {}
+
+    virtual bool needsUpload() = 0;
+};
+
+/**
  * An UploadInstance represents a single set of uploads from a buffer to texture that
  * can be processed in a single command.
  */
@@ -40,24 +53,26 @@ public:
                                sk_sp<TextureProxy> targetProxy,
                                SkColorType colorType,
                                const std::vector<MipLevel>& levels,
-                               const SkIRect& dstRect);
+                               const SkIRect& dstRect,
+                               std::unique_ptr<ConditionalUploadContext>);
 
     bool isValid() const { return fBuffer != nullptr; }
 
     bool prepareResources(ResourceProvider*);
 
     // Adds upload command to the given CommandBuffer
-    void addCommand( CommandBuffer*) const;
+    void addCommand(CommandBuffer*) const;
 
 private:
     UploadInstance() {}
-    UploadInstance(const Buffer*, sk_sp<TextureProxy>, std::vector<BufferTextureCopyData>);
+    UploadInstance(const Buffer*, sk_sp<TextureProxy>, std::vector<BufferTextureCopyData>,
+                   std::unique_ptr<ConditionalUploadContext>);
 
     const Buffer* fBuffer;
     sk_sp<TextureProxy> fTextureProxy;
     std::vector<BufferTextureCopyData> fCopyData;
+    std::unique_ptr<ConditionalUploadContext> fConditionalContext;
 };
-
 
 /**
  * An UploadList is a mutable collection of UploadCommands.
@@ -74,7 +89,8 @@ public:
                       sk_sp<TextureProxy> targetProxy,
                       SkColorType colorType,
                       const std::vector<MipLevel>& levels,
-                      const SkIRect& dstRect);
+                      const SkIRect& dstRect,
+                      std::unique_ptr<ConditionalUploadContext>);
 
     int size() { return fInstances.size(); }
 
@@ -93,7 +109,7 @@ private:
 class UploadTask final : public Task {
 public:
     static sk_sp<UploadTask> Make(UploadList*);
-    static sk_sp<UploadTask> Make(const UploadInstance&);
+    static sk_sp<UploadTask> Make(UploadInstance);
 
     ~UploadTask() override;
 
@@ -103,7 +119,7 @@ public:
 
 private:
     UploadTask(std::vector<UploadInstance>);
-    UploadTask(const UploadInstance&);
+    UploadTask(UploadInstance);
 
     std::vector<UploadInstance> fInstances;
 };

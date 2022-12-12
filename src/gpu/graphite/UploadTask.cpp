@@ -24,8 +24,10 @@ namespace skgpu::graphite {
 
 UploadInstance::UploadInstance(const Buffer* buffer,
                                sk_sp<TextureProxy> textureProxy,
-                               std::vector<BufferTextureCopyData> copyData)
-        : fBuffer(buffer), fTextureProxy(textureProxy), fCopyData(copyData) {}
+                               std::vector<BufferTextureCopyData> copyData,
+                               std::unique_ptr<ConditionalUploadContext> condContext)
+        : fBuffer(buffer), fTextureProxy(textureProxy), fCopyData(copyData)
+        , fConditionalContext(std::move(condContext)) {}
 
 size_t compute_combined_buffer_size(int mipLevelCount,
                                     size_t bytesPerPixel,
@@ -59,7 +61,8 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
                                     sk_sp<TextureProxy> textureProxy,
                                     SkColorType dataColorType,
                                     const std::vector<MipLevel>& levels,
-                                    const SkIRect& dstRect) {
+                                    const SkIRect& dstRect,
+                                    std::unique_ptr<ConditionalUploadContext> condContext) {
     const Caps* caps = recorder->priv().caps();
     SkASSERT(caps->isTexturable(textureProxy->textureInfo()));
 
@@ -141,7 +144,8 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
                              mipLevelCount > 1 ? "MipMap " : "",
                              dstRect.width(), dstRect.height());
 
-    return {bufferInfo.fBuffer, std::move(textureProxy), std::move(copyData)};
+    return {bufferInfo.fBuffer, std::move(textureProxy), std::move(copyData),
+            std::move(condContext)};
 }
 
 bool UploadInstance::prepareResources(ResourceProvider* resourceProvider) {
@@ -159,10 +163,12 @@ bool UploadInstance::prepareResources(ResourceProvider* resourceProvider) {
 void UploadInstance::addCommand(CommandBuffer* commandBuffer) const {
     SkASSERT(fTextureProxy && fTextureProxy->isInstantiated());
 
-    // The CommandBuffer doesn't take ownership of the upload buffer here; it's owned by
-    // UploadBufferManager, which will transfer ownership in transferToCommandBuffer.
-    commandBuffer->copyBufferToTexture(
-            fBuffer, fTextureProxy->refTexture(), fCopyData.data(), fCopyData.size());
+    if (!fConditionalContext || fConditionalContext->needsUpload()) {
+        // The CommandBuffer doesn't take ownership of the upload buffer here; it's owned by
+        // UploadBufferManager, which will transfer ownership in transferToCommandBuffer.
+        commandBuffer->copyBufferToTexture(
+                fBuffer, fTextureProxy->refTexture(), fCopyData.data(), fCopyData.size());
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -171,14 +177,15 @@ bool UploadList::recordUpload(Recorder* recorder,
                               sk_sp<TextureProxy> textureProxy,
                               SkColorType dataColorType,
                               const std::vector<MipLevel>& levels,
-                              const SkIRect& dstRect) {
+                              const SkIRect& dstRect,
+                              std::unique_ptr<ConditionalUploadContext> condContext) {
     UploadInstance instance = UploadInstance::Make(recorder, std::move(textureProxy), dataColorType,
-                                                   levels, dstRect);
+                                                   levels, dstRect, std::move(condContext));
     if (!instance.isValid()) {
         return false;
     }
 
-    fInstances.push_back(instance);
+    fInstances.emplace_back(std::move(instance));
     return true;
 }
 
@@ -189,17 +196,17 @@ sk_sp<UploadTask> UploadTask::Make(UploadList* uploadList) {
     return sk_sp<UploadTask>(new UploadTask(std::move(uploadList->fInstances)));
 }
 
-sk_sp<UploadTask> UploadTask::Make(const UploadInstance& instance) {
+sk_sp<UploadTask> UploadTask::Make(UploadInstance instance) {
     if (!instance.isValid()) {
         return nullptr;
     }
-    return sk_sp<UploadTask>(new UploadTask(instance));
+    return sk_sp<UploadTask>(new UploadTask(std::move(instance)));
 }
 
 UploadTask::UploadTask(std::vector<UploadInstance> instances) : fInstances(std::move(instances)) {}
 
-UploadTask::UploadTask(const UploadInstance& instance) {
-    fInstances.push_back(instance);
+UploadTask::UploadTask(UploadInstance instance) {
+    fInstances.emplace_back(std::move(instance));
 }
 
 UploadTask::~UploadTask() {}

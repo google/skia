@@ -109,8 +109,8 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
 
     // Add UploadTask to Recorder
     UploadInstance upload = UploadInstance::Make(
-            recorder, proxy, ct, texels, SkIRect::MakeSize(bmpToUpload.dimensions()));
-    recorder->priv().add(UploadTask::Make(upload));
+            recorder, proxy, ct, texels, SkIRect::MakeSize(bmpToUpload.dimensions()), nullptr);
+    recorder->priv().add(UploadTask::Make(std::move(upload)));
 
     Swizzle swizzle = caps->getReadSwizzle(ct, textureInfo);
     return {{std::move(proxy), swizzle}, ct};

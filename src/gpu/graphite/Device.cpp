@@ -451,7 +451,8 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
     SkIRect dstRect = SkIRect::MakePtSize({x, y}, src.dimensions());
 
     this->flushPendingWorkToRecorder();
-    return fDC->recordUpload(fRecorder, sk_ref_sp(target), src.colorType(), levels, dstRect);
+    return fDC->recordUpload(fRecorder, sk_ref_sp(target), src.colorType(), levels, dstRect,
+                             nullptr);
 }
 
 

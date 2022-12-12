@@ -290,9 +290,10 @@ bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
                                                  std::move(proxy),
                                                  ct,
                                                  mipLevels,
-                                                 SkIRect::MakeSize(backendTex.dimensions()));
+                                                 SkIRect::MakeSize(backendTex.dimensions()),
+                                                 nullptr);
 
-    sk_sp<Task> uploadTask = UploadTask::Make(upload);
+    sk_sp<Task> uploadTask = UploadTask::Make(std::move(upload));
 
     this->priv().add(std::move(uploadTask));
 

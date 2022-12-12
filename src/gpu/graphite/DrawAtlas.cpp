@@ -142,7 +142,8 @@ bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
                 std::vector<MipLevel> levels;
                 levels.push_back({dataPtr, fBytesPerPixel*fPlotWidth});
 
-                if (!dc->recordUpload(recorder, sk_ref_sp(proxy), fColorType, levels, dstRect)) {
+                if (!dc->recordUpload(recorder, sk_ref_sp(proxy), fColorType, levels, dstRect,
+                                      nullptr)) {
                     return false;
                 }
             }
