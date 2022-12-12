@@ -37,6 +37,7 @@ supported_files_or_dirs=(
   "src/core/SkPoint.cpp"
   "src/core/SkRect.cpp"
   "src/core/SkScalar.cpp"
+  "src/core/SkTDArray.cpp"
   "src/gpu/ganesh/GrCaps.cpp"
   "src/gpu/ganesh/GrProcessor.cpp"
   "src/gpu/ganesh/GrRenderTargetProxy.cpp"

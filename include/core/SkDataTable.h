@@ -11,6 +11,8 @@
 #include "include/core/SkData.h"
 #include "include/private/SkTDArray.h"
 
+#include <cstring>
+
 /**
  *  Like SkData, SkDataTable holds an immutable data buffer. The data buffer is
  *  organized into a table of entries, each with a length, so the entries are

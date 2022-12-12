@@ -13,16 +13,15 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkContainers.h"
 #include "include/private/SkMalloc.h"
-#include "include/private/SkSafe32.h"
-#include "include/private/SkTLogic.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 #include <algorithm>
 #include <climits>
-#include <string.h>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <initializer_list>
-#include <memory>
 #include <new>
 #include <utility>
 

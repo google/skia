@@ -91,6 +91,8 @@ generate_cpp_files_for_headers(
         "include/private/SkOnce.h",
         "include/private/SkSafe32.h",
         "include/private/SkSafe_math.h",
+        "include/private/SkTArray.h",
+        "include/private/SkTDArray.h",
         "include/private/SkTFitsIn.h",
         "include/private/SkTLogic.h",
         "include/private/SkTPin.h",

@@ -9,15 +9,11 @@
 #define SkTDArray_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
 
 #include <algorithm>
 #include <cstddef>
-#include <climits>
 #include <initializer_list>
-#include <tuple>
-#include <utility>
 
 class SK_SPI SkTDStorage {
 public:

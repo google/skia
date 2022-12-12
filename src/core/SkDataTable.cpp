@@ -7,6 +7,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkDataTable.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/SkOnce.h"
 
 static void malloc_freeproc(void* context) {
