@@ -73,17 +73,13 @@ sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
 
     return sk_sp<Buffer>(new DawnBuffer(sharedContext,
                                         size,
-                                        type,
-                                        prioritizeGpuReads,
                                         std::move(buffer)));
 }
 
 DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext,
                        size_t size,
-                       BufferType type,
-                       PrioritizeGpuReads prioritizeGpuReads,
                        wgpu::Buffer buffer)
-        : Buffer(sharedContext, size, type, prioritizeGpuReads)
+        : Buffer(sharedContext, size)
         , fBuffer(std::move(buffer)) {}
 
 void DawnBuffer::onMap() {

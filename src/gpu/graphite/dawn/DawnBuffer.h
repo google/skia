@@ -29,8 +29,6 @@ public:
 private:
     DawnBuffer(const DawnSharedContext*,
                size_t size,
-               BufferType type,
-               PrioritizeGpuReads,
                wgpu::Buffer);
 
     void onMap() override;

@@ -10,10 +10,9 @@
 
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/vk/VulkanSharedContext.h"
 
 namespace skgpu::graphite {
-
-class VulkanSharedContext;
 
 class VulkanBuffer final : public Buffer {
 public:
@@ -21,14 +20,31 @@ public:
     void freeGpuData() override {}
 
 private:
-    VulkanBuffer(const VulkanSharedContext*, size_t, BufferType, PrioritizeGpuReads, VkBuffer);
+    VulkanBuffer(const VulkanSharedContext*, size_t, BufferType, PrioritizeGpuReads, VkBuffer,
+                 const skgpu::VulkanAlloc&);
 
-    void onMap() override {}
-    void onUnmap() override {}
-    // TODO: Remove this getter method. This silences a compiler unused member warning for fBuffer.
-    VkBuffer getVkBuffer() const { return fBuffer; }
+    void onMap() override;
+    void onUnmap() override;
+
+    void internalMap(size_t readOffset, size_t readSize);
+    void internalUnmap(size_t flushOffset, size_t flushSize);
+
+    bool isMappable() const { return fAlloc.fFlags & skgpu::VulkanAlloc::kMappable_Flag; }
+
+    const VulkanSharedContext* vulkanSharedContext() const {
+        return static_cast<const VulkanSharedContext*>(this->sharedContext());
+    }
 
     VkBuffer fBuffer;
+    skgpu::VulkanAlloc fAlloc;
+    /**
+     * Buffers can either be mapped for:
+     * 1) Reading from the CPU (The effect of writing would be undefined)
+     * 2) Writing from the CPU (The existing contents are discarded. Even in the case where the
+     *    initial contents are overwritten, CPU reads should be avoided for performance reasons as
+     *    the memory may not be cached).
+     */
+    bool fBufferUsedForCPURead = false;
 };
 
 } // namespace skgpu::graphite

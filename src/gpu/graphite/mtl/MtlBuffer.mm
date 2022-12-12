@@ -59,17 +59,13 @@ sk_sp<Buffer> MtlBuffer::Make(const MtlSharedContext* sharedContext,
 
     return sk_sp<Buffer>(new MtlBuffer(sharedContext,
                                        size,
-                                       type,
-                                       prioritizeGpuReads,
                                        std::move(buffer)));
 }
 
 MtlBuffer::MtlBuffer(const MtlSharedContext* sharedContext,
                      size_t size,
-                     BufferType type,
-                     PrioritizeGpuReads prioritizeGpuReads,
                      sk_cfp<id<MTLBuffer>> buffer)
-        : Buffer(sharedContext, size, type, prioritizeGpuReads)
+        : Buffer(sharedContext, size)
         , fBuffer(std::move(buffer)) {}
 
 void MtlBuffer::onMap() {

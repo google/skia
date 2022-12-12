@@ -9,7 +9,6 @@
 
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
-#include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/vk/VulkanMemory.h"
 
 namespace skgpu::graphite {
@@ -138,16 +137,73 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
                                           size,
                                           type,
                                           prioritizeGpuReads,
-                                          std::move(buffer)));
+                                          std::move(buffer),
+                                          alloc));
 }
 
 VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
                            size_t size,
                            BufferType type,
                            PrioritizeGpuReads prioritizeGpuReads,
-                           VkBuffer buffer)
-        : Buffer(sharedContext, size, type, prioritizeGpuReads)
-        , fBuffer(std::move(buffer)) {}
+                           VkBuffer buffer,
+                           const skgpu::VulkanAlloc& alloc)
+        : Buffer(sharedContext, size)
+        , fBuffer(std::move(buffer))
+        , fAlloc(alloc)
+        // We assume a buffer is used for CPU reads only in the case of GPU->CPU transfer buffers.
+        , fBufferUsedForCPURead(type == BufferType::kXferGpuToCpu) {}
 
+void VulkanBuffer::internalMap(size_t readOffset, size_t readSize) {
+    SkASSERT(!fMapPtr);
+    if (this->isMappable()) {
+        // Not every buffer will use command buffer usage refs. Instead, the command buffer just
+        // holds normal refs. Systems higher up in Graphite should be making sure not to reuse a
+        // buffer that currently has a ref held by something else. However, we do need to make sure
+        // there isn't a buffer with just a command buffer usage that is trying to be mapped.
+#ifdef SK_DEBUG
+        SkASSERT(!this->debugHasCommandBufferRef());
+#endif
+        SkASSERT(fAlloc.fSize > 0);
+        SkASSERT(fAlloc.fSize >= readOffset + readSize);
+
+        const VulkanSharedContext* sharedContext = this->vulkanSharedContext();
+
+        auto allocator = sharedContext->memoryAllocator();
+        fMapPtr = skgpu::VulkanMemory::MapAlloc(allocator, fAlloc, nullptr);
+        if (fMapPtr && readSize != 0) {
+            // "Invalidate" here means make device writes visible to the host. That is, it makes
+            // sure any GPU writes are finished in the range we might read from.
+            skgpu::VulkanMemory::InvalidateMappedAlloc(allocator,
+                                                       fAlloc,
+                                                       readOffset,
+                                                       readSize,
+                                                       nullptr);
+        }
+    }
+}
+
+void VulkanBuffer::internalUnmap(size_t flushOffset, size_t flushSize) {
+    SkASSERT(fMapPtr && this->isMappable());
+
+    SkASSERT(fAlloc.fSize > 0);
+    SkASSERT(fAlloc.fSize >= flushOffset + flushSize);
+
+    auto allocator = this->vulkanSharedContext()->memoryAllocator();
+    skgpu::VulkanMemory::FlushMappedAlloc(allocator, fAlloc, flushOffset, flushSize, nullptr);
+    skgpu::VulkanMemory::UnmapAlloc(allocator, fAlloc);
+}
+
+void VulkanBuffer::onMap() {
+    SkASSERT(fBuffer);
+    SkASSERT(!this->isMapped());
+
+    this->internalMap(0, fBufferUsedForCPURead ? this->size() : 0);
+}
+
+void VulkanBuffer::onUnmap() {
+    SkASSERT(fBuffer);
+    SkASSERT(this->isMapped());
+    this->internalUnmap(0, fBufferUsedForCPURead ? 0 : this->size());
+}
 } // namespace skgpu::graphite
 

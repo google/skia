@@ -29,8 +29,6 @@ public:
 private:
     MtlBuffer(const MtlSharedContext*,
               size_t size,
-              BufferType type,
-              PrioritizeGpuReads,
               sk_cfp<id<MTLBuffer>>);
 
     void onMap() override;

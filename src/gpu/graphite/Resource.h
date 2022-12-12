@@ -110,6 +110,12 @@ protected:
     // Overridden to free GPU resources in the backend API.
     virtual void freeGpuData() = 0;
 
+#ifdef SK_DEBUG
+    bool debugHasCommandBufferRef() const {
+        return hasCommandBufferRef();
+    }
+#endif
+
 private:
     ////////////////////////////////////////////////////////////////////////////
     // The following set of functions are only meant to be called by the ResourceCache. We don't
