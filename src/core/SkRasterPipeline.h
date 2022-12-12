@@ -192,7 +192,8 @@ struct SkRasterPipeline_GatherCtx {
     float       width;
     float       height;
     float       weights[16];  // for bicubic and bicubic_clamp_8888
-    int         coordBiasInULPs = 0;
+    // Controls whether pixel i-1 or i is selected when floating point sample position is exactly i.
+    bool        roundDownAtInteger = false;
 };
 
 // State shared by save_xy, accumulate, and bilinear_* / bicubic_*.
