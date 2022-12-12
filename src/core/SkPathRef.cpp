@@ -702,9 +702,9 @@ bool SkPathRef::isValid() const {
 
 void SkPathRef::reset() {
     commonReset();
-    fPoints.resize(0);
-    fVerbs.resize(0);
-    fConicWeights.resize(0);
+    fPoints.clear();
+    fVerbs.clear();
+    fConicWeights.clear();
     SkDEBUGCODE(validate();)
 }
 
