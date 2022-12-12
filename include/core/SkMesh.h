@@ -335,11 +335,7 @@ public:
 
     enum class Mode { kTriangles, kTriangleStrip };
 
-#ifdef SK_LEGACY_MESH_MAKE
-    using Result = SkMesh;
-#else
     struct Result;
-#endif
 
     /**
      * Creates a non-indexed SkMesh. The returned SkMesh can be tested for validity using
@@ -419,9 +415,7 @@ private:
     SkRect fBounds = SkRect::MakeEmpty();
 };
 
-#ifndef SK_LEGACY_MESH_MAKE
 struct SkMesh::Result { SkMesh mesh; SkString error; };
-#endif
 
 #endif  // SK_ENABLE_SKSL
 

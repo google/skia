@@ -714,11 +714,7 @@ SkMesh::Result SkMesh::Make(sk_sp<SkMeshSpecification> spec,
     if (!valid) {
         mesh = {};
     }
-#ifdef SK_LEGACY_MESH_MAKE
-    return mesh;
-#else
     return {std::move(mesh), std::move(msg)};
-#endif
 }
 
 SkMesh::Result SkMesh::MakeIndexed(sk_sp<SkMeshSpecification> spec,
@@ -734,11 +730,7 @@ SkMesh::Result SkMesh::MakeIndexed(sk_sp<SkMeshSpecification> spec,
     if (!ib) {
         // We check this before calling validate to disambiguate from a non-indexed mesh where
         // IB is expected to be null.
-#ifdef SK_LEGACY_MESH_MAKE
-        return {};
-#else
         return {{}, SkString{"An index buffer is required."}};
-#endif
     }
     SkMesh mesh;
     mesh.fSpec     = std::move(spec);
@@ -755,11 +747,7 @@ SkMesh::Result SkMesh::MakeIndexed(sk_sp<SkMeshSpecification> spec,
     if (!valid) {
         mesh = {};
     }
-#ifdef SK_LEGACY_MESH_MAKE
-    return mesh;
-#else
     return {std::move(mesh), std::move(msg)};
-#endif
 }
 
 bool SkMesh::isValid() const {
