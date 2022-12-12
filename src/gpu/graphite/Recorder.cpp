@@ -7,6 +7,7 @@
 
 #include "include/gpu/graphite/Recorder.h"
 
+#include "include/core/SkCanvas.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
@@ -22,6 +23,7 @@
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawBufferManager.h"
 #include "src/gpu/graphite/GlobalCache.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PipelineDataCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -161,9 +163,17 @@ std::unique_ptr<Recording> Recorder::snap() {
         return nullptr;
     }
 
+    std::unique_ptr<Recording::LazyProxyData> targetProxyData;
+    if (fTargetProxyData) {
+        targetProxyData = std::move(fTargetProxyData);
+        fTargetProxyDevice.reset();
+        fTargetProxyCanvas.reset();
+    }
     std::unique_ptr<Recording> recording(new Recording(std::move(fGraph),
                                                        std::move(nonVolatileLazyProxies),
-                                                       std::move(volatileLazyProxies)));
+                                                       std::move(volatileLazyProxies),
+                                                       std::move(targetProxyData)));
+
     fDrawBufferManager->transferToRecording(recording.get());
     fUploadBufferManager->transferToRecording(recording.get());
 
@@ -172,6 +182,25 @@ std::unique_ptr<Recording> Recorder::snap() {
     fTextureDataCache = std::make_unique<TextureDataCache>();
     fAtlasManager->evictAtlases();
     return recording;
+}
+
+SkCanvas* Recorder::makeDeferredCanvas(const SkImageInfo& imageInfo,
+                                       const TextureInfo& textureInfo) {
+    if (fTargetProxyCanvas) {
+        // Require snapping before requesting another canvas.
+        SKGPU_LOG_W("Requested a new deferred canvas before snapping the previous one");
+        return nullptr;
+    }
+
+    fTargetProxyData = std::make_unique<Recording::LazyProxyData>(textureInfo);
+    fTargetProxyDevice = Device::Make(this,
+                                      fTargetProxyData->refLazyProxy(),
+                                      imageInfo.dimensions(),
+                                      imageInfo.colorInfo(),
+                                      {},
+                                      false);
+    fTargetProxyCanvas = std::make_unique<SkCanvas>(fTargetProxyDevice);
+    return fTargetProxyCanvas.get();
 }
 
 void Recorder::registerDevice(Device* device) {

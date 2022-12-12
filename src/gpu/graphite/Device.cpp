@@ -570,7 +570,10 @@ void Device::onReplaceClip(const SkIRect& rect) {
 ///////////////////////////////////////////////////////////////////////////////
 
 void Device::drawPaint(const SkPaint& paint) {
-    if (this->clipIsWideOpen()) {
+    // We never want to do a fullscreen clear on a fully-lazy render target, because the device size
+    // may be smaller than the final surface we draw to, in which case we don't want to fill the
+    // entire final surface.
+    if (this->clipIsWideOpen() && !fDC->target()->isFullyLazy()) {
         if (!paint_depends_on_dst(paint)) {
             if (std::optional<SkColor4f> color = extract_paint_color(paint)) {
                 // do fullscreen clear
@@ -1158,11 +1161,7 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
                                         this->surfaceProps());
 }
 
-#if GRAPHITE_TEST_UTILS
-TextureProxy* Device::proxy() {
-    return fDC->target();
-}
-#endif
+TextureProxy* Device::target() { return fDC->target(); }
 
 TextureProxyView Device::readSurfaceView() const {
     if (!fRecorder) {

@@ -28,6 +28,8 @@ public:
     TextureProxy(SkISize dimensions, const TextureInfo& info, SkBudgeted budgeted);
     TextureProxy(sk_sp<Texture>);
 
+    TextureProxy() = delete;
+
     ~TextureProxy() override;
 
     int numSamples() const { return fInfo.numSamples(); }
@@ -103,6 +105,21 @@ private:
     sk_sp<Texture> fTexture;
 
     const LazyInstantiateCallback fLazyInstantiateCallback;
+};
+
+// Volatile texture proxy that deinstantiates itself on destruction.
+class AutoDeinstantiateTextureProxy {
+public:
+    AutoDeinstantiateTextureProxy(TextureProxy* textureProxy) : fTextureProxy(textureProxy) {}
+
+    ~AutoDeinstantiateTextureProxy() {
+        if (fTextureProxy) {
+            fTextureProxy->deinstantiate();
+        }
+    }
+
+private:
+    TextureProxy* const fTextureProxy;
 };
 
 } // namepsace skgpu::graphite

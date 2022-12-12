@@ -17,6 +17,7 @@ namespace skgpu::graphite {
 class Context;
 class Device;
 class Recorder;
+class TextureProxy;
 
 class Surface final : public SkSurface_Base {
 public:
@@ -71,6 +72,8 @@ public:
                                   const GrFlushInfo&,
                                   const skgpu::MutableTextureState*) override;
 #endif
+
+    TextureProxy* backingTextureProxy();
 
 private:
     sk_sp<Device> fDevice;

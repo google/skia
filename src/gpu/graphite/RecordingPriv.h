@@ -13,6 +13,7 @@
 namespace skgpu::graphite {
 
 class Task;
+class Surface;
 
 class RecordingPriv {
 public:
@@ -28,7 +29,7 @@ public:
     int numNonVolatilePromiseImages() const;
 #endif
 
-    bool addCommands(ResourceProvider*, CommandBuffer*);
+    bool addCommands(ResourceProvider*, CommandBuffer*, Surface* targetSurface);
     void addResourceRef(sk_sp<Resource> resource);
     void addTask(sk_sp<Task> task);
 

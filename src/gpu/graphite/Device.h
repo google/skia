@@ -92,9 +92,7 @@ public:
 
     SkStrikeDeviceInfo strikeDeviceInfo() const override;
 
-#if GRAPHITE_TEST_UTILS
-    TextureProxy* proxy();
-#endif
+    TextureProxy* target();
     TextureProxyView readSurfaceView() const;
 
 private:

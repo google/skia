@@ -165,7 +165,7 @@ GrRenderTargetProxy* SkCanvasPriv::TopDeviceTargetProxy(SkCanvas* canvas) {
 
 skgpu::graphite::TextureProxy* SkCanvasPriv::TopDeviceGraphiteTargetProxy(SkCanvas* canvas) {
     if (auto gpuDevice = canvas->topDevice()->asGraphiteDevice()) {
-        return gpuDevice->proxy();
+        return gpuDevice->target();
     }
     return nullptr;
 }

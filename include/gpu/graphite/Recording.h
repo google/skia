@@ -22,6 +22,8 @@ class RecordingPriv;
 class Resource;
 class ResourceProvider;
 class TaskGraph;
+class Texture;
+class TextureInfo;
 class TextureProxy;
 
 class Recording final {
@@ -30,9 +32,29 @@ public:
 
     RecordingPriv priv();
 
+#if GRAPHITE_TEST_UTILS
+    bool isTargetProxyInstantiated() const;
+#endif
+
 private:
-    friend class Recorder; // for ctor
+    friend class Recorder;  // for ctor and LazyProxyData
     friend class RecordingPriv;
+
+    // LazyProxyData is used if this recording should be replayed to a target that is provided on
+    // replay, and it handles the target proxy's instantiation with the provided target.
+    class LazyProxyData {
+    public:
+        LazyProxyData(const TextureInfo&);
+
+        TextureProxy* lazyProxy();
+        sk_sp<TextureProxy> refLazyProxy();
+
+        bool lazyInstantiate(ResourceProvider*, sk_sp<Texture>);
+
+    private:
+        sk_sp<Texture> fTarget;
+        sk_sp<TextureProxy> fTargetProxy;
+    };
 
     struct ProxyHash {
         std::size_t operator()(const sk_sp<TextureProxy>& proxy) const {
@@ -42,7 +64,8 @@ private:
 
     Recording(std::unique_ptr<TaskGraph>,
               std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& nonVolatileLazyProxies,
-              std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& volatileLazyProxies);
+              std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& volatileLazyProxies,
+              std::unique_ptr<LazyProxyData> targetProxyData);
 
     bool addCommands(CommandBuffer*, ResourceProvider*);
     void addResourceRef(sk_sp<Resource>);
@@ -56,6 +79,8 @@ private:
 
     std::unordered_set<sk_sp<TextureProxy>, ProxyHash> fNonVolatileLazyProxies;
     std::unordered_set<sk_sp<TextureProxy>, ProxyHash> fVolatileLazyProxies;
+
+    std::unique_ptr<LazyProxyData> fTargetProxyData;
 };
 
 } // namespace skgpu::graphite

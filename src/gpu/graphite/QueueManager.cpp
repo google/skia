@@ -13,6 +13,7 @@
 #include "src/gpu/graphite/GpuWorkSubmission.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecordingPriv.h"
+#include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/Task.h"
 
 namespace skgpu::graphite {
@@ -68,6 +69,15 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info,
         return false;
     }
 
+    if (info.fTargetSurface &&
+        !static_cast<const SkSurface_Base*>(info.fTargetSurface)->isGraphiteBacked()) {
+        if (callback) {
+            callback->setFailureResult();
+        }
+        SKGPU_LOG_E("Target surface passed into addRecording call is not graphite-backed");
+        return false;
+    }
+
     if (!this->setupCommandBuffer(resourceProvider)) {
         if (callback) {
             callback->setFailureResult();
@@ -97,7 +107,9 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info,
         }
     }
 
-    if (!info.fRecording->priv().addCommands(resourceProvider, fCurrentCommandBuffer.get())) {
+    if (!info.fRecording->priv().addCommands(resourceProvider,
+                                             fCurrentCommandBuffer.get(),
+                                             static_cast<Surface*>(info.fTargetSurface))) {
         if (callback) {
             callback->setFailureResult();
         }
