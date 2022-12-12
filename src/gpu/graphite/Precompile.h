@@ -27,6 +27,7 @@ class SkUniquePaintParamsID;
 
 namespace skgpu::graphite {
 
+class KeyContext;
 class PrecompileBasePriv;
 
 class PrecompileBase : public SkRefCnt {

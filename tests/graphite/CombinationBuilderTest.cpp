@@ -10,12 +10,10 @@
 #ifdef SK_GRAPHITE_ENABLED
 
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/gpu/graphite/CombinationBuilder.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/FactoryFunctions.h"
 #include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/Precompile.h"
-#include "tests/graphite/CombinationBuilderTestAccess.h"
 
 #include <array>
 
@@ -23,36 +21,57 @@ using namespace::skgpu::graphite;
 
 namespace {
 
-// For an entirely empty combination builder, both solid color shader and kSrcOver options
-// will be added
+// The default PaintOptions should create a single combination with a solid color shader and
+// kSrcOver blending
 void empty_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    CombinationBuilder builder(dict);
+    PaintOptions paintOptions;
 
-    REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 1);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
+
+    std::vector<SkUniquePaintParamsID> precompileIDs;
+    paintOptions.priv().buildCombinations(dict,
+                                          [&](SkUniquePaintParamsID id) {
+                                              precompileIDs.push_back(id);
+                                          });
+
+    SkASSERT(precompileIDs.size() == 1);
 }
 
-// It is expected that the builder will supply a default solid color shader if no other shader
-// option is provided
+// A PaintOptions will supply a default solid color shader if needed.
 void no_shader_option_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    CombinationBuilder builder(dict);
+    SkBlendMode blendModes[] = { SkBlendMode::kSrcOver };
 
-    builder.addOption(SkBlendMode::kSrcOver);
+    PaintOptions paintOptions;
+    paintOptions.setBlendModes(blendModes);
 
-    REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 1);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
+
+    std::vector<SkUniquePaintParamsID> precompileIDs;
+    paintOptions.priv().buildCombinations(dict,
+                                          [&](SkUniquePaintParamsID id) {
+                                              precompileIDs.push_back(id);
+                                          });
+
+    SkASSERT(precompileIDs.size() == 1);
 }
 
-// It is expected that the builder will supply a default kSrcOver blend mode if no other
-// options are added
+// A default kSrcOver blend mode will be supplied if no other blend options are added
 void no_blend_mode_option_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    CombinationBuilder builder(dict);
+    PaintOptions paintOptions;
+    paintOptions.setShaders({ PrecompileShaders::Color() });
 
-    builder.addOption(ShaderType::kSolidColor);
+    REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
 
-    REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 1);
+    std::vector<SkUniquePaintParamsID> precompileIDs;
+        paintOptions.priv().buildCombinations(dict,
+                                              [&](SkUniquePaintParamsID id) {
+                                                  precompileIDs.push_back(id);
+                                              });
+
+    SkASSERT(precompileIDs.size() == 1);
 }
 
-void big_test_new(Context* context, skiatest::Reporter* reporter) {
-
+void big_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
     // paintOptions (17)
     //  |- sweepGrad_0 (2) | blendShader_0 (15)
     //  |                     0: kSrc (1)
@@ -107,7 +126,13 @@ void big_test_new(Context* context, skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 17);
 
-//    context->precompile({paintOptions});
+    std::vector<SkUniquePaintParamsID> precompileIDs;
+    paintOptions.priv().buildCombinations(dict,
+                                          [&](SkUniquePaintParamsID id) {
+                                              precompileIDs.push_back(id);
+                                          });
+
+    SkASSERT(precompileIDs.size() == 17);
 }
 
 template <typename T>
@@ -235,124 +260,25 @@ void runtime_effect_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporte
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 8);
 
-    // context->precompile({paintOptions});
+    std::vector<SkUniquePaintParamsID> precompileIDs;
+    paintOptions.priv().buildCombinations(dict,
+                                          [&](SkUniquePaintParamsID id) {
+                                              precompileIDs.push_back(id);
+                                          });
+
+    SkASSERT(precompileIDs.size() == 8);
 }
-
-void big_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    CombinationBuilder builder(dict);
-
-    static constexpr int kMinNumStops = 4;
-    static constexpr int kMaxNumStops = 8;
-
-    // The resulting number of combinations are in braces
-    //
-    // builder {428}
-    //  |- {107} sweepGrad_0 {5} | blendShader_0 {102}
-    //  |                            0  {6}: linearGrad_0 {5} | solid_0 {1}
-    //  |                            1 {17}: linearGrad_1 {5} | blendShader_1 {12}
-    //  |                                                         0 {6}: radGrad_0 {5} | solid_1 {1}
-    //  |                                                         1 {2}: imageShader_0 {2}
-    //  |
-    //  |- {4} 4-built-in-blend-modes {4}
-
-    // first, shaders. First top-level option (sweepGrad_0)
-    [[maybe_unused]] auto sweepGrad_0 = builder.addOption(ShaderType::kSweepGradient,
-                                                          kMinNumStops, kMaxNumStops);
-
-    // Second top-level option (blendShader_0)
-    auto blendShader_0 = builder.addOption(ShaderType::kPorterDuffBlendShader);
-
-    // first child slot of blendShader_0
-    {
-        // first option (linearGrad_0)
-        [[maybe_unused]] auto linearGrad_0 = blendShader_0.addChildOption(
-                0, ShaderType::kLinearGradient,
-                kMinNumStops, kMaxNumStops);
-
-        // second option (solid_0)
-        [[maybe_unused]] auto solid_0 = blendShader_0.addChildOption(0,
-                                                                     ShaderType::kSolidColor);
-    }
-
-    // second child slot of blendShader_0
-    {
-        // first option (linearGrad_1)
-        {
-            [[maybe_unused]] auto linearGrad_1 = blendShader_0.addChildOption(
-                    1, ShaderType::kLinearGradient,
-                    kMinNumStops, kMaxNumStops);
-        }
-
-        // second option (blendShader_1)
-        {
-            auto blendShader_1 = blendShader_0.addChildOption(1, ShaderType::kBlendShader);
-
-            // nested: first child slot of blendShader_1
-            {
-                // first option (radialGrad_0)
-                [[maybe_unused]] auto radialGrad_0 = blendShader_1.addChildOption(
-                        0, ShaderType::kRadialGradient,
-                        kMinNumStops, kMaxNumStops);
-
-                // second option (solid_1)
-                [[maybe_unused]] auto solid_1 = blendShader_1.addChildOption(
-                        0, ShaderType::kSolidColor);
-            }
-
-            // nested: second child slot of blendShader_1
-            {
-                TileModePair tilingOptions[] = {
-                        { SkTileMode::kRepeat, SkTileMode::kRepeat },
-                        { SkTileMode::kClamp,  SkTileMode::kClamp }
-                };
-
-                // only option (imageShader_0)
-                [[maybe_unused]] auto imageShader_0 = blendShader_1.addChildOption(
-                        1, ShaderType::kImage, tilingOptions);
-            }
-        }
-    }
-
-    // now, blend modes
-    builder.addOption(SkBlendMode::kSrcOver);
-    builder.addOption(SkBlendMode::kSrc);
-    builder.addOption(SkBlendMode::kDstOver);
-    builder.addOption(SkBlendMode::kDst);
-
-    REPORTER_ASSERT(reporter, CombinationBuilderTestAccess::NumCombinations(&builder) == 428);
-}
-
-#ifdef SK_DEBUG
-void epoch_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
-    CombinationBuilder builder(dict);
-
-    // Check that epochs are updated upon builder reset
-    {
-        CombinationOption solid_0 = builder.addOption(ShaderType::kSolidColor);
-
-        int optionEpoch = CombinationBuilderTestAccess::Epoch(solid_0);
-        REPORTER_ASSERT(reporter, optionEpoch == CombinationBuilderTestAccess::Epoch(builder));
-
-        builder.reset();
-
-        REPORTER_ASSERT(reporter, optionEpoch != CombinationBuilderTestAccess::Epoch(builder));
-    }
-}
-#endif
 
 } // anonymous namespace
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
-    big_test_new(context, reporter);
-    runtime_effect_test(dict, reporter);
-
     empty_test(dict, reporter);
     no_shader_option_test(dict, reporter);
     no_blend_mode_option_test(dict, reporter);
     big_test(dict, reporter);
-    SkDEBUGCODE(epoch_test(dict, reporter));
+    runtime_effect_test(dict, reporter);
 }
 
 #endif // SK_GRAPHITE_ENABLED
