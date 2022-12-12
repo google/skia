@@ -35,6 +35,9 @@ private:
         return static_cast<const VulkanSharedContext*>(this->sharedContext());
     }
 
+    // TODO: Remove this getter method. This silences a compiler unused member warning for fBuffer.
+    VkBuffer vkBuffer() const { return fBuffer; }
+
     VkBuffer fBuffer;
     skgpu::VulkanAlloc fAlloc;
     /**
