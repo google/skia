@@ -64,8 +64,9 @@ void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
 
-    // Begin the key with a solid color shader block to set the initial color to the paint's color.
-    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, fColor.makeOpaque().premul());
+    // TODO: figure out how we can omit this block when the Paint's color isn't used.
+    SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
+                                      fColor.makeOpaque().premul());
     builder->endBlock();
 
     if (fShader) {

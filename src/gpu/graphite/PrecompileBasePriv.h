@@ -50,8 +50,6 @@ inline const PrecompileBasePriv PrecompileBase::priv() const {
     return PrecompileBasePriv(const_cast<PrecompileBase *>(this));
 }
 
-int CountBlenderCombos(const std::vector<sk_sp<PrecompileBlender>>&);
-
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_PrecompileBasePriv_DEFINED

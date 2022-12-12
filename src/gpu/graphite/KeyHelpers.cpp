@@ -698,7 +698,9 @@ void RuntimeEffectBlock::BeginBlock(const KeyContext& keyContext,
     ShaderCodeDictionary* dict = keyContext.dict();
     int codeSnippetID = dict->findOrCreateRuntimeEffectSnippet(shaderData.fEffect.get());
 
-    add_effect_to_recorder(keyContext.recorder(), codeSnippetID, shaderData.fEffect);
+    if (keyContext.recorder()) {
+        add_effect_to_recorder(keyContext.recorder(), codeSnippetID, shaderData.fEffect);
+    }
 
     if (gatherer) {
         const ShaderSnippet* entry = dict->getEntry(codeSnippetID);
