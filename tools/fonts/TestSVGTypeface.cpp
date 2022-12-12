@@ -21,6 +21,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkSize.h"
@@ -1316,7 +1317,7 @@ public:
 
         // Apply the path effect.
         if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
-            bool fill = paint.getFillPath(path, &path);
+            bool fill = FillPathWithPaint(path, paint, &path);
 
             paint.setPathEffect(nullptr);
             if (fill) {

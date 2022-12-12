@@ -13,6 +13,7 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkTime.h"
@@ -131,9 +132,9 @@ public:
         paint.setStrokeWidth(fStroke);
 
         if (fShowHairline) {
-            SkPath  fill;
+            SkPath fill;
 
-            paint.getFillPath(path, &fill);
+            FillPathWithPaint(path, paint, &fill);
             paint.setStrokeWidth(0);
             canvas->drawPath(fill, paint);
         } else {
@@ -363,7 +364,7 @@ public:
         }
         if (fShowHidden) {
             SkPath hidden;
-            fStrokePaint.getFillPath(path, &hidden);
+            FillPathWithPaint(path, fStrokePaint, &hidden);
             canvas->drawPath(hidden, fHiddenPaint);
         }
         if (fShowSkeleton) {

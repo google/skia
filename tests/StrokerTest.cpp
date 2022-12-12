@@ -7,6 +7,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
@@ -46,7 +47,7 @@ static void pathTest(const SkPath& path) {
     p.setStyle(SkPaint::kStroke_Style);
     for (size_t index = 0; index < widths_count; ++index) {
         p.setStrokeWidth(widths[index]);
-        p.getFillPath(path, &fill);
+        FillPathWithPaint(path, p, &fill);
     }
 }
 
@@ -170,7 +171,7 @@ DEF_TEST(QuadStrokerUnbounded, reporter) {
         path.moveTo(unbounded(r), unbounded(r));
         path.quadTo(unbounded(r), unbounded(r), unbounded(r), unbounded(r));
         p.setStrokeWidth(unboundedPos(r));
-        p.getFillPath(path, &fill);
+        FillPathWithPaint(path, p, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (best < gMaxRecursion[2]) {
             if (reporter->verbose()) {
@@ -210,7 +211,7 @@ DEF_TEST(CubicStrokerUnbounded, reporter) {
         path.cubicTo(unbounded(r), unbounded(r), unbounded(r), unbounded(r),
                 unbounded(r), unbounded(r));
         p.setStrokeWidth(unboundedPos(r));
-        p.getFillPath(path, &fill);
+        FillPathWithPaint(path, p, &fill);
     #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (bestTan < gMaxRecursion[0] || bestCubic < gMaxRecursion[1]) {
             if (reporter->verbose()) {
@@ -262,7 +263,7 @@ DEF_TEST(QuadStrokerConstrained, reporter) {
         path.moveTo(quad[0].fX, quad[0].fY);
         path.quadTo(quad[1].fX, quad[1].fY, quad[2].fX, quad[2].fY);
         p.setStrokeWidth(r.nextRangeF(0, 500));
-        p.getFillPath(path, &fill);
+        FillPathWithPaint(path, p, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (best < gMaxRecursion[2]) {
             if (reporter->verbose()) {
@@ -320,7 +321,7 @@ DEF_TEST(CubicStrokerConstrained, reporter) {
         path.moveTo(cubic[0].fX, cubic[0].fY);
         path.cubicTo(cubic[1].fX, cubic[1].fY, cubic[2].fX, cubic[2].fY, cubic[3].fX, cubic[3].fY);
         p.setStrokeWidth(r.nextRangeF(0, 500));
-        p.getFillPath(path, &fill);
+        FillPathWithPaint(path, p, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (bestTan < gMaxRecursion[0] || bestCubic < gMaxRecursion[1]) {
             if (reporter->verbose()) {
@@ -366,7 +367,7 @@ DEF_TEST(QuadStrokerRange, reporter) {
         path.moveTo(quad[0].fX, quad[0].fY);
         path.quadTo(quad[1].fX, quad[1].fY, quad[2].fX, quad[2].fY);
         p.setStrokeWidth(r.nextRangeF(0, 500));
-        p.getFillPath(path, &fill);
+        FillPathWithPaint(path, p, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (best < gMaxRecursion[2]) {
             if (reporter->verbose()) {
@@ -405,7 +406,7 @@ DEF_TEST(CubicStrokerRange, reporter) {
         path.cubicTo(r.nextRangeF(0, 500), r.nextRangeF(0, 500), r.nextRangeF(0, 500),
                 r.nextRangeF(0, 500), r.nextRangeF(0, 500), r.nextRangeF(0, 500));
         p.setStrokeWidth(r.nextRangeF(0, 100));
-        p.getFillPath(path, &fill);
+        FillPathWithPaint(path, p, &fill);
 #if defined(SK_DEBUG) && QUAD_STROKE_APPROX_EXTENDED_DEBUGGING
         if (best[0] < gMaxRecursion[0] || best[1] < gMaxRecursion[1]) {
             if (reporter->verbose()) {
@@ -442,7 +443,7 @@ DEF_TEST(QuadStrokerOneOff, reporter) {
     SkPath path, fill;
 path.moveTo(SkBits2Float(0x43c99223), SkBits2Float(0x42b7417e));
 path.quadTo(SkBits2Float(0x4285d839), SkBits2Float(0x43ed6645), SkBits2Float(0x43c941c8), SkBits2Float(0x42b3ace3));
-    p.getFillPath(path, &fill);
+    FillPathWithPaint(path, p, &fill);
     if (reporter->verbose()) {
         SkDebugf("\n%s path\n", __FUNCTION__);
         path.dump();
@@ -467,7 +468,7 @@ DEF_TEST(CubicStrokerOneOff, reporter) {
     SkPath path, fill;
 path.moveTo(SkBits2Float(0x433f5370), SkBits2Float(0x43d1f4b3));
 path.cubicTo(SkBits2Float(0x4331cb76), SkBits2Float(0x43ea3340), SkBits2Float(0x4388f498), SkBits2Float(0x42f7f08d), SkBits2Float(0x43f1cd32), SkBits2Float(0x42802ec1));
-    p.getFillPath(path, &fill);
+    FillPathWithPaint(path, p, &fill);
     if (reporter->verbose()) {
         SkDebugf("\n%s path\n", __FUNCTION__);
         path.dump();

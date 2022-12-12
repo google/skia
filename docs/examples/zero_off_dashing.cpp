@@ -24,7 +24,7 @@ void draw(SkCanvas* canvas) {
     p.setPathEffect(SkDashPathEffect::Make(interv2, 2, 0));
     canvas->drawPath(path, p);
 
-    p.getFillPath(path, &path2);
+    FillPathWithPaint(path, p, &path2);
     p.setColor(0xFF000000);
     p.setStrokeWidth(0);
     p.setPathEffect(nullptr);

@@ -12,6 +12,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
@@ -939,8 +940,8 @@ void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
         if (this->computeConservativeLocalClipBounds(&cullRect)) {
             cullRectPtr = &cullRect;
         }
-        doFill = paint->getFillPath(*pathPtr, tmpPath, cullRectPtr,
-                                    fMatrixProvider->localToDevice());
+        doFill = FillPathWithPaint(*pathPtr, *paint, tmpPath, cullRectPtr,
+                                   fMatrixProvider->localToDevice());
         pathPtr = tmpPath;
     }
 

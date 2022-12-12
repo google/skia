@@ -12,6 +12,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
@@ -502,7 +503,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
     SkPath path(origPath);
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
-    SkStrokeRec::InitStyle initStyle = paint->getFillPath(path, &path)
+    SkStrokeRec::InitStyle initStyle = FillPathWithPaint(path, *paint, &path)
                                      ? SkStrokeRec::kFill_InitStyle
                                      : SkStrokeRec::kHairline_InitStyle;
     path.transform(ctm, &path);
@@ -587,7 +588,7 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
             pathPtr = &modifiedPath;
             pathIsMutable = true;
         }
-        if (paint->getFillPath(*pathPtr, pathPtr)) {
+        if (FillPathWithPaint(*pathPtr, *paint, pathPtr)) {
             set_style(&paint, SkPaint::kFill_Style);
         } else {
             set_style(&paint, SkPaint::kStroke_Style);
@@ -1057,7 +1058,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
     // Merge stroking operations into final path.
     if (SkPaint::kStroke_Style == paint.getStyle() ||
         SkPaint::kStrokeAndFill_Style == paint.getStyle()) {
-        bool doFillPath = paint.getFillPath(origPath, &modifiedPath);
+        bool doFillPath = FillPathWithPaint(origPath, paint, &modifiedPath);
         if (doFillPath) {
             noInversePaint.setStyle(SkPaint::kFill_Style);
             noInversePaint.setStrokeWidth(0);

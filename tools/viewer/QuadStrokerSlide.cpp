@@ -14,6 +14,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathMeasure.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -660,7 +661,7 @@ private:
         } else {
             p.setStrokeWidth(width);
         }
-        p.getFillPath(path, &fill);
+        FillPathWithPaint(path, p, &fill);
         SkPath scaledFill;
         if (drawText) {
             fill.transform(matrix, &scaledFill);

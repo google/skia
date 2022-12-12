@@ -16,6 +16,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
@@ -140,7 +141,7 @@ DEF_TEST(BlurDrawing, reporter) {
                 SkPath path;
                 tests[test].addPath(&path);
                 SkPath strokedPath;
-                paint.getFillPath(path, &strokedPath);
+                FillPathWithPaint(path, paint, &strokedPath);
                 SkRect refBound = strokedPath.getBounds();
                 SkIRect iref;
                 refBound.roundOut(&iref);

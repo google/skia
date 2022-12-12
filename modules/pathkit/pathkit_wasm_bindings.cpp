@@ -10,6 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
@@ -408,7 +409,7 @@ bool ApplyStroke(SkPath& path, StrokeOpts opts) {
     if (opts.res_scale <= 0) {
         opts.res_scale = 1.0;
     }
-    return p.getFillPath(path, &path, nullptr, opts.res_scale);
+    return FillPathWithPaint(path, p, &path, nullptr, opts.res_scale);
 }
 
 //========================================================================================

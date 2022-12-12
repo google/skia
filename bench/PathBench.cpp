@@ -11,6 +11,7 @@
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
@@ -996,7 +997,7 @@ protected:
                                                6222222.5f, 28333.334f, 0.0f, 0.0f, 1.0f);
         for (int i = 0; i < loops; ++i) {
             SkPath dst;
-            paint.getFillPath(path, &dst, nullptr, SkMatrixPriv::ComputeResScaleForStroking(mtx));
+            FillPathWithPaint(path, paint, &dst, nullptr, SkMatrixPriv::ComputeResScaleForStroking(mtx));
         }
     }
 

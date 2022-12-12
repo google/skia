@@ -8,6 +8,8 @@
 #include "modules/sksg/include/SkSGGeometryEffect.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
@@ -152,7 +154,7 @@ SkPath OffsetEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
         paint.setStrokeJoin(fJoin);
 
         SkPath fill_path;
-        paint.getFillPath(path, &fill_path, nullptr);
+        FillPathWithPaint(path, paint, &fill_path, nullptr);
 
         if (fOffset > 0) {
             Op(path, fill_path, kUnion_SkPathOp, &path);

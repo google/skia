@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 
 static SkPath get_path() {
     SkPath path;
@@ -44,7 +45,7 @@ DEF_SIMPLE_GM(bug12866, canvas, 128, 64) {
 
     SkPath strokePath = get_path();
     SkPath fillPath;
-    strokePaint.getFillPath(strokePath, &fillPath, nullptr, 1200.0f);
+    FillPathWithPaint(strokePath, strokePaint, &fillPath, nullptr, 1200.0f);
 
     SkRect strokeBounds = strokePath.getBounds();
     SkRect fillBounds = fillPath.getBounds();

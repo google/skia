@@ -41,7 +41,7 @@ void draw(SkCanvas* canvas) {
                 paint.setStrokeWidth(kStrokeWidth);
                 paint.setStyle(style);
                 paint.setStrokeJoin(join);
-                paint.getFillPath(path, &fillPath);
+                FillPathWithPaint(path, paint, &fillPath);
 
                 paint.setAntiAlias(true);
                 paint.setColor(0xFF8C8A8C);

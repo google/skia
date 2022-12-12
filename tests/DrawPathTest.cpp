@@ -14,6 +14,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathTypes.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -347,7 +348,7 @@ static void test_infinite_dash(skiatest::Reporter* reporter) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(dash);
 
-    paint.getFillPath(path, &filteredPath);
+    FillPathWithPaint(path, paint, &filteredPath);
     // If we reach this, we passed.
     REPORTER_ASSERT(reporter, true);
 }

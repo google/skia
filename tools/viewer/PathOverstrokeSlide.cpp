@@ -6,6 +6,7 @@
  */
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "tools/viewer/Slide.h"
 
 #include <iostream>
@@ -168,7 +169,7 @@ public:
 
         if (fDrawFillPath) {
             SkPath fillpath;
-            p.getFillPath(path, &fillpath);
+            FillPathWithPaint(path, p, &fillpath);
 
             canvas->drawPath(fillpath, hairp);
 

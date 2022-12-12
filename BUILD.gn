@@ -1663,6 +1663,7 @@ skia_static_library("pathkit") {
     "src/core/SkPathEffect.cpp",
     "src/core/SkPathMeasure.cpp",
     "src/core/SkPathRef.cpp",
+    "src/core/SkPathUtils.cpp",
     "src/core/SkPoint.cpp",
     "src/core/SkRRect.cpp",
     "src/core/SkReadBuffer.cpp",

@@ -76,6 +76,7 @@ skia_filegroup(
         "SkPathEffect.h",
         "SkPathMeasure.h",
         "SkPathTypes.h",
+        "SkPathUtils.h",
         "SkPixelRef.h",
         "SkPixmap.h",
         "SkPngChunkReader.h",

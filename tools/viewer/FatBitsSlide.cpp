@@ -12,6 +12,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -244,7 +245,7 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
         p.setStrokeWidth(fStrokeWidth * fZoom);
         p.setStrokeCap(fStrokeCap);
         SkPath dst;
-        p.getFillPath(path, &dst);
+        FillPathWithPaint(path, p, &dst);
         path = dst;
 
         path.moveTo(pts[0]);

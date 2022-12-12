@@ -25,6 +25,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathTypes.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -935,7 +936,7 @@ void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIs
       if (!pathIsMutable) {
         pathPtr = &pathStorage;
       }
-      bool fill = path_paint->getFillPath(path, pathPtr);
+      bool fill = FillPathWithPaint(path, *path_paint, pathPtr);
       if (fill) {
         // Path should be filled.
         path_paint.writable()->setStyle(SkPaint::kFill_Style);

@@ -24,12 +24,15 @@ class SkColorFilter;
 class SkColorSpace;
 class SkImageFilter;
 class SkMaskFilter;
-class SkMatrix;
-class SkPath;
 class SkPathEffect;
 class SkShader;
 enum class SkBlendMode;
 struct SkRect;
+
+#if defined(SK_LEGACY_GET_FILL_PATH)
+class SkMatrix;
+class SkPath;
+#endif
 
 /** \class SkPaint
     SkPaint controls options applied when drawing. SkPaint collects all
@@ -388,7 +391,10 @@ public:
     */
     void setStrokeJoin(Join join);
 
+#if defined(SK_LEGACY_GET_FILL_PATH)
     /** Returns the filled equivalent of the stroked path.
+
+        DEPRECATED: Use FillPathWithPaint from SkPathUtils.h instead
 
         @param src       SkPath read to create a filled version
         @param dst       resulting SkPath; may be the same as src, but may not be nullptr
@@ -405,6 +411,8 @@ public:
 
     /** Returns the filled equivalent of the stroked path.
 
+        DEPRECATED: Use FillPathWithPaint from SkPathUtils.h instead
+
         Replaces dst with the src path modified by SkPathEffect and style stroke.
         SkPathEffect, if any, is not culled. stroke width is created with default precision.
 
@@ -415,6 +423,7 @@ public:
     bool getFillPath(const SkPath& src, SkPath* dst) const {
         return this->getFillPath(src, dst, nullptr, 1);
     }
+#endif
 
     /** Returns optional colors used when filling a path, such as a gradient.
 

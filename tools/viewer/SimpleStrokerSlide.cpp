@@ -8,6 +8,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "include/utils/SkParsePath.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
@@ -442,7 +443,7 @@ public:
         canvas->drawPath(path, fMirrorStrokePaint);
         if (fShowHidden) {
             SkPath hidden;
-            fStrokePaint.getFillPath(path, &hidden);
+            FillPathWithPaint(path, fStrokePaint, &hidden);
             canvas->drawPath(hidden, fHiddenPaint);
         }
         if (fShowSkeleton) {

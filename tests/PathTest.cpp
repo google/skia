@@ -16,6 +16,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -480,7 +481,7 @@ static void test_bad_cubic_crbug229478() {
     SkPath dst;
     // Before the fix, this would infinite-recurse, and run out of stack
     // because we would keep trying to subdivide a degenerate cubic segment.
-    paint.getFillPath(path, &dst, nullptr);
+    FillPathWithPaint(path, paint, &dst, nullptr);
 }
 
 static void build_path_170666(SkPath& path) {
@@ -1229,7 +1230,7 @@ static void stroke_cubic(const SkPoint pts[4]) {
     paint.setStrokeWidth(SK_Scalar1 * 2);
 
     SkPath fill;
-    paint.getFillPath(path, &fill);
+    FillPathWithPaint(path, paint, &fill);
 }
 
 // just ensure this can run w/o any SkASSERTS firing in the debug build
@@ -2616,7 +2617,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
     SkPaint strokePaint;
     strokePaint.setStyle(SkPaint::kStroke_Style);
     strokePaint.setStrokeWidth(2);
-    strokePaint.getFillPath(src, &dst);
+    FillPathWithPaint(src, strokePaint, &dst);
     REPORTER_ASSERT(reporter, SkPathPriv::IsNestedFillRects(dst, nullptr));
 }
 

@@ -9,6 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"
 #include "modules/sksg/include/SkSGPaint.h"
@@ -54,7 +55,7 @@ const RenderNode* Draw::onNodeAt(const SkPoint& p) const {
     }
 
     SkPath stroke_path;
-    if (!paint.getFillPath(fGeometry->asPath(), &stroke_path)) {
+    if (!FillPathWithPaint(fGeometry->asPath(), paint, &stroke_path)) {
         return nullptr;
     }
 

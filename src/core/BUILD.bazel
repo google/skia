@@ -244,6 +244,7 @@ CORE_FILES = [
     "SkPathMeasurePriv.h",
     "SkPathPriv.h",
     "SkPathRef.cpp",
+    "SkPathUtils.cpp",
     "SkPath_serial.cpp",
     "SkPicturePriv.h",
     "SkPixelRef.cpp",

@@ -25,6 +25,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathMeasure.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -143,7 +144,7 @@ void draw_quad_fillpath(SkCanvas *canvas) {
     fillp.setColor(SK_ColorMAGENTA);
 
     SkPath fillpath;
-    p.getFillPath(path, &fillpath);
+    FillPathWithPaint(path, p, &fillpath);
 
     canvas->drawPath(fillpath, fillp);
 }
@@ -180,7 +181,7 @@ void draw_cubic_fillpath(SkCanvas *canvas) {
     fillp.setColor(SK_ColorMAGENTA);
 
     SkPath fillpath;
-    p.getFillPath(path, &fillpath);
+    FillPathWithPaint(path, p, &fillpath);
 
     canvas->drawPath(fillpath, fillp);
 }
@@ -218,7 +219,7 @@ void draw_oval_fillpath(SkCanvas *canvas) {
     fillp.setColor(SK_ColorMAGENTA);
 
     SkPath fillpath;
-    p.getFillPath(path, &fillpath);
+    FillPathWithPaint(path, p, &fillpath);
 
     canvas->drawPath(fillpath, fillp);
 }

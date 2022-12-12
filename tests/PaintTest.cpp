@@ -14,6 +14,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -80,7 +81,7 @@ DEF_TEST(Paint_regression_cubic, reporter) {
 
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SkIntToScalar(2));
-    paint.getFillPath(path, &stroke);
+    FillPathWithPaint(path, paint, &stroke);
     strokeR = stroke.getBounds();
 
     SkRect maxR = fillR;

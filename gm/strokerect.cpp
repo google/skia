@@ -10,6 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -106,7 +107,7 @@ protected:
 
                     SkPath path, fillPath;
                     path.addRect(r);
-                    paint.getFillPath(path, &fillPath);
+                    FillPathWithPaint(path, paint, &fillPath);
                     draw_path(canvas, fillPath, r, join, doFill);
 
                     canvas->translate(W + 2 * STROKE_WIDTH, 0);
