@@ -619,8 +619,12 @@ $pure half4 sk_blend(int blendMode, half4 src, half4 dst) {
     }
 }
 
-$pure half4 sk_blend_shader(int blendMode, half4 src, half4 dst) {
+$pure half4 sk_blend_shader(int blendMode, half4 dst, half4 src) {
     return sk_blend(blendMode, src, dst);
+}
+
+$pure half4 porter_duff_blend_shader(half4 blendOp, half4 dst, half4 src) {
+    return blend_porter_duff(blendOp, src, dst);
 }
 
 $pure half4 sk_blend_colorfilter(half4 dstColor, int blendMode, float4 srcColor) {

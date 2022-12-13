@@ -583,7 +583,7 @@ static constexpr Uniform kPorterDuffBlendShaderUniforms[] = {
         { "blendConstants", SkSLType::kHalf4 },
 };
 
-static constexpr char kPorterDuffBlendShaderName[] = "blend_porter_duff";
+static constexpr char kPorterDuffBlendShaderName[] = "porter_duff_blend_shader";
 
 //--------------------------------------------------------------------------------------------------
 static constexpr Uniform kBlendShaderUniforms[] = {
