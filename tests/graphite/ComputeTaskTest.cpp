@@ -20,7 +20,9 @@
 
 using namespace skgpu::graphite;
 
-DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ComputeTaskTest, reporter, context) {
+// TODO(b/262427430, b/262429132): Enable this test on other backends once they all support
+// compute programs.
+DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeTaskTest, reporter, context) {
     constexpr uint32_t kProblemSize = 512;
     constexpr float kFactor = 4.f;
 
