@@ -119,8 +119,8 @@ public:
 
     // Remove this class' refs on the promise images and the PromiseImageCallbackContexts
     void reset() {
-        fImageInfo.reset();
-        fPromiseImages.reset();
+        fImageInfo.clear();
+        fPromiseImages.clear();
     }
 
 private:

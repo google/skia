@@ -253,14 +253,14 @@ void GrVkDescriptorSetManager::release(GrVkGpu* gpu) {
     for (int i = 0; i < fFreeSets.size(); ++i) {
         fFreeSets[i]->unref();
     }
-    fFreeSets.reset();
+    fFreeSets.clear();
 
     for (int i = 0; i < fImmutableSamplers.size(); ++i) {
         if (fImmutableSamplers[i]) {
             fImmutableSamplers[i]->unref();
         }
     }
-    fImmutableSamplers.reset();
+    fImmutableSamplers.clear();
 }
 
 bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,

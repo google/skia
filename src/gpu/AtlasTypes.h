@@ -385,7 +385,7 @@ public:
     }
 
     void reset() {
-        fPlotsToUpdate.reset();
+        fPlotsToUpdate.clear();
         memset(fPlotAlreadyUpdated, 0, sizeof(fPlotAlreadyUpdated));
     }
 

@@ -405,7 +405,7 @@ void OpsTask::deleteOps() {
     for (auto& chain : fOpChains) {
         chain.deleteOps();
     }
-    fOpChains.reset();
+    fOpChains.clear();
 }
 
 OpsTask::~OpsTask() {
@@ -459,8 +459,8 @@ void OpsTask::endFlush(GrDrawingManager* drawingMgr) {
     fLastClipStackGenID = SK_InvalidUniqueID;
     this->deleteOps();
 
-    fDeferredProxies.reset();
-    fSampledProxies.reset();
+    fDeferredProxies.clear();
+    fSampledProxies.clear();
     fAuditTrail = nullptr;
 
     GrRenderTask::endFlush(drawingMgr);
@@ -665,8 +665,8 @@ void OpsTask::setColorLoadOp(GrLoadOp op, std::array<float, 4> color) {
 }
 
 void OpsTask::reset() {
-    fDeferredProxies.reset();
-    fSampledProxies.reset();
+    fDeferredProxies.clear();
+    fSampledProxies.clear();
     fClippedContentBounds = SkIRect::MakeEmpty();
     fTotalBounds = SkRect::MakeEmpty();
     this->deleteOps();
@@ -744,9 +744,9 @@ int OpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
                                     toMerge->fSampledProxies.data());
         fOpChains.move_back_n(toMerge->fOpChains.size(),
                               toMerge->fOpChains.data());
-        toMerge->fDeferredProxies.reset();
-        toMerge->fSampledProxies.reset();
-        toMerge->fOpChains.reset();
+        toMerge->fDeferredProxies.clear();
+        toMerge->fSampledProxies.clear();
+        toMerge->fOpChains.clear();
     }
     fMustPreserveStencil = mergingNodes.back()->fMustPreserveStencil;
     return mergedCount;
@@ -755,8 +755,8 @@ int OpsTask::mergeFrom(SkSpan<const sk_sp<GrRenderTask>> tasks) {
 bool OpsTask::resetForFullscreenClear(CanDiscardPreviousOps canDiscardPreviousOps) {
     if (CanDiscardPreviousOps::kYes == canDiscardPreviousOps || this->isEmpty()) {
         this->deleteOps();
-        fDeferredProxies.reset();
-        fSampledProxies.reset();
+        fDeferredProxies.clear();
+        fSampledProxies.clear();
 
         // If the opsTask is using a render target which wraps a vulkan command buffer, we can't do
         // a clear load since we cannot change the render pass that we are using. Thus we fall back
@@ -863,7 +863,7 @@ void OpsTask::visitProxies_debugOnly(const GrVisitProxyFunc& func) const {
 
 void OpsTask::onMakeSkippable() {
     this->deleteOps();
-    fDeferredProxies.reset();
+    fDeferredProxies.clear();
     fColorLoadOp = GrLoadOp::kLoad;
     SkASSERT(this->isColorNoOp());
 }

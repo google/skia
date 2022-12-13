@@ -125,9 +125,9 @@ public:
         }
     }
 
-    /**
-     * Resets to size() == 0.
-     */
+
+    // Deprecated. Use clear() instead.
+    // TODO: remove whe all references are gone.
     void reset() {
         this->clear();
     }

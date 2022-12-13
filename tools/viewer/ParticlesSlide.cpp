@@ -270,8 +270,8 @@ ParticlesSlide::ParticlesSlide() {
 }
 
 void ParticlesSlide::loadEffects(const char* dirname) {
-    fLoaded.reset();
-    fRunning.reset();
+    fLoaded.clear();
+    fRunning.clear();
     SkOSFile::Iter iter(dirname, ".json");
     for (SkString file; iter.next(&file); ) {
         LoadedEffect effect;

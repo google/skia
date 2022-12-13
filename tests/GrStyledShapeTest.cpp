@@ -340,7 +340,7 @@ void test_inversions(skiatest::Reporter* r, const GrStyledShape& shape, const Ke
     // It can be the case that the double flip has no key but preserve does. This happens when the
     // original shape has an inherited style key. That gets dropped on the first inversion flip.
     if (preserveKey.size() && !doubleFlipKey.size()) {
-        preserveKey.reset();
+        preserveKey.clear();
     }
     check_equivalence(r, preserve, doubleFlip, preserveKey, doubleFlipKey);
 }

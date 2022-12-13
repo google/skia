@@ -666,7 +666,7 @@ CombinationOption CombinationBuilder::addOption(ShaderType shaderType,
 }
 
 void CombinationBuilder::reset() {
-    fShaderOptions.reset();
+    fShaderOptions.clear();
     fBlendModes = 0;
     fBlenders.reset();
     fArena->reset();

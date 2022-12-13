@@ -433,7 +433,7 @@ bool new_array_from_buffer(SkReadBuffer& buffer, uint32_t inCount,
         auto obj = factory(buffer);
 
         if (!buffer.validate(obj != nullptr)) {
-            array.reset();
+            array.clear();
             return false;
         }
 

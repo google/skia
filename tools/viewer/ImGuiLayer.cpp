@@ -215,7 +215,7 @@ void ImGuiLayer::onPaint(SkSurface* surface) {
         }
     }
 
-    fSkiaWidgetFuncs.reset();
+    fSkiaWidgetFuncs.clear();
 }
 
 bool ImGuiLayer::onKey(skui::Key key, skui::InputState state, skui::ModifierKey modifiers) {

@@ -402,7 +402,7 @@ void OneLineShaper::iterateThroughFontStyles(TextRange textRange,
 
         combinedBlock.fRange = blockRange;
         combinedBlock.fStyle = block.fStyle;
-        features.reset();
+        features.clear();
         addFeatures(block);
     }
 

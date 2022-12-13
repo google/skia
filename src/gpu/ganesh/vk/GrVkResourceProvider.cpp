@@ -481,18 +481,18 @@ void GrVkResourceProvider::destroyResources() {
     }
 
     // Release all msaa load pipelines
-    fMSAALoadPipelines.reset();
+    fMSAALoadPipelines.clear();
 
     // loop over all render pass sets to make sure we destroy all the internal VkRenderPasses
     for (int i = 0; i < fRenderPassArray.size(); ++i) {
         fRenderPassArray[i].releaseResources();
     }
-    fRenderPassArray.reset();
+    fRenderPassArray.clear();
 
     for (int i = 0; i < fExternalRenderPasses.size(); ++i) {
         fExternalRenderPasses[i]->unref();
     }
-    fExternalRenderPasses.reset();
+    fExternalRenderPasses.clear();
 
     // Iterate through all store GrVkSamplers and unref them before resetting the hash table.
     fSamplers.foreach([&](auto* elt) { elt->unref(); });
@@ -510,13 +510,13 @@ void GrVkResourceProvider::destroyResources() {
         SkASSERT(pool->unique());
         pool->unref();
     }
-    fActiveCommandPools.reset();
+    fActiveCommandPools.clear();
 
     for (GrVkCommandPool* pool : fAvailableCommandPools) {
         SkASSERT(pool->unique());
         pool->unref();
     }
-    fAvailableCommandPools.reset();
+    fAvailableCommandPools.clear();
 
     // We must release/destroy all command buffers and pipeline states before releasing the
     // GrVkDescriptorSetManagers. Additionally, we must release all uniform buffers since they hold
@@ -524,7 +524,7 @@ void GrVkResourceProvider::destroyResources() {
     for (int i = 0; i < fDescriptorSetManagers.size(); ++i) {
         fDescriptorSetManagers[i]->release(fGpu);
     }
-    fDescriptorSetManagers.reset();
+    fDescriptorSetManagers.clear();
 
 }
 
@@ -533,7 +533,7 @@ void GrVkResourceProvider::releaseUnlockedBackendObjects() {
         SkASSERT(pool->unique());
         pool->unref();
     }
-    fAvailableCommandPools.reset();
+    fAvailableCommandPools.clear();
 }
 
 void GrVkResourceProvider::storePipelineCacheData() {

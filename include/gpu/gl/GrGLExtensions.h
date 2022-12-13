@@ -66,7 +66,7 @@ public:
      */
     void add(const char[]);
 
-    void reset() { fStrings.reset(); }
+    void reset() { fStrings.clear(); }
 
     void dumpJSON(SkJSONWriter*) const;
 

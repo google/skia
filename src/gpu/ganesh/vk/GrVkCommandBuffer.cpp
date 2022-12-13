@@ -58,11 +58,11 @@ void GrVkCommandBuffer::freeGPUData(const GrGpu* gpu, VkCommandPool cmdPool) con
 void GrVkCommandBuffer::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     SkASSERT(!fIsActive || this->isWrapped());
-    fTrackedResources.reset();
-    fTrackedRecycledResources.reset();
+    fTrackedResources.clear();
+    fTrackedRecycledResources.clear();
 
-    fTrackedGpuBuffers.reset();
-    fTrackedGpuSurfaces.reset();
+    fTrackedGpuBuffers.clear();
+    fTrackedGpuSurfaces.clear();
 
     this->invalidateState();
 
@@ -161,8 +161,8 @@ void GrVkCommandBuffer::submitPipelineBarriers(const GrVkGpu* gpu, bool forSelfD
                 fCmdBuffer, fSrcStageMask, fDstStageMask, dependencyFlags, 0, nullptr,
                 fBufferBarriers.size(), fBufferBarriers.begin(),
                 fImageBarriers.size(), fImageBarriers.begin()));
-        fBufferBarriers.reset();
-        fImageBarriers.reset();
+        fBufferBarriers.clear();
+        fImageBarriers.clear();
         fBarriersByRegion = false;
         fSrcStageMask = 0;
         fDstStageMask = 0;
@@ -682,7 +682,7 @@ void GrVkPrimaryCommandBuffer::recycleSecondaryCommandBuffers(GrVkCommandPool* c
     for (int i = 0; i < fSecondaryCommandBuffers.size(); ++i) {
         fSecondaryCommandBuffers[i].release()->recycle(cmdPool);
     }
-    fSecondaryCommandBuffers.reset();
+    fSecondaryCommandBuffers.clear();
 }
 
 void GrVkPrimaryCommandBuffer::copyImage(const GrVkGpu* gpu,

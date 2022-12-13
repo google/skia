@@ -718,7 +718,7 @@ SkCommandLineConfigSvg* parse_command_line_config_svg(const SkString&           
 
 void ParseConfigs(const CommandLineFlags::StringArray& configs,
                   SkCommandLineConfigArray*            outResult) {
-    outResult->reset();
+    outResult->clear();
     for (int i = 0; i < configs.size(); ++i) {
         SkString           extendedBackend;
         SkString           extendedOptions;

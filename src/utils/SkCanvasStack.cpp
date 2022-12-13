@@ -53,7 +53,7 @@ void SkCanvasStack::pushCanvas(std::unique_ptr<SkCanvas> canvas, const SkIPoint&
 
 void SkCanvasStack::removeAll() {
     this->INHERITED::removeAll();   // call the baseclass *before* we actually delete the canvases
-    fCanvasData.reset();
+    fCanvasData.clear();
 }
 
 /**

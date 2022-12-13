@@ -79,8 +79,8 @@ void SkSLSlide::load(SkScalar winWidth, SkScalar winHeight) {
 void SkSLSlide::unload() {
     fEffect.reset();
     fInputs.reset();
-    fChildren.reset();
-    fShaders.reset();
+    fChildren.clear();
+    fShaders.clear();
 }
 
 bool SkSLSlide::rebuild() {

@@ -73,9 +73,9 @@ void GrD3DCommandList::releaseResources() {
         resource->recycle();
     }
 
-    fTrackedResources.reset();
-    fTrackedRecycledResources.reset();
-    fTrackedGpuBuffers.reset();
+    fTrackedResources.clear();
+    fTrackedRecycledResources.clear();
+    fTrackedGpuBuffers.clear();
 
     this->callFinishedCallbacks();
 }
@@ -151,7 +151,7 @@ void GrD3DCommandList::submitResourceBarriers() {
 
     if (fResourceBarriers.size()) {
         fCommandList->ResourceBarrier(fResourceBarriers.size(), fResourceBarriers.begin());
-        fResourceBarriers.reset();
+        fResourceBarriers.clear();
     }
     SkASSERT(!fResourceBarriers.size());
 }

@@ -790,7 +790,7 @@ void GrGpu::callSubmittedProcs(bool success) {
     for (int i = 0; i < fSubmittedProcs.size(); ++i) {
         fSubmittedProcs[i].fProc(fSubmittedProcs[i].fContext, success);
     }
-    fSubmittedProcs.reset();
+    fSubmittedProcs.clear();
 }
 
 #ifdef SK_ENABLE_DUMP_GPU

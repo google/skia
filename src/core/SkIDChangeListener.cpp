@@ -61,10 +61,10 @@ void List::changed() {
             listener->changed();
         }
     }
-    fListeners.reset();
+    fListeners.clear();
 }
 
 void List::reset() {
     SkAutoMutexExclusive lock(fMutex);
-    fListeners.reset();
+    fListeners.clear();
 }

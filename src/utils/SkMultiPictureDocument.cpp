@@ -101,13 +101,13 @@ struct MultiPictureDocument final : public SkDocument {
         }
         sk_sp<SkPicture> p = fPictureRecorder.finishRecordingAsPicture();
         p->serialize(wStream, &fProcs);
-        fPages.reset();
-        fSizes.reset();
+        fPages.clear();
+        fSizes.clear();
         return;
     }
     void onAbort() override {
-        fPages.reset();
-        fSizes.reset();
+        fPages.clear();
+        fSizes.clear();
     }
 };
 }  // namespace

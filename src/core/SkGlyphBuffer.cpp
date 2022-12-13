@@ -10,8 +10,8 @@
 #include "src/text/StrikeForGPU.h"
 
 void SkSourceGlyphBuffer::reset() {
-    fRejectedGlyphIDs.reset();
-    fRejectedPositions.reset();
+    fRejectedGlyphIDs.clear();
+    fRejectedPositions.clear();
 }
 
 void SkDrawableGlyphBuffer::ensureSize(int size) {

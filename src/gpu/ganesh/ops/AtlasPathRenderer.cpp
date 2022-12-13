@@ -436,7 +436,7 @@ bool AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP) {
     }
 
     // Reset all atlas data.
-    fAtlasRenderTasks.reset();
+    fAtlasRenderTasks.clear();
     fAtlasPathCache.reset();
     return successful;
 }

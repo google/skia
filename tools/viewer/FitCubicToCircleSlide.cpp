@@ -117,7 +117,7 @@ double find_max_error_T(double cubicX[4], double cubicY[4]) {
 }
 
 void SampleFitCubicToCircle::fitCubic() {
-    fInfoStrings.reset();
+    fInfoStrings.clear();
 
     std::array<double, 4> X, Y;
     // "Control length" is the length of (p1 - p0) and/or (p3 - p2) in unit circle space.

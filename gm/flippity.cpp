@@ -266,7 +266,7 @@ private:
     }
 
     void onGpuTeardown() override {
-        fLabels.reset();
+        fLabels.clear();
         fReferenceImages[0] = fReferenceImages[1] = nullptr;
     }
 

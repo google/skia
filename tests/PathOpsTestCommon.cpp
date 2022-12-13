@@ -189,7 +189,7 @@ void CubicPathToQuads(const SkPath& cubicPath, SkPath* quadPath) {
                 quadPath->quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
             case SkPathVerb::kCubic:
-                quads.reset();
+                quads.clear();
                 cubic.set(pts);
                 CubicToQuads(cubic, cubic.calcPrecision(), quads);
                 for (int index = 0; index < quads.size(); ++index) {

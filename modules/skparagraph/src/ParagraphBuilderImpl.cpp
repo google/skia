@@ -204,7 +204,7 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::BuildWithClientInfo(
                 utf8IndexForUtf16Index[lineBreakUtf16.pos], lineBreakUtf16.breakType));
     }
 
-    utf8IndexForUtf16Index.reset();
+    utf8IndexForUtf16Index.clear();
 
     // This is the place where SkUnicode is paired with SkParagraph
     fUnicode =
@@ -217,10 +217,10 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::BuildWithClientInfo(
 }
 
 void ParagraphBuilderImpl::Reset() {
-    fTextStyles.reset();
+    fTextStyles.clear();
     fUtf8.reset();
-    fStyledBlocks.reset();
-    fPlaceholders.reset();
+    fStyledBlocks.clear();
+    fPlaceholders.clear();
 
     startStyledBlock();
 }

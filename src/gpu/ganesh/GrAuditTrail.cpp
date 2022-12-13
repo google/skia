@@ -22,7 +22,7 @@ void GrAuditTrail::addOp(const GrOp* op, GrRenderTargetProxy::UniqueID proxyID) 
 
     // consume the current stack trace if any
     auditOp->fStackTrace = fCurrentStackTrace;
-    fCurrentStackTrace.reset();
+    fCurrentStackTrace.clear();
 
     if (fClientID != kGrAuditTrailInvalidID) {
         auditOp->fClientID = fClientID;
@@ -127,12 +127,12 @@ void GrAuditTrail::getBoundsByOpsTaskID(OpInfo* outInfo, int opsTaskID) {
 
 void GrAuditTrail::fullReset() {
     SkASSERT(fEnabled);
-    fOpsTask.reset();
+    fOpsTask.clear();
     fIDLookup.reset();
     // free all client ops
     fClientIDLookup.foreach ([](const int&, Ops** ops) { delete *ops; });
     fClientIDLookup.reset();
-    fOpPool.reset();  // must be last, frees all of the memory
+    fOpPool.clear();  // must be last, frees all of the memory
 }
 
 #ifdef SK_ENABLE_DUMP_GPU

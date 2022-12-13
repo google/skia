@@ -301,7 +301,7 @@ void GrDrawingManager::removeRenderTasks() {
         }
         task->disown(this);
     }
-    fDAG.reset();
+    fDAG.clear();
     fReorderBlockerTaskIndices.clear();
     fLastRenderTasks.reset();
 }

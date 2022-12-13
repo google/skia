@@ -606,7 +606,7 @@ private:
     ClipState& writableClip();
 
     void resetClipStack() {
-        fClipStack.reset();
+        fClipStack.clear();
         fClipStack.emplace_back(this->bounds(), /*isAA=*/false, /*isRect=*/true);
     }
 

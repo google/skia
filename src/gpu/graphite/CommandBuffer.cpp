@@ -27,7 +27,7 @@ CommandBuffer::~CommandBuffer() {
 void CommandBuffer::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    fTrackedResources.reset();
+    fTrackedResources.clear();
 }
 
 void CommandBuffer::resetCommandBuffer() {
@@ -51,7 +51,7 @@ void CommandBuffer::callFinishedProcs(bool success) {
             fFinishedProcs[i]->setFailureResult();
         }
     }
-    fFinishedProcs.reset();
+    fFinishedProcs.clear();
 }
 
 bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,

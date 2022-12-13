@@ -70,7 +70,7 @@ bool GrGLExtensions::init(GrGLStandard standard,
                           GrGLFunction<GrEGLQueryStringFn> queryString,
                           GrEGLDisplay eglDisplay) {
     fInitialized = false;
-    fStrings.reset();
+    fStrings.clear();
 
     if (!getString) {
         return false;

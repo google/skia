@@ -321,7 +321,7 @@ public:
     void addFinishedProc(sk_sp<skgpu::RefCntedCallback> finishedProc);
 
     void callFinishedProcs() {
-        fFinishedProcs.reset();
+        fFinishedProcs.clear();
     }
 
     void recycleSecondaryCommandBuffers(GrVkCommandPool* cmdPool);

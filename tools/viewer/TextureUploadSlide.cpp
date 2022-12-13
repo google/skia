@@ -134,7 +134,7 @@ private:
         return surface;
     }
     void initializeTextures(GrDirectContext* direct) {
-        fTextures.reset();
+        fTextures.clear();
         int textureCount = fTileRows * fTileCols;
         for (int i = 0; i < textureCount; i++) {
             fTextures.emplace_back(new RenderTargetTexture(direct, fTileSize));

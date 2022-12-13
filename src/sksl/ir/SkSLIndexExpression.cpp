@@ -155,7 +155,7 @@ std::unique_ptr<Expression> IndexExpression::Make(const Context& context,
                         ctorArgs.push_back(Literal::Make(baseExpr->fPosition, *slotVal,
                                 &scalarType));
                     } else {
-                        ctorArgs.reset();
+                        ctorArgs.clear();
                         break;
                     }
                 }

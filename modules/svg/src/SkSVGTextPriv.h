@@ -135,8 +135,8 @@ private:
         }
 
         void reset() {
-            fUtf8.reset();
-            fUtf8PosAdjust.reset();
+            fUtf8.clear();
+            fUtf8PosAdjust.clear();
         }
 
         void append(SkUnichar, PositionAdjustment);

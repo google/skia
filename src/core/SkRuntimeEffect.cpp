@@ -258,7 +258,7 @@ static bool read_child_effects(SkReadBuffer& buffer,
         return false;
     }
 
-    children->reset();
+    children->clear();
     children->reserve_back(childCount);
 
     for (size_t i = 0; i < childCount; i++) {

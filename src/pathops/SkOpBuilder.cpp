@@ -132,7 +132,7 @@ void SkOpBuilder::add(const SkPath& path, SkPathOp op) {
 }
 
 void SkOpBuilder::reset() {
-    fPathRefs.reset();
+    fPathRefs.clear();
     fOps.reset();
 }
 

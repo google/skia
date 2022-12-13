@@ -456,7 +456,7 @@ public:
 
     bool computeCodeUnitFlags(char utf8[], int utf8Units, bool replaceTabs,
                           SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
-        results->reset();
+        results->clear();
         results->push_back_n(utf8Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
 
         SkUnicode_icu::extractPositions(utf8, utf8Units, BreakType::kLines, [&](int pos,
@@ -503,7 +503,7 @@ public:
 
     bool computeCodeUnitFlags(char16_t utf16[], int utf16Units, bool replaceTabs,
                           SkTArray<SkUnicode::CodeUnitFlags, true>* results) override {
-        results->reset();
+        results->clear();
         results->push_back_n(utf16Units + 1, CodeUnitFlags::kNoCodeUnitFlag);
 
         // Get white spaces

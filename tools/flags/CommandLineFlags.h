@@ -160,7 +160,7 @@ public:
         const SkString* end() const { return fStrings.end(); }
 
     private:
-        void reset() { fStrings.reset(); }
+        void reset() { fStrings.clear(); }
 
         void append(const char* string) { fStrings.push_back().set(string); }
 

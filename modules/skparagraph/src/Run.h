@@ -160,7 +160,7 @@ public:
     void commit() { }
 
     void resetJustificationShifts() {
-        fJustificationShifts.reset();
+        fJustificationShifts.clear();
     }
 
     bool isResolved() const;

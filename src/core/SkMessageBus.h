@@ -115,7 +115,7 @@ void SkMessageBus<Message, IDType, AllowCopyableMessage>::Inbox::receive(Message
 template <typename Message, typename IDType, bool AllowCopyableMessage>
 void SkMessageBus<Message, IDType, AllowCopyableMessage>::Inbox::poll(SkTArray<Message>* messages) {
     SkASSERT(messages);
-    messages->reset();
+    messages->clear();
     SkAutoMutexExclusive lock(fMessagesMutex);
     fMessages.swap(*messages);
 }

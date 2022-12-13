@@ -57,7 +57,7 @@ private:
                 context->deleteBackendTexture(fBackendTextures[i]);
             }
         }
-        fBackendTextures.reset();
+        fBackendTextures.clear();
     }
 };
 

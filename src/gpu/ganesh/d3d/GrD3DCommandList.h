@@ -143,7 +143,7 @@ protected:
     bool fHasWork = false;
 
 private:
-    void callFinishedCallbacks() { fFinishedCallbacks.reset(); }
+    void callFinishedCallbacks() { fFinishedCallbacks.clear(); }
 
     gr_cp<ID3D12CommandAllocator> fAllocator;
 

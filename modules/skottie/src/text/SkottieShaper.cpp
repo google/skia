@@ -52,7 +52,7 @@ public:
         fLineGlyphs.reset(0);
         fLinePos.reset(0);
         fLineClusters.reset(0);
-        fLineRuns.reset();
+        fLineRuns.clear();
         fLineGlyphCount = 0;
 
         fCurrentPosition = fOffset;

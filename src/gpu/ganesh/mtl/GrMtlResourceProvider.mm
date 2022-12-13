@@ -156,7 +156,7 @@ const GrMtlRenderPipeline* GrMtlResourceProvider::findOrCreateMSAALoadPipeline(
 
 void GrMtlResourceProvider::destroyResources() {
     fMSAALoadLibrary = nil;
-    fMSAALoadPipelines.reset();
+    fMSAALoadPipelines.clear();
 
     fSamplers.foreach([&](GrMtlSampler* sampler) { sampler->unref(); });
     fSamplers.reset();

@@ -60,9 +60,9 @@ GrMtlCommandBuffer::~GrMtlCommandBuffer() {
 void GrMtlCommandBuffer::releaseResources() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    fTrackedResources.reset();
-    fTrackedGrBuffers.reset();
-    fTrackedGrSurfaces.reset();
+    fTrackedResources.clear();
+    fTrackedGrBuffers.clear();
+    fTrackedGrSurfaces.clear();
 }
 
 id<MTLBlitCommandEncoder> GrMtlCommandBuffer::getBlitCommandEncoder() {

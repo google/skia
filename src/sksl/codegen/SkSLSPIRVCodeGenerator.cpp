@@ -1971,7 +1971,7 @@ void SPIRVCodeGenerator::addColumnEntry(const Type& columnType,
         // Synthesize this column into a vector.
         SpvId columnId = this->writeOpCompositeConstruct(columnType, *currentColumn, out);
         columnIds->push_back(columnId);
-        currentColumn->reset();
+        currentColumn->clear();
     }
 }
 

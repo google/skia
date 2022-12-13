@@ -94,7 +94,7 @@ void GrMtlPipelineState::setData(GrMtlFramebuffer* framebuffer,
 void GrMtlPipelineState::setTextures(const GrGeometryProcessor& geomProc,
                                      const GrPipeline& pipeline,
                                      const GrSurfaceProxy* const geomProcTextures[]) {
-    fSamplerBindings.reset();
+    fSamplerBindings.clear();
     for (int i = 0; i < geomProc.numTextureSamplers(); ++i) {
         SkASSERT(geomProcTextures[i]->asTextureProxy());
         const auto& sampler = geomProc.textureSampler(i);

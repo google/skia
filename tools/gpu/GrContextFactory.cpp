@@ -74,7 +74,7 @@ void GrContextFactory::destroyContexts() {
         context.fGrContext->unref();
         delete context.fTestContext;
     }
-    fContexts.reset();
+    fContexts.clear();
 }
 
 void GrContextFactory::abandonContexts() {

@@ -95,7 +95,7 @@ void SKPBench::onPerCanvasPostDraw(SkCanvas* canvas) {
                           SkIntToScalar(fTileRects[i].fLeft), SkIntToScalar(fTileRects[i].fTop));
     }
 
-    fSurfaces.reset();
+    fSurfaces.clear();
     fTileRects.clear();
 }
 

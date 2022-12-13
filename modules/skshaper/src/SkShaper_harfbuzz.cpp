@@ -991,7 +991,7 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
             // If nothing fit (best score is negative) and the line is not empty
             if (width < line.fAdvance.fX + best.fAdvance.fX && !line.runs.empty()) {
                 emit(fUnicode.get(), line, handler);
-                line.runs.reset();
+                line.runs.clear();
                 line.fAdvance = {0, 0};
             } else {
                 if (bestUsesModelForGlyphs) {
@@ -1011,7 +1011,7 @@ void ShaperDrivenWrapper::wrap(char const * const utf8, size_t utf8Bytes,
                 // If item broken, emit line (prevent remainder from accidentally fitting)
                 if (utf8Start != utf8End) {
                     emit(fUnicode.get(), line, handler);
-                    line.runs.reset();
+                    line.runs.clear();
                     line.fAdvance = {0, 0};
                 }
             }

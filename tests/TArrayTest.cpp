@@ -204,8 +204,8 @@ template <typename T> static void test_swap(skiatest::Reporter* reporter,
 
         for (auto sizeA : sizes) {
         for (auto sizeB : sizes) {
-            a->reset();
-            b->reset();
+            a->clear();
+            b->clear();
 
             int curr = 0;
             for (int i = 0; i < sizeA; i++) { a->push_back(curr++); }
