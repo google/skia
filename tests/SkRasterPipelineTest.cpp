@@ -563,6 +563,53 @@ DEF_TEST(SkRasterPipeline_ZeroSlotsUnmasked, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_Swizzle, r) {
+    // Allocate space for 4 dest slots.
+    alignas(64) float slots[4 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    struct TestPattern {
+        SkRasterPipeline::Stage stage;
+        uint8_t swizzle[4];
+        uint8_t expectation[4];
+    };
+    static const TestPattern kPatterns[] = {
+            {SkRasterPipeline::swizzle_1, {3},          {3, 1, 2, 3}}, // (1,2,3,4).w    = (4)
+            {SkRasterPipeline::swizzle_2, {1, 0},       {1, 0, 2, 3}}, // (1,2,3,4).yx   = (2,1)
+            {SkRasterPipeline::swizzle_3, {2, 2, 2},    {2, 2, 2, 3}}, // (1,2,3,4).zzz  = (3,3,3)
+            {SkRasterPipeline::swizzle_4, {0, 0, 1, 2}, {0, 0, 1, 2}}, // (1,2,3,4).xxyz = (1,1,2,3)
+    };
+    static_assert(sizeof(TestPattern::swizzle) == sizeof(SkRasterPipeline_SwizzleCtx::offsets));
+
+    for (const TestPattern& pattern : kPatterns) {
+        // Initialize the destination slots to 0,1,2,3...
+        std::iota(&slots[0], &slots[4 * N], 0.0f);
+
+        // Apply the test-pattern swizzle.
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        SkRasterPipeline_SwizzleCtx ctx;
+        ctx.ptr = slots;
+        for (size_t index = 0; index < std::size(ctx.offsets); ++index) {
+            ctx.offsets[index] = pattern.swizzle[index] * N;
+        }
+        p.append(pattern.stage, &ctx);
+        p.run(0,0,4,1);
+
+        // Verify that the swizzle has been applied in each slot.
+        float* destPtr = &slots[0];
+        for (int checkSlot = 0; checkSlot < 4; ++checkSlot) {
+            float expected = pattern.expectation[checkSlot] * N;
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                REPORTER_ASSERT(r, *destPtr == expected);
+
+                ++destPtr;
+                expected += 1.0f;
+            }
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_FloatArithmetic, r) {
     // Allocate space for 20 dest slots.
     alignas(64) float slots[20 * SkRasterPipeline_kMaxStride_highp];

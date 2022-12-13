@@ -137,6 +137,7 @@ struct skcms_TransferFunction;
     M(copy_3_slots_unmasked) M(copy_4_slots_unmasked)                                         \
     M(zero_slot_unmasked)    M(zero_2_slots_unmasked)                                         \
     M(zero_3_slots_unmasked) M(zero_4_slots_unmasked)                                         \
+    M(swizzle_1) M(swizzle_2) M(swizzle_3) M(swizzle_4)                                       \
     M(add_n_floats) M(add_float) M(add_2_floats) M(add_3_floats) M(add_4_floats)              \
     M(add_n_ints)   M(add_int)   M(add_2_ints)   M(add_3_ints)   M(add_4_ints)                \
     M(sub_n_floats) M(sub_float) M(sub_2_floats) M(sub_3_floats) M(sub_4_floats)              \
@@ -278,6 +279,11 @@ struct SkRasterPipeline_TablesCtx {
 
 struct SkRasterPipeline_CopySlotsCtx {
     float *dst, *src;
+};
+
+struct SkRasterPipeline_SwizzleCtx {
+    float *ptr;
+    uint8_t offsets[4];  // values must be multiplied by raster_pipeline_highp_stride by caller
 };
 
 class SkRasterPipeline {

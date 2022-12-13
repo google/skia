@@ -3147,6 +3147,28 @@ STAGE(copy_4_slots_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
     copy_n_slots_masked_fn<4>(ctx, execution_mask());
 }
 
+template <int NumSlots>
+SI void swizzle_fn(SkRasterPipeline_SwizzleCtx* ctx) {
+    F scratch[NumSlots];
+    for (int count = 0; count < NumSlots; ++count) {
+        scratch[count] = *(F*)(ctx->ptr + ctx->offsets[count]);
+    }
+    memcpy(ctx->ptr, scratch, sizeof(F) * NumSlots);
+}
+
+STAGE(swizzle_1, SkRasterPipeline_SwizzleCtx* ctx) {
+    swizzle_fn<1>(ctx);
+}
+STAGE(swizzle_2, SkRasterPipeline_SwizzleCtx* ctx) {
+    swizzle_fn<2>(ctx);
+}
+STAGE(swizzle_3, SkRasterPipeline_SwizzleCtx* ctx) {
+    swizzle_fn<3>(ctx);
+}
+STAGE(swizzle_4, SkRasterPipeline_SwizzleCtx* ctx) {
+    swizzle_fn<4>(ctx);
+}
+
 STAGE(bitwise_and, I32* dst) {
     dst[0] &= dst[1];
 }
