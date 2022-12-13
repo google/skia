@@ -2243,8 +2243,15 @@ void GrVkGpu::finishOutstandingGpuWork() {
 
 void GrVkGpu::onReportSubmitHistograms() {
 #if SK_HISTOGRAMS_ENABLED
-    uint64_t allocatedMemory = fMemoryAllocator->totalAllocatedMemory();
-    uint64_t usedMemory = fMemoryAllocator->totalUsedMemory();
+    uint64_t allocatedMemory = 0, usedMemory = 0;
+
+#if defined(SK_USE_LEGACY_VMA_MEMORY_QUERY)
+    allocatedMemory = fMemoryAllocator->totalAllocatedMemory();
+    usedMemory = fMemoryAllocator->totalUsedMemory();
+#else
+    std::tie(allocatedMemory, usedMemory) = fMemoryAllocator->totalAllocatedAndUsedMemory();
+#endif  // SK_USE_LEGACY_VMA_MEMORY_QUERY
+
     SkASSERT(usedMemory <= allocatedMemory);
     if (allocatedMemory > 0) {
         SK_HISTOGRAM_PERCENTAGE("VulkanMemoryAllocator.PercentUsed",
@@ -2253,7 +2260,7 @@ void GrVkGpu::onReportSubmitHistograms() {
     // allocatedMemory is in bytes and need to be reported it in kilobytes. SK_HISTOGRAM_MEMORY_KB
     // supports samples up to around 500MB which should support the amounts of memory we allocate.
     SK_HISTOGRAM_MEMORY_KB("VulkanMemoryAllocator.AmountAllocated", allocatedMemory >> 10);
-#endif
+#endif  // SK_HISTOGRAMS_ENABLED
 }
 
 void GrVkGpu::copySurfaceAsCopyImage(GrSurface* dst,

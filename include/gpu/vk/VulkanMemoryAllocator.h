@@ -103,12 +103,19 @@ public:
 
     virtual void freeMemory(const skgpu::VulkanBackendMemory&) = 0;
 
-    // Returns the total amount of memory that is allocated and in use by an allocation for this
+#if defined(SK_USE_LEGACY_VMA_MEMORY_QUERY)
+    // Returns the total amount of memory that is allocated and is in use by an allocation for this
     // allocator.
     virtual uint64_t totalUsedMemory() const = 0;
 
     // Returns the total amount of memory that is allocated by this allocator.
     virtual uint64_t totalAllocatedMemory() const = 0;
+#else
+    // Returns the total amount of memory that is allocated as well as total
+    // amount of memory in use by an allocation from this allocator.
+    // Return 1st param is total allocated memory, 2nd is total used memory.
+    virtual std::pair<uint64_t, uint64_t> totalAllocatedAndUsedMemory() const = 0;
+#endif
 };
 
 } // namespace skgpu
