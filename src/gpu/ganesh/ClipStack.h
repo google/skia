@@ -11,6 +11,7 @@
 #include "include/core/SkClipOp.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
+#include "include/private/SkTypeTraits.h"
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/ganesh/GrClip.h"

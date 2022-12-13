@@ -9,7 +9,7 @@
 #define SkRegion_DEFINED
 
 #include "include/core/SkRect.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/SkTypeTraits.h"
 
 class SkPath;
 class SkRgnBuilder;

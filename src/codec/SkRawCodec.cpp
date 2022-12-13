@@ -58,8 +58,8 @@
 #include "src/piex.h"
 #include "src/piex_types.h"
 
-template <>
-struct sk_is_trivially_relocatable<dng_exception> : std::true_type {};
+template <typename T> struct sk_is_trivially_relocatable;
+template <> struct sk_is_trivially_relocatable<dng_exception> : std::true_type {};
 
 namespace {
 

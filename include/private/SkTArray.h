@@ -14,8 +14,8 @@
 #include "include/private/SkAlignedStorage.h"
 #include "include/private/SkContainers.h"
 #include "include/private/SkMalloc.h"
-#include "include/private/SkTemplates.h"  // IWYU pragma: keep
 #include "include/private/SkTo.h"
+#include "include/private/SkTypeTraits.h"  // IWYU pragma: keep
 
 #include <algorithm>
 #include <climits>

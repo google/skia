@@ -13,7 +13,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/SkTypeTraits.h"
 
 #include <cstdint>
 #include <optional>

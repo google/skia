@@ -15,7 +15,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/SkTypeTraits.h"
 #include "include/utils/SkNWayCanvas.h"
 
 #include <memory>

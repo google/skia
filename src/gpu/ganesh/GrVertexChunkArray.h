@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTypeTraits.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 

@@ -12,6 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTextBlob.h"
+#include "include/private/SkTypeTraits.h"
 #include "include/utils/SkTextUtils.h"
 
 #include <vector>
