@@ -127,6 +127,7 @@ generate_cpp_files_for_headers(
     to_generate = [
         "src/core/SkAutoMalloc.h",
         "src/core/SkScopeExit.h",
+        "src/core/SkPathPriv.h",
         "src/image/SkImage_Base.h",
     ],
 )

@@ -33,6 +33,8 @@ supported_files_or_dirs=(
   "src/core/SkMaskFilter.cpp"
   "src/core/SkPaint.cpp"
   "src/core/SkPath.cpp"
+  "src/core/SkPathRef.cpp"
+  "src/core/SkPathBuilder.cpp"
   "src/core/SkPathUtils.cpp"
   "src/core/SkPoint.cpp"
   "src/core/SkRect.cpp"

@@ -6,13 +6,21 @@
  */
 
 #include "include/core/SkPathBuilder.h"
+
+#include "include/core/SkMatrix.h"
 #include "include/core/SkRRect.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/SkSafe32.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
-// need SkDVector
 #include "src/pathops/SkPathOpsPoint.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cstring>
+#include <iterator>
+#include <utility>
 
 SkPathBuilder::SkPathBuilder() {
     this->reset();

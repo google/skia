@@ -8,23 +8,24 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
-#include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkIDChangeListener.h"
-#include "include/private/SkMutex.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 #include <atomic>
-#include <limits>
+#include <cstddef>
+#include <cstdint>
 #include <tuple>
+#include <utility>
 
-class SkRBuffer;
-class SkWBuffer;
+class SkMatrix;
 class SkRRect;
+class SkWBuffer;
 
 enum class SkPathConvexity {
     kConvex,
