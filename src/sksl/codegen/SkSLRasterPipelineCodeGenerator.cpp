@@ -113,29 +113,29 @@ public:
     Builder* builder() { return &fBuilder; }
 
     /** Appends a statement to the program. */
-    bool writeStatement(const Statement& s);
-    bool writeBlock(const Block& b);
-    bool writeBreakStatement(const BreakStatement& b);
-    bool writeContinueStatement(const ContinueStatement& b);
-    bool writeDoStatement(const DoStatement& d);
-    bool writeExpressionStatement(const ExpressionStatement& e);
-    bool writeIfStatement(const IfStatement& i);
-    bool writeReturnStatement(const ReturnStatement& r);
-    bool writeVarDeclaration(const VarDeclaration& v);
+    [[nodiscard]] bool writeStatement(const Statement& s);
+    [[nodiscard]] bool writeBlock(const Block& b);
+    [[nodiscard]] bool writeBreakStatement(const BreakStatement& b);
+    [[nodiscard]] bool writeContinueStatement(const ContinueStatement& b);
+    [[nodiscard]] bool writeDoStatement(const DoStatement& d);
+    [[nodiscard]] bool writeExpressionStatement(const ExpressionStatement& e);
+    [[nodiscard]] bool writeIfStatement(const IfStatement& i);
+    [[nodiscard]] bool writeReturnStatement(const ReturnStatement& r);
+    [[nodiscard]] bool writeVarDeclaration(const VarDeclaration& v);
 
     /** Pushes an expression to the value stack. */
-    bool pushAssignmentExpression(const BinaryExpression& e);
-    bool pushBinaryExpression(const BinaryExpression& e);
-    bool pushConstructorCast(const AnyConstructor& c);
-    bool pushConstructorCompound(const ConstructorCompound& c);
-    bool pushConstructorSplat(const ConstructorSplat& c);
-    bool pushExpression(const Expression& e);
-    bool pushLiteral(const Literal& l);
-    bool pushTernaryExpression(const TernaryExpression& t);
-    bool pushTernaryExpression(const Expression& test,
-                               const Expression& ifTrue,
-                               const Expression& ifFalse);
-    bool pushVariableReference(const VariableReference& v);
+    [[nodiscard]] bool pushAssignmentExpression(const BinaryExpression& e);
+    [[nodiscard]] bool pushBinaryExpression(const BinaryExpression& e);
+    [[nodiscard]] bool pushConstructorCast(const AnyConstructor& c);
+    [[nodiscard]] bool pushConstructorCompound(const ConstructorCompound& c);
+    [[nodiscard]] bool pushConstructorSplat(const ConstructorSplat& c);
+    [[nodiscard]] bool pushExpression(const Expression& e);
+    [[nodiscard]] bool pushLiteral(const Literal& l);
+    [[nodiscard]] bool pushTernaryExpression(const TernaryExpression& t);
+    [[nodiscard]] bool pushTernaryExpression(const Expression& test,
+                                             const Expression& ifTrue,
+                                             const Expression& ifFalse);
+    [[nodiscard]] bool pushVariableReference(const VariableReference& v);
 
     /** Copies an expression from the value stack and copies it into slots. */
     void copyToSlotRange(SlotRange r) { fBuilder.copy_stack_to_slots(r); }
@@ -158,8 +158,8 @@ public:
         BuilderOp fBooleanOp;
     };
 
-    bool assign(const Expression& e);
-    bool binaryOp(SkSL::Type::NumberKind numberKind, int slots, const BinaryOps& ops);
+    [[nodiscard]] bool assign(const Expression& e);
+    [[nodiscard]] bool binaryOp(SkSL::Type::NumberKind numberKind, int slots, const BinaryOps& ops);
     void foldWithOp(BuilderOp op, int elements);
     void nextTempStack() {
         fBuilder.set_current_stack(++fCurrentTempStack);
@@ -651,13 +651,17 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
         case OperatorKind::GT:
         case OperatorKind::GTEQ:
             // We replace `x > y` with `y < x`, and `x >= y` with `y <= x`.
-            this->pushExpression(*e.right());
-            this->pushExpression(*e.left());
+            if (!this->pushExpression(*e.right()) ||
+                !this->pushExpression(*e.left())) {
+                return false;
+            }
             break;
 
         default:
-            this->pushExpression(*e.left());
-            this->pushExpression(*e.right());
+            if (!this->pushExpression(*e.left()) ||
+                !this->pushExpression(*e.right())) {
+                return false;
+            }
             break;
     }
 
