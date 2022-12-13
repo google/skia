@@ -138,15 +138,21 @@ void GrGradientBitmapCache::fillGradient(const SkPMColor4f* colors, const SkScal
     p.run(0, 0, bitmap->width(), 1);
 }
 
-void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors, const SkScalar* positions,
-        int count, SkColorType colorType, SkAlphaType alphaType, SkBitmap* bitmap) {
+void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors,
+                                        const SkScalar* positions,
+                                        int count,
+                                        SkColorType colorType,
+                                        SkAlphaType alphaType,
+                                        SkBitmap* bitmap) {
     // build our key: [numColors + colors[] + positions[] + alphaType + colorType ]
     static_assert(sizeof(SkPMColor4f) % sizeof(int32_t) == 0, "");
     const int colorsAsIntCount = count * sizeof(SkPMColor4f) / sizeof(int32_t);
-    int keyCount = 1 + colorsAsIntCount + 1 + 1;
-    if (count > 2) {
-        keyCount += count - 1;
-    }
+    SkASSERT(count > 2);  // Otherwise, we should have used the single-interval colorizer
+    const int keyCount = 1 +                 // count
+                         colorsAsIntCount +  // colors
+                         (count - 2) +       // positions
+                         1 +                 // alphaType
+                         1;                  // colorType
 
     SkAutoSTMalloc<64, int32_t> storage(keyCount);
     int32_t* buffer = storage.get();
@@ -154,10 +160,8 @@ void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors, const SkScala
     *buffer++ = count;
     memcpy(buffer, colors, count * sizeof(SkPMColor4f));
     buffer += colorsAsIntCount;
-    if (count > 2) {
-        for (int i = 1; i < count; i++) {
-            *buffer++ = SkFloat2Bits(positions[i]);
-        }
+    for (int i = 1; i < count - 1; i++) {
+        *buffer++ = SkFloat2Bits(positions[i]);
     }
     *buffer++ = static_cast<int32_t>(alphaType);
     *buffer++ = static_cast<int32_t>(colorType);
