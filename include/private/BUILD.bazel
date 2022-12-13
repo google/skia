@@ -33,6 +33,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        "SkAlignedStorage.h",
         "SkBitmaskEnum.h",
         "SkChecksum.h",
         "SkColorData.h",

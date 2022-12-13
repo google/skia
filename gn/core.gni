@@ -102,6 +102,7 @@ skia_core_public = [
 
 skia_core_sources = [
   "$_include/private/SingleOwner.h",
+  "$_include/private/SkAlignedStorage.h",
   "$_include/private/SkBitmaskEnum.h",
   "$_include/private/SkChecksum.h",
   "$_include/private/SkColorData.h",
