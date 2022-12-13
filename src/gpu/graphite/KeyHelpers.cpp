@@ -531,8 +531,8 @@ void add_color_space_xform_uniform_data(
 
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformColorFilter)
     gatherer->write(SkTo<int>(data->fSteps.flags.mask()));
-    gatherer->write(SkTo<int>(classify_transfer_fn(data->fSteps.srcTF)));
-    gatherer->write(SkTo<int>(classify_transfer_fn(data->fSteps.dstTFInv)));
+    gatherer->write(SkTo<int>(skcms_TransferFunction_getType(&data->fSteps.srcTF)));
+    gatherer->write(SkTo<int>(skcms_TransferFunction_getType(&data->fSteps.dstTFInv)));
     gatherer->writeHalfArray({&data->fSteps.srcTF.g, kNumXferFnCoeffs});
     gatherer->writeHalfArray({&data->fSteps.dstTFInv.g, kNumXferFnCoeffs});
 

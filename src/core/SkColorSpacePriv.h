@@ -12,6 +12,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkFloatingPoint.h"
+#include "modules/skcms/skcms.h"
 #include "src/core/SkVM_fwd.h"
 
 #define SkColorSpacePrintf(...)
@@ -31,39 +32,6 @@ static inline bool color_space_almost_equal(float a, float b) {
 // in ICC format, which offers 16-bits of fractional precision.
 static inline bool transfer_fn_almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.001f;
-}
-
-// NOTE: All of this logic is copied from skcms.cc, and needs to be kept in sync.
-
-// Most transfer functions we work with are sRGBish.
-// For exotic HDR transfer functions, we encode them using a tf.g that makes no sense,
-// and repurpose the other fields to hold the parameters of the HDR functions.
-enum TFKind { Bad_TF, sRGBish_TF, PQish_TF, HLGish_TF, HLGinvish_TF };
-
-static inline TFKind classify_transfer_fn(const skcms_TransferFunction& tf) {
-    if (tf.g < 0 && (int)tf.g == tf.g) {
-        // TODO: safety checks for PQ/HLG like we do for sRGBish.
-        switch ((int)tf.g) {
-            case -PQish_TF:     return PQish_TF;
-            case -HLGish_TF:    return HLGish_TF;
-            case -HLGinvish_TF: return HLGinvish_TF;
-        }
-        return Bad_TF;
-    }
-
-    // Basic safety checks for sRGBish transfer functions.
-    if (sk_float_isfinite(tf.a + tf.b + tf.c + tf.d + tf.e + tf.f + tf.g)
-            // a,c,d,g should be non-negative to make any sense.
-            && tf.a >= 0
-            && tf.c >= 0
-            && tf.d >= 0
-            && tf.g >= 0
-            // Raising a negative value to a fractional tf->g produces complex numbers.
-            && tf.a * tf.d + tf.b >= 0) {
-        return sRGBish_TF;
-    }
-
-    return Bad_TF;
 }
 
 static inline bool is_almost_srgb(const skcms_TransferFunction& coeffs) {
@@ -103,7 +71,7 @@ static inline bool is_almost_linear(const skcms_TransferFunction& coeffs) {
 }
 
 skvm::F32 sk_program_transfer_fn(
-    skvm::F32 v, TFKind,
+    skvm::F32 v, skcms_TFType,
     skvm::F32 G, skvm::F32 A, skvm::F32 B, skvm::F32 C, skvm::F32 D, skvm::F32 E, skvm::F32 F);
 
 skvm::Color sk_program_transfer_fn(skvm::Builder*, skvm::Uniforms*,

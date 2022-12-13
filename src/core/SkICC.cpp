@@ -170,10 +170,10 @@ static constexpr uint32_t kCICPTrfnPQ = 16;
 static constexpr uint32_t kCICPTrfnHLG = 18;
 
 static uint32_t get_cicp_trfn(const skcms_TransferFunction& fn) {
-    switch (classify_transfer_fn(fn)) {
-        case Bad_TF:
+    switch (skcms_TransferFunction_getType(&fn)) {
+        case skcms_TFType_Invalid:
             return 0;
-        case sRGBish_TF:
+        case skcms_TFType_sRGBish:
             if (nearly_equal(fn, SkNamedTransferFn::kSRGB)) {
                 return kCICPTrfnSRGB;
             } else if (nearly_equal(fn, SkNamedTransferFn::k2Dot2)) {
@@ -182,16 +182,16 @@ static uint32_t get_cicp_trfn(const skcms_TransferFunction& fn) {
                 return kCICPTrfnLinear;
             }
             break;
-        case PQish_TF:
+        case skcms_TFType_PQish:
             // All PQ transfer functions are mapped to the single PQ value,
             // ignoring their SDR white level.
             return kCICPTrfnPQ;
             break;
-        case HLGish_TF:
+        case skcms_TFType_HLGish:
             // All HLG transfer functions are mapped to the single HLG value.
             return kCICPTrfnHLG;
             break;
-        case HLGinvish_TF:
+        case skcms_TFType_HLGinvish:
             return 0;
     }
     return 0;

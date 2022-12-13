@@ -8,6 +8,7 @@
 #ifndef GrGLSLColorSpaceXformHelper_DEFINED
 #define GrGLSLColorSpaceXformHelper_DEFINED
 
+#include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
@@ -30,7 +31,7 @@ public:
             if (this->applySrcTF()) {
                 fSrcTFVar = uniformHandler->addUniformArray(nullptr, visibility, SkSLType::kHalf,
                                                             "SrcTF", kNumTransferFnCoeffs);
-                fSrcTFKind = classify_transfer_fn(colorSpaceXform->fSteps.srcTF);
+                fSrcTFType = skcms_TransferFunction_getType(&colorSpaceXform->fSteps.srcTF);
             }
             if (this->applyGamutXform()) {
                 fGamutXformVar = uniformHandler->addUniform(nullptr, visibility, SkSLType::kHalf3x3,
@@ -39,7 +40,7 @@ public:
             if (this->applyDstTF()) {
                 fDstTFVar = uniformHandler->addUniformArray(nullptr, visibility, SkSLType::kHalf,
                                                             "DstTF", kNumTransferFnCoeffs);
-                fDstTFKind = classify_transfer_fn(colorSpaceXform->fSteps.dstTFInv);
+                fDstTFType = skcms_TransferFunction_getType(&colorSpaceXform->fSteps.dstTFInv);
             }
         }
     }
@@ -64,8 +65,8 @@ public:
     bool applyDstTF() const      { return fFlags.encode; }
     bool applyPremul() const     { return fFlags.premul; }
 
-    TFKind srcTFKind() const { return fSrcTFKind; }
-    TFKind dstTFKind() const { return fDstTFKind; }
+    skcms_TFType srcTFType() const { return fSrcTFType; }
+    skcms_TFType dstTFType() const { return fDstTFType; }
 
     GrGLSLProgramDataManager::UniformHandle srcTFUniform() const { return fSrcTFVar; }
     GrGLSLProgramDataManager::UniformHandle gamutXformUniform() const { return fGamutXformVar; }
@@ -78,8 +79,8 @@ private:
     GrGLSLProgramDataManager::UniformHandle fGamutXformVar;
     GrGLSLProgramDataManager::UniformHandle fDstTFVar;
     SkColorSpaceXformSteps::Flags fFlags;
-    TFKind fSrcTFKind;
-    TFKind fDstTFKind;
+    skcms_TFType fSrcTFType;
+    skcms_TFType fDstTFType;
 };
 
 #endif

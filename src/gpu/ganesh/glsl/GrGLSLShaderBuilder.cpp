@@ -159,7 +159,7 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
     // Any combination of these may be present, although some configurations are much more likely.
 
     auto emitTFFunc = [=](const char* name, GrGLSLProgramDataManager::UniformHandle uniform,
-                          TFKind kind) {
+                          skcms_TFType tfType) {
         const GrShaderVar gTFArgs[] = { GrShaderVar("x", SkSLType::kHalf) };
         const char* coeffs = uniformHandler->getUniformCStr(uniform);
         SkString body;
@@ -174,17 +174,17 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
         body.appendf("half F = %s[6];", coeffs);
         body.append("half s = sign(x);");
         body.append("x = abs(x);");
-        switch (kind) {
-            case TFKind::sRGBish_TF:
+        switch (tfType) {
+            case skcms_TFType_sRGBish:
                 body.append("x = (x < D) ? (C * x) + F : pow(A * x + B, G) + E;");
                 break;
-            case TFKind::PQish_TF:
+            case skcms_TFType_PQish:
                 body.append("x = pow(max(A + B * pow(x, C), 0) / (D + E * pow(x, C)), F);");
                 break;
-            case TFKind::HLGish_TF:
+            case skcms_TFType_HLGish:
                 body.append("x = (x*A <= 1) ? pow(x*A, B) : exp((x-E)*C) + D; x *= (F+1);");
                 break;
-            case TFKind::HLGinvish_TF:
+            case skcms_TFType_HLGinvish:
                 body.append("x /= (F+1); x = (x <= 1) ? A * pow(x, B) : C * log(x - D) + E;");
                 break;
             default:
@@ -201,13 +201,13 @@ void GrGLSLShaderBuilder::appendColorGamutXform(SkString* out,
     SkString srcTFFuncName;
     if (colorXformHelper->applySrcTF()) {
         srcTFFuncName = emitTFFunc("src_tf", colorXformHelper->srcTFUniform(),
-                                   colorXformHelper->srcTFKind());
+                                   colorXformHelper->srcTFType());
     }
 
     SkString dstTFFuncName;
     if (colorXformHelper->applyDstTF()) {
         dstTFFuncName = emitTFFunc("dst_tf", colorXformHelper->dstTFUniform(),
-                                   colorXformHelper->dstTFKind());
+                                   colorXformHelper->dstTFType());
     }
 
     SkString gamutXformFuncName;

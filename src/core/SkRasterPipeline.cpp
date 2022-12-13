@@ -445,19 +445,19 @@ void SkRasterPipeline::append_store(SkColorType ct, const SkRasterPipeline_Memor
 
 void SkRasterPipeline::append_transfer_function(const skcms_TransferFunction& tf) {
     void* ctx = const_cast<void*>(static_cast<const void*>(&tf));
-    switch (classify_transfer_fn(tf)) {
-        case Bad_TF: SkASSERT(false); break;
+    switch (skcms_TransferFunction_getType(&tf)) {
+        case skcms_TFType_Invalid: SkASSERT(false); break;
 
-        case TFKind::sRGBish_TF:
+        case skcms_TFType_sRGBish:
             if (tf.a == 1 && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {
                 this->unchecked_append(gamma_, ctx);
             } else {
                 this->unchecked_append(parametric, ctx);
             }
             break;
-        case PQish_TF:     this->unchecked_append(PQish,     ctx); break;
-        case HLGish_TF:    this->unchecked_append(HLGish,    ctx); break;
-        case HLGinvish_TF: this->unchecked_append(HLGinvish, ctx); break;
+        case skcms_TFType_PQish:     this->unchecked_append(PQish,     ctx); break;
+        case skcms_TFType_HLGish:    this->unchecked_append(HLGish,    ctx); break;
+        case skcms_TFType_HLGinvish: this->unchecked_append(HLGinvish, ctx); break;
     }
 }
 

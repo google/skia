@@ -91,7 +91,7 @@ bool gSkVMJITViaDylib{false};
     // hand. So we terminate the chain here with stub functions. Note that skslc's usage of SkVM
     // never cares about color management.
     skvm::F32 sk_program_transfer_fn(
-        skvm::F32 v, TFKind tf_kind,
+        skvm::F32 v, skcms_TFType tf_type,
         skvm::F32 G, skvm::F32 A, skvm::F32 B, skvm::F32 C, skvm::F32 D, skvm::F32 E, skvm::F32 F) {
             return v;
     }
@@ -1235,7 +1235,7 @@ namespace skvm {
         auto from_srgb = [](int bits, I32 channel) -> F32 {
             const skcms_TransferFunction* tf = skcms_sRGB_TransferFunction();
             F32 v = from_unorm(bits, channel);
-            return sk_program_transfer_fn(v, sRGBish_TF,
+            return sk_program_transfer_fn(v, skcms_TFType_sRGBish,
                                           v->splat(tf->g),
                                           v->splat(tf->a),
                                           v->splat(tf->b),
@@ -1378,7 +1378,7 @@ namespace skvm {
 
         auto to_srgb = [](int bits, F32 v) {
             const skcms_TransferFunction* tf = skcms_sRGB_Inverse_TransferFunction();
-            return to_unorm(bits, sk_program_transfer_fn(v, sRGBish_TF,
+            return to_unorm(bits, sk_program_transfer_fn(v, skcms_TFType_sRGBish,
                                                          v->splat(tf->g),
                                                          v->splat(tf->a),
                                                          v->splat(tf->b),

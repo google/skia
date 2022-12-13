@@ -1,8 +1,8 @@
 static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 "const int $kTileModeClamp=0;const int $kTileModeRepeat=1;const int $kTileModeMirror"
 "=2;const int $kTileModeDecal=3;const int $kFilterModeNearest=0;const int $kFilterModeLinear"
-"=1;const int $kTFKindSRGB=1;const int $kTFKindPQ=2;const int $kTFKindHLG=3;"
-"const int $kTFKindHLGinv=4;const int $kColorSpaceXformFlagUnpremul=1;const int"
+"=1;const int $kTFTypeSRGB=1;const int $kTFTypePQ=2;const int $kTFTypeHLG=3;"
+"const int $kTFTypeHLGinv=4;const int $kColorSpaceXformFlagUnpremul=1;const int"
 " $kColorSpaceXformFlagLinearize=2;const int $kColorSpaceXformFlagGamutTransform"
 "=4;const int $kColorSpaceXformFlagEncode=8;const int $kColorSpaceXformFlagPremul"
 "=16;$pure half4 sk_error(){return half4(1.,0.,1.,1.);}$pure half4 sk_passthrough"

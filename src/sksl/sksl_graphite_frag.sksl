@@ -8,10 +8,10 @@ const int $kTileModeDecal  = 3;
 const int $kFilterModeNearest = 0;
 const int $kFilterModeLinear  = 1;
 
-const int $kTFKindSRGB  = 1;
-const int $kTFKindPQ = 2;
-const int $kTFKindHLG = 3;
-const int $kTFKindHLGinv = 4;
+const int $kTFTypeSRGB  = 1;
+const int $kTFTypePQ = 2;
+const int $kTFTypeHLG = 3;
+const int $kTFTypeHLGinv = 4;
 
 const int $kColorSpaceXformFlagUnpremul = 0x1;
 const int $kColorSpaceXformFlagLinearize = 0x2;
@@ -647,19 +647,19 @@ $pure half $apply_xfer_fn(int kind, half x, half cs[7]) {
     half s = sign(x);
     x = abs(x);
     switch (kind) {
-        case $kTFKindSRGB:
+        case $kTFTypeSRGB:
             x = (x < D) ? (C * x) + F
                         : pow(A * x + B, G) + E;
             break;
-        case $kTFKindPQ:
+        case $kTFTypePQ:
             x = pow(max(A + B * pow(x, C), 0) / (D + E * pow(x, C)), F);
             break;
-        case $kTFKindHLG:
+        case $kTFTypeHLG:
             x = (x * A <= 1) ? pow(x * A, B)
                              : exp((x - E) * C) + D;
             x *= (F + 1);
             break;
-        case $kTFKindHLGinv:
+        case $kTFTypeHLGinv:
             x /= (F + 1);
             x = (x <= 1) ? A * pow(x, B)
                          : C * log(x - D) + E;

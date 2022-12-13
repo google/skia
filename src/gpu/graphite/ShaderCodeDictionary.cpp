@@ -813,16 +813,16 @@ static constexpr Uniform kColorSpaceTransformUniforms[] = {
         { "gamutTransform", SkSLType::kHalf3x3 },
 };
 
-static_assert(0 == static_cast<int>(TFKind::Bad_TF),
-              "ColorSpaceTransform code depends on TFKind");
-static_assert(1 == static_cast<int>(TFKind::sRGBish_TF),
-              "ColorSpaceTransform code depends on TFKind");
-static_assert(2 == static_cast<int>(TFKind::PQish_TF),
-              "ColorSpaceTransform code depends on TFKind");
-static_assert(3 == static_cast<int>(TFKind::HLGish_TF),
-              "ColorSpaceTransform code depends on TFKind");
-static_assert(4 == static_cast<int>(TFKind::HLGinvish_TF),
-              "ColorSpaceTransform code depends on TFKind");
+static_assert(0 == static_cast<int>(skcms_TFType_Invalid),
+              "ColorSpaceTransform code depends on skcms_TFType");
+static_assert(1 == static_cast<int>(skcms_TFType_sRGBish),
+              "ColorSpaceTransform code depends on skcms_TFType");
+static_assert(2 == static_cast<int>(skcms_TFType_PQish),
+              "ColorSpaceTransform code depends on skcms_TFType");
+static_assert(3 == static_cast<int>(skcms_TFType_HLGish),
+              "ColorSpaceTransform code depends on skcms_TFType");
+static_assert(4 == static_cast<int>(skcms_TFType_HLGinvish),
+              "ColorSpaceTransform code depends on skcms_TFType");
 
 // TODO: We can meaningfully check these when we can use C++20 features.
 // static_assert(0x1 == SkColorSpaceXformSteps::Flags{.unpremul = true}.mask(),
