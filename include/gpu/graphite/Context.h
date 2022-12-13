@@ -69,7 +69,7 @@ public:
     std::unique_ptr<Recorder> makeRecorder(const RecorderOptions& = {});
 
     bool insertRecording(const InsertRecordingInfo&);
-    void submit(SyncToCpu = SyncToCpu::kNo);
+    bool submit(SyncToCpu = SyncToCpu::kNo);
 
     void asyncReadPixels(const SkImage* image,
                          const SkColorInfo& dstColorInfo,

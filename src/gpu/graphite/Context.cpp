@@ -23,6 +23,7 @@
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Image_Graphite.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RecordingPriv.h"
@@ -178,11 +179,12 @@ bool Context::insertRecording(const InsertRecordingInfo& info) {
     return fQueueManager->addRecording(info, fResourceProvider.get());
 }
 
-void Context::submit(SyncToCpu syncToCpu) {
+bool Context::submit(SyncToCpu syncToCpu) {
     ASSERT_SINGLE_OWNER
 
-    fQueueManager->submitToGpu();
+    bool success = fQueueManager->submitToGpu();
     fQueueManager->checkForFinishedWork(syncToCpu);
+    return success;
 }
 
 void Context::asyncReadPixels(const SkImage* image,
@@ -279,22 +281,30 @@ void Context::asyncReadPixels(const TextureProxy* proxy,
                                             rowBytes,
                                             fMappedBufferManager.get(),
                                             std::move(transferResult)};
-    GpuFinishedProc finishCallback = [](GpuFinishedContext c, CallbackResult) {
+    GpuFinishedProc finishCallback = [](GpuFinishedContext c, CallbackResult status) {
         const auto* context = reinterpret_cast<const FinishContext*>(c);
-        ClientMappedBufferManager* manager = context->fMappedBufferManager;
-        auto result = std::make_unique<AsyncReadResult>(manager->ownerID());
-        if (!result->addTransferResult(context->fTransferResult, context->fSize,
-                                       context->fRowBytes, manager)) {
-            result.reset();
+        if (status == CallbackResult::kSuccess) {
+            ClientMappedBufferManager* manager = context->fMappedBufferManager;
+            auto result = std::make_unique<AsyncReadResult>(manager->ownerID());
+            if (!result->addTransferResult(context->fTransferResult, context->fSize,
+                                        context->fRowBytes, manager)) {
+                result.reset();
+            }
+            (*context->fClientCallback)(context->fClientContext, std::move(result));
+        } else {
+            (*context->fClientCallback)(context->fClientContext, nullptr);
         }
-        (*context->fClientCallback)(context->fClientContext, std::move(result));
         delete context;
     };
 
     InsertFinishInfo info;
     info.fFinishedContext = finishContext;
     info.fFinishedProc = finishCallback;
-    fQueueManager->addFinishInfo(info, fResourceProvider.get());
+    // If addFinishInfo() fails, it invokes the finish callback automatically, which handles all the
+    // required clean up for us, just log an error message.
+    if (!fQueueManager->addFinishInfo(info, fResourceProvider.get())) {
+        SKGPU_LOG_E("Failed to register finish callbacks for asyncReadPixels.");
+    }
 }
 
 Context::PixelTransferResult Context::transferPixels(const TextureProxy* proxy,
@@ -338,16 +348,13 @@ Context::PixelTransferResult Context::transferPixels(const TextureProxy* proxy,
                                                                             buffer,
                                                                             /*bufferOffset=*/0,
                                                                             rowBytes);
-    if (!copyTask) {
+    if (!copyTask || !fQueueManager->addTask(copyTask.get(), fResourceProvider.get())) {
         return {};
     }
     sk_sp<SynchronizeToCpuTask> syncTask = SynchronizeToCpuTask::Make(buffer);
-    if (!syncTask) {
+    if (!syncTask || !fQueueManager->addTask(syncTask.get(), fResourceProvider.get())) {
         return {};
     }
-
-    fQueueManager->addTask(copyTask.get(), fResourceProvider.get());
-    fQueueManager->addTask(syncTask.get(), fResourceProvider.get());
 
     PixelTransferResult result;
     result.fTransferBuffer = std::move(buffer);
