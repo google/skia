@@ -62,15 +62,8 @@ enum class BuilderOp {
 
 // Represents a single raster-pipeline SkSL instruction.
 struct Instruction {
-    Instruction(BuilderOp op, std::initializer_list<Slot> slots) : fOp(op), fImmA(0) {
-        auto iter = slots.begin();
-        if (iter != slots.end()) { fSlotA = *iter++; }
-        if (iter != slots.end()) { fSlotB = *iter++; }
-        if (iter != slots.end()) { fSlotC = *iter++; }
-        SkASSERT(iter == slots.end());
-    }
-
-    Instruction(BuilderOp op, std::initializer_list<Slot> slots, int i) : fOp(op), fImmA(i) {
+    Instruction(BuilderOp op, std::initializer_list<Slot> slots, int a = 0, int b = 0)
+            : fOp(op), fImmA(a), fImmB(b) {
         auto iter = slots.begin();
         if (iter != slots.end()) { fSlotA = *iter++; }
         if (iter != slots.end()) { fSlotB = *iter++; }
@@ -83,6 +76,7 @@ struct Instruction {
     Slot      fSlotB = NA;
     Slot      fSlotC = NA;
     int       fImmA = 0;
+    int       fImmB = 0;
 };
 
 class Program {
@@ -216,15 +210,25 @@ public:
     }
 
     void copy_stack_to_slots(SlotRange dst) {
+        this->copy_stack_to_slots(dst, /*offsetFromStackTop=*/dst.count);
+    }
+
+    void copy_stack_to_slots(SlotRange dst, int offsetFromStackTop) {
         // Translates into copy_slots_masked (from temp stack to values) in Raster Pipeline.
         // Does not discard any values on the temp stack.
-        fInstructions.push_back({BuilderOp::copy_stack_to_slots, {dst.index}, dst.count});
+        fInstructions.push_back({BuilderOp::copy_stack_to_slots, {dst.index},
+                                 dst.count, offsetFromStackTop});
     }
 
     void copy_stack_to_slots_unmasked(SlotRange dst) {
+        this->copy_stack_to_slots_unmasked(dst, /*offsetFromStackTop=*/dst.count);
+    }
+
+    void copy_stack_to_slots_unmasked(SlotRange dst, int offsetFromStackTop) {
         // Translates into copy_slots_unmasked (from temp stack to values) in Raster Pipeline.
         // Does not discard any values on the temp stack.
-        fInstructions.push_back({BuilderOp::copy_stack_to_slots_unmasked, {dst.index}, dst.count});
+        fInstructions.push_back({BuilderOp::copy_stack_to_slots_unmasked, {dst.index},
+                                 dst.count, offsetFromStackTop});
     }
 
     // Performs a unary op (like `bitwise_not`), given a slot count of `slots`. The stack top is

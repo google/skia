@@ -185,8 +185,8 @@ R"(    1. copy_2_slots_masked            v0..1 = Mask(v2..3)
 DEF_TEST(RasterPipelineBuilderCopySlotsUnmasked, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.copy_slots_unmasked(three_slots_at(0),  three_slots_at(2));
-    builder.copy_slots_unmasked(five_slots_at(1), five_slots_at(5));
+    builder.copy_slots_unmasked(three_slots_at(0), three_slots_at(2));
+    builder.copy_slots_unmasked(five_slots_at(1),  five_slots_at(5));
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/10);
 
     check(r, *program,
@@ -199,18 +199,22 @@ R"(    1. copy_3_slots_unmasked          v0..2 = v2..4
 DEF_TEST(RasterPipelineBuilderPushPopSlots, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_slots(four_slots_at(10));           // push from 10~13 into 50~53
-    builder.pop_slots_unmasked(two_slots_at(20));    // pop from 52~53 into 20~21 (unmasked)
-    builder.push_slots(three_slots_at(30));          // push from 30~32 into 52~54
-    builder.pop_slots(five_slots_at(0));             // pop from 50~54 into 0~4 (masked)
+    builder.push_slots(four_slots_at(10));           // push from 10~13 into $0~$3
+    builder.copy_stack_to_slots(one_slot_at(5), 3);  // copy from $1 into 5
+    builder.pop_slots_unmasked(two_slots_at(20));    // pop from $2~$3 into 20~21 (unmasked)
+    builder.copy_stack_to_slots_unmasked(one_slot_at(4), 2);  // copy from $0 into 4
+    builder.push_slots(three_slots_at(30));          // push from 30~32 into $2~$4
+    builder.pop_slots(five_slots_at(0));             // pop from $0~$4 into 0~4 (masked)
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/50);
 
     check(r, *program,
 R"(    1. copy_4_slots_unmasked          $0..3 = v10..13
-    2. copy_2_slots_unmasked          v20..21 = $2..3
-    3. copy_3_slots_unmasked          $2..4 = v30..32
-    4. copy_4_slots_masked            v0..3 = Mask($0..3)
-    5. copy_slot_masked               v4 = Mask($4)
+    2. copy_slot_masked               v5 = Mask($1)
+    3. copy_2_slots_unmasked          v20..21 = $2..3
+    4. copy_slot_unmasked             v4 = $0
+    5. copy_3_slots_unmasked          $2..4 = v30..32
+    6. copy_4_slots_masked            v0..3 = Mask($0..3)
+    7. copy_slot_masked               v4 = Mask($4)
 )");
 }
 

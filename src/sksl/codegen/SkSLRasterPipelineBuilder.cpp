@@ -397,12 +397,12 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 break;
             }
             case BuilderOp::copy_stack_to_slots: {
-                float* src = tempStackPtr - (inst.fImmA * N);
+                float* src = tempStackPtr - (inst.fImmB * N);
                 pipeline->append_copy_slots_masked(alloc, SlotA(), src, inst.fImmA);
                 break;
             }
             case BuilderOp::copy_stack_to_slots_unmasked: {
-                float* src = tempStackPtr - (inst.fImmA * N);
+                float* src = tempStackPtr - (inst.fImmB * N);
                 pipeline->append_copy_slots_unmasked(alloc, SlotA(), src, inst.fImmA);
                 break;
             }
