@@ -606,16 +606,6 @@ bool GrGLInterface::validate() const {
     }
 
     if ((GR_IS_GR_GL(fStandard) && (
-          fExtensions.has("GL_NV_framebuffer_mixed_samples"))) ||
-       (GR_IS_GR_GL_ES(fStandard) && (
-          fExtensions.has("GL_CHROMIUM_framebuffer_mixed_samples") ||
-          fExtensions.has("GL_NV_framebuffer_mixed_samples")))) {
-        if (!fFunctions.fCoverageModulation) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
-    if ((GR_IS_GR_GL(fStandard) && (
           (glVer >= GR_GL_VER(4,3)) ||
           fExtensions.has("GL_KHR_debug"))) ||
        (GR_IS_GR_GL_ES(fStandard) && (

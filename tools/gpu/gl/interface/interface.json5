@@ -521,17 +521,6 @@
   },
 
   {
-    "GL":    [{"ext": "GL_NV_framebuffer_mixed_samples"}],
-    "GLES":  [{"ext": "GL_CHROMIUM_framebuffer_mixed_samples"},
-              {"ext": "GL_NV_framebuffer_mixed_samples"}],
-    "WebGL": null,
-
-    "functions": [
-      "CoverageModulation",
-    ],
-  },
-
-  {
     "GL":    [{"min_version": [4, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_KHR_debug", "suffix": ""}],
     "GLES":  [{"ext": "GL_KHR_debug"}],

@@ -369,10 +369,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC(CopyBufferSubData);
     }
 
-    if (extensions.has("GL_NV_framebuffer_mixed_samples")) {
-        GET_PROC_SUFFIX(CoverageModulation, NV);
-    }
-
     if (glVer >= GR_GL_VER(4,3)) {
         GET_PROC(DebugMessageCallback);
         GET_PROC(DebugMessageControl);
