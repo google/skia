@@ -22,7 +22,6 @@
 #include "include/private/SkTHash.h"
 
 class SkArenaAllocWithReset;
-class SkUniquePaintParamsID;
 
 namespace skgpu::graphite {
 
@@ -33,6 +32,7 @@ class KeyContext;
 class Option;
 class PaintParamsKeyBuilder;
 class ShaderCodeDictionary;
+class UniquePaintParamsID;
 
 enum class ShaderType : uint32_t {
     kSolidColor,
@@ -175,7 +175,7 @@ private:
     Option* addOptionInternal(ShaderType, SkSpan<TileModePair> tileModes);
 
     void buildCombinations(ShaderCodeDictionary*,
-                           const std::function<void(SkUniquePaintParamsID)>&);
+                           const std::function<void(UniquePaintParamsID)>&);
 
     ShaderCodeDictionary* fDictionary;
     std::unique_ptr<SkArenaAllocWithReset> fArena;

@@ -22,13 +22,13 @@
 
 class SkData;
 class SkRuntimeEffect;
-class SkUniquePaintParamsID;
 
 namespace skgpu::graphite {
 
 class KeyContext;
 class PaintParamsKeyBuilder;
 class PipelineDataGatherer;
+class UniquePaintParamsID;
 
 /**
  * The KeyHelpers can be used to manually construct an SkPaintParamsKey.

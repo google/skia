@@ -28,9 +28,9 @@ void empty_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
 
-    std::vector<SkUniquePaintParamsID> precompileIDs;
+    std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(dict,
-                                          [&](SkUniquePaintParamsID id) {
+                                          [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
 
@@ -46,9 +46,9 @@ void no_shader_option_test(ShaderCodeDictionary* dict, skiatest::Reporter* repor
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
 
-    std::vector<SkUniquePaintParamsID> precompileIDs;
+    std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(dict,
-                                          [&](SkUniquePaintParamsID id) {
+                                          [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
 
@@ -62,9 +62,9 @@ void no_blend_mode_option_test(ShaderCodeDictionary* dict, skiatest::Reporter* r
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
 
-    std::vector<SkUniquePaintParamsID> precompileIDs;
+    std::vector<UniquePaintParamsID> precompileIDs;
         paintOptions.priv().buildCombinations(dict,
-                                              [&](SkUniquePaintParamsID id) {
+                                              [&](UniquePaintParamsID id) {
                                                   precompileIDs.push_back(id);
                                               });
 
@@ -126,9 +126,9 @@ void big_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 17);
 
-    std::vector<SkUniquePaintParamsID> precompileIDs;
+    std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(dict,
-                                          [&](SkUniquePaintParamsID id) {
+                                          [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
 
@@ -260,9 +260,9 @@ void runtime_effect_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporte
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 8);
 
-    std::vector<SkUniquePaintParamsID> precompileIDs;
+    std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(dict,
-                                          [&](SkUniquePaintParamsID id) {
+                                          [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
 

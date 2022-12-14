@@ -283,7 +283,6 @@ BASE_SRCS_ALL = [
     "include/private/SkThreadID.h",
     "include/private/SkTo.h",
     "include/private/SkTypeTraits.h",
-    "include/private/SkUniquePaintParamsID.h",
     "include/private/SkVx.h",
     "include/private/SkWeakRefCnt.h",
     "include/private/chromium/SkChromeRemoteGlyphCache.h",

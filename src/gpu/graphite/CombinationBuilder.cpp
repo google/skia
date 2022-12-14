@@ -742,7 +742,7 @@ void CombinationBuilder::createKey(const KeyContext& keyContext,
 
 void CombinationBuilder::buildCombinations(
         ShaderCodeDictionary* dict,
-        const std::function<void(SkUniquePaintParamsID)>& func) {
+        const std::function<void(UniquePaintParamsID)>& func) {
     KeyContext keyContext(dict);
     PaintParamsKeyBuilder builder(dict);
 

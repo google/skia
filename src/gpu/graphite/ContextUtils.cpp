@@ -9,7 +9,6 @@
 
 #include <string>
 #include "include/private/SkSLString.h"
-#include "include/private/SkUniquePaintParamsID.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/KeyContext.h"
@@ -20,10 +19,11 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/UniformManager.h"
+#include "src/gpu/graphite/UniquePaintParamsID.h"
 
 namespace skgpu::graphite {
 
-std::tuple<SkUniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*>
+std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*>
 ExtractPaintData(Recorder* recorder,
                  PipelineDataGatherer* gatherer,
                  PaintParamsKeyBuilder* builder,
@@ -326,7 +326,7 @@ std::string GetSkSLFS(const Layout uboLayout,
                       const ShaderCodeDictionary* dict,
                       const RuntimeEffectDictionary* rteDict,
                       const RenderStep* step,
-                      SkUniquePaintParamsID paintID,
+                      UniquePaintParamsID paintID,
                       bool useStorageBuffers,
                       BlendInfo* blendInfo,
                       bool* requiresLocalCoordsVarying) {

@@ -17,7 +17,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "include/private/SkUniquePaintParamsID.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -32,6 +31,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
+#include "src/gpu/graphite/UniquePaintParamsID.h"
 #include "src/shaders/SkImageShader.h"
 
 using namespace skgpu::graphite;
@@ -438,7 +438,7 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
 }
 
 #ifdef SK_DEBUG
-void dump(ShaderCodeDictionary* dict, SkUniquePaintParamsID id) {
+void dump(ShaderCodeDictionary* dict, UniquePaintParamsID id) {
     auto entry = dict->lookup(id);
     entry->paintParamsKey().dump(dict);
 }
@@ -483,9 +483,9 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                         recorder.get(), &gatherer, &builder, Layout::kMetal, {},
                         PaintParams(paint));
 
-                std::vector<SkUniquePaintParamsID> precompileIDs;
+                std::vector<UniquePaintParamsID> precompileIDs;
                 paintOptions.priv().buildCombinations(dict,
-                                                      [&](SkUniquePaintParamsID id) {
+                                                      [&](UniquePaintParamsID id) {
                                                           precompileIDs.push_back(id);
                                                       });
 
@@ -502,7 +502,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                     for (auto iter : precompileIDs) {
                         dump(dict, iter);
                     }
-                    SkASSERT(false);
                 }
 #endif
 

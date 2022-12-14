@@ -9,7 +9,7 @@
 #define CombinationBuilderTestAccess_DEFINED
 
 #include "include/gpu/graphite/CombinationBuilder.h"
-#include "include/private/SkUniquePaintParamsID.h"
+#include "src/gpu/graphite/UniquePaintParamsID.h"
 
 namespace skgpu::graphite {
 
@@ -18,13 +18,13 @@ public:
     static int NumCombinations(skgpu::graphite::CombinationBuilder* builder) {
         return builder->numCombinations();
     }
-    static std::vector<SkUniquePaintParamsID> BuildCombinations(
+    static std::vector<UniquePaintParamsID> BuildCombinations(
                 ShaderCodeDictionary* dict,
                 skgpu::graphite::CombinationBuilder* builder) {
-        std::vector<SkUniquePaintParamsID> uniqueIDs;
+        std::vector<UniquePaintParamsID> uniqueIDs;
 
         builder->buildCombinations(dict,
-                                   [&](SkUniquePaintParamsID uniqueID) {
+                                   [&](UniquePaintParamsID uniqueID) {
                                        uniqueIDs.push_back(uniqueID);
                                    });
 

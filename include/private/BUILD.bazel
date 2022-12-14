@@ -70,7 +70,6 @@ skia_filegroup(
         "SkThreadID.h",
         "SkTo.h",
         "SkTypeTraits.h",
-        "SkUniquePaintParamsID.h",
         "SkVx.h",
         "SkWeakRefCnt.h",
         ":shared_gpu_private_hdrs",

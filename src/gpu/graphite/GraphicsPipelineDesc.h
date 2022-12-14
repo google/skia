@@ -8,8 +8,8 @@
 #ifndef skgpu_graphite_GraphicsPipelineDesc_DEFINED
 #define skgpu_graphite_GraphicsPipelineDesc_DEFINED
 
-#include "include/private/SkUniquePaintParamsID.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/UniquePaintParamsID.h"
 
 namespace skgpu::graphite {
 
@@ -19,7 +19,7 @@ namespace skgpu::graphite {
  */
 class GraphicsPipelineDesc {
 public:
-    GraphicsPipelineDesc(const RenderStep* renderStep, SkUniquePaintParamsID paintID)
+    GraphicsPipelineDesc(const RenderStep* renderStep, UniquePaintParamsID paintID)
         : fRenderStepID(renderStep->uniqueID())
         , fPaintID(paintID) {}
 
@@ -35,7 +35,7 @@ public:
     // (except for renderpass-level state that will never change between draws).
     uint32_t renderStepID() const { return fRenderStepID; }
     // UniqueID of the required PaintParams
-    SkUniquePaintParamsID paintParamsID() const { return fPaintID; }
+    UniquePaintParamsID paintParamsID() const { return fPaintID; }
 
 private:
     // Each RenderStep defines a fixed set of attributes and rasterization state, as well as the
@@ -44,7 +44,7 @@ private:
     // RenderStep is fixed, its pointer can be used as a proxy for everything that it specifies in
     // the GraphicsPipeline.
     uint32_t fRenderStepID;
-    SkUniquePaintParamsID fPaintID;
+    UniquePaintParamsID fPaintID;
 };
 
 } // namespace skgpu::graphite
