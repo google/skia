@@ -262,7 +262,10 @@ func main() {
 	}
 	if *dryRun {
 		cmd = append(cmd, "--dry_run")
+	} else {
+		cmd = append(cmd, "--upload_to_partner_bucket")
 	}
+
 	if *local {
 		cmd = append(cmd, "--local")
 	}
