@@ -283,7 +283,7 @@ struct SkRasterPipeline_CopySlotsCtx {
 
 struct SkRasterPipeline_SwizzleCtx {
     float *ptr;
-    uint8_t offsets[4];  // values must be multiplied by raster_pipeline_highp_stride by caller
+    uint16_t offsets[4];  // values must be byte offsets (4 * highp-stride * component-index)
 };
 
 class SkRasterPipeline {

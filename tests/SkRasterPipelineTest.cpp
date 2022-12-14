@@ -570,8 +570,8 @@ DEF_TEST(SkRasterPipeline_Swizzle, r) {
 
     struct TestPattern {
         SkRasterPipeline::Stage stage;
-        uint8_t swizzle[4];
-        uint8_t expectation[4];
+        uint16_t swizzle[4];
+        uint16_t expectation[4];
     };
     static const TestPattern kPatterns[] = {
             {SkRasterPipeline::swizzle_1, {3},          {3, 1, 2, 3}}, // (1,2,3,4).w    = (4)
@@ -591,7 +591,7 @@ DEF_TEST(SkRasterPipeline_Swizzle, r) {
         SkRasterPipeline_SwizzleCtx ctx;
         ctx.ptr = slots;
         for (size_t index = 0; index < std::size(ctx.offsets); ++index) {
-            ctx.offsets[index] = pattern.swizzle[index] * N;
+            ctx.offsets[index] = pattern.swizzle[index] * N * sizeof(float);
         }
         p.append(pattern.stage, &ctx);
         p.run(0,0,4,1);

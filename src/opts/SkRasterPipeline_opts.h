@@ -3150,10 +3150,11 @@ STAGE(copy_4_slots_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
 template <int NumSlots>
 SI void swizzle_fn(SkRasterPipeline_SwizzleCtx* ctx) {
     F scratch[NumSlots];
+    std::byte* ptr = (std::byte*)ctx->ptr;
     for (int count = 0; count < NumSlots; ++count) {
-        scratch[count] = *(F*)(ctx->ptr + ctx->offsets[count]);
+        scratch[count] = *(F*)(ptr + ctx->offsets[count]);
     }
-    memcpy(ctx->ptr, scratch, sizeof(F) * NumSlots);
+    memcpy(ptr, scratch, sizeof(F) * NumSlots);
 }
 
 STAGE(swizzle_1, SkRasterPipeline_SwizzleCtx* ctx) {
