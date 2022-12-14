@@ -8,6 +8,7 @@
 #define SkPathUtils_DEFINED
 
 #include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 
 class SkMatrix;
 class SkPaint;
@@ -26,10 +27,10 @@ struct SkRect;
     @return          true if the dst path was updated, false if it was not (e.g. if the path
                      represents hairline and cannot be filled).
 */
-bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
-                       const SkRect* cullRect, SkScalar resScale = 1);
-bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
-                       const SkRect* cullRect, const SkMatrix& ctm);
-bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst);
+SK_API bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
+                              const SkRect* cullRect, SkScalar resScale = 1);
+SK_API bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
+                              const SkRect* cullRect, const SkMatrix& ctm);
+SK_API bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst);
 
 #endif
