@@ -1029,7 +1029,7 @@ void ParagraphImpl::updateFontSize(size_t from, size_t to, SkScalar fontSize) {
     textStyle.fStyle.setFontSize(fontSize);
   }
 
-  fState = kIndexed;
+  fState = std::min(fState, kIndexed);
   fOldWidth = 0;
   fOldHeight = 0;
 }
