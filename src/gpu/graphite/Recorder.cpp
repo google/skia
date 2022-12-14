@@ -280,19 +280,25 @@ bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
 
     for (int i = 0; i < numLevels; ++i) {
         SkASSERT(srcData[i].addr());
-        SkASSERT(srcData[i].colorType() == ct);
+        SkASSERT(srcData[i].info().colorInfo() == srcData[0].info().colorInfo());
 
         mipLevels[i].fPixels = srcData[i].addr();
         mipLevels[i].fRowBytes = srcData[i].rowBytes();
     }
 
+    // Src and dst colorInfo are the same
+    const SkColorInfo& colorInfo = srcData[0].info().colorInfo();
+    // Add UploadTask to Recorder
     UploadInstance upload = UploadInstance::Make(this,
                                                  std::move(proxy),
-                                                 ct,
+                                                 colorInfo, colorInfo,
                                                  mipLevels,
                                                  SkIRect::MakeSize(backendTex.dimensions()),
                                                  nullptr);
-
+    if (!upload.isValid()) {
+        SKGPU_LOG_E("Recorder::updateBackendTexture: Could not create UploadInstance");
+        return false;
+    }
     sk_sp<Task> uploadTask = UploadTask::Make(std::move(upload));
 
     this->priv().add(std::move(uploadTask));

@@ -80,6 +80,13 @@ public:
                       const std::vector<MipLevel>& levels,
                       const SkIRect& dstRect,
                       std::unique_ptr<ConditionalUploadContext>);
+    bool recordUpload(Recorder* recorder,
+                      sk_sp<TextureProxy> targetProxy,
+                      const SkColorInfo& srcColorInfo,
+                      const SkColorInfo& dstColorInfo,
+                      const std::vector<MipLevel>& levels,
+                      const SkIRect& dstRect,
+                      std::unique_ptr<ConditionalUploadContext>);
 
 #ifdef SK_ENABLE_PIET_GPU
     bool recordPietSceneRender(Recorder* recorder,

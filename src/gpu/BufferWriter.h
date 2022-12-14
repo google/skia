@@ -452,12 +452,21 @@ struct UploadWriter : public BufferWriter {
     }
 
     // Writes a block of image data to the upload buffer, starting at `offset`. The source image is
-    // `srcRowBytes` wide, and the written block is `trimRowBytes` wide and `rowCount` bytes tall.
+    // `srcRowBytes` wide, and the written block is `dstRowBytes` wide and `rowCount` bytes tall.
     void write(
-            size_t offset, const void* src, size_t srcRowBytes, size_t trimRowBytes, int rowCount) {
-        this->validate(trimRowBytes * rowCount);
+            size_t offset, const void* src, size_t srcRowBytes, size_t dstRowBytes, int rowCount) {
+        this->validate(dstRowBytes * rowCount);
         void* dst = SkTAddOffset<void>(fPtr, offset);
-        SkRectMemcpy(dst, trimRowBytes, src, srcRowBytes, trimRowBytes, rowCount);
+        SkRectMemcpy(dst, dstRowBytes, src, srcRowBytes, dstRowBytes, rowCount);
+    }
+
+    void convertAndWrite(size_t offset,
+                         const SkImageInfo& srcInfo, const void* src, size_t srcRowBytes,
+                         const SkImageInfo& dstInfo, size_t dstRowBytes) {
+        SkASSERT(srcInfo.width() == dstInfo.width() && srcInfo.height() == dstInfo.height());
+        this->validate(dstRowBytes * dstInfo.height());
+        void* dst = SkTAddOffset<void>(fPtr, offset);
+        SkAssertResult(SkConvertPixels(dstInfo, dst, dstRowBytes, srcInfo, src, srcRowBytes));
     }
 };
 

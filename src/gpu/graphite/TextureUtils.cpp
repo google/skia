@@ -19,6 +19,7 @@
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/CopyTask.h"
 #include "src/gpu/graphite/Image_Graphite.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SynchronizeToCpuTask.h"
@@ -107,9 +108,16 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
     SkASSERT(caps->areColorTypeAndTextureInfoCompatible(ct, proxy->textureInfo()));
     SkASSERT(mipmapped == Mipmapped::kNo || proxy->mipmapped() == Mipmapped::kYes);
 
+    // Src and dst colorInfo are the same
+    const SkColorInfo& colorInfo = bmpToUpload.info().colorInfo();
     // Add UploadTask to Recorder
     UploadInstance upload = UploadInstance::Make(
-            recorder, proxy, ct, texels, SkIRect::MakeSize(bmpToUpload.dimensions()), nullptr);
+            recorder, proxy, colorInfo, colorInfo, texels,
+            SkIRect::MakeSize(bmpToUpload.dimensions()), nullptr);
+    if (!upload.isValid()) {
+        SKGPU_LOG_E("MakeBitmapProxyView: Could not create UploadInstance");
+        return {};
+    }
     recorder->priv().add(UploadTask::Make(std::move(upload)));
 
     Swizzle swizzle = caps->getReadSwizzle(ct, textureInfo);

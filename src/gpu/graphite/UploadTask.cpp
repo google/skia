@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/UploadTask.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
@@ -59,12 +60,15 @@ size_t compute_combined_buffer_size(int mipLevelCount,
 
 UploadInstance UploadInstance::Make(Recorder* recorder,
                                     sk_sp<TextureProxy> textureProxy,
-                                    SkColorType dataColorType,
+                                    const SkColorInfo& srcColorInfo,
+                                    const SkColorInfo& dstColorInfo,
                                     const std::vector<MipLevel>& levels,
                                     const SkIRect& dstRect,
                                     std::unique_ptr<ConditionalUploadContext> condContext) {
     const Caps* caps = recorder->priv().caps();
     SkASSERT(caps->isTexturable(textureProxy->textureInfo()));
+    SkASSERT(caps->areColorTypeAndTextureInfoCompatible(dstColorInfo.colorType(),
+                                                        textureProxy->textureInfo()));
 
     unsigned int mipLevelCount = levels.size();
     // The assumption is either that we have no mipmaps, or that our rect is the entire texture
@@ -81,13 +85,9 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
     SkASSERT(mipLevelCount == 1 || mipLevelCount == numExpectedLevels);
 #endif
 
-
     if (dstRect.isEmpty()) {
         return {};
     }
-
-    SkASSERT(caps->areColorTypeAndTextureInfoCompatible(dataColorType,
-                                                        textureProxy->textureInfo()));
 
     if (mipLevelCount == 1 && !levels[0].fPixels) {
         return {};   // no data to upload
@@ -100,7 +100,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
         }
     }
 
-    size_t bpp = SkColorTypeBytesPerPixel(dataColorType);
+    size_t bpp = dstColorInfo.bytesPerPixel();
     size_t minAlignment = caps->getTransferBufferAlignment(bpp);
     SkTArray<size_t> individualMipOffsets(mipLevelCount);
     size_t combinedBufferSize = compute_combined_buffer_size(mipLevelCount, bpp, minAlignment,
@@ -117,8 +117,9 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
     }
     size_t baseOffset = bufferInfo.fOffset;
 
-    int currentWidth = dstRect.width();
-    int currentHeight = dstRect.height();
+    int32_t currentWidth = dstRect.width();
+    int32_t currentHeight = dstRect.height();
+    bool needsConversion = (srcColorInfo != dstColorInfo);
     for (unsigned int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         const size_t trimRowBytes = currentWidth * bpp;
         const size_t rowBytes = levels[currentMipLevel].fRowBytes;
@@ -126,7 +127,16 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
 
         // copy data into the buffer, skipping any trailing bytes
         const char* src = (const char*)levels[currentMipLevel].fPixels;
-        writer.write(mipOffset, src, rowBytes, trimRowBytes, currentHeight);
+        if (needsConversion) {
+            SkISize dims = {currentWidth, currentHeight};
+            SkImageInfo srcImageInfo = SkImageInfo::Make(dims, srcColorInfo);
+            SkImageInfo dstImageInfo = SkImageInfo::Make(dims, dstColorInfo);
+
+            writer.convertAndWrite(mipOffset, srcImageInfo, src, rowBytes,
+                                   dstImageInfo, trimRowBytes);
+        } else {
+            writer.write(mipOffset, src, rowBytes, trimRowBytes, currentHeight);
+        }
 
         copyData[currentMipLevel].fBufferOffset = baseOffset + mipOffset;
         copyData[currentMipLevel].fBufferRowBytes = trimRowBytes;
@@ -175,11 +185,13 @@ void UploadInstance::addCommand(CommandBuffer* commandBuffer) const {
 
 bool UploadList::recordUpload(Recorder* recorder,
                               sk_sp<TextureProxy> textureProxy,
-                              SkColorType dataColorType,
+                              const SkColorInfo& srcColorInfo,
+                              const SkColorInfo& dstColorInfo,
                               const std::vector<MipLevel>& levels,
                               const SkIRect& dstRect,
                               std::unique_ptr<ConditionalUploadContext> condContext) {
-    UploadInstance instance = UploadInstance::Make(recorder, std::move(textureProxy), dataColorType,
+    UploadInstance instance = UploadInstance::Make(recorder, std::move(textureProxy),
+                                                   srcColorInfo, dstColorInfo,
                                                    levels, dstRect, std::move(condContext));
     if (!instance.isValid()) {
         return false;

@@ -22,6 +22,9 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#if defined(SK_GRAPHITE_ENABLED)
+#include "include/gpu/graphite/Context.h"
+#endif
 #include "include/private/SkColorData.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkMalloc.h"
@@ -412,7 +415,8 @@ static void test_write_pixels(skiatest::Reporter* reporter, SkSurface* surface,
                 const SkColorType ct = gSrcConfigs[c].fColorType;
                 const SkAlphaType at = gSrcConfigs[c].fAlphaType;
 
-                bool isGPU = SkToBool(surface->getCanvas()->recordingContext());
+                bool isGPU = SkToBool(surface->getCanvas()->recordingContext()) ||
+                             SkToBool(surface->getCanvas()->recorder());
                 fill_surface(surface);
                 SkBitmap bmp;
                 REPORTER_ASSERT(reporter, setup_bitmap(&bmp, ct, at, rect.width(),
@@ -480,6 +484,26 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WritePixelsMSAA_Gpu,
                                        CtsEnforcement::kApiLevel_T) {
     test_write_pixels(reporter, ctxInfo.directContext(), 1);
 }
+
+#if defined(SK_GRAPHITE_ENABLED)
+static void test_write_pixels(skiatest::Reporter* reporter,
+                              skgpu::graphite::Recorder* recorder,
+                              int sampleCnt) {
+    const SkImageInfo ii = SkImageInfo::MakeN32Premul(DEV_W, DEV_H);
+    sk_sp<SkSurface> surface = SkSurface::MakeGraphite(recorder,
+                                                       ii);
+    if (surface) {
+        test_write_pixels(reporter, surface.get(), ii);
+    }
+}
+
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(WritePixels_Graphite,
+                                         reporter,
+                                         context) {
+    std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
+    test_write_pixels(reporter, recorder.get(), 1);
+}
+#endif
 
 static void test_write_pixels_non_texture(skiatest::Reporter* reporter,
                                           GrDirectContext* dContext,

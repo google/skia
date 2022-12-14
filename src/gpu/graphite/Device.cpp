@@ -429,30 +429,36 @@ bool Device::onWritePixels(const SkPixmap& src, int x, int y) {
         return false;
     }
 
-    // TODO: check for readOnly or framebufferOnly target and return false if so
+    // If one alpha type is unknown and the other isn't, it's too underspecified.
+    if ((src.alphaType() == kUnknown_SkAlphaType) !=
+        (this->imageInfo().alphaType() == kUnknown_SkAlphaType)) {
+        return false;
+    }
 
-    const Caps* caps = fRecorder->priv().caps();
+    // TODO: check for readOnly or framebufferOnly target and return false if so
 
     // TODO: canvas2DFastPath?
     // TODO: check that surface supports writePixels
     // TODO: handle writePixels as draw if needed (e.g., canvas2DFastPath || !supportsWritePixels)
 
-    // TODO: check for flips and conversions and either handle here or pass info to UploadTask
+    // TODO: check for flips and either handle here or pass info to UploadTask
 
-    // for now, until conversions are supported
-    if (!caps->areColorTypeAndTextureInfoCompatible(src.colorType(),
-                                                    target->textureInfo())) {
+    // Determine rect to copy
+    auto bounds = SkIRect::MakeSize(target->dimensions());
+    SkIRect dstRect = SkIRect::MakePtSize({x, y}, src.dimensions());
+    if (!dstRect.intersect(bounds)) {
         return false;
     }
 
+    // Set up copy location
+    const void* addr = src.addr(dstRect.fLeft - x, dstRect.fTop - y);
     std::vector<MipLevel> levels;
-    levels.push_back({src.addr(), src.rowBytes()});
-
-    SkIRect dstRect = SkIRect::MakePtSize({x, y}, src.dimensions());
+    levels.push_back({addr, src.rowBytes()});
 
     this->flushPendingWorkToRecorder();
-    return fDC->recordUpload(fRecorder, sk_ref_sp(target), src.colorType(), levels, dstRect,
-                             nullptr);
+
+    return fDC->recordUpload(fRecorder, sk_ref_sp(target), src.info().colorInfo(),
+                             this->imageInfo().colorInfo(), levels, dstRect, nullptr);
 }
 
 
