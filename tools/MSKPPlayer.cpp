@@ -355,7 +355,6 @@ protected:
         if (paint) {
             this->restore();
         }
-        fRecorder.getRecordingCanvas()->drawPicture(picture, matrix, paint);
     }
 
 private:
