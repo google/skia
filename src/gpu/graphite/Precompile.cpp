@@ -118,11 +118,12 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     const int desiredShaderCombination = remainingCombinations;
     SkASSERT(desiredShaderCombination < this->numShaderCombinations());
 
-    if (fShaderOptions.empty()) {
-        SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr,
-                                          {1, 0, 0, 1});
-        keyBuilder->endBlock();
-    } else {
+    // TODO: eliminate this block for the Paint's color when it isn't needed
+    SolidColorShaderBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr,
+                                      {1, 0, 0, 1});
+    keyBuilder->endBlock();
+
+    if (!fShaderOptions.empty()) {
         PrecompileBase::AddToKey(keyContext, keyBuilder, fShaderOptions, desiredShaderCombination);
     }
 

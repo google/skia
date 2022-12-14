@@ -13,30 +13,105 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
+#include "include/effects/SkColorMatrix.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/gpu/graphite/CombinationBuilder.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkUniquePaintParamsID.h"
+#include "include/utils/SkRandom.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/GlobalCache.h"
+#include "src/gpu/graphite/FactoryFunctions.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
+#include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PipelineData.h"
+#include "src/gpu/graphite/Precompile.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/shaders/SkImageShader.h"
-#include "tests/graphite/CombinationBuilderTestAccess.h"
 
 using namespace skgpu::graphite;
 
 namespace {
 
-sk_sp<SkImage> make_image(Recorder* recorder) {
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_random_shader(SkRandom*, Recorder*);
+std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_random_blender(SkRandom*);
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_random_colorfilter(SkRandom*);
+
+enum class ShaderType {
+    kNone,
+    kSolidColor,
+    kLinearGradient,
+    kRadialGradient,
+    kSweepGradient,
+    kConicalGradient,
+    kLocalMatrix,
+    kColorFilter,
+    kImage,
+    kBlend,
+
+    kLast          = kBlend
+};
+
+static constexpr int kShaderTypeCount = static_cast<int>(ShaderType::kLast) + 1;
+
+// TODO: do we need to add a separable category and/or a category for dstRead requiring blends?
+enum class BlenderType {
+    kNone,
+    kPorterDuff,
+    kShaderBased,
+    kRuntime,
+
+    kLast = kRuntime
+};
+
+static constexpr int kBlenderTypeCount = static_cast<int>(BlenderType::kLast) + 1;
+
+enum class ColorFilterType {
+    kNone,
+    kMatrix,
+    // TODO: add more color filters
+
+    kLast = kMatrix
+};
+
+static constexpr int kColorFilterTypeCount = static_cast<int>(ColorFilterType::kLast) + 1;
+
+SkColor random_opaque_color(SkRandom* rand) {
+    return 0xff000000 | rand->nextU();
+}
+
+SkTileMode random_tilemode(SkRandom* rand) {
+    return static_cast<SkTileMode>(rand->nextULessThan(kSkTileModeCount));
+}
+
+ShaderType random_shadertype(SkRandom* rand) {
+    return static_cast<ShaderType>(rand->nextULessThan(kShaderTypeCount));
+}
+
+SkBlendMode random_porter_duff_bm(SkRandom* rand) {
+    return static_cast<SkBlendMode>(rand->nextRangeU((unsigned int) SkBlendMode::kClear,
+                                                     (unsigned int) SkBlendMode::kLastCoeffMode));
+}
+
+SkBlendMode random_complex_bm(SkRandom* rand) {
+    return static_cast<SkBlendMode>(rand->nextRangeU((unsigned int) SkBlendMode::kLastCoeffMode,
+                                                     (unsigned int) SkBlendMode::kLastMode));
+}
+
+BlenderType random_blendertype(SkRandom* rand) {
+    return static_cast<BlenderType>(rand->nextULessThan(kBlenderTypeCount));
+}
+
+ColorFilterType random_colorfiltertype(SkRandom* rand) {
+    return static_cast<ColorFilterType>(rand->nextULessThan(kColorFilterTypeCount));
+}
+
+sk_sp<SkImage> make_image(SkRandom* rand, Recorder* recorder) {
     SkImageInfo info = SkImageInfo::Make(32, 32, SkColorType::kRGBA_8888_SkColorType,
                                          kPremul_SkAlphaType);
 
@@ -49,177 +124,389 @@ sk_sp<SkImage> make_image(Recorder* recorder) {
     return img->makeTextureImage(recorder);
 }
 
-std::tuple<SkPaint, int> create_paint(Recorder* recorder,
-                                      ShaderType shaderType,
-                                      SkTileMode tm,
-                                      SkBlendMode bm) {
+//--------------------------------------------------------------------------------------------------
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_solid_shader(SkRandom* rand) {
+    sk_sp<SkShader> s = SkShaders::Color(random_opaque_color(rand));
+    sk_sp<PrecompileShader> o = PrecompileShaders::Color();
+
+    return { s, o };
+}
+
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_gradient_shader(
+        SkRandom* rand,
+        SkShaderBase::GradientType type) {
+    // TODO: fuzz the gradient parameters - esp. the number of stops & hard stops
     SkPoint pts[2] = {{-100, -100},
                       {100,  100}};
     SkColor colors[2] = {SK_ColorRED, SK_ColorGREEN};
     SkScalar offsets[2] = {0.0f, 1.0f};
 
     sk_sp<SkShader> s;
-    int numTextures = 0;
-    switch (shaderType) {
-        case ShaderType::kSolidColor:
-            s = SkShaders::Color(SK_ColorYELLOW);
-            break;
-        case ShaderType::kLinearGradient:
+    sk_sp<PrecompileShader> o;
+
+    SkTileMode tm = random_tilemode(rand);
+
+    switch (type) {
+        case SkShaderBase::GradientType::kLinear:
             s = SkGradientShader::MakeLinear(pts, colors, offsets, 2, tm);
+            o = PrecompileShaders::LinearGradient();
             break;
-        case ShaderType::kRadialGradient:
+        case SkShaderBase::GradientType::kRadial:
             s = SkGradientShader::MakeRadial({0, 0}, 100, colors, offsets, 2, tm);
+            o = PrecompileShaders::RadialGradient();
             break;
-        case ShaderType::kSweepGradient:
+        case SkShaderBase::GradientType::kSweep:
             s = SkGradientShader::MakeSweep(0, 0, colors, offsets, 2, tm,
                                             0, 359, 0, nullptr);
+            o = PrecompileShaders::SweepGradient();
             break;
-        case ShaderType::kConicalGradient:
+        case SkShaderBase::GradientType::kConical:
             s = SkGradientShader::MakeTwoPointConical({100, 100}, 100,
                                                       {-100, -100}, 100,
                                                       colors, offsets, 2, tm);
+            o = PrecompileShaders::TwoPointConicalGradient();
             break;
-        case ShaderType::kLocalMatrix: {
-            s = SkShaders::Color(SK_ColorYELLOW);
-            s = s->makeWithLocalMatrix(SkMatrix::Scale(1.5f, 2.0f));
+        case SkShaderBase::GradientType::kNone:
+        case SkShaderBase::GradientType::kColor:
+            SkASSERT(0);
             break;
-        }
-        case ShaderType::kImage: {
-            ++numTextures;
-            s = SkImageShader::Make(make_image(recorder), tm, tm,
-                                    SkSamplingOptions(), nullptr);
-            break;
-        }
-        case ShaderType::kPorterDuffBlendShader: {
-            sk_sp<SkShader> src = SkShaders::Color(SK_ColorGREEN);
-            sk_sp<SkShader> dst = SkShaders::Color(SK_ColorLTGRAY);
-            s = SkShaders::Blend(SkBlendMode::kSrcOver, std::move(dst), std::move(src));
-            break;
-        }
-        case ShaderType::kBlendShader: {
-            sk_sp<SkShader> src = SkShaders::Color(SK_ColorGREEN);
-            sk_sp<SkShader> dst = SkShaders::Color(SK_ColorLTGRAY);
-            s = SkShaders::Blend(SkBlendMode::kColorDodge, std::move(dst), std::move(src));
-            break;
-        }
     }
-    SkPaint p;
-    p.setColor(SK_ColorRED);
-    p.setShader(std::move(s));
-    p.setBlendMode(bm);
-    return { p, numTextures };
+
+    return { s, o };
 }
 
-SkUniquePaintParamsID create_key(Context* context,
-                                 PaintParamsKeyBuilder* keyBuilder,
-                                 ShaderType shaderType,
-                                 SkTileMode tileMode,
-                                 SkBlendMode blendMode) {
-    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_localmatrix_shader(SkRandom* rand,
+                                                                              Recorder* recorder) {
+    auto [s, o] = create_random_shader(rand, recorder);
+    SkASSERT(!s == !o);
 
-    CombinationBuilder combinationBuilder(context->priv().shaderCodeDictionary());
+    if (!s) {
+        return { nullptr, nullptr };
+    }
 
+    SkMatrix tmp = SkMatrix::Scale(1.5f, 2.0f); // TODO: fuzz
+
+    return { s->makeWithLocalMatrix(tmp), o->makeWithLocalMatrix() };
+}
+
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_colorfilter_shader(SkRandom* rand,
+                                                                              Recorder* recorder) {
+    auto [s, o] = create_random_shader(rand, recorder);
+    SkASSERT(!s == !o);
+
+    if (!s) {
+        return { nullptr, nullptr };
+    }
+
+    auto [cf, cfO] = create_random_colorfilter(rand);
+
+    return { s->makeWithColorFilter(std::move(cf)), o->makeWithColorFilter(std::move(cfO)) };
+}
+
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_image_shader(SkRandom* rand,
+                                                                        Recorder* recorder) {
+    SkTileMode tmX = random_tilemode(rand);
+    SkTileMode tmY = random_tilemode(rand);
+
+    sk_sp<SkShader> s = SkImageShader::Make(make_image(rand, recorder), tmX, tmY,
+                                            SkSamplingOptions(), nullptr);
+    sk_sp<PrecompileShader> o = PrecompileShaders::Image();
+
+    return { s, o };
+}
+
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_blend_shader(SkRandom* rand,
+                                                                        Recorder* recorder) {
+    // TODO: add explicit testing of the kClear, kDst and kSrc blend modes since they short
+    // circuit creation of a true blend shader (i.e., in SkShaders::Blend).
+    auto [blender, blenderO] = create_random_blender(rand);
+
+    auto [dstS, dstO] = create_random_shader(rand, recorder);
+    SkASSERT(!dstS == !dstO);
+    if (!dstS) {
+        return { nullptr, nullptr };
+    }
+
+    auto [srcS, srcO] = create_random_shader(rand, recorder);
+    SkASSERT(!srcS == !srcO);
+    if (!srcS) {
+        return { nullptr, nullptr };
+    }
+
+    auto s = SkShaders::Blend(std::move(blender), std::move(dstS), std::move(srcS));
+    auto o = PrecompileShaders::Blend(SkSpan<const sk_sp<PrecompileBlender>>({ blenderO }),
+                                      { dstO }, { srcO });
+
+    return { s, o };
+}
+
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>>  create_shader(SkRandom* rand,
+                                                                   Recorder* recorder,
+                                                                   ShaderType shaderType) {
     switch (shaderType) {
+        case ShaderType::kNone:
+            return { nullptr, nullptr };
         case ShaderType::kSolidColor:
-            combinationBuilder.addOption(shaderType);
-            break;
-        case ShaderType::kLinearGradient:         [[fallthrough]];
-        case ShaderType::kRadialGradient:         [[fallthrough]];
-        case ShaderType::kSweepGradient:          [[fallthrough]];
+            return create_solid_shader(rand);
+        case ShaderType::kLinearGradient:
+            return create_gradient_shader(rand, SkShaderBase::GradientType::kLinear);
+        case ShaderType::kRadialGradient:
+            return create_gradient_shader(rand, SkShaderBase::GradientType::kRadial);
+        case ShaderType::kSweepGradient:
+            return create_gradient_shader(rand, SkShaderBase::GradientType::kSweep);
         case ShaderType::kConicalGradient:
-            combinationBuilder.addOption(shaderType, 2, 2);
-            break;
-        case ShaderType::kLocalMatrix: {
-            CombinationOption option = combinationBuilder.addOption(shaderType);
-            option.addChildOption(0, ShaderType::kSolidColor);
-        } break;
-        case ShaderType::kImage: {
-            TileModePair tilingOptions[] = { { tileMode,  tileMode } };
-
-            combinationBuilder.addOption(shaderType, tilingOptions);
-        } break;
-        case ShaderType::kPorterDuffBlendShader: {
-            CombinationOption option = combinationBuilder.addOption(shaderType);
-            option.addChildOption(0, ShaderType::kSolidColor);
-            option.addChildOption(1, ShaderType::kSolidColor);
-        } break;
-        case ShaderType::kBlendShader: {
-            CombinationOption option = combinationBuilder.addOption(shaderType);
-            option.addChildOption(0, ShaderType::kSolidColor);
-            option.addChildOption(1, ShaderType::kSolidColor);
-        } break;
+            return create_gradient_shader(rand, SkShaderBase::GradientType::kConical);
+        case ShaderType::kLocalMatrix:
+            return create_localmatrix_shader(rand, recorder);
+        case ShaderType::kColorFilter:
+            return create_colorfilter_shader(rand, recorder);
+        case ShaderType::kImage:
+            return create_image_shader(rand, recorder);
+        case ShaderType::kBlend:
+            return create_blend_shader(rand, recorder);
     }
 
-    combinationBuilder.addOption(blendMode);
-
-    std::vector<SkUniquePaintParamsID> uniqueIDs = CombinationBuilderTestAccess::BuildCombinations(
-            dict, &combinationBuilder);
-
-    SkASSERT(uniqueIDs.size() == 1);
-    return uniqueIDs[0];
+    SkUNREACHABLE;
 }
+
+std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_random_shader(SkRandom* rand,
+                                                                         Recorder* recorder) {
+    return create_shader(rand, recorder, random_shadertype(rand));
+}
+
+//--------------------------------------------------------------------------------------------------
+std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> src_blender() {
+    static SkRuntimeEffect* sSrcEffect = SkMakeRuntimeEffect(
+            SkRuntimeEffect::MakeForBlender,
+            "half4 main(half4 src, half4 dst) {"
+                "return src;"
+            "}"
+    );
+
+    sk_sp<SkBlender> b = sSrcEffect->makeBlender(/* uniforms= */ nullptr);
+    sk_sp<PrecompileBlender> o = MakePrecompileBlender(sk_ref_sp(sSrcEffect));
+    return { b , o };
+}
+
+std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> dest_blender() {
+    static SkRuntimeEffect* sDestEffect = SkMakeRuntimeEffect(
+            SkRuntimeEffect::MakeForBlender,
+            "half4 main(half4 src, half4 dst) {"
+                "return dst;"
+            "}"
+    );
+
+    sk_sp<SkBlender> b = sDestEffect->makeBlender(/* uniforms= */ nullptr);
+    sk_sp<PrecompileBlender> o = MakePrecompileBlender(sk_ref_sp(sDestEffect));
+    return { b , o };
+}
+
+
+std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> combo_blender() {
+    static SkRuntimeEffect* sComboEffect = SkMakeRuntimeEffect(
+            SkRuntimeEffect::MakeForBlender,
+            "uniform float blendFrac;"
+            "uniform blender a;"
+            "uniform blender b;"
+            "half4 main(half4 src, half4 dst) {"
+                "return (blendFrac * a.eval(src, dst)) + ((1 - blendFrac) * b.eval(src, dst));"
+            "}"
+    );
+
+    auto [src, srcO] = src_blender();
+    auto [dst, dstO] = dest_blender();
+
+    SkRuntimeEffect::ChildPtr children[] = { src, dst };
+    const PrecompileChildPtr childOptions[] = { srcO, dstO };
+
+    const float kUniforms[] = { 1.0f };
+
+    sk_sp<SkBlender> b = sComboEffect->makeBlender(SkData::MakeWithCopy(kUniforms,
+                                                                        sizeof(kUniforms)),
+                                                   children);
+    sk_sp<PrecompileBlender> o = MakePrecompileBlender(sk_ref_sp(sComboEffect), { childOptions });
+    return { b , o };
+}
+
+std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_bm_blender(SkRandom* rand,
+                                                                        SkBlendMode bm) {
+    return { SkBlender::Mode(bm), PrecompileBlender::Mode(bm) };
+}
+
+std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_rt_blender(SkRandom* rand) {
+    int option = rand->nextULessThan(3);
+
+    switch (option) {
+        case 0: return src_blender();
+        case 1: return dest_blender();
+        case 2: return combo_blender();
+    }
+
+    return { nullptr, nullptr };
+}
+
+std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_blender(SkRandom* rand,
+                                                                     BlenderType type) {
+    switch (type) {
+        case BlenderType::kNone:
+            return { nullptr, nullptr };
+        case BlenderType::kPorterDuff:
+            return create_bm_blender(rand, random_porter_duff_bm(rand));
+        case BlenderType::kShaderBased:
+            return create_bm_blender(rand, random_complex_bm(rand));
+        case BlenderType::kRuntime:
+            return create_rt_blender(rand);
+    }
+
+    SkUNREACHABLE;
+}
+
+std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_random_blender(SkRandom* rand) {
+    return create_blender(rand, random_blendertype(rand));
+}
+
+//--------------------------------------------------------------------------------------------------
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_matrix_colorfilter() {
+    sk_sp<SkColorFilter> cf = SkColorFilters::Matrix(
+            SkColorMatrix::RGBtoYUV(SkYUVColorSpace::kJPEG_Full_SkYUVColorSpace));
+    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Matrix();
+
+    return { cf, o };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_colorfilter(
+        SkRandom* rand,
+        ColorFilterType type) {
+
+    switch (type) {
+        case ColorFilterType::kNone:
+            return { nullptr, nullptr };
+        case ColorFilterType::kMatrix:
+            return create_matrix_colorfilter();
+    }
+
+    SkUNREACHABLE;
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_random_colorfilter(
+        SkRandom* rand) {
+    return create_colorfilter(rand, random_colorfiltertype(rand));
+}
+
+//--------------------------------------------------------------------------------------------------
+std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
+                                              Recorder* recorder,
+                                              ShaderType shaderType,
+                                              BlenderType blenderType,
+                                              ColorFilterType colorFilterType) {
+    SkPaint paint;
+    paint.setColor(random_opaque_color(rand));
+
+    PaintOptions paintOptions;
+
+    {
+        auto [s, o] = create_shader(rand, recorder, shaderType);
+        SkASSERT(!s == !o);
+
+        if (s) {
+            paint.setShader(std::move(s));
+            paintOptions.setShaders({o});
+        }
+    }
+
+    {
+        auto [cf, o] = create_colorfilter(rand, colorFilterType);
+        SkASSERT(!cf == !o);
+
+        if (cf) {
+            paint.setColorFilter(std::move(cf));
+            paintOptions.setColorFilters({o});
+        }
+    }
+
+    {
+        auto [b, o] = create_blender(rand, blenderType);
+        SkASSERT(!b == !o);
+
+        if (b) {
+            paint.setBlender(std::move(b));
+            paintOptions.setBlenders({o});
+        }
+    }
+
+    return { paint, paintOptions };
+}
+
+#ifdef SK_DEBUG
+void dump(ShaderCodeDictionary* dict, SkUniquePaintParamsID id) {
+    auto entry = dict->lookup(id);
+    entry->paintParamsKey().dump(dict);
+}
+#endif
 
 } // anonymous namespace
 
 // This is intended to be a smoke test for the agreement between the two ways of creating a
 // PaintParamsKey:
 //    via ExtractPaintData (i.e., from an SkPaint)
-//    and via CreateKey (i.e., via the pre-compilation system)
-// TODO: we could turn this into a fuzzer
-// TODO: rather than what we're doing here we should:
-//   create a PaintCombinations object for a single combination
-//   traverse it to create an SkPaint (or create it in parallel)
-//   call Context::precompile and, somehow, get the created PaintParamsKey
-//           - maybe via a testing only callback on ShaderCodeDictionary::findOrCreate
-//   draw w/ the SkPaint and, again, somehow, intercept the created PaintParamsKey
+//    and via the pre-compilation system
+//
+// TODO: keep this as a smoke test but add a fuzzer that reuses all the helpers
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
     auto recorder = context->makeRecorder();
     KeyContext keyContext(recorder.get(), {});
     auto dict = keyContext.dict();
 
+    SkRandom rand;
+
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(Layout::kMetal);
 
-    for (auto s : { ShaderType::kSolidColor,
+    for (auto s : { ShaderType::kNone,
+                    ShaderType::kSolidColor,
                     ShaderType::kLinearGradient,
                     ShaderType::kRadialGradient,
                     ShaderType::kSweepGradient,
                     ShaderType::kConicalGradient,
                     ShaderType::kLocalMatrix,
                     ShaderType::kImage,
-                    ShaderType::kPorterDuffBlendShader,
-                    ShaderType::kBlendShader }) {
-        for (auto tm: { SkTileMode::kClamp,
-                        SkTileMode::kRepeat,
-                        SkTileMode::kMirror,
-                        SkTileMode::kDecal }) {
-            if (s == ShaderType::kSolidColor || s == ShaderType::kLocalMatrix ||
-                s == ShaderType::kPorterDuffBlendShader || s == ShaderType::kBlendShader) {
-                if (tm != SkTileMode::kClamp) {
-                    continue;  // the TileMode doesn't matter for these cases
+                    ShaderType::kBlend  }) {
+        for (auto bm : { BlenderType::kNone,
+                         BlenderType::kPorterDuff,
+                         BlenderType::kShaderBased,
+                         BlenderType::kRuntime }) {
+            for (auto cf : { ColorFilterType::kNone,
+                             ColorFilterType::kMatrix }) {
+                auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf);
+
+                auto [paintID, uData, tData] = ExtractPaintData(
+                        recorder.get(), &gatherer, &builder, Layout::kMetal, {},
+                        PaintParams(paint));
+
+                std::vector<SkUniquePaintParamsID> precompileIDs;
+                paintOptions.priv().buildCombinations(dict,
+                                                      [&](SkUniquePaintParamsID id) {
+                                                          precompileIDs.push_back(id);
+                                                      });
+
+                // The specific key generated by ExtractPaintData should be one of the combinations
+                // generated by the combination system.
+                auto result = std::find(precompileIDs.begin(), precompileIDs.end(), paintID);
+
+#ifdef SK_DEBUG
+                if (result == precompileIDs.end()) {
+                    SkDebugf("From paint: ");
+                    dump(dict, paintID);
+
+                    SkDebugf("From combination builder:");
+                    for (auto iter : precompileIDs) {
+                        dump(dict, iter);
+                    }
+                    SkASSERT(false);
                 }
-            }
+#endif
 
-            // TODO: test out a runtime SkBlender here
-            for (auto bm : { SkBlendMode::kSrc, SkBlendMode::kSrcOver }) {
-                auto [ p, expectedNumTextures ] = create_paint(recorder.get(), s, tm, bm);
-
-                auto [uniqueID1, uData, tData] = ExtractPaintData(
-                        recorder.get(), &gatherer, &builder, Layout::kMetal, {}, PaintParams(p));
-
-                SkUniquePaintParamsID uniqueID2 = create_key(context, &builder, s, tm, bm);
-                // ExtractPaintData and CreateKey agree
-                REPORTER_ASSERT(reporter, uniqueID1 == uniqueID2);
-
-                {
-                    int actualNumTextures = tData ? tData->numTextures() : 0;
-
-                    REPORTER_ASSERT(reporter, expectedNumTextures == actualNumTextures);
-                }
-
-                {
-                    // TODO: check the blendInfo here too
-                }
+                REPORTER_ASSERT(reporter, result != precompileIDs.end());
             }
         }
     }
