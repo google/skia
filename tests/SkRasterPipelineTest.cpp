@@ -594,7 +594,7 @@ DEF_TEST(SkRasterPipeline_Swizzle, r) {
             ctx.offsets[index] = pattern.swizzle[index] * N * sizeof(float);
         }
         p.append(pattern.stage, &ctx);
-        p.run(0,0,4,1);
+        p.run(0,0,1,1);
 
         // Verify that the swizzle has been applied in each slot.
         float* destPtr = &slots[0];
