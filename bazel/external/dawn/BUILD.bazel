@@ -1065,8 +1065,6 @@ TINT_SRCS = [
     "src/tint/sem/call.h",
     "src/tint/sem/call_target.cc",
     "src/tint/sem/call_target.h",
-    "src/tint/sem/constant.cc",
-    "src/tint/sem/constant.h",
     "src/tint/sem/evaluation_stage.h",
     "src/tint/sem/expression.cc",
     "src/tint/sem/expression.h",
@@ -1080,6 +1078,8 @@ TINT_SRCS = [
     "src/tint/sem/index_accessor_expression.h",
     "src/tint/sem/info.cc",
     "src/tint/sem/info.h",
+    "src/tint/sem/load.cc",
+    "src/tint/sem/load.h",
     "src/tint/sem/loop_statement.cc",
     "src/tint/sem/loop_statement.h",
     "src/tint/sem/materialize.cc",
@@ -1168,6 +1168,11 @@ TINT_SRCS = [
     "src/tint/type/vector.h",
     "src/tint/type/void.cc",
     "src/tint/type/void.h",
+    # From dawn/src/tint/BUILD.gn:libtint_constant_src
+    "src/tint/constant/constant.cc",
+    "src/tint/constant/constant.h",
+    "src/tint/constant/node.cc",
+    "src/tint/constant/node.h",
     # Dawn sets the following tint GN variables
     #    tint_build_spv_reader = true
     #    tint_build_spv_writer = true
