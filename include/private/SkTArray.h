@@ -125,13 +125,6 @@ public:
         }
     }
 
-
-    // Deprecated. Use clear() instead.
-    // TODO: remove whe all references are gone.
-    void reset() {
-        this->clear();
-    }
-
     /**
      * Resets to size() = n newly constructed T objects and resets any reserve count.
      */
