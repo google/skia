@@ -213,7 +213,7 @@ static wgpu::BlendOperation blend_equation_to_dawn_blend_op(skgpu::BlendEquation
 // static
 sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* sharedContext,
                                                        SkSL::Compiler* compiler,
-                                                       const SkRuntimeEffectDictionary* runtimeDict,
+                                                       const RuntimeEffectDictionary* runtimeDict,
                                                        const GraphicsPipelineDesc& pipelineDesc,
                                                        const RenderPassDesc& renderPassDesc) {
     const auto& device = sharedContext->device();

@@ -46,7 +46,7 @@ sk_sp<Texture> DawnResourceProvider::createWrappedTexture(const BackendTexture& 
 }
 
 sk_sp<GraphicsPipeline> DawnResourceProvider::createGraphicsPipeline(
-        const SkRuntimeEffectDictionary* runtimeDict,
+        const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
     return DawnGraphicsPipeline::Make(this->dawnSharedContext(),

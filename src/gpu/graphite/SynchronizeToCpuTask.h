@@ -26,7 +26,7 @@ public:
     static sk_sp<SynchronizeToCpuTask> Make(sk_sp<Buffer>);
     ~SynchronizeToCpuTask() override;
 
-    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override {
+    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override {
         return true;
     }
 

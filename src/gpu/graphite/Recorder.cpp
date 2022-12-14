@@ -14,7 +14,6 @@
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recording.h"
 #include "src/core/SkConvertPixels.h"
-#include "src/core/SkRuntimeEffectDictionary.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -28,6 +27,7 @@
 #include "src/gpu/graphite/PipelineDataCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/TaskGraph.h"
 #include "src/gpu/graphite/Texture.h"
@@ -83,7 +83,7 @@ static int32_t next_id() {
 Recorder::Recorder(sk_sp<SharedContext> sharedContext,
                    const RecorderOptions& options)
         : fSharedContext(std::move(sharedContext))
-        , fRuntimeEffectDict(std::make_unique<SkRuntimeEffectDictionary>())
+        , fRuntimeEffectDict(std::make_unique<RuntimeEffectDictionary>())
         , fGraph(new TaskGraph)
         , fUniformDataCache(new UniformDataCache)
         , fTextureDataCache(new TextureDataCache)

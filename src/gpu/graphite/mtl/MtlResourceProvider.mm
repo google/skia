@@ -95,7 +95,7 @@ sk_sp<MtlGraphicsPipeline> MtlResourceProvider::findOrCreateLoadMSAAPipeline(
 }
 
 sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
-        const SkRuntimeEffectDictionary* runtimeDict,
+        const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc) {
     std::string vsMSL, fsMSL;

@@ -20,7 +20,6 @@
 class SkCanvas;
 struct SkImageInfo;
 class SkPixmap;
-class SkRuntimeEffectDictionary;
 
 namespace skgpu {
 class TokenTracker;
@@ -43,6 +42,7 @@ class GlobalCache;
 class ImageProvider;
 class RecorderPriv;
 class ResourceProvider;
+class RuntimeEffectDictionary;
 class SharedContext;
 class Task;
 class TaskGraph;
@@ -167,7 +167,7 @@ private:
 
     sk_sp<SharedContext> fSharedContext;
     std::unique_ptr<ResourceProvider> fResourceProvider;
-    std::unique_ptr<SkRuntimeEffectDictionary> fRuntimeEffectDict;
+    std::unique_ptr<RuntimeEffectDictionary> fRuntimeEffectDict;
 
     std::unique_ptr<TaskGraph> fGraph;
     std::unique_ptr<UniformDataCache> fUniformDataCache;

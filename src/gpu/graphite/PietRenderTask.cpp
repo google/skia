@@ -33,7 +33,7 @@ bool PietRenderInstance::addCommands(CommandBuffer* commandBuffer) {
 }
 
 bool PietRenderTask::prepareResources(ResourceProvider* resourceProvider,
-                                      const SkRuntimeEffectDictionary*) {
+                                      const RuntimeEffectDictionary*) {
     for (PietRenderInstance& instance : fInstances) {
         if (!instance.prepareResources(resourceProvider)) {
             return false;

@@ -16,7 +16,6 @@
 
 #include "webgpu/webgpu_cpp.h"
 
-class SkRuntimeEffectDictionary;
 class SkUniform;
 
 namespace SkSL {
@@ -35,6 +34,7 @@ class DawnResourceProvider;
 class DawnSharedContext;
 struct DepthStencilSettings;
 struct RenderPassDesc;
+class RuntimeEffectDictionary;
 
 class DawnGraphicsPipeline final : public GraphicsPipeline {
 public:
@@ -52,7 +52,7 @@ public:
 
     static sk_sp<DawnGraphicsPipeline> Make(const DawnSharedContext* sharedContext,
                                             SkSL::Compiler* compiler,
-                                            const SkRuntimeEffectDictionary* runtimeDict,
+                                            const RuntimeEffectDictionary* runtimeDict,
                                             const GraphicsPipelineDesc& pipelineDesc,
                                             const RenderPassDesc& renderPassDesc);
 

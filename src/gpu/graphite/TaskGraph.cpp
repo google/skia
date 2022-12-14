@@ -21,7 +21,7 @@ void TaskGraph::prepend(sk_sp<Task> task) {
 }
 
 bool TaskGraph::prepareResources(ResourceProvider* resourceProvider,
-                                 const SkRuntimeEffectDictionary* runtimeDict) {
+                                 const RuntimeEffectDictionary* runtimeDict) {
     for (const auto& task: fTasks) {
         if (!task->prepareResources(resourceProvider, runtimeDict)) {
             return false;

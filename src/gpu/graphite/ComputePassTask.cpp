@@ -27,7 +27,7 @@ ComputePassTask::ComputePassTask(std::vector<ResourceBinding> bindings,
         , fBindings(std::move(bindings)) {}
 
 bool ComputePassTask::prepareResources(ResourceProvider* provider,
-                                       const SkRuntimeEffectDictionary*) {
+                                       const RuntimeEffectDictionary*) {
     fPipeline = provider->findOrCreateComputePipeline(fPipelineDesc);
     return fPipeline != nullptr;
 }

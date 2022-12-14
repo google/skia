@@ -31,12 +31,12 @@
 #include <vector>
 
 class SkRuntimeEffect;
-class SkRuntimeEffectDictionary;
 
 namespace skgpu::graphite {
 
 enum class Layout;
 class RenderStep;
+class RuntimeEffectDictionary;
 
 #ifdef SK_ENABLE_PRECOMPILE
 class BlenderID;
@@ -128,7 +128,7 @@ struct ShaderSnippet {
 // for program creation and its invocation.
 class ShaderInfo {
 public:
-    ShaderInfo(const SkRuntimeEffectDictionary* rteDict = nullptr,
+    ShaderInfo(const RuntimeEffectDictionary* rteDict = nullptr,
                const char* ssboIndex = nullptr)
             : fRuntimeEffectDictionary(rteDict)
             , fSsboIndex(ssboIndex) {}
@@ -150,7 +150,7 @@ public:
     const PaintParamsKey::BlockReader& blockReader(int index) const {
         return fBlockReaders[index];
     }
-    const SkRuntimeEffectDictionary* runtimeEffectDictionary() const {
+    const RuntimeEffectDictionary* runtimeEffectDictionary() const {
         return fRuntimeEffectDictionary;
     }
     const char* ssboIndex() const { return fSsboIndex; }
@@ -170,7 +170,7 @@ private:
     std::vector<PaintParamsKey::BlockReader> fBlockReaders;
 
     SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags{SnippetRequirementFlags::kNone};
-    const SkRuntimeEffectDictionary* fRuntimeEffectDictionary = nullptr;
+    const RuntimeEffectDictionary* fRuntimeEffectDictionary = nullptr;
 
     const char* fSsboIndex;
 

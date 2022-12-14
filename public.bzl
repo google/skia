@@ -576,7 +576,6 @@ BASE_SRCS_ALL = [
     "src/core/SkResourceCache.cpp",
     "src/core/SkResourceCache.h",
     "src/core/SkRuntimeEffect.cpp",
-    "src/core/SkRuntimeEffectDictionary.h",
     "src/core/SkRuntimeEffectPriv.h",
     "src/core/SkSLTypeShared.cpp",
     "src/core/SkSLTypeShared.h",

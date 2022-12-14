@@ -28,7 +28,7 @@ sk_sp<Texture> VulkanResourceProvider::createWrappedTexture(const BackendTexture
 }
 
 sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
-        const SkRuntimeEffectDictionary*,
+        const RuntimeEffectDictionary*,
         const GraphicsPipelineDesc&,
         const RenderPassDesc&) {
     return nullptr;

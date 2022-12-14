@@ -12,7 +12,6 @@
 #include "src/gpu/graphite/PipelineDataCache.h"
 
 class SkM44;
-class SkRuntimeEffectDictionary;
 class SkUniquePaintParamsID;
 
 namespace skgpu::graphite {
@@ -23,6 +22,7 @@ class PaintParams;
 class PipelineDataGatherer;
 class Recorder;
 class RenderStep;
+class RuntimeEffectDictionary;
 
 enum class Layout;
 
@@ -50,7 +50,7 @@ std::string GetSkSLVS(const Layout uboLayout,
 std::string GetSkSLFS(const Layout uboLayout,
                       const Layout ssboLayout,
                       const ShaderCodeDictionary*,
-                      const SkRuntimeEffectDictionary*,
+                      const RuntimeEffectDictionary*,
                       const RenderStep* renderStep,
                       SkUniquePaintParamsID paintID,
                       bool useStorageBuffers,

@@ -26,7 +26,7 @@ public:
 
     ~CopyBufferToBufferTask() override;
 
-    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override;
+    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 
@@ -48,7 +48,7 @@ public:
 
     ~CopyTextureToBufferTask() override;
 
-    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override;
+    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 
@@ -75,7 +75,7 @@ public:
 
     ~CopyTextureToTextureTask() override;
 
-    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override;
+    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 

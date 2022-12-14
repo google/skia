@@ -24,7 +24,7 @@ public:
     sk_sp<Texture> createWrappedTexture(const BackendTexture&) override;
 
 private:
-    sk_sp<GraphicsPipeline> createGraphicsPipeline(const SkRuntimeEffectDictionary*,
+    sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
                                                    const GraphicsPipelineDesc&,
                                                    const RenderPassDesc&) override;
     sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;

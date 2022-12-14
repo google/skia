@@ -39,7 +39,7 @@ public:
 
     ~ComputePassTask() override = default;
 
-    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override;
+    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 
 private:

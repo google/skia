@@ -287,7 +287,6 @@ CORE_FILES = [
     "SkRegion_path.cpp",
     "SkResourceCache.cpp",
     "SkResourceCache.h",
-    "SkRuntimeEffectDictionary.h",
     "SkRuntimeEffectPriv.h",
     "SkSafeMath.h",
     "SkSafeRange.h",

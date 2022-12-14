@@ -212,7 +212,7 @@ UploadTask::UploadTask(UploadInstance instance) {
 UploadTask::~UploadTask() {}
 
 bool UploadTask::prepareResources(ResourceProvider* resourceProvider,
-                                  const SkRuntimeEffectDictionary*) {
+                                  const RuntimeEffectDictionary*) {
     for (unsigned int i = 0; i < fInstances.size(); ++i) {
         if (!fInstances[i].prepareResources(resourceProvider)) {
             return false;

@@ -21,8 +21,6 @@
 
 #include <memory>
 
-class SkRuntimeEffectDictionary;
-
 namespace skgpu::graphite {
 
 class BoundsManager;
@@ -32,6 +30,7 @@ class GraphicsPipeline;
 class Recorder;
 struct RenderPassDesc;
 class ResourceProvider;
+class RuntimeEffectDictionary;
 class Sampler;
 class TextureDataBlock;
 class TextureProxy;
@@ -80,7 +79,7 @@ public:
     // ResourceProvider. This includes things likes GraphicsPipelines, sampled Textures, Samplers,
     // etc.
     bool prepareResources(ResourceProvider*,
-                          const SkRuntimeEffectDictionary*,
+                          const RuntimeEffectDictionary*,
                           const RenderPassDesc&);
 
     DrawPassCommands::List::Iter commands() const {

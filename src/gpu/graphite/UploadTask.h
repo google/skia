@@ -113,7 +113,7 @@ public:
 
     ~UploadTask() override;
 
-    bool prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) override;
+    bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
     bool addCommands(ResourceProvider*, CommandBuffer*) override;
 

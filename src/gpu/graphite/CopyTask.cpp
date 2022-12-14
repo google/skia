@@ -31,7 +31,7 @@ CopyBufferToBufferTask::CopyBufferToBufferTask(sk_sp<Buffer> srcBuffer,
 
 CopyBufferToBufferTask::~CopyBufferToBufferTask() = default;
 
-bool CopyBufferToBufferTask::prepareResources(ResourceProvider*, const SkRuntimeEffectDictionary*) {
+bool CopyBufferToBufferTask::prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) {
     return true;
 }
 
@@ -66,7 +66,7 @@ CopyTextureToBufferTask::CopyTextureToBufferTask(sk_sp<TextureProxy> textureProx
 CopyTextureToBufferTask::~CopyTextureToBufferTask() {}
 
 bool CopyTextureToBufferTask::prepareResources(ResourceProvider* resourceProvider,
-                                               const SkRuntimeEffectDictionary*) {
+                                               const RuntimeEffectDictionary*) {
     if (!fTextureProxy) {
         SKGPU_LOG_E("No texture proxy specified for CopyTextureToBufferTask");
         return false;
@@ -111,7 +111,7 @@ CopyTextureToTextureTask::CopyTextureToTextureTask(sk_sp<TextureProxy> srcProxy,
 CopyTextureToTextureTask::~CopyTextureToTextureTask() {}
 
 bool CopyTextureToTextureTask::prepareResources(ResourceProvider* resourceProvider,
-                                                const SkRuntimeEffectDictionary*) {
+                                                const RuntimeEffectDictionary*) {
     if (!fSrcProxy) {
         SKGPU_LOG_E("No src texture proxy specified for CopyTextureToTextureTask");
         return false;

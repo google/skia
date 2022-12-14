@@ -27,10 +27,10 @@ public:
 
     ResourceProvider* resourceProvider() { return fRecorder->fResourceProvider.get(); }
 
-    const SkRuntimeEffectDictionary* runtimeEffectDictionary() const {
+    const RuntimeEffectDictionary* runtimeEffectDictionary() const {
         return fRecorder->fRuntimeEffectDict.get();
     }
-    SkRuntimeEffectDictionary* runtimeEffectDictionary() {
+    RuntimeEffectDictionary* runtimeEffectDictionary() {
         return fRecorder->fRuntimeEffectDict.get();
     }
     const ShaderCodeDictionary* shaderCodeDictionary() const {

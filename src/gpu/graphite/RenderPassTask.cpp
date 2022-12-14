@@ -39,7 +39,7 @@ RenderPassTask::RenderPassTask(std::vector<std::unique_ptr<DrawPass>> passes,
 RenderPassTask::~RenderPassTask() = default;
 
 bool RenderPassTask::prepareResources(ResourceProvider* resourceProvider,
-                                      const SkRuntimeEffectDictionary* runtimeDict) {
+                                      const RuntimeEffectDictionary* runtimeDict) {
     SkASSERT(fTarget);
     if (!TextureProxy::InstantiateIfNotLazy(resourceProvider, fTarget.get())) {
         SKGPU_LOG_W("Failed to instantiate RenderPassTask target. Will not create renderpass!");
