@@ -32,8 +32,6 @@
 #include <DXProgrammableCapture.h>
 #endif
 
-using namespace skia::internal;
-
 GrThreadSafePipelineBuilder* GrD3DGpu::pipelineBuilder() {
     return nullptr;
 }

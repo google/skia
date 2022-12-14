@@ -22,8 +22,6 @@
 #include <cstdint>
 #include <cstring>
 
-using namespace skia::internal;
-
 namespace {
 
 template <size_t R, size_t D> struct Format0NameTable {

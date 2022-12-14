@@ -34,7 +34,7 @@ private:
     SkString fSkSL;
     bool fCodeIsDirty;
     sk_sp<SkRuntimeEffect> fEffect;
-    skia::internal::SkAutoTMalloc<char> fInputs;
+    SkAutoTMalloc<char> fInputs;
     SkTArray<sk_sp<SkShader>> fChildren;
     float fSeconds = 0.0f;
 

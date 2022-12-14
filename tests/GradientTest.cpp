@@ -40,8 +40,6 @@
 #include <cstring>
 #include <string>
 
-using namespace skia::internal;
-
 // https://code.google.com/p/chromium/issues/detail?id=448299
 // Giant (inverse) matrix causes overflow when converting/computing using 32.32
 // Before the fix, we would assert (and then crash).

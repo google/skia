@@ -20,8 +20,6 @@
 #include <memory>
 #include <new>
 
-using namespace skia::internal;
-
 SkDrawableList::~SkDrawableList() {
     for(SkDrawable* p : fArray) {
         p->unref();

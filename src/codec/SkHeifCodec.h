@@ -84,7 +84,7 @@ private:
 
     std::unique_ptr<HeifDecoder>       fHeifDecoder;
     HeifFrameInfo                      fFrameInfo;
-    skia::internal::SkAutoTMalloc<uint8_t>             fStorage;
+    SkAutoTMalloc<uint8_t>             fStorage;
     uint8_t*                           fSwizzleSrcRow;
     uint32_t*                          fColorXformSrcRow;
 

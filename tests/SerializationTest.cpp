@@ -63,8 +63,6 @@
 #include <memory>
 #include <utility>
 
-using namespace skia::internal;
-
 static const uint32_t kArraySize = 64;
 static const int kBitmapSize = 256;
 

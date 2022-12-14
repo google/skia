@@ -235,7 +235,6 @@ private:
     char    fStorage[kCount * sizeof(T)];
 };
 
-namespace skia::internal {
 /** Manages an array of T elements, freeing the array in the destructor.
  *  Does NOT call any constructors/destructors on T (T must be POD).
  */
@@ -289,7 +288,6 @@ public:
 private:
     std::unique_ptr<T, SkOverloadedFunctionObject<void(void*), sk_free>> fPtr;
 };
-}  // namespace skia::internal
 
 template <size_t kCountRequested,
           typename T,

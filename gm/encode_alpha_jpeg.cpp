@@ -21,8 +21,6 @@
 #include "include/private/SkTemplates.h"
 #include "tools/Resources.h"
 
-using namespace skia::internal;
-
 namespace skiagm {
 
 static inline void read_into_pixmap(SkPixmap* dst, SkImageInfo dstInfo, void* dstPixels,

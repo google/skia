@@ -170,7 +170,7 @@ private:
     // support efficient random access and forward iteration.  (It doesn't need to be contiguous.)
     int fCount{0},
         fReserved{0};
-    skia::internal::SkAutoTMalloc<Record> fRecords;
+    SkAutoTMalloc<Record> fRecords;
 
     // fAlloc needs to be a data structure which can append variable length data in contiguous
     // chunks, returning a stable handle to that data for later retrieval.

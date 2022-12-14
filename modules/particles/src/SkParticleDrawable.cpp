@@ -22,8 +22,6 @@
 
 #include <math.h>
 
-using namespace skia::internal;
-
 static sk_sp<SkImage> make_circle_image(int radius) {
     auto surface = SkSurface::MakeRasterN32Premul(radius * 2, radius * 2);
     surface->getCanvas()->clear(SK_ColorTRANSPARENT);

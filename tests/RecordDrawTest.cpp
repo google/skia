@@ -25,8 +25,6 @@
 #include "tests/RecordTestUtils.h"
 #include "tests/Test.h"
 
-using namespace skia::internal;
-
 class SkImage;
 
 static const int W = 1920, H = 1080;

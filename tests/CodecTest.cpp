@@ -44,8 +44,6 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-using namespace skia::internal;
-
 #ifdef SK_ENABLE_ANDROID_UTILS
 #include "client_utils/android/FrontBufferedStream.h"
 #endif

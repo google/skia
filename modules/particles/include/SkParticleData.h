@@ -36,7 +36,7 @@ struct SkParticles {
         kNumChannels,
     };
 
-    skia::internal::SkAutoTMalloc<float>    fData[kNumChannels];
+    SkAutoTMalloc<float>    fData[kNumChannels];
 };
 
 #endif // SkParticleData_DEFINED
