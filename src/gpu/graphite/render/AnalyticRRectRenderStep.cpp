@@ -61,7 +61,84 @@
 //
 // See https://docs.google.com/presentation/d/1MCPstNsSlDBhR8CrsJo0r-cZNbu-sEJEvU9W94GOJoY/edit?usp=sharing
 // for diagrams and explanation of how the geometry is defined.
-
+//
+// AnalyticRRectRenderStep uses the common technique of approximating distance to the level set by
+// one expansion of the Taylor's series for the level set's equation. Given a level set function
+// C(x,y), this amounts to calculating C(px,py)/|∇C(px,py)|. For a round-rect's linear edges, C is
+// linear and the gradient is a constant, so can be computed in the vertex shader and interpolated
+// exactly. For the curved corners, C's inputs are interpolated and then evaluated in the fragment
+// shader, but the gradient is linear and can be interpolated exactly as well. A separate varying
+// is used so that the more expensive non-linear equations are only computed on triangles that cover
+// the curved corners.
+//
+// However, for both linear and curved corners, C is much easier to define in a local space instead
+// of the pixel-space required for final anti-aliasing. (px,py) is the projected point of (u,v)
+// transformed by a 4x4 matrix:            [x]   [m00 m01 * m03] [u]
+//                [x(u,v) / w(u,v)]        [y]   [m10 m11 * m13]X[v]
+//      (px,py) = [y(u,v) / w(u,v)] where  [*] = [ *   *  *  * ] [0] = M*(u,v,0,1)
+//                                         [w]   [m30 m31 * m33] [1]
+//
+// C(px,py) can be defined in terms of a local Cl(u,v) as C(px,py) = Cl(p^-1(px,py)), where p^-1 =
+//                                              [x']   [m00' m01' * m03'] [px]
+//               [x'(px,py) / w'(px,py)]        [y']   [m10' m11' * m13'] [py]
+//      (u,v) =  [y'(px,py) / w'(px,py)] where  [* ] = [ *    *   *  *  ]X[ 0] = M^-1*(px,py,0,1)
+//                                              [w']   [m30' m31' * m33'] [ 1]
+//
+// Using the chain rule, then ∇C(px,py)                             [m00' m01']
+//   =  ∇Cl(u,v)X[1/w'(px,py)     0       0 -x'(px,py)/w'(px,py)^2]X[m10' m11']
+//               [    0       1/w'(px,py) 0 -y'(px,py)/w'(px,py)^2] [ *     * ]
+//                                                                  [m30' m31']
+//
+//                                                       [m00' m01']
+//   = 1/w'(px,py)*∇Cl(u,v)X[1 0 0 -x'(px,py)/w'(px,py)]X[m10' m11']
+//                          [0 1 0 -y'(px,py)/w'(px,py)] [ *    *  ]
+//                                                       [m30' m31']
+//                                [m00' m01']
+//   = w(u,v)*∇Cl(u,v)X[1 0 0 -u]X[m10' m11']
+//                     [0 1 0 -v] [ *    *  ]
+//                                [m30' m31']
+//
+//   = w(u,v)*∇Cl(u,v)X[m00'-m30'u m01'-m31'u]
+//                     [m10'-m30'v m11'-m31'v]
+//
+// For AnalyticRRectRenderStep, the "local" space used for these calculations is the normalized
+// position scaled by the corner radii. This provides a stable local space for all vertices within a
+// corner (which is not the case for the original normalized space and strokes, since the inner and
+// outer curves differ). The main impact of this is that the M and M^-1 used in the above derivation
+// are not the exact local-to-device matrix of the draw, but includes an additional basis
+// adjustment in the form of A = [x0 y0 0 tx] so M^-1=A^-1x(L2D)^-1.
+//                               [x1 y1 0 ty]
+//                               [0  0  1  0]
+//                               [0  0  0  1]
+//
+// A is different for each corner. This makes interpolating the Jacobian and (u,v) over the entire
+// mesh a little more complex. Luckily, per-pixel coverage calculations can be contained entirely
+// to triangles assigned to each corner, so within their area, the interpolated values are correct.
+// All the triangles connecting adjacent corners are always linear edges so their coverage can
+// be calculated by computing C/|∇C| in the vertex shader instead of the fragment shader. This
+// final edge distance is stable across changes to A so as long as we carry another control
+// attribute to identify whether or not a triangle uses the linear edge distance or the varying
+// Jacobian and (u,v), it will all work out. To assist with this, though, and to avoid branching,
+// the Jacobian, edge distance, and (u,v) coordinates are calculated for every vertex since it
+// could belong to both linear and per-pixel coverage triangles.
+//
+// Within each corner, however, we do need to evaluate up to two circle equations: one with
+// radius = corner-radius(r)+stroke-radius(s), and another with radius = r-s. This can be
+// consolidated into a common evaluation against a circle of radius sqrt(r^2+s^2) as follows:
+//
+// (x/(r+/-s))^2 + (y/(r+/-s))^2 = 1
+// x^2 + y^2 = (r+/-s)^2
+// x^2 + y^2 = r^2 + s^2 +/- 2rs
+// (x/sqrt(r^2+s^2))^2 + (y/sqrt(r^2+s^2)) = 1 +/- 2rs/(r^2+s^2)
+//
+// We pass r/sqrt(r^2+s^2) and s/sqrt(r^2+s^2) down as two varyings and then add and subtract
+// their product to get coverage values for the inner and outer circles of the stroked corner.
+// However, if their difference is negative, this is consistent with (r-s) < 0 and we have a
+// collapsed inner corner so only the outer coverage should be used. This happens automatically
+// for strokes with small corners or for rectangular corners (r=0) with round joins. For fills
+// and hairlines, the normal s=0 so as expected 2rs is 0 and we're effectively testing a single
+// circle curve. However, we have need to differentiate the two cases by setting r=0,s=1 for
+// hairlines and r=1,s=0 for filled round rects.
 namespace skgpu::graphite {
 
 static skvx::float4 loadXRadii(const SkRRect& rrect) {
@@ -98,10 +175,10 @@ static float localAARadius(const Transform& t, const SkV2& p) {
     // dy/du = m10, dy/dv = m11
     // dw/du = m30, dw/dv = m31
     //
-    // df/du = (dx/du*w - x*dw/du)/w^2 = (m00*w - m30*x)/w^2
-    // df/dv = (dx/dv*w - x*dw/dv)/w^2 = (m01*w - m31*x)/w^2
-    // dg/du = (dy/du*w - y*dw/du)/w^2 = (m10*w - m30*y)/w^2
-    // dg/dv = (dy/dv*w - y*dw/du)/w^2 = (m11*w - m31*y)/w^2
+    // df/du = (dx/du*w - x*dw/du)/w^2 = (m00*w - m30*x)/w^2 = (m00 - m30*f)/w
+    // df/dv = (dx/dv*w - x*dw/dv)/w^2 = (m01*w - m31*x)/w^2 = (m01 - m31*f)/w
+    // dg/du = (dy/du*w - y*dw/du)/w^2 = (m10*w - m30*y)/w^2 = (m10 - m30*g)/w
+    // dg/dv = (dy/dv*w - y*dw/du)/w^2 = (m11*w - m31*y)/w^2 = (m11 - m31*g)/w
     //
     // Singular values of [df/du df/dv] define perspective correct minimum and maximum scale factors
     //                    [dg/du dg/dv]
@@ -166,7 +243,9 @@ static float localAARadius(const Transform& t, const Rect& bounds) {
     }
 }
 
-static bool cornerInsetsIntersect(const SkRRect& rrect, float maxInset) {
+static bool cornerInsetsIntersect(const SkRRect& rrect, float strokeRadius, float aaRadius) {
+    // One AA inset per side
+    const float maxInset = strokeRadius + 2.f * aaRadius;
     return // Horizontal insets would intersect opposite corner's curve
            maxInset >= rrect.width() - rrect.radii(SkRRect::kLowerLeft_Corner).fX   ||
            maxInset >= rrect.width() - rrect.radii(SkRRect::kLowerRight_Corner).fX  ||
@@ -183,6 +262,11 @@ static bool cornerInsetsIntersect(const SkRRect& rrect, float maxInset) {
 struct Vertex {
     SkV2 fPosition;
     SkV2 fNormal;
+    // TODO: fNormalScale is only needed while we have vertices with stroke-control == 0 so that
+    // those vertices can define a non-zero normal for distance calculations but not be moved.
+    // A follow-up CL will switch to interpolating opposing edge distances, which means we can
+    // entirely remove the vertices that lie on the center of the stroke.
+    float fNormalScale;
     float fStrokeControl;
     float fMirrorOffset;
     float fCenterWeight;
@@ -191,9 +275,13 @@ struct Vertex {
 // Allowed values for the center weight instance value (selected at record time based on style
 // and transform), and are defined such that when (insance-weight > vertex-weight) is true, the
 // vertex should be snapped to the center instead of its regular calculation.
-static constexpr float kDontSnapToCenter = 0.f;
-static constexpr float kFillCenter = 1.f;
-static constexpr float kInsetsIntersect = 2.f;
+static constexpr float kSolidInterior = 1.f;
+static constexpr float kStrokeInterior = 0.f;
+static constexpr float kFilledStrokeInterior = -1.f;
+
+// Special value for local AA radius to signal when the self-intersections of a stroke interior
+// need extra calculations in the vertex shader.
+static constexpr float kComplexAAInsets = -1.f;
 
 static constexpr int kCornerVertexCount = 19; // sk_VertexID is divided by this in SkSL
 static constexpr int kVertexCount = 4 * kCornerVertexCount;
@@ -254,44 +342,44 @@ static void writeVertexBuffer(VertexWriter writer, size_t size) {
     static constexpr float kNoOffset = 0.f;
     static constexpr float kMirrorOffset = 1.f;
 
-    // Allowed values for each vertex's center weight (assuming only the allowed instance center
-    // weights are used, defined earlier).
-    static constexpr float kNeverSnapToCenter = 2.f;
-    static constexpr float kSnapIfInsetsIntersect = 1.f;
-    static constexpr float kSnapForFills = 0.f;
+    // Allowed values for the center weight attribute.
+    static constexpr float kRegularVertex = 0.f;
+    static constexpr float kCenterVertex = 1.f;
+
     static constexpr float kHR2 = 0.5f * SK_FloatSqrt2; // "half root 2"
 
     // This template is repeated 4 times in the vertex buffer, for each of the four corners.
     // The vertex ID is used to determine which corner the normalized position is transformed to.
     static constexpr Vertex kCornerTemplate[kCornerVertexCount] = {
         // Device-space AA outsets from outer curve
-        { {1.0f, 0.0f}, { 1.0f,  0.0f}, kOuterStroke,  kNoOffset,     kNeverSnapToCenter },
-        { {1.0f, 0.0f}, { 1.0f,  0.0f}, kOuterStroke,  kMirrorOffset, kNeverSnapToCenter },
-        { {1.0f, 0.0f}, { kHR2,  kHR2}, kOuterStroke,  kMirrorOffset, kNeverSnapToCenter },
-        { {0.0f, 1.0f}, { kHR2,  kHR2}, kOuterStroke,  kMirrorOffset, kNeverSnapToCenter },
-        { {0.0f, 1.0f}, { 0.0f,  1.0f}, kOuterStroke,  kMirrorOffset, kNeverSnapToCenter },
-        { {0.0f, 1.0f}, { 0.0f,  1.0f}, kOuterStroke,  kNoOffset,     kNeverSnapToCenter },
+        { {1.0f, 0.0f}, { 1.0f, 0.0f}, 1.f, kOuterStroke,  kNoOffset,      kRegularVertex },
+        { {1.0f, 0.0f}, { 1.0f, 0.0f}, 1.f, kOuterStroke,  kMirrorOffset,  kRegularVertex },
+        { {1.0f, 0.0f}, { kHR2, kHR2}, 1.f, kOuterStroke,  kMirrorOffset,  kRegularVertex },
+        { {0.0f, 1.0f}, { kHR2, kHR2}, 1.f, kOuterStroke,  kMirrorOffset,  kRegularVertex },
+        { {0.0f, 1.0f}, { 0.0f, 1.0f}, 1.f, kOuterStroke,  kMirrorOffset,  kRegularVertex },
+        { {0.0f, 1.0f}, { 0.0f, 1.0f}, 1.f, kOuterStroke,  kNoOffset,      kRegularVertex },
 
         // Outer anchors (no local or device-space normal outset)
-        { {1.0f, 0.0f}, { 0.0f,  0.0f}, kOuterStroke,  kNoOffset,     kNeverSnapToCenter },
-        { {1.0f, 0.0f}, { 0.0f,  0.0f}, kOuterStroke,  kMirrorOffset, kNeverSnapToCenter },
-        { {0.0f, 1.0f}, { 0.0f,  0.0f}, kOuterStroke,  kMirrorOffset, kNeverSnapToCenter },
-        { {0.0f, 1.0f}, { 0.0f,  0.0f}, kOuterStroke,  kNoOffset,     kNeverSnapToCenter },
+        { {1.0f, 0.0f}, { 1.0f, 0.0f}, 0.f, kOuterStroke,  kNoOffset,      kRegularVertex },
+        { {1.0f, 0.0f}, { kHR2, kHR2}, 0.f, kOuterStroke,  kMirrorOffset,  kRegularVertex },
+        { {0.0f, 1.0f}, { kHR2, kHR2}, 0.f, kOuterStroke,  kMirrorOffset,  kRegularVertex },
+        { {0.0f, 1.0f}, { 0.0f, 1.0f}, 0.f, kOuterStroke,  kNoOffset,      kRegularVertex },
 
+        // TODO: Remove the kCenterStroke vertices from the mesh.
         // Center of stroke (equivalent to outer anchors when filling)
-        { {1.0f, 0.0f}, { 0.0f,  0.0f}, kCenterStroke, kNoOffset,     kNeverSnapToCenter },
-        { {1.0f, 0.0f}, { 0.0f,  0.0f}, kCenterStroke, kMirrorOffset, kNeverSnapToCenter },
-        { {0.0f, 1.0f}, { 0.0f,  0.0f}, kCenterStroke, kMirrorOffset, kNeverSnapToCenter },
-        { {0.0f, 1.0f}, { 0.0f,  0.0f}, kCenterStroke, kNoOffset,     kNeverSnapToCenter },
+        { {1.0f, 0.0f}, { 1.0f, 0.0f}, 0.f, kCenterStroke, kNoOffset,      kRegularVertex },
+        { {1.0f, 0.0f}, { kHR2, kHR2}, 0.f, kCenterStroke, kMirrorOffset,  kRegularVertex },
+        { {0.0f, 1.0f}, { kHR2, kHR2}, 0.f, kCenterStroke, kMirrorOffset,  kRegularVertex },
+        { {0.0f, 1.0f}, { 0.0f, 1.0f}, 0.f, kCenterStroke, kNoOffset,      kRegularVertex },
 
-        // Inner AA insets from inner curve
-        { {1.0f, 0.0f}, {-1.0f,  0.0f}, kInnerStroke,  kNoOffset,     kSnapIfInsetsIntersect },
-        { {0.5f, 0.5f}, {-kHR2, -kHR2}, kInnerStroke,  kMirrorOffset, kSnapIfInsetsIntersect },
-        { {0.0f, 1.0f}, { 0.0f, -1.0f}, kInnerStroke,  kNoOffset,     kSnapIfInsetsIntersect },
+        // Inner curve (with additional AA inset in the common case)
+        { {1.0f, 0.0f}, { 1.0f, 0.0f}, -1.f, kInnerStroke,  kNoOffset,     kRegularVertex },
+        { {0.5f, 0.5f}, { kHR2, kHR2}, -1.f, kInnerStroke,  kMirrorOffset, kRegularVertex },
+        { {0.0f, 1.0f}, { 0.0f, 1.0f}, -1.f, kInnerStroke,  kNoOffset,     kRegularVertex },
 
-        // Center filling vertices (equal to inner AA insets unless instance weight = kFillCenter)
-        { {0.5f, 0.5f}, {-kHR2, -kHR2}, kInnerStroke,  kMirrorOffset, kSnapForFills },
-        { {0.0f, 1.0f}, { 0.0f, -1.0f}, kInnerStroke,  kNoOffset,     kSnapForFills },
+        // Center filling vertices (equal to inner AA insets unless 'center' triggers a fill).
+        { {0.5f, 0.5f}, { kHR2, kHR2}, -1.f, kInnerStroke,  kMirrorOffset, kCenterVertex  },
+        { {0.0f, 1.0f}, { 0.0f, 1.0f}, -1.f, kInnerStroke,  kNoOffset,     kCenterVertex  },
     };
 
     writer << kCornerTemplate  // TL
@@ -303,14 +391,14 @@ static void writeVertexBuffer(VertexWriter writer, size_t size) {
 AnalyticRRectRenderStep::AnalyticRRectRenderStep()
         : RenderStep("AnalyticRRectRenderStep",
                      "",
-                     Flags::kPerformsShading |
-                     Flags::kEmitsCoverage,
+                     Flags::kPerformsShading | Flags::kEmitsCoverage,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
                      /*vertexAttrs=*/{
                             {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                             {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
+                            {"normalScale", VertexAttribType::kFloat, SkSLType::kFloat},
                             {"strokeControl", VertexAttribType::kFloat, SkSLType::kFloat},
                             {"mirrorOffset", VertexAttribType::kFloat, SkSLType::kFloat},
                             {"centerWeight", VertexAttribType::kFloat, SkSLType::kFloat}
@@ -319,9 +407,13 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep()
                             {{"xRadiiOrFlags", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"radiiOrQuadXs", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"ltrbOrQuadYs", VertexAttribType::kFloat4, SkSLType::kFloat4},
-                             // xy stores center of rrect in local coords, z stores a control value
-                             // added to each vertex's centerWeight to handle snapping when needed.
-                             // w stores the local AA radius calculated from the full transform.
+                             // XY stores center of rrect in local coords. Z and W store values to
+                             // control interior fill behavior. Z can be -1, 0, or 1:
+                             //   -1: A stroked interior where AA insets overlap, but isn't solid.
+                             //    0: A stroked interior with no complications.
+                             //    1: A solid interior (fill or sufficiently large stroke width).
+                             // W specifies the size of the AA inset if it's >= 0, or signals that
+                             // the inner curves intersect in a complex manner (rare).
                              {"center", VertexAttribType::kFloat4, SkSLType::kFloat4},
 
                              // TODO: pack depth and ssboIndex into 32-bits
@@ -335,7 +427,17 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep()
                              // the normal matrix.
                              {"invMat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"invMat1", VertexAttribType::kFloat3, SkSLType::kFloat3}},
-                     /*varyings=*/{}) {}
+                     /*varyings=*/{
+                             {"jacobian", SkSLType::kFloat4}, // float2x2
+                             {"coverageWidth", SkSLType::kFloat2},
+                             // TODO: Switch to interpolating distance from two opposing edges,
+                             // which also lets us drop 16 vertices and many more triangles.
+                             {"edgeDistance", SkSLType::kFloat},
+                             // TODO: With flat shading and careful control of indices for provoking
+                             // vertex we can detect linear/circle coverage using just coverageWidth
+                             {"perPixelControl", SkSLType::kFloat},
+                             {"uv", SkSLType::kFloat2},
+                     }) {}
 
 AnalyticRRectRenderStep::~AnalyticRRectRenderStep() {}
 
@@ -346,27 +448,93 @@ const char* AnalyticRRectRenderStep::vertexSkSL() const {
         const float kBevelScale = 0.0;
         const float kRoundScale = 0.41421356237; // sqrt(2)-1
 
+        const float kEpsilon = 0.00024; // SK_ScalarNearlyZero
+
         int cornerID = sk_VertexID / 19; // KEEP IN SYNC WITH kCornerVertexCount
 
-        float4 xs, ys; // should be BR, TR, TL, BL
+        // Instance-level state that controls how the interior is filled (or not).
+        // There are two rings of inner vertices differentiated by the centerWeight attribute so
+        // that we can control per-pixel coverage carefully when we need to fill the interior. For
+        // typical stroked shapes, the "center" vertices are co-located with the inner vertices.
+        // See note on 'center's declaration for how its components are interpreted.
+        bool innerVertex = strokeControl < 0.0;
+        bool snapToCenter = innerVertex &&
+                            (center.w < 0.0 || centerWeight*center.z != 0.0);
+        float innerCoverageDirection = center.z <= 0.0 ? -1.0 : 1.0; // -1 for strokes, +1 for fills
+        float localAARadius = snapToCenter ? 0.0 : center.w;
+
+        // Corner variables that are the same for all vertices in a corner, but depend on style.
+        float4 xs, ys; // should be TL, TR, BR, BL
         float2 cornerRadii = float2(0.0);
         float strokeRadius = 0.0; // fill and hairline are differentiated by center weighting
+        float joinScale; // the amount of mirror offseting to apply based on corner/stroke join
+        float2 uvScale; // Normalization for circular corners.
+
         if (xRadiiOrFlags.x < -1.0) {
             // Stroked rect or round rect
+            xs = ltrbOrQuadYs.LRRL;
+            ys = ltrbOrQuadYs.TTBB;
+
             strokeRadius = xRadiiOrFlags.y;
             cornerRadii = float2(radiiOrQuadXs[cornerID]);  // strokes require circular corners
-            xs = ltrbOrQuadYs.LRRL;
-            ys = ltrbOrQuadYs.TTBB;
+
+            // Configure corner shape based on style, defaulting to kRoundStyle since any circular
+            // corner remains round regardless.
+            // TODO should this analysis be done on the CPU and we upload 4 joinScales instead of
+            // 1 join style that has to be combined with the per-corner radii?
+            joinScale = kRoundScale;
+            if (cornerRadii.x <= kEpsilon) {
+                // Join type only affects rectangular corners. For simplicity, hairline rect corners
+                // are always mitered.
+                if (strokeRadius == 0.0 || xRadiiOrFlags.z > 0.0) {
+                    joinScale = kMiterScale;
+                } else if (xRadiiOrFlags.z == 0.0) {
+                    joinScale = kBevelScale;
+                } // else remain rounded
+            }
+
+            // When not rounded, this will be overwritten to sensible default values later on.
+            uvScale = inversesqrt(cornerRadii*cornerRadii + strokeRadius*strokeRadius);
+            coverageWidth = float2(cornerRadii.x, strokeRadius) * uvScale;
+
+            // For strokes with a solid interior due to large stroke radius, adjust the inner
+            // curve to be at the outer curve to limit the amount of per-pixel coverage (e.g. very
+            // similar to a filled round rect except a corner could be beveled instead).
+            if (center.z > 0.0 && innerVertex) {
+                // TODO: Once the central vertices (sc = 0) are removed, this should be updated to
+                // sc = 1 instead.
+                strokeControl = 0.0;
+            }
         } else if (any(greaterThan(xRadiiOrFlags, float4(0.0)))) {
             // Filled round rect
-            cornerRadii = float2(xRadiiOrFlags[cornerID], radiiOrQuadXs[cornerID]);
             xs = ltrbOrQuadYs.LRRL;
             ys = ltrbOrQuadYs.TTBB;
+
+            cornerRadii = float2(xRadiiOrFlags[cornerID], radiiOrQuadXs[cornerID]);
+            if (cornerRadii.x > kEpsilon || cornerRadii.y > kEpsilon) {
+                joinScale = kRoundScale;
+                uvScale = 1.0 / cornerRadii;
+                // The final width is 0, but "r-s"<0 so we skip an inner circle calculation later.
+                coverageWidth = float2(0.0, 1.0);
+            } else {
+                // This specific corner is rectangular
+                joinScale = kMiterScale;
+            }
         } else {
             // Per-edge quadrilateral, so we have to calculate the corner's basis from the
             // quad's edges.
             xs = radiiOrQuadXs;
             ys = ltrbOrQuadYs;
+            joinScale = kMiterScale;
+        }
+
+        bool isCurve = strokeControl >= 0 && mirrorOffset != 0.0;
+        if (joinScale != kRoundScale) {
+            // Provide sensible default values for these, although the vertex structure should
+            // ensure they aren't used (or always multiplied with a 0 term).
+            isCurve = false;
+            uvScale = float2(1.0);
+            coverageWidth = float2(0.0);
         }
 
         float2 corner    = float2(xs.xyzw[cornerID], ys.xyzw[cornerID]);
@@ -375,58 +543,88 @@ const char* AnalyticRRectRenderStep::vertexSkSL() const {
         float2 xAxis = normalize(corner - cornerCW);
         float2 yAxis = normalize(corner - cornerCCW);
 
-        // Determine the amount of mirror offsetting to apply based on fill/hairline/stroke join
-        // TODO should this analysis be done on the CPU and we upload 4 joinScales instead of
-        // 1 join style that has to be combined with the per-corner radii?
-        float joinScale;
-        if (cornerRadii.x > 0.000124 || cornerRadii.y > 0.000124) {
-            // A rounded corner is always rounded regardless of style
-            joinScale = kRoundScale;
-        } else if (strokeRadius > 0.0 && xRadiiOrFlags.z <= 0.0) {
-            // A rect corner of a non-hairline stroke changes based on the join type
-            joinScale = xRadiiOrFlags.z == 0.0 ? kBevelScale : kRoundScale;
-        } else {
-            // A filled or hairline rect corner is always mitered
-            joinScale = kMiterScale;
-        }
+        // Additional transform from the local corner space to the standard local coordinates
+        float2x2 basis = float2x2(xAxis, yAxis);
+        float2 translate = corner - basis*cornerRadii;
+        float2x2 invBasis = inverse(basis);
+
+        float2 localPos;
 
         float2 scale = cornerRadii + strokeRadius*strokeControl;
-        float2 localPos;
-        if (center.z > centerWeight) {
-            // It's either a fill and this vertex is designated to fill to the center, or it's a
-            // self-intersecting stroke that snaps to the center so geometry stays well-defined.
-            localPos = center.xy;
-        } else {
-            float2 p = scale*(position + joinScale*mirrorOffset*position.yx);
-
-            if (strokeControl < 0.0) {
-                // An inset, so check for and avoid self-intersections
-                float localAARadius = center.w;
-                float2 maxInset = scale - localAARadius;
-                if (any(lessThan(maxInset, float2(0.0)))) {
-                    p = min(maxInset, float2(0.0));
-                } else {
-                    p += localAARadius * normal;
-                }
+        float2 p = scale*(position + joinScale*mirrorOffset*position.yx);
+        if (innerVertex) {
+            // An inset, so check for and avoid self-intersections
+            float2 maxInset = scale - localAARadius;
+            if (any(lessThan(maxInset, float2(0.0)))) {
+                p = min(maxInset, float2(0.0));
+                normal = position.xy; // a miter's normal is equal to its initial position
+            } else {
+                p -= localAARadius * normal;
             }
-
-            // Orient and place p relative to the corner's location in the local rectangle
-            localPos = float2x2(xAxis, yAxis)*(p - cornerRadii) + corner;
+        } else if (strokeControl == 0.0 && joinScale == kMiterScale) {
+            // TODO: When the sc=0 vertices are removed, this branch can be removed.
+            normal = position.xy; // correct vertex attribute that was set for bevel/round cases
         }
 
+        float sx = (scale.y + kEpsilon) / (scale.x + kEpsilon);
+        normal = transpose(invBasis) * float2(sx * normal.x, normal.y);
+
+        // Orient and place p relative to the corner's location in the local rectangle
+        if (snapToCenter) {
+            localPos = center.xy;
+            uv = invBasis * (localPos - translate) * uvScale;
+
+            // We can't just use 'corner' since for bevels, corner isn't actually on the line that
+            // we're computing distance to. So this reconstructs the base vertex before any stroking
+            float2 edgePoint = basis*(cornerRadii * (position + joinScale*mirrorOffset*position.yx))
+                    + translate;
+
+            float c = -dot(normal, edgePoint);
+            edgeDistance = -(dot(normal, localPos) + c);
+            // TODO: This can be simplified when (sc=0) verts are removed from the mesh.
+            // +D for fills, or (strokeRadius - D) for strokes
+            edgeDistance = innerCoverageDirection*edgeDistance
+                    + 0.5*(1 - innerCoverageDirection)*(strokeRadius);
+        } else {
+            localPos = basis*p + translate;
+            uv = p * uvScale;
+
+            if (strokeControl > 0) {
+                // We are on the outside of the fill or stroke, so distance is always 0
+                edgeDistance = 0.0;
+            } else {
+                // The vertex is either the center of the stroke or the inner edge of the stroke,
+                // so we calculate a local distance and then transform to device-space before it's
+                // interpolated by the GPU.
+                // TODO: This can be simplified when (sc=0) verts are removed from the mesh.
+                // == strokeRadius when at the center, == -localAARadius for inner stroke,
+                // == +localAARadius for a filled inset.
+                edgeDistance = strokeRadius - (innerCoverageDirection * strokeControl)
+                        * (strokeRadius + localAARadius);
+            }
+        }
+
+        // Some vertices are adjacent to both linear and per-pixel coverage triangles, so we
+        // always calculate a valid uv and jacobian. For pixels on the linear side, the
+        // interpolation goes between two different corners so the jacobian is invalid, but it
+        // is ignored and edgeDistance is used directly in that case.
+        jacobian = float4(invMat0.xy, invMat1.xy);
+        jacobian.xy -= invMat0.z*localPos;
+        jacobian.zw -= invMat1.z*localPos;
+
+        float2 gradient = float2(dot(normal, jacobian.xy), dot(normal, jacobian.zw));
+        edgeDistance *= inversesqrt(dot(gradient, gradient));
+        jacobian *= uvScale.xyxy;
+
         float3 devPos = float3x3(mat0, mat1, mat2)*localPos.xy1;
-        if (strokeControl > 0.0 && (normal.x > 0.0 || normal.y > 0.0)) {
-            // We need a device-space normal added to devPos. Transform the local normal by the
-            // normal matrix (A^-1)^T where A = M*T(corner)*scale; but since we know the structure
-            // of T(corner)*scale and that we're in 2D, we can skip computing the entire matrix.
-            float3 localNx = calc_line_eq(-yAxis, corner);
-            float3 localNy = calc_line_eq( xAxis, corner);
+        if (strokeControl > 0.0 && normalScale > 0.0) {
+            // Note that when there's no perspective, the jacobian is equivalent to the normal
+            // matrix (inverse transpose), but produces correct results when there is perspective
+            // because it accounts for the position's influence on a line's projected direction.
+            float2 nx = normal.x * jacobian.xz;
+            float2 ny = normal.y * jacobian.yw;
 
-            float sx = (scale.y + 0.000124) / (scale.x + 0.000124);
-            float2 nx = sx * normal.x * float2(dot(invMat0, localNx), dot(invMat1, localNx));
-            float2 ny =      normal.y * float2(dot(invMat0, localNy), dot(invMat1, localNy));
-
-            if (joinScale == 1.0 && all(greaterThan(normal, float2(0.0)))) {
+            if (joinScale == kMiterScale && all(greaterThan(normal, float2(0.0)))) {
                 // Produce a bisecting vector in device space.
                 nx = normalize(nx);
                 ny = normalize(ny);
@@ -445,11 +643,15 @@ const char* AnalyticRRectRenderStep::vertexSkSL() const {
             // We multiply by W so that after perspective division the new point is offset by the
             // normal.
             devPos.xy += devPos.z * normalize(nx + ny);
+            // By construction these points are 1px away from the original edge, but we multiply
+            // by W since to get screen-space linear interpolation.
+            edgeDistance = -devPos.z;
         }
 
         // Write out final results
         stepLocalCoords = localPos;
         float4 devPosition = float4(devPos.xy, devPos.z*depth, devPos.z);
+        perPixelControl = isCurve ? 1.0 : 0.0;
     )";
 }
 
@@ -457,7 +659,40 @@ const char* AnalyticRRectRenderStep::fragmentCoverageSkSL() const {
     // TODO: Actually implement this for linear edges (that get clamp a varying to [0,1]) and for
     // corners calculating distance to an ellipse.
     return R"(
-        outputCoverage = half4(1.0);
+        float c;
+        if (perPixelControl > 0.0 && uv.x >= 0.0 && uv.y >= 0.0) {
+            // Inside a triangle that covers the curve, so we coverage is non-linear.
+            float2 gradient = float2(dot(uv, jacobian.xy), dot(uv, jacobian.zw));
+            float invGradLength = 0.5 * inversesqrt(dot(gradient, gradient)) * sk_FragCoord.w;
+            float f = dot(uv, uv) - 1.0;
+            float width = 2 * coverageWidth.x * coverageWidth.y;
+
+            // This is the coverage to the outside of the rounded corner's edge, including any
+            // outset by stroke radius and the extra 1px linear coverage ramp surrounding the shape,
+            // which is necessary when pixels are near the tangents to the circle.
+            // TODO: This doesn't differentiate negative edge distances from stroke insets. Under
+            // extreme perspective these can overlap with the outer curve and mess up the coverage
+            // calculation. When edgeDistance is a float2, revisit to see if we can identify the
+            // outset triangles w/o any additional data passed to the FS. Outset triangles are the
+            // only case where we actually want to add the edgeDistance to f, and min(d,0) is a
+            // faulty proxy for that.
+            c = clamp(0.5 - (f - width) * invGradLength
+                      + min(edgeDistance*sk_FragCoord.w, 0.0), 0.0, 1.0);
+            if (coverageWidth.x >= coverageWidth.y) {
+                // There is an interior circular edge that needs to be evaluated as well.
+                float innerC = clamp(0.5 + (f + width) * invGradLength, 0.0, 1.0);
+                c = min(c, innerC);
+            }
+        } else {
+            // Inside a triangle that covers a linear section, so coverage is linear and we just
+            // need to adjust from edge distance to [0, 1].
+            // We multiply by sk_FragCoord.w (really 1/w) to either adjust the distance to linear
+            // (for outside edge triangles), or to account for W in the length of the gradient we
+            // had earlier divided by.
+            // FIXME hairlines need to add 1.0 instead...
+            c = clamp(edgeDistance*sk_FragCoord.w + 0.5, 0.0, 1.0);
+        }
+        outputCoverage = half4(c);
     )";
 }
 
@@ -476,9 +711,12 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
     DrawWriter::Instances instance{*writer, vertices, indices, kIndexCount};
     auto vw = instance.append(1);
 
-    // The bounds of a rect is the rect, and the bounds of a rrect is tight
+    // The bounds of a rect is the rect, and the bounds of a rrect is tight (== SkRRect::getRect()).
     Rect bounds = params.geometry().bounds();
-    const float aaRadius = localAARadius(params.transform(), bounds);
+
+    // aaRadius will be set to a negative value to signal a complex self-intersection that has to
+    // be calculated in the vertex shader.
+    float aaRadius = localAARadius(params.transform(), bounds);
     float centerWeight;
 
     if (params.isStroke()) {
@@ -486,14 +724,44 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
         SkASSERT(shape.isRect() ||
                  (shape.isRRect() && SkRRectPriv::AllCornersCircular(shape.rrect())));
 
-        const float maxInset = aaRadius + params.strokeStyle().halfWidth();
-        bool insetsIntersect = any(2.f * maxInset >= bounds.size());
+        const float strokeRadius = params.strokeStyle().halfWidth();
+        skvx::float2 innerGap = bounds.size() - 2.f * params.strokeStyle().halfWidth();
+        if (any(innerGap <= 0.f)) {
+            centerWeight = kSolidInterior;
+
+            // For strokes that overlap so much the interior is solid, we move the inset vertices
+            // to match the "filled" cases.
+            if (shape.isRRect()) {
+                // Check if insets from the outer curve would also overlap
+                // TODO: Use -halfWidth() for stroke radius when (sc=0) vertices are removed.
+                if (cornerInsetsIntersect(shape.rrect(), 0.f, aaRadius)) {
+                    aaRadius = kComplexAAInsets;
+                } // else VS will adjust stroke-control attribute to place at outer curve+aa inset.
+            } else {
+                // Insets for quads/filled-rects are always at the center
+                aaRadius = kComplexAAInsets; // Match quad case instead of filled rrect case
+            }
+        } else {
+            if (any(innerGap <= 2.f * aaRadius) ||
+                (shape.isRRect() && cornerInsetsIntersect(shape.rrect(), strokeRadius, aaRadius))) {
+                // When the insets intersect we separate the inner vertices from the center vertices
+                // by placing the inner vertices on the base inner curve w/o the AA inset. However,
+                // if the inner curves would intersect then we switch to a complex interior.
+                centerWeight = kFilledStrokeInterior;
+                if (shape.isRRect() && cornerInsetsIntersect(shape.rrect(), strokeRadius, 0.f)) {
+                    aaRadius = kComplexAAInsets;
+                } else {
+                    aaRadius = 0.f;
+                }
+            } else {
+                centerWeight = kStrokeInterior;
+            }
+        }
 
         skvx::float4 cornerRadii;
         if (shape.isRRect()) {
             // X and Y radii are the same, but each corner could be different. Take X arbitrarily.
             cornerRadii = loadXRadii(shape.rrect());
-            insetsIntersect |= cornerInsetsIntersect(shape.rrect(), maxInset);
         } else {
             // All four corner radii are 0s for a rectangle
             cornerRadii = 0.f;
@@ -501,9 +769,8 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
 
         // Write a negative value outside [-1, 0] to signal a stroked shape, then the style params,
         // followed by corner radii and bounds.
-        vw << -2.f << params.strokeStyle().halfWidth() << params.strokeStyle().joinLimit() << 0.f
+        vw << -2.f << strokeRadius << params.strokeStyle().joinLimit() << /*unused*/0.f
            << cornerRadii << bounds.ltrb();
-        centerWeight = insetsIntersect ? kInsetsIntersect : kDontSnapToCenter;
     } else {
         // TODO: Add quadrilateral support to Shape with per-edge flags.
         if (shape.isRect() || (shape.isRRect() && shape.rrect().isRect())) {
@@ -515,14 +782,18 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
                << /*ys*/ skvx::shuffle<1,1,3,3>(ltrb);
             // For simplicity, it's assumed arbitrary quad insets could self-intersect, so force
             // all interior vertices to the center.
-            centerWeight = kInsetsIntersect;
+            centerWeight = kSolidInterior;
+            aaRadius = kComplexAAInsets;
         } else {
             // A filled rounded rectangle
             const SkRRect& rrect = shape.rrect();
             SkASSERT(any(loadXRadii(rrect) > 0.f)); // If not, the shader won't detect this case
 
             vw << loadXRadii(rrect) << loadYRadii(rrect) << bounds.ltrb();
-            centerWeight = cornerInsetsIntersect(rrect, aaRadius) ? kInsetsIntersect : kFillCenter;
+            centerWeight = kSolidInterior;
+            if (cornerInsetsIntersect(rrect, 0.f, aaRadius)) {
+                aaRadius = kComplexAAInsets;
+            }
         }
     }
 
