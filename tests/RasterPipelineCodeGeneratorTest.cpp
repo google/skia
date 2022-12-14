@@ -136,10 +136,9 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorVariableGreenTest, r) {
     test(r,
          R"__SkSL__(
              half4 main(float2 coords) {
-                 half _1 = 1, _0 = 0;
-                 half2 _0_1;
-                 _0_1 = half2(_0, _1);
-                 return half4(_0, _1, _0_1);
+                 half2 zeroOne = half2(0, 1);
+                 half one = zeroOne.y, zero = zeroOne.x;
+                 return half4(zero, zeroOne.yx, one);
              }
          )__SkSL__",
          SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
@@ -150,10 +149,10 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorAdditionTest, r) {
     test(r,
          R"__SkSL__(
              half4 main(float2 coords) {
-                 half4 x = half4(0, 1, 0, -1);
-                 half4 y = half4(0, 0, 0,  1);
-                 half4 z = x;
-                 z += y;
+                 half4 x = half4(-1, 0, 1, 0);
+                 half4 y = half4( 0, 0, 0, 1);
+                 half4 z = x.wzyx;
+                 z += y.000w;
                  return y + z;
              }
          )__SkSL__",
@@ -165,10 +164,10 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorIfElseTest, r) {
     test(r,
          R"__SkSL__(
              half4 main(float2 coords) {
-                 half4 colorBlue  = half4(0,0,1,1),
-                       colorGreen = half4(0,1,0,1),
-                       colorRed   = half4(1,0,0,1),
-                       colorWhite = half4(1);
+                 half4 colorWhite = half4(1),
+                       colorBlue  = colorWhite.00b1,
+                       colorGreen = colorWhite.0g01,
+                       colorRed   = colorWhite.r001;
                  half4 result = half4(0);
                  if (colorWhite != colorBlue) {    // TRUE
                      if (colorGreen == colorRed) { // FALSE
@@ -203,10 +202,10 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorTernaryTest, r) {
     test(r,
          R"__SkSL__(
              half4 main(float2 coords) {
-                 half4 colorBlue  = half4(0,0,1,1),
-                       colorGreen = half4(0,1,0,1),
-                       colorRed   = half4(1,0,0,1),
-                       colorWhite = half4(1);
+                 half4 colorWhite = half4(1),
+                       colorBlue  = colorWhite.00ba,
+                       colorGreen = colorWhite.0g0a,
+                       colorRed   = colorWhite.r00a;
                  // This ternary matches the initial if-else block inside IfElseTest.
                  half4 result;
                  result = (colorWhite != colorBlue)                              // TRUE

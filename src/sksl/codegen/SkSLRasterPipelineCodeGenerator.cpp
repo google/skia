@@ -36,6 +36,7 @@
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
+#include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
@@ -45,6 +46,7 @@
 #include "src/sksl/tracing/SkSLDebugInfo.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -131,6 +133,7 @@ public:
     [[nodiscard]] bool pushConstructorSplat(const ConstructorSplat& c);
     [[nodiscard]] bool pushExpression(const Expression& e);
     [[nodiscard]] bool pushLiteral(const Literal& l);
+    [[nodiscard]] bool pushSwizzle(const Swizzle& s);
     [[nodiscard]] bool pushTernaryExpression(const TernaryExpression& t);
     [[nodiscard]] bool pushTernaryExpression(const Expression& test,
                                              const Expression& ifTrue,
@@ -564,6 +567,9 @@ bool Generator::pushExpression(const Expression& e) {
         case Expression::Kind::kLiteral:
             return this->pushLiteral(e.as<Literal>());
 
+        case Expression::Kind::kSwizzle:
+            return this->pushSwizzle(e.as<Swizzle>());
+
         case Expression::Kind::kTernary:
             return this->pushTernaryExpression(e.as<TernaryExpression>());
 
@@ -837,6 +843,16 @@ bool Generator::pushLiteral(const Literal& l) {
         default:
             SkUNREACHABLE;
     }
+}
+
+bool Generator::pushSwizzle(const Swizzle& s) {
+    // Push the input expression.
+    if (!this->pushExpression(*s.base())) {
+        return false;
+    }
+    // Perform the swizzle.
+    fBuilder.swizzle(s.base()->type().slotCount(), s.components());
+    return true;
 }
 
 bool Generator::pushTernaryExpression(const TernaryExpression& t) {
