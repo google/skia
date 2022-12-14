@@ -100,7 +100,6 @@ static int stack_usage(const Instruction& inst) {
             return 1;
 
         case BuilderOp::push_slots:
-        case BuilderOp::duplicate:
             return inst.fImmA;
 
         case ALL_SINGLE_SLOT_BINARY_OP_CASES:
@@ -113,6 +112,15 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::discard_stack:
         case BuilderOp::select:
             return -inst.fImmA;
+
+        case BuilderOp::swizzle_1:
+            return 1 - inst.fImmA;
+        case BuilderOp::swizzle_2:
+            return 2 - inst.fImmA;
+        case BuilderOp::swizzle_3:
+            return 3 - inst.fImmA;
+        case BuilderOp::swizzle_4:
+            return 4 - inst.fImmA;
 
         case ALL_SINGLE_SLOT_UNARY_OP_CASES:
         default:
@@ -329,6 +337,21 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 pipeline->append_zero_slots_unmasked(SlotA(), inst.fImmA);
                 break;
 
+            case BuilderOp::swizzle_1:
+            case BuilderOp::swizzle_2:
+            case BuilderOp::swizzle_3:
+            case BuilderOp::swizzle_4: {
+                auto* ctx = alloc->make<SkRasterPipeline_SwizzleCtx>();
+                ctx->ptr = tempStackPtr - (N * inst.fImmA);
+                // Unpack component nybbles into byte-offsets pointing at stack slots.
+                int components = inst.fImmB;
+                for (size_t index = 0; index < std::size(ctx->offsets); ++index) {
+                    ctx->offsets[index] = (components & 3) * N * sizeof(float);
+                    components >>= 4;
+                }
+                pipeline->append((SkRP::Stage)inst.fOp, ctx);
+                break;
+            }
             case BuilderOp::push_slots: {
                 float* dst = tempStackPtr;
                 pipeline->append_copy_slots_unmasked(alloc, dst, SlotA(), inst.fImmA);
@@ -404,16 +427,6 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
             case BuilderOp::copy_stack_to_slots_unmasked: {
                 float* src = tempStackPtr - (inst.fImmB * N);
                 pipeline->append_copy_slots_unmasked(alloc, SlotA(), src, inst.fImmA);
-                break;
-            }
-            case BuilderOp::duplicate: {
-                float* src = tempStackPtr - (1 * N);
-                float* dst = tempStackPtr;
-                pipeline->append(SkRP::load_unmasked, src);
-                for (int index = 0; index < inst.fImmA; ++index) {
-                    pipeline->append(SkRP::store_unmasked, dst);
-                    dst += N;
-                }
                 break;
             }
             case BuilderOp::discard_stack:
@@ -570,6 +583,36 @@ void Program::dump(SkWStream* out) {
                                    PtrCtx(ctx->src, numSlots));
         };
 
+        // Interpret the context value as a Swizzle structure. Note that the slot-width of the
+        // source expression is not preserved in the instruction encoding, so we need to do our best
+        // using the data we have. (e.g., myFloat4.y would be indistinguishable from myFloat2.y.)
+        auto SwizzleCtx = [&](SkRP::Stage op, void* v) -> std::tuple<std::string, std::string> {
+            auto* ctx = static_cast<SkRasterPipeline_SwizzleCtx*>(v);
+
+            int destSlots = (int)op - (int)SkRP::swizzle_1 + 1;
+            int highestComponent =
+                    *std::max_element(std::begin(ctx->offsets), std::end(ctx->offsets)) /
+                    (N * sizeof(float));
+
+            std::string src = "(" + PtrCtx(ctx->ptr, std::max(destSlots, highestComponent + 1)) +
+                              ").";
+            for (int index = 0; index < destSlots; ++index) {
+                if (ctx->offsets[index] == (0 * N * sizeof(float))) {
+                    src.push_back('x');
+                } else if (ctx->offsets[index] == (1 * N * sizeof(float))) {
+                    src.push_back('y');
+                } else if (ctx->offsets[index] == (2 * N * sizeof(float))) {
+                    src.push_back('z');
+                } else if (ctx->offsets[index] == (3 * N * sizeof(float))) {
+                    src.push_back('w');
+                } else {
+                    src.push_back('?');
+                }
+            }
+
+            return std::make_tuple(PtrCtx(ctx->ptr, destSlots), src);
+        };
+
         std::string opArg1, opArg2;
         switch (stage.op) {
             case SkRP::immediate_f:
@@ -591,6 +634,14 @@ void Program::dump(SkWStream* out) {
             case SkRP::zero_slot_unmasked:
                 opArg1 = PtrCtx(stage.ctx, 1);
                 break;
+
+            case SkRP::swizzle_1:
+            case SkRP::swizzle_2:
+            case SkRP::swizzle_3:
+            case SkRP::swizzle_4: {
+                std::tie(opArg1, opArg2) = SwizzleCtx(stage.op, stage.ctx);
+                break;
+            }
 
             case SkRP::store_src_rg:
             case SkRP::zero_2_slots_unmasked:
@@ -803,6 +854,8 @@ void Program::dump(SkWStream* out) {
 
             case SkRP::copy_slot_unmasked:    case SkRP::copy_2_slots_unmasked:
             case SkRP::copy_3_slots_unmasked: case SkRP::copy_4_slots_unmasked:
+            case SkRP::swizzle_1:             case SkRP::swizzle_2:
+            case SkRP::swizzle_3:             case SkRP::swizzle_4:
                 opText = opArg1 + " = " + opArg2;
                 break;
 

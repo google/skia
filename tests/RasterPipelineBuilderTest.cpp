@@ -218,25 +218,37 @@ R"(    1. copy_4_slots_unmasked          $0..3 = v10..13
 )");
 }
 
-DEF_TEST(RasterPipelineBuilderDuplicateAndSelectSlots, r) {
+DEF_TEST(RasterPipelineBuilderDuplicateSelectAndSwizzleSlots, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_literal_f(1.0f);           // push into 1
-    builder.duplicate(3);                   // duplicate into 2~4
-    builder.select(2);                      // combine 1~2 and 3~4 into 1~2
-    builder.select(1);                      // combine 1 and 2 into 1
+    builder.push_literal_f(1.0f);           // push into 0
+    builder.duplicate(1);                   // duplicate into 1
+    builder.duplicate(2);                   // duplicate into 2~3
+    builder.duplicate(3);                   // duplicate into 4~6
+    builder.duplicate(5);                   // duplicate into 7~11
+    builder.select(4);                      // select from 4~7 and 8~11 into 4~7
+    builder.select(3);                      // select from 2~4 and 5~7 into 2~4
+    builder.select(1);                      // select from 3 and 4 into 3
+    builder.swizzle(4, {3, 2, 1, 0});       // reverse the order of 0~3 (value.wzyx)
+    builder.swizzle(4, {1, 2});             // eliminate elements 0 and 3 (value.yz)
+    builder.swizzle(2, {0});                // eliminate element 1 (value.x)
     builder.discard_stack(1);               // balance stack
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
 
     check(r, *program,
 R"(    1. immediate_f                    src.r = 0x3F800000 (1.0)
     2. store_unmasked                 $0 = src.r
-    3. load_unmasked                  src.r = $0
-    4. store_unmasked                 $1 = src.r
-    5. store_unmasked                 $2 = src.r
-    6. store_unmasked                 $3 = src.r
-    7. copy_2_slots_masked            $0..1 = Mask($2..3)
-    8. copy_slot_masked               $0 = Mask($1)
+    3. swizzle_2                      $0..1 = ($0..1).xx
+    4. swizzle_3                      $1..3 = ($1..3).xxx
+    5. swizzle_4                      $3..6 = ($3..6).xxxx
+    6. swizzle_4                      $6..9 = ($6..9).xxxx
+    7. swizzle_3                      $9..11 = ($9..11).xxx
+    8. copy_4_slots_masked            $4..7 = Mask($8..11)
+    9. copy_3_slots_masked            $2..4 = Mask($5..7)
+   10. copy_slot_masked               $3 = Mask($4)
+   11. swizzle_4                      $0..3 = ($0..3).wzyx
+   12. swizzle_2                      $0..1 = ($0..2).yz
+   13. swizzle_1                      $0 = ($0).x
 )");
 }
 

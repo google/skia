@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
@@ -13,6 +14,7 @@
 
 #include <cstdint>
 #include <initializer_list>
+#include <iterator>
 #include <memory>
 
 class SkArenaAlloc;
@@ -254,7 +256,14 @@ public:
     void duplicate(int count) {
         // Creates duplicates of the top item on the temp stack.
         SkASSERT(count >= 0);
-        fInstructions.push_back({BuilderOp::duplicate, {}, count});
+        for (; count >= 3; count -= 3) {
+            this->swizzle(/*inputSlots=*/1, {0, 0, 0, 0});
+        }
+        switch (count) {
+            case 2:  this->swizzle(/*inputSlots=*/1, {0, 0, 0}); break;
+            case 1:  this->swizzle(/*inputSlots=*/1, {0, 0});    break;
+            default: break;
+        }
     }
 
     void select(int slots) {
@@ -295,6 +304,21 @@ public:
 
     void zero_slots_unmasked(SlotRange dst) {
         fInstructions.push_back({BuilderOp::zero_slot_unmasked, {dst.index}, dst.count});
+    }
+
+    void swizzle(int inputSlots, SkSpan<const int8_t> components) {
+        // Consumes `inputSlots` elements on the stack, then generates `components.size()` elements.
+        SkASSERT(components.size() >= 1 && components.size() <= 4);
+        // Squash .xwww into 0x3330, or .zyx into 0x012. (Packed nybbles, in reverse order.)
+        int componentBits = 0;
+        for (auto iter = components.rbegin(); iter != components.rend(); ++iter) {
+            SkASSERT(*iter >= 0 && *iter < inputSlots);
+            componentBits <<= 4;
+            componentBits |= *iter;
+        }
+
+        int op = (int)BuilderOp::swizzle_1 + components.size() - 1;
+        fInstructions.push_back({(BuilderOp)op, {}, inputSlots, componentBits});
     }
 
     void push_condition_mask() {
