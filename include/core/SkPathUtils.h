@@ -15,6 +15,8 @@ class SkPaint;
 class SkPath;
 struct SkRect;
 
+namespace skpathutils {
+
 /** Returns the filled equivalent of the stroked path.
 
     @param src       SkPath read to create a filled version
@@ -27,10 +29,24 @@ struct SkRect;
     @return          true if the dst path was updated, false if it was not (e.g. if the path
                      represents hairline and cannot be filled).
 */
-SK_API bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
-                              const SkRect* cullRect, SkScalar resScale = 1);
-SK_API bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
-                              const SkRect* cullRect, const SkMatrix& ctm);
-SK_API bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst);
+SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst,
+                              const SkRect *cullRect, SkScalar resScale = 1);
+
+SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst,
+                              const SkRect *cullRect, const SkMatrix &ctm);
+
+SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst);
+
+}
+
+// TODO(kjlubick) Remove this from the global namespace after updating clients.
+SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst,
+                              const SkRect *cullRect, SkScalar resScale = 1);
+
+SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst,
+                              const SkRect *cullRect, const SkMatrix &ctm);
+
+SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst);
+
 
 #endif

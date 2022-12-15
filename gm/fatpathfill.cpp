@@ -67,7 +67,7 @@ DEF_SIMPLE_GM(fatpathfill, canvas,
             SkPath line, path;
             line.moveTo(1, 2);
             line.lineTo(SkIntToScalar(4 + i), 1);
-            FillPathWithPaint(line, paint, &path);
+            skpathutils::FillPathWithPaint(line, paint, &path);
             draw_fatpath(canvas, surface.get(), path);
 
             canvas->translate(0, SMALL_H);

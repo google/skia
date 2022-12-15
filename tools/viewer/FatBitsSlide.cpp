@@ -245,7 +245,7 @@ void FatBits::drawLineSkeleton(SkCanvas* max, const SkPoint pts[]) {
         p.setStrokeWidth(fStrokeWidth * fZoom);
         p.setStrokeCap(fStrokeCap);
         SkPath dst;
-        FillPathWithPaint(path, p, &dst);
+        skpathutils::FillPathWithPaint(path, p, &dst);
         path = dst;
 
         path.moveTo(pts[0]);

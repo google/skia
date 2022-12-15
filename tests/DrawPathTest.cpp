@@ -348,7 +348,7 @@ static void test_infinite_dash(skiatest::Reporter* reporter) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(dash);
 
-    FillPathWithPaint(path, paint, &filteredPath);
+    skpathutils::FillPathWithPaint(path, paint, &filteredPath);
     // If we reach this, we passed.
     REPORTER_ASSERT(reporter, true);
 }

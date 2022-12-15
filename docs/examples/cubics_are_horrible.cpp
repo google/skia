@@ -22,7 +22,7 @@ void draw(SkCanvas* canvas) {
     // path.close();
 
     SkPath fillpath;
-    FillPathWithPaint(path, p, &fillpath);
+    skpathutils::FillPathWithPaint(path, p, &fillpath);
     SkPaint fillp;
     fillp.setColor(SK_ColorMAGENTA);
     fillp.setAntiAlias(true);

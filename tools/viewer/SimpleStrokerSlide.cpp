@@ -443,7 +443,7 @@ public:
         canvas->drawPath(path, fMirrorStrokePaint);
         if (fShowHidden) {
             SkPath hidden;
-            FillPathWithPaint(path, fStrokePaint, &hidden);
+            skpathutils::FillPathWithPaint(path, fStrokePaint, &hidden);
             canvas->drawPath(hidden, fHiddenPaint);
         }
         if (fShowSkeleton) {

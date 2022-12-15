@@ -14,13 +14,16 @@
 #include "include/core/SkStrokeRec.h"
 #include "src/core/SkMatrixPriv.h"
 
+namespace skpathutils {
+
 bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst) {
-    return FillPathWithPaint(src, paint, dst, nullptr, 1);
+    return skpathutils::FillPathWithPaint(src, paint, dst, nullptr, 1);
 }
 
 bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
                        const SkRect* cullRect, SkScalar resScale) {
-    return FillPathWithPaint(src, paint, dst, cullRect, SkMatrix::Scale(resScale, resScale));
+    return skpathutils::FillPathWithPaint(src, paint, dst, cullRect,
+                                          SkMatrix::Scale(resScale, resScale));
 }
 
 bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
@@ -65,4 +68,20 @@ bool FillPathWithPaint(const SkPath& src, const SkPaint& paint, SkPath* dst,
         return false;
     }
     return !rec.isHairlineStyle();
+}
+
+} // namespace skpathutils
+
+SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst,
+                              const SkRect *cullRect, SkScalar resScale) {
+    return skpathutils::FillPathWithPaint(src, paint, dst, cullRect, resScale);
+}
+
+SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst,
+                              const SkRect *cullRect, const SkMatrix &ctm) {
+    return skpathutils::FillPathWithPaint(src, paint, dst, cullRect, ctm);
+}
+
+SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst) {
+    return skpathutils::FillPathWithPaint(src, paint, dst);
 }

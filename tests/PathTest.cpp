@@ -481,7 +481,7 @@ static void test_bad_cubic_crbug229478() {
     SkPath dst;
     // Before the fix, this would infinite-recurse, and run out of stack
     // because we would keep trying to subdivide a degenerate cubic segment.
-    FillPathWithPaint(path, paint, &dst, nullptr);
+    skpathutils::FillPathWithPaint(path, paint, &dst, nullptr);
 }
 
 static void build_path_170666(SkPath& path) {
@@ -1230,7 +1230,7 @@ static void stroke_cubic(const SkPoint pts[4]) {
     paint.setStrokeWidth(SK_Scalar1 * 2);
 
     SkPath fill;
-    FillPathWithPaint(path, paint, &fill);
+    skpathutils::FillPathWithPaint(path, paint, &fill);
 }
 
 // just ensure this can run w/o any SkASSERTS firing in the debug build
@@ -2617,7 +2617,7 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
     SkPaint strokePaint;
     strokePaint.setStyle(SkPaint::kStroke_Style);
     strokePaint.setStrokeWidth(2);
-    FillPathWithPaint(src, strokePaint, &dst);
+    skpathutils::FillPathWithPaint(src, strokePaint, &dst);
     REPORTER_ASSERT(reporter, SkPathPriv::IsNestedFillRects(dst, nullptr));
 }
 

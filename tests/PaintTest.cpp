@@ -81,7 +81,7 @@ DEF_TEST(Paint_regression_cubic, reporter) {
 
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SkIntToScalar(2));
-    FillPathWithPaint(path, paint, &stroke);
+    skpathutils::FillPathWithPaint(path, paint, &stroke);
     strokeR = stroke.getBounds();
 
     SkRect maxR = fillR;

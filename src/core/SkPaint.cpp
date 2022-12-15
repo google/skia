@@ -298,12 +298,12 @@ bool SkPaint::nothingToDraw() const {
 
 bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
                           SkScalar resScale) const {
-    return FillPathWithPaint(src, *this, dst, cullRect, resScale);
+    return skpathutils::FillPathWithPaint(src, *this, dst, cullRect, resScale);
 }
 
 bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
                           const SkMatrix& ctm) const {
-    return FillPathWithPaint(src, *this, dst, cullRect, ctm);
+    return skpathutils::FillPathWithPaint(src, *this, dst, cullRect, ctm);
 }
 
 #endif

@@ -55,7 +55,7 @@ const RenderNode* Draw::onNodeAt(const SkPoint& p) const {
     }
 
     SkPath stroke_path;
-    if (!FillPathWithPaint(fGeometry->asPath(), paint, &stroke_path)) {
+    if (!skpathutils::FillPathWithPaint(fGeometry->asPath(), paint, &stroke_path)) {
         return nullptr;
     }
 

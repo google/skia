@@ -134,7 +134,7 @@ public:
         if (fShowHairline) {
             SkPath fill;
 
-            FillPathWithPaint(path, paint, &fill);
+            skpathutils::FillPathWithPaint(path, paint, &fill);
             paint.setStrokeWidth(0);
             canvas->drawPath(fill, paint);
         } else {
@@ -364,7 +364,7 @@ public:
         }
         if (fShowHidden) {
             SkPath hidden;
-            FillPathWithPaint(path, fStrokePaint, &hidden);
+            skpathutils::FillPathWithPaint(path, fStrokePaint, &hidden);
             canvas->drawPath(hidden, fHiddenPaint);
         }
         if (fShowSkeleton) {

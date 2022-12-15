@@ -169,7 +169,7 @@ public:
 
         if (fDrawFillPath) {
             SkPath fillpath;
-            FillPathWithPaint(path, p, &fillpath);
+            skpathutils::FillPathWithPaint(path, p, &fillpath);
 
             canvas->drawPath(fillpath, hairp);
 

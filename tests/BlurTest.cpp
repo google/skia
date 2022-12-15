@@ -141,7 +141,7 @@ DEF_TEST(BlurDrawing, reporter) {
                 SkPath path;
                 tests[test].addPath(&path);
                 SkPath strokedPath;
-                FillPathWithPaint(path, paint, &strokedPath);
+                skpathutils::FillPathWithPaint(path, paint, &strokedPath);
                 SkRect refBound = strokedPath.getBounds();
                 SkIRect iref;
                 refBound.roundOut(&iref);

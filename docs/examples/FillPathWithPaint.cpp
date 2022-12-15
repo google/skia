@@ -15,7 +15,7 @@ void draw(SkCanvas* canvas) {
     outlinePaint.setStrokeWidth(2);
     SkMatrix scale = SkMatrix::Scale(300, 300);
     for (SkScalar precision : { 0.01f, .1f, 1.f, 10.f, 100.f } ) {
-        FillPathWithPaint(strokePath, strokePaint, &fillPath, nullptr, precision);
+        skpathutils::FillPathWithPaint(strokePath, strokePaint, &fillPath, nullptr, precision);
         fillPath.transform(scale);
         canvas->drawPath(fillPath, outlinePaint);
         canvas->translate(60, 0);

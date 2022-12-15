@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     strokePath.lineTo(100, 100);
     canvas->drawPath(strokePath, paint);
     SkPath fillPath;
-    FillPathWithPaint(strokePath, paint, &fillPath);
+    skpathutils::FillPathWithPaint(strokePath, paint, &fillPath);
     paint.setStrokeWidth(2);
     canvas->translate(40, 0);
     canvas->drawPath(fillPath, paint);

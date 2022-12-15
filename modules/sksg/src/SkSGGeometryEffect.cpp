@@ -154,7 +154,7 @@ SkPath OffsetEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child) {
         paint.setStrokeJoin(fJoin);
 
         SkPath fill_path;
-        FillPathWithPaint(path, paint, &fill_path, nullptr);
+        skpathutils::FillPathWithPaint(path, paint, &fill_path, nullptr);
 
         if (fOffset > 0) {
             Op(path, fill_path, kUnion_SkPathOp, &path);

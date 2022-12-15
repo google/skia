@@ -936,7 +936,7 @@ void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIs
       if (!pathIsMutable) {
         pathPtr = &pathStorage;
       }
-      bool fill = FillPathWithPaint(path, *path_paint, pathPtr);
+      bool fill = skpathutils::FillPathWithPaint(path, *path_paint, pathPtr);
       if (fill) {
         // Path should be filled.
         path_paint.writable()->setStyle(SkPaint::kFill_Style);

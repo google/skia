@@ -661,7 +661,7 @@ private:
         } else {
             p.setStrokeWidth(width);
         }
-        FillPathWithPaint(path, p, &fill);
+        skpathutils::FillPathWithPaint(path, p, &fill);
         SkPath scaledFill;
         if (drawText) {
             fill.transform(matrix, &scaledFill);

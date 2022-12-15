@@ -144,7 +144,7 @@ void draw_quad_fillpath(SkCanvas *canvas) {
     fillp.setColor(SK_ColorMAGENTA);
 
     SkPath fillpath;
-    FillPathWithPaint(path, p, &fillpath);
+    skpathutils::FillPathWithPaint(path, p, &fillpath);
 
     canvas->drawPath(fillpath, fillp);
 }
@@ -181,7 +181,7 @@ void draw_cubic_fillpath(SkCanvas *canvas) {
     fillp.setColor(SK_ColorMAGENTA);
 
     SkPath fillpath;
-    FillPathWithPaint(path, p, &fillpath);
+    skpathutils::FillPathWithPaint(path, p, &fillpath);
 
     canvas->drawPath(fillpath, fillp);
 }
@@ -219,7 +219,7 @@ void draw_oval_fillpath(SkCanvas *canvas) {
     fillp.setColor(SK_ColorMAGENTA);
 
     SkPath fillpath;
-    FillPathWithPaint(path, p, &fillpath);
+    skpathutils::FillPathWithPaint(path, p, &fillpath);
 
     canvas->drawPath(fillpath, fillp);
 }

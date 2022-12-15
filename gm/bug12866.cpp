@@ -45,7 +45,7 @@ DEF_SIMPLE_GM(bug12866, canvas, 128, 64) {
 
     SkPath strokePath = get_path();
     SkPath fillPath;
-    FillPathWithPaint(strokePath, strokePaint, &fillPath, nullptr, 1200.0f);
+    skpathutils::FillPathWithPaint(strokePath, strokePaint, &fillPath, nullptr, 1200.0f);
 
     SkRect strokeBounds = strokePath.getBounds();
     SkRect fillBounds = fillPath.getBounds();

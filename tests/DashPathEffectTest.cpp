@@ -111,7 +111,7 @@ DEF_TEST(DashPath_bug4871, r) {
     paint.setPathEffect(dash);
 
     SkPath fill;
-    FillPathWithPaint(path, paint, &fill);
+    skpathutils::FillPathWithPaint(path, paint, &fill);
 }
 
 // Verify that long lines with many dashes don't cause overflows/OOMs.
@@ -142,5 +142,5 @@ DEF_TEST(DashCrazy_crbug_875494, r) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(SkDashPathEffect::Make(vals, N, 222));
-    FillPathWithPaint(path, paint, &path2, &cull);
+    skpathutils::FillPathWithPaint(path, paint, &path2, &cull);
 }

@@ -34,7 +34,7 @@ static PathDY make_frame() {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SkIntToScalar(5));
-    FillPathWithPaint(path, paint, &path);
+    skpathutils::FillPathWithPaint(path, paint, &path);
     return {path, 15};
 }
 

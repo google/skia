@@ -107,7 +107,7 @@ protected:
 
                     SkPath path, fillPath;
                     path.addRect(r);
-                    FillPathWithPaint(path, paint, &fillPath);
+                    skpathutils::FillPathWithPaint(path, paint, &fillPath);
                     draw_path(canvas, fillPath, r, join, doFill);
 
                     canvas->translate(W + 2 * STROKE_WIDTH, 0);

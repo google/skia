@@ -35,7 +35,7 @@ protected:
         for (int outer = 0; outer < 10; ++outer) {
             for (int i = 0; i < loops; ++i) {
                 SkPath result;
-                FillPathWithPaint(fPath, paint, &result, nullptr, fRes);
+                skpathutils::FillPathWithPaint(fPath, paint, &result, nullptr, fRes);
             }
         }
     }
