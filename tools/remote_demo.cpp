@@ -6,7 +6,6 @@
  */
 
 #include <chrono>
-#include <err.h>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -75,14 +74,12 @@ static bool write_SkData(int fd, const SkData& data) {
     size_t size = data.size();
     ssize_t bytesWritten = ::write(fd, &size, sizeof(size));
     if (bytesWritten < 0) {
-        err(1,"Failed write %zu", size);
-        return false;
+        SK_ABORT("Failed write %zu", size);
     }
 
     bytesWritten = ::write(fd, data.data(), data.size());
     if (bytesWritten < 0) {
-        err(1,"Failed write %zu", size);
-        return false;
+        SK_ABORT("Failed write %zu", size);
     }
 
     return true;
@@ -93,7 +90,7 @@ static sk_sp<SkData> read_SkData(int fd) {
     ssize_t readSize = ::read(fd, &size, sizeof(size));
     if (readSize <= 0) {
         if (readSize < 0) {
-            err(1, "Failed read %zu", size);
+            SK_ABORT("Failed read %zu", size);
         }
         return nullptr;
     }
@@ -107,7 +104,7 @@ static sk_sp<SkData> read_SkData(int fd) {
         sizeRead = ::read(fd, &data[totalRead], size - totalRead);
         if (sizeRead <= 0) {
             if (readSize < 0) {
-                err(1, "Failed read %zu", size);
+                SK_ABORT("Failed read %zu", size);
             }
             return nullptr;
         }
