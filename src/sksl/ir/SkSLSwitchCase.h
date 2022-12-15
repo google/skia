@@ -12,7 +12,7 @@
 #include "include/private/SkSLString.h"
 #include "src/sksl/ir/SkSLExpression.h"
 
-#include <inttypes.h>
+#include <cinttypes>
 
 namespace SkSL {
 
