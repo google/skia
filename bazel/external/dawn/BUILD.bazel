@@ -1169,10 +1169,16 @@ TINT_SRCS = [
     "src/tint/type/void.cc",
     "src/tint/type/void.h",
     # From dawn/src/tint/BUILD.gn:libtint_constant_src
+    "src/tint/constant/composite.cc",
+    "src/tint/constant/composite.h",
     "src/tint/constant/constant.cc",
     "src/tint/constant/constant.h",
     "src/tint/constant/node.cc",
     "src/tint/constant/node.h",
+    "src/tint/constant/scalar.cc",
+    "src/tint/constant/scalar.h",
+    "src/tint/constant/splat.cc",
+    "src/tint/constant/splat.h",
     # Dawn sets the following tint GN variables
     #    tint_build_spv_reader = true
     #    tint_build_spv_writer = true
