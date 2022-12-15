@@ -535,13 +535,15 @@ void Program::dump(SkWStream* out) {
                     slotIdx /= N;
                     if (slotIdx < (int)fDebugTrace->fSlotInfo.size()) {
                         const SlotDebugInfo& slotInfo = fDebugTrace->fSlotInfo[slotIdx];
-                        // If we're covering the entire slot, return `name`.
-                        if (numSlots == slotInfo.columns * slotInfo.rows) {
-                            return slotInfo.name;
+                        if (!slotInfo.name.empty()) {
+                            // If we're covering the entire slot, return `name`.
+                            if (numSlots == slotInfo.columns * slotInfo.rows) {
+                                return slotInfo.name;
+                            }
+                            // If we are only covering part of the slot, return `name(1..2)`.
+                            return slotInfo.name + "(" +
+                                   AsRange(slotInfo.componentIndex, numSlots) + ")";
                         }
-                        // If we are only covering part of the slot, return `name(1..2)`.
-                        return slotInfo.name + "(" +
-                               AsRange(slotInfo.componentIndex, numSlots) + ")";
                     }
                 }
             }
