@@ -10,6 +10,7 @@
 #include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
+#include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkStringView.h"
 #include "include/private/SkTArray.h"
@@ -122,6 +123,7 @@ public:
     [[nodiscard]] bool writeContinueStatement(const ContinueStatement& b);
     [[nodiscard]] bool writeDoStatement(const DoStatement& d);
     [[nodiscard]] bool writeExpressionStatement(const ExpressionStatement& e);
+    [[nodiscard]] bool writeGlobals();
     [[nodiscard]] bool writeIfStatement(const IfStatement& i);
     [[nodiscard]] bool writeReturnStatement(const ReturnStatement& r);
     [[nodiscard]] bool writeVarDeclaration(const VarDeclaration& v);
@@ -454,6 +456,53 @@ std::optional<SlotRange> Generator::writeFunction(const IRNode& callSite,
     }
 
     return functionResult;
+}
+
+bool Generator::writeGlobals() {
+    for (const ProgramElement* e : fProgram.elements()) {
+        if (e->is<GlobalVarDeclaration>()) {
+            const GlobalVarDeclaration& gvd = e->as<GlobalVarDeclaration>();
+            const VarDeclaration& decl = gvd.varDeclaration();
+            const Variable* var = decl.var();
+
+            if (var->type().isEffectChild()) {
+                // TODO(skia:13676): handle child effects
+                return unsupported();
+            }
+
+            // Opaque types include child processors and GL objects (samplers, textures, etc).
+            // Of those, only child processors are legal variables.
+            SkASSERT(!var->type().isVoid());
+            SkASSERT(!var->type().isOpaque());
+            [[maybe_unused]] SlotRange r = this->getSlots(*var);
+
+            // builtin variables are system-defined, with special semantics. The only builtin
+            // variable exposed to runtime effects is sk_FragCoord.
+            if (int builtin = var->modifiers().fLayout.fBuiltin; builtin >= 0) {
+                switch (builtin) {
+                    case SK_FRAGCOORD_BUILTIN:
+                        SkASSERT(r.count == 4);
+                        // TODO: populate slots with device coordinates xy01
+                        return unsupported();
+
+                    default:
+                        SkDEBUGFAILF("Unsupported builtin %d", builtin);
+                        return unsupported();
+                }
+            }
+
+            if (var->modifiers().fFlags & Modifiers::kUniform_Flag) {
+                return unsupported();
+            }
+
+            // Other globals are treated as normal variable declarations.
+            if (!this->writeVarDeclaration(decl)) {
+                return unsupported();
+            }
+        }
+    }
+
+    return true;
 }
 
 bool Generator::writeStatement(const Statement& s) {
@@ -1049,6 +1098,11 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
 
     // Initialize the program.
     fBuilder.init_lane_masks();
+
+    // Emit global variables.
+    if (!this->writeGlobals()) {
+        return unsupported();
+    }
 
     // Invoke main().
     std::optional<SlotRange> mainResult = this->writeFunction(function, function, args);
