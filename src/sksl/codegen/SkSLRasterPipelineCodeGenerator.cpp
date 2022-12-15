@@ -47,6 +47,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <numeric>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -140,9 +141,6 @@ public:
                                              const Expression& ifFalse);
     [[nodiscard]] bool pushVariableReference(const VariableReference& v);
 
-    /** Copies an expression from the value stack and copies it into slots. */
-    void copyToSlotRange(SlotRange r) { fBuilder.copy_stack_to_slots(r); }
-
     /** Pops an expression from the value stack and copies it into slots. */
     void popToSlotRange(SlotRange r) { fBuilder.pop_slots(r); }
     void popToSlotRangeUnmasked(SlotRange r) { fBuilder.pop_slots_unmasked(r); }
@@ -194,26 +192,97 @@ struct LValue {
     static std::unique_ptr<LValue> Make(const Expression& e);
 
     /** Copies the top-of-stack value into this lvalue, without discarding it from the stack. */
-    virtual bool store(Generator* gen) = 0;
+    bool store(Generator* gen);
+
+    /**
+     * Returns the value slots associated with this LValue. For instance, a plain four-slot Variable
+     * will have monotonically increasing slots like {5,6,7,8}.
+     */
+    struct SlotMap {
+        SkTArray<int> slots;  // the destination slots
+    };
+    virtual SlotMap getSlotMap(Generator* gen) = 0;
 };
 
 struct VariableLValue : public LValue {
     VariableLValue(const Variable* v) : fVariable(v) {}
 
-    bool store(Generator* gen) override {
-        gen->copyToSlotRange(gen->getSlots(*fVariable));
-        return true;
+    SlotMap getSlotMap(Generator* gen) override {
+        // Map every slot in the variable, in consecutive order, e.g. a half4 at slot 5 = {5,6,7,8}.
+        SlotMap out;
+        SlotRange range = gen->getSlots(*fVariable);
+        out.slots.resize(range.count);
+        std::iota(out.slots.begin(), out.slots.end(), range.index);
+        return out;
     }
 
     const Variable* fVariable;
+};
+
+struct SwizzleLValue : public LValue {
+    SwizzleLValue(std::unique_ptr<LValue> p, const ComponentArray& c)
+            : fParent(std::move(p))
+            , fComponents(c) {}
+
+    SlotMap getSlotMap(Generator* gen) override {
+        // Get slots from the parent expression.
+        SlotMap in = fParent->getSlotMap(gen);
+
+        // Rearrange the slots based to honor the swizzle components.
+        SlotMap out;
+        out.slots.resize(fComponents.size());
+        for (int index = 0; index < fComponents.size(); ++index) {
+            SkASSERT(fComponents[index] < in.slots.size());
+            out.slots[index] = in.slots[fComponents[index]];
+        }
+
+        return out;
+    }
+
+    std::unique_ptr<LValue> fParent;
+    const ComponentArray& fComponents;
 };
 
 std::unique_ptr<LValue> LValue::Make(const Expression& e) {
     if (e.is<VariableReference>()) {
         return std::make_unique<VariableLValue>(e.as<VariableReference>().variable());
     }
+    if (e.is<Swizzle>()) {
+        if (std::unique_ptr<LValue> base = LValue::Make(*e.as<Swizzle>().base())) {
+            return std::make_unique<SwizzleLValue>(std::move(base), e.as<Swizzle>().components());
+        }
+    }
     // TODO(skia:13676): add support for other kinds of lvalues
     return nullptr;
+}
+
+bool LValue::store(Generator* gen) {
+    SlotMap out = this->getSlotMap(gen);
+
+    if (!out.slots.empty()) {
+        // Coalesce our list of slots into ranges of consecutive slots.
+        SkTArray<SlotRange> ranges;
+        ranges.push_back({out.slots.front(), 1});
+
+        for (int index = 1; index < out.slots.size(); ++index) {
+            Slot dst = out.slots[index];
+            if (dst == ranges.back().index + ranges.back().count) {
+                ++ranges.back().count;
+            } else {
+                ranges.push_back({dst, 1});
+            }
+        }
+
+        // Copy our coalesced slot ranges from the stack.
+        int offsetFromStackTop = out.slots.size();
+        for (const SlotRange& r : ranges) {
+            gen->builder()->copy_stack_to_slots(r, offsetFromStackTop);
+            offsetFromStackTop -= r.count;
+        }
+        SkASSERT(offsetFromStackTop == 0);
+    }
+
+    return true;
 }
 
 static bool unsupported() {
