@@ -17,7 +17,7 @@ namespace skgpu::graphite {
 
 // We keep track of all SkRuntimeEffects that are used by a recording, along with their code
 // snippet ID. This ensures that we have a live reference to every effect that we're going to
-// paint, and gives us a way to retrieve their shader text when we see an their code-snippet ID.
+// paint, and gives us a way to retrieve their shader text when we see their code-snippet ID.
 class RuntimeEffectDictionary {
 public:
     const SkRuntimeEffect* find(int codeSnippetID) const {

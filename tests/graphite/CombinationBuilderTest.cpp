@@ -12,8 +12,10 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/FactoryFunctions.h"
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/Precompile.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 
 #include <array>
 
@@ -23,13 +25,13 @@ namespace {
 
 // The default PaintOptions should create a single combination with a solid color shader and
 // kSrcOver blending
-void empty_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
+void empty_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
     PaintOptions paintOptions;
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
 
     std::vector<UniquePaintParamsID> precompileIDs;
-    paintOptions.priv().buildCombinations(dict,
+    paintOptions.priv().buildCombinations(keyContext,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -38,7 +40,7 @@ void empty_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
 }
 
 // A PaintOptions will supply a default solid color shader if needed.
-void no_shader_option_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
+void no_shader_option_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
     SkBlendMode blendModes[] = { SkBlendMode::kSrcOver };
 
     PaintOptions paintOptions;
@@ -47,7 +49,7 @@ void no_shader_option_test(ShaderCodeDictionary* dict, skiatest::Reporter* repor
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
 
     std::vector<UniquePaintParamsID> precompileIDs;
-    paintOptions.priv().buildCombinations(dict,
+    paintOptions.priv().buildCombinations(keyContext,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -56,22 +58,22 @@ void no_shader_option_test(ShaderCodeDictionary* dict, skiatest::Reporter* repor
 }
 
 // A default kSrcOver blend mode will be supplied if no other blend options are added
-void no_blend_mode_option_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
+void no_blend_mode_option_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
     PaintOptions paintOptions;
     paintOptions.setShaders({ PrecompileShaders::Color() });
 
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 1);
 
     std::vector<UniquePaintParamsID> precompileIDs;
-        paintOptions.priv().buildCombinations(dict,
-                                              [&](UniquePaintParamsID id) {
-                                                  precompileIDs.push_back(id);
-                                              });
+    paintOptions.priv().buildCombinations(keyContext,
+                                          [&](UniquePaintParamsID id) {
+                                              precompileIDs.push_back(id);
+                                          });
 
     SkASSERT(precompileIDs.size() == 1);
 }
 
-void big_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
+void big_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
     // paintOptions (17)
     //  |- sweepGrad_0 (2) | blendShader_0 (15)
     //  |                     0: kSrc (1)
@@ -127,7 +129,7 @@ void big_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 17);
 
     std::vector<UniquePaintParamsID> precompileIDs;
-    paintOptions.priv().buildCombinations(dict,
+    paintOptions.priv().buildCombinations(keyContext,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -163,7 +165,7 @@ std::vector<sk_sp<T>> create_runtime_combos(
     return { combine };
 }
 
-void runtime_effect_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporter) {
+void runtime_effect_test(const KeyContext& keyContext, skiatest::Reporter* reporter) {
     // paintOptions (8)
     //  |- combineShader (2)
     //  |       0: redShader   | greenShader
@@ -261,7 +263,7 @@ void runtime_effect_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporte
     REPORTER_ASSERT(reporter, paintOptions.priv().numCombinations() == 8);
 
     std::vector<UniquePaintParamsID> precompileIDs;
-    paintOptions.priv().buildCombinations(dict,
+    paintOptions.priv().buildCombinations(keyContext,
                                           [&](UniquePaintParamsID id) {
                                               precompileIDs.push_back(id);
                                           });
@@ -274,11 +276,15 @@ void runtime_effect_test(ShaderCodeDictionary* dict, skiatest::Reporter* reporte
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
-    empty_test(dict, reporter);
-    no_shader_option_test(dict, reporter);
-    no_blend_mode_option_test(dict, reporter);
-    big_test(dict, reporter);
-    runtime_effect_test(dict, reporter);
+    auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
+
+    KeyContext keyContext(dict, rtEffectDict.get());
+
+    empty_test(keyContext, reporter);
+    no_shader_option_test(keyContext, reporter);
+    no_blend_mode_option_test(keyContext, reporter);
+    big_test(keyContext, reporter);
+    runtime_effect_test(keyContext, reporter);
 }
 
 #endif // SK_GRAPHITE_ENABLED

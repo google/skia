@@ -743,7 +743,7 @@ void CombinationBuilder::createKey(const KeyContext& keyContext,
 void CombinationBuilder::buildCombinations(
         ShaderCodeDictionary* dict,
         const std::function<void(UniquePaintParamsID)>& func) {
-    KeyContext keyContext(dict);
+    KeyContext keyContext(dict, nullptr);
     PaintParamsKeyBuilder builder(dict);
 
     // Supply a default kSrcOver if no other blend mode option is provided

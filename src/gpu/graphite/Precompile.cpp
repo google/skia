@@ -142,10 +142,10 @@ void PaintOptions::createKey(const KeyContext& keyContext,
 }
 
 void PaintOptions::buildCombinations(
-        ShaderCodeDictionary* dict,
+        const KeyContext& keyContext,
         const std::function<void(UniquePaintParamsID)>& processCombination) const {
-    KeyContext keyContext(dict);
-    PaintParamsKeyBuilder builder(dict);
+
+    PaintParamsKeyBuilder builder(keyContext.dict());
 
     int numCombinations = this->numCombinations();
     for (int i = 0; i < numCombinations; ++i) {
@@ -153,7 +153,7 @@ void PaintOptions::buildCombinations(
 
         // The 'findOrCreate' calls lockAsKey on builder and then destroys the returned
         // PaintParamsKey. This serves to reset the builder.
-        auto entry = dict->findOrCreate(&builder);
+        auto entry = keyContext.dict()->findOrCreate(&builder);
 
         processCombination(entry->uniqueID());
     }
