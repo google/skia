@@ -83,7 +83,6 @@
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
-#include "include/gpu/graphite/CombinationBuilder.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"

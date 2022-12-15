@@ -10,7 +10,6 @@
 #include "include/core/SkPathTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/BackendTexture.h"
-#include "include/gpu/graphite/CombinationBuilder.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/TextureInfo.h"
@@ -406,34 +405,6 @@ void Context::precompile(const PaintOptions& options) {
                 }
             }
         });
-}
-
-BlenderID Context::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
-    return fSharedContext->shaderCodeDictionary()->addUserDefinedBlender(std::move(effect));
-}
-
-void Context::precompile(CombinationBuilder* combinationBuilder) {
-    ASSERT_SINGLE_OWNER
-
-    combinationBuilder->buildCombinations(
-            fSharedContext->shaderCodeDictionary(),
-            [&](UniquePaintParamsID uniqueID) {
-                for (const Renderer* r : fSharedContext->rendererProvider()->renderers()) {
-                    for (auto&& s : r->steps()) {
-                        if (s->performsShading()) {
-                            GraphicsPipelineDesc desc(s, uniqueID);
-                            (void) desc;
-                            // TODO: Combine with renderpass description set to generate full
-                            // GraphicsPipeline and MSL program. Cache that compiled pipeline on
-                            // the resource provider in a map from desc -> pipeline so that any
-                            // later desc created from equivalent RenderStep + Combination get it.
-                        }
-                    }
-                }
-            });
-
-    // TODO: Iterate over the renderers and make descriptions for the steps that don't perform
-    // shading, and just use ShaderType::kNone.
 }
 
 #endif // SK_ENABLE_PRECOMPILE

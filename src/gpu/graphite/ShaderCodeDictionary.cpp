@@ -23,10 +23,6 @@
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 
-#ifdef SK_ENABLE_PRECOMPILE
-#include "include/gpu/graphite/CombinationBuilder.h"
-#endif
-
 #include <new>
 
 namespace {
@@ -959,34 +955,6 @@ int ShaderCodeDictionary::addUserDefinedSnippet(
                                        kNoChildren,
                                        dataPayloadExpectations);
 }
-
-#if defined(SK_ENABLE_PRECOMPILE)
-BlenderID ShaderCodeDictionary::addUserDefinedBlender(sk_sp<SkRuntimeEffect> effect) {
-    if (!effect) {
-        return {};
-    }
-
-    // TODO: at this point we need to extract the uniform definitions, children and helper functions
-    // from the runtime effect in order to create a real ShaderSnippet
-    // Additionally, we need to hash the provided code to deduplicate the runtime effects in case
-    // the client keeps giving us different rtEffects w/ the same backing SkSL.
-    int codeSnippetID = this->addUserDefinedSnippet("UserDefined",
-                                                    {},  // missing uniforms
-                                                    SnippetRequirementFlags::kNone,
-                                                    {},  // missing samplers
-                                                    "foo",
-                                                    GenerateDefaultExpression,
-                                                    GenerateDefaultPreamble,
-                                                    kNoChildren,
-                                                    /*dataPayloadExpectations=*/{});
-    return BlenderID(codeSnippetID);
-}
-
-const ShaderSnippet* ShaderCodeDictionary::getEntry(BlenderID id) const {
-    return this->getEntry(id.asUInt());
-}
-
-#endif // SK_ENABLE_PRECOMPILE
 
 static SkSLType uniform_type_to_sksl_type(const SkRuntimeEffect::Uniform& u) {
     using Type = SkRuntimeEffect::Uniform::Type;

@@ -264,10 +264,9 @@ skia_graphite_piet_sources = [
   "$_src/PietRenderTask.h",
 ]
 
-skia_graphite_precompile_public = [ "$_include/CombinationBuilder.h" ]
+skia_graphite_precompile_public = []
 
 skia_graphite_precompile_sources = [
-  "$_src/CombinationBuilder.cpp",
   "$_src/FactoryFunctions.cpp",
   "$_src/FactoryFunctions.h",
   "$_src/PaintOptionsPriv.h",

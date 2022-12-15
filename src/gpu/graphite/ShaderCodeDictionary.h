@@ -38,10 +38,6 @@ enum class Layout;
 class RenderStep;
 class RuntimeEffectDictionary;
 
-#ifdef SK_ENABLE_PRECOMPILE
-class BlenderID;
-#endif
-
 // TODO: How to represent the type (e.g., 2D) of texture being sampled?
 class TextureAndSampler {
 public:
@@ -240,11 +236,6 @@ public:
 
     int addUserDefinedSnippet(const char* name,
                               SkSpan<const PaintParamsKey::DataPayloadField> expectations);
-
-#if defined(SK_ENABLE_PRECOMPILE)
-    BlenderID addUserDefinedBlender(sk_sp<SkRuntimeEffect>);
-    const ShaderSnippet* getEntry(BlenderID) const;
-#endif
 
 private:
     Entry* makeEntry(const PaintParamsKey&, const skgpu::BlendInfo&);

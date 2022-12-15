@@ -365,7 +365,6 @@ graphite_tests_sources = [
 
 precompile_tests_sources = [
   "$_tests/graphite/CombinationBuilderTest.cpp",
-  "$_tests/graphite/CombinationBuilderTestAccess.h",
   "$_tests/graphite/PaintParamsKeyTest.cpp",
 ]
 
