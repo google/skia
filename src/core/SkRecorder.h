@@ -101,9 +101,6 @@ public:
                      SkBlendMode, const SkSamplingOptions&, const SkRect*, const SkPaint*) override;
 
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
-#ifdef SK_ENABLE_SKSL
-    void onDrawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
-#endif
     void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
 
     void onClipRect(const SkRect& rect, SkClipOp, ClipEdgeStyle) override;
