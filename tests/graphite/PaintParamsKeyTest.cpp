@@ -477,6 +477,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                          BlenderType::kRuntime }) {
             for (auto cf : { ColorFilterType::kNone,
                              ColorFilterType::kMatrix }) {
+                context->priv().globalCache()->resetGraphicsPipelines();
+
                 auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf);
 
                 auto [paintID, uData, tData] = ExtractPaintData(
@@ -506,6 +508,38 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
 #endif
 
                 REPORTER_ASSERT(reporter, result != precompileIDs.end());
+                {
+                    int before = context->priv().globalCache()->numGraphicsPipelines();
+                    context->precompile(paintOptions);
+                    int after = context->priv().globalCache()->numGraphicsPipelines();
+
+                    REPORTER_ASSERT(reporter, before == 0);
+                    REPORTER_ASSERT(reporter, after > before);
+                }
+
+                {
+                    int before = context->priv().globalCache()->numGraphicsPipelines();
+
+                    {
+                        SkImageInfo ii = SkImageInfo::Make(16, 16,
+                                                           kRGBA_8888_SkColorType,
+                                                           kPremul_SkAlphaType);
+
+                        sk_sp<SkSurface> surf = SkSurface::MakeGraphite(recorder.get(), ii);
+                        SkCanvas* canvas = surf->getCanvas();
+
+                        canvas->drawRect(SkRect::MakeWH(16, 16), paint);
+
+                        std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+                        context->insertRecording({ recording.get() });
+                        context->submit(SyncToCpu::kYes);
+                    }
+
+                    int after = context->priv().globalCache()->numGraphicsPipelines();
+
+                    // Actually using the SkPaint shouldn't have caused any additional compilation
+                    REPORTER_ASSERT(reporter, before == after);
+                }
             }
         }
     }

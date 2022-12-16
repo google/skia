@@ -14,7 +14,7 @@
 namespace skgpu::graphite {
 
 GlobalCache::GlobalCache()
-        : fGraphicsPipelineCache(16) // TODO: find a good value for these limits
+        : fGraphicsPipelineCache(256) // TODO: find a good value for these limits
         , fComputePipelineCache(16) {}
 
 GlobalCache::~GlobalCache() = default;
@@ -39,6 +39,20 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
     } // else there was a race creating the same pipeline and this thread lost, so return the winner
     return *entry;
 }
+
+#if GRAPHITE_TEST_UTILS
+int GlobalCache::numGraphicsPipelines() const {
+    SkAutoSpinlock lock{fSpinLock};
+
+    return fGraphicsPipelineCache.count();
+}
+
+void GlobalCache::resetGraphicsPipelines() {
+    SkAutoSpinlock lock{fSpinLock};
+
+    fGraphicsPipelineCache.reset();
+}
+#endif // GRAPHITE_TEST_UTILS
 
 sk_sp<ComputePipeline> GlobalCache::findComputePipeline(const UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};

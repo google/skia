@@ -10,10 +10,13 @@
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 
 #include <array>
 
 namespace skgpu::graphite {
+
+class Caps;
 
 /**
  * This enum is used to specify the load operation to be used when a RenderPass begins execution
@@ -45,6 +48,14 @@ struct AttachmentDesc {
 };
 
 struct RenderPassDesc {
+    static RenderPassDesc Make(const Caps* caps,
+                               const TextureInfo& targetInfo,
+                               LoadOp loadOp,
+                               StoreOp storeOp,
+                               SkEnumBitMask<DepthStencilFlags> depthStencilFlags,
+                               const std::array<float, 4>& clearColor,
+                               bool requiresMSAA);
+
     AttachmentDesc fColorAttachment;
     std::array<float, 4> fClearColor;
     AttachmentDesc fColorResolveAttachment;
