@@ -514,8 +514,8 @@ void Program::dump(SkWStream* out) {
         const Stage& stage = stages[index];
 
         // Interpret the context value as a branch offset.
-        auto BranchOffset = [&](void* ctx) -> std::string {
-            int *ctxAsInt = static_cast<int*>(ctx);
+        auto BranchOffset = [&](const void* ctx) -> std::string {
+            const int *ctxAsInt = static_cast<const int*>(ctx);
             return SkSL::String::printf("%+d (#%d)", *ctxAsInt, *ctxAsInt + index + 1);
         };
 
@@ -547,8 +547,8 @@ void Program::dump(SkWStream* out) {
         };
 
         // Interpret the context value as a pointer, most likely to a slot range.
-        auto PtrCtx = [&](void* ctx, int numSlots) -> std::string {
-            float *ctxAsSlot = static_cast<float*>(ctx);
+        auto PtrCtx = [&](const void* ctx, int numSlots) -> std::string {
+            const float *ctxAsSlot = static_cast<const float*>(ctx);
             if (fDebugTrace) {
                 // Handle pointers to named slots.
                 if (ctxAsSlot >= slotBase && ctxAsSlot < slotEnd) {
@@ -586,22 +586,24 @@ void Program::dump(SkWStream* out) {
         };
 
         // Interpret the context value as a pointer to two adjacent values.
-        auto AdjacentPtrCtx = [&](void* ctx, int numSlots) -> std::tuple<std::string, std::string> {
-            float *ctxAsSlot = static_cast<float*>(ctx);
+        auto AdjacentPtrCtx = [&](const void* ctx,
+                                  int numSlots) -> std::tuple<std::string, std::string> {
+            const float *ctxAsSlot = static_cast<const float*>(ctx);
             return std::make_tuple(PtrCtx(ctxAsSlot, numSlots),
                                    PtrCtx(ctxAsSlot + (N * numSlots), numSlots));
         };
 
         // Interpret the context value as a CopySlots structure.
-        auto CopySlotsCtx = [&](void* v, int numSlots) -> std::tuple<std::string, std::string> {
-            auto *ctx = static_cast<SkRasterPipeline_CopySlotsCtx*>(v);
+        auto CopySlotsCtx = [&](const void* v,
+                                int numSlots) -> std::tuple<std::string, std::string> {
+            const auto *ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(v);
             return std::make_tuple(PtrCtx(ctx->dst, numSlots),
                                    PtrCtx(ctx->src, numSlots));
         };
 
         // Interpret the context value as a CopySlots structure.
-        auto AdjacentCopySlotsCtx = [&](void* v) -> std::tuple<std::string, std::string> {
-            auto *ctx = static_cast<SkRasterPipeline_CopySlotsCtx*>(v);
+        auto AdjacentCopySlotsCtx = [&](const void* v) -> std::tuple<std::string, std::string> {
+            const auto *ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(v);
             int numSlots = ctx->src - ctx->dst;
             return std::make_tuple(PtrCtx(ctx->dst, numSlots),
                                    PtrCtx(ctx->src, numSlots));
@@ -610,8 +612,9 @@ void Program::dump(SkWStream* out) {
         // Interpret the context value as a Swizzle structure. Note that the slot-width of the
         // source expression is not preserved in the instruction encoding, so we need to do our best
         // using the data we have. (e.g., myFloat4.y would be indistinguishable from myFloat2.y.)
-        auto SwizzleCtx = [&](SkRP::Stage op, void* v) -> std::tuple<std::string, std::string> {
-            auto* ctx = static_cast<SkRasterPipeline_SwizzleCtx*>(v);
+        auto SwizzleCtx = [&](SkRP::Stage op,
+                              const void* v) -> std::tuple<std::string, std::string> {
+            const auto* ctx = static_cast<const SkRasterPipeline_SwizzleCtx*>(v);
 
             int destSlots = (int)op - (int)SkRP::swizzle_1 + 1;
             int highestComponent =

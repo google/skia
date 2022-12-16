@@ -11,7 +11,7 @@
 void SkRasterPipelineUtils_Base::appendCopy(SkArenaAlloc* alloc,
                                             SkRasterPipeline::Stage baseStage,
                                             float* dst, int dstStride,
-                                            float* src, int srcStride,
+                                            const float* src, int srcStride,
                                             int numSlots) {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {
@@ -33,7 +33,7 @@ void SkRasterPipelineUtils_Base::appendCopy(SkArenaAlloc* alloc,
 
 void SkRasterPipelineUtils_Base::appendCopySlotsMasked(SkArenaAlloc* alloc,
                                                        float* dst,
-                                                       float* src,
+                                                       const float* src,
                                                        int numSlots) {
     this->appendCopy(alloc,
                      SkRasterPipeline::copy_slot_masked,
@@ -44,7 +44,7 @@ void SkRasterPipelineUtils_Base::appendCopySlotsMasked(SkArenaAlloc* alloc,
 
 void SkRasterPipelineUtils_Base::appendCopySlotsUnmasked(SkArenaAlloc* alloc,
                                                          float* dst,
-                                                         float* src,
+                                                         const float* src,
                                                          int numSlots) {
     this->appendCopy(alloc,
                      SkRasterPipeline::copy_slot_unmasked,
@@ -55,7 +55,7 @@ void SkRasterPipelineUtils_Base::appendCopySlotsUnmasked(SkArenaAlloc* alloc,
 
 void SkRasterPipelineUtils_Base::appendCopyConstants(SkArenaAlloc* alloc,
                                                      float* dst,
-                                                     float* src,
+                                                     const float* src,
                                                      int numSlots) {
     this->appendCopy(alloc,
                      SkRasterPipeline::copy_constant,
@@ -88,7 +88,7 @@ void SkRasterPipelineUtils_Base::appendZeroSlotsUnmasked(float* dst, int numSlot
 void SkRasterPipelineUtils_Base::appendAdjacentMultiSlotOp(SkArenaAlloc* alloc,
                                                            SkRasterPipeline::Stage baseStage,
                                                            float* dst,
-                                                           float* src,
+                                                           const float* src,
                                                            int numSlots) {
     // The source and destination must be directly next to one another.
     SkASSERT(numSlots >= 0);
@@ -109,7 +109,7 @@ void SkRasterPipelineUtils_Base::appendAdjacentMultiSlotOp(SkArenaAlloc* alloc,
 
 void SkRasterPipelineUtils_Base::appendAdjacentSingleSlotOp(SkRasterPipeline::Stage stage,
                                                             float* dst,
-                                                            float* src) {
+                                                            const float* src) {
     // The source and destination must be directly next to one another.
     SkASSERT((dst + SkOpts::raster_pipeline_highp_stride) == src);
     this->append(stage, dst);

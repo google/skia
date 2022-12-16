@@ -3152,25 +3152,25 @@ STAGE(zero_4_slots_unmasked, F* dst) {
 }
 
 STAGE(copy_constant, SkRasterPipeline_CopySlotsCtx* ctx) {
-    float* src = ctx->src;
+    const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
 }
 STAGE(copy_2_constants, SkRasterPipeline_CopySlotsCtx* ctx) {
-    float* src = ctx->src;
+    const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
 }
 STAGE(copy_3_constants, SkRasterPipeline_CopySlotsCtx* ctx) {
-    float* src = ctx->src;
+    const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
     dst[2] = src[2];
 }
 STAGE(copy_4_constants, SkRasterPipeline_CopySlotsCtx* ctx) {
-    float* src = ctx->src;
+    const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
