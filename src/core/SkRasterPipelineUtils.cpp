@@ -8,60 +8,60 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipelineUtils.h"
 
+void SkRasterPipelineUtils_Base::appendCopy(SkArenaAlloc* alloc,
+                                            SkRasterPipeline::Stage baseStage,
+                                            float* dst, int dstStride,
+                                            float* src, int srcStride,
+                                            int numSlots) {
+    SkASSERT(numSlots >= 0);
+    while (numSlots > 4) {
+        this->appendCopy(alloc, baseStage, dst, dstStride, src, srcStride,  /*numSlots=*/4);
+        dst += 4 * dstStride;
+        src += 4 * srcStride;
+        numSlots -= 4;
+    }
+
+    if (numSlots > 0) {
+        SkASSERT(numSlots <= 4);
+        auto stage = (SkRasterPipeline::Stage)((int)baseStage + numSlots - 1);
+        auto* ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
+        ctx->dst = dst;
+        ctx->src = src;
+        this->append(stage, ctx);
+    }
+}
+
 void SkRasterPipelineUtils_Base::appendCopySlotsMasked(SkArenaAlloc* alloc,
                                                        float* dst,
                                                        float* src,
                                                        int numSlots) {
-    SkASSERT(numSlots >= 0);
-    while (numSlots > 4) {
-        this->appendCopySlotsMasked(alloc, dst, src, /*numSlots=*/4);
-        dst += 4 * SkOpts::raster_pipeline_highp_stride;
-        src += 4 * SkOpts::raster_pipeline_highp_stride;
-        numSlots -= 4;
-    }
-
-    SkRasterPipeline::Stage stage;
-    switch (numSlots) {
-        case 0:  return;
-        case 1:  stage = SkRasterPipeline::copy_slot_masked;     break;
-        case 2:  stage = SkRasterPipeline::copy_2_slots_masked;  break;
-        case 3:  stage = SkRasterPipeline::copy_3_slots_masked;  break;
-        case 4:  stage = SkRasterPipeline::copy_4_slots_masked;  break;
-        default: SkUNREACHABLE;
-    }
-
-    auto* ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
-    ctx->dst = dst;
-    ctx->src = src;
-    this->append(stage, ctx);
+    this->appendCopy(alloc,
+                     SkRasterPipeline::copy_slot_masked,
+                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
+                     src, /*srcStride=*/SkOpts::raster_pipeline_highp_stride,
+                     numSlots);
 }
 
 void SkRasterPipelineUtils_Base::appendCopySlotsUnmasked(SkArenaAlloc* alloc,
                                                          float* dst,
                                                          float* src,
                                                          int numSlots) {
-    SkASSERT(numSlots >= 0);
-    while (numSlots > 4) {
-        this->appendCopySlotsUnmasked(alloc, dst, src, /*numSlots=*/4);
-        dst += 4 * SkOpts::raster_pipeline_highp_stride;
-        src += 4 * SkOpts::raster_pipeline_highp_stride;
-        numSlots -= 4;
-    }
+    this->appendCopy(alloc,
+                     SkRasterPipeline::copy_slot_unmasked,
+                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
+                     src, /*srcStride=*/SkOpts::raster_pipeline_highp_stride,
+                     numSlots);
+}
 
-    SkRasterPipeline::Stage stage;
-    switch (numSlots) {
-        case 0:  return;
-        case 1:  stage = SkRasterPipeline::copy_slot_unmasked;     break;
-        case 2:  stage = SkRasterPipeline::copy_2_slots_unmasked;  break;
-        case 3:  stage = SkRasterPipeline::copy_3_slots_unmasked;  break;
-        case 4:  stage = SkRasterPipeline::copy_4_slots_unmasked;  break;
-        default: SkUNREACHABLE;
-    }
-
-    auto* ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
-    ctx->dst = dst;
-    ctx->src = src;
-    this->append(stage, ctx);
+void SkRasterPipelineUtils_Base::appendCopyConstants(SkArenaAlloc* alloc,
+                                                     float* dst,
+                                                     float* src,
+                                                     int numSlots) {
+    this->appendCopy(alloc,
+                     SkRasterPipeline::copy_constant,
+                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
+                     src, /*srcStride=*/1,
+                     numSlots);
 }
 
 void SkRasterPipelineUtils_Base::appendZeroSlotsUnmasked(float* dst, int numSlots) {

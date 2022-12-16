@@ -565,6 +565,44 @@ DEF_TEST(SkRasterPipeline_ZeroSlotsUnmasked, r) {
     }
 }
 
+DEF_TEST(SkRasterPipeline_CopyConstants, r) {
+    // Allocate space for 20 dest slots.
+    alignas(64) float slots[20 * SkRasterPipeline_kMaxStride_highp];
+    float constants[20];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    for (int slotCount = 0; slotCount < 20; ++slotCount) {
+        // Initialize the destination slots to 1,2,3...
+        std::iota(&slots[0], &slots[20 * N], 1.0f);
+        // Initialize the constant buffer to 1000,1001,1002...
+        std::iota(&constants[0], &constants[20], 1000.0f);
+
+        // Run `copy_constants` over our data.
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        SkRasterPipelineUtils(p).appendCopyConstants(&alloc, &slots[0], constants, slotCount);
+        p.run(0,0,20,1);
+
+        // Verify that our constants have been broadcast into each slot.
+        float expectedUnchanged = 1.0f;
+        float expectedChanged = 1000.0f;
+        float* destPtr = &slots[0];
+        for (int checkSlot = 0; checkSlot < 20; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                if (checkSlot < slotCount) {
+                    REPORTER_ASSERT(r, *destPtr == expectedChanged);
+                } else {
+                    REPORTER_ASSERT(r, *destPtr == expectedUnchanged);
+                }
+
+                ++destPtr;
+                expectedUnchanged += 1.0f;
+            }
+            expectedChanged += 1.0f;
+        }
+    }
+}
+
 DEF_TEST(SkRasterPipeline_Swizzle, r) {
     // Allocate space for 4 dest slots.
     alignas(64) float slots[4 * SkRasterPipeline_kMaxStride_highp];
