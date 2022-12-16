@@ -26,17 +26,19 @@ namespace DrawPassCommands {
 //
 // We leave this SKGPU_DRAW_COMMAND_TYPES macro defined for use by code that wants to operate on
 // DrawPassCommands types polymorphically.
-#define SKGPU_DRAW_PASS_COMMAND_TYPES(M)                            \
-    M(BindGraphicsPipeline)                                         \
-    M(SetBlendConstants)                                            \
-    M(BindUniformBuffer)                                            \
-    M(BindDrawBuffers)                                              \
-    M(BindTexturesAndSamplers)                                      \
-    M(SetScissor)                                                   \
-    M(Draw)                                                         \
-    M(DrawIndexed)                                                  \
-    M(DrawInstanced)                                                \
-    M(DrawIndexedInstanced)
+#define SKGPU_DRAW_PASS_COMMAND_TYPES(M) \
+    M(BindGraphicsPipeline)              \
+    M(SetBlendConstants)                 \
+    M(BindUniformBuffer)                 \
+    M(BindDrawBuffers)                   \
+    M(BindTexturesAndSamplers)           \
+    M(SetScissor)                        \
+    M(Draw)                              \
+    M(DrawIndexed)                       \
+    M(DrawInstanced)                     \
+    M(DrawIndexedInstanced)              \
+    M(DrawIndirect)                      \
+    M(DrawIndexedIndirect)
 
 // Defines DrawPassCommands::Type, an enum of all draw command types.
 #define ENUM(T) k##T,
@@ -79,7 +81,8 @@ COMMAND(BindUniformBuffer,
 COMMAND(BindDrawBuffers,
             BindBufferInfo fVertices;
             BindBufferInfo fInstances;
-            BindBufferInfo fIndices);
+            BindBufferInfo fIndices;
+            BindBufferInfo fIndirect);
 COMMAND(BindTexturesAndSamplers,
             int fNumTexSamplers;
             PODArray<int> fTextureIndices;
@@ -108,6 +111,10 @@ COMMAND(DrawIndexedInstanced,
             uint32_t fBaseVertex;
             uint32_t fBaseInstance;
             uint32_t fInstanceCount);
+COMMAND(DrawIndirect,
+            PrimitiveType fType);
+COMMAND(DrawIndexedIndirect,
+            PrimitiveType fType);
 
 #undef COMMAND
 
@@ -150,8 +157,9 @@ public:
 
     void bindDrawBuffers(BindBufferInfo vertexAttribs,
                          BindBufferInfo instanceAttribs,
-                         BindBufferInfo indices) {
-        this->add<BindDrawBuffers>(vertexAttribs, instanceAttribs, indices);
+                         BindBufferInfo indices,
+                         BindBufferInfo indirect) {
+        this->add<BindDrawBuffers>(vertexAttribs, instanceAttribs, indices, indirect);
     }
 
     void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount) {
@@ -179,6 +187,14 @@ public:
                                         baseVertex,
                                         baseInstance,
                                         instanceCount);
+    }
+
+    void drawIndirect(PrimitiveType type) {
+        this->add<DrawIndirect>(type);
+    }
+
+    void drawIndexedIndirect(PrimitiveType type) {
+        this->add<DrawIndexedIndirect>(type);
     }
 
     using Command = std::pair<Type, void*>;

@@ -70,7 +70,8 @@ private:
     void bindUniformBuffer(const BindBufferInfo& info, UniformSlot);
     void bindDrawBuffers(const BindBufferInfo& vertices,
                          const BindBufferInfo& instances,
-                         const BindBufferInfo& indices);
+                         const BindBufferInfo& indices,
+                         const BindBufferInfo& indirect);
 
     void bindTextureAndSamplers(const DrawPass& drawPass,
                                 const DrawPassCommands::BindTexturesAndSamplers& command);
@@ -95,6 +96,8 @@ private:
                               unsigned int baseVertex,
                               unsigned int baseInstance,
                               unsigned int instanceCount);
+    void drawIndirect(PrimitiveType type);
+    void drawIndexedIndirect(PrimitiveType type);
 
     // Methods for populating a Dawn ComputePassEncoder:
     void beginComputePass();
@@ -136,6 +139,9 @@ private:
     wgpu::CommandEncoder fCommandEncoder;
     wgpu::RenderPassEncoder fActiveRenderPassEncoder;
     wgpu::ComputePassEncoder fActiveComputePassEncoder;
+
+    wgpu::Buffer fCurrentIndirectBuffer;
+    size_t fCurrentIndirectBufferOffset = 0;
 
     wgpu::Buffer fInstrinsicConstantBuffer;
 

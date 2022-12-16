@@ -82,7 +82,7 @@ void DrawWriter::flush() {
         return;
     }
     if (fPendingBufferBinds) {
-        fCommandList->bindDrawBuffers(fVertices, fInstances, fIndices);
+        fCommandList->bindDrawBuffers(fVertices, fInstances, fIndices, {});
         fPendingBufferBinds = false;
     }
 

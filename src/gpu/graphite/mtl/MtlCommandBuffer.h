@@ -96,10 +96,12 @@ private:
     void bindUniformBuffer(const BindBufferInfo& info, UniformSlot);
     void bindDrawBuffers(const BindBufferInfo& vertices,
                          const BindBufferInfo& instances,
-                         const BindBufferInfo& indices);
+                         const BindBufferInfo& indices,
+                         const BindBufferInfo& indirect);
     void bindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
                            const Buffer* instanceBuffer, size_t instanceOffset);
     void bindIndexBuffer(const Buffer* indexBuffer, size_t offset);
+    void bindIndirectBuffer(const Buffer* indirectBuffer, size_t offset);
 
     void bindTextureAndSampler(const Texture*, const Sampler*, unsigned int bindIndex);
 
@@ -117,6 +119,8 @@ private:
     void drawIndexedInstanced(PrimitiveType type, unsigned int baseIndex,
                               unsigned int indexCount, unsigned int baseVertex,
                               unsigned int baseInstance, unsigned int instanceCount);
+    void drawIndirect(PrimitiveType type);
+    void drawIndexedIndirect(PrimitiveType type);
 
     // Methods for populating a MTLComputeCommandEncoder:
     void beginComputePass();
@@ -160,7 +164,9 @@ private:
     sk_sp<MtlBlitCommandEncoder> fActiveBlitCommandEncoder;
 
     id<MTLBuffer> fCurrentIndexBuffer;
+    id<MTLBuffer> fCurrentIndirectBuffer;
     size_t fCurrentIndexBufferOffset = 0;
+    size_t fCurrentIndirectBufferOffset = 0;
 
     // The command buffer will outlive the MtlQueueManager which owns the MTLCommandQueue.
     id<MTLCommandQueue> fQueue;
