@@ -10,6 +10,7 @@
 #include "include/private/SkSLString.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkRasterPipelineUtils.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkRPDebugTrace.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
@@ -52,6 +53,30 @@ using SkRP = SkRasterPipeline;
     case BuilderOp::cmpeq_n_ints:      \
     case BuilderOp::cmpne_n_floats:    \
     case BuilderOp::cmpne_n_ints
+
+class BuilderUtils final : public SkRasterPipelineUtils_Base {
+public:
+    BuilderUtils(SkRasterPipeline* p) : fPipeline(p) {}
+
+#if !defined(SKSL_STANDALONE)
+    void append(SkRasterPipeline::Stage stage, void* ctx = nullptr) override {
+        fPipeline->append(stage, ctx);
+    }
+    void rewindPipeline() {
+        fPipeline->append_stack_rewind();
+    }
+    int getNumPipelineStages() {
+        return fPipeline->getNumStages();
+    }
+#else
+    void append(SkRasterPipeline::Stage stage, void* ctx = nullptr) override { (void)fPipeline; }
+    void rewindPipeline() {}
+    int getNumPipelineStages() { return 0; }
+#endif
+
+private:
+    SkRasterPipeline* fPipeline;
+};
 
 void Builder::unary_op(BuilderOp op, int32_t slots) {
     switch (op) {
@@ -182,14 +207,12 @@ template <typename T>
 float* Program::allocateSlotData(SkArenaAlloc* alloc) {
     float* slotPtr = nullptr;
 
-#if !defined(SKSL_STANDALONE)
     // Allocate a contiguous slab of slot data.
     const int N = SkOpts::raster_pipeline_highp_stride;
     const int vectorWidth = N * sizeof(float);
     const int allocSize = vectorWidth * (fNumValueSlots + fNumTempStackSlots);
     slotPtr = static_cast<float*>(alloc->makeBytesAlignedTo(allocSize, vectorWidth));
     sk_bzero(slotPtr, allocSize);
-#endif
 
     return slotPtr;
 }
@@ -199,7 +222,6 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
 }
 
 void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, float* slotPtr) {
-#if !defined(SKSL_STANDALONE)
     // Store the temp stack immediately after the values.
     const int N = SkOpts::raster_pipeline_highp_stride;
     float* slotPtrEnd = slotPtr + (N * fNumValueSlots);
@@ -227,6 +249,8 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
     }
 
     // Write each BuilderOp to the pipeline.
+    BuilderUtils builderUtils(pipeline);
+
     for (const Instruction& inst : fInstructions) {
         auto SlotA = [&]() { return &slotPtr[N * inst.fSlotA]; };
         auto SlotB = [&]() { return &slotPtr[N * inst.fSlotB]; };
@@ -237,7 +261,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 // Write the absolute pipeline position into the label offset list. We will go over
                 // the branch targets at the end and fix them up.
                 SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
-                labelOffsets[inst.fImmA] = pipeline->getNumStages();
+                labelOffsets[inst.fImmA] = builderUtils.getNumPipelineStages();
                 break;
 
             case BuilderOp::jump:
@@ -247,7 +271,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 // backwards branch. Add a stack-rewind immediately before the branch to ensure that
                 // long-running loops don't use an unbounded amount of stack space.
                 if (labelOffsets[inst.fImmA] >= 0) {
-                    pipeline->append_stack_rewind();
+                    builderUtils.rewindPipeline();
                 }
 
                 // Write the absolute pipeline position into the branch targets, because the
@@ -255,86 +279,86 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 // targets at the end and fix them up.
                 SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
                 SkASSERT(currentBranchOp >= 0 && currentBranchOp < fNumBranches);
-                branchTargets[currentBranchOp] = pipeline->getNumStages();
+                branchTargets[currentBranchOp] = builderUtils.getNumPipelineStages();
                 branchGoesToLabel[currentBranchOp] = inst.fImmA;
-                pipeline->append((SkRP::Stage)inst.fOp, &branchTargets[currentBranchOp]);
+                builderUtils.append((SkRP::Stage)inst.fOp, &branchTargets[currentBranchOp]);
                 ++currentBranchOp;
                 break;
 
             case BuilderOp::init_lane_masks:
-                pipeline->append(SkRP::init_lane_masks);
+                builderUtils.append(SkRP::init_lane_masks);
                 break;
 
             case BuilderOp::store_src_rg:
-                pipeline->append(SkRP::store_src_rg, SlotA());
+                builderUtils.append(SkRP::store_src_rg, SlotA());
                 break;
 
             case BuilderOp::store_src:
-                pipeline->append(SkRP::store_src, SlotA());
+                builderUtils.append(SkRP::store_src, SlotA());
                 break;
 
             case BuilderOp::store_dst:
-                pipeline->append(SkRP::store_dst, SlotA());
+                builderUtils.append(SkRP::store_dst, SlotA());
                 break;
 
             case BuilderOp::load_src:
-                pipeline->append(SkRP::load_src, SlotA());
+                builderUtils.append(SkRP::load_src, SlotA());
                 break;
 
             case BuilderOp::load_dst:
-                pipeline->append(SkRP::load_dst, SlotA());
+                builderUtils.append(SkRP::load_dst, SlotA());
                 break;
 
             case BuilderOp::immediate_f: {
-                pipeline->append(SkRP::immediate_f, context_bit_pun(inst.fImmA));
+                builderUtils.append(SkRP::immediate_f, context_bit_pun(inst.fImmA));
                 break;
             }
             case BuilderOp::load_unmasked:
-                pipeline->append(SkRP::load_unmasked, SlotA());
+                builderUtils.append(SkRP::load_unmasked, SlotA());
                 break;
 
             case BuilderOp::store_unmasked:
-                pipeline->append(SkRP::store_unmasked, SlotA());
+                builderUtils.append(SkRP::store_unmasked, SlotA());
                 break;
 
             case BuilderOp::store_masked:
-                pipeline->append(SkRP::store_masked, SlotA());
+                builderUtils.append(SkRP::store_masked, SlotA());
                 break;
 
             case ALL_SINGLE_SLOT_UNARY_OP_CASES: {
                 float* dst = tempStackPtr - (1 * N);
-                pipeline->append((SkRP::Stage)inst.fOp, dst);
+                builderUtils.append((SkRP::Stage)inst.fOp, dst);
                 break;
             }
             case ALL_SINGLE_SLOT_BINARY_OP_CASES: {
                 float* src = tempStackPtr - (1 * N);
                 float* dst = tempStackPtr - (2 * N);
-                pipeline->append_adjacent_single_slot_op((SkRP::Stage)inst.fOp, dst, src);
+                builderUtils.appendAdjacentSingleSlotOp((SkRP::Stage)inst.fOp, dst, src);
                 break;
             }
             case ALL_MULTI_SLOT_BINARY_OP_CASES: {
                 float* src = tempStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
-                pipeline->append_adjacent_multi_slot_op(alloc, (SkRP::Stage)inst.fOp,
-                                                        dst, src, inst.fImmA);
+                builderUtils.appendAdjacentMultiSlotOp(alloc, (SkRP::Stage)inst.fOp,
+                                                       dst, src, inst.fImmA);
                 break;
             }
             case BuilderOp::select: {
                 float* src = tempStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
-                pipeline->append_copy_slots_masked(alloc, dst, src, inst.fImmA);
+                builderUtils.appendCopySlotsMasked(alloc, dst, src, inst.fImmA);
                 break;
             }
             case BuilderOp::copy_slot_masked:
-                pipeline->append_copy_slots_masked(alloc, SlotA(), SlotB(), inst.fImmA);
+                builderUtils.appendCopySlotsMasked(alloc, SlotA(), SlotB(), inst.fImmA);
                 break;
 
             case BuilderOp::copy_slot_unmasked:
-                pipeline->append_copy_slots_unmasked(alloc, SlotA(), SlotB(), inst.fImmA);
+                builderUtils.appendCopySlotsUnmasked(alloc, SlotA(), SlotB(), inst.fImmA);
                 break;
 
             case BuilderOp::zero_slot_unmasked:
-                pipeline->append_zero_slots_unmasked(SlotA(), inst.fImmA);
+                builderUtils.appendZeroSlotsUnmasked(SlotA(), inst.fImmA);
                 break;
 
             case BuilderOp::swizzle_1:
@@ -349,84 +373,84 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                     ctx->offsets[index] = (components & 3) * N * sizeof(float);
                     components >>= 4;
                 }
-                pipeline->append((SkRP::Stage)inst.fOp, ctx);
+                builderUtils.append((SkRP::Stage)inst.fOp, ctx);
                 break;
             }
             case BuilderOp::push_slots: {
                 float* dst = tempStackPtr;
-                pipeline->append_copy_slots_unmasked(alloc, dst, SlotA(), inst.fImmA);
+                builderUtils.appendCopySlotsUnmasked(alloc, dst, SlotA(), inst.fImmA);
                 break;
             }
             case BuilderOp::push_condition_mask: {
                 float* dst = tempStackPtr;
-                pipeline->append(SkRP::store_condition_mask, dst);
+                builderUtils.append(SkRP::store_condition_mask, dst);
                 break;
             }
             case BuilderOp::pop_condition_mask: {
                 float* src = tempStackPtr - (1 * N);
-                pipeline->append(SkRP::load_condition_mask, src);
+                builderUtils.append(SkRP::load_condition_mask, src);
                 break;
             }
             case BuilderOp::merge_condition_mask: {
                 float* ptr = tempStackPtr - (2 * N);
-                pipeline->append(SkRP::merge_condition_mask, ptr);
+                builderUtils.append(SkRP::merge_condition_mask, ptr);
                 break;
             }
             case BuilderOp::push_loop_mask: {
                 float* dst = tempStackPtr;
-                pipeline->append(SkRP::store_loop_mask, dst);
+                builderUtils.append(SkRP::store_loop_mask, dst);
                 break;
             }
             case BuilderOp::pop_loop_mask: {
                 float* src = tempStackPtr - (1 * N);
-                pipeline->append(SkRP::load_loop_mask, src);
+                builderUtils.append(SkRP::load_loop_mask, src);
                 break;
             }
             case BuilderOp::mask_off_loop_mask:
-                pipeline->append(SkRP::mask_off_loop_mask);
+                builderUtils.append(SkRP::mask_off_loop_mask);
                 break;
 
             case BuilderOp::reenable_loop_mask:
-                pipeline->append(SkRP::reenable_loop_mask, SlotA());
+                builderUtils.append(SkRP::reenable_loop_mask, SlotA());
                 break;
 
             case BuilderOp::merge_loop_mask: {
                 float* src = tempStackPtr - (1 * N);
-                pipeline->append(SkRP::merge_loop_mask, src);
+                builderUtils.append(SkRP::merge_loop_mask, src);
                 break;
             }
             case BuilderOp::push_return_mask: {
                 float* dst = tempStackPtr;
-                pipeline->append(SkRP::store_return_mask, dst);
+                builderUtils.append(SkRP::store_return_mask, dst);
                 break;
             }
             case BuilderOp::pop_return_mask: {
                 float* src = tempStackPtr - (1 * N);
-                pipeline->append(SkRP::load_return_mask, src);
+                builderUtils.append(SkRP::load_return_mask, src);
                 break;
             }
             case BuilderOp::mask_off_return_mask:
-                pipeline->append(SkRP::mask_off_return_mask);
+                builderUtils.append(SkRP::mask_off_return_mask);
                 break;
 
             case BuilderOp::push_literal_f: {
                 float* dst = tempStackPtr;
                 if (inst.fImmA == 0) {
-                    pipeline->append_zero_slots_unmasked(dst, /*numSlots=*/1);
+                    builderUtils.appendZeroSlotsUnmasked(dst, /*numSlots=*/1);
                 } else {
-                    pipeline->append(SkRP::immediate_f, context_bit_pun(inst.fImmA));
-                    pipeline->append(SkRP::store_unmasked, dst);
+                    builderUtils.append(SkRP::immediate_f, context_bit_pun(inst.fImmA));
+                    builderUtils.append(SkRP::store_unmasked, dst);
                 }
                 break;
             }
             case BuilderOp::copy_stack_to_slots: {
                 float* src = tempStackPtr - (inst.fImmB * N);
-                pipeline->append_copy_slots_masked(alloc, SlotA(), src, inst.fImmA);
+                builderUtils.appendCopySlotsMasked(alloc, SlotA(), src, inst.fImmA);
                 break;
             }
             case BuilderOp::copy_stack_to_slots_unmasked: {
                 float* src = tempStackPtr - (inst.fImmB * N);
-                pipeline->append_copy_slots_unmasked(alloc, SlotA(), src, inst.fImmA);
+                builderUtils.appendCopySlotsUnmasked(alloc, SlotA(), src, inst.fImmA);
                 break;
             }
             case BuilderOp::discard_stack:
@@ -452,8 +476,6 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
         int branchToIdx = labelOffsets[branchGoesToLabel[index]];
         branchTargets[index] = branchToIdx - branchFromIdx;
     }
-
-#endif
 }
 
 void Program::dump(SkWStream* out) {

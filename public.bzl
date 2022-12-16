@@ -551,6 +551,8 @@ BASE_SRCS_ALL = [
     "src/core/SkRasterClipStack.h",
     "src/core/SkRasterPipeline.cpp",
     "src/core/SkRasterPipeline.h",
+    "src/core/SkRasterPipelineUtils.cpp",
+    "src/core/SkRasterPipelineUtils.h",
     "src/core/SkRasterPipelineBlitter.cpp",
     "src/core/SkReadBuffer.cpp",
     "src/core/SkReadBuffer.h",

@@ -9,6 +9,7 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineUtils.h"
 #include "src/gpu/Swizzle.h"
 #include "tests/Test.h"
 
@@ -469,8 +470,8 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
             SkRasterPipeline p(&alloc);
             p.append(SkRasterPipeline::init_lane_masks);
             p.append(SkRasterPipeline::load_condition_mask, mask);
-            p.append_copy_slots_masked(&alloc, &slots[N * dstIndex], &slots[N * srcIndex],
-                                       slotCount);
+            SkRasterPipelineUtils(p).appendCopySlotsMasked(
+                    &alloc, &slots[N * dstIndex], &slots[N * srcIndex], slotCount);
             p.run(0,0,20,1);
 
             // Verify that the destination has been overwritten in the mask-on fields, and has not
@@ -508,7 +509,8 @@ DEF_TEST(SkRasterPipeline_CopySlotsUnmasked, r) {
         // Run `copy_slots_unmasked` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        p.append_copy_slots_unmasked(&alloc, &slots[N * dstIndex], &slots[N * srcIndex], slotCount);
+        SkRasterPipelineUtils(p).appendCopySlotsUnmasked(
+                &alloc, &slots[N * dstIndex], &slots[N * srcIndex], slotCount);
         p.run(0,0,20,1);
 
         // Verify that the destination has been overwritten in each slot.
@@ -542,7 +544,7 @@ DEF_TEST(SkRasterPipeline_ZeroSlotsUnmasked, r) {
         // Run `zero_slots_unmasked` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        p.append_zero_slots_unmasked(&slots[0], slotCount);
+        SkRasterPipelineUtils(p).appendZeroSlotsUnmasked(&slots[0], slotCount);
         p.run(0,0,20,1);
 
         // Verify that the destination has been zeroed out in each slot.
@@ -635,7 +637,7 @@ DEF_TEST(SkRasterPipeline_FloatArithmetic, r) {
             // Run the arithmetic op over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            p.append_adjacent_multi_slot_op(
+            SkRasterPipelineUtils(p).appendAdjacentMultiSlotOp(
                     &alloc, op.stage, &slots[0], &slots[slotCount * N], slotCount);
             p.run(0,0,1,1);
 
@@ -685,7 +687,7 @@ DEF_TEST(SkRasterPipeline_IntArithmetic, r) {
             // Run `add_n_ints` over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            p.append_adjacent_multi_slot_op(
+            SkRasterPipelineUtils(p).appendAdjacentMultiSlotOp(
                     &alloc, op.stage, (float*)&slots[0], (float*)&slots[slotCount * N], slotCount);
             p.run(0,0,1,1);
 
@@ -740,7 +742,7 @@ DEF_TEST(SkRasterPipeline_CompareFloats, r) {
             // Run the comparison op over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            p.append_adjacent_multi_slot_op(
+            SkRasterPipelineUtils(p).appendAdjacentMultiSlotOp(
                     &alloc, op.stage, &slots[0], &slots[slotCount * N], slotCount);
             p.run(0, 0, 1, 1);
 
@@ -794,7 +796,7 @@ DEF_TEST(SkRasterPipeline_CompareInts, r) {
             // Run the comparison op over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            p.append_adjacent_multi_slot_op(
+            SkRasterPipelineUtils(p).appendAdjacentMultiSlotOp(
                     &alloc, op.stage, (float*)&slots[0], (float*)&slots[slotCount * N], slotCount);
             p.run(0, 0, 1, 1);
 
@@ -843,7 +845,8 @@ DEF_TEST(SkRasterPipeline_BinaryBitwiseOps, r) {
         // Run the bitwise op over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        p.append_adjacent_single_slot_op(op.stage, (float*)&slots[0], (float*)&slots[N]);
+        SkRasterPipelineUtils(p).appendAdjacentSingleSlotOp(
+                op.stage, (float*)&slots[0], (float*)&slots[N]);
         p.run(0, 0, 1, 1);
 
         // Verify that the destination slots have been updated.

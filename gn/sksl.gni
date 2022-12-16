@@ -252,6 +252,7 @@ skslc_deps = [
   "$_src/core/SkMalloc.cpp",
   "$_src/core/SkMath.cpp",
   "$_src/core/SkMatrixInvert.cpp",
+  "$_src/core/SkRasterPipelineUtils.cpp",
   "$_src/core/SkSemaphore.cpp",
   "$_src/core/SkStream.cpp",
   "$_src/core/SkString.cpp",
