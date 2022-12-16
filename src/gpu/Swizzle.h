@@ -19,7 +19,9 @@ namespace skgpu {
 /** Represents a rgba swizzle. It can be converted either into a string or a eight bit int. */
 class Swizzle {
 public:
-    constexpr Swizzle() : Swizzle("rgba") {}
+    // Equivalent to "rgba", but Clang doesn't always manage to inline this
+    // if we're too deep in the inlining already.
+    constexpr Swizzle() : Swizzle(0x3210) {}
     explicit constexpr Swizzle(const char c[4]);
 
     constexpr Swizzle(const Swizzle&);
