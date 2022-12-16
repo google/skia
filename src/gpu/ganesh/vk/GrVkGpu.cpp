@@ -2244,14 +2244,7 @@ void GrVkGpu::finishOutstandingGpuWork() {
 void GrVkGpu::onReportSubmitHistograms() {
 #if SK_HISTOGRAMS_ENABLED
     uint64_t allocatedMemory = 0, usedMemory = 0;
-
-#if defined(SK_USE_LEGACY_VMA_MEMORY_QUERY)
-    allocatedMemory = fMemoryAllocator->totalAllocatedMemory();
-    usedMemory = fMemoryAllocator->totalUsedMemory();
-#else
     std::tie(allocatedMemory, usedMemory) = fMemoryAllocator->totalAllocatedAndUsedMemory();
-#endif  // SK_USE_LEGACY_VMA_MEMORY_QUERY
-
     SkASSERT(usedMemory <= allocatedMemory);
     if (allocatedMemory > 0) {
         SK_HISTOGRAM_PERCENTAGE("VulkanMemoryAllocator.PercentUsed",
