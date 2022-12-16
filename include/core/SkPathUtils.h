@@ -39,14 +39,4 @@ SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *d
 
 }
 
-// TODO(kjlubick) Remove this from the global namespace after updating clients.
-SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst,
-                              const SkRect *cullRect, SkScalar resScale = 1);
-
-SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst,
-                              const SkRect *cullRect, const SkMatrix &ctm);
-
-SK_API bool FillPathWithPaint(const SkPath &src, const SkPaint &paint, SkPath *dst);
-
-
 #endif

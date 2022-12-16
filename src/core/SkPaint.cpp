@@ -292,18 +292,3 @@ bool SkPaint::nothingToDraw() const {
     }
     return false;
 }
-
-#if defined(SK_LEGACY_GET_FILL_PATH)
-#include "include/core/SkPathUtils.h"
-
-bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
-                          SkScalar resScale) const {
-    return skpathutils::FillPathWithPaint(src, *this, dst, cullRect, resScale);
-}
-
-bool SkPaint::getFillPath(const SkPath& src, SkPath* dst, const SkRect* cullRect,
-                          const SkMatrix& ctm) const {
-    return skpathutils::FillPathWithPaint(src, *this, dst, cullRect, ctm);
-}
-
-#endif
