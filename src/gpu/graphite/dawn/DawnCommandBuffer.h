@@ -114,6 +114,7 @@ private:
                                 const Texture* dst,
                                 SkIPoint dstPoint) override;
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
+    bool onClearBuffer(const Buffer*, size_t offset, size_t size) override;
 
     // Commiting uniform buffers' changes if any before drawing
     void syncUniformBuffers();

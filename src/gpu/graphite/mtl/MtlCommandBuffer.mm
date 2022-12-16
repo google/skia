@@ -754,6 +754,21 @@ bool MtlCommandBuffer::onSynchronizeBufferToCpu(const Buffer* buffer, bool* outD
 #endif  // SK_BUILD_FOR_MAC
 }
 
+bool MtlCommandBuffer::onClearBuffer(const Buffer* buffer, size_t offset, size_t size) {
+    SkASSERT(!fActiveRenderCommandEncoder);
+    SkASSERT(!fActiveComputeCommandEncoder);
+
+    MtlBlitCommandEncoder* blitCmdEncoder = this->getBlitCommandEncoder();
+    if (!blitCmdEncoder) {
+        return false;
+    }
+
+    id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(buffer)->mtlBuffer();
+    blitCmdEncoder->fillBuffer(mtlBuffer, offset, size, 0);
+
+    return true;
+}
+
 #ifdef SK_ENABLE_PIET_GPU
 void MtlCommandBuffer::onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) {
     SkASSERT(!fActiveRenderCommandEncoder);

@@ -287,6 +287,10 @@ bool VulkanCommandBuffer::onSynchronizeBufferToCpu(const Buffer*, bool* outDidRe
     return false;
 }
 
+bool VulkanCommandBuffer::onClearBuffer(const Buffer*, size_t offset, size_t size) {
+    return false;
+}
+
 #ifdef SK_ENABLE_PIET_GPU
 void VulkanCommandBuffer::onRenderPietScene(const skgpu::piet::Scene& scene,
                                             const Texture* target) {}

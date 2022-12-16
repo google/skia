@@ -145,6 +145,7 @@ private:
                                 const Texture* dst,
                                 SkIPoint dstPoint) override;
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
+    bool onClearBuffer(const Buffer*, size_t offset, size_t size) override;
 
 #ifdef SK_ENABLE_PIET_GPU
     void onRenderPietScene(const skgpu::piet::Scene& scene, const Texture* target) override;

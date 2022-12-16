@@ -195,6 +195,18 @@ bool CommandBuffer::synchronizeBufferToCpu(sk_sp<Buffer> buffer) {
     return true;
 }
 
+bool CommandBuffer::clearBuffer(const Buffer* buffer, size_t offset, size_t size) {
+    SkASSERT(buffer);
+
+    if (!this->onClearBuffer(buffer, offset, size)) {
+        return false;
+    }
+
+    SkDEBUGCODE(fHasWork = true;)
+
+    return true;
+}
+
 #ifdef SK_ENABLE_PIET_GPU
 void CommandBuffer::renderPietScene(const skgpu::piet::Scene& scene, sk_sp<Texture> target) {
     this->onRenderPietScene(scene, target.get());

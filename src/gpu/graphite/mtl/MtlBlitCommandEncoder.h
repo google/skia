@@ -43,6 +43,12 @@ public:
     }
 #endif
 
+    void fillBuffer(id<MTLBuffer> buffer, size_t bufferOffset, size_t bytes, uint8_t value) {
+        [(*fCommandEncoder) fillBuffer:buffer
+                                 range:NSMakeRange(bufferOffset, bytes)
+                                 value:value];
+    }
+
     void copyFromTexture(id<MTLTexture> texture,
                          SkIRect srcRect,
                          id<MTLBuffer> buffer,
