@@ -784,7 +784,7 @@ bool SkOpAngle::insert(SkOpAngle* angle) {
             last->fNext = angle;
             angle->fNext = next;
             debugValidateNext();
-            return true;
+            break;
         }
         last = next;
         if (last == this) {

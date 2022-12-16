@@ -225,7 +225,6 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag, cons
         }
         default: {
             SkUNREACHABLE;
-            break;
         }
     }
 }
@@ -341,7 +340,6 @@ void SkPerfettoTrace::triggerTraceEvent(const uint8_t* categoryEnabledFlag,
         }
         default: {
             SkUNREACHABLE;
-            break;
         }
     }
 }

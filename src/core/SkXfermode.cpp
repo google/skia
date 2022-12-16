@@ -156,7 +156,6 @@ bool SkXfermode::IsOpaque(SkBlendMode mode, SrcColorOpacity opacityType) {
         default:
             return false;
     }
-    return false;
 }
 
 #if SK_SUPPORT_GPU

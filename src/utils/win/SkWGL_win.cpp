@@ -35,8 +35,6 @@ bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
         }
         extensionString += n+1;
     }
-
-    return false;
 }
 
 const char* SkWGLExtensions::getExtensionsString(HDC hdc) const {

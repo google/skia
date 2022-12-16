@@ -415,7 +415,7 @@ public:
                 };
                 fFB.fStrokeCap = caps[(fFB.fStrokeCap + 1) % 3];
                 return true;
-            } break;
+            }
             case 'a':
                 fFB.setAA(!fFB.getAA());
                 return true;

@@ -186,11 +186,9 @@ static uint32_t get_cicp_trfn(const skcms_TransferFunction& fn) {
             // All PQ transfer functions are mapped to the single PQ value,
             // ignoring their SDR white level.
             return kCICPTrfnPQ;
-            break;
         case skcms_TFType_HLGish:
             // All HLG transfer functions are mapped to the single HLG value.
             return kCICPTrfnHLG;
-            break;
         case skcms_TFType_HLGinvish:
             return 0;
     }

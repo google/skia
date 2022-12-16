@@ -150,7 +150,6 @@ public:
             }
             prevVerb = verb;
         }
-        return true;
     }
 
     bool computeFastBounds(SkRect*) const override {

@@ -124,7 +124,6 @@ int SkiaAndroidApp::message_callback(int fd, int events, void* data) {
         case kDestroyApp: {
             delete skiaAndroidApp;
             pthread_exit(nullptr);
-            return 0;
         }
         case kContentInvalidated: {
             ((Window_android*)skiaAndroidApp->fWindow)->paintIfNeeded();
@@ -227,8 +226,6 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
             skiaAndroidApp->fApp->onIdle();
         }
     }
-
-    return nullptr;
 }
 
 extern "C"  // extern "C" is needed for JNI (although the method itself is in C++)

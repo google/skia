@@ -137,7 +137,6 @@ int main(int argc, char** argv) {
                 SkDebugf("Exiting early due to format limitations\n");
             }
             return kSuccess;       // TODO: need to store size in bytes
-            break;
         case SK_PICT_BUFFER_SIZE_TAG:
             if (FLAGS_tags && !FLAGS_quiet) {
                 SkDebugf("SK_PICT_BUFFER_SIZE_TAG %d\n", chunkSize);

@@ -303,9 +303,9 @@ int DWriteFontTypeface::onGetVariationDesignPosition(
     SkASSERT(coordIndex == variableAxisCount);
     return SkTo<int>(variableAxisCount);
 
-#endif
-
+#else
     return -1;
+#endif
 }
 
 int DWriteFontTypeface::onGetVariationDesignParameters(
@@ -359,9 +359,9 @@ int DWriteFontTypeface::onGetVariationDesignParameters(
 
     return variableAxisCount;
 
-#endif
-
+#else
     return -1;
+#endif
 }
 
 int DWriteFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {

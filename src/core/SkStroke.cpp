@@ -1470,7 +1470,6 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
             case SkPath::kConic_Verb: {
                 stroker.conicTo(pts[1], pts[2], iter.conicWeight());
                 lastSegment = SkPath::kConic_Verb;
-                break;
             } break;
             case SkPath::kCubic_Verb:
                 stroker.cubicTo(pts[1], pts[2], pts[3]);

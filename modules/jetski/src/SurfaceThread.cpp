@@ -54,7 +54,6 @@ int SurfaceThread::message_callback(int /* fd */, int /* events */, void* data) 
                 delete windowSurface;
             }
             return 0;
-            break;
         }
         case kRenderPicture: {
             sk_sp<SkPicture> picture(message.fPicture);

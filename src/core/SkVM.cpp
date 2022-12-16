@@ -1339,7 +1339,6 @@ namespace skvm {
             }
             default: SkUNREACHABLE;
         }
-        return {};
     }
 
     Color Builder::gather(PixelFormat f, UPtr ptr, int offset, I32 index) {
@@ -1370,7 +1369,6 @@ namespace skvm {
             }
             default: SkUNREACHABLE;
         }
-        return {};
     }
 
     static I32 pack32(PixelFormat f, Color c) {

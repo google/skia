@@ -302,5 +302,4 @@ SkString SkParsePath::ToSVGString(const SkPath& path, PathEncoding encoding) {
             }
         }
     }
-    return SkString{};
 }

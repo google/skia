@@ -3849,7 +3849,7 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
             case SkHalfPlane::kMixed: {
                 *clippedPath = clip(path, plane);
                 return true;
-            } break;
+            }
             default: break; // handled outside of the switch
         }
     }

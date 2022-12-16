@@ -46,8 +46,9 @@ SkImage::CompressionType GrBackendFormatToCompressionType(const GrBackendFormat&
                 default:
                     return SkImage::CompressionType::kNone;
             }
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kVulkan: {
 #ifdef SK_VULKAN
@@ -63,14 +64,16 @@ SkImage::CompressionType GrBackendFormatToCompressionType(const GrBackendFormat&
                 default:
                     return SkImage::CompressionType::kNone;
             }
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kMetal: {
 #ifdef SK_METAL
             return GrMtlBackendFormatToCompressionType(format);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kDirect3D: {
 #ifdef SK_DIRECT3D
@@ -82,8 +85,9 @@ SkImage::CompressionType GrBackendFormatToCompressionType(const GrBackendFormat&
                 default:
                     return SkImage::CompressionType::kNone;
             }
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kDawn: {
             return SkImage::CompressionType::kNone;
@@ -101,38 +105,43 @@ size_t GrBackendFormatBytesPerBlock(const GrBackendFormat& format) {
 #ifdef SK_GL
             GrGLFormat glFormat = format.asGLFormat();
             return GrGLFormatBytesPerBlock(glFormat);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kVulkan: {
 #ifdef SK_VULKAN
             VkFormat vkFormat;
             SkAssertResult(format.asVkFormat(&vkFormat));
             return skgpu::VkFormatBytesPerBlock(vkFormat);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kMetal: {
 #ifdef SK_METAL
             return GrMtlBackendFormatBytesPerBlock(format);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kDirect3D: {
 #ifdef SK_DIRECT3D
             DXGI_FORMAT dxgiFormat;
             SkAssertResult(format.asDxgiFormat(&dxgiFormat));
             return GrDxgiFormatBytesPerBlock(dxgiFormat);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kDawn: {
 #ifdef SK_DAWN
             wgpu::TextureFormat dawnFormat;
             SkAssertResult(format.asDawnFormat(&dawnFormat));
             return GrDawnBytesPerBlock(dawnFormat);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kMock: {
             SkImage::CompressionType compression = format.asMockCompressionType();
@@ -161,38 +170,43 @@ int GrBackendFormatStencilBits(const GrBackendFormat& format) {
 #ifdef SK_GL
             GrGLFormat glFormat = format.asGLFormat();
             return GrGLFormatStencilBits(glFormat);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kVulkan: {
 #ifdef SK_VULKAN
             VkFormat vkFormat;
             SkAssertResult(format.asVkFormat(&vkFormat));
             return skgpu::VkFormatStencilBits(vkFormat);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kMetal: {
 #ifdef SK_METAL
             return GrMtlBackendFormatStencilBits(format);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kDirect3D: {
 #ifdef SK_DIRECT3D
             DXGI_FORMAT dxgiFormat;
             SkAssertResult(format.asDxgiFormat(&dxgiFormat));
             return GrDxgiFormatStencilBits(dxgiFormat);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kDawn: {
 #ifdef SK_DAWN
             wgpu::TextureFormat dawnFormat;
             SkAssertResult(format.asDawnFormat(&dawnFormat));
             return GrDawnFormatStencilBits(dawnFormat);
-#endif
+#else
             break;
+#endif
         }
         case GrBackendApi::kMock: {
             if (format.isMockStencilFormat()) {

@@ -349,7 +349,6 @@ private:
                 case SkBlendMode::kDstATop:
                 case SkBlendMode::kModulate:
                     return true;
-                    break;
                 default:
                     break;
             }

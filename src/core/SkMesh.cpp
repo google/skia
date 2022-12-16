@@ -657,8 +657,9 @@ sk_sp<IndexBuffer> SkMesh::MakeIndexBuffer(GrDirectContext* dc, const void* data
     }
 #if SK_SUPPORT_GPU
     return SkMeshPriv::GpuIndexBuffer::Make(dc, data, size);
-#endif
+#else
     return nullptr;
+#endif
 }
 
 sk_sp<IndexBuffer> SkMesh::CopyIndexBuffer(GrDirectContext* dc, sk_sp<IndexBuffer> src) {
@@ -679,8 +680,9 @@ sk_sp<VertexBuffer> SkMesh::MakeVertexBuffer(GrDirectContext* dc, const void* da
     }
 #if SK_SUPPORT_GPU
     return SkMeshPriv::GpuVertexBuffer::Make(dc, data, size);
-#endif
+#else
     return nullptr;
+#endif
 }
 
 sk_sp<VertexBuffer> SkMesh::CopyVertexBuffer(GrDirectContext* dc, sk_sp<VertexBuffer> src) {

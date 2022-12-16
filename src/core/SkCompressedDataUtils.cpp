@@ -240,7 +240,6 @@ bool SkDecompress(sk_sp<SkData> data,
     }
 
     SkUNREACHABLE;
-    return false;
 }
 
 size_t SkCompressedDataSize(SkImage::CompressionType type, SkISize dimensions,

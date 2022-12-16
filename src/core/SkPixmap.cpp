@@ -672,7 +672,6 @@ bool SkPixmap::computeIsOpaque() const {
         case kBGR_101010x_SkColorType:
         case kR8_unorm_SkColorType:
             return true;
-            break;
         case kARGB_4444_SkColorType: {
             unsigned c = 0xFFFF;
             for (int y = 0; y < height; ++y) {

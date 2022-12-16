@@ -148,12 +148,12 @@ Compiler::~Compiler() {}
 const Module* Compiler::moduleForProgramKind(ProgramKind kind) {
     auto m = ModuleLoader::Get();
     switch (kind) {
-        case ProgramKind::kVertex:                return m.loadVertexModule(this);           break;
-        case ProgramKind::kFragment:              return m.loadFragmentModule(this);         break;
-        case ProgramKind::kCompute:               return m.loadComputeModule(this);          break;
-        case ProgramKind::kGraphiteVertex:        return m.loadGraphiteVertexModule(this);   break;
-        case ProgramKind::kGraphiteFragment:      return m.loadGraphiteFragmentModule(this); break;
-        case ProgramKind::kPrivateRuntimeShader:  return m.loadPrivateRTShaderModule(this);  break;
+        case ProgramKind::kVertex:                return m.loadVertexModule(this);
+        case ProgramKind::kFragment:              return m.loadFragmentModule(this);
+        case ProgramKind::kCompute:               return m.loadComputeModule(this);
+        case ProgramKind::kGraphiteVertex:        return m.loadGraphiteVertexModule(this);
+        case ProgramKind::kGraphiteFragment:      return m.loadGraphiteFragmentModule(this);
+        case ProgramKind::kPrivateRuntimeShader:  return m.loadPrivateRTShaderModule(this);
         case ProgramKind::kRuntimeColorFilter:
         case ProgramKind::kRuntimeShader:
         case ProgramKind::kRuntimeBlender:
@@ -161,7 +161,7 @@ const Module* Compiler::moduleForProgramKind(ProgramKind kind) {
         case ProgramKind::kPrivateRuntimeBlender:
         case ProgramKind::kMeshVertex:
         case ProgramKind::kMeshFragment:
-        case ProgramKind::kGeneric:               return m.loadPublicModule(this);           break;
+        case ProgramKind::kGeneric:               return m.loadPublicModule(this);
     }
     SkUNREACHABLE;
 }

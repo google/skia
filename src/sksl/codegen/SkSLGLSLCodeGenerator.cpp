@@ -180,10 +180,8 @@ std::string GLSLCodeGenerator::getTypeName(const Type& raw) {
             else if (type.matches(*fContext.fTypes.fUShort)) {
                 return "uint";
             }
-            else {
-                return std::string(type.name());
-            }
-            break;
+
+            return std::string(type.name());
         }
         default:
             return std::string(type.name());

@@ -280,13 +280,10 @@ private:
             case Pos::kCenter:  return SkMatrix::Translate(
                                     (fChildSize.fWidth  - fDisplSize.fWidth ) / 2,
                                     (fChildSize.fHeight - fDisplSize.fHeight) / 2);
-                break;
             case Pos::kStretch: return SkMatrix::Scale(
                                     fChildSize.fWidth  / fDisplSize.fWidth,
                                     fChildSize.fHeight / fDisplSize.fHeight);
-                break;
             case Pos::kTile:    return SkMatrix::I();
-                break;
         }
         SkUNREACHABLE;
     }

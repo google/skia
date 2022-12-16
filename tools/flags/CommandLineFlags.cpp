@@ -131,10 +131,9 @@ bool SkFlagInfo::match(const char* string) {
             }
         }
         return compareName->equals(string);
-    } else {
-        // Has no dash
-        return false;
     }
+
+    // Has no dash
     return false;
 }
 
