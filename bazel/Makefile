@@ -19,7 +19,7 @@ generate_gni:
 	# is currently infeasible due to the fact that the exporter tool *calls*
 	# Bazel, resulting in a deadlock because only one Bazel command can run
 	# at a time.
-	cd .. && bazelisk build //bazel/exporter_tool && \
+	cd .. && bazelisk build //bazel/exporter_tool --config=no_sandbox && \
         ${EXPORTER_TOOL} -output_format=gni -proj_name=Skia ${EXPORTER_RULES} \
 		&& bazelisk run //bazel/external/gn -- format gn/*.gni modules/*/*.gni
 
