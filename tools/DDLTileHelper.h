@@ -13,6 +13,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkSurfaceCharacterization.h"
+#include "include/private/SkTemplates.h"
 
 class DDLPromiseImageHelper;
 class PromiseImageCallbackContext;

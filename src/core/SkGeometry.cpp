@@ -5,16 +5,23 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkGeometry.h"
+
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint3.h"
+#include "include/core/SkRect.h"
+#include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkVx.h"
-#include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
+#include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsPoint.h"
 
 #include <algorithm>
-#include <tuple>
-#include <utility>
+#include <array>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
 
 namespace {
 
@@ -1137,8 +1144,6 @@ SkScalar SkFindCubicCusp(const SkPoint src[4]) {
     }
     return -1;
 }
-
-#include "src/pathops/SkPathOpsCubic.h"
 
 typedef int (SkDCubic::*InterceptProc)(double intercept, double roots[3]) const;
 

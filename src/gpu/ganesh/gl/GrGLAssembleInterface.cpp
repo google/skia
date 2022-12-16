@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/gpu/gl/GrGLAssembleInterface.h"
 
 #include "include/gpu/gl/GrGLAssembleHelpers.h"
-#include "include/gpu/gl/GrGLAssembleInterface.h"
+#include "include/private/SkTemplates.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
 #define GET_PROC_LOCAL(F) GrGL##F##Fn* F = (GrGL##F##Fn*)get(ctx, "gl" #F)

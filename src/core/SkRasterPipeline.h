@@ -9,15 +9,17 @@
 #define SkRasterPipeline_DEFINED
 
 #include "include/core/SkColor.h"
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkMatrix.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/SkMacros.h"
 #include "src/core/SkArenaAlloc.h"
 
+#include <cstddef>
+#include <cstdint>
 #include <functional>
 
+class SkMatrix;
+enum SkColorType : int;
+struct SkImageInfo;
 struct skcms_TransferFunction;
 
 /**

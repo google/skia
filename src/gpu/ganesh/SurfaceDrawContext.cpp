@@ -26,6 +26,7 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkMeshPriv.h"
+#include "src/core/SkPointPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"

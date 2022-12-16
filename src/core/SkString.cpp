@@ -6,17 +6,20 @@
  */
 
 #include "include/core/SkString.h"
+
+#include "include/private/SkMalloc.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkUtils.h"
 #include "src/utils/SkUTF.h"
 
+#include <algorithm>
 #include <cstdio>
+#include <cstring>
 #include <new>
 #include <string_view>
 #include <utility>
-#include <vector>
 
 // number of bytes (on the stack) to receive the printf result
 static const size_t kBufferSize = 1024;

@@ -10,15 +10,20 @@
 #include "include/core/SkData.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFixed.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/SkTFitsIn.h"
 #include "include/private/SkTPin.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkStreamPriv.h"
 
+#include <algorithm>
+#include <cstddef>
+#include <cstring>
 #include <limits>
+#include <new>
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -10,6 +10,8 @@
 
 #include "include/core/SkTypes.h"
 
+#include <cstdint>
+
 typedef int64_t SkThreadID;
 
 // SkMutex.h uses SkGetThredID in debug only code.

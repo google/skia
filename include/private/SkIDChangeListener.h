@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkMutex.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkThreadAnnotations.h"
 
 #include <atomic>
 

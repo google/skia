@@ -9,7 +9,9 @@
 #define SkTLazy_DEFINED
 
 #include "include/core/SkTypes.h"
+
 #include <optional>
+#include <utility>
 
 /**
  *  Efficient way to defer allocating/initializing a class until it is needed

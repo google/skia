@@ -10,8 +10,15 @@
 
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkVx.h"
-#include "src/core/SkPointPriv.h"
+
+#include <cstdint>
+#include <cstring>
+struct SkPoint3;
 
 class SkMatrixPriv {
 public:

@@ -5,6 +5,10 @@
 #define SkContainers_DEFINED
 
 #include "include/core/SkSpan.h"
+#include "include/core/SkTypes.h"
+
+#include <cstddef>
+#include <cstdint>
 
 class SK_SPI SkContainerAllocator {
 public:

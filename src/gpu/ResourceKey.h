@@ -12,6 +12,7 @@
 #include "include/core/SkString.h"
 #include "include/private/SkAlignedStorage.h"
 #include "include/private/SkOnce.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 
 #include <new>

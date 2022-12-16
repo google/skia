@@ -11,16 +11,17 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkMalloc.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "include/private/SkTypeTraits.h"
 
-#include <stdarg.h>
-#include <string.h>
 #include <atomic>
+#include <cstdarg>
+#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <string_view>
+#include <type_traits>
 
 /*  Some helper functions for C strings */
 static inline bool SkStrStartsWith(const char string[], const char prefixStr[]) {

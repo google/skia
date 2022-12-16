@@ -8,6 +8,7 @@
 #include "tools/UrlDataManager.h"
 
 #include <unordered_map>
+#include <vector>
 
 bool operator==(const SkData& a, const SkData& b) {
     return a.equals(&b);

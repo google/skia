@@ -5,12 +5,17 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkMacros.h"
 #include "src/core/SkEdgeClipper.h"
+
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkMacros.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkLineClipper.h"
+#include "src/core/SkPathPriv.h"
 
-#include <utility>
+#include <algorithm>
+#include <cstring>
 
 static bool quick_reject(const SkRect& bounds, const SkRect& clip) {
     return bounds.fTop >= clip.fBottom || bounds.fBottom <= clip.fTop;
@@ -557,8 +562,6 @@ void sk_assert_monotonic_x(const SkPoint pts[], int count) {
     }
 }
 #endif
-
-#include "src/core/SkPathPriv.h"
 
 void SkEdgeClipper::ClipPath(const SkPath& path, const SkRect& clip, bool canCullToTheRight,
                              void (*consume)(SkEdgeClipper*, bool newCtr, void* ctx), void* ctx) {

@@ -8,18 +8,24 @@
 #include "include/core/SkMatrix.h"
 
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRSXform.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/private/SkFloatBits.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
 #include "include/private/SkVx.h"
-#include "src/core/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkPathPriv.h"
+#include "src/core/SkMatrixUtils.h"
+#include "src/core/SkSamplingPriv.h"
 
-#include <cstddef>
-#include <utility>
+#include <algorithm>
+#include <cmath>
+
+struct SkSamplingOptions;
 
 void SkMatrix::doNormalizePerspective() {
     // If the bottom row of the matrix is [0, 0, not_one], we will treat the matrix as if it
@@ -1630,9 +1636,6 @@ void SkMatrix::dump() const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
-#include "src/core/SkMatrixUtils.h"
-#include "src/core/SkSamplingPriv.h"
 
 bool SkTreatAsSprite(const SkMatrix& mat, const SkISize& size, const SkSamplingOptions& sampling,
                      const SkPaint& paint) {

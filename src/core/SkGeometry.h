@@ -8,8 +8,15 @@
 #ifndef SkGeometry_DEFINED
 #define SkGeometry_DEFINED
 
-#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkVx.h"
+
+#include <cstring>
+
+class SkMatrix;
+struct SkRect;
 
 static inline skvx::float2 from_point(const SkPoint& point) {
     return skvx::float2::Load(&point);

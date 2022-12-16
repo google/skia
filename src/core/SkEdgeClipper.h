@@ -10,6 +10,10 @@
 #define SkEdgeClipper_DEFINED
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+
+struct SkRect;
 
 /** This is basically an iterator. It is initialized with an edge and a clip,
     and then next() is called until it returns kDone_Verb.
