@@ -148,6 +148,12 @@ template <> void Draw::draw(const DrawSlug&) {}
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(), r.xforms, r.texs, r.colors, r.count, r.mode, r.sampling,
                           r.cull, r.paint))
 DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint))
+#ifdef SK_ENABLE_SKSL
+DRAW(DrawMesh, drawMesh(r.mesh, r.blender, r.paint))
+#else
+// Turn draw into a nop.
+template <> void Draw::draw(const DrawMesh&) {}
+#endif
 DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec))
 DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()))
 
@@ -447,7 +453,11 @@ private:
     Bounds bounds(const DrawVertices& op) const {
         return this->adjustAndMap(op.vertices->bounds(), &op.paint);
     }
-
+#ifdef SK_ENABLE_SKSL
+    Bounds bounds(const DrawMesh& op) const {
+        return this->adjustAndMap(op.mesh.bounds(), &op.paint);
+    }
+#endif
     Bounds bounds(const DrawAtlas& op) const {
         if (op.cull) {
             // TODO: <reed> can we pass nullptr for the paint? Isn't cull already "correct"
