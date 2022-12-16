@@ -6439,27 +6439,24 @@ UNIX_ONLY_TEST(SkParagraph_RTLGlyphPositions, reporter) {
     paragraph->layout(500);
     paragraph->paint(canvas.get(), 0, 0);
 
-    auto res1 = paragraph->getGlyphPositionAtCoordinate(0, 0);
-    REPORTER_ASSERT(reporter, res1.position == 3 && res1.affinity == Affinity::kDownstream);
-/*
-    auto width = paragraph->getMinIntrinsicWidth();
-    auto letter = width / 4;
-    for (size_t i = 0; i < 4; i++) {
-        auto left = 500 - letter * (4 - i) + letter * 0.25;
-        auto right = left + letter * 0.5;
-        auto res1 = paragraph->getGlyphPositionAtCoordinate(left, 1);
-        auto res2 = paragraph->getGlyphPositionAtCoordinate(right, 1);
+    std::vector<std::pair<SkScalar, PositionWithAffinity>> checks  = {
+        std::make_pair(550, PositionWithAffinity(0, Affinity::kDownstream)),
+        std::make_pair(500, PositionWithAffinity(0, Affinity::kDownstream)),
+        std::make_pair(494, PositionWithAffinity(1, Affinity::kUpstream)),
+        std::make_pair(488, PositionWithAffinity(1, Affinity::kDownstream)),
+        std::make_pair(485, PositionWithAffinity(2, Affinity::kUpstream)),
+        std::make_pair(480, PositionWithAffinity(2, Affinity::kDownstream)),
+        std::make_pair(475, PositionWithAffinity(3, Affinity::kUpstream)),
+        std::make_pair(471, PositionWithAffinity(3, Affinity::kDownstream)),
+        std::make_pair(467, PositionWithAffinity(4, Affinity::kUpstream)),
+        std::make_pair(  0, PositionWithAffinity(4, Affinity::kUpstream)),
+    };
 
-        SkDebugf("%d: %f %d%s %f %d%s\n", i,
-           left, res1.position, res1.affinity == Affinity::kUpstream ? "U" : "D",
-           right, res2.position, res2.affinity == Affinity::kUpstream ? "U" : "D");
+    for (auto check : checks) {
+        auto pos = paragraph->getGlyphPositionAtCoordinate(check.first, 0);
+        REPORTER_ASSERT(reporter, pos.affinity == check.second.affinity);
+        REPORTER_ASSERT(reporter, pos.position == check.second.position);
     }
-*/
-    auto res2 = paragraph->getGlyphPositionAtCoordinate(500, 1);
-    REPORTER_ASSERT(reporter, res2.position == 0 && res2.affinity == Affinity::kDownstream);
-//    SkDebugf("edges: %f %d%s %f %d%s\n",
-//           0.0f, res1.position, res1.affinity == Affinity::kUpstream ? "U" : "D",
-//           500.0f, res2.position, res2.affinity == Affinity::kUpstream ? "U" : "D");
 }
 
 UNIX_ONLY_TEST(SkParagraph_RTLGlyphPositionsInEmptyLines, reporter) {
@@ -6486,11 +6483,11 @@ UNIX_ONLY_TEST(SkParagraph_RTLGlyphPositionsInEmptyLines, reporter) {
 
     auto height = paragraph->getHeight();
     auto res1 = paragraph->getGlyphPositionAtCoordinate(0, 0);
-    REPORTER_ASSERT(reporter, res1.position == 3 && res1.affinity == Affinity::kDownstream);
+    REPORTER_ASSERT(reporter, res1.position == 4 && res1.affinity == Affinity::kUpstream);
     auto res2 = paragraph->getGlyphPositionAtCoordinate(0, height / 2);
     REPORTER_ASSERT(reporter, res2.position == 5 && res2.affinity == Affinity::kDownstream);
     auto res3 = paragraph->getGlyphPositionAtCoordinate(0, height);
-    REPORTER_ASSERT(reporter, res3.position == 9 && res3.affinity == Affinity::kDownstream);
+    REPORTER_ASSERT(reporter, res3.position == 10 && res3.affinity == Affinity::kUpstream);
 }
 
 UNIX_ONLY_TEST(SkParagraph_LTRGlyphPositionsForTrailingSpaces, reporter) {
@@ -6836,17 +6833,27 @@ UNIX_ONLY_TEST(SkParagraph_RTLFollowedByLTR, reporter) {
     REPORTER_ASSERT(reporter,
                     SkScalarNearlyEqual(boxes[1].rect.fRight, paragraph->getMaxIntrinsicWidth()));
 
-    std::vector<SkScalar> widths = {-10, 0, 10, 20, 30, 40, 50, 60};
-    std::vector<int> positions = {-2, -2, 2, 1, -3, -4, -5, 6};
+    std::vector<std::pair<SkScalar, PositionWithAffinity>> checks  = {
+        std::make_pair(-10, PositionWithAffinity(3, Affinity::kUpstream)),
+        std::make_pair(  0, PositionWithAffinity(3, Affinity::kUpstream)),
+        std::make_pair(  5, PositionWithAffinity(2, Affinity::kDownstream)),
+        std::make_pair( 10, PositionWithAffinity(2, Affinity::kUpstream)),
+        std::make_pair( 15, PositionWithAffinity(1, Affinity::kDownstream)),
+        std::make_pair( 20, PositionWithAffinity(1, Affinity::kUpstream)),
+        std::make_pair( 25, PositionWithAffinity(0, Affinity::kDownstream)),
+        std::make_pair( 30, PositionWithAffinity(3, Affinity::kDownstream)),
+        std::make_pair( 35, PositionWithAffinity(4, Affinity::kUpstream)),
+        std::make_pair( 40, PositionWithAffinity(4, Affinity::kDownstream)),
+        std::make_pair( 45, PositionWithAffinity(5, Affinity::kUpstream)),
+        std::make_pair( 50, PositionWithAffinity(5, Affinity::kDownstream)),
+        std::make_pair( 55, PositionWithAffinity(6, Affinity::kUpstream)),
+        std::make_pair( 60, PositionWithAffinity(6, Affinity::kUpstream)),
+    };
 
-    size_t index = 0;
-    for (auto w : widths) {
-        auto pos = paragraph->getGlyphPositionAtCoordinate(w, 0);
-        auto res = positions[index];
-        REPORTER_ASSERT(reporter,
-                        pos.affinity == (res < 0 ? Affinity::kDownstream : Affinity::kUpstream));
-        REPORTER_ASSERT(reporter, pos.position == std::abs(res));
-        ++index;
+    for (auto check : checks) {
+        auto pos = paragraph->getGlyphPositionAtCoordinate(check.first, 0);
+        REPORTER_ASSERT(reporter, pos.affinity == check.second.affinity);
+        REPORTER_ASSERT(reporter, pos.position == check.second.position);
     }
 }
 
