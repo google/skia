@@ -40,7 +40,7 @@ class TextureProxy;
  * it will try to upload to page 0 before page 1 or 2. To keep the atlas from continually using
  * excess space, periodic garbage collection is needed to shift data from the higher index pages to
  * the lower ones, and then eventually remove any pages that are no longer in use. "In use" is
- * determined by using the DrawToken system: After a DrawPass is snapped a subarea of the page, or
+ * determined by using the AtlasToken system: After a DrawPass is snapped a subarea of the page, or
  * "plot" is checked to see whether it was used in that DrawPass. If less than a quarter of the
  * plots have been used recently (within kPlotRecentlyUsedCount iterations) and there are available
  * plots in lower index pages, the higher index page will be deactivated, and its glyphs will
@@ -122,7 +122,7 @@ public:
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    void setLastUseToken(const AtlasLocator& atlasLocator, DrawToken token) {
+    void setLastUseToken(const AtlasLocator& atlasLocator, AtlasToken token) {
         SkASSERT(this->hasID(atlasLocator.plotLocator()));
         uint32_t plotIdx = atlasLocator.plotIndex();
         SkASSERT(plotIdx < fNumPlots);
@@ -136,7 +136,7 @@ public:
     uint32_t numActivePages() { return fNumActivePages; }
 
     void setLastUseTokenBulk(const BulkUsePlotUpdater& updater,
-                             DrawToken token) {
+                             AtlasToken token) {
         int count = updater.count();
         for (int i = 0; i < count; i++) {
             const BulkUsePlotUpdater::PlotData& pd = updater.plotData(i);
@@ -150,7 +150,7 @@ public:
         }
     }
 
-    void compact(DrawToken startTokenForNextFlush);
+    void compact(AtlasToken startTokenForNextFlush);
 
     void evictAllPlots();
 
@@ -209,9 +209,9 @@ private:
     AtlasGenerationCounter* const fGenerationCounter;
     uint64_t                      fAtlasGeneration;
 
-    // nextTokenToFlush() value at the end of the previous DrawPass
+    // nextFlushToken() value at the end of the previous DrawPass
     // TODO: rename
-    DrawToken fPrevFlushToken;
+    AtlasToken fPrevFlushToken;
 
     // the number of flushes since this atlas has been last used
     // TODO: rename

@@ -204,7 +204,7 @@ bool GrDrawingManager::flush(
         cachePurgeNeeded = false;
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
-        onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush());
+        onFlushCBObject->postFlush(fTokenTracker.nextFlushToken());
         cachePurgeNeeded = true;
     }
     if (cachePurgeNeeded) {
@@ -280,7 +280,7 @@ bool GrDrawingManager::executeRenderTasks(GrOpFlushState* flushState) {
     }
 
     SkASSERT(!flushState->opsRenderPass());
-    SkASSERT(fTokenTracker.nextDrawToken() == fTokenTracker.nextTokenToFlush());
+    SkASSERT(fTokenTracker.nextDrawToken() == fTokenTracker.nextFlushToken());
 
     // We reset the flush state before the RenderTasks so that the last resources to be freed are
     // those that are written to in the RenderTasks. This helps to make sure the most recently used

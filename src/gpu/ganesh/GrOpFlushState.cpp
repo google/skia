@@ -45,7 +45,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
     SkASSERT(this->opsRenderPass());
 
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
-        skgpu::DrawToken drawToken = fTokenTracker->nextTokenToFlush();
+        skgpu::AtlasToken drawToken = fTokenTracker->nextFlushToken();
         while (fCurrUpload != fInlineUploads.end() &&
                fCurrUpload->fUploadBeforeToken == drawToken) {
             this->opsRenderPass()->inlineUpload(this, fCurrUpload->fUpload);
@@ -97,7 +97,7 @@ void GrOpFlushState::reset() {
     fASAPUploads.reset();
     fInlineUploads.reset();
     fDraws.reset();
-    fBaseDrawToken = skgpu::DrawToken::AlreadyFlushedToken();
+    fBaseDrawToken = skgpu::AtlasToken::InvalidToken();
 }
 
 void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload,
@@ -142,14 +142,14 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload,
     upload(wp);
 }
 
-skgpu::DrawToken GrOpFlushState::addInlineUpload(GrDeferredTextureUploadFn&& upload) {
+skgpu::AtlasToken GrOpFlushState::addInlineUpload(GrDeferredTextureUploadFn&& upload) {
     return fInlineUploads.append(&fArena, std::move(upload), fTokenTracker->nextDrawToken())
             .fUploadBeforeToken;
 }
 
-skgpu::DrawToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& upload) {
+skgpu::AtlasToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& upload) {
     fASAPUploads.append(&fArena, std::move(upload));
-    return fTokenTracker->nextTokenToFlush();
+    return fTokenTracker->nextFlushToken();
 }
 
 void GrOpFlushState::recordDraw(
@@ -162,7 +162,7 @@ void GrOpFlushState::recordDraw(
     SkDEBUGCODE(fOpArgs->validate());
     bool firstDraw = fDraws.begin() == fDraws.end();
     auto& draw = fDraws.append(&fArena);
-    skgpu::DrawToken token = fTokenTracker->issueDrawToken();
+    skgpu::AtlasToken token = fTokenTracker->issueDrawToken();
     for (int i = 0; i < geomProc->numTextureSamplers(); ++i) {
         SkASSERT(geomProcProxies && geomProcProxies[i]);
         geomProcProxies[i]->ref();

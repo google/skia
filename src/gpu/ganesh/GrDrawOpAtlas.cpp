@@ -23,7 +23,7 @@
 #include "src/gpu/ganesh/GrTracing.h"
 
 using AtlasLocator = skgpu::AtlasLocator;
-using DrawToken = skgpu::DrawToken;
+using AtlasToken = skgpu::AtlasToken;
 using EvictionCallback = skgpu::PlotEvictionCallback;
 using GenerationCounter = skgpu::AtlasGenerationCounter;
 using MaskFormat = skgpu::MaskFormat;
@@ -108,7 +108,7 @@ GrDrawOpAtlas::GrDrawOpAtlas(GrProxyProvider* proxyProvider, const GrBackendForm
         , fLabel(label)
         , fGenerationCounter(generationCounter)
         , fAtlasGeneration(fGenerationCounter->next())
-        , fPrevFlushToken(DrawToken::AlreadyFlushedToken())
+        , fPrevFlushToken(AtlasToken::InvalidToken())
         , fFlushesSinceLastUse(0)
         , fMaxPages(AllowMultitexturing::kYes == allowMultitexturing ?
                             PlotLocator::kMaxMultitexturePages : 1)
@@ -157,14 +157,14 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target,
     // If our most recent upload has already occurred then we have to insert a new
     // upload. Otherwise, we already have a scheduled upload that hasn't yet ocurred.
     // This new update will piggy back on that previously scheduled update.
-    if (plot->lastUploadToken() < target->tokenTracker()->nextTokenToFlush()) {
+    if (plot->lastUploadToken() < target->tokenTracker()->nextFlushToken()) {
         // With c+14 we could move sk_sp into lamba to only ref once.
         sk_sp<Plot> plotsp(SkRef(plot));
 
         GrTextureProxy* proxy = fViews[pageIdx].asTextureProxy();
         SkASSERT(proxy && proxy->isInstantiated());  // This is occurring at flush time
 
-        DrawToken lastUploadToken = target->addASAPUpload(
+        AtlasToken lastUploadToken = target->addASAPUpload(
                 [this, plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
                     this->uploadPlotToTexture(writePixels, proxy, plotsp.get());
                 });
@@ -230,7 +230,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
         for (unsigned int pageIdx = 0; pageIdx < fNumActivePages; ++pageIdx) {
             Plot* plot = fPages[pageIdx].fPlotList.tail();
             SkASSERT(plot);
-            if (plot->lastUseToken() < target->tokenTracker()->nextTokenToFlush()) {
+            if (plot->lastUseToken() < target->tokenTracker()->nextFlushToken()) {
                 this->processEvictionAndResetRects(plot);
                 SkASSERT(GrBackendFormatBytesPerPixel(fViews[pageIdx].proxy()->backendFormat()) ==
                          plot->bpp());
@@ -301,7 +301,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
     GrTextureProxy* proxy = fViews[pageIdx].asTextureProxy();
     SkASSERT(proxy && proxy->isInstantiated());
 
-    DrawToken lastUploadToken = target->addInlineUpload(
+    AtlasToken lastUploadToken = target->addInlineUpload(
             [this, plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
                 this->uploadPlotToTexture(writePixels, proxy, plotsp.get());
             });
@@ -313,7 +313,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
     return ErrorCode::kSucceeded;
 }
 
-void GrDrawOpAtlas::compact(DrawToken startTokenForNextFlush) {
+void GrDrawOpAtlas::compact(AtlasToken startTokenForNextFlush) {
     if (fNumActivePages < 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
@@ -406,7 +406,7 @@ void GrDrawOpAtlas::compact(DrawToken startTokenForNextFlush) {
             // If this plot was used recently
             if (plot->flushesSinceLastUsed() <= kPlotRecentlyUsedCount) {
                 usedPlots++;
-            } else if (plot->lastUseToken() != DrawToken::AlreadyFlushedToken()) {
+            } else if (plot->lastUseToken() != AtlasToken::InvalidToken()) {
                 // otherwise if aged out just evict it.
                 this->processEvictionAndResetRects(plot);
             }

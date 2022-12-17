@@ -120,8 +120,8 @@ public:
     /** Overrides of GrDeferredUploadTarget. */
 
     const skgpu::TokenTracker* tokenTracker() final { return fTokenTracker; }
-    skgpu::DrawToken addInlineUpload(GrDeferredTextureUploadFn&&) final;
-    skgpu::DrawToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
+    skgpu::AtlasToken addInlineUpload(GrDeferredTextureUploadFn&&) final;
+    skgpu::AtlasToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
     /** Overrides of GrMeshDrawTarget. */
     void recordDraw(const GrGeometryProcessor*,
@@ -265,10 +265,10 @@ public:
 
 private:
     struct InlineUpload {
-        InlineUpload(GrDeferredTextureUploadFn&& upload, skgpu::DrawToken token)
+        InlineUpload(GrDeferredTextureUploadFn&& upload, skgpu::AtlasToken token)
                 : fUpload(std::move(upload)), fUploadBeforeToken(token) {}
         GrDeferredTextureUploadFn fUpload;
-        skgpu::DrawToken fUploadBeforeToken;
+        skgpu::AtlasToken fUploadBeforeToken;
     };
 
     // A set of contiguous draws that share a draw token, geometry processor, and pipeline. The
@@ -303,7 +303,7 @@ private:
 
     // All draws we store have an implicit draw token. This is the draw token for the first draw
     // in fDraws.
-    skgpu::DrawToken fBaseDrawToken = skgpu::DrawToken::AlreadyFlushedToken();
+    skgpu::AtlasToken fBaseDrawToken = skgpu::AtlasToken::InvalidToken();
 
     // Info about the op that is currently preparing or executing using the flush state or null if
     // an op is not currently preparing of executing.

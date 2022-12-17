@@ -49,7 +49,7 @@ public:
                                         int width, int height, const void* image,
                                         skgpu::AtlasLocator*);
 
-    void setUseToken(SmallPathShapeData*, skgpu::DrawToken);
+    void setUseToken(SmallPathShapeData*, skgpu::AtlasToken);
 
     // GrOnFlushCallbackObject overrides
     bool preFlush(GrOnFlushResourceProvider* onFlushRP) override {
@@ -65,7 +65,7 @@ public:
         return true;
     }
 
-    void postFlush(skgpu::DrawToken startTokenForNextFlush) override {
+    void postFlush(skgpu::AtlasToken startTokenForNextFlush) override {
         if (fAtlas) {
             fAtlas->compact(startTokenForNextFlush);
         }
