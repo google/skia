@@ -15,6 +15,7 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkMesh.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRRect.h"
@@ -81,6 +82,7 @@ namespace SkRecords {
     M(DrawSlug)                                                     \
     M(DrawAtlas)                                                    \
     M(DrawVertices)                                                 \
+    M(DrawMesh)                                                     \
     M(DrawShadowRec)                                                \
     M(DrawAnnotation)                                               \
     M(DrawEdgeAAQuad)                                               \
@@ -324,6 +326,14 @@ RECORD(DrawVertices, kDraw_Tag|kHasPaint_Tag,
         SkPaint paint;
         sk_sp<SkVertices> vertices;
         SkBlendMode bmode)
+#ifdef SK_ENABLE_SKSL
+RECORD(DrawMesh, kDraw_Tag|kHasPaint_Tag,
+       SkPaint paint;
+       SkMesh mesh;
+       sk_sp<SkBlender> blender)
+#else
+RECORD(DrawMesh, 0)
+#endif
 RECORD(DrawShadowRec, kDraw_Tag,
        PreCachedPath path;
        SkDrawShadowRec rec)
