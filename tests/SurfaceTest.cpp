@@ -40,6 +40,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCanvasPriv.h"

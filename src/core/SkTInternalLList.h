@@ -9,6 +9,7 @@
 #define SkTInternalLList_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
 
 /**
  * This macro creates the member variables required by the SkTInternalLList class. It should be

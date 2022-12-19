@@ -34,6 +34,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkShadowFlags.h"
+#include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCanvasPriv.h"

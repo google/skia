@@ -14,6 +14,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkClipStack.h"
 #include "tests/Test.h"
 

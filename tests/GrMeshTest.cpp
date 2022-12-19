@@ -19,6 +19,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkTArray.h"
+#include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkSLTypeShared.h"

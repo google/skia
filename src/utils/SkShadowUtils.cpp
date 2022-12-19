@@ -24,6 +24,7 @@
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkColorFilterPriv.h"
@@ -32,6 +33,7 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkVerticesPriv.h"
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 #include "src/utils/SkShadowTessellator.h"
 #endif

@@ -28,6 +28,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkMathPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"

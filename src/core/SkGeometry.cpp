@@ -12,6 +12,7 @@
 #include "include/core/SkRect.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTPin.h"
+#include "include/private/SkTo.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkPointPriv.h"
 #include "src/pathops/SkPathOpsCubic.h"

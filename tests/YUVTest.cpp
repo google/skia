@@ -17,6 +17,7 @@
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/effects/SkColorMatrix.h"
+#include "include/private/SkTo.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 

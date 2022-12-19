@@ -27,6 +27,7 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRectPriv.h"

@@ -19,6 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkTo.h"
 #include "include/utils/SkRandom.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"

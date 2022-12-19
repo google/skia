@@ -9,6 +9,7 @@
 #define SkSurfaceProps_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/SkTo.h"
 
 /**
  *  Description of how the LCD strips are arranged for each pixel. If this is unknown, or the

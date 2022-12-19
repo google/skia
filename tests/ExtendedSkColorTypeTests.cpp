@@ -19,6 +19,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"

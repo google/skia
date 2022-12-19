@@ -500,12 +500,6 @@ typedef unsigned U8CPU;
 */
 typedef unsigned U16CPU;
 
-/** @return false or true based on the condition
-*/
-template <typename T> static constexpr bool SkToBool(const T& x) {
-    return (bool)x;
-}
-
 static constexpr int16_t SK_MaxS16 = INT16_MAX;
 static constexpr int16_t SK_MinS16 = -SK_MaxS16;
 
