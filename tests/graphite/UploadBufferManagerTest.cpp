@@ -28,11 +28,14 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, cont
 
     // Test multiple small writes to a reused buffer.
     auto [smWriter0, smBufferInfo0] = bufferManager->getUploadWriter(10, 1);
-    smWriter0.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/3, /*rowCount=*/2);
-    smWriter0.write(/*offset=*/6, src, /*srcRowBytes=*/4, /*trimRowBytes=*/2, /*rowCount=*/2);
+    smWriter0.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/3, /*trimRowBytes=*/3,
+                    /*rowCount=*/2);
+    smWriter0.write(/*offset=*/6, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
+                    /*rowCount=*/2);
 
     auto [smWriter1, smBufferInfo1] = bufferManager->getUploadWriter(4, 1);
-    smWriter1.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/2, /*rowCount=*/2);
+    smWriter1.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
+                    /*rowCount=*/2);
 
     REPORTER_ASSERT(reporter, smBufferInfo0.fBuffer == smBufferInfo1.fBuffer);
     REPORTER_ASSERT(reporter, smBufferInfo0.fOffset == 0);
@@ -40,7 +43,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, cont
 
     // Test a large write, which should get its own dedicated buffer.
     auto [lgWriter, lgBufferInfo] = bufferManager->getUploadWriter((64 << 10) + 1, 1);
-    lgWriter.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/2, /*rowCount=*/2);
+    lgWriter.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
+                   /*rowCount=*/2);
 
     REPORTER_ASSERT(reporter, lgBufferInfo.fBuffer != smBufferInfo0.fBuffer);
     REPORTER_ASSERT(reporter, lgBufferInfo.fOffset == 0);
@@ -55,7 +59,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, cont
 
     // Test another small write after the large write.
     auto [smWriter2, smBufferInfo2] = bufferManager->getUploadWriter(2, 1);
-    smWriter2.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/2, /*rowCount=*/1);
+    smWriter2.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
+                    /*rowCount=*/1);
 
     REPORTER_ASSERT(reporter, smBufferInfo2.fBuffer == smBufferInfo0.fBuffer);
     REPORTER_ASSERT(reporter, smBufferInfo2.fOffset == 14);
@@ -86,10 +91,12 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, cont
 
     // Test writes with a required alignment.
     auto [alWriter0, alBufferInfo0] = bufferManager->getUploadWriter(6, 4);
-    alWriter0.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/3, /*rowCount=*/2);
+    alWriter0.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/3, /*trimRowBytes=*/3,
+                    /*rowCount=*/2);
 
     auto [alWriter1, alBufferInfo1] = bufferManager->getUploadWriter(2, 4);
-    alWriter1.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*trimRowBytes=*/2, /*rowCount=*/1);
+    alWriter1.write(/*offset=*/0, src, /*srcRowBytes=*/4, /*dstRowBytes=*/2, /*trimRowBytes=*/2,
+                    /*rowCount=*/1);
 
     // Should not share a buffer with earlier small writes, since we've transferred previously-
     // allocated resources to the command buffer.

@@ -453,11 +453,11 @@ struct UploadWriter : public BufferWriter {
 
     // Writes a block of image data to the upload buffer, starting at `offset`. The source image is
     // `srcRowBytes` wide, and the written block is `dstRowBytes` wide and `rowCount` bytes tall.
-    void write(
-            size_t offset, const void* src, size_t srcRowBytes, size_t dstRowBytes, int rowCount) {
+    void write(size_t offset, const void* src, size_t srcRowBytes, size_t dstRowBytes,
+               size_t trimRowBytes, int rowCount) {
         this->validate(dstRowBytes * rowCount);
         void* dst = SkTAddOffset<void>(fPtr, offset);
-        SkRectMemcpy(dst, dstRowBytes, src, srcRowBytes, dstRowBytes, rowCount);
+        SkRectMemcpy(dst, dstRowBytes, src, srcRowBytes, trimRowBytes, rowCount);
     }
 
     void convertAndWrite(size_t offset,
