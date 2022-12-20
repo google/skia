@@ -8,6 +8,8 @@
 #ifndef SkAlign_DEFINED
 #define SkAlign_DEFINED
 
+#include "include/base/SkAssert.h"
+
 #include <cstddef>
 
 template <typename T> static constexpr T SkAlign2(T x) { return (x + 1) >> 1 << 1; }
@@ -30,9 +32,7 @@ template <typename T> static constexpr bool SkIsAlignPtr(T x) {
  */
 static inline constexpr size_t SkAlignTo(size_t x, size_t alignment) {
     // The same as alignment && SkIsPow2(value), w/o a dependency cycle.
-    // TODO(kjlubick) bring back this assert when SkAlign.h can depend on other base
-    // files (e.g. SkAssert.h)
-    // SkASSERT(alignment && (alignment & (alignment - 1)) == 0);
+    SkASSERT(alignment && (alignment & (alignment - 1)) == 0);
     return (x + alignment - 1) & ~(alignment - 1);
 }
 

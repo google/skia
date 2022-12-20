@@ -7,7 +7,13 @@ exports_files_legacy()
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        "SkAPI.h",
         "SkAlign.h",
+        "SkAssert.h",
+        "SkAttributes.h",
+        "SkDebug.h",
+        "SkFeatures.h",
+        "SkLoadUserConfig.h",
     ],
     visibility = ["//include:__pkg__"],
 )

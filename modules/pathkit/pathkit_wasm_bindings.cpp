@@ -35,6 +35,8 @@ static const int CONIC = 3;
 static const int CUBIC = 4;
 static const int CLOSE = 5;
 
+
+
 // Just for self-documenting purposes where the main thing being returned is an
 // SkPath, but in an error case, something of type null (which is val) could also be
 // returned;

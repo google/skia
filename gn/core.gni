@@ -101,7 +101,13 @@ skia_core_public = [
 ]
 
 skia_core_sources = [
+  "$_include/base/SkAPI.h",
   "$_include/base/SkAlign.h",
+  "$_include/base/SkAssert.h",
+  "$_include/base/SkAttributes.h",
+  "$_include/base/SkDebug.h",
+  "$_include/base/SkFeatures.h",
+  "$_include/base/SkLoadUserConfig.h",
   "$_include/private/SingleOwner.h",
   "$_include/private/SkAlignedStorage.h",
   "$_include/private/SkBitmaskEnum.h",
