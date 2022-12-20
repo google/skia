@@ -215,8 +215,9 @@ public:
         return {fSteps.data(), static_cast<size_t>(fStepCount) };
     }
 
-    const char* name()           const { return fName.c_str(); }
-    int         numRenderSteps() const { return fStepCount;    }
+    const char*   name()           const { return fName.c_str(); }
+    DrawTypeFlags drawTypes()      const { return fDrawTypes; }
+    int           numRenderSteps() const { return fStepCount;    }
 
     bool requiresMSAA()        const { return fStepFlags & StepFlags::kRequiresMSAA;        }
     bool emitsCoverage()       const { return fStepFlags & StepFlags::kEmitsCoverage;       }
@@ -228,23 +229,25 @@ private:
     friend class RendererProvider; // for ctors
 
     // Max render steps is 4, so just spell the options out for now...
-    Renderer(std::string_view name, const RenderStep* s1)
-            : Renderer(name, std::array<const RenderStep*, 1>{s1}) {}
+    Renderer(std::string_view name, DrawTypeFlags drawTypes, const RenderStep* s1)
+            : Renderer(name, drawTypes, std::array<const RenderStep*, 1>{s1}) {}
 
-    Renderer(std::string_view name, const RenderStep* s1, const RenderStep* s2)
-            : Renderer(name, std::array<const RenderStep*, 2>{s1, s2}) {}
+    Renderer(std::string_view name, DrawTypeFlags drawTypes,
+             const RenderStep* s1, const RenderStep* s2)
+            : Renderer(name, drawTypes, std::array<const RenderStep*, 2>{s1, s2}) {}
 
-    Renderer(std::string_view name, const RenderStep* s1, const RenderStep* s2,
-             const RenderStep* s3)
-            : Renderer(name, std::array<const RenderStep*, 3>{s1, s2, s3}) {}
+    Renderer(std::string_view name, DrawTypeFlags drawTypes,
+             const RenderStep* s1, const RenderStep* s2, const RenderStep* s3)
+            : Renderer(name, drawTypes, std::array<const RenderStep*, 3>{s1, s2, s3}) {}
 
-    Renderer(std::string_view name, const RenderStep* s1, const RenderStep* s2,
-             const RenderStep* s3, const RenderStep* s4)
-            : Renderer(name, std::array<const RenderStep*, 4>{s1, s2, s3, s4}) {}
+    Renderer(std::string_view name, DrawTypeFlags drawTypes,
+             const RenderStep* s1, const RenderStep* s2, const RenderStep* s3, const RenderStep* s4)
+            : Renderer(name, drawTypes, std::array<const RenderStep*, 4>{s1, s2, s3, s4}) {}
 
     template<size_t N>
-    Renderer(std::string_view name, std::array<const RenderStep*, N> steps)
+    Renderer(std::string_view name, DrawTypeFlags drawTypes, std::array<const RenderStep*, N> steps)
             : fName(name)
+            , fDrawTypes(drawTypes)
             , fStepCount(SkTo<int>(N)) {
         static_assert(N <= kMaxRenderSteps);
         for (int i = 0 ; i < fStepCount; ++i) {
@@ -263,6 +266,7 @@ private:
 
     std::array<const RenderStep*, kMaxRenderSteps> fSteps;
     std::string fName;
+    DrawTypeFlags fDrawTypes = DrawTypeFlags::kAll;
     int fStepCount;
 
     SkEnumBitMask<StepFlags> fStepFlags = StepFlags::kNone;

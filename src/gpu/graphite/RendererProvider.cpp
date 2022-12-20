@@ -32,28 +32,34 @@ RendererProvider::RendererProvider() {
     static_assert(kRendererSize % sizeof(Renderer) == 0, "Renderer declarations are not dense");
 
     // Single-step renderers don't share RenderSteps
-    auto makeFromStep = [&](std::unique_ptr<RenderStep> singleStep) {
+    auto makeFromStep = [&](std::unique_ptr<RenderStep> singleStep, DrawTypeFlags drawTypes) {
         std::string name = "SingleStep[";
         name += singleStep->name();
         name += "]";
         fRenderSteps.push_back(std::move(singleStep));
-        return Renderer(name, fRenderSteps.back().get());
+        return Renderer(name, drawTypes, fRenderSteps.back().get());
     };
 
     fConvexTessellatedWedges = makeFromStep(
-            std::make_unique<TessellateWedgesRenderStep>("convex", kDirectDepthGreaterPass));
-    fTessellatedStrokes = makeFromStep(std::make_unique<TessellateStrokesRenderStep>());
-    fBitmapText = makeFromStep(std::make_unique<BitmapTextRenderStep>());
+            std::make_unique<TessellateWedgesRenderStep>("convex", kDirectDepthGreaterPass),
+            DrawTypeFlags::kShape);
+    fTessellatedStrokes = makeFromStep(std::make_unique<TessellateStrokesRenderStep>(),
+                                       DrawTypeFlags::kShape);
+    fBitmapText = makeFromStep(std::make_unique<BitmapTextRenderStep>(),
+                               DrawTypeFlags::kText);
     for (bool lcd : {false, true}) {
-        fSDFText[lcd] = makeFromStep(std::make_unique<SDFTextRenderStep>(lcd));
+        fSDFText[lcd] = makeFromStep(std::make_unique<SDFTextRenderStep>(lcd),
+                                     DrawTypeFlags::kText);
     }
-    fAnalyticRRect = makeFromStep(std::make_unique<AnalyticRRectRenderStep>());
+    fAnalyticRRect = makeFromStep(std::make_unique<AnalyticRRectRenderStep>(),
+                                  DrawTypeFlags::kShape);
     for (PrimitiveType primType : {PrimitiveType::kTriangles, PrimitiveType::kTriangleStrip}) {
         for (bool color : {false, true}) {
             for (bool texCoords : {false, true}) {
                 int index = 4*(primType == PrimitiveType::kTriangleStrip) + 2*color + texCoords;
                 fVertices[index] = makeFromStep(
-                        std::make_unique<VerticesRenderStep>(primType, color, texCoords));
+                        std::make_unique<VerticesRenderStep>(primType, color, texCoords),
+                        DrawTypeFlags::kDrawVertices);
             }
         }
     }
@@ -77,13 +83,18 @@ RendererProvider::RendererProvider() {
             int index = 2*inverse + evenOdd; // matches SkPathFillType
             std::string variant = kTessVariants[index];
 
+            constexpr DrawTypeFlags kTextAndShape =
+                    static_cast<DrawTypeFlags>(DrawTypeFlags::kText|DrawTypeFlags::kShape);
+
             const RenderStep* coverStep = inverse ? coverInverse.get() : coverFill.get();
             fStencilTessellatedCurves[index] = Renderer("StencilTessellatedCurvesAndTris" + variant,
+                                                        kTextAndShape,
                                                         stencilFan.get(),
                                                         stencilCurve.get(),
                                                         coverStep);
 
             fStencilTessellatedWedges[index] = Renderer("StencilTessellatedWedges" + variant,
+                                                        kTextAndShape,
                                                         stencilWedge.get(),
                                                         coverStep);
         }

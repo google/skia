@@ -77,7 +77,16 @@ public:
     void checkAsyncWorkCompletion();
 
 #ifdef SK_ENABLE_PRECOMPILE
-    void precompile(const PaintOptions&);
+    /**
+     * Precompilation allows clients to create pipelines ahead of time based on what they expect
+     * to draw. This can reduce performance hitches, due to inline compilation, during the actual
+     * drawing. Graphite will always be able to perform an inline compilation if some SkPaint
+     * combination was omitted from precompilation.
+     *
+     *   @param paintOptions   captures a set of SkPaints that will be drawn
+     *   @param drawTypes      communicates which primitives those paints will be drawn with
+     */
+    void precompile(const PaintOptions&, DrawTypeFlags = kMostCommon);
 #endif
 
     /**
