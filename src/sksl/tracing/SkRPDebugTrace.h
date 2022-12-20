@@ -33,6 +33,9 @@ public:
     std::vector<SlotDebugInfo> fSlotInfo;
     std::vector<FunctionDebugInfo> fFuncInfo;
 
+    /** SkVM uniforms live in fSlotInfo; SkRP has dedicated a uniform slot map in fUniformInfo. */
+    std::vector<SlotDebugInfo> fUniformInfo;
+
     /** The SkSL code, split line-by-line. */
     std::vector<std::string> fSource;
 };

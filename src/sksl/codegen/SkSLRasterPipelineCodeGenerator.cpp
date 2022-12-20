@@ -106,7 +106,8 @@ public:
     Generator(const SkSL::Program& program, SkRPDebugTrace* debugTrace)
             : fProgram(program)
             , fDebugTrace(debugTrace)
-            , fProgramSlots(debugTrace ? &debugTrace->fSlotInfo : nullptr) {}
+            , fProgramSlots(debugTrace ? &debugTrace->fSlotInfo : nullptr)
+            , fUniformSlots(debugTrace ? &debugTrace->fUniformInfo : nullptr) {}
 
     /** Converts the SkSL main() function into a set of Instructions. */
     bool writeProgram(const FunctionDefinition& function);
@@ -130,7 +131,14 @@ public:
 
     /** Looks up the slots associated with an SkSL variable; creates the slot if necessary. */
     SlotRange getVariableSlots(const Variable& v) {
+        SkASSERT(!IsUniform(v));
         return fProgramSlots.getVariableSlots(v);
+    }
+
+    /** Looks up the slots associated with an SkSL uniform; creates the slot if necessary. */
+    SlotRange getUniformSlots(const Variable& v) {
+        SkASSERT(IsUniform(v));
+        return fUniformSlots.getVariableSlots(v);
     }
 
     /**
@@ -199,6 +207,9 @@ public:
     void previousTempStack() {
         fBuilder.set_current_stack(--fCurrentTempStack);
     }
+    static bool IsUniform(const Variable& var) {
+       return var.modifiers().fFlags & Modifiers::kUniform_Flag;
+    }
 
 private:
     const SkSL::Program& fProgram;
@@ -206,6 +217,7 @@ private:
     SkRPDebugTrace* fDebugTrace = nullptr;
 
     SlotManager fProgramSlots;
+    SlotManager fUniformSlots;
 
     SkTArray<SlotRange> fFunctionStack;
     SlotRange fCurrentContinueMask;
@@ -502,14 +514,12 @@ bool Generator::writeGlobals() {
             // Of those, only child processors are legal variables.
             SkASSERT(!var->type().isVoid());
             SkASSERT(!var->type().isOpaque());
-            [[maybe_unused]] SlotRange r = this->getVariableSlots(*var);
 
             // builtin variables are system-defined, with special semantics. The only builtin
             // variable exposed to runtime effects is sk_FragCoord.
             if (int builtin = var->modifiers().fLayout.fBuiltin; builtin >= 0) {
                 switch (builtin) {
                     case SK_FRAGCOORD_BUILTIN:
-                        SkASSERT(r.count == 4);
                         // TODO: populate slots with device coordinates xy01
                         return unsupported();
 
@@ -519,8 +529,10 @@ bool Generator::writeGlobals() {
                 }
             }
 
-            if (var->modifiers().fFlags & Modifiers::kUniform_Flag) {
-                return unsupported();
+            if (IsUniform(*var)) {
+                // Create the uniform slot map in first-to-last order.
+                (void)this->getUniformSlots(*var);
+                continue;
             }
 
             // Other globals are treated as normal variable declarations.
@@ -1080,7 +1092,14 @@ bool Generator::pushTernaryExpression(const Expression& test,
 }
 
 bool Generator::pushVariableReference(const VariableReference& v) {
-    fBuilder.push_slots(this->getVariableSlots(*v.variable()));
+    const Variable& var = *v.variable();
+    if (IsUniform(var)) {
+        [[maybe_unused]] SlotRange r = this->getUniformSlots(var);
+        SkASSERT(r.count == (int)var.type().slotCount());
+        // TODO(skia:13676): push value from the uniform map onto the stack
+        return unsupported();
+    }
+    fBuilder.push_slots(this->getVariableSlots(var));
     return true;
 }
 

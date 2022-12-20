@@ -451,3 +451,31 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorSwizzleLValueTest, r) {
          /*startingColor=*/SkColor4f{0.0, 0.5, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.749f, 1.0f, 0.249f, 1.0f});
 }
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorUniformDeclarationTest, r) {
+    // Add in your SkSL here.
+    test(r,
+         R"__SkSL__(
+             uniform half4 colorGreen, colorRed;
+             uniform half2x2 testMatrix2x2;
+             half4 main(half4 color) {
+                 return color;
+             }
+         )__SkSL__",
+         /*startingColor=*/SkColor4f{0.0, 1.0, 0.0, 1.0},
+         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorUniformUsageTest, r) {
+    // We don't support accessing uniforms yet, so this SkSL does not emit a program.
+    test(r,
+         R"__SkSL__(
+             uniform half4 colorGreen, colorRed;
+             uniform half2x2 testMatrix2x2;
+             half4 main(half4 color) {
+                 return testMatrix2x2 == half2x2(1,2,3,4) ? colorGreen : colorRed;
+             }
+         )__SkSL__",
+         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
+         /*expectedResult=*/std::nullopt);
+}
