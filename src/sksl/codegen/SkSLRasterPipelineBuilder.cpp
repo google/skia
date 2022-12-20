@@ -196,6 +196,48 @@ Program::Program(SkTArray<Instruction> instrs,
     }
 }
 
+void Program::append(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage, void* ctx) {
+#if !defined(SKSL_STANDALONE)
+    pipeline->append(stage, ctx);
+#endif
+}
+
+void Program::appendCopy(SkRasterPipeline* pipeline,
+                         SkArenaAlloc* alloc,
+                         SkRasterPipeline::Stage baseStage,
+                         float* dst, int dstStride,
+                         const float* src, int srcStride,
+                         int numSlots) {
+    SkASSERT(numSlots >= 0);
+    while (numSlots > 4) {
+        this->appendCopy(pipeline, alloc, baseStage, dst, dstStride, src, srcStride,/*numSlots=*/4);
+        dst += 4 * dstStride;
+        src += 4 * srcStride;
+        numSlots -= 4;
+    }
+
+    if (numSlots > 0) {
+        SkASSERT(numSlots <= 4);
+        auto stage = (SkRasterPipeline::Stage)((int)baseStage + numSlots - 1);
+        auto* ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
+        ctx->dst = dst;
+        ctx->src = src;
+        this->append(pipeline, stage, ctx);
+    }
+}
+
+void Program::appendCopySlotsUnmasked(SkRasterPipeline* pipeline,
+                                      SkArenaAlloc* alloc,
+                                      float* dst,
+                                      const float* src,
+                                      int numSlots) {
+    this->appendCopy(pipeline, alloc,
+                     SkRasterPipeline::copy_slot_unmasked,
+                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
+                     src, /*srcStride=*/SkOpts::raster_pipeline_highp_stride,
+                     numSlots);
+}
+
 template <typename T>
 [[maybe_unused]] static void* context_bit_pun(T val) {
     static_assert(sizeof(T) <= sizeof(void*));
@@ -354,7 +396,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 break;
 
             case BuilderOp::copy_slot_unmasked:
-                builderUtils.appendCopySlotsUnmasked(alloc, SlotA(), SlotB(), inst.fImmA);
+                this->appendCopySlotsUnmasked(pipeline, alloc, SlotA(), SlotB(), inst.fImmA);
                 break;
 
             case BuilderOp::zero_slot_unmasked:
@@ -378,7 +420,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
             }
             case BuilderOp::push_slots: {
                 float* dst = tempStackPtr;
-                builderUtils.appendCopySlotsUnmasked(alloc, dst, SlotA(), inst.fImmA);
+                this->appendCopySlotsUnmasked(pipeline, alloc, dst, SlotA(), inst.fImmA);
                 break;
             }
             case BuilderOp::push_condition_mask: {
@@ -450,7 +492,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
             }
             case BuilderOp::copy_stack_to_slots_unmasked: {
                 float* src = tempStackPtr - (inst.fImmB * N);
-                builderUtils.appendCopySlotsUnmasked(alloc, SlotA(), src, inst.fImmA);
+                this->appendCopySlotsUnmasked(pipeline, alloc, SlotA(), src, inst.fImmA);
                 break;
             }
             case BuilderOp::discard_stack:

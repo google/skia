@@ -95,11 +95,19 @@ public:
 private:
     using StackDepthMap = SkTHashMap<int, int>; // <stack index, depth of stack>
 
+    void append(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage, void* ctx);
     float* allocateSlotData(SkArenaAlloc* alloc);
     void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, float* slotPtr);
     void optimize();
     int numValueSlots();
     StackDepthMap tempStackMaxDepths();
+
+    // These methods are used to split up large multi-slot operations into multiple ops as needed.
+    void appendCopy(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
+                    SkRasterPipeline::Stage baseStage,
+                    float* dst, int dstStride, const float* src, int srcStride, int numSlots);
+    void appendCopySlotsUnmasked(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
+                                 float* dst, const float* src, int numSlots);
 
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;
