@@ -6,50 +6,21 @@
  */
 
 #include "include/core/SkCubicMap.h"
+
+#include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkVx.h"
 #include "src/core/SkOpts.h"
 
-//#define CUBICMAP_TRACK_MAX_ERROR
-
-#ifdef CUBICMAP_TRACK_MAX_ERROR
-#include "src/pathops/SkPathOpsCubic.h"
-#endif
+#include <algorithm>
 
 static inline bool nearly_zero(SkScalar x) {
     SkASSERT(x >= 0);
     return x <= 0.0000000001f;
 }
 
-#ifdef CUBICMAP_TRACK_MAX_ERROR
-    static int max_iters;
-#endif
-
-#ifdef CUBICMAP_TRACK_MAX_ERROR
-static float compute_slow(float A, float B, float C, float x) {
-    double roots[3];
-    SkDEBUGCODE(int count =) SkDCubic::RootsValidT(A, B, C, -x, roots);
-    SkASSERT(count == 1);
-    return (float)roots[0];
-}
-
-static float max_err;
-#endif
-
 static float compute_t_from_x(float A, float B, float C, float x) {
-#ifdef CUBICMAP_TRACK_MAX_ERROR
-    float answer = compute_slow(A, B, C, x);
-#endif
-    float answer2 = SkOpts::cubic_solver(A, B, C, -x);
-
-#ifdef CUBICMAP_TRACK_MAX_ERROR
-    float err = sk_float_abs(answer - answer2);
-    if (err > max_err) {
-        max_err = err;
-        SkDebugf("max error %g\n", max_err);
-    }
-#endif
-    return answer2;
+    return SkOpts::cubic_solver(A, B, C, -x);
 }
 
 float SkCubicMap::computeYFromX(float x) const {

@@ -9,10 +9,17 @@
 
 #include "include/core/SkDrawable.h"
 #include "include/core/SkScalar.h"
+#include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkScalerContext.h"
 #include "src/pathops/SkPathOpsCubic.h"
+#include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsQuad.h"
+
+#include <cstring>
+#include <tuple>
+#include <utility>
 
 //-- SkGlyph ---------------------------------------------------------------------------------------
 SkGlyph::SkGlyph(const SkGlyph&) = default;
