@@ -595,30 +595,45 @@ DEF_TEST(SkRasterPipeline_ZeroSlotsUnmasked, r) {
 }
 
 DEF_TEST(SkRasterPipeline_CopyConstants, r) {
-    // Allocate space for 20 dest slots.
-    alignas(64) float slots[20 * SkRasterPipeline_kMaxStride_highp];
-    float constants[20];
+    // Allocate space for 5 dest slots.
+    alignas(64) float slots[5 * SkRasterPipeline_kMaxStride_highp];
+    float constants[5];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
-    for (int slotCount = 0; slotCount < 20; ++slotCount) {
+    struct CopySlotsOp {
+        SkRasterPipeline::Stage stage;
+        int numSlotsAffected;
+    };
+
+    static const CopySlotsOp kCopyOps[] = {
+        {SkRasterPipeline::Stage::copy_constant,    1},
+        {SkRasterPipeline::Stage::copy_2_constants, 2},
+        {SkRasterPipeline::Stage::copy_3_constants, 3},
+        {SkRasterPipeline::Stage::copy_4_constants, 4},
+    };
+
+    for (const CopySlotsOp& op : kCopyOps) {
         // Initialize the destination slots to 1,2,3...
-        std::iota(&slots[0], &slots[20 * N], 1.0f);
+        std::iota(&slots[0], &slots[5 * N], 1.0f);
         // Initialize the constant buffer to 1000,1001,1002...
-        std::iota(&constants[0], &constants[20], 1000.0f);
+        std::iota(&constants[0], &constants[5], 1000.0f);
 
         // Run `copy_constants` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        SkRasterPipelineUtils(p).appendCopyConstants(&alloc, &slots[0], constants, slotCount);
-        p.run(0,0,20,1);
+        auto* ctx = alloc.make<SkRasterPipeline_CopySlotsCtx>();
+        ctx->dst = slots;
+        ctx->src = constants;
+        p.append(op.stage, ctx);
+        p.run(0,0,1,1);
 
         // Verify that our constants have been broadcast into each slot.
         float expectedUnchanged = 1.0f;
         float expectedChanged = 1000.0f;
         float* destPtr = &slots[0];
-        for (int checkSlot = 0; checkSlot < 20; ++checkSlot) {
+        for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
             for (int checkLane = 0; checkLane < N; ++checkLane) {
-                if (checkSlot < slotCount) {
+                if (checkSlot < op.numSlotsAffected) {
                     REPORTER_ASSERT(r, *destPtr == expectedChanged);
                 } else {
                     REPORTER_ASSERT(r, *destPtr == expectedUnchanged);

@@ -16,11 +16,6 @@ public:
     // Forwards `append` calls to a Raster Pipeline.
     virtual void append(SkRasterPipeline::Stage stage, void* ctx) = 0;
 
-    // Appends one or more `copy_n_slots_[un]masked` stages to the pipeline, based on `numSlots`.
-    void appendCopySlotsMasked(SkArenaAlloc* alloc, float* dst, const float* src, int numSlots);
-    void appendCopySlotsUnmasked(SkArenaAlloc* alloc, float* dst, const float* src, int numSlots);
-    void appendCopyConstants(SkArenaAlloc* alloc, float* dst, const float* src, int numSlots);
-
     // Appends one or more `zero_n_slots_unmasked` stages to the pipeline, based on `numSlots`.
     void appendZeroSlotsUnmasked(float* dst, int numSlots);
 
@@ -39,13 +34,6 @@ public:
     // Appends a math operation with two inputs (dst op src) and one output (dst) to the pipeline.
     // `src` must be _immediately_ after `dst` in memory.
     void appendAdjacentSingleSlotOp(SkRasterPipeline::Stage stage, float* dst, const float* src);
-
-private:
-    void appendCopy(SkArenaAlloc* alloc,
-                    SkRasterPipeline::Stage baseStage,
-                    float* dst, int dstStride,
-                    const float* src, int srcStride,
-                    int numSlots);
 };
 
 class SkRasterPipelineUtils final : public SkRasterPipelineUtils_Base {

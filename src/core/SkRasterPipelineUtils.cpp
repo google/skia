@@ -8,65 +8,6 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipelineUtils.h"
 
-void SkRasterPipelineUtils_Base::appendCopy(SkArenaAlloc* alloc,
-                                            SkRasterPipeline::Stage baseStage,
-                                            float* dst, int dstStride,
-                                            const float* src, int srcStride,
-                                            int numSlots) {
-    // TODO: remove me after migration to SkRasterPipelinerBuilder.cpp is complete
-    SkASSERT(numSlots >= 0);
-    while (numSlots > 4) {
-        this->appendCopy(alloc, baseStage, dst, dstStride, src, srcStride,  /*numSlots=*/4);
-        dst += 4 * dstStride;
-        src += 4 * srcStride;
-        numSlots -= 4;
-    }
-
-    if (numSlots > 0) {
-        SkASSERT(numSlots <= 4);
-        auto stage = (SkRasterPipeline::Stage)((int)baseStage + numSlots - 1);
-        auto* ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
-        ctx->dst = dst;
-        ctx->src = src;
-        this->append(stage, ctx);
-    }
-}
-
-void SkRasterPipelineUtils_Base::appendCopySlotsMasked(SkArenaAlloc* alloc,
-                                                       float* dst,
-                                                       const float* src,
-                                                       int numSlots) {
-    // TODO: remove me after migration to SkRasterPipelinerBuilder.cpp is complete
-    this->appendCopy(alloc,
-                     SkRasterPipeline::copy_slot_masked,
-                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
-                     src, /*srcStride=*/SkOpts::raster_pipeline_highp_stride,
-                     numSlots);
-}
-
-void SkRasterPipelineUtils_Base::appendCopySlotsUnmasked(SkArenaAlloc* alloc,
-                                                         float* dst,
-                                                         const float* src,
-                                                         int numSlots) {
-    // TODO: remove me after migration to SkRasterPipelinerBuilder.cpp is complete
-    this->appendCopy(alloc,
-                     SkRasterPipeline::copy_slot_unmasked,
-                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
-                     src, /*srcStride=*/SkOpts::raster_pipeline_highp_stride,
-                     numSlots);
-}
-
-void SkRasterPipelineUtils_Base::appendCopyConstants(SkArenaAlloc* alloc,
-                                                     float* dst,
-                                                     const float* src,
-                                                     int numSlots) {
-    this->appendCopy(alloc,
-                     SkRasterPipeline::copy_constant,
-                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
-                     src, /*srcStride=*/1,
-                     numSlots);
-}
-
 void SkRasterPipelineUtils_Base::appendZeroSlotsUnmasked(float* dst, int numSlots) {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {

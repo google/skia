@@ -250,6 +250,18 @@ void Program::appendCopySlotsMasked(SkRasterPipeline* pipeline,
                      numSlots);
 }
 
+void Program::appendCopyConstants(SkRasterPipeline* pipeline,
+                                  SkArenaAlloc* alloc,
+                                  float* dst,
+                                  const float* src,
+                                  int numSlots) {
+    this->appendCopy(pipeline, alloc,
+                     SkRasterPipeline::copy_constant,
+                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
+                     src, /*srcStride=*/1,
+                     numSlots);
+}
+
 template <typename T>
 [[maybe_unused]] static void* context_bit_pun(T val) {
     static_assert(sizeof(T) <= sizeof(void*));
