@@ -262,6 +262,27 @@ void Program::appendCopyConstants(SkRasterPipeline* pipeline,
                      numSlots);
 }
 
+void Program::appendZeroSlotsUnmasked(SkRasterPipeline* pipeline, float* dst, int numSlots) {
+    SkASSERT(numSlots >= 0);
+    while (numSlots > 4) {
+        this->appendZeroSlotsUnmasked(pipeline, dst, /*numSlots=*/4);
+        dst += 4 * SkOpts::raster_pipeline_highp_stride;
+        numSlots -= 4;
+    }
+
+    SkRasterPipeline::Stage stage;
+    switch (numSlots) {
+        case 0:  return;
+        case 1:  stage = SkRasterPipeline::zero_slot_unmasked;     break;
+        case 2:  stage = SkRasterPipeline::zero_2_slots_unmasked;  break;
+        case 3:  stage = SkRasterPipeline::zero_3_slots_unmasked;  break;
+        case 4:  stage = SkRasterPipeline::zero_4_slots_unmasked;  break;
+        default: SkUNREACHABLE;
+    }
+
+    this->append(pipeline, stage, dst);
+}
+
 template <typename T>
 [[maybe_unused]] static void* context_bit_pun(T val) {
     static_assert(sizeof(T) <= sizeof(void*));
@@ -424,7 +445,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 break;
 
             case BuilderOp::zero_slot_unmasked:
-                builderUtils.appendZeroSlotsUnmasked(SlotA(), inst.fImmA);
+                this->appendZeroSlotsUnmasked(pipeline, SlotA(), inst.fImmA);
                 break;
 
             case BuilderOp::swizzle_1:
@@ -502,7 +523,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
             case BuilderOp::push_literal_f: {
                 float* dst = tempStackPtr;
                 if (inst.fImmA == 0) {
-                    builderUtils.appendZeroSlotsUnmasked(dst, /*numSlots=*/1);
+                    this->appendZeroSlotsUnmasked(pipeline, dst, /*numSlots=*/1);
                 } else {
                     builderUtils.append(SkRP::immediate_f, context_bit_pun(inst.fImmA));
                     builderUtils.append(SkRP::store_unmasked, dst);

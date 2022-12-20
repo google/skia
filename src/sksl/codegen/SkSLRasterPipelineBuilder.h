@@ -112,6 +112,7 @@ private:
                                float* dst, const float* src, int numSlots);
     void appendCopyConstants(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
                              float* dst, const float* src, int numSlots);
+    void appendZeroSlotsUnmasked(SkRasterPipeline* pipeline, float* dst, int numSlots);
 
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;

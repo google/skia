@@ -8,27 +8,6 @@
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipelineUtils.h"
 
-void SkRasterPipelineUtils_Base::appendZeroSlotsUnmasked(float* dst, int numSlots) {
-    SkASSERT(numSlots >= 0);
-    while (numSlots > 4) {
-        this->appendZeroSlotsUnmasked(dst, /*numSlots=*/4);
-        dst += 4 * SkOpts::raster_pipeline_highp_stride;
-        numSlots -= 4;
-    }
-
-    SkRasterPipeline::Stage stage;
-    switch (numSlots) {
-        case 0:  return;
-        case 1:  stage = SkRasterPipeline::zero_slot_unmasked;     break;
-        case 2:  stage = SkRasterPipeline::zero_2_slots_unmasked;  break;
-        case 3:  stage = SkRasterPipeline::zero_3_slots_unmasked;  break;
-        case 4:  stage = SkRasterPipeline::zero_4_slots_unmasked;  break;
-        default: SkUNREACHABLE;
-    }
-
-    this->append(stage, dst);
-}
-
 void SkRasterPipelineUtils_Base::appendAdjacentMultiSlotOp(SkArenaAlloc* alloc,
                                                            SkRasterPipeline::Stage baseStage,
                                                            float* dst,
