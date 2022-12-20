@@ -290,6 +290,29 @@ void Program::appendAdjacentSingleSlotOp(SkRasterPipeline* pipeline, SkRasterPip
     this->append(pipeline, stage, dst);
 }
 
+void Program::appendAdjacentMultiSlotOp(SkRasterPipeline* pipeline,
+                                        SkArenaAlloc* alloc,
+                                        SkRasterPipeline::Stage baseStage,
+                                        float* dst,
+                                        const float* src,
+                                        int numSlots) {
+    // The source and destination must be directly next to one another.
+    SkASSERT(numSlots >= 0);
+    SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots) == src);
+
+    if (numSlots > 4) {
+        auto ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
+        ctx->dst = dst;
+        ctx->src = src;
+        this->append(pipeline, baseStage, ctx);
+        return;
+    }
+    if (numSlots > 0) {
+        auto specializedStage = (SkRasterPipeline::Stage)((int)baseStage + numSlots);
+        this->append(pipeline, specializedStage, dst);
+    }
+}
+
 template <typename T>
 [[maybe_unused]] static void* context_bit_pun(T val) {
     static_assert(sizeof(T) <= sizeof(void*));
@@ -433,8 +456,8 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
             case ALL_MULTI_SLOT_BINARY_OP_CASES: {
                 float* src = tempStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
-                builderUtils.appendAdjacentMultiSlotOp(alloc, (SkRP::Stage)inst.fOp,
-                                                       dst, src, inst.fImmA);
+                this->appendAdjacentMultiSlotOp(pipeline, alloc, (SkRP::Stage)inst.fOp,
+                                                dst, src, inst.fImmA);
                 break;
             }
             case BuilderOp::select: {
