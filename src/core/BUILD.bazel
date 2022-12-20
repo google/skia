@@ -20,8 +20,6 @@ CORE_SKSLC_FILES = [
     "SkMath.cpp",
     "SkMatrixInvert.cpp",
     "SkMatrixInvert.h",
-    "SkRasterPipelineUtils.cpp",
-    "SkRasterPipelineUtils.h",
     "SkSemaphore.cpp",
     "SkStream.cpp",
     "SkString.cpp",

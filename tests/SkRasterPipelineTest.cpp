@@ -9,7 +9,6 @@
 #include "include/private/SkTo.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
-#include "src/core/SkRasterPipelineUtils.h"
 #include "src/gpu/Swizzle.h"
 #include "tests/Test.h"
 

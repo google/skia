@@ -95,12 +95,18 @@ public:
 private:
     using StackDepthMap = SkTHashMap<int, int>; // <stack index, depth of stack>
 
-    void append(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage, void* ctx);
     float* allocateSlotData(SkArenaAlloc* alloc);
     void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, float* slotPtr);
     void optimize();
     int numValueSlots();
     StackDepthMap tempStackMaxDepths();
+
+    // These methods currently wrap SkRasterPipeline directly. TODO: add a layer of abstraction;
+    // we should assemble our own list of program stages and contexts, instead of immediately
+    // pushing stages into the SkRasterPipeline.
+    void append(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage, void* ctx = nullptr);
+    void rewindPipeline(SkRasterPipeline* pipeline);
+    int getNumPipelineStages(SkRasterPipeline* pipeline);
 
     // These methods are used to split up large multi-slot operations into multiple ops as needed.
     void appendCopy(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
