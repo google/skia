@@ -283,6 +283,13 @@ void Program::appendZeroSlotsUnmasked(SkRasterPipeline* pipeline, float* dst, in
     this->append(pipeline, stage, dst);
 }
 
+void Program::appendAdjacentSingleSlotOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage,
+                                         float* dst, const float* src) {
+    // The source and destination must be directly next to one another.
+    SkASSERT((dst + SkOpts::raster_pipeline_highp_stride) == src);
+    this->append(pipeline, stage, dst);
+}
+
 template <typename T>
 [[maybe_unused]] static void* context_bit_pun(T val) {
     static_assert(sizeof(T) <= sizeof(void*));
@@ -420,7 +427,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
             case ALL_SINGLE_SLOT_BINARY_OP_CASES: {
                 float* src = tempStackPtr - (1 * N);
                 float* dst = tempStackPtr - (2 * N);
-                builderUtils.appendAdjacentSingleSlotOp((SkRP::Stage)inst.fOp, dst, src);
+                this->appendAdjacentSingleSlotOp(pipeline, (SkRP::Stage)inst.fOp, dst, src);
                 break;
             }
             case ALL_MULTI_SLOT_BINARY_OP_CASES: {

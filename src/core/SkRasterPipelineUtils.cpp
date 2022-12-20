@@ -30,14 +30,6 @@ void SkRasterPipelineUtils_Base::appendAdjacentMultiSlotOp(SkArenaAlloc* alloc,
     }
 }
 
-void SkRasterPipelineUtils_Base::appendAdjacentSingleSlotOp(SkRasterPipeline::Stage stage,
-                                                            float* dst,
-                                                            const float* src) {
-    // The source and destination must be directly next to one another.
-    SkASSERT((dst + SkOpts::raster_pipeline_highp_stride) == src);
-    this->append(stage, dst);
-}
-
 void SkRasterPipelineUtils::append(SkRasterPipeline::Stage stage, void* ctx) {
 #if !defined(SKSL_STANDALONE)
     fPipeline->append(stage, ctx);

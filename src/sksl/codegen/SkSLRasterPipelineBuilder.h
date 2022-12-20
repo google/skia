@@ -114,6 +114,11 @@ private:
                              float* dst, const float* src, int numSlots);
     void appendZeroSlotsUnmasked(SkRasterPipeline* pipeline, float* dst, int numSlots);
 
+    // Appends a math operation with two inputs (dst op src) and one output (dst) to the pipeline.
+    // `src` must be _immediately_ after `dst` in memory.
+    void appendAdjacentSingleSlotOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage,
+                                    float* dst, const float* src);
+
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;
     int fNumTempStackSlots = 0;

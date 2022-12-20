@@ -939,8 +939,7 @@ DEF_TEST(SkRasterPipeline_BinaryBitwiseOps, r) {
         // Run the bitwise op over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        SkRasterPipelineUtils(p).appendAdjacentSingleSlotOp(
-                op.stage, (float*)&slots[0], (float*)&slots[N]);
+        p.append(op.stage, (float*)&slots[0]);
         p.run(0, 0, 1, 1);
 
         // Verify that the destination slots have been updated.
