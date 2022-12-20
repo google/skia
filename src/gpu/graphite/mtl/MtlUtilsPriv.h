@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_MtlUtils_DEFINED
-#define skgpu_graphite_MtlUtils_DEFINED
+#ifndef skgpu_graphite_MtlUtilsPriv_DEFINED
+#define skgpu_graphite_MtlUtilsPriv_DEFINED
 
 #include "include/core/SkImageInfo.h"
 #include "include/ports/SkCFObject.h"
@@ -55,4 +55,4 @@ bool MtlIsAppInBackground();
 #endif
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_MtlUtils_DEFINED
+#endif // skgpu_graphite_MtlUtilsPriv_DEFINED

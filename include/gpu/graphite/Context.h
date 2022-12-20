@@ -51,9 +51,6 @@ public:
 #ifdef SK_DAWN
     static std::unique_ptr<Context> MakeDawn(const DawnBackendContext&, const ContextOptions&);
 #endif
-#ifdef SK_METAL
-    static std::unique_ptr<Context> MakeMetal(const MtlBackendContext&, const ContextOptions&);
-#endif
 
     BackendApi backend() const;
 
@@ -124,6 +121,8 @@ private:
     friend class ContextPriv;
 
     // For ctors
+    friend std::unique_ptr<Context> MakeMetalContext(const MtlBackendContext&,
+                                                     const ContextOptions&);
     friend std::unique_ptr<Context> MakeVulkanContext(const VulkanBackendContext&,
                                                       const ContextOptions&);
 

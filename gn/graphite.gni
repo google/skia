@@ -207,6 +207,7 @@ skia_graphite_dawn_sources = [
 skia_graphite_mtl_sources = [
   "$_include/mtl/MtlBackendContext.h",
   "$_include/mtl/MtlTypes.h",
+  "$_include/mtl/MtlUtils.h",
   "$_include_private/MtlTypesPriv.h",
   "$_src/mtl/MtlBlitCommandEncoder.h",
   "$_src/mtl/MtlBuffer.h",
@@ -231,11 +232,9 @@ skia_graphite_mtl_sources = [
   "$_src/mtl/MtlSharedContext.mm",
   "$_src/mtl/MtlTexture.h",
   "$_src/mtl/MtlTexture.mm",
-  "$_src/mtl/MtlTrampoline.h",
-  "$_src/mtl/MtlTrampoline.mm",
   "$_src/mtl/MtlTypesPriv.mm",
-  "$_src/mtl/MtlUtils.h",
   "$_src/mtl/MtlUtils.mm",
+  "$_src/mtl/MtlUtilsPriv.h",
 ]
 
 skia_graphite_vk_sources = [
