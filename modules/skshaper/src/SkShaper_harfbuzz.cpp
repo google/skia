@@ -35,6 +35,7 @@
 #include <hb.h>
 #include <hb-ot.h>
 #include <cstring>
+#include <locale>
 #include <memory>
 #include <type_traits>
 #include <utility>
@@ -777,11 +778,13 @@ static std::unique_ptr<SkShaper> MakeHarfBuzz(sk_sp<SkFontMgr> fontmgr, bool cor
     if (!unicode) {
         return nullptr;
     }
-    auto lineIter = unicode->makeBreakIterator("th", SkUnicode::BreakType::kLines);
+
+    const auto lname = std::locale().name();
+    auto lineIter = unicode->makeBreakIterator(lname.c_str(), SkUnicode::BreakType::kLines);
     if (!lineIter) {
         return nullptr;
     }
-    auto graphIter = unicode->makeBreakIterator("th", SkUnicode::BreakType::kGraphemes);
+    auto graphIter = unicode->makeBreakIterator(lname.c_str(), SkUnicode::BreakType::kGraphemes);
     if (!graphIter) {
         return nullptr;
     }
