@@ -95,8 +95,12 @@ public:
 private:
     using StackDepthMap = SkTHashMap<int, int>; // <stack index, depth of stack>
 
-    float* allocateSlotData(SkArenaAlloc* alloc);
-    void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, float* slotPtr);
+    struct SlotData {
+        SkSpan<float> values;
+        SkSpan<float> stack;
+    };
+    SlotData allocateSlotData(SkArenaAlloc* alloc);
+    void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, const SlotData& slots);
     void optimize();
     int numValueSlots();
     StackDepthMap tempStackMaxDepths();

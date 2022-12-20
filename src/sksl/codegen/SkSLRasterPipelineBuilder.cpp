@@ -310,29 +310,27 @@ template <typename T>
     return contextBits;
 }
 
-float* Program::allocateSlotData(SkArenaAlloc* alloc) {
-    float* slotPtr = nullptr;
-
-    // Allocate a contiguous slab of slot data.
+Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) {
+    // Allocate a contiguous slab of slot data for values and stack entries.
     const int N = SkOpts::raster_pipeline_highp_stride;
     const int vectorWidth = N * sizeof(float);
     const int allocSize = vectorWidth * (fNumValueSlots + fNumTempStackSlots);
-    slotPtr = static_cast<float*>(alloc->makeBytesAlignedTo(allocSize, vectorWidth));
+    float* slotPtr = static_cast<float*>(alloc->makeBytesAlignedTo(allocSize, vectorWidth));
     sk_bzero(slotPtr, allocSize);
 
-    return slotPtr;
+    // Store the temp stack immediately after the values.
+    SlotData s;
+    s.values = SkSpan{slotPtr,        N * fNumValueSlots};
+    s.stack  = SkSpan{s.values.end(), N * fNumTempStackSlots};
+    return s;
 }
 
 void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc) {
     this->appendStages(pipeline, alloc, this->allocateSlotData(alloc));
 }
 
-void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, float* slotPtr) {
-    // Store the temp stack immediately after the values.
+void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, const SlotData& slots) {
     const int N = SkOpts::raster_pipeline_highp_stride;
-    float* slotPtrEnd = slotPtr + (N * fNumValueSlots);
-    float* tempStackBase = slotPtrEnd;
-    [[maybe_unused]] float* tempStackEnd = tempStackBase + (N * fNumTempStackSlots);
     StackDepthMap tempStackDepth;
     int currentStack = 0;
 
@@ -350,7 +348,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
     int pos = 0;
     SkTHashMap<int, float*> tempStackMap;
     for (auto& [idx, depth] : fTempStackMaxDepths) {
-        tempStackMap[idx] = tempStackBase + (pos * N);
+        tempStackMap[idx] = slots.stack.begin() + (pos * N);
         pos += depth;
     }
 
@@ -359,8 +357,8 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
 
     // Write each BuilderOp to the pipeline.
     for (const Instruction& inst : fInstructions) {
-        auto SlotA = [&]() { return &slotPtr[N * inst.fSlotA]; };
-        auto SlotB = [&]() { return &slotPtr[N * inst.fSlotB]; };
+        auto SlotA = [&]() { return &slots.values[N * inst.fSlotA]; };
+        auto SlotB = [&]() { return &slots.values[N * inst.fSlotB]; };
         float*& tempStackPtr = tempStackMap[currentStack];
 
         switch (inst.fOp) {
@@ -580,8 +578,8 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
         }
 
         tempStackPtr += stack_usage(inst) * N;
-        SkASSERT(tempStackPtr >= tempStackBase);
-        SkASSERT(tempStackPtr <= tempStackEnd);
+        SkASSERT(tempStackPtr >= slots.stack.begin());
+        SkASSERT(tempStackPtr <= slots.stack.end());
     }
 
     // Fix up every branch target.
@@ -602,14 +600,11 @@ void Program::dump(SkWStream* out) {
     // those pointers are pointing at unallocated memory.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
     const int N = SkOpts::raster_pipeline_highp_stride;
-    float* slotBase = this->allocateSlotData(&alloc);
-    const float* slotEnd = slotBase + (N * fNumValueSlots);
-    const float* tempStackBase = slotEnd;
-    const float* tempStackEnd = tempStackBase + (N * fNumTempStackSlots);
+    SlotData slots = this->allocateSlotData(&alloc);
 
     // Instantiate this program.
     SkRasterPipeline pipeline(&alloc);
-    this->appendStages(&pipeline, &alloc, slotBase);
+    this->appendStages(&pipeline, &alloc, slots);
     const SkRP::StageList* st = pipeline.getStageList();
 
     // The stage list is in reverse order, so let's flip it.
@@ -686,8 +681,8 @@ void Program::dump(SkWStream* out) {
             const float *ctxAsSlot = static_cast<const float*>(ctx);
             if (fDebugTrace) {
                 // Handle pointers to named slots.
-                if (ctxAsSlot >= slotBase && ctxAsSlot < slotEnd) {
-                    int slotIdx = ctxAsSlot - slotBase;
+                if (ctxAsSlot >= slots.values.begin() && ctxAsSlot < slots.values.end()) {
+                    int slotIdx = ctxAsSlot - slots.values.begin();
                     SkASSERT((slotIdx % N) == 0);
                     slotIdx /= N;
                     if (slotIdx < (int)fDebugTrace->fSlotInfo.size()) {
@@ -705,14 +700,14 @@ void Program::dump(SkWStream* out) {
                 }
             }
             // Handle pointers to value slots (when no debug info exists).
-            if (ctxAsSlot >= slotBase && ctxAsSlot < slotEnd) {
-                int valueIdx = ctxAsSlot - slotBase;
+            if (ctxAsSlot >= slots.values.begin() && ctxAsSlot < slots.values.end()) {
+                int valueIdx = ctxAsSlot - slots.values.begin();
                 SkASSERT((valueIdx % N) == 0);
                 return "v" + AsRange(valueIdx / N, numSlots);
             }
             // Handle pointers to temporary stack slots.
-            if (ctxAsSlot >= tempStackBase && ctxAsSlot < tempStackEnd) {
-                int stackIdx = ctxAsSlot - tempStackBase;
+            if (ctxAsSlot >= slots.stack.begin() && ctxAsSlot < slots.stack.end()) {
+                int stackIdx = ctxAsSlot - slots.stack.begin();
                 SkASSERT((stackIdx % N) == 0);
                 return "$" + AsRange(stackIdx / N, numSlots);
             }
