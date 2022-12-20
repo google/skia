@@ -36,6 +36,7 @@ void SkRasterPipelineUtils_Base::appendCopySlotsMasked(SkArenaAlloc* alloc,
                                                        float* dst,
                                                        const float* src,
                                                        int numSlots) {
+    // TODO: remove me after migration to SkRasterPipelinerBuilder.cpp is complete
     this->appendCopy(alloc,
                      SkRasterPipeline::copy_slot_masked,
                      dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,

@@ -447,9 +447,21 @@ DEF_TEST(SkRasterPipeline_InitLaneMasks, r) {
 }
 
 DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
-    // Allocate space for 20 source slots and 20 dest slots.
-    alignas(64) float slots[40 * SkRasterPipeline_kMaxStride_highp];
-    const int srcIndex = 0, dstIndex = 20;
+    // Allocate space for 5 source slots and 5 dest slots.
+    alignas(64) float slots[10 * SkRasterPipeline_kMaxStride_highp];
+    const int srcIndex = 0, dstIndex = 5;
+
+    struct CopySlotsOp {
+        SkRasterPipeline::Stage stage;
+        int numSlotsAffected;
+    };
+
+    static const CopySlotsOp kCopyOps[] = {
+        {SkRasterPipeline::Stage::copy_slot_masked,    1},
+        {SkRasterPipeline::Stage::copy_2_slots_masked, 2},
+        {SkRasterPipeline::Stage::copy_3_slots_masked, 3},
+        {SkRasterPipeline::Stage::copy_4_slots_masked, 4},
+    };
 
     static_assert(SkRasterPipeline_kMaxStride_highp == 8);
     alignas(64) const int32_t kMask1[8] = {~0, ~0, ~0, ~0, ~0, ~0, ~0, ~0};
@@ -459,28 +471,31 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
 
     const int N = SkOpts::raster_pipeline_highp_stride;
 
-    for (int slotCount = 0; slotCount < 20; ++slotCount) {
+    for (const CopySlotsOp& op : kCopyOps) {
         for (const int32_t* mask : {kMask1, kMask2, kMask3, kMask4}) {
             // Initialize the destination slots to 0,1,2.. and the source slots to 1000,1001,1002...
-            std::iota(&slots[N * dstIndex],  &slots[N * (dstIndex + 20)], 0.0f);
-            std::iota(&slots[N * srcIndex],  &slots[N * (srcIndex + 20)], 1000.0f);
+            std::iota(&slots[N * dstIndex],  &slots[N * (dstIndex + 5)], 0.0f);
+            std::iota(&slots[N * srcIndex],  &slots[N * (srcIndex + 5)], 1000.0f);
 
             // Run `copy_slots_masked` over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
+            auto* ctx = alloc.make<SkRasterPipeline_CopySlotsCtx>();
+            ctx->dst = &slots[N * dstIndex];
+            ctx->src = &slots[N * srcIndex];
+
             p.append(SkRasterPipeline::init_lane_masks);
             p.append(SkRasterPipeline::load_condition_mask, mask);
-            SkRasterPipelineUtils(p).appendCopySlotsMasked(
-                    &alloc, &slots[N * dstIndex], &slots[N * srcIndex], slotCount);
-            p.run(0,0,20,1);
+            p.append(op.stage, ctx);
+            p.run(0,0,N,1);
 
             // Verify that the destination has been overwritten in the mask-on fields, and has not
             // been overwritten in the mask-off fields, for each destination slot.
             float expectedUnchanged = 0.0f, expectedChanged = 1000.0f;
             float* destPtr = &slots[N * dstIndex];
-            for (int checkSlot = 0; checkSlot < 20; ++checkSlot) {
+            for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
                 for (int checkMask = 0; checkMask < N; ++checkMask) {
-                    if (checkSlot < slotCount && mask[checkMask]) {
+                    if (checkSlot < op.numSlotsAffected && mask[checkMask]) {
                         REPORTER_ASSERT(r, *destPtr == expectedChanged);
                     } else {
                         REPORTER_ASSERT(r, *destPtr == expectedUnchanged);

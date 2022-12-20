@@ -238,6 +238,18 @@ void Program::appendCopySlotsUnmasked(SkRasterPipeline* pipeline,
                      numSlots);
 }
 
+void Program::appendCopySlotsMasked(SkRasterPipeline* pipeline,
+                                    SkArenaAlloc* alloc,
+                                    float* dst,
+                                    const float* src,
+                                    int numSlots) {
+    this->appendCopy(pipeline, alloc,
+                     SkRasterPipeline::copy_slot_masked,
+                     dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
+                     src, /*srcStride=*/SkOpts::raster_pipeline_highp_stride,
+                     numSlots);
+}
+
 template <typename T>
 [[maybe_unused]] static void* context_bit_pun(T val) {
     static_assert(sizeof(T) <= sizeof(void*));
@@ -388,11 +400,11 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
             case BuilderOp::select: {
                 float* src = tempStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
-                builderUtils.appendCopySlotsMasked(alloc, dst, src, inst.fImmA);
+                this->appendCopySlotsMasked(pipeline, alloc, dst, src, inst.fImmA);
                 break;
             }
             case BuilderOp::copy_slot_masked:
-                builderUtils.appendCopySlotsMasked(alloc, SlotA(), SlotB(), inst.fImmA);
+                this->appendCopySlotsMasked(pipeline, alloc, SlotA(), SlotB(), inst.fImmA);
                 break;
 
             case BuilderOp::copy_slot_unmasked:
@@ -487,7 +499,7 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
             }
             case BuilderOp::copy_stack_to_slots: {
                 float* src = tempStackPtr - (inst.fImmB * N);
-                builderUtils.appendCopySlotsMasked(alloc, SlotA(), src, inst.fImmA);
+                this->appendCopySlotsMasked(pipeline, alloc, SlotA(), src, inst.fImmA);
                 break;
             }
             case BuilderOp::copy_stack_to_slots_unmasked: {
