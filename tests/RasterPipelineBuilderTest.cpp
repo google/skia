@@ -156,16 +156,11 @@ DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
 
     check(r, *program,
-R"(    1. immediate_f                    src.r = 0x000003E7 (1.399897e-42)
-    2. store_unmasked                 $2 = src.r
-    3. immediate_f                    src.r = 0x41580000 (13.5)
-    4. store_unmasked                 $0 = src.r
-    5. immediate_f                    src.r = 0xFFFFFF0A
-    6. store_unmasked                 $1 = src.r
-    7. immediate_f                    src.r = 0x00000165 (5.002636e-43)
-    8. store_unmasked                 $1 = src.r
-    9. immediate_f                    src.r = 0x000003E7 (1.399897e-42)
-   10. store_unmasked                 $3 = src.r
+R"(    1. copy_constant                  $2 = 0x000003E7 (1.399897e-42)
+    2. copy_constant                  $0 = 0x41580000 (13.5)
+    3. copy_constant                  $1 = 0xFFFFFF0A
+    4. copy_constant                  $1 = 0x00000165 (5.002636e-43)
+    5. copy_constant                  $3 = 0x000003E7 (1.399897e-42)
 )");
 }
 
@@ -236,19 +231,18 @@ DEF_TEST(RasterPipelineBuilderDuplicateSelectAndSwizzleSlots, r) {
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
 
     check(r, *program,
-R"(    1. immediate_f                    src.r = 0x3F800000 (1.0)
-    2. store_unmasked                 $0 = src.r
-    3. swizzle_2                      $0..1 = ($0..1).xx
-    4. swizzle_3                      $1..3 = ($1..3).xxx
-    5. swizzle_4                      $3..6 = ($3..6).xxxx
-    6. swizzle_4                      $6..9 = ($6..9).xxxx
-    7. swizzle_3                      $9..11 = ($9..11).xxx
-    8. copy_4_slots_masked            $4..7 = Mask($8..11)
-    9. copy_3_slots_masked            $2..4 = Mask($5..7)
-   10. copy_slot_masked               $3 = Mask($4)
-   11. swizzle_4                      $0..3 = ($0..3).wzyx
-   12. swizzle_2                      $0..1 = ($0..2).yz
-   13. swizzle_1                      $0 = ($0).x
+R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
+    2. swizzle_2                      $0..1 = ($0..1).xx
+    3. swizzle_3                      $1..3 = ($1..3).xxx
+    4. swizzle_4                      $3..6 = ($3..6).xxxx
+    5. swizzle_4                      $6..9 = ($6..9).xxxx
+    6. swizzle_3                      $9..11 = ($9..11).xxx
+    7. copy_4_slots_masked            $4..7 = Mask($8..11)
+    8. copy_3_slots_masked            $2..4 = Mask($5..7)
+    9. copy_slot_masked               $3 = Mask($4)
+   10. swizzle_4                      $0..3 = ($0..3).wzyx
+   11. swizzle_2                      $0..1 = ($0..2).yz
+   12. swizzle_1                      $0 = ($0).x
 )");
 }
 
@@ -311,32 +305,22 @@ DEF_TEST(RasterPipelineBuilderUnaryAndBinaryOps, r) {
 
     check(r, *program,
 R"(    1. zero_slot_unmasked             $0 = 0
-    2. immediate_f                    src.r = 0x3F800000 (1.0)
-    3. store_unmasked                 $1 = src.r
-    4. immediate_f                    src.r = 0x40000000 (2.0)
-    5. store_unmasked                 $2 = src.r
-    6. immediate_f                    src.r = 0x40400000 (3.0)
-    7. store_unmasked                 $3 = src.r
-    8. immediate_f                    src.r = 0x40800000 (4.0)
-    9. store_unmasked                 $4 = src.r
-   10. add_2_floats                   $1..2 += $3..4
-   11. mul_float                      $1 *= $2
-   12. immediate_f                    src.r = 0x00000005 (7.006492e-45)
-   13. store_unmasked                 $2 = src.r
-   14. immediate_f                    src.r = 0x00000006 (8.407791e-45)
-   15. store_unmasked                 $3 = src.r
-   16. immediate_f                    src.r = 0x00000007 (9.809089e-45)
-   17. store_unmasked                 $4 = src.r
-   18. immediate_f                    src.r = 0x00000008 (1.121039e-44)
-   19. store_unmasked                 $5 = src.r
-   20. immediate_f                    src.r = 0x00000009 (1.261169e-44)
-   21. store_unmasked                 $6 = src.r
-   22. immediate_f                    src.r = 0x0000000A (1.401298e-44)
-   23. store_unmasked                 $7 = src.r
-   24. div_3_floats                   $2..4 /= $5..7
-   25. sub_int                        $3 -= $4
-   26. bitwise_and                    $2 &= $3
-   27. bitwise_xor                    $1 ^= $2
-   28. bitwise_not                    $1 = ~$1
+    2. copy_constant                  $1 = 0x3F800000 (1.0)
+    3. copy_constant                  $2 = 0x40000000 (2.0)
+    4. copy_constant                  $3 = 0x40400000 (3.0)
+    5. copy_constant                  $4 = 0x40800000 (4.0)
+    6. add_2_floats                   $1..2 += $3..4
+    7. mul_float                      $1 *= $2
+    8. copy_constant                  $2 = 0x00000005 (7.006492e-45)
+    9. copy_constant                  $3 = 0x00000006 (8.407791e-45)
+   10. copy_constant                  $4 = 0x00000007 (9.809089e-45)
+   11. copy_constant                  $5 = 0x00000008 (1.121039e-44)
+   12. copy_constant                  $6 = 0x00000009 (1.261169e-44)
+   13. copy_constant                  $7 = 0x0000000A (1.401298e-44)
+   14. div_3_floats                   $2..4 /= $5..7
+   15. sub_int                        $3 -= $4
+   16. bitwise_and                    $2 &= $3
+   17. bitwise_xor                    $1 ^= $2
+   18. bitwise_not                    $1 = ~$1
 )");
 }

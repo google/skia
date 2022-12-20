@@ -354,6 +354,9 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
         pos += depth;
     }
 
+    // We can reuse constants from our arena by placing them in this map.
+    SkTHashMap<int, int*> constantLookupMap; // <constant value, pointer into arena>
+
     // Write each BuilderOp to the pipeline.
     for (const Instruction& inst : fInstructions) {
         auto SlotA = [&]() { return &slotPtr[N * inst.fSlotA]; };
@@ -541,10 +544,17 @@ void Program::appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, floa
                 float* dst = tempStackPtr;
                 if (inst.fImmA == 0) {
                     this->appendZeroSlotsUnmasked(pipeline, dst, /*numSlots=*/1);
-                } else {
-                    this->append(pipeline, SkRP::immediate_f, context_bit_pun(inst.fImmA));
-                    this->append(pipeline, SkRP::store_unmasked, dst);
+                    break;
                 }
+                int* constantPtr;
+                if (int** lookup = constantLookupMap.find(inst.fImmA)) {
+                    constantPtr = *lookup;
+                } else {
+                    constantPtr = alloc->make<int>(inst.fImmA);
+                    constantLookupMap[inst.fImmA] = constantPtr;
+                }
+                SkASSERT(constantPtr);
+                this->appendCopyConstants(pipeline, alloc, dst, (float*)constantPtr,/*numSlots=*/1);
                 break;
             }
             case BuilderOp::copy_stack_to_slots: {
@@ -623,22 +633,43 @@ void Program::dump(SkWStream* out) {
             return SkSL::String::printf("%+d (#%d)", *ctxAsInt, *ctxAsInt + index + 1);
         };
 
-        // Interpret the context value as a 32-bit immediate value of unknown type (int/float).
-        auto ImmCtx = [&](void* ctx) -> std::string {
+        // Print a 32-bit immediate value of unknown type (int/float).
+        auto Imm = [&](float immFloat) -> std::string {
             // Start with `0x3F800000` as a baseline.
             uint32_t immUnsigned;
-            memcpy(&immUnsigned, &ctx, sizeof(uint32_t));
+            memcpy(&immUnsigned, &immFloat, sizeof(uint32_t));
             auto text = SkSL::String::printf("0x%08X", immUnsigned);
 
             // Extend it to `0x3F800000 (1.0)` for finite floating point values.
-            float immFloat;
-            memcpy(&immFloat, &ctx, sizeof(float));
             if (std::isfinite(immFloat)) {
                 text += " (";
                 text += skstd::to_string(immFloat);
                 text += ")";
             }
             return text;
+        };
+
+        // Interpret the context pointer as a 32-bit immediate value of unknown type (int/float).
+        auto ImmCtx = [&](const void* ctx) -> std::string {
+            float f;
+            memcpy(&f, &ctx, sizeof(float));
+            return Imm(f);
+        };
+
+        // Interpret the context value as a pointer to `count` immediate values.
+        auto MultiImmCtx = [&](const float* ptr, int count) -> std::string {
+            // Emit a single unbracketed immediate.
+            if (count == 1) {
+                return Imm(*ptr);
+            }
+            // Emit a list like `[0x00000000 (0.0), 0x3F80000 (1.0)]`.
+            std::string text = "[";
+            auto separator = SkSL::String::Separator();
+            while (count--) {
+                text += separator();
+                text += Imm(*ptr++);
+            }
+            return text + "]";
         };
 
         // Print `1` for single slots and `1..3` for ranges of slots.
@@ -697,12 +728,20 @@ void Program::dump(SkWStream* out) {
                                    PtrCtx(ctxAsSlot + (N * numSlots), numSlots));
         };
 
-        // Interpret the context value as a CopySlots structure.
+        // Interpret the context value as a CopySlots structure for copy_n_slots.
         auto CopySlotsCtx = [&](const void* v,
                                 int numSlots) -> std::tuple<std::string, std::string> {
             const auto *ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(v);
             return std::make_tuple(PtrCtx(ctx->dst, numSlots),
                                    PtrCtx(ctx->src, numSlots));
+        };
+
+        // Interpret the context value as a CopySlots structure for copy_n_constants.
+        auto CopyConstantCtx = [&](const void* v,
+                                   int numSlots) -> std::tuple<std::string, std::string> {
+            const auto *ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(v);
+            return std::make_tuple(PtrCtx(ctx->dst, numSlots),
+                                   MultiImmCtx(ctx->src, numSlots));
         };
 
         // Interpret the context value as a CopySlots structure.
@@ -789,6 +828,22 @@ void Program::dump(SkWStream* out) {
             case SkRP::store_dst:
             case SkRP::zero_4_slots_unmasked:
                 opArg1 = PtrCtx(stage.ctx, 4);
+                break;
+
+            case SkRP::copy_constant:
+                std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 1);
+                break;
+
+            case SkRP::copy_2_constants:
+                std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 2);
+                break;
+
+            case SkRP::copy_3_constants:
+                std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 3);
+                break;
+
+            case SkRP::copy_4_constants:
+                std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 4);
                 break;
 
             case SkRP::copy_slot_masked:
@@ -983,6 +1038,8 @@ void Program::dump(SkWStream* out) {
                 opText = opArg1 + " = Mask(" + opArg2 + ")";
                 break;
 
+            case SkRP::copy_constant:         case SkRP::copy_2_constants:
+            case SkRP::copy_3_constants:      case SkRP::copy_4_constants:
             case SkRP::copy_slot_unmasked:    case SkRP::copy_2_slots_unmasked:
             case SkRP::copy_3_slots_unmasked: case SkRP::copy_4_slots_unmasked:
             case SkRP::swizzle_1:             case SkRP::swizzle_2:
