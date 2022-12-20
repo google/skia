@@ -48,12 +48,6 @@
 #include "src/gpu/graphite/mtl/MtlTrampoline.h"
 #endif
 
-#ifdef SK_VULKAN
-#include "include/gpu/vk/VulkanBackendContext.h"
-#include "src/gpu/graphite/vk/VulkanQueueManager.h"
-#include "src/gpu/graphite/vk/VulkanSharedContext.h"
-#endif
-
 #ifdef SK_ENABLE_PRECOMPILE
 #include "src/gpu/graphite/PaintOptionsPriv.h"
 #endif
@@ -129,28 +123,6 @@ std::unique_ptr<Context> Context::MakeMetal(const MtlBackendContext& backendCont
     }
 
     auto queueManager = MtlTrampoline::MakeQueueManager(backendContext, sharedContext.get());
-    if (!queueManager) {
-        return nullptr;
-    }
-
-    auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
-                                                        std::move(queueManager),
-                                                        options));
-    SkASSERT(context);
-    return context;
-}
-#endif
-
-#ifdef SK_VULKAN
-std::unique_ptr<Context> Context::MakeVulkan(const VulkanBackendContext& backendContext,
-                                             const ContextOptions& options) {
-    sk_sp<SharedContext> sharedContext = VulkanSharedContext::Make(backendContext, options);
-    if (!sharedContext) {
-        return nullptr;
-    }
-
-    std::unique_ptr<QueueManager> queueManager(new VulkanQueueManager(backendContext.fQueue,
-                                                                      sharedContext.get()));
     if (!queueManager) {
         return nullptr;
     }

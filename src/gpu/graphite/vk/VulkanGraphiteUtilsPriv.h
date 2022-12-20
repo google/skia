@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_VulkanUtils_DEFINED
-#define skgpu_graphite_VulkanUtils_DEFINED
+#ifndef skgpu_graphite_VulkanGraphiteUtilsPriv_DEFINED
+#define skgpu_graphite_VulkanGraphiteUtilsPriv_DEFINED
 
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/graphite/Log.h"
@@ -36,4 +36,4 @@
     } while (false)
 
 
-#endif // skgpu_graphite_VulkanUtils_DEFINED
+#endif // skgpu_graphite_VulkanGraphiteUtilsPriv_DEFINED

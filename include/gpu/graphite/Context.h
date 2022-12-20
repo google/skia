@@ -55,10 +55,6 @@ public:
     static std::unique_ptr<Context> MakeMetal(const MtlBackendContext&, const ContextOptions&);
 #endif
 
-#ifdef SK_VULKAN
-    static std::unique_ptr<Context> MakeVulkan(const VulkanBackendContext&, const ContextOptions&);
-#endif
-
     BackendApi backend() const;
 
     std::unique_ptr<Recorder> makeRecorder(const RecorderOptions& = {});
@@ -126,6 +122,10 @@ protected:
 
 private:
     friend class ContextPriv;
+
+    // For ctors
+    friend std::unique_ptr<Context> MakeVulkanContext(const VulkanBackendContext&,
+                                                      const ContextOptions&);
 
     SingleOwner* singleOwner() const { return &fSingleOwner; }
 

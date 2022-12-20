@@ -44,7 +44,7 @@
 #include "src/gpu/vk/VulkanAMDMemoryAllocator.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/gpu/vk/VulkanMemory.h"
-#include "src/gpu/vk/VulkanUtils.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 #include "src/image/SkImage_Gpu.h"
 #include "src/image/SkSurface_Gpu.h"
 

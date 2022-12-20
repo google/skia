@@ -12,7 +12,7 @@
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanMemory.h"
-#include "src/gpu/vk/VulkanUtils.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 

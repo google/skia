@@ -11,7 +11,7 @@
 #include "src/gpu/MutableTextureStateRef.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/vk/VulkanCaps.h"
-#include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
+#include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/vk/VulkanMemory.h"
 

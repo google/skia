@@ -18,7 +18,7 @@ VK_FILES = [
     "VulkanInterface.h",
     "VulkanMemory.cpp",
     "VulkanMemory.h",
-    "VulkanUtils.h",
+    "VulkanUtilsPriv.h",
 ]
 
 split_srcs_and_hdrs(

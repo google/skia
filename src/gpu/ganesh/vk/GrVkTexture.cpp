@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/vk/GrVkImageView.h"
 #include "src/gpu/ganesh/vk/GrVkTextureRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
-#include "src/gpu/vk/VulkanUtils.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #include "include/gpu/vk/GrVkTypes.h"
 

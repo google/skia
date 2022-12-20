@@ -15,7 +15,7 @@
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
-#include "src/gpu/vk/VulkanUtils.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
 #include <sanitizer/lsan_interface.h>

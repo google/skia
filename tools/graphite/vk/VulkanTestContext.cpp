@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
+#include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
@@ -82,7 +83,7 @@ VulkanTestContext::~VulkanTestContext() {
 }
 
 std::unique_ptr<skgpu::graphite::Context> VulkanTestContext::makeContext() {
-    return skgpu::graphite::Context::MakeVulkan(fVulkan, skgpu::graphite::ContextOptions{});
+    return skgpu::graphite::MakeVulkanContext(fVulkan, skgpu::graphite::ContextOptions{});
 }
 
 }  // namespace skiatest::graphite

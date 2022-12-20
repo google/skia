@@ -13,7 +13,7 @@
 #include "src/gpu/ganesh/vk/GrVkGpu.h"
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
-#include "src/gpu/vk/VulkanUtils.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 
 typedef GrVkRenderPass::AttachmentsDescriptor::AttachmentDesc AttachmentDesc;
 

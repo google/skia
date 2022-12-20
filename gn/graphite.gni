@@ -240,6 +240,7 @@ skia_graphite_mtl_sources = [
 
 skia_graphite_vk_sources = [
   "$_include/vk/VulkanGraphiteTypes.h",
+  "$_include/vk/VulkanGraphiteUtils.h",
   "$_include_private/VulkanGraphiteTypesPriv.h",
   "$_src/vk/VulkanBuffer.cpp",
   "$_src/vk/VulkanBuffer.h",
@@ -248,7 +249,8 @@ skia_graphite_vk_sources = [
   "$_src/vk/VulkanCommandBuffer.cpp",
   "$_src/vk/VulkanCommandBuffer.h",
   "$_src/vk/VulkanGraphiteTypes.cpp",
-  "$_src/vk/VulkanGraphiteUtils.h",
+  "$_src/vk/VulkanGraphiteUtils.cpp",
+  "$_src/vk/VulkanGraphiteUtilsPriv.h",
   "$_src/vk/VulkanQueueManager.cpp",
   "$_src/vk/VulkanQueueManager.h",
   "$_src/vk/VulkanResourceProvider.cpp",

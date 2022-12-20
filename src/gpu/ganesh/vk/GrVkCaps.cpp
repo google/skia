@@ -31,7 +31,7 @@
 #include "src/gpu/ganesh/vk/GrVkUniformHandler.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/gpu/vk/VulkanInterface.h"
-#include "src/gpu/vk/VulkanUtils.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>

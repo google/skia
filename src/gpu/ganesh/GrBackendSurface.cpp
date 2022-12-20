@@ -23,7 +23,7 @@
 #include "include/gpu/vk/GrVkTypes.h"
 #include "src/gpu/ganesh/vk/GrVkImageLayout.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
-#include "src/gpu/vk/VulkanUtils.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 #endif
 #ifdef SK_METAL
 #include "include/gpu/mtl/GrMtlTypes.h"
@@ -404,7 +404,7 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
 #endif
 #ifdef SK_VULKAN
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
-#include "src/gpu/vk/VulkanUtils.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 #endif
 
 SkString GrBackendFormat::toStr() const {

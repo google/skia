@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_VulkanUtils_DEFINED
-#define skgpu_VulkanUtils_DEFINED
+#ifndef skgpu_VulkanUtilsPriv_DEFINED
+#define skgpu_VulkanUtilsPriv_DEFINED
 
 #include "include/gpu/vk/VulkanTypes.h"
 
@@ -169,4 +169,4 @@ static constexpr const char* VkFormatToStr(VkFormat vkFormat) {
 
 }  // namespace skgpu
 
-#endif // skgpu_VulkanUtils_DEFINED
+#endif // skgpu_VulkanUtilsPriv_DEFINED

@@ -15,7 +15,7 @@
 
 #ifdef SK_VULKAN
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
-#include "src/gpu/vk/VulkanUtils.h"
+#include "src/gpu/vk/VulkanUtilsPriv.h"
 #endif
 
 #ifdef SK_DIRECT3D

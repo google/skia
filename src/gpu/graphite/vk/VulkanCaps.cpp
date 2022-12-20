@@ -12,7 +12,7 @@
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
-#include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
+#include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 
 #ifdef SK_BUILD_FOR_ANDROID
 #include <sys/system_properties.h>
