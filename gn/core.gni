@@ -121,6 +121,7 @@ skia_core_sources = [
   "$_include/private/SkNoncopyable.h",
   "$_include/private/SkOnce.h",
   "$_include/private/SkOpts_spi.h",
+  "$_include/private/SkPathEnums.h",
   "$_include/private/SkPathRef.h",
   "$_include/private/SkSafe32.h",
   "$_include/private/SkSafe_math.h",

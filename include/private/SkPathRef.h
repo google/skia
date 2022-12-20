@@ -25,19 +25,6 @@
 
 class SkMatrix;
 class SkRRect;
-class SkWBuffer;
-
-enum class SkPathConvexity {
-    kConvex,
-    kConcave,
-    kUnknown,
-};
-
-enum class SkPathFirstDirection {
-    kCW,         // == SkPathDirection::kCW
-    kCCW,        // == SkPathDirection::kCCW
-    kUnknown,
-};
 
 // These are computed from a stream of verbs
 struct SkPathVerbAnalysis {
@@ -327,24 +314,15 @@ public:
 
     bool operator== (const SkPathRef& ref) const;
 
-    /**
-     * Writes the path points and verbs to a buffer.
-     */
-    void writeToBuffer(SkWBuffer* buffer) const;
-
-    /**
-     * Gets the number of bytes that would be written in writeBuffer()
-     */
-    uint32_t writeSize() const;
-
     void interpolate(const SkPathRef& ending, SkScalar weight, SkPathRef* out) const;
 
     /**
      * Gets an ID that uniquely identifies the contents of the path ref. If two path refs have the
      * same ID then they have the same verbs and points. However, two path refs may have the same
      * contents but different genIDs.
+     * skbug.com/1762 for background on why fillType is necessary (for now).
      */
-    uint32_t genID() const;
+    uint32_t genID(uint8_t fillType) const;
 
     void addGenIDChangeListener(sk_sp<SkIDChangeListener>);   // Threadsafe.
     int genIDChangeListenerCount();                           // Threadsafe

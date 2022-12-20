@@ -44,7 +44,6 @@ supported_files_or_dirs=(
   "src/core/SkPaint.cpp"
   "src/core/SkPath.cpp"
   "src/core/SkPathBuilder.cpp"
-  "src/core/SkPathPriv.cpp"
   "src/core/SkPathRef.cpp"
   "src/core/SkPathUtils.cpp"
   "src/core/SkPoint.cpp"

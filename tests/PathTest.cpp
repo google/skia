@@ -34,6 +34,7 @@
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/SkPathEnums.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/SkTo.h"
 #include "include/utils/SkNullCanvas.h"

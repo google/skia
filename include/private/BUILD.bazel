@@ -49,6 +49,7 @@ skia_filegroup(
         "SkMacros.h",
         "SkMalloc.h",
         "SkMutex.h",
+        "SkPathEnums.h",
         "SkNoncopyable.h",
         "SkOnce.h",
         "SkOpts_spi.h",

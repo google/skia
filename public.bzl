@@ -255,6 +255,7 @@ BASE_SRCS_ALL = [
     "include/private/SkNoncopyable.h",
     "include/private/SkOnce.h",
     "include/private/SkOpts_spi.h",
+    "include/private/SkPathEnums.h",
     "include/private/SkPathRef.h",
     "include/private/SkSLDefines.h",
     "include/private/SkSLIRNode.h",

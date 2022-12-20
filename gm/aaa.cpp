@@ -12,7 +12,6 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkScalar.h"
 #include "include/private/SkFloatBits.h"
-#include "include/private/SkPathRef.h"
 #include "src/core/SkPathPriv.h"
 
 #define W   800
