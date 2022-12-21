@@ -1215,12 +1215,12 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy stra
     fQuickRejectBounds = this->computeDeviceClipBounds();
 }
 
-int SkCanvas::saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
-    if (0xFF == alpha) {
+int SkCanvas::saveLayerAlphaf(const SkRect* bounds, float alpha) {
+    if (alpha >= 1.0f) {
         return this->saveLayer(bounds, nullptr);
     } else {
         SkPaint tmpPaint;
-        tmpPaint.setAlpha(alpha);
+        tmpPaint.setAlphaf(alpha);
         return this->saveLayer(bounds, &tmpPaint);
     }
 }

@@ -650,7 +650,7 @@ public:
         SkRect bounds suggests but does not define layer size. To clip drawing to
         a specific rectangle, use clipRect().
 
-        alpha of zero is fully transparent, 255 is fully opaque.
+        alpha of zero is fully transparent, 1.0f is fully opaque.
 
         Call restoreToCount() with returned value to restore this and subsequent saves.
 
@@ -660,7 +660,11 @@ public:
 
         example: https://fiddle.skia.org/c/@Canvas_saveLayerAlpha
     */
-    int saveLayerAlpha(const SkRect* bounds, U8CPU alpha);
+    int saveLayerAlphaf(const SkRect* bounds, float alpha);
+    // Helper that accepts an int between 0 and 255, and divides it by 255.0
+    int saveLayerAlpha(const SkRect* bounds, U8CPU alpha) {
+        return this->saveLayerAlphaf(bounds, alpha * (1.0f / 255));
+    }
 
     /** \enum SkCanvas::SaveLayerFlagsSet
         SaveLayerFlags provides options that may be used in any combination in SaveLayerRec,
