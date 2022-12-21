@@ -483,10 +483,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
 
                 auto [paintID, uData, tData] = ExtractPaintData(
                         recorder.get(), &gatherer, &builder, Layout::kMetal, {},
-                        PaintParams(paint));
+                        PaintParams(paint, nullptr, /* skipColorXform= */ false));
 
                 std::vector<UniquePaintParamsID> precompileIDs;
                 paintOptions.priv().buildCombinations(keyContext,
+                                                      /* addPrimitiveBlender= */ false,
                                                       [&](UniquePaintParamsID id) {
                                                           precompileIDs.push_back(id);
                                                       });

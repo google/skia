@@ -31,13 +31,16 @@ class Context;
 class ContextPriv;
 struct DawnBackendContext;
 class GlobalCache;
+class KeyContext;
 struct MtlBackendContext;
 class PaintOptions;
 class QueueManager;
 class Recording;
+struct RenderPassDesc;
 class ResourceProvider;
 class SharedContext;
 class TextureProxy;
+class UniquePaintParamsID;
 
 class SK_API Context final {
 public:
@@ -175,6 +178,14 @@ private:
     // If this tracking is on, to allow the client to safely delete this Context or its Recorders
     // in any order we must also track the Recorders created here.
     std::vector<Recorder*> fTrackedRecorders;
+#endif
+
+#ifdef SK_ENABLE_PRECOMPILE
+    void compile(const KeyContext&,
+                 UniquePaintParamsID,
+                 DrawTypeFlags,
+                 SkSpan<RenderPassDesc>,
+                 bool withPrimitiveBlender);
 #endif
 
     // Needed for MessageBox handling

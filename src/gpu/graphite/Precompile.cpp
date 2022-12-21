@@ -98,7 +98,8 @@ int PaintOptions::numCombinations() const {
 
 void PaintOptions::createKey(const KeyContext& keyContext,
                              int desiredCombination,
-                             PaintParamsKeyBuilder* keyBuilder) const {
+                             PaintParamsKeyBuilder* keyBuilder,
+                             bool addPrimitiveBlender) const {
     SkDEBUGCODE(keyBuilder->checkReset();)
     SkASSERT(desiredCombination < this->numCombinations());
 
@@ -127,6 +128,12 @@ void PaintOptions::createKey(const KeyContext& keyContext,
         PrecompileBase::AddToKey(keyContext, keyBuilder, fShaderOptions, desiredShaderCombination);
     }
 
+    if (addPrimitiveBlender) {
+        PrimitiveBlendModeBlock::BeginBlock(keyContext, keyBuilder, /* gatherer= */ nullptr,
+                                            SkBlendMode::kSrcOver);
+        keyBuilder->endBlock();
+    }
+
     PrecompileBase::AddToKey(keyContext, keyBuilder, fMaskFilterOptions,
                              desiredMaskFilterCombination);
     PrecompileBase::AddToKey(keyContext, keyBuilder, fColorFilterOptions,
@@ -143,13 +150,14 @@ void PaintOptions::createKey(const KeyContext& keyContext,
 
 void PaintOptions::buildCombinations(
         const KeyContext& keyContext,
+        bool addPrimitiveBlender,
         const std::function<void(UniquePaintParamsID)>& processCombination) const {
 
     PaintParamsKeyBuilder builder(keyContext.dict());
 
     int numCombinations = this->numCombinations();
     for (int i = 0; i < numCombinations; ++i) {
-        this->createKey(keyContext, i, &builder);
+        this->createKey(keyContext, i, &builder, addPrimitiveBlender);
 
         // The 'findOrCreate' calls lockAsKey on builder and then destroys the returned
         // PaintParamsKey. This serves to reset the builder.

@@ -348,43 +348,60 @@ void Context::precompile(const PaintOptions& options, DrawTypeFlags drawTypes) {
 
     // Note: at least on Metal, the LoadOp, StoreOp and clearColor fields don't influence the
     // actual RenderPassDescKey.
-    RenderPassDesc renderPassDesc = RenderPassDesc::Make(fSharedContext->caps(),
-                                                         targetInfo,
-                                                         LoadOp::kClear,
-                                                         StoreOp::kStore,
-                                                         DepthStencilFlags::kDepth,
-                                                         /* clearColor= */ { .0f, .0f, .0f, .0f },
-                                                         /* requiresMSAA= */ true);
+    RenderPassDesc renderPassDescs[] = {
+        RenderPassDesc::Make(fSharedContext->caps(),
+                             targetInfo,
+                             LoadOp::kClear,
+                             StoreOp::kStore,
+                             DepthStencilFlags::kDepth,
+                             /* clearColor= */ { .0f, .0f, .0f, .0f },
+                             /* requiresMSAA= */ true)
+    };
 
     options.priv().buildCombinations(
         keyContext,
+        /* addPrimitiveBlender= */ false,
         [&](UniquePaintParamsID uniqueID) {
-            for (const Renderer* r : fSharedContext->rendererProvider()->renderers()) {
-                if (!(r->drawTypes() & drawTypes)) {
-                    continue;
-                }
+            compile(keyContext, uniqueID, drawTypes, renderPassDescs,
+                    /* withPrimitiveBlender= */ false);
+        });
+}
 
-                for (auto&& s : r->steps()) {
-                    if (s->performsShading()) {
-                        GraphicsPipelineDesc pipelineDesc(s, uniqueID);
+void Context::compile(const KeyContext& keyContext,
+                      UniquePaintParamsID uniqueID,
+                      DrawTypeFlags drawTypes,
+                      SkSpan<RenderPassDesc> renderPassDescs,
+                      bool withPrimitiveBlender) {
+    for (const Renderer* r : fSharedContext->rendererProvider()->renderers()) {
+        if (!(r->drawTypes() & drawTypes)) {
+            continue;
+        }
 
-                        auto pipeline = fResourceProvider->findOrCreateGraphicsPipeline(
-                                keyContext.rtEffectDict(),
-                                pipelineDesc,
-                                renderPassDesc);
-                        if (!pipeline) {
-                            SKGPU_LOG_W("Failed to create GraphicsPipeline in precompile!");
-                            return;
-                        }
+        if (r->emitsPrimitiveColor() != withPrimitiveBlender) {
+            // UniqueIDs are explicitly built either w/ or w/o primitiveBlending so must
+            // match what the Renderer requires
+            continue;
+        }
 
-                        // TODO: Combine the desc with the renderpass description set to generate a
-                        // full GraphicsPipeline and MSL program. Cache that compiled pipeline on
-                        // the resource provider in a map from desc -> pipeline so that any
-                        // later desc created from equivalent RenderStep + Combination maps to it.
-                    }
+        for (auto&& s : r->steps()) {
+            SkASSERT(!s->performsShading() || s->emitsPrimitiveColor() == withPrimitiveBlender);
+
+            UniquePaintParamsID paintID = s->performsShading() ? uniqueID
+                                                               : UniquePaintParamsID::InvalidID();
+            GraphicsPipelineDesc pipelineDesc(s, paintID);
+
+            for (RenderPassDesc renderPassDesc : renderPassDescs) {
+                auto pipeline = fResourceProvider->findOrCreateGraphicsPipeline(
+                        keyContext.rtEffectDict(),
+                        pipelineDesc,
+                        renderPassDesc);
+                if (!pipeline) {
+                    SKGPU_LOG_W("Failed to create GraphicsPipeline in precompile!");
+                    return;
                 }
             }
-        });
+        }
+    }
 }
 
 #endif // SK_ENABLE_PRECOMPILE

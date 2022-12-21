@@ -34,8 +34,8 @@ public:
                 sk_sp<SkBlender> primitiveBlender,
                 bool skipColorXform);
     explicit PaintParams(const SkPaint&,
-                         sk_sp<SkBlender> primitiveBlender = nullptr,
-                         bool skipColorXform = false);
+                         sk_sp<SkBlender> primitiveBlender,
+                         bool skipColorXform);
 
     PaintParams(const PaintParams&);
     ~PaintParams();
