@@ -31,6 +31,7 @@
 
 static void test(skiatest::Reporter* r,
                  const char* src,
+                 SkSpan<const float> uniforms,
                  SkColor4f startingColor,
                  std::optional<SkColor4f> expectedResult) {
     SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
@@ -75,7 +76,7 @@ static void test(skiatest::Reporter* r,
 #endif
 
     // Append the SkSL program to the raster pipeline.
-    rasterProg->appendStages(&pipeline, &alloc, /*uniforms=*/{});
+    rasterProg->appendStages(&pipeline, &alloc, uniforms);
 
     // Move the float values from RGBA into an 8888 memory buffer.
     uint32_t out[SkRasterPipeline_kMaxStride_highp] = {};
@@ -109,6 +110,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorPassthroughTest, r) {
                  return startingColor;
              }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{1.0f, 1.0f, 0.0f, 1.0f},
          /*expectedResult=*/SkColor4f{1.0f, 1.0f, 0.0f, 1.0f});
 }
@@ -121,6 +123,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorDarkGreenTest, r) {
                  return half4(half2(0, 0.499), half2(0, 1));
              }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 0.499f, 0.0f, 1.0f});
 }
@@ -133,6 +136,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorTransparentGrayTest, r) {
                  return half4(0.499);
              }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.499f, 0.499f, 0.499f, 0.499f});
 }
@@ -147,6 +151,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorVariableGreenTest, r) {
                  return half4(zero, zeroOne.yx, one);
              }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
@@ -162,6 +167,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorAdditionTest, r) {
                  return y + z;
              }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 1.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
@@ -201,6 +207,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorIfElseTest, r) {
                  return colorRed;
              }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
@@ -226,6 +233,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorTernaryTest, r) {
                                                  colorRed;
              }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{1.0, 1.0, 1.0, 1.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
@@ -246,6 +254,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorTernarySideEffectTest, r) {
                  return (x == 7 && y == 13) ? colorGreen : colorRed;
              }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
@@ -260,6 +269,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorNestedTernaryTest, r) {
                  return half4(result);
              }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.499f, 0.499f, 0.499f, 0.499f});
 }
@@ -287,6 +297,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorDoWhileTest, r) {
                 return half4(r, g, b, a);
             }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
@@ -308,6 +319,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorArithmeticTest, r) {
                 return colorRed;
             }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
@@ -325,6 +337,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalOr, r) {
                 }
             }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 
@@ -340,6 +353,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalOr, r) {
                 }
             }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 
@@ -355,6 +369,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalOr, r) {
                 }
             }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 
@@ -370,6 +385,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalOr, r) {
                 }
             }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
@@ -387,6 +403,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalAnd, r) {
                 }
             }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 
@@ -402,6 +419,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalAnd, r) {
                 }
             }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 
@@ -417,6 +435,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalAnd, r) {
                 }
             }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 
@@ -432,6 +451,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalAnd, r) {
                 }
             }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
@@ -448,26 +468,30 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorSwizzleLValueTest, r) {
                  return color;
              }
          )__SkSL__",
+         /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.5, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.749f, 1.0f, 0.249f, 1.0f});
 }
 
 DEF_TEST(SkSLRasterPipelineCodeGeneratorUniformDeclarationTest, r) {
-    // Add in your SkSL here.
+    static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
+                                          1.0, 0.0, 0.0, 1.0};
     test(r,
          R"__SkSL__(
              uniform half4 colorGreen, colorRed;
-             uniform half2x2 testMatrix2x2;
              half4 main(half4 color) {
                  return color;
              }
          )__SkSL__",
+         kUniforms,
          /*startingColor=*/SkColor4f{0.0, 1.0, 0.0, 1.0},
          /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
 }
 
 DEF_TEST(SkSLRasterPipelineCodeGeneratorUniformUsageTest, r) {
-    // We don't support accessing uniforms yet, so this SkSL does not emit a program.
+    static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
+                                          1.0, 0.0, 0.0, 1.0,
+                                          1.0, 2.0, 3.0, 4.0};
     test(r,
          R"__SkSL__(
              uniform half4 colorGreen, colorRed;
@@ -476,6 +500,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorUniformUsageTest, r) {
                  return testMatrix2x2 == half2x2(1,2,3,4) ? colorGreen : colorRed;
              }
          )__SkSL__",
+         kUniforms,
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
-         /*expectedResult=*/std::nullopt);
+         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
 }
