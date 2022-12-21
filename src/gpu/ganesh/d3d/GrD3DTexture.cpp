@@ -123,7 +123,7 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeAliasingTexture(GrD3DGpu* gpu,
     info.fResource = gpu->memoryAllocator()->createAliasingResource(info.fAlloc, 0, &newDesc,
                                                                     resourceState, nullptr);
     if (!info.fResource) {
-        return false;
+        return nullptr;
     }
     info.fResourceState = resourceState;
 
