@@ -21,9 +21,7 @@ namespace skgpu::graphite {
 
 class Buffer;
 struct BufferTextureCopyData;
-class CommandBuffer;
 class Recorder;
-class ResourceProvider;
 class TextureProxy;
 
 struct MipLevel {
@@ -40,7 +38,7 @@ class ConditionalUploadContext {
 public:
     virtual ~ConditionalUploadContext() {}
 
-    virtual bool needsUpload() = 0;
+    virtual bool needsUpload(Context*) = 0;
 };
 
 /**
@@ -62,7 +60,7 @@ public:
     bool prepareResources(ResourceProvider*);
 
     // Adds upload command to the given CommandBuffer
-    void addCommand(CommandBuffer*) const;
+    void addCommand(Context*, CommandBuffer*) const;
 
 private:
     UploadInstance() {}
@@ -117,7 +115,7 @@ public:
 
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(ResourceProvider*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*) override;
 
 private:
     UploadTask(std::vector<UploadInstance>);

@@ -174,10 +174,10 @@ bool UploadInstance::prepareResources(ResourceProvider* resourceProvider) {
     return true;
 }
 
-void UploadInstance::addCommand(CommandBuffer* commandBuffer) const {
+void UploadInstance::addCommand(Context* context, CommandBuffer* commandBuffer) const {
     SkASSERT(fTextureProxy && fTextureProxy->isInstantiated());
 
-    if (!fConditionalContext || fConditionalContext->needsUpload()) {
+    if (!fConditionalContext || fConditionalContext->needsUpload(context)) {
         // The CommandBuffer doesn't take ownership of the upload buffer here; it's owned by
         // UploadBufferManager, which will transfer ownership in transferToCommandBuffer.
         commandBuffer->copyBufferToTexture(
@@ -238,10 +238,10 @@ bool UploadTask::prepareResources(ResourceProvider* resourceProvider,
     return true;
 }
 
-bool UploadTask::addCommands(ResourceProvider*,
+bool UploadTask::addCommands(Context* context,
                              CommandBuffer* commandBuffer) {
     for (unsigned int i = 0; i < fInstances.size(); ++i) {
-        fInstances[i].addCommand(commandBuffer);
+        fInstances[i].addCommand(context, commandBuffer);
     }
 
     return true;

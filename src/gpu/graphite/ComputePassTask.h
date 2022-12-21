@@ -19,8 +19,6 @@ namespace skgpu::graphite {
 
 class Buffer;
 class ComputePipeline;
-class CommandBuffer;
-class ResourceProvider;
 
 /**
  * ComputePassTask records a compute kernel and its associated resources into a single compute pass
@@ -40,7 +38,7 @@ public:
     ~ComputePassTask() override = default;
 
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
-    bool addCommands(ResourceProvider*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*) override;
 
 private:
     ComputePassTask(std::vector<ResourceBinding> bindings,

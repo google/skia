@@ -12,6 +12,7 @@
 
 namespace skgpu::graphite {
 
+class Context;
 class Task;
 class Surface;
 
@@ -29,7 +30,7 @@ public:
     int numNonVolatilePromiseImages() const;
 #endif
 
-    bool addCommands(ResourceProvider*, CommandBuffer*, Surface* targetSurface);
+    bool addCommands(Context*, CommandBuffer*, Surface* targetSurface);
     void addResourceRef(sk_sp<Resource> resource);
     void addTask(sk_sp<Task> task);
 

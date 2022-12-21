@@ -32,7 +32,7 @@ bool ComputePassTask::prepareResources(ResourceProvider* provider,
     return fPipeline != nullptr;
 }
 
-bool ComputePassTask::addCommands(ResourceProvider* provider, CommandBuffer* commandBuffer) {
+bool ComputePassTask::addCommands(Context*, CommandBuffer* commandBuffer) {
     SkASSERT(fPipeline);
     return commandBuffer->addComputePass(fComputePassDesc, fPipeline, fBindings);
 }

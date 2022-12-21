@@ -18,7 +18,7 @@ sk_sp<SynchronizeToCpuTask> SynchronizeToCpuTask::Make(sk_sp<Buffer> buffer) {
 
 SynchronizeToCpuTask::~SynchronizeToCpuTask() {}
 
-bool SynchronizeToCpuTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
+bool SynchronizeToCpuTask::addCommands(Context*, CommandBuffer* commandBuffer) {
     return commandBuffer->synchronizeBufferToCpu(std::move(fBuffer));
 }
 

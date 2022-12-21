@@ -35,7 +35,7 @@ bool CopyBufferToBufferTask::prepareResources(ResourceProvider*, const RuntimeEf
     return true;
 }
 
-bool CopyBufferToBufferTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
+bool CopyBufferToBufferTask::addCommands(Context*, CommandBuffer* commandBuffer) {
     return commandBuffer->copyBufferToBuffer(fSrcBuffer, 0, fDstBuffer, 0, fDstBuffer->size());
 }
 
@@ -78,7 +78,7 @@ bool CopyTextureToBufferTask::prepareResources(ResourceProvider* resourceProvide
     return true;
 }
 
-bool CopyTextureToBufferTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
+bool CopyTextureToBufferTask::addCommands(Context*, CommandBuffer* commandBuffer) {
     return commandBuffer->copyTextureToBuffer(fTextureProxy->refTexture(),
                                               fSrcRect,
                                               std::move(fBuffer),
@@ -131,7 +131,7 @@ bool CopyTextureToTextureTask::prepareResources(ResourceProvider* resourceProvid
     return true;
 }
 
-bool CopyTextureToTextureTask::addCommands(ResourceProvider*, CommandBuffer* commandBuffer) {
+bool CopyTextureToTextureTask::addCommands(Context*, CommandBuffer* commandBuffer) {
     return commandBuffer->copyTextureToTexture(fSrcProxy->refTexture(),
                                                fSrcRect,
                                                fDstProxy->refTexture(),

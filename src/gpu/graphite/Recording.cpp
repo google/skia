@@ -8,6 +8,7 @@
 #include "include/gpu/graphite/Recording.h"
 
 #include "src/gpu/graphite/CommandBuffer.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Resource.h"
@@ -95,13 +96,14 @@ int RecordingPriv::numNonVolatilePromiseImages() const {
 }
 #endif
 
-bool RecordingPriv::addCommands(ResourceProvider* resourceProvider,
+bool RecordingPriv::addCommands(Context* context,
                                 CommandBuffer* commandBuffer,
                                 Surface* targetSurface) {
     AutoDeinstantiateTextureProxy autoDeinstantiateTargetProxy(
             fRecording->fTargetProxyData ? fRecording->fTargetProxyData->lazyProxy() : nullptr);
 
     SkASSERT(SkToBool(fRecording->fTargetProxyData) == SkToBool(targetSurface));
+    ResourceProvider* resourceProvider = context->priv().resourceProvider();
     if (fRecording->fTargetProxyData) {
         if (!targetSurface) {
             SKGPU_LOG_E("No surface provided to instantiate target texture proxy.");
@@ -119,7 +121,7 @@ bool RecordingPriv::addCommands(ResourceProvider* resourceProvider,
         }
     }
 
-    if (!fRecording->fGraph->addCommands(resourceProvider, commandBuffer)) {
+    if (!fRecording->fGraph->addCommands(context, commandBuffer)) {
         return false;
     }
     for (size_t i = 0; i < fRecording->fExtraResourceRefs.size(); ++i) {

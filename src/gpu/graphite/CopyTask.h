@@ -15,7 +15,6 @@
 namespace skgpu::graphite {
 
 class Buffer;
-class CommandBuffer;
 class Texture;
 class TextureProxy;
 
@@ -28,7 +27,7 @@ public:
 
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(ResourceProvider*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*) override;
 
 private:
     CopyBufferToBufferTask(sk_sp<Buffer> srcBuffer,
@@ -50,7 +49,7 @@ public:
 
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(ResourceProvider*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*) override;
 
 private:
     CopyTextureToBufferTask(sk_sp<TextureProxy>,
@@ -77,7 +76,7 @@ public:
 
     bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) override;
 
-    bool addCommands(ResourceProvider*, CommandBuffer*) override;
+    bool addCommands(Context*, CommandBuffer*) override;
 
 private:
     CopyTextureToTextureTask(sk_sp<TextureProxy> srcProxy,

@@ -18,6 +18,7 @@
 namespace skgpu::graphite {
 
 class CommandBuffer;
+class Context;
 class GpuWorkSubmission;
 struct InsertRecordingInfo;
 class ResourceProvider;
@@ -29,10 +30,10 @@ public:
     virtual ~QueueManager();
 
     // Adds the commands from the passed in Recording to the current CommandBuffer
-    bool SK_WARN_UNUSED_RESULT addRecording(const InsertRecordingInfo&, ResourceProvider*);
+    bool SK_WARN_UNUSED_RESULT addRecording(const InsertRecordingInfo&, Context*);
 
     // Adds the commands from the passed in Task to the current CommandBuffer
-    bool SK_WARN_UNUSED_RESULT addTask(Task*, ResourceProvider*);
+    bool SK_WARN_UNUSED_RESULT addTask(Task*, Context*);
 
     // Adds the commands from the passed in Task to the current CommandBuffer
     bool SK_WARN_UNUSED_RESULT addFinishInfo(const InsertFinishInfo&, ResourceProvider*);

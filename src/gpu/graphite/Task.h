@@ -13,6 +13,7 @@
 namespace skgpu::graphite {
 
 class CommandBuffer;
+class Context;
 class ResourceProvider;
 class RuntimeEffectDictionary;
 
@@ -25,7 +26,7 @@ public:
     virtual bool prepareResources(ResourceProvider*, const RuntimeEffectDictionary*) = 0;
 
     // Returns true on success; false on failure.
-    virtual bool addCommands(ResourceProvider*, CommandBuffer*) = 0;
+    virtual bool addCommands(Context*, CommandBuffer*) = 0;
 
 protected:
     Task();
