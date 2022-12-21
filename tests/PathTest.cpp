@@ -3988,7 +3988,6 @@ static void test_arcTo(skiatest::Reporter* reporter) {
     p.arcTo(noOvalHeight, 0, 360, false);
     REPORTER_ASSERT(reporter, p.isEmpty());
 
-#ifndef SK_LEGACY_PATH_ARCTO_ENDPOINT
     // Inspired by http://code.google.com/p/chromium/issues/detail?id=1001768
     {
       p.reset();
@@ -4000,7 +3999,6 @@ static void test_arcTo(skiatest::Reporter* reporter) {
       int n = p.countPoints();
       REPORTER_ASSERT(reporter, p.getPoint(0) == p.getPoint(n - 1));
     }
-#endif
 
     // This test, if improperly handled, can create an infinite loop in angles_to_unit_vectors
     p.reset();

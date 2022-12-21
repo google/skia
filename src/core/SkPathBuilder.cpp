@@ -575,11 +575,9 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint rad, SkScalar angle, SkPathBuilder::
         startTheta = endTheta;
     }
 
-#ifndef SK_LEGACY_PATH_ARCTO_ENDPOINT
     // The final point should match the input point (by definition); replace it to
     // ensure that rounding errors in the above math don't cause any problems.
     fPts.back() = endPt;
-#endif
     return *this;
 }
 
