@@ -168,6 +168,9 @@ public:
     /** Pushes an expression to the value stack. */
     [[nodiscard]] bool pushAssignmentExpression(const BinaryExpression& e);
     [[nodiscard]] bool pushBinaryExpression(const BinaryExpression& e);
+    [[nodiscard]] bool pushBinaryExpression(const Expression& left,
+                                            Operator op,
+                                            const Expression& right);
     [[nodiscard]] bool pushConstructorCast(const AnyConstructor& c);
     [[nodiscard]] bool pushConstructorCompound(const ConstructorCompound& c);
     [[nodiscard]] bool pushConstructorSplat(const ConstructorSplat& c);
@@ -768,41 +771,63 @@ void Generator::foldWithOp(BuilderOp op, int elements) {
 }
 
 bool Generator::pushBinaryExpression(const BinaryExpression& e) {
-    // TODO: add support for non-matching types (e.g. matrix-vector ops)
-    if (!e.left()->type().matches(e.right()->type())) {
+    return this->pushBinaryExpression(*e.left(), e.getOperator(), *e.right());
+}
+
+bool Generator::pushBinaryExpression(const Expression& left, Operator op, const Expression& right) {
+    const Type& type = left.type();
+
+    // Handle binary expressions with mismatched types.
+    if (!type.matches(right.type())) {
+        if (type.componentType().numberKind() != right.type().componentType().numberKind()) {
+            return unsupported();
+        }
+
+        if (left.type().isScalar() && right.type().isVector()) {
+            // SxV becomes VxV via an implicit splat.
+            ConstructorSplat leftAsVector(left.fPosition, right.type(), left.clone());
+            return this->pushBinaryExpression(leftAsVector, op, right);
+        }
+
+        if (left.type().isVector() && right.type().isScalar()) {
+            // VxS becomes VxV via an implicit splat.
+            ConstructorSplat rightAsVector(right.fPosition, left.type(), right.clone());
+            return this->pushBinaryExpression(left, op, rightAsVector);
+        }
+
+        // TODO: add support for other non-matching types (matrix-vector and matrix-matrix ops)
         return unsupported();
     }
 
     // Handle simple assignment (`var = expr`).
-    if (e.getOperator().kind() == OperatorKind::EQ) {
-        return this->pushExpression(*e.right()) &&
-               this->assign(*e.left());
+    if (op.kind() == OperatorKind::EQ) {
+        return this->pushExpression(right) &&
+               this->assign(left);
     }
 
-    const Type& type = e.left()->type();
     Type::NumberKind numberKind = type.componentType().numberKind();
-    Operator basicOp = e.getOperator().removeAssignment();
+    Operator basicOp = op.removeAssignment();
 
     // Handle binary ops which require short-circuiting.
     switch (basicOp.kind()) {
         case OperatorKind::LOGICALAND:
-            if (Analysis::HasSideEffects(*e.right())) {
+            if (Analysis::HasSideEffects(right)) {
                 // If the RHS has side effects, we rewrite `a && b` as `a ? b : false`. This
                 // generates pretty solid code and gives us the required short-circuit behavior.
-                SkASSERT(!e.getOperator().isAssignment());
+                SkASSERT(!op.isAssignment());
                 SkASSERT(numberKind == Type::NumberKind::kBoolean);
-                Literal falseLiteral{Position{}, 0.0, &e.right()->type()};
-                return this->pushTernaryExpression(*e.left(), *e.right(), falseLiteral);
+                Literal falseLiteral{Position{}, 0.0, &right.type()};
+                return this->pushTernaryExpression(left, right, falseLiteral);
             }
             break;
 
         case OperatorKind::LOGICALOR:
-            if (Analysis::HasSideEffects(*e.right())) {
+            if (Analysis::HasSideEffects(right)) {
                 // If the RHS has side effects, we rewrite `a || b` as `a ? true : b`.
-                SkASSERT(!e.getOperator().isAssignment());
+                SkASSERT(!op.isAssignment());
                 SkASSERT(numberKind == Type::NumberKind::kBoolean);
-                Literal trueLiteral{Position{}, 1.0, &e.right()->type()};
-                return this->pushTernaryExpression(*e.left(), trueLiteral, *e.right());
+                Literal trueLiteral{Position{}, 1.0, &right.type()};
+                return this->pushTernaryExpression(left, trueLiteral, right);
             }
             break;
 
@@ -815,15 +840,15 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
         case OperatorKind::GT:
         case OperatorKind::GTEQ:
             // We replace `x > y` with `y < x`, and `x >= y` with `y <= x`.
-            if (!this->pushExpression(*e.right()) ||
-                !this->pushExpression(*e.left())) {
+            if (!this->pushExpression(right) ||
+                !this->pushExpression(left)) {
                 return false;
             }
             break;
 
         default:
-            if (!this->pushExpression(*e.left()) ||
-                !this->pushExpression(*e.right())) {
+            if (!this->pushExpression(left) ||
+                !this->pushExpression(right)) {
                 return false;
             }
             break;
@@ -940,8 +965,8 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
     }
 
     // Handle compound assignment (`var *= expr`).
-    if (e.getOperator().isAssignment()) {
-        return this->assign(*e.left());
+    if (op.isAssignment()) {
+        return this->assign(left);
     }
 
     return true;

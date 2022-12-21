@@ -504,3 +504,137 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorUniformUsageTest, r) {
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
 }
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorCoercedTypeTest, r) {
+    static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
+                                          1.0, 0.0, 0.0, 1.0};
+    test(r,
+         R"__SkSL__(
+             uniform half4 colorGreen;
+             uniform float4 colorRed;
+             half4 main(half4 color) {
+                 return ((colorGreen + colorRed) == float4(1.0, 1.0, 0.0, 2.0)) ? colorGreen
+                                                                                : colorGreen.gr01;
+             }
+         )__SkSL__",
+         kUniforms,
+         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
+         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorVectorScalarFoldingTest, r) {
+    // This test matches the floating-point test in VectorScalarFolding.rts.
+    // (The function call has been manually inlined.)
+    static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
+                                          1.0, 0.0, 0.0, 1.0,
+                                          1.0};
+    test(r,
+         R"__SkSL__(
+            uniform half4 colorGreen, colorRed;
+            uniform half  unknownInput;
+
+            half4 main(vec4) {
+                bool ok = true;
+
+                // Vector op scalar
+                half4 x = half4(half2(1), half2(2, 3)) + 5;
+                ok = ok && (x == half4(6, 6, 7, 8));
+                x = half4(8, half3(10)) - 1;
+                ok = ok && (x == half4(7, 9, 9, 9));
+                x = half4(half2(8), half2(9)) + 1;
+                ok = ok && (x == half4(9, 9, 10, 10));
+                x.xyz = half3(2) * 3;
+                ok = ok && (x == half4(6, 6, 6, 10));
+                x.xy = half2(12) / 4;
+                ok = ok && (x == half4(3, 3, 6, 10));
+
+                // (Vector op scalar).swizzle
+                x = (half4(12) / 2).yxwz;
+                ok = ok && (x == half4(6));
+
+                // Scalar op vector
+                x = 5 + half4(half2(1), half2(2, 3));
+                ok = ok && (x == half4(6, 6, 7, 8));
+                x = 1 - half4(8, half3(10));
+                ok = ok && (x == half4(-7, -9, -9, -9));
+                x = 1 + half4(half2(8), half2(9));
+                ok = ok && (x == half4(9, 9, 10, 10));
+                x.xyz = 3 * half3(2);
+                ok = ok && (x == half4(6, 6, 6, 10));
+                x.xy = 4 / half2(0.5);
+                ok = ok && (x == half4(8, 8, 6, 10));
+                x = 20 / half4(10, 20, 40, 80);
+                ok = ok && (x == half4(2, 1, 0.5, 0.25));
+
+                // (Scalar op vector).swizzle
+                x = (12 / half4(2)).yxwz;
+                ok = ok && (x == half4(6));
+
+                // Vector op unknown scalar
+                half  unknown = unknownInput;
+                x = half4(0) + unknown;
+                ok = ok && (x == half4(unknown));
+                x = half4(0) * unknown;
+                ok = ok && (x == half4(0));
+                x = half4(0) / unknown;
+                ok = ok && (x == half4(0));
+                x = half4(1) * unknown;
+                ok = ok && (x == half4(unknown));
+
+                // Unknown scalar op vector
+                x = unknown * half4(1);
+                ok = ok && (x == half4(unknown));
+                x = unknown + half4(0);
+                ok = ok && (x == half4(unknown));
+                x = unknown - half4(0);
+                ok = ok && (x == half4(unknown));
+                x = unknown / half4(1);
+                ok = ok && (x == half4(unknown));
+
+                // Scalar op unknown vector
+                x = 0 + half4(unknown);
+                ok = ok && (x == half4(unknown));
+                x = 0 * half4(unknown);
+                ok = ok && (x == half4(0));
+                x = 0 / half4(unknown);  // this should NOT optimize away
+                ok = ok && (x == half4(0));
+                x = 1 * half4(unknown);
+                ok = ok && (x == half4(unknown));
+
+                // X = Unknown op scalar
+                x = half4(unknown) + 0;
+                ok = ok && (x == half4(unknown));
+                x = half4(unknown) * 0;
+                ok = ok && (x == half4(0));
+                x = half4(unknown) * 1;
+                ok = ok && (x == half4(unknown));
+                x = half4(unknown) - 0;
+                ok = ok && (x == half4(unknown));
+
+                // X op= scalar.
+                x = half4(unknown);
+                x += 1;
+                x += 0;
+                x -= 1;
+                x -= 0;
+                x *= 1;
+                x /= 1;
+                ok = ok && (x == half4(unknown));
+
+                // X = X op scalar.
+                x = half4(unknown);
+                x = x + 1;
+                x = x + 0;
+                x = x - 1;
+                x = x - 0;
+                x = x * 1;
+                x = x / 1;
+                ok = ok && (x == half4(unknown));
+
+                return ok ? colorGreen : colorRed;
+            }
+         )__SkSL__",
+         kUniforms,
+         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
+         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
+}
