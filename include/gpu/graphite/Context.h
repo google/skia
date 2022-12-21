@@ -31,16 +31,13 @@ class Context;
 class ContextPriv;
 struct DawnBackendContext;
 class GlobalCache;
-class KeyContext;
 struct MtlBackendContext;
 class PaintOptions;
 class QueueManager;
 class Recording;
-struct RenderPassDesc;
 class ResourceProvider;
 class SharedContext;
 class TextureProxy;
-class UniquePaintParamsID;
 
 class SK_API Context final {
 public:
@@ -78,19 +75,6 @@ public:
      * Checks whether any asynchronous work is complete and if so calls related callbacks.
      */
     void checkAsyncWorkCompletion();
-
-#ifdef SK_ENABLE_PRECOMPILE
-    /**
-     * Precompilation allows clients to create pipelines ahead of time based on what they expect
-     * to draw. This can reduce performance hitches, due to inline compilation, during the actual
-     * drawing. Graphite will always be able to perform an inline compilation if some SkPaint
-     * combination was omitted from precompilation.
-     *
-     *   @param paintOptions   captures a set of SkPaints that will be drawn
-     *   @param drawTypes      communicates which primitives those paints will be drawn with
-     */
-    void precompile(const PaintOptions&, DrawTypeFlags = kMostCommon);
-#endif
 
     /**
      * Called to delete the passed in BackendTexture. This should only be called if the
@@ -178,14 +162,6 @@ private:
     // If this tracking is on, to allow the client to safely delete this Context or its Recorders
     // in any order we must also track the Recorders created here.
     std::vector<Recorder*> fTrackedRecorders;
-#endif
-
-#ifdef SK_ENABLE_PRECOMPILE
-    void compile(const KeyContext&,
-                 UniquePaintParamsID,
-                 DrawTypeFlags,
-                 SkSpan<RenderPassDesc>,
-                 bool withPrimitiveBlender);
 #endif
 
     // Needed for MessageBox handling

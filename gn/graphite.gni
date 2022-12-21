@@ -274,4 +274,6 @@ skia_graphite_precompile_sources = [
   "$_src/Precompile.cpp",
   "$_src/Precompile.h",
   "$_src/PrecompileBasePriv.h",
+  "$_src/PublicPrecompile.cpp",
+  "$_src/PublicPrecompile.h",
 ]

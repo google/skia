@@ -16,6 +16,7 @@ namespace skgpu::graphite {
 
 class Caps;
 class GlobalCache;
+class RendererProvider;
 class ResourceProvider;
 class ShaderCodeDictionary;
 
@@ -38,6 +39,12 @@ public:
     }
     GlobalCache* globalCache() {
         return fContext->fSharedContext->globalCache();
+    }
+    const RendererProvider* rendererProvider() const {
+        return fContext->fSharedContext->rendererProvider();
+    }
+    ResourceProvider* resourceProvider() const {
+        return fContext->fResourceProvider.get();
     }
 
     void startCapture() {

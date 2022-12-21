@@ -5,10 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkTypes.h"
-
-#ifdef SK_ENABLE_PRECOMPILE
-
 #include "src/gpu/graphite/FactoryFunctions.h"
 
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -677,5 +673,3 @@ sk_sp<PrecompileBlender> MakePrecompileBlender(
 } // namespace skgpu::graphite
 
 //--------------------------------------------------------------------------------------------------
-
-#endif // SK_ENABLE_PRECOMPILE

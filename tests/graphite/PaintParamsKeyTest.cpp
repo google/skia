@@ -30,6 +30,7 @@
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/Precompile.h"
+#include "src/gpu/graphite/PublicPrecompile.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
@@ -617,7 +618,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                             context->priv().globalCache()->resetGraphicsPipelines();
 
                             int before = context->priv().globalCache()->numGraphicsPipelines();
-                            context->precompile(paintOptions, dt);
+                            Precompile(context, paintOptions, dt);
                             int after = context->priv().globalCache()->numGraphicsPipelines();
 
                             REPORTER_ASSERT(reporter, before == 0);
