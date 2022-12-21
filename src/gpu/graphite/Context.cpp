@@ -343,28 +343,60 @@ void Context::precompile(const PaintOptions& options, DrawTypeFlags drawTypes) {
                                                                             Protected::kNo,
                                                                             Renderable::kYes);
 
-    TextureInfo targetInfo = fSharedContext->caps()->getDefaultMSAATextureInfo(info,
-                                                                               Discardable::kYes);
-
     // Note: at least on Metal, the LoadOp, StoreOp and clearColor fields don't influence the
     // actual RenderPassDescKey.
+    // TODO: if all of the Renderers associated w/ the requested drawTypes require MSAA we
+    // do not need to generate the combinations w/ the non-MSAA RenderPassDescs.
     RenderPassDesc renderPassDescs[] = {
         RenderPassDesc::Make(fSharedContext->caps(),
-                             targetInfo,
+                             info,
                              LoadOp::kClear,
                              StoreOp::kStore,
                              DepthStencilFlags::kDepth,
                              /* clearColor= */ { .0f, .0f, .0f, .0f },
-                             /* requiresMSAA= */ true)
+                             /* requiresMSAA= */ true),
+        RenderPassDesc::Make(fSharedContext->caps(),
+                             info,
+                             LoadOp::kClear,
+                             StoreOp::kStore,
+                             DepthStencilFlags::kDepthStencil,
+                             /* clearColor= */ { .0f, .0f, .0f, .0f },
+                             /* requiresMSAA= */ true),
+        RenderPassDesc::Make(fSharedContext->caps(),
+                             info,
+                             LoadOp::kClear,
+                             StoreOp::kStore,
+                             DepthStencilFlags::kDepth,
+                             /* clearColor= */ { .0f, .0f, .0f, .0f },
+                             /* requiresMSAA= */ false),
+        RenderPassDesc::Make(fSharedContext->caps(),
+                             info,
+                             LoadOp::kClear,
+                             StoreOp::kStore,
+                             DepthStencilFlags::kDepthStencil,
+                             /* clearColor= */ { .0f, .0f, .0f, .0f },
+                             /* requiresMSAA= */ false),
     };
 
     options.priv().buildCombinations(
         keyContext,
         /* addPrimitiveBlender= */ false,
-        [&](UniquePaintParamsID uniqueID) {
-            compile(keyContext, uniqueID, drawTypes, renderPassDescs,
-                    /* withPrimitiveBlender= */ false);
-        });
+         [&](UniquePaintParamsID uniqueID) {
+             compile(keyContext, uniqueID,
+                     static_cast<DrawTypeFlags>(drawTypes & ~DrawTypeFlags::kDrawVertices),
+                     renderPassDescs, /* withPrimitiveBlender= */ false);
+         });
+
+    if (drawTypes & DrawTypeFlags::kDrawVertices) {
+        options.priv().buildCombinations(
+            keyContext,
+            /* addPrimitiveBlender= */ true,
+            [&](UniquePaintParamsID uniqueID) {
+                compile(keyContext, uniqueID,
+                        DrawTypeFlags::kDrawVertices,
+                        renderPassDescs, /* withPrimitiveBlender= */ true);
+            });
+    }
 }
 
 void Context::compile(const KeyContext& keyContext,
