@@ -1045,8 +1045,10 @@ bool Generator::pushTernaryExpression(const TernaryExpression& t) {
 bool Generator::pushTernaryExpression(const Expression& test,
                                       const Expression& ifTrue,
                                       const Expression& ifFalse) {
-    if (!Analysis::HasSideEffects(ifTrue) && !Analysis::HasSideEffects(ifFalse)) {
-        // We can take some shortcuts if the true- and false-expressions are side-effect free.
+    if (!Analysis::HasSideEffects(test) &&
+        !Analysis::HasSideEffects(ifTrue) &&
+        !Analysis::HasSideEffects(ifFalse)) {
+        // We can take some shortcuts if the expressions are entirely side-effect free.
         // First, push the false-expression onto the primary stack.
         int cleanupLabelID = fBuilder.nextLabelID();
         if (!this->pushExpression(ifFalse)) {

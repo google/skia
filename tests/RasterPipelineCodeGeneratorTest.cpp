@@ -251,7 +251,10 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorTernarySideEffectTest, r) {
                  (x <  y) ? (x += 5) : (y += 5);  // TRUE,   x=7 y=4
                  (y >= x) ? (x += 9) : (y += 9);  // FALSE,  x=7 y=13
 
-                 return (x == 7 && y == 13) ? colorGreen : colorRed;
+                 bool b = true;
+                 bool c = (b = false) ? false : b;
+
+                 return c ? colorRed : (x == 7 && y == 13) ? colorGreen : colorRed;
              }
          )__SkSL__",
          /*uniforms=*/{},
