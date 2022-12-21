@@ -9,13 +9,14 @@
 
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/vk/VulkanQueueManager.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 
-namespace skgpu::graphite {
+namespace skgpu::graphite::ContextFactory {
 
-std::unique_ptr<Context> MakeVulkanContext(const VulkanBackendContext& backendContext,
-                                           const ContextOptions& options) {
+std::unique_ptr<Context> MakeVulkan(const VulkanBackendContext& backendContext,
+                                    const ContextOptions& options) {
     sk_sp<SharedContext> sharedContext = VulkanSharedContext::Make(backendContext, options);
     if (!sharedContext) {
         return nullptr;
@@ -27,10 +28,10 @@ std::unique_ptr<Context> MakeVulkanContext(const VulkanBackendContext& backendCo
         return nullptr;
     }
 
-    auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
-                                                        std::move(queueManager),
-                                                        options));
+    auto context = ContextCtorAccessor::MakeContext(std::move(sharedContext),
+                                                    std::move(queueManager),
+                                                    options);
     return context;
 }
 
-} // namespace skgpu::graphite
+} // namespace skgpu::graphite::ContextFactory

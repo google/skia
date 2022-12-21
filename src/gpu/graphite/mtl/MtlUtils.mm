@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/private/SkSLString.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/mtl/MtlQueueManager.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -24,8 +25,9 @@
 
 namespace skgpu::graphite {
 
-std::unique_ptr<Context> MakeMetalContext(const MtlBackendContext& backendContext,
-                                          const ContextOptions& options) {
+namespace ContextFactory {
+std::unique_ptr<Context> MakeMetal(const MtlBackendContext& backendContext,
+                                   const ContextOptions& options) {
     sk_sp<SharedContext> sharedContext = MtlSharedContext::Make(backendContext, options);
     if (!sharedContext) {
         return nullptr;
@@ -38,12 +40,13 @@ std::unique_ptr<Context> MakeMetalContext(const MtlBackendContext& backendContex
         return nullptr;
     }
 
-    auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
-                                                        std::move(queueManager),
-                                                        options));
+    auto context = ContextCtorAccessor::MakeContext(std::move(sharedContext),
+                                                    std::move(queueManager),
+                                                    options);
     SkASSERT(context);
     return context;
 }
+} // namespace ContextFactory
 
 bool MtlFormatIsDepthOrStencil(MTLPixelFormat format) {
     switch (format) {

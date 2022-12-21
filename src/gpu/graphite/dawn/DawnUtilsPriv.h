@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_DawnUtils_DEFINED
-#define skgpu_graphite_DawnUtils_DEFINED
+#ifndef skgpu_graphite_DawnUtilsPriv_DEFINED
+#define skgpu_graphite_DawnUtilsPriv_DEFINED
 
 #include "include/core/SkImageInfo.h"
 #include "include/private/SkSLProgramKind.h"
@@ -46,4 +46,4 @@ wgpu::ShaderModule DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedC
                                                 ShaderErrorHandler* errorHandler);
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_DawnUtils_DEFINED
+#endif // skgpu_graphite_DawnUtilsPriv_DEFINED

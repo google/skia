@@ -58,7 +58,7 @@ void GraphiteMetalWindowContext::initializeContext() {
 
     skgpu::graphite::ContextOptions contextOptions;
     contextOptions.fStoreContextRefInRecorder = true;
-    fGraphiteContext = skgpu::graphite::MakeMetalContext(backendContext, contextOptions);
+    fGraphiteContext = skgpu::graphite::ContextFactory::MakeMetal(backendContext, contextOptions);
     fGraphiteRecorder = fGraphiteContext->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
     // TODO
 //    if (!fGraphiteContext && fDisplayParams.fMSAASampleCount > 1) {

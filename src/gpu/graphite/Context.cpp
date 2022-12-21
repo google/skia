@@ -38,12 +38,6 @@
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/UploadTask.h"
 
-#ifdef SK_DAWN
-#include "include/gpu/graphite/dawn/DawnBackendContext.h"
-#include "src/gpu/graphite/dawn/DawnQueueManager.h"
-#include "src/gpu/graphite/dawn/DawnSharedContext.h"
-#endif
-
 namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
@@ -83,28 +77,6 @@ Context::~Context() {
 }
 
 BackendApi Context::backend() const { return fSharedContext->backend(); }
-
-#ifdef SK_DAWN
-std::unique_ptr<Context> Context::MakeDawn(const DawnBackendContext& backendContext,
-                                           const ContextOptions& options) {
-    sk_sp<SharedContext> sharedContext = DawnSharedContext::Make(backendContext, options);
-    if (!sharedContext) {
-        return nullptr;
-    }
-
-    auto queueManager =
-            std::make_unique<DawnQueueManager>(backendContext.fQueue, sharedContext.get());
-    if (!queueManager) {
-        return nullptr;
-    }
-
-    auto context = std::unique_ptr<Context>(new Context(std::move(sharedContext),
-                                                        std::move(queueManager),
-                                                        options));
-    SkASSERT(context);
-    return context;
-}
-#endif
 
 std::unique_ptr<Recorder> Context::makeRecorder(const RecorderOptions& options) {
     ASSERT_SINGLE_OWNER
@@ -378,5 +350,16 @@ void ContextPriv::deregisterRecorder(const Recorder* recorder) {
 }
 
 #endif
+
+///////////////////////////////////////////////////////////////////////////////////
+
+std::unique_ptr<Context> ContextCtorAccessor::MakeContext(
+        sk_sp<SharedContext> sharedContext,
+        std::unique_ptr<QueueManager> queueManager,
+        const ContextOptions& options) {
+    return std::unique_ptr<Context>(new Context(std::move(sharedContext),
+                                                std::move(queueManager),
+                                                options));
+}
 
 } // namespace skgpu::graphite

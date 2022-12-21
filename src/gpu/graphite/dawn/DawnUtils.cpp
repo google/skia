@@ -5,15 +5,42 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/graphite/dawn/DawnUtils.h"
+#include "include/gpu/graphite/dawn/DawnUtils.h"
+#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
 
 #include "include/gpu/ShaderErrorHandler.h"
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/dawn/DawnBackendContext.h"
+#include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/dawn/DawnQueueManager.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/utils/SkShaderUtils.h"
 
 namespace skgpu::graphite {
+
+namespace ContextFactory {
+std::unique_ptr<Context> MakeDawn(const DawnBackendContext& backendContext,
+                                  const ContextOptions& options) {
+    sk_sp<SharedContext> sharedContext = DawnSharedContext::Make(backendContext, options);
+    if (!sharedContext) {
+        return nullptr;
+    }
+
+    auto queueManager =
+            std::make_unique<DawnQueueManager>(backendContext.fQueue, sharedContext.get());
+    if (!queueManager) {
+        return nullptr;
+    }
+
+    auto context = ContextCtorAccessor::MakeContext(std::move(sharedContext),
+                                                    std::move(queueManager),
+                                                    options);
+    SkASSERT(context);
+    return context;
+}
+} // namespace ContextFactory
 
 bool DawnFormatIsDepthOrStencil(wgpu::TextureFormat format) {
     switch (format) {

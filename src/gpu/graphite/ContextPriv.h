@@ -83,6 +83,17 @@ inline const ContextPriv Context::priv() const {
     return ContextPriv(const_cast<Context *>(this));
 }
 
+// This class is friended by the Context and allows the backend ContextFactory functions to
+// trampoline through this to call the private Context ctor. We can't directly friend the factory
+// functions in Context because they are in a different namespace and we don't want to declare the
+// functions in Context.h
+class ContextCtorAccessor {
+public:
+    static std::unique_ptr<Context> MakeContext(sk_sp<SharedContext>,
+                                                std::unique_ptr<QueueManager>,
+                                                const ContextOptions&);
+};
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_ContextPriv_DEFINED

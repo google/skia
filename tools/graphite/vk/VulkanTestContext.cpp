@@ -83,7 +83,7 @@ VulkanTestContext::~VulkanTestContext() {
 }
 
 std::unique_ptr<skgpu::graphite::Context> VulkanTestContext::makeContext() {
-    return skgpu::graphite::MakeVulkanContext(fVulkan, skgpu::graphite::ContextOptions{});
+    return skgpu::graphite::ContextFactory::MakeVulkan(fVulkan, skgpu::graphite::ContextOptions{});
 }
 
 }  // namespace skiatest::graphite

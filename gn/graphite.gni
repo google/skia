@@ -178,6 +178,7 @@ skia_graphite_sources = [
 skia_graphite_dawn_sources = [
   "$_include/dawn/DawnBackendContext.h",
   "$_include/dawn/DawnTypes.h",
+  "$_include/dawn/DawnUtils.h",
   "$_include_private/DawnTypesPriv.h",
   "$_src/dawn/DawnAsyncWait.cpp",
   "$_src/dawn/DawnAsyncWait.h",
@@ -201,7 +202,7 @@ skia_graphite_dawn_sources = [
   "$_src/dawn/DawnTexture.h",
   "$_src/dawn/DawnTypesPriv.cpp",
   "$_src/dawn/DawnUtils.cpp",
-  "$_src/dawn/DawnUtils.h",
+  "$_src/dawn/DawnUtilsPriv.h",
 ]
 
 skia_graphite_mtl_sources = [

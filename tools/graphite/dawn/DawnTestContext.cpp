@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/dawn/DawnTypes.h"
+#include "include/gpu/graphite/dawn/DawnUtils.h"
 #include "include/private/SkOnce.h"
 
 #include "dawn/dawn_proc.h"
@@ -93,8 +94,8 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make() {
 }
 
 std::unique_ptr<skgpu::graphite::Context> DawnTestContext::makeContext() {
-    return skgpu::graphite::Context::MakeDawn(fBackendContext,
-                                              skgpu::graphite::ContextOptions{});
+    return skgpu::graphite::ContextFactory::MakeDawn(fBackendContext,
+                                                     skgpu::graphite::ContextOptions{});
 }
 
 }  // namespace skiatest::graphite

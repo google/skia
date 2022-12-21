@@ -50,7 +50,7 @@ std::unique_ptr<GraphiteTestContext> MtlTestContext::Make() {
 std::unique_ptr<skgpu::graphite::Context> MtlTestContext::makeContext() {
     skgpu::graphite::ContextOptions contextOptions;
     contextOptions.fStoreContextRefInRecorder = true;
-    return skgpu::graphite::MakeMetalContext(fMtl, contextOptions);
+    return skgpu::graphite::ContextFactory::MakeMetal(fMtl, contextOptions);
 }
 
 }  // namespace skiatest::graphite

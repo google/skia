@@ -15,6 +15,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
+#include "include/gpu/graphite/dawn/DawnUtils.h"
 #include "tools/ToolUtils.h"
 
 #include "dawn/dawn_proc.h"
@@ -44,8 +45,8 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     skgpu::graphite::DawnBackendContext backendContext;
     backendContext.fDevice = fDevice;
     backendContext.fQueue = fDevice.GetQueue();
-    fGraphiteContext = skgpu::graphite::Context::MakeDawn(backendContext,
-                                                          skgpu::graphite::ContextOptions());
+    fGraphiteContext = skgpu::graphite::ContextFactory::MakeDawn(backendContext,
+                                                                 skgpu::graphite::ContextOptions());
     if (!fGraphiteContext) {
         SkASSERT(false);
         return;
