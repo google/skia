@@ -54,8 +54,8 @@ DEF_TEST(RasterPipelineBuilder, r) {
     builder.reenable_loop_mask(one_slot_at(4));
     builder.load_src(four_slots_at(1));
     builder.load_dst(four_slots_at(3));
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/10);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/10,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. store_src_rg                   v0..1 = src.rg
     2. store_src                      v2..5 = src.rgba
@@ -77,8 +77,8 @@ DEF_TEST(RasterPipelineBuilderImmediate, r) {
     builder.immediate_f(-5555.0f);
     builder.immediate_i(-123);
     builder.immediate_u(456);
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. immediate_f                    src.r = 0x43A68000 (333.0)
     2. immediate_f                    src.r = 0x00000000 (0.0)
@@ -95,8 +95,8 @@ DEF_TEST(RasterPipelineBuilderLoadStoreAccumulator, r) {
     builder.store_unmasked(34);
     builder.store_unmasked(56);
     builder.store_masked(0);
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/57);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/57,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. load_unmasked                  src.r = v12
     2. store_unmasked                 v34 = src.r
@@ -120,8 +120,8 @@ DEF_TEST(RasterPipelineBuilderPushPopMaskRegisters, r) {
     builder.pop_return_mask();      // pop from 0
     builder.push_condition_mask();  // push into 0
     builder.pop_condition_mask();   // pop from 0
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. store_condition_mask           $0 = CondMask
     2. store_loop_mask                $1 = LoopMask
@@ -153,8 +153,8 @@ DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     builder.discard_stack(2);      // discard 2 and 3
     builder.set_current_stack(0);
     builder.discard_stack(2);      // discard 0 and 1
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. copy_constant                  $2 = 0x000003E7 (1.399897e-42)
     2. copy_constant                  $0 = 0x41580000 (13.5)
@@ -169,8 +169,8 @@ DEF_TEST(RasterPipelineBuilderCopySlotsMasked, r) {
     SkSL::RP::Builder builder;
     builder.copy_slots_masked(two_slots_at(0),  two_slots_at(2));
     builder.copy_slots_masked(four_slots_at(1), four_slots_at(5));
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/9);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/9,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. copy_2_slots_masked            v0..1 = Mask(v2..3)
     2. copy_4_slots_masked            v1..4 = Mask(v5..8)
@@ -182,8 +182,8 @@ DEF_TEST(RasterPipelineBuilderCopySlotsUnmasked, r) {
     SkSL::RP::Builder builder;
     builder.copy_slots_unmasked(three_slots_at(0), three_slots_at(2));
     builder.copy_slots_unmasked(five_slots_at(1),  five_slots_at(5));
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/10);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/10,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. copy_3_slots_unmasked          v0..2 = v2..4
     2. copy_4_slots_unmasked          v1..4 = v5..8
@@ -200,8 +200,8 @@ DEF_TEST(RasterPipelineBuilderPushPopSlots, r) {
     builder.copy_stack_to_slots_unmasked(one_slot_at(4), 2);  // copy from $0 into 4
     builder.push_slots(three_slots_at(30));          // push from 30~32 into $2~$4
     builder.pop_slots(five_slots_at(0));             // pop from $0~$4 into 0~4 (masked)
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/50);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/50,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. copy_4_slots_unmasked          $0..3 = v10..13
     2. copy_slot_masked               v5 = Mask($1)
@@ -228,8 +228,8 @@ DEF_TEST(RasterPipelineBuilderDuplicateSelectAndSwizzleSlots, r) {
     builder.swizzle(4, {1, 2});             // eliminate elements 0 and 3 (value.yz)
     builder.swizzle(2, {0});                // eliminate element 1 (value.x)
     builder.discard_stack(1);               // balance stack
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
     2. swizzle_2                      $0..1 = ($0..1).xx
@@ -263,8 +263,8 @@ DEF_TEST(RasterPipelineBuilderBranches, r) {
     builder.immediate_f(3.0f);
     builder.branch_if_any_active_lanes(label1);
 
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. jump                           jump +5 (#6)
     2. immediate_f                    src.r = 0x3F800000 (1.0)
@@ -301,8 +301,8 @@ DEF_TEST(RasterPipelineBuilderUnaryAndBinaryOps, r) {
     builder.binary_op(BuilderOp::bitwise_xor, 1);  // compute 1^2 and store into 1
     builder.unary_op(BuilderOp::bitwise_not, 1);   // compute ~3 and store into 1
     builder.discard_stack(2);                      // balance stack
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0);
-
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. zero_slot_unmasked             $0 = 0
     2. copy_constant                  $1 = 0x3F800000 (1.0)
@@ -322,5 +322,26 @@ R"(    1. zero_slot_unmasked             $0 = 0
    16. bitwise_and                    $2 &= $3
    17. bitwise_xor                    $1 ^= $2
    18. bitwise_not                    $1 = ~$1
+)");
+}
+
+DEF_TEST(RasterPipelineBuilderUniforms, r) {
+    // Create a very simple nonsense program.
+    SkSL::RP::Builder builder;
+    builder.push_uniform(one_slot_at(0));        // push into 0
+    builder.push_uniform(two_slots_at(1));       // push into 1~2
+    builder.push_uniform(three_slots_at(3));     // push into 3~5
+    builder.push_uniform(four_slots_at(6));      // push into 6~9
+    builder.push_uniform(five_slots_at(0));      // push into 10~14
+    builder.discard_stack(15);                   // balance stack
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/10);
+    check(r, *program,
+R"(    1. copy_constant                  $0 = u0
+    2. copy_2_constants               $1..2 = u1..2
+    3. copy_3_constants               $3..5 = u3..5
+    4. copy_4_constants               $6..9 = u6..9
+    5. copy_4_constants               $10..13 = u0..3
+    6. copy_constant                  $14 = u4
 )");
 }

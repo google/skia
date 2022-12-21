@@ -46,6 +46,7 @@ enum class BuilderOp {
     // `appendStages`.
     push_literal_f,
     push_slots,
+    push_uniform,
     copy_stack_to_slots,
     copy_stack_to_slots_unmasked,
     discard_stack,
@@ -85,11 +86,14 @@ class Program {
 public:
     Program(SkTArray<Instruction> instrs,
             int numValueSlots,
+            int numUniformSlots,
             int numLabels,
             int numBranches,
             SkRPDebugTrace* debugTrace);
 
-    void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc);
+    void appendStages(SkRasterPipeline* pipeline,
+                      SkArenaAlloc* alloc,
+                      SkSpan<const float> uniforms);
     void dump(SkWStream* s);
 
 private:
@@ -100,9 +104,11 @@ private:
         SkSpan<float> stack;
     };
     SlotData allocateSlotData(SkArenaAlloc* alloc);
-    void appendStages(SkRasterPipeline* pipeline, SkArenaAlloc* alloc, const SlotData& slots);
+    void appendStages(SkRasterPipeline* pipeline,
+                      SkArenaAlloc* alloc,
+                      SkSpan<const float> uniforms,
+                      const SlotData& slots);
     void optimize();
-    int numValueSlots();
     StackDepthMap tempStackMaxDepths();
 
     // These methods currently wrap SkRasterPipeline directly. TODO: add a layer of abstraction;
@@ -141,6 +147,7 @@ private:
 
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;
+    int fNumUniformSlots = 0;
     int fNumTempStackSlots = 0;
     int fNumLabels = 0;
     int fNumBranches = 0;
@@ -151,8 +158,9 @@ private:
 class Builder {
 public:
     /** Finalizes and optimizes the program. */
-    std::unique_ptr<Program> finish(int numValueSlots, SkRPDebugTrace* debugTrace = nullptr);
-
+    std::unique_ptr<Program> finish(int numValueSlots,
+                                    int numUniformSlots,
+                                    SkRPDebugTrace* debugTrace = nullptr);
     /**
      * Peels off a label ID for use in the program. Set the label's position in the program with
      * the `label` instruction. Actually branch to the target with an instruction like
@@ -242,6 +250,11 @@ public:
 
     void push_literal_u(uint32_t val) {
         fInstructions.push_back({BuilderOp::push_literal_f, {}, sk_bit_cast<int32_t>(val)});
+    }
+
+    void push_uniform(SlotRange src) {
+        // Translates into copy_constants (from uniforms into temp stack) in Raster Pipeline.
+        fInstructions.push_back({BuilderOp::push_uniform, {src.index}, src.count});
     }
 
     void push_slots(SlotRange src) {

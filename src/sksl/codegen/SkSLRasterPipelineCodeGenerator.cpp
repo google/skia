@@ -1165,7 +1165,7 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
 
 
 std::unique_ptr<RP::Program> Generator::finish() {
-    return fBuilder.finish(fProgramSlots.slotCount(), fDebugTrace);
+    return fBuilder.finish(fProgramSlots.slotCount(), /*numUniformSlots=*/0, fDebugTrace);
 }
 
 }  // namespace RP
