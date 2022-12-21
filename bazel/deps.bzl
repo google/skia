@@ -22,7 +22,7 @@ def git_repos_from_deps():
     new_git_repository(
         name = "dawn",
         build_file = "@//bazel/external/dawn:BUILD.bazel",
-        commit = "5cc118bde79d652a1cebab96cd8b8f198be8aaa9",
+        commit = "f8277d0ae47c90401ac01658ad89990cd4725653",
         remote = "https://dawn.googlesource.com/dawn.git",
     )
 
