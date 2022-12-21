@@ -638,3 +638,69 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorVectorScalarFoldingTest, r) {
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
 }
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaTernaryTest, r) {
+    test(r,
+         R"__SkSL__(
+            half4 main(vec4 color) {
+                // TODO: use dot()
+                half luma = color.r * 0.3 + color.g * 0.6 + color.b * 0.1;
+
+                half scale = luma < 0.33333 ? 0.5
+                           : luma < 0.66666 ? (0.166666 + 2.0 * (luma - 0.33333)) / luma
+                           :   /* else */     (0.833333 + 0.5 * (luma - 0.66666)) / luma;
+                return half4(color.rgb * scale, color.a);
+            }
+         )__SkSL__",
+         /*uniforms=*/{},
+         /*startingColor=*/SkColor4f{0.25, 0.00, 0.75, 1.0},
+         /*expectedResult=*/SkColor4f{0.125, 0.0, 0.375, 1.0});
+
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaIfNoEarlyReturnTest, r) {
+    test(r,
+         R"__SkSL__(
+            half4 main(vec4 color) {
+                // TODO: use dot()
+                half luma = color.r * 0.3 + color.g * 0.6 + color.b * 0.1;
+
+                half scale = 0;
+                if (luma < 0.33333) {
+                    scale = 0.5;
+                } else if (luma < 0.66666) {
+                    scale = (0.166666 + 2.0 * (luma - 0.33333)) / luma;
+                } else {
+                    scale = (0.833333 + 0.5 * (luma - 0.66666)) / luma;
+                }
+                return half4(color.rgb * scale, color.a);
+            }
+         )__SkSL__",
+         /*uniforms=*/{},
+         /*startingColor=*/SkColor4f{0.25, 0.00, 0.75, 1.0},
+         /*expectedResult=*/SkColor4f{0.125, 0.0, 0.375, 1.0});
+
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaWithEarlyReturnTest, r) {
+    test(r,
+         R"__SkSL__(
+            half4 main(half4 color) {
+                // TODO: use dot()
+                half luma = color.r * 0.3 + color.g * 0.6 + color.b * 0.1;
+
+                half scale = 0;
+                if (luma < 0.33333) {
+                    return half4(color.rgb * 0.5, color.a);
+                } else if (luma < 0.66666) {
+                    scale = 0.166666 + 2.0 * (luma - 0.33333);
+                } else {
+                    scale = 0.833333 + 0.5 * (luma - 0.66666);
+                }
+                return half4(color.rgb * (scale/luma), color.a);
+            }
+         )__SkSL__",
+         /*uniforms=*/{},
+         /*startingColor=*/SkColor4f{0.25, 0.00, 0.75, 1.0},
+         /*expectedResult=*/SkColor4f{0.125, 0.0, 0.375, 1.0});
+}
