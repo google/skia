@@ -19,6 +19,7 @@
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
@@ -31,6 +32,7 @@
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
@@ -175,6 +177,8 @@ public:
     [[nodiscard]] bool pushConstructorCompound(const ConstructorCompound& c);
     [[nodiscard]] bool pushConstructorSplat(const ConstructorSplat& c);
     [[nodiscard]] bool pushExpression(const Expression& e);
+    [[nodiscard]] bool pushFunctionCall(const FunctionCall& e);
+    [[nodiscard]] bool pushIntrinsic(const FunctionCall& e);
     [[nodiscard]] bool pushLiteral(const Literal& l);
     [[nodiscard]] bool pushSwizzle(const Swizzle& s);
     [[nodiscard]] bool pushTernaryExpression(const TernaryExpression& t);
@@ -203,6 +207,7 @@ public:
 
     [[nodiscard]] bool assign(const Expression& e);
     [[nodiscard]] bool binaryOp(SkSL::Type::NumberKind numberKind, int slots, const BinaryOps& ops);
+    void foldWithMultiOp(BuilderOp op, int elements);
     void foldWithOp(BuilderOp op, int elements);
     void nextTempStack() {
         fBuilder.set_current_stack(++fCurrentTempStack);
@@ -725,6 +730,9 @@ bool Generator::pushExpression(const Expression& e) {
         case Expression::Kind::kConstructorSplat:
             return this->pushConstructorSplat(e.as<ConstructorSplat>());
 
+        case Expression::Kind::kFunctionCall:
+            return this->pushFunctionCall(e.as<FunctionCall>());
+
         case Expression::Kind::kLiteral:
             return this->pushLiteral(e.as<Literal>());
 
@@ -763,9 +771,27 @@ bool Generator::assign(const Expression& e) {
     return lvalue && lvalue->store(this);
 }
 
+void Generator::foldWithMultiOp(BuilderOp op, int elements) {
+    // Fold the top N elements on the stack using an op that supports multiple slots, e.g.:
+    // (A + B + C + D) -> add_2_floats $0..1 += $2..3
+    //                    add_float    $0    += $1
+    for (; elements >= 8; elements -= 4) {
+        fBuilder.binary_op(op, /*slots=*/4);
+    }
+    for (; elements >= 6; elements -= 3) {
+        fBuilder.binary_op(op, /*slots=*/3);
+    }
+    for (; elements >= 4; elements -= 2) {
+        fBuilder.binary_op(op, /*slots=*/2);
+    }
+    this->foldWithOp(op, elements);
+}
+
 void Generator::foldWithOp(BuilderOp op, int elements) {
-    // Fold the top N elements on the stack using an op, e.g. (A && (B && C)) -> D.
-    for (; elements > 1; elements--) {
+    // Fold the top N elements on the stack using an single-slot-only op, e.g.:
+    // (A && B && C) -> bitwise_and   $1 &= $2
+    //                  bitwise_and   $0 &= $1
+    for (; elements >= 2; elements -= 1) {
         fBuilder.binary_op(op, /*slots=*/1);
     }
 }
@@ -1003,6 +1029,34 @@ bool Generator::pushConstructorSplat(const ConstructorSplat& c) {
     }
     fBuilder.duplicate(c.type().slotCount() - 1);
     return true;
+}
+
+bool Generator::pushFunctionCall(const FunctionCall& c) {
+    if (c.function().isIntrinsic()) {
+        return this->pushIntrinsic(c);
+    }
+    return unsupported();
+}
+
+bool Generator::pushIntrinsic(const FunctionCall& c) {
+    switch (c.function().intrinsicKind()) {
+        case IntrinsicKind::k_dot_IntrinsicKind: {
+            const ExpressionArray& args = c.arguments();
+            SkASSERT(args.size() == 2);
+            SkASSERT(args[0]->type().matches(args[1]->type()));
+
+            if (!this->pushExpression(*args[0]) ||
+                !this->pushExpression(*args[1])) {
+                return unsupported();
+            }
+            fBuilder.binary_op(BuilderOp::mul_n_floats, args[0]->type().slotCount());
+            this->foldWithMultiOp(BuilderOp::add_n_floats, args[0]->type().slotCount());
+            return true;
+        }
+        default:
+            break;
+    }
+    return unsupported();
 }
 
 bool Generator::pushLiteral(const Literal& l) {

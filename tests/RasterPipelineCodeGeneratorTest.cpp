@@ -646,8 +646,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaTernaryTest, r) {
     test(r,
          R"__SkSL__(
             half4 main(vec4 color) {
-                // TODO: use dot()
-                half luma = color.r * 0.3 + color.g * 0.6 + color.b * 0.1;
+                half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
 
                 half scale = luma < 0.33333 ? 0.5
                            : luma < 0.66666 ? (0.166666 + 2.0 * (luma - 0.33333)) / luma
@@ -665,8 +664,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaIfNoEarlyReturnTest, r) {
     test(r,
          R"__SkSL__(
             half4 main(vec4 color) {
-                // TODO: use dot()
-                half luma = color.r * 0.3 + color.g * 0.6 + color.b * 0.1;
+                half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
 
                 half scale = 0;
                 if (luma < 0.33333) {
@@ -689,8 +687,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaWithEarlyReturnTest, r) {
     test(r,
          R"__SkSL__(
             half4 main(half4 color) {
-                // TODO: use dot()
-                half luma = color.r * 0.3 + color.g * 0.6 + color.b * 0.1;
+                half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
 
                 half scale = 0;
                 if (luma < 0.33333) {
@@ -706,4 +703,35 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaWithEarlyReturnTest, r) {
          /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.25, 0.00, 0.75, 1.0},
          /*expectedResult=*/SkColor4f{0.125, 0.0, 0.375, 1.0});
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorDotTest, r) {
+    // This matches the test at intrinsics/Dot.sksl (but as a color filter).
+    static constexpr float kUniforms[] = {1.0, 2.0, 3.0, 4.0,
+                                          5.0, 6.0, 7.0, 8.0,
+                                          0.0, 1.0, 0.0, 1.0,
+                                          1.0, 0.0, 0.0, 1.0};
+    test(r,
+         R"__SkSL__(
+            uniform half4 inputA, inputB;
+            uniform half4 colorGreen, colorRed;
+
+            half4 main(vec4) {
+                const half4 constValA = half4(1, 2, 3, 4);
+                const half4 constValB = half4(5, 6, 7, 8);
+                half4 expected = half4(5, 17, 38, 70);
+
+                return (dot(inputA.x,       inputB.x)       == expected.x &&
+                        dot(inputA.xy,      inputB.xy)      == expected.y &&
+                        dot(inputA.xyz,     inputB.xyz)     == expected.z &&
+                        dot(inputA.xyzw,    inputB.xyzw)    == expected.w &&
+                        dot(constValA.x,    constValB.x)    == expected.x &&
+                        dot(constValA.xy,   constValB.xy)   == expected.y &&
+                        dot(constValA.xyz,  constValB.xyz)  == expected.z &&
+                        dot(constValA.xyzw, constValB.xyzw) == expected.w) ? colorGreen : colorRed;
+            }
+         )__SkSL__",
+         kUniforms,
+         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
+         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
 }
