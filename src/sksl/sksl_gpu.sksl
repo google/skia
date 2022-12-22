@@ -18,25 +18,6 @@ $pure float4 unpackSnorm4x8(uint p);
 $pure uint packHalf2x16(float2 v);
 $pure float2 unpackHalf2x16(uint v);
 
-$pure $bvec lessThan($svec x, $svec y);
-$pure $bvec lessThan($usvec x, $usvec y);
-$pure $bvec lessThan($uvec x, $uvec y);
-$pure $bvec lessThanEqual($uvec x, $uvec y);
-$pure $bvec lessThanEqual($svec x, $svec y);
-$pure $bvec lessThanEqual($usvec x, $usvec y);
-$pure $bvec greaterThan($uvec x, $uvec y);
-$pure $bvec greaterThan($svec x, $svec y);
-$pure $bvec greaterThan($usvec x, $usvec y);
-$pure $bvec greaterThanEqual($uvec x, $uvec y);
-$pure $bvec greaterThanEqual($svec x, $svec y);
-$pure $bvec greaterThanEqual($usvec x, $usvec y);
-$pure $bvec equal($uvec x, $uvec y);
-$pure $bvec equal($svec x, $svec y);
-$pure $bvec equal($usvec x, $usvec y);
-$pure $bvec notEqual($uvec x, $uvec y);
-$pure $bvec notEqual($svec x, $svec y);
-$pure $bvec notEqual($usvec x, $usvec y);
-
 $pure $genIType bitCount($genIType value);
 $pure $genIType bitCount($genUType value);
 $pure $genIType findLSB($genIType value);
