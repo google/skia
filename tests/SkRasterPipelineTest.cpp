@@ -1229,22 +1229,26 @@ DEF_TEST(SkRasterPipeline_BinaryBitwiseOps, r) {
 }
 
 DEF_TEST(SkRasterPipeline_UnaryBitwiseOps, r) {
-    // Allocate space for 1 slot.
-    alignas(64) int slots[SkRasterPipeline_kMaxStride_highp];
+    // Allocate space for 5 slots.
+    alignas(64) int slots[5 * SkRasterPipeline_kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct BitwiseOp {
         SkRasterPipeline::Stage stage;
+        int numSlotsAffected;
         std::function<int(int)> verify;
     };
 
     static const BitwiseOp kBitwiseOps[] = {
-        {SkRasterPipeline::Stage::bitwise_not, [](int a) { return ~a; }},
+        {SkRasterPipeline::Stage::bitwise_not,   1, [](int a) { return ~a; }},
+        {SkRasterPipeline::Stage::bitwise_not_2, 2, [](int a) { return ~a; }},
+        {SkRasterPipeline::Stage::bitwise_not_3, 3, [](int a) { return ~a; }},
+        {SkRasterPipeline::Stage::bitwise_not_4, 4, [](int a) { return ~a; }},
     };
 
     for (const BitwiseOp& op : kBitwiseOps) {
         // Initialize the slot values to -3,-2,-1...
-        std::iota(&slots[0], &slots[N], -3);
+        std::iota(&slots[0], &slots[5 * N], -3);
         int inputValue = slots[0];
 
         // Run the bitwise op over our data.
@@ -1255,12 +1259,18 @@ DEF_TEST(SkRasterPipeline_UnaryBitwiseOps, r) {
 
         // Verify that the destination slots have been updated.
         int* destPtr = &slots[0];
-        for (int checkLane = 0; checkLane < N; ++checkLane) {
-            int expected = op.verify(inputValue);
-            REPORTER_ASSERT(r, *destPtr == expected);
+        for (int checkSlot = 0; checkSlot < 5; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                if (checkSlot < op.numSlotsAffected) {
+                    int expected = op.verify(inputValue);
+                    REPORTER_ASSERT(r, *destPtr == expected);
+                } else {
+                    REPORTER_ASSERT(r, *destPtr == inputValue);
+                }
 
-            ++destPtr;
-            ++inputValue;
+                ++destPtr;
+                ++inputValue;
+            }
         }
     }
 }

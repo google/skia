@@ -128,22 +128,29 @@ private:
                                float* dst, const float* src, int numSlots);
     void appendCopyConstants(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
                              float* dst, const float* src, int numSlots);
-    void appendZeroSlotsUnmasked(SkRasterPipeline* pipeline, float* dst, int numSlots);
 
     // Appends a math operation with two inputs (dst op src) and one output (dst) to the pipeline.
     // `src` must be _immediately_ after `dst` in memory.
-    void appendAdjacentSingleSlotOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage,
-                                    float* dst, const float* src);
+    void appendAdjacentSingleSlotBinaryOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage,
+                                          float* dst, const float* src);
 
-    // Appends a multi-slot math operation to the pipeline. `src` must be _immediately_ after `dst`
-    // in memory. `baseStage` must refer to an unbounded "apply_to_n_slots" stage, which must be
-    // immediately followed by specializations for 1-4 slots. For instance, {`add_n_floats`,
+    // Appends a multi-slot two-input math operation to the pipeline. `src` must be _immediately_
+    // after `dst` in memory. `baseStage` must refer to an unbounded "apply_to_n_slots" stage, which
+    // must be immediately followed by specializations for 1-4 slots. For instance, {`add_n_floats`,
     // `add_float`, `add_2_floats`, `add_3_floats`, `add_4_floats`} must be contiguous ops in the
     // stage list, listed in that order; pass `add_n_floats` and we pick the appropriate op based on
     // `numSlots`.
-    void appendAdjacentMultiSlotOp(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
-                                   SkRasterPipeline::Stage baseStage,
-                                   float* dst, const float* src, int numSlots);
+    void appendAdjacentMultiSlotBinaryOp(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
+                                         SkRasterPipeline::Stage baseStage,
+                                         float* dst, const float* src, int numSlots);
+
+    // Appends a multi-slot single-input math operation to the pipeline. `baseStage` must refer to
+    // an single-slot "apply_op" stage, which must be immediately followed by specializations for
+    // 2-4 slots. For instance, {`zero_slot`, `zero_2_slots`, `zero_3_slots`, `zero_4_slots`}
+    // must be contiguous ops in the stage list, listed in that order; pass `zero_slot` and we
+    // pick the appropriate op based on `numSlots`.
+    void appendMultiSlotUnaryOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage baseStage,
+                                float* dst, int numSlots);
 
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;

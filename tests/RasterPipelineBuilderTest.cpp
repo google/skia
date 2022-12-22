@@ -299,7 +299,7 @@ DEF_TEST(RasterPipelineBuilderUnaryAndBinaryOps, r) {
     builder.binary_op(BuilderOp::sub_n_ints, 1);   // compute 3-4 and store into 3
     builder.binary_op(BuilderOp::bitwise_and, 1);  // compute 2&11 and store into 2
     builder.binary_op(BuilderOp::bitwise_xor, 1);  // compute 1^2 and store into 1
-    builder.unary_op(BuilderOp::bitwise_not, 1);   // compute ~3 and store into 1
+    builder.unary_op(BuilderOp::bitwise_not, 2);   // compute ~(0,3) and store into 0~1
     builder.discard_stack(2);                      // balance stack
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
@@ -321,7 +321,7 @@ R"(    1. zero_slot_unmasked             $0 = 0
    15. sub_int                        $3 -= $4
    16. bitwise_and                    $2 &= $3
    17. bitwise_xor                    $1 ^= $2
-   18. bitwise_not                    $1 = ~$1
+   18. bitwise_not_2                  $0..1 = ~$0..1
 )");
 }
 

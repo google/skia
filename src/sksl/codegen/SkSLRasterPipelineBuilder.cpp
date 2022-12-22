@@ -28,7 +28,7 @@ namespace RP {
 
 using SkRP = SkRasterPipeline;
 
-#define ALL_SINGLE_SLOT_UNARY_OP_CASES \
+#define ALL_MULTI_SLOT_UNARY_OP_CASES   \
          BuilderOp::bitwise_not
 
 #define ALL_SINGLE_SLOT_BINARY_OP_CASES \
@@ -36,28 +36,27 @@ using SkRP = SkRasterPipeline;
     case BuilderOp::bitwise_or:         \
     case BuilderOp::bitwise_xor
 
-#define ALL_MULTI_SLOT_BINARY_OP_CASES \
-         BuilderOp::add_n_floats:      \
-    case BuilderOp::add_n_ints:        \
-    case BuilderOp::sub_n_floats:      \
-    case BuilderOp::sub_n_ints:        \
-    case BuilderOp::mul_n_floats:      \
-    case BuilderOp::mul_n_ints:        \
-    case BuilderOp::div_n_floats:      \
-    case BuilderOp::div_n_ints:        \
-    case BuilderOp::cmple_n_floats:    \
-    case BuilderOp::cmple_n_ints:      \
-    case BuilderOp::cmplt_n_floats:    \
-    case BuilderOp::cmplt_n_ints:      \
-    case BuilderOp::cmpeq_n_floats:    \
-    case BuilderOp::cmpeq_n_ints:      \
-    case BuilderOp::cmpne_n_floats:    \
+#define ALL_MULTI_SLOT_BINARY_OP_CASES  \
+         BuilderOp::add_n_floats:       \
+    case BuilderOp::add_n_ints:         \
+    case BuilderOp::sub_n_floats:       \
+    case BuilderOp::sub_n_ints:         \
+    case BuilderOp::mul_n_floats:       \
+    case BuilderOp::mul_n_ints:         \
+    case BuilderOp::div_n_floats:       \
+    case BuilderOp::div_n_ints:         \
+    case BuilderOp::cmple_n_floats:     \
+    case BuilderOp::cmple_n_ints:       \
+    case BuilderOp::cmplt_n_floats:     \
+    case BuilderOp::cmplt_n_ints:       \
+    case BuilderOp::cmpeq_n_floats:     \
+    case BuilderOp::cmpeq_n_ints:       \
+    case BuilderOp::cmpne_n_floats:     \
     case BuilderOp::cmpne_n_ints
 
 void Builder::unary_op(BuilderOp op, int32_t slots) {
     switch (op) {
-        case ALL_SINGLE_SLOT_UNARY_OP_CASES:
-            SkASSERT(slots == 1);
+        case ALL_MULTI_SLOT_UNARY_OP_CASES:
             fInstructions.push_back({op, {}, slots});
             break;
 
@@ -126,7 +125,7 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::swizzle_4:
             return 4 - inst.fImmA;
 
-        case ALL_SINGLE_SLOT_UNARY_OP_CASES:
+        case ALL_MULTI_SLOT_UNARY_OP_CASES:
         default:
             return 0;
     }
@@ -261,40 +260,31 @@ void Program::appendCopyConstants(SkRasterPipeline* pipeline,
                      numSlots);
 }
 
-void Program::appendZeroSlotsUnmasked(SkRasterPipeline* pipeline, float* dst, int numSlots) {
+void Program::appendMultiSlotUnaryOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage baseStage,
+                                     float* dst, int numSlots) {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {
-        this->appendZeroSlotsUnmasked(pipeline, dst, /*numSlots=*/4);
+        this->appendMultiSlotUnaryOp(pipeline, baseStage, dst, /*numSlots=*/4);
         dst += 4 * SkOpts::raster_pipeline_highp_stride;
         numSlots -= 4;
     }
 
-    SkRasterPipeline::Stage stage;
-    switch (numSlots) {
-        case 0:  return;
-        case 1:  stage = SkRasterPipeline::zero_slot_unmasked;     break;
-        case 2:  stage = SkRasterPipeline::zero_2_slots_unmasked;  break;
-        case 3:  stage = SkRasterPipeline::zero_3_slots_unmasked;  break;
-        case 4:  stage = SkRasterPipeline::zero_4_slots_unmasked;  break;
-        default: SkUNREACHABLE;
-    }
-
+    SkASSERT(numSlots <= 4);
+    auto stage = (SkRasterPipeline::Stage)((int)baseStage + numSlots - 1);
     this->append(pipeline, stage, dst);
 }
 
-void Program::appendAdjacentSingleSlotOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage,
-                                         float* dst, const float* src) {
+void Program::appendAdjacentSingleSlotBinaryOp(SkRasterPipeline* pipeline,
+                                               SkRasterPipeline::Stage stage,
+                                               float* dst, const float* src) {
     // The source and destination must be directly next to one another.
     SkASSERT((dst + SkOpts::raster_pipeline_highp_stride) == src);
     this->append(pipeline, stage, dst);
 }
 
-void Program::appendAdjacentMultiSlotOp(SkRasterPipeline* pipeline,
-                                        SkArenaAlloc* alloc,
-                                        SkRasterPipeline::Stage baseStage,
-                                        float* dst,
-                                        const float* src,
-                                        int numSlots) {
+void Program::appendAdjacentMultiSlotBinaryOp(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
+                                              SkRasterPipeline::Stage baseStage,
+                                              float* dst, const float* src, int numSlots) {
     // The source and destination must be directly next to one another.
     SkASSERT(numSlots >= 0);
     SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots) == src);
@@ -448,22 +438,22 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 this->append(pipeline, SkRP::store_masked, SlotA());
                 break;
 
-            case ALL_SINGLE_SLOT_UNARY_OP_CASES: {
-                float* dst = tempStackPtr - (1 * N);
-                this->append(pipeline, (SkRP::Stage)inst.fOp, dst);
+            case ALL_MULTI_SLOT_UNARY_OP_CASES: {
+                float* dst = tempStackPtr - (inst.fImmA * N);
+                this->appendMultiSlotUnaryOp(pipeline, (SkRP::Stage)inst.fOp, dst, inst.fImmA);
                 break;
             }
             case ALL_SINGLE_SLOT_BINARY_OP_CASES: {
                 float* src = tempStackPtr - (1 * N);
                 float* dst = tempStackPtr - (2 * N);
-                this->appendAdjacentSingleSlotOp(pipeline, (SkRP::Stage)inst.fOp, dst, src);
+                this->appendAdjacentSingleSlotBinaryOp(pipeline, (SkRP::Stage)inst.fOp, dst, src);
                 break;
             }
             case ALL_MULTI_SLOT_BINARY_OP_CASES: {
                 float* src = tempStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
-                this->appendAdjacentMultiSlotOp(pipeline, alloc, (SkRP::Stage)inst.fOp,
-                                                dst, src, inst.fImmA);
+                this->appendAdjacentMultiSlotBinaryOp(pipeline, alloc, (SkRP::Stage)inst.fOp,
+                                                      dst, src, inst.fImmA);
                 break;
             }
             case BuilderOp::select: {
@@ -481,7 +471,8 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 break;
 
             case BuilderOp::zero_slot_unmasked:
-                this->appendZeroSlotsUnmasked(pipeline, SlotA(), inst.fImmA);
+                this->appendMultiSlotUnaryOp(pipeline, SkRP::zero_slot_unmasked,
+                                             SlotA(), inst.fImmA);
                 break;
 
             case BuilderOp::swizzle_1:
@@ -564,7 +555,7 @@ void Program::appendStages(SkRasterPipeline* pipeline,
             case BuilderOp::push_literal_f: {
                 float* dst = tempStackPtr;
                 if (inst.fImmA == 0) {
-                    this->appendZeroSlotsUnmasked(pipeline, dst, /*numSlots=*/1);
+                    this->append(pipeline, SkRP::zero_slot_unmasked, dst);
                     break;
                 }
                 int* constantPtr;
@@ -853,6 +844,14 @@ void Program::dump(SkWStream* out) {
                 opArg1 = ImmCtx(stage.ctx);
                 break;
 
+            case SkRP::swizzle_1:
+            case SkRP::swizzle_2:
+            case SkRP::swizzle_3:
+            case SkRP::swizzle_4: {
+                std::tie(opArg1, opArg2) = SwizzleCtx(stage.op, stage.ctx);
+                break;
+            }
+
             case SkRP::load_unmasked:
             case SkRP::load_condition_mask:
             case SkRP::store_condition_mask:
@@ -869,19 +868,13 @@ void Program::dump(SkWStream* out) {
                 opArg1 = PtrCtx(stage.ctx, 1);
                 break;
 
-            case SkRP::swizzle_1:
-            case SkRP::swizzle_2:
-            case SkRP::swizzle_3:
-            case SkRP::swizzle_4: {
-                std::tie(opArg1, opArg2) = SwizzleCtx(stage.op, stage.ctx);
-                break;
-            }
-
             case SkRP::store_src_rg:
+            case SkRP::bitwise_not_2:
             case SkRP::zero_2_slots_unmasked:
                 opArg1 = PtrCtx(stage.ctx, 2);
                 break;
 
+            case SkRP::bitwise_not_3:
             case SkRP::zero_3_slots_unmasked:
                 opArg1 = PtrCtx(stage.ctx, 3);
                 break;
@@ -890,6 +883,7 @@ void Program::dump(SkWStream* out) {
             case SkRP::load_dst:
             case SkRP::store_src:
             case SkRP::store_dst:
+            case SkRP::bitwise_not_4:
             case SkRP::zero_4_slots_unmasked:
                 opArg1 = PtrCtx(stage.ctx, 4);
                 break;
@@ -1094,6 +1088,9 @@ void Program::dump(SkWStream* out) {
                 break;
 
             case SkRP::bitwise_not:
+            case SkRP::bitwise_not_2:
+            case SkRP::bitwise_not_3:
+            case SkRP::bitwise_not_4:
                 opText = opArg1 + " = ~" + opArg1;
                 break;
 
