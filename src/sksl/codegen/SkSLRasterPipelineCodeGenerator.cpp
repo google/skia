@@ -1132,22 +1132,26 @@ bool Generator::pushTernaryExpression(const TernaryExpression& t) {
 bool Generator::pushTernaryExpression(const Expression& test,
                                       const Expression& ifTrue,
                                       const Expression& ifFalse) {
-    if (!Analysis::HasSideEffects(test) &&
-        !Analysis::HasSideEffects(ifTrue) &&
-        !Analysis::HasSideEffects(ifFalse)) {
-        // We can take some shortcuts if the expressions are entirely side-effect free.
-        // First, push the false-expression onto the primary stack.
+    // First, push the current condition-mask and the test-expression into a separate stack.
+    this->nextTempStack();
+    fBuilder.push_condition_mask();
+    if (!this->pushExpression(test)) {
+        return unsupported();
+    }
+    this->previousTempStack();
+
+    // We can take some shortcuts with condition-mask handling if the false-expression is entirely
+    // side-effect free. (We can evaluate it without masking off its effects.) We always handle the
+    // condition mask properly for the test-expression and true-expression properly.
+    if (!Analysis::HasSideEffects(ifFalse)) {
+        // Push the false-expression onto the primary stack.
         int cleanupLabelID = fBuilder.nextLabelID();
         if (!this->pushExpression(ifFalse)) {
             return unsupported();
         }
 
-        // Next, merge the current condition-mask with the test-expression in a separate stack.
+        // Next, merge the condition mask (on the separate stack) with the test expression.
         this->nextTempStack();
-        fBuilder.push_condition_mask();
-        if (!this->pushExpression(test)) {
-            return unsupported();
-        }
         fBuilder.merge_condition_mask();
         this->previousTempStack();
 
@@ -1166,12 +1170,8 @@ bool Generator::pushTernaryExpression(const Expression& test,
         fBuilder.select(/*slots=*/ifTrue.type().slotCount());
         fBuilder.label(cleanupLabelID);
     } else {
-        // Merge the current condition-mask with the test-expression in a separate stack.
+        // Merge the condition mask (on the separate stack) with the test expression.
         this->nextTempStack();
-        fBuilder.push_condition_mask();
-        if (!this->pushExpression(test)) {
-            return unsupported();
-        }
         fBuilder.merge_condition_mask();
         this->previousTempStack();
 

@@ -250,11 +250,15 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorTernarySideEffectTest, r) {
                  (x == y) ? (x += 3) : (y += 3);  // FALSE,  x=2 y=4
                  (x <  y) ? (x += 5) : (y += 5);  // TRUE,   x=7 y=4
                  (y >= x) ? (x += 9) : (y += 9);  // FALSE,  x=7 y=13
+                 (x != y) ? (x += 1) : (y     );  // TRUE,   x=8 y=13
+                 (x == y) ? (x += 2) : (y     );  // FALSE,  x=8 y=13
+                 (x != y) ? (x     ) : (y += 3);  // TRUE,   x=8 y=13
+                 (x == y) ? (x     ) : (y += 4);  // FALSE,  x=8 y=17
 
                  bool b = true;
                  bool c = (b = false) ? false : b;
 
-                 return c ? colorRed : (x == 7 && y == 13) ? colorGreen : colorRed;
+                 return c ? colorRed : (x == 8 && y == 17) ? colorGreen : colorRed;
              }
          )__SkSL__",
          /*uniforms=*/{},
