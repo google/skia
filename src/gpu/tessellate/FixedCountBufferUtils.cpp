@@ -20,7 +20,6 @@ namespace {
 void write_curve_index_buffer_base_index(VertexWriter vertexWriter,
                                          size_t bufferSize,
                                          uint16_t baseIndex) {
-    SkASSERT(bufferSize % (sizeof(uint16_t) * 3) == 0);
     int triangleCount = bufferSize / (sizeof(uint16_t) * 3);
     SkASSERT(triangleCount >= 1);
     SkTArray<std::array<uint16_t, 3>> indexData(triangleCount);
@@ -65,7 +64,6 @@ void write_curve_index_buffer_base_index(VertexWriter vertexWriter,
 
 void FixedCountCurves::WriteVertexBuffer(VertexWriter vertexWriter, size_t bufferSize) {
     SkASSERT(bufferSize >= sizeof(SkPoint) * 2);
-    SkASSERT(bufferSize % sizeof(SkPoint) == 0);
     int vertexCount = bufferSize / sizeof(SkPoint);
     SkASSERT(vertexCount > 3);
     SkDEBUGCODE(auto end = vertexWriter.mark(vertexCount * sizeof(SkPoint));)
@@ -124,7 +122,6 @@ void FixedCountWedges::WriteIndexBuffer(VertexWriter vertexWriter, size_t buffer
 }
 
 void FixedCountStrokes::WriteVertexBuffer(VertexWriter vertexWriter, size_t bufferSize) {
-    SkASSERT(bufferSize % (sizeof(float) * 2) == 0);
     int edgeCount = bufferSize / (sizeof(float) * 2);
     for (int i = 0; i < edgeCount; ++i) {
         vertexWriter << (float)i << (float)-i;

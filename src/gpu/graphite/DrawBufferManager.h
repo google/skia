@@ -20,12 +20,13 @@
 namespace skgpu::graphite {
 
 class Buffer;
+class Caps;
 class Recording;
 class ResourceProvider;
 
 class DrawBufferManager {
 public:
-    DrawBufferManager(ResourceProvider*, size_t uniformStartAlignment, size_t ssboStartAlignment);
+    DrawBufferManager(ResourceProvider*, const Caps*);
     ~DrawBufferManager();
 
     std::tuple<VertexWriter, BindBufferInfo> getVertexWriter(size_t requiredBytes);
@@ -58,6 +59,8 @@ public:
 
 private:
     struct BufferInfo {
+        BufferInfo(BufferType type, size_t blockSize, const Caps* caps);
+
         const BufferType fType;
         const size_t fStartAlignment;
         const size_t fBlockSize;
@@ -74,6 +77,7 @@ private:
     std::pair<void*, BindBufferInfo> prepareBindBuffer(BufferInfo* info, size_t requiredBytes);
 
     ResourceProvider* const fResourceProvider;
+    const Caps* const fCaps;
 
     static constexpr size_t kVertexBufferIndex  = 0;
     static constexpr size_t kIndexBufferIndex   = 1;

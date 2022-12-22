@@ -250,7 +250,7 @@ Context::PixelTransferResult Context::transferPixels(const TextureProxy* proxy,
 
     size_t rowBytes = caps->getAlignedTextureDataRowBytes(
                               SkColorTypeBytesPerPixel(supportedColorType) * srcRect.width());
-    size_t size = rowBytes * srcRect.height();
+    size_t size = SkAlignTo(rowBytes * srcRect.height(), caps->requiredTransferBufferAlignment());
     sk_sp<Buffer> buffer = fResourceProvider->findOrCreateBuffer(
             size,
             BufferType::kXferCpuToGpu,
@@ -259,7 +259,8 @@ Context::PixelTransferResult Context::transferPixels(const TextureProxy* proxy,
         return {};
     }
 
-    // Set up copy task
+    // Set up copy task. Since we always use a new buffer the offset can be 0 and we don't need to
+    // worry about aligning it to the required transfer buffer alignment.
     sk_sp<CopyTextureToBufferTask> copyTask = CopyTextureToBufferTask::Make(sk_ref_sp(proxy),
                                                                             srcRect,
                                                                             buffer,
@@ -276,12 +277,12 @@ Context::PixelTransferResult Context::transferPixels(const TextureProxy* proxy,
     PixelTransferResult result;
     result.fTransferBuffer = std::move(buffer);
     if (srcImageInfo.colorInfo() != dstColorInfo) {
-        result.fPixelConverter = [dims = srcRect.size(), dstColorInfo, srcImageInfo](
+        result.fPixelConverter = [dims = srcRect.size(), dstColorInfo, srcImageInfo, rowBytes](
                 void* dst, const void* src) {
             SkImageInfo srcInfo = SkImageInfo::Make(dims, srcImageInfo.colorInfo());
             SkImageInfo dstInfo = SkImageInfo::Make(dims, dstColorInfo);
             SkAssertResult(SkConvertPixels(dstInfo, dst, dstInfo.minRowBytes(),
-                                           srcInfo, src, srcInfo.minRowBytes()));
+                                           srcInfo, src, rowBytes));
         };
     }
 

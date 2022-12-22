@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/Recording.h"
 #include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 
@@ -16,8 +17,10 @@ namespace skgpu::graphite {
 
 static constexpr size_t kReusedBufferSize = 64 << 10;  // 64 KB
 
-UploadBufferManager::UploadBufferManager(ResourceProvider* resourceProvider)
-        : fResourceProvider(resourceProvider) {}
+UploadBufferManager::UploadBufferManager(ResourceProvider* resourceProvider,
+                                         const Caps* caps)
+        : fResourceProvider(resourceProvider)
+        , fMinAlignment(caps->requiredTransferBufferAlignment()) {}
 
 UploadBufferManager::~UploadBufferManager() {}
 
@@ -27,6 +30,8 @@ std::tuple<UploadWriter, BindBufferInfo> UploadBufferManager::getUploadWriter(
         return {UploadWriter(), BindBufferInfo()};
     }
 
+    requiredAlignment = std::max(requiredAlignment, fMinAlignment);
+    requiredBytes = SkAlignTo(requiredBytes, requiredAlignment);
     if (requiredBytes > kReusedBufferSize) {
         // Create a dedicated buffer for this request.
         sk_sp<Buffer> buffer = fResourceProvider->findOrCreateBuffer(

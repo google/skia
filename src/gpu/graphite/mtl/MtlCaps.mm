@@ -227,10 +227,14 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
     // requirements for the offset when binding the buffer. On MacOS Intel the offset must align
     // to 256. On iOS or Apple Silicon we must align to the max of the data type consumed by the
     // vertex function or 4 bytes, or we can ignore the data type and just use 16 bytes.
+    //
+    // On Mac, all copies must be aligned to at least 4 bytes; on iOS there is no alignment.
     if (this->isMac()) {
         fRequiredUniformBufferAlignment = 256;
+        fRequiredTransferBufferAlignment = 4;
     } else {
         fRequiredUniformBufferAlignment = 16;
+        fRequiredTransferBufferAlignment = 1;
     }
 
     fUniformBufferLayout = Layout::kMetal;
@@ -699,10 +703,6 @@ uint32_t MtlCaps::maxRenderTargetSampleCount(MTLPixelFormat format) const {
     } else {
         return 1;
     }
-}
-
-size_t MtlCaps::getTransferBufferAlignment(size_t bytesPerPixel) const {
-    return std::max(bytesPerPixel, getMinBufferAlignment());
 }
 
 bool MtlCaps::supportsWritePixels(const TextureInfo& texInfo) const {

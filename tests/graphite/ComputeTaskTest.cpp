@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ComputePassTask.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ComputeTypes.h"
@@ -46,10 +47,14 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeTaskTest, reporter, context) {
             "TestArrayMultiply");
 
     ResourceProvider* provider = recorder->priv().resourceProvider();
+    size_t inputSize = SkAlignTo(sizeof(float) * (kProblemSize + 1),
+                                 recorder->priv().caps()->requiredStorageBufferAlignment());
     sk_sp<Buffer> inputBuffer = provider->findOrCreateBuffer(
-            sizeof(float) * (kProblemSize + 1), BufferType::kStorage, PrioritizeGpuReads::kNo);
+            inputSize, BufferType::kStorage, PrioritizeGpuReads::kNo);
+    size_t outputSize = SkAlignTo(sizeof(float) * kProblemSize,
+                                  recorder->priv().caps()->requiredStorageBufferAlignment());
     sk_sp<Buffer> outputBuffer = provider->findOrCreateBuffer(
-            sizeof(float) * kProblemSize, BufferType::kStorage, PrioritizeGpuReads::kNo);
+            outputSize, BufferType::kStorage, PrioritizeGpuReads::kNo);
 
     std::vector<ResourceBinding> bindings;
     bindings.push_back({/*index=*/0, {inputBuffer.get(), /*offset=*/0}});
@@ -159,8 +164,10 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeShaderAtomicOperationsTest, reporter,
             "TestAtomicOperations");
 
     ResourceProvider* provider = recorder->priv().resourceProvider();
+    size_t minSize = SkAlignTo(sizeof(uint32_t),
+                               recorder->priv().caps()->requiredStorageBufferAlignment());
     sk_sp<Buffer> ssbo = provider->findOrCreateBuffer(
-            sizeof(uint32_t), BufferType::kStorage, PrioritizeGpuReads::kNo);
+            minSize, BufferType::kStorage, PrioritizeGpuReads::kNo);
 
     std::vector<ResourceBinding> bindings;
     bindings.push_back({/*index=*/0, {ssbo.get(), /*offset=*/0}});
@@ -270,8 +277,10 @@ DEF_GRAPHITE_TEST_FOR_METAL_CONTEXT(ComputeShaderAtomicOperationsOverArrayAndStr
             "TestAtomicOperationsOverArrayAndStruct");
 
     ResourceProvider* provider = recorder->priv().resourceProvider();
+    size_t minSize = SkAlignTo(2*sizeof(uint32_t),
+                               recorder->priv().caps()->requiredStorageBufferAlignment());
     sk_sp<Buffer> ssbo = provider->findOrCreateBuffer(
-            2 * sizeof(uint32_t), BufferType::kStorage, PrioritizeGpuReads::kNo);
+            minSize, BufferType::kStorage, PrioritizeGpuReads::kNo);
 
     std::vector<ResourceBinding> bindings;
     bindings.push_back({/*index=*/0, {ssbo.get(), /*offset=*/0}});

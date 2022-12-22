@@ -41,12 +41,9 @@ public:
                             Shareable,
                             GraphiteResourceKey*) const override;
 
-    size_t getMinBufferAlignment() const { return 4; }
-
 private:
     const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
     bool onIsTexturable(const TextureInfo&) const override;
-    size_t getTransferBufferAlignment(size_t bytesPerPixel) const override;
     bool supportsWritePixels(const TextureInfo& textureInfo) const override;
     bool supportsReadPixels(const TextureInfo& textureInfo) const override;
     SkColorType supportedWritePixelsColorType(SkColorType dstColorType,
@@ -108,4 +105,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DawnCaps_DEFINED
-

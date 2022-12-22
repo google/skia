@@ -30,19 +30,26 @@ UploadInstance::UploadInstance(const Buffer* buffer,
         : fBuffer(buffer), fTextureProxy(textureProxy), fCopyData(copyData)
         , fConditionalContext(std::move(condContext)) {}
 
-size_t compute_combined_buffer_size(const Caps* caps,
-                                    int mipLevelCount,
-                                    size_t bytesPerPixel,
-                                    const SkISize& baseDimensions,
-                                    SkTArray<size_t>* individualMipOffsets) {
-    SkASSERT(individualMipOffsets && !individualMipOffsets->size());
+// Returns total buffer size to allocate, and required offset alignment of that allocation.
+// Updates 'levelOffsetsAndRowBytes' with offsets relative to start of the allocation, as well as
+// the aligned destination rowBytes for each level.
+std::pair<size_t, size_t> compute_combined_buffer_size(
+        const Caps* caps,
+        int mipLevelCount,
+        size_t bytesPerPixel,
+        const SkISize& baseDimensions,
+        SkTArray<std::pair<size_t, size_t>>* levelOffsetsAndRowBytes) {
+    SkASSERT(levelOffsetsAndRowBytes && !levelOffsetsAndRowBytes->size());
     SkASSERT(mipLevelCount >= 1);
 
-    size_t minTransferBufferAlignment = caps->getTransferBufferAlignment(bytesPerPixel);
+    size_t minTransferBufferAlignment =
+            std::max(bytesPerPixel, caps->requiredTransferBufferAlignment());
     size_t alignedBytesPerRow =
             caps->getAlignedTextureDataRowBytes(baseDimensions.width() * bytesPerPixel);
-    individualMipOffsets->push_back(0);
-    size_t combinedBufferSize = alignedBytesPerRow * baseDimensions.height();
+
+    levelOffsetsAndRowBytes->push_back({0, alignedBytesPerRow});
+    size_t combinedBufferSize = SkAlignTo(alignedBytesPerRow * baseDimensions.height(),
+                                          minTransferBufferAlignment);
     SkISize levelDimensions = baseDimensions;
 
     for (int currentMipLevel = 1; currentMipLevel < mipLevelCount; ++currentMipLevel) {
@@ -50,15 +57,17 @@ size_t compute_combined_buffer_size(const Caps* caps,
                            std::max(1, levelDimensions.height() / 2)};
         alignedBytesPerRow =
                 caps->getAlignedTextureDataRowBytes(levelDimensions.width() * bytesPerPixel);
-        size_t alignedSize = alignedBytesPerRow * levelDimensions.height();
-        combinedBufferSize = SkAlignTo(combinedBufferSize, minTransferBufferAlignment);
+        size_t alignedSize = SkAlignTo(alignedBytesPerRow * levelDimensions.height(),
+                                       minTransferBufferAlignment);
+        SkASSERT(combinedBufferSize % minTransferBufferAlignment == 0);
 
-        individualMipOffsets->push_back(combinedBufferSize);
+        levelOffsetsAndRowBytes->push_back({combinedBufferSize, alignedBytesPerRow});
         combinedBufferSize += alignedSize;
     }
 
-    SkASSERT(individualMipOffsets->size() == mipLevelCount);
-    return combinedBufferSize;
+    SkASSERT(levelOffsetsAndRowBytes->size() == mipLevelCount);
+    SkASSERT(combinedBufferSize % minTransferBufferAlignment == 0);
+    return {combinedBufferSize, minTransferBufferAlignment};
 }
 
 UploadInstance UploadInstance::Make(Recorder* recorder,
@@ -103,11 +112,11 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
         }
     }
 
-    size_t bpp = dstColorInfo.bytesPerPixel();
-    size_t minAlignment = caps->getTransferBufferAlignment(bpp);
-    SkTArray<size_t> individualMipOffsets(mipLevelCount);
-    size_t combinedBufferSize = compute_combined_buffer_size(caps, mipLevelCount, bpp,
-                                                             dstRect.size(), &individualMipOffsets);
+    const size_t bpp = dstColorInfo.bytesPerPixel();
+    SkTArray<std::pair<size_t, size_t>> levelOffsetsAndRowBytes(mipLevelCount);
+
+    auto [combinedBufferSize, minAlignment] = compute_combined_buffer_size(
+            caps, mipLevelCount, bpp, dstRect.size(), &levelOffsetsAndRowBytes);
     SkASSERT(combinedBufferSize);
 
     UploadBufferManager* bufferMgr = recorder->priv().uploadBufferManager();
@@ -125,9 +134,8 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
     bool needsConversion = (srcColorInfo != dstColorInfo);
     for (unsigned int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
         const size_t trimRowBytes = currentWidth * bpp;
-        const size_t dstRowBytes = caps->getAlignedTextureDataRowBytes(currentWidth * bpp);
         const size_t srcRowBytes = levels[currentMipLevel].fRowBytes;
-        const size_t mipOffset = individualMipOffsets[currentMipLevel];
+        const auto [mipOffset, dstRowBytes] = levelOffsetsAndRowBytes[currentMipLevel];
 
         // copy data into the buffer, skipping any trailing bytes
         const char* src = (const char*)levels[currentMipLevel].fPixels;

@@ -147,10 +147,6 @@ const Caps::ColorTypeInfo* DawnCaps::getColorTypeInfo(SkColorType colorType,
     return nullptr;
 }
 
-size_t DawnCaps::getTransferBufferAlignment(size_t bytesPerPixel) const {
-    return std::max(bytesPerPixel, this->getMinBufferAlignment());
-}
-
 bool DawnCaps::supportsWritePixels(const TextureInfo& textureInfo) const {
     const auto& spec = textureInfo.dawnTextureSpec();
     return spec.fUsage & wgpu::TextureUsage::CopyDst;
@@ -182,6 +178,7 @@ void DawnCaps::initCaps(const wgpu::Device& device) {
     }
     fMaxTextureSize = limits.limits.maxTextureDimension2D;
 
+    fRequiredTransferBufferAlignment = 4;
     fRequiredUniformBufferAlignment = 256;
     fRequiredStorageBufferAlignment = fRequiredUniformBufferAlignment;
 
@@ -434,4 +431,3 @@ void DawnCaps::buildKeyForTexture(SkISize dimensions,
 }
 
 } // namespace skgpu::graphite
-

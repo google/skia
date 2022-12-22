@@ -35,7 +35,7 @@ SK_MAKE_BITMASK_OPS(DepthStencilFlags);
 /**
  * What a GPU buffer will be used for
  */
-enum class BufferType {
+enum class BufferType : int {
     kVertex,
     kIndex,
     kXferCpuToGpu,

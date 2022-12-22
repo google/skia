@@ -98,8 +98,6 @@ private:
 
     bool onIsTexturable(const TextureInfo&) const override { return false; }
 
-    size_t getTransferBufferAlignment(size_t bytesPerPixel) const override { return 0; }
-
     bool supportsWritePixels(const TextureInfo&) const override { return false; }
     bool supportsReadPixels(const TextureInfo&) const override { return false; }
 
@@ -207,4 +205,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_VulkanCaps_DEFINED
-

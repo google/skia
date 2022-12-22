@@ -195,6 +195,22 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
                                                    PrioritizeGpuReads prioritizeGpuReads) {
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
+#ifdef SK_DEBUG
+    // The size should already be aligned.
+    size_t minAlignment = 1;
+    if (type == BufferType::kStorage) {
+        minAlignment = std::max(fSharedContext->caps()->requiredStorageBufferAlignment(),
+                                minAlignment);
+    } else if (type == BufferType::kUniform) {
+        minAlignment = std::max(fSharedContext->caps()->requiredUniformBufferAlignment(),
+                                minAlignment);
+    } else if (type == BufferType::kXferCpuToGpu || type == BufferType::kXferGpuToCpu) {
+        minAlignment = std::max(fSharedContext->caps()->requiredTransferBufferAlignment(),
+                                minAlignment);
+    }
+    SkASSERT(size % minAlignment == 0);
+#endif
+
     GraphiteResourceKey key;
     {
         // For the key we need ((sizeof(size_t) + (sizeof(uint32_t) - 1)) / (sizeof(uint32_t))

@@ -31,8 +31,6 @@ sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
         return nullptr;
     }
 
-    const DawnCaps* dawnCaps = sharedContext->dawnCaps();
-
     wgpu::BufferUsage usage = wgpu::BufferUsage::None;
     switch (type) {
     case BufferType::kVertex:
@@ -55,7 +53,6 @@ sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
         break;
     }
 
-    size = SkAlignTo(size, dawnCaps->getMinBufferAlignment());
     wgpu::BufferDescriptor desc;
 #ifdef SK_DEBUG
     desc.label = kBufferTypeNames[static_cast<int>(type)];

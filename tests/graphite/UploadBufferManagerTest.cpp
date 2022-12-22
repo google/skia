@@ -39,7 +39,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, cont
 
     REPORTER_ASSERT(reporter, smBufferInfo0.fBuffer == smBufferInfo1.fBuffer);
     REPORTER_ASSERT(reporter, smBufferInfo0.fOffset == 0);
-    REPORTER_ASSERT(reporter, smBufferInfo1.fOffset == 10);
+    REPORTER_ASSERT(reporter, smBufferInfo1.fOffset >= 10);
 
     // Test a large write, which should get its own dedicated buffer.
     auto [lgWriter, lgBufferInfo] = bufferManager->getUploadWriter((64 << 10) + 1, 1);
@@ -63,27 +63,26 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(UploadBufferManagerTest, reporter, cont
                     /*rowCount=*/1);
 
     REPORTER_ASSERT(reporter, smBufferInfo2.fBuffer == smBufferInfo0.fBuffer);
-    REPORTER_ASSERT(reporter, smBufferInfo2.fOffset == 14);
+    REPORTER_ASSERT(reporter, smBufferInfo2.fOffset >= 4 + smBufferInfo1.fOffset);
 
     REPORTER_ASSERT(reporter, smBufferInfo0.fBuffer->isMapped());
-    const void* smBufferMap = const_cast<Buffer*>(smBufferInfo0.fBuffer)->map();
-    const char expectedSmBufferMap[16] = {
-            // From smWriter0.
-            1, 2, 3,
-            5, 6, 7,
-
-            1, 2,
-            5, 6,
-
-            // From smWriter1.
-            1, 2,
-            5, 6,
-
-            // From smWriter2.
-            1, 2,
-    };
-    REPORTER_ASSERT(reporter,
-                    memcmp(smBufferMap, expectedSmBufferMap, sizeof(expectedSmBufferMap)) == 0);
+    const char* smBufferMap =
+                reinterpret_cast<const char*>(const_cast<Buffer*>(smBufferInfo0.fBuffer)->map());
+    // Each section of written data could be offset and aligned by GPU-required rules, so we can't
+    // easily validate the contents of the buffer in one go, and instead test at each of the three
+    // reported offsets.
+    const char expectedSmBuffer0[10] = { 1, 2, 3, 5, 6, 7, 1, 2, 5, 6 };
+    const char expectedSmBuffer1[4] = { 1, 2, 5, 6 };
+    const char expectedSmBuffer2[2] = { 1, 2};
+    REPORTER_ASSERT(reporter, memcmp(smBufferMap + smBufferInfo0.fOffset,
+                                     expectedSmBuffer0,
+                                     sizeof(expectedSmBuffer0)) == 0);
+    REPORTER_ASSERT(reporter, memcmp(smBufferMap + smBufferInfo1.fOffset,
+                                     expectedSmBuffer1,
+                                     sizeof(expectedSmBuffer1)) == 0);
+    REPORTER_ASSERT(reporter, memcmp(smBufferMap + smBufferInfo2.fOffset,
+                                     expectedSmBuffer1,
+                                     sizeof(expectedSmBuffer2)) == 0);
 
     // Snap a Recording from the Recorder. This will transfer resources from the UploadBufferManager
     // to the Recording.

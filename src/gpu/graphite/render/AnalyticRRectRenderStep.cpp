@@ -289,7 +289,7 @@ static constexpr int kIndexCount = 153;
 
 static size_t indexBufferSize() { return kIndexCount * sizeof(uint16_t); }
 static void writeIndexBuffer(VertexWriter writer, size_t size) {
-    SkASSERT(indexBufferSize() == size);
+    SkASSERT(indexBufferSize() <= size);
 
     static constexpr uint16_t kTL = 0 * kCornerVertexCount;
     static constexpr uint16_t kTR = 1 * kCornerVertexCount;
@@ -327,7 +327,7 @@ static void writeIndexBuffer(VertexWriter writer, size_t size) {
 
 static size_t vertexBufferSize() { return kVertexCount * sizeof(Vertex); }
 static void writeVertexBuffer(VertexWriter writer, size_t size) {
-    SkASSERT(vertexBufferSize() == size);
+    SkASSERT(vertexBufferSize() <= size);
 
     // Allowed values for the stroke control vertex attribute. This is multiplied with the stroke
     // radius of the instance to get the final effect on the corner positions. When the stroke
