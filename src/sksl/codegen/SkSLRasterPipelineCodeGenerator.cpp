@@ -37,6 +37,7 @@
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLLiteral.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
@@ -180,6 +181,8 @@ public:
     [[nodiscard]] bool pushFunctionCall(const FunctionCall& e);
     [[nodiscard]] bool pushIntrinsic(const FunctionCall& e);
     [[nodiscard]] bool pushLiteral(const Literal& l);
+    [[nodiscard]] bool pushPrefixExpression(const PrefixExpression& p);
+    [[nodiscard]] bool pushPrefixExpression(Operator op, const Expression& expr);
     [[nodiscard]] bool pushSwizzle(const Swizzle& s);
     [[nodiscard]] bool pushTernaryExpression(const TernaryExpression& t);
     [[nodiscard]] bool pushTernaryExpression(const Expression& test,
@@ -736,6 +739,9 @@ bool Generator::pushExpression(const Expression& e) {
         case Expression::Kind::kLiteral:
             return this->pushLiteral(e.as<Literal>());
 
+        case Expression::Kind::kPrefix:
+            return this->pushPrefixExpression(e.as<PrefixExpression>());
+
         case Expression::Kind::kSwizzle:
             return this->pushSwizzle(e.as<Swizzle>());
 
@@ -1039,9 +1045,10 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
 }
 
 bool Generator::pushIntrinsic(const FunctionCall& c) {
+    const ExpressionArray& args = c.arguments();
+
     switch (c.function().intrinsicKind()) {
-        case IntrinsicKind::k_dot_IntrinsicKind: {
-            const ExpressionArray& args = c.arguments();
+        case IntrinsicKind::k_dot_IntrinsicKind:
             SkASSERT(args.size() == 2);
             SkASSERT(args[0]->type().matches(args[1]->type()));
 
@@ -1052,7 +1059,11 @@ bool Generator::pushIntrinsic(const FunctionCall& c) {
             fBuilder.binary_op(BuilderOp::mul_n_floats, args[0]->type().slotCount());
             this->foldWithMultiOp(BuilderOp::add_n_floats, args[0]->type().slotCount());
             return true;
-        }
+
+        case IntrinsicKind::k_not_IntrinsicKind:
+            SkASSERT(args.size() == 1);
+            return this->pushPrefixExpression(OperatorKind::LOGICALNOT, *args[0]);
+
         default:
             break;
     }
@@ -1082,8 +1093,30 @@ bool Generator::pushLiteral(const Literal& l) {
     }
 }
 
+bool Generator::pushPrefixExpression(const PrefixExpression& p) {
+    return this->pushPrefixExpression(p.getOperator(), *p.operand());
+}
+
+bool Generator::pushPrefixExpression(Operator op, const Expression& expr) {
+    switch (op.kind()) {
+        case OperatorKind::BITWISENOT:
+        case OperatorKind::LOGICALNOT:
+            // Handle operators ! and ~.
+            if (!this->pushExpression(expr)) {
+                return false;
+            }
+            fBuilder.unary_op(BuilderOp::bitwise_not, expr.type().slotCount());
+            return true;
+
+        default:
+            break;
+    }
+
+    return unsupported();
+}
+
 bool Generator::pushSwizzle(const Swizzle& s) {
-    // Push the input expression.
+    // Push the base expression.
     if (!this->pushExpression(*s.base())) {
         return false;
     }

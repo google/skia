@@ -735,3 +735,57 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorDotTest, r) {
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
 }
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorLogicalNotTest, r) {
+    // This largely matches the test at intrinsics/Not.sksl (sans typecasting, as a color filter).
+    static constexpr float kUniforms[] = {0.2f, 0.0f, 0.4f, 0.0f,
+                                          0.0f, 0.6f, 0.0f, 0.8f,
+                                          0.0f, 1.0f, 0.0f, 1.0f,
+                                          1.0f, 0.0f, 0.0f, 1.0f};
+    test(r,
+         R"__SkSL__(
+            uniform half4 inputH4, expectedH4;
+            uniform half4 colorGreen, colorRed;
+
+            half4 main(vec4) {
+                bool4 inputVal = bool4(inputH4.x != 0.0,
+                                       inputH4.y != 0.0,
+                                       inputH4.z != 0.0,
+                                       inputH4.w != 0.0);
+                bool4 expected = bool4(!(expectedH4.x == 0.0),
+                                       !(expectedH4.y == 0.0),
+                                       !(expectedH4.z == 0.0),
+                                       !(expectedH4.w == 0.0));
+                const bool4 constVal = bool4(true, false, true, false);
+                return (not(inputVal.xy)   == expected.xy    &&
+                        not(inputVal.xyz)  == expected.xyz   &&
+                        not(inputVal.xyzw) == expected.xyzw  &&
+                        not(constVal.xy)   == expected.xy    &&
+                        not(constVal.xyz)  == expected.xyz   &&
+                        not(constVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;
+            }
+         )__SkSL__",
+         kUniforms,
+         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
+         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorBitwiseNotTest, r) {
+    static constexpr int32_t kUniforms[] = { 0,  12,  3456,  4567890,
+                                            ~0, ~12, ~3456, ~4567890};
+    test(r,
+         R"__SkSL__(
+            uniform int4 value, expected;
+            const half4 colorGreen = half4(0,1,0,1), colorRed = half4(1,0,0,1);
+
+            half4 main(vec4) {
+                return (~value.x    == expected.x     &&
+                        ~value.xy   == expected.xy    &&
+                        ~value.xyz  == expected.xyz   &&
+                        ~value.xyzw == expected.xyzw) ? colorGreen : colorRed;
+            }
+         )__SkSL__",
+         SkSpan((const float*)kUniforms, std::size(kUniforms)),
+         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
+         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
+}
