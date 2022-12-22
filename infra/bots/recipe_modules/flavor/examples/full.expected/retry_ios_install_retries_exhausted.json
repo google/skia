@@ -235,6 +235,21 @@
     ]
   },
   {
+    "cmd": [
+      "ideviceinstaller",
+      "-U",
+      "com.google.dm"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "uninstall dm (2)"
+  },
+  {
     "failure": {
       "humanReason": "Infra Failure: Step('install dm (attempt 2)') (retcode: 1)"
     },

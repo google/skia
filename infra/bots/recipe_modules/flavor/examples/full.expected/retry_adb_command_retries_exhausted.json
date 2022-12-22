@@ -390,6 +390,82 @@
   },
   {
     "cmd": [
+      "/opt/infra-android/tools/adb",
+      "kill-server"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "adb kill-server after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 3)",
+    "timeout": 30
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "wait-for-device"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "wait for device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 3)",
+    "timeout": 180
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "devices",
+      "-l"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "adb devices -l after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 3)",
+    "timeout": 30
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "reboot"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "adb reboot device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 3)",
+    "timeout": 30
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "wait-for-device"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "wait for device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 3) (2)",
+    "timeout": 180
+  },
+  {
+    "cmd": [
       "python",
       "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output([\n    '/opt/infra-android/tools/adb', 'logcat', '-d']).decode('utf-8', errors='ignore')\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      try:\n        sym = subprocess.check_output([\n            'addr2line', '-Cfpe', local, addr]).decode('utf-8')\n        line = line.replace(addr, addr + ' ' + sym.strip())\n      except subprocess.CalledProcessError:\n        pass\n  print(line)\n",
       "[START_DIR]/build"

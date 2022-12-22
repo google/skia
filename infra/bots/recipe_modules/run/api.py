@@ -91,8 +91,7 @@ class SkiaStepApi(recipe_api.RecipeApi):
           del self._failed[-attempt:]
         return res
       except self.m.step.StepFailure:
-        if attempt == attempts - 1:
-          if abort_on_failure:
-            raise
-        elif between_attempts_fn:
+        if between_attempts_fn:
           between_attempts_fn(attempt+1)
+        if (attempt == attempts - 1) and abort_on_failure:
+            raise
