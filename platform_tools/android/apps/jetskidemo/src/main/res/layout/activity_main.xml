@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -17,7 +17,7 @@
             android:orientation="vertical"
             android:id="@+id/skottie_container">
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_marginTop="50px"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -37,9 +37,9 @@
                     app:layout_constraintTop_toTopOf="parent"
                     android:text="ImageView populated by bitmap">
                 </TextView>
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_marginTop="50px"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -60,10 +60,10 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
                 </TextView>
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-            <android.support.constraint.ConstraintLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_marginTop="50px"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -83,7 +83,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     android:text="Runtime effect drawn on a JetSki's\nutil thread. GL on Surface View.">
                 </TextView>
-            </android.support.constraint.ConstraintLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <org.skia.jetski.util.SkottieView
                 android:layout_width="400px"
@@ -100,4 +100,4 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent">
     </org.skia.jetskidemo.NavigationSpinner>
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

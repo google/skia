@@ -9,7 +9,7 @@ package org.skia.jetski;
 
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 public class Surface {
     private long mNativeInstance;

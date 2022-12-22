@@ -7,10 +7,11 @@
 
 package org.skia.jetskidemo;
 
+import androidx.annotation.NonNull;
+
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;

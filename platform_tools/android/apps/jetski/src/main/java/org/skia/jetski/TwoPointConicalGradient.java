@@ -7,7 +7,7 @@
 
 package org.skia.jetski;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import java.lang.IllegalArgumentException;
 
 public class TwoPointConicalGradient extends Gradient {
