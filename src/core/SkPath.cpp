@@ -1345,9 +1345,11 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
         startTheta = endTheta;
     }
 
+#ifndef SK_LEGACY_PATH_ARCTO_ENDPOINT
     // The final point should match the input point (by definition); replace it to
     // ensure that rounding errors in the above math don't cause any problems.
     this->setLastPt(x, y);
+#endif
     return *this;
 }
 
