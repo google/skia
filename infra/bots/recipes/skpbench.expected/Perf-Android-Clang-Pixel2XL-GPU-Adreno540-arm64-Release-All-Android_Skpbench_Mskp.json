@@ -202,30 +202,27 @@
   },
   {
     "cmd": [
-      "vpython3",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "glob",
+      "tar",
+      "-C",
       "[START_DIR]/mskp",
-      "*"
+      "-chzf",
+      "[CLEANUP]/host_tar_gz_tmp_1/mskp.tar.gz",
+      "."
     ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "infra_step": true,
-    "name": "ls [START_DIR]/mskp/*",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/mskp/bar.jpg@@@",
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/mskp/foo.png@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
+    "name": "create tar.gz of directory [START_DIR]/mskp",
+    "timeout": 60
   },
   {
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "push",
-      "[START_DIR]/mskp/bar.jpg",
-      "[START_DIR]/mskp/foo.png",
-      "/sdcard/revenge_of_the_skiabot/mskp"
+      "[CLEANUP]/host_tar_gz_tmp_1/mskp.tar.gz",
+      "/sdcard/revenge_of_the_skiabot/mskp.tar.gz"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -235,6 +232,58 @@
     },
     "infra_step": true,
     "name": "push [START_DIR]/mskp/* /sdcard/revenge_of_the_skiabot/mskp"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/mskp"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "create directory /sdcard/revenge_of_the_skiabot/mskp"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "tar",
+      "-C",
+      "/sdcard/revenge_of_the_skiabot/mskp",
+      "-xzf",
+      "/sdcard/revenge_of_the_skiabot/mskp.tar.gz"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "extract /sdcard/revenge_of_the_skiabot/mskp.tar.gz"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
+      "rm",
+      "/sdcard/revenge_of_the_skiabot/mskp.tar.gz"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "remove /sdcard/revenge_of_the_skiabot/mskp.tar.gz"
   },
   {
     "cmd": [

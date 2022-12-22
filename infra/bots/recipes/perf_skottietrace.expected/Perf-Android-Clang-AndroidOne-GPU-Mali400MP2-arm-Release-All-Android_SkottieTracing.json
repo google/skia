@@ -105,30 +105,27 @@
   },
   {
     "cmd": [
-      "vpython3",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "glob",
+      "tar",
+      "-C",
       "[START_DIR]/skia/resources",
-      "*"
+      "-chzf",
+      "[CLEANUP]/host_tar_gz_tmp_1/resources.tar.gz",
+      "."
     ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "infra_step": true,
-    "name": "ls [START_DIR]/skia/resources/*",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/skia/resources/bar.jpg@@@",
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/skia/resources/foo.png@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
+    "name": "create tar.gz of directory [START_DIR]/skia/resources",
+    "timeout": 60
   },
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "[START_DIR]/skia/resources/bar.jpg",
-      "[START_DIR]/skia/resources/foo.png",
-      "/sdcard/revenge_of_the_skiabot/resources"
+      "[CLEANUP]/host_tar_gz_tmp_1/resources.tar.gz",
+      "/sdcard/revenge_of_the_skiabot/resources.tar.gz"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -138,6 +135,58 @@
     },
     "infra_step": true,
     "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/resources"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "create directory /sdcard/revenge_of_the_skiabot/resources"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "tar",
+      "-C",
+      "/sdcard/revenge_of_the_skiabot/resources",
+      "-xzf",
+      "/sdcard/revenge_of_the_skiabot/resources.tar.gz"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "extract /sdcard/revenge_of_the_skiabot/resources.tar.gz"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "/sdcard/revenge_of_the_skiabot/resources.tar.gz"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "remove /sdcard/revenge_of_the_skiabot/resources.tar.gz"
   },
   {
     "cmd": [
@@ -298,30 +347,27 @@
   },
   {
     "cmd": [
-      "vpython3",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "glob",
+      "tar",
+      "-C",
       "[START_DIR]/lottie-samples",
-      "*"
+      "-chzf",
+      "[CLEANUP]/host_tar_gz_tmp_2/lotties.tar.gz",
+      "."
     ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "infra_step": true,
-    "name": "ls [START_DIR]/lottie-samples/*",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/lottie-samples/bar.jpg@@@",
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/lottie-samples/foo.png@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
+    "name": "create tar.gz of directory [START_DIR]/lottie-samples",
+    "timeout": 60
   },
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "[START_DIR]/lottie-samples/bar.jpg",
-      "[START_DIR]/lottie-samples/foo.png",
-      "/sdcard/revenge_of_the_skiabot/lotties"
+      "[CLEANUP]/host_tar_gz_tmp_2/lotties.tar.gz",
+      "/sdcard/revenge_of_the_skiabot/lotties.tar.gz"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -331,6 +377,58 @@
     },
     "infra_step": true,
     "name": "push [START_DIR]/lottie-samples/* /sdcard/revenge_of_the_skiabot/lotties"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/lotties"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "create directory /sdcard/revenge_of_the_skiabot/lotties"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "tar",
+      "-C",
+      "/sdcard/revenge_of_the_skiabot/lotties",
+      "-xzf",
+      "/sdcard/revenge_of_the_skiabot/lotties.tar.gz"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "extract /sdcard/revenge_of_the_skiabot/lotties.tar.gz"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "/sdcard/revenge_of_the_skiabot/lotties.tar.gz"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "remove /sdcard/revenge_of_the_skiabot/lotties.tar.gz"
   },
   {
     "cmd": [
@@ -486,30 +584,27 @@
   },
   {
     "cmd": [
-      "vpython3",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "glob",
+      "tar",
+      "-C",
       "[CLEANUP]/lwa_tmp_1/nosymlinks",
-      "*"
+      "-chzf",
+      "[CLEANUP]/host_tar_gz_tmp_3/lotties_with_assets.tar.gz",
+      "."
     ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
     "infra_step": true,
-    "name": "ls [CLEANUP]/lwa_tmp_1/nosymlinks/*",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg@@@",
-      "@@@STEP_LOG_LINE@glob@[CLEANUP]/lwa_tmp_1/nosymlinks/foo.png@@@",
-      "@@@STEP_LOG_END@glob@@@"
-    ]
+    "name": "create tar.gz of directory [CLEANUP]/lwa_tmp_1/nosymlinks",
+    "timeout": 60
   },
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "push",
-      "[CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg",
-      "[CLEANUP]/lwa_tmp_1/nosymlinks/foo.png",
-      "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
+      "[CLEANUP]/host_tar_gz_tmp_3/lotties_with_assets.tar.gz",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets.tar.gz"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -519,6 +614,58 @@
     },
     "infra_step": true,
     "name": "push [CLEANUP]/lwa_tmp_1/nosymlinks/* /sdcard/revenge_of_the_skiabot/lotties_with_assets"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "mkdir",
+      "-p",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "create directory /sdcard/revenge_of_the_skiabot/lotties_with_assets"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "tar",
+      "-C",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets",
+      "-xzf",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets.tar.gz"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "extract /sdcard/revenge_of_the_skiabot/lotties_with_assets.tar.gz"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "rm",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets.tar.gz"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "remove /sdcard/revenge_of_the_skiabot/lotties_with_assets.tar.gz"
   },
   {
     "cmd": [
