@@ -124,6 +124,17 @@ class AndroidFlavor(default.DefaultFlavor):
                   ],
                  timeout=180, abort_on_failure=False,
                  fail_build_on_failure=False)
+      device = self.m.vars.builder_cfg.get('model')
+      if (device in self.cant_root): # pragma: nocover
+        return
+      self.m.run(self.m.step,
+                 'adb root',
+                  cmd=[
+                    self.ADB_BINARY, 'root'
+                  ],
+                 timeout=180, abort_on_failure=False,
+                 fail_build_on_failure=False)
+
     with self.m.context(cwd=self.m.path['start_dir'].join('skia')):
       with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
         return self.m.run.with_retry(self.m.step, title, attempts,
