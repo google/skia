@@ -179,6 +179,23 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
+      "test",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "check if /sdcard/revenge_of_the_skiabot/LOTTIE_VERSION exists"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/LOTTIE_VERSION"
     ],
@@ -624,6 +641,23 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
+      "test",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/dm_out/1.json"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "check if /sdcard/revenge_of_the_skiabot/dm_out/1.json exists"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/dm_out/1.json"
     ],
@@ -836,6 +870,23 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
+      "test",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/dm_out/2.json"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "check if /sdcard/revenge_of_the_skiabot/dm_out/2.json exists"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/dm_out/2.json"
     ],
@@ -1043,6 +1094,23 @@
       "@@@STEP_LOG_LINE@python.inline@  sys.exit(1)@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "test",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/dm_out/3.json"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "check if /sdcard/revenge_of_the_skiabot/dm_out/3.json exists"
   },
   {
     "cmd": [

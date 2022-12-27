@@ -603,6 +603,16 @@ time.sleep(60)
         self.m.file.copy('copy %s' % self.m.path.basename(p), p, host)
 
   def read_file_on_device(self, path, **kwargs):
+    testKwargs = {
+      'attempts': 1,
+      'abort_on_failure': False,
+      'fail_build_on_failure': False,
+    }
+    rv = self._adb('check if %s exists' % path,
+                   'shell', 'test', '-f', path, **testKwargs)
+    if not rv: # pragma: nocover
+      return None
+
     rv = self._adb('read %s' % path,
                    'shell', 'cat', path, stdout=self.m.raw_io.output(),
                    **kwargs)

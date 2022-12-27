@@ -31,6 +31,23 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
+      "test",
+      "-f",
+      "file.txt"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "check if file.txt exists"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
       "cat",
       "file.txt"
     ],
@@ -525,6 +542,23 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
+      "test",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "check if /sdcard/revenge_of_the_skiabot/SKP_VERSION exists"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
@@ -734,6 +768,23 @@
     "cmd": [
       "/opt/infra-android/tools/adb",
       "shell",
+      "test",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "check if /sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION exists"
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
     ],
@@ -938,6 +989,23 @@
       "@@@STEP_LOG_LINE@SVG_VERSION@42@@@",
       "@@@STEP_LOG_END@SVG_VERSION@@@"
     ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "shell",
+      "test",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "check if /sdcard/revenge_of_the_skiabot/SVG_VERSION exists"
   },
   {
     "cmd": [

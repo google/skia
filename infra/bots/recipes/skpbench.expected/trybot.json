@@ -83,6 +83,23 @@
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "shell",
+      "test",
+      "-f",
+      "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "check if /sdcard/revenge_of_the_skiabot/SKP_VERSION exists"
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
