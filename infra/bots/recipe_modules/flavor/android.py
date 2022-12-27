@@ -571,11 +571,45 @@ time.sleep(60)
     self._adb('push %s %s' % (host, device), 'push', host, device)
 
   def copy_directory_contents_to_device(self, host, device):
-    contents = self.m.file.glob_paths('ls %s/*' % host,
-                                      host, '*',
-                                      test_data=['foo.png', 'bar.jpg'])
-    args = contents + [device]
+    tar_gz_basename = self.m.path.basename(device)
+    device_tar_gz_file = device + ".tar.gz"
+
+    tmp = self.m.path.mkdtemp('host_tar_gz')
+
+    host_tar_gz_file =  self.m.path.join(tmp, tar_gz_basename + ".tar.gz")
+
+    # Create tar.gz of host directory.
+    #
+    # Create a tar.gz where the parent directory is '.', i.e. use ['-C', host]
+    # to cd into the host directory.
+    #
+    # Use -h to deref soft links, and --hard-dereference to defer hard links,
+    # which CAS creates when two files share the same hash.
+    self.m.run(self.m.step,
+           'create tar.gz of directory %s' % (host),
+           cmd=['tar', '-C', host, '--hard-dereference', '-chzf', host_tar_gz_file, '.'],
+           infra_step=True, timeout=300, abort_on_failure=True,
+           fail_build_on_failure=True)
+
+    # Push the .tar.gz file.
+    args = [host_tar_gz_file, device_tar_gz_file]
     self._adb('push %s/* %s' % (host, device), 'push', *args)
+
+    # Create the device directory.
+    args = ['mkdir', '-p', device]
+    self._adb('create directory %s' % (device), 'shell', *args)
+
+    # Extract .tag.gz file.
+    #
+    # Note we also use ['-C', device] here so the extraction is done inside the
+    # directory, mirroring how we created the .tar.gz file above.
+    args = ['tar', '-C', device, '-xzf', device_tar_gz_file]
+    self._adb('extract %s' % (device_tar_gz_file), 'shell', *args)
+
+    # Delete the .tar.gz file from the host.
+    args = ['rm', device_tar_gz_file]
+    self._adb('remove %s' % (device_tar_gz_file), 'shell', *args)
+
 
   def copy_directory_contents_to_host(self, device, host):
     # TODO(borenet): When all of our devices are on Android 6.0 and up, we can
@@ -592,6 +626,16 @@ time.sleep(60)
         self.m.file.copy('copy %s' % self.m.path.basename(p), p, host)
 
   def read_file_on_device(self, path, **kwargs):
+    testKwargs = {
+      'attempts': 1,
+      'abort_on_failure': False,
+      'fail_build_on_failure': False,
+    }
+    rv = self._adb('check if %s exists' % path,
+                   'shell', 'test', '-f', path, **testKwargs)
+    if not rv: # pragma: nocover
+      return None
+
     rv = self._adb('read %s' % path,
                    'shell', 'cat', path, stdout=self.m.raw_io.output(),
                    **kwargs)
