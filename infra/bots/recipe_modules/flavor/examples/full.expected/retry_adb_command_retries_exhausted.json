@@ -260,7 +260,9 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
-      "wait-for-device"
+      "wait-for-device",
+      "shell",
+      "while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -268,7 +270,6 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "infra_step": true,
     "name": "wait for device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1) (2)",
     "timeout": 180
   },
@@ -356,7 +357,9 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
-      "wait-for-device"
+      "wait-for-device",
+      "shell",
+      "while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -364,7 +367,6 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "infra_step": true,
     "name": "wait for device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 2) (2)",
     "timeout": 180
   },
@@ -452,7 +454,9 @@
   {
     "cmd": [
       "/opt/infra-android/tools/adb",
-      "wait-for-device"
+      "wait-for-device",
+      "shell",
+      "while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
@@ -460,7 +464,6 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "infra_step": true,
     "name": "wait for device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 3) (2)",
     "timeout": 180
   },
