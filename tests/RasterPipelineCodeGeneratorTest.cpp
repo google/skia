@@ -646,6 +646,24 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorVectorScalarFoldingTest, r) {
          /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
 }
 
+DEF_TEST(SkSLRasterPipelineCodeGeneratorIdentitySwizzle, r) {
+    static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
+                                          1.0, 0.0, 0.0, 1.0};
+    test(r,
+         R"__SkSL__(
+            uniform half4 colorGreen, colorRed;
+            half4 main(vec4 color) {
+                return (color.r   == 0.5             &&
+                        color.rg  == half2(0.5, 1.0) &&
+                        color.rgb == half3(0.5, 1.0, 0.0)) ? colorGreen : colorRed;
+            }
+         )__SkSL__",
+         kUniforms,
+         /*startingColor=*/SkColor4f{0.5, 1.0, 0.0, 0.25},
+         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
+
+}
+
 DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaTernaryTest, r) {
     test(r,
          R"__SkSL__(

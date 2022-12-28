@@ -15,6 +15,7 @@
 #include "include/private/SkStringView.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
+#include "include/private/SkTo.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
@@ -49,8 +50,10 @@
 #include "src/sksl/tracing/SkRPDebugTrace.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <numeric>
 #include <optional>
 #include <string>
@@ -1119,6 +1122,15 @@ bool Generator::pushSwizzle(const Swizzle& s) {
     // Push the base expression.
     if (!this->pushExpression(*s.base())) {
         return false;
+    }
+    // A identity swizzle doesn't rearrange the data; it just (potentially) discards tail elements.
+    static constexpr int8_t kIdentitySwizzle[] = {0, 1, 2, 3};
+    SkASSERT(s.components().size() <= SkToInt(std::size(kIdentitySwizzle)));
+    if (std::equal(s.components().begin(), s.components().end(), std::begin(kIdentitySwizzle))) {
+        int discardedElements = s.base()->type().slotCount() - s.components().size();
+        SkASSERT(discardedElements >= 0);
+        fBuilder.discard_stack(discardedElements);
+        return true;
     }
     // Perform the swizzle.
     fBuilder.swizzle(s.base()->type().slotCount(), s.components());
