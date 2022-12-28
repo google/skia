@@ -821,6 +821,8 @@ DEF_TEST(SkRasterPipeline_FloatArithmeticWithHardcodedSlots, r) {
 }
 
 static int divide_unsigned(int a, int b) { return int(uint32_t(a) / uint32_t(b)); }
+static int min_unsigned   (int a, int b) { return uint32_t(a) < uint32_t(b) ? a : b; }
+static int max_unsigned   (int a, int b) { return uint32_t(a) > uint32_t(b) ? a : b; }
 
 DEF_TEST(SkRasterPipeline_IntArithmeticWithNSlots, r) {
     // Allocate space for 5 dest and 5 source slots.
@@ -838,6 +840,10 @@ DEF_TEST(SkRasterPipeline_IntArithmeticWithNSlots, r) {
         {SkRasterPipeline::Stage::mul_n_ints,  [](int a, int b) { return a * b; }},
         {SkRasterPipeline::Stage::div_n_ints,  [](int a, int b) { return a / b; }},
         {SkRasterPipeline::Stage::div_n_uints, divide_unsigned},
+        {SkRasterPipeline::Stage::min_n_ints,  [](int a, int b) { return a < b ? a : b; }},
+        {SkRasterPipeline::Stage::min_n_uints, min_unsigned},
+        {SkRasterPipeline::Stage::max_n_ints,  [](int a, int b) { return a > b ? a : b; }},
+        {SkRasterPipeline::Stage::max_n_uints, max_unsigned},
     };
 
     for (const ArithmeticOp& op : kArithmeticOps) {
@@ -892,24 +898,40 @@ DEF_TEST(SkRasterPipeline_IntArithmeticWithHardcodedSlots, r) {
         {SkRasterPipeline::Stage::mul_int,     1, [](int a, int b) { return a * b; }},
         {SkRasterPipeline::Stage::div_int,     1, [](int a, int b) { return a / b; }},
         {SkRasterPipeline::Stage::div_uint,    1, divide_unsigned},
+        {SkRasterPipeline::Stage::min_int,     1, [](int a, int b) { return a < b ? a : b; }},
+        {SkRasterPipeline::Stage::min_uint,    1, min_unsigned},
+        {SkRasterPipeline::Stage::max_int,     1, [](int a, int b) { return a > b ? a : b; }},
+        {SkRasterPipeline::Stage::max_uint,    1, max_unsigned},
 
         {SkRasterPipeline::Stage::add_2_ints,  2, [](int a, int b) { return a + b; }},
         {SkRasterPipeline::Stage::sub_2_ints,  2, [](int a, int b) { return a - b; }},
         {SkRasterPipeline::Stage::mul_2_ints,  2, [](int a, int b) { return a * b; }},
         {SkRasterPipeline::Stage::div_2_ints,  2, [](int a, int b) { return a / b; }},
         {SkRasterPipeline::Stage::div_2_uints, 2, divide_unsigned},
+        {SkRasterPipeline::Stage::min_2_ints,  2, [](int a, int b) { return a < b ? a : b; }},
+        {SkRasterPipeline::Stage::min_2_uints, 2, min_unsigned},
+        {SkRasterPipeline::Stage::max_2_ints,  2, [](int a, int b) { return a > b ? a : b; }},
+        {SkRasterPipeline::Stage::max_2_uints, 2, max_unsigned},
 
         {SkRasterPipeline::Stage::add_3_ints,  3, [](int a, int b) { return a + b; }},
         {SkRasterPipeline::Stage::sub_3_ints,  3, [](int a, int b) { return a - b; }},
         {SkRasterPipeline::Stage::mul_3_ints,  3, [](int a, int b) { return a * b; }},
         {SkRasterPipeline::Stage::div_3_ints,  3, [](int a, int b) { return a / b; }},
         {SkRasterPipeline::Stage::div_3_uints, 3, divide_unsigned},
+        {SkRasterPipeline::Stage::min_3_ints,  3, [](int a, int b) { return a < b ? a : b; }},
+        {SkRasterPipeline::Stage::min_3_uints, 3, min_unsigned},
+        {SkRasterPipeline::Stage::max_3_ints,  3, [](int a, int b) { return a > b ? a : b; }},
+        {SkRasterPipeline::Stage::max_3_uints, 3, max_unsigned},
 
         {SkRasterPipeline::Stage::add_4_ints,  4, [](int a, int b) { return a + b; }},
         {SkRasterPipeline::Stage::sub_4_ints,  4, [](int a, int b) { return a - b; }},
         {SkRasterPipeline::Stage::mul_4_ints,  4, [](int a, int b) { return a * b; }},
         {SkRasterPipeline::Stage::div_4_ints,  4, [](int a, int b) { return a / b; }},
         {SkRasterPipeline::Stage::div_4_uints, 4, divide_unsigned},
+        {SkRasterPipeline::Stage::min_4_ints,  4, [](int a, int b) { return a < b ? a : b; }},
+        {SkRasterPipeline::Stage::min_4_uints, 4, min_unsigned},
+        {SkRasterPipeline::Stage::max_4_ints,  4, [](int a, int b) { return a > b ? a : b; }},
+        {SkRasterPipeline::Stage::max_4_uints, 4, max_unsigned},
     };
 
     for (const ArithmeticOp& op : kArithmeticOps) {

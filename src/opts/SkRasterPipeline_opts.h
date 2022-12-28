@@ -99,9 +99,14 @@ namespace SK_OPTS_NS {
     using U16 = uint16_t;
     using U8  = uint8_t ;
 
+    SI F   min(F a, F b)     { return fminf(a,b); }
+    SI I32 min(I32 a, I32 b) { return a < b ? a : b; }
+    SI U32 min(U32 a, U32 b) { return a < b ? a : b; }
+    SI F   max(F a, F b)     { return fmaxf(a,b); }
+    SI I32 max(I32 a, I32 b) { return a > b ? a : b; }
+    SI U32 max(U32 a, U32 b) { return a > b ? a : b; }
+
     SI F   mad(F f, F m, F a)   { return f*m+a; }
-    SI F   min(F a, F b)        { return fminf(a,b); }
-    SI F   max(F a, F b)        { return fmaxf(a,b); }
     SI F   abs_  (F v)          { return fabsf(v); }
     SI F   floor_(F v)          { return floorf(v); }
     SI F   rcp_fast(F v)        { return 1.0f / v; }
@@ -178,15 +183,20 @@ namespace SK_OPTS_NS {
     using U8  = V<uint8_t >;
 
     // We polyfill a few routines that Clang doesn't build into ext_vector_types.
-    SI F   min(F a, F b)                         { return vminq_f32(a,b);          }
-    SI F   max(F a, F b)                         { return vmaxq_f32(a,b);          }
-    SI F   abs_  (F v)                           { return vabsq_f32(v);            }
+    SI F   min(F a, F b)     { return vminq_f32(a,b); }
+    SI I32 min(I32 a, I32 b) { return vminq_s32(a,b); }
+    SI U32 min(U32 a, U32 b) { return vminq_u32(a,b); }
+    SI F   max(F a, F b)     { return vmaxq_f32(a,b); }
+    SI I32 max(I32 a, I32 b) { return vmaxq_s32(a,b); }
+    SI U32 max(U32 a, U32 b) { return vmaxq_u32(a,b); }
+
+    SI F   abs_  (F v) { return vabsq_f32(v); }
     SI F   rcp_fast(F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     SI F   rcp_precise (F v) { auto e = rcp_fast(v); return vrecpsq_f32 (v,e  ) * e; }
     SI F   rsqrt (F v)   { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
 
-    SI U16 pack(U32 v)                           { return __builtin_convertvector(v, U16); }
-    SI U8  pack(U16 v)                           { return __builtin_convertvector(v,  U8); }
+    SI U16 pack(U32 v)       { return __builtin_convertvector(v, U16); }
+    SI U8  pack(U16 v)       { return __builtin_convertvector(v,  U8); }
 
     SI F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
@@ -346,8 +356,13 @@ namespace SK_OPTS_NS {
     #endif
     }
 
-    SI F   min(F a, F b) { return _mm256_min_ps(a,b);    }
-    SI F   max(F a, F b) { return _mm256_max_ps(a,b);    }
+    SI F   min(F a, F b)     { return _mm256_min_ps(a,b);    }
+    SI I32 min(I32 a, I32 b) { return _mm256_min_epi32(a,b); }
+    SI U32 min(U32 a, U32 b) { return _mm256_min_epu32(a,b); }
+    SI F   max(F a, F b)     { return _mm256_max_ps(a,b);    }
+    SI I32 max(I32 a, I32 b) { return _mm256_max_epi32(a,b); }
+    SI U32 max(U32 a, U32 b) { return _mm256_max_epu32(a,b); }
+
     SI F   abs_  (F v)   { return _mm256_and_ps(v, 0-v); }
     SI F   floor_(F v)   { return _mm256_floor_ps(v);    }
     SI F   rcp_fast(F v) { return _mm256_rcp_ps  (v);    }
@@ -361,7 +376,6 @@ namespace SK_OPTS_NS {
             return e * (2.0f - v * e);
         #endif
     }
-
 
     SI U32 round (F v, F scale) { return _mm256_cvtps_epi32(v*scale); }
     SI U16 pack(U32 v) {
@@ -688,9 +702,33 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     using U16 = V<uint16_t>;
     using U8  = V<uint8_t >;
 
+    SI F if_then_else(I32 c, F t, F e) {
+        return _mm_or_ps(_mm_and_ps(c, t), _mm_andnot_ps(c, e));
+    }
+
+    SI F   min(F a, F b)     { return _mm_min_ps(a,b); }
+    SI F   max(F a, F b)     { return _mm_max_ps(a,b); }
+#if defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
+    SI I32 min(I32 a, I32 b) { return _mm_min_epi32(a,b); }
+    SI U32 min(U32 a, U32 b) { return _mm_min_epu32(a,b); }
+    SI I32 max(I32 a, I32 b) { return _mm_max_epi32(a,b); }
+    SI U32 max(U32 a, U32 b) { return _mm_min_epu32(a,b); }
+#else
+    SI I32 min(I32 a, I32 b) {
+        return sk_bit_cast<I32>(if_then_else(a < b, sk_bit_cast<F>(a), sk_bit_cast<F>(b)));
+    }
+    SI U32 min(U32 a, U32 b) {
+        return sk_bit_cast<U32>(if_then_else(a < b, sk_bit_cast<F>(a), sk_bit_cast<F>(b)));
+    }
+    SI I32 max(I32 a, I32 b) {
+        return sk_bit_cast<I32>(if_then_else(a > b, sk_bit_cast<F>(a), sk_bit_cast<F>(b)));
+    }
+    SI U32 max(U32 a, U32 b) {
+        return sk_bit_cast<U32>(if_then_else(a > b, sk_bit_cast<F>(a), sk_bit_cast<F>(b)));
+    }
+#endif
+
     SI F   mad(F f, F m, F a)  { return f*m+a;              }
-    SI F   min(F a, F b)       { return _mm_min_ps(a,b);    }
-    SI F   max(F a, F b)       { return _mm_max_ps(a,b);    }
     SI F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
     SI F   rcp_fast(F v)       { return _mm_rcp_ps  (v);    }
     SI F   rcp_precise (F v)   { F e = rcp_fast(v); return e * (2.0f - v * e); }
@@ -715,9 +753,6 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
         return sk_unaligned_load<U8>(&r);
     }
 
-    SI F if_then_else(I32 c, F t, F e) {
-        return _mm_or_ps(_mm_and_ps(c, t), _mm_andnot_ps(c, e));
-    }
     // NOTE: This only checks the top bit of each lane, and is incorrect with non-mask values.
     SI bool any(I32 c) { return _mm_movemask_ps(c) != 0b0000; }
     SI bool all(I32 c) { return _mm_movemask_ps(c) == 0b1111; }
@@ -1348,7 +1383,7 @@ SI T* ptr_at_xy(const SkRasterPipeline_MemoryCtx* ctx, size_t dx, size_t dy) {
 // clamp v to [0,limit).
 SI F clamp(F v, F limit) {
     F inclusive = sk_bit_cast<F>( sk_bit_cast<U32>(limit) - 1 );  // Exclusive -> inclusive.
-    return min(max(0, v), inclusive);
+    return min(max(0.0f, v), inclusive);
 }
 
 // clamp to (0,limit).
@@ -1453,7 +1488,7 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
 // You can adjust the expected input to [0,bias] by tweaking that parameter.
 SI U32 to_unorm(F v, F scale, F bias = 1.0f) {
     // Any time we use round() we probably want to use to_unorm().
-    return round(min(max(0, v), bias), scale);
+    return round(min(max(0.0f, v), bias), scale);
 }
 
 SI I32 cond_to_mask(I32 cond) {
@@ -1511,9 +1546,9 @@ STAGE(dither, const float* rate) {
     g += *rate*dither;
     b += *rate*dither;
 
-    r = max(0, min(r, a));
-    g = max(0, min(g, a));
-    b = max(0, min(b, a));
+    r = max(0.0f, min(r, a));
+    g = max(0.0f, min(g, a));
+    b = max(0.0f, min(b, a));
 }
 
 // load 4 floats from memory, and splat them into r,g,b,a
@@ -1710,7 +1745,7 @@ SI void clip_color(F* r, F* g, F* b, F a) {
     auto clip = [=](F c) {
         c = if_then_else(mn < 0 && l != mn, l + (c - l) * (    l) / (l - mn), c);
         c = if_then_else(mx > a && l != mx, l + (c - l) * (a - l) / (mx - l), c);
-        c = max(c, 0);  // Sometimes without this we may dip just a little negative.
+        c = max(c, 0.0f);  // Sometimes without this we may dip just a little negative.
         return c;
     };
     *r = clip(*r);
@@ -1798,7 +1833,7 @@ STAGE(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
     store(ptr, dst, tail);
 }
 
-SI F clamp_01_(F v) { return min(max(0, v), 1); }
+SI F clamp_01_(F v) { return min(max(0.0f, v), 1.0f); }
 
 STAGE(clamp_01, NoCtx) {
     r = clamp_01_(r);
@@ -1808,10 +1843,10 @@ STAGE(clamp_01, NoCtx) {
 }
 
 STAGE(clamp_gamut, NoCtx) {
-    a = min(max(a, 0), 1.0f);
-    r = min(max(r, 0), a);
-    g = min(max(g, 0), a);
-    b = min(max(b, 0), a);
+    a = min(max(a, 0.0f), 1.0f);
+    r = min(max(r, 0.0f), a);
+    g = min(max(g, 0.0f), a);
+    b = min(max(b, 0.0f), a);
 }
 
 STAGE(set_rgb, const float* rgb) {
@@ -1994,9 +2029,9 @@ SI RGB css_hsl_to_srgb_(F h, F s, F l) {
     };
     F a  = s * min(l, 1 - l);
     return {
-        l - a * max(-1, min(min(k[0] - 3, 9 - k[0]), 1)),
-        l - a * max(-1, min(min(k[1] - 3, 9 - k[1]), 1)),
-        l - a * max(-1, min(min(k[2] - 3, 9 - k[2]), 1))
+        l - a * max(-1.0f, min(min(k[0] - 3.0f, 9.0f - k[0]), 1.0f)),
+        l - a * max(-1.0f, min(min(k[1] - 3.0f, 9.0f - k[1]), 1.0f)),
+        l - a * max(-1.0f, min(min(k[2] - 3.0f, 9.0f - k[2]), 1.0f))
     };
 }
 
@@ -2170,7 +2205,7 @@ STAGE(PQish, const skcms_TransferFunction* ctx) {
         U32 sign;
         v = strip_sign(v, &sign);
 
-        F r = approx_powf(max(mad(ctx->b, approx_powf(v, ctx->c), ctx->a), 0)
+        F r = approx_powf(max(mad(ctx->b, approx_powf(v, ctx->c), ctx->a), 0.0f)
                            / (mad(ctx->e, approx_powf(v, ctx->c), ctx->d)),
                         ctx->f);
 
@@ -3303,6 +3338,16 @@ SI void div_fn(T* dst, T* src) {
 }
 
 template <typename T>
+SI void max_fn(T* dst, T* src) {
+    *dst = max(*dst, *src);
+}
+
+template <typename T>
+SI void min_fn(T* dst, T* src) {
+    *dst = min(*dst, *src);
+}
+
+template <typename T>
 SI void cmplt_fn(T* dst, T* src) {
     static_assert(sizeof(T) == sizeof(I32));
     I32 result = cond_to_mask(*dst < *src);
@@ -3363,6 +3408,8 @@ DECLARE_FLOAT_STAGES(add)    DECLARE_INT_STAGES(add)
 DECLARE_FLOAT_STAGES(sub)    DECLARE_INT_STAGES(sub)
 DECLARE_FLOAT_STAGES(mul)    DECLARE_INT_STAGES(mul)
 DECLARE_FLOAT_STAGES(div)    DECLARE_INT_STAGES(div)    DECLARE_UINT_STAGES(div)
+DECLARE_FLOAT_STAGES(min)    DECLARE_INT_STAGES(min)    DECLARE_UINT_STAGES(min)
+DECLARE_FLOAT_STAGES(max)    DECLARE_INT_STAGES(max)    DECLARE_UINT_STAGES(max)
 DECLARE_FLOAT_STAGES(cmplt)  DECLARE_INT_STAGES(cmplt)  DECLARE_UINT_STAGES(cmplt)
 DECLARE_FLOAT_STAGES(cmple)  DECLARE_INT_STAGES(cmple)  DECLARE_UINT_STAGES(cmple)
 DECLARE_FLOAT_STAGES(cmpeq)  DECLARE_INT_STAGES(cmpeq)

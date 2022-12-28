@@ -150,6 +150,12 @@ struct skcms_TransferFunction;
     M(div_n_floats) M(div_float) M(div_2_floats) M(div_3_floats) M(div_4_floats)              \
     M(div_n_ints)   M(div_int)   M(div_2_ints)   M(div_3_ints)   M(div_4_ints)                \
     M(div_n_uints)  M(div_uint)  M(div_2_uints)  M(div_3_uints)  M(div_4_uints)               \
+    M(max_n_floats) M(max_float) M(max_2_floats) M(max_3_floats) M(max_4_floats)              \
+    M(max_n_ints)   M(max_int)   M(max_2_ints)   M(max_3_ints)   M(max_4_ints)                \
+    M(max_n_uints)  M(max_uint)  M(max_2_uints)  M(max_3_uints)  M(max_4_uints)               \
+    M(min_n_floats) M(min_float) M(min_2_floats) M(min_3_floats) M(min_4_floats)              \
+    M(min_n_ints)   M(min_int)   M(min_2_ints)   M(min_3_ints)   M(min_4_ints)                \
+    M(min_n_uints)  M(min_uint)  M(min_2_uints)  M(min_3_uints)  M(min_4_uints)               \
     M(cmplt_n_floats) M(cmplt_float) M(cmplt_2_floats) M(cmplt_3_floats) M(cmplt_4_floats)    \
     M(cmplt_n_ints)   M(cmplt_int)   M(cmplt_2_ints)   M(cmplt_3_ints)   M(cmplt_4_ints)      \
     M(cmplt_n_uints)  M(cmplt_uint)  M(cmplt_2_uints)  M(cmplt_3_uints)  M(cmplt_4_uints)     \
