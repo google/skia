@@ -282,11 +282,13 @@ DEF_TEST(RasterPipelineBuilderBinaryFloatOps, r) {
 
     SkSL::RP::Builder builder;
     builder.push_literal_f(10.0f);
-    builder.duplicate(25);
+    builder.duplicate(30);
     builder.binary_op(BuilderOp::add_n_floats, 1);
     builder.binary_op(BuilderOp::sub_n_floats, 2);
     builder.binary_op(BuilderOp::mul_n_floats, 3);
     builder.binary_op(BuilderOp::div_n_floats, 4);
+    builder.binary_op(BuilderOp::max_n_floats, 3);
+    builder.binary_op(BuilderOp::min_n_floats, 2);
     builder.binary_op(BuilderOp::cmplt_n_floats, 5);
     builder.binary_op(BuilderOp::cmple_n_floats, 4);
     builder.binary_op(BuilderOp::cmpeq_n_floats, 3);
@@ -304,15 +306,18 @@ R"(    1. copy_constant                  $0 = 0x41200000 (10.0)
     7. swizzle_4                      $15..18 = ($15..18).xxxx
     8. swizzle_4                      $18..21 = ($18..21).xxxx
     9. swizzle_4                      $21..24 = ($21..24).xxxx
-   10. swizzle_2                      $24..25 = ($24..25).xx
-   11. add_float                      $24 += $25
-   12. sub_2_floats                   $21..22 -= $23..24
-   13. mul_3_floats                   $17..19 *= $20..22
-   14. div_4_floats                   $12..15 /= $16..19
-   15. cmplt_n_floats                 $6..10 = lessThan($6..10, $11..15)
-   16. cmple_4_floats                 $3..6 = lessThanEqual($3..6, $7..10)
-   17. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
-   18. cmpne_2_floats                 $0..1 = notEqual($0..1, $2..3)
+   10. swizzle_4                      $24..27 = ($24..27).xxxx
+   11. swizzle_4                      $27..30 = ($27..30).xxxx
+   12. add_float                      $29 += $30
+   13. sub_2_floats                   $26..27 -= $28..29
+   14. mul_3_floats                   $22..24 *= $25..27
+   15. div_4_floats                   $17..20 /= $21..24
+   16. max_3_floats                   $15..17 = max($15..17, $18..20)
+   17. min_2_floats                   $14..15 = min($14..15, $16..17)
+   18. cmplt_n_floats                 $6..10 = lessThan($6..10, $11..15)
+   19. cmple_4_floats                 $3..6 = lessThanEqual($3..6, $7..10)
+   20. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+   21. cmpne_2_floats                 $0..1 = notEqual($0..1, $2..3)
 )");
 }
 
@@ -321,7 +326,7 @@ DEF_TEST(RasterPipelineBuilderBinaryIntOps, r) {
 
     SkSL::RP::Builder builder;
     builder.push_literal_i(123);
-    builder.duplicate(30);
+    builder.duplicate(37);
     builder.binary_op(BuilderOp::bitwise_and, 1);
     builder.binary_op(BuilderOp::bitwise_xor, 1);
     builder.binary_op(BuilderOp::bitwise_or, 1);
@@ -329,6 +334,8 @@ DEF_TEST(RasterPipelineBuilderBinaryIntOps, r) {
     builder.binary_op(BuilderOp::sub_n_ints, 3);
     builder.binary_op(BuilderOp::mul_n_ints, 4);
     builder.binary_op(BuilderOp::div_n_ints, 5);
+    builder.binary_op(BuilderOp::max_n_ints, 4);
+    builder.binary_op(BuilderOp::min_n_ints, 3);
     builder.binary_op(BuilderOp::cmplt_n_ints, 1);
     builder.binary_op(BuilderOp::cmple_n_ints, 2);
     builder.binary_op(BuilderOp::cmpeq_n_ints, 3);
@@ -348,17 +355,22 @@ R"(    1. copy_constant                  $0 = 0x0000007B (1.723597e-43)
     9. swizzle_4                      $21..24 = ($21..24).xxxx
    10. swizzle_4                      $24..27 = ($24..27).xxxx
    11. swizzle_4                      $27..30 = ($27..30).xxxx
-   12. bitwise_and                    $29 &= $30
-   13. bitwise_xor                    $28 ^= $29
-   14. bitwise_or                     $27 |= $28
-   15. add_2_ints                     $24..25 += $26..27
-   16. sub_3_ints                     $20..22 -= $23..25
-   17. mul_4_ints                     $15..18 *= $19..22
-   18. div_n_ints                     $9..13 /= $14..18
-   19. cmplt_int                      $12 = lessThan($12, $13)
-   20. cmple_2_ints                   $9..10 = lessThanEqual($9..10, $11..12)
-   21. cmpeq_3_ints                   $5..7 = equal($5..7, $8..10)
-   22. cmpne_4_ints                   $0..3 = notEqual($0..3, $4..7)
+   12. swizzle_4                      $30..33 = ($30..33).xxxx
+   13. swizzle_4                      $33..36 = ($33..36).xxxx
+   14. swizzle_2                      $36..37 = ($36..37).xx
+   15. bitwise_and                    $36 &= $37
+   16. bitwise_xor                    $35 ^= $36
+   17. bitwise_or                     $34 |= $35
+   18. add_2_ints                     $31..32 += $33..34
+   19. sub_3_ints                     $27..29 -= $30..32
+   20. mul_4_ints                     $22..25 *= $26..29
+   21. div_n_ints                     $16..20 /= $21..25
+   22. max_4_ints                     $13..16 = max($13..16, $17..20)
+   23. min_3_ints                     $11..13 = min($11..13, $14..16)
+   24. cmplt_int                      $12 = lessThan($12, $13)
+   25. cmple_2_ints                   $9..10 = lessThanEqual($9..10, $11..12)
+   26. cmpeq_3_ints                   $5..7 = equal($5..7, $8..10)
+   27. cmpne_4_ints                   $0..3 = notEqual($0..3, $4..7)
 )");
 }
 
@@ -367,11 +379,13 @@ DEF_TEST(RasterPipelineBuilderBinaryUIntOps, r) {
 
     SkSL::RP::Builder builder;
     builder.push_literal_u(456);
-    builder.duplicate(18);
+    builder.duplicate(21);
     builder.binary_op(BuilderOp::div_n_uints, 6);
     builder.binary_op(BuilderOp::cmplt_n_uints, 5);
     builder.binary_op(BuilderOp::cmple_n_uints, 4);
-    builder.discard_stack(4);
+    builder.binary_op(BuilderOp::max_n_uints, 3);
+    builder.binary_op(BuilderOp::min_n_uints, 2);
+    builder.discard_stack(2);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
     check(r, *program,
@@ -382,9 +396,12 @@ R"(    1. copy_constant                  $0 = 0x000001C8 (6.389921e-43)
     5. swizzle_4                      $9..12 = ($9..12).xxxx
     6. swizzle_4                      $12..15 = ($12..15).xxxx
     7. swizzle_4                      $15..18 = ($15..18).xxxx
-    8. div_n_uints                    $7..12 /= $13..18
-    9. cmplt_n_uints                  $3..7 = lessThan($3..7, $8..12)
-   10. cmple_4_uints                  $0..3 = lessThanEqual($0..3, $4..7)
+    8. swizzle_4                      $18..21 = ($18..21).xxxx
+    9. div_n_uints                    $10..15 /= $16..21
+   10. cmplt_n_uints                  $6..10 = lessThan($6..10, $11..15)
+   11. cmple_4_uints                  $3..6 = lessThanEqual($3..6, $7..10)
+   12. max_3_uints                    $1..3 = max($1..3, $4..6)
+   13. min_2_uints                    $0..1 = min($0..1, $2..3)
 )");
 }
 
