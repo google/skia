@@ -249,25 +249,21 @@ private:
                                                    BuilderOp::sub_n_ints,
                                                    BuilderOp::sub_n_ints,
                                                    BuilderOp::unsupported};
-    // TODO(skia:13676): add support for unsigned *
     static constexpr auto kMultiplyOps = BinaryOps{BuilderOp::mul_n_floats,
                                                    BuilderOp::mul_n_ints,
-                                                   BuilderOp::unsupported,
+                                                   BuilderOp::mul_n_ints,
                                                    BuilderOp::unsupported};
-    // TODO(skia:13676): add support for unsigned /
     static constexpr auto kDivideOps = BinaryOps{BuilderOp::div_n_floats,
                                                  BuilderOp::div_n_ints,
-                                                 BuilderOp::unsupported,
+                                                 BuilderOp::div_n_uints,
                                                  BuilderOp::unsupported};
-    // TODO(skia:13676): add support for uint <
     static constexpr auto kLessThanOps = BinaryOps{BuilderOp::cmplt_n_floats,
                                                    BuilderOp::cmplt_n_ints,
-                                                   BuilderOp::unsupported,
+                                                   BuilderOp::cmplt_n_uints,
                                                    BuilderOp::unsupported};
-    // TODO(skia:13676): add support for uint <=
     static constexpr auto kLessThanEqualOps = BinaryOps{BuilderOp::cmple_n_floats,
                                                         BuilderOp::cmple_n_ints,
-                                                        BuilderOp::unsupported,
+                                                        BuilderOp::cmple_n_uints,
                                                         BuilderOp::unsupported};
     static constexpr auto kEqualOps = BinaryOps{BuilderOp::cmpeq_n_floats,
                                                 BuilderOp::cmpeq_n_ints,

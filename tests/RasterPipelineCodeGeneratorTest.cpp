@@ -821,17 +821,20 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorComparisonIntrinsicTest, r) {
                       b = half4(2, 2, 1, 0);
                 int3  c = int3(1111, 3333, 5555),
                       d = int3(1111, 5555, 3333);
-                uint2 e = uint2(1234, 5678),
-                      f = uint2(5678, 5678);
-                // TODO: unsigned < <= > >= RP stages are not yet implemented
+                uint2 e = uint2(1111111111u, 222),
+                      f = uint2(3333333333u, 222);
                 return (lessThan(a, b)         == bool4(true, false, true, false)  &&
                         lessThan(c, d)         == bool3(false, true, false)        &&
+                        lessThan(e, f)         == bool2(true, false)               &&
                         greaterThan(a, b)      == bool4(false, false, false, true) &&
                         greaterThan(c, d)      == bool3(false, false, true)        &&
+                        greaterThan(e, f)      == bool2(false, false)              &&
                         lessThanEqual(a, b)    == bool4(true, true, true, false)   &&
                         lessThanEqual(c, d)    == bool3(true, true, false)         &&
+                        lessThanEqual(e, f)    == bool2(true, true)                &&
                         greaterThanEqual(a, b) == bool4(false, true, false, true)  &&
                         greaterThanEqual(c, d) == bool3(true, false, true)         &&
+                        greaterThanEqual(e, f) == bool2(false, true)               &&
                         equal(a, b)            == bool4(false, true, false, false) &&
                         equal(c, d)            == bool3(true, false, false)        &&
                         equal(e, f)            == bool2(false, true)               &&

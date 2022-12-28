@@ -149,10 +149,13 @@ struct skcms_TransferFunction;
     M(mul_n_ints)   M(mul_int)   M(mul_2_ints)   M(mul_3_ints)   M(mul_4_ints)                \
     M(div_n_floats) M(div_float) M(div_2_floats) M(div_3_floats) M(div_4_floats)              \
     M(div_n_ints)   M(div_int)   M(div_2_ints)   M(div_3_ints)   M(div_4_ints)                \
+    M(div_n_uints)  M(div_uint)  M(div_2_uints)  M(div_3_uints)  M(div_4_uints)               \
     M(cmplt_n_floats) M(cmplt_float) M(cmplt_2_floats) M(cmplt_3_floats) M(cmplt_4_floats)    \
     M(cmplt_n_ints)   M(cmplt_int)   M(cmplt_2_ints)   M(cmplt_3_ints)   M(cmplt_4_ints)      \
+    M(cmplt_n_uints)  M(cmplt_uint)  M(cmplt_2_uints)  M(cmplt_3_uints)  M(cmplt_4_uints)     \
     M(cmple_n_floats) M(cmple_float) M(cmple_2_floats) M(cmple_3_floats) M(cmple_4_floats)    \
     M(cmple_n_ints)   M(cmple_int)   M(cmple_2_ints)   M(cmple_3_ints)   M(cmple_4_ints)      \
+    M(cmple_n_uints)  M(cmple_uint)  M(cmple_2_uints)  M(cmple_3_uints)  M(cmple_4_uints)     \
     M(cmpeq_n_floats) M(cmpeq_float) M(cmpeq_2_floats) M(cmpeq_3_floats) M(cmpeq_4_floats)    \
     M(cmpeq_n_ints)   M(cmpeq_int)   M(cmpeq_2_ints)   M(cmpeq_3_ints)   M(cmpeq_4_ints)      \
     M(cmpne_n_floats) M(cmpne_float) M(cmpne_2_floats) M(cmpne_3_floats) M(cmpne_4_floats)    \

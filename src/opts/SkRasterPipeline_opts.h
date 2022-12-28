@@ -3330,32 +3330,47 @@ SI void cmpne_fn(T* dst, T* src) {
     memcpy(dst, &result, sizeof(I32));
 }
 
-#define DECLARE_BINARY_STAGES(name)                                                      \
-    STAGE(name##_float, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 1); }      \
-    STAGE(name##_2_floats, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 2); }   \
-    STAGE(name##_3_floats, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 3); }   \
-    STAGE(name##_4_floats, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 4); }   \
-    STAGE(name##_n_floats, SkRasterPipeline_CopySlotsCtx* ctx) {                         \
-        apply_to_adjacent<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src);                    \
-    }                                                                                    \
-    STAGE(name##_int, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 1); }    \
-    STAGE(name##_2_ints, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 2); } \
-    STAGE(name##_3_ints, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 3); } \
-    STAGE(name##_4_ints, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 4); } \
-    STAGE(name##_n_ints, SkRasterPipeline_CopySlotsCtx* ctx) {                           \
-        apply_to_adjacent<I32, &name##_fn>((I32*)ctx->dst, (I32*)ctx->src);              \
+#define DECLARE_FLOAT_STAGES(name)                                                        \
+    STAGE(name##_float, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 1); }       \
+    STAGE(name##_2_floats, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 2); }    \
+    STAGE(name##_3_floats, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 3); }    \
+    STAGE(name##_4_floats, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 4); }    \
+    STAGE(name##_n_floats, SkRasterPipeline_CopySlotsCtx* ctx) {                          \
+        apply_to_adjacent<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src);                     \
     }
 
-DECLARE_BINARY_STAGES(add)
-DECLARE_BINARY_STAGES(sub)
-DECLARE_BINARY_STAGES(mul)
-DECLARE_BINARY_STAGES(div)
-DECLARE_BINARY_STAGES(cmplt)
-DECLARE_BINARY_STAGES(cmple)
-DECLARE_BINARY_STAGES(cmpeq)
-DECLARE_BINARY_STAGES(cmpne)
+#define DECLARE_INT_STAGES(name)                                                          \
+    STAGE(name##_int, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 1); }     \
+    STAGE(name##_2_ints, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 2); }  \
+    STAGE(name##_3_ints, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 3); }  \
+    STAGE(name##_4_ints, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 4); }  \
+    STAGE(name##_n_ints, SkRasterPipeline_CopySlotsCtx* ctx) {                            \
+        apply_to_adjacent<I32, &name##_fn>((I32*)ctx->dst, (I32*)ctx->src);               \
+    }
 
-#undef DECLARE_BINARY_STAGES
+#define DECLARE_UINT_STAGES(name)                                                         \
+    STAGE(name##_uint, U32* dst) { apply_to_adjacent<U32, &name##_fn>(dst, dst + 1); }    \
+    STAGE(name##_2_uints, U32* dst) { apply_to_adjacent<U32, &name##_fn>(dst, dst + 2); } \
+    STAGE(name##_3_uints, U32* dst) { apply_to_adjacent<U32, &name##_fn>(dst, dst + 3); } \
+    STAGE(name##_4_uints, U32* dst) { apply_to_adjacent<U32, &name##_fn>(dst, dst + 4); } \
+    STAGE(name##_n_uints, SkRasterPipeline_CopySlotsCtx* ctx) {                           \
+        apply_to_adjacent<U32, &name##_fn>((U32*)ctx->dst, (U32*)ctx->src);               \
+    }
+
+// Many ops reuse the int stages when performing uint arithmetic, since they're equivalent on a
+// two's-complement machine. (Even multiplication is equivalent in the lower 32 bits.)
+DECLARE_FLOAT_STAGES(add)    DECLARE_INT_STAGES(add)
+DECLARE_FLOAT_STAGES(sub)    DECLARE_INT_STAGES(sub)
+DECLARE_FLOAT_STAGES(mul)    DECLARE_INT_STAGES(mul)
+DECLARE_FLOAT_STAGES(div)    DECLARE_INT_STAGES(div)    DECLARE_UINT_STAGES(div)
+DECLARE_FLOAT_STAGES(cmplt)  DECLARE_INT_STAGES(cmplt)  DECLARE_UINT_STAGES(cmplt)
+DECLARE_FLOAT_STAGES(cmple)  DECLARE_INT_STAGES(cmple)  DECLARE_UINT_STAGES(cmple)
+DECLARE_FLOAT_STAGES(cmpeq)  DECLARE_INT_STAGES(cmpeq)
+DECLARE_FLOAT_STAGES(cmpne)  DECLARE_INT_STAGES(cmpne)
+
+#undef DECLARE_FLOAT_STAGES
+#undef DECLARE_INT_STAGES
+#undef DECLARE_UINT_STAGES
 
 STAGE(gauss_a_to_rgba, NoCtx) {
     // x = 1 - x;
