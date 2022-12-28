@@ -2843,8 +2843,10 @@ export interface Surface extends EmbindObject<Surface> {
      * draw multiple frames, e.g. of an animation.
      *
      * Node users should call getCanvas() and work with that canvas directly.
+     *
+     * Returns the animation id.
      */
-    requestAnimationFrame(drawFrame: (_: Canvas) => void): void;
+    requestAnimationFrame(drawFrame: (_: Canvas) => void): number;
 
     /**
      * If this surface is GPU-backed, return the sample count of the surface.

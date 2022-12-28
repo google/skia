@@ -978,7 +978,7 @@ CanvasKit.onRuntimeInitialized = function() {
     if (!this._cached_canvas) {
       this._cached_canvas = this.getCanvas();
     }
-    requestAnimationFrame(function() {
+    return requestAnimationFrame(function() {
       CanvasKit.setCurrentContext(this._context);
 
       callback(this._cached_canvas);
