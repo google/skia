@@ -6,10 +6,9 @@ OpExecutionMode %_entrypoint_v OriginUpperLeft
 OpName %sk_Clockwise "sk_Clockwise"
 OpName %sk_FragColor "sk_FragColor"
 OpName %_UniformBuffer "_UniformBuffer"
-OpMemberName %_UniformBuffer 0 "testInput"
-OpMemberName %_UniformBuffer 1 "testMatrix2x2"
-OpMemberName %_UniformBuffer 2 "colorGreen"
-OpMemberName %_UniformBuffer 3 "colorRed"
+OpMemberName %_UniformBuffer 0 "testMatrix2x2"
+OpMemberName %_UniformBuffer 1 "colorGreen"
+OpMemberName %_UniformBuffer 2 "colorRed"
 OpName %_entrypoint_v "_entrypoint_v"
 OpName %main "main"
 OpName %inputVal "inputVal"
@@ -18,13 +17,12 @@ OpDecorate %sk_FragColor RelaxedPrecision
 OpDecorate %sk_FragColor Location 0
 OpDecorate %sk_FragColor Index 0
 OpMemberDecorate %_UniformBuffer 0 Offset 0
-OpMemberDecorate %_UniformBuffer 1 Offset 16
-OpMemberDecorate %_UniformBuffer 1 ColMajor
-OpMemberDecorate %_UniformBuffer 1 MatrixStride 16
+OpMemberDecorate %_UniformBuffer 0 ColMajor
+OpMemberDecorate %_UniformBuffer 0 MatrixStride 16
+OpMemberDecorate %_UniformBuffer 1 Offset 32
+OpMemberDecorate %_UniformBuffer 1 RelaxedPrecision
 OpMemberDecorate %_UniformBuffer 2 Offset 48
 OpMemberDecorate %_UniformBuffer 2 RelaxedPrecision
-OpMemberDecorate %_UniformBuffer 3 Offset 64
-OpMemberDecorate %_UniformBuffer 3 RelaxedPrecision
 OpDecorate %_UniformBuffer Block
 OpDecorate %10 Binding 0
 OpDecorate %10 DescriptorSet 0
@@ -40,7 +38,7 @@ OpDecorate %93 RelaxedPrecision
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output
 %v2float = OpTypeVector %float 2
 %mat2v2float = OpTypeMatrix %v2float 2
-%_UniformBuffer = OpTypeStruct %float %mat2v2float %v4float %v4float
+%_UniformBuffer = OpTypeStruct %mat2v2float %v4float %v4float
 %_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
 %10 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
 %void = OpTypeVoid
@@ -52,7 +50,7 @@ OpDecorate %93 RelaxedPrecision
 %_ptr_Function_v4float = OpTypePointer Function %v4float
 %_ptr_Uniform_mat2v2float = OpTypePointer Uniform %mat2v2float
 %int = OpTypeInt 32 1
-%int_1 = OpConstant %int 1
+%int_0 = OpConstant %int 0
 %float_1 = OpConstant %float 1
 %float_n1 = OpConstant %float -1
 %41 = OpConstantComposite %v4float %float_1 %float_1 %float_n1 %float_n1
@@ -73,8 +71,8 @@ OpDecorate %93 RelaxedPrecision
 %77 = OpConstantComposite %v4uint %uint_1065353216 %uint_1073741824 %uint_3225419776 %uint_3229614080
 %v4bool = OpTypeVector %bool 4
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
+%int_1 = OpConstant %int 1
 %int_2 = OpConstant %int 2
-%int_3 = OpConstant %int 3
 %_entrypoint_v = OpFunction %void None %17
 %18 = OpLabel
 %21 = OpVariable %_ptr_Function_v2float Function
@@ -88,7 +86,7 @@ OpFunctionEnd
 %26 = OpLabel
 %inputVal = OpVariable %_ptr_Function_v4float Function
 %82 = OpVariable %_ptr_Function_v4float Function
-%29 = OpAccessChain %_ptr_Uniform_mat2v2float %10 %int_1
+%29 = OpAccessChain %_ptr_Uniform_mat2v2float %10 %int_0
 %33 = OpLoad %mat2v2float %29
 %34 = OpCompositeExtract %float %33 0 0
 %35 = OpCompositeExtract %float %33 0 1
@@ -132,12 +130,12 @@ OpBranch %73
 OpSelectionMerge %85 None
 OpBranchConditional %81 %83 %84
 %83 = OpLabel
-%86 = OpAccessChain %_ptr_Uniform_v4float %10 %int_2
+%86 = OpAccessChain %_ptr_Uniform_v4float %10 %int_1
 %89 = OpLoad %v4float %86
 OpStore %82 %89
 OpBranch %85
 %84 = OpLabel
-%90 = OpAccessChain %_ptr_Uniform_v4float %10 %int_3
+%90 = OpAccessChain %_ptr_Uniform_v4float %10 %int_2
 %92 = OpLoad %v4float %90
 OpStore %82 %92
 OpBranch %85

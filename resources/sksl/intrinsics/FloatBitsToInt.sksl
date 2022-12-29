@@ -1,4 +1,3 @@
-uniform float testInput;
 uniform float2x2 testMatrix2x2;
 uniform half4 colorGreen, colorRed;
 

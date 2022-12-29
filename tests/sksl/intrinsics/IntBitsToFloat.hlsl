@@ -1,9 +1,8 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float _10_testInput : packoffset(c0);
-    row_major float2x2 _10_testMatrix2x2 : packoffset(c1);
-    float4 _10_colorGreen : packoffset(c3);
-    float4 _10_colorRed : packoffset(c4);
+    row_major float2x2 _10_testMatrix2x2 : packoffset(c0);
+    float4 _10_colorGreen : packoffset(c2);
+    float4 _10_colorRed : packoffset(c3);
 };
 
 
