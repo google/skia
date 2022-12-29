@@ -10,7 +10,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
-#include "include/core/SkM44.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -37,9 +36,9 @@
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
-#include <array>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 struct GrContextOptions;
@@ -75,47 +74,56 @@ static constexpr bool is_strict_es2(int flags) {
     return !(flags & SkSLTestFlags::GPU_ES3);
 }
 
-template <typename T>
-static void set_uniform(SkRuntimeShaderBuilder* builder, const char* name, const T& value) {
-    SkRuntimeShaderBuilder::BuilderUniform uniform = builder->uniform(name);
-    if (uniform.fVar) {
-        uniform = value;
-    }
-}
+struct UniformData {
+    std::string_view    name;
+    SkSpan<const float> span;
+};
 
-template <typename T>
-static void set_uniform_array(SkRuntimeShaderBuilder* builder, const char* name, SkSpan<T> values) {
-    SkRuntimeShaderBuilder::BuilderUniform uniform = builder->uniform(name);
-    if (uniform.fVar) {
-        uniform.set(values.data(), values.size());
-    }
-}
+static constexpr float kUniformColorBlack[]    = {0.0f, 0.0f, 0.0f, 1.0f};
+static constexpr float kUniformColorRed  []    = {1.0f, 0.0f, 0.0f, 1.0f};
+static constexpr float kUniformColorGreen[]    = {0.0f, 1.0f, 0.0f, 1.0f};
+static constexpr float kUniformColorBlue []    = {0.0f, 0.0f, 1.0f, 1.0f};
+static constexpr float kUniformColorWhite[]    = {1.0f, 1.0f, 1.0f, 1.0f};
+static constexpr float kUniformTestInputs[]    = {-1.25f, 0.0f, 0.75f, 2.25f};
+static constexpr float kUniformUnknownInput[]  = {1.0f};
+static constexpr float kUniformTestMatrix2x2[] = {1.0f, 2.0f,
+                                                  3.0f, 4.0f};
+static constexpr float kUniformTestMatrix3x3[] = {1.0f, 2.0f, 3.0f,
+                                                  4.0f, 5.0f, 6.0f,
+                                                  7.0f, 8.0f, 9.0f};
+static constexpr float kUniformTestMatrix4x4[] = {1.0f,  2.0f,  3.0f,  4.0f,
+                                                  5.0f,  6.0f,  7.0f,  8.0f,
+                                                  9.0f,  10.0f, 11.0f, 12.0f,
+                                                  13.0f, 14.0f, 15.0f, 16.0f};
+static constexpr float kUniformTestArray[] = {1, 2, 3, 4, 5};
+static constexpr float kUniformTestArrayNegative[] = {-1, -2, -3, -4, -5};
+
+static constexpr UniformData kUniformData[] = {
+        {"colorBlack", kUniformColorBlack},
+        {"colorRed", kUniformColorRed},
+        {"colorGreen", kUniformColorGreen},
+        {"colorBlue", kUniformColorBlue},
+        {"colorWhite", kUniformColorWhite},
+        {"testInputs", kUniformTestInputs},
+        {"unknownInput", kUniformUnknownInput},
+        {"testMatrix2x2", kUniformTestMatrix2x2},
+        {"testMatrix3x3", kUniformTestMatrix3x3},
+        {"testMatrix4x4", kUniformTestMatrix4x4},
+        {"testArray", kUniformTestArray},
+        {"testArrayNegative", kUniformTestArrayNegative},
+};
 
 static SkBitmap bitmap_from_shader(skiatest::Reporter* r,
                                    SkSurface* surface,
                                    sk_sp<SkRuntimeEffect> effect) {
-    static constexpr float kArray[5] = {1, 2, 3, 4, 5};
-    static constexpr float kArrayNegative[5] = {-1, -2, -3, -4, -5};
 
     SkRuntimeShaderBuilder builder(effect);
-    set_uniform(&builder, "colorBlack",       SkV4{0, 0, 0, 1});
-    set_uniform(&builder, "colorRed",         SkV4{1, 0, 0, 1});
-    set_uniform(&builder, "colorGreen",       SkV4{0, 1, 0, 1});
-    set_uniform(&builder, "colorBlue",        SkV4{0, 0, 1, 1});
-    set_uniform(&builder, "colorWhite",       SkV4{1, 1, 1, 1});
-    set_uniform(&builder, "testInputs",       SkV4{-1.25, 0, 0.75, 2.25});
-    set_uniform(&builder, "unknownInput",     1.0f);
-    set_uniform(&builder, "testMatrix2x2",    std::array<float,4>{1, 2,
-                                                                  3, 4});
-    set_uniform(&builder, "testMatrix3x3",    std::array<float,9>{1, 2, 3,
-                                                                  4, 5, 6,
-                                                                  7, 8, 9});
-    set_uniform(&builder, "testMatrix4x4",    std::array<float,16>{1,  2,  3,  4,
-                                                                   5,  6,  7,  8,
-                                                                   9,  10, 11, 12,
-                                                                   13, 14, 15, 16});
-    set_uniform_array(&builder, "testArray",  SkSpan(kArray));
-    set_uniform_array(&builder, "testArrayNegative", SkSpan(kArrayNegative));
+    for (const UniformData& data : kUniformData) {
+        SkRuntimeShaderBuilder::BuilderUniform uniform = builder.uniform(data.name);
+        if (uniform.fVar) {
+            uniform.set(data.span.data(), data.span.size());
+        }
+    }
 
     sk_sp<SkShader> shader = builder.makeShader();
     if (!shader) {
