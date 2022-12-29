@@ -840,7 +840,19 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorComparisonIntrinsicTest, r) {
                         equal(e, f)            == bool2(false, true)               &&
                         notEqual(a, b)         == bool4(true, false, true, true)   &&
                         notEqual(c, d)         == bool3(false, true, true)         &&
-                        notEqual(e, f)         == bool2(true, false)) ? colorGreen : colorRed;
+                        notEqual(e, f)         == bool2(true, false)               &&
+                        max(a, b)              == half4(2, 2, 1, 1)                &&
+                        max(c, d)              == int3(1111, 5555, 5555)           &&
+                        max(e, f)              == uint2(3333333333u, 222)          &&
+                        max(a, 1)              == half4(1, 2, 1, 1)                &&
+                        max(c, 3333)           == int3(3333, 3333, 5555)           &&
+                        max(e, 7777)           == uint2(1111111111u, 7777)         &&
+                        min(a, b)              == half4(1, 2, 0, 0)                &&
+                        min(c, d)              == int3(1111, 3333, 3333)           &&
+                        min(e, f)              == uint2(1111111111u, 222)          &&
+                        min(a, 1)              == half4(1, 1, 0, 1)                &&
+                        min(c, 3333)           == int3(1111, 3333, 3333)           &&
+                        min(e, 7777)           == uint2(7777, 222)) ? colorGreen : colorRed;
             }
          )__SkSL__",
          /*uniforms=*/{},

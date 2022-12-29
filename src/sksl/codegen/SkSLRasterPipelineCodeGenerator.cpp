@@ -273,6 +273,14 @@ private:
                                                    BuilderOp::cmpne_n_ints,
                                                    BuilderOp::cmpne_n_ints,
                                                    BuilderOp::cmpne_n_ints};
+    static constexpr auto kMinOps = BinaryOps{BuilderOp::min_n_floats,
+                                              BuilderOp::min_n_ints,
+                                              BuilderOp::min_n_uints,
+                                              BuilderOp::min_n_uints};
+    static constexpr auto kMaxOps = BinaryOps{BuilderOp::max_n_floats,
+                                              BuilderOp::max_n_ints,
+                                              BuilderOp::max_n_uints,
+                                              BuilderOp::max_n_uints};
 };
 
 struct LValue {
@@ -1141,6 +1149,34 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
                 return unsupported();
             }
             if (!this->binaryOp(arg0.type(), kLessThanEqualOps)) {
+                return unsupported();
+            }
+            return true;
+
+        case IntrinsicKind::k_min_IntrinsicKind:
+            SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
+            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
+                return unsupported();
+            }
+            if (arg1.type().slotCount() < arg0.type().slotCount()) {
+                // If we have min(vec, scal), splat the scalar into a vector.
+                fBuilder.duplicate(arg0.type().slotCount() - 1);
+            }
+            if (!this->binaryOp(arg0.type(), kMinOps)) {
+                return unsupported();
+            }
+            return true;
+
+        case IntrinsicKind::k_max_IntrinsicKind:
+            SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
+            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
+                return unsupported();
+            }
+            if (arg1.type().slotCount() < arg0.type().slotCount()) {
+                // If we have max(vec, scal), splat the scalar into a vector.
+                fBuilder.duplicate(arg0.type().slotCount() - 1);
+            }
+            if (!this->binaryOp(arg0.type(), kMaxOps)) {
                 return unsupported();
             }
             return true;
