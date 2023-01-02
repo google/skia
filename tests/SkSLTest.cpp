@@ -22,8 +22,11 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLProgramKind.h"
+#include "include/private/SkTArray.h"
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/SkSLVersion.h"
+#include "src/core/SkArenaAlloc.h"
+#include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -31,11 +34,15 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
+#include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -322,13 +329,142 @@ static void test_clone(skiatest::Reporter* r, const char* testFile, int flags) {
     SkSL::dsl::End();
 }
 
+// These debugging toggles enable extra logging in `test_raster_pipeline`.
+//#define REPORT_RP_PASS_FAIL 1
+//#define DUMP_RP_PROGRAMS 1
+
+#if defined(DUMP_RP_PROGRAMS)
+#include "src/core/SkStreamPriv.h"
+#endif
+
+static void test_raster_pipeline(skiatest::Reporter* r, const char* testFile, int flags) {
+#if defined(REPORT_RP_PASS_FAIL)
+    static int sRPTestsPassed = 0;
+    static int sRPTestsFailed = 0;
+#endif
+
+    SkString shaderString = load_source(r, testFile, "");
+    if (shaderString.isEmpty()) {
+        return;
+    }
+
+    // In Raster Pipeline, we can compile and run test shaders directly, without involving a surface
+    // at all.
+    SkSL::Compiler compiler(SkSL::ShaderCapsFactory::Default());
+    SkSL::ProgramSettings settings;
+    settings.fMaxVersionAllowed = SkSL::Version::k300;
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+            SkSL::ProgramKind::kRuntimeShader, shaderString.c_str(), settings);
+    if (!program) {
+        ERRORF(r, "%s: Unexpected compilation error\n%s", testFile, compiler.errorText().c_str());
+        return;
+    }
+    const SkSL::FunctionDeclaration* main = program->getFunction("main");
+    if (!main) {
+        ERRORF(r, "%s: Program must have a 'main' function", testFile);
+        return;
+    }
+
+    // Match up uniforms from the program against our list of test uniforms, and build up a data
+    // buffer of uniform floats. TODO: this approach doesn't work for complex types (arrays and
+    // structs), but the RP backend doesn't support those yet regardless.
+    std::unique_ptr<SkSL::UniformInfo> uniformInfo = program->getUniformInfo();
+    SkTArray<float> uniformValues;
+    for (const SkSL::UniformInfo::Uniform& programUniform : uniformInfo->fUniforms) {
+        bool foundMatch = false;
+        for (const UniformData& data : kUniformData) {
+            if (data.name == programUniform.fName) {
+                SkASSERT((int)data.span.size() == programUniform.fColumns * programUniform.fRows);
+                foundMatch = true;
+                uniformValues.push_back_n(data.span.size(), data.span.data());
+                break;
+            }
+        }
+        if (!foundMatch) {
+#if defined(REPORT_RP_PASS_FAIL)
+            ++sRPTestsFailed;
+            SkDebugf("%d/%d: FAIL %s (unsupported uniform '%s')\n",
+                     sRPTestsPassed, sRPTestsPassed + sRPTestsFailed, testFile,
+                     programUniform.fName.c_str());
+#endif
+            return;
+        }
+    }
+
+    // Compile our program.
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/1000);
+    SkRasterPipeline pipeline(&alloc);
+    std::unique_ptr<SkSL::RP::Program> rasterProg =
+            SkSL::MakeRasterPipelineProgram(*program,
+                                            *main->definition(),
+                                            /*debugTrace=*/nullptr);
+    if (!rasterProg) {
+#if defined(REPORT_RP_PASS_FAIL)
+        ++sRPTestsFailed;
+        SkDebugf("%d/%d: FAIL %s (code is not supported)\n",
+                 sRPTestsPassed, sRPTestsPassed + sRPTestsFailed, testFile);
+#endif
+        return;
+    }
+
+#if defined(DUMP_RP_PROGRAMS)
+    // Dump the program instructions via SkDebugf.
+    SkDebugf("----- %s -----\n\n", testFile);
+    SkDebugfStream stream;
+    rasterProg->dump(&stream);
+    SkDebugf("\n-----\n\n");
+#endif
+
+    // Append the SkSL program to the raster pipeline.
+    pipeline.append_constant_color(&alloc, SkColors::kTransparent);
+    rasterProg->appendStages(&pipeline, &alloc, SkSpan(uniformValues));
+
+    // Move the float values from RGBA into an 8888 memory buffer.
+    uint32_t out[SkRasterPipeline_kMaxStride_highp] = {};
+    SkRasterPipeline_MemoryCtx outCtx{/*pixels=*/out, /*stride=*/SkRasterPipeline_kMaxStride_highp};
+    pipeline.append(SkRasterPipeline::store_8888, &outCtx);
+    pipeline.run(0, 0, 1, 1);
+
+    // Make sure the first pixel (exclusively) of `out` is green. If the program compiled
+    // successfully, we expect it to run without error, and will assert if it doesn't.
+    uint32_t expected = 0xFF00FF00;
+    if (out[0] != expected) {
+#if defined(REPORT_RP_PASS_FAIL)
+        ++sRPTestsFailed;
+        SkDebugf("%d/%d: FAIL %s (expected solid green, got ARGB:%02X%02X%02X%02X)\n",
+                 sRPTestsPassed, sRPTestsPassed + sRPTestsFailed, testFile,
+                 (out[0] >> 24) & 0xFF,
+                 (out[0] >> 16) & 0xFF,
+                 (out[0] >> 8) & 0xFF,
+                 out[0] & 0xFF);
+#endif
+        ERRORF(r, "%s: Raster Pipeline failed. Expected solid green, got ARGB:%02X%02X%02X%02X",
+                  testFile,
+                  (out[0] >> 24) & 0xFF,
+                  (out[0] >> 16) & 0xFF,
+                  (out[0] >> 8) & 0xFF,
+                  out[0] & 0xFF);
+        return;
+    }
+
+    // Success!
+#if defined(REPORT_RP_PASS_FAIL)
+    ++sRPTestsPassed;
+    SkDebugf("%d/%d: PASS %s\n", sRPTestsPassed, sRPTestsPassed + sRPTestsFailed, testFile);
+#endif
+}
+
+#undef DUMP_RP_PROGRAMS
+#undef REPORT_RP_PASS_FAIL
+
 #define SKSL_TEST(flags, ctsEnforcement, name, path)                                       \
     DEF_CONDITIONAL_TEST(SkSL##name##_CPU, r, is_cpu(flags)) { test_cpu(r, path, flags); } \
     DEF_CONDITIONAL_GANESH_TEST_FOR_RENDERING_CONTEXTS(                                    \
             SkSL##name##_GPU, r, ctxInfo, is_gpu(flags), ctsEnforcement) {                 \
         test_gpu(r, ctxInfo.directContext(), path, flags);                                 \
     }                                                                                      \
-    DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }
+    DEF_TEST(SkSL##name##_Clone, r) { test_clone(r, path, flags); }                        \
+    DEF_TEST(SkSL##name##_RP, r) { test_raster_pipeline(r, path, flags); }
 
 /**
  * Test flags:
