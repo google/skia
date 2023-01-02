@@ -186,6 +186,10 @@ public:
     [[nodiscard]] bool pushIntrinsic(IntrinsicKind intrinsic,
                                      const Expression& arg0,
                                      const Expression& arg1);
+    [[nodiscard]] bool pushIntrinsic(IntrinsicKind intrinsic,
+                                     const Expression& arg0,
+                                     const Expression& arg1,
+                                     const Expression& arg2);
     [[nodiscard]] bool pushLiteral(const Literal& l);
     [[nodiscard]] bool pushPrefixExpression(const PrefixExpression& p);
     [[nodiscard]] bool pushPrefixExpression(Operator op, const Expression& expr);
@@ -216,6 +220,8 @@ public:
 
     [[nodiscard]] bool assign(const Expression& e);
     [[nodiscard]] bool binaryOp(const SkSL::Type& type, const BinaryOps& ops);
+    [[nodiscard]] bool pushVectorizedExpression(const Expression& expr, const Type& vectorType);
+
     void foldWithMultiOp(BuilderOp op, int elements);
     void foldWithOp(BuilderOp op, int elements);
     void nextTempStack() {
@@ -224,6 +230,7 @@ public:
     void previousTempStack() {
         fBuilder.set_current_stack(--fCurrentTempStack);
     }
+
     static bool IsUniform(const Variable& var) {
        return var.modifiers().fFlags & Modifiers::kUniform_Flag;
     }
@@ -1101,6 +1108,9 @@ bool Generator::pushIntrinsic(const FunctionCall& c) {
         case 2:
             return this->pushIntrinsic(c.function().intrinsicKind(), *args[0], *args[1]);
 
+        case 3:
+            return this->pushIntrinsic(c.function().intrinsicKind(), *args[0], *args[1], *args[2]);
+
         default:
             break;
     }
@@ -1108,11 +1118,28 @@ bool Generator::pushIntrinsic(const FunctionCall& c) {
     return unsupported();
 }
 
+bool Generator::pushVectorizedExpression(const Expression& expr, const Type& vectorType) {
+    if (!this->pushExpression(expr)) {
+        return unsupported();
+    }
+    if (vectorType.slotCount() > expr.type().slotCount()) {
+        SkASSERT(expr.type().slotCount() == 1);
+        fBuilder.duplicate(vectorType.slotCount() - expr.type().slotCount());
+    }
+    return true;
+}
+
 bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
     switch (intrinsic) {
         case IntrinsicKind::k_not_IntrinsicKind:
             return this->pushPrefixExpression(OperatorKind::LOGICALNOT, arg0);
 
+        case IntrinsicKind::k_saturate_IntrinsicKind: {
+            // Implement saturate as clamp(arg, 0, 1).
+            Literal zeroLiteral{Position{}, 0.0, &arg0.type().componentType()};
+            Literal oneLiteral{Position{}, 1.0, &arg0.type().componentType()};
+            return this->pushIntrinsic(k_clamp_IntrinsicKind, arg0, zeroLiteral, oneLiteral);
+        }
         default:
             break;
     }
@@ -1124,6 +1151,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
                               const Expression& arg1) {
     switch (intrinsic) {
         case IntrinsicKind::k_dot_IntrinsicKind:
+            // Implement dot as `a*b`, followed by folding via addition.
             SkASSERT(arg0.type().matches(arg1.type()));
             if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
                 return unsupported();
@@ -1194,12 +1222,8 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
 
         case IntrinsicKind::k_min_IntrinsicKind:
             SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
-            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
+            if (!this->pushExpression(arg0) || !this->pushVectorizedExpression(arg1, arg0.type())) {
                 return unsupported();
-            }
-            if (arg1.type().slotCount() < arg0.type().slotCount()) {
-                // If we have min(vec, scal), splat the scalar into a vector.
-                fBuilder.duplicate(arg0.type().slotCount() - 1);
             }
             if (!this->binaryOp(arg0.type(), kMinOps)) {
                 return unsupported();
@@ -1208,14 +1232,39 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
 
         case IntrinsicKind::k_max_IntrinsicKind:
             SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
-            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
+            if (!this->pushExpression(arg0) || !this->pushVectorizedExpression(arg1, arg0.type())) {
                 return unsupported();
             }
-            if (arg1.type().slotCount() < arg0.type().slotCount()) {
-                // If we have max(vec, scal), splat the scalar into a vector.
-                fBuilder.duplicate(arg0.type().slotCount() - 1);
+            if (!this->binaryOp(arg0.type(), kMaxOps)) {
+                return unsupported();
+            }
+            return true;
+
+        default:
+            break;
+    }
+    return unsupported();
+}
+
+bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
+                              const Expression& arg0,
+                              const Expression& arg1,
+                              const Expression& arg2) {
+    switch (intrinsic) {
+        case IntrinsicKind::k_clamp_IntrinsicKind:
+            // Implement clamp as min(max(arg, low), high).
+            SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
+            SkASSERT(arg0.type().componentType().matches(arg2.type().componentType()));
+            if (!this->pushExpression(arg0) || !this->pushVectorizedExpression(arg1, arg0.type())) {
+                return unsupported();
             }
             if (!this->binaryOp(arg0.type(), kMaxOps)) {
+                return unsupported();
+            }
+            if (!this->pushVectorizedExpression(arg2, arg0.type())) {
+                return unsupported();
+            }
+            if (!this->binaryOp(arg0.type(), kMinOps)) {
                 return unsupported();
             }
             return true;

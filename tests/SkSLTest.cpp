@@ -575,6 +575,7 @@ SKSL_TEST(GPU_ES3,   kNever,      IntrinsicOuterProduct,           "intrinsics/O
 // SKSL_TEST(GPU_ES3,   kNever,      IntrinsicPackUnorm2x16,          "intrinsics/PackUnorm2x16.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicRound,                  "intrinsics/Round.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicRoundEven,              "intrinsics/RoundEven.sksl")
+SKSL_TEST(CPU + GPU, kNever,      IntrinsicSaturate,               "intrinsics/Saturate.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, IntrinsicSignFloat,              "intrinsics/SignFloat.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicSignInt,                "intrinsics/SignInt.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, IntrinsicStep,                   "intrinsics/Step.sksl")
