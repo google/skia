@@ -177,10 +177,8 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorIfElseTest, r) {
     test(r,
          R"__SkSL__(
              const half4 colorWhite = half4(1);
-             half4 colorBlue  = colorWhite.00b1,
-                   colorGreen = colorWhite.0g01,
-                   colorRed   = colorWhite.r001;
-             half4 main(half4) {
+
+             half4 ifElseTest(half4 colorBlue, half4 colorGreen, half4 colorRed) {
                  half4 result = half4(0);
                  if (colorWhite != colorBlue) {    // TRUE
                      if (colorGreen == colorRed) { // FALSE
@@ -205,6 +203,10 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorIfElseTest, r) {
                      return colorBlue;
                  }
                  return colorRed;
+             }
+
+             half4 main(half4) {
+                 return ifElseTest(colorWhite.00b1, colorWhite.0g01, colorWhite.r001);
              }
          )__SkSL__",
          /*uniforms=*/{},
@@ -531,7 +533,6 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorCoercedTypeTest, r) {
 
 DEF_TEST(SkSLRasterPipelineCodeGeneratorVectorScalarFoldingTest, r) {
     // This test matches the floating-point test in VectorScalarFolding.rts.
-    // (The function call has been manually inlined.)
     static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
                                           1.0, 0.0, 0.0, 1.0,
                                           1.0};
@@ -540,7 +541,7 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorVectorScalarFoldingTest, r) {
             uniform half4 colorGreen, colorRed;
             uniform half  unknownInput;
 
-            half4 main(vec4) {
+            bool test_half() {
                 bool ok = true;
 
                 // Vector op scalar
@@ -638,7 +639,11 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorVectorScalarFoldingTest, r) {
                 x = x / 1;
                 ok = ok && (x == half4(unknown));
 
-                return ok ? colorGreen : colorRed;
+                return ok;
+            }
+
+            half4 main(vec4) {
+                return test_half() ? colorGreen : colorRed;
             }
          )__SkSL__",
          kUniforms,
@@ -858,4 +863,21 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorComparisonIntrinsicTest, r) {
          /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
+}
+
+DEF_TEST(SkSLRasterPipelineCodeGeneratorUnpremulTest, r) {
+    test(r,
+         R"__SkSL__(
+            // This is `unpremul` verbatim from sksl_shared, but marked noinline.
+            noinline half4 MyUnpremul(half4 color) {
+                return half4(color.rgb / max(color.a, 0.0001), color.a);
+            }
+
+            half4 main(vec4 color) {
+                return MyUnpremul(color);
+            }
+         )__SkSL__",
+         /*uniforms=*/{},
+         /*startingColor=*/SkColor4f{0.5, 0.25, 0.125, 0.5},
+         /*expectedResult=*/SkColor4f{1.0, 0.5, 0.25, 0.5});
 }

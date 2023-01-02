@@ -126,8 +126,7 @@ public:
      * contained unsupported statements or expressions.
      */
     std::optional<SlotRange> writeFunction(const IRNode& callSite,
-                                           const FunctionDefinition& function,
-                                           SkSpan<const SlotRange> args);
+                                           const FunctionDefinition& function);
 
     /**
      * Returns the slot index of this function inside the FunctionDebugInfo array in SkRPDebugTrace.
@@ -532,8 +531,7 @@ int Generator::getFunctionDebugInfo(const FunctionDeclaration& decl) {
 }
 
 std::optional<SlotRange> Generator::writeFunction(const IRNode& callSite,
-                                                  const FunctionDefinition& function,
-                                                  SkSpan<const SlotRange> args) {
+                                                  const FunctionDefinition& function) {
     [[maybe_unused]] int funcIndex = -1;
     if (fDebugTrace) {
         funcIndex = this->getFunctionDebugInfo(function.declaration());
@@ -1050,7 +1048,48 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
     if (c.function().isIntrinsic()) {
         return this->pushIntrinsic(c);
     }
-    return unsupported();
+
+    // Skip over the function body entirely if there are no active lanes.
+    // (If the function call was trivial, it would likely have been inlined in the frontend, so this
+    // is likely to save a significant amount of work if the lanes are all dead.)
+    int skipLabelID = fBuilder.nextLabelID();
+    fBuilder.branch_if_no_active_lanes(skipLabelID);
+
+    // Save off the return mask.
+    fBuilder.push_return_mask();
+
+    // Write all the arguments into their parameter's variable slots. Because we never allow
+    // recursion, we don't need to worry about overwriting any existing values in those slots.
+    // (In fact, we don't even need to apply the write mask.)
+    for (int index = 0; index < c.arguments().size(); ++index) {
+        const Expression& arg = *c.arguments()[index];
+        const Variable& param = *c.function().parameters()[index];
+
+        if (param.modifiers().fFlags & Modifiers::kOut_Flag) {
+            // TODO(skia:13676): out and inout parameters
+            return unsupported();
+        }
+
+        if (!this->pushExpression(arg)) {
+            return unsupported();
+        }
+
+        this->popToSlotRangeUnmasked(this->getVariableSlots(param));
+    }
+
+    // Emit the function body.
+    std::optional<SlotRange> r = this->writeFunction(c, *c.function().definition());
+    if (!r.has_value()) {
+        return unsupported();
+    }
+
+    // Restore the original return mask.
+    fBuilder.pop_return_mask();
+
+    // Copy the function result from its slots onto the stack.
+    fBuilder.push_slots(*r);
+    fBuilder.label(skipLabelID);
+    return true;
 }
 
 bool Generator::pushIntrinsic(const FunctionCall& c) {
@@ -1349,7 +1388,6 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
         fDebugTrace->setSource(*fProgram.fSource);
     }
     // Assign slots to the parameters of main; copy src and dst into those slots as appropriate.
-    SkSTArray<2, SlotRange> args;
     for (const SkSL::Variable* param : function.declaration().parameters()) {
         switch (param->modifiers().fLayout.fBuiltin) {
             case SK_MAIN_COORDS_BUILTIN: {
@@ -1357,7 +1395,6 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
                 SlotRange fragCoord = this->getVariableSlots(*param);
                 SkASSERT(fragCoord.count == 2);
                 fBuilder.store_src_rg(fragCoord);
-                args.push_back(fragCoord);
                 break;
             }
             case SK_INPUT_COLOR_BUILTIN: {
@@ -1365,7 +1402,6 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
                 SlotRange srcColor = this->getVariableSlots(*param);
                 SkASSERT(srcColor.count == 4);
                 fBuilder.store_src(srcColor);
-                args.push_back(srcColor);
                 break;
             }
             case SK_DEST_COLOR_BUILTIN: {
@@ -1373,7 +1409,6 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
                 SlotRange destColor = this->getVariableSlots(*param);
                 SkASSERT(destColor.count == 4);
                 fBuilder.store_dst(destColor);
-                args.push_back(destColor);
                 break;
             }
             default: {
@@ -1392,7 +1427,7 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
     }
 
     // Invoke main().
-    std::optional<SlotRange> mainResult = this->writeFunction(function, function, args);
+    std::optional<SlotRange> mainResult = this->writeFunction(function, function);
     if (!mainResult.has_value()) {
         return unsupported();
     }

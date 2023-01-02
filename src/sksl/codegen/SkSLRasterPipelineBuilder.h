@@ -265,8 +265,11 @@ public:
     }
 
     void push_slots(SlotRange src) {
-        // Translates into copy_slots_unmasked (from values into temp stack) in Raster Pipeline.
-        fInstructions.push_back({BuilderOp::push_slots, {src.index}, src.count});
+        SkASSERT(src.count >= 0);
+        if (src.count > 0) {
+            // Translates into copy_slots_unmasked (from values into temp stack) in Raster Pipeline.
+            fInstructions.push_back({BuilderOp::push_slots, {src.index}, src.count});
+        }
     }
 
     void copy_stack_to_slots(SlotRange dst) {
