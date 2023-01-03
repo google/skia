@@ -3186,25 +3186,25 @@ STAGE(zero_4_slots_unmasked, F* dst) {
     sk_bzero(dst, sizeof(F) * 4);
 }
 
-STAGE(copy_constant, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_constant, SkRasterPipeline_BinaryOpCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
 }
-STAGE(copy_2_constants, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_2_constants, SkRasterPipeline_BinaryOpCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
 }
-STAGE(copy_3_constants, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_3_constants, SkRasterPipeline_BinaryOpCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
     dst[1] = src[1];
     dst[2] = src[2];
 }
-STAGE(copy_4_constants, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_4_constants, SkRasterPipeline_BinaryOpCtx* ctx) {
     const float* src = ctx->src;
     F* dst = (F*)ctx->dst;
     dst[0] = src[0];
@@ -3213,22 +3213,22 @@ STAGE(copy_4_constants, SkRasterPipeline_CopySlotsCtx* ctx) {
     dst[3] = src[3];
 }
 
-STAGE(copy_slot_unmasked, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_slot_unmasked, SkRasterPipeline_BinaryOpCtx* ctx) {
     // We don't even bother masking off the tail; we're filling slots, not the destination surface.
     memcpy(ctx->dst, ctx->src, sizeof(F) * 1);
 }
-STAGE(copy_2_slots_unmasked, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_2_slots_unmasked, SkRasterPipeline_BinaryOpCtx* ctx) {
     memcpy(ctx->dst, ctx->src, sizeof(F) * 2);
 }
-STAGE(copy_3_slots_unmasked, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_3_slots_unmasked, SkRasterPipeline_BinaryOpCtx* ctx) {
     memcpy(ctx->dst, ctx->src, sizeof(F) * 3);
 }
-STAGE(copy_4_slots_unmasked, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_4_slots_unmasked, SkRasterPipeline_BinaryOpCtx* ctx) {
     memcpy(ctx->dst, ctx->src, sizeof(F) * 4);
 }
 
 template <int NumSlots>
-SI void copy_n_slots_masked_fn(SkRasterPipeline_CopySlotsCtx* ctx, I32 mask) {
+SI void copy_n_slots_masked_fn(SkRasterPipeline_BinaryOpCtx* ctx, I32 mask) {
     if (any(mask)) {
         // Get pointers to our slots.
         F* dst = (F*)ctx->dst;
@@ -3243,16 +3243,16 @@ SI void copy_n_slots_masked_fn(SkRasterPipeline_CopySlotsCtx* ctx, I32 mask) {
     }
 }
 
-STAGE(copy_slot_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_slot_masked, SkRasterPipeline_BinaryOpCtx* ctx) {
     copy_n_slots_masked_fn<1>(ctx, execution_mask());
 }
-STAGE(copy_2_slots_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_2_slots_masked, SkRasterPipeline_BinaryOpCtx* ctx) {
     copy_n_slots_masked_fn<2>(ctx, execution_mask());
 }
-STAGE(copy_3_slots_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_3_slots_masked, SkRasterPipeline_BinaryOpCtx* ctx) {
     copy_n_slots_masked_fn<3>(ctx, execution_mask());
 }
-STAGE(copy_4_slots_masked, SkRasterPipeline_CopySlotsCtx* ctx) {
+STAGE(copy_4_slots_masked, SkRasterPipeline_BinaryOpCtx* ctx) {
     copy_n_slots_masked_fn<4>(ctx, execution_mask());
 }
 
@@ -3307,14 +3307,15 @@ STAGE(bitwise_not_4, I32* dst) {
     dst[3] = ~dst[3];
 }
 
+// Binary operations take two adjacent inputs, and write their output in the first position.
 template <typename T, void (*ApplyFn)(T*, T*)>
-SI void apply_to_adjacent(T* dst, T* src) {
+SI void apply_adjacent_binary(T* dst, T* src) {
     T* end = src;
-    while (dst != end) {
+    do {
         ApplyFn(dst, src);
         dst += 1;
         src += 1;
-    }
+    } while (dst != end);
 }
 
 template <typename T>
@@ -3375,49 +3376,79 @@ SI void cmpne_fn(T* dst, T* src) {
     memcpy(dst, &result, sizeof(I32));
 }
 
-#define DECLARE_FLOAT_STAGES(name)                                                        \
-    STAGE(name##_float, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 1); }       \
-    STAGE(name##_2_floats, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 2); }    \
-    STAGE(name##_3_floats, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 3); }    \
-    STAGE(name##_4_floats, F* dst) { apply_to_adjacent<F, &name##_fn>(dst, dst + 4); }    \
-    STAGE(name##_n_floats, SkRasterPipeline_CopySlotsCtx* ctx) {                          \
-        apply_to_adjacent<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src);                     \
+#define DECLARE_BINARY_FLOAT(name)                                                         \
+    STAGE(name##_float, F* dst) { apply_adjacent_binary<F, &name##_fn>(dst, dst + 1); }    \
+    STAGE(name##_2_floats, F* dst) { apply_adjacent_binary<F, &name##_fn>(dst, dst + 2); } \
+    STAGE(name##_3_floats, F* dst) { apply_adjacent_binary<F, &name##_fn>(dst, dst + 3); } \
+    STAGE(name##_4_floats, F* dst) { apply_adjacent_binary<F, &name##_fn>(dst, dst + 4); } \
+    STAGE(name##_n_floats, SkRasterPipeline_BinaryOpCtx* ctx) {                            \
+        apply_adjacent_binary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src);                  \
     }
 
-#define DECLARE_INT_STAGES(name)                                                          \
-    STAGE(name##_int, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 1); }     \
-    STAGE(name##_2_ints, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 2); }  \
-    STAGE(name##_3_ints, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 3); }  \
-    STAGE(name##_4_ints, I32* dst) { apply_to_adjacent<I32, &name##_fn>(dst, dst + 4); }  \
-    STAGE(name##_n_ints, SkRasterPipeline_CopySlotsCtx* ctx) {                            \
-        apply_to_adjacent<I32, &name##_fn>((I32*)ctx->dst, (I32*)ctx->src);               \
+#define DECLARE_BINARY_INT(name)                                                             \
+    STAGE(name##_int, I32* dst) { apply_adjacent_binary<I32, &name##_fn>(dst, dst + 1); }    \
+    STAGE(name##_2_ints, I32* dst) { apply_adjacent_binary<I32, &name##_fn>(dst, dst + 2); } \
+    STAGE(name##_3_ints, I32* dst) { apply_adjacent_binary<I32, &name##_fn>(dst, dst + 3); } \
+    STAGE(name##_4_ints, I32* dst) { apply_adjacent_binary<I32, &name##_fn>(dst, dst + 4); } \
+    STAGE(name##_n_ints, SkRasterPipeline_BinaryOpCtx* ctx) {                                \
+        apply_adjacent_binary<I32, &name##_fn>((I32*)ctx->dst, (I32*)ctx->src);              \
     }
 
-#define DECLARE_UINT_STAGES(name)                                                         \
-    STAGE(name##_uint, U32* dst) { apply_to_adjacent<U32, &name##_fn>(dst, dst + 1); }    \
-    STAGE(name##_2_uints, U32* dst) { apply_to_adjacent<U32, &name##_fn>(dst, dst + 2); } \
-    STAGE(name##_3_uints, U32* dst) { apply_to_adjacent<U32, &name##_fn>(dst, dst + 3); } \
-    STAGE(name##_4_uints, U32* dst) { apply_to_adjacent<U32, &name##_fn>(dst, dst + 4); } \
-    STAGE(name##_n_uints, SkRasterPipeline_CopySlotsCtx* ctx) {                           \
-        apply_to_adjacent<U32, &name##_fn>((U32*)ctx->dst, (U32*)ctx->src);               \
+#define DECLARE_BINARY_UINT(name)                                                             \
+    STAGE(name##_uint, U32* dst) { apply_adjacent_binary<U32, &name##_fn>(dst, dst + 1); }    \
+    STAGE(name##_2_uints, U32* dst) { apply_adjacent_binary<U32, &name##_fn>(dst, dst + 2); } \
+    STAGE(name##_3_uints, U32* dst) { apply_adjacent_binary<U32, &name##_fn>(dst, dst + 3); } \
+    STAGE(name##_4_uints, U32* dst) { apply_adjacent_binary<U32, &name##_fn>(dst, dst + 4); } \
+    STAGE(name##_n_uints, SkRasterPipeline_BinaryOpCtx* ctx) {                                \
+        apply_adjacent_binary<U32, &name##_fn>((U32*)ctx->dst, (U32*)ctx->src);               \
     }
 
 // Many ops reuse the int stages when performing uint arithmetic, since they're equivalent on a
 // two's-complement machine. (Even multiplication is equivalent in the lower 32 bits.)
-DECLARE_FLOAT_STAGES(add)    DECLARE_INT_STAGES(add)
-DECLARE_FLOAT_STAGES(sub)    DECLARE_INT_STAGES(sub)
-DECLARE_FLOAT_STAGES(mul)    DECLARE_INT_STAGES(mul)
-DECLARE_FLOAT_STAGES(div)    DECLARE_INT_STAGES(div)    DECLARE_UINT_STAGES(div)
-DECLARE_FLOAT_STAGES(min)    DECLARE_INT_STAGES(min)    DECLARE_UINT_STAGES(min)
-DECLARE_FLOAT_STAGES(max)    DECLARE_INT_STAGES(max)    DECLARE_UINT_STAGES(max)
-DECLARE_FLOAT_STAGES(cmplt)  DECLARE_INT_STAGES(cmplt)  DECLARE_UINT_STAGES(cmplt)
-DECLARE_FLOAT_STAGES(cmple)  DECLARE_INT_STAGES(cmple)  DECLARE_UINT_STAGES(cmple)
-DECLARE_FLOAT_STAGES(cmpeq)  DECLARE_INT_STAGES(cmpeq)
-DECLARE_FLOAT_STAGES(cmpne)  DECLARE_INT_STAGES(cmpne)
+DECLARE_BINARY_FLOAT(add)    DECLARE_BINARY_INT(add)
+DECLARE_BINARY_FLOAT(sub)    DECLARE_BINARY_INT(sub)
+DECLARE_BINARY_FLOAT(mul)    DECLARE_BINARY_INT(mul)
+DECLARE_BINARY_FLOAT(div)    DECLARE_BINARY_INT(div)    DECLARE_BINARY_UINT(div)
+DECLARE_BINARY_FLOAT(min)    DECLARE_BINARY_INT(min)    DECLARE_BINARY_UINT(min)
+DECLARE_BINARY_FLOAT(max)    DECLARE_BINARY_INT(max)    DECLARE_BINARY_UINT(max)
+DECLARE_BINARY_FLOAT(cmplt)  DECLARE_BINARY_INT(cmplt)  DECLARE_BINARY_UINT(cmplt)
+DECLARE_BINARY_FLOAT(cmple)  DECLARE_BINARY_INT(cmple)  DECLARE_BINARY_UINT(cmple)
+DECLARE_BINARY_FLOAT(cmpeq)  DECLARE_BINARY_INT(cmpeq)
+DECLARE_BINARY_FLOAT(cmpne)  DECLARE_BINARY_INT(cmpne)
 
-#undef DECLARE_FLOAT_STAGES
-#undef DECLARE_INT_STAGES
-#undef DECLARE_UINT_STAGES
+#undef DECLARE_BINARY_FLOAT
+#undef DECLARE_BINARY_INT
+#undef DECLARE_BINARY_UINT
+
+// Ternary operations work like binary ops (see immediately above) but take two source inputs.
+template <typename T, void (*ApplyFn)(T*, T*, T*)>
+SI void apply_adjacent_ternary(T* dst, T* src0, T* src1) {
+    T* end = src0;
+    do {
+        ApplyFn(dst, src0, src1);
+        dst += 1;
+        src0 += 1;
+        src1 += 1;
+    } while (dst != end);
+}
+
+template <typename T>
+SI void mix_fn(T* a, T* b, T* c) {
+    *a = lerp(*a, *b, *c);
+}
+
+#define DECLARE_TERNARY_FLOAT(name)                                                          \
+    STAGE(name##_float, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p + 1, p + 2); }    \
+    STAGE(name##_2_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p + 2, p + 4); } \
+    STAGE(name##_3_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p + 3, p + 6); } \
+    STAGE(name##_4_floats, F* p) { apply_adjacent_ternary<F, &name##_fn>(p, p + 4, p + 8); } \
+    STAGE(name##_n_floats, SkRasterPipeline_TernaryOpCtx* ctx) {                             \
+        apply_adjacent_ternary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src0, (F*)ctx->src1);   \
+    }
+
+DECLARE_TERNARY_FLOAT(mix)
+
+#undef DECLARE_TERNARY_FLOAT
 
 STAGE(gauss_a_to_rgba, NoCtx) {
     // x = 1 - x;

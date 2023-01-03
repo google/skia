@@ -156,6 +156,7 @@ struct skcms_TransferFunction;
     M(min_n_floats) M(min_float) M(min_2_floats) M(min_3_floats) M(min_4_floats)              \
     M(min_n_ints)   M(min_int)   M(min_2_ints)   M(min_3_ints)   M(min_4_ints)                \
     M(min_n_uints)  M(min_uint)  M(min_2_uints)  M(min_3_uints)  M(min_4_uints)               \
+    M(mix_n_floats) M(mix_float) M(mix_2_floats) M(mix_3_floats) M(mix_4_floats)              \
     M(cmplt_n_floats) M(cmplt_float) M(cmplt_2_floats) M(cmplt_3_floats) M(cmplt_4_floats)    \
     M(cmplt_n_ints)   M(cmplt_int)   M(cmplt_2_ints)   M(cmplt_3_ints)   M(cmplt_4_ints)      \
     M(cmplt_n_uints)  M(cmplt_uint)  M(cmplt_2_uints)  M(cmplt_3_uints)  M(cmplt_4_uints)     \
@@ -300,9 +301,15 @@ struct SkRasterPipeline_TablesCtx {
     const uint8_t *r, *g, *b, *a;
 };
 
-struct SkRasterPipeline_CopySlotsCtx {
+struct SkRasterPipeline_BinaryOpCtx {
     float *dst;
     const float *src;
+};
+
+struct SkRasterPipeline_TernaryOpCtx {
+    float *dst;
+    const float *src0;
+    const float *src1;
 };
 
 struct SkRasterPipeline_SwizzleCtx {

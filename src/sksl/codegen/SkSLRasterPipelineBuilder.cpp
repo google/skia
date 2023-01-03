@@ -226,7 +226,7 @@ void Program::appendCopy(SkRasterPipeline* pipeline,
     if (numSlots > 0) {
         SkASSERT(numSlots <= 4);
         auto stage = (SkRasterPipeline::Stage)((int)baseStage + numSlots - 1);
-        auto* ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
+        auto* ctx = alloc->make<SkRasterPipeline_BinaryOpCtx>();
         ctx->dst = dst;
         ctx->src = src;
         this->append(pipeline, stage, ctx);
@@ -299,7 +299,7 @@ void Program::appendAdjacentMultiSlotBinaryOp(SkRasterPipeline* pipeline, SkAren
     SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots) == src);
 
     if (numSlots > 4) {
-        auto ctx = alloc->make<SkRasterPipeline_CopySlotsCtx>();
+        auto ctx = alloc->make<SkRasterPipeline_BinaryOpCtx>();
         ctx->dst = dst;
         ctx->src = src;
         this->append(pipeline, baseStage, ctx);
@@ -792,25 +792,28 @@ void Program::dump(SkWStream* out) {
                                    PtrCtx(ctxAsSlot + (N * numSlots), numSlots));
         };
 
-        // Interpret the context value as a CopySlots structure for copy_n_slots.
-        auto CopySlotsCtx = [&](const void* v,
-                                int numSlots) -> std::tuple<std::string, std::string> {
-            const auto *ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(v);
+        // Interpret the context value as a BinaryOp structure for copy_n_slots (numSlots is
+        // dictated by the op itself).
+        auto BinaryOpCtx = [&](const void* v,
+                               int numSlots) -> std::tuple<std::string, std::string> {
+            const auto *ctx = static_cast<const SkRasterPipeline_BinaryOpCtx*>(v);
             return std::make_tuple(PtrCtx(ctx->dst, numSlots),
                                    PtrCtx(ctx->src, numSlots));
         };
 
-        // Interpret the context value as a CopySlots structure for copy_n_constants.
+        // Interpret the context value as a BinaryOp structure for copy_n_constants (numSlots is
+        // dictated by the op itself).
         auto CopyConstantCtx = [&](const void* v,
                                    int numSlots) -> std::tuple<std::string, std::string> {
-            const auto *ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(v);
+            const auto *ctx = static_cast<const SkRasterPipeline_BinaryOpCtx*>(v);
             return std::make_tuple(PtrCtx(ctx->dst, numSlots),
                                    MultiImmCtx(ctx->src, numSlots));
         };
 
-        // Interpret the context value as a CopySlots structure.
-        auto AdjacentCopySlotsCtx = [&](const void* v) -> std::tuple<std::string, std::string> {
-            const auto *ctx = static_cast<const SkRasterPipeline_CopySlotsCtx*>(v);
+        // Interpret the context value as a BinaryOp structure (numSlots is inferred from the
+        // distance between pointers).
+        auto AdjacentBinaryOpCtx = [&](const void* v) -> std::tuple<std::string, std::string> {
+            const auto *ctx = static_cast<const SkRasterPipeline_BinaryOpCtx*>(v);
             int numSlots = (ctx->src - ctx->dst) / N;
             return std::make_tuple(PtrCtx(ctx->dst, numSlots),
                                    PtrCtx(ctx->src, numSlots));
@@ -915,22 +918,22 @@ void Program::dump(SkWStream* out) {
 
             case SkRP::copy_slot_masked:
             case SkRP::copy_slot_unmasked:
-                std::tie(opArg1, opArg2) = CopySlotsCtx(stage.ctx, 1);
+                std::tie(opArg1, opArg2) = BinaryOpCtx(stage.ctx, 1);
                 break;
 
             case SkRP::copy_2_slots_masked:
             case SkRP::copy_2_slots_unmasked:
-                std::tie(opArg1, opArg2) = CopySlotsCtx(stage.ctx, 2);
+                std::tie(opArg1, opArg2) = BinaryOpCtx(stage.ctx, 2);
                 break;
 
             case SkRP::copy_3_slots_masked:
             case SkRP::copy_3_slots_unmasked:
-                std::tie(opArg1, opArg2) = CopySlotsCtx(stage.ctx, 3);
+                std::tie(opArg1, opArg2) = BinaryOpCtx(stage.ctx, 3);
                 break;
 
             case SkRP::copy_4_slots_masked:
             case SkRP::copy_4_slots_unmasked:
-                std::tie(opArg1, opArg2) = CopySlotsCtx(stage.ctx, 4);
+                std::tie(opArg1, opArg2) = BinaryOpCtx(stage.ctx, 4);
                 break;
 
             case SkRP::merge_condition_mask:
@@ -997,7 +1000,7 @@ void Program::dump(SkWStream* out) {
             case SkRP::cmple_n_floats: case SkRP::cmple_n_ints: case SkRP::cmple_n_uints:
             case SkRP::cmpeq_n_floats: case SkRP::cmpeq_n_ints:
             case SkRP::cmpne_n_floats: case SkRP::cmpne_n_ints:
-                std::tie(opArg1, opArg2) = AdjacentCopySlotsCtx(stage.ctx);
+                std::tie(opArg1, opArg2) = AdjacentBinaryOpCtx(stage.ctx);
                 break;
 
             case SkRP::jump:

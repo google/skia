@@ -479,7 +479,7 @@ DEF_TEST(SkRasterPipeline_CopySlotsMasked, r) {
             // Run `copy_slots_masked` over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            auto* ctx = alloc.make<SkRasterPipeline_CopySlotsCtx>();
+            auto* ctx = alloc.make<SkRasterPipeline_BinaryOpCtx>();
             ctx->dst = &slots[N * dstIndex];
             ctx->src = &slots[N * srcIndex];
 
@@ -535,7 +535,7 @@ DEF_TEST(SkRasterPipeline_CopySlotsUnmasked, r) {
         // Run `copy_slots_unmasked` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        auto* ctx = alloc.make<SkRasterPipeline_CopySlotsCtx>();
+        auto* ctx = alloc.make<SkRasterPipeline_BinaryOpCtx>();
         ctx->dst = &slots[N * dstIndex];
         ctx->src = &slots[N * srcIndex];
         p.append(op.stage, ctx);
@@ -632,7 +632,7 @@ DEF_TEST(SkRasterPipeline_CopyConstants, r) {
         // Run `copy_constants` over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        auto* ctx = alloc.make<SkRasterPipeline_CopySlotsCtx>();
+        auto* ctx = alloc.make<SkRasterPipeline_BinaryOpCtx>();
         ctx->dst = slots;
         ctx->src = constants;
         p.append(op.stage, ctx);
@@ -730,7 +730,7 @@ DEF_TEST(SkRasterPipeline_FloatArithmeticWithNSlots, r) {
             // Run the arithmetic op over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            auto* ctx = alloc.make<SkRasterPipeline_CopySlotsCtx>();
+            auto* ctx = alloc.make<SkRasterPipeline_BinaryOpCtx>();
             ctx->dst = &slots[0];
             ctx->src = &slots[numSlotsAffected * N];
             p.append(op.stage, ctx);
@@ -856,7 +856,7 @@ DEF_TEST(SkRasterPipeline_IntArithmeticWithNSlots, r) {
             // Run the op (e.g. `add_n_ints`) over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            auto* ctx = alloc.make<SkRasterPipeline_CopySlotsCtx>();
+            auto* ctx = alloc.make<SkRasterPipeline_BinaryOpCtx>();
             ctx->dst = (float*)&slots[0];
             ctx->src = (float*)&slots[numSlotsAffected * N];
             p.append(op.stage, ctx);
@@ -994,7 +994,7 @@ DEF_TEST(SkRasterPipeline_CompareFloatsWithNSlots, r) {
             // Run the comparison op over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            auto* ctx = alloc.make<SkRasterPipeline_CopySlotsCtx>();
+            auto* ctx = alloc.make<SkRasterPipeline_BinaryOpCtx>();
             ctx->dst = &slots[0];
             ctx->src = &slots[numSlotsAffected * N];
             p.append(op.stage, ctx);
@@ -1122,7 +1122,7 @@ DEF_TEST(SkRasterPipeline_CompareIntsWithNSlots, r) {
             // Run the comparison op over our data.
             SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
             SkRasterPipeline p(&alloc);
-            auto* ctx = alloc.make<SkRasterPipeline_CopySlotsCtx>();
+            auto* ctx = alloc.make<SkRasterPipeline_BinaryOpCtx>();
             ctx->dst = (float*)&slots[0];
             ctx->src = (float*)&slots[numSlotsAffected * N];
             p.append(op.stage, ctx);
@@ -1320,6 +1320,79 @@ DEF_TEST(SkRasterPipeline_UnaryBitwiseOps, r) {
 
                 ++destPtr;
                 ++inputValue;
+            }
+        }
+    }
+}
+
+static float to_mix_weight(float value) {
+    // Convert a positive value to a mix-weight (a number between 0 and 1).
+    value /= 16.0f;
+    return value - std::floor(value);
+}
+
+DEF_TEST(SkRasterPipeline_MixTest, r) {
+    // Allocate space for 5 dest and 10 source slots.
+    alignas(64) float slots[15 * SkRasterPipeline_kMaxStride_highp];
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    struct MixOp {
+        int numSlotsAffected;
+        std::function<void(SkRasterPipeline*, SkArenaAlloc*)> append;
+    };
+
+    static const MixOp kMixOps[] = {
+        {1, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
+                p->append(SkRasterPipeline::mix_float, slots);
+            }},
+        {2, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
+                p->append(SkRasterPipeline::mix_2_floats, slots);
+            }},
+        {3, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
+                p->append(SkRasterPipeline::mix_3_floats, slots);
+            }},
+        {4, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
+                p->append(SkRasterPipeline::mix_4_floats, slots);
+            }},
+        {5, [&](SkRasterPipeline* p, SkArenaAlloc* alloc) {
+                auto* ctx = alloc->make<SkRasterPipeline_TernaryOpCtx>();
+                ctx->dst = &slots[0];
+                ctx->src0 = &slots[5 * N];
+                ctx->src1 = &slots[10 * N];
+                p->append(SkRasterPipeline::mix_n_floats, ctx);
+            }},
+    };
+
+    for (const MixOp& op : kMixOps) {
+        // Initialize the values to 1,2,3...
+        std::iota(&slots[0], &slots[15 * N], 1.0f);
+
+        float fromValue   = slots[0];
+        float toValue     = slots[1 * op.numSlotsAffected * N];
+        float weightValue = slots[2 * op.numSlotsAffected * N];
+
+        // The third group of values (the weight) must be between zero and one.
+        for (int idx = 2 * op.numSlotsAffected * N; idx < 3 * op.numSlotsAffected * N; ++idx) {
+            slots[idx] = to_mix_weight(slots[idx]);
+        }
+
+        // Run the mix op over our data.
+        SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+        SkRasterPipeline p(&alloc);
+        op.append(&p, &alloc);
+        p.run(0,0,1,1);
+
+        // Verify that the affected slots now equal mix({1,2...}, {3,4...}, {0.25, 0.3125...).
+        float* destPtr = &slots[0];
+        for (int checkSlot = 0; checkSlot < op.numSlotsAffected; ++checkSlot) {
+            for (int checkLane = 0; checkLane < N; ++checkLane) {
+                float checkValue = (toValue - fromValue) * to_mix_weight(weightValue) + fromValue;
+                REPORTER_ASSERT(r, *destPtr == checkValue);
+
+                ++destPtr;
+                fromValue += 1.0f;
+                toValue += 1.0f;
+                weightValue += 1.0f;
             }
         }
     }
