@@ -50,10 +50,6 @@ public:
     SkTestCanvas(SkCanvas* canvas);
     void onDrawGlyphRunList(
             const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
-
-private:
-    std::unique_ptr<SkStrikeServer::DiscardableHandleManager> fHandleManager;
-    SkStrikeServer fStrikeServer;
 };
 
 #endif  // SkTestCanvas_DEFINED

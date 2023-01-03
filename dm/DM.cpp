@@ -980,6 +980,8 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
                 return new GPUSlugSink(gpuConfig, grCtxOptions);
             } else if (gpuConfig->getSerializedSlug()) {
                 return new GPUSerializeSlugSink(gpuConfig, grCtxOptions);
+            } else if (gpuConfig->getRemoteSlug()) {
+                return new GPURemoteSlugSink(gpuConfig, grCtxOptions);
             } else {
                 return new GPUSink(gpuConfig, grCtxOptions);
             }

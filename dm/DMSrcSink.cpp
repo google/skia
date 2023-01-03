@@ -1640,7 +1640,7 @@ Result GPURemoteSlugSink::draw(
     // Force padded atlas entries for slug drawing.
     grOptions.fSupportBilerpFromGlyphAtlas |= true;
 
-    SkTLazy<SkTestCanvas<SkSerializeSlugTestKey>> testCanvas;
+    SkTLazy<SkTestCanvas<SkRemoteSlugTestKey>> testCanvas;
 
     return onDraw(src, dst, write, log, grOptions, nullptr,
                   [&](SkCanvas* canvas) {

@@ -3024,26 +3024,11 @@ void SkTestCanvas<SkSerializeSlugTestKey>::onDrawGlyphRunList(
     }
 }
 
-class HandleManager : public SkStrikeServer::DiscardableHandleManager {
-public:
-    SkDiscardableHandleId createHandle() override {
-        return 0;
-    }
-
-    bool lockHandle(SkDiscardableHandleId id) override {
-        return true;
-    }
-
-    bool isHandleDeleted(SkDiscardableHandleId id) override {
-        return false;
-    }
-};
-
 SkTestCanvas<SkRemoteSlugTestKey>::SkTestCanvas(SkCanvas* canvas)
-        : SkCanvas(sk_ref_sp(canvas->baseDevice()))
-        , fHandleManager(new HandleManager{})
-        , fStrikeServer(fHandleManager.get()) {}
+        : SkCanvas(sk_ref_sp(canvas->baseDevice())) {}
 
+// TODO: mimic serialize slug until I have the remote glyph cache testing figured out. This keeps
+// the wiring in place for testing.
 void SkTestCanvas<SkRemoteSlugTestKey>::onDrawGlyphRunList(
         const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) {
     SkRect bounds = glyphRunList.sourceBoundsWithOrigin();
@@ -3057,15 +3042,7 @@ void SkTestCanvas<SkRemoteSlugTestKey>::onDrawGlyphRunList(
         } else {
             sk_sp<SkData> bytes;
             {
-                auto analysisCanvas = fStrikeServer.makeAnalysisCanvas(
-                        this->topDevice()->width(),
-                        this->topDevice()->height(),
-                        this->fProps,
-                        this->topDevice()->imageInfo().refColorSpace(),
-                        // TODO: Where should we get this value from?
-                        true);
-                auto slug = analysisCanvas->onConvertGlyphRunListToSlug(glyphRunList,
-                                                                        layer->paint());
+                auto slug = this->onConvertGlyphRunListToSlug(glyphRunList, layer->paint());
                 if (slug != nullptr) {
                     bytes = slug->serialize();
                 }
