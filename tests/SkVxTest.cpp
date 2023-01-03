@@ -244,11 +244,11 @@ DEF_TEST(SkVx_xyzw, r) {
 }
 
 DEF_TEST(SkVx_cross_dot, r) {
-    REPORTER_ASSERT(r, cross({0,1}, {0,1}) == 0);
-    REPORTER_ASSERT(r, cross({1,0}, {1,0}) == 0);
-    REPORTER_ASSERT(r, cross({1,1}, {1,1}) == 0);
-    REPORTER_ASSERT(r, cross({1,1}, {1,-1}) == -2);
-    REPORTER_ASSERT(r, cross({1,1}, {-1,1}) == 2);
+    REPORTER_ASSERT(r, cross(int2{0,1}, int2{0,1}) == 0);
+    REPORTER_ASSERT(r, cross(int2{1,0}, int2{1,0}) == 0);
+    REPORTER_ASSERT(r, cross(int2{1,1}, int2{1,1}) == 0);
+    REPORTER_ASSERT(r, cross(int2{1,1}, int2{1,-1}) == -2);
+    REPORTER_ASSERT(r, cross(int2{1,1}, int2{-1,1}) == 2);
 
     REPORTER_ASSERT(r, dot(int2{0,1}, int2{1,0}) == 0);
     REPORTER_ASSERT(r, dot(int2{1,0}, int2{0,1}) == 0);
@@ -262,10 +262,17 @@ DEF_TEST(SkVx_cross_dot, r) {
               d=rand.nextRangeF(-1,1);
         constexpr static float kTolerance = 1.f / (1 << 20);
         REPORTER_ASSERT(r, SkScalarNearlyEqual(
-                cross({a,b}, {c,d}), SkPoint::CrossProduct({a,b}, {c,d}), kTolerance));
+                cross(float2{a,b}, float2{c,d}), SkPoint::CrossProduct({a,b}, {c,d}), kTolerance));
         REPORTER_ASSERT(r, SkScalarNearlyEqual(
                 dot(float2{a,b}, float2{c,d}), SkPoint::DotProduct({a,b}, {c,d}), kTolerance));
     }
+
+    auto assertDoublesEqual = [&](double left, double right) {
+        REPORTER_ASSERT(r, SkScalarNearlyEqual(left, right), "%f != %f", left, right);
+    };
+    assertDoublesEqual(cross(double2{1.2, 3.4}, double2{3.4, -1.2}),          -13.000000);
+    assertDoublesEqual(cross(double2{12.34, 5.6}, double2{7.8, -9.0}),       -154.740000);
+    assertDoublesEqual(cross(double2{12.34, 5.6}, double2{7.8, 9.012345678}),  67.532346);
 }
 
 template<int N, typename T> void check_strided_loads(skiatest::Reporter* r) {
@@ -353,6 +360,91 @@ DEF_TEST(SkVx_saturated_add, r) {
 
             REPORTER_ASSERT(r, saturated_add(skvx::byte16(a), skvx::byte16(b))[0] == exact);
         }
+    }
+}
+
+DEF_TEST(SkVx_length, r) {
+    auto assertFloatsEqual = [&](float left, float right) {
+        REPORTER_ASSERT(r, SkScalarNearlyEqual(left, right), "%f != %f", left, right);
+    };
+    auto assertDoublesEqual = [&](double left, double right) {
+        REPORTER_ASSERT(r, SkScalarNearlyEqual(left, right), "%f != %f", left, right);
+    };
+
+    assertFloatsEqual(length(float2{0, 1}),       1.000000f);
+    assertFloatsEqual(length(float2{2, 0}),       2.000000f);
+    assertFloatsEqual(length(float2{3, 4}),       5.000000f);
+    assertFloatsEqual(length(float2{1, 1}),       1.414214f);
+    assertFloatsEqual(length(float2{2.5f, 2.5f}), 3.535534f);
+    assertFloatsEqual(length(float4{1, 2, 3, 4}), 5.477226f);
+
+    assertDoublesEqual(length(double2{2.5, 2.5}),           3.535534);
+    assertDoublesEqual(length(double4{1.5, 2.5, 3.5, 4.5}), 6.403124);
+}
+
+DEF_TEST(SkVx_normalize, r) {
+    auto assertFloatsEqual = [&](float left, float right) {
+        REPORTER_ASSERT(r, SkScalarNearlyEqual(left, right), "%f != %f", left, right);
+    };
+    auto assertDoublesEqual = [&](double left, double right) {
+        REPORTER_ASSERT(r, SkScalarNearlyEqual(left, right), "%f != %f", left, right);
+    };
+
+    skvx::float2 twoFloats = normalize(skvx::float2{1.2f, 3.4f});
+    assertFloatsEqual(twoFloats[0], 0.332820f);
+    assertFloatsEqual(twoFloats[1], 0.942990f);
+
+    skvx::double2 twoDoubles = normalize(skvx::double2{2.3, -4.5});
+    assertDoublesEqual(twoDoubles[0],  0.455111);
+    assertDoublesEqual(twoDoubles[1], -0.890435);
+
+    skvx::double4 fourDoubles = normalize(skvx::double4{1.2, 3.4, 5.6, 7.8});
+    assertDoublesEqual(fourDoubles[0],  0.116997);
+    assertDoublesEqual(fourDoubles[1],  0.331490);
+    assertDoublesEqual(fourDoubles[2],  0.545984);
+    assertDoublesEqual(fourDoubles[3],  0.760478);
+}
+
+DEF_TEST(SkVx_normalize_infinity_and_nan, r) {
+    skvx::float2 zeroLenVec = normalize(skvx::float2{0, 0});
+    REPORTER_ASSERT(r, std::isnan(zeroLenVec[0]), "%f is not nan", zeroLenVec[0]);
+    REPORTER_ASSERT(r, std::isnan(zeroLenVec[1]), "%f is not nan", zeroLenVec[1]);
+    REPORTER_ASSERT(r, !isfinite(zeroLenVec));
+
+    skvx::float2 tooBigVec = normalize(skvx::float2{std::numeric_limits<float>::max(),
+                                                    std::numeric_limits<float>::max()});
+    REPORTER_ASSERT(r, tooBigVec[0] == 0, "%f != 0", tooBigVec[0]);
+    REPORTER_ASSERT(r, tooBigVec[1] == 0, "%f != 0", tooBigVec[1]);
+
+    skvx::double2 tooBigVecD = normalize(skvx::double2{std::numeric_limits<double>::max(),
+                                                       std::numeric_limits<double>::max()});
+    REPORTER_ASSERT(r, tooBigVecD[0] == 0, "%f != 0", tooBigVecD[0]);
+    REPORTER_ASSERT(r, tooBigVecD[1] == 0, "%f != 0", tooBigVecD[1]);
+}
+
+DEF_TEST(SkVx_isfinite, r) {
+    REPORTER_ASSERT(r, isfinite(skvx::float2{0, 0}));
+    REPORTER_ASSERT(r, isfinite(skvx::double4{1.2, 3.4, 5.6, 7.8}));
+    REPORTER_ASSERT(r, isfinite(skvx::float8{8, 7, 6, 5, 4, 3, 2, 1}));
+
+    REPORTER_ASSERT(r, !isfinite(skvx::float2{0, NAN}));
+    REPORTER_ASSERT(r, !isfinite(skvx::float2{INFINITY, 10}));
+    REPORTER_ASSERT(r, !isfinite(skvx::float2{NAN, INFINITY}));
+
+    for (int i = 0; i < 4; i++) {
+        auto v = skvx::double4{4, 3, 2, 1};
+        v[i] = INFINITY;
+        REPORTER_ASSERT(r, !isfinite(v), "index %d INFINITY", i);
+        v[i] = NAN;
+        REPORTER_ASSERT(r, !isfinite(v), "index %d NAN", i);
+    }
+
+    for (int i = 0; i < 8; i++) {
+        auto v = skvx::float8{8, 7, 6, 5, 4, 3, 2, 1};
+        v[i] = INFINITY;
+        REPORTER_ASSERT(r, !isfinite(v), "index %d INFINITY", i);
+        v[i] = NAN;
+        REPORTER_ASSERT(r, !isfinite(v), "index %d NAN", i);
     }
 }
 

@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "src/pathops/SkPathOpsPoint.h"
 #include "src/pathops/SkPathOpsTypes.h"
@@ -14,6 +15,7 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <limits>
 
 static const SkDPoint tests[] = {
     {0, 0},
@@ -53,3 +55,38 @@ DEF_TEST(PathOpsDVector, reporter) {
         REPORTER_ASSERT(reporter, v1Cross == 0);
     }
 }
+
+DEF_TEST(SkDVector_normalize, reporter) {
+    // See also SkVx_normalize
+    auto assertDoublesEqual = [&](double left, double right) {
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(left, right), "%f != %f", left, right);
+    };
+    SkDVector first{1.2, 3.4};
+    first.normalize();
+    REPORTER_ASSERT(reporter, first.isFinite());
+    assertDoublesEqual(first.fX, 0.332820);
+    assertDoublesEqual(first.fY, 0.942990);
+
+    SkDVector second{2.3, -4.5};
+    second.normalize();
+    REPORTER_ASSERT(reporter, second.isFinite());
+    assertDoublesEqual(second.fX,  0.455111);
+    assertDoublesEqual(second.fY, -0.890435);
+}
+
+DEF_TEST(SkDVector_normalize_infinity_and_nan, reporter) {
+    // See also SkVx_normalize_infinity_and_nan
+    SkDVector first{0, 0};
+    first.normalize();
+    REPORTER_ASSERT(reporter, !first.isFinite());
+    REPORTER_ASSERT(reporter, std::isnan(first.fX), "%f is not nan", first.fX);
+    REPORTER_ASSERT(reporter, std::isnan(first.fY), "%f is not nan", first.fY);
+
+    SkDVector second{std::numeric_limits<double>::max(),
+                     std::numeric_limits<double>::max()};
+    second.normalize();
+    REPORTER_ASSERT(reporter, second.isFinite());
+    REPORTER_ASSERT(reporter, second.fX == 0, "%f != 0", second.fX);
+    REPORTER_ASSERT(reporter, second.fY == 0, "%f != 0", second.fY);
+}
+

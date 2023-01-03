@@ -857,6 +857,9 @@ SIN Vec<N,uint16_t> mulhi(const Vec<N,uint16_t>& x,
 }
 
 SINT T dot(const Vec<N, T>& a, const Vec<N, T>& b) {
+    // While dot is a "horizontal" operation like any or all, it needs to remain
+    // in floating point and there aren't really any good SIMD instructions that make it faster.
+    // The constexpr cases remove the for loop in the only cases we realistically call.
     auto ab = a*b;
     if constexpr (N == 2) {
         return ab[0] + ab[1];
@@ -871,9 +874,31 @@ SINT T dot(const Vec<N, T>& a, const Vec<N, T>& b) {
     }
 }
 
-SI float cross(const Vec<2, float>& a, const Vec<2, float>& b) {
+SIT T cross(const Vec<2, T>& a, const Vec<2, T>& b) {
     auto x = a * shuffle<1,0>(b);
     return x[0] - x[1];
+}
+
+SIN float length(const Vec<N, float>& v) {
+    return std::sqrt(dot(v, v));
+}
+
+SIN double length(const Vec<N, double>& v) {
+    return std::sqrt(dot(v, v));
+}
+
+SIN Vec<N, float> normalize(const Vec<N, float>& v) {
+    return v / length(v);
+}
+
+SIN Vec<N, double> normalize(const Vec<N, double>& v) {
+    return v / length(v);
+}
+
+SINT bool isfinite(const Vec<N, T>& v) {
+    // Multiply all values together with 0. If they were all finite, the output is
+    // 0 (also finite). If any were not, we'll get nan.
+    return std::isfinite(dot(v, Vec<N, T>(0)));
 }
 
 // De-interleaving load of 4 vectors.

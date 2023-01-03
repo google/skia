@@ -29,7 +29,6 @@
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkStringUtils.h"
 #include "src/core/SkTLazy.h"
-#include "src/pathops/SkPathOpsPoint.h"
 
 #include <algorithm>
 #include <cmath>
@@ -1397,22 +1396,25 @@ SkPath& SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScal
     this->getLastPt(&start);
 
     // need double precision for these calcs.
-    SkDVector befored, afterd;
-    befored.set({x1 - start.fX, y1 - start.fY}).normalize();
-    afterd.set({x2 - x1, y2 - y1}).normalize();
-    double cosh = befored.dot(afterd);
-    double sinh = befored.cross(afterd);
+    skvx::double2 befored = normalize(skvx::double2{x1 - start.fX, y1 - start.fY});
+    skvx::double2 afterd = normalize(skvx::double2{x2 - x1, y2 - y1});
+    double cosh = dot(befored, afterd);
+    double sinh = cross(befored, afterd);
 
-    if (!befored.isFinite() || !afterd.isFinite() || SkScalarNearlyZero(SkDoubleToScalar(sinh))) {
+    // If the previous point equals the first point, befored will be denormalized.
+    // If the two points equal, afterd will be denormalized.
+    // If the second point equals the first point, sinh will be zero.
+    // In all these cases, we cannot construct an arc, so we construct a line to the first point.
+    if (!isfinite(befored) || !isfinite(afterd) || SkScalarNearlyZero(SkDoubleToScalar(sinh))) {
         return this->lineTo(x1, y1);
     }
 
     // safe to convert back to floats now
-    SkVector before = befored.asSkVector();
-    SkVector after = afterd.asSkVector();
     SkScalar dist = SkScalarAbs(SkDoubleToScalar(radius * (1 - cosh) / sinh));
-    SkScalar xx = x1 - dist * before.fX;
-    SkScalar yy = y1 - dist * before.fY;
+    SkScalar xx = x1 - dist * befored[0];
+    SkScalar yy = y1 - dist * befored[1];
+
+    SkVector after = SkVector::Make(afterd[0], afterd[1]);
     after.setLength(dist);
     this->lineTo(xx, yy);
     SkScalar weight = SkScalarSqrt(SkDoubleToScalar(SK_ScalarHalf + cosh * 0.5));

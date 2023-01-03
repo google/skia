@@ -12,9 +12,9 @@
 #include "include/private/SkPathEnums.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/SkSafe32.h"
+#include "include/private/SkVx.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
-#include "src/pathops/SkPathOpsPoint.h"
 
 #include <algorithm>
 #include <cmath>
@@ -425,22 +425,25 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint p1, SkPoint p2, SkScalar radius) {
     SkPoint start = fPts.back();
 
     // need double precision for these calcs.
-    SkDVector befored, afterd;
-    befored.set({p1.fX - start.fX, p1.fY - start.fY}).normalize();
-    afterd.set({p2.fX - p1.fX, p2.fY - p1.fY}).normalize();
-    double cosh = befored.dot(afterd);
-    double sinh = befored.cross(afterd);
+    skvx::double2 befored = normalize(skvx::double2{p1.fX - start.fX, p1.fY - start.fY});
+    skvx::double2 afterd = normalize(skvx::double2{p2.fX - p1.fX, p2.fY - p1.fY});
+    double cosh = dot(befored, afterd);
+    double sinh = cross(befored, afterd);
 
-    if (!befored.isFinite() || !afterd.isFinite() || SkScalarNearlyZero(SkDoubleToScalar(sinh))) {
+    // If the previous point equals the first point, befored will be denormalized.
+    // If the two points equal, afterd will be denormalized.
+    // If the second point equals the first point, sinh will be zero.
+    // In all these cases, we cannot construct an arc, so we construct a line to the first point.
+    if (!isfinite(befored) || !isfinite(afterd) || SkScalarNearlyZero(SkDoubleToScalar(sinh))) {
         return this->lineTo(p1);
     }
 
     // safe to convert back to floats now
-    SkVector before = befored.asSkVector();
-    SkVector after = afterd.asSkVector();
     SkScalar dist = SkScalarAbs(SkDoubleToScalar(radius * (1 - cosh) / sinh));
-    SkScalar xx = p1.fX - dist * before.fX;
-    SkScalar yy = p1.fY - dist * before.fY;
+    SkScalar xx = p1.fX - dist * befored[0];
+    SkScalar yy = p1.fY - dist * befored[1];
+
+    SkVector after = SkVector::Make(afterd[0], afterd[1]);
     after.setLength(dist);
     this->lineTo(xx, yy);
     SkScalar weight = SkScalarSqrt(SkDoubleToScalar(SK_ScalarHalf + cosh * 0.5));
