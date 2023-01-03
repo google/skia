@@ -127,6 +127,7 @@ static int stack_usage(const Instruction& inst) {
 
         case BuilderOp::push_slots:
         case BuilderOp::push_uniform:
+        case BuilderOp::push_zeros:
             return inst.fImmA;
 
         case ALL_SINGLE_SLOT_BINARY_OP_CASES:
@@ -555,6 +556,11 @@ void Program::appendStages(SkRasterPipeline* pipeline,
             case BuilderOp::push_uniform: {
                 float* dst = tempStackPtr;
                 this->appendCopyConstants(pipeline, alloc, dst, UniformA(), inst.fImmA);
+                break;
+            }
+            case BuilderOp::push_zeros: {
+                float* dst = tempStackPtr;
+                this->appendMultiSlotUnaryOp(pipeline, SkRP::zero_slot_unmasked, dst, inst.fImmA);
                 break;
             }
             case BuilderOp::push_condition_mask: {

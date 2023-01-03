@@ -47,6 +47,7 @@ enum class BuilderOp {
     push_literal_f,
     push_slots,
     push_uniform,
+    push_zeros,
     copy_stack_to_slots,
     copy_stack_to_slots_unmasked,
     discard_stack,
@@ -270,6 +271,11 @@ public:
     void push_uniform(SlotRange src) {
         // Translates into copy_constants (from uniforms into temp stack) in Raster Pipeline.
         fInstructions.push_back({BuilderOp::push_uniform, {src.index}, src.count});
+    }
+
+    void push_zeros(int count) {
+        // Translates into zero_slot_unmasked in Raster Pipeline.
+        fInstructions.push_back({BuilderOp::push_zeros, {}, count});
     }
 
     void push_slots(SlotRange src) {

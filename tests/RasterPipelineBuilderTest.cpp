@@ -423,6 +423,7 @@ R"(    1. copy_constant                  $0 = 0x000001C8 (6.389921e-43)
     5. bitwise_not                    $4 = ~$4
 )");
 }
+
 DEF_TEST(RasterPipelineBuilderUniforms, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
@@ -441,6 +442,27 @@ R"(    1. copy_constant                  $0 = u0
     4. copy_4_constants               $6..9 = u6..9
     5. copy_4_constants               $10..13 = u0..3
     6. copy_constant                  $14 = u4
+)");
+}
+
+DEF_TEST(RasterPipelineBuilderPushZeros, r) {
+    // Create a very simple nonsense program.
+    SkSL::RP::Builder builder;
+    builder.push_zeros(1);      // push into 0
+    builder.push_zeros(2);      // push into 1~2
+    builder.push_zeros(3);      // push into 3~5
+    builder.push_zeros(4);      // push into 6~9
+    builder.push_zeros(5);      // push into 10~14
+    builder.discard_stack(15);  // balance stack
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/10);
+    check(r, *program,
+R"(    1. zero_slot_unmasked             $0 = 0
+    2. zero_2_slots_unmasked          $1..2 = 0
+    3. zero_3_slots_unmasked          $3..5 = 0
+    4. zero_4_slots_unmasked          $6..9 = 0
+    5. zero_4_slots_unmasked          $10..13 = 0
+    6. zero_slot_unmasked             $14 = 0
 )");
 }
 

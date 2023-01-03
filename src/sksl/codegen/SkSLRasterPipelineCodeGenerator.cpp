@@ -1050,6 +1050,7 @@ bool Generator::pushConstructorCompound(const ConstructorCompound& c) {
 bool Generator::pushConstructorCast(const AnyConstructor& c) {
     SkASSERT(c.argumentSpan().size() == 1);
     const Expression& inner = *c.argumentSpan().front();
+    SkASSERT(inner.type().slotCount() == c.type().slotCount());
 
     if (!this->pushExpression(inner)) {
         return unsupported();
@@ -1057,6 +1058,11 @@ bool Generator::pushConstructorCast(const AnyConstructor& c) {
     if (inner.type().componentType().numberKind() == c.type().componentType().numberKind()) {
         // Since we ignore type precision, this cast is effectively a no-op.
         return true;
+    }
+    if (c.type().componentType().isBoolean()) {
+        // Converting int or float to boolean can be accomplished via `notEqual(x, 0)`.
+        fBuilder.push_zeros(c.type().slotCount());
+        return this->binaryOp(inner.type(), kNotEqualOps);
     }
 
     // TODO: add RP op to convert values on stack from the inner type to the outer type
