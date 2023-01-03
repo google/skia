@@ -458,11 +458,11 @@ void add_blend_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
 void BlendColorFilterBlock::BeginBlock(const KeyContext& keyContext,
                                        PaintParamsKeyBuilder* builder,
                                        PipelineDataGatherer* gatherer,
-                                       const BlendColorFilterData& data) {
+                                       const BlendColorFilterData* data) {
     auto dict = keyContext.dict();
 
     if (gatherer) {
-        add_blend_colorfilter_uniform_data(dict, data, gatherer);
+        add_blend_colorfilter_uniform_data(dict, *data, gatherer);
     }
 
     builder->beginBlock(BuiltInCodeSnippetID::kBlendColorFilter);

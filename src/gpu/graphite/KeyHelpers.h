@@ -237,7 +237,7 @@ struct BlendColorFilterBlock {
     static void BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
-                           const BlendColorFilterData&);
+                           const BlendColorFilterData*);
 };
 
 struct ComposeColorFilterBlock {

@@ -79,16 +79,87 @@ static constexpr int kBlenderTypeCount = static_cast<int>(BlenderType::kLast) + 
 
 enum class ColorFilterType {
     kNone,
+    kBlend,
     kMatrix,
+    kHSLAMatrix,
     // TODO: add more color filters
 
-    kLast = kMatrix
+    kLast = kHSLAMatrix
 };
 
 static constexpr int kColorFilterTypeCount = static_cast<int>(ColorFilterType::kLast) + 1;
 
+static constexpr skcms_TransferFunction gTransferFunctions[] = {
+    SkNamedTransferFn::kSRGB,
+    SkNamedTransferFn::k2Dot2,
+    SkNamedTransferFn::kLinear,
+    SkNamedTransferFn::kRec2020,
+    SkNamedTransferFn::kPQ,
+    SkNamedTransferFn::kHLG,
+};
+
+static constexpr int kTransferFunctionCount = std::size(gTransferFunctions);
+
+static constexpr skcms_Matrix3x3 gGamuts[] = {
+    SkNamedGamut::kSRGB,
+    SkNamedGamut::kAdobeRGB,
+    SkNamedGamut::kDisplayP3,
+    SkNamedGamut::kRec2020,
+    SkNamedGamut::kXYZ,
+};
+
+static constexpr int kGamutCount = std::size(gGamuts);
+
+enum class ColorSpaceType {
+    kNone,
+    kSRGB,
+    kSRGBLinear,
+    kRGB,
+
+    kLast = kRGB
+};
+
+static constexpr int kColorSpaceTypeCount = static_cast<int>(ColorSpaceType::kLast) + 1;
+
+ColorSpaceType random_colorspacetype(SkRandom* rand) {
+    return static_cast<ColorSpaceType>(rand->nextULessThan(kColorSpaceTypeCount));
+}
+
+sk_sp<SkColorSpace> random_colorspace(SkRandom* rand) {
+    ColorSpaceType cs = random_colorspacetype(rand);
+
+    switch (cs) {
+        case ColorSpaceType::kNone:
+            return nullptr;
+        case ColorSpaceType::kSRGB:
+            return SkColorSpace::MakeSRGB();
+        case ColorSpaceType::kSRGBLinear:
+            return SkColorSpace::MakeSRGBLinear();
+        case ColorSpaceType::kRGB:
+            return SkColorSpace::MakeRGB(
+                    gTransferFunctions[rand->nextULessThan(kTransferFunctionCount)],
+                    gGamuts[rand->nextULessThan(kGamutCount)]);
+    }
+
+    SkUNREACHABLE;
+}
+
+
 SkColor random_opaque_color(SkRandom* rand) {
     return 0xff000000 | rand->nextU();
+}
+
+SkColor4f random_color(SkRandom* rand) {
+    SkColor4f result = { rand->nextRangeF(0.0f, 1.0f),
+                         rand->nextRangeF(0.0f, 1.0f),
+                         rand->nextRangeF(0.0f, 1.0f),
+                         rand->nextRangeF(0.0f, 1.0f) };
+
+    if (rand->nextBool()) {
+        result.fA = 1.0f;
+    }
+
+    return result;
 }
 
 SkTileMode random_tilemode(SkRandom* rand) {
@@ -107,6 +178,10 @@ SkBlendMode random_porter_duff_bm(SkRandom* rand) {
 SkBlendMode random_complex_bm(SkRandom* rand) {
     return static_cast<SkBlendMode>(rand->nextRangeU((unsigned int) SkBlendMode::kLastCoeffMode,
                                                      (unsigned int) SkBlendMode::kLastMode));
+}
+
+SkBlendMode random_blend_mode(SkRandom* rand) {
+    return static_cast<SkBlendMode>(rand->nextULessThan(kSkBlendModeCount));
 }
 
 BlenderType random_blendertype(SkRandom* rand) {
@@ -372,10 +447,36 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_random_blender(SkRa
 }
 
 //--------------------------------------------------------------------------------------------------
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_blend_colorfilter(
+        SkRandom* rand) {
+
+    sk_sp<SkColorFilter> cf;
+
+    // SkColorFilters::Blend is clever and can weed out noop color filters. Loop until we get
+    // a valid color filter.
+    while (!cf) {
+        cf = SkColorFilters::Blend(random_color(rand),
+                                   random_colorspace(rand),
+                                   random_blend_mode(rand));
+    }
+
+    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Blend();
+
+    return { cf, o };
+}
+
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_matrix_colorfilter() {
     sk_sp<SkColorFilter> cf = SkColorFilters::Matrix(
             SkColorMatrix::RGBtoYUV(SkYUVColorSpace::kJPEG_Full_SkYUVColorSpace));
     sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::Matrix();
+
+    return { cf, o };
+}
+
+std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_hsla_matrix_colorfilter() {
+    sk_sp<SkColorFilter> cf = SkColorFilters::HSLAMatrix(
+            SkColorMatrix::RGBtoYUV(SkYUVColorSpace::kJPEG_Full_SkYUVColorSpace));
+    sk_sp<PrecompileColorFilter> o = PrecompileColorFilters::HSLAMatrix();
 
     return { cf, o };
 }
@@ -387,8 +488,12 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_colorfilter
     switch (type) {
         case ColorFilterType::kNone:
             return { nullptr, nullptr };
+        case ColorFilterType::kBlend:
+            return create_blend_colorfilter(rand);
         case ColorFilterType::kMatrix:
             return create_matrix_colorfilter();
+        case ColorFilterType::kHSLAMatrix:
+            return create_hsla_matrix_colorfilter();
     }
 
     SkUNREACHABLE;
@@ -564,7 +669,9 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest, reporter, context) {
                          BlenderType::kShaderBased,
                          BlenderType::kRuntime }) {
             for (auto cf : { ColorFilterType::kNone,
-                             ColorFilterType::kMatrix }) {
+                             ColorFilterType::kBlend,
+                             ColorFilterType::kMatrix,
+                             ColorFilterType::kHSLAMatrix }) {
 
                 auto [paint, paintOptions] = create_paint(&rand, recorder.get(), s, bm, cf);
 

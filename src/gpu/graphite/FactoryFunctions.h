@@ -74,8 +74,16 @@ private:
 // This will move to be beside SkColorFilters in include/core/SkColorFilter.h
 class PrecompileColorFilters {
 public:
+    // This encompasses both variants of SkColorFilters::Blend
+    static sk_sp<PrecompileColorFilter> Blend();
+
+    // This encompasses both variants of SkColorFilters::Matrix
     static sk_sp<PrecompileColorFilter> Matrix();
-    // TODO: Compose, Blend, HSLAMatrix, LinearToSRGBGamma, SRGBToLinearGamma, Lerp
+
+    // This encompasses both variants of SkColorFilters::HSLAMatrix
+    static sk_sp<PrecompileColorFilter> HSLAMatrix();
+
+    // TODO: Compose, LinearToSRGBGamma/SRGBToLinearGamma, Lerp, Table(ARGB), Lighting
 
 private:
     PrecompileColorFilters() = delete;
