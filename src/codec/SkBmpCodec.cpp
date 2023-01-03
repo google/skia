@@ -7,6 +7,7 @@
 
 #include "src/codec/SkBmpCodec.h"
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"

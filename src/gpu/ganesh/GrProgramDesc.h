@@ -8,6 +8,7 @@
 #ifndef GrProgramDesc_DEFINED
 #define GrProgramDesc_DEFINED
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkString.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTo.h"

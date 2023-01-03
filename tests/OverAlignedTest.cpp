@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
 #include "include/utils/SkRandom.h"

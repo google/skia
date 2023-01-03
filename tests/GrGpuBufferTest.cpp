@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"

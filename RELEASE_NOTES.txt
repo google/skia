@@ -7,6 +7,8 @@ Milestone 111
   * SkToBool is no longer part of the public API.
   * A float version of SkCanvas::saveLayerAlpha now exists as SkCanvas::saveLayerAlphaf.
   * SkAbs32 and SkTAbs are no longer part of the public API.
+  * SkAlign2, SkAlign4, SkAlign8, SkIsAlign2, SkIsAlign4, SkIsAlign8, SkAlignPtr, SkIsAlignPtr,
+    and SkAlignTo are no longer part of the public API.
 
 Milestone 110
 -------------

@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_DrawBufferManager_DEFINED
 #define skgpu_graphite_DrawBufferManager_DEFINED
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/DrawTypes.h"

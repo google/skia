@@ -7,6 +7,7 @@
 
 // This is a GPU-backend specific test. It relies on static initializers to work
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkRect.h"

@@ -7,6 +7,7 @@
 
 #include "src/codec/SkWbmpCodec.h"
 
+#include "include/base/SkAlign.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkEncodedImageFormat.h"

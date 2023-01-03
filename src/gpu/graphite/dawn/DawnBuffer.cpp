@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/dawn/DawnBuffer.h"
 
+#include "include/base/SkAlign.h"
 #include "src/gpu/graphite/dawn/DawnAsyncWait.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 

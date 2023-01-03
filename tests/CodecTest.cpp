@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "include/base/SkAlign.h"
 #include "include/codec/SkAndroidCodec.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkAlphaType.h"

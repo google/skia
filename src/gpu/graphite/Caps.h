@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Caps_DEFINED
 #define skgpu_graphite_Caps_DEFINED
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkEnumBitMask.h"

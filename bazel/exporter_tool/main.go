@@ -23,6 +23,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{"//include/core:public_hdrs"}},
 		{Var: "skia_core_sources",
 			Rules: []string{
+				"//include/base:private_hdrs",
 				"//include/private:private_hdrs",
 				"//include/private:shared_gpu_private_hdrs",
 				"//include/private/chromium:private_hdrs",

@@ -8,6 +8,7 @@
 #ifndef skgpu_ResourceKey_DEFINED
 #define skgpu_ResourceKey_DEFINED
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkData.h"
 #include "include/core/SkString.h"
 #include "include/private/SkAlignedStorage.h"

@@ -7,6 +7,7 @@
 
 #include "src/codec/SkSwizzler.h"
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkColorType.h"

@@ -7,6 +7,7 @@
 
 #include "include/effects/SkDashPathEffect.h"
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"

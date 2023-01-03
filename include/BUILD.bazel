@@ -36,6 +36,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        "//include/base:private_hdrs",
         "//include/private:private_hdrs",
     ],
     visibility = [
@@ -69,6 +70,7 @@ generate_cpp_files_for_headers(
     # generated that is a copy of the header file just with a .cpp suffix so Bazel will try to
     # compile it. This allows us to run IWYU on these files.
     to_generate = [
+        "include/base/SkAlign.h",
         "include/config/SkUserConfig.h",
         "include/core/SkAlphaType.h",
         "include/core/SkBlendMode.h",

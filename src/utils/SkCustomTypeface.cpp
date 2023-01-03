@@ -7,6 +7,7 @@
 
 #include "include/utils/SkCustomTypeface.h"
 
+#include "include/base/SkAlign.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"

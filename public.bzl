@@ -234,6 +234,7 @@ SKIA_PUBLIC_HDRS = [
 
 # All platform-independent sources and private headers.
 BASE_SRCS_ALL = [
+    "include/base/SkAlign.h",
     "include/core/SkOpenTypeSVGDecoder.h",
     "include/private/SingleOwner.h",
     "include/private/SkAlignedStorage.h",
