@@ -211,15 +211,18 @@ public:
     void zeroSlotRangeUnmasked(SlotRange r) { fBuilder.zero_slots_unmasked(r); }
 
     /** Expression utilities. */
-    struct BinaryOps {
+    struct TypedOps {
         BuilderOp fFloatOp;
         BuilderOp fSignedOp;
         BuilderOp fUnsignedOp;
         BuilderOp fBooleanOp;
     };
 
+    static BuilderOp GetTypedOp(const SkSL::Type& type, const TypedOps& ops);
+
     [[nodiscard]] bool assign(const Expression& e);
-    [[nodiscard]] bool binaryOp(const SkSL::Type& type, const BinaryOps& ops);
+    [[nodiscard]] bool binaryOp(const SkSL::Type& type, const TypedOps& ops);
+    [[nodiscard]] bool ternaryOp(const SkSL::Type& type, const TypedOps& ops);
     [[nodiscard]] bool pushVectorizedExpression(const Expression& expr, const Type& vectorType);
 
     void foldWithMultiOp(BuilderOp op, int elements);
@@ -230,6 +233,7 @@ public:
     void previousTempStack() {
         fBuilder.set_current_stack(--fCurrentTempStack);
     }
+    BuilderOp getTypedOp(const SkSL::Type& type, const TypedOps& ops) const;
 
     static bool IsUniform(const Variable& var) {
        return var.modifiers().fFlags & Modifiers::kUniform_Flag;
@@ -247,46 +251,50 @@ private:
     SlotRange fCurrentContinueMask;
     int fCurrentTempStack = 0;
 
-    static constexpr auto kAddOps = BinaryOps{BuilderOp::add_n_floats,
-                                              BuilderOp::add_n_ints,
-                                              BuilderOp::add_n_ints,
-                                              BuilderOp::unsupported};
-    static constexpr auto kSubtractOps = BinaryOps{BuilderOp::sub_n_floats,
-                                                   BuilderOp::sub_n_ints,
-                                                   BuilderOp::sub_n_ints,
-                                                   BuilderOp::unsupported};
-    static constexpr auto kMultiplyOps = BinaryOps{BuilderOp::mul_n_floats,
-                                                   BuilderOp::mul_n_ints,
-                                                   BuilderOp::mul_n_ints,
-                                                   BuilderOp::unsupported};
-    static constexpr auto kDivideOps = BinaryOps{BuilderOp::div_n_floats,
-                                                 BuilderOp::div_n_ints,
-                                                 BuilderOp::div_n_uints,
-                                                 BuilderOp::unsupported};
-    static constexpr auto kLessThanOps = BinaryOps{BuilderOp::cmplt_n_floats,
-                                                   BuilderOp::cmplt_n_ints,
-                                                   BuilderOp::cmplt_n_uints,
-                                                   BuilderOp::unsupported};
-    static constexpr auto kLessThanEqualOps = BinaryOps{BuilderOp::cmple_n_floats,
-                                                        BuilderOp::cmple_n_ints,
-                                                        BuilderOp::cmple_n_uints,
-                                                        BuilderOp::unsupported};
-    static constexpr auto kEqualOps = BinaryOps{BuilderOp::cmpeq_n_floats,
-                                                BuilderOp::cmpeq_n_ints,
-                                                BuilderOp::cmpeq_n_ints,
-                                                BuilderOp::cmpeq_n_ints};
-    static constexpr auto kNotEqualOps = BinaryOps{BuilderOp::cmpne_n_floats,
-                                                   BuilderOp::cmpne_n_ints,
-                                                   BuilderOp::cmpne_n_ints,
-                                                   BuilderOp::cmpne_n_ints};
-    static constexpr auto kMinOps = BinaryOps{BuilderOp::min_n_floats,
-                                              BuilderOp::min_n_ints,
-                                              BuilderOp::min_n_uints,
-                                              BuilderOp::min_n_uints};
-    static constexpr auto kMaxOps = BinaryOps{BuilderOp::max_n_floats,
-                                              BuilderOp::max_n_ints,
-                                              BuilderOp::max_n_uints,
-                                              BuilderOp::max_n_uints};
+    static constexpr auto kAddOps = TypedOps{BuilderOp::add_n_floats,
+                                             BuilderOp::add_n_ints,
+                                             BuilderOp::add_n_ints,
+                                             BuilderOp::unsupported};
+    static constexpr auto kSubtractOps = TypedOps{BuilderOp::sub_n_floats,
+                                                  BuilderOp::sub_n_ints,
+                                                  BuilderOp::sub_n_ints,
+                                                  BuilderOp::unsupported};
+    static constexpr auto kMultiplyOps = TypedOps{BuilderOp::mul_n_floats,
+                                                  BuilderOp::mul_n_ints,
+                                                  BuilderOp::mul_n_ints,
+                                                  BuilderOp::unsupported};
+    static constexpr auto kDivideOps = TypedOps{BuilderOp::div_n_floats,
+                                                BuilderOp::div_n_ints,
+                                                BuilderOp::div_n_uints,
+                                                BuilderOp::unsupported};
+    static constexpr auto kLessThanOps = TypedOps{BuilderOp::cmplt_n_floats,
+                                                  BuilderOp::cmplt_n_ints,
+                                                  BuilderOp::cmplt_n_uints,
+                                                  BuilderOp::unsupported};
+    static constexpr auto kLessThanEqualOps = TypedOps{BuilderOp::cmple_n_floats,
+                                                       BuilderOp::cmple_n_ints,
+                                                       BuilderOp::cmple_n_uints,
+                                                       BuilderOp::unsupported};
+    static constexpr auto kEqualOps = TypedOps{BuilderOp::cmpeq_n_floats,
+                                               BuilderOp::cmpeq_n_ints,
+                                               BuilderOp::cmpeq_n_ints,
+                                               BuilderOp::cmpeq_n_ints};
+    static constexpr auto kNotEqualOps = TypedOps{BuilderOp::cmpne_n_floats,
+                                                  BuilderOp::cmpne_n_ints,
+                                                  BuilderOp::cmpne_n_ints,
+                                                  BuilderOp::cmpne_n_ints};
+    static constexpr auto kMinOps = TypedOps{BuilderOp::min_n_floats,
+                                             BuilderOp::min_n_ints,
+                                             BuilderOp::min_n_uints,
+                                             BuilderOp::min_n_uints};
+    static constexpr auto kMaxOps = TypedOps{BuilderOp::max_n_floats,
+                                             BuilderOp::max_n_ints,
+                                             BuilderOp::max_n_uints,
+                                             BuilderOp::max_n_uints};
+    static constexpr auto kMixOps = TypedOps{BuilderOp::mix_n_floats,
+                                             BuilderOp::unsupported,
+                                             BuilderOp::unsupported,
+                                             BuilderOp::unsupported};
 };
 
 struct LValue {
@@ -809,19 +817,31 @@ bool Generator::pushExpression(const Expression& e) {
     }
 }
 
-bool Generator::binaryOp(const SkSL::Type& type, const BinaryOps& ops) {
-    BuilderOp op = BuilderOp::unsupported;
+BuilderOp Generator::GetTypedOp(const SkSL::Type& type, const TypedOps& ops) {
     switch (type.componentType().numberKind()) {
-        case Type::NumberKind::kFloat:    op = ops.fFloatOp;    break;
-        case Type::NumberKind::kSigned:   op = ops.fSignedOp;   break;
-        case Type::NumberKind::kUnsigned: op = ops.fUnsignedOp; break;
-        case Type::NumberKind::kBoolean:  op = ops.fBooleanOp;  break;
+        case Type::NumberKind::kFloat:    return ops.fFloatOp;    break;
+        case Type::NumberKind::kSigned:   return ops.fSignedOp;   break;
+        case Type::NumberKind::kUnsigned: return ops.fUnsignedOp; break;
+        case Type::NumberKind::kBoolean:  return ops.fBooleanOp;  break;
         default:                          SkUNREACHABLE;
     }
+}
+
+bool Generator::binaryOp(const SkSL::Type& type, const TypedOps& ops) {
+    BuilderOp op = GetTypedOp(type, ops);
     if (op == BuilderOp::unsupported) {
         return unsupported();
     }
     fBuilder.binary_op(op, type.slotCount());
+    return true;
+}
+
+bool Generator::ternaryOp(const SkSL::Type& type, const TypedOps& ops) {
+    BuilderOp op = GetTypedOp(type, ops);
+    if (op == BuilderOp::unsupported) {
+        return unsupported();
+    }
+    fBuilder.ternary_op(op, type.slotCount());
     return true;
 }
 
@@ -1265,6 +1285,24 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
                 return unsupported();
             }
             if (!this->binaryOp(arg0.type(), kMinOps)) {
+                return unsupported();
+            }
+            return true;
+
+        case IntrinsicKind::k_mix_IntrinsicKind:
+            // TODO: implement mix(a,b,genBType)
+            if (!arg2.type().componentType().isFloat()) {
+                return unsupported();
+            }
+            SkASSERT(arg0.type().matches(arg1.type()));
+            SkASSERT(arg0.type().componentType().matches(arg2.type().componentType()));
+            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
+                return unsupported();
+            }
+            if (!this->pushVectorizedExpression(arg2, arg0.type())) {
+                return unsupported();
+            }
+            if (!this->ternaryOp(arg0.type(), kMixOps)) {
                 return unsupported();
             }
             return true;
