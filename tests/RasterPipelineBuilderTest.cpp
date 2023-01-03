@@ -326,10 +326,10 @@ DEF_TEST(RasterPipelineBuilderBinaryIntOps, r) {
 
     SkSL::RP::Builder builder;
     builder.push_literal_i(123);
-    builder.duplicate(37);
-    builder.binary_op(BuilderOp::bitwise_and, 1);
-    builder.binary_op(BuilderOp::bitwise_xor, 1);
-    builder.binary_op(BuilderOp::bitwise_or, 1);
+    builder.duplicate(40);
+    builder.binary_op(BuilderOp::bitwise_and_n_ints, 1);
+    builder.binary_op(BuilderOp::bitwise_xor_n_ints, 2);
+    builder.binary_op(BuilderOp::bitwise_or_n_ints, 3);
     builder.binary_op(BuilderOp::add_n_ints, 2);
     builder.binary_op(BuilderOp::sub_n_ints, 3);
     builder.binary_op(BuilderOp::mul_n_ints, 4);
@@ -357,20 +357,21 @@ R"(    1. copy_constant                  $0 = 0x0000007B (1.723597e-43)
    11. swizzle_4                      $27..30 = ($27..30).xxxx
    12. swizzle_4                      $30..33 = ($30..33).xxxx
    13. swizzle_4                      $33..36 = ($33..36).xxxx
-   14. swizzle_2                      $36..37 = ($36..37).xx
-   15. bitwise_and                    $36 &= $37
-   16. bitwise_xor                    $35 ^= $36
-   17. bitwise_or                     $34 |= $35
-   18. add_2_ints                     $31..32 += $33..34
-   19. sub_3_ints                     $27..29 -= $30..32
-   20. mul_4_ints                     $22..25 *= $26..29
-   21. div_n_ints                     $16..20 /= $21..25
-   22. max_4_ints                     $13..16 = max($13..16, $17..20)
-   23. min_3_ints                     $11..13 = min($11..13, $14..16)
-   24. cmplt_int                      $12 = lessThan($12, $13)
-   25. cmple_2_ints                   $9..10 = lessThanEqual($9..10, $11..12)
-   26. cmpeq_3_ints                   $5..7 = equal($5..7, $8..10)
-   27. cmpne_4_ints                   $0..3 = notEqual($0..3, $4..7)
+   14. swizzle_4                      $36..39 = ($36..39).xxxx
+   15. swizzle_2                      $39..40 = ($39..40).xx
+   16. bitwise_and_int                $39 &= $40
+   17. bitwise_xor_2_ints             $36..37 ^= $38..39
+   18. bitwise_or_3_ints              $32..34 |= $35..37
+   19. add_2_ints                     $31..32 += $33..34
+   20. sub_3_ints                     $27..29 -= $30..32
+   21. mul_4_ints                     $22..25 *= $26..29
+   22. div_n_ints                     $16..20 /= $21..25
+   23. max_4_ints                     $13..16 = max($13..16, $17..20)
+   24. min_3_ints                     $11..13 = min($11..13, $14..16)
+   25. cmplt_int                      $12 = lessThan($12, $13)
+   26. cmple_2_ints                   $9..10 = lessThanEqual($9..10, $11..12)
+   27. cmpeq_3_ints                   $5..7 = equal($5..7, $8..10)
+   28. cmpne_4_ints                   $0..3 = notEqual($0..3, $4..7)
 )");
 }
 

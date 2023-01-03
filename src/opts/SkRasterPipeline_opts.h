@@ -3279,15 +3279,6 @@ STAGE(swizzle_4, SkRasterPipeline_SwizzleCtx* ctx) {
     swizzle_fn<4>(ctx);
 }
 
-STAGE(bitwise_and, I32* dst) {
-    dst[0] &= dst[1];
-}
-STAGE(bitwise_or, I32* dst) {
-    dst[0] |= dst[1];
-}
-STAGE(bitwise_xor, I32* dst) {
-    dst[0] ^= dst[1];
-}
 STAGE(bitwise_not, I32* dst) {
     dst[0] = ~dst[0];
 }
@@ -3336,6 +3327,18 @@ SI void mul_fn(T* dst, T* src) {
 template <typename T>
 SI void div_fn(T* dst, T* src) {
     *dst /= *src;
+}
+
+SI void bitwise_and_fn(I32* dst, I32* src) {
+    *dst &= *src;
+}
+
+SI void bitwise_or_fn(I32* dst, I32* src) {
+    *dst |= *src;
+}
+
+SI void bitwise_xor_fn(I32* dst, I32* src) {
+    *dst ^= *src;
 }
 
 template <typename T>
@@ -3409,6 +3412,9 @@ DECLARE_BINARY_FLOAT(add)    DECLARE_BINARY_INT(add)
 DECLARE_BINARY_FLOAT(sub)    DECLARE_BINARY_INT(sub)
 DECLARE_BINARY_FLOAT(mul)    DECLARE_BINARY_INT(mul)
 DECLARE_BINARY_FLOAT(div)    DECLARE_BINARY_INT(div)    DECLARE_BINARY_UINT(div)
+                             DECLARE_BINARY_INT(bitwise_and)
+                             DECLARE_BINARY_INT(bitwise_or)
+                             DECLARE_BINARY_INT(bitwise_xor)
 DECLARE_BINARY_FLOAT(min)    DECLARE_BINARY_INT(min)    DECLARE_BINARY_UINT(min)
 DECLARE_BINARY_FLOAT(max)    DECLARE_BINARY_INT(max)    DECLARE_BINARY_UINT(max)
 DECLARE_BINARY_FLOAT(cmplt)  DECLARE_BINARY_INT(cmplt)  DECLARE_BINARY_UINT(cmplt)

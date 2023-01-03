@@ -31,11 +31,6 @@ using SkRP = SkRasterPipeline;
 #define ALL_MULTI_SLOT_UNARY_OP_CASES   \
          BuilderOp::bitwise_not
 
-#define ALL_SINGLE_SLOT_BINARY_OP_CASES \
-         BuilderOp::bitwise_and:        \
-    case BuilderOp::bitwise_or:         \
-    case BuilderOp::bitwise_xor
-
 #define ALL_MULTI_SLOT_BINARY_OP_CASES  \
          BuilderOp::add_n_floats:       \
     case BuilderOp::add_n_ints:         \
@@ -46,6 +41,9 @@ using SkRP = SkRasterPipeline;
     case BuilderOp::div_n_floats:       \
     case BuilderOp::div_n_ints:         \
     case BuilderOp::div_n_uints:        \
+    case BuilderOp::bitwise_and_n_ints: \
+    case BuilderOp::bitwise_or_n_ints:  \
+    case BuilderOp::bitwise_xor_n_ints: \
     case BuilderOp::min_n_floats:       \
     case BuilderOp::min_n_ints:         \
     case BuilderOp::min_n_uints:        \
@@ -80,10 +78,6 @@ void Builder::unary_op(BuilderOp op, int32_t slots) {
 
 void Builder::binary_op(BuilderOp op, int32_t slots) {
     switch (op) {
-        case ALL_SINGLE_SLOT_BINARY_OP_CASES:
-            SkASSERT(slots == 1);
-            [[fallthrough]];
-
         case ALL_MULTI_SLOT_BINARY_OP_CASES:
             fInstructions.push_back({op, {}, slots});
             break;
@@ -130,7 +124,6 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::push_zeros:
             return inst.fImmA;
 
-        case ALL_SINGLE_SLOT_BINARY_OP_CASES:
         case BuilderOp::pop_condition_mask:
         case BuilderOp::pop_loop_mask:
         case BuilderOp::pop_return_mask:
@@ -299,14 +292,6 @@ void Program::appendMultiSlotUnaryOp(SkRasterPipeline* pipeline, SkRasterPipelin
 
     SkASSERT(numSlots <= 4);
     auto stage = (SkRasterPipeline::Stage)((int)baseStage + numSlots - 1);
-    this->append(pipeline, stage, dst);
-}
-
-void Program::appendAdjacentSingleSlotBinaryOp(SkRasterPipeline* pipeline,
-                                               SkRasterPipeline::Stage stage,
-                                               float* dst, const float* src) {
-    // The source and destination must be directly next to one another.
-    SkASSERT((dst + SkOpts::raster_pipeline_highp_stride) == src);
     this->append(pipeline, stage, dst);
 }
 
@@ -491,12 +476,6 @@ void Program::appendStages(SkRasterPipeline* pipeline,
             case ALL_MULTI_SLOT_UNARY_OP_CASES: {
                 float* dst = tempStackPtr - (inst.fImmA * N);
                 this->appendMultiSlotUnaryOp(pipeline, (SkRP::Stage)inst.fOp, dst, inst.fImmA);
-                break;
-            }
-            case ALL_SINGLE_SLOT_BINARY_OP_CASES: {
-                float* src = tempStackPtr - (1 * N);
-                float* dst = tempStackPtr - (2 * N);
-                this->appendAdjacentSingleSlotBinaryOp(pipeline, (SkRP::Stage)inst.fOp, dst, src);
                 break;
             }
             case ALL_MULTI_SLOT_BINARY_OP_CASES: {
@@ -1008,11 +987,13 @@ void Program::dump(SkWStream* out) {
                 break;
 
             case SkRP::merge_condition_mask:
-            case SkRP::bitwise_and: case SkRP::bitwise_or: case SkRP::bitwise_xor:
             case SkRP::add_float:   case SkRP::add_int:
             case SkRP::sub_float:   case SkRP::sub_int:
             case SkRP::mul_float:   case SkRP::mul_int:
             case SkRP::div_float:   case SkRP::div_int:   case SkRP::div_uint:
+                                    case SkRP::bitwise_and_int:
+                                    case SkRP::bitwise_or_int:
+                                    case SkRP::bitwise_xor_int:
             case SkRP::min_float:   case SkRP::min_int:   case SkRP::min_uint:
             case SkRP::max_float:   case SkRP::max_int:   case SkRP::max_uint:
             case SkRP::cmplt_float: case SkRP::cmplt_int: case SkRP::cmplt_uint:
@@ -1030,6 +1011,9 @@ void Program::dump(SkWStream* out) {
             case SkRP::sub_2_floats:   case SkRP::sub_2_ints:
             case SkRP::mul_2_floats:   case SkRP::mul_2_ints:
             case SkRP::div_2_floats:   case SkRP::div_2_ints:   case SkRP::div_2_uints:
+                                       case SkRP::bitwise_and_2_ints:
+                                       case SkRP::bitwise_or_2_ints:
+                                       case SkRP::bitwise_xor_2_ints:
             case SkRP::min_2_floats:   case SkRP::min_2_ints:   case SkRP::min_2_uints:
             case SkRP::max_2_floats:   case SkRP::max_2_ints:   case SkRP::max_2_uints:
             case SkRP::cmplt_2_floats: case SkRP::cmplt_2_ints: case SkRP::cmplt_2_uints:
@@ -1047,6 +1031,9 @@ void Program::dump(SkWStream* out) {
             case SkRP::sub_3_floats:   case SkRP::sub_3_ints:
             case SkRP::mul_3_floats:   case SkRP::mul_3_ints:
             case SkRP::div_3_floats:   case SkRP::div_3_ints:   case SkRP::div_3_uints:
+                                       case SkRP::bitwise_and_3_ints:
+                                       case SkRP::bitwise_or_3_ints:
+                                       case SkRP::bitwise_xor_3_ints:
             case SkRP::min_3_floats:   case SkRP::min_3_ints:   case SkRP::min_3_uints:
             case SkRP::max_3_floats:   case SkRP::max_3_ints:   case SkRP::max_3_uints:
             case SkRP::cmplt_3_floats: case SkRP::cmplt_3_ints: case SkRP::cmplt_3_uints:
@@ -1064,6 +1051,9 @@ void Program::dump(SkWStream* out) {
             case SkRP::sub_4_floats:   case SkRP::sub_4_ints:
             case SkRP::mul_4_floats:   case SkRP::mul_4_ints:
             case SkRP::div_4_floats:   case SkRP::div_4_ints:   case SkRP::div_4_uints:
+                                       case SkRP::bitwise_and_4_ints:
+                                       case SkRP::bitwise_or_4_ints:
+                                       case SkRP::bitwise_xor_4_ints:
             case SkRP::min_4_floats:   case SkRP::min_4_ints:   case SkRP::min_4_uints:
             case SkRP::max_4_floats:   case SkRP::max_4_ints:   case SkRP::max_4_uints:
             case SkRP::cmplt_4_floats: case SkRP::cmplt_4_ints: case SkRP::cmplt_4_uints:
@@ -1081,6 +1071,9 @@ void Program::dump(SkWStream* out) {
             case SkRP::sub_n_floats:   case SkRP::sub_n_ints:
             case SkRP::mul_n_floats:   case SkRP::mul_n_ints:
             case SkRP::div_n_floats:   case SkRP::div_n_ints:   case SkRP::div_n_uints:
+                                       case SkRP::bitwise_and_n_ints:
+                                       case SkRP::bitwise_or_n_ints:
+                                       case SkRP::bitwise_xor_n_ints:
             case SkRP::min_n_floats:   case SkRP::min_n_ints:   case SkRP::min_n_uints:
             case SkRP::max_n_floats:   case SkRP::max_n_ints:   case SkRP::max_n_uints:
             case SkRP::cmplt_n_floats: case SkRP::cmplt_n_ints: case SkRP::cmplt_n_uints:
@@ -1188,15 +1181,27 @@ void Program::dump(SkWStream* out) {
                 opText = opArg1 + " = Mask(src.r)";
                 break;
 
-            case SkRP::bitwise_and:
+            case SkRP::bitwise_and_int:
+            case SkRP::bitwise_and_2_ints:
+            case SkRP::bitwise_and_3_ints:
+            case SkRP::bitwise_and_4_ints:
+            case SkRP::bitwise_and_n_ints:
                 opText = opArg1 + " &= " + opArg2;
                 break;
 
-            case SkRP::bitwise_or:
+            case SkRP::bitwise_or_int:
+            case SkRP::bitwise_or_2_ints:
+            case SkRP::bitwise_or_3_ints:
+            case SkRP::bitwise_or_4_ints:
+            case SkRP::bitwise_or_n_ints:
                 opText = opArg1 + " |= " + opArg2;
                 break;
 
-            case SkRP::bitwise_xor:
+            case SkRP::bitwise_xor_int:
+            case SkRP::bitwise_xor_2_ints:
+            case SkRP::bitwise_xor_3_ints:
+            case SkRP::bitwise_xor_4_ints:
+            case SkRP::bitwise_xor_n_ints:
                 opText = opArg1 + " ^= " + opArg2;
                 break;
 
