@@ -85,7 +85,6 @@ static inline SkFixed SkFixedFloorToFixed(SkFixed x) {
     return (SkFixed)( (uint32_t)x & 0xFFFF0000 );
 }
 
-#define SkFixedAbs(x)       SkAbs32(x)
 #define SkFixedAve(a, b)    (((a) + (b)) >> 1)
 
 // The divide may exceed 32 bits. Clamp to a signed 32 bit result.
