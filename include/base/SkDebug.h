@@ -8,6 +8,8 @@
 #ifndef SkDebug_DEFINED
 #define SkDebug_DEFINED
 
+#include "include/base/SkAPI.h"
+
 // Sets SK_DEBUG or SK_RELEASE
 #include "include/base/SkLoadUserConfig.h" // IWYU pragma: keep
 
@@ -20,7 +22,7 @@
 #endif
 
 #if !defined(SkDebugf)
-    void SkDebugf(const char format[], ...) SK_PRINTF_LIKE(1, 2);
+    void SK_SPI SkDebugf(const char format[], ...) SK_PRINTF_LIKE(1, 2);
 #endif
 
 #if defined(SK_DEBUG)
