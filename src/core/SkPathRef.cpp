@@ -444,8 +444,8 @@ uint32_t SkPathRef::genID(uint8_t fillType) const {
         }
     }
     #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
-        SkASSERT((unsigned)fFillType < (1 << (32 - kPathRefGenIDBitCnt)));
-        genID |= static_cast<uint32_t>(ft) << kPathRefGenIDBitCnt;
+        SkASSERT((unsigned)fillType < (1 << (32 - kPathRefGenIDBitCnt)));
+        fGenerationID |= static_cast<uint32_t>(fillType) << kPathRefGenIDBitCnt;
     #endif
     return fGenerationID;
 }
