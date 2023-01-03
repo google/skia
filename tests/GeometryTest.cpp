@@ -8,6 +8,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkGeometry.h"
@@ -18,6 +19,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <limits>
+#include <string>
 
 static bool nearly_equal(const SkPoint& a, const SkPoint& b) {
     return SkScalarNearlyEqual(a.fX, b.fX) && SkScalarNearlyEqual(a.fY, b.fY);
@@ -658,4 +660,296 @@ DEF_TEST(Geometry, reporter) {
     test_cubic_cusps(reporter);
     test_measure_rotation(reporter);
     test_chop_at_midtangent(reporter);
+}
+
+static void testChopMonoCubicAtY(skiatest::Reporter* reporter, std::string name,
+                                 SkSpan<const SkPoint> curveInputs, SkScalar yToChopAt,
+                                 SkSpan<const SkPoint> expectedOutputs) {
+    skiatest::ReporterContext subtest(reporter, name);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(expectedOutputs[3].y(), yToChopAt),
+                    "Invalid test case. 4th point's Y should be %f", yToChopAt);
+
+    SkPoint outputs[7];
+    // Make sure it actually chopped
+    REPORTER_ASSERT(reporter, SkChopMonoCubicAtY(curveInputs.begin(), yToChopAt, outputs));
+
+    for (int i = 0; i < 7; ++i) {
+        REPORTER_ASSERT(reporter, nearly_equal(expectedOutputs[i], outputs[i]),
+                        "(%f, %f) != (%f, %f) at index %d",
+                        expectedOutputs[i].x(), expectedOutputs[i].y(),
+                        outputs[i].x(), outputs[i].y(), i);
+    }
+}
+
+DEF_TEST(GeometryChopMonoCubicAtY_Successful, reporter) {
+    // These cubics are all arbitrary, picked using Desmos for something that looked "nice".
+
+    testChopMonoCubicAtY(reporter, "straight, positive slope @ 2.5",
+        {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }},
+        2.5f,
+        {{  0.000000f,  0.000000f }, {  0.000000f,  0.000000f }, {  1.065055f,  1.065055f },
+         {  2.500000f,  2.500000f },
+         {  5.461981f,  5.461981f }, { 10.000000f, 10.000000f }, { 10.000000f, 10.000000f }}
+    );
+    testChopMonoCubicAtY(reporter, "straight, positive slope @ 5.0",
+        {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }},
+        5.0f,
+        {{  0.000000f,  0.000000f }, {  0.000000f,  0.000000f }, {  2.500000f,  2.500000f },
+         {  5.000000f,  5.000000f },
+         {  7.500000f,  7.500000f }, { 10.000000f, 10.000000f }, { 10.000000f, 10.000000f }}
+    );
+    testChopMonoCubicAtY(reporter, "straight, positive slope @ 9.0",
+        {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }},
+        9.0f,
+        {{  0.000000f,  0.000000f }, {  0.000000f,  0.000000f }, {  6.467375f,  6.467375f },
+         {  9.000000f,  9.000000f },
+         {  9.616623f,  9.616623f }, { 10.000000f, 10.000000f }, { 10.000000f, 10.000000f }}
+    );
+    testChopMonoCubicAtY(reporter, "straight, positive slope @ 10.0",
+        {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }},
+        10.0f,
+        {{  0.000000f,  0.000000f }, {  0.000000f,  0.000000f }, { 10.000000f, 10.000000f },
+         { 10.000000f, 10.000000f },
+         { 10.000000f, 10.000000f }, { 10.000000f, 10.000000f }, { 10.000000f, 10.000000f }}
+    );
+
+    testChopMonoCubicAtY(reporter, "curve, positive slope @ 2.0",
+        {{ 1, 1 }, { 5, 2 }, { 7, 4 }, { 8, 7 }},
+        2.0f,
+        {{  1.000000f,  1.000000f }, {  2.055050f,  1.263763f }, {  2.970959f,  1.597096f },
+         {  3.766077f,  2.000000f },
+         {  5.985480f,  3.124621f }, {  7.263762f,  4.791288f }, {  8.000000f,  7.000000f }}
+    );
+    testChopMonoCubicAtY(reporter, "curve, positive slope @ 5.0",
+        {{ 1, 1 }, { 5, 2 }, { 7, 4 }, { 8, 7 }},
+        5.0f,
+        {{  1.000000f,  1.000000f }, {  4.033223f,  1.758306f }, {  5.916391f,  3.091639f },
+         {  7.085550f,  5.000000f },
+         {  7.458195f,  5.608251f }, {  7.758306f,  6.274917f }, {  8.000000f,  7.000000f }}
+    );
+
+    testChopMonoCubicAtY(reporter, "curve, negative slope @ 5.0",
+        {{ 2, 7 }, { 3, 2 }, { 6, 3 }, { 11, 2 }},
+        5.0f,
+        {{  2.000000f,  7.000000f }, {  2.162856f,  6.185719f }, {  2.378757f,  5.530570f },
+         {  2.647702f,  5.000000f },
+         {  4.030182f,  2.272668f }, {  6.814281f,  2.837144f }, { 11.000000f,  2.000000f }}
+    );
+    testChopMonoCubicAtY(reporter, "curve, negative slope @ 3.0",
+        {{ 2, 7 }, { 3, 2 }, { 6, 3 }, { 11, 2 }},
+        3.0f,
+        {{  2.000000f,  7.000000f }, {  2.500000f,  4.500000f }, {  3.500000f,  3.500000f },
+         {  5.000000f,  3.000000f },
+         {  6.500000f,  2.500000f }, {  8.500000f,  2.500000f }, { 11.000000f,  2.000000f }}
+    );
+    testChopMonoCubicAtY(reporter, "curve, negative slope @ 2.5",
+        {{ 2, 7 }, { 3, 2 }, { 6, 3 }, { 11, 2 }},
+        2.5f,
+        {{  2.000000f,  7.000000f }, {  2.750000f,  3.250000f }, {  4.625000f,  2.875000f },
+         {  7.625000f,  2.500000f },
+         {  8.625000f,  2.375000f }, {  9.750000f,  2.250000f }, { 11.000000f,  2.000000f }}
+    );
+
+    // This is the same curve as above, just the 4 points given in the opposite order.
+    // We would expect the math to result in the same chop points, with the outputs
+    // in the opposite order too.
+    testChopMonoCubicAtY(reporter, "inverted curve, negative slope @ 5.0",
+        {{ 11, 2 }, { 6, 3 }, { 3, 2 }, { 2, 7 }},
+        5.0f,
+        {{ 11.000000f,  2.000000f }, {  6.814281f,  2.837144f }, {  4.030182f,  2.272668f },
+         {  2.647702f,  5.000000f },
+         {  2.378757f,  5.530570f }, {  2.162856f,  6.185719f }, {  2.000000f,  7.000000f }}
+    );
+    testChopMonoCubicAtY(reporter, "inverted curve, negative slope @ 3.0",
+        {{ 11, 2 }, { 6, 3 }, { 3, 2 }, { 2, 7 }},
+        3.0f,
+        {{ 11.000000f,  2.000000f }, {  8.500000f,  2.500000f }, {  6.500000f,  2.500000f },
+         {  5.000000f,  3.000000f },
+         {  3.500000f,  3.500000f }, {  2.500000f,  4.500000f }, {  2.000000f,  7.000000f }}
+    );
+    testChopMonoCubicAtY(reporter, "inverted curve, negative slope @ 2.5",
+        {{ 11, 2 }, { 6, 3 }, { 3, 2 }, { 2, 7 }},
+        2.5f,
+        {{ 11.000000f,  2.000000f }, {  9.750000f,  2.250000f }, {  8.625000f,  2.375000f },
+         {  7.625000f,  2.500000f },
+         {  4.625000f,  2.875000f }, {  2.750000f,  3.250000f }, {  2.000000f,  7.000000f }}
+    );
+
+    testChopMonoCubicAtY(reporter, "big curve, negative slope @ 90",
+        {{ -2, 100 }, { 0, 0 }, { 0, 0 }, { 100, -2 }},
+        90.f,
+        {{ -2.000000f,100.000000f }, { -1.930979f, 96.548965f }, { -1.864341f, 93.217033f },
+         { -1.795892f, 90.000000f },
+         {  0.119096f, -0.002382f }, {  3.451032f, -0.069021f }, {100.000000f, -2.000000f }}
+    );
+    testChopMonoCubicAtY(reporter, "big curve, negative slope @ 10",
+        {{ -2, 100 }, { 0, 0 }, { 0, 0 }, { 100, -2 }},
+        10.f,
+        {{ -2.000000f,100.000000f }, { -0.937505f, 46.875271f }, { -0.439458f, 21.972910f },
+         { 14.787060f, 10.000000f },
+         { 28.222368f, -0.564447f }, { 53.124729f, -1.062495f }, {100.000000f, -2.000000f }}
+    );
+    testChopMonoCubicAtY(reporter, "big curve, negative slope @ 0",
+        {{ -2, 100 }, { 0, 0 }, { 0, 0 }, { 100, -2 }},
+        0.f,
+        {{ -2.000000f,100.000000f }, { -0.426983f, 21.349131f }, { -0.091157f,  4.557854f },
+         { 48.633648f, 0.000000f },
+         { 61.859592f, -1.237192f }, { 78.650871f, -1.573017f }, {100.000000f, -2.000000f }}
+    );
+}
+
+DEF_TEST(GeometryChopMonoCubicAtY_OutOfRangeReturnFalse, reporter) {
+    SkPoint inputs[] = {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }};
+    SkPoint outputs[7];
+
+    // Too low
+    REPORTER_ASSERT(reporter, !SkChopMonoCubicAtY(inputs, -10, outputs));
+    // Too high
+    REPORTER_ASSERT(reporter, !SkChopMonoCubicAtY(inputs, 20, outputs));
+}
+
+static void testChopMonoCubicAtX(skiatest::Reporter* reporter, std::string name,
+                                 SkSpan<const SkPoint> curveInputs, SkScalar xToChopAt,
+                                 SkSpan<const SkPoint> expectedOutputs) {
+    skiatest::ReporterContext subtest(reporter, name);
+    REPORTER_ASSERT(reporter, SkScalarNearlyEqual(expectedOutputs[3].x(), xToChopAt),
+                    "Invalid test case. 4th point's X should be %f", xToChopAt);
+
+    SkPoint outputs[7];
+    // Make sure it actually chopped
+    REPORTER_ASSERT(reporter, SkChopMonoCubicAtX(curveInputs.begin(), xToChopAt, outputs));
+
+    for (int i = 0; i < 7; ++i) {
+        REPORTER_ASSERT(reporter, nearly_equal(expectedOutputs[i], outputs[i]),
+                        "(%f, %f) != (%f, %f) at index %d",
+                        expectedOutputs[i].x(), expectedOutputs[i].y(),
+                        outputs[i].x(), outputs[i].y(), i);
+    }
+}
+
+DEF_TEST(GeometryChopMonoCubicAtX_Successful, reporter) {
+    // These cubics are all arbitrary, picked using Desmos for something that looked "nice".
+
+    testChopMonoCubicAtX(reporter, "straight, positive slope @ 2.5",
+        {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }},
+        2.5f,
+        {{  0.000000f,  0.000000f }, {  0.000000f,  0.000000f }, {  1.065055f,  1.065055f },
+         {  2.500000f,  2.500000f },
+         {  5.461981f,  5.461981f }, { 10.000000f, 10.000000f }, { 10.000000f, 10.000000f }}
+    );
+    testChopMonoCubicAtX(reporter, "straight, positive slope @ 5.0",
+        {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }},
+        5.0f,
+        {{  0.000000f,  0.000000f }, {  0.000000f,  0.000000f }, {  2.500000f,  2.500000f },
+         {  5.000000f,  5.000000f },
+         {  7.500000f,  7.500000f }, { 10.000000f, 10.000000f }, { 10.000000f, 10.000000f }}
+    );
+    testChopMonoCubicAtX(reporter, "straight, positive slope @ 9.0",
+        {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }},
+        9.0f,
+        {{  0.000000f,  0.000000f }, {  0.000000f,  0.000000f }, {  6.467375f,  6.467375f },
+         {  9.000000f,  9.000000f },
+         {  9.616623f,  9.616623f }, { 10.000000f, 10.000000f }, { 10.000000f, 10.000000f }}
+    );
+    testChopMonoCubicAtX(reporter, "straight, positive slope @ 10.0",
+        {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }},
+        10.0f,
+        {{  0.000000f,  0.000000f }, {  0.000000f,  0.000000f }, { 10.000000f, 10.000000f },
+         { 10.000000f, 10.000000f },
+         { 10.000000f, 10.000000f }, { 10.000000f, 10.000000f }, { 10.000000f, 10.000000f }}
+    );
+
+    testChopMonoCubicAtX(reporter, "curve, positive slope @ 2.0",
+        {{ 1, 1 }, { 5, 2 }, { 7, 4 }, { 8, 7 }},
+        2.0f,
+        {{  1.000000f,  1.000000f }, {  1.348275f,  1.087069f }, {  1.681389f,  1.181719f },
+         {  2.000000f,  1.283949f },
+         {  5.340694f,  2.355856f }, {  7.087069f,  4.261207f }, {  8.000000f,  7.000000f }}
+    );
+    testChopMonoCubicAtX(reporter, "curve, positive slope @ 5.0",
+        {{ 1, 1 }, { 5, 2 }, { 7, 4 }, { 8, 7 }},
+        5.0f,
+        {{  1.000000f,  1.000000f }, {  2.650396f,  1.412599f }, {  3.960316f,  1.995436f },
+         {  5.000000f,  2.748511f },
+         {  6.480158f,  3.820634f }, {  7.412599f,  5.237797f }, {  8.000000f,  7.000000f }}
+    );
+
+    testChopMonoCubicAtX(reporter, "curve, negative slope @ 5.0",
+        {{ 2, 7 }, { 3, 2 }, { 6, 3 }, { 11, 2 }},
+        5.0f,
+        {{  2.000000f,  7.000000f }, {  2.500000f,  4.500000f }, {  3.500000f,  3.500000f },
+         {  5.000000f,  3.000000f },
+         {  6.500000f,  2.500000f }, {  8.500000f,  2.500000f }, { 11.000000f,  2.000000f }}
+    );
+    testChopMonoCubicAtX(reporter, "curve, negative slope @ 3.0",
+        {{ 2, 7 }, { 3, 2 }, { 6, 3 }, { 11, 2 }},
+        3.0f,
+        {{  2.000000f,  7.000000f }, {  2.228714f,  5.856432f }, {  2.562047f,  5.026724f },
+         {  3.000000f,  4.415163f },
+         {  4.476901f,  2.352807f }, {  7.143568f,  2.771286f }, { 11.000000f,  2.000000f }}
+    );
+    testChopMonoCubicAtX(reporter, "curve, negative slope @ 2.5",
+        {{ 2, 7 }, { 3, 2 }, { 6, 3 }, { 11, 2 }},
+        2.5f,
+        {{  2.000000f,  7.000000f }, {  2.131881f,  6.340593f }, {  2.298548f,  5.785543f },
+         {  2.500000f,  5.316498f },
+         {  3.826073f,  2.228977f }, {  6.659407f,  2.868119f }, { 11.000000f,  2.000000f }}
+    );
+
+    // This is the same curve as above, just the 4 points given in the opposite order.
+    // We would expect the math to result in the same chop points, with the outputs
+    // in the opposite order too.
+    testChopMonoCubicAtX(reporter, "inverted curve, negative slope @ 5.0",
+        {{ 11, 2 }, { 6, 3 }, { 3, 2 }, { 2, 7 }},
+        5.0f,
+        {{ 11.000000f,  2.000000f }, {  8.500000f,  2.500000f }, {  6.500000f,  2.500000f },
+         {  5.000000f,  3.000000f },
+         {  3.500000f,  3.500000f }, {  2.500000f,  4.500000f }, {  2.000000f,  7.000000f }}
+    );
+    testChopMonoCubicAtX(reporter, "inverted curve, negative slope @ 3.0",
+        {{ 11, 2 }, { 6, 3 }, { 3, 2 }, { 2, 7 }},
+        3.0f,
+        {{ 11.000000f,  2.000000f }, {  7.143568f,  2.771286f }, {  4.476901f,  2.352807f },
+         {  3.000000f,  4.415163f },
+         {  2.562047f,  5.026724f }, {  2.228714f,  5.856432f }, {  2.000000f,  7.000000f }}
+    );
+    testChopMonoCubicAtX(reporter, "inverted curve, negative slope @ 2.5",
+        {{ 11, 2 }, { 6, 3 }, { 3, 2 }, { 2, 7 }},
+        2.5f,
+        {{ 11.000000f,  2.000000f }, {  6.659407f,  2.868119f }, {  3.826073f,  2.228977f },
+         {  2.500000f,  5.316498f },
+         {  2.298548f,  5.785543f }, {  2.131881f,  6.340593f }, {  2.000000f,  7.000000f }}
+    );
+
+    testChopMonoCubicAtX(reporter, "big curve, negative slope @ 90",
+        {{ -2, 100 }, { 0, 0 }, { 0, 0 }, { 100, -2 }},
+        90.f,
+        {{ -2.000000f,100.000000f }, { -0.069021f,  3.451032f }, { -0.002382f,  0.119096f },
+         { 90.000000f, -1.795892f },
+         { 93.217033f, -1.864341f }, { 96.548965f, -1.930979f }, {100.000000f, -2.000000f }}
+    );
+    testChopMonoCubicAtX(reporter, "big curve, negative slope @ 10",
+        {{ -2, 100 }, { 0, 0 }, { 0, 0 }, { 100, -2 }},
+        10.f,
+        {{ -2.000000f,100.000000f }, { -1.062495f, 53.124729f }, { -0.564447f, 28.222368f },
+         { 10.000000f, 14.787060f },
+         { 21.972910f, -0.439458f }, { 46.875271f, -0.937505f }, {100.000000f, -2.000000f }}
+    );
+    testChopMonoCubicAtX(reporter, "big curve, negative slope @ 0",
+        {{ -2, 100 }, { 0, 0 }, { 0, 0 }, { 100, -2 }},
+        0.f,
+        {{ -2.000000f,100.000000f }, { -1.573017f, 78.650871f }, { -1.237192f, 61.859592f },
+         {  0.000000f, 48.633648f },
+         {  4.557854f, -0.091157f }, { 21.349131f, -0.426983f }, {100.000000f, -2.000000f }}
+    );
+}
+
+DEF_TEST(GeometryChopMonoCubicAtX_OutOfRangeReturnFalse, reporter) {
+    SkPoint inputs[] = {{ 0, 0 }, { 0, 0 }, { 10, 10 }, { 10, 10 }};
+    SkPoint outputs[7];
+
+    // Too low
+    REPORTER_ASSERT(reporter, !SkChopMonoCubicAtX(inputs, -10, outputs));
+    // Too high
+    REPORTER_ASSERT(reporter, !SkChopMonoCubicAtX(inputs, 20, outputs));
 }

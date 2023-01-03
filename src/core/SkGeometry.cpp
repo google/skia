@@ -1163,11 +1163,11 @@ static bool cubic_dchop_at_intercept(const SkPoint src[4], SkScalar intercept, S
     return false;
 }
 
-bool SkChopMonoCubicAtY(SkPoint src[4], SkScalar y, SkPoint dst[7]) {
+bool SkChopMonoCubicAtY(const SkPoint src[4], SkScalar y, SkPoint dst[7]) {
     return cubic_dchop_at_intercept(src, y, dst, &SkDCubic::horizontalIntersect);
 }
 
-bool SkChopMonoCubicAtX(SkPoint src[4], SkScalar x, SkPoint dst[7]) {
+bool SkChopMonoCubicAtX(const SkPoint src[4], SkScalar x, SkPoint dst[7]) {
     return cubic_dchop_at_intercept(src, x, dst, &SkDCubic::verticalIntersect);
 }
 

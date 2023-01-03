@@ -236,8 +236,29 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
  */
 SkScalar SkFindCubicCusp(const SkPoint src[4]);
 
-bool SkChopMonoCubicAtX(SkPoint src[4], SkScalar y, SkPoint dst[7]);
-bool SkChopMonoCubicAtY(SkPoint src[4], SkScalar x, SkPoint dst[7]);
+/** Given a monotonically increasing or decreasing cubic bezier src, chop it
+ *  where the X value is the specified value. The returned cubics will be in
+ *  dst, sharing the middle point. That is, the first cubic is dst[0..3] and
+ *  the second dst[3..6].
+ *
+ *  If the cubic provided is *not* monotone, it will be chopped at the first
+ *  time the curve has the specified X value.
+ *
+ *  If the cubic never reaches the specified value, the function returns false.
+*/
+bool SkChopMonoCubicAtX(const SkPoint src[4], SkScalar x, SkPoint dst[7]);
+
+/** Given a monotonically increasing or decreasing cubic bezier src, chop it
+ *  where the Y value is the specified value. The returned cubics will be in
+ *  dst, sharing the middle point. That is, the first cubic is dst[0..3] and
+ *  the second dst[3..6].
+ *
+ *  If the cubic provided is *not* monotone, it will be chopped at the first
+ *  time the curve has the specified Y value.
+ *
+ *  If the cubic never reaches the specified value, the function returns false.
+*/
+bool SkChopMonoCubicAtY(const SkPoint src[4], SkScalar y, SkPoint dst[7]);
 
 enum class SkCubicType {
     kSerpentine,
