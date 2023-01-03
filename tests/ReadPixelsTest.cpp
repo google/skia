@@ -28,6 +28,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkImageInfoPriv.h"
+#include "include/private/SkSafe32.h"
 #include "src/core/SkMathPriv.h"
 #include "tests/Test.h"
 
