@@ -443,3 +443,22 @@ R"(    1. copy_constant                  $0 = u0
     6. copy_constant                  $14 = u4
 )");
 }
+
+DEF_TEST(RasterPipelineBuilderTernaryFloatOps, r) {
+    using BuilderOp = SkSL::RP::BuilderOp;
+
+    SkSL::RP::Builder builder;
+    builder.push_literal_f(0.75f);
+    builder.duplicate(8);
+    builder.ternary_op(BuilderOp::mix_n_floats, 3);
+    builder.discard_stack(3);
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
+    check(r, *program,
+R"(    1. copy_constant                  $0 = 0x3F400000 (0.75)
+    2. swizzle_4                      $0..3 = ($0..3).xxxx
+    3. swizzle_4                      $3..6 = ($3..6).xxxx
+    4. swizzle_3                      $6..8 = ($6..8).xxx
+    5. mix_3_floats                   $0..2 = mix($0..2, $3..5, $6..8)
+)");
+}

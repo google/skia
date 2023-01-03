@@ -63,6 +63,9 @@ using SkRP = SkRasterPipeline;
     case BuilderOp::cmpne_n_floats:     \
     case BuilderOp::cmpne_n_ints
 
+#define ALL_MULTI_SLOT_TERNARY_OP_CASES \
+         BuilderOp::mix_n_floats
+
 void Builder::unary_op(BuilderOp op, int32_t slots) {
     switch (op) {
         case ALL_MULTI_SLOT_UNARY_OP_CASES:
@@ -87,6 +90,18 @@ void Builder::binary_op(BuilderOp op, int32_t slots) {
 
         default:
             SkDEBUGFAIL("not a binary op");
+            break;
+    }
+}
+
+void Builder::ternary_op(BuilderOp op, int32_t slots) {
+    switch (op) {
+        case ALL_MULTI_SLOT_TERNARY_OP_CASES:
+            fInstructions.push_back({op, {}, slots});
+            break;
+
+        default:
+            SkDEBUGFAIL("not a ternary op");
             break;
     }
 }
@@ -124,6 +139,9 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::discard_stack:
         case BuilderOp::select:
             return -inst.fImmA;
+
+        case ALL_MULTI_SLOT_TERNARY_OP_CASES:
+            return 2 * -inst.fImmA;
 
         case BuilderOp::swizzle_1:
             return 1 - inst.fImmA;
@@ -311,6 +329,28 @@ void Program::appendAdjacentMultiSlotBinaryOp(SkRasterPipeline* pipeline, SkAren
     }
 }
 
+void Program::appendAdjacentMultiSlotTernaryOp(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
+                                               SkRasterPipeline::Stage baseStage, float* dst,
+                                               const float* src0, const float* src1, int numSlots) {
+    // The float pointers must all be immediately adjacent to each other.
+    SkASSERT(numSlots >= 0);
+    SkASSERT((dst  + SkOpts::raster_pipeline_highp_stride * numSlots) == src0);
+    SkASSERT((src0 + SkOpts::raster_pipeline_highp_stride * numSlots) == src1);
+
+    if (numSlots > 4) {
+        auto ctx = alloc->make<SkRasterPipeline_TernaryOpCtx>();
+        ctx->dst = dst;
+        ctx->src0 = src0;
+        ctx->src1 = src1;
+        this->append(pipeline, baseStage, ctx);
+        return;
+    }
+    if (numSlots > 0) {
+        auto specializedStage = (SkRasterPipeline::Stage)((int)baseStage + numSlots);
+        this->append(pipeline, specializedStage, dst);
+    }
+}
+
 template <typename T>
 [[maybe_unused]] static void* context_bit_pun(T val) {
     static_assert(sizeof(T) <= sizeof(void*));
@@ -463,6 +503,14 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
                 this->appendAdjacentMultiSlotBinaryOp(pipeline, alloc, (SkRP::Stage)inst.fOp,
                                                       dst, src, inst.fImmA);
+                break;
+            }
+            case ALL_MULTI_SLOT_TERNARY_OP_CASES: {
+                float* src1 = tempStackPtr - (inst.fImmA * N);
+                float* src0 = tempStackPtr - (inst.fImmA * 2 * N);
+                float* dst  = tempStackPtr - (inst.fImmA * 3 * N);
+                this->appendAdjacentMultiSlotTernaryOp(pipeline, alloc, (SkRP::Stage)inst.fOp,
+                                                       dst, src0, src1, inst.fImmA);
                 break;
             }
             case BuilderOp::select: {
@@ -792,6 +840,15 @@ void Program::dump(SkWStream* out) {
                                    PtrCtx(ctxAsSlot + (N * numSlots), numSlots));
         };
 
+        // Interpret the context value as a pointer to three adjacent values.
+        auto Adjacent3PtrCtx = [&](const void* ctx, int numSlots) ->
+                                  std::tuple<std::string, std::string, std::string> {
+            const float *ctxAsSlot = static_cast<const float*>(ctx);
+            return std::make_tuple(PtrCtx(ctxAsSlot, numSlots),
+                                   PtrCtx(ctxAsSlot + (N * numSlots), numSlots),
+                                   PtrCtx(ctxAsSlot + (2 * N * numSlots), numSlots));
+        };
+
         // Interpret the context value as a BinaryOp structure for copy_n_slots (numSlots is
         // dictated by the op itself).
         auto BinaryOpCtx = [&](const void* v,
@@ -815,8 +872,16 @@ void Program::dump(SkWStream* out) {
         auto AdjacentBinaryOpCtx = [&](const void* v) -> std::tuple<std::string, std::string> {
             const auto *ctx = static_cast<const SkRasterPipeline_BinaryOpCtx*>(v);
             int numSlots = (ctx->src - ctx->dst) / N;
-            return std::make_tuple(PtrCtx(ctx->dst, numSlots),
-                                   PtrCtx(ctx->src, numSlots));
+            return AdjacentPtrCtx(ctx->dst, numSlots);
+        };
+
+        // Interpret the context value as a TernaryOp structure (numSlots is inferred from the
+        // distance between pointers).
+        auto AdjacentTernaryOpCtx = [&](const void* v) ->
+                                       std::tuple<std::string, std::string, std::string> {
+            const auto* ctx = static_cast<const SkRasterPipeline_TernaryOpCtx*>(v);
+            int numSlots = (ctx->src0 - ctx->dst) / N;
+            return Adjacent3PtrCtx(ctx->dst, numSlots);
         };
 
         // Interpret the context value as a Swizzle structure. Note that the slot-width of the
@@ -850,7 +915,7 @@ void Program::dump(SkWStream* out) {
             return std::make_tuple(PtrCtx(ctx->ptr, destSlots), src);
         };
 
-        std::string opArg1, opArg2;
+        std::string opArg1, opArg2, opArg3;
         switch (stage.op) {
             case SkRP::immediate_f:
                 opArg1 = ImmCtx(stage.ctx);
@@ -951,6 +1016,10 @@ void Program::dump(SkWStream* out) {
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 1);
                 break;
 
+            case SkRP::mix_float:
+                std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 1);
+                break;
+
             case SkRP::add_2_floats:   case SkRP::add_2_ints:
             case SkRP::sub_2_floats:   case SkRP::sub_2_ints:
             case SkRP::mul_2_floats:   case SkRP::mul_2_ints:
@@ -962,6 +1031,10 @@ void Program::dump(SkWStream* out) {
             case SkRP::cmpeq_2_floats: case SkRP::cmpeq_2_ints:
             case SkRP::cmpne_2_floats: case SkRP::cmpne_2_ints:
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 2);
+                break;
+
+            case SkRP::mix_2_floats:
+                std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 2);
                 break;
 
             case SkRP::add_3_floats:   case SkRP::add_3_ints:
@@ -977,6 +1050,10 @@ void Program::dump(SkWStream* out) {
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 3);
                 break;
 
+            case SkRP::mix_3_floats:
+                std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 3);
+                break;
+
             case SkRP::add_4_floats:   case SkRP::add_4_ints:
             case SkRP::sub_4_floats:   case SkRP::sub_4_ints:
             case SkRP::mul_4_floats:   case SkRP::mul_4_ints:
@@ -990,6 +1067,10 @@ void Program::dump(SkWStream* out) {
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 4);
                 break;
 
+            case SkRP::mix_4_floats:
+                std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 4);
+                break;
+
             case SkRP::add_n_floats:   case SkRP::add_n_ints:
             case SkRP::sub_n_floats:   case SkRP::sub_n_ints:
             case SkRP::mul_n_floats:   case SkRP::mul_n_ints:
@@ -1001,6 +1082,10 @@ void Program::dump(SkWStream* out) {
             case SkRP::cmpeq_n_floats: case SkRP::cmpeq_n_ints:
             case SkRP::cmpne_n_floats: case SkRP::cmpne_n_ints:
                 std::tie(opArg1, opArg2) = AdjacentBinaryOpCtx(stage.ctx);
+                break;
+
+            case SkRP::mix_n_floats:
+                std::tie(opArg1, opArg2, opArg3) = AdjacentTernaryOpCtx(stage.ctx);
                 break;
 
             case SkRP::jump:
@@ -1213,6 +1298,14 @@ void Program::dump(SkWStream* out) {
             case SkRP::cmpne_4_floats: case SkRP::cmpne_4_ints:
             case SkRP::cmpne_n_floats: case SkRP::cmpne_n_ints:
                 opText = opArg1 + " = notEqual(" + opArg1 + ", " + opArg2 + ")";
+                break;
+
+            case SkRP::mix_float:
+            case SkRP::mix_2_floats:
+            case SkRP::mix_3_floats:
+            case SkRP::mix_4_floats:
+            case SkRP::mix_n_floats:
+                opText = opArg1 + " = mix(" + opArg1 + ", " + opArg2 + ", " + opArg3 + ")";
                 break;
 
             case SkRP::jump:

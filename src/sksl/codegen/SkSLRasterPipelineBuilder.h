@@ -129,6 +129,14 @@ private:
     void appendCopyConstants(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
                              float* dst, const float* src, int numSlots);
 
+    // Appends a multi-slot single-input math operation to the pipeline. `baseStage` must refer to
+    // an single-slot "apply_op" stage, which must be immediately followed by specializations for
+    // 2-4 slots. For instance, {`zero_slot`, `zero_2_slots`, `zero_3_slots`, `zero_4_slots`}
+    // must be contiguous ops in the stage list, listed in that order; pass `zero_slot` and we
+    // pick the appropriate op based on `numSlots`.
+    void appendMultiSlotUnaryOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage baseStage,
+                                float* dst, int numSlots);
+
     // Appends a math operation with two inputs (dst op src) and one output (dst) to the pipeline.
     // `src` must be _immediately_ after `dst` in memory.
     void appendAdjacentSingleSlotBinaryOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage,
@@ -144,13 +152,13 @@ private:
                                          SkRasterPipeline::Stage baseStage,
                                          float* dst, const float* src, int numSlots);
 
-    // Appends a multi-slot single-input math operation to the pipeline. `baseStage` must refer to
-    // an single-slot "apply_op" stage, which must be immediately followed by specializations for
-    // 2-4 slots. For instance, {`zero_slot`, `zero_2_slots`, `zero_3_slots`, `zero_4_slots`}
-    // must be contiguous ops in the stage list, listed in that order; pass `zero_slot` and we
-    // pick the appropriate op based on `numSlots`.
-    void appendMultiSlotUnaryOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage baseStage,
-                                float* dst, int numSlots);
+    // Appends a multi-slot math operation having three inputs (dst, src0, src1) and one output
+    // (dst) to the pipeline. The three inputs must be _immediately_ adjacent in memory. `baseStage`
+    // must refer to an unbounded "apply_to_n_slots" stage, which must be immediately followed by
+    // specializations for 1-4 slots.
+    void appendAdjacentMultiSlotTernaryOp(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
+                                          SkRasterPipeline::Stage stage, float* dst,
+                                          const float* src0, const float* src1, int numSlots);
 
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;
@@ -299,8 +307,12 @@ public:
     void unary_op(BuilderOp op, int32_t slots);
 
     // Performs a binary op (like `add_n_floats` or `cmpeq_n_ints`), given a slot count of
-    // `slots`. Both input values are consumed, and the result is pushed onto the stack.
+    // `slots`. Two n-slot input values are consumed, and the result is pushed onto the stack.
     void binary_op(BuilderOp op, int32_t slots);
+
+    // Performs a ternary op (like `mix` or `smoothstep`), given a slot count of
+    // `slots`. Three n-slot input values are consumed, and the result is pushed onto the stack.
+    void ternary_op(BuilderOp op, int32_t slots);
 
     void discard_stack(int32_t count = 1) {
         // Shrinks the temp stack, discarding values on top.
