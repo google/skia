@@ -1017,7 +1017,7 @@ void SkDraw::drawBitmapAsMask(const SkBitmap& bitmap, const SkSamplingOptions& s
         }
 
         // allocate (and clear) our temp buffer to hold the transformed bitmap
-        SkAutoTMalloc<uint8_t> storage(size);
+        skia::internal::SkAutoTMalloc<uint8_t> storage(size);
         mask.fImage = storage.get();
         memset(mask.fImage, 0, size);
 
