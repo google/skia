@@ -10,6 +10,7 @@
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/Resource.h"
 
 namespace skgpu::graphite {
 
@@ -68,6 +69,11 @@ sk_sp<ComputePipeline> GlobalCache::addComputePipeline(const UniqueKey& key,
         entry = fComputePipelineCache.insert(key, std::move(pipeline));
     }
     return *entry;
+}
+
+void GlobalCache::addStaticResource(sk_sp<Resource> resource) {
+    SkAutoSpinlock lock{fSpinLock};
+    fStaticResource.push_back(std::move(resource));
 }
 
 } // namespace skgpu::graphite

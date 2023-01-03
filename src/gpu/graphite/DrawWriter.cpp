@@ -8,7 +8,6 @@
 #include "src/gpu/graphite/DrawWriter.h"
 
 #include "src/gpu/BufferWriter.h"
-#include "src/gpu/graphite/DrawBufferManager.h"
 #include "src/gpu/graphite/DrawCommands.h"
 
 namespace skgpu::graphite {

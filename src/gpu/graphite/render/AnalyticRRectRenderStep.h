@@ -12,9 +12,11 @@
 
 namespace skgpu::graphite {
 
+class StaticBufferManager;
+
 class AnalyticRRectRenderStep final : public RenderStep {
 public:
-    AnalyticRRectRenderStep();
+    AnalyticRRectRenderStep(StaticBufferManager* bufferManager);
 
     ~AnalyticRRectRenderStep() override;
 
@@ -25,6 +27,9 @@ public:
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
 private:
+    // Points to the static buffers holding the fixed indexed vertex template for drawing instances.
+    BindBufferInfo fVertexBuffer;
+    BindBufferInfo fIndexBuffer;
 };
 
 }  // namespace skgpu::graphite

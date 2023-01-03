@@ -287,10 +287,7 @@ static constexpr int kCornerVertexCount = 19; // sk_VertexID is divided by this 
 static constexpr int kVertexCount = 4 * kCornerVertexCount;
 static constexpr int kIndexCount = 153;
 
-static size_t indexBufferSize() { return kIndexCount * sizeof(uint16_t); }
-static void writeIndexBuffer(VertexWriter writer, size_t size) {
-    SkASSERT(indexBufferSize() <= size);
-
+static void write_index_buffer(VertexWriter writer) {
     static constexpr uint16_t kTL = 0 * kCornerVertexCount;
     static constexpr uint16_t kTR = 1 * kCornerVertexCount;
     static constexpr uint16_t kBR = 2 * kCornerVertexCount;
@@ -325,10 +322,7 @@ static void writeIndexBuffer(VertexWriter writer, size_t size) {
     writer << kIndices;
 }
 
-static size_t vertexBufferSize() { return kVertexCount * sizeof(Vertex); }
-static void writeVertexBuffer(VertexWriter writer, size_t size) {
-    SkASSERT(vertexBufferSize() <= size);
-
+static void write_vertex_buffer(VertexWriter writer) {
     // Allowed values for the stroke control vertex attribute. This is multiplied with the stroke
     // radius of the instance to get the final effect on the corner positions. When the stroke
     // radius is zero (for fills or hairlines), the three possible curves are coincident.
@@ -388,7 +382,7 @@ static void writeVertexBuffer(VertexWriter writer, size_t size) {
            << kCornerTemplate; // BL
 }
 
-AnalyticRRectRenderStep::AnalyticRRectRenderStep()
+AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferManager)
         : RenderStep("AnalyticRRectRenderStep",
                      "",
                      Flags::kPerformsShading | Flags::kEmitsCoverage,
@@ -437,7 +431,15 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep()
                              // vertex we can detect linear/circle coverage using just coverageWidth
                              {"perPixelControl", SkSLType::kFloat},
                              {"uv", SkSLType::kFloat2},
-                     }) {}
+                     }) {
+    // Initialize the static buffers we'll use when recording draw calls.
+    // NOTE: Each instance of this RenderStep gets its own copy of the data. Since there should only
+    // ever be one AnalyticRRectRenderStep at a time, this shouldn't be an issue.
+    write_vertex_buffer(bufferManager->getVertexWriter(sizeof(Vertex) * kVertexCount,
+                                                       &fVertexBuffer));
+    write_index_buffer(bufferManager->getIndexWriter(sizeof(uint16_t) * kIndexCount,
+                                                     &fIndexBuffer));
+}
 
 AnalyticRRectRenderStep::~AnalyticRRectRenderStep() {}
 
@@ -702,13 +704,7 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
     SkASSERT(params.geometry().isShape());
     const Shape& shape = params.geometry().shape();
 
-    BindBufferInfo vertices =
-        writer->bufferManager()->getStaticBuffer(BufferType::kVertex,
-            writeVertexBuffer, vertexBufferSize);
-    BindBufferInfo indices = writer->bufferManager()->getStaticBuffer(BufferType::kIndex,
-                                                                      writeIndexBuffer,
-                                                                      indexBufferSize);
-    DrawWriter::Instances instance{*writer, vertices, indices, kIndexCount};
+    DrawWriter::Instances instance{*writer, fVertexBuffer, fIndexBuffer, kIndexCount};
     auto vw = instance.append(1);
 
     // The bounds of a rect is the rect, and the bounds of a rrect is tight (== SkRRect::getRect()).

@@ -9,21 +9,29 @@
 #define skgpu_graphite_render_TessellateCurvesRenderStep_DEFINED
 
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 
 namespace skgpu::graphite {
+
+class StaticBufferManager;
 
 class TessellateCurvesRenderStep final : public RenderStep {
 public:
     // TODO: If this takes DepthStencilSettings directly and a way to adjust the flags to specify
     // that it performs shading, this RenderStep definition can be shared between the stencil and
     // the convex rendering variants.
-    TessellateCurvesRenderStep(bool evenOdd);
+    TessellateCurvesRenderStep(bool evenOdd, StaticBufferManager* bufferManager);
 
     ~TessellateCurvesRenderStep() override;
 
     const char* vertexSkSL() const override;
     void writeVertices(DrawWriter*, const DrawParams&, int ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
+
+private:
+    // Points to the static buffers holding the fixed indexed vertex template for drawing instances.
+    BindBufferInfo fVertexBuffer;
+    BindBufferInfo fIndexBuffer;
 };
 
 }  // namespace skgpu::graphite

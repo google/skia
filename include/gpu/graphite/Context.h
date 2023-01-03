@@ -111,6 +111,10 @@ private:
 
     SingleOwner* singleOwner() const { return &fSingleOwner; }
 
+    // Must be called in Make() to handle one-time GPU setup operations that can possibly fail and
+    // require Context::Make() to return a nullptr.
+    bool finishInitialization();
+
     void asyncReadPixels(const TextureProxy* textureProxy,
                          const SkImageInfo& srcImageInfo,
                          const SkColorInfo& dstColorInfo,

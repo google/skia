@@ -26,6 +26,7 @@
 namespace skgpu::graphite {
 
 namespace ContextFactory {
+
 std::unique_ptr<Context> MakeMetal(const MtlBackendContext& backendContext,
                                    const ContextOptions& options) {
     sk_sp<SharedContext> sharedContext = MtlSharedContext::Make(backendContext, options);
@@ -40,12 +41,11 @@ std::unique_ptr<Context> MakeMetal(const MtlBackendContext& backendContext,
         return nullptr;
     }
 
-    auto context = ContextCtorAccessor::MakeContext(std::move(sharedContext),
-                                                    std::move(queueManager),
-                                                    options);
-    SkASSERT(context);
-    return context;
+    return ContextCtorAccessor::MakeContext(std::move(sharedContext),
+                                            std::move(queueManager),
+                                            options);
 }
+
 } // namespace ContextFactory
 
 bool MtlFormatIsDepthOrStencil(MTLPixelFormat format) {

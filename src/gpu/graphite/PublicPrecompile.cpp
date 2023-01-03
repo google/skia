@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintOptionsPriv.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"

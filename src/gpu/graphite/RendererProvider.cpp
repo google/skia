@@ -22,7 +22,7 @@
 
 namespace skgpu::graphite {
 
-RendererProvider::RendererProvider() {
+RendererProvider::RendererProvider(StaticBufferManager* bufferManager) {
     // This constructor requires all Renderers be densely packed so that it can simply iterate over
     // the fields directly and fill 'fRenderers' with every one that was initialized with a
     // non-empty renderer. While this is a little magical, it simplifies the rest of the logic
@@ -41,7 +41,9 @@ RendererProvider::RendererProvider() {
     };
 
     fConvexTessellatedWedges = makeFromStep(
-            std::make_unique<TessellateWedgesRenderStep>("convex", kDirectDepthGreaterPass),
+            std::make_unique<TessellateWedgesRenderStep>("convex",
+                                                         kDirectDepthGreaterPass,
+                                                         bufferManager),
             DrawTypeFlags::kShape);
     fTessellatedStrokes = makeFromStep(std::make_unique<TessellateStrokesRenderStep>(),
                                        DrawTypeFlags::kShape);
@@ -51,7 +53,7 @@ RendererProvider::RendererProvider() {
         fSDFText[lcd] = makeFromStep(std::make_unique<SDFTextRenderStep>(lcd),
                                      DrawTypeFlags::kText);
     }
-    fAnalyticRRect = makeFromStep(std::make_unique<AnalyticRRectRenderStep>(),
+    fAnalyticRRect = makeFromStep(std::make_unique<AnalyticRRectRenderStep>(bufferManager),
                                   DrawTypeFlags::kShape);
     for (PrimitiveType primType : {PrimitiveType::kTriangles, PrimitiveType::kTriangleStrip}) {
         for (bool color : {false, true}) {
@@ -71,10 +73,11 @@ RendererProvider::RendererProvider() {
     for (bool evenOdd : {false, true}) {
         // These steps can be shared by regular and inverse fills
         auto stencilFan = std::make_unique<MiddleOutFanRenderStep>(evenOdd);
-        auto stencilCurve = std::make_unique<TessellateCurvesRenderStep>(evenOdd);
-        auto stencilWedge = evenOdd
-                ? std::make_unique<TessellateWedgesRenderStep>("evenodd", kEvenOddStencilPass)
-                : std::make_unique<TessellateWedgesRenderStep>("winding", kWindingStencilPass);
+        auto stencilCurve = std::make_unique<TessellateCurvesRenderStep>(evenOdd, bufferManager);
+        auto stencilWedge = evenOdd ? std::make_unique<TessellateWedgesRenderStep>(
+                                            "evenodd", kEvenOddStencilPass, bufferManager)
+                                    : std::make_unique<TessellateWedgesRenderStep>(
+                                            "winding", kWindingStencilPass, bufferManager);
 
         for (bool inverse : {false, true}) {
             static const char* kTessVariants[4] =

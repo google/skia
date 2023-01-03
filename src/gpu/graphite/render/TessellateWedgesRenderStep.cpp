@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/render/TessellateWedgesRenderStep.h"
 
+#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/PipelineData.h"
@@ -38,7 +39,8 @@ using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountWedges>,
 }  // namespace
 
 TessellateWedgesRenderStep::TessellateWedgesRenderStep(std::string_view variantName,
-                                                       DepthStencilSettings depthStencilSettings)
+                                                       DepthStencilSettings depthStencilSettings,
+                                                       StaticBufferManager* bufferManager)
         : RenderStep("TessellateWedgesRenderStep",
                      variantName,
                      Flags::kRequiresMSAA |
@@ -56,6 +58,17 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(std::string_view variantN
                                         {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
                                         {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}}) {
     SkASSERT(this->instanceStride() == PatchStride(kAttribs));
+
+    // Initialize the static buffers we'll use when recording draw calls.
+    // NOTE: Each instance of this RenderStep gets its own copy of the data. If this ends up causing
+    // problems, we can modify StaticBufferManager to de-duplicate requests.
+    const size_t vertexSize = FixedCountWedges::VertexBufferSize();
+    auto vertexData = bufferManager->getVertexWriter(vertexSize, &fVertexBuffer);
+    FixedCountWedges::WriteVertexBuffer(std::move(vertexData), vertexSize);
+
+    const size_t indexSize = FixedCountWedges::IndexBufferSize();
+    auto indexData = bufferManager->getIndexWriter(indexSize, &fIndexBuffer);
+    FixedCountWedges::WriteIndexBuffer(std::move(indexData), indexSize);
 }
 
 TessellateWedgesRenderStep::~TessellateWedgesRenderStep() {}
@@ -84,17 +97,8 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
                                                int ssboIndex) const {
     SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
-    BindBufferInfo fixedVertexBuffer = dw->bufferManager()->getStaticBuffer(
-            BufferType::kVertex,
-            FixedCountWedges::WriteVertexBuffer,
-            FixedCountWedges::VertexBufferSize);
-    BindBufferInfo fixedIndexBuffer = dw->bufferManager()->getStaticBuffer(
-            BufferType::kIndex,
-            FixedCountWedges::WriteIndexBuffer,
-            FixedCountWedges::IndexBufferSize);
-
     int patchReserveCount = FixedCountWedges::PreallocCount(path.countVerbs());
-    Writer writer{kAttribs, *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
+    Writer writer{kAttribs, *dw, fVertexBuffer, fIndexBuffer, patchReserveCount};
     writer.updatePaintDepthAttrib(params.order().depthAsFloat());
     writer.updateSsboIndexAttrib(ssboIndex);
 

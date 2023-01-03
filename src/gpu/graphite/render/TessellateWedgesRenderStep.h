@@ -9,20 +9,32 @@
 #define skgpu_graphite_render_TessellateWedgesRenderStep_DEFINED
 
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 
 namespace skgpu::graphite {
 
+class StaticBufferManager;
+
 class TessellateWedgesRenderStep final : public RenderStep {
 public:
+    // 'vertexBuffer' and 'indexBuffer' must have been returned by CreateVertexTemplate(), but they
+    // can be shared by all instances of TessellateWedgesRenderStep.
     TessellateWedgesRenderStep(std::string_view variantName,
-                               DepthStencilSettings depthStencilSettings);
+                               DepthStencilSettings depthStencilSettings,
+                               StaticBufferManager* bufferManager);
 
     ~TessellateWedgesRenderStep() override;
+
+    static std::pair<BindBufferInfo, BindBufferInfo> CreateVertexTemplate(StaticBufferManager*);
 
     const char* vertexSkSL() const override;
     void writeVertices(DrawWriter*, const DrawParams&, int ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
 
+private:
+    // Points to the static buffers holding the fixed indexed vertex template for drawing instances.
+    BindBufferInfo fVertexBuffer;
+    BindBufferInfo fIndexBuffer;
 };
 
 }  // namespace skgpu::graphite

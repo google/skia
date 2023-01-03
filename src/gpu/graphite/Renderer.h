@@ -11,7 +11,6 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/core/SkVertices.h"
 #include "src/core/SkEnumBitMask.h"
 #include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/DrawTypes.h"

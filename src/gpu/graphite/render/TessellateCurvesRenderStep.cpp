@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/render/TessellateCurvesRenderStep.h"
 
+#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/PipelineData.h"
@@ -36,7 +37,8 @@ using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountCurves>,
 
 }  // namespace
 
-TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd)
+TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd,
+                                                       StaticBufferManager* bufferManager)
         : RenderStep("TessellateCurvesRenderStep",
                      evenOdd ? "even-odd" : "winding",
                      Flags::kRequiresMSAA,
@@ -50,6 +52,17 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd)
                                         {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
                                         {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}}) {
     SkASSERT(this->instanceStride() == PatchStride(kAttribs));
+
+    // Initialize the static buffers we'll use when recording draw calls.
+    // NOTE: Each instance of this RenderStep gets its own copy of the data. If this ends up causing
+    // problems, we can modify StaticBufferManager to de-duplicate requests.
+    const size_t vertexSize = FixedCountCurves::VertexBufferSize();
+    auto vertexData = bufferManager->getVertexWriter(vertexSize, &fVertexBuffer);
+    FixedCountCurves::WriteVertexBuffer(std::move(vertexData), vertexSize);
+
+    const size_t indexSize = FixedCountCurves::IndexBufferSize();
+    auto indexData = bufferManager->getIndexWriter(indexSize, &fIndexBuffer);
+    FixedCountCurves::WriteIndexBuffer(std::move(indexData), indexSize);
 }
 
 TessellateCurvesRenderStep::~TessellateCurvesRenderStep() {}
@@ -72,17 +85,8 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw,
                                                int ssboIndex) const {
     SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
-    BindBufferInfo fixedVertexBuffer = dw->bufferManager()->getStaticBuffer(
-            BufferType::kVertex,
-            FixedCountCurves::WriteVertexBuffer,
-            FixedCountCurves::VertexBufferSize);
-    BindBufferInfo fixedIndexBuffer = dw->bufferManager()->getStaticBuffer(
-            BufferType::kIndex,
-            FixedCountCurves::WriteIndexBuffer,
-            FixedCountCurves::IndexBufferSize);
-
     int patchReserveCount = FixedCountCurves::PreallocCount(path.countVerbs());
-    Writer writer{kAttribs, *dw, fixedVertexBuffer, fixedIndexBuffer, patchReserveCount};
+    Writer writer{kAttribs, *dw, fVertexBuffer, fIndexBuffer, patchReserveCount};
     writer.updatePaintDepthAttrib(params.order().depthAsFloat());
     writer.updateSsboIndexAttrib(ssboIndex);
 

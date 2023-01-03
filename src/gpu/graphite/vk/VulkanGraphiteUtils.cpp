@@ -28,10 +28,9 @@ std::unique_ptr<Context> MakeVulkan(const VulkanBackendContext& backendContext,
         return nullptr;
     }
 
-    auto context = ContextCtorAccessor::MakeContext(std::move(sharedContext),
-                                                    std::move(queueManager),
-                                                    options);
-    return context;
+    return ContextCtorAccessor::MakeContext(std::move(sharedContext),
+                                            std::move(queueManager),
+                                            options);
 }
 
 } // namespace skgpu::graphite::ContextFactory

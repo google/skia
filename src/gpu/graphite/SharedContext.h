@@ -14,7 +14,6 @@
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "src/gpu/graphite/GlobalCache.h"
-#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 namespace skgpu {
@@ -26,6 +25,7 @@ namespace skgpu::graphite {
 class BackendTexture;
 class Caps;
 class CommandBuffer;
+class RendererProvider;
 class ResourceProvider;
 class TextureInfo;
 
@@ -44,7 +44,7 @@ public:
     GlobalCache* globalCache() { return &fGlobalCache; }
     const GlobalCache* globalCache() const { return &fGlobalCache; }
 
-    const RendererProvider* rendererProvider() const { return &fRendererProvider; }
+    const RendererProvider* rendererProvider() const { return fRendererProvider.get(); }
 
     ShaderCodeDictionary* shaderCodeDictionary() { return &fShaderDictionary; }
     const ShaderCodeDictionary* shaderCodeDictionary() const { return &fShaderDictionary; }
@@ -55,11 +55,17 @@ protected:
     SharedContext(std::unique_ptr<const Caps>, BackendApi);
 
 private:
-    std::unique_ptr<const Caps> fCaps;
+    friend class Context; // for setRendererProvider()
+
+    // Must be created out-of-band to allow RenderSteps to use a QueueManager.
+    void setRendererProvider(std::unique_ptr<RendererProvider> rendererProvider);
+
+    std::unique_ptr<const Caps> fCaps; // Provided by backend subclass
+
     BackendApi fBackend;
     Protected fProtected;
     GlobalCache fGlobalCache;
-    RendererProvider fRendererProvider;
+    std::unique_ptr<RendererProvider> fRendererProvider;
     ShaderCodeDictionary fShaderDictionary;
 };
 
