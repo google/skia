@@ -11,6 +11,7 @@
 #include "include/core/SkPaint.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTPin.h"
+#include "include/private/SkTemplates.h"
 #include "tools/sk_app/Window.h"
 
 #include "imgui.h"

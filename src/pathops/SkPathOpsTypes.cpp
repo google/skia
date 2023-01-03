@@ -8,6 +8,7 @@
 
 #include "include/private/SkFloatBits.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/SkTemplates.h"
 
 #include <algorithm>
 #include <cstdint>

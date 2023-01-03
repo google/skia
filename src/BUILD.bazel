@@ -130,6 +130,7 @@ generate_cpp_files_for_headers(
         "src/core/SkMatrixPriv.h",
         "src/core/SkPathPriv.h",
         "src/core/SkSafeMath.h",
+        "src/core/SkMathPriv.h",
         "src/core/SkScopeExit.h",
         "src/core/SkTLazy.h",
         "src/core/SkTBlockList.h",

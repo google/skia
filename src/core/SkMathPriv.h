@@ -8,7 +8,11 @@
 #ifndef SkMathPriv_DEFINED
 #define SkMathPriv_DEFINED
 
-#include "include/core/SkMath.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
+
+#include <cstddef>
+#include <cstdint>
 
 /**
  *  Return the integer square root of value, with a bias of bitBias

@@ -592,21 +592,6 @@ static constexpr uint32_t SK_InvalidGenID = 0;
 */
 static constexpr uint32_t SK_InvalidUniqueID = 0;
 
-static inline int32_t SkAbs32(int32_t value) {
-    SkASSERT(value != SK_NaN32);  // The most negative int32_t can't be negated.
-    if (value < 0) {
-        value = -value;
-    }
-    return value;
-}
-
-template <typename T> static inline T SkTAbs(T value) {
-    if (value < 0) {
-        value = -value;
-    }
-    return value;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /** Indicates whether an allocation should count against a cache budget.

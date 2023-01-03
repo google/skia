@@ -6,6 +6,7 @@ Milestone 111
 -------------
   * SkToBool is no longer part of the public API.
   * A float version of SkCanvas::saveLayerAlpha now exists as SkCanvas::saveLayerAlphaf.
+  * SkAbs32 and SkTAbs are no longer part of the public API.
 
 Milestone 110
 -------------

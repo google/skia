@@ -9,6 +9,7 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
 #include "src/core/SkLeanWindows.h"
 

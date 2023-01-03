@@ -6,6 +6,7 @@
  */
 
 #include "include/codec/SkAndroidCodec.h"
+
 #include "include/codec/SkCodec.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorType.h"
@@ -15,6 +16,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
+#include "include/private/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkSampledCodec.h"

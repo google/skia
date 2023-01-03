@@ -6,6 +6,7 @@
  */
 #include "src/pathops/SkPathOpsCurve.h"
 
+#include "include/private/SkTemplates.h"
 #include "src/pathops/SkPathOpsBounds.h"
 #include "src/pathops/SkPathOpsRect.h"
 
