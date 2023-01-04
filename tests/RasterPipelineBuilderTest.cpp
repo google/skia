@@ -6,20 +6,29 @@
  */
 
 #include "include/core/SkStream.h"
+#include "include/private/SkStringView.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "tests/Test.h"
 
-static void check(skiatest::Reporter* r, SkSL::RP::Program& program, std::string_view expected) {
-    // Verify that the program matches expectations.
+static sk_sp<SkData> get_program_dump(SkSL::RP::Program& program) {
     SkDynamicMemoryWStream stream;
     program.dump(&stream);
-    sk_sp<SkData> out = stream.detachAsData();
-    std::string_view actual(static_cast<const char*>(out->data()), out->size());
-    REPORTER_ASSERT(r, actual == expected, "Output did not match expectation:\n%.*s",
-                    (int)actual.size(), actual.data());
+    return stream.detachAsData();
+}
+
+static std::string_view as_string_view(sk_sp<SkData> dump) {
+    return std::string_view(static_cast<const char*>(dump->data()), dump->size());
+}
+
+static void check(skiatest::Reporter* r, SkSL::RP::Program& program, std::string_view expected) {
+    // Verify that the program matches expectations.
+    sk_sp<SkData> dump = get_program_dump(program);
+    REPORTER_ASSERT(r, as_string_view(dump) == expected,
+                    "Output did not match expectation:\n%.*s",
+                    (int)dump->size(), static_cast<const char*>(dump->data()));
 }
 
 static SkSL::RP::SlotRange one_slot_at(SkSL::RP::Slot index) {
@@ -265,7 +274,20 @@ DEF_TEST(RasterPipelineBuilderBranches, r) {
 
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1,
                                                                 /*numUniformSlots=*/0);
-    check(r, *program,
+#if SK_HAS_MUSTTAIL
+    // We have guaranteed tail-calling, and don't need to rewind the stack.
+    static constexpr char kExpectation[] =
+R"(    1. jump                           jump +4 (#5)
+    2. immediate_f                    src.r = 0x3F800000 (1.0)
+    3. immediate_f                    src.r = 0x40000000 (2.0)
+    4. branch_if_no_active_lanes      branch_if_no_active_lanes -1 (#3)
+    5. immediate_f                    src.r = 0x40400000 (3.0)
+    6. branch_if_any_active_lanes     branch_if_any_active_lanes -4 (#2)
+)";
+#else
+    // We don't have guaranteed tail-calling, so we rewind the stack immediately before any backward
+    // branches.
+    static constexpr char kExpectation[] =
 R"(    1. jump                           jump +5 (#6)
     2. immediate_f                    src.r = 0x3F800000 (1.0)
     3. immediate_f                    src.r = 0x40000000 (2.0)
@@ -274,7 +296,10 @@ R"(    1. jump                           jump +5 (#6)
     6. immediate_f                    src.r = 0x40400000 (3.0)
     7. stack_rewind
     8. branch_if_any_active_lanes     branch_if_any_active_lanes -6 (#2)
-)");
+)";
+#endif
+
+    check(r, *program, kExpectation);
 }
 
 DEF_TEST(RasterPipelineBuilderBinaryFloatOps, r) {
@@ -484,4 +509,23 @@ R"(    1. copy_constant                  $0 = 0x3F400000 (0.75)
     4. swizzle_3                      $6..8 = ($6..8).xxx
     5. mix_3_floats                   $0..2 = mix($0..2, $3..5, $6..8)
 )");
+}
+
+DEF_TEST(RasterPipelineBuilderAutomaticStackRewinding, r) {
+    SkSL::RP::Builder builder;
+    builder.push_literal_i(1);
+    builder.duplicate(2000);
+    builder.discard_stack(2001);
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
+    sk_sp<SkData> dump = get_program_dump(*program);
+
+#if SK_HAS_MUSTTAIL
+    // We have guaranteed tail-calling, so we never use `stack_rewind`.
+    REPORTER_ASSERT(r, !skstd::contains(as_string_view(dump), "stack_rewind"));
+#else
+    // We can't guarantee tail-calling, so we should automatically insert `stack_rewind` stages into
+    // long programs.
+    REPORTER_ASSERT(r, skstd::contains(as_string_view(dump), "stack_rewind"));
+#endif
 }

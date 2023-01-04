@@ -209,7 +209,9 @@ void Program::append(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage, 
 
 void Program::rewindPipeline(SkRasterPipeline* pipeline) {
 #if !defined(SKSL_STANDALONE)
+#if !SK_HAS_MUSTTAIL
     pipeline->append_stack_rewind();
+#endif
 #endif
 }
 
@@ -375,6 +377,7 @@ void Program::appendStages(SkRasterPipeline* pipeline,
     const int N = SkOpts::raster_pipeline_highp_stride;
     StackDepthMap tempStackDepth;
     int currentStack = 0;
+    int mostRecentRewind = 0;
 
     // Allocate buffers for branch targets (used when running the program) and labels (only needed
     // during initial program construction).
@@ -420,6 +423,7 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 // long-running loops don't use an unbounded amount of stack space.
                 if (labelOffsets[inst.fImmA] >= 0) {
                     this->rewindPipeline(pipeline);
+                    mostRecentRewind = this->getNumPipelineStages(pipeline);
                 }
 
                 // Write the absolute pipeline position into the branch targets, because the
@@ -636,6 +640,16 @@ void Program::appendStages(SkRasterPipeline* pipeline,
         tempStackPtr += stack_usage(inst) * N;
         SkASSERT(tempStackPtr >= slots.stack.begin());
         SkASSERT(tempStackPtr <= slots.stack.end());
+
+        // Periodically rewind the stack every 500 instructions. When SK_HAS_MUSTTAIL is set,
+        // rewinds are not actually used; the rewindPipeline call becomes a no-op. On platforms that
+        // don't support SK_HAS_MUSTTAIL, rewinding the stack periodically can prevent a potential
+        // stack overflow when running a long program.
+        int numPipelineStages = this->getNumPipelineStages(pipeline);
+        if (numPipelineStages - mostRecentRewind > 500) {
+            this->rewindPipeline(pipeline);
+            mostRecentRewind = numPipelineStages;
+        }
     }
 
     // Fix up every branch target.
