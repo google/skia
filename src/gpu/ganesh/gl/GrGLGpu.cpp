@@ -3136,8 +3136,10 @@ bool GrGLGpu::onCopySurface(GrSurface* dst, const SkIRect& dstRect,
     // Don't prefer copying as a draw if the dst doesn't already have a FBO object.
     // This implicitly handles this->glCaps().useDrawInsteadOfAllRenderTargetWrites().
     bool preferCopy = SkToBool(dst->asRenderTarget());
+    bool scalingCopy = dstRect.size() != srcRect.size();
     auto dstFormat = dst->backendFormat().asGLFormat();
-    if (preferCopy && this->glCaps().canCopyAsDraw(dstFormat, SkToBool(src->asTexture()))) {
+    if (preferCopy &&
+        this->glCaps().canCopyAsDraw(dstFormat, SkToBool(src->asTexture()), scalingCopy)) {
         GrRenderTarget* dstRT = dst->asRenderTarget();
         bool drawToMultisampleFBO = dstRT && dstRT->numSamples() > 1;
         if (this->copySurfaceAsDraw(dst, drawToMultisampleFBO, src, srcRect, dstRect, filter)) {
@@ -3146,7 +3148,7 @@ bool GrGLGpu::onCopySurface(GrSurface* dst, const SkIRect& dstRect,
     }
 
     // Prefer copying as with glCopyTexSubImage when the dimensions are the same.
-    if (srcRect.size() == dstRect.size() && can_copy_texsubimage(dst, src, this->glCaps())) {
+    if (!scalingCopy && can_copy_texsubimage(dst, src, this->glCaps())) {
         this->copySurfaceAsCopyTexSubImage(dst, src, srcRect, dstRect.topLeft());
         return true;
     }
@@ -3155,7 +3157,8 @@ bool GrGLGpu::onCopySurface(GrSurface* dst, const SkIRect& dstRect,
         return this->copySurfaceAsBlitFramebuffer(dst, src, srcRect, dstRect, filter);
     }
 
-    if (!preferCopy && this->glCaps().canCopyAsDraw(dstFormat, SkToBool(src->asTexture()))) {
+    if (!preferCopy &&
+        this->glCaps().canCopyAsDraw(dstFormat, SkToBool(src->asTexture()), scalingCopy)) {
         GrRenderTarget* dstRT = dst->asRenderTarget();
         bool drawToMultisampleFBO = dstRT && dstRT->numSamples() > 1;
         if (this->copySurfaceAsDraw(dst, drawToMultisampleFBO, src, srcRect, dstRect, filter)) {
