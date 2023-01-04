@@ -49,4 +49,5 @@ layout qualifier 'gl' appears more than once
 'layout(color)' is only permitted on 'uniform' variables
 'layout(color)' is not permitted on variables of type 'float'
 only one backend qualifier can be used
+layout qualifier 'set' is not permitted here
 *%%*/

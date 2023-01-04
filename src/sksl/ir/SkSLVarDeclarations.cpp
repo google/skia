@@ -285,6 +285,24 @@ void VarDeclaration::ErrorCheck(const Context& context,
     }
 
     int permittedLayoutFlags = ~0;
+
+    // The `texture` and `sampler` modifiers can be present respectively on a texture and sampler or
+    // simultaneously on a combined image-sampler but they are not permitted on any other type.
+    switch (baseType->typeKind()) {
+        case Type::TypeKind::kSampler:
+            // Both texture and sampler flags are permitted
+            break;
+        case Type::TypeKind::kTexture:
+            permittedLayoutFlags &= ~Layout::kSampler_Flag;
+            break;
+        case Type::TypeKind::kSeparateSampler:
+            permittedLayoutFlags &= ~Layout::kTexture_Flag;
+            break;
+        default:
+            permittedLayoutFlags &= ~(Layout::kTexture_Flag | Layout::kSampler_Flag);
+            break;
+    }
+
     // We don't allow 'binding' or 'set' on normal uniform variables, only on textures, samplers,
     // and interface blocks (holding uniform variables). They're also only allowed at global scope,
     // not on interface block fields (or locals/parameters).
@@ -298,6 +316,7 @@ void VarDeclaration::ErrorCheck(const Context& context,
         permittedLayoutFlags &= ~Layout::kSet_Flag;
         permittedLayoutFlags &= ~Layout::kSPIRV_Flag;
         permittedLayoutFlags &= ~Layout::kMetal_Flag;
+        permittedLayoutFlags &= ~Layout::kWGSL_Flag;
         permittedLayoutFlags &= ~Layout::kGL_Flag;
     }
     if (ProgramConfig::IsRuntimeEffect(context.fConfig->fKind)) {
