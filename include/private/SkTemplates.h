@@ -8,10 +8,10 @@
 #ifndef SkTemplates_DEFINED
 #define SkTemplates_DEFINED
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTLogic.h"
+#include "include/private/base/SkAlign.h"
 
 #include <array>
 #include <cstddef>

@@ -7,7 +7,6 @@
 
 // This is a GPU-backend specific test. It relies on static initializers to work
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkRect.h"
@@ -18,6 +17,7 @@
 #include "include/gpu/GrConfig.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAlign.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColor.h"

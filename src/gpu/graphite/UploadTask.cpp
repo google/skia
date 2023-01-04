@@ -7,9 +7,9 @@
 
 #include "src/gpu/graphite/UploadTask.h"
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/base/SkAlign.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/Buffer.h"

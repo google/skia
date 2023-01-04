@@ -8,8 +8,8 @@
 #ifndef SkAssert_DEFINED
 #define SkAssert_DEFINED
 
-#include "include/base/SkAPI.h"
-#include "include/base/SkDebug.h" // IWYU pragma: keep
+#include "include/private/base/SkAPI.h"
+#include "include/private/base/SkDebug.h" // IWYU pragma: keep
 
 /** Called internally if we hit an unrecoverable error.
     The platform implementation must not return, but should either throw

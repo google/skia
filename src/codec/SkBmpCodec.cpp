@@ -7,11 +7,11 @@
 
 #include "src/codec/SkBmpCodec.h"
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkEncodedInfo.h"
+#include "include/private/base/SkAlign.h"
 #include "src/codec/SkBmpMaskCodec.h"
 #include "src/codec/SkBmpRLECodec.h"
 #include "src/codec/SkBmpStandardCodec.h"

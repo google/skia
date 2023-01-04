@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkChecksum.h"
+#include "include/private/base/SkAlign.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkOpts.h"
 #include "tests/Test.h"

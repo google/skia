@@ -15,5 +15,5 @@ skia_filegroup(
         "SkFeatures.h",
         "SkLoadUserConfig.h",
     ],
-    visibility = ["//include:__pkg__"],
+    visibility = ["//include/private:__pkg__"],
 )

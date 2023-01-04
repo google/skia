@@ -7,7 +7,6 @@
 
 #include "include/utils/SkCustomTypeface.h"
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
@@ -31,6 +30,7 @@
 #include "include/private/SkFixed.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
+#include "include/private/base/SkAlign.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h" // IWYU pragma: keep
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"

@@ -8,7 +8,7 @@
 #ifndef SK_USER_CONFIG_WAS_LOADED
 
 // Include this to set reasonable defaults (e.g. for SK_CPU_LENDIAN)
-#include "include/base/SkFeatures.h"
+#include "include/private/base/SkFeatures.h"
 
 // Allows embedders that want to disable macros that take arguments to just
 // define that symbol to be one of these

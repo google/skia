@@ -7,7 +7,6 @@
 
 #include "include/effects/SkTableMaskFilter.h"
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPoint.h"
@@ -18,6 +17,7 @@
 #include "include/private/SkFixed.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTPin.h"
+#include "include/private/base/SkAlign.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkReadBuffer.h"

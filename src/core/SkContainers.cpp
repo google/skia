@@ -3,11 +3,11 @@
 
 #include "include/private/SkContainers.h"
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTo.h"
+#include "include/private/base/SkAlign.h"
 
 #include <algorithm>
 #include <cstddef>

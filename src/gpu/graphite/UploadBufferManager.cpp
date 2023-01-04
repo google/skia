@@ -7,8 +7,8 @@
 
 #include "src/gpu/graphite/UploadBufferManager.h"
 
-#include "include/base/SkAlign.h"
 #include "include/gpu/graphite/Recording.h"
+#include "include/private/base/SkAlign.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/RecordingPriv.h"

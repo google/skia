@@ -8,10 +8,10 @@
 #ifndef SkAutoMalloc_DEFINED
 #define SkAutoMalloc_DEFINED
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkAlign.h"
 
 #include <cstddef>
 #include <cstdint>

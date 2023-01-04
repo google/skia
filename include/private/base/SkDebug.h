@@ -8,10 +8,10 @@
 #ifndef SkDebug_DEFINED
 #define SkDebug_DEFINED
 
-#include "include/base/SkAPI.h"
+#include "include/private/base/SkAPI.h"
 
 // Sets SK_DEBUG or SK_RELEASE
-#include "include/base/SkLoadUserConfig.h" // IWYU pragma: keep
+#include "include/private/base/SkLoadUserConfig.h" // IWYU pragma: keep
 
 #if !defined(SK_PRINTF_LIKE)
 #  if defined(__clang__) || defined(__GNUC__)

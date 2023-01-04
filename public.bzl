@@ -234,13 +234,6 @@ SKIA_PUBLIC_HDRS = [
 
 # All platform-independent sources and private headers.
 BASE_SRCS_ALL = [
-    "include/base/SkAPI.h",
-    "include/base/SkAlign.h",
-    "include/base/SkAssert.h",
-    "include/base/SkAttributes.h",
-    "include/base/SkDebug.h",
-    "include/base/SkFeatures.h",
-    "include/base/SkLoadUserConfig.h",
     "include/core/SkOpenTypeSVGDecoder.h",
     "include/private/SingleOwner.h",
     "include/private/SkAlignedStorage.h",
@@ -292,6 +285,13 @@ BASE_SRCS_ALL = [
     "include/private/SkTypeTraits.h",
     "include/private/SkVx.h",
     "include/private/SkWeakRefCnt.h",
+    "include/private/base/SkAPI.h",
+    "include/private/base/SkAlign.h",
+    "include/private/base/SkAssert.h",
+    "include/private/base/SkAttributes.h",
+    "include/private/base/SkDebug.h",
+    "include/private/base/SkFeatures.h",
+    "include/private/base/SkLoadUserConfig.h",
     "include/private/chromium/SkChromeRemoteGlyphCache.h",
     "include/private/chromium/Slug.h",
     "include/private/gpu/ganesh/GrContext_Base.h",

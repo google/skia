@@ -8,7 +8,7 @@
 #ifndef SkAlign_DEFINED
 #define SkAlign_DEFINED
 
-#include "include/base/SkAssert.h"
+#include "include/private/base/SkAssert.h"
 
 #include <cstddef>
 

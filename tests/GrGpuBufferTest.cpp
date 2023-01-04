@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorSpace.h"
@@ -17,6 +16,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/base/SkAlign.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"

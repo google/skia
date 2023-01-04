@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/base/SkFeatures.h" // IWYU pragma: keep
+#include "include/private/base/SkFeatures.h" // IWYU pragma: keep
 
 #if !defined(SK_ATTRIBUTE)
 #  if defined(__clang__) || defined(__GNUC__)

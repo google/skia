@@ -7,7 +7,6 @@
 
 #include "include/core/SkStream.h"
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkData.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
@@ -16,6 +15,7 @@
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "include/private/base/SkAlign.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkSafeMath.h"
 #include "src/core/SkStreamPriv.h"

@@ -7,7 +7,6 @@
 
 #include "include/effects/SkDashPathEffect.h"
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -19,6 +18,7 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "include/private/base/SkAlign.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkDashImpl.h"

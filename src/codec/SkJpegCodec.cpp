@@ -8,7 +8,6 @@
 #include "src/codec/SkJpegCodec.h"
 
 #ifdef SK_CODEC_DECODES_JPEG
-#include "include/base/SkAlign.h"
 #include "include/codec/SkCodec.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorType.h"
@@ -22,6 +21,7 @@
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkTo.h"
+#include "include/private/base/SkAlign.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegDecoderMgr.h"

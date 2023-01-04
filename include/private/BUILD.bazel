@@ -75,6 +75,7 @@ skia_filegroup(
         ":shared_gpu_private_hdrs",
         ":sksl_private_hdrs",
         "//include/private/chromium:private_hdrs",
+        "//include/private/base:private_hdrs",
     ] + select({
         "//src/gpu:has_gpu_backend": [
             "//include/private/gpu:private_hdrs",

@@ -7,7 +7,6 @@
 
 #include "src/codec/SkSwizzler.h"
 
-#include "include/base/SkAlign.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkColorType.h"
@@ -18,6 +17,7 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/base/SkAlign.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkOpts.h"
 
