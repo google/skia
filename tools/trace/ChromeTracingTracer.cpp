@@ -93,7 +93,7 @@ SkEventTracer::Handle ChromeTracingTracer::addTraceEvent(char            phase,
     int size = static_cast<int>(sizeof(TraceEvent) + numArgs * sizeof(TraceEventArg));
     for (int i = 0; i < numArgs; ++i) {
         if (TRACE_VALUE_TYPE_COPY_STRING == argTypes[i]) {
-            skia::tracing_internals::TraceValueUnion value;
+            skia_internal::TraceValueUnion value;
             value.as_uint = argValues[i];
             size += strlen(value.as_string) + 1;
         }
@@ -125,7 +125,7 @@ SkEventTracer::Handle ChromeTracingTracer::addTraceEvent(char            phase,
             traceEventArgs[i].fArgValue = stringTable - stringTableBase;
 
             // Copy string into our buffer (and advance)
-            skia::tracing_internals::TraceValueUnion value;
+            skia_internal::TraceValueUnion value;
             value.as_uint = argValues[i];
             while (*value.as_string) {
                 *stringTable++ = *value.as_string++;
@@ -152,7 +152,7 @@ static void trace_value_to_json(SkJSONWriter* writer,
                                 uint64_t      argValue,
                                 uint8_t       argType,
                                 const char*   stringTableBase) {
-    skia::tracing_internals::TraceValueUnion value;
+    skia_internal::TraceValueUnion value;
     value.as_uint = argValue;
 
     switch (argType) {

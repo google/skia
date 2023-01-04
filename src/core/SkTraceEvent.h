@@ -27,7 +27,7 @@
 // By default, const char* argument values are assumed to have long-lived scope
 // and will not be copied. Use this macro to force a const char* to be copied.
 #define TRACE_STR_COPY(str) \
-    skia::tracing_internals::TraceStringWithCopy(str)
+    skia_internal::TraceStringWithCopy(str)
 
 
 #define INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE() \
@@ -123,9 +123,9 @@
     do { \
       INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
       if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
-        skia::tracing_internals::AddTraceEvent( \
+        skia_internal::AddTraceEvent( \
             phase, INTERNAL_TRACE_EVENT_UID(category_group_enabled), name, \
-            skia::tracing_internals::kNoEventId, flags, ##__VA_ARGS__); \
+            skia_internal::kNoEventId, flags, ##__VA_ARGS__); \
       } \
     } while (0)
 
@@ -137,9 +137,9 @@
       INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
       if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
         unsigned char trace_event_flags = flags | TRACE_EVENT_FLAG_HAS_ID; \
-        skia::tracing_internals::TraceID trace_event_trace_id( \
+        skia_internal::TraceID trace_event_trace_id( \
             id, &trace_event_flags); \
-        skia::tracing_internals::AddTraceEvent( \
+        skia_internal::AddTraceEvent( \
             phase, INTERNAL_TRACE_EVENT_UID(category_group_enabled), \
             name, trace_event_trace_id.data(), trace_event_flags, \
             ##__VA_ARGS__); \
@@ -151,21 +151,20 @@
 // ends.
 #define INTERNAL_TRACE_EVENT_ADD_SCOPED(category_group, name, ...) \
     INTERNAL_TRACE_EVENT_GET_CATEGORY_INFO(category_group); \
-    skia::tracing_internals::ScopedTracer INTERNAL_TRACE_EVENT_UID(tracer); \
+    skia_internal::ScopedTracer INTERNAL_TRACE_EVENT_UID(tracer); \
     do { \
         if (INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE()) { \
-          SkEventTracer::Handle h = skia::tracing_internals::AddTraceEvent( \
+          SkEventTracer::Handle h = skia_internal::AddTraceEvent( \
               TRACE_EVENT_PHASE_COMPLETE, \
               INTERNAL_TRACE_EVENT_UID(category_group_enabled), \
-              name, skia::tracing_internals::kNoEventId, \
+              name, skia_internal::kNoEventId, \
               TRACE_EVENT_FLAG_NONE, ##__VA_ARGS__); \
           INTERNAL_TRACE_EVENT_UID(tracer).Initialize( \
               INTERNAL_TRACE_EVENT_UID(category_group_enabled), name, h); \
         } \
     } while (0)
 
-namespace skia {
-namespace tracing_internals {
+namespace skia_internal {
 
 // Specify these values when the corresponding argument of AddTraceEvent is not
 // used.
@@ -369,7 +368,6 @@ class TRACE_EVENT_API_CLASS_EXPORT ScopedTracer {
   Data data_;
 };
 
-}  // namespace tracing_internals
-}  // namespace skia
+}  // namespace skia_internal
 
 #endif
