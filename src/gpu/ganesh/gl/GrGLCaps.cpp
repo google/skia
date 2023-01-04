@@ -65,6 +65,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fBindTexture0WhenChangingTextureFBOMultisampleCount = false;
     fRebindColorAttachmentAfterCheckFramebufferStatus = false;
     fFlushBeforeWritePixels = false;
+    fDisableScalingCopyAsDraws = false;
     fProgramBinarySupport = false;
     fProgramParameterSupport = false;
     fSamplerObjectSupport = false;
@@ -3591,8 +3592,10 @@ bool GrGLCaps::canCopyAsBlit(GrGLFormat dstFormat, int dstSampleCnt,
     return true;
 }
 
-bool GrGLCaps::canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTexturable) const {
-    return this->isFormatRenderable(dstFormat, 1) && srcIsTexturable;
+bool GrGLCaps::canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTexturable, bool scalingCopy) const {
+    return this->isFormatRenderable(dstFormat, 1) &&
+           srcIsTexturable &&
+           !(fDisableScalingCopyAsDraws && scalingCopy);
 }
 
 static bool has_msaa_render_buffer(const GrSurfaceProxy* surf, const GrGLCaps& glCaps) {
@@ -3641,7 +3644,8 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRec
     auto dstFormat = dst->backendFormat().asGLFormat();
     auto srcFormat = src->backendFormat().asGLFormat();
     // Only copyAsBlit() and copyAsDraw() can handle scaling between src and dst.
-    if (srcRect.size() == dstRect.size() &&
+    const bool scalingCopy = srcRect.size() != dstRect.size();
+    if (!scalingCopy &&
         this->canCopyTexSubImage(dstFormat, has_msaa_render_buffer(dst, *this), dstTexTypePtr,
                                  srcFormat, has_msaa_render_buffer(src, *this), srcTexTypePtr)) {
         return true;
@@ -3649,7 +3653,7 @@ bool GrGLCaps::onCanCopySurface(const GrSurfaceProxy* dst, const SkIRect& dstRec
     return this->canCopyAsBlit(dstFormat, dstSampleCnt, dstTexTypePtr, srcFormat, srcSampleCnt,
                                srcTexTypePtr, src->getBoundsRect(), src->priv().isExact(), srcRect,
                                dstRect) ||
-           this->canCopyAsDraw(dstFormat, SkToBool(srcTex));
+           this->canCopyAsDraw(dstFormat, SkToBool(srcTex), scalingCopy);
 }
 
 GrCaps::DstCopyRestrictions GrGLCaps::getDstCopyRestrictions(const GrRenderTargetProxy* src,
@@ -4554,6 +4558,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         (ctxInfo.webglRenderer() == GrGLRenderer::kAdreno4xx_other ||
          ctxInfo.webglRenderer() == GrGLRenderer::kAdreno630)) {
         fFlushBeforeWritePixels = true;
+    }
+
+    // crbug.com/1395777
+    // There appears to be a driver bug in GLSL program linking on Mali 400 and 450 devices with
+    // driver version 2.1.199xx that causes the copy-as-draw programs in GrGLGpu to fail. The crash
+    // rate increased when scaling copy support was added, so disallow scaling copy-as-draws on
+    // these devices.
+    if (ctxInfo.renderer() == GrGLRenderer::kMali4xx &&
+        ctxInfo.driverVersion() >= GR_GL_DRIVER_VER(2, 1, 19900)) {
+        fDisableScalingCopyAsDraws = true;
     }
 }
 
