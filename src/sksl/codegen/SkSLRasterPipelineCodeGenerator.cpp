@@ -1053,6 +1053,15 @@ bool Generator::pushConstructorCast(const AnyConstructor& c) {
         // Since we ignore type precision, this cast is effectively a no-op.
         return true;
     }
+    if (inner.type().componentType().isSigned() && c.type().componentType().isUnsigned()) {
+        // Treat uint(int) as a no-op.
+        return true;
+    }
+    if (inner.type().componentType().isUnsigned() && c.type().componentType().isSigned()) {
+        // Treat int(uint) as a no-op.
+        return true;
+    }
+
     if (c.type().componentType().isBoolean()) {
         // Converting int or float to boolean can be accomplished via `notEqual(x, 0)`.
         fBuilder.push_zeros(c.type().slotCount());
@@ -1072,8 +1081,29 @@ bool Generator::pushConstructorCast(const AnyConstructor& c) {
         fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, c.type().slotCount());
         return true;
     }
+    // We have dedicated ops to cast between float and integer types.
+    if (inner.type().componentType().isFloat()) {
+        if (c.type().componentType().isSigned()) {
+            fBuilder.unary_op(BuilderOp::cast_to_int_from_float, c.type().slotCount());
+            return true;
+        }
+        if (c.type().componentType().isUnsigned()) {
+            fBuilder.unary_op(BuilderOp::cast_to_uint_from_float, c.type().slotCount());
+            return true;
+        }
+    } else if (c.type().componentType().isFloat()) {
+        if (inner.type().componentType().isSigned()) {
+            fBuilder.unary_op(BuilderOp::cast_to_float_from_int, c.type().slotCount());
+            return true;
+        }
+        if (inner.type().componentType().isUnsigned()) {
+            fBuilder.unary_op(BuilderOp::cast_to_float_from_uint, c.type().slotCount());
+            return true;
+        }
+    }
 
-    // TODO: add RP op to convert values on stack from the inner type to the outer type
+    SkDEBUGFAILF("unexpected cast from %s to %s",
+                 c.type().description().c_str(), inner.type().description().c_str());
     return unsupported();
 }
 
