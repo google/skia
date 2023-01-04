@@ -115,32 +115,6 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorPassthroughTest, r) {
          /*expectedResult=*/SkColor4f{1.0f, 1.0f, 0.0f, 1.0f});
 }
 
-DEF_TEST(SkSLRasterPipelineCodeGeneratorDarkGreenTest, r) {
-    // Add in your SkSL here.
-    test(r,
-         R"__SkSL__(
-             half4 main(half4) {
-                 return half4(half2(0, 0.499), half2(0, 1));
-             }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
-         /*expectedResult=*/SkColor4f{0.0f, 0.499f, 0.0f, 1.0f});
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorTransparentGrayTest, r) {
-    // Add in your SkSL here.
-    test(r,
-         R"__SkSL__(
-             half4 main(half4) {
-                 return half4(0.499);
-             }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
-         /*expectedResult=*/SkColor4f{0.499f, 0.499f, 0.499f, 0.499f});
-}
-
 DEF_TEST(SkSLRasterPipelineCodeGeneratorVariableGreenTest, r) {
     // Add in your SkSL here.
     test(r,
@@ -482,38 +456,6 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorSwizzleLValueTest, r) {
          /*expectedResult=*/SkColor4f{0.749f, 1.0f, 0.249f, 1.0f});
 }
 
-DEF_TEST(SkSLRasterPipelineCodeGeneratorUniformDeclarationTest, r) {
-    static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
-                                          1.0, 0.0, 0.0, 1.0};
-    test(r,
-         R"__SkSL__(
-             uniform half4 colorGreen, colorRed;
-             half4 main(half4 color) {
-                 return color;
-             }
-         )__SkSL__",
-         kUniforms,
-         /*startingColor=*/SkColor4f{0.0, 1.0, 0.0, 1.0},
-         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorUniformUsageTest, r) {
-    static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
-                                          1.0, 0.0, 0.0, 1.0,
-                                          1.0, 2.0, 3.0, 4.0};
-    test(r,
-         R"__SkSL__(
-             uniform half4 colorGreen, colorRed;
-             uniform half2x2 testMatrix2x2;
-             half4 main(half4 color) {
-                 return testMatrix2x2 == half2x2(1,2,3,4) ? colorGreen : colorRed;
-             }
-         )__SkSL__",
-         kUniforms,
-         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
-         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
-}
-
 DEF_TEST(SkSLRasterPipelineCodeGeneratorCoercedTypeTest, r) {
     static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
                                           1.0, 0.0, 0.0, 1.0};
@@ -525,126 +467,6 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorCoercedTypeTest, r) {
                  return ((colorGreen + colorRed) == float4(1.0, 1.0, 0.0, 2.0)) ? colorGreen
                                                                                 : colorGreen.gr01;
              }
-         )__SkSL__",
-         kUniforms,
-         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
-         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorVectorScalarFoldingTest, r) {
-    // This test matches the floating-point test in VectorScalarFolding.rts.
-    static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
-                                          1.0, 0.0, 0.0, 1.0,
-                                          1.0};
-    test(r,
-         R"__SkSL__(
-            uniform half4 colorGreen, colorRed;
-            uniform half  unknownInput;
-
-            bool test_half() {
-                bool ok = true;
-
-                // Vector op scalar
-                half4 x = half4(half2(1), half2(2, 3)) + 5;
-                ok = ok && (x == half4(6, 6, 7, 8));
-                x = half4(8, half3(10)) - 1;
-                ok = ok && (x == half4(7, 9, 9, 9));
-                x = half4(half2(8), half2(9)) + 1;
-                ok = ok && (x == half4(9, 9, 10, 10));
-                x.xyz = half3(2) * 3;
-                ok = ok && (x == half4(6, 6, 6, 10));
-                x.xy = half2(12) / 4;
-                ok = ok && (x == half4(3, 3, 6, 10));
-
-                // (Vector op scalar).swizzle
-                x = (half4(12) / 2).yxwz;
-                ok = ok && (x == half4(6));
-
-                // Scalar op vector
-                x = 5 + half4(half2(1), half2(2, 3));
-                ok = ok && (x == half4(6, 6, 7, 8));
-                x = 1 - half4(8, half3(10));
-                ok = ok && (x == half4(-7, -9, -9, -9));
-                x = 1 + half4(half2(8), half2(9));
-                ok = ok && (x == half4(9, 9, 10, 10));
-                x.xyz = 3 * half3(2);
-                ok = ok && (x == half4(6, 6, 6, 10));
-                x.xy = 4 / half2(0.5);
-                ok = ok && (x == half4(8, 8, 6, 10));
-                x = 20 / half4(10, 20, 40, 80);
-                ok = ok && (x == half4(2, 1, 0.5, 0.25));
-
-                // (Scalar op vector).swizzle
-                x = (12 / half4(2)).yxwz;
-                ok = ok && (x == half4(6));
-
-                // Vector op unknown scalar
-                half  unknown = unknownInput;
-                x = half4(0) + unknown;
-                ok = ok && (x == half4(unknown));
-                x = half4(0) * unknown;
-                ok = ok && (x == half4(0));
-                x = half4(0) / unknown;
-                ok = ok && (x == half4(0));
-                x = half4(1) * unknown;
-                ok = ok && (x == half4(unknown));
-
-                // Unknown scalar op vector
-                x = unknown * half4(1);
-                ok = ok && (x == half4(unknown));
-                x = unknown + half4(0);
-                ok = ok && (x == half4(unknown));
-                x = unknown - half4(0);
-                ok = ok && (x == half4(unknown));
-                x = unknown / half4(1);
-                ok = ok && (x == half4(unknown));
-
-                // Scalar op unknown vector
-                x = 0 + half4(unknown);
-                ok = ok && (x == half4(unknown));
-                x = 0 * half4(unknown);
-                ok = ok && (x == half4(0));
-                x = 0 / half4(unknown);  // this should NOT optimize away
-                ok = ok && (x == half4(0));
-                x = 1 * half4(unknown);
-                ok = ok && (x == half4(unknown));
-
-                // X = Unknown op scalar
-                x = half4(unknown) + 0;
-                ok = ok && (x == half4(unknown));
-                x = half4(unknown) * 0;
-                ok = ok && (x == half4(0));
-                x = half4(unknown) * 1;
-                ok = ok && (x == half4(unknown));
-                x = half4(unknown) - 0;
-                ok = ok && (x == half4(unknown));
-
-                // X op= scalar.
-                x = half4(unknown);
-                x += 1;
-                x += 0;
-                x -= 1;
-                x -= 0;
-                x *= 1;
-                x /= 1;
-                ok = ok && (x == half4(unknown));
-
-                // X = X op scalar.
-                x = half4(unknown);
-                x = x + 1;
-                x = x + 0;
-                x = x - 1;
-                x = x - 0;
-                x = x * 1;
-                x = x / 1;
-                ok = ok && (x == half4(unknown));
-
-                return ok;
-            }
-
-            half4 main(vec4) {
-                return test_half() ? colorGreen : colorRed;
-            }
          )__SkSL__",
          kUniforms,
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
@@ -730,71 +552,6 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaWithEarlyReturnTest, r) {
          /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.25, 0.00, 0.75, 1.0},
          /*expectedResult=*/SkColor4f{0.125, 0.0, 0.375, 1.0});
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorDotTest, r) {
-    // This matches the test at intrinsics/Dot.sksl (but as a color filter).
-    static constexpr float kUniforms[] = {1.0, 2.0, 3.0, 4.0,
-                                          5.0, 6.0, 7.0, 8.0,
-                                          0.0, 1.0, 0.0, 1.0,
-                                          1.0, 0.0, 0.0, 1.0};
-    test(r,
-         R"__SkSL__(
-            uniform half4 inputA, inputB;
-            uniform half4 colorGreen, colorRed;
-
-            half4 main(vec4) {
-                const half4 constValA = half4(1, 2, 3, 4);
-                const half4 constValB = half4(5, 6, 7, 8);
-                half4 expected = half4(5, 17, 38, 70);
-
-                return (dot(inputA.x,       inputB.x)       == expected.x &&
-                        dot(inputA.xy,      inputB.xy)      == expected.y &&
-                        dot(inputA.xyz,     inputB.xyz)     == expected.z &&
-                        dot(inputA.xyzw,    inputB.xyzw)    == expected.w &&
-                        dot(constValA.x,    constValB.x)    == expected.x &&
-                        dot(constValA.xy,   constValB.xy)   == expected.y &&
-                        dot(constValA.xyz,  constValB.xyz)  == expected.z &&
-                        dot(constValA.xyzw, constValB.xyzw) == expected.w) ? colorGreen : colorRed;
-            }
-         )__SkSL__",
-         kUniforms,
-         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
-         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorLogicalNotTest, r) {
-    // This largely matches the test at intrinsics/Not.sksl (sans typecasting, as a color filter).
-    static constexpr float kUniforms[] = {0.2f, 0.0f, 0.4f, 0.0f,
-                                          0.0f, 0.6f, 0.0f, 0.8f,
-                                          0.0f, 1.0f, 0.0f, 1.0f,
-                                          1.0f, 0.0f, 0.0f, 1.0f};
-    test(r,
-         R"__SkSL__(
-            uniform half4 inputH4, expectedH4;
-            uniform half4 colorGreen, colorRed;
-
-            half4 main(vec4) {
-                bool4 inputVal = bool4(inputH4.x != 0.0,
-                                       inputH4.y != 0.0,
-                                       inputH4.z != 0.0,
-                                       inputH4.w != 0.0);
-                bool4 expected = bool4(!(expectedH4.x == 0.0),
-                                       !(expectedH4.y == 0.0),
-                                       !(expectedH4.z == 0.0),
-                                       !(expectedH4.w == 0.0));
-                const bool4 constVal = bool4(true, false, true, false);
-                return (not(inputVal.xy)   == expected.xy    &&
-                        not(inputVal.xyz)  == expected.xyz   &&
-                        not(inputVal.xyzw) == expected.xyzw  &&
-                        not(constVal.xy)   == expected.xy    &&
-                        not(constVal.xyz)  == expected.xyz   &&
-                        not(constVal.xyzw) == expected.xyzw) ? colorGreen : colorRed;
-            }
-         )__SkSL__",
-         kUniforms,
-         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
-         /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
 }
 
 DEF_TEST(SkSLRasterPipelineCodeGeneratorBitwiseNotTest, r) {
