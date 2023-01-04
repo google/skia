@@ -29,7 +29,9 @@ namespace RP {
 using SkRP = SkRasterPipeline;
 
 #define ALL_MULTI_SLOT_UNARY_OP_CASES        \
-         BuilderOp::bitwise_not_int:         \
+         BuilderOp::abs_float:               \
+    case BuilderOp::abs_int:                 \
+    case BuilderOp::bitwise_not_int:         \
     case BuilderOp::cast_to_float_from_int:  \
     case BuilderOp::cast_to_float_from_uint: \
     case BuilderOp::cast_to_int_from_float:  \
@@ -943,31 +945,28 @@ void Program::dump(SkWStream* out) {
             case SkRP::store_return_mask:
             case SkRP::store_masked:
             case SkRP::store_unmasked:
-            case SkRP::bitwise_not_int:
-            case SkRP::cast_to_float_from_int:
-            case SkRP::cast_to_float_from_uint:
-            case SkRP::cast_to_int_from_float:
-            case SkRP::cast_to_uint_from_float:
             case SkRP::zero_slot_unmasked:
+            case SkRP::bitwise_not_int:
+            case SkRP::cast_to_float_from_int: case SkRP::cast_to_float_from_uint:
+            case SkRP::cast_to_int_from_float: case SkRP::cast_to_uint_from_float:
+            case SkRP::abs_float:              case SkRP::abs_int:
                 opArg1 = PtrCtx(stage.ctx, 1);
                 break;
 
             case SkRP::store_src_rg:
-            case SkRP::bitwise_not_2_ints:
-            case SkRP::cast_to_float_from_2_ints:
-            case SkRP::cast_to_float_from_2_uints:
-            case SkRP::cast_to_int_from_2_floats:
-            case SkRP::cast_to_uint_from_2_floats:
             case SkRP::zero_2_slots_unmasked:
+            case SkRP::bitwise_not_2_ints:
+            case SkRP::cast_to_float_from_2_ints: case SkRP::cast_to_float_from_2_uints:
+            case SkRP::cast_to_int_from_2_floats: case SkRP::cast_to_uint_from_2_floats:
+            case SkRP::abs_2_floats:              case SkRP::abs_2_ints:
                 opArg1 = PtrCtx(stage.ctx, 2);
                 break;
 
-            case SkRP::bitwise_not_3_ints:
-            case SkRP::cast_to_float_from_3_ints:
-            case SkRP::cast_to_float_from_3_uints:
-            case SkRP::cast_to_int_from_3_floats:
-            case SkRP::cast_to_uint_from_3_floats:
             case SkRP::zero_3_slots_unmasked:
+            case SkRP::bitwise_not_3_ints:
+            case SkRP::cast_to_float_from_3_ints: case SkRP::cast_to_float_from_3_uints:
+            case SkRP::cast_to_int_from_3_floats: case SkRP::cast_to_uint_from_3_floats:
+            case SkRP::abs_3_floats:              case SkRP::abs_3_ints:
                 opArg1 = PtrCtx(stage.ctx, 3);
                 break;
 
@@ -975,12 +974,11 @@ void Program::dump(SkWStream* out) {
             case SkRP::load_dst:
             case SkRP::store_src:
             case SkRP::store_dst:
-            case SkRP::bitwise_not_4_ints:
-            case SkRP::cast_to_float_from_4_ints:
-            case SkRP::cast_to_float_from_4_uints:
-            case SkRP::cast_to_int_from_4_floats:
-            case SkRP::cast_to_uint_from_4_floats:
             case SkRP::zero_4_slots_unmasked:
+            case SkRP::bitwise_not_4_ints:
+            case SkRP::cast_to_float_from_4_ints: case SkRP::cast_to_float_from_4_uints:
+            case SkRP::cast_to_int_from_4_floats: case SkRP::cast_to_uint_from_4_floats:
+            case SkRP::abs_4_floats:              case SkRP::abs_4_ints:
                 opArg1 = PtrCtx(stage.ctx, 4);
                 break;
 
@@ -1291,6 +1289,13 @@ void Program::dump(SkWStream* out) {
             case SkRP::zero_slot_unmasked:    case SkRP::zero_2_slots_unmasked:
             case SkRP::zero_3_slots_unmasked: case SkRP::zero_4_slots_unmasked:
                 opText = opArg1 + " = 0";
+                break;
+
+            case SkRP::abs_float:    case SkRP::abs_int:
+            case SkRP::abs_2_floats: case SkRP::abs_2_ints:
+            case SkRP::abs_3_floats: case SkRP::abs_3_ints:
+            case SkRP::abs_4_floats: case SkRP::abs_4_ints:
+                opText = opArg1 + " = abs(" + opArg1 + ")";
                 break;
 
             case SkRP::add_float:    case SkRP::add_int:
