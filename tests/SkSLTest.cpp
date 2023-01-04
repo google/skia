@@ -571,6 +571,7 @@ SKSL_TEST(GPU_ES3,   kNever,      IntrinsicMinInt,                 "intrinsics/M
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicMinUint,                "intrinsics/MinUint.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, IntrinsicMixFloat,               "intrinsics/MixFloat.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicModf,                   "intrinsics/Modf.sksl")
+SKSL_TEST(CPU + GPU, kNever,      IntrinsicNot,                    "intrinsics/Not.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicOuterProduct,           "intrinsics/OuterProduct.sksl")
 // Fails on Mac OpenGL + Radeon 5300M (skia:12434)
 // SKSL_TEST(GPU_ES3,   kNever,      IntrinsicPackUnorm2x16,          "intrinsics/PackUnorm2x16.sksl")
