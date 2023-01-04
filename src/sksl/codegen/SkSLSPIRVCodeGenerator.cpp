@@ -1152,7 +1152,13 @@ SpvId SPIRVCodeGenerator::getFunctionType(const FunctionDeclaration& function) {
     words.push_back(Word::Result());
     words.push_back(this->getType(function.returnType()));
     for (const Variable* parameter : function.parameters()) {
-        words.push_back(this->getFunctionParameterType(parameter->type()));
+        if (parameter->type().typeKind() == Type::TypeKind::kSampler &&
+            fProgram.fConfig->fSettings.fSPIRVDawnCompatMode) {
+            words.push_back(this->getFunctionParameterType(parameter->type().textureType()));
+            words.push_back(this->getFunctionParameterType(*fContext.fTypes.fSampler));
+        } else {
+            words.push_back(this->getFunctionParameterType(parameter->type()));
+        }
     }
     return this->writeInstruction(SpvOpTypeFunction, words, fConstantBuffer);
 }
@@ -1641,7 +1647,8 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
 SpvId SPIRVCodeGenerator::writeFunctionCallArgument(const FunctionCall& call,
                                                     int argIndex,
                                                     std::vector<TempVar>* tempVars,
-                                                    OutputStream& out) {
+                                                    OutputStream& out,
+                                                    SpvId* outSynthesizedSamplerId) {
     const FunctionDeclaration& funcDecl = call.function();
     const Expression& arg = *call.arguments()[argIndex];
     const Modifiers& paramModifiers = funcDecl.parameters()[argIndex]->modifiers();
@@ -1677,7 +1684,24 @@ SpvId SPIRVCodeGenerator::writeFunctionCallArgument(const FunctionCall& call,
         // regular pointers.
         //
         // See getFunctionParameterType for further explanation.
-        SpvId* entry = fVariableMap.find(arg.as<VariableReference>().variable());
+        const Variable* var = arg.as<VariableReference>().variable();
+
+        // In Dawn-mode the texture and sampler arguments are forwarded to the helper function.
+        if (const auto* p = fSynthesizedSamplerMap.find(var)) {
+            SkASSERT(fProgram.fConfig->fSettings.fSPIRVDawnCompatMode);
+            SkASSERT(arg.type().typeKind() == Type::TypeKind::kSampler);
+            SkASSERT(outSynthesizedSamplerId);
+
+            SpvId* img = fVariableMap.find((*p)->fTexture.get());
+            SpvId* sampler = fVariableMap.find((*p)->fSampler.get());
+            SkASSERT(img);
+            SkASSERT(sampler);
+
+            *outSynthesizedSamplerId = *sampler;
+            return *img;
+        }
+
+        SpvId* entry = fVariableMap.find(var);
         SkASSERTF(entry, "%s", arg.description().c_str());
         return *entry;
     } else {
@@ -1722,10 +1746,14 @@ SpvId SPIRVCodeGenerator::writeFunctionCall(const FunctionCall& c, OutputStream&
     SkTArray<SpvId> argumentIds;
     argumentIds.reserve_back(arguments.size());
     for (int i = 0; i < arguments.size(); i++) {
-        argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out));
+        SpvId samplerId = NA;
+        argumentIds.push_back(this->writeFunctionCallArgument(c, i, &tempVars, out, &samplerId));
+        if (samplerId != NA) {
+            argumentIds.push_back(samplerId);
+        }
     }
     SpvId result = this->nextId(nullptr);
-    this->writeOpCode(SpvOpFunctionCall, 4 + (int32_t) arguments.size(), out);
+    this->writeOpCode(SpvOpFunctionCall, 4 + (int32_t)argumentIds.size(), out);
     this->writeWord(this->getType(c.type()), out);
     this->writeWord(result, out);
     this->writeWord(*entry, out);
@@ -2580,8 +2608,39 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             if (const Expression* expr = ConstantFolder::GetConstantValueOrNullForVariable(ref)) {
                 return this->writeExpression(*expr, out);
             }
+
+            // A reference to a sampler variable at global scope with synthesized texture/sampler
+            // backing should construct a function-scope combined image-sampler from the synthesized
+            // constituents. This is the case in which a sample intrinsic was invoked.
+            //
             // Variable references to opaque handles (texture/sampler) that appear as the argument
             // of a user-defined function call are explicitly handled in writeFunctionCallArgument.
+            if (const auto* p = fSynthesizedSamplerMap.find(variable)) {
+                SkASSERT(fProgram.fConfig->fSettings.fSPIRVDawnCompatMode);
+
+                SpvId* imgPtr = fVariableMap.find((*p)->fTexture.get());
+                SpvId* samplerPtr = fVariableMap.find((*p)->fSampler.get());
+                SkASSERT(imgPtr);
+                SkASSERT(samplerPtr);
+
+                SpvId img = this->writeOpLoad(
+                        this->getType((*p)->fTexture->type()), Precision::kDefault, *imgPtr, out);
+                SpvId sampler = this->writeOpLoad(this->getType((*p)->fSampler->type()),
+                                                  Precision::kDefault,
+                                                  *samplerPtr,
+                                                  out);
+
+                SpvId result = this->nextId(nullptr);
+                this->writeInstruction(SpvOpSampledImage,
+                                       this->getType(variable->type()),
+                                       result,
+                                       img,
+                                       sampler,
+                                       out);
+
+                return result;
+            }
+
             return this->getLValue(ref, out)->load(out);
         }
     }
@@ -3342,11 +3401,27 @@ SpvId SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Outpu
                            std::string_view(mangledName.c_str(), mangledName.size()),
                            fNameBuffer);
     for (const Variable* parameter : f.parameters()) {
-        SpvId id = this->nextId(nullptr);
-        fVariableMap.set(parameter, id);
+        if (parameter->type().typeKind() == Type::TypeKind::kSampler &&
+            fProgram.fConfig->fSettings.fSPIRVDawnCompatMode) {
+            auto [texture, sampler] = this->synthesizeTextureAndSampler(*parameter);
 
-        SpvId type = this->getFunctionParameterType(parameter->type());
-        this->writeInstruction(SpvOpFunctionParameter, type, id, out);
+            SpvId textureId = this->nextId(nullptr);
+            SpvId samplerId = this->nextId(nullptr);
+            fVariableMap.set(texture, textureId);
+            fVariableMap.set(sampler, samplerId);
+
+            SpvId textureType = this->getFunctionParameterType(texture->type());
+            SpvId samplerType = this->getFunctionParameterType(sampler->type());
+
+            this->writeInstruction(SpvOpFunctionParameter, textureType, textureId, out);
+            this->writeInstruction(SpvOpFunctionParameter, samplerType, samplerId, out);
+        } else {
+            SpvId id = this->nextId(nullptr);
+            fVariableMap.set(parameter, id);
+
+            SpvId type = this->getFunctionParameterType(parameter->type());
+            this->writeInstruction(SpvOpFunctionParameter, type, id, out);
+        }
     }
     return result;
 }
@@ -3552,21 +3627,21 @@ static bool is_vardecl_compile_time_constant(const VarDeclaration& varDecl) {
             Analysis::IsCompileTimeConstant(*varDecl.value()));
 }
 
-void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& varDecl) {
+bool SPIRVCodeGenerator::writeGlobalVarDeclaration(ProgramKind kind,
+                                                   const VarDeclaration& varDecl) {
+    const Variable* var = varDecl.var();
+    const bool inDawnMode = fProgram.fConfig->fSettings.fSPIRVDawnCompatMode;
+    const int backendFlags = var->modifiers().fLayout.fFlags & Layout::kAllBackendFlagsMask;
+    const int permittedBackendFlags = Layout::kSPIRV_Flag | (inDawnMode ? Layout::kWGSL_Flag : 0);
+    if (backendFlags & ~permittedBackendFlags) {
+        fContext.fErrors->error(var->fPosition, "incompatible backend flag in SPIR-V codegen");
+        return false;
+    }
+
     // If this global variable is a compile-time constant then we'll emit OpConstant or
     // OpConstantComposite later when the variable is referenced. Avoid declaring an OpVariable now.
     if (is_vardecl_compile_time_constant(varDecl)) {
-        return;
-    }
-
-    const Variable* var = varDecl.var();
-    if (var->modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
-        !ProgramConfig::IsFragment(kind)) {
-        SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
-        return;
-    }
-    if (this->isDead(*var)) {
-        return;
+        return true;
     }
 
     SpvStorageClass_ storageClass =
@@ -3574,36 +3649,73 @@ void SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind, const VarDeclaration& 
     if (storageClass == SpvStorageClassUniform) {
         // Top-level uniforms are emitted in writeUniformBuffer.
         fTopLevelUniforms.push_back(&varDecl);
-        return;
-    }
-    // Add this global to the variable map.
-    const Type& type = var->type();
-    SpvId id = this->nextId(&type);
-    fVariableMap.set(var, id);
-
-    Layout layout = var->modifiers().fLayout;
-    if (layout.fSet < 0 && storageClass == SpvStorageClassUniformConstant) {
-        layout.fSet = fProgram.fConfig->fSettings.fDefaultUniformSet;
+        return true;
     }
 
-    SpvId typeId = this->getPointerType(type, storageClass);
-    this->writeInstruction(SpvOpVariable, typeId, id, storageClass, fConstantBuffer);
-    this->writeInstruction(SpvOpName, id, var->name(), fNameBuffer);
-    if (varDecl.value()) {
+    if (this->isDead(*var)) {
+        return true;
+    }
+
+    if (var->type().typeKind() == Type::TypeKind::kSampler && inDawnMode) {
+        if (var->modifiers().fLayout.fTexture == -1 || var->modifiers().fLayout.fSampler == -1 ||
+            !(var->modifiers().fLayout.fFlags & Layout::kWGSL_Flag)) {
+            fContext.fErrors->error(var->fPosition,
+                                    "SPIR-V dawn compatibility mode requires an explicit texture "
+                                    "and sampler index");
+            return false;
+        }
+        SkASSERT(storageClass == SpvStorageClassUniformConstant);
+
+        auto [texture, sampler] = this->synthesizeTextureAndSampler(*var);
+        this->writeGlobalVar(kind, storageClass, *texture);
+        this->writeGlobalVar(kind, storageClass, *sampler);
+
+        return true;
+    }
+
+    SpvId id = this->writeGlobalVar(kind, storageClass, *var);
+    if (id != NA && varDecl.value()) {
         SkASSERT(!fCurrentBlock);
         fCurrentBlock = NA;
         SpvId value = this->writeExpression(*varDecl.value(), fGlobalInitializersBuffer);
         this->writeOpStore(storageClass, id, value, fGlobalInitializersBuffer);
         fCurrentBlock = 0;
     }
-    this->writeLayout(layout, id, var->fPosition);
-    if (var->modifiers().fFlags & Modifiers::kFlat_Flag) {
+    return true;
+}
+
+SpvId SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind,
+                                         SpvStorageClass_ storageClass,
+                                         const Variable& var) {
+    if (var.modifiers().fLayout.fBuiltin == SK_FRAGCOLOR_BUILTIN &&
+        !ProgramConfig::IsFragment(kind)) {
+        SkASSERT(!fProgram.fConfig->fSettings.fFragColorIsInOut);
+        return NA;
+    }
+
+    // Add this global to the variable map.
+    const Type& type = var.type();
+    SpvId id = this->nextId(&type);
+    fVariableMap.set(&var, id);
+
+    Layout layout = var.modifiers().fLayout;
+    if (layout.fSet < 0 && storageClass == SpvStorageClassUniformConstant) {
+        layout.fSet = fProgram.fConfig->fSettings.fDefaultUniformSet;
+    }
+
+    SpvId typeId = this->getPointerType(type, storageClass);
+    this->writeInstruction(SpvOpVariable, typeId, id, storageClass, fConstantBuffer);
+    this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
+    this->writeLayout(layout, id, var.fPosition);
+    if (var.modifiers().fFlags & Modifiers::kFlat_Flag) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationFlat, fDecorationBuffer);
     }
-    if (var->modifiers().fFlags & Modifiers::kNoPerspective_Flag) {
+    if (var.modifiers().fFlags & Modifiers::kNoPerspective_Flag) {
         this->writeInstruction(SpvOpDecorate, id, SpvDecorationNoPerspective,
                                fDecorationBuffer);
     }
+
+    return id;
 }
 
 void SPIRVCodeGenerator::writeVarDeclaration(const VarDeclaration& varDecl, OutputStream& out) {
@@ -4064,6 +4176,46 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
     this->writeInterfaceBlock(intf, false);
 }
 
+std::tuple<const Variable*, const Variable*> SPIRVCodeGenerator::synthesizeTextureAndSampler(
+        const Variable& combinedSampler) {
+    SkASSERT(fProgram.fConfig->fSettings.fSPIRVDawnCompatMode);
+    SkASSERT(combinedSampler.type().typeKind() == Type::TypeKind::kSampler);
+
+    const Modifiers& modifiers = combinedSampler.modifiers();
+
+    auto data = std::make_unique<SynthesizedTextureSamplerPair>();
+
+    Modifiers texModifiers = modifiers;
+    texModifiers.fLayout.fBinding = modifiers.fLayout.fTexture;
+    data->fTextureName = std::string(combinedSampler.name()) + "_texture";
+    auto texture = std::make_unique<Variable>(/*pos=*/Position(),
+                                              /*modifierPosition=*/Position(),
+                                              fContext.fModifiersPool->add(texModifiers),
+                                              data->fTextureName,
+                                              &combinedSampler.type().textureType(),
+                                              /*builtin=*/false,
+                                              Variable::Storage::kGlobal);
+
+    Modifiers samplerModifiers = modifiers;
+    samplerModifiers.fLayout.fBinding = modifiers.fLayout.fSampler;
+    data->fSamplerName = std::string(combinedSampler.name()) + "_sampler";
+    auto sampler = std::make_unique<Variable>(/*pos=*/Position(),
+                                              /*modifierPosition=*/Position(),
+                                              fContext.fModifiersPool->add(samplerModifiers),
+                                              data->fSamplerName,
+                                              fContext.fTypes.fSampler.get(),
+                                              /*builtin=*/false,
+                                              Variable::Storage::kGlobal);
+
+    const Variable* t = texture.get();
+    const Variable* s = sampler.get();
+    data->fTexture = std::move(texture);
+    data->fSampler = std::move(sampler);
+    fSynthesizedSamplerMap.set(&combinedSampler, std::move(data));
+
+    return {t, s};
+}
+
 void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream& out) {
     fGLSLExtendedInstructions = this->nextId(nullptr);
     StringStream body;
@@ -4101,8 +4253,10 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     // Emit global variable declarations.
     for (const ProgramElement* e : program.elements()) {
         if (e->is<GlobalVarDeclaration>()) {
-            this->writeGlobalVar(program.fConfig->fKind,
-                                 e->as<GlobalVarDeclaration>().varDeclaration());
+            if (!this->writeGlobalVarDeclaration(program.fConfig->fKind,
+                                                 e->as<GlobalVarDeclaration>().varDeclaration())) {
+                return;
+            }
         }
     }
     // Emit top-level uniforms into a dedicated uniform buffer.

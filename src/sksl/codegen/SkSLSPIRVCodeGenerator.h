@@ -26,7 +26,9 @@
 
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <string_view>
+#include <tuple>
 #include <vector>
 
 template <typename T> class SkSpan;
@@ -187,7 +189,9 @@ private:
 
     SpvId writeFunction(const FunctionDefinition& f, OutputStream& out);
 
-    void writeGlobalVar(ProgramKind kind, const VarDeclaration& v);
+    bool writeGlobalVarDeclaration(ProgramKind kind, const VarDeclaration& v);
+
+    SpvId writeGlobalVar(ProgramKind kind, SpvStorageClass_, const Variable& v);
 
     void writeVarDeclaration(const VarDeclaration& var, OutputStream& out);
 
@@ -204,7 +208,8 @@ private:
     SpvId writeFunctionCallArgument(const FunctionCall& call,
                                     int argIndex,
                                     std::vector<TempVar>* tempVars,
-                                    OutputStream& out);
+                                    OutputStream& out,
+                                    SpvId* outSynthesizedSamplerId = nullptr);
 
     void copyBackTempVars(const std::vector<TempVar>& tempVars, OutputStream& out);
 
@@ -507,6 +512,9 @@ private:
 
     void addRTFlipUniform(Position pos);
 
+    std::tuple<const Variable*, const Variable*> synthesizeTextureAndSampler(
+            const Variable& combinedSampler);
+
     const MemoryLayout fDefaultLayout;
 
     uint64_t fCapabilities;
@@ -528,6 +536,22 @@ private:
     StringStream fVariableBuffer;
     StringStream fNameBuffer;
     StringStream fDecorationBuffer;
+
+    // Mapping from combined sampler declarations to synthesized texture/sampler variables.
+    // This is only used if the SPIRVDawnCompatMode setting is enabled.
+    // TODO(skia:14023): Remove when WGSL codegen is complete
+    struct SynthesizedTextureSamplerPair {
+        // The names of the synthesized variables. The Variable objects themselves store string
+        // views referencing these strings. It is important for the std::string instances to have a
+        // fixed memory location after the string views get created, which is why
+        // `fSynthesizedSamplerMap` stores unique_ptr instead of values.
+        std::string fTextureName;
+        std::string fSamplerName;
+        std::unique_ptr<Variable> fTexture;
+        std::unique_ptr<Variable> fSampler;
+    };
+    SkTHashMap<const Variable*, std::unique_ptr<SynthesizedTextureSamplerPair>>
+            fSynthesizedSamplerMap;
 
     // These caches map SpvIds to Instructions, and vice-versa. This enables us to deduplicate code
     // (by detecting an Instruction we've already issued and reusing the SpvId), and to introspect

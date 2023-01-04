@@ -87,6 +87,9 @@ struct ProgramSettings {
     // symbol table of the Program, but ownership is *not* transferred. It is up to the caller to
     // keep them alive.
     const std::vector<std::unique_ptr<ExternalFunction>>* fExternalFunctions = nullptr;
+    // If true, SPIR-V codegen restricted to a subset supported by Dawn.
+    // TODO(skia:13840, skia:14023): Remove this setting when Skia can use WGSL on Dawn.
+    bool fSPIRVDawnCompatMode = false;
 };
 
 /**
