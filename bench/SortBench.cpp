@@ -14,8 +14,6 @@
 #include <algorithm>
 #include <stdlib.h>
 
-using namespace skia::internal;
-
 static const int N = 1000;
 
 static void rand_proc(int array[N]) {

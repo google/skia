@@ -21,8 +21,6 @@
 #include <cstdint>
 #include <cstring>
 
-using namespace skia::internal;
-
 static constexpr SkGlyphID kMaximumGlyphIndex = UINT16_MAX;
 
 static bool stream_equals(const SkDynamicMemoryWStream& stream, size_t offset,

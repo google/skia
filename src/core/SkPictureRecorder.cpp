@@ -18,8 +18,6 @@
 #include "src/core/SkRecordedDrawable.h"
 #include "src/core/SkRecorder.h"
 
-using namespace skia::internal;
-
 SkPictureRecorder::SkPictureRecorder() {
     fActivelyRecording = false;
     fRecorder = std::make_unique<SkRecorder>(nullptr, SkRect::MakeEmpty());

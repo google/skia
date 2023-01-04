@@ -57,8 +57,6 @@
 #include <memory>
 #include <utility>
 
-using namespace skia::internal;
-
 class GrRecordingContext;
 class SkShader;
 struct GrContextOptions;

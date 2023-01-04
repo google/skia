@@ -22,8 +22,6 @@
 #include <cstdint>
 #include <memory>
 
-using namespace skia::internal;
-
 namespace {
 
 #include "zlib.h"

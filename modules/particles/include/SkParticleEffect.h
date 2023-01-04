@@ -226,7 +226,7 @@ private:
     EffectState fState;
 
     SkParticles          fParticles;
-    skia::internal::SkAutoTMalloc<float> fStableRandoms;
+    SkAutoTMalloc<float> fStableRandoms;
 
     // Cached
     int fCapacity = 0;

@@ -9,8 +9,6 @@
 
 #include <ctype.h>
 
-using namespace skia::internal;
-
 /*
   "A standard Type 1 font program, as described in the Adobe Type 1
   Font Format specification, consists of three parts: a clear-text

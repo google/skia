@@ -32,8 +32,6 @@
 #include <memory>
 #include <utility>
 
-using namespace skia::internal;
-
 struct GrContextOptions;
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(CopySurface,

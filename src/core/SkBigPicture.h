@@ -33,7 +33,7 @@ public:
         const SkPicture* const* begin() const { return fPics; }
         int count() const { return fCount; }
     private:
-        skia::internal::SkAutoTMalloc<const SkPicture*> fPics;
+        SkAutoTMalloc<const SkPicture*> fPics;
         int fCount;
     };
 
