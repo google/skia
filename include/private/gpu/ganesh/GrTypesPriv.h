@@ -14,7 +14,6 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkTypeTraits.h"
 

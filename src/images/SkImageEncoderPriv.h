@@ -10,7 +10,7 @@
 
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkPixmap.h"
-#include "include/private/SkImageInfoPriv.h"
+#include "src/core/SkImageInfoPriv.h"
 
 class SkWStream;
 

@@ -20,6 +20,7 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/RecorderPriv.h"

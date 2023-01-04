@@ -8,8 +8,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCapabilities.h"
 #include "include/core/SkMallocPixelRef.h"
-#include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkDevice.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/image/SkSurface_Base.h"
 

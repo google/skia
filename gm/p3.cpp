@@ -24,9 +24,9 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkTPin.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkImageInfoPriv.h"
 
 #include <math.h>
 #include <string.h>

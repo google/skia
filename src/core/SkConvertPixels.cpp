@@ -7,10 +7,10 @@
 
 #include "include/private/SkColorData.h"
 #include "include/private/SkHalf.h"
-#include "include/private/SkImageInfoPriv.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkConvertPixels.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 

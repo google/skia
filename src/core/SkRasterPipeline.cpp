@@ -10,10 +10,10 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
-#include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/SkVx.h"
 #include "modules/skcms/skcms.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkOpts.h"
 
 #include <algorithm>

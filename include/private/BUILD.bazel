@@ -45,7 +45,6 @@ skia_filegroup(
         "SkFloatingPoint.h",
         "SkHalf.h",
         "SkIDChangeListener.h",
-        "SkImageInfoPriv.h",
         "SkMacros.h",
         "SkMalloc.h",
         "SkMutex.h",

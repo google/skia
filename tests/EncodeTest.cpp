@@ -27,9 +27,9 @@
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
-#include "include/private/SkImageInfoPriv.h"
 #include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
