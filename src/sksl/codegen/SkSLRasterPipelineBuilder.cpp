@@ -28,8 +28,12 @@ namespace RP {
 
 using SkRP = SkRasterPipeline;
 
-#define ALL_MULTI_SLOT_UNARY_OP_CASES   \
-         BuilderOp::bitwise_not_int
+#define ALL_MULTI_SLOT_UNARY_OP_CASES        \
+         BuilderOp::bitwise_not_int:         \
+    case BuilderOp::cast_to_float_from_int:  \
+    case BuilderOp::cast_to_float_from_uint: \
+    case BuilderOp::cast_to_int_from_float:  \
+    case BuilderOp::cast_to_uint_from_float
 
 #define ALL_MULTI_SLOT_BINARY_OP_CASES  \
          BuilderOp::add_n_floats:       \
@@ -940,17 +944,29 @@ void Program::dump(SkWStream* out) {
             case SkRP::store_masked:
             case SkRP::store_unmasked:
             case SkRP::bitwise_not_int:
+            case SkRP::cast_to_float_from_int:
+            case SkRP::cast_to_float_from_uint:
+            case SkRP::cast_to_int_from_float:
+            case SkRP::cast_to_uint_from_float:
             case SkRP::zero_slot_unmasked:
                 opArg1 = PtrCtx(stage.ctx, 1);
                 break;
 
             case SkRP::store_src_rg:
             case SkRP::bitwise_not_2_ints:
+            case SkRP::cast_to_float_from_2_ints:
+            case SkRP::cast_to_float_from_2_uints:
+            case SkRP::cast_to_int_from_2_floats:
+            case SkRP::cast_to_uint_from_2_floats:
             case SkRP::zero_2_slots_unmasked:
                 opArg1 = PtrCtx(stage.ctx, 2);
                 break;
 
             case SkRP::bitwise_not_3_ints:
+            case SkRP::cast_to_float_from_3_ints:
+            case SkRP::cast_to_float_from_3_uints:
+            case SkRP::cast_to_int_from_3_floats:
+            case SkRP::cast_to_uint_from_3_floats:
             case SkRP::zero_3_slots_unmasked:
                 opArg1 = PtrCtx(stage.ctx, 3);
                 break;
@@ -960,6 +976,10 @@ void Program::dump(SkWStream* out) {
             case SkRP::store_src:
             case SkRP::store_dst:
             case SkRP::bitwise_not_4_ints:
+            case SkRP::cast_to_float_from_4_ints:
+            case SkRP::cast_to_float_from_4_uints:
+            case SkRP::cast_to_int_from_4_floats:
+            case SkRP::cast_to_uint_from_4_floats:
             case SkRP::zero_4_slots_unmasked:
                 opArg1 = PtrCtx(stage.ctx, 4);
                 break;
@@ -1224,6 +1244,34 @@ void Program::dump(SkWStream* out) {
             case SkRP::bitwise_not_3_ints:
             case SkRP::bitwise_not_4_ints:
                 opText = opArg1 + " = ~" + opArg1;
+                break;
+
+            case SkRP::cast_to_float_from_int:
+            case SkRP::cast_to_float_from_2_ints:
+            case SkRP::cast_to_float_from_3_ints:
+            case SkRP::cast_to_float_from_4_ints:
+                opText = opArg1 + " = IntToFloat(" + opArg1 + ")";
+                break;
+
+            case SkRP::cast_to_float_from_uint:
+            case SkRP::cast_to_float_from_2_uints:
+            case SkRP::cast_to_float_from_3_uints:
+            case SkRP::cast_to_float_from_4_uints:
+                opText = opArg1 + " = UintToFloat(" + opArg1 + ")";
+                break;
+
+            case SkRP::cast_to_int_from_float:
+            case SkRP::cast_to_int_from_2_floats:
+            case SkRP::cast_to_int_from_3_floats:
+            case SkRP::cast_to_int_from_4_floats:
+                opText = opArg1 + " = FloatToInt(" + opArg1 + ")";
+                break;
+
+            case SkRP::cast_to_uint_from_float:
+            case SkRP::cast_to_uint_from_2_floats:
+            case SkRP::cast_to_uint_from_3_floats:
+            case SkRP::cast_to_uint_from_4_floats:
+                opText = opArg1 + " = FloatToUint(" + opArg1 + ")";
                 break;
 
             case SkRP::copy_slot_masked:      case SkRP::copy_2_slots_masked:
