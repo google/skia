@@ -448,7 +448,7 @@ public:
                        const GrTextureType* srcTypeIfTexture,
                        const SkRect& srcBounds, bool srcBoundsExact,
                        const SkIRect& srcRect, const SkIRect& dstRect) const;
-    bool canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTexturable) const;
+    bool canCopyAsDraw(GrGLFormat dstFormat, bool srcIsTexturable, bool scalingCopy) const;
 
     DstCopyRestrictions getDstCopyRestrictions(const GrRenderTargetProxy* src,
                                                GrColorType) const override;
@@ -613,6 +613,7 @@ private:
     bool fBindTexture0WhenChangingTextureFBOMultisampleCount : 1;
     bool fRebindColorAttachmentAfterCheckFramebufferStatus : 1;
     bool fFlushBeforeWritePixels : 1;
+    bool fDisableScalingCopyAsDraws : 1;
     int fMaxInstancesPerDrawWithoutCrashing = 0;
 
     uint32_t fBlitFramebufferFlags = kNoSupport_BlitFramebufferFlag;
