@@ -412,7 +412,7 @@ DEF_TEST(RasterPipelineBuilderUnaryIntOps, r) {
     SkSL::RP::Builder builder;
     builder.push_literal_i(456);
     builder.duplicate(4);
-    builder.unary_op(BuilderOp::bitwise_not, 5);
+    builder.unary_op(BuilderOp::bitwise_not_int, 5);
     builder.discard_stack(5);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
@@ -420,8 +420,8 @@ DEF_TEST(RasterPipelineBuilderUnaryIntOps, r) {
 R"(    1. copy_constant                  $0 = 0x000001C8 (6.389921e-43)
     2. swizzle_4                      $0..3 = ($0..3).xxxx
     3. swizzle_2                      $3..4 = ($3..4).xx
-    4. bitwise_not_4                  $0..3 = ~$0..3
-    5. bitwise_not                    $4 = ~$4
+    4. bitwise_not_4_ints             $0..3 = ~$0..3
+    5. bitwise_not_int                $4 = ~$4
 )");
 }
 

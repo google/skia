@@ -1258,10 +1258,10 @@ DEF_TEST(SkRasterPipeline_UnaryBitwiseOps, r) {
     };
 
     static const BitwiseOp kBitwiseOps[] = {
-        {SkRasterPipeline::Stage::bitwise_not,   1, [](int a) { return ~a; }},
-        {SkRasterPipeline::Stage::bitwise_not_2, 2, [](int a) { return ~a; }},
-        {SkRasterPipeline::Stage::bitwise_not_3, 3, [](int a) { return ~a; }},
-        {SkRasterPipeline::Stage::bitwise_not_4, 4, [](int a) { return ~a; }},
+        {SkRasterPipeline::Stage::bitwise_not_int,    1, [](int a) { return ~a; }},
+        {SkRasterPipeline::Stage::bitwise_not_2_ints, 2, [](int a) { return ~a; }},
+        {SkRasterPipeline::Stage::bitwise_not_3_ints, 3, [](int a) { return ~a; }},
+        {SkRasterPipeline::Stage::bitwise_not_4_ints, 4, [](int a) { return ~a; }},
     };
 
     for (const BitwiseOp& op : kBitwiseOps) {

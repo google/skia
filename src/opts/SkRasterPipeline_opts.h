@@ -3279,24 +3279,30 @@ STAGE(swizzle_4, SkRasterPipeline_SwizzleCtx* ctx) {
     swizzle_fn<4>(ctx);
 }
 
-STAGE(bitwise_not, I32* dst) {
-    dst[0] = ~dst[0];
+// Unary operations take a single input, and overwrite it with their output.
+// Unlike binary or ternary operations, we don't provide "n-slot" variations; users can chain
+// together longer sequences manually.
+template <typename T, void (*ApplyFn)(T*)>
+SI void apply_adjacent_unary(T* dst, T* end) {
+    do {
+        ApplyFn(dst);
+        dst += 1;
+    } while (dst != end);
 }
-STAGE(bitwise_not_2, I32* dst) {
-    dst[0] = ~dst[0];
-    dst[1] = ~dst[1];
+
+SI void bitwise_not_fn(I32* dst) {
+    *dst = ~*dst;
 }
-STAGE(bitwise_not_3, I32* dst) {
-    dst[0] = ~dst[0];
-    dst[1] = ~dst[1];
-    dst[2] = ~dst[2];
-}
-STAGE(bitwise_not_4, I32* dst) {
-    dst[0] = ~dst[0];
-    dst[1] = ~dst[1];
-    dst[2] = ~dst[2];
-    dst[3] = ~dst[3];
-}
+
+#define DECLARE_UNARY_INT(name)                                                             \
+    STAGE(name##_int, I32* dst) { apply_adjacent_unary<I32, &name##_fn>(dst, dst + 1); }    \
+    STAGE(name##_2_ints, I32* dst) { apply_adjacent_unary<I32, &name##_fn>(dst, dst + 2); } \
+    STAGE(name##_3_ints, I32* dst) { apply_adjacent_unary<I32, &name##_fn>(dst, dst + 3); } \
+    STAGE(name##_4_ints, I32* dst) { apply_adjacent_unary<I32, &name##_fn>(dst, dst + 4); }
+
+DECLARE_UNARY_INT(bitwise_not)
+
+#undef DECLARE_UNARY_INT
 
 // Binary operations take two adjacent inputs, and write their output in the first position.
 template <typename T, void (*ApplyFn)(T*, T*)>

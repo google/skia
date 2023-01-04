@@ -742,7 +742,7 @@ bool Generator::writeIfStatement(const IfStatement& i) {
     if (i.ifFalse()) {
         // Negate the test-condition, then reapply it to the condition-mask.
         // Then, run the if-false branch.
-        fBuilder.unary_op(BuilderOp::bitwise_not, /*slots=*/1);
+        fBuilder.unary_op(BuilderOp::bitwise_not_int, /*slots=*/1);
         fBuilder.merge_condition_mask();
         if (!this->writeStatement(*i.ifFalse())) {
             return unsupported();
@@ -1362,7 +1362,7 @@ bool Generator::pushPrefixExpression(Operator op, const Expression& expr) {
             if (!this->pushExpression(expr)) {
                 return false;
             }
-            fBuilder.unary_op(BuilderOp::bitwise_not, expr.type().slotCount());
+            fBuilder.unary_op(BuilderOp::bitwise_not_int, expr.type().slotCount());
             return true;
 
         default:
@@ -1448,7 +1448,7 @@ bool Generator::pushTernaryExpression(const Expression& test,
 
         // Switch back to the test-expression stack temporarily, and negate the test condition.
         this->nextTempStack();
-        fBuilder.unary_op(BuilderOp::bitwise_not, /*slots=*/1);
+        fBuilder.unary_op(BuilderOp::bitwise_not_int, /*slots=*/1);
         fBuilder.merge_condition_mask();
         this->previousTempStack();
 
