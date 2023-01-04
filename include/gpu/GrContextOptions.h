@@ -80,8 +80,9 @@ struct SK_API GrContextOptions {
 
     /**
      * Controls whether we check for GL errors after functions that allocate resources (e.g.
-     * glTexImage2D), for shader compilation success, and program link success. Ignored on
-     * backends other than GL.
+     * glTexImage2D), at the end of a GPU submission, or checking framebuffer completeness. The
+     * results of shader compilation and program linking are always checked, regardless of this
+     * option. Ignored on backends other than GL.
      */
     Enable fSkipGLErrorChecks = Enable::kDefault;
 

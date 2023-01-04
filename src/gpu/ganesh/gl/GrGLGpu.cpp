@@ -3309,11 +3309,9 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
         return false;
     }
 
-    const bool checkLinked = !this->glCaps().skipErrorChecks();
     const std::string* sksl[kGrShaderTypeCount] = {&vertexSkSL, &fragmentSkSL};
     GL_CALL(LinkProgram(fCopyPrograms[progIdx].fProgram));
-    if (checkLinked &&
-        !GrGLCheckLinkStatus(this, fCopyPrograms[progIdx].fProgram, errorHandler, sksl, glsl)) {
+    if (!GrGLCheckLinkStatus(this, fCopyPrograms[progIdx].fProgram, errorHandler, sksl, glsl)) {
         // Failed to link, delete everything
         cleanup_program(this, &fCopyPrograms[progIdx].fProgram, &vshader, &fshader);
         return false;
@@ -3488,11 +3486,9 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
         return false;
     }
 
-    const bool checkLinked = !this->glCaps().skipErrorChecks();
     const std::string* sksl[kGrShaderTypeCount] = {&vertexSkSL, &fragmentSkSL};
     GL_CALL(LinkProgram(fMipmapPrograms[progIdx].fProgram));
-    if (checkLinked &&
-        !GrGLCheckLinkStatus(this, fMipmapPrograms[progIdx].fProgram, errorHandler, sksl, glsl)) {
+    if (!GrGLCheckLinkStatus(this, fMipmapPrograms[progIdx].fProgram, errorHandler, sksl, glsl)) {
         // Program linking failed, clean up
         cleanup_program(this, &fMipmapPrograms[progIdx].fProgram, &vshader, &fshader);
         return false;

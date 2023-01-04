@@ -9,6 +9,8 @@ Milestone 111
   * SkAbs32 and SkTAbs are no longer part of the public API.
   * SkAlign2, SkAlign4, SkAlign8, SkIsAlign2, SkIsAlign4, SkIsAlign8, SkAlignPtr, SkIsAlignPtr,
     and SkAlignTo are no longer part of the public API.
+  * GrContextOptions::fSkipGLErrorChecks no longer stops checking shader compilation and program
+    linking success.
 
 Milestone 110
 -------------

@@ -75,9 +75,7 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
     stats->incShaderCompilations();
     GR_GL_CALL(gli, CompileShader(shaderId));
 
-    bool checkCompiled = !glCtx.caps()->skipErrorChecks();
-
-    if (checkCompiled) {
+    {
         ATRACE_ANDROID_FRAMEWORK("checkCompiled");
         GrGLint compiled = GR_GL_INIT_ZERO;
         GR_GL_CALL(gli, GetShaderiv(shaderId, GR_GL_COMPILE_STATUS, &compiled));

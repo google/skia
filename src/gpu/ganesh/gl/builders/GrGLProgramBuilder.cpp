@@ -236,8 +236,6 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     SkSL::Program::Inputs inputs;
     SkTDArray<GrGLuint> shadersToDelete;
 
-    bool checkLinked = !fGpu->glCaps().skipErrorChecks();
-
     bool cached = fCached.get() != nullptr;
     bool usedProgramBinaries = false;
     std::string glsl[kGrShaderTypeCount];
@@ -277,14 +275,12 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                     break;
                 }
                 GL_CALL(ProgramBinary(programID, binaryFormat, const_cast<void*>(binary), length));
-                if (checkLinked) {
-                    // Pass nullptr for the error handler. We don't want to treat this as a compile
-                    // failure (we can still recover by compiling the program from source, below).
-                    // Clients won't be directly notified, but they can infer this from the trace
-                    // events, and from the traffic to the persistent cache.
-                    cached = GrGLCheckLinkStatus(fGpu, programID,
-                                                 /*errorHandler=*/nullptr, nullptr, nullptr);
-                }
+                // Pass nullptr for the error handler. We don't want to treat this as a compile
+                // failure (we can still recover by compiling the program from source, below).
+                // Clients won't be directly notified, but they can infer this from the trace
+                // events, and from the traffic to the persistent cache.
+                cached = GrGLCheckLinkStatus(fGpu, programID,
+                                             /*errorHandler=*/nullptr, nullptr, nullptr);
                 if (cached) {
                     this->addInputVars(inputs);
                     this->computeCountsAndStrides(programID, geomProc, false);
@@ -378,11 +374,9 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         {
             TRACE_EVENT0_ALWAYS("skia.shaders", "driver_link_program");
             GL_CALL(LinkProgram(programID));
-            if (checkLinked) {
-                if (!GrGLCheckLinkStatus(fGpu, programID, errorHandler, sksl, glsl)) {
-                    cleanup_program(fGpu, programID, shadersToDelete);
-                    return nullptr;
-                }
+            if (!GrGLCheckLinkStatus(fGpu, programID, errorHandler, sksl, glsl)) {
+                cleanup_program(fGpu, programID, shadersToDelete);
+                return nullptr;
             }
         }
     }
