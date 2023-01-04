@@ -241,7 +241,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
     bool cached = fCached.get() != nullptr;
     bool usedProgramBinaries = false;
     std::string glsl[kGrShaderTypeCount];
-    std::string* sksl[kGrShaderTypeCount] = {
+    const std::string* sksl[kGrShaderTypeCount] = {
         &fVS.fCompilerString,
         &fFS.fCompilerString,
     };
@@ -282,8 +282,8 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
                     // failure (we can still recover by compiling the program from source, below).
                     // Clients won't be directly notified, but they can infer this from the trace
                     // events, and from the traffic to the persistent cache.
-                    cached = this->checkLinkStatus(
-                            programID, /*errorHandler=*/nullptr, nullptr, nullptr);
+                    cached = GrGLCheckLinkStatus(fGpu, programID,
+                                                 /*errorHandler=*/nullptr, nullptr, nullptr);
                 }
                 if (cached) {
                     this->addInputVars(inputs);
@@ -379,7 +379,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
             TRACE_EVENT0_ALWAYS("skia.shaders", "driver_link_program");
             GL_CALL(LinkProgram(programID));
             if (checkLinked) {
-                if (!this->checkLinkStatus(programID, errorHandler, sksl, glsl)) {
+                if (!GrGLCheckLinkStatus(fGpu, programID, errorHandler, sksl, glsl)) {
                     cleanup_program(fGpu, programID, shadersToDelete);
                     return nullptr;
                 }
@@ -419,41 +419,6 @@ void GrGLProgramBuilder::bindProgramResourceLocations(GrGLuint programID) {
                                   GrGLSLFragmentShaderBuilder::DeclaredSecondaryColorOutputName()));
         }
     }
-}
-
-bool GrGLProgramBuilder::checkLinkStatus(GrGLuint programID,
-                                         GrContextOptions::ShaderErrorHandler* errorHandler,
-                                         std::string* sksl[], const std::string glsl[]) {
-    GrGLint linked = GR_GL_INIT_ZERO;
-    GL_CALL(GetProgramiv(programID, GR_GL_LINK_STATUS, &linked));
-    if (!linked && errorHandler) {
-        std::string allShaders;
-        if (sksl) {
-            SkSL::String::appendf(&allShaders, "// Vertex SKSL\n%s\n"
-                                               "// Fragment SKSL\n%s\n",
-                                               sksl[kVertex_GrShaderType]->c_str(),
-                                               sksl[kFragment_GrShaderType]->c_str());
-        }
-        if (glsl) {
-            SkSL::String::appendf(&allShaders, "// Vertex GLSL\n%s\n"
-                                               "// Fragment GLSL\n%s\n",
-                                               glsl[kVertex_GrShaderType].c_str(),
-                                               glsl[kFragment_GrShaderType].c_str());
-        }
-        GrGLint infoLen = GR_GL_INIT_ZERO;
-        GL_CALL(GetProgramiv(programID, GR_GL_INFO_LOG_LENGTH, &infoLen));
-        SkAutoMalloc log(infoLen+1);
-        if (infoLen > 0) {
-            // retrieve length even though we don't need it to workaround
-            // bug in chrome cmd buffer param validation.
-            GrGLsizei length = GR_GL_INIT_ZERO;
-            GL_CALL(GetProgramInfoLog(programID, infoLen+1, &length, (char*)log.get()));
-        }
-        const char* errorMsg = (infoLen > 0) ? (const char*)log.get()
-                                             : "link failed but did not provide an info log";
-        errorHandler->compileError(allShaders.c_str(), errorMsg);
-    }
-    return SkToBool(linked);
 }
 
 void GrGLProgramBuilder::resolveProgramResourceLocations(GrGLuint programID, bool force) {

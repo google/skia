@@ -28,4 +28,10 @@ GrGLuint GrGLCompileAndAttachShader(const GrGLContext& glCtx,
                                     GrThreadSafePipelineBuilder::Stats*,
                                     GrContextOptions::ShaderErrorHandler* errorHandler);
 
+bool GrGLCheckLinkStatus(const GrGLGpu* gpu,
+                         GrGLuint programID,
+                         GrContextOptions::ShaderErrorHandler* errorHandler,
+                         const std::string* sksl[kGrShaderTypeCount],
+                         const std::string glsl[kGrShaderTypeCount]);
+
 #endif
