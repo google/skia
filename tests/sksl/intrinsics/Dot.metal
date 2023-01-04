@@ -2,8 +2,7 @@
 #include <simd/simd.h>
 using namespace metal;
 struct Uniforms {
-    half4 inputA;
-    half4 inputB;
+    float4x4 testMatrix4x4;
     half4 colorGreen;
     half4 colorRed;
 };
@@ -15,7 +14,9 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    half4 expected = half4(5.0h, 17.0h, 38.0h, 70.0h);
-    _out.sk_FragColor = (((((((_uniforms.inputA.x * _uniforms.inputB.x) == expected.x && dot(_uniforms.inputA.xy, _uniforms.inputB.xy) == expected.y) && dot(_uniforms.inputA.xyz, _uniforms.inputB.xyz) == expected.z) && dot(_uniforms.inputA, _uniforms.inputB) == expected.w) && 5.0h == expected.x) && 17.0h == expected.y) && 38.0h == expected.z) && 70.0h == expected.w ? _uniforms.colorGreen : _uniforms.colorRed;
+    float4 inputA = _uniforms.testMatrix4x4[0];
+    float4 inputB = _uniforms.testMatrix4x4[1];
+    float4 expected = float4(5.0, 17.0, 38.0, 70.0);
+    _out.sk_FragColor = (((((((inputA.x * inputB.x) == expected.x && dot(inputA.xy, inputB.xy) == expected.y) && dot(inputA.xyz, inputB.xyz) == expected.z) && dot(inputA, inputB) == expected.w) && 5.0 == expected.x) && 17.0 == expected.y) && 38.0 == expected.z) && 70.0 == expected.w ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
 }
