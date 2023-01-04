@@ -93,6 +93,10 @@ public:
         return this->flag(SkSL::Layout::kGL_Flag, "gl", pos);
     }
 
+    DSLLayout& wgsl(Position pos = {}) {
+        return this->flag(SkSL::Layout::kWGSL_Flag, "wgsl", pos);
+    }
+
 private:
     explicit DSLLayout(SkSL::Layout skslLayout)
         : fSkSLLayout(skslLayout) {}
