@@ -2091,9 +2091,9 @@ public:
     };
 
     static Behavior GrowthBehavior() {
-        // Without the musttail attribute, we have no way of knowing what's going to happen.
-        // In release builds, it's likely that the compiler will apply tail call optimization.
-        // Even in some debug builds (on Windows), we don't see stack growth.
+        // Only some stages use the musttail attribute, so we have no way of knowing what's going to
+        // happen. In release builds, it's likely that the compiler will apply tail-call
+        // optimization. Even in some debug builds (on Windows), we don't see stack growth.
         return Behavior::kUnknown;
     }
 

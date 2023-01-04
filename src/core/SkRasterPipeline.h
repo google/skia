@@ -22,6 +22,12 @@ enum SkColorType : int;
 struct SkImageInfo;
 struct skcms_TransferFunction;
 
+#if __has_cpp_attribute(clang::musttail) && !defined(__EMSCRIPTEN__) && !defined(SK_CPU_ARM32)
+    #define SK_HAS_MUSTTAIL 1
+#else
+    #define SK_HAS_MUSTTAIL 0
+#endif
+
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
  *
