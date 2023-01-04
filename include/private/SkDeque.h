@@ -10,7 +10,9 @@
 #ifndef SkDeque_DEFINED
 #define SkDeque_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/private/base/SkAPI.h"
+
+#include <cstddef>
 
 /*
  * The deque class works by blindly creating memory space of a specified element

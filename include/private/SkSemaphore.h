@@ -8,9 +8,9 @@
 #ifndef SkSemaphore_DEFINED
 #define SkSemaphore_DEFINED
 
-#include "include/core/SkTypes.h"
 #include "include/private/SkOnce.h"
 #include "include/private/SkThreadAnnotations.h"
+#include "include/private/base/SkAPI.h"
 #include <algorithm>
 #include <atomic>
 

@@ -7,6 +7,7 @@
 
 #include "include/private/SkDeque.h"
 #include "include/private/SkMalloc.h"
+#include "include/private/base/SkAssert.h"
 
 struct SkDeque::Block {
     Block*  fNext;

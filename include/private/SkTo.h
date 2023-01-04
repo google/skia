@@ -7,8 +7,8 @@
 #ifndef SkTo_DEFINED
 #define SkTo_DEFINED
 
-#include "include/core/SkTypes.h"
 #include "include/private/SkTFitsIn.h"
+#include "include/private/base/SkAssert.h"
 
 #include <cstddef>
 #include <cstdint>
