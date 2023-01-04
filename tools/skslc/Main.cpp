@@ -436,6 +436,9 @@ static bool detect_shader_settings(const std::string& text,
                     settings->fOptimize = false;
                     *debugTrace = std::make_unique<SkSL::SkVMDebugTrace>();
                 }
+                if (consume_suffix(&settingsText, " SPIRVDawnCompatMode")) {
+                    settings->fSPIRVDawnCompatMode = true;
+                }
 
                 if (settingsText.empty()) {
                     break;
