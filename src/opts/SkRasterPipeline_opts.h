@@ -3294,15 +3294,56 @@ SI void bitwise_not_fn(I32* dst) {
     *dst = ~*dst;
 }
 
+#if defined(JUMPER_IS_SCALAR)
+template <typename T>
+SI void cast_to_float_from_fn(T* dst) {
+    *dst = sk_bit_cast<T>((F)*dst);
+}
+SI void cast_to_int_from_fn(F* dst) {
+    *dst = sk_bit_cast<F>((I32)*dst);
+}
+SI void cast_to_uint_from_fn(F* dst) {
+    *dst = sk_bit_cast<F>((U32)*dst);
+}
+#else
+template <typename T>
+SI void cast_to_float_from_fn(T* dst) {
+    *dst = sk_bit_cast<T>(__builtin_convertvector(*dst, F));
+}
+SI void cast_to_int_from_fn(F* dst) {
+    *dst = sk_bit_cast<F>(__builtin_convertvector(*dst, I32));
+}
+SI void cast_to_uint_from_fn(F* dst) {
+    *dst = sk_bit_cast<F>(__builtin_convertvector(*dst, U32));
+}
+#endif
+
+#define DECLARE_UNARY_FLOAT(name)                                                         \
+    STAGE(name##_float, F* dst) { apply_adjacent_unary<F, &name##_fn>(dst, dst + 1); }    \
+    STAGE(name##_2_floats, F* dst) { apply_adjacent_unary<F, &name##_fn>(dst, dst + 2); } \
+    STAGE(name##_3_floats, F* dst) { apply_adjacent_unary<F, &name##_fn>(dst, dst + 3); } \
+    STAGE(name##_4_floats, F* dst) { apply_adjacent_unary<F, &name##_fn>(dst, dst + 4); }
+
 #define DECLARE_UNARY_INT(name)                                                             \
     STAGE(name##_int, I32* dst) { apply_adjacent_unary<I32, &name##_fn>(dst, dst + 1); }    \
     STAGE(name##_2_ints, I32* dst) { apply_adjacent_unary<I32, &name##_fn>(dst, dst + 2); } \
     STAGE(name##_3_ints, I32* dst) { apply_adjacent_unary<I32, &name##_fn>(dst, dst + 3); } \
     STAGE(name##_4_ints, I32* dst) { apply_adjacent_unary<I32, &name##_fn>(dst, dst + 4); }
 
-DECLARE_UNARY_INT(bitwise_not)
+#define DECLARE_UNARY_UINT(name)                                                             \
+    STAGE(name##_uint, U32* dst) { apply_adjacent_unary<U32, &name##_fn>(dst, dst + 1); }    \
+    STAGE(name##_2_uints, U32* dst) { apply_adjacent_unary<U32, &name##_fn>(dst, dst + 2); } \
+    STAGE(name##_3_uints, U32* dst) { apply_adjacent_unary<U32, &name##_fn>(dst, dst + 3); } \
+    STAGE(name##_4_uints, U32* dst) { apply_adjacent_unary<U32, &name##_fn>(dst, dst + 4); }
 
+DECLARE_UNARY_INT(bitwise_not)
+DECLARE_UNARY_INT(cast_to_float_from) DECLARE_UNARY_UINT(cast_to_float_from)
+DECLARE_UNARY_FLOAT(cast_to_int_from)
+DECLARE_UNARY_FLOAT(cast_to_uint_from)
+
+#undef DECLARE_UNARY_FLOAT
 #undef DECLARE_UNARY_INT
+#undef DECLARE_UNARY_UINT
 
 // Binary operations take two adjacent inputs, and write their output in the first position.
 template <typename T, void (*ApplyFn)(T*, T*)>

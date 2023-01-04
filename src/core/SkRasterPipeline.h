@@ -139,6 +139,14 @@ struct skcms_TransferFunction;
     M(bitwise_xor_n_ints)                                                                     \
     M(bitwise_xor_int) M(bitwise_xor_2_ints) M(bitwise_xor_3_ints) M(bitwise_xor_4_ints)      \
     M(bitwise_not_int) M(bitwise_not_2_ints) M(bitwise_not_3_ints) M(bitwise_not_4_ints)      \
+    M(cast_to_float_from_int)     M(cast_to_float_from_2_ints)                                \
+    M(cast_to_float_from_3_ints)  M(cast_to_float_from_4_ints)                                \
+    M(cast_to_float_from_uint)    M(cast_to_float_from_2_uints)                               \
+    M(cast_to_float_from_3_uints) M(cast_to_float_from_4_uints)                               \
+    M(cast_to_int_from_float)     M(cast_to_int_from_2_floats)                                \
+    M(cast_to_int_from_3_floats)  M(cast_to_int_from_4_floats)                                \
+    M(cast_to_uint_from_float)    M(cast_to_uint_from_2_floats)                               \
+    M(cast_to_uint_from_3_floats) M(cast_to_uint_from_4_floats)                               \
     M(copy_constant)    M(copy_2_constants)    M(copy_3_constants)    M(copy_4_constants)     \
     M(copy_slot_masked) M(copy_2_slots_masked) M(copy_3_slots_masked) M(copy_4_slots_masked)  \
     M(copy_slot_unmasked)    M(copy_2_slots_unmasked)                                         \
