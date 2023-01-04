@@ -196,7 +196,7 @@ FT_BEGIN_HEADER
    *   Define this macro if you want to enable this 'feature'.  See also the
    *   macro `FT_CONFIG_OPTION_SYSTEM_ZLIB` below.
    */
-#define FT_CONFIG_OPTION_USE_ZLIB
+/* #define FT_CONFIG_OPTION_USE_ZLIB */
 
 
   /**************************************************************************
@@ -349,7 +349,7 @@ FT_BEGIN_HEADER
    *   in your 'psnames' module.  The Type~1 driver will not be able to
    *   synthesize a Unicode charmap out of the glyphs found in the fonts.
    */
-/* #define FT_CONFIG_OPTION_ADOBE_GLYPH_LIST */
+#define FT_CONFIG_OPTION_ADOBE_GLYPH_LIST
 
 
   /**************************************************************************
