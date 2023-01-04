@@ -1270,11 +1270,16 @@ DEF_TEST(SkRasterPipeline_UnaryIntOps, r) {
         {SkRasterPipeline::Stage::cast_to_float_from_2_ints, 2, to_float},
         {SkRasterPipeline::Stage::cast_to_float_from_3_ints, 3, to_float},
         {SkRasterPipeline::Stage::cast_to_float_from_4_ints, 4, to_float},
+
+        {SkRasterPipeline::Stage::abs_int,    1, [](int a) { return a < 0 ? -a : a; }},
+        {SkRasterPipeline::Stage::abs_2_ints, 2, [](int a) { return a < 0 ? -a : a; }},
+        {SkRasterPipeline::Stage::abs_3_ints, 3, [](int a) { return a < 0 ? -a : a; }},
+        {SkRasterPipeline::Stage::abs_4_ints, 4, [](int a) { return a < 0 ? -a : a; }},
     };
 
     for (const UnaryOp& op : kUnaryOps) {
-        // Initialize the slot values to -3,-2,-1...
-        std::iota(&slots[0], &slots[5 * N], -3);
+        // Initialize the slot values to -10,-9,-8...
+        std::iota(&slots[0], &slots[5 * N], -10);
         int inputValue = slots[0];
 
         // Run the unary op over our data.
@@ -1325,12 +1330,23 @@ DEF_TEST(SkRasterPipeline_UnaryFloatOps, r) {
         {SkRasterPipeline::Stage::cast_to_uint_from_2_floats, 2, to_uint},
         {SkRasterPipeline::Stage::cast_to_uint_from_3_floats, 3, to_uint},
         {SkRasterPipeline::Stage::cast_to_uint_from_4_floats, 4, to_uint},
+
+        {SkRasterPipeline::Stage::abs_float,    1, [](float a) { return a < 0 ? -a : a; }},
+        {SkRasterPipeline::Stage::abs_2_floats, 2, [](float a) { return a < 0 ? -a : a; }},
+        {SkRasterPipeline::Stage::abs_3_floats, 3, [](float a) { return a < 0 ? -a : a; }},
+        {SkRasterPipeline::Stage::abs_4_floats, 4, [](float a) { return a < 0 ? -a : a; }},
     };
 
     for (const UnaryOp& op : kUnaryOps) {
-        // Initialize the slot values to 1,2,3...
-        std::iota(&slots[0], &slots[5 * N], 1);
-        float inputValue = slots[0];
+        // The result of some ops are undefined with negative inputs, so only test positive values.
+        bool positiveOnly = (op.stage == SkRasterPipeline::Stage::cast_to_uint_from_float ||
+                             op.stage == SkRasterPipeline::Stage::cast_to_uint_from_2_floats ||
+                             op.stage == SkRasterPipeline::Stage::cast_to_uint_from_3_floats ||
+                             op.stage == SkRasterPipeline::Stage::cast_to_uint_from_4_floats);
+
+        float iotaStart = positiveOnly ? 1.0f : -10.0f;
+        std::iota(&slots[0], &slots[5 * N], iotaStart);
+        int inputValue = slots[0];
 
         // Run the unary op over our data.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);

@@ -108,6 +108,7 @@ namespace SK_OPTS_NS {
 
     SI F   mad(F f, F m, F a)   { return f*m+a; }
     SI F   abs_  (F v)          { return fabsf(v); }
+    SI I32 abs_  (I32 v)        { return v < 0 ? -v : v; }
     SI F   floor_(F v)          { return floorf(v); }
     SI F   rcp_fast(F v)        { return 1.0f / v; }
     SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
@@ -190,7 +191,8 @@ namespace SK_OPTS_NS {
     SI I32 max(I32 a, I32 b) { return vmaxq_s32(a,b); }
     SI U32 max(U32 a, U32 b) { return vmaxq_u32(a,b); }
 
-    SI F   abs_  (F v) { return vabsq_f32(v); }
+    SI F   abs_  (F v)   { return vabsq_f32(v); }
+    SI I32 abs_  (I32 v) { return vabsq_s32(v); }
     SI F   rcp_fast(F v) { auto e = vrecpeq_f32 (v); return vrecpsq_f32 (v,e  ) * e; }
     SI F   rcp_precise (F v) { auto e = rcp_fast(v); return vrecpsq_f32 (v,e  ) * e; }
     SI F   rsqrt (F v)   { auto e = vrsqrteq_f32(v); return vrsqrtsq_f32(v,e*e) * e; }
@@ -364,6 +366,7 @@ namespace SK_OPTS_NS {
     SI U32 max(U32 a, U32 b) { return _mm256_max_epu32(a,b); }
 
     SI F   abs_  (F v)   { return _mm256_and_ps(v, 0-v); }
+    SI I32 abs_  (I32 v) { return _mm256_abs_epi32(v); }
     SI F   floor_(F v)   { return _mm256_floor_ps(v);    }
     SI F   rcp_fast(F v) { return _mm256_rcp_ps  (v);    }
     SI F   rsqrt (F v)   { return _mm256_rsqrt_ps(v);    }
@@ -730,6 +733,11 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
 
     SI F   mad(F f, F m, F a)  { return f*m+a;              }
     SI F   abs_(F v)           { return _mm_and_ps(v, 0-v); }
+#if defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
+    SI I32 abs_(I32 v)         { return _mm_abs_epi32(v); }
+#else
+    SI I32 abs_(I32 v)         { return max(v, -v); }
+#endif
     SI F   rcp_fast(F v)       { return _mm_rcp_ps  (v);    }
     SI F   rcp_precise (F v)   { F e = rcp_fast(v); return e * (2.0f - v * e); }
     SI F   rsqrt (F v)         { return _mm_rsqrt_ps(v);    }
@@ -3333,6 +3341,11 @@ SI void cast_to_uint_from_fn(F* dst) {
 }
 #endif
 
+template <typename T>
+SI void abs_fn(T* dst) {
+    *dst = abs_(*dst);
+}
+
 #define DECLARE_UNARY_FLOAT(name)                                                              \
     STAGE_TAIL(name##_float, F* dst) { apply_adjacent_unary<F, &name##_fn>(dst, dst + 1); }    \
     STAGE_TAIL(name##_2_floats, F* dst) { apply_adjacent_unary<F, &name##_fn>(dst, dst + 2); } \
@@ -3355,6 +3368,7 @@ DECLARE_UNARY_INT(bitwise_not)
 DECLARE_UNARY_INT(cast_to_float_from) DECLARE_UNARY_UINT(cast_to_float_from)
 DECLARE_UNARY_FLOAT(cast_to_int_from)
 DECLARE_UNARY_FLOAT(cast_to_uint_from)
+DECLARE_UNARY_FLOAT(abs) DECLARE_UNARY_INT(abs)
 
 #undef DECLARE_UNARY_FLOAT
 #undef DECLARE_UNARY_INT

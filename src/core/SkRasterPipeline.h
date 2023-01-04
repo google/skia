@@ -153,6 +153,8 @@ struct skcms_TransferFunction;
     M(cast_to_int_from_3_floats)  M(cast_to_int_from_4_floats)                                \
     M(cast_to_uint_from_float)    M(cast_to_uint_from_2_floats)                               \
     M(cast_to_uint_from_3_floats) M(cast_to_uint_from_4_floats)                               \
+    M(abs_float)        M(abs_2_floats)        M(abs_3_floats)        M(abs_4_floats)         \
+    M(abs_int)          M(abs_2_ints)          M(abs_3_ints)          M(abs_4_ints)           \
     M(copy_constant)    M(copy_2_constants)    M(copy_3_constants)    M(copy_4_constants)     \
     M(copy_slot_masked) M(copy_2_slots_masked) M(copy_3_slots_masked) M(copy_4_slots_masked)  \
     M(copy_slot_unmasked)    M(copy_2_slots_unmasked)                                         \
