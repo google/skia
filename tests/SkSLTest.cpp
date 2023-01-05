@@ -555,6 +555,7 @@ SKSL_TEST(GPU_ES3,   kNever,      IntrinsicDFdx,                   "intrinsics/D
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicDFdy,                   "intrinsics/DFdy.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicFloatBitsToInt,         "intrinsics/FloatBitsToInt.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicFloatBitsToUint,        "intrinsics/FloatBitsToUint.sksl")
+SKSL_TEST(CPU + GPU, kNever,      IntrinsicFloor,                  "intrinsics/Floor.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicFwidth,                 "intrinsics/Fwidth.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicIntBitsToFloat,         "intrinsics/IntBitsToFloat.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicIsInf,                  "intrinsics/IsInf.sksl")

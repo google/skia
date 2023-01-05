@@ -328,7 +328,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "gm", ALL, "verylargebitmap")
 			skip(ALL, "gm", ALL, "verylarge_picture_image")
 
-			if (b.extraConfig("Metal")) {
+			if b.extraConfig("Metal") {
 				configs = []string{"grmtl"}
 			}
 		}
@@ -350,6 +350,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				if b.model("NUC5i7RYH") {
 					// skbug.com/7376
 					skip(ALL, "test", ALL, "ProcessorCloneTest")
+				}
+				if b.matchGpu("Intel") {
+					// anglebug.com/5588
+					skip("angle_d3d9_es2", "test", ALL, "SkSLIntrinsicFloor_GPU")
 				}
 			} else if b.matchOs("Mac") {
 				configs = []string{"angle_mtl_es2", "angle_mtl_es3"}
@@ -416,7 +420,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				configs = append(configs, "mtlmsaa4")
 			}
 		}
-        if b.extraConfig("Slug") {
+		if b.extraConfig("Slug") {
 			// Test slug drawing
 			configs = []string{"glslug", "glserializeslug", "glremoteslug"}
 		}
