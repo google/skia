@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/PublicPrecompile.h"
 
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/Caps.h"
@@ -76,11 +77,12 @@ void Precompile(Context* context, const PaintOptions& options, DrawTypeFlags dra
 
     auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
 
-    KeyContext keyContext(dict, rtEffectDict.get());
+    SkColorInfo ci(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+    KeyContext keyContext(dict, rtEffectDict.get(), ci);
 
     // TODO: we need iterate over a broader set of TextureInfos here. Perhaps, allow the client
     // to pass in colorType, mipmapping and protection.
-    TextureInfo info = caps->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
+    TextureInfo info = caps->getDefaultSampledTextureInfo(ci.colorType(),
                                                           Mipmapped::kNo,
                                                           Protected::kNo,
                                                           Renderable::kYes);

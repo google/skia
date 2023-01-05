@@ -21,6 +21,8 @@
 
 #include <memory>
 
+struct SkImageInfo;
+
 namespace skgpu::graphite {
 
 class BoundsManager;
@@ -55,8 +57,8 @@ public:
 
     static std::unique_ptr<DrawPass> Make(Recorder*,
                                           std::unique_ptr<DrawList>,
-                                          sk_sp<TextureProxy>,
-                                          SkISize deviceSize,
+                                          sk_sp<TextureProxy> target,
+                                          const SkImageInfo& targetInfo,
                                           std::pair<LoadOp, StoreOp>,
                                           std::array<float, 4> clearColor);
 

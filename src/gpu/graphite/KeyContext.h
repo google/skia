@@ -8,9 +8,9 @@
 #ifndef skgpu_graphite_KeyContext_DEFINED
 #define skgpu_graphite_KeyContext_DEFINED
 
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
-
 
 namespace skgpu::graphite {
 
@@ -24,13 +24,16 @@ class ShaderCodeDictionary;
 class KeyContext {
 public:
     // Constructor for the pre-compile code path (i.e., no Recorder)
-    KeyContext(ShaderCodeDictionary* dict, RuntimeEffectDictionary* rtEffectDict)
-               : fDictionary(dict)
-               , fRTEffectDict(rtEffectDict) {
+    KeyContext(ShaderCodeDictionary* dict,
+               RuntimeEffectDictionary* rtEffectDict,
+               const SkColorInfo& dstColorInfo)
+            : fDictionary(dict)
+            , fRTEffectDict(rtEffectDict)
+            , fDstColorInfo(dstColorInfo) {
     }
 
     // Constructor for the ExtractPaintData code path (i.e., with a Recorder)
-    KeyContext(Recorder*, const SkM44& local2Dev);
+    KeyContext(Recorder*, const SkM44& local2Dev, const SkColorInfo&);
 
     KeyContext(const KeyContext&);
 
@@ -42,12 +45,15 @@ public:
     ShaderCodeDictionary* dict() const { return fDictionary; }
     RuntimeEffectDictionary* rtEffectDict() const { return fRTEffectDict; }
 
+    const SkColorInfo& dstColorInfo() const { return fDstColorInfo; }
+
 protected:
     Recorder* fRecorder = nullptr;
     SkM44 fLocal2Dev;
     SkMatrix* fLocalMatrix = nullptr;
     ShaderCodeDictionary* fDictionary;
     RuntimeEffectDictionary* fRTEffectDict;
+    SkColorInfo fDstColorInfo;
 };
 
 class KeyContextWithLocalMatrix : public KeyContext {

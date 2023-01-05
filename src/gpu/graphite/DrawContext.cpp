@@ -158,7 +158,7 @@ void DrawContext::snapDrawPass(Recorder* recorder) {
     auto pass = DrawPass::Make(recorder,
                                std::move(fPendingDraws),
                                fTarget,
-                               this->imageInfo().dimensions(),
+                               this->imageInfo(),
                                std::make_pair(fPendingLoadOp, fPendingStoreOp),
                                fPendingClearColor);
     fDrawPasses.push_back(std::move(pass));

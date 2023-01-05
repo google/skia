@@ -9,6 +9,7 @@
 
 #ifdef SK_GRAPHITE_ENABLED
 
+#include "include/core/SkColorSpace.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/FactoryFunctions.h"
@@ -283,7 +284,8 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context) {
 
     auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
 
-    KeyContext keyContext(dict, rtEffectDict.get());
+    SkColorInfo ci(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
+    KeyContext keyContext(dict, rtEffectDict.get(), ci);
 
     empty_test(keyContext, reporter);
     no_shader_option_test(keyContext, reporter);

@@ -29,12 +29,13 @@ ExtractPaintData(Recorder* recorder,
                  PaintParamsKeyBuilder* builder,
                  const Layout layout,
                  const SkM44& local2Dev,
-                 const PaintParams& p) {
+                 const PaintParams& p,
+                 const SkColorInfo& targetColorInfo) {
     SkDEBUGCODE(builder->checkReset());
 
     gatherer->resetWithNewLayout(layout);
 
-    KeyContext keyContext(recorder, local2Dev);
+    KeyContext keyContext(recorder, local2Dev, targetColorInfo);
     p.toKey(keyContext, builder, gatherer);
 
     auto dict = recorder->priv().shaderCodeDictionary();
