@@ -442,13 +442,14 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     GraphicsPipelineCache pipelineCache;
 
     // Geometry uniforms are currently always UBO-backed.
-    Layout geometryUniformLayout = recorder->priv().caps()->uniformBufferLayout();
+    const ResourceBindingRequirements& bindingReqs =
+            recorder->priv().caps()->resourceBindingRequirements();
+    Layout geometryUniformLayout = bindingReqs.fUniformBufferLayout;
     UniformSsboTracker geometrySsboTracker(/*useStorageBuffers=*/false);
 
     bool useStorageBuffers = recorder->priv().caps()->storageBufferPreferred();
-    Layout shadingUniformLayout = useStorageBuffers
-                                          ? recorder->priv().caps()->storageBufferLayout()
-                                          : recorder->priv().caps()->uniformBufferLayout();
+    Layout shadingUniformLayout =
+            useStorageBuffers ? bindingReqs.fStorageBufferLayout : bindingReqs.fUniformBufferLayout;
     UniformSsboTracker shadingSsboTracker(useStorageBuffers);
     TextureBindingTracker textureBindingTracker;
 

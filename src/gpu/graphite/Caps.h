@@ -34,6 +34,22 @@ struct RenderPassDesc;
 class TextureInfo;
 class TextureProxy;
 
+struct ResourceBindingRequirements {
+    // The required data layout rules for the contents of a uniform buffer.
+    Layout fUniformBufferLayout = Layout::kInvalid;
+
+    // The required data layout rules for the contents of a storage buffer.
+    Layout fStorageBufferLayout = Layout::kInvalid;
+
+    // Whether combined texture-sampler types are supported. Backends that do not support
+    // combined image samplers (i.e. sampler2D) require a texture and sampler object to be bound
+    // separately and their binding indices explicitly specified in the shader text.
+    bool fSeparateTextureAndSamplerBinding = false;
+
+    // Whether buffer, texture, and sampler resource bindings use distinct index ranges.
+    bool fDistinctIndexRanges = false;
+};
+
 class Caps {
 public:
     virtual ~Caps();
@@ -71,6 +87,10 @@ public:
                                     Shareable,
                                     GraphiteResourceKey*) const = 0;
 
+    const ResourceBindingRequirements& resourceBindingRequirements() const {
+        return fResourceBindingReqs;
+    }
+
     // Returns the required alignment in bytes for the offset into a uniform buffer when binding it
     // to a draw.
     size_t requiredUniformBufferAlignment() const { return fRequiredUniformBufferAlignment; }
@@ -81,12 +101,6 @@ public:
 
     // Returns the required alignment in bytes for the offset and size of copies involving a buffer.
     size_t requiredTransferBufferAlignment() const { return fRequiredTransferBufferAlignment; }
-
-    // Returns the required data layout rules for the contents of a uniform buffer.
-    Layout uniformBufferLayout() const { return fUniformBufferLayout; }
-
-    // Returns the required data layout rules for the contents of a storage buffer.
-    Layout storageBufferLayout() const { return fStorageBufferLayout; }
 
     // Returns the aligned rowBytes when transfering to or from a Texture
     size_t getAlignedTextureDataRowBytes(size_t rowBytes) const {
@@ -213,8 +227,6 @@ protected:
     size_t fRequiredStorageBufferAlignment = 0;
     size_t fRequiredTransferBufferAlignment = 0;
     size_t fTextureDataRowBytesAlignment = 1;
-    Layout fUniformBufferLayout = Layout::kInvalid;
-    Layout fStorageBufferLayout = Layout::kInvalid;
 
     std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
 
@@ -223,6 +235,8 @@ protected:
     bool fStorageBufferSupport = false;
     bool fStorageBufferPreferred = false;
     bool fDrawBufferCanBeMapped = true;
+
+    ResourceBindingRequirements fResourceBindingReqs;
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Client-provided Caps
