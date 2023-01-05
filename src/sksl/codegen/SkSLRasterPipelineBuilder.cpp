@@ -18,9 +18,10 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
-#include <utility>
+#include <iterator>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 namespace SkSL {
@@ -108,6 +109,41 @@ void Builder::ternary_op(BuilderOp op, int32_t slots) {
     }
 }
 
+void Builder::push_duplicates(int count) {
+    SkASSERT(count >= 0);
+    if (count >= 3) {
+        // Use a swizzle to splat the input into a 4-slot value.
+        this->swizzle(/*inputSlots=*/1, {0, 0, 0, 0});
+        count -= 3;
+    }
+    for (; count >= 4; count -= 4) {
+        // Clone the splatted value four slots at a time.
+        this->push_clone(/*numSlots=*/4, /*offsetFromStackTop=*/0);
+    }
+    // Use a swizzle to handle the trailing items.
+    switch (count) {
+        case 3:  this->swizzle(/*inputSlots=*/1, {0, 0, 0, 0}); break;
+        case 2:  this->swizzle(/*inputSlots=*/1, {0, 0, 0});    break;
+        case 1:  this->swizzle(/*inputSlots=*/1, {0, 0});       break;
+        default: break;
+    }
+}
+
+void Builder::swizzle(int inputSlots, SkSpan<const int8_t> components) {
+    // Consumes `inputSlots` elements on the stack, then generates `components.size()` elements.
+    SkASSERT(components.size() >= 1 && components.size() <= 4);
+    // Squash .xwww into 0x3330, or .zyx into 0x012. (Packed nybbles, in reverse order.)
+    int componentBits = 0;
+    for (auto iter = components.rbegin(); iter != components.rend(); ++iter) {
+        SkASSERT(*iter >= 0 && *iter < inputSlots);
+        componentBits <<= 4;
+        componentBits |= *iter;
+    }
+
+    int op = (int)BuilderOp::swizzle_1 + components.size() - 1;
+    fInstructions.push_back({(BuilderOp)op, {}, inputSlots, componentBits});
+}
+
 std::unique_ptr<Program> Builder::finish(int numValueSlots,
                                          int numUniformSlots,
                                          SkRPDebugTrace* debugTrace) {
@@ -130,6 +166,7 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::push_slots:
         case BuilderOp::push_uniform:
         case BuilderOp::push_zeros:
+        case BuilderOp::push_clone:
             return inst.fImmA;
 
         case BuilderOp::pop_condition_mask:
@@ -631,6 +668,12 @@ void Program::appendStages(SkRasterPipeline* pipeline,
             case BuilderOp::copy_stack_to_slots_unmasked: {
                 float* src = tempStackPtr - (inst.fImmB * N);
                 this->appendCopySlotsUnmasked(pipeline, alloc, SlotA(), src, inst.fImmA);
+                break;
+            }
+            case BuilderOp::push_clone: {
+                float* src = tempStackPtr - (inst.fImmB * N);
+                float* dst = tempStackPtr;
+                this->appendCopySlotsUnmasked(pipeline, alloc, dst, src, inst.fImmA);
                 break;
             }
             case BuilderOp::discard_stack:

@@ -226,10 +226,10 @@ DEF_TEST(RasterPipelineBuilderDuplicateSelectAndSwizzleSlots, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
     builder.push_literal_f(1.0f);           // push into 0
-    builder.duplicate(1);                   // duplicate into 1
-    builder.duplicate(2);                   // duplicate into 2~3
-    builder.duplicate(3);                   // duplicate into 4~6
-    builder.duplicate(5);                   // duplicate into 7~11
+    builder.push_duplicates(1);             // duplicate into 1
+    builder.push_duplicates(2);             // duplicate into 2~3
+    builder.push_duplicates(3);             // duplicate into 4~6
+    builder.push_duplicates(5);             // duplicate into 7~11
     builder.select(4);                      // select from 4~7 and 8~11 into 4~7
     builder.select(3);                      // select from 2~4 and 5~7 into 2~4
     builder.select(1);                      // select from 3 and 4 into 3
@@ -307,7 +307,7 @@ DEF_TEST(RasterPipelineBuilderBinaryFloatOps, r) {
 
     SkSL::RP::Builder builder;
     builder.push_literal_f(10.0f);
-    builder.duplicate(30);
+    builder.push_duplicates(30);
     builder.binary_op(BuilderOp::add_n_floats, 1);
     builder.binary_op(BuilderOp::sub_n_floats, 2);
     builder.binary_op(BuilderOp::mul_n_floats, 3);
@@ -324,25 +324,23 @@ DEF_TEST(RasterPipelineBuilderBinaryFloatOps, r) {
     check(r, *program,
 R"(    1. copy_constant                  $0 = 0x41200000 (10.0)
     2. swizzle_4                      $0..3 = ($0..3).xxxx
-    3. swizzle_4                      $3..6 = ($3..6).xxxx
-    4. swizzle_4                      $6..9 = ($6..9).xxxx
-    5. swizzle_4                      $9..12 = ($9..12).xxxx
-    6. swizzle_4                      $12..15 = ($12..15).xxxx
-    7. swizzle_4                      $15..18 = ($15..18).xxxx
-    8. swizzle_4                      $18..21 = ($18..21).xxxx
-    9. swizzle_4                      $21..24 = ($21..24).xxxx
-   10. swizzle_4                      $24..27 = ($24..27).xxxx
-   11. swizzle_4                      $27..30 = ($27..30).xxxx
-   12. add_float                      $29 += $30
-   13. sub_2_floats                   $26..27 -= $28..29
-   14. mul_3_floats                   $22..24 *= $25..27
-   15. div_4_floats                   $17..20 /= $21..24
-   16. max_3_floats                   $15..17 = max($15..17, $18..20)
-   17. min_2_floats                   $14..15 = min($14..15, $16..17)
-   18. cmplt_n_floats                 $6..10 = lessThan($6..10, $11..15)
-   19. cmple_4_floats                 $3..6 = lessThanEqual($3..6, $7..10)
-   20. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
-   21. cmpne_2_floats                 $0..1 = notEqual($0..1, $2..3)
+    3. copy_4_slots_unmasked          $4..7 = $0..3
+    4. copy_4_slots_unmasked          $8..11 = $4..7
+    5. copy_4_slots_unmasked          $12..15 = $8..11
+    6. copy_4_slots_unmasked          $16..19 = $12..15
+    7. copy_4_slots_unmasked          $20..23 = $16..19
+    8. copy_4_slots_unmasked          $24..27 = $20..23
+    9. swizzle_4                      $27..30 = ($27..30).xxxx
+   10. add_float                      $29 += $30
+   11. sub_2_floats                   $26..27 -= $28..29
+   12. mul_3_floats                   $22..24 *= $25..27
+   13. div_4_floats                   $17..20 /= $21..24
+   14. max_3_floats                   $15..17 = max($15..17, $18..20)
+   15. min_2_floats                   $14..15 = min($14..15, $16..17)
+   16. cmplt_n_floats                 $6..10 = lessThan($6..10, $11..15)
+   17. cmple_4_floats                 $3..6 = lessThanEqual($3..6, $7..10)
+   18. cmpeq_3_floats                 $1..3 = equal($1..3, $4..6)
+   19. cmpne_2_floats                 $0..1 = notEqual($0..1, $2..3)
 )");
 }
 
@@ -351,7 +349,7 @@ DEF_TEST(RasterPipelineBuilderBinaryIntOps, r) {
 
     SkSL::RP::Builder builder;
     builder.push_literal_i(123);
-    builder.duplicate(40);
+    builder.push_duplicates(40);
     builder.binary_op(BuilderOp::bitwise_and_n_ints, 1);
     builder.binary_op(BuilderOp::bitwise_xor_n_ints, 2);
     builder.binary_op(BuilderOp::bitwise_or_n_ints, 3);
@@ -371,32 +369,29 @@ DEF_TEST(RasterPipelineBuilderBinaryIntOps, r) {
     check(r, *program,
 R"(    1. copy_constant                  $0 = 0x0000007B (1.723597e-43)
     2. swizzle_4                      $0..3 = ($0..3).xxxx
-    3. swizzle_4                      $3..6 = ($3..6).xxxx
-    4. swizzle_4                      $6..9 = ($6..9).xxxx
-    5. swizzle_4                      $9..12 = ($9..12).xxxx
-    6. swizzle_4                      $12..15 = ($12..15).xxxx
-    7. swizzle_4                      $15..18 = ($15..18).xxxx
-    8. swizzle_4                      $18..21 = ($18..21).xxxx
-    9. swizzle_4                      $21..24 = ($21..24).xxxx
-   10. swizzle_4                      $24..27 = ($24..27).xxxx
-   11. swizzle_4                      $27..30 = ($27..30).xxxx
-   12. swizzle_4                      $30..33 = ($30..33).xxxx
-   13. swizzle_4                      $33..36 = ($33..36).xxxx
-   14. swizzle_4                      $36..39 = ($36..39).xxxx
-   15. swizzle_2                      $39..40 = ($39..40).xx
-   16. bitwise_and_int                $39 &= $40
-   17. bitwise_xor_2_ints             $36..37 ^= $38..39
-   18. bitwise_or_3_ints              $32..34 |= $35..37
-   19. add_2_ints                     $31..32 += $33..34
-   20. sub_3_ints                     $27..29 -= $30..32
-   21. mul_4_ints                     $22..25 *= $26..29
-   22. div_n_ints                     $16..20 /= $21..25
-   23. max_4_ints                     $13..16 = max($13..16, $17..20)
-   24. min_3_ints                     $11..13 = min($11..13, $14..16)
-   25. cmplt_int                      $12 = lessThan($12, $13)
-   26. cmple_2_ints                   $9..10 = lessThanEqual($9..10, $11..12)
-   27. cmpeq_3_ints                   $5..7 = equal($5..7, $8..10)
-   28. cmpne_4_ints                   $0..3 = notEqual($0..3, $4..7)
+    3. copy_4_slots_unmasked          $4..7 = $0..3
+    4. copy_4_slots_unmasked          $8..11 = $4..7
+    5. copy_4_slots_unmasked          $12..15 = $8..11
+    6. copy_4_slots_unmasked          $16..19 = $12..15
+    7. copy_4_slots_unmasked          $20..23 = $16..19
+    8. copy_4_slots_unmasked          $24..27 = $20..23
+    9. copy_4_slots_unmasked          $28..31 = $24..27
+   10. copy_4_slots_unmasked          $32..35 = $28..31
+   11. copy_4_slots_unmasked          $36..39 = $32..35
+   12. swizzle_2                      $39..40 = ($39..40).xx
+   13. bitwise_and_int                $39 &= $40
+   14. bitwise_xor_2_ints             $36..37 ^= $38..39
+   15. bitwise_or_3_ints              $32..34 |= $35..37
+   16. add_2_ints                     $31..32 += $33..34
+   17. sub_3_ints                     $27..29 -= $30..32
+   18. mul_4_ints                     $22..25 *= $26..29
+   19. div_n_ints                     $16..20 /= $21..25
+   20. max_4_ints                     $13..16 = max($13..16, $17..20)
+   21. min_3_ints                     $11..13 = min($11..13, $14..16)
+   22. cmplt_int                      $12 = lessThan($12, $13)
+   23. cmple_2_ints                   $9..10 = lessThanEqual($9..10, $11..12)
+   24. cmpeq_3_ints                   $5..7 = equal($5..7, $8..10)
+   25. cmpne_4_ints                   $0..3 = notEqual($0..3, $4..7)
 )");
 }
 
@@ -405,7 +400,7 @@ DEF_TEST(RasterPipelineBuilderBinaryUIntOps, r) {
 
     SkSL::RP::Builder builder;
     builder.push_literal_u(456);
-    builder.duplicate(21);
+    builder.push_duplicates(21);
     builder.binary_op(BuilderOp::div_n_uints, 6);
     builder.binary_op(BuilderOp::cmplt_n_uints, 5);
     builder.binary_op(BuilderOp::cmple_n_uints, 4);
@@ -417,17 +412,16 @@ DEF_TEST(RasterPipelineBuilderBinaryUIntOps, r) {
     check(r, *program,
 R"(    1. copy_constant                  $0 = 0x000001C8 (6.389921e-43)
     2. swizzle_4                      $0..3 = ($0..3).xxxx
-    3. swizzle_4                      $3..6 = ($3..6).xxxx
-    4. swizzle_4                      $6..9 = ($6..9).xxxx
-    5. swizzle_4                      $9..12 = ($9..12).xxxx
-    6. swizzle_4                      $12..15 = ($12..15).xxxx
-    7. swizzle_4                      $15..18 = ($15..18).xxxx
-    8. swizzle_4                      $18..21 = ($18..21).xxxx
-    9. div_n_uints                    $10..15 /= $16..21
-   10. cmplt_n_uints                  $6..10 = lessThan($6..10, $11..15)
-   11. cmple_4_uints                  $3..6 = lessThanEqual($3..6, $7..10)
-   12. max_3_uints                    $1..3 = max($1..3, $4..6)
-   13. min_2_uints                    $0..1 = min($0..1, $2..3)
+    3. copy_4_slots_unmasked          $4..7 = $0..3
+    4. copy_4_slots_unmasked          $8..11 = $4..7
+    5. copy_4_slots_unmasked          $12..15 = $8..11
+    6. copy_4_slots_unmasked          $16..19 = $12..15
+    7. swizzle_3                      $19..21 = ($19..21).xxx
+    8. div_n_uints                    $10..15 /= $16..21
+    9. cmplt_n_uints                  $6..10 = lessThan($6..10, $11..15)
+   10. cmple_4_uints                  $3..6 = lessThanEqual($3..6, $7..10)
+   11. max_3_uints                    $1..3 = max($1..3, $4..6)
+   12. min_2_uints                    $0..1 = min($0..1, $2..3)
 )");
 }
 
@@ -436,7 +430,7 @@ DEF_TEST(RasterPipelineBuilderUnaryOps, r) {
 
     SkSL::RP::Builder builder;
     builder.push_literal_i(456);
-    builder.duplicate(4);
+    builder.push_duplicates(4);
     builder.unary_op(BuilderOp::cast_to_float_from_int, 1);
     builder.unary_op(BuilderOp::cast_to_float_from_uint, 2);
     builder.unary_op(BuilderOp::cast_to_int_from_float, 3);
@@ -513,7 +507,7 @@ DEF_TEST(RasterPipelineBuilderTernaryFloatOps, r) {
 
     SkSL::RP::Builder builder;
     builder.push_literal_f(0.75f);
-    builder.duplicate(8);
+    builder.push_duplicates(8);
     builder.ternary_op(BuilderOp::mix_n_floats, 3);
     builder.discard_stack(3);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
@@ -521,8 +515,8 @@ DEF_TEST(RasterPipelineBuilderTernaryFloatOps, r) {
     check(r, *program,
 R"(    1. copy_constant                  $0 = 0x3F400000 (0.75)
     2. swizzle_4                      $0..3 = ($0..3).xxxx
-    3. swizzle_4                      $3..6 = ($3..6).xxxx
-    4. swizzle_3                      $6..8 = ($6..8).xxx
+    3. copy_4_slots_unmasked          $4..7 = $0..3
+    4. swizzle_2                      $7..8 = ($7..8).xx
     5. mix_3_floats                   $0..2 = mix($0..2, $3..5, $6..8)
 )");
 }
@@ -530,7 +524,7 @@ R"(    1. copy_constant                  $0 = 0x3F400000 (0.75)
 DEF_TEST(RasterPipelineBuilderAutomaticStackRewinding, r) {
     SkSL::RP::Builder builder;
     builder.push_literal_i(1);
-    builder.duplicate(2000);
+    builder.push_duplicates(2000);
     builder.discard_stack(2001);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);

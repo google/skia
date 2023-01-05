@@ -1090,7 +1090,7 @@ bool Generator::pushConstructorCast(const AnyConstructor& c) {
             SkDEBUGFAILF("unexpected cast from bool to %s", c.type().description().c_str());
             return unsupported();
         }
-        fBuilder.duplicate(c.type().slotCount() - 1);
+        fBuilder.push_duplicates(c.type().slotCount() - 1);
         fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, c.type().slotCount());
         return true;
     }
@@ -1124,7 +1124,7 @@ bool Generator::pushConstructorSplat(const ConstructorSplat& c) {
     if (!this->pushExpression(*c.argument())) {
         return unsupported();
     }
-    fBuilder.duplicate(c.type().slotCount() - 1);
+    fBuilder.push_duplicates(c.type().slotCount() - 1);
     return true;
 }
 
@@ -1201,7 +1201,7 @@ bool Generator::pushVectorizedExpression(const Expression& expr, const Type& vec
     }
     if (vectorType.slotCount() > expr.type().slotCount()) {
         SkASSERT(expr.type().slotCount() == 1);
-        fBuilder.duplicate(vectorType.slotCount() - expr.type().slotCount());
+        fBuilder.push_duplicates(vectorType.slotCount() - expr.type().slotCount());
     }
     return true;
 }
