@@ -46,6 +46,10 @@ ignorelist = [
   # Some node_modules/ files (used by CanvasKit et al) have c++ code which we should ignore.
   'node_modules',
   'include/third_party/skcms',
+  # Temporary (hopefully) shims for Android
+  'SkDeque.h',
+  'SkMalloc.h',
+  'SkTo.h',
 ]
 
 assert '/' in [os.sep, os.altsep]
@@ -58,7 +62,7 @@ for root in roots:
   for path, _, files in os.walk(root):
     if not any(snippet in fix_path(path) for snippet in ignorelist):
       for file_name in files:
-        if file_name.endswith('.h'):
+        if file_name.endswith('.h') and not file_name in ignorelist:
           if file_name in headers:
             message = ('Header filename is used more than once!\n- ' + path + '/' + file_name +
                        '\n- ' + headers[file_name])
