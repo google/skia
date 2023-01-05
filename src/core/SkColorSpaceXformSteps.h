@@ -34,6 +34,7 @@ struct SkColorSpaceXformSteps {
         }
     };
 
+    SkColorSpaceXformSteps() {}
     SkColorSpaceXformSteps(const SkColorSpace* src, SkAlphaType srcAT,
                            const SkColorSpace* dst, SkAlphaType dstAT);
 

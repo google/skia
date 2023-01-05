@@ -291,6 +291,20 @@ void LocalMatrixShaderBlock::BeginBlock(const KeyContext& keyContext,
 
 namespace {
 
+void add_color_space_uniforms(const SkColorSpaceXformSteps& steps, PipelineDataGatherer* gatherer) {
+    static constexpr int kNumXferFnCoeffs = 7;
+
+    gatherer->write(SkTo<int>(steps.flags.mask()));
+    gatherer->write(SkTo<int>(skcms_TransferFunction_getType(&steps.srcTF)));
+    gatherer->write(SkTo<int>(skcms_TransferFunction_getType(&steps.dstTFInv)));
+    gatherer->writeHalfArray({&steps.srcTF.g, kNumXferFnCoeffs});
+    gatherer->writeHalfArray({&steps.dstTFInv.g, kNumXferFnCoeffs});
+
+    SkMatrix gamutTransform;
+    gamutTransform.set9(steps.src_to_dst_matrix);
+    gatherer->writeHalf(gamutTransform);
+}
+
 void add_image_uniform_data(const ShaderCodeDictionary* dict,
                             const ImageShaderBlock::ImageData& imgData,
                             PipelineDataGatherer* gatherer) {
@@ -310,6 +324,8 @@ void add_image_uniform_data(const ShaderCodeDictionary* dict,
         gatherer->write(SkM44());
     }
 
+    add_color_space_uniforms(imgData.fSteps, gatherer);
+
     gatherer->addFlags(dict->getSnippetRequirementFlags(BuiltInCodeSnippetID::kImageShader));
 }
 
@@ -319,9 +335,10 @@ ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
                                        SkTileMode tileModeX,
                                        SkTileMode tileModeY,
                                        SkRect subset)
-    : fSampling(sampling)
-    , fTileModes{tileModeX, tileModeY}
-    , fSubset(subset) {
+        : fSampling(sampling)
+        , fTileModes{tileModeX, tileModeY}
+        , fSubset(subset) {
+    SkASSERT(fSteps.flags.mask() == 0);   // By default, the colorspace should have no effect
 }
 
 void ImageShaderBlock::BeginBlock(const KeyContext& keyContext,
@@ -527,18 +544,9 @@ void add_color_space_xform_uniform_data(
         const ShaderCodeDictionary* dict,
         const ColorSpaceTransformBlock::ColorSpaceTransformData* data,
         PipelineDataGatherer* gatherer) {
-    static constexpr int kNumXferFnCoeffs = 7;
 
     VALIDATE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformColorFilter)
-    gatherer->write(SkTo<int>(data->fSteps.flags.mask()));
-    gatherer->write(SkTo<int>(skcms_TransferFunction_getType(&data->fSteps.srcTF)));
-    gatherer->write(SkTo<int>(skcms_TransferFunction_getType(&data->fSteps.dstTFInv)));
-    gatherer->writeHalfArray({&data->fSteps.srcTF.g, kNumXferFnCoeffs});
-    gatherer->writeHalfArray({&data->fSteps.dstTFInv.g, kNumXferFnCoeffs});
-
-    SkMatrix gamutTransform;
-    gamutTransform.set9(data->fSteps.src_to_dst_matrix);
-    gatherer->writeHalf(gamutTransform);
+    add_color_space_uniforms(data->fSteps, gatherer);
 
     gatherer->addFlags(
             dict->getSnippetRequirementFlags(BuiltInCodeSnippetID::kColorSpaceXformColorFilter));

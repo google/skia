@@ -548,14 +548,23 @@ void GenerateLocalMatrixPreamble(const ShaderInfo& shaderInfo,
 }
 
 //--------------------------------------------------------------------------------------------------
+static constexpr int kNumXferFnCoeffs = 7;
+
 static constexpr Uniform kImageShaderUniforms[] = {
-        { "imgSize",     SkSLType::kFloat2 },
-        { "subset",      SkSLType::kFloat4 },
-        { "tilemodeX",   SkSLType::kInt },
-        { "tilemodeY",   SkSLType::kInt },
-        { "filterMode",  SkSLType::kInt },
-        { "useCubic",    SkSLType::kInt },
-        { "cubicCoeffs", SkSLType::kFloat4x4 },
+        { "imgSize",               SkSLType::kFloat2 },
+        { "subset",                SkSLType::kFloat4 },
+        { "tilemodeX",             SkSLType::kInt },
+        { "tilemodeY",             SkSLType::kInt },
+        { "filterMode",            SkSLType::kInt },
+        { "useCubic",              SkSLType::kInt },
+        { "cubicCoeffs",           SkSLType::kFloat4x4 },
+        // The next 6 uniforms are for the color space transformation
+        { "csXformFlags",          SkSLType::kInt },
+        { "csXformSrcKind",        SkSLType::kInt },
+        { "csXformDstKind",        SkSLType::kInt },
+        { "csXformSrcCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
+        { "csXformDstCoeffs",      SkSLType::kHalf, kNumXferFnCoeffs },
+        { "csXformGamutTransform", SkSLType::kHalf3x3 },
 };
 
 static constexpr TextureAndSampler kISTexturesAndSamplers[] = {
@@ -798,8 +807,6 @@ static constexpr char kTableColorFilterName[] = "sk_table_colorfilter";
 static constexpr char kGaussianColorFilterName[] = "sk_gaussian_colorfilter";
 
 //--------------------------------------------------------------------------------------------------
-static constexpr int kNumXferFnCoeffs = 7;
-
 static constexpr Uniform kColorSpaceTransformUniforms[] = {
         { "flags",          SkSLType::kInt },
         { "srcKind",        SkSLType::kInt },
