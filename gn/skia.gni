@@ -54,6 +54,7 @@ declare_args() {
   skia_use_icu = !is_fuchsia
   skia_use_libavif = false
   skia_use_libheif = is_skia_dev_build
+  skia_use_jpegr = false
   skia_use_libjpeg_turbo_decode = true
   skia_use_libjpeg_turbo_encode = true
   skia_use_libjxl_decode = false
