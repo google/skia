@@ -1228,6 +1228,15 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             fBuilder.unary_op(BuilderOp::floor_float, arg0.type().slotCount());
             return true;
 
+        case IntrinsicKind::k_fract_IntrinsicKind:
+            // Implement fract as `x - floor(x)`.
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.push_clone(arg0.type().slotCount());
+            fBuilder.unary_op(BuilderOp::floor_float, arg0.type().slotCount());
+            return this->binaryOp(arg0.type(), kSubtractOps);
+
         case IntrinsicKind::k_not_IntrinsicKind:
             return this->pushPrefixExpression(OperatorKind::LOGICALNOT, arg0);
 
