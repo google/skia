@@ -1399,10 +1399,18 @@ bool Generator::pushPrefixExpression(Operator op, const Expression& expr) {
         case OperatorKind::LOGICALNOT:
             // Handle operators ! and ~.
             if (!this->pushExpression(expr)) {
-                return false;
+                return unsupported();
             }
             fBuilder.unary_op(BuilderOp::bitwise_not_int, expr.type().slotCount());
             return true;
+
+        case OperatorKind::MINUS:
+            // Handle negation as a componentwise `0 - expr`.
+            fBuilder.push_zeros(expr.type().slotCount());
+            if (!this->pushExpression(expr)) {
+                return unsupported();
+            }
+            return this->binaryOp(expr.type(), kSubtractOps);
 
         default:
             break;
