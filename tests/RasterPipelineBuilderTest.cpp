@@ -444,6 +444,8 @@ DEF_TEST(RasterPipelineBuilderUnaryOps, r) {
     builder.unary_op(BuilderOp::bitwise_not_int, 5);
     builder.unary_op(BuilderOp::abs_float, 4);
     builder.unary_op(BuilderOp::abs_int, 3);
+    builder.unary_op(BuilderOp::floor_float, 2);
+    builder.unary_op(BuilderOp::ceil_float, 1);
     builder.discard_stack(5);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
@@ -459,6 +461,8 @@ R"(    1. copy_constant                  $0 = 0x000001C8 (6.389921e-43)
     9. bitwise_not_int                $4 = ~$4
    10. abs_4_floats                   $1..4 = abs($1..4)
    11. abs_3_ints                     $2..4 = abs($2..4)
+   12. floor_2_floats                 $3..4 = floor($3..4)
+   13. ceil_float                     $4 = ceil($4)
 )");
 }
 

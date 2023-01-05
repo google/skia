@@ -1214,6 +1214,20 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             }
             return this->unaryOp(arg0.type(), kAbsOps);
 
+        case IntrinsicKind::k_ceil_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.unary_op(BuilderOp::ceil_float, arg0.type().slotCount());
+            return true;
+
+        case IntrinsicKind::k_floor_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.unary_op(BuilderOp::floor_float, arg0.type().slotCount());
+            return true;
+
         case IntrinsicKind::k_not_IntrinsicKind:
             return this->pushPrefixExpression(OperatorKind::LOGICALNOT, arg0);
 

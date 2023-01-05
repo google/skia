@@ -35,7 +35,9 @@ using SkRP = SkRasterPipeline;
     case BuilderOp::cast_to_float_from_int:  \
     case BuilderOp::cast_to_float_from_uint: \
     case BuilderOp::cast_to_int_from_float:  \
-    case BuilderOp::cast_to_uint_from_float
+    case BuilderOp::cast_to_uint_from_float: \
+    case BuilderOp::ceil_float:              \
+    case BuilderOp::floor_float              \
 
 #define ALL_MULTI_SLOT_BINARY_OP_CASES  \
          BuilderOp::add_n_floats:       \
@@ -950,6 +952,8 @@ void Program::dump(SkWStream* out) {
             case SkRP::cast_to_float_from_int: case SkRP::cast_to_float_from_uint:
             case SkRP::cast_to_int_from_float: case SkRP::cast_to_uint_from_float:
             case SkRP::abs_float:              case SkRP::abs_int:
+            case SkRP::ceil_float:
+            case SkRP::floor_float:
                 opArg1 = PtrCtx(stage.ctx, 1);
                 break;
 
@@ -959,6 +963,8 @@ void Program::dump(SkWStream* out) {
             case SkRP::cast_to_float_from_2_ints: case SkRP::cast_to_float_from_2_uints:
             case SkRP::cast_to_int_from_2_floats: case SkRP::cast_to_uint_from_2_floats:
             case SkRP::abs_2_floats:              case SkRP::abs_2_ints:
+            case SkRP::ceil_2_floats:
+            case SkRP::floor_2_floats:
                 opArg1 = PtrCtx(stage.ctx, 2);
                 break;
 
@@ -967,6 +973,8 @@ void Program::dump(SkWStream* out) {
             case SkRP::cast_to_float_from_3_ints: case SkRP::cast_to_float_from_3_uints:
             case SkRP::cast_to_int_from_3_floats: case SkRP::cast_to_uint_from_3_floats:
             case SkRP::abs_3_floats:              case SkRP::abs_3_ints:
+            case SkRP::ceil_3_floats:
+            case SkRP::floor_3_floats:
                 opArg1 = PtrCtx(stage.ctx, 3);
                 break;
 
@@ -979,6 +987,8 @@ void Program::dump(SkWStream* out) {
             case SkRP::cast_to_float_from_4_ints: case SkRP::cast_to_float_from_4_uints:
             case SkRP::cast_to_int_from_4_floats: case SkRP::cast_to_uint_from_4_floats:
             case SkRP::abs_4_floats:              case SkRP::abs_4_ints:
+            case SkRP::ceil_4_floats:
+            case SkRP::floor_4_floats:
                 opArg1 = PtrCtx(stage.ctx, 4);
                 break;
 
@@ -1296,6 +1306,20 @@ void Program::dump(SkWStream* out) {
             case SkRP::abs_3_floats: case SkRP::abs_3_ints:
             case SkRP::abs_4_floats: case SkRP::abs_4_ints:
                 opText = opArg1 + " = abs(" + opArg1 + ")";
+                break;
+
+            case SkRP::ceil_float:
+            case SkRP::ceil_2_floats:
+            case SkRP::ceil_3_floats:
+            case SkRP::ceil_4_floats:
+                opText = opArg1 + " = ceil(" + opArg1 + ")";
+                break;
+
+            case SkRP::floor_float:
+            case SkRP::floor_2_floats:
+            case SkRP::floor_3_floats:
+            case SkRP::floor_4_floats:
+                opText = opArg1 + " = floor(" + opArg1 + ")";
                 break;
 
             case SkRP::add_float:    case SkRP::add_int:
