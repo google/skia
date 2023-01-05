@@ -35,6 +35,8 @@ class PipelineDataGatherer;
 class ResourceProvider;
 class TextureDataBlock;
 
+struct ResourceBindingRequirements;
+
 struct Varying {
     const char* fName;
     SkSLType fType;
@@ -86,7 +88,10 @@ public:
     virtual const char* vertexSkSL() const = 0;
 
     // Emits code to set up textures and samplers. Should only be defined if hasTextures is true.
-    virtual std::string texturesAndSamplersSkSL(int startBinding) const { return R"()"; }
+    virtual std::string texturesAndSamplersSkSL(const ResourceBindingRequirements&,
+                                                int startBinding) const {
+        return R"()";
+    }
 
     // Emits code to set up coverage value. Should only be defined if overridesCoverage is true.
     // When implemented the returned SkSL fragment should write its coverage into a
