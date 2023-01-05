@@ -110,6 +110,7 @@ namespace SK_OPTS_NS {
     SI F   abs_  (F v)          { return fabsf(v); }
     SI I32 abs_  (I32 v)        { return v < 0 ? -v : v; }
     SI F   floor_(F v)          { return floorf(v); }
+    SI F    ceil_(F v)          { return ceilf(v); }
     SI F   rcp_fast(F v)        { return 1.0f / v; }
     SI F   rsqrt (F v)          { return 1.0f / sqrtf(v); }
     SI F   sqrt_ (F v)          { return sqrtf(v); }
@@ -208,6 +209,7 @@ namespace SK_OPTS_NS {
 
         SI F     mad(F f, F m, F a) { return vfmaq_f32(a,f,m); }
         SI F  floor_(F v) { return vrndmq_f32(v); }
+        SI F   ceil_(F v) { return vrndpq_f32(v); }
         SI F   sqrt_(F v) { return vsqrtq_f32(v); }
         SI U32 round(F v, F scale) { return vcvtnq_u32_f32(v*scale); }
     #else
@@ -218,6 +220,11 @@ namespace SK_OPTS_NS {
         SI F floor_(F v) {
             F roundtrip = vcvtq_f32_s32(vcvtq_s32_f32(v));
             return roundtrip - if_then_else(roundtrip > v, 1, 0);
+        }
+
+        SI F ceil_(F v) {
+            F roundtrip = vcvtq_f32_s32(vcvtq_s32_f32(v));
+            return roundtrip + if_then_else(roundtrip < v, 1, 0);
         }
 
         SI F sqrt_(F v) {
@@ -366,8 +373,9 @@ namespace SK_OPTS_NS {
     SI U32 max(U32 a, U32 b) { return _mm256_max_epu32(a,b); }
 
     SI F   abs_  (F v)   { return _mm256_and_ps(v, 0-v); }
-    SI I32 abs_  (I32 v) { return _mm256_abs_epi32(v); }
+    SI I32 abs_  (I32 v) { return _mm256_abs_epi32(v);   }
     SI F   floor_(F v)   { return _mm256_floor_ps(v);    }
+    SI F   ceil_(F v)    { return _mm256_ceil_ps(v);     }
     SI F   rcp_fast(F v) { return _mm256_rcp_ps  (v);    }
     SI F   rsqrt (F v)   { return _mm256_rsqrt_ps(v);    }
     SI F   sqrt_ (F v)   { return _mm256_sqrt_ps (v);    }
@@ -771,6 +779,15 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     #else
         F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
         return roundtrip - if_then_else(roundtrip > v, 1, 0);
+    #endif
+    }
+
+    SI F ceil_(F v) {
+    #if defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
+        return _mm_ceil_ps(v);
+    #else
+        F roundtrip = _mm_cvtepi32_ps(_mm_cvttps_epi32(v));
+        return roundtrip + if_then_else(roundtrip < v, 1, 0);
     #endif
     }
 
@@ -3346,6 +3363,14 @@ SI void abs_fn(T* dst) {
     *dst = abs_(*dst);
 }
 
+SI void floor_fn(F* dst) {
+    *dst = floor_(*dst);
+}
+
+SI void ceil_fn(F* dst) {
+    *dst = ceil_(*dst);
+}
+
 #define DECLARE_UNARY_FLOAT(name)                                                              \
     STAGE_TAIL(name##_float, F* dst) { apply_adjacent_unary<F, &name##_fn>(dst, dst + 1); }    \
     STAGE_TAIL(name##_2_floats, F* dst) { apply_adjacent_unary<F, &name##_fn>(dst, dst + 2); } \
@@ -3369,6 +3394,8 @@ DECLARE_UNARY_INT(cast_to_float_from) DECLARE_UNARY_UINT(cast_to_float_from)
 DECLARE_UNARY_FLOAT(cast_to_int_from)
 DECLARE_UNARY_FLOAT(cast_to_uint_from)
 DECLARE_UNARY_FLOAT(abs) DECLARE_UNARY_INT(abs)
+DECLARE_UNARY_FLOAT(floor)
+DECLARE_UNARY_FLOAT(ceil)
 
 #undef DECLARE_UNARY_FLOAT
 #undef DECLARE_UNARY_INT
