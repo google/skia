@@ -1370,7 +1370,14 @@ DEF_TEST(SkRasterPipeline_UnaryFloatOps, r) {
             for (int checkLane = 0; checkLane < N; ++checkLane) {
                 if (checkSlot < op.numSlotsAffected) {
                     float expected = op.verify(inputValue);
-                    REPORTER_ASSERT(r, 0 == memcmp(destPtr, &expected, sizeof(float)));
+                    // The casting tests can generate NaN, depending on the input value, so a value
+                    // match (via ==) might not succeed.
+                    // The ceil tests can generate negative zeros _sometimes_, depending on the
+                    // exact implementation of ceil(), so a bitwise match might not succeed.
+                    // Because of this, we allow either a value match or a bitwise match.
+                    bool bitwiseMatch = (0 == memcmp(destPtr, &expected, sizeof(float)));
+                    bool valueMatch   = (*destPtr == expected);
+                    REPORTER_ASSERT(r, valueMatch || bitwiseMatch);
                 } else {
                     REPORTER_ASSERT(r, *destPtr == inputValue);
                 }
