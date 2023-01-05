@@ -57,6 +57,7 @@ supported_files_or_dirs=(
   "src/gpu/ganesh/GrCaps.cpp"
   "src/gpu/ganesh/GrProcessor.cpp"
   "src/gpu/ganesh/GrRenderTargetProxy.cpp"
+  "src/gpu/ganesh/GrResourceProvider.cpp"
   "src/gpu/ganesh/GrSurfaceProxy.cpp"
   "src/gpu/ganesh/GrSurfaceProxyView.cpp"
   "src/gpu/ganesh/GrTextureProxy.cpp"

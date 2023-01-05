@@ -8,33 +8,48 @@
 #ifndef GrResourceProvider_DEFINED
 #define GrResourceProvider_DEFINED
 
-#include "include/gpu/GrContextOptions.h"
-#include "src/core/SkImageInfoPriv.h"
-#include "src/gpu/SkBackingFit.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/BufferWriter.h"
+#include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
+#include "src/gpu/ganesh/GrGpuResource.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string_view>
+#include <type_traits>
+
 class GrAttachment;
+class GrBackendFormat;
 class GrBackendRenderTarget;
 class GrBackendSemaphore;
 class GrBackendTexture;
 class GrGpu;
-class GrMSAAAttachment;
-class GrPath;
 class GrRenderTarget;
 class GrResourceProviderPriv;
 class GrSemaphore;
 class GrTexture;
-struct GrVkDrawableInfo;
+class SkData;
 
-class GrStyle;
-class SkDescriptor;
-class SkPath;
-class SkTypeface;
+enum class GrMipmapped : bool;
+enum class GrProtected : bool;
+enum class GrRenderable : bool;
+enum class SkBackingFit;
+struct GrVkDrawableInfo;
+struct SkImageInfo;
 
 namespace skgpu {
+class ScratchKey;
 class SingleOwner;
-struct VertexWriter;
+class UniqueKey;
+enum class Budgeted : bool;
 }
 
 /**
@@ -79,7 +94,7 @@ public:
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
                                    GrMipmapped mipmapped,
-                                   SkBudgeted budgeted,
+                                   skgpu::Budgeted budgeted,
                                    GrProtected isProtected,
                                    std::string_view label);
 
@@ -94,7 +109,7 @@ public:
                                    GrColorType colorType,
                                    GrRenderable renderable,
                                    int renderTargetSampleCnt,
-                                   SkBudgeted budgeted,
+                                   skgpu::Budgeted budgeted,
                                    GrMipmapped mipmapped,
                                    GrProtected isProtected,
                                    const GrMipLevel texels[],
@@ -111,7 +126,7 @@ public:
                                    GrColorType srcColorType,
                                    GrRenderable,
                                    int renderTargetSampleCnt,
-                                   SkBudgeted,
+                                   skgpu::Budgeted,
                                    SkBackingFit,
                                    GrProtected,
                                    const GrMipLevel& mipLevel,
@@ -137,7 +152,7 @@ public:
      */
     sk_sp<GrTexture> createCompressedTexture(SkISize dimensions,
                                              const GrBackendFormat&,
-                                             SkBudgeted,
+                                             skgpu::Budgeted,
                                              GrMipmapped,
                                              GrProtected,
                                              SkData* data,
@@ -366,7 +381,7 @@ private:
                                      GrTextureType,
                                      GrRenderable,
                                      int renderTargetSampleCnt,
-                                     SkBudgeted,
+                                     skgpu::Budgeted,
                                      GrMipmapped,
                                      GrProtected,
                                      std::string_view label);

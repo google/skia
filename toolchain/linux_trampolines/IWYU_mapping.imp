@@ -159,6 +159,7 @@
   { include: ["<__type_traits/disjunction.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/enable_if.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/integral_constant.h>", "private", "<type_traits>", "public"] },
+  { include: ["<__type_traits/is_base_of.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/is_const.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/is_convertible.h>", "private", "<type_traits>", "public"] },
   { include: ["<__type_traits/is_enum.h>", "private", "<type_traits>", "public"] },
