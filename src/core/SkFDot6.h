@@ -11,7 +11,7 @@
 #include "include/core/SkMath.h"
 #include "include/core/SkScalar.h"
 #include "include/private/SkFixed.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 
 typedef int32_t SkFDot6;
 

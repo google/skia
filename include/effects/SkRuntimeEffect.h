@@ -16,9 +16,9 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
-#include "include/private/SkOnce.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/base/SkOnce.h"
 
 #include <string>
 #include <optional>

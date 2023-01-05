@@ -14,8 +14,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/private/SkIDChangeListener.h"
-#include "include/private/SkMutex.h"
 #include "include/private/SkTDArray.h"
+#include "include/private/base/SkMutex.h"
 
 #include <atomic>
 

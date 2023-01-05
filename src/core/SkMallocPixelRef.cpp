@@ -9,7 +9,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 
 static bool is_valid(const SkImageInfo& info) {
     if (info.width() < 0 || info.height() < 0 ||

@@ -12,7 +12,7 @@
 #include <emscripten/bind.h>
 #include "include/core/SkColor.h"
 #include "include/core/SkSpan.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 
 using namespace emscripten;
 

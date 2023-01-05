@@ -15,7 +15,7 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTPin.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorSpacePriv.h"

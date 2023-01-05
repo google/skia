@@ -9,7 +9,7 @@
 #define GrDeferredProxyUploader_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkSemaphore.h"
+#include "include/private/base/SkSemaphore.h"
 #include "src/core/SkAutoPixmapStorage.h"
 
 #include "src/gpu/ganesh/GrOpFlushState.h"

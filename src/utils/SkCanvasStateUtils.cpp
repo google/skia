@@ -17,7 +17,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkWriter32.h"
 #include "src/utils/SkCanvasStack.h"

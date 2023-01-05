@@ -21,7 +21,7 @@
 #include "include/encode/SkJpegEncoder.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkBitmapDevice.h"

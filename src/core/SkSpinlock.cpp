@@ -6,10 +6,10 @@
  */
 
 #include "include/private/SkSpinlock.h"
-#include "include/private/SkThreadAnnotations.h"
+#include "include/private/base/SkThreadAnnotations.h"
 
 #if 0
-    #include "include/private/SkMutex.h"
+    #include "include/private/base/SkMutex.h"
     #include <execinfo.h>
     #include <stdio.h>
 

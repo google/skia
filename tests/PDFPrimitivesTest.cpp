@@ -32,7 +32,7 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/private/SkFloatingPoint.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"

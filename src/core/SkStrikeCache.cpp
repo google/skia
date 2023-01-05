@@ -13,8 +13,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkMutex.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/base/SkMutex.h"
 #include "src/core/SkScalerCache.h"
 
 #if SK_SUPPORT_GPU

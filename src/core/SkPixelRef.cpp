@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkPixelRef.h"
-#include "include/private/SkMutex.h"
+#include "include/private/base/SkMutex.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkNextID.h"
 #include "src/core/SkPixelRefPriv.h"

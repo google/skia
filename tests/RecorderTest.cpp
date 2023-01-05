@@ -16,7 +16,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkRecord.h"
 #include "src/core/SkRecorder.h"
 #include "src/core/SkRecords.h"

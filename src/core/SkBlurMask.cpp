@@ -11,7 +11,7 @@
 #include "include/core/SkMath.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkMaskBlurFilter.h"
 #include "src/core/SkMathPriv.h"

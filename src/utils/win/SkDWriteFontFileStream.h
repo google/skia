@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 
 #include "include/core/SkStream.h"
-#include "include/private/SkMutex.h"
+#include "include/private/base/SkMutex.h"
 #include "src/utils/win/SkObjBase.h"
 #include "src/utils/win/SkTScopedComPtr.h"
 

@@ -8,7 +8,7 @@
 #define SK_OPTS_NS sksl_minify_standalone
 #include "include/core/SkStream.h"
 #include "include/private/SkSLProgramKind.h"
-#include "include/private/SkStringView.h"
+#include "include/private/base/SkStringView.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 #include "src/opts/SkChecksum_opts.h"

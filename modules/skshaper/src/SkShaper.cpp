@@ -11,7 +11,7 @@
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTFitsIn.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "modules/skshaper/include/SkShaper.h"
 
 #ifdef SK_UNICODE_AVAILABLE

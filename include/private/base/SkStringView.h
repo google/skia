@@ -8,7 +8,7 @@
 #ifndef SkStringView_DEFINED
 #define SkStringView_DEFINED
 
-#include <string.h>
+#include <cstring>
 #include <string_view>
 
 namespace skstd {

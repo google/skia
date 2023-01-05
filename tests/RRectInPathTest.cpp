@@ -15,8 +15,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkFloatBits.h"
-#include "include/private/SkMalloc.h"
 #include "include/private/SkPathRef.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkPathPriv.h"
 #include "tests/Test.h"
 

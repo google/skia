@@ -7,8 +7,8 @@
 
 #include "include/core/SkPixmap.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTFitsIn.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTFitsIn.h"
+#include "include/private/base/SkTo.h"
 #include "src/images/SkImageEncoderPriv.h"
 #include "src/ports/SkNDKConversions.h"
 

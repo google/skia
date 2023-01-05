@@ -10,8 +10,8 @@
 
 #include "src/utils/win/SkWGL.h"
 
-#include "include/private/SkOnce.h"
 #include "include/private/SkTDArray.h"
+#include "include/private/base/SkOnce.h"
 #include "src/core/SkTSearch.h"
 #include "src/core/SkTSort.h"
 

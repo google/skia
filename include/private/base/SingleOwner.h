@@ -11,9 +11,11 @@
 #include "include/private/base/SkDebug.h" // IWYU pragma: keep
 
 #if defined(SK_DEBUG)
-#include "include/private/SkMutex.h"
-#include "include/private/SkThreadID.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkThreadAnnotations.h"
+#include "include/private/base/SkThreadID.h"
+
 #endif
 
 namespace skgpu {

@@ -15,8 +15,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 
-#include "include/private/SkTFitsIn.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTFitsIn.h"
+#include "include/private/base/SkTo.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;

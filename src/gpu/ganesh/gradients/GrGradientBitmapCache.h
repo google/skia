@@ -11,8 +11,8 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkMutex.h"
 #include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkMutex.h"
 
 class GrGradientBitmapCache : SkNoncopyable {
 public:

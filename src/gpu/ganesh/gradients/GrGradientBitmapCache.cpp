@@ -10,8 +10,8 @@
 
 #include "include/private/SkFloatBits.h"
 #include "include/private/SkHalf.h"
-#include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/shaders/gradients/SkGradientShaderBase.h"
 

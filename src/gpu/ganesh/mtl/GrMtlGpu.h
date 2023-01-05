@@ -9,7 +9,7 @@
 #define GrMtlGpu_DEFINED
 
 #include "include/gpu/mtl/GrMtlBackendContext.h"
-#include "include/private/SkDeque.h"
+#include "include/private/base/SkDeque.h"
 #include "include/private/gpu/ganesh/GrMtlTypesPriv.h"
 
 #include "src/gpu/ganesh/GrFinishCallbacks.h"

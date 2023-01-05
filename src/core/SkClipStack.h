@@ -14,7 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
-#include "include/private/SkDeque.h"
+#include "include/private/base/SkDeque.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkTLazy.h"
 

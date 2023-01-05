@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "include/private/SkDeque.h"
+#include "include/private/base/SkDeque.h"
 
 #include <memory>
 #include <vector>

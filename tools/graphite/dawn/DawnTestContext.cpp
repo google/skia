@@ -11,7 +11,7 @@
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 #include "include/gpu/graphite/dawn/DawnUtils.h"
-#include "include/private/SkOnce.h"
+#include "include/private/base/SkOnce.h"
 
 #include "dawn/dawn_proc.h"
 

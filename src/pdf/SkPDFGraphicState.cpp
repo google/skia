@@ -10,7 +10,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkPaint.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFFormXObject.h"
 #include "src/pdf/SkPDFUtils.h"

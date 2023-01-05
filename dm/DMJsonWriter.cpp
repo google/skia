@@ -9,8 +9,8 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkMutex.h"
 #include "include/private/SkTArray.h"
+#include "include/private/base/SkMutex.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkJSON.h"
 #include "src/utils/SkJSONWriter.h"

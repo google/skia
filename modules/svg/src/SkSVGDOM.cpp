@@ -8,7 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGCircle.h"
 #include "modules/svg/include/SkSVGClipPath.h"

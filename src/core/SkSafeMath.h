@@ -9,7 +9,7 @@
 #define SkSafeMath_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTFitsIn.h"
+#include "include/private/base/SkTFitsIn.h"
 
 #include <cstddef>
 #include <cstdint>

@@ -7,7 +7,7 @@
 
 #include "include/core/SkString.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkOnce.h"
+#include "include/private/base/SkOnce.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkOpts.h"

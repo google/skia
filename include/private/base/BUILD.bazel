@@ -4,6 +4,12 @@ licenses(["notice"])
 
 exports_files_legacy()
 
+# In own skia_filegroup for mapping to //gn/gpu.gni:skia_shared_gpu_sources.
+skia_filegroup(
+    name = "shared_gpu_private_hdrs",
+    srcs = ["SingleOwner.h"],
+)
+
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
@@ -12,8 +18,19 @@ skia_filegroup(
         "SkAssert.h",
         "SkAttributes.h",
         "SkDebug.h",
+        "SkDeque.h",
         "SkFeatures.h",
         "SkLoadUserConfig.h",
+        "SkMalloc.h",
+        "SkMutex.h",
+        "SkOnce.h",
+        "SkSemaphore.h",
+        "SkStringView.h",
+        "SkTFitsIn.h",
+        "SkThreadAnnotations.h",
+        "SkThreadID.h",
+        "SkTo.h",
+        ":shared_gpu_private_hdrs",
     ],
     visibility = ["//include/private:__pkg__"],
 )

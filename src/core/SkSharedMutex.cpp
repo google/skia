@@ -8,7 +8,7 @@
 #include "src/core/SkSharedMutex.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkSemaphore.h"
+#include "include/private/base/SkSemaphore.h"
 
 #include <cinttypes>
 
@@ -74,7 +74,7 @@
 #ifdef SK_DEBUG
 
     #include "include/private/SkTDArray.h"
-    #include "include/private/SkThreadID.h"
+    #include "include/private/base/SkThreadID.h"
 
     class SkSharedMutex::ThreadIDSet {
     public:

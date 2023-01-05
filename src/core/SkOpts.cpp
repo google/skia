@@ -6,7 +6,7 @@
  */
 
 #include "include/private/SkHalf.h"
-#include "include/private/SkOnce.h"
+#include "include/private/base/SkOnce.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 

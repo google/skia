@@ -12,7 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
-#include "include/private/SkMutex.h"
+#include "include/private/base/SkMutex.h"
 #include "src/core/SkPathPriv.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpAngle.h"

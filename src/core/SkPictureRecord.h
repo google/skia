@@ -17,7 +17,7 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/SkTHash.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkPictureData.h"
 #include "src/core/SkWriter32.h"
 

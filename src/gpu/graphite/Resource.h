@@ -9,7 +9,7 @@
 #define skgpu_graphite_Resource_DEFINED
 
 #include "include/gpu/GpuTypes.h"
-#include "include/private/SkMutex.h"
+#include "include/private/base/SkMutex.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 

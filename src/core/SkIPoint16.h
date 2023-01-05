@@ -9,7 +9,7 @@
 #define SkIPoint16_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 
 /** \struct SkIPoint16
  SkIPoint16 holds two 16 bit integer coordinates.

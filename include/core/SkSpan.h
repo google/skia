@@ -9,7 +9,7 @@
 #define SkSpan_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 
 #include <cstddef>
 #include <initializer_list>

@@ -11,7 +11,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkMacros.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "include/utils/mac/SkCGUtils.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 

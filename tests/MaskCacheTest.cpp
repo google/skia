@@ -9,7 +9,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskCache.h"

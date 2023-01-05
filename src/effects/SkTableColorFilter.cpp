@@ -55,7 +55,7 @@ namespace skgpu { class KeyBuilder; }
 #if GR_TEST_UTILS
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/ganesh/GrTestUtils.h"

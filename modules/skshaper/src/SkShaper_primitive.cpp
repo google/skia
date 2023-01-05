@@ -8,7 +8,7 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/utils/SkUTF.h"
 

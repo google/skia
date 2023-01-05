@@ -12,8 +12,8 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrTypes.h"
-#include "include/private/SkTo.h"
 #include "include/private/SkTypeTraits.h"
+#include "include/private/base/SkTo.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 

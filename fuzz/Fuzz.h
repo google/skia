@@ -12,8 +12,8 @@
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkMalloc.h"
-#include "include/private/SkTFitsIn.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkTFitsIn.h"
 #include "tools/Registry.h"
 
 #include <limits>

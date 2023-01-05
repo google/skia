@@ -10,7 +10,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsDebug.h"

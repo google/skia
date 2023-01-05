@@ -14,7 +14,7 @@
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "include/private/SingleOwner.h"
+#include "include/private/base/SingleOwner.h"
 
 #include <memory>
 

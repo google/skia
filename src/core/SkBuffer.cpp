@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkMalloc.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkBuffer.h"
+
 #include <string.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

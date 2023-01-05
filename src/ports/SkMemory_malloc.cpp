@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkMalloc.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFeatures.h"
+#include "include/private/base/SkMalloc.h"
 
 #include <cstdlib>
 

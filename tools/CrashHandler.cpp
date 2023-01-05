@@ -153,7 +153,7 @@
     #elif defined(SK_BUILD_FOR_WIN)
 
         #include <DbgHelp.h>
-        #include "include/private/SkMalloc.h"
+        #include "include/private/base/SkMalloc.h"
 
         static const struct {
             const char* name;

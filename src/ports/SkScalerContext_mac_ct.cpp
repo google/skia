@@ -32,7 +32,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkGlyph.h"

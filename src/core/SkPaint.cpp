@@ -19,7 +19,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkTPin.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorSpacePriv.h"

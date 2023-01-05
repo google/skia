@@ -8,7 +8,7 @@
 #ifndef GrD3DGpu_DEFINED
 #define GrD3DGpu_DEFINED
 
-#include "include/private/SkDeque.h"
+#include "include/private/base/SkDeque.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
 #include "src/gpu/ganesh/GrSemaphore.h"

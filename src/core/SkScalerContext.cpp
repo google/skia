@@ -14,7 +14,7 @@
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkDescriptor.h"

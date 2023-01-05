@@ -16,7 +16,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h" // IWYU pragma: keep
 #include "src/core/SkScalerContext.h"
 #include "tests/Test.h"

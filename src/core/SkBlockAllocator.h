@@ -12,8 +12,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkMacros.h"
 #include "include/private/SkNoncopyable.h"
-#include "include/private/SkTo.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkASAN.h"
 
 #include <memory>  // std::unique_ptr

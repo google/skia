@@ -8,7 +8,7 @@
 #ifndef SkOnce_DEFINED
 #define SkOnce_DEFINED
 
-#include "include/private/SkThreadAnnotations.h"
+#include "include/private/base/SkThreadAnnotations.h"
 
 #include <atomic>
 #include <cstdint>

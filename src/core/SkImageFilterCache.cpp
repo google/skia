@@ -11,9 +11,9 @@
 
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkMutex.h"
-#include "include/private/SkOnce.h"
 #include "include/private/SkTHash.h"
+#include "include/private/base/SkMutex.h"
+#include "include/private/base/SkOnce.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkTDynamicHash.h"

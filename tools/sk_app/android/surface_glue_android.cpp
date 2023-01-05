@@ -21,7 +21,7 @@
 #include <android/native_window_jni.h>
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/utils/SkUTF.h"
 #include "tools/ResourceFactory.h"
 #include "tools/sk_app/Application.h"

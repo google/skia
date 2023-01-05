@@ -10,7 +10,7 @@
 #if !defined(SK_BUILD_FOR_GOOGLE3)
 
 #include "include/core/SkRect.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "modules/sksg/include/SkSGDraw.h"
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGInvalidationController.h"

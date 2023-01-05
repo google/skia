@@ -8,7 +8,7 @@
 #include "src/xml/SkXMLWriter.h"
 
 #include "include/core/SkStream.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 
 SkXMLWriter::SkXMLWriter(bool doEscapeMarkup) : fDoEscapeMarkup(doEscapeMarkup)
 {}

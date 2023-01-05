@@ -14,8 +14,8 @@
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
-#include "include/private/SkOnce.h"
 #include "include/private/SkWeakRefCnt.h"
+#include "include/private/base/SkOnce.h"
 
 class SkData;
 class SkDescriptor;

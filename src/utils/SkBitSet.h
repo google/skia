@@ -8,8 +8,8 @@
 #ifndef SkBitSet_DEFINED
 #define SkBitSet_DEFINED
 
-#include "include/private/SkMalloc.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/core/SkMathPriv.h"
 
 #include <climits>

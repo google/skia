@@ -13,7 +13,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSafe32.h"
-#include "include/private/SkTFitsIn.h"
+#include "include/private/base/SkTFitsIn.h"
 
 #include <string>
 #include <algorithm>

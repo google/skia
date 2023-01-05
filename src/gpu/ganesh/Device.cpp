@@ -17,7 +17,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkShadowFlags.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkCanvasPriv.h"

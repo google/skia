@@ -24,7 +24,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_core_sources",
 			Rules: []string{
 				"//include/private:private_hdrs",
-				"//include/private:shared_gpu_private_hdrs",
+				"//include/private/base:private_hdrs",
+				"//include/private/base:shared_gpu_private_hdrs",
 				"//include/private/chromium:private_hdrs",
 				"//include/private/chromium:shared_private_hdrs",
 				"//src/core:core_hdrs",
@@ -277,7 +278,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_shared_gpu_sources",
 			Rules: []string{
 				"//include/gpu:shared_public_hdrs",
-				"//include/private:shared_gpu_private_hdrs",
+				"//include/private/base:shared_gpu_private_hdrs",
 				"//include/private/chromium:shared_private_hdrs",
 				"//src/gpu:core_hdrs",
 				"//src/gpu:core_srcs",

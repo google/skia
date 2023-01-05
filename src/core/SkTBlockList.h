@@ -9,7 +9,7 @@
 #define SkTBlockList_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkBlockAllocator.h"
 
 #include <algorithm>

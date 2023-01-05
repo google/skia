@@ -10,7 +10,7 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkScalar.h"
 #include "include/private/SkFloatingPoint.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkScalerContext.h"
 #include "src/pathops/SkPathOpsCubic.h"

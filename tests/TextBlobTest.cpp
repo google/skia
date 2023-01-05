@@ -24,7 +24,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"

@@ -8,8 +8,8 @@
 #ifndef GrManagedResource_DEFINED
 #define GrManagedResource_DEFINED
 
-#include "include/private/SkMutex.h"
 #include "include/private/SkTHash.h"
+#include "include/private/base/SkMutex.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/ganesh/GrSurface.h"
 #include <atomic>

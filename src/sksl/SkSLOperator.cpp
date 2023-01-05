@@ -8,7 +8,7 @@
 #include "include/sksl/SkSLOperator.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkStringView.h"
+#include "include/private/base/SkStringView.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"

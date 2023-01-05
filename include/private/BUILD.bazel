@@ -24,12 +24,6 @@ skia_filegroup(
     ],
 )
 
-# In own skia_filegroup for mapping to //gn/gpu.gni:skia_shared_gpu_sources.
-skia_filegroup(
-    name = "shared_gpu_private_hdrs",
-    srcs = ["SingleOwner.h"],
-)
-
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
@@ -38,7 +32,6 @@ skia_filegroup(
         "SkChecksum.h",
         "SkColorData.h",
         "SkContainers.h",
-        "SkDeque.h",
         "SkEncodedInfo.h",
         "SkFixed.h",
         "SkFloatBits.h",
@@ -46,33 +39,23 @@ skia_filegroup(
         "SkHalf.h",
         "SkIDChangeListener.h",
         "SkMacros.h",
-        "SkMalloc.h",
-        "SkMutex.h",
         "SkPathEnums.h",
         "SkNoncopyable.h",
-        "SkOnce.h",
         "SkOpts_spi.h",
         "SkPathRef.h",
         "SkSafe32.h",
         "SkSafe_math.h",
-        "SkSemaphore.h",
         "SkShadowFlags.h",
         "SkSpinlock.h",
-        "SkStringView.h",
         "SkTArray.h",
         "SkTDArray.h",
-        "SkTFitsIn.h",
         "SkTHash.h",
         "SkTLogic.h",
         "SkTPin.h",
         "SkTemplates.h",
-        "SkThreadAnnotations.h",
-        "SkThreadID.h",
-        "SkTo.h",
         "SkTypeTraits.h",
         "SkVx.h",
         "SkWeakRefCnt.h",
-        ":shared_gpu_private_hdrs",
         ":sksl_private_hdrs",
         "//include/private/chromium:private_hdrs",
         "//include/private/base:private_hdrs",

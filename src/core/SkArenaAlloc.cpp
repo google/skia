@@ -7,7 +7,7 @@
 
 #include "src/core/SkArenaAlloc.h"
 
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 
 #include <algorithm>
 #include <cassert>

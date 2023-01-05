@@ -9,8 +9,8 @@
 #include <atomic>
 #include <vector>
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SingleOwner.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SingleOwner.h"
+#include "include/private/base/SkTo.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkOpts.h"

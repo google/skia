@@ -11,7 +11,7 @@
 #include "include/core/SkMath.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrConfig.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 
 class GrBackendSemaphore;
 class SkImage;

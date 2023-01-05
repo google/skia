@@ -13,7 +13,7 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "tests/Test.h"
 
 #include <array>

@@ -14,7 +14,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/pdf/SkDeflate.h"
 #include "src/pdf/SkJpegInfo.h"

@@ -13,7 +13,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkSafe32.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkAnalyticEdge.h"
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeClipper.h"

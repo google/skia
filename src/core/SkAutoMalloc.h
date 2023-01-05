@@ -9,9 +9,9 @@
 #define SkAutoMalloc_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkMalloc.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkMalloc.h"
 
 #include <cstddef>
 #include <cstdint>

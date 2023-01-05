@@ -11,7 +11,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkSurface.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkCanvasPriv.h"

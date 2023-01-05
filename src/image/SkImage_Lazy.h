@@ -9,7 +9,7 @@
 #define SkImage_Lazy_DEFINED
 
 #include "include/private/SkIDChangeListener.h"
-#include "include/private/SkMutex.h"
+#include "include/private/base/SkMutex.h"
 #include "src/image/SkImage_Base.h"
 
 #if SK_SUPPORT_GPU

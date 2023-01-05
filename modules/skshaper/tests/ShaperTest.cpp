@@ -13,7 +13,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "src/core/SkZip.h"
 #include "tools/Resources.h"

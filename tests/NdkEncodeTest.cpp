@@ -11,7 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkImageGenerator.h"
-#include "include/private/SkMalloc.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/images/SkImageEncoderPriv.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"

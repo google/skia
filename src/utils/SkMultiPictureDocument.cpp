@@ -17,7 +17,7 @@
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "include/utils/SkNWayCanvas.h"
 #include "src/utils/SkMultiPictureDocumentPriv.h"
 

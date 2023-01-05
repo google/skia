@@ -26,8 +26,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkDeque.h"
 #include "include/private/SkMacros.h"
+#include "include/private/base/SkDeque.h"
 
 #include <cstring>
 #include <memory>

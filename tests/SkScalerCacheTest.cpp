@@ -15,7 +15,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTo.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkScalerContext.h"
