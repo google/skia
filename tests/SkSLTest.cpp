@@ -563,6 +563,7 @@ SKSL_TEST(GPU_ES3,   kNever,      IntrinsicClampInt,               "intrinsics/C
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicClampUInt,              "intrinsics/ClampUInt.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, IntrinsicClampFloat,             "intrinsics/ClampFloat.sksl")
 SKSL_TEST(CPU + GPU, kNever,      IntrinsicDot,                    "intrinsics/Dot.sksl")
+SKSL_TEST(CPU + GPU, kNever,      IntrinsicFract,                  "intrinsics/Fract.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, IntrinsicMatrixCompMultES2,      "intrinsics/MatrixCompMultES2.sksl")
 SKSL_TEST(GPU_ES3,   kNever,      IntrinsicMatrixCompMultES3,      "intrinsics/MatrixCompMultES3.sksl")
 SKSL_TEST(CPU + GPU, kApiLevel_T, IntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")
