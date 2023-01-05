@@ -1460,7 +1460,6 @@ sk_sp<SkDrawable> SkScalerContext_FreeType::generateDrawable(const SkGlyph& glyp
     SkAutoMutexExclusive  ac(f_t_mutex());
 
     if (this->setupSize()) {
-        sk_bzero(glyph.fImage, glyph.imageSize());
         return nullptr;
     }
 
