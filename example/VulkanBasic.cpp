@@ -94,9 +94,8 @@ int main(int argc, char** argv) {
     // swapchains. In those cases they should use SkSurface::MakeFromBackendTexture or
     // SkSurface::MakeFromBackendRenderTarget to wrap those premade VkImages in Skia. See the
     // HelloWorld example app to see how this is done.
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(context.get(),
-                                                           SkBudgeted::kYes,
-                                                           imageInfo);
+    sk_sp<SkSurface> surface =
+            SkSurface::MakeRenderTarget(context.get(), skgpu::Budgeted::kYes, imageInfo);
     if (!surface) {
         context.reset();
         fVkDestroyDevice(backendContext.fDevice, nullptr);

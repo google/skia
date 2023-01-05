@@ -17,7 +17,7 @@ public:
                                                        SkImage::CompressionType::kNone),
                              SkISize::Make(1, 1),
                              SkBackingFit::kExact,
-                             SkBudgeted::kNo,
+                             skgpu::Budgeted::kNo,
                              GrProtected::kNo,
                              GrInternalSurfaceFlags::kNone,
                              UseAllocator::kNo,

@@ -49,7 +49,7 @@ static sk_sp<SkSurface> make_surface(GrRecordingContext* ctx,
                                      SkPixelGeometry geo) {
     SkSurfaceProps props(0, geo);
     if (ctx) {
-        return SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
+        return SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
     } else {
         return SkSurface::MakeRaster(info, &props);
     }

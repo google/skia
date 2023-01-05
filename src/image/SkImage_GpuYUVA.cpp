@@ -167,7 +167,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GpuYUVA::onAsView(
                                         mipmapped,
                                         GrProtected::kNo,
                                         kTopLeft_GrSurfaceOrigin,
-                                        SkBudgeted::kYes);
+                                        skgpu::Budgeted::kYes);
     if (!sfc) {
         return {};
     }

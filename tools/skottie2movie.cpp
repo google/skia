@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
             if (FLAGS_gpu) {
                 grctx = factory.getContextInfo(contextType).directContext();
                 surf = SkSurface::MakeRenderTarget(grctx,
-                                                   SkBudgeted::kNo,
+                                                   skgpu::Budgeted::kNo,
                                                    info,
                                                    0,
                                                    GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,

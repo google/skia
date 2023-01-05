@@ -1125,7 +1125,7 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
                                           const GrBackendFormat& format,
                                           GrRenderable renderable,
                                           int renderTargetSampleCnt,
-                                          SkBudgeted budgeted,
+                                          skgpu::Budgeted budgeted,
                                           GrProtected isProtected,
                                           int mipLevelCount,
                                           uint32_t levelClearMask,
@@ -1188,10 +1188,11 @@ sk_sp<GrTexture> GrVkGpu::onCreateTexture(SkISize dimensions,
 
 sk_sp<GrTexture> GrVkGpu::onCreateCompressedTexture(SkISize dimensions,
                                                     const GrBackendFormat& format,
-                                                    SkBudgeted budgeted,
+                                                    skgpu::Budgeted budgeted,
                                                     GrMipmapped mipmapped,
                                                     GrProtected isProtected,
-                                                    const void* data, size_t dataSize) {
+                                                    const void* data,
+                                                    size_t dataSize) {
     VkFormat pixelFormat;
     SkAssertResult(format.asVkFormat(&pixelFormat));
     SkASSERT(skgpu::VkFormatIsCompressed(pixelFormat));

@@ -22,7 +22,7 @@ struct GrVkImageInfo;
 class GrVkTexture : public GrTexture {
 public:
     static sk_sp<GrVkTexture> MakeNewTexture(GrVkGpu*,
-                                             SkBudgeted budgeted,
+                                             skgpu::Budgeted budgeted,
                                              SkISize dimensions,
                                              VkFormat format,
                                              uint32_t mipLevels,
@@ -83,7 +83,7 @@ protected:
 
 private:
     GrVkTexture(GrVkGpu*,
-                SkBudgeted,
+                skgpu::Budgeted,
                 SkISize,
                 sk_sp<GrVkImage> texture,
                 GrMipmapStatus,

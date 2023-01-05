@@ -19,6 +19,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -99,8 +100,11 @@ DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GLTextureParameters,
     invalidNSState.invalidate();
 
     auto surf = SkSurface::MakeRenderTarget(
-            dContext, SkBudgeted::kYes,
-            SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1, nullptr);
+            dContext,
+            skgpu::Budgeted::kYes,
+            SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
+            1,
+            nullptr);
     REPORTER_ASSERT(reporter, surf);
 
     // Test invalidating from the GL backend texture.

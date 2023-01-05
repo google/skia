@@ -106,7 +106,7 @@ sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
                                                      sk_sp<GrSurfaceProxy> baseProxy,
                                                      GrSurfaceOrigin origin,
                                                      std::string_view label,
-                                                     SkBudgeted budgeted) {
+                                                     skgpu::Budgeted budgeted) {
     SkASSERT(baseProxy);
 
     // We don't allow this for promise proxies i.e. if they need mips they need to give them
@@ -128,7 +128,7 @@ sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext* ctx,
 
 GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext* context,
                                           GrSurfaceProxyView src,
-                                          SkBudgeted budgeted) {
+                                          skgpu::Budgeted budgeted) {
     auto origin = src.origin();
     auto swizzle = src.swizzle();
     auto proxy = src.refProxy();
@@ -160,7 +160,7 @@ static sk_sp<GrTextureProxy> make_bmp_proxy(GrProxyProvider* proxyProvider,
                                             GrColorType ct,
                                             GrMipmapped mipmapped,
                                             SkBackingFit fit,
-                                            SkBudgeted budgeted) {
+                                            skgpu::Budgeted budgeted) {
     SkBitmap bmpToUpload;
     if (ct != SkColorTypeToGrColorType(bitmap.info().colorType())) {
         SkColorType skCT = GrColorTypeToSkColorType(ct);
@@ -205,12 +205,8 @@ GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(key);
     if (!proxy) {
-        proxy = make_bmp_proxy(proxyProvider,
-                               bitmap,
-                               ct,
-                               mipmapped,
-                               SkBackingFit::kExact,
-                               SkBudgeted::kYes);
+        proxy = make_bmp_proxy(
+                proxyProvider, bitmap, ct, mipmapped, SkBackingFit::kExact, skgpu::Budgeted::kYes);
         if (!proxy) {
             return {};
         }
@@ -245,12 +241,12 @@ GrMakeCachedBitmapProxyView(GrRecordingContext* rContext,
     return {{std::move(mippedProxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
 }
 
-std::tuple<GrSurfaceProxyView, GrColorType>
-GrMakeUncachedBitmapProxyView(GrRecordingContext* rContext,
-                              const SkBitmap& bitmap,
-                              GrMipmapped mipmapped,
-                              SkBackingFit fit,
-                              SkBudgeted budgeted) {
+std::tuple<GrSurfaceProxyView, GrColorType> GrMakeUncachedBitmapProxyView(
+        GrRecordingContext* rContext,
+        const SkBitmap& bitmap,
+        GrMipmapped mipmapped,
+        SkBackingFit fit,
+        skgpu::Budgeted budgeted) {
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
     const GrCaps* caps = rContext->priv().caps();
 

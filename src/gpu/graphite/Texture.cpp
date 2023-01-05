@@ -17,7 +17,7 @@ Texture::Texture(const SharedContext* sharedContext,
                  const TextureInfo& info,
                  sk_sp<MutableTextureStateRef> mutableState,
                  Ownership ownership,
-                 SkBudgeted budgeted)
+                 skgpu::Budgeted budgeted)
         : Resource(sharedContext, ownership, budgeted)
         , fDimensions(dimensions)
         , fInfo(info)

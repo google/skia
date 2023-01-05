@@ -14,6 +14,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -21,6 +22,7 @@
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ResourceKey.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
@@ -51,7 +53,7 @@ struct ProxyParams {
     GrColorType     fColorType;
     SkBackingFit    fFit;
     int             fSampleCnt;
-    SkBudgeted      fBudgeted;
+    skgpu::Budgeted fBudgeted;
     enum Kind {
         kDeferred,
         kBackend,
@@ -73,8 +75,8 @@ constexpr GrColorType kAlpha = GrColorType::kAlpha_8;
 constexpr SkBackingFit kE = SkBackingFit::kExact;
 constexpr SkBackingFit kA = SkBackingFit::kApprox;
 
-constexpr SkBudgeted kNotB = SkBudgeted::kNo;
-constexpr SkBudgeted kB = SkBudgeted::kYes;
+constexpr skgpu::Budgeted kNotB = skgpu::Budgeted::kNo;
+constexpr skgpu::Budgeted kB = skgpu::Budgeted::kYes;
 
 constexpr ProxyParams::Kind kDeferred = ProxyParams::Kind::kDeferred;
 constexpr ProxyParams::Kind kBackend = ProxyParams::Kind::kBackend;
@@ -355,8 +357,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest,
 static void draw(GrRecordingContext* rContext) {
     SkImageInfo ii = SkImageInfo::Make(1024, 1024, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes,
-                                                     ii, 1, kTopLeft_GrSurfaceOrigin, nullptr);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(
+            rContext, skgpu::Budgeted::kYes, ii, 1, kTopLeft_GrSurfaceOrigin, nullptr);
 
     SkCanvas* c = s->getCanvas();
 

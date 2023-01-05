@@ -12,6 +12,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
@@ -22,6 +23,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/gpu/AtlasTypes.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -290,7 +292,7 @@ DEF_GANESH_TEST(LazyProxyReleaseTest, reporter, /* options */, CtsEnforcement::k
                                                              GrRenderable::kNo,
                                                              1,
                                                              GrMipmapped::kNo,
-                                                             SkBudgeted::kNo,
+                                                             skgpu::Budgeted::kNo,
                                                              GrProtected::kNo,
                                                              /*label=*/{});
     using LazyInstantiationResult = GrSurfaceProxy::LazyCallbackResult;
@@ -331,11 +333,18 @@ DEF_GANESH_TEST(LazyProxyReleaseTest, reporter, /* options */, CtsEnforcement::k
                 bool fReleaseCallback;
                 sk_sp<GrTexture> fTexture;
             };
-            sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-                    TestCallback(&testCount, releaseCallback, tex), format, {kSize, kSize},
-                    GrMipmapped::kNo, GrMipmapStatus::kNotAllocated, GrInternalSurfaceFlags::kNone,
-                    SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo,
-                    GrSurfaceProxy::UseAllocator::kYes, /*label=*/{});
+            sk_sp<GrTextureProxy> proxy =
+                    proxyProvider->createLazyProxy(TestCallback(&testCount, releaseCallback, tex),
+                                                   format,
+                                                   {kSize, kSize},
+                                                   GrMipmapped::kNo,
+                                                   GrMipmapStatus::kNotAllocated,
+                                                   GrInternalSurfaceFlags::kNone,
+                                                   SkBackingFit::kExact,
+                                                   skgpu::Budgeted::kNo,
+                                                   GrProtected::kNo,
+                                                   GrSurfaceProxy::UseAllocator::kYes,
+                                                   /*label=*/{});
 
             REPORTER_ASSERT(reporter, proxy.get());
             REPORTER_ASSERT(reporter, 0 == testCount);
@@ -408,9 +417,16 @@ private:
                                               /*label=*/{}),
                             true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
                 },
-                format, dims, GrMipmapped::kNo, GrMipmapStatus::kNotAllocated,
-                GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo,
-                GrProtected::kNo, GrSurfaceProxy::UseAllocator::kYes, /*label=*/{});
+                format,
+                dims,
+                GrMipmapped::kNo,
+                GrMipmapStatus::kNotAllocated,
+                GrInternalSurfaceFlags::kNone,
+                SkBackingFit::kExact,
+                skgpu::Budgeted::kNo,
+                GrProtected::kNo,
+                GrSurfaceProxy::UseAllocator::kYes,
+                /*label=*/{});
 
         SkASSERT(fLazyProxy.get());
 

@@ -11,6 +11,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTraceMemoryDump.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/gl/GrGLTypes.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
@@ -114,9 +115,11 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTexture,
     desc.fOwnership = GrBackendObjectOwnership::kOwned;
     desc.fSize = SkISize::Make(64, 64);
 
-    auto texture = sk_make_sp<GrGLTexture>(
-            gpu, SkBudgeted::kNo, desc, GrMipmapStatus::kNotAllocated,
-            /*label=*/"SkTraceMemoryDump_ownedGLTexture");
+    auto texture = sk_make_sp<GrGLTexture>(gpu,
+                                           skgpu::Budgeted::kNo,
+                                           desc,
+                                           GrMipmapStatus::kNotAllocated,
+                                           /*label=*/"SkTraceMemoryDump_ownedGLTexture");
 
     ValidateMemoryDumps(reporter, dContext, 2, texture->gpuMemorySize(), true /* isOwned */);
 }
@@ -226,7 +229,12 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(SkTraceMemoryDump_ownedGLTextureRender
     rtIDs.fTotalMemorySamplesPerPixel = 9;
 
     auto texRT = sk_make_sp<GrGLTextureRenderTarget>(
-            gpu, SkBudgeted::kYes, 8, texDesc, rtIDs, GrMipmapStatus::kNotAllocated,
+            gpu,
+            skgpu::Budgeted::kYes,
+            8,
+            texDesc,
+            rtIDs,
+            GrMipmapStatus::kNotAllocated,
             /*label=*/"SkTraceMemoryDump_ownedGLTextureRenderTarget");
 
     ValidateMemoryDumps(reporter, dContext, 3, texRT->gpuMemorySize(), true /* isOwned */);

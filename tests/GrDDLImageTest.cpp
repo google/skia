@@ -16,6 +16,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -54,7 +55,7 @@ DEF_GANESH_TEST(GrDDLImage_MakeSubset, reporter, options, CtsEnforcement::kApiLe
         REPORTER_ASSERT(reporter, subImg2->isValid(static_cast<GrRecordingContext*>(nullptr)));
 
         // Texture image:
-        auto surf = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, ii);
+        auto surf = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, ii);
         SkSurfaceCharacterization sc;
         REPORTER_ASSERT(reporter, surf->characterize(&sc));
         GrBackendTexture tex = dContext->createBackendTexture(ii.width(),

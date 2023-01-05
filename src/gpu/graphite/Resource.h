@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Resource_DEFINED
 #define skgpu_graphite_Resource_DEFINED
 
+#include "include/gpu/GpuTypes.h"
 #include "include/private/SkMutex.h"
 #include "src/gpu/graphite/GraphiteResourceKey.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -81,7 +82,7 @@ public:
 
     Ownership ownership() const { return fOwnership; }
 
-    SkBudgeted budgeted() const { return fBudgeted; }
+    skgpu::Budgeted budgeted() const { return fBudgeted; }
 
     // Tests whether a object has been abandoned or released. All objects will be in this state
     // after their creating Context is destroyed or abandoned.
@@ -97,12 +98,12 @@ public:
     const GraphiteResourceKey& key() const { return fKey; }
     // This should only ever be called by the ResourceProvider
     void setKey(const GraphiteResourceKey& key) {
-        SkASSERT(key.shareable() == Shareable::kNo || this->budgeted() == SkBudgeted::kYes);
+        SkASSERT(key.shareable() == Shareable::kNo || this->budgeted() == skgpu::Budgeted::kYes);
         fKey = key;
     }
 
 protected:
-    Resource(const SharedContext*, Ownership, SkBudgeted);
+    Resource(const SharedContext*, Ownership, skgpu::Budgeted);
     virtual ~Resource();
 
     const SharedContext* sharedContext() const { return fSharedContext; }
@@ -123,8 +124,8 @@ private:
     ////////////////////////////////////////////////////////////////////////////
     friend ResourceCache;
 
-    void makeBudgeted() { fBudgeted = SkBudgeted::kYes; }
-    void makeUnbudgeted() { fBudgeted = SkBudgeted::kNo; }
+    void makeBudgeted() { fBudgeted = skgpu::Budgeted::kYes; }
+    void makeUnbudgeted() { fBudgeted = skgpu::Budgeted::kNo; }
 
     // This version of ref allows adding a ref when the usage count is 0. This should only be called
     // from the ResourceCache.
@@ -246,7 +247,7 @@ private:
     // shared resource or available scratch resource are considered budgeted. Resources that back
     // client owned objects (e.g. SkSurface or SkImage) are not budgeted and do not count against
     // cache limits.
-    SkBudgeted fBudgeted;
+    skgpu::Budgeted fBudgeted;
 
     // An index into a heap when this resource is purgeable or an array when not. This is maintained
     // by the cache.

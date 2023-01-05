@@ -112,7 +112,7 @@ void TestCopyFromSurface(skiatest::Reporter* reporter,
                                      origin,
                                      GrMipmapped::kNo,
                                      SkBackingFit::kExact,
-                                     SkBudgeted::kYes,
+                                     skgpu::Budgeted::kYes,
                                      /*label=*/"CopyFromSurface_Test");
     SkASSERT(copy && copy->asTextureProxy());
     auto swizzle = dContext->priv().caps()->getReadSwizzle(copy->backendFormat(), colorType);
@@ -287,7 +287,7 @@ std::unique_ptr<skgpu::v1::SurfaceContext> CreateSurfaceContext(GrRecordingConte
                                                                 int sampleCount,
                                                                 GrMipmapped mipmapped,
                                                                 GrProtected isProtected,
-                                                                SkBudgeted budgeted) {
+                                                                skgpu::Budgeted budgeted) {
     GrBackendFormat format = rContext->priv().caps()->getDefaultBackendFormat(info.colorType(),
                                                                               renderable);
     return rContext->priv().makeSC(info,

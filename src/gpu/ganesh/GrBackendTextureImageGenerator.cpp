@@ -205,8 +205,13 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
                 // proxy.
                 return {std::move(tex), true, GrSurfaceProxy::LazyInstantiationKeyMode::kUnsynced};
             },
-            backendFormat, fBackendTexture.dimensions(), textureIsMipMapped, mipmapStatus,
-            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
+            backendFormat,
+            fBackendTexture.dimensions(),
+            textureIsMipMapped,
+            mipmapStatus,
+            GrInternalSurfaceFlags::kReadOnly,
+            SkBackingFit::kExact,
+            skgpu::Budgeted::kNo,
             GrProtected::kNo,
             GrSurfaceProxy::UseAllocator::kYes,
             "BackendTextureImageGenerator");
@@ -219,9 +224,9 @@ GrSurfaceProxyView GrBackendTextureImageGenerator::onGenerateTexture(
         // If we have the correct mip support, we're done
         return GrSurfaceProxyView(std::move(proxy), fSurfaceOrigin, readSwizzle);
     } else {
-        SkBudgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
-                                      ? SkBudgeted::kNo
-                                      : SkBudgeted::kYes;
+        skgpu::Budgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
+                                           ? skgpu::Budgeted::kNo
+                                           : skgpu::Budgeted::kYes;
 
         auto copy = GrSurfaceProxy::Copy(dContext,
                                          std::move(proxy),

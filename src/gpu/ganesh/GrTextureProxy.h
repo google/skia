@@ -26,7 +26,11 @@ class GrDeferredProxyUploader;
 class GrProxyProvider;
 class GrResourceProvider;
 class GrTextureProxyPriv;
+enum class SkBackingFit;
 struct SkISize;
+namespace skgpu {
+enum class Budgeted : bool;
+}
 
 // This class delays the acquisition of textures until they are actually required
 class GrTextureProxy : virtual public GrSurfaceProxy {
@@ -124,7 +128,7 @@ protected:
                    GrMipmapped,
                    GrMipmapStatus,
                    SkBackingFit,
-                   SkBudgeted,
+                   skgpu::Budgeted,
                    GrProtected,
                    GrInternalSurfaceFlags,
                    UseAllocator,
@@ -147,7 +151,7 @@ protected:
                    GrMipmapped,
                    GrMipmapStatus,
                    SkBackingFit,
-                   SkBudgeted,
+                   skgpu::Budgeted,
                    GrProtected,
                    GrInternalSurfaceFlags,
                    UseAllocator,

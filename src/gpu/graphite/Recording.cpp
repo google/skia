@@ -140,7 +140,7 @@ void RecordingPriv::addTask(sk_sp<Task> task) {
 
 Recording::LazyProxyData::LazyProxyData(const TextureInfo& textureInfo) {
     fTargetProxy = TextureProxy::MakeFullyLazy(
-            textureInfo, SkBudgeted::kNo, Volatile::kYes, [this](ResourceProvider*) {
+            textureInfo, skgpu::Budgeted::kNo, Volatile::kYes, [this](ResourceProvider*) {
                 SkASSERT(SkToBool(fTarget));
                 return std::move(fTarget);
             });

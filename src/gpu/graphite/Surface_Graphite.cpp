@@ -126,10 +126,9 @@ TextureProxy* Surface::backingTextureProxy() { return fDevice->target(); }
 
 sk_sp<SkSurface> Surface::MakeGraphite(Recorder* recorder,
                                        const SkImageInfo& info,
-                                       SkBudgeted budgeted,
+                                       skgpu::Budgeted budgeted,
                                        Mipmapped mipmapped,
                                        const SkSurfaceProps* props) {
-
     sk_sp<Device> device = Device::Make(recorder, info, budgeted, mipmapped,
                                         SkSurfacePropsCopyOrDefault(props),
                                         /* addInitialClear= */ true);
@@ -176,11 +175,8 @@ sk_sp<SkSurface> SkSurface::MakeGraphite(Recorder* recorder,
                                          Mipmapped mipmapped,
                                          const SkSurfaceProps* props) {
     // The client is getting the ref on this surface so it must be unbudgeted.
-    return skgpu::graphite::Surface::MakeGraphite(recorder,
-                                                  info,
-                                                  SkBudgeted::kNo,
-                                                  mipmapped,
-                                                  props);
+    return skgpu::graphite::Surface::MakeGraphite(
+            recorder, info, skgpu::Budgeted::kNo, mipmapped, props);
 }
 
 sk_sp<SkSurface> SkSurface::MakeGraphiteFromBackendTexture(Recorder* recorder,

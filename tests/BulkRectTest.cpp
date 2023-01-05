@@ -16,6 +16,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -23,6 +24,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBlendModePriv.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
@@ -65,10 +67,16 @@ static sk_sp<GrSurfaceProxy> create_proxy(GrRecordingContext* rContext) {
     const GrBackendFormat format = rContext->priv().caps()->getDefaultBackendFormat(
                                                                            GrColorType::kRGBA_8888,
                                                                            GrRenderable::kYes);
-    return rContext->priv().proxyProvider()->createProxy(
-            format, kDimensions, GrRenderable::kYes, 1, GrMipmapped::kNo, SkBackingFit::kExact,
-            SkBudgeted::kNo, GrProtected::kNo, /*label=*/"CreateSurfaceProxy",
-            GrInternalSurfaceFlags::kNone);
+    return rContext->priv().proxyProvider()->createProxy(format,
+                                                         kDimensions,
+                                                         GrRenderable::kYes,
+                                                         1,
+                                                         GrMipmapped::kNo,
+                                                         SkBackingFit::kExact,
+                                                         skgpu::Budgeted::kNo,
+                                                         GrProtected::kNo,
+                                                         /*label=*/"CreateSurfaceProxy",
+                                                         GrInternalSurfaceFlags::kNone);
 }
 
 typedef GrQuadAAFlags (*PerQuadAAFunc)(int i);

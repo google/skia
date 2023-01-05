@@ -32,7 +32,7 @@ GrVkBuffer::GrVkBuffer(GrVkGpu* gpu,
     // We always require dynamic buffers to be mappable
     SkASSERT(accessPattern != kDynamic_GrAccessPattern || this->isVkMappable());
     SkASSERT(bufferType != GrGpuBufferType::kUniform || uniformDescriptorSet);
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(skgpu::Budgeted::kYes);
 }
 
 static const GrVkDescriptorSet* make_uniform_desc_set(GrVkGpu* gpu, VkBuffer buffer, size_t size) {

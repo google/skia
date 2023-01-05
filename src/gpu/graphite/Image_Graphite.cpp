@@ -209,7 +209,7 @@ sk_sp<TextureProxy> Image::MakePromiseImageLazyProxy(
 
     return TextureProxy::MakeLazy(dimensions,
                                   textureInfo,
-                                  SkBudgeted::kNo,     // This is destined for a user's SkImage
+                                  skgpu::Budgeted::kNo,  // This is destined for a user's SkImage
                                   isVolatile,
                                   std::move(callback));
 }

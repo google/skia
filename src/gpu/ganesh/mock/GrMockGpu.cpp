@@ -95,7 +95,7 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(SkISize dimensions,
                                             const GrBackendFormat& format,
                                             GrRenderable renderable,
                                             int renderTargetSampleCnt,
-                                            SkBudgeted budgeted,
+                                            skgpu::Budgeted budgeted,
                                             GrProtected isProtected,
                                             int mipLevelCount,
                                             uint32_t levelClearMask,
@@ -129,10 +129,11 @@ sk_sp<GrTexture> GrMockGpu::onCreateTexture(SkISize dimensions,
 // TODO: why no 'isProtected' ?!
 sk_sp<GrTexture> GrMockGpu::onCreateCompressedTexture(SkISize dimensions,
                                                       const GrBackendFormat& format,
-                                                      SkBudgeted budgeted,
+                                                      skgpu::Budgeted budgeted,
                                                       GrMipmapped mipmapped,
                                                       GrProtected isProtected,
-                                                      const void* data, size_t dataSize) {
+                                                      const void* data,
+                                                      size_t dataSize) {
     if (fMockOptions.fFailTextureAllocations) {
         return nullptr;
     }

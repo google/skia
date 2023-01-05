@@ -21,6 +21,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "tests/CtsEnforcement.h"
 
@@ -83,9 +84,8 @@ DEF_GANESH_TEST_FOR_ALL_GL_CONTEXTS(GpuDrawPath, reporter, ctxInfo, CtsEnforceme
     for (auto& test_func : { &test_drawPathEmpty, &test_drawSameRectOvals }) {
         for (auto& sampleCount : {1, 4, 16}) {
             SkImageInfo info = SkImageInfo::MakeN32Premul(255, 255);
-            auto surface(
-                SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info,
-                                            sampleCount, nullptr));
+            auto surface(SkSurface::MakeRenderTarget(
+                    ctxInfo.directContext(), skgpu::Budgeted::kNo, info, sampleCount, nullptr));
             if (!surface) {
                 continue;
             }
@@ -102,7 +102,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrDrawCollapsedPath,
     // path to be accepted by AAConvexPathRenderer, then be transformed to something without a
     // computable first direction by a perspective matrix.
     SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    auto surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
 
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -129,7 +129,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(PathTest_CrBug1232834,
     // AAHairlinePathRenderer chops this path to quads that include infinities (and then NaNs).
     // It used to trigger asserts, now the degenerate quad segments should cause it to be rejected.
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    auto surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
 
     SkPaint paint;
     paint.setAntiAlias(true);

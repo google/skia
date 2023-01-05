@@ -10,6 +10,7 @@
 
 #include "include/gpu/GrContextOptions.h"
 #include "src/core/SkImageInfoPriv.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrResourceCache.h"
 

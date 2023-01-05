@@ -124,11 +124,8 @@ static JSObject RunGM(sk_sp<GrDirectContext> ctx, std::string name) {
     auto colorType = SkColorType::kN32_SkColorType;
     SkISize size = gm->getISize();
     SkImageInfo info = SkImageInfo::Make(size, colorType, alphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx.get(),
-                             SkBudgeted::kYes,
-                             info, 0,
-                             kBottomLeft_GrSurfaceOrigin,
-                             nullptr, true));
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+            ctx.get(), skgpu::Budgeted::kYes, info, 0, kBottomLeft_GrSurfaceOrigin, nullptr, true));
     if (!surface) {
         SkDebugf("Could not make surface\n");
         return result;

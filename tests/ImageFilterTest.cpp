@@ -38,6 +38,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
@@ -385,8 +386,8 @@ static sk_sp<SkSpecialSurface> create_empty_special_surface(GrRecordingContext* 
 static sk_sp<SkSurface> create_surface(GrRecordingContext* rContext, int width, int height) {
     const SkImageInfo info = SkImageInfo::MakeN32(width, height, kOpaque_SkAlphaType);
     if (rContext) {
-        return SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info,
-                                           0, kTestSurfaceOrigin, nullptr);
+        return SkSurface::MakeRenderTarget(
+                rContext, skgpu::Budgeted::kNo, info, 0, kTestSurfaceOrigin, nullptr);
     } else {
         return SkSurface::MakeRaster(info);
     }
@@ -1831,10 +1832,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageFilterHugeBlur_Gpu,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kNever) {
-    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(ctxInfo.directContext(),
-                                                      SkBudgeted::kNo,
-                                                      SkImageInfo::MakeN32Premul(100, 100)));
-
+    sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(
+            ctxInfo.directContext(), skgpu::Budgeted::kNo, SkImageInfo::MakeN32Premul(100, 100)));
 
     SkCanvas* canvas = surf->getCanvas();
 
@@ -1847,7 +1846,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(XfermodeImageFilterCroppedInput_Gpu,
                                        CtsEnforcement::kNever) {
     sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(
             ctxInfo.directContext(),
-            SkBudgeted::kNo,
+            skgpu::Budgeted::kNo,
             SkImageInfo::Make(1, 1, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
 
     test_xfermode_cropped_input(surf.get(), reporter);
@@ -1858,7 +1857,8 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageFilterBlurLargeImage_Gpu,
                                  ctxInfo,
                                  CtsEnforcement::kNever) {
     auto surface(SkSurface::MakeRenderTarget(
-            ctxInfo.directContext(), SkBudgeted::kYes,
+            ctxInfo.directContext(),
+            skgpu::Budgeted::kYes,
             SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType)));
     test_large_blur_input(reporter, surface->getCanvas());
 }

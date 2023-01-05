@@ -20,7 +20,7 @@ public:
                                      wgpu::TextureFormat format,
                                      GrRenderable,
                                      int sampleCnt,
-                                     SkBudgeted,
+                                     skgpu::Budgeted,
                                      int mipLevels,
                                      GrMipmapStatus,
                                      std::string_view label);

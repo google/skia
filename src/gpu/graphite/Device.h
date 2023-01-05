@@ -8,9 +8,9 @@
 #ifndef skgpu_graphite_Device_DEFINED
 #define skgpu_graphite_Device_DEFINED
 
+#include "include/gpu/GpuTypes.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkEnumBitMask.h"
-
 #include "src/gpu/graphite/ClipStack_graphite.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/geom/Rect.h"
@@ -20,7 +20,10 @@
 
 class SkStrokeRec;
 
-namespace sktext::gpu { class AtlasSubRun; }
+namespace sktext::gpu {
+class AtlasSubRun;
+enum class Budgeted : bool;
+}  // namespace sktext::gpu
 
 namespace skgpu::graphite {
 
@@ -43,7 +46,7 @@ public:
 
     static sk_sp<Device> Make(Recorder*,
                               const SkImageInfo&,
-                              SkBudgeted,
+                              skgpu::Budgeted,
                               Mipmapped,
                               const SkSurfaceProps&,
                               bool addInitialClear);

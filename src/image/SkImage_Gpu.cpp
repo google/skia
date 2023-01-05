@@ -201,7 +201,7 @@ sk_sp<SkImage> SkImage_Gpu::MakeWithVolatileSrc(sk_sp<GrRecordingContext> rConte
                                      volatileSrc.origin(),
                                      mm,
                                      SkBackingFit::kExact,
-                                     SkBudgeted::kYes,
+                                     skgpu::Budgeted::kYes,
                                      /*label=*/"ImageGpu_MakeWithVolatileSrc",
                                      &copyTask);
     if (!copy) {
@@ -536,7 +536,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromCompressed(GrDirectContext* direct, sk_sp
 
     GrProxyProvider* proxyProvider = direct->priv().proxyProvider();
     sk_sp<GrTextureProxy> proxy = proxyProvider->createCompressedTextureProxy(
-            {width, height}, SkBudgeted::kYes, mipmapped, isProtected, type, std::move(data));
+            {width, height}, skgpu::Budgeted::kYes, mipmapped, isProtected, type, std::move(data));
     if (!proxy) {
         return nullptr;
     }
@@ -552,7 +552,7 @@ sk_sp<SkImage> SkImage::MakeTextureFromCompressed(GrDirectContext* direct, sk_sp
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
                                          GrMipmapped mipmapped,
-                                         SkBudgeted budgeted) const {
+                                         skgpu::Budgeted budgeted) const {
     if (!dContext) {
         return nullptr;
     }
@@ -569,7 +569,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrDirectContext* dContext,
             return sk_ref_sp(const_cast<SkImage*>(this));
         }
     }
-    GrImageTexGenPolicy policy = budgeted == SkBudgeted::kYes
+    GrImageTexGenPolicy policy = budgeted == skgpu::Budgeted::kYes
                                          ? GrImageTexGenPolicy::kNew_Uncached_Budgeted
                                          : GrImageTexGenPolicy::kNew_Uncached_Unbudgeted;
     // TODO: Don't flatten YUVA images here. Add mips to the planes instead.

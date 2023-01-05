@@ -189,7 +189,7 @@ protected:
         sk_sp<SkSurface> surface;
         if (auto rc = canvas->recordingContext()) {
             surface = SkSurface::MakeRenderTarget(rc,
-                                                  SkBudgeted::kYes,
+                                                  skgpu::Budgeted::kYes,
                                                   ii,
                                                   1,
                                                   kTopLeft_GrSurfaceOrigin,

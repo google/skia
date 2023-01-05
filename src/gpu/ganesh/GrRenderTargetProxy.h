@@ -26,7 +26,11 @@ class GrCaps;
 class GrResourceProvider;
 class GrSurface;
 enum class GrProtected : bool;
+enum class SkBackingFit;
 struct SkISize;
+namespace skgpu {
+enum class Budgeted : bool;
+}
 
 // GrArenas matches the lifetime of a single frame. It is created and held on the
 // SurfaceFillContext's RenderTargetProxy with the first call to get an arena. Each OpsTask
@@ -136,7 +140,7 @@ protected:
                         SkISize,
                         int sampleCount,
                         SkBackingFit,
-                        SkBudgeted,
+                        skgpu::Budgeted,
                         GrProtected,
                         GrInternalSurfaceFlags,
                         UseAllocator,
@@ -159,7 +163,7 @@ protected:
                         SkISize,
                         int sampleCount,
                         SkBackingFit,
-                        SkBudgeted,
+                        skgpu::Budgeted,
                         GrProtected,
                         GrInternalSurfaceFlags,
                         UseAllocator,

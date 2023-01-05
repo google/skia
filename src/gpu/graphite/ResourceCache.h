@@ -45,7 +45,7 @@ public:
     void insertResource(Resource*);
 
     // Find a resource that matches a key.
-    Resource* findAndRefResource(const GraphiteResourceKey& key, SkBudgeted);
+    Resource* findAndRefResource(const GraphiteResourceKey& key, skgpu::Budgeted);
 
     // This is a thread safe call. If it fails the ResourceCache is no longer valid and the
     // Resource should clean itself up if it is the last ref.

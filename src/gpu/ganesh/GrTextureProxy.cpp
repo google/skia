@@ -11,6 +11,7 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrDeferredProxyUploader.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
@@ -29,16 +30,16 @@ GrTextureProxy::GrTextureProxy(const GrBackendFormat& format,
                                GrMipmapped mipmapped,
                                GrMipmapStatus mipmapStatus,
                                SkBackingFit fit,
-                               SkBudgeted budgeted,
+                               skgpu::Budgeted budgeted,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
                                UseAllocator useAllocator,
                                GrDDLProvider creatingProvider,
                                std::string_view label)
-        : INHERITED(format, dimensions, fit, budgeted, isProtected, surfaceFlags, useAllocator, label)
+        : INHERITED(
+                  format, dimensions, fit, budgeted, isProtected, surfaceFlags, useAllocator, label)
         , fMipmapped(mipmapped)
-        , fMipmapStatus(mipmapStatus)
-        SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
+        , fMipmapStatus(mipmapStatus) SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
         , fCreatingProvider(creatingProvider)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {
@@ -55,17 +56,23 @@ GrTextureProxy::GrTextureProxy(LazyInstantiateCallback&& callback,
                                GrMipmapped mipmapped,
                                GrMipmapStatus mipmapStatus,
                                SkBackingFit fit,
-                               SkBudgeted budgeted,
+                               skgpu::Budgeted budgeted,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
                                UseAllocator useAllocator,
                                GrDDLProvider creatingProvider,
                                std::string_view label)
-        : INHERITED(std::move(callback), format, dimensions, fit, budgeted, isProtected,
-                    surfaceFlags, useAllocator, label)
+        : INHERITED(std::move(callback),
+                    format,
+                    dimensions,
+                    fit,
+                    budgeted,
+                    isProtected,
+                    surfaceFlags,
+                    useAllocator,
+                    label)
         , fMipmapped(mipmapped)
-        , fMipmapStatus(mipmapStatus)
-        SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
+        , fMipmapStatus(mipmapStatus) SkDEBUGCODE(, fInitialMipmapStatus(fMipmapStatus))
         , fCreatingProvider(creatingProvider)
         , fProxyProvider(nullptr)
         , fDeferredUploader(nullptr) {

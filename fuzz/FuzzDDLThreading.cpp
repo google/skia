@@ -118,7 +118,7 @@ DDLFuzzer::DDLFuzzer(Fuzz* fuzz, ContextType contextType) : fFuzz(fuzz) {
     SkISize canvasSize = kPromiseImageSize;
     canvasSize.fWidth *= kPromiseImagesPerDDL;
     SkImageInfo ii = SkImageInfo::Make(canvasSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    fSurface = SkSurface::MakeRenderTarget(fContext, SkBudgeted::kNo, ii);
+    fSurface = SkSurface::MakeRenderTarget(fContext, skgpu::Budgeted::kNo, ii);
     if (!fSurface || !fSurface->characterize(&fSurfaceCharacterization)) {
         return;
     }

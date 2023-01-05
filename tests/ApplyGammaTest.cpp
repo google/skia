@@ -19,6 +19,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTemplates.h"
 #include "src/core/SkOpts.h"
@@ -123,7 +124,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ApplyGamma, reporter, ctxInfo, CtsEnforce
     float error = context->priv().caps()->shaderCaps()->fHalfIs32Bits ? 0.5f : 1.2f;
 
     for (auto toSRGB : { false, true }) {
-        sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
+        sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, ii));
 
         if (!dst) {
             ERRORF(reporter, "Could not create surfaces for copy surface test.");

@@ -187,7 +187,7 @@ static bool setup_backend_objects(GrDirectContext* dContext,
                                                 GrColorType::kRGBA_8888,
                                                 GrRenderable::kYes,
                                                 kSampleCnt,
-                                                SkBudgeted::kNo,
+                                                skgpu::Budgeted::kNo,
                                                 GrMipmapped::kNo,
                                                 GrProtected::kNo,
                                                 &level0,
@@ -284,7 +284,7 @@ int main(int argc, char** argv) {
                 exit(1);
             }
 
-            auto surface = SkSurface::MakeRenderTarget(direct.get(), SkBudgeted::kNo, info);
+            auto surface = SkSurface::MakeRenderTarget(direct.get(), skgpu::Budgeted::kNo, info);
             if (!surface) {
                 fputs("Unable to get render surface.\n", stderr);
                 exit(1);

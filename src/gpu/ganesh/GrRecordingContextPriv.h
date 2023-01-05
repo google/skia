@@ -123,7 +123,7 @@ public:
                                           GrSurfaceOrigin,
                                           const SkSurfaceProps&,
                                           skgpu::v1::Device::InitContents);
-    sk_sp<skgpu::v1::Device> createDevice(SkBudgeted,
+    sk_sp<skgpu::v1::Device> createDevice(skgpu::Budgeted,
                                           const SkImageInfo&,
                                           SkBackingFit,
                                           int sampleCount,
@@ -149,21 +149,21 @@ public:
                                                       int renderTargetSampleCnt = 1,
                                                       GrMipmapped = GrMipmapped::kNo,
                                                       GrProtected = GrProtected::kNo,
-                                                      SkBudgeted = SkBudgeted::kYes);
+                                                      skgpu::Budgeted = skgpu::Budgeted::kYes);
 
     /**
      * Uses GrImageInfo's color type to pick the default texture format. Will return a
      * SurfaceDrawContext if possible.
      */
     std::unique_ptr<skgpu::v1::SurfaceFillContext> makeSFC(
-        GrImageInfo,
-        std::string_view label,
-        SkBackingFit = SkBackingFit::kExact,
-        int sampleCount = 1,
-        GrMipmapped = GrMipmapped::kNo,
-        GrProtected = GrProtected::kNo,
-        GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-        SkBudgeted = SkBudgeted::kYes);
+            GrImageInfo,
+            std::string_view label,
+            SkBackingFit = SkBackingFit::kExact,
+            int sampleCount = 1,
+            GrMipmapped = GrMipmapped::kNo,
+            GrProtected = GrProtected::kNo,
+            GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+            skgpu::Budgeted = skgpu::Budgeted::kYes);
 
     /**
      * Makes a custom configured SurfaceFillContext where the caller specifies the specific
@@ -181,7 +181,7 @@ public:
                                                            skgpu::Swizzle readSwizzle,
                                                            skgpu::Swizzle writeSwizzle,
                                                            GrSurfaceOrigin,
-                                                           SkBudgeted,
+                                                           skgpu::Budgeted,
                                                            std::string_view label);
 
     /**
@@ -195,7 +195,7 @@ public:
             GrMipmapped = GrMipmapped::kNo,
             GrProtected = GrProtected::kNo,
             GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-            SkBudgeted = SkBudgeted::kYes);
+            skgpu::Budgeted = skgpu::Budgeted::kYes);
 
     /**
      * Creates a SurfaceFillContext from an existing GrBackendTexture. The GrColorInfo's color

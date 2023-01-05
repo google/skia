@@ -98,7 +98,7 @@ public:
      * to create the device.
      */
     static sk_sp<Device> Make(GrRecordingContext*,
-                              SkBudgeted,
+                              skgpu::Budgeted,
                               const SkImageInfo&,
                               SkBackingFit,
                               int sampleCount,

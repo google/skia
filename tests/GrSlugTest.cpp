@@ -15,6 +15,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTDArray.h"
 #include "include/private/chromium/Slug.h"
@@ -33,7 +34,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrSlug_empty,
                                        CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
-    auto surface(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info));
     auto canvas = surface->getCanvas();
 
     static const char* kText = " ";

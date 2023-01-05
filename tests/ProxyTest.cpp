@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -18,6 +19,7 @@
 #include "include/private/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
@@ -43,8 +45,9 @@ struct GrContextOptions;
 // Check that the surface proxy's member vars are set as expected
 static void check_surface(skiatest::Reporter* reporter,
                           GrSurfaceProxy* proxy,
-                          int width, int height,
-                          SkBudgeted budgeted) {
+                          int width,
+                          int height,
+                          skgpu::Budgeted budgeted) {
     REPORTER_ASSERT(reporter, proxy->width() == width);
     REPORTER_ASSERT(reporter, proxy->height() == height);
     REPORTER_ASSERT(reporter, !proxy->uniqueID().isInvalid());
@@ -134,7 +137,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DeferredProxyTest,
         for (auto ct : {GrColorType::kAlpha_8, GrColorType::kBGR_565, GrColorType::kRGBA_8888,
                         GrColorType::kRGBA_1010102}) {
             for (auto fit : {SkBackingFit::kExact, SkBackingFit::kApprox}) {
-                for (auto budgeted : {SkBudgeted::kYes, SkBudgeted::kNo}) {
+                for (auto budgeted : {skgpu::Budgeted::kYes, skgpu::Budgeted::kNo}) {
                     for (auto numSamples : {1, 4, 16, 128}) {
                         SkISize dims = {widthHeight, widthHeight};
 
@@ -262,7 +265,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest,
                     {kWidthHeight, kWidthHeight}, grColorType);
             sk_sp<GrSurfaceProxy> sProxy(
                     proxyProvider->wrapBackendRenderTarget(backendRT, nullptr));
-            check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, SkBudgeted::kNo);
+            check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, skgpu::Budgeted::kNo);
             static constexpr int kExpectedNumSamples = 1;
             check_rendertarget(reporter, caps, resourceProvider, sProxy->asRenderTargetProxy(),
                                kExpectedNumSamples, SkBackingFit::kExact,
@@ -290,7 +293,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest,
                                                 kStencilBits, fboInfo);
                 sk_sp<GrSurfaceProxy> sProxy(
                         proxyProvider->wrapBackendRenderTarget(backendRT, nullptr));
-                check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, SkBudgeted::kNo);
+                check_surface(
+                        reporter, sProxy.get(), kWidthHeight, kWidthHeight, skgpu::Budgeted::kNo);
                 check_rendertarget(reporter, caps, resourceProvider, sProxy->asRenderTargetProxy(),
                                    supportedNumSamples, SkBackingFit::kExact, 0);
             }
@@ -318,7 +322,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest,
                     continue;
                 }
 
-                check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, SkBudgeted::kNo);
+                check_surface(
+                        reporter, sProxy.get(), kWidthHeight, kWidthHeight, skgpu::Budgeted::kNo);
                 check_rendertarget(reporter, caps, resourceProvider, sProxy->asRenderTargetProxy(),
                                    supportedNumSamples, SkBackingFit::kExact,
                                    caps.maxWindowRectangles());
@@ -346,7 +351,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest,
                     continue;
                 }
 
-                check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, SkBudgeted::kNo);
+                check_surface(
+                        reporter, sProxy.get(), kWidthHeight, kWidthHeight, skgpu::Budgeted::kNo);
                 check_texture(reporter, resourceProvider, sProxy->asTextureProxy(),
                               SkBackingFit::kExact);
             }
@@ -374,9 +380,15 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ZeroSizedProxyTest,
                                 GrColorType::kRGBA_8888,
                                 renderable);
 
-                    sk_sp<GrTextureProxy> proxy = provider->createProxy(
-                            format, {width, height}, renderable, 1, GrMipmapped::kNo, fit,
-                            SkBudgeted::kNo, GrProtected::kNo, /*label=*/{});
+                    sk_sp<GrTextureProxy> proxy = provider->createProxy(format,
+                                                                        {width, height},
+                                                                        renderable,
+                                                                        1,
+                                                                        GrMipmapped::kNo,
+                                                                        fit,
+                                                                        skgpu::Budgeted::kNo,
+                                                                        GrProtected::kNo,
+                                                                        /*label=*/{});
                     REPORTER_ASSERT(reporter, !proxy);
                 }
             }

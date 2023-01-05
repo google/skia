@@ -172,8 +172,8 @@ static sk_sp<SkDeferredDisplayList> make_ddl(Fuzz* fuzz, GrDirectContext* dConte
 
 static sk_sp<SkSurface> make_surface(Fuzz* fuzz, GrDirectContext* dContext, const SkImageInfo& ii,
                                      GrSurfaceOrigin origin) {
-    SkBudgeted budgeted;
-    fuzz->nextEnum(&budgeted, SkBudgeted::kYes);
+    skgpu::Budgeted budgeted;
+    fuzz->nextEnum(&budgeted, skgpu::Budgeted::kYes);
     SkSurfaceProps surfaceProps = gen_fuzzed_surface_props(fuzz);
     auto surface = SkSurface::MakeRenderTarget(dContext, budgeted, ii, kSampleCount, origin,
                                                &surfaceProps);

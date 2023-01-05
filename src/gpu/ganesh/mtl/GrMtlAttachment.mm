@@ -7,6 +7,7 @@
 
 #include "src/gpu/ganesh/mtl/GrMtlAttachment.h"
 
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "src/gpu/ganesh/mtl/GrMtlGpu.h"
 #include "src/gpu/ganesh/mtl/GrMtlUtil.h"

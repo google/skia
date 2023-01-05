@@ -81,7 +81,7 @@ public:
 private:
     MtlComputeCommandEncoder(const SharedContext* sharedContext,
                              sk_cfp<id<MTLComputeCommandEncoder>> encoder)
-            : Resource(sharedContext, Ownership::kOwned, SkBudgeted::kYes)
+            : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes)
             , fCommandEncoder(std::move(encoder)) {}
 
     void freeGpuData() override { fCommandEncoder.reset(); }

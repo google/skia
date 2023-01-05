@@ -34,6 +34,7 @@
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -195,7 +196,7 @@ static sk_sp<SkImage> create_codec_image() {
 }
 static sk_sp<SkImage> create_gpu_image(GrRecordingContext* rContext,
                                        bool withMips = false,
-                                       SkBudgeted budgeted = SkBudgeted::kYes) {
+                                       skgpu::Budgeted budgeted = skgpu::Budgeted::kYes) {
     const SkImageInfo info = SkImageInfo::MakeN32(20, 20, kOpaque_SkAlphaType);
     auto surface = SkSurface::MakeRenderTarget(rContext, budgeted, info, 0,
                                                kBottomLeft_GrSurfaceOrigin, nullptr, withMips);
@@ -432,12 +433,14 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage,
     ContextInfo otherContextInfo = otherFactory.getContextInfo(contextInfo.type());
     testContext->makeCurrent();
     std::function<sk_sp<SkImage>()> imageFactories[] = {
-            create_image, create_codec_image, create_data_image,
+            create_image,
+            create_codec_image,
+            create_data_image,
             // Create an image from a picture.
             create_picture_image,
             // Create a texture image.
-            [dContext] { return create_gpu_image(dContext, true, SkBudgeted::kYes); },
-            [dContext] { return create_gpu_image(dContext, false, SkBudgeted::kNo); },
+            [dContext] { return create_gpu_image(dContext, true, skgpu::Budgeted::kYes); },
+            [dContext] { return create_gpu_image(dContext, false, skgpu::Budgeted::kNo); },
             // Create a texture image in a another context.
             [otherContextInfo] {
                 auto restore = otherContextInfo.testContext()->makeCurrentAndAutoRestore();
@@ -460,7 +463,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkImage_makeTextureImage,
                                           image->hasMipmaps());
                 origIsMippedTexture = image->hasMipmaps();
             }
-            for (auto budgeted : {SkBudgeted::kNo, SkBudgeted::kYes}) {
+            for (auto budgeted : {skgpu::Budgeted::kNo, skgpu::Budgeted::kYes}) {
                 auto texImage = image->makeTextureImage(dContext, mipmapped, budgeted);
                 if (!texImage) {
                     auto imageContext = as_IB(image)->context();
@@ -648,8 +651,10 @@ DEF_GANESH_TEST(AbandonedContextImage, reporter, options, CtsEnforcement::kApiLe
 
         sk_sp<SkImage> img;
         auto gsurf = SkSurface::MakeRenderTarget(
-                factory->get(type), SkBudgeted::kYes,
-                SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType), 1,
+                factory->get(type),
+                skgpu::Budgeted::kYes,
+                SkImageInfo::Make(100, 100, kRGBA_8888_SkColorType, kPremul_SkAlphaType),
+                1,
                 nullptr);
         if (!gsurf) {
             continue;
@@ -986,7 +991,8 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
         }
 
         SkImageInfo info = SkImageInfo::MakeN32Premul(128, 128);
-        sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
+        sk_sp<SkSurface> surface =
+                SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
         if (!surface) {
             ERRORF(reporter, "SkSurface::MakeRenderTarget failed for %s.", testName);
             continue;
@@ -1026,7 +1032,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             continue;
         }
 
-        surface = SkSurface::MakeRenderTarget(otherCtx, SkBudgeted::kNo, info);
+        surface = SkSurface::MakeRenderTarget(otherCtx, skgpu::Budgeted::kNo, info);
         canvas = surface->getCanvas();
 
         // Case #4: Create image, draw*, flush*, free image
@@ -1462,8 +1468,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageScalePixels_Gpu,
     const SkColor red = SK_ColorRED;
 
     SkImageInfo info = SkImageInfo::MakeN32Premul(16, 16);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(ctxInfo.directContext(),
-                                                           SkBudgeted::kNo, info);
+    sk_sp<SkSurface> surface =
+            SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info);
     surface->getCanvas()->clear(red);
     sk_sp<SkImage> gpuImage = surface->makeImageSnapshot();
     test_scale_pixels(reporter, gpuImage.get(), pmRed);
@@ -1512,7 +1518,7 @@ static sk_sp<SkImage> make_yuva_image(GrDirectContext* dContext) {
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageFlush, reporter, ctxInfo, CtsEnforcement::kApiLevel_T) {
     auto dContext = ctxInfo.directContext();
     auto ii = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kYes, ii, 1, nullptr);
+    auto s = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kYes, ii, 1, nullptr);
 
     s->getCanvas()->clear(SK_ColorRED);
     auto i0 = s->makeImageSnapshot();

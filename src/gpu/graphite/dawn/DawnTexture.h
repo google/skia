@@ -25,7 +25,7 @@ public:
     static sk_sp<Texture> Make(const DawnSharedContext*,
                                SkISize dimensions,
                                const TextureInfo&,
-                               SkBudgeted);
+                               skgpu::Budgeted);
 
     static sk_sp<Texture> MakeWrapped(const DawnSharedContext*,
                                       SkISize dimensions,
@@ -49,7 +49,7 @@ private:
                 wgpu::Texture,
                 wgpu::TextureView,
                 Ownership,
-                SkBudgeted);
+                skgpu::Budgeted);
 
     void freeGpuData() override;
 

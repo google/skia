@@ -322,11 +322,8 @@ static sk_sp<SkImage> draw_with_gpu(std::function<bool(SkCanvas*)> draw,
 
     switch (surfaceType) {
         case SurfaceType::kDefault:
-            surface = SkSurface::MakeRenderTarget(context,
-                                                  SkBudgeted::kNo,
-                                                  info,
-                                                  FLAGS_samples,
-                                                  &props);
+            surface = SkSurface::MakeRenderTarget(
+                    context, skgpu::Budgeted::kNo, info, FLAGS_samples, &props);
             break;
 
         case SurfaceType::kBackendTexture:

@@ -50,7 +50,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                                    GrColorType colorType,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
-                                                   SkBudgeted budgeted,
+                                                   skgpu::Budgeted budgeted,
                                                    GrMipmapped mipmapped,
                                                    GrProtected isProtected,
                                                    const GrMipLevel texels[],
@@ -120,7 +120,7 @@ sk_sp<GrTexture> GrResourceProvider::getExactScratch(SkISize dimensions,
                                                      GrTextureType textureType,
                                                      GrRenderable renderable,
                                                      int renderTargetSampleCnt,
-                                                     SkBudgeted budgeted,
+                                                     skgpu::Budgeted budgeted,
                                                      GrMipmapped mipmapped,
                                                      GrProtected isProtected,
                                                      std::string_view label) {
@@ -132,7 +132,7 @@ sk_sp<GrTexture> GrResourceProvider::getExactScratch(SkISize dimensions,
                                                         mipmapped,
                                                         isProtected,
                                                         label));
-    if (tex && SkBudgeted::kNo == budgeted) {
+    if (tex && skgpu::Budgeted::kNo == budgeted) {
         tex->resourcePriv().makeUnbudgeted();
     }
 
@@ -145,7 +145,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                                    GrColorType colorType,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
-                                                   SkBudgeted budgeted,
+                                                   skgpu::Budgeted budgeted,
                                                    SkBackingFit fit,
                                                    GrProtected isProtected,
                                                    const GrMipLevel& mipLevel,
@@ -193,7 +193,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
 
 sk_sp<GrTexture> GrResourceProvider::createCompressedTexture(SkISize dimensions,
                                                              const GrBackendFormat& format,
-                                                             SkBudgeted budgeted,
+                                                             skgpu::Budgeted budgeted,
                                                              GrMipmapped mipmapped,
                                                              GrProtected isProtected,
                                                              SkData* data,
@@ -217,7 +217,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(SkISize dimensions,
                                                    GrRenderable renderable,
                                                    int renderTargetSampleCnt,
                                                    GrMipmapped mipmapped,
-                                                   SkBudgeted budgeted,
+                                                   skgpu::Budgeted budgeted,
                                                    GrProtected isProtected,
                                                    std::string_view label) {
     ASSERT_SINGLE_OWNER
@@ -325,7 +325,7 @@ sk_sp<GrTexture> GrResourceProvider::createApproxTexture(SkISize dimensions,
                                renderable,
                                renderTargetSampleCnt,
                                GrMipmapped::kNo,
-                               SkBudgeted::kYes,
+                               skgpu::Budgeted::kYes,
                                isProtected,
                                label);
 }

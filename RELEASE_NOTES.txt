@@ -11,6 +11,9 @@ Milestone 111
     and SkAlignTo are no longer part of the public API.
   * GrContextOptions::fSkipGLErrorChecks no longer stops checking shader compilation and program
     linking success.
+  * SkBackingFit is no longer part of the public API.
+  * SkBudgeted was moved from include/core/SkTypes.h to include/gpu/GpuTypes.h and moved into the
+    skgpu namespace.
 
 Milestone 110
 -------------

@@ -19,11 +19,13 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -184,7 +186,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceResolveTest,
     // First clear out dirty msaa from previous test
     surface->flush();
 
-    auto otherSurface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kYes, info);
+    auto otherSurface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kYes, info);
     REPORTER_ASSERT(reporter, otherSurface);
     otherSurface->getCanvas()->clear(SK_ColorRED);
     surface->resolveMSAA();
@@ -242,7 +244,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(NonmippedDrawBeforeMippedDraw,
                                                                sampleCount,
                                                                GrMipmapped::kYes,
                                                                SkBackingFit::kExact,
-                                                               SkBudgeted::kYes,
+                                                               skgpu::Budgeted::kYes,
                                                                GrProtected::kNo,
                                                                "test MM Proxy");
         GrSurfaceProxyView mmProxyView{mmProxy,
@@ -268,7 +270,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(NonmippedDrawBeforeMippedDraw,
                                                                1,
                                                                GrMipmapped::kNo,
                                                                SkBackingFit::kExact,
-                                                               SkBudgeted::kYes,
+                                                               skgpu::Budgeted::kYes,
                                                                GrProtected::kNo,
                                                                "testSrc");
             skgpu::v1::SurfaceContext mmSC(dc,

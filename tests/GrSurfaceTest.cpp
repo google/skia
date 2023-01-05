@@ -20,6 +20,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
@@ -28,6 +29,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
@@ -76,7 +78,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
                                                               GrRenderable::kYes,
                                                               1,
                                                               GrMipmapped::kNo,
-                                                              SkBudgeted::kNo,
+                                                              skgpu::Budgeted::kNo,
                                                               GrProtected::kNo,
                                                               /*label=*/{});
 
@@ -95,7 +97,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(GrSurface, reporter, ctxInfo) {
                                                             GrRenderable::kNo,
                                                             1,
                                                             GrMipmapped::kNo,
-                                                            SkBudgeted::kNo,
+                                                            skgpu::Budgeted::kNo,
                                                             GrProtected::kNo,
                                                             /*label=*/{});
     REPORTER_ASSERT(reporter, nullptr == tex1->asRenderTarget());
@@ -153,7 +155,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability,
                                    (char*)data->writable_data(), color);
             return rp->createCompressedTexture(dimensions,
                                                format,
-                                               SkBudgeted::kNo,
+                                               skgpu::Budgeted::kNo,
                                                GrMipmapped::kNo,
                                                GrProtected::kNo,
                                                data.get(),
@@ -165,7 +167,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability,
                                      renderable,
                                      1,
                                      GrMipmapped::kNo,
-                                     SkBudgeted::kNo,
+                                     skgpu::Budgeted::kNo,
                                      GrProtected::kNo,
                                      /*label=*/{});
         }
@@ -205,9 +207,15 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability,
             // proxies
             bool expectedMipMapability = isTexturable && caps->mipmapSupport() && !isCompressed;
 
-            sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(
-                    combo.fFormat, kDims, GrRenderable::kNo, 1, GrMipmapped::kYes,
-                    SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo, /*label=*/{});
+            sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(combo.fFormat,
+                                                                     kDims,
+                                                                     GrRenderable::kNo,
+                                                                     1,
+                                                                     GrMipmapped::kYes,
+                                                                     SkBackingFit::kExact,
+                                                                     skgpu::Budgeted::kNo,
+                                                                     GrProtected::kNo,
+                                                                     /*label=*/{});
             REPORTER_ASSERT(reporter, SkToBool(proxy.get()) == expectedMipMapability,
                             "ct:%s format:%s, tex:%d, expectedMipMapability:%d",
                             GrColorTypeToStr(combo.fColorType), combo.fFormat.toStr().c_str(),
@@ -224,7 +232,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability,
                                                                    GrRenderable::kYes,
                                                                    1,
                                                                    GrMipmapped::kNo,
-                                                                   SkBudgeted::kNo,
+                                                                   skgpu::Budgeted::kNo,
                                                                    GrProtected::kNo,
                                                                    /*label=*/{});
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
@@ -243,7 +251,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrSurfaceRenderability,
                                                                    GrRenderable::kYes,
                                                                    2,
                                                                    GrMipmapped::kNo,
-                                                                   SkBudgeted::kNo,
+                                                                   skgpu::Budgeted::kNo,
                                                                    GrProtected::kNo,
                                                                    /*label=*/{});
             REPORTER_ASSERT(reporter, SkToBool(tex) == isRenderable,
@@ -336,7 +344,12 @@ DEF_GANESH_TEST(InitialTextureClear, reporter, baseOptions, CtsEnforcement::kApi
                     // Does directly allocating a texture clear it?
                     {
                         auto proxy = proxyProvider->testingOnly_createInstantiatedProxy(
-                                {kSize, kSize}, combo.fFormat, renderable, 1, fit, SkBudgeted::kYes,
+                                {kSize, kSize},
+                                combo.fFormat,
+                                renderable,
+                                1,
+                                fit,
+                                skgpu::Budgeted::kYes,
                                 GrProtected::kNo);
                         if (proxy) {
                             skgpu::Swizzle swizzle = caps->getReadSwizzle(combo.fFormat,

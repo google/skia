@@ -38,7 +38,7 @@ sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const Compu
     return nullptr;
 }
 
-sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize, const TextureInfo&, SkBudgeted) {
+sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize, const TextureInfo&, skgpu::Budgeted) {
     return nullptr;
 }
 

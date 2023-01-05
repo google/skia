@@ -423,7 +423,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         const int msaaSampleCount = 0;
         const bool createWithMips = false;
         auto image = info.makeImage(SkSurface::MakeRenderTarget(ctx,
-                                                                SkBudgeted::kYes,
+                                                                skgpu::Budgeted::kYes,
                                                                 info.imageInfo,
                                                                 msaaSampleCount,
                                                                 kTopLeft_GrSurfaceOrigin,

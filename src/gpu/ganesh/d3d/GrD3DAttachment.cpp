@@ -28,7 +28,7 @@ GrD3DAttachment::GrD3DAttachment(GrD3DGpu* gpu,
         , GrD3DTextureResource(info, state)
         , fView(view)
         , fFormat(format) {
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(skgpu::Budgeted::kYes);
 }
 
 sk_sp<GrD3DAttachment> GrD3DAttachment::MakeStencil(GrD3DGpu* gpu,

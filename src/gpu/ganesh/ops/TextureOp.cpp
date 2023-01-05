@@ -1411,7 +1411,7 @@ GR_DRAW_OP_TEST_DEFINE(TextureOpImpl) {
                                                              1,
                                                              mipmapped,
                                                              fit,
-                                                             SkBudgeted::kNo,
+                                                             skgpu::Budgeted::kNo,
                                                              GrProtected::kNo,
                                                              /*label=*/"TextureOp",
                                                              GrInternalSurfaceFlags::kNone);

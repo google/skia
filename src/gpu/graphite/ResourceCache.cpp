@@ -91,7 +91,8 @@ void ResourceCache::insertResource(Resource* resource) {
     // this one put us over budget (when we actually have a budget).
 }
 
-Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key, SkBudgeted budgeted) {
+Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key,
+                                            skgpu::Budgeted budgeted) {
     ASSERT_SINGLE_OWNER
 
     this->processReturnedResources();
@@ -101,12 +102,12 @@ Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key, SkBu
     Resource* resource = fResourceMap.find(key);
     if (resource) {
         // All resources we pull out of the cache for use should be budgeted
-        SkASSERT(resource->budgeted() == SkBudgeted::kYes);
+        SkASSERT(resource->budgeted() == skgpu::Budgeted::kYes);
         if (key.shareable() == Shareable::kNo) {
             // If a resource is not shareable (i.e. scratch resource) then we remove it from the map
             // so that it isn't found again.
             fResourceMap.remove(key, resource);
-            if (budgeted == SkBudgeted::kNo) {
+            if (budgeted == skgpu::Budgeted::kNo) {
                 // TODO: Once we track our budget we also need to decrease our usage here since the
                 // resource no longer counts against the budget.
                 resource->makeUnbudgeted();
@@ -114,7 +115,7 @@ Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key, SkBu
             SkDEBUGCODE(resource->fNonShareableInCache = false;)
         } else {
             // Shareable resources should never be requested as non budgeted
-            SkASSERT(budgeted == SkBudgeted::kYes);
+            SkASSERT(budgeted == skgpu::Budgeted::kYes);
         }
         this->refAndMakeResourceMRU(resource);
         this->validate();
@@ -234,7 +235,7 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
         } else {
             SkDEBUGCODE(resource->fNonShareableInCache = true;)
             fResourceMap.insert(resource->key(), resource);
-            if (resource->budgeted() == SkBudgeted::kNo) {
+            if (resource->budgeted() == skgpu::Budgeted::kNo) {
                 // TODO: Update budgeted tracking
                 resource->makeBudgeted();
             }
@@ -420,14 +421,14 @@ void ResourceCache::validate() const {
                 SkASSERT(!resource->hasUsageRef());
                 ++fScratch;
                 SkASSERT(fResourceMap->has(resource, key));
-                SkASSERT(resource->budgeted() == SkBudgeted::kYes);
+                SkASSERT(resource->budgeted() == skgpu::Budgeted::kYes);
             } else if (key.shareable() == Shareable::kNo) {
                 SkASSERT(!fResourceMap->has(resource, key));
             } else {
                 SkASSERT(key.shareable() == Shareable::kYes);
                 ++fShareable;
                 SkASSERT(fResourceMap->has(resource, key));
-                SkASSERT(resource->budgeted() == SkBudgeted::kYes);
+                SkASSERT(resource->budgeted() == skgpu::Budgeted::kYes);
             }
         }
     };
@@ -436,7 +437,7 @@ void ResourceCache::validate() const {
         int count = 0;
         fResourceMap.foreach([&](const Resource& resource) {
             SkASSERT(resource.isUsableAsScratch() || resource.key().shareable() == Shareable::kYes);
-            SkASSERT(resource.budgeted() == SkBudgeted::kYes);
+            SkASSERT(resource.budgeted() == skgpu::Budgeted::kYes);
             count++;
         });
         SkASSERT(count == fResourceMap.count());

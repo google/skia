@@ -166,9 +166,8 @@ public:
     TextureGenerator(GrRecordingContext* rContext, const SkImageInfo& info, sk_sp<SkPicture> pic)
             : SkImageGenerator(info)
             , fRContext(SkRef(rContext)) {
-
-        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes, info, 0,
-                                                             kTopLeft_GrSurfaceOrigin, nullptr));
+        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+                rContext, skgpu::Budgeted::kYes, info, 0, kTopLeft_GrSurfaceOrigin, nullptr));
         if (surface) {
             surface->getCanvas()->clear(0);
             surface->getCanvas()->translate(-100, -100);
@@ -194,8 +193,9 @@ protected:
         if (policy == GrImageTexGenPolicy::kDraw) {
             return fView;
         }
-        auto budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted ? SkBudgeted::kNo
-                                                                                : SkBudgeted::kYes;
+        auto budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
+                                ? skgpu::Budgeted::kNo
+                                : skgpu::Budgeted::kYes;
         return GrSurfaceProxyView::Copy(
                 fRContext.get(),
                 fView,

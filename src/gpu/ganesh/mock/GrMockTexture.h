@@ -16,7 +16,7 @@
 class GrMockTexture : public GrTexture {
 public:
     GrMockTexture(GrMockGpu* gpu,
-                  SkBudgeted budgeted,
+                  skgpu::Budgeted budgeted,
                   SkISize dimensions,
                   GrProtected isProtected,
                   GrMipmapStatus mipmapStatus,
@@ -86,7 +86,7 @@ private:
 class GrMockRenderTarget : public GrRenderTarget {
 public:
     GrMockRenderTarget(GrMockGpu* gpu,
-                       SkBudgeted budgeted,
+                       skgpu::Budgeted budgeted,
                        SkISize dimensions,
                        int sampleCnt,
                        GrProtected isProtected,
@@ -165,7 +165,7 @@ class GrMockTextureRenderTarget : public GrMockTexture, public GrMockRenderTarge
 public:
     // Internally created.
     GrMockTextureRenderTarget(GrMockGpu* gpu,
-                              SkBudgeted budgeted,
+                              skgpu::Budgeted budgeted,
                               SkISize dimensions,
                               int sampleCnt,
                               GrProtected isProtected,

@@ -167,8 +167,8 @@ protected:
         SkImageInfo info = SkImageInfo::MakeN32Premul(W, H);
         sk_sp<SkSurface> surf0(SkSurface::MakeRasterDirect(info, fBuffer, RB));
         sk_sp<SkSurface> surf1(SkSurface::MakeRaster(info));
-        sk_sp<SkSurface> surf2(SkSurface::MakeRenderTarget(canvas->recordingContext(),
-                                                           SkBudgeted::kNo, info));
+        sk_sp<SkSurface> surf2(SkSurface::MakeRenderTarget(
+                canvas->recordingContext(), skgpu::Budgeted::kNo, info));
 
         test_surface(canvas, surf0.get(), true);
         canvas->translate(80, 0);
@@ -258,7 +258,7 @@ static sk_sp<SkImage> make_gpu(const SkImageInfo& info,
         return nullptr;
     }
 
-    auto surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+    auto surface(SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info));
     if (!surface) {
         return nullptr;
     }
@@ -332,42 +332,44 @@ DEF_SIMPLE_GPU_GM(new_texture_image, rContext, canvas, 280, 60) {
     render_image(&bmpCanvas);
 
     std::function<sk_sp<SkImage>()> imageFactories[] = {
-        // Create sw raster image.
-        [&] {
-            return bmp.asImage();
-        },
-        // Create encoded image.
-        [&] {
-            auto src = SkEncodeBitmap(bmp, SkEncodedImageFormat::kPNG, 100);
-            return SkImage::MakeFromEncoded(std::move(src));
-        },
-        // Create YUV encoded image.
-        [&] {
-            auto src = SkEncodeBitmap(bmp, SkEncodedImageFormat::kJPEG, 100);
-            return SkImage::MakeFromEncoded(std::move(src));
-        },
-        // Create a picture image.
-        [&] {
-            SkPictureRecorder recorder;
-            SkCanvas* canvas = recorder.beginRecording(SkIntToScalar(kSize), SkIntToScalar(kSize));
-            render_image(canvas);
-            sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeSRGB();
-            return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
-                                            SkISize::Make(kSize, kSize), nullptr, nullptr,
-                                            SkImage::BitDepth::kU8, srgbColorSpace);
-        },
-        // Create a texture image
-        [&]() -> sk_sp<SkImage> {
-            auto surface(SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes,
-                                                     SkImageInfo::MakeS32(kSize, kSize,
-                                                                          kPremul_SkAlphaType)));
-            if (!surface) {
-                return nullptr;
-            }
-            render_image(surface->getCanvas());
-            return surface->makeImageSnapshot();
-        }
-    };
+            // Create sw raster image.
+            [&] { return bmp.asImage(); },
+            // Create encoded image.
+            [&] {
+                auto src = SkEncodeBitmap(bmp, SkEncodedImageFormat::kPNG, 100);
+                return SkImage::MakeFromEncoded(std::move(src));
+            },
+            // Create YUV encoded image.
+            [&] {
+                auto src = SkEncodeBitmap(bmp, SkEncodedImageFormat::kJPEG, 100);
+                return SkImage::MakeFromEncoded(std::move(src));
+            },
+            // Create a picture image.
+            [&] {
+                SkPictureRecorder recorder;
+                SkCanvas* canvas =
+                        recorder.beginRecording(SkIntToScalar(kSize), SkIntToScalar(kSize));
+                render_image(canvas);
+                sk_sp<SkColorSpace> srgbColorSpace = SkColorSpace::MakeSRGB();
+                return SkImage::MakeFromPicture(recorder.finishRecordingAsPicture(),
+                                                SkISize::Make(kSize, kSize),
+                                                nullptr,
+                                                nullptr,
+                                                SkImage::BitDepth::kU8,
+                                                srgbColorSpace);
+            },
+            // Create a texture image
+            [&]() -> sk_sp<SkImage> {
+                auto surface(SkSurface::MakeRenderTarget(
+                        rContext,
+                        skgpu::Budgeted::kYes,
+                        SkImageInfo::MakeS32(kSize, kSize, kPremul_SkAlphaType)));
+                if (!surface) {
+                    return nullptr;
+                }
+                render_image(surface->getCanvas());
+                return surface->makeImageSnapshot();
+            }};
 
     constexpr SkScalar kPad = 5.f;
     canvas->translate(kPad, kPad);

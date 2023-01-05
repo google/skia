@@ -223,19 +223,23 @@ sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, int width, in
             width, height, SkAlphaType::kPremul_SkAlphaType, SkColorSpace::MakeSRGB());
 
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext.get(),
-                             SkBudgeted::kYes,
-                             info, 0,
-                             kBottomLeft_GrSurfaceOrigin,
-                             nullptr, true));
+                                                         skgpu::Budgeted::kYes,
+                                                         info,
+                                                         0,
+                                                         kBottomLeft_GrSurfaceOrigin,
+                                                         nullptr,
+                                                         true));
     return surface;
 }
 
 sk_sp<SkSurface> MakeRenderTarget(sk_sp<GrDirectContext> dContext, SimpleImageInfo sii) {
     sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext.get(),
-                             SkBudgeted::kYes,
-                             toSkImageInfo(sii), 0,
-                             kBottomLeft_GrSurfaceOrigin,
-                             nullptr, true));
+                                                         skgpu::Budgeted::kYes,
+                                                         toSkImageInfo(sii),
+                                                         0,
+                                                         kBottomLeft_GrSurfaceOrigin,
+                                                         nullptr,
+                                                         true));
     return surface;
 }
 #endif // CK_ENABLE_WEBGL

@@ -174,8 +174,13 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::makeView(GrRecordingContext*
 
                 return tex;
             },
-            backendFormat, {width, height}, GrMipmapped::kNo, GrMipmapStatus::kNotAllocated,
-            GrInternalSurfaceFlags::kReadOnly, SkBackingFit::kExact, SkBudgeted::kNo,
+            backendFormat,
+            {width, height},
+            GrMipmapped::kNo,
+            GrMipmapStatus::kNotAllocated,
+            GrInternalSurfaceFlags::kReadOnly,
+            SkBackingFit::kExact,
+            skgpu::Budgeted::kNo,
             GrProtected(fIsProtectedContent),
             GrSurfaceProxy::UseAllocator::kYes,
             "AHardwareBufferImageGenerator_MakeView");
@@ -203,9 +208,9 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
     }
 
     // Otherwise, make a copy for the requested MIP map setting.
-    SkBudgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
-                                  ? SkBudgeted::kNo
-                                  : SkBudgeted::kYes;
+    skgpu::Budgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
+                                       ? skgpu::Budgeted::kNo
+                                       : skgpu::Budgeted::kYes;
 
     return GrSurfaceProxyView::Copy(context,
                                     std::move(texProxyView),

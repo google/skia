@@ -257,7 +257,7 @@ sk_sp<GrD3DTexture> GrD3DGpu::createD3DTexture(SkISize dimensions,
                                                DXGI_FORMAT dxgiFormat,
                                                GrRenderable renderable,
                                                int renderTargetSampleCnt,
-                                               SkBudgeted budgeted,
+                                               skgpu::Budgeted budgeted,
                                                GrProtected isProtected,
                                                int mipLevelCount,
                                                GrMipmapStatus mipmapStatus,
@@ -300,7 +300,7 @@ sk_sp<GrTexture> GrD3DGpu::onCreateTexture(SkISize dimensions,
                                            const GrBackendFormat& format,
                                            GrRenderable renderable,
                                            int renderTargetSampleCnt,
-                                           SkBudgeted budgeted,
+                                           skgpu::Budgeted budgeted,
                                            GrProtected isProtected,
                                            int mipLevelCount,
                                            uint32_t levelClearMask,
@@ -347,10 +347,11 @@ static void copy_compressed_data(char* mapPtr, DXGI_FORMAT dxgiFormat,
 
 sk_sp<GrTexture> GrD3DGpu::onCreateCompressedTexture(SkISize dimensions,
                                                      const GrBackendFormat& format,
-                                                     SkBudgeted budgeted,
+                                                     skgpu::Budgeted budgeted,
                                                      GrMipmapped mipmapped,
                                                      GrProtected isProtected,
-                                                     const void* data, size_t dataSize) {
+                                                     const void* data,
+                                                     size_t dataSize) {
     DXGI_FORMAT dxgiFormat;
     SkAssertResult(format.asDxgiFormat(&dxgiFormat));
     SkASSERT(GrDxgiFormatIsCompressed(dxgiFormat));
@@ -1128,7 +1129,7 @@ bool GrD3DGpu::onRegenerateMipMapLevels(GrTexture * tex) {
         // TODO: make this a scratch texture
         GrProtected grProtected = tex->isProtected() ? GrProtected::kYes : GrProtected::kNo;
         uavTexture = GrD3DTexture::MakeNewTexture(this,
-                                                  SkBudgeted::kNo,
+                                                  skgpu::Budgeted::kNo,
                                                   tex->dimensions(),
                                                   uavDesc,
                                                   grProtected,

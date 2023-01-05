@@ -25,6 +25,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/effects/imagefilters/SkRuntimeImageFilter.h"
 #include "tests/CtsEnforcement.h"
@@ -209,6 +210,6 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShaderImageFilter_GPU,
                                        CtsEnforcement::kApiLevel_T) {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(/*width=*/1, /*height=*/1);
     sk_sp<SkSurface> surface(
-            SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info));
+            SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
     test_runtime_shader(r, surface.get());
 }

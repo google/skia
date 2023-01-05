@@ -20,6 +20,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -112,7 +113,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
                                   GrRenderable::kNo,
                                   1,
                                   GrMipmapped::kNo,
-                                  SkBudgeted::kNo,
+                                  skgpu::Budgeted::kNo,
                                   GrProtected::kNo,
                                   /*label=*/"TextureBindingsResetTest");
     REPORTER_ASSERT(reporter, tex);
@@ -124,7 +125,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(TextureBindingsResetTest,
     // Test drawing and then resetting bindings. This should force a MIP regeneration if MIP
     // maps are supported as well.
     auto info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    auto surf = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kYes, info, 1, nullptr);
+    auto surf = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kYes, info, 1, nullptr);
     surf->getCanvas()->clear(0x80FF0000);
     auto img = surf->makeImageSnapshot();
     surf->getCanvas()->clear(SK_ColorBLUE);

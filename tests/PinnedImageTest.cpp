@@ -17,6 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/mock/GrMockTypes.h"
 #include "src/core/SkImagePriv.h"
@@ -58,7 +59,7 @@ static void basic_test(skiatest::Reporter* reporter, GrRecordingContext* rContex
     // We start off with the raster image being all red.
     sk_sp<SkImage> img = SkMakeImageFromRasterBitmap(bm, kNever_SkCopyPixelsMode);
 
-    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes, ii);
+    sk_sp<SkSurface> gpuSurface = SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kYes, ii);
     SkCanvas* canvas = gpuSurface->getCanvas();
 
     // w/o pinning - the gpu draw always reflects the current state of the underlying bitmap

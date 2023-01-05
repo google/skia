@@ -19,6 +19,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkSLTypeShared.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrImageInfo.h"

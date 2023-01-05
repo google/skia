@@ -11,6 +11,7 @@
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkTo.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrRenderTarget.h"
@@ -32,7 +33,7 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps,
                                          SkISize dimensions,
                                          int sampleCount,
                                          SkBackingFit fit,
-                                         SkBudgeted budgeted,
+                                         skgpu::Budgeted budgeted,
                                          GrProtected isProtected,
                                          GrInternalSurfaceFlags surfaceFlags,
                                          UseAllocator useAllocator,
@@ -48,14 +49,21 @@ GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          SkISize dimensions,
                                          int sampleCount,
                                          SkBackingFit fit,
-                                         SkBudgeted budgeted,
+                                         skgpu::Budgeted budgeted,
                                          GrProtected isProtected,
                                          GrInternalSurfaceFlags surfaceFlags,
                                          UseAllocator useAllocator,
                                          WrapsVkSecondaryCB wrapsVkSecondaryCB,
                                          std::string_view label)
-        : INHERITED(std::move(callback), format, dimensions, fit, budgeted, isProtected,
-                    surfaceFlags, useAllocator, label)
+        : INHERITED(std::move(callback),
+                    format,
+                    dimensions,
+                    fit,
+                    budgeted,
+                    isProtected,
+                    surfaceFlags,
+                    useAllocator,
+                    label)
         , fSampleCnt(sampleCount)
         , fWrapsVkSecondaryCB(wrapsVkSecondaryCB) {}
 

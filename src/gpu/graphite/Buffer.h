@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Buffer_DEFINED
 #define skgpu_graphite_Buffer_DEFINED
 
+#include "include/gpu/GpuTypes.h"
 #include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
@@ -25,8 +26,7 @@ public:
 
 protected:
     Buffer(const SharedContext* sharedContext, size_t size)
-        : Resource(sharedContext, Ownership::kOwned, SkBudgeted::kYes)
-        , fSize(size) {}
+            : Resource(sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes), fSize(size) {}
 
     void* fMapPtr = nullptr;
 

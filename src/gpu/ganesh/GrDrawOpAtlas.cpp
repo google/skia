@@ -479,7 +479,7 @@ bool GrDrawOpAtlas::createPages(
                                                                  1,
                                                                  GrMipmapped::kNo,
                                                                  SkBackingFit::kExact,
-                                                                 SkBudgeted::kYes,
+                                                                 skgpu::Budgeted::kYes,
                                                                  GrProtected::kNo,
                                                                  fLabel,
                                                                  GrInternalSurfaceFlags::kNone,

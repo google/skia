@@ -327,9 +327,14 @@ GrSurfaceProxyView render_sw_mask(GrRecordingContext* context,
 
         skgpu::Swizzle swizzle = context->priv().caps()->getReadSwizzle(format,
                                                                         GrColorType::kAlpha_8);
-        auto proxy = proxyProvider->createProxy(format, bounds.size(), GrRenderable::kNo, 1,
-                                                GrMipmapped::kNo, SkBackingFit::kApprox,
-                                                SkBudgeted::kYes, GrProtected::kNo,
+        auto proxy = proxyProvider->createProxy(format,
+                                                bounds.size(),
+                                                GrRenderable::kNo,
+                                                1,
+                                                GrMipmapped::kNo,
+                                                SkBackingFit::kApprox,
+                                                skgpu::Budgeted::kYes,
+                                                GrProtected::kNo,
                                                 /*label=*/"ClipStack_RenderSwMask");
 
         // Since this will be rendered on another thread, make a copy of the elements in case

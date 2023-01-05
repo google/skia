@@ -31,15 +31,16 @@ sk_sp<skgpu::v1::Device> GrRecordingContextPriv::createDevice(GrColorType colorT
                                    std::move(colorSpace), origin, props, init);
 }
 
-sk_sp<skgpu::v1::Device> GrRecordingContextPriv::createDevice(SkBudgeted budgeted,
-                                                              const SkImageInfo& ii,
-                                                              SkBackingFit fit,
-                                                              int sampleCount,
-                                                              GrMipmapped mipmapped,
-                                                              GrProtected isProtected,
-                                                              GrSurfaceOrigin origin,
-                                                              const SkSurfaceProps& props,
-                                                              skgpu::v1::Device::InitContents init) {
+sk_sp<skgpu::v1::Device> GrRecordingContextPriv::createDevice(
+        skgpu::Budgeted budgeted,
+        const SkImageInfo& ii,
+        SkBackingFit fit,
+        int sampleCount,
+        GrMipmapped mipmapped,
+        GrProtected isProtected,
+        GrSurfaceOrigin origin,
+        const SkSurfaceProps& props,
+        skgpu::v1::Device::InitContents init) {
     return skgpu::v1::Device::Make(this->context(), budgeted, ii, fit, sampleCount,
                                    mipmapped, isProtected, origin, props, init);
 }
@@ -117,7 +118,7 @@ std::unique_ptr<skgpu::v1::SurfaceContext> GrRecordingContextPriv::makeSC(
         int sampleCount,
         GrMipmapped mipmapped,
         GrProtected isProtected,
-        SkBudgeted budgeted) {
+        skgpu::Budgeted budgeted) {
     SkASSERT(renderable == GrRenderable::kYes || sampleCount == 1);
     if (this->abandoned()) {
         return nullptr;
@@ -154,8 +155,7 @@ std::unique_ptr<skgpu::v1::SurfaceFillContext> GrRecordingContextPriv::makeSFC(
         GrMipmapped mipmapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
-        SkBudgeted budgeted) {
-
+        skgpu::Budgeted budgeted) {
     if (info.alphaType() == kPremul_SkAlphaType || info.alphaType() == kOpaque_SkAlphaType) {
         return skgpu::v1::SurfaceDrawContext::Make(this->context(),
                                                    info.colorType(),
@@ -211,9 +211,8 @@ std::unique_ptr<skgpu::v1::SurfaceFillContext> GrRecordingContextPriv::makeSFC(
         skgpu::Swizzle readSwizzle,
         skgpu::Swizzle writeSwizzle,
         GrSurfaceOrigin origin,
-        SkBudgeted budgeted,
+        skgpu::Budgeted budgeted,
         std::string_view label) {
-
     SkASSERT(!dimensions.isEmpty());
     SkASSERT(sampleCount >= 1);
     SkASSERT(format.isValid() && format.backend() == fContext->backend());
@@ -267,8 +266,7 @@ std::unique_ptr<skgpu::v1::SurfaceFillContext> GrRecordingContextPriv::makeSFCWi
         GrMipmapped mipmapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
-        SkBudgeted budgeted) {
-
+        skgpu::Budgeted budgeted) {
     if (info.alphaType() == kPremul_SkAlphaType || info.alphaType() == kOpaque_SkAlphaType) {
         return skgpu::v1::SurfaceDrawContext::MakeWithFallback(this->context(),
                                                                info.colorType(),

@@ -31,7 +31,7 @@ sk_sp<GrVkImage> GrVkImage::MakeStencil(GrVkGpu* gpu,
                            vkUsageFlags,
                            GrProtected::kNo,
                            GrMemoryless::kNo,
-                           SkBudgeted::kYes);
+                           skgpu::Budgeted::kYes);
 }
 
 sk_sp<GrVkImage> GrVkImage::MakeMSAA(GrVkGpu* gpu,
@@ -57,7 +57,7 @@ sk_sp<GrVkImage> GrVkImage::MakeMSAA(GrVkGpu* gpu,
                            vkUsageFlags,
                            isProtected,
                            memoryless,
-                           SkBudgeted::kYes);
+                           skgpu::Budgeted::kYes);
 }
 
 sk_sp<GrVkImage> GrVkImage::MakeTexture(GrVkGpu* gpu,
@@ -66,7 +66,7 @@ sk_sp<GrVkImage> GrVkImage::MakeTexture(GrVkGpu* gpu,
                                         uint32_t mipLevels,
                                         GrRenderable renderable,
                                         int numSamples,
-                                        SkBudgeted budgeted,
+                                        skgpu::Budgeted budgeted,
                                         GrProtected isProtected) {
     UsageFlags usageFlags = UsageFlags::kTexture;
     VkImageUsageFlags vkUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
@@ -137,7 +137,7 @@ sk_sp<GrVkImage> GrVkImage::Make(GrVkGpu* gpu,
                                  VkImageUsageFlags vkUsageFlags,
                                  GrProtected isProtected,
                                  GrMemoryless memoryless,
-                                 SkBudgeted budgeted) {
+                                 skgpu::Budgeted budgeted) {
     GrVkImage::ImageDesc imageDesc;
     imageDesc.fImageType = VK_IMAGE_TYPE_2D;
     imageDesc.fFormat = format;
@@ -215,7 +215,7 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
                      sk_sp<skgpu::MutableTextureStateRef> mutableState,
                      sk_sp<const GrVkImageView> framebufferView,
                      sk_sp<const GrVkImageView> textureView,
-                     SkBudgeted budgeted,
+                     skgpu::Budgeted budgeted,
                      std::string_view label)
         : GrAttachment(gpu,
                        dimensions,
@@ -224,9 +224,9 @@ GrVkImage::GrVkImage(GrVkGpu* gpu,
                        info.fLevelCount > 1 ? GrMipmapped::kYes : GrMipmapped::kNo,
                        info.fProtected,
                        label,
-                       info.fAlloc.fFlags &
-                               skgpu::VulkanAlloc::kLazilyAllocated_Flag ? GrMemoryless::kYes
-                                                                         : GrMemoryless::kNo)
+                       info.fAlloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag
+                               ? GrMemoryless::kYes
+                               : GrMemoryless::kNo)
         , fInfo(info)
         , fInitialQueueFamily(info.fCurrentQueueFamily)
         , fMutableState(std::move(mutableState))

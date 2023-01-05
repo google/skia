@@ -24,6 +24,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkScalerContext.h"
@@ -55,7 +56,7 @@ SkBitmap rasterize_blob(SkTextBlob* blob,
                         const SkMatrix& matrix) {
     const SkImageInfo info =
             SkImageInfo::Make(500, 500, kN32_SkColorType, kPremul_SkAlphaType);
-    auto surface = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info);
+    auto surface = SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kNo, info);
     auto canvas = surface->getCanvas();
     canvas->drawColor(SK_ColorWHITE);
     canvas->concat(matrix);
@@ -135,7 +136,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrTextBlobMoveAround,
         SkPaint paint;
         const SkImageInfo info =
                 SkImageInfo::Make(350, 80, kN32_SkColorType, kPremul_SkAlphaType);
-        auto surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
+        auto surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
         auto canvas = surface->getCanvas();
         canvas->drawColor(SK_ColorWHITE);
         canvas->concat(matrix);

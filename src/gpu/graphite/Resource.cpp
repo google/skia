@@ -11,7 +11,9 @@
 
 namespace skgpu::graphite {
 
-Resource::Resource(const SharedContext* sharedContext, Ownership ownership, SkBudgeted budgeted)
+Resource::Resource(const SharedContext* sharedContext,
+                   Ownership ownership,
+                   skgpu::Budgeted budgeted)
         : fSharedContext(sharedContext)
         , fUsageRefCnt(1)
         , fCommandBufferRefCnt(0)
@@ -20,7 +22,7 @@ Resource::Resource(const SharedContext* sharedContext, Ownership ownership, SkBu
         , fBudgeted(budgeted) {
     // If we don't own the resource that must mean its wrapped in a client object. Thus we should
     // not be budgeted
-    SkASSERT(fOwnership == Ownership::kOwned || fBudgeted == SkBudgeted::kNo);
+    SkASSERT(fOwnership == Ownership::kOwned || fBudgeted == skgpu::Budgeted::kNo);
 }
 
 Resource::~Resource() {

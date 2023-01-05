@@ -15,6 +15,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -48,11 +49,12 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageIsOpaqueTest_Gpu,
                                        CtsEnforcement::kApiLevel_T) {
     auto context = ctxInfo.directContext();
     SkImageInfo infoTransparent = SkImageInfo::MakeN32Premul(5, 5);
-    auto surfaceTransparent(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, infoTransparent));
+    auto surfaceTransparent(
+            SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, infoTransparent));
     check_isopaque(reporter, surfaceTransparent, false);
 
     SkImageInfo infoOpaque = SkImageInfo::MakeN32(5, 5, kOpaque_SkAlphaType);
-    auto surfaceOpaque(SkSurface::MakeRenderTarget(context,SkBudgeted::kNo, infoOpaque));
+    auto surfaceOpaque(SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, infoOpaque));
 
     check_isopaque(reporter, surfaceOpaque, true);
 }

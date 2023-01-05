@@ -323,7 +323,7 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Lazy::onAsFragmentProcessor(
 }
 
 GrSurfaceProxyView SkImage_Lazy::textureProxyViewFromPlanes(GrRecordingContext* ctx,
-                                                            SkBudgeted budgeted) const {
+                                                            skgpu::Budgeted budgeted) const {
     SkYUVAPixmapInfo::SupportedDataTypes supportedDataTypes(*ctx);
     SkYUVAPixmaps yuvaPixmaps;
     sk_sp<SkCachedData> dataStorage = this->getPlanes(supportedDataTypes, &yuvaPixmaps);
@@ -535,9 +535,9 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
     if (mipmapped == GrMipmapped::kNo && !rContext->priv().options().fDisableGpuYUVConversion) {
         // TODO: Update to create the mipped surface in the textureProxyViewFromPlanes generator and
         //  draw the base layer directly into the mipped surface.
-        SkBudgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
-                                      ? SkBudgeted::kNo
-                                      : SkBudgeted::kYes;
+        skgpu::Budgeted budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
+                                           ? skgpu::Budgeted::kNo
+                                           : skgpu::Budgeted::kYes;
         auto view = this->textureProxyViewFromPlanes(rContext, budgeted);
         if (view) {
             installKey(view);
@@ -552,8 +552,8 @@ GrSurfaceProxyView SkImage_Lazy::lockTextureProxyView(GrRecordingContext* rConte
         // We always make an uncached bitmap here because we will cache it based on passed in policy
         // with *our* key, not a key derived from bitmap. We're just making the proxy here.
         auto budgeted = texGenPolicy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
-                                ? SkBudgeted::kNo
-                                : SkBudgeted::kYes;
+                                ? skgpu::Budgeted::kNo
+                                : skgpu::Budgeted::kYes;
         auto view = std::get<0>(GrMakeUncachedBitmapProxyView(rContext,
                                                               bitmap,
                                                               mipmapped,
@@ -617,7 +617,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeTextureImage(skgpu::graphite::Recorder* recor
                                                this->imageInfo().colorInfo(),
                                                bitmap,
                                                nullptr,
-                                               SkBudgeted::kNo,
+                                               skgpu::Budgeted::kNo,
                                                requiredProps);
     }
 

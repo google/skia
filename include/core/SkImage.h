@@ -16,6 +16,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTileMode.h"
 #if SK_SUPPORT_GPU
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrTypes.h"
 #endif
 #if defined(SK_GRAPHITE_ENABLED)
@@ -1134,20 +1135,21 @@ public:
         GPU.
 
         Returns original SkImage if the image is already texture-backed, the context matches, and
-        mipmapped is compatible with the backing GPU texture. SkBudgeted is ignored in this case.
+        mipmapped is compatible with the backing GPU texture. skgpu::Budgeted is ignored in this
+       case.
 
         Returns nullptr if context is nullptr, or if SkImage was created with another
         GrDirectContext.
 
         @param GrDirectContext the GrDirectContext in play, if it exists
         @param GrMipmapped     whether created SkImage texture must allocate mip map levels
-        @param SkBudgeted      whether to count a newly created texture for the returned image
+        @param skgpu::Budgeted      whether to count a newly created texture for the returned image
                                counts against the context's budget.
         @return                created SkImage, or nullptr
     */
     sk_sp<SkImage> makeTextureImage(GrDirectContext*,
                                     GrMipmapped = GrMipmapped::kNo,
-                                    SkBudgeted = SkBudgeted::kYes) const;
+                                    skgpu::Budgeted = skgpu::Budgeted::kYes) const;
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED

@@ -15,9 +15,11 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "src/gpu/Blend.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 
@@ -152,14 +154,14 @@ sk_sp<GrSurfaceProxy> GrCopyBaseMipMapToTextureProxy(GrRecordingContext*,
                                                      sk_sp<GrSurfaceProxy> baseProxy,
                                                      GrSurfaceOrigin origin,
                                                      std::string_view label,
-                                                     SkBudgeted = SkBudgeted::kYes);
+                                                     skgpu::Budgeted = skgpu::Budgeted::kYes);
 /**
  * Same as GrCopyBaseMipMapToTextureProxy but takes the src as a view and returns a view with same
  * origin and swizzle as the src view.
  */
 GrSurfaceProxyView GrCopyBaseMipMapToView(GrRecordingContext*,
                                           GrSurfaceProxyView,
-                                          SkBudgeted = SkBudgeted::kYes);
+                                          skgpu::Budgeted = skgpu::Budgeted::kYes);
 
 /*
  * Create a texture proxy from the provided bitmap and add it to the texture cache using the key
@@ -179,12 +181,12 @@ GrMakeCachedBitmapProxyView(GrRecordingContext*,
  * Like above but always uploads the bitmap and never inserts into the cache. Unlike above, the
  * texture may be approx or scratch and budgeted or not.
  */
-std::tuple<GrSurfaceProxyView, GrColorType>
-GrMakeUncachedBitmapProxyView(GrRecordingContext*,
-                              const SkBitmap&,
-                              GrMipmapped = GrMipmapped::kNo,
-                              SkBackingFit = SkBackingFit::kExact,
-                              SkBudgeted = SkBudgeted::kYes);
+std::tuple<GrSurfaceProxyView, GrColorType> GrMakeUncachedBitmapProxyView(
+        GrRecordingContext*,
+        const SkBitmap&,
+        GrMipmapped = GrMipmapped::kNo,
+        SkBackingFit = SkBackingFit::kExact,
+        skgpu::Budgeted = skgpu::Budgeted::kYes);
 
 /**
  *  Our key includes the offset, width, and height so that bitmaps created by extractSubset()

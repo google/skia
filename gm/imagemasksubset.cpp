@@ -60,7 +60,7 @@ const MakerT makers[] = {
     // SkImage_Gpu
     [](SkCanvas* c, const SkImageInfo& info) -> sk_sp<SkImage> {
         sk_sp<SkSurface> surface;
-        surface = SkSurface::MakeRenderTarget(c->recordingContext(), SkBudgeted::kNo, info);
+        surface = SkSurface::MakeRenderTarget(c->recordingContext(), skgpu::Budgeted::kNo, info);
         return make_mask(surface ? surface : SkSurface::MakeRaster(info));
     },
 

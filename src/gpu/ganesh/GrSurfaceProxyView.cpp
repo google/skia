@@ -64,7 +64,7 @@ GrSurfaceProxyView GrSurfaceProxyView::Copy(GrRecordingContext* context,
                                             GrMipmapped mipmapped,
                                             SkIRect srcRect,
                                             SkBackingFit fit,
-                                            SkBudgeted budgeted,
+                                            skgpu::Budgeted budgeted,
                                             std::string_view label) {
     auto copy = GrSurfaceProxy::Copy(
             context, src.refProxy(), src.origin(), mipmapped, srcRect, fit, budgeted, label);
@@ -75,7 +75,7 @@ GrSurfaceProxyView GrSurfaceProxyView::Copy(GrRecordingContext* rContext,
                                             GrSurfaceProxyView src,
                                             GrMipmapped mipmapped,
                                             SkBackingFit fit,
-                                            SkBudgeted budgeted,
+                                            skgpu::Budgeted budgeted,
                                             std::string_view label) {
     auto copy = GrSurfaceProxy::Copy(
             rContext, src.refProxy(), src.origin(), mipmapped, fit, budgeted, label);

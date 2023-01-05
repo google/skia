@@ -33,6 +33,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkMatrixProvider.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrPixmap.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"

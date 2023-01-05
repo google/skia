@@ -11,7 +11,9 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrTypes.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrPixmap.h"
 
@@ -100,14 +102,14 @@ void CheckSingleThreadedProxyRefs(skiatest::Reporter* reporter,
 // GrRenderable and the GrImageInfo.
 // The texture format is the default for the provided color type.
 std::unique_ptr<skgpu::v1::SurfaceContext> CreateSurfaceContext(
-            GrRecordingContext*,
-            const GrImageInfo&,
-            SkBackingFit = SkBackingFit::kExact,
-            GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
-            GrRenderable = GrRenderable::kNo,
-            int sampleCount = 1,
-            GrMipmapped = GrMipmapped::kNo,
-            GrProtected = GrProtected::kNo,
-            SkBudgeted = SkBudgeted::kYes);
+        GrRecordingContext*,
+        const GrImageInfo&,
+        SkBackingFit = SkBackingFit::kExact,
+        GrSurfaceOrigin = kTopLeft_GrSurfaceOrigin,
+        GrRenderable = GrRenderable::kNo,
+        int sampleCount = 1,
+        GrMipmapped = GrMipmapped::kNo,
+        GrProtected = GrProtected::kNo,
+        skgpu::Budgeted = skgpu::Budgeted::kYes);
 
 #endif

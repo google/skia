@@ -26,6 +26,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -37,6 +38,7 @@
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/ResourceKey.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrBuffer.h"
@@ -105,7 +107,7 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> new_SDC(GrRecordingContext
                                                GrMipmapped::kNo,
                                                GrProtected::kNo,
                                                kImageOrigin,
-                                               SkBudgeted::kYes);
+                                               skgpu::Budgeted::kYes);
 }
 
 static void create_view_key(skgpu::UniqueKey* key, int wh, int id) {
@@ -170,8 +172,7 @@ public:
                GrThreadSafeCache::IsNewerBetter isNewerBetter = default_is_newer_better)
             : fDContext(dContext)
             , fIsNewerBetter(isNewerBetter) {
-
-        fDst = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, default_ii(kImageWH));
+        fDst = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, default_ii(kImageWH));
         SkAssertResult(fDst);
 
         SkSurfaceCharacterization characterization;
@@ -424,9 +425,8 @@ public:
     }
 
     bool checkImage(skiatest::Reporter* reporter, sk_sp<SkDeferredDisplayList> ddl) {
-        sk_sp<SkSurface> tmp = SkSurface::MakeRenderTarget(fDContext,
-                                                           SkBudgeted::kNo,
-                                                           default_ii(kImageWH));
+        sk_sp<SkSurface> tmp =
+                SkSurface::MakeRenderTarget(fDContext, skgpu::Budgeted::kNo, default_ii(kImageWH));
         if (!tmp) {
             return false;
         }
@@ -683,10 +683,8 @@ GrSurfaceProxyView TestHelper::CreateViewOnCpu(GrRecordingContext* rContext,
                                                Stats* stats) {
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
 
-    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(create_bitmap(wh),
-                                                                       GrMipmapped::kNo,
-                                                                       SkBackingFit::kExact,
-                                                                       SkBudgeted::kYes);
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxyFromBitmap(
+            create_bitmap(wh), GrMipmapped::kNo, SkBackingFit::kExact, skgpu::Budgeted::kYes);
     if (!proxy) {
         return {};
     }

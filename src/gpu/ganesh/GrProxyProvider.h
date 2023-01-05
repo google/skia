@@ -79,7 +79,7 @@ public:
     sk_sp<GrTextureProxy> createProxyFromBitmap(const SkBitmap&,
                                                 GrMipmapped,
                                                 SkBackingFit,
-                                                SkBudgeted);
+                                                skgpu::Budgeted);
 
     /*
      * Create a GrSurfaceProxy without any data.
@@ -90,7 +90,7 @@ public:
                                       int renderTargetSampleCnt,
                                       GrMipmapped,
                                       SkBackingFit,
-                                      SkBudgeted,
+                                      skgpu::Budgeted,
                                       GrProtected,
                                       std::string_view label,
                                       GrInternalSurfaceFlags = GrInternalSurfaceFlags::kNone,
@@ -100,7 +100,7 @@ public:
      * Create a texture proxy from compressed texture data.
      */
     sk_sp<GrTextureProxy> createCompressedTextureProxy(SkISize dimensions,
-                                                       SkBudgeted,
+                                                       skgpu::Budgeted,
                                                        GrMipmapped,
                                                        GrProtected,
                                                        SkImage::CompressionType,
@@ -180,7 +180,7 @@ public:
                                           GrMipmapStatus,
                                           GrInternalSurfaceFlags,
                                           SkBackingFit,
-                                          SkBudgeted,
+                                          skgpu::Budgeted,
                                           GrProtected,
                                           UseAllocator,
                                           std::string_view label);
@@ -194,7 +194,7 @@ public:
                                                            const TextureInfo*,
                                                            GrMipmapStatus,
                                                            SkBackingFit,
-                                                           SkBudgeted,
+                                                           skgpu::Budgeted,
                                                            GrProtected,
                                                            bool wrapsVkSecondaryCB,
                                                            UseAllocator useAllocator);
@@ -259,7 +259,7 @@ public:
                                                               GrRenderable renderable,
                                                               int renderTargetSampleCnt,
                                                               SkBackingFit fit,
-                                                              SkBudgeted budgeted,
+                                                              skgpu::Budgeted budgeted,
                                                               GrProtected isProtected);
 
     /** Version of above that picks the default format for the color type. */
@@ -268,7 +268,7 @@ public:
                                                               GrRenderable renderable,
                                                               int renderTargetSampleCnt,
                                                               SkBackingFit fit,
-                                                              SkBudgeted budgeted,
+                                                              skgpu::Budgeted budgeted,
                                                               GrProtected isProtected);
 
     sk_sp<GrTextureProxy> testingOnly_createWrapped(sk_sp<GrTexture>);
@@ -289,12 +289,13 @@ private:
     /*
      * Create an un-mipmapped texture proxy for the bitmap.
      */
-    sk_sp<GrTextureProxy> createNonMippedProxyFromBitmap(const SkBitmap&, SkBackingFit, SkBudgeted);
+    sk_sp<GrTextureProxy> createNonMippedProxyFromBitmap(const SkBitmap&,
+                                                         SkBackingFit,
+                                                         skgpu::Budgeted);
     /*
      * Create an mipmapped texture proxy for the bitmap.
      */
-    sk_sp<GrTextureProxy> createMippedProxyFromBitmap(const SkBitmap&,
-                                                      SkBudgeted);
+    sk_sp<GrTextureProxy> createMippedProxyFromBitmap(const SkBitmap&, skgpu::Budgeted);
 
     sk_sp<GrTextureProxy> createWrapped(sk_sp<GrTexture> tex, UseAllocator useAllocator);
 

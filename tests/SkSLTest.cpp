@@ -19,6 +19,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLProgramKind.h"
@@ -172,7 +173,7 @@ static bool gpu_generates_nan(skiatest::Reporter* r, GrDirectContext* ctx) {
     REPORTER_ASSERT(r, effect);
 
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info));
 
     SkBitmap bitmap = bitmap_from_shader(r, surface.get(), effect);
     REPORTER_ASSERT(r, !bitmap.empty());
@@ -291,7 +292,7 @@ static void test_gpu(skiatest::Reporter* r, GrDirectContext* ctx, const char* te
 
     // Create a GPU-backed surface.
     const SkImageInfo info = SkImageInfo::MakeN32Premul(kWidth, kHeight);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info));
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info));
 
     if (shouldRunGPU) {
         test_permutations(r, surface.get(), testFile, /*strictES2=*/true);

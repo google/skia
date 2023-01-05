@@ -15,6 +15,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -201,7 +202,7 @@ static void gpu_tests(GrDirectContext* dContext,
 
     // We had better not be able to render to prohibited colorTypes
     if (!test.fGpuCanMakeSurfaces) {
-        auto s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, nativeII);
+        auto s = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, nativeII);
         REPORTER_ASSERT(reporter, !SkToBool(s));
     }
 
@@ -258,7 +259,7 @@ static void gpu_tests(GrDirectContext* dContext,
             // SkSurface::readPixels with the same colorType as the source pixels round trips
             // (when allowed)
             if (dContext->colorTypeSupportedAsSurface(test.fColorType)) {
-                auto s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, nativeII);
+                auto s = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, nativeII);
                 REPORTER_ASSERT(reporter, SkToBool(s));
 
                 {
@@ -297,7 +298,8 @@ static void gpu_tests(GrDirectContext* dContext,
                                                                      kRGBA_8888_SkColorType,
                                                                      kPremul_SkAlphaType);
 
-                auto s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, rgba8888Premul);
+                auto s =
+                        SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, rgba8888Premul);
                 REPORTER_ASSERT(reporter, SkToBool(s));
 
                 {

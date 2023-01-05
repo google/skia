@@ -115,7 +115,7 @@ protected:
             SkSurfaceProps props(
                     SkSurfaceProps::kUseDeviceIndependentFonts_Flag | inputProps.flags(),
                     inputProps.pixelGeometry());
-            surface = SkSurface::MakeRenderTarget(ctx, SkBudgeted::kNo, info, 0, &props);
+            surface = SkSurface::MakeRenderTarget(ctx, skgpu::Budgeted::kNo, info, 0, &props);
             canvas = surface ? surface->getCanvas() : inputCanvas;
             // init our new canvas with the old canvas's matrix
             canvas->setMatrix(inputCanvas->getTotalMatrix());

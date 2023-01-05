@@ -14,6 +14,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -42,8 +43,8 @@ DEF_GANESH_TEST(GrContext_oomed, reporter, originalOptions, CtsEnforcement::kApi
                 // issuing a small number calls by reusing scratch resources created in a previous
                 // iteration.
                 context->freeGpuResources();
-                auto surf =
-                        SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 1, nullptr);
+                auto surf = SkSurface::MakeRenderTarget(
+                        context, skgpu::Budgeted::kYes, info, 1, nullptr);
                 SkPaint paint;
                 surf->getCanvas()->drawRect(SkRect::MakeLTRB(100, 100, 2000, 2000), paint);
                 surf->flushAndSubmit();

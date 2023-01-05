@@ -79,7 +79,7 @@ sk_sp<ComputePipeline> ResourceProvider::findOrCreateComputePipeline(
 
 sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
                                                             const TextureInfo& info,
-                                                            SkBudgeted budgeted) {
+                                                            skgpu::Budgeted budgeted) {
     SkASSERT(info.isValid());
 
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
@@ -103,7 +103,7 @@ sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dime
     // stomping on each other's data.
     fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
 
-    return this->findOrCreateTextureWithKey(dimensions, info, key, SkBudgeted::kYes);
+    return this->findOrCreateTextureWithKey(dimensions, info, key, skgpu::Budgeted::kYes);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize dimensions,
@@ -119,16 +119,16 @@ sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize d
     // to populate the discardable MSAA texture with data at the start of the render pass.
     fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
 
-    return this->findOrCreateTextureWithKey(dimensions, info, key, SkBudgeted::kYes);
+    return this->findOrCreateTextureWithKey(dimensions, info, key, skgpu::Budgeted::kYes);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateTextureWithKey(SkISize dimensions,
                                                             const TextureInfo& info,
                                                             const GraphiteResourceKey& key,
-                                                            SkBudgeted budgeted) {
+                                                            skgpu::Budgeted budgeted) {
     // If the resource is shareable it should be budgeted since it shouldn't be backing any client
     // owned object.
-    SkASSERT(key.shareable() == Shareable::kNo || budgeted == SkBudgeted::kYes);
+    SkASSERT(key.shareable() == Shareable::kNo || budgeted == skgpu::Budgeted::kYes);
 
     if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
         return sk_sp<Texture>(static_cast<Texture*>(resource));
@@ -176,7 +176,7 @@ sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SkSamplingO
         builder[0] = myKey;
     }
 
-    SkBudgeted budgeted = SkBudgeted::kYes;
+    skgpu::Budgeted budgeted = skgpu::Budgeted::kYes;
     if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
         return sk_sp<Sampler>(static_cast<Sampler*>(resource));
     }
@@ -237,7 +237,7 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
         }
     }
 
-    SkBudgeted budgeted = SkBudgeted::kYes;
+    skgpu::Budgeted budgeted = skgpu::Budgeted::kYes;
     if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
         return sk_sp<Buffer>(static_cast<Buffer*>(resource));
     }

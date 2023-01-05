@@ -29,6 +29,7 @@
 #include "include/effects/SkBlenders.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkSLSampleUsage.h"
@@ -40,6 +41,7 @@
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/KeyBuilder.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
@@ -429,7 +431,7 @@ static sk_sp<SkSurface> make_surface(GrRecordingContext* grContext,
         surface = SkSurface::MakeGraphite(graphite->recorder, info);
 #endif
     } else if (grContext) {
-        surface = SkSurface::MakeRenderTarget(grContext, SkBudgeted::kNo, info);
+        surface = SkSurface::MakeRenderTarget(grContext, skgpu::Budgeted::kNo, info);
     } else {
         surface = SkSurface::MakeRaster(info);
     }
@@ -837,7 +839,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeEffectObeysCapabilities_GPU,
                                        CtsEnforcement::kApiLevel_T) {
     SkImageInfo info = SkImageInfo::Make(2, 2, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
     sk_sp<SkSurface> surface =
-            SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info);
+            SkSurface::MakeRenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info);
     REPORTER_ASSERT(r, surface);
     test_RuntimeEffectObeysCapabilities(r, surface.get());
 }

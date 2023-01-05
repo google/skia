@@ -140,7 +140,7 @@ sk_sp<SkImage> SkImage_GpuBase::onMakeSubset(const SkIRect& subset,
     SkASSERT(view);
     SkASSERT(ct == SkColorTypeToGrColorType(this->colorType()));
 
-    SkBudgeted isBudgeted = view.proxy()->isBudgeted();
+    skgpu::Budgeted isBudgeted = view.proxy()->isBudgeted();
     auto copyView = GrSurfaceProxyView::Copy(direct,
                                              std::move(view),
                                              GrMipmapped::kNo,

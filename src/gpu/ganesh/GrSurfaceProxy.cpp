@@ -10,7 +10,9 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPoint.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
@@ -58,7 +60,7 @@ GrSurfaceProxy::LazyCallbackResult::LazyCallbackResult(sk_sp<GrTexture> tex)
 GrSurfaceProxy::GrSurfaceProxy(const GrBackendFormat& format,
                                SkISize dimensions,
                                SkBackingFit fit,
-                               SkBudgeted budgeted,
+                               skgpu::Budgeted budgeted,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
                                UseAllocator useAllocator,
@@ -80,7 +82,7 @@ GrSurfaceProxy::GrSurfaceProxy(LazyInstantiateCallback&& callback,
                                const GrBackendFormat& format,
                                SkISize dimensions,
                                SkBackingFit fit,
-                               SkBudgeted budgeted,
+                               skgpu::Budgeted budgeted,
                                GrProtected isProtected,
                                GrInternalSurfaceFlags surfaceFlags,
                                UseAllocator useAllocator,
@@ -109,8 +111,8 @@ GrSurfaceProxy::GrSurfaceProxy(sk_sp<GrSurface> surface,
         , fDimensions(fTarget->dimensions())
         , fFit(fit)
         , fBudgeted(fTarget->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted
-                            ? SkBudgeted::kYes
-                            : SkBudgeted::kNo)
+                            ? skgpu::Budgeted::kYes
+                            : skgpu::Budgeted::kNo)
         , fUseAllocator(useAllocator)
         , fUniqueID(fTarget->uniqueID())  // Note: converting from unique resource ID to a proxy ID!
         , fIsProtected(fTarget->isProtected() ? GrProtected::kYes : GrProtected::kNo)
@@ -281,7 +283,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* rContext,
                                            GrMipmapped mipmapped,
                                            SkIRect srcRect,
                                            SkBackingFit fit,
-                                           SkBudgeted budgeted,
+                                           skgpu::Budgeted budgeted,
                                            std::string_view label,
                                            RectsMustMatch rectsMustMatch,
                                            sk_sp<GrRenderTask>* outTask) {
@@ -357,7 +359,7 @@ sk_sp<GrSurfaceProxy> GrSurfaceProxy::Copy(GrRecordingContext* context,
                                            GrSurfaceOrigin origin,
                                            GrMipmapped mipmapped,
                                            SkBackingFit fit,
-                                           SkBudgeted budgeted,
+                                           skgpu::Budgeted budgeted,
                                            std::string_view label,
                                            sk_sp<GrRenderTask>* outTask) {
     SkASSERT(!src->isFullyLazy());

@@ -20,6 +20,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -122,8 +123,8 @@ DEF_TEST(ImageNewShader, reporter) {
 static void gpu_to_gpu(skiatest::Reporter* reporter, GrRecordingContext* rContext) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
-    auto sourceSurface(SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info));
-    auto destinationSurface(SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info));
+    auto sourceSurface(SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kNo, info));
+    auto destinationSurface(SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kNo, info));
 
     run_shader_test(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }
@@ -132,7 +133,7 @@ static void raster_to_gpu(skiatest::Reporter* reporter, GrRecordingContext* rCon
     SkImageInfo info = SkImageInfo::MakeN32Premul(5, 5);
 
     auto sourceSurface(SkSurface::MakeRaster(info));
-    auto destinationSurface(SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info));
+    auto destinationSurface(SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kNo, info));
 
     run_shader_test(reporter, sourceSurface.get(), destinationSurface.get(), info);
 }

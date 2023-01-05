@@ -34,7 +34,7 @@ public:
                                               uint32_t mipLevels,
                                               GrRenderable renderable,
                                               int numSamples,
-                                              SkBudgeted budgeted);
+                                              skgpu::Budgeted budgeted);
 
     static sk_sp<GrMtlAttachment> MakeWrapped(GrMtlGpu* gpu,
                                               SkISize dimensions,
@@ -68,13 +68,13 @@ private:
                                        uint32_t mipLevels,
                                        int mtlTextureUsage,
                                        int mtlStorageMode,
-                                       SkBudgeted);
+                                       skgpu::Budgeted);
 
     GrMtlAttachment(GrMtlGpu* gpu,
                     SkISize dimensions,
                     UsageFlags supportedUsages,
                     id<MTLTexture> texture,
-                    SkBudgeted,
+                    skgpu::Budgeted,
                     std::string_view label);
 
     GrMtlAttachment(GrMtlGpu* gpu,

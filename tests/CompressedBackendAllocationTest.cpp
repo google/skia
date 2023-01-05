@@ -21,6 +21,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -92,8 +93,9 @@ static void check_compressed_mipmaps(GrRecordingContext* rContext, sk_sp<SkImage
                                                       kPremul_SkAlphaType);
 
     sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(rContext,
-                                                        SkBudgeted::kNo,
-                                                        readbackSurfaceII, 1,
+                                                        skgpu::Budgeted::kNo,
+                                                        readbackSurfaceII,
+                                                        1,
                                                         kTopLeft_GrSurfaceOrigin,
                                                         nullptr);
     if (!surf) {

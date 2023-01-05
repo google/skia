@@ -83,7 +83,7 @@ public:
                                                     GrMipmapped = GrMipmapped::kNo,
                                                     GrProtected = GrProtected::kNo,
                                                     GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
-                                                    SkBudgeted = SkBudgeted::kYes);
+                                                    skgpu::Budgeted = skgpu::Budgeted::kYes);
 
     /**
      * Takes custom swizzles rather than determining swizzles from color type and format.
@@ -100,7 +100,7 @@ public:
                                                     skgpu::Swizzle readSwizzle,
                                                     skgpu::Swizzle writeSwizzle,
                                                     GrSurfaceOrigin,
-                                                    SkBudgeted,
+                                                    skgpu::Budgeted,
                                                     const SkSurfaceProps&,
                                                     std::string_view label);
 
@@ -119,7 +119,7 @@ public:
             GrMipmapped = GrMipmapped::kNo,
             GrProtected = GrProtected::kNo,
             GrSurfaceOrigin = kBottomLeft_GrSurfaceOrigin,
-            SkBudgeted = SkBudgeted::kYes);
+            skgpu::Budgeted = skgpu::Budgeted::kYes);
 
     // Creates a SurfaceDrawContext that wraps the passed in GrBackendTexture.
     static std::unique_ptr<SurfaceDrawContext> MakeFromBackendTexture(
@@ -554,7 +554,7 @@ public:
                             const SkMatrix& viewMatrix,
                             const SkPath&);
 
-    SkBudgeted isBudgeted() const;
+    skgpu::Budgeted isBudgeted() const;
 
     int maxWindowRectangles() const;
 

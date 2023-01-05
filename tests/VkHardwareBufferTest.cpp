@@ -1260,10 +1260,8 @@ void run_test(skiatest::Reporter* reporter, const GrContextOptions& options,
     SkImageInfo imageInfo = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                               kPremul_SkAlphaType, nullptr);
 
-    sk_sp<SkSurface> dstSurf = SkSurface::MakeRenderTarget(direct,
-                                                           SkBudgeted::kNo, imageInfo, 0,
-                                                           kTopLeft_GrSurfaceOrigin,
-                                                           nullptr, false);
+    sk_sp<SkSurface> dstSurf = SkSurface::MakeRenderTarget(
+            direct, skgpu::Budgeted::kNo, imageInfo, 0, kTopLeft_GrSurfaceOrigin, nullptr, false);
     if (!dstSurf.get()) {
         ERRORF(reporter, "Failed to create destination SkSurface");
         wrappedImage.reset();

@@ -26,16 +26,15 @@ struct GrVkImageInfo;
 
 class GrVkTextureRenderTarget: public GrVkTexture, public GrVkRenderTarget {
 public:
-    static sk_sp<GrVkTextureRenderTarget> MakeNewTextureRenderTarget(
-            GrVkGpu* gpu,
-            SkBudgeted budgeted,
-            SkISize dimensions,
-            VkFormat format,
-            uint32_t mipLevels,
-            int sampleCnt,
-            GrMipmapStatus mipmapStatus,
-            GrProtected isProtected,
-            std::string_view label);
+    static sk_sp<GrVkTextureRenderTarget> MakeNewTextureRenderTarget(GrVkGpu* gpu,
+                                                                     skgpu::Budgeted budgeted,
+                                                                     SkISize dimensions,
+                                                                     VkFormat format,
+                                                                     uint32_t mipLevels,
+                                                                     int sampleCnt,
+                                                                     GrMipmapStatus mipmapStatus,
+                                                                     GrProtected isProtected,
+                                                                     std::string_view label);
 
     static sk_sp<GrVkTextureRenderTarget> MakeWrappedTextureRenderTarget(
             GrVkGpu*,
@@ -63,7 +62,7 @@ protected:
 
 private:
     GrVkTextureRenderTarget(GrVkGpu* gpu,
-                            SkBudgeted budgeted,
+                            skgpu::Budgeted budgeted,
                             SkISize dimensions,
                             sk_sp<GrVkImage> texture,
                             sk_sp<GrVkImage> colorAttachment,

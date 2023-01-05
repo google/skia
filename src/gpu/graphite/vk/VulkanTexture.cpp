@@ -133,7 +133,7 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
 sk_sp<Texture> VulkanTexture::Make(const VulkanSharedContext* sharedContext,
                                    SkISize dimensions,
                                    const TextureInfo& info,
-                                   SkBudgeted budgeted) {
+                                   skgpu::Budgeted budgeted) {
     CreatedImageInfo imageInfo;
     if (!MakeVkImage(sharedContext, dimensions, info, &imageInfo)) {
         return nullptr;
@@ -161,7 +161,7 @@ sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedConte
                                             image,
                                             alloc,
                                             Ownership::kWrapped,
-                                            SkBudgeted::kNo));
+                                            skgpu::Budgeted::kNo));
 }
 
 VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
@@ -171,7 +171,7 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
                              VkImage image,
                              const VulkanAlloc& alloc,
                              Ownership ownership,
-                             SkBudgeted budgeted)
+                             skgpu::Budgeted budgeted)
         : Texture(sharedContext, dimensions, info, std::move(mutableState), ownership, budgeted)
         , fImage(image)
         , fMemoryAlloc(alloc) {}

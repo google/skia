@@ -23,9 +23,9 @@ void draw(SkCanvas* canvas) {
     for (auto geometry : { kRGB_H_SkPixelGeometry, kBGR_H_SkPixelGeometry,
                            kRGB_V_SkPixelGeometry, kBGR_V_SkPixelGeometry } ) {
         SkSurfaceProps props(0, geometry);
-        sk_sp<SkSurface> surface = context
-                        ? SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info, 0, &props)
-                        : SkSurface::MakeRaster(info, &props);
+        sk_sp<SkSurface> surface = context ? SkSurface::MakeRenderTarget(
+                                                     context, skgpu::Budgeted::kNo, info, 0, &props)
+                                           : SkSurface::MakeRaster(info, &props);
         test_draw(surface->getCanvas());
         surface->draw(canvas, 0, y);
         sk_sp<SkImage> image(surface->makeImageSnapshot());

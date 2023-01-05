@@ -132,12 +132,8 @@ protected:
         auto resultInfo = SkImageInfo::Make(fLazyYUVImage->dimensions(),
                                             kRGBA_8888_SkColorType,
                                             kPremul_SkAlphaType);
-        auto resultSurface = SkSurface::MakeRenderTarget(dContext,
-                                                         SkBudgeted::kYes,
-                                                         resultInfo,
-                                                         1,
-                                                         kTopLeft_GrSurfaceOrigin,
-                                                         nullptr);
+        auto resultSurface = SkSurface::MakeRenderTarget(
+                dContext, skgpu::Budgeted::kYes, resultInfo, 1, kTopLeft_GrSurfaceOrigin, nullptr);
         if (!resultSurface) {
             return nullptr;
         }

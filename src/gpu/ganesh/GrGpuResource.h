@@ -222,7 +222,7 @@ public:
 protected:
     // This must be called by every non-wrapped GrGpuObject. It should be called once the object is
     // fully initialized (i.e. only from the constructors of the final class).
-    void registerWithCache(SkBudgeted);
+    void registerWithCache(skgpu::Budgeted);
 
     // This must be called by every GrGpuObject that references any wrapped backend objects. It
     // should be called once the object is fully initialized (i.e. only from the constructors of the

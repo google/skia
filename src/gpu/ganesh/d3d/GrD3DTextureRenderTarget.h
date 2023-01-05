@@ -25,7 +25,8 @@ struct GrD3DTextureResourceInfo;
 
 class GrD3DTextureRenderTarget: public GrD3DTexture, public GrD3DRenderTarget {
 public:
-    static sk_sp<GrD3DTextureRenderTarget> MakeNewTextureRenderTarget(GrD3DGpu*, SkBudgeted,
+    static sk_sp<GrD3DTextureRenderTarget> MakeNewTextureRenderTarget(GrD3DGpu*,
+                                                                      skgpu::Budgeted,
                                                                       SkISize dimensions,
                                                                       int sampleCnt,
                                                                       const D3D12_RESOURCE_DESC&,
@@ -55,7 +56,7 @@ protected:
 private:
     // MSAA, not-wrapped
     GrD3DTextureRenderTarget(GrD3DGpu* gpu,
-                             SkBudgeted budgeted,
+                             skgpu::Budgeted budgeted,
                              SkISize dimensions,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,
@@ -69,7 +70,7 @@ private:
 
     // non-MSAA, not-wrapped
     GrD3DTextureRenderTarget(GrD3DGpu* gpu,
-                             SkBudgeted budgeted,
+                             skgpu::Budgeted budgeted,
                              SkISize dimensions,
                              const GrD3DTextureResourceInfo& info,
                              sk_sp<GrD3DResourceState> state,

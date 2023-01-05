@@ -31,7 +31,7 @@ class TestResource : public Resource {
 public:
     static sk_sp<TestResource> Make(const SharedContext* sharedContext,
                                     Ownership owned,
-                                    SkBudgeted budgeted,
+                                    skgpu::Budgeted budgeted,
                                     Shareable shareable) {
         auto resource = sk_sp<TestResource>(new TestResource(sharedContext, owned, budgeted));
         if (!resource) {
@@ -56,7 +56,7 @@ public:
     }
 
 private:
-    TestResource(const SharedContext* sharedContext, Ownership owned, SkBudgeted budgeted)
+    TestResource(const SharedContext* sharedContext, Ownership owned, skgpu::Budgeted budgeted)
             : Resource(sharedContext, owned, budgeted) {}
 
     void freeGpuData() override {}
@@ -84,17 +84,15 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 0);
 
     // Test making a non budgeted, non shareable resource.
-    auto resource = TestResource::Make(sharedContext,
-                                       Ownership::kOwned,
-                                       SkBudgeted::kNo,
-                                       Shareable::kNo);
+    auto resource = TestResource::Make(
+            sharedContext, Ownership::kOwned, skgpu::Budgeted::kNo, Shareable::kNo);
     if (!resource) {
         ERRORF(reporter, "Failed to make TestResource");
         return;
     }
     Resource* resourcePtr = resource.get();
 
-    REPORTER_ASSERT(reporter, resource->budgeted() == SkBudgeted::kNo);
+    REPORTER_ASSERT(reporter, resource->budgeted() == skgpu::Budgeted::kNo);
     resourceCache->insertResource(resourcePtr);
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
     // Resource is not shareable and we have a ref on it. Thus it shouldn't ben findable in the
@@ -103,7 +101,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
 
     // When we reset our TestResource it should go back into the cache since it can be used as a
     // scratch texture (since it is not shareable). At that point the budget should be changed to
-    // SkBudgeted::kYes.
+    // skgpu::Budgeted::kYes.
     resource.reset();
     resourceCache->forceProcessReturnedResources();
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
@@ -111,29 +109,27 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
     // Even though we reset our ref on the resource we still have the ptr to it and should be the
     // resource in the cache. So in general this is dangerous it should be safe for this test to
     // directly access the texture.
-    REPORTER_ASSERT(reporter, resourcePtr->budgeted() == SkBudgeted::kYes);
+    REPORTER_ASSERT(reporter, resourcePtr->budgeted() == skgpu::Budgeted::kYes);
 
     GraphiteResourceKey key;
     TestResource::CreateKey(&key, Shareable::kNo);
-    Resource* resourcePtr2 = resourceCache->findAndRefResource(key, SkBudgeted::kNo);
+    Resource* resourcePtr2 = resourceCache->findAndRefResource(key, skgpu::Budgeted::kNo);
     REPORTER_ASSERT(reporter, resourcePtr == resourcePtr2);
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 0);
-    REPORTER_ASSERT(reporter, resourcePtr2->budgeted() == SkBudgeted::kNo);
+    REPORTER_ASSERT(reporter, resourcePtr2->budgeted() == skgpu::Budgeted::kNo);
     resourcePtr2->unref();
     resourceCache->forceProcessReturnedResources();
 
     // Test making a non budgeted, non shareable resource.
-    resource = TestResource::Make(sharedContext,
-                                  Ownership::kOwned,
-                                  SkBudgeted::kYes,
-                                  Shareable::kYes);
+    resource = TestResource::Make(
+            sharedContext, Ownership::kOwned, skgpu::Budgeted::kYes, Shareable::kYes);
     if (!resource) {
         ERRORF(reporter, "Failed to make TestResource");
         return;
     }
     resourcePtr = resource.get();
-    REPORTER_ASSERT(reporter, resource->budgeted() == SkBudgeted::kYes);
+    REPORTER_ASSERT(reporter, resource->budgeted() == skgpu::Budgeted::kYes);
     resourceCache->insertResource(resourcePtr);
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 2);
@@ -142,14 +138,14 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
     resourceCache->forceProcessReturnedResources();
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 2);
-    REPORTER_ASSERT(reporter, resourcePtr->budgeted() == SkBudgeted::kYes);
+    REPORTER_ASSERT(reporter, resourcePtr->budgeted() == skgpu::Budgeted::kYes);
 
     TestResource::CreateKey(&key, Shareable::kYes);
-    resourcePtr2 = resourceCache->findAndRefResource(key, SkBudgeted::kYes);
+    resourcePtr2 = resourceCache->findAndRefResource(key, skgpu::Budgeted::kYes);
     REPORTER_ASSERT(reporter, resourcePtr == resourcePtr2);
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 2);
-    REPORTER_ASSERT(reporter, resourcePtr2->budgeted() == SkBudgeted::kYes);
+    REPORTER_ASSERT(reporter, resourcePtr2->budgeted() == skgpu::Budgeted::kYes);
     resourcePtr2->unref();
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +180,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
     // There is an extra resource for the buffer that is uploading the data to the texture
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 4);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 2);
-    REPORTER_ASSERT(reporter, imageResourcePtr->budgeted() == SkBudgeted::kNo);
+    REPORTER_ASSERT(reporter, imageResourcePtr->budgeted() == skgpu::Budgeted::kNo);
 
     // Submit all upload work so we can drop refs to the image and get it returned to the cache.
     std::unique_ptr<Recording> recording = recorder->snap();
@@ -202,7 +198,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
 
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 4);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 4);
-    REPORTER_ASSERT(reporter, imageResourcePtr->budgeted() == SkBudgeted::kYes);
+    REPORTER_ASSERT(reporter, imageResourcePtr->budgeted() == skgpu::Budgeted::kYes);
 
     // Now try an SkSurface. This is simpler since we can directly create Graphite SkSurface's.
     sk_sp<SkSurface> surface = SkSurface::MakeGraphite(recorder.get(), info);
@@ -226,7 +222,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
 
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 5);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 4);
-    REPORTER_ASSERT(reporter, surfaceResourcePtr->budgeted() == SkBudgeted::kNo);
+    REPORTER_ASSERT(reporter, surfaceResourcePtr->budgeted() == skgpu::Budgeted::kNo);
 
     // The creation of the surface may have added an initial clear to it. Thus if we just reset the
     // surface it will flush the clean on the device and we don't be dropping all our refs to the
@@ -239,7 +235,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest, reporter, cont
 
     surface.reset();
     resourceCache->forceProcessReturnedResources();
-    REPORTER_ASSERT(reporter, surfaceResourcePtr->budgeted() == SkBudgeted::kYes);
+    REPORTER_ASSERT(reporter, surfaceResourcePtr->budgeted() == skgpu::Budgeted::kYes);
 }
 
 }  // namespace skgpu::graphite

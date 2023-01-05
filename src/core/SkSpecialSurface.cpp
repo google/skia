@@ -75,6 +75,7 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRaster(const SkImageInfo& info,
 ///////////////////////////////////////////////////////////////////////////////
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
@@ -86,10 +87,14 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeRenderTarget(GrRecordingContext* r
         return nullptr;
     }
 
-    auto device = rContext->priv().createDevice(SkBudgeted::kYes, ii, SkBackingFit::kApprox, 1,
-                                                GrMipmapped::kNo, GrProtected::kNo,
+    auto device = rContext->priv().createDevice(skgpu::Budgeted::kYes,
+                                                ii,
+                                                SkBackingFit::kApprox,
+                                                1,
+                                                GrMipmapped::kNo,
+                                                GrProtected::kNo,
                                                 surfaceOrigin,
-                                                { props.flags(), kUnknown_SkPixelGeometry },
+                                                {props.flags(), kUnknown_SkPixelGeometry},
                                                 skgpu::v1::Device::InitContents::kUninit);
     if (!device) {
         return nullptr;
@@ -115,8 +120,11 @@ sk_sp<SkSpecialSurface> SkSpecialSurface::MakeGraphite(skgpu::graphite::Recorder
         return nullptr;
     }
 
-    sk_sp<Device> device = Device::Make(recorder, ii, SkBudgeted::kYes, Mipmapped::kNo,
-                                        { props.flags(), kUnknown_SkPixelGeometry },
+    sk_sp<Device> device = Device::Make(recorder,
+                                        ii,
+                                        skgpu::Budgeted::kYes,
+                                        Mipmapped::kNo,
+                                        {props.flags(), kUnknown_SkPixelGeometry},
                                         /* addInitialClear= */ false);
     if (!device) {
         return nullptr;

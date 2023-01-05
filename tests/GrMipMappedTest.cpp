@@ -22,6 +22,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
@@ -30,6 +31,7 @@
 #include "include/gpu/mock/GrMockTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/Device_v1.h"
 #include "src/gpu/ganesh/GrBackendTextureImageGenerator.h"
@@ -356,7 +358,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest,
                                                                  mipmapped);
             } else {
                 surface = SkSurface::MakeRenderTarget(dContext,
-                                                      SkBudgeted::kYes,
+                                                      skgpu::Budgeted::kYes,
                                                       info,
                                                       /* sample count */ 1,
                                                       kTopLeft_GrSurfaceOrigin,
@@ -398,7 +400,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Gr1x1TextureMipMappedTest,
 
     // Make surface to draw into
     SkImageInfo info = SkImageInfo::MakeN32(16, 16, kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, info);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, info);
 
     // Make 1x1 raster bitmap
     SkBitmap bmp;
@@ -437,7 +439,7 @@ static std::unique_ptr<skgpu::v1::SurfaceDrawContext> draw_mipmap_into_new_rende
                                        1,
                                        GrMipmapped::kNo,
                                        SkBackingFit::kApprox,
-                                       SkBudgeted::kYes,
+                                       skgpu::Budgeted::kYes,
                                        GrProtected::kNo,
                                        /*label=*/"DrawMipMapViewTest");
 
@@ -496,9 +498,16 @@ DEF_GANESH_TEST(GrManyDependentsMipMappedTest,
 
         // Create a mipmapped render target.
 
-        sk_sp<GrTextureProxy> mipmapProxy = proxyProvider->createProxy(
-                format, {4, 4}, GrRenderable::kYes, 1, GrMipmapped::kYes, SkBackingFit::kExact,
-                SkBudgeted::kYes, GrProtected::kNo,/*label=*/"ManyDependentsMipMappedTest");
+        sk_sp<GrTextureProxy> mipmapProxy =
+                proxyProvider->createProxy(format,
+                                           {4, 4},
+                                           GrRenderable::kYes,
+                                           1,
+                                           GrMipmapped::kYes,
+                                           SkBackingFit::kExact,
+                                           skgpu::Budgeted::kYes,
+                                           GrProtected::kNo,
+                                           /*label=*/"ManyDependentsMipMappedTest");
 
         // Mark the mipmaps clean to ensure things still work properly when they won't be marked
         // dirty again until GrRenderTask::makeClosed().

@@ -13,6 +13,7 @@
 #if SK_SUPPORT_GPU
 #include "include/core/SkRefCnt.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/SkBackingFit.h"
 
 class GrRecordingContext;
 namespace skgpu { namespace v1 { class SurfaceDrawContext; }}

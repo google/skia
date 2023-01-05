@@ -22,7 +22,7 @@
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrVkTexture::GrVkTexture(GrVkGpu* gpu,
-                         SkBudgeted budgeted,
+                         skgpu::Budgeted budgeted,
                          SkISize dimensions,
                          sk_sp<GrVkImage> texture,
                          GrMipmapStatus mipmapStatus,
@@ -103,9 +103,11 @@ GrVkTexture::GrVkTexture(GrVkGpu* gpu,
     SkASSERT(SkToBool(fTexture->vkUsageFlags() & VK_IMAGE_USAGE_SAMPLED_BIT));
 }
 
-sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu, SkBudgeted budgeted,
+sk_sp<GrVkTexture> GrVkTexture::MakeNewTexture(GrVkGpu* gpu,
+                                               skgpu::Budgeted budgeted,
                                                SkISize dimensions,
-                                               VkFormat format, uint32_t mipLevels,
+                                               VkFormat format,
+                                               uint32_t mipLevels,
                                                GrProtected isProtected,
                                                GrMipmapStatus mipmapStatus,
                                                std::string_view label) {

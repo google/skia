@@ -14,7 +14,7 @@
 class GrMtlTextureRenderTarget: public GrMtlTexture, public GrMtlRenderTarget {
 public:
     static sk_sp<GrMtlTextureRenderTarget> MakeNewTextureRenderTarget(GrMtlGpu*,
-                                                                      SkBudgeted,
+                                                                      skgpu::Budgeted,
                                                                       SkISize,
                                                                       int sampleCnt,
                                                                       MTLPixelFormat,
@@ -44,7 +44,7 @@ protected:
 
 private:
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
-                             SkBudgeted budgeted,
+                             skgpu::Budgeted budgeted,
                              SkISize,
                              sk_sp<GrMtlAttachment> texture,
                              sk_sp<GrMtlAttachment> colorAttachment,

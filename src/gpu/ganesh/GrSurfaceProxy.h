@@ -39,6 +39,10 @@ class GrResourceProvider;
 class GrSurfaceProxyPriv;
 class GrTexture;
 class GrTextureProxy;
+enum class SkBackingFit;
+namespace skgpu {
+enum class Budgeted : bool;
+}
 
 class GrSurfaceProxy : public SkNVRefCnt<GrSurfaceProxy> {
 public:
@@ -87,7 +91,7 @@ public:
         const GrBackendFormat& fFormat;
         GrTextureType fTextureType;
         GrProtected fProtected;
-        SkBudgeted fBudgeted;
+        skgpu::Budgeted fBudgeted;
         std::string_view fLabel;
     };
 
@@ -275,7 +279,7 @@ public:
     /**
      * Does the resource count against the resource budget?
      */
-    SkBudgeted isBudgeted() const { return fBudgeted; }
+    skgpu::Budgeted isBudgeted() const { return fBudgeted; }
 
     /**
      * The pixel values of this proxy's surface cannot be modified (e.g. doesn't support write
@@ -337,7 +341,7 @@ public:
                                       GrMipmapped,
                                       SkIRect srcRect,
                                       SkBackingFit,
-                                      SkBudgeted,
+                                      skgpu::Budgeted,
                                       std::string_view label,
                                       RectsMustMatch = RectsMustMatch::kNo,
                                       sk_sp<GrRenderTask>* outTask = nullptr);
@@ -348,7 +352,7 @@ public:
                                       GrSurfaceOrigin,
                                       GrMipmapped,
                                       SkBackingFit,
-                                      SkBudgeted,
+                                      skgpu::Budgeted,
                                       std::string_view label,
                                       sk_sp<GrRenderTask>* outTask = nullptr);
 
@@ -381,7 +385,7 @@ protected:
     GrSurfaceProxy(const GrBackendFormat&,
                    SkISize,
                    SkBackingFit,
-                   SkBudgeted,
+                   skgpu::Budgeted,
                    GrProtected,
                    GrInternalSurfaceFlags,
                    UseAllocator,
@@ -391,7 +395,7 @@ protected:
                    const GrBackendFormat&,
                    SkISize,
                    SkBackingFit,
-                   SkBudgeted,
+                   skgpu::Budgeted,
                    GrProtected,
                    GrInternalSurfaceFlags,
                    UseAllocator,
@@ -450,10 +454,10 @@ private:
 
     SkBackingFit           fFit;      // always kApprox for lazy-callback resources
                                       // always kExact for wrapped resources
-    mutable SkBudgeted     fBudgeted; // always kYes for lazy-callback resources
-                                      // set from the backing resource for wrapped resources
-                                      // mutable bc of SkSurface/SkImage wishy-washiness
-                                      // Only meaningful if fLazyInstantiateCallback is non-null.
+    mutable skgpu::Budgeted fBudgeted;  // always kYes for lazy-callback resources
+                                        // set from the backing resource for wrapped resources
+                                        // mutable bc of SkSurface/SkImage wishy-washiness
+                                        // Only meaningful if fLazyInstantiateCallback is non-null.
     UseAllocator           fUseAllocator;
 
     const UniqueID         fUniqueID; // set from the backing resource for wrapped resources

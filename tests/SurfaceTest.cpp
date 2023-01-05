@@ -34,6 +34,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkColorMatrix.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -108,7 +109,7 @@ static sk_sp<SkSurface> create_gpu_surface(GrRecordingContext* rContext,
     if (requestedInfo) {
         *requestedInfo = info;
     }
-    return SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info);
+    return SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kNo, info);
 }
 static sk_sp<SkSurface> create_gpu_scratch_surface(GrRecordingContext* rContext,
                                                    SkAlphaType at = kPremul_SkAlphaType,
@@ -117,7 +118,7 @@ static sk_sp<SkSurface> create_gpu_scratch_surface(GrRecordingContext* rContext,
     if (requestedInfo) {
         *requestedInfo = info;
     }
-    return SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes, info);
+    return SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kYes, info);
 }
 
 DEF_TEST(SurfaceEmpty, reporter) {
@@ -131,8 +132,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceEmpty_Gpu,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
     const SkImageInfo info = SkImageInfo::Make(0, 0, kN32_SkColorType, kPremul_SkAlphaType);
-    REPORTER_ASSERT(reporter, nullptr ==
-                    SkSurface::MakeRenderTarget(ctxInfo.directContext(), SkBudgeted::kNo, info));
+    REPORTER_ASSERT(reporter,
+                    nullptr == SkSurface::MakeRenderTarget(
+                                       ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface,
@@ -149,7 +151,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface,
 
         {
             bool can = context->colorTypeSupportedAsSurface(colorType);
-            auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, 1, nullptr);
+            auto surf =
+                    SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kYes, info, 1, nullptr);
             REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d",
                             colorType, can, SkToBool(surf));
 
@@ -167,8 +170,8 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface,
             static constexpr int kSampleCnt = 2;
 
             bool can = context->maxSurfaceSampleCountForColorType(colorType) >= kSampleCnt;
-            auto surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info, kSampleCnt,
-                                                    nullptr);
+            auto surf = SkSurface::MakeRenderTarget(
+                    context, skgpu::Budgeted::kYes, info, kSampleCnt, nullptr);
             REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d",
                             colorType, can, SkToBool(surf));
 
@@ -641,14 +644,14 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfacepeekTexture_Gpu,
     }
 }
 
-static SkBudgeted is_budgeted(const sk_sp<SkSurface>& surf) {
+static skgpu::Budgeted is_budgeted(const sk_sp<SkSurface>& surf) {
     SkSurface_Gpu* gsurf = (SkSurface_Gpu*)surf.get();
 
     GrRenderTargetProxy* proxy = gsurf->getDevice()->targetProxy();
     return proxy->isBudgeted();
 }
 
-static SkBudgeted is_budgeted(SkImage* image, GrRecordingContext* rc) {
+static skgpu::Budgeted is_budgeted(SkImage* image, GrRecordingContext* rc) {
     return sk_gpu_test::GetTextureImageProxy(image, rc)->isBudgeted();
 }
 
@@ -658,7 +661,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceBudget,
                                        CtsEnforcement::kApiLevel_T) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(8,8);
     GrDirectContext* dContext = ctxInfo.directContext();
-    for (auto budgeted : { SkBudgeted::kNo, SkBudgeted::kYes }) {
+    for (auto budgeted : {skgpu::Budgeted::kNo, skgpu::Budgeted::kYes}) {
         auto surface(SkSurface::MakeRenderTarget(dContext, budgeted, info));
         SkASSERT(surface);
         REPORTER_ASSERT(reporter, budgeted == is_budgeted(surface));
@@ -1193,7 +1196,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ReplaceSurfaceBackendTexture,
         REPORTER_ASSERT(reporter,
                         !surf->replaceBackendTexture(mbet3->texture(), kTopLeft_GrSurfaceOrigin));
         // Can't replace texture of non-wrapped SkSurface.
-        surf = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, sampleCnt, nullptr);
+        surf = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kYes, ii, sampleCnt, nullptr);
         REPORTER_ASSERT(reporter, surf);
         if (surf) {
             REPORTER_ASSERT(reporter, !surf->replaceBackendTexture(mbet1->texture(),

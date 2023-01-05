@@ -476,9 +476,9 @@ GrSurfaceProxyView SkImage_Base::CopyView(GrRecordingContext* context,
                                                  GrMipmapped mipmapped,
                                                  GrImageTexGenPolicy policy,
                                                  std::string_view label) {
-    SkBudgeted budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted
-                          ? SkBudgeted::kYes
-                          : SkBudgeted::kNo;
+    skgpu::Budgeted budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Budgeted
+                                       ? skgpu::Budgeted::kYes
+                                       : skgpu::Budgeted::kNo;
     return GrSurfaceProxyView::Copy(context,
                                     std::move(src),
                                     mipmapped,

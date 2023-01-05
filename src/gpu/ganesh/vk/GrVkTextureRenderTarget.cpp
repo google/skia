@@ -21,18 +21,22 @@
 
 #define VK_CALL(GPU, X) GR_VK_CALL(GPU->vkInterface(), X)
 
-GrVkTextureRenderTarget::GrVkTextureRenderTarget(
-        GrVkGpu* gpu,
-        SkBudgeted budgeted,
-        SkISize dimensions,
-        sk_sp<GrVkImage> texture,
-        sk_sp<GrVkImage> colorAttachment,
-        sk_sp<GrVkImage> resolveAttachment,
-        GrMipmapStatus mipmapStatus,
-        std::string_view label)
-        : GrSurface(gpu, dimensions, texture->isProtected() ? GrProtected::kYes : GrProtected::kNo, label)
+GrVkTextureRenderTarget::GrVkTextureRenderTarget(GrVkGpu* gpu,
+                                                 skgpu::Budgeted budgeted,
+                                                 SkISize dimensions,
+                                                 sk_sp<GrVkImage> texture,
+                                                 sk_sp<GrVkImage> colorAttachment,
+                                                 sk_sp<GrVkImage> resolveAttachment,
+                                                 GrMipmapStatus mipmapStatus,
+                                                 std::string_view label)
+        : GrSurface(gpu,
+                    dimensions,
+                    texture->isProtected() ? GrProtected::kYes : GrProtected::kNo,
+                    label)
         , GrVkTexture(gpu, dimensions, std::move(texture), mipmapStatus, label)
-        , GrVkRenderTarget(gpu, dimensions, std::move(colorAttachment),
+        , GrVkRenderTarget(gpu,
+                           dimensions,
+                           std::move(colorAttachment),
                            std::move(resolveAttachment),
                            CreateType::kFromTextureRT,
                            label) {
@@ -81,7 +85,7 @@ bool create_rt_attachments(GrVkGpu* gpu, SkISize dimensions, VkFormat format, in
 
 sk_sp<GrVkTextureRenderTarget> GrVkTextureRenderTarget::MakeNewTextureRenderTarget(
         GrVkGpu* gpu,
-        SkBudgeted budgeted,
+        skgpu::Budgeted budgeted,
         SkISize dimensions,
         VkFormat format,
         uint32_t mipLevels,

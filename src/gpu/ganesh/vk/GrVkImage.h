@@ -48,7 +48,7 @@ public:
                                         uint32_t mipLevels,
                                         GrRenderable renderable,
                                         int numSamples,
-                                        SkBudgeted budgeted,
+                                        skgpu::Budgeted budgeted,
                                         GrProtected isProtected);
 
     static sk_sp<GrVkImage> MakeWrapped(GrVkGpu* gpu,
@@ -220,7 +220,7 @@ private:
                                  VkImageUsageFlags vkUsageFlags,
                                  GrProtected isProtected,
                                  GrMemoryless,
-                                 SkBudgeted);
+                                 skgpu::Budgeted);
 
     GrVkImage(GrVkGpu* gpu,
               SkISize dimensions,
@@ -229,7 +229,7 @@ private:
               sk_sp<skgpu::MutableTextureStateRef> mutableState,
               sk_sp<const GrVkImageView> framebufferView,
               sk_sp<const GrVkImageView> textureView,
-              SkBudgeted,
+              skgpu::Budgeted,
               std::string_view label);
 
     GrVkImage(GrVkGpu* gpu,

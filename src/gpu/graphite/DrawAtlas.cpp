@@ -406,8 +406,8 @@ bool DrawAtlas::activateNewPage(Recorder* recorder) {
             /*mipmapped=*/Mipmapped::kNo,
             Protected::kNo,
             Renderable::kNo);
-    fProxies[fNumActivePages].reset(new TextureProxy({fTextureWidth, fTextureHeight}, textureInfo,
-                                                     SkBudgeted::kYes));
+    fProxies[fNumActivePages].reset(
+            new TextureProxy({fTextureWidth, fTextureHeight}, textureInfo, skgpu::Budgeted::kYes));
     if (!fProxies[fNumActivePages]) {
         return false;
     }

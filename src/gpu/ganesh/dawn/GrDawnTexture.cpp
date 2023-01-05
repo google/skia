@@ -25,7 +25,7 @@ sk_sp<GrDawnTexture> GrDawnTexture::Make(GrDawnGpu* gpu,
                                          wgpu::TextureFormat format,
                                          GrRenderable renderable,
                                          int sampleCnt,
-                                         SkBudgeted budgeted,
+                                         skgpu::Budgeted budgeted,
                                          int mipLevels,
                                          GrMipmapStatus status,
                                          std::string_view label) {

@@ -475,8 +475,8 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Raster::onAsView(
                                            mipmapped);
     }
     auto budgeted = (policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted)
-            ? SkBudgeted::kNo
-            : SkBudgeted::kYes;
+                            ? skgpu::Budgeted::kNo
+                            : skgpu::Budgeted::kYes;
     return GrMakeUncachedBitmapProxyView(rContext,
                                          fBitmap,
                                          mipmapped,
@@ -510,7 +510,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeTextureImage(skgpu::graphite::Recorder* rec
                                            this->imageInfo().colorInfo(),
                                            fBitmap,
                                            this->refMips(),
-                                           SkBudgeted::kNo,
+                                           skgpu::Budgeted::kNo,
                                            requiredProps);
 }
 #endif

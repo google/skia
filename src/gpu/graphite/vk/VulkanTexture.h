@@ -35,7 +35,7 @@ class VulkanTexture : public Texture {
     static sk_sp<Texture> Make(const VulkanSharedContext*,
                                SkISize dimensions,
                                const TextureInfo&,
-                               SkBudgeted);
+                               skgpu::Budgeted);
 
     static sk_sp<Texture> MakeWrapped(const VulkanSharedContext*,
                                       SkISize dimensions,
@@ -56,7 +56,7 @@ private:
                   VkImage,
                   const VulkanAlloc&,
                   Ownership,
-                  SkBudgeted);
+                  skgpu::Budgeted);
 
     void freeGpuData() override;
 

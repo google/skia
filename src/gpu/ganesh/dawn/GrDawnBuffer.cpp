@@ -91,7 +91,7 @@ GrDawnBuffer::GrDawnBuffer(GrDawnGpu* gpu,
     // independently. Note that the blocking map procedure becomes available to both read-only and
     // write-only buffers once they get explicitly unmapped.
     fUnmapped = (mapPtr == nullptr && mappable == Mappable::kReadOnly);
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(skgpu::Budgeted::kYes);
 }
 
 void* GrDawnBuffer::internalMap(MapType type, size_t offset, size_t size) {

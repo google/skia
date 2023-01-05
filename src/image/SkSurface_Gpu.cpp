@@ -106,7 +106,7 @@ sk_sp<SkSurface> SkSurface_Gpu::onNewSurface(const SkImageInfo& info) {
     int sampleCount = targetView.asRenderTargetProxy()->numSamples();
     GrSurfaceOrigin origin = targetView.origin();
     // TODO: Make caller specify this (change virtual signature of onNewSurface).
-    static const SkBudgeted kBudgeted = SkBudgeted::kNo;
+    static const skgpu::Budgeted kBudgeted = skgpu::Budgeted::kNo;
     return SkSurface::MakeRenderTarget(fDevice->recordingContext(), kBudgeted, info, sampleCount,
                                        origin, &this->props());
 }
@@ -121,7 +121,7 @@ sk_sp<SkImage> SkSurface_Gpu::onNewImageSnapshot(const SkIRect* subset) {
 
     GrSurfaceProxyView srcView = fDevice->readSurfaceView();
 
-    SkBudgeted budgeted = rtp->isBudgeted();
+    skgpu::Budgeted budgeted = rtp->isBudgeted();
 
     if (subset || !srcView.asTextureProxy() || rtp->refsWrappedObjects()) {
         // If the original render target is a buffer originally created by the client, then we don't
@@ -409,7 +409,7 @@ sk_sp<const SkCapabilities> SkSurface_Gpu::onCapabilities() {
 
 sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext,
                                              const SkSurfaceCharacterization& c,
-                                             SkBudgeted budgeted) {
+                                             skgpu::Budgeted budgeted) {
     if (!rContext || !c.isValid()) {
         return nullptr;
     }
@@ -479,9 +479,12 @@ static bool validate_backend_texture(const GrCaps* caps, const GrBackendTexture&
     return true;
 }
 
-sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext, SkBudgeted budgeted,
-                                             const SkImageInfo& info, int sampleCount,
-                                             GrSurfaceOrigin origin, const SkSurfaceProps* props,
+sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext* rContext,
+                                             skgpu::Budgeted budgeted,
+                                             const SkImageInfo& info,
+                                             int sampleCount,
+                                             GrSurfaceOrigin origin,
+                                             const SkSurfaceProps* props,
                                              bool shouldCreateWithMips) {
     if (!rContext) {
         return nullptr;

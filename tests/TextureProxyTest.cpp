@@ -16,6 +16,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -23,6 +24,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkMessageBus.h"
 #include "src/gpu/ResourceKey.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpuResourcePriv.h"
@@ -63,9 +65,15 @@ static sk_sp<GrTextureProxy> deferred_tex(skiatest::Reporter* reporter,
 
     GrBackendFormat format = caps->getDefaultBackendFormat(kColorType, GrRenderable::kNo);
 
-    sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createProxy(format, kSize, GrRenderable::kNo, 1, GrMipmapped::kNo, fit,
-                                       SkBudgeted::kYes, GrProtected::kNo, /*label=*/{});
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(format,
+                                                             kSize,
+                                                             GrRenderable::kNo,
+                                                             1,
+                                                             GrMipmapped::kNo,
+                                                             fit,
+                                                             skgpu::Budgeted::kYes,
+                                                             GrProtected::kNo,
+                                                             /*label=*/{});
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -79,9 +87,15 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter,
 
     GrBackendFormat format = caps->getDefaultBackendFormat(kColorType, GrRenderable::kYes);
 
-    sk_sp<GrTextureProxy> proxy =
-            proxyProvider->createProxy(format, kSize, GrRenderable::kYes, 1, GrMipmapped::kNo, fit,
-                                       SkBudgeted::kYes, GrProtected::kNo, /*label=*/{});
+    sk_sp<GrTextureProxy> proxy = proxyProvider->createProxy(format,
+                                                             kSize,
+                                                             GrRenderable::kYes,
+                                                             1,
+                                                             GrMipmapped::kNo,
+                                                             fit,
+                                                             skgpu::Budgeted::kYes,
+                                                             GrProtected::kNo,
+                                                             /*label=*/{});
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -90,7 +104,7 @@ static sk_sp<GrTextureProxy> deferred_texRT(skiatest::Reporter* reporter,
 static sk_sp<GrTextureProxy> wrapped(skiatest::Reporter* reporter, GrRecordingContext*,
                                      GrProxyProvider* proxyProvider, SkBackingFit fit) {
     sk_sp<GrTextureProxy> proxy = proxyProvider->testingOnly_createInstantiatedProxy(
-            kSize, kColorType, GrRenderable::kNo, 1, fit, SkBudgeted::kYes, GrProtected::kNo);
+            kSize, kColorType, GrRenderable::kNo, 1, fit, skgpu::Budgeted::kYes, GrProtected::kNo);
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
     return proxy;
@@ -109,7 +123,7 @@ static sk_sp<GrTextureProxy> wrapped_with_key(skiatest::Reporter* reporter, GrRe
 
     // Only budgeted & wrapped external proxies get to carry uniqueKeys
     sk_sp<GrTextureProxy> proxy = proxyProvider->testingOnly_createInstantiatedProxy(
-            kSize, kColorType, GrRenderable::kNo, 1, fit, SkBudgeted::kYes, GrProtected::kNo);
+            kSize, kColorType, GrRenderable::kNo, 1, fit, skgpu::Budgeted::kYes, GrProtected::kNo);
     SkAssertResult(proxyProvider->assignUniqueKeyToProxy(key, proxy.get()));
     REPORTER_ASSERT(reporter, proxy->getUniqueKey().isValid());
     return proxy;

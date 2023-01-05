@@ -24,6 +24,7 @@
 #include "include/core/SkSurfaceCharacterization.h"
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
@@ -831,7 +832,7 @@ static void test_make_render_target(skiatest::Reporter* reporter,
 
     // Make an SkSurface from scratch
     {
-        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(dContext, c, SkBudgeted::kYes);
+        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(dContext, c, skgpu::Budgeted::kYes);
         REPORTER_ASSERT(reporter, s);
         REPORTER_ASSERT(reporter, s->isCompatible(c));
     }
@@ -957,7 +958,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder,
 
     {
         SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
-        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo, ii);
+        sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(dContext, skgpu::Budgeted::kNo, ii);
 
         SkSurfaceCharacterization characterization;
         SkAssertResult(s->characterize(&characterization));
@@ -1111,7 +1112,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLSkSurfaceFlush,
     auto context = ctxInfo.directContext();
 
     SkImageInfo ii = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, ii);
 
     SkSurfaceCharacterization characterization;
     SkAssertResult(s->characterize(&characterization));
@@ -1180,7 +1181,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DDLMultipleDDLs, reporter, ctxInfo, CtsEn
     auto context = ctxInfo.directContext();
 
     SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, ii);
 
     SkBitmap bitmap;
     bitmap.allocPixels(ii);
@@ -1246,7 +1247,7 @@ DEF_GANESH_TEST_FOR_GL_RENDERING_CONTEXTS(DDLTextureFlagsTest,
     auto context = ctxInfo.directContext();
 
     SkImageInfo ii = SkImageInfo::MakeN32Premul(32, 32);
-    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii);
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, skgpu::Budgeted::kNo, ii);
 
     SkSurfaceCharacterization characterization;
     SkAssertResult(s->characterize(&characterization));

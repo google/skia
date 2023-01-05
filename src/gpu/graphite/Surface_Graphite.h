@@ -23,7 +23,7 @@ class Surface final : public SkSurface_Base {
 public:
     static sk_sp<SkSurface> MakeGraphite(Recorder* recorder,
                                          const SkImageInfo& info,
-                                         SkBudgeted budgeted,
+                                         skgpu::Budgeted budgeted,
                                          Mipmapped = Mipmapped::kNo,
                                          const SkSurfaceProps* props = nullptr);
 

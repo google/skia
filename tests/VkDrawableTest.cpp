@@ -24,6 +24,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendDrawableInfo.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrTypes.h"
@@ -169,8 +170,8 @@ public:
 
         // Draw to an offscreen target so that we end up with a mix of "real" secondary command
         // buffers and the imported secondary command buffer.
-        sk_sp<SkSurface> surf = SkSurface::MakeRenderTarget(td->fDContext, SkBudgeted::kYes,
-                                                            bufferInfo);
+        sk_sp<SkSurface> surf =
+                SkSurface::MakeRenderTarget(td->fDContext, skgpu::Budgeted::kYes, bufferInfo);
         surf->getCanvas()->clear(SK_ColorRED);
 
         SkRect dstRect = SkRect::MakeXYWH(3*td->fWidth/4, 0, td->fWidth/4, td->fHeight);
@@ -243,8 +244,8 @@ void draw_drawable_test(skiatest::Reporter* reporter,
 
     const SkImageInfo ii = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
                                              kPremul_SkAlphaType);
-    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(dContext, SkBudgeted::kNo,
-                                                         ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
+    sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
+            dContext, skgpu::Budgeted::kNo, ii, 0, kTopLeft_GrSurfaceOrigin, nullptr));
     SkCanvas* canvas = surface->getCanvas();
     canvas->clear(SK_ColorBLUE);
 

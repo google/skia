@@ -28,6 +28,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
@@ -200,7 +201,7 @@ static void compare_blobs(const SkBitmap& expected, const SkBitmap& actual,
 sk_sp<SkSurface> MakeSurface(int width, int height, GrRecordingContext* rContext) {
     const SkImageInfo info =
             SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType);
-    return SkSurface::MakeRenderTarget(rContext, SkBudgeted::kNo, info);
+    return SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kNo, info);
 }
 
 SkSurfaceProps FindSurfaceProps(GrRecordingContext* rContext) {

@@ -21,7 +21,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context) {
 
     sk_sp<Device> device1 = Device::Make(recorder.get(),
                                          info,
-                                         SkBudgeted::kYes,
+                                         skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);
@@ -36,19 +36,19 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecorderDevicePtrTest, reporter, context) {
     // Test adding multiple devices
     device1 = Device::Make(recorder.get(),
                            info,
-                           SkBudgeted::kYes,
+                           skgpu::Budgeted::kYes,
                            Mipmapped::kNo,
                            SkSurfaceProps(),
                            /* addInitialClear= */ true);
     sk_sp<Device> device2 = Device::Make(recorder.get(),
                                          info,
-                                         SkBudgeted::kYes,
+                                         skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);
     sk_sp<Device> device3 = Device::Make(recorder.get(),
                                          info,
-                                         SkBudgeted::kYes,
+                                         skgpu::Budgeted::kYes,
                                          Mipmapped::kNo,
                                          SkSurfaceProps(),
                                          /* addInitialClear= */ true);

@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 
 GrGLTextureRenderTarget::GrGLTextureRenderTarget(GrGLGpu* gpu,
-                                                 SkBudgeted budgeted,
+                                                 skgpu::Budgeted budgeted,
                                                  int sampleCount,
                                                  const GrGLTexture::Desc& texDesc,
                                                  const GrGLRenderTarget::IDs& rtIDs,

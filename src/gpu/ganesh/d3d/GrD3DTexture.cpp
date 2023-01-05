@@ -15,7 +15,7 @@
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu,
-                           SkBudgeted budgeted,
+                           skgpu::Budgeted budgeted,
                            SkISize dimensions,
                            const GrD3DTextureResourceInfo& info,
                            sk_sp<GrD3DResourceState> state,
@@ -65,7 +65,8 @@ GrD3DTexture::GrD3DTexture(GrD3DGpu* gpu,
     SkASSERT((GrMipmapStatus::kNotAllocated == mipmapStatus) == (1 == info.fLevelCount));
 }
 
-sk_sp<GrD3DTexture> GrD3DTexture::MakeNewTexture(GrD3DGpu* gpu, SkBudgeted budgeted,
+sk_sp<GrD3DTexture> GrD3DTexture::MakeNewTexture(GrD3DGpu* gpu,
+                                                 skgpu::Budgeted budgeted,
                                                  SkISize dimensions,
                                                  const D3D12_RESOURCE_DESC& desc,
                                                  GrProtected isProtected,
@@ -133,8 +134,12 @@ sk_sp<GrD3DTexture> GrD3DTexture::MakeAliasingTexture(GrD3DGpu* gpu,
     GrD3DDescriptorHeap::CPUHandle shaderResourceView =
         gpu->resourceProvider().createShaderResourceView(info.fResource.get());
 
-    GrD3DTexture* tex = new GrD3DTexture(gpu, SkBudgeted::kNo, originalTexture->dimensions(),
-                                         info, std::move(state), shaderResourceView,
+    GrD3DTexture* tex = new GrD3DTexture(gpu,
+                                         skgpu::Budgeted::kNo,
+                                         originalTexture->dimensions(),
+                                         info,
+                                         std::move(state),
+                                         shaderResourceView,
                                          originalTexture->mipmapStatus(),
                                          /*label=*/"AliasingTexture");
     return sk_sp<GrD3DTexture>(tex);

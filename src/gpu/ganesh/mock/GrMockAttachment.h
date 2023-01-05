@@ -22,7 +22,7 @@ public:
             : INHERITED(gpu, dimensions, supportedUsages, sampleCnt, GrMipmapped::kNo,
                         GrProtected::kNo, label) {
         SkASSERT(supportedUsages == UsageFlags::kStencilAttachment);
-        this->registerWithCache(SkBudgeted::kYes);
+        this->registerWithCache(skgpu::Budgeted::kYes);
     }
 
     GrBackendFormat backendFormat() const override {

@@ -152,21 +152,20 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(GrRecordingContext*
                                                 surfaceProps);
 }
 
-std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
-        GrRecordingContext* rContext,
-        sk_sp<SkColorSpace> colorSpace,
-        SkBackingFit fit,
-        SkISize dimensions,
-        const GrBackendFormat& format,
-        int sampleCnt,
-        GrMipmapped mipmapped,
-        GrProtected isProtected,
-        skgpu::Swizzle readSwizzle,
-        skgpu::Swizzle writeSwizzle,
-        GrSurfaceOrigin origin,
-        SkBudgeted budgeted,
-        const SkSurfaceProps& surfaceProps,
-        std::string_view label) {
+std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(GrRecordingContext* rContext,
+                                                             sk_sp<SkColorSpace> colorSpace,
+                                                             SkBackingFit fit,
+                                                             SkISize dimensions,
+                                                             const GrBackendFormat& format,
+                                                             int sampleCnt,
+                                                             GrMipmapped mipmapped,
+                                                             GrProtected isProtected,
+                                                             skgpu::Swizzle readSwizzle,
+                                                             skgpu::Swizzle writeSwizzle,
+                                                             GrSurfaceOrigin origin,
+                                                             skgpu::Budgeted budgeted,
+                                                             const SkSurfaceProps& surfaceProps,
+                                                             std::string_view label) {
     // It is probably not necessary to check if the context is abandoned here since uses of the
     // SurfaceDrawContext which need the context will mostly likely fail later on without an
     // issue. However having this hear adds some reassurance in case there is a path doesn't handle
@@ -202,19 +201,18 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
     return sdc;
 }
 
-std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(
-        GrRecordingContext* rContext,
-        GrColorType colorType,
-        sk_sp<SkColorSpace> colorSpace,
-        SkBackingFit fit,
-        SkISize dimensions,
-        const SkSurfaceProps& surfaceProps,
-        std::string_view label,
-        int sampleCnt,
-        GrMipmapped mipmapped,
-        GrProtected isProtected,
-        GrSurfaceOrigin origin,
-        SkBudgeted budgeted) {
+std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::Make(GrRecordingContext* rContext,
+                                                             GrColorType colorType,
+                                                             sk_sp<SkColorSpace> colorSpace,
+                                                             SkBackingFit fit,
+                                                             SkISize dimensions,
+                                                             const SkSurfaceProps& surfaceProps,
+                                                             std::string_view label,
+                                                             int sampleCnt,
+                                                             GrMipmapped mipmapped,
+                                                             GrProtected isProtected,
+                                                             GrSurfaceOrigin origin,
+                                                             skgpu::Budgeted budgeted) {
     if (!rContext) {
         return nullptr;
     }
@@ -256,7 +254,7 @@ std::unique_ptr<SurfaceDrawContext> SurfaceDrawContext::MakeWithFallback(
         GrMipmapped mipmapped,
         GrProtected isProtected,
         GrSurfaceOrigin origin,
-        SkBudgeted budgeted) {
+        skgpu::Budgeted budgeted) {
     const GrCaps* caps = rContext->priv().caps();
     auto [ct, _] = caps->getFallbackColorTypeAndFormat(colorType, sampleCnt);
     if (ct == GrColorType::kUnknown) {
@@ -1630,11 +1628,11 @@ bool SurfaceDrawContext::drawAndStencilPath(const GrHardClip* clip,
     return true;
 }
 
-SkBudgeted SurfaceDrawContext::isBudgeted() const {
+skgpu::Budgeted SurfaceDrawContext::isBudgeted() const {
     ASSERT_SINGLE_OWNER
 
     if (fContext->abandoned()) {
-        return SkBudgeted::kNo;
+        return skgpu::Budgeted::kNo;
     }
 
     SkDEBUGCODE(this->validate();)
@@ -2105,7 +2103,7 @@ bool SurfaceDrawContext::setupDstProxyView(const SkRect& opBounds,
                                      GrMipmapped::kNo,
                                      copyRect,
                                      fit,
-                                     SkBudgeted::kYes,
+                                     skgpu::Budgeted::kYes,
                                      /*label=*/{},
                                      restrictions.fRectsMustMatch);
     SkASSERT(copy);

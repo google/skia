@@ -21,6 +21,7 @@
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
@@ -383,7 +384,7 @@ public:
                                                        GrMipmapped::kNo,
                                                        *subset,
                                                        SkBackingFit::kExact,
-                                                       SkBudgeted::kYes,
+                                                       skgpu::Budgeted::kYes,
                                                        /*label=*/"SkSpecialImage_AsImage");
             if (!subsetView) {
                 return nullptr;
@@ -427,7 +428,7 @@ public:
             ? kRGBA_F16_SkColorType : kRGBA_8888_SkColorType;
         SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
         return SkSurface::MakeRenderTarget(
-                fContext, SkBudgeted::kYes, info, 0, fView.origin(), nullptr);
+                fContext, skgpu::Budgeted::kYes, info, 0, fView.origin(), nullptr);
     }
 
 private:

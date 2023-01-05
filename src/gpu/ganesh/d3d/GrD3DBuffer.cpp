@@ -88,7 +88,7 @@ GrD3DBuffer::GrD3DBuffer(GrD3DGpu* gpu, size_t size, GrGpuBufferType intendedTyp
     , fResourceState(resourceState)
     , fD3DResource(std::move(bufferResource))
     , fAlloc(std::move(alloc)) {
-    this->registerWithCache(SkBudgeted::kYes);
+    this->registerWithCache(skgpu::Budgeted::kYes);
 
     // TODO: persistently map UPLOAD resources?
 

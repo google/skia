@@ -127,7 +127,7 @@ public:
         SkImageInfo info = SkImageInfo::Make(size, colorType, at, sk_ref_sp(colorSpace));
         // The user never gets a direct ref to this surface (nor its snapped image) so it must be
         // budgeted
-        return Surface::MakeGraphite(fRecorder, info, SkBudgeted::kYes);
+        return Surface::MakeGraphite(fRecorder, info, skgpu::Budgeted::kYes);
     }
 
 private:

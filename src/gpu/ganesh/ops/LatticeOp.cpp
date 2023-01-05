@@ -476,7 +476,7 @@ GR_DRAW_OP_TEST_DEFINE(NonAALatticeOp) {
                                                               1,
                                                               GrMipmapped::kNo,
                                                               SkBackingFit::kExact,
-                                                              SkBudgeted::kYes,
+                                                              skgpu::Budgeted::kYes,
                                                               GrProtected::kNo,
                                                               /*label=*/"LatticeOp");
 

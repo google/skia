@@ -45,7 +45,7 @@ static inline GrGLenum target_from_texture_type(GrTextureType type) {
 
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu,
-                         SkBudgeted budgeted,
+                         skgpu::Budgeted budgeted,
                          const Desc& desc,
                          GrMipmapStatus mipmapStatus,
                          std::string_view label)

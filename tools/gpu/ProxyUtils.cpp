@@ -75,7 +75,7 @@ GrSurfaceProxyView MakeTextureProxyViewFromData(GrDirectContext* dContext,
                                                           /*sample count*/ 1,
                                                           GrMipmapped::kNo,
                                                           SkBackingFit::kExact,
-                                                          SkBudgeted::kYes,
+                                                          skgpu::Budgeted::kYes,
                                                           GrProtected::kNo,
                                                           /*label=*/"TextureProxyViewFromData");
     if (!proxy) {

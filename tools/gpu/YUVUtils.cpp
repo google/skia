@@ -158,7 +158,7 @@ MakeYUVAPlanesAsA8(SkImage* src,
         SkImageInfo info = SkImageInfo::MakeA8(dims[i]);
         sk_sp<SkSurface> surf;
         if (rContext) {
-            surf = SkSurface::MakeRenderTarget(rContext, SkBudgeted::kYes, info, 1, nullptr);
+            surf = SkSurface::MakeRenderTarget(rContext, skgpu::Budgeted::kYes, info, 1, nullptr);
         } else {
             surf = SkSurface::MakeRaster(info);
         }

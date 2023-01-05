@@ -9,11 +9,13 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
@@ -36,17 +38,27 @@ static sk_sp<GrTextureProxy> make_deferred(GrRecordingContext* rContext) {
 
     const GrBackendFormat format = caps->getDefaultBackendFormat(GrColorType::kRGBA_8888,
                                                                  GrRenderable::kYes);
-    return proxyProvider->createProxy(format, {kWidthHeight, kWidthHeight}, GrRenderable::kYes, 1,
-                                      GrMipmapped::kNo, SkBackingFit::kApprox, SkBudgeted::kYes,
-                                      GrProtected::kNo, /*label=*/"ProxyRefTest");
+    return proxyProvider->createProxy(format,
+                                      {kWidthHeight, kWidthHeight},
+                                      GrRenderable::kYes,
+                                      1,
+                                      GrMipmapped::kNo,
+                                      SkBackingFit::kApprox,
+                                      skgpu::Budgeted::kYes,
+                                      GrProtected::kNo,
+                                      /*label=*/"ProxyRefTest");
 }
 
 static sk_sp<GrTextureProxy> make_wrapped(GrRecordingContext* rContext) {
     GrProxyProvider* proxyProvider = rContext->priv().proxyProvider();
 
-    return proxyProvider->testingOnly_createInstantiatedProxy(
-            {kWidthHeight, kWidthHeight}, GrColorType::kRGBA_8888, GrRenderable::kYes, 1,
-            SkBackingFit::kExact, SkBudgeted::kNo, GrProtected::kNo);
+    return proxyProvider->testingOnly_createInstantiatedProxy({kWidthHeight, kWidthHeight},
+                                                              GrColorType::kRGBA_8888,
+                                                              GrRenderable::kYes,
+                                                              1,
+                                                              SkBackingFit::kExact,
+                                                              skgpu::Budgeted::kNo,
+                                                              GrProtected::kNo);
 }
 
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ProxyRefTest,

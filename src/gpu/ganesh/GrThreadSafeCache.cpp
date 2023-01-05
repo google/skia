@@ -360,7 +360,7 @@ GrThreadSafeCache::CreateLazyView(GrDirectContext* dContext,
             &texInfo,
             GrMipmapStatus::kNotAllocated,
             fit,
-            SkBudgeted::kYes,
+            skgpu::Budgeted::kYes,
             GrProtected::kNo,
             /* wrapsVkSecondaryCB */ false,
             GrSurfaceProxy::UseAllocator::kYes);
