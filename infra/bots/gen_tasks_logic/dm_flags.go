@@ -353,7 +353,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				}
 				if b.matchGpu("Intel") {
 					// anglebug.com/5588
-					skip("angle_d3d9_es2", "test", ALL, "SkSLIntrinsicFloor_GPU")
+					skip(ALL, "test", ALL, "SkSLIntrinsicFloor_GPU")
 				}
 			} else if b.matchOs("Mac") {
 				configs = []string{"angle_mtl_es2", "angle_mtl_es3"}
