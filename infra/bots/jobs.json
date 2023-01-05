@@ -519,9 +519,7 @@
   {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Debug-All-Android"},
   {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Debug-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android"},
-  {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Vulkan",
-   "cq_config": {}
-   },
+  {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-GalaxyS20-GPU-MaliG77-arm64-Release-All-Android_NativeFonts"},
   {"name": "Test-Android-Clang-JioNext-GPU-Adreno308-arm-Debug-All-Android"},
   {"name": "Test-Android-Clang-JioNext-GPU-Adreno308-arm-Release-All-Android"},
@@ -572,7 +570,9 @@
   {"name": "Test-Android-Clang-Pixel7-GPU-MaliG710-arm64-Release-All-Android"},
   {"name": "Test-Android-Clang-Pixel7-GPU-MaliG710-arm64-Debug-All-Android"},
   {"name": "Test-Android-Clang-Pixel7-GPU-MaliG710-arm64-Release-All-Android_Vulkan"},
-  {"name": "Test-Android-Clang-Pixel7-GPU-MaliG710-arm64-Debug-All-Android_Vulkan"},
+  {"name": "Test-Android-Clang-Pixel7-GPU-MaliG710-arm64-Debug-All-Android_Vulkan",
+   "cq_config": {}
+  },
   {"name": "Test-Android-Clang-Wembley-GPU-PowerVRGE8320-arm-Debug-All-Android"},
   {"name": "Test-Android-Clang-Wembley-GPU-PowerVRGE8320-arm-Release-All-Android"},
   {"name": "Test-ChromeOS-Clang-Kevin-GPU-MaliT860-arm-Debug-All"},
