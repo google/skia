@@ -5,6 +5,31 @@ const float $PI = 3.141592653589793238;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Support functions for tessellating path renderers
 
+const float $kCubicCurveType = 0;            // skgpu::tess::kCubicCurveType
+const float $kConicCurveType = 1;            // skgpu::tess::kConicCurveType
+const float $kTriangularConicCurveType = 2;  // skgpu::tess::kTriangularConicCurveType
+
+// This function can be used on GPUs with infinity support to infer the curve type from the specific
+// path control-point encoding used by tessellating path renderers. Calling this function on a
+// platform that lacks infinity support may result in a shader compilation error.
+$pure float curve_type_using_inf_support(float4 p23) {
+    if (isinf(p23.z)) {
+        return $kTriangularConicCurveType;
+    }
+    if (isinf(p23.w)) {
+        return $kConicCurveType;
+    }
+    return $kCubicCurveType;
+}
+
+$pure bool $is_conic_curve(float curveType) {
+    return curveType != $kCubicCurveType;
+}
+
+$pure bool $is_triangular_conic_curve(float curveType) {
+    return curveType == $kTriangularConicCurveType;
+}
+
 // Wang's formula gives the minimum number of evenly spaced (in the parametric sense) line segments
 // that a bezier curve must be chopped into in order to guarantee all lines stay within a distance
 // of "1/precision" pixels from the true curve. Its definition for a bezier curve of degree "n" is
@@ -125,9 +150,10 @@ $pure float4 $unchecked_mix(float4 a, float4 b, float4 T) {
 // tessellated to the given resolve level, and assuming it will be drawn as a filled curve.
 $pure float2 tessellate_filled_curve(float2x2 vectorXform,
                                      float resolveLevel, float idxInResolveLevel,
-                                     float4 p01, float4 p23) {
+                                     float4 p01, float4 p23,
+                                     float curveType) {
     float2 localcoord;
-    if (isinf(p23.z)) {
+    if ($is_triangular_conic_curve(curveType)) {
         // This patch is an exact triangle.
         localcoord = (resolveLevel != 0)      ? p01.zw
                    : (idxInResolveLevel != 0) ? p23.xy
@@ -136,7 +162,7 @@ $pure float2 tessellate_filled_curve(float2x2 vectorXform,
         float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;
         float w = -1;  // w < 0 tells us to treat the instance as an integral cubic.
         float maxResolveLevel;
-        if (isinf(p23.w)) {
+        if ($is_conic_curve(curveType)) {
             // Conics are 3 points, with the weight in p3.
             w = p3.x;
             maxResolveLevel = $wangs_formula_conic_log2(vectorXform*p0,
@@ -191,10 +217,11 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
                                       float maxScale /* derived from affineMatrix */,
                                       float4 p01, float4 p23,
                                       float2 lastControlPoint,
-                                      float2 strokeParams) {
+                                      float2 strokeParams,
+                                      float curveType) {
     float2 p0=p01.xy, p1=p01.zw, p2=p23.xy, p3=p23.zw;
     float w = -1;  // w<0 means the curve is an integral cubic.
-    if (isinf(p23.w)) {
+    if ($is_conic_curve(curveType)) {
         // Conics are 3 points, with the weight in p3.
         w = p3.x;
         p3 = p2;  // Setting p3 equal to p2 works for the remaining rotational logic.

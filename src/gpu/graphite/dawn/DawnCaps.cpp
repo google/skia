@@ -16,7 +16,7 @@
 #include "src/gpu/graphite/GraphiteResourceKey.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
-
+#include "src/sksl/SkSLUtil.h"
 
 namespace {
 
@@ -38,6 +38,7 @@ namespace skgpu::graphite {
 DawnCaps::DawnCaps(const wgpu::Device& device, const ContextOptions& options)
     : Caps() {
     this->initCaps(device);
+    this->initShaderCaps();
     this->initFormatTable(device);
     this->finishInitialization(options);
 }
@@ -197,6 +198,14 @@ void DawnCaps::initCaps(const wgpu::Device& device) {
 
     // TODO: support clamp to border.
     fClampToBorderSupport = false;
+}
+
+void DawnCaps::initShaderCaps() {
+    SkSL::ShaderCaps* shaderCaps = fShaderCaps.get();
+
+    // WGSL does not support infinities regardless of hardware support. There are discussions around
+    // enabling it using an extension in the future.
+    shaderCaps->fInfinitySupport = false;
 }
 
 void DawnCaps::initFormatTable(const wgpu::Device& device) {

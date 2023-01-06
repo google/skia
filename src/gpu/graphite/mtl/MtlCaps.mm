@@ -273,6 +273,7 @@ void MtlCaps::initShaderCaps() {
     shaderCaps->fFlatInterpolationSupport = true;
 
     shaderCaps->fShaderDerivativeSupport = true;
+    shaderCaps->fInfinitySupport = true;
 
     // TODO(skia:8270): Re-enable this once bug 8270 is fixed
 #if 0

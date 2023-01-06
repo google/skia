@@ -98,6 +98,9 @@ struct ShaderCaps {
     bool fExternalTextureSupport = false;
     bool fFloatIs32Bits = true;
 
+    // isinf() is defined, and floating point infinities are handled according to IEEE standards.
+    bool fInfinitySupport = false;
+
     // Used by SkSL to know when to generate polyfills.
     bool fBuiltinFMASupport = true;
     bool fBuiltinDeterminantSupport = true;

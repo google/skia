@@ -16,6 +16,7 @@
 
 namespace skgpu::graphite {
 
+class Caps;
 class StaticBufferManager;
 
 /**
@@ -74,7 +75,7 @@ private:
     friend class Context; // for ctor
 
     // TODO: Take in caps that determines which Renderers to use for each category
-    RendererProvider(StaticBufferManager* bufferManager);
+    RendererProvider(const Caps*, StaticBufferManager* bufferManager);
 
     // Cannot be moved or copied
     RendererProvider(const RendererProvider&) = delete;

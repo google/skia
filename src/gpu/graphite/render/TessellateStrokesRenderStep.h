@@ -17,13 +17,16 @@ public:
     // TODO: If this takes DepthStencilSettings directly and a way to adjust the flags to specify
     // that it performs shading, this RenderStep definition could be used to handle inverse-filled
     // stroke draws.
-    TessellateStrokesRenderStep();
+    explicit TessellateStrokesRenderStep(bool infinitySupport);
 
     ~TessellateStrokesRenderStep() override;
 
     std::string vertexSkSL() const override;
     void writeVertices(DrawWriter*, const DrawParams&, int ssboIndex) const override;
     void writeUniformsAndTextures(const DrawParams&, PipelineDataGatherer*) const override;
+
+private:
+    bool fInfinitySupport;
 };
 
 }  // namespace skgpu::graphite

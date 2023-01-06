@@ -9,6 +9,7 @@
 
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkVertices.h"
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/render/AnalyticRRectRenderStep.h"
 #include "src/gpu/graphite/render/BitmapTextRenderStep.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
@@ -19,10 +20,11 @@
 #include "src/gpu/graphite/render/TessellateStrokesRenderStep.h"
 #include "src/gpu/graphite/render/TessellateWedgesRenderStep.h"
 #include "src/gpu/graphite/render/VerticesRenderStep.h"
+#include "src/sksl/SkSLUtil.h"
 
 namespace skgpu::graphite {
 
-RendererProvider::RendererProvider(StaticBufferManager* bufferManager) {
+RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* bufferManager) {
     // This constructor requires all Renderers be densely packed so that it can simply iterate over
     // the fields directly and fill 'fRenderers' with every one that was initialized with a
     // non-empty renderer. While this is a little magical, it simplifies the rest of the logic
@@ -30,6 +32,8 @@ RendererProvider::RendererProvider(StaticBufferManager* bufferManager) {
     static constexpr size_t kRendererSize = offsetof(RendererProvider, fRenderers) -
                                             offsetof(RendererProvider, fStencilTessellatedCurves);
     static_assert(kRendererSize % sizeof(Renderer) == 0, "Renderer declarations are not dense");
+
+    const bool infinitySupport = caps->shaderCaps()->fInfinitySupport;
 
     // Single-step renderers don't share RenderSteps
     auto makeFromStep = [&](std::unique_ptr<RenderStep> singleStep, DrawTypeFlags drawTypes) {
@@ -40,13 +44,12 @@ RendererProvider::RendererProvider(StaticBufferManager* bufferManager) {
         return Renderer(name, drawTypes, fRenderSteps.back().get());
     };
 
-    fConvexTessellatedWedges = makeFromStep(
-            std::make_unique<TessellateWedgesRenderStep>("convex",
-                                                         kDirectDepthGreaterPass,
-                                                         bufferManager),
-            DrawTypeFlags::kShape);
-    fTessellatedStrokes = makeFromStep(std::make_unique<TessellateStrokesRenderStep>(),
-                                       DrawTypeFlags::kShape);
+    fConvexTessellatedWedges =
+            makeFromStep(std::make_unique<TessellateWedgesRenderStep>(
+                                 "convex", infinitySupport, kDirectDepthGreaterPass, bufferManager),
+                         DrawTypeFlags::kShape);
+    fTessellatedStrokes = makeFromStep(
+            std::make_unique<TessellateStrokesRenderStep>(infinitySupport), DrawTypeFlags::kShape);
     fBitmapText = makeFromStep(std::make_unique<BitmapTextRenderStep>(),
                                DrawTypeFlags::kText);
     for (bool lcd : {false, true}) {
@@ -73,11 +76,13 @@ RendererProvider::RendererProvider(StaticBufferManager* bufferManager) {
     for (bool evenOdd : {false, true}) {
         // These steps can be shared by regular and inverse fills
         auto stencilFan = std::make_unique<MiddleOutFanRenderStep>(evenOdd);
-        auto stencilCurve = std::make_unique<TessellateCurvesRenderStep>(evenOdd, bufferManager);
-        auto stencilWedge = evenOdd ? std::make_unique<TessellateWedgesRenderStep>(
-                                            "evenodd", kEvenOddStencilPass, bufferManager)
-                                    : std::make_unique<TessellateWedgesRenderStep>(
-                                            "winding", kWindingStencilPass, bufferManager);
+        auto stencilCurve = std::make_unique<TessellateCurvesRenderStep>(
+                evenOdd, infinitySupport, bufferManager);
+        auto stencilWedge =
+                evenOdd ? std::make_unique<TessellateWedgesRenderStep>(
+                                  "evenodd", infinitySupport, kEvenOddStencilPass, bufferManager)
+                        : std::make_unique<TessellateWedgesRenderStep>(
+                                  "winding", infinitySupport, kWindingStencilPass, bufferManager);
 
         for (bool inverse : {false, true}) {
             static const char* kTessVariants[4] =

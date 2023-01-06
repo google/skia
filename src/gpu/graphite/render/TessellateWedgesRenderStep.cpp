@@ -7,6 +7,8 @@
 
 #include "src/gpu/graphite/render/TessellateWedgesRenderStep.h"
 
+#include "include/private/SkSLString.h"
+
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
@@ -24,21 +26,45 @@ namespace {
 using namespace skgpu::tess;
 
 // Only kFanPoint, no stroke params, since this is for filled wedges.
-// No explicit curve type, since we assume infinity is supported on GPUs using graphite
 // No color or wide color attribs, since it might always be part of the PaintParams
 // or we'll add a color-only fast path to RenderStep later.
+// No explicit curve type on platforms that support infinity.
 static constexpr PatchAttribs kAttribs = PatchAttribs::kFanPoint |
                                          PatchAttribs::kPaintDepth |
                                          PatchAttribs::kSsboIndex;
+static constexpr PatchAttribs kAttribsWithCurveType = kAttribs | PatchAttribs::kExplicitCurveType;
 
 using Writer = PatchWriter<DynamicInstancesPatchAllocator<FixedCountWedges>,
                            Required<PatchAttribs::kFanPoint>,
                            Required<PatchAttribs::kPaintDepth>,
-                           Required<PatchAttribs::kSsboIndex>>;
+                           Required<PatchAttribs::kSsboIndex>,
+                           Optional<PatchAttribs::kExplicitCurveType>>;
+
+// The order of the attribute declarations must match the order used by
+// PatchWriter::emitPatchAttribs, i.e.:
+//     join << fanPoint << stroke << color << depth << curveType << ssboIndex
+static constexpr Attribute kBaseAttributes[] = {
+        {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"fanPointAttrib", VertexAttribType::kFloat2, SkSLType::kFloat2},
+        {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
+        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}};
+
+static constexpr Attribute kAttributesWithCurveType[] = {
+        {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
+        {"fanPointAttrib", VertexAttribType::kFloat2, SkSLType::kFloat2},
+        {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
+        {"curveType", VertexAttribType::kFloat, SkSLType::kFloat},
+        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}};
+
+static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveType,
+                                                           kBaseAttributes};
 
 }  // namespace
 
 TessellateWedgesRenderStep::TessellateWedgesRenderStep(std::string_view variantName,
+                                                       bool infinitySupport,
                                                        DepthStencilSettings depthStencilSettings,
                                                        StaticBufferManager* bufferManager)
         : RenderStep("TessellateWedgesRenderStep",
@@ -51,13 +77,10 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(std::string_view variantN
                      depthStencilSettings,
                      /*vertexAttrs=*/  {{"resolveLevel_and_idx",
                                          VertexAttribType::kFloat2, SkSLType::kFloat2}},
-                     /*instanceAttrs=*/{{"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
-                                        {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
-                                        {"fanPointAttrib", VertexAttribType::kFloat2,
-                                                           SkSLType::kFloat2},
-                                        {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                                        {"ssboIndex", VertexAttribType::kInt, SkSLType::kInt}}) {
-    SkASSERT(this->instanceStride() == PatchStride(kAttribs));
+                     /*instanceAttrs=*/kAttributes[infinitySupport])
+        , fInfinitySupport(infinitySupport) {
+    SkASSERT(this->instanceStride() ==
+             PatchStride(infinitySupport ? kAttribs : kAttribsWithCurveType));
 
     // Initialize the static buffers we'll use when recording draw calls.
     // NOTE: Each instance of this RenderStep gets its own copy of the data. If this ends up causing
@@ -74,22 +97,25 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(std::string_view variantN
 TessellateWedgesRenderStep::~TessellateWedgesRenderStep() {}
 
 std::string TessellateWedgesRenderStep::vertexSkSL() const {
-    return R"(
-        float2 localCoord;
-        if (resolveLevel_and_idx.x < 0) {
-            // A negative resolve level means this is the fan point.
-            localCoord = fanPointAttrib;
-        } else {
-            // TODO: Approximate perspective scaling to match how PatchWriter is configured
-            // (or provide explicit tessellation level in instance data instead of replicating work)
-            float2x2 vectorXform = float2x2(localToDevice[0].xy, localToDevice[1].xy);
-            localCoord = tessellate_filled_curve(
-                vectorXform, resolveLevel_and_idx.x, resolveLevel_and_idx.y, p01, p23);
-        }
-        float4 devPosition = localToDevice * float4(localCoord, 0.0, 1.0);
-        devPosition.z = depth;
-        stepLocalCoords = localCoord;
-    )";
+    return SkSL::String::printf(
+            R"(
+                float2 localCoord;
+                if (resolveLevel_and_idx.x < 0) {
+                    // A negative resolve level means this is the fan point.
+                    localCoord = fanPointAttrib;
+                } else {
+                    // TODO: Approximate perspective scaling to match how PatchWriter is configured
+                    // (or provide explicit tessellation level in instance data instead of
+                    // replicating work)
+                    float2x2 vectorXform = float2x2(localToDevice[0].xy, localToDevice[1].xy);
+                    localCoord = tessellate_filled_curve(
+                        vectorXform, resolveLevel_and_idx.x, resolveLevel_and_idx.y, p01, p23, %s);
+                }
+                float4 devPosition = localToDevice * float4(localCoord, 0.0, 1.0);
+                devPosition.z = depth;
+                stepLocalCoords = localCoord;
+            )",
+            fInfinitySupport ? "curve_type_using_inf_support(p23)" : "curveType");
 }
 
 void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
@@ -98,7 +124,11 @@ void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
     SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
     int patchReserveCount = FixedCountWedges::PreallocCount(path.countVerbs());
-    Writer writer{kAttribs, *dw, fVertexBuffer, fIndexBuffer, patchReserveCount};
+    Writer writer{fInfinitySupport ? kAttribs : kAttribsWithCurveType,
+                  *dw,
+                  fVertexBuffer,
+                  fIndexBuffer,
+                  patchReserveCount};
     writer.updatePaintDepthAttrib(params.order().depthAsFloat());
     writer.updateSsboIndexAttrib(ssboIndex);
 

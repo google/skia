@@ -84,7 +84,8 @@ bool Context::finishInitialization() {
     SkASSERT(!fSharedContext->rendererProvider()); // Can only initialize once
 
     StaticBufferManager bufferManager{fResourceProvider.get(), fSharedContext->caps()};
-    std::unique_ptr<RendererProvider> renderers{new RendererProvider(&bufferManager)};
+    std::unique_ptr<RendererProvider> renderers{
+            new RendererProvider(fSharedContext->caps(), &bufferManager)};
 
     auto result = bufferManager.finalize(this, fQueueManager.get(), fSharedContext->globalCache());
     if (result == StaticBufferManager::FinishResult::kFailure) {

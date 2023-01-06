@@ -54,6 +54,7 @@ private:
                                              SkColorType dstColorType) const override;
 
     void initCaps(const wgpu::Device& device);
+    void initShaderCaps();
     void initFormatTable(const wgpu::Device& device);
 
     wgpu::TextureFormat getFormatFromColorType(SkColorType colorType) const {

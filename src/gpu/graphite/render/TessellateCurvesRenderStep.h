@@ -20,7 +20,9 @@ public:
     // TODO: If this takes DepthStencilSettings directly and a way to adjust the flags to specify
     // that it performs shading, this RenderStep definition can be shared between the stencil and
     // the convex rendering variants.
-    TessellateCurvesRenderStep(bool evenOdd, StaticBufferManager* bufferManager);
+    TessellateCurvesRenderStep(bool evenOdd,
+                               bool infinitySupport,
+                               StaticBufferManager* bufferManager);
 
     ~TessellateCurvesRenderStep() override;
 
@@ -32,6 +34,7 @@ private:
     // Points to the static buffers holding the fixed indexed vertex template for drawing instances.
     BindBufferInfo fVertexBuffer;
     BindBufferInfo fIndexBuffer;
+    bool fInfinitySupport;
 };
 
 }  // namespace skgpu::graphite

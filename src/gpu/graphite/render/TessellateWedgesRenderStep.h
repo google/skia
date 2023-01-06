@@ -10,6 +10,7 @@
 
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/tessellate/Tessellation.h"
 
 namespace skgpu::graphite {
 
@@ -20,6 +21,7 @@ public:
     // 'vertexBuffer' and 'indexBuffer' must have been returned by CreateVertexTemplate(), but they
     // can be shared by all instances of TessellateWedgesRenderStep.
     TessellateWedgesRenderStep(std::string_view variantName,
+                               bool infinitySupport,
                                DepthStencilSettings depthStencilSettings,
                                StaticBufferManager* bufferManager);
 
@@ -35,6 +37,7 @@ private:
     // Points to the static buffers holding the fixed indexed vertex template for drawing instances.
     BindBufferInfo fVertexBuffer;
     BindBufferInfo fIndexBuffer;
+    bool fInfinitySupport;
 };
 
 }  // namespace skgpu::graphite
