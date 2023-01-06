@@ -150,10 +150,10 @@ graphite_bench_sources = [
   "$_bench/graphite/IntersectionTreeBench.cpp",
 ]
 
-skgpu_v1_bench_sources = [
+ganesh_bench_sources = [
   "$_bench/BulkRectBench.cpp",
   "$_bench/ClearBench.cpp",
   "$_bench/VertexColorSpaceBench.cpp",
 ]
 
-bench_sources += skgpu_v1_bench_sources
+bench_sources += ganesh_bench_sources

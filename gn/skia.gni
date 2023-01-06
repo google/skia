@@ -14,13 +14,11 @@ declare_args() {
   skia_compile_sksl_tests = false
   skia_enable_api_available_macro = true
   skia_enable_android_utils = is_skia_dev_build
-  skia_enable_skgpu_v1 = true
   skia_enable_discrete_gpu = true
   skia_enable_flutter_defines = false
   skia_enable_fontmgr_empty = false
   skia_enable_fontmgr_fuchsia = is_fuchsia
   skia_enable_fontmgr_win = is_win
-  skia_enable_gpu = true
   skia_enable_optimize_size = false
   skia_enable_pdf = !is_wasm
   skia_enable_skottie = !(is_win && is_component_build) ||
@@ -74,7 +72,9 @@ declare_args() {
   skia_use_wuffs = true
   skia_use_x11 = is_linux
   skia_use_xps = true
+  skia_enable_gpu = true
   skia_enable_graphite = false
+  skia_enable_ganesh = true
   skia_use_zlib = true
 
   if (is_ios) {

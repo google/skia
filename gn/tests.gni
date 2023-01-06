@@ -439,7 +439,7 @@ pathops_tests_sources = [
   "$_tests/WangsFormulaTest.cpp",
 ]
 
-skgpu_v1_tests_sources = [
+ganesh_tests_sources = [
   "$_tests/BulkRectTest.cpp",
   "$_tests/ClearTest.cpp",
   "$_tests/DMSAATest.cpp",
@@ -461,4 +461,4 @@ skgpu_v1_tests_sources = [
   "$_tests/TextureOpTest.cpp",
 ]
 
-tests_sources += skgpu_v1_tests_sources
+tests_sources += ganesh_tests_sources

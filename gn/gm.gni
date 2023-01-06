@@ -411,7 +411,7 @@ gm_sources = [
 
 gl_gm_sources = [ "$_gm/rectangletexture.cpp" ]
 
-skgpu_v1_gm_sources = [
+ganesh_gm_sources = [
   "$_gm/aarecteffect.cpp",
   "$_gm/beziereffects.cpp",
   "$_gm/bigrrectaaeffect.cpp",
@@ -431,4 +431,4 @@ skgpu_v1_gm_sources = [
   "$_gm/yuvtorgbsubset.cpp",
 ]
 
-gm_sources += skgpu_v1_gm_sources
+gm_sources += ganesh_gm_sources
