@@ -126,7 +126,7 @@ SkImageInfo SkImageInfo::Make(int width, int height, SkColorType ct, SkAlphaType
 }
 
 SkImageInfo SkImageInfo::Make(int width, int height, SkColorType ct, SkAlphaType at,
-                        sk_sp<SkColorSpace> cs) {
+                              sk_sp<SkColorSpace> cs) {
     return SkImageInfo({width, height}, {ct, at, std::move(cs)});
 }
 

@@ -30,10 +30,10 @@ namespace skiagm {
 
 
 /**
- * This test originally ensured that the ccpr path cache preserved fill rules properly. CCRP is gone
+ * This test originally ensured that the ccpr path cache preserved fill rules properly. CCPR is gone
  * now, but we decided to keep the test.
  */
-class PreserveFillRuleGM : public GpuGM {
+class PreserveFillRuleGM : public GM {
 public:
     PreserveFillRuleGM(bool big) : fBig(big) , fStarSize((big) ? 200 : 20) {}
 
@@ -49,14 +49,7 @@ private:
         ctxOptions->fAllowPathMaskCaching = true;
     }
 
-    DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {
-        auto dContext = GrAsDirectContext(rContext);
-        auto sfc = SkCanvasPriv::TopDeviceSurfaceFillContext(canvas);
-        if (!dContext || !sfc) {
-            *errorMsg = "Requires a direct context.";
-            return skiagm::DrawResult::kSkip;
-        }
-
+    void onDraw(SkCanvas* canvas) override {
         auto starRect = SkRect::MakeWH(fStarSize, fStarSize);
         SkPath star7_winding = ToolUtils::make_star(starRect, 7);
         star7_winding.setFillType(SkPathFillType::kWinding);
@@ -82,9 +75,11 @@ private:
         canvas->drawPath(star7_evenOdd, paint);
         canvas->drawPath(star5_winding, paint);
         canvas->drawPath(star5_evenOdd, paint);
-        dContext->priv().flushSurface(sfc->asSurfaceProxy());
 
-        return DrawResult::kOk;
+        auto dContext = GrAsDirectContext(canvas->recordingContext());
+        if (dContext) {
+            dContext->flush();
+        }
     }
 
 private:
