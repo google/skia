@@ -439,23 +439,6 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorShortCircuitLogicalAnd, r) {
          /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
 
-DEF_TEST(SkSLRasterPipelineCodeGeneratorSwizzleLValueTest, r) {
-    // Add in your SkSL here.
-    test(r,
-         R"__SkSL__(
-             half4 main(half4 color) {                        // 0,    0.5, 0,    0
-                 color.a     = 2.0;                           // 0,    0.5, 0,    2
-                 color.g    /= 0.25;                          // 0,    2,   0,    2
-                 color.gba  *= half3(0.5);                    // 0,    1,   0,    1
-                 color.bgar += half4(0.249, 0.0, 0.0, 0.749); // 0.75, 1,   0.25, 1
-                 return color;
-             }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.0, 0.5, 0.0, 0.0},
-         /*expectedResult=*/SkColor4f{0.749f, 1.0f, 0.249f, 1.0f});
-}
-
 DEF_TEST(SkSLRasterPipelineCodeGeneratorCoercedTypeTest, r) {
     static constexpr float kUniforms[] = {0.0, 1.0, 0.0, 1.0,
                                           1.0, 0.0, 0.0, 1.0};

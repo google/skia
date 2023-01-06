@@ -218,7 +218,6 @@ public:
 
     static BuilderOp GetTypedOp(const SkSL::Type& type, const TypedOps& ops);
 
-    [[nodiscard]] bool assign(const Expression& e);
     [[nodiscard]] bool unaryOp(const SkSL::Type& type, const TypedOps& ops);
     [[nodiscard]] bool binaryOp(const SkSL::Type& type, const TypedOps& ops);
     [[nodiscard]] bool ternaryOp(const SkSL::Type& type, const TypedOps& ops);
@@ -310,7 +309,10 @@ struct LValue {
     static std::unique_ptr<LValue> Make(const Expression& e);
 
     /** Copies the top-of-stack value into this lvalue, without discarding it from the stack. */
-    bool store(Generator* gen);
+    void store(Generator* gen);
+
+    /** Pushes the lvalue onto the top-of-stack. */
+    void push(Generator* gen);
 
     /**
      * Returns the value slots associated with this LValue. For instance, a plain four-slot Variable
@@ -320,6 +322,9 @@ struct LValue {
         SkTArray<int> slots;  // the destination slots
     };
     virtual SlotMap getSlotMap(Generator* gen) = 0;
+
+    /** Converts a SlotMap into a list of ranges of consecutive slots. */
+    static SkTArray<SlotRange> CoalesceSlotRanges(const SlotMap& slotMap);
 };
 
 struct VariableLValue : public LValue {
@@ -374,22 +379,28 @@ std::unique_ptr<LValue> LValue::Make(const Expression& e) {
     return nullptr;
 }
 
-bool LValue::store(Generator* gen) {
+SkTArray<SlotRange> LValue::CoalesceSlotRanges(const SlotMap& slotMap) {
+    SkTArray<SlotRange> ranges;
+    ranges.push_back({slotMap.slots.front(), 1});
+
+    for (int index = 1; index < slotMap.slots.size(); ++index) {
+        Slot dst = slotMap.slots[index];
+        if (dst == ranges.back().index + ranges.back().count) {
+            ++ranges.back().count;
+        } else {
+            ranges.push_back({dst, 1});
+        }
+    }
+
+    return ranges;
+}
+
+void LValue::store(Generator* gen) {
     SlotMap out = this->getSlotMap(gen);
 
     if (!out.slots.empty()) {
         // Coalesce our list of slots into ranges of consecutive slots.
-        SkTArray<SlotRange> ranges;
-        ranges.push_back({out.slots.front(), 1});
-
-        for (int index = 1; index < out.slots.size(); ++index) {
-            Slot dst = out.slots[index];
-            if (dst == ranges.back().index + ranges.back().count) {
-                ++ranges.back().count;
-            } else {
-                ranges.push_back({dst, 1});
-            }
-        }
+        SkTArray<SlotRange> ranges = CoalesceSlotRanges(out);
 
         // Copy our coalesced slot ranges from the stack.
         int offsetFromStackTop = out.slots.size();
@@ -399,8 +410,20 @@ bool LValue::store(Generator* gen) {
         }
         SkASSERT(offsetFromStackTop == 0);
     }
+}
 
-    return true;
+void LValue::push(Generator* gen) {
+    SlotMap out = this->getSlotMap(gen);
+
+    if (!out.slots.empty()) {
+        // Coalesce our list of slots into ranges of consecutive slots.
+        SkTArray<SlotRange> ranges = CoalesceSlotRanges(out);
+
+        // Push our coalesced slot ranges onto the stack.
+        for (const SlotRange& r : ranges) {
+            gen->builder()->push_slots(r);
+        }
+    }
 }
 
 static bool unsupported() {
@@ -856,11 +879,6 @@ bool Generator::ternaryOp(const SkSL::Type& type, const TypedOps& ops) {
     return true;
 }
 
-bool Generator::assign(const Expression& e) {
-    std::unique_ptr<LValue> lvalue = LValue::Make(e);
-    return lvalue && lvalue->store(this);
-}
-
 void Generator::foldWithMultiOp(BuilderOp op, int elements) {
     // Fold the top N elements on the stack using an op that supports multiple slots, e.g.:
     // (A + B + C + D) -> add_2_floats $0..1 += $2..3
@@ -884,9 +902,16 @@ bool Generator::pushBinaryExpression(const BinaryExpression& e) {
 }
 
 bool Generator::pushBinaryExpression(const Expression& left, Operator op, const Expression& right) {
-    const Type& type = left.type();
+    // Rewrite greater-than ops as their less-than equivalents.
+    if (op.kind() == OperatorKind::GT) {
+        return this->pushBinaryExpression(right, OperatorKind::LT, left);
+    }
+    if (op.kind() == OperatorKind::GTEQ) {
+        return this->pushBinaryExpression(right, OperatorKind::LTEQ, left);
+    }
 
     // Handle binary expressions with mismatched types.
+    const Type& type = left.type();
     if (!type.matches(right.type())) {
         if (type.componentType().numberKind() != right.type().componentType().numberKind()) {
             return unsupported();
@@ -908,16 +933,30 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
         return unsupported();
     }
 
-    // Handle simple assignment (`var = expr`).
-    if (op.kind() == OperatorKind::EQ) {
-        return this->pushExpression(right) &&
-               this->assign(left);
+    // If this is an assignment...
+    std::unique_ptr<LValue> lvalue;
+    if (op.isAssignment()) {
+        // ... turn the left side into an lvalue.
+        lvalue = LValue::Make(left);
+        if (!lvalue) {
+            return unsupported();
+        }
+
+        // Handle simple assignment (`var = expr`).
+        if (op.kind() == OperatorKind::EQ) {
+            if (!this->pushExpression(right)) {
+                return unsupported();
+            }
+            lvalue->store(this);
+            return true;
+        }
+
+        // Strip off the assignment from the op (turning += into +).
+        op = op.removeAssignment();
     }
 
-    Operator basicOp = op.removeAssignment();
-
     // Handle binary ops which require short-circuiting.
-    switch (basicOp.kind()) {
+    switch (op.kind()) {
         case OperatorKind::LOGICALAND:
             if (Analysis::HasSideEffects(right)) {
                 // If the RHS has side effects, we rewrite `a && b` as `a ? b : false`. This
@@ -945,26 +984,21 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
             break;
     }
 
-    // Push both expressions on the stack.
-    switch (basicOp.kind()) {
-        case OperatorKind::GT:
-        case OperatorKind::GTEQ:
-            // We replace `x > y` with `y < x`, and `x >= y` with `y <= x`.
-            if (!this->pushExpression(right) ||
-                !this->pushExpression(left)) {
-                return false;
-            }
-            break;
-
-        default:
-            if (!this->pushExpression(left) ||
-                !this->pushExpression(right)) {
-                return false;
-            }
-            break;
+    // Push the left-expression on the stack.
+    if (lvalue) {
+        lvalue->push(this);
+    } else {
+        if (!this->pushExpression(left)) {
+            return unsupported();
+        }
     }
 
-    switch (basicOp.kind()) {
+    // Push the right-expression on the stack.
+    if (!this->pushExpression(right)) {
+        return unsupported();
+    }
+
+    switch (op.kind()) {
         case OperatorKind::PLUS:
             if (!this->binaryOp(type, kAddOps)) {
                 return unsupported();
@@ -1036,9 +1070,9 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
             return unsupported();
     }
 
-    // Handle compound assignment (`var *= expr`).
-    if (op.isAssignment()) {
-        return this->assign(left);
+    // If we have an lvalue, we need to write the result back into it.
+    if (lvalue) {
+        lvalue->store(this);
     }
 
     return true;
