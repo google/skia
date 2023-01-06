@@ -39,11 +39,7 @@ struct Layout {
         kSPIRV_Flag                      = 1 << 13,
         kMetal_Flag                      = 1 << 14,
         kGL_Flag                         = 1 << 15,
-        kWGSL_Flag                       = 1 << 16,
     };
-
-    static constexpr int kAllBackendFlagsMask =
-            Layout::kSPIRV_Flag | Layout::kMetal_Flag | Layout::kGL_Flag | Layout::kWGSL_Flag;
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
            int inputAttachmentIndex)

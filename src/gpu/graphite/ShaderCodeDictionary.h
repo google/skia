@@ -34,10 +34,9 @@ class SkRuntimeEffect;
 
 namespace skgpu::graphite {
 
+enum class Layout;
 class RenderStep;
 class RuntimeEffectDictionary;
-
-struct ResourceBindingRequirements;
 
 // TODO: How to represent the type (e.g., 2D) of texture being sampled?
 class TextureAndSampler {
@@ -157,9 +156,10 @@ public:
     }
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 
-    std::string toSkSL(const ResourceBindingRequirements& bindingReqs,
+    std::string toSkSL(const Layout paintUniformsLayout,
+                       const Layout renderStepUniformsLayout,
                        const RenderStep* step,
-                       const bool useStorageBuffers,
+                       const bool defineShadingSsboIndexVarying,
                        const bool defineLocalCoordsVarying) const;
 
 private:

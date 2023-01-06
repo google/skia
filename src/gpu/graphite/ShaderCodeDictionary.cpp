@@ -17,7 +17,6 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkSLTypeShared.h"
-#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
@@ -108,14 +107,13 @@ static void emit_preamble_for_entry(const ShaderInfo& shaderInfo,
 //   - The result of the final code snippet is then copied into "sk_FragColor".
 //   Note: each entry's 'fStaticFunctionName' field is expected to match the name of a function
 //   in the Graphite pre-compiled module.
-std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
+std::string ShaderInfo::toSkSL(const Layout paintUniformsLayout,
+                               const Layout renderStepUniformsLayout,
                                const RenderStep* step,
-                               const bool useStorageBuffers,
+                               const bool defineShadingSsboIndexVarying,
                                const bool defineLocalCoordsVarying) const {
-    std::string preamble = EmitVaryings(step,
-                                        /*direction=*/"in",
-                                        /*emitShadingSsboIndexVarying=*/useStorageBuffers,
-                                        defineLocalCoordsVarying);
+    std::string preamble = EmitVaryings(
+            step, /*direction=*/"in", defineShadingSsboIndexVarying, defineLocalCoordsVarying);
 
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     // TODO: replace hard-coded bufferIDs with the backend's step and paint uniform-buffer indices.
@@ -123,22 +121,18 @@ std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
     // API-independent ones.
     if (step->numUniforms() > 0) {
         preamble += EmitRenderStepUniforms(
-                /*bufferID=*/1, "Step", bindingReqs.fUniformBufferLayout, step->uniforms());
+                /*bufferID=*/1, "Step", renderStepUniformsLayout, step->uniforms());
     }
     if (this->ssboIndex()) {
         preamble += EmitPaintParamsStorageBuffer(/*bufferID=*/2, "FS", "fs", fBlockReaders);
     } else {
-        preamble += EmitPaintParamsUniforms(
-                /*bufferID=*/2,
-                "FS",
-                useStorageBuffers ? bindingReqs.fStorageBufferLayout
-                                  : bindingReqs.fUniformBufferLayout,
-                fBlockReaders);
+        preamble +=
+                EmitPaintParamsUniforms(/*bufferID=*/2, "FS", paintUniformsLayout, fBlockReaders);
     }
     int binding = 0;
-    preamble += EmitTexturesAndSamplers(bindingReqs, fBlockReaders, &binding);
+    preamble += EmitTexturesAndSamplers(fBlockReaders, &binding);
     if (step->hasTextures()) {
-        preamble += step->texturesAndSamplersSkSL(bindingReqs, binding);
+        preamble += step->texturesAndSamplersSkSL(binding);
     }
 
     std::string mainBody = "void main() {";

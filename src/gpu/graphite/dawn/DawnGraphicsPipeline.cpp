@@ -223,7 +223,6 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     SkSL::ProgramSettings settings;
 
     settings.fForceNoRTFlip = true;
-    settings.fSPIRVDawnCompatMode = true;
 
     ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
 
@@ -241,7 +240,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     // Some steps just render depth buffer but not color buffer, so the fragment
     // shader is null.
-    auto fsSKSL = GetSkSLFS(sharedContext->caps()->resourceBindingRequirements(),
+    auto fsSKSL = GetSkSLFS(sharedContext->caps()->uniformBufferLayout(),
+                            sharedContext->caps()->storageBufferLayout(),
                             sharedContext->shaderCodeDictionary(),
                             runtimeDict,
                             step,
@@ -269,7 +269,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     }
 
     if (!SkSLToSPIRV(compiler,
-                     GetSkSLVS(sharedContext->caps()->resourceBindingRequirements(),
+                     GetSkSLVS(sharedContext->caps()->uniformBufferLayout(),
                                step,
                                useShadingSsboIndex,
                                localCoordsNeeded),

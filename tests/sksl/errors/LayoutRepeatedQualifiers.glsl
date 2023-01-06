@@ -54,7 +54,4 @@ layout (
 error: 1: only one backend qualifier can be used
 layout (
 ^^^^^^^^...
-error: 1: layout qualifier 'set' is not permitted here
-layout (
-^^^^^^^^...
-19 errors
+18 errors

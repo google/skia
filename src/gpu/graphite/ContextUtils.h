@@ -25,7 +25,7 @@ class RenderStep;
 class RuntimeEffectDictionary;
 class UniquePaintParamsID;
 
-struct ResourceBindingRequirements;
+enum class Layout;
 
 std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*>
 ExtractPaintData(Recorder*,
@@ -44,12 +44,13 @@ std::tuple<const UniformDataBlock*, const TextureDataBlock*> ExtractRenderStepDa
         const RenderStep* step,
         const DrawParams& params);
 
-std::string GetSkSLVS(const ResourceBindingRequirements&,
+std::string GetSkSLVS(const Layout uboLayout,
                       const RenderStep* step,
                       bool defineShadingSsboIndexVarying,
                       bool defineLocalCoordsVarying);
 
-std::string GetSkSLFS(const ResourceBindingRequirements&,
+std::string GetSkSLFS(const Layout uboLayout,
+                      const Layout ssboLayout,
                       const ShaderCodeDictionary*,
                       const RuntimeEffectDictionary*,
                       const RenderStep* renderStep,
@@ -73,10 +74,8 @@ std::string EmitPaintParamsStorageBuffer(int bufferID,
 std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
                                     const char* ssboIndex,
                                     const char* uniformName);
-std::string EmitTexturesAndSamplers(const ResourceBindingRequirements&,
-                                    const std::vector<PaintParamsKey::BlockReader>&,
+std::string EmitTexturesAndSamplers(const std::vector<PaintParamsKey::BlockReader>&,
                                     int* binding);
-std::string EmitSamplerLayout(const ResourceBindingRequirements&, int* binding);
 std::string EmitVaryings(const RenderStep* step,
                          const char* direction,
                          bool emitShadingSsboIndexVarying,

@@ -9,7 +9,6 @@
 
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkSLString.h"
-#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/PipelineData.h"
@@ -70,13 +69,13 @@ const char* BitmapTextRenderStep::vertexSkSL() const {
     )";
 }
 
-std::string BitmapTextRenderStep::texturesAndSamplersSkSL(
-        const ResourceBindingRequirements& bindingReqs, int binding) const {
+std::string BitmapTextRenderStep::texturesAndSamplersSkSL(int binding) const {
     std::string result;
 
     for (unsigned int i = 0; i < kNumTextAtlasTextures; ++i) {
-        result += EmitSamplerLayout(bindingReqs, &binding);
-        SkSL::String::appendf(&result, " uniform sampler2D text_atlas_%d;\n", i);
+        SkSL::String::appendf(&result,
+                              "layout(binding=%d) uniform sampler2D text_atlas_%d;\n", binding, i);
+        binding++;
     }
 
     return result;

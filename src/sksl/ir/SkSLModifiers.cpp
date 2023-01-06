@@ -53,7 +53,8 @@ bool Modifiers::checkPermitted(const Context& context,
     }
     SkASSERT(modifierFlags == 0);
 
-    int backendFlags = fLayout.fFlags & Layout::kAllBackendFlagsMask;
+    constexpr int kAllBackendFlags = Layout::kSPIRV_Flag | Layout::kMetal_Flag | Layout::kGL_Flag;
+    int backendFlags = fLayout.fFlags & kAllBackendFlags;
     if (SkPopCount(backendFlags) > 1) {
         context.fErrors->error(pos, "only one backend qualifier can be used");
         success = false;
@@ -76,28 +77,9 @@ bool Modifiers::checkPermitted(const Context& context,
         { Layout::kSPIRV_Flag,                    "spirv"},
         { Layout::kMetal_Flag,                    "metal"},
         { Layout::kGL_Flag,                       "gl"},
-        { Layout::kWGSL_Flag,                     "wgsl"},
     };
 
     int layoutFlags = fLayout.fFlags;
-    if ((layoutFlags & (Layout::kTexture_Flag | Layout::kSampler_Flag)) &&
-        layoutFlags & Layout::kBinding_Flag) {
-        context.fErrors->error(pos, "'binding' modifier cannot coexist with 'texture'/'sampler'");
-        success = false;
-    }
-    // The `texture` and `sampler` flags are only allowed when explicitly targeting Metal and WGSL
-    if (!(layoutFlags & (Layout::kMetal_Flag | Layout::kWGSL_Flag))) {
-        permittedLayoutFlags &= ~Layout::kTexture_Flag;
-        permittedLayoutFlags &= ~Layout::kSampler_Flag;
-    }
-    // The `set` flag is not allowed when explicitly targeting Metal and GLSL. It is currently
-    // allowed when no backend flag is present.
-    // TODO(skia:14023): Further restrict the `set` flag to SPIR-V and WGSL
-    if (layoutFlags & (Layout::kMetal_Flag | Layout::kGL_Flag)) {
-        permittedLayoutFlags &= ~Layout::kSet_Flag;
-    }
-    // TODO(skia:14023): Restrict the `push_constant` flag to SPIR-V and WGSL
-
     for (const auto& lf : kLayoutFlags) {
         if (layoutFlags & lf.flag) {
             if (!(permittedLayoutFlags & lf.flag)) {

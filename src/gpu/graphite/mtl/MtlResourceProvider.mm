@@ -117,7 +117,8 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     BlendInfo blendInfo;
     bool localCoordsNeeded = false;
     if (!SkSLToMSL(skslCompiler,
-                   GetSkSLFS(fSharedContext->caps()->resourceBindingRequirements(),
+                   GetSkSLFS(fSharedContext->caps()->uniformBufferLayout(),
+                             fSharedContext->caps()->storageBufferLayout(),
                              fSharedContext->shaderCodeDictionary(),
                              runtimeDict,
                              step,
@@ -134,7 +135,7 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     }
 
     if (!SkSLToMSL(skslCompiler,
-                   GetSkSLVS(fSharedContext->caps()->resourceBindingRequirements(),
+                   GetSkSLVS(fSharedContext->caps()->uniformBufferLayout(),
                              step,
                              useShadingSsboIndex,
                              localCoordsNeeded),

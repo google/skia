@@ -881,8 +881,7 @@ DSLLayout Parser::layout() {
         COLOR,
         SPIRV,
         METAL,
-        GL,
-        WGSL
+        GL
     };
 
     using LayoutMap = SkTHashMap<std::string_view, LayoutToken>;
@@ -903,7 +902,6 @@ DSLLayout Parser::layout() {
             {"spirv",                       LayoutToken::SPIRV},
             {"metal",                       LayoutToken::METAL},
             {"gl",                          LayoutToken::GL},
-            {"wgsl",                        LayoutToken::WGSL},
     };
 
     DSLLayout result;
@@ -925,9 +923,6 @@ DSLLayout Parser::layout() {
                         break;
                     case LayoutToken::GL:
                         result.gl(this->position(t));
-                        break;
-                    case LayoutToken::WGSL:
-                        result.wgsl(this->position(t));
                         break;
                     case LayoutToken::ORIGIN_UPPER_LEFT:
                         result.originUpperLeft(this->position(t));
