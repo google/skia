@@ -25,7 +25,7 @@ SkSpecialSurface::SkSpecialSurface(sk_sp<SkBaseDevice> device, const SkIRect& su
 
     fCanvas = std::make_unique<SkCanvas>(std::move(device));
     fCanvas->clipRect(SkRect::Make(subset));
-#ifdef SK_IS_BOT
+#if defined(SK_DEBUG) && defined(GR_TEST_UTILS)
     fCanvas->clear(SK_ColorRED);  // catch any imageFilter sloppiness
 #endif
 }
