@@ -174,6 +174,15 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
             break;
     }
 
+#ifdef SK_CODEC_DECODES_JPEGR
+    if (fCodec->getEncodedFormat() == SkEncodedImageFormat::kJPEGR) {
+        if (requestedColorType == kRGBA_8888_SkColorType ||
+            requestedColorType == kBGRA_8888_SkColorType) {
+            return requestedColorType;
+        }
+    }
+#endif
+
     // F16 is the Android default for high precision images.
     return highPrecision ? kRGBA_F16_SkColorType :
         (colorDepth == 10 ? kRGBA_1010102_SkColorType : kN32_SkColorType);

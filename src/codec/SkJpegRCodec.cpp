@@ -192,6 +192,9 @@ bool SkJpegRCodec::conversionSupported(const SkImageInfo& dstInfo,
         case kRGBA_1010102_SkColorType:
             this->setSrcXformFormat(skcms_PixelFormat_RGBA_1010102);
             return true;
+        case kRGBA_8888_SkColorType:
+            this->setSrcXformFormat(skcms_PixelFormat_RGBA_8888);
+            return true;
         default:
             return false;
     }
@@ -208,10 +211,9 @@ SkCodec::Result SkJpegRCodec::onGetPixels(const SkImageInfo& dstInfo,
     if (options.fSubset) {
         return kUnimplemented;
     }
-
     const SkColorType dstColorType = dstInfo.colorType();
-    if (dstColorType != kRGBA_1010102_SkColorType) {
-        // We only support RGBA1010102 color
+    if (dstColorType != kRGBA_1010102_SkColorType && dstColorType != kRGBA_8888_SkColorType) {
+        // We only support RGBA1010102 and RGBA8888 colors
         return kUnimplemented;
     }
 
@@ -225,13 +227,15 @@ SkCodec::Result SkJpegRCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
+    const bool decodeSDR = (dstColorType == kRGBA_8888_SkColorType);
+
     jpegr_compressed_struct compressedImage;
     jpegr_uncompressed_struct decompressedImage;
     compressedImage.data = (void*)fData->data();
     compressedImage.length = fData->size();
 
     decompressedImage.data = dst;
-    if (fRecoveryMap->decodeJPEGR(&compressedImage, &decompressedImage) != 0) {
+    if (fRecoveryMap->decodeJPEGR(&compressedImage, &decompressedImage, nullptr, decodeSDR) != 0) {
         return kInternalError;
     }
 
