@@ -159,6 +159,25 @@ static std::unique_ptr<SkEncodedInfo::ICCProfile> read_color_profile(jpeg_decomp
     return SkEncodedInfo::ICCProfile::Make(std::move(iccData));
 }
 
+/*
+ * Extract XMP metadata. The resulting memory directly references the markers the
+ * provided jpeg_decompress_struct.
+ */
+sk_sp<const SkData> read_xmp_metadata(jpeg_decompress_struct* dinfo) {
+    constexpr uint32_t kXMPMarker = kExifMarker;
+    constexpr uint8_t kXMPSig[] = {'h', 't', 't', 'p', ':', '/', '/', 'n', 's', '.',
+                                   'a', 'd', 'o', 'b', 'e', '.', 'c', 'o', 'm', '/',
+                                   'x', 'a', 'p', '/', '1', '.', '0', '/', 0x00};
+    for (jpeg_marker_struct* marker = dinfo->marker_list; marker; marker = marker->next) {
+        if (kXMPMarker == marker->marker && marker->data_length > sizeof(kXMPSig) &&
+            !memcmp(marker->data, kXMPSig, sizeof(kXMPSig))) {
+            return SkData::MakeWithoutCopy(marker->data + sizeof(kXMPSig),
+                                           marker->data_length - sizeof(kXMPSig));
+        }
+    }
+    return nullptr;
+}
+
 SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         JpegDecoderMgr** decoderMgrOut,
         std::unique_ptr<SkEncodedInfo::ICCProfile> defaultColorProfile) {
@@ -202,6 +221,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         }
 
         SkEncodedOrigin orientation = get_exif_orientation(dinfo);
+        auto xmpMetadata = read_xmp_metadata(dinfo);
         auto profile = read_color_profile(dinfo);
         if (profile) {
             auto type = profile->profile()->data_color_space;
@@ -234,8 +254,11 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
                                                  color, SkEncodedInfo::kOpaque_Alpha, 8,
                                                  std::move(profile));
 
-        SkJpegCodec* codec = new SkJpegCodec(std::move(info), std::unique_ptr<SkStream>(stream),
-                                             decoderMgr.release(), orientation);
+        SkJpegCodec* codec = new SkJpegCodec(std::move(info),
+                                             std::unique_ptr<SkStream>(stream),
+                                             decoderMgr.release(),
+                                             orientation,
+                                             std::move(xmpMetadata));
         *codecOut = codec;
     } else {
         SkASSERT(nullptr != decoderMgrOut);
@@ -262,15 +285,18 @@ std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> s
     return nullptr;
 }
 
-SkJpegCodec::SkJpegCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
-                         JpegDecoderMgr* decoderMgr, SkEncodedOrigin origin)
-    : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, std::move(stream), origin)
-    , fDecoderMgr(decoderMgr)
-    , fReadyState(decoderMgr->dinfo()->global_state)
-    , fSwizzleSrcRow(nullptr)
-    , fColorXformSrcRow(nullptr)
-    , fSwizzlerSubset(SkIRect::MakeEmpty())
-{}
+SkJpegCodec::SkJpegCodec(SkEncodedInfo&& info,
+                         std::unique_ptr<SkStream> stream,
+                         JpegDecoderMgr* decoderMgr,
+                         SkEncodedOrigin origin,
+                         sk_sp<const SkData> xmpMetadata)
+        : INHERITED(std::move(info),
+                    skcms_PixelFormat_RGBA_8888,
+                    std::move(stream),
+                    origin,
+                    std::move(xmpMetadata))
+        , fDecoderMgr(decoderMgr)
+        , fReadyState(decoderMgr->dinfo()->global_state) {}
 SkJpegCodec::~SkJpegCodec() = default;
 
 /*

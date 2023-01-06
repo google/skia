@@ -9,6 +9,7 @@
 #define SkCodec_DEFINED
 
 #include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkData.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
@@ -31,7 +32,6 @@
 #include "include/core/SkEncodedImageFormat.h" // IWYU pragma: keep
 
 class SkAndroidCodec;
-class SkData;
 class SkFrameHolder;
 class SkImage;
 class SkPngChunkReader;
@@ -761,7 +761,8 @@ protected:
     SkCodec(SkEncodedInfo&&,
             XformFormat srcFormat,
             std::unique_ptr<SkStream>,
-            SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
+            SkEncodedOrigin = kTopLeft_SkEncodedOrigin,
+            sk_sp<const SkData> xmpMetadata = nullptr);
 
     void setSrcXformFormat(XformFormat pixelFormat);
 
@@ -889,8 +890,9 @@ private:
     const SkEncodedInfo                fEncodedInfo;
     XformFormat                        fSrcXformFormat;
     std::unique_ptr<SkStream>          fStream;
-    bool                               fNeedsRewind;
+    bool fNeedsRewind = false;
     const SkEncodedOrigin              fOrigin;
+    const sk_sp<const SkData> fXmpMetadata;
 
     SkImageInfo                        fDstInfo;
     Options                            fOptions;
@@ -906,13 +908,13 @@ private:
     skcms_AlphaFormat                  fDstXformAlphaFormat;
 
     // Only meaningful during scanline decodes.
-    int                                fCurrScanline;
+    int fCurrScanline = -1;
 
-    bool                               fStartedIncrementalDecode;
+    bool fStartedIncrementalDecode = false;
 
     // Allows SkAndroidCodec to call handleFrameIndex (potentially decoding a prior frame and
     // clearing to transparent) without SkCodec calling it, too.
-    bool                               fAndroidCodecHandlesFrameIndex;
+    bool fAndroidCodecHandlesFrameIndex = false;
 
     bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha, bool srcIsOpaque);
 
