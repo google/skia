@@ -23,6 +23,12 @@ rolldeps() {
   git add DEPS
 }
 
+rollbazel() {
+  STEP="roll-bazel" &&
+  sed -i'' -e "s!commit = \"${FT_PREVIOUS_REV}\",!commit = \"${FT_NEXT_REV}\",!" bazel/deps.bzl &&
+  git add bazel/deps.bzl
+}
+
 mergeinclude() {
   SKIA_INCLUDE="include/$1/$2" &&
   STEP="merge ${SKIA_INCLUDE}: check for merge conflicts" &&
@@ -49,6 +55,7 @@ Disable: treat-URL-as-trailer"
 previousrev &&
 nextrev &&
 rolldeps "$@" &&
+rollbazel &&
 mergeinclude freetype-android ftoption.h &&
 mergeinclude freetype-android ftmodule.h &&
 mergeinclude freetype-no-type1 ftoption.h &&
