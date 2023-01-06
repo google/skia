@@ -1124,6 +1124,7 @@ TINT_SRCS = [
     "src/tint/type/atomic.h",
     "src/tint/type/bool.cc",
     "src/tint/type/bool.h",
+    "src/tint/type/clone_context.h",
     "src/tint/type/depth_multisampled_texture.cc",
     "src/tint/type/depth_multisampled_texture.h",
     "src/tint/type/depth_texture.cc",
@@ -1171,6 +1172,7 @@ TINT_SRCS = [
     "src/tint/type/void.cc",
     "src/tint/type/void.h",
     # From dawn/src/tint/BUILD.gn:libtint_constant_src
+    "src/tint/constant/clone_context.h",
     "src/tint/constant/composite.cc",
     "src/tint/constant/composite.h",
     "src/tint/constant/node.cc",
