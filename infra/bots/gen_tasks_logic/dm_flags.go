@@ -1088,9 +1088,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "gm", ALL, "blurcircles2") // skia:13342
 	}
 
-	if b.gpu("Tegra3") && !b.extraConfig("Vulkan") {
-		// Fails on Tegra3 w/ OpenGL ES
+	if b.gpu("Tegra3") {
 		skip(ALL, "tests", ALL, "SkSLMatrixFoldingES2_GPU") // skia:11919
+		skip(ALL, "tests", ALL, "SkSLIntrinsicFract_GPU")
 	}
 
 	if b.gpu("QuadroP400") && b.matchOs("Ubuntu") && b.matchModel("Golo") {
