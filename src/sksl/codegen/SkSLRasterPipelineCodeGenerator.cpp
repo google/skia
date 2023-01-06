@@ -51,6 +51,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <float.h>
 #include <numeric>
 #include <optional>
 #include <string>
@@ -1243,6 +1244,37 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             Literal zeroLiteral{Position{}, 0.0, &arg0.type().componentType()};
             Literal oneLiteral{Position{}, 1.0, &arg0.type().componentType()};
             return this->pushIntrinsic(k_clamp_IntrinsicKind, arg0, zeroLiteral, oneLiteral);
+        }
+        case IntrinsicKind::k_sign_IntrinsicKind: {
+            // Implement floating-point sign() as `clamp(arg * FLT_MAX, -1, 1)`.
+            // FLT_MIN * FLT_MAX evaluates to 4, so multiplying any float value against FLT_MAX is
+            // sufficient to ensure that |value| is always 1 or greater (excluding zero and nan).
+            // Integer sign() doesn't need to worry about fractional values or nans, and can simply
+            // be `clamp(arg, -1, 1)`.
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            if (arg0.type().componentType().isFloat()) {
+                Literal fltMaxLiteral{Position{}, FLT_MAX, &arg0.type().componentType()};
+                if (!this->pushVectorizedExpression(fltMaxLiteral, arg0.type())) {
+                    return unsupported();
+                }
+                if (!this->binaryOp(arg0.type(), kMultiplyOps)) {
+                    return unsupported();
+                }
+            }
+            Literal neg1Literal{Position{}, -1.0, &arg0.type().componentType()};
+            if (!this->pushVectorizedExpression(neg1Literal, arg0.type())) {
+                return unsupported();
+            }
+            if (!this->binaryOp(arg0.type(), kMaxOps)) {
+                return unsupported();
+            }
+            Literal pos1Literal{Position{}, 1.0, &arg0.type().componentType()};
+            if (!this->pushVectorizedExpression(pos1Literal, arg0.type())) {
+                return unsupported();
+            }
+            return this->binaryOp(arg0.type(), kMinOps);
         }
         default:
             break;
