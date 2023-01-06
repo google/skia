@@ -15,7 +15,6 @@
 #include "include/private/SkTArray.h"
 #include "include/private/SkTHash.h"
 #include "include/private/base/SkStringView.h"
-#include "include/private/base/SkTo.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 #include "src/sksl/SkSLAnalysis.h"
@@ -50,10 +49,8 @@
 #include "src/sksl/tracing/SkRPDebugTrace.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <iterator>
 #include <numeric>
 #include <optional>
 #include <string>
@@ -225,6 +222,7 @@ public:
     [[nodiscard]] bool binaryOp(const SkSL::Type& type, const TypedOps& ops);
     [[nodiscard]] bool ternaryOp(const SkSL::Type& type, const TypedOps& ops);
     [[nodiscard]] bool pushVectorizedExpression(const Expression& expr, const Type& vectorType);
+    [[nodiscard]] bool pushVariableReferencePartial(const VariableReference& v, SlotRange subset);
 
     void foldWithMultiOp(BuilderOp op, int elements);
     void nextTempStack() {
@@ -1429,14 +1427,33 @@ bool Generator::pushPrefixExpression(Operator op, const Expression& expr) {
 }
 
 bool Generator::pushSwizzle(const Swizzle& s) {
+    SkASSERT(s.components().size() >= 1 && s.components().size() <= 4);
+
+    // Determine if the swizzle rearranges its elements, or if it's a simple subset of its elements.
+    // (A simple subset would be a sequential non-repeating range of components, like `.xyz` or
+    // `.yzw` or `.z`, but not `.xx` or `.xz`.)
+    bool isSimpleSubset = true;
+    for (int index = 1; index < s.components().size(); ++index) {
+        if (s.components()[index] != s.components()[0] + index) {
+            isSimpleSubset = false;
+            break;
+        }
+    }
+    // If this is a simple subset of a variable's slots...
+    if (isSimpleSubset && s.base()->is<VariableReference>()) {
+        // ... we can just push part of the variable directly onto the stack, rather than pushing
+        // the whole expression and then immediately cutting it down. (Either way works, but this
+        // saves a step.)
+        return this->pushVariableReferencePartial(
+                s.base()->as<VariableReference>(),
+                SlotRange{/*index=*/s.components()[0], /*count=*/s.components().size()});
+    }
     // Push the base expression.
     if (!this->pushExpression(*s.base())) {
         return false;
     }
-    // A identity swizzle doesn't rearrange the data; it just (potentially) discards tail elements.
-    static constexpr int8_t kIdentitySwizzle[] = {0, 1, 2, 3};
-    SkASSERT(s.components().size() <= SkToInt(std::size(kIdentitySwizzle)));
-    if (std::equal(s.components().begin(), s.components().end(), std::begin(kIdentitySwizzle))) {
+    // An identity swizzle doesn't rearrange the data; it just (potentially) discards tail elements.
+    if (isSimpleSubset && s.components()[0] == 0) {
         int discardedElements = s.base()->type().slotCount() - s.components().size();
         SkASSERT(discardedElements >= 0);
         fBuilder.discard_stack(discardedElements);
@@ -1528,14 +1545,25 @@ bool Generator::pushTernaryExpression(const Expression& test,
 }
 
 bool Generator::pushVariableReference(const VariableReference& v) {
+    return this->pushVariableReferencePartial(v, SlotRange{0, (int)v.type().slotCount()});
+}
+
+bool Generator::pushVariableReferencePartial(const VariableReference& v, SlotRange subset) {
     const Variable& var = *v.variable();
+    SlotRange r;
     if (IsUniform(var)) {
-        SlotRange r = this->getUniformSlots(var);
+        r = this->getUniformSlots(var);
         SkASSERT(r.count == (int)var.type().slotCount());
+        r.index += subset.index;
+        r.count = subset.count;
         fBuilder.push_uniform(r);
-        return true;
+    } else {
+        r = this->getVariableSlots(var);
+        SkASSERT(r.count == (int)var.type().slotCount());
+        r.index += subset.index;
+        r.count = subset.count;
+        fBuilder.push_slots(r);
     }
-    fBuilder.push_slots(this->getVariableSlots(var));
     return true;
 }
 
