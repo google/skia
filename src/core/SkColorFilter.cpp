@@ -30,6 +30,7 @@
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
@@ -430,6 +431,35 @@ public:
 
         return ok ? GrFPSuccess(GrColorSpaceXformEffect::Make(std::move(fp), working,dst))
                   : GrFPFailure(std::move(fp));
+    }
+#endif
+
+#ifdef SK_GRAPHITE_ENABLED
+    void addToKey(const skgpu::graphite::KeyContext& keyContext,
+                  skgpu::graphite::PaintParamsKeyBuilder* builder,
+                  skgpu::graphite::PipelineDataGatherer* gatherer) const override {
+        using namespace skgpu::graphite;
+
+        const SkAlphaType dstAT = keyContext.dstColorInfo().alphaType();
+        sk_sp<SkColorSpace> dstCS = keyContext.dstColorInfo().refColorSpace();
+        if (!dstCS) {
+            dstCS = SkColorSpace::MakeSRGB();
+        }
+
+        SkAlphaType workingAT;
+        sk_sp<SkColorSpace> workingCS = this->workingFormat(dstCS, &workingAT);
+
+        ColorSpaceTransformBlock::ColorSpaceTransformData data1(
+                dstCS.get(), dstAT, workingCS.get(), workingAT);
+        ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data1);
+        builder->endBlock();
+
+        as_CFB(fChild)->addToKey(keyContext, builder, gatherer);
+
+        ColorSpaceTransformBlock::ColorSpaceTransformData data2(
+                workingCS.get(), workingAT, dstCS.get(), dstAT);
+        ColorSpaceTransformBlock::BeginBlock(keyContext, builder, gatherer, &data2);
+        builder->endBlock();
     }
 #endif
 
