@@ -607,11 +607,16 @@ public:
     bool serial() const override { return true; }
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kGPU, SinkFlags::kDirect }; }
+    void setColorSpace(sk_sp<SkColorSpace> colorSpace) override { fColorSpace = colorSpace; }
+    SkColorInfo colorInfo() const override {
+        return SkColorInfo(fColorType, fAlphaType, fColorSpace);
+    }
 
 private:
     ContextType fContextType;
     SkColorType fColorType;
     SkAlphaType fAlphaType;
+    sk_sp<SkColorSpace> fColorSpace;
 };
 
 #endif
