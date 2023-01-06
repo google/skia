@@ -241,7 +241,7 @@ DEF_TEST(RasterPipelineBuilderDuplicateSelectAndSwizzleSlots, r) {
                                                                 /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
-    2. swizzle_2                      $0..1 = ($0..1).xx
+    2. copy_slot_unmasked             $1 = $0
     3. swizzle_3                      $1..3 = ($1..3).xxx
     4. swizzle_4                      $3..6 = ($3..6).xxxx
     5. swizzle_4                      $6..9 = ($6..9).xxxx
@@ -378,7 +378,7 @@ R"(    1. copy_constant                  $0 = 0x0000007B (1.723597e-43)
     9. copy_4_slots_unmasked          $28..31 = $24..27
    10. copy_4_slots_unmasked          $32..35 = $28..31
    11. copy_4_slots_unmasked          $36..39 = $32..35
-   12. swizzle_2                      $39..40 = ($39..40).xx
+   12. copy_slot_unmasked             $40 = $39
    13. bitwise_and_int                $39 &= $40
    14. bitwise_xor_2_ints             $36..37 ^= $38..39
    15. bitwise_or_3_ints              $32..34 |= $35..37
@@ -446,7 +446,7 @@ DEF_TEST(RasterPipelineBuilderUnaryOps, r) {
     check(r, *program,
 R"(    1. copy_constant                  $0 = 0x000001C8 (6.389921e-43)
     2. swizzle_4                      $0..3 = ($0..3).xxxx
-    3. swizzle_2                      $3..4 = ($3..4).xx
+    3. copy_slot_unmasked             $4 = $3
     4. cast_to_float_from_int         $4 = IntToFloat($4)
     5. cast_to_float_from_2_uints     $3..4 = UintToFloat($3..4)
     6. cast_to_int_from_3_floats      $2..4 = FloatToInt($2..4)
@@ -516,7 +516,7 @@ DEF_TEST(RasterPipelineBuilderTernaryFloatOps, r) {
 R"(    1. copy_constant                  $0 = 0x3F400000 (0.75)
     2. swizzle_4                      $0..3 = ($0..3).xxxx
     3. copy_4_slots_unmasked          $4..7 = $0..3
-    4. swizzle_2                      $7..8 = ($7..8).xx
+    4. copy_slot_unmasked             $8 = $7
     5. mix_3_floats                   $0..2 = mix($0..2, $3..5, $6..8)
 )");
 }

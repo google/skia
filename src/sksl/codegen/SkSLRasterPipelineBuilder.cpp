@@ -118,13 +118,13 @@ void Builder::push_duplicates(int count) {
     }
     for (; count >= 4; count -= 4) {
         // Clone the splatted value four slots at a time.
-        this->push_clone(/*numSlots=*/4, /*offsetFromStackTop=*/0);
+        this->push_clone(/*numSlots=*/4);
     }
-    // Use a swizzle to handle the trailing items.
+    // Use a swizzle or clone to handle the trailing items.
     switch (count) {
         case 3:  this->swizzle(/*inputSlots=*/1, {0, 0, 0, 0}); break;
         case 2:  this->swizzle(/*inputSlots=*/1, {0, 0, 0});    break;
-        case 1:  this->swizzle(/*inputSlots=*/1, {0, 0});       break;
+        case 1:  this->push_clone(/*numSlots=*/1);              break;
         default: break;
     }
 }
