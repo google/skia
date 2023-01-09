@@ -11,7 +11,7 @@
 #include "src/core/SkBlockAllocator.h"
 
 #ifdef SK_DEBUG
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #endif
 
 /**

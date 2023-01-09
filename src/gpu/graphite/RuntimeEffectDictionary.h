@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 
 class SkRuntimeEffect;
 

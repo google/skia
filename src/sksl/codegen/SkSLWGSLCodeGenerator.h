@@ -9,7 +9,7 @@
 #define SKSL_WGSLCODEGENERATOR
 
 #include "include/private/SkSLDefines.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 
 #include <cstdint>

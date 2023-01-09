@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_MtlResourceProvider_DEFINED
 #define skgpu_graphite_MtlResourceProvider_DEFINED
 
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"

@@ -9,7 +9,7 @@
 #define SkLRUCache_DEFINED
 
 #include "include/private/SkChecksum.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTInternalLList.h"
 
 /**

@@ -334,6 +334,7 @@ CORE_FILES = [
     "SkTDArray.cpp",
     "SkTDPQueue.h",
     "SkTDynamicHash.h",
+    "SkTHash.h",
     "SkTInternalLList.h",
     "SkTLazy.h",
     "SkTMultiMap.h",

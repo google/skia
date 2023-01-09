@@ -10,8 +10,8 @@
 
 #include "src/gpu/ganesh/GrGpu.h"
 
-#include "include/private/SkTHash.h"
 #include "src/core/SkLRUCache.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrFinishCallbacks.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
 #include "src/gpu/ganesh/GrStagingBufferManager.h"

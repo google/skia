@@ -11,7 +11,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkOpts_spi.h"
 #include "include/private/SkSLSymbol.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 
 #include <cstddef>
 #include <cstdint>

@@ -9,9 +9,9 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/SkTHash.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkSurfacePriv.h"
+#include "src/core/SkTHash.h"
 
 #include <stdlib.h>
 #include <string_view>

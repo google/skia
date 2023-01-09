@@ -8,8 +8,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkTHash.h"
 #include "tests/Test.h"
 
 #include <cstdint>

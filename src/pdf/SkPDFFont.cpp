@@ -25,7 +25,7 @@
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/SkBitmaskEnum.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkImagePriv.h"

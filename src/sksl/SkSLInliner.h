@@ -10,7 +10,7 @@
 
 #ifndef SK_ENABLE_OPTIMIZE_SIZE
 
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLMangler.h"
 #include "src/sksl/SkSLProgramSettings.h"

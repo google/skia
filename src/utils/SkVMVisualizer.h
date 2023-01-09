@@ -10,7 +10,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkVM.h"
 
 #include <cstddef>

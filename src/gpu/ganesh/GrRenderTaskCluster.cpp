@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/GrRenderTaskCluster.h"
 
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrRenderTask.h"
 
 // Uncomment to get lots of logging.

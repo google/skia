@@ -11,7 +11,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkSerialProcs.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkWriter32.h"
 
 #include <string_view>

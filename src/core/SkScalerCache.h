@@ -9,13 +9,13 @@
 
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontTypes.h"
-#include "include/private/SkTHash.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/base/SkMutex.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphRunPainter.h"
+#include "src/core/SkTHash.h"
 
 #include <memory>
 

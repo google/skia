@@ -9,7 +9,7 @@
 #define SKSL_PROGRAMUSAGE
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 
 namespace SkSL {
 

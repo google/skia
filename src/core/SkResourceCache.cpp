@@ -61,7 +61,7 @@ void SkResourceCache::Key::init(void* nameSpace, uint64_t sharedID, size_t dataS
                          (fCount32 - kUnhashedLocal32s) << 2);
 }
 
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 
 namespace {
     struct HashTraits {

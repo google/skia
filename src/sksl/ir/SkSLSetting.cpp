@@ -8,8 +8,8 @@
 #include "src/sksl/ir/SkSLSetting.h"
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"

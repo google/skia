@@ -11,8 +11,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTHash.h"
 #include "modules/svg/include/SkSVGTypes.h"
+#include "src/core/SkTHash.h"
 
 class SkImageFilter;
 class SkSVGFeInputType;

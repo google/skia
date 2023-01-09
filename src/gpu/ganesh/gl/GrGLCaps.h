@@ -12,8 +12,8 @@
 #include <functional>
 #include "include/private/SkChecksum.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
 #include "include/private/gpu/ganesh/GrGLTypesPriv.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/gl/GrGLAttachment.h"

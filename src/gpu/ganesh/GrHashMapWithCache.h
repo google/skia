@@ -10,7 +10,7 @@
 
 #include "include/private/SkChecksum.h"
 #include "include/private/SkNoncopyable.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 
 // Cheaper than SkGoodHash and good enough for UniqueID tables.
 struct GrCheapHash {

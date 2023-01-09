@@ -9,8 +9,8 @@
 #define AtlasPathRenderer_DEFINED
 
 #include "include/gpu/GrTypes.h"
-#include "include/private/SkTHash.h"
 #include "src/core/SkIPoint16.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrDynamicAtlas.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"

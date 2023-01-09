@@ -14,7 +14,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkBitmaskEnum.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/base/SkOnce.h"
 #include "modules/skparagraph/include/DartTypes.h"
@@ -27,6 +26,7 @@
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skunicode/include/SkUnicode.h"
+#include "src/core/SkTHash.h"
 
 #include <memory>
 #include <string>

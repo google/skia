@@ -10,8 +10,8 @@
 
 #include "include/gpu/d3d/GrD3DTypes.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
 #include "src/core/SkLRUCache.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
 #include "src/gpu/ganesh/GrRingBuffer.h"
 #include "src/gpu/ganesh/d3d/GrD3DCommandSignature.h"

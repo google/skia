@@ -11,7 +11,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrBufferAllocPool.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"
 #include "src/gpu/ganesh/GrHashMapWithCache.h"

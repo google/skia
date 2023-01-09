@@ -11,12 +11,12 @@
 
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkTHash.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkOnce.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/core/SkTDynamicHash.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTInternalLList.h"
 
 #ifdef SK_BUILD_FOR_IOS

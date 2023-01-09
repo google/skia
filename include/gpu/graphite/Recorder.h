@@ -12,7 +12,6 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recording.h"
-#include "include/private/SkTHash.h"
 #include "include/private/base/SingleOwner.h"
 
 #include <vector>

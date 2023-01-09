@@ -10,8 +10,8 @@
 
 #include "include/core/SkString.h"
 #include "include/private/SkSpinlock.h"
-#include "include/private/SkTHash.h"
 #include "include/utils/SkEventTracer.h"
+#include "src/core/SkTHash.h"
 #include "tools/trace/EventTracingPriv.h"
 
 class SkJSONWriter;

@@ -32,7 +32,7 @@
 #include "include/gpu/GrContextOptions.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"

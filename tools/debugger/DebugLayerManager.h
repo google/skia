@@ -12,7 +12,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "tools/debugger/DebugCanvas.h"
 
 #include <memory>

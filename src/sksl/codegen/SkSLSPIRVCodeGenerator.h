@@ -12,7 +12,7 @@
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkTArray.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"

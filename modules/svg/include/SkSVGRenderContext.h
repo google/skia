@@ -15,10 +15,10 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGIDMapper.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTLazy.h"
 
 class SkCanvas;

@@ -49,7 +49,6 @@ skia_filegroup(
         "SkSpinlock.h",
         "SkTArray.h",
         "SkTDArray.h",
-        "SkTHash.h",
         "SkTLogic.h",
         "SkTPin.h",
         "SkTemplates.h",

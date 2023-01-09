@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLIntrinsicList.h"
 #include "src/sksl/SkSLProgramSettings.h"

@@ -8,7 +8,7 @@
 #ifndef SKSL_INTRINSIC_LIST_DEFINED
 #define SKSL_INTRINSIC_LIST_DEFINED
 
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 
 #include <cstdint>
 #include <initializer_list>

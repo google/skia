@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTHash.h"
+#include "src/core/SkTHash.h"
 #include "include/private/base/SkTo.h"
 
 #include <memory>
