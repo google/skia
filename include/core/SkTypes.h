@@ -157,7 +157,9 @@
 #endif
 
 #if defined(SK_BUILD_FOR_LIBFUZZER) || defined(SK_BUILD_FOR_AFL_FUZZ)
+#if !defined(SK_BUILD_FOR_FUZZER)
     #define SK_BUILD_FOR_FUZZER
+#endif
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
