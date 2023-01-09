@@ -1,9 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_inputH4 : packoffset(c0);
-    float4 _10_expectedH4 : packoffset(c1);
-    float4 _10_colorGreen : packoffset(c2);
-    float4 _10_colorRed : packoffset(c3);
+    float4 _10_colorGreen : packoffset(c0);
+    float4 _10_colorRed : packoffset(c1);
 };
 
 
@@ -16,66 +14,66 @@ struct SPIRV_Cross_Output
 
 float4 main(float2 _24)
 {
-    bool4 _42 = bool4(_10_inputH4.x != 0.0f, _10_inputH4.y != 0.0f, _10_inputH4.z != 0.0f, _10_inputH4.w != 0.0f);
-    bool4 inputVal = _42;
-    bool4 _55 = bool4(_10_expectedH4.x != 0.0f, _10_expectedH4.y != 0.0f, _10_expectedH4.z != 0.0f, _10_expectedH4.w != 0.0f);
-    bool4 expected = _55;
-    bool _60 = _55.x;
-    bool _69 = false;
-    if (any(_42.xy) == _60)
+    bool4 _43 = bool4(_10_colorGreen.xxyz.x != 0.0f, _10_colorGreen.xxyz.y != 0.0f, _10_colorGreen.xxyz.z != 0.0f, _10_colorGreen.xxyz.w != 0.0f);
+    bool4 inputVal = _43;
+    bool4 _56 = bool4(_10_colorGreen.xyyw.x != 0.0f, _10_colorGreen.xyyw.y != 0.0f, _10_colorGreen.xyyw.z != 0.0f, _10_colorGreen.xyyw.w != 0.0f);
+    bool4 expected = _56;
+    bool _61 = _56.x;
+    bool _70 = false;
+    if (any(_43.xy) == _61)
     {
-        _69 = any(_42.xyz) == _55.y;
+        _70 = any(_43.xyz) == _56.y;
     }
     else
     {
-        _69 = false;
+        _70 = false;
     }
-    bool _75 = false;
-    if (_69)
+    bool _76 = false;
+    if (_70)
     {
-        _75 = any(_42) == _55.z;
+        _76 = any(_43) == _56.z;
     }
     else
     {
-        _75 = false;
+        _76 = false;
     }
-    bool _79 = false;
-    if (_75)
+    bool _80 = false;
+    if (_76)
     {
-        _79 = false == _60;
+        _80 = false == _61;
     }
     else
     {
-        _79 = false;
+        _80 = false;
     }
-    bool _83 = false;
-    if (_79)
+    bool _84 = false;
+    if (_80)
     {
-        _83 = _55.y;
+        _84 = _56.y;
     }
     else
     {
-        _83 = false;
+        _84 = false;
     }
-    bool _87 = false;
-    if (_83)
+    bool _88 = false;
+    if (_84)
     {
-        _87 = _55.z;
+        _88 = _56.z;
     }
     else
     {
-        _87 = false;
+        _88 = false;
     }
-    float4 _88 = 0.0f.xxxx;
-    if (_87)
+    float4 _89 = 0.0f.xxxx;
+    if (_88)
     {
-        _88 = _10_colorGreen;
+        _89 = _10_colorGreen;
     }
     else
     {
-        _88 = _10_colorRed;
+        _89 = _10_colorRed;
     }
-    return _88;
+    return _89;
 }
 
 void frag_main()

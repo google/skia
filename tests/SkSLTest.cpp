@@ -541,6 +541,8 @@ SKSL_TEST(GPU_ES3,       kNever,      WhileTestCannotBeInlined,                 
 
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicAbsFloat,               "intrinsics/AbsFloat.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicAbsInt,                 "intrinsics/AbsInt.sksl")
+SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicAny,                    "intrinsics/Any.sksl")
+SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicAll,                    "intrinsics/All.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicCeil,                   "intrinsics/Ceil.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicClampInt,               "intrinsics/ClampInt.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicClampUInt,              "intrinsics/ClampUInt.sksl")
@@ -670,7 +672,7 @@ SKSL_TEST(VM + GPU,          kApiLevel_T, SwitchWithFallthrough,           "shar
 SKSL_TEST(VM + GPU,          kApiLevel_T, SwitchWithLoops,                 "shared/SwitchWithLoops.sksl")
 SKSL_TEST(GPU_ES3,           kNever,      SwitchWithLoopsES3,              "shared/SwitchWithLoopsES3.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, SwizzleAsLValue,                 "shared/SwizzleAsLValue.sksl")
-SKSL_TEST(VM + GPU,          kApiLevel_T, SwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
+SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
 SKSL_TEST(GPU_ES3,           kNever,      SwizzleByIndex,                  "shared/SwizzleByIndex.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleConstants,                "shared/SwizzleConstants.sksl")

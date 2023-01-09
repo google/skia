@@ -1,9 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_inputH4 : packoffset(c0);
-    float4 _10_expectedH4 : packoffset(c1);
-    float4 _10_colorGreen : packoffset(c2);
-    float4 _10_colorRed : packoffset(c3);
+    float4 _10_colorGreen : packoffset(c0);
+    float4 _10_colorRed : packoffset(c1);
 };
 
 
@@ -16,66 +14,66 @@ struct SPIRV_Cross_Output
 
 float4 main(float2 _24)
 {
-    bool4 _42 = bool4(_10_inputH4.x != 0.0f, _10_inputH4.y != 0.0f, _10_inputH4.z != 0.0f, _10_inputH4.w != 0.0f);
-    bool4 inputVal = _42;
-    bool4 _55 = bool4(_10_expectedH4.x != 0.0f, _10_expectedH4.y != 0.0f, _10_expectedH4.z != 0.0f, _10_expectedH4.w != 0.0f);
-    bool4 expected = _55;
-    bool _60 = _55.x;
-    bool _69 = false;
-    if (all(_42.xy) == _60)
+    bool4 _43 = bool4(_10_colorRed.xxzw.x != 0.0f, _10_colorRed.xxzw.y != 0.0f, _10_colorRed.xxzw.z != 0.0f, _10_colorRed.xxzw.w != 0.0f);
+    bool4 inputVal = _43;
+    bool4 _56 = bool4(_10_colorRed.xyzz.x != 0.0f, _10_colorRed.xyzz.y != 0.0f, _10_colorRed.xyzz.z != 0.0f, _10_colorRed.xyzz.w != 0.0f);
+    bool4 expected = _56;
+    bool _61 = _56.x;
+    bool _70 = false;
+    if (all(_43.xy) == _61)
     {
-        _69 = all(_42.xyz) == _55.y;
+        _70 = all(_43.xyz) == _56.y;
     }
     else
     {
-        _69 = false;
+        _70 = false;
     }
-    bool _75 = false;
-    if (_69)
+    bool _76 = false;
+    if (_70)
     {
-        _75 = all(_42) == _55.z;
+        _76 = all(_43) == _56.z;
     }
     else
     {
-        _75 = false;
+        _76 = false;
     }
-    bool _78 = false;
-    if (_75)
+    bool _79 = false;
+    if (_76)
     {
-        _78 = _60;
+        _79 = _61;
     }
     else
     {
-        _78 = false;
+        _79 = false;
     }
-    bool _83 = false;
-    if (_78)
+    bool _84 = false;
+    if (_79)
     {
-        _83 = false == _55.y;
+        _84 = false == _56.y;
     }
     else
     {
-        _83 = false;
+        _84 = false;
     }
-    bool _88 = false;
-    if (_83)
+    bool _89 = false;
+    if (_84)
     {
-        _88 = false == _55.z;
+        _89 = false == _56.z;
     }
     else
     {
-        _88 = false;
+        _89 = false;
     }
-    float4 _89 = 0.0f.xxxx;
-    if (_88)
+    float4 _90 = 0.0f.xxxx;
+    if (_89)
     {
-        _89 = _10_colorGreen;
+        _90 = _10_colorGreen;
     }
     else
     {
-        _89 = _10_colorRed;
+        _90 = _10_colorRed;
     }
-    return _89;
+    return _90;
 }
 
 void frag_main()
