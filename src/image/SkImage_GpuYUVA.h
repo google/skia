@@ -60,11 +60,6 @@ private:
                                                                const SkRect*,
                                                                const SkRect*) const override;
 
-#ifdef SK_GRAPHITE_ENABLED
-    sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
-                                      RequiredImageProperties) const override;
-#endif
-
     mutable GrYUVATextureProxies     fYUVAProxies;
 
     // If this is non-null then the planar data should be converted from fFromColorSpace to

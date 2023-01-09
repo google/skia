@@ -40,10 +40,6 @@
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 
-#ifdef SK_GRAPHITE_ENABLED
-#include "src/gpu/graphite/Log.h"
-#endif
-
 #include <cstddef>
 #include <cstring>
 #include <type_traits>
@@ -865,15 +861,6 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Gpu::onAsView(
     }
     return {std::move(view), ct};
 }
-
-#ifdef SK_GRAPHITE_ENABLED
-sk_sp<SkImage> SkImage_Gpu::onMakeTextureImage(skgpu::graphite::Recorder*,
-                                               SkImage::RequiredImageProperties) const {
-    SKGPU_LOG_W("Cannot convert Ganesh-backed image to Graphite");
-    return nullptr;
-}
-#endif
-
 
 std::unique_ptr<GrFragmentProcessor> SkImage_Gpu::onAsFragmentProcessor(
         GrRecordingContext* rContext,

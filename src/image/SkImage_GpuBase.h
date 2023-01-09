@@ -60,7 +60,10 @@ protected:
     sk_sp<GrImageContext> fContext;
 
 private:
-    using INHERITED = SkImage_Base;
+#ifdef SK_GRAPHITE_ENABLED
+    sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
+                                      RequiredImageProperties) const final;
+#endif
 };
 
 #endif
