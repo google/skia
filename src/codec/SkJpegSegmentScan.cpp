@@ -229,6 +229,7 @@ sk_sp<SkData> SkJpegSegmentScan::copyParameters(const Segment& segment,
     auto segmentSignature = SkData::MakeUninitialized(signatureLength);
     if (fStream->read(segmentSignature->writable_data(), segmentSignature->size()) !=
         segmentSignature->size()) {
+        SkCodecPrintf("Failed to read parameters\n");
         return nullptr;
     }
     if (memcmp(segmentSignature->data(), signature, signatureLength) != 0) {
@@ -242,4 +243,20 @@ sk_sp<SkData> SkJpegSegmentScan::copyParameters(const Segment& segment,
     }
 
     return result;
+}
+
+std::unique_ptr<SkStream> SkJpegSegmentScan::getSubsetStream(size_t offset, size_t size) {
+    // Read the image's data. It would be better to fork `stream` and limit its position and size.
+    if (!fStream->seek(fInitialPosition + offset)) {
+        SkCodecPrintf("Failed to seek to subset stream position.\n");
+        return nullptr;
+    }
+
+    sk_sp<SkData> data = SkData::MakeUninitialized(size);
+    if (fStream->read(data->writable_data(), size) != size) {
+        SkCodecPrintf("Failed to read subset stream data.\n");
+        return nullptr;
+    }
+
+    return SkMemoryStream::Make(data);
 }

@@ -38,6 +38,9 @@ static constexpr uint32_t kExifMarker = JPEG_APP0 + 1;
 static constexpr uint32_t kExifHeaderSize = 14;
 constexpr uint8_t kExifSig[] = {'E', 'x', 'i', 'f', '\0'};
 
+static constexpr uint32_t kMpfMarker = JPEG_APP0 + 2;
+static constexpr uint8_t kMpfSig[] = {'M', 'P', 'F', '\0'};
+
 /*
  * Error handling struct
  */

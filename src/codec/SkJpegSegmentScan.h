@@ -58,6 +58,10 @@ public:
                                  const void* signature,
                                  const size_t signatureLength);
 
+    // Return a stream for a subset of the original stream, starting at the specified offset, and
+    // with the specified length.
+    std::unique_ptr<SkStream> getSubsetStream(size_t offset, size_t size);
+
     // The number of bytes in a marker code is two.
     static constexpr size_t kMarkerCodeSize = 2;
 

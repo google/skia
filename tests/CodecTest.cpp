@@ -46,6 +46,7 @@
 #include "tools/ToolUtils.h"
 
 #ifdef SK_CODEC_DECODES_JPEG
+#include "src/codec/SkJpegMultiPicture.h"
 #include "src/codec/SkJpegSegmentScan.h"
 #endif
 
@@ -1998,5 +1999,47 @@ DEF_TEST(Codec_jpegSegmentScan, r) {
         REPORTER_ASSERT(r, rec.testSegmentOffset == segment.offset);
         REPORTER_ASSERT(r, rec.testSegmentParameterLength == segment.parameterLength);
     }
+}
+
+DEF_TEST(Codec_jpegMultiPicture, r) {
+    const char* path = "images/iphone_13_pro.jpeg";
+    auto stream = GetResourceAsStream(path);
+    REPORTER_ASSERT(r, stream);
+
+    auto segmentScan = SkJpegSegmentScan::Create(stream.get(), SkJpegSegmentScan::Options());
+    REPORTER_ASSERT(r, segmentScan);
+
+    // Extract the streams for the MultiPicture images.
+    auto mpStreams = SkJpegExtractMultiPictureStreams(segmentScan.get());
+    REPORTER_ASSERT(r, mpStreams);
+    size_t numberOfImages = mpStreams->images.size();
+
+    // Decode them into bitmaps.
+    std::vector<SkBitmap> bitmaps(numberOfImages);
+    for (size_t i = 0; i < numberOfImages; ++i) {
+        auto imageStream = std::move(mpStreams->images[i].stream);
+        if (i == 0) {
+            REPORTER_ASSERT(r, !imageStream);
+            continue;
+        }
+        REPORTER_ASSERT(r, imageStream);
+
+        std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(imageStream));
+        REPORTER_ASSERT(r, codec);
+
+        SkBitmap bm;
+        bm.allocPixels(codec->getInfo());
+        REPORTER_ASSERT(
+                r, SkCodec::kSuccess == codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes()));
+        bitmaps[i] = bm;
+    }
+
+    // Spot-check the image size and pixels.
+    REPORTER_ASSERT(r, bitmaps[1].dimensions() == SkISize::Make(1512, 2016));
+    REPORTER_ASSERT(r, bitmaps[1].getColor(0, 0) == 0xFF3B3B3B);
+    REPORTER_ASSERT(r, bitmaps[1].getColor(1511, 2015) == 0xFF101010);
+    REPORTER_ASSERT(r, bitmaps[2].dimensions() == SkISize::Make(576, 768));
+    REPORTER_ASSERT(r, bitmaps[2].getColor(0, 0) == 0xFF010101);
+    REPORTER_ASSERT(r, bitmaps[2].getColor(575, 767) == 0xFFB5B5B5);
 }
 #endif

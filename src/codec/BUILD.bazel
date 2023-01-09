@@ -88,6 +88,8 @@ DECODE_JPEG_FILES = [
     "SkJpegDecoderMgr.h",
     "SkJpegUtility.cpp",
     "SkJpegUtility.h",
+    "SkJpegMultiPicture.cpp",
+    "SkJpegMultiPicture.h",
     "SkJpegSegmentScan.cpp",
     "SkJpegSegmentScan.h",
     "SkParseEncodedOrigin.cpp",
