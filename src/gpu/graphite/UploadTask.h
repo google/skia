@@ -38,7 +38,7 @@ class ConditionalUploadContext {
 public:
     virtual ~ConditionalUploadContext() {}
 
-    virtual bool needsUpload(Context*) = 0;
+    virtual bool needsUpload(Context*) const = 0;
 };
 
 /**

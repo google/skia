@@ -239,9 +239,9 @@ DrawAtlas::ErrorCode AtlasManager::addGlyphToAtlas(const SkGlyph& skGlyph,
     return errorCode;
 }
 
-bool AtlasManager::recordUploads(DrawContext* dc) {
+bool AtlasManager::recordUploads(UploadList* ul, bool useCachedUploads) {
     for (int i = 0; i < skgpu::kMaskFormatCount; i++) {
-        if (fAtlases[i] && !fAtlases[i]->recordUploads(dc, fRecorder)) {
+        if (fAtlases[i] && !fAtlases[i]->recordUploads(ul, fRecorder, useCachedUploads)) {
             return false;
         }
     }

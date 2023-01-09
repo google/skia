@@ -256,11 +256,12 @@ public:
             , fPageIndex(0) {}
 
     bool isValid() const {
-        return fGenID != 0 || fPlotIndex != 0 || fPageIndex != 0;
+        return fGenID != AtlasGenerationCounter::kInvalidGeneration ||
+               fPlotIndex != 0 || fPageIndex != 0;
     }
 
     void makeInvalid() {
-        fGenID = 0;
+        fGenID = AtlasGenerationCounter::kInvalidGeneration;
         fPlotIndex = 0;
         fPageIndex = 0;
     }
@@ -439,8 +440,8 @@ public:
     /** plotIndex() is a unique id for the plot relative to the owning GrAtlas and page. */
     uint32_t plotIndex() const { return fPlotIndex; }
     /**
-     * genID() is incremented when the plot is evicted due to a atlas spill. It is used to know
-     * if a particular subimage is still present in the atlas.
+     * genID() is incremented when the plot is evicted due to a atlas spill. It is used to
+     * know if a particular subimage is still present in the atlas.
      */
     uint64_t genID() const { return fGenID; }
     PlotLocator plotLocator() const {
@@ -468,7 +469,7 @@ public:
     void incFlushesSinceLastUsed() { fFlushesSinceLastUse++; }
 
     bool needsUpload() { return !fDirtyRect.isEmpty(); }
-    std::pair<const void*, SkIRect> prepareForUpload();
+    std::pair<const void*, SkIRect> prepareForUpload(bool useCachedUploads);
     void resetRects();
 
     /**
@@ -511,7 +512,8 @@ private:
     const SkIPoint16 fOffset;  // the offset of the plot in the backing texture
     const SkColorType fColorType;
     const size_t fBytesPerPixel;
-    SkIRect fDirtyRect;
+    SkIRect fDirtyRect;  // area in the Plot that needs to be uploaded
+    SkIRect fCachedRect; // area in the Plot that has already been uploaded
     SkDEBUGCODE(bool fDirty);
 };
 

@@ -9,17 +9,20 @@
 
 #include <memory>
 
+#include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/SkColorData.h"
 #include "include/private/SkTPin.h"
+
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandTypes.h"
-#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/UploadTask.h"
 
 namespace skgpu::graphite {
 
@@ -28,6 +31,18 @@ static const constexpr bool kDumpAtlasData = true;
 #else
 static const constexpr bool kDumpAtlasData = false;
 #endif
+
+class PlotUploadContext : public ConditionalUploadContext {
+public:
+    static std::unique_ptr<ConditionalUploadContext> Make() {
+        return std::make_unique<PlotUploadContext>();
+    }
+    ~PlotUploadContext() override {}
+
+    bool needsUpload(Context*) const override { return true; }
+private:
+    // useful stuff
+};
 
 #ifdef SK_DEBUG
 void DrawAtlas::validate(const AtlasLocator& atlasLocator) const {
@@ -125,25 +140,32 @@ bool DrawAtlas::addToPage(unsigned int pageIdx, int width, int height, const voi
     return false;
 }
 
-bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
+bool DrawAtlas::recordUploads(UploadList* ul, Recorder* recorder, bool useCachedUploads) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     for (uint32_t pageIdx = 0; pageIdx < fNumActivePages; ++pageIdx) {
         PlotList::Iter plotIter;
         plotIter.init(fPages[pageIdx].fPlotList, PlotList::Iter::kHead_IterStart);
         for (Plot* plot = plotIter.get(); plot; plot = plotIter.next()) {
-            if (plot->needsUpload()) {
+            if (useCachedUploads || plot->needsUpload()) {
                 TextureProxy* proxy = fProxies[pageIdx].get();
                 SkASSERT(proxy);
 
                 const void* dataPtr;
                 SkIRect dstRect;
-                std::tie(dataPtr, dstRect) = plot->prepareForUpload();
+                std::tie(dataPtr, dstRect) = plot->prepareForUpload(useCachedUploads);
+                if (dstRect.isEmpty()) {
+                    continue;
+                }
 
                 std::vector<MipLevel> levels;
                 levels.push_back({dataPtr, fBytesPerPixel*fPlotWidth});
 
-                if (!dc->recordUpload(recorder, sk_ref_sp(proxy), fColorType, levels, dstRect,
-                                      nullptr)) {
+                auto uploadContext = PlotUploadContext::Make();
+
+                // Src and dst colorInfo are the same
+                SkColorInfo colorInfo(fColorType, kUnknown_SkAlphaType, nullptr);
+                if (!ul->recordUpload(recorder, sk_ref_sp(proxy), colorInfo, colorInfo, levels,
+                                      dstRect, std::move(uploadContext))) {
                     return false;
                 }
             }

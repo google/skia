@@ -20,8 +20,8 @@ class SkGlyph;
 
 namespace skgpu::graphite {
 
-class DrawContext;
 class Recorder;
+class UploadList;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /** The AtlasManager manages the lifetime of and access to DrawAtlases.
@@ -67,7 +67,7 @@ public:
         this->getAtlas(format)->setLastUseTokenBulk(updater, token);
     }
 
-    bool recordUploads(DrawContext* dc);
+    bool recordUploads(UploadList*, bool useCachedUploads);
 
     void evictAtlases() {
         for (int i = 0; i < kMaskFormatCount; ++i) {

@@ -19,8 +19,8 @@
 
 namespace skgpu::graphite {
 
-class DrawContext;
 class Recorder;
+class UploadList;
 class TextureProxy;
 
 /**
@@ -76,8 +76,6 @@ public:
                                            std::string_view label);
 
     /**
-     * TODO: the process described here is tentative, and this comment revised once locked down.
-     *
      * Adds a width x height subimage to the atlas. Upon success it returns 'kSucceeded' and returns
      * the ID and the subimage's coordinates in the backing texture. 'kTryAgain' is returned if
      * the subimage cannot fit in the atlas without overwriting texels that will be read in the
@@ -88,7 +86,9 @@ public:
      *
      * This tracking does not generate UploadTasks per se. Instead, when the RenderPassTask is
      * ready to be snapped, recordUploads() will be called by the Device and that will generate the
-     * necessary UploadTasks.
+     * necessary UploadTasks. If the useCachedUploads argument in recordUploads() is true, this
+     * will generate uploads for the entire area of each Plot that has changed since the last
+     * eviction. Otherwise it will only generate uploads for newly added changes.
      *
      * NOTE: When a draw that reads from the atlas is added to the DrawList, the client using this
      * DrawAtlas must immediately call 'setLastUseToken' with the currentToken from the Recorder,
@@ -103,7 +103,7 @@ public:
     };
 
     ErrorCode addToAtlas(Recorder*, int width, int height, const void* image, AtlasLocator*);
-    bool recordUploads(DrawContext*, Recorder*);
+    bool recordUploads(UploadList*, Recorder*, bool useCachedUploads);
 
     const sk_sp<TextureProxy>* getProxies() const { return fProxies; }
 

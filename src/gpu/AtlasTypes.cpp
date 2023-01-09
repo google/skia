@@ -40,6 +40,7 @@ Plot::Plot(int pageIndex, int plotIndex, AtlasGenerationCounter* generationCount
     // The padding for faster uploads only works for 1, 2 and 4 byte texels
     SkASSERT(fBytesPerPixel != 3 && fBytesPerPixel <= 4);
     fDirtyRect.setEmpty();
+    fCachedRect.setEmpty();
 }
 
 Plot::~Plot() {
@@ -91,24 +92,41 @@ bool Plot::addSubImage(int width, int height, const void* image, AtlasLocator* a
     return true;
 }
 
-std::pair<const void*, SkIRect> Plot::prepareForUpload() {
-    // We should only be issuing uploads if we are in fact dirty
-    SkASSERT(fDirty && fData);
+std::pair<const void*, SkIRect> Plot::prepareForUpload(bool useCachedUploads) {
+    // We should only be issuing uploads if we are dirty or uploading the cached rect
+    SkASSERT(fDirty || useCachedUploads);
+    if (!fData) {
+        return {nullptr, {}};
+    }
     size_t rowBytes = fBytesPerPixel * fWidth;
-    const unsigned char* dataPtr = fData;
-    // Clamp to 4-byte aligned boundaries
-    unsigned int clearBits = 0x3 / fBytesPerPixel;
-    fDirtyRect.fLeft &= ~clearBits;
-    fDirtyRect.fRight += clearBits;
-    fDirtyRect.fRight &= ~clearBits;
-    SkASSERT(fDirtyRect.fRight <= fWidth);
-    // Set up dataPtr
-    dataPtr += rowBytes * fDirtyRect.fTop;
-    dataPtr += fBytesPerPixel * fDirtyRect.fLeft;
+    const unsigned char* dataPtr;
+    SkIRect offsetRect;
+    if (!fDirtyRect.isEmpty()) {
+        // Clamp to 4-byte aligned boundaries
+        unsigned int clearBits = 0x3 / fBytesPerPixel;
+        fDirtyRect.fLeft &= ~clearBits;
+        fDirtyRect.fRight += clearBits;
+        fDirtyRect.fRight &= ~clearBits;
+        SkASSERT(fDirtyRect.fRight <= fWidth);
+        if (!useCachedUploads) {
+            // Set up dataPtr
+            dataPtr = fData;
+            dataPtr += rowBytes * fDirtyRect.fTop;
+            dataPtr += fBytesPerPixel * fDirtyRect.fLeft;
+            offsetRect = fDirtyRect.makeOffset(fOffset.fX, fOffset.fY);
+        }
+        fCachedRect.join(fDirtyRect);
+        fDirtyRect.setEmpty();
+        SkDEBUGCODE(fDirty = false);
+    }
 
-    SkIRect offsetRect = fDirtyRect.makeOffset(fOffset.fX, fOffset.fY);
-    fDirtyRect.setEmpty();
-    SkDEBUGCODE(fDirty = false;)
+    if (useCachedUploads) {
+        // use the entire cached rect rather than just the dirty rect
+        dataPtr = fData;
+        dataPtr += rowBytes * fCachedRect.fTop;
+        dataPtr += fBytesPerPixel * fCachedRect.fLeft;
+        offsetRect = fCachedRect.makeOffset(fOffset.fX, fOffset.fY);
+    }
 
     return { dataPtr, offsetRect };
 }
@@ -126,6 +144,7 @@ void Plot::resetRects() {
     }
 
     fDirtyRect.setEmpty();
+    fCachedRect.setEmpty();
     SkDEBUGCODE(fDirty = false;)
 }
 

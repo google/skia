@@ -178,7 +178,15 @@ std::unique_ptr<Recording> Recorder::snap() {
     fGraph = std::make_unique<TaskGraph>();
     fRuntimeEffectDict->reset();
     fTextureDataCache = std::make_unique<TextureDataCache>();
-    fAtlasManager->evictAtlases();
+
+    // inject an initial task to maintain atlas state for next Recording
+    auto uploads = std::make_unique<UploadList>();
+    fAtlasManager->recordUploads(uploads.get(), /*useCachedUploads=*/true);
+    if (uploads->size() > 0) {
+        sk_sp<Task> uploadTask = UploadTask::Make(uploads.get());
+        this->priv().add(std::move(uploadTask));
+    }
+
     return recording;
 }
 

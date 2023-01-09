@@ -28,6 +28,7 @@
 #include "src/gpu/graphite/UploadTask.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/Geometry.h"
+#include "src/gpu/graphite/text/AtlasManager.h"
 
 #ifdef SK_ENABLE_PIET_GPU
 #include "src/gpu/graphite/PietRenderTask.h"
@@ -102,25 +103,8 @@ void DrawContext::recordDraw(const Renderer* renderer,
     fPendingDraws->recordDraw(renderer, localToDevice, geometry, clip, ordering, paint, stroke);
 }
 
-bool DrawContext::recordUpload(Recorder* recorder,
-                               sk_sp<TextureProxy> targetProxy,
-                               SkColorType colorType,
-                               const std::vector<MipLevel>& levels,
-                               const SkIRect& dstRect,
-                               std::unique_ptr<ConditionalUploadContext> condContext) {
-    if (!recorder->priv().caps()->areColorTypeAndTextureInfoCompatible(
-                colorType, targetProxy->textureInfo())) {
-        return false;
-    }
-    // Src and dst colorInfo are the same
-    SkColorInfo colorInfo(colorType, kUnknown_SkAlphaType, nullptr);
-
-    return this->recordUpload(recorder,
-                              std::move(targetProxy),
-                              colorInfo, colorInfo,
-                              levels,
-                              dstRect,
-                              std::move(condContext));
+bool DrawContext::recordTextUploads(AtlasManager* am) {
+    return am->recordUploads(fPendingUploads.get(), /*useCachedUploads=*/false);
 }
 
 bool DrawContext::recordUpload(Recorder* recorder,
