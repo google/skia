@@ -493,12 +493,10 @@ DEF_TEST(RasterPipelineBuilderPushZeros, r) {
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/10);
     check(r, *program,
-R"(    1. zero_slot_unmasked             $0 = 0
-    2. zero_2_slots_unmasked          $1..2 = 0
-    3. zero_3_slots_unmasked          $3..5 = 0
-    4. zero_4_slots_unmasked          $6..9 = 0
-    5. zero_4_slots_unmasked          $10..13 = 0
-    6. zero_slot_unmasked             $14 = 0
+R"(    1. zero_4_slots_unmasked          $0..3 = 0
+    2. zero_4_slots_unmasked          $4..7 = 0
+    3. zero_4_slots_unmasked          $8..11 = 0
+    4. zero_3_slots_unmasked          $12..14 = 0
 )");
 }
 
