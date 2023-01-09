@@ -496,12 +496,32 @@ time.sleep(60)
 
 
   def cleanup_steps(self):
+    self.m.run(self.m.step,
+                'adb reboot device',
+                cmd=[self.ADB_BINARY, 'reboot'],
+                infra_step=True, timeout=30, abort_on_failure=False,
+                fail_build_on_failure=False)
+    self.m.run(self.m.step,
+                'wait for device after rebooting',
+                cmd=[
+                    self.ADB_BINARY, 'wait-for-device', 'shell',
+                    # Wait until the boot is actually complete.
+                    # https://android.stackexchange.com/a/164050
+                    'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done',
+                ],
+                timeout=180, abort_on_failure=False,
+                fail_build_on_failure=False)
+
     if 'ASAN' in self.m.vars.extra_tokens:
       self._ever_ran_adb = True
       # Remove ASAN.
       self.m.run(self.m.step,
                  'wait for device before uninstalling ASAN',
-                 cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
+                 cmd=[self.ADB_BINARY, 'wait-for-device', 'shell',
+                 # Wait until the boot is actually complete.
+                 # https://android.stackexchange.com/a/164050
+                 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done',
+                 ], infra_step=True,
                  timeout=180, abort_on_failure=False,
                  fail_build_on_failure=False)
       self.m.run(self.m.step, 'uninstall ASAN',

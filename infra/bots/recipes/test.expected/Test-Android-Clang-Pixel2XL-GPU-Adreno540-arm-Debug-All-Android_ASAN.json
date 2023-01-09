@@ -1242,7 +1242,36 @@
   {
     "cmd": [
       "/usr/bin/adb.1.0.35",
-      "wait-for-device"
+      "reboot"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "adb reboot device",
+    "timeout": 30
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "wait-for-device",
+      "shell",
+      "while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "name": "wait for device after rebooting",
+    "timeout": 180
+  },
+  {
+    "cmd": [
+      "/usr/bin/adb.1.0.35",
+      "wait-for-device",
+      "shell",
+      "while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
