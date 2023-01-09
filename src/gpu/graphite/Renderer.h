@@ -85,7 +85,7 @@ public:
     // NOTE: The above contract is mainly so that the entire SkSL program can be created by just str
     // concatenating struct definitions generated from the RenderStep and paint Combination
     // and then including the function bodies returned here.
-    virtual const char* vertexSkSL() const = 0;
+    virtual std::string vertexSkSL() const = 0;
 
     // Emits code to set up textures and samplers. Should only be defined if hasTextures is true.
     virtual std::string texturesAndSamplersSkSL(const ResourceBindingRequirements&,

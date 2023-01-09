@@ -18,7 +18,7 @@ public:
 
     ~BitmapTextRenderStep() override;
 
-    const char* vertexSkSL() const override;
+    std::string vertexSkSL() const override;
     std::string texturesAndSamplersSkSL(const ResourceBindingRequirements&,
                                         int startBinding) const override;
     const char* fragmentCoverageSkSL() const override;

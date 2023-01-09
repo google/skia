@@ -32,7 +32,7 @@ MiddleOutFanRenderStep::MiddleOutFanRenderStep(bool evenOdd)
 
 MiddleOutFanRenderStep::~MiddleOutFanRenderStep() {}
 
-const char* MiddleOutFanRenderStep::vertexSkSL() const {
+std::string MiddleOutFanRenderStep::vertexSkSL() const {
     return R"(
         float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
         devPosition.z = depth;

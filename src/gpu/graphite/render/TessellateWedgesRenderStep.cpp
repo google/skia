@@ -73,7 +73,7 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(std::string_view variantN
 
 TessellateWedgesRenderStep::~TessellateWedgesRenderStep() {}
 
-const char* TessellateWedgesRenderStep::vertexSkSL() const {
+std::string TessellateWedgesRenderStep::vertexSkSL() const {
     return R"(
         float2 localCoord;
         if (resolveLevel_and_idx.x < 0) {

@@ -20,7 +20,7 @@ public:
 
     ~AnalyticRRectRenderStep() override;
 
-    const char* vertexSkSL() const override;
+    std::string vertexSkSL() const override;
     const char* fragmentCoverageSkSL() const override;
 
     void writeVertices(DrawWriter*, const DrawParams&, int ssboIndex) const override;

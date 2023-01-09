@@ -443,7 +443,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
 
 AnalyticRRectRenderStep::~AnalyticRRectRenderStep() {}
 
-const char* AnalyticRRectRenderStep::vertexSkSL() const {
+std::string AnalyticRRectRenderStep::vertexSkSL() const {
     // TODO: Move this into a module
     return R"(
         const float kMiterScale = 1.0;

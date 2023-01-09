@@ -33,7 +33,7 @@ CoverBoundsRenderStep::CoverBoundsRenderStep(bool inverseFill)
 
 CoverBoundsRenderStep::~CoverBoundsRenderStep() {}
 
-const char* CoverBoundsRenderStep::vertexSkSL() const {
+std::string CoverBoundsRenderStep::vertexSkSL() const {
     return R"(
         float3x3 matrix = float3x3(mat0, mat1, mat2);
         float2 corner = float2(float(sk_VertexID / 2), float(sk_VertexID % 2));

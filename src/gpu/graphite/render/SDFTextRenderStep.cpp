@@ -54,7 +54,7 @@ SDFTextRenderStep::SDFTextRenderStep(bool isA8)
 
 SDFTextRenderStep::~SDFTextRenderStep() {}
 
-const char* SDFTextRenderStep::vertexSkSL() const {
+std::string SDFTextRenderStep::vertexSkSL() const {
     return R"(
         float2 baseCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));
         baseCoords.xy *= float2(size);

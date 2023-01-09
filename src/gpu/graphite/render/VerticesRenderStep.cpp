@@ -84,7 +84,7 @@ VerticesRenderStep::VerticesRenderStep(PrimitiveType type, bool hasColor, bool h
 
 VerticesRenderStep::~VerticesRenderStep() {}
 
-const char* VerticesRenderStep::vertexSkSL() const {
+std::string VerticesRenderStep::vertexSkSL() const {
     if (fHasColor && fHasTexCoords) {
         return R"(
             color = half4(vertColor.bgr * vertColor.a, vertColor.a);

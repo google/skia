@@ -67,7 +67,7 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd,
 
 TessellateCurvesRenderStep::~TessellateCurvesRenderStep() {}
 
-const char* TessellateCurvesRenderStep::vertexSkSL() const {
+std::string TessellateCurvesRenderStep::vertexSkSL() const {
     return R"(
         // TODO: Approximate perspective scaling to match how PatchWriter is configured
         // (or provide explicit tessellation level in instance data instead of replicating work).

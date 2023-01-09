@@ -53,7 +53,7 @@ BitmapTextRenderStep::BitmapTextRenderStep()
 
 BitmapTextRenderStep::~BitmapTextRenderStep() {}
 
-const char* BitmapTextRenderStep::vertexSkSL() const {
+std::string BitmapTextRenderStep::vertexSkSL() const {
     return R"(
         float2 baseCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));
         baseCoords.xy *= float2(size);

@@ -66,7 +66,7 @@ TessellateStrokesRenderStep::TessellateStrokesRenderStep()
 
 TessellateStrokesRenderStep::~TessellateStrokesRenderStep() {}
 
-const char* TessellateStrokesRenderStep::vertexSkSL() const {
+std::string TessellateStrokesRenderStep::vertexSkSL() const {
     // TODO: Assumes vertex ID support for now, max edges must equal
     // skgpu::tess::FixedCountStrokes::kMaxEdges -> (2^14 - 1) -> 16383
     return R"(
