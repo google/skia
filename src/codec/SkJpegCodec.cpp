@@ -47,19 +47,14 @@ extern "C" {
 }
 
 bool SkJpegCodec::IsJpeg(const void* buffer, size_t bytesRead) {
-    constexpr uint8_t jpegSig[] = { 0xFF, 0xD8, 0xFF };
-    return bytesRead >= 3 && !memcmp(buffer, jpegSig, sizeof(jpegSig));
+    return bytesRead >= sizeof(kJpegSig) && !memcmp(buffer, kJpegSig, sizeof(kJpegSig));
 }
-
-const uint32_t kExifHeaderSize = 14;
-const uint32_t kExifMarker = JPEG_APP0 + 1;
 
 static bool is_orientation_marker(jpeg_marker_struct* marker, SkEncodedOrigin* orientation) {
     if (kExifMarker != marker->marker || marker->data_length < kExifHeaderSize) {
         return false;
     }
 
-    constexpr uint8_t kExifSig[] { 'E', 'x', 'i', 'f', '\0' };
     if (0 != memcmp(marker->data, kExifSig, sizeof(kExifSig))) {
         return false;
     }
@@ -160,22 +155,27 @@ static std::unique_ptr<SkEncodedInfo::ICCProfile> read_color_profile(jpeg_decomp
 }
 
 /*
- * Extract XMP metadata. The resulting memory directly references the markers the
- * provided jpeg_decompress_struct.
+ * Helper function to extract XMP and MPF metadata. Searches for a matching
+ * marker that begins with the specified signature, and returns an SkData that
+ * directly references the remainder of the segment (after the signature).
  */
-sk_sp<const SkData> read_xmp_metadata(jpeg_decompress_struct* dinfo) {
-    constexpr uint32_t kXMPMarker = kExifMarker;
-    constexpr uint8_t kXMPSig[] = {'h', 't', 't', 'p', ':', '/', '/', 'n', 's', '.',
-                                   'a', 'd', 'o', 'b', 'e', '.', 'c', 'o', 'm', '/',
-                                   'x', 'a', 'p', '/', '1', '.', '0', '/', 0x00};
+
+sk_sp<const SkData> read_metadata_marker(jpeg_decompress_struct* dinfo,
+                                         const uint32_t target_marker,
+                                         const uint8_t* signature,
+                                         size_t signature_size) {
     for (jpeg_marker_struct* marker = dinfo->marker_list; marker; marker = marker->next) {
-        if (kXMPMarker == marker->marker && marker->data_length > sizeof(kXMPSig) &&
-            !memcmp(marker->data, kXMPSig, sizeof(kXMPSig))) {
-            return SkData::MakeWithoutCopy(marker->data + sizeof(kXMPSig),
-                                           marker->data_length - sizeof(kXMPSig));
+        if (target_marker == marker->marker && marker->data_length > signature_size &&
+            !memcmp(marker->data, signature, signature_size)) {
+            return SkData::MakeWithoutCopy(marker->data + signature_size,
+                                           marker->data_length - signature_size);
         }
     }
     return nullptr;
+}
+
+sk_sp<const SkData> read_xmp_metadata(jpeg_decompress_struct* dinfo) {
+    return read_metadata_marker(dinfo, kXMPMarker, kXMPSig, sizeof(kXMPSig));
 }
 
 SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,

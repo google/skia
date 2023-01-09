@@ -21,11 +21,22 @@ extern "C" {
     #include "jerror.h"
 }
 
+static constexpr uint8_t kJpegSig[] = {0xFF, 0xD8, 0xFF};
+
 static constexpr uint32_t kICCMarker = JPEG_APP0 + 2;
 static constexpr uint32_t kICCMarkerHeaderSize = 14;
 static constexpr uint8_t kICCSig[] = {
         'I', 'C', 'C', '_', 'P', 'R', 'O', 'F', 'I', 'L', 'E', '\0',
 };
+
+static constexpr uint32_t kXMPMarker = JPEG_APP0 + 1;
+static constexpr uint8_t kXMPSig[] = {'h', 't', 't', 'p', ':', '/', '/', 'n', 's', '.',
+                                      'a', 'd', 'o', 'b', 'e', '.', 'c', 'o', 'm', '/',
+                                      'x', 'a', 'p', '/', '1', '.', '0', '/', '\0'};
+
+static constexpr uint32_t kExifMarker = JPEG_APP0 + 1;
+static constexpr uint32_t kExifHeaderSize = 14;
+constexpr uint8_t kExifSig[] = {'E', 'x', 'i', 'f', '\0'};
 
 /*
  * Error handling struct
