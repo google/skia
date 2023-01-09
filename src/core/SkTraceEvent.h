@@ -14,6 +14,11 @@
 #include "src/core/SkTraceEventCommon.h"
 #include <atomic>
 
+#if defined(SK_ANDROID_FRAMEWORK_USE_PERFETTO)
+    #include <string>
+    #include <utility>
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation specific tracing API definitions.
 
@@ -24,11 +29,48 @@
     #define TRACE_FUNC __PRETTY_FUNCTION__
 #endif
 
-// By default, const char* argument values are assumed to have long-lived scope
-// and will not be copied. Use this macro to force a const char* to be copied.
-#define TRACE_STR_COPY(str) \
-    skia_internal::TraceStringWithCopy(str)
 
+#if defined(SK_ANDROID_FRAMEWORK_USE_PERFETTO)
+    // By default, const char* argument values are assumed to have long-lived scope
+    // and will not be copied. Use this macro to force a const char* to be copied.
+    //
+    // TRACE_STR_COPY should be used with short-lived strings that should be copied immediately.
+    // TRACE_STR_STATIC should be used with pointers to string literals with process lifetime.
+    // Neither should be used for string literals known at compile time.
+    //
+    // E.g. TRACE_EVENT0("skia", TRACE_STR_COPY(something.c_str()));
+    #define TRACE_STR_COPY(str) (::perfetto::DynamicString{str})
+
+    // Allows callers to pass static strings that aren't known at compile time to trace functions.
+    //
+    // TRACE_STR_COPY should be used with short-lived strings that should be copied immediately.
+    // TRACE_STR_STATIC should be used with pointers to string literals with process lifetime.
+    // Neither should be used for string literals known at compile time.
+    //
+    // E.g. TRACE_EVENT0("skia", TRACE_STR_STATIC(this->name()));
+    // No-op when Perfetto is disabled, or outside of Android framework.
+    #define TRACE_STR_STATIC(str) (::perfetto::StaticString{str})
+#else // !SK_ANDROID_FRAMEWORK_USE_PERFETTO
+    // By default, const char* argument values are assumed to have long-lived scope
+    // and will not be copied. Use this macro to force a const char* to be copied.
+    //
+    // TRACE_STR_COPY should be used with short-lived strings that should be copied immediately.
+    // TRACE_STR_STATIC should be used with pointers to string literals with process lifetime.
+    // Neither should be used for string literals known at compile time.
+    //
+    // E.g. TRACE_EVENT0("skia", TRACE_STR_COPY(something.c_str()));
+    #define TRACE_STR_COPY(str) (::skia_internal::TraceStringWithCopy(str))
+
+    // Allows callers to pass static strings that aren't known at compile time to trace functions.
+    //
+    // TRACE_STR_COPY should be used with short-lived strings that should be copied immediately.
+    // TRACE_STR_STATIC should be used with pointers to string literals with process lifetime.
+    // Neither should be used for string literals known at compile time.
+    //
+    // E.g. TRACE_EVENT0("skia", TRACE_STR_STATIC(this->name()));
+    // No-op when Perfetto is disabled, or outside of Android framework.
+    #define TRACE_STR_STATIC(str) (str)
+#endif // SK_ANDROID_FRAMEWORK_USE_PERFETTO
 
 #define INTERNAL_TRACE_EVENT_CATEGORY_GROUP_ENABLED_FOR_RECORDING_MODE() \
     *INTERNAL_TRACE_EVENT_UID(category_group_enabled) & \
@@ -70,11 +112,15 @@
 #define TRACE_EVENT_API_UPDATE_TRACE_EVENT_DURATION \
     SkEventTracer::GetInstance()->updateTraceEventDuration
 
-// Start writing to a new trace output section (file, etc.).
-// Accepts a label for the new section.
-// void TRACE_EVENT_API_NEW_TRACE_SECTION(const char* name)
-#define TRACE_EVENT_API_NEW_TRACE_SECTION \
-    SkEventTracer::GetInstance()->newTracingSection
+#ifdef SK_ANDROID_FRAMEWORK_USE_PERFETTO
+    #define TRACE_EVENT_API_NEW_TRACE_SECTION(...) do {} while (0)
+#else
+    // Start writing to a new trace output section (file, etc.).
+    // Accepts a label for the new section.
+    // void TRACE_EVENT_API_NEW_TRACE_SECTION(const char* name)
+    #define TRACE_EVENT_API_NEW_TRACE_SECTION \
+        SkEventTracer::GetInstance()->newTracingSection
+#endif
 
 // Defines visibility for classes in trace_event.h
 #define TRACE_EVENT_API_CLASS_EXPORT SK_API

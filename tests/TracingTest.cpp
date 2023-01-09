@@ -58,6 +58,11 @@ struct TracingCircle : public TracingShape {
     SkString toString() override {
         return SkStringPrintf("Circle(%f, %f, %f)", fCenter.fX, fCenter.fY, fRadius);
     }
+#if defined(SK_ANDROID_FRAMEWORK_USE_PERFETTO)
+    void WriteIntoTrace(::perfetto::TracedValue context) {
+        std::move(context).WriteString(toString().c_str());
+    }
+#endif
 
     SkPoint fCenter;
     SkScalar fRadius;
