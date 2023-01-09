@@ -8,7 +8,7 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLString.h"
 #include "include/private/base/SkAssert.h"
-#include "include/private/base/SkStringView.h"
+#include "src/base/SkStringView.h"
 
 #include <cerrno>
 #include <cmath>

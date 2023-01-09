@@ -7,8 +7,8 @@
 
 #include "include/sksl/SkSLErrorReporter.h"
 
-#include "include/private/base/SkStringView.h"
 #include "include/sksl/SkSLPosition.h"
+#include "src/base/SkStringView.h"
 #include "src/sksl/SkSLCompiler.h"
 
 namespace SkSL {

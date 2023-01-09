@@ -28,6 +28,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//include/private/base:shared_gpu_private_hdrs",
 				"//include/private/chromium:private_hdrs",
 				"//include/private/chromium:shared_private_hdrs",
+				"//src/base:private_hdrs",
 				"//src/core:core_hdrs",
 				"//src/core:core_skslc_hdrs",
 				"//src/core:core_skslc_srcs",

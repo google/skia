@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkStringView.h"
+#include "src/base/SkStringView.h"
 #include "tools/skslc/ProcessWorklist.h"
 
 #include <algorithm>

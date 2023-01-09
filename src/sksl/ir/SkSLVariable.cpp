@@ -9,8 +9,8 @@
 
 #include "include/private/SkSLIRNode.h"
 #include "include/private/SkSLLayout.h"
-#include "include/private/base/SkStringView.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "src/base/SkStringView.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLMangler.h"

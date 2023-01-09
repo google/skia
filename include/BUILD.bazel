@@ -110,7 +110,6 @@ generate_cpp_files_for_headers(
         "include/private/base/SkMutex.h",
         "include/private/base/SkOnce.h",
         "include/private/base/SkSemaphore.h",
-        "include/private/base/SkStringView.h",
         "include/private/base/SkTFitsIn.h",
         "include/private/base/SkThreadAnnotations.h",
         "include/private/base/SkThreadID.h",

@@ -25,7 +25,6 @@ skia_filegroup(
         "SkMutex.h",
         "SkOnce.h",
         "SkSemaphore.h",
-        "SkStringView.h",
         "SkTFitsIn.h",
         "SkThreadAnnotations.h",
         "SkThreadID.h",

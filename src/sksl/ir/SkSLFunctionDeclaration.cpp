@@ -14,7 +14,7 @@
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLString.h"
-#include "include/private/base/SkStringView.h"
+#include "src/base/SkStringView.h"
 #include "include/private/base/SkTo.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
