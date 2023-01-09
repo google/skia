@@ -27,6 +27,7 @@
 #include "src/sksl/ir/SkSLBreakStatement.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -176,6 +177,7 @@ public:
                                             const Expression& right);
     [[nodiscard]] bool pushConstructorCast(const AnyConstructor& c);
     [[nodiscard]] bool pushConstructorCompound(const ConstructorCompound& c);
+    [[nodiscard]] bool pushConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
     [[nodiscard]] bool pushConstructorSplat(const ConstructorSplat& c);
     [[nodiscard]] bool pushExpression(const Expression& e, bool usesResult = true);
     [[nodiscard]] bool pushFunctionCall(const FunctionCall& e);
@@ -818,6 +820,9 @@ bool Generator::pushExpression(const Expression& e, bool usesResult) {
         case Expression::Kind::kConstructorScalarCast:
             return this->pushConstructorCast(e.asAnyConstructor());
 
+        case Expression::Kind::kConstructorDiagonalMatrix:
+            return this->pushConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
+
         case Expression::Kind::kConstructorSplat:
             return this->pushConstructorSplat(e.as<ConstructorSplat>());
 
@@ -1155,6 +1160,30 @@ bool Generator::pushConstructorCast(const AnyConstructor& c) {
     SkDEBUGFAILF("unexpected cast from %s to %s",
                  c.type().description().c_str(), inner.type().description().c_str());
     return unsupported();
+}
+
+bool Generator::pushConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c) {
+    if (!this->pushExpression(*c.argument())) {
+        return unsupported();
+    }
+
+    const int slotsPerElement = 1; // matrices are composed of scalars
+    int distanceFromStackTop = 0;
+    for (int col = 0; col < c.type().columns(); ++col) {
+        // Skip position (0,0); we've pushed it already.
+        int startingRow = (col == 0) ? 1 : 0;
+        for (int row = startingRow; row < c.type().rows(); ++row) {
+            if (col == row) {
+                fBuilder.push_clone(slotsPerElement, distanceFromStackTop);
+            } else {
+                fBuilder.push_zeros(slotsPerElement);
+            }
+
+            distanceFromStackTop += slotsPerElement;
+        }
+    }
+
+    return true;
 }
 
 bool Generator::pushConstructorSplat(const ConstructorSplat& c) {

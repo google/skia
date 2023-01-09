@@ -86,7 +86,7 @@ static constexpr bool is_gpu(int flags) {
 }
 
 static constexpr bool is_strict_es2(int flags) {
-    return !(flags & SkSLTestFlags::GPU_ES3);
+    return !(flags & (SkSLTestFlags::GPU_ES3 | SkSLTestFlags::RP));
 }
 
 struct UniformData {
@@ -488,7 +488,7 @@ SKSL_TEST(RP + GPU_ES3,  kNever,      IntFoldingES3,                   "folding/
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, FloatFolding,                    "folding/FloatFolding.rts")
 SKSL_TEST(VM + GPU,      kApiLevel_T, MatrixFoldingES2,                "folding/MatrixFoldingES2.rts")
 SKSL_TEST(RP + GPU_ES3,  kNever,      MatrixFoldingES3,                "folding/MatrixFoldingES3.sksl")
-SKSL_TEST(VM + GPU,      kApiLevel_T, MatrixNoOpFolding,               "folding/MatrixNoOpFolding.rts")
+SKSL_TEST(RP + VM + GPU, kApiLevel_T, MatrixNoOpFolding,               "folding/MatrixNoOpFolding.rts")
 SKSL_TEST(VM + GPU,      kApiLevel_T, MatrixScalarNoOpFolding,         "folding/MatrixScalarNoOpFolding.rts")
 SKSL_TEST(VM + GPU,      kApiLevel_T, MatrixVectorNoOpFolding,         "folding/MatrixVectorNoOpFolding.rts")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, Negation,                        "folding/Negation.rts")
@@ -621,8 +621,8 @@ SKSL_TEST(RP + VM + GPU,     kApiLevel_T, EmptyBlocksES2,                  "shar
 SKSL_TEST(GPU_ES3,           kNever,      EmptyBlocksES3,                  "shared/EmptyBlocksES3.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, ForLoopControlFlow,              "shared/ForLoopControlFlow.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, FunctionAnonymousParameters,     "shared/FunctionAnonymousParameters.sksl")
-SKSL_TEST(VM + GPU,          kApiLevel_T, FunctionArgTypeMatch,            "shared/FunctionArgTypeMatch.sksl")
-SKSL_TEST(VM + GPU,          kApiLevel_T, FunctionReturnTypeMatch,         "shared/FunctionReturnTypeMatch.sksl")
+SKSL_TEST(RP + VM + GPU,     kApiLevel_T, FunctionArgTypeMatch,            "shared/FunctionArgTypeMatch.sksl")
+SKSL_TEST(RP + VM + GPU,     kApiLevel_T, FunctionReturnTypeMatch,         "shared/FunctionReturnTypeMatch.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, Functions,                       "shared/Functions.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, FunctionPrototype,               "shared/FunctionPrototype.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, GeometricIntrinsics,             "shared/GeometricIntrinsics.sksl")
@@ -634,11 +634,11 @@ SKSL_TEST(VM + GPU,          kApiLevel_T, InoutParamsAreDistinct,          "shar
 SKSL_TEST(GPU_ES3,           kApiLevel_T, IntegerDivisionES3,              "shared/IntegerDivisionES3.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, Matrices,                        "shared/Matrices.sksl")
 SKSL_TEST(GPU_ES3,           kNever,      MatricesNonsquare,               "shared/MatricesNonsquare.sksl")
-// TODO(skia:12443) These tests actually don't work on MANY devices. The GLSL SkQP suite
-// does a terrible job of enforcing this rule. We still test the ES2 variant on CPU.
+// TODO(skia:12443) The MatrixConstructors tests actually don't work on MANY devices. The GLSL SkQP
+// suite does a terrible job of enforcing this rule. We still test the ES2 variant on CPU.
 SKSL_TEST(RP + VM,           kNever,      MatrixConstructorsES2,           "shared/MatrixConstructorsES2.sksl")
-// SKSL_TEST(GPU_ES3,        kNever,      MatrixConstructorsES3,           "shared/MatrixConstructorsES3.sksl")
-SKSL_TEST(VM + GPU,          kApiLevel_T, MatrixEquality,                  "shared/MatrixEquality.sksl")
+SKSL_TEST(RP,                kNever,      MatrixConstructorsES3,           "shared/MatrixConstructorsES3.sksl")
+SKSL_TEST(RP + VM + GPU,     kApiLevel_T, MatrixEquality,                  "shared/MatrixEquality.sksl")
 SKSL_TEST(GPU_ES3,           kNextRelease,MatrixOpEqualsES3,               "shared/MatrixOpEqualsES3.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, MatrixScalarMath,                "shared/MatrixScalarMath.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, MatrixToVectorCast,              "shared/MatrixToVectorCast.sksl")
