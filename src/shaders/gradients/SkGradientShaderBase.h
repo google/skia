@@ -144,7 +144,7 @@ private:
     inline static constexpr size_t kInlineStopCount   = 4;
     inline static constexpr size_t kInlineStorageSize = (sizeof(SkColor4f) + sizeof(SkScalar))
                                                * kInlineStopCount;
-    SkAutoSTMalloc<kInlineStorageSize, uint8_t> fStorage;
+    skia_private::AutoSTMalloc<kInlineStorageSize, uint8_t> fStorage;
 
     bool                                        fColorsAreOpaque;
 

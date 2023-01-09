@@ -30,6 +30,8 @@
 #include <dwrite_2.h>
 #include <dwrite_3.h>
 
+using namespace skia_private;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 class StreamFontFileLoader : public IDWriteFontFileLoader {
@@ -1037,7 +1039,7 @@ static HRESULT apply_fontargument_variation(SkTScopedComPtr<IDWriteFontFace>& fo
 
     UINT32 fontAxisCount = fontFace5->GetFontAxisValueCount();
     UINT32 argsCoordCount = args.getVariationDesignPosition().coordinateCount;
-    SkAutoSTMalloc<8, DWRITE_FONT_AXIS_VALUE> variation(fontAxisCount);
+    AutoSTMalloc<8, DWRITE_FONT_AXIS_VALUE> variation(fontAxisCount);
     SkTScopedComPtr<IDWriteFontResource> fontResource;
     HR(fontFace5->GetFontResource(&fontResource));
     HR(fontResource->GetDefaultFontAxisValues(variation, fontAxisCount));

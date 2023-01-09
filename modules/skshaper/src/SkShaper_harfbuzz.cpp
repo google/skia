@@ -40,6 +40,8 @@
 #include <type_traits>
 #include <utility>
 
+using namespace skia_private;
+
 // HB_FEATURE_GLOBAL_START and HB_FEATURE_GLOBAL_END were not added until HarfBuzz 2.0
 // They would have always worked, they just hadn't been named yet.
 #if !defined(HB_FEATURE_GLOBAL_START)
@@ -99,12 +101,12 @@ unsigned skhb_nominal_glyphs(hb_font_t *hb_font, void *font_data,
 
     // Batch call textToGlyphs since entry cost is not cheap.
     // Copy requred because textToGlyphs is dense and hb is strided.
-    SkAutoSTMalloc<256, SkUnichar> unicode(count);
+    AutoSTMalloc<256, SkUnichar> unicode(count);
     for (unsigned i = 0; i < count; i++) {
         unicode[i] = *unicodes;
         unicodes = SkTAddOffset<const hb_codepoint_t>(unicodes, unicode_stride);
     }
-    SkAutoSTMalloc<256, SkGlyphID> glyph(count);
+    AutoSTMalloc<256, SkGlyphID> glyph(count);
     font.textToGlyphs(unicode.get(), count * sizeof(SkUnichar), SkTextEncoding::kUTF32,
                         glyph.get(), count);
 
@@ -146,12 +148,12 @@ void skhb_glyph_h_advances(hb_font_t* hb_font,
 
     // Batch call getWidths since entry cost is not cheap.
     // Copy requred because getWidths is dense and hb is strided.
-    SkAutoSTMalloc<256, SkGlyphID> glyph(count);
+    AutoSTMalloc<256, SkGlyphID> glyph(count);
     for (unsigned i = 0; i < count; i++) {
         glyph[i] = *glyphs;
         glyphs = SkTAddOffset<const hb_codepoint_t>(glyphs, glyph_stride);
     }
-    SkAutoSTMalloc<256, SkScalar> advance(count);
+    AutoSTMalloc<256, SkScalar> advance(count);
     font.getWidths(glyph.get(), count, advance.get());
 
     if (!font.isSubpixel()) {
@@ -315,7 +317,7 @@ HBFont create_typeface_hb_font(const SkTypeface& typeface) {
     hb_ot_font_set_funcs(otFont.get());
     int axis_count = typeface.getVariationDesignPosition(nullptr, 0);
     if (axis_count > 0) {
-        SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> axis_values(axis_count);
+        AutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> axis_values(axis_count);
         if (typeface.getVariationDesignPosition(axis_values, axis_count) == axis_count) {
             hb_font_set_variations(otFont.get(),
                                    reinterpret_cast<hb_variation_t*>(axis_values.get()),
@@ -577,11 +579,11 @@ void emit(SkUnicode* unicode, const ShapedLine& line, SkShaper::RunHandler* hand
     handler->beginLine();
 
     int numRuns = line.runs.size();
-    SkAutoSTMalloc<4, SkBidiIterator::Level> runLevels(numRuns);
+    AutoSTMalloc<4, SkBidiIterator::Level> runLevels(numRuns);
     for (int i = 0; i < numRuns; ++i) {
         runLevels[i] = line.runs[i].fLevel;
     }
-    SkAutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
+    AutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
     unicode->reorderVisual(runLevels, numRuns, logicalFromVisual);
 
     for (int i = 0; i < numRuns; ++i) {
@@ -1174,11 +1176,11 @@ void ShapeThenWrap::wrap(char const * const utf8, size_t utf8Bytes,
         }
 
         int numRuns = current.fRunIndex - previousBreak.fRunIndex + 1;
-        SkAutoSTMalloc<4, SkBidiIterator::Level> runLevels(numRuns);
+        AutoSTMalloc<4, SkBidiIterator::Level> runLevels(numRuns);
         for (int i = 0; i < numRuns; ++i) {
             runLevels[i] = runs[previousBreak.fRunIndex + i].fLevel;
         }
-        SkAutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
+        AutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
         fUnicode->reorderVisual(runLevels, numRuns, logicalFromVisual);
 
         // step through the runs in reverse visual order and the glyphs in reverse logical order

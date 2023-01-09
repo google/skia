@@ -18,6 +18,8 @@
 #include "src/ports/SkFontConfigTypeface.h"
 #include <new>
 
+using namespace skia_private;
+
 std::unique_ptr<SkStreamAsset> SkTypeface_FCI::onOpenStream(int* ttcIndex) const {
     *ttcIndex =  this->getIdentity().fTTCIndex;
 
@@ -269,7 +271,7 @@ protected:
             return nullptr;
         }
 
-        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
+        AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
         Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
                                    axisValues, name);
 

@@ -64,6 +64,8 @@
 #include <string.h>
 #include <memory>
 
+using namespace skia_private;
+
 /** Assumes src and dst are not nullptr. */
 void SkStringFromCFString(CFStringRef src, SkString* dst) {
     // Reserve enough room for the worst-case string,
@@ -1084,7 +1086,7 @@ void SkTypeface_Mac::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID
     // When a surrogate pair is detected, the glyph index used is the index of the high surrogate.
     // It is documented that if a mapping is unavailable, the glyph will be set to 0.
 
-    SkAutoSTMalloc<1024, UniChar> charStorage;
+    AutoSTMalloc<1024, UniChar> charStorage;
     const UniChar* src; // UniChar is a UTF-16 16-bit code unit.
     int srcCount;
     const SkUnichar* utf32 = reinterpret_cast<const SkUnichar*>(uni);
@@ -1096,7 +1098,7 @@ void SkTypeface_Mac::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID
     srcCount = SkToInt(utf16 - src);
 
     // If there are any non-bmp code points, the provided 'glyphs' storage will be inadequate.
-    SkAutoSTMalloc<1024, uint16_t> glyphStorage;
+    AutoSTMalloc<1024, uint16_t> glyphStorage;
     uint16_t* macGlyphs = glyphs;
     if (srcCount > count) {
         macGlyphs = glyphStorage.reset(srcCount);

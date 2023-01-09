@@ -41,6 +41,8 @@
 #include <usp10.h>
 #include <objbase.h>
 
+using namespace skia_private;
+
 namespace {
 static inline const constexpr bool kSkShowTextBlitCoverage = false;
 }
@@ -577,7 +579,7 @@ protected:
 
 private:
     DWORD getGDIGlyphPath(SkGlyphID glyph, UINT flags,
-                          SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf);
+                          AutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf);
     template<bool APPLY_PREBLEND>
     static void RGBToA8(const SkGdiRGB* SK_RESTRICT src, size_t srcRB,
                         const SkGlyph& glyph, const uint8_t* table8);
@@ -1502,7 +1504,7 @@ bool SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size,
 } // namespace
 
 DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
-                                           SkAutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)
+                                           AutoSTMalloc<BUFFERSIZE, uint8_t>* glyphbuf)
 {
     GLYPHMETRICS gm;
 
@@ -1560,7 +1562,7 @@ bool SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path) {
     if (fRec.getHinting() == SkFontHinting::kNone || fRec.getHinting() == SkFontHinting::kSlight){
         format |= GGO_UNHINTED;
     }
-    SkAutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
+    AutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
     DWORD total_size = getGDIGlyphPath(glyphID, format, &glyphbuf);
     if (0 == total_size) {
         return false;
@@ -1570,7 +1572,7 @@ bool SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path) {
         SkGDIGeometrySink sink(path);
         sink.process(glyphbuf, total_size);
     } else {
-        SkAutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
+        AutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
         //GDI only uses hinted outlines when axis aligned.
         DWORD hinted_total_size = getGDIGlyphPath(glyphID, GGO_NATIVE | GGO_GLYPH_INDEX,
                                                   &hintedGlyphbuf);
@@ -2031,7 +2033,7 @@ int LogFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
 
     if (tags) {
         size_t size = numTables * sizeof(SkSFNTHeader::TableDirectoryEntry);
-        SkAutoSTMalloc<0x20, SkSFNTHeader::TableDirectoryEntry> dir(numTables);
+        AutoSTMalloc<0x20, SkSFNTHeader::TableDirectoryEntry> dir(numTables);
         if (size != this->onGetTableData(0, sizeof(header), size, dir.get())) {
             return 0;
         }

@@ -40,6 +40,8 @@
 #include <string.h>
 #include <memory>
 
+using namespace skia_private;
+
 #if (defined(SK_BUILD_FOR_IOS) && defined(__IPHONE_14_0) &&  \
       __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_14_0) ||  \
     (defined(SK_BUILD_FOR_MAC) && defined(__MAC_11_0) &&     \

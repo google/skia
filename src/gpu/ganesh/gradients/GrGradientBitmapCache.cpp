@@ -17,6 +17,8 @@
 
 #include <functional>
 
+using namespace skia_private;
+
 struct GrGradientBitmapCache::Entry {
     Entry*      fPrev;
     Entry*      fNext;
@@ -154,7 +156,7 @@ void GrGradientBitmapCache::getGradient(const SkPMColor4f* colors,
                          1 +                 // alphaType
                          1;                  // colorType
 
-    SkAutoSTMalloc<64, int32_t> storage(keyCount);
+    AutoSTMalloc<64, int32_t> storage(keyCount);
     int32_t* buffer = storage.get();
 
     *buffer++ = count;

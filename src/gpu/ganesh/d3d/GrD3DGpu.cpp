@@ -1462,7 +1462,7 @@ bool GrD3DGpu::onClearBackendTexture(const GrBackendTexture& backendTexture,
         mipLevelCount = SkMipmap::ComputeLevelCount(backendTexture.dimensions()) + 1;
     }
     SkASSERT(mipLevelCount == info.fLevelCount);
-    SkAutoSTMalloc<15, D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
+    AutoSTMalloc<15, D3D12_PLACED_SUBRESOURCE_FOOTPRINT> placedFootprints(mipLevelCount);
     UINT numRows;
     UINT64 rowSizeInBytes;
     UINT64 combinedBufferSize;

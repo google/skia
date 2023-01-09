@@ -15,7 +15,7 @@ using namespace skia_private;
 
 // Tests for some of the helpers in SkTemplates.h
 static void test_automalloc_realloc(skiatest::Reporter* reporter) {
-    SkAutoSTMalloc<1, int> array;
+    AutoSTMalloc<1, int> array;
 
     // test we have a valid pointer, should not crash
     array[0] = 1;
@@ -114,7 +114,7 @@ DEF_TEST(TemplateContainerAPIs, reporter) {
     test_container_apis<SkAutoTArray<int>, int>(reporter);
     test_container_apis<SkAutoSTArray<kStackPreallocCount, int>, int>(reporter);
     test_container_apis<AutoTMalloc<int>, size_t>(reporter);
-    test_container_apis<SkAutoSTMalloc<kStackPreallocCount, int>, size_t>(reporter);
+    test_container_apis<AutoSTMalloc<kStackPreallocCount, int>, size_t>(reporter);
 }
 
 // Ensures that realloc(0) results in a null pointer.
@@ -137,7 +137,7 @@ template<typename TAutoMalloc> static void test_realloc_to_zero(skiatest::Report
 
 DEF_TEST(AutoReallocToZero, reporter) {
     test_realloc_to_zero<AutoTMalloc<int> >(reporter);
-    test_realloc_to_zero<SkAutoSTMalloc<kStackPreallocCount, int> >(reporter);
+    test_realloc_to_zero<AutoSTMalloc<kStackPreallocCount, int> >(reporter);
 }
 
 DEF_TEST(AutoTMallocSelfMove, r) {

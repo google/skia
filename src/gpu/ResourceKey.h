@@ -165,7 +165,7 @@ private:
     friend class ::TestResource;  // For unit test to access kMetaDataCnt.
 
     // bmp textures require 5 uint32_t values.
-    SkAutoSTMalloc<kMetaDataCnt + 5, uint32_t> fKey;
+    skia_private::AutoSTMalloc<kMetaDataCnt + 5, uint32_t> fKey;
 };
 
 /**

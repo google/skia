@@ -34,6 +34,8 @@
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 #endif
 
+using namespace skia_private;
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 /**
@@ -609,7 +611,7 @@ void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbra
                                                  const SkTDArray<SkPoint>& penumbraPolygon,
                                                  SkTDArray<int>* penumbraIndices) {
     // TODO: only create and fill indexMap when fTransparent is true?
-    SkAutoSTMalloc<64, uint16_t> indexMap(umbraPolygon.size());
+    AutoSTMalloc<64, uint16_t> indexMap(umbraPolygon.size());
 
     // find minimum indices
     int minIndex = 0;

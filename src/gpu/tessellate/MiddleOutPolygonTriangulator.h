@@ -184,7 +184,7 @@ public:
 
 private:
     constexpr static int kStackPreallocCount = 32;
-    SkAutoSTMalloc<kStackPreallocCount, StackVertex> fVertexStack;
+    skia_private::AutoSTMalloc<kStackPreallocCount, StackVertex> fVertexStack;
     SkDEBUGCODE(int fStackAllocCount;)
     StackVertex* fTop;
 };

@@ -50,6 +50,8 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/private/SkTemplates.h"
 
+using namespace skia_private;
+
 // All positions must be divided by the target interval count, which will produce the expected
 // normalized position array for that interval number (assuming an appropriate color count is
 // provided).
@@ -160,8 +162,8 @@ protected:
 
                 // Collect positions and colors specific to the interval+mode normalizing the
                 // position based on the interval count (== cellRow+1)
-                SkAutoSTMalloc<4, SkColor> colors(colorCount);
-                SkAutoSTMalloc<4, SkScalar> positions(colorCount);
+                AutoSTMalloc<4, SkColor> colors(colorCount);
+                AutoSTMalloc<4, SkScalar> positions(colorCount);
                 int j = 0;
                 for (int i = 0; i < colorCount; i++) {
                     positions[i] = SkIntToScalar(layout[i]) / (cellRow + 1);

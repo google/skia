@@ -306,15 +306,16 @@ private:
 template <typename T>
 using SkAutoTMalloc = skia_private::AutoTMalloc<T>;
 
+namespace skia_private {
 template <size_t kCountRequested,
           typename T,
           typename = std::enable_if_t<std::is_trivially_default_constructible<T>::value &&
                                       std::is_trivially_destructible<T>::value>>
-class SkAutoSTMalloc {
+class AutoSTMalloc {
 public:
-    SkAutoSTMalloc() : fPtr(fTStorage) {}
+    AutoSTMalloc() : fPtr(fTStorage) {}
 
-    SkAutoSTMalloc(size_t count) {
+    AutoSTMalloc(size_t count) {
         if (count > kCount) {
             fPtr = (T*)sk_malloc_throw(count, sizeof(T));
         } else if (count) {
@@ -324,12 +325,12 @@ public:
         }
     }
 
-    SkAutoSTMalloc(SkAutoSTMalloc&&) = delete;
-    SkAutoSTMalloc(const SkAutoSTMalloc&) = delete;
-    SkAutoSTMalloc& operator=(SkAutoSTMalloc&&) = delete;
-    SkAutoSTMalloc& operator=(const SkAutoSTMalloc&) = delete;
+    AutoSTMalloc(AutoSTMalloc&&) = delete;
+    AutoSTMalloc(const AutoSTMalloc&) = delete;
+    AutoSTMalloc& operator=(AutoSTMalloc&&) = delete;
+    AutoSTMalloc& operator=(const AutoSTMalloc&) = delete;
 
-    ~SkAutoSTMalloc() {
+    ~AutoSTMalloc() {
         if (fPtr != fTStorage) {
             sk_free(fPtr);
         }
@@ -410,6 +411,12 @@ private:
         T           fTStorage[1];   // do NOT want to invoke T::T()
     };
 };
+
+}  // namespace skia_private
+
+// TODO remove after all external client uses are removed.
+template <size_t size, typename T>
+using SkAutoSTMalloc = skia_private::AutoSTMalloc<size, T>;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 

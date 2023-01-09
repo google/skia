@@ -16,6 +16,8 @@
 #include "src/pdf/SkPDFTypes.h"
 #include "src/pdf/SkPDFUtils.h"
 
+using namespace skia_private;
+
 static uint32_t hash(const SkShaderBase::GradientInfo& v) {
     uint32_t buffer[] = {
         (uint32_t)v.fColorCount,
@@ -246,7 +248,7 @@ static void gradient_function_code(const SkShaderBase::GradientInfo& info,
     result->writeText(" 0} if\n");
 
     // Optimize out ranges which don't make any visual difference.
-    SkAutoSTMalloc<4, size_t> rangeEnds(info.fColorCount);
+    AutoSTMalloc<4, size_t> rangeEnds(info.fColorCount);
     size_t rangeEndsCount = 0;
     for (int i = 1; i < info.fColorCount; ++i) {
         // Ignoring the alpha, is this range the same solid color as the next range?
@@ -340,7 +342,7 @@ static std::unique_ptr<SkPDFDict> gradientStitchCode(const SkShaderBase::Gradien
         colorOffsets[i - 1] -= 0.00001f;
     }
 
-    SkAutoSTMalloc<4, ColorTuple> colorDataAlloc(colorCount);
+    AutoSTMalloc<4, ColorTuple> colorDataAlloc(colorCount);
     ColorTuple *colorData = colorDataAlloc.get();
     for (int idx = 0; idx < colorCount; idx++) {
         colorData[idx][0] = SkColorGetR(colors[idx]);

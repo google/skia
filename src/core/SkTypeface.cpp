@@ -22,6 +22,8 @@
 #include "src/sfnt/SkOTTable_OS_2.h"
 #include "src/utils/SkUTF.h"
 
+using namespace skia_private;
+
 SkTypeface::SkTypeface(const SkFontStyle& style, bool isFixedPitch)
     : fUniqueID(SkTypefaceCache::NewTypefaceID()), fStyle(style), fIsFixedPitch(isFixedPitch) { }
 
@@ -355,7 +357,7 @@ public:
     }
 
 private:
-    SkAutoSTMalloc<256, SkUnichar> fStorage;
+    AutoSTMalloc<256, SkUnichar> fStorage;
 };
 }
 

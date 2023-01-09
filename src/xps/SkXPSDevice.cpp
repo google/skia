@@ -1923,7 +1923,7 @@ void SkXPSDevice::onDrawGlyphRunList(SkCanvas*,
         // Advance width and offsets for glyphs measured in hundredths of the font em size
         // (XPS Spec 5.1.3).
         FLOAT centemPerUnit = 100.0f / SkScalarToFLOAT(font.getSize());
-        SkAutoSTMalloc<32, XPS_GLYPH_INDEX> xpsGlyphs(glyphCount);
+        AutoSTMalloc<32, XPS_GLYPH_INDEX> xpsGlyphs(glyphCount);
         size_t numGlyphs = typeface->glyphsUsed.size();
         size_t actualGlyphCount = 0;
 

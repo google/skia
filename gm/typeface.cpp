@@ -27,9 +27,11 @@
 #include <string.h>
 #include <utility>
 
+using namespace skia_private;
+
 static void getGlyphPositions(const SkFont& font, const uint16_t glyphs[],
                              int count, SkScalar x, SkScalar y, SkPoint pos[]) {
-    SkAutoSTMalloc<128, SkScalar> widthStorage(count);
+    AutoSTMalloc<128, SkScalar> widthStorage(count);
     SkScalar* widths = widthStorage.get();
     font.getWidths(glyphs, count, widths);
 
@@ -58,14 +60,14 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
         return;
     }
 
-    SkAutoSTMalloc<128, uint16_t> glyphStorage(len);
+    AutoSTMalloc<128, uint16_t> glyphStorage(len);
     uint16_t* glyphs = glyphStorage.get();
     int glyphCount = font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs, len);
     if (glyphCount < 1) {
         return;
     }
 
-    SkAutoSTMalloc<128, int32_t> adjustmentStorage(glyphCount - 1);
+    AutoSTMalloc<128, int32_t> adjustmentStorage(glyphCount - 1);
     int32_t* adjustments = adjustmentStorage.get();
     if (!face->getKerningPairAdjustments(glyphs, glyphCount, adjustments)) {
         canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x, y, font, paint);

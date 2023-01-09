@@ -25,6 +25,7 @@
 #include "modules/canvaskit/WasmCommon.h"
 
 using namespace emscripten;
+using namespace skia_private;
 
 namespace para = skia::textlayout;
 
@@ -413,7 +414,7 @@ JSArray GetShapedLines(para::Paragraph& self) {
         jrun.set("offsets",  MakeTypedArray(N1, info->utf8Starts));
 
         // we need to modify the positions, so make a temp copy
-        SkAutoSTMalloc<32, SkPoint> positions(N1);
+        AutoSTMalloc<32, SkPoint> positions(N1);
         for (int i = 0; i < N; ++i) {
             positions.get()[i] = info->positions[i] + info->origin;
         }

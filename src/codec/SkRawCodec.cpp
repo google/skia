@@ -329,7 +329,7 @@ private:
         const size_t kMinSizeToRead = 8192;
         const size_t sizeRequested = newSize - fStreamBuffer.bytesWritten();
         const size_t sizeToRead = std::max(kMinSizeToRead, sizeRequested);
-        SkAutoSTMalloc<kMinSizeToRead, uint8> tempBuffer(sizeToRead);
+        AutoSTMalloc<kMinSizeToRead, uint8> tempBuffer(sizeToRead);
         const size_t bytesRead = fStream->read(tempBuffer.get(), sizeToRead);
         if (bytesRead < sizeRequested) {
             return false;

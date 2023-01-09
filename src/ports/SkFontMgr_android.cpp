@@ -29,6 +29,8 @@
 #include <algorithm>
 #include <limits>
 
+using namespace skia_private;
+
 class SkData;
 
 class SkTypeface_Android : public SkTypeface_FreeType {
@@ -228,7 +230,7 @@ public:
                 familyName = *cannonicalFamilyName;
             }
 
-            SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
+            AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
             SkFontArguments::VariationPosition position = {
                 fontFile.fVariationDesignPosition.begin(),
                 fontFile.fVariationDesignPosition.size()
@@ -471,7 +473,7 @@ protected:
             return nullptr;
         }
 
-        SkAutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
+        AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
         Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(),
                                    axisValues, name);
 

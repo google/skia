@@ -60,6 +60,7 @@
 #include <freetype/t1tables.h>
 #include <freetype/ftfntfmt.h>
 
+using namespace skia_private;
 
 namespace {
 [[maybe_unused]] static inline const constexpr bool kSkShowTextBlitCoverage = false;
@@ -313,7 +314,7 @@ void SkTypeface_FreeType::FaceRec::setupAxes(const SkFontData& data) {
         }
     )
 
-    SkAutoSTMalloc<4, FT_Fixed> coords(data.getAxisCount());
+    AutoSTMalloc<4, FT_Fixed> coords(data.getAxisCount());
     for (int i = 0; i < data.getAxisCount(); ++i) {
         coords[i] = data.getAxis()[i];
     }
@@ -724,7 +725,7 @@ static int GetVariationDesignPosition(AutoFTAccess& fta,
         return variations->num_axis;
     }
 
-    SkAutoSTMalloc<4, FT_Fixed> coords(variations->num_axis);
+    AutoSTMalloc<4, FT_Fixed> coords(variations->num_axis);
     if (FT_Get_Var_Design_Coordinates(face, variations->num_axis, coords.get())) {
         return -1;
     }
@@ -749,11 +750,11 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArgum
     }
     int axisCount = axisDefinitions.size();
 
-    SkAutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> currentPosition(axisCount);
+    AutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> currentPosition(axisCount);
     int currentAxisCount = GetVariationDesignPosition(fta, currentPosition, axisCount);
 
     SkString name;
-    SkAutoSTMalloc<4, SkFixed> axisValues(axisCount);
+    AutoSTMalloc<4, SkFixed> axisValues(axisCount);
     Scanner::computeAxisValues(axisDefinitions, args.getVariationDesignPosition(), axisValues, name,
                                currentAxisCount == axisCount ? currentPosition.get() : nullptr);
 
@@ -2120,7 +2121,7 @@ bool SkTypeface_FreeType::Scanner::scanFont(
           if (axisDefinitions[i].fTag == slntTag)
             slntIndex = i;
         }
-        SkAutoSTMalloc<4, FT_Fixed> coords(numAxes);
+        AutoSTMalloc<4, FT_Fixed> coords(numAxes);
         if ((wghtIndex || wdthIndex || slntIndex) &&
             !FT_Get_Var_Design_Coordinates(face.get(), numAxes, coords.get())) {
             if (wghtIndex) {

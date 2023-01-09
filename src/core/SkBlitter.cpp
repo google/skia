@@ -27,6 +27,8 @@
 #include "src/core/SkXfermodeInterpretation.h"
 #include "src/shaders/SkShaderBase.h"
 
+using namespace skia_private;
+
 // Hacks for testing.
 bool gUseSkVMBlitter{false};
 bool gSkForceRasterPipelineBlitter{false};
@@ -254,7 +256,7 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
         }
     } else {
         int                         width = clip.width();
-        SkAutoSTMalloc<64, int16_t> runStorage(width + 1);
+        AutoSTMalloc<64, int16_t> runStorage(width + 1);
         int16_t*                    runs = runStorage.get();
         const uint8_t*              aa = mask.getAddr8(clip.fLeft, clip.fTop);
 

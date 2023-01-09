@@ -22,6 +22,8 @@
 #include <limits.h>
 #include <numeric>
 
+using namespace skia_private;
+
 namespace skottie {
 namespace {
 
@@ -404,9 +406,9 @@ private:
     SkFont                    fFont;
     std::unique_ptr<SkShaper> fShaper;
 
-    SkAutoSTMalloc<64, SkGlyphID>          fLineGlyphs;
-    SkAutoSTMalloc<64, SkPoint>            fLinePos;
-    SkAutoSTMalloc<64, uint32_t>           fLineClusters;
+    AutoSTMalloc<64, SkGlyphID>          fLineGlyphs;
+    AutoSTMalloc<64, SkPoint>            fLinePos;
+    AutoSTMalloc<64, uint32_t>           fLineClusters;
     SkSTArray<16, skottie::Shaper::RunRec> fLineRuns;
     size_t                                 fLineGlyphCount = 0;
 

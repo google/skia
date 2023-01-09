@@ -12,6 +12,8 @@
 #include "include/private/base/SkTDArray.h"
 #include "src/utils/SkPolyUtils.h"
 
+using namespace skia_private;
+
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 void inline ignoreResult(bool ) {}
 
@@ -26,7 +28,7 @@ static SkPoint sanitize_point(const SkPoint& in) {
 DEF_FUZZ(PolyUtils, fuzz) {
     int count;
     fuzz->nextRange(&count, 0, 512);
-    SkAutoSTMalloc<64, SkPoint> polygon(count);
+    AutoSTMalloc<64, SkPoint> polygon(count);
     for (int index = 0; index < count; ++index) {
         fuzz->next(&polygon[index].fX, &polygon[index].fY);
         polygon[index] = sanitize_point(polygon[index]);
@@ -52,7 +54,7 @@ DEF_FUZZ(PolyUtils, fuzz) {
         fuzz->nextRange(&offset, -1000, 1000);
         ignoreResult(SkOffsetSimplePolygon(polygon, count, bounds, offset, &output));
 
-        SkAutoSTMalloc<64, uint16_t> indexMap(count);
+        AutoSTMalloc<64, uint16_t> indexMap(count);
         for (int index = 0; index < count; ++index) {
             fuzz->next(&indexMap[index]);
         }

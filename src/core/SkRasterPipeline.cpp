@@ -20,6 +20,7 @@
 #include <cstring>
 #include <vector>
 
+using namespace skia_private;
 using Op = SkRasterPipelineOp;
 
 bool gForceHighPrecisionRasterPipeline;
@@ -449,7 +450,7 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
     int stagesNeeded = this->stages_needed();
 
     // Best to not use fAlloc here... we can't bound how often run() will be called.
-    SkAutoSTMalloc<32, SkRasterPipelineStage> program(stagesNeeded);
+    AutoSTMalloc<32, SkRasterPipelineStage> program(stagesNeeded);
 
     auto start_pipeline = this->build_pipeline(program.get() + stagesNeeded);
     start_pipeline(x,y,x+w,y+h, program.get());
