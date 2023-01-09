@@ -1287,6 +1287,15 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             fBuilder.unary_op(BuilderOp::ceil_float, arg0.type().slotCount());
             return true;
 
+        case IntrinsicKind::k_floatBitsToInt_IntrinsicKind:
+        case IntrinsicKind::k_floatBitsToUint_IntrinsicKind:
+        case IntrinsicKind::k_intBitsToFloat_IntrinsicKind:
+        case IntrinsicKind::k_uintBitsToFloat_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            return true;
+
         case IntrinsicKind::k_floor_IntrinsicKind:
             if (!this->pushExpression(arg0)) {
                 return unsupported();
