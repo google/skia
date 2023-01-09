@@ -46,8 +46,10 @@ sk_sp<SkImage> Image::onMakeColorTypeAndColorSpace(SkColorType,
     return nullptr;
 }
 
-sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace>) const {
-    return nullptr;
+sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
+    return sk_make_sp<Image>(kNeedNewImageUniqueID,
+                             fTextureProxyView,
+                             this->imageInfo().colorInfo().makeColorSpace(std::move(newCS)));
 }
 
 void Image::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
