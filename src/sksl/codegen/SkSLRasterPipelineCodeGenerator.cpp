@@ -1419,6 +1419,13 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             }
             return this->binaryOp(arg0.type(), kMaxOps);
 
+        case IntrinsicKind::k_matrixCompMult_IntrinsicKind:
+            SkASSERT(arg0.type().matches(arg1.type()));
+            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
+                return unsupported();
+            }
+            return this->binaryOp(arg0.type(), kMultiplyOps);
+
         default:
             break;
     }
