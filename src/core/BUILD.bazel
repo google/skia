@@ -160,6 +160,7 @@ CORE_FILES = [
     "SkFontStream.cpp",
     "SkFontStream.h",
     "SkFont_serial.cpp",
+    "SkFloatingPoint.cpp",
     "SkFuzzLogging.h",
     "SkGaussFilter.cpp",
     "SkGaussFilter.h",

@@ -424,6 +424,7 @@ BASE_SRCS_ALL = [
     "src/core/SkExecutor.cpp",
     "src/core/SkFDot6.h",
     "src/core/SkFlattenable.cpp",
+    "src/core/SkFloatingPoint.cpp",
     "src/core/SkFont.cpp",
     "src/core/SkFontDescriptor.cpp",
     "src/core/SkFontDescriptor.h",

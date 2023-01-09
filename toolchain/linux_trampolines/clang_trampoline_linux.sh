@@ -36,6 +36,7 @@ supported_files_or_dirs=(
   "src/core/SkEdgeBuilder.cpp"
   "src/core/SkEdgeClipper.cpp"
   "src/core/SkFlattenable.cpp"
+  "src/core/SkFloatingPoint.cpp"
   "src/core/SkGeometry.cpp"
   "src/core/SkGlyph.cpp"
   "src/core/SkLineClipper.cpp"

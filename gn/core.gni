@@ -312,6 +312,7 @@ skia_core_sources = [
   "$_src/core/SkExecutor.cpp",
   "$_src/core/SkFDot6.h",
   "$_src/core/SkFlattenable.cpp",
+  "$_src/core/SkFloatingPoint.cpp",
   "$_src/core/SkFont.cpp",
   "$_src/core/SkFontDescriptor.cpp",
   "$_src/core/SkFontDescriptor.h",

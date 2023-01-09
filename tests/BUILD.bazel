@@ -58,6 +58,7 @@ CPU_ONLY_TESTS = [
     "FlattenableFactoryToName.cpp",
     "FlattenableNameToFactory.cpp",
     "Float16Test.cpp",
+    "FloatingPointTest.cpp",
     "FontHostStreamTest.cpp",
     "FontHostTest.cpp",
     "FontNamesTest.cpp",
@@ -326,6 +327,7 @@ GANESH_TESTS = [
 ]
 
 PATHOPS_TESTS = [
+    "CubicRootsTest.cpp",
     "PathOpsAngleIdeas.cpp",
     "PathOpsAngleTest.cpp",
     "PathOpsAsWindingTest.cpp",
@@ -376,6 +378,7 @@ PATHOPS_TESTS = [
     "PathOpsTigerTest.cpp",
     "PathOpsTightBoundsTest.cpp",
     "PathOpsTypesTest.cpp",
+    "QuadRootsTest.cpp",
     "StrokerTest.cpp",
 ]
 
