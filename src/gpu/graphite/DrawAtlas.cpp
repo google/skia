@@ -20,6 +20,7 @@
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandTypes.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UploadTask.h"
@@ -34,14 +35,34 @@ static const constexpr bool kDumpAtlasData = false;
 
 class PlotUploadContext : public ConditionalUploadContext {
 public:
-    static std::unique_ptr<ConditionalUploadContext> Make() {
-        return std::make_unique<PlotUploadContext>();
+    static std::unique_ptr<ConditionalUploadContext> Make(PlotLocator plotLocator,
+                                                          AtlasToken uploadToken,
+                                                          uint32_t atlasID) {
+        return std::unique_ptr<PlotUploadContext>(new PlotUploadContext(plotLocator,
+                                                                        uploadToken,
+                                                                        atlasID));
     }
     ~PlotUploadContext() override {}
 
-    bool needsUpload(Context*) const override { return true; }
+    bool needsUpload(Context* context) const override {
+        return context->priv().plotUploadTracker()->needsUpload(fPlotLocator,
+                                                                fUploadToken,
+                                                                fAtlasID);
+    }
+
 private:
-    // useful stuff
+    PlotUploadContext(PlotLocator plotLocator,
+                      AtlasToken uploadToken,
+                      uint32_t atlasID)
+        : ConditionalUploadContext()
+        , fPlotLocator(plotLocator)
+        , fUploadToken(uploadToken)
+        , fAtlasID(atlasID) {}
+
+    // identifiers
+    PlotLocator fPlotLocator; // has plot index, page index, and eviction gen ID
+    AtlasToken fUploadToken;
+    uint32_t fAtlasID;
 };
 
 #ifdef SK_DEBUG
@@ -75,7 +96,14 @@ std::unique_ptr<DrawAtlas> DrawAtlas::Make(SkColorType colorType, size_t bpp, in
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-
+static int32_t next_id() {
+    static std::atomic<int32_t> nextID{1};
+    int32_t id;
+    do {
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
+    } while (id == SK_InvalidGenID);
+    return id;
+}
 DrawAtlas::DrawAtlas(SkColorType colorType, size_t bpp, int width, int height,
                      int plotWidth, int plotHeight, AtlasGenerationCounter* generationCounter,
                      AllowMultitexturing allowMultitexturing, std::string_view label)
@@ -86,6 +114,7 @@ DrawAtlas::DrawAtlas(SkColorType colorType, size_t bpp, int width, int height,
         , fPlotWidth(plotWidth)
         , fPlotHeight(plotHeight)
         , fLabel(label)
+        , fAtlasID(next_id())
         , fGenerationCounter(generationCounter)
         , fAtlasGeneration(fGenerationCounter->next())
         , fPrevFlushToken(AtlasToken::InvalidToken())
@@ -160,7 +189,11 @@ bool DrawAtlas::recordUploads(UploadList* ul, Recorder* recorder, bool useCached
                 std::vector<MipLevel> levels;
                 levels.push_back({dataPtr, fBytesPerPixel*fPlotWidth});
 
-                auto uploadContext = PlotUploadContext::Make();
+                plot->setLastUploadToken(recorder->priv().tokenTracker()->nextFlushToken());
+
+                auto uploadContext = PlotUploadContext::Make(plot->plotLocator(),
+                                                             plot->lastUploadToken(),
+                                                             fAtlasID);
 
                 // Src and dst colorInfo are the same
                 SkColorInfo colorInfo(fColorType, kUnknown_SkAlphaType, nullptr);
@@ -532,6 +565,23 @@ SkISize DrawAtlasConfig::plotDimensions(MaskFormat type) const {
         // ARGB and LCD always use 256x256 plots -- this has been shown to be faster
         return { 256, 256 };
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+bool PlotUploadTracker::needsUpload(PlotLocator plotLocator,
+                                    AtlasToken uploadToken,
+                                    uint32_t atlasID) {
+    uint32_t key = plotLocator.pageIndex() << 8 | plotLocator.plotIndex();
+
+    PlotAgeData* ageData = fAtlasData[atlasID].find(key);
+    if (!ageData || ageData->genID != plotLocator.genID() || ageData->uploadToken < uploadToken) {
+        PlotAgeData data{plotLocator.genID(), uploadToken};
+        fAtlasData[atlasID].set(key, data);
+        return true;
+    }
+
+    return false;
 }
 
 }  // namespace skgpu::graphite

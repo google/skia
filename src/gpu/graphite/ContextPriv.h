@@ -46,6 +46,9 @@ public:
     ResourceProvider* resourceProvider() const {
         return fContext->fResourceProvider.get();
     }
+    PlotUploadTracker* plotUploadTracker() const {
+        return fContext->fPlotUploadTracker.get();
+    }
 
     void startCapture() {
         fContext->fQueueManager->startCapture();
