@@ -409,16 +409,16 @@ SkRect RemoteStrike::prepareForMaskDrawing(
     for (auto [i, variant, pos] : SkMakeEnumerate(accepted->input())) {
         SkPackedGlyphID packedID = variant.packedID();
         SkGlyphDigest digest = this->digest(packedID);
-        if (digest.canDrawAsMask()) {
-            if (!digest.isEmpty()) {
+        // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
+        if (!digest.isEmpty()) {
+            if (digest.canDrawAsMask()) {
                 const SkGlyphRect glyphBounds = digest.bounds().offset(pos);
                 boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
                 accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
+            } else {
+                // Reject things that are too big.
+                rejected->reject(i);
             }
-        } else {
-            // Reject things that are too big.
-            // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
-            rejected->reject(i);
         }
     }
     return boundingRect.rect();
@@ -428,11 +428,11 @@ SkRect RemoteStrike::prepareForMaskDrawing(
 SkRect RemoteStrike::prepareForSDFTDrawing(SkDrawableGlyphBuffer* accepted,
                                            SkSourceGlyphBuffer* rejected) {
     SkGlyphRect boundingRect = skglyph::empty_rect();
-    for (auto [i, variant, pos] : SkMakeEnumerate(accepted->input())) {
-        SkPackedGlyphID packedID = variant.packedID();
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         SkGlyphDigest digest = this->digest(packedID);
-        if (digest.canDrawAsSDFT()) {
-            if (!digest.isEmpty()) {
+        // N.B. this must have the same behavior as SkScalerCache::prepareForSDFTDrawing.
+        if (!digest.isEmpty()) {
+            if (digest.canDrawAsSDFT()) {
                 const SkGlyphRect glyphBounds =
                         digest.bounds()
                                 // The SDFT glyphs have 2-pixel wide padding that should
@@ -441,12 +441,12 @@ SkRect RemoteStrike::prepareForSDFTDrawing(SkDrawableGlyphBuffer* accepted,
                               .offset(pos);
                 boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
                 accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
+            } else {
+                // Reject things that are too big.
+                // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
+                rejected->reject(i);
             }
-        } else {
-            // Reject things that are too big.
-            // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
-            rejected->reject(i);
-        }
+            }
     }
     return boundingRect.rect();
 }
