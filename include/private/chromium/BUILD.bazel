@@ -12,7 +12,7 @@ skia_filegroup(
     ],
 )
 
-# This group is mapped to //gn/gpu.gni:skia_gpu_sources.
+# This group is mapped to //gn/gpu.gni:skia_gpu_chromium_public.
 skia_filegroup(
     name = "gpu_private_hdrs",
     srcs = [

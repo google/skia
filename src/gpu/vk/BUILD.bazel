@@ -4,7 +4,7 @@ licenses(["notice"])
 
 exports_files_legacy()
 
-# In separate group for exporting to //gn/gpu.gni:skia_vk_sources.
+# In separate group for exporting to //gn/gpu.gni:skia_gpu_vk_sources.
 skia_filegroup(
     name = "impl_vk_hdrs",
     srcs = ["GrVkSecondaryCBDrawContext.h"],

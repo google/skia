@@ -10,7 +10,7 @@ skia_filegroup(
     srcs = ["GrDawnTypesPriv.h"],
 )
 
-# In own group for mapping to //gpu.gni:skia_vk_sources.
+# In own group for mapping to //gpu.gni:skia_gpu_vk_private.
 skia_filegroup(
     name = "vk_private_hdrs",
     srcs = ["GrVkTypesPriv.h"],

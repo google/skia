@@ -159,7 +159,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//include/utils:public_hdrs",
 				"//include/utils/mac:public_hdrs"}},
-		{Var: "skia_utils_sources",
+		{Var: "skia_utils_chromium",
+			Rules: []string{
+				"//src/utils:chromium_hdrs"}},
+		{Var: "skia_utils_private",
 			Rules: []string{
 				"//src/utils:core_hdrs",
 				"//src/utils:core_skslc_hdrs",
@@ -185,11 +188,13 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}}},
 	},
 	{GNI: "gn/gpu.gni", Vars: []exporter.GNIFileListExportDesc{
-		{Var: "skia_gpu_sources",
+		{Var: "skia_gpu_public",
 			Rules: []string{
 				"//include/gpu:public_hdrs",
 				"//include/gpu/mock:public_hdrs",
-				"//include/private/chromium:gpu_private_hdrs",
+			}},
+		{Var: "skia_gpu_private",
+			Rules: []string{
 				"//include/private/gpu/ganesh:private_hdrs",
 				"//src/gpu:core_hdrs",
 				"//src/gpu/ganesh:core_hdrs",
@@ -212,15 +217,19 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/ganesh/text:srcs",
 				"//src/image:gpu_hdrs",
 				"//src/image:gpu_srcs",
-				// Below is identical to skia_skgpu_v1_sources:
-				// The hand written gpu.gni had:
-				//  skia_gpu_sources += skia_skgpu_v1_sources
 				"//src/gpu/ganesh/ops:ops_hdrs",
 				"//src/gpu/ganesh/ops:ops_srcs",
 			}},
-		{Var: "skia_gl_gpu_sources",
+		{Var: "skia_gpu_chromium_public",
+			Rules: []string{
+				"//include/private/chromium:gpu_private_hdrs",
+			}},
+		{Var: "skia_gpu_gl_public",
 			Rules: []string{
 				"//include/gpu/gl:public_hdrs",
+			}},
+		{Var: "skia_gpu_gl_private",
+			Rules: []string{
 				"//src/gpu/ganesh/gl:core_hdrs",
 				"//src/gpu/ganesh/gl:core_srcs",
 				"//src/gpu/ganesh/gl/builders:builder_hdrs",
@@ -236,7 +245,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/ganesh/ops:ops_hdrs",
 				"//src/gpu/ganesh/ops:ops_srcs",
 			}},
-		{Var: "skia_vk_sources",
+		{Var: "skia_gpu_vk_public",
+			Rules: []string{
+				"//include/gpu/vk:public_hdrs",
+			}},
+		{Var: "skia_gpu_vk_private",
 			Rules: []string{
 				"//include/gpu/vk:public_hdrs",
 				"//include/private/gpu/ganesh:vk_private_hdrs",

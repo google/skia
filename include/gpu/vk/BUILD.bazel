@@ -15,7 +15,7 @@ skia_filegroup(
     ],
 )
 
-# Group is exported to //gn/gpu.gni:skia_vk_sources.
+# Group is exported to //gn/gpu.gni:skia_gpu_vk_public.
 skia_filegroup(
     name = "public_hdrs",
     srcs = [

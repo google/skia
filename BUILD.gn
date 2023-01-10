@@ -1052,7 +1052,8 @@ optional("gpu") {
   public_configs = []
   public_deps = []
 
-  sources = skia_gpu_sources
+  public = skia_gpu_public
+  sources = skia_gpu_private
 
   libs = []
   frameworks = []
@@ -1095,11 +1096,13 @@ optional("gpu") {
     } else {
       sources += [ "src/gpu/ganesh/gl/GrGLMakeNativeInterface_none.cpp" ]
     }
-    sources += skia_gl_gpu_sources
+    public += skia_gpu_gl_public
+    sources += skia_gpu_gl_private
   }
 
   if (skia_use_vulkan) {
-    sources += skia_vk_sources
+    public += skia_gpu_vk_public
+    sources += skia_gpu_vk_private
     if (is_fuchsia) {
       if (using_fuchsia_sdk) {
         public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]

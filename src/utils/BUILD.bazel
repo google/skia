@@ -47,7 +47,6 @@ CORE_FILES = [
     "SkMatrix22.cpp",
     "SkMatrix22.h",
     "SkMultiPictureDocument.cpp",
-    "SkMultiPictureDocument.h",
     "SkMultiPictureDocumentPriv.h",
     "SkNWayCanvas.cpp",
     "SkNullCanvas.cpp",
@@ -114,6 +113,16 @@ split_srcs_and_hdrs(
 )
 
 skia_filegroup(
+    name = "chromium_hdrs",
+    # We allow chromium to use this as a diagnostic tool, but it is not
+    # part of Skia's public API. It is in its own filegroup to create
+    # a gni entry containing it.
+    srcs = [
+        "SkMultiPictureDocument.h",
+    ],
+)
+
+skia_filegroup(
     name = "srcs",
     srcs = [
         ":core_srcs",
@@ -131,6 +140,7 @@ skia_filegroup(
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        ":chromium_hdrs",
         ":core_hdrs",
         ":core_skslc_hdrs",
     ] + select({
