@@ -167,6 +167,7 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::push_uniform:
         case BuilderOp::push_zeros:
         case BuilderOp::push_clone:
+        case BuilderOp::push_clone_from_stack:
             return inst.fImmA;
 
         case BuilderOp::pop_condition_mask:
@@ -672,6 +673,13 @@ void Program::appendStages(SkRasterPipeline* pipeline,
             }
             case BuilderOp::push_clone: {
                 float* src = tempStackPtr - (inst.fImmB * N);
+                float* dst = tempStackPtr;
+                this->appendCopySlotsUnmasked(pipeline, alloc, dst, src, inst.fImmA);
+                break;
+            }
+            case BuilderOp::push_clone_from_stack: {
+                float* sourceStackPtr = tempStackMap[inst.fImmB];
+                float* src = sourceStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr;
                 this->appendCopySlotsUnmasked(pipeline, alloc, dst, src, inst.fImmA);
                 break;

@@ -48,6 +48,7 @@ enum class BuilderOp {
     push_uniform,
     push_zeros,
     push_clone,
+    push_clone_from_stack,
     copy_stack_to_slots,
     copy_stack_to_slots_unmasked,
     discard_stack,
@@ -334,11 +335,17 @@ public:
     // Creates many clones of the top single-slot item on the temp stack.
     void push_duplicates(int count);
 
-    // Creates a single clone of an item on the temp stack. The cloned item can consist of any
-    // number of slots, or be copied from an earlier position on the stack.
+    // Creates a single clone of an item on the current temp stack. The cloned item can consist of
+    // any number of slots, and can be copied from an earlier position on the stack.
     void push_clone(int numSlots, int offsetFromStackTop = 0) {
         fInstructions.push_back({BuilderOp::push_clone, {}, numSlots,
                                  numSlots + offsetFromStackTop});
+    }
+
+    // Creates a single clone from an item on any temp stack. The cloned item can consist of any
+    // number of slots.
+    void push_clone_from_stack(int numSlots, int otherStackIndex) {
+        fInstructions.push_back({BuilderOp::push_clone_from_stack, {}, numSlots, otherStackIndex});
     }
 
     void select(int slots) {

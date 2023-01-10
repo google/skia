@@ -151,25 +151,25 @@ DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
     builder.set_current_stack(1);
-    builder.push_literal_i(999);   // push into 2
+    builder.push_literal_i(999);                                          // push into 2
     builder.set_current_stack(0);
-    builder.push_literal_f(13.5f); // push into 0
-    builder.push_literal_i(-246);  // push into 1
-    builder.discard_stack();       // discard 2
-    builder.push_literal_u(357);   // push into 2
+    builder.push_literal_f(13.5f);                                        // push into 0
+    builder.push_clone_from_stack(/*numSlots=*/1, /*otherStackIndex=*/1); // push into 1 from 2
+    builder.discard_stack();                                              // discard 2
+    builder.push_literal_u(357);                                          // push into 2
     builder.set_current_stack(1);
-    builder.push_literal_i(999);   // push into 3
-    builder.discard_stack(2);      // discard 2 and 3
+    builder.push_clone_from_stack(/*numSlots=*/1, /*otherStackIndex=*/0); // push into 3 from 1
+    builder.discard_stack(2);                                             // discard 2 and 3
     builder.set_current_stack(0);
-    builder.discard_stack(2);      // discard 0 and 1
+    builder.discard_stack(2);                                             // discard 0 and 1
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1,
                                                                 /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. copy_constant                  $2 = 0x000003E7 (1.399897e-42)
     2. copy_constant                  $0 = 0x41580000 (13.5)
-    3. copy_constant                  $1 = 0xFFFFFF0A
+    3. copy_slot_unmasked             $1 = $2
     4. copy_constant                  $1 = 0x00000165 (5.002636e-43)
-    5. copy_constant                  $3 = 0x000003E7 (1.399897e-42)
+    5. copy_slot_unmasked             $3 = $1
 )");
 }
 
