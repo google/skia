@@ -36,8 +36,8 @@ _src = get_path_info("../src", "abspath")
 #  //src/opts:private_hdrs
 skia_core_sources = [
   "$_src/core/SkAAClip.cpp",
-  "$_src/core/SkAlphaRuns.cpp",
   "$_src/core/SkATrace.cpp",
+  "$_src/core/SkAlphaRuns.cpp",
   "$_src/opts/SkBitmapProcState_opts.h",
   "$_src/opts/SkBlitMask_opts.h",
   "$_src/opts/SkBlitRow_opts.h",
@@ -397,55 +397,47 @@ func TestFilterDeprecatedFiles_NoDeprecatedFiles_SliceUnchanged(t *testing.T) {
 			"also/not/deprecated/file.h"})
 }
 
-func TestFindDuplicate_ContainsDuplicate_ReturnsTrue(t *testing.T) {
-	test := func(name string, files []string, expected string) {
-		t.Run(name, func(t *testing.T) {
-			path, hasDup := findDuplicate(files)
-			assert.True(t, hasDup)
-			assert.Equal(t, expected, path)
-		})
+func TestRemoveDuplicate_ContainsDuplicates_SortedAndDuplicatesRemoved(t *testing.T) {
+	files := []string{
+		"alpha",
+		"beta",
+		"gamma",
+		"delta",
+		"beta",
+		"Alpha",
+		"alpha",
+		"path/to/file",
+		"path/to/file2",
+		"path/to/file",
 	}
-	test("AllDups",
-		[]string{
-			"path/to/file.h",
-			"path/to/file.h"},
-		"path/to/file.h")
-	test("FirstFileDup",
-		[]string{
-			"path/to/file.h",
-			"path/to/file.h",
-			"path/to/non_dup.h"},
-		"path/to/file.h")
-	test("LastFileDup",
-		[]string{
-			"path/to/a_non_dup.h",
-			"path/to/file.h",
-			"path/to/file.h"},
-		"path/to/file.h")
-	test("CaseInsensitive",
-		[]string{
-			"path/to/file.h",
-			"path/to/File.h"},
-		"path/to/file.h")
+	output := removeDuplicates(files)
+	assert.Equal(t, []string{
+		"Alpha",
+		"alpha",
+		"beta",
+		"delta",
+		"gamma",
+		"path/to/file",
+		"path/to/file2",
+	}, output)
 }
 
-func TestFindDuplicate_NoDuplicates_ReturnsFalse(t *testing.T) {
-	test := func(name string, files []string) {
-		t.Run(name, func(t *testing.T) {
-			_, hasDup := findDuplicate(files)
-			assert.False(t, hasDup)
-		})
+func TestRemoveDuplicates_NoDuplicates_ReturnsOnlySorted(t *testing.T) {
+	files := []string{
+		"Beta",
+		"ALPHA",
+		"gamma",
+		"path/to/file2",
+		"path/to/file",
 	}
-	test("EmptySlice", []string{})
-	test("nilSlice", nil)
-	test("SingleFile",
-		[]string{
-			"path/to/file.h"})
-	test("MultipleFiles",
-		[]string{
-			"path/to/file_a.h",
-			"path/to/file_b.h",
-			"path/to/file_c.h"})
+	output := removeDuplicates(files)
+	assert.Equal(t, []string{
+		"ALPHA",
+		"Beta",
+		"gamma",
+		"path/to/file",
+		"path/to/file2",
+	}, output)
 }
 
 func TestGetPathToTopDir_ValidRelativePaths_ReturnsExpected(t *testing.T) {
