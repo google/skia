@@ -244,6 +244,7 @@ BASE_SRCS_ALL = [
     "include/private/SkFixed.h",
     "include/private/SkFloatBits.h",
     "include/private/SkFloatingPoint.h",
+    "include/private/SkGainmapInfo.h",
     "include/private/SkHalf.h",
     "include/private/SkIDChangeListener.h",
     "include/private/SkMacros.h",

@@ -36,6 +36,7 @@ skia_filegroup(
         "SkFixed.h",
         "SkFloatBits.h",
         "SkFloatingPoint.h",
+        "SkGainmapInfo.h",
         "SkHalf.h",
         "SkIDChangeListener.h",
         "SkMacros.h",

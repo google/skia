@@ -18,6 +18,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAInfo.h"
+#include "include/private/SkGainmapInfo.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkMalloc.h"
@@ -1036,6 +1037,13 @@ bool SkGetJpegInfo(const void* data, size_t len,
         *size = {SkToS32(dinfo->image_width), SkToS32(dinfo->image_height)};
     }
     return true;
+}
+
+bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
+                                   std::unique_ptr<SkStream>* gainmapImageStream) {
+    // TODO(ccameron): Parse gainmap here.
+    *info = SkGainmapInfo();
+    return false;
 }
 
 #endif // SK_CODEC_DECODES_JPEG

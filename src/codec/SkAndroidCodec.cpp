@@ -31,6 +31,7 @@
 #include <utility>
 
 class SkPngChunkReader;
+struct SkGainmapInfo;
 
 static bool is_valid_sample_size(int sampleSize) {
     // FIXME: As Leon has mentioned elsewhere, surely there is also a maximum sampleSize?
@@ -409,4 +410,9 @@ SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& requestInfo,
 SkCodec::Result SkAndroidCodec::getAndroidPixels(const SkImageInfo& info, void* pixels,
         size_t rowBytes) {
     return this->getAndroidPixels(info, pixels, rowBytes, nullptr);
+}
+
+bool SkAndroidCodec::getAndroidGainmap(SkGainmapInfo* info,
+                                       std::unique_ptr<SkStream>* outGainmapImageStream) {
+    return fCodec->onGetGainmapInfo(info, outGainmapImageStream);
 }

@@ -37,6 +37,7 @@ class SkImage;
 class SkPngChunkReader;
 class SkSampler;
 class SkStream;
+struct SkGainmapInfo;
 
 namespace DM {
 class CodecSrc;
@@ -769,6 +770,8 @@ protected:
     XformFormat getSrcXformFormat() const {
         return fSrcXformFormat;
     }
+
+    virtual bool onGetGainmapInfo(SkGainmapInfo*, std::unique_ptr<SkStream>*) { return false; }
 
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {
         // By default, scaling is not supported.

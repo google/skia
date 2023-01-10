@@ -28,6 +28,7 @@ class SkData;
 class SkSampler;
 class SkStream;
 class SkSwizzler;
+struct SkGainmapInfo;
 struct SkImageInfo;
 
 /*
@@ -74,6 +75,9 @@ protected:
     bool onDimensionsSupported(const SkISize&) override;
 
     bool conversionSupported(const SkImageInfo&, bool, bool) override;
+
+    bool onGetGainmapInfo(SkGainmapInfo* info,
+                          std::unique_ptr<SkStream>* gainmapImageStream) override;
 
 private:
     /*
