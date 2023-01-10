@@ -37,6 +37,7 @@
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLPostfixExpression.h"
 #include "src/sksl/ir/SkSLPrefixExpression.h"
@@ -181,6 +182,7 @@ public:
     [[nodiscard]] bool pushConstructorSplat(const ConstructorSplat& c);
     [[nodiscard]] bool pushExpression(const Expression& e, bool usesResult = true);
     [[nodiscard]] bool pushFunctionCall(const FunctionCall& e);
+    [[nodiscard]] bool pushIndexExpression(const IndexExpression& i);
     [[nodiscard]] bool pushIntrinsic(const FunctionCall& c);
     [[nodiscard]] bool pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0);
     [[nodiscard]] bool pushIntrinsic(IntrinsicKind intrinsic,
@@ -324,33 +326,41 @@ struct LValue {
     struct SlotMap {
         SkTArray<int> slots;  // the destination slots
     };
-    virtual SlotMap getSlotMap(Generator* gen) = 0;
+    virtual SlotMap getSlotMap(Generator* gen) const = 0;
+
+    /** Returns true if this lvalue actually refers to a uniform. */
+    virtual bool isUniform() const = 0;
 
     /** Converts a SlotMap into a list of ranges of consecutive slots. */
     static SkTArray<SlotRange> CoalesceSlotRanges(const SlotMap& slotMap);
 };
 
-struct VariableLValue : public LValue {
+struct VariableLValue final : public LValue {
     VariableLValue(const Variable* v) : fVariable(v) {}
 
-    SlotMap getSlotMap(Generator* gen) override {
+    SlotMap getSlotMap(Generator* gen) const override {
         // Map every slot in the variable, in consecutive order, e.g. a half4 at slot 5 = {5,6,7,8}.
         SlotMap out;
-        SlotRange range = gen->getVariableSlots(*fVariable);
+        SlotRange range = this->isUniform() ? gen->getUniformSlots(*fVariable)
+                                            : gen->getVariableSlots(*fVariable);
         out.slots.resize(range.count);
         std::iota(out.slots.begin(), out.slots.end(), range.index);
         return out;
     }
 
+    bool isUniform() const override {
+        return Generator::IsUniform(*fVariable);
+    }
+
     const Variable* fVariable;
 };
 
-struct SwizzleLValue : public LValue {
+struct SwizzleLValue final : public LValue {
     SwizzleLValue(std::unique_ptr<LValue> p, const ComponentArray& c)
             : fParent(std::move(p))
             , fComponents(c) {}
 
-    SlotMap getSlotMap(Generator* gen) override {
+    SlotMap getSlotMap(Generator* gen) const override {
         // Get slots from the parent expression.
         SlotMap in = fParent->getSlotMap(gen);
 
@@ -365,8 +375,45 @@ struct SwizzleLValue : public LValue {
         return out;
     }
 
+    bool isUniform() const override {
+        return fParent->isUniform();
+    }
+
     std::unique_ptr<LValue> fParent;
     const ComponentArray& fComponents;
+};
+
+struct IndexLValue final : public LValue {
+    IndexLValue(std::unique_ptr<LValue> p, const Expression& i, const Type& ti)
+            : fParent(std::move(p))
+            , fIndexExpr(i)
+            , fIndexedType(ti) {}
+
+    SlotMap getSlotMap(Generator* gen) const override {
+        // Get slots from the parent expression.
+        SlotMap in = fParent->getSlotMap(gen);
+
+        // Take a subset of the parent's slots.
+        int numElements = fIndexedType.slotCount();
+
+        SlotMap out;
+        out.slots.resize(numElements);
+        // TODO(skia:13676): support non-constant indices
+        int startingIndex = numElements * fIndexExpr.as<Literal>().intValue();
+        for (int count = 0; count < numElements; ++count) {
+            out.slots[count] = in.slots[startingIndex + count];
+        }
+
+        return out;
+    }
+
+    bool isUniform() const override {
+        return fParent->isUniform();
+    }
+
+    std::unique_ptr<LValue> fParent;
+    const Expression& fIndexExpr;
+    const Type& fIndexedType;
 };
 
 std::unique_ptr<LValue> LValue::Make(const Expression& e) {
@@ -376,6 +423,18 @@ std::unique_ptr<LValue> LValue::Make(const Expression& e) {
     if (e.is<Swizzle>()) {
         if (std::unique_ptr<LValue> base = LValue::Make(*e.as<Swizzle>().base())) {
             return std::make_unique<SwizzleLValue>(std::move(base), e.as<Swizzle>().components());
+        }
+    }
+    if (e.is<IndexExpression>()) {
+        const IndexExpression& indexExpr = e.as<IndexExpression>();
+
+        // TODO(skia:13676): support non-constant indices
+        if (indexExpr.index()->is<Literal>()) {
+            if (std::unique_ptr<LValue> base = LValue::Make(*indexExpr.base())) {
+                return std::make_unique<IndexLValue>(std::move(base),
+                                                     *indexExpr.index(),
+                                                     indexExpr.type());
+            }
         }
     }
     // TODO(skia:13676): add support for other kinds of lvalues
@@ -399,6 +458,8 @@ SkTArray<SlotRange> LValue::CoalesceSlotRanges(const SlotMap& slotMap) {
 }
 
 void LValue::store(Generator* gen) {
+    SkASSERT(!this->isUniform());
+
     SlotMap out = this->getSlotMap(gen);
 
     if (!out.slots.empty()) {
@@ -423,8 +484,13 @@ void LValue::push(Generator* gen) {
         SkTArray<SlotRange> ranges = CoalesceSlotRanges(out);
 
         // Push our coalesced slot ranges onto the stack.
+        bool isUniform = this->isUniform();
         for (const SlotRange& r : ranges) {
-            gen->builder()->push_slots(r);
+            if (isUniform) {
+                gen->builder()->push_uniform(r);
+            } else {
+                gen->builder()->push_slots(r);
+            }
         }
     }
 }
@@ -828,6 +894,9 @@ bool Generator::pushExpression(const Expression& e, bool usesResult) {
 
         case Expression::Kind::kFunctionCall:
             return this->pushFunctionCall(e.as<FunctionCall>());
+
+        case Expression::Kind::kIndex:
+            return this->pushIndexExpression(e.as<IndexExpression>());
 
         case Expression::Kind::kLiteral:
             return this->pushLiteral(e.as<Literal>());
@@ -1239,6 +1308,15 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
     // Copy the function result from its slots onto the stack.
     fBuilder.push_slots(*r);
     fBuilder.label(skipLabelID);
+    return true;
+}
+
+bool Generator::pushIndexExpression(const IndexExpression& i) {
+    std::unique_ptr<LValue> lvalue = LValue::Make(i);
+    if (!lvalue) {
+        return unsupported();
+    }
+    lvalue->push(this);
     return true;
 }
 
