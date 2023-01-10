@@ -25,8 +25,7 @@ union IDOrPath;
 union IDOrDrawable;
 }  // namespace sktext
 
-// This class represents a strike: a specific combination of typeface, size, matrix, etc., and
-// holds the glyphs for that strike.
+// This class holds the results of an SkScalerContext, and owns a references to that scaler.
 class SkScalerCache {
 public:
     SkScalerCache(std::unique_ptr<SkScalerContext> scaler,
@@ -47,12 +46,11 @@ public:
     std::tuple<SkDrawable*, size_t> mergeDrawable(
             SkGlyph* glyph, sk_sp<SkDrawable> drawable) SK_EXCLUDES(fMu);
 
-    /** Return the number of glyphs currently cached. */
+    // Return the number of glyphs currently cached.
     int countCachedGlyphs() const SK_EXCLUDES(fMu);
 
-    /** If the advance axis intersects the glyph's path, append the positions scaled and offset
-        to the array (if non-null), and set the count to the updated array length.
-    */
+    // If the advance axis intersects the glyph's path, append the positions scaled and offset
+    // to the array (if non-null), and set the count to the updated array length.
     void findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
                         SkGlyph* , SkScalar* array, int* count) SK_EXCLUDES(fMu);
 
