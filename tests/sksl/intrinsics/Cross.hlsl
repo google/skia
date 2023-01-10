@@ -1,9 +1,8 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float2 _10_ah : packoffset(c0);
-    float2 _10_bh : packoffset(c0.z);
-    float2 _10_af : packoffset(c1);
-    float2 _10_bf : packoffset(c1.z);
+    row_major float3x3 _10_testMatrix3x3 : packoffset(c0);
+    float4 _10_colorGreen : packoffset(c3);
+    float4 _10_colorRed : packoffset(c4);
 };
 
 
@@ -14,13 +13,35 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
+float4 main(float2 _26)
+{
+    float3 _29 = cross(_10_testMatrix3x3[0], _10_testMatrix3x3[1]);
+    bool _61 = false;
+    if (all(bool3(_29.x == float3(-3.0f, 6.0f, -3.0f).x, _29.y == float3(-3.0f, 6.0f, -3.0f).y, _29.z == float3(-3.0f, 6.0f, -3.0f).z)))
+    {
+        float3 _49 = cross(_10_testMatrix3x3[2], _10_testMatrix3x3[0]);
+        _61 = all(bool3(_49.x == float3(6.0f, -12.0f, 6.0f).x, _49.y == float3(6.0f, -12.0f, 6.0f).y, _49.z == float3(6.0f, -12.0f, 6.0f).z));
+    }
+    else
+    {
+        _61 = false;
+    }
+    float4 _62 = 0.0f.xxxx;
+    if (_61)
+    {
+        _62 = _10_colorGreen;
+    }
+    else
+    {
+        _62 = _10_colorRed;
+    }
+    return _62;
+}
+
 void frag_main()
 {
-    sk_FragColor.x = determinant(float2x2(_10_ah, _10_bh));
-    sk_FragColor.y = determinant(float2x2(_10_af, _10_bf));
-    sk_FragColor.z = 12.0f;
-    sk_FragColor = float4(float3(-8.0f, -8.0f, 12.0f).x, float3(-8.0f, -8.0f, 12.0f).y, float3(-8.0f, -8.0f, 12.0f).z, sk_FragColor.w);
-    sk_FragColor = float4(sk_FragColor.x, float3(9.0f, -18.0f, -9.0f).x, float3(9.0f, -18.0f, -9.0f).y, float3(9.0f, -18.0f, -9.0f).z);
+    float2 _22 = 0.0f.xx;
+    sk_FragColor = main(_22);
 }
 
 SPIRV_Cross_Output main()

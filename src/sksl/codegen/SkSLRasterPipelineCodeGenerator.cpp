@@ -236,6 +236,12 @@ public:
     void previousTempStack() {
         fBuilder.set_current_stack(--fCurrentTempStack);
     }
+    void pushCloneFromNextTempStack(int slots) {
+        fBuilder.push_clone_from_stack(slots, fCurrentTempStack + 1);
+    }
+    void pushCloneFromPreviousTempStack(int slots) {
+        fBuilder.push_clone_from_stack(slots, fCurrentTempStack - 1);
+    }
     BuilderOp getTypedOp(const SkSL::Type& type, const TypedOps& ops) const;
 
     static bool IsUniform(const Variable& var) {
@@ -1454,6 +1460,52 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
                               const Expression& arg0,
                               const Expression& arg1) {
     switch (intrinsic) {
+        case IntrinsicKind::k_cross_IntrinsicKind:
+            // Implement cross as `arg0.yzx * arg1.zxy - arg0.zxy * arg1.yzx`. We use two stacks so
+            // that each subexpression can be multiplied separately.
+            SkASSERT(arg0.type().matches(arg1.type()));
+            SkASSERT(arg0.type().slotCount() == 3);
+            SkASSERT(arg1.type().slotCount() == 3);
+
+            // Push `arg0.yzx` onto this stack and `arg0.zxy` onto the next stack.
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+
+            this->nextTempStack();
+            this->pushCloneFromPreviousTempStack(3);
+            fBuilder.swizzle(/*inputSlots=*/3, {2, 0, 1});
+            this->previousTempStack();
+
+            fBuilder.swizzle(/*inputSlots=*/3, {1, 2, 0});
+
+            // Push `arg1.zxy` onto this stack and `arg1.yzx` onto the next stack. Perform the
+            // multiply on each subexpression (`arg0.yzx * arg1.zxy` on the first stack, and
+            // `arg0.zxy * arg1.yzx` on the next).
+            if (!this->pushExpression(arg1)) {
+                return unsupported();
+            }
+
+            this->nextTempStack();
+            this->pushCloneFromPreviousTempStack(3);
+            fBuilder.swizzle(/*inputSlots=*/3, {1, 2, 0});
+            fBuilder.binary_op(BuilderOp::mul_n_floats, 3);
+            this->previousTempStack();
+
+            fBuilder.swizzle(/*inputSlots=*/3, {2, 0, 1});
+            fBuilder.binary_op(BuilderOp::mul_n_floats, 3);
+
+            // Migrate the result of the second subexpression (`arg0.zxy * arg1.yzx`) back onto the
+            // main stack and subtract it from the first subexpression (`arg0.yzx * arg1.zxy`).
+            this->pushCloneFromNextTempStack(3);
+            fBuilder.binary_op(BuilderOp::sub_n_floats, 3);
+
+            // Now that the calculation is complete, discard the subexpression on the next stack.
+            this->nextTempStack();
+            this->discardExpression(/*slots=*/3);
+            this->previousTempStack();
+            return true;
+
         case IntrinsicKind::k_dot_IntrinsicKind:
             // Implement dot as `a*b`, followed by folding via addition.
             SkASSERT(arg0.type().matches(arg1.type()));

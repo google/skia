@@ -1,9 +1,12 @@
-uniform half2  ah, bh;
-uniform float2 af, bf;
-void main() {
-    sk_FragColor.x = cross_length_2d(ah, bh);
-    sk_FragColor.y = half(cross_length_2d(af, bf));
-    sk_FragColor.z = cross_length_2d(half2(3, 0), half2(-1, 4));
-    sk_FragColor.xyz = cross(half3(3, 0, 2), half3(-1, 4, 2));
-    sk_FragColor.yzw = cross(half3(1, 4, -7), half3(2, -1, 4));
+uniform float3x3 testMatrix3x3;
+uniform half4 colorGreen, colorRed;
+
+half4 main(float2) {
+    const float3 expected1 = float3(-3, 6, -3);
+    const float3 expected2 = float3(6, -12, 6);
+
+    return (cross(testMatrix3x3[0], testMatrix3x3[1]) == expected1 &&
+            cross(testMatrix3x3[2], testMatrix3x3[0]) == expected2 &&
+            cross(float3(1, 2, 3),  float3(4, 5, 6))  == expected1 &&
+            cross(float3(7, 8, 9),  float3(1, 2, 3))  == expected2) ? colorGreen : colorRed;
 }
