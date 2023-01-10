@@ -17,11 +17,20 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "srcs",
+    name = "base_srcs",
     srcs = [
         "SkShaper.cpp",
         "SkShaper_primitive.cpp",
-    ] + select({
+    ],
+    visibility = [
+        "//:__pkg__",  # Used in G3 buffet build
+        "//modules/skshaper:__pkg__",
+    ],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [":base_srcs"] + select({
         "//modules/skshaper:use_harfbuzz_shaper": [":harfbuzz_srcs"],
         # TODO(kjlubick, bungeman) Add support for SkShaper_coretext
         "//conditions:default": [],

@@ -346,7 +346,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_shaper_public",
 			Rules: []string{"//modules/skshaper/include:hdrs"}},
 		{Var: "skia_shaper_primitive_sources",
-			Rules: []string{"//modules/skshaper/src:srcs"}},
+			Rules: []string{"//modules/skshaper/src:base_srcs"}},
 		{Var: "skia_shaper_harfbuzz_sources",
 			Rules: []string{"//modules/skshaper/src:harfbuzz_srcs"}},
 		{Var: "skia_shaper_coretext_sources",
