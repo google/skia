@@ -342,7 +342,8 @@ def _make_default_flags():
                     # -syslibroot appends to the beginning of the dylib dependency path.
                     # https://github.com/llvm/llvm-project/blob/d61341768cf0cff7ceeaddecc2f769b5c1b901c4/lld/MachO/InputFiles.cpp#L1418-L1420
                     "-Wl,-syslibroot",
-                    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/",
+                    # symlink created in download_mac_toolchain.bzl
+                    "~/.skiabazel/symlinks/xcode/MacSDK/",
                     "-fuse-ld=lld",
                     # We chose to use the llvm runtime, not the gcc one because it is already
                     # included in the clang binary
