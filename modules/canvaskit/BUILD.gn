@@ -93,6 +93,26 @@ action("create_notomono_cpp") {
   ]
 }
 
+action("create_emoji_font_cpp") {
+  script = "../../tools/embed_resources.py"
+
+  inputs = [ "fonts/NotoColorEmoji-Regular.ttf" ]
+
+  output_path =
+      "$root_out_dir/modules/canvaskit/fonts/NotoColorEmoji-Regular.ttf.ninja.cpp"
+
+  outputs = [ output_path ]
+
+  args = [
+    "--name=SK_EMBEDDED_FONTS",
+    "--input",
+    rebase_path("fonts/NotoColorEmoji-Regular.ttf"),
+    "--output",
+    rebase_path(output_path),
+    "--align=4",
+  ]
+}
+
 skia_wasm_lib("canvaskit") {
   deps = [ "../..:skia" ]
   if (skia_canvaskit_enable_paragraph) {
@@ -117,7 +137,7 @@ skia_wasm_lib("canvaskit") {
     deps += [ ":viewer_wasm" ]
   }
   if (skia_canvaskit_enable_embedded_font) {
-    deps += [ ":create_notomono_cpp" ]
+    deps += [ ":create_emoji_font_cpp" ]
   }
 
   sources = [
@@ -152,7 +172,7 @@ skia_wasm_lib("canvaskit") {
   }
   if (skia_canvaskit_enable_embedded_font) {
     sources += [
-      "$root_out_dir/modules/canvaskit/fonts/NotoMono-Regular.ttf.ninja.cpp",
+      "$root_out_dir/modules/canvaskit/fonts/NotoColorEmoji-Regular.ttf.ninja.cpp",
     ]
   }
 

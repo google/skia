@@ -78,6 +78,9 @@ var fontCache = {
   'Noto Mono': {
     '*': null, // is used if we have this font family, but not the right style/variant/weight
   },
+  'Noto Color Emoji': {
+    '*': null, // is used if we have this font family, but not the right style/variant/weight
+  },
   'monospace': {
     '*': null,
   }

@@ -106,10 +106,12 @@ SkTypeface* SkFontMgr::matchFamilyStyle(const char familyName[],
     return this->onMatchFamilyStyle(familyName, fs);
 }
 
-SkTypeface* SkFontMgr::matchFamilyStyleCharacter(const char familyName[], const SkFontStyle& style,
+SkTypeface* SkFontMgr::matchFamilyStyleCharacter(const char familyName[], const SkFontStyle&,
                                                  const char* bcp47[], int bcp47Count,
                                                  SkUnichar character) const {
-    return this->onMatchFamilyStyleCharacter(familyName, style, bcp47, bcp47Count, character);
+    sk_sp<SkFontStyleSet> sset(this->matchFamily("Noto Color Emoji"));
+    SkFontStyle style;
+    return sset->matchStyle(style);
 }
 
 sk_sp<SkTypeface> SkFontMgr::makeFromData(sk_sp<SkData> data, int ttcIndex) const {

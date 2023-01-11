@@ -61,6 +61,20 @@ genrule(
     exec_tools = ["//tools:embed_resources"],
 )
 
+genrule(
+    name = "create_emoji_font_cpp",
+    srcs = ["fonts/NotoColorEmoji-Regular.ttf"],
+    outs = ["fonts/NotoColorEmoji-Regular.ttf.bazel.cpp"],  # Distinct name from compile.sh's version
+    cmd = "$(location //tools:embed_resources) --name=SK_EMBEDDED_FONTS " +
+          "--input=modules/canvaskit/fonts/NotoColorEmoji-Regular.ttf " +
+          # The $@ means substitute in the one and only output location, which will be located
+          # in //bazel-out, not in the fonts subdirectory (although it will be available to clients
+          # in the fonts/ subdirectory as if it had been there all along.
+          "--output=$@ " +
+          "--align=4",
+    exec_tools = ["//tools:embed_resources"],
+)
+
 # Note: These are defines that only impact the _bindings.cpp files in this folder.
 # Any defines that need to effect the entire Skia build should go in //bazel/BUILD.bazel
 CK_DEFINES = [
