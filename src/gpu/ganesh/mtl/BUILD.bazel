@@ -1,8 +1,19 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "split_srcs_and_hdrs")
+load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup", "split_srcs_and_hdrs")
 
 licenses(["notice"])
 
 exports_files_legacy()
+
+# A list of files that is included by C++ files, but whose
+# implementation resides in .mm files. The latter may need to
+# be compiled separately (e.g. with Automatic Reference Counting [ARC]).
+skia_filegroup(
+    name = "mtl_cpp_hdrs",
+    srcs = [
+        "GrMtlCppUtil.h",
+        "GrMtlTrampoline.h",
+    ],
+)
 
 # Not currently in a Bazel target.
 # This list is exported to to gpu.gni:skia_metal_sources.
@@ -15,7 +26,6 @@ MTL_FILES = [
     "GrMtlCaps.mm",
     "GrMtlCommandBuffer.h",
     "GrMtlCommandBuffer.mm",
-    "GrMtlCppUtil.h",
     "GrMtlDepthStencil.h",
     "GrMtlDepthStencil.mm",
     "GrMtlFramebuffer.h",
@@ -44,7 +54,6 @@ MTL_FILES = [
     "GrMtlTexture.mm",
     "GrMtlTextureRenderTarget.h",
     "GrMtlTextureRenderTarget.mm",
-    "GrMtlTrampoline.h",
     "GrMtlTrampoline.mm",
     "GrMtlTypesPriv.mm",
     "GrMtlUniformHandler.h",

@@ -309,6 +309,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/ganesh/mtl:mtl_srcs",
 				"//src/image:mtl_srcs",
 			}},
+		{Var: "skia_gpu_metal_cpp",
+			Rules: []string{
+				"//src/gpu/ganesh/mtl:mtl_cpp_hdrs",
+			}},
 		{Var: "skia_native_gpu_sources",
 			Rules: []string{
 				"//include/gpu/gl/egl:public_hdrs",
