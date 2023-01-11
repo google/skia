@@ -228,12 +228,24 @@ public:
 
     void branch_if_any_active_lanes(int labelID) {
         SkASSERT(labelID >= 0 && labelID < fNumLabels);
+        if (!fInstructions.empty() &&
+            fInstructions.back().fOp == BuilderOp::branch_if_any_active_lanes) {
+            // The previous instruction was also `branch_if_any_active_lanes`, so this branch could
+            // never possibly occur.
+            return;
+        }
         fInstructions.push_back({BuilderOp::branch_if_any_active_lanes, {}, labelID});
         ++fNumBranches;
     }
 
     void branch_if_no_active_lanes(int labelID) {
         SkASSERT(labelID >= 0 && labelID < fNumLabels);
+        if (!fInstructions.empty() &&
+            fInstructions.back().fOp == BuilderOp::branch_if_no_active_lanes) {
+            // The previous instruction was also `branch_if_no_active_lanes`, so this branch could
+            // never possibly occur.
+            return;
+        }
         fInstructions.push_back({BuilderOp::branch_if_no_active_lanes, {}, labelID});
         ++fNumBranches;
     }

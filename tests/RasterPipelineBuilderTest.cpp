@@ -268,8 +268,10 @@ DEF_TEST(RasterPipelineBuilderBranches, r) {
     builder.label(label2);
     builder.immediate_f(2.0f);
     builder.branch_if_no_active_lanes(label2);
+    builder.branch_if_no_active_lanes(label3);
     builder.label(label3);
     builder.immediate_f(3.0f);
+    builder.branch_if_any_active_lanes(label1);
     builder.branch_if_any_active_lanes(label1);
 
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1,
