@@ -3129,8 +3129,6 @@ STAGE_TAIL(store_unmasked, float* ctx) {
 }
 
 STAGE_TAIL(store_masked, float* ctx) {
-    // We should probably dedicate a register (da?) to holding "dr & dg & db" so we don't need to
-    // recompute this bitmask every time we perform a masked operation.
     sk_unaligned_store(ctx, if_then_else(execution_mask(), r, sk_unaligned_load<F>(ctx)));
 }
 
@@ -3296,27 +3294,53 @@ STAGE_TAIL(copy_4_slots_masked, SkRasterPipeline_BinaryOpCtx* ctx) {
     copy_n_slots_masked_fn<4>(ctx, execution_mask());
 }
 
-template <int NumSlots>
-SI void swizzle_fn(SkRasterPipeline_SwizzleCtx* ctx) {
-    F scratch[NumSlots];
-    std::byte* ptr = (std::byte*)ctx->ptr;
-    for (int count = 0; count < NumSlots; ++count) {
-        scratch[count] = *(F*)(ptr + ctx->offsets[count]);
+template <int LoopCount>
+SI void swizzle_fn(F* dst, uint16_t* offsets, int numSlots) {
+    F scratch[16];
+    std::byte* src = (std::byte*)dst;
+    for (int count = 0; count < LoopCount; ++count) {
+        scratch[count] = *(F*)(src + offsets[count]);
     }
-    memcpy(ptr, scratch, sizeof(F) * NumSlots);
+    // Surprisingly, this switch generates significantly better code than a memcpy (on x86-64) when
+    // the number of slots is unknown at compile time, and generates roughly identical code when the
+    // number of slots is hardcoded. Using a switch allows `scratch` to live in ymm0-ymm15 instead
+    // of being written out to the stack and then read back in. Also, the intrinsic memcpy assumes
+    // that `numSlots` could be arbitrarily large, and so it emits more code than we need.
+    switch (numSlots) {
+        case 16: dst[15] = scratch[15]; [[fallthrough]];
+        case 15: dst[14] = scratch[14]; [[fallthrough]];
+        case 14: dst[13] = scratch[13]; [[fallthrough]];
+        case 13: dst[12] = scratch[12]; [[fallthrough]];
+        case 12: dst[11] = scratch[11]; [[fallthrough]];
+        case 11: dst[10] = scratch[10]; [[fallthrough]];
+        case 10: dst[ 9] = scratch[ 9]; [[fallthrough]];
+        case  9: dst[ 8] = scratch[ 8]; [[fallthrough]];
+        case  8: dst[ 7] = scratch[ 7]; [[fallthrough]];
+        case  7: dst[ 6] = scratch[ 6]; [[fallthrough]];
+        case  6: dst[ 5] = scratch[ 5]; [[fallthrough]];
+        case  5: dst[ 4] = scratch[ 4]; [[fallthrough]];
+        case  4: dst[ 3] = scratch[ 3]; [[fallthrough]];
+        case  3: dst[ 2] = scratch[ 2]; [[fallthrough]];
+        case  2: dst[ 1] = scratch[ 1]; [[fallthrough]];
+        case  1: dst[ 0] = scratch[ 0];
+    }
 }
 
 STAGE_TAIL(swizzle_1, SkRasterPipeline_SwizzleCtx* ctx) {
-    swizzle_fn<1>(ctx);
+    swizzle_fn<1>((F*)ctx->ptr, ctx->offsets, 1);
 }
 STAGE_TAIL(swizzle_2, SkRasterPipeline_SwizzleCtx* ctx) {
-    swizzle_fn<2>(ctx);
+    swizzle_fn<2>((F*)ctx->ptr, ctx->offsets, 2);
 }
 STAGE_TAIL(swizzle_3, SkRasterPipeline_SwizzleCtx* ctx) {
-    swizzle_fn<3>(ctx);
+    swizzle_fn<3>((F*)ctx->ptr, ctx->offsets, 3);
 }
 STAGE_TAIL(swizzle_4, SkRasterPipeline_SwizzleCtx* ctx) {
-    swizzle_fn<4>(ctx);
+    swizzle_fn<4>((F*)ctx->ptr, ctx->offsets, 4);
+}
+STAGE_TAIL(transpose, SkRasterPipeline_TransposeCtx* ctx) {
+    // What is a transpose if not a big swizzle?
+    swizzle_fn<16>((F*)ctx->ptr, ctx->offsets, ctx->count);
 }
 
 // Unary operations take a single input, and overwrite it with their output.
