@@ -392,13 +392,17 @@ void GrVkRenderTarget::createFramebuffer(bool withResolve,
                                   colorAttachment, resolve, stencil, compatibleHandle);
 }
 
-void GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescriptor* desc,
+bool GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescriptor* desc,
                                                 GrVkRenderPass::AttachmentFlags* attachmentFlags,
                                                 bool withResolve,
                                                 bool withStencil) {
     SkASSERT(!this->wrapsSecondaryCommandBuffer());
     const GrVkImage* colorAttachment =
             withResolve ? this->msaaAttachment() : this->colorAttachment();
+    if (!colorAttachment) {
+        SkDebugf("WARNING: Invalid color attachment -- possibly dmsaa attachment creation failed?");
+        return false;
+    }
 
     desc->fColor.fFormat = colorAttachment->imageFormat();
     desc->fColor.fSamples = colorAttachment->numSamples();
@@ -424,6 +428,8 @@ void GrVkRenderTarget::getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescr
         ++attachmentCount;
     }
     desc->fAttachmentCount = attachmentCount;
+
+    return true;
 }
 
 void GrVkRenderTarget::ReconstructAttachmentsDescriptor(const GrVkCaps& vkCaps,

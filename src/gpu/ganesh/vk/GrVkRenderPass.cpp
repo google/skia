@@ -404,8 +404,10 @@ bool GrVkRenderPass::isCompatible(GrVkRenderTarget* target,
 
     AttachmentsDescriptor desc;
     AttachmentFlags flags;
-    target->getAttachmentsDescriptor(&desc, &flags, this->hasResolveAttachment(),
-                                     this->hasStencilAttachment());
+    if (!target->getAttachmentsDescriptor(&desc, &flags, this->hasResolveAttachment(),
+                                          this->hasStencilAttachment())) {
+        return false;
+    }
 
     return this->isCompatible(desc, flags, selfDepFlags, loadFromResolve);
 }

@@ -118,7 +118,10 @@ GrVkResourceProvider::findCompatibleRenderPass(GrVkRenderTarget* target,
     // target has (color, stencil) and the attachments format and sample count.
     GrVkRenderPass::AttachmentFlags attachmentFlags;
     GrVkRenderPass::AttachmentsDescriptor attachmentsDesc;
-    target->getAttachmentsDescriptor(&attachmentsDesc, &attachmentFlags, withResolve, withStencil);
+    if (!target->getAttachmentsDescriptor(&attachmentsDesc, &attachmentFlags,
+                                          withResolve, withStencil)) {
+        return nullptr;
+    }
 
     return this->findCompatibleRenderPass(&attachmentsDesc, attachmentFlags, selfDepFlags,
                                           loadFromResolve, compatibleHandle);
