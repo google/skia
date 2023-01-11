@@ -1529,6 +1529,14 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             }
             return this->binaryOp(arg0.type(), kMinOps);
         }
+        case IntrinsicKind::k_transpose_IntrinsicKind:
+            SkASSERT(arg0.type().isMatrix());
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.transpose(arg0.type().columns(), arg0.type().rows());
+            return true;
+
         default:
             break;
     }
