@@ -403,6 +403,11 @@ public:
     // Consumes `inputSlots` elements on the stack, then generates `components.size()` elements.
     void swizzle(int inputSlots, SkSpan<const int8_t> components);
 
+    // Transposes a matrix of size CxR on the stack (into a matrix of size RxC).
+    void transpose(int columns, int rows) {
+        fInstructions.push_back({BuilderOp::transpose, {}, columns, rows});
+    }
+
     void push_condition_mask() {
         fInstructions.push_back({BuilderOp::push_condition_mask, {}});
     }

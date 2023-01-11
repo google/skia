@@ -577,6 +577,20 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 this->append(pipeline, (SkRP::Stage)inst.fOp, ctx);
                 break;
             }
+            case BuilderOp::transpose: {
+                auto* ctx = alloc->make<SkRasterPipeline_TransposeCtx>();
+                ctx->ptr = tempStackPtr - (N * inst.fImmA * inst.fImmB);
+                ctx->count = inst.fImmA * inst.fImmB;
+                sk_bzero(ctx->offsets, std::size(ctx->offsets));
+                size_t index = 0;
+                for (int r = 0; r < inst.fImmB; ++r) {
+                    for (int c = 0; c < inst.fImmA; ++c) {
+                        ctx->offsets[index++] = ((c * inst.fImmB) + r) * N * sizeof(float);
+                    }
+                }
+                this->append(pipeline, SkRP::Stage::transpose, ctx);
+                break;
+            }
             case BuilderOp::push_slots: {
                 float* dst = tempStackPtr;
                 this->appendCopySlotsUnmasked(pipeline, alloc, dst, SlotA(), inst.fImmA);
@@ -973,6 +987,25 @@ void Program::dump(SkWStream* out) {
             return std::make_tuple(PtrCtx(ctx->ptr, destSlots), src);
         };
 
+        // Interpret the context value as a Transpose structure.
+        auto TransposeCtx = [&](SkRP::Stage op,
+                                const void* v) -> std::tuple<std::string, std::string> {
+            const auto* ctx = static_cast<const SkRasterPipeline_TransposeCtx*>(v);
+
+            std::string dst = PtrCtx(ctx->ptr, ctx->count);
+            std::string src = "(" + dst + ")[";
+            for (int index = 0; index < ctx->count; ++index) {
+                if (ctx->offsets[index] % (N * sizeof(float))) {
+                    src.push_back('?');
+                } else {
+                    src += std::to_string(ctx->offsets[index] / (N * sizeof(float)));
+                }
+                src.push_back(' ');
+            }
+            src.back() = ']';
+            return std::make_tuple(dst, src);
+        };
+
         std::string opArg1, opArg2, opArg3;
         switch (stage.op) {
             case SkRP::immediate_f:
@@ -982,10 +1015,13 @@ void Program::dump(SkWStream* out) {
             case SkRP::swizzle_1:
             case SkRP::swizzle_2:
             case SkRP::swizzle_3:
-            case SkRP::swizzle_4: {
+            case SkRP::swizzle_4:
                 std::tie(opArg1, opArg2) = SwizzleCtx(stage.op, stage.ctx);
                 break;
-            }
+
+            case SkRP::transpose:
+                std::tie(opArg1, opArg2) = TransposeCtx(stage.op, stage.ctx);
+                break;
 
             case SkRP::load_unmasked:
             case SkRP::load_condition_mask:
@@ -1344,6 +1380,7 @@ void Program::dump(SkWStream* out) {
             case SkRP::copy_3_slots_unmasked: case SkRP::copy_4_slots_unmasked:
             case SkRP::swizzle_1:             case SkRP::swizzle_2:
             case SkRP::swizzle_3:             case SkRP::swizzle_4:
+            case SkRP::transpose:
                 opText = opArg1 + " = " + opArg2;
                 break;
 

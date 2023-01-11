@@ -255,6 +255,33 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
 )");
 }
 
+DEF_TEST(RasterPipelineBuilderTransposeSlots, r) {
+    // Create a very simple nonsense program.
+    SkSL::RP::Builder builder;
+    builder.push_literal_f(1.0f);           // push into 0
+    builder.push_duplicates(15);            // duplicate into 1~15
+    builder.transpose(2, 2);                // transpose a 2x2 matrix
+    builder.transpose(3, 3);                // transpose a 3x3 matrix
+    builder.transpose(4, 4);                // transpose a 4x4 matrix
+    builder.transpose(2, 4);                // transpose a 2x4 matrix
+    builder.transpose(4, 3);                // transpose a 4x3 matrix
+    builder.discard_stack(16);               // balance stack
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
+    check(r, *program,
+R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
+    2. swizzle_4                      $0..3 = ($0..3).xxxx
+    3. copy_4_slots_unmasked          $4..7 = $0..3
+    4. copy_4_slots_unmasked          $8..11 = $4..7
+    5. copy_4_slots_unmasked          $12..15 = $8..11
+    6. transpose                      $12..15 = ($12..15)[0 2 1 3]
+    7. transpose                      $7..15 = ($7..15)[0 3 6 1 4 7 2 5 8]
+    8. transpose                      $0..15 = ($0..15)[0 4 8 12 1 5 9 13 2 6 10 14 3 7 11 15]
+    9. transpose                      $8..15 = ($8..15)[0 4 1 5 2 6 3 7]
+   10. transpose                      $4..15 = ($4..15)[0 3 6 9 1 4 7 10 2 5 8 11]
+)");
+}
+
 DEF_TEST(RasterPipelineBuilderBranches, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
