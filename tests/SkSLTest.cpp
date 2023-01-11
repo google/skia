@@ -674,7 +674,7 @@ SKSL_TEST(VM + GPU,          kApiLevel_T, SwitchDefaultOnly,               "shar
 SKSL_TEST(VM + GPU,          kApiLevel_T, SwitchWithFallthrough,           "shared/SwitchWithFallthrough.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, SwitchWithLoops,                 "shared/SwitchWithLoops.sksl")
 SKSL_TEST(GPU_ES3,           kNever,      SwitchWithLoopsES3,              "shared/SwitchWithLoopsES3.sksl")
-SKSL_TEST(VM + GPU,          kApiLevel_T, SwizzleAsLValue,                 "shared/SwizzleAsLValue.sksl")
+SKSL_TEST(RP + VM + GPU,     kNever,      SwizzleAsLValue,                 "shared/SwizzleAsLValue.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleBoolConstants,            "shared/SwizzleBoolConstants.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, SwizzleByConstantIndex,          "shared/SwizzleByConstantIndex.sksl")
 SKSL_TEST(GPU_ES3,           kNever,      SwizzleByIndex,                  "shared/SwizzleByIndex.sksl")
