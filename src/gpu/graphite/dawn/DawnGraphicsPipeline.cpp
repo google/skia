@@ -354,7 +354,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
             entries[0].binding = kIntrinsicUniformBufferIndex;
             entries[0].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
             entries[0].buffer.type = wgpu::BufferBindingType::Uniform;
-            entries[0].buffer.hasDynamicOffset = true;
+            entries[0].buffer.hasDynamicOffset = false;
             entries[0].buffer.minBindingSize = 0;
 
             entries[1].binding = kRenderStepUniformBufferIndex;
