@@ -1004,6 +1004,7 @@ skia_filegroup(
     srcs = [
         "wgsl/BuiltinFragmentStageIO.sksl",
         "wgsl/BuiltinVertexStageIO.vert",
+        "wgsl/GlobalUniforms.sksl",
         "wgsl/MainDoesNotHaveFragCoordParameter.sksl",
         "wgsl/MainHasFragCoordParameter.sksl",
         "wgsl/MainHasVoidReturn.sksl",

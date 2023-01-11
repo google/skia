@@ -14,6 +14,7 @@
 #include "src/sksl/ir/SkSLType.h"
 
 #include <cstdint>
+#include <initializer_list>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -117,7 +118,16 @@ public:
     };
 
     WGSLCodeGenerator(const Context* context, const Program* program, OutputStream* out)
-            : INHERITED(context, program, out) {}
+            : INHERITED(context, program, out)
+            , fReservedWords({"array",
+                              "FSIn",
+                              "FSOut",
+                              "_globalUniforms",
+                              "_GlobalUniforms",
+                              "_stageIn",
+                              "_stageOut",
+                              "VSIn",
+                              "VSOut"}) {}
 
     bool generateCode() override;
 
@@ -194,11 +204,25 @@ private:
     void writeStageInputStruct();
     void writeStageOutputStruct();
 
+    // Writes all top-level non-opaque global uniform declarations (i.e. not part of an interface
+    // block) into a single uniform block binding.
+    //
+    // In complete fragment/vertex/compute programs, uniforms will be declared only as interface
+    // blocks and global opaque types (like textures and samplers) which we expect to be declared
+    // with a unique binding and descriptor set index. However, test files that are declared as RTE
+    // programs may contain OpenGL-style global uniform declarations with no clear binding index to
+    // use for the containing synthesized block.
+    //
+    // Since we are handling these variables only to generate gold files from RTEs and never run
+    // them, we always declare them at the default bind group and binding index.
+    void writeNonBlockUniformsForTests();
+
     // Stores the disallowed identifier names.
     // TODO(skia:13092): populate this
     SkTHashSet<std::string_view> fReservedWords;
     ProgramRequirements fRequirements;
     int fPipelineInputCount = 0;
+    bool fDeclaredUniformsStruct = false;
 
     // Output processing state.
     int fIndentation = 0;

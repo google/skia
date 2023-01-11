@@ -403,6 +403,11 @@ int count_pipeline_inputs(const Program* program) {
     return inputCount;
 }
 
+static bool is_in_global_uniforms(const Variable& var) {
+    SkASSERT(var.storage() == VariableStorage::kGlobal);
+    return var.modifiers().fFlags & Modifiers::kUniform_Flag && !var.type().isOpaque();
+}
+
 }  // namespace
 
 bool WGSLCodeGenerator::generateCode() {
@@ -419,6 +424,7 @@ bool WGSLCodeGenerator::generateCode() {
         // - global uniform/storage resource declarations, including interface blocks.
         this->writeStageInputStruct();
         this->writeStageOutputStruct();
+        this->writeNonBlockUniformsForTests();
     }
     StringStream body;
     {
@@ -887,6 +893,8 @@ void WGSLCodeGenerator::writeVariableReference(const VariableReference& r) {
             this->write("_stageIn.");
         } else if (v.modifiers().fFlags & Modifiers::kOut_Flag) {
             this->write("(*_stageOut).");
+        } else if (is_in_global_uniforms(v)) {
+            this->write("_globalUniforms.");
         }
     }
 
@@ -963,11 +971,14 @@ void WGSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
 
 void WGSLCodeGenerator::writeGlobalVarDeclaration(const GlobalVarDeclaration& d) {
     const Variable& var = *d.declaration()->as<VarDeclaration>().var();
-    if (var.modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) {
-        // Pipeline stage I/O parameters are handled specially in generateCode().
+    if ((var.modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) ||
+        is_in_global_uniforms(var)) {
+        // Pipeline stage I/O parameters and top-level (non-block) uniforms are handled specially
+        // in generateCode().
         return;
     }
-    // TODO(skia:13092): Implement uniform and workgroup variable decorations
+
+    // TODO(skia:13092): Implement workgroup variable decoration
     this->write("var<private> ");
     this->writeVariableDecl(var.type(), var.name(), Delimiter::kSemicolon);
 }
@@ -1113,6 +1124,31 @@ void WGSLCodeGenerator::writeStageOutputStruct() {
     // sk_PointSize when using the Dawn backend.
     if (ProgramConfig::IsVertex(fProgram.fConfig->fKind) && requiresPointSizeBuiltin) {
         this->writeLine("/* unsupported */ var<private> sk_PointSize: f32;");
+    }
+}
+
+void WGSLCodeGenerator::writeNonBlockUniformsForTests() {
+    for (const ProgramElement* e : fProgram.elements()) {
+        if (e->is<GlobalVarDeclaration>()) {
+            const GlobalVarDeclaration& decls = e->as<GlobalVarDeclaration>();
+            const Variable& var = *decls.varDeclaration().var();
+            if (is_in_global_uniforms(var)) {
+                if (!fDeclaredUniformsStruct) {
+                    this->write("struct _GlobalUniforms {\n");
+                    fDeclaredUniformsStruct = true;
+                }
+                this->write("    ");
+                this->writeVariableDecl(var.type(), var.mangledName(), Delimiter::kComma);
+            }
+        }
+    }
+    if (fDeclaredUniformsStruct) {
+        int binding = fProgram.fConfig->fSettings.fDefaultUniformBinding;
+        int set = fProgram.fConfig->fSettings.fDefaultUniformSet;
+        this->write("};\n");
+        this->write("@binding(" + std::to_string(binding) + ") ");
+        this->write("@group(" + std::to_string(set) + ") ");
+        this->writeLine("var<uniform> _globalUniforms: _GlobalUniforms;");
     }
 }
 

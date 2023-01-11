@@ -1,0 +1,7 @@
+uniform half4 colorGreen, colorRed;
+uniform float4 array[5];  // TODO(skia:13902): Test smaller array stride when uniform array layout
+                          // is supported
+
+half4 main() {
+    return half4(colorGreen.x, colorRed.x, 0, 1);
+}
