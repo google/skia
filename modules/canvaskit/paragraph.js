@@ -4,7 +4,6 @@
 
     CanvasKit.Paragraph.prototype.getRectsForRange = function(start, end, hStyle, wStyle) {
     /**
-     * This is bytes, but we'll want to think about them as float32s
      * @type {Float32Array}
      */
       var floatArray = this._getRectsForRange(start, end, hStyle, wStyle);
@@ -13,7 +12,6 @@
 
     CanvasKit.Paragraph.prototype.getRectsForPlaceholders = function() {
         /**
-        * This is bytes, but we'll want to think about them as float32s
         * @type {Float32Array}
         */
         var floatArray = this._getRectsForPlaceholders();
@@ -26,13 +24,12 @@
         }
         var ret = [];
         for (var i = 0; i < floatArray.length; i+=5) {
-            var r = CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]);
+            var rect = CanvasKit.LTRBRect(floatArray[i], floatArray[i+1], floatArray[i+2], floatArray[i+3]);
+            var dir = CanvasKit.TextDirection.LTR;
             if (floatArray[i+4] === 0) {
-                r['direction'] = CanvasKit.TextDirection.RTL;
-            } else {
-                r['direction'] = CanvasKit.TextDirection.LTR;
+                dir = CanvasKit.TextDirection.RTL;
             }
-            ret.push(r);
+            ret.push({'rect': rect, 'dir': dir});
         }
         CanvasKit._free(floatArray.byteOffset);
         return ret;

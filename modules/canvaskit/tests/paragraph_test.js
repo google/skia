@@ -439,11 +439,13 @@ describe('Paragraph Behavior', function() {
         let rects = paragraph.getRectsForPlaceholders();
         canvas.drawParagraph(paragraph, 10, 10);
 
-        for (const rect of rects) {
+        for (const r of rects) {
             const p = new CanvasKit.Paint();
             p.setColor(CanvasKit.Color(0, 0, 255));
             p.setStyle(CanvasKit.PaintStyle.Stroke);
             // Account for the (10, 10) offset when we painted the paragraph.
+            const rect = r.rect;
+            expect(r.dir).toEqual(CanvasKit.TextDirection.LTR);
             const placeholder =
                 CanvasKit.LTRBRect(rect[0]+10,rect[1]+10,rect[2]+10,rect[3]+10);
             canvas.drawRect(placeholder, p);
@@ -528,12 +530,12 @@ describe('Paragraph Behavior', function() {
             expect(Array.isArray(rects)).toEqual(true);
             expect(rects.length).toEqual(test.expectedNum);
 
-            for (const rect of rects) {
-                expect(rect.direction.value).toEqual(CanvasKit.TextDirection.LTR.value);
+            for (const r of rects) {
+                expect(r.dir).toEqual(CanvasKit.TextDirection.LTR);
                 const p = new CanvasKit.Paint();
                 p.setColor(test.color);
                 p.setStyle(CanvasKit.PaintStyle.Stroke);
-                canvas.drawRect(rect, p);
+                canvas.drawRect(r.rect, p);
                 p.delete();
             }
         }
@@ -1231,9 +1233,7 @@ describe('Paragraph Behavior', function() {
 
     gm('paragraph_fontSize_and_heightMultiplier_0', (canvas) => {
         const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
-
         const wrapTo = 250;
-
         const paraStyle = new CanvasKit.ParagraphStyle({
             textStyle: {
                 fontSize: 0,
@@ -1250,7 +1250,8 @@ describe('Paragraph Behavior', function() {
         let rects = paragraph.getRectsForRange(0, 1, CanvasKit.RectHeightStyle.Tight, CanvasKit.RectWidthStyle.Tight);
         const paint = new CanvasKit.Paint();
         paint.setColor(CanvasKit.Color(255, 0, 0));
-        canvas.drawRect(rects[0], paint);
+        canvas.drawRect(rects[0].rect, paint);
+        expect(rects[0].dir).toEqual(CanvasKit.TextDirection.LTR);
         paint.delete();
 
         paragraph.delete();

@@ -548,9 +548,11 @@ function paragraphTests(CK: CanvasKit, p?: Paragraph) {
     const g = p.getMaxIntrinsicWidth(); // $ExpectType number
     const h = p.getMaxWidth(); // $ExpectType number
     const i = p.getMinIntrinsicWidth(); // $ExpectType number
-    const j = p.getRectsForPlaceholders(); // $ExpectType Float32Array[]
-    const k = p.getRectsForRange(2, 10, CK.RectHeightStyle.Max,  // $ExpectType Float32Array[]
+    const j = p.getRectsForPlaceholders(); // $ExpectType RectWithDirection[]
+    const k = p.getRectsForRange(2, 10, CK.RectHeightStyle.Max,  // $ExpectType RectWithDirection[]
         CK.RectWidthStyle.Tight);
+    j[0].rect.length === 4;
+    j[0].dir === CK.TextDirection.RTL;
     const l = p.getWordBoundary(10); // $ExpectType URange
     p.layout(300);
     const m = p.getLineMetrics(); // $ExpectType LineMetrics[]

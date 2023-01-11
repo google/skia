@@ -927,7 +927,7 @@ export interface Paragraph extends EmbindObject<Paragraph> {
     getMaxIntrinsicWidth(): number;
     getMaxWidth(): number;
     getMinIntrinsicWidth(): number;
-    getRectsForPlaceholders(): Rect[];
+    getRectsForPlaceholders(): RectWithDirection[];
 
     /**
      * Returns bounding boxes that enclose all text in the range of glpyh indexes [start, end).
@@ -937,7 +937,7 @@ export interface Paragraph extends EmbindObject<Paragraph> {
      * @param wStyle
      */
     getRectsForRange(start: number, end: number, hStyle: RectHeightStyle,
-                     wStyle: RectWidthStyle): Rect[];
+                     wStyle: RectWidthStyle): RectWithDirection[];
 
     /**
      * Finds the first and last glyphs that define a word containing the glyph at index offset.
@@ -4049,14 +4049,20 @@ export type ColorMatrix = Float32Array;
  */
 export type IRect = Int32Array;
 /**
- * An Point is represented by 2 floats: (x, y).
+ * A Point is represented by 2 floats: (x, y).
  */
 export type Point = Float32Array;
 /**
- * An Rect is represented by 4 floats. In order, the floats correspond to left, top,
+ * A Rect is represented by 4 floats. In order, the floats correspond to left, top,
  * right, bottom. See Rect.h for more
  */
 export type Rect = Float32Array;
+
+export interface RectWithDirection {
+    rect: Rect;
+    dir: TextDirection;
+}
+
 /**
  * An RRect (rectangle with rounded corners) is represented by 12 floats. In order, the floats
  * correspond to left, top, right, bottom and then in pairs, the radiusX, radiusY for upper-left,
