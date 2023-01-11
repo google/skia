@@ -15,6 +15,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkGainmapInfo.h"  // IWYU pragma: keep
 #include "modules/skcms/skcms.h"
 #include "src/core/SkMD5.h"
 #include "tests/Test.h"

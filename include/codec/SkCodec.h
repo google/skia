@@ -771,6 +771,8 @@ protected:
         return fSrcXformFormat;
     }
 
+    sk_sp<const SkData> getXmpMetadata() const { return fXmpMetadata; }
+
     virtual bool onGetGainmapInfo(SkGainmapInfo*, std::unique_ptr<SkStream>*) { return false; }
 
     virtual SkISize onGetScaledDimensions(float /*desiredScale*/) const {

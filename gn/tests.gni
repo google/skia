@@ -462,3 +462,5 @@ ganesh_tests_sources = [
 ]
 
 tests_sources += ganesh_tests_sources
+
+jpeg_gainmap_tests_sources = [ "$_tests/JpegGainmapTest.cpp" ]
