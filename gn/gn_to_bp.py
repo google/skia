@@ -559,6 +559,7 @@ def generate_args(target_os, enable_gpu, renderengine = False):
   if target_os == '"android"' and not renderengine:
     d['skia_use_libheif']  = 'true'
     d['skia_use_jpegr'] = 'true'
+    d['skia_use_jpeg_gainmaps'] = 'true'
   else:
     d['skia_use_libheif']  = 'false'
     d['skia_use_jpegr'] = 'false'
