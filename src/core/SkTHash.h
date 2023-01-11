@@ -103,7 +103,7 @@ public:
             }
             index = this->next(index);
         }
-        SkASSERT(fCapacity == 0);
+        SkASSERT(fCapacity == fCount);
         return nullptr;
     }
 
