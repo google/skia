@@ -298,7 +298,8 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Default, rep
 //
 //    4) picture-backed image
 //                    drawn w/o mipmapping    --> drawn (yellow) - auto-converted
-//                    drawn w/ mipmapping     --> drawn (yellow) - auto-converted
+//                    drawn w/ mipmapping     --> drawn (yellow) - mipmap filtering is dropped
+//                                                                 due to no mipmap regen
 //
 //    5) bitmap-backed-generator based image
 //                    drawn w/o mipmapping    --> drawn (yellow) - auto-converted
@@ -318,4 +319,45 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Testing, rep
     std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder(options);
 
     run_test(reporter, context, recorder.get(), testcases);
+}
+
+// Here we're testing that the RequiredProperties parameter to makeTextureImage
+// works as expected.
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Test, reporter, context) {
+    FactoryT testcases[] = {
+            create_raster_backed_image_no_mipmaps,
+            create_raster_backed_image_with_mipmaps,
+            create_gpu_backed_image_no_mipmaps,
+            create_gpu_backed_image_with_mipmaps,
+
+            /*
+             * These 2 factories currently don't correctly create mipmaps bc mipmap regeneration
+             * isn't implemented (b/238754357):
+             *   create_picture_backed_image,
+             *   create_bitmap_generator_backed_image,
+             */
+    };
+
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    for (FactoryT factory : testcases) {
+        sk_sp<SkImage> orig = factory(recorder.get());
+
+        for (Mipmapped mm : { Mipmapped::kNo, Mipmapped::kYes }) {
+            sk_sp<SkImage> i = orig->makeTextureImage(recorder.get(), { mm });
+
+            // makeTextureImage has an optimization which allows Mipmaps on an Image if it
+            // would take extra work to remove them.
+            bool mipmapOptAllowed = orig->hasMipmaps() && mm == Mipmapped::kNo;
+
+            REPORTER_ASSERT(reporter, i->isTextureBacked());
+            REPORTER_ASSERT(reporter, (i->hasMipmaps() == (mm == Mipmapped::kYes)) ||
+                                      (i->hasMipmaps() && mipmapOptAllowed));
+
+            if (!orig->isTextureBacked()) {
+                i = orig->makeTextureImage(nullptr, { mm });
+                REPORTER_ASSERT(reporter, !i);
+            }
+        }
+    }
 }

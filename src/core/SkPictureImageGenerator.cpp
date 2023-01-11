@@ -155,7 +155,7 @@ sk_sp<SkImage> SkPictureImageGenerator::onMakeTextureImage(skgpu::graphite::Reco
 
     surface->getCanvas()->clear(SkColors::kTransparent);
     surface->getCanvas()->drawPicture(fPicture.get(), &fMatrix, fPaint.getMaybeNull());
-    return surface->makeImageSnapshot();
+    return surface->asImage();
 }
 
 #endif // SK_GRAPHITE_ENABLED

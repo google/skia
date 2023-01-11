@@ -86,12 +86,28 @@ std::unique_ptr<GrFragmentProcessor> Image::onAsFragmentProcessor(
 }
 #endif
 
-sk_sp<SkImage> Image::onMakeTextureImage(Recorder*, RequiredImageProperties requiredProps) const {
+sk_sp<SkImage> Image::onMakeTextureImage(Recorder* recorder,
+                                         RequiredImageProperties requiredProps) const {
     SkASSERT(requiredProps.fMipmapped == Mipmapped::kYes && !this->hasMipmaps());
-    // TODO: copy the base layer into a new image that has mip levels. For now we just return
-    // the un-mipmapped version and allow the sampling to be downgraded to linear
-    SKGPU_LOG_W("Graphite does not yet allow explicit mipmap level addition");
-    return sk_ref_sp(this);
+
+    TextureProxyView srcView = this->textureProxyView();
+    if (!srcView) {
+        return nullptr;
+    }
+
+    const SkIRect bounds = SkIRect::MakeSize(this->imageInfo().dimensions());
+    TextureProxyView copiedView = TextureProxyView::Copy(recorder,
+                                                         this->imageInfo().colorInfo(),
+                                                         srcView,
+                                                         bounds,
+                                                         requiredProps.fMipmapped);
+    if (!copiedView) {
+        return nullptr;
+    }
+
+    return sk_sp<Image>(new Image(kNeedNewImageUniqueID,
+                                  std::move(copiedView),
+                                  this->imageInfo().colorInfo()));
 }
 
 } // namespace skgpu::graphite

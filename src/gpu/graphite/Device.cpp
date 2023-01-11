@@ -352,11 +352,23 @@ TextureProxyView Device::createCopy(const SkIRect* subset, Mipmapped mipmapped) 
     }
 
     SkIRect srcRect = subset ? *subset : SkIRect::MakeSize(this->imageInfo().dimensions());
-    SkASSERT(SkIRect::MakeSize(this->imageInfo().dimensions()).contains(srcRect));
+    return TextureProxyView::Copy(this->recorder(),
+                                  this->imageInfo().colorInfo(),
+                                  srcView,
+                                  srcRect,
+                                  mipmapped);
+}
 
-    sk_sp<TextureProxy> dest = TextureProxy::Make(this->recorder()->priv().caps(),
+TextureProxyView TextureProxyView::Copy(Recorder* recorder,
+                                        const SkColorInfo& srcColorInfo,
+                                        const TextureProxyView& srcView,
+                                        SkIRect srcRect,
+                                        Mipmapped mipmapped) {
+    SkASSERT(SkIRect::MakeSize(srcView.proxy()->dimensions()).contains(srcRect));
+
+    sk_sp<TextureProxy> dest = TextureProxy::Make(recorder->priv().caps(),
                                                   srcRect.size(),
-                                                  this->imageInfo().colorType(),
+                                                  srcColorInfo.colorType(),
                                                   mipmapped,
                                                   srcView.proxy()->textureInfo().isProtected(),
                                                   Renderable::kNo,
@@ -373,7 +385,7 @@ TextureProxyView Device::createCopy(const SkIRect* subset, Mipmapped mipmapped) 
         return {};
     }
 
-    this->recorder()->priv().add(std::move(copyTask));
+    recorder->priv().add(std::move(copyTask));
 
     return { std::move(dest), srcView.swizzle() };
 }
