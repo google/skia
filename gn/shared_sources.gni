@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+# This is a list of all gni files have file lists which Skia exports for use.
+import("codec.gni")
 import("core.gni")
 import("effects.gni")
 import("effects_imagefilters.gni")
@@ -13,7 +15,6 @@ import("pdf.gni")
 import("sksl.gni")
 import("utils.gni")
 import("xps.gni")
-
 skia_opts = {
   none_sources = []
   crc32_sources = crc32

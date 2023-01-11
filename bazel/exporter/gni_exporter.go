@@ -123,6 +123,8 @@ const gpuGNIFooter = `
 skia_gpu_sources = skia_gpu_public + skia_gpu_private
 skia_gl_gpu_sources = skia_gpu_gl_public + skia_gpu_gl_private + skia_gpu_chromium_public
 skia_vk_sources = skia_gpu_vk_public + skia_gpu_vk_private
+skia_metal_sources = skia_gpu_metal_public + skia_gpu_metal_private
+skia_dawn_sources = skia_gpu_dawn_public + skia_gpu_dawn_private
 `
 
 // The footer written to gn/utils.gni.

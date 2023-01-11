@@ -1120,7 +1120,8 @@ optional("gpu") {
   }
 
   if (skia_use_dawn) {
-    sources += skia_dawn_sources
+    public += skia_gpu_dawn_public
+    sources += skia_gpu_dawn_private
   }
 
   if (skia_use_direct3d) {
@@ -1140,7 +1141,8 @@ optional("gpu") {
   cflags_objcc = []
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
-    sources += skia_metal_sources
+    public += skia_gpu_metal_public
+    sources += skia_gpu_metal_private
     if (skia_enable_metal_debug_info) {
       public_defines += [ "SK_ENABLE_MTL_DEBUG_INFO" ]
     }

@@ -204,8 +204,9 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "gn/gpu.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_gpu_public",
 			Rules: []string{
-				"//include/gpu:public_hdrs",
 				"//include/gpu/mock:public_hdrs",
+				"//include/gpu:public_hdrs",
+				"//include/gpu:shared_public_hdrs",
 			}},
 		{Var: "skia_gpu_private",
 			Rules: []string{
@@ -278,16 +279,22 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/gpu/ganesh/d3d:d3d_hdrs",
 				"//src/gpu/ganesh/d3d:d3d_srcs",
 			}},
-		{Var: "skia_dawn_sources",
+		{Var: "skia_gpu_dawn_public",
 			Rules: []string{
 				"//include/gpu/dawn:public_hdrs",
+			}},
+		{Var: "skia_gpu_dawn_private",
+			Rules: []string{
 				"//include/private/gpu/ganesh:dawn_private_hdrs",
 				"//src/gpu/ganesh/dawn:dawn_hdrs",
 				"//src/gpu/ganesh/dawn:dawn_srcs",
 			}},
-		{Var: "skia_metal_sources",
+		{Var: "skia_gpu_metal_public",
 			Rules: []string{
 				"//include/gpu/mtl:public_hdrs",
+			}},
+		{Var: "skia_gpu_metal_private",
+			Rules: []string{
 				"//src/gpu/ganesh/mtl:mtl_hdrs",
 				"//src/gpu/ganesh/mtl:mtl_srcs",
 				"//src/image:mtl_srcs",
