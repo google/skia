@@ -54,20 +54,19 @@ BitmapTextRenderStep::BitmapTextRenderStep()
 BitmapTextRenderStep::~BitmapTextRenderStep() {}
 
 std::string BitmapTextRenderStep::vertexSkSL() const {
-    return R"(
-        float2 baseCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));
-        baseCoords.xy *= float2(size);
+    return
+        "float2 baseCoords = float2(float(sk_VertexID >> 1), float(sk_VertexID & 1));"
+        "baseCoords.xy *= float2(size);"
 
-        stepLocalCoords = strikeToSourceScale*baseCoords + float2(xyPos);
-        float4 position = deviceMatrix*float4(stepLocalCoords, 0, 1);
+        "stepLocalCoords = strikeToSourceScale*baseCoords + float2(xyPos);"
+        "float4 position = deviceMatrix*float4(stepLocalCoords, 0, 1);"
 
-        float2 unormTexCoords = baseCoords + float2(uvPos);
-        textureCoords = unormTexCoords * atlasSizeInv;
-        texIndex = half(indexAndFlags.x);
-        maskFormat = half(indexAndFlags.y);
+        "float2 unormTexCoords = baseCoords + float2(uvPos);"
+        "textureCoords = unormTexCoords * atlasSizeInv;"
+        "texIndex = half(indexAndFlags.x);"
+        "maskFormat = half(indexAndFlags.y);"
 
-        float4 devPosition = float4(position.xy, depth, position.w);
-    )";
+        "float4 devPosition = float4(position.xy, depth, position.w);";
 }
 
 std::string BitmapTextRenderStep::texturesAndSamplersSkSL(
@@ -83,30 +82,29 @@ std::string BitmapTextRenderStep::texturesAndSamplersSkSL(
 }
 
 const char* BitmapTextRenderStep::fragmentCoverageSkSL() const {
-    return R"(
-        half4 texColor;
-        if (texIndex == 0) {
-           texColor = sample(text_atlas_0, textureCoords);
-        } else if (texIndex == 1) {
-           texColor = sample(text_atlas_1, textureCoords);
-        } else if (texIndex == 2) {
-           texColor = sample(text_atlas_2, textureCoords);
-        } else if (texIndex == 3) {
-           texColor = sample(text_atlas_3, textureCoords);
-        } else {
-           texColor = sample(text_atlas_0, textureCoords);
-        }
+    return
+        "half4 texColor;"
+        "if (texIndex == 0) {"
+           "texColor = sample(text_atlas_0, textureCoords);"
+        "} else if (texIndex == 1) {"
+           "texColor = sample(text_atlas_1, textureCoords);"
+        "} else if (texIndex == 2) {"
+           "texColor = sample(text_atlas_2, textureCoords);"
+        "} else if (texIndex == 3) {"
+           "texColor = sample(text_atlas_3, textureCoords);"
+        "} else {"
+           "texColor = sample(text_atlas_0, textureCoords);"
+        "}"
         // A8
-        if (maskFormat == 0) {
-            outputCoverage = texColor.rrrr;
+        "if (maskFormat == 0) {"
+            "outputCoverage = texColor.rrrr;"
         // LCD
-        } else if (maskFormat == 1) {
-            outputCoverage = half4(texColor.rgb, max(max(texColor.r, texColor.g), texColor.b));
+        "} else if (maskFormat == 1) {"
+            "outputCoverage = half4(texColor.rgb, max(max(texColor.r, texColor.g), texColor.b));"
         // RGBA
-        } else {
-            outputCoverage = texColor;
-        }
-    )";
+        "} else {"
+            "outputCoverage = texColor;"
+        "}";
 }
 
 void BitmapTextRenderStep::writeVertices(DrawWriter* dw,
