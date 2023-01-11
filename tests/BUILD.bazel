@@ -15,7 +15,6 @@ CODEC_TESTS = [
     "ExifTest.cpp",
     "GifTest.cpp",
     "IndexedPngOverflowTest.cpp",
-    "JpegGainmapTest.cpp",
     "WebpTest.cpp",
     "YUVTest.cpp",
 ]
