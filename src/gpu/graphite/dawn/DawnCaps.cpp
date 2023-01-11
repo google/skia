@@ -28,6 +28,11 @@ static constexpr wgpu::TextureFormat kFormats[] = {
     wgpu::TextureFormat::R8Unorm,
     wgpu::TextureFormat::BGRA8Unorm,
     wgpu::TextureFormat::RGBA16Float,
+
+    wgpu::TextureFormat::Stencil8,
+    wgpu::TextureFormat::Depth32Float,
+    wgpu::TextureFormat::Depth32FloatStencil8,
+
     wgpu::TextureFormat::Undefined,
 };
 
@@ -291,6 +296,31 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
             ctInfo.fColorType = kRGBA_F16_SkColorType;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
         }
+    }
+
+    /*
+     * Non-color formats
+     */
+
+    // Format: Stencil8
+    {
+        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::Stencil8)];
+        info->fFlags = FormatInfo::kMSAA_Flag;
+        info->fColorTypeInfoCount = 0;
+    }
+
+    // Format: Depth32Float
+    {
+        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::Depth32Float)];
+        info->fFlags = FormatInfo::kMSAA_Flag;
+        info->fColorTypeInfoCount = 0;
+    }
+
+    // Format: Depth32Float_Stencil8
+    {
+        info = &fFormatTable[GetFormatIndex(wgpu::TextureFormat::Depth32FloatStencil8)];
+        info->fFlags = FormatInfo::kMSAA_Flag;
+        info->fColorTypeInfoCount = 0;
     }
 
     // Format: Undefined
