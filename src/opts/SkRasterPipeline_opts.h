@@ -723,7 +723,7 @@ template <typename T> using V = T __attribute__((ext_vector_type(4)));
     SI I32 min(I32 a, I32 b) { return _mm_min_epi32(a,b); }
     SI U32 min(U32 a, U32 b) { return _mm_min_epu32(a,b); }
     SI I32 max(I32 a, I32 b) { return _mm_max_epi32(a,b); }
-    SI U32 max(U32 a, U32 b) { return _mm_min_epu32(a,b); }
+    SI U32 max(U32 a, U32 b) { return _mm_max_epu32(a,b); }
 #else
     SI I32 min(I32 a, I32 b) {
         return sk_bit_cast<I32>(if_then_else(a < b, sk_bit_cast<F>(a), sk_bit_cast<F>(b)));
