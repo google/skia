@@ -124,7 +124,7 @@ CORE_FILES = [
     "SkDescriptor.h",
     "SkDevice.cpp",
     "SkDevice.h",
-    "SkDiscardableMemory.h",
+    "SkDiscardableMemory.h",  # TODO(kjlubick) remove shim file
     "SkDistanceFieldGen.cpp",
     "SkDistanceFieldGen.h",
     "SkDocument.cpp",

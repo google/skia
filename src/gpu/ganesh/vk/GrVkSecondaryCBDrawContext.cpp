@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/gpu/ganesh/vk/GrVkSecondaryCBDrawContext_impl.h"
+#include "include/private/chromium/GrVkSecondaryCBDrawContext.h"
 
 #include "include/core/SkDeferredDisplayList.h"
 #include "include/core/SkImageInfo.h"

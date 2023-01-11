@@ -20,11 +20,31 @@ skia_filegroup(
     ],
 )
 
+# This group is mapped to //gn/gpu.gni:skia_gpu_vk_chromium.
+skia_filegroup(
+    name = "vk_chromium_hdrs",
+    srcs = [
+        "GrVkSecondaryCBDrawContext.h",
+    ],
+)
+
+# This group is mapped to //gn/core.gni:skia_discardable_memory_chromium.
+skia_filegroup(
+    name = "discardable_memory_hdrs",
+    srcs = [
+        "SkDiscardableMemory.h",
+    ],
+)
+
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
         "SkChromeRemoteGlyphCache.h",
+        ":discardable_memory_hdrs",
         ":shared_private_hdrs",
-    ],
+    ] + select({
+        "//src/gpu:vulkan_backend": [":vk_chromium_hdrs"],
+        "//conditions:default": [],
+    }),
     visibility = ["//include/private:__pkg__"],
 )

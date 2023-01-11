@@ -52,8 +52,6 @@ VK_FILES = [
     "GrVkSampler.h",
     "GrVkSamplerYcbcrConversion.cpp",
     "GrVkSamplerYcbcrConversion.h",
-    "GrVkSecondaryCBDrawContext.cpp",
-    "GrVkSecondaryCBDrawContext_impl.h",
     "GrVkSemaphore.cpp",
     "GrVkSemaphore.h",
     "GrVkTexture.cpp",
@@ -75,8 +73,16 @@ split_srcs_and_hdrs(
 )
 
 skia_filegroup(
+    name = "vk_chromium_srcs",
+    srcs = ["GrVkSecondaryCBDrawContext.cpp"],
+)
+
+skia_filegroup(
     name = "srcs",
-    srcs = [":vk_srcs"],
+    srcs = [
+        ":vk_chromium_srcs",
+        ":vk_srcs",
+    ],
     visibility = ["//src/gpu/ganesh:__pkg__"],
 )
 

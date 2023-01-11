@@ -79,7 +79,10 @@ const coreGNIFooter = `skia_core_sources += skia_pathops_sources
 skia_core_sources += skia_skpicture_sources
 
 skia_core_public += skia_pathops_public
-skia_core_public += skia_skpicture_public`
+skia_core_public += skia_skpicture_public
+# TODO(kjlubick) Move this into Chromium's BUILD.gn file.
+skia_core_public += skia_discardable_memory_chromium
+`
 
 // The footer written to gn/sksl_tests.gni.
 const skslTestsFooter = `sksl_glsl_tests_sources =
@@ -122,7 +125,8 @@ const gpuGNIFooter = `
 # instead of the monolithic ones.
 skia_gpu_sources = skia_gpu_public + skia_gpu_private
 skia_gl_gpu_sources = skia_gpu_gl_public + skia_gpu_gl_private + skia_gpu_chromium_public
-skia_vk_sources = skia_gpu_vk_public + skia_gpu_vk_private
+skia_vk_sources = skia_gpu_vk_public + skia_gpu_vk_private +
+                  skia_gpu_vk_chromium_public + skia_gpu_vk_chromium_private
 skia_metal_sources = skia_gpu_metal_public + skia_gpu_metal_private
 skia_dawn_sources = skia_gpu_dawn_public + skia_gpu_dawn_private
 `

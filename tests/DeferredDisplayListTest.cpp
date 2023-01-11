@@ -55,8 +55,8 @@ struct GrContextOptions;
 
 #ifdef SK_VULKAN
 #include "include/gpu/vk/GrVkTypes.h"
+#include "include/private/chromium/GrVkSecondaryCBDrawContext.h"
 #include "src/gpu/ganesh/vk/GrVkCaps.h"
-#include "src/gpu/ganesh/vk/GrVkSecondaryCBDrawContext_impl.h"
 #include "tools/gpu/vk/VkTestHelper.h"
 #include <vulkan/vulkan_core.h>
 #endif

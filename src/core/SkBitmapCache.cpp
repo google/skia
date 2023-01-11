@@ -53,7 +53,7 @@ public:
 }  // namespace
 
 //////////////////////
-#include "src/core/SkDiscardableMemory.h"
+#include "include/private/chromium/SkDiscardableMemory.h"
 #include "src/core/SkNextID.h"
 
 void SkBitmapCache_setImmutableWithID(SkPixelRef* pr, uint32_t id) {

@@ -7,7 +7,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "src/core/SkDiscardableMemory.h"
+#include "include/private/chromium/SkDiscardableMemory.h"
 #include "src/core/SkResourceCache.h"
 #include "src/lazy/SkDiscardableMemoryPool.h"
 #include "tests/Test.h"

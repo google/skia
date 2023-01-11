@@ -2255,6 +2255,10 @@ if (skia_enable_tools) {
     if (skia_use_gl) {
       sources += gl_tests_sources
     }
+    if (skia_use_vulkan) {
+      sources += skia_gpu_vk_chromium_public
+      sources += skia_gpu_vk_chromium_private
+    }
     if (skia_enable_graphite) {
       sources += graphite_tests_sources
       if (skia_use_metal) {

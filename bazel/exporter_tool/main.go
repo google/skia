@@ -75,7 +75,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/shaders:skpicture_srcs",
 			}},
 		{Var: "src_images_srcs",
-			Rules: []string{"//src/images:srcs"}}},
+			Rules: []string{"//src/images:srcs"}},
+		{Var: "skia_discardable_memory_chromium",
+			Rules: []string{"//include/private/chromium:discardable_memory_hdrs"}},
+		},
 	},
 	{GNI: "gn/effects.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_effects_public",
@@ -264,13 +267,20 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//include/gpu/vk:public_hdrs",
 			}},
+		{Var: "skia_gpu_vk_chromium_public",
+			Rules: []string{
+				"//include/private/chromium:vk_chromium_hdrs",
+			}},
 		{Var: "skia_gpu_vk_private",
 			Rules: []string{
 				"//include/gpu/vk:public_hdrs",
 				"//include/private/gpu/ganesh:vk_private_hdrs",
 				"//src/gpu/ganesh/vk:vk_hdrs",
 				"//src/gpu/ganesh/vk:vk_srcs",
-				"//src/gpu/vk:impl_vk_hdrs",
+			}},
+		{Var: "skia_gpu_vk_chromium_private",
+			Rules: []string{
+				"//src/gpu/ganesh/vk:vk_chromium_srcs",
 			}},
 		{Var: "skia_direct3d_sources",
 			Rules: []string{

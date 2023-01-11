@@ -19,7 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkCachedData.h"
-#include "src/core/SkDiscardableMemory.h"
+#include "include/private/chromium/SkDiscardableMemory.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkResourceCache.h"
 #include "src/image/SkImage_Base.h"

@@ -10,7 +10,7 @@
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkDiscardableMemory.h"
+#include "include/private/chromium/SkDiscardableMemory.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkMessageBus.h"
 #include "src/core/SkMipmap.h"
