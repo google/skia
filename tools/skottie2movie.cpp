@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     CommandLineFlags::SetUsage("Converts skottie to a mp4");
     CommandLineFlags::Parse(argc, argv);
 
-    if (FLAGS_input.count() == 0) {
+    if (FLAGS_input.size() == 0) {
         SkDebugf("-i input_file.json argument required\n");
         return -1;
     }
@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     sk_gpu_test::GrContextFactory factory(grCtxOptions);
 
     SkString assetPath;
-    if (FLAGS_assetPath.count() > 0) {
+    if (FLAGS_assetPath.size() > 0) {
         assetPath.set(FLAGS_assetPath[0]);
     } else {
         assetPath = SkOSPath::Dirname(FLAGS_input[0]);
@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
         }
     } while (FLAGS_loop);
 
-    if (FLAGS_output.count() == 0) {
+    if (FLAGS_output.size() == 0) {
         SkDebugf("missing -o output_file.mp4 argument\n");
         return 0;
     }
