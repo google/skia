@@ -22,18 +22,24 @@
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGRect.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGTransform.h"
+#include "modules/sksg/src/SkSGTransformPriv.h"
 
 // Enable for text layout debugging.
 #define SHOW_LAYOUT_BOXES 0
 
 namespace skottie::internal {
 
+namespace {
+
 class GlyphTextNode final : public sksg::GeometryNode {
 public:
-    explicit GlyphTextNode(skottie::Shaper::ShapedGlyphs&& glyphs) : fGlyphs(std::move(glyphs)) {}
+    explicit GlyphTextNode(Shaper::ShapedGlyphs&& glyphs) : fGlyphs(std::move(glyphs)) {}
 
     ~GlyphTextNode() override = default;
+
+    const Shaper::ShapedGlyphs* glyphs() const { return &fGlyphs; }
 
 protected:
     SkRect onRevalidate(sksg::InvalidationController*, const SkMatrix&) override {
@@ -58,7 +64,7 @@ protected:
     }
 
 private:
-    const skottie::Shaper::ShapedGlyphs fGlyphs;
+    const Shaper::ShapedGlyphs fGlyphs;
 };
 
 static float align_factor(SkTextUtils::Align a) {
@@ -70,6 +76,67 @@ static float align_factor(SkTextUtils::Align a) {
 
     SkUNREACHABLE;
 }
+
+} // namespace
+
+class TextAdapter::GlyphDecoratorNode final : public sksg::Group {
+public:
+    GlyphDecoratorNode(sk_sp<GlyphDecorator> decorator)
+        : fDecorator(std::move(decorator))
+    {}
+
+    ~GlyphDecoratorNode() override = default;
+
+    void updateFragmentData(const std::vector<TextAdapter::FragmentRec>& recs) {
+        fFragCount = recs.size();
+
+        SkASSERT(!fFragInfo);
+        fFragInfo = std::make_unique<FragmentInfo[]>(recs.size());
+
+        for (size_t i = 0; i < recs.size(); ++i) {
+            const auto& rec = recs[i];
+            fFragInfo[i] = {rec.fOrigin, rec.fGlyphs, rec.fMatrixNode};
+        }
+
+        SkASSERT(!fDecoratorInfo);
+        fDecoratorInfo = std::make_unique<GlyphDecorator::GlyphInfo[]>(recs.size());
+    }
+
+    SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {
+        const auto child_bounds = INHERITED::onRevalidate(ic, ctm);
+
+        for (size_t i = 0; i < fFragCount; ++i) {
+            fDecoratorInfo[i].fBounds =
+                    fFragInfo[i].fGlyphs->computeBounds(Shaper::ShapedGlyphs::BoundsType::kTight);
+            fDecoratorInfo[i].fMatrix = sksg::TransformPriv::As<SkMatrix>(fFragInfo[i].fMatrixNode);
+        }
+
+        return child_bounds;
+    }
+
+    void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
+        auto local_ctx = ScopedRenderContext(canvas, ctx).setIsolation(this->bounds(),
+                                                                       canvas->getTotalMatrix(),
+                                                                       true);
+        this->INHERITED::onRender(canvas, local_ctx);
+
+        fDecorator->onDecorate(canvas, fDecoratorInfo.get(), fFragCount);
+    }
+
+private:
+    struct FragmentInfo {
+        SkPoint                     fOrigin;
+        const Shaper::ShapedGlyphs* fGlyphs;
+        sk_sp<sksg::Matrix<SkM44>>  fMatrixNode;
+    };
+
+    const sk_sp<GlyphDecorator>                  fDecorator;
+    std::unique_ptr<FragmentInfo[]>              fFragInfo;
+    std::unique_ptr<GlyphDecorator::GlyphInfo[]> fDecoratorInfo;
+    size_t                                       fFragCount;
+
+    using INHERITED = Group;
+};
 
 // Text path semantics
 //
@@ -365,7 +432,7 @@ TextAdapter::buildGlyphCompNodes(Shaper::Fragment& frag) const {
     return draws;
 }
 
-void TextAdapter::addFragment(Shaper::Fragment& frag) {
+void TextAdapter::addFragment(Shaper::Fragment& frag, sksg::Group* container) {
     // For a given shaped fragment, build a corresponding SG fragment:
     //
     //   [TransformEffect] -> [Transform]
@@ -390,9 +457,11 @@ void TextAdapter::addFragment(Shaper::Fragment& frag) {
     // Note: comp glyph IDs are still present in the list, but they don't draw anything
     //       (using empty path in SkCustomTypeface).
     auto text_node = sk_make_sp<GlyphTextNode>(std::move(frag.fGlyphs));
+    rec.fGlyphs = text_node->glyphs();
 
     draws.reserve(draws.size() +
-                  static_cast<size_t>(fText->fHasFill) + static_cast<size_t>(fText->fHasStroke));
+                  static_cast<size_t>(fText->fHasFill) +
+                  static_cast<size_t>(fText->fHasStroke));
 
     SkASSERT(fText->fHasFill || fText->fHasStroke);
 
@@ -446,7 +515,7 @@ void TextAdapter::addFragment(Shaper::Fragment& frag) {
         draws_node = sksg::ImageFilterEffect::Make(std::move(draws_node), rec.fBlur);
     }
 
-    fRoot->addChild(sksg::TransformEffect::Make(std::move(draws_node), rec.fMatrixNode));
+    container->addChild(sksg::TransformEffect::Make(std::move(draws_node), rec.fMatrixNode));
     fFragments.push_back(std::move(rec));
 }
 
@@ -522,7 +591,8 @@ uint32_t TextAdapter::shaperFlags() const {
     //   - when animating
     //   - when positioning on a path
     //   - when clamping the number or lines (for accurate line count)
-    if (!fAnimators.empty() || fPathInfo || fText->fMaxLines) {
+    //   - when a text decorator is present
+    if (!fAnimators.empty() || fPathInfo || fText->fMaxLines || fText->fDecorator) {
         flags |= Shaper::Flags::kFragmentGlyphs;
     }
 
@@ -614,10 +684,24 @@ void TextAdapter::reshape() {
         }
     }
 
+    // Depending on whether a GlyphDecorator is present, we either add the glyph render nodes
+    // directly to the root group, or to an intermediate GlyphDecoratorNode container.
+    sksg::Group* container = fRoot.get();
+    sk_sp<GlyphDecoratorNode> decorator_node;
+    if (fText->fDecorator) {
+        decorator_node = sk_make_sp<GlyphDecoratorNode>(fText->fDecorator);
+        container = decorator_node.get();
+    }
+
     // N.B. addFragment moves shaped glyph data out of the fragment, so only the fragment
     // metrics are valid after this block.
-    for (auto& frag : shape_result.fFragments) {
-        this->addFragment(frag);
+    for (size_t i = 0; i < shape_result.fFragments.size(); ++i) {
+        this->addFragment(shape_result.fFragments[i], container);
+    }
+
+    if (decorator_node) {
+        decorator_node->updateFragmentData(fFragments);
+        fRoot->addChild(std::move(decorator_node));
     }
 
     if (!fAnimators.empty() || fPathInfo) {

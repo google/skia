@@ -25,6 +25,7 @@
 #include "src/utils/SkOSPath.h"
 #include "tools/Resources.h"
 #include "tools/timer/TimeUtils.h"
+#include "tools/viewer/SkottieTextEditor.h"
 
 #include <cmath>
 #include <vector>
@@ -190,6 +191,28 @@ static const struct DecoratorRec {
     { "Confetti",            ParticleMarker::MakeConfetti },
     { "Sine Wave",           ParticleMarker::MakeSine },
     { "Nested Skotties",     ParticleMarker::MakeSkottie },
+};
+
+class TextTracker final : public skottie::PropertyObserver {
+public:
+    explicit TextTracker(sk_sp<PropertyObserver> delegate) : fDelegate(std::move(delegate)) {}
+
+    std::vector<std::unique_ptr<skottie::TextPropertyHandle>>& props() {
+        return fTextProps;
+    }
+
+private:
+    void onTextProperty(const char node_name[],
+                        const LazyHandle<skottie::TextPropertyHandle>& lh) override {
+        fTextProps.push_back(lh());
+
+        if (fDelegate) {
+            fDelegate->onTextProperty(node_name, lh);
+        }
+    }
+
+    const sk_sp<PropertyObserver>                             fDelegate;
+    std::vector<std::unique_ptr<skottie::TextPropertyHandle>> fTextProps;
 };
 
 } // namespace
@@ -481,6 +504,8 @@ void SkottieSlide::init() {
                                                                            kInterceptPrefix);
 
     fTransformTracker = sk_make_sp<TransformTracker>();
+    auto text_tracker = sk_make_sp<TextTracker>(fTransformTracker);
+
     if (!fSlotManagerWrapper) {
         fSlotManagerWrapper = std::make_unique<SlotManagerWrapper>(resource_provider, this);
     }
@@ -494,7 +519,7 @@ void SkottieSlide::init() {
                .setPropertyObserver(fSlotManagerWrapper->getPropertyObserver());
     } else {
         builder.setResourceProvider(std::move(resource_provider))
-               .setPropertyObserver(fTransformTracker);
+               .setPropertyObserver(text_tracker);
     }
     fAnimation = builder.makeFromFile(fPath.c_str());
     fAnimationStats = builder.getStats();
@@ -508,6 +533,12 @@ void SkottieSlide::init() {
                  fAnimation->size().width(),
                  fAnimation->size().height());
         logger->report();
+
+        // Create an editor for the first text layer only.
+        // TODO: editors for all layers?
+        if (!text_tracker->props().empty()) {
+            fTextEditor = sk_make_sp<SkottieTextEditor>(std::move(text_tracker->props()[0]));
+        }
     } else {
         SkDebugf("failed to load Bodymovin animation: %s\n", fPath.c_str());
     }
@@ -628,12 +659,19 @@ bool SkottieSlide::onChar(SkUnichar c) {
     case 'M':
         fShowSlotManager = !fShowSlotManager;
         return true;
+    case 'E':
+        fTextEditor->toggleEnabled();
+        return true;
     }
 
     return INHERITED::onChar(c);
 }
 
-bool SkottieSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey) {
+bool SkottieSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey mod) {
+    if (fTextEditor->onMouseInput(x, y, state, mod)) {
+        return true;
+    }
+
     switch (state) {
     case skui::InputState::kUp:
         fShowAnimationInval = !fShowAnimationInval;

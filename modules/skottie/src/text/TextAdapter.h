@@ -47,6 +47,8 @@ protected:
     void onSync() override;
 
 private:
+    class GlyphDecoratorNode;
+
     enum class AnchorPointGrouping : uint8_t {
         kCharacter,
         kWord,
@@ -62,6 +64,7 @@ private:
     struct FragmentRec {
         SkPoint                      fOrigin; // fragment position
 
+        const Shaper::ShapedGlyphs*  fGlyphs = nullptr;
         sk_sp<sksg::Matrix<SkM44>>   fMatrixNode;
         sk_sp<sksg::Color>           fFillColorNode,
                                      fStrokeColorNode;
@@ -72,7 +75,7 @@ private:
     };
 
     void reshape();
-    void addFragment(Shaper::Fragment&);
+    void addFragment(Shaper::Fragment&, sksg::Group* container);
     void buildDomainMaps(const Shaper::Result&);
     std::vector<sk_sp<sksg::RenderNode>> buildGlyphCompNodes(Shaper::Fragment&) const;
 

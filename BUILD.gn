@@ -3044,6 +3044,8 @@ if (skia_enable_tools) {
         "tools/viewer/SkSLSlide.h",
         "tools/viewer/SkottieSlide.cpp",
         "tools/viewer/SkottieSlide.h",
+        "tools/viewer/SkottieTextEditor.cpp",
+        "tools/viewer/SkottieTextEditor.h",
         "tools/viewer/Slide.h",
         "tools/viewer/SlideDir.cpp",
         "tools/viewer/SlideDir.h",

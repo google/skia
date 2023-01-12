@@ -16,6 +16,8 @@
 
 #include <vector>
 
+class SkottieTextEditor;
+
 namespace sksg    { class Scene;     }
 
 class SkottieSlide : public Slide {
@@ -50,6 +52,7 @@ private:
     sksg::InvalidationController       fInvalController;
     sk_sp<TransformTracker>            fTransformTracker;
     std::unique_ptr<SlotManagerWrapper>fSlotManagerWrapper;
+    sk_sp<SkottieTextEditor>           fTextEditor;
     std::vector<float>                 fFrameTimes;
     SkSize                             fWinSize              = SkSize::MakeEmpty();
     double                             fTimeBase             = 0,

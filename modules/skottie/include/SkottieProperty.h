@@ -9,16 +9,19 @@
 #define SkottieProperty_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkTextUtils.h"
 #include "modules/skottie/src/text/SkottieShaper.h"
 
 #include <functional>
+#include <vector>
 
-class SkMatrix;
+class SkCanvas;
 
 namespace sksg {
 
@@ -35,6 +38,19 @@ using OpacityPropertyValue = float;
 enum class TextPaintOrder : uint8_t {
     kFillStroke,
     kStrokeFill,
+};
+
+// EXPERIMENTAL
+// Optional callback invoked when drawing text layers.
+// Allows clients to render custom text decorations.
+class GlyphDecorator : public SkRefCnt {
+public:
+    struct GlyphInfo {
+        SkRect   fBounds;  // visual glyph bounds
+        SkMatrix fMatrix;  // glyph matrix
+    };
+
+    virtual void onDecorate(SkCanvas*, const GlyphInfo[], size_t size) = 0;
 };
 
 struct TextPropertyValue {
@@ -61,6 +77,7 @@ struct TextPropertyValue {
     SkPaint::Join           fStrokeJoin     = SkPaint::Join::kMiter_Join;
     bool                    fHasFill        = false,
                             fHasStroke      = false;
+    sk_sp<GlyphDecorator>   fDecorator;
 
     bool operator==(const TextPropertyValue& other) const;
     bool operator!=(const TextPropertyValue& other) const;

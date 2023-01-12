@@ -331,7 +331,8 @@ DEF_TEST(Skottie_Properties, reporter) {
       TextPaintOrder::kFillStroke,
       SkPaint::Join::kDefault_Join,
       false,
-      false
+      false,
+      nullptr
     }));
 }
 
