@@ -6,7 +6,7 @@ struct FSOut {
     @location(0) sk_FragColor: vec4<f32>,
 };
 fn getColor_h4h(c: f32) -> vec4<f32> {
-    return vec4<f32>(c, c, c, c);
+    return vec4<f32>(c);
 }
 fn getFragCoordAugmentedColor_h4h(_stageIn: FSIn, c: f32) -> vec4<f32> {
     return vec4<f32>(_stageIn.sk_FragCoord.xyxy * vec4<f32>(getColor_h4h(c)));

@@ -1017,6 +1017,7 @@ skia_filegroup(
         "shared/InstanceID.vert",
         "shared/Structs.sksl",
         "shared/TernaryExpression.sksl",
+        "shared/VectorConstructors.sksl",
         "shared/VertexID.vert",
     ],
 )

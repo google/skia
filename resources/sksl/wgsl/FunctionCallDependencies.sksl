@@ -1,7 +1,7 @@
 /*#pragma settings NoInline*/
 
 half4 getColor(half c) {
-    return half4(c, c, c, c);
+    return half4(c);
 }
 
 // Depends on pipeline stage inputs

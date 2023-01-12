@@ -389,6 +389,7 @@ sksl_wgsl_tests = [
   "shared/InstanceID.vert",
   "shared/Structs.sksl",
   "shared/TernaryExpression.sksl",
+  "shared/VectorConstructors.sksl",
   "shared/VertexID.vert",
   "wgsl/BuiltinFragmentStageIO.sksl",
   "wgsl/BuiltinVertexStageIO.vert",

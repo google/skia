@@ -781,6 +781,7 @@ void WGSLCodeGenerator::writeExpression(const Expression& e, Precedence parentPr
             break;
         case Expression::Kind::kConstructorCompoundCast:
         case Expression::Kind::kConstructorScalarCast:
+        case Expression::Kind::kConstructorSplat:
             this->writeAnyConstructor(e.asAnyConstructor(), parentPrecedence);
             break;
         case Expression::Kind::kFieldAccess:
