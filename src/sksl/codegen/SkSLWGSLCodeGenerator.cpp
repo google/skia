@@ -22,6 +22,7 @@
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLString.h"
 #include "include/private/SkSLSymbol.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
@@ -785,6 +786,9 @@ void WGSLCodeGenerator::writeExpression(const Expression& e, Precedence parentPr
         case Expression::Kind::kFieldAccess:
             this->writeFieldAccess(e.as<FieldAccess>());
             break;
+        case Expression::Kind::kFunctionCall:
+            this->writeFunctionCall(e.as<FunctionCall>());
+            break;
         case Expression::Kind::kLiteral:
             this->writeLiteral(e.as<Literal>());
             break;
@@ -851,6 +855,24 @@ void WGSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
         }
     }
     this->writeName(field->fName);
+}
+
+void WGSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+    const FunctionDeclaration& func = c.function();
+
+    // TODO(skia:13092): Handle intrinsic call as many of them need to be rewritten.
+    // TODO(skia:13092): Handle out-param semantics.
+
+    this->write(func.mangledName());
+    this->write("(");
+    bool wroteArgs = this->writeFunctionDependencyArgs(func);
+    const char* separator = wroteArgs ? ", " : "";
+    for (int i = 0; i < c.arguments().size(); ++i) {
+        this->write(separator);
+        separator = ", ";
+        this->writeExpression(*c.arguments()[i], Precedence::kSequence);
+    }
+    this->write(")");
 }
 
 void WGSLCodeGenerator::writeLiteral(const Literal& l) {
@@ -1199,6 +1221,24 @@ void WGSLCodeGenerator::writeNonBlockUniformsForTests() {
         this->write("@group(" + std::to_string(set) + ") ");
         this->writeLine("var<uniform> _globalUniforms: _GlobalUniforms;");
     }
+}
+
+bool WGSLCodeGenerator::writeFunctionDependencyArgs(const FunctionDeclaration& f) {
+    FunctionDependencies* deps = fRequirements.dependencies.find(&f);
+    if (!deps || *deps == FunctionDependencies::kNone) {
+        return false;
+    }
+
+    const char* separator = "";
+    if ((*deps & FunctionDependencies::kPipelineInputs) != FunctionDependencies::kNone) {
+        this->write("_stageIn");
+        separator = ", ";
+    }
+    if ((*deps & FunctionDependencies::kPipelineOutputs) != FunctionDependencies::kNone) {
+        this->write(separator);
+        this->write("_stageOut");
+    }
+    return true;
 }
 
 }  // namespace SkSL

@@ -392,6 +392,7 @@ sksl_wgsl_tests = [
   "shared/VertexID.vert",
   "wgsl/BuiltinFragmentStageIO.sksl",
   "wgsl/BuiltinVertexStageIO.vert",
+  "wgsl/FunctionCallDependencies.sksl",
   "wgsl/GlobalUniforms.sksl",
   "wgsl/MainDoesNotHaveFragCoordParameter.sksl",
   "wgsl/MainHasFragCoordParameter.sksl",

@@ -35,6 +35,7 @@ class ConstructorCompound;
 class Expression;
 class ExpressionStatement;
 class FieldAccess;
+class FunctionCall;
 class FunctionDeclaration;
 class FunctionDefinition;
 class GlobalVarDeclaration;
@@ -179,6 +180,7 @@ private:
     void writeExpression(const Expression& e, Precedence parentPrecedence);
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
     void writeFieldAccess(const FieldAccess& f);
+    void writeFunctionCall(const FunctionCall&);
     void writeLiteral(const Literal& l);
     void writeSwizzle(const Swizzle& swizzle);
     void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
@@ -218,6 +220,12 @@ private:
     // Since we are handling these variables only to generate gold files from RTEs and never run
     // them, we always declare them at the default bind group and binding index.
     void writeNonBlockUniformsForTests();
+
+    // For a given function declaration, writes out any implicitly required pipeline stage arguments
+    // based on the function's pre-determined dependencies. These are expected to be written out as
+    // the first parameters for a function that requires them. Returns true if any arguments were
+    // written.
+    bool writeFunctionDependencyArgs(const FunctionDeclaration&);
 
     // Stores the disallowed identifier names.
     // TODO(skia:13092): populate this
