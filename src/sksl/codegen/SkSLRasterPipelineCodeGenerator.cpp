@@ -1073,6 +1073,17 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
         return this->pushBinaryExpression(right, OperatorKind::LTEQ, left);
     }
 
+    // Emit comma expressions.
+    if (op.kind() == OperatorKind::COMMA) {
+        if (Analysis::HasSideEffects(left)) {
+            if (!this->pushExpression(left, /*usesResult=*/false)) {
+                return unsupported();
+            }
+            this->discardExpression(left.type().slotCount());
+        }
+        return this->pushExpression(right);
+    }
+
     // Handle binary expressions with mismatched types.
     const Type& type = left.type();
     if (!type.matches(right.type())) {
@@ -1116,6 +1127,11 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
 
         // Strip off the assignment from the op (turning += into +).
         op = op.removeAssignment();
+    }
+
+    // Matrix * matrix is a matrix multiply, NOT a componentwise op.
+    if (op.kind() == OperatorKind::STAR && type.isMatrix() && right.type().isMatrix()) {
+        return unsupported();
     }
 
     // Handle binary ops which require short-circuiting.

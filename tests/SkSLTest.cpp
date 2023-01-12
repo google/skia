@@ -604,7 +604,7 @@ SKSL_TEST(RP + VM + GPU_ES3, kNever,      ArrayFollowedByScalar,           "shar
 SKSL_TEST(VM + GPU,          kApiLevel_T, ArrayTypes,                      "shared/ArrayTypes.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, Assignment,                      "shared/Assignment.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, CastsRoundTowardZero,            "shared/CastsRoundTowardZero.sksl")
-SKSL_TEST(VM + GPU,          kApiLevel_T, CommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
+SKSL_TEST(RP + VM + GPU,     kApiLevel_T, CommaMixedTypes,                 "shared/CommaMixedTypes.sksl")
 SKSL_TEST(VM + GPU,          kApiLevel_T, CommaSideEffects,                "shared/CommaSideEffects.sksl")
 SKSL_TEST(RP + VM + GPU,     kApiLevel_T, CompileTimeConstantVariables,    "shared/CompileTimeConstantVariables.sksl")
 SKSL_TEST(GPU_ES3,           kNever,      ConstantCompositeAccessViaConstantIndex, "shared/ConstantCompositeAccessViaConstantIndex.sksl")
