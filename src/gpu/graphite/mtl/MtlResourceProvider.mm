@@ -171,7 +171,7 @@ sk_sp<ComputePipeline> MtlResourceProvider::createComputePipeline(
 
 sk_sp<Texture> MtlResourceProvider::createTexture(SkISize dimensions,
                                                   const TextureInfo& info,
-                                                  SkBudgeted budgeted) {
+                                                  skgpu::Budgeted budgeted) {
     return MtlTexture::Make(this->mtlSharedContext(), dimensions, info, budgeted);
 }
 

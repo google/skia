@@ -94,7 +94,7 @@ current thread when Skia calls are made.
         sk_sp<GrDirectContext> context = GrDirectContext::MakeGL(interface);
         SkImageInfo info = SkImageInfo:: MakeN32Premul(width, height);
         sk_sp<SkSurface> gpuSurface(
-                SkSurface::MakeRenderTarget(context.get(), SkBudgeted::kNo, info));
+                SkSurface::MakeRenderTarget(context.get(), skgpu::Budgeted::kNo, info));
         if (!gpuSurface) {
             SkDebugf("SkSurface::MakeRenderTarget returned null\n");
             return;

@@ -53,7 +53,5 @@ enum class Protected : bool {
 
 } // namespace skgpu
 
-// TODO(kjlubick, brianosman) Remove this typedef after clients are migrated off this name
-using SkBudgeted = skgpu::Budgeted;
 
 #endif // skgpu_GpuTypes_DEFINED

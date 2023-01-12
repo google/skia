@@ -50,7 +50,7 @@ DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
                                              kTopLeft_GrSurfaceOrigin,
                                              GrMipmapped::kNo,
                                              SkBackingFit::kExact,
-                                             SkBudgeted::kYes,
+                                             skgpu::Budgeted::kYes,
                                              /*label=*/{});
 
         // TODO: GrSurfaceProxy::Copy doesn't check to see if the framebufferOnly bit is set yet.
@@ -64,7 +64,7 @@ DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlCopySurfaceTest, reporter, ctxInfo) {
         GrSurface* src = srcProxy->peekSurface();
         sk_sp<GrTexture> dst =
                 gpu->createTexture({kWidth, kHeight}, backendFormat, GrTextureType::k2D,
-                                   GrRenderable::kNo, 1, GrMipmapped::kNo, SkBudgeted::kNo,
+                                   GrRenderable::kNo, 1, GrMipmapped::kNo, skgpu::Budgeted::kNo,
                                    GrProtected::kNo, /*label=*/"MtlCopySurfaceTest");
 
         bool result = gpu->copySurface(dst.get(),

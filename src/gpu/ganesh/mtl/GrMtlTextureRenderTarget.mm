@@ -18,7 +18,7 @@
 GR_NORETAIN_BEGIN
 
 GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
-                                                   SkBudgeted budgeted,
+                                                   skgpu::Budgeted budgeted,
                                                    SkISize dimensions,
                                                    sk_sp<GrMtlAttachment> texture,
                                                    sk_sp<GrMtlAttachment> colorAttachment,
@@ -69,7 +69,7 @@ bool create_rt_attachments(GrMtlGpu* gpu, SkISize dimensions, MTLPixelFormat for
 
 sk_sp<GrMtlTextureRenderTarget> GrMtlTextureRenderTarget::MakeNewTextureRenderTarget(
         GrMtlGpu* gpu,
-        SkBudgeted budgeted,
+        skgpu::Budgeted budgeted,
         SkISize dimensions,
         int sampleCnt,
         MTLPixelFormat format,

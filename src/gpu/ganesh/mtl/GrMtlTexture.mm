@@ -18,7 +18,7 @@
 GR_NORETAIN_BEGIN
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
-                           SkBudgeted budgeted,
+                           skgpu::Budgeted budgeted,
                            SkISize dimensions,
                            sk_sp<GrMtlAttachment> texture,
                            GrMipmapStatus mipmapStatus,
@@ -78,7 +78,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
 }
 
 sk_sp<GrMtlTexture> GrMtlTexture::MakeNewTexture(GrMtlGpu* gpu,
-                                                 SkBudgeted budgeted,
+                                                 skgpu::Budgeted budgeted,
                                                  SkISize dimensions,
                                                  MTLPixelFormat format,
                                                  uint32_t mipLevels,
