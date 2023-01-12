@@ -8,6 +8,7 @@
 #include "include/gpu/GrRecordingContext.h"
 
 #include "include/core/SkCapabilities.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"

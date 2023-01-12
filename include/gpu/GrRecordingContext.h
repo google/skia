@@ -9,6 +9,7 @@
 #define GrRecordingContext_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkTArray.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 

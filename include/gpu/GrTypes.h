@@ -8,14 +8,13 @@
 #ifndef GrTypes_DEFINED
 #define GrTypes_DEFINED
 
-#include "include/core/SkMath.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/GrConfig.h"
-#include "include/private/base/SkTo.h"
+#include "include/private/base/SkTo.h" // IWYU pragma: keep
+
+#include <cstddef>
+#include <cstdint>
 
 class GrBackendSemaphore;
-class SkImage;
-class SkSurface;
 
 ////////////////////////////////////////////////////////////////////////////////
 

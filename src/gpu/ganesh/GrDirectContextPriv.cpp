@@ -8,6 +8,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
 #include "src/core/SkRuntimeEffectPriv.h"

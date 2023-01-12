@@ -9,6 +9,7 @@
 #define GrRecordingContextPriv_DEFINED
 
 #include "include/core/SkPaint.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/Device_v1.h"

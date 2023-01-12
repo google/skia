@@ -83,6 +83,7 @@ generate_cpp_files_for_headers(
         "include/core/SkSize.h",
         "include/core/SkSpan.h",
         "include/core/SkTypes.h",
+        "include/gpu/GrTypes.h",
         "include/private/SkFixed.h",
         "include/private/SkFloatBits.h",
         "include/private/SkFloatingPoint.h",

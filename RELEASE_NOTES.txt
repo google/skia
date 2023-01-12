@@ -14,6 +14,7 @@ Milestone 111
   * SkBackingFit is no longer part of the public API.
   * SkBudgeted was moved from include/core/SkTypes.h to include/gpu/GpuTypes.h and moved into the
     skgpu namespace.
+  * include/gpu/GrConfig.h has been removed; its contents were folded into other files.
 
 Milestone 110
 -------------

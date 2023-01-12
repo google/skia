@@ -9,6 +9,7 @@
 #define GrResourceCache_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkTArray.h"
 #include "src/core/SkMessageBus.h"

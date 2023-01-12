@@ -9,7 +9,6 @@
 #include "src/gpu/ganesh/GrDistanceFieldGenFromVector.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/gpu/GrConfig.h"
 #include "include/private/SkTPin.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkGeometry.h"

@@ -9,6 +9,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkDrawable.h"
+#include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
 #include "include/gpu/GrBackendSemaphore.h"
 #include "include/gpu/GrDirectContext.h"

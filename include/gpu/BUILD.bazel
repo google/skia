@@ -21,7 +21,6 @@ skia_filegroup(
         "GrBackendSemaphore.h",
         "GrBackendSurface.h",
         "GrBackendSurfaceMutableState.h",
-        "GrConfig.h",
         "GrContextOptions.h",
         "GrContextThreadSafeProxy.h",
         "GrDirectContext.h",

@@ -148,7 +148,6 @@ SKIA_PUBLIC_HDRS = [
     "include/gpu/GrBackendSemaphore.h",
     "include/gpu/GrBackendSurface.h",
     "include/gpu/GrBackendSurfaceMutableState.h",
-    "include/gpu/GrConfig.h",
     "include/gpu/GrContextOptions.h",
     "include/gpu/GrContextThreadSafeProxy.h",
     "include/gpu/GrDirectContext.h",
