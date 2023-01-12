@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.0] - 2023-01-12
+
 ### Changed
  - `Paragraph.getRectsForRange` and `Paragraph.getRectsForPlaceholders` had been returning a list
    of Float32Arrays upon which a property 'direction' had been monkey-patched (this was
