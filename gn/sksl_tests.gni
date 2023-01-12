@@ -388,6 +388,7 @@ sksl_wgsl_tests = [
   "shared/HelloWorld.sksl",
   "shared/InstanceID.vert",
   "shared/Structs.sksl",
+  "shared/TernaryExpression.sksl",
   "shared/VertexID.vert",
   "wgsl/BuiltinFragmentStageIO.sksl",
   "wgsl/BuiltinVertexStageIO.vert",

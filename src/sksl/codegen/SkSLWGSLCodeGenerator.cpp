@@ -51,6 +51,7 @@
 #include "src/sksl/ir/SkSLStructDefinition.h"
 #include "src/sksl/ir/SkSLSwizzle.h"
 #include "src/sksl/ir/SkSLSymbolTable.h"
+#include "src/sksl/ir/SkSLTernaryExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariable.h"
@@ -790,6 +791,9 @@ void WGSLCodeGenerator::writeExpression(const Expression& e, Precedence parentPr
         case Expression::Kind::kSwizzle:
             this->writeSwizzle(e.as<Swizzle>());
             break;
+        case Expression::Kind::kTernary:
+            this->writeTernaryExpression(e.as<TernaryExpression>(), parentPrecedence);
+            break;
         case Expression::Kind::kVariableReference:
             this->writeVariableReference(e.as<VariableReference>());
             break;
@@ -874,6 +878,51 @@ void WGSLCodeGenerator::writeSwizzle(const Swizzle& swizzle) {
         SkASSERT(c >= 0 && c <= 3);
         this->write(&("x\0y\0z\0w\0"[c * 2]));
     }
+}
+
+void WGSLCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
+                                               Precedence parentPrecedence) {
+    bool needParens = Precedence::kTernary >= parentPrecedence;
+    if (needParens) {
+        this->write("(");
+    }
+
+    // The trivial case is when neither branch has side effects and evaluate to a scalar or vector
+    // type. This can be represented with a call to the WGSL `select` intrinsic although it doesn't
+    // support short-circuiting.
+    if ((t.type().isScalar() || t.type().isVector()) && !Analysis::HasSideEffects(*t.ifTrue()) &&
+        !Analysis::HasSideEffects(*t.ifFalse())) {
+        this->write("select(");
+        this->writeExpression(*t.ifFalse(), Precedence::kTernary);
+        this->write(", ");
+        this->writeExpression(*t.ifTrue(), Precedence::kTernary);
+        this->write(", ");
+
+        bool isVector = t.type().isVector();
+        if (isVector) {
+            // Splat the condition expression into a vector.
+            this->write(String::printf("vec%d<bool>", t.type().columns()));
+            this->write("(");
+        }
+        this->writeExpression(*t.test(), Precedence::kTernary);
+        if (isVector) {
+            this->write(")");
+        }
+        this->write(")");
+
+        if (needParens) {
+            this->write(")");
+        }
+        return;
+    }
+
+    // TODO(skia:13092): WGSL does not support ternary expressions. To replicate the required
+    // short-circuting behavior we need to hoist the expression out into the surrounding block,
+    // convert it into an if statement that writes the result to a synthesized variable, and replace
+    // the original expression with a reference to that variable.
+    //
+    // Once hoisting is supported, we may want to use that for vector type expressions as well,
+    // since select above does a component-wise select
 }
 
 void WGSLCodeGenerator::writeVariableReference(const VariableReference& r) {

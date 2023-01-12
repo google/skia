@@ -46,6 +46,7 @@ class ProgramElement;
 class ReturnStatement;
 class Statement;
 class StructDefinition;
+class TernaryExpression;
 class VarDeclaration;
 class VariableReference;
 enum class OperatorPrecedence : uint8_t;
@@ -180,6 +181,7 @@ private:
     void writeFieldAccess(const FieldAccess& f);
     void writeLiteral(const Literal& l);
     void writeSwizzle(const Swizzle& swizzle);
+    void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
     void writeVariableReference(const VariableReference& r);
 
     // Constructor expressions
