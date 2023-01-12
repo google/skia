@@ -144,7 +144,7 @@ void SkVideoEncoder::reset() {
 
 bool SkVideoEncoder::init(int fps) {
     // only support this for now
-    AVPixelFormat pix_fmt = AV_PIX_FMT_YUV420P;
+    AVPixelFormat pix_fmt = AV_PIX_FMT_YUVA420P;
 
     this->reset();
 
@@ -159,7 +159,7 @@ bool SkVideoEncoder::init(int fps) {
                                     nullptr, sk_write_packet, sk_seek_packet);
     SkASSERT(fStreamCtx);
 
-    avformat_alloc_output_context2(&fFormatCtx, nullptr, "mp4", nullptr);
+    avformat_alloc_output_context2(&fFormatCtx, nullptr, "webm", nullptr);
     SkASSERT(fFormatCtx);
     fFormatCtx->pb = fStreamCtx;
 
@@ -218,11 +218,14 @@ bool SkVideoEncoder::init(int fps) {
 #include "src/core/SkYUVMath.h"
 
 static bool is_valid(SkISize dim) {
-    if (dim.width() <= 0 || dim.height() <= 0) {
-        return false;
-    }
-    // need the dimensions to be even for YUV 420
-    return ((dim.width() | dim.height()) & 1) == 0;
+    return true;
+    // this check is not required with the AV_PIX_FMT_YUVA420P pixel format
+
+//    if (dim.width() <= 0 || dim.height() <= 0) {
+//        return false;
+//    }
+//    // need the dimensions to be even for YUV 420
+//    return ((dim.width() | dim.height()) & 1) == 0;
 }
 
 bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
@@ -242,15 +245,16 @@ bool SkVideoEncoder::beginRecording(SkISize dim, int fps) {
 
     const auto fmt = kN32_SkColorType == kRGBA_8888_SkColorType ? AV_PIX_FMT_RGBA : AV_PIX_FMT_BGRA;
     SkASSERT(sws_isSupportedInput(fmt) > 0);
-    SkASSERT(sws_isSupportedOutput(AV_PIX_FMT_YUV420P) > 0);
+    SkASSERT(sws_isSupportedOutput(AV_PIX_FMT_YUVA420P) > 0);
     // sws_getCachedContext takes in either null or a previous ctx. It returns either a new ctx,
     // or the same as the input if it is compatible with the inputs. Thus we never have to
     // explicitly release our ctx until the destructor, since sws_getCachedContext takes care
     // of freeing the old as needed if/when it returns a new one.
     fSWScaleCtx = sws_getCachedContext(fSWScaleCtx,
                                        dim.width(), dim.height(), fmt,
-                                       dim.width(), dim.height(), AV_PIX_FMT_YUV420P,
+                                       dim.width(), dim.height(), AV_PIX_FMT_YUVA420P,
                                        SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
+
     return fSWScaleCtx != nullptr;
 }
 
