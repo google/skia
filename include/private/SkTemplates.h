@@ -241,10 +241,9 @@ private:
     static const int kCount = kCountRequested;
 #endif
 
-    int     fCount;
-    T*      fArray;
-    // since we come right after fArray, fStorage should be properly aligned
-    char    fStorage[kCount * sizeof(T)];
+    int fCount;
+    T* fArray;
+    alignas(T) char fStorage[kCount * sizeof(T)];
 };
 
 /** Manages an array of T elements, freeing the array in the destructor.
