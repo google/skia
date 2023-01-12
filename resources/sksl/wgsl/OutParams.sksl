@@ -1,0 +1,48 @@
+/*#pragma settings NoInline*/
+uniform half uFloat;
+
+// Reference a pipeline I/O parameter and a global uniform. This tests that all parameter variations
+// are injected correctly.
+void various_parameter_types(half a, out half b, inout half c) {
+    sk_FragColor = half4(a, b, c, uFloat);  // `b` has an undefined value but should compile OK.
+    b = a;
+    c = uFloat;
+}
+
+void one_out_param(out half h) {
+    h = 2;
+}
+
+void one_out_param_indirect(out half h) {
+    one_out_param(h);
+}
+
+struct S {
+    half4 v;
+};
+
+void main() {
+    // local float
+    half x = 1;
+    one_out_param(x);
+    one_out_param_indirect(x);
+    various_parameter_types(x + 1, x, x);
+
+    // local vector
+    half4 v;
+    various_parameter_types(x + 1, v.x, v.x);
+    various_parameter_types(x + 1, v.y, v.y);
+    various_parameter_types(x + 1, v.x, v.y);
+
+    // local struct
+    S s;
+    various_parameter_types(x + 1, s.v.x, x);
+    various_parameter_types(x + 1, s.v.y, x);
+}
+
+// TODO(skia:13092): test the case in which a pipeline IO parameter is passed as out-param,
+//                   directly and indirectly
+// TODO(skia:13092): module-private out-param
+// TODO(skia:13092): access an IO parameter while also passing it as an out-param
+// TODO(skia:13092): mixing out params with in and inout
+// TODO(skia:13092): swizzle assignment when that's supported

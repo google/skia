@@ -23,6 +23,7 @@
 #include "include/private/SkSLString.h"
 #include "include/private/SkSLSymbol.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
@@ -447,6 +448,7 @@ bool WGSLCodeGenerator::generateCode() {
     }
 
     write_stringstream(header, *fOut);
+    write_stringstream(fExtraFunctions, *fOut);
     write_stringstream(body, *fOut);
     return fContext.fErrors->errorCount() == 0;
 }
@@ -571,23 +573,8 @@ void WGSLCodeGenerator::writeFunctionDeclaration(const FunctionDeclaration& f) {
     this->write(f.mangledName());
     this->write("(");
     auto separator = SkSL::String::Separator();
-    FunctionDependencies* deps = fRequirements.dependencies.find(&f);
-    if (deps) {
-        std::string_view structNamePrefix = pipeline_struct_prefix(fProgram.fConfig->fKind);
-        if (structNamePrefix.length() != 0) {
-            if ((*deps & FunctionDependencies::kPipelineInputs) != FunctionDependencies::kNone) {
-                this->write(separator());
-                this->write("_stageIn: ");
-                this->write(structNamePrefix);
-                this->write("In");
-            }
-            if ((*deps & FunctionDependencies::kPipelineOutputs) != FunctionDependencies::kNone) {
-                this->write(separator());
-                this->write("_stageOut: ptr<function, ");
-                this->write(structNamePrefix);
-                this->write("Out>");
-            }
-        }
+    if (this->writeFunctionDependencyParams(f)) {
+        separator();  // update the separator as parameters have been written
     }
     for (const Variable* param : f.parameters()) {
         this->write(separator());
@@ -851,7 +838,7 @@ void WGSLCodeGenerator::writeFieldAccess(const FieldAccess& f) {
                    field->fModifiers.fLayout.fBuiltin != SK_POINTSIZE_BUILTIN) {
             this->write("(*_stageOut).");
         } else {
-            // TODO(skia:13902): Reference the variable using the base name used for its
+            // TODO(skia:13092): Reference the variable using the base name used for its
             // uniform/storage block global declaration.
         }
     }
@@ -862,16 +849,58 @@ void WGSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     const FunctionDeclaration& func = c.function();
 
     // TODO(skia:13092): Handle intrinsic call as many of them need to be rewritten.
-    // TODO(skia:13092): Handle out-param semantics.
 
-    this->write(func.mangledName());
+    // We implement function out-parameters by declaring them as pointers. SkSL follows GLSL's
+    // out-parameter semantics, in which out-parameters are only written back to the original
+    // variable after the function's execution is complete (see
+    // https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)#Parameters).
+    //
+    // In addition, SkSL supports swizzles and array index expressions to be passed into
+    // out-parameters however WGSL does not allow taking their address into a pointer.
+    //
+    // We support these by wrapping each function call in a special helper, which internally stores
+    // all out parameters in temporaries.
+
+    // First detect which arguments are passed to out-parameters.
+    const ExpressionArray& args = c.arguments();
+    const std::vector<Variable*>& params = func.parameters();
+    SkASSERT(SkToSizeT(args.size()) == params.size());
+
+    bool foundOutParam = false;
+    SkSTArray<16, VariableReference*> outVars;
+    outVars.push_back_n(args.size(), static_cast<VariableReference*>(nullptr));
+
+    for (int i = 0; i < args.size(); ++i) {
+        if (params[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
+            // Find the expression's inner variable being written to. Assignability was verified at
+            // IR generation time, so this should always succeed.
+            Analysis::AssignmentInfo info;
+            SkAssertResult(Analysis::IsAssignable(*args[i], &info));
+            outVars[i] = info.fAssignedVar;
+            foundOutParam = true;
+        }
+    }
+
+    if (foundOutParam) {
+        this->writeName(this->writeOutParamHelper(c, args, outVars));
+    } else {
+        this->writeName(func.mangledName());
+    }
+
     this->write("(");
-    bool wroteArgs = this->writeFunctionDependencyArgs(func);
-    const char* separator = wroteArgs ? ", " : "";
-    for (int i = 0; i < c.arguments().size(); ++i) {
-        this->write(separator);
-        separator = ", ";
-        this->writeExpression(*c.arguments()[i], Precedence::kSequence);
+    auto separator = SkSL::String::Separator();
+    if (this->writeFunctionDependencyArgs(func)) {
+        separator();
+    }
+    for (int i = 0; i < args.size(); ++i) {
+        this->write(separator());
+        if (outVars[i]) {
+            // We need to take the address of the variable and pass it down as a pointer.
+            this->write("&");
+            this->writeExpression(*outVars[i], Precedence::kSequence);
+        } else {
+            this->writeExpression(*args[i], Precedence::kSequence);
+        }
     }
     this->write(")");
 }
@@ -949,8 +978,7 @@ void WGSLCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
 }
 
 void WGSLCodeGenerator::writeVariableReference(const VariableReference& r) {
-    // TODO(skia:13902): Correctly handle function parameters.
-    // TODO(skia:13902): Correctly handle RTflip for built-ins.
+    // TODO(skia:13092): Correctly handle RTflip for built-ins.
     const Variable& v = *r.variable();
 
     // Insert a conversion expression if this is a built-in variable whose type differs from the
@@ -960,7 +988,16 @@ void WGSLCodeGenerator::writeVariableReference(const VariableReference& r) {
         this->write(*conversion);
         this->write("(");
     }
-    if (v.storage() == Variable::Storage::kGlobal) {
+
+    bool needsDeref = false;
+    bool isSynthesizedOutParamArg = fOutParamArgVars.contains(&v);
+
+    // When a variable is referenced in the context of a synthesized out-parameter helper argument,
+    // two special rules apply:
+    //     1. If it's accessed via a pipeline I/O or global uniforms struct, it should instead
+    //        be referenced by name (since it's actually referring to a function parameter).
+    //     2. Its type should be treated as a pointer and should be dereferenced as such.
+    if (v.storage() == Variable::Storage::kGlobal && !isSynthesizedOutParamArg) {
         if (v.modifiers().fFlags & Modifiers::kIn_Flag) {
             this->write("_stageIn.");
         } else if (v.modifiers().fFlags & Modifiers::kOut_Flag) {
@@ -968,10 +1005,20 @@ void WGSLCodeGenerator::writeVariableReference(const VariableReference& r) {
         } else if (is_in_global_uniforms(v)) {
             this->write("_globalUniforms.");
         }
+    } else if ((v.storage() == Variable::Storage::kParameter &&
+                v.modifiers().fFlags & Modifiers::kOut_Flag) ||
+               isSynthesizedOutParamArg) {
+        // This is an out-parameter and its type is a pointer, which we need to dereference.
+        // We wrap the dereference in parentheses in case the value is used in an access expression
+        // later.
+        needsDeref = true;
+        this->write("(*");
     }
 
     this->writeName(v.mangledName());
-
+    if (needsDeref) {
+        this->write(")");
+    }
     if (conversion.has_value()) {
         this->write(")");
     }
@@ -1240,6 +1287,193 @@ bool WGSLCodeGenerator::writeFunctionDependencyArgs(const FunctionDeclaration& f
         this->write("_stageOut");
     }
     return true;
+}
+
+bool WGSLCodeGenerator::writeFunctionDependencyParams(const FunctionDeclaration& f) {
+    FunctionDependencies* deps = fRequirements.dependencies.find(&f);
+    if (!deps || *deps == FunctionDependencies::kNone) {
+        return false;
+    }
+
+    std::string_view structNamePrefix = pipeline_struct_prefix(fProgram.fConfig->fKind);
+    if (structNamePrefix.empty()) {
+        return false;
+    }
+    const char* separator = "";
+    if ((*deps & FunctionDependencies::kPipelineInputs) != FunctionDependencies::kNone) {
+        this->write("_stageIn: ");
+        separator = ", ";
+        this->write(structNamePrefix);
+        this->write("In");
+    }
+    if ((*deps & FunctionDependencies::kPipelineOutputs) != FunctionDependencies::kNone) {
+        this->write(separator);
+        this->write("_stageOut: ptr<function, ");
+        this->write(structNamePrefix);
+        this->write("Out>");
+    }
+    return true;
+}
+
+std::string WGSLCodeGenerator::writeOutParamHelper(const FunctionCall& c,
+                                                   const ExpressionArray& args,
+                                                   const SkTArray<VariableReference*>& outVars) {
+    // It's possible for out-param function arguments to contain an out-param function call
+    // expression. Emit the function into a temporary stream to prevent the nested helper from
+    // clobbering the current helper as we recursively evaluate argument expressions.
+    StringStream tmpStream;
+    AutoOutputStream outputToExtraFunctions(this, &tmpStream, &fIndentation);
+
+    // Reset the line start state while the AutoOutputStream is active. We restore it later before
+    // the function returns.
+    bool atLineStart = fAtLineStart;
+    fAtLineStart = false;
+    const FunctionDeclaration& func = c.function();
+
+    // Synthesize a helper function that takes the same inputs as `function`, except in places where
+    // `outVars` is non-null; in those places, we take the type of the VariableReference.
+    //
+    // float _outParamHelper_0_originalFuncName(float _var0, float _var1, float& outParam) {
+    std::string name =
+            "_outParamHelper_" + std::to_string(fSwizzleHelperCount++) + "_" + func.mangledName();
+    auto separator = SkSL::String::Separator();
+    this->write("fn ");
+    this->write(name);
+    this->write("(");
+    if (this->writeFunctionDependencyParams(func)) {
+        separator();
+    }
+
+    SkASSERT(outVars.size() == args.size());
+    SkASSERT(SkToSizeT(outVars.size()) == func.parameters().size());
+
+    // We need to detect cases where the caller passes the same variable as an out-param more than
+    // once and avoid redeclaring the variable name. This is also a situation that is not permitted
+    // by WGSL aliasing rules (see https://www.w3.org/TR/WGSL/#aliasing). Because the parameter is
+    // redundant and we don't actually ever reference it, we give it a placeholder name.
+    auto parentOutParamArgVars = std::move(fOutParamArgVars);
+    SkASSERT(fOutParamArgVars.empty());
+
+    for (int i = 0; i < args.size(); ++i) {
+        this->write(separator());
+
+        if (outVars[i]) {
+            const Variable* var = outVars[i]->variable();
+            if (!fOutParamArgVars.contains(var)) {
+                fOutParamArgVars.add(var);
+                this->writeName(var->mangledName());
+            } else {
+                this->write("_unused");
+                this->write(std::to_string(i));
+            }
+        } else {
+            this->write("_var");
+            this->write(std::to_string(i));
+        }
+
+        this->write(": ");
+
+        // Declare the parameter using the type of argument variable. If the complete argument is an
+        // access or swizzle expression, the target assignment will be resolved below when we copy
+        // the value to the out-parameter.
+        const Type& type = outVars[i] ? outVars[i]->type() : args[i]->type();
+
+        // Declare an out-parameter as a pointer.
+        if (func.parameters()[i]->modifiers().fFlags & Modifiers::kOut_Flag) {
+            this->write(to_ptr_type(type));
+        } else {
+            this->write(to_wgsl_type(type));
+        }
+    }
+
+    this->write(")");
+    if (!func.returnType().isVoid()) {
+        this->write(" -> ");
+        this->write(to_wgsl_type(func.returnType()));
+    }
+    this->writeLine(" {");
+    ++fIndentation;
+
+    // Declare a temporary variable for each out-parameter.
+    for (int i = 0; i < outVars.size(); ++i) {
+        if (!outVars[i]) {
+            continue;
+        }
+        this->write("var ");
+        this->write("_var");
+        this->write(std::to_string(i));
+        this->write(": ");
+        this->write(to_wgsl_type(args[i]->type()));
+
+        // If this is an inout parameter then we need to copy the input argument into the parameter
+        // per https://www.khronos.org/opengl/wiki/Core_Language_(GLSL)#Parameters.
+        if (func.parameters()[i]->modifiers().fFlags & Modifiers::kIn_Flag) {
+            this->write(" = ");
+            this->writeExpression(*args[i], Precedence::kAssignment);
+        }
+
+        this->writeLine(";");
+    }
+
+    // Call the function we're wrapping. If it has a return type, then store it so it can be
+    // returned later.
+    bool hasReturn = !c.type().isVoid();
+    if (hasReturn) {
+        this->write("var _return: ");
+        this->write(to_wgsl_type(c.type()));
+        this->write(" = ");
+    }
+
+    // Write the function call.
+    this->writeName(func.mangledName());
+    this->write("(");
+    auto newSeparator = SkSL::String::Separator();
+    if (this->writeFunctionDependencyArgs(func)) {
+        newSeparator();
+    }
+    for (int i = 0; i < args.size(); ++i) {
+        this->write(newSeparator());
+        // All forwarded arguments now have a name that looks like "_var[i]" (e.g. _var0, var1,
+        // etc.). All such variables should be of value type and those that have been passed in as
+        // inout should have been dereferenced when they were stored in a local temporary. We need
+        // to take their address again when forwarding to a pointer.
+        if (outVars[i]) {
+            this->write("&");
+        }
+        this->write("_var");
+        this->write(std::to_string(i));
+    }
+    this->writeLine(");");
+
+    // Copy the temporary variables back into the original out-parameters.
+    for (int i = 0; i < outVars.size(); ++i) {
+        if (!outVars[i]) {
+            continue;
+        }
+        // TODO(skia:13092): WGSL does not support assigning to a swizzle
+        // (see https://github.com/gpuweb/gpuweb/issues/737). These will require special treatment
+        // when they appear on the lhs of an assignment.
+        this->writeExpression(*args[i], Precedence::kAssignment);
+        this->write(" = _var");
+        this->write(std::to_string(i));
+        this->writeLine(";");
+    }
+
+    // Return
+    if (hasReturn) {
+        this->writeLine("return _return;");
+    }
+
+    --fIndentation;
+    this->writeLine("}");
+
+    // Write the function out to `fExtraFunctions`.
+    write_stringstream(tmpStream, fExtraFunctions);
+
+    // Restore any global state
+    fOutParamArgVars = std::move(parentOutParamArgVars);
+    fAtLineStart = atLineStart;
+    return name;
 }
 
 }  // namespace SkSL

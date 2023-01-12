@@ -1014,12 +1014,16 @@ skia_filegroup(
         "wgsl/MainDoesNotHaveFragCoordParameter.sksl",
         "wgsl/MainHasFragCoordParameter.sksl",
         "wgsl/MainHasVoidReturn.sksl",
+        "wgsl/OutParams.sksl",
         "wgsl/UserDefinedPipelineIO.sksl",
         "wgsl/VertexPositionOutputIsAlwaysDeclared.vert",
 
         # Shared tests that are supported so far:
         "shared/HelloWorld.sksl",
+        "shared/InoutParameters.sksl",
+        "shared/InoutParamsAreDistinct.sksl",
         "shared/InstanceID.vert",
+        "shared/OutParamsAreDistinct.sksl",
         "shared/Structs.sksl",
         "shared/TernaryExpression.sksl",
         "shared/VectorConstructors.sksl",
