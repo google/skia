@@ -266,7 +266,7 @@ DEF_TEST(RasterPipelineBuilderTransposeSlots, r) {
     builder.transpose(4, 4);                // transpose a 4x4 matrix
     builder.transpose(2, 4);                // transpose a 2x4 matrix
     builder.transpose(4, 3);                // transpose a 4x3 matrix
-    builder.discard_stack(16);               // balance stack
+    builder.discard_stack(16);              // balance stack
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
     check(r, *program,
@@ -275,11 +275,41 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
     3. copy_4_slots_unmasked          $4..7 = $0..3
     4. copy_4_slots_unmasked          $8..11 = $4..7
     5. copy_4_slots_unmasked          $12..15 = $8..11
-    6. transpose                      $12..15 = ($12..15)[0 2 1 3]
+    6. swizzle_4                      $12..15 = ($12..15).xzyw
     7. transpose                      $7..15 = ($7..15)[0 3 6 1 4 7 2 5 8]
     8. transpose                      $0..15 = ($0..15)[0 4 8 12 1 5 9 13 2 6 10 14 3 7 11 15]
     9. transpose                      $8..15 = ($8..15)[0 4 1 5 2 6 3 7]
    10. transpose                      $4..15 = ($4..15)[0 3 6 9 1 4 7 10 2 5 8 11]
+)");
+}
+
+DEF_TEST(RasterPipelineBuilderDiagonalMatrix, r) {
+    // Create a very simple nonsense program.
+    SkSL::RP::Builder builder;
+    builder.push_literal_f(0.0f);           // push into 0
+    builder.push_literal_f(1.0f);           // push into 1
+    builder.diagonal_matrix(2, 2);          // generate a 2x2 diagonal matrix
+    builder.discard_stack(4);               // balance stack
+    builder.push_literal_f(0.0f);           // push into 0
+    builder.push_literal_f(2.0f);           // push into 1
+    builder.diagonal_matrix(4, 4);          // generate a 4x4 diagonal matrix
+    builder.discard_stack(16);              // balance stack
+    builder.push_literal_f(0.0f);           // push into 0
+    builder.push_literal_f(3.0f);           // push into 1
+    builder.diagonal_matrix(2, 3);          // generate a 2x3 diagonal matrix
+    builder.discard_stack(6);               // balance stack
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
+    check(r, *program,
+R"(    1. zero_slot_unmasked             $0 = 0
+    2. copy_constant                  $1 = 0x3F800000 (1.0)
+    3. swizzle_4                      $0..3 = ($0..3).yxxy
+    4. zero_slot_unmasked             $0 = 0
+    5. copy_constant                  $1 = 0x40000000 (2.0)
+    6. transpose                      $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
+    7. zero_slot_unmasked             $0 = 0
+    8. copy_constant                  $1 = 0x40400000 (3.0)
+    9. transpose                      $0..5 = ($0..5)[1 0 0 0 1 0]
 )");
 }
 

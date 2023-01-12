@@ -113,7 +113,7 @@ void Builder::push_duplicates(int count) {
     SkASSERT(count >= 0);
     if (count >= 3) {
         // Use a swizzle to splat the input into a 4-slot value.
-        this->swizzle(/*inputSlots=*/1, {0, 0, 0, 0});
+        this->swizzle(/*consumedSlots=*/1, {0, 0, 0, 0});
         count -= 3;
     }
     for (; count >= 4; count -= 4) {
@@ -122,26 +122,74 @@ void Builder::push_duplicates(int count) {
     }
     // Use a swizzle or clone to handle the trailing items.
     switch (count) {
-        case 3:  this->swizzle(/*inputSlots=*/1, {0, 0, 0, 0}); break;
-        case 2:  this->swizzle(/*inputSlots=*/1, {0, 0, 0});    break;
+        case 3:  this->swizzle(/*consumedSlots=*/1, {0, 0, 0, 0}); break;
+        case 2:  this->swizzle(/*consumedSlots=*/1, {0, 0, 0});    break;
         case 1:  this->push_clone(/*numSlots=*/1);              break;
         default: break;
     }
 }
 
-void Builder::swizzle(int inputSlots, SkSpan<const int8_t> components) {
-    // Consumes `inputSlots` elements on the stack, then generates `components.size()` elements.
-    SkASSERT(components.size() >= 1 && components.size() <= 4);
-    // Squash .xwww into 0x3330, or .zyx into 0x012. (Packed nybbles, in reverse order.)
-    int componentBits = 0;
+static int pack_nybbles(SkSpan<const int8_t> components) {
+    // Pack up to 8 elements into nybbles, in reverse order.
+    int packed = 0;
     for (auto iter = components.rbegin(); iter != components.rend(); ++iter) {
-        SkASSERT(*iter >= 0 && *iter < inputSlots);
-        componentBits <<= 4;
-        componentBits |= *iter;
+        SkASSERT(*iter >= 0 && *iter <= 0xF);
+        packed <<= 4;
+        packed |= *iter;
+    }
+    return packed;
+}
+
+void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> components) {
+    // Consumes `consumedSlots` elements on the stack, then generates `components.size()` elements.
+    SkASSERT(components.size() >= 1);
+
+    if (consumedSlots <= 4 && components.size() <= 4) {
+        // We can fit everything into a little swizzle.
+        int op = (int)BuilderOp::swizzle_1 + components.size() - 1;
+        fInstructions.push_back({(BuilderOp)op, {}, consumedSlots, pack_nybbles(components)});
+        return;
     }
 
-    int op = (int)BuilderOp::swizzle_1 + components.size() - 1;
-    fInstructions.push_back({(BuilderOp)op, {}, inputSlots, componentBits});
+    // This is a big swizzle. We use the `transpose` op to handle these.
+    // Transpose always wants a full 16 elements, so copy into a 16-wide array.
+    SkASSERT(components.size() <= 16);
+    int8_t transposeArray[16] = {};
+    std::copy(components.begin(), components.end(), std::begin(transposeArray));
+
+    // Pack slot usage into immA.
+    // The top 16 bits of immA count consumed slots; the bottom 16 bits count generated slots.
+    int slotUsage = consumedSlots << 16;
+    slotUsage |= components.size();
+
+    // Pack immB and immC with the transpose list in packed-nybble form.
+    fInstructions.push_back({BuilderOp::transpose, {}, slotUsage,
+                             pack_nybbles(SkSpan(&transposeArray[0], 8)),
+                             pack_nybbles(SkSpan(&transposeArray[8], 8))});
+}
+
+void Builder::transpose(int columns, int rows) {
+    // Transposes a matrix of size CxR on the stack (into a matrix of size RxC).
+    int8_t elements[16] = {};
+    size_t index = 0;
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < columns; ++c) {
+            elements[index++] = ((c * rows) + r);
+        }
+    }
+    this->swizzle(/*consumedSlots=*/columns * rows, SkSpan(elements, index));
+}
+
+void Builder::diagonal_matrix(int columns, int rows) {
+    // Generates a CxR diagonal matrix from the top two scalars on the stack.
+    int8_t elements[16] = {};
+    size_t index = 0;
+    for (int c = 0; c < columns; ++c) {
+        for (int r = 0; r < rows; ++r) {
+            elements[index++] = (c == r) ? 1 : 0;
+        }
+    }
+    this->swizzle(/*consumedSlots=*/2, SkSpan(elements, index));
 }
 
 std::unique_ptr<Program> Builder::finish(int numValueSlots,
@@ -192,6 +240,11 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::swizzle_4:
             return 4 - inst.fImmA;
 
+        case BuilderOp::transpose: {
+            int consumed = inst.fImmA >> 16;
+            int generated = inst.fImmA & 0xFFFF;
+            return generated - consumed;
+        }
         case ALL_MULTI_SLOT_UNARY_OP_CASES:
         default:
             return 0;
@@ -578,15 +631,22 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 break;
             }
             case BuilderOp::transpose: {
+                int consumed = inst.fImmA >> 16;
+                int generated = inst.fImmA & 0xFFFF;
+
                 auto* ctx = alloc->make<SkRasterPipeline_TransposeCtx>();
-                ctx->ptr = tempStackPtr - (N * inst.fImmA * inst.fImmB);
-                ctx->count = inst.fImmA * inst.fImmB;
-                sk_bzero(ctx->offsets, std::size(ctx->offsets));
-                size_t index = 0;
-                for (int r = 0; r < inst.fImmB; ++r) {
-                    for (int c = 0; c < inst.fImmA; ++c) {
-                        ctx->offsets[index++] = ((c * inst.fImmB) + r) * N * sizeof(float);
-                    }
+                ctx->ptr = tempStackPtr - (N * consumed);
+                ctx->count = generated;
+                // Unpack immB and immC from nybble form into an offset array.
+                int packed = inst.fImmB;
+                for (int index = 0; index < 8; ++index) {
+                    ctx->offsets[index] = (packed & 0xF) * N * sizeof(float);
+                    packed >>= 4;
+                }
+                packed = inst.fImmC;
+                for (int index = 8; index < 16; ++index) {
+                    ctx->offsets[index] = (packed & 0xF) * N * sizeof(float);
+                    packed >>= 4;
                 }
                 this->append(pipeline, SkRP::Stage::transpose, ctx);
                 break;

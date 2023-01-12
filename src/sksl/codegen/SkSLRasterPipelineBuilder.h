@@ -402,13 +402,15 @@ public:
         fInstructions.push_back({BuilderOp::zero_slot_unmasked, {dst.index}, dst.count});
     }
 
-    // Consumes `inputSlots` elements on the stack, then generates `components.size()` elements.
-    void swizzle(int inputSlots, SkSpan<const int8_t> components);
+    // Consumes `consumedSlots` elements on the stack, then generates `components.size()` elements.
+    void swizzle(int consumedSlots, SkSpan<const int8_t> components);
 
     // Transposes a matrix of size CxR on the stack (into a matrix of size RxC).
-    void transpose(int columns, int rows) {
-        fInstructions.push_back({BuilderOp::transpose, {}, columns, rows});
-    }
+    void transpose(int columns, int rows);
+
+    // Generates a CxR diagonal matrix from the top two scalars on the stack. The second scalar is
+    // used as the diagonal value; the first scalar (usually zero) fills in the rest of the slots.
+    void diagonal_matrix(int columns, int rows);
 
     void push_condition_mask() {
         fInstructions.push_back({BuilderOp::push_condition_mask, {}});
