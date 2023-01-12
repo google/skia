@@ -17,9 +17,9 @@
 #include "src/utils/SkOSPath.h"
 
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/gpu/GrContextFactory.h"
+//#include "tools/gpu/GrContextFactory.h"
 
-#include "include/gpu/GrContextOptions.h"
+//#include "include/gpu/GrContextOptions.h"
 
 static DEFINE_string2(input, i, "", "skottie animation to render");
 static DEFINE_string2(output, o, "", "mp4 file to create");
@@ -28,11 +28,11 @@ static DEFINE_int_2(fps, f, 25, "fps");
 static DEFINE_bool2(verbose, v, false, "verbose mode");
 static DEFINE_bool2(loop, l, false, "loop mode for profiling");
 static DEFINE_int(set_dst_width, 0, "set destination width (height will be computed)");
-static DEFINE_bool2(gpu, g, false, "use GPU for rendering");
+//static DEFINE_bool2(gpu, g, false, "use GPU for rendering");
 
 static void produce_frame(SkSurface* surf, skottie::Animation* anim, double frame) {
     anim->seekFrame(frame);
-    surf->getCanvas()->clear(SK_ColorWHITE);
+    surf->getCanvas()->clear(SK_ColorTRANSPARENT);
     anim->render(surf->getCanvas());
 }
 
@@ -47,17 +47,17 @@ int main(int argc, char** argv) {
     CommandLineFlags::SetUsage("Converts skottie to a mp4");
     CommandLineFlags::Parse(argc, argv);
 
-    if (FLAGS_input.count() == 0) {
+    if (FLAGS_input.size() == 0) {
         SkDebugf("-i input_file.json argument required\n");
         return -1;
     }
 
-    auto contextType = sk_gpu_test::GrContextFactory::kGL_ContextType;
-    GrContextOptions grCtxOptions;
-    sk_gpu_test::GrContextFactory factory(grCtxOptions);
+//    auto contextType = sk_gpu_test::GrContextFactory::kGL_ContextType;
+//    GrContextOptions grCtxOptions;
+//    sk_gpu_test::GrContextFactory factory(grCtxOptions);
 
     SkString assetPath;
-    if (FLAGS_assetPath.count() > 0) {
+    if (FLAGS_assetPath.size() > 0) {
         assetPath.set(FLAGS_assetPath[0]);
     } else {
         assetPath = SkOSPath::Dirname(FLAGS_input[0]);
@@ -108,18 +108,18 @@ int main(int argc, char** argv) {
 
         // lazily allocate the surfaces
         if (!surf) {
-            if (FLAGS_gpu) {
-                grctx = factory.getContextInfo(contextType).directContext();
-                surf = SkSurface::MakeRenderTarget(grctx,
-                                                   SkBudgeted::kNo,
-                                                   info,
-                                                   0,
-                                                   GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                                                   nullptr);
-                if (!surf) {
-                    grctx = nullptr;
-                }
-            }
+//            if (FLAGS_gpu) {
+//                grctx = factory.getContextInfo(contextType).directContext();
+//                surf = SkSurface::MakeRenderTarget(grctx,
+//                                                   SkBudgeted::kNo,
+//                                                   info,
+//                                                   0,
+//                                                   GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
+//                                                   nullptr);
+//                if (!surf) {
+//                    grctx = nullptr;
+//                }
+//            }
             if (!surf) {
                 surf = SkSurface::MakeRaster(info);
             }
@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
                                                 SkSurface::RescaleGamma::kSrc,
                                                 SkImage::RescaleMode::kNearest,
                                                 read_pixels_cb, &asyncRec);
-                grctx->submit();
+//                grctx->submit();
             } else {
                 SkPixmap pm;
                 SkAssertResult(surf->peekPixels(&pm));
@@ -157,7 +157,7 @@ int main(int argc, char** argv) {
 
         if (grctx) {
             // ensure all pending reads are completed
-            grctx->flushAndSubmit(true);
+//            grctx->flushAndSubmit(true);
         }
         data = encoder.endRecording();
 
@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
         }
     } while (FLAGS_loop);
 
-    if (FLAGS_output.count() == 0) {
+    if (FLAGS_output.size() == 0) {
         SkDebugf("missing -o output_file.mp4 argument\n");
         return 0;
     }
