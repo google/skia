@@ -240,11 +240,11 @@ public:
     void previousTempStack() {
         fBuilder.set_current_stack(--fCurrentTempStack);
     }
-    void pushCloneFromNextTempStack(int slots) {
-        fBuilder.push_clone_from_stack(slots, fCurrentTempStack + 1);
+    void pushCloneFromNextTempStack(int slots, int offsetFromStackTop = 0) {
+        fBuilder.push_clone_from_stack(slots, fCurrentTempStack + 1, offsetFromStackTop);
     }
-    void pushCloneFromPreviousTempStack(int slots) {
-        fBuilder.push_clone_from_stack(slots, fCurrentTempStack - 1);
+    void pushCloneFromPreviousTempStack(int slots, int offsetFromStackTop = 0) {
+        fBuilder.push_clone_from_stack(slots, fCurrentTempStack - 1, offsetFromStackTop);
     }
     BuilderOp getTypedOp(const SkSL::Type& type, const TypedOps& ops) const;
 

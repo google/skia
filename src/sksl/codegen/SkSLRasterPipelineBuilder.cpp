@@ -693,7 +693,7 @@ void Program::appendStages(SkRasterPipeline* pipeline,
             }
             case BuilderOp::push_clone_from_stack: {
                 float* sourceStackPtr = tempStackMap[inst.fImmB];
-                float* src = sourceStackPtr - (inst.fImmA * N);
+                float* src = sourceStackPtr - (inst.fImmC * N);
                 float* dst = tempStackPtr;
                 this->appendCopySlotsUnmasked(pipeline, alloc, dst, src, inst.fImmA);
                 break;
