@@ -952,6 +952,11 @@ function surfaceTests(CK: CanvasKit, gl?: WebGLRenderingContext) {
     const surfaceNine = CK.MakeOnScreenGLSurface(grCtx!, 100, 400, // $ExpectType Surface
         CK.ColorSpace.ADOBE_RGB)!;
 
+    var sample = gl.getParameter(gl.SAMPLES);
+    var stencil = gl.getParameter(gl.STENCIL_BITS);
+    const surfaceTen = CK.MakeOnScreenGLSurface(grCtx!, 100, 400, // $ExpectType Surface
+        CK.ColorSpace.ADOBE_RGB, sample, stencil)!;
+
     const rt = CK.MakeRenderTarget(grCtx!, 100, 200); // $ExpectType Surface | null
     const rt2 = CK.MakeRenderTarget(grCtx!, { // $ExpectType Surface | null
         width: 79,

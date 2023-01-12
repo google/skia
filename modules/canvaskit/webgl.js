@@ -112,11 +112,17 @@
           this._setResourceCacheLimitBytes(maxResourceBytes);
       };
 
-      CanvasKit.MakeOnScreenGLSurface = function(grCtx, w, h, colorspace) {
+      CanvasKit.MakeOnScreenGLSurface = function(grCtx, w, h, colorspace, sc, st) {
         if (!this.setCurrentContext(grCtx._context)) {
           return null;
         }
-        var surface = this._MakeOnScreenGLSurface(grCtx, w, h, colorspace);
+        var surface;
+        // zero is a valid value for sample count or stencil bits.
+        if (sc === undefined || st === undefined) {
+          surface = this._MakeOnScreenGLSurface(grCtx, w, h, colorspace);
+        } else {
+          surface = this._MakeOnScreenGLSurface(grCtx, w, h, colorspace, sc, st);
+        }
         if (!surface) {
           return null;
         }

@@ -2001,4 +2001,22 @@ half4 main(vec2 fragcoord) {
         grContext.delete();
         expect(grContext.isDeleted()).toBeTrue();
     });
+
+    it('can provide sample count and stencil parameters to onscreen surface', () => {
+        if (!CanvasKit.webgl) {
+            return SHOULD_SKIP;
+        }
+        const paramCanvas = document.createElement('canvas');
+        const gl = paramCanvas.getContext('webgl');
+        var sample = gl.getParameter(gl.SAMPLES);
+        var stencil = gl.getParameter(gl.STENCIL_BITS);
+
+        const newCanvas = document.createElement('canvas');
+        const ctx = CanvasKit.GetWebGLContext(newCanvas);
+        const grContext = CanvasKit.MakeWebGLContext(ctx);
+        expect(grContext).toBeTruthy();
+
+        var surface =  CanvasKit.MakeOnScreenGLSurface(grContext, 100, 100, CanvasKit.ColorSpace.SRGB, sample, stencil);
+        expect(surface).toBeTruthy();
+    });
 });
