@@ -313,6 +313,40 @@ R"(    1. zero_slot_unmasked             $0 = 0
 )");
 }
 
+DEF_TEST(RasterPipelineBuilderMatrixResize, r) {
+    // Create a very simple nonsense program.
+    SkSL::RP::Builder builder;
+    builder.push_literal_f(1.0f);           // synthesize a 2x2 matrix
+    builder.push_literal_f(2.0f);
+    builder.push_literal_f(3.0f);
+    builder.push_literal_f(4.0f);
+    builder.matrix_resize(2, 2, 4, 4);      // resize 2x2 matrix into 4x4
+    builder.matrix_resize(4, 4, 2, 2);      // resize 4x4 matrix back into 2x2
+    builder.matrix_resize(2, 2, 2, 4);      // resize 2x2 matrix into 2x4
+    builder.matrix_resize(2, 4, 4, 2);      // resize 2x4 matrix into 4x2
+    builder.matrix_resize(4, 2, 3, 3);      // resize 4x2 matrix into 3x3
+    builder.discard_stack(9);               // balance stack
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
+    check(r, *program,
+R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
+    2. copy_constant                  $1 = 0x40000000 (2.0)
+    3. copy_constant                  $2 = 0x40400000 (3.0)
+    4. copy_constant                  $3 = 0x40800000 (4.0)
+    5. zero_slot_unmasked             $4 = 0
+    6. copy_constant                  $5 = 0x3F800000 (1.0)
+    7. transpose                      $0..15 = ($0..15)[0 1 4 4 2 3 4 4 4 4 5 4 4 4 4 5]
+    8. transpose                      $0..3 = ($0..3)[0 1 4 5]
+    9. zero_slot_unmasked             $4 = 0
+   10. transpose                      $0..7 = ($0..7)[0 1 4 4 2 3 4 4]
+   11. zero_slot_unmasked             $8 = 0
+   12. transpose                      $0..7 = ($0..7)[0 1 4 5 8 8 8 8]
+   13. zero_slot_unmasked             $8 = 0
+   14. copy_constant                  $9 = 0x3F800000 (1.0)
+   15. transpose                      $0..8 = ($0..8)[0 1 8 2 3 8 4 5 9]
+)");
+}
+
 DEF_TEST(RasterPipelineBuilderBranches, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;

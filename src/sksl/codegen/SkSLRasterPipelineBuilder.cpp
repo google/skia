@@ -174,7 +174,7 @@ void Builder::transpose(int columns, int rows) {
     size_t index = 0;
     for (int r = 0; r < rows; ++r) {
         for (int c = 0; c < columns; ++c) {
-            elements[index++] = ((c * rows) + r);
+            elements[index++] = (c * rows) + r;
         }
     }
     this->swizzle(/*consumedSlots=*/columns * rows, SkSpan(elements, index));
@@ -190,6 +190,42 @@ void Builder::diagonal_matrix(int columns, int rows) {
         }
     }
     this->swizzle(/*consumedSlots=*/2, SkSpan(elements, index));
+}
+
+void Builder::matrix_resize(int origColumns, int origRows, int newColumns, int newRows) {
+    // Resizes a CxR matrix at the top of the stack to C'xR'.
+    int8_t elements[16] = {};
+    size_t index = 0;
+
+    size_t consumedSlots = origColumns * origRows;
+    size_t zeroOffset = 0, oneOffset = 0;
+
+    for (int c = 0; c < newColumns; ++c) {
+        for (int r = 0; r < newRows; ++r) {
+            if (c < origColumns && r < origRows) {
+                // Push an element from the original matrix.
+                elements[index++] = (c * origRows) + r;
+            } else {
+                // This element is outside the original matrix; push 1 or 0.
+                if (c == r) {
+                    // We need to synthesize a literal 1.
+                    if (oneOffset == 0) {
+                        this->push_literal_f(1.0f);
+                        oneOffset = consumedSlots++;
+                    }
+                    elements[index++] = oneOffset;
+                } else {
+                    // We need to synthesize a literal 0.
+                    if (zeroOffset == 0) {
+                        this->push_zeros(1);
+                        zeroOffset = consumedSlots++;
+                    }
+                    elements[index++] = zeroOffset;
+                }
+            }
+        }
+    }
+    this->swizzle(consumedSlots, SkSpan(elements, index));
 }
 
 std::unique_ptr<Program> Builder::finish(int numValueSlots,

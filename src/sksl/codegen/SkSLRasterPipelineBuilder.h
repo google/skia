@@ -412,6 +412,9 @@ public:
     // used as the diagonal value; the first scalar (usually zero) fills in the rest of the slots.
     void diagonal_matrix(int columns, int rows);
 
+    // Resizes a CxR matrix at the top of the stack to C'xR'.
+    void matrix_resize(int origColumns, int origRows, int newColumns, int newRows);
+
     void push_condition_mask() {
         fInstructions.push_back({BuilderOp::push_condition_mask, {}});
     }

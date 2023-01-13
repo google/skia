@@ -30,6 +30,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLContinueStatement.h"
 #include "src/sksl/ir/SkSLDoStatement.h"
@@ -183,6 +184,7 @@ public:
     [[nodiscard]] bool pushConstructorCast(const AnyConstructor& c);
     [[nodiscard]] bool pushConstructorCompound(const ConstructorCompound& c);
     [[nodiscard]] bool pushConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
+    [[nodiscard]] bool pushConstructorMatrixResize(const ConstructorMatrixResize& c);
     [[nodiscard]] bool pushConstructorSplat(const ConstructorSplat& c);
     [[nodiscard]] bool pushExpression(const Expression& e, bool usesResult = true);
     [[nodiscard]] bool pushFunctionCall(const FunctionCall& e);
@@ -974,6 +976,9 @@ bool Generator::pushExpression(const Expression& e, bool usesResult) {
         case Expression::Kind::kConstructorDiagonalMatrix:
             return this->pushConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>());
 
+        case Expression::Kind::kConstructorMatrixResize:
+            return this->pushConstructorMatrixResize(e.as<ConstructorMatrixResize>());
+
         case Expression::Kind::kConstructorSplat:
             return this->pushConstructorSplat(e.as<ConstructorSplat>());
 
@@ -1339,6 +1344,17 @@ bool Generator::pushConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c
     }
     fBuilder.diagonal_matrix(c.type().columns(), c.type().rows());
 
+    return true;
+}
+
+bool Generator::pushConstructorMatrixResize(const ConstructorMatrixResize& c) {
+    if (!this->pushExpression(*c.argument())) {
+        return unsupported();
+    }
+    fBuilder.matrix_resize(c.argument()->type().columns(),
+                           c.argument()->type().rows(),
+                           c.type().columns(),
+                           c.type().rows());
     return true;
 }
 

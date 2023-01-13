@@ -6,5 +6,9 @@ noinline float2x2 resizeMatrix() {
 }
 
 half4 main(float2 coords) {
-    return resizeMatrix() == float2x2(1, 2, 4, 5) ? colorGreen : colorRed;
+    return (resizeMatrix()           == float2x2(1, 2,
+                                                 4, 5) &&
+            float3x3(resizeMatrix()) == float3x3(1, 2, 0,
+                                                 4, 5, 0,
+                                                 0, 0, 1)) ? colorGreen : colorRed;
 }
