@@ -8,6 +8,7 @@ skia_cc_library(
     name = "vulkan",
     hdrs = [
         "vulkan/vulkan.h",
+        "vulkan/vulkan_android.h",
         "vulkan/vulkan_core.h",
     ],
     includes = ["."],
