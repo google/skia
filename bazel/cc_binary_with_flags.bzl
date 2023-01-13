@@ -13,9 +13,10 @@ load("//bazel:copts.bzl", "DEFAULT_COPTS")
 _bool_flags = [
     "//bazel/common_config_settings:use_harfbuzz",
     "//bazel/common_config_settings:use_icu",
+    "//src/gpu/ganesh/vk:enable_secondary_draw_context",
+    "//src/gpu:enable_gpu_test_utils",
     "//src/lazy:enable_discardable_memory",
     "//src/lazy:use_default_global_memory_pool",
-    "//src/gpu:enable_gpu_test_utils",
     "//src/pdf:enable_pdf_backend",
     "//src/sksl:enable_sksl",
     "//src/sksl:enable_sksl_tracing",
