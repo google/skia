@@ -362,35 +362,9 @@ Program::Program(SkTArray<Instruction> instrs,
         (void)stackIdx;
         fNumTempStackSlots += depth;
     }
-
-    // These are not used in SKSL_STANDALONE yet.
-    (void)fDebugTrace;
-    (void)fNumUniformSlots;
 }
 
-void Program::append(SkRasterPipeline* pipeline, SkRasterPipelineOp stage, void* ctx) {
-#if !defined(SKSL_STANDALONE)
-    pipeline->append(stage, ctx);
-#endif
-}
-
-void Program::rewindPipeline(SkRasterPipeline* pipeline) {
-#if !defined(SKSL_STANDALONE)
-#if !SK_HAS_MUSTTAIL
-    pipeline->append_stack_rewind();
-#endif
-#endif
-}
-
-int Program::getNumPipelineStages(SkRasterPipeline* pipeline) {
-#if !defined(SKSL_STANDALONE)
-    return pipeline->getNumStages();
-#else
-    return 0;
-#endif
-}
-
-void Program::appendCopy(SkRasterPipeline* pipeline,
+void Program::appendCopy(SkTArray<Stage>* pipeline,
                          SkArenaAlloc* alloc,
                          SkRasterPipelineOp baseStage,
                          float* dst, int dstStride,
@@ -410,11 +384,11 @@ void Program::appendCopy(SkRasterPipeline* pipeline,
         auto* ctx = alloc->make<SkRasterPipeline_BinaryOpCtx>();
         ctx->dst = dst;
         ctx->src = src;
-        this->append(pipeline, stage, ctx);
+        pipeline->push_back({stage, ctx});
     }
 }
 
-void Program::appendCopySlotsUnmasked(SkRasterPipeline* pipeline,
+void Program::appendCopySlotsUnmasked(SkTArray<Stage>* pipeline,
                                       SkArenaAlloc* alloc,
                                       float* dst,
                                       const float* src,
@@ -426,7 +400,7 @@ void Program::appendCopySlotsUnmasked(SkRasterPipeline* pipeline,
                      numSlots);
 }
 
-void Program::appendCopySlotsMasked(SkRasterPipeline* pipeline,
+void Program::appendCopySlotsMasked(SkTArray<Stage>* pipeline,
                                     SkArenaAlloc* alloc,
                                     float* dst,
                                     const float* src,
@@ -438,7 +412,7 @@ void Program::appendCopySlotsMasked(SkRasterPipeline* pipeline,
                      numSlots);
 }
 
-void Program::appendCopyConstants(SkRasterPipeline* pipeline,
+void Program::appendCopyConstants(SkTArray<Stage>* pipeline,
                                   SkArenaAlloc* alloc,
                                   float* dst,
                                   const float* src,
@@ -450,7 +424,7 @@ void Program::appendCopyConstants(SkRasterPipeline* pipeline,
                      numSlots);
 }
 
-void Program::appendMultiSlotUnaryOp(SkRasterPipeline* pipeline, SkRasterPipelineOp baseStage,
+void Program::appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, SkRasterPipelineOp baseStage,
                                      float* dst, int numSlots) {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {
@@ -461,10 +435,10 @@ void Program::appendMultiSlotUnaryOp(SkRasterPipeline* pipeline, SkRasterPipelin
 
     SkASSERT(numSlots <= 4);
     auto stage = (SkRasterPipelineOp)((int)baseStage + numSlots - 1);
-    this->append(pipeline, stage, dst);
+    pipeline->push_back({stage, dst});
 }
 
-void Program::appendAdjacentMultiSlotBinaryOp(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
+void Program::appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                               SkRasterPipelineOp baseStage,
                                               float* dst, const float* src, int numSlots) {
     // The source and destination must be directly next to one another.
@@ -475,16 +449,16 @@ void Program::appendAdjacentMultiSlotBinaryOp(SkRasterPipeline* pipeline, SkAren
         auto ctx = alloc->make<SkRasterPipeline_BinaryOpCtx>();
         ctx->dst = dst;
         ctx->src = src;
-        this->append(pipeline, baseStage, ctx);
+        pipeline->push_back({baseStage, ctx});
         return;
     }
     if (numSlots > 0) {
         auto specializedStage = (SkRasterPipelineOp)((int)baseStage + numSlots);
-        this->append(pipeline, specializedStage, dst);
+        pipeline->push_back({specializedStage, dst});
     }
 }
 
-void Program::appendAdjacentMultiSlotTernaryOp(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
+void Program::appendAdjacentMultiSlotTernaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                                SkRasterPipelineOp baseStage, float* dst,
                                                const float* src0, const float* src1, int numSlots) {
     // The float pointers must all be immediately adjacent to each other.
@@ -497,17 +471,23 @@ void Program::appendAdjacentMultiSlotTernaryOp(SkRasterPipeline* pipeline, SkAre
         ctx->dst = dst;
         ctx->src0 = src0;
         ctx->src1 = src1;
-        this->append(pipeline, baseStage, ctx);
+        pipeline->push_back({baseStage, ctx});
         return;
     }
     if (numSlots > 0) {
         auto specializedStage = (SkRasterPipelineOp)((int)baseStage + numSlots);
-        this->append(pipeline, specializedStage, dst);
+        pipeline->push_back({specializedStage, dst});
     }
 }
 
+void Program::appendStackRewind(SkTArray<Stage>* pipeline) {
+#if defined(SKSL_STANDALONE) || !SK_HAS_MUSTTAIL
+    pipeline->push_back({RPOp::stack_rewind, nullptr});
+#endif
+}
+
 template <typename T>
-[[maybe_unused]] static void* context_bit_pun(T val) {
+static void* context_bit_pun(T val) {
     static_assert(sizeof(T) <= sizeof(void*));
     void* contextBits = nullptr;
     memcpy(&contextBits, &val, sizeof(val));
@@ -529,16 +509,26 @@ Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) {
     return s;
 }
 
+#if !defined(SKSL_STANDALONE)
 void Program::appendStages(SkRasterPipeline* pipeline,
                            SkArenaAlloc* alloc,
                            SkSpan<const float> uniforms) {
-    this->appendStages(pipeline, alloc, uniforms, this->allocateSlotData(alloc));
-}
+    SkTArray<Stage> stages;
+    this->makeStages(&stages, alloc, uniforms, this->allocateSlotData(alloc));
 
-void Program::appendStages(SkRasterPipeline* pipeline,
-                           SkArenaAlloc* alloc,
-                           SkSpan<const float> uniforms,
-                           const SlotData& slots) {
+    for (const Stage& stage : stages) {
+        switch (stage.op) {
+            case RPOp::stack_rewind: pipeline->append_stack_rewind();       break;
+            default:                 pipeline->append(stage.op, stage.ctx); break;
+        }
+    }
+}
+#endif
+
+void Program::makeStages(SkTArray<Stage>* pipeline,
+                         SkArenaAlloc* alloc,
+                         SkSpan<const float> uniforms,
+                         const SlotData& slots) {
     SkASSERT(fNumUniformSlots == SkToInt(uniforms.size()));
 
     const int N = SkOpts::raster_pipeline_highp_stride;
@@ -567,7 +557,8 @@ void Program::appendStages(SkRasterPipeline* pipeline,
     // We can reuse constants from our arena by placing them in this map.
     SkTHashMap<int, int*> constantLookupMap; // <constant value, pointer into arena>
 
-    // Write each BuilderOp to the pipeline.
+    // Write each BuilderOp to the pipeline array.
+    pipeline->reserve_back(fInstructions.size());
     for (const Instruction& inst : fInstructions) {
         auto SlotA    = [&]() { return &slots.values[N * inst.fSlotA]; };
         auto SlotB    = [&]() { return &slots.values[N * inst.fSlotB]; };
@@ -579,7 +570,7 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 // Write the absolute pipeline position into the label offset list. We will go over
                 // the branch targets at the end and fix them up.
                 SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
-                labelOffsets[inst.fImmA] = this->getNumPipelineStages(pipeline);
+                labelOffsets[inst.fImmA] = pipeline->size();
                 break;
 
             case BuilderOp::jump:
@@ -589,8 +580,8 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 // backwards branch. Add a stack-rewind immediately before the branch to ensure that
                 // long-running loops don't use an unbounded amount of stack space.
                 if (labelOffsets[inst.fImmA] >= 0) {
-                    this->rewindPipeline(pipeline);
-                    mostRecentRewind = this->getNumPipelineStages(pipeline);
+                    this->appendStackRewind(pipeline);
+                    mostRecentRewind = pipeline->size();
                 }
 
                 // Write the absolute pipeline position into the branch targets, because the
@@ -598,50 +589,50 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 // targets at the end and fix them up.
                 SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
                 SkASSERT(currentBranchOp >= 0 && currentBranchOp < fNumBranches);
-                branchTargets[currentBranchOp] = this->getNumPipelineStages(pipeline);
+                branchTargets[currentBranchOp] = pipeline->size();
                 branchGoesToLabel[currentBranchOp] = inst.fImmA;
-                this->append(pipeline, (RPOp)inst.fOp, &branchTargets[currentBranchOp]);
+                pipeline->push_back({(RPOp)inst.fOp, &branchTargets[currentBranchOp]});
                 ++currentBranchOp;
                 break;
 
             case BuilderOp::init_lane_masks:
-                this->append(pipeline, RPOp::init_lane_masks);
+                pipeline->push_back({RPOp::init_lane_masks, nullptr});
                 break;
 
             case BuilderOp::store_src_rg:
-                this->append(pipeline, RPOp::store_src_rg, SlotA());
+                pipeline->push_back({RPOp::store_src_rg, SlotA()});
                 break;
 
             case BuilderOp::store_src:
-                this->append(pipeline, RPOp::store_src, SlotA());
+                pipeline->push_back({RPOp::store_src, SlotA()});
                 break;
 
             case BuilderOp::store_dst:
-                this->append(pipeline, RPOp::store_dst, SlotA());
+                pipeline->push_back({RPOp::store_dst, SlotA()});
                 break;
 
             case BuilderOp::load_src:
-                this->append(pipeline, RPOp::load_src, SlotA());
+                pipeline->push_back({RPOp::load_src, SlotA()});
                 break;
 
             case BuilderOp::load_dst:
-                this->append(pipeline, RPOp::load_dst, SlotA());
+                pipeline->push_back({RPOp::load_dst, SlotA()});
                 break;
 
             case BuilderOp::immediate_f: {
-                this->append(pipeline, RPOp::immediate_f, context_bit_pun(inst.fImmA));
+                pipeline->push_back({RPOp::immediate_f, context_bit_pun(inst.fImmA)});
                 break;
             }
             case BuilderOp::load_unmasked:
-                this->append(pipeline, RPOp::load_unmasked, SlotA());
+                pipeline->push_back({RPOp::load_unmasked, SlotA()});
                 break;
 
             case BuilderOp::store_unmasked:
-                this->append(pipeline, RPOp::store_unmasked, SlotA());
+                pipeline->push_back({RPOp::store_unmasked, SlotA()});
                 break;
 
             case BuilderOp::store_masked:
-                this->append(pipeline, RPOp::store_masked, SlotA());
+                pipeline->push_back({RPOp::store_masked, SlotA()});
                 break;
 
             case ALL_MULTI_SLOT_UNARY_OP_CASES: {
@@ -695,7 +686,7 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                     ctx->offsets[index] = (components & 3) * N * sizeof(float);
                     components >>= 4;
                 }
-                this->append(pipeline, (RPOp)inst.fOp, ctx);
+                pipeline->push_back({(RPOp)inst.fOp, ctx});
                 break;
             }
             case BuilderOp::shuffle: {
@@ -716,7 +707,7 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                     ctx->offsets[index] = (packed & 0xF) * N * sizeof(float);
                     packed >>= 4;
                 }
-                this->append(pipeline, RPOp::shuffle, ctx);
+                pipeline->push_back({RPOp::shuffle, ctx});
                 break;
             }
             case BuilderOp::push_slots: {
@@ -736,60 +727,60 @@ void Program::appendStages(SkRasterPipeline* pipeline,
             }
             case BuilderOp::push_condition_mask: {
                 float* dst = tempStackPtr;
-                this->append(pipeline, RPOp::store_condition_mask, dst);
+                pipeline->push_back({RPOp::store_condition_mask, dst});
                 break;
             }
             case BuilderOp::pop_condition_mask: {
                 float* src = tempStackPtr - (1 * N);
-                this->append(pipeline, RPOp::load_condition_mask, src);
+                pipeline->push_back({RPOp::load_condition_mask, src});
                 break;
             }
             case BuilderOp::merge_condition_mask: {
                 float* ptr = tempStackPtr - (2 * N);
-                this->append(pipeline, RPOp::merge_condition_mask, ptr);
+                pipeline->push_back({RPOp::merge_condition_mask, ptr});
                 break;
             }
             case BuilderOp::push_loop_mask: {
                 float* dst = tempStackPtr;
-                this->append(pipeline, RPOp::store_loop_mask, dst);
+                pipeline->push_back({RPOp::store_loop_mask, dst});
                 break;
             }
             case BuilderOp::pop_loop_mask: {
                 float* src = tempStackPtr - (1 * N);
-                this->append(pipeline, RPOp::load_loop_mask, src);
+                pipeline->push_back({RPOp::load_loop_mask, src});
                 break;
             }
             case BuilderOp::mask_off_loop_mask:
-                this->append(pipeline, RPOp::mask_off_loop_mask);
+                pipeline->push_back({RPOp::mask_off_loop_mask, nullptr});
                 break;
 
             case BuilderOp::reenable_loop_mask:
-                this->append(pipeline, RPOp::reenable_loop_mask, SlotA());
+                pipeline->push_back({RPOp::reenable_loop_mask, SlotA()});
                 break;
 
             case BuilderOp::merge_loop_mask: {
                 float* src = tempStackPtr - (1 * N);
-                this->append(pipeline, RPOp::merge_loop_mask, src);
+                pipeline->push_back({RPOp::merge_loop_mask, src});
                 break;
             }
             case BuilderOp::push_return_mask: {
                 float* dst = tempStackPtr;
-                this->append(pipeline, RPOp::store_return_mask, dst);
+                pipeline->push_back({RPOp::store_return_mask, dst});
                 break;
             }
             case BuilderOp::pop_return_mask: {
                 float* src = tempStackPtr - (1 * N);
-                this->append(pipeline, RPOp::load_return_mask, src);
+                pipeline->push_back({RPOp::load_return_mask, src});
                 break;
             }
             case BuilderOp::mask_off_return_mask:
-                this->append(pipeline, RPOp::mask_off_return_mask);
+                pipeline->push_back({RPOp::mask_off_return_mask, nullptr});
                 break;
 
             case BuilderOp::push_literal_f: {
                 float* dst = tempStackPtr;
                 if (inst.fImmA == 0) {
-                    this->append(pipeline, RPOp::zero_slot_unmasked, dst);
+                    pipeline->push_back({RPOp::zero_slot_unmasked, dst});
                     break;
                 }
                 int* constantPtr;
@@ -843,12 +834,12 @@ void Program::appendStages(SkRasterPipeline* pipeline,
         SkASSERT(tempStackPtr <= slots.stack.end());
 
         // Periodically rewind the stack every 500 instructions. When SK_HAS_MUSTTAIL is set,
-        // rewinds are not actually used; the rewindPipeline call becomes a no-op. On platforms that
-        // don't support SK_HAS_MUSTTAIL, rewinding the stack periodically can prevent a potential
-        // stack overflow when running a long program.
-        int numPipelineStages = this->getNumPipelineStages(pipeline);
+        // rewinds are not actually used; the appendStackRewind call becomes a no-op. On platforms
+        // that don't support SK_HAS_MUSTTAIL, rewinding the stack periodically can prevent a
+        // potential stack overflow when running a long program.
+        int numPipelineStages = pipeline->size();
         if (numPipelineStages - mostRecentRewind > 500) {
-            this->rewindPipeline(pipeline);
+            this->appendStackRewind(pipeline);
             mostRecentRewind = numPipelineStages;
         }
     }
@@ -862,10 +853,6 @@ void Program::appendStages(SkRasterPipeline* pipeline,
 }
 
 void Program::dump(SkWStream* out) {
-    // TODO: skslc will want to dump these programs; we'll need to include some portion of
-    // SkRasterPipeline into skslc for this to work properly.
-
-#if !defined(SKSL_STANDALONE)
     // Allocate memory for the slot and uniform data, even though the program won't ever be
     // executed. The program requires pointer ranges for managing its data, and ASAN will report
     // errors if those pointers are pointing at unallocated memory.
@@ -875,21 +862,9 @@ void Program::dump(SkWStream* out) {
     float* uniformPtr = alloc.makeArray<float>(fNumUniformSlots);
     SkSpan<float> uniforms = SkSpan(uniformPtr, fNumUniformSlots);
 
-    // Instantiate this program.
-    SkRasterPipeline pipeline(&alloc);
-    this->appendStages(&pipeline, &alloc, uniforms, slots);
-    const SkRP::StageList* st = pipeline.getStageList();
-
-    // The stage list is in reverse order, so let's flip it.
-    struct Stage {
-        RPOp  op;
-        void* ctx;
-    };
+    // Turn this program into an array of Raster Pipeline stages.
     SkTArray<Stage> stages;
-    for (; st != nullptr; st = st->prev) {
-        stages.push_back(Stage{st->stage, st->ctx});
-    }
-    std::reverse(stages.begin(), stages.end());
+    this->makeStages(&stages, &alloc, uniforms, slots);
 
     // Emit the program's instruction list.
     for (int index = 0; index < stages.size(); ++index) {
@@ -1352,7 +1327,13 @@ void Program::dump(SkWStream* out) {
                 break;
         }
 
-        const char* opName = SkRasterPipeline::GetOpName(stage.op);
+        const char* opName = "";
+        switch (stage.op) {
+        #define M(x) case RPOp::x: opName = #x; break;
+            SK_RASTER_PIPELINE_OPS_ALL(M)
+        #undef M
+        }
+
         std::string opText;
         switch (stage.op) {
             case RPOp::init_lane_masks:
@@ -1640,7 +1621,6 @@ void Program::dump(SkWStream* out) {
 
         out->writeText(line.c_str());
     }
-#endif
 }
 
 }  // namespace RP
