@@ -19,9 +19,13 @@
 #include "src/sksl/SkSLStringStream.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
+#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
+#include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
+#include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
+#include "src/sksl/tracing/SkRPDebugTrace.h"
 #include "src/sksl/tracing/SkVMDebugTrace.h"
 #include "src/utils/SkShaderUtils.h"
 #include "src/utils/SkVMVisualizer.h"
@@ -538,9 +542,9 @@ static ResultCode process_command(SkSpan<std::string> args) {
 
     SkSL::ProgramSettings settings;
     const SkSL::ShaderCaps* caps = SkSL::ShaderCapsFactory::Standalone();
-    std::unique_ptr<SkSL::SkVMDebugTrace> debugTrace;
+    std::unique_ptr<SkSL::SkVMDebugTrace> skvmDebugTrace;
     if (*honorSettings) {
-        if (!detect_shader_settings(text, &settings, &caps, &debugTrace)) {
+        if (!detect_shader_settings(text, &settings, &caps, &skvmDebugTrace)) {
             return ResultCode::kInputError;
         }
     }
@@ -645,15 +649,33 @@ static ResultCode process_command(SkSpan<std::string> args) {
                 [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
                     if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
-                                                               debugTrace.get())) {
+                                                               skvmDebugTrace.get())) {
                         return false;
                     }
 
                     std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
-                    if (debugTrace) {
-                        debugTrace->dump(redirect.get());
+                    if (skvmDebugTrace) {
+                        skvmDebugTrace->dump(redirect.get());
                     }
                     builder.done().dump(redirect.get());
+                    return true;
+                });
+    } else if (skstd::ends_with(outputPath, ".skrp")) {
+        return compileProgram(
+                [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
+                    SkSL::SkRPDebugTrace skrpDebugTrace;
+                    const SkSL::FunctionDeclaration* main = program.getFunction("main");
+                    if (!main) {
+                        compiler.errorReporter().error({}, "code has no entrypoint");
+                        return false;
+                    }
+                    std::unique_ptr<SkSL::RP::Program> rasterProg = SkSL::MakeRasterPipelineProgram(
+                            program, *main->definition(), &skrpDebugTrace);
+                    if (!rasterProg) {
+                        compiler.errorReporter().error({}, "code is not supported");
+                        return false;
+                    }
+                    rasterProg->dump(as_SkWStream(out).get());
                     return true;
                 });
     } else if (skstd::ends_with(outputPath, ".stage")) {
@@ -735,25 +757,25 @@ static ResultCode process_command(SkSpan<std::string> args) {
         SkCpu::CacheRuntimeFeatures();
         return compileProgramForSkVM(
             [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
-                if (!debugTrace) {
-                    debugTrace = std::make_unique<SkSL::SkVMDebugTrace>();
-                    debugTrace->setSource(text.c_str());
+                if (!skvmDebugTrace) {
+                    skvmDebugTrace = std::make_unique<SkSL::SkVMDebugTrace>();
+                    skvmDebugTrace->setSource(text.c_str());
                 }
-                auto visualizer = std::make_unique<skvm::viz::Visualizer>(debugTrace.get());
+                auto visualizer = std::make_unique<skvm::viz::Visualizer>(skvmDebugTrace.get());
                 skvm::Builder builder(skvm::Features{}, /*createDuplicates=*/true);
-                if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder, debugTrace.get())) {
+                if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
+                                                           skvmDebugTrace.get())) {
                     return false;
                 }
 
-                std::unique_ptr<SkWStream> redirect = as_SkWStream(out);
-                skvm::Program p = builder.done(
-                        /*debug_name=*/nullptr, /*allow_jit=*/false, std::move(visualizer));
-                p.visualize(redirect.get());
+                skvm::Program p = builder.done(/*debug_name=*/nullptr, /*allow_jit=*/false,
+                                               std::move(visualizer));
+                p.visualize(as_SkWStream(out).get());
                 return true;
             });
     } else {
         printf("expected output path to end with one of: .glsl, .html, .metal, .hlsl, .wgsl, "
-               ".spirv, .asm.vert, .asm.frag, .skvm, .stage (got '%s')\n",
+               ".spirv, .asm.vert, .asm.frag, .skrp, .skvm, .stage (got '%s')\n",
                outputPath.c_str());
         return ResultCode::kConfigurationError;
     }
