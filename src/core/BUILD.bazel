@@ -270,6 +270,7 @@ CORE_FILES = [
     "SkRasterPipeline.cpp",
     "SkRasterPipeline.h",
     "SkRasterPipelineBlitter.cpp",
+    "SkRasterPipelineOpList.h",
     "SkReadBuffer.cpp",
     "SkReadBuffer.h",
     "SkRecord.cpp",

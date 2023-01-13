@@ -13,6 +13,7 @@
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkVM.h"
 
 #if SK_SUPPORT_GPU

@@ -8,7 +8,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkUtils.h"
 
@@ -17,6 +17,7 @@
 #include <memory>
 
 class SkArenaAlloc;
+class SkRasterPipeline;
 class SkWStream;
 
 namespace SkSL {

@@ -11,6 +11,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
+#include "src/core/SkRasterPipeline.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkRPDebugTrace.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
