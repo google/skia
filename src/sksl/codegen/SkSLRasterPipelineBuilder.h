@@ -37,11 +37,11 @@ struct SlotRange {
 
 // Ops that the builder will contextually rewrite into different RasterPipeline stages.
 enum class BuilderOp {
-    // We support all the native Raster Pipeline stages.
+    // We support all the native Raster Pipeline ops.
     #define M(stage) stage,
-        SK_RASTER_PIPELINE_STAGES_ALL(M)
+        SK_RASTER_PIPELINE_OPS_ALL(M)
     #undef M
-    // We also support Builder-specific ops; these are converted into real RP stages during
+    // We also support Builder-specific ops; these are converted into real RP ops during
     // `appendStages`.
     push_literal_f,
     push_slots,
@@ -116,13 +116,13 @@ private:
     // These methods currently wrap SkRasterPipeline directly. TODO: add a layer of abstraction;
     // we should assemble our own list of program stages and contexts, instead of immediately
     // pushing stages into the SkRasterPipeline.
-    void append(SkRasterPipeline* pipeline, SkRasterPipeline::Stage stage, void* ctx = nullptr);
+    void append(SkRasterPipeline* pipeline, SkRasterPipelineOp stage, void* ctx = nullptr);
     void rewindPipeline(SkRasterPipeline* pipeline);
     int getNumPipelineStages(SkRasterPipeline* pipeline);
 
     // These methods are used to split up large multi-slot operations into multiple ops as needed.
     void appendCopy(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
-                    SkRasterPipeline::Stage baseStage,
+                    SkRasterPipelineOp baseStage,
                     float* dst, int dstStride, const float* src, int srcStride, int numSlots);
     void appendCopySlotsUnmasked(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
                                  float* dst, const float* src, int numSlots);
@@ -136,7 +136,7 @@ private:
     // 2-4 slots. For instance, {`zero_slot`, `zero_2_slots`, `zero_3_slots`, `zero_4_slots`}
     // must be contiguous ops in the stage list, listed in that order; pass `zero_slot` and we
     // pick the appropriate op based on `numSlots`.
-    void appendMultiSlotUnaryOp(SkRasterPipeline* pipeline, SkRasterPipeline::Stage baseStage,
+    void appendMultiSlotUnaryOp(SkRasterPipeline* pipeline, SkRasterPipelineOp baseStage,
                                 float* dst, int numSlots);
 
     // Appends a multi-slot two-input math operation to the pipeline. `src` must be _immediately_
@@ -146,7 +146,7 @@ private:
     // stage list, listed in that order; pass `add_n_floats` and we pick the appropriate op based on
     // `numSlots`.
     void appendAdjacentMultiSlotBinaryOp(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
-                                         SkRasterPipeline::Stage baseStage,
+                                         SkRasterPipelineOp baseStage,
                                          float* dst, const float* src, int numSlots);
 
     // Appends a multi-slot math operation having three inputs (dst, src0, src1) and one output
@@ -154,7 +154,7 @@ private:
     // must refer to an unbounded "apply_to_n_slots" stage, which must be immediately followed by
     // specializations for 1-4 slots.
     void appendAdjacentMultiSlotTernaryOp(SkRasterPipeline* pipeline, SkArenaAlloc* alloc,
-                                          SkRasterPipeline::Stage stage, float* dst,
+                                          SkRasterPipelineOp stage, float* dst,
                                           const float* src0, const float* src1, int numSlots);
 
     SkTArray<Instruction> fInstructions;

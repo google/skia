@@ -83,11 +83,11 @@ public:
 
 protected:
     bool onAppendStages(const SkStageRec& rec) const override {
-        rec.fPipeline->append(SkRasterPipeline::seed_shader);
+        rec.fPipeline->append(SkRasterPipelineOp::seed_shader);
         if (fUsePersp) {
-            rec.fPipeline->append(SkRasterPipeline::matrix_perspective, &fM33);
+            rec.fPipeline->append(SkRasterPipelineOp::matrix_perspective, &fM33);
         }
-        rec.fPipeline->append(SkRasterPipeline::matrix_4x3, &fM43);
+        rec.fPipeline->append(SkRasterPipelineOp::matrix_4x3, &fM43);
         return true;
     }
 

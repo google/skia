@@ -3715,7 +3715,7 @@ namespace lowp {
     // we don't generate lowp stages.  All these nullptrs will tell SkJumper.cpp to always use the
     // highp float pipeline.
     #define M(st) static void (*st)(void) = nullptr;
-        SK_RASTER_PIPELINE_STAGES_LOWP(M)
+        SK_RASTER_PIPELINE_OPS_LOWP(M)
     #undef M
     static void (*just_return)(void) = nullptr;
 

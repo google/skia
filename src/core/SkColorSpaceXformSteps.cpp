@@ -134,11 +134,11 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
 }
 
 void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
-    if (flags.unpremul)        { p->append(SkRasterPipeline::unpremul); }
+    if (flags.unpremul)        { p->append(SkRasterPipelineOp::unpremul); }
     if (flags.linearize)       { p->append_transfer_function(srcTF); }
-    if (flags.gamut_transform) { p->append(SkRasterPipeline::matrix_3x3, &src_to_dst_matrix); }
+    if (flags.gamut_transform) { p->append(SkRasterPipelineOp::matrix_3x3, &src_to_dst_matrix); }
     if (flags.encode)          { p->append_transfer_function(dstTFInv); }
-    if (flags.premul)          { p->append(SkRasterPipeline::premul); }
+    if (flags.premul)          { p->append(SkRasterPipelineOp::premul); }
 }
 
 skvm::F32 sk_program_transfer_fn(

@@ -339,18 +339,18 @@ static void blend_line(SkColorType dstCT, void* dst,
 
     p.append_load_dst(dstCT, &dst_ctx);
     if (kUnpremul_SkAlphaType == dstAt) {
-        p.append(SkRasterPipeline::premul_dst);
+        p.append(SkRasterPipelineOp::premul_dst);
     }
 
     p.append_load(srcCT, &src_ctx);
     if (srcHasAlpha) {
-        p.append(SkRasterPipeline::premul);
+        p.append(SkRasterPipelineOp::premul);
     }
 
-    p.append(SkRasterPipeline::srcover);
+    p.append(SkRasterPipelineOp::srcover);
 
     if (kUnpremul_SkAlphaType == dstAt) {
-        p.append(SkRasterPipeline::unpremul);
+        p.append(SkRasterPipelineOp::unpremul);
     }
     p.append_store(dstCT, &dst_ctx);
 

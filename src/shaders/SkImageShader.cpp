@@ -514,7 +514,7 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
     std::tie(pm, sampleM) = access->level();
     sampleM.preConcat(totalInverse);
 
-    p->append(SkRasterPipeline::seed_shader);
+    p->append(SkRasterPipelineOp::seed_shader);
 
     if (updater) {
         updater->appendMatrix(rec.fMatrixProvider.localToDevice(), p);
@@ -581,71 +581,85 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
 
     auto append_tiling_and_gather = [&] {
         if (decal_x_and_y) {
-            p->append(SkRasterPipeline::decal_x_and_y,  decal_ctx);
+            p->append(SkRasterPipelineOp::decal_x_and_y,  decal_ctx);
         } else {
             switch (fTileModeX) {
-                case SkTileMode::kClamp:  /* The gather_xxx stage will clamp for us. */     break;
-                case SkTileMode::kMirror: p->append(SkRasterPipeline::mirror_x, limit_x);   break;
-                case SkTileMode::kRepeat: p->append(SkRasterPipeline::repeat_x, limit_x);   break;
-                case SkTileMode::kDecal:  p->append(SkRasterPipeline::decal_x,  decal_ctx); break;
+                case SkTileMode::kClamp:  /* The gather_xxx stage will clamp for us. */       break;
+                case SkTileMode::kMirror: p->append(SkRasterPipelineOp::mirror_x, limit_x);   break;
+                case SkTileMode::kRepeat: p->append(SkRasterPipelineOp::repeat_x, limit_x);   break;
+                case SkTileMode::kDecal:  p->append(SkRasterPipelineOp::decal_x,  decal_ctx); break;
             }
             switch (fTileModeY) {
-                case SkTileMode::kClamp:  /* The gather_xxx stage will clamp for us. */     break;
-                case SkTileMode::kMirror: p->append(SkRasterPipeline::mirror_y, limit_y);   break;
-                case SkTileMode::kRepeat: p->append(SkRasterPipeline::repeat_y, limit_y);   break;
-                case SkTileMode::kDecal:  p->append(SkRasterPipeline::decal_y,  decal_ctx); break;
+                case SkTileMode::kClamp:  /* The gather_xxx stage will clamp for us. */       break;
+                case SkTileMode::kMirror: p->append(SkRasterPipelineOp::mirror_y, limit_y);   break;
+                case SkTileMode::kRepeat: p->append(SkRasterPipelineOp::repeat_y, limit_y);   break;
+                case SkTileMode::kDecal:  p->append(SkRasterPipelineOp::decal_y,  decal_ctx); break;
             }
         }
 
         void* ctx = gather;
         switch (pm.colorType()) {
-            case kAlpha_8_SkColorType:      p->append(SkRasterPipeline::gather_a8,      ctx); break;
-            case kA16_unorm_SkColorType:    p->append(SkRasterPipeline::gather_a16,     ctx); break;
-            case kA16_float_SkColorType:    p->append(SkRasterPipeline::gather_af16,    ctx); break;
-            case kRGB_565_SkColorType:      p->append(SkRasterPipeline::gather_565,     ctx); break;
-            case kARGB_4444_SkColorType:    p->append(SkRasterPipeline::gather_4444,    ctx); break;
-            case kR8G8_unorm_SkColorType:   p->append(SkRasterPipeline::gather_rg88,    ctx); break;
-            case kR16G16_unorm_SkColorType: p->append(SkRasterPipeline::gather_rg1616,  ctx); break;
-            case kR16G16_float_SkColorType: p->append(SkRasterPipeline::gather_rgf16,  ctx);  break;
-            case kRGBA_8888_SkColorType:    p->append(SkRasterPipeline::gather_8888,    ctx); break;
-            case kRGBA_1010102_SkColorType: p->append(SkRasterPipeline::gather_1010102, ctx); break;
+            case kAlpha_8_SkColorType:      p->append(SkRasterPipelineOp::gather_a8,    ctx); break;
+            case kA16_unorm_SkColorType:    p->append(SkRasterPipelineOp::gather_a16,   ctx); break;
+            case kA16_float_SkColorType:    p->append(SkRasterPipelineOp::gather_af16,  ctx); break;
+            case kRGB_565_SkColorType:      p->append(SkRasterPipelineOp::gather_565,   ctx); break;
+            case kARGB_4444_SkColorType:    p->append(SkRasterPipelineOp::gather_4444,  ctx); break;
+            case kR8G8_unorm_SkColorType:   p->append(SkRasterPipelineOp::gather_rg88,  ctx); break;
+            case kR16G16_unorm_SkColorType: p->append(SkRasterPipelineOp::gather_rg1616,ctx); break;
+            case kR16G16_float_SkColorType: p->append(SkRasterPipelineOp::gather_rgf16, ctx); break;
+            case kRGBA_8888_SkColorType:    p->append(SkRasterPipelineOp::gather_8888,  ctx); break;
+
+            case kRGBA_1010102_SkColorType:
+                p->append(SkRasterPipelineOp::gather_1010102, ctx);
+                break;
+
             case kR16G16B16A16_unorm_SkColorType:
-                                            p->append(SkRasterPipeline::gather_16161616,ctx); break;
+                p->append(SkRasterPipelineOp::gather_16161616, ctx);
+                break;
+
             case kRGBA_F16Norm_SkColorType:
-            case kRGBA_F16_SkColorType:     p->append(SkRasterPipeline::gather_f16,     ctx); break;
-            case kRGBA_F32_SkColorType:     p->append(SkRasterPipeline::gather_f32,     ctx); break;
+            case kRGBA_F16_SkColorType:     p->append(SkRasterPipelineOp::gather_f16,   ctx); break;
+            case kRGBA_F32_SkColorType:     p->append(SkRasterPipelineOp::gather_f32,   ctx); break;
 
-            case kGray_8_SkColorType:       p->append(SkRasterPipeline::gather_a8,      ctx);
-                                            p->append(SkRasterPipeline::alpha_to_gray      ); break;
+            case kGray_8_SkColorType:       p->append(SkRasterPipelineOp::gather_a8,    ctx);
+                                            p->append(SkRasterPipelineOp::alpha_to_gray    ); break;
 
-            case kR8_unorm_SkColorType:     p->append(SkRasterPipeline::gather_a8,      ctx);
-                                            p->append(SkRasterPipeline::alpha_to_red       ); break;
+            case kR8_unorm_SkColorType:     p->append(SkRasterPipelineOp::gather_a8,    ctx);
+                                            p->append(SkRasterPipelineOp::alpha_to_red     ); break;
 
-            case kRGB_888x_SkColorType:     p->append(SkRasterPipeline::gather_8888,    ctx);
-                                            p->append(SkRasterPipeline::force_opaque       ); break;
+            case kRGB_888x_SkColorType:     p->append(SkRasterPipelineOp::gather_8888,  ctx);
+                                            p->append(SkRasterPipelineOp::force_opaque     ); break;
 
-            case kBGRA_1010102_SkColorType: p->append(SkRasterPipeline::gather_1010102, ctx);
-                                            p->append(SkRasterPipeline::swap_rb            ); break;
+            case kBGRA_1010102_SkColorType:
+                p->append(SkRasterPipelineOp::gather_1010102, ctx);
+                p->append(SkRasterPipelineOp::swap_rb);
+                break;
 
-            case kRGB_101010x_SkColorType:  p->append(SkRasterPipeline::gather_1010102, ctx);
-                                            p->append(SkRasterPipeline::force_opaque       ); break;
+            case kRGB_101010x_SkColorType:
+                p->append(SkRasterPipelineOp::gather_1010102, ctx);
+                p->append(SkRasterPipelineOp::force_opaque);
+                break;
 
-            case kBGR_101010x_SkColorType:  p->append(SkRasterPipeline::gather_1010102, ctx);
-                                            p->append(SkRasterPipeline::force_opaque       );
-                                            p->append(SkRasterPipeline::swap_rb            ); break;
+            case kBGR_101010x_SkColorType:
+                p->append(SkRasterPipelineOp::gather_1010102, ctx);
+                p->append(SkRasterPipelineOp::force_opaque);
+                p->append(SkRasterPipelineOp::swap_rb);
+                break;
 
-            case kBGRA_8888_SkColorType:    p->append(SkRasterPipeline::gather_8888,    ctx);
-                                            p->append(SkRasterPipeline::swap_rb            ); break;
+            case kBGRA_8888_SkColorType:
+                p->append(SkRasterPipelineOp::gather_8888, ctx);
+                p->append(SkRasterPipelineOp::swap_rb);
+                break;
 
             case kSRGBA_8888_SkColorType:
-                p->append(SkRasterPipeline::gather_8888, ctx);
+                p->append(SkRasterPipelineOp::gather_8888, ctx);
                 p->append_transfer_function(*skcms_sRGB_TransferFunction());
                 break;
 
             case kUnknown_SkColorType: SkASSERT(false);
         }
         if (decal_ctx) {
-            p->append(SkRasterPipeline::check_decal_mask, decal_ctx);
+            p->append(SkRasterPipelineOp::check_decal_mask, decal_ctx);
         }
     };
 
@@ -665,8 +679,8 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
         // Bicubic filtering naturally produces out of range values on both sides of [0,1].
         if (sampling.useCubic) {
             p->append(at == kUnpremul_SkAlphaType || fClampAsIfUnpremul
-                          ? SkRasterPipeline::clamp_01
-                          : SkRasterPipeline::clamp_gamut);
+                          ? SkRasterPipelineOp::clamp_01
+                          : SkRasterPipelineOp::clamp_gamut);
         }
 
         // Transform color space and alpha type to match shader convention (dst CS, premul alpha).
@@ -684,9 +698,9 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
         && !sampling.useCubic && sampling.filter == SkFilterMode::kLinear
         && fTileModeX == SkTileMode::kClamp && fTileModeY == SkTileMode::kClamp) {
 
-        p->append(SkRasterPipeline::bilerp_clamp_8888, gather);
+        p->append(SkRasterPipelineOp::bilerp_clamp_8888, gather);
         if (ct == kBGRA_8888_SkColorType) {
-            p->append(SkRasterPipeline::swap_rb);
+            p->append(SkRasterPipelineOp::swap_rb);
         }
         return append_misc();
     }
@@ -695,59 +709,59 @@ bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) co
         && sampling.useCubic
         && fTileModeX == SkTileMode::kClamp && fTileModeY == SkTileMode::kClamp) {
 
-        p->append(SkRasterPipeline::bicubic_clamp_8888, gather);
+        p->append(SkRasterPipelineOp::bicubic_clamp_8888, gather);
         if (ct == kBGRA_8888_SkColorType) {
-            p->append(SkRasterPipeline::swap_rb);
+            p->append(SkRasterPipelineOp::swap_rb);
         }
         return append_misc();
     }
 
     SkRasterPipeline_SamplerCtx* sampler = alloc->make<SkRasterPipeline_SamplerCtx>();
 
-    auto sample = [&](SkRasterPipeline::Stage setup_x,
-                      SkRasterPipeline::Stage setup_y) {
+    auto sample = [&](SkRasterPipelineOp setup_x,
+                      SkRasterPipelineOp setup_y) {
         p->append(setup_x, sampler);
         p->append(setup_y, sampler);
         append_tiling_and_gather();
-        p->append(SkRasterPipeline::accumulate, sampler);
+        p->append(SkRasterPipelineOp::accumulate, sampler);
     };
 
     if (sampling.useCubic) {
         CubicResamplerMatrix(sampling.cubic.B, sampling.cubic.C).getColMajor(sampler->weights);
 
-        p->append(SkRasterPipeline::save_xy, sampler);
-        p->append(SkRasterPipeline::bicubic_setup, sampler);
+        p->append(SkRasterPipelineOp::save_xy, sampler);
+        p->append(SkRasterPipelineOp::bicubic_setup, sampler);
 
-        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_n3y);
-        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_n3y);
-        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_n3y);
-        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_n3y);
+        sample(SkRasterPipelineOp::bicubic_n3x, SkRasterPipelineOp::bicubic_n3y);
+        sample(SkRasterPipelineOp::bicubic_n1x, SkRasterPipelineOp::bicubic_n3y);
+        sample(SkRasterPipelineOp::bicubic_p1x, SkRasterPipelineOp::bicubic_n3y);
+        sample(SkRasterPipelineOp::bicubic_p3x, SkRasterPipelineOp::bicubic_n3y);
 
-        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_n1y);
-        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_n1y);
-        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_n1y);
-        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_n1y);
+        sample(SkRasterPipelineOp::bicubic_n3x, SkRasterPipelineOp::bicubic_n1y);
+        sample(SkRasterPipelineOp::bicubic_n1x, SkRasterPipelineOp::bicubic_n1y);
+        sample(SkRasterPipelineOp::bicubic_p1x, SkRasterPipelineOp::bicubic_n1y);
+        sample(SkRasterPipelineOp::bicubic_p3x, SkRasterPipelineOp::bicubic_n1y);
 
-        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_p1y);
-        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_p1y);
-        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_p1y);
-        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_p1y);
+        sample(SkRasterPipelineOp::bicubic_n3x, SkRasterPipelineOp::bicubic_p1y);
+        sample(SkRasterPipelineOp::bicubic_n1x, SkRasterPipelineOp::bicubic_p1y);
+        sample(SkRasterPipelineOp::bicubic_p1x, SkRasterPipelineOp::bicubic_p1y);
+        sample(SkRasterPipelineOp::bicubic_p3x, SkRasterPipelineOp::bicubic_p1y);
 
-        sample(SkRasterPipeline::bicubic_n3x, SkRasterPipeline::bicubic_p3y);
-        sample(SkRasterPipeline::bicubic_n1x, SkRasterPipeline::bicubic_p3y);
-        sample(SkRasterPipeline::bicubic_p1x, SkRasterPipeline::bicubic_p3y);
-        sample(SkRasterPipeline::bicubic_p3x, SkRasterPipeline::bicubic_p3y);
+        sample(SkRasterPipelineOp::bicubic_n3x, SkRasterPipelineOp::bicubic_p3y);
+        sample(SkRasterPipelineOp::bicubic_n1x, SkRasterPipelineOp::bicubic_p3y);
+        sample(SkRasterPipelineOp::bicubic_p1x, SkRasterPipelineOp::bicubic_p3y);
+        sample(SkRasterPipelineOp::bicubic_p3x, SkRasterPipelineOp::bicubic_p3y);
 
-        p->append(SkRasterPipeline::move_dst_src);
+        p->append(SkRasterPipelineOp::move_dst_src);
     } else if (sampling.filter == SkFilterMode::kLinear) {
-        p->append(SkRasterPipeline::save_xy, sampler);
+        p->append(SkRasterPipelineOp::save_xy, sampler);
 
-        sample(SkRasterPipeline::bilinear_nx, SkRasterPipeline::bilinear_ny);
-        sample(SkRasterPipeline::bilinear_px, SkRasterPipeline::bilinear_ny);
-        sample(SkRasterPipeline::bilinear_nx, SkRasterPipeline::bilinear_py);
-        sample(SkRasterPipeline::bilinear_px, SkRasterPipeline::bilinear_py);
+        sample(SkRasterPipelineOp::bilinear_nx, SkRasterPipelineOp::bilinear_ny);
+        sample(SkRasterPipelineOp::bilinear_px, SkRasterPipelineOp::bilinear_ny);
+        sample(SkRasterPipelineOp::bilinear_nx, SkRasterPipelineOp::bilinear_py);
+        sample(SkRasterPipelineOp::bilinear_px, SkRasterPipelineOp::bilinear_py);
 
-        p->append(SkRasterPipeline::move_dst_src);
+        p->append(SkRasterPipelineOp::move_dst_src);
     } else {
         append_tiling_and_gather();
     }

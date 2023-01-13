@@ -22,9 +22,9 @@ static void check_error(skiatest::Reporter* r, float limit, skcms_TransferFuncti
                                op = {out, 0};
 
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_f32, &ip);
+    p.append(SkRasterPipelineOp::load_f32, &ip);
     p.append_transfer_function(fn);
-    p.append(SkRasterPipeline::store_f32, &op);
+    p.append(SkRasterPipelineOp::store_f32, &op);
 
     p.run(0,0, 256/4,1);
 

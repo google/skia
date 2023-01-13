@@ -17,16 +17,16 @@ void Swizzle::apply(SkRasterPipeline* pipeline) const {
         case Swizzle("rgba").asKey():
             return;
         case Swizzle("bgra").asKey():
-            pipeline->append(SkRasterPipeline::swap_rb);
+            pipeline->append(SkRasterPipelineOp::swap_rb);
             return;
         case Swizzle("aaa1").asKey():
-            pipeline->append(SkRasterPipeline::alpha_to_gray);
+            pipeline->append(SkRasterPipelineOp::alpha_to_gray);
             return;
         case Swizzle("rgb1").asKey():
-            pipeline->append(SkRasterPipeline::force_opaque);
+            pipeline->append(SkRasterPipelineOp::force_opaque);
             return;
         case Swizzle("a001").asKey():
-            pipeline->append(SkRasterPipeline::alpha_to_red);
+            pipeline->append(SkRasterPipelineOp::alpha_to_red);
             return;
         default: {
             static_assert(sizeof(uintptr_t) >= 4 * sizeof(char));
@@ -34,7 +34,7 @@ void Swizzle::apply(SkRasterPipeline* pipeline) const {
             // into a uintptr_t context.
             uintptr_t ctx;
             memcpy(&ctx, this->asString().c_str(), 4 * sizeof(char));
-            pipeline->append(SkRasterPipeline::swizzle, ctx);
+            pipeline->append(SkRasterPipelineOp::swizzle, ctx);
             return;
         }
     }

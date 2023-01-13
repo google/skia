@@ -45,7 +45,7 @@ struct skcms_TransferFunction;
 
 // There are two macros here: The first defines stages that have lowp (and highp) implementations
 // The second defines stages that are only present in the highp pipeline.
-#define SK_RASTER_PIPELINE_STAGES_LOWP(M)                          \
+#define SK_RASTER_PIPELINE_OPS_LOWP(M)                             \
     M(move_src_dst) M(move_dst_src) M(swap_src_dst)                \
     M(clamp_01) M(clamp_gamut)                                     \
     M(premul) M(premul_dst)                                        \
@@ -87,7 +87,7 @@ struct skcms_TransferFunction;
     M(emboss)                                                      \
     M(swizzle)
 
-#define SK_RASTER_PIPELINE_STAGES_HIGHP_ONLY(M)                    \
+#define SK_RASTER_PIPELINE_OPS_HIGHP_ONLY(M)                       \
     M(callback)                                                    \
     M(stack_checkpoint) M(stack_rewind)                            \
     M(unbounded_set_rgb) M(unbounded_uniform_color)                \
@@ -191,10 +191,17 @@ struct skcms_TransferFunction;
     M(cmpne_n_floats) M(cmpne_float) M(cmpne_2_floats) M(cmpne_3_floats) M(cmpne_4_floats)    \
     M(cmpne_n_ints)   M(cmpne_int)   M(cmpne_2_ints)   M(cmpne_3_ints)   M(cmpne_4_ints)
 
-// The combined list of all stages:
-#define SK_RASTER_PIPELINE_STAGES_ALL(M) \
-    SK_RASTER_PIPELINE_STAGES_LOWP(M)    \
-    SK_RASTER_PIPELINE_STAGES_HIGHP_ONLY(M)
+// The combined list of all RasterPipeline ops:
+#define SK_RASTER_PIPELINE_OPS_ALL(M) \
+    SK_RASTER_PIPELINE_OPS_LOWP(M)    \
+    SK_RASTER_PIPELINE_OPS_HIGHP_ONLY(M)
+
+// An enumeration of every RasterPipeline op:
+enum class SkRasterPipelineOp {
+#define M(op) op,
+    SK_RASTER_PIPELINE_OPS_ALL(M)
+#undef M
+};
 
 // The largest number of pixels we handle at a time. We have a separate value for the largest number
 // of pixels we handle in the highp pipeline. Many of the context structs in this file are only used
@@ -216,7 +223,7 @@ struct SkRasterPipelineStage {
 };
 SK_END_REQUIRE_DENSE
 
-// Structs representing the arguments to some common stages.
+// These structs hold the context data for many of the above Raster Pipeline ops.
 
 struct SkRasterPipeline_MemoryCtx {
     void* pixels;
@@ -358,20 +365,14 @@ public:
 
     void reset();
 
-    enum Stage {
-    #define M(stage) stage,
-        SK_RASTER_PIPELINE_STAGES_ALL(M)
-    #undef M
-    };
-
 #define M(st) +1
-    static constexpr int kNumLowpStages  = SK_RASTER_PIPELINE_STAGES_LOWP(M);
-    static constexpr int kNumHighpStages = SK_RASTER_PIPELINE_STAGES_ALL(M);
+    static constexpr int kNumLowpOps  = SK_RASTER_PIPELINE_OPS_LOWP(M);
+    static constexpr int kNumHighpOps = SK_RASTER_PIPELINE_OPS_ALL(M);
 #undef M
 
-    void append(Stage, void* = nullptr);
-    void append(Stage stage, const void* ctx) { this->append(stage, const_cast<void*>(ctx)); }
-    void append(Stage, uintptr_t ctx);
+    void append(SkRasterPipelineOp, void* = nullptr);
+    void append(SkRasterPipelineOp op, const void* ctx) { this->append(op,const_cast<void*>(ctx)); }
+    void append(SkRasterPipelineOp, uintptr_t ctx);
 
     // Append all stages to this pipeline.
     void extend(const SkRasterPipeline&);
@@ -384,12 +385,12 @@ public:
 
     // Callers can inspect the stage list for debugging purposes.
     struct StageList {
-        StageList* prev;
-        Stage      stage;
-        void*      ctx;
+        StageList*          prev;
+        SkRasterPipelineOp  stage;
+        void*               ctx;
     };
 
-    static const char* GetStageName(Stage stage);
+    static const char* GetOpName(SkRasterPipelineOp op);
     const StageList* getStageList() const { return fStages; }
     int getNumStages() const { return fNumStages; }
 
@@ -434,7 +435,7 @@ private:
     using StartPipelineFn = void(*)(size_t,size_t,size_t,size_t, SkRasterPipelineStage* program);
     StartPipelineFn build_pipeline(SkRasterPipelineStage*) const;
 
-    void unchecked_append(Stage, void*);
+    void unchecked_append(SkRasterPipelineOp, void*);
     int stages_needed() const;
 
     SkArenaAlloc*               fAlloc;

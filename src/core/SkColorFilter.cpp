@@ -123,7 +123,7 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     if (as_CFB(this)->onAppendStages(rec, color.fA == 1)) {
         SkPMColor4f dst;
         SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
-        pipeline.append(SkRasterPipeline::store_f32, &dstPtr);
+        pipeline.append(SkRasterPipelineOp::store_f32, &dstPtr);
         pipeline.run(0,0, 1,1);
         return dst;
     }
@@ -334,13 +334,13 @@ public:
 
     bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         if (!shaderIsOpaque) {
-            rec.fPipeline->append(SkRasterPipeline::unpremul);
+            rec.fPipeline->append(SkRasterPipelineOp::unpremul);
         }
 
         fSteps.apply(rec.fPipeline);
 
         if (!shaderIsOpaque) {
-            rec.fPipeline->append(SkRasterPipeline::premul);
+            rec.fPipeline->append(SkRasterPipelineOp::premul);
         }
         return true;
     }

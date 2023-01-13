@@ -429,7 +429,7 @@ static void test_raster_pipeline(skiatest::Reporter* r, const char* testFile, in
     // Move the float values from RGBA into an 8888 memory buffer.
     uint32_t out[SkRasterPipeline_kMaxStride_highp] = {};
     SkRasterPipeline_MemoryCtx outCtx{/*pixels=*/out, /*stride=*/SkRasterPipeline_kMaxStride_highp};
-    pipeline.append(SkRasterPipeline::store_8888, &outCtx);
+    pipeline.append(SkRasterPipelineOp::store_8888, &outCtx);
     pipeline.run(0, 0, 1, 1);
 
     // Make sure the first pixel (exclusively) of `out` is green. If the program compiled

@@ -305,7 +305,7 @@ void SkGradientShaderBase::AppendGradientFillStages(SkRasterPipeline* p,
         (skvx::float4::Load(c_r.vec()) - skvx::float4::Load(c_l.vec())).store(ctx->f);
         (                                skvx::float4::Load(c_l.vec())).store(ctx->b);
 
-        p->append(SkRasterPipeline::evenly_spaced_2_stop_gradient, ctx);
+        p->append(SkRasterPipelineOp::evenly_spaced_2_stop_gradient, ctx);
     } else {
         auto* ctx = alloc->make<SkRasterPipeline_GradientCtx>();
 
@@ -332,7 +332,7 @@ void SkGradientShaderBase::AppendGradientFillStages(SkRasterPipeline* p,
             add_const_color(ctx, stopCount - 1, c_l);
 
             ctx->stopCount = stopCount;
-            p->append(SkRasterPipeline::evenly_spaced_gradient, ctx);
+            p->append(SkRasterPipelineOp::evenly_spaced_gradient, ctx);
         } else {
             // Handle arbitrary stops.
 
@@ -371,7 +371,7 @@ void SkGradientShaderBase::AppendGradientFillStages(SkRasterPipeline* p,
             add_const_color(ctx, stopCount++, c_l);
 
             ctx->stopCount = stopCount;
-            p->append(SkRasterPipeline::gradient, ctx);
+            p->append(SkRasterPipelineOp::gradient, ctx);
         }
     }
 }
@@ -389,18 +389,18 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 
     SkRasterPipeline_<256> postPipeline;
 
-    p->append(SkRasterPipeline::seed_shader);
+    p->append(SkRasterPipelineOp::seed_shader);
     p->append_matrix(alloc, matrix);
     this->appendGradientStages(alloc, p, &postPipeline);
 
     switch(fTileMode) {
-        case SkTileMode::kMirror: p->append(SkRasterPipeline::mirror_x_1); break;
-        case SkTileMode::kRepeat: p->append(SkRasterPipeline::repeat_x_1); break;
+        case SkTileMode::kMirror: p->append(SkRasterPipelineOp::mirror_x_1); break;
+        case SkTileMode::kRepeat: p->append(SkRasterPipelineOp::repeat_x_1); break;
         case SkTileMode::kDecal:
             decal_ctx = alloc->make<SkRasterPipeline_DecalTileCtx>();
             decal_ctx->limit_x = SkBits2Float(SkFloat2Bits(1.0f) + 1);
             // reuse mask + limit_x stage, or create a custom decal_1 that just stores the mask
-            p->append(SkRasterPipeline::decal_x, decal_ctx);
+            p->append(SkRasterPipelineOp::decal_x, decal_ctx);
             [[fallthrough]];
 
         case SkTileMode::kClamp:
@@ -409,7 +409,7 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
                 // If not, there may be hard stops, and clamping ruins hard stops at 0 and/or 1.
                 // In that case, we must make sure we're using the general "gradient" stage,
                 // which is the only stage that will correctly handle unclamped t.
-                p->append(SkRasterPipeline::clamp_x_1);
+                p->append(SkRasterPipelineOp::clamp_x_1);
             }
             break;
     }
@@ -426,14 +426,14 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
         switch (fInterpolation.fColorSpace) {
             case ColorSpace::kLab:
             case ColorSpace::kOKLab:
-                p->append(SkRasterPipeline::unpremul);
+                p->append(SkRasterPipelineOp::unpremul);
                 colorIsPremul = false;
                 break;
             case ColorSpace::kLCH:
             case ColorSpace::kOKLCH:
             case ColorSpace::kHSL:
             case ColorSpace::kHWB:
-                p->append(SkRasterPipeline::unpremul_polar);
+                p->append(SkRasterPipelineOp::unpremul_polar);
                 colorIsPremul = false;
                 break;
             default: break;
@@ -442,14 +442,14 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
 
     // Convert colors in exotic spaces back to their intermediate SkColorSpace
     switch (fInterpolation.fColorSpace) {
-        case ColorSpace::kLab:   p->append(SkRasterPipeline::css_lab_to_xyz);           break;
-        case ColorSpace::kOKLab: p->append(SkRasterPipeline::css_oklab_to_linear_srgb); break;
-        case ColorSpace::kLCH:   p->append(SkRasterPipeline::css_hcl_to_lab);
-                                 p->append(SkRasterPipeline::css_lab_to_xyz);           break;
-        case ColorSpace::kOKLCH: p->append(SkRasterPipeline::css_hcl_to_lab);
-                                 p->append(SkRasterPipeline::css_oklab_to_linear_srgb); break;
-        case ColorSpace::kHSL:   p->append(SkRasterPipeline::css_hsl_to_srgb);          break;
-        case ColorSpace::kHWB:   p->append(SkRasterPipeline::css_hwb_to_srgb);          break;
+        case ColorSpace::kLab:   p->append(SkRasterPipelineOp::css_lab_to_xyz);           break;
+        case ColorSpace::kOKLab: p->append(SkRasterPipelineOp::css_oklab_to_linear_srgb); break;
+        case ColorSpace::kLCH:   p->append(SkRasterPipelineOp::css_hcl_to_lab);
+                                 p->append(SkRasterPipelineOp::css_lab_to_xyz);           break;
+        case ColorSpace::kOKLCH: p->append(SkRasterPipelineOp::css_hcl_to_lab);
+                                 p->append(SkRasterPipelineOp::css_oklab_to_linear_srgb); break;
+        case ColorSpace::kHSL:   p->append(SkRasterPipelineOp::css_hsl_to_srgb);          break;
+        case ColorSpace::kHWB:   p->append(SkRasterPipelineOp::css_hwb_to_srgb);          break;
         default: break;
     }
 
@@ -471,7 +471,7 @@ bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
             ->apply(p);
 
     if (decal_ctx) {
-        p->append(SkRasterPipeline::check_decal_mask, decal_ctx);
+        p->append(SkRasterPipelineOp::check_decal_mask, decal_ctx);
     }
 
     p->extend(postPipeline);

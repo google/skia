@@ -118,8 +118,8 @@ namespace SkOpts {
     // We can't necessarily express the type of SkJumper stage functions here,
     // so we just use this void(*)(void) as a stand-in.
     using StageFn = void(*)(void);
-    extern StageFn stages_highp[SkRasterPipeline::kNumHighpStages], just_return_highp;
-    extern StageFn stages_lowp [SkRasterPipeline::kNumLowpStages ], just_return_lowp;
+    extern StageFn ops_highp[SkRasterPipeline::kNumHighpOps], just_return_highp;
+    extern StageFn ops_lowp [SkRasterPipeline::kNumLowpOps ], just_return_lowp;
 
     extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, SkRasterPipelineStage*);
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, SkRasterPipelineStage*);

@@ -108,7 +108,7 @@ void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
 
 void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
                                             SkRasterPipeline*) const {
-    p->append(SkRasterPipeline::xy_to_radius);
+    p->append(SkRasterPipelineOp::xy_to_radius);
 }
 
 skvm::F32 SkRadialGradient::transformT(skvm::Builder* p, skvm::Uniforms*,

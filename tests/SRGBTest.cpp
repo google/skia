@@ -34,10 +34,10 @@ DEF_TEST(srgb_roundtrip, r) {
                            reencode {linear.get(),upm,    sRGB.get(),upm};
 
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_8888,  &ptr);
+    p.append(SkRasterPipelineOp::load_8888,  &ptr);
     linearize.apply(&p);
     reencode .apply(&p);
-    p.append(SkRasterPipeline::store_8888, &ptr);
+    p.append(SkRasterPipelineOp::store_8888, &ptr);
 
     p.run(0,0,256,1);
 
@@ -65,7 +65,7 @@ DEF_TEST(srgb_edge_cases, r) {
     SkRasterPipeline p(&alloc);
     p.append_constant_color(&alloc, color);
     steps.apply(&p);
-    p.append(SkRasterPipeline::store_f32, &dst);
+    p.append(SkRasterPipelineOp::store_f32, &dst);
     p.run(0,0,4,1);
 
     if (color[0] != 0.0f) {
@@ -108,10 +108,10 @@ DEF_TEST(srgb_roundtrip_extended, r) {
                            reencode {linear.get(),upm,      cs.get(),upm};
 
     SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_f32,  &ptr);
+    p.append(SkRasterPipelineOp::load_f32,  &ptr);
     linearize.apply(&p);
     reencode .apply(&p);
-    p.append(SkRasterPipeline::store_f32, &ptr);
+    p.append(SkRasterPipelineOp::store_f32, &ptr);
     p.run(0,0,kSteps,1);
 
     auto close = [=](float x, float y) {

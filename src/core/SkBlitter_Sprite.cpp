@@ -125,7 +125,7 @@ public:
         if (SkColorTypeIsAlphaOnly(fSource.colorType())) {
             // The color for A8 images comes from the (sRGB) paint color.
             p.append_set_rgb(fAlloc, fPaintColor);
-            p.append(SkRasterPipeline::premul);
+            p.append(SkRasterPipelineOp::premul);
         }
         if (auto dstCS = fDst.colorSpace()) {
             auto srcCS = fSource.colorSpace();
@@ -141,7 +141,7 @@ public:
                 ->apply(&p);
         }
         if (fPaintColor.fA != 1.0f) {
-            p.append(SkRasterPipeline::scale_1_float, &fPaintColor.fA);
+            p.append(SkRasterPipelineOp::scale_1_float, &fPaintColor.fA);
         }
 
         bool is_opaque = fSource.isOpaque() && fPaintColor.fA == 1.0f;

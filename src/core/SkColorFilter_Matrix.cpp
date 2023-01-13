@@ -107,12 +107,12 @@ bool SkColorFilter_Matrix::onAppendStages(const SkStageRec& rec, bool shaderIsOp
                          hsla = fDomain == Domain::kHSLA;
 
     SkRasterPipeline* p = rec.fPipeline;
-    if (!shaderIsOpaque) { p->append(SkRasterPipeline::unpremul); }
-    if (           hsla) { p->append(SkRasterPipeline::rgb_to_hsl); }
-    if (           true) { p->append(SkRasterPipeline::matrix_4x5, fMatrix); }
-    if (           hsla) { p->append(SkRasterPipeline::hsl_to_rgb); }
-    if (           true) { p->append(SkRasterPipeline::clamp_01); }
-    if (!willStayOpaque) { p->append(SkRasterPipeline::premul); }
+    if (!shaderIsOpaque) { p->append(SkRasterPipelineOp::unpremul); }
+    if (           hsla) { p->append(SkRasterPipelineOp::rgb_to_hsl); }
+    if (           true) { p->append(SkRasterPipelineOp::matrix_4x5, fMatrix); }
+    if (           hsla) { p->append(SkRasterPipelineOp::hsl_to_rgb); }
+    if (           true) { p->append(SkRasterPipelineOp::clamp_01); }
+    if (!willStayOpaque) { p->append(SkRasterPipelineOp::premul); }
     return true;
 }
 

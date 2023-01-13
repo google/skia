@@ -264,7 +264,7 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
     const auto dRadius = fRadius2 - fRadius1;
 
     if (fType == Type::kRadial) {
-        p->append(SkRasterPipeline::xy_to_radius);
+        p->append(SkRasterPipelineOp::xy_to_radius);
 
         // Tiny twist: radial computes a t for [0, r2], but we want a t for [r1, r2].
         auto scale =  std::max(fRadius1, fRadius2) / dRadius;
@@ -278,9 +278,9 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
         auto* ctx = alloc->make<SkRasterPipeline_2PtConicalCtx>();
         SkScalar scaledR0 = fRadius1 / this->getCenterX1();
         ctx->fP0 = scaledR0 * scaledR0;
-        p->append(SkRasterPipeline::xy_to_2pt_conical_strip, ctx);
-        p->append(SkRasterPipeline::mask_2pt_conical_nan, ctx);
-        postPipeline->append(SkRasterPipeline::apply_vector_mask, &ctx->fMask);
+        p->append(SkRasterPipelineOp::xy_to_2pt_conical_strip, ctx);
+        p->append(SkRasterPipelineOp::mask_2pt_conical_nan, ctx);
+        postPipeline->append(SkRasterPipelineOp::apply_vector_mask, &ctx->fMask);
         return;
     }
 
@@ -289,29 +289,29 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
     ctx->fP1 = fFocalData.fFocalX;
 
     if (fFocalData.isFocalOnCircle()) {
-        p->append(SkRasterPipeline::xy_to_2pt_conical_focal_on_circle);
+        p->append(SkRasterPipelineOp::xy_to_2pt_conical_focal_on_circle);
     } else if (fFocalData.isWellBehaved()) {
-        p->append(SkRasterPipeline::xy_to_2pt_conical_well_behaved, ctx);
+        p->append(SkRasterPipelineOp::xy_to_2pt_conical_well_behaved, ctx);
     } else if (fFocalData.isSwapped() || 1 - fFocalData.fFocalX < 0) {
-        p->append(SkRasterPipeline::xy_to_2pt_conical_smaller, ctx);
+        p->append(SkRasterPipelineOp::xy_to_2pt_conical_smaller, ctx);
     } else {
-        p->append(SkRasterPipeline::xy_to_2pt_conical_greater, ctx);
+        p->append(SkRasterPipelineOp::xy_to_2pt_conical_greater, ctx);
     }
 
     if (!fFocalData.isWellBehaved()) {
-        p->append(SkRasterPipeline::mask_2pt_conical_degenerates, ctx);
+        p->append(SkRasterPipelineOp::mask_2pt_conical_degenerates, ctx);
     }
     if (1 - fFocalData.fFocalX < 0) {
-        p->append(SkRasterPipeline::negate_x);
+        p->append(SkRasterPipelineOp::negate_x);
     }
     if (!fFocalData.isNativelyFocal()) {
-        p->append(SkRasterPipeline::alter_2pt_conical_compensate_focal, ctx);
+        p->append(SkRasterPipelineOp::alter_2pt_conical_compensate_focal, ctx);
     }
     if (fFocalData.isSwapped()) {
-        p->append(SkRasterPipeline::alter_2pt_conical_unswap);
+        p->append(SkRasterPipelineOp::alter_2pt_conical_unswap);
     }
     if (!fFocalData.isWellBehaved()) {
-        postPipeline->append(SkRasterPipeline::apply_vector_mask, &ctx->fMask);
+        postPipeline->append(SkRasterPipelineOp::apply_vector_mask, &ctx->fMask);
     }
 }
 

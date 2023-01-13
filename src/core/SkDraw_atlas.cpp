@@ -143,7 +143,7 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
         if (colors) {
             // we will late-bind the values in ctx, once for each color in the loop
             uniformCtx = alloc.make<SkRasterPipeline_UniformColorCtx>();
-            rec.fPipeline->append(SkRasterPipeline::uniform_color_dst, uniformCtx);
+            rec.fPipeline->append(SkRasterPipelineOp::uniform_color_dst, uniformCtx);
             if (std::optional<SkBlendMode> bm = as_BB(blender)->asBlendMode(); bm.has_value()) {
                 SkBlendMode_AppendStages(*bm, rec.fPipeline);
             } else {
@@ -153,7 +153,7 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
 
         bool isOpaque = !colors && atlasShader->isOpaque();
         if (p.getAlphaf() != 1) {
-            rec.fPipeline->append(SkRasterPipeline::scale_1_float,
+            rec.fPipeline->append(SkRasterPipelineOp::scale_1_float,
                                   alloc.make<float>(p.getAlphaf()));
             isOpaque = false;
         }

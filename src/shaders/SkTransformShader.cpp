@@ -56,9 +56,9 @@ void SkTransformShader::appendMatrix(const SkMatrix& matrix, SkRasterPipeline* p
         fProcessingAsPerspective = true;
     }
     if (fProcessingAsPerspective) {
-        p->append(SkRasterPipeline::matrix_perspective, fMatrixStorage);
+        p->append(SkRasterPipelineOp::matrix_perspective, fMatrixStorage);
     } else {
-        p->append(SkRasterPipeline::matrix_2x3, fMatrixStorage);
+        p->append(SkRasterPipelineOp::matrix_2x3, fMatrixStorage);
     }
 }
 
