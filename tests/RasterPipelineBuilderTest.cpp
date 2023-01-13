@@ -255,7 +255,7 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
 )");
 }
 
-DEF_TEST(RasterPipelineBuilderTransposeSlots, r) {
+DEF_TEST(RasterPipelineBuilderTransposeMatrix, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
     builder.push_literal_f(1.0f);           // push into 0
@@ -275,10 +275,10 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
     4. copy_4_slots_unmasked          $8..11 = $4..7
     5. copy_4_slots_unmasked          $12..15 = $8..11
     6. swizzle_3                      $13..15 = ($13..15).yxz
-    7. transpose                      $8..15 = ($8..15)[2 5 0 3 6 1 4 7]
-    8. transpose                      $1..15 = ($1..15)[3 7 11 0 4 8 12 1 5 9 13 2 6 10 14]
-    9. transpose                      $9..15 = ($9..15)[3 0 4 1 5 2 6]
-   10. transpose                      $5..15 = ($5..15)[2 5 8 0 3 6 9 1 4 7 10]
+    7. shuffle                        $8..15 = ($8..15)[2 5 0 3 6 1 4 7]
+    8. shuffle                        $1..15 = ($1..15)[3 7 11 0 4 8 12 1 5 9 13 2 6 10 14]
+    9. shuffle                        $9..15 = ($9..15)[3 0 4 1 5 2 6]
+   10. shuffle                        $5..15 = ($5..15)[2 5 8 0 3 6 9 1 4 7 10]
 )");
 }
 
@@ -305,10 +305,10 @@ R"(    1. zero_slot_unmasked             $0 = 0
     3. swizzle_4                      $0..3 = ($0..3).yxxy
     4. zero_slot_unmasked             $0 = 0
     5. copy_constant                  $1 = 0x40000000 (2.0)
-    6. transpose                      $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
+    6. shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
     7. zero_slot_unmasked             $0 = 0
     8. copy_constant                  $1 = 0x40400000 (3.0)
-    9. transpose                      $0..5 = ($0..5)[1 0 0 0 1 0]
+    9. shuffle                        $0..5 = ($0..5)[1 0 0 0 1 0]
 )");
 }
 
@@ -334,15 +334,15 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
     4. copy_constant                  $3 = 0x40800000 (4.0)
     5. zero_slot_unmasked             $4 = 0
     6. copy_constant                  $5 = 0x3F800000 (1.0)
-    7. transpose                      $2..15 = ($2..15)[2 2 0 1 2 2 2 2 3 2 2 2 2 3]
-    8. transpose                      $2..3 = ($2..3)[2 3]
+    7. shuffle                        $2..15 = ($2..15)[2 2 0 1 2 2 2 2 3 2 2 2 2 3]
+    8. shuffle                        $2..3 = ($2..3)[2 3]
     9. zero_slot_unmasked             $4 = 0
-   10. transpose                      $2..7 = ($2..7)[2 2 0 1 2 2]
+   10. shuffle                        $2..7 = ($2..7)[2 2 0 1 2 2]
    11. zero_slot_unmasked             $8 = 0
-   12. transpose                      $2..7 = ($2..7)[2 3 6 6 6 6]
+   12. shuffle                        $2..7 = ($2..7)[2 3 6 6 6 6]
    13. zero_slot_unmasked             $8 = 0
    14. copy_constant                  $9 = 0x3F800000 (1.0)
-   15. transpose                      $2..8 = ($2..8)[6 0 1 6 2 3 7]
+   15. shuffle                        $2..8 = ($2..8)[6 0 1 6 2 3 7]
 )");
 }
 

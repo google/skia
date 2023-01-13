@@ -3295,7 +3295,7 @@ STAGE_TAIL(copy_4_slots_masked, SkRasterPipeline_BinaryOpCtx* ctx) {
 }
 
 template <int LoopCount>
-SI void swizzle_fn(F* dst, uint16_t* offsets, int numSlots) {
+SI void shuffle_fn(F* dst, uint16_t* offsets, int numSlots) {
     F scratch[16];
     std::byte* src = (std::byte*)dst;
     for (int count = 0; count < LoopCount; ++count) {
@@ -3327,20 +3327,19 @@ SI void swizzle_fn(F* dst, uint16_t* offsets, int numSlots) {
 }
 
 STAGE_TAIL(swizzle_1, SkRasterPipeline_SwizzleCtx* ctx) {
-    swizzle_fn<1>((F*)ctx->ptr, ctx->offsets, 1);
+    shuffle_fn<1>((F*)ctx->ptr, ctx->offsets, 1);
 }
 STAGE_TAIL(swizzle_2, SkRasterPipeline_SwizzleCtx* ctx) {
-    swizzle_fn<2>((F*)ctx->ptr, ctx->offsets, 2);
+    shuffle_fn<2>((F*)ctx->ptr, ctx->offsets, 2);
 }
 STAGE_TAIL(swizzle_3, SkRasterPipeline_SwizzleCtx* ctx) {
-    swizzle_fn<3>((F*)ctx->ptr, ctx->offsets, 3);
+    shuffle_fn<3>((F*)ctx->ptr, ctx->offsets, 3);
 }
 STAGE_TAIL(swizzle_4, SkRasterPipeline_SwizzleCtx* ctx) {
-    swizzle_fn<4>((F*)ctx->ptr, ctx->offsets, 4);
+    shuffle_fn<4>((F*)ctx->ptr, ctx->offsets, 4);
 }
-STAGE_TAIL(transpose, SkRasterPipeline_TransposeCtx* ctx) {
-    // What is a transpose if not a big swizzle?
-    swizzle_fn<16>((F*)ctx->ptr, ctx->offsets, ctx->count);
+STAGE_TAIL(shuffle, SkRasterPipeline_ShuffleCtx* ctx) {
+    shuffle_fn<16>((F*)ctx->ptr, ctx->offsets, ctx->count);
 }
 
 // Unary operations take a single input, and overwrite it with their output.

@@ -186,14 +186,14 @@ void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> elementSpan) {
         return;
     }
 
-    // This is a big swizzle. We use the `transpose` op to handle these.
+    // This is a big swizzle. We use the `shuffle` op to handle these.
     // Slot usage is packed into immA. The top 16 bits of immA count the consumed slots; the bottom
     // 16 bits count the generated slots.
     int slotUsage = consumedSlots << 16;
     slotUsage |= numElements;
 
-    // Pack immB and immC with the transpose list in packed-nybble form.
-    fInstructions.push_back({BuilderOp::transpose, {}, slotUsage,
+    // Pack immB and immC with the shuffle list in packed-nybble form.
+    fInstructions.push_back({BuilderOp::shuffle, {}, slotUsage,
                              pack_nybbles(SkSpan(&elements[0], 8)),
                              pack_nybbles(SkSpan(&elements[8], 8))});
 }
@@ -306,7 +306,7 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::swizzle_4:
             return 4 - inst.fImmA;
 
-        case BuilderOp::transpose: {
+        case BuilderOp::shuffle: {
             int consumed = inst.fImmA >> 16;
             int generated = inst.fImmA & 0xFFFF;
             return generated - consumed;
@@ -696,11 +696,11 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 this->append(pipeline, (SkRP::Stage)inst.fOp, ctx);
                 break;
             }
-            case BuilderOp::transpose: {
+            case BuilderOp::shuffle: {
                 int consumed = inst.fImmA >> 16;
                 int generated = inst.fImmA & 0xFFFF;
 
-                auto* ctx = alloc->make<SkRasterPipeline_TransposeCtx>();
+                auto* ctx = alloc->make<SkRasterPipeline_ShuffleCtx>();
                 ctx->ptr = tempStackPtr - (N * consumed);
                 ctx->count = generated;
                 // Unpack immB and immC from nybble form into an offset array.
@@ -714,7 +714,7 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                     ctx->offsets[index] = (packed & 0xF) * N * sizeof(float);
                     packed >>= 4;
                 }
-                this->append(pipeline, SkRP::Stage::transpose, ctx);
+                this->append(pipeline, SkRP::Stage::shuffle, ctx);
                 break;
             }
             case BuilderOp::push_slots: {
@@ -1113,10 +1113,10 @@ void Program::dump(SkWStream* out) {
             return std::make_tuple(PtrCtx(ctx->ptr, destSlots), src);
         };
 
-        // Interpret the context value as a Transpose structure.
-        auto TransposeCtx = [&](SkRP::Stage op,
-                                const void* v) -> std::tuple<std::string, std::string> {
-            const auto* ctx = static_cast<const SkRasterPipeline_TransposeCtx*>(v);
+        // Interpret the context value as a Shuffle structure.
+        auto ShuffleCtx = [&](SkRP::Stage op,
+                              const void* v) -> std::tuple<std::string, std::string> {
+            const auto* ctx = static_cast<const SkRasterPipeline_ShuffleCtx*>(v);
 
             std::string dst = PtrCtx(ctx->ptr, ctx->count);
             std::string src = "(" + dst + ")[";
@@ -1145,8 +1145,8 @@ void Program::dump(SkWStream* out) {
                 std::tie(opArg1, opArg2) = SwizzleCtx(stage.op, stage.ctx);
                 break;
 
-            case SkRP::transpose:
-                std::tie(opArg1, opArg2) = TransposeCtx(stage.op, stage.ctx);
+            case SkRP::shuffle:
+                std::tie(opArg1, opArg2) = ShuffleCtx(stage.op, stage.ctx);
                 break;
 
             case SkRP::load_unmasked:
@@ -1506,7 +1506,7 @@ void Program::dump(SkWStream* out) {
             case SkRP::copy_3_slots_unmasked: case SkRP::copy_4_slots_unmasked:
             case SkRP::swizzle_1:             case SkRP::swizzle_2:
             case SkRP::swizzle_3:             case SkRP::swizzle_4:
-            case SkRP::transpose:
+            case SkRP::shuffle:
                 opText = opArg1 + " = " + opArg2;
                 break;
 

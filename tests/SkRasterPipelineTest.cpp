@@ -706,14 +706,14 @@ DEF_TEST(SkRasterPipeline_Swizzle, r) {
     }
 }
 
-DEF_TEST(SkRasterPipeline_Transpose, r) {
+DEF_TEST(SkRasterPipeline_Shuffle, r) {
     // Allocate space for 16 dest slots.
     alignas(64) float slots[16 * SkRasterPipeline_kMaxStride_highp];
     const int N = SkOpts::raster_pipeline_highp_stride;
 
     struct TestPattern {
         int count;
-        uint16_t transpose[16];
+        uint16_t shuffle[16];
         uint16_t expectation[16];
     };
     static const TestPattern kPatterns[] = {
@@ -732,25 +732,25 @@ DEF_TEST(SkRasterPipeline_Transpose, r) {
                2,  6, 10, 14,
                3,  7, 11, 15}},
     };
-    static_assert(sizeof(TestPattern::transpose) == sizeof(SkRasterPipeline_TransposeCtx::offsets));
+    static_assert(sizeof(TestPattern::shuffle) == sizeof(SkRasterPipeline_ShuffleCtx::offsets));
 
     for (const TestPattern& pattern : kPatterns) {
         // Initialize the destination slots to 1,2,3...
         std::iota(&slots[0], &slots[16 * N], 1.0f);
 
-        // Apply the transpose.
+        // Apply the shuffle.
         SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
         SkRasterPipeline p(&alloc);
-        SkRasterPipeline_TransposeCtx ctx;
+        SkRasterPipeline_ShuffleCtx ctx;
         ctx.ptr = slots;
         ctx.count = pattern.count;
         for (size_t index = 0; index < std::size(ctx.offsets); ++index) {
-            ctx.offsets[index] = pattern.transpose[index] * N * sizeof(float);
+            ctx.offsets[index] = pattern.shuffle[index] * N * sizeof(float);
         }
-        p.append(SkRasterPipeline::transpose, &ctx);
+        p.append(SkRasterPipeline::shuffle, &ctx);
         p.run(0,0,1,1);
 
-        // Verify that the transpose has been applied in each slot.
+        // Verify that the shuffle has been applied in each slot.
         float* destPtr = &slots[0];
         for (int checkSlot = 0; checkSlot < 16; ++checkSlot) {
             float expected = pattern.expectation[checkSlot] * N + 1;
