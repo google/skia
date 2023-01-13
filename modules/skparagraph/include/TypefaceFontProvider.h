@@ -2,7 +2,7 @@
 #ifndef TypefaceFontProvider_DEFINED
 #define TypefaceFontProvider_DEFINED
 
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkTHash.h"
 #include <string>
 #include <unordered_map>

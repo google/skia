@@ -35,7 +35,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkShaderMaskFilter.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkLineClipper.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"

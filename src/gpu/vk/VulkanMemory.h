@@ -11,7 +11,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
 #include "include/gpu/vk/VulkanTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 #include <functional>
 

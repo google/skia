@@ -13,7 +13,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkTLazy.h"

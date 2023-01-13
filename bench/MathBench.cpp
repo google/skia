@@ -663,7 +663,7 @@ DEF_BENCH( return new FixedMathBench(); )
 
 //////////////////////////////////////////////////////////////
 
-#include "include/private/SkFloatBits.h"
+#include "include/private/base/SkFloatBits.h"
 class Floor2IntBench : public Benchmark {
     enum {
         ARRAY = 1000,

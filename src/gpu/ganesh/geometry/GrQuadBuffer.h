@@ -7,7 +7,7 @@
 #ifndef GrQuadBuffer_DEFINED
 #define GrQuadBuffer_DEFINED
 
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 
 template<typename T>

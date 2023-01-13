@@ -9,7 +9,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegPriv.h"
 

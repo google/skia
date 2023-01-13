@@ -9,7 +9,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLIRNode.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/ir/SkSLConstructor.h"

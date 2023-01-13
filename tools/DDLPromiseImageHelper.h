@@ -14,7 +14,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/GrBackendSurface.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkTLazy.h"
 

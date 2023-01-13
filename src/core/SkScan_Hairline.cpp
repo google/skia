@@ -212,7 +212,7 @@ void SkScan::HairRect(const SkRect& rect, const SkRasterClip& clip, SkBlitter* b
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "include/core/SkPath.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "src/core/SkGeometry.h"
 
 #define kMaxCubicSubdivideLevel 9

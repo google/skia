@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/vk/GrVkTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/ganesh/GrResourceHandle.h"
 #include "src/gpu/ganesh/vk/GrVkDescriptorPool.h"
 #include "src/gpu/ganesh/vk/GrVkSampler.h"

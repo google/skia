@@ -14,11 +14,11 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkVertices.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
-#include "src/core/SkTHash.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkPictureData.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkWriter32.h"
 
 // These macros help with packing and unpacking a single byte value and

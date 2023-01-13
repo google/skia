@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/ops/QuadPerEdgeAA.h"
 
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrMeshDrawTarget.h"

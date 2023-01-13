@@ -8,7 +8,7 @@
 #ifndef GrQuadUtils_DEFINED
 #define GrQuadUtils_DEFINED
 
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 
 enum class GrQuadAAFlags;

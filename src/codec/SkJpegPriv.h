@@ -10,7 +10,7 @@
 #define SkJpegPriv_DEFINED
 
 #include "include/core/SkStream.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 #include <setjmp.h>
 // stdio is needed for jpeglib

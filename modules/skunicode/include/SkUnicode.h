@@ -10,7 +10,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkBitmaskEnum.h" // IWYU pragma: keep
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/utils/SkUTF.h"
 
 #include <cstddef>

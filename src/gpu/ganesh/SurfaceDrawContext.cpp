@@ -15,7 +15,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
 #include "include/private/SkShadowFlags.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/utils/SkShadowUtils.h"
 #include "src/core/SkAutoPixmapStorage.h"

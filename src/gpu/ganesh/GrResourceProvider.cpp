@@ -10,7 +10,7 @@
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/core/SkMath.h"
+#include "include/private/base/SkMath.h"
 #include "include/core/SkRect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"

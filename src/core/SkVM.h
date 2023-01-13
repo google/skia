@@ -13,7 +13,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkSpan.h"
 #include "include/private/SkMacros.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkVM_fwd.h"
 #include <vector>      // std::vector

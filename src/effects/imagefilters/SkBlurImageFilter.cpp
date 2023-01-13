@@ -20,7 +20,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkFloatingPoint.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkImageFilter_Base.h"

@@ -10,8 +10,8 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
-#include "include/private/SkVx.h"
 #include "include/private/base/SkOnce.h"
+#include "include/private/base/SkVx.h"
 
 #include <cstring>
 

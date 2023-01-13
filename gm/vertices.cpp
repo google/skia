@@ -23,7 +23,7 @@
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkVerticesPriv.h"
 #include "src/shaders/SkLocalMatrixShader.h"

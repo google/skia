@@ -10,7 +10,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "tools/sk_app/DisplayParams.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/Key.h"

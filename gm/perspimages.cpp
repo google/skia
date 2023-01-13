@@ -14,8 +14,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 

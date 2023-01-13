@@ -10,8 +10,8 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
-#include "include/private/SkVx.h"
 #include "include/private/base/SkTo.h"
+#include "include/private/base/SkVx.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // Convert a 16bit pixel to a 32bit pixel

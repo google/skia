@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkFloatBits.h"
 #include "include/private/SkHalf.h"
+#include "include/private/base/SkFloatBits.h"
 
 uint16_t halfMantissa(SkHalf h) {
     return h & 0x03ff;

@@ -10,7 +10,7 @@
 
 #include "tools/viewer/Slide.h"
 
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 #include <memory>
 #include <vector>

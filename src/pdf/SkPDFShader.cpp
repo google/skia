@@ -8,7 +8,7 @@
 #include "src/pdf/SkPDFShader.h"
 
 #include "include/core/SkData.h"
-#include "include/core/SkMath.h"
+#include "include/private/base/SkMath.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkSurface.h"

@@ -9,7 +9,7 @@
 #include "include/core/SkColorPriv.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTPin.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 
 #include <algorithm>
 

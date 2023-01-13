@@ -9,10 +9,10 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRRect.h"
-#include "include/private/SkPathEnums.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/SkSafe32.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkPathEnums.h"
+#include "include/private/base/SkVx.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 

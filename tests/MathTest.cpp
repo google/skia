@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkMath.h"
+#include "include/private/base/SkMath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"

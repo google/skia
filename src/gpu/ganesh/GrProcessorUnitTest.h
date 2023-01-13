@@ -12,7 +12,7 @@
 
 #if GR_TEST_UTILS
 
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTestUtils.h"

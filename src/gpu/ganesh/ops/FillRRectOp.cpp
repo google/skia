@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/ops/FillRRectOp.h"
 
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/KeyBuilder.h"

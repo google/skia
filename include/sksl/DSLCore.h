@@ -10,7 +10,7 @@
 
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLProgramKind.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/DSLCase.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLStatement.h"

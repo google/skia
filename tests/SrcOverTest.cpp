@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkColorPriv.h"
-#include "include/core/SkMath.h"
+#include "include/private/base/SkMath.h"
 #include "tests/Test.h"
 
 #include <algorithm>

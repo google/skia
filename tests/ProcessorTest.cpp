@@ -24,7 +24,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkSLSampleUsage.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/utils/SkRandom.h"
 #include "src/gpu/KeyBuilder.h"

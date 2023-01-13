@@ -10,7 +10,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLDefines.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLModifiers.h"

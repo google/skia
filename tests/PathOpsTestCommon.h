@@ -8,7 +8,7 @@
 #define PathOpsTestCommon_DEFINED
 
 #include "include/core/SkScalar.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/pathops/SkPathOpsPoint.h"
 
 class SkPath;

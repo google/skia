@@ -18,7 +18,7 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/SkPathEnums.h"
+#include "include/private/base/SkPathEnums.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"

@@ -10,7 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 #include <functional>   // std::function
 #include <string.h>

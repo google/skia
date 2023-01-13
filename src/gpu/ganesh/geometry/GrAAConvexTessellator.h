@@ -12,7 +12,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/core/SkPointPriv.h"
 
 class SkCanvas;

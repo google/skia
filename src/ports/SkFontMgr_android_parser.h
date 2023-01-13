@@ -11,8 +11,8 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/core/SkTHash.h"
 
 #include <climits>

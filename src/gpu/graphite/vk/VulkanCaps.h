@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_VulkanCaps_DEFINED
 #define skgpu_graphite_VulkanCaps_DEFINED
 
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"

@@ -16,7 +16,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/SkSLStatement.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"

@@ -17,7 +17,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrDirectContext.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/private/chromium/Slug.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"

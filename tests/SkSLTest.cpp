@@ -23,7 +23,7 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLProgramKind.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/SkSLVersion.h"
 #include "src/core/SkArenaAlloc.h"

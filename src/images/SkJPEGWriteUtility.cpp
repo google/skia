@@ -9,7 +9,7 @@
 #include "src/images/SkJPEGWriteUtility.h"
 
 #include "include/core/SkStream.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/codec/SkJpegPriv.h"
 
 #include <csetjmp>

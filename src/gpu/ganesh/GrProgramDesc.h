@@ -9,8 +9,8 @@
 #define GrProgramDesc_DEFINED
 
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 

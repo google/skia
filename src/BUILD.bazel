@@ -8,6 +8,7 @@ skia_filegroup(
     name = "srcs",
     srcs = [
         "//src/android:srcs",
+        "//src/base:srcs",
         "//src/codec:srcs",
         "//src/core:srcs",
         "//src/effects:srcs",

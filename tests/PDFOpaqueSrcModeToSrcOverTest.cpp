@@ -15,6 +15,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "tests/Test.h"
 
 static void run_test(SkWStream* out, SkBlendMode mode, U8CPU alpha) {

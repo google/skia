@@ -9,7 +9,7 @@
 #define SkXMLWriter_DEFINED
 
 #include "include/core/SkString.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/xml/SkDOM.h"
 
 class SkWStream;

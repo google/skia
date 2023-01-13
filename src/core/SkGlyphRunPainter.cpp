@@ -12,7 +12,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPathEffect.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkEnumerate.h"

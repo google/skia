@@ -8,7 +8,7 @@
 #include "src/core/SkBlurMask.h"
 
 #include "include/core/SkColorPriv.h"
-#include "include/core/SkMath.h"
+#include "include/private/base/SkMath.h"
 #include "include/private/SkTPin.h"
 #include "include/private/SkTemplates.h"
 #include "include/private/base/SkTo.h"

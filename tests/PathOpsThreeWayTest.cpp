@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkTypes.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsCubic.h"

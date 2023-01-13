@@ -13,7 +13,7 @@
 #include "include/private/SkHalf.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/DSLExpression.h"

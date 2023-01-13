@@ -9,7 +9,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkMessageBus.h"
 #include <algorithm>
 #include <forward_list>

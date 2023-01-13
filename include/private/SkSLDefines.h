@@ -11,7 +11,7 @@
 #include <cstdint>
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 using SKSL_INT = int64_t;
 using SKSL_FLOAT = float;

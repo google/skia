@@ -9,7 +9,7 @@
 #define SkSLAnalysis_DEFINED
 
 #include "include/private/SkSLSampleUsage.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 #include <cstdint>
 #include <memory>

@@ -6,7 +6,7 @@
  */
 
 #include "include/private/SkHalf.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "include/utils/SkRandom.h"
 #include "tests/Test.h"
 

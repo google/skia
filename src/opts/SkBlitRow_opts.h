@@ -9,7 +9,7 @@
 #define SkBlitRow_opts_DEFINED
 
 #include "include/private/SkColorData.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "src/core/SkMSAN.h"
 
 // Helpers for blit_row_s32a_opaque(),

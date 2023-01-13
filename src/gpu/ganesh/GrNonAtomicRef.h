@@ -10,7 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkNoncopyable.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 /**
  * A simple non-atomic ref used in the GrBackendApi when we don't want to pay for the overhead of a

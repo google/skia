@@ -9,7 +9,7 @@
 
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkTPin.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "src/core/SkOpts.h"
 
 #include <algorithm>

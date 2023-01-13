@@ -13,7 +13,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/SkFloatBits.h"
+#include "include/private/base/SkFloatBits.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkRandom.h"
 #include "tests/PathOpsExtendedTest.h"

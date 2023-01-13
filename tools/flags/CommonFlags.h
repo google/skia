@@ -7,7 +7,7 @@
 #pragma once
 
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "tools/flags/CommandLineFlags.h"
 
 namespace CommonFlags {

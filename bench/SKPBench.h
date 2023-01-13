@@ -11,7 +11,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPicture.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 
 class SkSurface;
 

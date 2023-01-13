@@ -10,6 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/base/SkCPUTypes.h"
 
 #include <cstddef>
 #include <cstdint>

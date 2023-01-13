@@ -17,7 +17,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/utils/SkParsePath.h"
 #include "tools/timer/TimeUtils.h"
 

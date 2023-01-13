@@ -9,7 +9,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/private/SkSLString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLOperator.h"
 #include "src/sksl/SkSLAnalysis.h"

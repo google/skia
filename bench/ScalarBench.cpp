@@ -7,7 +7,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
-#include "include/private/SkFloatBits.h"
+#include "include/private/base/SkFloatBits.h"
 #include "include/utils/SkRandom.h"
 
 class ScalarBench : public Benchmark {

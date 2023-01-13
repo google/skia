@@ -8,7 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkScalerCache.h"

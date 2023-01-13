@@ -8,8 +8,8 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-#include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/utils/SkPolyUtils.h"
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)

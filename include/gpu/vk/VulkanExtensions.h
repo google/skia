@@ -10,7 +10,7 @@
 
 #include "include/core/SkString.h"
 #include "include/gpu/vk/VulkanTypes.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 namespace skgpu {
 

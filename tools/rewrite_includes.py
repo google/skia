@@ -48,6 +48,7 @@ ignorelist = [
   'include/third_party/skcms',
   # Temporary (hopefully) shims for Android
   'SkMalloc.h',
+  'SkMath.h',
   # Temporary shims for Chromium
   'SkDiscardableMemory.h',
   'GrVkSecondaryCBDrawContext.h',
@@ -119,7 +120,9 @@ for file_path in to_rewrite():
           output.write(inc.strip('\n') + '\n')
         includes = []
         output.write(line.strip('\n') + '\n')
-
+    # Fix any straggling includes, e.g. in a file that only includes something else.
+    for inc in sorted(includes):
+      output.write(inc.strip('\n') + '\n')
     if args.dry_run and output.getvalue() != open(file_path).read():
       need_rewriting.append(file_path)
       rc = 1

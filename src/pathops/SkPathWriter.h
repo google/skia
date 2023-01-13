@@ -10,8 +10,8 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
 
 class SkOpPtT;
 

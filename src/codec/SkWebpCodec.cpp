@@ -13,7 +13,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
-#include "include/core/SkMath.h"
+#include "include/private/base/SkMath.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"

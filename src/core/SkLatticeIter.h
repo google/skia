@@ -10,7 +10,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkScalar.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 struct SkIRect;
 struct SkRect;

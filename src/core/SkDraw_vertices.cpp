@@ -7,7 +7,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkString.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkAutoBlitterChoose.h"
 #include "src/core/SkBlenderBase.h"

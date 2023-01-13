@@ -10,7 +10,7 @@
 #ifdef SK_ENABLE_SKSL
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
-#include "include/core/SkMath.h"
+#include "include/private/base/SkMath.h"
 #include "include/private/SkOpts_spi.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLProgramKind.h"

@@ -9,6 +9,7 @@
 #define SkFixed_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkMath.h" // IWYU pragma: keep
 #include "include/private/SkTPin.h" // IWYU pragma: keep
 
 #include <cstdint>

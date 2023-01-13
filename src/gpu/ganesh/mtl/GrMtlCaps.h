@@ -8,7 +8,7 @@
 #ifndef GrMtlCaps_DEFINED
 #define GrMtlCaps_DEFINED
 
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/mtl/GrMtlAttachment.h"
 

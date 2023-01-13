@@ -17,8 +17,8 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkDashPathEffect.h"
-#include "include/private/SkTArray.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/base/SkTArray.h"
 
 namespace skiagm {
 

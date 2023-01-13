@@ -9,7 +9,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkPathOpsTypes.h"
 #include "src/pathops/SkPathWriter.h"

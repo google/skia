@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkPoint.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/utils/SkPolyUtils.h"
 #include "tests/Test.h"
 

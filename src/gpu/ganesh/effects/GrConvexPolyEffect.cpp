@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/effects/GrConvexPolyEffect.h"
 
-#include "include/private/SkPathEnums.h"
+#include "include/private/base/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"

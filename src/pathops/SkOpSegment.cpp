@@ -6,8 +6,8 @@
  */
 #include "src/pathops/SkOpSegment.h"
 
-#include "include/private/SkTDArray.h"
 #include "include/private/SkTemplates.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/core/SkPointPriv.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpCoincidence.h"

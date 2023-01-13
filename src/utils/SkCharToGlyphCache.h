@@ -9,7 +9,7 @@
 #define SkCharToGlyphCache_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
 
 #include <cstdint>

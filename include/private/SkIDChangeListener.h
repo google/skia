@@ -9,8 +9,8 @@
 #define SkIDChangeListener_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkTArray.h"
 #include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkThreadAnnotations.h"
 
 #include <atomic>

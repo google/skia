@@ -11,7 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/AttachmentTypes.h"
 #include "src/gpu/graphite/CommandTypes.h"
 #include "src/gpu/graphite/ComputeTypes.h"

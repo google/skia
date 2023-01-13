@@ -6,7 +6,7 @@
 */
 
 #include "include/core/SkSize.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/Rectanizer.h"

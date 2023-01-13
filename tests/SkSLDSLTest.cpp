@@ -12,7 +12,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLStatement.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/DSL.h"
 #include "include/sksl/DSLBlock.h"
 #include "include/sksl/DSLCore.h"

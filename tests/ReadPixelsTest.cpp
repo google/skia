@@ -29,6 +29,7 @@
 #include "include/private/SkHalf.h"
 #include "include/private/SkSafe32.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkMathPriv.h"
 #include "tests/Test.h"

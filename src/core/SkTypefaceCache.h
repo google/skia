@@ -12,7 +12,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 class SkTypefaceCache {
 public:

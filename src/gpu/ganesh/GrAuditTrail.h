@@ -12,7 +12,7 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
 

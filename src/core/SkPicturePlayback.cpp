@@ -9,7 +9,7 @@
 #include "include/core/SkRSXform.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDrawShadowInfo.h"

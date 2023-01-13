@@ -10,7 +10,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/ganesh/GrBufferAllocPool.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"

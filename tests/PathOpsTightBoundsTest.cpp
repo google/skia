@@ -11,7 +11,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/PathOpsThreadedCommon.h"

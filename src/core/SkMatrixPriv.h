@@ -14,7 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 
 #include <cstdint>
 #include <cstring>

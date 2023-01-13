@@ -10,7 +10,7 @@
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkMath.h"
+#include "include/private/base/SkMath.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"

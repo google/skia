@@ -9,7 +9,7 @@
 #define SkPDFTag_DEFINED
 
 #include "include/docs/SkPDFDocument.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkTHash.h"
 

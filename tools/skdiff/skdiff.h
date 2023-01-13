@@ -12,7 +12,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 #if defined(SK_BUILD_FOR_WIN)
     #define PATH_DIV_STR "\\"

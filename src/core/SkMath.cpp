@@ -7,8 +7,8 @@
 
 #include "include/core/SkScalar.h"
 #include "include/private/SkFixed.h"
-#include "include/private/SkFloatBits.h"
 #include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatBits.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkSafeMath.h"
 

@@ -9,7 +9,7 @@
 #define SkRecorder_DEFINED
 
 #include "include/core/SkCanvasVirtualEnforcer.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/core/SkBigPicture.h"
 #include "src/core/SkRecord.h"

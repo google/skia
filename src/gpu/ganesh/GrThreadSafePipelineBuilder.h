@@ -14,7 +14,7 @@
 
 #if GR_TEST_UTILS
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #endif
 
 class GrThreadSafePipelineBuilder : public SkRefCnt {

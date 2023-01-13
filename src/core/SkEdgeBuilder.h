@@ -8,7 +8,7 @@
 #define SkEdgeBuilder_DEFINED
 
 #include "include/core/SkRect.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/core/SkArenaAlloc.h"
 
 #include <cstddef>

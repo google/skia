@@ -11,7 +11,7 @@
 #include "tools/viewer/Slide.h"
 
 #include "include/core/SkPath.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/utils/SkRandom.h"
 
 class SkParticleEffect;

@@ -8,7 +8,7 @@
 #ifndef SKSL_DSL_EXPRESSION
 #define SKSL_DSL_EXPRESSION
 
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLOperator.h"
 #include "include/sksl/SkSLPosition.h"
 

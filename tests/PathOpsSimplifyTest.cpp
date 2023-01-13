@@ -10,7 +10,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatBits.h"
+#include "include/private/base/SkFloatBits.h"
 #include "src/pathops/SkPathOpsDebug.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/Test.h"

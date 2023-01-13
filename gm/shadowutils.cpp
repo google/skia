@@ -18,8 +18,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkShadowFlags.h"
-#include "include/private/SkTArray.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/utils/SkShadowUtils.h"
 
 #include <initializer_list>

@@ -11,7 +11,7 @@
 #include "include/private/SkSLDefines.h"
 #include "include/private/SkSLLayout.h"
 #include "include/private/SkSLModifiers.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLMemoryLayout.h"
 #include "src/sksl/SkSLStringStream.h"

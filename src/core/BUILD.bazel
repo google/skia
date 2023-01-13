@@ -11,7 +11,6 @@ CORE_SKSLC_FILES = [
     "SkArenaAlloc.h",
     "SkBlockAllocator.cpp",
     "SkBlockAllocator.h",
-    "SkContainers.cpp",
     "SkCpu.cpp",
     "SkCpu.h",
     "SkData.cpp",

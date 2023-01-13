@@ -9,7 +9,7 @@
 #define SKSL_DSL_BLOCK
 
 #include "include/private/SkSLDefines.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/DSLStatement.h"
 #include "include/sksl/SkSLPosition.h"
 

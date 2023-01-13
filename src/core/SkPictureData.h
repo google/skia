@@ -11,7 +11,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkPicture.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkPictureFlat.h"
 
 #include <memory>

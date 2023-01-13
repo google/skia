@@ -25,6 +25,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
 #include "include/private/SkTPin.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkRuntimeEffectPriv.h"

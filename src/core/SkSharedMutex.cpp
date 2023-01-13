@@ -73,7 +73,7 @@
 
 #ifdef SK_DEBUG
 
-    #include "include/private/SkTDArray.h"
+    #include "include/private/base/SkTDArray.h"
     #include "include/private/base/SkThreadID.h"
 
     class SkSharedMutex::ThreadIDSet {

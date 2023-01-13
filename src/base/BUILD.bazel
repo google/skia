@@ -11,3 +11,11 @@ skia_filegroup(
     ],
     visibility = ["//src:__pkg__"],
 )
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "SkContainers.cpp",
+    ],
+    visibility = ["//src:__pkg__"],
+)

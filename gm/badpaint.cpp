@@ -15,7 +15,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 /** This GM draws with invalid paints. It should draw nothing other than the background. */
 class BadPaintGM : public skiagm::GM {

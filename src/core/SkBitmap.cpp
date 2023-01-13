@@ -10,7 +10,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkMallocPixelRef.h"
-#include "include/core/SkMath.h"
+#include "include/private/base/SkMath.h"
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"

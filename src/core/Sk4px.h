@@ -10,7 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 
 // 1, 2 or 4 SkPMColors, generally vectorized.
 class Sk4px {

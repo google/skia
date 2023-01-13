@@ -36,7 +36,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkVertices.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkEndian.h"

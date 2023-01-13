@@ -14,7 +14,7 @@
 #include "include/private/SkSLProgramElement.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLSymbol.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/DSLCore.h"
 #include "include/sksl/DSLExpression.h"
 #include "include/sksl/DSLType.h"

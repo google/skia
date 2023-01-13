@@ -18,6 +18,7 @@ fi
 
 supported_files_or_dirs=(
   "modules/skunicode/"
+  "src/base/"
   "src/codec/"
   "src/effects/"
   "src/images/"
@@ -30,7 +31,6 @@ supported_files_or_dirs=(
   "src/core/SkArenaAlloc.cpp"
   "src/core/SkColor.cpp"
   "src/core/SkColorSpace.cpp"
-  "src/core/SkContainers.cpp"
   "src/core/SkCubicClipper.cpp"
   "src/core/SkCubicMap.cpp"
   "src/core/SkEdgeBuilder.cpp"

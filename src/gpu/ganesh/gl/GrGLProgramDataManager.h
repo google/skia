@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 #include "src/gpu/ganesh/glsl/GrGLSLUniformHandler.h"
 
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 
 class GrGLGpu;
 class SkMatrix;

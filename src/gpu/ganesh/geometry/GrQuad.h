@@ -11,7 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
-#include "include/private/SkVx.h"
+#include "include/private/base/SkVx.h"
 #include "src/gpu/BufferWriter.h"
 
 enum class GrQuadAAFlags;

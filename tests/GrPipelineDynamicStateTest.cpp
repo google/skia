@@ -16,7 +16,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkSLTypeShared.h"

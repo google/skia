@@ -9,7 +9,7 @@
 #include "include/core/SkImageEncoder.h"
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTSearch.h"
 #include "src/utils/SkOSPath.h"

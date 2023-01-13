@@ -9,8 +9,8 @@
 #define GrVkResourceProvider_DEFINED
 
 #include "include/gpu/vk/GrVkTypes.h"
-#include "include/private/SkTArray.h"
 #include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTDynamicHash.h"
 #include "src/core/SkTInternalLList.h"

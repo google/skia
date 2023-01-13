@@ -20,7 +20,7 @@
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkOpPathEffect.h"
-#include "include/private/SkTDArray.h"
+#include "include/private/base/SkTDArray.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkOSFile.h"

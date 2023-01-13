@@ -19,7 +19,7 @@
 #include "include/private/SkSLProgramKind.h"
 #include "include/private/SkSLStatement.h"
 #include "include/private/SkSLString.h"
-#include "include/private/SkTArray.h"
+#include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLOperator.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
