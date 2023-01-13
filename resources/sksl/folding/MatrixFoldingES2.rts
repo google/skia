@@ -3,6 +3,7 @@ uniform half4 colorRed, colorGreen;
 uniform half unknownInput;
 
 bool test_eq() {
+    // A non-folding version of these tests can be found in shared/MatrixEquality.
     bool ok = true;
     ok = ok &&  (float2x2(float2(1.0, 0.0), float2(0.0, 1.0)) ==
                  float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));

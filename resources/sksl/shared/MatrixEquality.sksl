@@ -8,6 +8,81 @@ bool test_equality() {
     ok = ok && testMatrix3x3 == half3x3(1,2,3,4,5,6,7,8,9);
     ok = ok && testMatrix2x2 != half2x2(100);
     ok = ok && testMatrix3x3 != half3x3(9,8,7,6,5,4,3,2,1);
+
+    // Similar tests (focused on constant-folding) can also be found in folding/MatrixFoldingES2.
+    float zero = colorGreen.r;
+    float one  = colorGreen.g;
+    float two  = 2 * one;
+    float nine = 9 * one;
+
+    ok = ok &&  (float2x2(float2(one, zero), float2(zero, one)) ==
+                 float2x2(float2(1.0, 0.0),  float2(0.0, 1.0)));
+    ok = ok && !(float2x2(float2(one, zero), float2(one, one)) ==
+                 float2x2(float2(1.0, 0.0),  float2(0.0, 1.0)));
+
+    ok = ok &&  ( float2x2(one)  == float2x2(1));
+    ok = ok && !( float2x2(one)  == float2x2(0));
+    ok = ok &&  ( float2x2(-one) == -float2x2(1));
+    ok = ok &&  ( float2x2(zero) == -float2x2(0));
+    ok = ok &&  (-float2x2(-one) ==  float2x2(1));
+    ok = ok &&  (-float2x2(zero) == -float2x2(-0));
+
+    ok = ok &&  (float2x2(one) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+    ok = ok && !(float2x2(two) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+
+    ok = ok && !(float2x2(one) != float2x2(1));
+    ok = ok &&  (float2x2(one) != float2x2(0));
+    ok = ok &&  (float3x3(float3(one,zero,zero), float3(zero,one,zero), float3(zero,zero,one)) ==
+                 float3x3(float2x2(1.0)));
+    ok = ok &&  (float3x3(float3(nine,zero,zero), float3(zero,nine,zero), float3(zero,zero,one)) ==
+                 float3x3(float2x2(9.0)));
+    ok = ok &&  (float3x3(one) == float3x3(float2x2(1.0)));
+    ok = ok &&  (float3x3(float3(nine).x00, float3(nine).0x0, float3(one).00x) ==
+                 float3x3(float2x2(9.0)));
+    ok = ok &&  (float2x2(float3x3(one)) == float2x2(1.0));
+    ok = ok &&  (float2x2(float3x3(one)) == float2x2(1.0));
+    ok = ok &&  (float2x2(float4(one, zero, zero, one)) == float2x2(1.0));
+    ok = ok &&  (float2x2(one, zero, float2(zero, one)) == float2x2(1.0));
+    ok = ok &&  (float2x2(float2(one, zero), zero, one) == float2x2(1.0));
+
+    ok = ok &&  (float4(testMatrix2x2) * float4(one))  == float4(1, 2, 3, 4);
+    ok = ok &&  (float4(testMatrix2x2) * float4(one))  == float4(testMatrix2x2);
+    ok = ok &&  (float4(testMatrix2x2) * float4(zero)) == float4(0);
+
+    // TODO: enable this section when RP index expressions are more flexible
+//  ok = ok &&  (float2x2(nine)[0] == float2(9.0, 0.0));
+//  ok = ok &&  (float2x2(nine)[1] == float2(0.0, 9.0));
+
+//  ok = ok &&  (float2x2(nine)[0][0] == 9.0);
+//  ok = ok &&  (float2x2(nine)[0][1] == 0.0);
+//  ok = ok &&  (float2x2(nine)[1][0] == 0.0);
+//  ok = ok &&  (float2x2(nine)[1][1] == 9.0);
+
+    float3x3 m = float3x3(one, two, 3, 4, 5, 6, 7, 8, nine);
+    ok = ok &&  (m[0] == float3(1, 2, 3));
+    ok = ok &&  (m[1] == float3(4, 5, 6));
+    ok = ok &&  (m[2] == float3(7, 8, 9));
+
+    ok = ok &&  (m[0][0] == 1);
+    ok = ok &&  (m[0][1] == 2);
+    ok = ok &&  (m[0][2] == 3);
+    ok = ok &&  (m[1][0] == 4);
+    ok = ok &&  (m[1][1] == 5);
+    ok = ok &&  (m[1][2] == 6);
+    ok = ok &&  (m[2][0] == 7);
+    ok = ok &&  (m[2][1] == 8);
+    ok = ok &&  (m[2][2] == 9);
+
+    // TODO: enable this section when RP index expressions are more flexible
+//  ok = ok &&  (float3x3(one, two, 3, 4, 5, 6, 7, 8, nine)[0] == float3(1, 2, 3));
+//  ok = ok &&  (float3x3(one, two, 3, 4, 5, 6, 7, 8, nine)[1] == float3(4, 5, 6));
+//  ok = ok &&  (float3x3(one, two, 3, 4, 5, 6, 7, 8, nine)[2] == float3(7, 8, 9));
+//
+//  ok = ok && float4x4(half3x3(testMatrix2x2))[0] == float4(one,   two, zero, zero);
+//  ok = ok && float4x4(half3x3(testMatrix2x2))[1] == float4(  3,     4, zero, zero);
+//  ok = ok && float4x4(half3x3(testMatrix2x2))[2] == float4(zero, zero,  one, zero);
+//  ok = ok && float4x4(half3x3(testMatrix2x2))[3] == float4(zero, zero, zero,  one);
+
     return ok;
 }
 
