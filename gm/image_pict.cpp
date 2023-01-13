@@ -126,7 +126,7 @@ DEF_GM( return new ImagePictGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static std::unique_ptr<SkImageGenerator> make_pic_generator(GrDirectContext*,
+static std::unique_ptr<SkImageGenerator> make_pic_generator(SkCanvas*,
                                                             sk_sp<SkPicture> pic) {
     SkMatrix matrix;
     matrix.setTranslate(-100, -100);
@@ -150,7 +150,7 @@ protected:
 private:
     SkBitmap fBM;
 };
-static std::unique_ptr<SkImageGenerator> make_ras_generator(GrDirectContext*,
+static std::unique_ptr<SkImageGenerator> make_ras_generator(SkCanvas*,
                                                             sk_sp<SkPicture> pic) {
     SkBitmap bm;
     bm.allocN32Pixels(100, 100);
@@ -163,17 +163,28 @@ static std::unique_ptr<SkImageGenerator> make_ras_generator(GrDirectContext*,
 
 class TextureGenerator : public SkImageGenerator {
 public:
-    TextureGenerator(GrRecordingContext* rContext, const SkImageInfo& info, sk_sp<SkPicture> pic)
-            : SkImageGenerator(info)
-            , fRContext(SkRef(rContext)) {
-        sk_sp<SkSurface> surface(SkSurface::MakeRenderTarget(
-                rContext, skgpu::Budgeted::kYes, info, 0, kTopLeft_GrSurfaceOrigin, nullptr));
+    TextureGenerator(SkCanvas* canvas, const SkImageInfo& info, sk_sp<SkPicture> pic)
+            : SkImageGenerator(info) {
+
+        fRContext = sk_ref_sp(canvas->recordingContext());
+
+        sk_sp<SkSurface> surface;
+
+        if (fRContext) {
+            surface = SkSurface::MakeRenderTarget(fRContext.get(), skgpu::Budgeted::kYes, info,
+                                                  0, kTopLeft_GrSurfaceOrigin, nullptr);
+        }
+#ifdef SK_GRAPHITE_ENABLED
+        if (skgpu::graphite::Recorder* recorder = canvas->recorder()) {
+            surface = SkSurface::MakeGraphite(recorder, info);
+        }
+#endif
+
         if (surface) {
             surface->getCanvas()->clear(0);
             surface->getCanvas()->translate(-100, -100);
             surface->getCanvas()->drawPicture(pic);
-            sk_sp<SkImage> image(surface->makeImageSnapshot());
-            std::tie(fView, std::ignore) = as_IB(image)->asView(rContext, GrMipmapped::kNo);
+            fImage = surface->makeImageSnapshot();
         }
     }
 protected:
@@ -184,21 +195,24 @@ protected:
         SkASSERT(rContext);
         SkASSERT(rContext->priv().matches(fRContext.get()));
 
-        if (!fView) {
+        GrSurfaceProxyView view;
+
+        std::tie(view, std::ignore) = as_IB(fImage)->asView(rContext, GrMipmapped::kNo);
+        if (!view) {
             return {};
         }
 
-        SkASSERT_RELEASE(info.dimensions() == fView.proxy()->dimensions());
+        SkASSERT_RELEASE(info.dimensions() == view.proxy()->dimensions());
 
         if (policy == GrImageTexGenPolicy::kDraw) {
-            return fView;
+            return view;
         }
         auto budgeted = policy == GrImageTexGenPolicy::kNew_Uncached_Unbudgeted
                                 ? skgpu::Budgeted::kNo
                                 : skgpu::Budgeted::kYes;
         return GrSurfaceProxyView::Copy(
                 fRContext.get(),
-                fView,
+                view,
                 mipmapped,
                 SkIRect::MakeWH(info.width(), info.height()),
                 SkBackingFit::kExact,
@@ -206,24 +220,33 @@ protected:
                 /*label=*/"SurfaceProxyView_GenerateTexture");
     }
 
+#ifdef SK_GRAPHITE_ENABLED
+    sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
+                                      const SkImageInfo&,
+                                      skgpu::graphite::Mipmapped) override {
+        return fImage;
+    }
+#endif
+
 private:
     sk_sp<GrRecordingContext> fRContext;
-    GrSurfaceProxyView        fView;
+    sk_sp<SkImage>            fImage;
 };
 
-static std::unique_ptr<SkImageGenerator> make_tex_generator(GrDirectContext* dContext,
+static std::unique_ptr<SkImageGenerator> make_tex_generator(SkCanvas* canvas,
                                                             sk_sp<SkPicture> pic) {
-    if (!dContext) {
+    auto dContext = GrAsDirectContext(canvas->recordingContext());
+    if (!dContext && !canvas->recorder()) {
         return nullptr;
     }
 
     const SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
 
-    return std::make_unique<TextureGenerator>(dContext, info, pic);
+    return std::make_unique<TextureGenerator>(canvas, info, pic);
 }
 
 class ImageCacheratorGM : public skiagm::GM {
-    typedef std::unique_ptr<SkImageGenerator> (*FactoryFunc)(GrDirectContext*, sk_sp<SkPicture>);
+    typedef std::unique_ptr<SkImageGenerator> (*FactoryFunc)(SkCanvas*, sk_sp<SkPicture>);
 
     SkString         fName;
     FactoryFunc      fFactory;
@@ -252,9 +275,11 @@ protected:
         fPicture = recorder.finishRecordingAsPicture();
     }
 
-    bool makeCaches(GrDirectContext* dContext) {
+    bool makeCaches(SkCanvas* canvas) {
+        auto dContext = GrAsDirectContext(canvas->recordingContext());
+
         {
-            auto gen = fFactory(dContext, fPicture);
+            auto gen = fFactory(canvas, fPicture);
             if (!gen) {
                 return false;
             }
@@ -270,11 +295,21 @@ protected:
 
             // We re-create the generator here on the off chance that making a subset from
             // 'fImage' might perturb its state.
-            auto gen = fFactory(dContext, fPicture);
+            auto gen = fFactory(canvas, fPicture);
             if (!gen) {
                 return false;
             }
-            fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset, dContext);
+
+            if (dContext) {
+                fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset,
+                                                                                      dContext);
+            } else {
+#ifdef SK_GRAPHITE_ENABLED
+                auto recorder = canvas->recorder();
+                fImageSubset = SkImage::MakeFromGenerator(std::move(gen))->makeSubset(subset,
+                                                                                      recorder);
+#endif
+            }
             if (!fImageSubset) {
                 return false;
             }
@@ -304,23 +339,27 @@ protected:
     }
 
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
-        // The gpu-backed images are drawn in this manner bc the generator backed images
-        // aren't considered texture-backed
-        auto [view, ct] = as_IB(image)->asView(canvas->recordingContext(), GrMipmapped::kNo);
-        if (!view) {
-            // show placeholder if we have no texture
-            draw_placeholder(canvas, x, y, image->width(), image->height());
-            return;
+        if (as_IB(image)->isGaneshBacked()) {
+            // The gpu-backed images are drawn in this manner bc the generator backed images
+            // aren't considered texture-backed
+            auto [view, ct] = as_IB(image)->asView(canvas->recordingContext(), GrMipmapped::kNo);
+            if (!view) {
+                // show placeholder if we have no texture
+                draw_placeholder(canvas, x, y, image->width(), image->height());
+                return;
+            }
+            SkColorInfo colorInfo(GrColorTypeToSkColorType(ct),
+                                  image->alphaType(),
+                                  image->refColorSpace());
+            // No API to draw a GrTexture directly, so we cheat and create a private image subclass
+            sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
+                                                    image->uniqueID(),
+                                                    std::move(view),
+                                                    std::move(colorInfo)));
+            canvas->drawImage(texImage.get(), x, y);
+        } else {
+            canvas->drawImage(image, x, y);
         }
-        SkColorInfo colorInfo(GrColorTypeToSkColorType(ct),
-                              image->alphaType(),
-                              image->refColorSpace());
-        // No API to draw a GrTexture directly, so we cheat and create a private image subclass
-        sk_sp<SkImage> texImage(new SkImage_Gpu(sk_ref_sp(canvas->recordingContext()),
-                                                image->uniqueID(),
-                                                std::move(view),
-                                                std::move(colorInfo)));
-        canvas->drawImage(texImage.get(), x, y);
     }
 
     void drawRow(GrDirectContext* dContext, SkCanvas* canvas, float scale) const {
@@ -341,7 +380,7 @@ protected:
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         auto dContext = GrAsDirectContext(canvas->recordingContext());
-        if (!this->makeCaches(dContext)) {
+        if (!this->makeCaches(canvas)) {
             errorMsg->printf("Could not create cached images");
             return DrawResult::kSkip;
         }

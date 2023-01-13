@@ -306,7 +306,7 @@ DEF_GM( return new ScalePixelsGM; )
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 60) {
+DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
 
     GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
     bool isGPU = SkToBool(dContext);
@@ -393,16 +393,21 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 60) {
     for (const auto& factory : imageFactories) {
         sk_sp<SkImage> image(factory());
         if (image) {
-            sk_sp<SkImage> texImage;
-            if (dContext) {
-                texImage = image->makeTextureImage(dContext);
-            } else {
+            for (auto mm : { false, true }) {
+                sk_sp<SkImage> texImage;
+                if (dContext) {
+                    texImage = image->makeTextureImage(dContext,
+                                                       mm ? GrMipmapped::kYes : GrMipmapped::kNo);
+                } else {
 #ifdef SK_GRAPHITE_ENABLED
-                texImage = image->makeTextureImage(recorder);
-#endif
-            }
-            if (texImage) {
-                canvas->drawImage(texImage, 0, 0);
+                    texImage = image->makeTextureImage(recorder,
+                                                       { mm ? skgpu::graphite::Mipmapped::kYes
+                                                            : skgpu::graphite::Mipmapped::kNo });
+ #endif
+                }
+                if (texImage) {
+                    canvas->drawImage(texImage, 0, mm ? kSize + kPad : 0);
+                }
             }
         }
         canvas->translate(kSize + kPad, 0);
