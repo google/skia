@@ -250,6 +250,22 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset, GrDirectContext
     return pixels ? pixels->makeSubset(subset, direct) : nullptr;
 }
 
+#ifdef SK_GRAPHITE_ENABLED
+
+sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset,
+                                          skgpu::graphite::Recorder* recorder,
+                                          RequiredImageProperties requiredProperties) const {
+    // TODO: can we do this more efficiently, by telling the generator we want to
+    //       "realize" a subset?
+
+    sk_sp<SkImage> nonLazyImg = recorder ? this->makeTextureImage(recorder, requiredProperties)
+                                         : this->makeRasterImage();
+
+    return nonLazyImg ? nonLazyImg->makeSubset(subset, recorder, requiredProperties) : nullptr;
+}
+
+#endif // SK_GRAPHITE_ENABLED
+
 sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                           sk_sp<SkColorSpace> targetCS,
                                                           GrDirectContext*) const {

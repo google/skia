@@ -40,6 +40,18 @@ Image::Image(TextureProxyView view,
 
 Image::~Image() {}
 
+sk_sp<SkImage> Image::onMakeSubset(const SkIRect&, GrDirectContext*) const {
+    SKGPU_LOG_W("Cannot convert Graphite-backed image to Ganesh");
+    return nullptr;
+}
+
+sk_sp<SkImage> Image::onMakeSubset(const SkIRect& subset,
+                                   Recorder* recorder,
+                                   RequiredImageProperties requiredProps) const {
+    // TODO: add implementation
+    return nullptr;
+}
+
 sk_sp<SkImage> Image::onMakeColorTypeAndColorSpace(SkColorType,
                                                    sk_sp<SkColorSpace>,
                                                    GrDirectContext*) const {
@@ -156,6 +168,21 @@ sk_sp<SkImage> SkImage::makeTextureImage(Recorder* recorder,
         }
     }
     return as_IB(this)->onMakeTextureImage(recorder, requiredProps);
+}
+
+sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset,
+                                   skgpu::graphite::Recorder* recorder,
+                                   RequiredImageProperties requiredProps) const {
+    if (subset.isEmpty()) {
+        return nullptr;
+    }
+
+    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
+    if (!bounds.contains(subset)) {
+        return nullptr;
+    }
+
+    return as_IB(this)->onMakeSubset(subset, recorder, requiredProps);
 }
 
 sk_sp<TextureProxy> Image::MakePromiseImageLazyProxy(

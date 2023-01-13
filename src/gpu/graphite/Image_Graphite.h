@@ -49,9 +49,9 @@ public:
                      SkBitmap*,
                      CachingHint = kAllow_CachingHint) const override { return false; }
 
-    sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override {
-        return nullptr;
-    }
+    sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;
+
+    sk_sp<SkImage> onMakeSubset(const SkIRect&, Recorder*, RequiredImageProperties) const override;
 
     bool onIsValid(GrRecordingContext*) const override { return true; }
 

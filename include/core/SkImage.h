@@ -1150,7 +1150,7 @@ public:
     sk_sp<SkImage> makeTextureImage(GrDirectContext*,
                                     GrMipmapped = GrMipmapped::kNo,
                                     skgpu::Budgeted = skgpu::Budgeted::kYes) const;
-#endif
+#endif // SK_SUPPORT_GPU
 
 #ifdef SK_GRAPHITE_ENABLED
 
@@ -1270,7 +1270,29 @@ public:
     */
     sk_sp<SkImage> makeTextureImage(skgpu::graphite::Recorder*,
                                     RequiredImageProperties = {}) const;
-#endif
+
+    /** Returns subset of this image.
+
+        Returns nullptr if any of the following are true:
+          - Subset is empty
+          - Subset is not contained inside the image's bounds
+          - Pixels in the image could not be read or copied
+
+        If this image is texture-backed, the recorder parameter is required.
+        If the recorder parameter is provided, and the image is raster-backed, the subset will
+        be converted to texture-backed.
+
+        @param subset                   bounds of returned SkImage
+        @param recorder                 the recorder in which to create the new image
+        @param RequiredImageProperties  properties the returned SkImage must possess (e.g.,
+                                        mipmaps)
+        @return                         the subsetted image, or nullptr
+    */
+    sk_sp<SkImage> makeSubset(const SkIRect& subset,
+                              skgpu::graphite::Recorder*,
+                              RequiredImageProperties = {}) const;
+
+#endif // SK_GRAPHITE_ENABLED
 
     /** Returns raster image or lazy image. Copies SkImage backed by GPU texture into
         CPU memory if needed. Returns original SkImage if decoded in raster bitmap,

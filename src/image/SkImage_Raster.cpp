@@ -99,6 +99,11 @@ public:
 
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&, GrDirectContext*) const override;
+#ifdef SK_GRAPHITE_ENABLED
+    sk_sp<SkImage> onMakeSubset(const SkIRect&,
+                                skgpu::graphite::Recorder*,
+                                RequiredImageProperties) const override;
+#endif
 
     SkPixelRef* getPixelRef() const { return fBitmap.pixelRef(); }
 
@@ -296,6 +301,18 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset, GrDirectConte
     bitmap.setImmutable();
     return bitmap.asImage();
 }
+
+
+#ifdef SK_GRAPHITE_ENABLED
+
+sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset,
+                                            skgpu::graphite::Recorder* recorder,
+                                            RequiredImageProperties requiredProperties) const {
+    // TODO: add implementation
+    return nullptr;
+}
+
+#endif // SK_GRAPHITE_ENABLED
 
 ///////////////////////////////////////////////////////////////////////////////
 

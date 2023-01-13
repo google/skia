@@ -51,7 +51,7 @@ DEF_GANESH_TEST(GrDDLImage_MakeSubset, reporter, options, CtsEnforcement::kApiLe
         REPORTER_ASSERT(reporter, subImg1->isValid(dContext));
 
         // raster + no context:
-        auto subImg2 = rasterImg->makeSubset(subsetBounds, nullptr);
+        auto subImg2 = rasterImg->makeSubset(subsetBounds);
         REPORTER_ASSERT(reporter, subImg2->isValid(static_cast<GrRecordingContext*>(nullptr)));
 
         // Texture image:
@@ -73,7 +73,7 @@ DEF_GANESH_TEST(GrDDLImage_MakeSubset, reporter, options, CtsEnforcement::kApiLe
         REPORTER_ASSERT(reporter, subImg5->isValid(dContext));
 
         // gpu image + nullptr:
-        REPORTER_ASSERT(reporter, !gpuImage->makeSubset(subsetBounds, nullptr));
+        REPORTER_ASSERT(reporter, !gpuImage->makeSubset(subsetBounds));
 
         dContext->flush();
         dContext->submit(true);
