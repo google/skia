@@ -660,7 +660,9 @@ bool SkottieSlide::onChar(SkUnichar c) {
         fShowSlotManager = !fShowSlotManager;
         return true;
     case 'E':
-        fTextEditor->toggleEnabled();
+        if (fTextEditor) {
+            fTextEditor->toggleEnabled();
+        }
         return true;
     }
 
@@ -668,7 +670,7 @@ bool SkottieSlide::onChar(SkUnichar c) {
 }
 
 bool SkottieSlide::onMouse(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey mod) {
-    if (fTextEditor->onMouseInput(x, y, state, mod)) {
+    if (fTextEditor && fTextEditor->onMouseInput(x, y, state, mod)) {
         return true;
     }
 
