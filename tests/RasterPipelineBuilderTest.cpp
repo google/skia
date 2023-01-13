@@ -252,7 +252,6 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
     9. copy_slot_masked               $3 = Mask($4)
    10. swizzle_4                      $0..3 = ($0..3).wzyx
    11. swizzle_2                      $0..1 = ($0..2).yz
-   12. swizzle_1                      $0 = ($0).x
 )");
 }
 
@@ -275,11 +274,11 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
     3. copy_4_slots_unmasked          $4..7 = $0..3
     4. copy_4_slots_unmasked          $8..11 = $4..7
     5. copy_4_slots_unmasked          $12..15 = $8..11
-    6. swizzle_4                      $12..15 = ($12..15).xzyw
-    7. transpose                      $7..15 = ($7..15)[0 3 6 1 4 7 2 5 8]
-    8. transpose                      $0..15 = ($0..15)[0 4 8 12 1 5 9 13 2 6 10 14 3 7 11 15]
-    9. transpose                      $8..15 = ($8..15)[0 4 1 5 2 6 3 7]
-   10. transpose                      $4..15 = ($4..15)[0 3 6 9 1 4 7 10 2 5 8 11]
+    6. swizzle_3                      $13..15 = ($13..15).yxz
+    7. transpose                      $8..15 = ($8..15)[2 5 0 3 6 1 4 7]
+    8. transpose                      $1..15 = ($1..15)[3 7 11 0 4 8 12 1 5 9 13 2 6 10 14]
+    9. transpose                      $9..15 = ($9..15)[3 0 4 1 5 2 6]
+   10. transpose                      $5..15 = ($5..15)[2 5 8 0 3 6 9 1 4 7 10]
 )");
 }
 
@@ -335,15 +334,15 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
     4. copy_constant                  $3 = 0x40800000 (4.0)
     5. zero_slot_unmasked             $4 = 0
     6. copy_constant                  $5 = 0x3F800000 (1.0)
-    7. transpose                      $0..15 = ($0..15)[0 1 4 4 2 3 4 4 4 4 5 4 4 4 4 5]
-    8. transpose                      $0..3 = ($0..3)[0 1 4 5]
+    7. transpose                      $2..15 = ($2..15)[2 2 0 1 2 2 2 2 3 2 2 2 2 3]
+    8. transpose                      $2..3 = ($2..3)[2 3]
     9. zero_slot_unmasked             $4 = 0
-   10. transpose                      $0..7 = ($0..7)[0 1 4 4 2 3 4 4]
+   10. transpose                      $2..7 = ($2..7)[2 2 0 1 2 2]
    11. zero_slot_unmasked             $8 = 0
-   12. transpose                      $0..7 = ($0..7)[0 1 4 5 8 8 8 8]
+   12. transpose                      $2..7 = ($2..7)[2 3 6 6 6 6]
    13. zero_slot_unmasked             $8 = 0
    14. copy_constant                  $9 = 0x3F800000 (1.0)
-   15. transpose                      $0..8 = ($0..8)[0 1 8 2 3 8 4 5 9]
+   15. transpose                      $2..8 = ($2..8)[6 0 1 6 2 3 7]
 )");
 }
 

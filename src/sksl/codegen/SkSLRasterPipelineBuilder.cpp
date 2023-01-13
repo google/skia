@@ -140,32 +140,62 @@ static int pack_nybbles(SkSpan<const int8_t> components) {
     return packed;
 }
 
-void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> components) {
-    // Consumes `consumedSlots` elements on the stack, then generates `components.size()` elements.
-    SkASSERT(components.size() >= 1);
+void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> elementSpan) {
+    // Consumes `consumedSlots` elements on the stack, then generates `elementSpan.size()` elements.
+    SkASSERT(consumedSlots >= 0);
 
-    if (consumedSlots <= 4 && components.size() <= 4) {
+    // We only allow up to 16 elements, and they can only reach 0-15 slots, due to nybble packing.
+    int numElements = elementSpan.size();
+    SkASSERT(numElements <= 16);
+    SkASSERT(std::all_of(elementSpan.begin(), elementSpan.end(), [](int8_t e){ return e >= 0; }));
+    SkASSERT(std::all_of(elementSpan.begin(), elementSpan.end(), [](int8_t e){ return e <= 0xF; }));
+
+    // Make a local copy of the element array.
+    int8_t elements[16] = {};
+    std::copy(elementSpan.begin(), elementSpan.end(), std::begin(elements));
+
+    while (numElements > 0) {
+        // If the first element of the swizzle is zero...
+        if (elements[0] != 0) {
+            break;
+        }
+        // ...and zero isn't used elsewhere in the swizzle...
+        if (std::any_of(&elements[1], &elements[numElements], [](int8_t e) { return e == 0; })) {
+            break;
+        }
+        // We can omit the first slot from the swizzle entirely.
+        // Slide everything forward by one slot, and reduce the element index by one.
+        for (int index = 1; index < numElements; ++index) {
+            elements[index - 1] = elements[index] - 1;
+        }
+        --consumedSlots;
+        --numElements;
+    }
+
+    // A completely empty swizzle is a no-op.
+    if (numElements == 0) {
+        this->discard_stack(consumedSlots);
+        return;
+    }
+
+    if (consumedSlots <= 4 && numElements <= 4) {
         // We can fit everything into a little swizzle.
-        int op = (int)BuilderOp::swizzle_1 + components.size() - 1;
-        fInstructions.push_back({(BuilderOp)op, {}, consumedSlots, pack_nybbles(components)});
+        int op = (int)BuilderOp::swizzle_1 + numElements - 1;
+        fInstructions.push_back({(BuilderOp)op, {}, consumedSlots,
+                                 pack_nybbles(SkSpan(elements, numElements))});
         return;
     }
 
     // This is a big swizzle. We use the `transpose` op to handle these.
-    // Transpose always wants a full 16 elements, so copy into a 16-wide array.
-    SkASSERT(components.size() <= 16);
-    int8_t transposeArray[16] = {};
-    std::copy(components.begin(), components.end(), std::begin(transposeArray));
-
-    // Pack slot usage into immA.
-    // The top 16 bits of immA count consumed slots; the bottom 16 bits count generated slots.
+    // Slot usage is packed into immA. The top 16 bits of immA count the consumed slots; the bottom
+    // 16 bits count the generated slots.
     int slotUsage = consumedSlots << 16;
-    slotUsage |= components.size();
+    slotUsage |= numElements;
 
     // Pack immB and immC with the transpose list in packed-nybble form.
     fInstructions.push_back({BuilderOp::transpose, {}, slotUsage,
-                             pack_nybbles(SkSpan(&transposeArray[0], 8)),
-                             pack_nybbles(SkSpan(&transposeArray[8], 8))});
+                             pack_nybbles(SkSpan(&elements[0], 8)),
+                             pack_nybbles(SkSpan(&elements[8], 8))});
 }
 
 void Builder::transpose(int columns, int rows) {
