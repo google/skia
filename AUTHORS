@@ -86,6 +86,7 @@ Oliver Dawes <olliedawes@gmail.com>
 namse <skatpgusskat@naver.com>
 
 # Trusted service accounts.
+GitHub Dependabot <(\d+)\+dependabot\[bot\]@users.noreply.github.com>
 Recipe roller SA <recipe-mega-autoroller@chops-service-accounts.iam.gserviceaccount.com>
 Recreate SKPs Bot SA <skia-recreate-skps@skia-swarming-bots.iam.gserviceaccount.com>
 Skia Autorollers SA <skia-autoroll@skia-public.iam.gserviceaccount.com>
