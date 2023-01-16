@@ -114,17 +114,17 @@ sk_sp<GraphicsPipeline> MtlResourceProvider::createGraphicsPipeline(
     bool useShadingSsboIndex =
             fSharedContext->caps()->storageBufferPreferred() && step->performsShading();
 
-    BlendInfo blendInfo;
-    bool localCoordsNeeded = false;
+    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(fSharedContext->caps()->resourceBindingRequirements(),
+                                              fSharedContext->shaderCodeDictionary(),
+                                              runtimeDict,
+                                              step,
+                                              pipelineDesc.paintParamsID(),
+                                              useShadingSsboIndex);
+    const std::string& fsSkSL = fsSkSLInfo.fSkSL;
+    const BlendInfo& blendInfo = fsSkSLInfo.fBlendInfo;
+    const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
     if (!SkSLToMSL(skslCompiler,
-                   GetSkSLFS(fSharedContext->caps()->resourceBindingRequirements(),
-                             fSharedContext->shaderCodeDictionary(),
-                             runtimeDict,
-                             step,
-                             pipelineDesc.paintParamsID(),
-                             useShadingSsboIndex,
-                             &blendInfo,
-                             &localCoordsNeeded),
+                   fsSkSL,
                    SkSL::ProgramKind::kGraphiteFragment,
                    settings,
                    &fsMSL,

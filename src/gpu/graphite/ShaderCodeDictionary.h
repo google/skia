@@ -160,7 +160,8 @@ public:
     std::string toSkSL(const ResourceBindingRequirements& bindingReqs,
                        const RenderStep* step,
                        const bool useStorageBuffers,
-                       const bool defineLocalCoordsVarying) const;
+                       const bool defineLocalCoordsVarying,
+                       int* numTexturesAndSamplersUsed) const;
 
 private:
     std::vector<PaintParamsKey::BlockReader> fBlockReaders;

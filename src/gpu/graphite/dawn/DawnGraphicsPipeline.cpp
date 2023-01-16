@@ -233,22 +233,22 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     bool useShadingSsboIndex =
             sharedContext->caps()->storageBufferPreferred() && step->performsShading();
 
-    BlendInfo blendInfo;
-    bool localCoordsNeeded = false;
-
     std::string vsSPIRV, fsSPIRV;
     wgpu::ShaderModule fsModule, vsModule;
 
     // Some steps just render depth buffer but not color buffer, so the fragment
     // shader is null.
-    auto fsSKSL = GetSkSLFS(sharedContext->caps()->resourceBindingRequirements(),
-                            sharedContext->shaderCodeDictionary(),
-                            runtimeDict,
-                            step,
-                            pipelineDesc.paintParamsID(),
-                            useShadingSsboIndex,
-                            &blendInfo,
-                            &localCoordsNeeded);
+    const FragSkSLInfo fsSkSLInfo = GetSkSLFS(sharedContext->caps()->resourceBindingRequirements(),
+                                              sharedContext->shaderCodeDictionary(),
+                                              runtimeDict,
+                                              step,
+                                              pipelineDesc.paintParamsID(),
+                                              useShadingSsboIndex);
+    const std::string& fsSKSL = fsSkSLInfo.fSkSL;
+    const BlendInfo& blendInfo = fsSkSLInfo.fBlendInfo;
+    const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
+    const int numTexturesAndSamplers = fsSkSLInfo.fNumTexturesAndSamplers;
+
     bool hasFragment = !fsSKSL.empty();
     if (hasFragment) {
         if (!SkSLToSPIRV(compiler,
@@ -357,27 +357,33 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
             entries[0].buffer.hasDynamicOffset = false;
             entries[0].buffer.minBindingSize = 0;
 
-            entries[1].binding = kRenderStepUniformBufferIndex;
-            entries[1].visibility = step->uniforms().size()
-                    ? wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment
-                    : wgpu::ShaderStage::None;
-            entries[1].buffer.type = wgpu::BufferBindingType::Uniform;
-            entries[1].buffer.hasDynamicOffset = false;
-            entries[1].buffer.minBindingSize = 0;
+            uint32_t numBuffers = 1;
 
-            entries[2].binding = kPaintUniformBufferIndex;
-            entries[2].visibility = hasFragment
-                    ? wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment
-                    : wgpu::ShaderStage::None;
-            entries[2].buffer.type = wgpu::BufferBindingType::Uniform;
-            entries[2].buffer.hasDynamicOffset = false;
-            entries[2].buffer.minBindingSize = 0;
+            if (!step->uniforms().empty()) {
+                entries[numBuffers].binding = kRenderStepUniformBufferIndex;
+                entries[numBuffers].visibility =
+                        wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
+                entries[numBuffers].buffer.type = wgpu::BufferBindingType::Uniform;
+                entries[numBuffers].buffer.hasDynamicOffset = false;
+                entries[numBuffers].buffer.minBindingSize = 0;
+                ++numBuffers;
+            }
+
+            if (hasFragment) {
+                entries[numBuffers].binding = kPaintUniformBufferIndex;
+                entries[numBuffers].visibility = wgpu::ShaderStage::Fragment;
+                entries[numBuffers].buffer.type = wgpu::BufferBindingType::Uniform;
+                entries[numBuffers].buffer.hasDynamicOffset = false;
+                entries[numBuffers].buffer.minBindingSize = 0;
+                ++numBuffers;
+            }
 
             wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
 #if defined(SK_DEBUG)
             groupLayoutDesc.label = step->name();
 #endif
-            groupLayoutDesc.entryCount = entries.size();
+
+            groupLayoutDesc.entryCount = numBuffers;
             groupLayoutDesc.entries = entries.data();
             groupLayouts[0] = device.CreateBindGroupLayout(&groupLayoutDesc);
             if (!groupLayouts[0]) {
@@ -385,12 +391,11 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
             }
         }
 
-        if (hasFragment) {
-            // TODO: not using the hardcoded texture info
-            constexpr size_t kNumTextures = 1;
-            std::vector<wgpu::BindGroupLayoutEntry> entries(kNumTextures * 2);
-            for (size_t i = 0; i < kNumTextures * 2;) {
-                entries[i].binding = i;
+        bool hasFragmentSamplers = hasFragment && numTexturesAndSamplers > 0;
+        if (hasFragmentSamplers) {
+            std::vector<wgpu::BindGroupLayoutEntry> entries(numTexturesAndSamplers);
+            for (int i = 0; i < numTexturesAndSamplers;) {
+                entries[i].binding = static_cast<uint32_t>(i);
                 entries[i].visibility = wgpu::ShaderStage::Fragment;
                 entries[i].sampler.type = wgpu::SamplerBindingType::Filtering;
                 ++i;
@@ -419,7 +424,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
         layoutDesc.label = step->name();
 #endif
         layoutDesc.bindGroupLayoutCount =
-            hasFragment ? groupLayouts.size() : groupLayouts.size() - 1;
+            hasFragmentSamplers ? groupLayouts.size() : groupLayouts.size() - 1;
         layoutDesc.bindGroupLayouts = groupLayouts.data();
         auto layout = device.CreatePipelineLayout(&layoutDesc);
         if (!layout) {

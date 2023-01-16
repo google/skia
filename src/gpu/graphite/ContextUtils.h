@@ -27,6 +27,13 @@ class UniquePaintParamsID;
 
 struct ResourceBindingRequirements;
 
+struct FragSkSLInfo {
+    std::string fSkSL;
+    BlendInfo fBlendInfo;
+    bool fRequiresLocalCoords = false;
+    int fNumTexturesAndSamplers = 0;
+};
+
 std::tuple<UniquePaintParamsID, const UniformDataBlock*, const TextureDataBlock*>
 ExtractPaintData(Recorder*,
                  PipelineDataGatherer* gatherer,
@@ -49,14 +56,12 @@ std::string GetSkSLVS(const ResourceBindingRequirements&,
                       bool defineShadingSsboIndexVarying,
                       bool defineLocalCoordsVarying);
 
-std::string GetSkSLFS(const ResourceBindingRequirements&,
-                      const ShaderCodeDictionary*,
-                      const RuntimeEffectDictionary*,
-                      const RenderStep* renderStep,
-                      UniquePaintParamsID paintID,
-                      bool useStorageBuffers,
-                      BlendInfo* blendInfo,
-                      bool* requiresLocalCoordsVarying);
+FragSkSLInfo GetSkSLFS(const ResourceBindingRequirements&,
+                       const ShaderCodeDictionary*,
+                       const RuntimeEffectDictionary*,
+                       const RenderStep* renderStep,
+                       UniquePaintParamsID paintID,
+                       bool useStorageBuffers);
 
 std::string EmitPaintParamsUniforms(int bufferID,
                                     const char* name,

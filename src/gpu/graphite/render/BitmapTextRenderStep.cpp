@@ -70,11 +70,11 @@ std::string BitmapTextRenderStep::vertexSkSL() const {
 }
 
 std::string BitmapTextRenderStep::texturesAndSamplersSkSL(
-        const ResourceBindingRequirements& bindingReqs, int binding) const {
+        const ResourceBindingRequirements& bindingReqs, int* nextBindingIndex) const {
     std::string result;
 
     for (unsigned int i = 0; i < kNumTextAtlasTextures; ++i) {
-        result += EmitSamplerLayout(bindingReqs, &binding);
+        result += EmitSamplerLayout(bindingReqs, nextBindingIndex);
         SkSL::String::appendf(&result, " uniform sampler2D text_atlas_%d;\n", i);
     }
 

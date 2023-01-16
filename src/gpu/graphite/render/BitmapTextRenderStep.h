@@ -20,7 +20,7 @@ public:
 
     std::string vertexSkSL() const override;
     std::string texturesAndSamplersSkSL(const ResourceBindingRequirements&,
-                                        int startBinding) const override;
+                                        int* nextBindingIndex) const override;
     const char* fragmentCoverageSkSL() const override;
 
     void writeVertices(DrawWriter*, const DrawParams&, int ssboIndex) const override;

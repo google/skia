@@ -347,35 +347,36 @@ std::string GetSkSLVS(const ResourceBindingRequirements& bindingReqs,
     return sksl;
 }
 
-std::string GetSkSLFS(const ResourceBindingRequirements& bindingReqs,
+FragSkSLInfo GetSkSLFS(const ResourceBindingRequirements& bindingReqs,
                       const ShaderCodeDictionary* dict,
                       const RuntimeEffectDictionary* rteDict,
                       const RenderStep* step,
                       UniquePaintParamsID paintID,
-                      bool useStorageBuffers,
-                      BlendInfo* blendInfo,
-                      bool* requiresLocalCoordsVarying) {
+                      bool useStorageBuffers) {
     if (!paintID.isValid()) {
         // TODO: we should return the error shader code here
         return {};
     }
 
+    FragSkSLInfo result;
+
     const char* shadingSsboIndexVar = useStorageBuffers ? "shadingSsboIndexVar" : nullptr;
     ShaderInfo shaderInfo(rteDict, shadingSsboIndexVar);
 
     dict->getShaderInfo(paintID, &shaderInfo);
-    *blendInfo = shaderInfo.blendInfo();
-    *requiresLocalCoordsVarying = shaderInfo.needsLocalCoords();
+    result.fBlendInfo = shaderInfo.blendInfo();
+    result.fRequiresLocalCoords = shaderInfo.needsLocalCoords();
 
     // Extra RenderStep uniforms are always backed by a UBO. Uniforms for the PaintParams are either
     // UBO or SSBO backed based on `useStorageBuffers`.
-    std::string sksl;
-    sksl += shaderInfo.toSkSL(bindingReqs,
+    result.fSkSL =
+            shaderInfo.toSkSL(bindingReqs,
                               step,
                               useStorageBuffers,
-                              /*defineLocalCoordsVarying=*/*requiresLocalCoordsVarying);
+                              /*defineLocalCoordsVarying=*/result.fRequiresLocalCoords,
+                              /*numTexturesAndSamplersUsed=*/&result.fNumTexturesAndSamplers);
 
-    return sksl;
+    return result;
 }
 
 } // namespace skgpu::graphite

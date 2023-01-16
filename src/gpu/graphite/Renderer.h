@@ -89,7 +89,7 @@ public:
 
     // Emits code to set up textures and samplers. Should only be defined if hasTextures is true.
     virtual std::string texturesAndSamplersSkSL(const ResourceBindingRequirements&,
-                                                int startBinding) const {
+                                                int* nextBindingIndex) const {
         return R"()";
     }
 

@@ -70,11 +70,11 @@ std::string SDFTextRenderStep::vertexSkSL() const {
 }
 
 std::string SDFTextRenderStep::texturesAndSamplersSkSL(
-        const ResourceBindingRequirements& bindingReqs, int binding) const {
+        const ResourceBindingRequirements& bindingReqs, int* nextBindingIndex) const {
     std::string result;
 
     for (unsigned int i = 0; i < kNumSDFAtlasTextures; ++i) {
-        result += EmitSamplerLayout(bindingReqs, &binding);
+        result += EmitSamplerLayout(bindingReqs, nextBindingIndex);
         SkSL::String::appendf(&result, " uniform sampler2D sdf_atlas_%d;\n", i);
     }
 

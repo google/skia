@@ -111,7 +111,8 @@ static void emit_preamble_for_entry(const ShaderInfo& shaderInfo,
 std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
                                const RenderStep* step,
                                const bool useStorageBuffers,
-                               const bool defineLocalCoordsVarying) const {
+                               const bool defineLocalCoordsVarying,
+                               int* numTexturesAndSamplersUsed) const {
     std::string preamble = EmitVaryings(step,
                                         /*direction=*/"in",
                                         /*emitShadingSsboIndexVarying=*/useStorageBuffers,
@@ -135,10 +136,18 @@ std::string ShaderInfo::toSkSL(const ResourceBindingRequirements& bindingReqs,
                                   : bindingReqs.fUniformBufferLayout,
                 fBlockReaders);
     }
-    int binding = 0;
-    preamble += EmitTexturesAndSamplers(bindingReqs, fBlockReaders, &binding);
-    if (step->hasTextures()) {
-        preamble += step->texturesAndSamplersSkSL(bindingReqs, binding);
+
+    {
+        int binding = 0;
+        preamble += EmitTexturesAndSamplers(bindingReqs, fBlockReaders, &binding);
+        if (step->hasTextures()) {
+            preamble += step->texturesAndSamplersSkSL(bindingReqs, &binding);
+        }
+
+        // Report back to the caller how many textures and samplers are used.
+        if (numTexturesAndSamplersUsed) {
+            *numTexturesAndSamplersUsed = binding;
+        }
     }
 
     std::string mainBody = "void main() {";
