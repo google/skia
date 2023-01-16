@@ -125,8 +125,9 @@ SkCodec::Result SkJpegRCodec::ReadHeader(SkStream* stream,
         compressedImage.length = data->size();
 
         std::vector<uint8_t> exifData;
+        std::vector<uint8_t> iccData;
         jpegRInfo.exifData = &exifData;
-        jpegRInfo.iccData = nullptr;
+        jpegRInfo.iccData = &iccData;
 
         if (recoveryMap->getJPEGRInfo(&compressedImage, &jpegRInfo) != 0) {
             return kInvalidInput;
@@ -135,7 +136,10 @@ SkCodec::Result SkJpegRCodec::ReadHeader(SkStream* stream,
         // JPEGR always report 10-bit color depth
         const uint8_t colorDepth = 10;
 
-        // TODO: Create color profile from ICC data
+        // iccSkData will outlive iccData as it is passed to profile, hence we need a copy
+        sk_sp<SkData> iccSkData = SkData::MakeWithCopy(iccData.data(), iccData.size());
+        profile = SkEncodedInfo::ICCProfile::Make(std::move(iccSkData));
+        // TODO: Figure out if we need to expose default profile for JPEGR and what it should be
 
         SkEncodedInfo info = SkEncodedInfo::Make(jpegRInfo.width,
                                                  jpegRInfo.height,
