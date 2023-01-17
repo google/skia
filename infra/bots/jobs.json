@@ -11,7 +11,9 @@
   {"name": "BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64",
     "cq_config": {}
   },
-  {"name": "BazelBuild-skia_public-release-linux_x64"},
+  {"name": "BazelBuild-skia_public-release-linux_x64",
+    "cq_config": {}
+  },
   {"name": "BazelBuild-tests-enforce_iwyu-linux_x64",
     "cq_config": {}
   },
@@ -331,15 +333,7 @@
   {"name": "Housekeeper-PerCommit-BuildTaskDrivers_windows_amd64"},
   {"name": "Housekeeper-PerCommit-BundleRecipes"},
   {"name": "Housekeeper-PerCommit-CheckGeneratedFiles",
-   "cq_config": {"location_regexes": [
-     ".*BUILD.bazel",
-     "DEPS",
-     "gn/.*.gni",
-     "modules/.*.gni",
-     "src/gpu/effects/generated/.*",
-     "src/sksl/.*",
-     "src/gpu/gpu_workaround_list.txt"
-   ]}
+   "cq_config": {}
    },
   {"name": "Housekeeper-PerCommit-CreateDockerImage_Skia_Release"},
   {"name": "Housekeeper-PerCommit-CreateDockerImage_Skia_WASM_Release"},
