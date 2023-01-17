@@ -1505,17 +1505,12 @@ SI F tan_(F x) {
 // Used by gather_ stages to calculate the base pointer and a vector of indices to load.
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
-#ifdef SK_DISABLE_RASTER_PIPELINE_SAMPLING_FIXES
-    x = clamp(sk_bit_cast<F>(sk_bit_cast<U32>(x) - (uint32_t)ctx->roundDownAtInteger), ctx->width );
-    y = clamp(sk_bit_cast<F>(sk_bit_cast<U32>(y) - (uint32_t)ctx->roundDownAtInteger), ctx->height);
-#else
     // We use exclusive clamp so that our min value is > 0 because ULP subtraction using U32 would
     // produce a NaN if applied to +0.f.
     x = clamp_ex(x, ctx->width );
     y = clamp_ex(y, ctx->height);
     x = sk_bit_cast<F>(sk_bit_cast<U32>(x) - (uint32_t)ctx->roundDownAtInteger);
     y = sk_bit_cast<F>(sk_bit_cast<U32>(y) - (uint32_t)ctx->roundDownAtInteger);
-#endif
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
 }
@@ -2687,9 +2682,6 @@ SI F exclusive_mirror(F v, const SkRasterPipeline_TileCtx* ctx) {
     // the logical infinite image. This is tested by mirror_tile GM. Note that all values
     // that have a non-zero bias applied are > 0.
     auto biasInUlps = trunc_(s);
-#ifdef SK_DISABLE_RASTER_PIPELINE_SAMPLING_FIXES
-    biasInUlps = 0;
-#endif
     return sk_bit_cast<F>(sk_bit_cast<U32>(m) + ctx->mirrorBiasDir*biasInUlps);
 }
 // Tile x or y to [0,limit) == [0,limit - 1 ulp] (think, sampling from images).
@@ -2713,18 +2705,12 @@ STAGE(mirror_x_1, NoCtx) { r = clamp_01_(abs_( (r-1.0f) - two(floor_((r-1.0f)*0.
 STAGE(decal_x, SkRasterPipeline_DecalTileCtx* ctx) {
     auto w = ctx->limit_x;
     auto e = ctx->inclusiveEdge_x;
-#ifdef SK_DISABLE_RASTER_PIPELINE_SAMPLING_FIXES
-    e = 0;
-#endif
     auto cond = ((0 < r) & (r < w)) | (r == e);
     sk_unaligned_store(ctx->mask, cond_to_mask(cond));
 }
 STAGE(decal_y, SkRasterPipeline_DecalTileCtx* ctx) {
     auto h = ctx->limit_y;
     auto e = ctx->inclusiveEdge_y;
-#ifdef SK_DISABLE_RASTER_PIPELINE_SAMPLING_FIXES
-    e = 0;
-#endif
     auto cond = ((0 < g) & (g < h)) | (g == e);
     sk_unaligned_store(ctx->mask, cond_to_mask(cond));
 }
@@ -2733,9 +2719,6 @@ STAGE(decal_x_and_y, SkRasterPipeline_DecalTileCtx* ctx) {
     auto h = ctx->limit_y;
     auto ex = ctx->inclusiveEdge_x;
     auto ey = ctx->inclusiveEdge_y;
-#ifdef SK_DISABLE_RASTER_PIPELINE_SAMPLING_FIXES
-    ex = ey = 0;
-#endif
     auto cond = (((0 < r) & (r < w)) | (r == ex))
               & (((0 < g) & (g < h)) | (g == ey));
     sk_unaligned_store(ctx->mask, cond_to_mask(cond));
@@ -4288,10 +4271,6 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
     const F w = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->width ) - 1),
             h = sk_bit_cast<float>( sk_bit_cast<uint32_t>(ctx->height) - 1);
 
-#ifdef SK_DISABLE_RASTER_PIPELINE_SAMPLING_FIXES
-    x = min(max(0, sk_bit_cast<F>(sk_bit_cast<U32>(x) - (uint32_t)ctx->roundDownAtInteger)), w);
-    y = min(max(0, sk_bit_cast<F>(sk_bit_cast<U32>(y) - (uint32_t)ctx->roundDownAtInteger)), h);
-#else
     const F z = std::numeric_limits<float>::min();
 
     x = min(max(z, x), w);
@@ -4299,7 +4278,6 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
 
     x = sk_bit_cast<F>(sk_bit_cast<U32>(x) - (uint32_t)ctx->roundDownAtInteger);
     y = sk_bit_cast<F>(sk_bit_cast<U32>(y) - (uint32_t)ctx->roundDownAtInteger);
-#endif
 
     *ptr = (const T*)ctx->pixels;
     return trunc_(y)*ctx->stride + trunc_(x);
