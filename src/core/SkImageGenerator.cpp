@@ -8,8 +8,11 @@
 #include "include/core/SkImageGenerator.h"
 
 #include "include/core/SkImage.h"
-#include "include/gpu/GrRecordingContext.h"
 #include "src/core/SkNextID.h"
+
+#if SK_SUPPORT_GPU
+#include "include/gpu/GrRecordingContext.h"
+#endif
 
 SkImageGenerator::SkImageGenerator(const SkImageInfo& info, uint32_t uniqueID)
     : fInfo(info)
