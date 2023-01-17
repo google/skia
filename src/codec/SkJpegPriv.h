@@ -25,6 +25,7 @@ static constexpr uint8_t kJpegSig[] = {0xFF, 0xD8, 0xFF};
 
 static constexpr uint32_t kICCMarker = JPEG_APP0 + 2;
 static constexpr uint32_t kICCMarkerHeaderSize = 14;
+static constexpr uint32_t kICCMarkerIndexSize = 1;
 static constexpr uint8_t kICCSig[] = {
         'I', 'C', 'C', '_', 'P', 'R', 'O', 'F', 'I', 'L', 'E', '\0',
 };

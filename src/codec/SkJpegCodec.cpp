@@ -37,6 +37,7 @@
 #include <csetjmp>
 #include <cstring>
 #include <utility>
+#include <vector>
 
 using namespace skia_private;
 
@@ -83,106 +84,148 @@ static SkEncodedOrigin get_exif_orientation(jpeg_decompress_struct* dinfo) {
     return kDefault_SkEncodedOrigin;
 }
 
-static bool is_icc_marker(jpeg_marker_struct* marker) {
-    if (kICCMarker != marker->marker || marker->data_length < kICCMarkerHeaderSize) {
-        return false;
-    }
-
-    return !memcmp(marker->data, kICCSig, sizeof(kICCSig));
-}
-
 /*
- * ICC profiles may be stored using a sequence of multiple markers.  We obtain the ICC profile
- * in two steps:
- *     (1) Discover all ICC profile markers and verify that they are numbered properly.
- *     (2) Copy the data from each marker into a contiguous ICC profile.
+ * Return metadata with a specific marker and signature.
+ *
+ * Search for segments that start with the specified targetMarker, followed by the specified
+ * signature.
+ *
+ * Some types of metadata (e.g, ICC profiles) are too big to fit into a single segment's data (which
+ * is limited to 64k), and come in multiple parts. For this type of data, bytesInIndex is >0. After
+ * the signature comes bytesInIndex bytes (big endian) for the index of the segment's part, followed
+ * by bytesInIndex bytes (big endian) for the total number of parts. If all parts are present,
+ * stitch them together and return the combined result. Return failure if parts are absent, there
+ * are duplicate parts, or parts disagree on the total number of parts.
+ *
+ * If alwaysCopyData is true, then return a copy of the data. If alwaysCopyData is false, then
+ * return a direct reference to the data pointed to by dinfo, if possible.
  */
-static std::unique_ptr<SkEncodedInfo::ICCProfile> read_color_profile(jpeg_decompress_struct* dinfo)
-{
-    // Note that 256 will be enough storage space since each markerIndex is stored in 8-bits.
-    jpeg_marker_struct* markerSequence[256];
-    memset(markerSequence, 0, sizeof(markerSequence));
-    uint8_t numMarkers = 0;
-    size_t totalBytes = 0;
+static sk_sp<SkData> read_metadata(jpeg_decompress_struct* dinfo,
+                                   const uint32_t targetMarker,
+                                   const uint8_t* signature,
+                                   size_t signatureSize,
+                                   size_t bytesInIndex = 0,
+                                   bool alwaysCopyData = false) {
+    // Compute the total size of the entire header (signature plus index plus count), since we'll
+    // use it often.
+    const size_t headerSize = signatureSize + 2 * bytesInIndex;
 
-    // Discover any ICC markers and verify that they are numbered properly.
+    // A map from part index to the data in each part.
+    std::vector<sk_sp<SkData>> parts;
+
+    // Running total of number of data in all parts.
+    size_t partsTotalSize = 0;
+
+    // Running total number of parts found.
+    uint32_t foundPartCount = 0;
+
+    // The expected number of parts (initialized at the first part we encounter).
+    uint32_t expectedPartCount = 0;
+
+    // Iterate through the image's segments.
     for (jpeg_marker_struct* marker = dinfo->marker_list; marker; marker = marker->next) {
-        if (is_icc_marker(marker)) {
-            // Verify that numMarkers is valid and consistent.
-            if (0 == numMarkers) {
-                numMarkers = marker->data[13];
-                if (0 == numMarkers) {
-                    SkCodecPrintf("ICC Profile Error: numMarkers must be greater than zero.\n");
-                    return nullptr;
-                }
-            } else if (numMarkers != marker->data[13]) {
-                SkCodecPrintf("ICC Profile Error: numMarkers must be consistent.\n");
-                return nullptr;
-            }
-
-            // Verify that the markerIndex is valid and unique.  Note that zero is not
-            // a valid index.
-            uint8_t markerIndex = marker->data[12];
-            if (markerIndex == 0 || markerIndex > numMarkers) {
-                SkCodecPrintf("ICC Profile Error: markerIndex is invalid.\n");
-                return nullptr;
-            }
-            if (markerSequence[markerIndex]) {
-                SkCodecPrintf("ICC Profile Error: Duplicate value of markerIndex.\n");
-                return nullptr;
-            }
-            markerSequence[markerIndex] = marker;
-            SkASSERT(marker->data_length >= kICCMarkerHeaderSize);
-            totalBytes += marker->data_length - kICCMarkerHeaderSize;
+        // Skip segments that don't have the right marker, signature, or are too small.
+        if (targetMarker != marker->marker || marker->data_length <= headerSize ||
+            memcmp(marker->data, signature, signatureSize) != 0) {
+            continue;
         }
-    }
 
-    if (0 == totalBytes) {
-        // No non-empty ICC profile markers were found.
-        return nullptr;
-    }
+        // Read this part's index and count as big-endian (if they are present, otherwise hard-code
+        // them to 1).
+        uint32_t partIndex = 0;
+        uint32_t partCount = 0;
+        if (bytesInIndex == 0) {
+            partIndex = 1;
+            partCount = 1;
+        } else {
+            for (size_t i = 0; i < bytesInIndex; ++i) {
+                partIndex = (partIndex << 8) + marker->data[signatureSize + i];
+                partCount = (partCount << 8) + marker->data[signatureSize + bytesInIndex + i];
+            }
+        }
 
-    // Combine the ICC marker data into a contiguous profile.
-    sk_sp<SkData> iccData = SkData::MakeUninitialized(totalBytes);
-    void* dst = iccData->writable_data();
-    for (uint32_t i = 1; i <= numMarkers; i++) {
-        jpeg_marker_struct* marker = markerSequence[i];
-        if (!marker) {
-            SkCodecPrintf("ICC Profile Error: Missing marker %d of %d.\n", i, numMarkers);
+        // A part count of 0 is invalid.
+        if (!partCount) {
+            SkCodecPrintf("Invalid marker part count zero\n");
             return nullptr;
         }
 
-        void* src = SkTAddOffset<void>(marker->data, kICCMarkerHeaderSize);
-        size_t bytes = marker->data_length - kICCMarkerHeaderSize;
-        memcpy(dst, src, bytes);
-        dst = SkTAddOffset<void>(dst, bytes);
-    }
+        // The indices must in the range 1, ..., count.
+        if (partIndex == 0 && partIndex > partCount) {
+            SkCodecPrintf("Invalid marker index %u for count %u\n", partIndex, partCount);
+            return nullptr;
+        }
 
-    return SkEncodedInfo::ICCProfile::Make(std::move(iccData));
-}
+        // If this is the first marker we've encountered set the expected part count to its count.
+        if (expectedPartCount == 0) {
+            expectedPartCount = partCount;
+            parts.resize(expectedPartCount);
+        }
 
-/*
- * Helper function to extract XMP and MPF metadata. Searches for a matching
- * marker that begins with the specified signature, and returns an SkData that
- * directly references the remainder of the segment (after the signature).
- */
+        // If this does not match the expected part count, then fail.
+        if (partCount != expectedPartCount) {
+            SkCodecPrintf("Conflicting marker counts %u vs %u\n", partCount, expectedPartCount);
+        }
 
-sk_sp<const SkData> read_metadata_marker(jpeg_decompress_struct* dinfo,
-                                         const uint32_t target_marker,
-                                         const uint8_t* signature,
-                                         size_t signature_size) {
-    for (jpeg_marker_struct* marker = dinfo->marker_list; marker; marker = marker->next) {
-        if (target_marker == marker->marker && marker->data_length > signature_size &&
-            !memcmp(marker->data, signature, signature_size)) {
-            return SkData::MakeWithoutCopy(marker->data + signature_size,
-                                           marker->data_length - signature_size);
+        // Make an SkData directly referencing the decoder's data for this part.
+        auto partData = SkData::MakeWithoutCopy(marker->data + headerSize,
+                                                marker->data_length - headerSize);
+
+        // Fail if duplicates are found.
+        if (parts[partIndex-1]) {
+            SkCodecPrintf("Duplicate parts for index %u of %u\n", partIndex, expectedPartCount);
+            return nullptr;
+        }
+
+        // Save part in the map.
+        partsTotalSize += partData->size();
+        parts[partIndex-1] = std::move(partData);
+        foundPartCount += 1;
+
+        // Stop as soon as we find all of the parts.
+        if (foundPartCount == expectedPartCount) {
+            break;
         }
     }
-    return nullptr;
+
+    // Return nullptr if we don't find the data (this is not an error).
+    if (expectedPartCount == 0) {
+        return nullptr;
+    }
+
+    // Fail if we don't have all of the parts.
+    if (foundPartCount != expectedPartCount) {
+        SkCodecPrintf("Incomplete set of markers\n");
+        return nullptr;
+    }
+
+    // Return a direct reference to the data if there is only one part and we're allowed to.
+    if (!alwaysCopyData && expectedPartCount == 1) {
+        return std::move(parts[0]);
+    }
+
+    // Copy all of the markers and stitch them together.
+    auto result = SkData::MakeUninitialized(partsTotalSize);
+    void* copyDest = result->writable_data();
+    for (const auto& part : parts) {
+        memcpy(copyDest, part->data(), part->size());
+        copyDest = SkTAddOffset<void>(copyDest, part->size());
+    }
+    return result;
 }
 
-sk_sp<const SkData> read_xmp_metadata(jpeg_decompress_struct* dinfo) {
-    return read_metadata_marker(dinfo, kXMPMarker, kXMPSig, sizeof(kXMPSig));
+static std::unique_ptr<SkEncodedInfo::ICCProfile> read_color_profile(
+        jpeg_decompress_struct* dinfo) {
+    auto iccData = read_metadata(dinfo,
+                                 kICCMarker,
+                                 kICCSig,
+                                 sizeof(kICCSig),
+                                 kICCMarkerIndexSize,
+                                 /*alwaysCopyData=*/true);
+    if (!iccData) {
+        return nullptr;
+    }
+    return SkEncodedInfo::ICCProfile::Make(std::move(iccData));
 }
 
 SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
@@ -229,7 +272,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         }
 
         SkEncodedOrigin orientation = get_exif_orientation(dinfo);
-        auto xmpMetadata = read_xmp_metadata(dinfo);
+        auto xmpMetadata = read_metadata(dinfo, kXMPMarker, kXMPSig, sizeof(kXMPSig));
         auto profile = read_color_profile(dinfo);
         if (profile) {
             auto type = profile->profile()->data_color_space;
@@ -1051,8 +1094,7 @@ bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
                                    std::unique_ptr<SkStream>* gainmapImageStream) {
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
     // Attempt to extract Multi-Picture Format gainmap formats.
-    auto mpfMetadata =
-            read_metadata_marker(fDecoderMgr->dinfo(), kMpfMarker, kMpfSig, sizeof(kMpfSig));
+    auto mpfMetadata = read_metadata(fDecoderMgr->dinfo(), kMpfMarker, kMpfSig, sizeof(kMpfSig));
     if (SkJpegGetMultiPictureGainmap(mpfMetadata, stream(), info, gainmapImageStream)) {
         return true;
     }
