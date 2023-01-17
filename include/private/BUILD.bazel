@@ -41,7 +41,6 @@ skia_filegroup(
         "SkOpts_spi.h",
         "SkPathRef.h",
         "SkSafe32.h",
-        "SkSafe_math.h",
         "SkShadowFlags.h",
         "SkSpinlock.h",
         "SkTLogic.h",

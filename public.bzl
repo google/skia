@@ -258,7 +258,6 @@ BASE_SRCS_ALL = [
     "include/private/SkSLString.h",
     "include/private/SkSLSymbol.h",
     "include/private/SkSafe32.h",
-    "include/private/SkSafe_math.h",
     "include/private/SkShadowFlags.h",
     "include/private/SkSpinlock.h",
     "include/private/SkTLogic.h",

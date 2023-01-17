@@ -89,7 +89,6 @@ generate_cpp_files_for_headers(
         "include/private/SkMacros.h",
         "include/private/SkNoncopyable.h",
         "include/private/SkSafe32.h",
-        "include/private/SkSafe_math.h",
         "include/private/SkTLogic.h",
         "include/private/SkTPin.h",
         "include/private/SkTemplates.h",
