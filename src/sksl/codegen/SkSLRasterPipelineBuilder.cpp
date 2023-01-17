@@ -11,10 +11,15 @@
 #include "include/private/base/SkTo.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
-#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkRPDebugTrace.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
+
+#if !defined(SKSL_STANDALONE)
+#include "src/core/SkRasterPipeline.h"
+#endif
 
 #include <algorithm>
 #include <cmath>
@@ -28,7 +33,6 @@
 namespace SkSL {
 namespace RP {
 
-using SkRP = SkRasterPipeline;
 using RPOp = SkRasterPipelineOp;
 
 #define ALL_MULTI_SLOT_UNARY_OP_CASES        \
@@ -510,6 +514,7 @@ Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) {
 }
 
 #if !defined(SKSL_STANDALONE)
+
 void Program::appendStages(SkRasterPipeline* pipeline,
                            SkArenaAlloc* alloc,
                            SkSpan<const float> uniforms) {
@@ -523,6 +528,7 @@ void Program::appendStages(SkRasterPipeline* pipeline,
         }
     }
 }
+
 #endif
 
 void Program::makeStages(SkTArray<Stage>* pipeline,

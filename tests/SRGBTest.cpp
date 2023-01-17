@@ -13,6 +13,7 @@
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "tests/Test.h"
 

@@ -25,6 +25,7 @@
 #include "src/codec/SkParseEncodedOrigin.h"
 #include "src/codec/SkSampler.h"
 #include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkStreamPriv.h"
 
