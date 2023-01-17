@@ -281,37 +281,93 @@ bool SkImage_Raster::isPinnedOnContext(GrRecordingContext* rContext) const {
 }
 #endif
 
-sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset, GrDirectContext*) const {
-    SkImageInfo info = fBitmap.info().makeDimensions(subset.size());
+static SkBitmap copy_bitmap_subset(const SkBitmap& orig, const SkIRect& subset) {
+    SkImageInfo info = orig.info().makeDimensions(subset.size());
     SkBitmap bitmap;
     if (!bitmap.tryAllocPixels(info)) {
-        return nullptr;
+        return {};
     }
 
     void* dst = bitmap.getPixels();
-    void* src = fBitmap.getAddr(subset.x(), subset.y());
+    void* src = orig.getAddr(subset.x(), subset.y());
     if (!dst || !src) {
         SkDEBUGFAIL("SkImage_Raster::onMakeSubset with nullptr src or dst");
-        return nullptr;
+        return {};
     }
 
-    SkRectMemcpy(dst, bitmap.rowBytes(), src, fBitmap.rowBytes(), bitmap.rowBytes(),
+    SkRectMemcpy(dst, bitmap.rowBytes(), src, orig.rowBytes(), bitmap.rowBytes(),
                  subset.height());
 
     bitmap.setImmutable();
-    return bitmap.asImage();
+    return bitmap;
 }
 
+sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset, GrDirectContext*) const {
+    SkBitmap copy = copy_bitmap_subset(fBitmap, subset);
+    if (copy.isNull()) {
+        return nullptr;
+    } else {
+        return copy.asImage();
+    }
+}
 
 #ifdef SK_GRAPHITE_ENABLED
+static sk_sp<SkMipmap> copy_mipmaps(const SkBitmap& src, SkMipmap* srcMips) {
+    if (!srcMips) {
+        return nullptr;
+    }
+
+    sk_sp<SkMipmap> dst;
+    dst.reset(SkMipmap::Build(src.pixmap(), nullptr, /* computeContents= */ false));
+    for (int i = 0; i < dst->countLevels(); ++i) {
+        SkMipmap::Level srcLevel, dstLevel;
+        srcMips->getLevel(i, &srcLevel);
+        dst->getLevel(i, &dstLevel);
+        srcLevel.fPixmap.readPixels(dstLevel.fPixmap);
+    }
+
+    return dst;
+}
 
 sk_sp<SkImage> SkImage_Raster::onMakeSubset(const SkIRect& subset,
                                             skgpu::graphite::Recorder* recorder,
                                             RequiredImageProperties requiredProperties) const {
-    // TODO: add implementation
-    return nullptr;
-}
+    sk_sp<SkImage> img;
 
+    if (requiredProperties.fMipmapped == skgpu::graphite::Mipmapped::kYes) {
+        bool fullCopy = subset == SkIRect::MakeSize(fBitmap.dimensions());
+
+        sk_sp<SkMipmap> mips = fullCopy ? copy_mipmaps(fBitmap, fBitmap.fMips.get()) : nullptr;
+
+        // SkImage::withMipmaps will always make a copy for us so we can temporarily share
+        // the pixel ref with fBitmap
+        SkBitmap tmpSubset;
+        if (!fBitmap.extractSubset(&tmpSubset, subset)) {
+            return nullptr;
+        }
+
+        sk_sp<SkImage> tmp(new SkImage_Raster(tmpSubset, /* bitmapMayBeMutable= */ true));
+
+        // withMipmaps will auto generate the mipmaps if a nullptr is passed in
+        SkASSERT(!mips || mips->validForRootLevel(tmp->imageInfo()));
+        img = tmp->withMipmaps(std::move(mips));
+    } else {
+        SkBitmap copy = copy_bitmap_subset(fBitmap, subset);
+        if (!copy.isNull()) {
+            img = copy.asImage();
+        }
+    }
+
+    if (!img) {
+        return nullptr;
+    }
+
+    if (recorder) {
+        return img->makeTextureImage(recorder, requiredProperties);
+    } else {
+        return img;
+    }
+}
 #endif // SK_GRAPHITE_ENABLED
 
 ///////////////////////////////////////////////////////////////////////////////
