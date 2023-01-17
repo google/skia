@@ -42,6 +42,13 @@
  */
 //#define SkDebugf(...)  MyFunction(__VA_ARGS__)
 
+/* Skia has both debug and release asserts. When an assert fails SK_ABORT will
+ * be used to report an abort message. SK_ABORT is expected not to return. Skia
+ * provides a default implementation which will print the message with SkDebugf
+ * and then call sk_abort_no_print.
+ */
+//#define SK_ABORT(message, ...)
+
 /*
  *  To specify a different default font cache limit, define this. If this is
  *  undefined, skia will use a built-in value.
@@ -85,5 +92,18 @@
 //#define SK_HISTOGRAM_ENUMERATION(name, sample, enum_size)
 //#define SK_HISTOGRAM_EXACT_LINEAR(name, sample, value_max)
 //#define SK_HISTOGRAM_MEMORY_KB(name, sample)
+
+/* Skia tries to make use of some non-standard C++ language extensions.
+ * By default Skia provides msvc and clang/gcc versions of these macros.
+ * Skia consumers can provide their own definitions of these macros to
+ * integrate with their own compilers and build system.
+ */
+//#define SK_UNUSED [[maybe_unused]]
+//#define SK_WARN_UNUSED_RESULT [[nodiscard]]
+//#define SK_ALWAYS_INLINE inline __attribute__((always_inline))
+//#define SK_NEVER_INLINE __attribute__((noinline))
+//#define SK_PRINTF_LIKE(A, B) __attribute__((format(printf, (A), (B))))
+//#define SK_NO_SANITIZE(A) __attribute__((no_sanitize(A)))
+
 
 #endif

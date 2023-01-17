@@ -150,7 +150,7 @@ static inline int64_t sk_float_saturate2int64(float x) {
 // Cast double to float, ignoring any warning about too-large finite values being cast to float.
 // Clang thinks this is undefined, but it's actually implementation defined to return either
 // the largest float or infinity (one of the two bracketing representable floats).  Good enough!
-SK_ATTRIBUTE(no_sanitize("float-cast-overflow"))
+SK_NO_SANITIZE("float-cast-overflow")
 static inline float sk_double_to_float(double x) {
     return static_cast<float>(x);
 }
@@ -196,12 +196,12 @@ static inline int sk_float_nextlog2(float x) {
 // IEEE defines how float divide behaves for non-finite values and zero-denoms, but C does not
 // so we have a helper that suppresses the possible undefined-behavior warnings.
 
-SK_ATTRIBUTE(no_sanitize("float-divide-by-zero"))
+SK_NO_SANITIZE("float-divide-by-zero")
 static inline float sk_ieee_float_divide(float numer, float denom) {
     return numer / denom;
 }
 
-SK_ATTRIBUTE(no_sanitize("float-divide-by-zero"))
+SK_NO_SANITIZE("float-divide-by-zero")
 static inline double sk_ieee_double_divide(double numer, double denom) {
     return numer / denom;
 }

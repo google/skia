@@ -5,14 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkFeatures.h" // IWYU pragma: keep
+#ifndef SkAttributes_DEFINED
+#define SkAttributes_DEFINED
 
-#if !defined(SK_ATTRIBUTE)
-#  if defined(__clang__) || defined(__GNUC__)
-#    define SK_ATTRIBUTE(attr) __attribute__((attr))
-#  else
-#    define SK_ATTRIBUTE(attr)
-#  endif
+#include "include/private/base/SkFeatures.h" // IWYU pragma: keep
+#include "include/private/base/SkLoadUserConfig.h" // IWYU pragma: keep
+
+#if defined(__clang__) || defined(__GNUC__)
+#  define SK_ATTRIBUTE(attr) __attribute__((attr))
+#else
+#  define SK_ATTRIBUTE(attr)
 #endif
 
 #if !defined(SK_UNUSED)
@@ -51,4 +53,22 @@
 #  else
 #    define SK_NEVER_INLINE SK_ATTRIBUTE(noinline)
 #  endif
+#endif
+
+/**
+ * Used to annotate a function as taking printf style arguments.
+ * `A` is the (1 based) index of the format string argument.
+ * `B` is the (1 based) index of the first argument used by the format string.
+ */
+#if !defined(SK_PRINTF_LIKE)
+#  define SK_PRINTF_LIKE(A, B) SK_ATTRIBUTE(format(printf, (A), (B)))
+#endif
+
+/**
+ * Used to ignore sanitizer warnings.
+ */
+#if !defined(SK_NO_SANITIZE)
+#  define SK_NO_SANITIZE(A) SK_ATTRIBUTE(no_sanitize(A))
+#endif
+
 #endif

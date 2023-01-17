@@ -12,7 +12,6 @@
 // They should also be able to be included in any order.
 // IWYU pragma: begin_exports
 #include "include/private/base/SkAPI.h"
-#include "include/private/base/SkAttributes.h"
 #include "include/private/base/SkFeatures.h"
 
 // Load and verify defines from the user config file.
@@ -20,6 +19,7 @@
 
 // Any includes or defines below can be configured by the user config file.
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkAttributes.h"
 #include "include/private/base/SkDebug.h"
 // IWYU pragma: end_exports
 
