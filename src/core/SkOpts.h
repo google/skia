@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkOpts_spi.h"
-#include "src/core/SkRasterPipeline.h"
+#include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkXfermodePriv.h"
 
 /**
@@ -59,6 +59,7 @@
  */
 
 struct SkBitmapProcState;
+struct SkRasterPipelineStage;
 namespace skvm {
 struct InterpreterInstruction;
 class TraceHook;
@@ -115,11 +116,11 @@ namespace SkOpts {
     extern void (*S32_alpha_D32_filter_DXDY)(const SkBitmapProcState&,
                                              const uint32_t* xy, int count, SkPMColor*);
 
-    // We can't necessarily express the type of SkJumper stage functions here,
+    // We can't necessarily express the type of SkRasterPipeline stage functions here,
     // so we just use this void(*)(void) as a stand-in.
     using StageFn = void(*)(void);
-    extern StageFn ops_highp[SkRasterPipeline::kNumHighpOps], just_return_highp;
-    extern StageFn ops_lowp [SkRasterPipeline::kNumLowpOps ], just_return_lowp;
+    extern StageFn ops_highp[kNumRasterPipelineHighpOps], just_return_highp;
+    extern StageFn ops_lowp [kNumRasterPipelineLowpOps ], just_return_lowp;
 
     extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, SkRasterPipelineStage*);
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, SkRasterPipelineStage*);

@@ -12,6 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMalloc.h"
 #include "modules/skcms/skcms.h"
+#include "src/core/SkRasterPipeline.h"
 #include "src/core/SkUtils.h"  // unaligned_{load,store}
 #include <cstdint>
 

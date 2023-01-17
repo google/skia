@@ -168,4 +168,10 @@ enum class SkRasterPipelineOp {
 #undef M
 };
 
+// A count of raster pipeline ops:
+#define M(st) +1
+    static constexpr int kNumRasterPipelineLowpOps  = SK_RASTER_PIPELINE_OPS_LOWP(M);
+    static constexpr int kNumRasterPipelineHighpOps = SK_RASTER_PIPELINE_OPS_ALL(M);
+#undef M
+
 #endif  // SkRasterPipelineOpList_DEFINED

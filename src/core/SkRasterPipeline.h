@@ -70,11 +70,6 @@ public:
 
     void reset();
 
-#define M(st) +1
-    static constexpr int kNumLowpOps  = SK_RASTER_PIPELINE_OPS_LOWP(M);
-    static constexpr int kNumHighpOps = SK_RASTER_PIPELINE_OPS_ALL(M);
-#undef M
-
     void append(SkRasterPipelineOp, void* = nullptr);
     void append(SkRasterPipelineOp op, const void* ctx) { this->append(op,const_cast<void*>(ctx)); }
     void append(SkRasterPipelineOp, uintptr_t ctx);
