@@ -30,7 +30,7 @@ load(":clang_layering_check.bzl", "make_layering_check_features")
 EXTERNAL_TOOLCHAIN = "external/clang_mac"
 
 # Root of our symlinks. These symlinks are created in download_mac_toolchain.bzl
-XCODE_SYMLINK = EXTERNAL_TOOLCHAIN + "/symlinks/xcode/MacSDK"
+XCODE_MACSDK_SYMLINK = EXTERNAL_TOOLCHAIN + "/symlinks/xcode/MacSDK"
 
 _platform_constraints_to_import = {
     "@platforms//cpu:arm64": "_arm64_cpu",
@@ -278,7 +278,7 @@ def _make_default_flags():
                     "-isystem",
                     EXTERNAL_TOOLCHAIN + "/include/c++/v1",
                     "-isystem",
-                    XCODE_SYMLINK + "/usr/include",
+                    XCODE_MACSDK_SYMLINK + "/usr/include",
                     "-isystem",
                     EXTERNAL_TOOLCHAIN + "/lib/clang/15.0.1/include",
                     # Set the framework path to the Mac SDK framework directory. This has
@@ -286,7 +286,7 @@ def _make_default_flags():
                     # We want -iframework so Clang hides diagnostic warnings from those header
                     # files we include. -F does not hide those.
                     "-iframework",
-                    XCODE_SYMLINK + "/Frameworks",
+                    XCODE_MACSDK_SYMLINK + "/Frameworks",
                     # We do not want clang to search in absolute paths for files. This makes
                     # Bazel think we are using an outside resource and fail the compile.
                     "-no-canonical-prefixes",
@@ -342,8 +342,7 @@ def _make_default_flags():
                     # -syslibroot appends to the beginning of the dylib dependency path.
                     # https://github.com/llvm/llvm-project/blob/d61341768cf0cff7ceeaddecc2f769b5c1b901c4/lld/MachO/InputFiles.cpp#L1418-L1420
                     "-Wl,-syslibroot",
-                    # symlink created in download_mac_toolchain.bzl
-                    "~/.skiabazel/symlinks/xcode/MacSDK/",
+                    XCODE_MACSDK_SYMLINK,
                     "-fuse-ld=lld",
                     # We chose to use the llvm runtime, not the gcc one because it is already
                     # included in the clang binary

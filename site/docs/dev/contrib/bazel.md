@@ -66,9 +66,6 @@ Our Bazel toolchain assumes you have `xcode-select` in your path so that we may 
 user's current Xcode directory in the toolchain's cache. Make sure `xcode-select -p`
 returns a valid path.
 
-The toolchain will also create a symlink in `.skiabazel` in your home directory. If you change your
-targeted Xcode after building, you will need to run `bazel clean --expunge` to rebuilt the symlink.
-
 ## .bazelrc Tips
 You should make a [.bazelrc file](https://bazel.build/docs/bazelrc) in your home directory where
 you can specify settings that apply only to you. These can augment or replace the ones we define
