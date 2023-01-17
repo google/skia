@@ -8,7 +8,6 @@
 #include "src/gpu/graphite/Image_Graphite.h"
 
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkImageInfo.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/RefCntedCallback.h"
@@ -17,45 +16,27 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
-#include "src/gpu/graphite/TextureUtils.h"
-
-#if SK_SUPPORT_GPU
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#endif
 
 namespace skgpu::graphite {
 
 Image::Image(uint32_t uniqueID,
              TextureProxyView view,
              const SkColorInfo& info)
-    : SkImage_Base(SkImageInfo::Make(view.proxy()->dimensions(), info), uniqueID)
+    : Image_Base(SkImageInfo::Make(view.proxy()->dimensions(), info), uniqueID)
     , fTextureProxyView(std::move(view)) {
 }
 
 Image::Image(TextureProxyView view,
              const SkColorInfo& info)
-    : SkImage_Base(SkImageInfo::Make(view.proxy()->dimensions(), info), kNeedNewImageUniqueID)
+    : Image_Base(SkImageInfo::Make(view.proxy()->dimensions(), info), kNeedNewImageUniqueID)
     , fTextureProxyView(std::move(view)) {
 }
 
 Image::~Image() {}
 
-sk_sp<SkImage> Image::onMakeSubset(const SkIRect&, GrDirectContext*) const {
-    SKGPU_LOG_W("Cannot convert Graphite-backed image to Ganesh");
-    return nullptr;
-}
-
 sk_sp<SkImage> Image::onMakeSubset(const SkIRect& subset,
                                    Recorder* recorder,
                                    RequiredImageProperties requiredProps) const {
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-
-    // optimization : return self if the subset == our bounds
-    if (bounds == subset && (requiredProps.fMipmapped == Mipmapped::kNo || this->hasMipmaps())) {
-        const SkImage* image = this;
-        return sk_ref_sp(const_cast<SkImage*>(image));
-    }
-
     TextureProxyView srcView = this->textureProxyView();
     if (!srcView) {
         return nullptr;
@@ -75,51 +56,11 @@ sk_sp<SkImage> Image::onMakeSubset(const SkIRect& subset,
                                   this->imageInfo().colorInfo()));
 }
 
-sk_sp<SkImage> Image::onMakeColorTypeAndColorSpace(SkColorType,
-                                                   sk_sp<SkColorSpace>,
-                                                   GrDirectContext*) const {
-    return nullptr;
-}
-
 sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
     return sk_make_sp<Image>(kNeedNewImageUniqueID,
                              fTextureProxyView,
                              this->imageInfo().colorInfo().makeColorSpace(std::move(newCS)));
 }
-
-void Image::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
-                                        SkIRect srcRect,
-                                        RescaleGamma rescaleGamma,
-                                        RescaleMode rescaleMode,
-                                        ReadPixelsCallback callback,
-                                        ReadPixelsContext context) const {
-    // TODO
-    callback(context, nullptr);
-}
-
-void Image::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorSpace,
-                                              sk_sp<SkColorSpace> dstColorSpace,
-                                              const SkIRect srcRect,
-                                              const SkISize dstSize,
-                                              RescaleGamma rescaleGamma,
-                                              RescaleMode rescaleMode,
-                                              ReadPixelsCallback callback,
-                                              ReadPixelsContext context) const {
-    // TODO
-    callback(context, nullptr);
-}
-
-#if SK_SUPPORT_GPU
-std::unique_ptr<GrFragmentProcessor> Image::onAsFragmentProcessor(
-        GrRecordingContext*,
-        SkSamplingOptions,
-        const SkTileMode[2],
-        const SkMatrix&,
-        const SkRect* subset,
-        const SkRect* domain) const {
-    return nullptr;
-}
-#endif
 
 sk_sp<SkImage> Image::onMakeTextureImage(Recorder* recorder,
                                          RequiredImageProperties requiredProps) const {
@@ -172,41 +113,6 @@ bool validate_backend_texture(const Caps* caps,
 }
 
 } // anonymous namespace
-
-using namespace skgpu::graphite;
-
-sk_sp<SkImage> SkImage::makeTextureImage(Recorder* recorder,
-                                         RequiredImageProperties requiredProps) const {
-    if (!recorder) {
-        return nullptr;
-    }
-    if (this->dimensions().area() <= 1) {
-        requiredProps.fMipmapped = Mipmapped::kNo;
-    }
-
-    if (as_IB(this)->isGraphiteBacked()) {
-        if (requiredProps.fMipmapped == Mipmapped::kNo || this->hasMipmaps()) {
-            const SkImage* image = this;
-            return sk_ref_sp(const_cast<SkImage*>(image));
-        }
-    }
-    return as_IB(this)->onMakeTextureImage(recorder, requiredProps);
-}
-
-sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset,
-                                   skgpu::graphite::Recorder* recorder,
-                                   RequiredImageProperties requiredProps) const {
-    if (subset.isEmpty()) {
-        return nullptr;
-    }
-
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-    if (!bounds.contains(subset)) {
-        return nullptr;
-    }
-
-    return as_IB(this)->onMakeSubset(subset, recorder, requiredProps);
-}
 
 sk_sp<TextureProxy> Image::MakePromiseImageLazyProxy(
         SkISize dimensions,
