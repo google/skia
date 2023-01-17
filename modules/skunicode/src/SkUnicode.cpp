@@ -10,6 +10,8 @@
 #include "include/private/SkBitmaskEnum.h"
 #include "include/private/SkTemplates.h"
 
+using namespace skia_private;
+
 SkString SkUnicode::convertUtf16ToUtf8(const char16_t* utf16, int utf16Units) {
 
     int utf8Units = SkUTF::UTF16ToUTF8(nullptr, 0, (uint16_t*)utf16, utf16Units);
@@ -17,7 +19,7 @@ SkString SkUnicode::convertUtf16ToUtf8(const char16_t* utf16, int utf16Units) {
         SkDEBUGF("Convert error: Invalid utf16 input");
         return SkString();
     }
-    SkAutoTArray<char> utf8(utf8Units);
+    AutoTArray<char> utf8(utf8Units);
     SkDEBUGCODE(int dstLen =) SkUTF::UTF16ToUTF8(utf8.data(), utf8Units, (uint16_t*)utf16, utf16Units);
     SkASSERT(dstLen == utf8Units);
 
@@ -36,7 +38,7 @@ std::u16string SkUnicode::convertUtf8ToUtf16(const char* utf8, int utf8Units) {
         return std::u16string();
     }
 
-    SkAutoTArray<uint16_t> utf16(utf16Units);
+    AutoTArray<uint16_t> utf16(utf16Units);
     SkDEBUGCODE(int dstLen =) SkUTF::UTF8ToUTF16(utf16.data(), utf16Units, utf8, utf8Units);
     SkASSERT(dstLen == utf16Units);
 

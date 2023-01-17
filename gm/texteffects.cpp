@@ -26,6 +26,8 @@
 
 #include <string.h>
 
+using namespace skia_private;
+
 static SkPath create_underline(const SkTDArray<SkScalar>& intersections,
         SkScalar last, SkScalar finalPos,
         SkScalar uPos, SkScalar uWidth, SkScalar textSize) {
@@ -52,9 +54,9 @@ namespace {
 sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const SkFont& font, const char* text) {
     const size_t textLen = strlen(text);
     const int glyphCount = font.countText(text, textLen, SkTextEncoding::kUTF8);
-    SkAutoTArray<SkGlyphID> glyphs(glyphCount);
+    AutoTArray<SkGlyphID> glyphs(glyphCount);
     font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs.get(), glyphCount);
-    SkAutoTArray<SkScalar> widths(glyphCount);
+    AutoTArray<SkScalar> widths(glyphCount);
     font.getWidths(glyphs.get(), glyphCount, widths.get());
 
     SkTextBlobBuilder blobBuilder;
@@ -155,7 +157,7 @@ static sk_sp<SkTextBlob> make_text(const SkFont& font, const SkGlyphID glyphs[],
 
 static sk_sp<SkTextBlob> make_posh(const SkFont& font, const SkGlyphID glyphs[], int count,
                                    SkScalar spacing) {
-    SkAutoTArray<SkScalar> xpos(count);
+    AutoTArray<SkScalar> xpos(count);
     font.getXPos(glyphs, count, xpos.get());
     for (int i = 1; i < count; ++i) {
         xpos[i] += spacing * i;
@@ -166,7 +168,7 @@ static sk_sp<SkTextBlob> make_posh(const SkFont& font, const SkGlyphID glyphs[],
 
 static sk_sp<SkTextBlob> make_pos(const SkFont& font, const SkGlyphID glyphs[], int count,
                                   SkScalar spacing) {
-    SkAutoTArray<SkPoint> pos(count);
+    AutoTArray<SkPoint> pos(count);
     font.getPos(glyphs, count, pos.get());
     for (int i = 1; i < count; ++i) {
         pos[i].fX += spacing * i;
@@ -212,7 +214,7 @@ static void draw_blob_adorned(SkCanvas* canvas, sk_sp<SkTextBlob> blob) {
         return;
     }
 
-    SkAutoTArray<SkScalar> intervals(count);
+    AutoTArray<SkScalar> intervals(count);
     blob->getIntercepts(yminmax, intervals.get());
     count = trim_with_halo(intervals.get(), count, SkScalarHalf(yminmax[1] - yminmax[0]) * 1.5f);
     SkASSERT(count >= 2);
@@ -242,7 +244,7 @@ DEF_SIMPLE_GM(textblob_intercepts, canvas, 940, 800) {
     font.setSize(100);
     font.setEdging(SkFont::Edging::kAntiAlias);
     const int count = font.countText(text, length, SkTextEncoding::kUTF8);
-    SkAutoTArray<SkGlyphID> glyphs(count);
+    AutoTArray<SkGlyphID> glyphs(count);
     font.textToGlyphs(text, length, SkTextEncoding::kUTF8, glyphs.get(), count);
 
     auto b0 = make_text(font, glyphs.get(), count);

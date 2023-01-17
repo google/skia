@@ -48,7 +48,7 @@ private:
     friend SkRemotableFontIdentitySet* sk_remotable_font_identity_set_new();
 
     int fCount;
-    SkAutoTArray<SkFontIdentity> fData;
+    skia_private::AutoTArray<SkFontIdentity> fData;
 
     using INHERITED = SkRefCnt;
 };

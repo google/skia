@@ -86,8 +86,8 @@
     <DisplayString>{fName}</DisplayString>
   </Type>
 
-  <!-- SkAutoTArray -->
-  <Type Name="SkAutoTArray&lt;*&gt;">
+  <!-- AutoTArray -->
+  <Type Name="AutoTArray&lt;*&gt;">
     <DisplayString>{{size = {fCount}}}</DisplayString>
     <Expand>
       <Item Name="[size]">fCount</Item>

@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 # The following Skia types can be natively visualized in LLDB:
-# - SkAutoTArray, SkAutoSTArray
+# - AutoTArray, SkAutoSTArray
 # - SkString
 # - SkTArray, SkSTArray
 # - sk_sp
@@ -83,7 +83,7 @@ class SkTArray_SynthProvider:
         return True
 
 
-class SkAutoTArray_SynthProvider:
+class AutoTArray_SynthProvider:
 
     def __init__(self, valobj, dict):
         self.valobj = valobj
@@ -217,7 +217,7 @@ def __lldb_init_module(debugger, dict):
     debugger.HandleCommand(
         'type summary add --summary-string "size=${svar%#}" -e -x "^SkS?TArray<.+>$" -w skia')
     debugger.HandleCommand(
-        'type synthetic add -l skia.SkAutoTArray_SynthProvider -x "^SkAutoS?TArray<.+>$" -w skia')
+        'type synthetic add -l skia.AutoTArray_SynthProvider -x "^SkAutoS?TArray<.+>$" -w skia')
     debugger.HandleCommand(
         'type summary add --summary-string "size=${svar%#}" -e -x "^SkAutoS?TArray<.+>$" -w skia')
     debugger.HandleCommand("type category enable skia")

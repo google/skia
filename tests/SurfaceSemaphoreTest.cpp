@@ -58,6 +58,8 @@ namespace skgpu { struct VulkanInterface; }
 #endif
 #endif
 
+using namespace skia_private;
+
 struct GrContextOptions;
 
 static const int MAIN_W = 8, MAIN_H = 16;
@@ -156,7 +158,7 @@ void surface_semaphore_test(skiatest::Reporter* reporter,
     blueSurface.reset();
     mainCanvas->drawImage(blueImage, 0, 0);
 
-    SkAutoTArray<GrBackendSemaphore> semaphores(2);
+    AutoTArray<GrBackendSemaphore> semaphores(2);
 #ifdef SK_VULKAN
     if (GrBackendApi::kVulkan == mainInfo.backend()) {
         // Initialize the secondary semaphore instead of having Ganesh create one internally

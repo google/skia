@@ -4,6 +4,9 @@
 #include "experimental/sktext/src/VisualRun.h"
 #include <memory>
 #include <stack>
+
+using namespace skia_private;
+
 namespace skia {
 namespace text {
 UnicodeText::UnicodeText(std::unique_ptr<SkUnicode> unicode, SkSpan<uint16_t> utf16)
@@ -95,7 +98,7 @@ bool FontResolvedText::resolveChain(UnicodeText* unicodeText, TextRange textRang
             auto start = newUnresolvedTexts.size();
             unicodeText->forEachGrapheme(unresolvedText, [&](TextRange grapheme) {
                 auto count = typeface->textToGlyphs(unicodeText->getText16().data() + grapheme.fStart, grapheme.width() * 2, SkTextEncoding::kUTF16, nullptr, 0);
-                SkAutoTArray<SkGlyphID> glyphs(count);
+                AutoTArray<SkGlyphID> glyphs(count);
                 typeface->textToGlyphs(unicodeText->getText16().data() + grapheme.fStart, grapheme.width() * 2, SkTextEncoding::kUTF16, glyphs.data(), count);
                 for (auto i = 0; i < count; ++i) {
                     if (glyphs[i] == 0) {

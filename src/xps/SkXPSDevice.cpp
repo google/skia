@@ -1000,8 +1000,8 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
         }
 
         SkMatrix localMatrix;
-        SkAutoTArray<SkColor> colors(info.fColorCount);
-        SkAutoTArray<SkScalar> colorOffsets(info.fColorCount);
+        AutoTArray<SkColor> colors(info.fColorCount);
+        AutoTArray<SkScalar> colorOffsets(info.fColorCount);
         info.fColors = colors.get();
         info.fColorOffsets = colorOffsets.get();
         as_SB(shader)->asGradient(&info, &localMatrix);

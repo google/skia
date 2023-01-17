@@ -111,7 +111,7 @@ static void test_container_apis(skiatest::Reporter* reporter) {
 }
 
 DEF_TEST(TemplateContainerAPIs, reporter) {
-    test_container_apis<SkAutoTArray<int>, int>(reporter);
+    test_container_apis<AutoTArray<int>, int>(reporter);
     test_container_apis<SkAutoSTArray<kStackPreallocCount, int>, int>(reporter);
     test_container_apis<AutoTMalloc<int>, size_t>(reporter);
     test_container_apis<AutoSTMalloc<kStackPreallocCount, int>, size_t>(reporter);

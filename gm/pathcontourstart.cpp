@@ -20,6 +20,8 @@
 #include "include/private/SkTemplates.h"
 #include "include/private/base/SkTArray.h"
 
+using namespace skia_private;
+
 namespace skiagm {
 
 class ContourStartGM : public GM {
@@ -107,7 +109,7 @@ private:
             canvas->drawPath(path, fDashPaint);
 
             const int n = path.countPoints();
-            SkAutoTArray<SkPoint> points(n);
+            AutoTArray<SkPoint> points(n);
             path.getPoints(points.get(), n);
             canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points.get(), fPointsPaint);
 

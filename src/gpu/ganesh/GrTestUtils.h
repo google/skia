@@ -91,12 +91,12 @@ private:
 
     bool computeFastBounds(SkRect* bounds) const override { return true; }
 
-    int                     fCount;
-    SkAutoTArray<SkScalar>  fIntervals;
-    SkScalar                fPhase;
-    SkScalar                fInitialDashLength;
-    int                     fInitialDashIndex;
-    SkScalar                fIntervalLength;
+    int                                 fCount;
+    skia_private::AutoTArray<SkScalar>  fIntervals;
+    SkScalar                            fPhase;
+    SkScalar                            fInitialDashLength;
+    int                                 fInitialDashIndex;
+    SkScalar                            fIntervalLength;
 };
 
 }  // namespace GrTest

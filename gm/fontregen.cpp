@@ -36,12 +36,13 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/ToolUtils.h"
 
+using namespace skia_private;
 using MaskFormat = skgpu::MaskFormat;
 
 static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
     size_t len = text.size();
-    SkAutoTArray<SkScalar>  pos(len);
-    SkAutoTArray<SkGlyphID> glyphs(len);
+    AutoTArray<SkScalar>  pos(len);
+    AutoTArray<SkGlyphID> glyphs(len);
 
     font.textToGlyphs(text.c_str(), len, SkTextEncoding::kUTF8, glyphs.get(), len);
     font.getXPos(glyphs.get(), len, pos.get());

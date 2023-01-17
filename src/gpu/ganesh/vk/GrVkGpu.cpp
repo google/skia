@@ -53,6 +53,8 @@
 
 #include <utility>
 
+using namespace skia_private;
+
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RESULT(this, RET, X)
 
@@ -966,7 +968,7 @@ bool GrVkGpu::uploadTexDataOptimal(GrVkImage* texImage,
     // texels is const.
     // But we may need to adjust the fPixels ptr based on the copyRect, or fRowBytes.
     // Because of this we need to make a non-const shallow copy of texels.
-    SkAutoTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
+    AutoTArray<GrMipLevel> texelsShallowCopy(mipLevelCount);
     std::copy_n(texels, mipLevelCount, texelsShallowCopy.get());
 
     SkTArray<size_t> individualMipOffsets;

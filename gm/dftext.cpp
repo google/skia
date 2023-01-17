@@ -32,6 +32,8 @@
 
 #include <string.h>
 
+using namespace skia_private;
+
 class DFTextGM : public skiagm::GM {
 public:
     DFTextGM() {
@@ -130,9 +132,9 @@ protected:
 
             canvas->scale(2.0f, 2.0f);
 
-            SkAutoTArray<SkGlyphID> glyphs(SkToInt(textLen));
+            AutoTArray<SkGlyphID> glyphs(SkToInt(textLen));
             int count = font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs.get(), textLen);
-            SkAutoTArray<SkPoint>  pos(count);
+            AutoTArray<SkPoint>  pos(count);
             font.setSize(textSizes[0]);
             font.getPos(glyphs.get(), count, pos.get(), {340, 75});
 

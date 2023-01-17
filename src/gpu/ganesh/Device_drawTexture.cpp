@@ -33,6 +33,8 @@
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkImage_Gpu.h"
 
+using namespace skia_private;
+
 namespace {
 
 inline bool use_shader(bool textureIsAlphaOnly, const SkPaint& paint) {
@@ -873,7 +875,7 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
                                             : GrSamplerState::Filter::kLinear;
     SkBlendMode mode = paint.getBlendMode_or(SkBlendMode::kSrcOver);
 
-    SkAutoTArray<GrTextureSetEntry> textures(count);
+    AutoTArray<GrTextureSetEntry> textures(count);
     // We accumulate compatible proxies until we find an an incompatible one or reach the end and
     // issue the accumulated 'n' draws starting at 'base'. 'p' represents the number of proxy
     // switches that occur within the 'n' entries.

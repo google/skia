@@ -53,6 +53,8 @@
 #include <cstring>
 #include <string>
 
+using namespace skia_private;
+
 struct GrContextOptions;
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
@@ -113,7 +115,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrDirectContext*
     int count = std::min(fm->countFamilies(), maxFamilies);
 
     // make a ton of text
-    SkAutoTArray<uint16_t> text(maxTotalText);
+    AutoTArray<uint16_t> text(maxTotalText);
     for (int i = 0; i < maxTotalText; i++) {
         text[i] = i % maxGlyphID;
     }

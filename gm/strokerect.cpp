@@ -21,6 +21,8 @@
 
 #include <float.h>
 
+using namespace skia_private;
+
 #define STROKE_WIDTH    SkIntToScalar(20)
 
 static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect,
@@ -42,7 +44,7 @@ static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect,
     paint.setStrokeWidth(3);
     paint.setStrokeJoin(SkPaint::kMiter_Join);
     int n = path.countPoints();
-    SkAutoTArray<SkPoint> points(n);
+    AutoTArray<SkPoint> points(n);
     path.getPoints(points.get(), n);
     canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points.get(), paint);
 }

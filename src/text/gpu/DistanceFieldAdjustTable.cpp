@@ -9,6 +9,8 @@
 
 #include "src/core/SkScalerContext.h"
 
+using namespace skia_private;
+
 namespace sktext::gpu {
 
 SkDEBUGCODE(static const int kExpectedDistanceAdjustTableSize = 8;)
@@ -64,7 +66,7 @@ SkScalar* build_distance_adjust_table(SkScalar paintGamma, SkScalar deviceGamma)
     SkASSERT(kExpectedDistanceAdjustTableSize == height);
     SkScalar* table = new SkScalar[height];
 
-    SkAutoTArray<uint8_t> data((int)size);
+    AutoTArray<uint8_t> data((int)size);
     if (!SkScalerContext::GetGammaLUTData(contrast, paintGamma, deviceGamma, data.get())) {
         // if no valid data is available simply do no adjustment
         for (int row = 0; row < height; ++row) {

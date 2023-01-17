@@ -349,7 +349,7 @@ RECORD(DrawEdgeAAQuad, kDraw_Tag,
        SkBlendMode mode)
 RECORD(DrawEdgeAAImageSet, kDraw_Tag|kHasImage_Tag|kHasPaint_Tag,
        Optional<SkPaint> paint;
-       SkAutoTArray<SkCanvas::ImageSetEntry> set;
+       skia_private::AutoTArray<SkCanvas::ImageSetEntry> set;
        int count;
        PODArray<SkPoint> dstClips;
        PODArray<SkMatrix> preViewMatrices;

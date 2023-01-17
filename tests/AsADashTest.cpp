@@ -13,6 +13,8 @@
 #include "include/private/SkTemplates.h"
 #include "tests/Test.h"
 
+using namespace skia_private;
+
 DEF_TEST(AsADashTest_noneDash, reporter) {
     sk_sp<SkPathEffect> pe(SkCornerPathEffect::Make(1.0));
     SkPathEffect::DashInfo info;
@@ -45,7 +47,7 @@ DEF_TEST(AsADashTest_usingDash, reporter) {
     REPORTER_ASSERT(reporter, SkScalarMod(phase, totalIntSum) == info.fPhase);
 
     // Since it is a kDash_DashType, allocate space for the intervals and recall asADash
-    SkAutoTArray<SkScalar> intervals(info.fCount);
+    AutoTArray<SkScalar> intervals(info.fCount);
     info.fIntervals = intervals.get();
     pe->asADash(&info);
     REPORTER_ASSERT(reporter, inIntervals[0] == info.fIntervals[0]);

@@ -10,6 +10,8 @@
 #include "src/gpu/ganesh/GrSPIRVUniformHandler.h"
 #include "src/gpu/ganesh/d3d/GrD3DGpu.h"
 
+using namespace skia_private;
+
 sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTextureSamplers,
                                                    int numUAVs) {
     // Just allocate enough space for 3 in case we need it.
@@ -23,8 +25,8 @@ sk_sp<GrD3DRootSignature> GrD3DRootSignature::Make(GrD3DGpu* gpu, int numTexture
     int parameterCount = 1;
 
     int numShaderViews = numTextureSamplers + numUAVs;
-    SkAutoTArray<D3D12_DESCRIPTOR_RANGE> samplerRanges(numTextureSamplers);
-    SkAutoTArray<D3D12_DESCRIPTOR_RANGE> shaderViewRanges(numShaderViews);
+    AutoTArray<D3D12_DESCRIPTOR_RANGE> samplerRanges(numTextureSamplers);
+    AutoTArray<D3D12_DESCRIPTOR_RANGE> shaderViewRanges(numShaderViews);
     if (numTextureSamplers) {
         // Now handle the textures and samplers. We need a range for each sampler because of the
         // interaction between how we set bindings and spirv-cross. Each binding value is used for

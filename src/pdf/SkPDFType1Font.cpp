@@ -306,7 +306,7 @@ void SkPDFEmitType1Font(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
         auto widths = SkPDFMakeArray();
 
         int glyphRangeSize = lastGlyphID - firstGlyphID + 2;
-        SkAutoTArray<SkGlyphID> glyphIDs{glyphRangeSize};
+        AutoTArray<SkGlyphID> glyphIDs{glyphRangeSize};
         glyphIDs[0] = 0;
         for (unsigned gId = firstGlyphID; gId <= lastGlyphID; gId++) {
             glyphIDs[gId - firstGlyphID + 1] = gId;

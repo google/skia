@@ -757,7 +757,7 @@ private:
         };
         TargetBinding fTargetBindings[3];
     };
-    SkAutoTArray<TextureUnitBindings> fHWTextureUnitBindings;
+    skia_private::AutoTArray<TextureUnitBindings> fHWTextureUnitBindings;
 
     GrGLfloat fHWClearColor[4];
 

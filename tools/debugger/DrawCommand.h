@@ -744,13 +744,13 @@ public:
     void execute(SkCanvas* canvas) const override;
 
 private:
-    SkAutoTArray<SkCanvas::ImageSetEntry> fSet;
-    int                                   fCount;
-    SkAutoTArray<SkPoint>                 fDstClips;
-    SkAutoTArray<SkMatrix>                fPreViewMatrices;
-    SkSamplingOptions                     fSampling;
-    SkTLazy<SkPaint>                      fPaint;
-    SkCanvas::SrcRectConstraint           fConstraint;
+    skia_private::AutoTArray<SkCanvas::ImageSetEntry> fSet;
+    int                                               fCount;
+    skia_private::AutoTArray<SkPoint>                 fDstClips;
+    skia_private::AutoTArray<SkMatrix>                fPreViewMatrices;
+    SkSamplingOptions                                 fSampling;
+    SkTLazy<SkPaint>                                  fPaint;
+    SkCanvas::SrcRectConstraint                       fConstraint;
 
     using INHERITED = DrawCommand;
 };

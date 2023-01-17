@@ -41,6 +41,8 @@
 
 #include <initializer_list>
 
+using namespace skia_private;
+
 class DrawAtlasGM : public skiagm::GM {
     static sk_sp<SkImage> MakeAtlas(SkCanvas* caller, const SkRect& target) {
         SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
@@ -146,7 +148,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
                                 std::max(SkScalarAbs(fontb.fTop), SkScalarAbs(fontb.fBottom)));
     const SkRect bounds = path.getBounds().makeOutset(max, max);
 
-    SkAutoTArray<SkGlyphID> glyphs(count);
+    AutoTArray<SkGlyphID> glyphs(count);
     font.textToGlyphs(text, length, SkTextEncoding::kUTF8, glyphs.get(), count);
     font.getWidths(glyphs.get(), count, widths);
 

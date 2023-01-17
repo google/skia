@@ -47,6 +47,8 @@
 #endif // SK_GPU_V1
 #endif // SK_SUPPORT_GPU
 
+using namespace skia_private;
+
 class SkBlurMaskFilterImpl : public SkMaskFilterBase {
 public:
     SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle, bool respectCTM);
@@ -702,7 +704,7 @@ static void create_circle_profile(uint8_t* weights,
     // Number of x steps at which to apply kernel in y to cover all the profile samples in x.
     int numYSteps = numSteps + 2 * halfKernelSize;
 
-    SkAutoTArray<float> bulkAlloc(halfKernelSize + halfKernelSize + numYSteps);
+    AutoTArray<float> bulkAlloc(halfKernelSize + halfKernelSize + numYSteps);
     float* halfKernel = bulkAlloc.get();
     float* summedKernel = bulkAlloc.get() + halfKernelSize;
     float* yEvals = bulkAlloc.get() + 2 * halfKernelSize;
@@ -725,7 +727,7 @@ static void create_half_plane_profile(uint8_t* profile, int profileWidth) {
     float sigma = profileWidth / 6.f;
     int halfKernelSize = profileWidth / 2;
 
-    SkAutoTArray<float> halfKernel(halfKernelSize);
+    AutoTArray<float> halfKernel(halfKernelSize);
 
     // The half kernel should sum to 0.5.
     const float tot = 2.f * make_unnormalized_half_kernel(halfKernel.get(), halfKernelSize, sigma);

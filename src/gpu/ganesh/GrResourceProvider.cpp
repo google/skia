@@ -528,7 +528,7 @@ sk_sp<const GrGpuBuffer> GrResourceProvider::createPatternedIndexBuffer(
         return nullptr;
     }
     uint16_t* data = (uint16_t*) buffer->map();
-    SkAutoTArray<uint16_t> temp;
+    AutoTArray<uint16_t> temp;
     if (!data) {
         temp.reset(reps * patternSize);
         data = temp.get();

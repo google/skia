@@ -36,6 +36,8 @@
 
 #undef ASSERT
 
+using namespace skia_private;
+
 DEF_TEST(Paint_copy, reporter) {
     SkPaint paint;
     // set a few member variables
@@ -204,13 +206,13 @@ DEF_TEST(Font_getpos, r) {
     SkFont font;
     const char text[] = "Hamburgefons!@#!#23425,./;'[]";
     int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
-    SkAutoTArray<uint16_t> glyphStorage(count);
+    AutoTArray<uint16_t> glyphStorage(count);
     uint16_t* glyphs = glyphStorage.get();
     (void)font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, glyphs, count);
 
-    SkAutoTArray<SkScalar> widthStorage(count);
-    SkAutoTArray<SkScalar> xposStorage(count);
-    SkAutoTArray<SkPoint> posStorage(count);
+    AutoTArray<SkScalar> widthStorage(count);
+    AutoTArray<SkScalar> xposStorage(count);
+    AutoTArray<SkPoint> posStorage(count);
 
     SkScalar* widths = widthStorage.get();
     SkScalar* xpos = xposStorage.get();

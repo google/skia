@@ -29,6 +29,7 @@
 #include <memory>
 #include <queue>
 
+using namespace skia_private;
 using ContextType = sk_gpu_test::GrContextFactory::ContextType;
 
 // be careful: `foo(make_fuzz_t<T>(f), make_fuzz_t<U>(f))` is undefined.
@@ -94,7 +95,7 @@ private:
 
     Fuzz* fFuzz = nullptr;
     GrDirectContext* fContext = nullptr;
-    SkAutoTArray<PromiseImageInfo> fPromiseImages{kPromiseImageCount};
+    AutoTArray<PromiseImageInfo> fPromiseImages{kPromiseImageCount};
     sk_sp<SkSurface> fSurface;
     SkSurfaceCharacterization fSurfaceCharacterization;
     std::unique_ptr<SkExecutor> fGpuExecutor = SkExecutor::MakeFIFOThreadPool(1, false);

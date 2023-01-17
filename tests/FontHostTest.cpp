@@ -84,7 +84,7 @@ static void test_countGlyphs(skiatest::Reporter* reporter, const sk_sp<SkTypefac
 
 static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream, int ttcIndex) {
     int n = SkFontStream::GetTableTags(stream, ttcIndex, nullptr);
-    SkAutoTArray<SkFontTableTag> array(n);
+    AutoTArray<SkFontTableTag> array(n);
 
     int n2 = SkFontStream::GetTableTags(stream, ttcIndex, array.get());
     REPORTER_ASSERT(reporter, n == n2);

@@ -413,9 +413,9 @@ static void populate_glyph_to_unicode(HDC fontHdc, const unsigned glyphCount,
         // we can't just use the first and last entry of the range to compute
         // result. We need to enumerate them one by one.
         int count = glyphSet->ranges[i].cGlyphs;
-        SkAutoTArray<WCHAR> chars(count + 1);
+        AutoTArray<WCHAR> chars(count + 1);
         chars[count] = 0;  // termintate string
-        SkAutoTArray<WORD> glyph(count);
+        AutoTArray<WORD> glyph(count);
         for (USHORT j = 0; j < count; ++j) {
             chars[j] = glyphSet->ranges[i].wcLow + j;
         }

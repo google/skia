@@ -138,7 +138,8 @@ public:
 private:
     int                                    fNumXDivisions; // number of tiles horizontally
     int                                    fNumYDivisions; // number of tiles vertically
-    SkAutoTArray<TileData>                 fTiles;        // 'fNumXDivisions' x 'fNumYDivisions'
+    skia_private::AutoTArray<TileData>   fTiles;        // 'fNumXDivisions' x
+    // 'fNumYDivisions'
 
     sk_sp<SkDeferredDisplayList>           fComposeDDL;
 

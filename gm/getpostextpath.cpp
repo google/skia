@@ -23,6 +23,8 @@
 
 #include <string.h>
 
+using namespace skia_private;
+
 static void strokePath(SkCanvas* canvas, const SkPath& path) {
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -52,8 +54,8 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
 
     SkAutoToGlyphs atg(font, text, len, SkTextEncoding::kUTF8);
     const int count = atg.count();
-    SkAutoTArray<SkPoint>  pos(count);
-    SkAutoTArray<SkScalar> widths(count);
+    AutoTArray<SkPoint>  pos(count);
+    AutoTArray<SkScalar> widths(count);
     font.getWidths(atg.glyphs(), count, &widths[0]);
 
     SkRandom rand;

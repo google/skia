@@ -53,6 +53,8 @@
 #include "include/ports/SkTypeface_win.h"
 #endif
 
+using namespace skia_private;
+
 namespace ToolUtils {
 
 const char* alphatype_name(SkAlphaType at) {
@@ -271,7 +273,7 @@ void get_text_path(const SkFont&  font,
                    const SkPoint  pos[]) {
     SkAutoToGlyphs        atg(font, text, length, encoding);
     const int             count = atg.count();
-    SkAutoTArray<SkPoint> computedPos;
+    AutoTArray<SkPoint> computedPos;
     if (pos == nullptr) {
         computedPos.reset(count);
         font.getPos(atg.glyphs(), count, &computedPos[0]);

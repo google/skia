@@ -145,8 +145,8 @@ public:
 
         fCount = 0;
         fCapacity = capacity;
-        SkAutoTArray<Slot> oldSlots = std::move(fSlots);
-        fSlots = SkAutoTArray<Slot>(capacity);
+        skia_private::AutoTArray<Slot> oldSlots = std::move(fSlots);
+        fSlots = skia_private::AutoTArray<Slot>(capacity);
 
         for (int i = 0; i < oldCapacity; i++) {
             Slot& s = oldSlots[i];
@@ -411,7 +411,7 @@ private:
 
     int fCount    = 0,
         fCapacity = 0;
-    SkAutoTArray<Slot> fSlots;
+    skia_private::AutoTArray<Slot> fSlots;
 };
 
 // Maps K->V.  A more user-friendly wrapper around SkTHashTable, suitable for most use cases.

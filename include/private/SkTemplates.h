@@ -90,14 +90,16 @@ public:
     operator T*() const { return this->get(); }
 };
 
+
+namespace skia_private {
 /** Allocate an array of T elements, and free the array in the destructor
  */
-template <typename T> class SkAutoTArray  {
+template <typename T> class AutoTArray  {
 public:
-    SkAutoTArray() {}
+    AutoTArray() {}
     /** Allocate count number of T elements
      */
-    explicit SkAutoTArray(int count) {
+    explicit AutoTArray(int count) {
         SkASSERT(count >= 0);
         if (count) {
             fArray.reset(new T[count]);
@@ -105,10 +107,10 @@ public:
         SkDEBUGCODE(fCount = count;)
     }
 
-    SkAutoTArray(SkAutoTArray&& other) : fArray(std::move(other.fArray)) {
+    AutoTArray(AutoTArray&& other) : fArray(std::move(other.fArray)) {
         SkDEBUGCODE(fCount = other.fCount; other.fCount = 0;)
     }
-    SkAutoTArray& operator=(SkAutoTArray&& other) {
+    AutoTArray& operator=(AutoTArray&& other) {
         if (this != &other) {
             fArray = std::move(other.fArray);
             SkDEBUGCODE(fCount = other.fCount; other.fCount = 0;)
@@ -118,7 +120,7 @@ public:
 
     /** Reallocates given a new count. Reallocation occurs even if new count equals old count.
      */
-    void reset(int count = 0) { *this = SkAutoTArray(count); }
+    void reset(int count = 0) { *this = AutoTArray(count); }
 
     /** Return the array of T elements. Will be NULL if count == 0
      */
@@ -139,8 +141,9 @@ private:
     std::unique_ptr<T[]> fArray;
     SkDEBUGCODE(int fCount = 0;)
 };
+}  // namespace skia_private
 
-/** Wraps SkAutoTArray, with room for kCountRequested elements preallocated.
+/** Wraps AutoTArray, with room for kCountRequested elements preallocated.
  */
 template <int kCountRequested, typename T> class SkAutoSTArray {
 public:

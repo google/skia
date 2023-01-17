@@ -21,6 +21,8 @@
 #include "src/core/SkDraw.h"
 #include "src/core/SkMatrixPriv.h"
 
+using namespace skia_private;
+
 enum Flags {
     kStroke_Flag = 1 << 0,
     kBig_Flag    = 1 << 1
@@ -391,9 +393,9 @@ private:
         kNumVerbs    = 1 << 5,
         kNumPoints   = 1 << 5,
     };
-    SkAutoTArray<int>           fVerbCnts;
-    SkAutoTArray<SkPath::Verb>  fVerbs;
-    SkAutoTArray<SkPoint>       fPoints;
+    AutoTArray<int>           fVerbCnts;
+    AutoTArray<SkPath::Verb>  fVerbs;
+    AutoTArray<SkPoint>       fPoints;
     int                         fCurrPath;
     int                         fCurrVerb;
     int                         fCurrPoint;
@@ -461,8 +463,8 @@ private:
         // must be a pow 2
         kPathCnt = 1 << 5,
     };
-    SkAutoTArray<SkPath> fPaths;
-    SkAutoTArray<SkPath> fCopies;
+    AutoTArray<SkPath> fPaths;
+    AutoTArray<SkPath> fCopies;
 
     using INHERITED = RandomPathBench;
 };
@@ -507,8 +509,8 @@ private:
         // must be a pow 2
         kPathCnt = 1 << 5,
     };
-    SkAutoTArray<SkPath> fPaths;
-    SkAutoTArray<SkPath> fTransformed;
+    AutoTArray<SkPath> fPaths;
+    AutoTArray<SkPath> fTransformed;
 
     SkMatrix fMatrix;
     bool fInPlace;
@@ -549,8 +551,8 @@ private:
         // must be a pow 2
         kPathCnt = 1 << 5,
     };
-    SkAutoTArray<SkPath> fPaths;
-    SkAutoTArray<SkPath> fCopies;
+    AutoTArray<SkPath> fPaths;
+    AutoTArray<SkPath> fCopies;
     using INHERITED = RandomPathBench;
 };
 
@@ -646,8 +648,8 @@ private:
         // must be a pow 2
         kPathCnt = 1 << 5,
     };
-    SkAutoTArray<SkPath> fPaths0;
-    SkAutoTArray<SkPath> fPaths1;
+    AutoTArray<SkPath> fPaths0;
+    AutoTArray<SkPath> fPaths1;
     SkMatrix         fMatrix;
     using INHERITED = RandomPathBench;
 };
