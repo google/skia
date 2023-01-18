@@ -151,7 +151,7 @@ static sk_sp<SkData> read_metadata(jpeg_decompress_struct* dinfo,
         }
 
         // The indices must in the range 1, ..., count.
-        if (partIndex == 0 && partIndex > partCount) {
+        if (partIndex <= 0 || partIndex > partCount) {
             SkCodecPrintf("Invalid marker index %u for count %u\n", partIndex, partCount);
             return nullptr;
         }
