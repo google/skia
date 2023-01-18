@@ -482,7 +482,7 @@ int SkDCubic::RootsReal(double A, double B, double C, double D, double s[3]) {
     } else {  // we have 1 real root
         double sqrtR2MinusQ3 = sqrt(R2MinusQ3);
         A = fabs(R) + sqrtR2MinusQ3;
-        A = SkDCubeRoot(A);
+        A = std::cbrt(A); // cube root
         if (R > 0) {
             A = -A;
         }

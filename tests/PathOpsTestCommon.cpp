@@ -42,7 +42,7 @@ static double calc_t_div(const SkDCubic& cubic, double precision, double start) 
     double dy = c[3].fY - 3 * (c[2].fY - c[1].fY) - c[0].fY;
     double dist = sqrt(dx * dx + dy * dy);
     double tDiv3 = precision / (adjust * dist);
-    double t = SkDCubeRoot(tDiv3);
+    double t = std::cbrt(tDiv3);
     if (start > 0) {
         t = start + (1 - start) * t;
     }
