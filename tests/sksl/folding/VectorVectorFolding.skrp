@@ -40,8 +40,8 @@
    40. swizzle_4                      $4..7 = ($4..7).xxxx
    41. sub_4_floats                   $0..3 -= $4..7
    42. copy_4_slots_masked            _2_val = Mask($0..3)
-   43. copy_slot_unmasked             $0 = _1_ok
-   44. copy_4_slots_unmasked          $1..4 = _2_val
+   43. copy_4_slots_unmasked          $0..3 = _1_ok(0..3)
+   44. copy_slot_unmasked             $4 = _2_val(3)
    45. copy_slot_unmasked             $5 = _0_unknown
    46. swizzle_4                      $5..8 = ($5..8).xxxx
    47. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
@@ -69,8 +69,8 @@
    69. swizzle_4                      $4..7 = ($4..7).xxxx
    70. div_4_floats                   $0..3 /= $4..7
    71. copy_4_slots_masked            _2_val = Mask($0..3)
-   72. copy_slot_unmasked             $0 = _1_ok
-   73. copy_4_slots_unmasked          $1..4 = _2_val
+   72. copy_4_slots_unmasked          $0..3 = _1_ok(0..3)
+   73. copy_slot_unmasked             $4 = _2_val(3)
    74. copy_slot_unmasked             $5 = _0_unknown
    75. swizzle_4                      $5..8 = ($5..8).xxxx
    76. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
@@ -126,8 +126,8 @@
   126. swizzle_4                      $18..21 = ($18..21).xxxx
   127. sub_4_ints                     $14..17 -= $18..21
   128. copy_4_slots_masked            val = Mask($14..17)
-  129. copy_slot_unmasked             $14 = ok
-  130. copy_4_slots_unmasked          $15..18 = val
+  129. copy_4_slots_unmasked          $14..17 = ok(0..3)
+  130. copy_slot_unmasked             $18 = val(3)
   131. copy_slot_unmasked             $19 = unknown
   132. swizzle_4                      $19..22 = ($19..22).xxxx
   133. cmpeq_4_ints                   $15..18 = equal($15..18, $19..22)
@@ -155,8 +155,8 @@
   155. swizzle_4                      $18..21 = ($18..21).xxxx
   156. div_4_ints                     $14..17 /= $18..21
   157. copy_4_slots_masked            val = Mask($14..17)
-  158. copy_slot_unmasked             $14 = ok
-  159. copy_4_slots_unmasked          $15..18 = val
+  158. copy_4_slots_unmasked          $14..17 = ok(0..3)
+  159. copy_slot_unmasked             $18 = val(3)
   160. copy_slot_unmasked             $19 = unknown
   161. swizzle_4                      $19..22 = ($19..22).xxxx
   162. cmpeq_4_ints                   $15..18 = equal($15..18, $19..22)

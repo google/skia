@@ -163,6 +163,25 @@ void Builder::discard_stack(int32_t count) {
     }
 }
 
+void Builder::push_slots(SlotRange src) {
+    SkASSERT(src.count >= 0);
+    if (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        // If the previous instruction was pushing slots contiguous to this range, we can collapse
+        // the two pushes into one larger push.
+        if (lastInstruction.fOp == BuilderOp::push_slots &&
+            lastInstruction.fSlotA + lastInstruction.fImmA == src.index) {
+            lastInstruction.fImmA += src.count;
+            return;
+        }
+    }
+
+    if (src.count > 0) {
+        fInstructions.push_back({BuilderOp::push_slots, {src.index}, src.count});
+    }
+}
+
 void Builder::push_duplicates(int count) {
     SkASSERT(count >= 0);
     if (count >= 3) {

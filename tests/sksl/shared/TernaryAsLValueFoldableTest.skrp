@@ -8,10 +8,9 @@
     8. copy_slot_masked               r = Mask($0)
     9. copy_constant                  $0 = unknownInput
    10. copy_slot_masked               g = Mask($0)
-   11. copy_slot_unmasked             $0 = r
-   12. copy_slot_unmasked             $1 = g
-   13. zero_slot_unmasked             $2 = 0
-   14. copy_constant                  $3 = 0x3F800000 (1.0)
-   15. copy_4_slots_masked            [main].result = Mask($0..3)
-   16. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   17. load_src                       src.rgba = [main].result
+   11. copy_2_slots_unmasked          $0..1 = r(0..1)
+   12. zero_slot_unmasked             $2 = 0
+   13. copy_constant                  $3 = 0x3F800000 (1.0)
+   14. copy_4_slots_masked            [main].result = Mask($0..3)
+   15. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   16. load_src                       src.rgba = [main].result

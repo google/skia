@@ -296,13 +296,8 @@ public:
         }
     }
 
-    void push_slots(SlotRange src) {
-        SkASSERT(src.count >= 0);
-        if (src.count > 0) {
-            // Translates into copy_slots_unmasked (from values into temp stack) in Raster Pipeline.
-            fInstructions.push_back({BuilderOp::push_slots, {src.index}, src.count});
-        }
-    }
+    // Translates into copy_slots_unmasked (from values into temp stack) in Raster Pipeline.
+    void push_slots(SlotRange src);
 
     void copy_stack_to_slots(SlotRange dst) {
         this->copy_stack_to_slots(dst, /*offsetFromStackTop=*/dst.count);
