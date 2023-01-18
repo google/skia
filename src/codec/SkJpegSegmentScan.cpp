@@ -16,6 +16,18 @@
 #include <cstring>
 #include <utility>
 
+// Some seekable SkStream sub-classes do not implement peek. Manually implement it via
+// setting and restoring the stream's position.
+static size_t peek(SkStream* stream, void* data, size_t size) {
+    size_t initialPosition = stream->getPosition();
+    size_t result = stream->read(data, size);
+    if (!stream->seek(initialPosition)) {
+        SkCodecPrintf("Failed to restore position during peek.\n");
+        return 0;
+    }
+    return result;
+}
+
 SkJpegSegmentScan::SkJpegSegmentScan(SkStream* stream,
                                      size_t initialPosition,
                                      std::vector<Segment>&& segments)
@@ -52,7 +64,7 @@ std::unique_ptr<SkJpegSegmentScan> SkJpegSegmentScan::Create(SkStream* stream,
     // First peek to see the Jpeg signature.
     {
         uint8_t signature[sizeof(kJpegSig)];
-        if (stream->peek(signature, sizeof(kJpegSig)) != sizeof(kJpegSig)) {
+        if (peek(stream, signature, sizeof(kJpegSig)) != sizeof(kJpegSig)) {
             SkCodecPrintf("Failed to peek Jpeg signature.\n");
             return nullptr;
         }
@@ -91,7 +103,7 @@ std::unique_ptr<SkJpegSegmentScan> SkJpegSegmentScan::Create(SkStream* stream,
             // marker segment is the two-byte length parameter. This length parameter encodes the
             // number of bytes in the marker segment, including the length parameter and excluding
             // the two-byte marker.
-            if (stream->peek(parameterLength, kParameterLengthSize) != kParameterLengthSize) {
+            if (peek(stream, parameterLength, kParameterLengthSize) != kParameterLengthSize) {
                 SkCodecPrintf("Failed to peek segment parameter length.\n");
                 return nullptr;
             }
@@ -142,7 +154,7 @@ bool SkJpegSegmentScan::SkipPastEntropyCodedData(SkStream* stream) {
 
     while (1) {
         // Peek at the two bytes for the marker.
-        if (stream->peek(markerCode, kMarkerCodeSize) != kMarkerCodeSize) {
+        if (peek(stream, markerCode, kMarkerCodeSize) != kMarkerCodeSize) {
             // Assume to be EOF.
             SkCodecPrintf("Failed to peek two ECD bytes (unexpected EOF?).\n");
             return false;
@@ -183,7 +195,7 @@ bool SkJpegSegmentScan::SkipPastEntropyCodedData(SkStream* stream) {
             SkCodecPrintf("Failed to skip post-ECD fill.\n");
             return false;
         }
-        if (stream->peek(markerCode, kMarkerCodeSize) != kMarkerCodeSize) {
+        if (peek(stream, markerCode, kMarkerCodeSize) != kMarkerCodeSize) {
             SkCodecPrintf("Failed to peek past post-ECD fill (unexpected EOF?).\n");
             return false;
         }

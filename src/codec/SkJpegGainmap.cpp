@@ -9,6 +9,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkFloatingPoint.h"
 #include "include/private/SkGainmapInfo.h"
@@ -297,8 +298,212 @@ bool SkJpegGetMultiPictureGainmap(sk_sp<const SkData> decoderMpfMetadata,
             outInfo->fEpsilonHdr = 1 / 128.f;
             outInfo->fHdrRatioMin = 1.f;
             outInfo->fHdrRatioMax = sk_float_exp(kLogRatioMax);
+            outInfo->fType = SkGainmapInfo::Type::kMultiPicture;
             return true;
         }
     }
     return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// JpegR Gainmap functions
+
+static bool SkJpegGetJpegRGainmapParseXMP(sk_sp<const SkData> xmpMetadata,
+                                          size_t* outOffset,
+                                          size_t* outSize,
+                                          SkGainmapInfo::Type* outType,
+                                          float* outRangeScalingFactor) {
+    // Parse the XMP.
+    SkDOM dom;
+    if (!SkDataToSkDOM(xmpMetadata, &dom)) {
+        return false;
+    }
+
+    // Find a node that matches the requested namespaces and URIs.
+    const char* namespaces[2] = {"xmlns:GContainer", "xmlns:RecoveryMap"};
+    const char* uris[2] = {"http://ns.google.com/photos/1.0/container/",
+                           "http://ns.google.com/photos/1.0/recoverymap/"};
+    const SkDOM::Node* node = FindXmpNamespaceUriMatch(dom, namespaces, uris, 2);
+    if (!node) {
+        return false;
+    }
+
+    // The node must have a GContainer:Version child that specifies version 1.
+    if (!UniqueChildTextMatches(dom, node, "GContainer:Version", 1)) {
+        SkCodecPrintf("GContainer:Version is absent or not 1");
+        return false;
+    }
+
+    // The node must have a GContainer:Directory.
+    const auto* directory = dom.getFirstChild(node, "GContainer:Directory");
+    if (!directory) {
+        SkCodecPrintf("Missing GContainer:Directory");
+        return false;
+    }
+
+    // That GContainer:Directory must have a sequence of  items.
+    const auto* seq = dom.getFirstChild(directory, "rdf:Seq");
+    if (!seq) {
+        SkCodecPrintf("Missing rdf:Seq");
+        return false;
+    }
+
+    // Iterate through the items in the GContainer:Directory's sequence. Keep a running sum of the
+    // GContainer::ItemLength of all items that appear before the RecoveryMap.
+    bool isFirstItem = true;
+    size_t itemLengthSum = 0;
+    for (const auto* li = dom.getFirstChild(seq, "rdf:li"); li;
+         li = dom.getNextSibling(li, "rdf:li")) {
+        // Each list item must contain a GContainer item.
+        const auto* item = dom.getFirstChild(li, "GContainer:Item");
+        if (!item) {
+            SkCodecPrintf("List item does not have GContainer:Item.\n");
+            return false;
+        }
+        // An ItemSemantic is required for every GContainer item.
+        const char* itemSemantic = dom.findAttr(item, "GContainer:ItemSemantic");
+        if (!itemSemantic) {
+            SkCodecPrintf("GContainer item is missing ItemSemantic.\n");
+            return false;
+        }
+        // An ItemMime is required for every GContainer item.
+        const char* itemMime = dom.findAttr(item, "GContainer:ItemMime");
+        if (!itemMime) {
+            SkCodecPrintf("GContainer item is missing ItemMime.\n");
+            return false;
+        }
+        if (isFirstItem) {
+            isFirstItem = false;
+            // The first item must be Primary.
+            if (strcmp(itemSemantic, "Primary") != 0) {
+                SkCodecPrintf("First item is not Primary.\n");
+                return false;
+            }
+            // The first item has mime type image/jpeg (we are decoding a jpeg).
+            if (strcmp(itemMime, "image/jpeg") != 0) {
+                SkCodecPrintf("Primary does not report that it is image/jpeg.\n");
+                return false;
+            }
+            // The Verison of 1 is required for the Primary.
+            if (!dom.hasAttr(item, "RecoveryMap:Version", "1")) {
+                SkCodecPrintf("RecoveryMap:Version is not 1.");
+                return false;
+            }
+            // The TransferFunction is required for the Primary.
+            int32_t transferFunction = 0;
+            if (!dom.findS32(item, "RecoveryMap:TransferFunction", &transferFunction)) {
+                SkCodecPrintf("RecoveryMap:TransferFunction is absent.");
+                return false;
+            }
+            switch (transferFunction) {
+                case 0:
+                    *outType = SkGainmapInfo::Type::kJpegR_Linear;
+                    break;
+                case 1:
+                    *outType = SkGainmapInfo::Type::kJpegR_HLG;
+                    break;
+                case 2:
+                    *outType = SkGainmapInfo::Type::kJpegR_PQ;
+                    break;
+                default:
+                    SkCodecPrintf("RecoveryMap:TransferFunction is out of range.");
+                    return false;
+            }
+            // The RangeScalingFactor is required for the Primary.
+            SkScalar rangeScalingFactor = 1.f;
+            if (!dom.findScalars(item, "RecoveryMap:RangeScalingFactor", &rangeScalingFactor, 1)) {
+                SkCodecPrintf("RecoveryMap:RangeScalingFactor is absent.");
+                return false;
+            }
+            *outRangeScalingFactor = rangeScalingFactor;
+        } else {
+            // An ItemLength is required for all non-Primary GContainter items.
+            int32_t itemLength = 0;
+            if (!dom.findS32(item, "GContainer:ItemLength", &itemLength)) {
+                SkCodecPrintf("GContainer:ItemLength is absent.");
+                return false;
+            }
+            // If this is not the recovery map, then read past it.
+            if (strcmp(itemSemantic, "RecoveryMap") != 0) {
+                itemLengthSum += itemLength;
+                continue;
+            }
+            // The recovery map must have mime type image/jpeg in this implementation.
+            if (strcmp(itemMime, "image/jpeg") != 0) {
+                SkCodecPrintf("RecoveryMap does not report that it is image/jpeg.\n");
+                return false;
+            }
+
+            // This is the recovery map.
+            *outOffset = itemLengthSum;
+            *outSize = itemLength;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool SkJpegGetJpegRGainmap(sk_sp<const SkData> xmpMetadata,
+                           SkStream* decoderStream,
+                           SkGainmapInfo* outInfo,
+                           std::unique_ptr<SkStream>* outGainmapImageStream) {
+    // Parse the XMP metadata of the original image, to see if it specifies a RecoveryMap.
+    size_t itemOffsetFromEndOfImage = 0;
+    size_t itemSize = 0;
+    SkGainmapInfo::Type type = SkGainmapInfo::Type::kUnknown;
+    float rangeScalingFactor = 1.f;
+    if (!SkJpegGetJpegRGainmapParseXMP(
+                xmpMetadata, &itemOffsetFromEndOfImage, &itemSize, &type, &rangeScalingFactor)) {
+        return false;
+    }
+
+    // The implementation of GContainer images requires a seekable stream. Save the position so that
+    // it can be restored before returning.
+    ScopedSkStreamRestorer streamRestorer(decoderStream);
+    if (!streamRestorer.canRestore()) {
+        SkCodecPrintf("RecoveryMap gainmap extraction requires a seekable stream.\n");
+        return false;
+    }
+
+    // The offset read from the XMP metadata is relative to the end of the EndOfImage marker in the
+    // original decoder stream. Create a full scan of the original decoder stream, so we can find
+    // that EndOfImage marker's offset in the decoder stream.
+    SkJpegSegmentScan::Options options;
+    options.stopOnStartOfScan = false;
+    auto scan = SkJpegSegmentScan::Create(decoderStream, options);
+    if (!scan) {
+        SkCodecPrintf("Failed to do full scan.\n");
+        return false;
+    }
+    const auto& lastSegment = scan->segments().back();
+    const size_t endOfImageOffset = lastSegment.offset + SkJpegSegmentScan::kMarkerCodeSize;
+    const size_t itemOffsetFromStartOfImage = endOfImageOffset + itemOffsetFromEndOfImage;
+
+    // Extract the gainmap image's stream.
+    auto gainmapImageStream = scan->getSubsetStream(itemOffsetFromStartOfImage, itemSize);
+    if (!gainmapImageStream) {
+        SkCodecPrintf("Failed to extract gainmap stream.");
+        return false;
+    }
+
+    // Populate the output parameters for this format.
+    if (outGainmapImageStream) {
+        if (!gainmapImageStream->rewind()) {
+            SkCodecPrintf("Failed to rewind gainmap image stream.");
+            return false;
+        }
+        *outGainmapImageStream = std::move(gainmapImageStream);
+    }
+
+    const float kLogRatioMax = sk_float_log(rangeScalingFactor);
+    const float kLogRatioMin = -kLogRatioMax;
+    outInfo->fLogRatioMin = {kLogRatioMin, kLogRatioMin, kLogRatioMin, 1.f};
+    outInfo->fLogRatioMax = {kLogRatioMax, kLogRatioMax, kLogRatioMax, 1.f};
+    outInfo->fGainmapGamma = {1.f, 1.f, 1.f, 1.f};
+    outInfo->fEpsilonSdr = 0.f;
+    outInfo->fEpsilonHdr = 0.f;
+    outInfo->fHdrRatioMin = 1.f;
+    outInfo->fHdrRatioMax = rangeScalingFactor;
+    outInfo->fType = type;
+    return true;
 }

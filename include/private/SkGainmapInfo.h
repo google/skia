@@ -50,6 +50,18 @@ struct SkGainmapInfo {
      */
     float fHdrRatioMin = 1.f;
     float fHdrRatioMax = 50.f;
+
+    /**
+     *  The type of file that created this gainmap.
+     */
+    enum class Type {
+        kUnknown,
+        kMultiPicture,
+        kJpegR_Linear,
+        kJpegR_HLG,
+        kJpegR_PQ,
+    };
+    Type fType = Type::kUnknown;
 };
 
 #endif

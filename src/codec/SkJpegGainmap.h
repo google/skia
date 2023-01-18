@@ -24,4 +24,12 @@ bool SkJpegGetMultiPictureGainmap(sk_sp<const SkData> decoderMpfMetadata,
                                   SkGainmapInfo* outInfo,
                                   std::unique_ptr<SkStream>* outGainmapImageStream);
 
+/*
+ * Implementation of onGetGainmap that detects JpegR based gainmaps.
+ */
+bool SkJpegGetJpegRGainmap(sk_sp<const SkData> xmpMetadata,
+                           SkStream* decoderStream,
+                           SkGainmapInfo* outInfo,
+                           std::unique_ptr<SkStream>* outGainmapImageStream);
+
 #endif

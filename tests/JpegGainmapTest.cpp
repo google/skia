@@ -129,8 +129,30 @@ DEF_TEST(AndroidCodec_jpegGainmap, r) {
         SkISize dimensions;
         SkColor originColor;
         SkColor farCornerColor;
+        float logRatioMin;
+        float logRatioMax;
+        float hdrRatioMin;
+        float hdrRatioMax;
+        SkGainmapInfo::Type type;
     } recs[] = {
-            {"images/iphone_13_pro.jpeg", SkISize::Make(1512, 2016), 0xFF3B3B3B, 0xFF101010},
+            {"images/iphone_13_pro.jpeg",
+             SkISize::Make(1512, 2016),
+             0xFF3B3B3B,
+             0xFF101010,
+             0.f,
+             1.f,
+             1.f,
+             2.71828f,
+             SkGainmapInfo::Type::kMultiPicture},
+            {"images/jpegr.jpg",
+             SkISize::Make(1008, 756),
+             0xFFCACACA,
+             0xFFC8C8C8,
+             -2.3669f,
+             2.3669f,
+             1.f,
+             10.6643f,
+             SkGainmapInfo::Type::kJpegR_HLG},
     };
 
     for (const auto& rec : recs) {
@@ -164,5 +186,21 @@ DEF_TEST(AndroidCodec_jpegGainmap, r) {
         REPORTER_ASSERT(r,
                         bm.getColor(rec.dimensions.fWidth - 1, rec.dimensions.fHeight - 1) ==
                                 rec.farCornerColor);
+
+        // Verify the gainmap rendering parameters.
+        auto approxEq = [=](float x, float y) { return std::abs(x - y) < 1e-3f; };
+
+        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMin.fR, rec.logRatioMin));
+        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMin.fG, rec.logRatioMin));
+        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMin.fB, rec.logRatioMin));
+
+        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMax.fR, rec.logRatioMax));
+        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMax.fG, rec.logRatioMax));
+        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMax.fB, rec.logRatioMax));
+
+        REPORTER_ASSERT(r, approxEq(gainmapInfo.fHdrRatioMin, rec.hdrRatioMin));
+        REPORTER_ASSERT(r, approxEq(gainmapInfo.fHdrRatioMax, rec.hdrRatioMax));
+
+        REPORTER_ASSERT(r, gainmapInfo.fType == rec.type);
     }
 }
