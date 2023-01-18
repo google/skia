@@ -45,6 +45,8 @@ class SkMatrix;
 #include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
 #endif
 
+using namespace skia_private;
+
 namespace {
 
 class SkMatrixConvolutionImageFilter final : public SkImageFilter_Base {
@@ -216,7 +218,7 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& bu
     if (!buffer.validateCanReadN<SkScalar>(count)) {
         return nullptr;
     }
-    SkAutoSTArray<16, SkScalar> kernel(count);
+    AutoSTArray<16, SkScalar> kernel(count);
     if (!buffer.readScalarArray(kernel.get(), count)) {
         return nullptr;
     }

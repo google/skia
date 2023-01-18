@@ -24,6 +24,8 @@
 #include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
 
+using namespace skia_private;
+
 namespace {
 
 static SkFont ResolveFont(const SkSVGRenderContext& ctx) {
@@ -572,7 +574,7 @@ SkRect SkSVGText::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
                 return;
             }
 
-            SkAutoSTArray<64, SkRect> glyphBounds;
+            AutoSTArray<64, SkRect> glyphBounds;
 
             for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
                 glyphBounds.reset(SkToInt(it.glyphCount()));

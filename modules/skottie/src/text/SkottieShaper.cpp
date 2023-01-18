@@ -593,7 +593,7 @@ Shaper::Result Shaper::Shape(const SkString& orig_txt, const TextDesc& desc, con
 SkRect Shaper::ShapedGlyphs::computeBounds(BoundsType btype) const {
     auto bounds = SkRect::MakeEmpty();
 
-    SkAutoSTArray<16, SkRect> glyphBounds;
+    AutoSTArray<16, SkRect> glyphBounds;
 
     size_t offset = 0;
     for (const auto& run : fRuns) {

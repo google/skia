@@ -27,6 +27,8 @@
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
 #endif
 
+using namespace skia_private;
+
 namespace {
 struct RunFontStorageEquivalent {
     SkScalar fSize, fScaleX;
@@ -275,7 +277,7 @@ SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
         return bounds.makeOffset(run.offset().x(), run.offset().y());
     }
 
-    SkAutoSTArray<16, SkRect> glyphBounds(run.glyphCount());
+    AutoSTArray<16, SkRect> glyphBounds(run.glyphCount());
     font.getBounds(run.glyphBuffer(), run.glyphCount(), glyphBounds.get(), nullptr);
 
     if (SkTextBlob::kRSXform_Positioning == run.positioning()) {

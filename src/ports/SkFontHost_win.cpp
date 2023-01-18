@@ -117,7 +117,7 @@ static void dcfontname_to_skstring(HDC deviceContext, const LOGFONT& lf, SkStrin
         }
     }
 
-    SkAutoSTArray<LF_FULLFACESIZE, TCHAR> fontName(fontNameLen+1);
+    AutoSTArray<LF_FULLFACESIZE, TCHAR> fontName(fontNameLen+1);
     if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {
         call_ensure_accessible(lf);
         if (0 == GetTextFace(deviceContext, fontNameLen, fontName.get())) {

@@ -428,7 +428,7 @@ private:
     virtual skif::LayerSpace<SkIRect> onGetOutputLayerBounds(
             const skif::Mapping& mapping, const skif::LayerSpace<SkIRect>& contentBounds) const;
 
-    SkAutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
+    skia_private::AutoSTArray<2, sk_sp<SkImageFilter>> fInputs;
 
     bool fUsesSrcInput;
     CropRect fCropRect;

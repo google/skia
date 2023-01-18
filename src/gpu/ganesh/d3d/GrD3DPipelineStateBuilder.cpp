@@ -30,6 +30,8 @@
 
 #include <d3dcompiler.h>
 
+using namespace skia_private;
+
 std::unique_ptr<GrD3DPipelineState> GrD3DPipelineStateBuilder::MakePipelineState(
         GrD3DGpu* gpu,
         GrD3DRenderTarget* renderTarget,
@@ -510,7 +512,7 @@ gr_cp<ID3D12PipelineState> create_pipeline_state(
 
     unsigned int totalAttributeCnt = programInfo.geomProc().numVertexAttributes() +
                                      programInfo.geomProc().numInstanceAttributes();
-    SkAutoSTArray<4, D3D12_INPUT_ELEMENT_DESC> inputElements(totalAttributeCnt);
+    AutoSTArray<4, D3D12_INPUT_ELEMENT_DESC> inputElements(totalAttributeCnt);
     setup_vertex_input_layout(programInfo.geomProc(), inputElements.get());
 
     psoDesc.InputLayout = { inputElements.get(), totalAttributeCnt };

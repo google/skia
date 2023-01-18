@@ -1429,11 +1429,11 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
                     std::unique_ptr<ShapedGlyph[]>(new ShapedGlyph[len]), len);
 
     // Undo skhb_position with (1.0/(1<<16)) and scale as needed.
-    SkAutoSTArray<32, SkGlyphID> glyphIDs(len);
+    AutoSTArray<32, SkGlyphID> glyphIDs(len);
     for (unsigned i = 0; i < len; i++) {
         glyphIDs[i] = info[i].codepoint;
     }
-    SkAutoSTArray<32, SkRect> glyphBounds(len);
+    AutoSTArray<32, SkRect> glyphBounds(len);
     SkPaint p;
     run.fFont.getBounds(glyphIDs.get(), len, glyphBounds.get(), &p);
 

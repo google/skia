@@ -112,7 +112,7 @@ public:
     const uint16_t* glyphs() const { return fGlyphs; }
 
 private:
-    SkAutoSTArray<32, uint16_t> fStorage;
+    skia_private::AutoSTArray<32, uint16_t> fStorage;
     const uint16_t* fGlyphs;
     int             fCount;
 };

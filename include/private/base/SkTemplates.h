@@ -142,32 +142,31 @@ private:
     std::unique_ptr<T[]> fArray;
     SkDEBUGCODE(int fCount = 0;)
 };
-}  // namespace skia_private
 
 /** Wraps AutoTArray, with room for kCountRequested elements preallocated.
  */
-template <int kCountRequested, typename T> class SkAutoSTArray {
+template <int kCountRequested, typename T> class AutoSTArray {
 public:
-    SkAutoSTArray(SkAutoSTArray&&) = delete;
-    SkAutoSTArray(const SkAutoSTArray&) = delete;
-    SkAutoSTArray& operator=(SkAutoSTArray&&) = delete;
-    SkAutoSTArray& operator=(const SkAutoSTArray&) = delete;
+    AutoSTArray(AutoSTArray&&) = delete;
+    AutoSTArray(const AutoSTArray&) = delete;
+    AutoSTArray& operator=(AutoSTArray&&) = delete;
+    AutoSTArray& operator=(const AutoSTArray&) = delete;
 
     /** Initialize with no objects */
-    SkAutoSTArray() {
+    AutoSTArray() {
         fArray = nullptr;
         fCount = 0;
     }
 
     /** Allocate count number of T elements
      */
-    SkAutoSTArray(int count) {
+    AutoSTArray(int count) {
         fArray = nullptr;
         fCount = 0;
         this->reset(count);
     }
 
-    ~SkAutoSTArray() {
+    ~AutoSTArray() {
         this->reset(0);
     }
 
@@ -250,7 +249,6 @@ private:
     alignas(T) char fStorage[kCount * sizeof(T)];
 };
 
-namespace skia_private {
 /** Manages an array of T elements, freeing the array in the destructor.
  *  Does NOT call any constructors/destructors on T (T must be POD).
  */
@@ -411,6 +409,10 @@ private:
 };
 
 }  // namespace skia_private
+
+// TODO remove after all external client uses are removed.
+template <size_t size, typename T>
+using SkAutoSTArray = skia_private::AutoSTArray<size, T>;
 
 // TODO remove after all external client uses are removed.
 template <size_t size, typename T>

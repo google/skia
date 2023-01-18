@@ -32,6 +32,8 @@
 
 #include <memory>
 
+using namespace skia_private;
+
 #define ASSERT_SINGLE_OWNER         SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_FALSE_IF_ABANDONED   if (this->fContext->abandoned()) { return false;   }
 #define RETURN_NULLPTR_IF_ABANDONED if (this->fContext->abandoned()) { return nullptr; }
@@ -507,7 +509,7 @@ bool SurfaceContext::internalWritePixels(GrDirectContext* dContext,
 
     auto tmpData = tmpSize ? SkData::MakeUninitialized(tmpSize) : nullptr;
     void*    tmp = tmpSize ? tmpData->writable_data()           : nullptr;
-    SkAutoSTArray<15, GrMipLevel> srcLevels(numLevels);
+    AutoSTArray<15, GrMipLevel> srcLevels(numLevels);
     bool ownAllStorage = true;
     for (int i = 0; i < numLevels; ++i) {
         if (convertAll || (mustBeTight && src[i].rowBytes() != src[i].info().minRowBytes())) {

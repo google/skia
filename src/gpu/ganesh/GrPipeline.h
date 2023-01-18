@@ -215,7 +215,8 @@ private:
     friend bool operator&(Flags, InputFlags);
 
     // A pipeline can contain up to three processors: color, paint coverage, and clip coverage.
-    using FragmentProcessorArray = SkAutoSTArray<3, std::unique_ptr<const GrFragmentProcessor>>;
+    using FragmentProcessorArray =
+            skia_private::AutoSTArray<3, std::unique_ptr<const GrFragmentProcessor>>;
 
     GrDstProxyView fDstProxy;
     GrWindowRectsState fWindowRectsState;

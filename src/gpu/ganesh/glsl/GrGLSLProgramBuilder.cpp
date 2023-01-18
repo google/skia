@@ -21,6 +21,8 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVarying.h"
 #include "src/sksl/SkSLCompiler.h"
 
+using namespace skia_private;
+
 const int GrGLSLProgramBuilder::kVarsPerBlock = 8;
 
 GrGLSLProgramBuilder::GrGLSLProgramBuilder(const GrProgramDesc& desc,
@@ -84,7 +86,7 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
     SkASSERT(!fGPImpl);
     fGPImpl = geomProc.makeProgramImpl(*this->shaderCaps());
 
-    SkAutoSTArray<4, SamplerHandle> texSamplers(geomProc.numTextureSamplers());
+    AutoSTArray<4, SamplerHandle> texSamplers(geomProc.numTextureSamplers());
     for (int i = 0; i < geomProc.numTextureSamplers(); ++i) {
         SkString name;
         name.printf("TextureSampler_%d", i);

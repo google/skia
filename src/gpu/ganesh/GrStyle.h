@@ -204,7 +204,7 @@ private:
         }
         SkPathEffect::DashType      fType;
         SkScalar                    fPhase{0};
-        SkAutoSTArray<4, SkScalar>  fIntervals;
+        skia_private::AutoSTArray<4, SkScalar>  fIntervals;
     };
 
     bool applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath& src) const;

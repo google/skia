@@ -25,6 +25,8 @@
 #include <utility>
 #include <vector>
 
+using namespace skia_private;
+
 class RefClass : public SkRefCnt {
 public:
     RefClass(int n) : fN(n) {}
@@ -64,7 +66,7 @@ static void test_autostarray(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, obj1.unique());
 
     {
-        SkAutoSTArray<2, sk_sp<RefClass> > tmp;
+        AutoSTArray<2, sk_sp<RefClass> > tmp;
         REPORTER_ASSERT(reporter, 0 == tmp.count());
 
         tmp.reset(0);   // test out reset(0) when already at 0
@@ -93,7 +95,7 @@ static void test_autostarray(skiatest::Reporter* reporter) {
 
     {
         // test out allocating ctor (this should allocate new memory)
-        SkAutoSTArray<2, sk_sp<RefClass> > tmp(4);
+        AutoSTArray<2, sk_sp<RefClass> > tmp(4);
         REPORTER_ASSERT(reporter, 4 == tmp.count());
 
         tmp[0].reset(SkRef(&obj0));

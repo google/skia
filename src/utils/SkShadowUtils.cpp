@@ -50,6 +50,8 @@
 #include <new>
 #include <utility>
 
+using namespace skia_private;
+
 class SkRRect;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -412,7 +414,7 @@ bool draw_shadow(const FACTORY& factory,
     FindContext<FACTORY> context(&path.viewMatrix(), &factory);
 
     SkResourceCache::Key* key = nullptr;
-    SkAutoSTArray<32 * 4, uint8_t> keyStorage;
+    AutoSTArray<32 * 4, uint8_t> keyStorage;
     int keyDataBytes = path.keyBytes();
     if (keyDataBytes >= 0) {
         keyStorage.reset(keyDataBytes + sizeof(SkResourceCache::Key));

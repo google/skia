@@ -27,6 +27,8 @@
 #include <vector>
 #include <utility>
 
+using namespace skia_private;
+
 class SkShaper_CoreText : public SkShaper {
 public:
     SkShaper_CoreText() {}
@@ -251,7 +253,7 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
 
             SkASSERT(sizeof(CGGlyph) == sizeof(uint16_t));
 
-            SkAutoSTArray<4096, CGSize> advances(runGlyphs);
+            AutoSTArray<4096, CGSize> advances(runGlyphs);
             CTRunGetAdvances(run, {0, runGlyphs}, advances.data());
             SkScalar adv = 0;
             for (CFIndex k = 0; k < runGlyphs; ++k) {
@@ -285,9 +287,9 @@ void SkShaper_CoreText::shape(const char* utf8, size_t utf8Bytes,
 
             CTRunGetGlyphs(run, {0, runGlyphs}, buffer.glyphs);
 
-            SkAutoSTArray<4096, CGPoint> positions(runGlyphs);
+            AutoSTArray<4096, CGPoint> positions(runGlyphs);
             CTRunGetPositions(run, {0, runGlyphs}, positions.data());
-            SkAutoSTArray<4096, CFIndex> indices;
+            AutoSTArray<4096, CFIndex> indices;
             if (buffer.clusters) {
                 indices.reset(runGlyphs);
                 CTRunGetStringIndices(run, {0, runGlyphs}, indices.data());

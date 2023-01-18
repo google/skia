@@ -28,6 +28,8 @@
 #include <cstdint>
 #include <cstring>
 
+using namespace skia_private;
+
 SkDashImpl::SkDashImpl(const SkScalar intervals[], int count, SkScalar phase)
         : fPhase(0)
         , fInitialDashLength(-1)
@@ -394,7 +396,7 @@ sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
         return nullptr;
     }
 
-    SkAutoSTArray<32, SkScalar> intervals(count);
+    AutoSTArray<32, SkScalar> intervals(count);
     if (buffer.readScalarArray(intervals.get(), count)) {
         return SkDashPathEffect::Make(intervals.get(), SkToInt(count), phase);
     }

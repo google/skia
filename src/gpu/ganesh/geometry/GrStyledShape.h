@@ -308,6 +308,6 @@ private:
     bool    fSimplified = false;
 
     SkTLazy<SkPath>            fInheritedPathForListeners;
-    SkAutoSTArray<8, uint32_t> fInheritedKey;
+    skia_private::AutoSTArray<8, uint32_t> fInheritedKey;
 };
 #endif

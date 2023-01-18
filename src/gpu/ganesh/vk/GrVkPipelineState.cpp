@@ -26,6 +26,8 @@
 #include "src/gpu/ganesh/vk/GrVkSampler.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 
+using namespace skia_private;
+
 GrVkPipelineState::GrVkPipelineState(
         GrVkGpu* gpu,
         sk_sp<const GrVkPipeline> pipeline,
@@ -121,7 +123,7 @@ bool GrVkPipelineState::setAndBindTextures(GrVkGpu* gpu,
         GrSamplerState fState;
         GrVkTexture* fTexture;
     };
-    SkAutoSTArray<8, SamplerBindings> samplerBindings(fNumSamplers);
+    AutoSTArray<8, SamplerBindings> samplerBindings(fNumSamplers);
     int currTextureBinding = 0;
 
     for (int i = 0; i < geomProc.numTextureSamplers(); ++i) {

@@ -1652,7 +1652,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
     }
 
     // Set up vertices
-    SkAutoSTArray<64, TriangulationVertex> triangulationVertices(polygonSize);
+    AutoSTArray<64, TriangulationVertex> triangulationVertices(polygonSize);
     int prevIndex = polygonSize - 1;
     SkVector v0 = polygonVerts[0] - polygonVerts[prevIndex];
     for (int currIndex = 0; currIndex < polygonSize; ++currIndex) {

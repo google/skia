@@ -449,8 +449,8 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
         return;
     }
 
-    SkAutoSTArray<16, SkColor>  grColors(grInfo.fColorCount);
-    SkAutoSTArray<16, SkScalar> grOffsets(grInfo.fColorCount);
+    AutoSTArray<16, SkColor>  grColors(grInfo.fColorCount);
+    AutoSTArray<16, SkScalar> grOffsets(grInfo.fColorCount);
     grInfo.fColors = grColors.get();
     grInfo.fColorOffsets = grOffsets.get();
 
@@ -1024,7 +1024,7 @@ public:
     SVGTextBuilder(SkPoint origin, const sktext::GlyphRun& glyphRun)
             : fOrigin(origin) {
         auto runSize = glyphRun.runSize();
-        SkAutoSTArray<64, SkUnichar> unichars(runSize);
+        AutoSTArray<64, SkUnichar> unichars(runSize);
         SkFontPriv::GlyphsToUnichars(glyphRun.font(), glyphRun.glyphsIDs().data(),
                                      runSize, unichars.get());
         auto positions = glyphRun.positions();
