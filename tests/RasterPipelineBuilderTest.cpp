@@ -618,9 +618,12 @@ R"(    1. copy_constant                  $0 = 0x3F400000 (0.75)
 }
 
 DEF_TEST(RasterPipelineBuilderAutomaticStackRewinding, r) {
+    using BuilderOp = SkSL::RP::BuilderOp;
+
     SkSL::RP::Builder builder;
     builder.push_literal_i(1);
     builder.push_duplicates(2000);
+    builder.unary_op(BuilderOp::abs_int, 1);  // perform work so the program isn't eliminated
     builder.discard_stack(2001);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
