@@ -347,9 +347,6 @@ struct LValue {
 
     /** Returns true if this lvalue actually refers to a uniform. */
     virtual bool isUniform() const = 0;
-
-    /** Converts a SlotMap into a list of ranges of consecutive slots. */
-    static SkTArray<SlotRange> CoalesceSlotRanges(const SlotMap& slotMap);
 };
 
 struct VariableLValue final : public LValue {
@@ -458,56 +455,32 @@ std::unique_ptr<LValue> LValue::Make(const Expression& e) {
     return nullptr;
 }
 
-SkTArray<SlotRange> LValue::CoalesceSlotRanges(const SlotMap& slotMap) {
-    SkTArray<SlotRange> ranges;
-    ranges.push_back({slotMap.slots.front(), 1});
-
-    for (int index = 1; index < slotMap.slots.size(); ++index) {
-        Slot dst = slotMap.slots[index];
-        if (dst == ranges.back().index + ranges.back().count) {
-            ++ranges.back().count;
-        } else {
-            ranges.push_back({dst, 1});
-        }
-    }
-
-    return ranges;
-}
-
 void LValue::store(Generator* gen) {
     SkASSERT(!this->isUniform());
 
     SlotMap out = this->getSlotMap(gen);
 
-    if (!out.slots.empty()) {
-        // Coalesce our list of slots into ranges of consecutive slots.
-        SkTArray<SlotRange> ranges = CoalesceSlotRanges(out);
-
-        // Copy our coalesced slot ranges from the stack.
-        int offsetFromStackTop = out.slots.size();
-        for (const SlotRange& r : ranges) {
-            gen->builder()->copy_stack_to_slots(r, offsetFromStackTop);
-            offsetFromStackTop -= r.count;
-        }
-        SkASSERT(offsetFromStackTop == 0);
+    // Copy our slots from the stack into their slots. The Builder will coalesce single-slot pushes
+    // into contiguous ranges where possible.
+    int offsetFromStackTop = out.slots.size();
+    for (Slot s : out.slots) {
+        gen->builder()->copy_stack_to_slots(SlotRange{s, 1}, offsetFromStackTop);
+        --offsetFromStackTop;
     }
+    SkASSERT(offsetFromStackTop == 0);
 }
 
 void LValue::push(Generator* gen) {
     SlotMap out = this->getSlotMap(gen);
 
-    if (!out.slots.empty()) {
-        // Coalesce our list of slots into ranges of consecutive slots.
-        SkTArray<SlotRange> ranges = CoalesceSlotRanges(out);
-
-        // Push our coalesced slot ranges onto the stack.
-        bool isUniform = this->isUniform();
-        for (const SlotRange& r : ranges) {
-            if (isUniform) {
-                gen->builder()->push_uniform(r);
-            } else {
-                gen->builder()->push_slots(r);
-            }
+    // Push our slots onto the stack. The Builder will coalesce single-slot pushes into contiguous
+    // ranges where possible.
+    bool isUniform = this->isUniform();
+    for (Slot s : out.slots) {
+        if (isUniform) {
+            gen->builder()->push_uniform(SlotRange{s, 1});
+        } else {
+            gen->builder()->push_slots(SlotRange{s, 1});
         }
     }
 }

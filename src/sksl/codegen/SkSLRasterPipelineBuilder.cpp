@@ -232,6 +232,27 @@ static int pack_nybbles(SkSpan<const int8_t> components) {
     return packed;
 }
 
+void Builder::copy_stack_to_slots(SlotRange dst, int offsetFromStackTop) {
+    // If the last instruction copied the previous stack slots, just extend it.
+    if (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        // If the last op is copy-stack-to-slots...
+        if (lastInstruction.fOp == BuilderOp::copy_stack_to_slots &&
+            // and this op's destination is immediately after the last copy-slots-op's destination
+            lastInstruction.fSlotA + lastInstruction.fImmA == dst.index &&
+            // and this op's source is immediately after the last copy-slots-op's source
+            lastInstruction.fImmB - lastInstruction.fImmA == offsetFromStackTop) {
+            // then we can just extend the copy!
+            lastInstruction.fImmA += dst.count;
+            return;
+        }
+    }
+
+    fInstructions.push_back({BuilderOp::copy_stack_to_slots, {dst.index},
+                             dst.count, offsetFromStackTop});
+}
+
 void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> elementSpan) {
     // Consumes `consumedSlots` elements on the stack, then generates `elementSpan.size()` elements.
     SkASSERT(consumedSlots >= 0);
