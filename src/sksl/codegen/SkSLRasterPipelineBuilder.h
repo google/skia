@@ -338,10 +338,8 @@ public:
     // `slots`. Three n-slot input values are consumed, and the result is pushed onto the stack.
     void ternary_op(BuilderOp op, int32_t slots);
 
-    void discard_stack(int32_t count = 1) {
-        // Shrinks the temp stack, discarding values on top.
-        fInstructions.push_back({BuilderOp::discard_stack, {}, count});
-    }
+    // Shrinks the temp stack, discarding values on top.
+    void discard_stack(int32_t count = 1);
 
     void pop_slots(SlotRange dst) {
         // The opposite of push_slots; copies values from the temp stack into value slots, then

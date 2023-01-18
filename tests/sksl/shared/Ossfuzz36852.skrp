@@ -5,7 +5,7 @@
     5. copy_constant                  $2 = 0x40000000 (2.0)
     6. copy_constant                  $3 = 0x40400000 (3.0)
     7. copy_4_slots_unmasked          x = $0..3
-    8. copy_4_slots_unmasked          $0..3 = x
+    8. copy_2_slots_unmasked          $0..1 = x(0..1)
     9. copy_2_slots_unmasked          y = $0..1
    10. copy_2_slots_unmasked          $0..1 = y
    11. zero_slot_unmasked             $2 = 0

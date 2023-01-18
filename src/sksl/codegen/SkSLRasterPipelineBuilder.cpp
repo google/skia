@@ -115,6 +115,54 @@ void Builder::ternary_op(BuilderOp op, int32_t slots) {
     }
 }
 
+void Builder::discard_stack(int32_t count) {
+    // If we pushed something onto the stack and then immediately discarded part of it, we can
+    // shrink or eliminate the push.
+    while (count > 0 && !fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        switch (lastInstruction.fOp) {
+            case BuilderOp::discard_stack:
+                // Our last op was actually a separate discard_stack; combine the discards.
+                lastInstruction.fImmA += count;
+                return;
+
+            case BuilderOp::push_zeros:
+            case BuilderOp::push_clone:
+            case BuilderOp::push_clone_from_stack:
+            case BuilderOp::push_slots:
+            case BuilderOp::push_uniform:
+                // Our last op was a multi-slot push; cancel out one discard and eliminate the op
+                // if its count reached zero.
+                --count;
+                --lastInstruction.fImmA;
+                if (lastInstruction.fImmA == 0) {
+                    fInstructions.pop_back();
+                }
+                continue;
+
+            case BuilderOp::push_literal_f:
+            case BuilderOp::push_condition_mask:
+            case BuilderOp::push_loop_mask:
+            case BuilderOp::push_return_mask:
+                // Our last op was a single-slot push; cancel out one discard and eliminate the op.
+                --count;
+                fInstructions.pop_back();
+                continue;
+
+            default:
+                break;
+        }
+
+        // This instruction wasn't a push.
+        break;
+    }
+
+    if (count > 0) {
+        fInstructions.push_back({BuilderOp::discard_stack, {}, count});
+    }
+}
+
 void Builder::push_duplicates(int count) {
     SkASSERT(count >= 0);
     if (count >= 3) {

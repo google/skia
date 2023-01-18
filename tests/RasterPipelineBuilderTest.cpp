@@ -168,9 +168,7 @@ DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     check(r, *program,
 R"(    1. copy_constant                  $2 = 0x000003E7 (1.399897e-42)
     2. copy_constant                  $0 = 0x41580000 (13.5)
-    3. copy_slot_unmasked             $1 = $2
-    4. copy_constant                  $1 = 0x00000165 (5.002636e-43)
-    5. copy_slot_unmasked             $3 = $0
+    3. copy_constant                  $1 = 0x00000165 (5.002636e-43)
 )");
 }
 
@@ -554,6 +552,8 @@ R"(    1. copy_constant                  $0 = 0x000001C8 (6.389921e-43)
 }
 
 DEF_TEST(RasterPipelineBuilderUniforms, r) {
+    using BuilderOp = SkSL::RP::BuilderOp;
+
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
     builder.push_uniform(one_slot_at(0));        // push into 0
@@ -561,6 +561,7 @@ DEF_TEST(RasterPipelineBuilderUniforms, r) {
     builder.push_uniform(three_slots_at(3));     // push into 3~5
     builder.push_uniform(four_slots_at(6));      // push into 6~9
     builder.push_uniform(five_slots_at(0));      // push into 10~14
+    builder.unary_op(BuilderOp::abs_int, 1);     // perform work so the program isn't eliminated
     builder.discard_stack(15);                   // balance stack
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/10);
@@ -571,18 +572,22 @@ R"(    1. copy_constant                  $0 = u0
     4. copy_4_constants               $6..9 = u6..9
     5. copy_4_constants               $10..13 = u0..3
     6. copy_constant                  $14 = u4
+    7. abs_int                        $14 = abs($14)
 )");
 }
 
 DEF_TEST(RasterPipelineBuilderPushZeros, r) {
+    using BuilderOp = SkSL::RP::BuilderOp;
+
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
-    builder.push_zeros(1);      // push into 0
-    builder.push_zeros(2);      // push into 1~2
-    builder.push_zeros(3);      // push into 3~5
-    builder.push_zeros(4);      // push into 6~9
-    builder.push_zeros(5);      // push into 10~14
-    builder.discard_stack(15);  // balance stack
+    builder.push_zeros(1);                    // push into 0
+    builder.push_zeros(2);                    // push into 1~2
+    builder.push_zeros(3);                    // push into 3~5
+    builder.push_zeros(4);                    // push into 6~9
+    builder.push_zeros(5);                    // push into 10~14
+    builder.unary_op(BuilderOp::abs_int, 1);  // perform work so the program isn't eliminated
+    builder.discard_stack(15);                // balance stack
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/10);
     check(r, *program,
@@ -590,6 +595,7 @@ R"(    1. zero_4_slots_unmasked          $0..3 = 0
     2. zero_4_slots_unmasked          $4..7 = 0
     3. zero_4_slots_unmasked          $8..11 = 0
     4. zero_3_slots_unmasked          $12..14 = 0
+    5. abs_int                        $14 = abs($14)
 )");
 }
 
