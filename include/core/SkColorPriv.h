@@ -10,7 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/private/base/SkMath.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 
 /** Turn 0..255 into 0..256 by adding 1 at the half-way point. Used to turn a

@@ -12,7 +12,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPath.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkTextUtils.h"
 #include "modules/particles/include/SkReflected.h"

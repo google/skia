@@ -12,7 +12,7 @@
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLProgramElement.h"
 #include "include/sksl/SkSLErrorReporter.h"
-#include "src/core/SkSafeMath.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"

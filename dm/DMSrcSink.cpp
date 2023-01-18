@@ -27,7 +27,7 @@
 #include "include/ports/SkImageGeneratorCG.h"
 #include "include/ports/SkImageGeneratorNDK.h"
 #include "include/ports/SkImageGeneratorWIC.h"
-#include "include/private/SkTLogic.h"
+#include "include/private/base/SkTLogic.h"
 #include "include/utils/SkNullCanvas.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "include/utils/SkRandom.h"

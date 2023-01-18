@@ -7,7 +7,7 @@
 
 #include "src/core/SkMatrixInvert.h"
 
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatingPoint.h"
 
 SkScalar SkInvert2x2Matrix(const SkScalar inMatrix[4], SkScalar outMatrix[4]) {
     double a00 = inMatrix[0];

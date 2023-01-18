@@ -8,8 +8,8 @@
 #include "fuzz/Fuzz.h"
 
 #include "include/core/SkPoint.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/utils/SkPolyUtils.h"
 
 using namespace skia_private;

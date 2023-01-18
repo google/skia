@@ -247,6 +247,8 @@
   { symbol: ["inflate", "private", "\"zlib.h\"", "public"] },
   { symbol: ["inflateEnd", "private", "\"zlib.h\"", "public"] },
 
+  { include: ["<asm/errno-base.h>", "private", "<errno.h>", "public"] },
+
   # IWYU seems to get confused on where the namespace sktext is "defined". Any files in
   # this list are ok.
   { symbol: ["sktext", "private", "\"src/text/StrikeForGPU.h\"", "public"] },
@@ -254,6 +256,6 @@
 
   # IWYU gets confused where namespace skia_private is "defined". Start a list, but figure
   # out if this can be done with a glob.
-  { symbol: ["skia_private", "private", "\"include/private/SkTemplates.h\"", "public"] },
+  { symbol: ["skia_private", "private", "\"include/private/base/SkTemplates.h\"", "public"] },
   { symbol: ["skia_private", "private", "\"src/core/SkTraceEvent.h\"", "public"] },
 ]

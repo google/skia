@@ -16,7 +16,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkHalf.h"
 #include "include/private/SkSLProgramKind.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkCompressedDataUtils.h"

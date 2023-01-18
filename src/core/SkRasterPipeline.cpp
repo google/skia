@@ -10,7 +10,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkVx.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkImageInfoPriv.h"

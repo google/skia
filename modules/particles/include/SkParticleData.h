@@ -8,7 +8,7 @@
 #ifndef SkParticleData_DEFINED
 #define SkParticleData_DEFINED
 
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 /*
  *  Various structs used to communicate particle information among emitters, affectors, etc.

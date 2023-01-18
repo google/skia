@@ -9,9 +9,9 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkLeanWindows.h"
+#include "src/base/SkLeanWindows.h"
 
 #include <chrono>
 

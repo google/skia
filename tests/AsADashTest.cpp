@@ -10,7 +10,7 @@
 #include "include/core/SkScalar.h"
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "tests/Test.h"
 
 using namespace skia_private;

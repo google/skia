@@ -8,8 +8,8 @@
 #include "src/core/SkMaskBlurFilter.h"
 
 #include "include/core/SkColorPriv.h"
-#include "include/private/SkTPin.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkVx.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTo.h"

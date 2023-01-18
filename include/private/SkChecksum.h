@@ -12,7 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkNoncopyable.h"
 #include "include/private/SkOpts_spi.h"
-#include "include/private/SkTLogic.h"
+#include "include/private/base/SkTLogic.h"
 
 #include <string>
 #include <string_view>

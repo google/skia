@@ -7,7 +7,7 @@
 
 #include "src/pathops/SkPathOpsTSect.h"
 
-#include "include/private/SkMacros.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkTSort.h"
 #include "src/pathops/SkIntersections.h"

@@ -12,7 +12,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkSampler.h"
 #include "src/core/SkMathPriv.h"

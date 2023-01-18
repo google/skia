@@ -31,8 +31,8 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkVertices.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkTLazy.h"
 

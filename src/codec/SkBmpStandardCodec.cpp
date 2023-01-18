@@ -14,8 +14,8 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkMathPriv.h"
 

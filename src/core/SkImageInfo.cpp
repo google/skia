@@ -8,9 +8,9 @@
 #include "include/core/SkImageInfo.h"
 
 #include "include/core/SkColorSpace.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkSafeMath.h"
 #include "src/core/SkWriteBuffer.h"
 
 int SkColorTypeBytesPerPixel(SkColorType ct) {

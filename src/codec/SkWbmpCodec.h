@@ -10,7 +10,7 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/codec/SkSwizzler.h"
 
 #include <cstddef>

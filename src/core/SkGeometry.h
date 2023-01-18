@@ -493,7 +493,7 @@ struct SkCubicCoeff {
 
 }  // namespace
 
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 /**
  *  Help class to allocate storage for approximating a conic with N quads.

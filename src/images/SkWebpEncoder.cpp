@@ -20,7 +20,7 @@
 #include "include/core/SkStream.h"
 #include "include/encode/SkEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/images/SkImageEncoderFns.h"
 #include "src/images/SkImageEncoderPriv.h"

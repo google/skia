@@ -7,9 +7,9 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRegion.h"
-#include "include/private/SkMacros.h"
-#include "include/private/SkSafe32.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkSafe32.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"

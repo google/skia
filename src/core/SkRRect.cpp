@@ -13,7 +13,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkBuffer.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"

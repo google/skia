@@ -5,7 +5,7 @@
 
 #if defined(SK_PDF_USE_HARFBUZZ_SUBSET)
 
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/utils/SkCallableTraits.h"
 

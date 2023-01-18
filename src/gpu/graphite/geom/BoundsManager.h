@@ -9,7 +9,7 @@
 #define skgpu_graphite_geom_BoundsManager_DEFINED
 
 #include "include/core/SkSize.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 #include "src/core/SkTBlockList.h"
 #include "src/gpu/graphite/DrawOrder.h"

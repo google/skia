@@ -13,7 +13,7 @@
 
 #include "include/core/SkDrawable.h"
 #include "include/private/SkSpinlock.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkStrikeSpec.h"

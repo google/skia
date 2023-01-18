@@ -13,7 +13,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkTime.h"
 #include "include/private/SkNoncopyable.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/audioplayer/SkAudioPlayer.h"
 #include "modules/particles/include/SkParticleEffect.h"
 #include "modules/particles/include/SkParticleSerialization.h"

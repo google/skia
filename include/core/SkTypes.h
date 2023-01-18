@@ -183,17 +183,6 @@
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-static constexpr int16_t SK_MaxS16 = INT16_MAX;
-static constexpr int16_t SK_MinS16 = -SK_MaxS16;
-
-static constexpr int32_t SK_MaxS32 = INT32_MAX;
-static constexpr int32_t SK_MinS32 = -SK_MaxS32;
-static constexpr int32_t SK_NaN32  = INT32_MIN;
-
-static constexpr int64_t SK_MaxS64 = INT64_MAX;
-static constexpr int64_t SK_MinS64 = -SK_MaxS64;
-
-////////////////////////////////////////////////////////////////////////////////
 
 /** @return the number of entries in an array (not a pointer)
 */

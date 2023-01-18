@@ -10,7 +10,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkPoint3.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkMathPriv.h"

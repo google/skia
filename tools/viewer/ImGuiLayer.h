@@ -9,9 +9,9 @@
 #define ImGuiLayer_DEFINED
 
 #include "include/core/SkPaint.h"
-#include "include/private/SkTPin.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTPin.h"
+#include "include/private/base/SkTemplates.h"
 #include "tools/sk_app/Window.h"
 
 #include "imgui.h"

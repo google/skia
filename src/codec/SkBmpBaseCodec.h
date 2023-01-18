@@ -8,7 +8,7 @@
 #define SkBmpBaseCodec_DEFINED
 
 #include "include/codec/SkCodec.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/codec/SkBmpCodec.h"
 
 #include <cstdint>

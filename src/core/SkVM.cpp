@@ -31,7 +31,7 @@ bool gSkVMJITViaDylib{false};
 
 #if defined(SKVM_JIT)
     #if defined(SK_BUILD_FOR_WIN)
-        #include "src/core/SkLeanWindows.h"
+        #include "src/base/SkLeanWindows.h"
         #include <memoryapi.h>
 
         static void* alloc_jit_buffer(size_t* len) {

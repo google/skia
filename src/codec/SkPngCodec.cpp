@@ -19,7 +19,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/SkNoncopyable.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkColorTable.h"

@@ -9,7 +9,7 @@
 
 #include "include/core/SkColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"

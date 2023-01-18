@@ -9,7 +9,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkScalar.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
 #include "include/private/chromium/Slug.h"
 #include "src/core/SkFontPriv.h"

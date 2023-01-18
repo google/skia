@@ -128,12 +128,12 @@ generate_cpp_files_for_headers(
     # compile it. This allows us to run IWYU on these files.
     to_generate = [
         "src/base/SkStringView.h",
+        "src/base/SkSafeMath.h",
         "src/core/SkASAN.h",
         "src/core/SkAutoMalloc.h",
         "src/core/SkMathPriv.h",
         "src/core/SkMatrixPriv.h",
         "src/core/SkPathPriv.h",
-        "src/core/SkSafeMath.h",
         "src/core/SkScopeExit.h",
         "src/core/SkTBlockList.h",
         "src/core/SkTLazy.h",

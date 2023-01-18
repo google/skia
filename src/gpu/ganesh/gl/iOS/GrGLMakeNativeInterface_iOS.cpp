@@ -10,7 +10,7 @@
 #include "include/gpu/gl/GrGLInterface.h"
 
 #include "include/gpu/gl/GrGLAssembleInterface.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 #include <dlfcn.h>
 #include <memory>

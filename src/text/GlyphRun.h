@@ -18,7 +18,7 @@
 #include "include/core/SkRSXform.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkGlyphBuffer.h"
 #include "src/core/SkZip.h"
 

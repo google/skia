@@ -11,12 +11,12 @@
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkAutoMalloc.h"
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMipmapBuilder.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkSafeMath.h"
 
 namespace {
     // This generator intentionally should always fail on all attempts to get its pixels,

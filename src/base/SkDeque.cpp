@@ -9,6 +9,8 @@
 #include "include/private/base/SkDeque.h"
 #include "include/private/base/SkMalloc.h"
 
+#include <cstddef>
+
 struct SkDeque::Block {
     Block*  fNext;
     Block*  fPrev;

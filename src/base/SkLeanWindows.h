@@ -7,9 +7,10 @@
 #ifndef SkLeanWindows_DEFINED
 #define SkLeanWindows_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/private/base/SkFeatures.h" // IWYU pragma: keep
 
 #ifdef SK_BUILD_FOR_WIN
+// https://devblogs.microsoft.com/oldnewthing/20091130-00/?p=15863
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
 #    define WIN32_IS_MEAN_WAS_LOCALLY_DEFINED

@@ -6,7 +6,7 @@
  */
 #include "src/pathops/SkPathOpsCubic.h"
 
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkTSort.h"

@@ -12,7 +12,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkUnPreMultiply.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkReadBuffer.h"

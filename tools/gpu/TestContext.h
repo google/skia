@@ -12,7 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkNoncopyable.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkScopeExit.h"
 #include "tools/gpu/FenceSync.h"
 

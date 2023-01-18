@@ -14,8 +14,8 @@
 
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/SkMacros.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPathEffectBase.h"

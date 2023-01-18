@@ -10,7 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"

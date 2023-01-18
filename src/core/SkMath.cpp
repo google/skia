@@ -7,10 +7,9 @@
 
 #include "include/core/SkScalar.h"
 #include "include/private/SkFixed.h"
-#include "include/private/SkFloatingPoint.h"
 #include "include/private/base/SkFloatBits.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkMathPriv.h"
-#include "src/core/SkSafeMath.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -59,20 +58,6 @@ int SkNthSet(uint32_t target, int n) {
     }
 
     return SkCTZ(target);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-size_t SkSafeMath::Add(size_t x, size_t y) {
-    SkSafeMath tmp;
-    size_t sum = tmp.add(x, y);
-    return tmp.ok() ? sum : SIZE_MAX;
-}
-
-size_t SkSafeMath::Mul(size_t x, size_t y) {
-    SkSafeMath tmp;
-    size_t prod = tmp.mul(x, y);
-    return tmp.ok() ? prod : SIZE_MAX;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

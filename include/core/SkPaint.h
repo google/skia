@@ -12,8 +12,8 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatingPoint.h"
 #include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/base/SkTypeTraits.h"
 

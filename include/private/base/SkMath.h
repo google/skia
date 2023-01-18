@@ -12,6 +12,18 @@
 #include "include/private/base/SkCPUTypes.h"
 
 #include <cstdint>
+#include <climits>
+
+// Max Signed 16 bit value
+static constexpr int16_t SK_MaxS16 = INT16_MAX;
+static constexpr int16_t SK_MinS16 = -SK_MaxS16;
+
+static constexpr int32_t SK_MaxS32 = INT32_MAX;
+static constexpr int32_t SK_MinS32 = -SK_MaxS32;
+static constexpr int32_t SK_NaN32  = INT32_MIN;
+
+static constexpr int64_t SK_MaxS64 = INT64_MAX;
+static constexpr int64_t SK_MinS64 = -SK_MaxS64;
 
 // 64bit -> 32bit utilities
 

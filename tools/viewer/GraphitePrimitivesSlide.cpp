@@ -10,7 +10,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkVertices.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 
 #include <unordered_set>

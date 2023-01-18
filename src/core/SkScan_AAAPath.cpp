@@ -7,7 +7,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRegion.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkAnalyticEdge.h"
 #include "src/core/SkAntiRun.h"

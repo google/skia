@@ -11,8 +11,8 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/private/SkFixed.h"
-#include "include/private/SkFloatingPoint.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkVM_fwd.h"
 

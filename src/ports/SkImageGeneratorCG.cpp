@@ -7,7 +7,7 @@
 
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/ports/SkImageGeneratorCG.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/utils/mac/SkCGUtils.h"
 #include "src/core/SkPixmapPriv.h"
 #include "src/utils/mac/SkUniqueCFRef.h"

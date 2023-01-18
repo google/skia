@@ -8,7 +8,7 @@
 #ifndef GrCpuBuffer_DEFINED
 #define GrCpuBuffer_DEFINED
 
-#include "src/core/SkSafeMath.h"
+#include "src/base/SkSafeMath.h"
 #include "src/gpu/ganesh/GrBuffer.h"
 #include "src/gpu/ganesh/GrNonAtomicRef.h"
 

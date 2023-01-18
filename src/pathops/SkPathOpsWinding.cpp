@@ -26,6 +26,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkMath.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkArenaAlloc.h"

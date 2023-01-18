@@ -14,7 +14,7 @@
 
 #ifdef SK_BUILD_FOR_WIN
 
-#include "src/core/SkLeanWindows.h"
+#include "src/base/SkLeanWindows.h"
 #include "src/utils/win/SkObjBase.h"
 #include <ole2.h>
 

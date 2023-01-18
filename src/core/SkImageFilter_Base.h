@@ -11,8 +11,8 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTemplates.h"
 
 #include "src/core/SkImageFilterTypes.h"
 

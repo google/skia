@@ -17,7 +17,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"

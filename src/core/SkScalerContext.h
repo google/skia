@@ -16,7 +16,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkTypeface.h"
-#include "include/private/SkMacros.h"
+#include "include/private/base/SkMacros.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskGamma.h"

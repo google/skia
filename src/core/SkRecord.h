@@ -8,8 +8,8 @@
 #ifndef SkRecord_DEFINED
 #define SkRecord_DEFINED
 
-#include "include/private/SkTLogic.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTLogic.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkRecords.h"
 

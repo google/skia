@@ -9,10 +9,10 @@
 
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkFloatingPoint.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkVx.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkPointPriv.h"

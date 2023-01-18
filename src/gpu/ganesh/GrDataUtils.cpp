@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/GrDataUtils.h"
 
 #include "include/core/SkColorSpace.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkCompressedDataUtils.h"

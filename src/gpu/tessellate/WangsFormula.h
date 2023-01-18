@@ -12,7 +12,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkString.h"
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkVx.h"
 #include "src/gpu/tessellate/Tessellation.h"
 

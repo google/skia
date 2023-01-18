@@ -12,7 +12,7 @@
 #include <vector>
 
 #include "include/core/SkString.h"
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatingPoint.h"
 
 #ifdef SK_BUILD_FOR_WIN
     static const char* kBars[] = { ".", "o", "O" };

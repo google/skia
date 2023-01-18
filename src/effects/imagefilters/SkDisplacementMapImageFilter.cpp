@@ -24,7 +24,7 @@
 #include "include/core/SkUnPreMultiply.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/SkSLSampleUsage.h"
-#include "include/private/SkSafe32.h"
+#include "include/private/base/SkSafe32.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"

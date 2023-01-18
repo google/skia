@@ -5,7 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatingPoint.h"
+
+#include "include/private/base/SkAssert.h"
 
 #include <cmath>
 

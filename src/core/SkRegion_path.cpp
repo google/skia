@@ -8,9 +8,9 @@
 #include "include/core/SkPath.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkRegionPriv.h"
-#include "src/core/SkSafeMath.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkTSort.h"
 

@@ -10,7 +10,7 @@
 #include "include/codec/SkCodec.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 #include <cstddef>
 #include <cstdint>

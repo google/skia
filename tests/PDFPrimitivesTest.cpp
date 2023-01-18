@@ -31,7 +31,7 @@
 #include "include/docs/SkPDFDocument.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
-#include "include/private/SkFloatingPoint.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkImageFilter_Base.h"

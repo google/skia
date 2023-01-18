@@ -5,14 +5,14 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkMath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkFixed.h"
-#include "include/private/SkFloatingPoint.h"
 #include "include/private/SkHalf.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTPin.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkMathPriv.h"

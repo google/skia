@@ -14,7 +14,7 @@
 #include <thread>
 
 #if defined(SK_BUILD_FOR_WIN)
-    #include "src/core/SkLeanWindows.h"
+    #include "src/base/SkLeanWindows.h"
     static int num_cores() {
         SYSTEM_INFO sysinfo;
         GetNativeSystemInfo(&sysinfo);

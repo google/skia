@@ -11,7 +11,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkString.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 
 // Next steps:

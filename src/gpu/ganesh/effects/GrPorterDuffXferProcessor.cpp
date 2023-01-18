@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
 
 #include "include/gpu/GrTypes.h"
-#include "include/private/SkMacros.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/KeyBuilder.h"

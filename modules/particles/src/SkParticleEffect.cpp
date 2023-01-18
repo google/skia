@@ -9,8 +9,8 @@
 
 #include "include/core/SkPaint.h"
 #include "include/private/SkSLProgramKind.h"
-#include "include/private/SkTPin.h"
 #include "include/private/base/SkOnce.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/particles/include/SkParticleBinding.h"
 #include "modules/particles/include/SkParticleDrawable.h"
 #include "modules/particles/include/SkReflected.h"

@@ -8,7 +8,7 @@
 #ifndef SkSafeMath_DEFINED
 #define SkSafeMath_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTFitsIn.h"
 
 #include <cstddef>

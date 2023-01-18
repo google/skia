@@ -7,7 +7,7 @@
 
 #include "src/core/SkStrokerPriv.h"
 
-#include "include/private/SkMacros.h"
+#include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"

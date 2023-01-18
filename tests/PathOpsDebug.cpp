@@ -10,6 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkFloatBits.h"
+#include "include/private/base/SkMath.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpAngle.h"

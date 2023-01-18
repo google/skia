@@ -9,7 +9,7 @@
 #ifndef SkPDFGraphicState_DEFINED
 #define SkPDFGraphicState_DEFINED
 
-#include "include/private/SkMacros.h"
+#include "include/private/base/SkMacros.h"
 #include "src/core/SkOpts.h"
 #include "src/pdf/SkPDFTypes.h"
 

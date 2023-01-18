@@ -17,7 +17,7 @@
 #include "include/core/SkImage.h" // IWYU pragma: keep
 #include "include/core/SkMatrix.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkFrameHolder.h"

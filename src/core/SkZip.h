@@ -15,7 +15,7 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 
 // Take a list of things that can be pointers, and use them all in parallel. The iterators and

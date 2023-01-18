@@ -10,7 +10,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkTLazy.h"
 #include "src/gpu/ganesh/GrStyle.h"

@@ -8,7 +8,8 @@
 #ifndef SkSafe32_DEFINED
 #define SkSafe32_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMath.h"
 
 #include <cstdint>
 

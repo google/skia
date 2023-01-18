@@ -16,6 +16,7 @@ Milestone 111
     skgpu namespace.
   * include/gpu/GrConfig.h has been removed; its contents were folded into other files.
   * SkLeftShift is no longer part of the public API.
+  * SK_MaxS32 and related constants are no longer part of the public API.
   * include/core/SkMath.h is no longer part of the public API.
 
 

@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGStop.h"
 #include "modules/svg/include/SkSVGValue.h"

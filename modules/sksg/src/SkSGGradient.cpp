@@ -10,7 +10,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPaint.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 
 namespace sksg {
 

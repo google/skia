@@ -9,8 +9,8 @@
 
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontTypes.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/base/SkMutex.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkArenaAlloc.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkGlyph.h"

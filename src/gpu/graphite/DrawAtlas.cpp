@@ -12,7 +12,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkTPin.h"
+#include "include/private/base/SkTPin.h"
 
 #include "src/core/SkMathPriv.h"
 #include "src/core/SkOpts.h"

@@ -15,7 +15,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkEncodedInfo.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 #ifdef SK_CODEC_DECODES_JPEGR
 #if __has_include("jpegrecoverymap/recoverymap.h")

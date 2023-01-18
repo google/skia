@@ -7,11 +7,11 @@
 
 #include "include/core/SkRegion.h"
 
-#include "include/private/SkMacros.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkMacros.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkSafeMath.h"
 #include "src/core/SkRegionPriv.h"
-#include "src/core/SkSafeMath.h"
 
 #include <algorithm>
 #include <utility>

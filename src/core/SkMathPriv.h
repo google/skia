@@ -9,8 +9,8 @@
 #define SkMathPriv_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkTemplates.h"
 
 #include <cstddef>
 #include <cstdint>

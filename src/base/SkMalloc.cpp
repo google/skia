@@ -3,7 +3,7 @@
 
 #include "include/private/base/SkMalloc.h"
 
-#include "src/core/SkSafeMath.h"
+#include "src/base/SkSafeMath.h"
 
 void* sk_calloc_throw(size_t count, size_t elemSize) {
     return sk_calloc_throw(SkSafeMath::Mul(count, elemSize));

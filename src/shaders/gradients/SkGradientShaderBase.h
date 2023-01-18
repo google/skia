@@ -11,8 +11,8 @@
 #include "include/effects/SkGradientShader.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkVM.h"
 #include "src/shaders/SkShaderBase.h"
 

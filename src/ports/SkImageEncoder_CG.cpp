@@ -14,7 +14,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkUnPreMultiply.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/utils/mac/SkCGUtils.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/utils/mac/SkUniqueCFRef.h"

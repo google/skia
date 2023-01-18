@@ -9,8 +9,8 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/private/SkHalf.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/Uniform.h"

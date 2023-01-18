@@ -12,7 +12,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
-#include "include/private/SkMacros.h"
+#include "include/private/base/SkMacros.h"
 #include "src/core/SkPathPriv.h"
 #include "src/pathops/SkPathOpsConic.h"
 #include "src/pathops/SkPathOpsCubic.h"

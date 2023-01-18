@@ -8,7 +8,7 @@
 #ifndef SkObjBase_DEFINED
 #define SkObjBase_DEFINED
 
-#include "src/core/SkLeanWindows.h"
+#include "src/base/SkLeanWindows.h"
 #include <objbase.h>
 
 // STDMETHOD uses COM_DECLSPEC_NOTHROW, but STDMETHODIMP does not. This leads to attribute mismatch

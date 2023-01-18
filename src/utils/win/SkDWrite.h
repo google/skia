@@ -9,7 +9,7 @@
 #define SkDWrite_DEFINED
 
 #include "include/core/SkFontStyle.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 
 #include <dwrite.h>
 #include <winsdkver.h>

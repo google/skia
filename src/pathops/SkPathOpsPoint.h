@@ -9,7 +9,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/pathops/SkPathOpsTypes.h"
 
 inline bool AlmostEqualUlps(const SkPoint& pt1, const SkPoint& pt2) {

@@ -6,8 +6,8 @@
  */
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkTemplates.h"
 #include "include/private/base/SkTDArray.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsLine.h"
 #include "src/pathops/SkPathOpsPoint.h"
