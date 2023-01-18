@@ -1,0 +1,12 @@
+### Compilation failed:
+
+error: 11: unknown identifier 'fma'
+    return (fma(one, two, three)         == (1 * 2 + 3)) &&
+            ^^^
+error: 12: unknown identifier 'fma'
+           (fma(half(three), four, five) == (3 * 4 + 5)) &&
+            ^^^
+error: 13: unknown identifier 'fma'
+           (fma(6, 7, 8)                 == (6 * 7 + 8)) ? colorGreen : colorRed;
+            ^^^
+3 errors

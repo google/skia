@@ -88,6 +88,7 @@ func main() {
 		"compile_glsl_tests",
 		"compile_glsl_nosettings_tests",
 		"compile_metal_tests",
+		"compile_skrp_tests",
 		"compile_skvm_tests",
 		"compile_stage_tests",
 		"compile_spirv_tests",

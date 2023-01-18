@@ -586,14 +586,14 @@ static ResultCode process_command(SkSpan<std::string> args) {
         return ResultCode::kSuccess;
     };
 
-    auto compileProgramForSkVM = [&](const auto& writeFn) -> ResultCode {
+    auto compileProgramAsRuntimeShader = [&](const auto& writeFn) -> ResultCode {
         if (kind == SkSL::ProgramKind::kVertex) {
-            printf("%s: SkVM does not support vertex programs\n", outputPath.c_str());
-            return ResultCode::kOutputError;
+            printf("%s: Runtime shaders do not support vertex programs\n", outputPath.c_str());
+            return ResultCode::kCompileError;
         }
         if (kind == SkSL::ProgramKind::kFragment) {
             // Handle .sksl and .frag programs as runtime shaders.
-            kind = SkSL::ProgramKind::kRuntimeShader;
+            kind = SkSL::ProgramKind::kPrivateRuntimeShader;
         }
         return compileProgram(writeFn);
     };
@@ -645,7 +645,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
                     return compiler.toWGSL(program, out);
                 });
     } else if (skstd::ends_with(outputPath, ".skvm")) {
-        return compileProgramForSkVM(
+        return compileProgramAsRuntimeShader(
                 [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                     skvm::Builder builder{skvm::Features{}};
                     if (!SkSL::testingOnly_ProgramToSkVMShader(program, &builder,
@@ -661,7 +661,8 @@ static ResultCode process_command(SkSpan<std::string> args) {
                     return true;
                 });
     } else if (skstd::ends_with(outputPath, ".skrp")) {
-        return compileProgram(
+        settings.fMaxVersionAllowed = SkSL::Version::k300;
+        return compileProgramAsRuntimeShader(
                 [&](SkSL::Compiler& compiler, SkSL::Program& program, SkSL::OutputStream& out) {
                     SkSL::SkRPDebugTrace skrpDebugTrace;
                     const SkSL::FunctionDeclaration* main = program.getFunction("main");
@@ -755,7 +756,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
         settings.fAllowTraceVarInSkVMDebugTrace = false;
 
         SkCpu::CacheRuntimeFeatures();
-        return compileProgramForSkVM(
+        return compileProgramAsRuntimeShader(
             [&](SkSL::Compiler&, SkSL::Program& program, SkSL::OutputStream& out) {
                 if (!skvmDebugTrace) {
                     skvmDebugTrace = std::make_unique<SkSL::SkVMDebugTrace>();

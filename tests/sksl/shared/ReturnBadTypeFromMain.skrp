@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 1: 'main' must return: 'vec4', 'float4', or 'half4'
+int3 main() {
+^^^^^^^^^^^
+1 error

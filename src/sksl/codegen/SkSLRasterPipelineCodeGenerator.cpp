@@ -699,18 +699,11 @@ bool Generator::writeGlobals() {
             SkASSERT(!var->type().isVoid());
             SkASSERT(!var->type().isOpaque());
 
-            // builtin variables are system-defined, with special semantics. The only builtin
+            // Builtin variables are system-defined, with special semantics. The only builtin
             // variable exposed to runtime effects is sk_FragCoord.
             if (int builtin = var->modifiers().fLayout.fBuiltin; builtin >= 0) {
-                switch (builtin) {
-                    case SK_FRAGCOORD_BUILTIN:
-                        // TODO: populate slots with device coordinates xy01
-                        return unsupported();
-
-                    default:
-                        SkDEBUGFAILF("Unsupported builtin %d", builtin);
-                        return unsupported();
-                }
+                // TODO: for SK_FRAGCOORD_BUILTIN, populate slots with device coordinates xy01.
+                return unsupported();
             }
 
             if (IsUniform(*var)) {

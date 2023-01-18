@@ -922,6 +922,12 @@ if (skia_compile_sksl_tests) {
     lang = "--hlsl"
     settings = "--settings"
   }
+  compile_sksl("skrp_tests") {
+    sources = sksl_skrp_tests_sources
+    outExtensions = [ ".skrp" ]
+    lang = "--skrp"
+    settings = "--settings"
+  }
   compile_sksl("skvm_tests") {
     sources = sksl_skvm_tests_sources
     outExtensions = [ ".skvm" ]
@@ -954,6 +960,8 @@ if (skia_compile_sksl_tests) {
   group("compile_sksl_metal_tests") {
   }
   group("compile_sksl_hlsl_tests") {
+  }
+  group("compile_sksl_skrp_tests") {
   }
   group("compile_sksl_skvm_tests") {
   }
@@ -1039,6 +1047,7 @@ optional("gpu") {
     ":compile_sksl_glsl_nosettings_tests",
     ":compile_sksl_glsl_tests",
     ":compile_sksl_metal_tests",
+    ":compile_sksl_skrp_tests",
     ":compile_sksl_skvm_tests",
     ":compile_sksl_spirv_tests",
     ":gpu_shared",

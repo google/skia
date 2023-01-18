@@ -1,0 +1,14 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  $0 = 0xFFFFFFFF
+    4. copy_slot_unmasked             _4_ok = $0
+    5. store_condition_mask           $8 = CondMask
+    6. copy_slot_unmasked             $9 = _4_ok
+    7. copy_4_constants               $0..3 = colorRed
+    8. merge_condition_mask           CondMask = $8 & $9
+    9. copy_4_constants               $4..7 = colorGreen
+   10. copy_4_slots_masked            $0..3 = Mask($4..7)
+   11. load_condition_mask            CondMask = $8
+   12. copy_4_slots_masked            [main].result = Mask($0..3)
+   13. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   14. load_src                       src.rgba = [main].result

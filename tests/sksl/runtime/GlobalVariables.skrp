@@ -1,0 +1,19 @@
+    1. store_src_rg                   xy = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  $0 = 0xBF800000 (-1.0)
+    4. copy_slot_unmasked             gInitialized = $0
+    5. copy_constant                  $0 = 0x3F800000 (1.0)
+    6. copy_slot_unmasked             gInitializedFromOther = $0
+    7. zero_slot_unmasked             gUninitialized = 0
+    8. branch_if_no_active_lanes      branch_if_no_active_lanes +5 (#13)
+    9. store_return_mask              $0 = RetMask
+   10. copy_constant                  $1 = 0x3F800000 (1.0)
+   11. copy_slot_masked               gUninitialized = Mask($1)
+   12. load_return_mask               RetMask = $0
+   13. zero_slot_unmasked             $0 = 0
+   14. copy_slot_unmasked             $1 = gInitializedFromOther
+   15. zero_slot_unmasked             $2 = 0
+   16. copy_slot_unmasked             $3 = gUninitialized
+   17. copy_4_slots_masked            [main].result = Mask($0..3)
+   18. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   19. load_src                       src.rgba = [main].result

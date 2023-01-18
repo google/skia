@@ -1,0 +1,10 @@
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_constant                  $0 = colorGreen(0)
+    4. cast_to_int_from_float         $0 = FloatToInt($0)
+    5. cast_to_float_from_int         $0 = IntToFloat($0)
+    6. copy_constant                  $1 = colorGreen(1)
+    7. copy_2_constants               $2..3 = colorGreen(2..3)
+    8. copy_4_slots_masked            [main].result = Mask($0..3)
+    9. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   10. load_src                       src.rgba = [main].result

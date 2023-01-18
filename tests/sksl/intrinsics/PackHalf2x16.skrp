@@ -1,0 +1,39 @@
+### Compilation failed:
+
+error: 7: unknown identifier 'packHalf2x16'
+    const uint constXY = packHalf2x16(constVal.xy);
+                         ^^^^^^^^^^^^
+error: 8: unknown identifier 'packHalf2x16'
+    const uint constZW = packHalf2x16(constVal.zw);
+                         ^^^^^^^^^^^^
+error: 9: unknown identifier 'packHalf2x16'
+    uint xy = packHalf2x16(testInputs.xy);
+              ^^^^^^^^^^^^
+error: 10: unknown identifier 'packHalf2x16'
+    uint zw = packHalf2x16(testInputs.zw);
+              ^^^^^^^^^^^^
+error: 12: unknown identifier 'unpackHalf2x16'
+    return (unpackHalf2x16(xy)      == float2(expected.xy) &&
+            ^^^^^^^^^^^^^^
+error: 12: unknown identifier 'xy'
+    return (unpackHalf2x16(xy)      == float2(expected.xy) &&
+                           ^^
+error: 13: unknown identifier 'unpackHalf2x16'
+            unpackHalf2x16(zw)      == float2(expected.zw) &&
+            ^^^^^^^^^^^^^^
+error: 13: unknown identifier 'zw'
+            unpackHalf2x16(zw)      == float2(expected.zw) &&
+                           ^^
+error: 14: unknown identifier 'unpackHalf2x16'
+            unpackHalf2x16(constXY) == float2(expected.xy) &&
+            ^^^^^^^^^^^^^^
+error: 14: unknown identifier 'constXY'
+            unpackHalf2x16(constXY) == float2(expected.xy) &&
+                           ^^^^^^^
+error: 15: unknown identifier 'unpackHalf2x16'
+            unpackHalf2x16(constZW) == float2(expected.zw))
+            ^^^^^^^^^^^^^^
+error: 15: unknown identifier 'constZW'
+            unpackHalf2x16(constZW) == float2(expected.zw))
+                           ^^^^^^^
+12 errors

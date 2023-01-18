@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 1: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() { int i; i-- - 0*int3(i); }
+^^^^^^^^^^^
+1 error

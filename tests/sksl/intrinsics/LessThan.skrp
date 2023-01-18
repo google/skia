@@ -1,0 +1,24 @@
+### Compilation failed:
+
+error: 2: variables of type 'uint2' may not be uniform
+uniform uint2 c, d;
+^^^^^^^^^^^^^^^
+error: 2: variables of type 'uint2' may not be uniform
+uniform uint2 c, d;
+                 ^
+error: 4: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 9: unknown identifier 'sk_FragColor'
+    sk_FragColor.x = lessThan(a, b).x ? 1 : 0;
+    ^^^^^^^^^^^^
+error: 10: unknown identifier 'sk_FragColor'
+    sk_FragColor.y = lessThan(c, d).y ? 1 : 0;
+    ^^^^^^^^^^^^
+error: 11: unknown identifier 'sk_FragColor'
+    sk_FragColor.z = lessThan(e, f).z ? 1 : 0;
+    ^^^^^^^^^^^^
+error: 12: unknown identifier 'sk_FragColor'
+    sk_FragColor.w = any(expectTTFF) || any(expectFFTT) ? 1 : 0;
+    ^^^^^^^^^^^^
+7 errors

@@ -1,0 +1,12 @@
+### Compilation failed:
+
+error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 47: unknown identifier 'sk_FragColor'
+    sk_FragColor.r = half(s) + half(i) + half(us) + half(ui) + half(h) + half(f) + half(s2s) +
+    ^^^^^^^^^^^^
+error: 51: unknown identifier 'sk_FragColor'
+    sk_FragColor.r += half(ui2us) + half(h2us) + half(f2us) + half(b2us) + half(s2ui) + half(i2ui) +
+    ^^^^^^^^^^^^
+3 errors

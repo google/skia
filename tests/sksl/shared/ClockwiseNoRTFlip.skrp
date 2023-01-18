@@ -1,0 +1,12 @@
+### Compilation failed:
+
+error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 4: unknown identifier 'sk_FragColor'
+    sk_FragColor = half4(sk_Clockwise ? +1 : -1);
+    ^^^^^^^^^^^^
+error: 4: unknown identifier 'sk_Clockwise'
+    sk_FragColor = half4(sk_Clockwise ? +1 : -1);
+                         ^^^^^^^^^^^^
+3 errors

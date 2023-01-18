@@ -60,6 +60,12 @@ compile_sksl(
 )
 
 compile_sksl(
+    name = "skrp_tests",
+    inputs = "//resources/sksl:sksl_skrp_tests_sources",
+    lang = "skrp",
+)
+
+compile_sksl(
     name = "skvm_tests",
     inputs = "//resources/sksl:sksl_skvm_tests_sources",
     lang = "skvm",

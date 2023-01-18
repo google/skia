@@ -50,6 +50,18 @@ skia_filegroup(
     visibility = ["//tools/skslc:__pkg__"],
 )
 
+## Tests in sksl_skrp_tests_sources will be compiled with --settings on, and are expected to
+## generate a .skrp output file.
+skia_filegroup(
+    name = "sksl_skrp_tests_sources",
+    srcs = [
+        ":sksl_folding_tests",
+        ":sksl_rte_tests",
+        ":sksl_shared_tests",
+    ],
+    visibility = ["//tools/skslc:__pkg__"],
+)
+
 ## Tests in sksl_skvm_tests_sources will be compiled with --settings on, and are expected to
 ## generate a .skvm output file.
 skia_filegroup(
@@ -245,10 +257,10 @@ skia_filegroup(
         "errors/InvalidAssignment.rts",
         "errors/InvalidAtomicDeclarations.compute",
         "errors/InvalidAtomicOperations.compute",
+        "errors/InvalidBackendBindingFlagsGL.sksl",
         "errors/InvalidBackendBindingFlagsMetal.sksl",
         "errors/InvalidBackendBindingFlagsSPIRV.sksl",
         "errors/InvalidBackendBindingFlagsWGSL.sksl",
-        "errors/InvalidBackendBindingFlagsGL.sksl",
         "errors/InvalidExtensionDirective.sksl",
         "errors/InvalidOutParams.rts",
         "errors/InvalidToken.rts",
@@ -965,9 +977,9 @@ skia_filegroup(
         "shared/SwitchWithFallthrough.sksl",
         "shared/SwitchWithLoops.sksl",
         "spirv/ArrayStrideInDifferentLayouts.sksl",
+        "spirv/CombinedSamplerTypeDawnCompatMode.sksl",
         "spirv/ConstantVectorFromVector.sksl",
         "spirv/ConstantVectorize.sksl",
-        "spirv/CombinedSamplerTypeDawnCompatMode.sksl",
         "spirv/FunctionParametersOfTextureAndSamplerTypeDawnCompatMode.sksl",
         "spirv/InterfaceBlockPushConstant.sksl",
         "spirv/LayoutMultipleOf4.sksl",

@@ -1,0 +1,44 @@
+    1. store_src_rg                   pos = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. branch_if_no_active_lanes      branch_if_no_active_lanes +9 (#12)
+    4. store_return_mask              $0 = RetMask
+    5. copy_constant                  $1 = 0x00000005 (7.006492e-45)
+    6. copy_slot_unmasked             x = $1
+    7. copy_slot_unmasked             $1 = x
+    8. copy_slot_masked               [get].result = Mask($1)
+    9. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   10. load_return_mask               RetMask = $0
+   11. copy_slot_unmasked             $0 = [get].result
+   12. branch_if_no_active_lanes      branch_if_no_active_lanes +9 (#21)
+   13. store_return_mask              $1 = RetMask
+   14. copy_constant                  $2 = 0x00000003 (4.203895e-45)
+   15. copy_slot_unmasked             x = $2
+   16. copy_slot_unmasked             $2 = x
+   17. copy_slot_masked               [get].result = Mask($2)
+   18. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   19. load_return_mask               RetMask = $1
+   20. copy_slot_unmasked             $1 = [get].result
+   21. add_int                        $0 += $1
+   22. branch_if_no_active_lanes      branch_if_no_active_lanes +9 (#31)
+   23. store_return_mask              $1 = RetMask
+   24. copy_constant                  $2 = 0x00000002 (2.802597e-45)
+   25. copy_slot_unmasked             x = $2
+   26. copy_slot_unmasked             $2 = x
+   27. copy_slot_masked               [get].result = Mask($2)
+   28. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   29. load_return_mask               RetMask = $1
+   30. copy_slot_unmasked             $1 = [get].result
+   31. add_int                        $0 += $1
+   32. copy_slot_unmasked             ten = $0
+   33. store_condition_mask           $8 = CondMask
+   34. copy_slot_unmasked             $9 = ten
+   35. copy_constant                  $10 = 0x0000000A (1.401298e-44)
+   36. cmpeq_int                      $9 = equal($9, $10)
+   37. copy_4_constants               $0..3 = colorRed
+   38. merge_condition_mask           CondMask = $8 & $9
+   39. copy_4_constants               $4..7 = colorGreen
+   40. copy_4_slots_masked            $0..3 = Mask($4..7)
+   41. load_condition_mask            CondMask = $8
+   42. copy_4_slots_masked            [main].result = Mask($0..3)
+   43. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   44. load_src                       src.rgba = [main].result

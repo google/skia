@@ -104,6 +104,8 @@ sksl_spirv_tests_sources =
     sksl_blend_tests + sksl_shared_tests +
     sksl_inverse_hyperbolic_intrinsics_tests + sksl_spirv_tests
 
+sksl_skrp_tests_sources = sksl_folding_tests + sksl_rte_tests + sksl_shared_tests
+
 sksl_skvm_tests_sources = sksl_rte_tests + sksl_rte_error_tests
 
 sksl_stage_tests_sources = sksl_rte_tests

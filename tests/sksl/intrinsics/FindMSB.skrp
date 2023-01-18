@@ -1,0 +1,21 @@
+### Compilation failed:
+
+error: 2: variables of type 'uint' may not be uniform
+uniform uint b;
+^^^^^^^^^^^^^^
+error: 3: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() {
+^^^^^^^^^^^
+error: 4: unknown identifier 'sk_FragColor'
+    sk_FragColor.x = half(findMSB(a));
+    ^^^^^^^^^^^^
+error: 4: unknown identifier 'findMSB'
+    sk_FragColor.x = half(findMSB(a));
+                          ^^^^^^^
+error: 5: unknown identifier 'sk_FragColor'
+    sk_FragColor.y = half(findMSB(b));
+    ^^^^^^^^^^^^
+error: 5: unknown identifier 'findMSB'
+    sk_FragColor.y = half(findMSB(b));
+                          ^^^^^^^
+6 errors

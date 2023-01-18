@@ -1,0 +1,15 @@
+    1. store_src_rg                   xy = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_4_slots_unmasked          color = 0
+    4. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (#11)
+    5. store_return_mask              $0 = RetMask
+    6. copy_constant                  $1 = 0x3F800000 (1.0)
+    7. swizzle_4                      $1..4 = ($1..4).xxxx
+    8. copy_4_slots_masked            color = Mask($1..4)
+    9. zero_slot_unmasked             $1 = 0
+   10. load_return_mask               RetMask = $0
+   11. zero_slot_unmasked             $0 = 0
+   12. copy_4_slots_unmasked          $0..3 = color
+   13. copy_4_slots_masked            [main].result = Mask($0..3)
+   14. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   15. load_src                       src.rgba = [main].result

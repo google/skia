@@ -1,0 +1,10 @@
+    1. store_src_rg                   xy = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_slot_unmasked             $0 = 0
+    4. copy_slot_unmasked             i = $0
+    5. copy_slot_unmasked             $0 = i
+    6. cast_to_float_from_int         $0 = IntToFloat($0)
+    7. swizzle_4                      $0..3 = ($0..3).xxxx
+    8. copy_4_slots_masked            [main].result = Mask($0..3)
+    9. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   10. load_src                       src.rgba = [main].result

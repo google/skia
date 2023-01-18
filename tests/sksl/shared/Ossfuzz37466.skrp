@@ -1,0 +1,6 @@
+### Compilation failed:
+
+error: 2: 'main' must return: 'vec4', 'float4', or 'half4'
+void main() { float y[2]; foo(y); }
+^^^^^^^^^^^
+1 error

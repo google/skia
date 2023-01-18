@@ -1,0 +1,15 @@
+### Compilation failed:
+
+error: 10: unknown identifier 'frexp'
+    result.x    = frexp(value.x,    exp.x);
+                  ^^^^^
+error: 12: unknown identifier 'frexp'
+    result.xy   = frexp(value.xy,   exp.xy);
+                  ^^^^^
+error: 14: unknown identifier 'frexp'
+    result.xyz  = frexp(value.xyz,  exp.xyz);
+                  ^^^^^
+error: 16: unknown identifier 'frexp'
+    result.xyzw = frexp(value.xyzw, exp.xyzw);
+                  ^^^^^
+4 errors
