@@ -6,7 +6,6 @@
     6. copy_slot_unmasked             $2 = f
     7. copy_slot_unmasked             $3 = f
     8. copy_4_slots_unmasked          fv = $0..3
-    9. copy_4_slots_unmasked          $0..3 = fv
-   10. copy_4_slots_masked            [main].result = Mask($0..3)
-   11. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   12. load_src                       src.rgba = [main].result
+    9. copy_4_slots_masked            [main].result = Mask($0..3)
+   10. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   11. load_src                       src.rgba = [main].result

@@ -12,7 +12,7 @@
    12. copy_slot_masked               c = Mask($0)
    13. copy_slot_masked               b = Mask($0)
    14. copy_slot_masked               a = Mask($0)
-   15. copy_2_slots_unmasked          $0..1 = a(0..1)
+   15. copy_slot_unmasked             $1 = b
    16. mul_float                      $0 *= $1
    17. copy_slot_unmasked             $1 = x
    18. copy_slot_unmasked             $2 = c

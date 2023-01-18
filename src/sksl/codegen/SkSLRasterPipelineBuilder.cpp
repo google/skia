@@ -175,6 +175,22 @@ void Builder::push_slots(SlotRange src) {
             lastInstruction.fImmA += src.count;
             return;
         }
+
+        // If the previous instruction was discarding an equal number of slots...
+        if (lastInstruction.fOp == BuilderOp::discard_stack && lastInstruction.fImmA == src.count) {
+            // ... and the instruction before that was copying from the stack to the same slots...
+            Instruction& prevInstruction = fInstructions.fromBack(1);
+            if ((prevInstruction.fOp == BuilderOp::copy_stack_to_slots ||
+                 prevInstruction.fOp == BuilderOp::copy_stack_to_slots_unmasked) &&
+                prevInstruction.fSlotA == src.index &&
+                prevInstruction.fImmA == src.count) {
+                // ... we are emitting `copy stack to X, discard stack, copy X to stack`. This is a
+                // common pattern when multiple operations in a row affect the same variable. We can
+                // eliminate the discard and just leave X on the stack.
+                fInstructions.pop_back();
+                return;
+            }
+        }
     }
 
     if (src.count > 0) {

@@ -4,34 +4,31 @@
     4. copy_slot_unmasked             r = $0
     5. copy_constant                  $0 = 0x3F800000 (1.0)
     6. copy_slot_unmasked             g = $0
-    7. branch_if_no_active_lanes      branch_if_no_active_lanes +9 (#16)
+    7. branch_if_no_active_lanes      branch_if_no_active_lanes +8 (#15)
     8. store_return_mask              $0 = RetMask
     9. copy_slot_unmasked             $1 = r
    10. copy_slot_unmasked             x = $1
-   11. copy_slot_unmasked             $1 = x
-   12. copy_slot_masked               [opt_barrier].result = Mask($1)
-   13. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   14. load_return_mask               RetMask = $0
-   15. copy_slot_unmasked             $0 = [opt_barrier].result
-   16. copy_constant                  $1 = 0x3F800000 (1.0)
-   17. branch_if_no_active_lanes      branch_if_no_active_lanes +18 (#35)
-   18. store_return_mask              $2 = RetMask
-   19. zero_slot_unmasked             $3 = 0
-   20. branch_if_no_active_lanes      branch_if_no_active_lanes +9 (#29)
-   21. store_return_mask              $4 = RetMask
-   22. copy_slot_unmasked             $5 = g
-   23. copy_slot_unmasked             x = $5
-   24. copy_slot_unmasked             $5 = x
-   25. copy_slot_masked               [opt_barrier].result = Mask($5)
-   26. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   27. load_return_mask               RetMask = $4
-   28. copy_slot_unmasked             $4 = [opt_barrier].result
-   29. copy_2_slots_unmasked          rg = $3..4
-   30. copy_2_slots_unmasked          $3..4 = rg
-   31. copy_2_slots_masked            [compute_ba].result = Mask($3..4)
-   32. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   33. load_return_mask               RetMask = $2
-   34. copy_2_slots_unmasked          $2..3 = [compute_ba].result
-   35. copy_4_slots_masked            [main].result = Mask($0..3)
-   36. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   37. load_src                       src.rgba = [main].result
+   11. copy_slot_masked               [opt_barrier].result = Mask($1)
+   12. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   13. load_return_mask               RetMask = $0
+   14. copy_slot_unmasked             $0 = [opt_barrier].result
+   15. copy_constant                  $1 = 0x3F800000 (1.0)
+   16. branch_if_no_active_lanes      branch_if_no_active_lanes +16 (#32)
+   17. store_return_mask              $2 = RetMask
+   18. zero_slot_unmasked             $3 = 0
+   19. branch_if_no_active_lanes      branch_if_no_active_lanes +8 (#27)
+   20. store_return_mask              $4 = RetMask
+   21. copy_slot_unmasked             $5 = g
+   22. copy_slot_unmasked             x = $5
+   23. copy_slot_masked               [opt_barrier].result = Mask($5)
+   24. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   25. load_return_mask               RetMask = $4
+   26. copy_slot_unmasked             $4 = [opt_barrier].result
+   27. copy_2_slots_unmasked          rg = $3..4
+   28. copy_2_slots_masked            [compute_ba].result = Mask($3..4)
+   29. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   30. load_return_mask               RetMask = $2
+   31. copy_2_slots_unmasked          $2..3 = [compute_ba].result
+   32. copy_4_slots_masked            [main].result = Mask($0..3)
+   33. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   34. load_src                       src.rgba = [main].result

@@ -191,7 +191,7 @@
   191. cmpeq_int                      $1 = equal($1, $2)
   192. bitwise_and_int                $0 &= $1
   193. copy_slot_masked               _1_ok = Mask($0)
-  194. copy_2_slots_unmasked          $0..1 = _1_ok(0..1)
+  194. copy_slot_unmasked             $1 = _2_x
   195. copy_constant                  $2 = 0x00000001 (1.401298e-45)
   196. cmpeq_int                      $1 = equal($1, $2)
   197. bitwise_and_int                $0 &= $1
@@ -205,12 +205,12 @@
   205. cmpeq_int                      $1 = equal($1, $2)
   206. bitwise_and_int                $0 &= $1
   207. copy_slot_masked               _1_ok = Mask($0)
-  208. copy_2_slots_unmasked          $0..1 = _1_ok(0..1)
+  208. copy_slot_unmasked             $1 = _2_x
   209. copy_constant                  $2 = 0xFFFFFFFF
   210. cmpeq_int                      $1 = equal($1, $2)
   211. bitwise_and_int                $0 &= $1
   212. copy_slot_masked               _1_ok = Mask($0)
-  213. copy_2_slots_unmasked          $0..1 = _1_ok(0..1)
+  213. copy_slot_unmasked             $1 = _2_x
   214. copy_constant                  $2 = 0xFFFFFFFF
   215. cmpeq_int                      $1 = equal($1, $2)
   216. bitwise_and_int                $0 &= $1
@@ -224,7 +224,7 @@
   224. cmpeq_int                      $1 = equal($1, $2)
   225. bitwise_and_int                $0 &= $1
   226. copy_slot_masked               _1_ok = Mask($0)
-  227. copy_2_slots_unmasked          $0..1 = _1_ok(0..1)
+  227. copy_slot_unmasked             $1 = _2_x
   228. copy_constant                  $2 = 0xFFFFFFFE
   229. cmpeq_int                      $1 = equal($1, $2)
   230. bitwise_and_int                $0 &= $1
