@@ -95,12 +95,6 @@ sk_sp<SkImage> SkImage::makeSubset(const SkIRect& subset,
         return nullptr;
     }
 
-    // optimization : return self if the subset == our bounds and requirements met
-    if (bounds == subset && (requiredProps.fMipmapped == Mipmapped::kNo || this->hasMipmaps())) {
-        const SkImage* image = this;
-        return sk_ref_sp(const_cast<SkImage*>(image));
-    }
-
     return as_IB(this)->onMakeSubset(subset, recorder, requiredProps);
 }
 

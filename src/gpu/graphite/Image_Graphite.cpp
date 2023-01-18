@@ -37,6 +37,14 @@ Image::~Image() {}
 sk_sp<SkImage> Image::onMakeSubset(const SkIRect& subset,
                                    Recorder* recorder,
                                    RequiredImageProperties requiredProps) const {
+    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
+
+    // optimization : return self if the subset == our bounds and requirements met
+    if (bounds == subset && (requiredProps.fMipmapped == Mipmapped::kNo || this->hasMipmaps())) {
+        const SkImage* image = this;
+        return sk_ref_sp(const_cast<SkImage*>(image));
+    }
+
     TextureProxyView srcView = this->textureProxyView();
     if (!srcView) {
         return nullptr;
