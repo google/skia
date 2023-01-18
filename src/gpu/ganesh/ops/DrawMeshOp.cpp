@@ -956,7 +956,7 @@ void MeshOp::onPrepareDraws(GrMeshDrawTarget* target) {
                           fIndexCount,
                           firstIndex,
                           /*minIndexValue=*/0,
-                          fVertexCount,
+                          fVertexCount - 1,
                           GrPrimitiveRestart::kNo,
                           std::move(vertexBuffer),
                           firstVertex);
