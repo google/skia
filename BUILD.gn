@@ -1221,7 +1221,9 @@ optional("jpeg_decode") {
     "src/codec/SkJpegUtility.cpp",
   ]
   if (skia_use_jpeg_gainmaps) {
-    defines = [ "SK_CODEC_DECODES_JPEG_GAINMAPS" ]
+    # Theoretically this doesn't need to be public, but this allows gn_to_bp.py to see it, and seems
+    # to align with other codec support. See b/265939413
+    public_defines += [ "SK_CODEC_DECODES_JPEG_GAINMAPS" ]
     deps += [ ":xml" ]
     sources += [
       "src/codec/SkJpegGainmap.cpp",
