@@ -1,4 +1,55 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_4_slots_unmasked          c = 0
+    4. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (#11)
+    5. store_return_mask              $0 = RetMask
+    6. copy_4_constants               $1..4 = colorGreen
+    7. copy_4_slots_masked            x = Mask($1..4)
+    8. load_return_mask               RetMask = $0
+    9. copy_4_slots_unmasked          $0..3 = x
+   10. copy_4_slots_masked            c = Mask($0..3)
+   11. branch_if_no_active_lanes      branch_if_no_active_lanes +12 (#23)
+   12. store_return_mask              $0 = RetMask
+   13. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (#20)
+   14. store_return_mask              $1 = RetMask
+   15. copy_4_constants               $2..5 = colorGreen
+   16. copy_4_slots_masked            x = Mask($2..5)
+   17. load_return_mask               RetMask = $1
+   18. copy_4_slots_unmasked          $1..4 = x
+   19. copy_4_slots_masked            c = Mask($1..4)
+   20. load_return_mask               RetMask = $0
+   21. copy_4_slots_unmasked          $0..3 = c
+   22. copy_4_slots_masked            c = Mask($0..3)
+   23. branch_if_no_active_lanes      branch_if_no_active_lanes +11 (#34)
+   24. store_return_mask              $0 = RetMask
+   25. copy_4_slots_unmasked          $1..4 = c
+   26. copy_4_slots_unmasked          x = $1..4
+   27. copy_4_slots_unmasked          $1..4 = x
+   28. copy_4_slots_unmasked          $5..8 = x
+   29. mul_4_floats                   $1..4 *= $5..8
+   30. copy_4_slots_masked            x = Mask($1..4)
+   31. load_return_mask               RetMask = $0
+   32. copy_4_slots_unmasked          $0..3 = x
+   33. copy_4_slots_masked            c = Mask($0..3)
+   34. branch_if_no_active_lanes      branch_if_no_active_lanes +18 (#52)
+   35. store_return_mask              $0 = RetMask
+   36. copy_4_slots_unmasked          $1..4 = c
+   37. copy_4_slots_unmasked          x = $1..4
+   38. branch_if_no_active_lanes      branch_if_no_active_lanes +11 (#49)
+   39. store_return_mask              $1 = RetMask
+   40. copy_4_slots_unmasked          $2..5 = x
+   41. copy_4_slots_unmasked          x = $2..5
+   42. copy_4_slots_unmasked          $2..5 = x
+   43. copy_4_slots_unmasked          $6..9 = x
+   44. mul_4_floats                   $2..5 *= $6..9
+   45. copy_4_slots_masked            x = Mask($2..5)
+   46. load_return_mask               RetMask = $1
+   47. copy_4_slots_unmasked          $1..4 = x
+   48. copy_4_slots_masked            x = Mask($1..4)
+   49. load_return_mask               RetMask = $0
+   50. copy_4_slots_unmasked          $0..3 = x
+   51. copy_4_slots_masked            c = Mask($0..3)
+   52. copy_4_slots_unmasked          $0..3 = c
+   53. copy_4_slots_masked            [main].result = Mask($0..3)
+   54. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   55. load_src                       src.rgba = [main].result

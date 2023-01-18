@@ -1,4 +1,26 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. branch_if_no_active_lanes      branch_if_no_active_lanes +5 (#8)
+    4. store_return_mask              $0 = RetMask
+    5. copy_2_slots_unmasked          $1..2 = coords
+    6. copy_2_slots_unmasked          x = $1..2
+    7. load_return_mask               RetMask = $0
+    8. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (#15)
+    9. store_return_mask              $0 = RetMask
+   10. copy_2_slots_unmasked          $1..2 = coords
+   11. copy_2_slots_unmasked          x = $1..2
+   12. load_return_mask               RetMask = $0
+   13. copy_2_slots_unmasked          $0..1 = x
+   14. copy_2_slots_masked            coords = Mask($0..1)
+   15. branch_if_no_active_lanes      branch_if_no_active_lanes +8 (#23)
+   16. store_return_mask              $0 = RetMask
+   17. zero_slot_unmasked             $1 = 0
+   18. copy_slot_unmasked             $2 = $1
+   19. copy_2_slots_masked            x = Mask($1..2)
+   20. load_return_mask               RetMask = $0
+   21. copy_2_slots_unmasked          $0..1 = x
+   22. copy_2_slots_masked            coords = Mask($0..1)
+   23. copy_4_constants               $0..3 = colorGreen
+   24. copy_4_slots_masked            [main].result = Mask($0..3)
+   25. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   26. load_src                       src.rgba = [main].result

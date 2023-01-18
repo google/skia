@@ -258,6 +258,16 @@ public:
        return var.modifiers().fFlags & Modifiers::kUniform_Flag;
     }
 
+    static bool IsOutParameter(const Variable& var) {
+        return (var.modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) ==
+               Modifiers::kOut_Flag;
+    }
+
+    static bool IsInoutParameter(const Variable& var) {
+        return (var.modifiers().fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag)) ==
+               (Modifiers::kIn_Flag | Modifiers::kOut_Flag);
+    }
+
 private:
     const SkSL::Program& fProgram;
     Builder fBuilder;
@@ -1349,20 +1359,32 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
     // Write all the arguments into their parameter's variable slots. Because we never allow
     // recursion, we don't need to worry about overwriting any existing values in those slots.
     // (In fact, we don't even need to apply the write mask.)
+    SkTArray<std::unique_ptr<LValue>> lvalues;
+    lvalues.resize(c.arguments().size());
+
     for (int index = 0; index < c.arguments().size(); ++index) {
         const Expression& arg = *c.arguments()[index];
         const Variable& param = *c.function().parameters()[index];
 
-        if (param.modifiers().fFlags & Modifiers::kOut_Flag) {
-            // TODO(skia:13676): out and inout parameters
-            return unsupported();
+        // Use LValues for out-parameters and inout-parameters, so we can store back to them later.
+        if (IsInoutParameter(param) || IsOutParameter(param)) {
+            lvalues[index] = LValue::Make(arg);
+            if (!lvalues[index]) {
+                return unsupported();
+            }
+            // There are no guarantees on the starting value of an out-parameter, so we only need to
+            // store the lvalues associated with an inout parameter.
+            if (IsInoutParameter(param)) {
+                lvalues[index]->push(this);
+                this->popToSlotRangeUnmasked(this->getVariableSlots(param));
+            }
+        } else {
+            // Copy input arguments into their respective parameter slots.
+            if (!this->pushExpression(arg)) {
+                return unsupported();
+            }
+            this->popToSlotRangeUnmasked(this->getVariableSlots(param));
         }
-
-        if (!this->pushExpression(arg)) {
-            return unsupported();
-        }
-
-        this->popToSlotRangeUnmasked(this->getVariableSlots(param));
     }
 
     // Emit the function body.
@@ -1373,6 +1395,20 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
 
     // Restore the original return mask.
     fBuilder.pop_return_mask();
+
+    // Copy out-parameters and inout-parameters back to their homes.
+    for (int index = 0; index < c.arguments().size(); ++index) {
+        if (lvalues[index]) {
+            // Only out- and inout-parameters should have an associated lvalue.
+            const Variable& param = *c.function().parameters()[index];
+            SkASSERT(IsInoutParameter(param) || IsOutParameter(param));
+
+            // Copy the parameter's slots directly into the lvalue.
+            fBuilder.push_slots(this->getVariableSlots(param));
+            lvalues[index]->store(this);
+            this->discardExpression(param.type().slotCount());
+        }
+    }
 
     // Copy the function result from its slots onto the stack.
     fBuilder.push_slots(*r);

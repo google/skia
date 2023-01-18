@@ -1,4 +1,58 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_slot_unmasked             $0 = 0
+    4. copy_constant                  $1 = 0x3F800000 (1.0)
+    5. copy_constant                  $2 = 0x40000000 (2.0)
+    6. copy_constant                  $3 = 0x40400000 (3.0)
+    7. copy_4_slots_unmasked          result = $0..3
+    8. branch_if_no_active_lanes      branch_if_no_active_lanes +34 (#42)
+    9. store_return_mask              $0 = RetMask
+   10. copy_4_slots_unmasked          $1..4 = result
+   11. copy_4_slots_unmasked          color = $1..4
+   12. branch_if_no_active_lanes      branch_if_no_active_lanes +24 (#36)
+   13. store_return_mask              $1 = RetMask
+   14. copy_constant                  $2 = 0x3F800000 (1.0)
+   15. copy_slot_unmasked             x = $2
+   16. copy_constant                  $2 = 0x40000000 (2.0)
+   17. copy_slot_unmasked             y = $2
+   18. copy_slot_unmasked             $2 = color(0)
+   19. copy_slot_unmasked             $3 = color(2)
+   20. copy_2_slots_unmasked          color = $2..3
+   21. copy_constant                  $2 = 0x40A00000 (5.0)
+   22. copy_slot_unmasked             z = $2
+   23. copy_2_slots_unmasked          $2..3 = color
+   24. swizzle_2                      $2..3 = ($2..3).yx
+   25. copy_2_slots_masked            color = Mask($2..3)
+   26. copy_2_slots_unmasked          $2..3 = x(0..1)
+   27. add_float                      $2 += $3
+   28. copy_slot_unmasked             $3 = z
+   29. copy_2_slots_masked            [tricky].result = Mask($2..3)
+   30. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   31. load_return_mask               RetMask = $1
+   32. copy_2_slots_unmasked          $1..2 = color
+   33. copy_slot_masked               color(0) = Mask($1)
+   34. copy_slot_masked               color(2) = Mask($2)
+   35. copy_2_slots_unmasked          $1..2 = [tricky].result
+   36. copy_2_slots_unmasked          t = $1..2
+   37. copy_slot_masked               color(1) = Mask($1)
+   38. copy_slot_masked               color(3) = Mask($2)
+   39. load_return_mask               RetMask = $0
+   40. copy_4_slots_unmasked          $0..3 = color
+   41. copy_4_slots_masked            result = Mask($0..3)
+   42. store_condition_mask           $8 = CondMask
+   43. copy_4_slots_unmasked          $9..12 = result
+   44. copy_constant                  $13 = 0x40000000 (2.0)
+   45. copy_constant                  $14 = 0x40400000 (3.0)
+   46. zero_slot_unmasked             $15 = 0
+   47. copy_constant                  $16 = 0x40A00000 (5.0)
+   48. cmpeq_4_floats                 $9..12 = equal($9..12, $13..16)
+   49. bitwise_and_2_ints             $9..10 &= $11..12
+   50. bitwise_and_int                $9 &= $10
+   51. copy_4_constants               $0..3 = colorRed
+   52. merge_condition_mask           CondMask = $8 & $9
+   53. copy_4_constants               $4..7 = colorGreen
+   54. copy_4_slots_masked            $0..3 = Mask($4..7)
+   55. load_condition_mask            CondMask = $8
+   56. copy_4_slots_masked            [main].result = Mask($0..3)
+   57. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   58. load_src                       src.rgba = [main].result

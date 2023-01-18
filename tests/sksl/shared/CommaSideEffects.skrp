@@ -1,4 +1,67 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   coords = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. zero_4_slots_unmasked          a = 0
+    4. zero_4_slots_unmasked          b = 0
+    5. zero_4_slots_unmasked          c = 0
+    6. zero_4_slots_unmasked          d = 0
+    7. copy_4_constants               $0..3 = colorRed
+    8. copy_4_slots_masked            b = Mask($0..3)
+    9. copy_4_constants               $0..3 = colorGreen
+   10. copy_4_slots_masked            c = Mask($0..3)
+   11. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (#18)
+   12. store_return_mask              $0 = RetMask
+   13. copy_4_constants               $1..4 = colorBlack
+   14. copy_4_slots_masked            x = Mask($1..4)
+   15. load_return_mask               RetMask = $0
+   16. copy_4_slots_unmasked          $0..3 = x
+   17. copy_4_slots_masked            d = Mask($0..3)
+   18. copy_4_constants               $0..3 = colorWhite
+   19. copy_4_slots_masked            a = Mask($0..3)
+   20. copy_4_slots_unmasked          $0..3 = a
+   21. copy_4_slots_unmasked          $4..7 = a
+   22. mul_4_floats                   $0..3 *= $4..7
+   23. copy_4_slots_masked            a = Mask($0..3)
+   24. copy_4_slots_unmasked          $0..3 = b
+   25. copy_4_slots_unmasked          $4..7 = b
+   26. mul_4_floats                   $0..3 *= $4..7
+   27. copy_4_slots_masked            b = Mask($0..3)
+   28. copy_4_slots_unmasked          $0..3 = c
+   29. copy_4_slots_unmasked          $4..7 = c
+   30. mul_4_floats                   $0..3 *= $4..7
+   31. copy_4_slots_masked            c = Mask($0..3)
+   32. copy_4_slots_unmasked          $0..3 = d
+   33. copy_4_slots_unmasked          $4..7 = d
+   34. mul_4_floats                   $0..3 *= $4..7
+   35. copy_4_slots_masked            d = Mask($0..3)
+   36. store_condition_mask           $8 = CondMask
+   37. copy_4_slots_unmasked          $9..12 = a
+   38. copy_4_constants               $13..16 = colorWhite
+   39. cmpeq_4_floats                 $9..12 = equal($9..12, $13..16)
+   40. bitwise_and_2_ints             $9..10 &= $11..12
+   41. bitwise_and_int                $9 &= $10
+   42. copy_4_slots_unmasked          $10..13 = b
+   43. copy_4_constants               $14..17 = colorRed
+   44. cmpeq_4_floats                 $10..13 = equal($10..13, $14..17)
+   45. bitwise_and_2_ints             $10..11 &= $12..13
+   46. bitwise_and_int                $10 &= $11
+   47. bitwise_and_int                $9 &= $10
+   48. copy_4_slots_unmasked          $10..13 = c
+   49. copy_4_constants               $14..17 = colorGreen
+   50. cmpeq_4_floats                 $10..13 = equal($10..13, $14..17)
+   51. bitwise_and_2_ints             $10..11 &= $12..13
+   52. bitwise_and_int                $10 &= $11
+   53. bitwise_and_int                $9 &= $10
+   54. copy_4_slots_unmasked          $10..13 = d
+   55. copy_4_constants               $14..17 = colorBlack
+   56. cmpeq_4_floats                 $10..13 = equal($10..13, $14..17)
+   57. bitwise_and_2_ints             $10..11 &= $12..13
+   58. bitwise_and_int                $10 &= $11
+   59. bitwise_and_int                $9 &= $10
+   60. copy_4_constants               $0..3 = colorRed
+   61. merge_condition_mask           CondMask = $8 & $9
+   62. copy_4_constants               $4..7 = colorGreen
+   63. copy_4_slots_masked            $0..3 = Mask($4..7)
+   64. load_condition_mask            CondMask = $8
+   65. copy_4_slots_masked            [main].result = Mask($0..3)
+   66. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   67. load_src                       src.rgba = [main].result
