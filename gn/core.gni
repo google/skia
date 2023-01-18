@@ -69,7 +69,6 @@ skia_core_public = [
   "$_include/core/SkM44.h",
   "$_include/core/SkMallocPixelRef.h",
   "$_include/core/SkMaskFilter.h",
-  "$_include/core/SkMath.h",
   "$_include/core/SkMatrix.h",
   "$_include/core/SkMesh.h",
   "$_include/core/SkMilestone.h",

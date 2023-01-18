@@ -56,7 +56,6 @@ SKIA_PUBLIC_HDRS = [
     "include/core/SkM44.h",
     "include/core/SkMallocPixelRef.h",
     "include/core/SkMaskFilter.h",
-    "include/core/SkMath.h",
     "include/core/SkMatrix.h",
     "include/core/SkMilestone.h",
     "include/core/SkOverdrawCanvas.h",
