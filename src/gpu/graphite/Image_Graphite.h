@@ -47,6 +47,7 @@ public:
 
 private:
     sk_sp<SkImage> onMakeTextureImage(Recorder*, RequiredImageProperties) const override;
+    sk_sp<SkImage> copyImage(const SkIRect& subset, Recorder*, RequiredImageProperties) const;
 
     TextureProxyView fTextureProxyView;
 };

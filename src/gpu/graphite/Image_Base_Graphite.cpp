@@ -74,12 +74,6 @@ sk_sp<SkImage> SkImage::makeTextureImage(Recorder* recorder,
         requiredProps.fMipmapped = Mipmapped::kNo;
     }
 
-    if (as_IB(this)->isGraphiteBacked()) {
-        if (requiredProps.fMipmapped == Mipmapped::kNo || this->hasMipmaps()) {
-            const SkImage* image = this;
-            return sk_ref_sp(const_cast<SkImage*>(image));
-        }
-    }
     return as_IB(this)->onMakeTextureImage(recorder, requiredProps);
 }
 

@@ -45,6 +45,23 @@ sk_sp<SkImage> Image::onMakeSubset(const SkIRect& subset,
         return sk_ref_sp(const_cast<SkImage*>(image));
     }
 
+    return this->copyImage(subset, recorder, requiredProps);
+}
+
+sk_sp<SkImage> Image::onMakeTextureImage(Recorder* recorder,
+                                         RequiredImageProperties requiredProps) const {
+    if (requiredProps.fMipmapped == Mipmapped::kNo || this->hasMipmaps()) {
+        const SkImage* image = this;
+        return sk_ref_sp(const_cast<SkImage*>(image));
+    }
+
+    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
+    return this->copyImage(bounds, recorder, requiredProps);
+}
+
+sk_sp<SkImage> Image::copyImage(const SkIRect& subset,
+                                Recorder* recorder,
+                                RequiredImageProperties requiredProps) const {
     TextureProxyView srcView = this->textureProxyView();
     if (!srcView) {
         return nullptr;
@@ -68,30 +85,6 @@ sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
     return sk_make_sp<Image>(kNeedNewImageUniqueID,
                              fTextureProxyView,
                              this->imageInfo().colorInfo().makeColorSpace(std::move(newCS)));
-}
-
-sk_sp<SkImage> Image::onMakeTextureImage(Recorder* recorder,
-                                         RequiredImageProperties requiredProps) const {
-    SkASSERT(requiredProps.fMipmapped == Mipmapped::kYes && !this->hasMipmaps());
-
-    TextureProxyView srcView = this->textureProxyView();
-    if (!srcView) {
-        return nullptr;
-    }
-
-    const SkIRect bounds = SkIRect::MakeSize(this->imageInfo().dimensions());
-    TextureProxyView copiedView = TextureProxyView::Copy(recorder,
-                                                         this->imageInfo().colorInfo(),
-                                                         srcView,
-                                                         bounds,
-                                                         requiredProps.fMipmapped);
-    if (!copiedView) {
-        return nullptr;
-    }
-
-    return sk_sp<Image>(new Image(kNeedNewImageUniqueID,
-                                  std::move(copiedView),
-                                  this->imageInfo().colorInfo()));
 }
 
 } // namespace skgpu::graphite
