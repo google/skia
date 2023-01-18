@@ -566,13 +566,12 @@ DEF_TEST(RasterPipelineBuilderUniforms, r) {
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/10);
     check(r, *program,
-R"(    1. copy_constant                  $0 = u0
-    2. copy_2_constants               $1..2 = u1..2
-    3. copy_3_constants               $3..5 = u3..5
-    4. copy_4_constants               $6..9 = u6..9
-    5. copy_4_constants               $10..13 = u0..3
-    6. copy_constant                  $14 = u4
-    7. abs_int                        $14 = abs($14)
+R"(    1. copy_4_constants               $0..3 = u0..3
+    2. copy_4_constants               $4..7 = u4..7
+    3. copy_2_constants               $8..9 = u8..9
+    4. copy_4_constants               $10..13 = u0..3
+    5. copy_constant                  $14 = u4
+    6. abs_int                        $14 = abs($14)
 )");
 }
 

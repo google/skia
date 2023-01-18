@@ -182,6 +182,25 @@ void Builder::push_slots(SlotRange src) {
     }
 }
 
+void Builder::push_uniform(SlotRange src) {
+    SkASSERT(src.count >= 0);
+    if (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        // If the previous instruction was pushing uniforms contiguous to this range, we can
+        // collapse the two pushes into one larger push.
+        if (lastInstruction.fOp == BuilderOp::push_uniform &&
+            lastInstruction.fSlotA + lastInstruction.fImmA == src.index) {
+            lastInstruction.fImmA += src.count;
+            return;
+        }
+    }
+
+    if (src.count > 0) {
+        fInstructions.push_back({BuilderOp::push_uniform, {src.index}, src.count});
+    }
+}
+
 void Builder::push_duplicates(int count) {
     SkASSERT(count >= 0);
     if (count >= 3) {

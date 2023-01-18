@@ -281,10 +281,8 @@ public:
         fInstructions.push_back({BuilderOp::push_literal_f, {}, sk_bit_cast<int32_t>(val)});
     }
 
-    void push_uniform(SlotRange src) {
-        // Translates into copy_constants (from uniforms into temp stack) in Raster Pipeline.
-        fInstructions.push_back({BuilderOp::push_uniform, {src.index}, src.count});
-    }
+    // Translates into copy_constants (from uniforms into temp stack) in Raster Pipeline.
+    void push_uniform(SlotRange src);
 
     void push_zeros(int count) {
         // Translates into zero_slot_unmasked in Raster Pipeline.
