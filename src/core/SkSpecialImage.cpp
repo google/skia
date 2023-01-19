@@ -134,7 +134,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(GrRecordingContext* rContext
                                    subset,
                                    image->uniqueID(),
                                    std::move(view),
-                                   { ct, kPremul_SkAlphaType, image->refColorSpace() },
+                                   { ct, image->alphaType(), image->refColorSpace() },
                                    props);
     }
 #endif
