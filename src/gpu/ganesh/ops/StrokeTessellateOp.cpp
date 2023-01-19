@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/ops/StrokeTessellateOp.h"
 
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrCaps.h"

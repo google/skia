@@ -11,7 +11,7 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGText.h"
-#include "src/core/SkTLazy.h"
+#include "src/base/SkTLazy.h"
 
 #include <functional>
 #include <tuple>

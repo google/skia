@@ -12,7 +12,7 @@
 #include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGValue.h"
-#include "src/core/SkTLazy.h"
+#include "src/base/SkTLazy.h"
 
 SkSVGNode::SkSVGNode(SkSVGTag t) : fTag(t) {
     // Uninherited presentation attributes need a non-null default value.

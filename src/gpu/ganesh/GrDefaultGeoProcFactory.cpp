@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/GrDefaultGeoProcFactory.h"
 
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"

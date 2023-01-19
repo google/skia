@@ -17,7 +17,7 @@
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ResourceKey.h"

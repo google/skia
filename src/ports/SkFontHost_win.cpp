@@ -21,6 +21,7 @@
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkBase64.h"
 #include "src/base/SkLeanWindows.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkFontDescriptor.h"
@@ -34,7 +35,6 @@
 #include "src/sfnt/SkOTUtils.h"
 #include "src/sfnt/SkSFNTHeader.h"
 #include "src/utils/SkMatrix22.h"
-#include "src/utils/SkUTF.h"
 #include "src/utils/win/SkHRESULT.h"
 
 #include <tchar.h>

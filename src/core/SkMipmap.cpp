@@ -11,8 +11,8 @@
 #include "include/private/SkHalf.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/base/SkVx.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/core/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkMipmapBuilder.h"
 #include <new>

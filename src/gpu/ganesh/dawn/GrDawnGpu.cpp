@@ -35,7 +35,7 @@
 #include "src/gpu/ganesh/dawn/GrDawnUtil.h"
 #include "src/sksl/SkSLProgramSettings.h"
 
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkMipmap.h"
 #include "src/sksl/SkSLCompiler.h"
 

@@ -295,21 +295,22 @@ skia_sksl_gpu_sources = [
 #  //src/utils:json_srcs
 #  //src/utils:sksl_srcs
 skslc_deps = [
+  "$_src/base/SkArenaAlloc.cpp",
+  "$_src/base/SkBlockAllocator.cpp",
   "$_src/base/SkContainers.cpp",
   "$_src/base/SkMalloc.cpp",
+  "$_src/base/SkMathPriv.cpp",
   "$_src/base/SkSafeMath.cpp",
   "$_src/base/SkSemaphore.cpp",
-  "$_src/core/SkArenaAlloc.cpp",
-  "$_src/core/SkBlockAllocator.cpp",
+  "$_src/base/SkThreadID.cpp",
+  "$_src/base/SkUTF.cpp",
   "$_src/core/SkCpu.cpp",
   "$_src/core/SkData.cpp",
   "$_src/core/SkHalf.cpp",
-  "$_src/core/SkMath.cpp",
   "$_src/core/SkMatrixInvert.cpp",
   "$_src/core/SkStream.cpp",
   "$_src/core/SkString.cpp",
   "$_src/core/SkStringUtils.cpp",
-  "$_src/core/SkThreadID.cpp",
   "$_src/core/SkUtils.cpp",
   "$_src/core/SkVM.cpp",
   "$_src/gpu/ganesh/GrMemoryPool.cpp",
@@ -320,6 +321,5 @@ skslc_deps = [
   "$_src/utils/SkOSPath.cpp",
   "$_src/utils/SkParse.cpp",
   "$_src/utils/SkShaderUtils.cpp",
-  "$_src/utils/SkUTF.cpp",
   "$_src/utils/SkVMVisualizer.cpp",
 ]

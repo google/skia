@@ -9,7 +9,7 @@
 
 #include "include/core/SkData.h"
 #include "include/core/SkMesh.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkMeshPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/core/SkVerticesPriv.h"

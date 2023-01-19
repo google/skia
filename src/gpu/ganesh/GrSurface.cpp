@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/GrSurface.h"
 #include "src/gpu/ganesh/GrTexture.h"
 
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
 
 size_t GrSurface::ComputeSize(const GrBackendFormat& format,

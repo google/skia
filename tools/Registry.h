@@ -9,7 +9,7 @@
 #define sk_tools_Registry_DEFINED
 
 #include "include/core/SkTypes.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
 
 namespace sk_tools {
 

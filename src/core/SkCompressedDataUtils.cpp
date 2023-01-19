@@ -12,7 +12,7 @@
 #include "include/core/SkData.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTPin.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkMipmap.h"
 
 struct ETC1Block {

@@ -10,7 +10,7 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/private/SkEncodedInfo.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "src/codec/SkJpegPriv.h"
 #include "src/codec/SkJpegUtility.h"
 

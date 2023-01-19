@@ -12,8 +12,8 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkUTF.h"
 #include "src/utils/SkJSONWriter.h"
-#include "src/utils/SkUTF.h"
 
 #include <algorithm>
 #include <cstddef>

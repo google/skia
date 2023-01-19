@@ -29,7 +29,7 @@
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkMalloc.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkTSort.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"

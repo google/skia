@@ -12,7 +12,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 
 #include <algorithm>
 #include <cstdint>

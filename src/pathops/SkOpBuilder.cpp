@@ -15,7 +15,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkPathPriv.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpEdgeBuilder.h"

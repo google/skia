@@ -11,7 +11,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkRect.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTemplates.h"
 

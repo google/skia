@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/tessellate/GrPathTessellationShader.h"
 
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/effects/GrDisableColorXP.h"
 #include "src/gpu/ganesh/glsl/GrGLSLFragmentShaderBuilder.h"

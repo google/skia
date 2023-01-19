@@ -11,8 +11,8 @@
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkUtils.h"
-#include "src/utils/SkUTF.h"
 
 #include <algorithm>
 #include <cstdio>

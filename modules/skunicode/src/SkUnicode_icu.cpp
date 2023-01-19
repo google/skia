@@ -16,8 +16,8 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkTHash.h"
-#include "src/utils/SkUTF.h"
 
 #include <functional>
 #include <string>

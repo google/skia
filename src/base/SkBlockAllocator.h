@@ -8,18 +8,20 @@
 #ifndef SkBlockAllocator_DEFINED
 #define SkBlockAllocator_DEFINED
 
-#include "include/core/SkTypes.h"
-#include "include/private/SkNoncopyable.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkMath.h"
-#include "include/private/base/SkTo.h"
-#include "src/core/SkASAN.h"
+#include "include/private/base/SkNoncopyable.h"
+#include "src/base/SkASAN.h"
 
-#include <memory>  // std::unique_ptr
-#include <cstddef> // max_align_t
-#include <limits> // numeric_limits
-#include <algorithm> // max
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <limits>
+#include <new>
+#include <type_traits>
 
 /**
  * SkBlockAllocator provides low-level support for a block allocated arena with a dynamic tail that
@@ -65,17 +67,6 @@ public:
         kLast = kExponential
     };
     inline static constexpr int kGrowthPolicyCount = static_cast<int>(GrowthPolicy::kLast) + 1;
-
-    class Block;
-
-    // Tuple representing a range of bytes, marking the unaligned start, the first aligned point
-    // after any padding, and the upper limit depending on requested size.
-    struct ByteRange {
-        Block* fBlock;         // Owning block
-        int    fStart;         // Inclusive byte lower limit of byte range
-        int    fAlignedOffset; // >= start, matching alignment requirement (i.e. first real byte)
-        int    fEnd;           // Exclusive upper limit of byte range
-    };
 
     class Block final {
     public:
@@ -171,6 +162,15 @@ public:
         // an allocator-level metadata and is explicitly not reset when the head block is "released"
         // Down the road we could instead choose to offer multiple metadata slots per block.
         int             fAllocatorMetadata;
+    };
+
+    // Tuple representing a range of bytes, marking the unaligned start, the first aligned point
+    // after any padding, and the upper limit depending on requested size.
+    struct ByteRange {
+        Block* fBlock;         // Owning block
+        int    fStart;         // Inclusive byte lower limit of byte range
+        int    fAlignedOffset; // >= start, matching alignment requirement (i.e. first real byte)
+        int    fEnd;           // Exclusive upper limit of byte range
     };
 
     // The size of the head block is determined by 'additionalPreallocBytes'. Subsequent heap blocks

@@ -13,7 +13,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkBuffer.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkStreamPriv.h"

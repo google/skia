@@ -9,7 +9,7 @@
 #define SkRectPriv_DEFINED
 
 #include "include/core/SkRect.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 
 class SkRectPriv {
 public:

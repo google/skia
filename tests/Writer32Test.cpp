@@ -13,7 +13,7 @@
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriter32.h"
 #include "tests/Test.h"

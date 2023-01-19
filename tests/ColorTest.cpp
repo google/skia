@@ -11,7 +11,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "tests/Test.h"
 
 DEF_TEST(ColorPremul, reporter) {

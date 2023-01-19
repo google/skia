@@ -7,21 +7,36 @@ exports_files_legacy()
 skia_filegroup(
     name = "private_hdrs",
     srcs = [
+        "SkASAN.h",
+        "SkArenaAlloc.h",
+        "SkArenaAllocList.h",
+        "SkAutoMalloc.h",
+        "SkBlockAllocator.h",
         "SkLeanWindows.h",
+        "SkMathPriv.h",
         "SkSafeMath.h",
+        "SkScopeExit.h",
         "SkStringView.h",
+        "SkTBlockList.h",
+        "SkTLazy.h",
+        "SkUTF.h",
     ],
     visibility = ["//src:__pkg__"],
 )
 
-# In separate file list because these files are exported to sksl.gni:skslc_deps.
+# In a separate file group because these files are exported to sksl.gni:skslc_deps.
 skia_filegroup(
     name = "skslc_srcs",
     srcs = [
+        "SkArenaAlloc.cpp",
+        "SkBlockAllocator.cpp",
         "SkContainers.cpp",
         "SkMalloc.cpp",
+        "SkMathPriv.cpp",
         "SkSafeMath.cpp",
         "SkSemaphore.cpp",
+        "SkThreadID.cpp",
+        "SkUTF.cpp",
     ],
 )
 

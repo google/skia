@@ -13,10 +13,10 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkMask.h"
-#include "src/core/SkTLazy.h"
 #include "src/core/SkVM_fwd.h"
 
 class GrFragmentProcessor;

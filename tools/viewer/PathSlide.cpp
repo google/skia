@@ -20,7 +20,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkParsePath.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 

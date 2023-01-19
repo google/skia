@@ -9,7 +9,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkTDArray.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkPathOpsCurve.h"

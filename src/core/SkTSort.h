@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 
 #include <utility>
 

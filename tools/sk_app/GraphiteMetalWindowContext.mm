@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkSurface.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "tools/sk_app/GraphiteMetalWindowContext.h"
 
 #include "include/gpu/graphite/BackendTexture.h"

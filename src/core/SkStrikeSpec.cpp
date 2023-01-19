@@ -8,10 +8,10 @@
 #include "src/core/SkStrikeSpec.h"
 
 #include "include/core/SkGraphics.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkTLazy.h"
 
 #if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #include "src/text/gpu/SDFMaskFilter.h"

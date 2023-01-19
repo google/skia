@@ -19,7 +19,7 @@
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/src/TextWrapper.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include <math.h>
 #include <algorithm>
 #include <utility>

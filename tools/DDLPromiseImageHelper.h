@@ -15,8 +15,8 @@
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/gpu/GrBackendSurface.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkCachedData.h"
-#include "src/core/SkTLazy.h"
 
 class GrDirectContext;
 class SkImage;

@@ -10,7 +10,7 @@
 #include "include/core/SkMallocPixelRef.h"
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkRefCnt.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkPixelRefPriv.h"
 #include "tests/Test.h"
 

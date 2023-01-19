@@ -11,7 +11,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/vk/VkTestUtils.h"

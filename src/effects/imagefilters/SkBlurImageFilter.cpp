@@ -22,7 +22,7 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkVx.h"
 #include "include/private/base/SkMalloc.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkSpecialImage.h"

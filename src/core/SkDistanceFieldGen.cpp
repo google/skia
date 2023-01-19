@@ -8,7 +8,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkPointPriv.h"

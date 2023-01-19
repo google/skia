@@ -2,7 +2,7 @@
 
 #include "modules/skparagraph/src/Iterators.h"
 #include "modules/skparagraph/src/OneLineShaper.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include <algorithm>
 #include <unordered_set>
 

@@ -9,7 +9,7 @@
 #define SkBlenderBase_DEFINED
 
 #include "include/core/SkBlender.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkVM.h"
 
 #include <optional>

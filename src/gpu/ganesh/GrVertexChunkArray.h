@@ -9,7 +9,7 @@
 #define GrVertexChunkArray_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTypeTraits.h"
 #include "src/gpu/BufferWriter.h"

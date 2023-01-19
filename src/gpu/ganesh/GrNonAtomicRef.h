@@ -9,7 +9,7 @@
 #define GrNonAtomicRef_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTArray.h"
 
 /**

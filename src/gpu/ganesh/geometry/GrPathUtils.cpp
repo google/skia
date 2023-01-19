@@ -8,7 +8,7 @@
 #include "src/gpu/ganesh/geometry/GrPathUtils.h"
 
 #include "include/gpu/GrTypes.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkUtils.h"
 #include "src/gpu/tessellate/WangsFormula.h"

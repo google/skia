@@ -8,7 +8,7 @@
 #ifndef skgpu_graphite_PipelineDataCache_DEFINED
 #define skgpu_graphite_PipelineDataCache_DEFINED
 
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/graphite/PipelineData.h"
 

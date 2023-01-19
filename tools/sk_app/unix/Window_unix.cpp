@@ -7,7 +7,7 @@
 
 #include "tools/sk_app/unix/WindowContextFactory_unix.h"
 
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include "tools/sk_app/WindowContext.h"
 #include "tools/sk_app/unix/Window_unix.h"
 #include "tools/skui/ModifierKey.h"

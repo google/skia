@@ -13,7 +13,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkScalerContext.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 

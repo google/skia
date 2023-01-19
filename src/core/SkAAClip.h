@@ -10,7 +10,7 @@
 
 #include "include/core/SkClipOp.h"
 #include "include/core/SkRect.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkBlitter.h"
 
 class SkPath;

@@ -14,7 +14,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "tests/Test.h"
 
 static void test_read(skiatest::Reporter* reporter, SkStream* bufferedStream,

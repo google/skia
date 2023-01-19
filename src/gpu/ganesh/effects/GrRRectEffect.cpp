@@ -7,8 +7,8 @@
 
 #include "src/gpu/ganesh/effects/GrRRectEffect.h"
 
+#include "src/base/SkTLazy.h"
 #include "src/core/SkRRectPriv.h"
-#include "src/core/SkTLazy.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"

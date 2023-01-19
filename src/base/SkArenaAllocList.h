@@ -8,8 +8,10 @@
 #ifndef SkArenaAllocList_DEFINED
 #define SkArenaAllocList_DEFINED
 
-#include "include/core/SkTypes.h"
-#include "src/core/SkArenaAlloc.h"
+#include "include/private/base/SkAssert.h"
+#include "src/base/SkArenaAlloc.h" // IWYU pragma: keep
+
+#include <utility>
 
 /**
  * A singly linked list of Ts stored in a SkArenaAlloc. The arena rather than the list owns

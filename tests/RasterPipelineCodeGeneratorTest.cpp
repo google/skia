@@ -8,7 +8,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLProgramKind.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"

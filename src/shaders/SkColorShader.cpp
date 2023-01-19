@@ -7,7 +7,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkFlattenable.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"

@@ -12,7 +12,7 @@
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 
 #include <limits>
 

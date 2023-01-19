@@ -8,8 +8,6 @@
 #ifndef SkASAN_DEFINED
 #define SkASAN_DEFINED
 
-#include "include/core/SkTypes.h"
-
 #include <cstddef>
 
 #ifdef __SANITIZE_ADDRESS__

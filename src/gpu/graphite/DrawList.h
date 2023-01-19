@@ -9,7 +9,7 @@
 #define skgpu_graphite_DrawList_DEFINED
 
 #include "include/core/SkPaint.h"
-#include "src/core/SkTBlockList.h"
+#include "src/base/SkTBlockList.h"
 
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/DrawParams.h"

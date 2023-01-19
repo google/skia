@@ -20,7 +20,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "tests/Test.h"
 
 #include <memory>

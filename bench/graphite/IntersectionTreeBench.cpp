@@ -8,7 +8,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/gpu/graphite/geom/IntersectionTree.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"

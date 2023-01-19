@@ -14,7 +14,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTPin.h"
 
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/AtlasTypes.h"

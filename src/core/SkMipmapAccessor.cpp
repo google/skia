@@ -8,7 +8,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkMatrix.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkMipmapAccessor.h"

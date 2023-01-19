@@ -10,7 +10,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/pathops/SkPathOps.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkPathPriv.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpEdgeBuilder.h"

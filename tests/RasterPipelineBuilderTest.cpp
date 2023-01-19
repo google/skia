@@ -6,8 +6,8 @@
  */
 
 #include "include/core/SkStream.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/base/SkStringView.h"
-#include "src/core/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"

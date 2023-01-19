@@ -10,7 +10,7 @@
 
 #include "include/private/base/SkTLogic.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRecords.h"
 
 // SkRecord represents a sequence of SkCanvas calls, saved for future use.

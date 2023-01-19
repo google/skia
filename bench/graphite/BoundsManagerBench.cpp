@@ -8,7 +8,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "tools/ToolUtils.h"
 #include "tools/flags/CommandLineFlags.h"

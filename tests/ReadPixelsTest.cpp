@@ -30,8 +30,8 @@
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkSafe32.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/core/SkMathPriv.h"
 #include "tests/Test.h"
 
 #include <cstdint>

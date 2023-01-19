@@ -9,8 +9,8 @@
 #define GrOpFlushState_DEFINED
 
 #include <utility>
-#include "src/core/SkArenaAlloc.h"
-#include "src/core/SkArenaAllocList.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkArenaAllocList.h"
 #include "src/gpu/ganesh/GrAppliedClip.h"
 #include "src/gpu/ganesh/GrBufferAllocPool.h"
 #include "src/gpu/ganesh/GrDeferredUpload.h"

@@ -17,7 +17,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/encode/SkEncoder.h"
 #include "include/encode/SkJpegEncoder.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/codec/SkJpegPriv.h"
 #include "src/core/SkMSAN.h"

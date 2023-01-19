@@ -10,6 +10,8 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkTLazy.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkMatrixPriv.h"
@@ -18,9 +20,7 @@
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
-#include "src/core/SkTLazy.h"
 #include "src/core/SkUtils.h"
-#include "src/utils/SkUTF.h"
 
 using namespace skia_private;
 

@@ -14,7 +14,7 @@
 #include "src/gpu/ganesh/dawn/GrDawnRingBuffer.h"
 #include "webgpu/webgpu_cpp.h"
 
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 
 class GrDawnGpu;
 class GrDawnUniformBuffer;

@@ -9,7 +9,7 @@
 #define GrGLSLVarying_DEFINED
 
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/core/SkTBlockList.h"
+#include "src/base/SkTBlockList.h"
 #include "src/gpu/ganesh/GrShaderVar.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"
 

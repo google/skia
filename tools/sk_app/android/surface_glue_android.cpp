@@ -22,7 +22,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTo.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include "tools/ResourceFactory.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/android/Window_android.h"

@@ -12,8 +12,8 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkMutex.h"
 #include "include/utils/SkCustomTypeface.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkOSFile.h"
-#include "src/utils/SkUTF.h"
 #include "tools/Resources.h"
 #include "tools/fonts/TestFontMgr.h"
 

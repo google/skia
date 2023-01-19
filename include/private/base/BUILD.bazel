@@ -30,6 +30,7 @@ skia_filegroup(
         "SkMalloc.h",
         "SkMath.h",
         "SkMutex.h",
+        "SkNoncopyable.h",
         "SkOnce.h",
         "SkPathEnums.h",
         "SkSafe32.h",

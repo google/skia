@@ -9,7 +9,7 @@
 #include "modules/skparagraph/src/ParagraphImpl.h"
 #include "modules/skparagraph/src/Run.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 
 namespace skia {
 namespace textlayout {

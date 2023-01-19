@@ -26,7 +26,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkTDArray.h"
-#include "src/core/SkTLazy.h"
+#include "src/base/SkTLazy.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>

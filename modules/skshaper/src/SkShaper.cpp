@@ -17,8 +17,8 @@
 #ifdef SK_UNICODE_AVAILABLE
 #include "modules/skunicode/include/SkUnicode.h"
 #endif
+#include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "src/utils/SkUTF.h"
 
 #include <limits.h>
 #include <string.h>

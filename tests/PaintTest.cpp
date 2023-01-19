@@ -20,7 +20,7 @@
 #include "include/core/SkScalar.h"
 #include "include/effects/SkColorMatrix.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkReadBuffer.h"

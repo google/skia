@@ -17,8 +17,8 @@
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/text/Font.h"
 #include "modules/sksg/include/SkSGScene.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkTHash.h"
-#include "src/utils/SkUTF.h"
 
 #include <vector>
 

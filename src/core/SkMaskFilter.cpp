@@ -16,7 +16,7 @@
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkCachedData.h"
 #include "src/core/SkDraw.h"

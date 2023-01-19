@@ -105,8 +105,6 @@ skia_utils_private = [
   "$_src/utils/SkShadowUtils.cpp",
   "$_src/utils/SkTestCanvas.h",
   "$_src/utils/SkTextUtils.cpp",
-  "$_src/utils/SkUTF.cpp",
-  "$_src/utils/SkUTF.h",
   "$_src/utils/SkVMVisualizer.cpp",
   "$_src/utils/SkVMVisualizer.h",
   "$_src/utils/mac/SkCGBase.h",

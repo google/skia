@@ -12,8 +12,8 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkNoncopyable.h"
 #include "include/private/base/SkMutex.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"

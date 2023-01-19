@@ -15,7 +15,7 @@
 #include "modules/particles/include/SkParticleDrawable.h"
 #include "modules/particles/include/SkReflected.h"
 #include "modules/skresources/include/SkResources.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/core/SkVM.h"
 #include "src/sksl/SkSLCompiler.h"

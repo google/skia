@@ -9,10 +9,10 @@
 #define SkVMBlitter_DEFINED
 
 #include "include/core/SkPixmap.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkLRUCache.h"
-#include "src/core/SkTLazy.h"
 #include "src/core/SkVM.h"
 
 class SkVMBlitter final : public SkBlitter {

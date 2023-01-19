@@ -15,7 +15,7 @@
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGScene.h"
-#include "src/core/SkTLazy.h"
+#include "src/base/SkTLazy.h"
 #include "src/utils/SkJSON.h"
 
 namespace skottie {

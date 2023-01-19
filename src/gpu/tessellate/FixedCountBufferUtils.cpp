@@ -8,7 +8,7 @@
 #include "src/gpu/tessellate/FixedCountBufferUtils.h"
 
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/gpu/BufferWriter.h"
 
 #include <array>

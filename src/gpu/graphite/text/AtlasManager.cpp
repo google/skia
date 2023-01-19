@@ -9,8 +9,8 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/codec/SkMasks.h"
-#include "src/core/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"

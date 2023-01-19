@@ -22,6 +22,8 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkScopeExit.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkAnnotationKeys.h"
 #include "src/core/SkBitmapDevice.h"
@@ -32,7 +34,6 @@
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScalerCache.h"
-#include "src/core/SkScopeExit.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTextFormatParams.h"
 #include "src/core/SkXfermodeInterpretation.h"
@@ -49,7 +50,6 @@
 #include "src/pdf/SkPDFUtils.h"
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkClipStackUtils.h"
-#include "src/utils/SkUTF.h"
 
 #include <vector>
 

@@ -41,7 +41,7 @@
 #include "include/utils/SkParse.h"
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkReadBuffer.h"

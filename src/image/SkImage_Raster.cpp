@@ -11,12 +11,12 @@
 #include "include/core/SkData.h"
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkSurface.h"
+#include "src/base/SkTLazy.h"
 #include "src/codec/SkColorTable.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkImagePriv.h"
-#include "src/core/SkTLazy.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkBitmapProcShader.h"
 

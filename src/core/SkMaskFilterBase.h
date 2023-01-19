@@ -13,7 +13,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "src/core/SkMask.h"
 
 #if SK_SUPPORT_GPU

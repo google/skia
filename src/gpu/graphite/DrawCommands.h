@@ -9,8 +9,8 @@
 #define skgpu_graphite_DrawPassCommands_DEFINED
 
 #include "include/core/SkRect.h"
-#include "src/core/SkArenaAlloc.h"
-#include "src/core/SkTBlockList.h"
+#include "src/base/SkArenaAlloc.h"
+#include "src/base/SkTBlockList.h"
 #include "src/gpu/graphite/DrawTypes.h"
 
 namespace skgpu::graphite {

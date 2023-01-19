@@ -9,7 +9,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkTSort.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkOpAngle.h"

@@ -10,7 +10,7 @@
 #include "include/core/SkCapabilities.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrContextThreadSafeProxy.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"

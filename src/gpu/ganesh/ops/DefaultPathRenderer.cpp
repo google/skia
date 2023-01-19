@@ -9,9 +9,9 @@
 
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMatrixPriv.h"
-#include "src/core/SkTLazy.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #include "src/gpu/ganesh/GrCaps.h"

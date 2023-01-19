@@ -28,7 +28,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/SkBackingFit.h"

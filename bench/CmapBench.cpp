@@ -10,8 +10,8 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkRandom.h"
+#include "src/base/SkUTF.h"
 #include "src/utils/SkCharToGlyphCache.h"
-#include "src/utils/SkUTF.h"
 
 enum {
     NGLYPHS = 100

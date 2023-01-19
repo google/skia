@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkTypes.h"
-#include "src/core/SkBlockAllocator.h"
+#include "src/base/SkBlockAllocator.h"
 #include "tests/Test.h"
 
 #include <cstdint>

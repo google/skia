@@ -12,8 +12,8 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/utils/SkCamera.h"
 #include "include/utils/SkShadowUtils.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkBlurMask.h"
-#include "src/utils/SkUTF.h"
 #include "tools/ToolUtils.h"
 #include "tools/viewer/Slide.h"
 

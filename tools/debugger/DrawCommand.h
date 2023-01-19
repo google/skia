@@ -33,8 +33,8 @@
 #include "include/core/SkVertices.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkDrawShadowInfo.h"
-#include "src/core/SkTLazy.h"
 
 #include <cstddef>
 #include <cstdint>

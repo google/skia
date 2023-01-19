@@ -16,7 +16,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkFontStream.h"
 #include "tests/Test.h"

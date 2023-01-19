@@ -23,7 +23,7 @@
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/base/SkVx.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkGeometry.h"

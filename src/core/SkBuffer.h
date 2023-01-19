@@ -10,7 +10,7 @@
 
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkNoncopyable.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "src/base/SkSafeMath.h"
 
 #include <limits>

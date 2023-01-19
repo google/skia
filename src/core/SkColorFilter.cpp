@@ -11,7 +11,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/base/SkTDArray.h"
 #include "modules/skcms/skcms.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkColorFilterBase.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkColorSpacePriv.h"

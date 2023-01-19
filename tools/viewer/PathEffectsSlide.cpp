@@ -16,7 +16,7 @@
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/utils/SkRandom.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 

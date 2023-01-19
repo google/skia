@@ -8,7 +8,6 @@
 #ifndef SkScopeExit_DEFINED
 #define SkScopeExit_DEFINED
 
-#include "include/core/SkTypes.h"
 #include "include/private/base/SkMacros.h"
 
 #include <functional>

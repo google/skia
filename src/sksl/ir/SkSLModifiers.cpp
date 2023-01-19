@@ -10,7 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLPosition.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/sksl/SkSLContext.h"
 
 namespace SkSL {

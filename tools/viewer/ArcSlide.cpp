@@ -22,7 +22,7 @@
 #include "include/utils/SkParsePath.h"
 #include "include/utils/SkRandom.h"
 #include "include/utils/SkTextUtils.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include "tools/viewer/Slide.h"
 
 class ArcsSlide : public Slide {

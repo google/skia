@@ -12,7 +12,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/SkFixed.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 
 static float sk_fsel(float pred, float result_ge, float result_lt) {
     return pred >= 0 ? result_ge : result_lt;

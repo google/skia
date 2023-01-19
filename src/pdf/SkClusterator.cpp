@@ -8,8 +8,8 @@
 #include "src/pdf/SkClusterator.h"
 
 #include "include/private/base/SkTo.h"
+#include "src/base/SkUTF.h"
 #include "src/text/GlyphRun.h"
-#include "src/utils/SkUTF.h"
 
 static bool is_reversed(const uint32_t* clusters, uint32_t count) {
     // "ReversedChars" is how PDF deals with RTL text.

@@ -18,8 +18,8 @@
 #include "modules/skresources/include/SkResources.h"
 #include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGIDMapper.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkTHash.h"
-#include "src/core/SkTLazy.h"
 
 class SkCanvas;
 class SkSVGLength;

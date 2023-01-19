@@ -14,9 +14,9 @@
 #include "include/private/base/SkTemplates.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skunicode/include/SkUnicode.h"
+#include "src/base/SkTLazy.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
-#include "src/core/SkTLazy.h"
-#include "src/utils/SkUTF.h"
 
 #include <algorithm>
 #include <limits.h>

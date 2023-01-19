@@ -5,7 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkBlockAllocator.h"
+#include "src/base/SkBlockAllocator.h"
+
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTo.h"
 
 #ifdef SK_DEBUG
 #include <vector>

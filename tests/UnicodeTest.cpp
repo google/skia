@@ -7,8 +7,8 @@
 
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
-#include "src/utils/SkUTF.h"
 #include "tests/Test.h"
 
 #include <cstdint>

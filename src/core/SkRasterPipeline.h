@@ -11,7 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMacros.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 

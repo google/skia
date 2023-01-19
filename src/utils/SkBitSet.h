@@ -10,7 +10,7 @@
 
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkMalloc.h"
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 
 #include <climits>
 #include <cstring>

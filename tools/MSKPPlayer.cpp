@@ -15,8 +15,8 @@
 #include "include/gpu/GrDirectContext.h"
 #include "include/private/base/SkTArray.h"
 #include "include/utils/SkNoDrawCanvas.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/core/SkTLazy.h"
 #include "src/utils/SkMultiPictureDocument.h"
 #include "tools/SkSharingProc.h"
 

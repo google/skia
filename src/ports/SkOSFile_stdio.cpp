@@ -16,7 +16,7 @@
 #include <direct.h>
 #include <io.h>
 #include <vector>
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #endif
 
 #ifdef SK_BUILD_FOR_IOS

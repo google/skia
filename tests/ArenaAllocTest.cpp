@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkTypes.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "tests/Test.h"
 
 #include <cstddef>

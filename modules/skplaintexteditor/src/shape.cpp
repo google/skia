@@ -14,8 +14,8 @@
 #include "include/private/base/SkTFitsIn.h"
 #include "modules/skplaintexteditor/src/word_boundaries.h"
 #include "modules/skshaper/include/SkShaper.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "src/utils/SkUTF.h"
 
 #include <limits.h>
 #include <string.h>

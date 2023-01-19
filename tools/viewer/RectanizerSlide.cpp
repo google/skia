@@ -9,7 +9,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/utils/SkRandom.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include "tools/viewer/Slide.h"
 #if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
 #include "src/gpu/RectanizerPow2.h"

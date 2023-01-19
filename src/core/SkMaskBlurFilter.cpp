@@ -13,7 +13,7 @@
 #include "include/private/base/SkVx.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTo.h"
-#include "src/core/SkArenaAlloc.h"
+#include "src/base/SkArenaAlloc.h"
 #include "src/core/SkGaussFilter.h"
 
 #include <cmath>

@@ -7,8 +7,6 @@ exports_files_legacy()
 # In own group for exporting to sksl.gni:skslc_deps.
 CORE_SKSLC_FILES = [
     "SkParse.cpp",
-    "SkUTF.cpp",
-    "SkUTF.h",
     "SkOSPath.h",
     "SkOSPath.cpp",
     "SkVMVisualizer.cpp",

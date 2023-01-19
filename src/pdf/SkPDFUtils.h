@@ -11,11 +11,11 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkUtils.h"
 #include "src/pdf/SkPDFTypes.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/utils/SkFloatToDecimal.h"
-#include "src/utils/SkUTF.h"
 
 class SkMatrix;
 class SkPDFArray;

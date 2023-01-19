@@ -9,7 +9,7 @@
 #include "include/utils/SkParse.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGTypes.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 
 namespace {
 

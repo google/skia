@@ -13,9 +13,9 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/base/SkMathPriv.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkSampler.h"
-#include "src/core/SkMathPriv.h"
 
 SkSampledCodec::SkSampledCodec(SkCodec* codec)
     : INHERITED(codec)

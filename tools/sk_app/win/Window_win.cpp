@@ -11,7 +11,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include "tools/sk_app/WindowContext.h"
 #include "tools/sk_app/win/WindowContextFactory_win.h"
 #include "tools/skui/ModifierKey.h"

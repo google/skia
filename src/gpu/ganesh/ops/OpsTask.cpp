@@ -8,8 +8,8 @@
 #include "src/gpu/ganesh/ops/OpsTask.h"
 
 #include "include/gpu/GrRecordingContext.h"
+#include "src/base/SkScopeExit.h"
 #include "src/core/SkRectPriv.h"
-#include "src/core/SkScopeExit.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrAttachment.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"

@@ -25,14 +25,15 @@
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/SkBitmaskEnum.h"
-#include "src/core/SkTHash.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkUTF.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkScalerCache.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/core/SkTHash.h"
 #include "src/pdf/SkPDFBitmap.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFFont.h"
@@ -41,7 +42,6 @@
 #include "src/pdf/SkPDFSubsetFont.h"
 #include "src/pdf/SkPDFType1Font.h"
 #include "src/pdf/SkPDFUtils.h"
-#include "src/utils/SkUTF.h"
 
 #include <limits.h>
 #include <initializer_list>

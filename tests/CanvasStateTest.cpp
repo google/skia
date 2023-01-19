@@ -27,7 +27,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/utils/SkCanvasStateUtils.h"
-#include "src/core/SkTLazy.h"
+#include "src/base/SkTLazy.h"
 #include "tests/Test.h"
 
 #include <array>

@@ -9,8 +9,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkDebugUtils.h"
-#include "src/core/SkTLazy.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include <algorithm>

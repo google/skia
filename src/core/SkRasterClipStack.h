@@ -9,9 +9,9 @@
 #define SkRasterClipStack_DEFINED
 
 #include "include/core/SkClipOp.h"
+#include "src/base/SkTBlockList.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
-#include "src/core/SkTBlockList.h"
 
 class SkRasterClipStack : SkNoncopyable {
 public:

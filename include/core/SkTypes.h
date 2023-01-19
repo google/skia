@@ -43,19 +43,6 @@
 #  undef SK_DIRECT3D
 #endif
 
-#if !defined(SkUNREACHABLE)
-#  if defined(_MSC_VER) && !defined(__clang__)
-#    include <intrin.h>
-#    define FAST_FAIL_INVALID_ARG                 5
-// See https://developercommunity.visualstudio.com/content/problem/1128631/code-flow-doesnt-see-noreturn-with-extern-c.html
-// for why this is wrapped. Hopefully removable after msvc++ 19.27 is no longer supported.
-[[noreturn]] static inline void sk_fast_fail() { __fastfail(FAST_FAIL_INVALID_ARG); }
-#    define SkUNREACHABLE sk_fast_fail()
-#  else
-#    define SkUNREACHABLE __builtin_trap()
-#  endif
-#endif
-
 // If SK_R32_SHIFT is set, we'll use that to choose RGBA or BGRA.
 // If not, we'll default to RGBA everywhere except BGRA on Windows.
 #if defined(SK_R32_SHIFT)

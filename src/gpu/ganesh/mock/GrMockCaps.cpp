@@ -7,7 +7,7 @@
 
 #include "src/gpu/ganesh/mock/GrMockCaps.h"
 
-#include "src/core/SkMathPriv.h"
+#include "src/base/SkMathPriv.h"
 #include "src/gpu/ganesh/GrProgramDesc.h"
 #include "src/gpu/ganesh/TestFormatColorTypeCombination.h"
 

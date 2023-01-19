@@ -7,7 +7,7 @@
 
 #include "src/core/SkCanvasPriv.h"
 
-#include "src/core/SkAutoMalloc.h"
+#include "src/base/SkAutoMalloc.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriter32.h"

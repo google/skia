@@ -13,7 +13,7 @@
 #include "include/core/SkTime.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkRandom.h"
-#include "src/utils/SkUTF.h"
+#include "src/base/SkUTF.h"
 #include "tools/viewer/Slide.h"
 
 #if SK_SUPPORT_GPU

@@ -5,11 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkScalar.h"
-#include "include/private/SkFixed.h"
-#include "include/private/base/SkFloatBits.h"
+#include "src/base/SkMathPriv.h"
+
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "src/core/SkMathPriv.h"
+
+#include <cstddef>
+#include <cstdint>
 
 ///////////////////////////////////////////////////////////////////////////////
 

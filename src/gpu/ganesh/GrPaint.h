@@ -13,7 +13,7 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
-#include "src/core/SkTLazy.h"
+#include "src/base/SkTLazy.h"
 #include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 

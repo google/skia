@@ -9,8 +9,8 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkColorSpacePriv.h"
-#include "src/core/SkMathPriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrColor.h"

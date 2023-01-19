@@ -6,10 +6,10 @@
  */
 
 #include "include/core/SkPaint.h"
+#include "src/base/SkMathPriv.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkFDot6.h"
 #include "src/core/SkLineClipper.h"
-#include "src/core/SkMathPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
