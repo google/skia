@@ -170,16 +170,7 @@ var CanvasKit = {
     ShapeText: function() {},
     addText: function() {},
     build: function() {},
-
-    setBidiRegionsUtf8: function() {},
-    setBidiRegionsUtf16: function() {},
-    setWordsUtf8: function() {},
-    setWordsUtf16: function() {},
-    setGraphemeBreaksUtf8: function() {},
-    setGraphemeBreaksUtf16: function() {},
-    setLineBreaksUtf8: function() {},
-    setLineBreaksUtf16: function() {},
-
+    buildWithClientInfo: function() {},
     getText: function() {},
     pop: function() {},
     reset: function() {},
@@ -197,15 +188,7 @@ var CanvasKit = {
     _pushStyle: function() {},
     _pushPaintStyle: function() {},
     _addPlaceholder: function() {},
-
-    _setBidiRegionsUtf8: function() {},
-    _setBidiRegionsUtf16: function() {},
-    _setWordsUtf8: function() {},
-    _setWordsUtf16: function() {},
-    _setGraphemeBreaksUtf8: function() {},
-    _setGraphemeBreaksUtf16: function() {},
-    _setLineBreaksUtf8: function() {},
-    _setLineBreaksUtf16: function() {},
+    _buildWithClientInfo: function() {},
   },
 
   RuntimeEffect: {

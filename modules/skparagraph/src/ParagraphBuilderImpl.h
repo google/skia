@@ -6,8 +6,6 @@
 #include <stack>
 #include <string>
 #include <tuple>
-#include "include/private/base/SkOnce.h"
-#include "include/private/base/SkTArray.h"
 #include "modules/skparagraph/include/FontCollection.h"
 #include "modules/skparagraph/include/Paragraph.h"
 #include "modules/skparagraph/include/ParagraphBuilder.h"
@@ -64,19 +62,11 @@ public:
     // Support for "Client" unicode
     SkSpan<char> getText();
     const ParagraphStyle& getParagraphStyle() const;
-
-    void setBidiRegionsUtf8(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf8);
-    void setBidiRegionsUtf16(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf16);
-
-    void setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8);
-    void setWordsUtf16(std::vector<SkUnicode::Position> wordsUtf16);
-
-    void setGraphemeBreaksUtf8(std::vector<SkUnicode::Position> graphemesUtf8);
-    void setGraphemeBreaksUtf16(std::vector<SkUnicode::Position> graphemesUtf16);
-
-    void setLineBreaksUtf8(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf8);
-    void setLineBreaksUtf16(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf16);
-
+    std::unique_ptr<Paragraph> BuildWithClientInfo(
+                    std::vector<SkUnicode::BidiRegion> bidiRegions,
+                    std::vector<SkUnicode::Position> words,
+                    std::vector<SkUnicode::Position> graphemeBreaks,
+                    std::vector<SkUnicode::LineBreakBefore> lineBreaks);
     void SetUnicode(std::unique_ptr<SkUnicode> unicode) {
         fUnicode = std::move(unicode);
     }
@@ -104,18 +94,6 @@ protected:
     ParagraphStyle fParagraphStyle;
 
     std::shared_ptr<SkUnicode> fUnicode;
-
-private:
-    SkOnce fillUTF16MappingOnce;
-    void ensureUTF16Mapping();
-    SkTArray<TextIndex, true> fUTF8IndexForUTF16Index;
-#ifndef SK_UNICODE_ICU_IMPLEMENTATION
-    bool fUsingClientInfo;
-    std::vector<SkUnicode::BidiRegion> fBidiRegionsUtf8;
-    std::vector<SkUnicode::Position> fWordsUtf8;
-    std::vector<SkUnicode::Position> fGraphemeBreaksUtf8;
-    std::vector<SkUnicode::LineBreakBefore> fLineBreaksUtf8;
-#endif
 };
 }  // namespace textlayout
 }  // namespace skia

@@ -450,11 +450,12 @@
         const mallocedLineBreaks = CanvasKit.Malloc(Uint32Array, lineBreaks.length);
         mallocedLineBreaks.toTypedArray().set(lineBreaks);
 
-        builder.setBidiRegionsUtf16(mallocedBidis);
-        builder.setWordsUtf16(mallocedWords);
-        builder.setGraphemeBreaksUtf16(mallocedGraphemes);
-        builder.setLineBreaksUtf16(mallocedLineBreaks);
-        const paragraph = builder.build();
+        const paragraph = builder.buildWithClientInfo(
+            mallocedBidis,
+            mallocedWords,
+            graphemesArr,
+            mallocedLineBreaks
+        );
 
         paragraph.layout(600);
 
