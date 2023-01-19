@@ -296,6 +296,7 @@ gm_sources = [
   "$_gm/perlinnoise.cpp",
   "$_gm/perspimages.cpp",
   "$_gm/perspshaders.cpp",
+  "$_gm/persptext.cpp",
   "$_gm/picture.cpp",
   "$_gm/pictureimagefilter.cpp",
   "$_gm/pictureimagegenerator.cpp",
