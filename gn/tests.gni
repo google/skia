@@ -89,6 +89,7 @@ tests_sources = [
   "$_tests/FontTest.cpp",
   "$_tests/FrontBufferedStreamTest.cpp",
   "$_tests/GLBackendSurfaceTest.cpp",
+  "$_tests/GainmapShaderTest.cpp",
   "$_tests/GeometryTest.cpp",
   "$_tests/GifTest.cpp",
   "$_tests/GlyphRunTest.cpp",

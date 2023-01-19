@@ -33,6 +33,7 @@ skia_filegroup(
         "SkEncodedInfo.h",
         "SkFixed.h",
         "SkGainmapInfo.h",
+        "SkGainmapShader.h",
         "SkHalf.h",
         "SkIDChangeListener.h",
         "SkOpts_spi.h",

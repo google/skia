@@ -228,6 +228,7 @@ GANESH_TESTS = [
     "FindCubicConvex180ChopsTest.cpp",
     "FloatingPointTextureTest.cpp",
     "GLBackendSurfaceTest.cpp",
+    "GainmapShaderTest.cpp",
     "GpuDrawPathTest.cpp",
     "GpuRectanizerTest.cpp",
     "GrAHardwareBufferTest.cpp",
