@@ -99,9 +99,6 @@ public:
     // Used with SkScopedStrikeForGPU to take action at the end of a scope.
     virtual void onAboutToExitScope() = 0;
 
-    // Return underlying SkStrike for building SubRuns while processing glyph runs.
-    virtual sk_sp<SkStrike> getUnderlyingStrike() const = 0;
-
     // Return a strike promise.
     virtual SkStrikePromise strikePromise() = 0;
 

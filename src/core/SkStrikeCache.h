@@ -191,10 +191,6 @@ public:
         this->unref();
     }
 
-    sk_sp<SkStrike> getUnderlyingStrike() const override {
-        return sk_ref_sp(this);
-    }
-
     void updateDelta(size_t increase);
 
     const SkStrikeSpec              fStrikeSpec;

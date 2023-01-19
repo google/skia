@@ -2173,8 +2173,7 @@ private:
 template<typename AddSingleMaskFormat>
 void add_multi_mask_format(
         AddSingleMaskFormat addSingleMaskFormat,
-        const SkZip<SkGlyphVariant, SkPoint, SkMask::Format>& accepted,
-        sk_sp<SkStrike>&& strike) {
+        const SkZip<SkGlyphVariant, SkPoint, SkMask::Format>& accepted) {
     if (accepted.empty()) { return; }
 
     auto maskSpan = accepted.get<2>();
@@ -2187,14 +2186,14 @@ void add_multi_mask_format(
             // Only pass the packed glyph ids and positions.
             auto glyphsWithSameFormat = SkMakeZip(interval.get<0>(), interval.get<1>());
             // Take a ref on the strike. This should rarely happen.
-            addSingleMaskFormat(glyphsWithSameFormat, format, sk_sp<SkStrike>(strike));
+            addSingleMaskFormat(glyphsWithSameFormat, format);
             format = nextFormat;
             startIndex = i;
         }
     }
     auto interval = accepted.last(accepted.size() - startIndex);
     auto glyphsWithSameFormat = SkMakeZip(interval.get<0>(), interval.get<1>());
-    addSingleMaskFormat(glyphsWithSameFormat, format, std::move(strike));
+    addSingleMaskFormat(glyphsWithSameFormat, format);
 }
 }  // namespace
 
@@ -2449,8 +2448,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                     auto addGlyphsWithSameFormat =
                             [&](const SkZip<SkGlyphVariant, SkPoint>& acceptedGlyphsAndLocations,
-                                MaskFormat format,
-                                sk_sp<SkStrike>&& runStrike) {
+                                MaskFormat format) {
                                 container->fSubRuns.append(
                                         DirectMaskSubRun::Make(bounds,
                                                                acceptedGlyphsAndLocations,
@@ -2460,8 +2458,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                                                                alloc));
                             };
                     add_multi_mask_format(addGlyphsWithSameFormat,
-                                          accepted->acceptedWithMaskFormat(),
-                                          strike->getUnderlyingStrike());
+                                          accepted->acceptedWithMaskFormat());
                 }
             }
         }
@@ -2612,8 +2609,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             if (creationBehavior == kAddSubRuns && !accepted->empty()) {
                 auto addGlyphsWithSameFormat =
                         [&](const SkZip<SkGlyphVariant, SkPoint>& acceptedGlyphsAndLocations,
-                            MaskFormat format,
-                            sk_sp<SkStrike>&& runStrike) {
+                            MaskFormat format) {
                             container->fSubRuns.append(
                                     TransformedMaskSubRun::Make(acceptedGlyphsAndLocations,
                                                                 container->initialPosition(),
@@ -2624,8 +2620,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                                                                 alloc));
                         };
                 add_multi_mask_format(addGlyphsWithSameFormat,
-                                      accepted->acceptedWithMaskFormat(),
-                                      strike->getUnderlyingStrike());
+                                      accepted->acceptedWithMaskFormat());
             }
         }
     }
