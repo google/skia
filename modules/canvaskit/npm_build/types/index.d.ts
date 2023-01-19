@@ -987,25 +987,52 @@ export interface ParagraphBuilder extends EmbindObject<ParagraphBuilder> {
     build(): Paragraph;
 
     /**
-     * Returns a Paragraph object that can be used to be layout and
-     * paint the text to an Canvas.
      * @param bidiRegions is an array of unsigned integers that should be
-     * treated as triples (starting index, ending index, direction).
-     * Direction == 1 means left-to-right, direction == 0 is right-to-left. It's
-     * recommended to use `CanvasKit.TextDirection.RTL.value` or
-     * `CanvasKit.TextDirection.LTR.value` instead of hardcoding 0 or 1.
+     * treated as triples (starting index, ending index, bidi level).
+     *
+     * The indices are expected to be relative to the UTF-8 representation of
+     * the text.
+     */
+    setBidiRegionsUtf8(bidiRegions: InputBidiRegions): void;
+    /**
+     * @param bidiRegions is an array of unsigned integers that should be
+     * treated as triples (starting index, ending index, bidi level).
      *
      * The indices are expected to be relative to the UTF-16 representation of
      * the text.
+     */
+    setBidiRegionsUtf16(bidiRegions: InputBidiRegions): void;
+
+    /**
      * @param words is an array of word edges (starting or ending). You can
      * pass 2 elements (0 as a start of the entire text and text.size as the
-     * end). This information only needed for a specific API method getWords.
+     * end). This information is only needed for a specific API method getWords.
+     *
+     * The indices are expected to be relative to the UTF-8 representation of
+     * the text.
+     */
+    setWordsUtf8(words: InputWords): void;
+    /**
+     * @param words is an array of word edges (starting or ending). You can
+     * pass 2 elements (0 as a start of the entire text and text.size as the
+     * end). This information is only needed for a specific API method getWords.
      *
      * The indices are expected to be relative to the UTF-16 representation of
      * the text.
      *
      * The `Intl.Segmenter` API can be used as a source for this data.
+     */
+    setWordsUtf16(words: InputWords): void;
+
+    /**
+     * @param graphemes is an array of indexes in the input text that point
+     * to the start of each grapheme.
      *
+     * The indices are expected to be relative to the UTF-8 representation of
+     * the text.
+     */
+    setGraphemeBreaksUtf8(graphemes: InputGraphemes): void;
+    /**
      * @param graphemes is an array of indexes in the input text that point
      * to the start of each grapheme.
      *
@@ -1013,7 +1040,20 @@ export interface ParagraphBuilder extends EmbindObject<ParagraphBuilder> {
      * the text.
      *
      * The `Intl.Segmenter` API can be used as a source for this data.
+     */
+    setGraphemeBreaksUtf16(graphemes: InputGraphemes): void;
+
+    /**
+     * @param lineBreaks is an array of unsigned integers that should be
+     * treated as pairs (index, break type) that point to the places of possible
+     * line breaking if needed. It should include 0 as the first element.
+     * Break type == 0 means soft break, break type == 1 is a hard break.
      *
+     * The indices are expected to be relative to the UTF-8 representation of
+     * the text.
+     */
+    setLineBreaksUtf8(lineBreaks: InputLineBreaks): void;
+    /**
      * @param lineBreaks is an array of unsigned integers that should be
      * treated as pairs (index, break type) that point to the places of possible
      * line breaking if needed. It should include 0 as the first element.
@@ -1024,10 +1064,7 @@ export interface ParagraphBuilder extends EmbindObject<ParagraphBuilder> {
      *
      * Chrome's `v8BreakIterator` API can be used as a source for this data.
      */
-    buildWithClientInfo(bidiRegions?: InputBidiRegions | null,
-                        words?: InputWords | null,
-                        graphemes?: InputGraphemes | null,
-                        lineBreaks?: InputLineBreaks | null): Paragraph;
+    setLineBreaksUtf16(lineBreaks: InputLineBreaks): void;
 
     /**
      * Returns the entire Paragraph text (which is useful in case that text

@@ -150,12 +150,11 @@
     const mallocedLineBreaks = CanvasKit.Malloc(Uint32Array, lineBreaks.length);
     mallocedLineBreaks.toTypedArray().set(lineBreaks);
 
-    const paragraph = builder.buildWithClientInfo(
-        mallocedBidis,
-        mallocedWords,
-        mallocedGraphemes,
-        mallocedLineBreaks
-    );
+    builder.setBidiRegionsUtf16(mallocedBidis);
+    builder.setWordsUtf16(mallocedWords);
+    builder.setGraphemeBreaksUtf16(mallocedGraphemes);
+    builder.setLineBreaksUtf16(mallocedLineBreaks);
+    const paragraph = builder.build();
 
     fontMgr.delete();
 
@@ -207,7 +206,6 @@
       breaks.push(iterator.current(), getBreakType(iterator.breakType()));
     }
 
-    console.log(breaks);
     return breaks;
   }
 

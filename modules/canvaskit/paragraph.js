@@ -329,23 +329,48 @@
       this._addPlaceholder(width, height, alignment, baseline, offset);
     };
 
-    CanvasKit.ParagraphBuilder.prototype.buildWithClientInfo =
-          function(bidiRegions, words, graphemeBreaks, lineBreaks) {
-
+    CanvasKit.ParagraphBuilder.prototype.setBidiRegionsUtf8 = function(bidiRegions) {
       var bPtr = copy1dArray(bidiRegions, 'HEAPU32');
-      var wPtr = copy1dArray(words, 'HEAPU32');
-      var gPtr = copy1dArray(graphemeBreaks, 'HEAPU32');
-      var lPtr = copy1dArray(lineBreaks, 'HEAPU32');
-      var para = this._buildWithClientInfo(
-                          bPtr, bidiRegions && bidiRegions.length || 0,
-                          wPtr, words && words.length || 0,
-                          gPtr, graphemeBreaks && graphemeBreaks.length || 0,
-                          lPtr, lineBreaks && lineBreaks.length || 0);
+      this._setBidiRegionsUtf8(bPtr, bidiRegions && bidiRegions.length || 0);
       freeArraysThatAreNotMallocedByUsers(bPtr,     bidiRegions);
-      freeArraysThatAreNotMallocedByUsers(wPtr,     words);
-      freeArraysThatAreNotMallocedByUsers(gPtr,     graphemeBreaks);
-      freeArraysThatAreNotMallocedByUsers(lPtr,     lineBreaks);
-      return para;
+    };
+    CanvasKit.ParagraphBuilder.prototype.setBidiRegionsUtf16 = function(bidiRegions) {
+      var bPtr = copy1dArray(bidiRegions, 'HEAPU32');
+      this._setBidiRegionsUtf16(bPtr, bidiRegions && bidiRegions.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr, bidiRegions);
+    };
+
+    CanvasKit.ParagraphBuilder.prototype.setWordsUtf8 = function(words) {
+      var bPtr = copy1dArray(words, 'HEAPU32');
+      this._setWordsUtf8(bPtr, words && words.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr,     words);
+    };
+    CanvasKit.ParagraphBuilder.prototype.setWordsUtf16 = function(words) {
+      var bPtr = copy1dArray(words, 'HEAPU32');
+      this._setWordsUtf16(bPtr, words && words.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr, words);
+    };
+
+    CanvasKit.ParagraphBuilder.prototype.setGraphemeBreaksUtf8 = function(graphemeBreaks) {
+      var bPtr = copy1dArray(graphemeBreaks, 'HEAPU32');
+      this._setGraphemeBreaksUtf8(bPtr, graphemeBreaks && graphemeBreaks.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr,     graphemeBreaks);
+    };
+    CanvasKit.ParagraphBuilder.prototype.setGraphemeBreaksUtf16 = function(graphemeBreaks) {
+      var bPtr = copy1dArray(graphemeBreaks, 'HEAPU32');
+      this._setGraphemeBreaksUtf16(bPtr, graphemeBreaks && graphemeBreaks.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr, graphemeBreaks);
+    };
+
+    CanvasKit.ParagraphBuilder.prototype.setLineBreaksUtf8 = function(lineBreaks) {
+      var bPtr = copy1dArray(lineBreaks, 'HEAPU32');
+      this._setLineBreaksUtf8(bPtr, lineBreaks && lineBreaks.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr,     lineBreaks);
+    };
+    CanvasKit.ParagraphBuilder.prototype.setLineBreaksUtf16 = function(lineBreaks) {
+      var bPtr = copy1dArray(lineBreaks, 'HEAPU32');
+      this._setLineBreaksUtf16(bPtr, lineBreaks && lineBreaks.length || 0);
+      freeArraysThatAreNotMallocedByUsers(bPtr, lineBreaks);
     };
 });
 }(Module)); // When this file is loaded in, the high level object is "Module";

@@ -40,7 +40,11 @@ ParagraphBuilderImpl::ParagraphBuilderImpl(
         , fUtf8()
         , fFontCollection(std::move(fontCollection))
         , fParagraphStyle(style)
-        , fUnicode(std::move(unicode)) {
+        , fUnicode(std::move(unicode))
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+        , fUsingClientInfo(false)
+#endif
+{
     startStyledBlock();
 }
 
@@ -148,6 +152,19 @@ std::unique_ptr<Paragraph> ParagraphBuilderImpl::Build() {
 
     // Add one fake placeholder with the rest of the text
     addPlaceholder(PlaceholderStyle(), true);
+
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+    SkASSERT(fUsingClientInfo);
+    fUTF8IndexForUTF16Index.clear();
+
+    // This is the place where SkUnicode is paired with SkParagraph
+    fUnicode = SkUnicode::MakeClientBasedUnicode(this->getText(),
+                                                 std::move(fBidiRegionsUtf8),
+                                                 std::move(fWordsUtf8),
+                                                 std::move(fGraphemeBreaksUtf8),
+                                                 std::move(fLineBreaksUtf8));
+#endif
+    SkASSERT(fUnicode);
     return std::make_unique<ParagraphImpl>(
             fUtf8, fParagraphStyle, fStyledBlocks, fPlaceholders, fFontCollection, fUnicode);
 }
@@ -161,65 +178,123 @@ const ParagraphStyle& ParagraphBuilderImpl::getParagraphStyle() const {
     return fParagraphStyle;
 }
 
-std::unique_ptr<Paragraph> ParagraphBuilderImpl::BuildWithClientInfo(
-                std::vector<SkUnicode::BidiRegion> bidiRegionsUtf16,
-                std::vector<SkUnicode::Position> wordsUtf16,
-                std::vector<SkUnicode::Position> graphemeBreaksUtf16,
-                std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf16) {
-#ifndef SK_UNICODE_CLIENT_IMPLEMENTATION
-    return nullptr;
-#else
-    SkSpan text = SkSpan<char>(fUtf8.isEmpty() ? nullptr : &fUtf8[0], fUtf8.size());
-
-    // TODO: This mapping is created twice. Here and in ParagraphImpl.cpp.
-    SkTArray<TextIndex, true> utf8IndexForUtf16Index;
-    SkUnicode::extractUtfConversionMapping(
-                text,
-                [&](size_t index) { utf8IndexForUtf16Index.emplace_back(index); },
+void ParagraphBuilderImpl::ensureUTF16Mapping() {
+    fillUTF16MappingOnce([&] {
+        SkUnicode::extractUtfConversionMapping(
+                this->getText(),
+                [&](size_t index) { fUTF8IndexForUTF16Index.emplace_back(index); },
                 [&](size_t index) {});
+    });
+}
 
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+void ParagraphBuilderImpl::setBidiRegionsUtf8(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf8) {
+    fUsingClientInfo = true;
+    fBidiRegionsUtf8 = std::move(bidiRegionsUtf8);
+}
+
+void ParagraphBuilderImpl::setBidiRegionsUtf16(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf16) {
+    ensureUTF16Mapping();
     std::vector<SkUnicode::BidiRegion> bidiRegionsUtf8;
     for (SkUnicode::BidiRegion bidiRegionUtf16: bidiRegionsUtf16) {
         bidiRegionsUtf8.emplace_back(
-                SkUnicode::BidiRegion(utf8IndexForUtf16Index[bidiRegionUtf16.start],
-                                      utf8IndexForUtf16Index[bidiRegionUtf16.end],
+                SkUnicode::BidiRegion(fUTF8IndexForUTF16Index[bidiRegionUtf16.start],
+                                      fUTF8IndexForUTF16Index[bidiRegionUtf16.end],
                                       bidiRegionUtf16.level));
     }
+    setBidiRegionsUtf8(bidiRegionsUtf8);
+}
 
+void ParagraphBuilderImpl::setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8) {
+    fUsingClientInfo = true;
+    fWordsUtf8 = std::move(wordsUtf8);
+}
+
+void ParagraphBuilderImpl::setWordsUtf16(std::vector<SkUnicode::Position> wordsUtf16) {
+    ensureUTF16Mapping();
     std::vector<SkUnicode::Position> wordsUtf8;
     for (SkUnicode::Position indexUtf16: wordsUtf16) {
-        wordsUtf8.emplace_back(utf8IndexForUtf16Index[indexUtf16]);
+        wordsUtf8.emplace_back(fUTF8IndexForUTF16Index[indexUtf16]);
     }
+    setWordsUtf8(wordsUtf8);
+}
 
+void ParagraphBuilderImpl::setGraphemeBreaksUtf8(std::vector<SkUnicode::Position> graphemeBreaksUtf8) {
+    fUsingClientInfo = true;
+    fGraphemeBreaksUtf8 = std::move(graphemeBreaksUtf8);
+}
+
+void ParagraphBuilderImpl::setGraphemeBreaksUtf16(std::vector<SkUnicode::Position> graphemeBreaksUtf16) {
+    ensureUTF16Mapping();
     std::vector<SkUnicode::Position> graphemeBreaksUtf8;
     for (SkUnicode::Position indexUtf16: graphemeBreaksUtf16) {
-        graphemeBreaksUtf8.emplace_back(utf8IndexForUtf16Index[indexUtf16]);
+        graphemeBreaksUtf8.emplace_back(fUTF8IndexForUTF16Index[indexUtf16]);
     }
+    setGraphemeBreaksUtf8(graphemeBreaksUtf8);
+}
 
+void ParagraphBuilderImpl::setLineBreaksUtf8(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf8) {
+    fUsingClientInfo = true;
+    fLineBreaksUtf8 = std::move(lineBreaksUtf8);
+}
+
+void ParagraphBuilderImpl::setLineBreaksUtf16(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf16) {
+    ensureUTF16Mapping();
     std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf8;
     for (SkUnicode::LineBreakBefore lineBreakUtf16: lineBreaksUtf16) {
         lineBreaksUtf8.emplace_back(SkUnicode::LineBreakBefore(
-                utf8IndexForUtf16Index[lineBreakUtf16.pos], lineBreakUtf16.breakType));
+                fUTF8IndexForUTF16Index[lineBreakUtf16.pos], lineBreakUtf16.breakType));
     }
-
-    utf8IndexForUtf16Index.clear();
-
-    // This is the place where SkUnicode is paired with SkParagraph
-    fUnicode = SkUnicode::MakeClientBasedUnicode(text,
-                                std::move(bidiRegionsUtf8),
-                                std::move(wordsUtf8),
-                                std::move(graphemeBreaksUtf8),
-                                std::move(lineBreaksUtf8));
-    return this->Build();
-#endif
+    setLineBreaksUtf8(lineBreaksUtf8);
+}
+#else
+void ParagraphBuilderImpl::setBidiRegionsUtf8(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf8) {
+    SkASSERT(false);
 }
 
+void ParagraphBuilderImpl::setBidiRegionsUtf16(std::vector<SkUnicode::BidiRegion> bidiRegionsUtf16) {
+    SkASSERT(false);
+}
+
+void ParagraphBuilderImpl::setWordsUtf8(std::vector<SkUnicode::Position> wordsUtf8) {
+    SkASSERT(false);
+}
+
+void ParagraphBuilderImpl::setWordsUtf16(std::vector<SkUnicode::Position> wordsUtf16) {
+    SkASSERT(false);
+}
+
+void ParagraphBuilderImpl::setGraphemeBreaksUtf8(std::vector<SkUnicode::Position> graphemesUtf8) {
+    SkASSERT(false);
+}
+
+void ParagraphBuilderImpl::setGraphemeBreaksUtf16(std::vector<SkUnicode::Position> graphemesUtf16) {
+    SkASSERT(false);
+}
+
+void ParagraphBuilderImpl::setLineBreaksUtf8(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf8) {
+    SkASSERT(false);
+}
+
+void ParagraphBuilderImpl::setLineBreaksUtf16(std::vector<SkUnicode::LineBreakBefore> lineBreaksUtf16) {
+    SkASSERT(false);
+}
+#endif
+
 void ParagraphBuilderImpl::Reset() {
+
     fTextStyles.clear();
     fUtf8.reset();
     fStyledBlocks.clear();
     fPlaceholders.clear();
 
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+    fUTF8IndexForUTF16Index.clear();
+    fBidiRegionsUtf8.clear();
+    fWordsUtf8.clear();
+    fGraphemeBreaksUtf8.clear();
+    fLineBreaksUtf8.clear();
+#endif
     startStyledBlock();
 }
 
