@@ -516,6 +516,38 @@ std::tuple<skgpu::graphite::TextureProxyView, SkColorType> SkImage_Base::asView(
     SkColorType ct = this->colorType();
     return { image->textureProxyView(), ct };
 }
+
+sk_sp<SkImage> SkImage::makeColorSpace(sk_sp<SkColorSpace> targetColorSpace,
+                                       skgpu::graphite::Recorder* recorder,
+                                       RequiredImageProperties requiredProps) const {
+    return this->makeColorTypeAndColorSpace(this->colorType(), std::move(targetColorSpace),
+                                            recorder, requiredProps);
+}
+
+sk_sp<SkImage> SkImage::makeColorTypeAndColorSpace(SkColorType targetColorType,
+                                                   sk_sp<SkColorSpace> targetColorSpace,
+                                                   skgpu::graphite::Recorder* recorder,
+                                                   RequiredImageProperties requiredProps) const {
+    if (kUnknown_SkColorType == targetColorType || !targetColorSpace) {
+        return nullptr;
+    }
+
+    SkColorType colorType = this->colorType();
+    SkColorSpace* colorSpace = this->colorSpace();
+    if (!colorSpace) {
+        colorSpace = sk_srgb_singleton();
+    }
+    if (colorType == targetColorType &&
+        (SkColorSpace::Equals(colorSpace, targetColorSpace.get()) || this->isAlphaOnly())) {
+        return sk_ref_sp(const_cast<SkImage*>(this));
+    }
+
+    return as_IB(this)->onMakeColorTypeAndColorSpace(targetColorType,
+                                                     std::move(targetColorSpace),
+                                                     recorder,
+                                                     requiredProps);
+}
+
 #endif // SK_GRAPHITE_ENABLED
 
 GrDirectContext* SkImage_Base::directContext() const {

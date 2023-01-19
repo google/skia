@@ -639,4 +639,13 @@ sk_sp<SkImage> SkImage_Lazy::onMakeTextureImage(skgpu::graphite::Recorder* recor
 
     return nullptr;
 }
+
+sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(
+        SkColorType targetCT,
+        sk_sp<SkColorSpace> targetCS,
+        skgpu::graphite::Recorder* recorder,
+        RequiredImageProperties requiredProps) const {
+    return nullptr;
+}
+
 #endif

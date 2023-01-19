@@ -87,6 +87,13 @@ sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
                              this->imageInfo().colorInfo().makeColorSpace(std::move(newCS)));
 }
 
+sk_sp<SkImage> Image::onMakeColorTypeAndColorSpace(SkColorType targetCT,
+                                                   sk_sp<SkColorSpace> targetCS,
+                                                   Recorder* recorder,
+                                                   RequiredImageProperties requiredProps) const {
+    return nullptr;
+}
+
 } // namespace skgpu::graphite
 
 using namespace skgpu::graphite;

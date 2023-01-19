@@ -36,6 +36,7 @@ public:
 
     size_t onTextureSize() const override;
 
+    using SkImage_GpuBase::onMakeColorTypeAndColorSpace;
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
                                                 GrDirectContext*) const final;
 

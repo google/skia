@@ -1098,8 +1098,7 @@ protected:
             for (int opaque : { 0, 1 }) {
                 int y = kPad;
 
-                auto raster = fOriginalBMs[opaque].asImage()->makeColorSpace(fTargetColorSpace,
-                                                                             nullptr);
+                auto raster = fOriginalBMs[opaque].asImage()->makeColorSpace(fTargetColorSpace);
                 canvas->drawImage(raster, x, y);
                 y += kTileWidthHeight + kPad;
 

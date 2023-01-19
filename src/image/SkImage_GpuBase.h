@@ -59,13 +59,16 @@ protected:
 
     sk_sp<GrImageContext> fContext;
 
-private:
 #ifdef SK_GRAPHITE_ENABLED
     sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                       RequiredImageProperties) const final;
     sk_sp<SkImage> onMakeSubset(const SkIRect& subset,
                                 skgpu::graphite::Recorder*,
                                 RequiredImageProperties) const final;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
+                                                sk_sp<SkColorSpace>,
+                                                skgpu::graphite::Recorder*,
+                                                RequiredImageProperties) const final;
 #endif
 };
 

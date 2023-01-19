@@ -150,7 +150,7 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
     // Lazy images
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-    canvas->drawImage(image->makeColorSpace(spin, nullptr)->reinterpretColorSpace(srgb),
+    canvas->drawImage(image->makeColorSpace(spin)->reinterpretColorSpace(srgb),
                       256.0f, 0.0f);
 
     canvas->translate(0.0f, 128.0f);
@@ -159,7 +159,7 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
     image = image->makeRasterImage();
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-    canvas->drawImage(image->makeColorSpace(spin, nullptr)->reinterpretColorSpace(srgb),
+    canvas->drawImage(image->makeColorSpace(spin)->reinterpretColorSpace(srgb),
                       256.0f, 0.0f);
 
     canvas->translate(0.0f, 128.0f);
