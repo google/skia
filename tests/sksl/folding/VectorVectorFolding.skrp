@@ -78,7 +78,7 @@
    78. copy_slot_unmasked             $10 = _1_ok
    79. zero_slot_unmasked             $12 = 0
    80. merge_condition_mask           CondMask = $9 & $10
-   81. branch_if_no_active_lanes      branch_if_no_active_lanes +81 (#162)
+   81. branch_if_no_active_lanes      branch_if_no_active_lanes +80 (#161)
    82. store_return_mask              $13 = RetMask
    83. copy_constant                  $14 = unknownInput
    84. cast_to_int_from_float         $14 = FloatToInt($14)
@@ -155,16 +155,15 @@
   155. bitwise_and_int                $14 &= $15
   156. copy_slot_masked               ok = Mask($14)
   157. copy_slot_masked               [test_int].result = Mask($14)
-  158. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  159. load_return_mask               RetMask = $13
-  160. copy_slot_unmasked             $13 = [test_int].result
-  161. copy_slot_masked               $12 = Mask($13)
-  162. load_condition_mask            CondMask = $9
-  163. copy_4_constants               $0..3 = colorRed
-  164. merge_condition_mask           CondMask = $11 & $12
-  165. copy_4_constants               $4..7 = colorGreen
-  166. copy_4_slots_masked            $0..3 = Mask($4..7)
-  167. load_condition_mask            CondMask = $11
-  168. copy_4_slots_masked            [main].result = Mask($0..3)
-  169. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  170. load_src                       src.rgba = [main].result
+  158. load_return_mask               RetMask = $13
+  159. copy_slot_unmasked             $13 = [test_int].result
+  160. copy_slot_masked               $12 = Mask($13)
+  161. load_condition_mask            CondMask = $9
+  162. copy_4_constants               $0..3 = colorRed
+  163. merge_condition_mask           CondMask = $11 & $12
+  164. copy_4_constants               $4..7 = colorGreen
+  165. copy_4_slots_masked            $0..3 = Mask($4..7)
+  166. load_condition_mask            CondMask = $11
+  167. copy_4_slots_masked            [main].result = Mask($0..3)
+  168. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  169. load_src                       src.rgba = [main].result

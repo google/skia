@@ -269,6 +269,20 @@ void Builder::copy_stack_to_slots(SlotRange dst, int offsetFromStackTop) {
                              dst.count, offsetFromStackTop});
 }
 
+void Builder::pop_return_mask() {
+    // This instruction is going to overwrite the return mask. If the previous instruction was
+    // masking off the return mask, that's wasted work and it can be eliminated.
+    if (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        if (lastInstruction.fOp == BuilderOp::mask_off_return_mask) {
+            fInstructions.pop_back();
+        }
+    }
+
+    fInstructions.push_back({BuilderOp::pop_return_mask, {}});
+}
+
 void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> elementSpan) {
     // Consumes `consumedSlots` elements on the stack, then generates `elementSpan.size()` elements.
     SkASSERT(consumedSlots >= 0);

@@ -445,9 +445,7 @@ public:
         fInstructions.push_back({BuilderOp::push_return_mask, {}});
     }
 
-    void pop_return_mask() {
-        fInstructions.push_back({BuilderOp::pop_return_mask, {}});
-    }
+    void pop_return_mask();
 
     void mask_off_return_mask() {
         fInstructions.push_back({BuilderOp::mask_off_return_mask, {}});
