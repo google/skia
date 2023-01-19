@@ -77,7 +77,7 @@
         SkRegisterMatrixColorFilterFlattenable();
         SkRegisterComposeColorFilterFlattenable();
         SkRegisterModeColorFilterFlattenable();
-        SkRegisterSRGBGammaColorFilterFlattenable();
+        SkRegisterColorSpaceXformColorFilterFlattenable();
         SkRegisterWorkingFormatColorFilterFlattenable();
         SkRegisterTableColorFilterFlattenable();
 

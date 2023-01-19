@@ -135,7 +135,7 @@ static inline sk_sp<SkColorFilterBase> as_CFB_sp(sk_sp<SkColorFilter> filter) {
 void SkRegisterComposeColorFilterFlattenable();
 void SkRegisterMatrixColorFilterFlattenable();
 void SkRegisterModeColorFilterFlattenable();
-void SkRegisterSRGBGammaColorFilterFlattenable();
+void SkRegisterColorSpaceXformColorFilterFlattenable();
 void SkRegisterTableColorFilterFlattenable();
 void SkRegisterWorkingFormatColorFilterFlattenable();
 
