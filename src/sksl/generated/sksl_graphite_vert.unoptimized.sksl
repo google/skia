@@ -118,5 +118,6 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 ":p3;}float2 ortho=float2(tangent.y,-tangent.x);strokeCoord+=ortho*(strokeRadius"
 "*strokeOutset);if(isHairline){return float4(strokeCoord+translate,inverse(affineMatrix"
 ")*strokeCoord);}else{return float4(affineMatrix*strokeCoord+translate,strokeCoord"
-");}}float2 ortho(float2 v){return float2(-v.y,v.x);}float3 calc_line_eq(float2"
-" v,float2 p){float2 n=ortho(v);return float3(n,-dot(n,p));}";
+");}}float2 ortho(float2 v){return float2(-v.y,v.x);}float distance_to_line("
+"float2 p0,float2 n,float2 p1){return dot(n,p0)-dot(n,p1);}float2 normalize_with_length"
+"(float2 v,out float len){len=length(v);return v/len;}";
