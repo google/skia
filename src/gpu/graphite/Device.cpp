@@ -158,7 +158,11 @@ bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
              (shape.isRRect() && (type == SkStrokeRec::kFill_Style ||
                                   SkRRectPriv::AllCornersCircular(shape.rrect()))));
 #else
-    return false;
+    // For now the render step can handle regular fills, while the guarded condition represents the
+    // final support rules when it's completed.
+    return !shape.inverted() &&
+           type == SkStrokeRec::kFill_Style &&
+           (shape.isRect() || shape.isRRect());
 #endif
 }
 
