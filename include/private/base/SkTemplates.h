@@ -410,14 +410,6 @@ private:
 
 }  // namespace skia_private
 
-// TODO remove after all external client uses are removed.
-template <size_t size, typename T>
-using SkAutoSTArray = skia_private::AutoSTArray<size, T>;
-
-// TODO remove after all external client uses are removed.
-template <size_t size, typename T>
-using SkAutoSTMalloc = skia_private::AutoSTMalloc<size, T>;
-
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 using SkAutoFree = std::unique_ptr<void, SkOverloadedFunctionObject<void(void*), sk_free>>;
