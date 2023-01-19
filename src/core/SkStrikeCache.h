@@ -8,11 +8,9 @@
 #ifndef SkStrikeCache_DEFINED
 #define SkStrikeCache_DEFINED
 
-#include <unordered_map>
-#include <unordered_set>
-
 #include "include/core/SkDrawable.h"
 #include "include/private/SkSpinlock.h"
+#include "include/private/base/SkLoadUserConfig.h" // IWYU pragma: keep
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkScalerCache.h"
@@ -22,6 +20,8 @@
 class SkTraceMemoryDump;
 class SkStrikeCache;
 
+//  SK_DEFAULT_FONT_CACHE_COUNT_LIMIT and SK_DEFAULT_FONT_CACHE_LIMIT can be set using -D on your
+//  compiler commandline, or by using the defines in SkUserConfig.h
 #ifndef SK_DEFAULT_FONT_CACHE_COUNT_LIMIT
     #define SK_DEFAULT_FONT_CACHE_COUNT_LIMIT   2048
 #endif
