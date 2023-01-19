@@ -150,18 +150,15 @@ bool create_img_shader_paint(sk_sp<SkImage> image,
 }
 
 bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
-    // We send regular filled [round] rectangles and quadrilaterals, and stroked [r]rects with
-    // circular corners to a single Renderer that does not trigger MSAA.
-    // TODO: Mathematically the AnalyticRRectRenderStep should be able to support hairline rrects
-    // with elliptical corners, but currently only has instance attribute room for 4 radii when
-    // it's stroked (hairline or regular).
+    // We send regular filled and hairline [round] rectangles and quadrilaterals, and stroked
+    // [r]rects with circular corners to a single Renderer that does not trigger MSAA.
     bool validRRect = shape.isRRect() &&
 #if !ENABLE_ANALYTIC_RRECT_RENDERER
             // The remaining issues with the AnalyticRRectRenderStep relate to stroked rrects, as
             // long as it's a hairline it shouldn't trigger the visual issues.
             type != SkStrokeRec::kStroke_Style &&
 #endif
-            (type == SkStrokeRec::kFill_Style || SkRRectPriv::AllCornersCircular(shape.rrect()));
+            (type != SkStrokeRec::kStroke_Style || SkRRectPriv::AllCornersCircular(shape.rrect()));
     return !shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style &&
             (shape.isRect() /* || shape.isQuadrilateral()*/ || validRRect);
 }
