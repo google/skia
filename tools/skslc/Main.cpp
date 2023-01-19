@@ -556,9 +556,8 @@ static ResultCode process_command(SkSpan<std::string> args) {
     settings.fRTFlipSet     = 0;
     settings.fRTFlipBinding = 0;
 
-    auto emitCompileError = [&](SkSL::FileOutputStream& out, const char* errorText) {
+    auto emitCompileError = [&](const char* errorText) {
         // Overwrite the compiler output, if any, with an error message.
-        out.close();
         SkSL::FileOutputStream errorStream(outputPath.c_str());
         errorStream.writeText("### Compilation failed:\n\n");
         errorStream.writeText(errorText);
@@ -576,7 +575,8 @@ static ResultCode process_command(SkSpan<std::string> args) {
         }
         std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, text, settings);
         if (!program || !writeFn(compiler, *program, out)) {
-            emitCompileError(out, compiler.errorText().c_str());
+            out.close();
+            emitCompileError(compiler.errorText().c_str());
             return ResultCode::kCompileError;
         }
         if (!out.close()) {
@@ -588,7 +588,7 @@ static ResultCode process_command(SkSpan<std::string> args) {
 
     auto compileProgramAsRuntimeShader = [&](const auto& writeFn) -> ResultCode {
         if (kind == SkSL::ProgramKind::kVertex) {
-            printf("%s: Runtime shaders do not support vertex programs\n", outputPath.c_str());
+            emitCompileError("Runtime shaders do not support vertex programs\n");
             return ResultCode::kCompileError;
         }
         if (kind == SkSL::ProgramKind::kFragment) {
