@@ -244,17 +244,6 @@ void Builder::push_duplicates(int count) {
     }
 }
 
-static int pack_nybbles(SkSpan<const int8_t> components) {
-    // Pack up to 8 elements into nybbles, in reverse order.
-    int packed = 0;
-    for (auto iter = components.rbegin(); iter != components.rend(); ++iter) {
-        SkASSERT(*iter >= 0 && *iter <= 0xF);
-        packed <<= 4;
-        packed |= *iter;
-    }
-    return packed;
-}
-
 void Builder::copy_stack_to_slots(SlotRange dst, int offsetFromStackTop) {
     // If the last instruction copied the previous stack slots, just extend it.
     if (!fInstructions.empty()) {
@@ -288,6 +277,44 @@ void Builder::pop_return_mask() {
     }
 
     fInstructions.push_back({BuilderOp::pop_return_mask, {}});
+}
+
+void Builder::zero_slots_unmasked(SlotRange dst) {
+    if (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        if (lastInstruction.fOp == BuilderOp::zero_slot_unmasked) {
+            if (lastInstruction.fSlotA + lastInstruction.fImmA == dst.index) {
+                // The previous instruction was zeroing the range immediately before this range.
+                // Combine the ranges.
+                lastInstruction.fImmA += dst.count;
+                return;
+            }
+        }
+
+        if (lastInstruction.fOp == BuilderOp::zero_slot_unmasked) {
+            if (lastInstruction.fSlotA == dst.index + dst.count) {
+                // The previous instruction was zeroing the range immediately after this range.
+                // Combine the ranges.
+                lastInstruction.fSlotA = dst.index;
+                lastInstruction.fImmA += dst.count;
+                return;
+            }
+        }
+    }
+
+    fInstructions.push_back({BuilderOp::zero_slot_unmasked, {dst.index}, dst.count});
+}
+
+static int pack_nybbles(SkSpan<const int8_t> components) {
+    // Pack up to 8 elements into nybbles, in reverse order.
+    int packed = 0;
+    for (auto iter = components.rbegin(); iter != components.rend(); ++iter) {
+        SkASSERT(*iter >= 0 && *iter <= 0xF);
+        packed <<= 4;
+        packed |= *iter;
+    }
+    return packed;
 }
 
 void Builder::swizzle(int consumedSlots, SkSpan<const int8_t> elementSpan) {
