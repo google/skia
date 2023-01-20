@@ -197,6 +197,14 @@ void ValidateIndexingForES2(const ProgramElement& pe, ErrorReporter& errors);
 /** Detects functions that fail to return a value on at least one path. */
 bool CanExitWithoutReturningValue(const FunctionDeclaration& funcDecl, const Statement& body);
 
+/** Determines if a given function has multiple and/or early returns. */
+enum class ReturnComplexity {
+    kSingleSafeReturn,
+    kScopedReturns,
+    kEarlyReturns,
+};
+ReturnComplexity GetReturnComplexity(const FunctionDefinition& funcDef);
+
 /**
  * Runs at finalization time to perform any last-minute correctness checks:
  * - Reports dangling FunctionReference or TypeReference expressions
