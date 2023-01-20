@@ -1597,6 +1597,13 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             fBuilder.unary_op(BuilderOp::sin_float, arg0.type().slotCount());
             return true;
 
+        case IntrinsicKind::k_sqrt_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.unary_op(BuilderOp::sqrt_float, arg0.type().slotCount());
+            return true;
+
         case IntrinsicKind::k_tan_IntrinsicKind:
             if (!this->pushExpression(arg0)) {
                 return unsupported();
