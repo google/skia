@@ -96,7 +96,13 @@ void DawnBuffer::onMap() {
                      },
                      &wait);
     wait.busyWait();
-    fMapPtr = fBuffer.GetMappedRange();
+    if (isWrite) {
+        fMapPtr = fBuffer.GetMappedRange();
+    } else {
+        // If buffer is only created with MapRead usage, Dawn only allows returning
+        // constant pointer. We need to use const_cast as a workaround here.
+        fMapPtr = const_cast<void*>(fBuffer.GetConstMappedRange());
+    }
     SkASSERT(fMapPtr);
 }
 

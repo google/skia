@@ -279,7 +279,7 @@ Context::PixelTransferResult Context::transferPixels(const TextureProxy* proxy,
     size_t size = SkAlignTo(rowBytes * srcRect.height(), caps->requiredTransferBufferAlignment());
     sk_sp<Buffer> buffer = fResourceProvider->findOrCreateBuffer(
             size,
-            BufferType::kXferCpuToGpu,
+            BufferType::kXferGpuToCpu,
             PrioritizeGpuReads::kNo);
     if (!buffer) {
         return {};

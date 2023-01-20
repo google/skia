@@ -173,7 +173,14 @@ SkColorType DawnCaps::supportedWritePixelsColorType(SkColorType dstColorType,
 SkColorType DawnCaps::supportedReadPixelsColorType(SkColorType srcColorType,
                                                    const TextureInfo& srcTextureInfo,
                                                    SkColorType dstColorType) const {
-    SkASSERT(false);
+    auto dawnFormat = getFormatFromColorType(srcColorType);
+    const FormatInfo& info = this->getFormatInfo(dawnFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const auto& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == srcColorType) {
+            return srcColorType;
+        }
+    }
     return kUnknown_SkColorType;
 }
 
