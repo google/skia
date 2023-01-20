@@ -11,7 +11,7 @@
 #include "include/private/base/SkVx.h"
 #include "include/utils/SkRandom.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkScalerCache.h"
+#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"

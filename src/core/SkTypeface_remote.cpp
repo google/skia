@@ -7,7 +7,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
-#include "src/core/SkScalerCache.h"
+#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/core/SkTypeface_remote.h"

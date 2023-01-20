@@ -18,6 +18,8 @@
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
+class SkStrike;
+
 DEF_TEST(SkStrikeCache_CachePurge, Reporter) {
     SkStrikeCache cache;
 

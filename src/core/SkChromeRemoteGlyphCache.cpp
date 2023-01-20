@@ -18,7 +18,7 @@
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkScalerCache.h"
+#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTraceEvent.h"

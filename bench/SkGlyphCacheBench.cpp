@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkScalerCache.h"
+#include "src/core/SkStrike.h"
 
 #include "bench/Benchmark.h"
 #include "include/core/SkCanvas.h"

@@ -17,8 +17,9 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkGlyphBuffer.h"
-#include "src/core/SkScalerCache.h"
 #include "src/core/SkScalerContext.h"
+#include "src/core/SkStrike.h"
+#include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/core/SkZip.h"
@@ -43,7 +44,7 @@ private:
     std::atomic<int> fThreadCount;
 };
 
-DEF_TEST(SkScalerCacheMultiThread, Reporter) {
+DEF_TEST(SkStrikeMultiThread, Reporter) {
     sk_sp<SkTypeface> typeface =
             ToolUtils::create_portable_typeface("serif", SkFontStyle::Italic());
     static constexpr int kThreadCount = 4;
@@ -69,10 +70,13 @@ DEF_TEST(SkScalerCacheMultiThread, Reporter) {
             font, defaultPaint, SkSurfaceProps(0, kUnknown_SkPixelGeometry),
             SkScalerContextFlags::kNone, SkMatrix::I());
 
+    SkStrikeCache strikeCache;
+
     // Make our own executor so the --threads parameter doesn't mess things up.
     auto executor = SkExecutor::MakeFIFOThreadPool(kThreadCount);
     for (int tries = 0; tries < 100; tries++) {
-        SkScalerCache scalerCache{strikeSpec.createScalerContext()};
+        SkStrike strike{&strikeCache, strikeSpec, strikeSpec.createScalerContext(), nullptr,
+                        nullptr};
 
         auto perThread = [&](int threadIndex) {
             barrier.waitForAll();
@@ -86,8 +90,8 @@ DEF_TEST(SkScalerCacheMultiThread, Reporter) {
                 rejected.setSource(local);
 
                 accepted.startDevicePositioning(
-                        rejected.source(), SkMatrix::I(), scalerCache.roundingSpec());
-                scalerCache.prepareForMaskDrawing(&accepted, &rejected);
+                        rejected.source(), SkMatrix::I(), strike.roundingSpec());
+                strike.prepareForMaskDrawing(&accepted, &rejected);
                 rejected.flipRejectsToSource();
                 accepted.reset();
             }

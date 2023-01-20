@@ -15,7 +15,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/core/SkScalerCache.h"
+#include "src/core/SkStrike.h"
 
 #if SK_SUPPORT_GPU
 #include "src/text/gpu/StrikeCache.h"
@@ -60,7 +60,7 @@ void SkStrikeCache::Dump() {
     int counter = 0;
 
     auto visitor = [&counter](const SkStrike& strike) {
-        const SkScalerContextRec& rec = strike.fScalerCache.getScalerContext()->getRec();
+        const SkScalerContextRec& rec = strike.getScalerContext()->getRec();
 
         SkDebugf("index %d checksum: %x\n", counter, strike.getDescriptor().getChecksum());
         SkDebugf("%s", rec.dump().c_str());
@@ -89,8 +89,8 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
     }
 
     auto visitor = [&dump](const SkStrike& strike) {
-        const SkTypeface* face = strike.fScalerCache.getScalerContext()->getTypeface();
-        const SkScalerContextRec& rec = strike.fScalerCache.getScalerContext()->getRec();
+        const SkTypeface* face = strike.getScalerContext()->getTypeface();
+        const SkScalerContextRec& rec = strike.getScalerContext()->getRec();
 
         SkString fontName;
         face->getFamilyName(&fontName);
@@ -108,7 +108,7 @@ void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
                                "size", "bytes", strike.fMemoryUsed);
         dump->dumpNumericValue(dumpName.c_str(),
                                "glyph_count", "objects",
-                               strike.fScalerCache.countCachedGlyphs());
+                               strike.countCachedGlyphs());
         dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
     };
 
@@ -341,22 +341,5 @@ void SkStrikeCache::validate() const {
         SK_ABORT("fTotalMemoryUsed == computedBytes");
     }
 #endif
-}
-
-#if SK_SUPPORT_GPU
-    sk_sp<sktext::gpu::TextStrike> SkStrike::findOrCreateTextStrike(
-                sktext::gpu::StrikeCache* gpuStrikeCache) const {
-        return gpuStrikeCache->findOrCreateStrike(fStrikeSpec);
-    }
-#endif
-
-void SkStrike::updateDelta(size_t increase) {
-    if (increase != 0) {
-        SkAutoMutexExclusive lock{fStrikeCache->fLock};
-        fMemoryUsed += increase;
-        if (!fRemoved) {
-            fStrikeCache->fTotalMemoryUsed += increase;
-        }
-    }
 }
 
