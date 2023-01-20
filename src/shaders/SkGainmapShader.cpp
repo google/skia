@@ -24,13 +24,31 @@ static constexpr char gGainmapSKSL[] =
         "uniform half epsilonSdr;"
         "uniform half epsilonHdr;"
         "uniform half W;"
+        "uniform int singleChannel;"
+        "uniform int noGamma;"
         ""
         "half4 main(float2 coord) {"
         "    half4 S = base.eval(coord);"
         "    half4 G = gainmap.eval(coord);"
-        "    half3 L = mix(logRatioMin.rgb, logRatioMax.rgb, pow(G.rgb, gainmapGamma.rgb));"
-        "    half3 H = (S.rgb + epsilonSdr) * exp(L * W) - epsilonHdr;"
-        "    return half4(H.r, H.g, H.b, S.a);"
+        "    if (singleChannel == 1) {"
+        "        half L;"
+        "        if (noGamma == 1) {"
+        "            L = mix(logRatioMin.r, logRatioMax.r, G.r);"
+        "        } else {"
+        "            L = mix(logRatioMin.r, logRatioMax.r, pow(G.r, gainmapGamma.r));"
+        "        }"
+        "        half3 H = (S.rgb + epsilonSdr) * exp(L * W) - epsilonHdr;"
+        "        return half4(H.r, H.g, H.b, S.a);"
+        "    } else {"
+        "        half3 L;"
+        "        if (noGamma == 1) {"
+        "            L = mix(logRatioMin.rgb, logRatioMax.rgb, G.rgb);"
+        "        } else {"
+        "            L = mix(logRatioMin.rgb, logRatioMax.rgb, pow(G.rgb, gainmapGamma.rgb));"
+        "        }"
+        "        half3 H = (S.rgb + epsilonSdr) * exp(L * W) - epsilonHdr;"
+        "        return half4(H.r, H.g, H.b, S.a);"
+        "    }"
         "}";
 
 static sk_sp<SkRuntimeEffect> gainmap_apply_effect() {
@@ -38,6 +56,10 @@ static sk_sp<SkRuntimeEffect> gainmap_apply_effect() {
             SkRuntimeEffect::MakeForShader(SkString(gGainmapSKSL), {}).effect.release();
     SkASSERT(effect);
     return sk_ref_sp(effect);
+}
+
+static bool all_channels_equal(const SkColor4f& c) {
+    return c.fR == c.fG && c.fR == c.fB;
 }
 #endif  // SK_ENABLE_SKSL
 
@@ -73,14 +95,13 @@ sk_sp<SkShader> SkGainmapShader::Make(sk_sp<SkImage> baseImage,
 
     // The base image shader will convert into the color space in which the gainmap is applied.
     const SkMatrix baseRectToDstRect = SkMatrix::RectToRect(baseRect, dstRect);
-    auto baseImageShader = baseImage->reinterpretColorSpace(dstColorSpace)
-                                   ->makeShader(baseSamplingOptions, &baseRectToDstRect)
+    auto baseImageShader = baseImage->makeRawShader(baseSamplingOptions, &baseRectToDstRect)
                                    ->makeWithColorFilter(colorXformSdrToGainmap);
 
     // The gainmap image shader will ignore any color space that the gainmap has.
     const SkMatrix gainmapRectToDstRect = SkMatrix::RectToRect(gainmapRect, dstRect);
-    auto gainmapImageShader = gainmapImage->reinterpretColorSpace(dstColorSpace)
-                                      ->makeShader(gainmapSamplingOptions, &gainmapRectToDstRect);
+    auto gainmapImageShader =
+            gainmapImage->makeRawShader(gainmapSamplingOptions, &gainmapRectToDstRect);
 
     // Create the shader to apply the gainmap.
     sk_sp<SkShader> gainmapMathShader;
@@ -98,7 +119,15 @@ sk_sp<SkShader> SkGainmapShader::Make(sk_sp<SkImage> baseImage,
                 (sk_float_log(dstHdrRatio) - sk_float_log(gainmapInfo.fHdrRatioMin)) /
                 (sk_float_log(gainmapInfo.fHdrRatioMax) - sk_float_log(gainmapInfo.fHdrRatioMin));
         const float W = std::max(std::min(Wunclamped, 1.f), 0.f);
-
+        const int noGamma =
+            gainmapInfo.fGainmapGamma.fR == 1.f &&
+            gainmapInfo.fGainmapGamma.fG == 1.f &&
+            gainmapInfo.fGainmapGamma.fB == 1.f;
+        const int singleChannel =
+            all_channels_equal(gainmapInfo.fGainmapGamma) &&
+            all_channels_equal(gainmapInfo.fLogRatioMin) &&
+            all_channels_equal(gainmapInfo.fLogRatioMax) &&
+            gainmapImage->colorType() == kGray_8_SkColorType;
         builder.child("base") = baseImageShader;
         builder.child("gainmap") = gainmapImageShader;
         builder.uniform("logRatioMin") = logRatioMin;
@@ -106,6 +135,8 @@ sk_sp<SkShader> SkGainmapShader::Make(sk_sp<SkImage> baseImage,
         builder.uniform("gainmapGamma") = gainmapInfo.fGainmapGamma;
         builder.uniform("epsilonSdr") = gainmapInfo.fEpsilonSdr;
         builder.uniform("epsilonHdr") = gainmapInfo.fEpsilonHdr;
+        builder.uniform("noGamma") = noGamma;
+        builder.uniform("singleChannel") = singleChannel;
         builder.uniform("W") = W;
         gainmapMathShader = builder.makeShader();
         SkASSERT(gainmapMathShader);
