@@ -1216,14 +1216,22 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
             break;
 
         case OperatorKind::LOGICALAND:
-            // We verified above that the RHS does not have side effects, so we don't need to worry
-            // about short-circuiting side effects.
-            fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, /*slots=*/1);
+        case OperatorKind::BITWISEAND:
+            // For logical-and, we verified above that the RHS does not have side effects, so we
+            // don't need to worry about short-circuiting side effects.
+            fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, type.slotCount());
             break;
 
         case OperatorKind::LOGICALOR:
-            // We verified above that the RHS does not have side effects.
-            fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, /*slots=*/1);
+        case OperatorKind::BITWISEOR:
+            // For logical-or, we verified above that the RHS does not have side effects.
+            fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, type.slotCount());
+            break;
+
+        case OperatorKind::LOGICALXOR:
+        case OperatorKind::BITWISEXOR:
+            // Logical-xor does not short circuit.
+            fBuilder.binary_op(BuilderOp::bitwise_xor_n_ints, type.slotCount());
             break;
 
         default:

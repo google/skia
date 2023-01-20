@@ -1,12 +1,13 @@
 uniform half4 colorGreen;
 uniform half4 colorRed;
-uniform int a;
-uniform int b;
-uniform float c;
-uniform float d;
+uniform float2x2 testMatrix2x2;
 half4 main(float2 xy)
 {
 	bool ok = true;
+	int a = int(testMatrix2x2[0].x);
+	int b = int(testMatrix2x2[0].y);
+	float c = testMatrix2x2[1].x;
+	float d = testMatrix2x2[1].y;
 	int a_and_b = a & b;
 	int b_and_a = b & a;
 	ok = ok && a_and_b == b_and_a;

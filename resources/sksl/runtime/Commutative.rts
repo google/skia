@@ -4,11 +4,12 @@
 /*#pragma settings SkVMDebugTrace NoTraceVarInSkVMDebugTrace*/
 
 uniform half4 colorGreen, colorRed;
-uniform int a, b;
-uniform float c, d;
+uniform float2x2 testMatrix2x2;
 
 half4 main(float2 xy) {
     bool ok = true;
+    int   a = int(testMatrix2x2[0][0]), b = int(testMatrix2x2[0][1]);
+    float c =    (testMatrix2x2[1][0]), d =    (testMatrix2x2[1][1]);
 
     int a_and_b = a & b;
     int b_and_a = b & a;
