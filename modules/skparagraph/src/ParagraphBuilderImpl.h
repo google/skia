@@ -95,6 +95,7 @@ protected:
     void endRunIfNeeded();
     const TextStyle& internalPeekStyle();
     void addPlaceholder(const PlaceholderStyle& placeholderStyle, bool lastOne);
+    void finalize();
 
     SkString fUtf8;
     SkSTArray<4, TextStyle, true> fTextStyles;
@@ -104,12 +105,12 @@ protected:
     ParagraphStyle fParagraphStyle;
 
     std::shared_ptr<SkUnicode> fUnicode;
-
 private:
     SkOnce fillUTF16MappingOnce;
     void ensureUTF16Mapping();
     SkTArray<TextIndex, true> fUTF8IndexForUTF16Index;
 #if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
+    bool fTextIsFinalized;
     bool fUsingClientInfo;
     std::vector<SkUnicode::BidiRegion> fBidiRegionsUtf8;
     std::vector<SkUnicode::Position> fWordsUtf8;
