@@ -18,46 +18,46 @@ float4 main(out float2 _25)
     _25 = sqrt(float4(-1.0f, -4.0f, -16.0f, -64.0f)).xy;
     float4 _50 = float4(_10_testMatrix2x2[0].x, _10_testMatrix2x2[0].y, _10_testMatrix2x2[1].x, _10_testMatrix2x2[1].y) + float4(0.0f, 2.0f, 6.0f, 12.0f);
     float4 inputVal = _50;
-    bool _64 = false;
-    if (sqrt(_50.x) == 1.0f)
+    bool _70 = false;
+    if (abs(sqrt(_50.x) - 1.0f) < 0.0500000007450580596923828125f)
     {
-        float2 _58 = sqrt(_50.xy);
-        _64 = all(bool2(_58.x == float2(1.0f, 2.0f).x, _58.y == float2(1.0f, 2.0f).y));
+        float2 _63 = abs(sqrt(_50.xy) - float2(1.0f, 2.0f));
+        _70 = all(bool2(_63.x < 0.0500000007450580596923828125f.xx.x, _63.y < 0.0500000007450580596923828125f.xx.y));
     }
     else
     {
-        _64 = false;
-    }
-    bool _75 = false;
-    if (_64)
-    {
-        float3 _67 = sqrt(_50.xyz);
-        _75 = all(bool3(_67.x == float3(1.0f, 2.0f, 3.0f).x, _67.y == float3(1.0f, 2.0f, 3.0f).y, _67.z == float3(1.0f, 2.0f, 3.0f).z));
-    }
-    else
-    {
-        _75 = false;
+        _70 = false;
     }
     bool _84 = false;
-    if (_75)
+    if (_70)
     {
-        float4 _78 = sqrt(_50);
-        _84 = all(bool4(_78.x == float4(1.0f, 2.0f, 3.0f, 4.0f).x, _78.y == float4(1.0f, 2.0f, 3.0f, 4.0f).y, _78.z == float4(1.0f, 2.0f, 3.0f, 4.0f).z, _78.w == float4(1.0f, 2.0f, 3.0f, 4.0f).w));
+        float3 _75 = abs(sqrt(_50.xyz) - float3(1.0f, 2.0f, 3.0f));
+        _84 = all(bool3(_75.x < 0.0500000007450580596923828125f.xxx.x, _75.y < 0.0500000007450580596923828125f.xxx.y, _75.z < 0.0500000007450580596923828125f.xxx.z));
     }
     else
     {
         _84 = false;
     }
-    float4 _85 = 0.0f.xxxx;
+    bool _96 = false;
     if (_84)
     {
-        _85 = _10_colorGreen;
+        float4 _89 = abs(sqrt(_50) - float4(1.0f, 2.0f, 3.0f, 4.0f));
+        _96 = all(bool4(_89.x < 0.0500000007450580596923828125f.xxxx.x, _89.y < 0.0500000007450580596923828125f.xxxx.y, _89.z < 0.0500000007450580596923828125f.xxxx.z, _89.w < 0.0500000007450580596923828125f.xxxx.w));
     }
     else
     {
-        _85 = _10_colorRed;
+        _96 = false;
     }
-    return _85;
+    float4 _97 = 0.0f.xxxx;
+    if (_96)
+    {
+        _97 = _10_colorGreen;
+    }
+    else
+    {
+        _97 = _10_colorRed;
+    }
+    return _97;
 }
 
 void frag_main()

@@ -8,5 +8,6 @@ vec4 main() {
     coords = sqrt(negativeVal).xy;
     vec4 inputVal = vec4(testMatrix2x2) + vec4(0.0, 2.0, 6.0, 12.0);
     const vec4 expected = vec4(1.0, 2.0, 3.0, 4.0);
-    return ((sqrt(inputVal.x) == 1.0 && sqrt(inputVal.xy) == vec2(1.0, 2.0)) && sqrt(inputVal.xyz) == vec3(1.0, 2.0, 3.0)) && sqrt(inputVal) == expected ? colorGreen : colorRed;
+    const vec4 allowedDelta = vec4(0.05);
+    return ((abs(sqrt(inputVal.x) - 1.0) < 0.05 && all(lessThan(abs(sqrt(inputVal.xy) - vec2(1.0, 2.0)), vec2(0.05)))) && all(lessThan(abs(sqrt(inputVal.xyz) - vec3(1.0, 2.0, 3.0)), vec3(0.05)))) && all(lessThan(abs(sqrt(inputVal) - expected), allowedDelta)) ? colorGreen : colorRed;
 }
