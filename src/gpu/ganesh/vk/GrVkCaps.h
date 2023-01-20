@@ -285,6 +285,9 @@ private:
     };
 
     enum class IntelGPUType {
+        // 9th gen
+        kSkyLake,
+
         // 11th gen
         kIceLake,
 
@@ -299,6 +302,8 @@ private:
     static IntelGPUType GetIntelGPUType(uint32_t deviceID);
     static int GetIntelGen(IntelGPUType type) {
         switch (type) {
+            case IntelGPUType::kSkyLake:
+                return 9;
             case IntelGPUType::kIceLake:
                 return 11;
             case IntelGPUType::kRocketLake: // fall through
