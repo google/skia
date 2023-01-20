@@ -133,6 +133,12 @@ private:
     void appendCopyConstants(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
                              float* dst, const float* src, int numSlots);
 
+    // Appends a single-slot single-input math operation to the pipeline. The op `stage` will
+    // appended `numSlots` times, starting at position `dst` and advancing one slot for each
+    // subsequent invocation.
+    void appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, SkRasterPipelineOp stage,
+                                 float* dst, int numSlots);
+
     // Appends a multi-slot single-input math operation to the pipeline. `baseStage` must refer to
     // an single-slot "apply_op" stage, which must be immediately followed by specializations for
     // 2-4 slots. For instance, {`zero_slot`, `zero_2_slots`, `zero_3_slots`, `zero_4_slots`}

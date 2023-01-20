@@ -527,10 +527,14 @@ DEF_TEST(RasterPipelineBuilderUnaryOps, r) {
     builder.unary_op(BuilderOp::cast_to_int_from_float, 3);
     builder.unary_op(BuilderOp::cast_to_uint_from_float, 4);
     builder.unary_op(BuilderOp::bitwise_not_int, 5);
-    builder.unary_op(BuilderOp::abs_float, 4);
+    builder.unary_op(BuilderOp::cos_float, 4);
+    builder.unary_op(BuilderOp::tan_float, 3);
+    builder.unary_op(BuilderOp::sin_float, 2);
+    builder.unary_op(BuilderOp::sqrt_float, 1);
+    builder.unary_op(BuilderOp::abs_float, 2);
     builder.unary_op(BuilderOp::abs_int, 3);
-    builder.unary_op(BuilderOp::floor_float, 2);
-    builder.unary_op(BuilderOp::ceil_float, 1);
+    builder.unary_op(BuilderOp::floor_float, 4);
+    builder.unary_op(BuilderOp::ceil_float, 5);
     builder.discard_stack(5);
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
@@ -544,10 +548,21 @@ R"(    1. copy_constant                  $0 = 0x000001C8 (6.389921e-43)
     7. cast_to_uint_from_4_floats     $1..4 = FloatToUint($1..4)
     8. bitwise_not_4_ints             $0..3 = ~$0..3
     9. bitwise_not_int                $4 = ~$4
-   10. abs_4_floats                   $1..4 = abs($1..4)
-   11. abs_3_ints                     $2..4 = abs($2..4)
-   12. floor_2_floats                 $3..4 = floor($3..4)
-   13. ceil_float                     $4 = ceil($4)
+   10. cos_float                      $1 = cos($1)
+   11. cos_float                      $2 = cos($2)
+   12. cos_float                      $3 = cos($3)
+   13. cos_float                      $4 = cos($4)
+   14. tan_float                      $2 = tan($2)
+   15. tan_float                      $3 = tan($3)
+   16. tan_float                      $4 = tan($4)
+   17. sin_float                      $3 = sin($3)
+   18. sin_float                      $4 = sin($4)
+   19. sqrt_float                     $4 = sqrt($4)
+   20. abs_2_floats                   $3..4 = abs($3..4)
+   21. abs_3_ints                     $2..4 = abs($2..4)
+   22. floor_4_floats                 $1..4 = floor($1..4)
+   23. ceil_4_floats                  $0..3 = ceil($0..3)
+   24. ceil_float                     $4 = ceil($4)
 )");
 }
 

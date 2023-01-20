@@ -3327,8 +3327,8 @@ STAGE_TAIL(shuffle, SkRasterPipeline_ShuffleCtx* ctx) {
 }
 
 // Unary operations take a single input, and overwrite it with their output.
-// Unlike binary or ternary operations, we don't provide "n-slot" variations; users can chain
-// together longer sequences manually.
+// Unlike binary or ternary operations, we provide variations of 1-4 slots, but don't provide
+// an arbitrary-width "n-slot" variation; the Builder can chain together longer sequences manually.
 template <typename T, void (*ApplyFn)(T*)>
 SI void apply_adjacent_unary(T* dst, T* end) {
     do {
@@ -3407,6 +3407,12 @@ DECLARE_UNARY_FLOAT(ceil)
 #undef DECLARE_UNARY_FLOAT
 #undef DECLARE_UNARY_INT
 #undef DECLARE_UNARY_UINT
+
+// For complex unary ops, we only provide a 1-slot version to reduce code bloat.
+STAGE_TAIL(sin_float, F* dst)  { *dst = sin_(*dst); }
+STAGE_TAIL(cos_float, F* dst)  { *dst = cos_(*dst); }
+STAGE_TAIL(tan_float, F* dst)  { *dst = tan_(*dst); }
+STAGE_TAIL(sqrt_float, F* dst) { *dst = sqrt_(*dst); }
 
 // Binary operations take two adjacent inputs, and write their output in the first position.
 template <typename T, void (*ApplyFn)(T*, T*)>
