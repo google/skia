@@ -326,6 +326,7 @@ GANESH_TESTS = [
 ]
 
 PATHOPS_TESTS = [
+    "CubicChopTest.cpp",
     "CubicRootsTest.cpp",
     "PathOpsAngleIdeas.cpp",
     "PathOpsAngleTest.cpp",
