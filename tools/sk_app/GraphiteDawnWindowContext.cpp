@@ -45,8 +45,10 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     skgpu::graphite::DawnBackendContext backendContext;
     backendContext.fDevice = fDevice;
     backendContext.fQueue = fDevice.GetQueue();
+    skgpu::graphite::ContextOptions contextOptions;
+    contextOptions.fStoreContextRefInRecorder = true; // Needed to make synchronous readPixels work
     fGraphiteContext = skgpu::graphite::ContextFactory::MakeDawn(backendContext,
-                                                                 skgpu::graphite::ContextOptions());
+                                                                 contextOptions);
     if (!fGraphiteContext) {
         SkASSERT(false);
         return;
