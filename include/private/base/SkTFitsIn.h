@@ -8,8 +8,10 @@
 #ifndef SkTFitsIn_DEFINED
 #define SkTFitsIn_DEFINED
 
+#include "include/private/base/SkDebug.h"
+
+#include <cstdint>
 #include <limits>
-#include <stdint.h>
 #include <type_traits>
 
 /**

@@ -2131,6 +2131,7 @@ func (b *jobBuilder) runWasmGMTests() {
 // label or "target pattern" https://bazel.build/docs/build#specifying-build-targets
 // The reason we need this mapping is because Buildbucket build names cannot have / or : in them.
 var shorthandToLabel = map[string]string{
+	"base":                       "//src:base",
 	"example_hello_world_dawn":   "//example:hello_world_dawn",
 	"example_hello_world_gl":     "//example:hello_world_gl",
 	"example_hello_world_vulkan": "//example:hello_world_vulkan",

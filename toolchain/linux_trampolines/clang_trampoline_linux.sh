@@ -17,6 +17,7 @@ if [[ "$@" != *DSKIA_ENFORCE_IWYU* || "$@" == *use-ld* ]]; then
 fi
 
 supported_files_or_dirs=(
+  "include/private/base/"
   "modules/skunicode/"
   "src/base/"
   "src/codec/"
