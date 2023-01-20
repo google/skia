@@ -26,7 +26,9 @@ skia_filegroup(
         "SkArenaAlloc.h",
         "SkAutoMalloc.h",
         "SkBlockAllocator.h",
+        "SkCubics.h",
         "SkMathPriv.h",
+        "SkQuads.h",
         "SkSafeMath.h",
         "SkUTF.h",
     ],
@@ -58,8 +60,10 @@ skia_filegroup(
 skia_filegroup(
     name = "srcs",
     srcs = [
+        "SkCubics.cpp",
         "SkDeque.cpp",
         "SkFloatingPoint.cpp",
+        "SkQuads.cpp",
         "SkTDArray.cpp",
         ":skslc_srcs",
     ],

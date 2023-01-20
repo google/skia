@@ -8,6 +8,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "src/base/SkQuads.h"
 #include "src/pathops/SkPathOpsQuad.h"
 #include "tests/Test.h"
 
@@ -37,22 +38,48 @@ static void testQuadRootsReal(skiatest::Reporter* reporter, std::string name,
         }
     }
 
+    {
+        skiatest::ReporterContext subsubtest(reporter, "Pathops Implementation");
+        double roots[2] = {0, 0};
+        int rootCount = SkDQuad::RootsReal(A, B, C, roots);
+        REPORTER_ASSERT(reporter, expectedRoots.size() == size_t(rootCount),
+                        "Wrong number of roots returned %zu != %d", expectedRoots.size(),
+                        rootCount);
 
-    double roots[2] = {0, 0};
-    int rootCount = SkDQuad::RootsReal(A, B, C, roots);
-    REPORTER_ASSERT(reporter, expectedRoots.size() == size_t(rootCount),
-                    "Wrong number of roots returned %zu != %d", expectedRoots.size(), rootCount);
+        // We don't care which order the roots are returned from the algorithm.
+        // For determinism, we will sort them (and ensure the provided solutions are also sorted).
+        std::sort(std::begin(roots), std::begin(roots) + rootCount);
+        for (int i = 0; i < rootCount; i++) {
+            if (sk_double_nearly_zero(expectedRoots[i])) {
+                REPORTER_ASSERT(reporter, sk_double_nearly_zero(roots[i]),
+                                "0 != %.16f at index %d", roots[i], i);
+            } else {
+                REPORTER_ASSERT(reporter,
+                                sk_doubles_nearly_equal_ulps(expectedRoots[i], roots[i], 64),
+                                "%.16f != %.16f at index %d", expectedRoots[i], roots[i], i);
+            }
+        }
+    }
+    {
+        skiatest::ReporterContext subsubtest(reporter, "SkQuads Implementation");
+        double roots[2] = {0, 0};
+        int rootCount = SkQuads::RootsReal(A, B, C, roots);
+        REPORTER_ASSERT(reporter, expectedRoots.size() == size_t(rootCount),
+                        "Wrong number of roots returned %zu != %d", expectedRoots.size(),
+                        rootCount);
 
-    // We don't care which order the roots are returned from the algorithm.
-    // For determinism, we will sort them (and ensure the provided solutions are also sorted).
-    std::sort(std::begin(roots), std::begin(roots) + rootCount);
-    for (int i = 0; i < rootCount; i++) {
-        if (sk_double_nearly_zero(expectedRoots[i])) {
-            REPORTER_ASSERT(reporter, sk_double_nearly_zero(roots[i]),
-                            "0 != %.16f at index %d", roots[i], i);
-        } else {
-            REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(expectedRoots[i], roots[i], 64),
-                            "%.16f != %.16f at index %d", expectedRoots[i], roots[i], i);
+        // We don't care which order the roots are returned from the algorithm.
+        // For determinism, we will sort them (and ensure the provided solutions are also sorted).
+        std::sort(std::begin(roots), std::begin(roots) + rootCount);
+        for (int i = 0; i < rootCount; i++) {
+            if (sk_double_nearly_zero(expectedRoots[i])) {
+                REPORTER_ASSERT(reporter, sk_double_nearly_zero(roots[i]),
+                                "0 != %.16f at index %d", roots[i], i);
+            } else {
+                REPORTER_ASSERT(reporter,
+                                sk_doubles_nearly_equal_ulps(expectedRoots[i], roots[i], 64),
+                                "%.16f != %.16f at index %d", expectedRoots[i], roots[i], i);
+            }
         }
     }
 }
