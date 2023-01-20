@@ -374,7 +374,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                      kDirectDepthGreaterPass,
                      /*vertexAttrs=*/{
                             {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                            {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
+                            {"normalAttr", VertexAttribType::kFloat2, SkSLType::kFloat2},
                             // FIXME these values are all +1/0/-1, or +1/0, so could be packed
                             // much more densely than as three floats.
                             {"normalScale", VertexAttribType::kFloat, SkSLType::kFloat},
@@ -439,6 +439,8 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
 
         const float kEpsilon = 0.00024; // SK_ScalarNearlyZero
 
+        // Store a local copy of `normal`, which can get mutated below.
+        float2 normal = normalAttr;
         int cornerID = sk_VertexID / 15; // KEEP IN SYNC WITH kCornerVertexCount
 
         // Corner variables that are the same for all vertices in a corner, but depend on style.
@@ -736,8 +738,8 @@ const char* AnalyticRRectRenderStep::fragmentCoverageSkSL() const {
         // We multiply by sk_FragCoord.w (really 1/w) to either adjust the distance to linear
         // (for outside edge triangles), or to account for W in the length of the gradient we
         // had earlier divided by.
-        scaleAndBias  *= sk_FragCoord.w;
-        edgeDistances *= sk_FragCoord.w;
+        float2 scaleAndBiasAdjusted = scaleAndBias * sk_FragCoord.w;
+        float2 edgeDistancesAdjusted = edgeDistances * sk_FragCoord.w;
 
         float c;
         if (perPixelControl > 0.0 && uv.x > 0.0 && uv.y > 0.0) {
@@ -747,24 +749,25 @@ const char* AnalyticRRectRenderStep::fragmentCoverageSkSL() const {
             float f = dot(uv, uv) - 1.0;
             float width = 2 * coverageWidth.x * coverageWidth.y;
 
-            // We include edgeDistances.x in the outer curve's coverage if it's less than the bias
-            // because that corresponds to the linear outset that had clamped UVs, so the curve's
-            // implicit function isn't accurate near the outer edge.
-            c = min(edgeDistances.x, 0.0) - (f - width) * invGradLength;
+            // We include edgeDistancesAdjusted.x in the outer curve's coverage if it's less than
+            // the bias because that corresponds to the linear outset that had clamped UVs, so the
+            // curve's implicit function isn't accurate near the outer edge.
+            c = min(edgeDistancesAdjusted.x, 0.0) - (f - width) * invGradLength;
             if (coverageWidth.x > coverageWidth.y) {
-                // In the case of an interior curve, it is incorrect to incorporate edgeDistances.y
-                // since that would form an interior miter.
+                // In the case of an interior curve, it is incorrect to incorporate
+                // edgeDistancesAdjusted.y since that would form an interior miter.
                 c = min(c, (f + width) * invGradLength);
             } else {
                 // An interior miter or a fill that needs to clamp to the other dimension's coverage
-                c = min(c, edgeDistances.y);
+                c = min(c, edgeDistancesAdjusted.y);
             }
         } else {
             // A fill or miter w/o any outer or inner curve to evaluate
-            c = min(edgeDistances.x, edgeDistances.y);
+            c = min(edgeDistancesAdjusted.x, edgeDistancesAdjusted.y);
         }
 
-        outputCoverage = half4(clamp(scaleAndBias.x*(c + scaleAndBias.y), 0.0, 1.0));
+        outputCoverage =
+                half4(clamp(scaleAndBiasAdjusted.x*(c + scaleAndBiasAdjusted.y), 0.0, 1.0));
     )";
 }
 
