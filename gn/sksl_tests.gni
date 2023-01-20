@@ -104,6 +104,7 @@ sksl_error_tests = [
   "errors/InterfaceBlockWithNoMembers.sksl",
   "errors/IntrinsicInGlobalVariable.sksl",
   "errors/InvalidAssignment.rts",
+  "errors/InvalidAssignmentPipelineInputs.sksl",
   "errors/InvalidAtomicDeclarations.compute",
   "errors/InvalidAtomicOperations.compute",
   "errors/InvalidBackendBindingFlagsGL.sksl",

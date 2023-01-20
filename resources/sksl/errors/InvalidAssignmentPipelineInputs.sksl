@@ -1,0 +1,14 @@
+layout(location = 0) in float stageInput;
+in foo {
+    layout(location = 1) float stageInputInBlock;
+};
+
+void main() {
+    stageInput = 5;
+    stageInputInBlock = 6;
+}
+
+/*%%*
+cannot modify pipeline input variable 'stageInput'
+cannot modify pipeline input variable 'stageInputInBlock'
+*%%*/

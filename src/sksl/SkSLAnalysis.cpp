@@ -18,6 +18,7 @@
 #include "include/private/SkSLStatement.h"
 #include "include/private/base/SkTArray.h"
 #include "include/sksl/SkSLErrorReporter.h"
+#include "include/sksl/SkSLOperator.h"
 #include "src/core/SkTHash.h"
 #include "src/sksl/SkSLBuiltinTypes.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -241,32 +242,41 @@ public:
         return fErrors->errorCount() == oldErrorCount;
     }
 
-    void visitExpression(Expression& expr) {
+    void visitExpression(Expression& expr, const FieldAccess* fieldAccess = nullptr) {
         switch (expr.kind()) {
             case Expression::Kind::kVariableReference: {
                 VariableReference& varRef = expr.as<VariableReference>();
                 const Variable* var = varRef.variable();
+                auto fieldName = [&] {
+                    return fieldAccess ? fieldAccess->description(OperatorPrecedence::kTopLevel)
+                                       : std::string(var->name());
+                };
                 if (var->modifiers().fFlags & (Modifiers::kConst_Flag | Modifiers::kUniform_Flag)) {
-                    fErrors->error(expr.fPosition, "cannot modify immutable variable '" +
-                            std::string(var->name()) + "'");
+                    fErrors->error(expr.fPosition,
+                                   "cannot modify immutable variable '" + fieldName() + "'");
+                } else if (var->storage() == Variable::Storage::kGlobal &&
+                           (var->modifiers().fFlags & Modifiers::kIn_Flag)) {
+                    fErrors->error(expr.fPosition,
+                                   "cannot modify pipeline input variable '" + fieldName() + "'");
                 } else {
                     SkASSERT(fAssignedVar == nullptr);
                     fAssignedVar = &varRef;
                 }
                 break;
             }
-            case Expression::Kind::kFieldAccess:
-                this->visitExpression(*expr.as<FieldAccess>().base());
+            case Expression::Kind::kFieldAccess: {
+                const FieldAccess& f = expr.as<FieldAccess>();
+                this->visitExpression(*f.base(), &f);
                 break;
-
+            }
             case Expression::Kind::kSwizzle: {
                 const Swizzle& swizzle = expr.as<Swizzle>();
                 this->checkSwizzleWrite(swizzle);
-                this->visitExpression(*swizzle.base());
+                this->visitExpression(*swizzle.base(), fieldAccess);
                 break;
             }
             case Expression::Kind::kIndex:
-                this->visitExpression(*expr.as<IndexExpression>().base());
+                this->visitExpression(*expr.as<IndexExpression>().base(), fieldAccess);
                 break;
 
             case Expression::Kind::kPoison:
