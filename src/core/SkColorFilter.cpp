@@ -383,7 +383,7 @@ sk_sp<SkColorFilter> SkColorFilters::SRGBToLinearGamma() {
 
 sk_sp<SkColorFilter> SkColorFilterPriv::MakeColorSpaceXform(sk_sp<SkColorSpace> src,
                                                             sk_sp<SkColorSpace> dst) {
-    return sk_ref_sp(new ColorSpaceXformColorFilter(std::move(src), std::move(dst)));
+    return sk_make_sp<ColorSpaceXformColorFilter>(std::move(src), std::move(dst));
 }
 
 class SkWorkingFormatColorFilter final : public SkColorFilterBase {
