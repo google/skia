@@ -1,7 +1,7 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  $0 = 0x00000002 (2.802597e-45)
-    4. copy_slot_unmasked             _6_two = $0
+    3. copy_constant                  _6_two = 0x00000002 (2.802597e-45)
+    4. copy_slot_unmasked             $0 = _6_two
     5. copy_slot_unmasked             _8_flatten1 = $0
     6. store_condition_mask           $8 = CondMask
     7. copy_slot_unmasked             $9 = _8_flatten1

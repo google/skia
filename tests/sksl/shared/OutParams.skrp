@@ -243,8 +243,8 @@
   243. cmpne_float                    $0 = notEqual($0, $1)
   244. copy_slot_masked               v = Mask($0)
   245. copy_slot_masked               b3(2) = Mask($0)
-  246. copy_constant                  $0 = 0xFFFFFFFF
-  247. copy_slot_unmasked             ok = $0
+  246. copy_constant                  ok = 0xFFFFFFFF
+  247. copy_slot_unmasked             $0 = ok
   248. copy_constant                  $1 = 0x3F800000 (1.0)
   249. copy_slot_unmasked             $2 = h
   250. copy_slot_unmasked             $3 = h2(0)

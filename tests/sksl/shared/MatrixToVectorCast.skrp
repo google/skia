@@ -1,7 +1,7 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  $0 = 0xFFFFFFFF
-    4. copy_slot_unmasked             ok = $0
+    3. copy_constant                  ok = 0xFFFFFFFF
+    4. copy_slot_unmasked             $0 = ok
     5. copy_4_constants               $1..4 = testMatrix2x2
     6. copy_constant                  $5 = 0x3F800000 (1.0)
     7. copy_constant                  $6 = 0x40000000 (2.0)

@@ -2,8 +2,8 @@
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  $0 = unknownInput
     4. copy_slot_unmasked             _0_unknown = $0
-    5. copy_constant                  $0 = 0xFFFFFFFF
-    6. copy_slot_unmasked             _1_ok = $0
+    5. copy_constant                  _1_ok = 0xFFFFFFFF
+    6. copy_slot_unmasked             $0 = _1_ok
     7. zero_slot_unmasked             $1 = 0
     8. swizzle_4                      $1..4 = ($1..4).xxxx
     9. copy_slot_unmasked             $5 = _0_unknown
@@ -82,8 +82,8 @@
    82. copy_constant                  $13 = unknownInput
    83. cast_to_int_from_float         $13 = FloatToInt($13)
    84. copy_slot_unmasked             unknown = $13
-   85. copy_constant                  $13 = 0xFFFFFFFF
-   86. copy_slot_unmasked             ok = $13
+   85. copy_constant                  ok = 0xFFFFFFFF
+   86. copy_slot_unmasked             $13 = ok
    87. zero_slot_unmasked             $14 = 0
    88. swizzle_4                      $14..17 = ($14..17).xxxx
    89. copy_slot_unmasked             $18 = unknown

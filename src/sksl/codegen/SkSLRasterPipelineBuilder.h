@@ -368,12 +368,9 @@ public:
         fInstructions.push_back({BuilderOp::select, {}, slots});
     }
 
-    void pop_slots_unmasked(SlotRange dst) {
-        // The opposite of push_slots; copies values from the temp stack into value slots, then
-        // shrinks the temp stack.
-        this->copy_stack_to_slots_unmasked(dst);
-        this->discard_stack(dst.count);
-    }
+    // The opposite of push_slots; copies values from the temp stack into value slots, then
+    // shrinks the temp stack.
+    void pop_slots_unmasked(SlotRange dst);
 
     void load_unmasked(Slot slot) {
         fInstructions.push_back({BuilderOp::load_unmasked, {slot}});

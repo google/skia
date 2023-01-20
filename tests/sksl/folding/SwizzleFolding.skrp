@@ -1,7 +1,7 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
-    3. copy_constant                  $0 = 0xFFFFFFFF
-    4. copy_slot_unmasked             _2_ok = $0
+    3. copy_constant                  _2_ok = 0xFFFFFFFF
+    4. copy_slot_unmasked             $0 = _2_ok
     5. copy_4_constants               $1..4 = colorGreen
     6. copy_4_constants               $5..8 = colorRed
     7. cmpne_4_floats                 $1..4 = notEqual($1..4, $5..8)

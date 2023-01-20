@@ -28,11 +28,11 @@
    28. store_condition_mask           $31 = CondMask
    29. store_condition_mask           $8 = CondMask
    30. branch_if_no_active_lanes      branch_if_no_active_lanes +13 (#43)
-   31. copy_constant                  $9 = 0x3F000000 (0.5)
-   32. copy_slot_unmasked             mp = $9
+   31. copy_constant                  mp = 0x3F000000 (0.5)
+   32. copy_slot_unmasked             $9 = mp
    33. copy_slot_unmasked             hp = $9
-   34. copy_constant                  $9 = 0x00000002 (2.802597e-45)
-   35. copy_slot_unmasked             ihp = $9
+   34. copy_constant                  ihp = 0x00000002 (2.802597e-45)
+   35. copy_slot_unmasked             $9 = ihp
    36. copy_slot_unmasked             imp = $9
    37. copy_2_slots_unmasked          $9..10 = mp(0..1)
    38. cmpeq_float                    $9 = equal($9, $10)
@@ -206,8 +206,8 @@
   206. zero_slot_unmasked             $28 = 0
   207. merge_condition_mask           CondMask = $16 & $17
   208. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (#215)
-  209. copy_constant                  $29 = 0x3F800000 (1.0)
-  210. copy_slot_unmasked             value = $29
+  209. copy_constant                  value = 0x3F800000 (1.0)
+  210. copy_slot_unmasked             $29 = value
   211. copy_constant                  $30 = 0x3F800000 (1.0)
   212. cmpeq_float                    $29 = equal($29, $30)
   213. copy_slot_masked               [highp_param].result = Mask($29)
@@ -216,8 +216,8 @@
   216. zero_slot_unmasked             $24 = 0
   217. merge_condition_mask           CondMask = $27 & $28
   218. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (#225)
-  219. copy_constant                  $25 = 0x40000000 (2.0)
-  220. copy_slot_unmasked             value = $25
+  219. copy_constant                  value = 0x40000000 (2.0)
+  220. copy_slot_unmasked             $25 = value
   221. copy_constant                  $26 = 0x40000000 (2.0)
   222. cmpeq_float                    $25 = equal($25, $26)
   223. copy_slot_masked               [mediump_param].result = Mask($25)
@@ -226,8 +226,8 @@
   226. zero_slot_unmasked             $13 = 0
   227. merge_condition_mask           CondMask = $23 & $24
   228. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (#235)
-  229. copy_constant                  $14 = 0x40400000 (3.0)
-  230. copy_slot_unmasked             value = $14
+  229. copy_constant                  value = 0x40400000 (3.0)
+  230. copy_slot_unmasked             $14 = value
   231. copy_constant                  $15 = 0x40400000 (3.0)
   232. cmpeq_float                    $14 = equal($14, $15)
   233. copy_slot_masked               [lowp_param].result = Mask($14)
