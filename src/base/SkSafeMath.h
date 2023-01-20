@@ -9,7 +9,6 @@
 #define SkSafeMath_DEFINED
 
 #include "include/private/base/SkAssert.h"
-#include "include/private/base/SkDebug.h" // IWYU pragma: keep
 #include "include/private/base/SkTFitsIn.h"
 
 #include <cstddef>
