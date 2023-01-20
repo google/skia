@@ -1518,6 +1518,13 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             fBuilder.unary_op(BuilderOp::ceil_float, arg0.type().slotCount());
             return true;
 
+        case IntrinsicKind::k_cos_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.unary_op(BuilderOp::cos_float, arg0.type().slotCount());
+            return true;
+
         case IntrinsicKind::k_floatBitsToInt_IntrinsicKind:
         case IntrinsicKind::k_floatBitsToUint_IntrinsicKind:
         case IntrinsicKind::k_intBitsToFloat_IntrinsicKind:
@@ -1583,6 +1590,20 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             }
             return this->binaryOp(arg0.type(), kMinOps);
         }
+        case IntrinsicKind::k_sin_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.unary_op(BuilderOp::sin_float, arg0.type().slotCount());
+            return true;
+
+        case IntrinsicKind::k_tan_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.unary_op(BuilderOp::tan_float, arg0.type().slotCount());
+            return true;
+
         case IntrinsicKind::k_transpose_IntrinsicKind:
             SkASSERT(arg0.type().isMatrix());
             if (!this->pushExpression(arg0)) {
