@@ -16,9 +16,6 @@
 #define SK_NOTHING_ARG2(arg1, arg2)
 #define SK_NOTHING_ARG3(arg1, arg2, arg3)
 
-// The user config file might define things as SK_API
-#include "include/private/base/SkAPI.h" // IWYU pragma: keep
-
 // IWYU pragma: begin_exports
 
 // Note: SK_USER_CONFIG_HEADER will not work with Bazel builds, as that file will not
