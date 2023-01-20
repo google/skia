@@ -38,5 +38,4 @@
    38. mul_int                        $3 *= $4
    39. cast_to_float_from_int         $3 = IntToFloat($3)
    40. copy_4_slots_masked            [main].result = Mask($0..3)
-   41. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   42. load_src                       src.rgba = [main].result
+   41. load_src                       src.rgba = [main].result

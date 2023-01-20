@@ -13,5 +13,4 @@
    13. mul_4_floats                   $4..7 *= $8..11
    14. add_4_floats                   $0..3 += $4..7
    15. copy_4_slots_masked            [main].result = Mask($0..3)
-   16. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   17. load_src                       src.rgba = [main].result
+   16. load_src                       src.rgba = [main].result

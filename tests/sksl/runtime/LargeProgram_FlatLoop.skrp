@@ -1494,5 +1494,4 @@
  1494. zero_slot_unmasked             $0 = 0
  1495. swizzle_4                      $0..3 = ($0..3).xxxx
  1496. copy_4_slots_masked            [main].result = Mask($0..3)
- 1497. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
- 1498. load_src                       src.rgba = [main].result
+ 1497. load_src                       src.rgba = [main].result

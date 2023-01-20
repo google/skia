@@ -254,6 +254,15 @@ public:
         return SkSL::String::printf("[%s %d]", name, fTempNameIndex++);
     }
 
+    bool needsReturnMask() {
+        Analysis::ReturnComplexity* complexity = fReturnComplexityMap.find(fCurrentFunction);
+        if (!complexity) {
+            complexity = fReturnComplexityMap.set(fCurrentFunction,
+                                                  Analysis::GetReturnComplexity(*fCurrentFunction));
+        }
+        return *complexity >= Analysis::ReturnComplexity::kEarlyReturns;
+    }
+
     static bool IsUniform(const Variable& var) {
        return var.modifiers().fFlags & Modifiers::kUniform_Flag;
     }
@@ -277,9 +286,12 @@ private:
     SlotManager fUniformSlots;
 
     SkTArray<SlotRange> fFunctionStack;
+    const FunctionDefinition* fCurrentFunction = nullptr;
     SlotRange fCurrentContinueMask;
     int fCurrentTempStack = 0;
     int fTempNameIndex = 0;
+
+    SkTHashMap<const FunctionDefinition*, Analysis::ReturnComplexity> fReturnComplexityMap;
 
     static constexpr auto kAbsOps = TypedOps{BuilderOp::abs_float,
                                              BuilderOp::abs_int,
@@ -921,7 +933,9 @@ bool Generator::writeReturnStatement(const ReturnStatement& r) {
         }
         this->popToSlotRange(fFunctionStack.back());
     }
-    fBuilder.mask_off_return_mask();
+    if (this->needsReturnMask()) {
+        fBuilder.mask_off_return_mask();
+    }
     return true;
 }
 
@@ -1005,6 +1019,7 @@ bool Generator::unaryOp(const SkSL::Type& type, const TypedOps& ops) {
     fBuilder.unary_op(op, type.slotCount());
     return true;
 }
+
 bool Generator::binaryOp(const SkSL::Type& type, const TypedOps& ops) {
     BuilderOp op = GetTypedOp(type, ops);
     if (op == BuilderOp::unsupported) {
@@ -1355,6 +1370,10 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
         return this->pushIntrinsic(c);
     }
 
+    // Keep track of the current function.
+    const FunctionDefinition* lastFunction = fCurrentFunction;
+    fCurrentFunction = c.function().definition();
+
     // Skip over the function body entirely if there are no active lanes.
     // (If the function call was trivial, it would likely have been inlined in the frontend, so this
     // is likely to save a significant amount of work if the lanes are all dead.)
@@ -1362,7 +1381,9 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
     fBuilder.branch_if_no_active_lanes(skipLabelID);
 
     // Save off the return mask.
-    fBuilder.push_return_mask();
+    if (this->needsReturnMask()) {
+        fBuilder.push_return_mask();
+    }
 
     // Write all the arguments into their parameter's variable slots. Because we never allow
     // recursion, we don't need to worry about overwriting any existing values in those slots.
@@ -1396,13 +1417,18 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
     }
 
     // Emit the function body.
-    std::optional<SlotRange> r = this->writeFunction(c, *c.function().definition());
+    std::optional<SlotRange> r = this->writeFunction(c, *fCurrentFunction);
     if (!r.has_value()) {
         return unsupported();
     }
 
     // Restore the original return mask.
-    fBuilder.pop_return_mask();
+    if (this->needsReturnMask()) {
+        fBuilder.pop_return_mask();
+    }
+
+    // We've returned back to the last function.
+    fCurrentFunction = lastFunction;
 
     // Copy out-parameters and inout-parameters back to their homes.
     for (int index = 0; index < c.arguments().size(); ++index) {
@@ -2017,6 +2043,8 @@ bool Generator::pushVariableReferencePartial(const VariableReference& v, SlotRan
 }
 
 bool Generator::writeProgram(const FunctionDefinition& function) {
+    fCurrentFunction = &function;
+
     if (fDebugTrace) {
         // Copy the program source into the debug info so that it will be written in the trace file.
         fDebugTrace->setSource(*fProgram.fSource);

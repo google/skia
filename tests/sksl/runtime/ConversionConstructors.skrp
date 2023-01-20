@@ -36,5 +36,4 @@
    36. swizzle_4                      $4..7 = ($4..7).xxxx
    37. mul_4_floats                   $0..3 *= $4..7
    38. copy_4_slots_masked            [main].result = Mask($0..3)
-   39. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   40. load_src                       src.rgba = [main].result
+   39. load_src                       src.rgba = [main].result

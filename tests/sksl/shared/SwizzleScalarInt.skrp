@@ -22,5 +22,4 @@
    22. copy_4_slots_masked            i4 = Mask($0..3)
    23. cast_to_float_from_4_ints      $0..3 = IntToFloat($0..3)
    24. copy_4_slots_masked            [main].result = Mask($0..3)
-   25. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   26. load_src                       src.rgba = [main].result
+   25. load_src                       src.rgba = [main].result

@@ -49,5 +49,4 @@
    49. add_3_floats                   $0..2 += $3..5
    50. copy_constant                  $3 = 0x3F800000 (1.0)
    51. copy_4_slots_masked            [main].result = Mask($0..3)
-   52. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   53. load_src                       src.rgba = [main].result
+   52. load_src                       src.rgba = [main].result

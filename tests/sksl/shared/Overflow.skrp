@@ -401,5 +401,4 @@
   401. min_4_floats                   $4..7 = min($4..7, $8..11)
   402. mul_4_floats                   $0..3 *= $4..7
   403. copy_4_slots_masked            [main].result = Mask($0..3)
-  404. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  405. load_src                       src.rgba = [main].result
+  404. load_src                       src.rgba = [main].result

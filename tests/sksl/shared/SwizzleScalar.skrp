@@ -19,5 +19,4 @@
    19. copy_constant                  $3 = unknownInput
    20. copy_4_slots_masked            h4 = Mask($0..3)
    21. copy_4_slots_masked            [main].result = Mask($0..3)
-   22. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   23. load_src                       src.rgba = [main].result
+   22. load_src                       src.rgba = [main].result

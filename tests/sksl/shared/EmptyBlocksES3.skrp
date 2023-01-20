@@ -44,5 +44,4 @@
    44. load_loop_mask                 LoopMask = $0
    45. copy_4_slots_unmasked          $0..3 = color
    46. copy_4_slots_masked            [main].result = Mask($0..3)
-   47. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   48. load_src                       src.rgba = [main].result
+   47. load_src                       src.rgba = [main].result

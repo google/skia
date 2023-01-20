@@ -4,28 +4,18 @@
     4. copy_slot_unmasked             r = $0
     5. copy_constant                  $0 = 0x3F800000 (1.0)
     6. copy_slot_unmasked             g = $0
-    7. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (#14)
-    8. store_return_mask              $0 = RetMask
-    9. copy_slot_unmasked             $1 = r
-   10. copy_slot_unmasked             x = $1
-   11. copy_slot_masked               [opt_barrier].result = Mask($1)
-   12. load_return_mask               RetMask = $0
-   13. copy_slot_unmasked             $0 = [opt_barrier].result
-   14. copy_constant                  $1 = 0x3F800000 (1.0)
-   15. branch_if_no_active_lanes      branch_if_no_active_lanes +14 (#29)
-   16. store_return_mask              $2 = RetMask
-   17. zero_slot_unmasked             $3 = 0
-   18. branch_if_no_active_lanes      branch_if_no_active_lanes +7 (#25)
-   19. store_return_mask              $4 = RetMask
-   20. copy_slot_unmasked             $5 = g
-   21. copy_slot_unmasked             x = $5
-   22. copy_slot_masked               [opt_barrier].result = Mask($5)
-   23. load_return_mask               RetMask = $4
-   24. copy_slot_unmasked             $4 = [opt_barrier].result
-   25. copy_2_slots_unmasked          rg = $3..4
-   26. copy_2_slots_masked            [compute_ba].result = Mask($3..4)
-   27. load_return_mask               RetMask = $2
-   28. copy_2_slots_unmasked          $2..3 = [compute_ba].result
-   29. copy_4_slots_masked            [main].result = Mask($0..3)
-   30. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   31. load_src                       src.rgba = [main].result
+    7. branch_if_no_active_lanes      branch_if_no_active_lanes +4 (#11)
+    8. copy_slot_unmasked             $0 = r
+    9. copy_slot_unmasked             x = $0
+   10. copy_slot_masked               [opt_barrier].result = Mask($0)
+   11. copy_constant                  $1 = 0x3F800000 (1.0)
+   12. branch_if_no_active_lanes      branch_if_no_active_lanes +8 (#20)
+   13. zero_slot_unmasked             $2 = 0
+   14. branch_if_no_active_lanes      branch_if_no_active_lanes +4 (#18)
+   15. copy_slot_unmasked             $3 = g
+   16. copy_slot_unmasked             x = $3
+   17. copy_slot_masked               [opt_barrier].result = Mask($3)
+   18. copy_2_slots_unmasked          rg = $2..3
+   19. copy_2_slots_masked            [compute_ba].result = Mask($2..3)
+   20. copy_4_slots_masked            [main].result = Mask($0..3)
+   21. load_src                       src.rgba = [main].result

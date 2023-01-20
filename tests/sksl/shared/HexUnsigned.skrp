@@ -27,5 +27,4 @@
    27. copy_slot_masked               u5 = Mask($0)
    28. copy_4_constants               $0..3 = colorGreen
    29. copy_4_slots_masked            [main].result = Mask($0..3)
-   30. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   31. load_src                       src.rgba = [main].result
+   30. load_src                       src.rgba = [main].result
