@@ -53,5 +53,5 @@
    53. branch_if_any_active_lanes     branch_if_any_active_lanes -22 (#31)
    54. load_loop_mask                 LoopMask = $0
    55. copy_4_slots_unmasked          $0..3 = x
-   56. copy_4_slots_masked            [main].result = Mask($0..3)
+   56. copy_4_slots_unmasked          [main].result = $0..3
    57. load_src                       src.rgba = [main].result

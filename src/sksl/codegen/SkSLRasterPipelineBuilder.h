@@ -344,16 +344,13 @@ public:
 
     void copy_stack_to_slots(SlotRange dst, int offsetFromStackTop);
 
+    // Translates into copy_slots_unmasked (from temp stack to values) in Raster Pipeline.
+    // Does not discard any values on the temp stack.
     void copy_stack_to_slots_unmasked(SlotRange dst) {
         this->copy_stack_to_slots_unmasked(dst, /*offsetFromStackTop=*/dst.count);
     }
 
-    void copy_stack_to_slots_unmasked(SlotRange dst, int offsetFromStackTop) {
-        // Translates into copy_slots_unmasked (from temp stack to values) in Raster Pipeline.
-        // Does not discard any values on the temp stack.
-        fInstructions.push_back({BuilderOp::copy_stack_to_slots_unmasked, {dst.index},
-                                 dst.count, offsetFromStackTop});
-    }
+    void copy_stack_to_slots_unmasked(SlotRange dst, int offsetFromStackTop);
 
     // Performs a unary op (like `bitwise_not`), given a slot count of `slots`. The stack top is
     // replaced with the result.

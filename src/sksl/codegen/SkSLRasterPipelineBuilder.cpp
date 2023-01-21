@@ -280,6 +280,12 @@ void Builder::pop_slots_unmasked(SlotRange dst) {
 }
 
 void Builder::copy_stack_to_slots(SlotRange dst, int offsetFromStackTop) {
+    // If the execution mask is known to be all-true, then we can ignore the write mask.
+    if (!this->executionMaskWritesAreEnabled()) {
+        this->copy_stack_to_slots_unmasked(dst, offsetFromStackTop);
+        return;
+    }
+
     // If the last instruction copied the previous stack slots, just extend it.
     if (!fInstructions.empty()) {
         Instruction& lastInstruction = fInstructions.back();
@@ -297,6 +303,27 @@ void Builder::copy_stack_to_slots(SlotRange dst, int offsetFromStackTop) {
     }
 
     fInstructions.push_back({BuilderOp::copy_stack_to_slots, {dst.index},
+                             dst.count, offsetFromStackTop});
+}
+
+void Builder::copy_stack_to_slots_unmasked(SlotRange dst, int offsetFromStackTop) {
+    // If the last instruction copied the previous stack slots, just extend it.
+    if (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        // If the last op is copy-stack-to-slots-unmasked...
+        if (lastInstruction.fOp == BuilderOp::copy_stack_to_slots_unmasked &&
+            // and this op's destination is immediately after the last copy-slots-op's destination
+            lastInstruction.fSlotA + lastInstruction.fImmA == dst.index &&
+            // and this op's source is immediately after the last copy-slots-op's source
+            lastInstruction.fImmB - lastInstruction.fImmA == offsetFromStackTop) {
+            // then we can just extend the copy!
+            lastInstruction.fImmA += dst.count;
+            return;
+        }
+    }
+
+    fInstructions.push_back({BuilderOp::copy_stack_to_slots_unmasked, {dst.index},
                              dst.count, offsetFromStackTop});
 }
 

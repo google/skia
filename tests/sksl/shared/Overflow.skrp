@@ -398,5 +398,5 @@
   398. swizzle_4                      $8..11 = ($8..11).xxxx
   399. min_4_floats                   $4..7 = min($4..7, $8..11)
   400. mul_4_floats                   $0..3 *= $4..7
-  401. copy_4_slots_masked            [main].result = Mask($0..3)
+  401. copy_4_slots_unmasked          [main].result = $0..3
   402. load_src                       src.rgba = [main].result

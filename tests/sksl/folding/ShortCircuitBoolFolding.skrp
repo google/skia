@@ -23,7 +23,7 @@
    23. copy_slot_unmasked             $0 = _1_ok
    24. copy_constant                  $1 = 0x00000001 (1.401298e-45)
    25. add_int                        $0 += $1
-   26. copy_slot_masked               _1_ok = Mask($0)
+   26. copy_slot_unmasked             _1_ok = $0
    27. store_condition_mask           $0 = CondMask
    28. copy_constant                  $1 = 0xFFFFFFFF
    29. copy_slot_unmasked             $2 = _0_expr
@@ -57,7 +57,7 @@
    57. copy_slot_unmasked             $0 = _1_ok
    58. copy_constant                  $1 = 0x00000001 (1.401298e-45)
    59. add_int                        $0 += $1
-   60. copy_slot_masked               _1_ok = Mask($0)
+   60. copy_slot_unmasked             _1_ok = $0
    61. store_condition_mask           $0 = CondMask
    62. copy_slot_unmasked             $1 = _0_expr
    63. merge_condition_mask           CondMask = $0 & $1
@@ -149,7 +149,7 @@
   149. copy_slot_unmasked             $0 = _1_ok
   150. copy_constant                  $1 = 0x00000001 (1.401298e-45)
   151. add_int                        $0 += $1
-  152. copy_slot_masked               _1_ok = Mask($0)
+  152. copy_slot_unmasked             _1_ok = $0
   153. store_condition_mask           $0 = CondMask
   154. copy_slot_unmasked             $1 = _0_expr
   155. copy_constant                  $2 = 0xFFFFFFFF
@@ -183,7 +183,7 @@
   183. copy_slot_unmasked             $0 = _1_ok
   184. copy_constant                  $1 = 0x00000001 (1.401298e-45)
   185. add_int                        $0 += $1
-  186. copy_slot_masked               _1_ok = Mask($0)
+  186. copy_slot_unmasked             _1_ok = $0
   187. store_condition_mask           $0 = CondMask
   188. copy_slot_unmasked             $1 = _0_expr
   189. merge_condition_mask           CondMask = $0 & $1
@@ -282,7 +282,7 @@
   282. copy_slot_masked               _1_ok = Mask($2)
   283. load_condition_mask            CondMask = $0
   284. copy_slot_unmasked             $0 = _4_b
-  285. copy_slot_masked               _3_a = Mask($0)
+  285. copy_slot_unmasked             _3_a = $0
   286. zero_slot_unmasked             $1 = 0
   287. cmpne_float                    $0 = notEqual($0, $1)
   288. copy_constant                  $1 = 0xFFFFFFFF
@@ -315,5 +315,5 @@
   315. copy_4_constants               $4..7 = colorGreen
   316. copy_4_slots_masked            $0..3 = Mask($4..7)
   317. load_condition_mask            CondMask = $8
-  318. copy_4_slots_masked            [main].result = Mask($0..3)
+  318. copy_4_slots_unmasked          [main].result = $0..3
   319. load_src                       src.rgba = [main].result

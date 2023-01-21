@@ -9,7 +9,7 @@
     9. sqrt_float                     $1 = sqrt($1)
    10. sqrt_float                     $2 = sqrt($2)
    11. sqrt_float                     $3 = sqrt($3)
-   12. copy_2_slots_masked            coords = Mask($0..1)
+   12. copy_2_slots_unmasked          coords = $0..1
    13. copy_4_constants               $0..3 = testMatrix2x2
    14. zero_slot_unmasked             $4 = 0
    15. copy_constant                  $5 = 0x40000000 (2.0)
@@ -77,5 +77,5 @@
    77. copy_4_constants               $4..7 = colorGreen
    78. copy_4_slots_masked            $0..3 = Mask($4..7)
    79. load_condition_mask            CondMask = $8
-   80. copy_4_slots_masked            [main].result = Mask($0..3)
+   80. copy_4_slots_unmasked          [main].result = $0..3
    81. load_src                       src.rgba = [main].result

@@ -4,11 +4,11 @@
     4. copy_2_slots_unmasked          x = $0..1
     5. copy_2_slots_unmasked          $0..1 = coords
     6. copy_2_slots_unmasked          x = $0..1
-    7. copy_2_slots_masked            coords = Mask($0..1)
+    7. copy_2_slots_unmasked          coords = $0..1
     8. zero_slot_unmasked             $0 = 0
     9. copy_slot_unmasked             $1 = $0
-   10. copy_2_slots_masked            x = Mask($0..1)
-   11. copy_2_slots_masked            coords = Mask($0..1)
+   10. copy_2_slots_unmasked          x = $0..1
+   11. copy_2_slots_unmasked          coords = $0..1
    12. copy_4_constants               $0..3 = colorGreen
-   13. copy_4_slots_masked            [main].result = Mask($0..3)
+   13. copy_4_slots_unmasked          [main].result = $0..3
    14. load_src                       src.rgba = [main].result

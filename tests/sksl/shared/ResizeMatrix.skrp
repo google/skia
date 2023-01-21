@@ -8,7 +8,7 @@
     8. copy_4_slots_unmasked          a = $0..3
     9. copy_2_slots_unmasked          $0..1 = result(0..1)
    10. add_float                      $0 += $1
-   11. copy_slot_masked               result = Mask($0)
+   11. copy_slot_unmasked             result = $0
    12. zero_slot_unmasked             $0 = 0
    13. copy_constant                  $1 = 0x3F800000 (1.0)
    14. shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
@@ -17,7 +17,7 @@
    17. copy_slot_unmasked             $0 = result
    18. copy_slot_unmasked             $1 = b(0)
    19. add_float                      $0 += $1
-   20. copy_slot_masked               result = Mask($0)
+   20. copy_slot_unmasked             result = $0
    21. zero_slot_unmasked             $0 = 0
    22. copy_constant                  $1 = 0x3F800000 (1.0)
    23. shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
@@ -28,7 +28,7 @@
    28. copy_slot_unmasked             $0 = result
    29. copy_slot_unmasked             $1 = c(0)
    30. add_float                      $0 += $1
-   31. copy_slot_masked               result = Mask($0)
+   31. copy_slot_unmasked             result = $0
    32. zero_slot_unmasked             $0 = 0
    33. copy_constant                  $1 = 0x3F800000 (1.0)
    34. swizzle_4                      $0..3 = ($0..3).yxxy
@@ -41,7 +41,7 @@
    41. copy_slot_unmasked             $0 = result
    42. copy_slot_unmasked             $1 = d(0)
    43. add_float                      $0 += $1
-   44. copy_slot_masked               result = Mask($0)
+   44. copy_slot_unmasked             result = $0
    45. zero_slot_unmasked             $0 = 0
    46. copy_constant                  $1 = 0x3F800000 (1.0)
    47. swizzle_4                      $0..3 = ($0..3).yxxy
@@ -58,7 +58,7 @@
    58. copy_slot_unmasked             $0 = result
    59. copy_slot_unmasked             $1 = e(0)
    60. add_float                      $0 += $1
-   61. copy_slot_masked               result = Mask($0)
+   61. copy_slot_unmasked             result = $0
    62. zero_slot_unmasked             $0 = 0
    63. copy_constant                  $1 = 0x3F800000 (1.0)
    64. shuffle                        $0..15 = ($0..15)[1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1]
@@ -68,7 +68,7 @@
    68. copy_slot_unmasked             $0 = result
    69. copy_slot_unmasked             $1 = f(0)
    70. add_float                      $0 += $1
-   71. copy_slot_masked               result = Mask($0)
+   71. copy_slot_unmasked             result = $0
    72. store_condition_mask           $16 = CondMask
    73. copy_slot_unmasked             $17 = result
    74. copy_constant                  $18 = 0x40C00000 (6.0)
@@ -78,5 +78,5 @@
    78. copy_4_constants               $4..7 = colorGreen
    79. copy_4_slots_masked            $0..3 = Mask($4..7)
    80. load_condition_mask            CondMask = $16
-   81. copy_4_slots_masked            [main].result = Mask($0..3)
+   81. copy_4_slots_unmasked          [main].result = $0..3
    82. load_src                       src.rgba = [main].result

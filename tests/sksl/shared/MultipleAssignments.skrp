@@ -2,17 +2,17 @@
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. zero_2_slots_unmasked          x(0..1) = 0
     4. copy_constant                  $0 = 0x3F800000 (1.0)
-    5. copy_slot_masked               y = Mask($0)
-    6. copy_slot_masked               x = Mask($0)
+    5. copy_slot_unmasked             y = $0
+    6. copy_slot_unmasked             x = $0
     7. zero_3_slots_unmasked          a(0..2) = 0
     8. zero_slot_unmasked             $0 = 0
-    9. copy_slot_masked               c = Mask($0)
-   10. copy_slot_masked               b = Mask($0)
-   11. copy_slot_masked               a = Mask($0)
+    9. copy_slot_unmasked             c = $0
+   10. copy_slot_unmasked             b = $0
+   11. copy_slot_unmasked             a = $0
    12. copy_slot_unmasked             $1 = b
    13. mul_float                      $0 *= $1
    14. copy_slot_unmasked             $1 = x
    15. copy_slot_unmasked             $2 = c
    16. copy_slot_unmasked             $3 = y
-   17. copy_4_slots_masked            [main].result = Mask($0..3)
+   17. copy_4_slots_unmasked          [main].result = $0..3
    18. load_src                       src.rgba = [main].result

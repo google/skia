@@ -217,14 +217,17 @@ DEF_TEST(RasterPipelineBuilderPushPopSlots, r) {
     builder.push_slots(four_slots_at(10));           // push from 10~13 into $0~$3
     builder.copy_stack_to_slots(one_slot_at(5), 3);  // copy from $1 into 5
     builder.pop_slots_unmasked(two_slots_at(20));    // pop from $2~$3 into 20~21 (unmasked)
+    builder.enableExecutionMaskWrites();
     builder.copy_stack_to_slots_unmasked(one_slot_at(4), 2);  // copy from $0 into 4
     builder.push_slots(three_slots_at(30));          // push from 30~32 into $2~$4
     builder.pop_slots(five_slots_at(0));             // pop from $0~$4 into 0~4 (masked)
+    builder.disableExecutionMaskWrites();
+
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/50,
                                                                 /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. copy_4_slots_unmasked          $0..3 = v10..13
-    2. copy_slot_masked               v5 = Mask($1)
+    2. copy_slot_unmasked             v5 = $1
     3. copy_2_slots_unmasked          v20..21 = $2..3
     4. copy_slot_unmasked             v4 = $0
     5. copy_3_slots_unmasked          $2..4 = v30..32

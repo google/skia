@@ -12,14 +12,14 @@
    12. mul_4_floats                   $0..3 *= $4..7
    13. copy_4_slots_unmasked          $4..7 = zero
    14. add_4_floats                   $0..3 += $4..7
-   15. copy_4_slots_masked            green = Mask($0..3)
+   15. copy_4_slots_unmasked          green = $0..3
    16. copy_4_constants               $0..3 = colorRed
    17. copy_4_slots_unmasked          red = $0..3
    18. copy_4_slots_unmasked          $4..7 = zero
    19. add_4_floats                   $0..3 += $4..7
    20. copy_4_slots_unmasked          $4..7 = one
    21. mul_4_floats                   $0..3 *= $4..7
-   22. copy_4_slots_masked            red = Mask($0..3)
+   22. copy_4_slots_unmasked          red = $0..3
    23. store_condition_mask           $12 = CondMask
    24. store_condition_mask           $23 = CondMask
    25. store_condition_mask           $27 = CondMask
@@ -238,5 +238,5 @@
   238. copy_4_slots_unmasked          $4..7 = green
   239. copy_4_slots_masked            $0..3 = Mask($4..7)
   240. load_condition_mask            CondMask = $12
-  241. copy_4_slots_masked            [main].result = Mask($0..3)
+  241. copy_4_slots_unmasked          [main].result = $0..3
   242. load_src                       src.rgba = [main].result

@@ -24,7 +24,7 @@
    24. copy_2_slots_unmasked          $1..2 = a_and_b(0..1)
    25. cmpeq_int                      $1 = equal($1, $2)
    26. bitwise_and_int                $0 &= $1
-   27. copy_slot_masked               ok = Mask($0)
+   27. copy_slot_unmasked             ok = $0
    28. copy_2_slots_unmasked          $0..1 = a(0..1)
    29. bitwise_and_int                $0 &= $1
    30. copy_slot_unmasked             a_or_b = $0
@@ -36,7 +36,7 @@
    36. copy_2_slots_unmasked          $1..2 = a_or_b(0..1)
    37. cmpeq_int                      $1 = equal($1, $2)
    38. bitwise_and_int                $0 &= $1
-   39. copy_slot_masked               ok = Mask($0)
+   39. copy_slot_unmasked             ok = $0
    40. copy_2_slots_unmasked          $0..1 = a(0..1)
    41. bitwise_xor_int                $0 ^= $1
    42. copy_slot_unmasked             a_xor_b = $0
@@ -48,7 +48,7 @@
    48. copy_2_slots_unmasked          $1..2 = a_xor_b(0..1)
    49. cmpeq_int                      $1 = equal($1, $2)
    50. bitwise_and_int                $0 &= $1
-   51. copy_slot_masked               ok = Mask($0)
+   51. copy_slot_unmasked             ok = $0
    52. copy_2_slots_unmasked          $0..1 = a(0..1)
    53. cmpeq_int                      $0 = equal($0, $1)
    54. copy_slot_unmasked             a_eq_b = $0
@@ -60,7 +60,7 @@
    60. copy_2_slots_unmasked          $1..2 = a_eq_b(0..1)
    61. cmpeq_int                      $1 = equal($1, $2)
    62. bitwise_and_int                $0 &= $1
-   63. copy_slot_masked               ok = Mask($0)
+   63. copy_slot_unmasked             ok = $0
    64. copy_2_slots_unmasked          $0..1 = a(0..1)
    65. cmpne_int                      $0 = notEqual($0, $1)
    66. copy_slot_unmasked             a_neq_b = $0
@@ -72,7 +72,7 @@
    72. copy_2_slots_unmasked          $1..2 = a_neq_b(0..1)
    73. cmpeq_int                      $1 = equal($1, $2)
    74. bitwise_and_int                $0 &= $1
-   75. copy_slot_masked               ok = Mask($0)
+   75. copy_slot_unmasked             ok = $0
    76. copy_2_slots_unmasked          $0..1 = a(0..1)
    77. add_int                        $0 += $1
    78. copy_slot_unmasked             a_add_b = $0
@@ -84,7 +84,7 @@
    84. copy_2_slots_unmasked          $1..2 = a_add_b(0..1)
    85. cmpeq_int                      $1 = equal($1, $2)
    86. bitwise_and_int                $0 &= $1
-   87. copy_slot_masked               ok = Mask($0)
+   87. copy_slot_unmasked             ok = $0
    88. copy_2_slots_unmasked          $0..1 = c(0..1)
    89. add_float                      $0 += $1
    90. copy_slot_unmasked             c_add_d = $0
@@ -96,7 +96,7 @@
    96. copy_2_slots_unmasked          $1..2 = c_add_d(0..1)
    97. cmpeq_float                    $1 = equal($1, $2)
    98. bitwise_and_int                $0 &= $1
-   99. copy_slot_masked               ok = Mask($0)
+   99. copy_slot_unmasked             ok = $0
   100. copy_2_slots_unmasked          $0..1 = a(0..1)
   101. mul_int                        $0 *= $1
   102. copy_slot_unmasked             a_mul_b = $0
@@ -108,7 +108,7 @@
   108. copy_2_slots_unmasked          $1..2 = a_mul_b(0..1)
   109. cmpeq_int                      $1 = equal($1, $2)
   110. bitwise_and_int                $0 &= $1
-  111. copy_slot_masked               ok = Mask($0)
+  111. copy_slot_unmasked             ok = $0
   112. copy_2_slots_unmasked          $0..1 = c(0..1)
   113. mul_float                      $0 *= $1
   114. copy_slot_unmasked             c_mul_d = $0
@@ -120,7 +120,7 @@
   120. copy_2_slots_unmasked          $1..2 = c_mul_d(0..1)
   121. cmpeq_float                    $1 = equal($1, $2)
   122. bitwise_and_int                $0 &= $1
-  123. copy_slot_masked               ok = Mask($0)
+  123. copy_slot_unmasked             ok = $0
   124. store_condition_mask           $8 = CondMask
   125. copy_slot_unmasked             $9 = ok
   126. copy_4_constants               $0..3 = colorRed
@@ -128,5 +128,5 @@
   128. copy_4_constants               $4..7 = colorGreen
   129. copy_4_slots_masked            $0..3 = Mask($4..7)
   130. load_condition_mask            CondMask = $8
-  131. copy_4_slots_masked            [main].result = Mask($0..3)
+  131. copy_4_slots_unmasked          [main].result = $0..3
   132. load_src                       src.rgba = [main].result

@@ -31,7 +31,7 @@
    31. bitwise_and_2_ints             $1..2 &= $3..4
    32. bitwise_and_int                $1 &= $2
    33. bitwise_and_int                $0 &= $1
-   34. copy_slot_masked               ok = Mask($0)
+   34. copy_slot_unmasked             ok = $0
    35. copy_4_slots_unmasked          $1..4 = f4
    36. copy_4_slots_unmasked          $5..8 = f4
    37. copy_slot_unmasked             $9 = f4(0)
@@ -50,7 +50,7 @@
    50. bitwise_and_int                $2 &= $3
    51. bitwise_and_int                $1 &= $2
    52. bitwise_and_int                $0 &= $1
-   53. copy_slot_masked               ok = Mask($0)
+   53. copy_slot_unmasked             ok = $0
    54. copy_3_slots_unmasked          $1..3 = f4(0..2)
    55. copy_4_slots_unmasked          $4..7 = f4
    56. swizzle_4                      $4..7 = ($4..7).wxyz
@@ -68,7 +68,7 @@
    68. bitwise_and_2_ints             $1..2 &= $3..4
    69. bitwise_and_int                $1 &= $2
    70. bitwise_and_int                $0 &= $1
-   71. copy_slot_masked               ok = Mask($0)
+   71. copy_slot_unmasked             ok = $0
    72. copy_slot_unmasked             $1 = f4(0)
    73. copy_4_slots_unmasked          $2..5 = f4
    74. swizzle_4                      $2..5 = ($2..5).yzwx
@@ -93,7 +93,7 @@
    93. bitwise_and_2_ints             $1..2 &= $3..4
    94. bitwise_and_int                $1 &= $2
    95. bitwise_and_int                $0 &= $1
-   96. copy_slot_masked               ok = Mask($0)
+   96. copy_slot_unmasked             ok = $0
    97. store_condition_mask           $25 = CondMask
    98. copy_slot_unmasked             $26 = ok
    99. copy_4_constants               $0..3 = colorRed
@@ -101,5 +101,5 @@
   101. copy_4_constants               $4..7 = colorGreen
   102. copy_4_slots_masked            $0..3 = Mask($4..7)
   103. load_condition_mask            CondMask = $25
-  104. copy_4_slots_masked            [main].result = Mask($0..3)
+  104. copy_4_slots_unmasked          [main].result = $0..3
   105. load_src                       src.rgba = [main].result

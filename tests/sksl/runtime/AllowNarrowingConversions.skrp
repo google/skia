@@ -12,5 +12,5 @@
    12. mul_4_floats                   $0..3 *= $4..7
    13. copy_4_slots_unmasked          $4..7 = zero
    14. add_4_floats                   $0..3 += $4..7
-   15. copy_4_slots_masked            [main].result = Mask($0..3)
+   15. copy_4_slots_unmasked          [main].result = $0..3
    16. load_src                       src.rgba = [main].result

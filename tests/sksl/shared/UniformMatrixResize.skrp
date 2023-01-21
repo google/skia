@@ -47,5 +47,5 @@
    47. copy_4_constants               $4..7 = colorGreen
    48. copy_4_slots_masked            $0..3 = Mask($4..7)
    49. load_condition_mask            CondMask = $18
-   50. copy_4_slots_masked            [main].result = Mask($0..3)
+   50. copy_4_slots_unmasked          [main].result = $0..3
    51. load_src                       src.rgba = [main].result

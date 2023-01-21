@@ -87,8 +87,8 @@
    87. branch_if_any_active_lanes     branch_if_any_active_lanes -78 (#9)
    88. load_loop_mask                 LoopMask = $0
    89. copy_slot_unmasked             $0 = i
-   90. copy_slot_masked               i = Mask($0)
+   90. copy_slot_unmasked             i = $0
    91. zero_slot_unmasked             $0 = 0
    92. swizzle_4                      $0..3 = ($0..3).xxxx
-   93. copy_4_slots_masked            [main].result = Mask($0..3)
+   93. copy_4_slots_unmasked          [main].result = $0..3
    94. load_src                       src.rgba = [main].result

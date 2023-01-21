@@ -4,13 +4,13 @@
     4. copy_constant                  g = 0x3F800000 (1.0)
     5. copy_slot_unmasked             $0 = r
     6. copy_slot_unmasked             x = $0
-    7. copy_slot_masked               [opt_barrier].result = Mask($0)
+    7. copy_slot_unmasked             [opt_barrier].result = $0
     8. copy_constant                  $1 = 0x3F800000 (1.0)
     9. zero_slot_unmasked             $2 = 0
    10. copy_slot_unmasked             $3 = g
    11. copy_slot_unmasked             x = $3
-   12. copy_slot_masked               [opt_barrier].result = Mask($3)
+   12. copy_slot_unmasked             [opt_barrier].result = $3
    13. copy_2_slots_unmasked          rg = $2..3
-   14. copy_2_slots_masked            [compute_ba].result = Mask($2..3)
-   15. copy_4_slots_masked            [main].result = Mask($0..3)
+   14. copy_2_slots_unmasked          [compute_ba].result = $2..3
+   15. copy_4_slots_unmasked          [main].result = $0..3
    16. load_src                       src.rgba = [main].result

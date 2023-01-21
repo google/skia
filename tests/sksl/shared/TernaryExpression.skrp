@@ -12,7 +12,7 @@
    12. copy_slot_masked               $1 = Mask($2)
    13. load_condition_mask            CondMask = $8
    14. bitwise_and_int                $0 &= $1
-   15. copy_slot_masked               ok = Mask($0)
+   15. copy_slot_unmasked             ok = $0
    16. store_condition_mask           $8 = CondMask
    17. copy_constant                  $9 = colorGreen(0)
    18. copy_constant                  $10 = 0x3F800000 (1.0)
@@ -23,7 +23,7 @@
    23. copy_slot_masked               $1 = Mask($2)
    24. load_condition_mask            CondMask = $8
    25. bitwise_and_int                $0 &= $1
-   26. copy_slot_masked               ok = Mask($0)
+   26. copy_slot_unmasked             ok = $0
    27. store_condition_mask           $8 = CondMask
    28. copy_slot_unmasked             $9 = ok
    29. copy_4_constants               $0..3 = colorRed
@@ -31,5 +31,5 @@
    31. copy_4_constants               $4..7 = colorGreen
    32. copy_4_slots_masked            $0..3 = Mask($4..7)
    33. load_condition_mask            CondMask = $8
-   34. copy_4_slots_masked            [main].result = Mask($0..3)
+   34. copy_4_slots_unmasked          [main].result = $0..3
    35. load_src                       src.rgba = [main].result
