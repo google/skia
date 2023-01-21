@@ -225,6 +225,19 @@ void Builder::push_uniform(SlotRange src) {
 }
 
 void Builder::push_duplicates(int count) {
+    if (!fInstructions.empty()) {
+        Instruction& lastInstruction = fInstructions.back();
+
+        // If the previous op is pushing a zero, we can just push more of them.
+        if (lastInstruction.fOp == BuilderOp::push_zeros) {
+            lastInstruction.fImmA += count;
+            return;
+        }
+        if (lastInstruction.fOp == BuilderOp::push_literal_f && lastInstruction.fImmA == 0) {
+            fInstructions.back() = {BuilderOp::push_zeros, {}, count + 1};
+            return;
+        }
+    }
     SkASSERT(count >= 0);
     if (count >= 3) {
         // Use a swizzle to splat the input into a 4-slot value.
