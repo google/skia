@@ -1525,6 +1525,10 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             fBuilder.unary_op(BuilderOp::cos_float, arg0.type().slotCount());
             return true;
 
+        case IntrinsicKind::k_degrees_IntrinsicKind: {
+            Literal lit180OverPi{Position{}, 57.2957795131f, &arg0.type().componentType()};
+            return this->pushBinaryExpression(arg0, OperatorKind::STAR, lit180OverPi);
+        }
         case IntrinsicKind::k_floatBitsToInt_IntrinsicKind:
         case IntrinsicKind::k_floatBitsToUint_IntrinsicKind:
         case IntrinsicKind::k_intBitsToFloat_IntrinsicKind:
@@ -1553,6 +1557,10 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
         case IntrinsicKind::k_not_IntrinsicKind:
             return this->pushPrefixExpression(OperatorKind::LOGICALNOT, arg0);
 
+        case IntrinsicKind::k_radians_IntrinsicKind: {
+            Literal litPiOver180{Position{}, 0.01745329251f, &arg0.type().componentType()};
+            return this->pushBinaryExpression(arg0, OperatorKind::STAR, litPiOver180);
+        }
         case IntrinsicKind::k_saturate_IntrinsicKind: {
             // Implement saturate as clamp(arg, 0, 1).
             Literal zeroLiteral{Position{}, 0.0, &arg0.type().componentType()};
