@@ -252,16 +252,26 @@ public:
 
     void jump(int labelID) {
         SkASSERT(labelID >= 0 && labelID < fNumLabels);
+        if (!fInstructions.empty() && fInstructions.back().fOp == BuilderOp::jump) {
+            // The previous instruction was also `jump`, so this branch could never possibly occur.
+            return;
+        }
         fInstructions.push_back({BuilderOp::jump, {}, labelID});
         ++fNumBranches;
     }
 
     void branch_if_any_active_lanes(int labelID) {
+        if (!this->executionMaskWritesAreEnabled()) {
+            this->jump(labelID);
+            return;
+        }
+
         SkASSERT(labelID >= 0 && labelID < fNumLabels);
         if (!fInstructions.empty() &&
-            fInstructions.back().fOp == BuilderOp::branch_if_any_active_lanes) {
-            // The previous instruction was also `branch_if_any_active_lanes`, so this branch could
-            // never possibly occur.
+            (fInstructions.back().fOp == BuilderOp::branch_if_any_active_lanes ||
+             fInstructions.back().fOp == BuilderOp::jump)) {
+            // The previous instruction was `jump` or `branch_if_any_active_lanes`, so this branch
+            // could never possibly occur.
             return;
         }
         fInstructions.push_back({BuilderOp::branch_if_any_active_lanes, {}, labelID});
@@ -269,11 +279,16 @@ public:
     }
 
     void branch_if_no_active_lanes(int labelID) {
+        if (!this->executionMaskWritesAreEnabled()) {
+            return;
+        }
+
         SkASSERT(labelID >= 0 && labelID < fNumLabels);
         if (!fInstructions.empty() &&
-            fInstructions.back().fOp == BuilderOp::branch_if_no_active_lanes) {
-            // The previous instruction was also `branch_if_no_active_lanes`, so this branch could
-            // never possibly occur.
+            (fInstructions.back().fOp == BuilderOp::branch_if_no_active_lanes ||
+             fInstructions.back().fOp == BuilderOp::jump)) {
+            // The previous instruction was `jump` or `branch_if_any_active_lanes`, so this branch
+            // could never possibly occur.
             return;
         }
         fInstructions.push_back({BuilderOp::branch_if_no_active_lanes, {}, labelID});

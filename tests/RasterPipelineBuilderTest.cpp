@@ -357,29 +357,9 @@ R"(    1. copy_constant                  $0 = 0x3F800000 (1.0)
 }
 
 DEF_TEST(RasterPipelineBuilderBranches, r) {
-    // Create a very simple nonsense program.
-    SkSL::RP::Builder builder;
-    int label1 = builder.nextLabelID();
-    int label2 = builder.nextLabelID();
-    int label3 = builder.nextLabelID();
-
-    builder.jump(label3);
-    builder.label(label1);
-    builder.immediate_f(1.0f);
-    builder.label(label2);
-    builder.immediate_f(2.0f);
-    builder.branch_if_no_active_lanes(label2);
-    builder.branch_if_no_active_lanes(label3);
-    builder.label(label3);
-    builder.immediate_f(3.0f);
-    builder.branch_if_any_active_lanes(label1);
-    builder.branch_if_any_active_lanes(label1);
-
-    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1,
-                                                                /*numUniformSlots=*/0);
 #if SK_HAS_MUSTTAIL
     // We have guaranteed tail-calling, and don't need to rewind the stack.
-    static constexpr char kExpectation[] =
+    static constexpr char kExpectationWithExecutionMaskWrites[] =
 R"(    1. jump                           jump +4 (#5)
     2. immediate_f                    src.r = 0x3F800000 (1.0)
     3. immediate_f                    src.r = 0x40000000 (2.0)
@@ -390,7 +370,7 @@ R"(    1. jump                           jump +4 (#5)
 #else
     // We don't have guaranteed tail-calling, so we rewind the stack immediately before any backward
     // branches.
-    static constexpr char kExpectation[] =
+    static constexpr char kExpectationWithExecutionMaskWrites[] =
 R"(    1. jump                           jump +5 (#6)
     2. immediate_f                    src.r = 0x3F800000 (1.0)
     3. immediate_f                    src.r = 0x40000000 (2.0)
@@ -402,7 +382,47 @@ R"(    1. jump                           jump +5 (#6)
 )";
 #endif
 
-    check(r, *program, kExpectation);
+    static constexpr char kExpectationWithKnownExecutionMask[] =
+R"(    1. jump                           jump +3 (#4)
+    2. immediate_f                    src.r = 0x3F800000 (1.0)
+    3. immediate_f                    src.r = 0x40000000 (2.0)
+    4. immediate_f                    src.r = 0x40400000 (3.0)
+    5. jump                           jump -3 (#2)
+)";
+
+    for (bool enableExecutionMaskWrites : {false, true}) {
+        // Create a very simple nonsense program.
+        SkSL::RP::Builder builder;
+        int label1 = builder.nextLabelID();
+        int label2 = builder.nextLabelID();
+        int label3 = builder.nextLabelID();
+
+        if (enableExecutionMaskWrites) {
+            builder.enableExecutionMaskWrites();
+        }
+
+        builder.jump(label3);
+        builder.label(label1);
+        builder.immediate_f(1.0f);
+        builder.label(label2);
+        builder.immediate_f(2.0f);
+        builder.branch_if_no_active_lanes(label2);
+        builder.branch_if_no_active_lanes(label3);
+        builder.label(label3);
+        builder.immediate_f(3.0f);
+        builder.branch_if_any_active_lanes(label1);
+        builder.branch_if_any_active_lanes(label1);
+
+        if (enableExecutionMaskWrites) {
+            builder.disableExecutionMaskWrites();
+        }
+
+        std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/1,
+                                                                    /*numUniformSlots=*/0);
+
+        check(r, *program, enableExecutionMaskWrites ? kExpectationWithExecutionMaskWrites
+                                                     : kExpectationWithKnownExecutionMask);
+    }
 }
 
 DEF_TEST(RasterPipelineBuilderBinaryFloatOps, r) {
