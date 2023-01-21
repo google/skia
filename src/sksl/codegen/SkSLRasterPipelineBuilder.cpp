@@ -301,6 +301,8 @@ void Builder::copy_stack_to_slots(SlotRange dst, int offsetFromStackTop) {
 }
 
 void Builder::pop_return_mask() {
+    SkASSERT(this->executionMaskWritesAreEnabled());
+
     // This instruction is going to overwrite the return mask. If the previous instruction was
     // masking off the return mask, that's wasted work and it can be eliminated.
     if (!fInstructions.empty()) {
@@ -473,6 +475,9 @@ void Builder::matrix_resize(int origColumns, int origRows, int newColumns, int n
 std::unique_ptr<Program> Builder::finish(int numValueSlots,
                                          int numUniformSlots,
                                          SkRPDebugTrace* debugTrace) {
+    // Verify that calls to enableExecutionMaskWrites and disableExecutionMaskWrites are balanced.
+    SkASSERT(fExecutionMaskWritesEnabled == 0);
+
     return std::make_unique<Program>(std::move(fInstructions), numValueSlots, numUniformSlots,
                                      fNumLabels, fNumBranches, debugTrace);
 }

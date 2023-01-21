@@ -784,6 +784,7 @@ bool Generator::writeContinueStatement(const ContinueStatement&) {
 
 bool Generator::writeDoStatement(const DoStatement& d) {
     // Save off the original loop mask.
+    fBuilder.enableExecutionMaskWrites();
     fBuilder.push_loop_mask();
 
     // Create a dedicated slot for continue-mask storage.
@@ -817,6 +818,7 @@ bool Generator::writeDoStatement(const DoStatement& d) {
 
     // Restore the loop and continue masks.
     fBuilder.pop_loop_mask();
+    fBuilder.disableExecutionMaskWrites();
     fCurrentContinueMask = previousContinueMask;
 
     return true;
@@ -834,6 +836,7 @@ bool Generator::writeForStatement(const ForStatement& f) {
     }
 
     // Save off the original loop mask.
+    fBuilder.enableExecutionMaskWrites();
     fBuilder.push_loop_mask();
 
     // Create a dedicated slot for continue-mask storage.
@@ -881,6 +884,7 @@ bool Generator::writeForStatement(const ForStatement& f) {
 
     // Restore the loop and continue masks.
     fBuilder.pop_loop_mask();
+    fBuilder.disableExecutionMaskWrites();
     fCurrentContinueMask = previousContinueMask;
 
     return true;
@@ -897,6 +901,7 @@ bool Generator::writeExpressionStatement(const ExpressionStatement& e) {
 
 bool Generator::writeIfStatement(const IfStatement& i) {
     // Save the current condition-mask.
+    fBuilder.enableExecutionMaskWrites();
     fBuilder.push_condition_mask();
 
     // Push the test condition mask.
@@ -923,6 +928,8 @@ bool Generator::writeIfStatement(const IfStatement& i) {
     // Jettison the test-expression, and restore the the condition-mask.
     this->discardExpression(/*slots=*/1);
     fBuilder.pop_condition_mask();
+    fBuilder.disableExecutionMaskWrites();
+
     return true;
 }
 
@@ -933,7 +940,7 @@ bool Generator::writeReturnStatement(const ReturnStatement& r) {
         }
         this->popToSlotRange(fFunctionStack.back());
     }
-    if (this->needsReturnMask()) {
+    if (fBuilder.executionMaskWritesAreEnabled() && this->needsReturnMask()) {
         fBuilder.mask_off_return_mask();
     }
     return true;
@@ -1382,6 +1389,7 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
 
     // Save off the return mask.
     if (this->needsReturnMask()) {
+        fBuilder.enableExecutionMaskWrites();
         fBuilder.push_return_mask();
     }
 
@@ -1425,6 +1433,7 @@ bool Generator::pushFunctionCall(const FunctionCall& c) {
     // Restore the original return mask.
     if (this->needsReturnMask()) {
         fBuilder.pop_return_mask();
+        fBuilder.disableExecutionMaskWrites();
     }
 
     // We've returned back to the last function.
@@ -1982,6 +1991,8 @@ bool Generator::pushTernaryExpression(const TernaryExpression& t) {
 bool Generator::pushTernaryExpression(const Expression& test,
                                       const Expression& ifTrue,
                                       const Expression& ifFalse) {
+    fBuilder.enableExecutionMaskWrites();
+
     // First, push the current condition-mask and the test-expression into a separate stack.
     this->nextTempStack();
     fBuilder.push_condition_mask();
@@ -2052,6 +2063,7 @@ bool Generator::pushTernaryExpression(const Expression& test,
     fBuilder.pop_condition_mask();
     this->previousTempStack();
 
+    fBuilder.disableExecutionMaskWrites();
     return true;
 }
 
@@ -2125,9 +2137,17 @@ bool Generator::writeProgram(const FunctionDefinition& function) {
     }
 
     // Invoke main().
+    if (this->needsReturnMask()) {
+        fBuilder.enableExecutionMaskWrites();
+    }
+
     std::optional<SlotRange> mainResult = this->writeFunction(function, function);
     if (!mainResult.has_value()) {
         return unsupported();
+    }
+
+    if (this->needsReturnMask()) {
+        fBuilder.disableExecutionMaskWrites();
     }
 
     // Move the result of main() from slots into RGBA. Allow dRGBA to remain in a trashed state.

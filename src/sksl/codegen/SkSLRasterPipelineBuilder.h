@@ -193,6 +193,24 @@ public:
         return fNumLabels++;
     }
 
+    /**
+     * The builder keeps track of the state of execution masks; when we know that the execution
+     * mask is unaltered, we can generate simpler code. Code which alters the execution mask is
+     * required to enable this flag.
+     */
+    void enableExecutionMaskWrites() {
+        ++fExecutionMaskWritesEnabled;
+    }
+
+    void disableExecutionMaskWrites() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
+        --fExecutionMaskWritesEnabled;
+    }
+
+    bool executionMaskWritesAreEnabled() {
+        return fExecutionMaskWritesEnabled > 0;
+    }
+
     /** Assemble a program from the Raster Pipeline instructions below. */
     void init_lane_masks() {
         fInstructions.push_back({BuilderOp::init_lane_masks, {}});
@@ -411,45 +429,55 @@ public:
     void matrix_resize(int origColumns, int origRows, int newColumns, int newRows);
 
     void push_condition_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::push_condition_mask, {}});
     }
 
     void pop_condition_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::pop_condition_mask, {}});
     }
 
     void merge_condition_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::merge_condition_mask, {}});
     }
 
     void push_loop_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::push_loop_mask, {}});
     }
 
     void pop_loop_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::pop_loop_mask, {}});
     }
 
     void mask_off_loop_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::mask_off_loop_mask, {}});
     }
 
     void reenable_loop_mask(SlotRange src) {
+        SkASSERT(this->executionMaskWritesAreEnabled());
         SkASSERT(src.count == 1);
         fInstructions.push_back({BuilderOp::reenable_loop_mask, {src.index}});
     }
 
     void merge_loop_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::merge_loop_mask, {}});
     }
 
     void push_return_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::push_return_mask, {}});
     }
 
     void pop_return_mask();
 
     void mask_off_return_mask() {
+        SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::mask_off_return_mask, {}});
     }
 
@@ -457,6 +485,7 @@ private:
     SkTArray<Instruction> fInstructions;
     int fNumLabels = 0;
     int fNumBranches = 0;
+    int fExecutionMaskWritesEnabled = 0;
 };
 
 }  // namespace RP

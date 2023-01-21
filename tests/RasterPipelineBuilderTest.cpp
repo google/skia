@@ -58,9 +58,11 @@ DEF_TEST(RasterPipelineBuilder, r) {
     builder.store_src(four_slots_at(2));
     builder.store_dst(four_slots_at(6));
     builder.init_lane_masks();
+    builder.enableExecutionMaskWrites();
     builder.mask_off_return_mask();
     builder.mask_off_loop_mask();
     builder.reenable_loop_mask(one_slot_at(4));
+    builder.disableExecutionMaskWrites();
     builder.load_src(four_slots_at(1));
     builder.load_dst(four_slots_at(3));
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/10,
@@ -117,6 +119,11 @@ R"(    1. load_unmasked                  src.r = v12
 DEF_TEST(RasterPipelineBuilderPushPopMaskRegisters, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;
+
+    REPORTER_ASSERT(r, !builder.executionMaskWritesAreEnabled());
+    builder.enableExecutionMaskWrites();
+    REPORTER_ASSERT(r, builder.executionMaskWritesAreEnabled());
+
     builder.push_condition_mask();  // push into 0
     builder.push_loop_mask();       // push into 1
     builder.push_return_mask();     // push into 2
@@ -129,6 +136,11 @@ DEF_TEST(RasterPipelineBuilderPushPopMaskRegisters, r) {
     builder.pop_return_mask();      // pop from 0
     builder.push_condition_mask();  // push into 0
     builder.pop_condition_mask();   // pop from 0
+
+    REPORTER_ASSERT(r, builder.executionMaskWritesAreEnabled());
+    builder.disableExecutionMaskWrites();
+    REPORTER_ASSERT(r, !builder.executionMaskWritesAreEnabled());
+
     std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
                                                                 /*numUniformSlots=*/0);
     check(r, *program,
