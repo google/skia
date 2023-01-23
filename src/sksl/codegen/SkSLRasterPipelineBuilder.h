@@ -44,7 +44,7 @@ enum class BuilderOp {
     #undef M
     // We also support Builder-specific ops; these are converted into real RP ops during
     // `appendStages`.
-    push_literal_f,
+    push_literal,
     push_slots,
     push_uniform,
     push_zeros,
@@ -309,15 +309,19 @@ public:
     }
 
     void push_literal_f(float val) {
-        fInstructions.push_back({BuilderOp::push_literal_f, {}, sk_bit_cast<int32_t>(val)});
+        this->push_literal_i(sk_bit_cast<int32_t>(val));
     }
 
     void push_literal_i(int32_t val) {
-        fInstructions.push_back({BuilderOp::push_literal_f, {}, val});
+        if (val == 0) {
+            this->push_zeros(1);
+        } else {
+            fInstructions.push_back({BuilderOp::push_literal, {}, val});
+        }
     }
 
     void push_literal_u(uint32_t val) {
-        fInstructions.push_back({BuilderOp::push_literal_f, {}, sk_bit_cast<int32_t>(val)});
+        this->push_literal_i(sk_bit_cast<int32_t>(val));
     }
 
     // Translates into copy_constants (from uniforms into temp stack) in Raster Pipeline.
@@ -422,6 +426,10 @@ public:
     void copy_slots_unmasked(SlotRange dst, SlotRange src) {
         SkASSERT(dst.count == src.count);
         fInstructions.push_back({BuilderOp::copy_slot_unmasked, {dst.index, src.index}, dst.count});
+    }
+
+    void copy_constant(Slot slot, int constantValue) {
+        fInstructions.push_back({BuilderOp::copy_constant, {slot}, constantValue});
     }
 
     // Stores zeros across the entire slot range.
