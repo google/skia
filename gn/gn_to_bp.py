@@ -266,13 +266,6 @@ cc_defaults {
         "libpiex",
         "libexpat",
         "libft2",
-        // Required by Skottie
-        "libharfbuzz_ng",
-    ],
-    // Required by Skottie
-    cflags: [
-        "-DSK_SHAPER_HARFBUZZ_AVAILABLE",
-        "-DSK_UNICODE_AVAILABLE",
     ],
     static_libs: [
         "libwebp-decode",
@@ -283,7 +276,6 @@ cc_defaults {
     target: {
       android: {
         shared_libs: [
-            "libandroidicu",
             "libheif",
             "libimage_io",
         ],
@@ -291,16 +283,6 @@ cc_defaults {
             "libjpegrecoverymap",
             "libjpegdecoder",
             "libjpegencoder",
-        ],
-      },
-      host: {
-        shared_libs: [
-            "libicui18n",
-            "libicuuc",
-        ],
-        export_shared_lib_headers: [
-            "libicui18n",
-            "libicuuc",
         ],
       },
       darwin: {
@@ -579,7 +561,6 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     d['skia_use_fixed_gamma_text'] = 'true'
     d['skia_enable_fontmgr_custom_empty'] = 'true'
     d['skia_use_wuffs'] = 'true'
-    d['skia_enable_skottie'] = 'true'
 
   return d
 
@@ -652,18 +633,6 @@ win_srcs        = strip_headers(win_srcs)
 
 srcs = android_srcs.intersection(linux_srcs).intersection(mac_srcs)
 srcs = srcs.intersection(win_srcs)
-
-if (gn_args['skia_enable_skottie']):
-  # Skottie sits on top of skia, so we need to specify these sources to be built
-  # Python sets handle duplicate flags, source files, and includes for us
-  srcs.update(strip_slashes(js['targets']['//modules/skottie:skottie']['sources']))
-  gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'sources',
-                                     srcs, '//:skia')
-  srcs = strip_headers(srcs)
-
-  local_includes.update(strip_slashes(js['targets']['//modules/skottie:skottie']['include_dirs']))
-  gn_to_bp_utils.GrabDependentValues(js, '//modules/skottie:skottie', 'include_dirs',
-                                     local_includes, '//:skia')
 
 android_srcs    = android_srcs.difference(srcs)
 linux_srcs      =   linux_srcs.difference(srcs)
