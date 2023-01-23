@@ -6,8 +6,6 @@
 uniform half4 colorGreen, colorRed;
 uniform float2x2 testMatrix2x2;
 
-/* Adding whitespace to avoid triggering a spurious Android lint check. */
-
 half4 main(float2 xy) {
     bool ok = true;
     int   a = int(testMatrix2x2[0][0]), b = int(testMatrix2x2[0][1]);

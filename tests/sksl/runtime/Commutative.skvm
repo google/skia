@@ -10,35 +10,35 @@ $8 = testMatrix2x2 (float2x2 : slot 1/4, L7)
 $9 = testMatrix2x2 (float2x2 : slot 2/4, L7)
 $10 = testMatrix2x2 (float2x2 : slot 3/4, L7)
 $11 = testMatrix2x2 (float2x2 : slot 4/4, L7)
-$12 = [main].result (float4 : slot 1/4, L11)
-$13 = [main].result (float4 : slot 2/4, L11)
-$14 = [main].result (float4 : slot 3/4, L11)
-$15 = [main].result (float4 : slot 4/4, L11)
-$16 = xy (float2 : slot 1/2, L11)
-$17 = xy (float2 : slot 2/2, L11)
-$18 = ok (bool, L12)
-$19 = a (int, L13)
-$20 = b (int, L13)
-$21 = c (float, L14)
-$22 = d (float, L14)
-$23 = a_and_b (int, L16)
-$24 = b_and_a (int, L17)
-$25 = a_or_b (int, L20)
-$26 = b_or_a (int, L21)
-$27 = a_xor_b (int, L24)
-$28 = b_xor_a (int, L25)
-$29 = a_eq_b (bool, L28)
-$30 = b_eq_a (bool, L29)
-$31 = a_neq_b (bool, L32)
-$32 = b_neq_a (bool, L33)
-$33 = a_add_b (int, L36)
-$34 = b_add_a (int, L37)
-$35 = c_add_d (float, L40)
-$36 = d_add_c (float, L41)
-$37 = a_mul_b (int, L44)
-$38 = b_mul_a (int, L45)
-$39 = c_mul_d (float, L48)
-$40 = d_mul_c (float, L49)
+$12 = [main].result (float4 : slot 1/4, L9)
+$13 = [main].result (float4 : slot 2/4, L9)
+$14 = [main].result (float4 : slot 3/4, L9)
+$15 = [main].result (float4 : slot 4/4, L9)
+$16 = xy (float2 : slot 1/2, L9)
+$17 = xy (float2 : slot 2/2, L9)
+$18 = ok (bool, L10)
+$19 = a (int, L11)
+$20 = b (int, L11)
+$21 = c (float, L12)
+$22 = d (float, L12)
+$23 = a_and_b (int, L14)
+$24 = b_and_a (int, L15)
+$25 = a_or_b (int, L18)
+$26 = b_or_a (int, L19)
+$27 = a_xor_b (int, L22)
+$28 = b_xor_a (int, L23)
+$29 = a_eq_b (bool, L26)
+$30 = b_eq_a (bool, L27)
+$31 = a_neq_b (bool, L30)
+$32 = b_neq_a (bool, L31)
+$33 = a_add_b (int, L34)
+$34 = b_add_a (int, L35)
+$35 = c_add_d (float, L38)
+$36 = d_add_c (float, L39)
+$37 = a_mul_b (int, L42)
+$38 = b_mul_a (int, L43)
+$39 = c_mul_d (float, L46)
+$40 = d_mul_c (float, L47)
 F0 = half4 main(float2 xy)
 
 13 registers, 64 instructions:
@@ -70,37 +70,37 @@ loop:
 24	    r4 = bit_and r4 r0
 25	    trace_enter 0 r4 r4 F0
 26	    trace_scope 0 r4 r4 1
-27	    trace_line 0 r4 r4 L12
-28	    trace_line 0 r4 r4 L13
-29	    trace_line 0 r4 r4 L14
-30	    trace_line 0 r4 r4 L16
-31	    trace_line 0 r4 r4 L17
-32	    trace_line 0 r4 r4 L18
-33	    trace_line 0 r4 r4 L20
-34	    trace_line 0 r4 r4 L21
-35	    trace_line 0 r4 r4 L22
-36	    trace_line 0 r4 r4 L24
-37	    trace_line 0 r4 r4 L25
-38	    trace_line 0 r4 r4 L26
-39	    trace_line 0 r4 r4 L28
-40	    trace_line 0 r4 r4 L29
-41	    trace_line 0 r4 r4 L30
-42	    trace_line 0 r4 r4 L32
-43	    trace_line 0 r4 r4 L33
-44	    trace_line 0 r4 r4 L34
-45	    trace_line 0 r4 r4 L36
-46	    trace_line 0 r4 r4 L37
-47	    trace_line 0 r4 r4 L38
-48	    trace_line 0 r4 r4 L40
-49	    trace_line 0 r4 r4 L41
-50	    trace_line 0 r4 r4 L42
-51	    trace_line 0 r4 r4 L44
-52	    trace_line 0 r4 r4 L45
-53	    trace_line 0 r4 r4 L46
-54	    trace_line 0 r4 r4 L48
-55	    trace_line 0 r4 r4 L49
-56	    trace_line 0 r4 r4 L50
-57	    trace_line 0 r4 r4 L52
+27	    trace_line 0 r4 r4 L10
+28	    trace_line 0 r4 r4 L11
+29	    trace_line 0 r4 r4 L12
+30	    trace_line 0 r4 r4 L14
+31	    trace_line 0 r4 r4 L15
+32	    trace_line 0 r4 r4 L16
+33	    trace_line 0 r4 r4 L18
+34	    trace_line 0 r4 r4 L19
+35	    trace_line 0 r4 r4 L20
+36	    trace_line 0 r4 r4 L22
+37	    trace_line 0 r4 r4 L23
+38	    trace_line 0 r4 r4 L24
+39	    trace_line 0 r4 r4 L26
+40	    trace_line 0 r4 r4 L27
+41	    trace_line 0 r4 r4 L28
+42	    trace_line 0 r4 r4 L30
+43	    trace_line 0 r4 r4 L31
+44	    trace_line 0 r4 r4 L32
+45	    trace_line 0 r4 r4 L34
+46	    trace_line 0 r4 r4 L35
+47	    trace_line 0 r4 r4 L36
+48	    trace_line 0 r4 r4 L38
+49	    trace_line 0 r4 r4 L39
+50	    trace_line 0 r4 r4 L40
+51	    trace_line 0 r4 r4 L42
+52	    trace_line 0 r4 r4 L43
+53	    trace_line 0 r4 r4 L44
+54	    trace_line 0 r4 r4 L46
+55	    trace_line 0 r4 r4 L47
+56	    trace_line 0 r4 r4 L48
+57	    trace_line 0 r4 r4 L50
 58	    trace_scope 0 r4 r4 -1
 59	    trace_exit 0 r4 r4 F0
 60	    store32 ptr1 r5
