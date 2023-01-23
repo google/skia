@@ -1103,7 +1103,7 @@ bool Generator::pushMatrixMultiply(LValue* lvalue,
     if (!this->pushLValueOrExpression(lvalue, left)) {
         return unsupported();
     }
-    fBuilder.transpose(left.type().columns(), left.type().rows());
+    fBuilder.transpose(leftColumns, leftRows);
 
     // Push the right matrix as well, then go back to the primary stack.
     if (!this->pushExpression(right)) {
@@ -1112,8 +1112,8 @@ bool Generator::pushMatrixMultiply(LValue* lvalue,
     this->previousTempStack();
 
     // Calculate the offsets of the left- and right-matrix, relative to the stack-top.
-    int leftMtxBase  = left.type().slotCount() + right.type().slotCount() - left.type().columns();
-    int rightMtxBase = right.type().slotCount() - right.type().columns();
+    int leftMtxBase  = left.type().slotCount() + right.type().slotCount() - leftColumns;
+    int rightMtxBase = right.type().slotCount() - leftColumns;
 
     // Emit each matrix element.
     for (int c = 0; c < outColumns; ++c) {
