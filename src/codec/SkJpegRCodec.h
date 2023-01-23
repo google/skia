@@ -32,6 +32,7 @@ using namespace android::recoverymap;
 #include <memory>
 
 class SkStream;
+class SkSwizzler;
 struct SkImageInfo;
 
 /*
@@ -109,8 +110,28 @@ private:
                  SkEncodedOrigin origin,
                  sk_sp<SkData> data);
 
+    void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
+    void allocateStorage(const SkImageInfo& dstInfo);
+
+    // If "dst" is nullptr decoded image will be placed to fDecodedImage
+    Result decodeImage(const SkImageInfo& dstInfo, void* dst);
+
+    /*
+     * Scanline decoding.
+     */
+    SkSampler* getSampler(bool createIfNecessary) override;
+    Result onStartScanlineDecode(const SkImageInfo& dstInfo, const Options& options) override;
+    int onGetScanlines(void* dst, int count, size_t rowBytes) override;
+    bool onSkipScanlines(int count) override;
+
     std::unique_ptr<RecoveryMap> fRecoveryMap;
     sk_sp<SkData> fData;
+
+    skia_private::AutoTMalloc<uint8_t> fStorage;
+    skia_private::AutoTMalloc<uint8_t> fDecodedImage;
+    uint8_t* fSwizzleSrcRow = nullptr;
+
+    std::unique_ptr<SkSwizzler> fSwizzler;
 
 #endif  // SK_CODEC_DECODES_JPEGR
 };
