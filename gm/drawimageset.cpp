@@ -310,6 +310,7 @@ private:
                 int i = y * kM + x;
                 fSet[i].fAlpha = (kM - x) / (float) kM;
                 if (y % 2 == 0) {
+                    // TODO: allow making Graphite images here
                     fSet[i].fImage = fSet[i].fImage->makeColorTypeAndColorSpace(
                             kAlpha_8_SkColorType, alphaSpace, direct);
                 }
