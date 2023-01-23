@@ -39,12 +39,12 @@ SkStrike::SkStrike(SkStrikeCache* strikeCache,
                    std::unique_ptr<SkScalerContext> scaler,
                    const SkFontMetrics* metrics,
                    std::unique_ptr<SkStrikePinner> pinner)
-        : fScalerContext{std::move(scaler)}
-        , fFontMetrics{use_or_generate_metrics(metrics, fScalerContext.get())}
-        , fRoundingSpec{fScalerContext->isSubpixel(),
-                        fScalerContext->computeAxisAlignmentForHText()}
+        : fFontMetrics{use_or_generate_metrics(metrics, scaler.get())}
+        , fRoundingSpec{scaler->isSubpixel(),
+                        scaler->computeAxisAlignmentForHText()}
         , fStrikeSpec{strikeSpec}
         , fStrikeCache{strikeCache}
+        , fScalerContext{std::move(scaler)}
         , fPinner{std::move(pinner)} {
     SkASSERT(fScalerContext != nullptr);
 }
@@ -388,8 +388,8 @@ void SkStrike::dump() const {
 
 void SkStrike::dumpMemoryStatistics(SkTraceMemoryDump* dump) const {
     SkAutoMutexExclusive lock{fMu};
-    const SkTypeface* face = this->getScalerContext()->getTypeface();
-    const SkScalerContextRec& rec = this->getScalerContext()->getRec();
+    const SkTypeface* face = fScalerContext->getTypeface();
+    const SkScalerContextRec& rec = fScalerContext->getRec();
 
     SkString fontName;
     face->getFamilyName(&fontName);

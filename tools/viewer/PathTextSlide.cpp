@@ -39,17 +39,15 @@ public:
 
         SkFont defaultFont;
         SkStrikeSpec strikeSpec = SkStrikeSpec::MakeWithNoDevice(defaultFont);
-        auto strike = strikeSpec.findOrCreateStrike();
-        SkArenaAlloc alloc(1 << 12); // This is a mock SkStrikeCache.
+        SkBulkGlyphMetricsAndPaths pathMaker{strikeSpec};
         SkPath glyphPaths[52];
         for (int i = 0; i < 52; ++i) {
             // I and l are rects on OS X ...
             char c = "aQCDEFGH7JKLMNOPBRZTUVWXYSAbcdefghijk1mnopqrstuvwxyz"[i];
-            SkPackedGlyphID id(defaultFont.unicharToGlyph(c));
-            SkGlyph glyph = strike->getScalerContext()->makeGlyph(id, &alloc);
-            strike->getScalerContext()->getPath(glyph, &alloc);
-            if (glyph.path()) {
-                glyphPaths[i] = *glyph.path();
+            SkGlyphID id(defaultFont.unicharToGlyph(c));
+            const SkGlyph* glyph = pathMaker.glyph(id);
+            if (glyph->path()) {
+                glyphPaths[i] = *glyph->path();
             }
         }
 

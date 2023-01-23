@@ -120,10 +120,6 @@ public:
     // Convert all the IDs into SkDrawables in the span.
     void glyphIDsToDrawables(SkSpan<sktext::IDOrDrawable> idsOrDrawables) SK_EXCLUDES(fMu);
 
-    SkScalerContext* getScalerContext() const {
-        return fScalerContext.get();
-    }
-
     const SkStrikeSpec& strikeSpec() const {
         return fStrikeSpec;
     }
@@ -179,24 +175,29 @@ private:
             const SkGlyph** results) SK_REQUIRES(fMu);
 
     // The following are const and need no mutex protection.
-    const std::unique_ptr<SkScalerContext> fScalerContext;
-    const SkFontMetrics                    fFontMetrics;
-    const SkGlyphPositionRoundingSpec      fRoundingSpec;
-    const SkStrikeSpec                     fStrikeSpec;
-    SkStrikeCache* const                   fStrikeCache;
+    const SkFontMetrics               fFontMetrics;
+    const SkGlyphPositionRoundingSpec fRoundingSpec;
+    const SkStrikeSpec                fStrikeSpec;
+    SkStrikeCache* const              fStrikeCache;
 
     // This mutex provides protection for this specific SkStrike.
     mutable SkMutex fMu;
-    // Map from a combined GlyphID and sub-pixel position to a SkGlyphDigest. The actual glyph is
+
+    // Maps from a combined GlyphID and sub-pixel position to a SkGlyphDigest. The actual glyph is
     // stored in the fAlloc. The pointer to the glyph is stored fGlyphForIndex. The
     // SkGlyphDigest's fIndex field stores the index. This pointer provides an unchanging
     // reference to the SkGlyph as long as the strike is alive, and fGlyphForIndex
     // provides a dense index for glyphs.
     SkTHashMap<SkPackedGlyphID, SkGlyphDigest, SkPackedGlyphID::Hash>
             fDigestForPackedGlyphID SK_GUARDED_BY(fMu);
+
+    // Maps from a glyphIndex to a glyph
     std::vector<SkGlyph*> fGlyphForIndex SK_GUARDED_BY(fMu);
 
-    // so we don't grow our arrays a lot
+    // Context that corresponds to the glyph information in this strike.
+    const std::unique_ptr<SkScalerContext> fScalerContext SK_GUARDED_BY(fMu);
+
+    // So, we don't grow our arrays a lot.
     inline static constexpr size_t kMinGlyphCount = 8;
     inline static constexpr size_t kMinGlyphImageSize = 16 /* height */ * 8 /* width */;
     inline static constexpr size_t kMinAllocAmount = kMinGlyphImageSize * kMinGlyphCount;
