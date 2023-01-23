@@ -11,14 +11,14 @@
 #include "include/core/SkDrawable.h"
 #include "include/private/SkSpinlock.h"
 #include "include/private/base/SkLoadUserConfig.h" // IWYU pragma: keep
-#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkMutex.h"
 #include "src/core/SkDescriptor.h"
-#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/text/StrikeForGPU.h"
 
+class SkStrike;
+class SkStrikePinner;
 class SkTraceMemoryDump;
-class SkStrikeCache;
 
 //  SK_DEFAULT_FONT_CACHE_COUNT_LIMIT and SK_DEFAULT_FONT_CACHE_LIMIT can be set using -D on your
 //  compiler commandline, or by using the defines in SkUserConfig.h
@@ -94,12 +94,8 @@ private:
     SkStrike* fHead SK_GUARDED_BY(fLock) {nullptr};
     SkStrike* fTail SK_GUARDED_BY(fLock) {nullptr};
     struct StrikeTraits {
-        static const SkDescriptor& GetKey(const sk_sp<SkStrike>& strike) {
-            return strike->getDescriptor();
-        }
-        static uint32_t Hash(const SkDescriptor& descriptor) {
-            return descriptor.getChecksum();
-        }
+        static const SkDescriptor& GetKey(const sk_sp<SkStrike>& strike);
+        static uint32_t Hash(const SkDescriptor& descriptor);
     };
     SkTHashTable<sk_sp<SkStrike>, SkDescriptor, StrikeTraits> fStrikeLookup SK_GUARDED_BY(fLock);
 

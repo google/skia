@@ -8,6 +8,7 @@
 #include "src/text/gpu/GlyphVector.h"
 
 #include "src/core/SkReadBuffer.h"
+#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/text/StrikeForGPU.h"

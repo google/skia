@@ -313,3 +313,12 @@ void SkStrikeCache::validate() const {
 #endif
 }
 
+const SkDescriptor& SkStrikeCache::StrikeTraits::GetKey(const sk_sp<SkStrike>& strike) {
+    return strike->getDescriptor();
+}
+
+uint32_t SkStrikeCache::StrikeTraits::Hash(const SkDescriptor& descriptor) {
+    return descriptor.getChecksum();
+}
+
+

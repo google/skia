@@ -11,6 +11,7 @@
 #include "src/base/SkTLazy.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
+#include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 
 #if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)

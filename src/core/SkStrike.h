@@ -9,6 +9,7 @@
 
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontTypes.h"
+#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkArenaAlloc.h"
@@ -64,7 +65,7 @@ public:
     // to the array (if non-null), and set the count to the updated array length.
     // TODO: track memory usage.
     void findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar xPos,
-                        SkGlyph* , SkScalar* array, int* count) SK_EXCLUDES(fStrikeLock);
+                        SkGlyph*, SkScalar* array, int* count) SK_EXCLUDES(fStrikeLock);
 
     const SkFontMetrics& getFontMetrics() const {
         return fFontMetrics;
