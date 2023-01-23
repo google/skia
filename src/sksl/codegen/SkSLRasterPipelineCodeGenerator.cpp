@@ -1168,24 +1168,19 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
     }
 
     // Handle binary expressions with mismatched types.
-    const Type& type = left.type();
-    if (!type.matches(right.type())) {
-        if (type.componentType().numberKind() != right.type().componentType().numberKind()) {
+    bool vectorizeLeft = false, vectorizeRight = false;
+    if (!left.type().matches(right.type())) {
+        if (left.type().componentType().numberKind() != right.type().componentType().numberKind()) {
             return unsupported();
         }
-
-        if (left.type().isScalar() && right.type().isVector()) {
-            // SxV becomes VxV via an implicit splat.
-            ConstructorSplat leftAsVector(left.fPosition, right.type(), left.clone());
-            return this->pushBinaryExpression(leftAsVector, op, right);
-        }
-
-        if (left.type().isVector() && right.type().isScalar()) {
-            // VxS becomes VxV via an implicit splat.
-            ConstructorSplat rightAsVector(right.fPosition, left.type(), right.clone());
-            return this->pushBinaryExpression(left, op, rightAsVector);
+        if (left.type().isScalar() && (right.type().isVector() || right.type().isMatrix())) {
+            vectorizeLeft = true;
+        } else if ((left.type().isVector() || left.type().isMatrix()) && right.type().isScalar()) {
+            vectorizeRight = true;
         }
     }
+
+    const Type& type = vectorizeLeft ? right.type() : left.type();
 
     // If this is an assignment...
     std::unique_ptr<LValue> lvalue;
@@ -1233,8 +1228,8 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
         }
     }
 
-    if (!type.matches(right.type())) {
-        // We don't know how to handle any other mismatched types.
+    if (!vectorizeLeft && !vectorizeRight && !type.matches(right.type())) {
+        // We have mismatched types but don't know how to handle them.
         return unsupported();
     }
 
@@ -1271,8 +1266,14 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
     if (!this->pushLValueOrExpression(lvalue.get(), left)) {
         return unsupported();
     }
+    if (vectorizeLeft) {
+        fBuilder.push_duplicates(right.type().slotCount() - 1);
+    }
     if (!this->pushExpression(right)) {
         return unsupported();
+    }
+    if (vectorizeRight) {
+        fBuilder.push_duplicates(left.type().slotCount() - 1);
     }
 
     switch (op.kind()) {
