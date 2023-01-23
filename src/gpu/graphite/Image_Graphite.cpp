@@ -7,7 +7,9 @@
 
 #include "src/gpu/graphite/Image_Graphite.h"
 
+#include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkSurface.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/RefCntedCallback.h"
@@ -91,7 +93,19 @@ sk_sp<SkImage> Image::onMakeColorTypeAndColorSpace(SkColorType targetCT,
                                                    sk_sp<SkColorSpace> targetCS,
                                                    Recorder* recorder,
                                                    RequiredImageProperties requiredProps) const {
-    return nullptr;
+    SkAlphaType at = (this->alphaType() == kOpaque_SkAlphaType) ? kPremul_SkAlphaType
+                                                                : this->alphaType();
+
+    SkImageInfo ii = SkImageInfo::Make(this->dimensions(), targetCT, at, std::move(targetCS));
+
+    sk_sp<SkSurface> s = SkSurface::MakeGraphite(recorder, ii, requiredProps.fMipmapped);
+    if (!s) {
+        return nullptr;
+    }
+
+    s->getCanvas()->drawImage(this, 0, 0);
+
+    return s->asImage();
 }
 
 } // namespace skgpu::graphite

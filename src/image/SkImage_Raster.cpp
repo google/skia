@@ -173,8 +173,8 @@ private:
 #ifdef SK_GRAPHITE_ENABLED
     sk_sp<SkImage> onMakeTextureImage(skgpu::graphite::Recorder*,
                                       RequiredImageProperties) const override;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
-                                                sk_sp<SkColorSpace>,
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType targetCT,
+                                                sk_sp<SkColorSpace> targetCS,
                                                 skgpu::graphite::Recorder*,
                                                 RequiredImageProperties) const override;
 #endif
@@ -596,7 +596,23 @@ sk_sp<SkImage> SkImage_Raster::onMakeColorTypeAndColorSpace(
         sk_sp<SkColorSpace> targetCS,
         skgpu::graphite::Recorder* recorder,
         RequiredImageProperties requiredProps) const {
-    return nullptr;
+    SkPixmap src;
+    SkAssertResult(fBitmap.peekPixels(&src));
+
+    SkBitmap dst;
+    if (!dst.tryAllocPixels(fBitmap.info().makeColorType(targetCT).makeColorSpace(targetCS))) {
+        return nullptr;
+    }
+
+    SkAssertResult(dst.writePixels(src));
+    dst.setImmutable();
+
+    sk_sp<SkImage> tmp = dst.asImage();
+    if (recorder) {
+        return tmp->makeTextureImage(recorder, requiredProps);
+    } else {
+        return tmp;
+    }
 }
 
 #endif
