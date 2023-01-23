@@ -155,52 +155,55 @@ DEF_TEST(AndroidCodec_jpegGainmap, r) {
              SkGainmapInfo::Type::kJpegR_HLG},
     };
 
-    for (const auto& rec : recs) {
-        auto stream = GetResourceAsStream(rec.path);
-        REPORTER_ASSERT(r, stream);
+    for (bool useFileStream : {false, true}) {
+        for (const auto& rec : recs) {
+            auto stream = GetResourceAsStream(rec.path, useFileStream);
+            REPORTER_ASSERT(r, stream);
 
-        std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
-        REPORTER_ASSERT(r, codec);
+            std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
+            REPORTER_ASSERT(r, codec);
 
-        std::unique_ptr<SkAndroidCodec> androidCodec =
-                SkAndroidCodec::MakeFromCodec(std::move(codec));
-        REPORTER_ASSERT(r, androidCodec);
+            std::unique_ptr<SkAndroidCodec> androidCodec =
+                    SkAndroidCodec::MakeFromCodec(std::move(codec));
+            REPORTER_ASSERT(r, androidCodec);
 
-        SkGainmapInfo gainmapInfo;
-        std::unique_ptr<SkStream> gainmapStream;
-        REPORTER_ASSERT(r, androidCodec->getAndroidGainmap(&gainmapInfo, &gainmapStream));
-        REPORTER_ASSERT(r, gainmapStream);
+            SkGainmapInfo gainmapInfo;
+            std::unique_ptr<SkStream> gainmapStream;
+            REPORTER_ASSERT(r, androidCodec->getAndroidGainmap(&gainmapInfo, &gainmapStream));
+            REPORTER_ASSERT(r, gainmapStream);
 
-        std::unique_ptr<SkCodec> gainmapCodec = SkCodec::MakeFromStream(std::move(gainmapStream));
-        REPORTER_ASSERT(r, gainmapCodec);
+            std::unique_ptr<SkCodec> gainmapCodec =
+                    SkCodec::MakeFromStream(std::move(gainmapStream));
+            REPORTER_ASSERT(r, gainmapCodec);
 
-        SkBitmap bm;
-        bm.allocPixels(gainmapCodec->getInfo());
-        REPORTER_ASSERT(r,
-                        SkCodec::kSuccess ==
-                                gainmapCodec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes()));
+            SkBitmap bm;
+            bm.allocPixels(gainmapCodec->getInfo());
+            REPORTER_ASSERT(r,
+                            SkCodec::kSuccess == gainmapCodec->getPixels(
+                                                         bm.info(), bm.getPixels(), bm.rowBytes()));
 
-        // Spot-check the image size and pixels.
-        REPORTER_ASSERT(r, bm.dimensions() == rec.dimensions);
-        REPORTER_ASSERT(r, bm.getColor(0, 0) == rec.originColor);
-        REPORTER_ASSERT(r,
-                        bm.getColor(rec.dimensions.fWidth - 1, rec.dimensions.fHeight - 1) ==
-                                rec.farCornerColor);
+            // Spot-check the image size and pixels.
+            REPORTER_ASSERT(r, bm.dimensions() == rec.dimensions);
+            REPORTER_ASSERT(r, bm.getColor(0, 0) == rec.originColor);
+            REPORTER_ASSERT(r,
+                            bm.getColor(rec.dimensions.fWidth - 1, rec.dimensions.fHeight - 1) ==
+                                    rec.farCornerColor);
 
-        // Verify the gainmap rendering parameters.
-        auto approxEq = [=](float x, float y) { return std::abs(x - y) < 1e-3f; };
+            // Verify the gainmap rendering parameters.
+            auto approxEq = [=](float x, float y) { return std::abs(x - y) < 1e-3f; };
 
-        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMin.fR, rec.logRatioMin));
-        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMin.fG, rec.logRatioMin));
-        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMin.fB, rec.logRatioMin));
+            REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMin.fR, rec.logRatioMin));
+            REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMin.fG, rec.logRatioMin));
+            REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMin.fB, rec.logRatioMin));
 
-        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMax.fR, rec.logRatioMax));
-        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMax.fG, rec.logRatioMax));
-        REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMax.fB, rec.logRatioMax));
+            REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMax.fR, rec.logRatioMax));
+            REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMax.fG, rec.logRatioMax));
+            REPORTER_ASSERT(r, approxEq(gainmapInfo.fLogRatioMax.fB, rec.logRatioMax));
 
-        REPORTER_ASSERT(r, approxEq(gainmapInfo.fHdrRatioMin, rec.hdrRatioMin));
-        REPORTER_ASSERT(r, approxEq(gainmapInfo.fHdrRatioMax, rec.hdrRatioMax));
+            REPORTER_ASSERT(r, approxEq(gainmapInfo.fHdrRatioMin, rec.hdrRatioMin));
+            REPORTER_ASSERT(r, approxEq(gainmapInfo.fHdrRatioMax, rec.hdrRatioMax));
 
-        REPORTER_ASSERT(r, gainmapInfo.fType == rec.type);
+            REPORTER_ASSERT(r, gainmapInfo.fType == rec.type);
+        }
     }
 }
