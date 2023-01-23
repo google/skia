@@ -484,6 +484,59 @@ static void TestPictureTypefaceSerialization(const SkSerialProcs* serial_procs,
     }
 }
 
+SkString DumpTypeface(const SkTypeface& typeface) {
+    int index;
+    std::unique_ptr<SkStreamAsset> typefaceStream = typeface.openStream(&index);
+    if (!typefaceStream) {
+        return SkString("No Stream");
+    }
+    size_t length = typefaceStream->getLength();
+
+    SkString s;
+    s.appendf("Index: %d\n", index);
+    s.appendf("Length: %zu\n", length);
+    return s;
+}
+SkString DumpFontMetrics(const SkFontMetrics& metrics) {
+    SkString m("Flags:\n");
+
+    if (metrics.fFlags == 0) {
+        m += "  No flags\n";
+    } else {
+        if (metrics.fFlags & SkFontMetrics::kUnderlineThicknessIsValid_Flag) {
+            m += "  UnderlineThicknessIsValid\n";
+        }
+        if (metrics.fFlags & SkFontMetrics::kUnderlinePositionIsValid_Flag) {
+            m += "  kUnderlinePositionIsValid\n";
+        }
+        if (metrics.fFlags & SkFontMetrics::kStrikeoutThicknessIsValid_Flag) {
+            m += "  kStrikeoutThicknessIsValid\n";
+        }
+        if (metrics.fFlags & SkFontMetrics::kStrikeoutPositionIsValid_Flag) {
+            m += "  kStrikeoutPositionIsValid\n";
+        }
+        if (metrics.fFlags & SkFontMetrics::kBoundsInvalid_Flag) {
+            m += "  kBoundsInvalid\n";
+        }
+    }
+
+    m.appendf("Top: %f\n", metrics.fTop);
+    m.appendf("Ascent: %f\n", metrics.fAscent);
+    m.appendf("Descent: %f\n", metrics.fDescent);
+    m.appendf("Bottom: %f\n", metrics.fBottom);
+    m.appendf("Leading: %f\n", metrics.fLeading);
+    m.appendf("AvgCharWidth: %f\n", metrics.fAvgCharWidth);
+    m.appendf("MaxCharWidth: %f\n", metrics.fMaxCharWidth);
+    m.appendf("XMin: %f\n", metrics.fXMin);
+    m.appendf("XMax: %f\n", metrics.fXMax);
+    m.appendf("XHeight: %f\n", metrics.fXHeight);
+    m.appendf("CapHeight: %f\n", metrics.fCapHeight);
+    m.appendf("UnderlineThickness: %f\n", metrics.fUnderlineThickness);
+    m.appendf("UnderlinePosition: %f\n", metrics.fUnderlinePosition);
+    m.appendf("StrikeoutThickness: %f\n", metrics.fStrikeoutThickness);
+    m.appendf("StrikeoutPosition: %f\n", metrics.fStrikeoutPosition);
+    return m;
+}
 static void TestTypefaceSerialization(skiatest::Reporter* reporter, sk_sp<SkTypeface> typeface) {
     SkDynamicMemoryWStream typefaceWStream;
     typeface->serialize(&typefaceWStream);
@@ -507,7 +560,14 @@ static void TestTypefaceSerialization(skiatest::Reporter* reporter, sk_sp<SkType
     font.getMetrics(&fontMetrics);
     clone.getMetrics(&cloneMetrics);
     REPORTER_ASSERT(reporter, fontMetrics == cloneMetrics,
-        "Typeface: \"%s\" CloneTypeface: \"%s\"", name.c_str(), cloneName.c_str());
+        "Typeface: \"%s\"\n-Metrics---\n%s-Data---\n%s\n\n"
+        "CloneTypeface: \"%s\"\n-Metrics---\n%s-Data---\n%s",
+        name.c_str(),
+        DumpFontMetrics(fontMetrics).c_str(),
+        DumpTypeface(*typeface).c_str(),
+        cloneName.c_str(),
+        DumpFontMetrics(cloneMetrics).c_str(),
+        DumpTypeface(*cloneTypeface).c_str());
 }
 DEF_TEST(Serialization_Typeface, reporter) {
     SkFont font;
