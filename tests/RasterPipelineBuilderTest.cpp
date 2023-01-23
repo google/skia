@@ -370,6 +370,13 @@ R"(    1. jump                           jump +4 (#5)
     5. immediate_f                    src.r = 0x40400000 (3.0)
     6. branch_if_any_active_lanes     branch_if_any_active_lanes -4 (#2)
 )";
+    static constexpr char kExpectationWithKnownExecutionMask[] =
+R"(    1. jump                           jump +3 (#4)
+    2. immediate_f                    src.r = 0x3F800000 (1.0)
+    3. immediate_f                    src.r = 0x40000000 (2.0)
+    4. immediate_f                    src.r = 0x40400000 (3.0)
+    5. jump                           jump -3 (#2)
+)";
 #else
     // We don't have guaranteed tail-calling, so we rewind the stack immediately before any backward
     // branches.
@@ -383,15 +390,15 @@ R"(    1. jump                           jump +5 (#6)
     7. stack_rewind
     8. branch_if_any_active_lanes     branch_if_any_active_lanes -6 (#2)
 )";
-#endif
-
     static constexpr char kExpectationWithKnownExecutionMask[] =
 R"(    1. jump                           jump +3 (#4)
     2. immediate_f                    src.r = 0x3F800000 (1.0)
     3. immediate_f                    src.r = 0x40000000 (2.0)
     4. immediate_f                    src.r = 0x40400000 (3.0)
-    5. jump                           jump -3 (#2)
+    5. stack_rewind
+    6. jump                           jump -4 (#2)
 )";
+#endif
 
     for (bool enableExecutionMaskWrites : {false, true}) {
         // Create a very simple nonsense program.
