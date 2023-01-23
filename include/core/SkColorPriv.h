@@ -13,6 +13,8 @@
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 
+#include <algorithm>
+
 /** Turn 0..255 into 0..256 by adding 1 at the half-way point. Used to turn a
     byte into a scale value, so that we can say scale * value >> 8 instead of
     alpha * value / 255.
@@ -156,10 +158,9 @@ static inline SkPMColor SkPMSrcOver(SkPMColor src, SkPMColor dst) {
     ag += (src & ~mask);
 
     // Color channels (but not alpha) can overflow, so we have to saturate to 0xFF in each lane.
-    auto saturate = [](uint32_t v, uint32_t limit) { return v > limit ? limit : v; };
-    return saturate(rb & 0x000001FF, 0x000000FF) |
-           saturate(ag & 0x0001FF00, 0x0000FF00) |
-           saturate(rb & 0x01FF0000, 0x00FF0000) |
+    return std::min(rb & 0x000001FF, 0x000000FFU) |
+           std::min(ag & 0x0001FF00, 0x0000FF00U) |
+           std::min(rb & 0x01FF0000, 0x00FF0000U) |
                    (ag & 0xFF000000);
 }
 
