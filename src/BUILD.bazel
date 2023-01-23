@@ -1,4 +1,11 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "generate_cpp_files_for_headers", "skia_cc_deps", "skia_filegroup")
+load(
+    "//bazel:macros.bzl",
+    "exports_files_legacy",
+    "generate_cpp_files_for_headers",
+    "skia_cc_deps",
+    "skia_cc_library",
+    "skia_filegroup",
+)
 
 licenses(["notice"])
 
@@ -127,16 +134,30 @@ generate_cpp_files_for_headers(
     # generated that is a copy of the header file just with a .cpp suffix so Bazel will try to
     # compile it. This allows us to run IWYU on these files.
     to_generate = [
-        "src/base/SkASAN.h",
-        "src/base/SkArenaAllocList.h",
-        "src/base/SkAutoMalloc.h",
-        "src/base/SkSafeMath.h",
-        "src/base/SkScopeExit.h",
-        "src/base/SkStringView.h",
-        "src/base/SkTBlockList.h",
-        "src/base/SkTLazy.h",
         "src/core/SkMatrixPriv.h",
         "src/core/SkPathPriv.h",
         "src/image/SkImage_Base.h",
     ],
+)
+
+####################################################################
+# Experimental buffet build below
+
+skia_cc_library(
+    name = "base",
+    srcs = [
+        "//include/config:public_hdrs",
+        "//src/base:srcs",
+    ] + select({
+        "//bazel/common_config_settings:compile_generated_cpp_files_for_headers_true": [
+            "//include/private/base:generated_base_header_cpps",
+            "//src/base:generated_base_header_cpps",
+        ],
+        "//conditions:default": [],
+    }),
+    hdrs = [
+        "//include/private/base:private_hdrs",
+        "//src/base:private_hdrs",
+    ],
+    features = ["layering_check"],
 )

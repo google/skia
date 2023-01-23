@@ -1,28 +1,43 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "skia_filegroup")
+load(
+    "//bazel:macros.bzl",
+    "exports_files_legacy",
+    "generate_cpp_files_for_header_list",
+    "skia_filegroup",
+)
 
 licenses(["notice"])
 
 exports_files_legacy()
 
+# Headers with no corresponding .cpp files
+IWYU_HDRS = [
+    "SkASAN.h",
+    "SkArenaAllocList.h",
+    "SkLeanWindows.h",
+    "SkScopeExit.h",
+    "SkTBlockList.h",
+    "SkStringView.h",
+    "SkTLazy.h",
+]
+
 skia_filegroup(
     name = "private_hdrs",
-    srcs = [
-        "SkASAN.h",
+    srcs = IWYU_HDRS + [
         "SkArenaAlloc.h",
-        "SkArenaAllocList.h",
         "SkAutoMalloc.h",
         "SkBlockAllocator.h",
         "SkCubics.h",
-        "SkLeanWindows.h",
         "SkMathPriv.h",
         "SkQuads.h",
         "SkSafeMath.h",
-        "SkScopeExit.h",
-        "SkStringView.h",
-        "SkTBlockList.h",
-        "SkTLazy.h",
         "SkUTF.h",
     ],
+    visibility = ["//src:__pkg__"],
+)
+
+generate_cpp_files_for_header_list(
+    name = "generated_base_header_cpps",
+    headers = IWYU_HDRS,
     visibility = ["//src:__pkg__"],
 )
 

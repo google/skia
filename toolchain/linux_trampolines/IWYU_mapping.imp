@@ -340,6 +340,10 @@
 
   { include: ["<asm/errno-base.h>", "private", "<errno.h>", "public"] },
 
+  # Pretend SK_DEBUG is defined in SkDebug.h
+  { symbol: ["SK_DEBUG", "private", "\"include/private/base/SkDebug.h\"", "public"] },
+  { symbol: ["SK_DEBUG", "private", "\"include/private/base/SkLoadUserConfig.h\"", "public"] },
+
   # IWYU seems to get confused on where the namespace sktext is "defined". Any files in
   # this list are ok.
   { symbol: ["sktext", "private", "\"src/text/StrikeForGPU.h\"", "public"] },
