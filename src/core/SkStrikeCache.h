@@ -69,6 +69,7 @@ public:
 
 private:
     friend class SkStrike;  // for SkStrike::updateDelta
+    static constexpr char kGlyphCacheDumpName[] = "skia/sk_glyph_cache";
     sk_sp<SkStrike> internalFindStrikeOrNull(const SkDescriptor& desc) SK_REQUIRES(fLock);
     sk_sp<SkStrike> internalCreateStrike(
             const SkStrikeSpec& strikeSpec,

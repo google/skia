@@ -10,6 +10,7 @@
 #include "include/core/SkDrawable.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkTraceMemoryDump.h"
 #include "include/core/SkTypeface.h"
 #include "src/core/SkDistanceFieldGen.h"
 #include "src/core/SkEnumerate.h"
@@ -385,6 +386,33 @@ void SkStrike::dump() const {
     SkDebugf("%s\n", msg.c_str());
 }
 
+void SkStrike::dumpMemoryStatistics(SkTraceMemoryDump* dump) const {
+    SkAutoMutexExclusive lock{fMu};
+    const SkTypeface* face = this->getScalerContext()->getTypeface();
+    const SkScalerContextRec& rec = this->getScalerContext()->getRec();
+
+    SkString fontName;
+    face->getFamilyName(&fontName);
+    // Replace all special characters with '_'.
+    for (size_t index = 0; index < fontName.size(); ++index) {
+        if (!std::isalnum(fontName[index])) {
+            fontName[index] = '_';
+        }
+    }
+
+    SkString dumpName = SkStringPrintf("%s/%s_%d/%p",
+                                       SkStrikeCache::kGlyphCacheDumpName,
+                                       fontName.c_str(),
+                                       rec.fTypefaceID,
+                                       this);
+
+    dump->dumpNumericValue(dumpName.c_str(), "size", "bytes", fMemoryUsed);
+    dump->dumpNumericValue(dumpName.c_str(),
+                           "glyph_count", "objects",
+                           fDigestForPackedGlyphID.count());
+    dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
+}
+
 template <typename Fn>
 size_t SkStrike::commonFilterLoop(SkDrawableGlyphBuffer* accepted, Fn&& fn) {
     size_t total = 0;
@@ -447,11 +475,6 @@ size_t SkStrike::prepareDrawable(SkGlyph* glyph) {
         SkASSERT(delta > 0);
     }
     return delta;
-}
-
-int SkStrike::countCachedGlyphs() const {
-    SkAutoMutexExclusive lock(fMu);
-    return fDigestForPackedGlyphID.count();
 }
 
 std::tuple<SkSpan<const SkGlyph*>, size_t> SkStrike::internalPrepare(

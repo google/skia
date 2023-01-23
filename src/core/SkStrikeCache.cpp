@@ -57,59 +57,29 @@ void SkStrikeCache::Dump() {
     SkDebugf("    count  [ %8d  %8d ]\n",
              SkGraphics::GetFontCacheCountUsed(), SkGraphics::GetFontCacheCountLimit());
 
-    int counter = 0;
-
-    auto visitor = [&counter](const SkStrike& strike) {
-        const SkScalerContextRec& rec = strike.getScalerContext()->getRec();
-
-        SkDebugf("index %d checksum: %x\n", counter, strike.getDescriptor().getChecksum());
-        SkDebugf("%s", rec.dump().c_str());
-        counter += 1;
+    auto visitor = [](const SkStrike& strike) {
+        strike.dump();
     };
 
     GlobalStrikeCache()->forEachStrike(visitor);
 }
 
-namespace {
-    const char gGlyphCacheDumpName[] = "skia/sk_glyph_cache";
-}  // namespace
-
 void SkStrikeCache::DumpMemoryStatistics(SkTraceMemoryDump* dump) {
-    dump->dumpNumericValue(gGlyphCacheDumpName, "size", "bytes", SkGraphics::GetFontCacheUsed());
-    dump->dumpNumericValue(gGlyphCacheDumpName, "budget_size", "bytes",
+    dump->dumpNumericValue(kGlyphCacheDumpName, "size", "bytes", SkGraphics::GetFontCacheUsed());
+    dump->dumpNumericValue(kGlyphCacheDumpName, "budget_size", "bytes",
                            SkGraphics::GetFontCacheLimit());
-    dump->dumpNumericValue(gGlyphCacheDumpName, "glyph_count", "objects",
+    dump->dumpNumericValue(kGlyphCacheDumpName, "glyph_count", "objects",
                            SkGraphics::GetFontCacheCountUsed());
-    dump->dumpNumericValue(gGlyphCacheDumpName, "budget_glyph_count", "objects",
+    dump->dumpNumericValue(kGlyphCacheDumpName, "budget_glyph_count", "objects",
                            SkGraphics::GetFontCacheCountLimit());
 
     if (dump->getRequestedDetails() == SkTraceMemoryDump::kLight_LevelOfDetail) {
-        dump->setMemoryBacking(gGlyphCacheDumpName, "malloc", nullptr);
+        dump->setMemoryBacking(kGlyphCacheDumpName, "malloc", nullptr);
         return;
     }
 
-    auto visitor = [&dump](const SkStrike& strike) {
-        const SkTypeface* face = strike.getScalerContext()->getTypeface();
-        const SkScalerContextRec& rec = strike.getScalerContext()->getRec();
-
-        SkString fontName;
-        face->getFamilyName(&fontName);
-        // Replace all special characters with '_'.
-        for (size_t index = 0; index < fontName.size(); ++index) {
-            if (!std::isalnum(fontName[index])) {
-                fontName[index] = '_';
-            }
-        }
-
-        SkString dumpName = SkStringPrintf(
-                "%s/%s_%d/%p", gGlyphCacheDumpName, fontName.c_str(), rec.fTypefaceID, &strike);
-
-        dump->dumpNumericValue(dumpName.c_str(),
-                               "size", "bytes", strike.fMemoryUsed);
-        dump->dumpNumericValue(dumpName.c_str(),
-                               "glyph_count", "objects",
-                               strike.countCachedGlyphs());
-        dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
+    auto visitor = [&](const SkStrike& strike) {
+        strike.dumpMemoryStatistics(dump);
     };
 
     GlobalStrikeCache()->forEachStrike(visitor);

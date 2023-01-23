@@ -22,6 +22,7 @@
 
 class SkScalerContext;
 class SkStrikeCache;
+class SkTraceMemoryDump;
 
 namespace sktext {
 union IDOrPath;
@@ -55,9 +56,6 @@ public:
 
     // If the drawable has never been set, then add a drawable to glyph.
     const SkDrawable* mergeDrawable(SkGlyph* glyph, sk_sp<SkDrawable> drawable) SK_EXCLUDES(fMu);
-
-    // Return the number of glyphs currently cached.
-    int countCachedGlyphs() const SK_EXCLUDES(fMu);
 
     // If the advance axis intersects the glyph's path, append the positions scaled and offset
     // to the array (if non-null), and set the count to the updated array length.
@@ -122,8 +120,6 @@ public:
     // Convert all the IDs into SkDrawables in the span.
     void glyphIDsToDrawables(SkSpan<sktext::IDOrDrawable> idsOrDrawables) SK_EXCLUDES(fMu);
 
-    void dump() const SK_EXCLUDES(fMu);
-
     SkScalerContext* getScalerContext() const {
         return fScalerContext.get();
     }
@@ -137,6 +133,9 @@ public:
             fPinner->assertValid();
         }
     }
+
+    void dump() const SK_EXCLUDES(fMu);
+    void dumpMemoryStatistics(SkTraceMemoryDump* dump) const SK_EXCLUDES(fMu);
 
 #if SK_SUPPORT_GPU
     sk_sp<sktext::gpu::TextStrike> findOrCreateTextStrike(
