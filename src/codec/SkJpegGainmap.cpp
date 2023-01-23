@@ -298,6 +298,7 @@ bool SkJpegGetMultiPictureGainmap(sk_sp<const SkData> decoderMpfMetadata,
             outInfo->fEpsilonHdr = 1 / 128.f;
             outInfo->fHdrRatioMin = 1.f;
             outInfo->fHdrRatioMax = sk_float_exp(kLogRatioMax);
+            outInfo->fBaseImageType = SkGainmapInfo::BaseImageType::kSDR;
             outInfo->fType = SkGainmapInfo::Type::kMultiPicture;
             return true;
         }
@@ -504,6 +505,81 @@ bool SkJpegGetJpegRGainmap(sk_sp<const SkData> xmpMetadata,
     outInfo->fEpsilonHdr = 0.f;
     outInfo->fHdrRatioMin = 1.f;
     outInfo->fHdrRatioMax = rangeScalingFactor;
+    outInfo->fBaseImageType = SkGainmapInfo::BaseImageType::kSDR;
     outInfo->fType = type;
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// HDRGM support
+
+// Helper function to read a 1 or 3 floats and write them into an SkColor4f.
+static void find_per_channel_attr(const SkDOM& dom,
+                                  const SkDOM::Node* node,
+                                  const char* attr,
+                                  SkColor4f* outColor) {
+    SkScalar values[3] = {0.f, 0.f, 0.f};
+    if (dom.findScalars(node, attr, values, 3)) {
+        *outColor = {values[0], values[1], values[2], 1.f};
+    } else if (dom.findScalars(node, attr, values, 1)) {
+        *outColor = {values[0], values[0], values[0], 1.f};
+    }
+}
+
+bool SkJpegGetHDRGMGainmapInfo(sk_sp<const SkData> xmpMetadata,
+                               SkStream* decoderStream,
+                               SkGainmapInfo* outGainmapInfo) {
+    // Parse the XMP.
+    SkDOM dom;
+    if (!SkDataToSkDOM(xmpMetadata, &dom)) {
+        return false;
+    }
+
+    // Find a node that matches the requested namespace and URI.
+    const char* namespaces[1] = {"xmlns:hdrgm"};
+    const char* uris[1] = {"http://ns.adobe.com/hdr-gain-map/1.0/"};
+    const SkDOM::Node* node = FindXmpNamespaceUriMatch(dom, namespaces, uris, 1);
+    if (!node) {
+        return false;
+    }
+
+    // Initialize the parameters to their defaults.
+    SkColor4f gainMapMin = {0.f, 0.f, 0.f, 1.f};
+    SkColor4f gainMapMax = {1.f, 1.f, 1.f, 1.f};
+    SkColor4f gamma = {0.f, 0.f, 0.f, 1.f};
+    SkColor4f offsetSdr = {1.f / 64.f, 1.f / 64.f, 1.f / 64.f, 0.f};
+    SkColor4f offsetHdr = {1.f / 64.f, 1.f / 64.f, 1.f / 64.f, 0.f};
+    SkScalar hdrCapacityMin = 0.f;
+    SkScalar hdrCapacityMax = 1.f;
+
+    // Read all parameters that are present.
+    const char* baseRendition = dom.findAttr(node, "hdrgm:BaseRendition");
+    find_per_channel_attr(dom, node, "hdrgm:GainMapMin", &gainMapMin);
+    find_per_channel_attr(dom, node, "hdrgm:GainMapMax", &gainMapMax);
+    find_per_channel_attr(dom, node, "hdrgm:Gamma", &gamma);
+    find_per_channel_attr(dom, node, "hdrgm:OffsetSDR", &offsetSdr);
+    find_per_channel_attr(dom, node, "hdrgm:OffsetHDR", &offsetHdr);
+    dom.findScalar(node, "hdrgm:HDRCapacityMin", &hdrCapacityMin);
+    dom.findScalar(node, "hdrgm:HDRCapacityMax", &hdrCapacityMax);
+
+    // Translate all parameters to SkGainmapInfo's expected format.
+    // TODO(ccameron): Move all of SkGainmapInfo to linear space.
+    const float kLog2 = sk_float_log(2.f);
+    outGainmapInfo->fLogRatioMin = {
+            gainMapMin.fR * kLog2, gainMapMin.fG * kLog2, gainMapMin.fB * kLog2, 1.f};
+    outGainmapInfo->fLogRatioMax = {
+            gainMapMax.fR * kLog2, gainMapMax.fG * kLog2, gainMapMax.fB * kLog2, 1.f};
+    outGainmapInfo->fGainmapGamma = gamma;
+    // TODO(ccameron): Use SkColor4f for epsilons.
+    outGainmapInfo->fEpsilonSdr = (offsetSdr.fR + offsetSdr.fG + offsetSdr.fB) / 3.f;
+    outGainmapInfo->fEpsilonHdr = (offsetHdr.fR + offsetHdr.fG + offsetHdr.fB) / 3.f;
+    outGainmapInfo->fHdrRatioMin = sk_float_exp(hdrCapacityMin * kLog2);
+    outGainmapInfo->fHdrRatioMax = sk_float_exp(hdrCapacityMax * kLog2);
+    if (baseRendition && !strcmp(baseRendition, "HDR")) {
+        outGainmapInfo->fBaseImageType = SkGainmapInfo::BaseImageType::kHDR;
+    } else {
+        outGainmapInfo->fBaseImageType = SkGainmapInfo::BaseImageType::kSDR;
+    }
+    outGainmapInfo->fType = SkGainmapInfo::Type::kHDRGM;
     return true;
 }

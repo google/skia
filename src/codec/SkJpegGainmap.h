@@ -32,4 +32,12 @@ bool SkJpegGetJpegRGainmap(sk_sp<const SkData> xmpMetadata,
                            SkGainmapInfo* outInfo,
                            std::unique_ptr<SkStream>* outGainmapImageStream);
 
+/*
+ * Implementation of onGetGainmap that detects HDRGM based gainmaps and converts them to
+ * SkGainmapInfo.
+ */
+bool SkJpegGetHDRGMGainmapInfo(sk_sp<const SkData> xmpMetadata,
+                               SkStream* decoderStream,
+                               SkGainmapInfo* outGainmapInfo);
+
 #endif

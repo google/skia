@@ -153,6 +153,15 @@ DEF_TEST(AndroidCodec_jpegGainmap, r) {
              1.f,
              10.6643f,
              SkGainmapInfo::Type::kJpegR_HLG},
+            {"images/hdrgm.jpg",
+             SkISize::Make(188, 250),
+             0xFFE9E9E9,
+             0xFFAAAAAA,
+             -2.209409f,
+             2.209409f,
+             1.f,
+             9.110335,
+             SkGainmapInfo::Type::kHDRGM},
     };
 
     for (bool useFileStream : {false, true}) {

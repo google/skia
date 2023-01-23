@@ -12,10 +12,10 @@
 
 /**
  *  Gainmap rendering parameters. Suppose our display has HDR to SDR ratio of H, and we wish to
- *  display an image with gainmap on this display. Let S be the pixel value from the SDR base
- *  image, in a color space that has the primaries of the SDR base image and a linear transfer
- *  function. Let G be the pixel value from the gainmap. Let D be the output pixel in the same
- *  color space as S. The value of D is computed as follows:
+ *  display an image with gainmap on this display. Let B be the pixel value from the base image
+ *  in a color space that has the primaries of the base image and a linear transfer function. Let
+ *  G be the pixel value from the gainmap. Let D be the output pixel in the same color space as B.
+ *  The value of D is computed as follows:
  *
  *  First, let W be a weight parameter determing how much the gainmap will be applied.
  *    W = clamp((log(H) - log(fHdrRatioMax)) / (log(fHdrRatioMax) - log(fHdrRatioMin), 0, 1)
@@ -24,8 +24,11 @@
  *  sampled from the texture as follows:
  *    L = mix(fLogRatioMin, fLogRatioMax, pow(G, fGainmapGamma))
  *
- *  Finally, apply the gainmap to compute D, the displayed pixel.
- *    D = (S + fEpsilonSdr) * exp(L * W) - fEpsilonHdr
+ *  Finally, apply the gainmap to compute D, the displayed pixel. If the base image is SDR then
+ *  compute:
+ *    D = (B + fEpsilonSdr) * exp(L * W) - fEpsilonHdr
+ *  If the base image is HDR then compute:
+ *    D = (B + fEpsilonHdr) * exp(L * (W - 1)) - fEpsilonSdr
  *
  *  In the above math, log() is a natural logarithm and exp() is natural exponentiation.
  */
@@ -52,6 +55,15 @@ struct SkGainmapInfo {
     float fHdrRatioMax = 50.f;
 
     /**
+     *  Whether the base image is the SDR image or the HDR image.
+     */
+    enum class BaseImageType {
+        kSDR,
+        kHDR,
+    };
+    BaseImageType fBaseImageType = BaseImageType::kSDR;
+
+    /**
      *  The type of file that created this gainmap.
      */
     enum class Type {
@@ -60,6 +72,7 @@ struct SkGainmapInfo {
         kJpegR_Linear,
         kJpegR_HLG,
         kJpegR_PQ,
+        kHDRGM,
     };
     Type fType = Type::kUnknown;
 };

@@ -195,7 +195,9 @@ static sk_sp<SkData> read_metadata(jpeg_decompress_struct* dinfo,
 
     // Fail if we don't have all of the parts.
     if (foundPartCount != expectedPartCount) {
-        SkCodecPrintf("Incomplete set of markers\n");
+        SkCodecPrintf("Incomplete set of markers (expected %u got %u)\n",
+                      expectedPartCount,
+                      foundPartCount);
         return nullptr;
     }
 
@@ -252,6 +254,7 @@ SkCodec::Result SkJpegCodec::ReadHeader(SkStream* stream, SkCodec** codecOut,
         jpeg_save_markers(dinfo, kExifMarker, 0xFFFF);
         jpeg_save_markers(dinfo, kICCMarker, 0xFFFF);
         jpeg_save_markers(dinfo, kMpfMarker, 0xFFFF);
+        jpeg_save_markers(dinfo, kGainmapMarker, 0xFFFF);
     }
 
     // Read the jpeg header
@@ -1071,6 +1074,7 @@ bool SkGetJpegInfo(const void* data, size_t len,
     jpeg_save_markers(dinfo, kExifMarker, 0xFFFF);
     jpeg_save_markers(dinfo, kICCMarker, 0xFFFF);
     jpeg_save_markers(dinfo, kMpfMarker, 0xFFFF);
+    jpeg_save_markers(dinfo, kGainmapMarker, 0xFFFF);
     if (JPEG_HEADER_OK != jpeg_read_header(dinfo, true)) {
         return false;
     }
@@ -1093,6 +1097,24 @@ bool SkGetJpegInfo(const void* data, size_t len,
 bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
                                    std::unique_ptr<SkStream>* gainmapImageStream) {
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
+    // Attempt to extract SkGainmapInfo from the HDRGM XMP.
+    if (SkJpegGetHDRGMGainmapInfo(getXmpMetadata(), stream(), info)) {
+        auto gainmapData = read_metadata(fDecoderMgr->dinfo(),
+                                         kGainmapMarker,
+                                         kGainmapSig,
+                                         sizeof(kGainmapSig),
+                                         kGainmapMarkerIndexSize,
+                                         /*alwaysCopyData=*/true);
+        if (gainmapData) {
+            *gainmapImageStream = SkMemoryStream::Make(std::move(gainmapData));
+            if (*gainmapImageStream) {
+                return true;
+            }
+        } else {
+            SkCodecPrintf("Parsed HDRGM metadata but did not find image\n");
+        }
+    }
+
     // Attempt to extract JpegR gainmap formats.
     if (SkJpegGetJpegRGainmap(getXmpMetadata(), stream(), info, gainmapImageStream)) {
         return true;
