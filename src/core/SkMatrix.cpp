@@ -1841,6 +1841,63 @@ SkScalar SkMatrixPriv::DifferentialAreaScale(const SkMatrix& m, const SkPoint& p
     return SkScalarAbs(SkDoubleToScalar(sk_determinant(jacobian.fMat, true) * denom));
 }
 
+bool SkMatrixPriv::NearlyAffine(const SkMatrix& m,
+                                const SkRect& bounds,
+                                SkScalar tolerance) {
+    if (!m.hasPerspective()) {
+        return true;
+    }
+
+    // The idea here is that we are computing the differential area scale at each corner,
+    // and comparing them with some tolerance value. If they are similar, then we can say
+    // that the transformation is nearly affine.
+
+    // We can map the four points simultaneously.
+    SkPoint quad[4];
+    bounds.toQuad(quad);
+    SkPoint3 xyw[4];
+    m.mapHomogeneousPoints(xyw, quad, 4);
+
+    // Since the Jacobian is a 3x3 matrix, the determinant is a scalar triple product,
+    // and the initial cross product is constant across all four points.
+    SkPoint3 v1{m.getScaleX(), m.getSkewY(), m.getPerspX()};
+    SkPoint3 v2{m.getSkewX(), m.getScaleY(), m.getPerspY()};
+    SkPoint3 detCrossProd = v1.cross(v2);
+
+    // Start with the calculations at P0.
+    if (xyw[0].fZ < SK_ScalarNearlyZero) {
+        // Reaching the discontinuity of xy/w and where the point would clip to w >= 0
+        return false;
+    }
+
+    // Performing a dot product with the pre-w divide transformed point completes
+    // the scalar triple product and the determinant calculation.
+    double det = detCrossProd.dot(xyw[0]);
+    // From that we can compute the differential area scale at P0.
+    double denom = 1.0 / xyw[0].fZ;   // 1/w
+    denom = denom * denom * denom; // 1/w^3
+    SkScalar a0 = SkScalarAbs(SkDoubleToScalar(det*denom));
+
+    // Now we compare P0's scale with that at the other three points
+    tolerance *= tolerance; // squared tolerance since we're comparing area
+    for (int i = 1; i < 4; ++i) {
+        if (xyw[i].fZ < SK_ScalarNearlyZero) {
+            // Reaching the discontinuity of xy/w and where the point would clip to w >= 0
+            return false;
+        }
+
+        det = detCrossProd.dot(xyw[i]);  // completing scalar triple product
+        denom = 1.0 / xyw[i].fZ;   // 1/w
+        denom = denom * denom * denom; // 1/w^3
+        SkScalar a = SkScalarAbs(SkDoubleToScalar(det*denom));
+        if (!SkScalarNearlyEqual(a0, a, tolerance)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 SkScalar SkMatrixPriv::ComputeResScaleForStroking(const SkMatrix& matrix) {
     // Not sure how to handle perspective differently, so we just don't try (yet)
     SkScalar sx = SkPoint::Length(matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewY]);
