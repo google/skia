@@ -69,6 +69,8 @@
 namespace SkSL {
 namespace RP {
 
+class LValue;
+
 class SlotManager {
 public:
     SlotManager(std::vector<SlotDebugInfo>* i) : fSlotDebugInfo(i) {}
@@ -234,6 +236,12 @@ public:
     [[nodiscard]] bool ternaryOp(const SkSL::Type& type, const TypedOps& ops);
     [[nodiscard]] bool pushVectorizedExpression(const Expression& expr, const Type& vectorType);
     [[nodiscard]] bool pushVariableReferencePartial(const VariableReference& v, SlotRange subset);
+    [[nodiscard]] bool pushLValueOrExpression(LValue* lvalue, const Expression& expr);
+    [[nodiscard]] bool pushMatrixMultiply(LValue* lvalue,
+                                          const Expression& left,
+                                          const Expression& right,
+                                          int leftColumns, int leftRows,
+                                          int rightColumns, int rightRows);
 
     void foldWithMultiOp(BuilderOp op, int elements);
     void nextTempStack() {
@@ -246,7 +254,7 @@ public:
         fBuilder.push_clone_from_stack(slots, fCurrentTempStack + 1, offsetFromStackTop);
     }
     void pushCloneFromPreviousTempStack(int slots, int offsetFromStackTop = 0) {
-        fBuilder.push_clone_from_stack(slots, fCurrentTempStack - 1, offsetFromStackTop);
+        fBuilder.push_clone_from_stack(slots, fCurrentTempStack -1, offsetFromStackTop);
     }
     BuilderOp getTypedOp(const SkSL::Type& type, const TypedOps& ops) const;
 
@@ -343,7 +351,8 @@ private:
                                              BuilderOp::unsupported};
 };
 
-struct LValue {
+class LValue {
+public:
     virtual ~LValue() = default;
 
     /**
@@ -371,7 +380,8 @@ struct LValue {
     virtual bool isUniform() const = 0;
 };
 
-struct VariableLValue final : public LValue {
+class VariableLValue final : public LValue {
+public:
     VariableLValue(const Variable* v) : fVariable(v) {}
 
     SlotMap getSlotMap(Generator* gen) const override {
@@ -391,7 +401,8 @@ struct VariableLValue final : public LValue {
     const Variable* fVariable;
 };
 
-struct SwizzleLValue final : public LValue {
+class SwizzleLValue final : public LValue {
+public:
     SwizzleLValue(std::unique_ptr<LValue> p, const ComponentArray& c)
             : fParent(std::move(p))
             , fComponents(c) {}
@@ -419,7 +430,8 @@ struct SwizzleLValue final : public LValue {
     const ComponentArray& fComponents;
 };
 
-struct IndexLValue final : public LValue {
+class IndexLValue final : public LValue {
+public:
     IndexLValue(std::unique_ptr<LValue> p, const Expression& i, const Type& ti)
             : fParent(std::move(p))
             , fIndexExpr(i)
@@ -1063,6 +1075,74 @@ void Generator::foldWithMultiOp(BuilderOp op, int elements) {
     }
 }
 
+bool Generator::pushLValueOrExpression(LValue* lvalue, const Expression& expr) {
+    if (lvalue) {
+        lvalue->push(this);
+        return true;
+    }
+    return this->pushExpression(expr);
+}
+
+bool Generator::pushMatrixMultiply(LValue* lvalue,
+                                   const Expression& left,
+                                   const Expression& right,
+                                   int leftColumns,
+                                   int leftRows,
+                                   int rightColumns,
+                                   int rightRows) {
+    SkASSERT(left.type().isMatrix() || left.type().isVector());
+    SkASSERT(right.type().isMatrix() || right.type().isVector());
+
+    SkASSERT(leftColumns == rightRows);
+    int outColumns   = rightColumns,
+        outRows      = leftRows;
+
+    // Push the left matrix onto the adjacent-neighbor stack. We transpose it so that we can copy
+    // rows from it in a single op, instead of gathering one element at a time.
+    this->nextTempStack();
+    if (!this->pushLValueOrExpression(lvalue, left)) {
+        return unsupported();
+    }
+    fBuilder.transpose(left.type().columns(), left.type().rows());
+
+    // Push the right matrix as well, then go back to the primary stack.
+    if (!this->pushExpression(right)) {
+        return unsupported();
+    }
+    this->previousTempStack();
+
+    // Calculate the offsets of the left- and right-matrix, relative to the stack-top.
+    int leftMtxBase  = left.type().slotCount() + right.type().slotCount() - left.type().columns();
+    int rightMtxBase = right.type().slotCount() - right.type().columns();
+
+    // Emit each matrix element.
+    for (int c = 0; c < outColumns; ++c) {
+        for (int r = 0; r < outRows; ++r) {
+            // Dot a vector from left[*][r] with right[c][*].
+            // (Because the left=matrix has been transposed, we actually pull left[r][*], which
+            // allows us to clone a column at once instead of cloning each slot individually.)
+            this->pushCloneFromNextTempStack(leftColumns, leftMtxBase  - r * leftColumns);
+            this->pushCloneFromNextTempStack(leftColumns, rightMtxBase - c * leftColumns);
+
+            fBuilder.binary_op(BuilderOp::mul_n_floats, leftColumns);
+            this->foldWithMultiOp(BuilderOp::add_n_floats, leftColumns);
+        }
+    }
+
+    // Dispose of the source matrices on the adjacent-neighbor stack.
+    this->nextTempStack();
+    this->discardExpression(left.type().slotCount());
+    this->discardExpression(right.type().slotCount());
+    this->previousTempStack();
+
+    // If this multiply was actually an assignment (via *=), write the result back to the lvalue.
+    if (lvalue) {
+        lvalue->store(this);
+    }
+
+    return true;
+}
+
 bool Generator::pushBinaryExpression(const BinaryExpression& e) {
     return this->pushBinaryExpression(*e.left(), e.getOperator(), *e.right());
 }
@@ -1105,9 +1185,6 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
             ConstructorSplat rightAsVector(right.fPosition, left.type(), right.clone());
             return this->pushBinaryExpression(left, op, rightAsVector);
         }
-
-        // TODO: add support for other non-matching types (matrix-vector and matrix-matrix ops)
-        return unsupported();
     }
 
     // If this is an assignment...
@@ -1132,8 +1209,32 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
         op = op.removeAssignment();
     }
 
-    // Matrix * matrix is a matrix multiply, NOT a componentwise op.
-    if (op.kind() == OperatorKind::STAR && type.isMatrix() && right.type().isMatrix()) {
+    // Handle matrix multiplication (MxM/MxV/VxM).
+    if (op.kind() == OperatorKind::STAR) {
+        // Matrix * matrix:
+        if (type.isMatrix() && right.type().isMatrix()) {
+            return this->pushMatrixMultiply(lvalue.get(), left, right,
+                                            left.type().columns(), left.type().rows(),
+                                            right.type().columns(), right.type().rows());
+        }
+
+        // Vector * matrix:
+        if (type.isVector() && right.type().isMatrix()) {
+            return this->pushMatrixMultiply(lvalue.get(), left, right,
+                                            left.type().columns(), 1,
+                                            right.type().columns(), right.type().rows());
+        }
+
+        // Matrix * vector:
+        if (type.isMatrix() && right.type().isVector()) {
+            return this->pushMatrixMultiply(lvalue.get(), left, right,
+                                            left.type().columns(), left.type().rows(),
+                                            1, right.type().columns());
+        }
+    }
+
+    if (!type.matches(right.type())) {
+        // We don't know how to handle any other mismatched types.
         return unsupported();
     }
 
@@ -1166,16 +1267,10 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
             break;
     }
 
-    // Push the left-expression on the stack.
-    if (lvalue) {
-        lvalue->push(this);
-    } else {
-        if (!this->pushExpression(left)) {
-            return unsupported();
-        }
+    // Push the left- and right-expressions onto the stack.
+    if (!this->pushLValueOrExpression(lvalue.get(), left)) {
+        return unsupported();
     }
-
-    // Push the right-expression on the stack.
     if (!this->pushExpression(right)) {
         return unsupported();
     }
