@@ -47,26 +47,6 @@ void SkMatrix::doNormalizePerspective() {
     }
 }
 
-// In a few places, we performed the following
-//      a * b + c * d + e
-// as
-//      a * b + (c * d + e)
-//
-// sdot and scross are indended to capture these compound operations into a
-// function, with an eye toward considering upscaling the intermediates to
-// doubles for more precision (as we do in concat and invert).
-//
-// However, these few lines that performed the last add before the "dot", cause
-// tiny image differences, so we guard that change until we see the impact on
-// chrome's layouttests.
-//
-#define SK_LEGACY_MATRIX_MATH_ORDER
-
-/*      [scale-x    skew-x      trans-x]   [X]   [X']
-        [skew-y     scale-y     trans-y] * [Y] = [Y']
-        [persp-0    persp-1     persp-2]   [1]   [1 ]
-*/
-
 SkMatrix& SkMatrix::reset() { *this = SkMatrix(); return *this; }
 
 SkMatrix& SkMatrix::set9(const SkScalar buffer[9]) {
@@ -981,11 +961,7 @@ void SkMatrix::Persp_pts(const SkMatrix& m, SkPoint dst[],
 
             SkScalar x = sdot(sx, m.fMat[kMScaleX], sy, m.fMat[kMSkewX])  + m.fMat[kMTransX];
             SkScalar y = sdot(sx, m.fMat[kMSkewY],  sy, m.fMat[kMScaleY]) + m.fMat[kMTransY];
-#ifdef SK_LEGACY_MATRIX_MATH_ORDER
-            SkScalar z = sx * m.fMat[kMPersp0] + (sy * m.fMat[kMPersp1] + m.fMat[kMPersp2]);
-#else
             SkScalar z = sdot(sx, m.fMat[kMPersp0], sy, m.fMat[kMPersp1]) + m.fMat[kMPersp2];
-#endif
             if (z) {
                 z = 1 / z;
             }
@@ -1218,13 +1194,8 @@ void SkMatrix::RotTrans_xy(const SkMatrix& m, SkScalar sx, SkScalar sy,
                            SkPoint* pt) {
     SkASSERT((m.getType() & (kAffine_Mask | kPerspective_Mask)) == kAffine_Mask);
 
-#ifdef SK_LEGACY_MATRIX_MATH_ORDER
-    pt->fX = sx * m.fMat[kMScaleX] + (sy * m.fMat[kMSkewX]  +  m.fMat[kMTransX]);
-    pt->fY = sx * m.fMat[kMSkewY]  + (sy * m.fMat[kMScaleY] + m.fMat[kMTransY]);
-#else
     pt->fX = sdot(sx, m.fMat[kMScaleX], sy, m.fMat[kMSkewX])  + m.fMat[kMTransX];
     pt->fY = sdot(sx, m.fMat[kMSkewY],  sy, m.fMat[kMScaleY]) + m.fMat[kMTransY];
-#endif
 }
 
 void SkMatrix::Rot_xy(const SkMatrix& m, SkScalar sx, SkScalar sy,
@@ -1233,13 +1204,8 @@ void SkMatrix::Rot_xy(const SkMatrix& m, SkScalar sx, SkScalar sy,
     SkASSERT(0 == m.fMat[kMTransX]);
     SkASSERT(0 == m.fMat[kMTransY]);
 
-#ifdef SK_LEGACY_MATRIX_MATH_ORDER
-    pt->fX = sx * m.fMat[kMScaleX] + (sy * m.fMat[kMSkewX]  + m.fMat[kMTransX]);
-    pt->fY = sx * m.fMat[kMSkewY]  + (sy * m.fMat[kMScaleY] + m.fMat[kMTransY]);
-#else
     pt->fX = sdot(sx, m.fMat[kMScaleX], sy, m.fMat[kMSkewX])  + m.fMat[kMTransX];
     pt->fY = sdot(sx, m.fMat[kMSkewY],  sy, m.fMat[kMScaleY]) + m.fMat[kMTransY];
-#endif
 }
 
 void SkMatrix::ScaleTrans_xy(const SkMatrix& m, SkScalar sx, SkScalar sy,
