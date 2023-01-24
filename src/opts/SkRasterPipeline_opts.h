@@ -3176,16 +3176,16 @@ STAGE_TAIL(mask_off_return_mask, NoCtx) {
     update_execution_mask();
 }
 
-STAGE_BRANCH(branch_if_any_active_lanes, int* offset) {
-    return any(execution_mask()) ? *offset : 1;
+STAGE_BRANCH(branch_if_any_active_lanes, SkRasterPipeline_BranchCtx* ctx) {
+    return any(execution_mask()) ? ctx->offset : 1;
 }
 
-STAGE_BRANCH(branch_if_no_active_lanes, int* offset) {
-    return any(execution_mask()) ? 1 : *offset;
+STAGE_BRANCH(branch_if_no_active_lanes, SkRasterPipeline_BranchCtx* ctx) {
+    return any(execution_mask()) ? 1 : ctx->offset;
 }
 
-STAGE_BRANCH(jump, int* offset) {
-    return *offset;
+STAGE_BRANCH(jump, SkRasterPipeline_BranchCtx* ctx) {
+    return ctx->offset;
 }
 
 STAGE_TAIL(immediate_f, void* ctx) {

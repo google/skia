@@ -1555,7 +1555,8 @@ DEF_TEST(SkRasterPipeline_BranchIfAnyActiveLanes, r) {
 
     alignas(64) static constexpr float kColorDarkRed[4] = {0.5f, 0.0f, 0.0f, 0.75f};
     alignas(64) static constexpr float kColorGreen[4]   = {0.0f, 1.0f, 0.0f, 1.0f};
-    const int offset = 2;
+    SkRasterPipeline_BranchCtx ctx;
+    ctx.offset = 2;
 
     // An array of all zeros.
     alignas(64) static constexpr int32_t kNoLanesActive[4 * SkRasterPipeline_kMaxStride_highp] = {};
@@ -1567,16 +1568,16 @@ DEF_TEST(SkRasterPipeline_BranchIfAnyActiveLanes, r) {
     // Make a program which conditionally branches past two append_constant_color ops.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
     SkRasterPipeline p(&alloc);
-    p.append_constant_color(&alloc, kColorDarkRed);                  // set the color to dark red
+    p.append_constant_color(&alloc, kColorDarkRed);                    // set the color to dark red
     p.append(SkRasterPipelineOp::load_dst, kNoLanesActive);            // make no lanes active
-    p.append(SkRasterPipelineOp::branch_if_any_active_lanes, &offset); // do not skip past next line
-    p.append_constant_color(&alloc, kColorGreen);                    // set the color to green
+    p.append(SkRasterPipelineOp::branch_if_any_active_lanes, &ctx);    // do not skip past next line
+    p.append_constant_color(&alloc, kColorGreen);                      // set the color to green
     p.append(SkRasterPipelineOp::load_dst, oneLaneActive);             // set one lane active
-    p.append(SkRasterPipelineOp::branch_if_any_active_lanes, &offset); // skip past next line
-    p.append_constant_color(&alloc, kColorDarkRed);                  // (not executed)
+    p.append(SkRasterPipelineOp::branch_if_any_active_lanes, &ctx);    // skip past next line
+    p.append_constant_color(&alloc, kColorDarkRed);                    // (not executed)
     p.append(SkRasterPipelineOp::init_lane_masks);                     // set all lanes active
-    p.append(SkRasterPipelineOp::branch_if_any_active_lanes, &offset); // skip past next line
-    p.append_constant_color(&alloc, kColorDarkRed);                  // (not executed)
+    p.append(SkRasterPipelineOp::branch_if_any_active_lanes, &ctx);    // skip past next line
+    p.append_constant_color(&alloc, kColorDarkRed);                    // (not executed)
     p.append(SkRasterPipelineOp::store_src, slots);                    // store final color
     p.run(0,0,1,1);
 
@@ -1598,7 +1599,8 @@ DEF_TEST(SkRasterPipeline_BranchIfNoActiveLanes, r) {
     alignas(64) static constexpr float kColorBlack[4]   = {0.0f, 0.0f, 0.0f, 0.0f};
     alignas(64) static constexpr float kColorRed[4]     = {1.0f, 0.0f, 0.0f, 1.0f};
     alignas(64) static constexpr float kColorBlue[4]    = {0.0f, 0.0f, 1.0f, 1.0f};
-    const int offset = 2;
+    SkRasterPipeline_BranchCtx ctx;
+    ctx.offset = 2;
 
     // An array of all zeros.
     alignas(64) static constexpr int32_t kNoLanesActive[4 * SkRasterPipeline_kMaxStride_highp] = {};
@@ -1610,16 +1612,16 @@ DEF_TEST(SkRasterPipeline_BranchIfNoActiveLanes, r) {
     // Make a program which conditionally branches past a append_constant_color op.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
     SkRasterPipeline p(&alloc);
-    p.append_constant_color(&alloc, kColorBlack);                    // set the color to black
+    p.append_constant_color(&alloc, kColorBlack);                      // set the color to black
     p.append(SkRasterPipelineOp::init_lane_masks);                     // set all lanes active
-    p.append(SkRasterPipelineOp::branch_if_no_active_lanes, &offset);  // do not skip past next line
-    p.append_constant_color(&alloc, kColorRed);                      // sets the color to red
+    p.append(SkRasterPipelineOp::branch_if_no_active_lanes, &ctx);     // do not skip past next line
+    p.append_constant_color(&alloc, kColorRed);                        // sets the color to red
     p.append(SkRasterPipelineOp::load_dst, oneLaneActive);             // set one lane active
-    p.append(SkRasterPipelineOp::branch_if_no_active_lanes, &offset);  // do not skip past next line
+    p.append(SkRasterPipelineOp::branch_if_no_active_lanes, &ctx);     // do not skip past next line
     p.append(SkRasterPipelineOp::swap_rb);                             // swap R and B (making blue)
     p.append(SkRasterPipelineOp::load_dst, kNoLanesActive);            // make no lanes active
-    p.append(SkRasterPipelineOp::branch_if_no_active_lanes, &offset);  // skip past next line
-    p.append_constant_color(&alloc, kColorBlack);                    // (not executed)
+    p.append(SkRasterPipelineOp::branch_if_no_active_lanes, &ctx);     // skip past next line
+    p.append_constant_color(&alloc, kColorBlack);                      // (not executed)
     p.append(SkRasterPipelineOp::store_src, slots);                    // store final blue color
     p.run(0,0,1,1);
 

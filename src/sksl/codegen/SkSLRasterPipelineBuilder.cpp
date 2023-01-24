@@ -820,9 +820,10 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
     int currentStack = 0;
     int mostRecentRewind = 0;
 
-    // Allocate buffers for branch targets (used when running the program) and labels (only needed
-    // during initial program construction).
-    int* branchTargets = alloc->makeArrayDefault<int>(fNumBranches);
+    // Allocate buffers for branch targets and labels; these are needed during initial program
+    // construction, to convert labels into actual offsets into the pipeline and fix up branches.
+    SkTArray<SkRasterPipeline_BranchCtx*> branchTargets;
+    branchTargets.push_back_n(fNumBranches, (SkRasterPipeline_BranchCtx*)nullptr);
     SkTArray<int> labelOffsets;
     labelOffsets.push_back_n(fNumLabels, -1);
     SkTArray<int> branchGoesToLabel;
@@ -859,7 +860,7 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
 
             case BuilderOp::jump:
             case BuilderOp::branch_if_any_active_lanes:
-            case BuilderOp::branch_if_no_active_lanes:
+            case BuilderOp::branch_if_no_active_lanes: {
                 // If we have already encountered the label associated with this branch, this is a
                 // backwards branch. Add a stack-rewind immediately before the branch to ensure that
                 // long-running loops don't use an unbounded amount of stack space.
@@ -873,12 +874,15 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 // targets at the end and fix them up.
                 SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
                 SkASSERT(currentBranchOp >= 0 && currentBranchOp < fNumBranches);
-                branchTargets[currentBranchOp] = pipeline->size();
+                SkRasterPipeline_BranchCtx* branchCtx = alloc->make<SkRasterPipeline_BranchCtx>();
+                branchCtx->offset = pipeline->size();
+
+                branchTargets[currentBranchOp] = branchCtx;
                 branchGoesToLabel[currentBranchOp] = inst.fImmA;
-                pipeline->push_back({(RPOp)inst.fOp, &branchTargets[currentBranchOp]});
+                pipeline->push_back({(RPOp)inst.fOp, branchCtx});
                 ++currentBranchOp;
                 break;
-
+            }
             case BuilderOp::init_lane_masks:
                 pipeline->push_back({RPOp::init_lane_masks, nullptr});
                 break;
@@ -1132,9 +1136,9 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
 
     // Fix up every branch target.
     for (int index = 0; index < fNumBranches; ++index) {
-        int branchFromIdx = branchTargets[index];
+        int branchFromIdx = branchTargets[index]->offset;
         int branchToIdx = labelOffsets[branchGoesToLabel[index]];
-        branchTargets[index] = branchToIdx - branchFromIdx;
+        branchTargets[index]->offset = branchToIdx - branchFromIdx;
     }
 }
 
