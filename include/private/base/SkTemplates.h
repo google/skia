@@ -408,11 +408,9 @@ private:
     };
 };
 
+using UniqueVoidPtr = std::unique_ptr<void, SkOverloadedFunctionObject<void(void*), sk_free>>;
+
 }  // namespace skia_private
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-using SkAutoFree = std::unique_ptr<void, SkOverloadedFunctionObject<void(void*), sk_free>>;
 
 template<typename C, std::size_t... Is>
 constexpr auto SkMakeArrayFromIndexSequence(C c, std::index_sequence<Is...> is)

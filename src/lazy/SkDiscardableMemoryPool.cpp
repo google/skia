@@ -12,6 +12,8 @@
 #include "src/core/SkTInternalLList.h"
 #include "src/lazy/SkDiscardableMemoryPool.h"
 
+using namespace skia_private;
+
 // Note:
 // A PoolDiscardableMemory is memory that is counted in a pool.
 // A DiscardableMemoryPool is a pool of PoolDiscardableMemorys.
@@ -77,7 +79,7 @@ private:
  */
 class PoolDiscardableMemory : public SkDiscardableMemory {
 public:
-    PoolDiscardableMemory(sk_sp<DiscardableMemoryPool> pool, SkAutoFree pointer, size_t bytes);
+    PoolDiscardableMemory(sk_sp<DiscardableMemoryPool> pool, UniqueVoidPtr pointer, size_t bytes);
     ~PoolDiscardableMemory() override;
     bool lock() override;
     void* data() override;
@@ -87,12 +89,12 @@ private:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(PoolDiscardableMemory);
     sk_sp<DiscardableMemoryPool> fPool;
     bool                         fLocked;
-    SkAutoFree                   fPointer;
+    UniqueVoidPtr                   fPointer;
     const size_t                 fBytes;
 };
 
 PoolDiscardableMemory::PoolDiscardableMemory(sk_sp<DiscardableMemoryPool> pool,
-                                             SkAutoFree pointer,
+                                             UniqueVoidPtr pointer,
                                              size_t bytes)
         : fPool(std::move(pool)), fLocked(true), fPointer(std::move(pointer)), fBytes(bytes) {
     SkASSERT(fPool != nullptr);
@@ -163,7 +165,7 @@ void DiscardableMemoryPool::dumpDownTo(size_t budget) {
 }
 
 std::unique_ptr<SkDiscardableMemory> DiscardableMemoryPool::make(size_t bytes) {
-    SkAutoFree addr(sk_malloc_canfail(bytes));
+    UniqueVoidPtr addr(sk_malloc_canfail(bytes));
     if (nullptr == addr) {
         return nullptr;
     }

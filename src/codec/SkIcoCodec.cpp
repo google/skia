@@ -25,6 +25,8 @@
 #include <cstring>
 #include <utility>
 
+using namespace skia_private;
+
 class SkSampler;
 
 /*
@@ -82,7 +84,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         uint32_t offset;
         uint32_t size;
     };
-    SkAutoFree dirEntryBuffer(sk_malloc_canfail(sizeof(Entry) * numImages));
+    UniqueVoidPtr dirEntryBuffer(sk_malloc_canfail(sizeof(Entry) * numImages));
     if (!dirEntryBuffer) {
         SkCodecPrintf("Error: OOM allocating ICO directory for %i images.\n",
                       numImages);

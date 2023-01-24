@@ -15,6 +15,8 @@
 
 #include <utility>
 
+using namespace skia_private;
+
 #if !defined(SK_DISABLE_SDF_TEXT)
 
 struct DFData {
@@ -359,7 +361,7 @@ static bool generate_distance_field_from_image(unsigned char* distanceField,
     int dataHeight = height + 2*pad;
 
     // create zeroed temp DFData+edge storage
-    SkAutoFree storage(sk_calloc_throw(dataWidth*dataHeight*(sizeof(DFData) + 1)));
+    UniqueVoidPtr storage(sk_calloc_throw(dataWidth*dataHeight*(sizeof(DFData) + 1)));
     DFData*        dataPtr = (DFData*)storage.get();
     unsigned char* edgePtr = (unsigned char*)storage.get() + dataWidth*dataHeight*sizeof(DFData);
 

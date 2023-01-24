@@ -38,7 +38,7 @@ protected:
     uint8_t* srcBuffer() { return reinterpret_cast<uint8_t*>(fSrcBuffer.get()); }
 
 private:
-    SkAutoFree fSrcBuffer;
+    skia_private::UniqueVoidPtr fSrcBuffer;
 
     using INHERITED = SkBmpCodec;
 };

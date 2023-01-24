@@ -305,7 +305,7 @@ void SkTypeface_FreeType::FaceRec::setupAxes(const SkFontData& data) {
                      rec->fFace->family_name);
             return;
         }
-        SkAutoFree autoFreeVariations(variations);
+        UniqueVoidPtr autoFreeVariations(variations);
 
         if (static_cast<FT_UInt>(data.getAxisCount()) != variations->num_axis) {
             LOG_INFO("INFO: font %s has %d variations, but %d were specified.\n",
@@ -719,7 +719,7 @@ static int GetVariationDesignPosition(AutoFTAccess& fta,
     if (FT_Get_MM_Var(face, &variations)) {
         return -1;
     }
-    SkAutoFree autoFreeVariations(variations);
+    UniqueVoidPtr autoFreeVariations(variations);
 
     if (!coordinates || coordinateCount < SkToInt(variations->num_axis)) {
         return variations->num_axis;
@@ -1857,7 +1857,7 @@ int SkTypeface_FreeType::onGetVariationDesignParameters(
     if (FT_Get_MM_Var(face, &variations)) {
         return -1;
     }
-    SkAutoFree autoFreeVariations(variations);
+    UniqueVoidPtr autoFreeVariations(variations);
 
     if (!parameters || parameterCount < SkToInt(variations->num_axis)) {
         return variations->num_axis;
@@ -2214,7 +2214,7 @@ bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) 
                      face->family_name);
             return false;
         }
-        SkAutoFree autoFreeVariations(variations);
+        UniqueVoidPtr autoFreeVariations(variations);
 
         axes->reset(variations->num_axis);
         for (FT_UInt i = 0; i < variations->num_axis; ++i) {
