@@ -46,6 +46,7 @@
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
+#include "src/sksl/ir/SkSLIfStatement.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -684,6 +685,9 @@ void WGSLCodeGenerator::writeStatement(const Statement& s) {
         case Statement::Kind::kExpression:
             this->writeExpressionStatement(s.as<ExpressionStatement>());
             break;
+        case Statement::Kind::kIf:
+            this->writeIfStatement(s.as<IfStatement>());
+            break;
         case Statement::Kind::kReturn:
             this->writeReturnStatement(s.as<ReturnStatement>());
             break;
@@ -725,6 +729,17 @@ void WGSLCodeGenerator::writeExpressionStatement(const ExpressionStatement& s) {
     if (Analysis::HasSideEffects(*s.expression())) {
         this->writeExpression(*s.expression(), Precedence::kTopLevel);
         this->write(";");
+    }
+}
+
+void WGSLCodeGenerator::writeIfStatement(const IfStatement& s) {
+    this->write("if (");
+    this->writeExpression(*s.test(), Precedence::kTopLevel);
+    this->write(") ");
+    this->writeStatement(*s.ifTrue());
+    if (s.ifFalse()) {
+        this->write("else ");
+        this->writeStatement(*s.ifFalse());
     }
 }
 
