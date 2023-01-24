@@ -165,6 +165,7 @@ static sk_sp<SkData> read_metadata(jpeg_decompress_struct* dinfo,
         // If this does not match the expected part count, then fail.
         if (partCount != expectedPartCount) {
             SkCodecPrintf("Conflicting marker counts %u vs %u\n", partCount, expectedPartCount);
+            return nullptr;
         }
 
         // Make an SkData directly referencing the decoder's data for this part.
