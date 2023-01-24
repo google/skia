@@ -1,41 +1,9 @@
-load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "selects", "skia_cc_deps", "skia_cc_library", "skia_objc_library")
+load("//bazel:macros.bzl", "exports_files_legacy", "select_multi", "skia_cc_deps", "skia_cc_library", "skia_objc_library")
 load("//bazel:copts.bzl", "DEFAULT_OBJC_COPTS")
 
 licenses(["notice"])
 
 exports_files_legacy()
-
-selects.config_setting_group(
-    name = "dawn_unix",
-    match_all = [
-        "//src/gpu:dawn_backend",
-        "@platforms//os:linux",
-    ],
-)
-
-selects.config_setting_group(
-    name = "gl_unix",
-    match_all = [
-        "//src/gpu:gl_backend",
-        "@platforms//os:linux",
-    ],
-)
-
-selects.config_setting_group(
-    name = "gl_mac",
-    match_all = [
-        "//src/gpu:gl_backend",
-        "@platforms//os:macos",
-    ],
-)
-
-selects.config_setting_group(
-    name = "vulkan_unix",
-    match_all = [
-        "//src/gpu:vulkan_backend",
-        "@platforms//os:linux",
-    ],
-)
 
 skia_cc_library(
     name = "sk_app",
