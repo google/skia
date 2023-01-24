@@ -494,14 +494,6 @@ std::tuple<SkSpan<const SkGlyph*>, size_t> SkStrike::internalPrepare(
     return {{results, glyphIDs.size()}, delta};
 }
 
-
-#if SK_SUPPORT_GPU
-sk_sp<sktext::gpu::TextStrike> SkStrike::findOrCreateTextStrike(
-        sktext::gpu::StrikeCache* gpuStrikeCache) const {
-    return gpuStrikeCache->findOrCreateStrike(fStrikeSpec);
-}
-#endif
-
 void SkStrike::updateDelta(size_t increase) {
     if (increase != 0) {
         SkAutoMutexExclusive lock{fStrikeCache->fLock};

@@ -169,11 +169,6 @@ SkStrikeSpec::MakeSDFT(const SkFont& font, const SkPaint& paint,
 
     return std::make_tuple(std::move(strikeSpec), strikeToSourceScale, matrixRange);
 }
-
-sk_sp<sktext::gpu::TextStrike> SkStrikeSpec::findOrCreateTextStrike(
-            sktext::gpu::StrikeCache* cache) const {
-    return cache->findOrCreateStrike(*this);
-}
 #endif
 
 SkStrikeSpec::SkStrikeSpec(const SkFont& font, const SkPaint& paint,

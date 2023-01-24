@@ -138,11 +138,6 @@ public:
     void dump() const SK_EXCLUDES(fStrikeLock);
     void dumpMemoryStatistics(SkTraceMemoryDump* dump) const SK_EXCLUDES(fStrikeLock);
 
-#if SK_SUPPORT_GPU
-    sk_sp<sktext::gpu::TextStrike> findOrCreateTextStrike(
-            sktext::gpu::StrikeCache* gpuStrikeCache) const;
-#endif
-
 private:
     friend class SkStrikeCache;
     template <typename Fn>

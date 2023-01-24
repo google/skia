@@ -85,8 +85,6 @@ public:
             const SkMatrix& deviceMatrix,
             const SkPoint& textLocation,
             const sktext::gpu::SDFTControl& control);
-
-    sk_sp<sktext::gpu::TextStrike> findOrCreateTextStrike(sktext::gpu::StrikeCache* cache) const;
 #endif
 
     sktext::ScopedStrikeForGPU findOrCreateScopedStrike(
