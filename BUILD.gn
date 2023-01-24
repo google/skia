@@ -1243,6 +1243,10 @@ optional("jpeg_encode") {
     "src/images/SkJPEGWriteUtility.cpp",
     "src/images/SkJpegEncoder.cpp",
   ]
+
+  if (skia_use_jpeg_gainmaps) {
+    sources += [ "src/images/SkJpegGainmapEncoder.cpp" ]
+  }
 }
 
 optional("jpegxl_decode") {

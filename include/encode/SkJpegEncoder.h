@@ -99,7 +99,31 @@ protected:
     bool onEncodeRows(int numRows) override;
 
 private:
+    friend class SkJpegGainmapEncoder;
     SkJpegEncoder(std::unique_ptr<SkJpegEncoderMgr>, const SkPixmap& src);
+
+    /**
+     *  Create a jpeg encoder that will encode the |src| pixels and |segmentData| to the |dst|
+     *  stream, followed by the data in |suffix|. |options| may be used to control the encoding
+     *  behavior.
+     *
+     *  |segmentCount| lists the number of metadata segments to include. |segmentMarker| lists the
+     *  marker type identifiers for each segment (e.g: 0xE1 for APP1), and |segmentData| lists the
+     *  data for each segment.
+     *
+     *  |dst|, |makerTypes|, |segmentData|, and |suffix| are unowned and must remain valid for the
+     *  lifetime of the object.
+     *
+     *  This returns nullptr on an invalid or unsupported |src|.
+     */
+    static constexpr size_t kSegmentDataMaxSize = 65533;
+    static std::unique_ptr<SkEncoder> Make(SkWStream* dst,
+                                           const SkPixmap& src,
+                                           const Options& options,
+                                           size_t segmentCount,
+                                           uint8_t* segmentMarkers,
+                                           SkData** segmentData,
+                                           SkData* suffix);
 
     std::unique_ptr<SkJpegEncoderMgr> fEncoderMgr;
     using INHERITED = SkEncoder;
