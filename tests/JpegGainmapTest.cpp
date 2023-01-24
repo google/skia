@@ -63,14 +63,13 @@ DEF_TEST(Codec_jpegSegmentScan, r) {
         }
 
         // Ensure that we get the expected number of segments for a scan that stops at StartOfScan.
-        SkJpegSegmentScan::Options options;
-        auto sosSegmentScan = SkJpegSegmentScan::Create(stream.get(), options);
+        auto sosSegmentScan = SkJpegSeekableScan::Create(stream.get());
         REPORTER_ASSERT(r, rec.sosSegmentCount == sosSegmentScan->segments().size());
 
         // Rewind and now go all the way to EndOfImage.
         stream->rewind();
-        options.stopOnStartOfScan = false;
-        auto eoiSegmentScan = SkJpegSegmentScan::Create(stream.get(), options);
+        auto eoiSegmentScan =
+                SkJpegSeekableScan::Create(stream.get(), SkJpegSegmentScanner::kMarkerEndOfImage);
         REPORTER_ASSERT(r, rec.eoiSegmentCount == eoiSegmentScan->segments().size());
 
         // Verify the values for a randomly pre-selected segment index.
@@ -86,7 +85,7 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
     auto stream = GetResourceAsStream(path);
     REPORTER_ASSERT(r, stream);
 
-    auto segmentScan = SkJpegSegmentScan::Create(stream.get(), SkJpegSegmentScan::Options());
+    auto segmentScan = SkJpegSeekableScan::Create(stream.get());
     REPORTER_ASSERT(r, segmentScan);
 
     // Extract the streams for the MultiPicture images.
@@ -160,7 +159,7 @@ DEF_TEST(AndroidCodec_jpegGainmap, r) {
              -2.209409f,
              2.209409f,
              1.f,
-             9.110335,
+             9.110335f,
              SkGainmapInfo::Type::kHDRGM},
     };
 

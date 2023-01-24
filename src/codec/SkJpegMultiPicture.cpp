@@ -176,7 +176,7 @@ std::unique_ptr<SkJpegMultiPictureParameters> SkJpegParseMultiPicture(
 }
 
 std::unique_ptr<SkJpegMultiPictureStreams> SkJpegExtractMultiPictureStreams(
-        SkJpegSegmentScan* scan) {
+        SkJpegSeekableScan* scan) {
     // Look through the scanned segments until we arrive at a MultiPicture segment that we can
     // parse.
     size_t mpSegmentOffset = 0;
@@ -208,8 +208,8 @@ std::unique_ptr<SkJpegMultiPictureStreams> SkJpegExtractMultiPictureStreams(
         if (imageParams.dataOffset == 0) {
             continue;
         }
-        size_t imageStreamOffset = mpSegmentOffset + SkJpegSegmentScan::kMarkerCodeSize +
-                                   SkJpegSegmentScan::kParameterLengthSize + sizeof(kMpfSig) +
+        size_t imageStreamOffset = mpSegmentOffset + SkJpegSegmentScanner::kMarkerCodeSize +
+                                   SkJpegSegmentScanner::kParameterLengthSize + sizeof(kMpfSig) +
                                    imageParams.dataOffset;
         size_t imageStreamSize = imageParams.size;
         result->images[i].stream = scan->getSubsetStream(imageStreamOffset, imageStreamSize);

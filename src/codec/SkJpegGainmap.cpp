@@ -237,7 +237,7 @@ bool SkJpegGetMultiPictureGainmap(sk_sp<const SkData> decoderMpfMetadata,
     }
 
     // Scan the original decoder stream.
-    auto scan = SkJpegSegmentScan::Create(decoderStream, SkJpegSegmentScan::Options());
+    auto scan = SkJpegSeekableScan::Create(decoderStream);
     if (!scan) {
         SkCodecPrintf("Failed to scan decoder stream.\n");
         return false;
@@ -258,8 +258,7 @@ bool SkJpegGetMultiPictureGainmap(sk_sp<const SkData> decoderMpfMetadata,
         }
 
         // Create a scan of this MP image.
-        auto mpImageScan =
-                SkJpegSegmentScan::Create(mpImage.stream.get(), SkJpegSegmentScan::Options());
+        auto mpImageScan = SkJpegSeekableScan::Create(mpImage.stream.get());
         if (!mpImageScan) {
             SkCodecPrintf("Failed to can MP image.\n");
             continue;
@@ -469,15 +468,13 @@ bool SkJpegGetJpegRGainmap(sk_sp<const SkData> xmpMetadata,
     // The offset read from the XMP metadata is relative to the end of the EndOfImage marker in the
     // original decoder stream. Create a full scan of the original decoder stream, so we can find
     // that EndOfImage marker's offset in the decoder stream.
-    SkJpegSegmentScan::Options options;
-    options.stopOnStartOfScan = false;
-    auto scan = SkJpegSegmentScan::Create(decoderStream, options);
+    auto scan = SkJpegSeekableScan::Create(decoderStream, SkJpegSegmentScanner::kMarkerEndOfImage);
     if (!scan) {
         SkCodecPrintf("Failed to do full scan.\n");
         return false;
     }
     const auto& lastSegment = scan->segments().back();
-    const size_t endOfImageOffset = lastSegment.offset + SkJpegSegmentScan::kMarkerCodeSize;
+    const size_t endOfImageOffset = lastSegment.offset + SkJpegSegmentScanner::kMarkerCodeSize;
     const size_t itemOffsetFromStartOfImage = endOfImageOffset + itemOffsetFromEndOfImage;
 
     // Extract the gainmap image's stream.
