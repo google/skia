@@ -14,6 +14,8 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recording.h"
 #include "src/core/SkMipmapBuilder.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
@@ -218,7 +220,7 @@ struct TestCase {
 void run_test(skiatest::Reporter* reporter,
               Context* context,
               Recorder* recorder,
-              SkSpan<TestCase> testcases) {
+              SkSpan<const TestCase> testcases) {
 
     for (auto t : testcases) {
         for (auto mm : { Mipmapped::kNo, Mipmapped::kYes }) {
@@ -306,7 +308,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Default, rep
 //                    drawn w/ mipmapping     --> drawn (yellow) - auto-converted
 //
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Testing, reporter, context) {
-    TestCase testcases[] = {
+    static const TestCase testcases[] = {
         { "0", create_raster_backed_image_no_mipmaps,   { kBaseImageColor, kBaseImageColor } },
         { "1", create_raster_backed_image_with_mipmaps, { kBaseImageColor, kFirstMipLevelColor } },
         { "2", create_gpu_backed_image_no_mipmaps,      { kBaseImageColor, kBaseImageColor } },
@@ -324,7 +326,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageProviderTest_Graphite_Testing, rep
 // Here we're testing that the RequiredProperties parameter to makeTextureImage and makeSubset
 // works as expected.
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Subset_Test, reporter, context) {
-    struct {
+    static const struct {
         // Some of the factories don't correctly create mipmaps through makeTextureImage
         // bc Graphite's mipmap regeneration isn't implemented yet (b/238754357).
         bool     fMipmapsBlockedByBug;
@@ -354,7 +356,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Subset_Test, reporter
             bool mipmapOptAllowed = orig->hasMipmaps() && mm == Mipmapped::kNo;
 
             REPORTER_ASSERT(reporter, i->isTextureBacked());
-            if (!test.fMipmapsBlockedByBug) {
+            if (!test.fMipmapsBlockedByBug || mm == Mipmapped::kNo) {
                 REPORTER_ASSERT(reporter, (i->hasMipmaps() == (mm == Mipmapped::kYes)) ||
                                           (i->hasMipmaps() && mipmapOptAllowed));
             }
@@ -383,6 +385,83 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Subset_Test, reporter
                 i = orig->makeSubset(kFakeSubset, nullptr, { mm });
                 REPORTER_ASSERT(reporter, !i->isTextureBacked());
                 REPORTER_ASSERT(reporter, i->dimensions() == kFakeSubset.size());
+                REPORTER_ASSERT(reporter, i->hasMipmaps() == (mm == Mipmapped::kYes));
+            }
+        }
+    }
+}
+
+namespace {
+
+SkColorType pick_colortype(const Caps* caps, Mipmapped mipmapped) {
+    TextureInfo info = caps->getDefaultSampledTextureInfo(kRGB_565_SkColorType,
+                                                          mipmapped,
+                                                          skgpu::Protected::kNo,
+                                                          Renderable::kYes);
+    if (info.isValid()) {
+        return kRGB_565_SkColorType;
+    }
+
+    info = caps->getDefaultSampledTextureInfo(kRGBA_F16_SkColorType,
+                                              mipmapped,
+                                              skgpu::Protected::kNo,
+                                              Renderable::kYes);
+    if (info.isValid()) {
+        return kRGBA_F16_SkColorType;
+    }
+
+    return kUnknown_SkColorType;
+}
+
+} // anonymous namespace
+
+// Here we're testing that the RequiredProperties parameter of:
+//    SkImage::makeColorSpace and
+//    SkImage::makeColorTypeAndColorSpace
+// works as expected.
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(MakeColorSpace_Test, reporter, context) {
+    static const struct {
+        // Some of the factories don't correctly create mipmaps through makeTextureImage
+        // bc Graphite's mipmap regeneration isn't implemented yet (b/238754357).
+        bool     fMipmapsBlockedByBug;
+        FactoryT fFactory;
+    } testcases[] = {
+            { false, create_raster_backed_image_no_mipmaps   },
+            { false, create_raster_backed_image_with_mipmaps },
+            { false, create_gpu_backed_image_no_mipmaps      },
+            { false, create_gpu_backed_image_with_mipmaps    },
+            { true,  create_picture_backed_image             },
+            { true,  create_bitmap_generator_backed_image    },
+    };
+
+    sk_sp<SkColorSpace> spin = SkColorSpace::MakeSRGB()->makeColorSpin();
+
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    const Caps* caps = recorder->priv().caps();
+
+    for (auto testcase : testcases) {
+        sk_sp<SkImage> orig = testcase.fFactory(recorder.get());
+
+        SkASSERT(orig->colorType() == kRGBA_8888_SkColorType);
+        SkASSERT(!orig->colorSpace() || orig->colorSpace() == SkColorSpace::MakeSRGB().get());
+
+        for (Mipmapped mm : { Mipmapped::kNo, Mipmapped::kYes }) {
+            sk_sp<SkImage> i = orig->makeColorSpace(spin, recorder.get(), { mm });
+
+            REPORTER_ASSERT(reporter, i->isTextureBacked());
+            REPORTER_ASSERT(reporter, i->colorSpace() == spin.get());
+            if (!testcase.fMipmapsBlockedByBug || mm == Mipmapped::kNo) {
+                REPORTER_ASSERT(reporter, i->hasMipmaps() == (mm == Mipmapped::kYes));
+            }
+
+            SkColorType altCT = pick_colortype(caps, mm);
+            i = orig->makeColorTypeAndColorSpace(altCT, spin, recorder.get(), { mm });
+
+            REPORTER_ASSERT(reporter, i->isTextureBacked());
+            REPORTER_ASSERT(reporter, i->colorType() == altCT);
+            REPORTER_ASSERT(reporter, i->colorSpace() == spin.get());
+            if (!testcase.fMipmapsBlockedByBug || mm == Mipmapped::kNo) {
                 REPORTER_ASSERT(reporter, i->hasMipmaps() == (mm == Mipmapped::kYes));
             }
         }
