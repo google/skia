@@ -11,15 +11,20 @@
 #
 # Please keep the list sorted alphabetically.
 
-Aaron O'Mullan <aaron.omullan@gmail.com>
 ACCESS CO., LTD. <*@access-company.com>
+ARM <*@arm.com>
+Aaron O'Mullan <aaron.omullan@gmail.com>
+Adobe Systems Incorporated <*@adobe.com>
+Alexander Khovansky <alx.khovansky@gmail.com>
 Amazon, Inc <*@amazon.com>
 Anthony Catel <paraboul@gmail.com>
-ARM <*@arm.com>
 Bharat Ahuja <ahujabharat93@gmail.com>
 Biswapriyo Nath <nathbappai@gmail.com>
 Callum Moffat <smartercallum@gmail.com>
+Cary Clark <cclark2@gmail.com>
 Casey Banner <kcbanner@gmail.com>
+Christian Plesner Hansen <plesner@t.undra.org>
+ColdPaleLight <coldpalelight@gmail.com>
 Dawson Coleman <dawsonmcoleman@gmail.com>
 Deepak Mohan <hop2deep@gmail.com>
 Ehsan Akhgari <ehsan.akhgari@gmail.com>
@@ -34,16 +39,28 @@ Ion Rosca <rosca@adobe.com>
 Jacek Caban <cjacek@gmail.com>
 James Clarke <james@clarkezone.io>
 Jeff Muizelaar <jmuizelaar@mozilla.com>
+JetBrains <*@jetbrains.com>
 Jongdeok Kim <jongdeok.kim@navercorp.com>
+Jordan Williams <jordan@jwillikers.com>
+Jose Mayol <jei.mayol@gmail.com>
+Kaloyan Donev <kdonev@gmail.com>
+LG Electronics <*@lge.com>
 Lee Salzman <lsalzman@mozilla.com>
+Linaro <*@linaro.org>
+MIPS <*@imgtec.com>
+Mainframe North <*@mainframe.co.uk>
 Marcin Kazmierczak <mar.kazmierczak@gmail.com>
+Marco Alesiani <marco.diiga@gmail.com>
+Matthew Blanchard <matthewrblanchard@gmail.com>
 Matthew Leibowitz <mattleibow@live.com>
 Microsoft <*@microsoft.com>
-MIPS <*@imgtec.com>
+Mike Reed <mike@reedtribe.org>
+NVIDIA <*@nvidia.com>
+Namse <skatpgusskat@naver.com>
 Nils André-Chang <nils@nilsand.re>
 Ning Liu <ningliu@invisionapp.com>
 Noah Lavine <noah.b.lavine@gmail.com>
-NVIDIA <*@nvidia.com>
+Oliver Dawes <olliedawes@gmail.com>
 Opera Software ASA <*@opera.com>
 Pavel Krajcevski <pavel@cs.unc.edu>
 Petar Kirov <petar.p.kirov@gmail.com>
@@ -51,39 +68,23 @@ Raul Tambre <raul@tambre.ee>
 Safa Sofuoglu <safasofuoglu@gmail.com>
 Samsung <*@samsung.com>
 Samsung Open Source Group <*@osg.samsung.com>
+Scene Group Ltd. <*@scenegroup.co>
 Sergey Melnikov <Melnikov.Sergey.V@gmail.com>
 Shachar Langbeheim <nihohit@gmail.com>
+Shekhar Dutta <sherlockdoyle1904@gmail.com>
 Skia <*@skia.org>
 Skia Buildbots <skia.buildbots@gmail.com>
 Sony Mobile Communications Inc. <*@sonymobile.com>
+Stan I <stililiev@gmail.com>
 Stephan Hartmann <stha09@googlemail.com>
 Steve Singer <steve@ssinger.info>
 Sylvestre Ledru <sylvestre.ledru@gmail.com>
 The Chromium Authors <*@chromium.org>
 Thiago Fransosi Farina <thiago.farina@gmail.com>
-Jose Mayol <jei.mayol@gmail.com>
-Linaro <*@linaro.org>
-Christian Plesner Hansen <plesner@t.undra.org>
-Marco Alesiani <marco.diiga@gmail.com>
-Adobe Systems Incorporated <*@adobe.com>
-Yandex LLC <*@yandex-team.ru>
-Kaloyan Donev <kdonev@gmail.com>
-Yong-Hwan Baek <meisterdevhwan@gmail.com>
-Alexander Khovansky <alx.khovansky@gmail.com>
-Zhuo Qingliang <zhuo.dev@gmail.com>
-Mainframe North <*@mainframe.co.uk>
-JetBrains <*@jetbrains.com>
 Vibe Inc <*@vibe.us>
-Scene Group Ltd. <*@scenegroup.co>
-LG Electronics <*@lge.com>
-Shekhar Dutta <sherlockdoyle1904@gmail.com>
-ColdPaleLight <coldpalelight@gmail.com>
-Jordan Williams <jordan@jwillikers.com>
-Mike Reed <mike@reedtribe.org>
-Cary Clark <cclark2@gmail.com>
-Matthew Blanchard <matthewrblanchard@gmail.com>
-Oliver Dawes <olliedawes@gmail.com>
-namse <skatpgusskat@naver.com>
+Yandex LLC <*@yandex-team.ru>
+Yong-Hwan Baek <meisterdevhwan@gmail.com>
+Zhuo Qingliang <zhuo.dev@gmail.com>
 
 # Trusted service accounts.
 GitHub Dependabot <(\d+)\+dependabot\[bot\]@users.noreply.github.com>
