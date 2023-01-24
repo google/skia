@@ -104,6 +104,7 @@
 //#define SK_NEVER_INLINE __attribute__((noinline))
 //#define SK_PRINTF_LIKE(A, B) __attribute__((format(printf, (A), (B))))
 //#define SK_NO_SANITIZE(A) __attribute__((no_sanitize(A)))
+//#define SK_TRIVIAL_ABI [[clang::trivial_abi]]
 
 /*
  * If compiling Skia as a DLL, public APIs should be exported. Skia will set

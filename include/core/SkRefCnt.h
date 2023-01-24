@@ -216,12 +216,7 @@ private:
  *  may be considered as trivially relocatable by the compiler so that destroying-move operations
  *  i.e. move constructor followed by destructor can be optimized to memcpy.
  */
-#if defined(__clang__) && defined(__has_cpp_attribute) && __has_cpp_attribute(clang::trivial_abi)
-#define SK_SP_TRIVIAL_ABI [[clang::trivial_abi]]
-#else
-#define SK_SP_TRIVIAL_ABI
-#endif
-template <typename T> class SK_SP_TRIVIAL_ABI sk_sp {
+template <typename T> class SK_TRIVIAL_ABI sk_sp {
 public:
     using element_type = T;
 

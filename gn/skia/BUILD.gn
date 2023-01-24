@@ -677,6 +677,12 @@ config("NDEBUG") {
   defines = [ "NDEBUG" ]
 }
 
+config("trivial_abi") {
+  if (is_clang) {
+    defines = [ "SK_TRIVIAL_ABI=[[clang::trivial_abi]]" ]
+  }
+}
+
 config("executable") {
   if (is_android) {
     ldflags = [
