@@ -15,6 +15,13 @@
 
 static constexpr double PI = 3.141592653589793;
 
+static bool nearly_equal(double x, double y) {
+    if (sk_double_nearly_zero(x)) {
+        return sk_double_nearly_zero(y);
+    }
+    return sk_doubles_nearly_equal_ulps(x, y);
+}
+
 int SkCubics::RootsReal(double A, double B, double C, double D, double solution[3]) {
     if (sk_double_nearly_zero(A)) {  // we're just a quadratic
         return SkQuads::RootsReal(B, C, D, solution);
@@ -51,42 +58,46 @@ int SkCubics::RootsReal(double A, double B, double C, double D, double solution[
     double R = (2 * a2 * a - 9 * a * b + 27 * c) / 54;
     double R2 = R * R;
     double Q3 = Q * Q * Q;
+    if (!std::isfinite(R2) || !std::isfinite(Q3)) {
+        return 0;
+    }
     double R2MinusQ3 = R2 - Q3;
     double adiv3 = a / 3;
     double r;
     double* roots = solution;
     if (R2MinusQ3 < 0) {   // we have 3 real roots
         // the divide/root can, due to finite precisions, be slightly outside of -1...1
-        double theta = acos(SkTPin(R / sqrt(Q3), -1., 1.));
-        double neg2RootQ = -2 * sqrt(Q);
+        const double theta = acos(SkTPin(R / std::sqrt(Q3), -1., 1.));
+        const double neg2RootQ = -2 * std::sqrt(Q);
 
         r = neg2RootQ * cos(theta / 3) - adiv3;
         *roots++ = r;
 
         r = neg2RootQ * cos((theta + 2 * PI) / 3) - adiv3;
-        if (!sk_doubles_nearly_equal_ulps(solution[0], r)) {
+        if (!nearly_equal(solution[0], r)) {
             *roots++ = r;
         }
         r = neg2RootQ * cos((theta - 2 * PI) / 3) - adiv3;
-        if (!sk_doubles_nearly_equal_ulps(solution[0], r) && (roots - solution == 1 ||
-            !sk_doubles_nearly_equal_ulps(solution[1], r))) {
+        if (!nearly_equal(solution[0], r) &&
+            (roots - solution == 1 || !nearly_equal(solution[1], r))) {
             *roots++ = r;
         }
     } else {  // we have 1 real root
-        double sqrtR2MinusQ3 = sqrt(R2MinusQ3);
+        const double sqrtR2MinusQ3 = std::sqrt(R2MinusQ3);
         A = fabs(R) + sqrtR2MinusQ3;
         A = std::cbrt(A); // cube root
         if (R > 0) {
             A = -A;
         }
-        if (A != 0) {
+        if (!sk_double_nearly_zero(A)) {
             A += Q / A;
         }
         r = A - adiv3;
         *roots++ = r;
-        if (sk_doubles_nearly_equal_ulps(R2, Q3)) {
+        if (!sk_double_nearly_zero(R2) &&
+             sk_doubles_nearly_equal_ulps(R2, Q3)) {
             r = -A / 2 - adiv3;
-            if (!sk_doubles_nearly_equal_ulps(solution[0], r)) {
+            if (!nearly_equal(solution[0], r)) {
                 *roots++ = r;
             }
         }
@@ -107,7 +118,7 @@ int SkCubics::RootsValidT(double A, double B, double C, double D,
                 (foundRoots < 2 || !sk_doubles_nearly_equal_ulps(t[1], 1))) {
                 t[foundRoots++] = 1;
             }
-        } else if (tValue >= -0.00005 && tValue <= 0.0) {
+        } else if (tValue >= -0.00005 && (tValue <= 0.0 || sk_double_nearly_zero(tValue))) {
             // Make sure we do not already have 0 (or something very close) in the list of roots.
             if ((foundRoots < 1 || !sk_double_nearly_zero(t[0])) &&
                 (foundRoots < 2 || !sk_double_nearly_zero(t[1]))) {

@@ -2600,6 +2600,7 @@ if (skia_enable_tools) {
       "fuzz/FuzzCommon.cpp",
       "fuzz/FuzzCommon.h",
       "fuzz/FuzzCreateDDL.cpp",
+      "fuzz/FuzzCubicQuadRoots.cpp",
       "fuzz/FuzzDDLThreading.cpp",
       "fuzz/FuzzDrawFunctions.cpp",
       "fuzz/FuzzEncoders.cpp",
@@ -3587,6 +3588,14 @@ if (skia_enable_tools) {
 
     libfuzzer_app("colrv1") {
       sources = [ "fuzz/oss_fuzz/FuzzCOLRv1.cpp" ]
+      deps = []
+    }
+
+    libfuzzer_app("cubic_quad_roots") {
+      sources = [
+        "fuzz/FuzzCubicQuadRoots.cpp",
+        "fuzz/oss_fuzz/FuzzCubicQuadRoots.cpp",
+      ]
       deps = []
     }
   }

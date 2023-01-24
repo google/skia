@@ -21,21 +21,22 @@ static int solve_linear(const double M, const double B, double solution[2]) {
         return 0;
     }
     solution[0] = -B / M;
+    if (!std::isfinite(solution[0])) {
+        return 0;
+    }
     return 1;
 }
 
 int SkQuads::RootsReal(const double A, const double B, const double C, double solution[2]) {
-    if (!A) {
+    if (sk_double_nearly_zero(A)) {
         return solve_linear(B, C, solution);
     }
     const double p = B / (2 * A);
     const double q = C / A;
-    if (sk_double_nearly_zero(A)) {
-        return solve_linear(B, C, solution);
-    }
     /* normal form: x^2 + px + q = 0 */
     const double p2 = p * p;
-    if (!sk_doubles_nearly_equal_ulps(p2, q) && p2 < q) {
+    if (!std::isfinite(p2 - q) ||
+        (!sk_double_nearly_zero(p2 - q) && p2 < q)) {
         return 0;
     }
     double sqrt_D = 0;
@@ -44,7 +45,8 @@ int SkQuads::RootsReal(const double A, const double B, const double C, double so
     }
     solution[0] = sqrt_D - p;
     solution[1] = -sqrt_D - p;
-    if (sk_doubles_nearly_equal_ulps(solution[0], solution[1])) {
+    if (sk_double_nearly_zero(sqrt_D) ||
+        sk_doubles_nearly_equal_ulps(solution[0], solution[1])) {
         return 1;
     }
     return 2;

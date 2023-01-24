@@ -13,6 +13,7 @@
 #include "tests/Test.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <iterator>
 #include <string>
@@ -144,6 +145,11 @@ DEF_TEST(CubicRootsReal_ActualCubics, reporter) {
                         2.350781059358212
                       //2.350781059358212171622054 from Wolfram Alpha
                        });
+
+    testCubicRootsReal(reporter, "R^2 and Q^3 are near zero",
+                       -0.33790159225463867, -0.81997990608215332,
+                       -0.66327774524688721, -0.17884063720703125,
+                       {-0.7995944894729731});
 }
 
 DEF_TEST(CubicRootsReal_Quadratics, reporter) {
@@ -186,6 +192,27 @@ DEF_TEST(CubicRootsReal_Constant, reporter) {
     testCubicRootsReal(reporter, "Infinite solutions y = 0",
                        0, 0, 0, 0,
                        {0.});
+}
+
+DEF_TEST(CubicRootsReal_NonFiniteNumbers, reporter) {
+    // The Pathops implementation does not check for infinities nor nans in all cases.
+    double roots[3];
+    REPORTER_ASSERT(reporter,
+        SkCubics::RootsReal(NAN, 1, 2, 3, roots) == 0,
+        "Nan A"
+    );
+    REPORTER_ASSERT(reporter,
+        SkCubics::RootsReal(1, NAN, 2, 3, roots) == 0,
+        "Nan B"
+    );
+    REPORTER_ASSERT(reporter,
+        SkCubics::RootsReal(1, 2, NAN, 3, roots) == 0,
+        "Nan C"
+    );
+    REPORTER_ASSERT(reporter,
+        SkCubics::RootsReal(1, 2, 3, NAN, roots) == 0,
+        "Nan D"
+    );
 }
 
 static void testCubicValidT(skiatest::Reporter* reporter, std::string name,
@@ -267,6 +294,13 @@ DEF_TEST(CubicRootsValidT, reporter) {
                      0.6666666666666667,
                      0.75});
 
+    testCubicValidT(reporter, "three roots total, two in range 54x^3 - 117x^2 + 45x + 0",
+                    54, -117, 45, 0,
+                    {0.,
+                     0.5,
+                     // 5/3 is the other root, but not in [0, 1]
+                    });
+
     testCubicValidT(reporter, "one root = 1 10x^3 - 20x^2 - 30x + 40",
                     10, -20, -30, 40,
                     {1.});
@@ -275,7 +309,7 @@ DEF_TEST(CubicRootsValidT, reporter) {
                     2, -3, -4, 0,
                     {0.});
 
-    testCubicValidT(reporter, "two roots -2x^3 - 3x^2 + 4x + 0",
+    testCubicValidT(reporter, "three roots total, two in range -2x^3 - 3x^2 + 4x + 0",
                     -2, -3, 4, 0,
                     { 0.,
                       0.8507810593582122,
@@ -284,16 +318,33 @@ DEF_TEST(CubicRootsValidT, reporter) {
 }
 
 DEF_TEST(CubicRootsValidT_ClampToZeroAndOne, reporter) {
-    // (x + 0.00001)(x - 1.00005), but the answers will be 0 and 1
-    double A = 0.;
-    double B = 1.;
-    double C = -1.00004;
-    double D = -0.0000100005;
-    double roots[3] = {0, 0, 0};
-    int rootCount = SkDCubic::RootsValidT(A, B, C, D, roots);
+    {
+        // (x + 0.00001)(x - 1.00005), but the answers will be 0 and 1
+        double A = 0.;
+        double B = 1.;
+        double C = -1.00004;
+        double D = -0.0000100005;
+        double roots[3] = {0, 0, 0};
+        int rootCount = SkDCubic::RootsValidT(A, B, C, D, roots);
 
-    REPORTER_ASSERT(reporter, rootCount == 2);
-    std::sort(std::begin(roots), std::begin(roots) + rootCount);
-    REPORTER_ASSERT(reporter, sk_double_nearly_zero(roots[0]), "%.16f != 0", roots[0]);
-    REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(roots[1], 1), "%.16f != 1", roots[1]);
+        REPORTER_ASSERT(reporter, rootCount == 2);
+        std::sort(std::begin(roots), std::begin(roots) + rootCount);
+        REPORTER_ASSERT(reporter, sk_double_nearly_zero(roots[0]), "%.16f != 0", roots[0]);
+        REPORTER_ASSERT(reporter, sk_doubles_nearly_equal_ulps(roots[1], 1), "%.16f != 1", roots[1]);
+    }
+    {
+        // Three very small roots, all of them are nearly equal zero
+        // (1 - 10000000000x)(1 - 20000000000x)(1 - 30000000000x)
+        // -6000000000000000000000000000000 x^3 + 1100000000000000000000 x^2 - 60000000000 x + 1
+        double A = -6.0e30;
+        double B = 1.1e21;
+        double C = -6.0e10;
+        double D = 1;
+        double roots[3] = {0, 0, 0};
+        int rootCount = SkDCubic::RootsValidT(A, B, C, D, roots);
+
+        REPORTER_ASSERT(reporter, rootCount == 1);
+        std::sort(std::begin(roots), std::begin(roots) + rootCount);
+        REPORTER_ASSERT(reporter, sk_double_nearly_zero(roots[0]), "%.16f != 0", roots[0]);
+    }
 }

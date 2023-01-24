@@ -14,6 +14,8 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cfloat>
+#include <cmath>
 #include <iterator>
 #include <string>
 
@@ -115,6 +117,36 @@ DEF_TEST(QuadRootsReal_ActualQuadratics, reporter) {
     testQuadRootsReal(reporter, "no roots 5x^2 + 6x + 7",
                        5, 6, 7,
                        {});
+
+    testQuadRootsReal(reporter, "no roots 4x^2 + 1",
+                       4, 0, 1,
+                       {});
+
+    testQuadRootsReal(reporter, "one root is zero, another is big",
+                       14, -13, 0,
+                       {0,
+                        0.9285714285714286
+                      //0.9285714285714285714285714 from Wolfram Alpha
+                        });
+
+    // Values from a failing test case observed during testing.
+    testQuadRootsReal(reporter, "one root is zero, another is small",
+                       0.2929016490705016, 0.0000030451558069, 0,
+                       {-0.00001039651301576329, 0});
+
+    testQuadRootsReal(reporter, "b and c are zero, a is positive 4x^2",
+                       4, 0, 0,
+                       {0});
+
+    testQuadRootsReal(reporter, "b and c are zero, a is negative -4x^2",
+                       -4, 0, 0,
+                       {0});
+
+    testQuadRootsReal(reporter, "a and b are huge, c is zero",
+                       4.3719914983870202e+291, 1.0269509510194551e+152, 0,
+                       // One solution is 0, the other is so close to zero it returns
+                       // true for sk_double_nearly_zero, so it is collapsed into one.
+                       {0});
 }
 
 DEF_TEST(QuadRootsReal_Linear, reporter) {
@@ -135,4 +167,34 @@ DEF_TEST(QuadRootsReal_Constant, reporter) {
     testQuadRootsReal(reporter, "Infinite solutions y = 0",
                        0, 0, 0,
                        {0.});
+}
+
+DEF_TEST(QuadRootsReal_NonFiniteNumbers, reporter) {
+    // The Pathops implementation does not check for infinities nor nans in all cases.
+    double roots[2];
+    REPORTER_ASSERT(reporter,
+        SkQuads::RootsReal(DBL_MAX, 0, DBL_MAX, roots) == 0,
+        "Discriminant is negative infinity"
+    );
+    REPORTER_ASSERT(reporter,
+        SkQuads::RootsReal(1, DBL_MAX, 0, roots) == 0,
+        "Discriminant is positive infinity"
+    );
+    REPORTER_ASSERT(reporter,
+        SkQuads::RootsReal(DBL_MAX, DBL_MAX, DBL_MAX, roots) == 0,
+        "Double Overflow"
+    );
+
+    REPORTER_ASSERT(reporter,
+        SkQuads::RootsReal(1, NAN, -3, roots) == 0,
+        "Nan quadratic"
+    );
+    REPORTER_ASSERT(reporter,
+        SkQuads::RootsReal(0, NAN, 3, roots) == 0,
+        "Nan linear"
+    );
+    REPORTER_ASSERT(reporter,
+        SkQuads::RootsReal(0, 0, NAN, roots) == 0,
+        "Nan constant"
+    );
 }

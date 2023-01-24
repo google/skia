@@ -10,13 +10,13 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkVx.h"
+#include "src/base/SkCubics.h"
 #include "src/core/SkGeometry.h"
-#include "src/pathops/SkPathOpsCubic.h"
 #include "tests/Test.h"
 
 static float accurate_t(float A, float B, float C, float D) {
     double roots[3];
-    SkDEBUGCODE(int count =) SkDCubic::RootsValidT(A, B, C, D, roots);
+    SkDEBUGCODE(int count =) SkCubics::RootsValidT(A, B, C, D, roots);
     SkASSERT(count == 1);
     return (float)roots[0];
 }

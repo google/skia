@@ -23,7 +23,7 @@ public:
 
     /**
      * Puts up to 3 real solutions to the equation
-     *   A*t^3 + B*t^2 + C*t + d = 0
+     *   A*t^3 + B*t^2 + C*t + D = 0
      * in the provided array, with the constraint that t is in the range [0.0, 1.0].
      */
     static int RootsValidT(double A, double B, double C, double D,
@@ -31,14 +31,18 @@ public:
 
 
     /**
-     * Evaluates the a cubic function with the 4 provided coefficients and the
+     * Evaluates the cubic function with the 4 provided coefficients and the
      * provided variable.
      */
+    static double EvalAt(double A, double B, double C, double D, double t) {
+        return A * t * t * t +
+               B * t * t +
+               C * t +
+               D;
+    }
+
     static double EvalAt(double coefficients[4], double t) {
-        return coefficients[0] * t * t * t +
-               coefficients[1] * t * t +
-               coefficients[2] * t +
-               coefficients[3];
+        return EvalAt(coefficients[0], coefficients[1], coefficients[2], coefficients[3], t);
     }
 };
 

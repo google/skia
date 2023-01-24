@@ -43,6 +43,7 @@ CPU_ONLY_TESTS = [
     "ColorTest.cpp",
     "CtsEnforcement.cpp",
     "CubicMapTest.cpp",
+    "CubicRootsTest.cpp",
     "DashPathEffectTest.cpp",
     "DataRefTest.cpp",
     "DequeTest.cpp",
@@ -115,6 +116,7 @@ CPU_ONLY_TESTS = [
     "Point3Test.cpp",
     "PointTest.cpp",
     "PolyUtilsTest.cpp",
+    "QuadRootsTest.cpp",
     "QuickRejectTest.cpp",
     "RRectInPathTest.cpp",
     "RTreeTest.cpp",
@@ -327,7 +329,6 @@ GANESH_TESTS = [
 
 PATHOPS_TESTS = [
     "CubicChopTest.cpp",
-    "CubicRootsTest.cpp",
     "PathOpsAngleIdeas.cpp",
     "PathOpsAngleTest.cpp",
     "PathOpsAsWindingTest.cpp",
@@ -378,7 +379,6 @@ PATHOPS_TESTS = [
     "PathOpsTigerTest.cpp",
     "PathOpsTightBoundsTest.cpp",
     "PathOpsTypesTest.cpp",
-    "QuadRootsTest.cpp",
     "StrokerTest.cpp",
 ]
 

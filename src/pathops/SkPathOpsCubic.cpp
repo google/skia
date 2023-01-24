@@ -376,6 +376,7 @@ int SkDCubic::searchRoots(double extremeTs[6], int extrema, double axisIntercept
 static const double PI = 3.141592653589793;
 
 // from SkGeometry.cpp (and Numeric Solutions, 5.6)
+// // TODO(skbug.com/14063) Deduplicate with SkCubics::RootsValidT
 int SkDCubic::RootsValidT(double A, double B, double C, double D, double t[3]) {
     double s[3];
     int realRoots = RootsReal(A, B, C, D, s);
@@ -405,6 +406,7 @@ nextRoot:
     return foundRoots;
 }
 
+// TODO(skbug.com/14063) Deduplicate with SkCubics::RootsReal
 int SkDCubic::RootsReal(double A, double B, double C, double D, double s[3]) {
 #ifdef SK_DEBUG
     #if ONE_OFF_DEBUG && ONE_OFF_DEBUG_MATHEMATICA
