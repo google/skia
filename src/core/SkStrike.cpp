@@ -68,12 +68,11 @@ private:
 };
 
 SkGlyph* SkStrike::mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& fromGlyph) {
-    SkGlyph* glyph;
     Monitor m{this};
     // TODO(herb): remove finding the glyph when setting the metrics and image are separated
     SkGlyphDigest* digest = fDigestForPackedGlyphID.find(toID);
     if (digest != nullptr) {
-        glyph = fGlyphForIndex[digest->index()];
+        SkGlyph* glyph = fGlyphForIndex[digest->index()];
         if (fromGlyph.setImageHasBeenCalled()) {
             if (glyph->setImageHasBeenCalled()) {
                 // Should never set an image on a glyph which already has an image.
@@ -82,13 +81,13 @@ SkGlyph* SkStrike::mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& fromG
             // TODO: assert that any metrics on fromGlyph are the same.
             fMemoryIncrease += glyph->setMetricsAndImage(&fAlloc, fromGlyph);
         }
+        return glyph;
     } else {
-        glyph = fAlloc.make<SkGlyph>(toID);
+        SkGlyph* glyph = fAlloc.make<SkGlyph>(toID);
         fMemoryIncrease += glyph->setMetricsAndImage(&fAlloc, fromGlyph) + sizeof(SkGlyph);
         (void)this->addGlyph(glyph);
+        return glyph;
     }
-
-    return glyph;
 }
 
 const SkPath* SkStrike::mergePath(SkGlyph* glyph, const SkPath* path, bool hairline) {
@@ -124,24 +123,14 @@ void SkStrike::findIntercepts(const SkScalar bounds[2], SkScalar scale, SkScalar
 
 SkSpan<const SkGlyph*> SkStrike::metrics(
         SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) {
-    SkSpan<const SkGlyph*> glyphs;
     Monitor m{this};
-    size_t increase;
-    std::tie(glyphs, increase)= this->internalPrepare(glyphIDs, kMetricsOnly, results);
-    fMemoryIncrease += increase;
-
-    return glyphs;
+    return this->internalPrepare(glyphIDs, kMetricsOnly, results);
 }
 
 SkSpan<const SkGlyph*> SkStrike::preparePaths(
         SkSpan<const SkGlyphID> glyphIDs, const SkGlyph* results[]) {
-    SkSpan<const SkGlyph*> glyphs;
     Monitor m{this};
-    size_t increase;
-    std::tie(glyphs, increase) = this->internalPrepare(glyphIDs, kMetricsAndPath, results);
-    fMemoryIncrease += increase;
-
-    return glyphs;
+    return this->internalPrepare(glyphIDs, kMetricsAndPath, results);
 }
 
 SkSpan<const SkGlyph*> SkStrike::prepareImages(
@@ -149,9 +138,8 @@ SkSpan<const SkGlyph*> SkStrike::prepareImages(
     const SkGlyph** cursor = results;
     Monitor m{this};
     for (auto glyphID : glyphIDs) {
-        auto[glyph, glyphSize] = this->glyph(glyphID);
-        auto[_, imageSize] = this->prepareImage(glyph);
-        fMemoryIncrease += glyphSize + imageSize;
+        SkGlyph* glyph = this->glyph(glyphID);
+        (void)this->prepareImage(glyph);
         *cursor++ = glyph;
     }
 
@@ -164,9 +152,8 @@ SkSpan<const SkGlyph*> SkStrike::prepareDrawables(
     {
         Monitor m{this};
         for (auto glyphID : glyphIDs) {
-            auto[glyph, glyphSize] = this->glyph(SkPackedGlyphID{glyphID});
-            size_t drawableSize = this->prepareDrawable(glyph);
-            fMemoryIncrease += glyphSize + drawableSize;
+            SkGlyph* glyph = this->glyph(SkPackedGlyphID{glyphID});
+            this->prepareDrawable(glyph);
             *cursor++ = glyph;
         }
     }
@@ -176,18 +163,16 @@ SkSpan<const SkGlyph*> SkStrike::prepareDrawables(
 
 void SkStrike::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted) {
     Monitor m{this};
-    fMemoryIncrease += this->commonFilterLoop(
+    this->commonFilterLoop(
         accepted,
         [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fStrikeLock) {
             // If the glyph is too large, then no image is created.
             SkGlyph* glyph = fGlyphForIndex[digest.index()];
-            auto [image, imageSize] = this->prepareImage(glyph);
+            const void* image = this->prepareImage(glyph);
             if (image != nullptr) {
                 accepted->accept(glyph, i);
-                fMemoryIncrease += imageSize;
             }
         });
-
 }
 
 // Note: this does not actually fill out the image. That happens at atlas building time.
@@ -197,8 +182,7 @@ SkRect SkStrike::prepareForMaskDrawing(SkDrawableGlyphBuffer* accepted,
     Monitor m{this};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            auto [digest, glyphIncrease] = this->digest(packedID);
-            fMemoryIncrease += glyphIncrease;
+            SkGlyphDigest digest = this->digest(packedID);
             // N.B. this must have the same behavior as RemoteStrike::prepareForMaskDrawing.
             if (!digest.isEmpty()) {
                 if (digest.canDrawAsMask()) {
@@ -222,8 +206,7 @@ SkRect SkStrike::prepareForSDFTDrawing(SkDrawableGlyphBuffer* accepted,
     Monitor m{this};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            auto [digest, glyphIncrease] = this->digest(packedID);
-            fMemoryIncrease += glyphIncrease;
+            SkGlyphDigest digest = this->digest(packedID);
             // N.B. this must have the same behavior as RemoteStrike::prepareForSDFTDrawing.
             if (!digest.isEmpty()) {
                 if (digest.canDrawAsSDFT()) {
@@ -252,11 +235,10 @@ void SkStrike::prepareForPathDrawing(SkDrawableGlyphBuffer* accepted,
     Monitor m{this};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            auto [digest, glyphIncrease] = this->digest(packedID);
-            fMemoryIncrease += glyphIncrease;
+            SkGlyphDigest digest = this->digest(packedID);
             if (!digest.isEmpty()) {
                 SkGlyph* glyph = fGlyphForIndex[digest.index()];
-                fMemoryIncrease += this->preparePath(glyph);
+                this->preparePath(glyph);
                 if (glyph->path() != nullptr) {
                     // Save off the path to draw later.
                     accepted->accept(packedID, pos);
@@ -274,11 +256,10 @@ void SkStrike::prepareForDrawableDrawing(SkDrawableGlyphBuffer* accepted,
     Monitor m{this};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            auto [digest, glyphIncrease] = this->digest(packedID);
-            fMemoryIncrease += glyphIncrease;
+            SkGlyphDigest digest = this->digest(packedID);
             if (!digest.isEmpty()) {
                 SkGlyph* glyph = fGlyphForIndex[digest.index()];
-                fMemoryIncrease += this->prepareDrawable(glyph);
+                this->prepareDrawable(glyph);
                 if (glyph->drawable() != nullptr) {
                     // Save off the drawable to draw later.
                     accepted->accept(packedID, pos);
@@ -295,8 +276,7 @@ SkScalar SkStrike::findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) {
     SkScalar maxDimension = 0;
     Monitor m{this};
     for (SkGlyphID glyphID : glyphs) {
-        auto [digest, glyphIncrease] = this->digest(SkPackedGlyphID{glyphID});
-        fMemoryIncrease += glyphIncrease;
+        SkGlyphDigest digest = this->digest(SkPackedGlyphID{glyphID});
         maxDimension = std::max(static_cast<SkScalar>(digest.maxDimension()), maxDimension);
     }
 
@@ -306,9 +286,8 @@ SkScalar SkStrike::findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) {
 void SkStrike::glyphIDsToPaths(SkSpan<sktext::IDOrPath> idsOrPaths) {
     Monitor m{this};
     for (sktext::IDOrPath& idOrPath : idsOrPaths) {
-        auto [glyph, size] = this->glyph(SkPackedGlyphID{idOrPath.fGlyphID});
-        fMemoryIncrease += size;
-        fMemoryIncrease += this->preparePath(glyph);
+        SkGlyph* glyph = this->glyph(SkPackedGlyphID{idOrPath.fGlyphID});
+        this->preparePath(glyph);
         new (&idOrPath.fPath) SkPath{*glyph->path()};
     }
 }
@@ -316,9 +295,8 @@ void SkStrike::glyphIDsToPaths(SkSpan<sktext::IDOrPath> idsOrPaths) {
 void SkStrike::glyphIDsToDrawables(SkSpan<sktext::IDOrDrawable> idsOrDrawables) {
     Monitor m{this};
     for (sktext::IDOrDrawable& idOrDrawable : idsOrDrawables) {
-        auto [glyph, size] = this->glyph(SkPackedGlyphID{idOrDrawable.fGlyphID});
-        fMemoryIncrease += size;
-        fMemoryIncrease += this->prepareDrawable(glyph);
+        SkGlyph* glyph = this->glyph(SkPackedGlyphID{idOrDrawable.fGlyphID});
+        this->prepareDrawable(glyph);
         SkASSERT(glyph->drawable() != nullptr);
         idOrDrawable.fDrawable = glyph->drawable();
     }
@@ -370,34 +348,32 @@ void SkStrike::dumpMemoryStatistics(SkTraceMemoryDump* dump) const {
 }
 
 template <typename Fn>
-size_t SkStrike::commonFilterLoop(SkDrawableGlyphBuffer* accepted, Fn&& fn) {
-    size_t total = 0;
+void SkStrike::commonFilterLoop(SkDrawableGlyphBuffer* accepted, Fn&& fn) {
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            auto [digest, size] = this->digest(packedID);
-            total += size;
+            SkGlyphDigest digest = this->digest(packedID);
             if (!digest.isEmpty()) {
                 fn(i, digest, pos);
             }
         }
     }
-    return total;
 }
 
-std::tuple<SkGlyph*, size_t> SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
-    auto [digest, size] = this->digest(packedGlyphID);
-    return {fGlyphForIndex[digest.index()], size};
+SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
+    SkGlyphDigest digest = this->digest(packedGlyphID);
+    return fGlyphForIndex[digest.index()];
 }
 
-std::tuple<SkGlyphDigest, size_t> SkStrike::digest(SkPackedGlyphID packedGlyphID) {
+SkGlyphDigest SkStrike::digest(SkPackedGlyphID packedGlyphID) {
     SkGlyphDigest* digest = fDigestForPackedGlyphID.find(packedGlyphID);
 
     if (digest != nullptr) {
-        return {*digest, 0};
+        return *digest;
     }
 
     SkGlyph* glyph = fAlloc.make<SkGlyph>(fScalerContext->makeGlyph(packedGlyphID, &fAlloc));
-    return {this->addGlyph(glyph), sizeof(SkGlyph)};
+    fMemoryIncrease += sizeof(SkGlyph);
+    return this->addGlyph(glyph);
 }
 
 SkGlyphDigest SkStrike::addGlyph(SkGlyph* glyph) {
@@ -408,46 +384,39 @@ SkGlyphDigest SkStrike::addGlyph(SkGlyph* glyph) {
     return digest;
 }
 
-std::tuple<const void*, size_t> SkStrike::prepareImage(SkGlyph* glyph) {
-    size_t delta = 0;
+const void* SkStrike::prepareImage(SkGlyph* glyph) {
     if (glyph->setImage(&fAlloc, fScalerContext.get())) {
-        delta = glyph->imageSize();
+        fMemoryIncrease += glyph->imageSize();
     }
-    return {glyph->image(), delta};
+    return glyph->image();
 }
 
-size_t SkStrike::preparePath(SkGlyph* glyph) {
-    size_t delta = 0;
+void SkStrike::preparePath(SkGlyph* glyph) {
     if (glyph->setPath(&fAlloc, fScalerContext.get())) {
-        delta = glyph->path()->approximateBytesUsed();
+        fMemoryIncrease += glyph->path()->approximateBytesUsed();
     }
-    return delta;
 }
 
-size_t SkStrike::prepareDrawable(SkGlyph* glyph) {
-    size_t delta = 0;
+void SkStrike::prepareDrawable(SkGlyph* glyph) {
     if (glyph->setDrawable(&fAlloc, fScalerContext.get())) {
-        delta = glyph->drawable()->approximateBytesUsed();
-        SkASSERT(delta > 0);
+        size_t increase = glyph->drawable()->approximateBytesUsed();
+        SkASSERT(increase > 0);
+        fMemoryIncrease += increase;
     }
-    return delta;
 }
 
-std::tuple<SkSpan<const SkGlyph*>, size_t> SkStrike::internalPrepare(
+SkSpan<const SkGlyph*> SkStrike::internalPrepare(
         SkSpan<const SkGlyphID> glyphIDs, PathDetail pathDetail, const SkGlyph** results) {
     const SkGlyph** cursor = results;
-    size_t delta = 0;
     for (auto glyphID : glyphIDs) {
-        auto [glyph, size] = this->glyph(SkPackedGlyphID{glyphID});
-        delta += size;
+        SkGlyph* glyph = this->glyph(SkPackedGlyphID{glyphID});
         if (pathDetail == kMetricsAndPath) {
-            size_t pathSize = this->preparePath(glyph);
-            delta += pathSize;
+            this->preparePath(glyph);
         }
         *cursor++ = glyph;
     }
 
-    return {{results, glyphIDs.size()}, delta};
+    return {results, glyphIDs.size()};
 }
 
 void SkStrike::updateMemoryUsage(size_t increase) {

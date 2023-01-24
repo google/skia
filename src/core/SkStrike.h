@@ -142,24 +142,24 @@ private:
     friend class SkStrikeCache;
     class Monitor;
     template <typename Fn>
-    size_t commonFilterLoop(SkDrawableGlyphBuffer* accepted, Fn&& fn) SK_REQUIRES(fStrikeLock);
+    void commonFilterLoop(SkDrawableGlyphBuffer* accepted, Fn&& fn) SK_REQUIRES(fStrikeLock);
 
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances using a scaler.
-    std::tuple<SkGlyph*, size_t> glyph(SkPackedGlyphID) SK_REQUIRES(fStrikeLock);
+    SkGlyph* glyph(SkPackedGlyphID) SK_REQUIRES(fStrikeLock);
 
-    std::tuple<SkGlyphDigest, size_t> digest(SkPackedGlyphID) SK_REQUIRES(fStrikeLock);
+    SkGlyphDigest digest(SkPackedGlyphID) SK_REQUIRES(fStrikeLock);
 
     // Generate the glyph digest information and update structures to add the glyph.
     SkGlyphDigest addGlyph(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);
 
-    std::tuple<const void*, size_t> prepareImage(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);
+    const void* prepareImage(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);
 
     // If the path has never been set, then use the scaler context to add the glyph.
-    size_t preparePath(SkGlyph*) SK_REQUIRES(fStrikeLock);
+    void preparePath(SkGlyph*) SK_REQUIRES(fStrikeLock);
 
     // If the drawable has never been set, then use the scaler context to add the glyph.
-    size_t prepareDrawable(SkGlyph*) SK_REQUIRES(fStrikeLock);
+    void prepareDrawable(SkGlyph*) SK_REQUIRES(fStrikeLock);
 
     // Maintain memory use statistics.
     void updateMemoryUsage(size_t increase) SK_EXCLUDES(fStrikeLock);
@@ -170,7 +170,7 @@ private:
     };
 
     // internalPrepare will only be called with a mutex already held.
-    std::tuple<SkSpan<const SkGlyph*>, size_t> internalPrepare(
+    SkSpan<const SkGlyph*> internalPrepare(
             SkSpan<const SkGlyphID> glyphIDs,
             PathDetail pathDetail,
             const SkGlyph** results) SK_REQUIRES(fStrikeLock);
