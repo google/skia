@@ -106,9 +106,12 @@ public:
         const auto child_bounds = INHERITED::onRevalidate(ic, ctm);
 
         for (size_t i = 0; i < fFragCount; ++i) {
+            const auto* glyphs = fFragInfo[i].fGlyphs;
             fDecoratorInfo[i].fBounds =
-                    fFragInfo[i].fGlyphs->computeBounds(Shaper::ShapedGlyphs::BoundsType::kTight);
+                    glyphs->computeBounds(Shaper::ShapedGlyphs::BoundsType::kTight);
             fDecoratorInfo[i].fMatrix = sksg::TransformPriv::As<SkMatrix>(fFragInfo[i].fMatrixNode);
+
+            fDecoratorInfo[i].fCluster = glyphs->fClusters.empty() ? 0 : glyphs->fClusters.front();
         }
 
         return child_bounds;
@@ -598,6 +601,10 @@ uint32_t TextAdapter::shaperFlags() const {
 
     if (fRequiresAnchorPoint) {
         flags |= Shaper::Flags::kTrackFragmentAdvanceAscent;
+    }
+
+    if (fText->fDecorator) {
+        flags |= Shaper::Flags::kClusters;
     }
 
     return flags;

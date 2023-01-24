@@ -8,9 +8,12 @@
 #ifndef SkottieTextEditor_DEFINED
 #define SkottieTextEditor_DEFINED
 
+#include "include/core/SkPath.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "tools/skui/InputState.h"
 #include "tools/skui/ModifierKey.h"
+
+#include <chrono>
 
 // A sample WYSIWYG text editor built using the GlyphDecorator API.
 class SkottieTextEditor final : public skottie::GlyphDecorator {
@@ -24,19 +27,30 @@ public:
 
     bool onMouseInput(SkScalar x, SkScalar y, skui::InputState state, skui::ModifierKey);
 
+    bool onCharInput(SkUnichar c);
+
 private:
     struct GlyphData {
         SkRect fDevBounds; // Glyph bounds mapped to device space.
     };
 
+    std::tuple<size_t, size_t> currentSelection() const;
     size_t closestGlyph(const SkPoint& pt) const;
+    void drawCursor(SkCanvas*, const GlyphInfo glyphs[], size_t size) const;
+    void insertChar(SkUnichar c);
+    void deleteChars(size_t offset, size_t count);
 
     const std::unique_ptr<skottie::TextPropertyHandle> fTextProp;
+    const SkPath                                       fCursorPath;
+    const SkRect                                       fCursorBounds;
 
     std::vector<GlyphData>     fGlyphData;
-    std::tuple<size_t, size_t> fSelection = {0, std::numeric_limits<size_t>::max()};
-    bool                       fEnabled   = false;
-    bool                       fMouseDown = false;
+    std::tuple<size_t, size_t> fSelection   = {0,0};
+    size_t                     fCursorIndex = 0;
+    bool                       fEnabled     = false;
+    bool                       fMouseDown   = false;
+
+    std::chrono::time_point<std::chrono::steady_clock> fTimeBase;
 };
 
 #endif // SkottieTextEditor_DEFINED

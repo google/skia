@@ -645,6 +645,10 @@ bool SkottieSlide::animate(double nanos) {
 }
 
 bool SkottieSlide::onChar(SkUnichar c) {
+    if (fTextEditor && fTextEditor->onCharInput(c)) {
+        return true;
+    }
+
     switch (c) {
     case 'I':
         fShowAnimationStats = !fShowAnimationStats;

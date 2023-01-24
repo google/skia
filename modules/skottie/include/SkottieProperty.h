@@ -48,6 +48,7 @@ public:
     struct GlyphInfo {
         SkRect   fBounds;  // visual glyph bounds
         SkMatrix fMatrix;  // glyph matrix
+        size_t   fCluster; // cluster index in the original text string
     };
 
     virtual void onDecorate(SkCanvas*, const GlyphInfo[], size_t size) = 0;
