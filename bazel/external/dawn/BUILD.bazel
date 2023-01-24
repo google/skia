@@ -712,6 +712,8 @@ TINT_SRCS = [
     "src/tint/ast/depth_multisampled_texture.h",
     "src/tint/ast/depth_texture.cc",
     "src/tint/ast/depth_texture.h",
+    "src/tint/ast/diagnostic_attribute.cc",
+    "src/tint/ast/diagnostic_attribute.h",
     "src/tint/ast/diagnostic_control.cc",
     "src/tint/ast/diagnostic_control.h",
     "src/tint/ast/disable_validation_attribute.cc",
@@ -1227,6 +1229,8 @@ TINT_SRCS = [
     "src/tint/writer/spirv/operand.h",
     "src/tint/writer/spirv/scalar_constant.h",
     # From dawn/src/tint/BUILD.gn:libtint_wgsl_reader_src
+    "src/tint/reader/wgsl/classify_template_args.cc",
+    "src/tint/reader/wgsl/classify_template_args.h",
     "src/tint/reader/wgsl/lexer.cc",
     "src/tint/reader/wgsl/lexer.h",
     "src/tint/reader/wgsl/parser.cc",
