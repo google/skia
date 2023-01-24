@@ -140,6 +140,7 @@ public:
 
 private:
     friend class SkStrikeCache;
+    class Monitor;
     template <typename Fn>
     size_t commonFilterLoop(SkDrawableGlyphBuffer* accepted, Fn&& fn) SK_REQUIRES(fStrikeLock);
 
@@ -161,7 +162,7 @@ private:
     size_t prepareDrawable(SkGlyph*) SK_REQUIRES(fStrikeLock);
 
     // Maintain memory use statistics.
-    void updateDelta(size_t increase) SK_EXCLUDES(fStrikeLock);
+    void updateMemoryUsage(size_t increase) SK_EXCLUDES(fStrikeLock);
 
     enum PathDetail {
         kMetricsOnly,
@@ -196,6 +197,9 @@ private:
 
     // Context that corresponds to the glyph information in this strike.
     const std::unique_ptr<SkScalerContext> fScalerContext SK_GUARDED_BY(fStrikeLock);
+
+    // Used while changing the strike to track memory increase.
+    size_t fMemoryIncrease SK_GUARDED_BY(fStrikeLock) {0};
 
     // So, we don't grow our arrays a lot.
     inline static constexpr size_t kMinGlyphCount = 8;
