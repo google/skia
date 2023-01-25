@@ -150,4 +150,9 @@ struct SkRasterPipeline_BranchCtx {
     int offset;
 };
 
+struct SkRasterPipeline_BranchIfEqualCtx : public SkRasterPipeline_BranchCtx {
+    int value;
+    const int *ptr;
+};
+
 #endif  // SkRasterPipelineOpContexts_DEFINED

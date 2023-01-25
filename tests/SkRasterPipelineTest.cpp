@@ -1532,9 +1532,9 @@ DEF_TEST(SkRasterPipeline_Jump, r) {
     // Make a program which jumps over an append_constant_color op.
     SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
     SkRasterPipeline p(&alloc);
-    p.append_constant_color(&alloc, kColorGreen);    // assign green
+    p.append_constant_color(&alloc, kColorGreen);      // assign green
     p.append(SkRasterPipelineOp::jump, &offset);       // jump over the dark-red color assignment
-    p.append_constant_color(&alloc, kColorDarkRed);  // (not executed)
+    p.append_constant_color(&alloc, kColorDarkRed);    // (not executed)
     p.append(SkRasterPipelineOp::store_src, slots);    // store the result so we can check it
     p.run(0,0,1,1);
 
@@ -1630,6 +1630,55 @@ DEF_TEST(SkRasterPipeline_BranchIfNoActiveLanes, r) {
     for (int checkSlot = 0; checkSlot < 4; ++checkSlot) {
         for (int checkLane = 0; checkLane < N; ++checkLane) {
             REPORTER_ASSERT(r, *destPtr == kColorBlue[checkSlot]);
+            ++destPtr;
+        }
+    }
+}
+
+DEF_TEST(SkRasterPipeline_BranchIfAllSlotsEqual, r) {
+    // Allocate space for 4 slots.
+    alignas(64) float slots[4 * SkRasterPipeline_kMaxStride_highp] = {};
+    const int N = SkOpts::raster_pipeline_highp_stride;
+
+    alignas(64) static constexpr float kColorBlack[4]   = {0.0f, 0.0f, 0.0f, 0.0f};
+    alignas(64) static constexpr float kColorRed[4]     = {1.0f, 0.0f, 0.0f, 1.0f};
+
+    // An array of all 5s.
+    alignas(64) int allFives[SkRasterPipeline_kMaxStride_highp] = {};
+    std::fill(std::begin(allFives), std::end(allFives), 5);
+
+    // An array of all 5s, except for a single 6 in one slot.
+    alignas(64) int almostAllFives[SkRasterPipeline_kMaxStride_highp] = {};
+    std::fill(std::begin(almostAllFives), std::end(almostAllFives), 5);
+    almostAllFives[N - 1] = 6;
+
+    // Make a program which conditionally branches past a swap_rb op.
+    SkRasterPipeline_BranchIfEqualCtx matching;
+    matching.offset = 2;
+    matching.value = 5;
+    matching.ptr = allFives;
+
+    SkRasterPipeline_BranchIfEqualCtx nonmatching;
+    nonmatching.offset = 2;
+    nonmatching.value = 5;
+    nonmatching.ptr = almostAllFives;
+
+    SkArenaAlloc alloc(/*firstHeapAllocation=*/256);
+    SkRasterPipeline p(&alloc);
+    p.append_constant_color(&alloc, kColorBlack);                          // set the color to black
+    p.append(SkRasterPipelineOp::init_lane_masks);                         // set all lanes active
+    p.append(SkRasterPipelineOp::branch_if_all_lanes_equal, &nonmatching); // don't skip next line
+    p.append_constant_color(&alloc, kColorRed);                            // sets the color to red
+    p.append(SkRasterPipelineOp::branch_if_all_lanes_equal, &matching);    // do skip next line
+    p.append(SkRasterPipelineOp::swap_rb);                                 // swap R and B (= blue)
+    p.append(SkRasterPipelineOp::store_src, slots);                        // store final red color
+    p.run(0,0,1,1);
+
+    // Verify that the slots contain red.
+    float* destPtr = &slots[0];
+    for (int checkSlot = 0; checkSlot < 4; ++checkSlot) {
+        for (int checkLane = 0; checkLane < N; ++checkLane) {
+            REPORTER_ASSERT(r, *destPtr == kColorRed[checkSlot]);
             ++destPtr;
         }
     }
