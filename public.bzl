@@ -1455,6 +1455,7 @@ BASE_SRCS_ALL = [
     "src/sksl/analysis/SkSLGetReturnComplexity.cpp",
     "src/sksl/analysis/SkSLHasSideEffects.cpp",
     "src/sksl/analysis/SkSLIsConstantExpression.cpp",
+    "src/sksl/analysis/SkSLIsDynamicallyUniformExpression.cpp",
     "src/sksl/analysis/SkSLIsSameExpressionTree.cpp",
     "src/sksl/analysis/SkSLIsTrivialExpression.cpp",
     "src/sksl/analysis/SkSLNoOpErrorReporter.h",

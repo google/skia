@@ -12,6 +12,7 @@ ANALYSIS_FILES = [
     "SkSLGetReturnComplexity.cpp",
     "SkSLHasSideEffects.cpp",
     "SkSLIsConstantExpression.cpp",
+    "SkSLIsDynamicallyUniformExpression.cpp",
     "SkSLIsSameExpressionTree.cpp",
     "SkSLIsTrivialExpression.cpp",
     "SkSLNoOpErrorReporter.h",

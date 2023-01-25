@@ -87,6 +87,12 @@ bool HasSideEffects(const Expression& expr);
 bool IsCompileTimeConstant(const Expression& expr);
 
 /**
+ * Determines if `expr` is a dynamically-uniform expression; this returns true if the expression
+ * could be evaluated at compile time if uniform values were known.
+ */
+bool IsDynamicallyUniformExpression(const Expression& expr);
+
+/**
  * Detect an orphaned variable declaration outside of a scope, e.g. if (true) int a;. Returns
  * true if an error was reported.
  */
