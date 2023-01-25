@@ -306,7 +306,9 @@ static constexpr MTLPixelFormat kMtlFormats[] = {
     MTLPixelFormatBGRA8Unorm,
     kMTLPixelFormatB5G6R5Unorm,
 
+    MTLPixelFormatRGB10A2Unorm,
     MTLPixelFormatRGBA16Float,
+    MTLPixelFormatRGBA8Unorm_sRGB,
 
     MTLPixelFormatStencil8,
     MTLPixelFormatDepth32Float,
@@ -464,17 +466,57 @@ void MtlCaps::initFormatTable() {
         }
     }
 
+    // Format: RGBA8Unorm_sRGB
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm_sRGB)];
+        info->fFlags = FormatInfo::kAllFlags;
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RGBA8Unorm_sRGB, Surface: kSRGBA_8888
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kSRGBA_8888_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
+    // Format: RGB10A2Unorm
+    {
+        info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGB10A2Unorm)];
+        if (this->isMac() || fFamilyGroup >= 3) {
+            info->fFlags = FormatInfo::kAllFlags;
+        } else {
+            info->fFlags = FormatInfo::kTexturable_Flag;
+        }
+        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
+        int ctIdx = 0;
+        // Format: RGB10A2Unorm, Surface: kRGBA_1010102
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kRGBA_1010102_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+    }
+
     // Format: RGBA16Float
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA16Float)];
         info->fFlags = FormatInfo::kAllFlags;
-        info->fColorTypeInfoCount = 1;
+        info->fColorTypeInfoCount = 2;
         info->fColorTypeInfos.reset(new ColorTypeInfo[info->fColorTypeInfoCount]());
         int ctIdx = 0;
         // Format: RGBA16Float, Surface: RGBA_F16
         {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = kRGBA_F16_SkColorType;
+            ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+        }
+        // Format: RGBA16Float, Surface: RGBA_F16Norm
+        {
+            auto& ctInfo = info->fColorTypeInfos[ctIdx++];
+            ctInfo.fColorType = kRGBA_F16Norm_SkColorType;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
         }
     }
@@ -526,11 +568,14 @@ void MtlCaps::initFormatTable() {
     }
 
     this->setColorType(kRGBA_8888_SkColorType,        { MTLPixelFormatRGBA8Unorm });
+    this->setColorType(kSRGBA_8888_SkColorType,       { MTLPixelFormatRGBA8Unorm_sRGB });
     this->setColorType(kRGB_888x_SkColorType,         { MTLPixelFormatRGBA8Unorm });
     this->setColorType(kBGRA_8888_SkColorType,        { MTLPixelFormatBGRA8Unorm });
+    this->setColorType(kRGBA_1010102_SkColorType,     { MTLPixelFormatRGB10A2Unorm });
     this->setColorType(kGray_8_SkColorType,           { MTLPixelFormatR8Unorm });
     this->setColorType(kR8_unorm_SkColorType,         { MTLPixelFormatR8Unorm });
     this->setColorType(kRGBA_F16_SkColorType,         { MTLPixelFormatRGBA16Float });
+    this->setColorType(kRGBA_F16Norm_SkColorType,     { MTLPixelFormatRGBA16Float });
 }
 
 TextureInfo MtlCaps::getDefaultSampledTextureInfo(SkColorType colorType,

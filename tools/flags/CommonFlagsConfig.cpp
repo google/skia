@@ -41,7 +41,14 @@ static const struct {
     const char* options;
 } gPredefinedConfigs[] = {
     { "gl",                    "gpu", "api=gl" },
+    { "glf16",                 "gpu", "api=gl,color=f16" },
+    { "glf16norm",             "gpu", "api=gl,color=f16norm" },
+    { "glsrgba",               "gpu", "api=gl,color=srgba" },
+    { "gl1010102",             "gpu", "api=gl,color=1010102" },
     { "gles",                  "gpu", "api=gles" },
+    { "glesf16",               "gpu", "api=gles,color=f16" },
+    { "glessrgba",             "gpu", "api=gles,color=srgba" },
+    { "gles1010102",           "gpu", "api=gles,color=1010102" },
     { "glesfakev2",            "gpu", "api=glesfakev2" },
     { "gldmsaa",               "gpu", "api=gl,dmsaa=true" },
     { "glesdmsaa",             "gpu", "api=gles,dmsaa=true" },
@@ -57,14 +64,7 @@ static const struct {
     { "gl565",                 "gpu", "api=gl,color=565" },
     { "gl888x",                "gpu", "api=gl,color=888x" },
     { "gles888x",              "gpu", "api=gles,color=888x" },
-    { "gl1010102",             "gpu", "api=gl,color=1010102" },
-    { "gles1010102",           "gpu", "api=gles,color=1010102" },
-    { "glf16",                 "gpu", "api=gl,color=f16" },
-    { "glf16norm",             "gpu", "api=gl,color=f16norm" },
-    { "glsrgba",               "gpu", "api=gl,color=srgba" },
     { "glr8",                  "gpu", "api=gl,color=r8" },
-    { "glesf16",               "gpu", "api=gles,color=f16" },
-    { "glessrgba",             "gpu", "api=gles,color=srgba" },
     { "glnostencils",          "gpu", "api=gl,stencils=false" },
     { "gldft",                 "gpu", "api=gl,dit=true" },
     { "glesdft",               "gpu", "api=gles,dit=true" },
@@ -105,10 +105,10 @@ static const struct {
 #endif
 #ifdef SK_VULKAN
     { "vk",                    "gpu", "api=vulkan" },
+    { "vkf16",                 "gpu", "api=vulkan,color=f16" },
+    { "vk1010102",             "gpu", "api=vulkan,color=1010102" },
     { "vkdmsaa",               "gpu", "api=vulkan,dmsaa=true" },
     { "vknostencils",          "gpu", "api=vulkan,stencils=false" },
-    { "vk1010102",             "gpu", "api=vulkan,color=1010102" },
-    { "vkf16",                 "gpu", "api=vulkan,color=f16" },
     { "vkmsaa4",               "gpu", "api=vulkan,samples=4" },
     { "vkmsaa8",               "gpu", "api=vulkan,samples=8" },
     { "vkbetex",               "gpu", "api=vulkan,surf=betex" },
@@ -119,6 +119,9 @@ static const struct {
 #endif
 #ifdef SK_METAL
     { "mtl",                   "gpu", "api=metal" },
+    { "mtlf16",                "gpu", "api=metal,color=f16" },
+    { "mtlf16norm",            "gpu", "api=metal,color=f16norm" },
+    { "mtlsrgba",              "gpu", "api=metal,color=srgba"},
     { "mtl1010102",            "gpu", "api=metal,color=1010102" },
     { "mtlmsaa4",              "gpu", "api=metal,samples=4" },
     { "mtlmsaa8",              "gpu", "api=metal,samples=8" },
@@ -142,6 +145,10 @@ static const struct {
 #endif
 #ifdef SK_METAL
     { "grmtl",                 "graphite", "api=metal" },
+    { "grmtlf16",              "graphite", "api=metal,color=f16" },
+    { "grmtlf16norm",          "graphite", "api=metal,color=f16norm" },
+    { "grmtlsrgba",            "graphite", "api=metal,color=srgba"},
+    { "grmtl1010102",          "graphite", "api=metal,color=1010102" },
 #endif
 #ifdef SK_VULKAN
     { "grvk",                  "graphite", "api=vulkan" },

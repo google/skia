@@ -116,7 +116,7 @@ private:
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
     };
-    inline static constexpr size_t kNumMtlFormats = 10;
+    inline static constexpr size_t kNumMtlFormats = 12;
 
     static size_t GetFormatIndex(MTLPixelFormat);
     FormatInfo fFormatTable[kNumMtlFormats];
