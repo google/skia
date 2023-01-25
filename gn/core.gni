@@ -546,7 +546,6 @@ skia_core_sources = [
   "$_src/core/SkUnPreMultiply.cpp",
   "$_src/core/SkUtils.cpp",
   "$_src/core/SkUtils.h",
-  "$_src/core/SkUtilsArm.cpp",
   "$_src/core/SkVM.cpp",
   "$_src/core/SkVM.h",
   "$_src/core/SkVMBlitter.cpp",

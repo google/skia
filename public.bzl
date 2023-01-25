@@ -672,7 +672,6 @@ BASE_SRCS_ALL = [
     "src/core/SkUnPreMultiply.cpp",
     "src/core/SkUtils.cpp",
     "src/core/SkUtils.h",
-    "src/core/SkUtilsArm.cpp",
     "src/core/SkVM.cpp",
     "src/core/SkVM.h",
     "src/core/SkVMBlitter.cpp",
