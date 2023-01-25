@@ -48,6 +48,7 @@ ignorelist = [
   'include/third_party/skcms',
   # Temporary (hopefully) shims for Android
   'SkMalloc.h',
+  'SkTSearch.h',
   'SkTemplates.h',
 ]
 
