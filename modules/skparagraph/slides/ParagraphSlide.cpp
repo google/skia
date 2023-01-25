@@ -445,7 +445,6 @@ public:
 
         const std::string line =
                 "World domination is such an ugly phrase - I prefer to call it world optimisation";
-
         drawLine(canvas, width, height, line, TextAlign::kLeft, 1, false, SK_ColorLTGRAY);
         canvas->translate(width, 0);
         drawLine(canvas, width, height, line, TextAlign::kRight, 2, false, SK_ColorLTGRAY);
@@ -454,7 +453,6 @@ public:
         canvas->translate(width, 0);
         drawLine(canvas, width, height, line, TextAlign::kJustify, 4, false, SK_ColorLTGRAY);
         canvas->translate(-width * 3, height);
-
         drawLine(canvas, width, height, line, TextAlign::kLeft, 1, true, SK_ColorLTGRAY);
         canvas->translate(width, 0);
         drawLine(canvas, width, height, line, TextAlign::kRight, 2, true, SK_ColorLTGRAY);
@@ -497,7 +495,7 @@ private:
         paraStyle.setTextAlign(align);
         paraStyle.setMaxLines(lineLimit);
         paraStyle.setEllipsis(ellipsis);
-        // paraStyle.setTextDirection(RTL ? SkTextDirection::rtl : SkTextDirection::ltr);
+        paraStyle.setTextDirection(RTL ? TextDirection::kRtl : TextDirection::kLtr);
 
         auto fontCollection = sk_make_sp<FontCollection>();
         fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
@@ -3987,7 +3985,6 @@ public:
 class ParagraphSlide_MultiStyle_Arabic2 : public ParagraphSlide_Base {
 public:
     ParagraphSlide_MultiStyle_Arabic2() { fName = SkString("ParagraphSlide_MultiStyle_Arabic2"); }
-
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(SK_ColorWHITE);
         auto fontCollection = getFontCollection();
@@ -4010,6 +4007,41 @@ public:
         auto paragraph = builder.Build();
         paragraph->layout(this->size().width());
         paragraph->paint(canvas, 0, 0);
+    }
+};
+
+class ParagraphSlideLast : public ParagraphSlide_Base {
+public:
+    ParagraphSlideLast() { fName = "ParagraphSlideLast"; }
+    void draw(SkCanvas* canvas) override {
+        canvas->drawColor(SK_ColorWHITE);
+        auto fontCollection = getFontCollection();
+        fontCollection->setDefaultFontManager(SkFontMgr::RefDefault());
+        fontCollection->enableFontFallback();
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Noto Naskh Arabic")});
+        text_style.setFontSize(100);
+        text_style.setColor(SK_ColorBLACK);
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextStyle(text_style);
+        paragraph_style.setTextAlign(TextAlign::kStart);
+        paragraph_style.setEllipsis(u"\u2026");
+        auto draw = [&](std::u16string text, size_t lines, TextDirection dir) {
+            paragraph_style.setMaxLines(lines);
+            paragraph_style.setTextDirection(dir);
+            ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+            builder.pushStyle(text_style);
+            builder.addText(text);
+            auto paragraph = builder.Build();
+            paragraph->layout(this->size().width()); // 841 474 953
+            paragraph->paint(canvas, 0, 0);
+            canvas->translate(0, paragraph->getHeight() + 10);
+        };
+
+        draw(u"English text (defalt LTR)", 1, TextDirection::kLtr);
+        draw(u"English text (defalt RTL)", 1, TextDirection::kRtl);
+        draw(u"تظاهرات و(defalt LTR) تجمعات اعتراضی در سراسر کشور ۲۳ مهر", 2, TextDirection::kLtr);
+        draw(u"تظاهرات و(defalt RTL) تجمعات اعتراضی در سراسر کشور ۲۳ مهر", 2, TextDirection::kRtl);
     }
 };
 }  // namespace
@@ -4085,4 +4117,5 @@ DEF_SLIDE(return new ParagraphSlide_MultiStyle_EmojiFamily();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_Arabic1();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_Zalgo();)
 DEF_SLIDE(return new ParagraphSlide_MultiStyle_Arabic2();)
+DEF_SLIDE(return new ParagraphSlideLast();)
 

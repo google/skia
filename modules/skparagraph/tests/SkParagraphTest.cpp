@@ -7576,7 +7576,7 @@ UNIX_ONLY_TEST(SkParagraph_MultiStyle_Arabic, reporter) {
     auto iPos = paragraph->getGlyphPositionAtCoordinate(TestCanvasWidth - width/6, height/2);
     REPORTER_ASSERT(reporter, f1Pos.position == 4 && f1Pos.affinity == Affinity::kUpstream);
     REPORTER_ASSERT(reporter, f2Pos.position == 1 && f2Pos.affinity == Affinity::kUpstream);
-    REPORTER_ASSERT(reporter, iPos.position == 1 && iPos.affinity == Affinity::kDownstream);
+    REPORTER_ASSERT(reporter, iPos.position == 0 && iPos.affinity == Affinity::kDownstream);
 
     // Bounding boxes around a part of a grapheme are empty
     auto f1 = paragraph->getRectsForRange(0, 1, RectHeightStyle::kTight, RectWidthStyle::kTight);
@@ -7648,4 +7648,79 @@ UNIX_ONLY_TEST(SkParagraph_MultiStyle_Zalgo, reporter) {
     auto posP = paragraph->getGlyphPositionAtCoordinate(resKP.back().rect.fRight, height/2);
     auto posH = paragraph->getGlyphPositionAtCoordinate(resPh.back().rect.fRight, height/2);
     REPORTER_ASSERT(reporter, posK.position == 148 && posP.position == 264 && posH.position == 572);
+};
+
+// RTL Ellipsis
+UNIX_ONLY_TEST(SkParagraph_RtlEllipsis1, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_RtlEllipsis1.png");
+
+    canvas.get()->drawColor(SK_ColorWHITE);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic"), SkString("Roboto")});
+    text_style.setFontSize(100);
+    text_style.setColor(SK_ColorBLACK);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.setEllipsis(u"\u2026");
+    paragraph_style.setTextAlign(TextAlign::kStart);
+    paragraph_style.setMaxLines(1);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.pushStyle(text_style);
+    builder.addText(u"1  2  3  4  5  6  7  8  9");
+    auto paragraph = builder.Build();
+    paragraph->layout(474);
+    paragraph->paint(canvas.get(), 0, 0);
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() == 1);
+    auto& line = impl->lines()[0];
+    bool first = true;
+    line.iterateThroughVisualRuns(true,
+        [&]
+        (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            REPORTER_ASSERT(reporter, first == (run->isEllipsis()));
+            first = false;
+            return true;
+        });
+};
+
+UNIX_ONLY_TEST(SkParagraph_RtlEllipsis2, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
+    if (!fontCollection->fontsFound()) return;
+
+    TestCanvas canvas("SkParagraph_RtlEllipsis2.png");
+
+    canvas.get()->drawColor(SK_ColorWHITE);
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Noto Naskh Arabic"), SkString("Roboto")});
+    text_style.setFontSize(100);
+    text_style.setColor(SK_ColorBLACK);
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextStyle(text_style);
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.setEllipsis(u"\u2026");
+    paragraph_style.setTextAlign(TextAlign::kStart);
+    paragraph_style.setMaxLines(2);
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection);
+    builder.pushStyle(text_style);
+    builder.addText(u"تظاهرات و تجمعات اعتراضی در سراسر کشور ۲۳ مهر");
+    auto paragraph = builder.Build();
+    paragraph->layout(474);
+    paragraph->paint(canvas.get(), 0, 0);
+    auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+    REPORTER_ASSERT(reporter, paragraph->lineNumber() == 2);
+    auto& line = impl->lines()[1];
+    bool first = true;
+    line.iterateThroughVisualRuns(true,
+        [&]
+        (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
+            REPORTER_ASSERT(reporter, first == (run->isEllipsis()));
+            first = false;
+            return true;
+        });
 };

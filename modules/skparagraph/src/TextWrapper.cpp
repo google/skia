@@ -56,13 +56,13 @@ void TextWrapper::lookAhead(SkScalar maxWidth, Cluster* endOfClusters) {
             if (cluster->isWhitespaceBreak()) {
                 // It's the end of the word
                 fClusters.extend(cluster);
-                fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
+                fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, this->getClustersTrimmedWidth());
                 fWords.extend(fClusters);
                 continue;
             } else if (cluster->run().isPlaceholder()) {
                 if (!fClusters.empty()) {
                     // Placeholder ends the previous word
-                    fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, getClustersTrimmedWidth());
+                    fMinIntrinsicWidth = std::max(fMinIntrinsicWidth, this->getClustersTrimmedWidth());
                     fWords.extend(fClusters);
                 }
 
@@ -287,22 +287,22 @@ void TextWrapper::breakTextIntoLines(ParagraphImpl* parent,
     bool needEllipsis = false;
     while (fEndLine.endCluster() != end) {
 
-        lookAhead(maxWidth, end);
+        this->lookAhead(maxWidth, end);
 
         auto lastLine = (hasEllipsis && unlimitedLines) || fLineNumber >= maxLines;
         needEllipsis = hasEllipsis && !endlessLine && lastLine;
 
-        moveForward(needEllipsis);
+        this->moveForward(needEllipsis);
         needEllipsis &= fEndLine.endCluster() < end - 1; // Only if we have some text to ellipsize
 
         // Do not trim end spaces on the naturally last line of the left aligned text
-        trimEndSpaces(align);
+        this->trimEndSpaces(align);
 
         // For soft line breaks add to the line all the spaces next to it
         Cluster* startLine;
         size_t pos;
         SkScalar widthWithSpaces;
-        std::tie(startLine, pos, widthWithSpaces) = trimStartSpaces(end);
+        std::tie(startLine, pos, widthWithSpaces) = this->trimStartSpaces(end);
 
         if (needEllipsis && !fHardLineBreak) {
             // This is what we need to do to preserve a space before the ellipsis
