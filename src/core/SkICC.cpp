@@ -9,11 +9,11 @@
 #include "include/core/SkStream.h"
 #include "include/private/SkFixed.h"
 #include "src/base/SkAutoMalloc.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkEndian.h"
 #include "src/core/SkICCPriv.h"
 #include "src/core/SkMD5.h"
-#include "src/core/SkUtils.h"
 
 #include <cmath>
 #include <string>

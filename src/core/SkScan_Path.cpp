@@ -10,6 +10,7 @@
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/base/SkTSort.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
@@ -18,7 +19,6 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScanPriv.h"
-#include "src/core/SkTSort.h"
 
 #include <utility>
 

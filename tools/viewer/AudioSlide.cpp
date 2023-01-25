@@ -8,7 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
 #include "modules/audioplayer/SkAudioPlayer.h"
-#include "src/core/SkUtils.h"
+#include "src/base/SkUtils.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 

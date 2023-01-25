@@ -8,9 +8,9 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkRasterPipelineOpList.h"
 #include "src/core/SkTHash.h"
-#include "src/core/SkUtils.h"
 
 #include <cstdint>
 #include <initializer_list>

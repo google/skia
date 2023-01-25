@@ -10,8 +10,8 @@
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkTDynamicHash.h"
-#include "src/core/SkTInternalLList.h"
 #include "src/gpu/ganesh/GrDrawOpAtlas.h"
 #include "src/gpu/ganesh/GrOnFlushResourceProvider.h"
 

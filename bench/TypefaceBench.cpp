@@ -11,7 +11,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkTypeface.h"
 #include "src/base/SkUTF.h"
-#include "src/core/SkUtils.h"
+#include "src/base/SkUtils.h"
 
 // From Project Guttenberg. This is UTF-8 text.
 static const char* atext[] = {

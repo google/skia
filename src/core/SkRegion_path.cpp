@@ -9,10 +9,10 @@
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
+#include "src/base/SkTSort.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkRegionPriv.h"
 #include "src/core/SkScan.h"
-#include "src/core/SkTSort.h"
 
 // The rgnbuilder caller *seems* to pass short counts, possible often seens early failure, so
 // we may not want to promote this to a "std" routine just yet.

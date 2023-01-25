@@ -46,7 +46,7 @@
 #include "modules/svg/include/SkSVGTypes.h"
 #include "modules/svg/include/SkSVGUse.h"
 #include "modules/svg/include/SkSVGValue.h"
-#include "src/core/SkTSearch.h"
+#include "src/base/SkTSearch.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/xml/SkDOM.h"
 

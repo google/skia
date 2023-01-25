@@ -19,8 +19,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/base/SkZip.h"
 #include "src/core/SkGlyphBuffer.h"
-#include "src/core/SkZip.h"
 
 class SkBaseDevice;
 class SkCanvas;

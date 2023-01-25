@@ -9,8 +9,8 @@
 
 #include "include/gpu/GrTypes.h"
 #include "src/base/SkMathPriv.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkPointPriv.h"
-#include "src/core/SkUtils.h"
 #include "src/gpu/tessellate/WangsFormula.h"
 
 static const SkScalar kMinCurveTol = 0.0001f;

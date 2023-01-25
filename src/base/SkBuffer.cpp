@@ -5,11 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "src/base/SkBuffer.h"
+
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkMalloc.h"
-#include "src/core/SkBuffer.h"
 
-#include <string.h>
+#include <cstdint>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

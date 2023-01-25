@@ -11,7 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkTDPQueue.h"
+#include "src/base/SkTDPQueue.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkTMultiMap.h"
 #include "src/gpu/graphite/ResourceTypes.h"

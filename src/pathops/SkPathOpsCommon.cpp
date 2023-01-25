@@ -11,7 +11,7 @@
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTDArray.h"
-#include "src/core/SkTSort.h"
+#include "src/base/SkTSort.h"
 #include "src/pathops/SkOpAngle.h"
 #include "src/pathops/SkOpCoincidence.h"
 #include "src/pathops/SkOpContour.h"

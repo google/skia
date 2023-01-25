@@ -23,6 +23,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkTLazy.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkAutoBlitterChoose.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlitter.h"
@@ -39,7 +40,6 @@
 #include "src/core/SkSamplingPriv.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkStroke.h"
-#include "src/core/SkUtils.h"
 
 #include <utility>
 

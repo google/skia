@@ -22,6 +22,7 @@
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkTSearch.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkFDot6.h"
@@ -30,7 +31,6 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskGamma.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkTSearch.h"
 #include "src/ports/SkFontHost_FreeType_common.h"
 #include "src/sfnt/SkOTUtils.h"
 #include "src/sfnt/SkSFNTHeader.h"
@@ -1739,7 +1739,7 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "src/core/SkUtils.h"
+#include "src/base/SkUtils.h"
 
 SkTypeface_FreeType::SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch)
     : INHERITED(style, isFixedPitch)

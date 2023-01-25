@@ -10,6 +10,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkAutoMalloc.h"
+#include "src/base/SkTSort.h"
 #include "src/core/SkAnalyticEdge.h"
 #include "src/core/SkAntiRun.h"
 #include "src/core/SkBlitter.h"
@@ -20,7 +21,6 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkScanPriv.h"
-#include "src/core/SkTSort.h"
 
 #include <utility>
 

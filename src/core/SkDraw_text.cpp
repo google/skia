@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkBitmap.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkMatrixProvider.h"
@@ -13,7 +14,6 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrike.h"
-#include "src/core/SkUtils.h"
 #include "src/text/GlyphRun.h"
 #include <climits>
 

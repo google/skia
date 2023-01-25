@@ -8,12 +8,14 @@
 #ifndef SkBuffer_DEFINED
 #define SkBuffer_DEFINED
 
-#include "include/core/SkScalar.h"
-#include "include/core/SkTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "src/base/SkSafeMath.h"
 
-#include <limits>
+#include <cstddef>
+#include <cstdint>
+
+typedef float SkScalar;
 
 /** \class SkRBuffer
 

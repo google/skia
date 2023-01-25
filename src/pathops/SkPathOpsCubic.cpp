@@ -8,8 +8,8 @@
 
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkTSort.h"
 #include "src/core/SkGeometry.h"
-#include "src/core/SkTSort.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkLineParameters.h"
 #include "src/pathops/SkPathOpsConic.h"

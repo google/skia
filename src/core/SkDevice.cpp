@@ -389,7 +389,7 @@ bool SkBaseDevice::peekPixels(SkPixmap* pmap) {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-#include "src/core/SkUtils.h"
+#include "src/base/SkUtils.h"
 
 static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatrix& lm) {
      SkMatrix inverse_lm;

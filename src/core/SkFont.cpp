@@ -12,6 +12,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkTLazy.h"
 #include "src/base/SkUTF.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkMatrixPriv.h"
@@ -20,7 +21,6 @@
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
-#include "src/core/SkUtils.h"
 
 using namespace skia_private;
 

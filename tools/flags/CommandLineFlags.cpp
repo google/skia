@@ -6,7 +6,7 @@
  */
 
 #include "include/private/base/SkTDArray.h"
-#include "src/core/SkTSort.h"
+#include "src/base/SkTSort.h"
 #include "tools/flags/CommandLineFlags.h"
 
 #include <stdlib.h>

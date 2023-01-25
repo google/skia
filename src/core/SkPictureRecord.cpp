@@ -12,11 +12,11 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkTSearch.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkSamplingPriv.h"
-#include "src/core/SkTSearch.h"
 #include "src/image/SkImage_Base.h"
 #include "src/utils/SkPatchUtils.h"
 

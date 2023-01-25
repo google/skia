@@ -14,11 +14,11 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkMalloc.h"
+#include "src/base/SkTSort.h"
 #include "src/codec/SkBmpCodec.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkPngCodec.h"
 #include "src/core/SkStreamPriv.h"
-#include "src/core/SkTSort.h"
 
 #include "modules/skcms/skcms.h"
 #include <cstdint>

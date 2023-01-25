@@ -79,10 +79,42 @@
   { include: ["<__functional/function.h>", "private", "<functional>", "public"] },
 
   { include: ["<__iterator/access.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/advance.h>", "private", "<iterator>", "public"] },
   { include: ["<__iterator/back_insert_iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/bounded_iter.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/common_iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/concepts.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/counted_iterator.h>", "private", "<iterator>", "public"] },
   { include: ["<__iterator/data.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/default_sentinel.h>", "private", "<iterator>", "public"] },
   { include: ["<__iterator/distance.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/empty.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/erase_if_container.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/front_insert_iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/incrementable_traits.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/indirectly_comparable.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/insert_iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/istreambuf_iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/istream_iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/iterator_traits.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/iter_move.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/iter_swap.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/mergeable.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/move_iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/move_sentinel.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/next.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/ostreambuf_iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/ostream_iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/permutable.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/prev.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/projected.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/readable_traits.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/reverse_access.h>", "private", "<iterator>", "public"] },
   { include: ["<__iterator/reverse_iterator.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/sortable.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/unreachable_sentinel.h>", "private", "<iterator>", "public"] },
+  { include: ["<__iterator/wrap_iter.h>", "private", "<iterator>", "public"] },
 
   # The first of these is the preferred include, but the others are acceptable.
   { include: ["<__iterator/size.h>", "private", "<array>", "public"] },
@@ -343,6 +375,8 @@
   # Pretend SK_DEBUG is defined in SkDebug.h
   { symbol: ["SK_DEBUG", "private", "\"include/private/base/SkDebug.h\"", "public"] },
   { symbol: ["SK_DEBUG", "private", "\"include/private/base/SkLoadUserConfig.h\"", "public"] },
+
+  { symbol: ["SkScalar", "private", "\"include/core/SkScalar.h\"", "public"] },
 
   # IWYU seems to get confused on where the namespace sktext is "defined". Any files in
   # this list are ok.

@@ -10,7 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
-#include "src/core/SkTSort.h"
+#include "src/base/SkTSort.h"
 #include "tests/Test.h"
 
 #include <algorithm>

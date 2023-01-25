@@ -9,8 +9,8 @@
 
 #include "include/private/base/SkTo.h"
 #include "src/base/SkUTF.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkMD5.h"
-#include "src/core/SkUtils.h"
 #include "src/pdf/SkPDFTypes.h"
 
 #include <utility>

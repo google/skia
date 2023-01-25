@@ -8,7 +8,6 @@
 #include "include/core/SkGraphics.h"
 
 #include "include/core/SkCanvas.h"
-#include "include/private/base/SkMath.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkPath.h"
@@ -17,6 +16,8 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTime.h"
+#include "include/private/base/SkMath.h"
+#include "src/base/SkTSearch.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkGeometry.h"
@@ -25,7 +26,6 @@
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkScalerContext.h"
 #include "src/core/SkStrikeCache.h"
-#include "src/core/SkTSearch.h"
 #include "src/core/SkTypefaceCache.h"
 
 #include <stdlib.h>

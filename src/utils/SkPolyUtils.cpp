@@ -15,10 +15,10 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkVx.h"
 #include "include/private/base/SkMalloc.h"
+#include "src/base/SkTDPQueue.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkRectPriv.h"
-#include "src/core/SkTDPQueue.h"
-#include "src/core/SkTInternalLList.h"
 
 #include <algorithm>
 #include <cstdint>

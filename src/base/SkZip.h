@@ -8,15 +8,16 @@
 #ifndef SkZip_DEFINED
 #define SkZip_DEFINED
 
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkSpan_impl.h"
+
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <iterator>
 #include <tuple>
-#include <type_traits>
 #include <utility>
-
-#include "include/core/SkSpan.h"
-#include "include/core/SkTypes.h"
-#include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkTo.h"
 
 // Take a list of things that can be pointers, and use them all in parallel. The iterators and
 // accessor operator[] for the class produce a tuple of the items.

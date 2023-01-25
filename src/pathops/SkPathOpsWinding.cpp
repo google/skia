@@ -30,7 +30,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkTSort.h"
+#include "src/base/SkTSort.h"
 #include "src/pathops/SkOpContour.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkOpSpan.h"

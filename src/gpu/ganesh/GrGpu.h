@@ -14,7 +14,7 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkTInternalLList.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrAttachment.h"

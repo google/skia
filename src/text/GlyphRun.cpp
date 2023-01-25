@@ -11,13 +11,13 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkTextBlob.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkStrike.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTextBlobPriv.h"
-#include "src/core/SkUtils.h"
 
 namespace sktext {
 // -- GlyphRun -------------------------------------------------------------------------------------

@@ -15,7 +15,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/core/SkZip.h"
+#include "src/base/SkZip.h"
 #include "tools/Resources.h"
 
 #include <cinttypes>

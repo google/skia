@@ -12,7 +12,7 @@
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/effects/SkGradientShader.h"
-#include "src/core/SkUtils.h"
+#include "src/base/SkUtils.h"
 #include "tools/Resources.h"
 #include "tools/viewer/ClickHandlerSlide.h"
 

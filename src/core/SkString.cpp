@@ -12,7 +12,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
 #include "src/base/SkUTF.h"
-#include "src/core/SkUtils.h"
+#include "src/base/SkUtils.h"
 
 #include <algorithm>
 #include <cstdio>

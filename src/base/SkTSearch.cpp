@@ -6,10 +6,11 @@
  */
 
 
-#include "src/core/SkTSearch.h"
+#include "src/base/SkTSearch.h"
 
 #include "include/private/base/SkMalloc.h"
 
+#include <cstring>
 #include <ctype.h>
 
 static inline const char* index_into_base(const char*const* base, int index,

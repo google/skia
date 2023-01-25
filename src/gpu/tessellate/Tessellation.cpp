@@ -8,9 +8,9 @@
 #include "src/gpu/tessellate/Tessellation.h"
 
 #include "include/core/SkPath.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkUtils.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/tessellate/CullTest.h"
 #include "src/gpu/tessellate/MiddleOutPolygonTriangulator.h"

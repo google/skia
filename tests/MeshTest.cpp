@@ -10,8 +10,8 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "src/base/SkZip.h"
 #include "src/core/SkMeshPriv.h"
-#include "src/core/SkZip.h"
 #include "tests/Test.h"
 
 #include <algorithm>

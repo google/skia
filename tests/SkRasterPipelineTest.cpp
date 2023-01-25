@@ -7,9 +7,9 @@
 
 #include "include/private/SkHalf.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
-#include "src/core/SkUtils.h"
 #include "src/gpu/Swizzle.h"
 #include "tests/Test.h"
 

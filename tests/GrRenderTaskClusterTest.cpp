@@ -9,7 +9,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
-#include "src/core/SkTInternalLList.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/gpu/ganesh/GrRenderTask.h"
 #include "src/gpu/ganesh/GrRenderTaskCluster.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"

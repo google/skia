@@ -14,7 +14,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "src/core/SkBuffer.h"
+#include "src/base/SkBuffer.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScaleToSides.h"

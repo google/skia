@@ -11,8 +11,8 @@
 #include "include/private/base/SkPathEnums.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkBuffer.h"
 #include "src/base/SkSafeMath.h"
-#include "src/core/SkBuffer.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
 

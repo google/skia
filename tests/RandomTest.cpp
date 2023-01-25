@@ -8,7 +8,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMath.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkTSort.h"
+#include "src/base/SkTSort.h"
 #include "tests/Test.h"
 
 #include <cmath>

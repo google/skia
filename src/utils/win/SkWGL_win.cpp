@@ -12,8 +12,8 @@
 
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTDArray.h"
-#include "src/core/SkTSearch.h"
-#include "src/core/SkTSort.h"
+#include "src/base/SkTSearch.h"
+#include "src/base/SkTSort.h"
 
 bool SkWGLExtensions::hasExtension(HDC dc, const char* ext) const {
     if (nullptr == this->fGetExtensionsString) {

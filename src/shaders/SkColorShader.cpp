@@ -8,11 +8,11 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkFlattenable.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkUtils.h"
 #include "src/core/SkVM.h"
 #include "src/shaders/SkShaderBase.h"
 

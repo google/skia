@@ -7,7 +7,7 @@
 
 #include "include/private/base/SkTDArray.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkTDPQueue.h"
+#include "src/base/SkTDPQueue.h"
 #include "tests/Test.h"
 
 namespace { bool intless(const int& a, const int& b) { return a < b; } }

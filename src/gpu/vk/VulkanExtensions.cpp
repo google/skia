@@ -7,8 +7,8 @@
 
 #include "include/gpu/vk/VulkanExtensions.h"
 
-#include "src/core/SkTSearch.h"
-#include "src/core/SkTSort.h"
+#include "src/base/SkTSearch.h"
+#include "src/base/SkTSort.h"
 
 namespace skgpu {
 

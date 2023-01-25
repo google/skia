@@ -9,10 +9,10 @@
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/utils/SkRandom.h"
+#include "src/base/SkTSearch.h"
+#include "src/base/SkTSort.h"
+#include "src/base/SkZip.h"
 #include "src/core/SkEnumerate.h"
-#include "src/core/SkTSearch.h"
-#include "src/core/SkTSort.h"
-#include "src/core/SkZip.h"
 #include "tests/Test.h"
 
 #include <array>

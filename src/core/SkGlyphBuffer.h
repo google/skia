@@ -8,9 +8,9 @@
 #ifndef SkGlyphBuffer_DEFINED
 #define SkGlyphBuffer_DEFINED
 
+#include "src/base/SkZip.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyph.h"
-#include "src/core/SkZip.h"
 
 #include <climits>
 

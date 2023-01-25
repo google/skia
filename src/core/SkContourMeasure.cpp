@@ -7,10 +7,10 @@
 
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkPath.h"
+#include "src/base/SkTSearch.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathMeasurePriv.h"
 #include "src/core/SkPathPriv.h"
-#include "src/core/SkTSearch.h"
 
 #define kMaxTValue  0x3FFFFFFF
 

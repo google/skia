@@ -13,8 +13,8 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/private/chromium/Slug.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkMaskFilterBase.h"
-#include "src/core/SkTInternalLList.h"
 #include "src/text/gpu/SubRunContainer.h"
 
 class SkMatrixProvider;

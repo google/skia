@@ -16,8 +16,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkTInternalLList.h"
 #include "src/core/SkIPoint16.h"
-#include "src/core/SkTInternalLList.h"
 #include "src/gpu/RectanizerSkyline.h"
 
 class GrOpFlushState;

@@ -12,8 +12,8 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMalloc.h"
 #include "modules/skcms/skcms.h"
+#include "src/base/SkUtils.h"  // unaligned_{load,store}
 #include "src/core/SkRasterPipeline.h"
-#include "src/core/SkUtils.h"  // unaligned_{load,store}
 #include <cstdint>
 
 // Every function in this file should be marked static and inline using SI.

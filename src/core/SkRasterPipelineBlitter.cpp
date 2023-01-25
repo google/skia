@@ -11,6 +11,7 @@
 #include "include/core/SkShader.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkColorFilterBase.h"
@@ -19,7 +20,6 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipeline.h"
-#include "src/core/SkUtils.h"
 #include "src/shaders/SkShaderBase.h"
 
 #define SK_BLITTER_TRACE_IS_RASTER_PIPELINE

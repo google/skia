@@ -28,9 +28,9 @@
 #include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skunicode/include/SkUnicode.h"
+#include "src/base/SkTDPQueue.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkLRUCache.h"
-#include "src/core/SkTDPQueue.h"
 
 #include <hb.h>
 #include <hb-ot.h>

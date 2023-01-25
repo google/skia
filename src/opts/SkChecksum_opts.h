@@ -10,7 +10,7 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/SkChecksum.h"
-#include "src/core/SkUtils.h"   // sk_unaligned_load
+#include "src/base/SkUtils.h"   // sk_unaligned_load
 
 // This function is designed primarily to deliver consistent results no matter the platform,
 // but then also is optimized for speed on modern machines with CRC32c instructions.

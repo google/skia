@@ -33,6 +33,7 @@
 #include "include/utils/SkNoDrawCanvas.h"
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGNode.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
@@ -43,7 +44,6 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkScalerContext.h"
-#include "src/core/SkUtils.h"
 #include "src/sfnt/SkOTUtils.h"
 #include "tools/Resources.h"
 

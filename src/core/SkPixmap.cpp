@@ -18,6 +18,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/base/SkVx.h"
+#include "src/base/SkUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkImageInfoPriv.h"
@@ -25,7 +26,6 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPixmapPriv.h"
 #include "src/core/SkRasterClip.h"
-#include "src/core/SkUtils.h"
 #include "src/image/SkReadPixelsRec.h"
 #include "src/shaders/SkImageShader.h"
 

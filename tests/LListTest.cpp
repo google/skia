@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/core/SkTInternalLList.h"
+#include "src/base/SkTInternalLList.h"
 #include "tests/Test.h"
 
 #include <utility>

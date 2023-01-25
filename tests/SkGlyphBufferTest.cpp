@@ -9,10 +9,10 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "src/base/SkZip.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphBuffer.h"
-#include "src/core/SkZip.h"
 #include "tests/Test.h"
 
 #include <cstddef>

@@ -9,7 +9,7 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/utils/SkRandom.h"
-#include "src/core/SkTSort.h"
+#include "src/base/SkTSort.h"
 
 #include <algorithm>
 #include <stdlib.h>

@@ -1141,7 +1141,7 @@ bool SkRegion::op(const SkRegion& rgna, const SkRegion& rgnb, Op op) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "src/core/SkBuffer.h"
+#include "src/base/SkBuffer.h"
 
 size_t SkRegion::writeToMemory(void* storage) const {
     if (nullptr == storage) {

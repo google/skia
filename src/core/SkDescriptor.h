@@ -13,7 +13,7 @@
 
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkNoncopyable.h"
-#include "src/core/SkBuffer.h"
+#include "src/base/SkBuffer.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkScalerContext.h"
 

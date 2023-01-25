@@ -10,7 +10,9 @@
 #ifndef SkTSearch_DEFINED
 #define SkTSearch_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/private/base/SkAssert.h"
+
+#include <cstddef>
 
 /**
  *  All of the SkTSearch variants want to return the index (0...N-1) of the

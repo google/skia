@@ -14,7 +14,7 @@
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkRandom.h"
 #include "src/base/SkAutoMalloc.h"
-#include "src/core/SkBuffer.h"
+#include "src/base/SkBuffer.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/utils/SkOSPath.h"
