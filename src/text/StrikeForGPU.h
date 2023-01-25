@@ -73,6 +73,12 @@ private:
 class StrikeForGPU {
 public:
     virtual ~StrikeForGPU() = default;
+
+    virtual void lock() = 0;
+    virtual void unlock() = 0;
+
+    virtual SkGlyphDigest digest(SkPackedGlyphID) = 0;
+
     virtual const SkDescriptor& getDescriptor() const = 0;
 
     // Returns the bounding rectangle of the accepted glyphs. Remember for device masks this
@@ -102,9 +108,6 @@ public:
     // Return a strike promise.
     virtual SkStrikePromise strikePromise() = 0;
 
-    // Return the maximum dimension of a span of glyphs.
-    virtual SkScalar findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) = 0;
-
     struct Deleter {
         void operator()(StrikeForGPU* ptr) const {
             ptr->onAboutToExitScope();
@@ -129,6 +132,16 @@ union IDOrPath {
 union IDOrDrawable {
     SkGlyphID fGlyphID;
     SkDrawable* fDrawable;
+};
+
+// -- StrikeMutationMonitor ------------------------------------------------------------------------
+class StrikeMutationMonitor {
+public:
+    StrikeMutationMonitor(StrikeForGPU* strike);
+    ~StrikeMutationMonitor();
+
+private:
+    StrikeForGPU* fStrike;
 };
 
 // -- StrikeForGPUCacheInterface -------------------------------------------------------------------

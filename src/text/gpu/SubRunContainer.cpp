@@ -2303,6 +2303,17 @@ size_t SubRunContainer::EstimateAllocSize(const GlyphRunList& glyphRunList) {
            + sizeof(SubRunContainer);
 }
 
+SkScalar find_maximum_glyph_dimension(StrikeForGPU* strike, SkSpan<const SkGlyphID> glyphs) {
+    StrikeMutationMonitor m{strike};
+    SkScalar maxDimension = 0;
+    for (SkGlyphID glyphID : glyphs) {
+        SkGlyphDigest digest = strike->digest(SkPackedGlyphID{glyphID});
+        maxDimension = std::max(static_cast<SkScalar>(digest.maxDimension()), maxDimension);
+    }
+
+    return maxDimension;
+}
+
 SubRunContainerOwner SubRunContainer::MakeInAlloc(
         const GlyphRunList& glyphRunList,
         const SkMatrix& positionMatrix,
@@ -2562,7 +2573,8 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                         runFont, runPaint, deviceProps, scalerContextFlags, m);
                 const ScopedStrikeForGPU gaugingStrike =
                         strikeSpec.findOrCreateScopedStrike(strikeCache);
-                const SkScalar maxDimension = gaugingStrike->findMaximumGlyphDimension(glyphs);
+                const SkScalar maxDimension =
+                        find_maximum_glyph_dimension(gaugingStrike.get(), glyphs);
                 if (maxDimension == 0) {
                     // Text Scalers don't create glyphs with a dimension larger than 65535. For very
                     // large sizes, this will cause all the dimensions to go to zero. Use 65535 as

@@ -46,6 +46,10 @@ public:
              const SkFontMetrics* metrics,
              std::unique_ptr<SkStrikePinner> pinner);
 
+    void lock() override SK_ACQUIRE(fStrikeLock);
+    void unlock() override SK_RELEASE_CAPABILITY(fStrikeLock);
+    SkGlyphDigest digest(SkPackedGlyphID) override SK_REQUIRES(fStrikeLock);
+
     // Lookup (or create if needed) the returned glyph using toID. If that glyph is not initialized
     // with an image, then use the information in fromGlyph to initialize the width, height top,
     // left, format and image of the glyph. This is mainly used preserving the glyph if it was
@@ -116,9 +120,6 @@ public:
         return sktext::SkStrikePromise(sk_ref_sp<SkStrike>(this));
     }
 
-    SkScalar findMaximumGlyphDimension(
-            SkSpan<const SkGlyphID> glyphs) override SK_EXCLUDES(fStrikeLock);
-
     // Convert all the IDs into SkPaths in the span.
     void glyphIDsToPaths(SkSpan<sktext::IDOrPath> idsOrPaths) SK_EXCLUDES(fStrikeLock);
 
@@ -147,8 +148,6 @@ private:
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances using a scaler.
     SkGlyph* glyph(SkPackedGlyphID) SK_REQUIRES(fStrikeLock);
-
-    SkGlyphDigest digest(SkPackedGlyphID) SK_REQUIRES(fStrikeLock);
 
     // Generate the glyph digest information and update structures to add the glyph.
     SkGlyphDigest addGlyph(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);

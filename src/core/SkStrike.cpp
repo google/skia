@@ -53,19 +53,27 @@ class SK_SCOPED_CAPABILITY SkStrike::Monitor {
 public:
     Monitor(SkStrike* strike) SK_ACQUIRE(strike->fStrikeLock)
             : fStrike{strike} {
-        fStrike->fStrikeLock.acquire();
-        fStrike->fMemoryIncrease = 0;
+        fStrike->lock();
     }
 
     ~Monitor() SK_RELEASE_CAPABILITY() {
-        const size_t memoryIncrease = fStrike->fMemoryIncrease;
-        fStrike->fStrikeLock.release();
-        fStrike->updateMemoryUsage(memoryIncrease);
+        fStrike->unlock();
     }
 
 private:
     SkStrike* const fStrike;
 };
+
+void SkStrike::lock() {
+    fStrikeLock.acquire();
+    fMemoryIncrease = 0;
+}
+
+void SkStrike::unlock() {
+    const size_t memoryIncrease = fMemoryIncrease;
+    fStrikeLock.release();
+    this->updateMemoryUsage(memoryIncrease);
+}
 
 SkGlyph* SkStrike::mergeGlyphAndImage(SkPackedGlyphID toID, const SkGlyph& fromGlyph) {
     Monitor m{this};
@@ -270,17 +278,6 @@ void SkStrike::prepareForDrawableDrawing(SkDrawableGlyphBuffer* accepted,
             }
         }
     }
-}
-
-SkScalar SkStrike::findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) {
-    SkScalar maxDimension = 0;
-    Monitor m{this};
-    for (SkGlyphID glyphID : glyphs) {
-        SkGlyphDigest digest = this->digest(SkPackedGlyphID{glyphID});
-        maxDimension = std::max(static_cast<SkScalar>(digest.maxDimension()), maxDimension);
-    }
-
-    return maxDimension;
 }
 
 void SkStrike::glyphIDsToPaths(SkSpan<sktext::IDOrPath> idsOrPaths) {

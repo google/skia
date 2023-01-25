@@ -76,4 +76,14 @@ std::optional<SkStrikePromise> SkStrikePromise::MakeFromBuffer(
 
     return SkStrikePromise{std::move(strike)};
 }
+
+// -- StrikeMutationMonitor ------------------------------------------------------------------------
+StrikeMutationMonitor::StrikeMutationMonitor(StrikeForGPU* strike)
+        : fStrike{strike} {
+    fStrike->lock();
+}
+
+StrikeMutationMonitor::~StrikeMutationMonitor() {
+    fStrike->unlock();
+}
 }  // namespace sktext

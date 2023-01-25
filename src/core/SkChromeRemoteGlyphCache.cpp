@@ -167,6 +167,10 @@ public:
                  SkDiscardableHandleId discardableHandleId);
     ~RemoteStrike() override = default;
 
+    void lock() override {}
+    void unlock() override {}
+    SkGlyphDigest digest(SkPackedGlyphID) override;
+
     void writePendingGlyphs(Serializer* serializer);
     SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
 
@@ -198,8 +202,6 @@ public:
 
     sktext::SkStrikePromise strikePromise() override;
 
-    SkScalar findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) override;
-
     void onAboutToExitScope() override {}
 
     bool hasPendingGlyphs() const {
@@ -209,7 +211,6 @@ public:
     void resetScalerContext();
 
 private:
-    SkGlyphDigest digest(SkPackedGlyphID);
 
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;
     void writeGlyphDrawable(const SkGlyph& glyph, Serializer* serializer) const;
@@ -389,16 +390,6 @@ SkGlyphDigest RemoteStrike::digest(SkPackedGlyphID packedID) {
         digest = fSentGlyphs.set(packedID, newDigest);
     }
     return *digest;
-}
-
-SkScalar RemoteStrike::findMaximumGlyphDimension(SkSpan<const SkGlyphID> glyphs) {
-    SkScalar maxDimension = 0;
-    for (SkGlyphID glyphID : glyphs) {
-        SkGlyphDigest digest = this->digest(SkPackedGlyphID{glyphID});
-        maxDimension = std::max(static_cast<SkScalar>(digest.maxDimension()), maxDimension);
-    }
-
-    return maxDimension;
 }
 
 SkRect RemoteStrike::prepareForMaskDrawing(
