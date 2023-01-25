@@ -1187,7 +1187,7 @@ void SkDraw::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& ori
     matrix.setTranslate(r.fLeft, r.fTop);
     SkPaint paintWithShader = make_paint_with_image(paint, bitmap, SkSamplingOptions(), &matrix);
     SkDraw draw(*this);
-    SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
+    SkMatrixProvider matrixProvider(SkMatrix::I());
     draw.fMatrixProvider = &matrixProvider;
     // call ourself with a rect
     draw.drawRect(r, paintWithShader);

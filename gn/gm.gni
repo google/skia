@@ -79,6 +79,7 @@ gm_sources = [
   "$_gm/clip_strokerect.cpp",
   "$_gm/clipdrawdraw.cpp",
   "$_gm/clippedbitmapshaders.cpp",
+  "$_gm/clipshader.cpp",
   "$_gm/collapsepaths.cpp",
   "$_gm/color4f.cpp",
   "$_gm/coloremoji.cpp",

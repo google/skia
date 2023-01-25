@@ -727,7 +727,7 @@ void Device::drawSpecial(SkSpecialImage* special,
                       special->colorInfo());
     // In most cases this ought to hit draw_texture since there won't be a color filter,
     // alpha-only texture+shader, or a high filter quality.
-    SkOverrideDeviceMatrixProvider matrixProvider(localToDevice);
+    SkMatrixProvider matrixProvider(localToDevice);
     draw_image(fContext.get(),
                fSurfaceDrawContext.get(),
                this->clip(),
