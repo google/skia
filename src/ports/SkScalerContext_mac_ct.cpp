@@ -714,6 +714,8 @@ void SkScalerContext_Mac::generateFontMetrics(SkFontMetrics* metrics) {
     metrics->fCapHeight    = SkScalarFromCGFloat( CTFontGetCapHeight(fCTFont.get()));
     metrics->fUnderlineThickness = SkScalarFromCGFloat( CTFontGetUnderlineThickness(fCTFont.get()));
     metrics->fUnderlinePosition = -SkScalarFromCGFloat( CTFontGetUnderlinePosition(fCTFont.get()));
+    metrics->fStrikeoutThickness = 0;
+    metrics->fStrikeoutPosition = 0;
 
     metrics->fFlags = 0;
     metrics->fFlags |= SkFontMetrics::kUnderlineThicknessIsValid_Flag;
@@ -728,30 +730,44 @@ void SkScalerContext_Mac::generateFontMetrics(SkFontMetrics* metrics) {
         metrics->fFlags |= SkFontMetrics::kBoundsInvalid_Flag;
     }
 
-    // See https://bugs.chromium.org/p/skia/issues/detail?id=6203
-    // At least on 10.12.3 with memory based fonts the x-height is always 0.6666 of the ascent and
-    // the cap-height is always 0.8888 of the ascent. It appears that the values from the 'OS/2'
-    // table are read, but then overwritten if the font is not a system font. As a result, if there
-    // is a valid 'OS/2' table available use the values from the table if they aren't too strange.
-    struct OS2HeightMetrics {
-        SK_OT_SHORT sxHeight;
-        SK_OT_SHORT sCapHeight;
-    } heights;
-    size_t bytesRead = this->getTypeface()->getTableData(
-            SkTEndian_SwapBE32(SkOTTableOS2::TAG), offsetof(SkOTTableOS2, version.v2.sxHeight),
-            sizeof(heights), &heights);
-    if (bytesRead == sizeof(heights)) {
+    sk_sp<SkData> os2 = this->getTypeface()->copyTableData(SkTEndian_SwapBE32(SkOTTableOS2::TAG));
+    if (os2) {
         // 'fontSize' is correct because the entire resolved size is set by the constructor.
-        CGFloat fontSize = CTFontGetSize(this->fCTFont.get());
-        unsigned upem = CTFontGetUnitsPerEm(this->fCTFont.get());
-        unsigned maxSaneHeight = upem * 2;
-        uint16_t xHeight = SkEndian_SwapBE16(heights.sxHeight);
-        if (xHeight && xHeight < maxSaneHeight) {
-            metrics->fXHeight = SkScalarFromCGFloat(xHeight * fontSize / upem);
+        const CGFloat fontSize = CTFontGetSize(fCTFont.get());
+        const unsigned int upem = CTFontGetUnitsPerEm(fCTFont.get());
+        const unsigned int maxSaneHeight = upem * 2;
+
+        // See https://bugs.chromium.org/p/skia/issues/detail?id=6203
+        // At least on 10.12.3 with memory based fonts the x-height is always 0.6666 of the ascent
+        // and the cap-height is always 0.8888 of the ascent. It appears that the values from the
+        // 'OS/2' table are read, but then overwritten if the font is not a system font. As a
+        // result, if there is a valid 'OS/2' table available use the values from the table if they
+        // aren't too strange.
+        if (sizeof(SkOTTableOS2_V2) <= os2->size()) {
+            const SkOTTableOS2_V2* os2v2 = static_cast<const SkOTTableOS2_V2*>(os2->data());
+            uint16_t xHeight = SkEndian_SwapBE16(os2v2->sxHeight);
+            if (xHeight && xHeight < maxSaneHeight) {
+                metrics->fXHeight = SkScalarFromCGFloat(xHeight * fontSize / upem);
+            }
+            uint16_t capHeight = SkEndian_SwapBE16(os2v2->sCapHeight);
+            if (capHeight && capHeight < maxSaneHeight) {
+                metrics->fCapHeight = SkScalarFromCGFloat(capHeight * fontSize / upem);
+            }
         }
-        uint16_t capHeight = SkEndian_SwapBE16(heights.sCapHeight);
-        if (capHeight && capHeight < maxSaneHeight) {
-            metrics->fCapHeight = SkScalarFromCGFloat(capHeight * fontSize / upem);
+
+        // CoreText does not provide the strikeout metrics, which are available in OS/2 version 0.
+        if (sizeof(SkOTTableOS2_V0) <= os2->size()) {
+            const SkOTTableOS2_V0* os2v0 = static_cast<const SkOTTableOS2_V0*>(os2->data());
+            uint16_t strikeoutSize = SkEndian_SwapBE16(os2v0->yStrikeoutSize);
+            if (strikeoutSize && strikeoutSize < maxSaneHeight) {
+                metrics->fStrikeoutThickness = SkScalarFromCGFloat(strikeoutSize * fontSize / upem);
+                metrics->fFlags |= SkFontMetrics::kStrikeoutThicknessIsValid_Flag;
+            }
+            uint16_t strikeoutPos = SkEndian_SwapBE16(os2v0->yStrikeoutPosition);
+            if (strikeoutPos && strikeoutPos < maxSaneHeight) {
+                metrics->fStrikeoutPosition = -SkScalarFromCGFloat(strikeoutPos * fontSize / upem);
+                metrics->fFlags |= SkFontMetrics::kStrikeoutPositionIsValid_Flag;
+            }
         }
     }
 }
