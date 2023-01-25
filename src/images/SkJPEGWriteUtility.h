@@ -20,6 +20,7 @@ extern "C" {
     #include "jpeglib.h"
 }
 
+class SkData;
 class SkWStream;
 
 void skjpeg_error_exit(j_common_ptr cinfo);
@@ -29,9 +30,12 @@ void skjpeg_error_exit(j_common_ptr cinfo);
  * object.
  */
 struct SK_SPI skjpeg_destination_mgr : jpeg_destination_mgr {
-    skjpeg_destination_mgr(SkWStream* stream);
+    skjpeg_destination_mgr(SkWStream* stream, SkData* suffix = nullptr);
 
-    SkWStream*  fStream;
+    SkWStream* const fStream;
+    // Extra data to write after the Jpeg file's EndOfImage. Used for JpegR
+    // based gainmaps.
+    SkData* const fSuffix;
 
     enum {
         kBufferSize = 1024
