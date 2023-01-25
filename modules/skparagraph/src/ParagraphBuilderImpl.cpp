@@ -91,7 +91,7 @@ TextStyle ParagraphBuilderImpl::peekStyle() {
 }
 
 void ParagraphBuilderImpl::addText(const std::u16string& text) {
-#ifndef SK_UNICODE_ICU_IMPLEMENTATION
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     SkASSERT(!fTextIsFinalized);
 #endif
     auto utf8 = SkUnicode::convertUtf16ToUtf8(text);
@@ -99,28 +99,28 @@ void ParagraphBuilderImpl::addText(const std::u16string& text) {
 }
 
 void ParagraphBuilderImpl::addText(const char* text) {
-#ifndef SK_UNICODE_ICU_IMPLEMENTATION
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     SkASSERT(!fTextIsFinalized);
 #endif
     fUtf8.append(text);
 }
 
 void ParagraphBuilderImpl::addText(const char* text, size_t len) {
-#ifndef SK_UNICODE_ICU_IMPLEMENTATION
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     SkASSERT(!fTextIsFinalized);
 #endif
     fUtf8.append(text, len);
 }
 
 void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderStyle) {
-#ifndef SK_UNICODE_ICU_IMPLEMENTATION
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     SkASSERT(!fTextIsFinalized);
 #endif
     addPlaceholder(placeholderStyle, false);
 }
 
 void ParagraphBuilderImpl::addPlaceholder(const PlaceholderStyle& placeholderStyle, bool lastOne) {
-#ifndef SK_UNICODE_ICU_IMPLEMENTATION
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     SkASSERT(!fTextIsFinalized);
 #endif
     if (!fUtf8.isEmpty() && !lastOne) {
@@ -162,7 +162,7 @@ void ParagraphBuilderImpl::startStyledBlock() {
 }
 
 void ParagraphBuilderImpl::finalize() {
-#ifndef SK_UNICODE_ICU_IMPLEMENTATION
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     if (fTextIsFinalized) {
         return;
     }
@@ -172,7 +172,7 @@ void ParagraphBuilderImpl::finalize() {
     }
     // Add one fake placeholder with the rest of the text
     this->addPlaceholder(PlaceholderStyle(), true);
-#ifndef SK_UNICODE_ICU_IMPLEMENTATION
+#if !defined(SK_UNICODE_ICU_IMPLEMENTATION) && defined(SK_UNICODE_CLIENT_IMPLEMENTATION)
     fTextIsFinalized = true;
 #endif
 }
