@@ -40,12 +40,13 @@ class SkWStream;
 
 class SkJpegEncoderMgr final : SkNoncopyable {
 public:
+
     /*
      * Create the decode manager
-     * Does not take ownership of stream or suffix.
+     * Does not take ownership of stream
      */
-    static std::unique_ptr<SkJpegEncoderMgr> Make(SkWStream* stream, SkData* suffix) {
-        return std::unique_ptr<SkJpegEncoderMgr>(new SkJpegEncoderMgr(stream, suffix));
+    static std::unique_ptr<SkJpegEncoderMgr> Make(SkWStream* stream) {
+        return std::unique_ptr<SkJpegEncoderMgr>(new SkJpegEncoderMgr(stream));
     }
 
     bool setParams(const SkImageInfo& srcInfo, const SkJpegEncoder::Options& options);
@@ -61,7 +62,11 @@ public:
     }
 
 private:
-    SkJpegEncoderMgr(SkWStream* stream, SkData* suffix) : fDstMgr(stream, suffix), fProc(nullptr) {
+
+    SkJpegEncoderMgr(SkWStream* stream)
+        : fDstMgr(stream)
+        , fProc(nullptr)
+    {
         fCInfo.err = jpeg_std_error(&fErrMgr);
         fErrMgr.error_exit = skjpeg_error_exit;
         jpeg_create_compress(&fCInfo);
@@ -174,21 +179,11 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
 
 std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst, const SkPixmap& src,
                                                const Options& options) {
-    return Make(dst, src, options, 0, nullptr, nullptr, nullptr);
-}
-
-std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst,
-                                               const SkPixmap& src,
-                                               const Options& options,
-                                               size_t segmentCount,
-                                               uint8_t* segmentMarkers,
-                                               SkData** segmentData,
-                                               SkData* suffix) {
     if (!SkPixmapIsValid(src)) {
         return nullptr;
     }
 
-    std::unique_ptr<SkJpegEncoderMgr> encoderMgr = SkJpegEncoderMgr::Make(dst, suffix);
+    std::unique_ptr<SkJpegEncoderMgr> encoderMgr = SkJpegEncoderMgr::Make(dst);
 
     skjpeg_error_mgr::AutoPushJmpBuf jmp(encoderMgr->errorMgr());
     if (setjmp(jmp)) {
@@ -201,14 +196,6 @@ std::unique_ptr<SkEncoder> SkJpegEncoder::Make(SkWStream* dst,
 
     jpeg_set_quality(encoderMgr->cinfo(), options.fQuality, TRUE);
     jpeg_start_compress(encoderMgr->cinfo(), TRUE);
-
-    for (size_t i = 0; i < segmentCount; ++i) {
-        SkASSERT(segmentData[i]->size() <= kSegmentDataMaxSize);
-        jpeg_write_marker(encoderMgr->cinfo(),
-                          segmentMarkers[i],
-                          segmentData[i]->bytes(),
-                          segmentData[i]->size());
-    }
 
     sk_sp<SkData> icc =
             icc_from_color_space(src.info(), options.fICCProfile, options.fICCProfileDescription);
