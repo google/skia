@@ -209,6 +209,9 @@ public:
     [[nodiscard]] bool pushTernaryExpression(const Expression& test,
                                              const Expression& ifTrue,
                                              const Expression& ifFalse);
+    [[nodiscard]] bool pushDynamicallyUniformTernaryExpression(const Expression& test,
+                                                               const Expression& ifTrue,
+                                                               const Expression& ifFalse);
     [[nodiscard]] bool pushVariableReference(const VariableReference& v);
 
     /** Pops an expression from the value stack and copies it into slots. */
@@ -2084,9 +2087,61 @@ bool Generator::pushTernaryExpression(const TernaryExpression& t) {
     return this->pushTernaryExpression(*t.test(), *t.ifTrue(), *t.ifFalse());
 }
 
+bool Generator::pushDynamicallyUniformTernaryExpression(const Expression& test,
+                                                        const Expression& ifTrue,
+                                                        const Expression& ifFalse) {
+    SkASSERT(Analysis::IsDynamicallyUniformExpression(test));
+
+    int falseLabelID = fBuilder.nextLabelID();
+    int exitLabelID = fBuilder.nextLabelID();
+
+    // First, push the test-expression into a separate stack.
+    this->nextTempStack();
+    if (!this->pushExpression(test)) {
+        return unsupported();
+    }
+
+    // Branch to the true- or false-expression based on the test-expression. We can skip the
+    // non-true path entirely since the test is known to be uniform.
+    fBuilder.branch_if_stack_top_equals(0, falseLabelID);
+    this->previousTempStack();
+
+    if (!this->pushExpression(ifTrue)) {
+        return unsupported();
+    }
+
+    fBuilder.jump(exitLabelID);
+
+    // The builder doesn't understand control flow, and assumes that every push moves the stack-top
+    // forwards. We need to manually balance out the `pushExpression` from the if-true path by
+    // moving the stack position backwards, so that the if-false path pushes its expression into the
+    // same as the if-true result.
+    this->discardExpression(/*slots=*/ifTrue.type().slotCount());
+
+    fBuilder.label(falseLabelID);
+
+    if (!this->pushExpression(ifFalse)) {
+        return unsupported();
+    }
+
+    fBuilder.label(exitLabelID);
+
+    // Jettison the text-expression from the separate stack.
+    this->nextTempStack();
+    this->discardExpression(/*slots=*/1);
+    this->previousTempStack();
+    return true;
+}
+
 bool Generator::pushTernaryExpression(const Expression& test,
                                       const Expression& ifTrue,
                                       const Expression& ifFalse) {
+    // If the test-expression is dynamically-uniform, we can skip over the non-true expressions
+    // entirely, and not need to involve the condition mask.
+    if (Analysis::IsDynamicallyUniformExpression(test)) {
+        return this->pushDynamicallyUniformTernaryExpression(test, ifTrue, ifFalse);
+    }
+
     fBuilder.enableExecutionMaskWrites();
 
     // First, push the current condition-mask and the test-expression into a separate stack.
