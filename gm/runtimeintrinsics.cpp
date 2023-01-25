@@ -72,8 +72,7 @@ static SkBitmap draw_shader(SkCanvas* canvas, sk_sp<SkShader> shader,
 
     if (surface) {
         surface->getCanvas()->clear(SK_ColorWHITE);
-        surface->getCanvas()->scale(kBoxSize, kBoxSize);
-        surface->getCanvas()->drawRect({0, 0, 1, 1}, paint);
+        surface->getCanvas()->drawRect({0, 0, kBoxSize, kBoxSize}, paint);
 
         bitmap.allocPixels(info);
         surface->readPixels(bitmap, 0, 0);
@@ -101,6 +100,7 @@ static SkString make_unary_sksl_1d(const char* fn, bool requireES3) {
             "uniform float xScale; uniform float xBias;"
             "uniform float yScale; uniform float yBias;"
             "half4 main(float2 p) {"
+            "    p.xy *= 1.0 / %d.0;"
             "    const float2 v1 = float2(1);"
             "    const float2 v2 = float2(2);"
             "    p = float2(p.x, 1 - p.x) * xScale + xBias;"
@@ -110,7 +110,7 @@ static SkString make_unary_sksl_1d(const char* fn, bool requireES3) {
             "    float y = float(%s) * yScale + yBias;"
             "    return y.xxx1;"
             "}",
-            requireES3 ? "300" : "100", fn);
+            requireES3 ? "300" : "100", kBoxSize, fn);
 }
 
 // Draws one row of boxes, then advances the canvas translation vertically
@@ -434,12 +434,13 @@ static SkString make_matrix_comp_mult_sksl(int dim) {
             "uniform float%dx%d m2;"                              // dim, dim
             SKSL_MATRIX_SELECTORS
             "half4 main(float2 p) {"
+            "    p.xy *= 1.0 / %d.0;"                             // kBoxSize
             "    float%d colSel = sel%d(p.x);"                    // dim, dim
             "    float%d rowSel = sel%d(p.y);"                    // dim, dim
             "    float%d col = matrixCompMult(m1, m2) * colSel;"  // dim
             "    float  v = dot(col, rowSel);"
             "    return v.xxx1;"
-            "}", dim, dim, dim, dim, dim, dim, dim, dim, dim);
+            "}", dim, dim, dim, dim, kBoxSize, dim, dim, dim, dim, dim);
 }
 
 template <int N>
@@ -474,12 +475,13 @@ static SkString make_matrix_inverse_sksl(int dim) {
             "uniform float%dx%d m;"                    // dim, dim
             SKSL_MATRIX_SELECTORS
             "half4 main(float2 p) {"
+            "    p.xy *= 1.0 / %d.0;"                  // kBoxSize
             "    float%d colSel = sel%d(p.x);"         // dim, dim
             "    float%d rowSel = sel%d(p.y);"         // dim, dim
             "    float%d col = inverse(m) * colSel;"   // dim
             "    float  v = dot(col, rowSel) * scale + bias;"
             "    return v.xxx1;"
-            "}", dim, dim, dim, dim, dim, dim, dim);
+            "}", dim, dim, kBoxSize, dim, dim, dim, dim, dim);
 }
 
 template <int N>
@@ -562,12 +564,13 @@ static SkString make_bvec_sksl(const char* type, const char* fn) {
     return SkStringPrintf(
             "uniform %s2 v1;"
             "half4 main(float2 p) {"
+            "    p.xy *= 1.0 / %d.0;"
             "    p.x = p.x < 0.33 ? -3.0 : (p.x < 0.66 ? -2.0 : -1.0);"
             "    p.y = p.y < 0.33 ? -3.0 : (p.y < 0.66 ? -2.0 : -1.0);"
             "    bool2 cmp = %s;"
             "    return half4(cmp.x ? 1.0 : 0.0, cmp.y ? 1.0 : 0.0, 0, 1);"
             "}",
-            type, fn);
+            type, kBoxSize, fn);
 }
 
 template <typename T = float>
