@@ -191,9 +191,9 @@ public:
     // Determines if the transformation m applied to the bounds can be approximated by
     // an affine transformation, i.e., the perspective part of the transformation has little
     // visible effect.
-    bool NearlyAffine(const SkMatrix& m,
-                      const SkRect& bounds,
-                      SkScalar tolerance = SK_ScalarNearlyZero);
+    static bool NearlyAffine(const SkMatrix& m,
+                             const SkRect& bounds,
+                             SkScalar tolerance = SK_ScalarNearlyZero);
 
     static SkScalar ComputeResScaleForStroking(const SkMatrix& matrix);
 };
