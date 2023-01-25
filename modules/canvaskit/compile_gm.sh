@@ -86,6 +86,7 @@ echo "Compiling bitcode"
   ] \
   is_debug=${DEBUG} \
   is_official_build=${IS_OFFICIAL_BUILD} \
+  is_trivial_abi=true \
   is_component_build=false \
   werror=true \
   target_cpu=\"wasm\" \
@@ -148,7 +149,8 @@ SKIA_DEFINES="
 -DSK_CODEC_DECODES_JPEG \
 -DSK_SHAPER_HARFBUZZ_AVAILABLE \
 -DSK_UNICODE_AVAILABLE \
--DSK_ENABLE_SVG"
+-DSK_ENABLE_SVG \
+-DSK_TRIVIAL_ABI=[[clang::trivial_abi]]"
 
 GMS_TO_BUILD="gm/*.cpp"
 TESTS_TO_BUILD="tests/*.cpp"
