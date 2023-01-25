@@ -850,6 +850,28 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
         auto UniformA = [&]() { return &uniforms[inst.fSlotA]; };
         float*& tempStackPtr = tempStackMap[currentStack];
 
+        auto WriteBranchOp = [&](RPOp op, SkRasterPipeline_BranchCtx* branchCtx) {
+            // If we have already encountered the label associated with this branch, this is a
+            // backwards branch. Add a stack-rewind immediately before the branch to ensure that
+            // long-running loops don't use an unbounded amount of stack space.
+            if (labelOffsets[inst.fImmA] >= 0) {
+                this->appendStackRewind(pipeline);
+                mostRecentRewind = pipeline->size();
+            }
+
+            // Write the absolute pipeline position into the branch targets, because the
+            // associated label might not have been reached yet. We will go back over the branch
+            // targets at the end and fix them up.
+            SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
+            SkASSERT(currentBranchOp >= 0 && currentBranchOp < fNumBranches);
+            branchCtx->offset = pipeline->size();
+
+            branchTargets[currentBranchOp] = branchCtx;
+            branchGoesToLabel[currentBranchOp] = inst.fImmA;
+            pipeline->push_back({op, branchCtx});
+            ++currentBranchOp;
+        };
+
         switch (inst.fOp) {
             case BuilderOp::label:
                 // Write the absolute pipeline position into the label offset list. We will go over
@@ -860,27 +882,15 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
 
             case BuilderOp::jump:
             case BuilderOp::branch_if_any_active_lanes:
-            case BuilderOp::branch_if_no_active_lanes: {
-                // If we have already encountered the label associated with this branch, this is a
-                // backwards branch. Add a stack-rewind immediately before the branch to ensure that
-                // long-running loops don't use an unbounded amount of stack space.
-                if (labelOffsets[inst.fImmA] >= 0) {
-                    this->appendStackRewind(pipeline);
-                    mostRecentRewind = pipeline->size();
-                }
+            case BuilderOp::branch_if_no_active_lanes:
+                WriteBranchOp((RPOp)inst.fOp, alloc->make<SkRasterPipeline_BranchCtx>());
+                break;
 
-                // Write the absolute pipeline position into the branch targets, because the
-                // associated label might not have been reached yet. We will go back over the branch
-                // targets at the end and fix them up.
-                SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
-                SkASSERT(currentBranchOp >= 0 && currentBranchOp < fNumBranches);
-                SkRasterPipeline_BranchCtx* branchCtx = alloc->make<SkRasterPipeline_BranchCtx>();
-                branchCtx->offset = pipeline->size();
-
-                branchTargets[currentBranchOp] = branchCtx;
-                branchGoesToLabel[currentBranchOp] = inst.fImmA;
-                pipeline->push_back({(RPOp)inst.fOp, branchCtx});
-                ++currentBranchOp;
+            case BuilderOp::branch_if_stack_top_equals: {
+                auto* ctx = alloc->make<SkRasterPipeline_BranchIfEqualCtx>();
+                ctx->value = inst.fImmB;
+                ctx->ptr = reinterpret_cast<int*>(tempStackPtr - N);
+                WriteBranchOp(RPOp::branch_if_all_lanes_equal, ctx);
                 break;
             }
             case BuilderOp::init_lane_masks:
@@ -1161,9 +1171,8 @@ void Program::dump(SkWStream* out) {
         const Stage& stage = stages[index];
 
         // Interpret the context value as a branch offset.
-        auto BranchOffset = [&](const void* ctx) -> std::string {
-            const int *ctxAsInt = static_cast<const int*>(ctx);
-            return SkSL::String::printf("%+d (#%d)", *ctxAsInt, *ctxAsInt + index + 1);
+        auto BranchOffset = [&](const SkRasterPipeline_BranchCtx* ctx) -> std::string {
+            return SkSL::String::printf("%+d (#%d)", ctx->offset, ctx->offset + index + 1);
         };
 
         // Print a 32-bit immediate value of unknown type (int/float).
@@ -1614,9 +1623,16 @@ void Program::dump(SkWStream* out) {
             case RPOp::jump:
             case RPOp::branch_if_any_active_lanes:
             case RPOp::branch_if_no_active_lanes:
-                opArg1 = BranchOffset(stage.ctx);
+                opArg1 = BranchOffset(static_cast<SkRasterPipeline_BranchCtx*>(stage.ctx));
                 break;
 
+            case RPOp::branch_if_all_lanes_equal: {
+                const auto* ctx = static_cast<SkRasterPipeline_BranchIfEqualCtx*>(stage.ctx);
+                opArg1 = BranchOffset(ctx);
+                opArg2 = PtrCtx(ctx->ptr, 1);
+                opArg3 = Imm(sk_bit_cast<float>(ctx->value));
+                break;
+            }
             default:
                 break;
         }
@@ -1919,6 +1935,10 @@ void Program::dump(SkWStream* out) {
             case RPOp::branch_if_any_active_lanes:
             case RPOp::branch_if_no_active_lanes:
                 opText = std::string(opName) + " " + opArg1;
+                break;
+
+            case RPOp::branch_if_all_lanes_equal:
+                opText = std::string(opName) + " " + opArg1 + ", if " + opArg2 + " == " + opArg3;
                 break;
 
             default:

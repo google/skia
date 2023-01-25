@@ -62,6 +62,7 @@ enum class BuilderOp {
     pop_return_mask,
     set_current_stack,
     label,
+    branch_if_stack_top_equals,
     unsupported
 };
 
@@ -292,6 +293,19 @@ public:
             return;
         }
         fInstructions.push_back({BuilderOp::branch_if_no_active_lanes, {}, labelID});
+        ++fNumBranches;
+    }
+
+    void branch_if_stack_top_equals(int value, int labelID) {
+        SkASSERT(labelID >= 0 && labelID < fNumLabels);
+        if (!fInstructions.empty() &&
+            (fInstructions.back().fOp == BuilderOp::branch_if_stack_top_equals &&
+             fInstructions.back().fImmB == value)) {
+            // The previous instruction was `branch_if_stack_top_equals` and checked the same value,
+            // so this branch could never possibly occur.
+            return;
+        }
+        fInstructions.push_back({BuilderOp::branch_if_stack_top_equals, {}, labelID, value});
         ++fNumBranches;
     }
 
