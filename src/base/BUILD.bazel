@@ -29,6 +29,7 @@ skia_filegroup(
     srcs = IWYU_HDRS + [
         "SkArenaAlloc.h",
         "SkAutoMalloc.h",
+        "SkBezierCurves.h",
         "SkBlockAllocator.h",
         "SkBuffer.h",
         "SkCubics.h",
@@ -68,6 +69,7 @@ skia_filegroup(
 skia_filegroup(
     name = "srcs",
     srcs = [
+        "SkBezierCurves.cpp",
         "SkBuffer.cpp",
         "SkCubics.cpp",
         "SkDeque.cpp",

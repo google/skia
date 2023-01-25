@@ -309,6 +309,8 @@ BASE_SRCS_ALL = [
     "src/base/SkArenaAlloc.h",
     "src/base/SkArenaAllocList.h",
     "src/base/SkAutoMalloc.h",
+    "src/base/SkBezierCurves.cpp",
+    "src/base/SkBezierCurves.h",
     "src/base/SkBlockAllocator.cpp",
     "src/base/SkBlockAllocator.h",
     "src/base/SkBuffer.cpp",

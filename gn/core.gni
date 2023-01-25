@@ -199,6 +199,8 @@ skia_core_sources = [
   "$_src/base/SkArenaAlloc.h",
   "$_src/base/SkArenaAllocList.h",
   "$_src/base/SkAutoMalloc.h",
+  "$_src/base/SkBezierCurves.cpp",
+  "$_src/base/SkBezierCurves.h",
   "$_src/base/SkBlockAllocator.cpp",
   "$_src/base/SkBlockAllocator.h",
   "$_src/base/SkBuffer.cpp",
