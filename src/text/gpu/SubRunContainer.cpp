@@ -2314,6 +2314,37 @@ SkScalar find_maximum_glyph_dimension(StrikeForGPU* strike, SkSpan<const SkGlyph
     return maxDimension;
 }
 
+#if !defined(SK_DISABLE_SDF_TEXT)
+SkRect prepare_for_SDFT_drawing(StrikeForGPU* strike,
+                                SkDrawableGlyphBuffer* accepted,
+                                SkSourceGlyphBuffer* rejected) {
+    SkGlyphRect boundingRect = skglyph::empty_rect();
+    StrikeMutationMonitor m{strike};
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkGlyphDigest digest = strike->digest(packedID);
+            if (!digest.isEmpty()) {
+                if (digest.canDrawAsSDFT()) {
+                    const SkGlyphRect glyphBounds =
+                            digest.bounds()
+                                // The SDFT glyphs have 2-pixel wide padding that should
+                                // not be used in calculating the source rectangle.
+                                .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
+                                .offset(pos);
+                    boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+                    accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
+                } else {
+                    // Assume whatever follows SDF doesn't care about the maximum rejected size.
+                    rejected->reject(i);
+                }
+            }
+        }
+    }
+
+    return boundingRect.rect();
+}
+#endif
+
 SubRunContainerOwner SubRunContainer::MakeInAlloc(
         const GlyphRunList& glyphRunList,
         const SkMatrix& positionMatrix,
@@ -2418,7 +2449,8 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                         msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                     }
 
-                    SkRect creationBounds = strike->prepareForSDFTDrawing(accepted, rejected);
+                    SkRect creationBounds =
+                            prepare_for_SDFT_drawing(strike.get(), accepted, rejected);
                     rejected->flipRejectsToSource();
 
                     if (creationBehavior == kAddSubRuns && !accepted->empty()) {

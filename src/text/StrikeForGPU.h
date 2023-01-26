@@ -88,12 +88,6 @@ public:
                 SkDrawableGlyphBuffer* accepted,
                 SkSourceGlyphBuffer* rejected) = 0;
 
-#if !defined(SK_DISABLE_SDF_TEXT)
-    virtual SkRect prepareForSDFTDrawing(
-                SkDrawableGlyphBuffer* accepted,
-                SkSourceGlyphBuffer* rejected) = 0;
-#endif
-
     virtual void prepareForPathDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) = 0;
 

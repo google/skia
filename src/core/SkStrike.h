@@ -97,11 +97,6 @@ public:
     SkRect prepareForMaskDrawing(SkDrawableGlyphBuffer* accepted,
                                  SkSourceGlyphBuffer* rejected) override SK_EXCLUDES(fStrikeLock);
 
-#if !defined(SK_DISABLE_SDF_TEXT)
-    SkRect prepareForSDFTDrawing(SkDrawableGlyphBuffer* accepted,
-                                 SkSourceGlyphBuffer* rejected) override SK_EXCLUDES(fStrikeLock);
-#endif
-
     void prepareForPathDrawing(SkDrawableGlyphBuffer* accepted,
                                SkSourceGlyphBuffer* rejected) override SK_EXCLUDES(fStrikeLock);
 

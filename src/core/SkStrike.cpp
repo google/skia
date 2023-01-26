@@ -207,37 +207,6 @@ SkRect SkStrike::prepareForMaskDrawing(SkDrawableGlyphBuffer* accepted,
     return boundingRect.rect();
 }
 
-#if !defined(SK_DISABLE_SDF_TEXT)
-SkRect SkStrike::prepareForSDFTDrawing(SkDrawableGlyphBuffer* accepted,
-                                       SkSourceGlyphBuffer* rejected) {
-    SkGlyphRect boundingRect = skglyph::empty_rect();
-    Monitor m{this};
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyphDigest digest = this->digest(packedID);
-            // N.B. this must have the same behavior as RemoteStrike::prepareForSDFTDrawing.
-            if (!digest.isEmpty()) {
-                if (digest.canDrawAsSDFT()) {
-                    const SkGlyphRect glyphBounds =
-                            digest.bounds()
-                                // The SDFT glyphs have 2-pixel wide padding that should
-                                // not be used in calculating the source rectangle.
-                                .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
-                                .offset(pos);
-                    boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                    accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
-                } else {
-                    // Assume whatever follows SDF doesn't care about the maximum rejected size.
-                    rejected->reject(i);
-                }
-            }
-        }
-    }
-
-    return boundingRect.rect();
-}
-#endif
-
 void SkStrike::prepareForPathDrawing(SkDrawableGlyphBuffer* accepted,
                                      SkSourceGlyphBuffer* rejected) {
     Monitor m{this};
