@@ -2352,6 +2352,29 @@ SkRect prepare_for_SDFT_drawing(StrikeForGPU* strike,
 }
 #endif
 
+SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
+                                SkDrawableGlyphBuffer* accepted,
+                                SkSourceGlyphBuffer* rejected) {
+    SkGlyphRect boundingRect = skglyph::empty_rect();
+    StrikeMutationMonitor m{strike};
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkGlyphDigest digest = strike->digest(packedID);
+            if (!digest.isEmpty()) {
+                if (digest.canDrawAsMask()) {
+                    const SkGlyphRect glyphBounds = digest.bounds().offset(pos);
+                    boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+                    accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
+                } else {
+                    rejected->reject(i);
+                }
+            }
+        }
+    }
+
+    return boundingRect.rect();
+}
+
 SubRunContainerOwner SubRunContainer::MakeInAlloc(
         const GlyphRunList& glyphRunList,
         const SkMatrix& positionMatrix,
@@ -2408,6 +2431,8 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
         return SkMakeZip(packedGlyphIDs, positions);
     };
     SkPoint glyphRunListLocation = glyphRunList.sourceBounds().center();
+
+    // Handle all the runs in the glyphRunList
     for (auto& glyphRun : glyphRunList) {
         rejected->setSource(glyphRun.source());
         const SkFont& runFont = glyphRun.font();
@@ -2418,10 +2443,14 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 SkFontPriv::ApproximateTransformedTextSize(runFont, positionMatrix,
                                                            glyphRunListLocation);
 
+
+        // Atlas mask cases - SDFT and direct mask
         // Only consider using direct or SDFT drawing if not drawing hairlines and not too big.
         if ((runPaint.getStyle() != SkPaint::kStroke_Style || runPaint.getStrokeWidth() != 0) &&
                 approximateDeviceTextSize < 512) {
+
 #if !defined(SK_DISABLE_SDF_TEXT)
+            // SDFT case
             if (SDFTControl.isSDFT(approximateDeviceTextSize, runPaint, positionMatrix)) {
                 // Process SDFT - This should be the .009% case.
                 const auto& [strikeSpec, strikeToSourceScale, matrixRange] =
@@ -2471,6 +2500,8 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             }
 #endif // !defined(SK_DISABLE_SDF_TEXT)
 
+            // Direct Mask case
+            // Handle all the directly mapped mask subruns.
             if (!rejected->source().empty() && !positionMatrix.hasPerspective()) {
                 // Process masks including ARGB - this should be the 99.99% case.
                 // This will handle medium size emoji that are sharing the run with SDFT drawn text.
@@ -2490,7 +2521,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 if constexpr (kTrace) {
                     msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
-                SkRect bounds = strike->prepareForMaskDrawing(accepted, rejected);
+                SkRect bounds = prepare_for_mask_drawing(strike.get(), accepted, rejected);
                 rejected->flipRejectsToSource();
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
@@ -2511,8 +2542,9 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             }
         }
 
+        // Drawable case
+        // Handle all the drawable glyphs - usually large or perspective color glyphs.
         if (!rejected->source().empty()) {
-            // Drawable case - handle big things with that have a drawable.
             auto [strikeSpec, strikeToSourceScale] =
                     SkStrikeSpec::MakePath(runFont, runPaint, deviceProps, scalerContextFlags);
 
@@ -2539,8 +2571,10 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 }
             }
         }
+
+        // Path case
+        // Handle path subruns. Mainly, large or large perspective glyphs with no color.
         if (!rejected->source().empty()) {
-            // Path case - handle big things without color and that have a path.
             auto [strikeSpec, strikeToSourceScale] =
                     SkStrikeSpec::MakePath(runFont, runPaint, deviceProps, scalerContextFlags);
 
@@ -2570,10 +2604,11 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             }
         }
 
+        // Drawing of last resort case
+        // Draw all the rest of the rejected glyphs from above. This scales out of the atlas to
+        // the screen, so quality will suffer. This mainly handles large color or perspective
+        // color not handled by Drawables.
         if (!rejected->source().empty() && !SkScalarNearlyZero(approximateDeviceTextSize)) {
-            // Drawing of last resort - Scale masks that fit in the atlas to the screen using
-            // bilerp.
-
             // Creation matrix will be changed below to meet the following criteria:
             // * No perspective - the font scaler and the strikes can't handle perspective masks.
             // * Fits atlas - creationMatrix will be conditioned so that the maximum glyph
@@ -2651,7 +2686,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             if constexpr (kTrace) {
                 msg.appendf("glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
             }
-            SkRect creationBounds = strike->prepareForMaskDrawing(accepted, rejected);
+            SkRect creationBounds = prepare_for_mask_drawing(strike.get(), accepted, rejected);
             rejected->flipRejectsToSource();
             SkASSERT(rejected->source().empty());
 

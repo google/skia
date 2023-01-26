@@ -184,10 +184,6 @@ public:
         return fRoundingSpec;
     }
 
-    SkRect prepareForMaskDrawing(
-            SkDrawableGlyphBuffer* accepted,
-            SkSourceGlyphBuffer* rejected) override;
-
     void prepareForPathDrawing(
             SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override;
 
@@ -384,28 +380,6 @@ SkGlyphDigest RemoteStrike::digest(SkPackedGlyphID packedID) {
         digest = fSentGlyphs.set(packedID, newDigest);
     }
     return *digest;
-}
-
-SkRect RemoteStrike::prepareForMaskDrawing(
-        SkDrawableGlyphBuffer* accepted,
-        SkSourceGlyphBuffer* rejected) {
-    SkGlyphRect boundingRect = skglyph::empty_rect();
-    for (auto [i, variant, pos] : SkMakeEnumerate(accepted->input())) {
-        SkPackedGlyphID packedID = variant.packedID();
-        SkGlyphDigest digest = this->digest(packedID);
-        // N.B. this must have the same behavior as SkScalerCache::prepareForMaskDrawing.
-        if (!digest.isEmpty()) {
-            if (digest.canDrawAsMask()) {
-                const SkGlyphRect glyphBounds = digest.bounds().offset(pos);
-                boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
-            } else {
-                // Reject things that are too big.
-                rejected->reject(i);
-            }
-        }
-    }
-    return boundingRect.rect();
 }
 
 void RemoteStrike::prepareForPathDrawing(

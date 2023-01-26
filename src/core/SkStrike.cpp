@@ -183,30 +183,6 @@ void SkStrike::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted) {
         });
 }
 
-// Note: this does not actually fill out the image. That happens at atlas building time.
-SkRect SkStrike::prepareForMaskDrawing(SkDrawableGlyphBuffer* accepted,
-                                       SkSourceGlyphBuffer* rejected) {
-    SkGlyphRect boundingRect = skglyph::empty_rect();
-    Monitor m{this};
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyphDigest digest = this->digest(packedID);
-            // N.B. this must have the same behavior as RemoteStrike::prepareForMaskDrawing.
-            if (!digest.isEmpty()) {
-                if (digest.canDrawAsMask()) {
-                    const SkGlyphRect glyphBounds = digest.bounds().offset(pos);
-                    boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                    accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
-                } else {
-                    rejected->reject(i);
-                }
-            }
-        }
-    }
-
-    return boundingRect.rect();
-}
-
 void SkStrike::prepareForPathDrawing(SkDrawableGlyphBuffer* accepted,
                                      SkSourceGlyphBuffer* rejected) {
     Monitor m{this};

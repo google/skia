@@ -94,9 +94,6 @@ public:
         return fStrikeSpec.descriptor();
     }
 
-    SkRect prepareForMaskDrawing(SkDrawableGlyphBuffer* accepted,
-                                 SkSourceGlyphBuffer* rejected) override SK_EXCLUDES(fStrikeLock);
-
     void prepareForPathDrawing(SkDrawableGlyphBuffer* accepted,
                                SkSourceGlyphBuffer* rejected) override SK_EXCLUDES(fStrikeLock);
 
