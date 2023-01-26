@@ -107,9 +107,6 @@ std::unique_ptr<SkAndroidCodec> SkAndroidCodec::MakeFromCodec(std::unique_ptr<Sk
 #ifndef SK_CODEC_DECODES_AVIF
         case SkEncodedImageFormat::kAVIF:
 #endif
-#ifdef SK_CODEC_DECODES_JPEGR
-        case SkEncodedImageFormat::kJPEGR:
-#endif
             return std::make_unique<SkSampledCodec>(codec.release());
 #ifdef SK_HAS_WUFFS_LIBRARY
         case SkEncodedImageFormat::kGIF:
@@ -174,15 +171,6 @@ SkColorType SkAndroidCodec::computeOutputColorType(SkColorType requestedColorTyp
         default:
             break;
     }
-
-#ifdef SK_CODEC_DECODES_JPEGR
-    if (fCodec->getEncodedFormat() == SkEncodedImageFormat::kJPEGR) {
-        if (requestedColorType == kRGBA_8888_SkColorType ||
-            requestedColorType == kBGRA_8888_SkColorType) {
-            return requestedColorType;
-        }
-    }
-#endif
 
     // F16 is the Android default for high precision images.
     return highPrecision ? kRGBA_F16_SkColorType :

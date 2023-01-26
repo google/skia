@@ -23,9 +23,6 @@ std::unique_ptr<BitmapRegionDecoder> BitmapRegionDecoder::Make(sk_sp<SkData> dat
 
     switch (codec->getEncodedFormat()) {
         case SkEncodedImageFormat::kJPEG:
-#ifdef SK_CODEC_DECODES_JPEGR
-        case SkEncodedImageFormat::kJPEGR:
-#endif
         case SkEncodedImageFormat::kPNG:
         case SkEncodedImageFormat::kWEBP:
         case SkEncodedImageFormat::kHEIF:

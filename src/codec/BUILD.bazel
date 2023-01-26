@@ -152,15 +152,6 @@ split_srcs_and_hdrs(
     ],
 )
 
-split_srcs_and_hdrs(
-    name = "decode_jpegr",
-    files = [
-        "SkJpegRCodec.cpp",
-        "SkJpegRCodec.h",
-        "SkStubJpegRDecoderAPI.h",
-    ],
-)
-
 string_flag_with_values(
     name = "include_decoder",
     multiple = True,
