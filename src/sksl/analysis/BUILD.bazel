@@ -10,6 +10,7 @@ ANALYSIS_FILES = [
     "SkSLFinalizationChecks.cpp",
     "SkSLGetLoopUnrollInfo.cpp",
     "SkSLGetReturnComplexity.cpp",
+    "SkSLHasContinueOrBreak.cpp",
     "SkSLHasSideEffects.cpp",
     "SkSLIsConstantExpression.cpp",
     "SkSLIsDynamicallyUniformExpression.cpp",

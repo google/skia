@@ -115,7 +115,18 @@ bool SwitchCaseContainsConditionalExit(Statement& stmt);
 std::unique_ptr<ProgramUsage> GetUsage(const Program& program);
 std::unique_ptr<ProgramUsage> GetUsage(const Module& module);
 
+/** Returns true if the passed-in statement might alter `var`. */
 bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
+
+/**
+ * Returns true if the passed-in block contains a `continue` or `break` that could directly affect
+ * its control flow. (A `continue` or `break` nested inside an inner loop/switch does not count.)
+ */
+struct ContinueOrBreakInfo {
+    bool fHasContinue = false;
+    bool fHasBreak = false;
+};
+ContinueOrBreakInfo HasContinueOrBreak(const Statement& stmt);
 
 /**
  * Returns true if the expression can be assigned-into. Pass `info` if you want to know the
