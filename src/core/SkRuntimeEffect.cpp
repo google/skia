@@ -12,6 +12,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkSurface.h"
 #include "include/private/base/SkMutex.h"
+#include "include/private/base/SkOnce.h"
 #include "include/sksl/DSLCore.h"
 #include "src/base/SkUtils.h"
 #include "src/core/SkBlenderBase.h"
@@ -57,6 +58,15 @@
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#endif
+
+// This flag can be enabled to use the new Raster Pipeline code generator for SkSL.
+//#define SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
+#include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
+//#include "src/sksl/tracing/SkRPDebugTrace.h"
 #endif
 
 #include <algorithm>
@@ -129,6 +139,7 @@ SkRuntimeEffect::Uniform SkRuntimeEffectPriv::VarAsUniform(const SkSL::Variable&
     SkASSERT(SkIsAlign4(*offset));
     return uni;
 }
+
 sk_sp<const SkData> SkRuntimeEffectPriv::TransformUniforms(
         SkSpan<const SkRuntimeEffect::Uniform> uniforms,
         sk_sp<const SkData> originalData,
@@ -182,6 +193,14 @@ sk_sp<const SkData> SkRuntimeEffectPriv::TransformUniforms(
     }
     return data ? data : originalData;
 }
+
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+static SkSpan<const float> uniforms_as_span(const SkData* inputs) {
+    SkASSERT(inputs);
+    return SkSpan<const float>{static_cast<const float*>(inputs->data()),
+                               inputs->size() / sizeof(float)};
+}
+#endif
 
 bool SkRuntimeEffectPriv::CanDraw(const SkCapabilities* caps, const SkSL::Program* program) {
     SkASSERT(caps && program);
@@ -1098,15 +1117,37 @@ public:
     }
 #endif
 
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+    bool onAppendStages(const SkStageRec& rec, bool) const override {
+        // Lazily compile the program the first time we see it used in onAppendStages.
+        fCompileRPProgramOnce([this] {
+            const_cast<SkRuntimeColorFilter*>(this)->fRPProgram =
+                    MakeRasterPipelineProgram(*fEffect->fBaseProgram,
+                                              fEffect->fMain,
+                                              /*trace=*/nullptr);
+        });
+
+        if (!fRPProgram) {
+            return false;
+        }
+        sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
+                                                                            fUniforms,
+                                                                            rec.fDstCS);
+
+        fRPProgram->appendStages(rec.fPipeline, rec.fAlloc, uniforms_as_span(inputs.get()));
+        return true;
+    }
+#else
+    bool onAppendStages(const SkStageRec& rec, bool) const override {
         return false;
     }
+#endif
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
                           const SkColorInfo& colorInfo,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
-        SkASSERT(
-                SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get()));
+        SkASSERT(SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(),
+                                              fEffect.get()));
 
         sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(
                 fEffect->uniforms(),
@@ -1176,6 +1217,11 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<const SkData> fUniforms;
     std::vector<SkRuntimeEffect::ChildPtr> fChildren;
+
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+    std::unique_ptr<SkSL::RP::Program> fRPProgram;
+    mutable SkOnce fCompileRPProgramOnce;
+#endif
 };
 
 sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
@@ -1278,9 +1324,34 @@ public:
     }
 #endif
 
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+    bool onAppendStages(const SkStageRec& rec) const override {
+        // Lazily compile the program the first time we see it used in onAppendStages.
+        fCompileRPProgramOnce([this] {
+            const_cast<SkRTShader*>(this)->fRPProgram =
+                    MakeRasterPipelineProgram(*fEffect->fBaseProgram,
+                                              fEffect->fMain,
+                                              /*trace=*/nullptr);
+        });
+
+        if (!fRPProgram) {
+            return false;
+        }
+        sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
+                                                                            fUniforms,
+                                                                            rec.fDstCS);
+
+        // TODO(johnstiles): seed_shader puts device coordinates into the shader inputs. After
+        // CL 628742 lands, we should be able to use the input coordinates as-is.
+        rec.fPipeline->append(SkRasterPipelineOp::seed_shader);
+        fRPProgram->appendStages(rec.fPipeline, rec.fAlloc, uniforms_as_span(inputs.get()));
+        return true;
+    }
+#else
     bool onAppendStages(const SkStageRec& rec) const override {
         return false;
     }
+#endif
 
     skvm::Color onProgram(skvm::Builder* p,
                           skvm::Coord device, skvm::Coord local, skvm::Color paint,
@@ -1327,9 +1398,13 @@ private:
 
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<SkSL::SkVMDebugTrace> fDebugTrace;
-
     sk_sp<const SkData> fUniforms;
     std::vector<SkRuntimeEffect::ChildPtr> fChildren;
+
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+    std::unique_ptr<SkSL::RP::Program> fRPProgram;
+    mutable SkOnce fCompileRPProgramOnce;
+#endif
 };
 
 sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {

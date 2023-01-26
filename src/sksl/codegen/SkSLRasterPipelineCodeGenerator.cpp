@@ -2389,7 +2389,6 @@ std::unique_ptr<RP::Program> Generator::finish() {
 std::unique_ptr<RP::Program> MakeRasterPipelineProgram(const SkSL::Program& program,
                                                        const FunctionDefinition& function,
                                                        SkRPDebugTrace* debugTrace) {
-    // TODO(skia:13676): add mechanism for uniform passing
     RP::Generator generator(program, debugTrace);
     if (!generator.writeProgram(function)) {
         return nullptr;
