@@ -1136,9 +1136,39 @@ void WGSLCodeGenerator::writeConstructorCompound(const ConstructorCompound& c,
 
 void WGSLCodeGenerator::writeConstructorCompoundVector(const ConstructorCompound& c,
                                                        Precedence parentPrecedence) {
-    // TODO(skia:13092): WGSL supports constructing vectors from a mix of scalars and vectors but
-    // not matrices. SkSL supports vec4(mat2x2) which we need to handle here
-    // (see https://www.w3.org/TR/WGSL/#type-constructor-expr).
+    // WGSL supports constructing vectors from a mix of scalars and vectors but
+    // not matrices (see https://www.w3.org/TR/WGSL/#type-constructor-expr).
+    //
+    // SkSL supports vec4(mat2x2) which we handle specially.
+    if (c.type().columns() == 4 && c.argumentSpan().size() == 1) {
+        const Expression& arg = *c.argumentSpan().front();
+        if (arg.type().isMatrix()) {
+            // This is the vec4(mat2x2) case.
+            SkASSERT(arg.type().columns() == 2);
+            SkASSERT(arg.type().rows() == 2);
+
+            // Generate a helper so that the argument expression gets evaluated once.
+            std::string name = String::printf("%s_from_%s",
+                                              to_mangled_wgsl_type_name(c.type()).c_str(),
+                                              to_mangled_wgsl_type_name(arg.type()).c_str());
+            if (!fHelpers.contains(name)) {
+                fHelpers.add(name);
+                std::string returnType = to_wgsl_type(c.type());
+                std::string argType = to_wgsl_type(arg.type());
+                fExtraFunctions.printf(
+                        "fn %s(x: %s) -> %s {\n    return %s(x[0].xy, x[1].xy);\n}\n",
+                        name.c_str(),
+                        argType.c_str(),
+                        returnType.c_str(),
+                        returnType.c_str());
+            }
+            this->write(name);
+            this->write("(");
+            this->writeExpression(arg, Precedence::kSequence);
+            this->write(")");
+            return;
+        }
+    }
     this->writeAnyConstructor(c, parentPrecedence);
 }
 

@@ -1,0 +1,6 @@
+uniform float2x2 f;
+uniform half2x2 h;
+
+void main() {
+    sk_FragColor = half4(h) + half4(f) + half4(float4(h) + float4(f));
+}
