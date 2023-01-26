@@ -2316,28 +2316,35 @@ SkScalar find_maximum_glyph_dimension(StrikeForGPU* strike, SkSpan<const SkGlyph
 
 #if !defined(SK_DISABLE_SDF_TEXT)
 SkRect prepare_for_SDFT_drawing(StrikeForGPU* strike,
+                                const SkMatrix& creationMatrix,
                                 SkDrawableGlyphBuffer* accepted,
                                 SkSourceGlyphBuffer* rejected) {
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyphDigest digest = strike->digest(packedID);
-            if (!digest.isEmpty()) {
-                if (digest.canDrawAsSDFT()) {
-                    const SkGlyphRect glyphBounds =
-                            digest.bounds()
-                                // The SDFT glyphs have 2-pixel wide padding that should
-                                // not be used in calculating the source rectangle.
-                                .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
-                                .offset(pos);
-                    boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                    accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
-                } else {
-                    // Assume whatever follows SDF doesn't care about the maximum rejected size.
-                    rejected->reject(i);
-                }
-            }
+        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+            continue;
+        }
+
+        SkGlyphDigest digest = strike->digest(packedID);
+
+        if (digest.isEmpty()) {
+            continue;
+        }
+
+        if (digest.canDrawAsSDFT()) {
+            SkPoint mappedPos = creationMatrix.mapPoint(pos);
+            const SkGlyphRect glyphBounds =
+                digest.bounds()
+                    // The SDFT glyphs have 2-pixel wide padding that should
+                    // not be used in calculating the source rectangle.
+                    .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
+                    .offset(mappedPos);
+            boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+            accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
+        } else {
+            // Assume whatever follows SDF doesn't care about the maximum rejected size.
+            rejected->reject(i);
         }
     }
 
@@ -2440,17 +2447,14 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                     SkMatrix creationMatrix =
                             SkMatrix::Scale(1.f/strikeToSourceScale, 1.f/strikeToSourceScale);
 
-                    // Scale all the positions by the creation matrix causing them to have the
-                    // correct device position when multiplied by
-                    //   [positionMatrix][scale by strikeToSourceScale].
-                    accepted->startSourceWithMatrixAdjustment(rejected->source(), creationMatrix);
+                    accepted->startSource(rejected->source());
 
                     if constexpr (kTrace) {
                         msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                     }
 
                     SkRect creationBounds =
-                            prepare_for_SDFT_drawing(strike.get(), accepted, rejected);
+                        prepare_for_SDFT_drawing(strike.get(), creationMatrix, accepted, rejected);
                     rejected->flipRejectsToSource();
 
                     if (creationBehavior == kAddSubRuns && !accepted->empty()) {
