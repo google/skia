@@ -74,10 +74,7 @@ bool GraphiteMetalWindowContext_mac::onInitializeContext() {
     return true;
 }
 
-void GraphiteMetalWindowContext_mac::onDestroyContext() {
-    fMainView.layer = nil;
-    fMainView.wantsLayer = NO;
-}
+void GraphiteMetalWindowContext_mac::onDestroyContext() {}
 
 void GraphiteMetalWindowContext_mac::resize(int w, int h) {
     CGFloat backingScaleFactor = sk_app::GetBackingScaleFactor(fMainView);
