@@ -48,6 +48,7 @@ class Literal;
 class MemoryLayout;
 class OutputStream;
 class Position;
+class PrefixExpression;
 class ProgramElement;
 class ReturnStatement;
 class Statement;
@@ -191,6 +192,7 @@ private:
     void writeFunctionCall(const FunctionCall&);
     void writeIndexExpression(const IndexExpression& i);
     void writeLiteral(const Literal& l);
+    void writePrefixExpression(const PrefixExpression& p, Precedence parentPrecedence);
     void writeSwizzle(const Swizzle& swizzle);
     void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
     void writeVariableReference(const VariableReference& r);

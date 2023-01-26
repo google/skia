@@ -51,6 +51,7 @@
 #include "src/sksl/ir/SkSLLayout.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLModifiers.h"
+#include "src/sksl/ir/SkSLPrefixExpression.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/sksl/ir/SkSLProgramElement.h"
 #include "src/sksl/ir/SkSLReturnStatement.h"
@@ -845,6 +846,9 @@ void WGSLCodeGenerator::writeExpression(const Expression& e, Precedence parentPr
         case Expression::Kind::kLiteral:
             this->writeLiteral(e.as<Literal>());
             break;
+        case Expression::Kind::kPrefix:
+            this->writePrefixExpression(e.as<PrefixExpression>(), parentPrecedence);
+            break;
         case Expression::Kind::kSwizzle:
             this->writeSwizzle(e.as<Swizzle>());
             break;
@@ -1019,6 +1023,53 @@ void WGSLCodeGenerator::writeLiteral(const Literal& l) {
         this->write("u");
     } else {
         this->write(std::to_string(l.intValue()));
+    }
+}
+
+void WGSLCodeGenerator::writePrefixExpression(const PrefixExpression& p,
+                                              Precedence parentPrecedence) {
+    // The only prefix expression that WGSL supports is unary negation (!,-,~). We make some
+    // assumptions about the input IR when translating prefix expressions:
+    //   1. A unary '+' is treated as NOP.
+    //   2. Prefix increment ('++x') and decrement ('--x') expressions must be rewritten in terms of
+    //      a postfix increment statement and assignment to a temporary variable to hold the result
+    //      (WGSL only supports a postfix increment statement, which is not an expression).
+    //
+    //      TODO(skia:14082): The following assertions may be hit until the proposed transforms have
+    //      been implemented. The IR should be transformed such that prefix increment/decrement
+    //      expressions never appear in the IR.
+    Operator op = p.getOperator();
+    if (op.kind() == Operator::Kind::PLUSPLUS || op.kind() == Operator::Kind::MINUSMINUS) {
+        fContext.fErrors->error(p.fPosition,
+                                "prefix '++' and '--' not yet supported in WGSL backend");
+        return;
+    }
+
+    if (op.kind() == Operator::Kind::PLUS) {
+        this->writeExpression(*p.operand(), Precedence::kPrefix);
+        return;
+    }
+
+    // The unary negation operator only applies to scalars and vectors. For other mathematical
+    // objects (such as matrices) we can express it as a multiplication by -1.
+    const bool needsNegation = op.kind() == Operator::Kind::MINUS &&
+                               !p.operand()->type().isScalar() && !p.operand()->type().isVector();
+    const bool needParens = Precedence::kPrefix >= parentPrecedence || needsNegation;
+
+    if (needParens) {
+        this->write("(");
+    }
+
+    if (needsNegation) {
+        this->write("-1.0 * ");
+        this->writeExpression(*p.operand(), Precedence::kMultiplicative);
+    } else {
+        this->write(p.getOperator().tightOperatorName());
+        this->writeExpression(*p.operand(), Precedence::kPrefix);
+    }
+
+    if (needParens) {
+        this->write(")");
     }
 }
 
