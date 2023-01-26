@@ -20,9 +20,12 @@ class BitmapRegionDecoder final {
 public:
     static std::unique_ptr<BitmapRegionDecoder> Make(sk_sp<SkData> data);
 
-    bool decodeRegion(SkBitmap* bitmap, BRDAllocator* allocator,
-                      const SkIRect& desiredSubset, int sampleSize,
-                      SkColorType colorType, bool requireUnpremul,
+    bool decodeRegion(SkBitmap* bitmap,
+                      BRDAllocator* allocator,
+                      const SkIRect& desiredSubset,
+                      int sampleSize,
+                      SkColorType colorType,
+                      bool requireUnpremul,
                       sk_sp<SkColorSpace> prefColorSpace);
 
     SkEncodedImageFormat getEncodedFormat() { return fCodec->getEncodedFormat(); }
@@ -32,12 +35,17 @@ public:
     }
 
     sk_sp<SkColorSpace> computeOutputColorSpace(SkColorType outputColorType,
-            sk_sp<SkColorSpace> prefColorSpace = nullptr) {
+                                                sk_sp<SkColorSpace> prefColorSpace = nullptr) {
         return fCodec->computeOutputColorSpace(outputColorType, prefColorSpace);
     }
 
     int width() const;
     int height() const;
+
+    bool getAndroidGainmap(SkGainmapInfo* outInfo,
+                           std::unique_ptr<SkStream>* outGainmapImageStream) {
+        return fCodec->getAndroidGainmap(outInfo, outGainmapImageStream);
+    }
 
 private:
     BitmapRegionDecoder(std::unique_ptr<SkAndroidCodec> codec);
@@ -45,6 +53,6 @@ private:
     std::unique_ptr<SkAndroidCodec> fCodec;
 };
 
-} // namespace skia
-} // namespace android
+}  // namespace skia
+}  // namespace android
 #endif  // BitmapRegionDecoder_DEFINED
