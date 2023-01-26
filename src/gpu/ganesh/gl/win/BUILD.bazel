@@ -4,9 +4,9 @@ licenses(["notice"])
 
 exports_files_legacy()
 
-# Not referenced by Bazel target.
 # Used for exporting to //gn/gpu.gni:skia_native_gpu_sources.
 skia_filegroup(
     name = "srcs",
     srcs = ["GrGLMakeNativeInterface_win.cpp"],
+    visibility = ["//src/gpu/ganesh/gl:__pkg__"],
 )
