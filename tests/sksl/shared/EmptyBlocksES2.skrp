@@ -1,24 +1,19 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. zero_4_slots_unmasked          color = 0
-    4. store_condition_mask           $0 = CondMask
-    5. copy_constant                  $1 = unknownInput
-    6. copy_constant                  $2 = 0x3F800000 (1.0)
-    7. cmpeq_float                    $1 = equal($1, $2)
-    8. merge_condition_mask           CondMask = $0 & $1
-    9. copy_constant                  $2 = 0x3F800000 (1.0)
-   10. copy_slot_masked               color(1) = Mask($2)
-   11. load_condition_mask            CondMask = $0
-   12. store_condition_mask           $0 = CondMask
-   13. copy_constant                  $1 = unknownInput
-   14. copy_constant                  $2 = 0x40000000 (2.0)
-   15. cmpeq_float                    $1 = equal($1, $2)
-   16. merge_condition_mask           CondMask = $0 & $1
-   17. bitwise_not_int                $1 = ~$1
-   18. merge_condition_mask           CondMask = $0 & $1
-   19. copy_constant                  $2 = 0x3F800000 (1.0)
-   20. copy_slot_masked               color(3) = Mask($2)
-   21. load_condition_mask            CondMask = $0
-   22. copy_4_slots_unmasked          $0..3 = color
-   23. copy_4_slots_unmasked          [main].result = $0..3
-   24. load_src                       src.rgba = [main].result
+    4. copy_constant                  $0 = unknownInput
+    5. copy_constant                  $1 = 0x3F800000 (1.0)
+    6. cmpeq_float                    $0 = equal($0, $1)
+    7. branch_if_all_lanes_equal      branch_if_all_lanes_equal +3 (#10), if $0 == 0x00000000 (0.0)
+    8. copy_constant                  $1 = 0x3F800000 (1.0)
+    9. copy_slot_unmasked             color(1) = $1
+   10. copy_constant                  $0 = unknownInput
+   11. copy_constant                  $1 = 0x40000000 (2.0)
+   12. cmpeq_float                    $0 = equal($0, $1)
+   13. branch_if_all_lanes_equal      branch_if_all_lanes_equal +2 (#15), if $0 == 0x00000000 (0.0)
+   14. jump                           jump +3 (#17)
+   15. copy_constant                  $1 = 0x3F800000 (1.0)
+   16. copy_slot_unmasked             color(3) = $1
+   17. copy_4_slots_unmasked          $0..3 = color
+   18. copy_4_slots_unmasked          [main].result = $0..3
+   19. load_src                       src.rgba = [main].result

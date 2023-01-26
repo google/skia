@@ -175,6 +175,7 @@ public:
     [[nodiscard]] bool writeForStatement(const ForStatement& f);
     [[nodiscard]] bool writeGlobals();
     [[nodiscard]] bool writeIfStatement(const IfStatement& i);
+    [[nodiscard]] bool writeDynamicallyUniformIfStatement(const IfStatement& i);
     [[nodiscard]] bool writeReturnStatement(const ReturnStatement& r);
     [[nodiscard]] bool writeVarDeclaration(const VarDeclaration& v);
 
@@ -914,7 +915,51 @@ bool Generator::writeExpressionStatement(const ExpressionStatement& e) {
     return true;
 }
 
+bool Generator::writeDynamicallyUniformIfStatement(const IfStatement& i) {
+    SkASSERT(Analysis::IsDynamicallyUniformExpression(*i.test()));
+
+    int falseLabelID = fBuilder.nextLabelID();
+    int exitLabelID = fBuilder.nextLabelID();
+
+    if (!this->pushExpression(*i.test())) {
+        return unsupported();
+    }
+
+    fBuilder.branch_if_stack_top_equals(0, falseLabelID);
+
+    if (!this->writeStatement(*i.ifTrue())) {
+        return unsupported();
+    }
+
+    if (!i.ifFalse()) {
+        // We don't have an if-false condition at all.
+        fBuilder.label(falseLabelID);
+    } else {
+        // We do have an if-false condition. We've just completed the if-true block, so we need to
+        // jump past the if-false block to avoid executing it.
+        fBuilder.jump(exitLabelID);
+
+        // The if-false block starts here.
+        fBuilder.label(falseLabelID);
+
+        if (!this->writeStatement(*i.ifFalse())) {
+            return unsupported();
+        }
+
+        fBuilder.label(exitLabelID);
+    }
+
+    // Jettison the test-expression.
+    this->discardExpression(/*slots=*/1);
+    return true;
+}
+
 bool Generator::writeIfStatement(const IfStatement& i) {
+    // If the test condition is known to be uniform, we can skip over the untrue portion entirely.
+    if (Analysis::IsDynamicallyUniformExpression(*i.test())) {
+        return this->writeDynamicallyUniformIfStatement(i);
+    }
+
     // Save the current condition-mask.
     fBuilder.enableExecutionMaskWrites();
     fBuilder.push_condition_mask();
