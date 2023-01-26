@@ -24,9 +24,35 @@
    24. label                          label 0x00000003
    25. bitwise_and_int                $0 &= $1
    26. copy_slot_unmasked             ok = $0
-   27. swizzle_4                      $0..3 = ($0..3).xxxx
-   28. copy_4_constants               $4..7 = colorRed
-   29. copy_4_constants               $8..11 = colorGreen
-   30. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
-   31. copy_4_slots_unmasked          [main].result = $0..3
-   32. load_src                       src.rgba = [main].result
+   27. copy_4_constants               $12..15 = colorGreen
+   28. swizzle_2                      $12..13 = ($12..13).yx
+   29. copy_2_constants               $14..15 = colorRed(0..1)
+   30. cmpeq_2_floats                 $12..13 = equal($12..13, $14..15)
+   31. bitwise_and_int                $12 &= $13
+   32. branch_if_no_active_lanes_eq   branch +3 (label 4 at #35) if no lanes of $12 == 0xFFFFFFFF
+   33. copy_constant                  $1 = 0xFFFFFFFF
+   34. jump                           jump +3 (label 5 at #37)
+   35. label                          label 0x00000004
+   36. zero_slot_unmasked             $1 = 0
+   37. label                          label 0x00000005
+   38. bitwise_and_int                $0 &= $1
+   39. copy_slot_unmasked             ok = $0
+   40. copy_4_constants               $12..15 = colorGreen
+   41. swizzle_2                      $12..13 = ($12..13).yx
+   42. copy_2_constants               $14..15 = colorRed(0..1)
+   43. cmpne_2_floats                 $12..13 = notEqual($12..13, $14..15)
+   44. bitwise_or_int                 $12 |= $13
+   45. branch_if_no_active_lanes_eq   branch +3 (label 6 at #48) if no lanes of $12 == 0xFFFFFFFF
+   46. zero_slot_unmasked             $1 = 0
+   47. jump                           jump +3 (label 7 at #50)
+   48. label                          label 0x00000006
+   49. copy_constant                  $1 = 0xFFFFFFFF
+   50. label                          label 0x00000007
+   51. bitwise_and_int                $0 &= $1
+   52. copy_slot_unmasked             ok = $0
+   53. swizzle_4                      $0..3 = ($0..3).xxxx
+   54. copy_4_constants               $4..7 = colorRed
+   55. copy_4_constants               $8..11 = colorGreen
+   56. mix_4_ints                     $0..3 = mix($4..7, $8..11, $0..3)
+   57. copy_4_slots_unmasked          [main].result = $0..3
+   58. load_src                       src.rgba = [main].result

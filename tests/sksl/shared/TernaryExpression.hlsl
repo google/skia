@@ -35,16 +35,36 @@ float4 main(float2 _24)
         _49 = false;
     }
     ok = _49;
-    float4 _50 = 0.0f.xxxx;
+    bool _63 = false;
     if (_49)
     {
-        _50 = _10_colorGreen;
+        _63 = all(bool2(_10_colorGreen.yx.x == _10_colorRed.xy.x, _10_colorGreen.yx.y == _10_colorRed.xy.y)) ? true : false;
     }
     else
     {
-        _50 = _10_colorRed;
+        _63 = false;
     }
-    return _50;
+    ok = _63;
+    bool _75 = false;
+    if (_63)
+    {
+        _75 = any(bool2(_10_colorGreen.yx.x != _10_colorRed.xy.x, _10_colorGreen.yx.y != _10_colorRed.xy.y)) ? false : true;
+    }
+    else
+    {
+        _75 = false;
+    }
+    ok = _75;
+    float4 _76 = 0.0f.xxxx;
+    if (_75)
+    {
+        _76 = _10_colorGreen;
+    }
+    else
+    {
+        _76 = _10_colorRed;
+    }
+    return _76;
 }
 
 void frag_main()

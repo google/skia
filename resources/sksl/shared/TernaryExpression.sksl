@@ -22,5 +22,9 @@ half4 main(float2 coords) {
     ok = ok && (colorGreen.g == 1 ? true : false);
     ok = ok && (colorGreen.r == 1 ? false : true);
 
+    // Composite comparison test.
+    ok = ok && (colorGreen.gr == colorRed.rg ? true : false);
+    ok = ok && (colorGreen.gr != colorRed.rg ? false : true);
+
     return ok ? colorGreen : colorRed;
 }

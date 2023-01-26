@@ -1009,6 +1009,7 @@ skia_filegroup(
     srcs = [
         "wgsl/BuiltinFragmentStageIO.sksl",
         "wgsl/BuiltinVertexStageIO.vert",
+        "wgsl/Equality.sksl",
         "wgsl/FunctionCallDependencies.sksl",
         "wgsl/GlobalUniforms.sksl",
         "wgsl/IfStatement.sksl",

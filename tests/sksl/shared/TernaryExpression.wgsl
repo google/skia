@@ -14,6 +14,8 @@ fn main(coords: vec2<f32>) -> vec4<f32> {
     var ok: bool = true;
     ok = ok && (select(false, true, _globalUniforms.colorGreen.y == 1.0));
     ok = ok && (select(true, false, _globalUniforms.colorGreen.x == 1.0));
+    ok = ok && (select(false, true, all(_globalUniforms.colorGreen.yx == _globalUniforms.colorRed.xy)));
+    ok = ok && (select(true, false, any(_globalUniforms.colorGreen.yx != _globalUniforms.colorRed.xy)));
     return select(_globalUniforms.colorRed, _globalUniforms.colorGreen, vec4<bool>(ok));
 }
 @fragment fn fragmentMain(_stageIn: FSIn) -> FSOut {

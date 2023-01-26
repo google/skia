@@ -820,6 +820,18 @@ void WGSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     Precedence precedence = op.getBinaryPrecedence();
     bool needParens = precedence >= parentPrecedence;
 
+    // The equality operators ('=='/'!=') in WGSL apply component-wise to vectors and result in a
+    // vector. We need to reduce the value to a boolean.
+    if (left.type().isVector()) {
+        if (op.kind() == Operator::Kind::EQEQ) {
+            this->write("all");
+            needParens = true;
+        } else if (op.kind() == Operator::Kind::NEQ) {
+            this->write("any");
+            needParens = true;
+        }
+    }
+
     if (needParens) {
         this->write("(");
     }
@@ -968,15 +980,13 @@ void WGSLCodeGenerator::writeTernaryExpression(const TernaryExpression& t,
         bool isVector = t.type().isVector();
         if (isVector) {
             // Splat the condition expression into a vector.
-            this->write(String::printf("vec%d<bool>", t.type().columns()));
-            this->write("(");
+            this->write(String::printf("vec%d<bool>(", t.type().columns()));
         }
         this->writeExpression(*t.test(), Precedence::kTernary);
         if (isVector) {
             this->write(")");
         }
         this->write(")");
-
         if (needParens) {
             this->write(")");
         }
