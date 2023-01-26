@@ -2,17 +2,15 @@
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. zero_slot_unmasked             x = 0
     4. store_loop_mask                $0 = LoopMask
-    5. jump                           jump +4 (#9)
-    6. zero_slot_unmasked             [for-loop continue mask 0] = 0
-    7. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
-    8. reenable_loop_mask             LoopMask |= [for-loop continue mask 0]
-    9. copy_slot_unmasked             $1 = x
-   10. copy_constant                  $2 = 0x00000004 (5.605194e-45)
-   11. cmplt_int                      $1 = lessThan($1, $2)
-   12. merge_loop_mask                LoopMask &= $1
-   13. stack_rewind
-   14. branch_if_any_active_lanes     branch_if_any_active_lanes -8 (#6)
-   15. load_loop_mask                 LoopMask = $0
-   16. copy_4_constants               $0..3 = colorGreen
-   17. copy_4_slots_unmasked          [main].result = $0..3
-   18. load_src                       src.rgba = [main].result
+    5. jump                           jump +2 (#7)
+    6. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
+    7. copy_slot_unmasked             $1 = x
+    8. copy_constant                  $2 = 0x00000004 (5.605194e-45)
+    9. cmplt_int                      $1 = lessThan($1, $2)
+   10. merge_loop_mask                LoopMask &= $1
+   11. stack_rewind
+   12. branch_if_any_active_lanes     branch_if_any_active_lanes -6 (#6)
+   13. load_loop_mask                 LoopMask = $0
+   14. copy_4_constants               $0..3 = colorGreen
+   15. copy_4_slots_unmasked          [main].result = $0..3
+   16. load_src                       src.rgba = [main].result

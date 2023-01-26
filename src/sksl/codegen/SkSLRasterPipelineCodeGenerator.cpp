@@ -858,10 +858,16 @@ bool Generator::writeForStatement(const ForStatement& f) {
 
     // Create a dedicated slot for continue-mask storage.
     SlotRange previousContinueMask = fCurrentContinueMask;
-    fCurrentContinueMask = fProgramSlots.createSlots(this->makeMaskName("for-loop continue mask"),
-                                                     *fProgram.fContext->fTypes.fBool,
-                                                     Position{},
-                                                     /*isFunctionReturnValue=*/false);
+
+    Analysis::ContinueOrBreakInfo loopInfo = Analysis::HasContinueOrBreak(*f.statement());
+    if (loopInfo.fHasContinue) {
+        fCurrentContinueMask =
+                fProgramSlots.createSlots(this->makeMaskName("for-loop continue mask"),
+                                          *fProgram.fContext->fTypes.fBool,
+                                          Position{},
+                                          /*isFunctionReturnValue=*/false);
+    }
+
     int loopTestID = fBuilder.nextLabelID();
     int loopBodyID = fBuilder.nextLabelID();
 
@@ -870,11 +876,16 @@ bool Generator::writeForStatement(const ForStatement& f) {
 
     // Write the for-loop body.
     fBuilder.label(loopBodyID);
-    fBuilder.zero_slots_unmasked(fCurrentContinueMask);
+
+    if (loopInfo.fHasContinue) {
+        fBuilder.zero_slots_unmasked(fCurrentContinueMask);
+    }
     if (!this->writeStatement(*f.statement())) {
         return unsupported();
     }
-    fBuilder.reenable_loop_mask(fCurrentContinueMask);
+    if (loopInfo.fHasContinue) {
+        fBuilder.reenable_loop_mask(fCurrentContinueMask);
+    }
 
     // Run the next-expression. Immediately discard its result.
     if (f.next()) {
