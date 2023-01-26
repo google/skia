@@ -297,8 +297,8 @@ private:
     SlotManager fProgramSlots;
     SlotManager fUniformSlots;
 
-    SkTArray<SlotRange> fFunctionStack;
     const FunctionDefinition* fCurrentFunction = nullptr;
+    SlotRange fCurrentFunctionResult;
     SlotRange fCurrentContinueMask;
     int fCurrentTempStack = 0;
     int fTempNameIndex = 0;
@@ -677,14 +677,15 @@ std::optional<SlotRange> Generator::writeFunction(const IRNode& callSite,
         // TODO(debugger): add trace for function-enter
     }
 
-    fFunctionStack.push_back(this->getFunctionSlots(callSite, function.declaration()));
+    SlotRange lastFunctionResult = fCurrentFunctionResult;
+    fCurrentFunctionResult = this->getFunctionSlots(callSite, function.declaration());
 
     if (!this->writeStatement(*function.body())) {
         return std::nullopt;
     }
 
-    SlotRange functionResult = fFunctionStack.back();
-    fFunctionStack.pop_back();
+    SlotRange functionResult = fCurrentFunctionResult;
+    fCurrentFunctionResult = lastFunctionResult;
 
     if (fDebugTrace) {
         // TODO(debugger): add trace for function-exit
@@ -998,7 +999,7 @@ bool Generator::writeReturnStatement(const ReturnStatement& r) {
         if (!this->pushExpression(*r.expression())) {
             return unsupported();
         }
-        this->popToSlotRange(fFunctionStack.back());
+        this->popToSlotRange(fCurrentFunctionResult);
     }
     if (fBuilder.executionMaskWritesAreEnabled() && this->needsReturnMask()) {
         fBuilder.mask_off_return_mask();
