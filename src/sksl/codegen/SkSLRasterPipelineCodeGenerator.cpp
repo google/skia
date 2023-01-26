@@ -1707,6 +1707,22 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             fBuilder.unary_op(BuilderOp::floor_float, arg0.type().slotCount());
             return this->binaryOp(arg0.type(), kSubtractOps);
 
+        case IntrinsicKind::k_length_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            // Implement length as `sqrt(dot(x, x))`.
+            if (arg0.type().slotCount() > 1) {
+                fBuilder.push_clone(arg0.type().slotCount());
+                fBuilder.binary_op(BuilderOp::mul_n_floats, arg0.type().slotCount());
+                this->foldWithMultiOp(BuilderOp::add_n_floats, arg0.type().slotCount());
+                fBuilder.unary_op(BuilderOp::sqrt_float, 1);
+            } else {
+                // The length of a scalar is `sqrt(x^2)`, which is equivalent to `abs(x)`.
+                fBuilder.unary_op(BuilderOp::abs_float, 1);
+            }
+            return true;
+
         case IntrinsicKind::k_not_IntrinsicKind:
             return this->pushPrefixExpression(OperatorKind::LOGICALNOT, arg0);
 

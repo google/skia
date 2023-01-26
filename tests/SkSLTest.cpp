@@ -564,6 +564,7 @@ SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicFloor,                  "intrinsi
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicFwidth,                 "intrinsics/Fwidth.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicIntBitsToFloat,         "intrinsics/IntBitsToFloat.sksl")
 SKSL_TEST(GPU_ES3,       kNever,      IntrinsicIsInf,                  "intrinsics/IsInf.sksl")
+SKSL_TEST(RP + VM + GPU, kNever,      IntrinsicLength,                 "intrinsics/Length.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicMatrixCompMultES2,      "intrinsics/MatrixCompMultES2.sksl")
 SKSL_TEST(RP + GPU_ES3,  kNever,      IntrinsicMatrixCompMultES3,      "intrinsics/MatrixCompMultES3.sksl")
 SKSL_TEST(RP + VM + GPU, kApiLevel_T, IntrinsicMaxFloat,               "intrinsics/MaxFloat.sksl")

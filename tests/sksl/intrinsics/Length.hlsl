@@ -1,6 +1,6 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_inputVal : packoffset(c0);
+    float4 _10_testMatrix2x2 : packoffset(c0);
     float4 _10_colorGreen : packoffset(c1);
     float4 _10_colorRed : packoffset(c2);
 };
@@ -15,80 +15,82 @@ struct SPIRV_Cross_Output
 
 float4 main(float2 _24)
 {
+    float4 _38 = _10_testMatrix2x2 + float4(2.0f, -2.0f, 1.0f, 8.0f);
+    float4 inputVal = _38;
     float4 expected = float4(3.0f, 3.0f, 5.0f, 13.0f);
-    bool _48 = false;
-    if (length(_10_inputVal.x) == 3.0f)
+    bool _58 = false;
+    if (abs(length(_38.x) - 3.0f) < 0.0500000007450580596923828125f)
     {
-        _48 = length(_10_inputVal.xy) == 3.0f;
+        _58 = abs(length(_38.xy) - 3.0f) < 0.0500000007450580596923828125f;
     }
     else
     {
-        _48 = false;
+        _58 = false;
     }
-    bool _57 = false;
-    if (_48)
+    bool _67 = false;
+    if (_58)
     {
-        _57 = length(_10_inputVal.xyz) == 5.0f;
-    }
-    else
-    {
-        _57 = false;
-    }
-    bool _64 = false;
-    if (_57)
-    {
-        _64 = length(_10_inputVal) == 13.0f;
+        _67 = abs(length(_38.xyz) - 5.0f) < 0.0500000007450580596923828125f;
     }
     else
     {
-        _64 = false;
-    }
-    bool _68 = false;
-    if (_64)
-    {
-        _68 = true;
-    }
-    else
-    {
-        _68 = false;
-    }
-    bool _71 = false;
-    if (_68)
-    {
-        _71 = true;
-    }
-    else
-    {
-        _71 = false;
+        _67 = false;
     }
     bool _74 = false;
-    if (_71)
+    if (_67)
     {
-        _74 = true;
+        _74 = abs(length(_38) - 13.0f) < 0.0500000007450580596923828125f;
     }
     else
     {
         _74 = false;
     }
-    bool _77 = false;
+    bool _80 = false;
     if (_74)
     {
-        _77 = true;
+        _80 = abs(3.0f - 3.0f) < 0.0500000007450580596923828125f;
     }
     else
     {
-        _77 = false;
+        _80 = false;
     }
-    float4 _78 = 0.0f.xxxx;
-    if (_77)
+    bool _86 = false;
+    if (_80)
     {
-        _78 = _10_colorGreen;
+        _86 = abs(3.0f - 3.0f) < 0.0500000007450580596923828125f;
     }
     else
     {
-        _78 = _10_colorRed;
+        _86 = false;
     }
-    return _78;
+    bool _92 = false;
+    if (_86)
+    {
+        _92 = abs(5.0f - 5.0f) < 0.0500000007450580596923828125f;
+    }
+    else
+    {
+        _92 = false;
+    }
+    bool _98 = false;
+    if (_92)
+    {
+        _98 = abs(13.0f - 13.0f) < 0.0500000007450580596923828125f;
+    }
+    else
+    {
+        _98 = false;
+    }
+    float4 _99 = 0.0f.xxxx;
+    if (_98)
+    {
+        _99 = _10_colorGreen;
+    }
+    else
+    {
+        _99 = _10_colorRed;
+    }
+    return _99;
 }
 
 void frag_main()
