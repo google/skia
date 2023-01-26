@@ -35,6 +35,7 @@ class BinaryExpression;
 class Block;
 class Context;
 class ConstructorCompound;
+class ConstructorDiagonalMatrix;
 class Expression;
 class ExpressionStatement;
 class FieldAccess;
@@ -199,6 +200,8 @@ private:
     void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
     void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
     void writeConstructorCompoundVector(const ConstructorCompound& c, Precedence parentPrecedence);
+    void writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+                                        Precedence parentPrecedence);
 
     // Synthesized helper functions for comparison operators that are not supported by WGSL.
     void writeMatrixEquality(const Expression& left, const Expression& right);

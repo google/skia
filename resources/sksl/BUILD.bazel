@@ -1017,6 +1017,7 @@ skia_filegroup(
         "wgsl/MainDoesNotHaveFragCoordParameter.sksl",
         "wgsl/MainHasFragCoordParameter.sksl",
         "wgsl/MainHasVoidReturn.sksl",
+        "wgsl/MatrixConstructorDiagonal.sksl",
         "wgsl/OutParams.sksl",
         "wgsl/UserDefinedPipelineIO.sksl",
         "wgsl/VertexPositionOutputIsAlwaysDeclared.vert",

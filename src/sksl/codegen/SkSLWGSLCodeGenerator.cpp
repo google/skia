@@ -40,6 +40,7 @@
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
+#include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -820,6 +821,10 @@ void WGSLCodeGenerator::writeExpression(const Expression& e, Precedence parentPr
         case Expression::Kind::kConstructorSplat:
             this->writeAnyConstructor(e.asAnyConstructor(), parentPrecedence);
             break;
+        case Expression::Kind::kConstructorDiagonalMatrix:
+            this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>(),
+                                                 parentPrecedence);
+            break;
         case Expression::Kind::kFieldAccess:
             this->writeFieldAccess(e.as<FieldAccess>());
             break;
@@ -1135,6 +1140,37 @@ void WGSLCodeGenerator::writeConstructorCompoundVector(const ConstructorCompound
     // not matrices. SkSL supports vec4(mat2x2) which we need to handle here
     // (see https://www.w3.org/TR/WGSL/#type-constructor-expr).
     this->writeAnyConstructor(c, parentPrecedence);
+}
+
+void WGSLCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
+                                                       Precedence parentPrecedence) {
+    const Type& type = c.type();
+    SkASSERT(type.isMatrix());
+    SkASSERT(c.argument()->type().isScalar());
+
+    // Generate a helper so that the argument expression gets evaluated once.
+    std::string name = String::printf("%s_diagonal", to_mangled_wgsl_type_name(type).c_str());
+    if (!fHelpers.contains(name)) {
+        fHelpers.add(name);
+
+        std::string typeName = to_wgsl_type(type);
+        fExtraFunctions.printf("fn %s(x: %s) -> %s {\n",
+                               name.c_str(),
+                               to_wgsl_type(c.argument()->type()).c_str(),
+                               typeName.c_str());
+        fExtraFunctions.printf("    return %s(", typeName.c_str());
+        auto separator = String::Separator();
+        for (int col = 0; col < type.columns(); ++col) {
+            for (int row = 0; row < type.rows(); ++row) {
+                fExtraFunctions.printf("%s%s", separator().c_str(), (col == row) ? "x" : "0.0");
+            }
+        }
+        fExtraFunctions.printf(");\n}\n");
+    }
+    this->write(name);
+    this->write("(");
+    this->writeExpression(*c.argument(), Precedence::kSequence);
+    this->write(")");
 }
 
 void WGSLCodeGenerator::writeMatrixEquality(const Expression& left, const Expression& right) {
