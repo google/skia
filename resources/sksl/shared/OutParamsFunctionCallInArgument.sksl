@@ -9,7 +9,7 @@ int out_param_func2(out half v) {
     return int(v);
 }
 
-half4 main(float2) {
+half4 main(float2 c) {
     half testArray[2];
     out_param_func1(testArray[out_param_func2(testArray[0])]);
     return (testArray[0] == 1 && testArray[1] == 1) ? colorGreen : colorRed;

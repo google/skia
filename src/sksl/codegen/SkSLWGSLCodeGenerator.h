@@ -56,6 +56,7 @@ class VarDeclaration;
 class Variable;
 class VariableReference;
 enum class OperatorPrecedence : uint8_t;
+struct IndexExpression;
 struct Modifiers;
 struct Program;
 struct Swizzle;
@@ -188,6 +189,7 @@ private:
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence);
     void writeFieldAccess(const FieldAccess& f);
     void writeFunctionCall(const FunctionCall&);
+    void writeIndexExpression(const IndexExpression& i);
     void writeLiteral(const Literal& l);
     void writeSwizzle(const Swizzle& swizzle);
     void writeTernaryExpression(const TernaryExpression& t, Precedence parentPrecedence);
@@ -197,6 +199,9 @@ private:
     void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
     void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
     void writeConstructorCompoundVector(const ConstructorCompound& c, Precedence parentPrecedence);
+
+    // Synthesized helper functions for comparison operators that are not supported by WGSL.
+    void writeMatrixEquality(const Expression& left, const Expression& right);
 
     // Generic recursive ProgramElement visitor.
     void writeProgramElement(const ProgramElement& e);
@@ -259,7 +264,8 @@ private:
     bool fAtLineStart = false;
 
     int fSwizzleHelperCount = 0;
-    StringStream fExtraFunctions;  // all internally synthesized helpers are written here
+    StringStream fExtraFunctions;      // all internally synthesized helpers are written here
+    SkTHashSet<std::string> fHelpers;  // all synthesized helper functions, by name
 };
 
 }  // namespace SkSL

@@ -47,6 +47,7 @@
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLIfStatement.h"
+#include "src/sksl/ir/SkSLIndexExpression.h"
 #include "src/sksl/ir/SkSLInterfaceBlock.h"
 #include "src/sksl/ir/SkSLLiteral.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -125,7 +126,6 @@ std::string_view to_scalar_type(const Type& type) {
 // Convert a SkSL type to a WGSL type. Handles all plain types except structure types
 // (see https://www.w3.org/TR/WGSL/#plain-types-section).
 std::string to_wgsl_type(const Type& type) {
-    // TODO(skia:13092): Handle array, matrix, sampler types.
     switch (type.typeKind()) {
         case Type::TypeKind::kScalar:
             return std::string(to_scalar_type(type));
@@ -133,12 +133,46 @@ std::string to_wgsl_type(const Type& type) {
             std::string_view ct = to_scalar_type(type.componentType());
             return String::printf("vec%d<%.*s>", type.columns(), (int)ct.length(), ct.data());
         }
+        case Type::TypeKind::kMatrix: {
+            std::string_view ct = to_scalar_type(type.componentType());
+            return String::printf(
+                    "mat%dx%d<%.*s>", type.columns(), type.rows(), (int)ct.length(), ct.data());
+        }
         case Type::TypeKind::kArray: {
             std::string elementType = to_wgsl_type(type.componentType());
             if (type.isUnsizedArray()) {
                 return String::printf("array<%s>", elementType.c_str());
             }
             return String::printf("array<%s, %d>", elementType.c_str(), type.columns());
+        }
+        default:
+            break;
+    }
+    return std::string(type.name());
+}
+
+// Create a mangled WGSL type name that can be used in function and variable declarations (regular
+// type names cannot be used in this manner since they may contain tokens that are not allowed in
+// symbol names).
+std::string to_mangled_wgsl_type_name(const Type& type) {
+    switch (type.typeKind()) {
+        case Type::TypeKind::kScalar:
+            return std::string(to_scalar_type(type));
+        case Type::TypeKind::kVector: {
+            std::string_view ct = to_scalar_type(type.componentType());
+            return String::printf("vec%d%.*s", type.columns(), (int)ct.length(), ct.data());
+        }
+        case Type::TypeKind::kMatrix: {
+            std::string_view ct = to_scalar_type(type.componentType());
+            return String::printf(
+                    "mat%dx%d%.*s", type.columns(), type.rows(), (int)ct.length(), ct.data());
+        }
+        case Type::TypeKind::kArray: {
+            std::string elementType = to_wgsl_type(type.componentType());
+            if (type.isUnsizedArray()) {
+                return String::printf("arrayof%s", elementType.c_str());
+            }
+            return String::printf("array%dof%s", type.columns(), elementType.c_str());
         }
         default:
             break;
@@ -792,6 +826,9 @@ void WGSLCodeGenerator::writeExpression(const Expression& e, Precedence parentPr
         case Expression::Kind::kFunctionCall:
             this->writeFunctionCall(e.as<FunctionCall>());
             break;
+        case Expression::Kind::kIndex:
+            this->writeIndexExpression(e.as<IndexExpression>());
+            break;
         case Expression::Kind::kLiteral:
             this->writeLiteral(e.as<Literal>());
             break;
@@ -817,6 +854,21 @@ void WGSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     const Expression& left = *b.left();
     const Expression& right = *b.right();
     Operator op = b.getOperator();
+
+    // The equality and comparison operators are only supported for scalar and vector types.
+    if (op.isEquality() && !left.type().isScalar() && !left.type().isVector()) {
+        if (left.type().isMatrix()) {
+            if (op.kind() == OperatorKind::NEQ) {
+                this->write("!");
+            }
+            this->writeMatrixEquality(left, right);
+            return;
+        }
+
+        // TODO(skia:13092): Synthesize helper functions for structs and arrays.
+        return;
+    }
+
     Precedence precedence = op.getBinaryPrecedence();
     bool needParens = precedence >= parentPrecedence;
 
@@ -930,6 +982,13 @@ void WGSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
     }
     this->write(")");
+}
+
+void WGSLCodeGenerator::writeIndexExpression(const IndexExpression& i) {
+    this->writeExpression(*i.base(), Precedence::kPostfix);
+    this->write("[");
+    this->writeExpression(*i.index(), Precedence::kTopLevel);
+    this->write("]");
 }
 
 void WGSLCodeGenerator::writeLiteral(const Literal& l) {
@@ -1076,6 +1135,38 @@ void WGSLCodeGenerator::writeConstructorCompoundVector(const ConstructorCompound
     // not matrices. SkSL supports vec4(mat2x2) which we need to handle here
     // (see https://www.w3.org/TR/WGSL/#type-constructor-expr).
     this->writeAnyConstructor(c, parentPrecedence);
+}
+
+void WGSLCodeGenerator::writeMatrixEquality(const Expression& left, const Expression& right) {
+    const Type& leftType = left.type();
+    const Type& rightType = right.type();
+    SkASSERT(leftType.isMatrix());
+    SkASSERT(rightType.isMatrix());
+    SkASSERT(leftType.rows() == rightType.rows());
+    SkASSERT(leftType.columns() == rightType.columns());
+
+    std::string name = String::printf("%s_eq_%s",
+                                      to_mangled_wgsl_type_name(leftType).c_str(),
+                                      to_mangled_wgsl_type_name(rightType).c_str());
+    if (!fHelpers.contains(name)) {
+        fHelpers.add(name);
+        fExtraFunctions.printf("fn %s(left: %s, right: %s) -> bool {\n    return ",
+                               name.c_str(),
+                               to_wgsl_type(leftType).c_str(),
+                               to_wgsl_type(rightType).c_str());
+        const char* separator = "";
+        for (int i = 0; i < leftType.columns(); ++i) {
+            fExtraFunctions.printf("%sall(left[%d] == right[%d])", separator, i, i);
+            separator = " &&\n           ";
+        }
+        fExtraFunctions.printf(";\n}\n");
+    }
+    this->write(name);
+    this->write("(");
+    this->writeExpression(left, Precedence::kSequence);
+    this->write(", ");
+    this->writeExpression(right, Precedence::kSequence);
+    this->write(")");
 }
 
 void WGSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
