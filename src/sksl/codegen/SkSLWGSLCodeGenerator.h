@@ -34,6 +34,7 @@ class Block;
 class Context;
 class ConstructorCompound;
 class ConstructorDiagonalMatrix;
+class ConstructorMatrixResize;
 class Expression;
 class ExpressionStatement;
 class FieldAccess;
@@ -198,8 +199,17 @@ private:
     void writeAnyConstructor(const AnyConstructor& c, Precedence parentPrecedence);
     void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
     void writeConstructorCompoundVector(const ConstructorCompound& c, Precedence parentPrecedence);
+    void writeConstructorCompoundMatrix(const ConstructorCompound& c, Precedence parentPrecedence);
     void writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
                                         Precedence parentPrecedence);
+    void writeConstructorMatrixResize(const ConstructorMatrixResize& c,
+                                      Precedence parentPrecedence);
+
+    // Matrix constructor helpers.
+    bool isMatrixConstructorHelperNeeded(const ConstructorCompound& c);
+    std::string getMatrixConstructorHelper(const AnyConstructor& c);
+    void writeMatrixFromMatrixArgs(const Type& sourceMatrix, int columns, int rows);
+    void writeMatrixFromScalarAndVectorArgs(const AnyConstructor& ctor, int columns, int rows);
 
     // Synthesized helper functions for comparison operators that are not supported by WGSL.
     void writeMatrixEquality(const Expression& left, const Expression& right);

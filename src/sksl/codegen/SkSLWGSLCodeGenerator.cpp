@@ -7,6 +7,8 @@
 
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 
+#include <algorithm>
+#include <cstddef>
 #include <memory>
 #include <optional>
 #include <string>
@@ -41,6 +43,7 @@
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
+#include "src/sksl/ir/SkSLConstructorMatrixResize.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
 #include "src/sksl/ir/SkSLFieldAccess.h"
@@ -825,6 +828,9 @@ void WGSLCodeGenerator::writeExpression(const Expression& e, Precedence parentPr
             this->writeConstructorDiagonalMatrix(e.as<ConstructorDiagonalMatrix>(),
                                                  parentPrecedence);
             break;
+        case Expression::Kind::kConstructorMatrixResize:
+            this->writeConstructorMatrixResize(e.as<ConstructorMatrixResize>(), parentPrecedence);
+            break;
         case Expression::Kind::kFieldAccess:
             this->writeFieldAccess(e.as<FieldAccess>());
             break;
@@ -1126,9 +1132,10 @@ void WGSLCodeGenerator::writeAnyConstructor(const AnyConstructor& c, Precedence 
 
 void WGSLCodeGenerator::writeConstructorCompound(const ConstructorCompound& c,
                                                  Precedence parentPrecedence) {
-    // TODO(skia:13092): Support matrix constructors
     if (c.type().isVector()) {
         this->writeConstructorCompoundVector(c, parentPrecedence);
+    } else if (c.type().isMatrix()) {
+        this->writeConstructorCompoundMatrix(c, parentPrecedence);
     } else {
         fContext.fErrors->error(c.fPosition, "unsupported compound constructor");
     }
@@ -1172,6 +1179,55 @@ void WGSLCodeGenerator::writeConstructorCompoundVector(const ConstructorCompound
     this->writeAnyConstructor(c, parentPrecedence);
 }
 
+void WGSLCodeGenerator::writeConstructorCompoundMatrix(const ConstructorCompound& c,
+                                                       Precedence parentPrecedence) {
+    SkASSERT(c.type().isMatrix());
+
+    // Emit and invoke a matrix-constructor helper method if one is necessary.
+    if (this->isMatrixConstructorHelperNeeded(c)) {
+        this->write(this->getMatrixConstructorHelper(c));
+        this->write("(");
+        auto separator = String::Separator();
+        for (const std::unique_ptr<Expression>& expr : c.arguments()) {
+            this->write(separator());
+            this->writeExpression(*expr, Precedence::kSequence);
+        }
+        this->write(")");
+        return;
+    }
+
+    // WGSL doesn't allow creating matrices by passing in scalars and vectors in a jumble; it
+    // requires your scalars to be grouped up into columns. As `isMatrixConstructorHelperNeeded`
+    // returned false, we know that none of our scalars/vectors "wrap" across across a column, so we
+    // can group our inputs up and synthesize a constructor for each column.
+    const Type& matrixType = c.type();
+    const Type& columnType = matrixType.componentType().toCompound(
+            fContext, /*columns=*/matrixType.rows(), /*rows=*/1);
+
+    this->write(to_wgsl_type(matrixType));
+    this->write("(");
+    auto separator = String::Separator();
+    int scalarCount = 0;
+    for (const std::unique_ptr<Expression>& arg : c.arguments()) {
+        this->write(separator());
+        if (arg->type().columns() < matrixType.rows()) {
+            // Write a `floatN(` constructor to group scalars and smaller vectors together.
+            if (!scalarCount) {
+                this->write(to_wgsl_type(columnType));
+                this->write("(");
+            }
+            scalarCount += arg->type().columns();
+        }
+        this->writeExpression(*arg, Precedence::kSequence);
+        if (scalarCount && scalarCount == matrixType.rows()) {
+            // Close our `floatN(...` constructor block from above.
+            this->write(")");
+            scalarCount = 0;
+        }
+    }
+    this->write(")");
+}
+
 void WGSLCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c,
                                                        Precedence parentPrecedence) {
     const Type& type = c.type();
@@ -1201,6 +1257,228 @@ void WGSLCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonal
     this->write("(");
     this->writeExpression(*c.argument(), Precedence::kSequence);
     this->write(")");
+}
+
+void WGSLCodeGenerator::writeConstructorMatrixResize(const ConstructorMatrixResize& c,
+                                                     Precedence parentPrecedence) {
+    this->write(this->getMatrixConstructorHelper(c));
+    this->write("(");
+    this->writeExpression(*c.argument(), Precedence::kSequence);
+    this->write(")");
+}
+
+bool WGSLCodeGenerator::isMatrixConstructorHelperNeeded(const ConstructorCompound& c) {
+    // WGSL supports 3 categories of matrix constructors:
+    //     1. Identity construction from a matrix of identical dimensions (handled as
+    //        ConstructorCompoundCast);
+    //     2. Column-major construction by elements (scalars);
+    //     3. Column-by-column construction from vectors.
+    //
+    // WGSL does not have a diagonal constructor. In addition, SkSL (like GLSL) supports free-form
+    // inputs that combine vectors, matrices, and scalars.
+    //
+    // Some cases are simple to translate and so we handle those inline--e.g. a list of scalars can
+    // be constructed trivially. In more complex cases, we generate a helper function that converts
+    // our inputs into a properly-shaped matrix.
+    //
+    // A matrix constructor helper method is always used if any input argument is a matrix.
+    // Helper methods are also necessary when any argument would span multiple rows. For instance:
+    //
+    // float2 x = (1, 2);
+    // float3x2(x, 3, 4, 5, 6) = | 1 3 5 | = no helper needed; conversion can be done inline
+    //                           | 2 4 6 |
+    //
+    // float2 x = (2, 3);
+    // float3x2(1, x, 4, 5, 6) = | 1 3 5 | = x spans multiple rows; a helper method will be used
+    //                           | 2 4 6 |
+    //
+    // float4 x = (1, 2, 3, 4);
+    // float2x2(x) = | 1 3 | = x spans multiple rows; a helper method will be used
+    //               | 2 4 |
+    //
+    int position = 0;
+    for (const std::unique_ptr<Expression>& expr : c.arguments()) {
+        if (expr->type().isMatrix()) {
+            return true;
+        }
+        position += expr->type().columns();
+        if (position > c.type().rows()) {
+            // An input argument would span multiple rows; a helper function is required.
+            return true;
+        }
+        if (position == c.type().rows()) {
+            // We've advanced to the end of a row. Wrap to the start of the next row.
+            position = 0;
+        }
+    }
+    return false;
+}
+
+std::string WGSLCodeGenerator::getMatrixConstructorHelper(const AnyConstructor& c) {
+    const Type& type = c.type();
+    int columns = type.columns();
+    int rows = type.rows();
+    auto args = c.argumentSpan();
+    std::string typeName = to_wgsl_type(type);
+
+    // Create the helper-method name and use it as our lookup key.
+    std::string name = String::printf("%s_from", to_mangled_wgsl_type_name(type).c_str());
+    for (const std::unique_ptr<Expression>& expr : args) {
+        String::appendf(&name, "_%s", to_mangled_wgsl_type_name(expr->type()).c_str());
+    }
+
+    // If a helper-method has not been synthesized yet, create it now.
+    if (!fHelpers.contains(name)) {
+        fHelpers.add(name);
+
+        fExtraFunctions.printf("fn %s(", name.c_str());
+
+        auto separator = String::Separator();
+        for (size_t i = 0; i < args.size(); ++i) {
+            fExtraFunctions.printf(
+                    "%sx%zu: %s", separator().c_str(), i, to_wgsl_type(args[i]->type()).c_str());
+        }
+
+        fExtraFunctions.printf(") -> %s {\n    return %s(", typeName.c_str(), typeName.c_str());
+
+        if (args.size() == 1 && args.front()->type().isMatrix()) {
+            this->writeMatrixFromMatrixArgs(args.front()->type(), columns, rows);
+        } else {
+            this->writeMatrixFromScalarAndVectorArgs(c, columns, rows);
+        }
+
+        fExtraFunctions.writeText(");\n}\n");
+    }
+    return name;
+}
+
+// Assembles a matrix by resizing another matrix named `x0`.
+// Cells that don't exist in the source matrix will be populated with identity-matrix values.
+void WGSLCodeGenerator::writeMatrixFromMatrixArgs(const Type& sourceMatrix, int columns, int rows) {
+    SkASSERT(rows <= 4);
+    SkASSERT(columns <= 4);
+
+    const char* separator = "";
+    std::string matrixType = to_wgsl_type(sourceMatrix.componentType());
+    for (int c = 0; c < columns; ++c) {
+        fExtraFunctions.printf("%svec%d<%s>(", separator, rows, matrixType.c_str());
+        separator = "), ";
+
+        // Determine how many values to take from the source matrix for this row.
+        int swizzleLength = 0;
+        if (c < sourceMatrix.columns()) {
+            swizzleLength = std::min<>(rows, sourceMatrix.rows());
+        }
+
+        // Emit all the values from the source matrix row.
+        bool firstItem;
+        switch (swizzleLength) {
+            case 0:
+                firstItem = true;
+                break;
+            case 1:
+                firstItem = false;
+                fExtraFunctions.printf("x0[%d].x", c);
+                break;
+            case 2:
+                firstItem = false;
+                fExtraFunctions.printf("x0[%d].xy", c);
+                break;
+            case 3:
+                firstItem = false;
+                fExtraFunctions.printf("x0[%d].xyz", c);
+                break;
+            case 4:
+                firstItem = false;
+                fExtraFunctions.printf("x0[%d].xyzw", c);
+                break;
+            default:
+                SkUNREACHABLE;
+        }
+
+        // Emit the placeholder identity-matrix cells.
+        for (int r = swizzleLength; r < rows; ++r) {
+            fExtraFunctions.printf("%s%s", firstItem ? "" : ", ", (r == c) ? "1.0" : "0.0");
+            firstItem = false;
+        }
+    }
+
+    fExtraFunctions.writeText(")");
+}
+
+// Assembles a matrix of type by concatenating an arbitrary mix of scalar and vector values, named
+// `x0`, `x1`, etc. An error is written if the expression list don't contain exactly C*R scalars.
+void WGSLCodeGenerator::writeMatrixFromScalarAndVectorArgs(const AnyConstructor& ctor,
+                                                           int columns,
+                                                           int rows) {
+    SkASSERT(rows <= 4);
+    SkASSERT(columns <= 4);
+
+    std::string matrixType = to_wgsl_type(ctor.type().componentType());
+    size_t argIndex = 0;
+    int argPosition = 0;
+    auto args = ctor.argumentSpan();
+
+    static constexpr char kSwizzle[] = "xyzw";
+    const char* separator = "";
+    for (int c = 0; c < columns; ++c) {
+        fExtraFunctions.printf("%svec%d<%s>(", separator, rows, matrixType.c_str());
+        separator = "), ";
+
+        auto columnSeparator = String::Separator();
+        for (int r = 0; r < rows;) {
+            fExtraFunctions.writeText(columnSeparator().c_str());
+            if (argIndex < args.size()) {
+                const Type& argType = args[argIndex]->type();
+                switch (argType.typeKind()) {
+                    case Type::TypeKind::kScalar: {
+                        fExtraFunctions.printf("x%zu", argIndex);
+                        ++r;
+                        ++argPosition;
+                        break;
+                    }
+                    case Type::TypeKind::kVector: {
+                        fExtraFunctions.printf("x%zu.", argIndex);
+                        do {
+                            fExtraFunctions.write8(kSwizzle[argPosition]);
+                            ++r;
+                            ++argPosition;
+                        } while (r < rows && argPosition < argType.columns());
+                        break;
+                    }
+                    case Type::TypeKind::kMatrix: {
+                        fExtraFunctions.printf("x%zu[%d].", argIndex, argPosition / argType.rows());
+                        do {
+                            fExtraFunctions.write8(kSwizzle[argPosition]);
+                            ++r;
+                            ++argPosition;
+                        } while (r < rows && (argPosition % argType.rows()) != 0);
+                        break;
+                    }
+                    default: {
+                        SkDEBUGFAIL("incorrect type of argument for matrix constructor");
+                        fExtraFunctions.writeText("<error>");
+                        break;
+                    }
+                }
+
+                if (argPosition >= argType.columns() * argType.rows()) {
+                    ++argIndex;
+                    argPosition = 0;
+                }
+            } else {
+                SkDEBUGFAIL("not enough arguments for matrix constructor");
+                fExtraFunctions.writeText("<error>");
+            }
+        }
+    }
+
+    if (argPosition != 0 || argIndex != args.size()) {
+        SkDEBUGFAIL("incorrect number of arguments for matrix constructor");
+        fExtraFunctions.writeText(", <error>");
+    }
+
+    fExtraFunctions.writeText(")");
 }
 
 void WGSLCodeGenerator::writeMatrixEquality(const Expression& left, const Expression& right) {
