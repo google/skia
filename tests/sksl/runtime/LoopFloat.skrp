@@ -62,20 +62,20 @@
    62. zero_2_slots_unmasked          sum(0..1) = 0
    63. store_loop_mask                $16 = LoopMask
    64. jump                           jump +19 (#83)
-   65. zero_slot_unmasked             [for-loop continue mask 0] = 0
+   65. zero_slot_unmasked             [temporary 0] = 0
    66. store_condition_mask           $17 = CondMask
    67. copy_slot_unmasked             $18 = i
    68. copy_slot_unmasked             $19 = five
    69. cmplt_float                    $18 = lessThan($18, $19)
    70. merge_condition_mask           CondMask = $17 & $18
    71. copy_constant                  $19 = 0xFFFFFFFF
-   72. copy_slot_masked               [for-loop continue mask 0] = Mask($19)
+   72. copy_slot_masked               [temporary 0] = Mask($19)
    73. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
    74. load_condition_mask            CondMask = $17
    75. copy_2_slots_unmasked          $17..18 = sum(0..1)
    76. add_float                      $17 += $18
    77. copy_slot_masked               sum = Mask($17)
-   78. reenable_loop_mask             LoopMask |= [for-loop continue mask 0]
+   78. reenable_loop_mask             LoopMask |= [temporary 0]
    79. copy_slot_unmasked             $17 = i
    80. copy_constant                  $18 = 0x3F800000 (1.0)
    81. add_float                      $17 += $18

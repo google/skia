@@ -24,8 +24,8 @@
    24. branch_if_any_active_lanes     branch_if_any_active_lanes -5 (#19)
    25. load_loop_mask                 LoopMask = $0
    26. store_loop_mask                $0 = LoopMask
-   27. zero_slot_unmasked             [do-loop continue mask 0] = 0
-   28. reenable_loop_mask             LoopMask |= [do-loop continue mask 0]
+   27. zero_slot_unmasked             [temporary 0] = 0
+   28. reenable_loop_mask             LoopMask |= [temporary 0]
    29. copy_constant                  $1 = colorWhite(0)
    30. copy_constant                  $2 = 0x40000000 (2.0)
    31. cmpeq_float                    $1 = equal($1, $2)

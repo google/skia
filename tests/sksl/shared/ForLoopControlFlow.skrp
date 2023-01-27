@@ -32,7 +32,7 @@
    32. copy_constant                  b = 0x40A00000 (5.0)
    33. store_loop_mask                $0 = LoopMask
    34. jump                           jump +20 (#54)
-   35. zero_slot_unmasked             [for-loop continue mask 0] = 0
+   35. zero_slot_unmasked             [temporary 0] = 0
    36. copy_slot_unmasked             $1 = b
    37. copy_slot_masked               x(2) = Mask($1)
    38. store_condition_mask           $1 = CondMask
@@ -41,12 +41,12 @@
    41. cmpeq_float                    $2 = equal($2, $3)
    42. merge_condition_mask           CondMask = $1 & $2
    43. copy_constant                  $3 = 0xFFFFFFFF
-   44. copy_slot_masked               [for-loop continue mask 0] = Mask($3)
+   44. copy_slot_masked               [temporary 0] = Mask($3)
    45. mask_off_loop_mask             LoopMask &= ~(CondMask & LoopMask & RetMask)
    46. load_condition_mask            CondMask = $1
    47. zero_slot_unmasked             $1 = 0
    48. copy_slot_masked               x(1) = Mask($1)
-   49. reenable_loop_mask             LoopMask |= [for-loop continue mask 0]
+   49. reenable_loop_mask             LoopMask |= [temporary 0]
    50. copy_slot_unmasked             $1 = b
    51. copy_constant                  $2 = 0x3F800000 (1.0)
    52. sub_float                      $1 -= $2
