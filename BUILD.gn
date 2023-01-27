@@ -2408,16 +2408,8 @@ if (skia_enable_tools) {
         "modules/svg",
       ]
     }
-    test_app("sorttoy") {
-      sources = [
-        "experimental/sorttoy/Cmds.cpp",
-        "experimental/sorttoy/Cmds.h",
-        "experimental/sorttoy/Fake.cpp",
-        "experimental/sorttoy/Fake.h",
-        "experimental/sorttoy/SortKey.h",
-        "experimental/sorttoy/sorttoy.cpp",
-        "experimental/sorttoy/sorttypes.h",
-      ]
+    test_app("filterfuzz") {
+      sources = [ "experimental/filterfuzz/filterfuzz.cpp" ]
       deps = [
         ":flags",
         ":skia",
