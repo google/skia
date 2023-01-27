@@ -669,7 +669,7 @@ TINT_SRCS = [
     "src/tint/ast/array.h",
     "src/tint/ast/assignment_statement.cc",
     "src/tint/ast/assignment_statement.h",
-    "src/tint/ast/ast_type.cc",
+    "src/tint/ast/type.cc",
     "src/tint/ast/atomic.cc",
     "src/tint/ast/atomic.h",
     "src/tint/ast/attribute.cc",
