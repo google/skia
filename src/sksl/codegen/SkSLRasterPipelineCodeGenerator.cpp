@@ -172,6 +172,7 @@ public:
     [[nodiscard]] bool writeContinueStatement(const ContinueStatement& b);
     [[nodiscard]] bool writeDoStatement(const DoStatement& d);
     [[nodiscard]] bool writeExpressionStatement(const ExpressionStatement& e);
+    [[nodiscard]] bool writeMasklessForStatement(const ForStatement& f);
     [[nodiscard]] bool writeForStatement(const ForStatement& f);
     [[nodiscard]] bool writeGlobals();
     [[nodiscard]] bool writeIfStatement(const IfStatement& i);
@@ -841,10 +842,68 @@ bool Generator::writeDoStatement(const DoStatement& d) {
     return true;
 }
 
+bool Generator::writeMasklessForStatement(const ForStatement& f) {
+    SkASSERT(f.unrollInfo());
+    SkASSERT(f.unrollInfo()->fCount > 0);
+    SkASSERT(f.initializer());
+    SkASSERT(f.test());
+    SkASSERT(f.next());
+
+    // If no lanes are active, skip over the loop entirely. This guards against looping forever;
+    // with no lanes active, we wouldn't be able to write the loop variable back to its slot, so
+    // we'd never make forward progress.
+    int loopExitID = fBuilder.nextLabelID();
+    int loopBodyID = fBuilder.nextLabelID();
+    fBuilder.branch_if_no_active_lanes(loopExitID);
+
+    // Run the loop initializer.
+    if (!this->writeStatement(*f.initializer())) {
+        return unsupported();
+    }
+
+    // Write the for-loop body. We know the for-loop has a standard ES2 unrollable structure, and
+    // that it runs for at least one iteration, so we can plow straight ahead into the loop body
+    // instead of running the loop-test first.
+    fBuilder.label(loopBodyID);
+
+    if (!this->writeStatement(*f.statement())) {
+        return unsupported();
+    }
+
+    // If the loop only runs for a single iteration, we are already done. If not...
+    if (f.unrollInfo()->fCount > 1) {
+        // ... run the next-expression, and immediately discard its result.
+        if (!this->pushExpression(*f.next(), /*usesResult=*/false)) {
+            return unsupported();
+        }
+        this->discardExpression(f.next()->type().slotCount());
+
+        // Run the test-expression, and repeat the loop until the test-expression evaluates false.
+        if (!this->pushExpression(*f.test())) {
+            return unsupported();
+        }
+        fBuilder.branch_if_no_active_lanes_on_stack_top_equal(0, loopBodyID);
+
+        // Jettison the test-expression.
+        this->discardExpression(/*slots=*/1);
+    }
+
+    fBuilder.label(loopExitID);
+    return true;
+}
+
 bool Generator::writeForStatement(const ForStatement& f) {
     // If we've determined that the loop does not run, omit its code entirely.
     if (f.unrollInfo() && f.unrollInfo()->fCount == 0) {
         return true;
+    }
+
+    // If the loop doesn't escape early due to a `continue`, `break` or `return`, and the loop
+    // conforms to ES2 structure, we know that we will run the full number of iterations across all
+    // lanes and don't need to use a loop mask.
+    Analysis::LoopControlFlowInfo loopInfo = Analysis::GetLoopControlFlowInfo(*f.statement());
+    if (!loopInfo.fHasContinue && !loopInfo.fHasBreak && !loopInfo.fHasReturn && f.unrollInfo()) {
+        return this->writeMasklessForStatement(f);
     }
 
     // Run the loop initializer.
@@ -852,14 +911,8 @@ bool Generator::writeForStatement(const ForStatement& f) {
         return unsupported();
     }
 
-    // Save off the original loop mask.
-    fBuilder.enableExecutionMaskWrites();
-    fBuilder.push_loop_mask();
-
     // Create a dedicated slot for continue-mask storage.
     SlotRange previousContinueMask = fCurrentContinueMask;
-
-    Analysis::LoopControlFlowInfo loopInfo = Analysis::GetLoopControlFlowInfo(*f.statement());
     if (loopInfo.fHasContinue) {
         fCurrentContinueMask =
                 fProgramSlots.createSlots(this->makeMaskName("for-loop continue mask"),
@@ -867,6 +920,10 @@ bool Generator::writeForStatement(const ForStatement& f) {
                                           Position{},
                                           /*isFunctionReturnValue=*/false);
     }
+
+    // Save off the original loop mask.
+    fBuilder.enableExecutionMaskWrites();
+    fBuilder.push_loop_mask();
 
     int loopTestID = fBuilder.nextLabelID();
     int loopBodyID = fBuilder.nextLabelID();
