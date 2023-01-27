@@ -18,7 +18,7 @@
    18. zero_slot_unmasked             $14 = 0
    19. copy_constant                  $15 = colorGreen(1)
    20. cmplt_float                    $14 = lessThan($14, $15)
-   21. branch_if_all_lanes_equal      branch_if_all_lanes_equal +5 (#26), if $14 == 0x00000000 (0.0)
+   21. branch_if_no_active_lanes_eq   branch +5 (#26) if no lanes of $14 == 0xFFFFFFFF
    22. copy_constant                  $15 = 0xFFFFFFFF
    23. copy_slot_masked               [test_if].result = Mask($15)
    24. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
@@ -44,7 +44,7 @@
    44. copy_constant                  $20 = colorGreen(1)
    45. zero_slot_unmasked             $21 = 0
    46. cmpeq_float                    $20 = equal($20, $21)
-   47. branch_if_all_lanes_equal      branch_if_all_lanes_equal +5 (#52), if $20 == 0x00000000 (0.0)
+   47. branch_if_no_active_lanes_eq   branch +5 (#52) if no lanes of $20 == 0xFFFFFFFF
    48. zero_slot_unmasked             $21 = 0
    49. copy_slot_masked               [test_else].result = Mask($21)
    50. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
@@ -66,7 +66,7 @@
    66. copy_constant                  $26 = colorGreen(1)
    67. zero_slot_unmasked             $27 = 0
    68. cmpeq_float                    $26 = equal($26, $27)
-   69. branch_if_all_lanes_equal      branch_if_all_lanes_equal +5 (#74), if $26 == 0x00000000 (0.0)
+   69. branch_if_no_active_lanes_eq   branch +5 (#74) if no lanes of $26 == 0xFFFFFFFF
    70. zero_slot_unmasked             $27 = 0
    71. copy_slot_masked               [test_loop_if].result = Mask($27)
    72. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)

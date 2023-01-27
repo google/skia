@@ -59,7 +59,7 @@
    59. copy_3_slots_unmasked          $10..12 = g[0](0..2)
    60. copy_3_slots_unmasked          b[0](0..2) = $10..12
    61. copy_constant                  $19 = 0xFFFFFFFF
-   62. branch_if_all_lanes_equal      branch_if_all_lanes_equal +7 (#69), if $19 == 0x00000000 (0.0)
+   62. branch_if_no_active_lanes_eq   branch +7 (#69) if no lanes of $19 == 0xFFFFFFFF
    63. branch_if_no_active_lanes      branch_if_no_active_lanes +5 (#68)
    64. copy_3_slots_unmasked          $10..12 = b[0](0..2)
    65. copy_3_slots_unmasked          x[0](0..2) = $10..12

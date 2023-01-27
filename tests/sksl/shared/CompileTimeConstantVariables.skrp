@@ -49,7 +49,7 @@
    49. copy_slot_unmasked             $8 = kLocalFloatConstant
    50. mul_float                      $7 *= $8
    51. cmplt_float                    $6 = lessThan($6, $7)
-   52. branch_if_all_lanes_equal      branch_if_all_lanes_equal +5 (#57), if $6 == 0x00000000 (0.0)
+   52. branch_if_no_active_lanes_eq   branch +5 (#57) if no lanes of $6 == 0xFFFFFFFF
    53. copy_constant                  $7 = 0x4048F5C3 (3.14)
    54. swizzle_4                      $7..10 = ($7..10).xxxx
    55. copy_4_slots_masked            [main].result = Mask($7..10)
@@ -59,7 +59,7 @@
    59. mul_float                      $7 *= $8
    60. copy_slot_unmasked             $8 = kFloatConstantAlias
    61. cmple_float                    $7 = lessThanEqual($7, $8)
-   62. branch_if_all_lanes_equal      branch_if_all_lanes_equal +4 (#66), if $7 == 0x00000000 (0.0)
+   62. branch_if_no_active_lanes_eq   branch +4 (#66) if no lanes of $7 == 0xFFFFFFFF
    63. zero_4_slots_unmasked          $8..11 = 0
    64. copy_4_slots_masked            [main].result = Mask($8..11)
    65. jump                           jump +5 (#70)

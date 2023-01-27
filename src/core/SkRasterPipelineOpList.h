@@ -104,7 +104,7 @@
     M(reenable_loop_mask)  M(merge_loop_mask)                                                 \
     M(load_return_mask)    M(store_return_mask)    M(mask_off_return_mask)                    \
     M(branch_if_any_active_lanes) M(branch_if_no_active_lanes)                                \
-    M(branch_if_all_lanes_equal)  M(jump)                                                     \
+    M(branch_if_no_active_lanes_eq)  M(jump)                                                  \
     M(bitwise_and_n_ints)                                                                     \
     M(bitwise_and_int) M(bitwise_and_2_ints) M(bitwise_and_3_ints) M(bitwise_and_4_ints)      \
     M(bitwise_or_n_ints)                                                                      \

@@ -937,7 +937,7 @@ bool Generator::writeDynamicallyUniformIfStatement(const IfStatement& i) {
         return unsupported();
     }
 
-    fBuilder.branch_if_stack_top_equals(0, falseLabelID);
+    fBuilder.branch_if_no_active_lanes_on_stack_top_equal(~0, falseLabelID);
 
     if (!this->writeStatement(*i.ifTrue())) {
         return unsupported();
@@ -2176,7 +2176,7 @@ bool Generator::pushDynamicallyUniformTernaryExpression(const Expression& test,
 
     // Branch to the true- or false-expression based on the test-expression. We can skip the
     // non-true path entirely since the test is known to be uniform.
-    fBuilder.branch_if_stack_top_equals(0, falseLabelID);
+    fBuilder.branch_if_no_active_lanes_on_stack_top_equal(~0, falseLabelID);
     this->previousTempStack();
 
     if (!this->pushExpression(ifTrue)) {

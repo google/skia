@@ -62,7 +62,7 @@ enum class BuilderOp {
     pop_return_mask,
     set_current_stack,
     label,
-    branch_if_stack_top_equals,
+    branch_if_no_active_lanes_on_stack_top_equal,
     unsupported
 };
 
@@ -288,7 +288,7 @@ public:
         if (!fInstructions.empty() &&
             (fInstructions.back().fOp == BuilderOp::branch_if_no_active_lanes ||
              fInstructions.back().fOp == BuilderOp::jump)) {
-            // The previous instruction was `jump` or `branch_if_any_active_lanes`, so this branch
+            // The previous instruction was `jump` or `branch_if_no_active_lanes`, so this branch
             // could never possibly occur.
             return;
         }
@@ -296,16 +296,18 @@ public:
         ++fNumBranches;
     }
 
-    void branch_if_stack_top_equals(int value, int labelID) {
+    void branch_if_no_active_lanes_on_stack_top_equal(int value, int labelID) {
         SkASSERT(labelID >= 0 && labelID < fNumLabels);
         if (!fInstructions.empty() &&
-            (fInstructions.back().fOp == BuilderOp::branch_if_stack_top_equals &&
-             fInstructions.back().fImmB == value)) {
-            // The previous instruction was `branch_if_stack_top_equals` and checked the same value,
-            // so this branch could never possibly occur.
+            (fInstructions.back().fOp == BuilderOp::jump ||
+             (fInstructions.back().fOp == BuilderOp::branch_if_no_active_lanes_on_stack_top_equal &&
+              fInstructions.back().fImmB == value))) {
+            // The previous instruction was `jump` or `branch_if_no_active_lanes_on_stack_top_equal`
+            // (checking against the same value), so this branch could never possibly occur.
             return;
         }
-        fInstructions.push_back({BuilderOp::branch_if_stack_top_equals, {}, labelID, value});
+        fInstructions.push_back({BuilderOp::branch_if_no_active_lanes_on_stack_top_equal,
+                                 {}, labelID, value});
         ++fNumBranches;
     }
 

@@ -886,11 +886,11 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 WriteBranchOp((RPOp)inst.fOp, alloc->make<SkRasterPipeline_BranchCtx>());
                 break;
 
-            case BuilderOp::branch_if_stack_top_equals: {
+            case BuilderOp::branch_if_no_active_lanes_on_stack_top_equal: {
                 auto* ctx = alloc->make<SkRasterPipeline_BranchIfEqualCtx>();
                 ctx->value = inst.fImmB;
                 ctx->ptr = reinterpret_cast<int*>(tempStackPtr - N);
-                WriteBranchOp(RPOp::branch_if_all_lanes_equal, ctx);
+                WriteBranchOp(RPOp::branch_if_no_active_lanes_eq, ctx);
                 break;
             }
             case BuilderOp::init_lane_masks:
@@ -1626,7 +1626,7 @@ void Program::dump(SkWStream* out) {
                 opArg1 = BranchOffset(static_cast<SkRasterPipeline_BranchCtx*>(stage.ctx));
                 break;
 
-            case RPOp::branch_if_all_lanes_equal: {
+            case RPOp::branch_if_no_active_lanes_eq: {
                 const auto* ctx = static_cast<SkRasterPipeline_BranchIfEqualCtx*>(stage.ctx);
                 opArg1 = BranchOffset(ctx);
                 opArg2 = PtrCtx(ctx->ptr, 1);
@@ -1937,8 +1937,8 @@ void Program::dump(SkWStream* out) {
                 opText = std::string(opName) + " " + opArg1;
                 break;
 
-            case RPOp::branch_if_all_lanes_equal:
-                opText = std::string(opName) + " " + opArg1 + ", if " + opArg2 + " == " + opArg3;
+            case RPOp::branch_if_no_active_lanes_eq:
+                opText = "branch " + opArg1 + " if no lanes of " + opArg2 + " == " + opArg3;
                 break;
 
             default:

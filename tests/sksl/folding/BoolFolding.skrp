@@ -1,7 +1,7 @@
     1. store_src_rg                   coords = src.rg
     2. init_lane_masks                CondMask = LoopMask = RetMask = true
     3. copy_constant                  $4 = 0xFFFFFFFF
-    4. branch_if_all_lanes_equal      branch_if_all_lanes_equal +3 (#7), if $4 == 0x00000000 (0.0)
+    4. branch_if_no_active_lanes_eq   branch +3 (#7) if no lanes of $4 == 0xFFFFFFFF
     5. copy_4_constants               $0..3 = colorGreen
     6. jump                           jump +2 (#8)
     7. copy_4_constants               $0..3 = colorRed

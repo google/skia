@@ -24,7 +24,7 @@
    24. store_condition_mask           $126 = CondMask
    25. store_condition_mask           $37 = CondMask
    26. copy_constant                  $115 = 0xFFFFFFFF
-   27. branch_if_all_lanes_equal      branch_if_all_lanes_equal +5 (#32), if $115 == 0x00000000 (0.0)
+   27. branch_if_no_active_lanes_eq   branch +5 (#32) if no lanes of $115 == 0xFFFFFFFF
    28. branch_if_no_active_lanes      branch_if_no_active_lanes +3 (#31)
    29. copy_constant                  $38 = 0xFFFFFFFF
    30. copy_slot_masked               [takes_void].result = Mask($38)

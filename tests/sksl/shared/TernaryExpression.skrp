@@ -5,7 +5,7 @@
     5. copy_constant                  $8 = colorGreen(1)
     6. copy_constant                  $9 = 0x3F800000 (1.0)
     7. cmpeq_float                    $8 = equal($8, $9)
-    8. branch_if_all_lanes_equal      branch_if_all_lanes_equal +3 (#11), if $8 == 0x00000000 (0.0)
+    8. branch_if_no_active_lanes_eq   branch +3 (#11) if no lanes of $8 == 0xFFFFFFFF
     9. copy_constant                  $1 = 0xFFFFFFFF
    10. jump                           jump +2 (#12)
    11. zero_slot_unmasked             $1 = 0
@@ -14,7 +14,7 @@
    14. copy_constant                  $8 = colorGreen(0)
    15. copy_constant                  $9 = 0x3F800000 (1.0)
    16. cmpeq_float                    $8 = equal($8, $9)
-   17. branch_if_all_lanes_equal      branch_if_all_lanes_equal +3 (#20), if $8 == 0x00000000 (0.0)
+   17. branch_if_no_active_lanes_eq   branch +3 (#20) if no lanes of $8 == 0xFFFFFFFF
    18. zero_slot_unmasked             $1 = 0
    19. jump                           jump +2 (#21)
    20. copy_constant                  $1 = 0xFFFFFFFF

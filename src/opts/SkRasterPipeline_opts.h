@@ -3193,8 +3193,13 @@ STAGE_BRANCH(jump, SkRasterPipeline_BranchCtx* ctx) {
     return ctx->offset;
 }
 
-STAGE_BRANCH(branch_if_all_lanes_equal, SkRasterPipeline_BranchIfEqualCtx* ctx) {
-    return all(cond_to_mask(*(I32*)ctx->ptr == ctx->value)) ? ctx->offset : 1;
+STAGE_BRANCH(branch_if_no_active_lanes_eq, SkRasterPipeline_BranchIfEqualCtx* ctx) {
+    // Compare each lane against the expected value...
+    I32 match = cond_to_mask(*(I32*)ctx->ptr == ctx->value);
+    // ... but mask off lanes that aren't executing.
+    match &= execution_mask();
+    // If any lanes matched, don't take the branch.
+    return any(match) ? 1 : ctx->offset;
 }
 
 STAGE_TAIL(immediate_f, void* ctx) {

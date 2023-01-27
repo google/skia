@@ -39,7 +39,7 @@
    39. bitwise_and_int                $12 &= $13
    40. bitwise_and_int                $11 &= $12
    41. bitwise_and_int                $10 &= $11
-   42. branch_if_all_lanes_equal      branch_if_all_lanes_equal +3 (#45), if $10 == 0x00000000 (0.0)
+   42. branch_if_no_active_lanes_eq   branch +3 (#45) if no lanes of $10 == 0xFFFFFFFF
    43. copy_4_constants               $0..3 = colorGreen
    44. jump                           jump +2 (#46)
    45. copy_4_constants               $0..3 = colorRed
