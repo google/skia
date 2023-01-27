@@ -840,18 +840,26 @@ bool Generator::writeDoStatement(const DoStatement& d) {
     fBuilder.push_loop_mask();
 
     // Acquire a temporary slot for continue-mask storage.
-    SlotRange previousContinueMask = fCurrentContinueMask;
-    fCurrentContinueMask = fProgramSlots.createTemporarySlot(*fProgram.fContext->fTypes.fUInt);
+    Analysis::LoopControlFlowInfo loopInfo = Analysis::GetLoopControlFlowInfo(*d.statement());
+    SlotRange previousContinueMask;
+    if (loopInfo.fHasContinue) {
+        previousContinueMask = fCurrentContinueMask;
+        fCurrentContinueMask = fProgramSlots.createTemporarySlot(*fProgram.fContext->fTypes.fUInt);
+    }
 
     // Write the do-loop body.
     int labelID = fBuilder.nextLabelID();
     fBuilder.label(labelID);
 
-    fBuilder.zero_slots_unmasked(fCurrentContinueMask);
+    if (loopInfo.fHasContinue) {
+        fBuilder.zero_slots_unmasked(fCurrentContinueMask);
+    }
     if (!this->writeStatement(*d.statement())) {
         return false;
     }
-    fBuilder.reenable_loop_mask(fCurrentContinueMask);
+    if (loopInfo.fHasContinue) {
+        fBuilder.reenable_loop_mask(fCurrentContinueMask);
+    }
 
     // Emit the test-expression, in order to combine it with the loop mask.
     if (!this->pushExpression(*d.test())) {
@@ -869,8 +877,10 @@ bool Generator::writeDoStatement(const DoStatement& d) {
     // Restore the loop and continue masks.
     fBuilder.pop_loop_mask();
     fBuilder.disableExecutionMaskWrites();
-    fProgramSlots.recycleTemporarySlot(fCurrentContinueMask);
-    fCurrentContinueMask = previousContinueMask;
+    if (loopInfo.fHasContinue) {
+        fProgramSlots.recycleTemporarySlot(fCurrentContinueMask);
+        fCurrentContinueMask = previousContinueMask;
+    }
 
     return true;
 }
