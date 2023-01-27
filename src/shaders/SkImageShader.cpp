@@ -445,6 +445,25 @@ sk_sp<SkShader> SkMakeBitmapShaderForPaint(const SkPaint& paint, const SkBitmap&
 
 void SkShaderBase::RegisterFlattenables() { SK_REGISTER_FLATTENABLE(SkImageShader); }
 
+class SkImageShader::TransformShader : public SkTransformShader {
+public:
+    explicit TransformShader(const SkImageShader& shader)
+            : SkTransformShader{shader}
+            , fImageShader{shader} {}
+
+    skvm::Color onProgram(skvm::Builder* b,
+                          skvm::Coord device, skvm::Coord local, skvm::Color color,
+                          const SkMatrixProvider& matrices, const SkMatrix* localM,
+                          const SkColorInfo& dst,
+                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+        return fImageShader.makeProgram(
+                b, device, local, color, matrices, localM, dst, uniforms, this, alloc);
+    }
+
+private:
+    const SkImageShader& fImageShader;
+};
+
 static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatrix& matrix) {
     SkFilterMode filter = sampling.filter;
 
@@ -459,7 +478,7 @@ static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatr
     return SkSamplingOptions(filter, sampling.mipmap);
 }
 
-bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) const {
+bool SkImageShader::doStages(const SkStageRec& rec, TransformShader* updater) const {
     SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/12784)
     // We only support certain sampling options in stages so far
     auto sampling = fSampling;
@@ -469,18 +488,21 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
     if (sampling.mipmap == SkMipmapMode::kLinear) {
         return false;
     }
+    if (updater && (sampling.mipmap != SkMipmapMode::kNone)) {
+        // TODO: medium: recall RequestBitmap and update width/height accordingly
+        return false;
+    }
 
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
 
     SkMatrix totalInverse;
-    // If the total matrix isn't valid then we will always access the base MIP level.
-    if (mRec.totalMatrixIsValid()) {
-        if (!mRec.totalInverse(&totalInverse)) {
-            return false;
-        }
-        totalInverse.normalizePerspective();
+    if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(),
+                                   rec.fLocalM,
+                                   &totalInverse)) {
+        return false;
     }
+    totalInverse.normalizePerspective();
 
     SkASSERT(!sampling.useCubic || sampling.mipmap == SkMipmapMode::kNone);
     auto* access = SkMipmapAccessor::Make(alloc, fImage.get(), totalInverse, sampling.mipmap);
@@ -490,17 +512,20 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
     SkPixmap pm;
     SkMatrix sampleM;
     std::tie(pm, sampleM) = access->level();
+    sampleM.preConcat(totalInverse);
 
-    if (!sampling.useCubic) {
-        // TODO: can tweak_sampling sometimes for cubic too when B=0
-        if (mRec.totalMatrixIsValid()) {
-            SkMatrix totalSampleM = SkMatrix::Concat(sampleM, totalInverse);
-            sampling = tweak_sampling(sampling, totalSampleM);
+    p->append(SkRasterPipelineOp::seed_shader);
+
+    if (updater) {
+        updater->appendMatrix(rec.fMatrixProvider.localToDevice(), p);
+    } else {
+        if (!sampling.useCubic) {
+            // TODO: can tweak_sampling sometimes for cubic too when B=0
+            if (rec.fMatrixProvider.localToDeviceHitsPixelCenters()) {
+                sampling = tweak_sampling(sampling, sampleM);
+            }
         }
-    }
-    std::optional<MatrixRec> newMRec = mRec.apply(rec, sampleM);
-    if (!newMRec.has_value()) {
-        return false;
+        p->append_matrix(alloc, sampleM);
     }
 
     auto gather = alloc->make<SkRasterPipeline_GatherCtx>();
@@ -744,15 +769,32 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
     return append_misc();
 }
 
-skvm::Color SkImageShader::onProgram(skvm::Builder* p,
-                                     skvm::Coord device,
-                                     skvm::Coord origLocal,
-                                     skvm::Color paint,
-                                     const SkMatrixProvider& matrices,
-                                     const SkMatrix* localM,
+bool SkImageShader::onAppendStages(const SkStageRec& rec) const {
+    return this->doStages(rec, nullptr);
+}
+
+SkStageUpdater* SkImageShader::onAppendUpdatableStages(const SkStageRec& rec) const {
+    TransformShader* updater = rec.fAlloc->make<TransformShader>(*this);
+    return this->doStages(rec, updater) ? updater : nullptr;
+}
+
+SkUpdatableShader* SkImageShader::onUpdatableShader(SkArenaAlloc* alloc) const {
+    return alloc->make<TransformShader>(*this);
+}
+
+skvm::Color SkImageShader::onProgram(skvm::Builder* b,
+                                     skvm::Coord device, skvm::Coord origLocal, skvm::Color paint,
+                                     const SkMatrixProvider& matrices, const SkMatrix* localM,
                                      const SkColorInfo& dst,
-                                     skvm::Uniforms* uniforms,
-                                     SkArenaAlloc* alloc) const {
+                                     skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+    return this->makeProgram(
+            b, device, origLocal, paint, matrices, localM, dst, uniforms, nullptr, alloc);
+}
+
+skvm::Color SkImageShader::makeProgram(
+        skvm::Builder* p, skvm::Coord device, skvm::Coord origLocal, skvm::Color paint,
+        const SkMatrixProvider& matrices, const SkMatrix* localM, const SkColorInfo& dst,
+        skvm::Uniforms* uniforms, const TransformShader* coordShader, SkArenaAlloc* alloc) const {
     SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/12784)
     SkMatrix baseInv;
     if (!this->computeTotalInverse(matrices.localToDevice(), localM, &baseInv)) {
@@ -771,7 +813,8 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
 
     auto [upper, upperInv] = access->level();
     upperInv.preConcat(baseInv);
-    if (!sampling.useCubic) {
+    // If we are using a coordShader, then we can't make guesses about the state of the matrix.
+    if (!sampling.useCubic && !coordShader) {
         // TODO: can tweak_sampling sometimes for cubic too when B=0
         if (matrices.localToDeviceHitsPixelCenters()) {
             sampling = tweak_sampling(sampling, upperInv);
@@ -788,7 +831,12 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
         lower = &lowerPixmap;
     }
 
-    skvm::Coord upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
+    skvm::Coord upperLocal;
+    if (coordShader != nullptr) {
+        upperLocal = coordShader->applyMatrix(p, upperInv, origLocal, uniforms);
+    } else {
+        upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
+    }
 
     // We can exploit image opacity to skip work unpacking alpha channels.
     const bool input_is_opaque = SkAlphaTypeIsOpaque(upper.alphaType())

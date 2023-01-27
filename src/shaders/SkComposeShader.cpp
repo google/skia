@@ -26,6 +26,31 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
 
+namespace {
+
+struct LocalMatrixStageRec final : public SkStageRec {
+    LocalMatrixStageRec(const SkStageRec& rec, const SkMatrix& lm)
+        : INHERITED(rec) {
+        if (!lm.isIdentity()) {
+            if (fLocalM) {
+                fStorage = SkShaderBase::ConcatLocalMatrices(*rec.fLocalM, lm);
+                fLocalM = fStorage.isIdentity() ? nullptr : &fStorage;
+            } else {
+                fLocalM = &lm;
+            }
+        }
+    }
+
+private:
+    SkMatrix fStorage;
+
+    using INHERITED = SkStageRec;
+};
+
+} // namespace
+
+///////////////////////////////////////////////////////////////////////////////
+
 class SkShader_Blend final : public SkShaderBase {
 public:
     SkShader_Blend(SkBlendMode mode, sk_sp<SkShader> dst, sk_sp<SkShader> src)
@@ -46,7 +71,7 @@ public:
 protected:
     SkShader_Blend(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
-    bool appendStages(const SkStageRec&, const MatrixRec&) const override;
+    bool onAppendStages(const SkStageRec&) const override;
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
                           skvm::Uniforms*, SkArenaAlloc*) const override;
@@ -91,34 +116,25 @@ void SkShader_Blend::flatten(SkWriteBuffer& buffer) const {
 }
 
 // Returns the output of e0, and leaves the output of e1 in r,g,b,a
-static float* append_two_shaders(const SkStageRec& rec,
-                                 const SkShaderBase::MatrixRec& mRec,
-                                 SkShader* s0,
-                                 SkShader* s1) {
+static float* append_two_shaders(const SkStageRec& rec, SkShader* s0, SkShader* s1) {
     struct Storage {
-        float   fCoords[2 * SkRasterPipeline_kMaxStride];
-        float   fRes0  [4 * SkRasterPipeline_kMaxStride];
+        float   fRes0[4 * SkRasterPipeline_kMaxStride];
     };
     auto storage = rec.fAlloc->make<Storage>();
-    std::optional<SkShaderBase::MatrixRec> childMRec = mRec.apply(rec);
-    if (!childMRec.has_value()) {
-        return nullptr;
-    }
-    rec.fPipeline->append(SkRasterPipelineOp::store_src_rg, storage->fCoords);
-    if (!as_SB(s0)->appendStages(rec, *childMRec)) {
+
+    if (!as_SB(s0)->appendStages(rec)) {
         return nullptr;
     }
     rec.fPipeline->append(SkRasterPipelineOp::store_src, storage->fRes0);
 
-    rec.fPipeline->append(SkRasterPipelineOp::load_src_rg, storage->fCoords);
-    if (!as_SB(s1)->appendStages(rec, *childMRec)) {
+    if (!as_SB(s1)->appendStages(rec)) {
         return nullptr;
     }
     return storage->fRes0;
 }
 
-bool SkShader_Blend::appendStages(const SkStageRec& rec, const MatrixRec& mRec) const {
-    float* res0 = append_two_shaders(rec, mRec, fDst.get(), fSrc.get());
+bool SkShader_Blend::onAppendStages(const SkStageRec& rec) const {
+    float* res0 = append_two_shaders(rec, fDst.get(), fSrc.get());
     if (!res0) {
         return false;
     }

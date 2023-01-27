@@ -94,7 +94,7 @@ protected:
 
     bool onAsLuminanceColor(SkColor*) const override;
 
-    bool appendStages(const SkStageRec&, const MatrixRec&) const override;
+    bool onAppendStages(const SkStageRec&) const override;
 
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dstCS,

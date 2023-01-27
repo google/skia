@@ -116,7 +116,9 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     SkPaint blankPaint;
     SkMatrixProvider matrixProvider(SkMatrix::I());
     SkSurfaceProps props{}; // default OK; colorFilters don't render text
-    SkStageRec rec = {&pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, blankPaint, props};
+    SkStageRec rec = {
+        &pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, blankPaint, nullptr, matrixProvider, props
+    };
 
     if (as_CFB(this)->onAppendStages(rec, color.fA == 1)) {
         SkPMColor4f dst;
