@@ -54,7 +54,7 @@ namespace {
             return c;
         }
 
-        bool onAppendStages(const SkStageRec&, bool) const override { return true; }
+        bool appendStages(const SkStageRec&, bool) const override { return true; }
 
         // Only created here, should never be flattened / unflattened.
         Factory getFactory() const override { return nullptr; }

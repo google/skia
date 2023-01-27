@@ -74,10 +74,6 @@ GrFPResult SkColorFilterBase::asFragmentProcessor(std::unique_ptr<GrFragmentProc
 }
 #endif
 
-bool SkColorFilterBase::appendStages(const SkStageRec& rec, bool shaderIsOpaque) const {
-    return this->onAppendStages(rec, shaderIsOpaque);
-}
-
 skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
                                        const SkColorInfo& dst,
                                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
@@ -118,7 +114,7 @@ SkPMColor4f SkColorFilterBase::onFilterColor4f(const SkPMColor4f& color,
     SkSurfaceProps props{}; // default OK; colorFilters don't render text
     SkStageRec rec = {&pipeline, &alloc, kRGBA_F32_SkColorType, dstCS, blankPaint, props};
 
-    if (as_CFB(this)->onAppendStages(rec, color.fA == 1)) {
+    if (as_CFB(this)->appendStages(rec, color.fA == 1)) {
         SkPMColor4f dst;
         SkRasterPipeline_MemoryCtx dstPtr = { &dst, 0 };
         pipeline.append(SkRasterPipelineOp::store_f32, &dstPtr);
@@ -167,7 +163,7 @@ public:
         return fOuter->isAlphaUnchanged() && fInner->isAlphaUnchanged();
     }
 
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+    bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         bool innerIsOpaque = shaderIsOpaque;
         if (!fInner->isAlphaUnchanged()) {
             innerIsOpaque = false;
@@ -303,7 +299,7 @@ public:
     }
 #endif
 
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+    bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         if (!shaderIsOpaque) {
             rec.fPipeline->append(SkRasterPipelineOp::unpremul);
         }
@@ -459,7 +455,7 @@ public:
     }
 #endif
 
-    bool onAppendStages(const SkStageRec&, bool) const override { return false; }
+    bool appendStages(const SkStageRec&, bool) const override { return false; }
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c, const SkColorInfo& rawDst,
                           skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {

@@ -157,7 +157,7 @@ struct FailureColorFilter final : public SkColorFilterBase {
         return {};
     }
 
-    bool onAppendStages(const SkStageRec&, bool) const override { return false; }
+    bool appendStages(const SkStageRec&, bool) const override { return false; }
 
     // Only created here, should never be flattened / unflattened.
     Factory getFactory() const override { return nullptr; }

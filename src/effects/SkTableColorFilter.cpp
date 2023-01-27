@@ -99,7 +99,7 @@ public:
                   skgpu::graphite::PipelineDataGatherer*) const override;
 #endif
 
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+    bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
         SkRasterPipeline* p = rec.fPipeline;
         if (!shaderIsOpaque) {
             p->append(SkRasterPipelineOp::unpremul);

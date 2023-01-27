@@ -50,6 +50,11 @@ class SkGaussianColorFilter final : public SkColorFilterBase {
 public:
     SkGaussianColorFilter() : SkColorFilterBase() {}
 
+    bool appendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
+        rec.fPipeline->append(SkRasterPipelineOp::gauss_a_to_rgba);
+        return true;
+    }
+
 #if SK_SUPPORT_GPU
     GrFPResult asFragmentProcessor(std::unique_ptr<GrFragmentProcessor> inputFP,
                                    GrRecordingContext*,
@@ -65,10 +70,6 @@ public:
 
 protected:
     void flatten(SkWriteBuffer&) const override {}
-    bool onAppendStages(const SkStageRec& rec, bool shaderIsOpaque) const override {
-        rec.fPipeline->append(SkRasterPipelineOp::gauss_a_to_rgba);
-        return true;
-    }
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c, const SkColorInfo& dst, skvm::Uniforms*,
                           SkArenaAlloc*) const override {
