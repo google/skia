@@ -319,7 +319,7 @@ skvm::F32 SkTwoPointConicalGradient::transformT(skvm::Builder* p, skvm::Uniforms
                                                 skvm::Coord coord, skvm::I32* mask) const {
     auto mag = [](skvm::F32 x, skvm::F32 y) { return sqrt(x*x + y*y); };
 
-    // See https://skia.org/dev/design/conical, and onAppendStages() above.
+    // See https://skia.org/dev/design/conical, and appendStages() above.
     // There's a lot going on here, and I'm not really sure what's independent
     // or disjoint, what can be reordered, simplified, etc.  Tweak carefully.
 

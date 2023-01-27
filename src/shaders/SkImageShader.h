@@ -70,10 +70,7 @@ private:
 #endif
     SkImage* onIsAImage(SkMatrix*, SkTileMode*) const override;
 
-    bool onAppendStages(const SkStageRec&) const override;
-    SkStageUpdater* onAppendUpdatableStages(const SkStageRec&) const override;
-
-    SkUpdatableShader* onUpdatableShader(SkArenaAlloc* alloc) const override;
+    bool appendStages(const SkStageRec&, const MatrixRec&) const override;
 
     skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
                           const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
@@ -84,8 +81,6 @@ private:
             skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
             const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
             skvm::Uniforms* uniforms, const TransformShader* coordShader, SkArenaAlloc*) const;
-
-    bool doStages(const SkStageRec&, TransformShader* = nullptr) const;
 
     sk_sp<SkImage>          fImage;
     const SkSamplingOptions fSampling;

@@ -376,21 +376,18 @@ void SkGradientShaderBase::AppendGradientFillStages(SkRasterPipeline* p,
     }
 }
 
-bool SkGradientShaderBase::onAppendStages(const SkStageRec& rec) const {
+bool SkGradientShaderBase::appendStages(const SkStageRec& rec, const MatrixRec& mRec) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
     SkRasterPipeline_DecalTileCtx* decal_ctx = nullptr;
 
-    SkMatrix matrix;
-    if (!this->computeTotalInverse(rec.fMatrixProvider.localToDevice(), rec.fLocalM, &matrix)) {
+    std::optional<MatrixRec> newMRec = mRec.apply(rec, fPtsToUnit);
+    if (!newMRec.has_value()) {
         return false;
     }
-    matrix.postConcat(fPtsToUnit);
 
     SkRasterPipeline_<256> postPipeline;
 
-    p->append(SkRasterPipelineOp::seed_shader);
-    p->append_matrix(alloc, matrix);
     this->appendGradientStages(alloc, p, &postPipeline);
 
     switch(fTileMode) {

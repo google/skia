@@ -186,6 +186,81 @@ public:
     };
 
     /**
+     * This is used when building up SkRasterPipeline to accumulate matrices during downward
+     * SkShader tree traversal rather than adding a matrix multiply stage for each one. It also
+     * tracks the dubious concept of a "total matrix", which includes all matrices encountered,
+     * including ones that have already been incorporated into matrix multiply stages.
+     *
+     * The total matrix is used for mip map level selection and a filter downgrade optimizations in
+     * SkImageShader and sizing of the SkImage created by SkPictureShader. If we can remove usages
+     * of the "total matrix" this could just be replaced by an SkMatrix or SkM44.
+     */
+    class MatrixRec {
+    public:
+        MatrixRec() = default;
+
+        MatrixRec(const SkMatrixProvider&);
+
+        /**
+         * Returns a new MatrixRec that represents the existing total and pending matrix
+         * pre-concat'ed with m.
+         */
+        MatrixRec SK_WARN_UNUSED_RESULT concat(const SkMatrix& m) const;
+
+        /**
+         * Appends a mul by the inverse of the pending local matrix to the pipeline. 'postInv' is an
+         * additional matrix to post-apply to the inverted pending matrix. If the pending matrix is
+         * not invertible the std::optional result won't have a value and the pipeline will be
+         * unmodified.
+         */
+        std::optional<MatrixRec> SK_WARN_UNUSED_RESULT apply(const SkStageRec& rec,
+                                                             const SkMatrix& postInv = {}) const;
+
+        /** Call to indicate that the mapping from shader to device space is not known. */
+        void markTotalMatrixInvalid() { fTotalMatrixIsValid = false; }
+
+        /**
+         * Indicates whether the total matrix of a MatrixRec passed to a SkShader actually
+         * represents the full transform between that shader's coordinate space and device space.
+         */
+        bool totalMatrixIsValid() const { return fTotalMatrixIsValid; }
+
+        /**
+         * Gets the total transform from the current shader's space to device space. This may or
+         * may not be valid. Shaders should avoid making decisions based on this matrix if
+         * totalMatrixIsValid() is false.
+         */
+        SkMatrix totalMatrix() const { return fTotalMatrix; }
+
+        /** Gets the inverse of totalMatrix(), if invertible. */
+        bool SK_WARN_UNUSED_RESULT totalInverse(SkMatrix* out) const {
+                return fTotalMatrix.invert(out);
+        }
+
+        /** Is there a transform that has not yet been applied by a parent shader? */
+        bool hasPendingMatrix() const { return !fPendingMatrix.isIdentity(); }
+
+    private:
+        MatrixRec(const SkMatrix& pending, const SkMatrix& total, bool totalIsValid, bool rpSeeded)
+                : fPendingMatrix(pending)
+                , fTotalMatrix(total)
+                , fTotalMatrixIsValid(totalIsValid)
+                , fRPSeeded(rpSeeded) {}
+
+        // The accumulated local matrices from walking down the shader hierarchy that have NOT yet
+        // been incorporated into the SkRasterPipeline.
+        const SkMatrix fPendingMatrix;
+        // The total of all local matrices accumulated walking down the shader hierarchy including
+        // those already incorporated into the SkRasterPipelines (including fPendingLocalMatrix).
+        const SkMatrix fTotalMatrix;
+
+        bool fTotalMatrixIsValid = true;
+
+        // When used with raster pipeline, have the initial device coords been seeded.
+        bool fRPSeeded = false;
+    };
+
+    /**
      * Make a context using the memory provided by the arena.
      *
      * @return pointer to context or nullptr if can't be created
@@ -219,9 +294,20 @@ public:
      */
     bool asLuminanceColor(SkColor*) const;
 
-    // If this returns false, then we draw nothing (do not fall back to shader context)
+    /**
+     * If this returns false, then we draw nothing (do not fall back to shader context). This should
+     * only be called on a root-level effect. It assumes that the initial device coordinates have
+     * not yet been seeded.
+     */
     SK_WARN_UNUSED_RESULT
-    bool appendStages(const SkStageRec&) const;
+    bool appendRootStages(const SkStageRec& rec, const SkMatrixProvider&) const;
+
+    /**
+     * Adds stages to implement this shader. To ensure that the correct input coords are present
+     * in r,g MatrixRec::apply() must be called (unless the shader doesn't require it's input
+     * coords). The default impl creates shadercontext and calls that (not very efficient).
+     */
+    virtual bool appendStages(const SkStageRec&, const MatrixRec&) const;
 
     bool SK_WARN_UNUSED_RESULT computeTotalInverse(const SkMatrix& ctm,
                                                    const SkMatrix* localMatrix,
@@ -248,14 +334,6 @@ public:
      *  the localMatrix. If not, return nullptr and ignore the localMatrix parameter.
      */
     virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
-
-    SkUpdatableShader* updatableShader(SkArenaAlloc* alloc) const;
-    virtual SkUpdatableShader* onUpdatableShader(SkArenaAlloc* alloc) const;
-
-    SkStageUpdater* appendUpdatableStages(const SkStageRec& rec) const {
-        return this->onAppendUpdatableStages(rec);
-    }
-
     SK_WARN_UNUSED_RESULT
     skvm::Color program(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
                         const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
@@ -302,11 +380,6 @@ protected:
         return false;
     }
 
-    // Default impl creates shadercontext and calls that (not very efficient)
-    virtual bool onAppendStages(const SkStageRec&) const;
-
-    virtual SkStageUpdater* onAppendUpdatableStages(const SkStageRec&) const { return nullptr; }
-
 protected:
     static skvm::Coord ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Coord, skvm::Uniforms*);
 
@@ -318,32 +391,6 @@ private:
 
     using INHERITED = SkShader;
 };
-
-/**
- *  Shaders can optionally return a subclass of this when appending their stages.
- *  Doing so tells the caller that the stages can be reused with different CTMs (but nothing
- *  else can change), by calling the updater's update() method before each use.
- *
- *  This can be a perf-win bulk draws like drawAtlas and drawVertices, where most of the setup
- *  (i.e. uniforms) are constant, and only something small is changing (i.e. matrices). This
- *  reuse skips the cost of computing the stages (and/or avoids having to allocate a separate
- *  shader for each small draw.
- */
-class SkStageUpdater {
-public:
-    virtual ~SkStageUpdater() {}
-    virtual bool SK_WARN_UNUSED_RESULT update(const SkMatrix& ctm) const = 0;
-};
-
-// TODO: use the SkStageUpdater as an interface until all the code is converted over to use
-//       SkUpdatableShader.
-class SkUpdatableShader : public SkShaderBase, public SkStageUpdater {
-private:
-    // For serialization.  This will never be called.
-    Factory getFactory() const override { return nullptr; }
-    const char* getTypeName() const override { return nullptr; }
-};
-
 inline SkShaderBase* as_SB(SkShader* shader) {
     return static_cast<SkShaderBase*>(shader);
 }
