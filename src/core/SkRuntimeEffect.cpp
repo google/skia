@@ -1325,8 +1325,8 @@ public:
 #endif
 
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-    bool onAppendStages(const SkStageRec& rec) const override {
-        // Lazily compile the program the first time we see it used in onAppendStages.
+    bool appendStages(const SkStageRec& rec, const MatrixRec& mRec) const override {
+        // Lazily compile the program the first time we see it used in appendStages.
         fCompileRPProgramOnce([this] {
             const_cast<SkRTShader*>(this)->fRPProgram =
                     MakeRasterPipelineProgram(*fEffect->fBaseProgram,
@@ -1337,18 +1337,21 @@ public:
         if (!fRPProgram) {
             return false;
         }
+
+        std::optional<MatrixRec> newMRec = mRec.apply(rec);
+        if (!newMRec.has_value()) {
+            return false;
+        }
+
         sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
                                                                             fUniforms,
                                                                             rec.fDstCS);
 
-        // TODO(johnstiles): seed_shader puts device coordinates into the shader inputs. After
-        // CL 628742 lands, we should be able to use the input coordinates as-is.
-        rec.fPipeline->append(SkRasterPipelineOp::seed_shader);
         fRPProgram->appendStages(rec.fPipeline, rec.fAlloc, uniforms_as_span(inputs.get()));
         return true;
     }
 #else
-    bool onAppendStages(const SkStageRec& rec) const override {
+    bool appendStages(const SkStageRec& rec, const MatrixRec&) const override {
         return false;
     }
 #endif

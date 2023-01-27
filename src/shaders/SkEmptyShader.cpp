@@ -25,9 +25,7 @@ protected:
         // which will write data we don't care to serialize or decode.
     }
 
-    bool onAppendStages(const SkStageRec&) const override {
-        return false;
-    }
+    bool appendStages(const SkStageRec&, const MatrixRec&) const override { return false; }
 
     skvm::Color onProgram(skvm::Builder*, skvm::Coord, skvm::Coord, skvm::Color,
                           const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,

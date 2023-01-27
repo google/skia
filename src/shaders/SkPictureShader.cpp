@@ -17,13 +17,13 @@
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkMatrixUtils.h"
 #include "src/core/SkPicturePriv.h"
+#include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkResourceCache.h"
 #include "src/core/SkVM.h"
 #include "src/shaders/SkBitmapProcShader.h"
 #include "src/shaders/SkImageShader.h"
 #include "src/shaders/SkLocalMatrixShader.h"
-#include <atomic>
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrDirectContext.h"
@@ -190,28 +190,25 @@ static sk_sp<SkColorSpace> ref_or_srgb(SkColorSpace* cs) {
 
 struct CachedImageInfo {
     bool           success;
-    SkSize         tileScale;
-    SkMatrix       matrixForDraw;
+    SkSize         tileScale;      // Additional scale factors to apply when sampling image.
+    SkMatrix       matrixForDraw;  // Matrix used to produce an image from the picture
     SkImageInfo    imageInfo;
     SkSurfaceProps props;
 
     static CachedImageInfo Make(const SkRect& bounds,
-                                const SkMatrix& viewMatrix,
-                                SkMatrix* localMatrix,     // in/out
+                                const SkMatrix& totalM,
                                 SkColorType dstColorType,
                                 SkColorSpace* dstColorSpace,
                                 const int maxTextureSize,
                                 const SkSurfaceProps& propsIn) {
-        const SkMatrix m = SkMatrix::Concat(viewMatrix, *localMatrix);
-
         SkSurfaceProps props = propsIn.cloneWithPixelGeometry(kUnknown_SkPixelGeometry);
 
         const SkSize scaledSize = [&]() {
             SkSize size;
             // Use a rotation-invariant scale
-            if (!m.decomposeScale(&size, nullptr)) {
+            if (!totalM.decomposeScale(&size, nullptr)) {
                 SkPoint center = {bounds.centerX(), bounds.centerY()};
-                SkScalar area = SkMatrixPriv::DifferentialAreaScale(m, center);
+                SkScalar area = SkMatrixPriv::DifferentialAreaScale(totalM, center);
                 if (!SkScalarIsFinite(area) || SkScalarNearlyZero(area)) {
                     size = {1, 1}; // ill-conditioned matrix
                 } else {
@@ -229,7 +226,7 @@ struct CachedImageInfo {
                 size.set(size.width() * clampScale, size.height() * clampScale);
             }
 
-            // Scale down the tile size if larger than maxTextureSize for GPU Path
+            // Scale down the tile size if larger than maxTextureSize for GPU path
             // or it should fail on create texture
             if (maxTextureSize) {
                 if (size.width() > maxTextureSize || size.height() > maxTextureSize) {
@@ -255,18 +252,11 @@ struct CachedImageInfo {
                                 ? kRGBA_8888_SkColorType
                                 : kRGBA_F16Norm_SkColorType;
 
-        if (tileScale.width() != 1 || tileScale.height() != 1) {
-            localMatrix->preScale(1 / tileScale.width(), 1 / tileScale.height());
-        }
-
-        return {
-            true,
-            tileScale,
-            SkMatrix::RectToRect(bounds, SkRect::MakeIWH(tileSize.width(), tileSize.height())),
-            SkImageInfo::Make(tileSize.width(), tileSize.height(),
-                              imgCT, kPremul_SkAlphaType, imgCS),
-            props
-        };
+        return {true,
+                tileScale,
+                SkMatrix::RectToRect(bounds, SkRect::MakeIWH(tileSize.width(), tileSize.height())),
+                SkImageInfo::Make(tileSize, imgCT, kPremul_SkAlphaType, imgCS),
+                props};
     }
 
     sk_sp<SkImage> makeImage(sk_sp<SkSurface> surf, const SkPicture* pict) const {
@@ -282,15 +272,16 @@ struct CachedImageInfo {
 
 // Returns a cached image shader, which wraps a single picture tile at the given
 // CTM/local matrix.  Also adjusts the local matrix for tile scaling.
-sk_sp<SkShader> SkPictureShader::rasterShader(const SkMatrix& viewMatrix,
-                                              SkMatrix* localMatrix,
+sk_sp<SkShader> SkPictureShader::rasterShader(const SkMatrix& totalM,
                                               SkColorType dstColorType,
                                               SkColorSpace* dstColorSpace,
                                               const SkSurfaceProps& propsIn) const {
     const int maxTextureSize_NotUsedForCPU = 0;
-    CachedImageInfo info = CachedImageInfo::Make(fTile, viewMatrix, localMatrix,
+    CachedImageInfo info = CachedImageInfo::Make(fTile,
+                                                 totalM,
                                                  dstColorType, dstColorSpace,
-                                                 maxTextureSize_NotUsedForCPU, propsIn);
+                                                 maxTextureSize_NotUsedForCPU,
+                                                 propsIn);
     if (!info.success) {
         return nullptr;
     }
@@ -308,45 +299,52 @@ sk_sp<SkShader> SkPictureShader::rasterShader(const SkMatrix& viewMatrix,
         SkResourceCache::Add(new ImageFromPictureRec(key, image));
         SkPicturePriv::AddedToCache(fPicture.get());
     }
-    return image->makeShader(fTmx, fTmy, SkSamplingOptions(fFilter), nullptr);
+    // Scale the image to the original picture size.
+    auto lm = SkMatrix::Scale(1.f/info.tileScale.width(), 1.f/info.tileScale.height());
+    return image->makeShader(fTmx, fTmy, SkSamplingOptions(fFilter), &lm);
 }
 
-bool SkPictureShader::onAppendStages(const SkStageRec& rec) const {
-    auto lm = rec.fLocalM ? *rec.fLocalM : SkMatrix::I();
+bool SkPictureShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) const {
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *rec.fAlloc->make<sk_sp<SkShader>>();
-    bitmapShader = this->rasterShader(rec.fMatrixProvider.localToDevice(), &lm,
-                                      rec.fDstColorType, rec.fDstCS, rec.fSurfaceProps);
+    // We don't check whether the total local matrix is valid here because we have to assume *some*
+    // mapping to make an image. It could be wildly wrong if there is a runtime shader transforming
+    // the coordinates in a manner we don't know about here. However, that is a fundamental problem
+    // with the technique of converting a picture to an image to implement this shader.
+    bitmapShader = this->rasterShader(mRec.totalMatrix(),
+                                      rec.fDstColorType,
+                                      rec.fDstCS,
+                                      rec.fSurfaceProps);
     if (!bitmapShader) {
         return false;
     }
-
-    SkStageRec localRec = rec;
-    localRec.fLocalM = lm.isIdentity() ? nullptr : &lm;
-
-    return as_SB(bitmapShader)->appendStages(localRec);
+    return as_SB(bitmapShader)->appendStages(rec, mRec);
 }
 
 skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
-                                       skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                                       const SkMatrixProvider& matrices, const SkMatrix* localM,
+                                       skvm::Coord device,
+                                       skvm::Coord local,
+                                       skvm::Color paint,
+                                       const SkMatrixProvider& matrices,
+                                       const SkMatrix* localM,
                                        const SkColorInfo& dst,
-                                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    SkMatrix lm = localM ? *localM : SkMatrix::I();
-
+                                       skvm::Uniforms* uniforms,
+                                       SkArenaAlloc* alloc) const {
     // TODO: We'll need additional plumbing to get the correct props from our callers.
     SkSurfaceProps props{};
 
+    const auto& vm     = matrices.localToDevice();
+    const auto& totalM = localM ? SkMatrix::Concat(vm, *localM) : vm;
+
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
-    bitmapShader = this->rasterShader(matrices.localToDevice(), &lm,
-                                      dst.colorType(), dst.colorSpace(), props);
+    bitmapShader = this->rasterShader(totalM, dst.colorType(), dst.colorSpace(), props);
     if (!bitmapShader) {
         return {};
     }
 
     return as_SB(bitmapShader)->program(p, device, local, paint,
-                                        matrices, &lm, dst,
+                                        matrices, localM, dst,
                                         uniforms, alloc);
 }
 
@@ -355,17 +353,16 @@ skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
 #ifdef SK_ENABLE_LEGACY_SHADERCONTEXT
 SkShaderBase::Context* SkPictureShader::onMakeContext(const ContextRec& rec, SkArenaAlloc* alloc)
 const {
-    SkMatrix lm = rec.fLocalMatrix ? *rec.fLocalMatrix : SkMatrix::I();
-    sk_sp<SkShader> bitmapShader = this->rasterShader(*rec.fMatrix, &lm, rec.fDstColorType,
+    const auto& vm     = *rec.fMatrix;
+    const auto* lm     = rec.fLocalMatrix;
+    const auto  totalM = lm ? SkMatrix::Concat(vm, *lm) : vm;
+    sk_sp<SkShader> bitmapShader = this->rasterShader(totalM, rec.fDstColorType,
                                                       rec.fDstColorSpace, rec.fProps);
     if (!bitmapShader) {
         return nullptr;
     }
 
-    ContextRec localRec = rec;
-    localRec.fLocalMatrix = lm.isIdentity() ? nullptr : &lm;
-
-    return as_SB(bitmapShader)->makeContext(localRec, alloc);
+    return as_SB(bitmapShader)->makeContext(rec, alloc);
 }
 #endif
 
@@ -377,20 +374,26 @@ const {
 
 std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
         const GrFPArgs& args) const {
-
     auto ctx = args.fContext;
-    auto lm = args.fLocalMatrix ? *args.fLocalMatrix : SkMatrix::I();
     SkColorType dstColorType = GrColorTypeToSkColorType(args.fDstColorInfo->colorType());
     if (dstColorType == kUnknown_SkColorType) {
         dstColorType = kRGBA_8888_SkColorType;
     }
 
     auto dstCS = ref_or_srgb(args.fDstColorInfo->colorSpace());
-    auto viewMatrix = args.fMatrixProvider.localToDevice();
-    auto info = CachedImageInfo::Make(fTile, viewMatrix, &lm, dstColorType, dstCS.get(),
-                                      ctx->priv().caps()->maxTextureSize(), args.fSurfaceProps);
+
+    const auto& vm    = args.fMatrixProvider.localToDevice();
+    const auto* lm    = args.fLocalMatrix;
+    const auto totalM = lm ? SkMatrix::Concat(vm, *lm) : vm;
+
+    auto info = CachedImageInfo::Make(fTile,
+                                      totalM,
+                                      dstColorType,
+                                      dstCS.get(),
+                                      ctx->priv().caps()->maxTextureSize(),
+                                      args.fSurfaceProps);
     SkMatrix inv;
-    if (!info.success || !lm.invert(&inv)) {
+    if (!info.success || (lm && !lm->invert(&inv))) {
         return nullptr;
     }
 
@@ -441,7 +444,7 @@ std::unique_ptr<GrFragmentProcessor> SkPictureShader::asFragmentProcessor(
     const GrSamplerState sampler(static_cast<GrSamplerState::WrapMode>(fTmx),
                                  static_cast<GrSamplerState::WrapMode>(fTmy),
                                  fFilter);
-
+    inv.postScale(info.tileScale.width(), info.tileScale.height());
     return GrTextureEffect::Make(
             std::move(view), kPremul_SkAlphaType, inv, sampler, *ctx->priv().caps());
 }
@@ -462,10 +465,12 @@ void SkPictureShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
     // and dstColorSpace.
     SkSurfaceProps props{};
 
-    SkMatrix lm = keyContext.localMatrix() ? *keyContext.localMatrix() : SkMatrix::I();
+    SkMatrix totalM = keyContext.local2Dev().asM33();
+    if (keyContext.localMatrix()) {
+        totalM.preConcat(*keyContext.localMatrix());
+    }
     CachedImageInfo info = CachedImageInfo::Make(fTile,
-                                                 keyContext.local2Dev().asM33(),
-                                                 &lm,
+                                                 totalM,
                                                  /* dstColorType= */ kRGBA_8888_SkColorType,
                                                  /* dstColorSpace= */ nullptr,
                                                  caps->maxTextureSize(),
@@ -488,12 +493,8 @@ void SkPictureShader::addToKey(const skgpu::graphite::KeyContext& keyContext,
         return;
     }
 
-    SkMatrix newLocal;
-    if (info.tileScale.width() != 1 || info.tileScale.height() != 1) {
-        newLocal.preScale(1 / info.tileScale.width(), 1 / info.tileScale.height());
-    }
-
-    sk_sp<SkShader> shader = img->makeShader(fTmx, fTmy, SkSamplingOptions(fFilter), newLocal);
+    const auto shaderLM = SkMatrix::Scale(1.f/info.tileScale.width(), 1.f/info.tileScale.height());
+    sk_sp<SkShader> shader = img->makeShader(fTmx, fTmy, SkSamplingOptions(fFilter), &shaderLM);
     if (!shader) {
         SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer, {1, 0, 0, 1});
         builder->endBlock();
