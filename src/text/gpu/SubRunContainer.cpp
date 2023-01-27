@@ -2352,23 +2352,72 @@ SkRect prepare_for_SDFT_drawing(StrikeForGPU* strike,
 }
 #endif
 
+SkRect prepare_for_direct_mask_drawing(StrikeForGPU* strike,
+                                       const SkMatrix& positionMatrix,
+                                       SkDrawableGlyphBuffer* accepted,
+                                       SkSourceGlyphBuffer* rejected) {
+    const SkIPoint mask = strike->roundingSpec().ignorePositionFieldMask;
+    const SkPoint halfSampleFreq = strike->roundingSpec().halfAxisSampleFreq;
+
+    // Build up the mapping from source space to device space. Add the rounding constant
+    // halfSampleFreq, so we just need to floor to get the device result.
+    SkMatrix positionMatrixWithRounding = positionMatrix;
+    positionMatrixWithRounding.postTranslate(halfSampleFreq.x(), halfSampleFreq.y());
+
+    SkGlyphRect boundingRect = skglyph::empty_rect();
+    StrikeMutationMonitor m{strike};
+    for (auto [i, notSubPixelGlyphID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+            continue;
+        }
+
+        const SkPoint mappedPos = positionMatrixWithRounding.mapPoint(pos);
+        const SkGlyphID glyphID = notSubPixelGlyphID.packedID().glyphID();
+        const SkPackedGlyphID packedGlyphID = SkPackedGlyphID{glyphID, mappedPos, mask};
+        const SkGlyphDigest digest = strike->digest(packedGlyphID);
+
+        if (digest.isEmpty()) {
+            continue;
+        }
+
+        if (digest.canDrawAsMask()) {
+            const SkPoint roundedPos{SkScalarFloorToScalar(mappedPos.x()),
+                                     SkScalarFloorToScalar(mappedPos.y())};
+            const SkGlyphRect glyphBounds = digest.bounds().offset(roundedPos);
+            boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+            accepted->accept(packedGlyphID, glyphBounds.leftTop(), digest.maskFormat());
+        } else {
+            rejected->reject(i);
+        }
+    }
+
+    return boundingRect.rect();
+}
+
 SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
+                                const SkMatrix& creationMatrix,
                                 SkDrawableGlyphBuffer* accepted,
                                 SkSourceGlyphBuffer* rejected) {
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyphDigest digest = strike->digest(packedID);
-            if (!digest.isEmpty()) {
-                if (digest.canDrawAsMask()) {
-                    const SkGlyphRect glyphBounds = digest.bounds().offset(pos);
-                    boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                    accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
-                } else {
-                    rejected->reject(i);
-                }
-            }
+        if (!SkScalarsAreFinite(pos.x(), pos.y())) {
+            continue;
+        }
+
+        SkGlyphDigest digest = strike->digest(packedID);
+
+        if (digest.isEmpty()) {
+            continue;
+        }
+
+        if (digest.canDrawAsMask()) {
+            SkPoint mappedPos = creationMatrix.mapPoint(pos);
+            const SkGlyphRect glyphBounds = digest.bounds().offset(mappedPos);
+            boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+            accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
+        } else {
+            rejected->reject(i);
         }
     }
 
@@ -2516,12 +2565,13 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
 
                 ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
-                accepted->startDevicePositioning(
-                        rejected->source(), positionMatrix, strike->roundingSpec());
+                accepted->startSource(rejected->source());
                 if constexpr (kTrace) {
                     msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
-                SkRect bounds = prepare_for_mask_drawing(strike.get(), accepted, rejected);
+                SkRect bounds =
+                    prepare_for_direct_mask_drawing(
+                        strike.get(), positionMatrix, accepted, rejected);
                 rejected->flipRejectsToSource();
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
@@ -2682,11 +2732,12 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             }
             ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
-            accepted->startSourceWithMatrixAdjustment(rejected->source(), creationMatrix);
+            accepted->startSource(rejected->source());
             if constexpr (kTrace) {
                 msg.appendf("glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
             }
-            SkRect creationBounds = prepare_for_mask_drawing(strike.get(), accepted, rejected);
+            SkRect creationBounds =
+                prepare_for_mask_drawing(strike.get(), creationMatrix, accepted, rejected);
             rejected->flipRejectsToSource();
             SkASSERT(rejected->source().empty());
 

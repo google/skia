@@ -120,8 +120,7 @@ DEF_TEST(SkStrikeMultiThread, Reporter) {
                 accepted.ensureSize(glyphCount);
                 rejected.setSource(local);
 
-                accepted.startDevicePositioning(
-                        rejected.source(), SkMatrix::I(), strike.roundingSpec());
+                accepted.startSource(rejected.source());
                 prepare_for_mask_drawing(&strike, &accepted, &rejected);
                 rejected.flipRejectsToSource();
                 accepted.reset();
