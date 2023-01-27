@@ -859,7 +859,7 @@ bool Generator::writeForStatement(const ForStatement& f) {
     // Create a dedicated slot for continue-mask storage.
     SlotRange previousContinueMask = fCurrentContinueMask;
 
-    Analysis::ContinueOrBreakInfo loopInfo = Analysis::HasContinueOrBreak(*f.statement());
+    Analysis::LoopControlFlowInfo loopInfo = Analysis::GetLoopControlFlowInfo(*f.statement());
     if (loopInfo.fHasContinue) {
         fCurrentContinueMask =
                 fProgramSlots.createSlots(this->makeMaskName("for-loop continue mask"),

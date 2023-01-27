@@ -119,14 +119,16 @@ std::unique_ptr<ProgramUsage> GetUsage(const Module& module);
 bool StatementWritesToVariable(const Statement& stmt, const Variable& var);
 
 /**
- * Returns true if the passed-in block contains a `continue` or `break` that could directly affect
- * its control flow. (A `continue` or `break` nested inside an inner loop/switch does not count.)
+ * Detects if the passed-in block contains a `continue`, `break` or `return` that could directly
+ * affect its control flow. (A `continue` or `break` nested inside an inner loop/switch will not
+ * affect the loop, but a `return` will.)
  */
-struct ContinueOrBreakInfo {
+struct LoopControlFlowInfo {
     bool fHasContinue = false;
     bool fHasBreak = false;
+    bool fHasReturn = false;
 };
-ContinueOrBreakInfo HasContinueOrBreak(const Statement& stmt);
+LoopControlFlowInfo GetLoopControlFlowInfo(const Statement& stmt);
 
 /**
  * Returns true if the expression can be assigned-into. Pass `info` if you want to know the
