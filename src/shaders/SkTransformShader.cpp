@@ -19,7 +19,7 @@ skvm::Color SkTransformShader::onProgram(skvm::Builder* b,
                       const SkMatrixProvider& matrices, const SkMatrix* localM,
                       const SkColorInfo& dst,
                       skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    // We assume the caller is folding the CTM into the per-update matrix for effeciency.
+    // We assume the caller is folding the CTM into the per-update matrix for efficiency.
     SkASSERT(matrices.localToDevice().isIdentity());
 
     auto matrix = uniforms->pushPtr(&fMatrixStorage);

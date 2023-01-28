@@ -180,10 +180,11 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
             shader = sk_ref_sp(transformShader);
         }
         p.setShader(std::move(shader));
+        // We use identity here and fold the CTM into the update matrix.
+        SkMatrixProvider matrixProvider(SkMatrix::I());
         if (auto blitter = SkVMBlitter::Make(fDst,
                                              p,
-                                             // we fold the ctm into the update.
-                                             SkMatrixProvider{SkMatrix::I()},
+                                             matrixProvider,
                                              &alloc,
                                              fRC->clipShader())) {
             SkPath scratchPath;
