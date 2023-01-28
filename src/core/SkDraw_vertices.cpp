@@ -412,8 +412,12 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
         VertState::Proc vertProc = state.chooseProc(info.mode());
         SkSurfaceProps props = SkSurfacePropsCopyOrDefault(fProps);
 
-        auto blitter = SkCreateRasterPipelineBlitter(fDst, finalPaint, *matrixProvider,
-                                                     outerAlloc, fRC->clipShader(), props);
+        auto blitter = SkCreateRasterPipelineBlitter(fDst,
+                                                     finalPaint,
+                                                     matrixProvider->localToDevice(),
+                                                     outerAlloc,
+                                                     fRC->clipShader(),
+                                                     props);
         if (!blitter) {
             return false;
         }

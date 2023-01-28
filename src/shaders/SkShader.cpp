@@ -34,10 +34,7 @@ SkShaderBase::SkShaderBase() = default;
 
 SkShaderBase::~SkShaderBase() = default;
 
-SkShaderBase::MatrixRec::MatrixRec(const SkMatrixProvider& mp)
-        : fPendingMatrix(mp.localToDevice())
-        , fTotalMatrix(mp.localToDevice())
-        , fTotalMatrixIsValid(mp.localToDeviceHitsPixelCenters()) {}
+SkShaderBase::MatrixRec::MatrixRec(const SkMatrix& m) : fPendingMatrix(m), fTotalMatrix(m) {}
 
 std::optional<SkShaderBase::MatrixRec>
 SkShaderBase::MatrixRec::apply(const SkStageRec& rec, const SkMatrix& postInv) const {
@@ -156,8 +153,8 @@ sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy,
                                tmx, tmy, sampling, lm);
 }
 
-bool SkShaderBase::appendRootStages(const SkStageRec& rec, const SkMatrixProvider& mp) const {
-    return this->appendStages(rec, MatrixRec(mp));
+bool SkShaderBase::appendRootStages(const SkStageRec& rec, const SkMatrix& ctm) const {
+    return this->appendStages(rec, MatrixRec(ctm));
 }
 
 bool SkShaderBase::appendStages(const SkStageRec& rec, const MatrixRec& mRec) const {

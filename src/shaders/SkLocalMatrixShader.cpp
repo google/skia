@@ -163,7 +163,7 @@ protected:
     void flatten(SkWriteBuffer&) const override { SkASSERT(false); }
 
     bool appendStages(const SkStageRec& rec, const MatrixRec&) const override {
-        return as_SB(fProxyShader)->appendRootStages(rec, SkMatrixProvider(fCTM));
+        return as_SB(fProxyShader)->appendRootStages(rec, fCTM);
     }
 
     skvm::Color onProgram(skvm::Builder* p,

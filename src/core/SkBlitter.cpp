@@ -763,7 +763,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
             }
         }
         if (auto blitter = SkCreateRasterPipelineBlitter(
-                    device, *paint, matrixProvider, alloc, clipShader, props)) {
+                    device, *paint, matrixProvider.localToDevice(), alloc, clipShader, props)) {
             return blitter;
         }
         if (!gUseSkVMBlitter) {

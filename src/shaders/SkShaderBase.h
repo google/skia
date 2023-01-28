@@ -199,7 +199,7 @@ public:
     public:
         MatrixRec() = default;
 
-        MatrixRec(const SkMatrixProvider&);
+        MatrixRec(const SkMatrix&);
 
         /**
          * Returns a new MatrixRec that represents the existing total and pending matrix
@@ -300,7 +300,7 @@ public:
      * not yet been seeded.
      */
     SK_WARN_UNUSED_RESULT
-    bool appendRootStages(const SkStageRec& rec, const SkMatrixProvider&) const;
+    bool appendRootStages(const SkStageRec& rec, const SkMatrix& ctm) const;
 
     /**
      * Adds stages to implement this shader. To ensure that the correct input coords are present
