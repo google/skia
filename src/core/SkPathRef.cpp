@@ -32,13 +32,17 @@ SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
     if ((*pathRef)->unique()) {
         (*pathRef)->incReserve(incReserveVerbs, incReservePoints);
     } else {
-        SkPathRef* copy = new SkPathRef;
+        SkPathRef* copy;
         // No need to copy if the existing ref is the empty ref (because it doesn't contain
         // anything).
         if (!(*pathRef)->isInitialEmptyPathRef()) {
+            copy = new SkPathRef;
             copy->copy(**pathRef, incReserveVerbs, incReservePoints);
         } else {
-            copy->incReserve(incReservePoints, incReservePoints);
+            // Size previously empty paths to exactly fit the supplied hints. The assumpion is
+            // the caller knows the exact size they want (as happens in chrome when deserializing
+            // paths).
+            copy = new SkPathRef(incReserveVerbs, incReservePoints);
         }
         pathRef->reset(copy);
     }

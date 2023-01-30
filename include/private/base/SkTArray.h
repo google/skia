@@ -155,8 +155,8 @@ public:
      */
     void reserve(int n) {
         SkASSERT(n >= 0);
-        if (n >= this->size()) {
-            this->reserve_back(n - size());
+        if (n > this->size()) {
+            this->checkRealloc(n - this->size(), kGrowing);
         }
     }
 
