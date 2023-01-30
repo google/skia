@@ -134,8 +134,6 @@ public:
 private:
     friend class SkStrikeCache;
     class Monitor;
-    template <typename Fn>
-    void commonFilterLoop(SkDrawableGlyphBuffer* accepted, Fn&& fn) SK_REQUIRES(fStrikeLock);
 
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances using a scaler.

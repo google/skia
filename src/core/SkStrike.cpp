@@ -171,16 +171,19 @@ SkSpan<const SkGlyph*> SkStrike::prepareDrawables(
 
 void SkStrike::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted) {
     Monitor m{this};
-    this->commonFilterLoop(
-        accepted,
-        [&](size_t i, SkGlyphDigest digest, SkPoint pos) SK_REQUIRES(fStrikeLock) {
-            // If the glyph is too large, then no image is created.
-            SkGlyph* glyph = fGlyphForIndex[digest.index()];
-            const void* image = this->prepareImage(glyph);
-            if (image != nullptr) {
-                accepted->accept(glyph, i);
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            SkGlyphDigest digest = this->digest(packedID);
+            if (!digest.isEmpty()) {
+                // If the glyph is too large, then no image is created.
+                SkGlyph* glyph = fGlyphForIndex[digest.index()];
+                const void* image = this->prepareImage(glyph);
+                if (image != nullptr) {
+                    accepted->accept(glyph, i);
+                }
             }
-        });
+        }
+    }
 }
 
 void SkStrike::prepareForPathDrawing(SkDrawableGlyphBuffer* accepted,
@@ -287,18 +290,6 @@ void SkStrike::dumpMemoryStatistics(SkTraceMemoryDump* dump) const {
                            "glyph_count", "objects",
                            fDigestForPackedGlyphID.count());
     dump->setMemoryBacking(dumpName.c_str(), "malloc", nullptr);
-}
-
-template <typename Fn>
-void SkStrike::commonFilterLoop(SkDrawableGlyphBuffer* accepted, Fn&& fn) {
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyphDigest digest = this->digest(packedID);
-            if (!digest.isEmpty()) {
-                fn(i, digest, pos);
-            }
-        }
-    }
 }
 
 SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
