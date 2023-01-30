@@ -75,6 +75,11 @@ DEF_FUZZ(CubicQuadRoots, fuzz) {
     fuzz->next(&C);
     fuzz->next(&D);
 
+    // Uncomment for easy test case creation
+//    SkDebugf("A %16e (0x%lx) B %16e (0x%lx) C %16e (0x%lx) D %16e (0x%lx)\n",
+//             A, sk_double_to_bits(A), B, sk_double_to_bits(B),
+//             C, sk_double_to_bits(C), D, sk_double_to_bits(D));
+
     fuzz_quad_real_roots(A, B, C);
 
     fuzz_cubic_real_roots(A, B, C, D);

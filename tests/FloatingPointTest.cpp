@@ -8,8 +8,11 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "tests/Test.h"
 
+#include <array>
 #include <cfloat>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 
 DEF_TEST(DoubleNearlyZero, reporter) {
     REPORTER_ASSERT(reporter, sk_double_nearly_zero(0.));
@@ -61,4 +64,26 @@ DEF_TEST(DoubleNearlyEqualUlps, reporter) {
     REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(10, INFINITY));
 
     REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(NAN, INFINITY));
+}
+
+DEF_TEST(DoubleBitsRoundTrip, reporter) {
+    std::array<double, 5>  testCases = {0.0, 1.0, -13.0, 1.234567890123456, -543210.987654321};
+
+    for (size_t i = 0; i < testCases.size(); i++) {
+        double input = testCases[i];
+        uint64_t bits = sk_double_to_bits(input);
+        double output = sk_bits_to_double(bits);
+        REPORTER_ASSERT(reporter, input == output, "%.16f is not exactly %.16f", input, output);
+    }
+
+    {
+        uint64_t bits = sk_double_to_bits(NAN);
+        double output = sk_bits_to_double(bits);
+        REPORTER_ASSERT(reporter, std::isnan(output), "%.16f is not nan", output);
+    }
+    {
+        uint64_t bits = sk_double_to_bits(INFINITY);
+        double output = sk_bits_to_double(bits);
+        REPORTER_ASSERT(reporter, !std::isfinite(output), "%.16f is not infinity", output);
+    }
 }

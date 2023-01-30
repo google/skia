@@ -196,7 +196,7 @@ DEF_TEST(CubicRootsReal_Constant, reporter) {
 
 DEF_TEST(CubicRootsReal_NonFiniteNumbers, reporter) {
     // The Pathops implementation does not check for infinities nor nans in all cases.
-    double roots[3];
+    double roots[3] = {0, 0, 0};
     REPORTER_ASSERT(reporter,
         SkCubics::RootsReal(NAN, 1, 2, 3, roots) == 0,
         "Nan A"
@@ -213,6 +213,16 @@ DEF_TEST(CubicRootsReal_NonFiniteNumbers, reporter) {
         SkCubics::RootsReal(1, 2, 3, NAN, roots) == 0,
         "Nan D"
     );
+
+    {
+        skiatest::ReporterContext subtest(reporter, "oss-fuzz:55419 C and D are large");
+        int numRoots = SkCubics::RootsReal(
+                                           -2, 0,
+                                           sk_bits_to_double(0xd5422020202020ff), // -5.074559e+102
+                                           sk_bits_to_double(0x600fff202020ff20), // 5.362551e+154
+                                           roots);
+        REPORTER_ASSERT(reporter, numRoots == 0, "No finite roots expected, got %d", numRoots);
+    }
 }
 
 static void testCubicValidT(skiatest::Reporter* reporter, std::string name,

@@ -228,4 +228,11 @@ bool sk_double_nearly_zero(double a);
 //   https://randomascii.wordpress.com/2012/02/25/comparing-floating-point-numbers-2012-edition/
 bool sk_doubles_nearly_equal_ulps(double a, double b, uint8_t max_ulps_diff=16);
 
+// Helper for viewing the bit pattern of a double. Handy for coding precise doubles into test
+// cases (e.g. from fuzzer bugs)
+uint64_t sk_double_to_bits(double x);
+
+// Converts a bit pattern to a double. See sk_double_to_bits.
+double sk_bits_to_double(uint64_t bits);
+
 #endif
