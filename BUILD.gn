@@ -1208,6 +1208,7 @@ optional("jpeg_decode") {
   sources = [
     "src/codec/SkJpegCodec.cpp",
     "src/codec/SkJpegDecoderMgr.cpp",
+    "src/codec/SkJpegSourceMgr.cpp",
     "src/codec/SkJpegUtility.cpp",
   ]
   if (skia_use_jpeg_gainmaps) {
