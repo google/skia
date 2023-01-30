@@ -45,6 +45,7 @@
 #endif
 
 using namespace sktext::gpu;
+using namespace skglyph;
 
 namespace {
 // -- Serializer -----------------------------------------------------------------------------------
@@ -223,9 +224,8 @@ private:
 
     // The masks and paths that currently reside in the GPU process.
     SkTHashMap<SkPackedGlyphID, SkGlyphDigest, SkPackedGlyphID::Hash> fSentGlyphs;
-    enum class Action {drop, accept, reject};
-    SkTHashMap<SkGlyphID, Action> fSentPaths;
-    SkTHashMap<SkGlyphID, Action> fSentDrawables;
+    SkTHashMap<SkGlyphID, GlyphAction> fSentPaths;
+    SkTHashMap<SkGlyphID, GlyphAction> fSentDrawables;
 
     // The Masks, SDFT Mask, and Paths that need to be sent to the GPU task for the processed
     // TextBlobs. Cleared after diffs are serialized.
@@ -386,7 +386,7 @@ void RemoteStrike::prepareForPathDrawing(
         SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
     accepted->forEachInput(
             [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
-                Action* decision = fSentPaths.find(packedID.glyphID());
+                GlyphAction* decision = fSentPaths.find(packedID.glyphID());
                 if (decision == nullptr) {
                     // Put the new SkGlyph in the glyphs to send.
                     this->ensureScalerContext();
@@ -395,25 +395,25 @@ void RemoteStrike::prepareForPathDrawing(
 
                     glyph->setPath(&fAlloc, fContext.get());
 
-                    Action glyphDecision;
+                    GlyphAction glyphDecision;
                     if (glyph->isEmpty()) {
-                        glyphDecision = Action::drop;
+                        glyphDecision = GlyphAction::kDrop;
                     } else if (glyph->path() != nullptr) {
-                        glyphDecision = Action::accept;
+                        glyphDecision = GlyphAction::kAccept;
                     } else {
-                        glyphDecision = Action::reject;
+                        glyphDecision = GlyphAction::kReject;
                     }
                     decision = fSentPaths.set(packedID.glyphID(), glyphDecision);
                 }
 
                 switch (*decision) {
-                    case Action::accept:
+                    case GlyphAction::kAccept:
                         accepted->accept(packedID, position);
                         break;
-                    case Action::reject:
+                    case GlyphAction::kReject:
                         rejected->reject(i);
                         break;
-                    case Action::drop:
+                    default:
                         break;
                 }
             });
@@ -424,7 +424,7 @@ void RemoteStrike::prepareForDrawableDrawing(
     accepted->forEachInput(
             [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
                 SkGlyphID glyphID = packedID.glyphID();
-                Action* decision = fSentDrawables.find(glyphID);
+                GlyphAction* decision = fSentDrawables.find(glyphID);
                 if (decision == nullptr) {
 
                     // Put the new SkGlyph in the glyphs to send.
@@ -434,26 +434,26 @@ void RemoteStrike::prepareForDrawableDrawing(
 
                     glyph->setDrawable(&fAlloc, fContext.get());
 
-                    Action glyphDecision;
+                    GlyphAction glyphDecision;
                     if (glyph->isEmpty()) {
-                        glyphDecision = Action::drop;
+                        glyphDecision = GlyphAction::kDrop;
                     } else if (glyph->drawable() != nullptr) {
-                        glyphDecision = Action::accept;
+                        glyphDecision = GlyphAction::kAccept;
                     } else {
-                        glyphDecision = Action::reject;
+                        glyphDecision = GlyphAction::kReject;
                     }
 
                     decision = fSentDrawables.set(packedID.glyphID(), glyphDecision);
                 }
 
                 switch (*decision) {
-                    case Action::accept:
+                    case GlyphAction::kAccept:
                         accepted->accept(packedID, position);
                         break;
-                    case Action::reject:
+                    case GlyphAction::kReject:
                         rejected->reject(i);
                         break;
-                    case Action::drop:
+                    default:
                         break;
                 }
             });
