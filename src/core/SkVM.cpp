@@ -968,7 +968,7 @@ namespace skvm {
         // handle quadrant distinctions
         r = select((y0 >= 0) & (x0  < 0), r + SK_ScalarPI, r);
         r = select((y0  < 0) & (x0 <= 0), r - SK_ScalarPI, r);
-        // Note: we don't try to handle 0,0 or infinities (yet)
+        // Note: we don't try to handle 0,0 or infinities
         return r;
     }
 
