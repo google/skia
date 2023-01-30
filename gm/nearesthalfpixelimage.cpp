@@ -10,6 +10,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
 
 /**

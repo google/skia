@@ -8,18 +8,43 @@
 #ifndef SkImage_Gpu_DEFINED
 #define SkImage_Gpu_DEFINED
 
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/gpu/GrBackendSurface.h"
 #include "include/private/SkSpinlock.h"
-#include "src/core/SkImagePriv.h"
-#include "src/gpu/ganesh/GrGpuResourcePriv.h"
-#include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
+#include "include/private/base/SkThreadAnnotations.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/image/SkImage_GpuBase.h"
 
-class GrDirectContext;
-class GrRecordingContext;
-class GrTexture;
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <tuple>
 
-class SkBitmap;
+class GrDirectContext;
+class GrFragmentProcessor;
+class GrImageContext;
+class GrRecordingContext;
+class GrRenderTask;
+class GrSurfaceProxy;
+class SkColorInfo;
+class SkColorSpace;
+class SkImage;
+class SkMatrix;
+enum GrSurfaceOrigin : int;
+enum SkColorType : int;
+enum SkYUVColorSpace : int;
+enum class GrColorType;
+enum class GrImageTexGenPolicy : int;
+enum class GrMipmapped : bool;
+enum class GrSemaphoresSubmitted : bool;
+enum class SkTileMode;
+struct GrFlushInfo;
+struct SkIRect;
+struct SkISize;
+struct SkImageInfo;
+struct SkRect;
 
 class SkImage_Gpu final : public SkImage_GpuBase {
 public:

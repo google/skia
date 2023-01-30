@@ -24,7 +24,7 @@ public:
 private:
     void onSetData(const GrGLSLProgramDataManager&, const GrFragmentProcessor&) override;
 
-    SkImage::CubicResampler fKernel = {-1, -1};
+    SkCubicResampler fKernel = {-1, -1};
     UniformHandle fCoefficientUni;
 };
 
@@ -114,7 +114,7 @@ void GrBicubicEffect::Impl::onSetData(const GrGLSLProgramDataManager& pdm,
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(GrSurfaceProxyView view,
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
-                                                           SkImage::CubicResampler kernel,
+                                                           SkCubicResampler kernel,
                                                            Direction direction) {
     auto fp = GrTextureEffect::Make(std::move(view), alphaType, SkMatrix::I());
     auto clamp = kPremul_SkAlphaType == alphaType ? Clamp::kPremul : Clamp::kUnpremul;
@@ -127,7 +127,7 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(GrSurfaceProxyView vi
                                                            const SkMatrix& matrix,
                                                            const GrSamplerState::WrapMode wrapX,
                                                            const GrSamplerState::WrapMode wrapY,
-                                                           SkImage::CubicResampler kernel,
+                                                           SkCubicResampler kernel,
                                                            Direction direction,
                                                            const GrCaps& caps) {
     GrSamplerState sampler(wrapX, wrapY, GrSamplerState::Filter::kNearest);
@@ -145,7 +145,7 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::MakeSubset(
         const GrSamplerState::WrapMode wrapX,
         const GrSamplerState::WrapMode wrapY,
         const SkRect& subset,
-        SkImage::CubicResampler kernel,
+        SkCubicResampler kernel,
         Direction direction,
         const GrCaps& caps) {
     GrSamplerState sampler(wrapX, wrapY, GrSamplerState::Filter::kNearest);
@@ -165,7 +165,7 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::MakeSubset(
         const GrSamplerState::WrapMode wrapY,
         const SkRect& subset,
         const SkRect& domain,
-        SkImage::CubicResampler kernel,
+        SkCubicResampler kernel,
         Direction direction,
         const GrCaps& caps) {
     auto lowerBound = [](float x) { return std::floor(x - 1.5f) + 0.5f; };
@@ -188,7 +188,7 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::MakeSubset(
 std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(std::unique_ptr<GrFragmentProcessor> fp,
                                                            SkAlphaType alphaType,
                                                            const SkMatrix& matrix,
-                                                           SkImage::CubicResampler kernel,
+                                                           SkCubicResampler kernel,
                                                            Direction direction) {
     auto clamp = kPremul_SkAlphaType == alphaType ? Clamp::kPremul : Clamp::kUnpremul;
     return GrMatrixEffect::Make(matrix, std::unique_ptr<GrFragmentProcessor>(
@@ -196,7 +196,7 @@ std::unique_ptr<GrFragmentProcessor> GrBicubicEffect::Make(std::unique_ptr<GrFra
 }
 
 GrBicubicEffect::GrBicubicEffect(std::unique_ptr<GrFragmentProcessor> fp,
-                                 SkImage::CubicResampler kernel,
+                                 SkCubicResampler kernel,
                                  Direction direction,
                                  Clamp clamp)
         : INHERITED(kGrBicubicEffect_ClassID, ProcessorOptimizationFlags(fp.get()))

@@ -10,7 +10,9 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkTileMode.h"
 
 /**
  * Tests image shader mirror tile mode with scale factors of 1 and -1, with nearest and linear

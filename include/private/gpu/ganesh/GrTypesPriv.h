@@ -9,6 +9,7 @@
 #define GrTypesPriv_DEFINED
 
 #include <chrono>
+#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPath.h"

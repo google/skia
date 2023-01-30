@@ -2,6 +2,11 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 112
+-------------
+  * SkImage::CubicResampler has been removed. Clients should use SkCubicResampler from
+    include/core/SkSamplingOptions.h instead (the former was an alias for the latter).
+
 Milestone 111
 -------------
   * SkToBool is no longer part of the public API.
@@ -18,7 +23,7 @@ Milestone 111
   * SkLeftShift is no longer part of the public API.
   * SK_MaxS32 and related constants are no longer part of the public API.
   * include/core/SkMath.h is no longer part of the public API.
-
+* * *
 
 Milestone 110
 -------------

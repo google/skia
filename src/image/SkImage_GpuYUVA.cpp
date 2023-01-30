@@ -7,26 +7,55 @@
 
 #include "src/image/SkImage_GpuYUVA.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h" // IWYU pragma: keep
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
 #include "include/gpu/GrYUVABackendTextures.h"
-#include "src/base/SkScopeExit.h"
-#include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkMipmap.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkSamplingPriv.h"
-#include "src/gpu/ganesh/GrClip.h"
+#include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/SkBackingFit.h"
+#include "src/gpu/Swizzle.h"
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
+#include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
+#include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrYUVtoRGBEffect.h"
-#include "src/image/SkImage_Gpu.h"
+#include "src/image/SkImage_Base.h"
+
+#include <algorithm>
+#include <utility>
+
+enum class SkTileMode;
+struct SkRect;
 
 static constexpr auto kAssumedColorType = kRGBA_8888_SkColorType;
 
@@ -228,6 +257,10 @@ std::unique_ptr<GrFragmentProcessor> SkImage_GpuYUVA::onAsFragmentProcessor(
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
+                                             const GrYUVABackendTextures& yuvaTextures) {
+    return SkImage::MakeFromYUVATextures(context, yuvaTextures, nullptr, nullptr, nullptr);
+}
 
 sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
                                              const GrYUVABackendTextures& yuvaTextures,
@@ -261,6 +294,14 @@ sk_sp<SkImage> SkImage::MakeFromYUVATextures(GrRecordingContext* context,
                                        kNeedNewImageUniqueID,
                                        yuvaProxies,
                                        imageColorSpace);
+}
+
+sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,
+                                            const SkYUVAPixmaps& pixmaps,
+                                            GrMipmapped buildMips,
+                                            bool limitToMaxTextureSize) {
+    return SkImage::MakeFromYUVAPixmaps(context, pixmaps, buildMips, limitToMaxTextureSize,
+                                        nullptr);
 }
 
 sk_sp<SkImage> SkImage::MakeFromYUVAPixmaps(GrRecordingContext* context,

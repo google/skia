@@ -5,19 +5,29 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkImage.h"
+
 #include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkImageEncoder.h"
-#include "include/core/SkImageFilter.h"
 #include "include/core/SkImageGenerator.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPicture.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/core/SkTileMode.h"
+#include "include/core/SkTypes.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkCachedData.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkImageFilterCache.h"
+#include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMipmap.h"
 #include "src/core/SkMipmapBuilder.h"
@@ -25,30 +35,42 @@
 #include "src/core/SkSamplingPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "src/image/SkImage_Base.h"
-#include "src/image/SkReadPixelsRec.h"
 #include "src/image/SkRescaleAndReadPixels.h"
 #include "src/shaders/SkImageShader.h"
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrBackendSurface.h"
-#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
+#include "src/gpu/ResourceKey.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrSamplerState.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
-#include "src/image/SkImage_Gpu.h"
+enum class GrColorType;
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Log.h"
 #endif
+
+#include <atomic>
+#include <string_view>
+#include <tuple>
+#include <utility>
+
+class SkShader;
 
 SkImage::SkImage(const SkImageInfo& info, uint32_t uniqueID)
         : fInfo(info)
@@ -149,11 +171,51 @@ SkColorSpace* SkImage::colorSpace() const { return fInfo.colorSpace(); }
 
 sk_sp<SkColorSpace> SkImage::refColorSpace() const { return fInfo.refColorSpace(); }
 
+sk_sp<SkShader> SkImage::makeShader(const SkSamplingOptions& sampling, const SkMatrix& lm) const {
+    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)),
+                               SkTileMode::kClamp, SkTileMode::kClamp,
+                               sampling, &lm);
+}
+
+sk_sp<SkShader> SkImage::makeShader(const SkSamplingOptions& sampling, const SkMatrix* lm) const {
+    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)),
+                               SkTileMode::kClamp, SkTileMode::kClamp,
+                               sampling, lm);
+}
+
+sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
+                                    const SkSamplingOptions& sampling,
+                                    const SkMatrix& lm) const {
+    return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy,
+                               sampling, &lm);
+}
+
 sk_sp<SkShader> SkImage::makeShader(SkTileMode tmx, SkTileMode tmy,
                                     const SkSamplingOptions& sampling,
                                     const SkMatrix* localMatrix) const {
     return SkImageShader::Make(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy,
                                sampling, localMatrix);
+}
+
+sk_sp<SkShader> SkImage::makeRawShader(SkTileMode tmx, SkTileMode tmy,
+                                       const SkSamplingOptions& sampling,
+                                       const SkMatrix& lm) const {
+    return SkImageShader::MakeRaw(sk_ref_sp(const_cast<SkImage*>(this)), tmx, tmy,
+                                  sampling, &lm);
+}
+
+sk_sp<SkShader> SkImage::makeRawShader(const SkSamplingOptions& sampling,
+                                       const SkMatrix& lm) const {
+    return SkImageShader::MakeRaw(sk_ref_sp(const_cast<SkImage*>(this)),
+                                  SkTileMode::kClamp, SkTileMode::kClamp,
+                                  sampling, &lm);
+}
+
+sk_sp<SkShader> SkImage::makeRawShader(const SkSamplingOptions& sampling,
+                                       const SkMatrix* localMatrix) const {
+    return SkImageShader::MakeRaw(sk_ref_sp(const_cast<SkImage*>(this)),
+                                  SkTileMode::kClamp, SkTileMode::kClamp,
+                                  sampling, localMatrix);
 }
 
 sk_sp<SkShader> SkImage::makeRawShader(SkTileMode tmx, SkTileMode tmy,
@@ -603,6 +665,12 @@ bool SkImage_Base::onAsLegacyBitmap(GrDirectContext* dContext, SkBitmap* bitmap)
 
     bitmap->setImmutable();
     return true;
+}
+
+sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,
+                                        const SkMatrix* matrix, const SkPaint* paint,
+                                        BitDepth bitDepth, sk_sp<SkColorSpace> colorSpace) {
+    return SkImage::MakeFromPicture(picture, dimensions, matrix, paint, bitDepth, colorSpace, {});
 }
 
 sk_sp<SkImage> SkImage::MakeFromPicture(sk_sp<SkPicture> picture, const SkISize& dimensions,

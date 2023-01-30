@@ -8,13 +8,35 @@
 #ifndef SkSurface_Gpu_DEFINED
 #define SkSurface_Gpu_DEFINED
 
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/image/SkSurface_Base.h"
+#include "include/core/SkTypes.h"
 
 #if SK_SUPPORT_GPU
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "src/image/SkSurface_Base.h"
 
-class GrBackendFormat;
-namespace skgpu::v1 { class Device; }
+class GrBackendSemaphore;
+class GrRecordingContext;
+class SkCanvas;
+class SkCapabilities;
+class SkColorSpace;
+class SkDeferredDisplayList;
+class SkImage;
+class SkPaint;
+class SkPixmap;
+class SkSurface;
+class SkSurfaceCharacterization;
+enum GrSurfaceOrigin : int;
+enum class GrSemaphoresSubmitted : bool;
+namespace skgpu { class MutableTextureState; }
+namespace skgpu { namespace v1 { class Device; } }
+struct GrFlushInfo;
+struct SkIPoint;
+struct SkIRect;
+struct SkISize;
 
 class SkSurface_Gpu : public SkSurface_Base {
 public:

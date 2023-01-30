@@ -7,42 +7,67 @@
 
 #include "src/image/SkImage_Gpu.h"
 
-#include "include/core/SkCanvas.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageGenerator.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrContextThreadSafeProxy.h"
 #include "include/gpu/GrDirectContext.h"
 #include "include/gpu/GrRecordingContext.h"
-#include "include/gpu/GrYUVABackendTextures.h"
-#include "src/base/SkScopeExit.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkBitmapCache.h"
 #include "src/core/SkImageInfoPriv.h"
-#include "src/core/SkMipmap.h"
-#include "src/core/SkTraceEvent.h"
-#include "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h"
-#include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
+#include "src/gpu/RefCntedCallback.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrBackendTextureImageGenerator.h"
 #include "src/gpu/ganesh/GrBackendUtils.h"
 #include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrDrawingManager.h"
+#include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrGpu.h"
+#include "src/gpu/ganesh/GrGpuResourcePriv.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrRenderTask.h"
 #include "src/gpu/ganesh/GrSemaphore.h"
+#include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
-#include "src/gpu/ganesh/GrTextureProxyPriv.h"
-#include "src/gpu/ganesh/GrYUVATextureProxies.h"
+#include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
+#include "src/image/SkImage_Base.h"
 
+#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+#include "src/gpu/ganesh/GrAHardwareBufferImageGenerator.h"
+#include "src/gpu/ganesh/GrAHardwareBufferUtils_impl.h"
+#endif
+
+#include <algorithm>
 #include <cstddef>
-#include <cstring>
-#include <type_traits>
+#include <utility>
+
+class SkMatrix;
+enum SkColorType : int;
+enum class SkTileMode;
 
 inline SkImage_Gpu::ProxyChooser::ProxyChooser(sk_sp<GrSurfaceProxy> stableProxy)
         : fStableProxy(std::move(stableProxy)) {
@@ -698,6 +723,12 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrDirectContext* dContext,
 }
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at) {
+    auto gen = GrAHardwareBufferImageGenerator::Make(graphicBuffer, at, nullptr,
+                                                     kTopLeft_GrSurfaceOrigin);
+    return SkImage::MakeFromGenerator(std::move(gen));
+}
+
 sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at,
                                                 sk_sp<SkColorSpace> cs,
                                                 GrSurfaceOrigin surfaceOrigin) {

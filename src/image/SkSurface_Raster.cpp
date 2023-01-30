@@ -5,13 +5,33 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCapabilities.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMallocPixelRef.h"
+#include "include/core/SkPixelRef.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSurface.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMath.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkSurfacePriv.h"
 #include "src/image/SkSurface_Base.h"
+
+#include <cstdint>
+#include <cstring>
+#include <utility>
+
+class SkImage;
+class SkPaint;
+class SkPixmap;
+class SkSurfaceProps;
 
 class SkSurface_Raster : public SkSurface_Base {
 public:

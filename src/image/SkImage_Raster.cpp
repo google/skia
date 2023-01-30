@@ -5,26 +5,51 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
-#include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPixelRef.h"
-#include "include/core/SkSurface.h"
-#include "src/base/SkTLazy.h"
-#include "src/codec/SkColorTable.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkMipmap.h"
 #include "src/image/SkImage_Base.h"
-#include "src/shaders/SkBitmapProcShader.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <tuple>
+#include <utility>
+
+class GrDirectContext;
+class GrFragmentProcessor;
+class SkMatrix;
+enum class SkTileMode;
 
 #if SK_SUPPORT_GPU
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/GrBackendSurface.h"
+#include "include/gpu/GrRecordingContext.h"
+#include "include/gpu/GrTypes.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/effects/GrBicubicEffect.h"
-#include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #endif
 
 #ifdef SK_GRAPHITE_ENABLED

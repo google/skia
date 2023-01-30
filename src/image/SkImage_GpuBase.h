@@ -8,18 +8,31 @@
 #ifndef SkImage_GpuBase_DEFINED
 #define SkImage_GpuBase_DEFINED
 
-#include "include/core/SkDeferredDisplayListRecorder.h"
-#include "include/gpu/GrBackendSurface.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/core/SkYUVAInfoLocation.h"
-#include "src/gpu/RefCntedCallback.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/image/SkImage_Base.h"
 
-class GrColorSpaceXform;
+#include <cstddef>
+#include <cstdint>
+
+class GrBackendFormat;
+class GrBackendTexture;
+class GrCaps;
+class GrContextThreadSafeProxy;
 class GrDirectContext;
-class GrImageContext;
+class GrRecordingContext;
 class GrTextureProxy;
+class SkBitmap;
 class SkColorSpace;
+class SkImage;
+enum SkAlphaType : int;
+enum SkColorType : int;
+enum class GrColorType;
+enum class GrMipmapped : bool;
+namespace skgpu { class RefCntedCallback; }
+struct SkIRect;
+struct SkISize;
+struct SkImageInfo;
 
 class SkImage_GpuBase : public SkImage_Base {
 public:

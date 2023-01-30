@@ -5,16 +5,45 @@
  * found in the LICENSE file.
  */
 
-#include <atomic>
-#include <cmath>
+#include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkCapabilities.h"
-#include "src/core/SkAutoPixmapStorage.h"
-#include "src/core/SkImagePriv.h"
-#include "src/core/SkPaintPriv.h"
+#include "include/core/SkColorSpace.h"
+#include "include/core/SkDeferredDisplayList.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/utils/SkNoDrawCanvas.h"
+#include "src/core/SkImageInfoPriv.h"
+#include "src/core/SkSurfacePriv.h"
 #include "src/image/SkImage_Base.h"
 #include "src/image/SkRescaleAndReadPixels.h"
 #include "src/image/SkSurface_Base.h"
+
+#include <atomic>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <utility>
+
+class GrBackendSemaphore;
+class GrRecordingContext;
+class SkPaint;
+class SkSurfaceCharacterization;
+enum GrSurfaceOrigin : int;
+enum class GrSemaphoresSubmitted : bool;
+namespace skgpu { class MutableTextureState; }
+namespace skgpu { namespace graphite { class Recorder; } }
+struct GrFlushInfo;
+struct SkSamplingOptions;
 
 #if SK_SUPPORT_GPU
 #include "include/gpu/GrBackendSurface.h"
@@ -425,7 +454,6 @@ sk_sp<SkSurface> SkSurface::MakeRenderTarget(GrRecordingContext*,
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////
-#include "include/utils/SkNoDrawCanvas.h"
 
 class SkNullSurface : public SkSurface_Base {
 public:
