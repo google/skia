@@ -139,8 +139,10 @@ private:
     // advances using a scaler.
     SkGlyph* glyph(SkPackedGlyphID) SK_REQUIRES(fStrikeLock);
 
+    SkGlyphDigest* digestPtr(SkPackedGlyphID) SK_REQUIRES(fStrikeLock);
+
     // Generate the glyph digest information and update structures to add the glyph.
-    SkGlyphDigest addGlyph(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);
+    SkGlyphDigest* addGlyph(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);
 
     const void* prepareImage(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);
 

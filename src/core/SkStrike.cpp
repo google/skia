@@ -298,10 +298,14 @@ SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
 }
 
 SkGlyphDigest SkStrike::digest(SkPackedGlyphID packedGlyphID) {
+    return *this->digestPtr(packedGlyphID);
+}
+
+SkGlyphDigest* SkStrike::digestPtr(SkPackedGlyphID packedGlyphID) {
     SkGlyphDigest* digest = fDigestForPackedGlyphID.find(packedGlyphID);
 
     if (digest != nullptr) {
-        return *digest;
+        return digest;
     }
 
     SkGlyph* glyph = fAlloc.make<SkGlyph>(fScalerContext->makeGlyph(packedGlyphID, &fAlloc));
@@ -309,12 +313,12 @@ SkGlyphDigest SkStrike::digest(SkPackedGlyphID packedGlyphID) {
     return this->addGlyph(glyph);
 }
 
-SkGlyphDigest SkStrike::addGlyph(SkGlyph* glyph) {
+SkGlyphDigest* SkStrike::addGlyph(SkGlyph* glyph) {
     size_t index = fGlyphForIndex.size();
     SkGlyphDigest digest = SkGlyphDigest{index, *glyph};
-    fDigestForPackedGlyphID.set(glyph->getPackedID(), digest);
+    SkGlyphDigest* newDigest = fDigestForPackedGlyphID.set(glyph->getPackedID(), digest);
     fGlyphForIndex.push_back(glyph);
-    return digest;
+    return newDigest;
 }
 
 const void* SkStrike::prepareImage(SkGlyph* glyph) {
