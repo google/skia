@@ -189,16 +189,13 @@ void SkPDFGraphicStackState::updateDrawingState(const SkPDFGraphicStackState::En
             SkPDFUtils::ApplyPattern(state.fShaderIndex, fContentStream);
             currentEntry()->fShaderIndex = state.fShaderIndex;
         }
-    } else {
-        if (state.fColor != currentEntry()->fColor ||
-                currentEntry()->fShaderIndex >= 0) {
-            emit_pdf_color(state.fColor, fContentStream);
-            fContentStream->writeText("RG ");
-            emit_pdf_color(state.fColor, fContentStream);
-            fContentStream->writeText("rg\n");
-            currentEntry()->fColor = state.fColor;
-            currentEntry()->fShaderIndex = -1;
-        }
+    } else if (state.fColor != currentEntry()->fColor || currentEntry()->fShaderIndex >= 0) {
+        emit_pdf_color(state.fColor, fContentStream);
+        fContentStream->writeText("RG ");
+        emit_pdf_color(state.fColor, fContentStream);
+        fContentStream->writeText("rg\n");
+        currentEntry()->fColor = state.fColor;
+        currentEntry()->fShaderIndex = -1;
     }
 
     if (state.fGraphicStateIndex != currentEntry()->fGraphicStateIndex) {
