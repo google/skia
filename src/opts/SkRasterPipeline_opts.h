@@ -1502,6 +1502,34 @@ SI F tan_(F x) {
     return x;
 }
 
+/*  Use 4th order polynomial approximation from https://arachnoid.com/polysolve/
+        with 129 values of x,atan(x) for x:[0...1]
+    This only works for 0 <= x <= 1
+ */
+SI F approx_atan_unit(F x) {
+    // y =   0.14130025741326729 x⁴
+    //     - 0.34312835980675116 x³
+    //     - 0.016172900528248768 x²
+    //     + 1.00376969762003850 x
+    //     - 0.00014758242182738969
+    return x * (x * (x * (x * 0.14130025741326729f - 0.34312835980675116f)
+                                                   - 0.016172900528248768f)
+                                                   + 1.0037696976200385f)
+                                                   - 0.00014758242182738969f;
+}
+
+// Use identity atan(x) = pi/2 - atan(1/x) for x > 1
+SI F atan_(F x) {
+    I32 neg = (x < 0.0f);
+    x = if_then_else(neg, -x, x);
+    I32 flip = (x > 1.0f);
+    x = if_then_else(flip, 1/x, x);
+    x = approx_atan_unit(x);
+    x = if_then_else(flip, SK_ScalarPI/2 - x, x);
+    x = if_then_else(neg, -x, x);
+    return x;
+}
+
 // Used by gather_ stages to calculate the base pointer and a vector of indices to load.
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
