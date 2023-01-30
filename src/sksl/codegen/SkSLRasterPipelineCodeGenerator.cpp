@@ -123,6 +123,42 @@ private:
     std::vector<SlotDebugInfo>* fSlotDebugInfo;
 };
 
+class AutoContinueMask {
+public:
+    AutoContinueMask() = default;
+
+    ~AutoContinueMask() {
+        if (fSlotRange) {
+            fSlotManager->recycleTemporarySlot(*fSlotRange);
+            *fSlotRange = fPreviousSlotRange;
+        }
+    }
+
+    void enable(SlotManager* mgr, const Type& type, SlotRange* range) {
+        fSlotManager = mgr;
+        fSlotRange = range;
+        fPreviousSlotRange = *fSlotRange;
+        *fSlotRange = fSlotManager->createTemporarySlot(type);
+    }
+
+    void enterLoopBody(Builder& builder) {
+        if (fSlotRange) {
+            builder.zero_slots_unmasked(*fSlotRange);
+        }
+    }
+
+    void exitLoopBody(Builder& builder) {
+        if (fSlotRange) {
+            builder.reenable_loop_mask(*fSlotRange);
+        }
+    }
+
+private:
+    SlotManager* fSlotManager = nullptr;
+    SlotRange* fSlotRange = nullptr;
+    SlotRange fPreviousSlotRange;
+};
+
 class Generator {
 public:
     Generator(const SkSL::Program& program, SkRPDebugTrace* debugTrace)
@@ -839,27 +875,26 @@ bool Generator::writeDoStatement(const DoStatement& d) {
     fBuilder.enableExecutionMaskWrites();
     fBuilder.push_loop_mask();
 
-    // Acquire a temporary slot for continue-mask storage.
+    // If `continue` is used in the loop...
     Analysis::LoopControlFlowInfo loopInfo = Analysis::GetLoopControlFlowInfo(*d.statement());
-    SlotRange previousContinueMask;
+    AutoContinueMask autoContinueMask;
     if (loopInfo.fHasContinue) {
-        previousContinueMask = fCurrentContinueMask;
-        fCurrentContinueMask = fProgramSlots.createTemporarySlot(*fProgram.fContext->fTypes.fUInt);
+        // ... create a temporary slot for continue-mask storage.
+        autoContinueMask.enable(&fProgramSlots, *fProgram.fContext->fTypes.fUInt,
+                                &fCurrentContinueMask);
     }
 
     // Write the do-loop body.
     int labelID = fBuilder.nextLabelID();
     fBuilder.label(labelID);
 
-    if (loopInfo.fHasContinue) {
-        fBuilder.zero_slots_unmasked(fCurrentContinueMask);
-    }
+    autoContinueMask.enterLoopBody(fBuilder);
+
     if (!this->writeStatement(*d.statement())) {
         return false;
     }
-    if (loopInfo.fHasContinue) {
-        fBuilder.reenable_loop_mask(fCurrentContinueMask);
-    }
+
+    autoContinueMask.exitLoopBody(fBuilder);
 
     // Emit the test-expression, in order to combine it with the loop mask.
     if (!this->pushExpression(*d.test())) {
@@ -874,13 +909,9 @@ bool Generator::writeDoStatement(const DoStatement& d) {
     // If any lanes are still running, go back to the top and run the loop body again.
     fBuilder.branch_if_any_active_lanes(labelID);
 
-    // Restore the loop and continue masks.
+    // Restore the loop mask.
     fBuilder.pop_loop_mask();
     fBuilder.disableExecutionMaskWrites();
-    if (loopInfo.fHasContinue) {
-        fProgramSlots.recycleTemporarySlot(fCurrentContinueMask);
-        fCurrentContinueMask = previousContinueMask;
-    }
 
     return true;
 }
@@ -954,11 +985,11 @@ bool Generator::writeForStatement(const ForStatement& f) {
         return unsupported();
     }
 
-    // Acquire a temporary slot for continue-mask storage.
-    SlotRange previousContinueMask;
+    AutoContinueMask autoContinueMask;
     if (loopInfo.fHasContinue) {
-        previousContinueMask = fCurrentContinueMask;
-        fCurrentContinueMask = fProgramSlots.createTemporarySlot(*fProgram.fContext->fTypes.fUInt);
+        // Acquire a temporary slot for continue-mask storage.
+        autoContinueMask.enable(&fProgramSlots, *fProgram.fContext->fTypes.fUInt,
+                                &fCurrentContinueMask);
     }
 
     // Save off the original loop mask.
@@ -974,15 +1005,13 @@ bool Generator::writeForStatement(const ForStatement& f) {
     // Write the for-loop body.
     fBuilder.label(loopBodyID);
 
-    if (loopInfo.fHasContinue) {
-        fBuilder.zero_slots_unmasked(fCurrentContinueMask);
-    }
+    autoContinueMask.enterLoopBody(fBuilder);
+
     if (!this->writeStatement(*f.statement())) {
         return unsupported();
     }
-    if (loopInfo.fHasContinue) {
-        fBuilder.reenable_loop_mask(fCurrentContinueMask);
-    }
+
+    autoContinueMask.exitLoopBody(fBuilder);
 
     // Run the next-expression. Immediately discard its result.
     if (f.next()) {
@@ -1007,17 +1036,12 @@ bool Generator::writeForStatement(const ForStatement& f) {
     // If any lanes are still running, go back to the top and run the loop body again.
     fBuilder.branch_if_any_active_lanes(loopBodyID);
 
-    // Restore the loop and continue masks.
+    // Restore the loop mask.
     fBuilder.pop_loop_mask();
     fBuilder.disableExecutionMaskWrites();
-    if (loopInfo.fHasContinue) {
-        fProgramSlots.recycleTemporarySlot(fCurrentContinueMask);
-        fCurrentContinueMask = previousContinueMask;
-    }
 
     return true;
 }
-
 
 bool Generator::writeExpressionStatement(const ExpressionStatement& e) {
     if (!this->pushExpression(*e.expression(), /*usesResult=*/false)) {
