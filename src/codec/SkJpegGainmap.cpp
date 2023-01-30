@@ -18,45 +18,13 @@
 #include "src/codec/SkJpegMultiPicture.h"
 #include "src/codec/SkJpegPriv.h"
 #include "src/codec/SkJpegSegmentScan.h"
+#include "src/codec/SkJpegSourceMgr.h"
 #include "src/xml/SkDOM.h"
 
 #include <cstdint>
 #include <cstring>
 #include <utility>
 #include <vector>
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// SkStream helpers.
-
-/*
- * Class that will will rewind an SkStream, and then restore it to its original position when it
- * goes out of scope. If the SkStream is not seekable, then the stream will not be altered at all,
- * and will return false from canRestore.
- */
-
-class ScopedSkStreamRestorer {
-public:
-    ScopedSkStreamRestorer(SkStream* stream)
-            : fStream(stream), fPosition(stream->hasPosition() ? stream->getPosition() : 0) {
-        if (canRestore()) {
-            if (!fStream->rewind()) {
-                SkCodecPrintf("Failed to rewind decoder stream.\n");
-            }
-        }
-    }
-    ~ScopedSkStreamRestorer() {
-        if (canRestore()) {
-            if (!fStream->seek(fPosition)) {
-                SkCodecPrintf("Failed to restore decoder stream.\n");
-            }
-        }
-    }
-    bool canRestore() const { return fStream->hasPosition(); }
-
-private:
-    SkStream* const fStream;
-    const size_t fPosition;
-};
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // SkDOM and XMP helpers.
@@ -219,33 +187,22 @@ static bool XmpIsHDRGainMap(const sk_sp<const SkData>& xmpMetadata) {
 }
 
 bool SkJpegGetMultiPictureGainmap(sk_sp<const SkData> decoderMpfMetadata,
-                                  SkStream* decoderStream,
+                                  SkJpegSourceMgr* decoderSource,
                                   SkGainmapInfo* outInfo,
                                   std::unique_ptr<SkStream>* outGainmapImageStream) {
     // The decoder has already scanned for MPF metadata. If it doesn't exist, or it doesn't parse,
     // then early-out.
-    if (!decoderMpfMetadata || !SkJpegParseMultiPicture(decoderMpfMetadata)) {
+    if (!decoderMpfMetadata) {
         return false;
     }
-
-    // The implementation of Multi-Picture images requires a seekable stream. Save the position so
-    // that it can be restored before returning.
-    ScopedSkStreamRestorer streamRestorer(decoderStream);
-    if (!streamRestorer.canRestore()) {
-        SkCodecPrintf("Multi-Picture gainmap extraction requires a seekable stream.\n");
-        return false;
-    }
-
-    // Scan the original decoder stream.
-    auto scan = SkJpegSeekableScan::Create(decoderStream);
-    if (!scan) {
-        SkCodecPrintf("Failed to scan decoder stream.\n");
+    auto mpParams = SkJpegParseMultiPicture(decoderMpfMetadata);
+    if (!mpParams) {
         return false;
     }
 
     // Extract the Multi-Picture image streams in the original decoder stream (we needed the scan to
     // find the offsets of the MP images within the original decoder stream).
-    auto mpStreams = SkJpegExtractMultiPictureStreams(scan.get());
+    auto mpStreams = SkJpegExtractMultiPictureStreams(mpParams.get(), decoderSource);
     if (!mpStreams) {
         SkCodecPrintf("Failed to extract MP image streams.\n");
         return false;
@@ -257,19 +214,15 @@ bool SkJpegGetMultiPictureGainmap(sk_sp<const SkData> decoderMpfMetadata,
             continue;
         }
 
-        // Create a scan of this MP image.
-        auto mpImageScan = SkJpegSeekableScan::Create(mpImage.stream.get());
-        if (!mpImageScan) {
-            SkCodecPrintf("Failed to can MP image.\n");
-            continue;
-        }
+        // Create a temporary source manager for this MP image.
+        auto mpImageSource = SkJpegSourceMgr::Make(mpImage.stream.get());
 
         // Search for the XMP metadata in the MP image's scan.
-        for (const auto& segment : mpImageScan->segments()) {
+        for (const auto& segment : mpImageSource->getAllSegments()) {
             if (segment.marker != kXMPMarker) {
                 continue;
             }
-            auto xmpMetadata = mpImageScan->copyParameters(segment, kXMPSig, sizeof(kXMPSig));
+            auto xmpMetadata = mpImageSource->copyParameters(segment, kXMPSig, sizeof(kXMPSig));
             if (!xmpMetadata) {
                 continue;
             }
@@ -444,7 +397,7 @@ static bool SkJpegGetJpegRGainmapParseXMP(sk_sp<const SkData> xmpMetadata,
 }
 
 bool SkJpegGetJpegRGainmap(sk_sp<const SkData> xmpMetadata,
-                           SkStream* decoderStream,
+                           SkJpegSourceMgr* decoderSource,
                            SkGainmapInfo* outInfo,
                            std::unique_ptr<SkStream>* outGainmapImageStream) {
     // Parse the XMP metadata of the original image, to see if it specifies a RecoveryMap.
@@ -457,28 +410,20 @@ bool SkJpegGetJpegRGainmap(sk_sp<const SkData> xmpMetadata,
         return false;
     }
 
-    // The implementation of GContainer images requires a seekable stream. Save the position so that
-    // it can be restored before returning.
-    ScopedSkStreamRestorer streamRestorer(decoderStream);
-    if (!streamRestorer.canRestore()) {
-        SkCodecPrintf("RecoveryMap gainmap extraction requires a seekable stream.\n");
-        return false;
-    }
-
     // The offset read from the XMP metadata is relative to the end of the EndOfImage marker in the
     // original decoder stream. Create a full scan of the original decoder stream, so we can find
     // that EndOfImage marker's offset in the decoder stream.
-    auto scan = SkJpegSeekableScan::Create(decoderStream, SkJpegSegmentScanner::kMarkerEndOfImage);
-    if (!scan) {
-        SkCodecPrintf("Failed to do full scan.\n");
+    const std::vector<SkJpegSegment>& segments = decoderSource->getAllSegments();
+    if (segments.empty() || segments.back().marker != SkJpegSegmentScanner::kMarkerEndOfImage) {
+        SkCodecPrintf("Failed to construct segments through EndOfImage.\n");
         return false;
     }
-    const auto& lastSegment = scan->segments().back();
+    const auto& lastSegment = segments.back();
     const size_t endOfImageOffset = lastSegment.offset + SkJpegSegmentScanner::kMarkerCodeSize;
     const size_t itemOffsetFromStartOfImage = endOfImageOffset + itemOffsetFromEndOfImage;
 
     // Extract the gainmap image's stream.
-    auto gainmapImageStream = scan->getSubsetStream(itemOffsetFromStartOfImage, itemSize);
+    auto gainmapImageStream = decoderSource->getSubsetStream(itemOffsetFromStartOfImage, itemSize);
     if (!gainmapImageStream) {
         SkCodecPrintf("Failed to extract gainmap stream.");
         return false;
@@ -523,9 +468,7 @@ static void find_per_channel_attr(const SkDOM& dom,
     }
 }
 
-bool SkJpegGetHDRGMGainmapInfo(sk_sp<const SkData> xmpMetadata,
-                               SkStream* decoderStream,
-                               SkGainmapInfo* outGainmapInfo) {
+bool SkJpegGetHDRGMGainmapInfo(sk_sp<const SkData> xmpMetadata, SkGainmapInfo* outGainmapInfo) {
     // Parse the XMP.
     SkDOM dom;
     if (!SkDataToSkDOM(xmpMetadata, &dom)) {

@@ -20,6 +20,7 @@
 #include "include/private/SkJpegGainmapEncoder.h"
 #include "src/codec/SkJpegMultiPicture.h"
 #include "src/codec/SkJpegSegmentScan.h"
+#include "src/codec/SkJpegSourceMgr.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
@@ -67,18 +68,23 @@ DEF_TEST(Codec_jpegSegmentScan, r) {
             continue;
         }
 
-        // Ensure that we get the expected number of segments for a scan that stops at StartOfScan.
-        auto sosSegmentScan = SkJpegSeekableScan::Create(stream.get());
-        REPORTER_ASSERT(r, rec.sosSegmentCount == sosSegmentScan->segments().size());
+        // Scan all the way to EndOfImage.
+        auto sourceMgr = SkJpegSourceMgr::Make(stream.get());
+        const auto& segments = sourceMgr->getAllSegments();
 
-        // Rewind and now go all the way to EndOfImage.
-        stream->rewind();
-        auto eoiSegmentScan =
-                SkJpegSeekableScan::Create(stream.get(), SkJpegSegmentScanner::kMarkerEndOfImage);
-        REPORTER_ASSERT(r, rec.eoiSegmentCount == eoiSegmentScan->segments().size());
+        // Verify we got the expected number of segments at EndOfImage
+        REPORTER_ASSERT(r, rec.eoiSegmentCount == segments.size());
+
+        // Verify we got the expected number of segments before StartOfScan
+        for (size_t i = 0; i < segments.size(); ++i) {
+            if (segments[i].marker == SkJpegSegmentScanner::kMarkerStartOfScan) {
+                REPORTER_ASSERT(r, rec.sosSegmentCount == i + 1);
+                break;
+            }
+        }
 
         // Verify the values for a randomly pre-selected segment index.
-        const auto& segment = eoiSegmentScan->segments()[rec.testSegmentIndex];
+        const auto& segment = segments[rec.testSegmentIndex];
         REPORTER_ASSERT(r, rec.testSegmentMarker == segment.marker);
         REPORTER_ASSERT(r, rec.testSegmentOffset == segment.offset);
         REPORTER_ASSERT(r, rec.testSegmentParameterLength == segment.parameterLength);
@@ -90,11 +96,30 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
     auto stream = GetResourceAsStream(path);
     REPORTER_ASSERT(r, stream);
 
-    auto segmentScan = SkJpegSeekableScan::Create(stream.get());
-    REPORTER_ASSERT(r, segmentScan);
+    // Search and parse the MPF header.
+    std::unique_ptr<SkJpegMultiPictureParameters> mpParams;
+    {
+        auto sourceMgr = SkJpegSourceMgr::Make(stream.get());
+        for (const auto& segment : sourceMgr->getAllSegments()) {
+            static constexpr uint32_t kMpfMarker = 0xE2;
+            static constexpr uint8_t kMpfSig[] = {'M', 'P', 'F', '\0'};
+            if (segment.marker != kMpfMarker) {
+                continue;
+            }
+            auto parameterData = sourceMgr->copyParameters(segment, kMpfSig, sizeof(kMpfSig));
+            if (!parameterData) {
+                continue;
+            }
+            mpParams = SkJpegParseMultiPicture(parameterData);
+        }
+    }
+    REPORTER_ASSERT(r, mpParams);
+
+    stream->rewind();
+    auto sourceMgr = SkJpegSourceMgr::Make(stream.get());
 
     // Extract the streams for the MultiPicture images.
-    auto mpStreams = SkJpegExtractMultiPictureStreams(segmentScan.get());
+    auto mpStreams = SkJpegExtractMultiPictureStreams(mpParams.get(), sourceMgr.get());
     REPORTER_ASSERT(r, mpStreams);
     size_t numberOfImages = mpStreams->images.size();
 

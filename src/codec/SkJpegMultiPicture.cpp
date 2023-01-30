@@ -12,6 +12,7 @@
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegPriv.h"
 #include "src/codec/SkJpegSegmentScan.h"
+#include "src/codec/SkJpegSourceMgr.h"
 
 #include <cstring>
 
@@ -176,26 +177,19 @@ std::unique_ptr<SkJpegMultiPictureParameters> SkJpegParseMultiPicture(
 }
 
 std::unique_ptr<SkJpegMultiPictureStreams> SkJpegExtractMultiPictureStreams(
-        SkJpegSeekableScan* scan) {
-    // Look through the scanned segments until we arrive at a MultiPicture segment that we can
-    // parse.
+        const SkJpegMultiPictureParameters* mpParams, SkJpegSourceMgr* decoderSource) {
+    // Look through the scanned segments until we arrive at the MultiPicture segment.
     size_t mpSegmentOffset = 0;
-    std::unique_ptr<SkJpegMultiPictureParameters> mpParams;
-    for (const auto& segment : scan->segments()) {
-        if (segment.marker != kMpfMarker) {
-            continue;
-        }
-        auto parameterData = scan->copyParameters(segment, kMpfSig, sizeof(kMpfSig));
-        if (!parameterData) {
-            continue;
-        }
-        mpParams = SkJpegParseMultiPicture(parameterData);
-        if (mpParams) {
+    for (const auto& segment : decoderSource->getAllSegments()) {
+        if (segment.marker == kMpfMarker) {
+            // TODO(ccameron): It is not guaranteed that this segment is the one that produced
+            // |mpParams|. Plumb through a parameter to fix this.
             mpSegmentOffset = segment.offset;
             break;
         }
     }
-    if (!mpParams) {
+    // It is impossible for the MP segment to be 0 and be correct, so use 0 to mean failure.
+    if (mpSegmentOffset == 0) {
         return nullptr;
     }
 
@@ -212,7 +206,8 @@ std::unique_ptr<SkJpegMultiPictureStreams> SkJpegExtractMultiPictureStreams(
                                    SkJpegSegmentScanner::kParameterLengthSize + sizeof(kMpfSig) +
                                    imageParams.dataOffset;
         size_t imageStreamSize = imageParams.size;
-        result->images[i].stream = scan->getSubsetStream(imageStreamOffset, imageStreamSize);
+        result->images[i].stream =
+                decoderSource->getSubsetStream(imageStreamOffset, imageStreamSize);
     }
     return result;
 }
