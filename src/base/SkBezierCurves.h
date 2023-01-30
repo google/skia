@@ -7,6 +7,8 @@
 #ifndef SkBezierCurves_DEFINED
 #define SkBezierCurves_DEFINED
 
+#include <array>
+
 /**
  * Utilities for dealing with cubic Bézier curves. These have a start XY
  * point, an end XY point, and two control XY points in between. They take
@@ -21,8 +23,8 @@
 class SkBezierCubic {
 public:
     /**
-     * Splits the provided curve at the location t, resulting in two
-     * bezier curves that share a point (the end point from curve 1
+     * Splits the provided Bézier curve at the location t, resulting in two
+     * Bézier curves that share a point (the end point from curve 1
      * and the start point from curve 2 are the same).
      *
      * t must be in the interval [0, 1].
@@ -33,6 +35,17 @@ public:
      */
     static void Subdivide(const double curve[8], double t,
                           double twoCurves[14]);
+
+    /**
+     * Converts the provided Bézier curve into the the equivalent cubic
+     *    f(t) = A*t^3 + B*t^2 + C*t + D
+     * where f(t) will represent Y coordinates over time if yValues is
+     * true and the X coordinates if yValues is false.
+     *
+     * In effect, this turns the control points into an actual line, representing
+     * the x or y values.
+     */
+    static std::array<double, 4> ConvertToPolynomial(const double curve[8], bool yValues);
 };
 
 #endif

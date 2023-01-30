@@ -129,6 +129,7 @@ SkDCubicPair SkDCubic::chopAt(double t) const {
     return dst;
 }
 
+// TODO(skbug.com/14063) deduplicate this with SkBezierCubic::ConvertToPolynomial
 void SkDCubic::Coefficients(const double* src, double* A, double* B, double* C, double* D) {
     *A = src[6];  // d
     *B = src[4] * 3;  // 3*c

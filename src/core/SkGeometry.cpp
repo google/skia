@@ -14,9 +14,9 @@
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/base/SkVx.h"
+#include "src/base/SkBezierCurves.h"
+#include "src/base/SkCubics.h"
 #include "src/core/SkPointPriv.h"
-#include "src/pathops/SkPathOpsCubic.h"
-#include "src/pathops/SkPathOpsPoint.h"
 
 #include <algorithm>
 #include <array>
@@ -1146,29 +1146,51 @@ SkScalar SkFindCubicCusp(const SkPoint src[4]) {
     return -1;
 }
 
-typedef int (SkDCubic::*InterceptProc)(double intercept, double roots[3]) const;
 
-static bool cubic_dchop_at_intercept(const SkPoint src[4], SkScalar intercept, SkPoint dst[7],
-                                     InterceptProc method) {
-    SkDCubic cubic;
-    double roots[3];
-    int count = (cubic.set(src).*method)(intercept, roots);
-    if (count > 0) {
-        SkDCubicPair pair = cubic.chopAt(roots[0]);
-        for (int i = 0; i < 7; ++i) {
-            dst[i] = pair.pts[i].asSkPoint();
+
+static bool first_axis_intersection(const double coefficients[4], bool yDirection,
+                                    double axisIntercept, double* solution) {
+    auto [A, B, C, D] = SkBezierCubic::ConvertToPolynomial(coefficients, yDirection);
+    D -= axisIntercept;
+    double roots[3] = {0, 0, 0};
+    int count = SkCubics::RootsValidT(A, B, C, D, roots);
+    if (count == 0) {
+        return false;
+    }
+    *solution = roots[0];
+    return true;
+}
+
+bool SkChopMonoCubicAtY(const SkPoint src[4], SkScalar y, SkPoint dst[7]) {
+    double coefficients[8] = {src[0].fX, src[0].fY, src[1].fX, src[1].fY,
+                              src[2].fX, src[2].fY, src[3].fX, src[3].fY};
+    double solution = 0;
+    if (first_axis_intersection(coefficients, true, y, &solution)) {
+        double cubicPair[14];
+        SkBezierCubic::Subdivide(coefficients, solution, cubicPair);
+        for (int i = 0; i < 7; i ++) {
+            dst[i].fX = sk_double_to_float(cubicPair[i*2]);
+            dst[i].fY = sk_double_to_float(cubicPair[i*2 + 1]);
         }
         return true;
     }
     return false;
 }
 
-bool SkChopMonoCubicAtY(const SkPoint src[4], SkScalar y, SkPoint dst[7]) {
-    return cubic_dchop_at_intercept(src, y, dst, &SkDCubic::horizontalIntersect);
-}
-
 bool SkChopMonoCubicAtX(const SkPoint src[4], SkScalar x, SkPoint dst[7]) {
-    return cubic_dchop_at_intercept(src, x, dst, &SkDCubic::verticalIntersect);
+    double coefficients[8] = {src[0].fX, src[0].fY, src[1].fX, src[1].fY,
+                                  src[2].fX, src[2].fY, src[3].fX, src[3].fY};
+    double solution = 0;
+    if (first_axis_intersection(coefficients, false, x, &solution)) {
+        double cubicPair[14];
+        SkBezierCubic::Subdivide(coefficients, solution, cubicPair);
+        for (int i = 0; i < 7; i ++) {
+            dst[i].fX = sk_double_to_float(cubicPair[i*2]);
+            dst[i].fY = sk_double_to_float(cubicPair[i*2 + 1]);
+        }
+        return true;
+    }
+    return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

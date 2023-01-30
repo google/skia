@@ -1669,9 +1669,13 @@ skia_static_library("pathkit") {
   sources += skia_pathops_public
   sources += [
     "src/base/SkArenaAlloc.cpp",
+    "src/base/SkBezierCurves.cpp",
     "src/base/SkContainers.cpp",
+    "src/base/SkCubics.cpp",
+    "src/base/SkFloatingPoint.cpp",
     "src/base/SkMalloc.cpp",
     "src/base/SkMathPriv.cpp",
+    "src/base/SkQuads.cpp",
     "src/base/SkSafeMath.cpp",
     "src/base/SkSemaphore.cpp",
     "src/base/SkTDArray.cpp",
