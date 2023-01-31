@@ -1530,30 +1530,6 @@ SI F atan_(F x) {
     return x;
 }
 
-/*  Use identity atan(x) = pi/2 - atan(1/x) for x > 1
-    By swapping y,x to ensure the ratio is <= 1, we can safely call atan_unit()
-    which avoids a 2nd divide instruction if we had instead called atan().
- */
-SI F atan2_(F y0, F x0) {
-    I32 flip = (abs_(y0) > abs_(x0));
-    F   y = if_then_else(flip, x0, y0);
-    F   x = if_then_else(flip, y0, x0);
-    F   arg = y/x;
-
-    I32 neg = (arg < 0.0f);
-    arg = if_then_else(neg, -arg, arg);
-
-    F r = approx_atan_unit(arg);
-    r = if_then_else(flip, SK_ScalarPI/2 - r, r);
-    r = if_then_else(neg, -r, r);
-
-    // handle quadrant distinctions
-    r = if_then_else((y0 >= 0) & (x0  < 0), r + SK_ScalarPI, r);
-    r = if_then_else((y0  < 0) & (x0 <= 0), r - SK_ScalarPI, r);
-    // Note: we don't try to handle 0,0 or infinities
-    return r;
-}
-
 // Used by gather_ stages to calculate the base pointer and a vector of indices to load.
 template <typename T>
 SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
