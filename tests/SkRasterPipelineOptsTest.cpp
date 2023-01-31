@@ -134,3 +134,18 @@ DEF_TEST(SkRasterPipelineOpts_Atan, r) {
         REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
     }
 }
+
+DEF_TEST(SkRasterPipelineOpts_Atan2, r) {
+    using F = SK_OPTS_NS::F;
+
+    constexpr float kTolerance = 0.00175f;
+    for (float y = -3.0f; y <= 3.0f; y += 0.1f) {
+        for (float x = -3.0f; x <= 3.0f; x += 0.1f) {
+            F result = SK_OPTS_NS::atan2_(y, x);
+            F expected = sk_float_atan2(y, x);
+            F delta = SK_OPTS_NS::abs_(expected - result);
+
+            REPORTER_ASSERT(r, SK_OPTS_NS::all(delta < kTolerance));
+        }
+    }
+}
