@@ -36,7 +36,8 @@ namespace RP {
 using RPOp = SkRasterPipelineOp;
 
 #define ALL_SINGLE_SLOT_UNARY_OP_CASES  \
-         BuilderOp::cos_float:          \
+         BuilderOp::atan_float:         \
+    case BuilderOp::cos_float:          \
     case BuilderOp::sin_float:          \
     case BuilderOp::sqrt_float:         \
     case BuilderOp::tan_float
@@ -1439,6 +1440,7 @@ void Program::dump(SkWStream* out) {
             case RPOp::cast_to_float_from_int: case RPOp::cast_to_float_from_uint:
             case RPOp::cast_to_int_from_float: case RPOp::cast_to_uint_from_float:
             case RPOp::abs_float:              case RPOp::abs_int:
+            case RPOp::atan_float:
             case RPOp::ceil_float:
             case RPOp::cos_float:
             case RPOp::floor_float:
@@ -1811,6 +1813,10 @@ void Program::dump(SkWStream* out) {
             case RPOp::abs_3_floats: case RPOp::abs_3_ints:
             case RPOp::abs_4_floats: case RPOp::abs_4_ints:
                 opText = opArg1 + " = abs(" + opArg1 + ")";
+                break;
+
+            case RPOp::atan_float:
+                opText = opArg1 + " = atan(" + opArg1 + ")";
                 break;
 
             case RPOp::ceil_float:

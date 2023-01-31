@@ -3478,6 +3478,7 @@ DECLARE_UNARY_FLOAT(ceil)
 STAGE_TAIL(sin_float, F* dst)  { *dst = sin_(*dst); }
 STAGE_TAIL(cos_float, F* dst)  { *dst = cos_(*dst); }
 STAGE_TAIL(tan_float, F* dst)  { *dst = tan_(*dst); }
+STAGE_TAIL(atan_float, F* dst) { *dst = atan_(*dst); }
 STAGE_TAIL(sqrt_float, F* dst) { *dst = sqrt_(*dst); }
 
 // Binary operations take two adjacent inputs, and write their output in the first position.

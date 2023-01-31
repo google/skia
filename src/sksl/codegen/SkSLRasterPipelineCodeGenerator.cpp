@@ -1800,6 +1800,13 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             this->foldWithMultiOp(BuilderOp::bitwise_and_n_ints, arg0.type().slotCount());
             return true;
 
+        case IntrinsicKind::k_atan_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.unary_op(BuilderOp::atan_float, arg0.type().slotCount());
+            return true;
+
         case IntrinsicKind::k_ceil_IntrinsicKind:
             if (!this->pushExpression(arg0)) {
                 return unsupported();
