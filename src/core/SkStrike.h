@@ -49,6 +49,8 @@ public:
     void lock() override SK_ACQUIRE(fStrikeLock);
     void unlock() override SK_RELEASE_CAPABILITY(fStrikeLock);
     SkGlyphDigest digest(SkPackedGlyphID) override SK_REQUIRES(fStrikeLock);
+    skglyph::GlyphAction pathAction(SkGlyphID) SK_REQUIRES(fStrikeLock);
+    skglyph::GlyphAction drawableAction(SkGlyphID) SK_REQUIRES(fStrikeLock);
 
     // Lookup (or create if needed) the returned glyph using toID. If that glyph is not initialized
     // with an image, then use the information in fromGlyph to initialize the width, height top,
