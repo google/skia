@@ -10,6 +10,7 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkCubics.h"
 #include "src/base/SkQuads.h"
+#include "src/base/SkUtils.h"
 
 #include <cmath>
 
@@ -76,9 +77,9 @@ DEF_FUZZ(CubicQuadRoots, fuzz) {
     fuzz->next(&D);
 
     // Uncomment for easy test case creation
-//    SkDebugf("A %16e (0x%lx) B %16e (0x%lx) C %16e (0x%lx) D %16e (0x%lx)\n",
-//             A, sk_double_to_bits(A), B, sk_double_to_bits(B),
-//             C, sk_double_to_bits(C), D, sk_double_to_bits(D));
+   // SkDebugf("A %16e (0x%llx) B %16e (0x%llx) C %16e (0x%llx) D %16e (0x%llx)\n",
+   //          A, sk_bit_cast<uint64_t>(A), B, sk_bit_cast<uint64_t>(B),
+   //          C, sk_bit_cast<uint64_t>(C), D, sk_bit_cast<uint64_t>(D));
 
     fuzz_quad_real_roots(A, B, C);
 

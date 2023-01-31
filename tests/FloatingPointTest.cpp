@@ -6,6 +6,7 @@
  */
 
 #include "include/private/base/SkFloatingPoint.h"
+#include "src/base/SkUtils.h"
 #include "tests/Test.h"
 
 #include <array>
@@ -66,24 +67,24 @@ DEF_TEST(DoubleNearlyEqualUlps, reporter) {
     REPORTER_ASSERT(reporter, !sk_doubles_nearly_equal_ulps(NAN, INFINITY));
 }
 
-DEF_TEST(DoubleBitsRoundTrip, reporter) {
+DEF_TEST(BitCastDoubleRoundTrip, reporter) {
     std::array<double, 5>  testCases = {0.0, 1.0, -13.0, 1.234567890123456, -543210.987654321};
 
     for (size_t i = 0; i < testCases.size(); i++) {
         double input = testCases[i];
-        uint64_t bits = sk_double_to_bits(input);
-        double output = sk_bits_to_double(bits);
+        uint64_t bits = sk_bit_cast<uint64_t>(input);
+        double output = sk_bit_cast<double>(bits);
         REPORTER_ASSERT(reporter, input == output, "%.16f is not exactly %.16f", input, output);
     }
 
     {
-        uint64_t bits = sk_double_to_bits(NAN);
-        double output = sk_bits_to_double(bits);
+        uint64_t bits = sk_bit_cast<uint64_t>((double) NAN);
+        double output = sk_bit_cast<double>(bits);
         REPORTER_ASSERT(reporter, std::isnan(output), "%.16f is not nan", output);
     }
     {
-        uint64_t bits = sk_double_to_bits(INFINITY);
-        double output = sk_bits_to_double(bits);
+        uint64_t bits = sk_bit_cast<uint64_t>((double) INFINITY);
+        double output = sk_bit_cast<double>(bits);
         REPORTER_ASSERT(reporter, !std::isfinite(output), "%.16f is not infinity", output);
     }
 }

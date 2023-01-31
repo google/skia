@@ -9,6 +9,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkCubics.h"
+#include "src/base/SkUtils.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "tests/Test.h"
 
@@ -218,8 +219,8 @@ DEF_TEST(CubicRootsReal_NonFiniteNumbers, reporter) {
         skiatest::ReporterContext subtest(reporter, "oss-fuzz:55419 C and D are large");
         int numRoots = SkCubics::RootsReal(
                                            -2, 0,
-                                           sk_bits_to_double(0xd5422020202020ff), // -5.074559e+102
-                                           sk_bits_to_double(0x600fff202020ff20), // 5.362551e+154
+                                           sk_bit_cast<double>(0xd5422020202020ff), //-5.074559e+102
+                                           sk_bit_cast<double>(0x600fff202020ff20), // 5.362551e+154
                                            roots);
         REPORTER_ASSERT(reporter, numRoots == 0, "No finite roots expected, got %d", numRoots);
     }
