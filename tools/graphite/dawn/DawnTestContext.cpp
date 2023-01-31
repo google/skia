@@ -64,13 +64,13 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make() {
     desc.requiredFeatures      = features.data();
 
 #if !defined(SK_DEBUG)
-        wgpu::DawnTogglesDeviceDescriptor togglesDeviceDesc;
+        wgpu::DawnTogglesDescriptor deviceTogglesDesc;
         std::array<const char*, 1> toggles = {
             "skip_validation",
         };
-        togglesDeviceDesc.forceEnabledTogglesCount = toggles.size();
-        togglesDeviceDesc.forceEnabledToggles      = toggles.data();
-        desc.nextInChain                           = &togglesDeviceDesc;
+        deviceTogglesDesc.enabledTogglesCount = toggles.size();
+        deviceTogglesDesc.enabledToggles      = toggles.data();
+        desc.nextInChain                      = &deviceTogglesDesc;
 #endif
     auto device = wgpu::Device::Acquire(gAdapter.CreateDevice(&desc));
     SkASSERT(device);
