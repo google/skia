@@ -33,8 +33,6 @@
 namespace SkSL {
 namespace RP {
 
-using RPOp = SkRasterPipelineOp;
-
 #define ALL_SINGLE_SLOT_UNARY_OP_CASES  \
          BuilderOp::atan_float:         \
     case BuilderOp::cos_float:          \
@@ -655,7 +653,7 @@ Program::Program(SkTArray<Instruction> instrs,
 
 void Program::appendCopy(SkTArray<Stage>* pipeline,
                          SkArenaAlloc* alloc,
-                         SkRasterPipelineOp baseStage,
+                         ProgramOp baseStage,
                          float* dst, int dstStride,
                          const float* src, int srcStride,
                          int numSlots) {
@@ -669,7 +667,7 @@ void Program::appendCopy(SkTArray<Stage>* pipeline,
 
     if (numSlots > 0) {
         SkASSERT(numSlots <= 4);
-        auto stage = (SkRasterPipelineOp)((int)baseStage + numSlots - 1);
+        auto stage = (ProgramOp)((int)baseStage + numSlots - 1);
         auto* ctx = alloc->make<SkRasterPipeline_BinaryOpCtx>();
         ctx->dst = dst;
         ctx->src = src;
@@ -683,7 +681,7 @@ void Program::appendCopySlotsUnmasked(SkTArray<Stage>* pipeline,
                                       const float* src,
                                       int numSlots) {
     this->appendCopy(pipeline, alloc,
-                     SkRasterPipelineOp::copy_slot_unmasked,
+                     ProgramOp::copy_slot_unmasked,
                      dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
                      src, /*srcStride=*/SkOpts::raster_pipeline_highp_stride,
                      numSlots);
@@ -695,7 +693,7 @@ void Program::appendCopySlotsMasked(SkTArray<Stage>* pipeline,
                                     const float* src,
                                     int numSlots) {
     this->appendCopy(pipeline, alloc,
-                     SkRasterPipelineOp::copy_slot_masked,
+                     ProgramOp::copy_slot_masked,
                      dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
                      src, /*srcStride=*/SkOpts::raster_pipeline_highp_stride,
                      numSlots);
@@ -707,13 +705,13 @@ void Program::appendCopyConstants(SkTArray<Stage>* pipeline,
                                   const float* src,
                                   int numSlots) {
     this->appendCopy(pipeline, alloc,
-                     SkRasterPipelineOp::copy_constant,
+                     ProgramOp::copy_constant,
                      dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
                      src, /*srcStride=*/1,
                      numSlots);
 }
 
-void Program::appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, SkRasterPipelineOp stage,
+void Program::appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp stage,
                                       float* dst, int numSlots) {
     SkASSERT(numSlots >= 0);
     while (numSlots--) {
@@ -722,7 +720,7 @@ void Program::appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, SkRasterPipelin
     }
 }
 
-void Program::appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, SkRasterPipelineOp baseStage,
+void Program::appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp baseStage,
                                      float* dst, int numSlots) {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {
@@ -732,12 +730,12 @@ void Program::appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, SkRasterPipeline
     }
 
     SkASSERT(numSlots <= 4);
-    auto stage = (SkRasterPipelineOp)((int)baseStage + numSlots - 1);
+    auto stage = (ProgramOp)((int)baseStage + numSlots - 1);
     pipeline->push_back({stage, dst});
 }
 
 void Program::appendAdjacentNWayBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                         SkRasterPipelineOp stage,
+                                         ProgramOp stage,
                                          float* dst, const float* src, int numSlots) {
     // The source and destination must be directly next to one another.
     SkASSERT(numSlots >= 0);
@@ -753,7 +751,7 @@ void Program::appendAdjacentNWayBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc
 }
 
 void Program::appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                              SkRasterPipelineOp baseStage,
+                                              ProgramOp baseStage,
                                               float* dst, const float* src, int numSlots) {
     // The source and destination must be directly next to one another.
     SkASSERT(numSlots >= 0);
@@ -764,13 +762,13 @@ void Program::appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArena
         return;
     }
     if (numSlots > 0) {
-        auto specializedStage = (SkRasterPipelineOp)((int)baseStage + numSlots);
+        auto specializedStage = (ProgramOp)((int)baseStage + numSlots);
         pipeline->push_back({specializedStage, dst});
     }
 }
 
 void Program::appendAdjacentMultiSlotTernaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                               SkRasterPipelineOp baseStage, float* dst,
+                                               ProgramOp baseStage, float* dst,
                                                const float* src0, const float* src1, int numSlots) {
     // The float pointers must all be immediately adjacent to each other.
     SkASSERT(numSlots >= 0);
@@ -786,14 +784,14 @@ void Program::appendAdjacentMultiSlotTernaryOp(SkTArray<Stage>* pipeline, SkAren
         return;
     }
     if (numSlots > 0) {
-        auto specializedStage = (SkRasterPipelineOp)((int)baseStage + numSlots);
+        auto specializedStage = (ProgramOp)((int)baseStage + numSlots);
         pipeline->push_back({specializedStage, dst});
     }
 }
 
 void Program::appendStackRewind(SkTArray<Stage>* pipeline) {
 #if defined(SKSL_STANDALONE) || !SK_HAS_MUSTTAIL
-    pipeline->push_back({RPOp::stack_rewind, nullptr});
+    pipeline->push_back({ProgramOp::stack_rewind, nullptr});
 #endif
 }
 
@@ -830,8 +828,20 @@ void Program::appendStages(SkRasterPipeline* pipeline,
 
     for (const Stage& stage : stages) {
         switch (stage.op) {
-            case RPOp::stack_rewind: pipeline->append_stack_rewind();       break;
-            default:                 pipeline->append(stage.op, stage.ctx); break;
+            case ProgramOp::stack_rewind:
+                pipeline->append_stack_rewind();
+                break;
+
+            case ProgramOp::invoke_shader:
+            case ProgramOp::invoke_color_filter:
+            case ProgramOp::invoke_blender:
+                // TODO(johnstiles): append the child effect
+                break;
+
+            default:
+                SkASSERT((int)stage.op < kNumRasterPipelineHighpOps);
+                pipeline->append((SkRasterPipelineOp)stage.op, stage.ctx);
+                break;
         }
     }
 }
@@ -879,7 +889,7 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
         auto UniformA = [&]() { return &uniforms[inst.fSlotA]; };
         float*& tempStackPtr = tempStackMap[currentStack];
 
-        auto WriteBranchOp = [&](RPOp op, SkRasterPipeline_BranchCtx* branchCtx) {
+        auto WriteBranchOp = [&](ProgramOp op, SkRasterPipeline_BranchCtx* branchCtx) {
             // If we have already encountered the label associated with this branch, this is a
             // backwards branch. Add a stack-rewind immediately before the branch to ensure that
             // long-running loops don't use an unbounded amount of stack space.
@@ -912,77 +922,77 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
             case BuilderOp::jump:
             case BuilderOp::branch_if_any_active_lanes:
             case BuilderOp::branch_if_no_active_lanes:
-                WriteBranchOp((RPOp)inst.fOp, alloc->make<SkRasterPipeline_BranchCtx>());
+                WriteBranchOp((ProgramOp)inst.fOp, alloc->make<SkRasterPipeline_BranchCtx>());
                 break;
 
             case BuilderOp::branch_if_no_active_lanes_on_stack_top_equal: {
                 auto* ctx = alloc->make<SkRasterPipeline_BranchIfEqualCtx>();
                 ctx->value = inst.fImmB;
                 ctx->ptr = reinterpret_cast<int*>(tempStackPtr - N);
-                WriteBranchOp(RPOp::branch_if_no_active_lanes_eq, ctx);
+                WriteBranchOp(ProgramOp::branch_if_no_active_lanes_eq, ctx);
                 break;
             }
             case BuilderOp::init_lane_masks:
-                pipeline->push_back({RPOp::init_lane_masks, nullptr});
+                pipeline->push_back({ProgramOp::init_lane_masks, nullptr});
                 break;
 
             case BuilderOp::store_src_rg:
-                pipeline->push_back({RPOp::store_src_rg, SlotA()});
+                pipeline->push_back({ProgramOp::store_src_rg, SlotA()});
                 break;
 
             case BuilderOp::store_src:
-                pipeline->push_back({RPOp::store_src, SlotA()});
+                pipeline->push_back({ProgramOp::store_src, SlotA()});
                 break;
 
             case BuilderOp::store_dst:
-                pipeline->push_back({RPOp::store_dst, SlotA()});
+                pipeline->push_back({ProgramOp::store_dst, SlotA()});
                 break;
 
             case BuilderOp::load_src:
-                pipeline->push_back({RPOp::load_src, SlotA()});
+                pipeline->push_back({ProgramOp::load_src, SlotA()});
                 break;
 
             case BuilderOp::load_dst:
-                pipeline->push_back({RPOp::load_dst, SlotA()});
+                pipeline->push_back({ProgramOp::load_dst, SlotA()});
                 break;
 
             case BuilderOp::immediate_f: {
-                pipeline->push_back({RPOp::immediate_f, context_bit_pun(inst.fImmA)});
+                pipeline->push_back({ProgramOp::immediate_f, context_bit_pun(inst.fImmA)});
                 break;
             }
             case BuilderOp::load_unmasked:
-                pipeline->push_back({RPOp::load_unmasked, SlotA()});
+                pipeline->push_back({ProgramOp::load_unmasked, SlotA()});
                 break;
 
             case BuilderOp::store_unmasked:
-                pipeline->push_back({RPOp::store_unmasked, SlotA()});
+                pipeline->push_back({ProgramOp::store_unmasked, SlotA()});
                 break;
 
             case BuilderOp::store_masked:
-                pipeline->push_back({RPOp::store_masked, SlotA()});
+                pipeline->push_back({ProgramOp::store_masked, SlotA()});
                 break;
 
             case ALL_SINGLE_SLOT_UNARY_OP_CASES: {
                 float* dst = tempStackPtr - (inst.fImmA * N);
-                this->appendSingleSlotUnaryOp(pipeline, (RPOp)inst.fOp, dst, inst.fImmA);
+                this->appendSingleSlotUnaryOp(pipeline, (ProgramOp)inst.fOp, dst, inst.fImmA);
                 break;
             }
             case ALL_MULTI_SLOT_UNARY_OP_CASES: {
                 float* dst = tempStackPtr - (inst.fImmA * N);
-                this->appendMultiSlotUnaryOp(pipeline, (RPOp)inst.fOp, dst, inst.fImmA);
+                this->appendMultiSlotUnaryOp(pipeline, (ProgramOp)inst.fOp, dst, inst.fImmA);
                 break;
             }
             case ALL_N_WAY_BINARY_OP_CASES: {
                 float* src = tempStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
-                this->appendAdjacentNWayBinaryOp(pipeline, alloc, (RPOp)inst.fOp,
+                this->appendAdjacentNWayBinaryOp(pipeline, alloc, (ProgramOp)inst.fOp,
                                                  dst, src, inst.fImmA);
                 break;
             }
             case ALL_MULTI_SLOT_BINARY_OP_CASES: {
                 float* src = tempStackPtr - (inst.fImmA * N);
                 float* dst = tempStackPtr - (inst.fImmA * 2 * N);
-                this->appendAdjacentMultiSlotBinaryOp(pipeline, alloc, (RPOp)inst.fOp,
+                this->appendAdjacentMultiSlotBinaryOp(pipeline, alloc, (ProgramOp)inst.fOp,
                                                       dst, src, inst.fImmA);
                 break;
             }
@@ -990,7 +1000,7 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 float* src1 = tempStackPtr - (inst.fImmA * N);
                 float* src0 = tempStackPtr - (inst.fImmA * 2 * N);
                 float* dst  = tempStackPtr - (inst.fImmA * 3 * N);
-                this->appendAdjacentMultiSlotTernaryOp(pipeline, alloc, (RPOp)inst.fOp,
+                this->appendAdjacentMultiSlotTernaryOp(pipeline, alloc, (ProgramOp)inst.fOp,
                                                        dst, src0, src1, inst.fImmA);
                 break;
             }
@@ -1009,7 +1019,7 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 break;
 
             case BuilderOp::zero_slot_unmasked:
-                this->appendMultiSlotUnaryOp(pipeline, RPOp::zero_slot_unmasked,
+                this->appendMultiSlotUnaryOp(pipeline, ProgramOp::zero_slot_unmasked,
                                              SlotA(), inst.fImmA);
                 break;
 
@@ -1025,7 +1035,7 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                     ctx->offsets[index] = (components & 3) * N * sizeof(float);
                     components >>= 4;
                 }
-                pipeline->push_back({(RPOp)inst.fOp, ctx});
+                pipeline->push_back({(ProgramOp)inst.fOp, ctx});
                 break;
             }
             case BuilderOp::shuffle: {
@@ -1046,27 +1056,27 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                     ctx->offsets[index] = (packed & 0xF) * N * sizeof(float);
                     packed >>= 4;
                 }
-                pipeline->push_back({RPOp::shuffle, ctx});
+                pipeline->push_back({ProgramOp::shuffle, ctx});
                 break;
             }
             case BuilderOp::push_src_rgba: {
                 float* dst = tempStackPtr;
-                pipeline->push_back({RPOp::store_src, dst});
+                pipeline->push_back({ProgramOp::store_src, dst});
                 break;
             }
             case BuilderOp::pop_src_rg: {
                 float* dst = tempStackPtr - (2 * N);
-                pipeline->push_back({RPOp::load_src_rg, dst});
+                pipeline->push_back({ProgramOp::load_src_rg, dst});
                 break;
             }
             case BuilderOp::pop_src_rgba: {
                 float* dst = tempStackPtr - (4 * N);
-                pipeline->push_back({RPOp::load_src, dst});
+                pipeline->push_back({ProgramOp::load_src, dst});
                 break;
             }
             case BuilderOp::pop_dst_rgba: {
                 float* dst = tempStackPtr - (4 * N);
-                pipeline->push_back({RPOp::load_dst, dst});
+                pipeline->push_back({ProgramOp::load_dst, dst});
                 break;
             }
             case BuilderOp::push_slots: {
@@ -1081,59 +1091,60 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
             }
             case BuilderOp::push_zeros: {
                 float* dst = tempStackPtr;
-                this->appendMultiSlotUnaryOp(pipeline, RPOp::zero_slot_unmasked, dst, inst.fImmA);
+                this->appendMultiSlotUnaryOp(pipeline, ProgramOp::zero_slot_unmasked, dst,
+                                             inst.fImmA);
                 break;
             }
             case BuilderOp::push_condition_mask: {
                 float* dst = tempStackPtr;
-                pipeline->push_back({RPOp::store_condition_mask, dst});
+                pipeline->push_back({ProgramOp::store_condition_mask, dst});
                 break;
             }
             case BuilderOp::pop_condition_mask: {
                 float* src = tempStackPtr - (1 * N);
-                pipeline->push_back({RPOp::load_condition_mask, src});
+                pipeline->push_back({ProgramOp::load_condition_mask, src});
                 break;
             }
             case BuilderOp::merge_condition_mask: {
                 float* ptr = tempStackPtr - (2 * N);
-                pipeline->push_back({RPOp::merge_condition_mask, ptr});
+                pipeline->push_back({ProgramOp::merge_condition_mask, ptr});
                 break;
             }
             case BuilderOp::push_loop_mask: {
                 float* dst = tempStackPtr;
-                pipeline->push_back({RPOp::store_loop_mask, dst});
+                pipeline->push_back({ProgramOp::store_loop_mask, dst});
                 break;
             }
             case BuilderOp::pop_loop_mask: {
                 float* src = tempStackPtr - (1 * N);
-                pipeline->push_back({RPOp::load_loop_mask, src});
+                pipeline->push_back({ProgramOp::load_loop_mask, src});
                 break;
             }
             case BuilderOp::mask_off_loop_mask:
-                pipeline->push_back({RPOp::mask_off_loop_mask, nullptr});
+                pipeline->push_back({ProgramOp::mask_off_loop_mask, nullptr});
                 break;
 
             case BuilderOp::reenable_loop_mask:
-                pipeline->push_back({RPOp::reenable_loop_mask, SlotA()});
+                pipeline->push_back({ProgramOp::reenable_loop_mask, SlotA()});
                 break;
 
             case BuilderOp::merge_loop_mask: {
                 float* src = tempStackPtr - (1 * N);
-                pipeline->push_back({RPOp::merge_loop_mask, src});
+                pipeline->push_back({ProgramOp::merge_loop_mask, src});
                 break;
             }
             case BuilderOp::push_return_mask: {
                 float* dst = tempStackPtr;
-                pipeline->push_back({RPOp::store_return_mask, dst});
+                pipeline->push_back({ProgramOp::store_return_mask, dst});
                 break;
             }
             case BuilderOp::pop_return_mask: {
                 float* src = tempStackPtr - (1 * N);
-                pipeline->push_back({RPOp::load_return_mask, src});
+                pipeline->push_back({ProgramOp::load_return_mask, src});
                 break;
             }
             case BuilderOp::mask_off_return_mask:
-                pipeline->push_back({RPOp::mask_off_return_mask, nullptr});
+                pipeline->push_back({ProgramOp::mask_off_return_mask, nullptr});
                 break;
 
             case BuilderOp::copy_constant:
@@ -1178,6 +1189,12 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
 
             case BuilderOp::set_current_stack:
                 currentStack = inst.fImmA;
+                break;
+
+            case BuilderOp::invoke_shader:
+            case BuilderOp::invoke_color_filter:
+            case BuilderOp::invoke_blender:
+                pipeline->push_back({(ProgramOp)inst.fOp, context_bit_pun(inst.fImmA)});
                 break;
 
             default:
@@ -1232,14 +1249,14 @@ void Program::dump(SkWStream* out) {
         };
 
         // Print a 32-bit immediate value of unknown type (int/float).
-        auto Imm = [&](float immFloat) -> std::string {
+        auto Imm = [&](float immFloat, bool showAsFloat = true) -> std::string {
             // Start with `0x3F800000` as a baseline.
             uint32_t immUnsigned;
             memcpy(&immUnsigned, &immFloat, sizeof(uint32_t));
             auto text = SkSL::String::printf("0x%08X", immUnsigned);
 
             // Extend it to `0x3F800000 (1.0)` for finite floating point values.
-            if (std::isfinite(immFloat)) {
+            if (showAsFloat && std::isfinite(immFloat)) {
                 text += " (";
                 text += skstd::to_string(immFloat);
                 text += ")";
@@ -1248,10 +1265,10 @@ void Program::dump(SkWStream* out) {
         };
 
         // Interpret the context pointer as a 32-bit immediate value of unknown type (int/float).
-        auto ImmCtx = [&](const void* ctx) -> std::string {
+        auto ImmCtx = [&](const void* ctx, bool showAsFloat = true) -> std::string {
             float f;
             memcpy(&f, &ctx, sizeof(float));
-            return Imm(f);
+            return Imm(f, showAsFloat);
         };
 
         // Print `1` for single slots and `1..3` for ranges of slots.
@@ -1417,10 +1434,10 @@ void Program::dump(SkWStream* out) {
         // Interpret the context value as a Swizzle structure. Note that the slot-width of the
         // source expression is not preserved in the instruction encoding, so we need to do our best
         // using the data we have. (e.g., myFloat4.y would be indistinguishable from myFloat2.y.)
-        auto SwizzleCtx = [&](RPOp op, const void* v) -> std::tuple<std::string, std::string> {
+        auto SwizzleCtx = [&](ProgramOp op, const void* v) -> std::tuple<std::string, std::string> {
             const auto* ctx = static_cast<const SkRasterPipeline_SwizzleCtx*>(v);
 
-            int destSlots = (int)op - (int)RPOp::swizzle_1 + 1;
+            int destSlots = (int)op - (int)BuilderOp::swizzle_1 + 1;
             int highestComponent =
                     *std::max_element(std::begin(ctx->offsets), std::end(ctx->offsets)) /
                     (N * sizeof(float));
@@ -1445,7 +1462,7 @@ void Program::dump(SkWStream* out) {
         };
 
         // Interpret the context value as a Shuffle structure.
-        auto ShuffleCtx = [&](RPOp op, const void* v) -> std::tuple<std::string, std::string> {
+        auto ShuffleCtx = [&](const void* v) -> std::tuple<std::string, std::string> {
             const auto* ctx = static_cast<const SkRasterPipeline_ShuffleCtx*>(v);
 
             std::string dst = PtrCtx(ctx->ptr, ctx->count);
@@ -1463,228 +1480,235 @@ void Program::dump(SkWStream* out) {
         };
 
         std::string opArg1, opArg2, opArg3;
+        using POp = ProgramOp;
         switch (stage.op) {
-            case RPOp::immediate_f:
+            case POp::immediate_f:
                 opArg1 = ImmCtx(stage.ctx);
                 break;
 
-            case RPOp::swizzle_1:
-            case RPOp::swizzle_2:
-            case RPOp::swizzle_3:
-            case RPOp::swizzle_4:
+            case POp::invoke_shader:
+            case POp::invoke_color_filter:
+            case POp::invoke_blender:
+                opArg1 = ImmCtx(stage.ctx, /*showAsFloat=*/false);
+                break;
+
+            case POp::swizzle_1:
+            case POp::swizzle_2:
+            case POp::swizzle_3:
+            case POp::swizzle_4:
                 std::tie(opArg1, opArg2) = SwizzleCtx(stage.op, stage.ctx);
                 break;
 
-            case RPOp::shuffle:
-                std::tie(opArg1, opArg2) = ShuffleCtx(stage.op, stage.ctx);
+            case POp::shuffle:
+                std::tie(opArg1, opArg2) = ShuffleCtx(stage.ctx);
                 break;
 
-            case RPOp::load_unmasked:
-            case RPOp::load_condition_mask:
-            case RPOp::store_condition_mask:
-            case RPOp::load_loop_mask:
-            case RPOp::store_loop_mask:
-            case RPOp::merge_loop_mask:
-            case RPOp::reenable_loop_mask:
-            case RPOp::load_return_mask:
-            case RPOp::store_return_mask:
-            case RPOp::store_masked:
-            case RPOp::store_unmasked:
-            case RPOp::zero_slot_unmasked:
-            case RPOp::bitwise_not_int:
-            case RPOp::cast_to_float_from_int: case RPOp::cast_to_float_from_uint:
-            case RPOp::cast_to_int_from_float: case RPOp::cast_to_uint_from_float:
-            case RPOp::abs_float:              case RPOp::abs_int:
-            case RPOp::atan_float:
-            case RPOp::ceil_float:
-            case RPOp::cos_float:
-            case RPOp::floor_float:
-            case RPOp::sin_float:
-            case RPOp::sqrt_float:
-            case RPOp::tan_float:
+            case POp::load_unmasked:
+            case POp::load_condition_mask:
+            case POp::store_condition_mask:
+            case POp::load_loop_mask:
+            case POp::store_loop_mask:
+            case POp::merge_loop_mask:
+            case POp::reenable_loop_mask:
+            case POp::load_return_mask:
+            case POp::store_return_mask:
+            case POp::store_masked:
+            case POp::store_unmasked:
+            case POp::zero_slot_unmasked:
+            case POp::bitwise_not_int:
+            case POp::cast_to_float_from_int: case POp::cast_to_float_from_uint:
+            case POp::cast_to_int_from_float: case POp::cast_to_uint_from_float:
+            case POp::abs_float:              case POp::abs_int:
+            case POp::atan_float:
+            case POp::ceil_float:
+            case POp::cos_float:
+            case POp::floor_float:
+            case POp::sin_float:
+            case POp::sqrt_float:
+            case POp::tan_float:
                 opArg1 = PtrCtx(stage.ctx, 1);
                 break;
 
-            case RPOp::zero_2_slots_unmasked:
-            case RPOp::bitwise_not_2_ints:
-            case RPOp::load_src_rg:               case RPOp::store_src_rg:
-            case RPOp::cast_to_float_from_2_ints: case RPOp::cast_to_float_from_2_uints:
-            case RPOp::cast_to_int_from_2_floats: case RPOp::cast_to_uint_from_2_floats:
-            case RPOp::abs_2_floats:              case RPOp::abs_2_ints:
-            case RPOp::ceil_2_floats:
-            case RPOp::floor_2_floats:
+            case POp::zero_2_slots_unmasked:
+            case POp::bitwise_not_2_ints:
+            case POp::load_src_rg:               case POp::store_src_rg:
+            case POp::cast_to_float_from_2_ints: case POp::cast_to_float_from_2_uints:
+            case POp::cast_to_int_from_2_floats: case POp::cast_to_uint_from_2_floats:
+            case POp::abs_2_floats:              case POp::abs_2_ints:
+            case POp::ceil_2_floats:
+            case POp::floor_2_floats:
                 opArg1 = PtrCtx(stage.ctx, 2);
                 break;
 
-            case RPOp::zero_3_slots_unmasked:
-            case RPOp::bitwise_not_3_ints:
-            case RPOp::cast_to_float_from_3_ints: case RPOp::cast_to_float_from_3_uints:
-            case RPOp::cast_to_int_from_3_floats: case RPOp::cast_to_uint_from_3_floats:
-            case RPOp::abs_3_floats:              case RPOp::abs_3_ints:
-            case RPOp::ceil_3_floats:
-            case RPOp::floor_3_floats:
+            case POp::zero_3_slots_unmasked:
+            case POp::bitwise_not_3_ints:
+            case POp::cast_to_float_from_3_ints: case POp::cast_to_float_from_3_uints:
+            case POp::cast_to_int_from_3_floats: case POp::cast_to_uint_from_3_floats:
+            case POp::abs_3_floats:              case POp::abs_3_ints:
+            case POp::ceil_3_floats:
+            case POp::floor_3_floats:
                 opArg1 = PtrCtx(stage.ctx, 3);
                 break;
 
-            case RPOp::load_src:
-            case RPOp::load_dst:
-            case RPOp::store_src:
-            case RPOp::store_dst:
-            case RPOp::zero_4_slots_unmasked:
-            case RPOp::bitwise_not_4_ints:
-            case RPOp::cast_to_float_from_4_ints: case RPOp::cast_to_float_from_4_uints:
-            case RPOp::cast_to_int_from_4_floats: case RPOp::cast_to_uint_from_4_floats:
-            case RPOp::abs_4_floats:              case RPOp::abs_4_ints:
-            case RPOp::ceil_4_floats:
-            case RPOp::floor_4_floats:
+            case POp::load_src:
+            case POp::load_dst:
+            case POp::store_src:
+            case POp::store_dst:
+            case POp::zero_4_slots_unmasked:
+            case POp::bitwise_not_4_ints:
+            case POp::cast_to_float_from_4_ints: case POp::cast_to_float_from_4_uints:
+            case POp::cast_to_int_from_4_floats: case POp::cast_to_uint_from_4_floats:
+            case POp::abs_4_floats:              case POp::abs_4_ints:
+            case POp::ceil_4_floats:
+            case POp::floor_4_floats:
                 opArg1 = PtrCtx(stage.ctx, 4);
                 break;
 
-            case RPOp::copy_constant:
+            case POp::copy_constant:
                 std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 1);
                 break;
 
-            case RPOp::copy_2_constants:
+            case POp::copy_2_constants:
                 std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 2);
                 break;
 
-            case RPOp::copy_3_constants:
+            case POp::copy_3_constants:
                 std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 3);
                 break;
 
-            case RPOp::copy_4_constants:
+            case POp::copy_4_constants:
                 std::tie(opArg1, opArg2) = CopyConstantCtx(stage.ctx, 4);
                 break;
 
-            case RPOp::copy_slot_masked:
-            case RPOp::copy_slot_unmasked:
+            case POp::copy_slot_masked:
+            case POp::copy_slot_unmasked:
                 std::tie(opArg1, opArg2) = BinaryOpCtx(stage.ctx, 1);
                 break;
 
-            case RPOp::copy_2_slots_masked:
-            case RPOp::copy_2_slots_unmasked:
+            case POp::copy_2_slots_masked:
+            case POp::copy_2_slots_unmasked:
                 std::tie(opArg1, opArg2) = BinaryOpCtx(stage.ctx, 2);
                 break;
 
-            case RPOp::copy_3_slots_masked:
-            case RPOp::copy_3_slots_unmasked:
+            case POp::copy_3_slots_masked:
+            case POp::copy_3_slots_unmasked:
                 std::tie(opArg1, opArg2) = BinaryOpCtx(stage.ctx, 3);
                 break;
 
-            case RPOp::copy_4_slots_masked:
-            case RPOp::copy_4_slots_unmasked:
+            case POp::copy_4_slots_masked:
+            case POp::copy_4_slots_unmasked:
                 std::tie(opArg1, opArg2) = BinaryOpCtx(stage.ctx, 4);
                 break;
 
-            case RPOp::merge_condition_mask:
-            case RPOp::add_float:   case RPOp::add_int:
-            case RPOp::sub_float:   case RPOp::sub_int:
-            case RPOp::mul_float:   case RPOp::mul_int:
-            case RPOp::div_float:   case RPOp::div_int:   case RPOp::div_uint:
-                                    case RPOp::bitwise_and_int:
-                                    case RPOp::bitwise_or_int:
-                                    case RPOp::bitwise_xor_int:
-            case RPOp::min_float:   case RPOp::min_int:   case RPOp::min_uint:
-            case RPOp::max_float:   case RPOp::max_int:   case RPOp::max_uint:
-            case RPOp::cmplt_float: case RPOp::cmplt_int: case RPOp::cmplt_uint:
-            case RPOp::cmple_float: case RPOp::cmple_int: case RPOp::cmple_uint:
-            case RPOp::cmpeq_float: case RPOp::cmpeq_int:
-            case RPOp::cmpne_float: case RPOp::cmpne_int:
+            case POp::merge_condition_mask:
+            case POp::add_float:   case POp::add_int:
+            case POp::sub_float:   case POp::sub_int:
+            case POp::mul_float:   case POp::mul_int:
+            case POp::div_float:   case POp::div_int:   case POp::div_uint:
+                                    case POp::bitwise_and_int:
+                                    case POp::bitwise_or_int:
+                                    case POp::bitwise_xor_int:
+            case POp::min_float:   case POp::min_int:   case POp::min_uint:
+            case POp::max_float:   case POp::max_int:   case POp::max_uint:
+            case POp::cmplt_float: case POp::cmplt_int: case POp::cmplt_uint:
+            case POp::cmple_float: case POp::cmple_int: case POp::cmple_uint:
+            case POp::cmpeq_float: case POp::cmpeq_int:
+            case POp::cmpne_float: case POp::cmpne_int:
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 1);
                 break;
 
-            case RPOp::mix_float:
+            case POp::mix_float:
                 std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 1);
                 break;
 
-            case RPOp::add_2_floats:   case RPOp::add_2_ints:
-            case RPOp::sub_2_floats:   case RPOp::sub_2_ints:
-            case RPOp::mul_2_floats:   case RPOp::mul_2_ints:
-            case RPOp::div_2_floats:   case RPOp::div_2_ints:   case RPOp::div_2_uints:
-                                       case RPOp::bitwise_and_2_ints:
-                                       case RPOp::bitwise_or_2_ints:
-                                       case RPOp::bitwise_xor_2_ints:
-            case RPOp::min_2_floats:   case RPOp::min_2_ints:   case RPOp::min_2_uints:
-            case RPOp::max_2_floats:   case RPOp::max_2_ints:   case RPOp::max_2_uints:
-            case RPOp::cmplt_2_floats: case RPOp::cmplt_2_ints: case RPOp::cmplt_2_uints:
-            case RPOp::cmple_2_floats: case RPOp::cmple_2_ints: case RPOp::cmple_2_uints:
-            case RPOp::cmpeq_2_floats: case RPOp::cmpeq_2_ints:
-            case RPOp::cmpne_2_floats: case RPOp::cmpne_2_ints:
+            case POp::add_2_floats:   case POp::add_2_ints:
+            case POp::sub_2_floats:   case POp::sub_2_ints:
+            case POp::mul_2_floats:   case POp::mul_2_ints:
+            case POp::div_2_floats:   case POp::div_2_ints:   case POp::div_2_uints:
+                                      case POp::bitwise_and_2_ints:
+                                      case POp::bitwise_or_2_ints:
+                                      case POp::bitwise_xor_2_ints:
+            case POp::min_2_floats:   case POp::min_2_ints:   case POp::min_2_uints:
+            case POp::max_2_floats:   case POp::max_2_ints:   case POp::max_2_uints:
+            case POp::cmplt_2_floats: case POp::cmplt_2_ints: case POp::cmplt_2_uints:
+            case POp::cmple_2_floats: case POp::cmple_2_ints: case POp::cmple_2_uints:
+            case POp::cmpeq_2_floats: case POp::cmpeq_2_ints:
+            case POp::cmpne_2_floats: case POp::cmpne_2_ints:
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 2);
                 break;
 
-            case RPOp::mix_2_floats:
+            case POp::mix_2_floats:
                 std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 2);
                 break;
 
-            case RPOp::add_3_floats:   case RPOp::add_3_ints:
-            case RPOp::sub_3_floats:   case RPOp::sub_3_ints:
-            case RPOp::mul_3_floats:   case RPOp::mul_3_ints:
-            case RPOp::div_3_floats:   case RPOp::div_3_ints:   case RPOp::div_3_uints:
-                                       case RPOp::bitwise_and_3_ints:
-                                       case RPOp::bitwise_or_3_ints:
-                                       case RPOp::bitwise_xor_3_ints:
-            case RPOp::min_3_floats:   case RPOp::min_3_ints:   case RPOp::min_3_uints:
-            case RPOp::max_3_floats:   case RPOp::max_3_ints:   case RPOp::max_3_uints:
-            case RPOp::cmplt_3_floats: case RPOp::cmplt_3_ints: case RPOp::cmplt_3_uints:
-            case RPOp::cmple_3_floats: case RPOp::cmple_3_ints: case RPOp::cmple_3_uints:
-            case RPOp::cmpeq_3_floats: case RPOp::cmpeq_3_ints:
-            case RPOp::cmpne_3_floats: case RPOp::cmpne_3_ints:
+            case POp::add_3_floats:   case POp::add_3_ints:
+            case POp::sub_3_floats:   case POp::sub_3_ints:
+            case POp::mul_3_floats:   case POp::mul_3_ints:
+            case POp::div_3_floats:   case POp::div_3_ints:   case POp::div_3_uints:
+                                      case POp::bitwise_and_3_ints:
+                                      case POp::bitwise_or_3_ints:
+                                      case POp::bitwise_xor_3_ints:
+            case POp::min_3_floats:   case POp::min_3_ints:   case POp::min_3_uints:
+            case POp::max_3_floats:   case POp::max_3_ints:   case POp::max_3_uints:
+            case POp::cmplt_3_floats: case POp::cmplt_3_ints: case POp::cmplt_3_uints:
+            case POp::cmple_3_floats: case POp::cmple_3_ints: case POp::cmple_3_uints:
+            case POp::cmpeq_3_floats: case POp::cmpeq_3_ints:
+            case POp::cmpne_3_floats: case POp::cmpne_3_ints:
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 3);
                 break;
 
-            case RPOp::mix_3_floats:
+            case POp::mix_3_floats:
                 std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 3);
                 break;
 
-            case RPOp::add_4_floats:   case RPOp::add_4_ints:
-            case RPOp::sub_4_floats:   case RPOp::sub_4_ints:
-            case RPOp::mul_4_floats:   case RPOp::mul_4_ints:
-            case RPOp::div_4_floats:   case RPOp::div_4_ints:   case RPOp::div_4_uints:
-                                       case RPOp::bitwise_and_4_ints:
-                                       case RPOp::bitwise_or_4_ints:
-                                       case RPOp::bitwise_xor_4_ints:
-            case RPOp::min_4_floats:   case RPOp::min_4_ints:   case RPOp::min_4_uints:
-            case RPOp::max_4_floats:   case RPOp::max_4_ints:   case RPOp::max_4_uints:
-            case RPOp::cmplt_4_floats: case RPOp::cmplt_4_ints: case RPOp::cmplt_4_uints:
-            case RPOp::cmple_4_floats: case RPOp::cmple_4_ints: case RPOp::cmple_4_uints:
-            case RPOp::cmpeq_4_floats: case RPOp::cmpeq_4_ints:
-            case RPOp::cmpne_4_floats: case RPOp::cmpne_4_ints:
+            case POp::add_4_floats:   case POp::add_4_ints:
+            case POp::sub_4_floats:   case POp::sub_4_ints:
+            case POp::mul_4_floats:   case POp::mul_4_ints:
+            case POp::div_4_floats:   case POp::div_4_ints:   case POp::div_4_uints:
+                                      case POp::bitwise_and_4_ints:
+                                      case POp::bitwise_or_4_ints:
+                                      case POp::bitwise_xor_4_ints:
+            case POp::min_4_floats:   case POp::min_4_ints:   case POp::min_4_uints:
+            case POp::max_4_floats:   case POp::max_4_ints:   case POp::max_4_uints:
+            case POp::cmplt_4_floats: case POp::cmplt_4_ints: case POp::cmplt_4_uints:
+            case POp::cmple_4_floats: case POp::cmple_4_ints: case POp::cmple_4_uints:
+            case POp::cmpeq_4_floats: case POp::cmpeq_4_ints:
+            case POp::cmpne_4_floats: case POp::cmpne_4_ints:
                 std::tie(opArg1, opArg2) = AdjacentPtrCtx(stage.ctx, 4);
                 break;
 
-            case RPOp::mix_4_floats:
+            case POp::mix_4_floats:
                 std::tie(opArg1, opArg2, opArg3) = Adjacent3PtrCtx(stage.ctx, 4);
                 break;
 
-            case RPOp::add_n_floats:   case RPOp::add_n_ints:
-            case RPOp::sub_n_floats:   case RPOp::sub_n_ints:
-            case RPOp::mul_n_floats:   case RPOp::mul_n_ints:
-            case RPOp::div_n_floats:   case RPOp::div_n_ints:   case RPOp::div_n_uints:
-                                       case RPOp::bitwise_and_n_ints:
-                                       case RPOp::bitwise_or_n_ints:
-                                       case RPOp::bitwise_xor_n_ints:
-            case RPOp::min_n_floats:   case RPOp::min_n_ints:   case RPOp::min_n_uints:
-            case RPOp::max_n_floats:   case RPOp::max_n_ints:   case RPOp::max_n_uints:
-            case RPOp::cmplt_n_floats: case RPOp::cmplt_n_ints: case RPOp::cmplt_n_uints:
-            case RPOp::cmple_n_floats: case RPOp::cmple_n_ints: case RPOp::cmple_n_uints:
-            case RPOp::cmpeq_n_floats: case RPOp::cmpeq_n_ints:
-            case RPOp::cmpne_n_floats: case RPOp::cmpne_n_ints:
-            case RPOp::atan2_n_floats:
+            case POp::add_n_floats:   case POp::add_n_ints:
+            case POp::sub_n_floats:   case POp::sub_n_ints:
+            case POp::mul_n_floats:   case POp::mul_n_ints:
+            case POp::div_n_floats:   case POp::div_n_ints:   case POp::div_n_uints:
+                                      case POp::bitwise_and_n_ints:
+                                      case POp::bitwise_or_n_ints:
+                                      case POp::bitwise_xor_n_ints:
+            case POp::min_n_floats:   case POp::min_n_ints:   case POp::min_n_uints:
+            case POp::max_n_floats:   case POp::max_n_ints:   case POp::max_n_uints:
+            case POp::cmplt_n_floats: case POp::cmplt_n_ints: case POp::cmplt_n_uints:
+            case POp::cmple_n_floats: case POp::cmple_n_ints: case POp::cmple_n_uints:
+            case POp::cmpeq_n_floats: case POp::cmpeq_n_ints:
+            case POp::cmpne_n_floats: case POp::cmpne_n_ints:
+            case POp::atan2_n_floats:
                 std::tie(opArg1, opArg2) = AdjacentBinaryOpCtx(stage.ctx);
                 break;
 
-            case RPOp::mix_n_floats:
+            case POp::mix_n_floats:
                 std::tie(opArg1, opArg2, opArg3) = AdjacentTernaryOpCtx(stage.ctx);
                 break;
 
-            case RPOp::jump:
-            case RPOp::branch_if_any_active_lanes:
-            case RPOp::branch_if_no_active_lanes:
+            case POp::jump:
+            case POp::branch_if_any_active_lanes:
+            case POp::branch_if_no_active_lanes:
                 opArg1 = BranchOffset(static_cast<SkRasterPipeline_BranchCtx*>(stage.ctx));
                 break;
 
-            case RPOp::branch_if_no_active_lanes_eq: {
+            case POp::branch_if_no_active_lanes_eq: {
                 const auto* ctx = static_cast<SkRasterPipeline_BranchIfEqualCtx*>(stage.ctx);
                 opArg1 = BranchOffset(ctx);
                 opArg2 = PtrCtx(ctx->ptr, 1);
@@ -1697,317 +1721,323 @@ void Program::dump(SkWStream* out) {
 
         const char* opName = "";
         switch (stage.op) {
-        #define M(x) case RPOp::x: opName = #x; break;
+        #define M(x) case POp::x: opName = #x; break;
             SK_RASTER_PIPELINE_OPS_ALL(M)
         #undef M
+            case POp::invoke_shader:       opName = "invoke_shader";       break;
+            case POp::invoke_color_filter: opName = "invoke_color_filter"; break;
+            case POp::invoke_blender:      opName = "invoke_blender";      break;
         }
 
         std::string opText;
         switch (stage.op) {
-            case RPOp::init_lane_masks:
+            case POp::init_lane_masks:
                 opText = "CondMask = LoopMask = RetMask = true";
                 break;
 
-            case RPOp::load_condition_mask:
+            case POp::load_condition_mask:
                 opText = "CondMask = " + opArg1;
                 break;
 
-            case RPOp::store_condition_mask:
+            case POp::store_condition_mask:
                 opText = opArg1 + " = CondMask";
                 break;
 
-            case RPOp::merge_condition_mask:
+            case POp::merge_condition_mask:
                 opText = "CondMask = " + opArg1 + " & " + opArg2;
                 break;
 
-            case RPOp::load_loop_mask:
+            case POp::load_loop_mask:
                 opText = "LoopMask = " + opArg1;
                 break;
 
-            case RPOp::store_loop_mask:
+            case POp::store_loop_mask:
                 opText = opArg1 + " = LoopMask";
                 break;
 
-            case RPOp::mask_off_loop_mask:
+            case POp::mask_off_loop_mask:
                 opText = "LoopMask &= ~(CondMask & LoopMask & RetMask)";
                 break;
 
-            case RPOp::reenable_loop_mask:
+            case POp::reenable_loop_mask:
                 opText = "LoopMask |= " + opArg1;
                 break;
 
-            case RPOp::merge_loop_mask:
+            case POp::merge_loop_mask:
                 opText = "LoopMask &= " + opArg1;
                 break;
 
-            case RPOp::load_return_mask:
+            case POp::load_return_mask:
                 opText = "RetMask = " + opArg1;
                 break;
 
-            case RPOp::store_return_mask:
+            case POp::store_return_mask:
                 opText = opArg1 + " = RetMask";
                 break;
 
-            case RPOp::mask_off_return_mask:
+            case POp::mask_off_return_mask:
                 opText = "RetMask &= ~(CondMask & LoopMask & RetMask)";
                 break;
 
-            case RPOp::immediate_f:
-            case RPOp::load_unmasked:
+            case POp::immediate_f:
+            case POp::load_unmasked:
                 opText = "src.r = " + opArg1;
                 break;
 
-            case RPOp::store_unmasked:
+            case POp::store_unmasked:
                 opText = opArg1 + " = src.r";
                 break;
 
-            case RPOp::store_src_rg:
+            case POp::store_src_rg:
                 opText = opArg1 + " = src.rg";
                 break;
 
-            case RPOp::store_src:
+            case POp::store_src:
                 opText = opArg1 + " = src.rgba";
                 break;
 
-            case RPOp::store_dst:
+            case POp::store_dst:
                 opText = opArg1 + " = dst.rgba";
                 break;
 
-            case RPOp::load_src_rg:
+            case POp::load_src_rg:
                 opText = "src.rg = " + opArg1;
                 break;
 
-            case RPOp::load_src:
+            case POp::load_src:
                 opText = "src.rgba = " + opArg1;
                 break;
 
-            case RPOp::load_dst:
+            case POp::load_dst:
                 opText = "dst.rgba = " + opArg1;
                 break;
 
-            case RPOp::store_masked:
+            case POp::store_masked:
                 opText = opArg1 + " = Mask(src.r)";
                 break;
 
-            case RPOp::bitwise_and_int:
-            case RPOp::bitwise_and_2_ints:
-            case RPOp::bitwise_and_3_ints:
-            case RPOp::bitwise_and_4_ints:
-            case RPOp::bitwise_and_n_ints:
+            case POp::bitwise_and_int:
+            case POp::bitwise_and_2_ints:
+            case POp::bitwise_and_3_ints:
+            case POp::bitwise_and_4_ints:
+            case POp::bitwise_and_n_ints:
                 opText = opArg1 + " &= " + opArg2;
                 break;
 
-            case RPOp::bitwise_or_int:
-            case RPOp::bitwise_or_2_ints:
-            case RPOp::bitwise_or_3_ints:
-            case RPOp::bitwise_or_4_ints:
-            case RPOp::bitwise_or_n_ints:
+            case POp::bitwise_or_int:
+            case POp::bitwise_or_2_ints:
+            case POp::bitwise_or_3_ints:
+            case POp::bitwise_or_4_ints:
+            case POp::bitwise_or_n_ints:
                 opText = opArg1 + " |= " + opArg2;
                 break;
 
-            case RPOp::bitwise_xor_int:
-            case RPOp::bitwise_xor_2_ints:
-            case RPOp::bitwise_xor_3_ints:
-            case RPOp::bitwise_xor_4_ints:
-            case RPOp::bitwise_xor_n_ints:
+            case POp::bitwise_xor_int:
+            case POp::bitwise_xor_2_ints:
+            case POp::bitwise_xor_3_ints:
+            case POp::bitwise_xor_4_ints:
+            case POp::bitwise_xor_n_ints:
                 opText = opArg1 + " ^= " + opArg2;
                 break;
 
-            case RPOp::bitwise_not_int:
-            case RPOp::bitwise_not_2_ints:
-            case RPOp::bitwise_not_3_ints:
-            case RPOp::bitwise_not_4_ints:
+            case POp::bitwise_not_int:
+            case POp::bitwise_not_2_ints:
+            case POp::bitwise_not_3_ints:
+            case POp::bitwise_not_4_ints:
                 opText = opArg1 + " = ~" + opArg1;
                 break;
 
-            case RPOp::cast_to_float_from_int:
-            case RPOp::cast_to_float_from_2_ints:
-            case RPOp::cast_to_float_from_3_ints:
-            case RPOp::cast_to_float_from_4_ints:
+            case POp::cast_to_float_from_int:
+            case POp::cast_to_float_from_2_ints:
+            case POp::cast_to_float_from_3_ints:
+            case POp::cast_to_float_from_4_ints:
                 opText = opArg1 + " = IntToFloat(" + opArg1 + ")";
                 break;
 
-            case RPOp::cast_to_float_from_uint:
-            case RPOp::cast_to_float_from_2_uints:
-            case RPOp::cast_to_float_from_3_uints:
-            case RPOp::cast_to_float_from_4_uints:
+            case POp::cast_to_float_from_uint:
+            case POp::cast_to_float_from_2_uints:
+            case POp::cast_to_float_from_3_uints:
+            case POp::cast_to_float_from_4_uints:
                 opText = opArg1 + " = UintToFloat(" + opArg1 + ")";
                 break;
 
-            case RPOp::cast_to_int_from_float:
-            case RPOp::cast_to_int_from_2_floats:
-            case RPOp::cast_to_int_from_3_floats:
-            case RPOp::cast_to_int_from_4_floats:
+            case POp::cast_to_int_from_float:
+            case POp::cast_to_int_from_2_floats:
+            case POp::cast_to_int_from_3_floats:
+            case POp::cast_to_int_from_4_floats:
                 opText = opArg1 + " = FloatToInt(" + opArg1 + ")";
                 break;
 
-            case RPOp::cast_to_uint_from_float:
-            case RPOp::cast_to_uint_from_2_floats:
-            case RPOp::cast_to_uint_from_3_floats:
-            case RPOp::cast_to_uint_from_4_floats:
+            case POp::cast_to_uint_from_float:
+            case POp::cast_to_uint_from_2_floats:
+            case POp::cast_to_uint_from_3_floats:
+            case POp::cast_to_uint_from_4_floats:
                 opText = opArg1 + " = FloatToUint(" + opArg1 + ")";
                 break;
 
-            case RPOp::copy_slot_masked:      case RPOp::copy_2_slots_masked:
-            case RPOp::copy_3_slots_masked:   case RPOp::copy_4_slots_masked:
+            case POp::copy_slot_masked:      case POp::copy_2_slots_masked:
+            case POp::copy_3_slots_masked:   case POp::copy_4_slots_masked:
                 opText = opArg1 + " = Mask(" + opArg2 + ")";
                 break;
 
-            case RPOp::copy_constant:         case RPOp::copy_2_constants:
-            case RPOp::copy_3_constants:      case RPOp::copy_4_constants:
-            case RPOp::copy_slot_unmasked:    case RPOp::copy_2_slots_unmasked:
-            case RPOp::copy_3_slots_unmasked: case RPOp::copy_4_slots_unmasked:
-            case RPOp::swizzle_1:             case RPOp::swizzle_2:
-            case RPOp::swizzle_3:             case RPOp::swizzle_4:
-            case RPOp::shuffle:
+            case POp::copy_constant:         case POp::copy_2_constants:
+            case POp::copy_3_constants:      case POp::copy_4_constants:
+            case POp::copy_slot_unmasked:    case POp::copy_2_slots_unmasked:
+            case POp::copy_3_slots_unmasked: case POp::copy_4_slots_unmasked:
+            case POp::swizzle_1:             case POp::swizzle_2:
+            case POp::swizzle_3:             case POp::swizzle_4:
+            case POp::shuffle:
                 opText = opArg1 + " = " + opArg2;
                 break;
 
-            case RPOp::zero_slot_unmasked:    case RPOp::zero_2_slots_unmasked:
-            case RPOp::zero_3_slots_unmasked: case RPOp::zero_4_slots_unmasked:
+            case POp::zero_slot_unmasked:    case POp::zero_2_slots_unmasked:
+            case POp::zero_3_slots_unmasked: case POp::zero_4_slots_unmasked:
                 opText = opArg1 + " = 0";
                 break;
 
-            case RPOp::abs_float:    case RPOp::abs_int:
-            case RPOp::abs_2_floats: case RPOp::abs_2_ints:
-            case RPOp::abs_3_floats: case RPOp::abs_3_ints:
-            case RPOp::abs_4_floats: case RPOp::abs_4_ints:
+            case POp::abs_float:    case POp::abs_int:
+            case POp::abs_2_floats: case POp::abs_2_ints:
+            case POp::abs_3_floats: case POp::abs_3_ints:
+            case POp::abs_4_floats: case POp::abs_4_ints:
                 opText = opArg1 + " = abs(" + opArg1 + ")";
                 break;
 
-            case RPOp::atan_float:
+            case POp::atan_float:
                 opText = opArg1 + " = atan(" + opArg1 + ")";
                 break;
 
-            case RPOp::atan2_n_floats:
+            case POp::atan2_n_floats:
                 opText = opArg1 + " = atan2(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case RPOp::ceil_float:
-            case RPOp::ceil_2_floats:
-            case RPOp::ceil_3_floats:
-            case RPOp::ceil_4_floats:
+            case POp::ceil_float:
+            case POp::ceil_2_floats:
+            case POp::ceil_3_floats:
+            case POp::ceil_4_floats:
                 opText = opArg1 + " = ceil(" + opArg1 + ")";
                 break;
 
-            case RPOp::cos_float:
+            case POp::cos_float:
                 opText = opArg1 + " = cos(" + opArg1 + ")";
                 break;
 
-            case RPOp::sin_float:
+            case POp::sin_float:
                 opText = opArg1 + " = sin(" + opArg1 + ")";
                 break;
 
-            case RPOp::sqrt_float:
+            case POp::sqrt_float:
                 opText = opArg1 + " = sqrt(" + opArg1 + ")";
                 break;
 
-            case RPOp::tan_float:
+            case POp::tan_float:
                 opText = opArg1 + " = tan(" + opArg1 + ")";
                 break;
 
-            case RPOp::floor_float:
-            case RPOp::floor_2_floats:
-            case RPOp::floor_3_floats:
-            case RPOp::floor_4_floats:
+            case POp::floor_float:
+            case POp::floor_2_floats:
+            case POp::floor_3_floats:
+            case POp::floor_4_floats:
                 opText = opArg1 + " = floor(" + opArg1 + ")";
                 break;
 
-            case RPOp::add_float:    case RPOp::add_int:
-            case RPOp::add_2_floats: case RPOp::add_2_ints:
-            case RPOp::add_3_floats: case RPOp::add_3_ints:
-            case RPOp::add_4_floats: case RPOp::add_4_ints:
-            case RPOp::add_n_floats: case RPOp::add_n_ints:
+            case POp::add_float:    case POp::add_int:
+            case POp::add_2_floats: case POp::add_2_ints:
+            case POp::add_3_floats: case POp::add_3_ints:
+            case POp::add_4_floats: case POp::add_4_ints:
+            case POp::add_n_floats: case POp::add_n_ints:
                 opText = opArg1 + " += " + opArg2;
                 break;
 
-            case RPOp::sub_float:    case RPOp::sub_int:
-            case RPOp::sub_2_floats: case RPOp::sub_2_ints:
-            case RPOp::sub_3_floats: case RPOp::sub_3_ints:
-            case RPOp::sub_4_floats: case RPOp::sub_4_ints:
-            case RPOp::sub_n_floats: case RPOp::sub_n_ints:
+            case POp::sub_float:    case POp::sub_int:
+            case POp::sub_2_floats: case POp::sub_2_ints:
+            case POp::sub_3_floats: case POp::sub_3_ints:
+            case POp::sub_4_floats: case POp::sub_4_ints:
+            case POp::sub_n_floats: case POp::sub_n_ints:
                 opText = opArg1 + " -= " + opArg2;
                 break;
 
-            case RPOp::mul_float:    case RPOp::mul_int:
-            case RPOp::mul_2_floats: case RPOp::mul_2_ints:
-            case RPOp::mul_3_floats: case RPOp::mul_3_ints:
-            case RPOp::mul_4_floats: case RPOp::mul_4_ints:
-            case RPOp::mul_n_floats: case RPOp::mul_n_ints:
+            case POp::mul_float:    case POp::mul_int:
+            case POp::mul_2_floats: case POp::mul_2_ints:
+            case POp::mul_3_floats: case POp::mul_3_ints:
+            case POp::mul_4_floats: case POp::mul_4_ints:
+            case POp::mul_n_floats: case POp::mul_n_ints:
                 opText = opArg1 + " *= " + opArg2;
                 break;
 
-            case RPOp::div_float:    case RPOp::div_int:    case RPOp::div_uint:
-            case RPOp::div_2_floats: case RPOp::div_2_ints: case RPOp::div_2_uints:
-            case RPOp::div_3_floats: case RPOp::div_3_ints: case RPOp::div_3_uints:
-            case RPOp::div_4_floats: case RPOp::div_4_ints: case RPOp::div_4_uints:
-            case RPOp::div_n_floats: case RPOp::div_n_ints: case RPOp::div_n_uints:
+            case POp::div_float:    case POp::div_int:    case POp::div_uint:
+            case POp::div_2_floats: case POp::div_2_ints: case POp::div_2_uints:
+            case POp::div_3_floats: case POp::div_3_ints: case POp::div_3_uints:
+            case POp::div_4_floats: case POp::div_4_ints: case POp::div_4_uints:
+            case POp::div_n_floats: case POp::div_n_ints: case POp::div_n_uints:
                 opText = opArg1 + " /= " + opArg2;
                 break;
 
-            case RPOp::min_float:    case RPOp::min_int:    case RPOp::min_uint:
-            case RPOp::min_2_floats: case RPOp::min_2_ints: case RPOp::min_2_uints:
-            case RPOp::min_3_floats: case RPOp::min_3_ints: case RPOp::min_3_uints:
-            case RPOp::min_4_floats: case RPOp::min_4_ints: case RPOp::min_4_uints:
-            case RPOp::min_n_floats: case RPOp::min_n_ints: case RPOp::min_n_uints:
+            case POp::min_float:    case POp::min_int:    case POp::min_uint:
+            case POp::min_2_floats: case POp::min_2_ints: case POp::min_2_uints:
+            case POp::min_3_floats: case POp::min_3_ints: case POp::min_3_uints:
+            case POp::min_4_floats: case POp::min_4_ints: case POp::min_4_uints:
+            case POp::min_n_floats: case POp::min_n_ints: case POp::min_n_uints:
                 opText = opArg1 + " = min(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case RPOp::max_float:    case RPOp::max_int:    case RPOp::max_uint:
-            case RPOp::max_2_floats: case RPOp::max_2_ints: case RPOp::max_2_uints:
-            case RPOp::max_3_floats: case RPOp::max_3_ints: case RPOp::max_3_uints:
-            case RPOp::max_4_floats: case RPOp::max_4_ints: case RPOp::max_4_uints:
-            case RPOp::max_n_floats: case RPOp::max_n_ints: case RPOp::max_n_uints:
+            case POp::max_float:    case POp::max_int:    case POp::max_uint:
+            case POp::max_2_floats: case POp::max_2_ints: case POp::max_2_uints:
+            case POp::max_3_floats: case POp::max_3_ints: case POp::max_3_uints:
+            case POp::max_4_floats: case POp::max_4_ints: case POp::max_4_uints:
+            case POp::max_n_floats: case POp::max_n_ints: case POp::max_n_uints:
                 opText = opArg1 + " = max(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case RPOp::cmplt_float:    case RPOp::cmplt_int:    case RPOp::cmplt_uint:
-            case RPOp::cmplt_2_floats: case RPOp::cmplt_2_ints: case RPOp::cmplt_2_uints:
-            case RPOp::cmplt_3_floats: case RPOp::cmplt_3_ints: case RPOp::cmplt_3_uints:
-            case RPOp::cmplt_4_floats: case RPOp::cmplt_4_ints: case RPOp::cmplt_4_uints:
-            case RPOp::cmplt_n_floats: case RPOp::cmplt_n_ints: case RPOp::cmplt_n_uints:
+            case POp::cmplt_float:    case POp::cmplt_int:    case POp::cmplt_uint:
+            case POp::cmplt_2_floats: case POp::cmplt_2_ints: case POp::cmplt_2_uints:
+            case POp::cmplt_3_floats: case POp::cmplt_3_ints: case POp::cmplt_3_uints:
+            case POp::cmplt_4_floats: case POp::cmplt_4_ints: case POp::cmplt_4_uints:
+            case POp::cmplt_n_floats: case POp::cmplt_n_ints: case POp::cmplt_n_uints:
                 opText = opArg1 + " = lessThan(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case RPOp::cmple_float:    case RPOp::cmple_int:    case RPOp::cmple_uint:
-            case RPOp::cmple_2_floats: case RPOp::cmple_2_ints: case RPOp::cmple_2_uints:
-            case RPOp::cmple_3_floats: case RPOp::cmple_3_ints: case RPOp::cmple_3_uints:
-            case RPOp::cmple_4_floats: case RPOp::cmple_4_ints: case RPOp::cmple_4_uints:
-            case RPOp::cmple_n_floats: case RPOp::cmple_n_ints: case RPOp::cmple_n_uints:
+            case POp::cmple_float:    case POp::cmple_int:    case POp::cmple_uint:
+            case POp::cmple_2_floats: case POp::cmple_2_ints: case POp::cmple_2_uints:
+            case POp::cmple_3_floats: case POp::cmple_3_ints: case POp::cmple_3_uints:
+            case POp::cmple_4_floats: case POp::cmple_4_ints: case POp::cmple_4_uints:
+            case POp::cmple_n_floats: case POp::cmple_n_ints: case POp::cmple_n_uints:
                 opText = opArg1 + " = lessThanEqual(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case RPOp::cmpeq_float:    case RPOp::cmpeq_int:
-            case RPOp::cmpeq_2_floats: case RPOp::cmpeq_2_ints:
-            case RPOp::cmpeq_3_floats: case RPOp::cmpeq_3_ints:
-            case RPOp::cmpeq_4_floats: case RPOp::cmpeq_4_ints:
-            case RPOp::cmpeq_n_floats: case RPOp::cmpeq_n_ints:
+            case POp::cmpeq_float:    case POp::cmpeq_int:
+            case POp::cmpeq_2_floats: case POp::cmpeq_2_ints:
+            case POp::cmpeq_3_floats: case POp::cmpeq_3_ints:
+            case POp::cmpeq_4_floats: case POp::cmpeq_4_ints:
+            case POp::cmpeq_n_floats: case POp::cmpeq_n_ints:
                 opText = opArg1 + " = equal(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case RPOp::cmpne_float:    case RPOp::cmpne_int:
-            case RPOp::cmpne_2_floats: case RPOp::cmpne_2_ints:
-            case RPOp::cmpne_3_floats: case RPOp::cmpne_3_ints:
-            case RPOp::cmpne_4_floats: case RPOp::cmpne_4_ints:
-            case RPOp::cmpne_n_floats: case RPOp::cmpne_n_ints:
+            case POp::cmpne_float:    case POp::cmpne_int:
+            case POp::cmpne_2_floats: case POp::cmpne_2_ints:
+            case POp::cmpne_3_floats: case POp::cmpne_3_ints:
+            case POp::cmpne_4_floats: case POp::cmpne_4_ints:
+            case POp::cmpne_n_floats: case POp::cmpne_n_ints:
                 opText = opArg1 + " = notEqual(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
-            case RPOp::mix_float:
-            case RPOp::mix_2_floats:
-            case RPOp::mix_3_floats:
-            case RPOp::mix_4_floats:
-            case RPOp::mix_n_floats:
+            case POp::mix_float:
+            case POp::mix_2_floats:
+            case POp::mix_3_floats:
+            case POp::mix_4_floats:
+            case POp::mix_n_floats:
                 opText = opArg1 + " = mix(" + opArg1 + ", " + opArg2 + ", " + opArg3 + ")";
                 break;
 
-            case RPOp::jump:
-            case RPOp::branch_if_any_active_lanes:
-            case RPOp::branch_if_no_active_lanes:
+            case POp::jump:
+            case POp::branch_if_any_active_lanes:
+            case POp::branch_if_no_active_lanes:
+            case POp::invoke_shader:
+            case POp::invoke_color_filter:
+            case POp::invoke_blender:
                 opText = std::string(opName) + " " + opArg1;
                 break;
 
-            case RPOp::branch_if_no_active_lanes_eq:
+            case POp::branch_if_no_active_lanes_eq:
                 opText = "branch " + opArg1 + " if no lanes of " + opArg2 + " == " + opArg3;
                 break;
 

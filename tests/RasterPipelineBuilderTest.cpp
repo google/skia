@@ -184,6 +184,23 @@ R"(    1. store_src                      $0..3 = src.rgba
 )");
 }
 
+DEF_TEST(RasterPipelineBuilderInvokeChild, r) {
+    // Create a very simple nonsense program.
+    SkSL::RP::Builder builder;
+
+    builder.invoke_shader(1);
+    builder.invoke_color_filter(2);
+    builder.invoke_blender(3);
+
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
+    check(r, *program,
+R"(    1. invoke_shader                  invoke_shader 0x00000001
+    2. invoke_color_filter            invoke_color_filter 0x00000002
+    3. invoke_blender                 invoke_blender 0x00000003
+)");
+}
+
 DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;

@@ -36,14 +36,37 @@ struct SlotRange {
     int count = 0;
 };
 
-// Ops that the builder will contextually rewrite into different RasterPipeline stages.
-enum class BuilderOp {
-    // We support all the native Raster Pipeline ops.
+// An RP::Program will consist entirely of ProgramOps. The ProgramOps list is a superset of the
+// native SkRasterPipelineOps op-list; in addition, it also has a few extra ops to indicate
+// child-effect invocation.
+enum class ProgramOp {
+    // A finished program can contain all the native Raster Pipeline ops.
     #define M(stage) stage,
         SK_RASTER_PIPELINE_OPS_ALL(M)
     #undef M
-    // We also support Builder-specific ops; these are converted into real RP ops during
-    // `appendStages`.
+    // A finished program can also invoke child programs.
+    invoke_shader,
+    invoke_color_filter,
+    invoke_blender,
+};
+
+// BuilderOps are a superset of ProgramOps. They are used by the RP::Builder, which works in terms
+// of Instructions; Instructions are slightly more expressive than raw SkRasterPipelineOps. In
+// particular, the Builder supports stacks for pushing and popping scratch values.
+// RP::Program::makeStages is responsible for rewriting Instructions/BuilderOps into an array of
+// RP::Program::Stages, which will contain only native SkRasterPipelineOps and (optionally)
+// child-effect invocations.
+enum class BuilderOp {
+    // An in-flight program can contain all the native Raster Pipeline ops...
+    #define M(stage) stage,
+        SK_RASTER_PIPELINE_OPS_ALL(M)
+    #undef M
+    // ... and invoke child programs.
+    invoke_shader,
+    invoke_color_filter,
+    invoke_blender,
+
+    // We also have Builder-specific ops; these are converted into ProgramOps during `makeStages`.
     push_literal,
     push_slots,
     push_uniform,
@@ -69,6 +92,11 @@ enum class BuilderOp {
     branch_if_no_active_lanes_on_stack_top_equal,
     unsupported
 };
+
+// If the child-invocation enums are not in sync between enums, program creation will not work.
+static_assert((int)ProgramOp::invoke_shader       == (int)BuilderOp::invoke_shader);
+static_assert((int)ProgramOp::invoke_color_filter == (int)BuilderOp::invoke_color_filter);
+static_assert((int)ProgramOp::invoke_blender      == (int)BuilderOp::invoke_blender);
 
 // Represents a single raster-pipeline SkSL instruction.
 struct Instruction {
@@ -117,8 +145,8 @@ private:
     SlotData allocateSlotData(SkArenaAlloc* alloc);
 
     struct Stage {
-        SkRasterPipelineOp op;
-        void*              ctx;
+        ProgramOp op;
+        void*     ctx;
     };
     void makeStages(SkTArray<Stage>* pipeline,
                     SkArenaAlloc* alloc,
@@ -129,7 +157,7 @@ private:
 
     // These methods are used to split up large multi-slot operations into multiple ops as needed.
     void appendCopy(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                    SkRasterPipelineOp baseStage,
+                    ProgramOp baseStage,
                     float* dst, int dstStride, const float* src, int srcStride, int numSlots);
     void appendCopySlotsUnmasked(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                  float* dst, const float* src, int numSlots);
@@ -141,7 +169,7 @@ private:
     // Appends a single-slot single-input math operation to the pipeline. The op `stage` will
     // appended `numSlots` times, starting at position `dst` and advancing one slot for each
     // subsequent invocation.
-    void appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, SkRasterPipelineOp stage,
+    void appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp stage,
                                  float* dst, int numSlots);
 
     // Appends a multi-slot single-input math operation to the pipeline. `baseStage` must refer to
@@ -149,7 +177,7 @@ private:
     // 2-4 slots. For instance, {`zero_slot`, `zero_2_slots`, `zero_3_slots`, `zero_4_slots`}
     // must be contiguous ops in the stage list, listed in that order; pass `zero_slot` and we
     // pick the appropriate op based on `numSlots`.
-    void appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, SkRasterPipelineOp baseStage,
+    void appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp baseStage,
                                 float* dst, int numSlots);
 
     // Appends a two-input math operation to the pipeline. `src` must be _immediately_ after `dst`
@@ -157,8 +185,7 @@ private:
     // will be used to pass pointers to the destination and source; the delta between the two
     // pointers implicitly gives the number of slots.
     void appendAdjacentNWayBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                    SkRasterPipelineOp stage,
-                                    float* dst, const float* src, int numSlots);
+                                    ProgramOp stage, float* dst, const float* src, int numSlots);
 
     // Appends a multi-slot two-input math operation to the pipeline. `src` must be _immediately_
     // after `dst` in memory. `baseStage` must refer to an unbounded "apply_to_n_slots" stage, which
@@ -167,7 +194,7 @@ private:
     // stage list, listed in that order; pass `add_n_floats` and we pick the appropriate op based on
     // `numSlots`.
     void appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                         SkRasterPipelineOp baseStage,
+                                         ProgramOp baseStage,
                                          float* dst, const float* src, int numSlots);
 
     // Appends a multi-slot math operation having three inputs (dst, src0, src1) and one output
@@ -175,7 +202,7 @@ private:
     // must refer to an unbounded "apply_to_n_slots" stage, which must be immediately followed by
     // specializations for 1-4 slots.
     void appendAdjacentMultiSlotTernaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                          SkRasterPipelineOp stage, float* dst,
+                                          ProgramOp stage, float* dst,
                                           const float* src0, const float* src1, int numSlots);
 
     // Appends a stack_rewind op on platforms where it is needed (when SK_HAS_MUSTTAIL is not set).
@@ -543,6 +570,18 @@ public:
     void mask_off_return_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::mask_off_return_mask, {}});
+    }
+
+    void invoke_shader(int childIdx) {
+        fInstructions.push_back({BuilderOp::invoke_shader, {}, childIdx});
+    }
+
+    void invoke_color_filter(int childIdx) {
+        fInstructions.push_back({BuilderOp::invoke_color_filter, {}, childIdx});
+    }
+
+    void invoke_blender(int childIdx) {
+        fInstructions.push_back({BuilderOp::invoke_blender, {}, childIdx});
     }
 
 private:
