@@ -35,8 +35,10 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTHash.h"
 #include "src/pdf/SkPDFBitmap.h"
+#include "src/pdf/SkPDFDevice.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFFont.h"
+#include "src/pdf/SkPDFFormXObject.h"
 #include "src/pdf/SkPDFMakeCIDGlyphWidthsArray.h"
 #include "src/pdf/SkPDFMakeToUnicodeCmap.h"
 #include "src/pdf/SkPDFSubsetFont.h"
@@ -558,7 +560,8 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
     SkASSERT(strike);
     SkScalar emSize = (SkScalar)unitsPerEm;
     SkScalar xHeight = strike->getFontMetrics().fXHeight;
-    SkBulkGlyphMetricsAndPaths metricsAndPaths(std::move(strike));
+    SkBulkGlyphMetricsAndPaths metricsAndPaths((sk_sp<SkStrike>(strike)));
+    SkBulkGlyphMetricsAndDrawables metricsAndDrawables(std::move(strike));
 
     SkStrikeSpec strikeSpecSmall = kBitmapFontSize > 0 ? make_small_strike(*typeface)
                                                        : strikeSpec;
@@ -601,24 +604,41 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
             characterName.set("g0");
         } else {
             characterName.printf("g%X", gID);
-            const SkGlyph* glyph = metricsAndPaths.glyph(gID);
-            advance = glyph->advanceX();
-            glyphBBox = glyph->iRect();
+            const SkGlyph* pathGlyph = metricsAndPaths.glyph(gID);
+            const SkGlyph* drawableGlyph = metricsAndDrawables.glyph(gID);
+            advance = pathGlyph->advanceX();
+            glyphBBox = pathGlyph->iRect();
             bbox.join(glyphBBox);
-            const SkPath* path = glyph->path();
+            const SkPath* path = pathGlyph->path();
+            SkDrawable* drawable = drawableGlyph->drawable();
             SkDynamicMemoryWStream content;
-            if (path && !path->isEmpty()) {
-                setGlyphWidthAndBoundingBox(glyph->advanceX(), glyphBBox, &content);
+            if (drawable && !drawable->getBounds().isEmpty()) {
+                sk_sp<SkPDFDevice> glyphDevice = sk_make_sp<SkPDFDevice>(glyphBBox.size(), doc);
+                SkCanvas canvas(glyphDevice);
+                canvas.translate(-glyphBBox.fLeft, -glyphBBox.fTop);
+                canvas.drawDrawable(drawable);
+                SkPDFIndirectReference xobject = SkPDFMakeFormXObject(
+                        doc, glyphDevice->content(),
+                        SkPDFMakeArray(0, 0, glyphBBox.width(), glyphBBox.height()),
+                        glyphDevice->makeResourceDict(),
+                        SkMatrix::Translate(glyphBBox.fLeft, glyphBBox.fTop), nullptr);
+                imageGlyphs.emplace_back(gID, xobject);
+                SkPDFUtils::AppendScalar(drawableGlyph->advanceX(), &content);
+                content.writeText(" 0 d0\n1 0 0 1 0 0 cm\n/X");
+                content.write(characterName.c_str(), characterName.size());
+                content.writeText(" Do\n");
+            } else if (path && !path->isEmpty()) {
+                setGlyphWidthAndBoundingBox(pathGlyph->advanceX(), glyphBBox, &content);
                 SkPDFUtils::EmitPath(*path, SkPaint::kFill_Style, &content);
                 SkPDFUtils::PaintPath(SkPaint::kFill_Style, path->getFillType(), &content);
             } else {
                 auto pimg = to_image(gID, &smallGlyphs);
                 if (!pimg.fImage) {
-                    setGlyphWidthAndBoundingBox(glyph->advanceX(), glyphBBox, &content);
+                    setGlyphWidthAndBoundingBox(pathGlyph->advanceX(), glyphBBox, &content);
                 } else {
                     using SkPDFUtils::AppendScalar;
                     imageGlyphs.emplace_back(gID, SkPDFSerializeImage(pimg.fImage.get(), doc));
-                    AppendScalar(glyph->advanceX(), &content);
+                    AppendScalar(pathGlyph->advanceX(), &content);
                     content.writeText(" 0 d0\n");
                     AppendScalar(pimg.fImage->width() * bitmapScale, &content);
                     content.writeText(" 0 0 ");
