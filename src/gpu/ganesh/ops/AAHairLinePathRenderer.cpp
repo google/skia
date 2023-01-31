@@ -323,8 +323,8 @@ int gather_lines_and_quads(const SkPath& path,
         addChoppedQuad(srcSpaceQuadPts, devPts, isContourStart);
     };
 
+    SkPoint pathPts[4] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
     for (;;) {
-        SkPoint pathPts[4];
         SkPath::Verb verb = iter.next(pathPts);
         switch (verb) {
             case SkPath::kConic_Verb:
