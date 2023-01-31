@@ -187,19 +187,21 @@ public:
 
     /**
      * This is used when building up SkRasterPipeline to accumulate matrices during downward
-     * SkShader tree traversal rather than adding a matrix multiply stage for each one. It also
-     * tracks the dubious concept of a "total matrix", which includes all matrices encountered,
-     * including ones that have already been incorporated into matrix multiply stages.
+     * SkShader tree traversal, starting with the CTM, rather than adding a matrix multiply stage
+     * for each one. It also tracks the dubious concept of a "total matrix", which includes all
+     * matrices encountered, including ones that have already been incorporated into matrix multiply
+     * stages.
      *
      * The total matrix is used for mip map level selection and a filter downgrade optimizations in
      * SkImageShader and sizing of the SkImage created by SkPictureShader. If we can remove usages
-     * of the "total matrix" this could just be replaced by an SkMatrix or SkM44.
+     * of the "total matrix" and if Android Framework could be updated to not use backwards local
+     * matrix concatenation (b/256873449) this could just be replaced by an SkMatrix or SkM44.
      */
     class MatrixRec {
     public:
         MatrixRec() = default;
 
-        MatrixRec(const SkMatrix&);
+        MatrixRec(const SkMatrix& ctm);
 
         /**
          * Returns a new MatrixRec that represents the existing total and pending matrix
@@ -230,34 +232,47 @@ public:
          * may not be valid. Shaders should avoid making decisions based on this matrix if
          * totalMatrixIsValid() is false.
          */
-        SkMatrix totalMatrix() const { return fTotalMatrix; }
+        SkMatrix totalMatrix() const { return SkMatrix::Concat(fCTM, fTotalLocalMatrix); }
 
         /** Gets the inverse of totalMatrix(), if invertible. */
         bool SK_WARN_UNUSED_RESULT totalInverse(SkMatrix* out) const {
-                return fTotalMatrix.invert(out);
+            return this->totalMatrix().invert(out);
         }
 
         /** Is there a transform that has not yet been applied by a parent shader? */
-        bool hasPendingMatrix() const { return !fPendingMatrix.isIdentity(); }
+        bool hasPendingMatrix() const {
+            return (!fCTMApplied && !fCTM.isIdentity()) || !fPendingLocalMatrix.isIdentity();
+        }
+
+        /** When generating raster pipeline, have the device coordinates been seeded? */
+        bool rasterPipelineCoordsAreSeeded() const { return fCTMApplied; }
 
     private:
-        MatrixRec(const SkMatrix& pending, const SkMatrix& total, bool totalIsValid, bool rpSeeded)
-                : fPendingMatrix(pending)
-                , fTotalMatrix(total)
+        MatrixRec(const SkMatrix& ctm,
+                  const SkMatrix& totalLocalMatrix,
+                  const SkMatrix& pendingLocalMatrix,
+                  bool totalIsValid,
+                  bool ctmApplied)
+                : fCTM(ctm)
+                , fTotalLocalMatrix(totalLocalMatrix)
+                , fPendingLocalMatrix(pendingLocalMatrix)
                 , fTotalMatrixIsValid(totalIsValid)
-                , fRPSeeded(rpSeeded) {}
+                , fCTMApplied(ctmApplied) {}
+
+        const SkMatrix fCTM;
+
+        // Concatenation of all local matrices, including those already applied.
+        const SkMatrix fTotalLocalMatrix;
 
         // The accumulated local matrices from walking down the shader hierarchy that have NOT yet
         // been incorporated into the SkRasterPipeline.
-        const SkMatrix fPendingMatrix;
-        // The total of all local matrices accumulated walking down the shader hierarchy including
-        // those already incorporated into the SkRasterPipelines (including fPendingLocalMatrix).
-        const SkMatrix fTotalMatrix;
+        const SkMatrix fPendingLocalMatrix;
 
         bool fTotalMatrixIsValid = true;
 
-        // When used with raster pipeline, have the initial device coords been seeded.
-        bool fRPSeeded = false;
+        // Tracks whether the CTM has already been applied (and in raster pipeline whether the
+        // device coords have been seeded.)
+        bool fCTMApplied = false;
     };
 
     /**

@@ -34,28 +34,36 @@ SkShaderBase::SkShaderBase() = default;
 
 SkShaderBase::~SkShaderBase() = default;
 
-SkShaderBase::MatrixRec::MatrixRec(const SkMatrix& m) : fPendingMatrix(m), fTotalMatrix(m) {}
+SkShaderBase::MatrixRec::MatrixRec(const SkMatrix& ctm) : fCTM(ctm) {}
 
 std::optional<SkShaderBase::MatrixRec>
 SkShaderBase::MatrixRec::apply(const SkStageRec& rec, const SkMatrix& postInv) const {
-    SkMatrix total;
-    if (!fPendingMatrix.invert(&total)) {
+    SkMatrix total = fPendingLocalMatrix;
+    if (!fCTMApplied) {
+        total = SkMatrix::Concat(fCTM, total);
+    }
+    if (!total.invert(&total)) {
         return {};
     }
     total = SkMatrix::Concat(postInv, total);
-    if (!fRPSeeded) {
+    if (!fCTMApplied) {
         rec.fPipeline->append(SkRasterPipelineOp::seed_shader);
     }
     // append_matrix is a no-op if inverse worked out to identity.
     rec.fPipeline->append_matrix(rec.fAlloc, total);
-    return MatrixRec{SkMatrix::I(), fTotalMatrix, fTotalMatrixIsValid, /*rpSeeded=*/true};
+    return MatrixRec{fCTM,
+                     fTotalLocalMatrix,
+                     /*pendingLocalMatrix=*/SkMatrix::I(),
+                     fTotalMatrixIsValid,
+                     /*ctmApplied=*/true};
 }
 
 SkShaderBase::MatrixRec SkShaderBase::MatrixRec::concat(const SkMatrix& m) const {
-    return {SkShaderBase::ConcatLocalMatrices(fPendingMatrix, m),
-            SkShaderBase::ConcatLocalMatrices(fTotalMatrix  , m),
+    return {fCTM,
+            SkShaderBase::ConcatLocalMatrices(fTotalLocalMatrix, m),
+            SkShaderBase::ConcatLocalMatrices(fPendingLocalMatrix, m),
             fTotalMatrixIsValid,
-            fRPSeeded};
+            fCTMApplied};
 }
 
 void SkShaderBase::flatten(SkWriteBuffer& buffer) const { this->INHERITED::flatten(buffer); }

@@ -100,18 +100,23 @@ static float* append_two_shaders(const SkStageRec& rec,
         float   fRes0  [4 * SkRasterPipeline_kMaxStride];
     };
     auto storage = rec.fAlloc->make<Storage>();
-    std::optional<SkShaderBase::MatrixRec> childMRec = mRec.apply(rec);
-    if (!childMRec.has_value()) {
-        return nullptr;
+
+    // Note we cannot simply apply mRec here and then unconditionally store the coordinates. When
+    // building for Android Framework it would interrupt the backwards local matrix concatenation if
+    // mRec had a pending local matrix and either of the children also had a local matrix.
+    // b/256873449
+    if (mRec.rasterPipelineCoordsAreSeeded()) {
+        rec.fPipeline->append(SkRasterPipelineOp::store_src_rg, storage->fCoords);
     }
-    rec.fPipeline->append(SkRasterPipelineOp::store_src_rg, storage->fCoords);
-    if (!as_SB(s0)->appendStages(rec, *childMRec)) {
+    if (!as_SB(s0)->appendStages(rec, mRec)) {
         return nullptr;
     }
     rec.fPipeline->append(SkRasterPipelineOp::store_src, storage->fRes0);
 
-    rec.fPipeline->append(SkRasterPipelineOp::load_src_rg, storage->fCoords);
-    if (!as_SB(s1)->appendStages(rec, *childMRec)) {
+    if (mRec.rasterPipelineCoordsAreSeeded()) {
+        rec.fPipeline->append(SkRasterPipelineOp::load_src_rg, storage->fCoords);
+    }
+    if (!as_SB(s1)->appendStages(rec, mRec)) {
         return nullptr;
     }
     return storage->fRes0;
