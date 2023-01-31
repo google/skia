@@ -171,6 +171,9 @@ public:
     void lock() override {}
     void unlock() override {}
     SkGlyphDigest digest(SkPackedGlyphID) override;
+    GlyphAction pathAction(SkGlyphID);
+    GlyphAction drawableAction(SkGlyphID);
+
 
     void writePendingGlyphs(Serializer* serializer);
     SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
@@ -382,33 +385,38 @@ SkGlyphDigest RemoteStrike::digest(SkPackedGlyphID packedID) {
     return *digest;
 }
 
+GlyphAction RemoteStrike::pathAction(SkGlyphID glyphID) {
+    GlyphAction* decision = fSentPaths.find(glyphID);
+    if (decision == nullptr) {
+        // Put the new SkGlyph in the glyphs to send.
+        this->ensureScalerContext();
+        fPathsToSend.emplace_back(fContext->makeGlyph(SkPackedGlyphID{glyphID}, &fAlloc));
+        SkGlyph* glyph = &fPathsToSend.back();
+
+        glyph->setPath(&fAlloc, fContext.get());
+
+        GlyphAction glyphDecision;
+        if (glyph->isEmpty()) {
+            glyphDecision = GlyphAction::kDrop;
+        } else if (glyph->path() != nullptr) {
+            glyphDecision = GlyphAction::kAccept;
+        } else {
+            glyphDecision = GlyphAction::kReject;
+        }
+        decision = fSentPaths.set(glyphID, glyphDecision);
+    }
+
+    return *decision;
+}
+
 void RemoteStrike::prepareForPathDrawing(
         SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
     accepted->forEachInput(
             [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
-                GlyphAction* decision = fSentPaths.find(packedID.glyphID());
-                if (decision == nullptr) {
-                    // Put the new SkGlyph in the glyphs to send.
-                    this->ensureScalerContext();
-                    fPathsToSend.emplace_back(fContext->makeGlyph(packedID, &fAlloc));
-                    SkGlyph* glyph = &fPathsToSend.back();
-
-                    glyph->setPath(&fAlloc, fContext.get());
-
-                    GlyphAction glyphDecision;
-                    if (glyph->isEmpty()) {
-                        glyphDecision = GlyphAction::kDrop;
-                    } else if (glyph->path() != nullptr) {
-                        glyphDecision = GlyphAction::kAccept;
-                    } else {
-                        glyphDecision = GlyphAction::kReject;
-                    }
-                    decision = fSentPaths.set(packedID.glyphID(), glyphDecision);
-                }
-
-                switch (*decision) {
+                SkGlyphID glyphID = packedID.glyphID();
+                switch (this->pathAction(glyphID)) {
                     case GlyphAction::kAccept:
-                        accepted->accept(packedID, position);
+                        accepted->accept(SkPackedGlyphID{glyphID}, position);
                         break;
                     case GlyphAction::kReject:
                         rejected->reject(i);
@@ -419,36 +427,38 @@ void RemoteStrike::prepareForPathDrawing(
             });
 }
 
+GlyphAction RemoteStrike::drawableAction(SkGlyphID glyphID) {
+    GlyphAction* decision = fSentDrawables.find(glyphID);
+    if (decision == nullptr) {
+        // Put the new SkGlyph in the glyphs to send.
+        this->ensureScalerContext();
+        fDrawablesToSend.emplace_back(fContext->makeGlyph(SkPackedGlyphID{glyphID}, &fAlloc));
+        SkGlyph* glyph = &fDrawablesToSend.back();
+
+        glyph->setDrawable(&fAlloc, fContext.get());
+
+        GlyphAction glyphDecision;
+        if (glyph->isEmpty()) {
+            glyphDecision = GlyphAction::kDrop;
+        } else if (glyph->drawable() != nullptr) {
+            glyphDecision = GlyphAction::kAccept;
+        } else {
+            glyphDecision = GlyphAction::kReject;
+        }
+
+        decision = fSentDrawables.set(glyphID, glyphDecision);
+    }
+    return *decision;
+}
+
 void RemoteStrike::prepareForDrawableDrawing(
         SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
     accepted->forEachInput(
             [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
                 SkGlyphID glyphID = packedID.glyphID();
-                GlyphAction* decision = fSentDrawables.find(glyphID);
-                if (decision == nullptr) {
-
-                    // Put the new SkGlyph in the glyphs to send.
-                    this->ensureScalerContext();
-                    fDrawablesToSend.emplace_back(fContext->makeGlyph(packedID, &fAlloc));
-                    SkGlyph* glyph = &fDrawablesToSend.back();
-
-                    glyph->setDrawable(&fAlloc, fContext.get());
-
-                    GlyphAction glyphDecision;
-                    if (glyph->isEmpty()) {
-                        glyphDecision = GlyphAction::kDrop;
-                    } else if (glyph->drawable() != nullptr) {
-                        glyphDecision = GlyphAction::kAccept;
-                    } else {
-                        glyphDecision = GlyphAction::kReject;
-                    }
-
-                    decision = fSentDrawables.set(packedID.glyphID(), glyphDecision);
-                }
-
-                switch (*decision) {
+                switch (this->drawableAction(glyphID)) {
                     case GlyphAction::kAccept:
-                        accepted->accept(packedID, position);
+                        accepted->accept(SkPackedGlyphID{glyphID}, position);
                         break;
                     case GlyphAction::kReject:
                         rejected->reject(i);
