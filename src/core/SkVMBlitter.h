@@ -19,7 +19,7 @@ class SkVMBlitter final : public SkBlitter {
 public:
     static SkVMBlitter* Make(const SkPixmap& dst,
                              const SkPaint&,
-                             const SkMatrixProvider&,
+                             const SkMatrix& ctm,
                              SkArenaAlloc*,
                              sk_sp<SkShader> clipShader);
 
@@ -34,7 +34,7 @@ public:
                 const SkPaint& paint,
                 const SkPixmap* sprite,
                 SkIPoint spriteOffset,
-                const SkMatrixProvider& matrices,
+                const SkMatrix& ctm,
                 sk_sp<SkShader> clip,
                 bool* ok);
 
@@ -67,7 +67,7 @@ private:
         SkColorInfo             dst;
         Coverage                coverage;
         SkColor4f               paint;
-        const SkMatrixProvider& matrices;
+        SkMatrix                ctm;
 
         Params withCoverage(Coverage c) const;
     };
@@ -75,7 +75,7 @@ private:
     static Params EffectiveParams(const SkPixmap& device,
                                   const SkPixmap* sprite,
                                   SkPaint paint,
-                                  const SkMatrixProvider& matrices,
+                                  const SkMatrix& ctm,
                                   sk_sp<SkShader> clip);
     static skvm::Color DstColor(skvm::Builder* p, const Params& params);
     static void BuildProgram(skvm::Builder* p, const Params& params,
@@ -104,6 +104,7 @@ private:
     const Params    fParams;
     const Key       fKey;
     bool            fStoreToCache = false;
+
     skvm::Program*         fProgramPtrs[Coverage::kCount] = {nullptr};
     SkTLazy<skvm::Program> fPrograms[Coverage::kCount];
 

@@ -583,20 +583,17 @@ static skvm::Color css_hwb_to_srgb(skvm::Color hwb, skvm::Builder* p) {
     };
 }
 
-skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
-                                            skvm::Coord device, skvm::Coord local,
-                                            skvm::Color /*paint*/,
-                                            const SkMatrixProvider& mats, const SkMatrix* localM,
-                                            const SkColorInfo& dstInfo,
-                                            skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    SkMatrix inv;
-    if (!this->computeTotalInverse(mats.localToDevice(), localM, &inv)) {
+skvm::Color SkGradientShaderBase::program(skvm::Builder* p,
+                                          skvm::Coord device,
+                                          skvm::Coord local,
+                                          skvm::Color /*paint*/,
+                                          const MatrixRec& mRec,
+                                          const SkColorInfo& dstInfo,
+                                          skvm::Uniforms* uniforms,
+                                          SkArenaAlloc* alloc) const {
+    if (!mRec.apply(p, &local, uniforms, fPtsToUnit).has_value()) {
         return {};
     }
-    inv.postConcat(fPtsToUnit);
-    inv.normalizePerspective();
-
-    local = SkShaderBase::ApplyMatrix(p, inv, local, uniforms);
 
     skvm::I32 mask = p->splat(~0);
     skvm::F32 t = this->transformT(p,uniforms, local, &mask);
@@ -798,7 +795,6 @@ skvm::Color SkGradientShaderBase::onProgram(skvm::Builder* p,
         pun_to_F32(mask & pun_to_I32(color.a)),
     };
 }
-
 
 bool SkGradientShaderBase::isOpaque() const {
     return fColorsAreOpaque && (this->getTileMode() != SkTileMode::kDecal);

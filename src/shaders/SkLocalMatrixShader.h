@@ -59,9 +59,14 @@ protected:
 
     bool appendStages(const SkStageRec&, const MatrixRec&) const override;
 
-    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                          const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord device,
+                        skvm::Coord local,
+                        skvm::Color paint,
+                        const MatrixRec&,
+                        const SkColorInfo& dst,
+                        skvm::Uniforms* uniforms,
+                        SkArenaAlloc*) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkLocalMatrixShader)

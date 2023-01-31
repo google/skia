@@ -72,15 +72,14 @@ private:
 
     bool appendStages(const SkStageRec&, const MatrixRec&) const override;
 
-    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                          const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc*) const override;
-
-    class TransformShader;
-    skvm::Color makeProgram(
-            skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-            const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-            skvm::Uniforms* uniforms, const TransformShader* coordShader, SkArenaAlloc*) const;
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord device,
+                        skvm::Coord local,
+                        skvm::Color paint,
+                        const MatrixRec&,
+                        const SkColorInfo& dst,
+                        skvm::Uniforms* uniforms,
+                        SkArenaAlloc*) const override;
 
     sk_sp<SkImage>          fImage;
     const SkSamplingOptions fSampling;

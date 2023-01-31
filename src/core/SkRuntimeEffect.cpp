@@ -1011,20 +1011,33 @@ public:
                              skvm::Uniforms* uniforms,
                              SkArenaAlloc* alloc,
                              const std::vector<SkRuntimeEffect::ChildPtr>& children,
+                             const SkShaderBase::MatrixRec& mRec,
                              skvm::Color inColor,
                              const SkColorInfo& colorInfo)
             : fBuilder(builder)
             , fUniforms(uniforms)
             , fAlloc(alloc)
             , fChildren(children)
+            , fMRec(mRec)
             , fInColor(inColor)
             , fColorInfo(colorInfo) {}
 
     skvm::Color sampleShader(int ix, skvm::Coord coord) override {
+        // We haven't tracked device coords and the runtime effect could have arbitrarily
+        // manipulated the passed coords. We should be in a state where any pending matrix was
+        // already applied before the runtime effect's code could have manipulated the coords
+        // and the total matrix from child shader to device space is flagged as unknown.
+        SkASSERT(!fMRec.hasPendingMatrix());
+        SkASSERT(!fMRec.totalMatrixIsValid());
         if (SkShader* shader = fChildren[ix].shader()) {
-            SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
-            return as_SB(shader)->program(fBuilder, coord, coord, fInColor, matrixProvider,
-                                          /*localM=*/nullptr, fColorInfo, fUniforms, fAlloc);
+            return as_SB(shader)->program(fBuilder,
+                                          coord,
+                                          coord,
+                                          fInColor,
+                                          fMRec,
+                                          fColorInfo,
+                                          fUniforms,
+                                          fAlloc);
         }
         return fInColor;
     }
@@ -1067,6 +1080,7 @@ public:
     skvm::Uniforms* fUniforms;
     SkArenaAlloc* fAlloc;
     const std::vector<SkRuntimeEffect::ChildPtr>& fChildren;
+    const SkShaderBase::MatrixRec& fMRec;
     const skvm::Color fInColor;
     const SkColorInfo& fColorInfo;
 };
@@ -1091,7 +1105,7 @@ public:
                 colorInfo.colorSpace());
         SkASSERT(uniforms);
 
-        SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
+        SkMatrixProvider matrixProvider(SkMatrix::I());
         GrFPArgs childArgs(context, matrixProvider, &colorInfo, props);
         return make_effect_fp(fEffect,
                               "runtime_color_filter",
@@ -1155,7 +1169,9 @@ public:
                 colorInfo.colorSpace());
         SkASSERT(inputs);
 
-        RuntimeEffectVMCallbacks callbacks(p, uniforms, alloc, fChildren, c, colorInfo);
+        SkShaderBase::MatrixRec mRec(SkMatrix::I());
+        mRec.markTotalMatrixInvalid();
+        RuntimeEffectVMCallbacks callbacks(p, uniforms, alloc, fChildren, mRec, c, colorInfo);
         std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
                                                             *inputs);
 
@@ -1356,11 +1372,14 @@ public:
     }
 #endif
 
-    skvm::Color onProgram(skvm::Builder* p,
-                          skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                          const SkMatrixProvider& matrices, const SkMatrix* localM,
-                          const SkColorInfo& colorInfo,
-                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+    skvm::Color program(skvm::Builder* p,
+                        skvm::Coord device,
+                        skvm::Coord local,
+                        skvm::Color paint,
+                        const MatrixRec& mRec,
+                        const SkColorInfo& colorInfo,
+                        skvm::Uniforms* uniforms,
+                        SkArenaAlloc* alloc) const override {
         if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
             return {};
         }
@@ -1370,13 +1389,22 @@ public:
                                                                             colorInfo.colorSpace());
         SkASSERT(inputs);
 
-        SkMatrix inv;
-        if (!this->computeTotalInverse(matrices.localToDevice(), localM, &inv)) {
+        // Ensure any pending transform is applied before running the runtime shader's code, which
+        // gets to use and manipulate the coordinates.
+        std::optional<MatrixRec> newMRec = mRec.apply(p, &local, uniforms);
+        if (!newMRec.has_value()) {
             return {};
         }
-        local = SkShaderBase::ApplyMatrix(p,inv,local,uniforms);
+        // We could omit this for children that are only sampled with passthrough coords.
+        newMRec->markTotalMatrixInvalid();
 
-        RuntimeEffectVMCallbacks callbacks(p, uniforms, alloc, fChildren, paint, colorInfo);
+        RuntimeEffectVMCallbacks callbacks(p,
+                                           uniforms,
+                                           alloc,
+                                           fChildren,
+                                           *newMRec,
+                                           paint,
+                                           colorInfo);
         std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
                                                             *inputs);
 
@@ -1479,7 +1507,9 @@ public:
                                                                             colorInfo.colorSpace());
         SkASSERT(inputs);
 
-        RuntimeEffectVMCallbacks callbacks(p, uniforms, alloc, fChildren, src, colorInfo);
+        SkShaderBase::MatrixRec mRec(SkMatrix::I());
+        mRec.markTotalMatrixInvalid();
+        RuntimeEffectVMCallbacks callbacks(p, uniforms, alloc, fChildren, mRec, src, colorInfo);
         std::vector<skvm::Val> uniform = make_skvm_uniforms(p, uniforms, fEffect->uniformSize(),
                                                             *inputs);
 
@@ -1633,7 +1663,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
                                                           resultInfo.colorSpace());
         SkASSERT(uniforms);
 
-        SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
+        SkMatrixProvider matrixProvider(SkMatrix::I());
         GrColorInfo colorInfo(resultInfo.colorInfo());
         SkSurfaceProps props{}; // the images this function creates always use the defaults
         GrFPArgs args(rContext, matrixProvider, &colorInfo, props);

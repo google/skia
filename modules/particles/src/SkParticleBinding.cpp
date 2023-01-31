@@ -187,13 +187,15 @@ public:
               skvm::I32 mask) const override {
         skvm::Coord coord = {arguments[0], arguments[1]};
         skvm::F32 zero = builder->splat(0.0f);
-        SkOverrideDeviceMatrixProvider matrixProvider(SkMatrix::I());
         SkColorInfo colorInfo(kRGBA_8888_SkColorType, kPremul_SkAlphaType, /*cs=*/nullptr);
 
-        skvm::Color result = as_SB(fShader)->program(
-                builder, /*device=*/coord, /*local=*/coord, /*paint=*/{zero, zero, zero, zero},
-                matrixProvider, /*localM=*/nullptr, colorInfo, fUniforms,
-                fAlloc);
+        skvm::Color result = as_SB(fShader)->rootProgram(builder,
+                                                         /*device=*/coord,
+                                                         /*paint=*/{zero, zero, zero, zero},
+                                                         /*ctm=*/SkMatrix::I(),
+                                                         colorInfo,
+                                                         fUniforms,
+                                                         fAlloc);
         SkASSERT(result);
         outResult[0] = result.r;
         outResult[1] = result.g;

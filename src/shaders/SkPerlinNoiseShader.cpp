@@ -304,10 +304,14 @@ public:
     std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(const GrFPArgs&) const override;
 #endif
 
-    skvm::Color onProgram(skvm::Builder*,
-                          skvm::Coord, skvm::Coord, skvm::Color,
-                          const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
-                          skvm::Uniforms*, SkArenaAlloc*) const override {
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord,
+                        skvm::Coord,
+                        skvm::Color,
+                        const MatrixRec&,
+                        const SkColorInfo&,
+                        skvm::Uniforms*,
+                        SkArenaAlloc*) const override {
         // TODO?
         return {};
     }

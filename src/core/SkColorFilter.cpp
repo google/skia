@@ -84,7 +84,7 @@ skvm::Color SkColorFilterBase::program(skvm::Builder* p, skvm::Color c,
         }
         return c;
     }
-    //SkDebugf("cannot onProgram %s\n", this->getTypeName());
+    //SkDebugf("cannot program %s\n", this->getTypeName());
     return {};
 }
 

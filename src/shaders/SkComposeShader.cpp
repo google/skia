@@ -47,9 +47,14 @@ protected:
     SkShader_Blend(SkReadBuffer&);
     void flatten(SkWriteBuffer&) const override;
     bool appendStages(const SkStageRec&, const MatrixRec&) const override;
-    skvm::Color onProgram(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                          const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                          skvm::Uniforms*, SkArenaAlloc*) const override;
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord device,
+                        skvm::Coord local,
+                        skvm::Color paint,
+                        const MatrixRec& mRec,
+                        const SkColorInfo& dst,
+                        skvm::Uniforms*,
+                        SkArenaAlloc*) const override;
 
 private:
     friend void ::SkRegisterComposeShaderFlattenable();
@@ -133,14 +138,17 @@ bool SkShader_Blend::appendStages(const SkStageRec& rec, const MatrixRec& mRec) 
     return true;
 }
 
-skvm::Color SkShader_Blend::onProgram(skvm::Builder* p,
-                                      skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                                      const SkMatrixProvider& mats, const SkMatrix* localM,
-                                      const SkColorInfo& cinfo,
-                                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
+skvm::Color SkShader_Blend::program(skvm::Builder* p,
+                                    skvm::Coord device,
+                                    skvm::Coord local,
+                                    skvm::Color paint,
+                                    const MatrixRec& mRec,
+                                    const SkColorInfo& cinfo,
+                                    skvm::Uniforms* uniforms,
+                                    SkArenaAlloc* alloc) const {
     skvm::Color d,s;
-    if ((d = as_SB(fDst)->program(p, device,local, paint, mats,localM, cinfo, uniforms,alloc)) &&
-        (s = as_SB(fSrc)->program(p, device,local, paint, mats,localM, cinfo, uniforms,alloc))) {
+    if ((d = as_SB(fDst)->program(p, device, local, paint, mRec, cinfo, uniforms, alloc)) &&
+        (s = as_SB(fSrc)->program(p, device, local, paint, mRec, cinfo, uniforms, alloc))) {
         return p->blend(fMode, s,d);
     }
     return {};

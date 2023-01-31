@@ -498,8 +498,7 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
             sampling = tweak_sampling(sampling, totalSampleM);
         }
     }
-    std::optional<MatrixRec> newMRec = mRec.apply(rec, sampleM);
-    if (!newMRec.has_value()) {
+    if (!mRec.apply(rec, sampleM)) {
         return false;
     }
 
@@ -744,25 +743,28 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
     return append_misc();
 }
 
-skvm::Color SkImageShader::onProgram(skvm::Builder* p,
-                                     skvm::Coord device,
-                                     skvm::Coord origLocal,
-                                     skvm::Color paint,
-                                     const SkMatrixProvider& matrices,
-                                     const SkMatrix* localM,
-                                     const SkColorInfo& dst,
-                                     skvm::Uniforms* uniforms,
-                                     SkArenaAlloc* alloc) const {
-    SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/12784)
-    SkMatrix baseInv;
-    if (!this->computeTotalInverse(matrices.localToDevice(), localM, &baseInv)) {
-        return {};
-    }
-    baseInv.normalizePerspective();
+skvm::Color SkImageShader::program(skvm::Builder* p,
+                                   skvm::Coord device,
+                                   skvm::Coord origLocal,
+                                   skvm::Color paint,
+                                   const MatrixRec& mRec,
+                                   const SkColorInfo& dst,
+                                   skvm::Uniforms* uniforms,
+                                   SkArenaAlloc* alloc) const {
+    SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/12784)
 
     auto sampling = fSampling;
     if (sampling.isAniso()) {
         sampling = SkSamplingPriv::AnisoFallback(fImage->hasMipmaps());
+    }
+
+    SkMatrix baseInv;
+    // If the total matrix isn't valid then we will always access the base MIP level.
+    if (mRec.totalMatrixIsValid()) {
+        if (!mRec.totalInverse(&baseInv)) {
+            return {};
+        }
+        baseInv.normalizePerspective();
     }
     auto* access = SkMipmapAccessor::Make(alloc, fImage.get(), baseInv, sampling.mipmap);
     if (!access) {
@@ -770,11 +772,10 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     }
 
     auto [upper, upperInv] = access->level();
-    upperInv.preConcat(baseInv);
     if (!sampling.useCubic) {
         // TODO: can tweak_sampling sometimes for cubic too when B=0
-        if (matrices.localToDeviceHitsPixelCenters()) {
-            sampling = tweak_sampling(sampling, upperInv);
+        if (mRec.totalMatrixIsValid()) {
+            sampling = tweak_sampling(sampling, SkMatrix::Concat(upperInv, baseInv));
         }
     }
 
@@ -784,11 +785,13 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
     float lowerWeight = access->lowerWeight();
     if (lowerWeight > 0) {
         std::tie(lowerPixmap, lowerInv) = access->lowerLevel();
-        lowerInv.preConcat(baseInv);
         lower = &lowerPixmap;
     }
 
-    skvm::Coord upperLocal = SkShaderBase::ApplyMatrix(p, upperInv, origLocal, uniforms);
+    skvm::Coord upperLocal = origLocal;
+    if (!mRec.apply(p, &upperLocal, uniforms, upperInv).has_value()) {
+        return {};
+    }
 
     // We can exploit image opacity to skip work unpacking alpha channels.
     const bool input_is_opaque = SkAlphaTypeIsOpaque(upper.alphaType())
@@ -977,7 +980,10 @@ skvm::Color SkImageShader::onProgram(skvm::Builder* p,
 
     skvm::Color c = sample_level(upper, upperInv, upperLocal);
     if (lower) {
-        auto lowerLocal = SkShaderBase::ApplyMatrix(p, lowerInv, origLocal, uniforms);
+        skvm::Coord lowerLocal = origLocal;
+        if (!mRec.apply(p, &lowerLocal, uniforms, lowerInv)) {
+            return {};
+        }
         // lower * weight + upper * (1 - weight)
         c = lerp(c,
                  sample_level(*lower, lowerInv, lowerLocal),

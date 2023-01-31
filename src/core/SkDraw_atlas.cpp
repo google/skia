@@ -54,10 +54,14 @@ class UpdatableColorShader : public SkShaderBase {
 public:
     explicit UpdatableColorShader(SkColorSpace* cs)
         : fSteps{sk_srgb_singleton(), kUnpremul_SkAlphaType, cs, kUnpremul_SkAlphaType} {}
-    skvm::Color onProgram(
-            skvm::Builder* builder, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-            const SkMatrixProvider& provider, const SkMatrix* localM, const SkColorInfo& dst,
-            skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override {
+    skvm::Color program(skvm::Builder* builder,
+                        skvm::Coord device,
+                        skvm::Coord local,
+                        skvm::Color paint,
+                        const MatrixRec&,
+                        const SkColorInfo& dst,
+                        skvm::Uniforms* uniforms,
+                        SkArenaAlloc* alloc) const override {
         skvm::Uniform color = uniforms->pushPtr(fValues);
         skvm::F32 r = builder->arrayF(color, 0);
         skvm::F32 g = builder->arrayF(color, 1);
@@ -181,10 +185,9 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
         }
         p.setShader(std::move(shader));
         // We use identity here and fold the CTM into the update matrix.
-        SkMatrixProvider matrixProvider(SkMatrix::I());
         if (auto blitter = SkVMBlitter::Make(fDst,
                                              p,
-                                             matrixProvider,
+                                             SkMatrix::I(),
                                              &alloc,
                                              fRC->clipShader())) {
             SkPath scratchPath;

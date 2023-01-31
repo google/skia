@@ -21,13 +21,16 @@ public:
     explicit SkTransformShader(const SkShaderBase& shader, bool allowPerspective);
 
     // Adds instructions to use the mapping stored in the uniforms represented by fMatrix. After
-    // generating a new skvm::Coord, it passes the mapped coordinates to fShader's onProgram
+    // generating a new skvm::Coord, it passes the mapped coordinates to fShader's program
     // along with the identity matrix.
-    skvm::Color onProgram(skvm::Builder* b,
-                          skvm::Coord device, skvm::Coord local, skvm::Color color,
-                          const SkMatrixProvider& matrices, const SkMatrix* localM,
-                          const SkColorInfo& dst,
-                          skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const override;
+    skvm::Color program(skvm::Builder* b,
+                        skvm::Coord device,
+                        skvm::Coord local,
+                        skvm::Color color,
+                        const MatrixRec& mRec,
+                        const SkColorInfo& dst,
+                        skvm::Uniforms* uniforms,
+                        SkArenaAlloc* alloc) const override;
 
     // Adds a pipestage to multiply the incoming coords in 'r' and 'g' by the matrix. The child
     // shader is called with no pending local matrix and the total transform as unknowable.

@@ -321,31 +321,25 @@ bool SkPictureShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec)
     return as_SB(bitmapShader)->appendStages(rec, mRec);
 }
 
-skvm::Color SkPictureShader::onProgram(skvm::Builder* p,
-                                       skvm::Coord device,
-                                       skvm::Coord local,
-                                       skvm::Color paint,
-                                       const SkMatrixProvider& matrices,
-                                       const SkMatrix* localM,
-                                       const SkColorInfo& dst,
-                                       skvm::Uniforms* uniforms,
-                                       SkArenaAlloc* alloc) const {
+skvm::Color SkPictureShader::program(skvm::Builder* p,
+                                     skvm::Coord device,
+                                     skvm::Coord local,
+                                     skvm::Color paint,
+                                     const MatrixRec& mRec,
+                                     const SkColorInfo& dst,
+                                     skvm::Uniforms* uniforms,
+                                     SkArenaAlloc* alloc) const {
     // TODO: We'll need additional plumbing to get the correct props from our callers.
     SkSurfaceProps props{};
 
-    const auto& vm     = matrices.localToDevice();
-    const auto& totalM = localM ? SkMatrix::Concat(vm, *localM) : vm;
-
     // Keep bitmapShader alive by using alloc instead of stack memory
     auto& bitmapShader = *alloc->make<sk_sp<SkShader>>();
-    bitmapShader = this->rasterShader(totalM, dst.colorType(), dst.colorSpace(), props);
+    bitmapShader = this->rasterShader(mRec.totalMatrix(), dst.colorType(), dst.colorSpace(), props);
     if (!bitmapShader) {
         return {};
     }
 
-    return as_SB(bitmapShader)->program(p, device, local, paint,
-                                        matrices, localM, dst,
-                                        uniforms, alloc);
+    return as_SB(bitmapShader)->program(p, device, local, paint, mRec, dst, uniforms, alloc);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

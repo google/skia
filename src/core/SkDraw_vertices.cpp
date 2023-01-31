@@ -92,10 +92,14 @@ protected:
         return true;
     }
 
-    skvm::Color onProgram(skvm::Builder*,
-                          skvm::Coord, skvm::Coord, skvm::Color,
-                          const SkMatrixProvider&, const SkMatrix*, const SkColorInfo&,
-                          skvm::Uniforms*, SkArenaAlloc*) const override;
+    skvm::Color program(skvm::Builder*,
+                        skvm::Coord,
+                        skvm::Coord,
+                        skvm::Color,
+                        const MatrixRec&,
+                        const SkColorInfo&,
+                        skvm::Uniforms*,
+                        SkArenaAlloc*) const override;
 
 private:
     bool isOpaque() const override { return fIsOpaque; }
@@ -116,12 +120,14 @@ private:
     using INHERITED = SkShaderBase;
 };
 
-skvm::Color SkTriColorShader::onProgram(skvm::Builder* b,
-                                        skvm::Coord device, skvm::Coord local, skvm::Color,
-                                        const SkMatrixProvider& matrices, const SkMatrix* localM,
-                                        const SkColorInfo&, skvm::Uniforms* uniforms,
-                                        SkArenaAlloc* alloc) const {
-
+skvm::Color SkTriColorShader::program(skvm::Builder* b,
+                                      skvm::Coord device,
+                                      skvm::Coord local,
+                                      skvm::Color,
+                                      const MatrixRec&,
+                                      const SkColorInfo&,
+                                      skvm::Uniforms* uniforms,
+                                      SkArenaAlloc* alloc) const {
     fColorMatrix = uniforms->pushPtr(&fM43);
 
     skvm::F32 x = local.x,
@@ -440,8 +446,11 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
         VertState state(vertexCount, indices, indexCount);
         VertState::Proc vertProc = state.chooseProc(info.mode());
 
-        auto blitter = SkVMBlitter::Make(
-                fDst, finalPaint, *matrixProvider, outerAlloc, this->fRC->clipShader());
+        auto blitter = SkVMBlitter::Make(fDst,
+                                         finalPaint,
+                                         matrixProvider->localToDevice(),
+                                         outerAlloc,
+                                         this->fRC->clipShader());
         if (!blitter) {
             return;
         }

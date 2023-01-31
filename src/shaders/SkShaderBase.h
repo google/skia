@@ -186,16 +186,22 @@ public:
     };
 
     /**
-     * This is used when building up SkRasterPipeline to accumulate matrices during downward
-     * SkShader tree traversal, starting with the CTM, rather than adding a matrix multiply stage
-     * for each one. It also tracks the dubious concept of a "total matrix", which includes all
-     * matrices encountered, including ones that have already been incorporated into matrix multiply
-     * stages.
+     * This is used to accumulate matrices, starting with the CTM, when building up SkRasterPipeline
+     * and SkVM by walking the SkShader tree. It avoids adding a matrix multiply for each individual
+     * matrix. It also handles the reverse matrix concatenation order required by Android Framework,
+     * see b/256873449.
      *
-     * The total matrix is used for mip map level selection and a filter downgrade optimizations in
+     * This also tracks the dubious concept of a "total matrix", which includes all the matrices
+     * encountered during traversal to the current shader, including ones that have already been
+     * applied. The total matrix represents the transformation from the current shader's coordinate
+     * space to device space. It is dubious because it doesn't account for SkShaders that manipulate
+     * the coordinates passed to their children, which may not even be representable by a matrix.
+     *
+     * The total matrix is used for mipmap level selection and a filter downgrade optimizations in
      * SkImageShader and sizing of the SkImage created by SkPictureShader. If we can remove usages
      * of the "total matrix" and if Android Framework could be updated to not use backwards local
-     * matrix concatenation (b/256873449) this could just be replaced by an SkMatrix or SkM44.
+     * matrix concatenation this could just be replaced by a simple SkMatrix or SkM44 passed down
+     * during traversal.
      */
     class MatrixRec {
     public:
@@ -216,6 +222,16 @@ public:
          * unmodified.
          */
         std::optional<MatrixRec> SK_WARN_UNUSED_RESULT apply(const SkStageRec& rec,
+                                                             const SkMatrix& postInv = {}) const;
+
+        /**
+         * Muls local by the inverse of the pending matrix. 'postInv' is an additional matrix to
+         * post-apply to the inverted pending matrix. If the pending matrix is not invertible the
+         * std::optional result won't have a value and the Builder will be unmodified.
+         */
+        std::optional<MatrixRec> SK_WARN_UNUSED_RESULT apply(skvm::Builder*,
+                                                             skvm::Coord* local,  // inout
+                                                             skvm::Uniforms*,
                                                              const SkMatrix& postInv = {}) const;
 
         /** Call to indicate that the mapping from shader to device space is not known. */
@@ -349,11 +365,34 @@ public:
      *  the localMatrix. If not, return nullptr and ignore the localMatrix parameter.
      */
     virtual sk_sp<SkShader> makeAsALocalMatrixShader(SkMatrix* localMatrix) const;
-    SK_WARN_UNUSED_RESULT
-    skvm::Color program(skvm::Builder*, skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                        const SkMatrixProvider&, const SkMatrix* localM, const SkColorInfo& dst,
-                        skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const;
 
+    /**
+     * Called at the root of a shader tree to build a VM that produces color. The device coords
+     * should be initialized to the centers of device space pixels being shaded and the inverse of
+     * ctm should be the transform of those coords to local space.
+     **/
+    SK_WARN_UNUSED_RESULT
+    skvm::Color rootProgram(skvm::Builder*,
+                            skvm::Coord device,
+                            skvm::Color paint,
+                            const SkMatrix& ctm,
+                            const SkColorInfo& dst,
+                            skvm::Uniforms* uniforms,
+                            SkArenaAlloc* alloc) const;
+
+    /**
+     * Virtualized implementation of above. A note on the local coords param: it must be transformed
+     * by the inverse of the "pending" matrix in MatrixRec to be put in the correct space for this
+     * shader. This is done by calling MatrixRec::apply().
+     **/
+    virtual skvm::Color program(skvm::Builder*,
+                                skvm::Coord device,
+                                skvm::Coord local,
+                                skvm::Color paint,
+                                const MatrixRec&,
+                                const SkColorInfo& dst,
+                                skvm::Uniforms*,
+                                SkArenaAlloc*) const = 0;
 
 #ifdef SK_GRAPHITE_ENABLED
     /**
@@ -397,12 +436,6 @@ protected:
 
 protected:
     static skvm::Coord ApplyMatrix(skvm::Builder*, const SkMatrix&, skvm::Coord, skvm::Uniforms*);
-
-private:
-    virtual skvm::Color onProgram(skvm::Builder*,
-                                  skvm::Coord device, skvm::Coord local, skvm::Color paint,
-                                  const SkMatrixProvider&, const SkMatrix* localM,
-                                  const SkColorInfo& dst, skvm::Uniforms*, SkArenaAlloc*) const = 0;
 
     using INHERITED = SkShader;
 };

@@ -14,13 +14,30 @@ SkTransformShader::SkTransformShader(const SkShaderBase& shader, bool allowPersp
     SkMatrix::I().get9(fMatrixStorage);
 }
 
-skvm::Color SkTransformShader::onProgram(skvm::Builder* b,
-                      skvm::Coord device, skvm::Coord local, skvm::Color color,
-                      const SkMatrixProvider& matrices, const SkMatrix* localM,
-                      const SkColorInfo& dst,
-                      skvm::Uniforms* uniforms, SkArenaAlloc* alloc) const {
-    // We assume the caller is folding the CTM into the per-update matrix for efficiency.
-    SkASSERT(matrices.localToDevice().isIdentity());
+skvm::Color SkTransformShader::program(skvm::Builder* b,
+                                       skvm::Coord device,
+                                       skvm::Coord local,
+                                       skvm::Color color,
+                                       const MatrixRec& mRec,
+                                       const SkColorInfo& dst,
+                                       skvm::Uniforms* uniforms,
+                                       SkArenaAlloc* alloc) const {
+    // We have to seed and apply any constant matrices before appending our matrix that may
+    // mutate. We could try to apply one matrix stage and then incorporate the parent matrix
+    // with the variable matrix in each call to update(). However, in practice our callers
+    // fold the CTM into the update() matrix and don't wrap the transform shader in local matrix
+    // shaders so the call to apply below should be no-op. If this assert fires it just indicates an
+    // optimization opportunity, not a correctness bug.
+    SkASSERT(!mRec.hasPendingMatrix());
+
+    std::optional<MatrixRec> childMRec = mRec.apply(b, &local, uniforms);
+    if (!childMRec.has_value()) {
+        return {};
+    }
+    // The matrix we're about to insert gets updated between uses of the VM so our children can't
+    // know the total transform when they add their stages. We don't incorporate this shader's
+    // matrix into the MatrixRec at all.
+    childMRec->markTotalMatrixInvalid();
 
     auto matrix = uniforms->pushPtr(&fMatrixStorage);
 
@@ -41,9 +58,7 @@ skvm::Color SkTransformShader::onProgram(skvm::Builder* b,
     }
 
     skvm::Coord newLocal = {x, y};
-    SkMatrixProvider matrixProvider{SkMatrix::I()};
-    return fShader.program(
-            b, device, newLocal, color, matrixProvider, localM, dst, uniforms, alloc);
+    return fShader.program(b, device, newLocal, color, *childMRec, dst, uniforms, alloc);
 }
 
 bool SkTransformShader::update(const SkMatrix& matrix) {

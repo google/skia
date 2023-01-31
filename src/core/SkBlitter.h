@@ -143,7 +143,7 @@ public:
         Return the correct blitter to use given the specified context.
      */
     static SkBlitter* Choose(const SkPixmap& dst,
-                             const SkMatrixProvider& matrixProvider,
+                             const SkMatrix& ctm,
                              const SkPaint& paint,
                              SkArenaAlloc*,
                              bool drawCoverage,
