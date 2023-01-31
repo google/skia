@@ -60,6 +60,10 @@ enum class BuilderOp {
     pop_loop_mask,
     push_return_mask,
     pop_return_mask,
+    push_src_rgba,
+    pop_src_rg,
+    pop_src_rgba,
+    pop_dst_rgba,
     set_current_stack,
     label,
     branch_if_no_active_lanes_on_stack_top_equal,
@@ -495,6 +499,22 @@ public:
     void pop_loop_mask() {
         SkASSERT(this->executionMaskWritesAreEnabled());
         fInstructions.push_back({BuilderOp::pop_loop_mask, {}});
+    }
+
+    void push_src_rgba() {
+        fInstructions.push_back({BuilderOp::push_src_rgba, {}});
+    }
+
+    void pop_src_rg() {
+        fInstructions.push_back({BuilderOp::pop_src_rg, {}});
+    }
+
+    void pop_src_rgba() {
+        fInstructions.push_back({BuilderOp::pop_src_rgba, {}});
+    }
+
+    void pop_dst_rgba() {
+        fInstructions.push_back({BuilderOp::pop_dst_rgba, {}});
     }
 
     void mask_off_loop_mask() {

@@ -159,6 +159,31 @@ R"(    1. store_condition_mask           $0 = CondMask
 )");
 }
 
+DEF_TEST(RasterPipelineBuilderPushPopSrcDst, r) {
+    // Create a very simple nonsense program.
+    SkSL::RP::Builder builder;
+
+    builder.push_src_rgba();
+    builder.push_src_rgba();
+    builder.push_src_rgba();
+    builder.pop_src_rgba();
+    builder.pop_dst_rgba();
+    builder.pop_src_rg();
+    builder.pop_src_rg();
+
+    std::unique_ptr<SkSL::RP::Program> program = builder.finish(/*numValueSlots=*/0,
+                                                                /*numUniformSlots=*/0);
+    check(r, *program,
+R"(    1. store_src                      $0..3 = src.rgba
+    2. store_src                      $4..7 = src.rgba
+    3. store_src                      $8..11 = src.rgba
+    4. load_src                       src.rgba = $8..11
+    5. load_dst                       dst.rgba = $4..7
+    6. load_src_rg                    src.rg = $2..3
+    7. load_src_rg                    src.rg = $0..1
+)");
+}
+
 DEF_TEST(RasterPipelineBuilderPushPopTempImmediates, r) {
     // Create a very simple nonsense program.
     SkSL::RP::Builder builder;

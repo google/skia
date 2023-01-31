@@ -556,6 +556,9 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::push_return_mask:
             return 1;
 
+        case BuilderOp::push_src_rgba:
+            return 4;
+
         case BuilderOp::push_slots:
         case BuilderOp::push_uniform:
         case BuilderOp::push_zeros:
@@ -567,6 +570,13 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::pop_loop_mask:
         case BuilderOp::pop_return_mask:
             return -1;
+
+        case BuilderOp::pop_src_rg:
+            return -2;
+
+        case BuilderOp::pop_src_rgba:
+        case BuilderOp::pop_dst_rgba:
+            return -4;
 
         case ALL_N_WAY_BINARY_OP_CASES:
         case ALL_MULTI_SLOT_BINARY_OP_CASES:
@@ -1039,6 +1049,26 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                 pipeline->push_back({RPOp::shuffle, ctx});
                 break;
             }
+            case BuilderOp::push_src_rgba: {
+                float* dst = tempStackPtr;
+                pipeline->push_back({RPOp::store_src, dst});
+                break;
+            }
+            case BuilderOp::pop_src_rg: {
+                float* dst = tempStackPtr - (2 * N);
+                pipeline->push_back({RPOp::load_src_rg, dst});
+                break;
+            }
+            case BuilderOp::pop_src_rgba: {
+                float* dst = tempStackPtr - (4 * N);
+                pipeline->push_back({RPOp::load_src, dst});
+                break;
+            }
+            case BuilderOp::pop_dst_rgba: {
+                float* dst = tempStackPtr - (4 * N);
+                pipeline->push_back({RPOp::load_dst, dst});
+                break;
+            }
             case BuilderOp::push_slots: {
                 float* dst = tempStackPtr;
                 this->appendCopySlotsUnmasked(pipeline, alloc, dst, SlotA(), inst.fImmA);
@@ -1475,9 +1505,9 @@ void Program::dump(SkWStream* out) {
                 opArg1 = PtrCtx(stage.ctx, 1);
                 break;
 
-            case RPOp::store_src_rg:
             case RPOp::zero_2_slots_unmasked:
             case RPOp::bitwise_not_2_ints:
+            case RPOp::load_src_rg:               case RPOp::store_src_rg:
             case RPOp::cast_to_float_from_2_ints: case RPOp::cast_to_float_from_2_uints:
             case RPOp::cast_to_int_from_2_floats: case RPOp::cast_to_uint_from_2_floats:
             case RPOp::abs_2_floats:              case RPOp::abs_2_ints:
@@ -1741,6 +1771,10 @@ void Program::dump(SkWStream* out) {
 
             case RPOp::store_dst:
                 opText = opArg1 + " = dst.rgba";
+                break;
+
+            case RPOp::load_src_rg:
+                opText = "src.rg = " + opArg1;
                 break;
 
             case RPOp::load_src:
