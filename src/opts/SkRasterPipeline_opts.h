@@ -3562,13 +3562,25 @@ SI void cmpne_fn(T* dst, T* src) {
     memcpy(dst, &result, sizeof(I32));
 }
 
+SI void atan2_fn(F* dst, F* src) {
+    *dst = atan2_(*dst, *src);
+}
+
+#define DECLARE_N_WAY_BINARY_FLOAT(name)                                  \
+    STAGE_TAIL(name##_n_floats, SkRasterPipeline_BinaryOpCtx* ctx) {      \
+        apply_adjacent_binary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src); \
+    }
+
 #define DECLARE_BINARY_FLOAT(name)                                                              \
     STAGE_TAIL(name##_float, F* dst) { apply_adjacent_binary<F, &name##_fn>(dst, dst + 1); }    \
     STAGE_TAIL(name##_2_floats, F* dst) { apply_adjacent_binary<F, &name##_fn>(dst, dst + 2); } \
     STAGE_TAIL(name##_3_floats, F* dst) { apply_adjacent_binary<F, &name##_fn>(dst, dst + 3); } \
     STAGE_TAIL(name##_4_floats, F* dst) { apply_adjacent_binary<F, &name##_fn>(dst, dst + 4); } \
-    STAGE_TAIL(name##_n_floats, SkRasterPipeline_BinaryOpCtx* ctx) {                            \
-        apply_adjacent_binary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src);                       \
+    DECLARE_N_WAY_BINARY_FLOAT(name)
+
+#define DECLARE_N_WAY_BINARY_INT(name)                                          \
+    STAGE_TAIL(name##_n_ints, SkRasterPipeline_BinaryOpCtx* ctx) {              \
+        apply_adjacent_binary<I32, &name##_fn>((I32*)ctx->dst, (I32*)ctx->src); \
     }
 
 #define DECLARE_BINARY_INT(name)                                                                  \
@@ -3576,8 +3588,11 @@ SI void cmpne_fn(T* dst, T* src) {
     STAGE_TAIL(name##_2_ints, I32* dst) { apply_adjacent_binary<I32, &name##_fn>(dst, dst + 2); } \
     STAGE_TAIL(name##_3_ints, I32* dst) { apply_adjacent_binary<I32, &name##_fn>(dst, dst + 3); } \
     STAGE_TAIL(name##_4_ints, I32* dst) { apply_adjacent_binary<I32, &name##_fn>(dst, dst + 4); } \
-    STAGE_TAIL(name##_n_ints, SkRasterPipeline_BinaryOpCtx* ctx) {                                \
-        apply_adjacent_binary<I32, &name##_fn>((I32*)ctx->dst, (I32*)ctx->src);                   \
+    DECLARE_N_WAY_BINARY_INT(name)
+
+#define DECLARE_N_WAY_BINARY_UINT(name)                                         \
+    STAGE_TAIL(name##_n_uints, SkRasterPipeline_BinaryOpCtx* ctx) {             \
+        apply_adjacent_binary<U32, &name##_fn>((U32*)ctx->dst, (U32*)ctx->src); \
     }
 
 #define DECLARE_BINARY_UINT(name)                                                                  \
@@ -3585,9 +3600,7 @@ SI void cmpne_fn(T* dst, T* src) {
     STAGE_TAIL(name##_2_uints, U32* dst) { apply_adjacent_binary<U32, &name##_fn>(dst, dst + 2); } \
     STAGE_TAIL(name##_3_uints, U32* dst) { apply_adjacent_binary<U32, &name##_fn>(dst, dst + 3); } \
     STAGE_TAIL(name##_4_uints, U32* dst) { apply_adjacent_binary<U32, &name##_fn>(dst, dst + 4); } \
-    STAGE_TAIL(name##_n_uints, SkRasterPipeline_BinaryOpCtx* ctx) {                                \
-        apply_adjacent_binary<U32, &name##_fn>((U32*)ctx->dst, (U32*)ctx->src);                    \
-    }
+    DECLARE_N_WAY_BINARY_UINT(name)
 
 // Many ops reuse the int stages when performing uint arithmetic, since they're equivalent on a
 // two's-complement machine. (Even multiplication is equivalent in the lower 32 bits.)
@@ -3605,9 +3618,16 @@ DECLARE_BINARY_FLOAT(cmple)  DECLARE_BINARY_INT(cmple)  DECLARE_BINARY_UINT(cmpl
 DECLARE_BINARY_FLOAT(cmpeq)  DECLARE_BINARY_INT(cmpeq)
 DECLARE_BINARY_FLOAT(cmpne)  DECLARE_BINARY_INT(cmpne)
 
+// Sufficiently complex ops only provide an N-way version, to avoid code bloat from the dedicated
+// 1-4 slot versions.
+DECLARE_N_WAY_BINARY_FLOAT(atan2)
+
 #undef DECLARE_BINARY_FLOAT
 #undef DECLARE_BINARY_INT
 #undef DECLARE_BINARY_UINT
+#undef DECLARE_N_WAY_BINARY_FLOAT
+#undef DECLARE_N_WAY_BINARY_INT
+#undef DECLARE_N_WAY_BINARY_UINT
 
 // Ternary operations work like binary ops (see immediately above) but take two source inputs.
 template <typename T, void (*ApplyFn)(T*, T*, T*)>

@@ -148,6 +148,14 @@ private:
     void appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, SkRasterPipelineOp baseStage,
                                 float* dst, int numSlots);
 
+    // Appends a two-input math operation to the pipeline. `src` must be _immediately_ after `dst`
+    // in memory. `baseStage` must refer to an unbounded "apply_to_n_slots" stage. A BinaryOpCtx
+    // will be used to pass pointers to the destination and source; the delta between the two
+    // pointers implicitly gives the number of slots.
+    void appendAdjacentNWayBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
+                                    SkRasterPipelineOp stage,
+                                    float* dst, const float* src, int numSlots);
+
     // Appends a multi-slot two-input math operation to the pipeline. `src` must be _immediately_
     // after `dst` in memory. `baseStage` must refer to an unbounded "apply_to_n_slots" stage, which
     // must be immediately followed by specializations for 1-4 slots. For instance, {`add_n_floats`,

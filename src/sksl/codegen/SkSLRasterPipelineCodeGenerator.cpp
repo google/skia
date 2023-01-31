@@ -1949,6 +1949,16 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
                               const Expression& arg0,
                               const Expression& arg1) {
     switch (intrinsic) {
+        case IntrinsicKind::k_atan_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            if (!this->pushExpression(arg1)) {
+                return unsupported();
+            }
+            fBuilder.binary_op(BuilderOp::atan2_n_floats, arg0.type().slotCount());
+            return true;
+
         case IntrinsicKind::k_cross_IntrinsicKind:
             // Implement cross as `arg0.yzx * arg1.zxy - arg0.zxy * arg1.yzx`. We use two stacks so
             // that each subexpression can be multiplied separately.

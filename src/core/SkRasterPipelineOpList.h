@@ -125,7 +125,7 @@
     M(floor_float)      M(floor_2_floats)      M(floor_3_floats)      M(floor_4_floats)       \
     M(ceil_float)       M(ceil_2_floats)       M(ceil_3_floats)       M(ceil_4_floats)        \
     M(sin_float)        M(cos_float)           M(tan_float)           M(atan_float)           \
-    M(sqrt_float)                                                                             \
+    M(atan2_n_floats)   M(sqrt_float)                                                         \
     M(copy_constant)    M(copy_2_constants)    M(copy_3_constants)    M(copy_4_constants)     \
     M(copy_slot_masked) M(copy_2_slots_masked) M(copy_3_slots_masked) M(copy_4_slots_masked)  \
     M(copy_slot_unmasked)    M(copy_2_slots_unmasked)                                         \

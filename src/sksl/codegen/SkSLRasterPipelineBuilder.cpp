@@ -53,6 +53,9 @@ using RPOp = SkRasterPipelineOp;
     case BuilderOp::ceil_float:              \
     case BuilderOp::floor_float              \
 
+#define ALL_N_WAY_BINARY_OP_CASES  \
+         BuilderOp::atan2_n_floats
+
 #define ALL_MULTI_SLOT_BINARY_OP_CASES  \
          BuilderOp::add_n_floats:       \
     case BuilderOp::add_n_ints:         \
@@ -101,6 +104,7 @@ void Builder::unary_op(BuilderOp op, int32_t slots) {
 
 void Builder::binary_op(BuilderOp op, int32_t slots) {
     switch (op) {
+        case ALL_N_WAY_BINARY_OP_CASES:
         case ALL_MULTI_SLOT_BINARY_OP_CASES:
             fInstructions.push_back({op, {}, slots});
             break;
@@ -564,6 +568,7 @@ static int stack_usage(const Instruction& inst) {
         case BuilderOp::pop_return_mask:
             return -1;
 
+        case ALL_N_WAY_BINARY_OP_CASES:
         case ALL_MULTI_SLOT_BINARY_OP_CASES:
         case BuilderOp::discard_stack:
         case BuilderOp::select:
@@ -721,6 +726,22 @@ void Program::appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, SkRasterPipeline
     pipeline->push_back({stage, dst});
 }
 
+void Program::appendAdjacentNWayBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
+                                         SkRasterPipelineOp stage,
+                                         float* dst, const float* src, int numSlots) {
+    // The source and destination must be directly next to one another.
+    SkASSERT(numSlots >= 0);
+    SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots) == src);
+
+    if (numSlots > 0) {
+        auto ctx = alloc->make<SkRasterPipeline_BinaryOpCtx>();
+        ctx->dst = dst;
+        ctx->src = src;
+        pipeline->push_back({stage, ctx});
+        return;
+    }
+}
+
 void Program::appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                               SkRasterPipelineOp baseStage,
                                               float* dst, const float* src, int numSlots) {
@@ -729,10 +750,7 @@ void Program::appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArena
     SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots) == src);
 
     if (numSlots > 4) {
-        auto ctx = alloc->make<SkRasterPipeline_BinaryOpCtx>();
-        ctx->dst = dst;
-        ctx->src = src;
-        pipeline->push_back({baseStage, ctx});
+        this->appendAdjacentNWayBinaryOp(pipeline, alloc, baseStage, dst, src, numSlots);
         return;
     }
     if (numSlots > 0) {
@@ -942,6 +960,13 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
             case ALL_MULTI_SLOT_UNARY_OP_CASES: {
                 float* dst = tempStackPtr - (inst.fImmA * N);
                 this->appendMultiSlotUnaryOp(pipeline, (RPOp)inst.fOp, dst, inst.fImmA);
+                break;
+            }
+            case ALL_N_WAY_BINARY_OP_CASES: {
+                float* src = tempStackPtr - (inst.fImmA * N);
+                float* dst = tempStackPtr - (inst.fImmA * 2 * N);
+                this->appendAdjacentNWayBinaryOp(pipeline, alloc, (RPOp)inst.fOp,
+                                                 dst, src, inst.fImmA);
                 break;
             }
             case ALL_MULTI_SLOT_BINARY_OP_CASES: {
@@ -1615,6 +1640,7 @@ void Program::dump(SkWStream* out) {
             case RPOp::cmple_n_floats: case RPOp::cmple_n_ints: case RPOp::cmple_n_uints:
             case RPOp::cmpeq_n_floats: case RPOp::cmpeq_n_ints:
             case RPOp::cmpne_n_floats: case RPOp::cmpne_n_ints:
+            case RPOp::atan2_n_floats:
                 std::tie(opArg1, opArg2) = AdjacentBinaryOpCtx(stage.ctx);
                 break;
 
@@ -1817,6 +1843,10 @@ void Program::dump(SkWStream* out) {
 
             case RPOp::atan_float:
                 opText = opArg1 + " = atan(" + opArg1 + ")";
+                break;
+
+            case RPOp::atan2_n_floats:
+                opText = opArg1 + " = atan2(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
             case RPOp::ceil_float:
