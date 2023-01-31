@@ -141,7 +141,7 @@ func benchCanvas(ctx context.Context, perf perfJSONFormat, benchmarkPath, canvas
 			"--canvaskit_wasm", filepath.Join(canvaskitBinPath, "canvaskit.wasm"),
 			"--assets", "canvas_perf_assets", // relative path
 			"--output", filepath.Join(benchmarkPath, "out", "perf.json"),
-			"--timeout", "240",
+			"--timeout=300",
 		}
 		if perf.Key[perfKeyCpuOrGPU] != "CPU" {
 			args = append(args, "--use_gpu")

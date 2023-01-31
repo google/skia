@@ -221,6 +221,8 @@ func benchSkottieFrames(ctx context.Context, perf perfJSONFormat, benchmarkPath,
 				if perf.Key[perfKeyWebGLVersion] == "1" {
 					args = append(args, "--query_params webgl1")
 				}
+			} else {
+				args = append(args, "--timeout=90")
 			}
 
 			_, err := exec.RunCwd(ctx, benchmarkPath, args...)
