@@ -8,8 +8,8 @@
 #include "src/gpu/ganesh/geometry/GrQuadUtils.h"
 
 #include "include/core/SkRect.h"
-#include "include/private/base/SkVx.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 

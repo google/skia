@@ -7,7 +7,7 @@
 #include "src/gpu/ganesh/effects/GrMatrixConvolutionEffect.h"
 
 #include "include/core/SkBitmap.h"
-#include "include/private/SkHalf.h"
+#include "src/base/SkHalf.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrProxyProvider.h"

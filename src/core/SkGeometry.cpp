@@ -14,9 +14,9 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
-#include "include/private/base/SkVx.h"
 #include "src/base/SkBezierCurves.h"
 #include "src/base/SkCubics.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkPointPriv.h"
 
 #include <algorithm>

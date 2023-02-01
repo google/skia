@@ -8,7 +8,7 @@
 #ifndef SkBitmapProcState_opts_DEFINED
 #define SkBitmapProcState_opts_DEFINED
 
-#include "include/private/base/SkVx.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkBitmapProcState.h"
 #include "src/core/SkMSAN.h"
 

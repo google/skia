@@ -11,8 +11,8 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkVx.h"
 #include "modules/skcms/skcms.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkOpts.h"
 

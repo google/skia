@@ -33,12 +33,14 @@ skia_filegroup(
         "SkBlockAllocator.h",
         "SkBuffer.h",
         "SkCubics.h",
+        "SkHalf.h",
         "SkMathPriv.h",
         "SkQuads.h",
         "SkSafeMath.h",
         "SkTSearch.h",
         "SkUTF.h",
         "SkUtils.h",
+        "SkVx.h",  # Causes IWYU to crash when compiling.
     ],
     visibility = ["//src:__pkg__"],
 )
@@ -56,6 +58,7 @@ skia_filegroup(
         "SkArenaAlloc.cpp",
         "SkBlockAllocator.cpp",
         "SkContainers.cpp",
+        "SkHalf.cpp",
         "SkMalloc.cpp",
         "SkMathPriv.cpp",
         "SkSafeMath.cpp",

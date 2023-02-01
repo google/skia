@@ -9,7 +9,7 @@
 #define skgpu_graphite_geom_Rect_DEFINED
 
 #include "include/core/SkRect.h"
-#include "include/private/base/SkVx.h"
+#include "src/base/SkVx.h"
 
 namespace skgpu::graphite {
 

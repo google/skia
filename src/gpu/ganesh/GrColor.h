@@ -15,7 +15,7 @@
 #include "include/core/SkColorPriv.h"
 #include "include/gpu/GrTypes.h"
 #include "include/private/SkColorData.h"
-#include "include/private/SkHalf.h"
+#include "src/base/SkHalf.h"
 #include "src/gpu/BufferWriter.h"
 
 /**

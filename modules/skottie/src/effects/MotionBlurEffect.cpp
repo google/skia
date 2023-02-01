@@ -10,9 +10,9 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPixmap.h"
 #include "include/private/base/SkMath.h"
-#include "include/private/base/SkVx.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "src/base/SkMathPriv.h"
+#include "src/base/SkVx.h"
 
 namespace skottie {
 namespace internal {

@@ -9,7 +9,6 @@
 
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkHalf.h"
 #include "include/private/SkSLModifiers.h"
 #include "include/private/SkSLString.h"
 #include "include/private/base/SkFloatingPoint.h"
@@ -20,6 +19,7 @@
 #include "include/sksl/DSLType.h"
 #include "include/sksl/SkSLErrorReporter.h"
 #include "include/sksl/SkSLOperator.h"
+#include "src/base/SkHalf.h"
 #include "src/core/SkMatrixInvert.h"
 #include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLBuiltinTypes.h"

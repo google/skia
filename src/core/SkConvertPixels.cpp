@@ -6,7 +6,7 @@
  */
 
 #include "include/private/SkColorData.h"
-#include "include/private/SkHalf.h"
+#include "src/base/SkHalf.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkConvertPixels.h"

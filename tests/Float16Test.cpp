@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkHalf.h"
-#include "include/private/base/SkVx.h"
 #include "include/utils/SkRandom.h"
+#include "src/base/SkHalf.h"
+#include "src/base/SkVx.h"
 #include "tests/Test.h"
 
 #include <cmath>

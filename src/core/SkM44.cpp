@@ -7,7 +7,7 @@
 
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
-#include "include/private/base/SkVx.h"
+#include "src/base/SkVx.h"
 
 #include "src/core/SkMatrixInvert.h"
 #include "src/core/SkMatrixPriv.h"

@@ -6,8 +6,8 @@
  */
 
 #include "include/core/SkPoint.h"
-#include "include/private/base/SkVx.h"
 #include "include/utils/SkRandom.h"
+#include "src/base/SkVx.h"
 #include "tests/Test.h"
 
 #include <numeric>

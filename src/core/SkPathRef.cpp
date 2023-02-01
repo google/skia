@@ -11,7 +11,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
 #include "include/private/base/SkOnce.h"
-#include "include/private/base/SkVx.h"
+#include "src/base/SkVx.h"
 
 #include <cstring>
 

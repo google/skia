@@ -9,11 +9,11 @@
 
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTPin.h"
-#include "include/private/base/SkVx.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "src/base/SkSafeMath.h"
+#include "src/base/SkVx.h"
 
 #include <algorithm>
 #include <cstring>

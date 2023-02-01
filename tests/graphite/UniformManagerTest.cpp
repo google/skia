@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkHalf.h"
+#include "src/base/SkHalf.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/Uniform.h"

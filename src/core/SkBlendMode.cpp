@@ -7,7 +7,7 @@
 
 #include "src/core/SkBlendModePriv.h"
 
-#include "include/private/base/SkVx.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkRasterPipeline.h"
 
 bool SkBlendMode_ShouldPreScaleCoverage(SkBlendMode mode, bool rgb_coverage) {

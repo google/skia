@@ -71,7 +71,6 @@ skia_filegroup(
         "SkSemaphore.h",
         "SkTDArray.h",
         "SkThreadID.h",
-        "SkVx.h",  # Causes IWYU to crash when compiling the .cpp of this
         ":shared_gpu_private_hdrs",
     ],
     visibility = [

@@ -18,6 +18,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkFDot6.h"
+#include "src/core/SkSwizzlePriv.h"
 #include "src/ports/SkFontHost_FreeType_common.h"
 
 #include <algorithm>

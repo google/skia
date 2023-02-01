@@ -8,8 +8,8 @@
 #include "src/gpu/graphite/UniformManager.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/private/SkHalf.h"
 #include "include/private/base/SkAlign.h"
+#include "src/base/SkHalf.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/PipelineData.h"
@@ -613,6 +613,11 @@ void UniformManager::write(skvx::float2 v) {
 }
 
 void UniformManager::write(skvx::float4 v) {
+    static constexpr SkSLType kType = SkSLType::kFloat4;
+    this->write(kType, &v);
+}
+
+void UniformManager::write(const SkV4 v) {
     static constexpr SkSLType kType = SkSLType::kFloat4;
     this->write(kType, &v);
 }

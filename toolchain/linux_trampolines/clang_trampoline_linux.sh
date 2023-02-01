@@ -69,9 +69,10 @@ supported_files_or_dirs=(
 )
 
 excluded_files=(
-# Causes IWYU 8.17 to assert
+# Causes IWYU 8.17 to assert because it includes SkVX.h
 # "iwyu.cc:1977: Assertion failed: TODO(csilvers): for objc and clang lang extensions"
   "tests/SkVxTest.cpp"
+  "src/base/SkHalf.cpp"
 )
 
 function opted_in_to_IWYU_checks() {

@@ -65,6 +65,10 @@ struct GrShaderCaps;
     #include <emmintrin.h>
 #endif
 
+#if defined(SK_ARM_HAS_NEON)
+    #include <arm_neon.h>
+#endif
+
 namespace {
 
 enum class MorphType {

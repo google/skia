@@ -20,7 +20,7 @@
 #include "include/private/SkFixed.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTo.h"
-#include "include/private/base/SkVx.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkMask.h"
 
 #include <algorithm>

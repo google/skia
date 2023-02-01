@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/SkHalf.h"
 #include "include/private/base/SkOnce.h"
+#include "src/base/SkHalf.h"
 #include "src/core/SkCpu.h"
 #include "src/core/SkOpts.h"
 

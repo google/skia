@@ -8,7 +8,7 @@
 #include "src/shaders/gradients/SkGradientShaderBase.h"
 
 #include "include/core/SkColorSpace.h"
-#include "include/private/base/SkVx.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkConvertPixels.h"

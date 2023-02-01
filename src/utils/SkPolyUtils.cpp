@@ -14,7 +14,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTemplates.h"
-#include "include/private/base/SkVx.h"
+#include "src/base/SkVx.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/base/SkTDPQueue.h"
 #include "src/base/SkTInternalLList.h"
