@@ -37,7 +37,7 @@ need to run gen_tasks.go to regenerate tasks.json:
 
 Or:
 
-	$ cd infra/bots; make train
+	$ make -C infra/bots train
 
 There is also a test mode which performs consistency checks and verifies that
 tasks.json is unchanged:
@@ -46,7 +46,7 @@ tasks.json is unchanged:
 
 Or:
 
-	$ cd infra/bots; make test
+	$ make -C infra/bots test
 
 
 Recipes

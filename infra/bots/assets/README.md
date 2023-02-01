@@ -20,6 +20,10 @@ Each asset has its own subdirectory with the following contents:
 Examples
 -------
 
+As with all uses of `sk asset`, the following will only work if you have a
+google.com account and have authenticated with
+`gcloud auth application-default login`.
+
 Add a new asset and upload an initial version.
 
 ```
@@ -38,5 +42,16 @@ Created infra/bots/assets/myasset/create.py; you will need to add implementation
 $ vi infra/bots/assets/myasset/create.py
 (implement the create_asset function)
 $ sk asset upload myasset
+$ git commit
+```
+
+Update an asset.
+
+```
+(update the create.py script)
+$ sk asset upload myasset
+(assuming infra/bots/assets/myasset/VERSION has been updated by the previous
+ command, regenerate tasks.json per infra/bots/README:)
+$ make -C infra/bots train
 $ git commit
 ```
