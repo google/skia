@@ -6,6 +6,8 @@
  */
 
 #include "include/private/base/SkFeatures.h"
+#include "include/private/base/SkLoadUserConfig.h"
+
 #if !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_ANDROID)
 
 #include <stdarg.h>
