@@ -45,8 +45,8 @@ http_archive(
     sha256 = "e52789d4e89c3e2dc0e3446a9684626a626b6bec3fde787d70bae37c6ebcc47f",
     strip_prefix = "bazel-toolchains-5.1.1",
     urls = [
-        "https://github.com/bazelbuild/bazel-toolchains/archive/refs/tags/v5.1.1.tar.gz",
         "https://storage.googleapis.com/skia-world-readable/bazel/e52789d4e89c3e2dc0e3446a9684626a626b6bec3fde787d70bae37c6ebcc47f.tar.gz",
+        "https://github.com/bazelbuild/bazel-toolchains/archive/refs/tags/v5.1.1.tar.gz",
     ],
 )
 
@@ -64,8 +64,8 @@ http_archive(
     sha256 = "5fa3c738d33acca3b97622a13a741129f67ef43f5fdfcec63b29374cc0574c29",
     strip_prefix = "rules_python-0.9.0",
     urls = [
-        "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.9.0.tar.gz",
         "https://storage.googleapis.com/skia-world-readable/bazel/5fa3c738d33acca3b97622a13a741129f67ef43f5fdfcec63b29374cc0574c29.tar.gz",
+        "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.9.0.tar.gz",
     ],
 )
 
@@ -145,11 +145,11 @@ gazelle_dependencies(
 # https://github.com/bazelbuild/rules_go#protobuf-and-grpc
 http_archive(
     name = "com_google_protobuf",
-    sha256 = "d0f5f605d0d656007ce6c8b5a82df3037e1d8fe8b121ed42e536f569dec16113",
+    sha256 = "6dd0f6b20094910fbb7f1f7908688df01af2d4f6c5c21331b9f636048674aebf",
     strip_prefix = "protobuf-3.14.0",
     urls = [
-        "https://mirror.bazel.build/github.com/protocolbuffers/protobuf/archive/v3.14.0.tar.gz",
-        "https://github.com/protocolbuffers/protobuf/archive/v3.14.0.tar.gz",
+        "https://storage.googleapis.com/skia-world-readable/bazel/6dd0f6b20094910fbb7f1f7908688df01af2d4f6c5c21331b9f636048674aebf.tar.gz",
+        "https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/protobuf-all-3.14.0.tar.gz",
     ],
 )
 
