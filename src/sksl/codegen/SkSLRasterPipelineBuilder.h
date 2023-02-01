@@ -138,10 +138,10 @@ public:
 #if !defined(SKSL_STANDALONE)
     void appendStages(SkRasterPipeline* pipeline,
                       SkArenaAlloc* alloc,
-                      SkSpan<const float> uniforms);
+                      SkSpan<const float> uniforms) const;
 #endif
 
-    void dump(SkWStream* s);
+    void dump(SkWStream* s) const;
 
 private:
     using StackDepthMap = SkTHashMap<int, int>; // <stack index, depth of stack>
@@ -150,7 +150,7 @@ private:
         SkSpan<float> values;
         SkSpan<float> stack;
     };
-    SlotData allocateSlotData(SkArenaAlloc* alloc);
+    SlotData allocateSlotData(SkArenaAlloc* alloc) const;
 
     struct Stage {
         ProgramOp op;
@@ -159,26 +159,26 @@ private:
     void makeStages(SkTArray<Stage>* pipeline,
                     SkArenaAlloc* alloc,
                     SkSpan<const float> uniforms,
-                    const SlotData& slots);
+                    const SlotData& slots) const;
     void optimize();
-    StackDepthMap tempStackMaxDepths();
+    StackDepthMap tempStackMaxDepths() const;
 
     // These methods are used to split up large multi-slot operations into multiple ops as needed.
     void appendCopy(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
                     ProgramOp baseStage,
-                    float* dst, int dstStride, const float* src, int srcStride, int numSlots);
+                    float* dst, int dstStride, const float* src, int srcStride, int numSlots) const;
     void appendCopySlotsUnmasked(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                 float* dst, const float* src, int numSlots);
+                                 float* dst, const float* src, int numSlots) const;
     void appendCopySlotsMasked(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                               float* dst, const float* src, int numSlots);
+                               float* dst, const float* src, int numSlots) const;
     void appendCopyConstants(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                             float* dst, const float* src, int numSlots);
+                             float* dst, const float* src, int numSlots) const;
 
     // Appends a single-slot single-input math operation to the pipeline. The op `stage` will
     // appended `numSlots` times, starting at position `dst` and advancing one slot for each
     // subsequent invocation.
     void appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp stage,
-                                 float* dst, int numSlots);
+                                 float* dst, int numSlots) const;
 
     // Appends a multi-slot single-input math operation to the pipeline. `baseStage` must refer to
     // an single-slot "apply_op" stage, which must be immediately followed by specializations for
@@ -186,14 +186,15 @@ private:
     // must be contiguous ops in the stage list, listed in that order; pass `zero_slot` and we
     // pick the appropriate op based on `numSlots`.
     void appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp baseStage,
-                                float* dst, int numSlots);
+                                float* dst, int numSlots) const;
 
     // Appends a two-input math operation to the pipeline. `src` must be _immediately_ after `dst`
     // in memory. `baseStage` must refer to an unbounded "apply_to_n_slots" stage. A BinaryOpCtx
     // will be used to pass pointers to the destination and source; the delta between the two
     // pointers implicitly gives the number of slots.
     void appendAdjacentNWayBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                    ProgramOp stage, float* dst, const float* src, int numSlots);
+                                    ProgramOp stage,
+                                    float* dst, const float* src, int numSlots) const;
 
     // Appends a multi-slot two-input math operation to the pipeline. `src` must be _immediately_
     // after `dst` in memory. `baseStage` must refer to an unbounded "apply_to_n_slots" stage, which
@@ -203,7 +204,7 @@ private:
     // `numSlots`.
     void appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                          ProgramOp baseStage,
-                                         float* dst, const float* src, int numSlots);
+                                         float* dst, const float* src, int numSlots) const;
 
     // Appends a multi-slot math operation having three inputs (dst, src0, src1) and one output
     // (dst) to the pipeline. The three inputs must be _immediately_ adjacent in memory. `baseStage`
@@ -211,10 +212,10 @@ private:
     // specializations for 1-4 slots.
     void appendAdjacentMultiSlotTernaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                           ProgramOp stage, float* dst,
-                                          const float* src0, const float* src1, int numSlots);
+                                          const float* src0, const float* src1, int numSlots) const;
 
     // Appends a stack_rewind op on platforms where it is needed (when SK_HAS_MUSTTAIL is not set).
-    void appendStackRewind(SkTArray<Stage>* pipeline);
+    void appendStackRewind(SkTArray<Stage>* pipeline) const;
 
     SkTArray<Instruction> fInstructions;
     int fNumValueSlots = 0;

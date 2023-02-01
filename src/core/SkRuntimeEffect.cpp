@@ -35,6 +35,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLProgramUsage.h"
+#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLVMCodeGenerator.h"
 #include "src/sksl/ir/SkSLFunctionDefinition.h"
 #include "src/sksl/ir/SkSLProgram.h"
@@ -64,9 +65,10 @@
 //#define SK_ENABLE_SKSL_IN_RASTER_PIPELINE
 
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-#include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
+#include "src/core/SkStreamPriv.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
-//#include "src/sksl/tracing/SkRPDebugTrace.h"
+#include "src/sksl/tracing/SkRPDebugTrace.h"
+constexpr bool kRPEnableLiveTrace = false;
 #endif
 
 #include <algorithm>
@@ -194,13 +196,38 @@ sk_sp<const SkData> SkRuntimeEffectPriv::TransformUniforms(
     return data ? data : originalData;
 }
 
+const SkSL::RP::Program* SkRuntimeEffect::getRPProgram() const {
+    // Lazily compile the program the first time `getRPProgram` is called.
+    // By using an SkOnce, we avoid thread hazards and behave in a conceptually const way, but we
+    // can avoid the cost of invoking the RP code generator until it's actually needed.
+    fCompileRPProgramOnce([&] {
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-static SkSpan<const float> uniforms_as_span(const SkData* inputs) {
+        SkSL::SkRPDebugTrace debugTrace;
+        const_cast<SkRuntimeEffect*>(this)->fRPProgram =
+                MakeRasterPipelineProgram(*fBaseProgram,
+                                          fMain,
+                                          kRPEnableLiveTrace ? &debugTrace : nullptr);
+        if (kRPEnableLiveTrace) {
+            if (fRPProgram) {
+                SkDebugf("-----\n\n");
+                SkDebugfStream stream;
+                fRPProgram->dump(&stream);
+                SkDebugf("\n-----\n\n");
+            } else {
+                SkDebugf("----- RP unsupported -----\n\n");
+            }
+        }
+#endif
+    });
+
+    return fRPProgram.get();
+}
+
+[[maybe_unused]] static SkSpan<const float> uniforms_as_span(const SkData* inputs) {
     SkASSERT(inputs);
     return SkSpan<const float>{static_cast<const float*>(inputs->data()),
                                inputs->size() / sizeof(float)};
 }
-#endif
 
 bool SkRuntimeEffectPriv::CanDraw(const SkCapabilities* caps, const SkSL::Program* program) {
     SkASSERT(caps && program);
@@ -1131,31 +1158,19 @@ public:
     }
 #endif
 
+    bool appendStages(const SkStageRec& rec, bool) const override {
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-    bool appendStages(const SkStageRec& rec, bool) const override {
-        // Lazily compile the program the first time we see it used in appendStages.
-        fCompileRPProgramOnce([this] {
-            const_cast<SkRuntimeColorFilter*>(this)->fRPProgram =
-                    MakeRasterPipelineProgram(*fEffect->fBaseProgram,
-                                              fEffect->fMain,
-                                              /*trace=*/nullptr);
-        });
+        if (const SkSL::RP::Program* program = fEffect->getRPProgram()) {
+            sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
+                                                                                fUniforms,
+                                                                                rec.fDstCS);
 
-        if (!fRPProgram) {
-            return false;
+            program->appendStages(rec.fPipeline, rec.fAlloc, uniforms_as_span(inputs.get()));
+            return true;
         }
-        sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
-                                                                            fUniforms,
-                                                                            rec.fDstCS);
-
-        fRPProgram->appendStages(rec.fPipeline, rec.fAlloc, uniforms_as_span(inputs.get()));
-        return true;
-    }
-#else
-    bool appendStages(const SkStageRec& rec, bool) const override {
+#endif
         return false;
     }
-#endif
 
     skvm::Color onProgram(skvm::Builder* p, skvm::Color c,
                           const SkColorInfo& colorInfo,
@@ -1233,11 +1248,6 @@ private:
     sk_sp<SkRuntimeEffect> fEffect;
     sk_sp<const SkData> fUniforms;
     std::vector<SkRuntimeEffect::ChildPtr> fChildren;
-
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-    std::unique_ptr<SkSL::RP::Program> fRPProgram;
-    mutable SkOnce fCompileRPProgramOnce;
-#endif
 };
 
 sk_sp<SkFlattenable> SkRuntimeColorFilter::CreateProc(SkReadBuffer& buffer) {
@@ -1340,37 +1350,24 @@ public:
     }
 #endif
 
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
     bool appendStages(const SkStageRec& rec, const MatrixRec& mRec) const override {
-        // Lazily compile the program the first time we see it used in appendStages.
-        fCompileRPProgramOnce([this] {
-            const_cast<SkRTShader*>(this)->fRPProgram =
-                    MakeRasterPipelineProgram(*fEffect->fBaseProgram,
-                                              fEffect->fMain,
-                                              /*trace=*/nullptr);
-        });
+#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+        if (const SkSL::RP::Program* program = fEffect->getRPProgram()) {
+            std::optional<MatrixRec> newMRec = mRec.apply(rec);
+            if (!newMRec.has_value()) {
+                return false;
+            }
 
-        if (!fRPProgram) {
-            return false;
+            sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
+                                                                                fUniforms,
+                                                                                rec.fDstCS);
+
+            program->appendStages(rec.fPipeline, rec.fAlloc, uniforms_as_span(inputs.get()));
+            return true;
         }
-
-        std::optional<MatrixRec> newMRec = mRec.apply(rec);
-        if (!newMRec.has_value()) {
-            return false;
-        }
-
-        sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
-                                                                            fUniforms,
-                                                                            rec.fDstCS);
-
-        fRPProgram->appendStages(rec.fPipeline, rec.fAlloc, uniforms_as_span(inputs.get()));
-        return true;
-    }
-#else
-    bool appendStages(const SkStageRec& rec, const MatrixRec&) const override {
+#endif
         return false;
     }
-#endif
 
     skvm::Color program(skvm::Builder* p,
                         skvm::Coord device,
@@ -1431,11 +1428,6 @@ private:
     sk_sp<SkSL::SkVMDebugTrace> fDebugTrace;
     sk_sp<const SkData> fUniforms;
     std::vector<SkRuntimeEffect::ChildPtr> fChildren;
-
-#ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
-    std::unique_ptr<SkSL::RP::Program> fRPProgram;
-    mutable SkOnce fCompileRPProgramOnce;
-#endif
 };
 
 sk_sp<SkFlattenable> SkRTShader::CreateProc(SkReadBuffer& buffer) {

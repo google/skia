@@ -607,7 +607,7 @@ static int stack_usage(const Instruction& inst) {
     }
 }
 
-Program::StackDepthMap Program::tempStackMaxDepths() {
+Program::StackDepthMap Program::tempStackMaxDepths() const {
     StackDepthMap largest;
     StackDepthMap current;
 
@@ -655,7 +655,7 @@ void Program::appendCopy(SkTArray<Stage>* pipeline,
                          ProgramOp baseStage,
                          float* dst, int dstStride,
                          const float* src, int srcStride,
-                         int numSlots) {
+                         int numSlots) const {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {
         this->appendCopy(pipeline, alloc, baseStage, dst, dstStride, src, srcStride,/*numSlots=*/4);
@@ -678,7 +678,7 @@ void Program::appendCopySlotsUnmasked(SkTArray<Stage>* pipeline,
                                       SkArenaAlloc* alloc,
                                       float* dst,
                                       const float* src,
-                                      int numSlots) {
+                                      int numSlots) const {
     this->appendCopy(pipeline, alloc,
                      ProgramOp::copy_slot_unmasked,
                      dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
@@ -690,7 +690,7 @@ void Program::appendCopySlotsMasked(SkTArray<Stage>* pipeline,
                                     SkArenaAlloc* alloc,
                                     float* dst,
                                     const float* src,
-                                    int numSlots) {
+                                    int numSlots) const {
     this->appendCopy(pipeline, alloc,
                      ProgramOp::copy_slot_masked,
                      dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
@@ -702,7 +702,7 @@ void Program::appendCopyConstants(SkTArray<Stage>* pipeline,
                                   SkArenaAlloc* alloc,
                                   float* dst,
                                   const float* src,
-                                  int numSlots) {
+                                  int numSlots) const {
     this->appendCopy(pipeline, alloc,
                      ProgramOp::copy_constant,
                      dst, /*dstStride=*/SkOpts::raster_pipeline_highp_stride,
@@ -711,7 +711,7 @@ void Program::appendCopyConstants(SkTArray<Stage>* pipeline,
 }
 
 void Program::appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp stage,
-                                      float* dst, int numSlots) {
+                                      float* dst, int numSlots) const {
     SkASSERT(numSlots >= 0);
     while (numSlots--) {
         pipeline->push_back({stage, dst});
@@ -720,7 +720,7 @@ void Program::appendSingleSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp stage
 }
 
 void Program::appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp baseStage,
-                                     float* dst, int numSlots) {
+                                     float* dst, int numSlots) const {
     SkASSERT(numSlots >= 0);
     while (numSlots > 4) {
         this->appendMultiSlotUnaryOp(pipeline, baseStage, dst, /*numSlots=*/4);
@@ -735,7 +735,7 @@ void Program::appendMultiSlotUnaryOp(SkTArray<Stage>* pipeline, ProgramOp baseSt
 
 void Program::appendAdjacentNWayBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                          ProgramOp stage,
-                                         float* dst, const float* src, int numSlots) {
+                                         float* dst, const float* src, int numSlots) const {
     // The source and destination must be directly next to one another.
     SkASSERT(numSlots >= 0);
     SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots) == src);
@@ -751,7 +751,7 @@ void Program::appendAdjacentNWayBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc
 
 void Program::appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
                                               ProgramOp baseStage,
-                                              float* dst, const float* src, int numSlots) {
+                                              float* dst, const float* src, int numSlots) const {
     // The source and destination must be directly next to one another.
     SkASSERT(numSlots >= 0);
     SkASSERT((dst + SkOpts::raster_pipeline_highp_stride * numSlots) == src);
@@ -767,8 +767,8 @@ void Program::appendAdjacentMultiSlotBinaryOp(SkTArray<Stage>* pipeline, SkArena
 }
 
 void Program::appendAdjacentMultiSlotTernaryOp(SkTArray<Stage>* pipeline, SkArenaAlloc* alloc,
-                                               ProgramOp baseStage, float* dst,
-                                               const float* src0, const float* src1, int numSlots) {
+                                               ProgramOp baseStage, float* dst, const float* src0,
+                                               const float* src1, int numSlots) const {
     // The float pointers must all be immediately adjacent to each other.
     SkASSERT(numSlots >= 0);
     SkASSERT((dst  + SkOpts::raster_pipeline_highp_stride * numSlots) == src0);
@@ -788,7 +788,7 @@ void Program::appendAdjacentMultiSlotTernaryOp(SkTArray<Stage>* pipeline, SkAren
     }
 }
 
-void Program::appendStackRewind(SkTArray<Stage>* pipeline) {
+void Program::appendStackRewind(SkTArray<Stage>* pipeline) const {
 #if defined(SKSL_STANDALONE) || !SK_HAS_MUSTTAIL
     pipeline->push_back({ProgramOp::stack_rewind, nullptr});
 #endif
@@ -798,7 +798,7 @@ static void* context_bit_pun(intptr_t val) {
     return sk_bit_cast<void*>(val);
 }
 
-Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) {
+Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) const {
     // Allocate a contiguous slab of slot data for values and stack entries.
     const int N = SkOpts::raster_pipeline_highp_stride;
     const int vectorWidth = N * sizeof(float);
@@ -817,7 +817,7 @@ Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) {
 
 void Program::appendStages(SkRasterPipeline* pipeline,
                            SkArenaAlloc* alloc,
-                           SkSpan<const float> uniforms) {
+                           SkSpan<const float> uniforms) const {
     // Convert our Instruction list to an array of ProgramOps.
     SkTArray<Stage> stages;
     this->makeStages(&stages, alloc, uniforms, this->allocateSlotData(alloc));
@@ -891,7 +891,7 @@ void Program::appendStages(SkRasterPipeline* pipeline,
 void Program::makeStages(SkTArray<Stage>* pipeline,
                          SkArenaAlloc* alloc,
                          SkSpan<const float> uniforms,
-                         const SlotData& slots) {
+                         const SlotData& slots) const {
     SkASSERT(fNumUniformSlots == SkToInt(uniforms.size()));
 
     const int N = SkOpts::raster_pipeline_highp_stride;
@@ -1247,7 +1247,7 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
     }
 }
 
-void Program::dump(SkWStream* out) {
+void Program::dump(SkWStream* out) const {
     // Allocate memory for the slot and uniform data, even though the program won't ever be
     // executed. The program requires pointer ranges for managing its data, and ASAN will report
     // errors if those pointers are pointing at unallocated memory.
