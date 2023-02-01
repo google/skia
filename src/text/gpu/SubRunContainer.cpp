@@ -48,6 +48,8 @@ using AtlasTextOp = skgpu::ganesh::AtlasTextOp;
 #include <cmath>
 #include <optional>
 
+using namespace skglyph;
+
 // -- GPU Text -------------------------------------------------------------------------------------
 // Naming conventions
 //  * drawMatrix - the CTM from the canvas.
@@ -2424,6 +2426,46 @@ SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
     return boundingRect.rect();
 }
 
+void prepare_for_path_drawing(StrikeForGPU* strike,
+                              SkDrawableGlyphBuffer* accepted,
+                              SkSourceGlyphBuffer* rejected) {
+    StrikeMutationMonitor m{strike};
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            switch (strike->pathAction(packedID.packedID().glyphID())) {
+                case GlyphAction::kAccept:
+                    accepted->accept(packedID, pos);
+                    break;
+                case GlyphAction::kReject:
+                    rejected->reject(i);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
+void prepare_for_drawable_drawing(StrikeForGPU* strike,
+                                  SkDrawableGlyphBuffer* accepted,
+                                  SkSourceGlyphBuffer* rejected) {
+    StrikeMutationMonitor m{strike};
+    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        if (SkScalarsAreFinite(pos.x(), pos.y())) {
+            switch (strike->drawableAction(packedID.packedID().glyphID())) {
+                case GlyphAction::kAccept:
+                    accepted->accept(packedID, pos);
+                    break;
+                case GlyphAction::kReject:
+                    rejected->reject(i);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
+
 SubRunContainerOwner SubRunContainer::MakeInAlloc(
         const GlyphRunList& glyphRunList,
         const SkMatrix& positionMatrix,
@@ -2609,7 +2651,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 if constexpr (kTrace) {
                     msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
-                strike->prepareForDrawableDrawing(accepted, rejected);
+                prepare_for_drawable_drawing(strike.get(), accepted, rejected);
                 rejected->flipRejectsToSource();
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {
@@ -2640,7 +2682,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                     msg.appendf("    glyphs:(x,y):\n      %s\n", accepted->dumpInput().c_str());
                 }
 
-                strike->prepareForPathDrawing(accepted, rejected);
+                prepare_for_path_drawing(strike.get(), accepted, rejected);
                 rejected->flipRejectsToSource();
 
                 if (creationBehavior == kAddSubRuns && !accepted->empty()) {

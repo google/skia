@@ -171,8 +171,8 @@ public:
     void lock() override {}
     void unlock() override {}
     SkGlyphDigest digest(SkPackedGlyphID) override;
-    GlyphAction pathAction(SkGlyphID);
-    GlyphAction drawableAction(SkGlyphID);
+    GlyphAction pathAction(SkGlyphID) override;
+    GlyphAction drawableAction(SkGlyphID) override;
 
 
     void writePendingGlyphs(Serializer* serializer);
@@ -187,12 +187,6 @@ public:
     const SkGlyphPositionRoundingSpec& roundingSpec() const override {
         return fRoundingSpec;
     }
-
-    void prepareForPathDrawing(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override;
-
-    void prepareForDrawableDrawing(
-            SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) override;
 
     sktext::SkStrikePromise strikePromise() override;
 
@@ -409,24 +403,6 @@ GlyphAction RemoteStrike::pathAction(SkGlyphID glyphID) {
     return *decision;
 }
 
-void RemoteStrike::prepareForPathDrawing(
-        SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
-    accepted->forEachInput(
-            [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
-                SkGlyphID glyphID = packedID.glyphID();
-                switch (this->pathAction(glyphID)) {
-                    case GlyphAction::kAccept:
-                        accepted->accept(SkPackedGlyphID{glyphID}, position);
-                        break;
-                    case GlyphAction::kReject:
-                        rejected->reject(i);
-                        break;
-                    default:
-                        break;
-                }
-            });
-}
-
 GlyphAction RemoteStrike::drawableAction(SkGlyphID glyphID) {
     GlyphAction* decision = fSentDrawables.find(glyphID);
     if (decision == nullptr) {
@@ -449,24 +425,6 @@ GlyphAction RemoteStrike::drawableAction(SkGlyphID glyphID) {
         decision = fSentDrawables.set(glyphID, glyphDecision);
     }
     return *decision;
-}
-
-void RemoteStrike::prepareForDrawableDrawing(
-        SkDrawableGlyphBuffer* accepted, SkSourceGlyphBuffer* rejected) {
-    accepted->forEachInput(
-            [&](size_t i, SkPackedGlyphID packedID, SkPoint position) {
-                SkGlyphID glyphID = packedID.glyphID();
-                switch (this->drawableAction(glyphID)) {
-                    case GlyphAction::kAccept:
-                        accepted->accept(SkPackedGlyphID{glyphID}, position);
-                        break;
-                    case GlyphAction::kReject:
-                        rejected->reject(i);
-                        break;
-                    default:
-                        break;
-                }
-            });
 }
 
 sktext::SkStrikePromise RemoteStrike::strikePromise() {

@@ -189,44 +189,6 @@ void SkStrike::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted) {
     }
 }
 
-void SkStrike::prepareForPathDrawing(SkDrawableGlyphBuffer* accepted,
-                                     SkSourceGlyphBuffer* rejected) {
-    Monitor m{this};
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            switch (this->pathAction(packedID.packedID().glyphID())) {
-                case GlyphAction::kAccept:
-                    accepted->accept(packedID, pos);
-                    break;
-                case GlyphAction::kReject:
-                    rejected->reject(i);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-}
-
-void SkStrike::prepareForDrawableDrawing(SkDrawableGlyphBuffer* accepted,
-                                         SkSourceGlyphBuffer* rejected) {
-    Monitor m{this};
-    for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            switch (this->drawableAction(packedID.packedID().glyphID())) {
-                case GlyphAction::kAccept:
-                    accepted->accept(packedID, pos);
-                    break;
-                case GlyphAction::kReject:
-                    rejected->reject(i);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-}
-
 void SkStrike::glyphIDsToPaths(SkSpan<sktext::IDOrPath> idsOrPaths) {
     Monitor m{this};
     for (sktext::IDOrPath& idOrPath : idsOrPaths) {
