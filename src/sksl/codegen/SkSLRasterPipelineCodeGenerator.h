@@ -19,10 +19,10 @@ class SkRPDebugTrace;
 namespace RP { class Program; }
 
 // Convert 'function' to Raster Pipeline stages, for use by blends, shaders, and color filters.
-// The arguments to the function function are passed in registers:
-//   -- coords in rg for shaders
-//   -- color in rgba for color filters
-//   -- src, dst in rgba, drgba for blenders
+// The arguments to the function are passed in registers:
+//   -- coordinates in src.rg for shaders
+//   -- color in src.rgba for color filters
+//   -- src/dst in src.rgba and dst.rgba for blenders
 std::unique_ptr<RP::Program> MakeRasterPipelineProgram(const Program& program,
                                                        const FunctionDefinition& function,
                                                        SkRPDebugTrace* debugTrace = nullptr);

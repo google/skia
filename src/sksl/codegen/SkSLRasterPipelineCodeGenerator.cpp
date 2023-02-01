@@ -27,6 +27,7 @@
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLBreakStatement.h"
+#include "src/sksl/ir/SkSLChildCall.h"
 #include "src/sksl/ir/SkSLConstructor.h"
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 #include "src/sksl/ir/SkSLConstructorDiagonalMatrix.h"
@@ -230,6 +231,7 @@ public:
     [[nodiscard]] bool pushBinaryExpression(const Expression& left,
                                             Operator op,
                                             const Expression& right);
+    [[nodiscard]] bool pushChildCall(const ChildCall& c);
     [[nodiscard]] bool pushConstructorCast(const AnyConstructor& c);
     [[nodiscard]] bool pushConstructorCompound(const ConstructorCompound& c);
     [[nodiscard]] bool pushConstructorDiagonalMatrix(const ConstructorDiagonalMatrix& c);
@@ -335,6 +337,7 @@ private:
     const SkSL::Program& fProgram;
     Builder fBuilder;
     SkRPDebugTrace* fDebugTrace = nullptr;
+    SkTHashMap<const Variable*, int> fChildEffectMap;
 
     SlotManager fProgramSlots;
     SlotManager fUniformSlots;
@@ -773,8 +776,11 @@ bool Generator::writeGlobals() {
             const Variable* var = decl.var();
 
             if (var->type().isEffectChild()) {
-                // TODO(skia:13676): handle child effects
-                return unsupported();
+                // Associate each child effect variable with its numeric index.
+                SkASSERT(!fChildEffectMap.find(var));
+                int childEffectIndex = fChildEffectMap.count();
+                fChildEffectMap[var] = childEffectIndex;
+                continue;
             }
 
             // Opaque types include child processors and GL objects (samplers, textures, etc).
@@ -1158,6 +1164,9 @@ bool Generator::pushExpression(const Expression& e, bool usesResult) {
     switch (e.kind()) {
         case Expression::Kind::kBinary:
             return this->pushBinaryExpression(e.as<BinaryExpression>());
+
+        case Expression::Kind::kChildCall:
+            return this->pushChildCall(e.as<ChildCall>());
 
         case Expression::Kind::kConstructorCompound:
             return this->pushConstructorCompound(e.as<ConstructorCompound>());
@@ -1554,6 +1563,66 @@ bool Generator::pushConstructorCompound(const ConstructorCompound& c) {
             return unsupported();
         }
     }
+    return true;
+}
+
+bool Generator::pushChildCall(const ChildCall& c) {
+    int* childIdx = fChildEffectMap.find(&c.child());
+    SkASSERT(childIdx != nullptr);
+    SkASSERT(c.arguments().size() >= 1);
+
+    // All child calls have at least one argument.
+    const Expression* arg = c.arguments()[0].get();
+    if (!this->pushExpression(*arg)) {
+        return unsupported();
+    }
+
+    // Copy arguments from the stack into src/dst as required by this particular child-call.
+    switch (c.child().type().typeKind()) {
+        case Type::TypeKind::kShader: {
+            // The argument must be a float2.
+            SkASSERT(c.arguments().size() == 1);
+            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fFloat2));
+            fBuilder.pop_src_rg();
+            fBuilder.invoke_shader(*childIdx);
+            break;
+        }
+        case Type::TypeKind::kColorFilter: {
+            // The argument must be a half4/float4.
+            SkASSERT(c.arguments().size() == 1);
+            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
+                     arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
+            fBuilder.pop_src_rgba();
+            fBuilder.invoke_color_filter(*childIdx);
+            break;
+        }
+        case Type::TypeKind::kBlender: {
+            // The first argument must be a half4/float4.
+            SkASSERT(c.arguments().size() == 2);
+            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
+                     arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
+
+            // The second argument must also be a half4/float4.
+            arg = c.arguments()[1].get();
+            SkASSERT(arg->type().matches(*fProgram.fContext->fTypes.fHalf4) ||
+                     arg->type().matches(*fProgram.fContext->fTypes.fFloat4));
+
+            if (!this->pushExpression(*arg)) {
+                return unsupported();
+            }
+
+            fBuilder.pop_dst_rgba();
+            fBuilder.pop_src_rgba();
+            fBuilder.invoke_blender(*childIdx);
+            break;
+        }
+        default: {
+            SkDEBUGFAILF("cannot sample from type '%s'", c.child().type().description().c_str());
+        }
+    }
+
+    // The child call has returned a new color via rgba; it's our result, so push it onto the stack.
+    fBuilder.push_src_rgba();
     return true;
 }
 

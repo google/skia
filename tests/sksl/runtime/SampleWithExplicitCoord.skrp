@@ -1,4 +1,9 @@
-### Compilation failed:
-
-error: code is not supported
-1 error
+    1. store_src_rg                   p = src.rg
+    2. init_lane_masks                CondMask = LoopMask = RetMask = true
+    3. copy_2_slots_unmasked          $0..1 = p
+    4. swizzle_2                      $0..1 = ($0..1).yx
+    5. load_src_rg                    src.rg = $0..1
+    6. invoke_shader                  invoke_shader 0x00000000
+    7. store_src                      $0..3 = src.rgba
+    8. copy_4_slots_unmasked          [main].result = $0..3
+    9. load_src                       src.rgba = [main].result
