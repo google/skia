@@ -1699,75 +1699,31 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
                                           const SkMatrix* localMatrix,
                                           SkImageInfo resultInfo,
                                           bool mipmapped) const {
+    if (resultInfo.alphaType() == kUnpremul_SkAlphaType ||
+        resultInfo.alphaType() == kUnknown_SkAlphaType) {
+        return nullptr;
+    }
+    sk_sp<SkSurface> surface;
     if (rContext) {
 #if SK_SUPPORT_GPU
         if (!rContext->priv().caps()->mipmapSupport()) {
             mipmapped = false;
         }
-        auto fillContext = rContext->priv().makeSFC(resultInfo,
-                                                    "RuntimeEffect_MakeImage",
-                                                    SkBackingFit::kExact,
-                                                    /*sample count*/ 1,
-                                                    GrMipmapped(mipmapped));
-        if (!fillContext) {
-            return nullptr;
-        }
-        uniforms = SkRuntimeEffectPriv::TransformUniforms(this->uniforms(),
-                                                          std::move(uniforms),
-                                                          resultInfo.colorSpace());
-        SkASSERT(uniforms);
-
-        SkMatrixProvider matrixProvider(SkMatrix::I());
-        GrColorInfo colorInfo(resultInfo.colorInfo());
-        SkSurfaceProps props{}; // the images this function creates always use the defaults
-        GrFPArgs args(rContext, matrixProvider, &colorInfo, props);
-        SkSTArray<8, std::unique_ptr<GrFragmentProcessor>> childFPs;
-        for (size_t i = 0; i < children.size(); ++i) {
-            // TODO: add support for other types of child effects
-            if (SkShader* shader = children[i].shader()) {
-                childFPs.push_back(as_SB(shader)->asFragmentProcessor(args));
-            } else {
-                return nullptr;
-            }
-        }
-        auto fp = GrSkSLFP::MakeWithData(sk_ref_sp(this),
-                                         "runtime_image",
-                                         colorInfo.refColorSpace(),
-                                         /*inputFP=*/nullptr,
-                                         /*destColorFP=*/nullptr,
-                                         std::move(uniforms),
-                                         SkSpan(childFPs));
-
-        if (localMatrix) {
-            SkMatrix invLM;
-            if (!localMatrix->invert(&invLM)) {
-                return nullptr;
-            }
-            fillContext->fillWithFP(invLM, std::move(fp));
-        } else {
-            fillContext->fillWithFP(std::move(fp));
-        }
-        return sk_sp<SkImage>(new SkImage_Gpu(sk_ref_sp(rContext),
-                                              kNeedNewImageUniqueID,
-                                              fillContext->readSurfaceView(),
-                                              resultInfo.colorInfo()));
-#else
-        return nullptr;
+        surface = SkSurface::MakeRenderTarget(rContext,
+                                              skgpu::Budgeted::kYes,
+                                              resultInfo,
+                                              1,
+                                              kTopLeft_GrSurfaceOrigin,
+                                              nullptr,
+                                              mipmapped);
 #endif
+    } else {
+        surface = SkSurface::MakeRaster(resultInfo);
     }
-    if (resultInfo.alphaType() == kUnpremul_SkAlphaType) {
-        // We don't have a good way of supporting this right now. In this case the runtime effect
-        // will produce a unpremul value. The shader generated from it is assumed to produce
-        // premul and RGB get pinned to A. Moreover, after the blend in premul the new dst is
-        // unpremul'ed, producing a double unpremul result.
+    if (!surface) {
         return nullptr;
     }
-    auto surf = SkSurface::MakeRaster(resultInfo);
-    if (!surf) {
-        return nullptr;
-    }
-    SkCanvas* canvas = surf->getCanvas();
-    SkTLazy<SkCanvas> tempCanvas;
+    SkCanvas* canvas = surface->getCanvas();
     auto shader = this->makeShader(std::move(uniforms), children, localMatrix);
     if (!shader) {
         return nullptr;
@@ -1776,8 +1732,7 @@ sk_sp<SkImage> SkRuntimeEffect::makeImage(GrRecordingContext* rContext,
     paint.setShader(std::move(shader));
     paint.setBlendMode(SkBlendMode::kSrc);
     canvas->drawPaint(paint);
-    // TODO: Specify snapshot should have mip levels if mipmapped is true.
-    return surf->makeImageSnapshot();
+    return surface->makeImageSnapshot();
 }
 
 sk_sp<SkColorFilter> SkRuntimeEffect::makeColorFilter(sk_sp<const SkData> uniforms,
