@@ -13,6 +13,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 
+#include "src/base/SkVx.h"
 #include "src/gpu/graphite/geom/Rect.h"
 
 #include <array>

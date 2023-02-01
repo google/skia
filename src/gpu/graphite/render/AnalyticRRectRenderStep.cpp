@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/render/AnalyticRRectRenderStep.h"
 
+#include "src/base/SkVx.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawWriter.h"

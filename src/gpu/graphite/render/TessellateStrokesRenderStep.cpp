@@ -7,7 +7,9 @@
 
 #include "src/gpu/graphite/render/TessellateStrokesRenderStep.h"
 
+#include "include/core/SkM44.h"
 #include "include/private/SkSLString.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkGeometry.h"
 
 #include "src/gpu/graphite/DrawParams.h"
@@ -244,8 +246,8 @@ void TessellateStrokesRenderStep::writeUniformsAndTextures(const DrawParams& par
 
     // affineMatrix = float4 (2x2 of transform), translate = float2, maxScale = float
     // Column-major 2x2 of the transform.
-    skvx::float4 upper = {params.transform().matrix().rc(0, 0), params.transform().matrix().rc(1, 0),
-                          params.transform().matrix().rc(0, 1), params.transform().matrix().rc(1, 1)};
+    SkV4 upper = {params.transform().matrix().rc(0, 0), params.transform().matrix().rc(1, 0),
+                  params.transform().matrix().rc(0, 1), params.transform().matrix().rc(1, 1)};
     gatherer->write(upper);
 
     gatherer->write(SkPoint{params.transform().matrix().rc(0, 3),

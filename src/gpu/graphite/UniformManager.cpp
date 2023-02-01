@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/UniformManager.h"
 
+#include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/private/base/SkAlign.h"
 #include "src/base/SkHalf.h"
@@ -592,7 +593,7 @@ void UniformManager::write(const SkRect& rect) {
     this->write(kType, &rect);
 }
 
-void UniformManager::write(SkPoint point) {
+void UniformManager::write(const SkPoint& point) {
     static constexpr SkSLType kType = SkSLType::kFloat2;
     this->write(kType, &point);
 }
@@ -607,17 +608,12 @@ void UniformManager::write(int i) {
     this->write(kType, &i);
 }
 
-void UniformManager::write(skvx::float2 v) {
+void UniformManager::write(const SkV2& v) {
     static constexpr SkSLType kType = SkSLType::kFloat2;
     this->write(kType, &v);
 }
 
-void UniformManager::write(skvx::float4 v) {
-    static constexpr SkSLType kType = SkSLType::kFloat4;
-    this->write(kType, &v);
-}
-
-void UniformManager::write(const SkV4 v) {
+void UniformManager::write(const SkV4& v) {
     static constexpr SkSLType kType = SkSLType::kFloat4;
     this->write(kType, &v);
 }

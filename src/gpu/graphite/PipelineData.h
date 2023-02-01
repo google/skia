@@ -16,7 +16,6 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/SkColorData.h"
-#include "src/base/SkVx.h"
 #include "src/core/SkEnumBitMask.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -113,12 +112,12 @@ public:
     void write(const SkM44& mat) { fUniformManager.write(mat); }
     void write(const SkPMColor4f& premulColor) { fUniformManager.write(premulColor); }
     void write(const SkRect& rect) { fUniformManager.write(rect); }
-    void write(SkPoint point) { fUniformManager.write(point); }
+    void write(const SkV2& v) { fUniformManager.write(v); }
+    void write(const SkV4& v) { fUniformManager.write(v); }
+    void write(const SkPoint& point) { fUniformManager.write(point); }
     void write(float f) { fUniformManager.write(f); }
     void write(int i) { fUniformManager.write(i); }
-    void write(skvx::float2 v) { fUniformManager.write(v); }
-    void write(skvx::float4 v) { fUniformManager.write(v); }
-    void write(const SkV4 v) { fUniformManager.write(v); }
+
 
     void write(SkSLType t, const void* data) { fUniformManager.write(t, data); }
     void write(const Uniform& u, const uint8_t* data) { fUniformManager.write(u, data); }

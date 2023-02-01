@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/render/BitmapTextRenderStep.h"
 
+#include "include/core/SkM44.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/SkSLString.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -130,8 +131,8 @@ void BitmapTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
 
     // write uniforms
     gatherer->write(params.transform());
-    skvx::float2 atlasDimensionsInverse = {1.f/proxies[0]->dimensions().width(),
-                                           1.f/proxies[0]->dimensions().height()};
+    SkV2 atlasDimensionsInverse = {1.f/proxies[0]->dimensions().width(),
+                                   1.f/proxies[0]->dimensions().height()};
     gatherer->write(atlasDimensionsInverse);
 
     // write textures and samplers

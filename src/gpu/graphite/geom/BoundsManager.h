@@ -12,6 +12,7 @@
 #include "include/private/base/SkTemplates.h"
 
 #include "src/base/SkTBlockList.h"
+#include "src/base/SkVx.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/geom/Rect.h"
 

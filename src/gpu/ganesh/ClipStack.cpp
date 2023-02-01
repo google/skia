@@ -9,6 +9,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkMatrix.h"
+#include "src/base/SkVx.h"
 #include "src/core/SkMatrixProvider.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
