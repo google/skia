@@ -22,9 +22,7 @@ class SkBitSet {
 public:
     explicit SkBitSet(size_t size)
         : fSize(size)
-        // May http://wg21.link/p0593 be accepted.
-        , fChunks((Chunk*)sk_calloc_throw(NumChunksFor(fSize) * sizeof(Chunk)))
-    {}
+        , fChunks((Chunk*)sk_calloc_throw(NumChunksFor(fSize) * sizeof(Chunk))) {}
 
     SkBitSet(const SkBitSet&) = delete;
     SkBitSet& operator=(const SkBitSet&) = delete;

@@ -133,6 +133,7 @@
   133. merge_condition_mask           CondMask = $8 & $9
   134. copy_4_constants               $4..7 = colorGreen
   135. copy_4_slots_masked            $0..3 = Mask($4..7)
-  136. load_condition_mask            CondMask = $8
-  137. copy_4_slots_unmasked          [main].result = $0..3
-  138. load_src                       src.rgba = [main].result
+  136. label                          label 0x00000000
+  137. load_condition_mask            CondMask = $8
+  138. copy_4_slots_unmasked          [main].result = $0..3
+  139. load_src                       src.rgba = [main].result

@@ -50,7 +50,7 @@
    50. copy_slot_unmasked             $2 = $1
    51. copy_3_slots_unmasked          v17 = $0..2
    52. store_condition_mask           $8 = CondMask
-   53. branch_if_no_active_lanes      branch_if_no_active_lanes +82 (#135)
+   53. branch_if_no_active_lanes      branch_if_no_active_lanes +82 (label 0 at #135)
    54. copy_2_slots_unmasked          $9..10 = v1
    55. copy_2_slots_unmasked          v1 = $9..10
    56. copy_2_slots_unmasked          $9..10 = v2
@@ -132,10 +132,12 @@
   132. copy_constant                  $10 = 0x41880000 (17.0)
   133. cmpeq_float                    $9 = equal($9, $10)
   134. copy_slot_masked               [check].result = Mask($9)
-  135. copy_4_constants               $0..3 = colorRed
-  136. merge_condition_mask           CondMask = $8 & $9
-  137. copy_4_constants               $4..7 = colorGreen
-  138. copy_4_slots_masked            $0..3 = Mask($4..7)
-  139. load_condition_mask            CondMask = $8
-  140. copy_4_slots_unmasked          [main].result = $0..3
-  141. load_src                       src.rgba = [main].result
+  135. label                          label 0x00000000
+  136. copy_4_constants               $0..3 = colorRed
+  137. merge_condition_mask           CondMask = $8 & $9
+  138. copy_4_constants               $4..7 = colorGreen
+  139. copy_4_slots_masked            $0..3 = Mask($4..7)
+  140. label                          label 0x00000001
+  141. load_condition_mask            CondMask = $8
+  142. copy_4_slots_unmasked          [main].result = $0..3
+  143. load_src                       src.rgba = [main].result

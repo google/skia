@@ -30,193 +30,212 @@
    30. copy_4_slots_unmasked          v = $1..4
    31. copy_constant                  x = 0x00000001 (1.401298e-45)
    32. store_loop_mask                $1 = LoopMask
-   33. jump                           jump +8 (#41)
-   34. copy_slot_unmasked             $2 = v(0)
-   35. copy_slot_masked               [fn].result = Mask($2)
-   36. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   37. copy_slot_unmasked             $2 = x
-   38. copy_constant                  $3 = 0x00000001 (1.401298e-45)
-   39. add_int                        $2 += $3
-   40. copy_slot_masked               x = Mask($2)
-   41. copy_slot_unmasked             $2 = x
-   42. copy_constant                  $3 = 0x00000002 (2.802597e-45)
-   43. cmple_int                      $2 = lessThanEqual($2, $3)
-   44. merge_loop_mask                LoopMask &= $2
-   45. stack_rewind
-   46. branch_if_any_active_lanes     branch_if_any_active_lanes -12 (#34)
-   47. load_loop_mask                 LoopMask = $1
-   48. load_return_mask               RetMask = $0
-   49. copy_slot_unmasked             $0 = [fn].result
-   50. copy_constant                  $1 = 0x42F60000 (123.0)
-   51. copy_constant                  $2 = 0x43E40000 (456.0)
-   52. swizzle_4                      $0..3 = ($0..3).yyzz
-   53. copy_4_slots_unmasked          v = $0..3
-   54. store_return_mask              $0 = RetMask
-   55. copy_4_slots_unmasked          $1..4 = v
-   56. copy_4_slots_unmasked          v = $1..4
-   57. copy_constant                  x = 0x00000001 (1.401298e-45)
-   58. store_loop_mask                $1 = LoopMask
-   59. jump                           jump +8 (#67)
-   60. copy_slot_unmasked             $2 = v(0)
-   61. copy_slot_masked               [fn].result = Mask($2)
-   62. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   63. copy_slot_unmasked             $2 = x
-   64. copy_constant                  $3 = 0x00000001 (1.401298e-45)
-   65. add_int                        $2 += $3
-   66. copy_slot_masked               x = Mask($2)
+   33. jump                           jump +9 (label 1 at #42)
+   34. label                          label 0x00000002
+   35. copy_slot_unmasked             $2 = v(0)
+   36. copy_slot_masked               [fn].result = Mask($2)
+   37. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   38. copy_slot_unmasked             $2 = x
+   39. copy_constant                  $3 = 0x00000001 (1.401298e-45)
+   40. add_int                        $2 += $3
+   41. copy_slot_masked               x = Mask($2)
+   42. label                          label 0x00000001
+   43. copy_slot_unmasked             $2 = x
+   44. copy_constant                  $3 = 0x00000002 (2.802597e-45)
+   45. cmple_int                      $2 = lessThanEqual($2, $3)
+   46. merge_loop_mask                LoopMask &= $2
+   47. stack_rewind
+   48. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 2 at #34)
+   49. load_loop_mask                 LoopMask = $1
+   50. load_return_mask               RetMask = $0
+   51. copy_slot_unmasked             $0 = [fn].result
+   52. label                          label 0x00000000
+   53. copy_constant                  $1 = 0x42F60000 (123.0)
+   54. copy_constant                  $2 = 0x43E40000 (456.0)
+   55. swizzle_4                      $0..3 = ($0..3).yyzz
+   56. copy_4_slots_unmasked          v = $0..3
+   57. store_return_mask              $0 = RetMask
+   58. copy_4_slots_unmasked          $1..4 = v
+   59. copy_4_slots_unmasked          v = $1..4
+   60. copy_constant                  x = 0x00000001 (1.401298e-45)
+   61. store_loop_mask                $1 = LoopMask
+   62. jump                           jump +9 (label 4 at #71)
+   63. label                          label 0x00000005
+   64. copy_slot_unmasked             $2 = v(0)
+   65. copy_slot_masked               [fn].result = Mask($2)
+   66. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    67. copy_slot_unmasked             $2 = x
-   68. copy_constant                  $3 = 0x00000002 (2.802597e-45)
-   69. cmple_int                      $2 = lessThanEqual($2, $3)
-   70. merge_loop_mask                LoopMask &= $2
-   71. stack_rewind
-   72. branch_if_any_active_lanes     branch_if_any_active_lanes -12 (#60)
-   73. load_loop_mask                 LoopMask = $1
-   74. load_return_mask               RetMask = $0
-   75. copy_slot_unmasked             $0 = [fn].result
-   76. copy_constant                  $1 = 0x42F60000 (123.0)
-   77. copy_constant                  $2 = 0x43E40000 (456.0)
-   78. swizzle_4                      $0..3 = ($0..3).yyzz
-   79. copy_4_slots_unmasked          v = $0..3
-   80. copy_constant                  $0 = 0x42F60000 (123.0)
-   81. copy_constant                  $1 = 0x43E40000 (456.0)
-   82. copy_constant                  $2 = 0x43E40000 (456.0)
-   83. store_return_mask              $3 = RetMask
-   84. copy_4_slots_unmasked          $4..7 = v
-   85. copy_4_slots_unmasked          v = $4..7
-   86. copy_constant                  x = 0x00000001 (1.401298e-45)
-   87. store_loop_mask                $4 = LoopMask
-   88. jump                           jump +8 (#96)
-   89. copy_slot_unmasked             $5 = v(0)
-   90. copy_slot_masked               [fn].result = Mask($5)
-   91. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-   92. copy_slot_unmasked             $5 = x
-   93. copy_constant                  $6 = 0x00000001 (1.401298e-45)
-   94. add_int                        $5 += $6
-   95. copy_slot_masked               x = Mask($5)
-   96. copy_slot_unmasked             $5 = x
-   97. copy_constant                  $6 = 0x00000002 (2.802597e-45)
-   98. cmple_int                      $5 = lessThanEqual($5, $6)
-   99. merge_loop_mask                LoopMask &= $5
-  100. stack_rewind
-  101. branch_if_any_active_lanes     branch_if_any_active_lanes -12 (#89)
-  102. load_loop_mask                 LoopMask = $4
-  103. load_return_mask               RetMask = $3
-  104. copy_slot_unmasked             $3 = [fn].result
-  105. copy_4_slots_unmasked          v = $0..3
-  106. copy_constant                  $0 = 0x42F60000 (123.0)
-  107. copy_constant                  $1 = 0x43E40000 (456.0)
-  108. copy_constant                  $2 = 0x43E40000 (456.0)
-  109. store_return_mask              $3 = RetMask
-  110. copy_4_slots_unmasked          $4..7 = v
-  111. copy_4_slots_unmasked          v = $4..7
-  112. copy_constant                  x = 0x00000001 (1.401298e-45)
-  113. store_loop_mask                $4 = LoopMask
-  114. jump                           jump +8 (#122)
-  115. copy_slot_unmasked             $5 = v(0)
-  116. copy_slot_masked               [fn].result = Mask($5)
-  117. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  118. copy_slot_unmasked             $5 = x
-  119. copy_constant                  $6 = 0x00000001 (1.401298e-45)
-  120. add_int                        $5 += $6
-  121. copy_slot_masked               x = Mask($5)
-  122. copy_slot_unmasked             $5 = x
-  123. copy_constant                  $6 = 0x00000002 (2.802597e-45)
-  124. cmple_int                      $5 = lessThanEqual($5, $6)
-  125. merge_loop_mask                LoopMask &= $5
-  126. stack_rewind
-  127. branch_if_any_active_lanes     branch_if_any_active_lanes -12 (#115)
-  128. load_loop_mask                 LoopMask = $4
-  129. load_return_mask               RetMask = $3
-  130. copy_slot_unmasked             $3 = [fn].result
-  131. copy_4_slots_unmasked          v = $0..3
-  132. store_return_mask              $0 = RetMask
-  133. copy_4_slots_unmasked          $1..4 = v
-  134. copy_4_slots_unmasked          v = $1..4
-  135. copy_constant                  x = 0x00000001 (1.401298e-45)
-  136. store_loop_mask                $1 = LoopMask
-  137. jump                           jump +8 (#145)
-  138. copy_slot_unmasked             $2 = v(0)
-  139. copy_slot_masked               [fn].result = Mask($2)
-  140. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  141. copy_slot_unmasked             $2 = x
-  142. copy_constant                  $3 = 0x00000001 (1.401298e-45)
-  143. add_int                        $2 += $3
-  144. copy_slot_masked               x = Mask($2)
-  145. copy_slot_unmasked             $2 = x
-  146. copy_constant                  $3 = 0x00000002 (2.802597e-45)
-  147. cmple_int                      $2 = lessThanEqual($2, $3)
-  148. merge_loop_mask                LoopMask &= $2
-  149. stack_rewind
-  150. branch_if_any_active_lanes     branch_if_any_active_lanes -12 (#138)
-  151. load_loop_mask                 LoopMask = $1
-  152. load_return_mask               RetMask = $0
-  153. copy_slot_unmasked             $0 = [fn].result
-  154. copy_constant                  $1 = 0x42F60000 (123.0)
-  155. copy_constant                  $2 = 0x43E40000 (456.0)
-  156. swizzle_4                      $0..3 = ($0..3).yxxz
-  157. copy_4_slots_unmasked          v = $0..3
-  158. store_return_mask              $0 = RetMask
-  159. copy_4_slots_unmasked          $1..4 = v
-  160. copy_4_slots_unmasked          v = $1..4
-  161. copy_constant                  x = 0x00000001 (1.401298e-45)
-  162. store_loop_mask                $1 = LoopMask
-  163. jump                           jump +8 (#171)
-  164. copy_slot_unmasked             $2 = v(0)
-  165. copy_slot_masked               [fn].result = Mask($2)
-  166. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
-  167. copy_slot_unmasked             $2 = x
-  168. copy_constant                  $3 = 0x00000001 (1.401298e-45)
-  169. add_int                        $2 += $3
-  170. copy_slot_masked               x = Mask($2)
-  171. copy_slot_unmasked             $2 = x
-  172. copy_constant                  $3 = 0x00000002 (2.802597e-45)
-  173. cmple_int                      $2 = lessThanEqual($2, $3)
-  174. merge_loop_mask                LoopMask &= $2
-  175. stack_rewind
-  176. branch_if_any_active_lanes     branch_if_any_active_lanes -12 (#164)
-  177. load_loop_mask                 LoopMask = $1
-  178. load_return_mask               RetMask = $0
-  179. copy_slot_unmasked             $0 = [fn].result
-  180. copy_constant                  $1 = 0x42F60000 (123.0)
-  181. copy_constant                  $2 = 0x43E40000 (456.0)
-  182. swizzle_4                      $0..3 = ($0..3).yxxz
-  183. copy_4_slots_unmasked          v = $0..3
-  184. copy_constant                  $0 = 0x3F800000 (1.0)
-  185. copy_constant                  $1 = 0x3F800000 (1.0)
-  186. copy_constant                  $2 = 0x40000000 (2.0)
-  187. copy_constant                  $3 = 0x40400000 (3.0)
-  188. copy_4_slots_unmasked          v = $0..3
-  189. copy_3_constants               $0..2 = colorRed(0..2)
-  190. copy_constant                  $3 = 0x3F800000 (1.0)
-  191. copy_4_slots_unmasked          v = $0..3
-  192. copy_constant                  $0 = colorRed(0)
-  193. copy_constant                  $1 = 0x3F800000 (1.0)
-  194. copy_2_constants               $2..3 = colorRed(1..2)
-  195. copy_4_slots_unmasked          v = $0..3
-  196. copy_slot_unmasked             v(3) = $0
-  197. copy_slot_unmasked             v(2) = $1
-  198. copy_slot_unmasked             v(1) = $2
-  199. copy_slot_unmasked             v(0) = $3
-  200. copy_2_slots_unmasked          $0..1 = v(1..2)
-  201. copy_slot_unmasked             v(0) = $0
-  202. copy_slot_unmasked             v(3) = $1
-  203. copy_4_slots_unmasked          $0..3 = v
-  204. swizzle_2                      $0..1 = ($0..3).ww
-  205. copy_constant                  $2 = 0x3F800000 (1.0)
-  206. copy_slot_unmasked             v(2) = $0
-  207. copy_slot_unmasked             v(1) = $1
-  208. copy_slot_unmasked             v(0) = $2
-  209. store_condition_mask           $8 = CondMask
-  210. copy_4_slots_unmasked          $9..12 = v
-  211. copy_constant                  $13 = 0x3F800000 (1.0)
-  212. swizzle_4                      $13..16 = ($13..16).xxxx
-  213. cmpeq_4_floats                 $9..12 = equal($9..12, $13..16)
-  214. bitwise_and_2_ints             $9..10 &= $11..12
-  215. bitwise_and_int                $9 &= $10
-  216. copy_4_constants               $0..3 = colorRed
-  217. merge_condition_mask           CondMask = $8 & $9
-  218. copy_4_constants               $4..7 = colorGreen
-  219. copy_4_slots_masked            $0..3 = Mask($4..7)
-  220. load_condition_mask            CondMask = $8
-  221. copy_4_slots_unmasked          [main].result = $0..3
-  222. load_src                       src.rgba = [main].result
+   68. copy_constant                  $3 = 0x00000001 (1.401298e-45)
+   69. add_int                        $2 += $3
+   70. copy_slot_masked               x = Mask($2)
+   71. label                          label 0x00000004
+   72. copy_slot_unmasked             $2 = x
+   73. copy_constant                  $3 = 0x00000002 (2.802597e-45)
+   74. cmple_int                      $2 = lessThanEqual($2, $3)
+   75. merge_loop_mask                LoopMask &= $2
+   76. stack_rewind
+   77. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 5 at #63)
+   78. load_loop_mask                 LoopMask = $1
+   79. load_return_mask               RetMask = $0
+   80. copy_slot_unmasked             $0 = [fn].result
+   81. label                          label 0x00000003
+   82. copy_constant                  $1 = 0x42F60000 (123.0)
+   83. copy_constant                  $2 = 0x43E40000 (456.0)
+   84. swizzle_4                      $0..3 = ($0..3).yyzz
+   85. copy_4_slots_unmasked          v = $0..3
+   86. copy_constant                  $0 = 0x42F60000 (123.0)
+   87. copy_constant                  $1 = 0x43E40000 (456.0)
+   88. copy_constant                  $2 = 0x43E40000 (456.0)
+   89. store_return_mask              $3 = RetMask
+   90. copy_4_slots_unmasked          $4..7 = v
+   91. copy_4_slots_unmasked          v = $4..7
+   92. copy_constant                  x = 0x00000001 (1.401298e-45)
+   93. store_loop_mask                $4 = LoopMask
+   94. jump                           jump +9 (label 7 at #103)
+   95. label                          label 0x00000008
+   96. copy_slot_unmasked             $5 = v(0)
+   97. copy_slot_masked               [fn].result = Mask($5)
+   98. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+   99. copy_slot_unmasked             $5 = x
+  100. copy_constant                  $6 = 0x00000001 (1.401298e-45)
+  101. add_int                        $5 += $6
+  102. copy_slot_masked               x = Mask($5)
+  103. label                          label 0x00000007
+  104. copy_slot_unmasked             $5 = x
+  105. copy_constant                  $6 = 0x00000002 (2.802597e-45)
+  106. cmple_int                      $5 = lessThanEqual($5, $6)
+  107. merge_loop_mask                LoopMask &= $5
+  108. stack_rewind
+  109. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 8 at #95)
+  110. load_loop_mask                 LoopMask = $4
+  111. load_return_mask               RetMask = $3
+  112. copy_slot_unmasked             $3 = [fn].result
+  113. label                          label 0x00000006
+  114. copy_4_slots_unmasked          v = $0..3
+  115. copy_constant                  $0 = 0x42F60000 (123.0)
+  116. copy_constant                  $1 = 0x43E40000 (456.0)
+  117. copy_constant                  $2 = 0x43E40000 (456.0)
+  118. store_return_mask              $3 = RetMask
+  119. copy_4_slots_unmasked          $4..7 = v
+  120. copy_4_slots_unmasked          v = $4..7
+  121. copy_constant                  x = 0x00000001 (1.401298e-45)
+  122. store_loop_mask                $4 = LoopMask
+  123. jump                           jump +9 (label 10 at #132)
+  124. label                          label 0x0000000B
+  125. copy_slot_unmasked             $5 = v(0)
+  126. copy_slot_masked               [fn].result = Mask($5)
+  127. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  128. copy_slot_unmasked             $5 = x
+  129. copy_constant                  $6 = 0x00000001 (1.401298e-45)
+  130. add_int                        $5 += $6
+  131. copy_slot_masked               x = Mask($5)
+  132. label                          label 0x0000000A
+  133. copy_slot_unmasked             $5 = x
+  134. copy_constant                  $6 = 0x00000002 (2.802597e-45)
+  135. cmple_int                      $5 = lessThanEqual($5, $6)
+  136. merge_loop_mask                LoopMask &= $5
+  137. stack_rewind
+  138. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 11 at #124)
+  139. load_loop_mask                 LoopMask = $4
+  140. load_return_mask               RetMask = $3
+  141. copy_slot_unmasked             $3 = [fn].result
+  142. label                          label 0x00000009
+  143. copy_4_slots_unmasked          v = $0..3
+  144. store_return_mask              $0 = RetMask
+  145. copy_4_slots_unmasked          $1..4 = v
+  146. copy_4_slots_unmasked          v = $1..4
+  147. copy_constant                  x = 0x00000001 (1.401298e-45)
+  148. store_loop_mask                $1 = LoopMask
+  149. jump                           jump +9 (label 13 at #158)
+  150. label                          label 0x0000000E
+  151. copy_slot_unmasked             $2 = v(0)
+  152. copy_slot_masked               [fn].result = Mask($2)
+  153. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  154. copy_slot_unmasked             $2 = x
+  155. copy_constant                  $3 = 0x00000001 (1.401298e-45)
+  156. add_int                        $2 += $3
+  157. copy_slot_masked               x = Mask($2)
+  158. label                          label 0x0000000D
+  159. copy_slot_unmasked             $2 = x
+  160. copy_constant                  $3 = 0x00000002 (2.802597e-45)
+  161. cmple_int                      $2 = lessThanEqual($2, $3)
+  162. merge_loop_mask                LoopMask &= $2
+  163. stack_rewind
+  164. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 14 at #150)
+  165. load_loop_mask                 LoopMask = $1
+  166. load_return_mask               RetMask = $0
+  167. copy_slot_unmasked             $0 = [fn].result
+  168. label                          label 0x0000000C
+  169. copy_constant                  $1 = 0x42F60000 (123.0)
+  170. copy_constant                  $2 = 0x43E40000 (456.0)
+  171. swizzle_4                      $0..3 = ($0..3).yxxz
+  172. copy_4_slots_unmasked          v = $0..3
+  173. store_return_mask              $0 = RetMask
+  174. copy_4_slots_unmasked          $1..4 = v
+  175. copy_4_slots_unmasked          v = $1..4
+  176. copy_constant                  x = 0x00000001 (1.401298e-45)
+  177. store_loop_mask                $1 = LoopMask
+  178. jump                           jump +9 (label 16 at #187)
+  179. label                          label 0x00000011
+  180. copy_slot_unmasked             $2 = v(0)
+  181. copy_slot_masked               [fn].result = Mask($2)
+  182. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
+  183. copy_slot_unmasked             $2 = x
+  184. copy_constant                  $3 = 0x00000001 (1.401298e-45)
+  185. add_int                        $2 += $3
+  186. copy_slot_masked               x = Mask($2)
+  187. label                          label 0x00000010
+  188. copy_slot_unmasked             $2 = x
+  189. copy_constant                  $3 = 0x00000002 (2.802597e-45)
+  190. cmple_int                      $2 = lessThanEqual($2, $3)
+  191. merge_loop_mask                LoopMask &= $2
+  192. stack_rewind
+  193. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 17 at #179)
+  194. load_loop_mask                 LoopMask = $1
+  195. load_return_mask               RetMask = $0
+  196. copy_slot_unmasked             $0 = [fn].result
+  197. label                          label 0x0000000F
+  198. copy_constant                  $1 = 0x42F60000 (123.0)
+  199. copy_constant                  $2 = 0x43E40000 (456.0)
+  200. swizzle_4                      $0..3 = ($0..3).yxxz
+  201. copy_4_slots_unmasked          v = $0..3
+  202. copy_constant                  $0 = 0x3F800000 (1.0)
+  203. copy_constant                  $1 = 0x3F800000 (1.0)
+  204. copy_constant                  $2 = 0x40000000 (2.0)
+  205. copy_constant                  $3 = 0x40400000 (3.0)
+  206. copy_4_slots_unmasked          v = $0..3
+  207. copy_3_constants               $0..2 = colorRed(0..2)
+  208. copy_constant                  $3 = 0x3F800000 (1.0)
+  209. copy_4_slots_unmasked          v = $0..3
+  210. copy_constant                  $0 = colorRed(0)
+  211. copy_constant                  $1 = 0x3F800000 (1.0)
+  212. copy_2_constants               $2..3 = colorRed(1..2)
+  213. copy_4_slots_unmasked          v = $0..3
+  214. copy_slot_unmasked             v(3) = $0
+  215. copy_slot_unmasked             v(2) = $1
+  216. copy_slot_unmasked             v(1) = $2
+  217. copy_slot_unmasked             v(0) = $3
+  218. copy_2_slots_unmasked          $0..1 = v(1..2)
+  219. copy_slot_unmasked             v(0) = $0
+  220. copy_slot_unmasked             v(3) = $1
+  221. copy_4_slots_unmasked          $0..3 = v
+  222. swizzle_2                      $0..1 = ($0..3).ww
+  223. copy_constant                  $2 = 0x3F800000 (1.0)
+  224. copy_slot_unmasked             v(2) = $0
+  225. copy_slot_unmasked             v(1) = $1
+  226. copy_slot_unmasked             v(0) = $2
+  227. store_condition_mask           $8 = CondMask
+  228. copy_4_slots_unmasked          $9..12 = v
+  229. copy_constant                  $13 = 0x3F800000 (1.0)
+  230. swizzle_4                      $13..16 = ($13..16).xxxx
+  231. cmpeq_4_floats                 $9..12 = equal($9..12, $13..16)
+  232. bitwise_and_2_ints             $9..10 &= $11..12
+  233. bitwise_and_int                $9 &= $10
+  234. copy_4_constants               $0..3 = colorRed
+  235. merge_condition_mask           CondMask = $8 & $9
+  236. copy_4_constants               $4..7 = colorGreen
+  237. copy_4_slots_masked            $0..3 = Mask($4..7)
+  238. label                          label 0x00000012
+  239. load_condition_mask            CondMask = $8
+  240. copy_4_slots_unmasked          [main].result = $0..3
+  241. load_src                       src.rgba = [main].result

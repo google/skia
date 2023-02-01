@@ -16,6 +16,7 @@
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/tracing/SkRPDebugTrace.h"
 #include "src/sksl/tracing/SkSLDebugInfo.h"
+#include "src/utils/SkBitSet.h"
 
 #if !defined(SKSL_STANDALONE)
 #include "src/core/SkRasterPipeline.h"
@@ -539,7 +540,7 @@ std::unique_ptr<Program> Builder::finish(int numValueSlots,
     SkASSERT(fExecutionMaskWritesEnabled == 0);
 
     return std::make_unique<Program>(std::move(fInstructions), numValueSlots, numUniformSlots,
-                                     fNumLabels, fNumBranches, debugTrace);
+                                     fNumLabels, debugTrace);
 }
 
 void Program::optimize() {
@@ -632,13 +633,11 @@ Program::Program(SkTArray<Instruction> instrs,
                  int numValueSlots,
                  int numUniformSlots,
                  int numLabels,
-                 int numBranches,
                  SkRPDebugTrace* debugTrace)
         : fInstructions(std::move(instrs))
         , fNumValueSlots(numValueSlots)
         , fNumUniformSlots(numUniformSlots)
         , fNumLabels(numLabels)
-        , fNumBranches(numBranches)
         , fDebugTrace(debugTrace) {
     this->optimize();
 
@@ -795,12 +794,8 @@ void Program::appendStackRewind(SkTArray<Stage>* pipeline) {
 #endif
 }
 
-template <typename T>
-static void* context_bit_pun(T val) {
-    static_assert(sizeof(T) <= sizeof(void*));
-    void* contextBits = nullptr;
-    memcpy(&contextBits, &val, sizeof(val));
-    return contextBits;
+static void* context_bit_pun(intptr_t val) {
+    return sk_bit_cast<void*>(val);
 }
 
 Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) {
@@ -823,8 +818,18 @@ Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) {
 void Program::appendStages(SkRasterPipeline* pipeline,
                            SkArenaAlloc* alloc,
                            SkSpan<const float> uniforms) {
+    // Convert our Instruction list to an array of ProgramOps.
     SkTArray<Stage> stages;
     this->makeStages(&stages, alloc, uniforms, this->allocateSlotData(alloc));
+
+    // Allocate buffers for branch targets and labels; these are needed to convert labels into
+    // actual offsets into the pipeline and fix up branches.
+    SkTArray<SkRasterPipeline_BranchCtx*> branchContexts;
+    branchContexts.reserve_back(fNumLabels);
+    SkTArray<int> labelOffsets;
+    labelOffsets.push_back_n(fNumLabels, -1);
+    SkTArray<int> branchGoesToLabel;
+    branchGoesToLabel.reserve_back(fNumLabels);
 
     for (const Stage& stage : stages) {
         switch (stage.op) {
@@ -835,14 +840,49 @@ void Program::appendStages(SkRasterPipeline* pipeline,
             case ProgramOp::invoke_shader:
             case ProgramOp::invoke_color_filter:
             case ProgramOp::invoke_blender:
-                // TODO(johnstiles): append the child effect
+                // TODO(johnstiles): append the child effect here
                 break;
 
+            case ProgramOp::label: {
+                // Remember the absolute pipeline position of this label.
+                int labelID = sk_bit_cast<intptr_t>(stage.ctx);
+                SkASSERT(labelID >= 0 && labelID < fNumLabels);
+                labelOffsets[labelID] = pipeline->getNumStages();
+                break;
+            }
+            case ProgramOp::jump:
+            case ProgramOp::branch_if_any_active_lanes:
+            case ProgramOp::branch_if_no_active_lanes:
+            case ProgramOp::branch_if_no_active_lanes_eq: {
+                // The branch context contain a valid label ID at this point.
+                auto* branchCtx = static_cast<SkRasterPipeline_BranchCtx*>(stage.ctx);
+                int labelID = branchCtx->offset;
+                SkASSERT(labelID >= 0 && labelID < fNumLabels);
+
+                // Replace the label ID in the branch context with the absolute pipeline position.
+                // We will go back over the branch targets at the end and fix them up.
+                branchCtx->offset = pipeline->getNumStages();
+
+                SkASSERT(branchContexts.size() == branchGoesToLabel.size());
+                branchContexts.push_back(branchCtx);
+                branchGoesToLabel.push_back(labelID);
+                [[fallthrough]];
+            }
             default:
+                // Append a regular op to the program.
                 SkASSERT((int)stage.op < kNumRasterPipelineHighpOps);
                 pipeline->append((SkRasterPipelineOp)stage.op, stage.ctx);
                 break;
         }
+    }
+
+    // Now that we have assembled the program and know the pipeline positions of each label and
+    // branch, fix up every branch target.
+    SkASSERT(branchContexts.size() == branchGoesToLabel.size());
+    for (int index = 0; index < branchContexts.size(); ++index) {
+        int branchFromIdx = branchContexts[index]->offset;
+        int branchToIdx = labelOffsets[branchGoesToLabel[index]];
+        branchContexts[index]->offset = branchToIdx - branchFromIdx;
     }
 }
 
@@ -859,16 +899,6 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
     int currentStack = 0;
     int mostRecentRewind = 0;
 
-    // Allocate buffers for branch targets and labels; these are needed during initial program
-    // construction, to convert labels into actual offsets into the pipeline and fix up branches.
-    SkTArray<SkRasterPipeline_BranchCtx*> branchTargets;
-    branchTargets.push_back_n(fNumBranches, (SkRasterPipeline_BranchCtx*)nullptr);
-    SkTArray<int> labelOffsets;
-    labelOffsets.push_back_n(fNumLabels, -1);
-    SkTArray<int> branchGoesToLabel;
-    branchGoesToLabel.push_back_n(fNumBranches, -1);
-    int currentBranchOp = 0;
-
     // Assemble a map holding the current stack-top for each temporary stack. Position each temp
     // stack immediately after the previous temp stack; temp stacks are never allowed to overlap.
     int pos = 0;
@@ -877,6 +907,19 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
         tempStackMap[idx] = slots.stack.begin() + (pos * N);
         pos += depth;
     }
+
+    // Track labels that we have reached in processing.
+    SkBitSet labelsEncountered(fNumLabels);
+
+    auto EmitStackRewindForBackwardsBranch = [&](int labelID) {
+        // If we have already encountered the label associated with this branch, this is a
+        // backwards branch. Add a stack-rewind immediately before the branch to ensure that
+        // long-running loops don't use an unbounded amount of stack space.
+        if (labelsEncountered.test(labelID)) {
+            this->appendStackRewind(pipeline);
+            mostRecentRewind = pipeline->size();
+        }
+    };
 
     // We can reuse constants from our arena by placing them in this map.
     SkTHashMap<int, int*> constantLookupMap; // <constant value, pointer into arena>
@@ -889,47 +932,33 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
         auto UniformA = [&]() { return &uniforms[inst.fSlotA]; };
         float*& tempStackPtr = tempStackMap[currentStack];
 
-        auto WriteBranchOp = [&](ProgramOp op, SkRasterPipeline_BranchCtx* branchCtx) {
-            // If we have already encountered the label associated with this branch, this is a
-            // backwards branch. Add a stack-rewind immediately before the branch to ensure that
-            // long-running loops don't use an unbounded amount of stack space.
-            if (labelOffsets[inst.fImmA] >= 0) {
-                this->appendStackRewind(pipeline);
-                mostRecentRewind = pipeline->size();
-            }
-
-            // Write the absolute pipeline position into the branch targets, because the
-            // associated label might not have been reached yet. We will go back over the branch
-            // targets at the end and fix them up.
-            SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
-            SkASSERT(currentBranchOp >= 0 && currentBranchOp < fNumBranches);
-            branchCtx->offset = pipeline->size();
-
-            branchTargets[currentBranchOp] = branchCtx;
-            branchGoesToLabel[currentBranchOp] = inst.fImmA;
-            pipeline->push_back({op, branchCtx});
-            ++currentBranchOp;
-        };
-
         switch (inst.fOp) {
             case BuilderOp::label:
-                // Write the absolute pipeline position into the label offset list. We will go over
-                // the branch targets at the end and fix them up.
                 SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
-                labelOffsets[inst.fImmA] = pipeline->size();
+                labelsEncountered.set(inst.fImmA);
+                pipeline->push_back({ProgramOp::label, context_bit_pun(inst.fImmA)});
                 break;
 
             case BuilderOp::jump:
             case BuilderOp::branch_if_any_active_lanes:
-            case BuilderOp::branch_if_no_active_lanes:
-                WriteBranchOp((ProgramOp)inst.fOp, alloc->make<SkRasterPipeline_BranchCtx>());
-                break;
+            case BuilderOp::branch_if_no_active_lanes: {
+                SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
+                EmitStackRewindForBackwardsBranch(inst.fImmA);
 
+                auto* ctx = alloc->make<SkRasterPipeline_BranchCtx>();
+                ctx->offset = inst.fImmA;
+                pipeline->push_back({(ProgramOp)inst.fOp, ctx});
+                break;
+            }
             case BuilderOp::branch_if_no_active_lanes_on_stack_top_equal: {
+                SkASSERT(inst.fImmA >= 0 && inst.fImmA < fNumLabels);
+                EmitStackRewindForBackwardsBranch(inst.fImmA);
+
                 auto* ctx = alloc->make<SkRasterPipeline_BranchIfEqualCtx>();
+                ctx->offset = inst.fImmA;
                 ctx->value = inst.fImmB;
                 ctx->ptr = reinterpret_cast<int*>(tempStackPtr - N);
-                WriteBranchOp(ProgramOp::branch_if_no_active_lanes_eq, ctx);
+                pipeline->push_back({ProgramOp::branch_if_no_active_lanes_eq, ctx});
                 break;
             }
             case BuilderOp::init_lane_masks:
@@ -1216,13 +1245,6 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
             mostRecentRewind = numPipelineStages;
         }
     }
-
-    // Fix up every branch target.
-    for (int index = 0; index < fNumBranches; ++index) {
-        int branchFromIdx = branchTargets[index]->offset;
-        int branchToIdx = labelOffsets[branchGoesToLabel[index]];
-        branchTargets[index]->offset = branchToIdx - branchFromIdx;
-    }
 }
 
 void Program::dump(SkWStream* out) {
@@ -1239,13 +1261,28 @@ void Program::dump(SkWStream* out) {
     SkTArray<Stage> stages;
     this->makeStages(&stages, &alloc, uniforms, slots);
 
+    // Find the labels in the program, and keep track of their offsets.
+    SkTHashMap<int, int> labelToStageMap; // <label ID, stage index>
+    for (int index = 0; index < stages.size(); ++index) {
+        if (stages[index].op == ProgramOp::label) {
+            int labelID = sk_bit_cast<intptr_t>(stages[index].ctx);
+            SkASSERT(!labelToStageMap.find(labelID));
+            labelToStageMap[labelID] = index;
+        }
+    }
+
     // Emit the program's instruction list.
     for (int index = 0; index < stages.size(); ++index) {
         const Stage& stage = stages[index];
 
         // Interpret the context value as a branch offset.
         auto BranchOffset = [&](const SkRasterPipeline_BranchCtx* ctx) -> std::string {
-            return SkSL::String::printf("%+d (#%d)", ctx->offset, ctx->offset + index + 1);
+            // The context's offset field contains a label ID
+            int labelID = ctx->offset;
+            SkASSERT(labelToStageMap.find(labelID));
+            int labelIndex = labelToStageMap[labelID];
+            return SkSL::String::printf("%+d (label %d at #%d)",
+                                        labelIndex - index, labelID, labelIndex + 1);
         };
 
         // Print a 32-bit immediate value of unknown type (int/float).
@@ -1486,6 +1523,7 @@ void Program::dump(SkWStream* out) {
                 opArg1 = ImmCtx(stage.ctx);
                 break;
 
+            case POp::label:
             case POp::invoke_shader:
             case POp::invoke_color_filter:
             case POp::invoke_blender:
@@ -1724,6 +1762,7 @@ void Program::dump(SkWStream* out) {
         #define M(x) case POp::x: opName = #x; break;
             SK_RASTER_PIPELINE_OPS_ALL(M)
         #undef M
+            case POp::label:               opName = "label";               break;
             case POp::invoke_shader:       opName = "invoke_shader";       break;
             case POp::invoke_color_filter: opName = "invoke_color_filter"; break;
             case POp::invoke_blender:      opName = "invoke_blender";      break;
@@ -2039,6 +2078,10 @@ void Program::dump(SkWStream* out) {
 
             case POp::branch_if_no_active_lanes_eq:
                 opText = "branch " + opArg1 + " if no lanes of " + opArg2 + " == " + opArg3;
+                break;
+
+            case POp::label:
+                opText = "label " + opArg1;
                 break;
 
             default:

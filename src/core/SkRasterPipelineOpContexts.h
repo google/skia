@@ -147,7 +147,7 @@ struct SkRasterPipeline_ShuffleCtx {
 };
 
 struct SkRasterPipeline_BranchCtx {
-    int offset;
+    int offset;  // contains the label ID during compilation, and the program offset when compiled
 };
 
 struct SkRasterPipeline_BranchIfEqualCtx : public SkRasterPipeline_BranchCtx {

@@ -406,55 +406,71 @@ DEF_TEST(RasterPipelineBuilderBranches, r) {
     // We have guaranteed tail-calling, and don't need to rewind the stack.
     static constexpr char kExpectationWithKnownExecutionMask[] =
 R"(    1. copy_constant                  $0 = 0x00000001 (1.401298e-45)
-    2. jump                           jump +5 (#7)
-    3. immediate_f                    src.r = 0x3F800000 (1.0)
-    4. immediate_f                    src.r = 0x40000000 (2.0)
-    5. immediate_f                    src.r = 0x40400000 (3.0)
-    6. jump                           jump -3 (#3)
-    7. branch_if_no_active_lanes_eq   branch -2 (#5) if no lanes of $0 == 0x00000000 (0.0)
-    8. branch_if_no_active_lanes_eq   branch -5 (#3) if no lanes of $0 == 0x00000001 (1.401298e-45)
+    2. jump                           jump +8 (label 3 at #10)
+    3. label                          label 0x00000000
+    4. immediate_f                    src.r = 0x3F800000 (1.0)
+    5. label                          label 0x00000001
+    6. immediate_f                    src.r = 0x40000000 (2.0)
+    7. label                          label 0x00000002
+    8. immediate_f                    src.r = 0x40400000 (3.0)
+    9. jump                           jump -6 (label 0 at #3)
+   10. label                          label 0x00000003
+   11. branch_if_no_active_lanes_eq   branch -4 (label 2 at #7) if no lanes of $0 == 0x00000000 (0.0)
+   12. branch_if_no_active_lanes_eq   branch -9 (label 0 at #3) if no lanes of $0 == 0x00000001 (1.401298e-45)
 )";
     static constexpr char kExpectationWithExecutionMaskWrites[] =
 R"(    1. copy_constant                  $0 = 0x00000001 (1.401298e-45)
-    2. jump                           jump +6 (#8)
-    3. immediate_f                    src.r = 0x3F800000 (1.0)
-    4. immediate_f                    src.r = 0x40000000 (2.0)
-    5. branch_if_no_active_lanes      branch_if_no_active_lanes -1 (#4)
-    6. immediate_f                    src.r = 0x40400000 (3.0)
-    7. branch_if_any_active_lanes     branch_if_any_active_lanes -4 (#3)
-    8. branch_if_no_active_lanes_eq   branch -2 (#6) if no lanes of $0 == 0x00000000 (0.0)
-    9. branch_if_no_active_lanes_eq   branch -6 (#3) if no lanes of $0 == 0x00000001 (1.401298e-45)
+    2. jump                           jump +9 (label 3 at #11)
+    3. label                          label 0x00000000
+    4. immediate_f                    src.r = 0x3F800000 (1.0)
+    5. label                          label 0x00000001
+    6. immediate_f                    src.r = 0x40000000 (2.0)
+    7. branch_if_no_active_lanes      branch_if_no_active_lanes -2 (label 1 at #5)
+    8. label                          label 0x00000002
+    9. immediate_f                    src.r = 0x40400000 (3.0)
+   10. branch_if_any_active_lanes     branch_if_any_active_lanes -7 (label 0 at #3)
+   11. label                          label 0x00000003
+   12. branch_if_no_active_lanes_eq   branch -4 (label 2 at #8) if no lanes of $0 == 0x00000000 (0.0)
+   13. branch_if_no_active_lanes_eq   branch -10 (label 0 at #3) if no lanes of $0 == 0x00000001 (1.401298e-45)
 )";
 #else
     // We don't have guaranteed tail-calling, so we rewind the stack immediately before any backward
     // branches.
     static constexpr char kExpectationWithKnownExecutionMask[] =
 R"(    1. copy_constant                  $0 = 0x00000001 (1.401298e-45)
-    2. jump                           jump +6 (#8)
-    3. immediate_f                    src.r = 0x3F800000 (1.0)
-    4. immediate_f                    src.r = 0x40000000 (2.0)
-    5. immediate_f                    src.r = 0x40400000 (3.0)
-    6. stack_rewind
-    7. jump                           jump -4 (#3)
-    8. stack_rewind
-    9. branch_if_no_active_lanes_eq   branch -4 (#5) if no lanes of $0 == 0x00000000 (0.0)
-   10. stack_rewind
-   11. branch_if_no_active_lanes_eq   branch -8 (#3) if no lanes of $0 == 0x00000001 (1.401298e-45)
+    2. jump                           jump +9 (label 3 at #11)
+    3. label                          label 0x00000000
+    4. immediate_f                    src.r = 0x3F800000 (1.0)
+    5. label                          label 0x00000001
+    6. immediate_f                    src.r = 0x40000000 (2.0)
+    7. label                          label 0x00000002
+    8. immediate_f                    src.r = 0x40400000 (3.0)
+    9. stack_rewind
+   10. jump                           jump -7 (label 0 at #3)
+   11. label                          label 0x00000003
+   12. stack_rewind
+   13. branch_if_no_active_lanes_eq   branch -6 (label 2 at #7) if no lanes of $0 == 0x00000000 (0.0)
+   14. stack_rewind
+   15. branch_if_no_active_lanes_eq   branch -12 (label 0 at #3) if no lanes of $0 == 0x00000001 (1.401298e-45)
 )";
     static constexpr char kExpectationWithExecutionMaskWrites[] =
 R"(    1. copy_constant                  $0 = 0x00000001 (1.401298e-45)
-    2. jump                           jump +8 (#10)
-    3. immediate_f                    src.r = 0x3F800000 (1.0)
-    4. immediate_f                    src.r = 0x40000000 (2.0)
-    5. stack_rewind
-    6. branch_if_no_active_lanes      branch_if_no_active_lanes -2 (#4)
-    7. immediate_f                    src.r = 0x40400000 (3.0)
-    8. stack_rewind
-    9. branch_if_any_active_lanes     branch_if_any_active_lanes -6 (#3)
-   10. stack_rewind
-   11. branch_if_no_active_lanes_eq   branch -4 (#7) if no lanes of $0 == 0x00000000 (0.0)
-   12. stack_rewind
-   13. branch_if_no_active_lanes_eq   branch -10 (#3) if no lanes of $0 == 0x00000001 (1.401298e-45)
+    2. jump                           jump +11 (label 3 at #13)
+    3. label                          label 0x00000000
+    4. immediate_f                    src.r = 0x3F800000 (1.0)
+    5. label                          label 0x00000001
+    6. immediate_f                    src.r = 0x40000000 (2.0)
+    7. stack_rewind
+    8. branch_if_no_active_lanes      branch_if_no_active_lanes -3 (label 1 at #5)
+    9. label                          label 0x00000002
+   10. immediate_f                    src.r = 0x40400000 (3.0)
+   11. stack_rewind
+   12. branch_if_any_active_lanes     branch_if_any_active_lanes -9 (label 0 at #3)
+   13. label                          label 0x00000003
+   14. stack_rewind
+   15. branch_if_no_active_lanes_eq   branch -6 (label 2 at #9) if no lanes of $0 == 0x00000000 (0.0)
+   16. stack_rewind
+   17. branch_if_no_active_lanes_eq   branch -14 (label 0 at #3) if no lanes of $0 == 0x00000001 (1.401298e-45)
 )";
 #endif
 

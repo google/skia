@@ -51,9 +51,11 @@
    51. bitwise_and_2_ints             $5..6 &= $7..8
    52. bitwise_and_int                $5 &= $6
    53. bitwise_and_int                $4 &= $5
-   54. branch_if_no_active_lanes_eq   branch +3 (#57) if no lanes of $4 == 0xFFFFFFFF
+   54. branch_if_no_active_lanes_eq   branch +3 (label 0 at #57) if no lanes of $4 == 0xFFFFFFFF
    55. copy_4_constants               $0..3 = colorGreen
-   56. jump                           jump +2 (#58)
-   57. copy_4_constants               $0..3 = colorRed
-   58. copy_4_slots_unmasked          [main].result = $0..3
-   59. load_src                       src.rgba = [main].result
+   56. jump                           jump +3 (label 1 at #59)
+   57. label                          label 0x00000000
+   58. copy_4_constants               $0..3 = colorRed
+   59. label                          label 0x00000001
+   60. copy_4_slots_unmasked          [main].result = $0..3
+   61. load_src                       src.rgba = [main].result

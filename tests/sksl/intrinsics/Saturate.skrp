@@ -71,6 +71,7 @@
    71. merge_condition_mask           CondMask = $8 & $9
    72. copy_4_constants               $4..7 = colorGreen
    73. copy_4_slots_masked            $0..3 = Mask($4..7)
-   74. load_condition_mask            CondMask = $8
-   75. copy_4_slots_unmasked          [main].result = $0..3
-   76. load_src                       src.rgba = [main].result
+   74. label                          label 0x00000000
+   75. load_condition_mask            CondMask = $8
+   76. copy_4_slots_unmasked          [main].result = $0..3
+   77. load_src                       src.rgba = [main].result

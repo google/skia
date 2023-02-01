@@ -15,17 +15,19 @@
    15. copy_slot_unmasked             $0 = x
    16. copy_slot_unmasked             param = $0
    17. copy_slot_unmasked             $0 = [do_side_effect].result
-   18. copy_constant                  call = 0xFFFFFFFF
-   19. store_condition_mask           $8 = CondMask
-   20. copy_slot_unmasked             $9 = ok
-   21. copy_slot_unmasked             $10 = param
-   22. bitwise_and_int                $9 &= $10
-   23. copy_slot_unmasked             $10 = call
-   24. bitwise_and_int                $9 &= $10
-   25. copy_4_slots_unmasked          $0..3 = red
-   26. merge_condition_mask           CondMask = $8 & $9
-   27. copy_4_slots_unmasked          $4..7 = green
-   28. copy_4_slots_masked            $0..3 = Mask($4..7)
-   29. load_condition_mask            CondMask = $8
-   30. copy_4_slots_unmasked          [main].result = $0..3
-   31. load_src                       src.rgba = [main].result
+   18. label                          label 0x00000000
+   19. copy_constant                  call = 0xFFFFFFFF
+   20. store_condition_mask           $8 = CondMask
+   21. copy_slot_unmasked             $9 = ok
+   22. copy_slot_unmasked             $10 = param
+   23. bitwise_and_int                $9 &= $10
+   24. copy_slot_unmasked             $10 = call
+   25. bitwise_and_int                $9 &= $10
+   26. copy_4_slots_unmasked          $0..3 = red
+   27. merge_condition_mask           CondMask = $8 & $9
+   28. copy_4_slots_unmasked          $4..7 = green
+   29. copy_4_slots_masked            $0..3 = Mask($4..7)
+   30. label                          label 0x00000001
+   31. load_condition_mask            CondMask = $8
+   32. copy_4_slots_unmasked          [main].result = $0..3
+   33. load_src                       src.rgba = [main].result

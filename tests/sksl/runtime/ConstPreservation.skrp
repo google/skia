@@ -5,12 +5,15 @@
     5. copy_slot_unmasked             $0 = r
     6. copy_slot_unmasked             x = $0
     7. copy_slot_unmasked             [opt_barrier].result = $0
-    8. copy_constant                  $1 = 0x3F800000 (1.0)
-    9. zero_slot_unmasked             $2 = 0
-   10. copy_slot_unmasked             $3 = g
-   11. copy_slot_unmasked             x = $3
-   12. copy_slot_unmasked             [opt_barrier].result = $3
-   13. copy_2_slots_unmasked          rg = $2..3
-   14. copy_2_slots_unmasked          [compute_ba].result = $2..3
-   15. copy_4_slots_unmasked          [main].result = $0..3
-   16. load_src                       src.rgba = [main].result
+    8. label                          label 0x00000000
+    9. copy_constant                  $1 = 0x3F800000 (1.0)
+   10. zero_slot_unmasked             $2 = 0
+   11. copy_slot_unmasked             $3 = g
+   12. copy_slot_unmasked             x = $3
+   13. copy_slot_unmasked             [opt_barrier].result = $3
+   14. label                          label 0x00000002
+   15. copy_2_slots_unmasked          rg = $2..3
+   16. copy_2_slots_unmasked          [compute_ba].result = $2..3
+   17. label                          label 0x00000001
+   18. copy_4_slots_unmasked          [main].result = $0..3
+   19. load_src                       src.rgba = [main].result

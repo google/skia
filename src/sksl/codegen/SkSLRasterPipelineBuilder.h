@@ -37,14 +37,18 @@ struct SlotRange {
 };
 
 // An RP::Program will consist entirely of ProgramOps. The ProgramOps list is a superset of the
-// native SkRasterPipelineOps op-list; in addition, it also has a few extra ops to indicate
-// child-effect invocation.
+// native SkRasterPipelineOps op-list. It also has a few extra ops to indicate child-effect
+// invocation, and a `label` op to indicate branch targets.
 enum class ProgramOp {
-    // A finished program can contain all the native Raster Pipeline ops.
+    // A finished program can contain any native Raster Pipeline op...
     #define M(stage) stage,
         SK_RASTER_PIPELINE_OPS_ALL(M)
     #undef M
-    // A finished program can also invoke child programs.
+
+    // ... has branch targets...
+    label,
+
+    // ... and can invoke child programs.
     invoke_shader,
     invoke_color_filter,
     invoke_blender,
@@ -61,12 +65,17 @@ enum class BuilderOp {
     #define M(stage) stage,
         SK_RASTER_PIPELINE_OPS_ALL(M)
     #undef M
-    // ... and invoke child programs.
+
+    // ... has branch targets...
+    label,
+
+    // ... can invoke child programs...
     invoke_shader,
     invoke_color_filter,
     invoke_blender,
 
-    // We also have Builder-specific ops; these are converted into ProgramOps during `makeStages`.
+    // ... and also has Builder-specific ops. These ops generally interface with the stack, and are
+    // converted into ProgramOps during `makeStages`.
     push_literal,
     push_slots,
     push_uniform,
@@ -88,12 +97,12 @@ enum class BuilderOp {
     pop_src_rgba,
     pop_dst_rgba,
     set_current_stack,
-    label,
     branch_if_no_active_lanes_on_stack_top_equal,
     unsupported
 };
 
 // If the child-invocation enums are not in sync between enums, program creation will not work.
+static_assert((int)ProgramOp::label               == (int)BuilderOp::label);
 static_assert((int)ProgramOp::invoke_shader       == (int)BuilderOp::invoke_shader);
 static_assert((int)ProgramOp::invoke_color_filter == (int)BuilderOp::invoke_color_filter);
 static_assert((int)ProgramOp::invoke_blender      == (int)BuilderOp::invoke_blender);
@@ -124,7 +133,6 @@ public:
             int numValueSlots,
             int numUniformSlots,
             int numLabels,
-            int numBranches,
             SkRPDebugTrace* debugTrace);
 
 #if !defined(SKSL_STANDALONE)
@@ -213,7 +221,6 @@ private:
     int fNumUniformSlots = 0;
     int fNumTempStackSlots = 0;
     int fNumLabels = 0;
-    int fNumBranches = 0;
     SkTHashMap<int, int> fTempStackMaxDepths;
     SkRPDebugTrace* fDebugTrace = nullptr;
 };
@@ -297,7 +304,6 @@ public:
             return;
         }
         fInstructions.push_back({BuilderOp::jump, {}, labelID});
-        ++fNumBranches;
     }
 
     void branch_if_any_active_lanes(int labelID) {
@@ -315,7 +321,6 @@ public:
             return;
         }
         fInstructions.push_back({BuilderOp::branch_if_any_active_lanes, {}, labelID});
-        ++fNumBranches;
     }
 
     void branch_if_no_active_lanes(int labelID) {
@@ -332,7 +337,6 @@ public:
             return;
         }
         fInstructions.push_back({BuilderOp::branch_if_no_active_lanes, {}, labelID});
-        ++fNumBranches;
     }
 
     void branch_if_no_active_lanes_on_stack_top_equal(int value, int labelID) {
@@ -347,7 +351,6 @@ public:
         }
         fInstructions.push_back({BuilderOp::branch_if_no_active_lanes_on_stack_top_equal,
                                  {}, labelID, value});
-        ++fNumBranches;
     }
 
     // We use the same SkRasterPipeline op regardless of the literal type, and bitcast the value.
@@ -587,7 +590,6 @@ public:
 private:
     SkTArray<Instruction> fInstructions;
     int fNumLabels = 0;
-    int fNumBranches = 0;
     int fExecutionMaskWritesEnabled = 0;
 };
 
