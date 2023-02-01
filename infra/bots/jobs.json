@@ -404,6 +404,7 @@
   {"name": "Perf-Debian10-Clang-GCE-CPU-AVX512-x86_64-OptimizeForSize-All"},
   {"name": "Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All"},
   {"name": "Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs"},
+  {"name": "Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-ColorSpaces"},
   {"name": "Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast"},
   {"name": "Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_FORCE_RASTER_PIPELINE_BLITTER"},
   {"name": "Perf-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-SkottieTracing"},
@@ -593,6 +594,7 @@
    "cq_config": {}
    },
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs_ASAN"},
+  {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ColorSpaces_ASAN"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack"},
@@ -601,6 +603,7 @@
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-AVIF"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-BonusConfigs"},
+  {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-ColorSpaces"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-Fast"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-SKNX_NO_SIMD"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Release-All-SK_CPU_LIMIT_SSE2"},
@@ -690,7 +693,9 @@
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "dm/.+"]}
   },
   {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal"},
+  {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal_ColorSpaces"},
   {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"},
+  {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal_ColorSpaces"},
   {"name": "Test-Mac10.15.7-Clang-MacMini7.1-CPU-AVX2-x86_64-Debug-All-NativeFonts"},
   {"name": "Test-Mac10.15.7-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-NativeFonts_i5"},
   {"name": "Test-Mac11-Clang-MacMini9.1-CPU-AppleM1-arm64-Debug-All"},
@@ -699,10 +704,12 @@
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-ASAN_Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "dm/.+"]}
   },
+  {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-ASAN_Graphite_Metal_ColorSpaces"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "dm/.+"]}
   },
+  {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Metal_ColorSpaces"},
   {"name": "Test-Mac11-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal"},
   {"name": "Test-Mac12-Clang-MacBookPro16.2-GPU-IntelIrisPlus-x86_64-Debug-All"},
   {"name": "Test-Mac12-Clang-MacBookPro16.2-GPU-IntelIrisPlus-x86_64-Debug-All-ANGLE"},

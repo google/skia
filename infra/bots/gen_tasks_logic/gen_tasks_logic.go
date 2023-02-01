@@ -709,7 +709,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				"Skpbench", "AbandonGpuContext", "PreAbandonGpuContext", "Valgrind", "FailFlushTimeCallbacks",
 				"ReleaseAndAbandonGpuContext", "FSAA", "FAAA", "FDAA", "NativeFonts", "GDI",
 				"NoGPUThreads", "DDL1", "DDL3", "OOPRDDL", "T8888",
-				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "SkottieTracing", "SkottieWASM",
+				"DDLTotal", "DDLRecord", "9x9", "BonusConfigs", "ColorSpaces", "SkottieTracing", "SkottieWASM",
 				"GpuTess", "DMSAAStats", "Mskp", "Docker", "PDF", "SkVM", "Puppeteer",
 				"SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile", "WebGL2", "i5",
 				"OldestSupportedSkpVersion"}

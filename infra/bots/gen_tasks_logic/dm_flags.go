@@ -60,6 +60,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	configs := []string{}
 	skipped := []string{}
+	// base configs exercised by the "ColorSpaces" tasks
+	csConfigs := []string{"f16"}
 
 	hasConfig := func(cfg string) bool {
 		for _, c := range configs {
@@ -104,6 +106,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		rv := make([]string, 0, len(slice))
 		for _, e := range slice {
 			rv = append(rv, e+sfx)
+		}
+		return rv
+	}
+	prefix := func(slice []string, pfx string) []string {
+		rv := make([]string, 0, len(slice))
+		for _, e := range slice {
+			rv = append(rv, pfx+e)
 		}
 		return rv
 	}
@@ -195,6 +204,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				"pic-8888", "serialize-8888",
 				"linear-f16", "srgb-rgba", "srgb-f16", "narrow-rgba", "narrow-f16",
 				"p3-rgba", "p3-f16", "rec2020-rgba", "rec2020-f16"}
+		}
+
+		if b.extraConfig("ColorSpaces") {
+			configs = csConfigs
 		}
 
 		if b.extraConfig("PDF") {
@@ -534,6 +547,25 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// Also test "narrow-glf16", which hits F16 surfaces and F16 vertex colors.
 		if b.extraConfig("BonusConfigs") {
 			configs = []string{"glbetex", "glbert", "narrow-glf16", "glreducedshaders", "glr8"}
+		}
+
+		if b.extraConfig("ColorSpaces") {
+			configPrefix := ""
+			if b.extraConfig("Graphite") {
+				if b.extraConfig("Metal") {
+					configPrefix = "grmtl"
+				} else if b.extraConfig("Vulkan") {
+					configPrefix = "grvk"
+				}
+			} else {
+				if b.extraConfig("Metal") {
+					configPrefix = "mtl"
+				} else if b.extraConfig("Vulkan") {
+					configPrefix = "vk"
+				}
+			}
+
+			configs = prefix(csConfigs, configPrefix)
 		}
 
 		if b.os("ChromeOS") {
@@ -1295,6 +1327,29 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	if b.matchExtraConfig("Graphite") {
 		// skia:12813
 		match = append(match, "~async_rescale_and_read")
+	}
+
+	if b.matchExtraConfig("ColorSpaces") {
+		// Here we reset the 'match' and 'skipped' strings bc the ColorSpaces job only
+		// runs a very specific subset of the GMs.
+		skipped = []string{}
+		match = []string{}
+		match = append(match, "async_rescale_and_read_dog_up")
+		match = append(match, "bug6783")
+		match = append(match, "colorspace")
+		match = append(match, "colorspace2")
+		match = append(match, "composeCF")
+		match = append(match, "crbug_224618")
+		match = append(match, "drawlines_with_local_matrix")
+		match = append(match, "gradients_interesting")
+		match = append(match, "manypathatlases_2048")
+		match = append(match, "paint_alpha_normals_rt")
+		match = append(match, "runtimefunctions")
+		match = append(match, "savelayer_f16")
+		match = append(match, "spiral_rt")
+		match = append(match, "srgb_colorfilter")
+		match = append(match, "strokedlines")
+		match = append(match, "sweep_tiling")
 	}
 
 	if len(skipped) > 0 {
