@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatBits.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsDebug.h"

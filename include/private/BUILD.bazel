@@ -52,3 +52,23 @@ skia_filegroup(
     }),
     visibility = ["//include:__pkg__"],
 )
+
+skia_filegroup(
+    name = "buffet_hdrs",
+    srcs = [
+        # Files listed here will be available to Skia internals via the core_priv target.
+        "SkColorData.h",
+        "SkIDChangeListener.h",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+skia_filegroup(
+    name = "buffet_srcs",
+    srcs = [
+        # We really don't want this header to be used outside of SkPath and SkPathBuilder
+        # so we add it to core under srcs instead to enforce that.
+        "SkPathRef.h",
+    ],
+    visibility = ["//src:__pkg__"],
+)

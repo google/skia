@@ -9,6 +9,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkDebug.h"
 #include "include/utils/SkRandom.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/pathops/SkIntersections.h"

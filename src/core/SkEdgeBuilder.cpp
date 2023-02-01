@@ -12,6 +12,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkFixed.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"

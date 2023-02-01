@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "src/pathops/SkLineParameters.h"
 #include "src/pathops/SkPathOpsCubic.h"
 #include "src/pathops/SkPathOpsTypes.h"

@@ -22,6 +22,7 @@
 #include "include/core/SkTypes.h"
 #include "include/ports/SkFontMgr_android.h"
 #include "include/private/SkFixed.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/core/SkOSFile.h"

@@ -21,6 +21,7 @@
 #include "include/core/SkString.h"
 #include "include/encode/SkEncoder.h"
 #include "include/encode/SkPngEncoder.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"

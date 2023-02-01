@@ -7,6 +7,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkGeometry.h"
 #include "src/pathops/SkIntersections.h"
 #include "src/pathops/SkPathOpsConic.h"

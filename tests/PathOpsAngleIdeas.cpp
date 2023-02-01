@@ -7,6 +7,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTArray.h"
 #include "include/utils/SkRandom.h"
 #include "src/base/SkArenaAlloc.h"

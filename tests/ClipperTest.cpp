@@ -13,6 +13,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkEdgeClipper.h"
 #include "src/core/SkLineClipper.h"
 #include "tests/Test.h"

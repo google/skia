@@ -12,6 +12,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatBits.h"
 #include "include/utils/SkParsePath.h"
 #include "src/core/SkGeometry.h"

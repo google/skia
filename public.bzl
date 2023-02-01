@@ -578,6 +578,7 @@ BASE_SRCS_ALL = [
     "src/core/SkQuadClipper.h",
     "src/core/SkRRect.cpp",
     "src/core/SkRRectPriv.h",
+    "src/core/SkRSXform.cpp",
     "src/core/SkRTree.cpp",
     "src/core/SkRTree.h",
     "src/core/SkRasterClip.cpp",

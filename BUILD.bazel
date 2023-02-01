@@ -61,3 +61,30 @@ alias(
     actual = "@com_github_vektra_mockery_v2//:v2",
     visibility = ["//visibility:public"],
 )
+
+####################################################################
+# Experimental public buffet targets below
+
+alias(
+    name = "core",
+    actual = "//src:core",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "pathops",
+    actual = "//src:pathops",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "default_malloc",
+    actual = "//src/ports:default_malloc",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "default_logging",
+    actual = "//src/ports:default_logging",
+    visibility = ["//visibility:public"],
+)

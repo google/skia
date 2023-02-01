@@ -160,4 +160,46 @@ skia_cc_library(
         "//src/base:private_hdrs",
     ],
     features = ["layering_check"],
+    visibility = ["//src:__subpackages__"],
+)
+
+skia_cc_library(
+    name = "core",
+    srcs = [
+        "//include/private:buffet_hdrs",
+        "//include/private:buffet_srcs",
+        "//src/core:buffet_hdrs",
+        "//src/core:buffet_srcs",
+    ],
+    hdrs = ["//include/core:core_hdrs"],
+    visibility = ["//:__pkg__"],
+    deps = [":base"],
+)
+
+skia_cc_library(
+    name = "core_priv",
+    hdrs = [
+        "//include/private:buffet_hdrs",
+        "//src/core:buffet_hdrs",
+    ],
+    visibility = ["//src:__subpackages__"],
+    deps = [":base"],
+)
+
+skia_cc_library(
+    name = "pathops",
+    srcs = [
+        "//src/pathops:private_hdrs",
+        "//src/pathops:srcs",
+    ],
+    hdrs = [
+        "//include/pathops:public_hdrs",
+    ],
+    features = ["layering_check"],
+    visibility = ["//:__subpackages__"],
+    deps = [
+        ":base",
+        ":core",
+        ":core_priv",
+    ],
 )

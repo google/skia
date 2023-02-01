@@ -10,6 +10,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/SkFixed.h"
 #include "include/private/SkHalf.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTPin.h"

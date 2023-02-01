@@ -7,6 +7,7 @@
 
 #include "include/core/SkRect.h"
 
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkRectPriv.h"
 
 bool SkIRect::intersect(const SkIRect& a, const SkIRect& b) {

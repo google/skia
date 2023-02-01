@@ -12,6 +12,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkDebug.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/pathops/SkPathOpsDebug.h"
 #include "src/pathops/SkPathOpsPoint.h"

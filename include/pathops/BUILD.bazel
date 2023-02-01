@@ -9,5 +9,8 @@ skia_filegroup(
     srcs = [
         "SkPathOps.h",
     ],
-    visibility = ["//include:__pkg__"],
+    visibility = [
+        "//include:__pkg__",
+        "//src:__pkg__",
+    ],
 )

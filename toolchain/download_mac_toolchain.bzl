@@ -90,8 +90,8 @@ def _download_mac_toolchain_impl(ctx):
     builtin_include_directories = [
         "include/c++/v1",
         "lib/clang/15.0.1/include",
-        "symlinks/xcode/Frameworks",
-        "symlinks/xcode/include",
+        "symlinks/xcode/MacSDK/Frameworks",
+        "symlinks/xcode/MacSDK/usr/include",
     ]
 
     generate_system_module_map(
@@ -173,7 +173,13 @@ filegroup(
         "lib/libc++.a",
         "lib/libc++abi.a",
         "lib/libunwind.a",
-    ],
+    ] + glob(
+        include = [
+            # libc++.tbd and libSystem.tbd live here.
+            "symlinks/xcode/MacSDK/usr/lib/*",
+        ],
+        allow_empty = False,
+    ),
     visibility = ["//visibility:public"],
 )
 """,

@@ -25,6 +25,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/utils/SkCanvasStateUtils.h"
 #include "src/base/SkTLazy.h"

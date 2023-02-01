@@ -242,6 +242,7 @@ CORE_FILES = [
     "SkQuadClipper.h",
     "SkRRect.cpp",
     "SkRRectPriv.h",
+    "SkRSXform.cpp",
     "SkRTree.cpp",
     "SkRTree.h",
     "SkRasterClip.cpp",
@@ -425,5 +426,60 @@ skia_filegroup(
         ],
         "//conditions:default": [],
     }),
+    visibility = ["//src:__pkg__"],
+)
+
+skia_filegroup(
+    name = "buffet_hdrs",
+    srcs = [
+        # By putting headers here, we are explicitly stating we want to use them
+        # in places other than core. They still count as "private" headers.
+        "SkGeometry.h",
+        "SkMatrixPriv.h",
+        "SkMatrixInvert.h",
+        "SkMatrixUtils.h",
+        "SkPathPriv.h",
+        "SkPointPriv.h",
+        "SkRRectPriv.h",
+        "SkRectPriv.h",
+        "SkSamplingPriv.h",
+        "SkStreamPriv.h",
+    ],
+    visibility = ["//src:__pkg__"],
+)
+
+skia_filegroup(
+    name = "buffet_srcs",
+    srcs = [
+        # Private Headers
+        "SkCubicClipper.h",
+        "SkEdgeClipper.h",
+        "SkLineClipper.h",
+        "SkOSFile.h",  # TODO(kjlubick) probably need platform-specific .cpp files
+        "SkPathMakers.h",
+        "SkScaleToSides.h",
+        "SkStringUtils.h",
+    ] + [
+        # Implementation of public and private headers
+        "SkColor.cpp",
+        "SkCubicClipper.cpp",
+        "SkEdgeClipper.cpp",
+        "SkGeometry.cpp",
+        "SkIDChangeListener.cpp",
+        "SkLineClipper.cpp",
+        "SkM44.cpp",
+        "SkMatrix.cpp",
+        "SkPath.cpp",
+        "SkPathBuilder.cpp",
+        "SkPathRef.cpp",
+        "SkPoint.cpp",
+        "SkPoint3.cpp",
+        "SkRRect.cpp",
+        "SkRSXform.cpp",
+        "SkRect.cpp",
+        "SkStream.cpp",
+        "SkString.cpp",
+        "SkStringUtils.cpp",
+    ],
     visibility = ["//src:__pkg__"],
 )

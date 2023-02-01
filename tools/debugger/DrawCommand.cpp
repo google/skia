@@ -34,6 +34,7 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/private/SkShadowFlags.h"
 #include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/base/SkAutoMalloc.h"

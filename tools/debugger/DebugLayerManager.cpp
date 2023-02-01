@@ -16,6 +16,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkTHash.h"
 #include "tools/debugger/DebugCanvas.h"
 

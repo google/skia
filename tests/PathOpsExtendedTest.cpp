@@ -19,6 +19,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatBits.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTDArray.h"

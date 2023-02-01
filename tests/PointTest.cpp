@@ -9,6 +9,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkPointPriv.h"
 #include "tests/Test.h"
 

@@ -7,8 +7,9 @@
 
 #include "modules/skunicode/include/SkUnicode.h"
 
-#include "include/private/SkBitmaskEnum.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTemplates.h"
+#include "include/private/SkBitmaskEnum.h"
 
 using namespace skia_private;
 

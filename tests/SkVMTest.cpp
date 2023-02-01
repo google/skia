@@ -13,6 +13,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkSLProgramKind.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/core/SkMSAN.h"
 #include "src/core/SkVM.h"

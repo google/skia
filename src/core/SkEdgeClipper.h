@@ -12,6 +12,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
+#include "include/private/base/SkDebug.h"
 
 struct SkRect;
 
