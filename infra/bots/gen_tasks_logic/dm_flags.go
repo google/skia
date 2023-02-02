@@ -107,13 +107,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 		return rv
 	}
-	prefix := func(slice []string, pfx string) []string {
-		rv := make([]string, 0, len(slice))
-		for _, e := range slice {
-			rv = append(rv, pfx+e)
-		}
-		return rv
-	}
 
 	// When matching skip logic, _ is a wildcard that matches all parts for the field.
 	// For example, "8888 _ _ _" means everything that is part of an 8888 config and
@@ -200,7 +193,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = []string{
 				"r8", "565",
 				"pic-8888", "serialize-8888",
-				"linear-f16", "srgb-rgba", "srgb-f16", "narrow-rgba", "narrow-f16",
+				"linear-f16", "srgb-rgba", "srgb-f16",
 				"p3-rgba", "p3-f16", "rec2020-rgba", "rec2020-f16"}
 		}
 
@@ -576,35 +569,54 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	if b.matchExtraConfig("ColorSpaces") {
-		// base configs that each specific backend will run its own version of
-		csConfigs := []string{"f16"}
+		// Here we're going to generate a bunch of configs with the format:
+		//        <colorspace> <backend> <targetFormat>
+		// Where: <colorspace> is one of:   "", "narrow-"
+		//        <backend> is one of: "gl, "gles", "mtl", "vk"
+		//                             their "gr" prefixed versions
+		//                             and "" (for raster)
+		//        <targetFormat> is one of: "f16", { "" (for gpus) or "rgba" (for raster) }
+		colorSpaces := []string{"", "narrow-"}
 
-		configPrefix := ""
+		backendStr := ""
 		if b.gpu() {
 			if b.extraConfig("Graphite") {
 				if b.extraConfig("GL") {
-					configPrefix = "grgl"
+					backendStr = "grgl"
 				} else if b.extraConfig("GLES") {
-					configPrefix = "grgles"
+					backendStr = "grgles"
 				} else if b.extraConfig("Metal") {
-					configPrefix = "grmtl"
+					backendStr = "grmtl"
 				} else if b.extraConfig("Vulkan") {
-					configPrefix = "grvk"
+					backendStr = "grvk"
 				}
 			} else {
 				if b.extraConfig("GL") {
-					configPrefix = "gl"
+					backendStr = "gl"
 				} else if b.extraConfig("GLES") {
-					configPrefix = "gles"
+					backendStr = "gles"
 				} else if b.extraConfig("Metal") {
-					configPrefix = "mtl"
+					backendStr = "mtl"
 				} else if b.extraConfig("Vulkan") {
-					configPrefix = "vk"
+					backendStr = "vk"
 				}
 			}
 		}
 
-		configs = prefix(csConfigs, configPrefix)
+		targetFormats := []string{"f16"}
+		if b.gpu() {
+			targetFormats = append(targetFormats, "")
+		} else {
+			targetFormats = append(targetFormats, "rgba")
+		}
+
+		configs = []string{}
+
+		for _, cs := range colorSpaces {
+			for _, tf := range targetFormats {
+				configs = append(configs, cs+backendStr+tf)
+			}
+		}
 	}
 
 	// Sharding.
