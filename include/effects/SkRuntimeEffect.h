@@ -501,6 +501,23 @@ private:
 };
 
 /**
+ * SkRuntimeColorFilterBuilder makes it easy to setup and assign uniforms to runtime color filters.
+ */
+class SK_API SkRuntimeColorFilterBuilder : public SkRuntimeEffectBuilder {
+public:
+    explicit SkRuntimeColorFilterBuilder(sk_sp<SkRuntimeEffect>);
+    ~SkRuntimeColorFilterBuilder();
+
+    SkRuntimeColorFilterBuilder(const SkRuntimeColorFilterBuilder&) = delete;
+    SkRuntimeColorFilterBuilder& operator=(const SkRuntimeColorFilterBuilder&) = delete;
+
+    sk_sp<SkColorFilter> makeColorFilter();
+
+private:
+    using INHERITED = SkRuntimeEffectBuilder;
+};
+
+/**
  * SkRuntimeBlendBuilder is a utility to simplify creation and uniform setup of runtime blenders.
  */
 class SK_API SkRuntimeBlendBuilder : public SkRuntimeEffectBuilder {

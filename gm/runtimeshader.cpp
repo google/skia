@@ -390,6 +390,8 @@ public:
     }
 
     void onDraw(SkCanvas* canvas) override {
+        SkRuntimeColorFilterBuilder builder(fEffect);
+
         // First we draw the unmodified image, and a copy that was sepia-toned in Photoshop:
         canvas->drawImage(fMandrill,      0,   0);
         canvas->drawImage(fMandrillSepia, 0, 256);
@@ -399,12 +401,10 @@ public:
 
         const SkSamplingOptions sampling(SkFilterMode::kLinear);
 
-        float uniforms[] = {
-                (kSize - 1) / kSize,  // rg_scale
-                0.5f / kSize,         // rg_bias
-                kSize - 1,            // b_scale
-                1.0f / kSize,         // inv_size
-        };
+        builder.uniform("rg_scale")     = (kSize - 1) / kSize;
+        builder.uniform("rg_bias")      = 0.5f / kSize;
+        builder.uniform("b_scale")      = kSize - 1;
+        builder.uniform("inv_size")     = 1.0f / kSize;
 
         SkPaint paint;
 
@@ -412,15 +412,15 @@ public:
         SkMatrix normalize = SkMatrix::Scale(1.0f / (kSize * kSize), 1.0f / kSize);
 
         // Now draw the image with an identity color cube - it should look like the original
-        SkRuntimeEffect::ChildPtr children[] = {fIdentityCube->makeShader(sampling, normalize)};
-        paint.setColorFilter(fEffect->makeColorFilter(
-                SkData::MakeWithCopy(uniforms, sizeof(uniforms)), SkSpan(children)));
+        builder.child("color_cube") = fIdentityCube->makeShader(sampling, normalize);
+
+        paint.setColorFilter(builder.makeColorFilter());
         canvas->drawImage(fMandrill, 256, 0, sampling, &paint);
 
         // ... and with a sepia-tone color cube. This should match the sepia-toned image.
-        children[0] = fSepiaCube->makeShader(sampling, normalize);
-        paint.setColorFilter(fEffect->makeColorFilter(
-                SkData::MakeWithCopy(uniforms, sizeof(uniforms)), SkSpan(children)));
+        builder.child("color_cube") = fSepiaCube->makeShader(sampling, normalize);
+
+        paint.setColorFilter(builder.makeColorFilter());
         canvas->drawImage(fMandrill, 256, 256, sampling, &paint);
     }
 };

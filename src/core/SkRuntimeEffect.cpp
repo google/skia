@@ -1907,4 +1907,14 @@ sk_sp<SkBlender> SkRuntimeBlendBuilder::makeBlender() {
                                        SkSpan(this->children(), this->numChildren()));
 }
 
+SkRuntimeColorFilterBuilder::SkRuntimeColorFilterBuilder(sk_sp<SkRuntimeEffect> effect)
+        : INHERITED(std::move(effect)) {}
+
+SkRuntimeColorFilterBuilder::~SkRuntimeColorFilterBuilder() = default;
+
+sk_sp<SkColorFilter> SkRuntimeColorFilterBuilder::makeColorFilter() {
+    return this->effect()->makeColorFilter(this->uniforms(),
+                                           SkSpan(this->children(), this->numChildren()));
+}
+
 #endif  // SK_ENABLE_SKSL
