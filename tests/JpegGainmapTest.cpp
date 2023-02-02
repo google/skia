@@ -18,6 +18,7 @@
 #include "include/private/SkGainmapInfo.h"
 #include "include/private/SkGainmapShader.h"
 #include "include/private/SkJpegGainmapEncoder.h"
+#include "src/codec/SkJpegCodec.h"
 #include "src/codec/SkJpegMultiPicture.h"
 #include "src/codec/SkJpegSegmentScan.h"
 #include "src/codec/SkJpegSourceMgr.h"
@@ -29,6 +30,82 @@
 #include <memory>
 #include <utility>
 #include <vector>
+
+namespace {
+
+// A test stream to stress the different SkJpegSourceMgr sub-classes.
+class TestStream : public SkStream {
+public:
+    enum class Type {
+        kUnseekable,    // SkJpegUnseekableSourceMgr
+        kSeekable,      // SkJpegBufferedSourceMgr
+        kMemoryMapped,  // SkJpegMemorySourceMgr
+    };
+    TestStream(Type type, SkStream* stream)
+            : fStream(stream)
+            , fSeekable(type != Type::kUnseekable)
+            , fMemoryMapped(type == Type::kMemoryMapped) {}
+    ~TestStream() override {}
+
+    size_t read(void* buffer, size_t size) override { return fStream->read(buffer, size); }
+    size_t peek(void* buffer, size_t size) const override { return fStream->peek(buffer, size); }
+    bool isAtEnd() const override { return fStream->isAtEnd(); }
+    bool rewind() override {
+        if (!fSeekable) {
+            return false;
+        }
+        return fStream->rewind();
+    }
+    bool hasPosition() const override {
+        if (!fSeekable) {
+            return false;
+        }
+        return fStream->hasPosition();
+    }
+    size_t getPosition() const override {
+        if (!fSeekable) {
+            return 0;
+        }
+        return fStream->hasPosition();
+    }
+    bool seek(size_t position) override {
+        if (!fSeekable) {
+            return 0;
+        }
+        return fStream->seek(position);
+    }
+    bool move(long offset) override {
+        if (!fSeekable) {
+            return 0;
+        }
+        return fStream->move(offset);
+    }
+    bool hasLength() const override {
+        if (!fMemoryMapped) {
+            return false;
+        }
+        return fStream->hasLength();
+    }
+    size_t getLength() const override {
+        if (!fMemoryMapped) {
+            return 0;
+        }
+        return fStream->getLength();
+    }
+    const void* getMemoryBase() override {
+        if (!fMemoryMapped) {
+            return nullptr;
+        }
+        return fStream->getMemoryBase();
+    }
+
+private:
+    SkStream* const fStream;
+    bool fSeekable = false;
+    bool fMemoryMapped = false;
+};
+
+}  // namespace
 
 DEF_TEST(Codec_jpegSegmentScan, r) {
     const struct Rec {
@@ -115,41 +192,76 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
     }
     REPORTER_ASSERT(r, mpParams);
 
-    stream->rewind();
-    auto sourceMgr = SkJpegSourceMgr::Make(stream.get());
-
-    // Extract the streams for the MultiPicture images.
-    auto mpStreams = SkJpegExtractMultiPictureStreams(mpParams.get(), sourceMgr.get());
-    REPORTER_ASSERT(r, mpStreams);
-    size_t numberOfImages = mpStreams->images.size();
-
-    // Decode them into bitmaps.
-    std::vector<SkBitmap> bitmaps(numberOfImages);
-    for (size_t i = 0; i < numberOfImages; ++i) {
-        auto imageStream = std::move(mpStreams->images[i].stream);
-        if (i == 0) {
-            REPORTER_ASSERT(r, !imageStream);
-            continue;
+    const struct Rec {
+        const TestStream::Type streamType;
+        const bool skipFirstImage;
+        const size_t bufferSize;
+    } recs[] = {
+            {TestStream::Type::kMemoryMapped, false, 1024},
+            {TestStream::Type::kMemoryMapped, true, 1024},
+            {TestStream::Type::kSeekable, false, 1024},
+            {TestStream::Type::kSeekable, true, 1024},
+            {TestStream::Type::kSeekable, false, 7},
+            {TestStream::Type::kSeekable, true, 13},
+            {TestStream::Type::kSeekable, true, 1024 * 1024 * 16},
+            {TestStream::Type::kUnseekable, false, 1024},
+            {TestStream::Type::kUnseekable, true, 1024},
+            {TestStream::Type::kUnseekable, false, 7},
+            {TestStream::Type::kUnseekable, true, 13},
+            {TestStream::Type::kUnseekable, false, 1024 * 1024 * 16},
+            {TestStream::Type::kUnseekable, true, 1024 * 1024 * 16},
+    };
+    for (const auto& rec : recs) {
+        SkJpegMultiPictureParameters testMpParams = *mpParams;
+        if (rec.skipFirstImage) {
+            testMpParams.images[1].size = 0;
+            testMpParams.images[1].dataOffset = 0;
         }
-        REPORTER_ASSERT(r, imageStream);
+        stream->rewind();
+        TestStream testStream(rec.streamType, stream.get());
 
-        std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(imageStream));
-        REPORTER_ASSERT(r, codec);
+        auto sourceMgr = SkJpegSourceMgr::Make(&testStream, rec.bufferSize);
 
-        SkBitmap bm;
-        bm.allocPixels(codec->getInfo());
-        REPORTER_ASSERT(
-                r, SkCodec::kSuccess == codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes()));
-        bitmaps[i] = bm;
+        // Extract the streams for the MultiPicture images.
+        auto mpStreams = SkJpegExtractMultiPictureStreams(&testMpParams, sourceMgr.get());
+        REPORTER_ASSERT(r, mpStreams);
+        size_t numberOfImages = mpStreams->images.size();
+
+        // Decode them into bitmaps.
+        std::vector<SkBitmap> bitmaps(numberOfImages);
+        for (size_t i = 0; i < numberOfImages; ++i) {
+            auto imageStream = std::move(mpStreams->images[i].stream);
+            if (i == 0) {
+                REPORTER_ASSERT(r, !imageStream);
+                continue;
+            }
+            if (i == 1 && rec.skipFirstImage) {
+                REPORTER_ASSERT(r, !imageStream);
+                continue;
+            }
+            REPORTER_ASSERT(r, imageStream);
+
+            std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(imageStream));
+            REPORTER_ASSERT(r, codec);
+
+            SkBitmap bm;
+            bm.allocPixels(codec->getInfo());
+            REPORTER_ASSERT(r,
+                            SkCodec::kSuccess ==
+                                    codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes()));
+            bitmaps[i] = bm;
+        }
+
+        // Spot-check the image size and pixels.
+        if (!rec.skipFirstImage) {
+            REPORTER_ASSERT(r, bitmaps[1].dimensions() == SkISize::Make(1512, 2016));
+            REPORTER_ASSERT(r, bitmaps[1].getColor(0, 0) == 0xFF3B3B3B);
+            REPORTER_ASSERT(r, bitmaps[1].getColor(1511, 2015) == 0xFF101010);
+        }
+        REPORTER_ASSERT(r, bitmaps[2].dimensions() == SkISize::Make(576, 768));
+        REPORTER_ASSERT(r, bitmaps[2].getColor(0, 0) == 0xFF010101);
+        REPORTER_ASSERT(r, bitmaps[2].getColor(575, 767) == 0xFFB5B5B5);
     }
-
-    // Spot-check the image size and pixels.
-    REPORTER_ASSERT(r, bitmaps[1].dimensions() == SkISize::Make(1512, 2016));
-    REPORTER_ASSERT(r, bitmaps[1].getColor(0, 0) == 0xFF3B3B3B);
-    REPORTER_ASSERT(r, bitmaps[1].getColor(1511, 2015) == 0xFF101010);
-    REPORTER_ASSERT(r, bitmaps[2].dimensions() == SkISize::Make(576, 768));
-    REPORTER_ASSERT(r, bitmaps[2].getColor(0, 0) == 0xFF010101);
-    REPORTER_ASSERT(r, bitmaps[2].getColor(575, 767) == 0xFFB5B5B5);
 }
 
 // Decode an image and its gainmap.
@@ -160,7 +272,8 @@ void decode_all(Reporter& r,
                 SkBitmap& gainmapBitmap,
                 SkGainmapInfo& gainmapInfo) {
     // Decode the base bitmap.
-    std::unique_ptr<SkCodec> baseCodec = SkCodec::MakeFromStream(std::move(stream));
+    SkCodec::Result result = SkCodec::kSuccess;
+    std::unique_ptr<SkCodec> baseCodec = SkJpegCodec::MakeFromStream(std::move(stream), &result);
     REPORTER_ASSERT(r, baseCodec);
     baseBitmap.allocPixels(baseCodec->getInfo());
     REPORTER_ASSERT(r,
@@ -253,7 +366,7 @@ static bool approx_eq_rgb(const SkColor4f& x, const SkColor4f& y, float epsilon)
            approx_eq(x.fB, y.fB, epsilon);
 }
 
-DEF_TEST(AndroidCodec_jpegGainmap, r) {
+DEF_TEST(AndroidCodec_jpegGainmapDecode, r) {
     const struct Rec {
         const char* path;
         SkISize dimensions;
@@ -294,19 +407,22 @@ DEF_TEST(AndroidCodec_jpegGainmap, r) {
              SkGainmapInfo::Type::kHDRGM},
     };
 
-    for (bool useFileStream : {false, true}) {
+    TestStream::Type kStreamTypes[] = {
+            TestStream::Type::kUnseekable,
+            TestStream::Type::kSeekable,
+            TestStream::Type::kMemoryMapped,
+    };
+    for (const auto& streamType : kStreamTypes) {
+        bool useFileStream = streamType != TestStream::Type::kMemoryMapped;
         for (const auto& rec : recs) {
             auto stream = GetResourceAsStream(rec.path, useFileStream);
             REPORTER_ASSERT(r, stream);
+            auto testStream = std::make_unique<TestStream>(streamType, stream.get());
 
             SkBitmap baseBitmap;
             SkBitmap gainmapBitmap;
             SkGainmapInfo gainmapInfo;
-            decode_all(r,
-                       GetResourceAsStream(rec.path, useFileStream),
-                       baseBitmap,
-                       gainmapBitmap,
-                       gainmapInfo);
+            decode_all(r, std::move(testStream), baseBitmap, gainmapBitmap, gainmapInfo);
 
             // Spot-check the image size and pixels.
             REPORTER_ASSERT(r, gainmapBitmap.dimensions() == rec.dimensions);
@@ -331,6 +447,45 @@ DEF_TEST(AndroidCodec_jpegGainmap, r) {
 
             REPORTER_ASSERT(r, gainmapInfo.fType == rec.type);
         }
+    }
+}
+
+DEF_TEST(AndroidCodec_jpegNoGainmap, r) {
+    // This test image has a large APP16 segment that will stress the various SkJpegSourceMgrs'
+    // data skipping paths.
+    const char* path = "images/icc-v2-gbr.jpg";
+
+    TestStream::Type kStreamTypes[] = {
+            TestStream::Type::kUnseekable,
+            TestStream::Type::kSeekable,
+            TestStream::Type::kMemoryMapped,
+    };
+    for (const auto& streamType : kStreamTypes) {
+        bool useFileStream = streamType != TestStream::Type::kMemoryMapped;
+        auto stream = GetResourceAsStream(path, useFileStream);
+        REPORTER_ASSERT(r, stream);
+        auto testStream = std::make_unique<TestStream>(streamType, stream.get());
+
+        // Decode the base bitmap.
+        SkCodec::Result result = SkCodec::kSuccess;
+        std::unique_ptr<SkCodec> baseCodec =
+                SkJpegCodec::MakeFromStream(std::move(testStream), &result);
+        REPORTER_ASSERT(r, baseCodec);
+        SkBitmap baseBitmap;
+        baseBitmap.allocPixels(baseCodec->getInfo());
+        REPORTER_ASSERT(r,
+                        SkCodec::kSuccess == baseCodec->getPixels(baseBitmap.info(),
+                                                                  baseBitmap.getPixels(),
+                                                                  baseBitmap.rowBytes()));
+
+        std::unique_ptr<SkAndroidCodec> androidCodec =
+                SkAndroidCodec::MakeFromCodec(std::move(baseCodec));
+        REPORTER_ASSERT(r, androidCodec);
+
+        // Try to extract the gainmap info and stream. It should fail.
+        SkGainmapInfo gainmapInfo;
+        std::unique_ptr<SkStream> gainmapStream;
+        REPORTER_ASSERT(r, !androidCodec->getAndroidGainmap(&gainmapInfo, &gainmapStream));
     }
 }
 

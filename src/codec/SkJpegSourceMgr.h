@@ -18,6 +18,10 @@
 #include <cstdint>
 #include <memory>
 
+#ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
+#include <vector>
+#endif  // SK_CODEC_DECODES_JPEG_GAINMAPS
+
 class SkStream;
 
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
@@ -32,7 +36,9 @@ struct SkJpegSegment;
  */
 class SkJpegSourceMgr {
 public:
-    static std::unique_ptr<SkJpegSourceMgr> Make(SkStream* stream);
+    // Create a source manager. If the source manager will buffer data, |bufferSize| specifies
+    // the size of that buffer.
+    static std::unique_ptr<SkJpegSourceMgr> Make(SkStream* stream, size_t bufferSize = 1024);
     virtual ~SkJpegSourceMgr();
 
     // Interface called by libjpeg via its jpeg_source_mgr interface.
