@@ -7,6 +7,7 @@
 
 #include "src/codec/SkJpegSegmentScan.h"
 
+#ifdef SK_CODEC_DECODES_JPEG
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"
 #include "include/private/base/SkAssert.h"
@@ -205,3 +206,4 @@ void SkJpegSegmentScanner::onByte(uint8_t byte) {
             break;
     }
 }
+#endif  // SK_CODEC_DECODES_JPEG

@@ -7,6 +7,7 @@
 
 #include "src/codec/SkJpegSourceMgr.h"
 
+#ifdef SK_CODEC_DECODES_JPEG
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
@@ -257,3 +258,4 @@ sk_sp<SkData> SkJpegSourceMgr::copyParameters(const SkJpegSegment& segment,
     return result;
 }
 #endif  // SK_CODEC_DECODES_JPEG_GAINMAPS
+#endif  // SK_CODEC_DECODES_JPEG
