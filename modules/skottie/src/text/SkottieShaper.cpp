@@ -216,15 +216,15 @@ public:
         case Shaper::VAlign::kTopBaseline:
             // Default behavior.
             break;
-        case Shaper::VAlign::kVisualTop:
+        case Shaper::VAlign::kHybridTop:
             ebox.init(extent_box());
             v_offset += fBox.fTop - ebox->fTop;
             break;
-        case Shaper::VAlign::kVisualCenter:
+        case Shaper::VAlign::kHybridCenter:
             ebox.init(extent_box());
             v_offset += fBox.centerY() - ebox->centerY();
             break;
-        case Shaper::VAlign::kVisualBottom:
+        case Shaper::VAlign::kHybridBottom:
             ebox.init(extent_box());
             v_offset += fBox.fBottom - ebox->fBottom;
             break;

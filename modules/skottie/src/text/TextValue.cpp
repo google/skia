@@ -107,9 +107,9 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
                                    : Shaper::VAlign::kTop;
 
     static constexpr Shaper::VAlign gVAlignMap[] = {
-        Shaper::VAlign::kVisualTop,    // 'vj': 0
-        Shaper::VAlign::kVisualCenter, // 'vj': 1
-        Shaper::VAlign::kVisualBottom, // 'vj': 2
+        Shaper::VAlign::kHybridTop,    // 'vj': 0
+        Shaper::VAlign::kHybridCenter, // 'vj': 1
+        Shaper::VAlign::kHybridBottom, // 'vj': 2
     };
     size_t vj;
     if (skottie::Parse((*jtxt)[   "vj"], &vj) ||
@@ -121,13 +121,13 @@ bool Parse(const skjson::Value& jv, const internal::AnimationBuilder& abuilder, 
             // TODO: remove after clients update.
             switch (vj) {
             case 3:
-                // 'sk_vj': 3 -> kVisualCenter/kScaleToFit
-                v->fVAlign = Shaper::VAlign::kVisualCenter;
+                // 'sk_vj': 3 -> kHybridCenter/kScaleToFit
+                v->fVAlign = Shaper::VAlign::kHybridCenter;
                 v->fResize = Shaper::ResizePolicy::kScaleToFit;
                 break;
             case 4:
-                // 'sk_vj': 4 -> kVisualCenter/kDownscaleToFit
-                v->fVAlign = Shaper::VAlign::kVisualCenter;
+                // 'sk_vj': 4 -> kHybridCenter/kDownscaleToFit
+                v->fVAlign = Shaper::VAlign::kHybridCenter;
                 v->fResize = Shaper::ResizePolicy::kDownscaleToFit;
                 break;
             default:

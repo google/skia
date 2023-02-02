@@ -86,7 +86,9 @@ public:
         // Align the first line typographical baseline with the text box top (AE point text).
         kTopBaseline,
 
-        // Skottie vertical alignment extensions: these are based on an extent box defined (in Y) as
+        // Skottie vertical alignment extensions
+
+        // These are based on a hybrid extent box defined (in Y) as
         //
         //   ------------------------------------------------------
         //   MIN(visual_top_extent   , typographical_top_extent   )
@@ -97,11 +99,16 @@ public:
         //   ------------------------------------------------------
 
         // extent box top -> text box top
-        kVisualTop,
+        kHybridTop,
+        kVisualTop = kHybridTop,  // transitional alias
+
         // extent box center -> text box center
-        kVisualCenter,
+        kHybridCenter,
+        kVisualCenter = kHybridCenter,  // transitional alias
+
         // extent box bottom -> text box bottom
-        kVisualBottom,
+        kHybridBottom,
+        kVisualBottom = kHybridBottom,  // transitional alias
     };
 
     enum class ResizePolicy : uint8_t {
