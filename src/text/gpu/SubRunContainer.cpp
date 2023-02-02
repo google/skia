@@ -2324,29 +2324,31 @@ SkRect prepare_for_SDFT_drawing(StrikeForGPU* strike,
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
+        SkGlyphID glyphID = packedID.packedID().glyphID();
         if (!SkScalarsAreFinite(pos.x(), pos.y())) {
             continue;
         }
 
-        SkGlyphDigest digest = strike->digest(packedID);
-
-        if (digest.isEmpty()) {
-            continue;
-        }
-
-        if (digest.canDrawAsSDFT()) {
-            SkPoint mappedPos = creationMatrix.mapPoint(pos);
-            const SkGlyphRect glyphBounds =
-                digest.bounds()
-                    // The SDFT glyphs have 2-pixel wide padding that should
-                    // not be used in calculating the source rectangle.
-                    .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
-                    .offset(mappedPos);
-            boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-            accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
-        } else {
-            // Assume whatever follows SDF doesn't care about the maximum rejected size.
-            rejected->reject(i);
+        SkGlyphDigest digest = strike->sdftDigest(glyphID);
+        switch (digest.SDFTAction()) {
+            case GlyphAction::kAccept: {
+                SkPoint mappedPos = creationMatrix.mapPoint(pos);
+                const SkGlyphRect glyphBounds =
+                    digest.bounds()
+                        // The SDFT glyphs have 2-pixel wide padding that should
+                        // not be used in calculating the source rectangle.
+                        .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
+                        .offset(mappedPos);
+                boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+                accepted->accept(
+                        SkPackedGlyphID{glyphID}, glyphBounds.leftTop(), digest.maskFormat());
+                break;
+            }
+            case GlyphAction::kReject:
+                rejected->reject(i);
+            break;
+            default:
+                break;
         }
     }
 
@@ -2414,7 +2416,7 @@ SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
             continue;
         }
 
-        if (digest.canDrawAsMask()) {
+        if (digest.fitsInAtlas()) {
             SkPoint mappedPos = creationMatrix.mapPoint(pos);
             const SkGlyphRect glyphBounds = digest.bounds().offset(mappedPos);
             boundingRect = skglyph::rect_union(boundingRect, glyphBounds);

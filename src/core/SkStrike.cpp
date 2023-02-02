@@ -341,6 +341,27 @@ SkGlyphDigest SkStrike::directMaskDigest(SkPackedGlyphID packedGlyphID) {
     return *digestPtr;
 }
 
+SkGlyphDigest SkStrike::sdftDigest(SkGlyphID glyphID) {
+    SkGlyphDigest* const digestPtr = this->digestPtr(SkPackedGlyphID{glyphID});
+    if (digestPtr->SDFTAction() != GlyphAction::kUnset) {
+        return *digestPtr;
+    }
+
+    GlyphAction action;
+    if (digestPtr->isEmpty()) {
+        action = GlyphAction::kDrop;
+    } else {
+        if (digestPtr->fitsInAtlas() && digestPtr->maskFormat() == SkMask::Format::kSDF_Format) {
+            action = GlyphAction::kAccept;
+        } else {
+            action = GlyphAction::kReject;
+        }
+    }
+
+    digestPtr->setSDFTAction(action);
+    return *digestPtr;
+}
+
 SkGlyphDigest* SkStrike::addGlyph(SkGlyph* glyph) {
     size_t index = fGlyphForIndex.size();
     SkGlyphDigest digest = SkGlyphDigest{index, *glyph};
