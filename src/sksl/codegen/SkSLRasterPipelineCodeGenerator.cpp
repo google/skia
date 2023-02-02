@@ -1536,7 +1536,7 @@ bool Generator::pushBinaryExpression(const Expression& left, Operator op, const 
         case OperatorKind::LOGICALOR:
         case OperatorKind::BITWISEOR:
             // For logical-or, we verified above that the RHS does not have side effects.
-            fBuilder.binary_op(BuilderOp::bitwise_and_n_ints, type.slotCount());
+            fBuilder.binary_op(BuilderOp::bitwise_or_n_ints, type.slotCount());
             break;
 
         case OperatorKind::LOGICALXOR:

@@ -26,11 +26,11 @@
    26. bitwise_and_int                $0 &= $1
    27. copy_slot_unmasked             ok = $0
    28. copy_2_slots_unmasked          $0..1 = a(0..1)
-   29. bitwise_and_int                $0 &= $1
+   29. bitwise_or_int                 $0 |= $1
    30. copy_slot_unmasked             a_or_b = $0
    31. copy_slot_unmasked             $0 = b
    32. copy_slot_unmasked             $1 = a
-   33. bitwise_and_int                $0 &= $1
+   33. bitwise_or_int                 $0 |= $1
    34. copy_slot_unmasked             b_or_a = $0
    35. copy_slot_unmasked             $0 = ok
    36. copy_2_slots_unmasked          $1..2 = a_or_b(0..1)

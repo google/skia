@@ -285,7 +285,7 @@
   285. zero_slot_unmasked             $1 = 0
   286. cmpne_float                    $0 = notEqual($0, $1)
   287. copy_constant                  $1 = 0xFFFFFFFF
-  288. bitwise_and_int                $0 &= $1
+  288. bitwise_or_int                 $0 |= $1
   289. store_condition_mask           $0 = CondMask
   290. copy_2_slots_unmasked          $1..2 = _3_a(0..1)
   291. cmpeq_float                    $1 = equal($1, $2)

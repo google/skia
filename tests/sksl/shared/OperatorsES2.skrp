@@ -46,7 +46,7 @@
    46. copy_slot_unmasked             $3 = x
    47. cmple_float                    $2 = lessThanEqual($2, $3)
    48. bitwise_and_int                $1 &= $2
-   49. bitwise_and_int                $0 &= $1
+   49. bitwise_or_int                 $0 |= $1
    50. copy_slot_unmasked             b = $0
    51. copy_constant                  $0 = 0x40000000 (2.0)
    52. copy_constant                  $1 = unknownInput
@@ -59,7 +59,7 @@
    59. bitwise_and_int                $0 &= $1
    60. copy_slot_unmasked             e = $0
    61. copy_2_slots_unmasked          $0..1 = b(0..1)
-   62. bitwise_and_int                $0 &= $1
+   62. bitwise_or_int                 $0 |= $1
    63. copy_slot_unmasked             f = $0
    64. copy_slot_unmasked             $0 = x
    65. copy_constant                  $1 = 0x41400000 (12.0)
