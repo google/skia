@@ -330,7 +330,7 @@ SkGlyphDigest SkStrike::directMaskDigest(SkPackedGlyphID packedGlyphID) {
     if (digestPtr->isEmpty()) {
         action = GlyphAction::kDrop;
     } else {
-        if (digestPtr->fitsInAtlas()) {
+        if (digestPtr->fitsInAtlasDirect()) {
             action = GlyphAction::kAccept;
         } else {
             action = GlyphAction::kReject;
@@ -351,7 +351,8 @@ SkGlyphDigest SkStrike::sdftDigest(SkGlyphID glyphID) {
     if (digestPtr->isEmpty()) {
         action = GlyphAction::kDrop;
     } else {
-        if (digestPtr->fitsInAtlas() && digestPtr->maskFormat() == SkMask::Format::kSDF_Format) {
+        if (digestPtr->fitsInAtlasDirect() &&
+            digestPtr->maskFormat() == SkMask::Format::kSDF_Format) {
             action = GlyphAction::kAccept;
         } else {
             action = GlyphAction::kReject;
@@ -359,6 +360,27 @@ SkGlyphDigest SkStrike::sdftDigest(SkGlyphID glyphID) {
     }
 
     digestPtr->setSDFTAction(action);
+    return *digestPtr;
+}
+
+SkGlyphDigest SkStrike::maskDigest(SkGlyphID glyphID) {
+    SkGlyphDigest* const digestPtr = this->digestPtr(SkPackedGlyphID{glyphID});
+    if (digestPtr->maskAction() != GlyphAction::kUnset) {
+        return *digestPtr;
+    }
+
+    GlyphAction action;
+    if (digestPtr->isEmpty()) {
+        action = GlyphAction::kDrop;
+    } else {
+        if (digestPtr->fitsInAtlasDirect()) {
+            action = GlyphAction::kAccept;
+        } else {
+            action = GlyphAction::kReject;
+        }
+    }
+
+    digestPtr->setMaskAction(action);
     return *digestPtr;
 }
 

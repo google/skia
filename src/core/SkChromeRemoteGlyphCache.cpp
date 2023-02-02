@@ -175,6 +175,7 @@ public:
     GlyphAction drawableAction(SkGlyphID) override;
     SkGlyphDigest directMaskDigest(SkPackedGlyphID) override;
     SkGlyphDigest sdftDigest(SkGlyphID) override;
+    SkGlyphDigest maskDigest(SkGlyphID) override;
 
     void writePendingGlyphs(Serializer* serializer);
     SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
@@ -443,7 +444,7 @@ SkGlyphDigest RemoteStrike::directMaskDigest(SkPackedGlyphID packedGlyphID) {
     if (digestPtr->isEmpty()) {
         action = GlyphAction::kDrop;
     } else {
-        if (digestPtr->fitsInAtlas()) {
+        if (digestPtr->fitsInAtlasDirect()) {
             action = GlyphAction::kAccept;
         } else {
             action = GlyphAction::kReject;
@@ -464,7 +465,8 @@ SkGlyphDigest RemoteStrike::sdftDigest(SkGlyphID glyphID) {
     if (digestPtr->isEmpty()) {
         action = GlyphAction::kDrop;
     } else {
-        if (digestPtr->fitsInAtlas() && digestPtr->maskFormat() == SkMask::Format::kSDF_Format) {
+        if (digestPtr->fitsInAtlasDirect() &&
+            digestPtr->maskFormat() == SkMask::Format::kSDF_Format) {
             action = GlyphAction::kAccept;
         } else {
             action = GlyphAction::kReject;
@@ -472,6 +474,27 @@ SkGlyphDigest RemoteStrike::sdftDigest(SkGlyphID glyphID) {
     }
 
     digestPtr->setSDFTAction(action);
+    return *digestPtr;
+}
+
+SkGlyphDigest RemoteStrike::maskDigest(SkGlyphID glyphID) {
+    SkGlyphDigest* const digestPtr = this->digestPtr(SkPackedGlyphID{glyphID});
+    if (digestPtr->maskAction() != GlyphAction::kUnset) {
+        return *digestPtr;
+    }
+
+    GlyphAction action;
+    if (digestPtr->isEmpty()) {
+        action = GlyphAction::kDrop;
+    } else {
+        if (digestPtr->fitsInAtlasInterpolated()) {
+            action = GlyphAction::kAccept;
+        } else {
+            action = GlyphAction::kReject;
+        }
+    }
+
+    digestPtr->setMaskAction(action);
     return *digestPtr;
 }
 

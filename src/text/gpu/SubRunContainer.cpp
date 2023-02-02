@@ -2410,19 +2410,22 @@ SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
             continue;
         }
 
-        SkGlyphDigest digest = strike->digest(packedID);
-
-        if (digest.isEmpty()) {
-            continue;
-        }
-
-        if (digest.fitsInAtlas()) {
-            SkPoint mappedPos = creationMatrix.mapPoint(pos);
-            const SkGlyphRect glyphBounds = digest.bounds().offset(mappedPos);
-            boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-            accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
-        } else {
-            rejected->reject(i);
+        const SkGlyphID glyphID = packedID.packedID().glyphID();
+        const SkGlyphDigest digest = strike->maskDigest(glyphID);
+        switch (digest.directMaskAction()) {
+            case GlyphAction::kAccept: {
+                const SkPoint mappedPos = creationMatrix.mapPoint(pos);
+                const SkGlyphRect glyphBounds = digest.bounds().offset(mappedPos);
+                boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+                accepted->accept(
+                        SkPackedGlyphID{glyphID}, glyphBounds.leftTop(), digest.maskFormat());
+                break;
+            }
+            case GlyphAction::kReject:
+                rejected->reject(i);
+                break;
+            default:
+                break;
         }
     }
 

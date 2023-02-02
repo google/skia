@@ -82,6 +82,7 @@ public:
     virtual skglyph::GlyphAction drawableAction(SkGlyphID) = 0;
     virtual SkGlyphDigest directMaskDigest(SkPackedGlyphID) = 0;
     virtual SkGlyphDigest sdftDigest(SkGlyphID) = 0;
+    virtual SkGlyphDigest maskDigest(SkGlyphID) = 0;
 
     virtual const SkDescriptor& getDescriptor() const = 0;
 

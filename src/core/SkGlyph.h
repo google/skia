@@ -350,13 +350,26 @@ public:
         SkASSERT(static_cast<GlyphAction>(fSDFTAction) == GlyphAction::kUnset);
         fSDFTAction = SkTo<uint32_t>(action);
     }
+    skglyph::GlyphAction maskAction() const {
+        return static_cast<skglyph::GlyphAction>(fMaskAction);
+    }
+    void setMaskAction(skglyph::GlyphAction action) {
+        using namespace skglyph;
+        SkASSERT(static_cast<GlyphAction>(fMaskAction) == GlyphAction::kUnset);
+        fMaskAction = SkTo<uint32_t>(action);
+    }
 
     uint16_t maxDimension() const {
         return std::max(fWidth, fHeight);
     }
 
-    bool fitsInAtlas() const {
+    bool fitsInAtlasDirect() const {
         return this->maxDimension() <= kSkSideTooBigForAtlas;
+    }
+
+    bool fitsInAtlasInterpolated() const {
+        // Include the padding needed for interpolating the glyph when drawing.
+        return this->maxDimension() <= kSkSideTooBigForAtlas - 2;
     }
 
     SkGlyphRect bounds() const {
@@ -377,6 +390,7 @@ private:
         uint32_t fDrawableAction   : 2;  // GlyphAction
         uint32_t fDirectMaskAction : 2;  // GlyphAction
         uint32_t fSDFTAction       : 2;  // GlyphAction
+        uint32_t fMaskAction       : 2;  // GlyphAction
     };
     int16_t fLeft, fTop;
     uint16_t fWidth, fHeight;

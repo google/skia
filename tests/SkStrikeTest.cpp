@@ -61,7 +61,7 @@ static SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
             SkGlyphDigest digest = strike->digest(packedID);
             if (!digest.isEmpty()) {
-                if (digest.fitsInAtlas()) {
+                if (digest.fitsInAtlasDirect()) {
                     const SkGlyphRect glyphBounds = digest.bounds().offset(pos);
                     boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
                     accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
