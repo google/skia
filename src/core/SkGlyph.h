@@ -334,10 +334,23 @@ public:
     void setDrawableAction(skglyph::GlyphAction action) {
         using namespace skglyph;
         SkASSERT(static_cast<GlyphAction>(fDrawableAction) == GlyphAction::kUnset);
-        fDrawableAction = static_cast<uint32_t>(action);
+        fDrawableAction = SkTo<uint32_t>(action);
     }
-    uint16_t maxDimension()  const {
+    skglyph::GlyphAction directMaskAction() const {
+        return static_cast<skglyph::GlyphAction>(fDirectMaskAction);
+    }
+    void setDirectMaskAction(skglyph::GlyphAction action) {
+        using namespace skglyph;
+        SkASSERT(static_cast<GlyphAction>(fDirectMaskAction) == GlyphAction::kUnset);
+        fDirectMaskAction = SkTo<uint32_t>(action);
+    }
+
+    uint16_t maxDimension() const {
         return std::max(fWidth, fHeight);
+    }
+
+    bool fitsInAtlas() const {
+        return this->maxDimension() <= kSkSideTooBigForAtlas;
     }
 
     SkGlyphRect bounds() const {
@@ -355,13 +368,15 @@ private:
     static_assert(SkMask::kCountMaskFormats <= 8);
     static_assert(SkTo<int>(skglyph::GlyphAction::kSize) <= 4);
     struct {
-        uint32_t fIndex          : SkPackedGlyphID::kEndData;
-        uint32_t fIsEmpty        : 1;
-        uint32_t fCanDrawAsMask  : 1;
-        uint32_t fCanDrawAsSDFT  : 1;
-        uint32_t fFormat         : 3;
-        uint32_t fPathAction     : 2;  // GlyphAction
-        uint32_t fDrawableAction : 2;  // GlyphAction
+        uint32_t fIndex            : SkPackedGlyphID::kEndData;
+        uint16_t fIsEmpty          : 1;
+        // TODO: remove fCanDrawAsMask and fCanDrawAsSDFT when fully converted to Action fields.
+        uint32_t fCanDrawAsMask    : 1;
+        uint32_t fCanDrawAsSDFT    : 1;
+        uint32_t fFormat           : 3;
+        uint32_t fPathAction       : 2;  // GlyphAction
+        uint32_t fDrawableAction   : 2;  // GlyphAction
+        uint32_t fDirectMaskAction : 2;  // GlyphAction
     };
     int16_t fLeft, fTop;
     uint16_t fWidth, fHeight;

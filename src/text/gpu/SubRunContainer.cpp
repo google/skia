@@ -2376,20 +2376,21 @@ SkRect prepare_for_direct_mask_drawing(StrikeForGPU* strike,
         const SkPoint mappedPos = positionMatrixWithRounding.mapPoint(pos);
         const SkGlyphID glyphID = notSubPixelGlyphID.packedID().glyphID();
         const SkPackedGlyphID packedGlyphID = SkPackedGlyphID{glyphID, mappedPos, mask};
-        const SkGlyphDigest digest = strike->digest(packedGlyphID);
-
-        if (digest.isEmpty()) {
-            continue;
-        }
-
-        if (digest.canDrawAsMask()) {
-            const SkPoint roundedPos{SkScalarFloorToScalar(mappedPos.x()),
-                                     SkScalarFloorToScalar(mappedPos.y())};
-            const SkGlyphRect glyphBounds = digest.bounds().offset(roundedPos);
-            boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-            accepted->accept(packedGlyphID, glyphBounds.leftTop(), digest.maskFormat());
-        } else {
-            rejected->reject(i);
+        auto digest = strike->directMaskDigest(packedGlyphID);
+        switch (digest.directMaskAction()) {
+            case GlyphAction::kAccept: {
+                const SkPoint roundedPos{SkScalarFloorToScalar(mappedPos.x()),
+                                         SkScalarFloorToScalar(mappedPos.y())};
+                const SkGlyphRect glyphBounds = digest.bounds().offset(roundedPos);
+                boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
+                accepted->accept(packedGlyphID, glyphBounds.leftTop(), digest.maskFormat());
+                break;
+            }
+            case GlyphAction::kReject:
+                rejected->reject(i);
+                break;
+            default:
+                break;
         }
     }
 

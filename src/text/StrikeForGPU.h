@@ -80,6 +80,7 @@ public:
     virtual SkGlyphDigest digest(SkPackedGlyphID) = 0;
     virtual skglyph::GlyphAction pathAction(SkGlyphID) = 0;
     virtual skglyph::GlyphAction drawableAction(SkGlyphID) = 0;
+    virtual SkGlyphDigest directMaskDigest(SkPackedGlyphID) = 0;
 
     virtual const SkDescriptor& getDescriptor() const = 0;
 

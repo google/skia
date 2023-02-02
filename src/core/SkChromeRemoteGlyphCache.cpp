@@ -173,7 +173,7 @@ public:
     SkGlyphDigest digest(SkPackedGlyphID) override;
     GlyphAction pathAction(SkGlyphID) override;
     GlyphAction drawableAction(SkGlyphID) override;
-
+    SkGlyphDigest directMaskDigest(SkPackedGlyphID) override;
 
     void writePendingGlyphs(Serializer* serializer);
     SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
@@ -199,7 +199,7 @@ public:
     void resetScalerContext();
 
 private:
-
+    SkGlyphDigest* digestPtr(SkPackedGlyphID);
     void writeGlyphPath(const SkGlyph& glyph, Serializer* serializer) const;
     void writeGlyphDrawable(const SkGlyph& glyph, Serializer* serializer) const;
     void ensureScalerContext();
@@ -365,18 +365,23 @@ void RemoteStrike::writeGlyphDrawable(const SkGlyph& glyph, Serializer* serializ
     memcpy(serializer->allocate(data->size(), kDrawableAlignment), data->data(), data->size());
 }
 
-SkGlyphDigest RemoteStrike::digest(SkPackedGlyphID packedID) {
-    SkGlyphDigest* digest = fSentGlyphs.find(packedID);
-    if (digest == nullptr) {
-        // Put the new SkGlyph in the glyphs to send.
-        this->ensureScalerContext();
-        fMasksToSend.emplace_back(fContext->makeGlyph(packedID, &fAlloc));
-        SkGlyph* glyph = &fMasksToSend.back();
-
-        SkGlyphDigest newDigest{0, *glyph};
-        digest = fSentGlyphs.set(packedID, newDigest);
+SkGlyphDigest* RemoteStrike::digestPtr(SkPackedGlyphID packedGlyphID) {
+    SkGlyphDigest* digestPtr = fSentGlyphs.find(packedGlyphID);
+    if (digestPtr != nullptr) {
+        return digestPtr;
     }
-    return *digest;
+
+    // Put the new SkGlyph in the glyphs to send.
+    this->ensureScalerContext();
+    fMasksToSend.emplace_back(fContext->makeGlyph(packedGlyphID, &fAlloc));
+    SkGlyph* glyph = &fMasksToSend.back();
+
+    SkGlyphDigest newDigest{0, *glyph};
+    return fSentGlyphs.set(packedGlyphID, newDigest);
+}
+
+SkGlyphDigest RemoteStrike::digest(SkPackedGlyphID packedGlyphID) {
+    return *this->digestPtr(packedGlyphID);
 }
 
 GlyphAction RemoteStrike::pathAction(SkGlyphID glyphID) {
@@ -425,6 +430,27 @@ GlyphAction RemoteStrike::drawableAction(SkGlyphID glyphID) {
         decision = fSentDrawables.set(glyphID, glyphDecision);
     }
     return *decision;
+}
+
+SkGlyphDigest RemoteStrike::directMaskDigest(SkPackedGlyphID packedGlyphID) {
+    SkGlyphDigest* const digestPtr = this->digestPtr(packedGlyphID);
+    if (digestPtr->directMaskAction() != GlyphAction::kUnset) {
+        return *digestPtr;
+    }
+
+    GlyphAction action;
+    if (digestPtr->isEmpty()) {
+        action = GlyphAction::kDrop;
+    } else {
+        if (digestPtr->fitsInAtlas()) {
+            action = GlyphAction::kAccept;
+        } else {
+            action = GlyphAction::kReject;
+        }
+    }
+
+    digestPtr->setDirectMaskAction(action);
+    return *digestPtr;
 }
 
 sktext::SkStrikePromise RemoteStrike::strikePromise() {
