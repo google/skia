@@ -27,6 +27,7 @@ static constexpr char gBulgeDisplacementSkSL[] =
 
     "uniform float2 u_center;"
     "uniform float2 u_radius;"
+    "uniform float2 u_radius_inv;"
     "uniform float u_h;"
     "uniform float u_rcpR;"
     "uniform float u_rcpAsinInvR;"
@@ -55,6 +56,11 @@ static constexpr char gBulgeDisplacementSkSL[] =
     "}"
 
     "half4 main(float2 xy) {"
+        // This normalization used to be handled externally, via a local matrix, but that started
+        // clashing with picture shader's tile sizing logic.
+        // TODO: investigate other ways to manage picture-shader's tile allocation.
+        "xy = (xy - u_center)*u_radius_inv;"
+
         "xy = displace(xy);"
         "xy = xy*u_radius + u_center;"
         "return u_layer.eval(xy);"
@@ -106,6 +112,7 @@ private:
         float h = std::pow(adjHeight, 3)*1.3;
         builder.uniform("u_center")       = fCenter;
         builder.uniform("u_radius")       = fRadius;
+        builder.uniform("u_radius_inv")   = SkVector{1/fRadius.fX, 1/fRadius.fY};
         builder.uniform("u_h")            = h;
         builder.uniform("u_rcpR")         = 1.0f/r;
         builder.uniform("u_rcpAsinInvR")  = 1.0f/std::asin(1/r);
@@ -113,9 +120,7 @@ private:
 
         builder.child("u_layer") = this->contentShader();
 
-        const auto lm = SkMatrix::Translate(fCenter.x(), fCenter.y())
-                      * SkMatrix::Scale(fRadius.x(), fRadius.y());
-        return builder.makeShader(&lm);
+        return builder.makeShader();
     }
 
     SkRect onRevalidate(sksg::InvalidationController* ic, const SkMatrix& ctm) override {
