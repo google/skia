@@ -1571,6 +1571,10 @@ bool Generator::pushChildCall(const ChildCall& c) {
     SkASSERT(childIdx != nullptr);
     SkASSERT(c.arguments().size() >= 1);
 
+    // Save the dst.rgba fields; these hold our execution masks, and could potentially be
+    // clobbered by the child effect.
+    fBuilder.push_dst_rgba();
+
     // All child calls have at least one argument.
     const Expression* arg = c.arguments()[0].get();
     if (!this->pushExpression(*arg)) {
@@ -1621,7 +1625,10 @@ bool Generator::pushChildCall(const ChildCall& c) {
         }
     }
 
-    // The child call has returned a new color via rgba; it's our result, so push it onto the stack.
+    // Restore dst.rgba so our execution masks are back to normal.
+    fBuilder.pop_dst_rgba();
+
+    // The child call has returned the result color via src.rgba; push it onto the stack.
     fBuilder.push_src_rgba();
     return true;
 }
