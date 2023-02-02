@@ -556,6 +556,7 @@ static int stack_usage(const Instruction& inst) {
             return 1;
 
         case BuilderOp::push_src_rgba:
+        case BuilderOp::push_dst_rgba:
             return 4;
 
         case BuilderOp::push_slots:
@@ -1106,6 +1107,11 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
             case BuilderOp::push_src_rgba: {
                 float* dst = tempStackPtr;
                 pipeline->push_back({ProgramOp::store_src, dst});
+                break;
+            }
+            case BuilderOp::push_dst_rgba: {
+                float* dst = tempStackPtr;
+                pipeline->push_back({ProgramOp::store_dst, dst});
                 break;
             }
             case BuilderOp::pop_src_rg: {

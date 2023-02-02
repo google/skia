@@ -164,7 +164,7 @@ DEF_TEST(RasterPipelineBuilderPushPopSrcDst, r) {
     SkSL::RP::Builder builder;
 
     builder.push_src_rgba();
-    builder.push_src_rgba();
+    builder.push_dst_rgba();
     builder.push_src_rgba();
     builder.pop_src_rgba();
     builder.pop_dst_rgba();
@@ -175,7 +175,7 @@ DEF_TEST(RasterPipelineBuilderPushPopSrcDst, r) {
                                                                 /*numUniformSlots=*/0);
     check(r, *program,
 R"(    1. store_src                      $0..3 = src.rgba
-    2. store_src                      $4..7 = src.rgba
+    2. store_dst                      $4..7 = dst.rgba
     3. store_src                      $8..11 = src.rgba
     4. load_src                       src.rgba = $8..11
     5. load_dst                       dst.rgba = $4..7
