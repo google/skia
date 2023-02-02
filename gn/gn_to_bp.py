@@ -88,6 +88,11 @@ cc_defaults {
             srcs: [
                 $arm64_srcs
             ],
+            // TODO(b/267542007): Re-enable stack tagging when miscompile is
+            // fixed
+            sanitize: {
+                memtag_stack: false,
+            },
         },
 
         riscv64: {
