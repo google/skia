@@ -7,6 +7,8 @@
 
 #include "src/codec/SkJpegSegmentScan.h"
 
+#include "include/core/SkTypes.h"
+
 #ifdef SK_CODEC_DECODES_JPEG
 #include "include/core/SkData.h"
 #include "include/core/SkStream.h"

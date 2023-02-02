@@ -6,6 +6,7 @@
  */
 #include "src/codec/SkJpegDecoderMgr.h"
 
+#include "include/core/SkTypes.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/codec/SkJpegSourceMgr.h"
 #include "src/codec/SkJpegUtility.h"

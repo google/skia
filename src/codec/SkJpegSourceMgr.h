@@ -8,6 +8,8 @@
 #ifndef SkJpegSourceMgr_codec_DEFINED
 #define SkJpegSourceMgr_codec_DEFINED
 
+#include "include/core/SkTypes.h"
+
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
 #include "include/core/SkRefCnt.h"
 #endif  // SK_CODEC_DECODES_JPEG_GAINMAPS
