@@ -63,10 +63,10 @@ static bool all_channels_equal(const SkColor4f& c) {
 }
 #endif  // SK_ENABLE_SKSL
 
-sk_sp<SkShader> SkGainmapShader::Make(sk_sp<SkImage> baseImage,
+sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
                                       const SkRect& baseRect,
                                       const SkSamplingOptions& baseSamplingOptions,
-                                      sk_sp<SkImage> gainmapImage,
+                                      const sk_sp<const SkImage>& gainmapImage,
                                       const SkRect& gainmapRect,
                                       const SkSamplingOptions& gainmapSamplingOptions,
                                       const SkGainmapInfo& gainmapInfo,

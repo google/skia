@@ -38,10 +38,10 @@ public:
      *  space must be specified in dstColorSpace.
      *  TODO(ccameron): Remove the need for dstColorSpace.
      */
-    static sk_sp<SkShader> Make(sk_sp<SkImage> baseImage,
+    static sk_sp<SkShader> Make(const sk_sp<const SkImage>& baseImage,
                                 const SkRect& baseRect,
                                 const SkSamplingOptions& baseSamplingOptions,
-                                sk_sp<SkImage> gainmapImage,
+                                const sk_sp<const SkImage>& gainmapImage,
                                 const SkRect& gainmapRect,
                                 const SkSamplingOptions& gainmapSamplingOptions,
                                 const SkGainmapInfo& gainmapInfo,
