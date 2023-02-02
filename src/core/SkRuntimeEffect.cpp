@@ -229,6 +229,53 @@ const SkSL::RP::Program* SkRuntimeEffect::getRPProgram() const {
                                inputs->size() / sizeof(float)};
 }
 
+class RuntimeEffectRPCallbacks : public SkSL::RP::Callbacks {
+public:
+    RuntimeEffectRPCallbacks(const SkStageRec& s,
+                             const SkShaderBase::MatrixRec& m,
+                             SkSpan<const SkRuntimeEffect::ChildPtr> c,
+                             SkSpan<const SkSL::SampleUsage> u)
+            : fStage(s), fMatrix(m), fChildren(c), fSampleUsages(u) {}
+
+    bool appendShader(int index) override {
+        if (SkShader* shader = fChildren[index].shader()) {
+            if (fSampleUsages[index].isPassThrough()) {
+                // Given a passthrough sample, the total-matrix is still as valid as before.
+                return as_SB(shader)->appendStages(fStage, fMatrix);
+            }
+            // For a non-passthrough sample, we need to explicitly mark the total-matrix as invalid.
+            SkShaderBase::MatrixRec nonPassthroughMatrix = fMatrix;
+            nonPassthroughMatrix.markTotalMatrixInvalid();
+            return as_SB(shader)->appendStages(fStage, nonPassthroughMatrix);
+        }
+        // Return the paint color when a null child shader is evaluated.
+        fStage.fPipeline->append_constant_color(fStage.fAlloc, fStage.fPaint.getColor4f());
+        return true;
+    }
+    bool appendColorFilter(int index) override {
+        if (SkColorFilter* colorFilter = fChildren[index].colorFilter()) {
+            return as_CFB(colorFilter)->appendStages(fStage, /*shaderIsOpaque=*/false);
+        }
+        // Return the original color as-is when a null child color filter is evaluated.
+        return true;
+    }
+    bool appendBlender(int index) override {
+        // TODO: SkBlender does not yet support appendStages
+        return false;
+    }
+    void toLinearSrgb() override {
+        // TODO: SkColorSpaceXformSteps?
+    }
+    void fromLinearSrgb() override {
+        // TODO: SkColorSpaceXformSteps?
+    }
+
+    const SkStageRec& fStage;
+    const SkShaderBase::MatrixRec& fMatrix;
+    SkSpan<const SkRuntimeEffect::ChildPtr> fChildren;
+    SkSpan<const SkSL::SampleUsage> fSampleUsages;
+};
+
 bool SkRuntimeEffectPriv::CanDraw(const SkCapabilities* caps, const SkSL::Program* program) {
     SkASSERT(caps && program);
     SkASSERT(program->fConfig->enforcesSkSLVersion());
@@ -1165,8 +1212,11 @@ public:
                                                                                 fUniforms,
                                                                                 rec.fDstCS);
 
-            program->appendStages(rec.fPipeline, rec.fAlloc, uniforms_as_span(inputs.get()));
-            return true;
+            SkShaderBase::MatrixRec matrix(SkMatrix::I());
+            RuntimeEffectRPCallbacks callbacks(rec, matrix, fChildren, fEffect->fSampleUsages);
+            bool success = program->appendStages(rec.fPipeline, rec.fAlloc, &callbacks,
+                                                 uniforms_as_span(inputs.get()));
+            return success;
         }
 #endif
         return false;
@@ -1362,8 +1412,10 @@ public:
                                                                                 fUniforms,
                                                                                 rec.fDstCS);
 
-            program->appendStages(rec.fPipeline, rec.fAlloc, uniforms_as_span(inputs.get()));
-            return true;
+            RuntimeEffectRPCallbacks callbacks(rec, *newMRec, fChildren, fEffect->fSampleUsages);
+            bool success = program->appendStages(rec.fPipeline, rec.fAlloc, &callbacks,
+                                                 uniforms_as_span(inputs.get()));
+            return success;
         }
 #endif
         return false;

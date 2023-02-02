@@ -315,7 +315,7 @@ private:
     friend class GrGLSLSkSLFP;         //
 #endif
 
-    friend class SkRTShader;            // fBaseProgram, fMain, getRPProgram()
+    friend class SkRTShader;            // fBaseProgram, fMain, fSampleUsages, getRPProgram()
     friend class SkRuntimeBlender;      //
     friend class SkRuntimeColorFilter;  //
 

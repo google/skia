@@ -127,6 +127,18 @@ struct Instruction {
     int       fImmC = 0;
 };
 
+class Callbacks {
+public:
+    virtual ~Callbacks() = default;
+
+    virtual bool appendShader(int index) = 0;
+    virtual bool appendColorFilter(int index) = 0;
+    virtual bool appendBlender(int index) = 0;
+
+    virtual void toLinearSrgb() = 0;
+    virtual void fromLinearSrgb() = 0;
+};
+
 class Program {
 public:
     Program(SkTArray<Instruction> instrs,
@@ -136,8 +148,9 @@ public:
             SkRPDebugTrace* debugTrace);
 
 #if !defined(SKSL_STANDALONE)
-    void appendStages(SkRasterPipeline* pipeline,
+    bool appendStages(SkRasterPipeline* pipeline,
                       SkArenaAlloc* alloc,
+                      Callbacks* callbacks,
                       SkSpan<const float> uniforms) const;
 #endif
 

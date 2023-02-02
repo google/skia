@@ -815,8 +815,9 @@ Program::SlotData Program::allocateSlotData(SkArenaAlloc* alloc) const {
 
 #if !defined(SKSL_STANDALONE)
 
-void Program::appendStages(SkRasterPipeline* pipeline,
+bool Program::appendStages(SkRasterPipeline* pipeline,
                            SkArenaAlloc* alloc,
+                           RP::Callbacks* callbacks,
                            SkSpan<const float> uniforms) const {
     // Convert our Instruction list to an array of ProgramOps.
     SkTArray<Stage> stages;
@@ -838,9 +839,21 @@ void Program::appendStages(SkRasterPipeline* pipeline,
                 break;
 
             case ProgramOp::invoke_shader:
+                if (!callbacks || !callbacks->appendShader(sk_bit_cast<intptr_t>(stage.ctx))) {
+                    return false;
+                }
+                break;
+
             case ProgramOp::invoke_color_filter:
+                if (!callbacks || !callbacks->appendColorFilter(sk_bit_cast<intptr_t>(stage.ctx))) {
+                    return false;
+                }
+                break;
+
             case ProgramOp::invoke_blender:
-                // TODO(johnstiles): append the child effect here
+                if (!callbacks || !callbacks->appendBlender(sk_bit_cast<intptr_t>(stage.ctx))) {
+                    return false;
+                }
                 break;
 
             case ProgramOp::label: {
@@ -884,6 +897,8 @@ void Program::appendStages(SkRasterPipeline* pipeline,
         int branchToIdx = labelOffsets[branchGoesToLabel[index]];
         branchContexts[index]->offset = branchToIdx - branchFromIdx;
     }
+
+    return true;
 }
 
 #endif

@@ -426,7 +426,7 @@ static void test_raster_pipeline(skiatest::Reporter* r, const char* testFile, in
 
     // Append the SkSL program to the raster pipeline.
     pipeline.append_constant_color(&alloc, SkColors::kTransparent);
-    rasterProg->appendStages(&pipeline, &alloc, SkSpan(uniformValues));
+    rasterProg->appendStages(&pipeline, &alloc, /*callbacks=*/nullptr, SkSpan(uniformValues));
 
     // Move the float values from RGBA into an 8888 memory buffer.
     uint32_t out[SkRasterPipeline_kMaxStride_highp] = {};
