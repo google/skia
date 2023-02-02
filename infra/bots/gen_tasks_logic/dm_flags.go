@@ -60,8 +60,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	configs := []string{}
 	skipped := []string{}
-	// base configs exercised by the "ColorSpaces" tasks
-	csConfigs := []string{"f16"}
 
 	hasConfig := func(cfg string) bool {
 		for _, c := range configs {
@@ -204,10 +202,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				"pic-8888", "serialize-8888",
 				"linear-f16", "srgb-rgba", "srgb-f16", "narrow-rgba", "narrow-f16",
 				"p3-rgba", "p3-f16", "rec2020-rgba", "rec2020-f16"}
-		}
-
-		if b.extraConfig("ColorSpaces") {
-			configs = csConfigs
 		}
 
 		if b.extraConfig("PDF") {
@@ -549,25 +543,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			configs = []string{"glbetex", "glbert", "narrow-glf16", "glreducedshaders", "glr8"}
 		}
 
-		if b.extraConfig("ColorSpaces") {
-			configPrefix := ""
-			if b.extraConfig("Graphite") {
-				if b.extraConfig("Metal") {
-					configPrefix = "grmtl"
-				} else if b.extraConfig("Vulkan") {
-					configPrefix = "grvk"
-				}
-			} else {
-				if b.extraConfig("Metal") {
-					configPrefix = "mtl"
-				} else if b.extraConfig("Vulkan") {
-					configPrefix = "vk"
-				}
-			}
-
-			configs = prefix(csConfigs, configPrefix)
-		}
-
 		if b.os("ChromeOS") {
 			// Just run GLES for now - maybe add gles_msaa4 in the future
 			configs = []string{"gles"}
@@ -598,6 +573,38 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			args = append(args, "--skpViewportSize", "2048")
 			args = append(args, "--gpuThreads", "0")
 		}
+	}
+
+	if b.matchExtraConfig("ColorSpaces") {
+		// base configs that each specific backend will run its own version of
+		csConfigs := []string{"f16"}
+
+		configPrefix := ""
+		if b.gpu() {
+			if b.extraConfig("Graphite") {
+				if b.extraConfig("GL") {
+					configPrefix = "grgl"
+				} else if b.extraConfig("GLES") {
+					configPrefix = "grgles"
+				} else if b.extraConfig("Metal") {
+					configPrefix = "grmtl"
+				} else if b.extraConfig("Vulkan") {
+					configPrefix = "grvk"
+				}
+			} else {
+				if b.extraConfig("GL") {
+					configPrefix = "gl"
+				} else if b.extraConfig("GLES") {
+					configPrefix = "gles"
+				} else if b.extraConfig("Metal") {
+					configPrefix = "mtl"
+				} else if b.extraConfig("Vulkan") {
+					configPrefix = "vk"
+				}
+			}
+		}
+
+		configs = prefix(csConfigs, configPrefix)
 	}
 
 	// Sharding.
