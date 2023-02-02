@@ -138,8 +138,6 @@ public:
                                                              const SkRect* subset = nullptr,
                                                              const SkRect* domain = nullptr) const;
 
-    virtual bool isYUVA() const { return false; }
-
     // If this image is the current cached image snapshot of a surface then this is called when the
     // surface is destroyed to indicate no further writes may happen to surface backing store.
     virtual void generatingSurfaceIsDeleted() {}
@@ -155,6 +153,10 @@ public:
     std::tuple<skgpu::graphite::TextureProxyView, SkColorType> asView(
             skgpu::graphite::Recorder*,
             skgpu::graphite::Mipmapped) const;
+
+#endif
+#if SK_SUPPORT_GPU || defined(SK_GRAPHITE_ENABLED)
+    virtual bool isYUVA() const { return false; }
 #endif
 
     virtual bool onPinAsTexture(GrRecordingContext*) const { return false; }
