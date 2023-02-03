@@ -307,9 +307,11 @@ enum ActionType {
     kDrawable = 4,
     kSDFT = 6,
     kMask = 8,
-    kTotalBits = 10,
 };
 
+enum ActionTypeSize {
+    kTotalBits = 10
+};
 }  // namespace skglyph
 
 // SkGlyphDigest contains a digest of information for making GPU drawing decisions. It can be
@@ -397,7 +399,7 @@ private:
         uint32_t fIndex            : SkPackedGlyphID::kEndData;
         uint16_t fIsEmpty          : 1;
         uint32_t fFormat           : 3;
-        uint32_t fActions          : skglyph::ActionType::kTotalBits;
+        uint32_t fActions          : skglyph::ActionTypeSize::kTotalBits;
     };
     int16_t fLeft, fTop;
     uint16_t fWidth, fHeight;
