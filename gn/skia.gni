@@ -35,6 +35,8 @@ declare_args() {
   skia_generate_workarounds = false
   skia_include_multiframe_procs = false
   skia_lex = false
+  skia_print_sksl_shaders = false
+  skia_print_native_shaders = false
   skia_tools_require_resources = false
   skia_update_fuchsia_sdk = false
   skia_use_angle = false

@@ -96,8 +96,17 @@ MTLPixelFormat MtlDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags> mas
 }
 
 // Print the source code for all shaders generated.
+#ifdef SK_PRINT_SKSL_SHADERS
+static const bool gPrintSKSL = true;
+#else
 static const bool gPrintSKSL = false;
+#endif
+
+#ifdef SK_PRINT_NATIVE_SHADERS
+static const bool gPrintMSL = true;
+#else
 static const bool gPrintMSL = false;
+#endif
 
 bool SkSLToMSL(SkSL::Compiler* compiler,
                const std::string& sksl,
