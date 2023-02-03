@@ -1213,6 +1213,7 @@ public:
                                                                                 rec.fDstCS);
 
             SkShaderBase::MatrixRec matrix(SkMatrix::I());
+            matrix.markCTMApplied();
             RuntimeEffectRPCallbacks callbacks(rec, matrix, fChildren, fEffect->fSampleUsages);
             bool success = program->appendStages(rec.fPipeline, rec.fAlloc, &callbacks,
                                                  uniforms_as_span(inputs.get()));

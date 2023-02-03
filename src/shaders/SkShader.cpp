@@ -77,7 +77,8 @@ SkShaderBase::MatrixRec::apply(skvm::Builder* p,
                      fTotalLocalMatrix,
                      /*pendingLocalMatrix=*/SkMatrix::I(),
                      fTotalMatrixIsValid,
-                     /*ctmApplied=*/true};}
+                     /*ctmApplied=*/true};
+}
 
 SkShaderBase::MatrixRec SkShaderBase::MatrixRec::concat(const SkMatrix& m) const {
     return {fCTM,

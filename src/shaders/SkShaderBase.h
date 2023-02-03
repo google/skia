@@ -237,6 +237,9 @@ public:
         /** Call to indicate that the mapping from shader to device space is not known. */
         void markTotalMatrixInvalid() { fTotalMatrixIsValid = false; }
 
+        /** Marks the CTM as already applied; can avoid re-seeding the shader unnecessarily. */
+        void markCTMApplied() { fCTMApplied = true; }
+
         /**
          * Indicates whether the total matrix of a MatrixRec passed to a SkShader actually
          * represents the full transform between that shader's coordinate space and device space.
