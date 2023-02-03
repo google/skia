@@ -3153,6 +3153,28 @@ STAGE(bicubic_n1y, SkRasterPipeline_SamplerCtx* ctx) { bicubic_y<-1>(ctx, &g); }
 STAGE(bicubic_p1y, SkRasterPipeline_SamplerCtx* ctx) { bicubic_y<+1>(ctx, &g); }
 STAGE(bicubic_p3y, SkRasterPipeline_SamplerCtx* ctx) { bicubic_y<+3>(ctx, &g); }
 
+STAGE(mipmap_linear_init, SkRasterPipeline_MipmapCtx* ctx) {
+    sk_unaligned_store(ctx->x, r);
+    sk_unaligned_store(ctx->y, g);
+}
+
+STAGE(mipmap_linear_update, SkRasterPipeline_MipmapCtx* ctx) {
+    sk_unaligned_store(ctx->r, r);
+    sk_unaligned_store(ctx->g, g);
+    sk_unaligned_store(ctx->b, b);
+    sk_unaligned_store(ctx->a, a);
+
+    r = sk_unaligned_load<F>(ctx->x) * ctx->scaleX;
+    g = sk_unaligned_load<F>(ctx->y) * ctx->scaleY;
+}
+
+STAGE(mipmap_linear_finish, SkRasterPipeline_MipmapCtx* ctx) {
+    r = lerp(sk_unaligned_load<F>(ctx->r), r, ctx->lowerWeight);
+    g = lerp(sk_unaligned_load<F>(ctx->g), g, ctx->lowerWeight);
+    b = lerp(sk_unaligned_load<F>(ctx->b), b, ctx->lowerWeight);
+    a = lerp(sk_unaligned_load<F>(ctx->a), a, ctx->lowerWeight);
+}
+
 STAGE(callback, SkRasterPipeline_CallbackCtx* c) {
     store4(c->rgba,0, r,g,b,a);
     c->fn(c, tail ? tail : N);
