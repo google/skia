@@ -982,15 +982,10 @@ void SkMatrix::Affine_vpts(const SkMatrix& m, SkPoint dst[], const SkPoint src[]
         SkScalar sy = m.getScaleY();
         SkScalar kx = m.getSkewX();
         SkScalar ky = m.getSkewY();
-        if (count & 1) {
-            dst->set(src->fX * sx + src->fY * kx + tx,
-                     src->fX * ky + src->fY * sy + ty);
-            src += 1;
-            dst += 1;
-        }
         skvx::float4 trans4(tx, ty, tx, ty);
         skvx::float4 scale4(sx, sy, sx, sy);
         skvx::float4  skew4(kx, ky, kx, ky);    // applied to swizzle of src4
+        bool trailingElement = (count & 1);
         count >>= 1;
         for (int i = 0; i < count; ++i) {
             skvx::float4 src4 = skvx::float4::Load(src);
@@ -998,6 +993,10 @@ void SkMatrix::Affine_vpts(const SkMatrix& m, SkPoint dst[], const SkPoint src[]
             (src4 * scale4 + swz4 * skew4 + trans4).store(dst);
             src += 2;
             dst += 2;
+        }
+        if (trailingElement) {
+            dst->set(src->fX * sx + src->fY * kx + tx,
+                     src->fX * ky + src->fY * sy + ty);
         }
     }
 }
