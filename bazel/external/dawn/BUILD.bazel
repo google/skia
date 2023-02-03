@@ -748,6 +748,8 @@ TINT_SRCS = [
     "src/tint/ast/i32.h",
     "src/tint/ast/id_attribute.cc",
     "src/tint/ast/id_attribute.h",
+    "src/tint/ast/identifier.cc",
+    "src/tint/ast/identifier.h",
     "src/tint/ast/identifier_expression.cc",
     "src/tint/ast/identifier_expression.h",
     "src/tint/ast/if_statement.cc",
