@@ -16,7 +16,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float4 color;
     color = float4(_uniforms.colorGreen) * 0.5;
     color.w = 2.0;
-    color.y = color.y / 0.25;
+    color.y = color.y * 4.0;
     color.yzw = color.yzw * float3(0.5);
     color.zywx = color.zywx + float4(0.25, 0.0, 0.0, 0.75);
     _out.sk_FragColor = all(color == float4(0.75, 1.0, 0.25, 1.0)) ? _uniforms.colorGreen : _uniforms.colorRed;

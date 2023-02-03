@@ -137,131 +137,133 @@ bool test_half_b()
         _224 = false;
     }
     ok = _224;
-    float4 _227 = float4(3.0f, 0.0f, 0.0f, 0.0f) / 4.0f.xxxx;
-    float4 _228 = float4(0.0f, 3.0f, 0.0f, 0.0f) / 4.0f.xxxx;
-    m24 = float2x4(_227, _228);
-    bool _241 = false;
+    float2x4 _226 = float2x4(float4(3.0f, 0.0f, 0.0f, 0.0f), float4(0.0f, 3.0f, 0.0f, 0.0f)) * 0.25f;
+    m24 = _226;
+    bool _240 = false;
     if (_224)
     {
-        _241 = all(bool4(_227.x == float4(0.75f, 0.0f, 0.0f, 0.0f).x, _227.y == float4(0.75f, 0.0f, 0.0f, 0.0f).y, _227.z == float4(0.75f, 0.0f, 0.0f, 0.0f).z, _227.w == float4(0.75f, 0.0f, 0.0f, 0.0f).w)) && all(bool4(_228.x == float4(0.0f, 0.75f, 0.0f, 0.0f).x, _228.y == float4(0.0f, 0.75f, 0.0f, 0.0f).y, _228.z == float4(0.0f, 0.75f, 0.0f, 0.0f).z, _228.w == float4(0.0f, 0.75f, 0.0f, 0.0f).w));
+        float4 _233 = _226[0];
+        float4 _236 = _226[1];
+        _240 = all(bool4(_233.x == float4(0.75f, 0.0f, 0.0f, 0.0f).x, _233.y == float4(0.75f, 0.0f, 0.0f, 0.0f).y, _233.z == float4(0.75f, 0.0f, 0.0f, 0.0f).z, _233.w == float4(0.75f, 0.0f, 0.0f, 0.0f).w)) && all(bool4(_236.x == float4(0.0f, 0.75f, 0.0f, 0.0f).x, _236.y == float4(0.0f, 0.75f, 0.0f, 0.0f).y, _236.z == float4(0.0f, 0.75f, 0.0f, 0.0f).z, _236.w == float4(0.0f, 0.75f, 0.0f, 0.0f).w));
     }
     else
     {
-        _241 = false;
+        _240 = false;
     }
-    ok = _241;
-    return _241;
+    ok = _240;
+    return _240;
 }
 
-float4 main(float2 _243)
+float4 main(float2 _242)
 {
     bool _RESERVED_IDENTIFIER_FIXUP_0_ok = true;
     float2x3 _RESERVED_IDENTIFIER_FIXUP_1_m23 = float2x3(float3(2.0f, 0.0f, 0.0f), float3(0.0f, 2.0f, 0.0f));
-    bool _254 = false;
+    bool _253 = false;
     if (true)
     {
-        _254 = all(bool3(float3(2.0f, 0.0f, 0.0f).x == float3(2.0f, 0.0f, 0.0f).x, float3(2.0f, 0.0f, 0.0f).y == float3(2.0f, 0.0f, 0.0f).y, float3(2.0f, 0.0f, 0.0f).z == float3(2.0f, 0.0f, 0.0f).z)) && all(bool3(float3(0.0f, 2.0f, 0.0f).x == float3(0.0f, 2.0f, 0.0f).x, float3(0.0f, 2.0f, 0.0f).y == float3(0.0f, 2.0f, 0.0f).y, float3(0.0f, 2.0f, 0.0f).z == float3(0.0f, 2.0f, 0.0f).z));
+        _253 = all(bool3(float3(2.0f, 0.0f, 0.0f).x == float3(2.0f, 0.0f, 0.0f).x, float3(2.0f, 0.0f, 0.0f).y == float3(2.0f, 0.0f, 0.0f).y, float3(2.0f, 0.0f, 0.0f).z == float3(2.0f, 0.0f, 0.0f).z)) && all(bool3(float3(0.0f, 2.0f, 0.0f).x == float3(0.0f, 2.0f, 0.0f).x, float3(0.0f, 2.0f, 0.0f).y == float3(0.0f, 2.0f, 0.0f).y, float3(0.0f, 2.0f, 0.0f).z == float3(0.0f, 2.0f, 0.0f).z));
     }
     else
     {
-        _254 = false;
+        _253 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _254;
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _253;
     float2x4 _RESERVED_IDENTIFIER_FIXUP_2_m24 = float2x4(float4(3.0f, 0.0f, 0.0f, 0.0f), float4(0.0f, 3.0f, 0.0f, 0.0f));
-    bool _263 = false;
-    if (_254)
+    bool _262 = false;
+    if (_253)
     {
-        _263 = all(bool4(float4(3.0f, 0.0f, 0.0f, 0.0f).x == float4(3.0f, 0.0f, 0.0f, 0.0f).x, float4(3.0f, 0.0f, 0.0f, 0.0f).y == float4(3.0f, 0.0f, 0.0f, 0.0f).y, float4(3.0f, 0.0f, 0.0f, 0.0f).z == float4(3.0f, 0.0f, 0.0f, 0.0f).z, float4(3.0f, 0.0f, 0.0f, 0.0f).w == float4(3.0f, 0.0f, 0.0f, 0.0f).w)) && all(bool4(float4(0.0f, 3.0f, 0.0f, 0.0f).x == float4(0.0f, 3.0f, 0.0f, 0.0f).x, float4(0.0f, 3.0f, 0.0f, 0.0f).y == float4(0.0f, 3.0f, 0.0f, 0.0f).y, float4(0.0f, 3.0f, 0.0f, 0.0f).z == float4(0.0f, 3.0f, 0.0f, 0.0f).z, float4(0.0f, 3.0f, 0.0f, 0.0f).w == float4(0.0f, 3.0f, 0.0f, 0.0f).w));
+        _262 = all(bool4(float4(3.0f, 0.0f, 0.0f, 0.0f).x == float4(3.0f, 0.0f, 0.0f, 0.0f).x, float4(3.0f, 0.0f, 0.0f, 0.0f).y == float4(3.0f, 0.0f, 0.0f, 0.0f).y, float4(3.0f, 0.0f, 0.0f, 0.0f).z == float4(3.0f, 0.0f, 0.0f, 0.0f).z, float4(3.0f, 0.0f, 0.0f, 0.0f).w == float4(3.0f, 0.0f, 0.0f, 0.0f).w)) && all(bool4(float4(0.0f, 3.0f, 0.0f, 0.0f).x == float4(0.0f, 3.0f, 0.0f, 0.0f).x, float4(0.0f, 3.0f, 0.0f, 0.0f).y == float4(0.0f, 3.0f, 0.0f, 0.0f).y, float4(0.0f, 3.0f, 0.0f, 0.0f).z == float4(0.0f, 3.0f, 0.0f, 0.0f).z, float4(0.0f, 3.0f, 0.0f, 0.0f).w == float4(0.0f, 3.0f, 0.0f, 0.0f).w));
     }
     else
     {
-        _263 = false;
+        _262 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _263;
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _262;
     float3x2 _RESERVED_IDENTIFIER_FIXUP_3_m32 = float3x2(float2(4.0f, 0.0f), float2(0.0f, 4.0f), 0.0f.xx);
-    bool _275 = false;
-    if (_263)
+    bool _274 = false;
+    if (_262)
     {
-        _275 = (all(bool2(float2(4.0f, 0.0f).x == float2(4.0f, 0.0f).x, float2(4.0f, 0.0f).y == float2(4.0f, 0.0f).y)) && all(bool2(float2(0.0f, 4.0f).x == float2(0.0f, 4.0f).x, float2(0.0f, 4.0f).y == float2(0.0f, 4.0f).y))) && all(bool2(0.0f.xx.x == 0.0f.xx.x, 0.0f.xx.y == 0.0f.xx.y));
+        _274 = (all(bool2(float2(4.0f, 0.0f).x == float2(4.0f, 0.0f).x, float2(4.0f, 0.0f).y == float2(4.0f, 0.0f).y)) && all(bool2(float2(0.0f, 4.0f).x == float2(0.0f, 4.0f).x, float2(0.0f, 4.0f).y == float2(0.0f, 4.0f).y))) && all(bool2(0.0f.xx.x == 0.0f.xx.x, 0.0f.xx.y == 0.0f.xx.y));
     }
     else
     {
-        _275 = false;
+        _274 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _275;
-    float2x2 _277 = mul(float2x3(float3(2.0f, 0.0f, 0.0f), float3(0.0f, 2.0f, 0.0f)), float3x2(float2(4.0f, 0.0f), float2(0.0f, 4.0f), 0.0f.xx));
-    float2x2 _RESERVED_IDENTIFIER_FIXUP_7_m22 = _277;
-    bool _287 = false;
-    if (_275)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _274;
+    float2x2 _276 = mul(float2x3(float3(2.0f, 0.0f, 0.0f), float3(0.0f, 2.0f, 0.0f)), float3x2(float2(4.0f, 0.0f), float2(0.0f, 4.0f), 0.0f.xx));
+    float2x2 _RESERVED_IDENTIFIER_FIXUP_7_m22 = _276;
+    bool _286 = false;
+    if (_274)
     {
-        float2 _280 = _277[0];
-        float2 _283 = _277[1];
-        _287 = all(bool2(_280.x == float2(8.0f, 0.0f).x, _280.y == float2(8.0f, 0.0f).y)) && all(bool2(_283.x == float2(0.0f, 8.0f).x, _283.y == float2(0.0f, 8.0f).y));
+        float2 _279 = _276[0];
+        float2 _282 = _276[1];
+        _286 = all(bool2(_279.x == float2(8.0f, 0.0f).x, _279.y == float2(8.0f, 0.0f).y)) && all(bool2(_282.x == float2(0.0f, 8.0f).x, _282.y == float2(0.0f, 8.0f).y));
     }
     else
     {
-        _287 = false;
+        _286 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _287;
-    float3 _288 = float3(2.0f, 0.0f, 0.0f) + 1.0f.xxx;
-    float3 _289 = float3(0.0f, 2.0f, 0.0f) + 1.0f.xxx;
-    _RESERVED_IDENTIFIER_FIXUP_1_m23 = float2x3(_288, _289);
-    bool _298 = false;
-    if (_287)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _286;
+    float3 _287 = float3(2.0f, 0.0f, 0.0f) + 1.0f.xxx;
+    float3 _288 = float3(0.0f, 2.0f, 0.0f) + 1.0f.xxx;
+    _RESERVED_IDENTIFIER_FIXUP_1_m23 = float2x3(_287, _288);
+    bool _297 = false;
+    if (_286)
     {
-        _298 = all(bool3(_288.x == float3(3.0f, 1.0f, 1.0f).x, _288.y == float3(3.0f, 1.0f, 1.0f).y, _288.z == float3(3.0f, 1.0f, 1.0f).z)) && all(bool3(_289.x == float3(1.0f, 3.0f, 1.0f).x, _289.y == float3(1.0f, 3.0f, 1.0f).y, _289.z == float3(1.0f, 3.0f, 1.0f).z));
+        _297 = all(bool3(_287.x == float3(3.0f, 1.0f, 1.0f).x, _287.y == float3(3.0f, 1.0f, 1.0f).y, _287.z == float3(3.0f, 1.0f, 1.0f).z)) && all(bool3(_288.x == float3(1.0f, 3.0f, 1.0f).x, _288.y == float3(1.0f, 3.0f, 1.0f).y, _288.z == float3(1.0f, 3.0f, 1.0f).z));
     }
     else
     {
-        _298 = false;
+        _297 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _298;
-    float2 _299 = float2(4.0f, 0.0f) - 2.0f.xx;
-    float2 _300 = float2(0.0f, 4.0f) - 2.0f.xx;
-    float2 _301 = 0.0f.xx - 2.0f.xx;
-    _RESERVED_IDENTIFIER_FIXUP_3_m32 = float3x2(_299, _300, _301);
-    bool _313 = false;
-    if (_298)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _297;
+    float2 _298 = float2(4.0f, 0.0f) - 2.0f.xx;
+    float2 _299 = float2(0.0f, 4.0f) - 2.0f.xx;
+    float2 _300 = 0.0f.xx - 2.0f.xx;
+    _RESERVED_IDENTIFIER_FIXUP_3_m32 = float3x2(_298, _299, _300);
+    bool _312 = false;
+    if (_297)
     {
-        _313 = (all(bool2(_299.x == float2(2.0f, -2.0f).x, _299.y == float2(2.0f, -2.0f).y)) && all(bool2(_300.x == float2(-2.0f, 2.0f).x, _300.y == float2(-2.0f, 2.0f).y))) && all(bool2(_301.x == (-2.0f).xx.x, _301.y == (-2.0f).xx.y));
+        _312 = (all(bool2(_298.x == float2(2.0f, -2.0f).x, _298.y == float2(2.0f, -2.0f).y)) && all(bool2(_299.x == float2(-2.0f, 2.0f).x, _299.y == float2(-2.0f, 2.0f).y))) && all(bool2(_300.x == (-2.0f).xx.x, _300.y == (-2.0f).xx.y));
     }
     else
     {
-        _313 = false;
+        _312 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _313;
-    float4 _314 = float4(3.0f, 0.0f, 0.0f, 0.0f) / 4.0f.xxxx;
-    float4 _315 = float4(0.0f, 3.0f, 0.0f, 0.0f) / 4.0f.xxxx;
-    _RESERVED_IDENTIFIER_FIXUP_2_m24 = float2x4(_314, _315);
-    bool _324 = false;
-    if (_313)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _312;
+    float2x4 _313 = float2x4(float4(3.0f, 0.0f, 0.0f, 0.0f), float4(0.0f, 3.0f, 0.0f, 0.0f)) * 0.25f;
+    _RESERVED_IDENTIFIER_FIXUP_2_m24 = _313;
+    bool _323 = false;
+    if (_312)
     {
-        _324 = all(bool4(_314.x == float4(0.75f, 0.0f, 0.0f, 0.0f).x, _314.y == float4(0.75f, 0.0f, 0.0f, 0.0f).y, _314.z == float4(0.75f, 0.0f, 0.0f, 0.0f).z, _314.w == float4(0.75f, 0.0f, 0.0f, 0.0f).w)) && all(bool4(_315.x == float4(0.0f, 0.75f, 0.0f, 0.0f).x, _315.y == float4(0.0f, 0.75f, 0.0f, 0.0f).y, _315.z == float4(0.0f, 0.75f, 0.0f, 0.0f).z, _315.w == float4(0.0f, 0.75f, 0.0f, 0.0f).w));
+        float4 _316 = _313[0];
+        float4 _319 = _313[1];
+        _323 = all(bool4(_316.x == float4(0.75f, 0.0f, 0.0f, 0.0f).x, _316.y == float4(0.75f, 0.0f, 0.0f, 0.0f).y, _316.z == float4(0.75f, 0.0f, 0.0f, 0.0f).z, _316.w == float4(0.75f, 0.0f, 0.0f, 0.0f).w)) && all(bool4(_319.x == float4(0.0f, 0.75f, 0.0f, 0.0f).x, _319.y == float4(0.0f, 0.75f, 0.0f, 0.0f).y, _319.z == float4(0.0f, 0.75f, 0.0f, 0.0f).z, _319.w == float4(0.0f, 0.75f, 0.0f, 0.0f).w));
     }
     else
     {
-        _324 = false;
+        _323 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _324;
-    bool _328 = false;
-    if (_324)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _323;
+    bool _327 = false;
+    if (_323)
     {
-        _328 = test_half_b();
+        _327 = test_half_b();
     }
     else
     {
-        _328 = false;
+        _327 = false;
     }
-    float4 _329 = 0.0f.xxxx;
-    if (_328)
+    float4 _328 = 0.0f.xxxx;
+    if (_327)
     {
-        _329 = _11_colorGreen;
+        _328 = _11_colorGreen;
     }
     else
     {
-        _329 = _11_colorRed;
+        _328 = _11_colorRed;
     }
-    return _329;
+    return _328;
 }
 
 void frag_main()

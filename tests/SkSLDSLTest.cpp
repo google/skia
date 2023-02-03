@@ -800,9 +800,9 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLDivide, r, ctxInfo) {
     EXPECT_EQUAL(a / b,
                 "a / b");
     EXPECT_EQUAL(a / 2,
-                "a / 2.0");
-    EXPECT_EQUAL(0.5 / a / -99,
-               "(0.5 / a) / -99.0");
+                "a * 0.5");
+    EXPECT_EQUAL(0.5 / a / -100,
+               "(0.5 / a) * -0.01");
     EXPECT_EQUAL(b / (a - 1),
                 "b / (a - 1.0)");
     EXPECT_EQUAL(a /= b + 1,

@@ -46,12 +46,12 @@
    46. copy_constant                  $4 = 0x3F800000 (1.0)
    47. copy_slot_unmasked             $5 = x
    48. cast_to_float_from_int         $5 = IntToFloat($5)
-   49. copy_constant                  $6 = 0x437F0000 (255.0)
-   50. div_float                      $5 /= $6
+   49. copy_constant                  $6 = 0x3B808081 (0.003921569)
+   50. mul_float                      $5 *= $6
    51. copy_slot_unmasked             $6 = y
    52. cast_to_float_from_int         $6 = IntToFloat($6)
-   53. copy_constant                  $7 = 0x437F0000 (255.0)
-   54. div_float                      $6 /= $7
+   53. copy_constant                  $7 = 0x3B808081 (0.003921569)
+   54. mul_float                      $6 *= $7
    55. copy_constant                  $7 = 0x3F800000 (1.0)
    56. copy_4_slots_masked            [main].result = Mask($4..7)
    57. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)

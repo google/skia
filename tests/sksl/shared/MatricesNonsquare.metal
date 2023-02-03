@@ -109,13 +109,6 @@ thread bool operator==(const half3x3 left, const half3x3 right) {
 thread bool operator!=(const half3x3 left, const half3x3 right) {
     return !(left == right);
 }
-thread half2x4 operator/(const half2x4 left, const half2x4 right) {
-    return half2x4(left[0] / right[0], left[1] / right[1]);
-}
-thread half2x4& operator/=(thread half2x4& left, thread const half2x4& right) {
-    left = left / right;
-    return left;
-}
 thread bool operator==(const float2x3 left, const float2x3 right) {
     return all(left[0] == right[0]) &&
            all(left[1] == right[1]);
@@ -145,13 +138,6 @@ thread bool operator==(const float2x2 left, const float2x2 right) {
 thread bool operator!=(const float2x2 left, const float2x2 right) {
     return !(left == right);
 }
-thread float2x4 operator/(const float2x4 left, const float2x4 right) {
-    return float2x4(left[0] / right[0], left[1] / right[1]);
-}
-thread float2x4& operator/=(thread float2x4& left, thread const float2x4& right) {
-    left = left / right;
-    return left;
-}
 bool test_half_b() {
     bool ok = true;
     half2x3 m23 = half2x3(2.0h);
@@ -174,7 +160,7 @@ bool test_half_b() {
     ok = ok && m23 == half2x3(half3(3.0h, 1.0h, 1.0h), half3(1.0h, 3.0h, 1.0h));
     m32 -= (half3x2(1.0, 1.0, 1.0, 1.0, 1.0, 1.0) * 2.0h);
     ok = ok && m32 == half3x2(half2(2.0h, -2.0h), half2(-2.0h, 2.0h), half2(-2.0h, -2.0h));
-    m24 /= (half2x4(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0) * 4.0h);
+    m24 *= 0.25h;
     ok = ok && m24 == half2x4(half4(0.75h, 0.0h, 0.0h, 0.0h), half4(0.0h, 0.75h, 0.0h, 0.0h));
     return ok;
 }
@@ -194,7 +180,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _0_ok = _0_ok && _1_m23 == float2x3(float3(3.0, 1.0, 1.0), float3(1.0, 3.0, 1.0));
     _3_m32 -= (float3x2(1.0, 1.0, 1.0, 1.0, 1.0, 1.0) * 2.0);
     _0_ok = _0_ok && _3_m32 == float3x2(float2(2.0, -2.0), float2(-2.0, 2.0), float2(-2.0, -2.0));
-    _2_m24 /= (float2x4(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0) * 4.0);
+    _2_m24 *= 0.25;
     _0_ok = _0_ok && _2_m24 == float2x4(float4(0.75, 0.0, 0.0, 0.0), float4(0.0, 0.75, 0.0, 0.0));
     _out.sk_FragColor = _0_ok && test_half_b() ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;

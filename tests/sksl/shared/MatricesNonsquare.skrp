@@ -137,10 +137,10 @@
   137. copy_slot_unmasked             _0_ok = $0
   138. copy_4_slots_unmasked          $0..3 = _2_m24(0..3)
   139. copy_4_slots_unmasked          $4..7 = _2_m24(4..7)
-  140. copy_constant                  $8 = 0x40800000 (4.0)
+  140. copy_constant                  $8 = 0x3E800000 (0.25)
   141. swizzle_4                      $8..11 = ($8..11).xxxx
   142. copy_4_slots_unmasked          $12..15 = $8..11
-  143. div_n_floats                   $0..7 /= $8..15
+  143. mul_n_floats                   $0..7 *= $8..15
   144. copy_4_slots_unmasked          _2_m24(0..3) = $0..3
   145. copy_4_slots_unmasked          _2_m24(4..7) = $4..7
   146. copy_slot_unmasked             $0 = _0_ok
@@ -432,10 +432,10 @@
   432. copy_slot_masked               ok = Mask($45)
   433. copy_4_slots_unmasked          $45..48 = m24(0..3)
   434. copy_4_slots_unmasked          $49..52 = m24(4..7)
-  435. copy_constant                  $53 = 0x40800000 (4.0)
+  435. copy_constant                  $53 = 0x3E800000 (0.25)
   436. swizzle_4                      $53..56 = ($53..56).xxxx
   437. copy_4_slots_unmasked          $57..60 = $53..56
-  438. div_n_floats                   $45..52 /= $53..60
+  438. mul_n_floats                   $45..52 *= $53..60
   439. copy_4_slots_masked            m24(0..3) = Mask($45..48)
   440. copy_4_slots_masked            m24(4..7) = Mask($49..52)
   441. copy_slot_unmasked             $45 = ok

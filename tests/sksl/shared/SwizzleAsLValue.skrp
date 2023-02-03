@@ -9,8 +9,8 @@
     9. copy_constant                  $0 = 0x40000000 (2.0)
    10. copy_slot_unmasked             color(3) = $0
    11. copy_slot_unmasked             $0 = color(1)
-   12. copy_constant                  $1 = 0x3E800000 (0.25)
-   13. div_float                      $0 /= $1
+   12. copy_constant                  $1 = 0x40800000 (4.0)
+   13. mul_float                      $0 *= $1
    14. copy_slot_unmasked             color(1) = $0
    15. copy_2_slots_unmasked          $1..2 = color(2..3)
    16. copy_constant                  $3 = 0x3F000000 (0.5)

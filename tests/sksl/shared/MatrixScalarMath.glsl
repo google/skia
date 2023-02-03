@@ -19,7 +19,7 @@ bool test_bifffff22(int op, float m11, float m12, float m21, float m22, mat2 exp
             m2 *= 2.0;
             break;
         case 4:
-            m2 /= 2.0;
+            m2 *= 0.5;
             break;
     }
     return ((m2[0].x == expected[0].x && m2[0].y == expected[0].y) && m2[1].x == expected[1].x) && m2[1].y == expected[1].y;
@@ -35,5 +35,5 @@ vec4 main() {
     {
         _2_m2 += 1.0;
     }
-    return (((((_2_m2[0].x == _0_expected[0].x && _2_m2[0].y == _0_expected[0].y) && _2_m2[1].x == _0_expected[1].x) && _2_m2[1].y == _0_expected[1].y) && test_bifffff22(minus, f1, f2, f3, f4, mat2(f1 - 1.0, f2 - 1.0, f3 - 1.0, f4 - 1.0))) && test_bifffff22(star, f1, f2, f3, f4, mat2(f1 * 2.0, f2 * 2.0, f3 * 2.0, f4 * 2.0))) && test_bifffff22(slash, f1, f2, f3, f4, mat2(f1 / 2.0, f2 / 2.0, f3 / 2.0, f4 / 2.0)) ? colorGreen : colorRed;
+    return (((((_2_m2[0].x == _0_expected[0].x && _2_m2[0].y == _0_expected[0].y) && _2_m2[1].x == _0_expected[1].x) && _2_m2[1].y == _0_expected[1].y) && test_bifffff22(minus, f1, f2, f3, f4, mat2(f1 - 1.0, f2 - 1.0, f3 - 1.0, f4 - 1.0))) && test_bifffff22(star, f1, f2, f3, f4, mat2(f1 * 2.0, f2 * 2.0, f3 * 2.0, f4 * 2.0))) && test_bifffff22(slash, f1, f2, f3, f4, mat2(f1 * 0.5, f2 * 0.5, f3 * 0.5, f4 * 0.5)) ? colorGreen : colorRed;
 }

@@ -13,7 +13,7 @@ vec4 main() {
                 _0_x -= y;
             }
             if (x / y != _1_result) {
-                return vec4(1.0, float(x) / 255.0, float(y) / 255.0, 1.0);
+                return vec4(1.0, float(x) * 0.003921569, float(y) * 0.003921569, 1.0);
             }
         }
     }

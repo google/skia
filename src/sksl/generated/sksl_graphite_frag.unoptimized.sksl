@@ -193,9 +193,9 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_frag[] =
 " dst,half4 src){return blend_porter_duff(blendOp,src,dst);}$pure half4 sk_blend_colorfilter"
 "(half4 dstColor,int blendMode,float4 srcColor){return sk_blend(blendMode,half4"
 "(srcColor),dstColor);}$pure half4 sk_table_colorfilter(half4 inColor,sampler2D"
-" s){half4 coords=(unpremul(inColor)*255.)/256.+.001953125;half4 color=half4"
-"(sample(s,float2(half2(coords.x,.375))).x,sample(s,float2(half2(coords.y,.625"
-"))).x,sample(s,float2(half2(coords.z,.875))).x,1.);return color*sample(s,float2"
-"(half2(coords.w,.125))).x;}$pure half4 sk_gaussian_colorfilter(half4 inColor"
-"){half factor=1.-inColor.w;factor=exp((-factor*factor)*4.)-.018;return half4"
-"(factor);}";
+" s){half4 coords=(unpremul(inColor)*255.)*.00390625+.001953125;half4 color="
+"half4(sample(s,float2(half2(coords.x,.375))).x,sample(s,float2(half2(coords"
+".y,.625))).x,sample(s,float2(half2(coords.z,.875))).x,1.);return color*sample"
+"(s,float2(half2(coords.w,.125))).x;}$pure half4 sk_gaussian_colorfilter(half4"
+" inColor){half factor=1.-inColor.w;factor=exp((-factor*factor)*4.)-.018;return"
+" half4(factor);}";

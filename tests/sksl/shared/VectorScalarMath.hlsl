@@ -374,7 +374,7 @@ float4 main(float2 _207)
     _RESERVED_IDENTIFIER_FIXUP_3_x = _340;
     float4 _342 = _340 - 4.0f.xxxx;
     _RESERVED_IDENTIFIER_FIXUP_3_x = _342;
-    float4 _344 = _342 * (1.0f / 2.0f);
+    float4 _344 = _342 * 0.5f;
     _RESERVED_IDENTIFIER_FIXUP_3_x = _344;
     bool _349 = false;
     if (_338)
@@ -392,37 +392,37 @@ float4 main(float2 _207)
     _RESERVED_IDENTIFIER_FIXUP_3_x = _351;
     float4 _352 = _351 - 4.0f.xxxx;
     _RESERVED_IDENTIFIER_FIXUP_3_x = _352;
-    float4 _354 = _352 * 0.5f;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _354;
-    bool _359 = false;
+    float4 _353 = _352 * 0.5f;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _353;
+    bool _358 = false;
     if (_349)
     {
-        _359 = all(bool4(_354.x == float4(2.0f, 8.0f, 16.0f, 4.0f).x, _354.y == float4(2.0f, 8.0f, 16.0f, 4.0f).y, _354.z == float4(2.0f, 8.0f, 16.0f, 4.0f).z, _354.w == float4(2.0f, 8.0f, 16.0f, 4.0f).w));
+        _358 = all(bool4(_353.x == float4(2.0f, 8.0f, 16.0f, 4.0f).x, _353.y == float4(2.0f, 8.0f, 16.0f, 4.0f).y, _353.z == float4(2.0f, 8.0f, 16.0f, 4.0f).z, _353.w == float4(2.0f, 8.0f, 16.0f, 4.0f).w));
     }
     else
     {
-        _359 = false;
+        _358 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _359;
-    bool _363 = false;
-    if (_359)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _358;
+    bool _362 = false;
+    if (_358)
     {
-        _363 = test_int_b();
+        _362 = test_int_b();
     }
     else
     {
-        _363 = false;
+        _362 = false;
     }
-    float4 _364 = 0.0f.xxxx;
-    if (_363)
+    float4 _363 = 0.0f.xxxx;
+    if (_362)
     {
-        _364 = _11_colorGreen;
+        _363 = _11_colorGreen;
     }
     else
     {
-        _364 = _11_colorRed;
+        _363 = _11_colorRed;
     }
-    return _364;
+    return _363;
 }
 
 void frag_main()

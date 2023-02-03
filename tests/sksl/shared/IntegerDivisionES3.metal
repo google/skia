@@ -23,7 +23,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
                 _0_x -= y;
             }
             if (x / y != _1_result) {
-                _out.sk_FragColor = half4(1.0h, half(float(x) / 255.0), half(float(y) / 255.0), 1.0h);
+                _out.sk_FragColor = half4(1.0h, half(float(x) * 0.003921569), half(float(y) * 0.003921569), 1.0h);
                 return _out;
             }
         }

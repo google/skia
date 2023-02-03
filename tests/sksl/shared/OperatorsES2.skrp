@@ -69,8 +69,8 @@
    69. sub_float                      $0 -= $1
    70. copy_slot_unmasked             x = $0
    71. copy_slot_unmasked             $1 = y
-   72. copy_constant                  $2 = 0x41200000 (10.0)
-   73. div_float                      $1 /= $2
+   72. copy_constant                  $2 = 0x3DCCCCCD (0.1)
+   73. mul_float                      $1 *= $2
    74. copy_slot_unmasked             y = $1
    75. mul_float                      $0 *= $1
    76. copy_slot_unmasked             x = $0

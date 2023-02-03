@@ -234,8 +234,8 @@
   234. bitwise_and_int                $0 &= $1
   235. copy_slot_unmasked             _1_ok = $0
   236. copy_slot_unmasked             $0 = _2_x
-  237. copy_constant                  $1 = 0x40000000 (2.0)
-  238. div_float                      $0 /= $1
+  237. copy_constant                  $1 = 0x3F000000 (0.5)
+  238. mul_float                      $0 *= $1
   239. copy_slot_unmasked             _2_x = $0
   240. copy_2_slots_unmasked          $0..1 = _1_ok(0..1)
   241. copy_constant                  $2 = 0xBF800000 (-1.0)

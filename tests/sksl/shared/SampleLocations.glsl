@@ -9,10 +9,10 @@ void main() {
     int ibot = (itop + 1) + (gl_InstanceID * 1901) % (17 - itop);
     float outset = 0.03125;
     outset = 0 == (x + y) % 2 ? -outset : outset;
-    float l = float(ileft) / 16.0 - outset;
-    float r = float(iright) / 16.0 + outset;
-    float t = float(itop) / 16.0 - outset;
-    float b = float(ibot) / 16.0 + outset;
+    float l = float(ileft) * 0.0625 - outset;
+    float r = float(iright) * 0.0625 + outset;
+    float t = float(itop) * 0.0625 - outset;
+    float b = float(ibot) * 0.0625 + outset;
     vec2 vertexpos;
     vertexpos.x = float(x) + (0 == gl_VertexID % 2 ? l : r);
     vertexpos.y = float(y) + (0 == gl_VertexID / 2 ? t : b);

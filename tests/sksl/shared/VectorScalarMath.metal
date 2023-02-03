@@ -65,7 +65,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _0_ok = _0_ok && all(_3_x == half4(2.0h, 1.0h, 1.0h, 2.0h));
     _3_x.xyz = _2_inputGreen.wyw * 9.0h;
     _0_ok = _0_ok && all(_3_x == half4(9.0h, 9.0h, 9.0h, 2.0h));
-    _3_x.xy = _3_x.zw / 0.5h;
+    _3_x.xy = _3_x.zw * 2.0h;
     _0_ok = _0_ok && all(_3_x == half4(18.0h, 4.0h, 9.0h, 2.0h));
     _3_x = (_1_inputRed * 5.0h).yxwz;
     _0_ok = _0_ok && all(_3_x == half4(0.0h, 5.0h, 5.0h, 0.0h));
@@ -84,12 +84,12 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     _3_x += 2.0h;
     _3_x *= 2.0h;
     _3_x -= 4.0h;
-    _3_x /= 2.0h;
+    _3_x *= 0.5h;
     _0_ok = _0_ok && all(_3_x == half4(2.0h, 8.0h, 16.0h, 4.0h));
     _3_x = _3_x + 2.0h;
     _3_x = _3_x * 2.0h;
     _3_x = _3_x - 4.0h;
-    _3_x = _3_x / 2.0h;
+    _3_x = _3_x * 0.5h;
     _0_ok = _0_ok && all(_3_x == half4(2.0h, 8.0h, 16.0h, 4.0h));
     _out.sk_FragColor = _0_ok && test_int_b(_uniforms) ? _uniforms.colorGreen : _uniforms.colorRed;
     return _out;
