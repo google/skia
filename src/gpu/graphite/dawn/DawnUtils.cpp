@@ -132,8 +132,16 @@ wgpu::ShaderModule DawnCompileSPIRVShaderModule(const DawnSharedContext* sharedC
     spirvDesc.codeSize = spirv.size() / 4;
     spirvDesc.code = reinterpret_cast<const uint32_t*>(spirv.c_str());
 
+    // Skia often generates shaders that select a texture/sampler conditionally based on an
+    // attribute (specifically in the case of texture atlas indexing). We disable derivative
+    // uniformity warnings as we expect Skia's behavior to result in well-defined values.
+    wgpu::DawnShaderModuleSPIRVOptionsDescriptor dawnSpirvOptions;
+    dawnSpirvOptions.allowNonUniformDerivatives = true;
+
     wgpu::ShaderModuleDescriptor desc;
     desc.nextInChain = &spirvDesc;
+    spirvDesc.nextInChain = &dawnSpirvOptions;
+
     return sharedContext->device().CreateShaderModule(&desc);
 }
 
