@@ -411,10 +411,7 @@ SkGlyphDigest::SkGlyphDigest(size_t index, const SkGlyph& glyph)
         : fIndex{SkTo<uint32_t>(index)}
         , fIsEmpty(glyph.isEmpty())
         , fFormat(glyph.maskFormat())
-        , fPathAction{SkTo<uint32_t>(GlyphAction::kUnset)}
-        , fDrawableAction{SkTo<uint32_t>(GlyphAction::kUnset)}
-        , fDirectMaskAction{SkTo<uint32_t>(GlyphAction::kUnset)}
-        , fSDFTAction{SkTo<uint32_t>(GlyphAction::kUnset)}
+        , fActions{0}
         , fLeft{SkTo<int16_t>(glyph.left())}
         , fTop{SkTo<int16_t>(glyph.top())}
         , fWidth{SkTo<uint16_t>(glyph.width())}
