@@ -72,7 +72,6 @@
 #include "src/sksl/ir/SkSLVarDeclarations.h"
 #include "src/sksl/ir/SkSLVariableReference.h"
 
-#include <cmath>
 #include <cstring>
 #include <set>
 #include <string>
@@ -3134,17 +3133,6 @@ SpvId SPIRVCodeGenerator::mergeComparisons(SpvId comparison, SpvId allComparison
     return logicalOp;
 }
 
-static float division_by_literal_value(Operator op, const Expression& right) {
-    // If this is a division by a literal value, returns that literal value. Otherwise, returns 0.
-    if (op.kind() == Operator::Kind::SLASH && right.isFloatLiteral()) {
-        float rhsValue = right.as<Literal>().floatValue();
-        if (std::isfinite(rhsValue)) {
-            return rhsValue;
-        }
-    }
-    return 0.0f;
-}
-
 SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, OutputStream& out) {
     const Expression* left = b.left().get();
     const Expression* right = b.right().get();
@@ -3179,19 +3167,7 @@ SpvId SPIRVCodeGenerator::writeBinaryExpression(const BinaryExpression& b, Outpu
         lhs = this->writeExpression(*left, out);
     }
 
-    SpvId rhs;
-    float rhsValue = division_by_literal_value(op, *right);
-    if (rhsValue != 0.0f) {
-        // Rewrite floating-point division by a literal into multiplication by the reciprocal.
-        // This converts `expr / 2` into `expr * 0.5`
-        // This improves codegen, especially for certain types of divides (e.g. vector/scalar).
-        op = Operator(Operator::Kind::STAR);
-        rhs = this->writeLiteral(1.0 / rhsValue, right->type());
-    } else {
-        // Write the right-hand side expression normally.
-        rhs = this->writeExpression(*right, out);
-    }
-
+    SpvId rhs = this->writeExpression(*right, out);
     SpvId result = this->writeBinaryExpression(left->type(), lhs, op.removeAssignment(),
                                                right->type(), rhs, b.type(), out);
     if (lvalue) {
