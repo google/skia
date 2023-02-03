@@ -114,7 +114,7 @@ void make_jpegr_compatible_if_needed(SkGainmapInfo& info, SkBitmap& bitmap) {
                                           sk_float_log(oldInfo.fGainmapRatioMax.fB),
                                           1.f};
         const SkColor4f gainmapGamma = oldInfo.fGainmapGamma;
-        auto newPixmap = newBitmap.pixmap();
+        const auto& newPixmap = newBitmap.pixmap();
         for (int y = 0; y < oldBitmap.height(); ++y) {
             for (int x = 0; x < oldBitmap.width(); ++x) {
                 // Convert the gainmap from its encoded value to oldLogRatio, which is log(HDR/SDR).
@@ -170,7 +170,7 @@ sk_sp<SkData> get_jpegr_xmp_data(float rangeScalingFactor,
                                  int32_t transferFunction,
                                  int32_t itemLength) {
     SkDynamicMemoryWStream s;
-    s.write(kXMPSig, sizeof(kXMPSig));
+    s.write(kXMPStandardSig, sizeof(kXMPStandardSig));
     s.writeText(
             "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"Adobe XMP Core 5.1.2\">\n"
             "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"
@@ -241,7 +241,7 @@ bool SkJpegGainmapEncoder::EncodeJpegR(SkWStream* dst,
 sk_sp<SkData> get_hdrgm_xmp_data(const SkGainmapInfo& gainmapInfo) {
     const float kLog2 = sk_float_log(2.f);
     SkDynamicMemoryWStream s;
-    s.write(kXMPSig, sizeof(kXMPSig));
+    s.write(kXMPStandardSig, sizeof(kXMPStandardSig));
     s.writeText(
             "<x:xmpmeta xmlns:x=\"adobe:ns:meta/\" x:xmptk=\"XMP Core 5.5.0\">\n"
             "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n"

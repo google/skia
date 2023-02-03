@@ -12,7 +12,6 @@
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkEncodedImageFormat.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/core/SkYUVAPixmaps.h"
@@ -24,7 +23,6 @@
 #include <memory>
 
 class JpegDecoderMgr;
-class SkData;
 class SkSampler;
 class SkStream;
 class SkSwizzler;
@@ -126,8 +124,7 @@ private:
     SkJpegCodec(SkEncodedInfo&& info,
                 std::unique_ptr<SkStream> stream,
                 JpegDecoderMgr* decoderMgr,
-                SkEncodedOrigin origin,
-                sk_sp<const SkData> xmpMetadata);
+                SkEncodedOrigin origin);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options,
                             bool needsCMYKToRGB);

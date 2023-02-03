@@ -1226,6 +1226,7 @@ optional("jpeg_decode") {
       "src/codec/SkJpegGainmap.cpp",
       "src/codec/SkJpegMultiPicture.cpp",
       "src/codec/SkJpegSegmentScan.cpp",
+      "src/codec/SkJpegXmp.cpp",
     ]
   }
 }

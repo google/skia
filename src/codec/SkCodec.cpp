@@ -196,13 +196,11 @@ std::unique_ptr<SkCodec> SkCodec::MakeFromData(sk_sp<SkData> data, SkPngChunkRea
 SkCodec::SkCodec(SkEncodedInfo&& info,
                  XformFormat srcFormat,
                  std::unique_ptr<SkStream> stream,
-                 SkEncodedOrigin origin,
-                 sk_sp<const SkData> xmpMetadata)
+                 SkEncodedOrigin origin)
         : fEncodedInfo(std::move(info))
         , fSrcXformFormat(srcFormat)
         , fStream(std::move(stream))
         , fOrigin(origin)
-        , fXmpMetadata(std::move(xmpMetadata))
         , fDstInfo()
         , fOptions() {}
 
