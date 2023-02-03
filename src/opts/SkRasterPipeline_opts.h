@@ -1602,9 +1602,8 @@ STAGE(seed_shader, NoCtx) {
     // On Intel this breaks a data dependency on previous loop iterations' registers.
     r = cast(dx) + sk_unaligned_load<F>(iota);
     g = cast(dy) + 0.5f;
-    b = 1.0f;
+    b = 1.0f;  // This is w=1 for matrix multiplies by the device coords.
     a = 0;
-    dr = dg = db = da = 0;
 }
 
 STAGE(dither, const float* rate) {
@@ -3022,16 +3021,16 @@ STAGE(apply_vector_mask, const uint32_t* ctx) {
     a = sk_bit_cast<F>(sk_bit_cast<U32>(a) & mask);
 }
 
-STAGE(save_xy, SkRasterPipeline_SamplerCtx* c) {
+SI void save_xy(F* r, F* g, SkRasterPipeline_SamplerCtx* c) {
     // Whether bilinear or bicubic, all sample points are at the same fractional offset (fx,fy).
     // They're either the 4 corners of a logical 1x1 pixel or the 16 corners of a 3x3 grid
     // surrounding (x,y) at (0.5,0.5) off-center.
-    F fx = fract(r + 0.5f),
-      fy = fract(g + 0.5f);
+    F fx = fract(*r + 0.5f),
+      fy = fract(*g + 0.5f);
 
     // Samplers will need to load x and fx, or y and fy.
-    sk_unaligned_store(c->x,  r);
-    sk_unaligned_store(c->y,  g);
+    sk_unaligned_store(c->x,  *r);
+    sk_unaligned_store(c->y,  *g);
     sk_unaligned_store(c->fx, fx);
     sk_unaligned_store(c->fy, fy);
 }
@@ -3071,6 +3070,12 @@ SI void bilinear_y(SkRasterPipeline_SamplerCtx* ctx, F* y) {
     if (kScale == -1) { scaley = 1.0f - fy; }
     if (kScale == +1) { scaley =        fy; }
     sk_unaligned_store(ctx->scaley, scaley);
+}
+
+STAGE(bilinear_setup, SkRasterPipeline_SamplerCtx* ctx) {
+    save_xy(&r, &g, ctx);
+    // Init for accumulate
+    dr = dg = db = da = 0;
 }
 
 STAGE(bilinear_nx, SkRasterPipeline_SamplerCtx* ctx) { bilinear_x<-1>(ctx, &r); }
@@ -3113,6 +3118,8 @@ SI void bicubic_y(SkRasterPipeline_SamplerCtx* ctx, F* y) {
 }
 
 STAGE(bicubic_setup, SkRasterPipeline_SamplerCtx* ctx) {
+    save_xy(&r, &g, ctx);
+
     const float* w = ctx->weights;
 
     F fx = sk_unaligned_load<F>(ctx->fx);
@@ -3126,6 +3133,9 @@ STAGE(bicubic_setup, SkRasterPipeline_SamplerCtx* ctx) {
     sk_unaligned_store(ctx->wy[1], bicubic_wts(fy, w[1], w[5], w[ 9], w[13]));
     sk_unaligned_store(ctx->wy[2], bicubic_wts(fy, w[2], w[6], w[10], w[14]));
     sk_unaligned_store(ctx->wy[3], bicubic_wts(fy, w[3], w[7], w[11], w[15]));
+
+    // Init for accumulate
+    dr = dg = db = da = 0;
 }
 
 STAGE(bicubic_n3x, SkRasterPipeline_SamplerCtx* ctx) { bicubic_x<-3>(ctx, &r); }

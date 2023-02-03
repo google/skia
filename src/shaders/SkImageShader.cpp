@@ -703,7 +703,6 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
     if (sampling.useCubic) {
         CubicResamplerMatrix(sampling.cubic.B, sampling.cubic.C).getColMajor(sampler->weights);
 
-        p->append(SkRasterPipelineOp::save_xy, sampler);
         p->append(SkRasterPipelineOp::bicubic_setup, sampler);
 
         sample(SkRasterPipelineOp::bicubic_n3x, SkRasterPipelineOp::bicubic_n3y);
@@ -728,7 +727,7 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const MatrixRec& mRec) c
 
         p->append(SkRasterPipelineOp::move_dst_src);
     } else if (sampling.filter == SkFilterMode::kLinear) {
-        p->append(SkRasterPipelineOp::save_xy, sampler);
+        p->append(SkRasterPipelineOp::bilinear_setup, sampler);
 
         sample(SkRasterPipelineOp::bilinear_nx, SkRasterPipelineOp::bilinear_ny);
         sample(SkRasterPipelineOp::bilinear_px, SkRasterPipelineOp::bilinear_ny);

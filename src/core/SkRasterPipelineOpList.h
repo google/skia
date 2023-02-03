@@ -82,11 +82,12 @@
     M(mirror_y)   M(repeat_y)                                      \
     M(negate_x)                                                    \
     M(bicubic_clamp_8888)                                          \
+    M(bilinear_setup)                                              \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)    \
     M(bicubic_setup)                                               \
     M(bicubic_n3x) M(bicubic_n1x) M(bicubic_p1x) M(bicubic_p3x)    \
     M(bicubic_n3y) M(bicubic_n1y) M(bicubic_p1y) M(bicubic_p3y)    \
-    M(save_xy) M(accumulate)                                       \
+    M(accumulate)                                                  \
     M(xy_to_2pt_conical_strip)                                     \
     M(xy_to_2pt_conical_focal_on_circle)                           \
     M(xy_to_2pt_conical_well_behaved)                              \
