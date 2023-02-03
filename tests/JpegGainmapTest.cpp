@@ -206,6 +206,8 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
             {TestStream::Type::kSeekable, true, 1024 * 1024 * 16},
             {TestStream::Type::kUnseekable, false, 1024},
             {TestStream::Type::kUnseekable, true, 1024},
+            {TestStream::Type::kUnseekable, false, 1},
+            {TestStream::Type::kUnseekable, true, 1},
             {TestStream::Type::kUnseekable, false, 7},
             {TestStream::Type::kUnseekable, true, 13},
             {TestStream::Type::kUnseekable, false, 1024 * 1024 * 16},
@@ -546,10 +548,14 @@ DEF_TEST(AndroidCodec_jpegGainmapTranscode, r) {
                     r,
                     approx_eq_rgb(
                             gainmapInfo[0].fGainmapGamma, gainmapInfo[1].fGainmapGamma, kEpsilon));
-            REPORTER_ASSERT(
-                    r, approx_eq(gainmapInfo[0].fEpsilonSdr, gainmapInfo[1].fEpsilonSdr, kEpsilon));
-            REPORTER_ASSERT(
-                    r, approx_eq(gainmapInfo[0].fEpsilonHdr, gainmapInfo[1].fEpsilonHdr, kEpsilon));
+            REPORTER_ASSERT(r,
+                            approx_eq(gainmapInfo[0].fEpsilonSdr.fR,
+                                      gainmapInfo[1].fEpsilonSdr.fR,
+                                      kEpsilon));
+            REPORTER_ASSERT(r,
+                            approx_eq(gainmapInfo[0].fEpsilonHdr.fR,
+                                      gainmapInfo[1].fEpsilonHdr.fR,
+                                      kEpsilon));
             REPORTER_ASSERT(
                     r,
                     approx_eq(gainmapInfo[0].fHdrRatioMin, gainmapInfo[1].fHdrRatioMin, kEpsilon));

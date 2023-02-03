@@ -18,11 +18,12 @@
  *  The value of D is computed as follows:
  *
  *  First, let W be a weight parameter determing how much the gainmap will be applied.
- *    W = clamp((log(H) - log(fHdrRatioMax)) / (log(fHdrRatioMax) - log(fHdrRatioMin), 0, 1)
+ *    W = clamp((log(H)                - log(fDisplayRatioHdr)) /
+                (log(fDisplayRatioHdr) - log(fDisplayRatioSdr), 0, 1)
  *
  *  Next, let L be the gainmap value in log space. We compute this from the value G that was
  *  sampled from the texture as follows:
- *    L = mix(fLogRatioMin, fLogRatioMax, pow(G, fGainmapGamma))
+ *    L = mix(log(fGainmapRatioMin), log(fGainmapRatioMax), pow(G, fGainmapGamma))
  *
  *  Finally, apply the gainmap to compute D, the displayed pixel. If the base image is SDR then
  *  compute:
@@ -37,22 +38,25 @@ struct SkGainmapInfo {
      *  Parameters for converting the gainmap from its image encoding to log space. These are
      *  specified per color channel. The alpha value is unused.
      */
-    SkColor4f fLogRatioMin = {0.f, 0.f, 0.f, 1.0};
-    SkColor4f fLogRatioMax = {1.f, 1.f, 1.f, 1.0};
+    SkColor4f fGainmapRatioMin = {1.f, 1.f, 1.f, 1.0};
+    SkColor4f fGainmapRatioMax = {2.f, 2.f, 2.f, 1.0};
     SkColor4f fGainmapGamma = {1.f, 1.f, 1.f, 1.f};
 
     /**
-     *  Parameters selected to avoid divide by zero errors.
+     *  Parameters sometimes used in gainmap computation to avoid numerical instability.
      */
-    float fEpsilonSdr = 0.01f;
-    float fEpsilonHdr = 0.01f;
+    SkColor4f fEpsilonSdr = {0.f, 0.f, 0.f, 1.0};
+    SkColor4f fEpsilonHdr = {0.f, 0.f, 0.f, 1.0};
 
     /**
-     *  Parameters that indicate the minimum HDR capability below which the gainmap is not
-     *  applied at all, and the maximum HDR capacity above which the gainmap is fully applied.
+     *  If the output display's HDR to SDR ratio is less or equal than fDisplayRatioSdr then the SDR
+     *  rendition is displayed. If the output display's HDR to SDR ratio is greater or equal than
+     *  fDisplayRatioHdr then the HDR rendition is displayed. If the output display's HDR to SDR
+     *  ratio is between these values then an interpolation between the two is displayed using the
+     *  math above.
      */
-    float fHdrRatioMin = 1.f;
-    float fHdrRatioMax = 50.f;
+    float fDisplayRatioSdr = 1.f;
+    float fDisplayRatioHdr = 2.f;
 
     /**
      *  Whether the base image is the SDR image or the HDR image.
@@ -62,6 +66,12 @@ struct SkGainmapInfo {
         kHDR,
     };
     BaseImageType fBaseImageType = BaseImageType::kSDR;
+
+    // TODO(ccameron): Remove these parameters after the new parameters roll into Android.
+    SkColor4f fLogRatioMin = {0.f, 0.f, 0.f, 1.0};
+    SkColor4f fLogRatioMax = {1.f, 1.f, 1.f, 1.0};
+    float fHdrRatioMin = 1.f;
+    float fHdrRatioMax = 50.f;
 
     /**
      *  The type of file that created this gainmap.

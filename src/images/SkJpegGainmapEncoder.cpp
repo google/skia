@@ -65,27 +65,26 @@ static float mix(float a, float b, float amount) { return (b - a) * amount + a; 
 static float compute_range_scaling_factor(const SkGainmapInfo& info) {
     // Find the minimum and maximum log-ratio values that can be encoded. We don't want to encode a
     // range any larger than this.
-    const float loadLogRatioMaxComponent =
-            std::max({info.fLogRatioMax.fR, info.fLogRatioMax.fG, info.fLogRatioMax.fB});
-    const float loadLogRatioMinComponent =
-            std::min({info.fLogRatioMin.fR, info.fLogRatioMin.fG, info.fLogRatioMin.fB});
-    const float logRatioRSF =
-            sk_float_exp(std::max(loadLogRatioMaxComponent, -loadLogRatioMinComponent));
+    const float gainmapRatioMaxComponent = std::max(
+            {info.fGainmapRatioMax.fR, info.fGainmapRatioMax.fG, info.fGainmapRatioMax.fB});
+    const float gainmapRatioMinComponent = std::min(
+            {info.fGainmapRatioMin.fR, info.fGainmapRatioMin.fG, info.fGainmapRatioMin.fB});
+    const float gainmapRSF = std::max(gainmapRatioMaxComponent, 1.f / gainmapRatioMinComponent);
 
     // Limit the range to only encode values that could reach the the maximum rendering brightness.
-    float hdrRatioMaxRSF = info.fHdrRatioMax;
+    float displayRSF = info.fDisplayRatioHdr;
 
-    return std::min(logRatioRSF, hdrRatioMaxRSF);
+    return std::min(gainmapRSF, displayRSF);
 }
 
 // Ensure that the specified gainmap can be encoded as a JpegR. If it cannot, transform it so that
 // it can.
 void make_jpegr_compatible_if_needed(SkGainmapInfo& info, SkBitmap& bitmap) {
-    // If fLogRatioMin == -fLogRatioMax and bitmap has a single channel then this is already
-    // compatible with JpegR.
-    if (info.fLogRatioMin.fR == -info.fLogRatioMax.fR &&
-        info.fLogRatioMin.fG == -info.fLogRatioMax.fG &&
-        info.fLogRatioMin.fB == -info.fLogRatioMax.fB &&
+    // If fGainmapRatioMax == 1/fGainmapRatioMin and bitmap has a single channel then this is
+    // already compatible with JpegR.
+    if (info.fGainmapRatioMin.fR * info.fGainmapRatioMax.fR == 1.f &&
+        info.fGainmapRatioMin.fG * info.fGainmapRatioMax.fG == 1.f &&
+        info.fGainmapRatioMin.fB * info.fGainmapRatioMax.fB == 1.f &&
         bitmap.colorType() == kGray_8_SkColorType) {
         return;
     }
@@ -106,8 +105,14 @@ void make_jpegr_compatible_if_needed(SkGainmapInfo& info, SkBitmap& bitmap) {
     // Transform the old gainmap to the new range.
     // TODO(ccameron): This is not remotely performant. Consider using a blit.
     {
-        const SkColor4f oldLogRatioMin = oldInfo.fLogRatioMin;
-        const SkColor4f oldLogRatioMax = oldInfo.fLogRatioMax;
+        const SkColor4f oldLogRatioMin = {sk_float_log(oldInfo.fGainmapRatioMin.fR),
+                                          sk_float_log(oldInfo.fGainmapRatioMin.fG),
+                                          sk_float_log(oldInfo.fGainmapRatioMin.fB),
+                                          1.f};
+        const SkColor4f oldLogRatioMax = {sk_float_log(oldInfo.fGainmapRatioMax.fR),
+                                          sk_float_log(oldInfo.fGainmapRatioMax.fG),
+                                          sk_float_log(oldInfo.fGainmapRatioMax.fB),
+                                          1.f};
         const SkColor4f gainmapGamma = oldInfo.fGainmapGamma;
         auto newPixmap = newBitmap.pixmap();
         for (int y = 0; y < oldBitmap.height(); ++y) {
@@ -146,13 +151,15 @@ void make_jpegr_compatible_if_needed(SkGainmapInfo& info, SkBitmap& bitmap) {
 
     // Write the gainmap info for the transformed gainmap.
     SkGainmapInfo newInfo;
-    newInfo.fLogRatioMin = {newLogRatioMin, newLogRatioMin, newLogRatioMin, 1.f};
-    newInfo.fLogRatioMax = {newLogRatioMax, newLogRatioMax, newLogRatioMax, 1.f};
+    const float gainmapRatioMin = 1.f / rangeScalingFactor;
+    const float gainmapRatioMax = rangeScalingFactor;
+    newInfo.fGainmapRatioMin = {gainmapRatioMin, gainmapRatioMin, gainmapRatioMin, 1.f};
+    newInfo.fGainmapRatioMax = {gainmapRatioMax, gainmapRatioMax, gainmapRatioMax, 1.f};
     newInfo.fGainmapGamma = {1.f, 1.f, 1.f, 1.f};
-    newInfo.fEpsilonSdr = 0.f;
-    newInfo.fEpsilonHdr = 0.f;
-    newInfo.fHdrRatioMin = 1.f;
-    newInfo.fHdrRatioMax = sk_float_exp(newLogRatioMax);
+    newInfo.fEpsilonSdr = {0.f, 0.f, 0.f, 1.f};
+    newInfo.fEpsilonHdr = {0.f, 0.f, 0.f, 1.f};
+    newInfo.fDisplayRatioSdr = 1.f;
+    newInfo.fDisplayRatioHdr = rangeScalingFactor;
     newInfo.fType = SkGainmapInfo::Type::kJpegR_Linear;
     info = newInfo;
     bitmap = newBitmap;
@@ -217,7 +224,7 @@ bool SkJpegGainmapEncoder::EncodeJpegR(SkWStream* dst,
 
     // Compute the XMP metadata.
     sk_sp<SkData> xmpMetadata =
-            get_jpegr_xmp_data(gainmapInfoJpegR.fHdrRatioMax, 0, gainmapEncoded->size());
+            get_jpegr_xmp_data(gainmapInfoJpegR.fDisplayRatioHdr, 0, gainmapEncoded->size());
 
     // Send this to the base image encoder.
     uint8_t segmentMarker = kXMPMarker;
@@ -243,14 +250,14 @@ sk_sp<SkData> get_hdrgm_xmp_data(const SkGainmapInfo& gainmapInfo) {
             "hdrgm:Version=\"1.0\"\n");
     xmp_write_per_channel_attr(s,
                                "hdrgm:GainMapMin",
-                               gainmapInfo.fLogRatioMin.fR / kLog2,
-                               gainmapInfo.fLogRatioMin.fG / kLog2,
-                               gainmapInfo.fLogRatioMin.fB / kLog2);
+                               sk_float_log(gainmapInfo.fGainmapRatioMin.fR) / kLog2,
+                               sk_float_log(gainmapInfo.fGainmapRatioMin.fG) / kLog2,
+                               sk_float_log(gainmapInfo.fGainmapRatioMin.fB) / kLog2);
     xmp_write_per_channel_attr(s,
                                "hdrgm:GainMapMax",
-                               gainmapInfo.fLogRatioMax.fR / kLog2,
-                               gainmapInfo.fLogRatioMax.fG / kLog2,
-                               gainmapInfo.fLogRatioMax.fB / kLog2);
+                               sk_float_log(gainmapInfo.fGainmapRatioMax.fR) / kLog2,
+                               sk_float_log(gainmapInfo.fGainmapRatioMax.fG) / kLog2,
+                               sk_float_log(gainmapInfo.fGainmapRatioMax.fB) / kLog2);
     xmp_write_per_channel_attr(s,
                                "hdrgm:Gamma",
                                gainmapInfo.fGainmapGamma.fR,
@@ -258,18 +265,18 @@ sk_sp<SkData> get_hdrgm_xmp_data(const SkGainmapInfo& gainmapInfo) {
                                gainmapInfo.fGainmapGamma.fB);
     xmp_write_per_channel_attr(s,
                                "hdrgm:OffsetSDR",
-                               gainmapInfo.fEpsilonSdr,
-                               gainmapInfo.fEpsilonSdr,
-                               gainmapInfo.fEpsilonSdr);
+                               gainmapInfo.fEpsilonSdr.fR,
+                               gainmapInfo.fEpsilonSdr.fG,
+                               gainmapInfo.fEpsilonSdr.fB);
     xmp_write_per_channel_attr(s,
                                "hdrgm:OffsetHDR",
-                               gainmapInfo.fEpsilonHdr,
-                               gainmapInfo.fEpsilonHdr,
-                               gainmapInfo.fEpsilonHdr);
+                               gainmapInfo.fEpsilonHdr.fR,
+                               gainmapInfo.fEpsilonHdr.fG,
+                               gainmapInfo.fEpsilonHdr.fB);
     xmp_write_scalar_attr(
-            s, "hdrgm:HDRCapacityMin", sk_float_log(gainmapInfo.fHdrRatioMin) / kLog2);
+            s, "hdrgm:HDRCapacityMin", sk_float_log(gainmapInfo.fDisplayRatioSdr) / kLog2);
     xmp_write_scalar_attr(
-            s, "hdrgm:HDRCapacityMax", sk_float_log(gainmapInfo.fHdrRatioMax) / kLog2);
+            s, "hdrgm:HDRCapacityMax", sk_float_log(gainmapInfo.fDisplayRatioHdr) / kLog2);
     s.writeText("hdrgm:BaseRendition=\"");
     switch (gainmapInfo.fBaseImageType) {
         case SkGainmapInfo::BaseImageType::kSDR:
