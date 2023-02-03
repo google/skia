@@ -1412,6 +1412,10 @@ public:
             // usage in runtime effects to just #version 100.
             return false;
         }
+        if (fDebugTrace) {
+            // SkRP doesn't support debug traces yet; fall back to SkVM until this is implemented.
+            return false;
+        }
         if (const SkSL::RP::Program* program = fEffect->getRPProgram()) {
             std::optional<MatrixRec> newMRec = mRec.apply(rec);
             if (!newMRec.has_value()) {
