@@ -2309,7 +2309,7 @@ SkScalar find_maximum_glyph_dimension(StrikeForGPU* strike, SkSpan<const SkGlyph
     StrikeMutationMonitor m{strike};
     SkScalar maxDimension = 0;
     for (SkGlyphID glyphID : glyphs) {
-        SkGlyphDigest digest = strike->digest(SkPackedGlyphID{glyphID});
+        SkGlyphDigest digest = strike->maskDigest(glyphID);
         maxDimension = std::max(static_cast<SkScalar>(digest.maxDimension()), maxDimension);
     }
 

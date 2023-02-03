@@ -48,7 +48,6 @@ public:
 
     void lock() override SK_ACQUIRE(fStrikeLock);
     void unlock() override SK_RELEASE_CAPABILITY(fStrikeLock);
-    SkGlyphDigest digest(SkPackedGlyphID) override SK_REQUIRES(fStrikeLock);
     skglyph::GlyphAction pathAction(SkGlyphID) override SK_REQUIRES(fStrikeLock);
     skglyph::GlyphAction drawableAction(SkGlyphID) override SK_REQUIRES(fStrikeLock);
     SkGlyphDigest directMaskDigest(SkPackedGlyphID) override SK_REQUIRES(fStrikeLock);

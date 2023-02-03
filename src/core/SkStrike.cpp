@@ -176,7 +176,7 @@ void SkStrike::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted) {
     Monitor m{this};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyphDigest digest = this->digest(packedID);
+            SkGlyphDigest digest = this->directMaskDigest(packedID);
             if (!digest.isEmpty()) {
                 // If the glyph is too large, then no image is created.
                 SkGlyph* glyph = fGlyphForIndex[digest.index()];
@@ -254,12 +254,8 @@ void SkStrike::dumpMemoryStatistics(SkTraceMemoryDump* dump) const {
 }
 
 SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
-    SkGlyphDigest digest = this->digest(packedGlyphID);
+    SkGlyphDigest digest = this->directMaskDigest(packedGlyphID);
     return fGlyphForIndex[digest.index()];
-}
-
-SkGlyphDigest SkStrike::digest(SkPackedGlyphID packedGlyphID) {
-    return *this->digestPtr(packedGlyphID);
 }
 
 SkGlyphDigest* SkStrike::digestPtr(SkPackedGlyphID packedGlyphID) {

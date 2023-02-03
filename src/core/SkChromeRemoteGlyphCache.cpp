@@ -170,7 +170,6 @@ public:
 
     void lock() override {}
     void unlock() override {}
-    SkGlyphDigest digest(SkPackedGlyphID) override;
     GlyphAction pathAction(SkGlyphID) override;
     GlyphAction drawableAction(SkGlyphID) override;
     SkGlyphDigest directMaskDigest(SkPackedGlyphID) override;
@@ -380,10 +379,6 @@ SkGlyphDigest* RemoteStrike::digestPtr(SkPackedGlyphID packedGlyphID) {
 
     SkGlyphDigest newDigest{0, *glyph};
     return fSentGlyphs.set(packedGlyphID, newDigest);
-}
-
-SkGlyphDigest RemoteStrike::digest(SkPackedGlyphID packedGlyphID) {
-    return *this->digestPtr(packedGlyphID);
 }
 
 GlyphAction RemoteStrike::pathAction(SkGlyphID glyphID) {
