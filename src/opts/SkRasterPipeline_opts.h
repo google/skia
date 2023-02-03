@@ -1602,9 +1602,8 @@ STAGE(seed_shader, NoCtx) {
     // On Intel this breaks a data dependency on previous loop iterations' registers.
     r = cast(dx) + sk_unaligned_load<F>(iota);
     g = cast(dy) + 0.5f;
-    b = 1.0f;
+    b = 1.0f;  // This is w=1 for matrix multiplies by the device coords.
     a = 0;
-    dr = dg = db = da = 0;
 }
 
 STAGE(dither, const float* rate) {
