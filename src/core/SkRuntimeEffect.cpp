@@ -1207,11 +1207,15 @@ public:
 
     bool appendStages(const SkStageRec& rec, bool) const override {
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+        if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
+            // SkRP has support for many parts of #version 300 already, but for now, we restrict its
+            // usage in runtime effects to just #version 100.
+            return false;
+        }
         if (const SkSL::RP::Program* program = fEffect->getRPProgram()) {
             sk_sp<const SkData> inputs = SkRuntimeEffectPriv::TransformUniforms(fEffect->uniforms(),
                                                                                 fUniforms,
                                                                                 rec.fDstCS);
-
             SkShaderBase::MatrixRec matrix(SkMatrix::I());
             matrix.markCTMApplied();
             RuntimeEffectRPCallbacks callbacks(rec, matrix, fChildren, fEffect->fSampleUsages);
@@ -1403,6 +1407,11 @@ public:
 
     bool appendStages(const SkStageRec& rec, const MatrixRec& mRec) const override {
 #ifdef SK_ENABLE_SKSL_IN_RASTER_PIPELINE
+        if (!SkRuntimeEffectPriv::CanDraw(SkCapabilities::RasterBackend().get(), fEffect.get())) {
+            // SkRP has support for many parts of #version 300 already, but for now, we restrict its
+            // usage in runtime effects to just #version 100.
+            return false;
+        }
         if (const SkSL::RP::Program* program = fEffect->getRPProgram()) {
             std::optional<MatrixRec> newMRec = mRec.apply(rec);
             if (!newMRec.has_value()) {
