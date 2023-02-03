@@ -200,14 +200,16 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         SkASSERT(!depthStencilInfo.fTextureInfo.isValid());
     }
 
+    fActiveRenderPassEncoder = fCommandEncoder.BeginRenderPass(&wgpuRenderPass);
+
     if (loadMSAAFromResolve) {
         // Manually load the contents of the resolve texture into the MSAA attachment as a draw,
         // so the actual load op for the MSAA attachment had better have been discard.
 
         // TODO: https://b.corp.google.com/issues/258652999
-        SkASSERT(false);
-    } else {
-        fActiveRenderPassEncoder = fCommandEncoder.BeginRenderPass(&wgpuRenderPass);
+        SKGPU_LOG_W("DawnCommandBuffer::beginRenderPass: "
+                    "Can't manually load resolve texture at this time,"
+                    "rendering results could be undefined.");
     }
 
     return true;

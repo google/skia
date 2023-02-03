@@ -70,18 +70,20 @@ sk_sp<Texture> DawnResourceProvider::createTexture(SkISize dimensions,
 sk_sp<Buffer> DawnResourceProvider::createBuffer(size_t size,
                                                  BufferType type,
                                                  PrioritizeGpuReads prioritizeGpuReads) {
-    return DawnBuffer::Make(dawnSharedContext(), size, type, prioritizeGpuReads);
+    return DawnBuffer::Make(this->dawnSharedContext(), size, type, prioritizeGpuReads);
 }
 
 sk_sp<Sampler> DawnResourceProvider::createSampler(const SkSamplingOptions& options,
                                                    SkTileMode xTileMode,
                                                    SkTileMode yTileMode) {
-    return DawnSampler::Make(dawnSharedContext(), options, xTileMode, yTileMode);
+    return DawnSampler::Make(this->dawnSharedContext(), options, xTileMode, yTileMode);
 }
 
 BackendTexture DawnResourceProvider::onCreateBackendTexture(SkISize dimensions,
                                                             const TextureInfo& info) {
-    wgpu::Texture texture = DawnTexture::MakeDawnTexture(dawnSharedContext(), dimensions, info);
+    wgpu::Texture texture = DawnTexture::MakeDawnTexture(this->dawnSharedContext(),
+                                                         dimensions,
+                                                         info);
     if (!texture) {
         return {};
     }

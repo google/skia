@@ -55,8 +55,12 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
                                            SkISize dimensions,
                                            const TextureInfo& info) {
     const Caps* caps = sharedContext->caps();
-    SkASSERT(dimensions.width() <= caps->maxTextureSize());
-    SkASSERT(dimensions.height() <= caps->maxTextureSize());
+    if (dimensions.width() > caps->maxTextureSize() ||
+        dimensions.height() > caps->maxTextureSize()) {
+        SKGPU_LOG_E("Texture creation failure: dimensions %d x %d too large.",
+                    dimensions.width(), dimensions.height());
+        return {};
+    }
 
     const DawnTextureSpec& dawnSpec = info.dawnTextureSpec();
 

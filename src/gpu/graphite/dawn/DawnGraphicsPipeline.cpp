@@ -497,7 +497,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
             descriptor.primitive.topology = wgpu::PrimitiveTopology::PointList;
             break;
     }
-    descriptor.primitive.stripIndexFormat = wgpu::IndexFormat::Undefined;
+    descriptor.primitive.stripIndexFormat = wgpu::IndexFormat::Uint16;
 
     descriptor.multisample.count = renderPassDesc.fColorAttachment.fTextureInfo.numSamples();
     descriptor.multisample.mask = 0xFFFFFFFF;

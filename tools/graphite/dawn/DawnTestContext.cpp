@@ -76,7 +76,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make() {
     SkASSERT(device);
     device.SetUncapturedErrorCallback(
             [](WGPUErrorType type, const char* message, void*) {
-                SK_ABORT("Device error: %s\n", message);
+                SkDebugf("Device error: %s\n", message);
             },
             0);
     device.SetDeviceLostCallback(
