@@ -2752,6 +2752,11 @@ STAGE( clamp_x_1, NoCtx) { r = clamp_01_(r); }
 STAGE(repeat_x_1, NoCtx) { r = clamp_01_(r - floor_(r)); }
 STAGE(mirror_x_1, NoCtx) { r = clamp_01_(abs_( (r-1.0f) - two(floor_((r-1.0f)*0.5f)) - 1.0f )); }
 
+STAGE(clamp_x_and_y, const SkRasterPipeline_CoordClampCtx* ctx) {
+    r = min(ctx->max_x, max(ctx->min_x, r));
+    g = min(ctx->max_y, max(ctx->min_y, g));
+}
+
 // Decal stores a 32bit mask after checking the coordinate (x and/or y) against its domain:
 //      mask == 0x00000000 if the coordinate(s) are out of bounds
 //      mask == 0xFFFFFFFF if the coordinate(s) are in bounds
@@ -4943,6 +4948,10 @@ STAGE_GG(decal_x_and_y, SkRasterPipeline_DecalTileCtx* ctx) {
     auto w = ctx->limit_x;
     auto h = ctx->limit_y;
     sk_unaligned_store(ctx->mask, cond_to_mask_16((0 <= x) & (x < w) & (0 <= y) & (y < h)));
+}
+STAGE_GG(clamp_x_and_y, SkRasterPipeline_CoordClampCtx* ctx) {
+    x = min(ctx->max_x, max(ctx->min_x, x));
+    y = min(ctx->max_y, max(ctx->min_y, y));
 }
 STAGE_PP(check_decal_mask, SkRasterPipeline_DecalTileCtx* ctx) {
     auto mask = sk_unaligned_load<U16>(ctx->mask);

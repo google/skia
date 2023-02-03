@@ -605,6 +605,7 @@ skia_core_sources = [
   "$_src/shaders/SkColorFilterShader.h",
   "$_src/shaders/SkColorShader.cpp",
   "$_src/shaders/SkComposeShader.cpp",
+  "$_src/shaders/SkCoordClampShader.cpp",
   "$_src/shaders/SkEmptyShader.cpp",
   "$_src/shaders/SkGainmapShader.cpp",
   "$_src/shaders/SkImageShader.cpp",

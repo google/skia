@@ -44,6 +44,7 @@
     M(decal_x)    M(decal_y)   M(decal_x_and_y)                    \
     M(check_decal_mask)                                            \
     M(clamp_x_1) M(mirror_x_1) M(repeat_x_1)                       \
+    M(clamp_x_and_y)                                               \
     M(evenly_spaced_gradient)                                      \
     M(gradient)                                                    \
     M(evenly_spaced_2_stop_gradient)                               \

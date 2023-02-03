@@ -67,6 +67,11 @@ struct SkRasterPipeline_DecalTileCtx {
     float    inclusiveEdge_y = 0;
 };
 
+struct SkRasterPipeline_CoordClampCtx {
+    float min_x, min_y;
+    float max_x, max_y;
+};
+
 struct SkRasterPipeline_CallbackCtx {
     void (*fn)(SkRasterPipeline_CallbackCtx* self,
                int active_pixels /*<= SkRasterPipeline_kMaxStride_highp*/);

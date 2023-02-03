@@ -105,6 +105,7 @@ gm_sources = [
   "$_gm/convex_all_line_paths.cpp",
   "$_gm/convexpaths.cpp",
   "$_gm/convexpolyclip.cpp",
+  "$_gm/coordclampshader.cpp",
   "$_gm/copy_to_4444.cpp",
   "$_gm/crbug_1041204.cpp",
   "$_gm/crbug_1073670.cpp",
