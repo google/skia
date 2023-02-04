@@ -14,12 +14,15 @@ namespace skgpu::graphite {
 
 #ifdef SK_ENABLE_MTL_DEBUG_INFO
 NSString* kBufferTypeNames[kBufferTypeCount] = {
-    @"Vertex",
-    @"Index",
-    @"Xfer CPU to GPU",
-    @"Xfer GPU to CPU",
-    @"Uniform",
-    @"Storage",
+        @"Vertex",
+        @"Index",
+        @"Xfer CPU to GPU",
+        @"Xfer GPU to CPU",
+        @"Uniform",
+        @"Storage",
+        @"Indirect",
+        @"VertexStorage",
+        @"IndexStorage",
 };
 #endif
 

@@ -42,8 +42,15 @@ enum class BufferType : int {
     kXferGpuToCpu,
     kUniform,
     kStorage,
+
+    // GPU-only buffer types
+    kIndirect,
+    kVertexStorage,
+    kIndexStorage,
+
+    kLast = kIndexStorage,
 };
-static const int kBufferTypeCount = static_cast<int>(BufferType::kStorage) + 1;
+static const int kBufferTypeCount = static_cast<int>(BufferType::kLast) + 1;
 
 /**
  * Data layout requirements on host-shareable buffer contents.

@@ -31,7 +31,11 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
                             !sharedContext->vulkanCaps().gpuOnlyBuffersMorePerformant();
 
     using BufferUsage = skgpu::VulkanMemoryAllocator::BufferUsage;
-    BufferUsage allocUsage;
+
+    // The default usage captures use cases besides transfer buffers. GPU-only buffers are preferred
+    // unless mappability is required.
+    BufferUsage allocUsage =
+            requiresMappable ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
 
     // Create the buffer object
     VkBufferCreateInfo bufInfo;
@@ -45,11 +49,26 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
     switch (type) {
         case BufferType::kVertex:
             bufInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-            allocUsage = requiresMappable ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
             break;
         case BufferType::kIndex:
             bufInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-            allocUsage = requiresMappable ? BufferUsage::kCpuWritesGpuReads : BufferUsage::kGpuOnly;
+            break;
+        case BufferType::kStorage:
+            bufInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            break;
+        case BufferType::kIndirect:
+            bufInfo.usage =
+                    VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            break;
+        case BufferType::kVertexStorage:
+            bufInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            break;
+        case BufferType::kIndexStorage:
+            bufInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+            break;
+        case BufferType::kUniform:
+            bufInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+            allocUsage = BufferUsage::kCpuWritesGpuReads;
             break;
         case BufferType::kXferCpuToGpu:
             bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
@@ -58,14 +77,6 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
         case BufferType::kXferGpuToCpu:
             bufInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             allocUsage = BufferUsage::kTransfersFromGpuToCpu;
-            break;
-        case BufferType::kUniform:
-            bufInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-            allocUsage = BufferUsage::kCpuWritesGpuReads;
-            break;
-        case BufferType::kStorage:
-            bufInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-            allocUsage = BufferUsage::kCpuWritesGpuReads;
             break;
     }
 

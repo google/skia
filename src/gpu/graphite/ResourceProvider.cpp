@@ -198,7 +198,8 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
 #ifdef SK_DEBUG
     // The size should already be aligned.
     size_t minAlignment = 1;
-    if (type == BufferType::kStorage) {
+    if (type == BufferType::kStorage || type == BufferType::kIndirect ||
+        type == BufferType::kVertexStorage || type == BufferType::kIndexStorage) {
         minAlignment = std::max(fSharedContext->caps()->requiredStorageBufferAlignment(),
                                 minAlignment);
     } else if (type == BufferType::kUniform) {
@@ -219,12 +220,12 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
         static const int kSizeKeyNum32DataCnt = (sizeof(size_t) + 3) / 4;
         static const int kKeyNum32DataCnt =  kSizeKeyNum32DataCnt + 1;
 
-        SkASSERT(static_cast<uint32_t>(type)               < (1u << 3));
+        SkASSERT(static_cast<uint32_t>(type) < (1u << 4));
         SkASSERT(static_cast<uint32_t>(prioritizeGpuReads) < (1u << 1));
 
         GraphiteResourceKey::Builder builder(&key, kType, kKeyNum32DataCnt, Shareable::kNo);
-        builder[0] = (static_cast<uint32_t>(type)               << 0) |
-                     (static_cast<uint32_t>(prioritizeGpuReads) << 3);
+        builder[0] = (static_cast<uint32_t>(type) << 0) |
+                     (static_cast<uint32_t>(prioritizeGpuReads) << 4);
         size_t szKey = size;
         for (int i = 0; i < kSizeKeyNum32DataCnt; ++i) {
             builder[i + 1] = (uint32_t) szKey;

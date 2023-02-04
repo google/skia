@@ -15,12 +15,15 @@ namespace skgpu::graphite {
 
 #ifdef SK_DEBUG
 static const char* kBufferTypeNames[kBufferTypeCount] = {
-    "Vertex",
-    "Index",
-    "Xfer CPU to GPU",
-    "Xfer GPU to CPU",
-    "Uniform",
-    "Storage",
+        "Vertex",
+        "Index",
+        "Xfer CPU to GPU",
+        "Xfer GPU to CPU",
+        "Uniform",
+        "Storage",
+        "Indirect",
+        "VertexStorage",
+        "IndexStorage",
 };
 #endif
 
@@ -50,7 +53,16 @@ sk_sp<Buffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
         usage = wgpu::BufferUsage::Uniform | wgpu::BufferUsage::CopyDst;
         break;
     case BufferType::kStorage:
-        usage = wgpu::BufferUsage::Storage;
+        usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst;
+        break;
+    case BufferType::kIndirect:
+        usage = wgpu::BufferUsage::Indirect | wgpu::BufferUsage::Storage;
+        break;
+    case BufferType::kVertexStorage:
+        usage = wgpu::BufferUsage::Vertex | wgpu::BufferUsage::Storage;
+        break;
+    case BufferType::kIndexStorage:
+        usage = wgpu::BufferUsage::Index | wgpu::BufferUsage::Storage;
         break;
     }
 
