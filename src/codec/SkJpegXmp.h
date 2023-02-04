@@ -25,6 +25,19 @@ public:
     // Find and parse all XMP metadata, given a list of all APP1 segment parameters.
     static std::unique_ptr<SkJpegXmp> Make(const std::vector<sk_sp<SkData>>& decoderApp1Params);
 
+    // Extract HDRGM gainmap parameters.
+    bool getGainmapInfoHDRGM(SkGainmapInfo* info) const;
+
+    // Extract HDRGainMap gainmap parameters.
+    bool getGainmapInfoHDRGainMap(SkGainmapInfo* info) const;
+
+    // Extract JpegR gainmap parameters, along with the stream's offset from the end of the base
+    // image and its size.
+    bool getGainmapInfoJpegR(SkGainmapInfo* info, size_t* offset, size_t* size) const;
+
+private:
+    SkJpegXmp();
+
     // Find an XMP node that has the specified namespace attributes set to the specified URIs. The
     // XMP that this will search for is as follows (NAMESPACEi and URIi being the parameters
     // specified to this function):
@@ -42,9 +55,6 @@ public:
                                size_t count,
                                const SkDOM** outDom,
                                const SkDOM::Node** outNode) const;
-
-private:
-    SkJpegXmp();
 
     // The DOM for the standard XMP.
     SkDOM fStandardDOM;

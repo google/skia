@@ -179,15 +179,17 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
         auto sourceMgr = SkJpegSourceMgr::Make(stream.get());
         for (const auto& segment : sourceMgr->getAllSegments()) {
             static constexpr uint32_t kMpfMarker = 0xE2;
-            static constexpr uint8_t kMpfSig[] = {'M', 'P', 'F', '\0'};
             if (segment.marker != kMpfMarker) {
                 continue;
             }
-            auto parameterData = sourceMgr->copyParameters(segment, kMpfSig, sizeof(kMpfSig));
+            auto parameterData = sourceMgr->getSegmentParameters(segment);
             if (!parameterData) {
                 continue;
             }
             mpParams = SkJpegParseMultiPicture(parameterData);
+            if (mpParams) {
+                break;
+            }
         }
     }
     REPORTER_ASSERT(r, mpParams);

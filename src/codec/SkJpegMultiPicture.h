@@ -40,11 +40,13 @@ struct SkJpegMultiPictureParameters {
 };
 
 /*
- * Parse Jpeg Multi-Picture Format parameters. The specified data should start with the MP Header.
- * Returns nullptr on error.
+ * Parse Jpeg Multi-Picture Format parameters. The specified data should be APP2 segment parameters,
+ * which, if they are MPF parameter, should stat with the {'M', 'P', 'F', 0} signature. Returns
+ * nullptr the parameters do not start with the MPF signature, or if there is an error in parsing
+ * the parameters.
  */
 std::unique_ptr<SkJpegMultiPictureParameters> SkJpegParseMultiPicture(
-        const sk_sp<const SkData>& data);
+        const sk_sp<const SkData>& segmentParameters);
 
 /*
  * Create SkStreams for all MultiPicture images, given an SkJpegSourceMgr for an image. This will

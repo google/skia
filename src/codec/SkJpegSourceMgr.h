@@ -56,13 +56,10 @@ public:
     // Return a stream for the subset of this source's stream with the specified offset and size.
     virtual std::unique_ptr<SkStream> getSubsetStream(size_t offset, size_t size) = 0;
 
-    // Copy the parameters from a segment. Return nullptr if the initial bytes of the parameters
-    // section do not match the specified signature. Return the parameters starting from end of the
-    // signature (so, kParameterLengthSize + signatureLength bytes into the parameter data). This
-    // function only works for streams that are memory-backed.
-    sk_sp<SkData> copyParameters(const SkJpegSegment& segment,
-                                 const void* signature,
-                                 const size_t signatureLength);
+    // Segments start with a 2 byte marker, followed by a 2 byte parameter length (which includes
+    // those two bytes, followed by parameters. Return the parameters portion of the specified
+    // segment. If possible, the returned SkData will refer to memory owned by |fStream|.
+    virtual sk_sp<SkData> getSegmentParameters(const SkJpegSegment& segment) = 0;
 #endif  // SK_CODEC_DECODES_JPEG_GAINMAPS
 
 protected:
