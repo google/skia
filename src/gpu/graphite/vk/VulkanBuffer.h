@@ -18,6 +18,7 @@ class VulkanBuffer final : public Buffer {
 public:
     static sk_sp<Buffer> Make(const VulkanSharedContext*, size_t, BufferType, PrioritizeGpuReads);
     void freeGpuData() override {}
+    VkBuffer vkBuffer() const { return fBuffer; }
 
 private:
     VulkanBuffer(const VulkanSharedContext*, size_t, BufferType, PrioritizeGpuReads, VkBuffer,
@@ -34,9 +35,6 @@ private:
     const VulkanSharedContext* vulkanSharedContext() const {
         return static_cast<const VulkanSharedContext*>(this->sharedContext());
     }
-
-    // TODO: Remove this getter method. This silences a compiler unused member warning for fBuffer.
-    VkBuffer vkBuffer() const { return fBuffer; }
 
     VkBuffer fBuffer;
     skgpu::VulkanAlloc fAlloc;

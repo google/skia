@@ -21,6 +21,7 @@ namespace skgpu::graphite {
 class VulkanSharedContext;
 
 class VulkanTexture : public Texture {
+public:
     struct CreatedImageInfo {
         VkImage fImage = VK_NULL_HANDLE;
         VulkanAlloc fMemoryAlloc;
