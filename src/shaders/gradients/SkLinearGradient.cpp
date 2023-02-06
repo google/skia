@@ -12,6 +12,7 @@
 #include "src/shaders/SkLocalMatrixShader.h"
 
 #ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
@@ -105,13 +106,17 @@ void SkLinearGradient::addToKey(const skgpu::graphite::KeyContext& keyContext,
                                 skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;
 
+    // TODO: respect the interpolateInPremul setting
+    SkColor4fXformer xformedColors(this, keyContext.dstColorInfo().colorSpace());
+    const SkPMColor4f* colors = xformedColors.fColors.begin();
+
     GradientShaderBlocks::GradientData data(GradientType::kLinear,
                                             fStart, fEnd,
                                             0.0f, 0.0f,
                                             0.0f, 0.0f,
                                             fTileMode,
                                             fColorCount,
-                                            fColors,
+                                            colors,
                                             fPositions);
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, gatherer, data);

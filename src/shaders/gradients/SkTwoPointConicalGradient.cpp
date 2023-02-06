@@ -15,6 +15,7 @@
 #include <utility>
 
 #ifdef SK_GRAPHITE_ENABLED
+#include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #endif
@@ -536,13 +537,17 @@ void SkTwoPointConicalGradient::addToKey(const skgpu::graphite::KeyContext& keyC
                                          skgpu::graphite::PipelineDataGatherer* gatherer) const {
     using namespace skgpu::graphite;
 
+    // TODO: respect the interpolateInPremul setting
+    SkColor4fXformer xformedColors(this, keyContext.dstColorInfo().colorSpace());
+    const SkPMColor4f* colors = xformedColors.fColors.begin();
+
     GradientShaderBlocks::GradientData data(GradientType::kConical,
                                             fCenter1, fCenter2,
                                             fRadius1, fRadius2,
                                             0.0f, 0.0f,
                                             fTileMode,
                                             fColorCount,
-                                            fColors,
+                                            colors,
                                             fPositions);
 
     GradientShaderBlocks::BeginBlock(keyContext, builder, gatherer, data);

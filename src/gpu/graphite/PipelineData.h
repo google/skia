@@ -123,6 +123,7 @@ public:
     void write(const Uniform& u, const uint8_t* data) { fUniformManager.write(u, data); }
 
     void writeArray(SkSpan<const SkColor4f> colors) { fUniformManager.writeArray(colors); }
+    void writeArray(SkSpan<const SkPMColor4f> colors) { fUniformManager.writeArray(colors); }
     void writeArray(SkSpan<const float> floats) { fUniformManager.writeArray(floats); }
 
     void writeHalf(const SkMatrix& mat) { fUniformManager.writeHalf(mat); }

@@ -82,7 +82,7 @@ struct GradientShaderBlocks {
                      float bias, float scale,
                      SkTileMode,
                      int numStops,
-                     SkColor4f* colors,
+                     const SkPMColor4f* colors,
                      float* offsets);
 
         bool operator==(const GradientData& rhs) const {
@@ -95,7 +95,7 @@ struct GradientShaderBlocks {
                    fScale == rhs.fScale &&
                    fTM == rhs.fTM &&
                    fNumStops == rhs.fNumStops &&
-                   !memcmp(fColor4fs, rhs.fColor4fs, sizeof(fColor4fs)) &&
+                   !memcmp(fColors, rhs.fColors, sizeof(fColors)) &&
                    !memcmp(fOffsets, rhs.fOffsets, sizeof(fOffsets));
         }
         bool operator!=(const GradientData& rhs) const { return !(*this == rhs); }
@@ -111,7 +111,7 @@ struct GradientShaderBlocks {
 
         SkTileMode             fTM;
         int                    fNumStops;
-        SkColor4f              fColor4fs[kMaxStops];
+        SkPMColor4f            fColors[kMaxStops];
         float                  fOffsets[kMaxStops];
     };
 

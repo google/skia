@@ -88,7 +88,7 @@ void add_linear_gradient_uniform_data(const ShaderCodeDictionary* dict,
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
     size_t stops = codeSnippetID == BuiltInCodeSnippetID::kLinearGradientShader4 ? 4 : 8;
 
-    gatherer->writeArray({gradData.fColor4fs, stops});
+    gatherer->writeArray({gradData.fColors, stops});
     gatherer->writeArray({gradData.fOffsets, stops});
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fPoints[1]);
@@ -104,7 +104,7 @@ void add_radial_gradient_uniform_data(const ShaderCodeDictionary* dict,
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
     size_t stops = codeSnippetID == BuiltInCodeSnippetID::kRadialGradientShader4 ? 4 : 8;
 
-    gatherer->writeArray({gradData.fColor4fs, stops});
+    gatherer->writeArray({gradData.fColors, stops});
     gatherer->writeArray({gradData.fOffsets, stops});
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fRadii[0]);
@@ -120,7 +120,7 @@ void add_sweep_gradient_uniform_data(const ShaderCodeDictionary* dict,
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
     size_t stops = codeSnippetID == BuiltInCodeSnippetID::kSweepGradientShader4 ? 4 : 8;
 
-    gatherer->writeArray({gradData.fColor4fs, stops});
+    gatherer->writeArray({gradData.fColors, stops});
     gatherer->writeArray({gradData.fOffsets, stops});
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fBias);
@@ -137,7 +137,7 @@ void add_conical_gradient_uniform_data(const ShaderCodeDictionary* dict,
     VALIDATE_UNIFORMS(gatherer, dict, codeSnippetID)
     size_t stops = codeSnippetID == BuiltInCodeSnippetID::kConicalGradientShader4 ? 4 : 8;
 
-    gatherer->writeArray({gradData.fColor4fs, stops});
+    gatherer->writeArray({gradData.fColors, stops});
     gatherer->writeArray({gradData.fOffsets, stops});
     gatherer->write(gradData.fPoints[0]);
     gatherer->write(gradData.fPoints[1]);
@@ -158,7 +158,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
         , fScale(0.0f)
         , fTM(SkTileMode::kClamp)
         , fNumStops(numStops) {
-    sk_bzero(fColor4fs, sizeof(fColor4fs));
+    sk_bzero(fColors, sizeof(fColors));
     sk_bzero(fOffsets, sizeof(fOffsets));
 }
 
@@ -168,7 +168,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
                                                  float bias, float scale,
                                                  SkTileMode tm,
                                                  int numStops,
-                                                 SkColor4f* color4fs,
+                                                 const SkPMColor4f* colors,
                                                  float* offsets)
         : fType(type)
         , fBias(bias)
@@ -181,7 +181,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
     fPoints[1] = point1;
     fRadii[0] = radius0;
     fRadii[1] = radius1;
-    memcpy(fColor4fs, color4fs, fNumStops * sizeof(SkColor4f));
+    memcpy(fColors, colors, fNumStops * sizeof(SkColor4f));
     if (offsets) {
         memcpy(fOffsets, offsets, fNumStops * sizeof(float));
     } else {
@@ -193,7 +193,7 @@ GradientShaderBlocks::GradientData::GradientData(SkShaderBase::GradientType type
     // Extend the colors and offset, if necessary, to fill out the arrays
     // TODO: this should be done later when the actual code snippet has been selected!!
     for (int i = fNumStops ; i < kMaxStops; ++i) {
-        fColor4fs[i] = fColor4fs[fNumStops-1];
+        fColors[i] = fColors[fNumStops-1];
         fOffsets[i] = fOffsets[fNumStops-1];
     }
 }
