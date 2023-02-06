@@ -35,9 +35,9 @@ void main() {
     }
     vec4 output_Stage1;
     vec4 _6_output;
-    _6_output = vec4(0.0, 0.0, 0.0, 0.0);
+    _6_output = vec4(0.0);
     vec2 _7_coord = vLocalCoord_Stage0 - 12.0 * uIncrement_Stage1_c0;
-    vec2 _8_coordSampled = vec2(0.0, 0.0);
+    vec2 _8_coordSampled = vec2(0.0);
     _8_coordSampled = _7_coord;
     _6_output += MatrixEffect_Stage1_c0_c0_h4h4f2(outputColor_Stage0, _8_coordSampled) * uKernel_Stage1_c0[0].x;
     _7_coord += uIncrement_Stage1_c0;

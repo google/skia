@@ -8,9 +8,12 @@
 #include "src/sksl/ir/SkSLConstructorCompound.h"
 
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkTArray.h"
+#include "src/sksl/SkSLAnalysis.h"
 #include "src/sksl/SkSLConstantFolder.h"
 #include "src/sksl/SkSLContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/ir/SkSLConstructorSplat.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLType.h"
 
@@ -38,6 +41,37 @@ static bool is_safe_to_eliminate(const Type& type, const Expression& arg) {
     // This is a meaningful single-argument compound constructor (e.g. vector-from-matrix,
     // matrix-from-vector).
     return false;
+}
+
+static const Expression* make_splat_from_arguments(const Type& type, const ExpressionArray& args) {
+    // Splats cannot represent a matrix.
+    if (type.isMatrix()) {
+        return nullptr;
+    }
+    const Expression* splatExpression = nullptr;
+    for (int index = 0; index < args.size(); ++index) {
+        // Arguments must only be scalars or a splat constructors (which can only contain scalars).
+        const Expression* expr;
+        if (args[index]->type().isScalar()) {
+            expr = args[index].get();
+        } else if (args[index]->is<ConstructorSplat>()) {
+            expr = args[index]->as<ConstructorSplat>().argument().get();
+        } else {
+            return nullptr;
+        }
+        // On the first iteration, just remember the expression we encountered.
+        if (index == 0) {
+            splatExpression = expr;
+            continue;
+        }
+        // On subsequent iterations, ensure that the expression we found matches the first one.
+        // (Note that IsSameExpressionTree will always reject an Expression with side effects.)
+        if (!Analysis::IsSameExpressionTree(*expr, *splatExpression)) {
+            return nullptr;
+        }
+    }
+
+    return splatExpression;
 }
 
 std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
@@ -109,6 +143,13 @@ std::unique_ptr<Expression> ConstructorCompound::Make(const Context& context,
     // compile down to `float2(1.0, 2.0)` (the latter is a compile-time constant).
     for (std::unique_ptr<Expression>& arg : args) {
         arg = ConstantFolder::MakeConstantValueForVariable(pos, std::move(arg));
+    }
+
+    if (context.fConfig->fSettings.fOptimize) {
+        // Reduce compound constructors to splats where possible.
+        if (const Expression* splat = make_splat_from_arguments(type, args)) {
+            return ConstructorSplat::Make(context, pos, type, splat->clone());
+        }
     }
 
     return std::make_unique<ConstructorCompound>(pos, type, std::move(args));

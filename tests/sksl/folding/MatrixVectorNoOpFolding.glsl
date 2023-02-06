@@ -17,7 +17,7 @@ bool test_Xno_Xop_Xmat2_XX_Xvec2_Xb() {
     if (v != -testInputs.xy) return false;
     vv = vec2(0.0);
     vv = vec2(0.0);
-    return vv == vec2(0.0, 0.0);
+    return vv == vec2(0.0);
 }
 bool test_Xno_Xop_Xmat3_XX_Xvec3_Xb() {
     vec3 v;
@@ -31,7 +31,7 @@ bool test_Xno_Xop_Xmat3_XX_Xvec3_Xb() {
     if (v != -testInputs.xyz) return false;
     vv = vec3(0.0);
     vv = vec3(0.0);
-    return vv == vec3(0.0, 0.0, 0.0);
+    return vv == vec3(0.0);
 }
 bool test_Xno_Xop_Xmat4_XX_Xvec4_Xb() {
     vec4 v;
@@ -45,7 +45,7 @@ bool test_Xno_Xop_Xmat4_XX_Xvec4_Xb() {
     if (v != -testInputs) return false;
     vv = vec4(0.0);
     vv = vec4(0.0);
-    return vv == vec4(0.0, 0.0, 0.0, 0.0);
+    return vv == vec4(0.0);
 }
 bool test_Xno_Xop_Xvec2_XX_Xmat2_Xb() {
     const vec2 n = vec2(-1.0);
@@ -94,11 +94,11 @@ bool test_Xno_Xop_Xvec4_XX_Xmat4_Xb() {
     vv = vec4(0.0);
     if (vv != z) return false;
     v = i * testMatrix4x4;
-    if (v != vec4(10.0, 10.0, 10.0, 10.0)) return false;
+    if (v != vec4(10.0)) return false;
     v = testMatrix4x4 * i;
     if (v != vec4(4.0, 8.0, 12.0, 16.0)) return false;
     v = n * testMatrix4x4;
-    if (v != vec4(-10.0, -10.0, -10.0, -10.0)) return false;
+    if (v != vec4(-10.0)) return false;
     v = testMatrix4x4 * n;
     return v == vec4(-4.0, -8.0, -12.0, -16.0);
 }

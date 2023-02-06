@@ -30,9 +30,9 @@ vec4 main() {
     _2_val = _2_val - vec4(1.0);
     _1_ok = _1_ok && _2_val == vec4(_0_unknown);
     _2_val *= vec4(2.0);
-    _2_val *= vec4(0.5, 0.5, 0.5, 0.5);
+    _2_val *= vec4(0.5);
     _2_val = _2_val * vec4(2.0);
-    _2_val = _2_val * vec4(0.5, 0.5, 0.5, 0.5);
+    _2_val = _2_val * vec4(0.5);
     _1_ok = _1_ok && _2_val == vec4(_0_unknown);
     return _1_ok && test_int_b() ? colorGreen : colorRed;
 }

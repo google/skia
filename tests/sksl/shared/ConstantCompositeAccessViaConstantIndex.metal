@@ -2,7 +2,7 @@
 #include <simd/simd.h>
 using namespace metal;
 constant const array<half, 5> globalArray = array<half, 5>{1.0h, 1.0h, 1.0h, 1.0h, 1.0h};
-constant const half2 globalVector = half2(1.0h, 1.0h);
+constant const half2 globalVector = half2(1.0h);
 constant const half2x2 globalMatrix = half2x2(half2(1.0h, 1.0h), half2(1.0h, 1.0h));
 struct Uniforms {
     half4 colorRed;
@@ -51,7 +51,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     Outputs _out;
     (void)_out;
     const array<half, 5> localArray = array<half, 5>{0.0h, 1.0h, 2.0h, 3.0h, 4.0h};
-    const half2 localVector = half2(1.0h, 1.0h);
+    const half2 localVector = half2(1.0h);
     const half2x2 localMatrix = half2x2(half2(0.0h, 1.0h), half2(2.0h, 3.0h));
     if (((((make_array_ref(globalArray) == make_array_ref(_uniforms.testArray) || all(globalVector == _uniforms.colorRed.xy)) || globalMatrix == _uniforms.testMatrix2x2) || make_array_ref(localArray) == make_array_ref(_uniforms.testArray)) || all(localVector == _uniforms.colorRed.xy)) || localMatrix == _uniforms.testMatrix2x2) {
         _out.sk_FragColor = _uniforms.colorRed;

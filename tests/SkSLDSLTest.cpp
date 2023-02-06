@@ -1929,7 +1929,7 @@ DEF_GANESH_TEST_FOR_MOCK_CONTEXT(DSLSampleShader, r, ctxInfo) {
                            SkSL::ProgramKind::kRuntimeShader);
     DSLGlobalVar shader(kUniform_Modifier, kShader_Type, "child");
     DSLGlobalVar notShader(kUniform_Modifier, kFloat_Type, "x");
-    EXPECT_EQUAL(shader.eval(Float2(0, 0)), "child.eval(float2(0.0, 0.0))");
+    EXPECT_EQUAL(shader.eval(Float2(0, 0)), "child.eval(float2(0.0))");
 
     {
         ExpectError error(r, "no match for shader::eval(half4)");

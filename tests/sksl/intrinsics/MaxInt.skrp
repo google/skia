@@ -57,7 +57,7 @@
    57. cmpeq_int                      $10 = equal($10, $11)
    58. bitwise_and_int                $9 &= $10
    59. copy_constant                  $10 = 0x00000032 (7.006492e-44)
-   60. copy_constant                  $11 = 0x00000032 (7.006492e-44)
+   60. copy_slot_unmasked             $11 = $10
    61. copy_2_slots_unmasked          $12..13 = expectedA(0..1)
    62. cmpeq_2_ints                   $10..11 = equal($10..11, $12..13)
    63. bitwise_and_int                $10 &= $11

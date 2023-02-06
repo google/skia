@@ -19,10 +19,10 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     ushort hugeUS = (((((((((((((((32768u * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u) * 2u;
     int hugeNI = int(((((((((((((((((((-2147483648 * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2);
     short hugeNS = (((((((((((((((-32768 * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2) * 2;
-    const int4 i4 = int4(2, 2, 2, 2);
-    int4 hugeIvec = ((((((((((((((int4(1073741824, 1073741824, 1073741824, 1073741824) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4;
-    const uint4 u4 = uint4(2u, 2u, 2u, 2u);
-    uint4 hugeUvec = (((((((((((((uint4(2147483648u, 2147483648u, 2147483648u, 2147483648u) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4;
+    const int4 i4 = int4(2);
+    int4 hugeIvec = ((((((((((((((int4(1073741824) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4) * i4;
+    const uint4 u4 = uint4(2u);
+    uint4 hugeUvec = (((((((((((((uint4(2147483648u) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4) * u4;
     _out.sk_FragColor = ((((((((_uniforms.colorGreen * saturate(huge)) * saturate(half(hugeI))) * saturate(half(hugeU))) * saturate(half(hugeS))) * saturate(half(hugeUS))) * saturate(half(hugeNI))) * saturate(half(hugeNS))) * saturate(half4(hugeIvec))) * saturate(half4(hugeUvec));
     return _out;
 }

@@ -66,9 +66,9 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], texture2d<half> uTextureS
     }
     half4 output_Stage1;
     half4 _6_output;
-    _6_output = half4(0.0h, 0.0h, 0.0h, 0.0h);
+    _6_output = half4(0.0h);
     float2 _7_coord = _in.vLocalCoord_Stage0 - float2(12.0h * _globals._anonInterface0->uIncrement_Stage1_c0);
-    float2 _8_coordSampled = float2(0.0, 0.0);
+    float2 _8_coordSampled = float2(0.0);
     _8_coordSampled = _7_coord;
     _6_output += MatrixEffect_Stage1_c0_c0_h4h4f2(_globals, outputColor_Stage0, _8_coordSampled) * _globals._anonInterface0->uKernel_Stage1_c0[0].x;
     _7_coord += float2(_globals._anonInterface0->uIncrement_Stage1_c0);

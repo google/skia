@@ -5,5 +5,5 @@ uniform vec4 expected;
 uniform vec4 colorGreen;
 uniform vec4 colorRed;
 vec4 main() {
-    return ((((((cos(inputVal.x) == expected.x && cos(inputVal.xy) == expected.xy) && cos(inputVal.xyz) == expected.xyz) && cos(inputVal) == expected) && 1.0 == expected.x) && vec2(1.0, 1.0) == expected.xy) && vec3(1.0, 1.0, 1.0) == expected.xyz) && vec4(1.0, 1.0, 1.0, 1.0) == expected ? colorGreen : colorRed;
+    return ((((((cos(inputVal.x) == expected.x && cos(inputVal.xy) == expected.xy) && cos(inputVal.xyz) == expected.xyz) && cos(inputVal) == expected) && 1.0 == expected.x) && vec2(1.0) == expected.xy) && vec3(1.0) == expected.xyz) && vec4(1.0) == expected ? colorGreen : colorRed;
 }

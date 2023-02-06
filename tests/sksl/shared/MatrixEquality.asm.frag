@@ -299,12 +299,12 @@ OpStore %_0_ok %148
 OpSelectionMerge %150 None
 OpBranchConditional %148 %149 %150
 %149 = OpLabel
-%152 = OpCompositeConstruct %v2float %130 %126
-%153 = OpCompositeConstruct %v2float %130 %130
-%154 = OpCompositeConstruct %mat2v2float %152 %153
-%155 = OpFOrdEqual %v2bool %152 %140
+%152 = OpCompositeConstruct %v2float %130 %130
+%153 = OpCompositeConstruct %v2float %130 %126
+%154 = OpCompositeConstruct %mat2v2float %153 %152
+%155 = OpFOrdEqual %v2bool %153 %140
 %156 = OpAll %bool %155
-%157 = OpFOrdEqual %v2bool %153 %141
+%157 = OpFOrdEqual %v2bool %152 %141
 %158 = OpAll %bool %157
 %159 = OpLogicalAnd %bool %156 %158
 %151 = OpLogicalNot %bool %159

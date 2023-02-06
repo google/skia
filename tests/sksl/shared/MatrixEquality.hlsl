@@ -78,9 +78,9 @@ float4 main(float2 _27)
     bool _160 = false;
     if (_148)
     {
-        float2 _152 = float2(_10_colorGreen.y, _10_colorGreen.x);
-        float2 _153 = _10_colorGreen.y.xx;
-        _160 = !(all(bool2(_152.x == float2(1.0f, 0.0f).x, _152.y == float2(1.0f, 0.0f).y)) && all(bool2(_153.x == float2(0.0f, 1.0f).x, _153.y == float2(0.0f, 1.0f).y)));
+        float2 _152 = _10_colorGreen.y.xx;
+        float2 _153 = float2(_10_colorGreen.y, _10_colorGreen.x);
+        _160 = !(all(bool2(_153.x == float2(1.0f, 0.0f).x, _153.y == float2(1.0f, 0.0f).y)) && all(bool2(_152.x == float2(0.0f, 1.0f).x, _152.y == float2(0.0f, 1.0f).y)));
     }
     else
     {

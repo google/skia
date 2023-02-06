@@ -9,7 +9,7 @@ struct Outputs {
 fragment Outputs fragmentMain(Inputs _in [[stage_in]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
-    half4 x = half4(1.0h, 1.0h, 1.0h, 1.0h);
+    half4 x = half4(1.0h);
     do {
         x.x = x.x - 0.25h;
         if (x.x <= 0.0h) break;

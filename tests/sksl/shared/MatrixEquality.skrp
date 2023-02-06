@@ -85,7 +85,7 @@
    85. copy_slot_unmasked             _0_ok = $0
    86. copy_slot_unmasked             $1 = _2_one
    87. copy_2_slots_unmasked          $2..3 = _1_zero(0..1)
-   88. copy_slot_unmasked             $4 = _2_one
+   88. copy_slot_unmasked             $4 = $3
    89. copy_constant                  $5 = 0x3F800000 (1.0)
    90. zero_2_slots_unmasked          $6..7 = 0
    91. copy_constant                  $8 = 0x3F800000 (1.0)

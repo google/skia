@@ -1,7 +1,7 @@
 float f_0;
 float4 main(float2 coords)
 {
-	float4 fv = float4(float2(f_0), f_0, f_0);
+	float4 fv = float4(f_0);
 	;
 	;
 	;

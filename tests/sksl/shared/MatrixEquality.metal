@@ -77,7 +77,7 @@ fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _unifo
     float _3_two = 2.0 * _2_one;
     float _4_nine = 9.0 * _2_one;
     _0_ok = _0_ok && float2x2(float2(_2_one, _1_zero), float2(_1_zero, _2_one)) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0));
-    _0_ok = _0_ok && !(float2x2(float2(_2_one, _1_zero), float2(_2_one, _2_one)) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
+    _0_ok = _0_ok && !(float2x2(float2(_2_one, _1_zero), float2(_2_one)) == float2x2(float2(1.0, 0.0), float2(0.0, 1.0)));
     _0_ok = _0_ok && float2x2(_2_one) == float2x2(1.0);
     _0_ok = _0_ok && !(float2x2(_2_one) == float2x2(0.0));
     _0_ok = _0_ok && float2x2(-_2_one) == float2x2(-1.0);

@@ -15,7 +15,7 @@ vec4 main() {
     float _3_two = 2.0 * _2_one;
     float _4_nine = 9.0 * _2_one;
     _0_ok = _0_ok && mat2(_2_one, _1_zero, _1_zero, _2_one) == mat2(1.0, 0.0, 0.0, 1.0);
-    _0_ok = _0_ok && !(mat2(_2_one, _1_zero, _2_one, _2_one) == mat2(1.0, 0.0, 0.0, 1.0));
+    _0_ok = _0_ok && !(mat2(_2_one, _1_zero, vec2(_2_one)) == mat2(1.0, 0.0, 0.0, 1.0));
     _0_ok = _0_ok && mat2(_2_one) == mat2(1.0);
     _0_ok = _0_ok && !(mat2(_2_one) == mat2(0.0));
     _0_ok = _0_ok && mat2(-_2_one) == mat2(-1.0);
