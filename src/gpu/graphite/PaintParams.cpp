@@ -11,6 +11,7 @@
 #include "include/core/SkShader.h"
 #include "src/core/SkBlenderBase.h"
 #include "src/core/SkColorFilterBase.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
@@ -60,13 +61,25 @@ sk_sp<SkColorFilter> PaintParams::refColorFilter() const { return fColorFilter; 
 
 sk_sp<SkBlender> PaintParams::refPrimitiveBlender() const { return fPrimitiveBlender; }
 
+SkColor4f PaintParams::Color4fPrepForDst(SkColor4f srcColor, const SkColorInfo& dstColorInfo) {
+    // xform from sRGB to the destination colorspace
+    SkColorSpaceXformSteps steps(sk_srgb_singleton(),       kUnpremul_SkAlphaType,
+                                 dstColorInfo.colorSpace(), kUnpremul_SkAlphaType);
+
+    SkColor4f result = srcColor;
+    steps.apply(result.vec());
+    return result;
+}
+
 void PaintParams::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* builder,
                         PipelineDataGatherer* gatherer) const {
 
+    SkColor4f dstPaintColor = Color4fPrepForDst(fColor, keyContext.dstColorInfo());
+
     // TODO: figure out how we can omit this block when the Paint's color isn't used.
     SolidColorShaderBlock::BeginBlock(keyContext, builder, gatherer,
-                                      fColor.makeOpaque().premul());
+                                      dstPaintColor.makeOpaque().premul());
     builder->endBlock();
 
     if (fShader) {
@@ -79,8 +92,8 @@ void PaintParams::toKey(const KeyContext& keyContext,
     }
 
     // Apply the paint's alpha value.
-    auto alphaColorFilter = SkColorFilters::Blend({0, 0, 0, fColor[3]},
-                                                  /*colorSpace*/nullptr,
+    auto alphaColorFilter = SkColorFilters::Blend({0, 0, 0, fColor.fA},
+                                                  /* colorSpace= */ nullptr,
                                                   SkBlendMode::kDstIn);
     if (alphaColorFilter) {
         as_CFB(alphaColorFilter)->addToKey(keyContext, builder, gatherer);
@@ -92,7 +105,7 @@ void PaintParams::toKey(const KeyContext& keyContext,
 
     if (fFinalBlender) {
         as_BB(fFinalBlender)->addToKey(keyContext, builder, gatherer,
-                                       /* primitiveColorBlender= */false);
+                                       /* primitiveColorBlender= */ false);
     } else {
         BlendModeBlock::BeginBlock(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
         builder->endBlock();

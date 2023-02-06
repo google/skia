@@ -11,6 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 
+class SkColorInfo;
 class SkShader;
 
 namespace skgpu::graphite {
@@ -58,6 +59,9 @@ public:
     sk_sp<SkBlender> refPrimitiveBlender() const;
 
     bool skipColorXform() const { return fSkipColorXform; }
+
+    /** Converts an SkColor4f to the destination color space. */
+    static SkColor4f Color4fPrepForDst(SkColor4f srgb, const SkColorInfo& dstColorInfo);
 
     void toKey(const KeyContext&,
                PaintParamsKeyBuilder*,

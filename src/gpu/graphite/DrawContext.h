@@ -55,7 +55,8 @@ public:
 
     ~DrawContext() override;
 
-    const SkImageInfo&  imageInfo() const { return fImageInfo;    }
+    const SkImageInfo& imageInfo() const { return fImageInfo;    }
+    const SkColorInfo& colorInfo() const { return fImageInfo.colorInfo(); }
     TextureProxy* target()                { return fTarget.get(); }
     const TextureProxy* target()    const { return fTarget.get(); }
 
