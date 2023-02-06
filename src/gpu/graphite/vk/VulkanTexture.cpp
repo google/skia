@@ -176,4 +176,9 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
         , fImage(image)
         , fMemoryAlloc(alloc) {}
 
+void VulkanTexture::freeGpuData() {
+    auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
+    skgpu::VulkanMemory::FreeImageMemory(sharedContext->memoryAllocator(), fMemoryAlloc);
+}
+
 } // namespace skgpu::graphite
