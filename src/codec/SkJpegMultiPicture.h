@@ -17,6 +17,7 @@
 
 class SkData;
 class SkJpegSourceMgr;
+struct SkJpegSegment;
 
 /*
  * Parsed Jpeg Multi-Picture Format structure as specified in CIPA DC-x007-2009. An introduction to
@@ -49,9 +50,9 @@ std::unique_ptr<SkJpegMultiPictureParameters> SkJpegParseMultiPicture(
         const sk_sp<const SkData>& segmentParameters);
 
 /*
- * Create SkStreams for all MultiPicture images, given an SkJpegSourceMgr for an image. This will
- * return nullptr if there is not MultiPicture segment, or if the MultiPicture parameters fail to
- * parse.
+ * Create SkStreams for all MultiPicture images, given an SkJpegSourceMgr for an image, and the
+ * SkJpegSegment whose parameters produced the parameters. This will return nullptr if there is not
+ * MultiPicture segment, or if the MultiPicture parameters fail to parse.
  */
 struct SkJpegMultiPictureStreams {
     // An individual image.
@@ -66,6 +67,8 @@ struct SkJpegMultiPictureStreams {
     std::vector<Image> images;
 };
 std::unique_ptr<SkJpegMultiPictureStreams> SkJpegExtractMultiPictureStreams(
-        const SkJpegMultiPictureParameters* mpParams, SkJpegSourceMgr* decoderSource);
+        const SkJpegMultiPictureParameters* mpParams,
+        const SkJpegSegment& mpParamsSegment,
+        SkJpegSourceMgr* decoderSource);
 
 #endif

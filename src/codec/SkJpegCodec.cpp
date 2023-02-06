@@ -33,6 +33,7 @@
 #ifdef SK_CODEC_DECODES_JPEG_GAINMAPS
 #include "src/codec/SkJpegGainmap.h"
 #include "src/codec/SkJpegMultiPicture.h"
+#include "src/codec/SkJpegSegmentScan.h"
 #include "src/codec/SkJpegXmp.h"
 #endif  // SK_CODEC_DECODES_JPEG_GAINMAPS
 
@@ -1135,19 +1136,39 @@ bool SkJpegCodec::onGetGainmapInfo(SkGainmapInfo* info,
         return true;
     }
 
-    // Attempt to extract Multi-Picture Format gainmap formats.
+    // Attempt to extract Multi-Picture Format gainmap formats. Find the SkSourceMgr's SkJpegSegment
+    // corresponding to the marker found by libjpeg based on the order they appear in.
+    // TODO(ccameron): It may be preferable to make SkJpegSourceMgr save segments with certain
+    // markers to avoid this strangeness.
+    std::vector<SkJpegSegment> mpfMarkerSegments;
+    for (const auto& segment : fDecoderMgr->getSourceMgr()->getAllSegments()) {
+        if (segment.marker == kMpfMarker) {
+            mpfMarkerSegments.push_back(segment);
+        }
+    }
+    auto mpfMarkerSegmentIter = mpfMarkerSegments.begin();
     for (jpeg_marker_struct* marker = fDecoderMgr->dinfo()->marker_list; marker;
          marker = marker->next) {
         if (marker->marker != kMpfMarker) {
             continue;
         }
+        if (mpfMarkerSegmentIter == mpfMarkerSegments.end()) {
+            SkCodecPrintf("Failed to match MPF libjpeg marker and SkJpegSegment.\n");
+            break;
+        }
+        auto mpParamsSegment = (*mpfMarkerSegmentIter);
+        ++mpfMarkerSegmentIter;
+
         auto mpParams =
                 SkJpegParseMultiPicture(SkData::MakeWithoutCopy(marker->data, marker->data_length));
         if (!mpParams) {
             continue;
         }
-        if (SkJpegGetMultiPictureGainmap(
-                    mpParams.get(), fDecoderMgr->getSourceMgr(), info, gainmapImageStream)) {
+        if (SkJpegGetMultiPictureGainmap(mpParams.get(),
+                                         mpParamsSegment,
+                                         fDecoderMgr->getSourceMgr(),
+                                         info,
+                                         gainmapImageStream)) {
             return true;
         }
     }

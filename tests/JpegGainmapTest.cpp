@@ -175,6 +175,7 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
 
     // Search and parse the MPF header.
     std::unique_ptr<SkJpegMultiPictureParameters> mpParams;
+    SkJpegSegment mpParamsSegment;
     {
         auto sourceMgr = SkJpegSourceMgr::Make(stream.get());
         for (const auto& segment : sourceMgr->getAllSegments()) {
@@ -188,6 +189,7 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
             }
             mpParams = SkJpegParseMultiPicture(parameterData);
             if (mpParams) {
+                mpParamsSegment = segment;
                 break;
             }
         }
@@ -227,7 +229,8 @@ DEF_TEST(Codec_jpegMultiPicture, r) {
         auto sourceMgr = SkJpegSourceMgr::Make(&testStream, rec.bufferSize);
 
         // Extract the streams for the MultiPicture images.
-        auto mpStreams = SkJpegExtractMultiPictureStreams(&testMpParams, sourceMgr.get());
+        auto mpStreams =
+                SkJpegExtractMultiPictureStreams(&testMpParams, mpParamsSegment, sourceMgr.get());
         REPORTER_ASSERT(r, mpStreams);
         size_t numberOfImages = mpStreams->images.size();
 

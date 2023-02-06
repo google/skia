@@ -26,12 +26,13 @@
 #include <vector>
 
 bool SkJpegGetMultiPictureGainmap(const SkJpegMultiPictureParameters* mpParams,
+                                  const SkJpegSegment& mpParamsSegment,
                                   SkJpegSourceMgr* decoderSource,
                                   SkGainmapInfo* outInfo,
                                   std::unique_ptr<SkStream>* outGainmapImageStream) {
     // Extract the Multi-Picture image streams in the original decoder stream (we needed the scan to
     // find the offsets of the MP images within the original decoder stream).
-    auto mpStreams = SkJpegExtractMultiPictureStreams(mpParams, decoderSource);
+    auto mpStreams = SkJpegExtractMultiPictureStreams(mpParams, mpParamsSegment, decoderSource);
     if (!mpStreams) {
         SkCodecPrintf("Failed to extract MP image streams.\n");
         return false;

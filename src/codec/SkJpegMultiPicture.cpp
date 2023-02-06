@@ -187,21 +187,14 @@ std::unique_ptr<SkJpegMultiPictureParameters> SkJpegParseMultiPicture(
 }
 
 std::unique_ptr<SkJpegMultiPictureStreams> SkJpegExtractMultiPictureStreams(
-        const SkJpegMultiPictureParameters* mpParams, SkJpegSourceMgr* decoderSource) {
-    // Look through the scanned segments until we arrive at the MultiPicture segment.
-    size_t mpSegmentOffset = 0;
-    for (const auto& segment : decoderSource->getAllSegments()) {
-        if (segment.marker == kMpfMarker) {
-            // TODO(ccameron): It is not guaranteed that this segment is the one that produced
-            // |mpParams|. Plumb through a parameter to fix this.
-            mpSegmentOffset = segment.offset;
-            break;
-        }
-    }
-    // It is impossible for the MP segment to be 0 and be correct, so use 0 to mean failure.
-    if (mpSegmentOffset == 0) {
-        return nullptr;
-    }
+        const SkJpegMultiPictureParameters* mpParams,
+        const SkJpegSegment& mpParamsSegment,
+        SkJpegSourceMgr* decoderSource) {
+    SkASSERT(mpParamsSegment.marker == kMpfMarker);
+
+    // Ensure that the whole source image has been scanned.
+    // TODO(ccameron): Move this into getSubsetStream.
+    (void)decoderSource->getAllSegments();
 
     // Create streams for each of the specified segments.
     auto result = std::make_unique<SkJpegMultiPictureStreams>();
@@ -212,7 +205,7 @@ std::unique_ptr<SkJpegMultiPictureStreams> SkJpegExtractMultiPictureStreams(
         if (imageParams.dataOffset == 0) {
             continue;
         }
-        size_t imageStreamOffset = mpSegmentOffset + SkJpegSegmentScanner::kMarkerCodeSize +
+        size_t imageStreamOffset = mpParamsSegment.offset + SkJpegSegmentScanner::kMarkerCodeSize +
                                    SkJpegSegmentScanner::kParameterLengthSize + sizeof(kMpfSig) +
                                    imageParams.dataOffset;
         size_t imageStreamSize = imageParams.size;

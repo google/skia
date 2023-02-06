@@ -16,6 +16,7 @@ class SkStream;
 class SkJpegXmp;
 struct SkGainmapInfo;
 struct SkJpegMultiPictureParameters;
+struct SkJpegSegment;
 
 #include <memory>
 
@@ -23,6 +24,7 @@ struct SkJpegMultiPictureParameters;
  * Implementation of onGetGainmap that detects Multi-Picture Format based gainmaps.
  */
 bool SkJpegGetMultiPictureGainmap(const SkJpegMultiPictureParameters* mpParams,
+                                  const SkJpegSegment& mpParamsSegment,
                                   SkJpegSourceMgr* decoderSource,
                                   SkGainmapInfo* outInfo,
                                   std::unique_ptr<SkStream>* outGainmapImageStream);
