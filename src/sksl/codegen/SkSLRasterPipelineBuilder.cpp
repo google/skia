@@ -269,56 +269,63 @@ void Builder::pop_slots(SlotRange dst) {
     this->discard_stack(dst.count);
 }
 
+void Builder::simplifyPopSlotsUnmasked(SlotRange* dst) {
+    if (!dst->count || fInstructions.empty()) {
+        // There's nothing left to simplify.
+        return;
+    }
+
+    Instruction& lastInstruction = fInstructions.back();
+
+    // If the last instruction is pushing a constant, we can simplify it by copying the constant
+    // directly into the destination slot.
+    if (lastInstruction.fOp == BuilderOp::push_literal) {
+        // Remove the constant-push instruction.
+        int value = lastInstruction.fImmA;
+        fInstructions.pop_back();
+
+        // Consume one destination slot.
+        dst->count--;
+        Slot destinationSlot = dst->index + dst->count;
+
+        // Continue simplifying if possible.
+        this->simplifyPopSlotsUnmasked(dst);
+
+        // Write the constant directly to the destination slot.
+        this->copy_constant(destinationSlot, value);
+        return;
+    }
+
+    // If the last instruction is pushing a zero, we can save a step by directly zeroing out
+    // the destination slot.
+    if (lastInstruction.fOp == BuilderOp::push_zeros) {
+        // Remove one zero-push.
+        lastInstruction.fImmA--;
+        if (lastInstruction.fImmA == 0) {
+            fInstructions.pop_back();
+        }
+
+        // Consume one destination slot.
+        dst->count--;
+        Slot destinationSlot = dst->index + dst->count;
+
+        // Continue simplifying if possible.
+        this->simplifyPopSlotsUnmasked(dst);
+
+        // Zero the destination slot directly.
+        this->zero_slots_unmasked({destinationSlot, 1});
+        return;
+    }
+}
+
 void Builder::pop_slots_unmasked(SlotRange dst) {
     SkASSERT(dst.count >= 0);
 
-    SkTArray<int32_t> constantsToPush;
-    while (!fInstructions.empty() && dst.count > 0) {
-        Instruction& lastInstruction = fInstructions.back();
+    // If we are popping immediately after a push, we can simplify the code by writing the pushed
+    // value directly to the destination range.
+    this->simplifyPopSlotsUnmasked(&dst);
 
-        // If the last instructions is pushing a constant, we can save a step by copying those
-        // constants directly into the destination slot.
-        if (lastInstruction.fOp == BuilderOp::push_literal) {
-            int immValue = lastInstruction.fImmA;
-            fInstructions.pop_back();
-
-            // We need to fill the _last_ slot of the passed-in slot range.
-            constantsToPush.push_back(immValue);
-            continue;
-        }
-
-        // If the last instruction is pushing a zero, we can save a step by directly zeroing out
-        // the destination slot.
-        if (lastInstruction.fOp == BuilderOp::push_zeros) {
-            lastInstruction.fImmA--;
-            if (lastInstruction.fImmA == 0) {
-                fInstructions.pop_back();
-            }
-
-            // We need to zero the _last_ slot of the passed-in slot range.
-            constantsToPush.push_back(0);
-            continue;
-        }
-
-        break;
-    }
-
-    if (!constantsToPush.empty()) {
-        // Write constants directly to their destination (avoiding a trip through the stack).
-        dst.count -= constantsToPush.size();
-        Slot constantWriteSlot = dst.index + dst.count;
-
-        for (int index = constantsToPush.size(); index--;) {
-            int constantValue = constantsToPush[index];
-            if (constantValue != 0) {
-                this->copy_constant(constantWriteSlot++, constantValue);
-            } else {
-                this->zero_slots_unmasked({constantWriteSlot++, 1});
-            }
-        }
-    }
-
-    // Copy non-constants from the stack to their destination.
+    // Pop from the stack normally.
     if (dst.count > 0) {
         this->copy_stack_to_slots_unmasked(dst);
         this->discard_stack(dst.count);

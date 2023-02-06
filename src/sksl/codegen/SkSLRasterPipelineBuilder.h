@@ -603,6 +603,8 @@ public:
     }
 
 private:
+    void simplifyPopSlotsUnmasked(SlotRange* dst);
+
     SkTArray<Instruction> fInstructions;
     int fNumLabels = 0;
     int fExecutionMaskWritesEnabled = 0;
