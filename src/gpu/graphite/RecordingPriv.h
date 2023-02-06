@@ -28,6 +28,7 @@ public:
 #if GR_TEST_UTILS
     int numVolatilePromiseImages() const;
     int numNonVolatilePromiseImages() const;
+    bool hasTasks() const;
 #endif
 
     bool addCommands(Context*, CommandBuffer*, Surface* targetSurface);

@@ -344,6 +344,7 @@ metal_tests_sources = [
 graphite_tests_sources = [
   "$_tests/graphite/BackendTextureTest.cpp",
   "$_tests/graphite/BoundsManagerTest.cpp",
+  "$_tests/graphite/BufferManagerTest.cpp",
   "$_tests/graphite/ComputeTaskTest.cpp",
   "$_tests/graphite/GraphitePromiseImageTest.cpp",
   "$_tests/graphite/GraphiteResourceCacheTest.cpp",

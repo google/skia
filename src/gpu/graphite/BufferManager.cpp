@@ -65,7 +65,8 @@ size_t starting_alignment(BufferType type, bool useTransferBuffers, const Caps* 
     size_t alignment = 4;
     if (type == BufferType::kUniform) {
         alignment = caps->requiredUniformBufferAlignment();
-    } else if (type == BufferType::kStorage) {
+    } else if (type == BufferType::kStorage || type == BufferType::kVertexStorage ||
+               type == BufferType::kIndexStorage || type == BufferType::kIndirect) {
         alignment = caps->requiredStorageBufferAlignment();
     }
     if (useTransferBuffers) {
@@ -83,10 +84,14 @@ DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider, const C
         : fResourceProvider(resourceProvider)
         , fCaps(caps)
         , fCurrentBuffers{{
-                { BufferType::kVertex,  kVertexBufferSize,  caps },
-                { BufferType::kIndex,   kIndexBufferSize,   caps },
-                { BufferType::kUniform, kUniformBufferSize, caps },
-                { BufferType::kStorage, kStorageBufferSize, caps } }} {}
+                { BufferType::kVertex,        kVertexBufferSize,  caps },
+                { BufferType::kIndex,         kIndexBufferSize,   caps },
+                { BufferType::kUniform,       kUniformBufferSize, caps },
+                { BufferType::kStorage,       kStorageBufferSize, caps },  // mapped storage
+                { BufferType::kStorage,       kStorageBufferSize, caps },  // GPU-only storage
+                { BufferType::kVertexStorage, kVertexBufferSize,  caps },
+                { BufferType::kIndexStorage,  kIndexBufferSize,   caps },
+                { BufferType::kIndirect,      kStorageBufferSize, caps } }} {}
 
 DrawBufferManager::~DrawBufferManager() {}
 
@@ -104,7 +109,7 @@ std::tuple<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size
     }
 
     auto& info = fCurrentBuffers[kVertexBufferIndex];
-    auto [ptr, bindInfo] = this->prepareBindBuffer(&info, requiredBytes);
+    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, requiredBytes);
     if (!ptr) {
         return {};
     }
@@ -123,7 +128,7 @@ std::tuple<IndexWriter, BindBufferInfo> DrawBufferManager::getIndexWriter(size_t
     }
 
     auto& info = fCurrentBuffers[kIndexBufferIndex];
-    auto [ptr, bindInfo] = this->prepareBindBuffer(&info, requiredBytes);
+    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, requiredBytes);
     if (!ptr) {
         return {};
     }
@@ -138,7 +143,7 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(
     }
 
     auto& info = fCurrentBuffers[kUniformBufferIndex];
-    auto [ptr, bindInfo] = this->prepareBindBuffer(&info, requiredBytes);
+    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, requiredBytes);
     if (!ptr) {
         return {};
     }
@@ -152,11 +157,56 @@ std::tuple<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_
     }
 
     auto& info = fCurrentBuffers[kStorageBufferIndex];
-    auto [ptr, bindInfo] = this->prepareBindBuffer(&info, requiredBytes);
+    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, requiredBytes);
     if (!ptr) {
         return {};
     }
     return {UniformWriter(ptr, requiredBytes), bindInfo};
+}
+
+std::tuple<void*, BindBufferInfo> DrawBufferManager::getMappedStorage(size_t requiredBytes) {
+    if (!requiredBytes) {
+        return {};
+    }
+
+    auto& info = fCurrentBuffers[kStorageBufferIndex];
+    return this->prepareMappedBindBuffer(&info, requiredBytes);
+}
+
+BindBufferInfo DrawBufferManager::getStorage(size_t requiredBytes) {
+    if (!requiredBytes) {
+        return {};
+    }
+
+    auto& info = fCurrentBuffers[kGpuOnlyStorageBufferIndex];
+    return this->prepareBindBuffer(&info, requiredBytes);
+}
+
+BindBufferInfo DrawBufferManager::getVertexStorage(size_t requiredBytes) {
+    if (!requiredBytes) {
+        return {};
+    }
+
+    auto& info = fCurrentBuffers[kVertexStorageBufferIndex];
+    return this->prepareBindBuffer(&info, requiredBytes);
+}
+
+BindBufferInfo DrawBufferManager::getIndexStorage(size_t requiredBytes) {
+    if (!requiredBytes) {
+        return {};
+    }
+
+    auto& info = fCurrentBuffers[kIndexStorageBufferIndex];
+    return this->prepareBindBuffer(&info, requiredBytes);
+}
+
+BindBufferInfo DrawBufferManager::getIndirectStorage(size_t requiredBytes) {
+    if (!requiredBytes) {
+        return {};
+    }
+
+    auto& info = fCurrentBuffers[kIndirectStorageBufferIndex];
+    return this->prepareBindBuffer(&info, requiredBytes);
 }
 
 void DrawBufferManager::transferToRecording(Recording* recording) {
@@ -165,12 +215,15 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
         if (useTransferBuffer) {
             if (transferBuffer) {
                 SkASSERT(buffer);
+                // A transfer buffer should always be mapped at this stage
                 transferBuffer->unmap();
                 recording->priv().addTask(CopyBufferToBufferTask::Make(std::move(transferBuffer),
                                                                        std::move(buffer)));
             }
         } else {
-           buffer->unmap();
+            if (buffer->isMapped()) {
+                buffer->unmap();
+            }
            recording->priv().addResourceRef(std::move(buffer));
         }
     }
@@ -184,25 +237,41 @@ void DrawBufferManager::transferToRecording(Recording* recording) {
         }
         if (useTransferBuffer) {
             if (info.fTransferBuffer) {
+                // A transfer buffer should always be mapped at this stage
                 info.fTransferBuffer->unmap();
                 SkASSERT(info.fBuffer);
                 recording->priv().addTask(CopyBufferToBufferTask::Make(
                         std::move(info.fTransferBuffer), info.fBuffer));
             }
         } else {
-            info.fBuffer->unmap();
+            if (info.fBuffer->isMapped()) {
+                info.fBuffer->unmap();
+            }
             recording->priv().addResourceRef(std::move(info.fBuffer));
         }
         info.fOffset = 0;
     }
 }
 
-std::pair<void*, BindBufferInfo> DrawBufferManager::prepareBindBuffer(BufferInfo* info,
-                                                                      size_t requiredBytes) {
+std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(BufferInfo* info,
+                                                                            size_t requiredBytes) {
+    auto bindInfo = this->prepareBindBuffer(info, requiredBytes, /*mappable=*/true);
+    if (!bindInfo) {
+        return {nullptr, {}};
+    }
+
+    void* ptr = SkTAddOffset<void>(info->getMappableBuffer()->map(),
+                                   static_cast<ptrdiff_t>(bindInfo.fOffset));
+    return {ptr, bindInfo};
+}
+
+BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
+                                                    size_t requiredBytes,
+                                                    bool mappable) {
     SkASSERT(info);
     SkASSERT(requiredBytes);
 
-    bool useTransferBuffer = !fCaps->drawBufferCanBeMapped();
+    bool useTransferBuffer = mappable && !fCaps->drawBufferCanBeMapped();
 
     if (info->fBuffer &&
         !can_fit(requiredBytes, info->fBuffer.get(), info->fOffset, info->fStartAlignment)) {
@@ -218,7 +287,7 @@ std::pair<void*, BindBufferInfo> DrawBufferManager::prepareBindBuffer(BufferInfo
                 useTransferBuffer ? PrioritizeGpuReads::kYes : PrioritizeGpuReads::kNo);
         info->fOffset = 0;
         if (!info->fBuffer) {
-            return {nullptr, {}};
+            return {};
         }
     }
 
@@ -230,7 +299,7 @@ std::pair<void*, BindBufferInfo> DrawBufferManager::prepareBindBuffer(BufferInfo
         SkASSERT(info->fBuffer->size() == info->fTransferBuffer->size());
         SkASSERT(info->fOffset == 0);
         if (!info->fTransferBuffer) {
-            return {nullptr, {}};
+            return {};
         }
     }
 
@@ -238,9 +307,7 @@ std::pair<void*, BindBufferInfo> DrawBufferManager::prepareBindBuffer(BufferInfo
     BindBufferInfo bindInfo{info->fBuffer.get(), info->fOffset};
     info->fOffset += requiredBytes;
 
-    void* ptr = SkTAddOffset<void>(info->getMappableBuffer()->map(),
-                                   static_cast<ptrdiff_t>(bindInfo.fOffset));
-    return {ptr, bindInfo};
+    return bindInfo;
 }
 
 // ------------------------------------------------------------------------------------------------

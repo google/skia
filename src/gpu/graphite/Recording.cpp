@@ -94,6 +94,8 @@ int RecordingPriv::numVolatilePromiseImages() const {
 int RecordingPriv::numNonVolatilePromiseImages() const {
     return fRecording->fNonVolatileLazyProxies.size();
 }
+
+bool RecordingPriv::hasTasks() const { return fRecording->fGraph->hasTasks(); }
 #endif
 
 bool RecordingPriv::addCommands(Context* context,

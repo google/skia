@@ -42,6 +42,16 @@ public:
     std::tuple<UniformWriter, BindBufferInfo> getUniformWriter(size_t requiredBytes);
     std::tuple<UniformWriter, BindBufferInfo> getSsboWriter(size_t requiredBytes);
 
+    // Returns a pointer to a mapped storage buffer slice without a specific data writer.
+    std::tuple<void*, BindBufferInfo> getMappedStorage(size_t requiredBytes);
+
+    // Utilities that return an unmapped buffer slice with a particular usage. These slices are
+    // intended to be only accessed by the GPU and are configured to prioritize GPU reads.
+    BindBufferInfo getStorage(size_t requiredBytes);
+    BindBufferInfo getVertexStorage(size_t requiredBytes);
+    BindBufferInfo getIndexStorage(size_t requiredBytes);
+    BindBufferInfo getIndirectStorage(size_t requiredBytes);
+
     // Returns the last 'unusedBytes' from the last call to getVertexWriter(). Assumes that
     // 'unusedBytes' is less than the 'requiredBytes' to the original allocation.
     void returnVertexBytes(size_t unusedBytes);
@@ -70,16 +80,22 @@ private:
             return fTransferBuffer ? fTransferBuffer.get() : fBuffer.get();
         }
     };
-    std::pair<void*, BindBufferInfo> prepareBindBuffer(BufferInfo* info, size_t requiredBytes);
+    std::pair<void*, BindBufferInfo> prepareMappedBindBuffer(BufferInfo* info,
+                                                             size_t requiredBytes);
+    BindBufferInfo prepareBindBuffer(BufferInfo* info, size_t requiredBytes, bool mappable = false);
 
     ResourceProvider* const fResourceProvider;
     const Caps* const fCaps;
 
-    static constexpr size_t kVertexBufferIndex  = 0;
-    static constexpr size_t kIndexBufferIndex   = 1;
-    static constexpr size_t kUniformBufferIndex = 2;
-    static constexpr size_t kStorageBufferIndex = 3;
-    std::array<BufferInfo, 4> fCurrentBuffers;
+    static constexpr size_t kVertexBufferIndex          = 0;
+    static constexpr size_t kIndexBufferIndex           = 1;
+    static constexpr size_t kUniformBufferIndex         = 2;
+    static constexpr size_t kStorageBufferIndex         = 3;
+    static constexpr size_t kGpuOnlyStorageBufferIndex  = 4;
+    static constexpr size_t kVertexStorageBufferIndex   = 5;
+    static constexpr size_t kIndexStorageBufferIndex    = 6;
+    static constexpr size_t kIndirectStorageBufferIndex = 7;
+    std::array<BufferInfo, 8> fCurrentBuffers;
 
     // Vector of buffer and transfer buffer pairs.
     std::vector<std::pair<sk_sp<Buffer>, sk_sp<Buffer>>> fUsedBuffers;
