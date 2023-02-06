@@ -908,11 +908,16 @@ bool ComputeBlurredRRectParams(const SkRRect& srcRRect,
 // TODO: it seems like there should be some synergy with SkBlurMask::ComputeBlurProfile
 // TODO: maybe cache this on the cpu side?
 int CreateIntegralTable(float sixSigma, SkBitmap* table) {
+    // Avoid overflow, covers both multiplying by 2 and finding next power of 2:
+    // 2*((2^31-1)/4 + 1) = 2*(2^29-1) + 2 = 2^30 and SkNextPow2(2^30) = 2^30
+    if (sixSigma > SK_MaxS32/4 + 1) {
+        return 0;
+    }
     // The texture we're producing represents the integral of a normal distribution over a
     // six-sigma range centered at zero. We want enough resolution so that the linear
     // interpolation done in texture lookup doesn't introduce noticeable artifacts. We
     // conservatively choose to have 2 texels for each dst pixel.
-    int minWidth = 2 * sk_float_ceil2int(sixSigma);
+    int minWidth = 2*((int)sk_float_ceil(sixSigma));
     // Bin by powers of 2 with a minimum so we get good profile reuse.
     int width = std::max(SkNextPow2(minWidth), 32);
 
