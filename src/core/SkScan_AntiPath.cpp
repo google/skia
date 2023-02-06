@@ -597,45 +597,7 @@ static SkIRect safeRoundOut(const SkRect& src) {
     return dst;
 }
 
-constexpr int kSampleSize = 8;
-#if !defined(SK_DISABLE_AAA)
-    constexpr SkScalar kComplexityThreshold = 0.25;
-#endif
-
-static void compute_complexity(const SkPath& path, SkScalar& avgLength, SkScalar& complexity) {
-    int n = path.countPoints();
-    if (n < kSampleSize || path.getBounds().isEmpty()) {
-        // set to invalid value to indicate that we failed to compute
-        avgLength = complexity = -1;
-        return;
-    }
-
-    SkScalar sumLength = 0;
-    SkPoint lastPoint = path.getPoint(0);
-    for(int i = 1; i < kSampleSize; ++i) {
-        SkPoint point = path.getPoint(i);
-        sumLength += SkPoint::Distance(lastPoint, point);
-        lastPoint = point;
-    }
-    avgLength = sumLength / (kSampleSize - 1);
-
-    auto sqr = [](SkScalar x) { return x*x; };
-
-    SkScalar diagonalSqr = sqr(path.getBounds().width()) + sqr(path.getBounds().height());
-
-    // If the path consists of random line segments, the number of intersections should be
-    // proportional to this.
-    SkScalar intersections = sk_ieee_float_divide(sqr(n) * sqr(avgLength), diagonalSqr);
-
-    // The number of intersections per scanline should be proportional to this number.
-    complexity = sk_ieee_float_divide(intersections, path.getBounds().height());
-
-    if (sk_float_isnan(complexity)) {  // it may be possible to have 0.0 / 0.0; inf is fine for us.
-        complexity = -1;
-    }
-}
-
-static bool ShouldUseAAA(const SkPath& path, SkScalar avgLength, SkScalar complexity) {
+static bool ShouldUseAAA(const SkPath& path) {
 #if defined(SK_DISABLE_AAA)
     return false;
 #else
@@ -649,25 +611,14 @@ static bool ShouldUseAAA(const SkPath& path, SkScalar avgLength, SkScalar comple
         return true;
     }
 
-    #ifdef SK_SUPPORT_LEGACY_AAA_CHOICE
-        const SkRect& bounds = path.getBounds();
-        // When the path have so many points compared to the size of its
-        // bounds/resolution, it indicates that the path is not quite smooth in
-        // the current resolution: the expected number of turning points in
-        // every pixel row/column is significantly greater than zero. Hence
-        // Aanlytic AA is not likely to produce visible quality improvements,
-        // and Analytic AA might be slower than supersampling.
-        return path.countPoints() < std::max(bounds.width(), bounds.height()) / 2 - 10;
-    #else
-        if (path.countPoints() >= path.getBounds().height()) {
-            // SAA is faster than AAA in this case even if there are no
-            // intersections because AAA will have too many scan lines. See
-            // skbug.com/8272
-            return false;
-        }
-        // We will use AAA if the number of verbs < kSampleSize and therefore complexity < 0
-        return complexity < kComplexityThreshold;
-    #endif
+    const SkRect& bounds = path.getBounds();
+    // When the path have so many points compared to the size of its
+    // bounds/resolution, it indicates that the path is not quite smooth in
+    // the current resolution: the expected number of turning points in
+    // every pixel row/column is significantly greater than zero. Hence
+    // Aanlytic AA is not likely to produce visible quality improvements,
+    // and Analytic AA might be slower than supersampling.
+    return path.countPoints() < std::max(bounds.width(), bounds.height()) / 2 - 10;
 #endif
 }
 
@@ -782,10 +733,7 @@ void SkScan::AntiFillPath(const SkPath& path, const SkRegion& origClip,
         sk_blit_above(blitter, ir, *clipRgn);
     }
 
-    SkScalar avgLength, complexity;
-    compute_complexity(path, avgLength, complexity);
-
-    if (ShouldUseAAA(path, avgLength, complexity)) {
+    if (ShouldUseAAA(path)) {
         // Do not use AAA if path is too complicated:
         // there won't be any speedup or significant visual improvement.
         SkScan::AAAFillPath(path, blitter, ir, clipRgn->getBounds(), forceRLE);
