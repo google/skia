@@ -399,13 +399,15 @@ SkGlyphDigest* RemoteStrike::digestPtr(SkPackedGlyphID packedGlyphID, ActionType
         GlyphAction action = GlyphAction::kReject;
         switch (actionType) {
             case kPath: {
-                if (glyph->setPath(&fAlloc, fContext.get())) {
+                glyph->setPath(&fAlloc, fContext.get());
+                if (glyph->path() != nullptr) {
                     action = GlyphAction::kAccept;
                 }
                 break;
             }
             case kDrawable: {
-                if (glyph->setDrawable(&fAlloc, fContext.get())) {
+                glyph->setDrawable(&fAlloc, fContext.get());
+                if (glyph->drawable() != nullptr) {
                     action = GlyphAction::kAccept;
                 }
                 break;
