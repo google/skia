@@ -2412,7 +2412,7 @@ SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
 
         const SkGlyphID glyphID = packedID.packedID().glyphID();
         const SkGlyphDigest digest = strike->maskDigest(glyphID);
-        switch (digest.directMaskAction()) {
+        switch (digest.maskAction()) {
             case GlyphAction::kAccept: {
                 const SkPoint mappedPos = creationMatrix.mapPoint(pos);
                 const SkGlyphRect glyphBounds = digest.bounds().offset(mappedPos);
