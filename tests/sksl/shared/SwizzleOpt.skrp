@@ -27,12 +27,12 @@
    27. copy_4_slots_unmasked          v = $0..3
    28. store_return_mask              $0 = RetMask
    29. copy_4_slots_unmasked          $1..4 = v
-   30. copy_4_slots_unmasked          v = $1..4
+   30. copy_4_slots_unmasked          v₁ = $1..4
    31. copy_constant                  x = 0x00000001 (1.401298e-45)
    32. store_loop_mask                $1 = LoopMask
    33. jump                           jump +9 (label 1 at #42)
    34. label                          label 0x00000002
-   35. copy_slot_unmasked             $2 = v(0)
+   35. copy_slot_unmasked             $2 = v₁(0)
    36. copy_slot_masked               [fn].result = Mask($2)
    37. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    38. copy_slot_unmasked             $2 = x
@@ -56,12 +56,12 @@
    56. copy_4_slots_unmasked          v = $0..3
    57. store_return_mask              $0 = RetMask
    58. copy_4_slots_unmasked          $1..4 = v
-   59. copy_4_slots_unmasked          v = $1..4
+   59. copy_4_slots_unmasked          v₁ = $1..4
    60. copy_constant                  x = 0x00000001 (1.401298e-45)
    61. store_loop_mask                $1 = LoopMask
    62. jump                           jump +9 (label 4 at #71)
    63. label                          label 0x00000005
-   64. copy_slot_unmasked             $2 = v(0)
+   64. copy_slot_unmasked             $2 = v₁(0)
    65. copy_slot_masked               [fn].result = Mask($2)
    66. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    67. copy_slot_unmasked             $2 = x
@@ -88,12 +88,12 @@
    88. copy_constant                  $2 = 0x43E40000 (456.0)
    89. store_return_mask              $3 = RetMask
    90. copy_4_slots_unmasked          $4..7 = v
-   91. copy_4_slots_unmasked          v = $4..7
+   91. copy_4_slots_unmasked          v₁ = $4..7
    92. copy_constant                  x = 0x00000001 (1.401298e-45)
    93. store_loop_mask                $4 = LoopMask
    94. jump                           jump +9 (label 7 at #103)
    95. label                          label 0x00000008
-   96. copy_slot_unmasked             $5 = v(0)
+   96. copy_slot_unmasked             $5 = v₁(0)
    97. copy_slot_masked               [fn].result = Mask($5)
    98. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
    99. copy_slot_unmasked             $5 = x
@@ -117,12 +117,12 @@
   117. copy_constant                  $2 = 0x43E40000 (456.0)
   118. store_return_mask              $3 = RetMask
   119. copy_4_slots_unmasked          $4..7 = v
-  120. copy_4_slots_unmasked          v = $4..7
+  120. copy_4_slots_unmasked          v₁ = $4..7
   121. copy_constant                  x = 0x00000001 (1.401298e-45)
   122. store_loop_mask                $4 = LoopMask
   123. jump                           jump +9 (label 10 at #132)
   124. label                          label 0x0000000B
-  125. copy_slot_unmasked             $5 = v(0)
+  125. copy_slot_unmasked             $5 = v₁(0)
   126. copy_slot_masked               [fn].result = Mask($5)
   127. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
   128. copy_slot_unmasked             $5 = x
@@ -143,12 +143,12 @@
   143. copy_4_slots_unmasked          v = $0..3
   144. store_return_mask              $0 = RetMask
   145. copy_4_slots_unmasked          $1..4 = v
-  146. copy_4_slots_unmasked          v = $1..4
+  146. copy_4_slots_unmasked          v₁ = $1..4
   147. copy_constant                  x = 0x00000001 (1.401298e-45)
   148. store_loop_mask                $1 = LoopMask
   149. jump                           jump +9 (label 13 at #158)
   150. label                          label 0x0000000E
-  151. copy_slot_unmasked             $2 = v(0)
+  151. copy_slot_unmasked             $2 = v₁(0)
   152. copy_slot_masked               [fn].result = Mask($2)
   153. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
   154. copy_slot_unmasked             $2 = x
@@ -172,12 +172,12 @@
   172. copy_4_slots_unmasked          v = $0..3
   173. store_return_mask              $0 = RetMask
   174. copy_4_slots_unmasked          $1..4 = v
-  175. copy_4_slots_unmasked          v = $1..4
+  175. copy_4_slots_unmasked          v₁ = $1..4
   176. copy_constant                  x = 0x00000001 (1.401298e-45)
   177. store_loop_mask                $1 = LoopMask
   178. jump                           jump +9 (label 16 at #187)
   179. label                          label 0x00000011
-  180. copy_slot_unmasked             $2 = v(0)
+  180. copy_slot_unmasked             $2 = v₁(0)
   181. copy_slot_masked               [fn].result = Mask($2)
   182. mask_off_return_mask           RetMask &= ~(CondMask & LoopMask & RetMask)
   183. copy_slot_unmasked             $2 = x

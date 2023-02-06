@@ -71,7 +71,7 @@
    71. branch_if_no_active_lanes_eq   branch +8 (label 11 at #79) if no lanes of $19 == 0xFFFFFFFF
    72. branch_if_no_active_lanes      branch_if_no_active_lanes +5 (label 13 at #77)
    73. copy_3_slots_unmasked          $10..12 = b[0](0..2)
-   74. copy_3_slots_unmasked          x[0](0..2) = $10..12
+   74. copy_3_slots_unmasked          x[0]₁(0..2) = $10..12
    75. copy_constant                  $10 = 0xFFFFFFFF
    76. copy_slot_masked               [check_array_is_float_3].result = Mask($10)
    77. label                          label 0x0000000D

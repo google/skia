@@ -36,8 +36,8 @@
    36. zero_slot_unmasked             $20 = 0
    37. merge_condition_mask           CondMask = $10 & $11
    38. branch_if_no_active_lanes      branch_if_no_active_lanes +6 (label 2 at #44)
-   39. copy_constant                  ok = 0xFFFFFFFF
-   40. copy_slot_unmasked             $21 = ok
+   39. copy_constant                  ok₁ = 0xFFFFFFFF
+   40. copy_slot_unmasked             $21 = ok₁
    41. copy_slot_masked               [test_mat].result = Mask($21)
    42. label                          label 0x00000003
    43. copy_slot_masked               $20 = Mask($21)

@@ -4,12 +4,12 @@
     4. zero_4_slots_unmasked          b = 0
     5. copy_constant                  $0 = 0x40400000 (3.0)
     6. swizzle_4                      $0..3 = ($0..3).xxxx
-    7. copy_4_slots_unmasked          a = $0..3
+    7. copy_4_slots_unmasked          a₁ = $0..3
     8. copy_constant                  $0 = 0xC0A00000 (-5.0)
     9. swizzle_4                      $0..3 = ($0..3).xxxx
-   10. copy_4_slots_unmasked          b = $0..3
-   11. copy_4_slots_unmasked          $0..3 = a
-   12. copy_4_slots_unmasked          $4..7 = b
+   10. copy_4_slots_unmasked          b₁ = $0..3
+   11. copy_4_slots_unmasked          $0..3 = a₁
+   12. copy_4_slots_unmasked          $4..7 = b₁
    13. add_4_floats                   $0..3 += $4..7
    14. copy_4_slots_unmasked          [live_fn].result = $0..3
    15. label                          label 0x00000000

@@ -7,30 +7,30 @@
     7. label                          label 0x00000000
     8. copy_4_constants               $0..3 = colorGreen
     9. copy_4_slots_unmasked          x = $0..3
-   10. copy_4_slots_unmasked          c = $0..3
+   10. copy_4_slots_unmasked          c₁ = $0..3
    11. label                          label 0x00000002
-   12. copy_4_slots_unmasked          $0..3 = c
+   12. copy_4_slots_unmasked          $0..3 = c₁
    13. copy_4_slots_unmasked          c = $0..3
    14. label                          label 0x00000001
    15. copy_4_slots_unmasked          $0..3 = c
-   16. copy_4_slots_unmasked          x = $0..3
-   17. copy_4_slots_unmasked          $0..3 = x
-   18. copy_4_slots_unmasked          $4..7 = x
+   16. copy_4_slots_unmasked          x₁ = $0..3
+   17. copy_4_slots_unmasked          $0..3 = x₁
+   18. copy_4_slots_unmasked          $4..7 = x₁
    19. mul_4_floats                   $0..3 *= $4..7
-   20. copy_4_slots_unmasked          x = $0..3
+   20. copy_4_slots_unmasked          x₁ = $0..3
    21. copy_4_slots_unmasked          c = $0..3
    22. label                          label 0x00000003
    23. copy_4_slots_unmasked          $0..3 = c
-   24. copy_4_slots_unmasked          x = $0..3
-   25. copy_4_slots_unmasked          $0..3 = x
-   26. copy_4_slots_unmasked          x = $0..3
-   27. copy_4_slots_unmasked          $0..3 = x
-   28. copy_4_slots_unmasked          $4..7 = x
+   24. copy_4_slots_unmasked          x₂ = $0..3
+   25. copy_4_slots_unmasked          $0..3 = x₂
+   26. copy_4_slots_unmasked          x₁ = $0..3
+   27. copy_4_slots_unmasked          $0..3 = x₁
+   28. copy_4_slots_unmasked          $4..7 = x₁
    29. mul_4_floats                   $0..3 *= $4..7
-   30. copy_4_slots_unmasked          x = $0..3
-   31. copy_4_slots_unmasked          x = $0..3
+   30. copy_4_slots_unmasked          x₁ = $0..3
+   31. copy_4_slots_unmasked          x₂ = $0..3
    32. label                          label 0x00000005
-   33. copy_4_slots_unmasked          $0..3 = x
+   33. copy_4_slots_unmasked          $0..3 = x₂
    34. copy_4_slots_unmasked          c = $0..3
    35. label                          label 0x00000004
    36. copy_4_slots_unmasked          $0..3 = c

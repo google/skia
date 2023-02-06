@@ -9,6 +9,7 @@
 #include "include/private/SkSLString.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTo.h"
+#include "include/sksl/SkSLPosition.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkOpts.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
@@ -27,6 +28,7 @@
 #include <cstring>
 #include <iterator>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -1268,6 +1270,44 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
     }
 }
 
+// Finds duplicate names in the program and disambiguates them with subscripts.
+SkTArray<std::string> build_unique_slot_name_list(const SkRPDebugTrace* debugTrace) {
+    SkTArray<std::string> slotName;
+    if (debugTrace) {
+        slotName.reserve_back(debugTrace->fSlotInfo.size());
+
+        // The map consists of <variable name, <source position, unique name>>.
+        SkTHashMap<std::string_view, SkTHashMap<int, std::string>> uniqueNameMap;
+
+        for (const SlotDebugInfo& slotInfo : debugTrace->fSlotInfo) {
+            // Look up this variable by its name and source position.
+            int pos = slotInfo.pos.valid() ? slotInfo.pos.startOffset() : 0;
+            SkTHashMap<int, std::string>& positionMap = uniqueNameMap[slotInfo.name];
+            std::string& uniqueName = positionMap[pos];
+
+            // Have we seen this variable name/position combination before?
+            if (uniqueName.empty()) {
+                // This is a unique name/position pair.
+                uniqueName = slotInfo.name;
+
+                // But if it's not a unique _name_, it deserves a subscript to disambiguate it.
+                int subscript = positionMap.count() - 1;
+                if (subscript > 0) {
+                    for (char digit : std::to_string(subscript)) {
+                        // U+2080 through U+2089 (₀₁₂₃₄₅₆₇₈₉) in UTF8:
+                        uniqueName.push_back((char)0xE2);
+                        uniqueName.push_back((char)0x82);
+                        uniqueName.push_back((char)(0x80 + digit - '0'));
+                    }
+                }
+            }
+
+            slotName.push_back(uniqueName);
+        }
+    }
+    return slotName;
+}
+
 void Program::dump(SkWStream* out) const {
     // Allocate memory for the slot and uniform data, even though the program won't ever be
     // executed. The program requires pointer ranges for managing its data, and ASAN will report
@@ -1291,6 +1331,10 @@ void Program::dump(SkWStream* out) const {
             labelToStageMap[labelID] = index;
         }
     }
+
+    // Assign unique names to each variable slot; our trace might have multiple variables with the
+    // same name, which can make a dump hard to read.
+    SkTArray<std::string> slotName = build_unique_slot_name_list(fDebugTrace);
 
     // Emit the program's instruction list.
     for (int index = 0; index < stages.size(); ++index) {
@@ -1379,10 +1423,10 @@ void Program::dump(SkWStream* out) const {
                         if (!slotInfo.name.empty()) {
                             // If we're covering the entire slot, return `valueName`.
                             if (numSlots == slotInfo.columns * slotInfo.rows) {
-                                return slotInfo.name;
+                                return slotName[slotIdx];
                             }
                             // If we are only covering part of the slot, return `valueName(1..2)`.
-                            return slotInfo.name + "(" +
+                            return slotName[slotIdx] + "(" +
                                    AsRange(slotInfo.componentIndex, numSlots) + ")";
                         }
                     }

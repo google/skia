@@ -4,11 +4,11 @@
     4. copy_2_slots_unmasked          x = $0..1
     5. label                          label 0x00000000
     6. copy_2_slots_unmasked          $0..1 = coords
-    7. copy_2_slots_unmasked          x = $0..1
+    7. copy_2_slots_unmasked          x₁ = $0..1
     8. copy_2_slots_unmasked          coords = $0..1
     9. label                          label 0x00000001
    10. zero_2_slots_unmasked          $0..1 = 0
-   11. copy_2_slots_unmasked          x = $0..1
+   11. copy_2_slots_unmasked          x₂ = $0..1
    12. copy_2_slots_unmasked          coords = $0..1
    13. label                          label 0x00000002
    14. copy_4_constants               $0..3 = colorGreen

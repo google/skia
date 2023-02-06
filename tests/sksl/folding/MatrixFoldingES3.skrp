@@ -22,8 +22,8 @@
    22. zero_slot_unmasked             $23 = 0
    23. merge_condition_mask           CondMask = $8 & $9
    24. branch_if_no_active_lanes      branch_if_no_active_lanes +6 (label 3 at #30)
-   25. copy_constant                  ok = 0xFFFFFFFF
-   26. copy_slot_unmasked             $24 = ok
+   25. copy_constant                  ok₁ = 0xFFFFFFFF
+   26. copy_slot_unmasked             $24 = ok₁
    27. copy_slot_masked               [test_matrix_op_matrix_float].result = Mask($24)
    28. label                          label 0x00000004
    29. copy_slot_masked               $23 = Mask($24)
@@ -32,8 +32,8 @@
    32. zero_slot_unmasked             $27 = 0
    33. merge_condition_mask           CondMask = $22 & $23
    34. branch_if_no_active_lanes      branch_if_no_active_lanes +6 (label 5 at #40)
-   35. copy_constant                  ok = 0xFFFFFFFF
-   36. copy_slot_unmasked             $28 = ok
+   35. copy_constant                  ok₂ = 0xFFFFFFFF
+   36. copy_slot_unmasked             $28 = ok₂
    37. copy_slot_masked               [test_matrix_op_matrix_half].result = Mask($28)
    38. label                          label 0x00000006
    39. copy_slot_masked               $27 = Mask($28)
@@ -42,8 +42,8 @@
    42. zero_slot_unmasked             $14 = 0
    43. merge_condition_mask           CondMask = $26 & $27
    44. branch_if_no_active_lanes      branch_if_no_active_lanes +6 (label 7 at #50)
-   45. copy_constant                  ok = 0xFFFFFFFF
-   46. copy_slot_unmasked             $15 = ok
+   45. copy_constant                  ok₃ = 0xFFFFFFFF
+   46. copy_slot_unmasked             $15 = ok₃
    47. copy_slot_masked               [test_vector_op_matrix_float].result = Mask($15)
    48. label                          label 0x00000008
    49. copy_slot_masked               $14 = Mask($15)
@@ -52,8 +52,8 @@
    52. zero_slot_unmasked             $20 = 0
    53. merge_condition_mask           CondMask = $13 & $14
    54. branch_if_no_active_lanes      branch_if_no_active_lanes +6 (label 9 at #60)
-   55. copy_constant                  ok = 0xFFFFFFFF
-   56. copy_slot_unmasked             $21 = ok
+   55. copy_constant                  ok₄ = 0xFFFFFFFF
+   56. copy_slot_unmasked             $21 = ok₄
    57. copy_slot_masked               [test_vector_op_matrix_half].result = Mask($21)
    58. label                          label 0x0000000A
    59. copy_slot_masked               $20 = Mask($21)
@@ -62,8 +62,8 @@
    62. zero_slot_unmasked             $17 = 0
    63. merge_condition_mask           CondMask = $19 & $20
    64. branch_if_no_active_lanes      branch_if_no_active_lanes +6 (label 11 at #70)
-   65. copy_constant                  ok = 0xFFFFFFFF
-   66. copy_slot_unmasked             $18 = ok
+   65. copy_constant                  ok₅ = 0xFFFFFFFF
+   66. copy_slot_unmasked             $18 = ok₅
    67. copy_slot_masked               [test_matrix_op_vector_float].result = Mask($18)
    68. label                          label 0x0000000C
    69. copy_slot_masked               $17 = Mask($18)
@@ -72,8 +72,8 @@
    72. zero_slot_unmasked             $11 = 0
    73. merge_condition_mask           CondMask = $16 & $17
    74. branch_if_no_active_lanes      branch_if_no_active_lanes +6 (label 13 at #80)
-   75. copy_constant                  ok = 0xFFFFFFFF
-   76. copy_slot_unmasked             $12 = ok
+   75. copy_constant                  ok₆ = 0xFFFFFFFF
+   76. copy_slot_unmasked             $12 = ok₆
    77. copy_slot_masked               [test_matrix_op_vector_half].result = Mask($12)
    78. label                          label 0x0000000E
    79. copy_slot_masked               $11 = Mask($12)
