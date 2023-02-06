@@ -6,8 +6,8 @@
  */
 
 #include "include/private/base/SkMalloc.h"
-#include "src/core/SkCachedData.h"
 #include "include/private/chromium/SkDiscardableMemory.h"
+#include "src/core/SkCachedData.h"
 
 SkCachedData::SkCachedData(void* data, size_t size)
     : fData(data)

@@ -8,8 +8,8 @@
 #ifndef SkEdge_DEFINED
 #define SkEdge_DEFINED
 
-#include "include/private/base/SkMath.h"
 #include "include/core/SkRect.h"
+#include "include/private/base/SkMath.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkFDot6.h"
 

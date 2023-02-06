@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "include/private/base/SkMath.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GrTypes.h"
+#include "include/private/base/SkMath.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGpu.h"
