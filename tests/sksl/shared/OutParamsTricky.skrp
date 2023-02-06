@@ -15,7 +15,7 @@
    15. copy_2_slots_unmasked          $0..1 = color₁
    16. swizzle_2                      $0..1 = ($0..1).yx
    17. copy_2_slots_unmasked          color₁ = $0..1
-   18. copy_2_slots_unmasked          $0..1 = x(0..1)
+   18. copy_2_slots_unmasked          $0..1 = x, y
    19. add_float                      $0 += $1
    20. copy_slot_unmasked             $1 = z
    21. copy_2_slots_unmasked          [tricky].result = $0..1

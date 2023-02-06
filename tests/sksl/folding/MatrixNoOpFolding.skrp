@@ -40,7 +40,7 @@
    40. branch_if_no_active_lanes      branch_if_no_active_lanes +72 (label 0 at #112)
    41. zero_4_slots_unmasked          m(0..3) = 0
    42. zero_4_slots_unmasked          m(4..7) = 0
-   43. zero_4_slots_unmasked          m(8..11) = 0
+   43. zero_4_slots_unmasked          m(8), mm(0..2) = 0
    44. zero_4_slots_unmasked          mm(3..6) = 0
    45. zero_2_slots_unmasked          mm(7..8) = 0
    46. zero_2_slots_unmasked          $23..24 = 0
@@ -97,7 +97,7 @@
    97. bitwise_and_int                $23 &= $24
    98. copy_4_slots_unmasked          $24..27 = mm(0..3)
    99. copy_4_slots_unmasked          $28..31 = mm(4..7)
-  100. copy_4_slots_unmasked          $32..35 = mm(8..11)
+  100. copy_4_slots_unmasked          $32..35 = mm(8), z(0..2)
   101. copy_4_slots_unmasked          $36..39 = z(3..6)
   102. copy_2_slots_unmasked          $40..41 = z(7..8)
   103. cmpeq_n_floats                 $24..32 = equal($24..32, $33..41)

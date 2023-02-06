@@ -18,7 +18,7 @@
    18. copy_slot_unmasked             $1 = a
    19. add_int                        $0 += $1
    20. copy_slot_unmasked             a = $0
-   21. copy_2_slots_unmasked          $0..1 = ok(0..1)
+   21. copy_2_slots_unmasked          $0..1 = ok, a
    22. copy_constant                  $2 = 0x00000020 (4.484155e-44)
    23. cmpeq_int                      $1 = equal($1, $2)
    24. bitwise_and_int                $0 &= $1

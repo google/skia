@@ -5,7 +5,7 @@
     5. copy_constant                  _1_m1(1) = 0x40000000 (2.0)
     6. copy_constant                  _1_m1(2) = 0x40400000 (3.0)
     7. copy_constant                  _1_m1(3) = 0x40800000 (4.0)
-    8. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+    8. copy_4_slots_unmasked          $0..3 = _0_ok, _1_m1(0..2)
     9. copy_slot_unmasked             $4 = _1_m1(3)
    10. copy_constant                  $5 = 0x3F800000 (1.0)
    11. copy_constant                  $6 = 0x40000000 (2.0)
@@ -83,7 +83,7 @@
    83. copy_4_slots_unmasked          $4..7 = _4_m5
    84. add_4_floats                   $0..3 += $4..7
    85. copy_4_slots_unmasked          _1_m1 = $0..3
-   86. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+   86. copy_4_slots_unmasked          $0..3 = _0_ok, _1_m1(0..2)
    87. copy_slot_unmasked             $4 = _1_m1(3)
    88. copy_constant                  $5 = 0x40A00000 (5.0)
    89. copy_constant                  $6 = 0x40000000 (2.0)
@@ -171,7 +171,7 @@
   171. copy_constant                  m1(1) = 0x40000000 (2.0)
   172. copy_constant                  m1(2) = 0x40400000 (3.0)
   173. copy_constant                  m1(3) = 0x40800000 (4.0)
-  174. copy_4_slots_unmasked          $45..48 = ok(0..3)
+  174. copy_4_slots_unmasked          $45..48 = ok, m1(0..2)
   175. copy_slot_unmasked             $49 = m1(3)
   176. copy_constant                  $50 = 0x3F800000 (1.0)
   177. copy_constant                  $51 = 0x40000000 (2.0)
@@ -259,7 +259,7 @@
   259. copy_4_slots_unmasked          $49..52 = m5
   260. add_4_floats                   $45..48 += $49..52
   261. copy_4_slots_masked            m1 = Mask($45..48)
-  262. copy_4_slots_unmasked          $45..48 = ok(0..3)
+  262. copy_4_slots_unmasked          $45..48 = ok, m1(0..2)
   263. copy_slot_unmasked             $49 = m1(3)
   264. copy_constant                  $50 = 0x40A00000 (5.0)
   265. copy_constant                  $51 = 0x40000000 (2.0)

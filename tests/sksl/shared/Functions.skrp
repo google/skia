@@ -3,14 +3,14 @@
     3. copy_constant                  x = 0x41200000 (10.0)
     4. copy_slot_unmasked             $0 = x
     5. copy_slot_unmasked             x₁ = $0
-    6. zero_2_slots_unmasked          y[0](0..1) = 0
+    6. zero_2_slots_unmasked          y[0], y[1] = 0
     7. copy_slot_unmasked             $0 = x₁
     8. copy_slot_unmasked             y[0] = $0
     9. copy_slot_unmasked             $0 = x₁
    10. copy_constant                  $1 = 0x40000000 (2.0)
    11. mul_float                      $0 *= $1
    12. copy_slot_unmasked             y[1] = $0
-   13. copy_2_slots_unmasked          $0..1 = y[0](0..1)
+   13. copy_2_slots_unmasked          $0..1 = y[0], y[1]
    14. copy_2_slots_unmasked          v = $0..1
    15. copy_2_slots_unmasked          $0..1 = v
    16. mul_float                      $0 *= $1

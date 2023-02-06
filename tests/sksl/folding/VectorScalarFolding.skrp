@@ -5,7 +5,7 @@
     5. copy_constant                  _1_x(1) = 0x40C00000 (6.0)
     6. copy_constant                  _1_x(2) = 0x40E00000 (7.0)
     7. copy_constant                  _1_x(3) = 0x41000000 (8.0)
-    8. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+    8. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
     9. copy_slot_unmasked             $4 = _1_x(3)
    10. copy_constant                  $5 = 0x40C00000 (6.0)
    11. copy_constant                  $6 = 0x40C00000 (6.0)
@@ -21,7 +21,7 @@
    21. copy_constant                  $2 = 0x41100000 (9.0)
    22. copy_constant                  $3 = 0x41100000 (9.0)
    23. copy_4_slots_unmasked          _1_x = $0..3
-   24. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+   24. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
    25. copy_slot_unmasked             $4 = _1_x(3)
    26. copy_constant                  $5 = 0x40E00000 (7.0)
    27. copy_constant                  $6 = 0x41100000 (9.0)
@@ -37,7 +37,7 @@
    37. copy_constant                  $2 = 0x41200000 (10.0)
    38. copy_constant                  $3 = 0x41200000 (10.0)
    39. copy_4_slots_unmasked          _1_x = $0..3
-   40. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+   40. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
    41. copy_slot_unmasked             $4 = _1_x(3)
    42. copy_constant                  $5 = 0x41100000 (9.0)
    43. copy_constant                  $6 = 0x41100000 (9.0)
@@ -51,7 +51,7 @@
    51. copy_constant                  $0 = 0x40C00000 (6.0)
    52. swizzle_3                      $0..2 = ($0..2).xxx
    53. copy_3_slots_unmasked          _1_x(0..2) = $0..2
-   54. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+   54. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
    55. copy_slot_unmasked             $4 = _1_x(3)
    56. copy_constant                  $5 = 0x40C00000 (6.0)
    57. copy_constant                  $6 = 0x40C00000 (6.0)
@@ -65,7 +65,7 @@
    65. copy_constant                  $0 = 0x40400000 (3.0)
    66. copy_slot_unmasked             $1 = $0
    67. copy_2_slots_unmasked          _1_x(0..1) = $0..1
-   68. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+   68. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
    69. copy_slot_unmasked             $4 = _1_x(3)
    70. copy_constant                  $5 = 0x40400000 (3.0)
    71. copy_constant                  $6 = 0x40400000 (3.0)
@@ -79,7 +79,7 @@
    79. copy_constant                  $0 = 0x40C00000 (6.0)
    80. swizzle_4                      $0..3 = ($0..3).xxxx
    81. copy_4_slots_unmasked          _1_x = $0..3
-   82. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+   82. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
    83. copy_slot_unmasked             $4 = _1_x(3)
    84. copy_constant                  $5 = 0x40C00000 (6.0)
    85. swizzle_4                      $5..8 = ($5..8).xxxx
@@ -93,7 +93,7 @@
    93. copy_constant                  $2 = 0x40E00000 (7.0)
    94. copy_constant                  $3 = 0x41000000 (8.0)
    95. copy_4_slots_unmasked          _1_x = $0..3
-   96. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+   96. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
    97. copy_slot_unmasked             $4 = _1_x(3)
    98. copy_constant                  $5 = 0x40C00000 (6.0)
    99. copy_constant                  $6 = 0x40C00000 (6.0)
@@ -109,7 +109,7 @@
   109. copy_constant                  $2 = 0xC1100000 (-9.0)
   110. copy_constant                  $3 = 0xC1100000 (-9.0)
   111. copy_4_slots_unmasked          _1_x = $0..3
-  112. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  112. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   113. copy_slot_unmasked             $4 = _1_x(3)
   114. copy_constant                  $5 = 0xC0E00000 (-7.0)
   115. copy_constant                  $6 = 0xC1100000 (-9.0)
@@ -125,7 +125,7 @@
   125. copy_constant                  $2 = 0x41200000 (10.0)
   126. copy_constant                  $3 = 0x41200000 (10.0)
   127. copy_4_slots_unmasked          _1_x = $0..3
-  128. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  128. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   129. copy_slot_unmasked             $4 = _1_x(3)
   130. copy_constant                  $5 = 0x41100000 (9.0)
   131. copy_constant                  $6 = 0x41100000 (9.0)
@@ -139,7 +139,7 @@
   139. copy_constant                  $0 = 0x40C00000 (6.0)
   140. swizzle_3                      $0..2 = ($0..2).xxx
   141. copy_3_slots_unmasked          _1_x(0..2) = $0..2
-  142. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  142. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   143. copy_slot_unmasked             $4 = _1_x(3)
   144. copy_constant                  $5 = 0x40C00000 (6.0)
   145. copy_constant                  $6 = 0x40C00000 (6.0)
@@ -153,7 +153,7 @@
   153. copy_constant                  $0 = 0x41000000 (8.0)
   154. copy_slot_unmasked             $1 = $0
   155. copy_2_slots_unmasked          _1_x(0..1) = $0..1
-  156. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  156. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   157. copy_slot_unmasked             $4 = _1_x(3)
   158. copy_constant                  $5 = 0x41000000 (8.0)
   159. copy_constant                  $6 = 0x41000000 (8.0)
@@ -169,7 +169,7 @@
   169. copy_constant                  $2 = 0x3F000000 (0.5)
   170. copy_constant                  $3 = 0x3E800000 (0.25)
   171. copy_4_slots_unmasked          _1_x = $0..3
-  172. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  172. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   173. copy_slot_unmasked             $4 = _1_x(3)
   174. copy_constant                  $5 = 0x40000000 (2.0)
   175. copy_constant                  $6 = 0x3F800000 (1.0)
@@ -183,7 +183,7 @@
   183. copy_constant                  $0 = 0x40C00000 (6.0)
   184. swizzle_4                      $0..3 = ($0..3).xxxx
   185. copy_4_slots_unmasked          _1_x = $0..3
-  186. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  186. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   187. copy_slot_unmasked             $4 = _1_x(3)
   188. copy_constant                  $5 = 0x40C00000 (6.0)
   189. swizzle_4                      $5..8 = ($5..8).xxxx
@@ -196,8 +196,8 @@
   196. copy_slot_unmasked             _2_unknown = $0
   197. swizzle_4                      $0..3 = ($0..3).xxxx
   198. copy_4_slots_unmasked          _1_x = $0..3
-  199. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  200. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  199. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  200. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   201. swizzle_4                      $5..8 = ($5..8).xxxx
   202. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   203. bitwise_and_2_ints             $1..2 &= $3..4
@@ -206,7 +206,7 @@
   206. copy_slot_unmasked             _0_ok = $0
   207. zero_4_slots_unmasked          $0..3 = 0
   208. copy_4_slots_unmasked          _1_x = $0..3
-  209. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  209. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   210. copy_slot_unmasked             $4 = _1_x(3)
   211. zero_4_slots_unmasked          $5..8 = 0
   212. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
@@ -219,7 +219,7 @@
   219. swizzle_4                      $4..7 = ($4..7).xxxx
   220. div_4_floats                   $0..3 /= $4..7
   221. copy_4_slots_unmasked          _1_x = $0..3
-  222. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  222. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   223. copy_slot_unmasked             $4 = _1_x(3)
   224. zero_4_slots_unmasked          $5..8 = 0
   225. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
@@ -230,8 +230,8 @@
   230. copy_slot_unmasked             $0 = _2_unknown
   231. swizzle_4                      $0..3 = ($0..3).xxxx
   232. copy_4_slots_unmasked          _1_x = $0..3
-  233. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  234. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  233. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  234. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   235. swizzle_4                      $5..8 = ($5..8).xxxx
   236. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   237. bitwise_and_2_ints             $1..2 &= $3..4
@@ -241,8 +241,8 @@
   241. copy_slot_unmasked             $0 = _2_unknown
   242. swizzle_4                      $0..3 = ($0..3).xxxx
   243. copy_4_slots_unmasked          _1_x = $0..3
-  244. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  245. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  244. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  245. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   246. swizzle_4                      $5..8 = ($5..8).xxxx
   247. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   248. bitwise_and_2_ints             $1..2 &= $3..4
@@ -252,8 +252,8 @@
   252. copy_slot_unmasked             $0 = _2_unknown
   253. swizzle_4                      $0..3 = ($0..3).xxxx
   254. copy_4_slots_unmasked          _1_x = $0..3
-  255. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  256. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  255. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  256. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   257. swizzle_4                      $5..8 = ($5..8).xxxx
   258. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   259. bitwise_and_2_ints             $1..2 &= $3..4
@@ -263,8 +263,8 @@
   263. copy_slot_unmasked             $0 = _2_unknown
   264. swizzle_4                      $0..3 = ($0..3).xxxx
   265. copy_4_slots_unmasked          _1_x = $0..3
-  266. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  267. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  266. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  267. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   268. swizzle_4                      $5..8 = ($5..8).xxxx
   269. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   270. bitwise_and_2_ints             $1..2 &= $3..4
@@ -274,8 +274,8 @@
   274. copy_slot_unmasked             $0 = _2_unknown
   275. swizzle_4                      $0..3 = ($0..3).xxxx
   276. copy_4_slots_unmasked          _1_x = $0..3
-  277. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  278. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  277. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  278. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   279. swizzle_4                      $5..8 = ($5..8).xxxx
   280. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   281. bitwise_and_2_ints             $1..2 &= $3..4
@@ -285,8 +285,8 @@
   285. copy_slot_unmasked             $0 = _2_unknown
   286. swizzle_4                      $0..3 = ($0..3).xxxx
   287. copy_4_slots_unmasked          _1_x = $0..3
-  288. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  289. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  288. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  289. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   290. swizzle_4                      $5..8 = ($5..8).xxxx
   291. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   292. bitwise_and_2_ints             $1..2 &= $3..4
@@ -295,7 +295,7 @@
   295. copy_slot_unmasked             _0_ok = $0
   296. zero_4_slots_unmasked          $0..3 = 0
   297. copy_4_slots_unmasked          _1_x = $0..3
-  298. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  298. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   299. copy_slot_unmasked             $4 = _1_x(3)
   300. zero_4_slots_unmasked          $5..8 = 0
   301. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
@@ -308,7 +308,7 @@
   308. swizzle_4                      $4..7 = ($4..7).xxxx
   309. div_4_floats                   $0..3 /= $4..7
   310. copy_4_slots_unmasked          _1_x = $0..3
-  311. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  311. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   312. copy_slot_unmasked             $4 = _1_x(3)
   313. zero_4_slots_unmasked          $5..8 = 0
   314. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
@@ -319,8 +319,8 @@
   319. copy_slot_unmasked             $0 = _2_unknown
   320. swizzle_4                      $0..3 = ($0..3).xxxx
   321. copy_4_slots_unmasked          _1_x = $0..3
-  322. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  323. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  322. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  323. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   324. swizzle_4                      $5..8 = ($5..8).xxxx
   325. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   326. bitwise_and_2_ints             $1..2 &= $3..4
@@ -330,8 +330,8 @@
   330. copy_slot_unmasked             $0 = _2_unknown
   331. swizzle_4                      $0..3 = ($0..3).xxxx
   332. copy_4_slots_unmasked          _1_x = $0..3
-  333. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  334. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  333. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  334. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   335. swizzle_4                      $5..8 = ($5..8).xxxx
   336. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   337. bitwise_and_2_ints             $1..2 &= $3..4
@@ -340,7 +340,7 @@
   340. copy_slot_unmasked             _0_ok = $0
   341. zero_4_slots_unmasked          $0..3 = 0
   342. copy_4_slots_unmasked          _1_x = $0..3
-  343. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  343. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
   344. copy_slot_unmasked             $4 = _1_x(3)
   345. zero_4_slots_unmasked          $5..8 = 0
   346. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
@@ -351,8 +351,8 @@
   351. copy_slot_unmasked             $0 = _2_unknown
   352. swizzle_4                      $0..3 = ($0..3).xxxx
   353. copy_4_slots_unmasked          _1_x = $0..3
-  354. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  355. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  354. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  355. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   356. swizzle_4                      $5..8 = ($5..8).xxxx
   357. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   358. bitwise_and_2_ints             $1..2 &= $3..4
@@ -362,8 +362,8 @@
   362. copy_slot_unmasked             $0 = _2_unknown
   363. swizzle_4                      $0..3 = ($0..3).xxxx
   364. copy_4_slots_unmasked          _1_x = $0..3
-  365. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  366. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  365. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  366. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   367. swizzle_4                      $5..8 = ($5..8).xxxx
   368. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   369. bitwise_and_2_ints             $1..2 &= $3..4
@@ -383,8 +383,8 @@
   383. swizzle_4                      $4..7 = ($4..7).xxxx
   384. sub_4_floats                   $0..3 -= $4..7
   385. copy_4_slots_unmasked          _1_x = $0..3
-  386. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  387. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  386. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  387. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   388. swizzle_4                      $5..8 = ($5..8).xxxx
   389. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   390. bitwise_and_2_ints             $1..2 &= $3..4
@@ -402,8 +402,8 @@
   402. swizzle_4                      $4..7 = ($4..7).xxxx
   403. sub_4_floats                   $0..3 -= $4..7
   404. copy_4_slots_unmasked          _1_x = $0..3
-  405. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
-  406. copy_2_slots_unmasked          $4..5 = _1_x(3..4)
+  405. copy_4_slots_unmasked          $0..3 = _0_ok, _1_x(0..2)
+  406. copy_2_slots_unmasked          $4..5 = _1_x(3), _2_unknown
   407. swizzle_4                      $5..8 = ($5..8).xxxx
   408. cmpeq_4_floats                 $1..4 = equal($1..4, $5..8)
   409. bitwise_and_2_ints             $1..2 &= $3..4
@@ -421,7 +421,7 @@
   421. copy_constant                  x(1) = 0x00000006 (8.407791e-45)
   422. copy_constant                  x(2) = 0x00000007 (9.809089e-45)
   423. copy_constant                  x(3) = 0x00000008 (1.121039e-44)
-  424. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  424. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   425. copy_slot_unmasked             $17 = x(3)
   426. copy_constant                  $18 = 0x00000006 (8.407791e-45)
   427. copy_constant                  $19 = 0x00000006 (8.407791e-45)
@@ -437,7 +437,7 @@
   437. copy_constant                  $15 = 0x00000009 (1.261169e-44)
   438. copy_constant                  $16 = 0x00000009 (1.261169e-44)
   439. copy_4_slots_masked            x = Mask($13..16)
-  440. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  440. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   441. copy_slot_unmasked             $17 = x(3)
   442. copy_constant                  $18 = 0x00000007 (9.809089e-45)
   443. copy_constant                  $19 = 0x00000009 (1.261169e-44)
@@ -453,7 +453,7 @@
   453. copy_constant                  $15 = 0x0000000A (1.401298e-44)
   454. copy_constant                  $16 = 0x0000000A (1.401298e-44)
   455. copy_4_slots_masked            x = Mask($13..16)
-  456. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  456. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   457. copy_slot_unmasked             $17 = x(3)
   458. copy_constant                  $18 = 0x00000009 (1.261169e-44)
   459. copy_constant                  $19 = 0x00000009 (1.261169e-44)
@@ -467,7 +467,7 @@
   467. copy_constant                  $13 = 0x00000006 (8.407791e-45)
   468. swizzle_3                      $13..15 = ($13..15).xxx
   469. copy_3_slots_masked            x(0..2) = Mask($13..15)
-  470. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  470. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   471. copy_slot_unmasked             $17 = x(3)
   472. copy_constant                  $18 = 0x00000006 (8.407791e-45)
   473. copy_constant                  $19 = 0x00000006 (8.407791e-45)
@@ -481,7 +481,7 @@
   481. copy_constant                  $13 = 0x00000003 (4.203895e-45)
   482. copy_slot_unmasked             $14 = $13
   483. copy_2_slots_masked            x(0..1) = Mask($13..14)
-  484. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  484. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   485. copy_slot_unmasked             $17 = x(3)
   486. copy_constant                  $18 = 0x00000003 (4.203895e-45)
   487. copy_constant                  $19 = 0x00000003 (4.203895e-45)
@@ -495,7 +495,7 @@
   495. copy_constant                  $13 = 0x00000006 (8.407791e-45)
   496. swizzle_4                      $13..16 = ($13..16).xxxx
   497. copy_4_slots_masked            x = Mask($13..16)
-  498. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  498. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   499. copy_slot_unmasked             $17 = x(3)
   500. copy_constant                  $18 = 0x00000006 (8.407791e-45)
   501. swizzle_4                      $18..21 = ($18..21).xxxx
@@ -510,7 +510,7 @@
   510. copy_constant                  $15 = 0x00000007 (9.809089e-45)
   511. copy_constant                  $16 = 0x00000008 (1.121039e-44)
   512. copy_4_slots_masked            x = Mask($13..16)
-  513. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  513. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   514. copy_slot_unmasked             $17 = x(3)
   515. copy_constant                  $18 = 0x00000006 (8.407791e-45)
   516. copy_constant                  $19 = 0x00000006 (8.407791e-45)
@@ -526,7 +526,7 @@
   526. copy_constant                  $15 = 0xFFFFFFF7
   527. copy_constant                  $16 = 0xFFFFFFF7
   528. copy_4_slots_masked            x = Mask($13..16)
-  529. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  529. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   530. copy_slot_unmasked             $17 = x(3)
   531. copy_constant                  $18 = 0xFFFFFFF9
   532. copy_constant                  $19 = 0xFFFFFFF7
@@ -542,7 +542,7 @@
   542. copy_constant                  $15 = 0x0000000A (1.401298e-44)
   543. copy_constant                  $16 = 0x0000000A (1.401298e-44)
   544. copy_4_slots_masked            x = Mask($13..16)
-  545. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  545. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   546. copy_slot_unmasked             $17 = x(3)
   547. copy_constant                  $18 = 0x00000009 (1.261169e-44)
   548. copy_constant                  $19 = 0x00000009 (1.261169e-44)
@@ -556,7 +556,7 @@
   556. copy_constant                  $13 = 0x00000006 (8.407791e-45)
   557. swizzle_3                      $13..15 = ($13..15).xxx
   558. copy_3_slots_masked            x(0..2) = Mask($13..15)
-  559. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  559. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   560. copy_slot_unmasked             $17 = x(3)
   561. copy_constant                  $18 = 0x00000006 (8.407791e-45)
   562. copy_constant                  $19 = 0x00000006 (8.407791e-45)
@@ -570,7 +570,7 @@
   570. copy_constant                  $13 = 0x00000008 (1.121039e-44)
   571. copy_slot_unmasked             $14 = $13
   572. copy_2_slots_masked            x(0..1) = Mask($13..14)
-  573. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  573. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   574. copy_slot_unmasked             $17 = x(3)
   575. copy_constant                  $18 = 0x00000008 (1.121039e-44)
   576. copy_constant                  $19 = 0x00000008 (1.121039e-44)
@@ -586,7 +586,7 @@
   586. copy_constant                  $15 = 0x00000032 (7.006492e-44)
   587. copy_constant                  $16 = 0x00000019 (3.503246e-44)
   588. copy_4_slots_masked            x = Mask($13..16)
-  589. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  589. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   590. copy_slot_unmasked             $17 = x(3)
   591. copy_constant                  $18 = 0x000000C8 (2.802597e-43)
   592. copy_constant                  $19 = 0x00000064 (1.401298e-43)
@@ -600,7 +600,7 @@
   600. copy_constant                  $13 = 0x00000006 (8.407791e-45)
   601. swizzle_4                      $13..16 = ($13..16).xxxx
   602. copy_4_slots_masked            x = Mask($13..16)
-  603. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  603. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   604. copy_slot_unmasked             $17 = x(3)
   605. copy_constant                  $18 = 0x00000006 (8.407791e-45)
   606. swizzle_4                      $18..21 = ($18..21).xxxx
@@ -614,8 +614,8 @@
   614. copy_slot_unmasked             unknown = $13
   615. swizzle_4                      $13..16 = ($13..16).xxxx
   616. copy_4_slots_masked            x = Mask($13..16)
-  617. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  618. copy_2_slots_unmasked          $17..18 = x(3..4)
+  617. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  618. copy_2_slots_unmasked          $17..18 = x(3), unknown
   619. swizzle_4                      $18..21 = ($18..21).xxxx
   620. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   621. bitwise_and_2_ints             $14..15 &= $16..17
@@ -624,7 +624,7 @@
   624. copy_slot_masked               ok = Mask($13)
   625. zero_4_slots_unmasked          $13..16 = 0
   626. copy_4_slots_masked            x = Mask($13..16)
-  627. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  627. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   628. copy_slot_unmasked             $17 = x(3)
   629. zero_4_slots_unmasked          $18..21 = 0
   630. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
@@ -637,7 +637,7 @@
   637. swizzle_4                      $17..20 = ($17..20).xxxx
   638. div_4_ints                     $13..16 /= $17..20
   639. copy_4_slots_masked            x = Mask($13..16)
-  640. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  640. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   641. copy_slot_unmasked             $17 = x(3)
   642. zero_4_slots_unmasked          $18..21 = 0
   643. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
@@ -648,8 +648,8 @@
   648. copy_slot_unmasked             $13 = unknown
   649. swizzle_4                      $13..16 = ($13..16).xxxx
   650. copy_4_slots_masked            x = Mask($13..16)
-  651. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  652. copy_2_slots_unmasked          $17..18 = x(3..4)
+  651. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  652. copy_2_slots_unmasked          $17..18 = x(3), unknown
   653. swizzle_4                      $18..21 = ($18..21).xxxx
   654. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   655. bitwise_and_2_ints             $14..15 &= $16..17
@@ -659,8 +659,8 @@
   659. copy_slot_unmasked             $13 = unknown
   660. swizzle_4                      $13..16 = ($13..16).xxxx
   661. copy_4_slots_masked            x = Mask($13..16)
-  662. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  663. copy_2_slots_unmasked          $17..18 = x(3..4)
+  662. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  663. copy_2_slots_unmasked          $17..18 = x(3), unknown
   664. swizzle_4                      $18..21 = ($18..21).xxxx
   665. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   666. bitwise_and_2_ints             $14..15 &= $16..17
@@ -670,8 +670,8 @@
   670. copy_slot_unmasked             $13 = unknown
   671. swizzle_4                      $13..16 = ($13..16).xxxx
   672. copy_4_slots_masked            x = Mask($13..16)
-  673. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  674. copy_2_slots_unmasked          $17..18 = x(3..4)
+  673. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  674. copy_2_slots_unmasked          $17..18 = x(3), unknown
   675. swizzle_4                      $18..21 = ($18..21).xxxx
   676. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   677. bitwise_and_2_ints             $14..15 &= $16..17
@@ -681,8 +681,8 @@
   681. copy_slot_unmasked             $13 = unknown
   682. swizzle_4                      $13..16 = ($13..16).xxxx
   683. copy_4_slots_masked            x = Mask($13..16)
-  684. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  685. copy_2_slots_unmasked          $17..18 = x(3..4)
+  684. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  685. copy_2_slots_unmasked          $17..18 = x(3), unknown
   686. swizzle_4                      $18..21 = ($18..21).xxxx
   687. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   688. bitwise_and_2_ints             $14..15 &= $16..17
@@ -692,8 +692,8 @@
   692. copy_slot_unmasked             $13 = unknown
   693. swizzle_4                      $13..16 = ($13..16).xxxx
   694. copy_4_slots_masked            x = Mask($13..16)
-  695. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  696. copy_2_slots_unmasked          $17..18 = x(3..4)
+  695. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  696. copy_2_slots_unmasked          $17..18 = x(3), unknown
   697. swizzle_4                      $18..21 = ($18..21).xxxx
   698. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   699. bitwise_and_2_ints             $14..15 &= $16..17
@@ -703,8 +703,8 @@
   703. copy_slot_unmasked             $13 = unknown
   704. swizzle_4                      $13..16 = ($13..16).xxxx
   705. copy_4_slots_masked            x = Mask($13..16)
-  706. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  707. copy_2_slots_unmasked          $17..18 = x(3..4)
+  706. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  707. copy_2_slots_unmasked          $17..18 = x(3), unknown
   708. swizzle_4                      $18..21 = ($18..21).xxxx
   709. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   710. bitwise_and_2_ints             $14..15 &= $16..17
@@ -713,7 +713,7 @@
   713. copy_slot_masked               ok = Mask($13)
   714. zero_4_slots_unmasked          $13..16 = 0
   715. copy_4_slots_masked            x = Mask($13..16)
-  716. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  716. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   717. copy_slot_unmasked             $17 = x(3)
   718. zero_4_slots_unmasked          $18..21 = 0
   719. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
@@ -726,7 +726,7 @@
   726. swizzle_4                      $17..20 = ($17..20).xxxx
   727. div_4_ints                     $13..16 /= $17..20
   728. copy_4_slots_masked            x = Mask($13..16)
-  729. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  729. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   730. copy_slot_unmasked             $17 = x(3)
   731. zero_4_slots_unmasked          $18..21 = 0
   732. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
@@ -737,8 +737,8 @@
   737. copy_slot_unmasked             $13 = unknown
   738. swizzle_4                      $13..16 = ($13..16).xxxx
   739. copy_4_slots_masked            x = Mask($13..16)
-  740. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  741. copy_2_slots_unmasked          $17..18 = x(3..4)
+  740. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  741. copy_2_slots_unmasked          $17..18 = x(3), unknown
   742. swizzle_4                      $18..21 = ($18..21).xxxx
   743. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   744. bitwise_and_2_ints             $14..15 &= $16..17
@@ -748,8 +748,8 @@
   748. copy_slot_unmasked             $13 = unknown
   749. swizzle_4                      $13..16 = ($13..16).xxxx
   750. copy_4_slots_masked            x = Mask($13..16)
-  751. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  752. copy_2_slots_unmasked          $17..18 = x(3..4)
+  751. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  752. copy_2_slots_unmasked          $17..18 = x(3), unknown
   753. swizzle_4                      $18..21 = ($18..21).xxxx
   754. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   755. bitwise_and_2_ints             $14..15 &= $16..17
@@ -758,7 +758,7 @@
   758. copy_slot_masked               ok = Mask($13)
   759. zero_4_slots_unmasked          $13..16 = 0
   760. copy_4_slots_masked            x = Mask($13..16)
-  761. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  761. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
   762. copy_slot_unmasked             $17 = x(3)
   763. zero_4_slots_unmasked          $18..21 = 0
   764. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
@@ -769,8 +769,8 @@
   769. copy_slot_unmasked             $13 = unknown
   770. swizzle_4                      $13..16 = ($13..16).xxxx
   771. copy_4_slots_masked            x = Mask($13..16)
-  772. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  773. copy_2_slots_unmasked          $17..18 = x(3..4)
+  772. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  773. copy_2_slots_unmasked          $17..18 = x(3), unknown
   774. swizzle_4                      $18..21 = ($18..21).xxxx
   775. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   776. bitwise_and_2_ints             $14..15 &= $16..17
@@ -780,8 +780,8 @@
   780. copy_slot_unmasked             $13 = unknown
   781. swizzle_4                      $13..16 = ($13..16).xxxx
   782. copy_4_slots_masked            x = Mask($13..16)
-  783. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  784. copy_2_slots_unmasked          $17..18 = x(3..4)
+  783. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  784. copy_2_slots_unmasked          $17..18 = x(3), unknown
   785. swizzle_4                      $18..21 = ($18..21).xxxx
   786. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   787. bitwise_and_2_ints             $14..15 &= $16..17
@@ -801,8 +801,8 @@
   801. swizzle_4                      $17..20 = ($17..20).xxxx
   802. sub_4_ints                     $13..16 -= $17..20
   803. copy_4_slots_masked            x = Mask($13..16)
-  804. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  805. copy_2_slots_unmasked          $17..18 = x(3..4)
+  804. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  805. copy_2_slots_unmasked          $17..18 = x(3), unknown
   806. swizzle_4                      $18..21 = ($18..21).xxxx
   807. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   808. bitwise_and_2_ints             $14..15 &= $16..17
@@ -820,8 +820,8 @@
   820. swizzle_4                      $17..20 = ($17..20).xxxx
   821. sub_4_ints                     $13..16 -= $17..20
   822. copy_4_slots_masked            x = Mask($13..16)
-  823. copy_4_slots_unmasked          $13..16 = ok(0..3)
-  824. copy_2_slots_unmasked          $17..18 = x(3..4)
+  823. copy_4_slots_unmasked          $13..16 = ok, x(0..2)
+  824. copy_2_slots_unmasked          $17..18 = x(3), unknown
   825. swizzle_4                      $18..21 = ($18..21).xxxx
   826. cmpeq_4_ints                   $14..17 = equal($14..17, $18..21)
   827. bitwise_and_2_ints             $14..15 &= $16..17

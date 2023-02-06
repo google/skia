@@ -10,7 +10,7 @@
    10. copy_slot_unmasked             _3_z = $0
    11. copy_slot_unmasked             $0 = _0_v(3)
    12. copy_slot_unmasked             _4_w = $0
-   13. copy_4_slots_unmasked          $0..3 = _1_x(0..3)
+   13. copy_4_slots_unmasked          $0..3 = _1_x, _2_y, _3_z, _4_w
    14. copy_4_slots_unmasked          a = $0..3
    15. copy_constant                  $0 = testInputs(0)
    16. copy_slot_unmasked             _9_x = $0
@@ -20,7 +20,7 @@
    20. copy_slot_unmasked             _11_z = $0
    21. copy_constant                  $0 = testInputs(3)
    22. copy_slot_unmasked             _12_w = $0
-   23. copy_4_slots_unmasked          $0..3 = _9_x(0..3)
+   23. copy_4_slots_unmasked          $0..3 = _9_x, _10_y, _11_z, _12_w
    24. copy_4_slots_unmasked          b = $0..3
    25. zero_slot_unmasked             c(0) = 0
    26. copy_constant                  c(1) = 0x3F800000 (1.0)

@@ -35,7 +35,7 @@
    35. swizzle_4                      $4..7 = ($4..7).xxxx
    36. sub_4_floats                   $0..3 -= $4..7
    37. copy_4_slots_unmasked          _2_val = $0..3
-   38. copy_4_slots_unmasked          $0..3 = _1_ok(0..3)
+   38. copy_4_slots_unmasked          $0..3 = _1_ok, _2_val(0..2)
    39. copy_slot_unmasked             $4 = _2_val(3)
    40. copy_slot_unmasked             $5 = _0_unknown
    41. swizzle_4                      $5..8 = ($5..8).xxxx
@@ -62,7 +62,7 @@
    62. swizzle_4                      $4..7 = ($4..7).xxxx
    63. mul_4_floats                   $0..3 *= $4..7
    64. copy_4_slots_unmasked          _2_val = $0..3
-   65. copy_4_slots_unmasked          $0..3 = _1_ok(0..3)
+   65. copy_4_slots_unmasked          $0..3 = _1_ok, _2_val(0..2)
    66. copy_slot_unmasked             $4 = _2_val(3)
    67. copy_slot_unmasked             $5 = _0_unknown
    68. swizzle_4                      $5..8 = ($5..8).xxxx
@@ -113,7 +113,7 @@
   113. swizzle_4                      $17..20 = ($17..20).xxxx
   114. sub_4_ints                     $13..16 -= $17..20
   115. copy_4_slots_masked            val = Mask($13..16)
-  116. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  116. copy_4_slots_unmasked          $13..16 = ok, val(0..2)
   117. copy_slot_unmasked             $17 = val(3)
   118. copy_slot_unmasked             $18 = unknown
   119. swizzle_4                      $18..21 = ($18..21).xxxx
@@ -140,7 +140,7 @@
   140. swizzle_4                      $17..20 = ($17..20).xxxx
   141. div_4_ints                     $13..16 /= $17..20
   142. copy_4_slots_masked            val = Mask($13..16)
-  143. copy_4_slots_unmasked          $13..16 = ok(0..3)
+  143. copy_4_slots_unmasked          $13..16 = ok, val(0..2)
   144. copy_slot_unmasked             $17 = val(3)
   145. copy_slot_unmasked             $18 = unknown
   146. swizzle_4                      $18..21 = ($18..21).xxxx

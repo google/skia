@@ -20,7 +20,7 @@
    20. add_int                        $16 += $17
    21. sub_2_ints                     $13..14 -= $15..16
    22. zero_2_slots_unmasked          $15..16 = 0
-   23. copy_2_slots_unmasked          $17..18 = one(0..1)
+   23. copy_2_slots_unmasked          $17..18 = one, two
    24. sub_int                        $17 -= $18
    25. copy_constant                  $18 = 0x00000002 (2.802597e-45)
    26. sub_2_ints                     $15..16 -= $17..18

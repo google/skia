@@ -31,14 +31,14 @@
    31. sub_int                        $3 -= $4
    32. copy_slot_masked               _0_x = Mask($3)
    33. label                          label 0x00000004
-   34. copy_2_slots_unmasked          $3..4 = y(0..1)
+   34. copy_2_slots_unmasked          $3..4 = y, _0_x
    35. cmple_int                      $3 = lessThanEqual($3, $4)
    36. merge_loop_mask                LoopMask &= $3
    37. stack_rewind
    38. branch_if_any_active_lanes     branch_if_any_active_lanes -14 (label 5 at #24)
    39. load_loop_mask                 LoopMask = $2
    40. store_condition_mask           $2 = CondMask
-   41. copy_2_slots_unmasked          $3..4 = x(0..1)
+   41. copy_2_slots_unmasked          $3..4 = x, y
    42. div_int                        $3 /= $4
    43. copy_slot_unmasked             $4 = _1_result
    44. cmpne_int                      $3 = notEqual($3, $4)

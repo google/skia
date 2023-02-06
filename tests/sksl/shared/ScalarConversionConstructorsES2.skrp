@@ -38,7 +38,7 @@
    38. copy_slot_unmasked             $0 = b
    39. copy_slot_unmasked             b3 = $0
    40. store_condition_mask           $8 = CondMask
-   41. copy_2_slots_unmasked          $9..10 = f1(0..1)
+   41. copy_2_slots_unmasked          $9..10 = f1, f2
    42. add_float                      $9 += $10
    43. copy_slot_unmasked             $10 = f3
    44. add_float                      $9 += $10

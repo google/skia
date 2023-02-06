@@ -1382,29 +1382,52 @@ void Program::dump(SkWStream* out) const {
             return text;
         };
 
+        // Come up with a reasonable name for a range of slots, e.g.:
+        // `val`: slot range points at one variable, named val
+        // `val(0..1)`: slot range points at the first and second slot of val (which has 3+ slots)
+        // `foo, bar`: slot range fully covers two variables, named foo and bar
+        // `foo(3), bar(0)`: slot range covers the fourth slot of foo and the first slot of bar
+        auto SlotName = [&](SkSpan<const SlotDebugInfo> debugInfo,
+                            SkSpan<const std::string> names,
+                            SlotRange range) -> std::string {
+            SkASSERT(range.index >= 0 && (range.index + range.count) <= (int)debugInfo.size());
+
+            std::string text;
+            auto separator = SkSL::String::Separator();
+            while (range.count > 0) {
+                const SlotDebugInfo& slotInfo = debugInfo[range.index];
+                text += separator();
+                text += names.empty() ? slotInfo.name : names[range.index];
+
+                // Figure out how many slots we can chomp in this iteration.
+                int entireVariable = slotInfo.columns * slotInfo.rows;
+                int slotsToChomp = std::min(range.count, entireVariable - slotInfo.componentIndex);
+                // If we aren't consuming an entire variable, from first slot to last...
+                if (slotsToChomp != entireVariable) {
+                    // ... decorate it with a range suffix.
+                    text += "(" + AsRange(slotInfo.componentIndex, slotsToChomp) + ")";
+                }
+                range.index += slotsToChomp;
+                range.count -= slotsToChomp;
+            }
+
+            return text;
+        };
+
         // Attempts to interpret the passed-in pointer as a uniform range.
         auto UniformPtrCtx = [&](const float* ptr, int numSlots) -> std::string {
-            if (fDebugTrace) {
-                // Handle pointers to named uniform slots.
-                if (ptr >= uniforms.begin() && ptr < uniforms.end()) {
-                    int slotIdx = ptr - uniforms.begin();
-                    if (slotIdx < (int)fDebugTrace->fUniformInfo.size()) {
-                        const SlotDebugInfo& slotInfo = fDebugTrace->fUniformInfo[slotIdx];
-                        if (!slotInfo.name.empty()) {
-                            // If we're covering the entire uniform, return `uniName`.
-                            if (numSlots == slotInfo.columns * slotInfo.rows) {
-                                return slotInfo.name;
-                            }
-                            // If we are only covering part of the uniform, return `uniName(1..2)`.
-                            return slotInfo.name + "(" +
-                                   AsRange(slotInfo.componentIndex, numSlots) + ")";
-                        }
+            const float* end = ptr + numSlots;
+            if (ptr >= uniforms.begin() && end <= uniforms.end()) {
+                int uniformIdx = ptr - uniforms.begin();
+                if (fDebugTrace) {
+                    // Handle pointers to named uniform slots.
+                    std::string name = SlotName(fDebugTrace->fUniformInfo, /*names=*/{},
+                                                {uniformIdx, numSlots});
+                    if (!name.empty()) {
+                        return name;
                     }
                 }
-            }
-            // Handle pointers to uniforms (when no debug info exists).
-            if (ptr >= uniforms.begin() && ptr < uniforms.end()) {
-                int uniformIdx = ptr - uniforms.begin();
+                // Handle pointers to uniforms (when no debug info exists).
                 return "u" + AsRange(uniformIdx, numSlots);
             }
             return {};
@@ -1412,31 +1435,21 @@ void Program::dump(SkWStream* out) const {
 
         // Attempts to interpret the passed-in pointer as a value slot range.
         auto ValuePtrCtx = [&](const float* ptr, int numSlots) -> std::string {
-            if (fDebugTrace) {
-                // Handle pointers to named value slots.
-                if (ptr >= slots.values.begin() && ptr < slots.values.end()) {
-                    int slotIdx = ptr - slots.values.begin();
-                    SkASSERT((slotIdx % N) == 0);
-                    slotIdx /= N;
-                    if (slotIdx < (int)fDebugTrace->fSlotInfo.size()) {
-                        const SlotDebugInfo& slotInfo = fDebugTrace->fSlotInfo[slotIdx];
-                        if (!slotInfo.name.empty()) {
-                            // If we're covering the entire slot, return `valueName`.
-                            if (numSlots == slotInfo.columns * slotInfo.rows) {
-                                return slotName[slotIdx];
-                            }
-                            // If we are only covering part of the slot, return `valueName(1..2)`.
-                            return slotName[slotIdx] + "(" +
-                                   AsRange(slotInfo.componentIndex, numSlots) + ")";
-                        }
-                    }
-                }
-            }
-            // Handle pointers to value slots (when no debug info exists).
-            if (ptr >= slots.values.begin() && ptr < slots.values.end()) {
+            const float* end = ptr + (N * numSlots);
+            if (ptr >= slots.values.begin() && end <= slots.values.end()) {
                 int valueIdx = ptr - slots.values.begin();
                 SkASSERT((valueIdx % N) == 0);
-                return "v" + AsRange(valueIdx / N, numSlots);
+                valueIdx /= N;
+                if (fDebugTrace) {
+                    // Handle pointers to named value slots.
+                    std::string name = SlotName(fDebugTrace->fSlotInfo, slotName,
+                                                {valueIdx, numSlots});
+                    if (!name.empty()) {
+                        return name;
+                    }
+                }
+                // Handle pointers to value slots (when no debug info exists).
+                return "v" + AsRange(valueIdx, numSlots);
             }
             return {};
         };

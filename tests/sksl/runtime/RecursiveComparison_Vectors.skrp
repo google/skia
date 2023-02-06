@@ -100,7 +100,7 @@
   100. copy_constant                  $13 = 0x3F800000 (1.0)
   101. add_float                      $12 += $13
   102. copy_slot_unmasked             one = $12
-  103. copy_4_slots_unmasked          $12..15 = f1(0..3)
+  103. copy_4_slots_unmasked          $12..15 = f1, f2, f3, f4
   104. copy_4_slots_unmasked          a = $12..15
   105. copy_slot_unmasked             $12 = f1
   106. copy_slot_unmasked             $13 = one
@@ -155,7 +155,7 @@
   155. copy_constant                  $68 = 0x3F800000 (1.0)
   156. add_float                      $67 += $68
   157. copy_slot_unmasked             one = $67
-  158. copy_4_slots_unmasked          $67..70 = f1(0..3)
+  158. copy_4_slots_unmasked          $67..70 = f1, f2, f3, f4
   159. copy_4_slots_unmasked          a = $67..70
   160. copy_slot_unmasked             $67 = f1
   161. copy_slot_unmasked             $68 = one
@@ -209,7 +209,7 @@
   209. copy_constant                  $89 = 0x3F800000 (1.0)
   210. add_float                      $88 += $89
   211. copy_slot_unmasked             one = $88
-  212. copy_4_slots_unmasked          $88..91 = f1(0..3)
+  212. copy_4_slots_unmasked          $88..91 = f1, f2, f3, f4
   213. copy_4_slots_unmasked          a = $88..91
   214. copy_slot_unmasked             $88 = f1
   215. copy_slot_unmasked             $89 = one
@@ -264,7 +264,7 @@
   264. copy_constant                  $35 = 0x40000000 (2.0)
   265. add_float                      $34 += $35
   266. copy_slot_unmasked             two = $34
-  267. copy_4_slots_unmasked          $34..37 = f1₁(0..3)
+  267. copy_4_slots_unmasked          $34..37 = f1₁, f2₁, f3₁, f4₁
   268. copy_4_slots_unmasked          a₁ = $34..37
   269. copy_slot_unmasked             $34 = f1₁
   270. copy_slot_unmasked             $35 = two
@@ -318,7 +318,7 @@
   318. copy_constant                  $57 = 0x40000000 (2.0)
   319. add_float                      $56 += $57
   320. copy_slot_unmasked             two = $56
-  321. copy_4_slots_unmasked          $56..59 = f1₁(0..3)
+  321. copy_4_slots_unmasked          $56..59 = f1₁, f2₁, f3₁, f4₁
   322. copy_4_slots_unmasked          a₁ = $56..59
   323. copy_slot_unmasked             $56 = f1₁
   324. copy_slot_unmasked             $57 = two
@@ -373,7 +373,7 @@
   373. copy_constant                  $46 = 0x40000000 (2.0)
   374. add_float                      $45 += $46
   375. copy_slot_unmasked             two = $45
-  376. copy_4_slots_unmasked          $45..48 = f1₁(0..3)
+  376. copy_4_slots_unmasked          $45..48 = f1₁, f2₁, f3₁, f4₁
   377. copy_4_slots_unmasked          a₁ = $45..48
   378. copy_slot_unmasked             $45 = f1₁
   379. copy_slot_unmasked             $46 = two
@@ -427,7 +427,7 @@
   427. copy_constant                  $24 = 0x40000000 (2.0)
   428. add_float                      $23 += $24
   429. copy_slot_unmasked             two = $23
-  430. copy_4_slots_unmasked          $23..26 = f1₁(0..3)
+  430. copy_4_slots_unmasked          $23..26 = f1₁, f2₁, f3₁, f4₁
   431. copy_4_slots_unmasked          a₁ = $23..26
   432. copy_slot_unmasked             $23 = f1₁
   433. copy_slot_unmasked             $24 = two

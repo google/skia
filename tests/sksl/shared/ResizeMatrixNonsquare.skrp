@@ -10,7 +10,7 @@
    10. copy_4_slots_unmasked          g(0..3) = $0..3
    11. copy_4_slots_unmasked          g(4..7) = $4..7
    12. copy_slot_unmasked             g(8) = $8
-   13. copy_2_slots_unmasked          $0..1 = result(0..1)
+   13. copy_2_slots_unmasked          $0..1 = result, g(0)
    14. add_float                      $0 += $1
    15. copy_slot_unmasked             result = $0
    16. zero_slot_unmasked             $0 = 0

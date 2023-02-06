@@ -87,7 +87,7 @@
    87. store_return_mask              $176 = RetMask
    88. zero_4_slots_unmasked          m₁(0..3) = 0
    89. zero_4_slots_unmasked          m₁(4..7) = 0
-   90. zero_4_slots_unmasked          m₁(8..11) = 0
+   90. zero_4_slots_unmasked          m₁(8), mm₁(0..2) = 0
    91. zero_4_slots_unmasked          mm₁(3..6) = 0
    92. zero_2_slots_unmasked          mm₁(7..8) = 0
    93. zero_2_slots_unmasked          $177..178 = 0
@@ -511,7 +511,7 @@
   511. store_return_mask              $114 = RetMask
   512. zero_4_slots_unmasked          m₄(0..3) = 0
   513. zero_4_slots_unmasked          m₄(4..7) = 0
-  514. zero_4_slots_unmasked          m₄(8..11) = 0
+  514. zero_4_slots_unmasked          m₄(8), mm₄(0..2) = 0
   515. zero_4_slots_unmasked          mm₄(3..6) = 0
   516. zero_2_slots_unmasked          mm₄(7..8) = 0
   517. zero_2_slots_unmasked          $115..116 = 0

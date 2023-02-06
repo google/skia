@@ -36,7 +36,7 @@
    36. copy_constant                  v11(2) = 0xFFFFFFFF
    37. zero_slot_unmasked             v11(3) = 0
    38. copy_constant                  v12(0) = 0x3F800000 (1.0)
-   39. zero_4_slots_unmasked          v12(1..4) = 0
+   39. zero_4_slots_unmasked          v12(1), v13, v14(0) = 0
    40. zero_slot_unmasked             v14(1) = 0
    41. copy_constant                  $0 = 0xFFFFFFFF
    42. copy_slot_unmasked             $1 = $0

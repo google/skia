@@ -6,7 +6,7 @@
     6. shuffle                        $0..5 = ($0..5)[1 0 0 0 1 0]
     7. copy_4_slots_unmasked          _1_m23(0..3) = $0..3
     8. copy_2_slots_unmasked          _1_m23(4..5) = $4..5
-    9. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+    9. copy_4_slots_unmasked          $0..3 = _0_ok, _1_m23(0..2)
    10. copy_3_slots_unmasked          $4..6 = _1_m23(3..5)
    11. copy_constant                  $7 = 0x40000000 (2.0)
    12. zero_3_slots_unmasked          $8..10 = 0
@@ -98,7 +98,7 @@
    98. add_n_floats                   $0..5 += $6..11
    99. copy_4_slots_unmasked          _1_m23(0..3) = $0..3
   100. copy_2_slots_unmasked          _1_m23(4..5) = $4..5
-  101. copy_4_slots_unmasked          $0..3 = _0_ok(0..3)
+  101. copy_4_slots_unmasked          $0..3 = _0_ok, _1_m23(0..2)
   102. copy_3_slots_unmasked          $4..6 = _1_m23(3..5)
   103. copy_constant                  $7 = 0x40400000 (3.0)
   104. copy_constant                  $8 = 0x3F800000 (1.0)
@@ -168,7 +168,7 @@
   168. shuffle                        $45..50 = ($45..50)[1 0 0 0 1 0]
   169. copy_4_slots_unmasked          m23(0..3) = $45..48
   170. copy_2_slots_unmasked          m23(4..5) = $49..50
-  171. copy_4_slots_unmasked          $45..48 = ok(0..3)
+  171. copy_4_slots_unmasked          $45..48 = ok, m23(0..2)
   172. copy_3_slots_unmasked          $49..51 = m23(3..5)
   173. copy_constant                  $52 = 0x40000000 (2.0)
   174. zero_3_slots_unmasked          $53..55 = 0
@@ -393,7 +393,7 @@
   393. add_n_floats                   $45..50 += $51..56
   394. copy_4_slots_masked            m23(0..3) = Mask($45..48)
   395. copy_2_slots_masked            m23(4..5) = Mask($49..50)
-  396. copy_4_slots_unmasked          $45..48 = ok(0..3)
+  396. copy_4_slots_unmasked          $45..48 = ok, m23(0..2)
   397. copy_3_slots_unmasked          $49..51 = m23(3..5)
   398. copy_constant                  $52 = 0x40400000 (3.0)
   399. copy_constant                  $53 = 0x3F800000 (1.0)

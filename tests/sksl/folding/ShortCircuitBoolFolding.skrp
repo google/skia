@@ -4,7 +4,7 @@
     4. copy_constant                  $1 = unknownInput
     5. cmplt_float                    $0 = lessThan($0, $1)
     6. copy_slot_unmasked             _0_expr = $0
-    7. zero_2_slots_unmasked          _1_ok(0..1) = 0
+    7. zero_2_slots_unmasked          _1_ok, _2_bad = 0
     8. store_condition_mask           $0 = CondMask
     9. copy_slot_unmasked             $1 = _0_expr
    10. merge_condition_mask           CondMask = $0 & $1
@@ -266,7 +266,7 @@
   266. mul_float                      $0 *= $1
   267. copy_slot_unmasked             _4_b = $0
   268. store_condition_mask           $0 = CondMask
-  269. copy_2_slots_unmasked          $1..2 = _3_a(0..1)
+  269. copy_2_slots_unmasked          $1..2 = _3_a, _4_b
   270. cmpeq_float                    $1 = equal($1, $2)
   271. merge_condition_mask           CondMask = $0 & $1
   272. copy_slot_unmasked             $2 = _2_bad
@@ -287,7 +287,7 @@
   287. copy_constant                  $1 = 0xFFFFFFFF
   288. bitwise_or_int                 $0 |= $1
   289. store_condition_mask           $0 = CondMask
-  290. copy_2_slots_unmasked          $1..2 = _3_a(0..1)
+  290. copy_2_slots_unmasked          $1..2 = _3_a, _4_b
   291. cmpeq_float                    $1 = equal($1, $2)
   292. merge_condition_mask           CondMask = $0 & $1
   293. copy_slot_unmasked             $2 = _1_ok
