@@ -444,12 +444,8 @@ public:
     // Shrinks the temp stack, discarding values on top.
     void discard_stack(int32_t count = 1);
 
-    void pop_slots(SlotRange dst) {
-        // The opposite of push_slots; copies values from the temp stack into value slots, then
-        // shrinks the temp stack.
-        this->copy_stack_to_slots(dst);
-        this->discard_stack(dst.count);
-    }
+    // Copies vales from the temp stack into slots, and then shrinks the temp stack.
+    void pop_slots(SlotRange dst);
 
     // Creates many clones of the top single-slot item on the temp stack.
     void push_duplicates(int count);

@@ -46,6 +46,6 @@
    46. copy_slot_unmasked             $3 = hsl(2)
    47. swizzle_3                      $3..5 = ($3..5).xxx
    48. add_3_floats                   $0..2 += $3..5
-   49. copy_constant                  $3 = 0x3F800000 (1.0)
-   50. copy_4_slots_unmasked          [main].result = $0..3
+   49. copy_constant                  [main].result(3) = 0x3F800000 (1.0)
+   50. copy_3_slots_unmasked          [main].result(0..2) = $0..2
    51. load_src                       src.rgba = [main].result

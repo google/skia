@@ -259,6 +259,16 @@ void Builder::push_duplicates(int count) {
     }
 }
 
+void Builder::pop_slots(SlotRange dst) {
+    if (!this->executionMaskWritesAreEnabled()) {
+        this->pop_slots_unmasked(dst);
+        return;
+    }
+
+    this->copy_stack_to_slots(dst);
+    this->discard_stack(dst.count);
+}
+
 void Builder::pop_slots_unmasked(SlotRange dst) {
     SkASSERT(dst.count >= 0);
 
