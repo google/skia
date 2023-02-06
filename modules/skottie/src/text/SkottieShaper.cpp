@@ -187,18 +187,22 @@ public:
         //
         //   b) leading/trailing empty lines are still taken into account for alignment purposes
 
-        auto extent_box = [&]() {
+        auto extent_box = [&](bool include_typographical_extent) {
             auto box = fResult.computeVisualBounds();
 
-            // By default, first line is vertically-aligned on a baseline of 0.
-            // The typographical height considered for vertical alignment is the distance between
-            // the first line top (ascent) to the last line bottom (descent).
-            const auto typographical_top    = fBox.fTop + ascent,
-                       typographical_bottom = fBox.fTop + fLastLineDescent + fDesc.fLineHeight *
-                                                           (fLineCount > 0 ? fLineCount - 1 : 0ul);
+            if (include_typographical_extent) {
+                // Hybrid visual alignment mode, based on typographical extent.
 
-            box.fTop    = std::min(box.fTop,    typographical_top);
-            box.fBottom = std::max(box.fBottom, typographical_bottom);
+                // By default, first line is vertically-aligned on a baseline of 0.
+                // The typographical height considered for vertical alignment is the distance
+                // between the first line top (ascent) to the last line bottom (descent).
+                const auto typographical_top    = fBox.fTop + ascent,
+                           typographical_bottom = fBox.fTop + fLastLineDescent +
+                                          fDesc.fLineHeight*(fLineCount > 0 ? fLineCount - 1 : 0ul);
+
+                box.fTop    = std::min(box.fTop,    typographical_top);
+                box.fBottom = std::max(box.fBottom, typographical_bottom);
+            }
 
             return box;
         };
@@ -217,22 +221,25 @@ public:
             // Default behavior.
             break;
         case Shaper::VAlign::kHybridTop:
-            ebox.init(extent_box());
+        case Shaper::VAlign::kVisualTop:
+            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridTop));
             v_offset += fBox.fTop - ebox->fTop;
             break;
         case Shaper::VAlign::kHybridCenter:
-            ebox.init(extent_box());
+        case Shaper::VAlign::kVisualCenter:
+            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridCenter));
             v_offset += fBox.centerY() - ebox->centerY();
             break;
         case Shaper::VAlign::kHybridBottom:
-            ebox.init(extent_box());
+        case Shaper::VAlign::kVisualBottom:
+            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridBottom));
             v_offset += fBox.fBottom - ebox->fBottom;
             break;
         }
 
         if (shaped_size) {
             if (!ebox.isValid()) {
-                ebox.init(extent_box());
+                ebox.init(extent_box(true));
             }
             *shaped_size = SkSize::Make(ebox->width(), ebox->height());
         }

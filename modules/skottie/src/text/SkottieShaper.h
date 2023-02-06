@@ -97,18 +97,14 @@ public:
         //
         //   MAX(visual_bottom_extent, typographical_bottom_extent)
         //   ------------------------------------------------------
+        kHybridTop,     // extent box top    -> text box top
+        kHybridCenter,  // extent box center -> text box center
+        kHybridBottom,  // extent box bottom -> text box bottom
 
-        // extent box top -> text box top
-        kHybridTop,
-        kVisualTop = kHybridTop,  // transitional alias
-
-        // extent box center -> text box center
-        kHybridCenter,
-        kVisualCenter = kHybridCenter,  // transitional alias
-
-        // extent box bottom -> text box bottom
-        kHybridBottom,
-        kVisualBottom = kHybridBottom,  // transitional alias
+        // Visual alignement modes -- these are using tight visual bounds for the paragraph.
+        kVisualTop,     // visual top    -> text box top
+        kVisualCenter,  // visual center -> text box center
+        kVisualBottom,  // visual bottom -> text box bottom
     };
 
     enum class ResizePolicy : uint8_t {
