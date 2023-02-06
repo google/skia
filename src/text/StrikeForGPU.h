@@ -77,8 +77,8 @@ public:
     virtual void lock() = 0;
     virtual void unlock() = 0;
 
-    virtual skglyph::GlyphAction pathAction(SkGlyphID) = 0;
-    virtual skglyph::GlyphAction drawableAction(SkGlyphID) = 0;
+    virtual SkGlyphDigest pathDigest(SkGlyphID) = 0;
+    virtual SkGlyphDigest drawableDigest(SkGlyphID) = 0;
     virtual SkGlyphDigest directMaskDigest(SkPackedGlyphID) = 0;
     virtual SkGlyphDigest sdftDigest(SkGlyphID) = 0;
     virtual SkGlyphDigest maskDigest(SkGlyphID) = 0;

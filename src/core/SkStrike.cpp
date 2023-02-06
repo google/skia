@@ -270,10 +270,10 @@ SkGlyphDigest* SkStrike::digestPtr(SkPackedGlyphID packedGlyphID) {
     return this->addGlyph(glyph);
 }
 
-GlyphAction SkStrike::pathAction(SkGlyphID glyphID) {
+SkGlyphDigest SkStrike::pathDigest(SkGlyphID glyphID) {
     SkGlyphDigest* const digestPtr = this->digestPtr(SkPackedGlyphID{glyphID});
-    if (const GlyphAction action = digestPtr->pathAction(); action != GlyphAction::kUnset) {
-        return action;
+    if (digestPtr->pathAction() != GlyphAction::kUnset) {
+        return *digestPtr;
     }
 
     GlyphAction action;
@@ -290,13 +290,13 @@ GlyphAction SkStrike::pathAction(SkGlyphID glyphID) {
     }
 
     digestPtr->setPathAction(action);
-    return digestPtr->pathAction();
+    return *digestPtr;
 }
 
-GlyphAction SkStrike::drawableAction(SkGlyphID glyphID) {
+SkGlyphDigest SkStrike::drawableDigest(SkGlyphID glyphID) {
     SkGlyphDigest* const digestPtr = this->digestPtr(SkPackedGlyphID{glyphID});
-    if (const GlyphAction action = digestPtr->drawableAction(); action != GlyphAction::kUnset) {
-        return action;
+    if (digestPtr->drawableAction() != GlyphAction::kUnset) {
+        return *digestPtr;
     }
 
     GlyphAction action;
@@ -313,7 +313,7 @@ GlyphAction SkStrike::drawableAction(SkGlyphID glyphID) {
     }
 
     digestPtr->setDrawableAction(action);
-    return digestPtr->drawableAction();
+    return *digestPtr;
 }
 
 SkGlyphDigest SkStrike::directMaskDigest(SkPackedGlyphID packedGlyphID) {

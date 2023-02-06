@@ -48,7 +48,7 @@ void prepare_for_path_drawing(SkStrike* strike,
     strike->lock();
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            switch (strike->pathAction(packedID.packedID().glyphID())) {
+            switch (strike->pathDigest(packedID.packedID().glyphID()).pathAction()) {
                 case GlyphAction::kAccept:
                     accepted->accept(packedID, pos);
                     break;
@@ -71,7 +71,7 @@ void prepare_for_drawable_drawing(SkStrike* strike,
     strike->lock();
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            switch (strike->drawableAction(packedID.packedID().glyphID())) {
+            switch (strike->drawableDigest(packedID.packedID().glyphID()).drawableAction()) {
                 case GlyphAction::kAccept:
                     accepted->accept(packedID, pos);
                     break;

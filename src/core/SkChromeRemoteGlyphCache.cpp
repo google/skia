@@ -170,8 +170,8 @@ public:
 
     void lock() override {}
     void unlock() override {}
-    GlyphAction pathAction(SkGlyphID) override;
-    GlyphAction drawableAction(SkGlyphID) override;
+    SkGlyphDigest pathDigest(SkGlyphID) override;
+    SkGlyphDigest drawableDigest(SkGlyphID) override;
     SkGlyphDigest directMaskDigest(SkPackedGlyphID) override;
     SkGlyphDigest sdftDigest(SkGlyphID) override;
     SkGlyphDigest maskDigest(SkGlyphID) override;
@@ -438,14 +438,12 @@ SkGlyphDigest* RemoteStrike::digestPtr(SkPackedGlyphID packedGlyphID, ActionType
     return digestPtr;
 }
 
-GlyphAction RemoteStrike::pathAction(SkGlyphID glyphID) {
-    SkGlyphDigest* digestPtr = this->digestPtr(SkPackedGlyphID{glyphID}, kPath);
-    return digestPtr->action(kPath);
+SkGlyphDigest RemoteStrike::pathDigest(SkGlyphID glyphID) {
+    return *this->digestPtr(SkPackedGlyphID{glyphID}, kPath);
 }
 
-GlyphAction RemoteStrike::drawableAction(SkGlyphID glyphID) {
-    SkGlyphDigest* digestPtr = this->digestPtr(SkPackedGlyphID{glyphID}, kDrawable);
-    return digestPtr->action(kDrawable);
+SkGlyphDigest RemoteStrike::drawableDigest(SkGlyphID glyphID) {
+    return *this->digestPtr(SkPackedGlyphID{glyphID}, kDrawable);
 }
 
 SkGlyphDigest RemoteStrike::directMaskDigest(SkPackedGlyphID packedGlyphID) {
