@@ -540,6 +540,7 @@ public:
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "pdf"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kVector, SinkFlags::kDirect }; }
+
     bool fPDFA;
     SkScalar fRasterDpi;
 };
@@ -561,6 +562,14 @@ public:
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kRaster, SinkFlags::kDirect }; }
     void setColorSpace(sk_sp<SkColorSpace> colorSpace) override { fColorSpace = colorSpace; }
+
+    SkColorInfo colorInfo() const override {
+        // If there's an appropriate alpha type for this color type, use it, otherwise use premul.
+        SkAlphaType alphaType = kPremul_SkAlphaType;
+        (void)SkColorTypeValidateAlphaType(fColorType, alphaType, &alphaType);
+
+        return SkColorInfo(fColorType, alphaType, fColorSpace);
+    }
 
 private:
     SkColorType         fColorType;
@@ -644,6 +653,7 @@ class ViaMatrix : public Via {
 public:
     ViaMatrix(SkMatrix, Sink*);
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
 private:
     const SkMatrix fMatrix;
 };
@@ -652,6 +662,7 @@ class ViaUpright : public Via {
 public:
     ViaUpright(SkMatrix, Sink*);
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
 private:
     const SkMatrix fMatrix;
 };
