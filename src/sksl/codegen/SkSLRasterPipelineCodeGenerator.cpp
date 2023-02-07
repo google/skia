@@ -286,6 +286,14 @@ public:
     [[nodiscard]] bool unaryOp(const SkSL::Type& type, const TypedOps& ops);
     [[nodiscard]] bool binaryOp(const SkSL::Type& type, const TypedOps& ops);
     [[nodiscard]] bool ternaryOp(const SkSL::Type& type, const TypedOps& ops);
+    [[nodiscard]] bool pushIntrinsic(const TypedOps& ops, const Expression& arg0);
+    [[nodiscard]] bool pushIntrinsic(const TypedOps& ops,
+                                     const Expression& arg0,
+                                     const Expression& arg1);
+    [[nodiscard]] bool pushIntrinsic(BuilderOp builderOp, const Expression& arg0);
+    [[nodiscard]] bool pushIntrinsic(BuilderOp builderOp,
+                                     const Expression& arg0,
+                                     const Expression& arg1);
     [[nodiscard]] bool pushVectorizedExpression(const Expression& expr, const Type& vectorType);
     [[nodiscard]] bool pushVariableReferencePartial(const VariableReference& v, SlotRange subset);
     [[nodiscard]] bool pushLValueOrExpression(LValue* lvalue, const Expression& expr);
@@ -1854,13 +1862,25 @@ bool Generator::pushVectorizedExpression(const Expression& expr, const Type& vec
     return true;
 }
 
+bool Generator::pushIntrinsic(const TypedOps& ops, const Expression& arg0) {
+    if (!this->pushExpression(arg0)) {
+        return unsupported();
+    }
+    return this->unaryOp(arg0.type(), ops);
+}
+
+bool Generator::pushIntrinsic(BuilderOp builderOp, const Expression& arg0) {
+    if (!this->pushExpression(arg0)) {
+        return unsupported();
+    }
+    fBuilder.unary_op(builderOp, arg0.type().slotCount());
+    return true;
+}
+
 bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
     switch (intrinsic) {
         case IntrinsicKind::k_abs_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            return this->unaryOp(arg0.type(), kAbsOps);
+            return this->pushIntrinsic(kAbsOps, arg0);
 
         case IntrinsicKind::k_any_IntrinsicKind:
             if (!this->pushExpression(arg0)) {
@@ -1877,25 +1897,13 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             return true;
 
         case IntrinsicKind::k_atan_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            fBuilder.unary_op(BuilderOp::atan_float, arg0.type().slotCount());
-            return true;
+            return this->pushIntrinsic(BuilderOp::atan_float, arg0);
 
         case IntrinsicKind::k_ceil_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            fBuilder.unary_op(BuilderOp::ceil_float, arg0.type().slotCount());
-            return true;
+            return this->pushIntrinsic(BuilderOp::ceil_float, arg0);
 
         case IntrinsicKind::k_cos_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            fBuilder.unary_op(BuilderOp::cos_float, arg0.type().slotCount());
-            return true;
+            return this->pushIntrinsic(BuilderOp::cos_float, arg0);
 
         case IntrinsicKind::k_degrees_IntrinsicKind: {
             Literal lit180OverPi{Position{}, 57.2957795131f, &arg0.type().componentType()};
@@ -1905,25 +1913,13 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
         case IntrinsicKind::k_floatBitsToUint_IntrinsicKind:
         case IntrinsicKind::k_intBitsToFloat_IntrinsicKind:
         case IntrinsicKind::k_uintBitsToFloat_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            return true;
-
+            return this->pushExpression(arg0);
 
         case IntrinsicKind::k_exp_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            fBuilder.unary_op(BuilderOp::exp_float, arg0.type().slotCount());
-            return true;
+            return this->pushIntrinsic(BuilderOp::exp_float, arg0);
 
         case IntrinsicKind::k_floor_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            fBuilder.unary_op(BuilderOp::floor_float, arg0.type().slotCount());
-            return true;
+            return this->pushIntrinsic(BuilderOp::floor_float, arg0);
 
         case IntrinsicKind::k_fract_IntrinsicKind:
             // Implement fract as `x - floor(x)`.
@@ -1995,25 +1991,13 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             return this->binaryOp(arg0.type(), kMinOps);
         }
         case IntrinsicKind::k_sin_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            fBuilder.unary_op(BuilderOp::sin_float, arg0.type().slotCount());
-            return true;
+            return this->pushIntrinsic(BuilderOp::sin_float, arg0);
 
         case IntrinsicKind::k_sqrt_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            fBuilder.unary_op(BuilderOp::sqrt_float, arg0.type().slotCount());
-            return true;
+            return this->pushIntrinsic(BuilderOp::sqrt_float, arg0);
 
         case IntrinsicKind::k_tan_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            fBuilder.unary_op(BuilderOp::tan_float, arg0.type().slotCount());
-            return true;
+            return this->pushIntrinsic(BuilderOp::tan_float, arg0);
 
         case IntrinsicKind::k_transpose_IntrinsicKind:
             SkASSERT(arg0.type().isMatrix());
@@ -2029,19 +2013,27 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
     return unsupported();
 }
 
+bool Generator::pushIntrinsic(const TypedOps& ops, const Expression& arg0, const Expression& arg1) {
+    if (!this->pushExpression(arg0) || !this->pushVectorizedExpression(arg1, arg0.type())) {
+        return unsupported();
+    }
+    return this->binaryOp(arg0.type(), ops);
+}
+
+bool Generator::pushIntrinsic(BuilderOp builderOp, const Expression& arg0, const Expression& arg1) {
+    if (!this->pushExpression(arg0) || !this->pushVectorizedExpression(arg1, arg0.type())) {
+        return unsupported();
+    }
+    fBuilder.binary_op(builderOp, arg0.type().slotCount());
+    return true;
+}
+
 bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
                               const Expression& arg0,
                               const Expression& arg1) {
     switch (intrinsic) {
         case IntrinsicKind::k_atan_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            if (!this->pushExpression(arg1)) {
-                return unsupported();
-            }
-            fBuilder.binary_op(BuilderOp::atan2_n_floats, arg0.type().slotCount());
-            return true;
+            return this->pushIntrinsic(BuilderOp::atan2_n_floats, arg0, arg1);
 
         case IntrinsicKind::k_cross_IntrinsicKind:
             // Implement cross as `arg0.yzx * arg1.zxy - arg0.zxy * arg1.yzx`. We use two stacks so
@@ -2101,76 +2093,43 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
 
         case IntrinsicKind::k_equal_IntrinsicKind:
             SkASSERT(arg0.type().matches(arg1.type()));
-            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
-                return unsupported();
-            }
-            return this->binaryOp(arg0.type(), kEqualOps);
+            return this->pushIntrinsic(kEqualOps, arg0, arg1);
 
         case IntrinsicKind::k_notEqual_IntrinsicKind:
             SkASSERT(arg0.type().matches(arg1.type()));
-            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
-                return unsupported();
-            }
-            return this->binaryOp(arg0.type(), kNotEqualOps);
+            return this->pushIntrinsic(kNotEqualOps, arg0, arg1);
 
         case IntrinsicKind::k_lessThan_IntrinsicKind:
             SkASSERT(arg0.type().matches(arg1.type()));
-            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
-                return unsupported();
-            }
-            return this->binaryOp(arg0.type(), kLessThanOps);
+            return this->pushIntrinsic(kLessThanOps, arg0, arg1);
 
         case IntrinsicKind::k_greaterThan_IntrinsicKind:
             SkASSERT(arg0.type().matches(arg1.type()));
-            if (!this->pushExpression(arg1) || !this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            return this->binaryOp(arg0.type(), kLessThanOps);
+            return this->pushIntrinsic(kLessThanOps, arg1, arg0);
 
         case IntrinsicKind::k_lessThanEqual_IntrinsicKind:
             SkASSERT(arg0.type().matches(arg1.type()));
-            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
-                return unsupported();
-            }
-            return this->binaryOp(arg0.type(), kLessThanEqualOps);
+            return this->pushIntrinsic(kLessThanEqualOps, arg0, arg1);
 
         case IntrinsicKind::k_greaterThanEqual_IntrinsicKind:
             SkASSERT(arg0.type().matches(arg1.type()));
-            if (!this->pushExpression(arg1) || !this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            return this->binaryOp(arg0.type(), kLessThanEqualOps);
+            return this->pushIntrinsic(kLessThanEqualOps, arg1, arg0);
 
         case IntrinsicKind::k_min_IntrinsicKind:
             SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
-            if (!this->pushExpression(arg0) || !this->pushVectorizedExpression(arg1, arg0.type())) {
-                return unsupported();
-            }
-            return this->binaryOp(arg0.type(), kMinOps);
+            return this->pushIntrinsic(kMinOps, arg0, arg1);
 
         case IntrinsicKind::k_matrixCompMult_IntrinsicKind:
             SkASSERT(arg0.type().matches(arg1.type()));
-            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
-                return unsupported();
-            }
-            return this->binaryOp(arg0.type(), kMultiplyOps);
+            return this->pushIntrinsic(kMultiplyOps, arg0, arg1);
 
         case IntrinsicKind::k_max_IntrinsicKind:
             SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
-            if (!this->pushExpression(arg0) || !this->pushVectorizedExpression(arg1, arg0.type())) {
-                return unsupported();
-            }
-            return this->binaryOp(arg0.type(), kMaxOps);
+            return this->pushIntrinsic(kMaxOps, arg0, arg1);
 
         case IntrinsicKind::k_pow_IntrinsicKind:
-            if (!this->pushExpression(arg0)) {
-                return unsupported();
-            }
-            if (!this->pushExpression(arg1)) {
-                return unsupported();
-            }
-            fBuilder.binary_op(BuilderOp::pow_n_floats, arg0.type().slotCount());
-            return true;
+            SkASSERT(arg0.type().matches(arg1.type()));
+            return this->pushIntrinsic(BuilderOp::pow_n_floats, arg0, arg1);
 
         case IntrinsicKind::k_step_IntrinsicKind: {
             // Compute step as `float(lessThan(edge, x))`. We convert from boolean 0/~0 to floating
