@@ -38,7 +38,7 @@ public:
 };
 
 // This class holds the results of an SkScalerContext, and owns a references to that scaler.
-class SkStrike final : public SkRefCnt, public sktext::StrikeForGPU {
+class SkStrike final : public sktext::StrikeForGPU {
 public:
     SkStrike(SkStrikeCache* strikeCache,
              const SkStrikeSpec& strikeSpec,
@@ -100,10 +100,6 @@ public:
 
     const SkGlyphPositionRoundingSpec& roundingSpec() const override {
         return fRoundingSpec;
-    }
-
-    void onAboutToExitScope() override {
-        this->unref();
     }
 
     sktext::SkStrikePromise strikePromise() override {

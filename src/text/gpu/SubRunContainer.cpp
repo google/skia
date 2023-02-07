@@ -2569,7 +2569,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 }
 
                 if (!SkScalarNearlyZero(strikeToSourceScale)) {
-                    ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
+                    sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                     // The creationMatrix needs to scale the strike data when inverted and
                     // multiplied by the positionMatrix. The final CTM should be:
@@ -2620,7 +2620,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                     msg.appendf("  Mask case:\n%s", strikeSpec.dump().c_str());
                 }
 
-                ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
+                sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
                 if constexpr (kTrace) {
@@ -2660,7 +2660,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             }
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
-                ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
+                sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
                 if constexpr (kTrace) {
@@ -2690,7 +2690,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             }
 
             if (!SkScalarNearlyZero(strikeToSourceScale)) {
-                ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
+                sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
                 accepted->startSource(rejected->source());
                 if constexpr (kTrace) {
@@ -2749,7 +2749,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             auto maxGlyphDimension = [&](const SkMatrix& m) {
                 const SkStrikeSpec strikeSpec = SkStrikeSpec::MakeTransformMask(
                         runFont, runPaint, deviceProps, scalerContextFlags, m);
-                const ScopedStrikeForGPU gaugingStrike =
+                const sk_sp<StrikeForGPU> gaugingStrike =
                         strikeSpec.findOrCreateScopedStrike(strikeCache);
                 const SkScalar maxDimension =
                         find_maximum_glyph_dimension(gaugingStrike.get(), glyphs);
@@ -2787,7 +2787,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
             if constexpr (kTrace) {
                 msg.appendf("Transformed case:\n%s", strikeSpec.dump().c_str());
             }
-            ScopedStrikeForGPU strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
+            sk_sp<StrikeForGPU> strike = strikeSpec.findOrCreateScopedStrike(strikeCache);
 
             accepted->startSource(rejected->source());
             if constexpr (kTrace) {

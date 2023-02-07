@@ -87,7 +87,7 @@ public:
             const sktext::gpu::SDFTControl& control);
 #endif
 
-    sktext::ScopedStrikeForGPU findOrCreateScopedStrike(
+    sk_sp<sktext::StrikeForGPU> findOrCreateScopedStrike(
             sktext::StrikeForGPUCacheInterface* cache) const;
 
     sk_sp<SkStrike> findOrCreateStrike() const;

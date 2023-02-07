@@ -47,7 +47,7 @@ public:
 
     sk_sp<SkStrike> findOrCreateStrike(const SkStrikeSpec& strikeSpec) SK_EXCLUDES(fLock);
 
-    sktext::ScopedStrikeForGPU findOrCreateScopedStrike(
+    sk_sp<sktext::StrikeForGPU> findOrCreateScopedStrike(
             const SkStrikeSpec& strikeSpec) override SK_EXCLUDES(fLock);
 
     static void PurgeAll();

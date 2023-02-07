@@ -44,6 +44,7 @@
 #include "src/text/gpu/TextBlob.h"
 #endif
 
+using namespace sktext;
 using namespace sktext::gpu;
 using namespace skglyph;
 
@@ -160,7 +161,7 @@ struct StrikeSpec {
 };
 
 // -- RemoteStrike ----------------------------------------------------------------------------
-class RemoteStrike final : public SkRefCnt, public sktext::StrikeForGPU {
+class RemoteStrike final : public sktext::StrikeForGPU {
 public:
     // N.B. RemoteStrike is not valid until ensureScalerContext is called.
     RemoteStrike(const SkStrikeSpec& strikeSpec,
@@ -190,8 +191,6 @@ public:
     }
 
     sktext::SkStrikePromise strikePromise() override;
-
-    void onAboutToExitScope() override {}
 
     bool hasPendingGlyphs() const {
         return !fMasksToSend.empty() || !fPathsToSend.empty() || !fDrawablesToSend.empty();
@@ -491,7 +490,7 @@ public:
     sk_sp<SkData> serializeTypeface(SkTypeface*);
     void writeStrikeData(std::vector<uint8_t>* memory);
 
-    sktext::ScopedStrikeForGPU findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) override;
+    sk_sp<sktext::StrikeForGPU> findOrCreateScopedStrike(const SkStrikeSpec& strikeSpec) override;
 
     // Methods for testing
     void setMaxEntriesInDescriptorMapForTesting(size_t count);
@@ -502,7 +501,7 @@ private:
 
     void checkForDeletedEntries();
 
-    RemoteStrike* getOrCreateCache(const SkStrikeSpec& strikeSpec);
+    sk_sp<RemoteStrike> getOrCreateCache(const SkStrikeSpec& strikeSpec);
 
     struct MapOps {
         size_t operator()(const SkDescriptor* key) const {
@@ -604,9 +603,9 @@ void SkStrikeServerImpl::writeStrikeData(std::vector<uint8_t>* memory) {
     #endif
 }
 
-sktext::ScopedStrikeForGPU SkStrikeServerImpl::findOrCreateScopedStrike(
+sk_sp<StrikeForGPU> SkStrikeServerImpl::findOrCreateScopedStrike(
         const SkStrikeSpec& strikeSpec) {
-    return sktext::ScopedStrikeForGPU{this->getOrCreateCache(strikeSpec)};
+    return this->getOrCreateCache(strikeSpec);
 }
 
 void SkStrikeServerImpl::checkForDeletedEntries() {
@@ -626,7 +625,7 @@ void SkStrikeServerImpl::checkForDeletedEntries() {
     }
 }
 
-RemoteStrike* SkStrikeServerImpl::getOrCreateCache(const SkStrikeSpec& strikeSpec) {
+sk_sp<RemoteStrike> SkStrikeServerImpl::getOrCreateCache(const SkStrikeSpec& strikeSpec) {
     // In cases where tracing is turned off, make sure not to get an unused function warning.
     // Lambdaize the function.
     TRACE_EVENT1("skia", "RecForDesc", "rec",
@@ -645,9 +644,9 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(const SkStrikeSpec& strikeSpe
         it != fDescToRemoteStrike.end())
     {
         // We have processed the RemoteStrike before. Reuse it.
-        RemoteStrike* strike = it->second.get();
+        sk_sp<RemoteStrike> strike = it->second;
         strike->setStrikeSpec(strikeSpec);
-        if (fRemoteStrikesToSend.contains(strike)) {
+        if (fRemoteStrikesToSend.contains(strike.get())) {
             // Already tracking
             return strike;
         }
@@ -655,7 +654,7 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(const SkStrikeSpec& strikeSpe
         // Strike is in unknown state on GPU. Start tracking strike on GPU by locking it.
         bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
         if (locked) {
-            fRemoteStrikesToSend.add(strike);
+            fRemoteStrikesToSend.add(strike.get());
             return strike;
         }
 
@@ -678,14 +677,13 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(const SkStrikeSpec& strikeSpe
     auto newHandle = fDiscardableHandleManager->createHandle();  // Locked on creation
     auto remoteStrike = sk_make_sp<RemoteStrike>(strikeSpec, std::move(context), newHandle);
     remoteStrike->setStrikeSpec(strikeSpec);
-    auto remoteStrikePtr = remoteStrike.get();
-    fRemoteStrikesToSend.add(remoteStrikePtr);
+    fRemoteStrikesToSend.add(remoteStrike.get());
     auto d = &remoteStrike->getDescriptor();
-    fDescToRemoteStrike[d] = std::move(remoteStrike);
+    fDescToRemoteStrike[d] = remoteStrike;
 
     checkForDeletedEntries();
 
-    return remoteStrikePtr;
+    return remoteStrike;
 }
 
 // -- GlyphTrackingDevice --------------------------------------------------------------------------
