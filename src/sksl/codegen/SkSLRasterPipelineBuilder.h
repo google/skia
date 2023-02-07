@@ -446,6 +446,10 @@ public:
     // `slots`. Three n-slot input values are consumed, and the result is pushed onto the stack.
     void ternary_op(BuilderOp op, int32_t slots);
 
+    // Computes a dot product on the stack. The slots consumed (`slots`) must be between 1 and 4.
+    // Two n-slot input vectors are consumed, and a scalar result is pushed onto the stack.
+    void dot_floats(int32_t slots);
+
     // Shrinks the temp stack, discarding values on top.
     void discard_stack(int32_t count = 1);
 

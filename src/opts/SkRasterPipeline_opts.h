@@ -3685,6 +3685,26 @@ DECLARE_N_WAY_BINARY_FLOAT(pow)
 #undef DECLARE_N_WAY_BINARY_INT
 #undef DECLARE_N_WAY_BINARY_UINT
 
+// Dots can be represented with multiply and add ops, but they are so foundational that it's worth
+// having dedicated ops.
+STAGE_TAIL(dot_2_floats, F* dst) {
+    dst[0] = mad(dst[0],  dst[2],
+                 dst[1] * dst[3]);
+}
+
+STAGE_TAIL(dot_3_floats, F* dst) {
+    dst[0] = mad(dst[0],  dst[3],
+             mad(dst[1],  dst[4],
+                 dst[2] * dst[5]));
+}
+
+STAGE_TAIL(dot_4_floats, F* dst) {
+    dst[0] = mad(dst[0],  dst[4],
+             mad(dst[1],  dst[5],
+             mad(dst[2],  dst[6],
+                 dst[3] * dst[7])));
+}
+
 // Ternary operations work like binary ops (see immediately above) but take two source inputs.
 template <typename T, void (*ApplyFn)(T*, T*, T*)>
 SI void apply_adjacent_ternary(T* dst, T* src0, T* src1) {

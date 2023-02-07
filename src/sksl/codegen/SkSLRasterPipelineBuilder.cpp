@@ -130,6 +130,19 @@ void Builder::ternary_op(BuilderOp op, int32_t slots) {
     }
 }
 
+void Builder::dot_floats(int32_t slots) {
+    switch (slots) {
+        case 1: fInstructions.push_back({BuilderOp::mul_n_floats, {}, slots}); break;
+        case 2: fInstructions.push_back({BuilderOp::dot_2_floats, {}, slots}); break;
+        case 3: fInstructions.push_back({BuilderOp::dot_3_floats, {}, slots}); break;
+        case 4: fInstructions.push_back({BuilderOp::dot_4_floats, {}, slots}); break;
+
+        default:
+            SkDEBUGFAIL("invalid number of slots");
+            break;
+    }
+}
+
 void Builder::discard_stack(int32_t count) {
     // If we pushed something onto the stack and then immediately discarded part of it, we can
     // shrink or eliminate the push.
@@ -661,13 +674,20 @@ static int stack_usage(const Instruction& inst) {
             return 2 * -inst.fImmA;
 
         case BuilderOp::swizzle_1:
-            return 1 - inst.fImmA;
+            return 1 - inst.fImmA;  // consumes immA slots and emits a scalar
         case BuilderOp::swizzle_2:
-            return 2 - inst.fImmA;
+            return 2 - inst.fImmA;  // consumes immA slots and emits a 2-slot vector
         case BuilderOp::swizzle_3:
-            return 3 - inst.fImmA;
+            return 3 - inst.fImmA;  // consumes immA slots and emits a 3-slot vector
         case BuilderOp::swizzle_4:
-            return 4 - inst.fImmA;
+            return 4 - inst.fImmA;  // consumes immA slots and emits a 4-slot vector
+
+        case BuilderOp::dot_2_floats:
+            return -3;  // consumes two 2-slot vectors and emits one scalar
+        case BuilderOp::dot_3_floats:
+            return -5;  // consumes two 3-slot vectors and emits one scalar
+        case BuilderOp::dot_4_floats:
+            return -7;  // consumes two 4-slot vectors and emits one scalar
 
         case BuilderOp::shuffle: {
             int consumed = inst.fImmA >> 16;
@@ -1145,6 +1165,13 @@ void Program::makeStages(SkTArray<Stage>* pipeline,
                                              SlotA(), inst.fImmA);
                 break;
 
+            case BuilderOp::dot_2_floats:
+            case BuilderOp::dot_3_floats:
+            case BuilderOp::dot_4_floats: {
+                float* dst = tempStackPtr - (inst.fImmA * 2 * N);
+                pipeline->push_back({(ProgramOp)inst.fOp, dst});
+                break;
+            }
             case BuilderOp::swizzle_1:
             case BuilderOp::swizzle_2:
             case BuilderOp::swizzle_3:
@@ -1690,6 +1717,21 @@ void Program::dump(SkWStream* out) const {
                 std::tie(opArg1, opArg2) = SwizzleCtx(stage.op, stage.ctx);
                 break;
 
+            case POp::dot_2_floats:
+                opArg1 = PtrCtx(stage.ctx, 1);
+                std::tie(opArg2, opArg3) = AdjacentPtrCtx(stage.ctx, 2);
+                break;
+
+            case POp::dot_3_floats:
+                opArg1 = PtrCtx(stage.ctx, 1);
+                std::tie(opArg2, opArg3) = AdjacentPtrCtx(stage.ctx, 3);
+                break;
+
+            case POp::dot_4_floats:
+                opArg1 = PtrCtx(stage.ctx, 1);
+                std::tie(opArg2, opArg3) = AdjacentPtrCtx(stage.ctx, 4);
+                break;
+
             case POp::shuffle:
                 std::tie(opArg1, opArg2) = ShuffleCtx(stage.ctx);
                 break;
@@ -2118,6 +2160,12 @@ void Program::dump(SkWStream* out) const {
 
             case POp::cos_float:
                 opText = opArg1 + " = cos(" + opArg1 + ")";
+                break;
+
+            case POp::dot_2_floats:
+            case POp::dot_3_floats:
+            case POp::dot_4_floats:
+                opText = opArg1 + " = dot(" + opArg2 + ", " + opArg3 + ")";
                 break;
 
             case POp::exp_float:

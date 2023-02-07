@@ -1327,9 +1327,7 @@ bool Generator::pushMatrixMultiply(LValue* lvalue,
             // allows us to clone a column at once instead of cloning each slot individually.)
             this->pushCloneFromNextTempStack(leftColumns, leftMtxBase  - r * leftColumns);
             this->pushCloneFromNextTempStack(leftColumns, rightMtxBase - c * leftColumns);
-
-            fBuilder.binary_op(BuilderOp::mul_n_floats, leftColumns);
-            this->foldWithMultiOp(BuilderOp::add_n_floats, leftColumns);
+            fBuilder.dot_floats(leftColumns);
         }
     }
 
@@ -1940,8 +1938,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             // Implement length as `sqrt(dot(x, x))`.
             if (arg0.type().slotCount() > 1) {
                 fBuilder.push_clone(arg0.type().slotCount());
-                fBuilder.binary_op(BuilderOp::mul_n_floats, arg0.type().slotCount());
-                this->foldWithMultiOp(BuilderOp::add_n_floats, arg0.type().slotCount());
+                fBuilder.dot_floats(arg0.type().slotCount());
                 fBuilder.unary_op(BuilderOp::sqrt_float, 1);
             } else {
                 // The length of a scalar is `sqrt(x^2)`, which is equivalent to `abs(x)`.
@@ -2090,8 +2087,7 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
                 return unsupported();
             }
-            fBuilder.binary_op(BuilderOp::mul_n_floats, arg0.type().slotCount());
-            this->foldWithMultiOp(BuilderOp::add_n_floats, arg0.type().slotCount());
+            fBuilder.dot_floats(arg0.type().slotCount());
             return true;
 
         case IntrinsicKind::k_equal_IntrinsicKind:
