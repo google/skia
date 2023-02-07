@@ -8,11 +8,13 @@
 #ifndef skgpu_graphite_DawnResourceProvider_DEFINED
 #define skgpu_graphite_DawnResourceProvider_DEFINED
 
+#include "src/core/SkTHash.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 
 namespace skgpu::graphite {
 
 class DawnSharedContext;
+class DawnTexture;
 
 class DawnResourceProvider final : public ResourceProvider {
 public:
@@ -20,6 +22,11 @@ public:
     ~DawnResourceProvider() override;
 
     sk_sp<Texture> createWrappedTexture(const BackendTexture&) override;
+
+    sk_sp<DawnTexture> findOrCreateDiscardableMSAALoadTexture(SkISize dimensions,
+                                                              const TextureInfo& msaaInfo);
+
+    wgpu::RenderPipeline findOrCreateBlitWithDrawPipeline(const RenderPassDesc& renderPassDesc);
 
 private:
     sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
@@ -38,6 +45,8 @@ private:
     void onDeleteBackendTexture(BackendTexture&) override;
 
     const DawnSharedContext* dawnSharedContext() const;
+
+    SkTHashMap<uint64_t, wgpu::RenderPipeline> fBlitWithDrawPipelines;
 };
 
 } // namespace skgpu::graphite

@@ -25,13 +25,14 @@ class DawnTexture;
 
 class DawnCommandBuffer final : public CommandBuffer {
 public:
-    static std::unique_ptr<DawnCommandBuffer> Make(const DawnSharedContext* d);
+    static std::unique_ptr<DawnCommandBuffer> Make(const DawnSharedContext*, DawnResourceProvider*);
     ~DawnCommandBuffer() override;
 
     wgpu::CommandBuffer finishEncoding();
 
 private:
-    DawnCommandBuffer(const DawnSharedContext* sharedContext);
+    DawnCommandBuffer(const DawnSharedContext* sharedContext,
+                      DawnResourceProvider* resourceProvider);
 
     void onResetCommandBuffer() override;
     bool setNewCommandBufferResources() override;
@@ -51,6 +52,14 @@ private:
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture);
+    bool loadMSAAFromResolveAndBeginRenderPassEncoder(
+            const RenderPassDesc& frontendRenderPassDesc,
+            const wgpu::RenderPassDescriptor& wgpuRenderPassDesc,
+            const DawnTexture* msaaTexture);
+    bool doBlitWithDraw(const RenderPassDesc& frontendRenderPassDesc,
+                        const wgpu::TextureView& sourceTextureView,
+                        int width,
+                        int height);
     void endRenderPass();
 
     void addDrawPass(const DrawPass*);
@@ -132,6 +141,7 @@ private:
 
     const DawnGraphicsPipeline* fActiveGraphicsPipeline = nullptr;
     const DawnSharedContext* fSharedContext;
+    DawnResourceProvider* fResourceProvider;
 };
 
 }  // namespace skgpu::graphite

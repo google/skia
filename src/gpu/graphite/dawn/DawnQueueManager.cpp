@@ -47,7 +47,8 @@ const DawnSharedContext* DawnQueueManager::dawnSharedContext() const {
 
 std::unique_ptr<CommandBuffer> DawnQueueManager::getNewCommandBuffer(
         ResourceProvider* resourceProvider) {
-    return DawnCommandBuffer::Make(dawnSharedContext());
+    return DawnCommandBuffer::Make(dawnSharedContext(),
+                                   static_cast<DawnResourceProvider*>(resourceProvider));
 }
 
 QueueManager::OutstandingSubmission DawnQueueManager::onSubmitToGpu() {

@@ -327,24 +327,22 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
     SkASSERT(depthStencilSettings.fDepthTestEnabled ||
              depthStencilSettings.fDepthCompareOp == CompareOp::kAlways);
     wgpu::DepthStencilState depthStencil;
-    wgpu::TextureFormat dsFormat =
-            renderPassDesc.fDepthStencilAttachment.fTextureInfo.dawnTextureSpec().fFormat;
-    depthStencil.format = DawnFormatIsDepthOrStencil(dsFormat) ? dsFormat
-                                                               : wgpu::TextureFormat::Undefined;
-    if (depthStencilSettings.fDepthTestEnabled) {
-        depthStencil.depthWriteEnabled = depthStencilSettings.fDepthWriteEnabled;
-    }
-    depthStencil.depthCompare = compare_op_to_dawn(depthStencilSettings.fDepthCompareOp);
-    depthStencil.stencilFront = stencil_face_to_dawn(depthStencilSettings.fFrontStencil);
-    depthStencil.stencilBack = stencil_face_to_dawn(depthStencilSettings.fBackStencil);
-    depthStencil.stencilReadMask = depthStencilSettings.fFrontStencil.fReadMask;
-    depthStencil.stencilWriteMask = depthStencilSettings.fFrontStencil.fWriteMask;
-    // TODO: figure out how to set below fields properly
-    // depthStencil.depthBias = 0;
-    // depthStencil.depthBiasSlopeScale = 0.0f;
-    // depthStencil.depthBiasClamp = 0.0f;
+    if (renderPassDesc.fDepthStencilAttachment.fTextureInfo.isValid()) {
+        wgpu::TextureFormat dsFormat =
+                renderPassDesc.fDepthStencilAttachment.fTextureInfo.dawnTextureSpec().fFormat;
+        depthStencil.format =
+                DawnFormatIsDepthOrStencil(dsFormat) ? dsFormat : wgpu::TextureFormat::Undefined;
+        if (depthStencilSettings.fDepthTestEnabled) {
+            depthStencil.depthWriteEnabled = depthStencilSettings.fDepthWriteEnabled;
+        }
+        depthStencil.depthCompare = compare_op_to_dawn(depthStencilSettings.fDepthCompareOp);
+        depthStencil.stencilFront = stencil_face_to_dawn(depthStencilSettings.fFrontStencil);
+        depthStencil.stencilBack = stencil_face_to_dawn(depthStencilSettings.fBackStencil);
+        depthStencil.stencilReadMask = depthStencilSettings.fFrontStencil.fReadMask;
+        depthStencil.stencilWriteMask = depthStencilSettings.fFrontStencil.fWriteMask;
 
-    descriptor.depthStencil = &depthStencil;
+        descriptor.depthStencil = &depthStencil;
+    }
 
     // Pipeline layout
     {
