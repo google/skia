@@ -528,7 +528,6 @@ BASE_SRCS_ALL = [
     "src/core/SkMatrixInvert.cpp",
     "src/core/SkMatrixInvert.h",
     "src/core/SkMatrixPriv.h",
-    "src/core/SkMatrixProvider.h",
     "src/core/SkMatrixUtils.h",
     "src/core/SkMesh.cpp",
     "src/core/SkMeshPriv.h",
