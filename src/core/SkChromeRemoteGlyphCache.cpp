@@ -160,7 +160,7 @@ struct StrikeSpec {
 };
 
 // -- RemoteStrike ----------------------------------------------------------------------------
-class RemoteStrike final : public sktext::StrikeForGPU {
+class RemoteStrike final : public SkRefCnt, public sktext::StrikeForGPU {
 public:
     // N.B. RemoteStrike is not valid until ensureScalerContext is called.
     RemoteStrike(const SkStrikeSpec& strikeSpec,
@@ -514,7 +514,7 @@ private:
     };
 
     using DescToRemoteStrike =
-    std::unordered_map<const SkDescriptor*, std::unique_ptr<RemoteStrike>, MapOps, MapOps>;
+    std::unordered_map<const SkDescriptor*, sk_sp<RemoteStrike>, MapOps, MapOps>;
     DescToRemoteStrike fDescToRemoteStrike;
 
     SkStrikeServer::DiscardableHandleManager* const fDiscardableHandleManager;
@@ -676,7 +676,7 @@ RemoteStrike* SkStrikeServerImpl::getOrCreateCache(const SkStrikeSpec& strikeSpe
 
     auto context = strikeSpec.createScalerContext();
     auto newHandle = fDiscardableHandleManager->createHandle();  // Locked on creation
-    auto remoteStrike = std::make_unique<RemoteStrike>(strikeSpec, std::move(context), newHandle);
+    auto remoteStrike = sk_make_sp<RemoteStrike>(strikeSpec, std::move(context), newHandle);
     remoteStrike->setStrikeSpec(strikeSpec);
     auto remoteStrikePtr = remoteStrike.get();
     fRemoteStrikesToSend.add(remoteStrikePtr);
