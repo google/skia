@@ -103,49 +103,6 @@ static void test(skiatest::Reporter* r,
     }
 }
 
-DEF_TEST(SkSLRasterPipelineCodeGeneratorPassthroughTest, r) {
-    test(r,
-         R"__SkSL__(
-             half4 main(half4 startingColor) {
-                 return startingColor;
-             }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{1.0f, 1.0f, 0.0f, 1.0f},
-         /*expectedResult=*/SkColor4f{1.0f, 1.0f, 0.0f, 1.0f});
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorVariableGreenTest, r) {
-    // Add in your SkSL here.
-    test(r,
-         R"__SkSL__(
-             half4 main(half4) {
-                 half2 zeroOne = half2(0, 1);
-                 half one = zeroOne.y, zero = zeroOne.x;
-                 return half4(zero, zeroOne.yx, one);
-             }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
-         /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorAdditionTest, r) {
-    // Add in your SkSL here.
-    test(r,
-         R"__SkSL__(
-             half4 main(half4 y) {
-                 half4 x = half4(-1, 0, 1, 0);
-                 half4 z = x.wzyx;
-                 z += y.000w;
-                 return y + z;
-             }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 1.0},
-         /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
-}
-
 DEF_TEST(SkSLRasterPipelineCodeGeneratorIfElseTest, r) {
     // Add in your SkSL here.
     test(r,
@@ -255,34 +212,6 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorNestedTernaryTest, r) {
          /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.499f, 0.499f, 0.499f, 0.499f});
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorDoWhileTest, r) {
-    // This is based on shared/DoWhileControlFlow.sksl (but avoids swizzles).
-    test(r,
-         R"__SkSL__(
-            half r = 1.0, g = 1.0, b = 1.0;
-            half4 main(half4) {
-                half a = 1.0;
-                // Verify that break is allowed in a do-while loop.
-                do {
-                    r -= 0.25;
-                    if (r <= 0) break;
-                } while (a == 1.0);
-
-                // Verify that continue is allowed in a do-while loop.
-                do {
-                    b -= 0.25;
-                    if (a == 1) continue; // should always happen
-                    g = 0;
-                } while (b > 0.0);
-
-                return half4(r, g, b, a);
-            }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
-         /*expectedResult=*/SkColor4f{0.0f, 1.0f, 0.0f, 1.0f});
 }
 
 DEF_TEST(SkSLRasterPipelineCodeGeneratorArithmeticTest, r) {
@@ -474,69 +403,6 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorIdentitySwizzle, r) {
 
 }
 
-DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaTernaryTest, r) {
-    test(r,
-         R"__SkSL__(
-            half4 main(vec4 color) {
-                half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
-
-                half scale = luma < 0.33333 ? 0.5
-                           : luma < 0.66666 ? (0.166666 + 2.0 * (luma - 0.33333)) / luma
-                           :   /* else */     (0.833333 + 0.5 * (luma - 0.66666)) / luma;
-                return half4(color.rgb * scale, color.a);
-            }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.25, 0.00, 0.75, 1.0},
-         /*expectedResult=*/SkColor4f{0.125, 0.0, 0.375, 1.0});
-
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaIfNoEarlyReturnTest, r) {
-    test(r,
-         R"__SkSL__(
-            half4 main(vec4 color) {
-                half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
-
-                half scale = 0;
-                if (luma < 0.33333) {
-                    scale = 0.5;
-                } else if (luma < 0.66666) {
-                    scale = (0.166666 + 2.0 * (luma - 0.33333)) / luma;
-                } else {
-                    scale = (0.833333 + 0.5 * (luma - 0.66666)) / luma;
-                }
-                return half4(color.rgb * scale, color.a);
-            }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.25, 0.00, 0.75, 1.0},
-         /*expectedResult=*/SkColor4f{0.125, 0.0, 0.375, 1.0});
-
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorLumaWithEarlyReturnTest, r) {
-    test(r,
-         R"__SkSL__(
-            half4 main(half4 color) {
-                half luma = dot(color.rgb, half3(0.3, 0.6, 0.1));
-
-                half scale = 0;
-                if (luma < 0.33333) {
-                    return half4(color.rgb * 0.5, color.a);
-                } else if (luma < 0.66666) {
-                    scale = 0.166666 + 2.0 * (luma - 0.33333);
-                } else {
-                    scale = 0.833333 + 0.5 * (luma - 0.66666);
-                }
-                return half4(color.rgb * (scale/luma), color.a);
-            }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.25, 0.00, 0.75, 1.0},
-         /*expectedResult=*/SkColor4f{0.125, 0.0, 0.375, 1.0});
-}
-
 DEF_TEST(SkSLRasterPipelineCodeGeneratorBitwiseNotTest, r) {
     static constexpr int32_t kUniforms[] = { 0,  12,  3456,  4567890,
                                             ~0, ~12, ~3456, ~4567890};
@@ -603,21 +469,4 @@ DEF_TEST(SkSLRasterPipelineCodeGeneratorComparisonIntrinsicTest, r) {
          /*uniforms=*/{},
          /*startingColor=*/SkColor4f{0.0, 0.0, 0.0, 0.0},
          /*expectedResult=*/SkColor4f{0.0, 1.0, 0.0, 1.0});
-}
-
-DEF_TEST(SkSLRasterPipelineCodeGeneratorUnpremulTest, r) {
-    test(r,
-         R"__SkSL__(
-            // This is `unpremul` verbatim from sksl_shared, but marked noinline.
-            noinline half4 MyUnpremul(half4 color) {
-                return half4(color.rgb / max(color.a, 0.0001), color.a);
-            }
-
-            half4 main(vec4 color) {
-                return MyUnpremul(color);
-            }
-         )__SkSL__",
-         /*uniforms=*/{},
-         /*startingColor=*/SkColor4f{0.5, 0.25, 0.125, 0.5},
-         /*expectedResult=*/SkColor4f{1.0, 0.5, 0.25, 0.5});
 }
