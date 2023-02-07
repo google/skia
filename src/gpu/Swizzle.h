@@ -144,8 +144,8 @@ constexpr char Swizzle::IToC(int idx) {
 
 constexpr Swizzle Swizzle::Concat(const Swizzle& a, const Swizzle& b) {
     uint16_t key = 0;
-    for (int i = 0; i < 4; ++i) {
-        int idx = (b.fKey >> (4 * i)) & 0xfU;
+    for (unsigned i = 0; i < 4; ++i) {
+        int idx = (b.fKey >> (4U * i)) & 0xfU;
         if (idx != CToI('0') && idx != CToI('1')) {
             SkASSERT(idx >= 0 && idx < 4);
             // Get the index value stored in a at location idx.
