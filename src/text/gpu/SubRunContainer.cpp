@@ -2318,7 +2318,7 @@ SkScalar find_maximum_glyph_dimension(StrikeForGPU* strike, SkSpan<const SkGlyph
     StrikeMutationMonitor m{strike};
     SkScalar maxDimension = 0;
     for (SkGlyphID glyphID : glyphs) {
-        SkGlyphDigest digest = strike->maskDigest(glyphID);
+        SkGlyphDigest digest = strike->digestFor(kMask, SkPackedGlyphID{glyphID});
         maxDimension = std::max(static_cast<SkScalar>(digest.maxDimension()), maxDimension);
     }
 
@@ -2333,13 +2333,12 @@ SkRect prepare_for_SDFT_drawing(StrikeForGPU* strike,
     SkGlyphRect boundingRect = skglyph::empty_rect();
     StrikeMutationMonitor m{strike};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
-        SkGlyphID glyphID = packedID.packedID().glyphID();
         if (!SkScalarsAreFinite(pos.x(), pos.y())) {
             continue;
         }
 
-        SkGlyphDigest digest = strike->sdftDigest(glyphID);
-        switch (digest.SDFTAction()) {
+        SkGlyphDigest digest = strike->digestFor(kSDFT, packedID);
+        switch (digest.actionFor(kSDFT)) {
             case GlyphAction::kAccept: {
                 SkPoint mappedPos = creationMatrix.mapPoint(pos);
                 const SkGlyphRect glyphBounds =
@@ -2349,8 +2348,7 @@ SkRect prepare_for_SDFT_drawing(StrikeForGPU* strike,
                         .inset(SK_DistanceFieldInset, SK_DistanceFieldInset)
                         .offset(mappedPos);
                 boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                accepted->accept(
-                        SkPackedGlyphID{glyphID}, glyphBounds.leftTop(), digest.maskFormat());
+                accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
                 break;
             }
             case GlyphAction::kReject:
@@ -2387,8 +2385,8 @@ SkRect prepare_for_direct_mask_drawing(StrikeForGPU* strike,
         const SkPoint mappedPos = positionMatrixWithRounding.mapPoint(pos);
         const SkGlyphID glyphID = notSubPixelGlyphID.packedID().glyphID();
         const SkPackedGlyphID packedGlyphID = SkPackedGlyphID{glyphID, mappedPos, mask};
-        auto digest = strike->directMaskDigest(packedGlyphID);
-        switch (digest.directMaskAction()) {
+        auto digest = strike->digestFor(kDirectMask, packedGlyphID);
+        switch (digest.actionFor(kDirectMask)) {
             case GlyphAction::kAccept: {
                 const SkPoint roundedPos{SkScalarFloorToScalar(mappedPos.x()),
                                          SkScalarFloorToScalar(mappedPos.y())};
@@ -2419,15 +2417,13 @@ SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
             continue;
         }
 
-        const SkGlyphID glyphID = packedID.packedID().glyphID();
-        const SkGlyphDigest digest = strike->maskDigest(glyphID);
-        switch (digest.maskAction()) {
+        const SkGlyphDigest digest = strike->digestFor(kMask, packedID);
+        switch (digest.actionFor(kMask)) {
             case GlyphAction::kAccept: {
                 const SkPoint mappedPos = creationMatrix.mapPoint(pos);
                 const SkGlyphRect glyphBounds = digest.bounds().offset(mappedPos);
                 boundingRect = skglyph::rect_union(boundingRect, glyphBounds);
-                accepted->accept(
-                        SkPackedGlyphID{glyphID}, glyphBounds.leftTop(), digest.maskFormat());
+                accepted->accept(packedID, glyphBounds.leftTop(), digest.maskFormat());
                 break;
             }
             case GlyphAction::kReject:
@@ -2447,7 +2443,7 @@ void prepare_for_path_drawing(StrikeForGPU* strike,
     StrikeMutationMonitor m{strike};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            switch (strike->pathDigest(packedID.packedID().glyphID()).pathAction()) {
+            switch (strike->digestFor(kPath, packedID).actionFor(kPath)) {
                 case GlyphAction::kAccept:
                     accepted->accept(packedID, pos);
                     break;
@@ -2467,7 +2463,7 @@ void prepare_for_drawable_drawing(StrikeForGPU* strike,
     StrikeMutationMonitor m{strike};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            switch (strike->drawableDigest(packedID.packedID().glyphID()).drawableAction()) {
+            switch (strike->digestFor(kDrawable, packedID).actionFor(kDrawable)) {
                 case GlyphAction::kAccept:
                     accepted->accept(packedID, pos);
                     break;

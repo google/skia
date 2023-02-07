@@ -432,7 +432,7 @@ void SkGlyphDigest::setActionFor(skglyph::ActionType actionType,
                                  SkScalerContext* context,
                                  SkArenaAlloc* alloc) {
     // We don't have to do any more if the glyph is marked as kDrop because it was isEmpty().
-    if (this->action(actionType) == GlyphAction::kUnset) {
+    if (this->actionFor(actionType) == GlyphAction::kUnset) {
         GlyphAction action = GlyphAction::kReject;
         switch (actionType) {
             case kPath: {

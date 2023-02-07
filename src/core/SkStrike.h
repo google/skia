@@ -48,11 +48,7 @@ public:
 
     void lock() override SK_ACQUIRE(fStrikeLock);
     void unlock() override SK_RELEASE_CAPABILITY(fStrikeLock);
-    SkGlyphDigest pathDigest(SkGlyphID) override SK_REQUIRES(fStrikeLock);
-    SkGlyphDigest drawableDigest(SkGlyphID) override SK_REQUIRES(fStrikeLock);
-    SkGlyphDigest directMaskDigest(SkPackedGlyphID) override SK_REQUIRES(fStrikeLock);
-    SkGlyphDigest sdftDigest(SkGlyphID) override SK_REQUIRES(fStrikeLock);
-    SkGlyphDigest maskDigest(SkGlyphID) override SK_REQUIRES(fStrikeLock);
+    SkGlyphDigest digestFor(skglyph::ActionType, SkPackedGlyphID) override SK_REQUIRES(fStrikeLock);
 
     // Lookup (or create if needed) the returned glyph using toID. If that glyph is not initialized
     // with an image, then use the information in fromGlyph to initialize the width, height top,
@@ -132,8 +128,6 @@ private:
     // Return a glyph. Create it if it doesn't exist, and initialize the glyph with metrics and
     // advances using a scaler.
     SkGlyph* glyph(SkPackedGlyphID) SK_REQUIRES(fStrikeLock);
-
-    SkGlyphDigest* digestPtr(SkPackedGlyphID, skglyph::ActionType) SK_REQUIRES(fStrikeLock);
 
     // Generate the glyph digest information and update structures to add the glyph.
     SkGlyphDigest* addGlyphAndDigest(SkGlyph* glyph) SK_REQUIRES(fStrikeLock);

@@ -38,6 +38,7 @@
 #include <memory>
 
 using namespace sktext;
+using namespace skglyph;
 
 class Barrier {
 public:
@@ -59,7 +60,7 @@ static SkRect prepare_for_mask_drawing(StrikeForGPU* strike,
     StrikeMutationMonitor m{strike};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyphDigest digest = strike->directMaskDigest(packedID);
+            SkGlyphDigest digest = strike->digestFor(kDirectMask, packedID);
             if (!digest.isEmpty()) {
                 if (digest.fitsInAtlasDirect()) {
                     const SkGlyphRect glyphBounds = digest.bounds().offset(pos);

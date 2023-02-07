@@ -176,7 +176,7 @@ void SkStrike::prepareForDrawingMasksCPU(SkDrawableGlyphBuffer* accepted) {
     Monitor m{this};
     for (auto [i, packedID, pos] : SkMakeEnumerate(accepted->input())) {
         if (SkScalarsAreFinite(pos.x(), pos.y())) {
-            SkGlyphDigest digest = this->directMaskDigest(packedID);
+            SkGlyphDigest digest = this->digestFor(kDirectMask, packedID);
             if (!digest.isEmpty()) {
                 // If the glyph is too large, then no image is created.
                 SkGlyph* glyph = fGlyphForIndex[digest.index()];
@@ -254,14 +254,14 @@ void SkStrike::dumpMemoryStatistics(SkTraceMemoryDump* dump) const {
 }
 
 SkGlyph* SkStrike::glyph(SkPackedGlyphID packedGlyphID) {
-    SkGlyphDigest digest = this->directMaskDigest(packedGlyphID);
+    SkGlyphDigest digest = this->digestFor(kDirectMask, packedGlyphID);
     return fGlyphForIndex[digest.index()];
 }
 
-SkGlyphDigest* SkStrike::digestPtr(SkPackedGlyphID packedGlyphID, ActionType actionType) {
+SkGlyphDigest SkStrike::digestFor(ActionType actionType, SkPackedGlyphID packedGlyphID) {
     SkGlyphDigest* digestPtr = fDigestForPackedGlyphID.find(packedGlyphID);
-    if (digestPtr != nullptr && digestPtr->action(actionType) != GlyphAction::kUnset) {
-        return digestPtr;
+    if (digestPtr != nullptr && digestPtr->actionFor(actionType) != GlyphAction::kUnset) {
+        return *digestPtr;
     }
 
     SkGlyph* glyph;
@@ -275,27 +275,7 @@ SkGlyphDigest* SkStrike::digestPtr(SkPackedGlyphID packedGlyphID, ActionType act
 
     digestPtr->setActionFor(actionType, glyph, fScalerContext.get(), &fAlloc);
 
-    return digestPtr;
-}
-
-SkGlyphDigest SkStrike::pathDigest(SkGlyphID glyphID) {
-    return *this->digestPtr(SkPackedGlyphID{glyphID}, kPath);
-}
-
-SkGlyphDigest SkStrike::drawableDigest(SkGlyphID glyphID) {
-    return *this->digestPtr(SkPackedGlyphID{glyphID}, kDrawable);
-}
-
-SkGlyphDigest SkStrike::directMaskDigest(SkPackedGlyphID packedGlyphID) {
-    return *this->digestPtr(packedGlyphID, kDirectMask);
-}
-
-SkGlyphDigest SkStrike::sdftDigest(SkGlyphID glyphID) {
-    return *this->digestPtr(SkPackedGlyphID{glyphID}, kSDFT);
-}
-
-SkGlyphDigest SkStrike::maskDigest(SkGlyphID glyphID) {
-    return *this->digestPtr(SkPackedGlyphID{glyphID}, kMask);
+    return *digestPtr;
 }
 
 SkGlyphDigest* SkStrike::addGlyphAndDigest(SkGlyph* glyph) {

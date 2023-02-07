@@ -75,11 +75,7 @@ public:
     virtual void lock() = 0;
     virtual void unlock() = 0;
 
-    virtual SkGlyphDigest pathDigest(SkGlyphID) = 0;
-    virtual SkGlyphDigest drawableDigest(SkGlyphID) = 0;
-    virtual SkGlyphDigest directMaskDigest(SkPackedGlyphID) = 0;
-    virtual SkGlyphDigest sdftDigest(SkGlyphID) = 0;
-    virtual SkGlyphDigest maskDigest(SkGlyphID) = 0;
+    virtual SkGlyphDigest digestFor(skglyph::ActionType, SkPackedGlyphID) = 0;
 
     virtual const SkDescriptor& getDescriptor() const = 0;
 

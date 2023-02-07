@@ -171,11 +171,7 @@ public:
 
     void lock() override {}
     void unlock() override {}
-    SkGlyphDigest pathDigest(SkGlyphID) override;
-    SkGlyphDigest drawableDigest(SkGlyphID) override;
-    SkGlyphDigest directMaskDigest(SkPackedGlyphID) override;
-    SkGlyphDigest sdftDigest(SkGlyphID) override;
-    SkGlyphDigest maskDigest(SkGlyphID) override;
+    SkGlyphDigest digestFor(skglyph::ActionType, SkPackedGlyphID) override;
 
     void writePendingGlyphs(Serializer* serializer);
     SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
@@ -363,10 +359,10 @@ void RemoteStrike::writeGlyphDrawable(const SkGlyph& glyph, Serializer* serializ
     memcpy(serializer->allocate(data->size(), kDrawableAlignment), data->data(), data->size());
 }
 
-SkGlyphDigest* RemoteStrike::digestPtr(SkPackedGlyphID packedGlyphID, ActionType actionType) {
+SkGlyphDigest RemoteStrike::digestFor(ActionType actionType, SkPackedGlyphID packedGlyphID) {
     SkGlyphDigest* digestPtr = fSentGlyphs.find(packedGlyphID);
-    if (digestPtr != nullptr && digestPtr->action(actionType) != GlyphAction::kUnset) {
-        return digestPtr;
+    if (digestPtr != nullptr && digestPtr->actionFor(actionType) != GlyphAction::kUnset) {
+        return *digestPtr;
     }
 
     SkGlyph* glyph;
@@ -395,27 +391,7 @@ SkGlyphDigest* RemoteStrike::digestPtr(SkPackedGlyphID packedGlyphID, ActionType
 
     digestPtr->setActionFor(actionType, glyph, fContext.get(), &fAlloc);
 
-    return digestPtr;
-}
-
-SkGlyphDigest RemoteStrike::pathDigest(SkGlyphID glyphID) {
-    return *this->digestPtr(SkPackedGlyphID{glyphID}, kPath);
-}
-
-SkGlyphDigest RemoteStrike::drawableDigest(SkGlyphID glyphID) {
-    return *this->digestPtr(SkPackedGlyphID{glyphID}, kDrawable);
-}
-
-SkGlyphDigest RemoteStrike::directMaskDigest(SkPackedGlyphID packedGlyphID) {
-    return *this->digestPtr(packedGlyphID, kDirectMask);
-}
-
-SkGlyphDigest RemoteStrike::sdftDigest(SkGlyphID glyphID) {
-    return *this->digestPtr(SkPackedGlyphID{glyphID}, kSDFT);
-}
-
-SkGlyphDigest RemoteStrike::maskDigest(SkGlyphID glyphID) {
-    return *this->digestPtr(SkPackedGlyphID{glyphID}, kMask);
+    return *digestPtr;
 }
 
 sktext::SkStrikePromise RemoteStrike::strikePromise() {
