@@ -3517,6 +3517,7 @@ STAGE_TAIL(cos_float, F* dst)  { *dst = cos_(*dst); }
 STAGE_TAIL(tan_float, F* dst)  { *dst = tan_(*dst); }
 STAGE_TAIL(atan_float, F* dst) { *dst = atan_(*dst); }
 STAGE_TAIL(sqrt_float, F* dst) { *dst = sqrt_(*dst); }
+STAGE_TAIL(exp_float, F* dst)  { *dst = approx_exp(*dst); }
 
 // Binary operations take two adjacent inputs, and write their output in the first position.
 template <typename T, void (*ApplyFn)(T*, T*)>
@@ -3603,6 +3604,10 @@ SI void atan2_fn(F* dst, F* src) {
     *dst = atan2_(*dst, *src);
 }
 
+SI void pow_fn(F* dst, F* src) {
+    *dst = approx_powf(*dst, *src);
+}
+
 #define DECLARE_N_WAY_BINARY_FLOAT(name)                                  \
     STAGE_TAIL(name##_n_floats, SkRasterPipeline_BinaryOpCtx* ctx) {      \
         apply_adjacent_binary<F, &name##_fn>((F*)ctx->dst, (F*)ctx->src); \
@@ -3658,6 +3663,7 @@ DECLARE_BINARY_FLOAT(cmpne)  DECLARE_BINARY_INT(cmpne)
 // Sufficiently complex ops only provide an N-way version, to avoid code bloat from the dedicated
 // 1-4 slot versions.
 DECLARE_N_WAY_BINARY_FLOAT(atan2)
+DECLARE_N_WAY_BINARY_FLOAT(pow)
 
 #undef DECLARE_BINARY_FLOAT
 #undef DECLARE_BINARY_INT

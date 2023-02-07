@@ -39,6 +39,7 @@ namespace RP {
 #define ALL_SINGLE_SLOT_UNARY_OP_CASES  \
          BuilderOp::atan_float:         \
     case BuilderOp::cos_float:          \
+    case BuilderOp::exp_float:          \
     case BuilderOp::sin_float:          \
     case BuilderOp::sqrt_float:         \
     case BuilderOp::tan_float
@@ -54,8 +55,9 @@ namespace RP {
     case BuilderOp::ceil_float:              \
     case BuilderOp::floor_float              \
 
-#define ALL_N_WAY_BINARY_OP_CASES  \
-         BuilderOp::atan2_n_floats
+#define ALL_N_WAY_BINARY_OP_CASES   \
+         BuilderOp::atan2_n_floats: \
+    case BuilderOp::pow_n_floats
 
 #define ALL_MULTI_SLOT_BINARY_OP_CASES  \
          BuilderOp::add_n_floats:       \
@@ -1655,6 +1657,7 @@ void Program::dump(SkWStream* out) const {
             case POp::atan_float:
             case POp::ceil_float:
             case POp::cos_float:
+            case POp::exp_float:
             case POp::floor_float:
             case POp::sin_float:
             case POp::sqrt_float:
@@ -1828,6 +1831,7 @@ void Program::dump(SkWStream* out) const {
             case POp::cmpeq_n_floats: case POp::cmpeq_n_ints:
             case POp::cmpne_n_floats: case POp::cmpne_n_ints:
             case POp::atan2_n_floats:
+            case POp::pow_n_floats:
                 std::tie(opArg1, opArg2) = AdjacentBinaryOpCtx(stage.ctx);
                 break;
 
@@ -2053,6 +2057,14 @@ void Program::dump(SkWStream* out) const {
 
             case POp::cos_float:
                 opText = opArg1 + " = cos(" + opArg1 + ")";
+                break;
+
+            case POp::exp_float:
+                opText = opArg1 + " = exp(" + opArg1 + ")";
+                break;
+
+            case POp::pow_n_floats:
+                opText = opArg1 + " = pow(" + opArg1 + ", " + opArg2 + ")";
                 break;
 
             case POp::sin_float:

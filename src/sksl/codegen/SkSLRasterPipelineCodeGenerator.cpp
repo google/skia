@@ -1910,6 +1910,14 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic, const Expression& arg0) {
             }
             return true;
 
+
+        case IntrinsicKind::k_exp_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
+                return unsupported();
+            }
+            fBuilder.unary_op(BuilderOp::exp_float, arg0.type().slotCount());
+            return true;
+
         case IntrinsicKind::k_floor_IntrinsicKind:
             if (!this->pushExpression(arg0)) {
                 return unsupported();
@@ -2140,6 +2148,13 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             }
             return this->binaryOp(arg0.type(), kMinOps);
 
+        case IntrinsicKind::k_matrixCompMult_IntrinsicKind:
+            SkASSERT(arg0.type().matches(arg1.type()));
+            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
+                return unsupported();
+            }
+            return this->binaryOp(arg0.type(), kMultiplyOps);
+
         case IntrinsicKind::k_max_IntrinsicKind:
             SkASSERT(arg0.type().componentType().matches(arg1.type().componentType()));
             if (!this->pushExpression(arg0) || !this->pushVectorizedExpression(arg1, arg0.type())) {
@@ -2147,12 +2162,15 @@ bool Generator::pushIntrinsic(IntrinsicKind intrinsic,
             }
             return this->binaryOp(arg0.type(), kMaxOps);
 
-        case IntrinsicKind::k_matrixCompMult_IntrinsicKind:
-            SkASSERT(arg0.type().matches(arg1.type()));
-            if (!this->pushExpression(arg0) || !this->pushExpression(arg1)) {
+        case IntrinsicKind::k_pow_IntrinsicKind:
+            if (!this->pushExpression(arg0)) {
                 return unsupported();
             }
-            return this->binaryOp(arg0.type(), kMultiplyOps);
+            if (!this->pushExpression(arg1)) {
+                return unsupported();
+            }
+            fBuilder.binary_op(BuilderOp::pow_n_floats, arg0.type().slotCount());
+            return true;
 
         case IntrinsicKind::k_step_IntrinsicKind: {
             // Compute step as `float(lessThan(edge, x))`. We convert from boolean 0/~0 to floating
