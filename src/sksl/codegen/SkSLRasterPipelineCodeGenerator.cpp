@@ -37,6 +37,7 @@
 #include "src/sksl/ir/SkSLDoStatement.h"
 #include "src/sksl/ir/SkSLExpression.h"
 #include "src/sksl/ir/SkSLExpressionStatement.h"
+#include "src/sksl/ir/SkSLFieldAccess.h"
 #include "src/sksl/ir/SkSLForStatement.h"
 #include "src/sksl/ir/SkSLFunctionCall.h"
 #include "src/sksl/ir/SkSLFunctionDeclaration.h"
@@ -498,16 +499,12 @@ public:
         SlotMap in = fParent->getSlotMap(gen);
 
         // Take a subset of the parent's slots.
+        // TODO(skia:13676): support non-constant indices
         int numElements = fIndexedType.slotCount();
+        int startingIndex = numElements * fIndexExpr.as<Literal>().intValue();
 
         SlotMap out;
-        out.slots.resize(numElements);
-        // TODO(skia:13676): support non-constant indices
-        int startingIndex = numElements * fIndexExpr.as<Literal>().intValue();
-        for (int count = 0; count < numElements; ++count) {
-            out.slots[count] = in.slots[startingIndex + count];
-        }
-
+        out.slots.push_back_n(numElements, &in.slots[startingIndex]);
         return out;
     }
 
@@ -520,6 +517,40 @@ public:
     const Type& fIndexedType;
 };
 
+class FieldLValue final : public LValue {
+public:
+    FieldLValue(std::unique_ptr<LValue> p, const FieldAccess& fieldAccess)
+            : fParent(std::move(p)) {
+        // Calculate the slot range of this field in the parent.
+        SkSpan<const Type::Field> fields = fieldAccess.base()->type().fields();
+        const int fieldIndex = fieldAccess.fieldIndex();
+
+        fInitialSlot = 0;
+        for (int index = 0; index < fieldIndex; ++index) {
+            fInitialSlot += fields[index].fType->slotCount();
+        }
+        fNumSlots = fields[fieldIndex].fType->slotCount();
+    }
+
+    SlotMap getSlotMap(Generator* gen) const override {
+        // Get the slot map from the base expression.
+        SlotMap in = fParent->getSlotMap(gen);
+
+        // Take a subset of the parent's slots.
+        SlotMap out;
+        out.slots.push_back_n(fNumSlots, &in.slots[fInitialSlot]);
+        return out;
+    }
+
+    bool isUniform() const override {
+        return fParent->isUniform();
+    }
+
+    std::unique_ptr<LValue> fParent;
+    int fInitialSlot = 0;
+    int fNumSlots = 0;
+};
+
 std::unique_ptr<LValue> LValue::Make(const Expression& e) {
     if (e.is<VariableReference>()) {
         return std::make_unique<VariableLValue>(e.as<VariableReference>().variable());
@@ -527,6 +558,11 @@ std::unique_ptr<LValue> LValue::Make(const Expression& e) {
     if (e.is<Swizzle>()) {
         if (std::unique_ptr<LValue> base = LValue::Make(*e.as<Swizzle>().base())) {
             return std::make_unique<SwizzleLValue>(std::move(base), e.as<Swizzle>().components());
+        }
+    }
+    if (e.is<FieldAccess>()) {
+        if (std::unique_ptr<LValue> base = LValue::Make(*e.as<FieldAccess>().base())) {
+            return std::make_unique<FieldLValue>(std::move(base), e.as<FieldAccess>());
         }
     }
     if (e.is<IndexExpression>()) {
@@ -1226,11 +1262,11 @@ bool Generator::pushExpression(const Expression& e, bool usesResult) {
 
 BuilderOp Generator::GetTypedOp(const SkSL::Type& type, const TypedOps& ops) {
     switch (type.componentType().numberKind()) {
-        case Type::NumberKind::kFloat:    return ops.fFloatOp;    break;
-        case Type::NumberKind::kSigned:   return ops.fSignedOp;   break;
-        case Type::NumberKind::kUnsigned: return ops.fUnsignedOp; break;
-        case Type::NumberKind::kBoolean:  return ops.fBooleanOp;  break;
-        default:                          SkUNREACHABLE;
+        case Type::NumberKind::kFloat:    return ops.fFloatOp;
+        case Type::NumberKind::kSigned:   return ops.fSignedOp;
+        case Type::NumberKind::kUnsigned: return ops.fUnsignedOp;
+        case Type::NumberKind::kBoolean:  return ops.fBooleanOp;
+        default:                          return BuilderOp::unsupported;
     }
 }
 
